@@ -1,694 +1,460 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262286AbUCAIxe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Mar 2004 03:53:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262291AbUCAIxd
+	id S262291AbUCAI6F (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Mar 2004 03:58:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262288AbUCAI4Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Mar 2004 03:53:33 -0500
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:56209 "EHLO
-	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP id S262286AbUCAIvq
+	Mon, 1 Mar 2004 03:56:25 -0500
+Received: from mtagate2.de.ibm.com ([195.212.29.151]:32202 "EHLO
+	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP id S262287AbUCAIwF
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Mar 2004 03:51:46 -0500
-Date: Mon, 1 Mar 2004 09:51:34 +0100
+	Mon, 1 Mar 2004 03:52:05 -0500
+Date: Mon, 1 Mar 2004 09:51:54 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] s390 (2/5): common i/o layer.
-Message-ID: <20040301085134.GC675@mschwid3.boeblingen.de.ibm.com>
+Subject: [PATCH] s390 (4/5): tape class for s390 tapes.
+Message-ID: <20040301085154.GE675@mschwid3.boeblingen.de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
 User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Common i/o layer fixes:
-  - Remove documentation entry for non-existent cio_notoper_msg parameter.
-  - Add documentation for availability attritube.
-  - Replace function of the steal_lock attribute by "echo force" to the
-    online attribute.
-  - Trigger device sensing in the online function for unknown devices.
-  - Always try to get devices online even if they are marked reserved.
-    Someone could have released the device while it was offline.
-  - Add try_module_get/module_put pairs to the online function of ccw devices
-    and ccwgroup devices.
-  - Add owner field to ccwgroup driver structure. Set owner field in ctc, lcs
-    and qeth.
-  - Fix alignment problems in channel measurement block interface.
+s390 tape device driver changes:
+ - Add private tape class to support udev configuration.
 
 diffstat:
- Documentation/s390/CommonIO         |    9 --
- Documentation/s390/driver-model.txt |    3 
- drivers/s390/block/dasd_eckd.c      |    4 -
- drivers/s390/cio/ccwgroup.c         |   16 +++-
- drivers/s390/cio/cmf.c              |   34 ++++++---
- drivers/s390/cio/css.h              |    1 
- drivers/s390/cio/device.c           |  124 ++++++++++++------------------------
- drivers/s390/cio/device.h           |    1 
- drivers/s390/cio/device_fsm.c       |   36 +++-------
- drivers/s390/cio/device_ops.c       |    4 +
- drivers/s390/net/ctcmain.c          |    7 +-
- drivers/s390/net/lcs.c              |    5 -
- drivers/s390/net/qeth.c             |    1 
- include/asm-s390/ccwdev.h           |    2 
- include/asm-s390/ccwgroup.h         |    1 
- 15 files changed, 112 insertions(+), 136 deletions(-)
+ drivers/s390/char/Makefile     |    2 
+ drivers/s390/char/tape.h       |    8 ---
+ drivers/s390/char/tape_block.c |    5 --
+ drivers/s390/char/tape_char.c  |   65 ++++++++++++++++++++------
+ drivers/s390/char/tape_class.c |  100 +++++++++++++++++++++++++++++++++++++++++
+ drivers/s390/char/tape_class.h |   54 ++++++++++++++++++++++
+ drivers/s390/char/tape_core.c  |   66 +--------------------------
+ 7 files changed, 209 insertions(+), 91 deletions(-)
 
-diff -urN linux-2.6/Documentation/s390/CommonIO linux-2.6-s390/Documentation/s390/CommonIO
---- linux-2.6/Documentation/s390/CommonIO	Fri Feb 27 20:04:30 2004
-+++ linux-2.6-s390/Documentation/s390/CommonIO	Fri Feb 27 20:05:02 2004
-@@ -14,15 +14,6 @@
-   Default is off.
+diff -urN linux-2.6/drivers/s390/char/Makefile linux-2.6-s390/drivers/s390/char/Makefile
+--- linux-2.6/drivers/s390/char/Makefile	Wed Feb 18 04:57:48 2004
++++ linux-2.6-s390/drivers/s390/char/Makefile	Fri Feb 27 20:05:04 2004
+@@ -18,6 +18,6 @@
  
+ tape-$(CONFIG_S390_TAPE_BLOCK) += tape_block.o
+ tape-$(CONFIG_PROC_FS) += tape_proc.o
+-tape-objs := tape_core.o tape_std.o tape_char.o $(tape-y)
++tape-objs := tape_core.o tape_std.o tape_char.o tape_class.o $(tape-y)
+ obj-$(CONFIG_S390_TAPE) += tape.o
+ obj-$(CONFIG_S390_TAPE_34XX) += tape_34xx.o
+diff -urN linux-2.6/drivers/s390/char/tape.h linux-2.6-s390/drivers/s390/char/tape.h
+--- linux-2.6/drivers/s390/char/tape.h	Wed Feb 18 04:58:43 2004
++++ linux-2.6-s390/drivers/s390/char/tape.h	Fri Feb 27 20:05:04 2004
+@@ -60,12 +60,6 @@
+ #define TAPEBLOCK_HSEC_S2B	2
+ #define TAPEBLOCK_RETRIES	5
  
--* cio_notoper_msg = yes | no
+-/* Event types for hotplug */
+-#define TAPE_HOTPLUG_CHAR_ADD     1
+-#define TAPE_HOTPLUG_BLOCK_ADD    2
+-#define TAPE_HOTPLUG_CHAR_REMOVE  3
+-#define TAPE_HOTPLUG_BLOCK_REMOVE 4
 -
--  Determines whether messages of the type "Device 0.0.4711 became 'not
--  operational'" should be shown during startup; after startup, they will always
--  be shown.
--  
--  Default is on.
+ enum tape_medium_state {
+ 	MS_UNKNOWN,
+ 	MS_LOADED,
+@@ -205,6 +199,8 @@
+ 	struct list_head		node;
+ 
+ 	struct ccw_device *		cdev;
++	struct cdev *			nt;
++	struct cdev *			rt;
+ 
+ 	/* Device discipline information. */
+ 	struct tape_discipline *	discipline;
+diff -urN linux-2.6/drivers/s390/char/tape_block.c linux-2.6-s390/drivers/s390/char/tape_block.c
+--- linux-2.6/drivers/s390/char/tape_block.c	Wed Feb 18 04:58:55 2004
++++ linux-2.6-s390/drivers/s390/char/tape_block.c	Fri Feb 27 20:05:04 2004
+@@ -259,9 +259,6 @@
+ 	INIT_WORK(&blkdat->requeue_task, tapeblock_requeue,
+ 		tape_get_device_reference(device));
+ 
+-	/* Will vanish */
+-	tape_hotplug_event(device, tapeblock_major, TAPE_HOTPLUG_BLOCK_ADD);
 -
--
- * cio_ignore = {all} |
- 	       {<device> | <range of devices>} |
- 	       {!<device> | !<range of devices>}
-diff -urN linux-2.6/Documentation/s390/driver-model.txt linux-2.6-s390/Documentation/s390/driver-model.txt
---- linux-2.6/Documentation/s390/driver-model.txt	Fri Feb 27 20:04:30 2004
-+++ linux-2.6-s390/Documentation/s390/driver-model.txt	Fri Feb 27 20:05:02 2004
-@@ -31,6 +31,9 @@
- 
- devtype:    The device type / model, if applicable.
- 
-+availability: Can be 'good' or 'boxed'; 'no path' or 'no device' for
-+	      disconnected devices.
-+
- online:     An interface to set the device online and offline.
- 	    In the special case of the device being disconnected (see the
- 	    notify function under 1.2), piping 0 to online will focibly delete
-diff -urN linux-2.6/drivers/s390/block/dasd_eckd.c linux-2.6-s390/drivers/s390/block/dasd_eckd.c
---- linux-2.6/drivers/s390/block/dasd_eckd.c	Fri Feb 27 20:04:45 2004
-+++ linux-2.6-s390/drivers/s390/block/dasd_eckd.c	Fri Feb 27 20:05:02 2004
-@@ -7,7 +7,7 @@
-  * Bugreports.to..: <Linux390@de.ibm.com>
-  * (C) IBM Corporation, IBM Deutschland Entwicklung GmbH, 1999,2000
-  *
-- * $Revision: 1.50 $
-+ * $Revision: 1.51 $
-  */
- 
- #include <linux/config.h>
-@@ -85,7 +85,7 @@
- 	ret = dasd_generic_probe (cdev, &dasd_eckd_discipline);
- 	if (ret)
- 		return ret;
--	ccw_device_set_options(cdev, CCWDEV_DO_PATHGROUP);
-+	ccw_device_set_options(cdev, CCWDEV_DO_PATHGROUP | CCWDEV_ALLOW_FORCE);
  	return 0;
- }
  
-diff -urN linux-2.6/drivers/s390/cio/ccwgroup.c linux-2.6-s390/drivers/s390/cio/ccwgroup.c
---- linux-2.6/drivers/s390/cio/ccwgroup.c	Fri Feb 27 20:04:45 2004
-+++ linux-2.6-s390/drivers/s390/cio/ccwgroup.c	Fri Feb 27 20:05:02 2004
-@@ -1,7 +1,7 @@
- /*
-  *  drivers/s390/cio/ccwgroup.c
-  *  bus driver for ccwgroup
-- *   $Revision: 1.23 $
-+ *   $Revision: 1.24 $
-  *
-  *    Copyright (C) 2002 IBM Deutschland Entwicklung GmbH,
-  *                       IBM Corporation
-@@ -293,22 +293,28 @@
- ccwgroup_online_store (struct device *dev, const char *buf, size_t count)
+ cleanup_queue:
+@@ -274,8 +271,6 @@
+ void
+ tapeblock_cleanup_device(struct tape_device *device)
  {
- 	struct ccwgroup_device *gdev;
-+	struct ccwgroup_driver *gdrv;
- 	unsigned int value;
-+	int ret;
- 
- 	gdev = to_ccwgroupdev(dev);
- 	if (!dev->driver)
- 		return count;
- 
--	value = simple_strtoul(buf, 0, 0);
-+	gdrv = to_ccwgroupdrv (gdev->dev.driver);
-+	if (!try_module_get(gdrv->owner))
-+		return -EINVAL;
- 
-+	value = simple_strtoul(buf, 0, 0);
-+	ret = count;
- 	if (value == 1)
- 		ccwgroup_set_online(gdev);
- 	else if (value == 0)
- 		ccwgroup_set_offline(gdev);
- 	else
--		return -EINVAL;
+-	tape_hotplug_event(device, tapeblock_major, TAPE_HOTPLUG_BLOCK_REMOVE);
 -
--	return count;
-+		ret = -EINVAL;
-+	module_put(gdrv->owner);
-+	return ret;
- }
+ 	flush_scheduled_work();
+ 	device->blk_data.requeue_task.data = tape_put_device(device);
  
- static ssize_t
-diff -urN linux-2.6/drivers/s390/cio/cmf.c linux-2.6-s390/drivers/s390/cio/cmf.c
---- linux-2.6/drivers/s390/cio/cmf.c	Fri Feb 27 20:04:45 2004
-+++ linux-2.6-s390/drivers/s390/cio/cmf.c	Fri Feb 27 20:05:02 2004
-@@ -1,5 +1,5 @@
- /*
-- * linux/drivers/s390/cio/cmf.c ($Revision: 1.11 $)
-+ * linux/drivers/s390/cio/cmf.c ($Revision: 1.13 $)
-  *
-  * Linux on zSeries Channel Measurement Facility support
-  *
-@@ -138,7 +138,7 @@
- 	if (count == 0)
- 		return 0;
+diff -urN linux-2.6/drivers/s390/char/tape_char.c linux-2.6-s390/drivers/s390/char/tape_char.c
+--- linux-2.6/drivers/s390/char/tape_char.c	Wed Feb 18 04:59:05 2004
++++ linux-2.6-s390/drivers/s390/char/tape_char.c	Fri Feb 27 20:05:04 2004
+@@ -20,6 +20,7 @@
  
--	/* value comes in units of 128 5sec */
-+	/* value comes in units of 128 µsec */
- 	ret = time_to_nsec(value);
- 	do_div(ret, count);
+ #include "tape.h"
+ #include "tape_std.h"
++#include "tape_class.h"
  
-@@ -390,12 +390,13 @@
- 		WARN_ON(!list_empty(&cmb_area.list));
+ #define PRINTK_HEADER "TAPE_CHAR: "
  
- 		spin_unlock(&cmb_area.lock);
--		mem = kmalloc(size, GFP_KERNEL | GFP_DMA);
-+		mem = (void*)__get_free_pages(GFP_KERNEL | GFP_DMA,
-+				 get_order(size));
- 		spin_lock(&cmb_area.lock);
+@@ -47,20 +48,50 @@
  
- 		if (cmb_area.mem) {
- 			/* ok, another thread was faster */
--			kfree(mem);
-+			free_pages((unsigned long)mem, get_order(size));
- 		} else if (!mem) {
- 			/* no luck */
- 			ret = -ENOMEM;
-@@ -435,8 +436,10 @@
- 	list_del_init(&priv->cmb_list);
+ static int tapechar_major = TAPECHAR_MAJOR;
  
- 	if (list_empty(&cmb_area.list)) {
-+		ssize_t size;
-+		size = sizeof(struct cmb) * cmb_area.num_channels;
- 		cmf_activate(NULL, 0);
--		kfree(cmb_area.mem);
-+		free_pages((unsigned long)cmb_area.mem, get_order(size));
- 		cmb_area.mem = NULL;
- 	}
- out:
-@@ -595,11 +598,22 @@
- 	u32 reserved[7];
- };
- 
-+/* kmalloc only guarantees 8 byte alignment, but we need cmbe
-+ * pointers to be naturally aligned. Make sure to allocate
-+ * enough space for two cmbes */
-+static inline struct cmbe* cmbe_align(struct cmbe *c)
++struct cdev *
++tapechar_register_tape_dev(struct tape_device *device, char *name, int i)
 +{
-+	unsigned long addr;
-+	addr = ((unsigned long)c + sizeof (struct cmbe) - sizeof(long)) &
-+				 ~(sizeof (struct cmbe) - sizeof(long));
-+	return (struct cmbe*)addr;
++	struct cdev *	cdev;
++	char		devname[11];
++
++	sprintf(devname, "%s%i", name, i / 2);
++	cdev = register_tape_dev(
++		&device->cdev->dev,
++		MKDEV(tapechar_major, i),
++		&tape_fops,
++		devname
++	);
++
++	return ((IS_ERR(cdev)) ? NULL : cdev);
 +}
 +
- static int
- alloc_cmbe (struct ccw_device *cdev)
- {
- 	struct cmbe *cmbe;
--	cmbe = kmalloc (sizeof (*cmbe), GFP_KERNEL /* | GFP_DMA ? */);
-+	cmbe = kmalloc (sizeof (*cmbe) * 2, GFP_KERNEL);
- 	if (!cmbe)
- 		return -ENOMEM;
- 
-@@ -647,7 +661,7 @@
- 
- 	if (!cdev->private->cmb)
- 		return -EINVAL;
--	mba = mme ? (unsigned long)cdev->private->cmb : 0;
-+	mba = mme ? (unsigned long) cmbe_align(cdev->private->cmb) : 0;
- 
- 	return set_schib_wait(cdev, mme, 1, mba);
- }
-@@ -669,7 +683,7 @@
- 		return 0;
- 	}
- 
--	cmb = *(struct cmbe*)cdev->private->cmb;
-+	cmb = *cmbe_align(cdev->private->cmb);
- 	spin_unlock_irqrestore(cdev->ccwlock, flags);
- 
- 	switch (index) {
-@@ -720,7 +734,7 @@
- 		return -ENODEV;
- 	}
- 
--	cmb = *(struct cmbe*)cdev->private->cmb;
-+	cmb = *cmbe_align(cdev->private->cmb);
- 	time = get_clock() - cdev->private->cmb_start_time;
- 	spin_unlock_irqrestore(cdev->ccwlock, flags);
- 
-@@ -760,7 +774,7 @@
- {
- 	struct cmbe *cmb;
- 	spin_lock_irq(cdev->ccwlock);
--	cmb = cdev->private->cmb;
-+	cmb = cmbe_align(cdev->private->cmb);
- 	if (cmb)
- 		memset (cmb, 0, sizeof (*cmb));
- 	cdev->private->cmb_start_time = get_clock();
-diff -urN linux-2.6/drivers/s390/cio/css.h linux-2.6-s390/drivers/s390/cio/css.h
---- linux-2.6/drivers/s390/cio/css.h	Fri Feb 27 20:04:45 2004
-+++ linux-2.6-s390/drivers/s390/cio/css.h	Fri Feb 27 20:05:02 2004
-@@ -74,6 +74,7 @@
- 		unsigned int fast:1;	/* post with "channel end" */
- 		unsigned int repall:1;	/* report every interrupt status */
- 		unsigned int pgroup:1;  /* do path grouping */
-+		unsigned int force:1;   /* allow forced online */
- 	} __attribute__ ((packed)) options;
- 	struct {
- 		unsigned int pgid_single:1; /* use single path for Set PGID */
-diff -urN linux-2.6/drivers/s390/cio/device.c linux-2.6-s390/drivers/s390/cio/device.c
---- linux-2.6/drivers/s390/cio/device.c	Fri Feb 27 20:04:45 2004
-+++ linux-2.6-s390/drivers/s390/cio/device.c	Fri Feb 27 20:05:02 2004
-@@ -1,7 +1,7 @@
  /*
-  *  drivers/s390/cio/device.c
-  *  bus driver for ccw devices
-- *   $Revision: 1.103 $
-+ *   $Revision: 1.107 $
-  *
-  *    Copyright (C) 2002 IBM Deutschland Entwicklung GmbH,
-  *			 IBM Corporation
-@@ -263,10 +263,10 @@
- 
- 	if (!cdev)
- 		return -ENODEV;
--	if (!cdev->online || !cdev->drv)
-+	if (!cdev->online)
- 		return -EINVAL;
- 
--	if (cdev->drv->set_offline) {
-+	if (cdev->drv && cdev->drv->set_offline) {
- 		ret = cdev->drv->set_offline(cdev);
- 		if (ret != 0)
- 			return ret;
-@@ -292,7 +292,7 @@
- 
- 	if (!cdev)
- 		return -ENODEV;
--	if (cdev->online || !cdev->drv)
-+	if (cdev->online)
- 		return -EINVAL;
- 
- 	spin_lock_irq(cdev->ccwlock);
-@@ -307,7 +307,8 @@
- 	}
- 	if (cdev->private->state != DEV_STATE_ONLINE)
- 		return -ENODEV;
--	if (!cdev->drv->set_online || cdev->drv->set_online(cdev) == 0) {
-+	if (!cdev->drv || !cdev->drv->set_online ||
-+	    cdev->drv->set_online(cdev) == 0) {
- 		cdev->online = 1;
- 		return 0;
- 	}
-@@ -326,52 +327,54 @@
- online_store (struct device *dev, const char *buf, size_t count)
+  * This function is called for every new tapedevice
+  */
+ int
+ tapechar_setup_device(struct tape_device * device)
  {
- 	struct ccw_device *cdev = to_ccwdev(dev);
--	int i;
-+	int i, force;
- 	char *tmp;
- 
--	if (!cdev->drv)
--		return count;
- 	if (atomic_compare_and_swap(0, 1, &cdev->private->onoff))
- 		return -EAGAIN;
- 
--	i = simple_strtoul(buf, &tmp, 16);
--	if (i == 1 && cdev->drv->set_online)
-+	if (cdev->drv && !try_module_get(cdev->drv->owner)) {
-+		atomic_set(&cdev->private->onoff, 0);
-+		return -EINVAL;
-+	}
-+	if (!strncmp(buf, "force\n", count)) {
-+		force = 1;
-+		i = 1;
-+	} else {
-+		force = 0;
-+		i = simple_strtoul(buf, &tmp, 16);
-+	}
-+	if (i == 1) {
-+		/* Do device recognition, if needed. */
-+		if (cdev->id.cu_type == 0) {
-+			ccw_device_recognition(cdev);
-+			wait_event(cdev->private->wait_q,
-+				   dev_fsm_final_state(cdev));
-+		}
- 		ccw_device_set_online(cdev);
--	else if (i == 0 && cdev->drv->set_offline) {
-+	} else if (i == 0) {
- 		if (cdev->private->state == DEV_STATE_DISCONNECTED)
- 			ccw_device_remove_disconnected(cdev);
- 		else
- 			ccw_device_set_offline(cdev);
- 	}
--	atomic_set(&cdev->private->onoff, 0);
--	return count;
--}
--
--static void ccw_device_unbox_recog(void *data);
--
--static ssize_t
--stlck_store(struct device *dev, const char *buf, size_t count)
--{
--	struct ccw_device *cdev = to_ccwdev(dev);
--	int ret;
--
--	/* We don't care what was piped to the attribute 8) */
--	ret = ccw_device_stlck(cdev);
--	if (ret != 0) {
--		printk(KERN_WARNING
--		       "Unconditional reserve failed on device %s, rc=%d\n",
--		       dev->bus_id, ret);
--		return ret;
-+	if (force && cdev->private->state == DEV_STATE_BOXED) {
-+		int ret;
-+		ret = ccw_device_stlck(cdev);
-+		if (ret)
-+			goto out;
-+		/* Do device recognition, if needed. */
-+		if (cdev->id.cu_type == 0) {
-+			ccw_device_recognition(cdev);
-+			wait_event(cdev->private->wait_q,
-+				   dev_fsm_final_state(cdev));
-+		}
-+		ccw_device_set_online(cdev);
- 	}
--
--	/*
--	 * Device was successfully unboxed.
--	 * Trigger removal of stlck attribute and device recognition.
--	 */
--	INIT_WORK(&cdev->private->kick_work,
--		  ccw_device_unbox_recog, (void *) cdev);
--	queue_work(ccw_device_work, &cdev->private->kick_work);
--	
-+	out:
-+	if (cdev->drv)
-+		module_put(cdev->drv->owner);
-+	atomic_set(&cdev->private->onoff, 0);
- 	return count;
+-	tape_hotplug_event(device, tapechar_major, TAPE_HOTPLUG_CHAR_ADD);
++	device->nt = tapechar_register_tape_dev(
++			device,
++			"ntibm",
++			device->first_minor
++	);
++	device->rt = tapechar_register_tape_dev(
++			device,
++			"rtibm",
++			device->first_minor + 1
++	);
++
+ 	return 0;
  }
  
-@@ -403,33 +406,9 @@
- static DEVICE_ATTR(devtype, 0444, devtype_show, NULL);
- static DEVICE_ATTR(cutype, 0444, cutype_show, NULL);
- static DEVICE_ATTR(online, 0644, online_show, online_store);
--static DEVICE_ATTR(steal_lock, 0200, NULL, stlck_store);
- extern struct device_attribute dev_attr_cmb_enable;
- static DEVICE_ATTR(availability, 0444, available_show, NULL);
- 
--/* A device has been unboxed. Start device recognition. */
--static void
--ccw_device_unbox_recog(void *data)
--{
--	struct ccw_device *cdev;
--
--	cdev = (struct ccw_device *)data;
--	if (!cdev)
--		return;
--
--	/* Remove stlck attribute. */
--	device_remove_file(&cdev->dev, &dev_attr_steal_lock);
--
--	spin_lock_irq(cdev->ccwlock);
--
--	/* Device is no longer boxed. */
--	cdev->private->state = DEV_STATE_NOT_OPER;
--
--	/* Finally start device recognition. */
--	ccw_device_recognition(cdev);
--	spin_unlock_irq(cdev->ccwlock);
--}
--
- static struct attribute * subch_attrs[] = {
- 	&dev_attr_chpids.attr,
- 	&dev_attr_pimpampom.attr,
-@@ -471,22 +450,6 @@
- 	sysfs_remove_group(&dev->kobj, &ccwdev_attr_group);
+ void
+ tapechar_cleanup_device(struct tape_device *device)
+ {
+-	tape_hotplug_event(device, tapechar_major, TAPE_HOTPLUG_CHAR_REMOVE);
++	unregister_tape_dev(device->rt);
++	device->rt = NULL;
++	unregister_tape_dev(device->nt);
++	device->nt = NULL;
  }
  
--/*
-- * Add a "steal lock" attribute to boxed devices.
-- * This allows to trigger an unconditional reserve ccw to eckd dasds
-- * (if the device is something else, there should be no problems more than
-- * a command reject; we don't have any means of finding out the device's
-- * type if it was boxed at ipl/attach for older devices and under VM).
+ /*
+@@ -461,20 +492,17 @@
+ int
+ tapechar_init (void)
+ {
+-	int rc;
++	dev_t	dev;
+ 
+-	/* Register the tape major number to the kernel */
+-	rc = register_chrdev(tapechar_major, "tape", &tape_fops);
+-	if (rc < 0) {
+-		PRINT_ERR("can't get major %d\n", tapechar_major);
+-		DBF_EVENT(3, "TCHAR:initfail\n");
+-		return rc;
+-	}
+-	if (tapechar_major == 0)
+-		tapechar_major = rc;  /* accept dynamic major number */
+-	PRINT_ERR("Tape gets major %d for char device\n", tapechar_major);
+-	DBF_EVENT(3, "Tape gets major %d for char device\n", rc);
+-	DBF_EVENT(3, "TCHAR:init ok\n");
++	if (alloc_chrdev_region(&dev, 0, 256, "tape") != 0)
++		return -1;
++
++	tapechar_major = MAJOR(dev);
++	PRINT_INFO("tape gets major %d for character devices\n", MAJOR(dev));
++
++#ifdef TAPE390_INTERNAL_CLASS
++	tape_setup_class();
++#endif
+ 	return 0;
+ }
+ 
+@@ -484,5 +512,10 @@
+ void
+ tapechar_exit(void)
+ {
+-	unregister_chrdev (tapechar_major, "tape");
++#ifdef TAPE390_INTERNAL_CLASS
++	tape_cleanup_class();
++#endif
++	PRINT_INFO("tape releases major %d for character devices\n",
++		tapechar_major);
++	unregister_chrdev_region(MKDEV(tapechar_major, 0), 256);
+ }
+diff -urN linux-2.6/drivers/s390/char/tape_class.c linux-2.6-s390/drivers/s390/char/tape_class.c
+--- linux-2.6/drivers/s390/char/tape_class.c	Thu Jan  1 01:00:00 1970
++++ linux-2.6-s390/drivers/s390/char/tape_class.c	Fri Feb 27 20:05:04 2004
+@@ -0,0 +1,100 @@
++/*
++ * Tape class device support
++ *
++ * Author: Stefan Bader <shbader@de.ibm.com>
++ * Based on simple class device code by Greg K-H
++ */
++#include "tape_class.h"
++
++#ifndef TAPE390_INTERNAL_CLASS
++MODULE_AUTHOR("Stefan Bader <shbader@de.ibm.com>");
++MODULE_DESCRIPTION("Tape class");
++MODULE_LICENSE("GPL");
++#endif
++
++struct class_simple *tape_class;
++
++/*
++ * Register a tape device and return a pointer to the cdev structure.
++ *
++ * device
++ *	The pointer to the struct device of the physical (base) device.
++ * drivername
++ *	The pointer to the drivers name for it's character devices.
++ * dev
++ *	The intended major/minor number. The major number may be 0 to
++ *	get a dynamic major number.
++ * fops
++ *	The pointer to the drivers file operations for the tape device.
++ * devname
++ *	The pointer to the name of the character device.
++ */
++struct cdev *register_tape_dev(
++	struct device *		device,
++	dev_t			dev,
++	struct file_operations *fops,
++	char *			devname
++) {
++	struct cdev *	cdev;
++	int		rc;
++	char *		s;
++
++	cdev = cdev_alloc();
++	if (!cdev)
++		return ERR_PTR(-ENOMEM);
++
++	cdev->owner = fops->owner;
++	cdev->ops   = fops;
++	cdev->dev   = dev;
++	strcpy(cdev->kobj.name, devname);
++	for (s = strchr(cdev->kobj.name, '/'); s; s = strchr(s, '/'))
++		*s = '!';
++
++	rc = cdev_add(cdev, cdev->dev, 1);
++	if (rc) {
++		kobject_put(&cdev->kobj);
++		return ERR_PTR(rc);
++	}
++	class_simple_device_add(tape_class, cdev->dev, device, "%s", devname);
++
++	return cdev;
++}
++EXPORT_SYMBOL(register_tape_dev);
++
++void unregister_tape_dev(struct cdev *cdev)
++{
++	if (cdev != NULL) {
++		class_simple_device_remove(cdev->dev);
++		cdev_del(cdev);
++	}
++}
++EXPORT_SYMBOL(unregister_tape_dev);
++
++
++#ifndef TAPE390_INTERNAL_CLASS
++static int __init tape_init(void)
++#else
++int tape_setup_class(void)
++#endif
++{
++	tape_class = class_simple_create(THIS_MODULE, "tape390");
++	return 0;
++}
++
++#ifndef TAPE390_INTERNAL_CLASS
++static void __exit tape_exit(void)
++#else
++void tape_cleanup_class(void)
++#endif
++{
++	class_simple_destroy(tape_class);
++	tape_class = NULL;
++}
++
++#ifndef TAPE390_INTERNAL_CLASS
++postcore_initcall(tape_init);
++module_exit(tape_exit);
++#else
++EXPORT_SYMBOL(tape_setup_class);
++EXPORT_SYMBOL(tape_cleanup_class);
++#endif
+diff -urN linux-2.6/drivers/s390/char/tape_class.h linux-2.6-s390/drivers/s390/char/tape_class.h
+--- linux-2.6/drivers/s390/char/tape_class.h	Thu Jan  1 01:00:00 1970
++++ linux-2.6-s390/drivers/s390/char/tape_class.h	Fri Feb 27 20:05:04 2004
+@@ -0,0 +1,54 @@
++/*
++ * Tape class device support
++ *
++ * Author: Stefan Bader <shbader@de.ibm.com>
++ * Based on simple class device code by Greg K-H
++ */
++#ifndef __TAPE_CLASS_H__
++#define __TAPE_CLASS_H__
++
++#if 0
++#include <linux/init.h>
++#include <linux/module.h>
++#endif
++
++#include <linux/fs.h>
++#include <linux/major.h>
++#include <linux/kobject.h>
++#include <linux/kobj_map.h>
++#include <linux/cdev.h>
++
++#include <linux/device.h>
++#include <linux/kdev_t.h>
++
++#define TAPE390_INTERNAL_CLASS
++
++/*
++ * Register a tape device and return a pointer to the cdev structure.
++ *
++ * device
++ *	The pointer to the struct device of the physical (base) device.
++ * drivername
++ *	The pointer to the drivers name for it's character devices.
++ * dev
++ *	The intended major/minor number. The major number may be 0 to
++ *	get a dynamic major number.
++ * fops
++ *	The pointer to the drivers file operations for the tape device.
++ * devname
++ *	The pointer to the name of the character device.
++ */
++struct cdev *register_tape_dev(
++	struct device *		device,
++	dev_t			dev,
++	struct file_operations *fops,
++	char *			devname
++);
++void unregister_tape_dev(struct cdev *cdev);
++
++#ifdef TAPE390_INTERNAL_CLASS
++int tape_setup_class(void);
++void tape_cleanup_class(void);
++#endif
++
++#endif /* __TAPE_CLASS_H__ */
+diff -urN linux-2.6/drivers/s390/char/tape_core.c linux-2.6-s390/drivers/s390/char/tape_core.c
+--- linux-2.6/drivers/s390/char/tape_core.c	Fri Feb 27 20:04:45 2004
++++ linux-2.6-s390/drivers/s390/char/tape_core.c	Fri Feb 27 20:05:04 2004
+@@ -237,10 +237,7 @@
+ 
+ 	rc = 0;
+ 	for (retries = 0; retries < 5; retries++) {
+-		if (retries < 2)
+-			rc = ccw_device_halt(device->cdev, (long) request);
+-		else
+-			rc = ccw_device_clear(device->cdev, (long) request);
++		rc = ccw_device_clear(device->cdev, (long) request);
+ 
+ 		if (rc == 0) {                     /* Termination successful */
+ 			request->rc     = -EIO;
+@@ -1016,63 +1013,6 @@
+ }
+ 
+ /*
+- * Hutplug event support.
 - */
 -void
--ccw_device_add_stlck(void *data)
--{
--	struct ccw_device *cdev;
+-tape_hotplug_event(struct tape_device *device, int devmaj, int action) {
+-#ifdef CONFIG_HOTPLUG
+-	char *argv[3];
+-	char *envp[8];
+-	char  busid[20];
+-	char  major[20];
+-	char  minor[20];
 -
--	cdev = (struct ccw_device *)data;
--	device_create_file(&cdev->dev, &dev_attr_steal_lock);
--}
+-	/* Call the busid DEVNO to be compatible with old tape.agent. */
+-	sprintf(busid, "DEVNO=%s",   device->cdev->dev.bus_id);
+-	sprintf(major, "MAJOR=%d",   devmaj);
+-	sprintf(minor, "MINOR=%d",   device->first_minor);
 -
- /* this is a simple abstraction for device_register that sets the
-  * correct bus type and adds the bus specific files */
- int
-@@ -565,8 +528,6 @@
- 	if (ret)
- 		printk(KERN_WARNING "%s: could not add attributes to %s\n",
- 		       __func__, sch->dev.bus_id);
--	if (cdev->private->state == DEV_STATE_BOXED)
--		device_create_file(&cdev->dev, &dev_attr_steal_lock);
- 	put_device(&cdev->dev);
- out:
- 	put_device(&sch->dev);
-@@ -935,6 +896,7 @@
- 			pr_debug("ccw_device_offline returned %d, device %s\n",
- 				 ret, cdev->dev.bus_id);
- 	}
-+	ccw_device_set_timeout(cdev, 0);
- 	cdev->drv = 0;
- 	return 0;
- }
-diff -urN linux-2.6/drivers/s390/cio/device.h linux-2.6-s390/drivers/s390/cio/device.h
---- linux-2.6/drivers/s390/cio/device.h	Fri Feb 27 20:04:45 2004
-+++ linux-2.6-s390/drivers/s390/cio/device.h	Fri Feb 27 20:05:02 2004
-@@ -102,7 +102,6 @@
- 
- int ccw_device_call_handler(struct ccw_device *);
- 
--void ccw_device_add_stlck(void *);
- int ccw_device_stlck(struct ccw_device *);
- 
- /* qdio needs this. */
-diff -urN linux-2.6/drivers/s390/cio/device_fsm.c linux-2.6-s390/drivers/s390/cio/device_fsm.c
---- linux-2.6/drivers/s390/cio/device_fsm.c	Fri Feb 27 20:04:45 2004
-+++ linux-2.6-s390/drivers/s390/cio/device_fsm.c	Fri Feb 27 20:05:02 2004
-@@ -317,14 +317,10 @@
- 	cdev->private->state = state;
- 
- 
--	if (state == DEV_STATE_BOXED) {
-+	if (state == DEV_STATE_BOXED)
- 		CIO_DEBUG(KERN_WARNING, 2,
- 			  "Boxed device %04x on subchannel %04x\n",
- 			  cdev->private->devno, sch->irq);
--		INIT_WORK(&cdev->private->kick_work,
--			  ccw_device_add_stlck, (void *) cdev);
--		queue_work(ccw_device_work, &cdev->private->kick_work);
+-	argv[0] = hotplug_path;
+-	argv[1] = "tape";
+-	argv[2] = NULL;
+-
+-	envp[0] = "HOME=/";
+-	envp[1] = "PATH=/sbin:/bin:/usr/sbin:/usr/bin";
+-
+-	switch (action) {
+-		case TAPE_HOTPLUG_CHAR_ADD:
+-		case TAPE_HOTPLUG_BLOCK_ADD:
+-			envp[2] = "ACTION=add";
+-			break;
+-		case TAPE_HOTPLUG_CHAR_REMOVE:
+-		case TAPE_HOTPLUG_BLOCK_REMOVE:
+-			envp[2] = "ACTION=remove";
+-			break;
+-		default:
+-			BUG();
 -	}
- 
- 	if (cdev->private->flags.donotify) {
- 		cdev->private->flags.donotify = 0;
-@@ -377,7 +373,8 @@
- 	struct subchannel *sch;
- 	int ret;
- 
--	if (cdev->private->state != DEV_STATE_NOT_OPER)
-+	if ((cdev->private->state != DEV_STATE_NOT_OPER) &&
-+	    (cdev->private->state != DEV_STATE_BOXED))
- 		return -EINVAL;
- 	sch = to_subchannel(cdev->dev.parent);
- 	ret = cio_enable_subchannel(sch, sch->schib.pmcw.isc);
-@@ -492,7 +489,8 @@
- 	struct subchannel *sch;
- 	int ret;
- 
--	if (cdev->private->state != DEV_STATE_OFFLINE)
-+	if ((cdev->private->state != DEV_STATE_OFFLINE) &&
-+	    (cdev->private->state != DEV_STATE_BOXED))
- 		return -EINVAL;
- 	sch = to_subchannel(cdev->dev.parent);
- 	if (css_init_done && !get_device(&cdev->dev))
-@@ -615,6 +613,13 @@
- 	struct subchannel *sch;
- 
- 	sch = to_subchannel(cdev->dev.parent);
-+	if (sch->driver->notify &&
-+	    sch->driver->notify(&sch->dev, sch->lpm ? CIO_GONE : CIO_NO_PATH)) {
-+			ccw_device_set_timeout(cdev, 0);
-+			cdev->private->state = DEV_STATE_DISCONNECTED;
-+			wake_up(&cdev->private->wait_q);
-+			return;
-+	}
- 	cdev->private->state = DEV_STATE_NOT_OPER;
- 	cio_disable_subchannel(sch);
- 	if (sch->schib.scsw.actl != 0) {
-@@ -627,21 +632,6 @@
- 	wake_up(&cdev->private->wait_q);
- }
- 
--static void
--ccw_device_disconnected_notoper(struct ccw_device *cdev,
--				enum dev_event dev_event)
--{
--	struct subchannel *sch;
+-	switch (action) {
+-		case TAPE_HOTPLUG_CHAR_ADD:
+-		case TAPE_HOTPLUG_CHAR_REMOVE:
+-			envp[3] = "INTERFACE=char";
+-			break;
+-		case TAPE_HOTPLUG_BLOCK_ADD:
+-		case TAPE_HOTPLUG_BLOCK_REMOVE:
+-			envp[3] = "INTERFACE=block";
+-			break;
+-		default:
+-			BUG();
+-	}
+-	envp[4] = busid;
+-	envp[5] = major;
+-	envp[6] = minor;
+-	envp[7] = NULL;
 -
--	sch = to_subchannel(cdev->dev.parent);
--	cdev->private->state = DEV_STATE_NOT_OPER;
--	cio_disable_subchannel(sch);
--	device_unregister(&sch->dev);
--	sch->schib.pmcw.intparm = 0;
--	cio_modify(sch);
--	wake_up(&cdev->private->wait_q);
+-	call_usermodehelper(argv[0], argv, envp, 0);
+-#endif
 -}
 -
- /*
-  * Handle path verification event.
+-/*
+  * Tape init function.
   */
-@@ -1103,7 +1093,7 @@
- 	},
- 	/* special states for devices gone not operational */
- 	[DEV_STATE_DISCONNECTED] {
--		[DEV_EVENT_NOTOPER]	ccw_device_disconnected_notoper,
-+		[DEV_EVENT_NOTOPER]	ccw_device_nop,
- 		[DEV_EVENT_INTERRUPT]	ccw_device_start_id,
- 		[DEV_EVENT_TIMEOUT]	ccw_device_bug,
- 		[DEV_EVENT_VERIFY]	ccw_device_nop,
-diff -urN linux-2.6/drivers/s390/cio/device_ops.c linux-2.6-s390/drivers/s390/cio/device_ops.c
---- linux-2.6/drivers/s390/cio/device_ops.c	Fri Feb 27 20:04:45 2004
-+++ linux-2.6-s390/drivers/s390/cio/device_ops.c	Fri Feb 27 20:05:02 2004
-@@ -38,6 +38,7 @@
- 	cdev->private->options.fast = (flags & CCWDEV_EARLY_NOTIFICATION) != 0;
- 	cdev->private->options.repall = (flags & CCWDEV_REPORT_ALL) != 0;
- 	cdev->private->options.pgroup = (flags & CCWDEV_DO_PATHGROUP) != 0;
-+	cdev->private->options.force = (flags & CCWDEV_ALLOW_FORCE) != 0;
- 	return 0;
- }
+ static int
+@@ -1083,7 +1023,7 @@
+ #ifdef DBF_LIKE_HELL
+ 	debug_set_level(tape_dbf_area, 6);
+ #endif
+-	DBF_EVENT(3, "tape init: ($Revision: 1.41 $)\n");
++	DBF_EVENT(3, "tape init: ($Revision: 1.44 $)\n");
+ 	tape_proc_init();
+ 	tapechar_init ();
+ 	tapeblock_init ();
+@@ -1108,7 +1048,7 @@
+ MODULE_AUTHOR("(C) 2001 IBM Deutschland Entwicklung GmbH by Carsten Otte and "
+ 	      "Michael Holzheu (cotte@de.ibm.com,holzheu@de.ibm.com)");
+ MODULE_DESCRIPTION("Linux on zSeries channel attached "
+-		   "tape device driver ($Revision: 1.41 $)");
++		   "tape device driver ($Revision: 1.44 $)");
+ MODULE_LICENSE("GPL");
  
-@@ -453,6 +454,9 @@
- 	if (!cdev)
- 		return -ENODEV;
- 
-+	if (cdev->drv && !cdev->private->options.force)
-+		return -EINVAL;
-+
- 	sch = to_subchannel(cdev->dev.parent);
- 	
- 	CIO_TRACE_EVENT(2, "stl lock");
-diff -urN linux-2.6/drivers/s390/net/ctcmain.c linux-2.6-s390/drivers/s390/net/ctcmain.c
---- linux-2.6/drivers/s390/net/ctcmain.c	Fri Feb 27 20:04:45 2004
-+++ linux-2.6-s390/drivers/s390/net/ctcmain.c	Fri Feb 27 20:05:02 2004
-@@ -1,5 +1,5 @@
- /*
-- * $Id: ctcmain.c,v 1.54 2004/02/18 12:35:59 ptiedem Exp $
-+ * $Id: ctcmain.c,v 1.56 2004/02/27 17:53:26 mschwide Exp $
-  *
-  * CTC / ESCON network driver
-  *
-@@ -36,7 +36,7 @@
-  * along with this program; if not, write to the Free Software
-  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-  *
-- * RELEASE-TAG: CTC/ESCON network driver $Revision: 1.54 $
-+ * RELEASE-TAG: CTC/ESCON network driver $Revision: 1.56 $
-  *
-  */
- 
-@@ -319,7 +319,7 @@
- print_banner(void)
- {
- 	static int printed = 0;
--	char vbuf[] = "$Revision: 1.54 $";
-+	char vbuf[] = "$Revision: 1.56 $";
- 	char *version = vbuf;
- 
- 	if (printed)
-@@ -3161,6 +3161,7 @@
- }
- 
- static struct ccwgroup_driver ctc_group_driver = {
-+	.owner       = THIS_MODULE,
- 	.name        = "ctc",
- 	.max_slaves  = 2,
- 	.driver_id   = 0xC3E3C3,
-diff -urN linux-2.6/drivers/s390/net/lcs.c linux-2.6-s390/drivers/s390/net/lcs.c
---- linux-2.6/drivers/s390/net/lcs.c	Fri Feb 27 20:04:45 2004
-+++ linux-2.6-s390/drivers/s390/net/lcs.c	Fri Feb 27 20:05:02 2004
-@@ -11,7 +11,7 @@
-  *			  Frank Pavlic (pavlic@de.ibm.com) and
-  *		 	  Martin Schwidefsky <schwidefsky@de.ibm.com>
-  *
-- *    $Revision: 1.66 $	 $Date: 2004/02/19 13:46:01 $
-+ *    $Revision: 1.67 $	 $Date: 2004/02/26 18:26:50 $
-  *
-  * This program is free software; you can redistribute it and/or modify
-  * it under the terms of the GNU General Public License as published by
-@@ -58,7 +58,7 @@
- /**
-  * initialization string for output
-  */
--#define VERSION_LCS_C  "$Revision: 1.66 $"
-+#define VERSION_LCS_C  "$Revision: 1.67 $"
- 
- static char version[] __initdata = "LCS driver ("VERSION_LCS_C "/" VERSION_LCS_H ")";
- 
-@@ -1926,6 +1926,7 @@
-  * LCS ccwgroup driver registration
-  */
- static struct ccwgroup_driver lcs_group_driver = {
-+	.owner       = THIS_MODULE,
- 	.name        = "lcs",
- 	.max_slaves  = 2,
- 	.driver_id   = 0xD3C3E2,
-diff -urN linux-2.6/drivers/s390/net/qeth.c linux-2.6-s390/drivers/s390/net/qeth.c
---- linux-2.6/drivers/s390/net/qeth.c	Fri Feb 27 20:04:45 2004
-+++ linux-2.6-s390/drivers/s390/net/qeth.c	Fri Feb 27 20:05:02 2004
-@@ -10773,6 +10773,7 @@
- }
- 
- static struct ccwgroup_driver qeth_ccwgroup_driver = {
-+	.owner = THIS_MODULE,
- 	.name = "qeth",
- 	.driver_id = 0xD8C5E3C8,
- 	.probe = qeth_probe_device,
-diff -urN linux-2.6/include/asm-s390/ccwdev.h linux-2.6-s390/include/asm-s390/ccwdev.h
---- linux-2.6/include/asm-s390/ccwdev.h	Wed Feb 18 04:59:19 2004
-+++ linux-2.6-s390/include/asm-s390/ccwdev.h	Fri Feb 27 20:05:02 2004
-@@ -118,6 +118,8 @@
- #define CCWDEV_REPORT_ALL	 	0x0002
- /* Try to perform path grouping. */
- #define CCWDEV_DO_PATHGROUP             0x0004
-+/* Allow forced onlining of boxed devices. */
-+#define CCWDEV_ALLOW_FORCE              0x0008
- 
- /*
-  * ccw_device_start()
-diff -urN linux-2.6/include/asm-s390/ccwgroup.h linux-2.6-s390/include/asm-s390/ccwgroup.h
---- linux-2.6/include/asm-s390/ccwgroup.h	Fri Feb 27 20:04:46 2004
-+++ linux-2.6-s390/include/asm-s390/ccwgroup.h	Fri Feb 27 20:05:02 2004
-@@ -17,6 +17,7 @@
- };
- 
- struct ccwgroup_driver {
-+	struct module *owner;
- 	char *name;
- 	int max_slaves;
- 	unsigned long driver_id;
+ module_init(tape_init);

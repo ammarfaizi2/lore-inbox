@@ -1,61 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267874AbUGaIKS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267909AbUGaImk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267874AbUGaIKS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Jul 2004 04:10:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267654AbUGaIKS
+	id S267909AbUGaImk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Jul 2004 04:42:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267638AbUGaImk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Jul 2004 04:10:18 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:23974 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S267874AbUGaIKM (ORCPT
+	Sat, 31 Jul 2004 04:42:40 -0400
+Received: from aun.it.uu.se ([130.238.12.36]:55000 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S267914AbUGaImf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Jul 2004 04:10:12 -0400
-Subject: Re: tcp_push_pending_frames() without TCP_CORK or TCP_NODELAY
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: "David S. Miller" <davem@redhat.com>
-Cc: Robert White <rwhite@casabyte.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20040730153700.2bb46976.davem@redhat.com>
-References: <20040729193637.36d018a5.davem@redhat.com>
-	 <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA2ZSI4XW+fk25FhAf9BqjtMKAAAAQAAAAto7TSbyGCEOKEjP4Tiu9VgEAAAAA@casabyte.com>
-	 <20040730153700.2bb46976.davem@redhat.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Y00093/x4CJ6MjvebEWm"
-Organization: Red Hat UK
-Message-Id: <1091261406.2819.1.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sat, 31 Jul 2004 10:10:06 +0200
+	Sat, 31 Jul 2004 04:42:35 -0400
+Date: Sat, 31 Jul 2004 10:41:53 +0200 (MEST)
+Message-Id: <200407310841.i6V8frSq021638@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: jon@oberheide.org, soete.joel@tiscali.be
+Subject: Re: Some cleanup patches for: '...lvalues is deprecated'
+Cc: dan@debian.org, linux-kernel@vger.kernel.org, marcelo.tosatti@cyclades.com,
+       vojtech@suse.cz
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 30 Jul 2004 11:11:32 +0200, Joel Soete wrote:
+>> FYI, lvalue casts are treated as errors in gcc 3.5.
+>> 
+>According to this kind remark, I think so that following attachement patc=
+>hes
+>would be interesting.
 
---=-Y00093/x4CJ6MjvebEWm
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+(cast-as-lvalue elimination patches omitted)
 
-On Sat, 2004-07-31 at 00:37, David S. Miller wrote:
-> On Fri, 30 Jul 2004 15:02:33 -0700
-> "Robert White" <rwhite@casabyte.com> wrote:
->=20
-> > 4) Cork-then-uncork would still end up with two syscalls instead of one=
-.
->=20
-> Syscalls are incredible cheap, this is not an argument for not
-> using cork'ing.
+Did you know that there is a larger gcc-3.4 fixes patch:
+<http://www.csd.uu.se/~mikpe/linux/patches/2.4/patch-gcc340-fixes-v4-2.4.27-rc3>
+?
 
-btw do we export MSG_MORE functionality to userspace ? That might be a
-solution as well...
+This patch handles all issues when using gcc-3.4 to compile
+the current 2.4 kernel, of which cast-as-lvalue is just one.
+The only difference, AFAIK, is that gcc-3.4 "merely" warns
+about cast-as-lvalue while gcc-3.5 errors out on them.
 
---=-Y00093/x4CJ6MjvebEWm
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+All changes in the gcc-3.4 fixes patch are backports from
+the 2.6 kernel, except in very few cases when 2.4 and 2.6
+have diverged making slightly different fixes more appropriate
+for 2.4.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+The patch handles i386, x86-64, and ppc architecture code,
+plus whatever drivers etc I've ever needed, plus drivers
+etc other people have contributed or requested fixes for.
+The only code I'm not considering is architecture code for
+other architectures than i386/x86-64/ppc, since those are
+the only ones I can compile and test.
 
-iD8DBQBBC1PdxULwo51rQBIRAqqAAJ43qrd5f6SLvwF9PyyO7OVlwJsCpQCfZucp
-aUwqKraP0Mp67WvpWxkuMaA=
-=TkXd
------END PGP SIGNATURE-----
-
---=-Y00093/x4CJ6MjvebEWm--
-
+/Mikael

@@ -1,45 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313943AbSDKBDC>; Wed, 10 Apr 2002 21:03:02 -0400
+	id <S313938AbSDKBYu>; Wed, 10 Apr 2002 21:24:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313944AbSDKBDB>; Wed, 10 Apr 2002 21:03:01 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:28407
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S313943AbSDKBDB>; Wed, 10 Apr 2002 21:03:01 -0400
-Date: Wed, 10 Apr 2002 18:05:15 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@mandrakesoft.com>,
-        "David S. Miller" <davem@redhat.com>, Andrew Morton <akpm@zip.com.au>,
-        Lennert Buytenhek <buytenh@gnu.org>
-Subject: Re: [BUG] DEADLOCK when removing a bridge on 2.4.19-pre6
-Message-ID: <20020411010515.GI23513@matchmail.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Jeff Garzik <jgarzik@mandrakesoft.com>,
-	"David S. Miller" <davem@redhat.com>,
-	Andrew Morton <akpm@zip.com.au>,
-	Lennert Buytenhek <buytenh@gnu.org>
-In-Reply-To: <20020410015311.GA31952@matchmail.com> <20020410181606.GD23513@matchmail.com> <20020411004911.GH23513@matchmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	id <S313946AbSDKBYt>; Wed, 10 Apr 2002 21:24:49 -0400
+Received: from u122-148.u61-70.giga.net.tw ([61.70.122.148]:34250 "EHLO matrix")
+	by vger.kernel.org with ESMTP id <S313938AbSDKBYt>;
+	Wed, 10 Apr 2002 21:24:49 -0400
+Message-ID: <3CB4E3CA.7D108CBB@kalug.linux.org.tw>
+Date: Thu, 11 Apr 2002 09:15:54 +0800
+From: Rex Tsai <chihchun@kalug.linux.org.tw>
+X-Mailer: Mozilla 4.77 [zh_TW] (X11; U; Linux 2.4.19-pre5-ac3 i686)
+X-Accept-Language: zh-TW, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, "Kevin P. Fleming" <kevin@labsysgrp.com>
+Subject: [PATCH] Lost interrupt with HPT372A patch
+Content-Type: text/plain; charset=big5
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 10, 2002 at 05:49:11PM -0700, Mike Fedyk wrote:
-> 2.4.18_fix_port_state_handling.diff
-> 
-> Is causing the problem on 2.4.17-19p6tulip-br0fpsh.  I haven't tested the
-> other patches though.
-> 
-> I'm going to reverse this patch on 2.4.19-pre6 to see if it fixes it there
-> too.  Stay tuned.
+Hi, I have a HighPoint RocketRAID 133 host adapter
+with HPT372A chipset. (firmware revision is 2.31)
 
-2.4.18_enslave_bridge_dev_to_bridge_dev.diff
+When booting with 2.4.19-pre5-ac3, I get "hde lost interrupt".
+My HD drive is
 
-Is fine I didn't reproduce the trouble in 2.4.17-19p6tulip-br0ebdtbd (it was
-already compiling when I tested the port_state kernel...).
+  hde: ST380021A, ATA DISK drive
+  hde: 156301488 sectors (80026 MB) w/2048KiB Cache, CHS=155061/16/63
 
-2.4.19-pre6-nobr0fpsh building now...
+The patch below turned out the problem.
 
-Mike
+--- linux/drivers/ide/hpt366.c.old      Thu Apr 11 08:50:45 2002
++++ linux/drivers/ide/hpt366.c  Thu Apr 11 08:57:18 2002
+@@ -1326,7 +1326,11 @@
+        int adjust, i;
+        u16 freq;
+        u32 pll;
+-       byte reg5bh;
++       byte reg5bh, reg5ah;
++
++        /* turn on interrupts */
++       pci_read_config_byte(dev, 0x5a, &reg5ah);
++       pci_write_config_byte(dev, 0x5a, ( reg5ah & ~0x10));
+
+        /*
+         * default to pci clock. make sure MA15/16 are set to output
+-Rex
+
+

@@ -1,93 +1,106 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264566AbTKNSuG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Nov 2003 13:50:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264568AbTKNSuF
+	id S262750AbTKNS7w (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Nov 2003 13:59:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264578AbTKNS7w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Nov 2003 13:50:05 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:31436 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264566AbTKNSt6 (ORCPT
+	Fri, 14 Nov 2003 13:59:52 -0500
+Received: from imr2.ericy.com ([198.24.6.3]:30908 "EHLO imr2.ericy.com")
+	by vger.kernel.org with ESMTP id S262750AbTKNS7m (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Nov 2003 13:49:58 -0500
-Date: Fri, 14 Nov 2003 11:08:34 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: 2.6.0-test9-mm3
-Message-ID: <98290000.1068836914@flay>
-In-Reply-To: <20031112233002.436f5d0c.akpm@osdl.org>
-References: <20031112233002.436f5d0c.akpm@osdl.org>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	Fri, 14 Nov 2003 13:59:42 -0500
+From: Frederic Rossi <frederic.rossi@ericsson.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Message-ID: <16309.9600.110303.245402@localhost.localdomain>
+Date: Fri, 14 Nov 2003 13:57:04 -0500
+To: "Dan Kegel" <dank@kegel.com>
+Cc: "kirk bae" <justformoonie@hotmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: So, Poll is not scalable... what to do?
+X-Mailer: VM 7.07 under Emacs 21.1.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-> - Several ext2 and ext3 allocator fixes.  These need serious testing on big
->   SMP.
+Hi,
 
-OK, ext3 survived a swatting on the 16-way as well. It's still slow as snot,
-but it does work ;-) No changes from before, methinks.
+Dan Kegel wrote:
+> Kirk Bae wrote:
+> >>>If poll is not scalable, which method should I use when writing 
+> >>>multithreaded socket server?
+> >>
+> >>People who write multithreaded servers tend to use thread pools
+> >>and never need to use poll().  (Well, ok, I've written multithreaded
+> >>servers that used poll(), but the threads were there for disk I/O,
+> >>not networking.)
+> > 
+> > By thread pool, do you mean, one thread per socket?, or a work-crew
+> model 
+> > where a specified number of threads handle many sockets?
+> 
+> The latter.  But I don't have much recent experience writing threaded
+> servers, as I usually use somthing like epoll.
+> 
+> > My definition of "efficient" is a method that is most widely used or 
+> > accepted for writing a robust scalable server. So I guess, "'runs like
+> a bat 
+> > out of hell, and I don't care how long it takes to write'" is close.
+> > 
+> > Would it be thread pool or epoll? 
+> 
+> My personal bias is towards epoll (suitably wrapped for portability;
+> no need to require epoll when sigio is nearly as good, and universally
+> deployed).
+> 
+>  > Is it uncommon to mix these two?
+> 
+> Folks who know how to program with things like epoll and aio tend
+> to use threads carefully, and try to avoid using blocking I/O for
+> networking.
+> Blocking I/O is unavoidable for things like opening files, though,
+> so it's perfectly fine to have a thread that handles stuff like that.
+> 
+> > Currently, I have a thread-1 calling poll, and dispatching its
+> workload to 
+> > thread-2 and thread-3 in blocking sockets. I dispatch the workload to
+> worker 
+> > threads because some of the operations take considerable time.
+> > 
+> > Is mixing threads with poll uncommon? Is this a bad design? any
+> comments 
+> > would be appreciated.
+> 
+> What are the operations that take considerable time?  Are they
+> networking
+> calls, or disk I/O, or ...?   If they're just networking calls,
+> you might consider turning your code inside out to do everything with
+> nonblocking I/O and state machines, but only if you're hitting a
+> bottleneck
+> because of the number of threads active.
+> 
+> Whatever design you're comfortable with is fine until you fail to hit
+> your
+> performance requirement.  No point in optimizing one little part
+> of the system if the whole system is fast enough, or if the real
+> bottleneck is elsewhere...
+> - Dan
 
-Diffprofile for kernbench (-j) from ext2 to ext3 on mm3
+I think you're right when talking about the design decision and 
+regarding the initial question (since it is not referenced on the 
+C10K page) I'd like to suggest 
+	  http://aem.sourceforge.net
+which provides another possible approach for that kind of problem.
 
-     27022    16.3% total
-     24069    53.3% default_idle
-       583     2.4% page_remove_rmap
-       539   248.4% fd_install
-       478   388.6% __blk_queue_bounce
-       319     4.0% __d_lookup
-       220   122.9% may_open
-       204    68.2% filemap_nopage
-       124     0.0% journal_add_journal_head
-       122   321.1% __find_get_block_slow
-       122     0.0% do_get_write_access
-       101    57.1% generic_fillattr
-...
-       -52   -73.2% .text.lock.highmem
-       -52   -94.5% generic_file_read
-       -53   -18.7% do_generic_mapping_read
-       -58    -3.3% do_no_page
-       -65   -13.0% page_address
-       -65   -60.2% kmap_high
-       -74  -100.0% grab_block
-       -75    -3.3% do_page_fault
-       -85    -1.9% __copy_from_user_ll
-      -273   -19.5% link_path_walk
-      -299    -6.5% find_get_page
-      -758  -100.0% generic_file_open
+The question of I/O completion port was also raised and I think 
+it must be taken into account in the initial design as well.
+In many situations people use threads to handle this asynchronously
+AEM is targeting event handling but provides a native asynchronous 
+socket interface that brings data directly to the applications.
+This is one way of doing it.
 
-SDET:
+On the other hand, it might not be the perfect solution for 
+the problem above. See it as an alternative.
 
-   1726439   214.7% total
-   1383611   345.4% default_idle
-    115417     0.0% .text.lock.transaction
-     79362     0.0% find_next_usable_block
-     38003     0.0% do_get_write_access
-     32429  2316.4% __down
-     31231     0.0% journal_dirty_metadata
-     15114   553.8% schedule
-     14350  1253.3% __wake_up
-     13459     0.0% start_this_handle
-     13100     0.0% journal_stop
-...
-     -1105   -25.1% copy_mm
-     -1144  -100.0% generic_file_open
-     -1205   -45.0% .text.lock.dec_and_lock
-     -1342  -100.0% ext2_new_inode
-     -1365   -50.5% follow_mount
-     -1453  -100.0% grab_block
-     -1580   -30.5% remove_shared_vm_struct
-     -1759   -11.0% copy_page_range
-     -2145   -18.4% __d_lookup
-     -2157   -35.6% path_lookup
-     -2222   -33.7% atomic_dec_and_lock
-     -2813   -25.0% release_pages
-     -3764   -19.1% zap_pte_range
-     -8954   -21.2% page_add_rmap
-    -22707   -25.0% page_remove_rmap
-
+Frederic

@@ -1,63 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129153AbQKXC7v>; Thu, 23 Nov 2000 21:59:51 -0500
+        id <S129153AbQKXDX5>; Thu, 23 Nov 2000 22:23:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130854AbQKXC7m>; Thu, 23 Nov 2000 21:59:42 -0500
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:1297 "HELO
-        note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-        id <S129153AbQKXC7a>; Thu, 23 Nov 2000 21:59:30 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Alexander Viro <viro@math.psu.edu>
-Date: Fri, 24 Nov 2000 13:29:13 +1100 (EST)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14877.53881.182935.597766@notabene.cse.unsw.edu.au>
-Cc: "Mohammad A. Haque" <mhaque@haque.net>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        Tigran Aivazian <tigran@veritas.com>
-Subject: Re: ext2 filesystem corruptions back from dead? 2.4.0-test11
-In-Reply-To: message from Alexander Viro on Thursday November 23
-In-Reply-To: <Pine.GSO.4.21.0011231134250.10872-100000@weyl.math.psu.edu>
-        <Pine.GSO.4.21.0011231205550.11219-100000@weyl.math.psu.edu>
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-        LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-        8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+        id <S129219AbQKXDXr>; Thu, 23 Nov 2000 22:23:47 -0500
+Received: from [209.249.10.20] ([209.249.10.20]:65244 "EHLO
+        freya.yggdrasil.com") by vger.kernel.org with ESMTP
+        id <S129153AbQKXDXa>; Thu, 23 Nov 2000 22:23:30 -0500
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Thu, 23 Nov 2000 18:53:07 -0800
+Message-Id: <200011240253.SAA07442@baldur.yggdrasil.com>
+To: jsk@mojave.stanford.edu, ran@krazynet.com
+Subject: imsttfb.c PCI ID's?
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday November 23, viro@math.psu.edu wrote:
-> 
-> 
-> On Thu, 23 Nov 2000, Alexander Viro wrote:
-> 
-> > On Thu, 23 Nov 2000, Neil Brown wrote:
-> > 
-> > > which enabled ext2_notify_change, however ext2_notify_change has a
-> > > bug.
-> > > It sets attributes from iattr->ia_attr_flags even
-> > > if ATTR_ATTR_FLAG is NOT SET in iattr->ia_valid.
-> > 
-> > Arrrgh. Could you try that:
-> 
-> OK, I really need more coffee - wrong patch. My apologies. Correct (OK,
-> intended) one follows:
 
-Hmmm. either you need more coffee, or I need a new compiler.
-I'm using 2.95.2, and there seems to be some question marks over that.
+	In writing a pci_device_id table for
+linux-2.4.0-test11/drivers/video/imsttfb.c, I see that that driver
+theoretically attepts to bind to any PCI video display with
+a vendor ID set to PCI_VENDOR_ID_IMS, although the code does
+mention device ID's 0x9128 and 0x9135.  Does anybody know if
+there are other device ID's besides 0x9128 and 0x9135 that
+imsttfb.c is interested in, or is it OK to write the
+pci_device_id table to just specify those two rather than all
+PCI video cards made by IMS?
 
-Unfortunately debian/potato doesn't seem to offer anything else
-(Except 2.7.2), so I'll try to download and compile egcs-1.1.2 and see
-how that works.
-
-I ran my test script, which builds a variety of raid5 arrays with
-varying numbers of drives and chunk sizes, and runs mkfs/bonnie/dbench
-on each array, and it got through about 8 file systems but choked on
-the 9th by trying to allocate lots of blocks in the system zone (after
-running for about an hour). 
-
-NeilBrown
+Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
+adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
++1 408 261-6630         | g g d r a s i l   United States of America
+fax +1 408 261-6631      "Free Software For The Rest Of Us."
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

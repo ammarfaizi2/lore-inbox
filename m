@@ -1,35 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318838AbSG0WWX>; Sat, 27 Jul 2002 18:22:23 -0400
+	id <S318841AbSG0W1m>; Sat, 27 Jul 2002 18:27:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318840AbSG0WWX>; Sat, 27 Jul 2002 18:22:23 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:18161 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318838AbSG0WWW>; Sat, 27 Jul 2002 18:22:22 -0400
-Subject: RE: About the need of a swap area
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Buddy Lumpkin <b.lumpkin@attbi.com>
-Cc: Austin Gonyou <austin@digitalroadkill.net>,
-       vda@port.imtp.ilyichevsk.odessa.ua, Ville Herva <vherva@niksula.hut.fi>,
-       DervishD <raul@pleyades.net>,
-       Linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <FJEIKLCALBJLPMEOOMECOEPFCPAA.b.lumpkin@attbi.com>
-References: <FJEIKLCALBJLPMEOOMECOEPFCPAA.b.lumpkin@attbi.com>
-Content-Type: text/plain
+	id <S318842AbSG0W1m>; Sat, 27 Jul 2002 18:27:42 -0400
+Received: from mta06bw.bigpond.com ([139.134.6.96]:1760 "EHLO
+	mta06bw.bigpond.com") by vger.kernel.org with ESMTP
+	id <S318841AbSG0W1l>; Sat, 27 Jul 2002 18:27:41 -0400
+Message-ID: <3D432025.3000901@snapgear.com>
+Date: Sun, 28 Jul 2002 08:35:17 +1000
+From: gerg <gerg@snapgear.com>
+Organization: SnapGear
+User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:1.0.0) Gecko/20020530
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH]: MMU-less patches against 2.5.29
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 28 Jul 2002 00:40:11 +0100
-Message-Id: <1027813211.21516.2.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-07-27 at 23:22, Buddy Lumpkin wrote:
-> I thought linux worked more like Solaris where it didn't use any swap (AT
-> ALL) until it has to... At least, I hope linux works this way.
 
-I'd be suprised if Solaris did something that dumb.
+Hi All,
 
-You want to push out old long unaccessed pages of code to make room for
-more cached disk blocks from files.
+Latest uClinux (MMU-less support) patches against
+Linux 2.5.29 are available at:
+
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.29uc0.patch.gz
+
+Some cleanups of CONFIG_NO_MMU. Size of change against
+some mainline files reduced a bit. Overall a little bit
+cleaner.
+
+Regards
+Greg
+
+
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
+Snapgear Pty Ltd                               PHONE:    +61 7 3279 1822
+825 Stanley St,                                  FAX:    +61 7 3279 1820
+Woolloongabba, QLD, 4102, Australia              WEB:   www.snapgear.com
+
 

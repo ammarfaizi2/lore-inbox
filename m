@@ -1,47 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277208AbRJINiE>; Tue, 9 Oct 2001 09:38:04 -0400
+	id <S277210AbRJINlY>; Tue, 9 Oct 2001 09:41:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277211AbRJINhy>; Tue, 9 Oct 2001 09:37:54 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:58127 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S277208AbRJINhq>;
-	Tue, 9 Oct 2001 09:37:46 -0400
-Date: Tue, 9 Oct 2001 10:37:56 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: Kirill Ratkin <kratkin@yahoo.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: No locking is needed ... why?
-In-Reply-To: <20011009131357.60638.qmail@web11905.mail.yahoo.com>
-Message-ID: <Pine.LNX.4.33L.0110091036530.2847-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S277212AbRJINlO>; Tue, 9 Oct 2001 09:41:14 -0400
+Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:8720 "EHLO
+	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S277210AbRJINlD>; Tue, 9 Oct 2001 09:41:03 -0400
+Date: Tue, 9 Oct 2001 15:41:34 +0200
+From: Jan Hudec <bulb@ucw.cz>
+To: linux-kernel@vger.kernel.org
+Subject: Re: proc file system
+Message-ID: <20011009154134.C28423@artax.karlin.mff.cuni.cz>
+Mail-Followup-To: Jan Hudec <bulb@ucw.cz>, linux-kernel@vger.kernel.org
+In-Reply-To: <200110052202.f95M2Ig16051@mail.swissonline.ch> <20011006173025.F12624@arthur.ubicom.tudelft.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011006173025.F12624@arthur.ubicom.tudelft.nl>; from J.A.K.Mouw@ITS.TUDelft.NL on Sat, Oct 06, 2001 at 05:30:25PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 9 Oct 2001, Kirill Ratkin wrote:
+> On Sat, Oct 06, 2001 at 12:02:18AM +0200, llx@swissonline.ch wrote:
+> > i've written a prog interface for my logger utility to make it easy
+> > to transport my logging information from kernel to userspace using
+> > shell commands. now i want to use tail -f /prog/<mylogfile>. what
+> > do i have to do for that to work. when using tail my loginfo gets
+> > read form my ringbuffer, but nothing gets printed in the terminal.
+> 
+> I think you actually want a character device instead of a /proc file.
 
-> Could somebody explain me this comment?:
-> /*
->  * Incoming packets are placed on per-cpu queues so that
->  * no locking is needed.
->  */
+Could you please explain why? I can't see the advantage (read and write
+are fileops; you can have them exactly the same for proc file and device).
 
-> I didn't understand why packets are placed so and why
-> locking isn't needed?
-
-Each CPU has its own data structure here. This means no
-other CPU will touch this queue (they have their own)
-so there is nobody we could ever race against.
-
-regards,
-
-Rik
--- 
-DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/  (volunteers needed)
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-
+--------------------------------------------------------------------------------
+                  				- Jan Hudec `Bulb' <bulb@ucw.cz>

@@ -1,35 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269674AbRHIKbk>; Thu, 9 Aug 2001 06:31:40 -0400
+	id <S269761AbRHIKug>; Thu, 9 Aug 2001 06:50:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269751AbRHIKbb>; Thu, 9 Aug 2001 06:31:31 -0400
-Received: from druid.if.uj.edu.pl ([149.156.64.221]:57614 "HELO
-	druid.if.uj.edu.pl") by vger.kernel.org with SMTP
-	id <S269674AbRHIKbS>; Thu, 9 Aug 2001 06:31:18 -0400
-Date: Thu, 9 Aug 2001 12:31:31 +0200 (CEST)
-From: Maciej Zenczykowski <maze@druid.if.uj.edu.pl>
-To: Carl-Johan Kjellander <carljohan@kjellander.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: 386 boot problems with 2.4.7 and 2.4.7-ac9
-In-Reply-To: <3B706C11.7010100@kjellander.com>
-Message-ID: <Pine.LNX.4.33.0108091228380.6063-100000@druid.if.uj.edu.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S269760AbRHIKu0>; Thu, 9 Aug 2001 06:50:26 -0400
+Received: from asterix.hrz.tu-chemnitz.de ([134.109.132.84]:50624 "EHLO
+	asterix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S269757AbRHIKuX>; Thu, 9 Aug 2001 06:50:23 -0400
+Date: Thu, 9 Aug 2001 12:50:33 +0200
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: linux-kernel@vger.kernel.org
+Cc: linux-mm@kvack.org
+Subject: Re: Swapping for diskless nodes
+Message-ID: <20010809125033.E1200@nightmaster.csn.tu-chemnitz.de>
+In-Reply-To: <no.id> <E15Ulnx-0006zZ-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <E15Ulnx-0006zZ-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Thu, Aug 09, 2001 at 10:08:37AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The system is a 386DX with an Award 3.15c BIOS. The distribution
-> is smalllinux i think, but I've modified it a lot.
+On Thu, Aug 09, 2001 at 10:08:37AM +0100, Alan Cox wrote:
+> > what is the best/recommended way to do remote swapping via the network
+> > for diskless workstations or compute nodes in clusters in Linux 2.4?=20
+> > Last time i checked was linux 2.2, and there were some races related=20
+> > to network swapping back then. Has this been fixed for 2.4?
+> 
+> The best answer probably is "don't". Networks are high latency things for
+> paging and paging is latency sensitive. If performance is not an issue then
+> the nbd driver ought to work. You may need to check it uses the right
+> GFP_ levels to avoid deadlocks and you might need to up the amount of atomic
+> pool memory. Hopefully other hacks arent needed
 
-99% sure that your problem is binaries for 486 and up, had this problem
-installing RedHat 7.1 on a 486 with no CDROM drive - did the installation
-on a Pentium 3, then it would not boot, compiled a new kernel for 486,
-installed that on the P 3, now it booted on the 486 but would not run
-init.  The binaries were for 686 and refused to run...
+While we are on it: I have an old machine with 64MB of RAM and a
+new, fast machine with 1GB of RAM. 
 
-MaZe.
+Sometimes I need more RAM on the old one and asked myself,
+whether I could first swap over network to the other one, into
+its tmpfs, before digging into real swap on a hard disk.
 
-PS. There should be a choich when installing RedHat in advanced mode what
-processor you want to install for - often enough the computer you are
-installing on is not quite the same as the one it will be running on.
+I have only three machines attached to this small internal
+100Mbit LAN.
 
+Both machines use Kernel 2.4.x.
+
+Are there any races I have to consider?
+
+Thanks & Regards
+
+Ingo Oeser
+-- 
+In der Wunschphantasie vieler Mann-Typen [ist die Frau] unsigned und
+operatorvertraeglich. --- Dietz Proepper in dasr

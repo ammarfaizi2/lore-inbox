@@ -1,68 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266133AbUHPMLj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267565AbUHPMMH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266133AbUHPMLj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 08:11:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267563AbUHPMLi
+	id S267565AbUHPMMH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 08:12:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267571AbUHPMMH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 08:11:38 -0400
-Received: from mailr.eris.qinetiq.com ([128.98.1.9]:37015 "HELO
-	qinetiq-tim.net") by vger.kernel.org with SMTP id S266133AbUHPMLg convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 08:11:36 -0400
-From: Mark Watts <m.watts@eris.qinetiq.com>
-Organization: QinetiQ
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: High CPU usage (up to server hang) under heavy I/O load
-Date: Mon, 16 Aug 2004 13:10:14 +0100
-User-Agent: KMail/1.6.1
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20040813140229.4F48B2FC2C@illicom.com> <200408161013.13829.m.watts@eris.qinetiq.com> <1092653845.20528.3.camel@localhost.localdomain>
-In-Reply-To: <1092653845.20528.3.camel@localhost.localdomain>
-MIME-Version: 1.0
+	Mon, 16 Aug 2004 08:12:07 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:20417 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S267565AbUHPMMD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 08:12:03 -0400
+Date: Mon, 16 Aug 2004 14:09:33 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Thomas Charbonnel <thomas@undata.org>
+Cc: Lee Revell <rlrevell@joe-job.com>, Florian Schmidt <mista.tapas@gmx.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Subject: [patch] voluntary-preempt-2.6.8.1-P2
+Message-ID: <20040816120933.GA4211@elte.hu>
+References: <20040816023655.GA8746@elte.hu> <1092624221.867.118.camel@krustophenia.net> <20040816032806.GA11750@elte.hu> <20040816033623.GA12157@elte.hu> <1092627691.867.150.camel@krustophenia.net> <20040816034618.GA13063@elte.hu> <1092628493.810.3.camel@krustophenia.net> <20040816040515.GA13665@elte.hu> <1092654819.5057.18.camel@localhost> <20040816113131.GA30527@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200408161310.14300.m.watts@eris.qinetiq.com>
-X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.27.0.4; VDF: 6.27.0.11; host: mailr.qinetiq-tim.net)
+In-Reply-To: <20040816113131.GA30527@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
+here's -P2:
 
-> On Llu, 2004-08-16 at 10:13, Mark Watts wrote:
-> > Would this also mean that if I stick a 64bit SATA raid card (a 3Ware
-> > 8506-4LP in this case) into a 32bit pci slot, then I/O is always going to
-> > suck badly?
-> >
-> > ... cos I do, and I/O sucks :)
->
-> Seperate issue.
->
-> 64bit DMA is 64bit addressing (ie can DMA from above 4GB). 64bit wide
-> slot is double the speed for transfers. The 3ware 8xxx I thought could
-> do 64bit addressing although the driver seems to indicate it cannot,
-> so with over 4Gb it would hurt.
+ http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8.1-P2
 
-We're running Dual Opterons (Tyan S2875 boards) with 2GB ram.
-These boards only have 32bit pci slots so we're already not using the full 
-potential of the 3Ware.
-Basically write performance is a major bottleneck (hardware raid-5 with 250GB 
-sata drives) and writing anything over a few meg usually causes the machine 
-to stall while the write occurs.
+Changes since -P1:
 
-- -- 
-Mark Watts
-Senior Systems Engineer
-QinetiQ Trusted Information Management
-Trusted Solutions and Services group
-GPG Public Key ID: 455420ED
+ - trace interrupted kernel code (via hardirqs, NMIs and pagefaults)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+ - yet another shot at trying to fix the IO-APIC/USB issues.
 
-iD8DBQFBIKQmBn4EFUVUIO0RAjZ3AKDctamutj48XLKCMbY4FSfwgjtXEwCdGHPX
-bvvd3PNk3SlilysaOYtwa6Y=
-=rOlr
------END PGP SIGNATURE-----
+ - mcount speedups - tracing should be faster
+
+	Ingo

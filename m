@@ -1,48 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288342AbSAUVPJ>; Mon, 21 Jan 2002 16:15:09 -0500
+	id <S288384AbSAUVP7>; Mon, 21 Jan 2002 16:15:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288374AbSAUVPB>; Mon, 21 Jan 2002 16:15:01 -0500
-Received: from zero.tech9.net ([209.61.188.187]:63760 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S288342AbSAUVOq>;
-	Mon, 21 Jan 2002 16:14:46 -0500
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-From: Robert Love <rml@tech9.net>
-To: yodaiken@fsmlabs.com
-Cc: Daniel Phillips <phillips@bonn-fries.net>,
-        george anzinger <george@mvista.com>, Momchil Velikov <velco@fadata.bg>,
-        Arjan van de Ven <arjan@fenrus.demon.nl>,
-        Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020121090602.A13715@hq.fsmlabs.com>
-In-Reply-To: <E16PZbb-0003i6-00@the-village.bc.nu>
-	<E16SgXE-0001i8-00@starship.berlin> <20020121084344.A13455@hq.fsmlabs.com>
-	<E16SgwP-0001iN-00@starship.berlin>  <20020121090602.A13715@hq.fsmlabs.com>
+	id <S288377AbSAUVPu>; Mon, 21 Jan 2002 16:15:50 -0500
+Received: from AMontpellier-201-1-1-52.abo.wanadoo.fr ([193.252.31.52]:55824
+	"EHLO awak") by vger.kernel.org with ESMTP id <S288374AbSAUVPi>;
+	Mon, 21 Jan 2002 16:15:38 -0500
+Subject: Re: AOL in Negotiations to Buy Red Hat?
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: "M. Edward (Ed) Borasky" <znmeb@aracnet.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0201211150240.1752-100000@shell1.aracnet.com>
+In-Reply-To: <Pine.LNX.4.33.0201211150240.1752-100000@shell1.aracnet.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.1 
-Date: 21 Jan 2002 16:16:51 -0500
-Message-Id: <1011647882.8596.466.camel@phantasy>
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 21 Jan 2002 22:15:21 +0100
+Message-Id: <1011647722.4788.6.camel@bip>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-01-21 at 11:06, yodaiken@fsmlabs.com wrote:
+On Mon, 2002-01-21 at 21:06, M. Edward (Ed) Borasky wrote:
+> On Mon, 21 Jan 2002, Alan Cox wrote:
+> > Well I've no idea on the rumours (and if I did I wouldnt tell you!)
+> > but Im insulted that anyone believes I would continue working for RH
+> > if aol/time warner owned them.
+> 
+> Sadly, I've heard statements like this before; I've even made them :-).
+> If it were a choice between AOL/Time Warner/Red Hat and not working on
+> Linux, would you still make that choice? If it were a choice between
+> working for AOL/Time Warner/Red Hat or working for Red Hat and competing
+> with AOL/Time Warner/Mandrake, would you still make that choice? The
+> world of business, where money talks, presents us with interesting
+> choices from time to time :).
 
-> I have not seen a single well structured benchmark that shows a significant
-> difference. I've seen lots of benchmarks with odd mixes of different patches
-> showing something unknown. How about a simple clear dbench?
 
-I and many others have been posting benchmarks for months.
 
-Here:
+        D O N ' T   F E E D   T H E   T R O L L  !  !
 
-(average of 4 runs of `dbench 16')
-2.5.3-pre1:		25.7608 MB/s
-2.5.3-pre1-preempt:	32.341 MB/s
 
-(old, average of 4 runs of `dbench 16')
-2.5.2-pre11:		24.5364 MB/s
-2.5.2-pre11-preempt:	27.5192 MB/s
+;)
 
-	Robert Love
 

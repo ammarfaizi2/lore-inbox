@@ -1,33 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261550AbRFQQpd>; Sun, 17 Jun 2001 12:45:33 -0400
+	id <S261562AbRFQQqd>; Sun, 17 Jun 2001 12:46:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261562AbRFQQpN>; Sun, 17 Jun 2001 12:45:13 -0400
+	id <S261651AbRFQQqX>; Sun, 17 Jun 2001 12:46:23 -0400
 Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:5380 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S261550AbRFQQpC>;
-	Sun, 17 Jun 2001 12:45:02 -0400
-Message-ID: <20010617182847.A121@bug.ucw.cz>
-Date: Sun, 17 Jun 2001 18:28:47 +0200
+	by vger.kernel.org with ESMTP id <S261562AbRFQQqN>;
+	Sun, 17 Jun 2001 12:46:13 -0400
+Message-ID: <20010617183421.B121@bug.ucw.cz>
+Date: Sun, 17 Jun 2001 18:34:21 +0200
 From: Pavel Machek <pavel@suse.cz>
-To: Alexandr Andreev <andreev@niisi.msk.ru>, linux-kernel@vger.kernel.org
-Subject: Re: Using cramfs as root filesystem on diskless machine
-In-Reply-To: <3B2A0F05.6050902@niisi.msk.ru>
+To: Leon Breedt <ljb@devco.net>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] nonblinking VGA block cursor
+In-Reply-To: <20010615162249.A1328@rinoa.rinoa>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 0.93i
-In-Reply-To: <3B2A0F05.6050902@niisi.msk.ru>; from Alexandr Andreev on Fri, Jun 15, 2001 at 05:35:01PM +0400
+In-Reply-To: <20010615162249.A1328@rinoa.rinoa>; from Leon Breedt on Fri, Jun 15, 2001 at 04:22:49PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> My MIPS machine has no any disks or flopies. So i obliged to use a RAM
-> disk with a file system on it, which is mounted as root.
+> Attached is a patch to enforce a non-blinking, FreeBSD-syscons like
+> block cursor in console mode.
+> 
+> This is useful for laptop types, or people like me who really really
+> detest a blinking cursor.
+> 
+> NOTE: It disables the softcursor escape codes 
+>       (/usr/src/linux/Documentation/VGA-softcursor.txt), since I don't 
+>       ever want anything to change my cursor shape/style :)
+> 
+> It applies cleanly against 2.4.5, to use, select: 
+> 
+> 'VGA block cursor (non-blinking) support' in the 'Console drivers'
+> section of menuconfig.
 
-What machine is that? Some kind of handheld?
+You want softcursor to be used after console reset. Ok. I want
+non-standard pallete after console reset. Should I also add an option?
+
+What could make sense would be "Escape sequence to do after console
+reset". You could type there softcursor sequence to make it solid, and
+I could type there sequence to change my pallete. Seems less ugly than 
+special config option for each such feature.
 								Pavel
-PS: linux-vr list seems dead, right? It would be probably really
-usefull to get replacement...
 -- 
 I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
 Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org

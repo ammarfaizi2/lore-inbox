@@ -1,54 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262347AbUKVWPY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262433AbUKVWK5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262347AbUKVWPY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 17:15:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262411AbUKVWN7
+	id S262433AbUKVWK5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 17:10:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262397AbUKVWFW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 17:13:59 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:14301 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S262347AbUKVWNI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 17:13:08 -0500
-Date: Mon, 22 Nov 2004 14:13:06 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: Andrew Morton <akpm@osdl.org>
-cc: hugh@veritas.com, torvalds@osdl.org, benh@kernel.crashing.org,
-       nickpiggin@yahoo.com.au, linux-mm@kvack.org, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: deferred rss update instead of sloppy rss
-In-Reply-To: <20041122141148.1e6ef125.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.58.0411221408540.22895@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.44.0411221457240.2970-100000@localhost.localdomain>
- <Pine.LNX.4.58.0411221343410.22895@schroedinger.engr.sgi.com>
- <20041122141148.1e6ef125.akpm@osdl.org>
+	Mon, 22 Nov 2004 17:05:22 -0500
+Received: from ns1.lanforge.com ([66.165.47.210]:45032 "EHLO www.lanforge.com")
+	by vger.kernel.org with ESMTP id S262399AbUKVWD2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Nov 2004 17:03:28 -0500
+Message-ID: <41A2622F.1070203@candelatech.com>
+Date: Mon, 22 Nov 2004 14:03:27 -0800
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.3) Gecko/20041020
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: How to compile x86 kernels on Opteron (Fedora core 3)?
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 22 Nov 2004, Andrew Morton wrote:
+Hello!
 
-> hrm.  I cannot see anywhere in this patch where you update task_struct.rss.
+I am trying to compile a 2.4.27 kernel for pentium-2 on an x86_64 Opteron
+system (Fedora Core 3).  I tried editing the Makefile to add -m32 to the gcc
+argument, and I added ARCH=i386 to all of the 'make' commands.
 
-This is just the piece around it dealing with rss. The updating of rss
-happens in the generic code. The change to that is trivial. I can repost
-the whole shebang if you want.
+The first problem I see is that /sbin/genksyms does not exist on FC3.  I am
+not sure where this is supposed to come from, but I coppied a version
+from an different machine and it seems to work OK...
 
-> > +	/* only holding mmap_sem here maybe get page_table_lock too? */
-> > +	mm->rss += tsk->rss;
-> > +	tsk->rss = 0;
-> >  	up_read(&mm->mmap_sem);
->
-> mmap_sem needs to be held for writing, surely?
+After that, the build still fails, complaining about conflicting types for
+various things:
 
-If there are no page faults occurring anymore then we would not need to
-get the lock. Q: Is it safe to assume that no faults occur
-anymore at this point?
+home/greear/kernel/2.4/linux-2.4.27.p2/include/asm/unistd.h:375: warning: conflicting types for built-in function '_exit'
+...
+sched.c:213: error: conflicting types for 'reschedule_idle'
+sched.c:210: error: previous declaration of 'reschedule_idle' was here
+sched.c:213: error: conflicting types for 'reschedule_idle'
+sched.c:210: error: previous declaration of 'reschedule_idle' was here
 
-> just to prevent transient gross inaccuracies.  For some value of "16".
 
-The page fault code only increments rss. For larger transactions that
-increase / decrease rss significantly the page_table_lock is taken and
-mm->rss is updated directly. So no
-gross inaccuracies can result.
+I also tried building in a debian chroot (the binaries there is regular i386).
+This mostly worked but it failed to build something down in the aic scsi code...
+
+So, has anyone got a recipe for cross-compiling regular x86 2.4 and/or 2.6 kernels on an
+x86_64 system?
+
+Thanks,
+Ben
+
+-- 
+Ben Greear <greearb@candelatech.com>
+Candela Technologies Inc  http://www.candelatech.com
+

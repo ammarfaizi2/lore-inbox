@@ -1,80 +1,185 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264447AbTFIO4y (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jun 2003 10:56:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264448AbTFIO4x
+	id S264434AbTFIOyy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jun 2003 10:54:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264437AbTFIOyy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jun 2003 10:56:53 -0400
-Received: from mail.ithnet.com ([217.64.64.8]:58885 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id S264447AbTFIO4v (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jun 2003 10:56:51 -0400
-Date: Mon, 9 Jun 2003 17:10:11 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: linux-kernel@vger.kernel.org, willy@w.ods.org, gibbs@scsiguy.com,
-       marcelo@conectiva.com.br, green@namesys.com
-Subject: Re: Undo aic7xxx changes (now rc7+aic20030603)
-Message-Id: <20030609171011.7f940545.skraw@ithnet.com>
-In-Reply-To: <20030608134901.363ebe42.skraw@ithnet.com>
-References: <Pine.LNX.4.55L.0305071716050.17793@freak.distro.conectiva>
-	<2804790000.1052441142@aslan.scsiguy.com>
-	<20030509120648.1e0af0c8.skraw@ithnet.com>
-	<20030509120659.GA15754@alpha.home.local>
-	<20030509150207.3ff9cd64.skraw@ithnet.com>
-	<20030605181423.GA17277@alpha.home.local>
-	<20030608131901.7cadf9ea.skraw@ithnet.com>
-	<20030608134901.363ebe42.skraw@ithnet.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 9 Jun 2003 10:54:54 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:4805 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264434AbTFIOyq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jun 2003 10:54:46 -0400
+Date: Mon, 9 Jun 2003 16:08:25 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org, Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Subject: [PATCH] PCI domain support
+Message-ID: <20030609150825.GS28581@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
 
-I just finished another bunch of tests around the discussed issue and it's
-getting to an end.
-Yesterday I started using the test box with UP kernel instead of SMP, because I
-have the feeling the whole problem is somewhere around an SMP race condition.
-As far as I can see now the box runs 24h stable _and_ (and this is the
-important part) one problem I did not talk about till now is completely gone:
+This patch (approved by Ivan) adds PCI domain support to sysfs.  Please
+apply.
 
-During the whole testing with SMP I recognised that the tar-verify always
-brought up "content differs" warnings. Which basically means that the filesize
-is ok but the content is not. As there might be various causes for this (bad
-tape, bad drive, bad cabling) I did not give very much about it. But it turns
-out there are no more such warnings when using an UP kernel (on the same box
-with the complete same hardware including tapes).
+Implementations for alpha & ia64 and a default implementation for
+architectures which don't support PCI domains yet.
 
->From this experience I would conclude the following (for my personal test
-case):
+Index: arch/alpha/Kconfig
+===================================================================
+RCS file: /var/cvs/linux-2.5/arch/alpha/Kconfig,v
+retrieving revision 1.13
+diff -u -p -r1.13 Kconfig
+--- arch/alpha/Kconfig	5 May 2003 17:05:24 -0000	1.13
++++ arch/alpha/Kconfig	9 Jun 2003 14:59:36 -0000
+@@ -295,6 +295,10 @@ config PCI
+ 	  information about which PCI hardware does work under Linux and which
+ 	  doesn't.
+ 
++config PCI_DOMAINS
++	bool
++	default PCI
++
+ config ALPHA_CORE_AGP
+ 	bool
+ 	depends on ALPHA_GENERIC || ALPHA_TITAN || ALPHA_MARVEL
+Index: arch/ia64/Kconfig
+===================================================================
+RCS file: /var/cvs/linux-2.5/arch/ia64/Kconfig,v
+retrieving revision 1.12
+diff -u -p -r1.12 Kconfig
+--- arch/ia64/Kconfig	27 May 2003 17:21:18 -0000	1.12
++++ arch/ia64/Kconfig	8 Jun 2003 16:27:35 -0000
+@@ -543,6 +543,10 @@ config PCI
+ 	  information about which PCI hardware does work under Linux and which
+ 	  doesn't.
+ 
++config PCI_DOMAINS
++	bool
++	default PCI
++
+ source "drivers/pci/Kconfig"
+ 
+ config HOTPLUG
+Index: arch/ia64/hp/common/sba_iommu.c
+===================================================================
+RCS file: /var/cvs/linux-2.5/arch/ia64/hp/common/sba_iommu.c,v
+retrieving revision 1.7
+diff -u -p -r1.7 sba_iommu.c
+--- arch/ia64/hp/common/sba_iommu.c	27 May 2003 17:21:18 -0000	1.7
++++ arch/ia64/hp/common/sba_iommu.c	8 Jun 2003 16:06:36 -0000
+@@ -1889,7 +1889,7 @@ sba_connect_bus(struct pci_bus *bus)
+ 		handle = parent;
+ 	} while (ACPI_SUCCESS(status));
+ 
+-	printk(KERN_WARNING "No IOC for PCI Bus %02x:%02x in ACPI\n", PCI_SEGMENT(bus), bus->number);
++	printk(KERN_WARNING "No IOC for PCI Bus %04x:%02x in ACPI\n", pci_domain_nr(bus), bus->number);
+ }
+ 
+ static int __init
+Index: arch/ia64/pci/pci.c
+===================================================================
+RCS file: /var/cvs/linux-2.5/arch/ia64/pci/pci.c,v
+retrieving revision 1.7
+diff -u -p -r1.7 pci.c
+--- arch/ia64/pci/pci.c	27 May 2003 17:21:22 -0000	1.7
++++ arch/ia64/pci/pci.c	8 Jun 2003 16:05:53 -0000
+@@ -87,14 +87,14 @@ __pci_sal_write (int seg, int bus, int d
+ static int
+ pci_sal_read (struct pci_bus *bus, unsigned int devfn, int where, int size, u32 *value)
+ {
+-	return __pci_sal_read(PCI_SEGMENT(bus), bus->number, PCI_SLOT(devfn), PCI_FUNC(devfn),
++	return __pci_sal_read(pci_domain_nr(bus), bus->number, PCI_SLOT(devfn), PCI_FUNC(devfn),
+ 			      where, size, value);
+ }
+ 
+ static int
+ pci_sal_write (struct pci_bus *bus, unsigned int devfn, int where, int size, u32 value)
+ {
+-	return __pci_sal_write(PCI_SEGMENT(bus), bus->number, PCI_SLOT(devfn), PCI_FUNC(devfn),
++	return __pci_sal_write(pci_domain_nr(bus), bus->number, PCI_SLOT(devfn), PCI_FUNC(devfn),
+ 			       where, size, value);
+ }
+ 
+Index: drivers/pci/probe.c
+===================================================================
+RCS file: /var/cvs/linux-2.5/drivers/pci/probe.c,v
+retrieving revision 1.14
+diff -u -p -r1.14 probe.c
+--- drivers/pci/probe.c	27 May 2003 17:25:03 -0000	1.14
++++ drivers/pci/probe.c	8 Jun 2003 16:36:59 -0000
+@@ -528,7 +528,8 @@ pci_scan_device(struct pci_bus *bus, int
+ 	pci_name_device(dev);
+ 
+ 	/* now put in global tree */
+-	strcpy(dev->dev.bus_id,dev->slot_name);
++	sprintf(dev->dev.bus_id, "%04x:%s", pci_domain_nr(bus),
++			dev->slot_name);
+ 	dev->dev.dma_mask = &dev->dma_mask;
+ 
+ 	return dev;
+Index: include/asm-alpha/pci.h
+===================================================================
+RCS file: /var/cvs/linux-2.5/include/asm-alpha/pci.h,v
+retrieving revision 1.9
+diff -u -p -r1.9 pci.h
+--- include/asm-alpha/pci.h	24 Apr 2003 01:37:20 -0000	1.9
++++ include/asm-alpha/pci.h	9 Jun 2003 15:01:43 -0000
+@@ -195,6 +195,9 @@ extern void
+ pcibios_resource_to_bus(struct pci_dev *dev, struct pci_bus_region *region,
+ 			 struct resource *res);
+ 
++#define pci_domain_nr(bus) ({ struct pci_controller *_hose_ = bus->sysdata; \
++			      _hose_->index; })
++
+ #endif /* __KERNEL__ */
+ 
+ /* Values for the `which' argument to sys_pciconfig_iobase.  */
+Index: include/asm-ia64/pci.h
+===================================================================
+RCS file: /var/cvs/linux-2.5/include/asm-ia64/pci.h,v
+retrieving revision 1.7
+diff -u -p -r1.7 pci.h
+--- include/asm-ia64/pci.h	27 May 2003 17:28:04 -0000	1.7
++++ include/asm-ia64/pci.h	6 Jun 2003 19:57:29 -0000
+@@ -95,7 +95,7 @@ struct pci_controller {
+ };
+ 
+ #define PCI_CONTROLLER(busdev) ((struct pci_controller *) busdev->sysdata)
+-#define PCI_SEGMENT(busdev)    (PCI_CONTROLLER(busdev)->segment)
++#define pci_domain_nr(busdev)    (PCI_CONTROLLER(busdev)->segment)
+ 
+ /* generic pci stuff */
+ #include <asm-generic/pci.h>
+Index: include/linux/pci.h
+===================================================================
+RCS file: /var/cvs/linux-2.5/include/linux/pci.h,v
+retrieving revision 1.16
+diff -u -p -r1.16 pci.h
+--- include/linux/pci.h	27 May 2003 17:29:00 -0000	1.16
++++ include/linux/pci.h	9 Jun 2003 14:58:42 -0000
+@@ -868,5 +868,15 @@ extern int pci_pci_problems;
+ #define PCIPCI_VSFX		16
+ #define PCIPCI_ALIMAGIK		32
+ 
++/*
++ * PCI domain support.  Sometimes called PCI segment (eg by ACPI),
++ * a PCI domain is defined to be a set of PCI busses which share
++ * configuration space.
++ */
++
++#ifndef CONFIG_PCI_DOMAINS
++#define pci_domain_nr(bus)	0
++#endif
++
+ #endif /* __KERNEL__ */
+ #endif /* LINUX_PCI_H */
 
-1) aic-driver has problems with smp/up switching (meaning crashes when trying
-an SMP build with nosmp). This is completely reproducable.
-
-2) aic-driver (almost no matter what version) has problems with SMP setup and
-tape drives. Obviously data integrity is not given. This is completely
-reproducable in my test setup.
-
-For Marcelo: 
-It seems you can take any version of the aic driver for small box setups with
-UP, I never saw any troubles with it. As soon as you look at SMP flush it down
-the t..let.
-
-For Justin:
-Thank you for your continous openness and support in the whole issue in form of
-exactly _zero_ comments (,besides "how do you know aic is to blame?").
-
-For Willy:
-I honour your efforts, but we are not capable of solving the issue.
-
-For Oleg:
-Stay tuned, I will test the re-creation issue and your patch.
-
-And now I go and buy a Symbios controller and re-try.
-
-Regards,
-Stephan
+-- 
+"It's not Hollywood.  War is real, war is primarily not about defeat or
+victory, it is about death.  I've seen thousands and thousands of dead bodies.
+Do you think I want to have an academic debate on this subject?" -- Robert Fisk

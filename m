@@ -1,40 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269246AbUJKUzX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269247AbUJKVAi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269246AbUJKUzX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 16:55:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269247AbUJKUzX
+	id S269247AbUJKVAi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 17:00:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269250AbUJKVAi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 16:55:23 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:54656 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S269246AbUJKUzS (ORCPT
+	Mon, 11 Oct 2004 17:00:38 -0400
+Received: from hqemgate00.nvidia.com ([216.228.112.144]:33290 "EHLO
+	hqemgate00.nvidia.com") by vger.kernel.org with ESMTP
+	id S269247AbUJKVAd convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 16:55:18 -0400
-Date: Mon, 11 Oct 2004 13:55:05 -0700
-Message-Id: <200410112055.i9BKt5LI031359@magilla.sf.frob.com>
+	Mon, 11 Oct 2004 17:00:33 -0400
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-From: Roland McGrath <roland@redhat.com>
-To: joshk@triplehelix.org (Joshua Kwan)
-X-Fcc: ~/Mail/linus
-Cc: Andrew Morton <akpm@osdl.org>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Weirdness with suspending jobs in 2.6.9-rc3
-In-Reply-To: Joshua Kwan's message of  Sunday, 10 October 2004 14:15:07 -0700 <20041010211507.GB3316@triplehelix.org>
-Emacs: if it payed rent for disk space, you'd be rich.
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: Linux 2.4.28-pre4
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Date: Mon, 11 Oct 2004 14:00:31 -0700
+Message-ID: <DBCA8061DCF2114CA6FFBF6B9E4FE09B74A07D@hqemmail03.nvidia.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Linux 2.4.28-pre4
+Thread-Index: AcSvtPU6RI0vzteJRn2aAUL54THcBgAH9iYA
+From: "Brian Lazara" <BLazara@nvidia.com>
+To: "Jeff Garzik" <jgarzik@pobox.com>
+Cc: "Marcelo Tosatti" <marcelo.tosatti@cyclades.com>,
+       <linux-kernel@vger.kernel.org>, <manfred@colorfullife.com>
+X-OriginalArrivalTime: 11 Oct 2004 21:00:32.0308 (UTC) FILETIME=[58A15740:01C4AFD5]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> wait4(-1073750280, NULL, 0, NULL)       = -1 ECHILD (No child processes)
+> -----Original Message-----
+> From: Jeff Garzik [mailto:jgarzik@pobox.com] 
+> Sent: Monday, October 11, 2004 10:08 AM
+> To: Brian Lazara
+> Cc: Marcelo Tosatti; linux-kernel@vger.kernel.org; 
+> manfred@colorfullife.com
+> Subject: Re: Linux 2.4.28-pre4
+> 
+> 
+> Brian Lazara wrote:
+> > At some point, can we get forcedeth.c updated in 2.4.x? We've taken 
+> > the latest from 2.6.8 and posted a patch against 2.4.27, 
+> but it isn't 
+> > getting picked up. See 
+> > http://www.uwsg.indiana.edu/hypermail/linux/kernel/0408.1/1523.html
+> 
+> Nobody has submitted a forcedeth update to me for 2.4.
 
-That is a clearly bogus argument.  (In fact it looks like a stack address,
-a common thing to be found in uninitialized variables.)  Unless you have
-some reason to suspect that this is not the argument actually passed by
-make, then you should look at make and see why it passed the bogus
-argument.  So far, I still don't see a direct suggestion of a kernel bug
-here.  
+I figured as much. I've pinged Manfred a couple of times on this. It
+doesn't appear that he is interested in keeping the 2.4 version of the
+driver up-to-date. 
+
+-Brian
 
 
-
-Thanks,
-Roland
+> 
+> These things don't just happen by magic ;-)
+> 
+> 	Jeff
+> 
+> 
+> 
+> 

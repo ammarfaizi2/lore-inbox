@@ -1,101 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265000AbUGGNwe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265007AbUGGNzf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265000AbUGGNwe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jul 2004 09:52:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265007AbUGGNwe
+	id S265007AbUGGNzf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jul 2004 09:55:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265133AbUGGNzf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jul 2004 09:52:34 -0400
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:32216 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S265000AbUGGNwb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jul 2004 09:52:31 -0400
-Message-ID: <40EC001E.5020508@comcast.net>
-Date: Wed, 07 Jul 2004 09:52:30 -0400
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040630)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: davidm@hpl.hp.com
-CC: Jack Steiner <steiner@sgi.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] - Reduce TLB flushing during process migration
-References: <20040623143844.GA15670@sgi.com>	<20040623143318.07932255.akpm@osdl.org>	<16605.1322.355489.223220@napali.hpl.hp.com>	<20040702173905.GA18884@sgi.com> <16619.15708.487344.93894@napali.hpl.hp.com>
-In-Reply-To: <16619.15708.487344.93894@napali.hpl.hp.com>
-X-Enigmail-Version: 0.84.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 7 Jul 2004 09:55:35 -0400
+Received: from 41.150.104.212.access.eclipse.net.uk ([212.104.150.41]:1695
+	"EHLO voidhawk.shadowen.org") by vger.kernel.org with ESMTP
+	id S265007AbUGGNzc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jul 2004 09:55:32 -0400
+Date: Wed, 7 Jul 2004 14:55:13 +0100
+From: Andy Whitcroft <apw@shadowen.org>
+Message-Id: <200407071355.i67DtDF1019243@voidhawk.shadowen.org>
+To: akpm@osdl.org, apw@shadowen.org
+Subject: Re: [RFC] [PATCH] add TRAP_BAD_SYSCALL_EXITS config for i386
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20040702163219.7ec698e2.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+> The TRAP_BAD_SYSCALL stuff is actually a bloa^Wfeature which was added
+> via the kgdb patch, so it is not in -bk.
+> 
+> I've never used it, dunno what it does.  I'll roll your two patches into the
+> kgdb patches in -mm, thanks.
 
+This adds code to the syscall return path to check that we are
+not returning with preempt_count() != 0.  I think that this is a
+pretty useful diagnostics tool.  I think that this part should be
+split off and considered for inclusion separatly from the GBD part.
+It seems that they intended to cause a breakpoint when this occurs.
+The small assembly stub combined with something like the patch
+below would stand alone.  I've used it as a diagnotics tool.
 
+I could put together a patch to separate this functionality off
+from the GDB patches.  If you agree its worthwhile I am happy to
+talk to the GDB people about it.
 
-David Mosberger wrote:
-|>>>>>On Fri, 2 Jul 2004 12:39:05 -0500, Jack Steiner <steiner@sgi.com>
-said:
-|
-| Well, then it's not a true no-op.  The other no-ops are all for
-| init-type stuff, so they're not at all performance critical.  Even
-| when compiling a non-generic kernel, those no-op functions will be
-| called.  This is really a limitation in the current machvec-scheme.  I
-| think what we need is a way to explicitly declare a no-op callback,
-| such that it can be optimized away completely for platforms that don't
-| need it.  Perhaps there could be something along the lines of:
-|
-| #ifdef CONFIG_IA64_GENERIC
-| # define machvec_noop(noop_function)	noop_function
-| #else
-| # define machvec_noop(noop_function)	/* empty */
-| #endif
-|
+-apw
 
-?????
+=== 8< ===
+When we detect that a system call has returned with preempt still disabled
+report this situation, including the system call number, return value and
+preempt value, as well a dropping a register dump.  In the spirit of other
+oops handling attempt to recover from it and continue.
 
-1.  At any -O level, I'd assume the loop optimizer or something along
-those lines would see a 1 iteration loop and remove the actual loop
-instruction:
+Revision: $Rev: 371 $
 
-MOV CX,1 ; 1 iteration
-...
-LOOP ; Just DEC CX and falls through
+Signed-off-by: Andy Whitcroft <apw@shadowen.org>
 
-In the pseudocode above, we can clearly see that the MOV and the LOOP
-perform no real function.  The optimizer *should* AFAIK notice that a
-do{...}while(0) generates useless looping instructions and thus prevent
-those instructions from being generated.  In the case of do{}while(0),
-this generates 0 instructions.
+---
 
-2.  A function call to a no-op is an unoptimizable and excessive
-overhead compared to do{}while(0) in most cases; the no-op would need to
-be inline assembly, thus maintained for each arch, AFAIK.
-
-3.  An actual no-op instruction still needs to be iterated past by the
-processor.  Usually, no-op is only generated by the compiler for
-padding, AFAIK; and even then, there's some kind of jump before the load
-of no-ops to get past them.  I don't know if inline assembly is
-optimized out; but I would assume not.
-
-4.  I don't think /* empty */; is an error; but the following block has
-problems:
-
-if (foo)
-~  ;
-else
-~  do_something();
-
-So, we need something that gets parsed to exactly nothing.
-
-Thus, as far as I can understand, because we use -O2 or -Os, we will
-always get exactly 0 instructions from do{}while(0).  This is the best
-solution to the problem.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFA7AAchDd4aOud5P8RAtYeAJ9rdKb4ZE4KPT15C2O8TvlrL82A/gCdFm2b
-fslXb9dDCj6ccW7tSFpogzw=
-=v4oX
------END PGP SIGNATURE-----
+diff -X /home/apw/brief/lib/vdiff.excl -rupN reference/arch/i386/kernel/entry.S current/arch/i386/kernel/entry.S
+--- reference/arch/i386/kernel/entry.S	2004-07-07 14:34:58.000000000 +0100
++++ current/arch/i386/kernel/entry.S	2004-07-07 14:40:19.000000000 +0100
+@@ -317,7 +317,13 @@ restore_all:
+ 	cmpl $0,TI_preempt_count(%ebp)  # non-zero preempt_count ?
+ 	jz resume_kernelX
+ 
+-        int $3
++        movl %esp, %ebx			# Record the original register dump
++	movl ORIG_EAX(%esp), %eax	# Recover the return value from syscall
++
++	pushl EAX(%esp)			# Recover the original system call #
++	pushl %eax
++	pushl %ebx
++	call do_bad_syscall_exit
+ 
+ resume_kernelX:
+ #endif
+diff -X /home/apw/brief/lib/vdiff.excl -rupN reference/arch/i386/kernel/traps.c current/arch/i386/kernel/traps.c
+--- reference/arch/i386/kernel/traps.c	2004-07-07 14:34:59.000000000 +0100
++++ current/arch/i386/kernel/traps.c	2004-07-07 14:56:37.000000000 +0100
+@@ -874,6 +874,20 @@ asmlinkage void do_spurious_interrupt_bu
+ #endif
+ }
+ 
++#ifdef CONFIG_TRAP_BAD_SYSCALL_EXITS
++void do_bad_syscall_exit(struct pt_regs *regs, long syscall, long error_code)
++{
++	/*
++	 * Report the preempt count.  Then fix it so we can kill the
++	 * process and continue.  We _may_ get away with it.
++	 */
++	printk("Bad syscall exit - syscall %ld returned %ld preempt %08x\n",
++		syscall, error_code, preempt_count());
++	preempt_count() = 0;
++	die("Bad syscall exit - preempt non-zero", regs, syscall);
++}
++#endif
++
+ /*
+  *  'math_state_restore()' saves the current math information in the
+  * old math state array, and gets the new ones from the current task

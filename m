@@ -1,67 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263269AbTCNHfX>; Fri, 14 Mar 2003 02:35:23 -0500
+	id <S263263AbTCNHdl>; Fri, 14 Mar 2003 02:33:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263271AbTCNHfX>; Fri, 14 Mar 2003 02:35:23 -0500
-Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:5388 "EHLO
-	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S263269AbTCNHfR>; Fri, 14 Mar 2003 02:35:17 -0500
-Date: Fri, 14 Mar 2003 08:45:30 +0100
-From: Jurriaan <thunder7@xs4all.nl>
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.64: ioremap_nocache() failes with 1 gigabyte memory, works with 512 Mb?
-Message-ID: <20030314074530.GA1673@middle.of.nowhere>
-Reply-To: thunder7@xs4all.nl
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Message-Flag: Still using Outlook? Please Upgrade to real software!
-User-Agent: Mutt/1.5.3i
+	id <S263264AbTCNHdl>; Fri, 14 Mar 2003 02:33:41 -0500
+Received: from 169.imtp.Ilyichevsk.Odessa.UA ([195.66.192.169]:58375 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S263263AbTCNHdl>; Fri, 14 Mar 2003 02:33:41 -0500
+Message-Id: <200303140718.h2E7IKu06478@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=US-ASCII
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Szakacsits Szabolcs <szaka@sienet.hu>
+Subject: Re: 2.5.63 accesses below %esp (was: Re: ntfs OOPS (2.5.63))
+Date: Fri, 14 Mar 2003 09:14:59 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
+References: <200303132104.h2DL4TKf005825@eeyore.valparaiso.cl>
+In-Reply-To: <200303132104.h2DL4TKf005825@eeyore.valparaiso.cl>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I reported a problem with the tdfxfb framebuffer yesterday, where it
-said:
+On 13 March 2003 23:04, Horst von Brand wrote:
+> Szakacsits Szabolcs <szaka@sienet.hu> said:
+> > On Wed, 12 Mar 2003, Horst von Brand wrote:
+> > > It is _hard_ to do with variable length instructions (CISC,
+> > > remember?), the code is designed to be easily decoded forward,
+> > > noone executes code going backwards.
+> >
+> > Of course, it's a bad approach. You start earlier and stop at EIP.
+> > Repeat this for max(instruction length) different offsets and you
+> > will have the winner. Figure it out from the context after EIP.
+>
+> By hand, OK. Automatically, no.
 
-fb: Can't remap 3Dfx Voodoo5 register area.
-
-when loading the module. On compiling the framebuffer into the kernel,
-it oopsed.
-
-Andrew Morton advised
-> 
-> http://www.kernel.org/pub/linux/kernel/v2.5/testing/cset/cset-1.1068.1.17-to-1.1104.txt.gz
-> 
-That file doesn't exist, but there exists a cset-1.1104.txt file. That's
-about the framepointer and gcc-2.96, whereas I use 
-
-Reading specs from /usr/lib/gcc-lib/i386-linux/3.2.3/specs
-<snip>
-gcc version 3.2.3 20030309 (Debian prerelease)
-
-a somewhat more advanced version :-)
-
-Anyway, since it fails as a module, I think I just get a failed call to
-ioremap_nocache() in drivers/video/tdfxfb.c.
-
-Now I added some information to the printk, and I now know:
-
-fb: Can't remap 3Dfx Voodoo5 register area. (start d0000000 length 8000000)
-
-If I boot my kernel with 'mem=512M' I can use the framebuffer just fine
-(well, it doesn't work and writes funky patters to the screen, but at
-least ioremap_nocache() works fine).
-
-What is the reason ioremap_nocache() fails? Is this something that can
-be prevented? I am not entirely clear on what is happening anyway (real
-memory, virtual memory, nocache-memory, io-memory - a little bit above
-my head :-) ).
-
-Kind regards,
-Jurriaan
--- 
-A stone makes a splash when it strikes the water, Lisseut had thought,
-standing by this same shore on the day she'd arrived near the end of
-autumn, but no sound at all as it sinks down to the lake's deep bed.
-	Guy Gavriel Kay - A Song for Narbonne
-GNU/Linux 2.5.64 SMP/ReiserFS 3948 bogomips load av: 0.21 0.22 0.20
+Why not? Disassemble from, say, EIP-16 and check whether you
+have an instruction starting exactly at EIP. If no, repeat from EIP-15, -14...
+You are guaranteed to succeed at EIP-0  ;)
+--
+vda

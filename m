@@ -1,91 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261159AbTISCsH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Sep 2003 22:48:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261162AbTISCsH
+	id S261162AbTISDBf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Sep 2003 23:01:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261164AbTISDBf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Sep 2003 22:48:07 -0400
-Received: from h80ad275c.async.vt.edu ([128.173.39.92]:6787 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S261159AbTISCsD (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Sep 2003 22:48:03 -0400
-Message-Id: <200309190247.h8J2lmhx005690@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: Sean Estabrooks <seanlkml@rogers.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PCMCIA] Xircom nic hang on boot since cs.c race condition patch 
-In-Reply-To: Your message of "Wed, 17 Sep 2003 22:33:36 BST."
-             <20030917223336.H16045@flint.arm.linux.org.uk> 
-From: Valdis.Kletnieks@vt.edu
-References: <20030917144406.753953dd.seanlkml@rogers.com>
-            <20030917223336.H16045@flint.arm.linux.org.uk>
+	Thu, 18 Sep 2003 23:01:35 -0400
+Received: from mx2.undergrid.net ([64.174.245.170]:26579 "EHLO
+	mail.undergrid.net") by vger.kernel.org with ESMTP id S261162AbTISDBd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Sep 2003 23:01:33 -0400
+From: "Jeremy T. Bouse" <Jeremy.Bouse@UnderGrid.net>
+Date: Thu, 18 Sep 2003 20:00:37 -0700
+To: linux-kernel@vger.kernel.org
+Subject: Problems with airo/airo_cs since test4-bk2
+Message-ID: <20030919030037.GA5581@UnderGrid.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1002345984P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Thu, 18 Sep 2003 22:47:48 -0400
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="6c2NcOVqGQ03X4Wi"
+Content-Disposition: inline
+X-GPG-Debian: 1024D/29AB4CDD  C745 FA35 27B4 32A6 91B3 3935 D573 D5B1 29AB 4CDD
+X-GPG-General: 1024D/62DBDF62  E636 AB22 DC87 CD52 A3A4 D809 544C 4868 62DB DF62
+User-Agent: Mutt/1.5.4i
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1002345984P
+
+--6c2NcOVqGQ03X4Wi
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Wed, 17 Sep 2003 22:33:36 BST, Russell King said:
-> On Wed, Sep 17, 2003 at 02:44:06PM -0400, Sean Estabrooks wrote:
-> > [PCMCIA] Fix race condition causing cards to be incorrectly recognised
-> > 
-> > This patch that went into test5 causes my Toshiba laptop with Xircom 
-> > pcmcia nic to freeze on boot at "Socket status: 30000020".  
-> 
-> Unfortunately this patch does two things:
-> 
-> (a) it fixes the problem with PCMCIA cards not being recognised on boot.
-> (b) it introduces a deadlock between the PCMCIA layer and the driver
->     model.
+	Since test4-bk2 I've still had increasing problems with the
+airo/airo_cs driver... test4-bk2 operates but generates an awful lot of
+frame errors... I've tried test5-bk1 , bk3 and bk5 and they fail to even
+be able to associate with the AP at all and totally unusable... As soon
+as the driver and/or card are removed it causes an oops unlike earlier
+test versions which would just lock the whole machine up...
 
-OK... so what's different about Sean's Toshiba and my Dell (or alternatively,
-the fact we both have Xircom cards) that the *old* code worked just fine?
+	Has anyone else been noticing these problems with a Cisco Aironet 350?
+I've got it in a Sony Vaio PCG-C1MWP and use it on two networks which
+use either a LinkSys WAP11 or an Orinoco AP-1000 with the same
+results...
 
-Is it the fact that it's a multi-function card?
+	Regards,
+	Jeremy
 
-lspci -v says:
-03:00.0 Ethernet controller: Xircom Cardbus Ethernet 10/100 (rev 03)
-        Subsystem: Xircom Cardbus Ethernet 10/100
-        Flags: bus master, medium devsel, latency 64, IRQ 9
-        I/O ports at 1000 [size=128]
-        Memory at 10800000 (32-bit, non-prefetchable) [size=2K]
-        Memory at 10800800 (32-bit, non-prefetchable) [size=2K]
-        Expansion ROM at 10400000 [disabled] [size=16K]
-        Capabilities: [dc] Power Management version 1
-
-03:00.1 Serial controller: Xircom Cardbus Ethernet + 56k Modem (rev 03) (prog-if 02 [16550])
-        Subsystem: Xircom CBEM56G-100 Ethernet + 56k Modem
-        Flags: medium devsel, IRQ 9
-        I/O ports at 1080 [size=8]
-        Memory at 10801000 (32-bit, non-prefetchable) [size=2K]
-        Memory at 10801800 (32-bit, non-prefetchable) [size=2K]
-        Expansion ROM at 10404000 [disabled] [size=16K]
-        Capabilities: [dc] Power Management version 1
-
-I could see problems if the serial controller is being added while the ethernet
-controller is still getting its act together while holding locks, since it's one
-physical card.
-
-I admit not being hot on the programming model  for cardbus, but I'm
-quite willing to test patches.. ;)
-
-
-
---==_Exmh_1002345984P
-Content-Type: application/pgp-signature
+--6c2NcOVqGQ03X4Wi
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+Version: GnuPG v1.2.3 (GNU/Linux)
 
-iD8DBQE/am5UcC3lWbTT17ARAgqoAJ9+i4Xb72qznNRS11kTb8DQ6vDhKgCgjOMi
-eIv6ar7Ec7S4h7YrUCNvye4=
-=LiNs
+iD8DBQE/anFVzbdYcZyFNB8RAlzUAKC9i3mvYtbU6UxR+kdkKZyU13xiaQCfRBn7
+oECX0dhr9Sc9ByrEJgzrGeE=
+=VwPM
 -----END PGP SIGNATURE-----
 
---==_Exmh_1002345984P--
+--6c2NcOVqGQ03X4Wi--

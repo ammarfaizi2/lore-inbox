@@ -1,47 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135375AbRDLWwO>; Thu, 12 Apr 2001 18:52:14 -0400
+	id <S135378AbRDLXLe>; Thu, 12 Apr 2001 19:11:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135376AbRDLWwD>; Thu, 12 Apr 2001 18:52:03 -0400
-Received: from balu.sch.bme.hu ([152.66.224.40]:48536 "EHLO balu.sch.bme.hu")
-	by vger.kernel.org with ESMTP id <S135375AbRDLWvx>;
-	Thu, 12 Apr 2001 18:51:53 -0400
-Date: Fri, 13 Apr 2001 00:51:30 +0200
-From: Pozsar Balazs <pozsy@sch.bme.hu>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [test-PATCH] Re: [QUESTION] 2.4.x nice level
-Message-ID: <20010413005130.A4438@balu.sch.bme.hu>
-Mail-Followup-To: Rik van Riel <riel@conectiva.com.br>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0104110726210.25737-100000@imladris.rielhome.conectiva> <Pine.LNX.4.21.0104111251040.25737-100000@imladris.rielhome.conectiva>
-Mime-Version: 1.0
+	id <S135379AbRDLXLY>; Thu, 12 Apr 2001 19:11:24 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:41736 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S135378AbRDLXLL>; Thu, 12 Apr 2001 19:11:11 -0400
+Subject: Re: Linux-Kernel Archive: No 100 HZ timer !
+To: andre@linux-ide.org (Andre Hedrick)
+Date: Fri, 13 Apr 2001 00:12:31 +0100 (BST)
+Cc: schwidefsky@de.ibm.com, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.10.10104121448520.4564-100000@master.linux-ide.org> from "Andre Hedrick" at Apr 12, 2001 02:52:22 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <Pine.LNX.4.21.0104111251040.25737-100000@imladris.rielhome.conectiva>; from riel@conectiva.com.br on Wed, Apr 11, 2001 at 12:53:16PM -0300
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14nqGQ-0001i5-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 11, 2001 at 12:53:16PM -0300, Rik van Riel wrote:
-> On Wed, 11 Apr 2001, Rik van Riel wrote:
-> 
-> > OK, here it is. It's nothing like montavista's singing-dancing
-> > scheduler patch that does all, just a really minimal change that
-> > should stretch the nice levels to yield the following CPU usage:
-> > 
-> > Nice    0    5   10   15   19
-> > %CPU  100   56   25    6    1
-> 
->   PID USER     PRI  NI  SIZE SWAP  RSS SHARE STAT %CPU %MEM   TIME COMMAND
->   980 riel      17   0   296    0  296   240 R    54.1  0.5  54:19 loop
->  1005 riel      16   5   296    0  296   240 R N  27.0  0.5   0:34 loop
->  1006 riel      17  10   296    0  296   240 R N  13.5  0.5   0:16 loop
->  1007 riel      18  15   296    0  296   240 R N   4.5  0.5   0:05 loop
->   987 riel      20  19   296    0  296   240 R N   0.4  0.5   0:25 loop
+> Okay but what will be used for a base for hardware that has critical
+> timing issues due to the rules of the hardware?
 
-How does this scale to negative nice levels? Afaik it should, in some way.
-(I don't mean that it's wrong in this state, i'm just asking).
+> #define WAIT_MIN_SLEEP  (2*HZ/100)      /* 20msec - minimum sleep time */
+> 
+> Give me something for HZ or a rule for getting a known base so I can have
+> your storage work and not corrupt.
 
-regards,
-Balazs.
+
+The same values would be valid with add_timer and friends regardless. Its just
+that people who do
+
+	while(time_before(jiffies, started+DELAY))
+	{
+		if(poll_foo())
+			break;
+	}
+
+would need to either use add_timer or we could implement get_jiffies()
+
+
+	

@@ -1,70 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281748AbRLBSPs>; Sun, 2 Dec 2001 13:15:48 -0500
+	id <S281678AbRLBSM1>; Sun, 2 Dec 2001 13:12:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281739AbRLBSPi>; Sun, 2 Dec 2001 13:15:38 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:65183 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S276591AbRLBSPV>;
-	Sun, 2 Dec 2001 13:15:21 -0500
-Date: Sun, 2 Dec 2001 21:12:58 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Victor Yodaiken <yodaiken@fsmlabs.com>,
-        Andrew Morton <akpm@zip.com.au>, Larry McVoy <lm@bitmover.com>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        Henning Schmiedehausen <hps@intermeta.de>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
-Subject: Re: Coding style - a non-issue
-In-Reply-To: <Pine.LNX.4.33L.0112021528300.4079-100000@imladris.surriel.com>
-Message-ID: <Pine.LNX.4.33.0112022102150.19739-100000@localhost.localdomain>
+	id <S276591AbRLBSMS>; Sun, 2 Dec 2001 13:12:18 -0500
+Received: from as3-1-8.ras.s.bonet.se ([217.215.75.181]:62117 "EHLO
+	garbo.localnet") by vger.kernel.org with ESMTP id <S281678AbRLBSME>;
+	Sun, 2 Dec 2001 13:12:04 -0500
+Message-ID: <3C0A6ECF.82C34304@canit.se>
+Date: Sun, 02 Dec 2001 19:11:27 +0100
+From: Kenneth Johansson <ken@canit.se>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.16 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Charles-Edouard Ruault <ce@ruault.com>
+CC: stephane@tuxfinder.org, Jeff Merkey <jmerkey@timpanogas.org>,
+        J Sloan <jjs@pobox.com>, linux-kernel@vger.kernel.org
+Subject: Re: File system Corruption with 2.4.16
+In-Reply-To: <3C0954D5.6AA3532B@ruault.com> <3C09580F.5F323195@pobox.com> <3C095B0B.7EA478C1@ruault.com> <003601c17ac2$7a8dec10$f5976dcf@nwfs> <3C096DB3.204CE41C@pobox.com> <001e01c17acb$a44b69c0$f5976dcf@nwfs> <20011202023145.A1628@emeraude.kwisatz.net> <3C09B3FA.61777E84@ruault.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I had problems with symlinks also. This is what I know about it so far.
 
-On Sun, 2 Dec 2001, Rik van Riel wrote:
+I only get/got this problem on a server running 2.4.10 using reiserfs and when the
+files was used over NFS.
+Once it got itself into this state it is possible to create symlinks by hand but when
+untaring an archive 90% of all links was wrong. Doing the same on the server directly
+showed no problem.
 
-> Note that this screams for some minimal kind of modularity on the
-> source level, trying to limit the "magic" to as small a portion of the
-> code base as possible.
+A reboot of the client did not help but rebooting the server did. I have since
+upgraded to 2.4.16 but only run for a few hours the last time needed many days to show
+this problem so it could still be there.
 
-Linux is pretty modular. It's not dogmatically so, nor does it attempt to
-guarantee absolute or externally visible modularity, but most parts of it
-are pretty modular.
+A nice program to use is symlinks that shows all links that points to a file not
+existing
+symlinks -r . | egrep "^dangling"
 
-> Also, natural selection tends to favour the best return/effort ratio,
-> not the best end result. [...]
+Charles-Edouard Ruault wrote:
 
-there is no 'effort' involved in evolution. Nature does not select along
-the path we went. It's exactly this property why it took 5 billion years
-to get here, while Linux took just 10 years to be built from grounds up.
-The fact is that bacteria took pretty random paths for 2 billion years to
-get to the next level. That's alot of 'effort'. So *once* we have
-something that is better, it does not matter how long it took to get
-there.
-
-( This kind of 'development effort' is not the same as 'robustness', ie.
-the amount of effort needed to keep it at the complexity level it is,
-against small perturbations in the environment - but that is a different
-kind of effort. )
-
-> [...] Letting a kernel take shape due to natural selection pressure
-> could well result in a system which is relatively simple, works well
-> for 95% of the population, has the old cruft level at the upper limit
-> of what's deemed acceptable and completely breaks for the last 5% of
-> the population.
-
-no. An insect that is 95.1% effective digesting banana leafs in the jungle
-will completely eradicate a competing insect that is 95.0% effective
-digesting banana leaves, within a few hundred generations. (provided both
-insects have exactly the same parameters otherwise.) And it does not
-matter whether it took 100 million years to get to 95.1%, or just one
-lucky set of alpha particles hitting a specific DNA part of the original
-insect.
-
-	Ingo
+> The symlink problem you're reporting is exactly what i've been experiencing among
+> other things ...
+> on both systems i had multiple ext2 partitions and one reseirfs partition.
+> The problem showed up after a few days of uptime. Both machines where not heaviliy
+> loaded and had no memory shortage.
+> It looks like it also happened on my third system, which had only 2 ext2 partitions
+> . I was able to clean up this one with fsck and rebooted safely to 2.4.14 ....
+> Given the fact that i'm not the only one to see the problem with 2.4.16 i'll safely
+> backtrack all my machines to 2.4.14 ...
+> If i can be of any help to pinpoint the problem please let me know. But since i'm
+> not a kernel hacker i don't think i'll be pluging into the sources myself on my own
+> !
+> Thanks for the feedback !
+> Charles-Edouard Ruault
+>
+> Stephane Jourdois wrote:
+>
+> > On Sat, Dec 01, 2001 at 05:52:39PM -0700, Jeff Merkey wrote:
+> > > ----- Original Message ----- From: "J Sloan" <jjs@pobox.com>
+> > > > Just to be positive, can you reproduce the problem without nwfs?
+> > > Yes. The problem shows up on ext2 partitions only.
+> > I destroyed a  hard  disk  yesterday  with  2.4.16,  using  ext3.  A  heavy load
+> > (compiling The gimp and several other things)  and everything came bad, symlinks
+> > didn't work... (for exemple ln -s linux-2.4.17-pre2  linux did a link from linux
+> > to linux either using linux-2.4.17-pre2 and /usr/src/linux-2.4.17-pre2.
+> > > I see this lockup when I have more than  one file system mounted at a time. It
+> > > does not happen when only a single  volume (superblock) has been mounted, only
+> > > with multiples. Ditto the ext2 corruption. It only shows up when more than one
+> > > superblock is active.
+> > I had only one partition mounted at the moment (/dev/hda1 on / type ext3)
+> >
+> > Just in case : debian sid, gcc 2.95.4, everything up to date.
+> >
+> > We're living in a dangerous world, since 2.4.10...
+> >
+> > Ciao,
+> >
+> > --
+> >  ///  Stephane Jourdois         /"\  ASCII RIBBON CAMPAIGN \\\
+> > (((    Ingénieur développement  \ /    AGAINST HTML MAIL    )))
+> >  \\\   6, av. de la Belle Image  X                         ///
+> >   \\\  94440 Marolles en Brie   / \    +33 6 8643 3085    ///
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

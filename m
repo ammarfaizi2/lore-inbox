@@ -1,38 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266980AbRGMVOj>; Fri, 13 Jul 2001 17:14:39 -0400
+	id <S267547AbRGMVO3>; Fri, 13 Jul 2001 17:14:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267544AbRGMVOb>; Fri, 13 Jul 2001 17:14:31 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:42503 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S266982AbRGMVOW>; Fri, 13 Jul 2001 17:14:22 -0400
-Subject: Re: [PATCH] 64 bit scsi read/write
-To: adilger@turbolinux.com (Andreas Dilger)
-Date: Fri, 13 Jul 2001 22:14:19 +0100 (BST)
-Cc: acahalan@cs.uml.edu (Albert D. Cahalan), bcrl@redhat.com (Ben LaHaise),
-        kernel@ragnark.vestdata.no (Ragnar Kjxrstad),
-        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        mike@bigstorage.com, kevin@bigstorage.com, linux-lvm@sistina.com
-In-Reply-To: <200107132041.f6DKfqM8013404@webber.adilger.int> from "Andreas Dilger" at Jul 13, 2001 02:41:52 PM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
+	id <S267544AbRGMVOZ>; Fri, 13 Jul 2001 17:14:25 -0400
+Received: from shodan.in-trier.de ([198.22.51.3]:22539 "EHLO
+	shodan.in-trier.de") by vger.kernel.org with ESMTP
+	id <S266980AbRGMVOP>; Fri, 13 Jul 2001 17:14:15 -0400
+Date: Fri, 13 Jul 2001 23:14:13 +0200
+From: andreas <andi@in-trier.de>
+X-Mailer: The Bat! (v1.47 Halloween Edition) UNREG / CD5BF9353B3B7091
+Reply-To: Andreas Otto <andi@in-trier.de>
+X-Priority: 3 (Normal)
+Message-ID: <66216707168.20010713231413@in-trier.de>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.x crash Siemens mainboard 512+ ram
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15LAGR-0000HX-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> RAID 5 throws a wrench into this by not guaranteeing that all of the
-> blocks in a stripe are consistent (you don't know which blocks and/or
-> parity were written and which not).  Ideally, you want a multi-stage
-> commit for RAID as well, so that you write the data first, and the
-> parity afterwards (so on reboot you trust the data first, and not the
-> parity).  You have a problem if there is a bad disk and you crash.
+hi,
 
-Well to be honest so does most disk firmware. IDE especially. For one thing
-the logical sector size the drives writes need not match the illusions
-provided upstream, and the write flush commands are frequently not implemented
-because they damage benchmarketing numbers from folks like Zdnet..
+trying to solve a problem here:
+
+Siemens Mainboard S26361-D with Intel Chipset (having some extra
+features for beeing used rackmounted / in cabinets), currently running
+with Intel P-III 933MHz and 512 MB Ram.
+
+As soon as i try to upgrade Ram to something more than 512 MB the
+kernel crashs while booting, right after unpacking its image or a
+little bit later after detecting ide-devices.
+
+Now i tried to install 768 MB in 3 x 256 MB 133MHz ... (same results
+with 3 x 512 or 2x256 + 1x128 - simply anything above 512)
+
+Kernel 2.4.6-ac2:
+
+- kernel unpacks and detects 770xxx KB Ram (768 MB)
+- it shows 4 rows of hash table informations and hangs, the last line
+  is about "Page-cache hash table", then deadlock.
+
+Kernel 2.4.2:
+
+- kernel boots up until it detects the ide-devices, showing ide0 with
+  its information, ide1 with its information, then it stands still,
+  deadlock, before it can show the partition informations
+
+Another try with 2.4.2 does a kernel Oops 0002 at the same point.
+
+Siemens does not to provide any information on the mainboard, i didn't
+find any newer bios version i could try, nor did i find any more
+information about crashing kernels with installed 512+ MB with these
+kind of problems i've got here.
+
+Someone has an idea, what i could try to do or try to debug, to get
+more information on this? I'm willing to really work hard on it :)
+
+Thank you very much for reading.
+
+Andreas
 
 

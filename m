@@ -1,43 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263510AbTD1Lgm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Apr 2003 07:36:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263385AbTD1Lgm
+	id S262623AbTD1Lu2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Apr 2003 07:50:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263385AbTD1Lu2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Apr 2003 07:36:42 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:53903
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S263510AbTD1Lgk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Apr 2003 07:36:40 -0400
-Subject: Re: Why DRM exists (or: Larry's cloning complaint)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Dax Kelson <dax@gurulabs.com>
-Cc: Larry McVoy <lm@bitmover.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1051500506.2974.69.camel@mentor.gurulabs.com>
-References: <1051500506.2974.69.camel@mentor.gurulabs.com>
-Content-Type: text/plain
+	Mon, 28 Apr 2003 07:50:28 -0400
+Received: from murphys.services.quay.plus.net ([212.159.14.225]:30425 "HELO
+	murphys.services.quay.plus.net") by vger.kernel.org with SMTP
+	id S262623AbTD1Lu1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Apr 2003 07:50:27 -0400
+From: "Riley Williams" <Riley@Williams.Name>
+To: "Stephen Liu" <satimis@icare.com.hk>, <linux-kernel@vger.kernel.org>
+Subject: RE: Where to download kernel-headers-2.4.18-18.8.0
+Date: Mon, 28 Apr 2003 13:02:41 +0100
+Message-ID: <BKEGKPICNAKILKJKMHCAGEEFCJAA.Riley@Williams.Name>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1051527010.15571.53.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 28 Apr 2003 11:50:11 +0100
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <1051529351.2573.16.camel@localhost.localdomain>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2003-04-28 at 04:28, Dax Kelson wrote:
-> Larry, you did a horrible -- horrible -- job in stating your
-> 1. Everyone agrees that using (warezing) software in violation of it's
-> license is wrong. Everyone agrees that unauthorized copying of
+Hi Stephen.
 
-Not quite so clear. You need a "providing the license and its
-enforcement (eg by DRM) don't violate the local law and to an 
-extent local society standards
+ > I have
+ >
+ > kernel-2.4.18-18.8.0
+ > kernel-source-2.4.18-18.8.0
+ >
+ > running in my system and I need "kernel-headers-2.4.18-18.8.0" working
+ > with them.  Google.com could not find it.
+ >
+ > Kindly advise where can I have it downloaded.
 
-> Multiple competing implementations (Open Source or otherwise) is GOOD
-> FOR THE CONSUMER!
+Those look like Red Hat Linux packages. If they are, have a look on any
+of the Red Hat Linux mirror sites, found under www.RedHat.com on the
+surfboard.
 
-But its not good for the Larry 8)
+Best wishes from Riley.
+---
+ * Nothing as pretty as a smile, nothing as ugly as a frown.
 
+---
+Outgoing mail is certified Virus Free.
+Checked by AVG anti-virus system (http://www.grisoft.com).
+Version: 6.0.476 / Virus Database: 273 - Release Date: 24-Apr-2003
 

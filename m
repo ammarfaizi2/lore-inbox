@@ -1,61 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261430AbREOUM6>; Tue, 15 May 2001 16:12:58 -0400
+	id <S261429AbREOUPS>; Tue, 15 May 2001 16:15:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261431AbREOUMs>; Tue, 15 May 2001 16:12:48 -0400
-Received: from csa.iisc.ernet.in ([144.16.67.8]:52236 "EHLO csa.iisc.ernet.in")
-	by vger.kernel.org with ESMTP id <S261430AbREOUMj>;
-	Tue, 15 May 2001 16:12:39 -0400
-Date: Wed, 16 May 2001 01:42:21 +0530 (IST)
-From: Sourav Sen <sourav@csa.iisc.ernet.in>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: strange behaviour in syscall
-In-Reply-To: <Pine.SOL.3.96.1010515230910.8808A-100000@kohinoor.csa.iisc.ernet.in>
-Message-ID: <Pine.SOL.3.96.1010516013832.9799B-100000@kohinoor.csa.iisc.ernet.in>
+	id <S261431AbREOUPI>; Tue, 15 May 2001 16:15:08 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:62110 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S261429AbREOUPB>;
+	Tue, 15 May 2001 16:15:01 -0400
+Date: Tue, 15 May 2001 16:14:58 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: James Simmons <jsimmons@transvirtual.com>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Neil Brown <neilb@cse.unsw.edu.au>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        "H. Peter Anvin" <hpa@transmeta.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: LANANA: To Pending Device Number Registrants
+In-Reply-To: <Pine.LNX.4.10.10105151151380.22038-100000@www.transvirtual.com>
+Message-ID: <Pine.GSO.4.21.0105151607100.21081-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> 
-> Hello,
-> 	I know that this is a newbies question, but I didn't get any
-> answer in the newbies list, so I am posting it here. 
-> 
-> 	In 2.2.14, I have implemented a set of system calls(This is just
-> academic). The numbers are from 191 - 196. (The virgin source tree has
-> up to 190 in entry.S). I have given a printk in the system call proper in
-> the last one(196),(and at many other places in the call chain from there).
-> (Is it fair to use those syacall numbers ?)
-> 
-> 	But when I boot up that kernel that printk gets executed. While 
-> booting, at least to my knowledge, that part of the code is not supposed
-> to get executed. Also while the kernel goes down, that printk speaks
-> again. 
 
+On Tue, 15 May 2001, James Simmons wrote:
 
-	To clarify a bit, lately I have replaced the 196 th. call by 191,
-	and removed the earlier 191 st. call, now the message is not appearing.
-	My guess is some interrupt is getting vectored in 196 th entry 
-	point, but I am totally in dark as to why such a thing might at
-	all happen.
+> > only one _device_node_, you can have multiple fd's. In fact, you can, with
+> > the Linux VFS layer, fairly easily do things like
+> > 
+> > 	mknod /dev/fd0 c X Y
+> > 
+> > and then use
+> > 
+> > 	fd = open("/dev/fd0/colourspace", O_RDWR);
+> 
+> Yipes!! I have to say UNIX has a tendency to teach you ioctl is the only
+> way. I have never thought outside of the box nor see anyone else in this
+> manner. This is absolutely brillant!!! I can see alot of possibilties with
+> this. 
 
-Thanks
-sourav
+The thing being, why thet hell create these device/directory hybrids?
+Driver can export a tree and we mount it on fb0. After that you have
+the whole set - yes, /dev/fb0/colourspace, etc. - no problem. And no
+need to do mknod, BTW. Yes, we'll need to use /dev/fb0/frame for
+frame itself. BFD...
 
-> 
-> 	All other system calls are working fine.
-> 
-> 	I am getting some oops and panic while that syscall executes, so I
-> am suspicious that I am doing something that I should never have done.
-> 
-> 	Do anybody has any idea what might be going wrong?
-> 
-> Sorry to you all for disturbing,
-> 
-> --
-> sourav 
-> 
-> 
+You see, as soon as you want slightly more structured stuff (deeper than
+one level) you need the dentry tree, yodda, yodda. IOW, you need a
+filesystem anyway and it's easy to implement. Want me to do framebufferfs?
+Would make a nice demo.  No majors. No minors. No ioctls. Less code than
+in current tree.  ~3 days to implement.
 

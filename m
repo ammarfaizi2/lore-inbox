@@ -1,36 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268014AbTBYQGg>; Tue, 25 Feb 2003 11:06:36 -0500
+	id <S268047AbTBYQIu>; Tue, 25 Feb 2003 11:08:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268016AbTBYQGg>; Tue, 25 Feb 2003 11:06:36 -0500
-Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:62683 "EHLO
-	zcars0m9.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id <S268014AbTBYQGX>; Tue, 25 Feb 2003 11:06:23 -0500
-Message-ID: <3E5B96DE.1090600@nortelnetworks.com>
-Date: Tue, 25 Feb 2003 11:16:30 -0500
-X-Sybari-Space: 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
+	id <S268055AbTBYQIu>; Tue, 25 Feb 2003 11:08:50 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:21263 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S268047AbTBYQI3>; Tue, 25 Feb 2003 11:08:29 -0500
+Date: Tue, 25 Feb 2003 08:15:40 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andreas Schwab <schwab@suse.de>
+cc: Jeff Garzik <jgarzik@pobox.com>,
+       "Richard B. Johnson" <root@chaos.analogic.com>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] s390 (7/13): gcc 3.3 adaptions.
+In-Reply-To: <Pine.LNX.4.44.0302250742400.10210-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0302250811220.10500-100000@home.transmeta.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: how to measure memory footprint of running kernel?
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I'm looking for a way to track how much memory is used by the kernel on 
-a running machine.  Is there any way to do this?
+On Tue, 25 Feb 2003, Linus Torvalds wrote:
+>
+> 		return x[1][-1];
 
-Thanks,
+Btw, don't get me wrong. I don't think the above is really code that 
+should survive, and if the compiler were to generate a warning for 
+something like that, where the subscripts are clearly out of the range 
+that they were in the declaration, then I'd be entirely supportive of 
+that.
 
-Chris
+I don't know how we got side-tracked to negative subscripts. They are 
+clearly legal with pointers, but that wasn't even the issue: the code that 
+generated the "signed/unsigned" warning didn't use any negative 
+subscripts, never had, and never will.
 
--- 
-Chris Friesen                    | MailStop: 043/33/F10
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+And unlike the abomination above, the code that generates the warning is 
+the _clearest_ version of code you can humanly write. And THAT is the 
+problem with the warning: there's no way to avoid the warning without 
+making the source code _worse_ in some way.
+
+And _that_ is what my argument really boils down to. Nothing else.
+
+		Linus
 

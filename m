@@ -1,46 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131276AbRCNAgd>; Tue, 13 Mar 2001 19:36:33 -0500
+	id <S131267AbRCNAbx>; Tue, 13 Mar 2001 19:31:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131277AbRCNAgX>; Tue, 13 Mar 2001 19:36:23 -0500
-Received: from nets5.rz.RWTH-Aachen.DE ([137.226.144.13]:36484 "EHLO
-	nets5.rz.rwth-aachen.de") by vger.kernel.org with ESMTP
-	id <S131276AbRCNAgL>; Tue, 13 Mar 2001 19:36:11 -0500
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: [PATCH] USB Support for Casio QV Digital Still Cameras, kernel 2.4.2-ac20
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-From: Harald Schreiber <harald@harald-schreiber.de>
-Date: 14 Mar 2001 01:33:42 +0100
-Message-ID: <m3vgpdur2x.fsf@harald-schreiber.de>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
+	id <S131272AbRCNAbn>; Tue, 13 Mar 2001 19:31:43 -0500
+Received: from rhenium.btinternet.com ([194.73.73.93]:35991 "EHLO rhenium")
+	by vger.kernel.org with ESMTP id <S131267AbRCNAb0>;
+	Tue, 13 Mar 2001 19:31:26 -0500
+Date: Wed, 14 Mar 2001 00:20:21 +0000 (GMT)
+From: <davej@suse.de>
+X-X-Sender: <davej@athlon>
+To: Bob_Tracy <rct@gherkin.sa.wlk.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: another Cyrix/mtrr problem?
+In-Reply-To: <m14cuLL-0005khC@gherkin.sa.wlk.com>
+Message-ID: <Pine.LNX.4.31.0103140009230.7143-100000@athlon>
 MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 13 Mar 2001, Bob_Tracy wrote:
 
-The following patch adds USB support for the Casio QV series of
-digital still cameras by adding an entry to the list of unusual
-devices of the USB mass storage driver. The patch applies to
-kernel 2.4.2-ac20.
+> System is a Tyan S1590S motherboard (Apollo MVP3 chipset) with
+> Cyrix MII 300 processor, NVIDIA GeForce2 MX AGP video card, 2.4.2
+> kernel, XFree86-4.0.2, and the NVIDIA 0.9-6 driver.
 
---- linux-2.4.2-ac20-vanilla/drivers/usb/storage/unusual_devs.h	Wed Mar 14 01:04:39 2001
-+++ linux-2.4.2-ac20/drivers/usb/storage/unusual_devs.h	Tue Mar 13 19:53:01 2001
-@@ -241,3 +241,9 @@
- 		US_FL_START_STOP ),
- #endif
- 
-+UNUSUAL_DEV( 0x07cf, 0x1001, 0x9009, 0x9009,
-+                "Casio",
-+                "QV DigitalCamera",
-+                US_SC_8070, US_PR_CB, NULL,
-+                US_FL_FIX_INQUIRY ),
-+
+Normally the answer would be "Closed driver, complain to nVidia",
+but just in case..
+First I suggest you try the new drivers that came out for it today
+first though, to see if that fixes your problem.
 
+> Jeff Hartmann (AGPGART support) thinks this is probably a MTRR issue.
+> I'm leaning that way, given a recent posting by someone else having
+> MTRR problems with his Cyrix 6x86.
+
+The recent problems were only in Alans 2.4.2-ac tree, not in the
+main Linus branch. They should also have only happened on Athlons
+that was introduced by the addition Cyrix III support.
+2.4.2-ac20 fixes this.
+
+As no-one else afaik has complained about Cyrix MII MTRR support,
+I think this is an isolated incident, which is why I'm pointing a
+finger at the binary drivers, but...
+
+There is the possibility that you're the first MII owner to notice
+that this is broken. Can you verify that..
+
+ a. You have MTRR support compiled into the kernel.
+ b. You have a /proc/mtrr file
+ c. You can add/delete ranges using /proc/mtrr
+    (See Documentation/mtrr.txt for info on how to do this)
+
+If yes,yes,yes, it is a broken driver, and you should complain
+to nVidia, not linux-kernel.
+
+regards,
+
+Dave.
 
 -- 
--------------------------------------------------------------------
-Dipl.-Math. Harald Schreiber, Nizzaalle 26, D-52072 Aachen, Germany
-Phone/Fax: +49-241-9108015/6      mailto:harald@harald-schreiber.de
--------------------------------------------------------------------
+| Dave Jones.        http://www.suse.de/~davej
+| SuSE Labs
+

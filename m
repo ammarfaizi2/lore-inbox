@@ -1,73 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264131AbRFMQzb>; Wed, 13 Jun 2001 12:55:31 -0400
+	id <S264176AbRFMRGv>; Wed, 13 Jun 2001 13:06:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264139AbRFMQzV>; Wed, 13 Jun 2001 12:55:21 -0400
-Received: from www.transvirtual.com ([206.14.214.140]:17936 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S264131AbRFMQzI> convert rfc822-to-8bit; Wed, 13 Jun 2001 12:55:08 -0400
-Date: Wed, 13 Jun 2001 09:54:21 -0700 (PDT)
-From: James Simmons <jsimmons@transvirtual.com>
-To: =?ISO-8859-1?Q?Ren=E9?= Rebe <rene.rebe@gmx.net>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        "Ademar de Souza Reis Jr." <ademar@conectiva.com.br>,
-        Rolf Schillinger <rolf@sir-wum.de>,
-        Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: Re: sis630 - help needed debugging in the kernel
-In-Reply-To: <20010613172320.306d5208.rene.rebe@gmx.net>
-Message-ID: <Pine.LNX.4.10.10106130952590.16375-100000@transvirtual.com>
+	id <S264183AbRFMRGl>; Wed, 13 Jun 2001 13:06:41 -0400
+Received: from dryline-fw.yyz.somanetworks.com ([216.126.67.45]:23080 "EHLO
+	dryline-fw.wireless-sys.com") by vger.kernel.org with ESMTP
+	id <S264176AbRFMRGc>; Wed, 13 Jun 2001 13:06:32 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15143.40342.373565.892231@somanetworks.com>
+Date: Wed, 13 Jun 2001 13:06:30 -0400
+From: "Georg Nikodym" <georgn@somanetworks.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.5-ac13, APM, and Dell Inspiron 8000
+X-Mailer: VM 6.90 under 21.2  (beta44) "Thalia" XEmacs Lucid
+Reply-To: georgn@somanetworks.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> I currently try to debug why the sisfb driver crashes my machine. (SIS 630
-> based laptop - linux-2.4.5-ac13).
+I've been running 2.4.5 on my new Dell I8000 without too many
+problems.  Last night I built -ac13 (on my porch) and booted it
+without incident.  Later, going inside and re-connecting the AC I
+notice that the thing's hung.  I play around a bit and discover that
+the act of plugging or unplugging the power cord will hang the box.
 
-You can do one of two things. Post both System.map and the complete oops
-or you can run ksymoops on the oops. I can find the problem then. Thanks.
+This lead me to disable all power manglement in the BIOS.  No joy.
 
-> On my serial-console I get:
-> [...]
-> sisfb: framebuffer at 0xe0000000, mapped to 0xcb800000, size 16384k
-> sisfb: MMIO at 0xefce0000, mapped to 0xcc801000, size 128k
-> sisfb: encountered LCD # debug output by me
-> sisfb: fall back to 1024x768 # debug ouput by me
-> sisfb: LCD mode # debug output by me
-> sisfb: mode is 800x600x8, linelength=800
-> [...]
-> Unable to handle kernel paging request at virtual address cc800180
-> [oops]
-> 
-> This happens in the method: register_framebuffer called from sisfb_init.
-> 
-> I compared the sisfb_init with other framebuffer drivers and can't find what is wrong.
-> (I normally don't do kernel hacking...). What does the kernel try to do with the
-> _io-memory_, mapped around line 2230 in sis_main.c? - Must the memory reqeuested or
-> mapped in an other way?
-> 
-> Another strange thing is, that the code seems to work for some people ...
-> 
-> I would be nice if anyone could give me a hint - because the sis-drivers (kernel and X)
-> doesn't work for many people ...
-> 
-> k33p h4ck1n6 René
-> 
-> -- 
-> René Rebe (Registered Linux user: #127875)
-> http://www.rene.rebe.myokay.net/
-> -Germany-
-> 
-> Anyone sending unwanted advertising e-mail to this address will be charged
-> $25 for network traffic and computing time. By extracting my address from
-> this message or its header, you agree to these terms.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+This problem does not exist using straight 2.4.5.
 
+Has anybody else seen this?  Any debugging suggestions?  Or stated
+differently, has anybody with this machine arrived at a configuration
+that avoids weirdness in the power management framework?
+
+In case it's interesting, here's the lspci output:
+
+00:00.0 Host bridge: Intel Corporation 82815 815 Chipset Host Bridge and Memory Controller Hub (rev 02)
+00:01.0 PCI bridge: Intel Corporation: Unknown device 1131 (rev 02)
+00:1e.0 PCI bridge: Intel Corporation: Unknown device 2448 (rev 03)
+00:1f.0 ISA bridge: Intel Corporation: Unknown device 244c (rev 03)
+00:1f.1 IDE interface: Intel Corporation: Unknown device 244a (rev 03)
+00:1f.2 USB Controller: Intel Corporation 82820 820 (Camino 2) Chipset USB (Hub A) (rev 03)
+01:00.0 VGA compatible controller: ATI Technologies Inc Rage Mobility M4 AGP
+02:03.0 Multimedia audio controller: ESS Technology ES1983S Maestro-3i PCI Audio Accelerator (rev 10)
+02:06.0 Communication controller: Lucent Microelectronics WinModem 56k (rev 01)
+02:0f.0 CardBus bridge: Texas Instruments PCI4451 PC card Cardbus Controller
+02:0f.1 CardBus bridge: Texas Instruments PCI4451 PC card Cardbus Controller
+02:0f.2 FireWire (IEEE 1394): Texas Instruments: Unknown device 8027
+03:00.0 Ethernet controller: 3Com Corporation 3CCFE575BT Cyclone CardBus (rev 01)

@@ -1,59 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272592AbTHEJLR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 05:11:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272599AbTHEJLR
+	id S272605AbTHEJOc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 05:14:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272608AbTHEJOb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 05:11:17 -0400
-Received: from smtp-out1.iol.cz ([194.228.2.86]:57052 "EHLO smtp-out1.iol.cz")
-	by vger.kernel.org with ESMTP id S272592AbTHEJLP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 05:11:15 -0400
-Date: Tue, 5 Aug 2003 11:10:20 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Patrick Mochel <mochel@osdl.org>
-Cc: torvalds@transmeta.com, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCH] Power Management Updates
-Message-ID: <20030805091020.GA388@elf.ucw.cz>
-References: <Pine.LNX.4.44.0308041806060.23977-100000@cherise>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 5 Aug 2003 05:14:31 -0400
+Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:36509
+	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
+	id S272605AbTHEJOY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Aug 2003 05:14:24 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Mike Galbraith <efault@gmx.de>
+Subject: Re: [PATCH] O13int for interactivity
+Date: Tue, 5 Aug 2003 19:19:28 +1000
+User-Agent: KMail/1.5.3
+Cc: Oliver Neukum <oliver@neukum.org>, Andrew Morton <akpm@osdl.org>,
+       piggin@cyberone.com.au, linux-kernel@vger.kernel.org, mingo@elte.hu,
+       felipe_alfaro@linuxmail.org
+References: <5.2.1.1.2.20030805102719.01a06d48@pop.gmx.net> <5.2.1.1.2.20030805104620.01974e28@pop.gmx.net>
+In-Reply-To: <5.2.1.1.2.20030805104620.01974e28@pop.gmx.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0308041806060.23977-100000@cherise>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+Message-Id: <200308051919.28681.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Tue, 5 Aug 2003 19:09, Mike Galbraith wrote:
+> At 06:43 PM 8/5/2003 +1000, Con Kolivas wrote:
+> >On Tue, 5 Aug 2003 18:27, Mike Galbraith wrote:
+> > > At 06:20 PM 8/5/2003 +1000, Con Kolivas wrote:
+> > > >Every experiment I've tried at putting tasks at the start of the queue
+> > > >instead
+> > > >of the end has resulted in some form of starvation so should not be
+> > > > possible for any user task and I've abandoned it.
+> > >
+> > > (ditto:)
+> >
+> >Superuser access real time tasks may be worth reconsidering though...
+>
+> If they were guaranteed ultra-light, maybe, but userland is just not
+> trustworthy.
 
-> Here is a set of Power Management changes that contain the changes Pavel 
-> has been trying to push to you for a couple of weeks now. They have been 
-> split up into individual changesets and hand merged to be a bit cleaner 
-> than the original patches. 
-> 
-> These also contain initial efforts to start cleaning up swsusp by 
-> splitting out shareable functionality and moving the whole lot from 
-> kernel/suspend.c into kernel/power/*.c. 
-> 
-> The tree can be pulled from:
-> 
-> 	bk://kernel.bkbits.net/home/mochel/linux-2.5-power
-> 
-> The changesets are described below. 
-> 
-> Individual patches can be viewed here: 
-> 
-> 	http://developer.osdl.org/~mochel/patches/aug4/power/
-> 
-> I will not be sending them, as some of them are quite large (from moving 
-> files/directories). 
-> 
-> Pavel: please review and let me know if I missed anything important, so I 
-> can (quickly) fix it up. 
+Agreed 
 
-They look good, very good, Linus please apply.
-									Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+> Better imho would be something like Davide's SOFT_RR with an additional
+> automatic priority adjust per cpu usage or something (cpu usage being a
+> [very] little bit of a latency hint, and a great 'hurt me' hint).  Best
+> would be an API that allowed userland applications to describe their
+> latency requirements explicitly, with the scheduler watching users of this
+> API like a hawk, ever ready to sanction abusers.  Anything I think about in
+> this area gets uncomfortably close to hard rt though, and all of the wisdom
+> I've heard on LKLM over the years wrt separation of problem spaces comes
+> flooding back.
+
+I'll pass. There's enough on my plate already. Soft_rr in some form is a 
+decent idea but best tackled separately.
+
+Con
+

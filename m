@@ -1,52 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310158AbSCGLru>; Thu, 7 Mar 2002 06:47:50 -0500
+	id <S310283AbSCGLtj>; Thu, 7 Mar 2002 06:49:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310186AbSCGLri>; Thu, 7 Mar 2002 06:47:38 -0500
-Received: from holomorphy.com ([216.36.33.161]:25996 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S310158AbSCGLre>;
-	Thu, 7 Mar 2002 06:47:34 -0500
-Date: Thu, 7 Mar 2002 03:47:21 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org,
-        riel@surriel.com, hch@infradead.org
-Subject: Re: 2.4.19pre2aa1
-Message-ID: <20020307114721.GD786@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Daniel Phillips <phillips@bonn-fries.net>,
-	Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org,
-	riel@surriel.com, hch@infradead.org
-In-Reply-To: <20020307092119.A25470@dualathlon.random> <20020307104942.GC786@holomorphy.com> <E16iw3h-00037V-00@starship.berlin>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-In-Reply-To: <E16iw3h-00037V-00@starship.berlin>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S310204AbSCGLta>; Thu, 7 Mar 2002 06:49:30 -0500
+Received: from ns.caldera.de ([212.34.180.1]:28329 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S310285AbSCGLtW>;
+	Thu, 7 Mar 2002 06:49:22 -0500
+Date: Thu, 7 Mar 2002 12:48:39 +0100
+Message-Id: <200203071148.g27BmdP16433@ns.caldera.de>
+From: Christoph Hellwig <hch@ns.caldera.de>
+To: cmm@us.ibm.com (mingming cao)
+Cc: Jean-Eric Cuendet <jean-eric.cuendet@linkvest.com>,
+        linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] Rework of /proc/stat
+X-Newsgroups: caldera.lists.linux.kernel
+In-Reply-To: <3C86BEB0.4090203@us.ibm.com>
+User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.13 (i686))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On March 7, 2002 11:49 am, William Lee Irwin III wrote:
->> 4096 threads blocked on I/O is already approaching or exceeding the
->> scalability limits of other core kernel subsystems.
+In article <3C86BEB0.4090203@us.ibm.com> you wrote:
+>> Any reason for preferring this over the sard patches in -ac ?
+>> 
+> Basically, statistic data are moved from the global kstat structure
 
-On Thu, Mar 07, 2002 at 12:27:41PM +0100, Daniel Phillips wrote:
-> I think he meant that with larger ram it's easy to justify making the wait
-> table a little looser, to gain a tiny little bit of extra performance.
-> That seems perfectly reasonable to me.  Oh, and there's also the observation
-> that machines with larger ram tend to be more heavily loaded with processes,
-> just because one can.
+Why do you think sard uses kstat?
 
+> to 
+> the request_queue structures, and it is allocated/freed when the request 
+> queue is initialized and freed.  This way it is
 
-And these processes will not be waiting on pages as often, either, as
-pages will be more plentiful.
+> 1)self-controlled;
+> 2)avoid the lookup step before the accounting, so it should be faster;
 
->From the reports I've seen, typical numbers of waiters on pages, even
-on large systems, are as much as an order of magnitude fewer in number
-than 4096. It would seem applications need to wait on pages less with
-the increased memory size.
+in 2.4.18+ get_gendisk is O(1) - the lookup is not costly at all.
 
-Cheers,
-Bill
+> 3)statistics implementation is not affected by the major/minor numbers;
+
+Gendisks currently are per-major, which is a disadvantage, but the sard
+code itself is not affected by that.
+
+> 4)able to gathering statistics for all disks while keep the memory needs 
+> minimized.
+
+The same is true for sard.
+
+Somehow I think you haven't actually looked at the sard code in -ac..
+

@@ -1,53 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262933AbSJOO7D>; Tue, 15 Oct 2002 10:59:03 -0400
+	id <S263711AbSJOPUl>; Tue, 15 Oct 2002 11:20:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262937AbSJOO7D>; Tue, 15 Oct 2002 10:59:03 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:32487 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S262933AbSJOO7C>;
-	Tue, 15 Oct 2002 10:59:02 -0400
-Date: Tue, 15 Oct 2002 17:15:25 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Duncan Sands <baldrick@wanadoo.fr>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@digeo.com>
-Subject: Re: Use of yield() in the kernel
-In-Reply-To: <200210151536.39029.baldrick@wanadoo.fr>
-Message-ID: <Pine.LNX.4.44.0210151712520.13919-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263837AbSJOPUl>; Tue, 15 Oct 2002 11:20:41 -0400
+Received: from rrzs2.rz.uni-regensburg.de ([132.199.1.2]:43908 "EHLO
+	rrzs2.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
+	id <S263711AbSJOPUZ>; Tue, 15 Oct 2002 11:20:25 -0400
+Date: Tue, 15 Oct 2002 17:25:58 +0200
+From: Christian Guggenberger 
+	<christian.guggenberger@physik.uni-regensburg.de>
+To: andrea@suse.de
+Cc: linux-xfs@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: 2.4.20-pre10-aa1: unresolved symbol in xfs.o
+Message-ID: <20021015172558.A3154@pc9391.uni-regensburg.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 1.2.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Andrea,
 
-On Tue, 15 Oct 2002, Duncan Sands wrote:
+I'm trying to compile 2.4.20-pre10aa1 with xfs enabled as module.
+make modules_install ends up in:
 
-> Maybe it is worth auditing the kernel source files using yield()?
+depmod: *** Unresolved symbols in 
+/lib/modules/2.4.20-pre10aa1/kernel/fs/xfs/xfs.o
+depmod: 	do_generic_file_write
 
-most definitely.
+what to do?
 
-> Here is the list of files using yield(), excluding non-i386 arch
-> specific files:
-> 
-[...]
-> mm/oom_kill.c
-
-this one i think is OK.
-
-> kernel/sched.c (in migration_call)
-
-this is okay as well.
-
-> kernel/softirq.c
-
-these are okay too - both are nonperformance bits.
-
-> arch/i386/mm/fault.c
-
-okay as well, it's a last-ditch effort to not kill init, so yielding is
-the right thing to do here.
-
-the others i think should be fixed. (but there might be exceptions.)
-
-	Ingo
-
+Christian

@@ -1,49 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265134AbUD3LHN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265148AbUD3LJF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265134AbUD3LHN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Apr 2004 07:07:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265144AbUD3LHN
+	id S265148AbUD3LJF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Apr 2004 07:09:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265151AbUD3LJF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Apr 2004 07:07:13 -0400
-Received: from pdbn-d9bb9ef8.pool.mediaWays.net ([217.187.158.248]:44038 "EHLO
-	citd.de") by vger.kernel.org with ESMTP id S265134AbUD3LHM (ORCPT
+	Fri, 30 Apr 2004 07:09:05 -0400
+Received: from smtp.polymtl.ca ([132.207.4.11]:45729 "EHLO smtp.polymtl.ca")
+	by vger.kernel.org with ESMTP id S265148AbUD3LIr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Apr 2004 07:07:12 -0400
-Date: Fri, 30 Apr 2004 13:07:09 +0200
-From: Matthias Schniedermeyer <ms@citd.de>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Symbios and BIOS (was: Re: [PATCH] Blacklist binary-only modules lying about their license)
-Message-ID: <20040430110709.GA12131@citd.de>
-References: <Pine.LNX.4.44.0404281958310.19633-100000@chimarrao.boston.redhat.com> <40911C01.80609@techsource.com> <20040429213246.GA15988@valve.mbsi.ca> <40917DBA.1080308@techsource.com> <6DB1DC9C-9A2B-11D8-B83D-000A95BCAC26@linuxant.com> <4091895A.6040800@techsource.com> <20040430060146.GA10826@citd.de> <Pine.GSO.4.58.0404301132140.8585@waterleaf.sonytel.be>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.58.0404301132140.8585@waterleaf.sonytel.be>
-User-Agent: Mutt/1.3.27i
+	Fri, 30 Apr 2004 07:08:47 -0400
+Message-ID: <1083323300.409233a4459e3@www.imp.polymtl.ca>
+Date: Fri, 30 Apr 2004 13:08:20 +0200
+From: Guillaume Thouvenin <guillaume.thouvenin@polymtl.ca>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Rik van Riel <riel@redhat.com>,
+       Erik Jacobson <erikj@subway.americas.sgi.com>,
+       Paul Jackson <pj@sgi.com>, chrisw@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Process Aggregates (PAGG) support for the 2.6 kernel
+References: <Pine.SGI.4.53.0404291447220.732952@subway.americas.sgi.com> <Pine.LNX.4.44.0404291719400.9152-100000@chimarrao.boston.redhat.com> <20040430071750.A8515@infradead.org>
+In-Reply-To: <20040430071750.A8515@infradead.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.1
+X-Originating-IP: 192.90.72.1
+X-Poly-FromMTA: (c4.si.polymtl.ca [132.207.4.29]) at Fri, 30 Apr 2004 11:08:20 +0000
+X-AntiVirus: checked by Vexira Milter 1.0.6; VAE 6.25.0.2; VDF 6.25.0.39
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 30, 2004 at 11:33:20AM +0200, Geert Uytterhoeven wrote:
-> On Fri, 30 Apr 2004, Matthias Schniedermeyer wrote:
-> > e.g. The symbios(*1)-SCSI-driver only shows devices enabled in its BIOS.
-> > This information is stored in a little NVRAM-chip(*2) and the driver
-> > uses this data, including bus-speed settings and the like.
-> > At least i (had/have*3) trouble with this "feature"!
+Selon Christoph Hellwig <hch@infradead.org>:
+
+> > I suspect there's a rather good chance of merging a common
+> > PAGG/CKRM infrastructure, since they pretty much do the same
+> > thing at the core and they both have different functionality
+> > implemented on top of the core process grouping.
 > 
-> So why does my '875 card works fine in my PPC box? No BIOS ever wrote to its
-> NVRAM.
+> Still doesn't make a lot of sense.  CKRM is a huge cludgy beast poking
+> everywhere while PAGG is a really small layer to allow kernel modules
+> keeping per-process state.  If CKRM gets merged at all (and the current
+> looks far to horrible and the gains are rather unclear) it should layer
+> ontop of something like PAGG for the functionality covered by it.
 
-sanity-checking prevents the worst failures. And, for this case:
-AFAIR the "factory-default" is something like "everything enabled".
+And what about put the management of containers outside the kernel. We could for
+exemple use a program that will listen file /proc/acct_event and execute a
+programs to handle the event like ACPID does. Of course it will need some kernel
+modifications but those modifications will be small as process aggregation will
+be done outside the kernel. We could also use relayfs to exchange datas between
+user program and the kernel.
 
-
-
-Bis denn
-
--- 
-Real Programmers consider "what you see is what you get" to be just as 
-bad a concept in Text Editors as it is in women. No, the Real Programmer
-wants a "you asked for it, you got it" text editor -- complicated, 
-cryptic, powerful, unforgiving, dangerous.
-
+Guillaume

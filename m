@@ -1,28 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292429AbSCDQD4>; Mon, 4 Mar 2002 11:03:56 -0500
+	id <S292408AbSCDQHS>; Mon, 4 Mar 2002 11:07:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292444AbSCDQDq>; Mon, 4 Mar 2002 11:03:46 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:63500 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S292408AbSCDQDf>;
-	Mon, 4 Mar 2002 11:03:35 -0500
-Message-ID: <3C839AEB.E9AD0394@mandrakesoft.com>
-Date: Mon, 04 Mar 2002 11:03:55 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: [BETA-0.94] Fifth test release of Tigon3 driver
-In-Reply-To: <20020304.041252.13772021.davem@redhat.com> <20020304164453.A27587@stud.ntnu.no> <3C83993A.94FE655E@mandrakesoft.com> <20020304170007.A1648@stud.ntnu.no>
+	id <S292423AbSCDQHH>; Mon, 4 Mar 2002 11:07:07 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:5857 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S292408AbSCDQHB>;
+	Mon, 4 Mar 2002 11:07:01 -0500
+Date: Mon, 4 Mar 2002 11:07:03 -0500
+From: Hubertus Franke <frankeh@watson.ibm.com>
+To: Paul Jackson <pj@engr.sgi.com>
+Cc: Martin Wirth <martin.wirth@dlr.de>, rusty@rustycorp.com.au,
+        linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
+Subject: Re: [Lse-tech] Re: [PATCH] Lightweight userspace semaphores...
+Message-ID: <20020304110703.A1116@elinux01.watson.ibm.com>
+In-Reply-To: <20020302090856.A1332@elinux01.watson.ibm.com> <Pine.SGI.4.21.0203031410310.623951-100000@sam.engr.sgi.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.SGI.4.21.0203031410310.623951-100000@sam.engr.sgi.com>; from pj@engr.sgi.com on Sun, Mar 03, 2002 at 02:13:45PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks much!
--- 
-Jeff Garzik      |
-Building 1024    |
-MandrakeSoft     | Choose life.
+On Sun, Mar 03, 2002 at 02:13:45PM -0800, Paul Jackson wrote:
+> On Sat, 2 Mar 2002, Hubertus Franke wrote:
+> > But more conceptually, if you process dies while holding a lock ... 
+> > your app is toast at that point.
+> 
+> Without application specific knowledge, certainly.
+> 
+> Is there someway one could support a hook, to enable
+> an application to register a handler that could clean
+> up, for those apps that found that worthwhile?
+> 
+
+I think that's a good idea,  I'll think it through and see what Rusty thinks.
+
+
+> -- 
+>                           I won't rest till it's the best ...
+>                           Programmer, Linux Scalability
+>                           Paul Jackson <pj@sgi.com> 1.650.933.1373

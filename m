@@ -1,51 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264251AbUHJK1W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264265AbUHJK14@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264251AbUHJK1W (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 06:27:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263893AbUHJK1V
+	id S264265AbUHJK14 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 06:27:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263893AbUHJK12
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 06:27:21 -0400
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:5043 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S264346AbUHJKU6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 06:20:58 -0400
-Date: Tue, 10 Aug 2004 12:19:25 +0200 (CEST)
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Message-Id: <200408101019.i7AAJPH9012045@burner.fokus.fraunhofer.de>
-To: alan@lxorguk.ukuu.org.uk, schilling@fokus.fraunhofer.de
-Cc: James.Bottomley@steeleye.com, axboe@suse.de, linux-kernel@vger.kernel.org,
-       mj@ucw.cz
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+	Tue, 10 Aug 2004 06:27:28 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:39364 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S264307AbUHJKUz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 06:20:55 -0400
+Date: Tue, 10 Aug 2004 12:20:54 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Nigel Cunningham <ncunningham@linuxmail.org>
+Cc: Patrick Mochel <mochel@digitalimplant.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>, david-b@pacbell.net
+Subject: Re: [RFC] Fix Device Power Management States
+Message-ID: <20040810102054.GG9034@atrey.karlin.mff.cuni.cz>
+References: <Pine.LNX.4.50.0408090311310.30307-100000@monsoon.he.net> <20040809113829.GB9793@elf.ucw.cz> <Pine.LNX.4.50.0408090840560.16137-100000@monsoon.he.net> <20040809212949.GA1120@elf.ucw.cz> <Pine.LNX.4.50.0408092156480.24154-100000@monsoon.he.net> <1092130981.2676.1.camel@laptop.cunninghams>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1092130981.2676.1.camel@laptop.cunninghams>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
->From alan@lxorguk.ukuu.org.uk  Mon Aug  9 17:35:14 2004
+> > Once the swsusp consolidation is merged upstream, I will merge a new
+> > device power model in -mm, and we can start working on the drivers. How
+> > does that sound?
+> 
+> Do you want me to merge before or after all this is done; I'm a bit
+> concerned that you guys are expending effort (well, Pavel is), getting
+> SMP and Highmem going when I already have a working version that -
+> unless the plans have changed - we were intending to merge too.
 
->export LC_ALL=cy_GB.UTF-8
->run cdrecord 
->review the output. Its using a hardcoded 8859-1/15 symbols so it breaks.
+I needed to do highmem anyway (for SUSE kernel)... SMP... I'm not 100%
+convinced that SMP support in suspend2 is correct. (Notice: swsusp/SMP
+support in current mainline is *not* correct, either). In particular,
+if you sleep the CPU, it needs to loop somewhere, right? Can you quote
+the piece of code where sleeping CPUs are spinning? ...that one needs
+to be in assembly :-(.
 
-This is a problem of the people who use UTF-8..... sorry, but when
-they are tought that moving to UTF-8 is without problems is is just wrong.
-N.B. This is not a bug in cdrecord but wrong expectations from the users.
+Anyway, I believe that refrigerator merge can be done in paralel with
+device tree changes, as it will be always very clear what is broken.
 
->> BTW: this also appears to your comments on the Solaris device handling....
->> Did you ever install Solaris 10 and test?
-
->I've seen it on older Solaris. When drives walk between scsi busses as
->the system is running it doesn't like it
-
-If you like that people believe this, you would need to proof it. I've never 
-seen it.....so I won't believe until you at least exactly describe the scenario
-when this should ocur.
-
-
-
-Jörg
-
+								Pavel
 -- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
-       schilling@fokus.fraunhofer.de	(work) chars I am J"org Schilling
- URL:  http://www.fokus.fraunhofer.de/usr/schilling ftp://ftp.berlios.de/pub/schily
+Horseback riding is like software...
+...vgf orggre jura vgf serr.

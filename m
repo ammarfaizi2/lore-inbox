@@ -1,50 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265766AbTGNHyY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 03:54:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270552AbTGNHyX
+	id S270588AbTGNH5o (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 03:57:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270586AbTGNH5o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 03:54:23 -0400
+	Mon, 14 Jul 2003 03:57:44 -0400
 Received: from [81.2.110.254] ([81.2.110.254]:12793 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S265766AbTGNHyX (ORCPT
+	by vger.kernel.org with ESMTP id S270582AbTGNH5i (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 03:54:23 -0400
-Subject: Re: 2.5 'what to expect'
+	Mon, 14 Jul 2003 03:57:38 -0400
+Subject: Re: Remove net drivers depending on OBSOLETE
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Rob van Nieuwkerk <robn@verdi.et.tudelft.nl>
-Cc: Jamie Lokier <jamie@shareable.org>, Jeff Garzik <jgarzik@pobox.com>,
-       Andrew Morton <akpm@osdl.org>, davej@codemonkey.org.uk,
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: jgarzik@pobox.com, akpm@digeo.com, linux-net@vger.kernel.org,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030714000324.GA29094@verdi.et.tudelft.nl>
-References: <20030711140219.GB16433@suse.de>
-	 <20030712152406.GA9521@mail.jlokier.co.uk> <3F103018.6020008@pobox.com>
-	 <20030712112722.55f80b60.akpm@osdl.org>
-	 <20030712183929.GA10450@mail.jlokier.co.uk> <3F105B9A.7070803@pobox.com>
-	 <20030712193401.GD10450@mail.jlokier.co.uk> <3F1063AD.40206@pobox.com>
-	 <20030712194624.GF10450@mail.jlokier.co.uk>
-	 <20030713085118.V4482@schatzie.adilger.int>
-	 <20030714000324.GA29094@verdi.et.tudelft.nl>
+In-Reply-To: <20030713222945.GC12104@fs.tum.de>
+References: <20030713222945.GC12104@fs.tum.de>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Organization: 
-Message-Id: <1058169566.561.16.camel@dhcp22.swansea.linux.org.uk>
+Message-Id: <1058169900.554.22.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 14 Jul 2003 09:01:09 +0100
+Date: 14 Jul 2003 09:05:01 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2003-07-14 at 01:03, Rob van Nieuwkerk wrote:
-> On Sun, Jul 13, 2003 at 08:51:18AM -0700, Andreas Dilger wrote:
-> > ext3 in 2.4 kernels does not support O_DIRECT.  To confuse matters,
-> > recent RH kernels silently ignore O_DIRECT if you are not root, so
-> > you may think O_DIRECT is being used, but it isn't.
+On Sul, 2003-07-13 at 23:29, Adrian Bunk wrote:
+> The following three net drivers depend in both 2.4 and 2.5 on 
+> CONFIG_OBSOLETE:
+> - FMV18X
+> - SEEQ8005
+> - SK_G16
 > 
-> Modern RH kernels also ignore O_DIRECT if you are root: O_DIRECT is
-> completely disabled/ignored.
-> 
-> I suspect it is because gcc-3.2.2-5 (in RH9) does not compile 2.4
-> O_DIRECT correctly ..
+> Since CONFIG_OBSOLETE is never set they are not selectable.
+> Is there any reason why they should stay in the kernel or would you 
+> accept a patch that removes these drivers?
 
-Wrong guess.
+Seeq hardware turns up now and again, sk_g16 is a pretty rare bit of
+hardware but I thought people had it working in current 2.4, fmv18x
+I've no idea about. I'll take a look at them
 

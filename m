@@ -1,65 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129406AbQLXQcn>; Sun, 24 Dec 2000 11:32:43 -0500
+	id <S130026AbQLXQqy>; Sun, 24 Dec 2000 11:46:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129707AbQLXQce>; Sun, 24 Dec 2000 11:32:34 -0500
-Received: from attila.bofh.it ([213.92.8.2]:18130 "HELO attila.bofh.it")
-	by vger.kernel.org with SMTP id <S129406AbQLXQcS>;
-	Sun, 24 Dec 2000 11:32:18 -0500
-Date: Sun, 24 Dec 2000 17:00:53 +0100
-From: "Marco d'Itri" <md@Linux.IT>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: innd mmap bug in 2.4.0-test12
-Message-ID: <20001224170052.A223@wonderland.linux.it>
-In-Reply-To: <20001224092835.B649@wonderland.linux.it> <Pine.GSO.4.21.0012240330370.13109-100000@weyl.math.psu.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <Pine.GSO.4.21.0012240330370.13109-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Sun, Dec 24, 2000 at 03:32:24AM -0500
+	id <S130235AbQLXQqp>; Sun, 24 Dec 2000 11:46:45 -0500
+Received: from www.wen-online.de ([212.223.88.39]:23045 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S130026AbQLXQq1>;
+	Sun, 24 Dec 2000 11:46:27 -0500
+Date: Sun, 24 Dec 2000 17:13:44 +0100 (CET)
+From: Mike Galbraith <mikeg@wen-online.de>
+To: Andreas Franck <afranck@gmx.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Fatal Oops on boot with 2.4.0testX and recent GCC snapshots
+In-Reply-To: <00122320144900.00517@dg1kfa.ampr.org>
+Message-ID: <Pine.Linu.4.10.10012241656500.439-100000@mikeg.weiden.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Dec 24, Alexander Viro <viro@math.psu.edu> wrote:
+On Sat, 23 Dec 2000, Andreas Franck wrote:
 
- >> I put "cp active active.ok" in the rc file before shutting down the
- >> daemon and at the next boot the files are different, every time.
- >
- >Could you send me both files? BTW, which filesystem it is?
-I use ext2. The files are not corrupted, they just are not updated.
-Another data point: at least in some cases, if I stop and start inn
-without rebooting the files are the same.
+> Hi Mike, hello linux-kernel audience,
+> 
+> > I had the same, with the last few snapshots I tried, but 20001218 seems
+> > to work ok.
+> > dmesg|head -1
+> > Linux version 2.4.0-test13ikd (root@el-kaboom) (gcc version gcc-2.97
+> > 20001218 (experimental)) #18 Sat Dec 23 17:43:29 CET 2000
+> 
+> Hmm, would have been nice, but it crashes here with 20001222, nevertheless. 
+> For which CPU do you have your kernel configured? It might be a CPU specific 
+> issue, I'll try to compile for Pentium I and 486, now, and report my results.
 
---- active.ok   Sun Dec 24 09:58:00 2000
-+++ active      Sun Dec 24 08:33:34 2000
-@@ -1,5 +1,5 @@
- control 0000004793 0000004794 y
--control.cancel 0000022865 0000021934 n
-+control.cancel 0000022864 0000021934 n
- junk 0000001806 0000001807 y
- fido.ita.ridere 0000014779 0000014777 y
- fido.ita.dewdney 0000004073 0000004074 y
-@@ -10,19 +10,19 @@
- fido.ita.sf 0000004777 0000004778 y
- comp.os.linux.announce 0000010782 0000010779 m
- fido.ita.tex 0000000248 0000000249 y
--it.news.annunci 0000004909 0000004787 m
-+it.news.annunci 0000004905 0000004787 m
- it.news.gestione 0000007878 0000007399 y
- fido.ita.tv 0000011944 0000011944 y
- it.test 0000000796 0000000797 y
--it.news.gruppi 0000048004 0000047898 y
-+it.news.gruppi 0000047994 0000047898 y
- it.comp.sicurezza.varie 0000030696 0000030353 y
- it.comp.sicurezza.unix 0000002721 0000002722 y
--it.faq 0000001154 0000001091 m
-+it.faq 0000001150 0000001091 m
-[...]
+Yes, hmm indeed.  Try these two things.
 
--- 
-ciao,
-Marco
+1. make DECLARE_MUTEX_LOCKED(sem) in bdflush_init() static.
+2. compile with frame pointers.  (normal case for IKD)
+
+My IKD tree works with either option, but not with neither.  I haven't
+figured out why yet.
+
+	-Mike
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,48 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279847AbRJ3EN7>; Mon, 29 Oct 2001 23:13:59 -0500
+	id <S279849AbRJ3EYA>; Mon, 29 Oct 2001 23:24:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279852AbRJ3ENj>; Mon, 29 Oct 2001 23:13:39 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:41230 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S279847AbRJ3ENa>; Mon, 29 Oct 2001 23:13:30 -0500
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: i/o stalls on 2.4.14-pre3 with ext3
-Date: Tue, 30 Oct 2001 04:12:00 +0000 (UTC)
-Organization: Transmeta Corporation
-Message-ID: <9rl9ag$7su$1@penguin.transmeta.com>
-In-Reply-To: <Pine.LNX.4.21.0110292120340.16895-100000@admin> <3BDE161A.D8289730@zip.com.au>
-X-Trace: palladium.transmeta.com 1004415240 20760 127.0.0.1 (30 Oct 2001 04:14:00 GMT)
-X-Complaints-To: news@transmeta.com
-NNTP-Posting-Date: 30 Oct 2001 04:14:00 GMT
-Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
-X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
+	id <S279853AbRJ3EXv>; Mon, 29 Oct 2001 23:23:51 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:57589
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S279849AbRJ3EXk>; Mon, 29 Oct 2001 23:23:40 -0500
+Date: Mon, 29 Oct 2001 20:24:11 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: George Garvey <tmwg-linuxknl@inxservices.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.13-ac4
+Message-ID: <20011029202411.I20280@mikef-linux.matchmail.com>
+Mail-Followup-To: George Garvey <tmwg-linuxknl@inxservices.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20011028204003.A1640@lightning.swansea.linux.org.uk> <20011029200947.C14203@inxservices.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011029200947.C14203@inxservices.com>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3BDE161A.D8289730@zip.com.au>,
-Andrew Morton  <akpm@zip.com.au> wrote:
->
->ext3's problem is that it is unable to react to VM pressure 
->for metadata (buffercache) pages.  Once upon a time it did
->do this, but we backed it out because it involved mauling
->core kernel code.  So at present we only react to VM pressure
->for data pages.
+On Mon, Oct 29, 2001 at 08:09:47PM -0800, George Garvey wrote:
+> (except for nVidia driver module).
 
-Note that the new VM has some support in place for the low-level
-filesystem reacting to VM pressure. In particular, one thing the fs can
-do is to look at the PG_launder bit (for pages) and PG_launder bit (for
-buffers), to figure out if the IO is due to memory pressure.
+You can kiss any useful support from this group if any binary kernel modules
+have *ever* touched the kernel you run.
 
-A "sync" will not have the launder bit set, while something started due
-to VM pressure will have the bits set.
+However, if you can reproduce the same problem without any binary modules
+*ever* being loaded since the last reboot, then you will probably get support.
 
->Then again, maybe something got broken in the buffer writeout
->code or something.
+*ever* includes loading and then unloading a binary module within the
+current session.  Session being the entire time a kernel runs without being
+rebooted.
 
-There are two really silly request bugs in 2.4.14-pre3. I'd suggest
-trying pre5 which cleans up other things too, but even more notably
-should fix the request queue thinkos.
-
-		Linus
+Mike

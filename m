@@ -1,48 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129183AbQKPWBS>; Thu, 16 Nov 2000 17:01:18 -0500
+	id <S130870AbQKPWBj>; Thu, 16 Nov 2000 17:01:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129222AbQKPWBI>; Thu, 16 Nov 2000 17:01:08 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:17147 "EHLO
-	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S129183AbQKPWBA>; Thu, 16 Nov 2000 17:01:00 -0500
-Date: Thu, 16 Nov 2000 19:30:46 -0200 (BRDT)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Christoph Rohland <cr@sap.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: shm swapping in 2.4 again
-In-Reply-To: <m3snord2p7.fsf@linux.local>
-Message-ID: <Pine.LNX.4.21.0011161929080.13085-100000@duckman.distro.conectiva>
+	id <S130753AbQKPWB3>; Thu, 16 Nov 2000 17:01:29 -0500
+Received: from [213.8.185.152] ([213.8.185.152]:45583 "EHLO callisto.yi.org")
+	by vger.kernel.org with ESMTP id <S129222AbQKPWBZ>;
+	Thu, 16 Nov 2000 17:01:25 -0500
+Date: Thu, 16 Nov 2000 23:31:00 +0200 (IST)
+From: Dan Aloni <karrde@callisto.yi.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH (2.4)] atomic use count for proc_dir_entry
+In-Reply-To: <Pine.LNX.4.10.10011161313060.2661-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.21.0011162320230.17038-100000@callisto.yi.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 16 Nov 2000, Christoph Rohland wrote:
+On Thu, 16 Nov 2000, Linus Torvalds wrote:
 
-> Oh, I missed one point: we need to handle the swapout of
-> nonattached pages: in shm you can detach the last user and the
-> segment with content is still around. So we have to scan the shm
-> objects themselves also. Should We could do this in the same
-> loop as we scan the mm's?
+> On Thu, 16 Nov 2000, Dan Aloni wrote:
+> > 
+> > Makes procfs use an atomic use count for dir entries, to avoid using 
+> > the Big kernel lock. Axboe says it looks ok.
+> 
+> There's a race there. Look at what happens if de_put() races with
+> remove_proc_entry(): we'd do free_proc_entry() twice. Not good.
+> 
+> Leave the kernel lock for now.
 
-Sounds like a good idea. If we scan the nonattached segments
-just as agressively as we scan the mm's, things should be
-balanced just fine.
+Is this particular kernel lock helps anyway? We could have been half way
+through remove_proc_entry(), line 569, for example, while in the same time
+another thread enters de_put when the use count is 1 and frees the entry
+while the other thread is locked just before dereferencing the entry.
 
-> Also we have to make sure to derefence the swap entry if the
-> last reference is in the shm segmant table .
+So, maybe a spinlock could be used here?
 
-Why is this?
-
-regards,
-
-Rik
---
-"What you're running that piece of shit Gnome?!?!"
-       -- Miguel de Icaza, UKUUG 2000
-
-http://www.conectiva.com/		http://www.surriel.com/
+-- 
+Dan Aloni 
+dax@karrde.org
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

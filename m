@@ -1,49 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268308AbRG3EDa>; Mon, 30 Jul 2001 00:03:30 -0400
+	id <S268324AbRG3FT7>; Mon, 30 Jul 2001 01:19:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268317AbRG3EDU>; Mon, 30 Jul 2001 00:03:20 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:57353 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S268308AbRG3EDD>;
-	Mon, 30 Jul 2001 00:03:03 -0400
-Date: Mon, 30 Jul 2001 01:02:38 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-Cc: <postmaster@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: Test mail
-In-Reply-To: <5.1.0.14.2.20010730024303.00b1cec0@pop.cus.cam.ac.uk>
-Message-ID: <Pine.LNX.4.33L.0107300101490.11893-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268327AbRG3FTt>; Mon, 30 Jul 2001 01:19:49 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:15624 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S268324AbRG3FTf>; Mon, 30 Jul 2001 01:19:35 -0400
+From: Linus Torvalds <torvalds@transmeta.com>
+Date: Sun, 29 Jul 2001 22:04:59 -0700
+Message-Id: <200107300504.f6U54xk01254@penguin.transmeta.com>
+To: hugh@veritas.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] hold cow while breaking
+Newsgroups: linux.dev.kernel
+In-Reply-To: <Pine.LNX.4.21.0107292212330.1139-100000@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.33.0107291350540.937-100000@penguin.transmeta.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Mon, 30 Jul 2001, Anton Altaparmakov wrote:
-> At 23:20 29/07/2001, Mailing Server wrote:
-> >Hi, just verifying email, enjoy the attached file.
+In article <Pine.LNX.4.21.0107292212330.1139-100000@localhost.localdomain> you write:
 >
-> Would it be possible to have lkml setup to filter out this kind of crap?!?
+>Sure, I agree with you on that, but it doesn't let us off the hook.
+>This isn't necessarily the first reuse of that page: after paging it
+>out and freeing it, it may have got allocated to some other purpose
+>and freed again, and then reassigned to the original use.
 
-IIRC lkml already has pretty strict filters.
+Ok, you've convinced me. Thanks for showing me the error of my ways.
+Fixed.
 
-However, you cannot have your filters prepared for
-any random thing. Eventually something will get
-through.
-
-It seems that this month's something just got through.
-
-such is life,
-
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
-
+		Linus

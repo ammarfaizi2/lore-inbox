@@ -1,81 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264379AbUFPSGE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264377AbUFPSGQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264379AbUFPSGE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jun 2004 14:06:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264401AbUFPSGE
+	id S264377AbUFPSGQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jun 2004 14:06:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264397AbUFPSGQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jun 2004 14:06:04 -0400
-Received: from mail.fh-wedel.de ([213.39.232.194]:62881 "EHLO mail.fh-wedel.de")
-	by vger.kernel.org with ESMTP id S264379AbUFPSEy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jun 2004 14:04:54 -0400
-Date: Wed, 16 Jun 2004 20:04:02 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Linux/m68k <linux-m68k@lists.linux-m68k.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Matt Mackall <mpm@selenic.com>
-Subject: Re: make checkstack on m68k
-Message-ID: <20040616180402.GB15365@wohnheim.fh-wedel.de>
-References: <Pine.GSO.4.58.0406161845490.1249@waterleaf.sonytel.be>
+	Wed, 16 Jun 2004 14:06:16 -0400
+Received: from werewolf.schneelocke.net ([62.8.212.6]:54825 "EHLO
+	werewolf.schneelocke.net") by vger.kernel.org with ESMTP
+	id S264377AbUFPSDb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jun 2004 14:03:31 -0400
+Date: Wed, 16 Jun 2004 19:59:02 +0200
+From: lkml@gl00on.net
+To: Phy Prabab <phyprabab@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Programtically tell diff between HT and real
+Message-ID: <20040616175902.GC12094@werewolf.schneelocke.net>
+References: <20040616174646.70010.qmail@web51805.mail.yahoo.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.GSO.4.58.0406161845490.1249@waterleaf.sonytel.be>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20040616174646.70010.qmail@web51805.mail.yahoo.com>
+X-Face: "/lf:;F?1M2u`>bt]h&FhSRZ"hM>a_b!7A;I1Lc!rWw'INc+S-NYk<I%I(qa022%$mEk'8v2DDinL*7g_?Z`d+cnKut<JfZ,TYTI&KrBTM-?({z<=M221B=!b@'PI5~nv:%F7xeFxBBY!6l5b+Gu:NX&7@.k474ZfXn*|?j^6s"E]&7nRc0M}X92&=8FXi)#'<uUij+4#S:c]>|&?>I2.KiJMku(vOc0|'VK#FGE5:F~+BwY$Ddi)?fp[&xy/89jGCVnS/[aN-[Z0bGuM./UD}3*c5AbucK=l!8(&^4=\qH}_(M]r`t3:_OjYFu
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 16 June 2004 18:51:03 +0200, Geert Uytterhoeven wrote:
-> 
-> I tried to add m68k support to `make checkstack', but got stuck due to my
-> limited knowledge of complex perl expressions. I actually need to catch both
-> expressions (incl. the one I commented out). Anyone who can help?
-> 
-> Anyway, here's a first run:
->   - Add half-assed m68 support.
->   - Make sure `make checkstack' uses the script in the source tree directory
->     (BTW, I saw a few more targets in my eye corner that may need this)
->   - Fix checkstack.pl naming
-> 
-> --- linux-2.6.7/Makefile	2004-06-16 13:06:15.000000000 +0200
-> +++ linux-m68k-2.6.7/Makefile	2004-06-16 18:27:13.000000000 +0200
-> @@ -1070,7 +1070,7 @@ endif #ifeq ($(mixed-targets),1)
->  .PHONY: checkstack
->  checkstack:
->  	$(OBJDUMP) -d vmlinux $$(find . -name '*.ko') | \
-> -	$(PERL) scripts/checkstack.pl $(ARCH)
-> +	$(PERL) $(src)/scripts/checkstack.pl $(ARCH)
+> Is there a way to tell the difference between normal
+> processors and HT enabled processors?  That is, does
+> the linux kernel know the difference and is there a
+> way to to know the difference.
 
-Does this actually matter?  Didn't hurt me yet.
-
->  #	Usage:
-> -#	objdump -d vmlinux | stackcheck_ppc.pl [arch]
-> +#	objdump -d vmlinux | stackcheck.pl [arch]
-
-Those were the days... :)
-Good catch.
-
-> @@ -40,6 +40,11 @@
->  	} elsif ($arch =~ /^ia64$/) {
->  		#e0000000044011fc:       01 0f fc 8c     adds r12=-384,r12
->  		$re = qr/.*adds.*r12=-(([0-9]{2}|[3-9])[0-9]{2}),r12/o;
-> +	} elsif ($arch =~ /^m68k$/) {
-> +		#2b6c:       4e56 fb70       linkw %fp,#-1168
-> +		#$re = qr/.*linkw %fp,#-([0-9]{1,4})/o;
-> +		#1df770:       defc ffe4       addaw #-28,%sp
-> +		$re = qr/.*addaw #-([0-9]{1,4}),%sp/o;
-
-For i386 I used a really ugly hack, but this needs someone with better
-perl skills.  Matt, can you find a nice regex?  If it adds more
-brackets, that's fine.  We'll just add empty brackets to the other
-regexes and use $2 instead of $1 or so.
-
-Jörn
+Execute the CPUID instruction with EAX=00000001h. I think HT-enabled cpus
+should have bit 28 of the value returned in EDX set.
 
 -- 
-To announce that there must be no criticism of the President, or that we
-are to stand by the President, right or wrong, is not only unpatriotic
-and servile, but is morally treasonable to the American public.
--- Theodore Roosevelt, Kansas City Star, 1918
+ 7:57PM  up 134 days,  5:11, 1 user, load averages: 0.16, 0.18, 0.16
+
+Every non-empty totally disconnected perfect compact metric space is
+homeomorphic to the Cantor set.

@@ -1,60 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316632AbSGBFgQ>; Tue, 2 Jul 2002 01:36:16 -0400
+	id <S316644AbSGBGLY>; Tue, 2 Jul 2002 02:11:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316636AbSGBFgP>; Tue, 2 Jul 2002 01:36:15 -0400
-Received: from OL65-148.fibertel.com.ar ([24.232.148.65]:39893 "EHLO
-	almesberger.net") by vger.kernel.org with ESMTP id <S316632AbSGBFgP>;
-	Tue, 2 Jul 2002 01:36:15 -0400
-Date: Tue, 2 Jul 2002 02:43:22 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [OKS] Module removal
-Message-ID: <20020702024322.F2295@almesberger.net>
-References: <3D212757.5040709@quark.didntduck.org> <32193.1025585595@kao2.melbourne.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <32193.1025585595@kao2.melbourne.sgi.com>; from kaos@ocs.com.au on Tue, Jul 02, 2002 at 02:53:15PM +1000
+	id <S316649AbSGBGLX>; Tue, 2 Jul 2002 02:11:23 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:9993 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S316644AbSGBGLW>; Tue, 2 Jul 2002 02:11:22 -0400
+Message-Id: <200207020546.g625krT21284@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: Bill Davidsen <davidsen@tmr.com>, willy tarreau <wtarreau@yahoo.fr>
+Subject: Re: [ANNOUNCE] CMOV emulation for 2.4.19-rc1
+Date: Tue, 2 Jul 2002 08:46:36 -0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Willy TARREAU <willy@w.ods.org>, willy@meta-x.org,
+       linux-kernel@vger.kernel.org, Ronald.Wahl@informatik.tu-chemnitz.de
+References: <Pine.LNX.3.96.1020701115336.23428B-100000@gatekeeper.tmr.com>
+In-Reply-To: <Pine.LNX.3.96.1020701115336.23428B-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Owens wrote:
-> For netfilter, the use count reflects the number of packets being
-> processed.  Complex and potentially high overhead.
+On 1 July 2002 13:55, Bill Davidsen wrote:
+> On Mon, 1 Jul 2002, [iso-8859-1] willy tarreau wrote:
+> > Like I said above, I didn't insist on optimizations,
+> > I prefered to get a clear code first. If I want to
+> > optimize, I think most of this will be assembler.
+>
+> This sounds good, the idea is that it should work at all, clarity is good,
+> I can't imagine anyone running this long term instead of building a
+> compile with the right machine type.
 
-Good example - netfilter may access a huge number of tiny
-modules when working on a packet. While this by itself is a
-performance issue, the need to keep reference counts right
-doesn't necessarily help.
+I see a potential problem here: if someone is running such kernel
+all the time, he can take huge performance penalty. 'Dunno why but on
+my box mailer does not run. It _crawls_'.
+Ordinary user may perceive it like 'Linux is slow'.
 
-> All of this requires that the module information be passed in multiple
-> structures and assumes that all code is careful about reference
-> counting the code it is about to execute.
+What can be done to prevent this? Printk can go unnoticed in the log,
+as far as nothing actually breaks user won't look into the logs...
 
-It's not really just the module information. If I can, say, get
-callbacks from something even after I unregister, I may well
-have destroyed the data I need to process the callbacks, and
-oops or worse.
+1.big red letters 'CMOV EMULATION' across the screen? :-)
+2.Scroll lock LED inverted each time CMOV is triggered?
+3.Printk at kernel init time:
+  "Emergency rescue kernel with CMOV emulation: can be very slow,
+	not for production use!" ?
 
-> There has to be a better way!
-
-Well yes, there are other approaches that make sure something is
-not used, e.g.
-
-If you can a) make sure no new references are generated, and b)
-send a sequential marker through the subsystem, you can be sure
-that all references are gone, when the marker re-emerges. (Or use
-multiple markers, e.g. one per CPU.)
-
-Likewise, if you can disable restarting of a subsystem, and then
-wait until the subsystem is idle, you're safe. E.g. tasklet_disable
-works like this.
-
-- Werner
-
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://icapeople.epfl.ch/almesber/_____________________________________/
+Of course (1) is a joke.
+--
+vda

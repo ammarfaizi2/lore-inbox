@@ -1,42 +1,121 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261454AbTFUHGJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jun 2003 03:06:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265027AbTFUHGI
+	id S265027AbTFUHQ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jun 2003 03:16:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265034AbTFUHQ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jun 2003 03:06:08 -0400
-Received: from quechua.inka.de ([193.197.184.2]:5863 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S261454AbTFUHGH (ORCPT
+	Sat, 21 Jun 2003 03:16:27 -0400
+Received: from codepoet.org ([166.70.99.138]:12737 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id S265027AbTFUHQZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Jun 2003 03:06:07 -0400
-From: Bernd Eckenfels <ecki@calista.eckenfels.6bone.ka-ip.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Troll Tech [was RE: Sco vs. IBM]
-In-Reply-To: <20030621062936.GB25944@luebsphoto.com>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.5.17-20030301 ("Bubbles") (UNIX) (Linux/2.4.20-xfs (i686))
-Message-Id: <E19TcfQ-0005HT-00@calista.inka.de>
-Date: Sat, 21 Jun 2003 09:20:08 +0200
+	Sat, 21 Jun 2003 03:16:25 -0400
+Date: Sat, 21 Jun 2003 01:30:25 -0600
+From: Erik Andersen <andersen@codepoet.org>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] make x86 math-emu in 2.4.21 compile with gcc 3.3
+Message-ID: <20030621073025.GA27921@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Operating-System: Linux 2.4.19-rmk7, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20030621062936.GB25944@luebsphoto.com> you wrote:
-> Probably surprising to many (based on the proliferation of ignorant remarks 
-> on various mailing lists), Troll Tech's Qt offering is aligned 
-> more closely with the FSF philosophy than GTK/GNOME (remember the L in LGPL 
-> stands for LESSER after all (well the FSF prefers this now, but the 
-> GNOME/GTK folks continue to use the former version of the license
-> where the L stands for LIBRARY)).
+I'm surprised this hasn't shown up before, but I guess nobody has
+tried compiling 2.4.21 for i386 using gcc 3.3 yet.  Currently the
+x86 math-emu code does not compile with gcc 3.3 due to some
+missing semicolons and quotes.  This patch fixes things up so it
+compiles once again.
 
-this is the mysql/sap db way of making money, btw. You publish libs which
-are needed to ship with your product under the "free" GPL, and sell a
-commercial license for all others. This does work good, as long as you do
-not accept major contributions which are not reassigned to your copyright.
+ -Erik
 
-Sorry for the OT but I guess the whole thread is :(
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--
 
-Greetings
-Bernd
--- 
-eckes privat - http://www.eckes.org/
-Project Freefire - http://www.freefire.org/
+
+--- linux-2.4.21-erik/arch/i386/math-emu/poly.h.orig	2003-06-21 01:25:29.000000000 -0600
++++ linux-2.4.21-erik/arch/i386/math-emu/poly.h	2003-06-21 01:24:25.000000000 -0600
+@@ -64,9 +64,9 @@
+ 				      const unsigned long arg2)
+ {
+   int retval;
+-  asm volatile ("mull %2; movl %%edx,%%eax" \
+-		:"=a" (retval) \
+-		:"0" (arg1), "g" (arg2) \
++  asm volatile ("mull %2; movl %%edx,%%eax;"
++		:"=a" (retval)
++		:"0" (arg1), "g" (arg2)
+ 		:"dx");
+   return retval;
+ }
+@@ -75,10 +75,10 @@
+ /* Add the 12 byte Xsig x2 to Xsig dest, with no checks for overflow. */
+ static inline void add_Xsig_Xsig(Xsig *dest, const Xsig *x2)
+ {
+-  asm volatile ("movl %1,%%edi; movl %2,%%esi;
+-                 movl (%%esi),%%eax; addl %%eax,(%%edi);
+-                 movl 4(%%esi),%%eax; adcl %%eax,4(%%edi);
+-                 movl 8(%%esi),%%eax; adcl %%eax,8(%%edi);"
++  asm volatile ("movl %1,%%edi; movl %2,%%esi;"
++                 "movl (%%esi),%%eax; addl %%eax,(%%edi);"
++                 "movl 4(%%esi),%%eax; adcl %%eax,4(%%edi);"
++                 "movl 8(%%esi),%%eax; adcl %%eax,8(%%edi);"
+                  :"=g" (*dest):"g" (dest), "g" (x2)
+                  :"ax","si","di");
+ }
+@@ -90,19 +90,19 @@
+    problem, but keep fingers crossed! */
+ static inline void add_two_Xsig(Xsig *dest, const Xsig *x2, long int *exp)
+ {
+-  asm volatile ("movl %2,%%ecx; movl %3,%%esi;
+-                 movl (%%esi),%%eax; addl %%eax,(%%ecx);
+-                 movl 4(%%esi),%%eax; adcl %%eax,4(%%ecx);
+-                 movl 8(%%esi),%%eax; adcl %%eax,8(%%ecx);
+-                 jnc 0f;
+-		 rcrl 8(%%ecx); rcrl 4(%%ecx); rcrl (%%ecx)
+-                 movl %4,%%ecx; incl (%%ecx)
+-                 movl $1,%%eax; jmp 1f;
+-                 0: xorl %%eax,%%eax;
+-                 1:"
++  asm volatile ("movl %2,%%ecx; movl %3,%%esi;"
++                 "movl (%%esi),%%eax; addl %%eax,(%%ecx);"
++                 "movl 4(%%esi),%%eax; adcl %%eax,4(%%ecx);"
++                 "movl 8(%%esi),%%eax; adcl %%eax,8(%%ecx);"
++                 "jnc 0f;"
++		 "rcrl 8(%%ecx); rcrl 4(%%ecx); rcrl (%%ecx);"
++                 "movl %4,%%ecx; incl (%%ecx);"
++                 "movl $1,%%eax; jmp 1f;"
++                 "0: xorl %%eax,%%eax;"
++                 "1:"
+ 		:"=g" (*exp), "=g" (*dest)
+ 		:"g" (dest), "g" (x2), "g" (exp)
+-		:"cx","si","ax");
++		:"cx","si","ax"); 
+ }
+ 
+ 
+@@ -110,11 +110,11 @@
+ /* This is faster in a loop on my 386 than using the "neg" instruction. */
+ static inline void negate_Xsig(Xsig *x)
+ {
+-  asm volatile("movl %1,%%esi; "
+-               "xorl %%ecx,%%ecx; "
+-               "movl %%ecx,%%eax; subl (%%esi),%%eax; movl %%eax,(%%esi); "
+-               "movl %%ecx,%%eax; sbbl 4(%%esi),%%eax; movl %%eax,4(%%esi); "
+-               "movl %%ecx,%%eax; sbbl 8(%%esi),%%eax; movl %%eax,8(%%esi); "
++  asm volatile("movl %1,%%esi;"
++               "xorl %%ecx,%%ecx;"
++               "movl %%ecx,%%eax; subl (%%esi),%%eax; movl %%eax,(%%esi);"
++               "movl %%ecx,%%eax; sbbl 4(%%esi),%%eax; movl %%eax,4(%%esi);"
++               "movl %%ecx,%%eax; sbbl 8(%%esi),%%eax; movl %%eax,8(%%esi);"
+                :"=g" (*x):"g" (x):"si","ax","cx");
+ }
+ 

@@ -1,49 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263628AbTEDPKc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 May 2003 11:10:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263631AbTEDPKc
+	id S263631AbTEDPLn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 May 2003 11:11:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263632AbTEDPLn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 May 2003 11:10:32 -0400
-Received: from rtlab.med.cornell.edu ([140.251.145.175]:17567 "HELO
-	openlab.rtlab.org") by vger.kernel.org with SMTP id S263628AbTEDPKb
+	Sun, 4 May 2003 11:11:43 -0400
+Received: from science.horizon.com ([192.35.100.1]:60974 "HELO
+	science.horizon.com") by vger.kernel.org with SMTP id S263631AbTEDPLl
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 May 2003 11:10:31 -0400
-Date: Sun, 4 May 2003 11:23:00 -0400 (EDT)
-From: "Calin A. Culianu" <calin@ajvar.org>
-X-X-Sender: <calin@rtlab.med.cornell.edu>
-To: Ingo Molnar <mingo@redhat.com>
-Cc: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>,
-       <linux-kernel@vger.kernel.org>
+	Sun, 4 May 2003 11:11:41 -0400
+Date: 4 May 2003 15:24:05 -0000
+Message-ID: <20030504152405.7501.qmail@science.horizon.com>
+From: linux@horizon.com
+To: Valdis.Kletnieks@vt.edu
 Subject: Re: [Announcement] "Exec Shield", new Linux security feature
-In-Reply-To: <Pine.LNX.4.44.0305040404300.12757-100000@devserv.devel.redhat.com>
-Message-ID: <Pine.LNX.4.33L2.0305041121200.17172-100000@rtlab.med.cornell.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200305032300.h43N0UX9006675@turing-police.cc.vt.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 4 May 2003, Ingo Molnar wrote:
+On Sat, 03 May 2003 13:19:52 -0000, linux@horizon.com  said:
+> An interesting question arises: is the number of useful interpreter
+> functions (system, popen, exec*) sufficiently low that they could be
+> removed from libc.so entirely and only staticly linked, so processes
+> that didn't use them wouldn't even have them in their address space,
+> and ones that did would have them at less predictible addresses?
+> 
+> Right now, I'm thinking only of functions that end up calling execve();
+> are there any other sufficiently powerful interpreters hiding in common
+> system libraries?  regexec()?
 
->
-> On Sun, 4 May 2003, Calin A. Culianu wrote:
->
-> > IIRC, x86 ints have the high-order byte _last_ (ie the fourth byte).
-> > What's to stop someone from, say, smashing a buffer (and consequently
-> > return-address) on the stack using something like {0x01, 0x01, 0x01,
-> > 0x00} which is really address '65793' in base-10.  The above is a valid
-> > ASCII string (3 1's followed by a NUL) which could conceivably end up on
-> > the stack as the result of an errant strcpy() or gets() or whatever...
->
-> you are right, it is possible to use the enclosing \0 to generate an
-> address into the first 16MB, but how do you get any arguments passed to
-> that function?
+To which Valdis.Kletnieks replied:
+> This does absolutely nothing to stop an exploit from providing its own
+> inline version of execve().  There's nothing in libc that a process can't
+> do itself, inline.
 
-Hehe you're right.. because of the trailing NUL it's impossible to get any
-custom args passed to anything (like maybe libc.so's system() for
-instance).
+Ah, but with a non-executable stack, how do you arrange the inline code?
+if you include it in the buffer overflow on the stack, it's in the
+non-executable range.
 
-Yes, so this is a good layer of protection, because all the addresses
-below 16MB guarantee this feature, at least...
+You could arrange a return to memcpy(), with a stack like this:
+
+[Address of memcpy()]
+[Exploit target address (return address from memcpy)]
+[Exploit target address (destination of memcpy)]
+[Address of code on stack (source of memcpy)]
+[Length of code on stack]
+[Exploit code]
+
+This would work if you had an "exploit target address" that was
+writeable and executable, which this could copy the code to, but that's
+hard to come by.
+
+Now, we could stick a call to mprotect on the stack before that, but
+it's hard to get the protection flags past the kernel test:
+
+mm/mprotect.c, like 237:
+        if (prot & ~(PROT_READ | PROT_WRITE | PROT_EXEC | PROT_SEM))
+                return -EINVAL;
+
+When your exploit can't include any null bytes.
 
 
+Arjan's idea about a CAP_EXEC would be better, if it could be dropped
+automagically by linker magic on existing code.
+
+In fact, there are several other capabilities that would be nice to
+have droppable:
+
+- Ability to open an existing regular file or device (seekable,
+  persistent storage) for writing.  An SMTP daemon could probably
+  drop this.
+- Ability to create an externally accessible listening socket
+  (listen() on non-PF_UNIX)
+- Ability to connect to an external address (connect() on non-PF_UNIX)
+
+The PF_UNIX exception is for /dev/log.

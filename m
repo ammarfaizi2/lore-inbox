@@ -1,72 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281521AbRKMMfj>; Tue, 13 Nov 2001 07:35:39 -0500
+	id <S275224AbRKMM4l>; Tue, 13 Nov 2001 07:56:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281526AbRKMMf3>; Tue, 13 Nov 2001 07:35:29 -0500
-Received: from mail.loewe-komp.de ([62.156.155.230]:24839 "EHLO
-	mail.loewe-komp.de") by vger.kernel.org with ESMTP
-	id <S281521AbRKMMfR>; Tue, 13 Nov 2001 07:35:17 -0500
-Message-ID: <3BF1138B.82B0FEED@loewe-komp.de>
-Date: Tue, 13 Nov 2001 13:35:23 +0100
-From: Peter =?iso-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
-Organization: LOEWE. Hannover
-X-Mailer: Mozilla 4.76 [de] (X11; U; Linux 2.4.9-ac3 i686)
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: william fitzgerald <william.fitzgerald3@beer.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: printk performance logging without syslogd for router
-In-Reply-To: <E2D08E27D008FC940A0E24ADA76AD89F@william.fitzgerald3.beer.com>
+	id <S276894AbRKMM4b>; Tue, 13 Nov 2001 07:56:31 -0500
+Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:50448 "HELO
+	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with SMTP
+	id <S275224AbRKMM4U> convert rfc822-to-8bit; Tue, 13 Nov 2001 07:56:20 -0500
+Date: Tue, 13 Nov 2001 13:56:17 +0100
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: Peter =?iso-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
+Cc: Matthias Andree <matthias.andree@stud.uni-dortmund.de>,
+        linux-kernel@vger.kernel.org, joeja@mindspring.com
+Subject: Re: 2.4.9 to 2.4.14 bug & workaround
+Message-ID: <20011113135617.C9591@emma1.emma.line.org>
+Mail-Followup-To: Peter =?iso-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>,
+	linux-kernel@vger.kernel.org, joeja@mindspring.com
+In-Reply-To: <Springmail.105.1005600219.0.18983900@www.springmail.com> <20011113124519.G3949@emma1.emma.line.org> <3BF10DD5.9461C2F@loewe-komp.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
+In-Reply-To: <3BF10DD5.9461C2F@loewe-komp.de>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-william fitzgerald wrote:
-> 
-> ---- Begin Original Message ----
->  From: Peter Wächtler <pwaechtler@loewe-komp.de>
-> Sent: Tue, 13 Nov 2001 13:15:45 +0100
-> To: william fitzgerald
-> <william.fitzgerald3@beer.com>
-> CC: linux-kernel@vger.kernel.org
-> Subject: Re: printk performance logging without
-> syslogd for router
-> 
-> william fitzgerald wrote:
-> >
-> > hi all,
-> >
-> > (perforamnce logging of network stack through a
-> > linux router)
-> >
-> > the main question:
-> >
-> > is there a way i can buffer or record  the
-> printk
-> > statements and print them to disk  after my
-> > packets have gone through the router?
-> >
-> 
-> there is an option in syslogd to prevent
-> immediatly
-> writing to the logfile:
-> 
-> prefix the log with a dash:
-> 
-> kern.*  -/var/log/kernelmessages
-> 
-> ---- End Original Message ----
-> 
-> what does klogd do?
-> 
-> i thought klogd writes to disk if you turn off
-> syslogd.that way you only have one over head.
-> 
+Peter Wächtler schrieb am Dienstag, den 13. November 2001:
 
-OK, normally klogd pushes the messages to syslog.
-Then syslogd decides where and how to write to disk.
+> On the IDE I mount /dev/hdb, on the USB thing I mount sd[ab]4
+> depending if the flash reader is there or not.
+> Hmh?
 
-If you use "klogd -f /tmp/logfile" I don't know how
-to prevent immediate write()s to disk. The source code
-of klogd will tell you :-)
+Do these behave differently? In particular, do the IDE Zip drives hide
+the partition structure...
+
+>    Device Boot    Start       End    Blocks   Id  System
+> /dev/sdb4             1      1536     98288    6  FAT16
+
+...which is evidently there?
+
+> Until now I thought it had something to do with the different gendisk,
+> LDM or so.
+
+Well, you may also see firmware and/or design flaws in the drive
+(personally, I have never trusted iomega, because on the CeBIT fair in
+Hannover, I once asked them "why should I prefer iomega ZIP or JAZ over
+SyQuest" and they had no answer except "we're just better". I later
+heard complaints about the SCSI ID only to be chosen from 5 or 6, 25-pin
+SCSI connectors and stuff, then there was the click-of-death sabotage
+and now there is your "partition entry or not" problem.)
+
+http://www.win.tue.nl/~aeb/linux/zip/zip-1.html has some info which does
+not look too promising when you're after consistent behaviour across the
+various drive types (interface-wise, that is).
+
+Judging from what's on that page, the IDE driver seems to know it's just
+a "floppy" without partitions, but the USB driver sees the (fake)
+partitions.
+
+-- 
+Matthias Andree
+
+"They that can give up essential liberty to obtain a little temporary
+safety deserve neither liberty nor safety."         Benjamin Franklin

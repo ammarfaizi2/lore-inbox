@@ -1,160 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262125AbUJZDPb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262095AbUJZEVh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262125AbUJZDPb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 23:15:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262071AbUJZDMy
+	id S262095AbUJZEVh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 00:21:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262155AbUJZESx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 23:12:54 -0400
-Received: from fw.osdl.org ([65.172.181.6]:61110 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262138AbUJZDJY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 23:09:24 -0400
-Message-ID: <417DBEC1.5000701@osdl.org>
-Date: Mon, 25 Oct 2004 20:04:33 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+	Tue, 26 Oct 2004 00:18:53 -0400
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:41117 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S262080AbUJZBlb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Oct 2004 21:41:31 -0400
+Message-ID: <417D918E.8030804@nortelnetworks.com>
+Date: Mon, 25 Oct 2004 17:51:42 -0600
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-mm1
-References: <20041022032039.730eb226.akpm@osdl.org> <417D7EB9.4090800@osdl.org> <20041025155626.11b9f3ab.akpm@osdl.org> <417D88BB.70907@osdl.org> <20041025164743.0af550ce.akpm@osdl.org> <417D8DFF.1060104@osdl.org> <Pine.GSO.4.58.0410260319100.17615@mion.elka.pw.edu.pl>
-In-Reply-To: <Pine.GSO.4.58.0410260319100.17615@mion.elka.pw.edu.pl>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: george@mvista.com
+CC: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>,
+       root@chaos.analogic.com, "Brown, Len" <len.brown@intel.com>,
+       Tim Schmielau <tim@physik3.uni-rostock.de>,
+       john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: gradual timeofday overhaul
+References: <F989B1573A3A644BAB3920FBECA4D25A011F96CB@orsmsx407> <41782771.3060404@mvista.com> <41783AE7.8040705@nortelnetworks.com> <417D8846.3090308@mvista.com>
+In-Reply-To: <417D8846.3090308@mvista.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bartlomiej Zolnierkiewicz wrote:
-> On Mon, 25 Oct 2004, Randy.Dunlap wrote:
-> 
-> 
->>Andrew Morton wrote:
->>
->>>"Randy.Dunlap" <rddunlap@osdl.org> wrote:
->>>
->>>
->>>>Andrew Morton wrote:
->>>>
->>>>
->>>>>"Randy.Dunlap" <rddunlap@osdl.org> wrote:
->>>>>
->>>>>
->>>>>
->>>>>>I'm trying to spend time on kexec++ this week, but this little BUG
->>>>>>keeps getting in the way.  Has it already been reported/fixed?
->>>>>>
->>>>>>kernel BUG at arch/i386/mm/highmem.c:42!
->>>>>
->>>>>
->>>>>oops, we did it again.
-> 
-> 
-> Doh.
-> 
-> 
->>>>>--- 25/drivers/ide/ide-taskfile.c~ide_pio_sector-kmap-fix	Mon Oct 25 15:54:35 2004
->>>>>+++ 25-akpm/drivers/ide/ide-taskfile.c	Mon Oct 25 15:54:48 2004
->>>>>@@ -304,7 +304,7 @@ static void ide_pio_sector(ide_drive_t *
->>>>>	else
->>>>>		taskfile_input_data(drive, buf, SECTOR_WORDS);
->>>>>
->>>>>-	kunmap_atomic(page, KM_BIO_SRC_IRQ);
->>>>>+	kunmap_atomic(buf, KM_BIO_SRC_IRQ);
->>>>>#ifdef CONFIG_HIGHMEM
->>>>>	local_irq_restore(flags);
->>>>>#endif
->>>>>_
->>>>
->>>>Yes, that gets further.   :(
->>>>Maybe I'll just (try) apply the kexec patch to a vanilla kernel.
-> 
-> 
-> IDE PIO changes are the part of a vanilla kernel.
-> 
-> If vanilla kernel (+akpm's fix) works OK then
-> this bug is not mine fault. :)
-> 
-> 
->>>I doubt if it'll help much.  It looks like IDE PIO got badly broken.
-> 
-> 
-> Weird, this code was in -mm for over a month.
-> 
-> 
->>>That's something we have to fix - could you work with Bart on it please?
->>
->>Sure.  Bart?
-> 
-> 
-> I need more data, IDE PIO works fine here.
-> 
-> 
->>>How come your disks are running in PIO mode anyway?
-> 
-> 
-> Maybe disks are runing in DMA mode but some application
-> triggers PIO access (IDENTIFY command, S.M.A.R.T. etc.)...
-> 
-> 
->>No idea.
+George Anzinger wrote:
+> Chris Friesen wrote:
 
-Andrew made me look.  Duh.  It's because I'm booting with
-ide=nodma.
+>> It should be possible to be clever about this.  Most processes don't 
+>> use their timeslice, so if we have a previous timer running, just keep 
+>> track of how much beyond that timer our timeslice will be.  If we 
+>> context switch before the timer expiry, well and good.  If the timer 
+>> expires, set it for what's left of our timeslice.
+> 
+> 
+> Me thinks that rather quickly devolves to a periodic tick.
 
-So Bart, can you check the noautodma=1 code path?
-And I'll test it again on Tuesday without using ide=nodma.
+In the busy case, yes.  But on an idle system you get tickless behaviour.
 
-4 oopsen boot logs are (back-to-back) in:
-http://developer.osdl.org/rddunlap/doc/capture-ide.txt
-if you need to see them.
+It's still going to be load-sensitive, since you are doing additional work to 
+keep track of the timer/timeout values.  But it saves work if reprogramming the 
+timer is time-consuming compared to simply reading it.  On something like the 
+ppc, it probably doesn't buy you much since the decrementer is cheap to program.
 
-
->>>>Unable to handle kernel paging request at virtual address fffea000
->>>> printing eip:
->>>>c02c8e4d
->>>>*pde = 0064b067
->>>>*pte = 00000000
->>>>Oops: 0002 [#1]
->>>>SMP DEBUG_PAGEALLOC
->>>>Modules linked in:
->>>>CPU:    0
->>>>EIP:    0060:[<c02c8e4d>]    Not tainted VLI
->>>>EFLAGS: 00010006   (2.6.9-mm1)
->>>>EIP is at ide_insw+0xd/0x20
->>>>eax: 000001f0   ebx: c05ee7ec   ecx: 00000100   edx: 000001f0
->>>>esi: c05ee7ec   edi: fffea000   ebp: c056fe80   esp: c056fe7c
->>>>ds: 007b   es: 007b   ss: 0068
->>>>Process swapper (pid: 0, threadinfo=c056e000 task=c0486b80)
->>>>Stack: c05ee740 c056fea0 c02c93b8 000001f0 fffea000 00000100 c05ee7ec
->>>>00000080
->>>>       fffea000 c056fec0 c02ccf06 c05ee7ec fffea000 00000080 00000000
->>>>00000000
->>>>       c05ee740 c056feec c02cd62b c05ee7ec fffea000 00000080 00000000
->>>>fffea000
->>>>Call Trace:
->>>> [<c0107eff>] show_stack+0xaf/0xc0
->>>> [<c010808d>] show_registers+0x15d/0x1e0
->>>> [<c01082a6>] die+0x106/0x190
->>>> [<c011c707>] do_page_fault+0x517/0x6a6
->>>> [<c0107b4d>] error_code+0x2d/0x38
->>>> [<c02c93b8>] ata_input_data+0x98/0xa0
->>>> [<c02ccf06>] taskfile_input_data+0x26/0x50
->>>> [<c02cd62b>] ide_pio_sector+0xcb/0xf0
->>>> [<c02cd892>] task_in_intr+0xe2/0x100
->>>> [<c02c8c16>] ide_intr+0xb6/0x150
->>>> [<c0142cd8>] handle_IRQ_event+0x38/0x70
->>>> [<c0142df2>] __do_IRQ+0xe2/0x150
->>>> [<c0109606>] do_IRQ+0x36/0x60
->>>> [<c0107a30>] common_interrupt+0x18/0x20
->>>> [<c01050f1>] cpu_idle+0x31/0x50
->>>> [<c05709bf>] start_kernel+0x15f/0x180
->>>> [<c0100211>] 0xc0100211
->>>>Code: e5 8b 55 08 ec 0f b6 c0 5d c3 8d 74 26 00 55 89 e5 8b 55 08 66
->>>>ed 0f b7 c
->>>> <0>Kernel panic - not syncing: Fatal exception in interrupt
->>>> <0>Dumping messages in 0 seconds : last chance for Alt-SysRq...
-
-
--- 
-~Randy
+Chris

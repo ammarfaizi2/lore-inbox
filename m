@@ -1,60 +1,326 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261698AbVAGXJ7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261684AbVAGXAa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261698AbVAGXJ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 18:09:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261680AbVAGXHQ
+	id S261684AbVAGXAa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 18:00:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261680AbVAGW7n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 18:07:16 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:44457 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261698AbVAGXAt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 18:00:49 -0500
-Subject: Re: [PATCH] [request for inclusion] Realtime LSM
-From: Lee Revell <rlrevell@joe-job.com>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Andrew Morton <akpm@osdl.org>, paul@linuxaudiosystems.com,
-       arjanv@redhat.com, mingo@elte.hu, Chris Wright <chrisw@osdl.org>,
-       alan@lxorguk.ukuu.org.uk, joq@io.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20050107221059.GA17392@infradead.org>
-References: <200501071620.j07GKrIa018718@localhost.localdomain>
-	 <1105132348.20278.88.camel@krustophenia.net>
-	 <20050107134941.11cecbfc.akpm@osdl.org>
-	 <20050107221059.GA17392@infradead.org>
-Content-Type: text/plain
-Date: Fri, 07 Jan 2005 18:00:40 -0500
-Message-Id: <1105138840.20278.107.camel@krustophenia.net>
+	Fri, 7 Jan 2005 17:59:43 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:1247 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261684AbVAGW5b
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jan 2005 17:57:31 -0500
+Date: Fri, 7 Jan 2005 18:06:42 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Vasil Kolev <vasil@ludost.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Fix for new elf_loader bug?
+Message-ID: <20050107200641.GN29176@logos.cnet>
+References: <41DEAF8F.3030107@bio.ifi.lmu.de> <20050107170514.GJ29176@logos.cnet> <1105136799.1644.1.camel@doom.home.ludost.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="JP+T4n/bALQSJXh8"
+Content-Disposition: inline
+In-Reply-To: <1105136799.1644.1.camel@doom.home.ludost.net>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-01-07 at 22:10 +0000, Christoph Hellwig wrote:
-> It's not nessecarily a bad idea per, but it doesn't
-> really fit into the model we've been working to.  I'd expect quite a few
-> unpleasant devices when a user detects that the distibution had been
-> binding various capabilities to uids/gids behinds his back.
+
+--JP+T4n/bALQSJXh8
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+On Sat, Jan 08, 2005 at 12:26:39AM +0200, Vasil Kolev wrote:
+> On ????, 2005-01-07 at 15:05 -0200, Marcelo Tosatti wrote:
+> > On Fri, Jan 07, 2005 at 04:49:35PM +0100, Frank Steiner wrote:
+> > > Hi,
+> > > 
+> > > is there already a patch for the new problem with the elf loader, maybe
+> > > in the bitkeeper tree?
+> > > 
+> > > http://www.isec.pl/vulnerabilities/isec-0021-uselib.txt
+> > 
+> > 2.6.10-ac6 contains a fix for the problem - a similar version should hit the BK tree 
+> > RSN.
 > 
+> Looking at the advisory, it affects 2.4, too, where can a patch for it
+> be found? 
 
-Point taken, but do keep in mind that this will *certainly* be disabled
-by default, unless you run an audio oriented distro, and we assume those
-people know what they're doing ;-)
+http://linux.bkbits.net:8080/linux-2.4/patch@1.1551?nav=index.html|ChangeSet@-1d|cset@1.1551
 
-> For that one I really wonder whether the combination of the now actually
-> working nicelevels (see Mingo's post)
+Attached.
 
-Ingo said "it should work".  It currently doesn't, as you can see from
-Jack's post.  My concern here is, the semantics of SCHED_FIFO are well
-defined and stable.  The highest priority runnable SCHED_FIFO process
-*always* runs.  The semantics of "nice -20" apparently change from
-release to release, as you can see.  We can't have the scheduler
-deciding to run something else when jackd needs to run because it
-decides jackd is hogging the CPU or whatever.  Everyone knows that when
-dealing with realtime constraints the important case is not the average
-but the worst.
 
-In a live audio situation an xrun storm and a complete system lockup are
-both catastrophic failures.
+--JP+T4n/bALQSJXh8
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="2.4-do-brk-locked.patch"
 
-Lee
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.1550  -> 1.1551 
+#	      kernel/ksyms.c	1.84    -> 1.85   
+#	  include/linux/mm.h	1.48    -> 1.49   
+#	    fs/binfmt_aout.c	1.9     -> 1.10   
+#	     fs/binfmt_elf.c	1.38    -> 1.39   
+#	arch/sparc64/kernel/binfmt_aout32.c	1.6     -> 1.7    
+#	           mm/mmap.c	1.35    -> 1.36   
+#	arch/mips/kernel/irixelf.c	1.6     -> 1.7    
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 05/01/07	marcelo@logos.cnet	1.1551
+# Paul Starzetz: sys_uselib() race vulnerability  (CAN-2004-1235)
+# 
+# http://isec.pl/vulnerabilities/isec-0021-uselib.txt
+# --------------------------------------------
+#
+diff -Nru a/arch/mips/kernel/irixelf.c b/arch/mips/kernel/irixelf.c
+--- a/arch/mips/kernel/irixelf.c	Fri Jan  7 18:04:11 2005
++++ b/arch/mips/kernel/irixelf.c	Fri Jan  7 18:04:11 2005
+@@ -130,7 +130,7 @@
+ 	end = PAGE_ALIGN(end);
+ 	if (end <= start)
+ 		return;
+-	do_brk(start, end - start);
++	do_brk_locked(start, end - start);
+ }
+ 
+ 
+@@ -379,7 +379,7 @@
+ 
+ 	/* Map the last of the bss segment */
+ 	if (last_bss > len) {
+-		do_brk(len, (last_bss - len));
++		do_brk_locked(len, (last_bss - len));
+ 	}
+ 	kfree(elf_phdata);
+ 
+@@ -567,7 +567,7 @@
+ 	unsigned long v;
+ 	struct prda *pp;
+ 
+-	v =  do_brk (PRDA_ADDRESS, PAGE_SIZE);
++	v =  do_brk_locked (PRDA_ADDRESS, PAGE_SIZE);
+ 
+ 	if (v < 0)
+ 		return;
+@@ -859,7 +859,7 @@
+ 	len = (elf_phdata->p_filesz + elf_phdata->p_vaddr+ 0xfff) & 0xfffff000;
+ 	bss = elf_phdata->p_memsz + elf_phdata->p_vaddr;
+ 	if (bss > len)
+-	  do_brk(len, bss-len);
++	  do_brk_locked(len, bss-len);
+ 	kfree(elf_phdata);
+ 	return 0;
+ }
+diff -Nru a/arch/sparc64/kernel/binfmt_aout32.c b/arch/sparc64/kernel/binfmt_aout32.c
+--- a/arch/sparc64/kernel/binfmt_aout32.c	Fri Jan  7 18:04:11 2005
++++ b/arch/sparc64/kernel/binfmt_aout32.c	Fri Jan  7 18:04:11 2005
+@@ -49,7 +49,7 @@
+ 	end = PAGE_ALIGN(end);
+ 	if (end <= start)
+ 		return;
+-	do_brk(start, end - start);
++	do_brk_locked(start, end - start);
+ }
+ 
+ /*
+@@ -246,10 +246,10 @@
+ 	if (N_MAGIC(ex) == NMAGIC) {
+ 		loff_t pos = fd_offset;
+ 		/* Fuck me plenty... */
+-		error = do_brk(N_TXTADDR(ex), ex.a_text);
++		error = do_brk_locked(N_TXTADDR(ex), ex.a_text);
+ 		bprm->file->f_op->read(bprm->file, (char *) N_TXTADDR(ex),
+ 			  ex.a_text, &pos);
+-		error = do_brk(N_DATADDR(ex), ex.a_data);
++		error = do_brk_locked(N_DATADDR(ex), ex.a_data);
+ 		bprm->file->f_op->read(bprm->file, (char *) N_DATADDR(ex),
+ 			  ex.a_data, &pos);
+ 		goto beyond_if;
+@@ -257,7 +257,7 @@
+ 
+ 	if (N_MAGIC(ex) == OMAGIC) {
+ 		loff_t pos = fd_offset;
+-		do_brk(N_TXTADDR(ex) & PAGE_MASK,
++		do_brk_locked(N_TXTADDR(ex) & PAGE_MASK,
+ 			ex.a_text+ex.a_data + PAGE_SIZE - 1);
+ 		bprm->file->f_op->read(bprm->file, (char *) N_TXTADDR(ex),
+ 			  ex.a_text+ex.a_data, &pos);
+@@ -272,7 +272,7 @@
+ 
+ 		if (!bprm->file->f_op->mmap) {
+ 			loff_t pos = fd_offset;
+-			do_brk(0, ex.a_text+ex.a_data);
++			do_brk_locked(0, ex.a_text+ex.a_data);
+ 			bprm->file->f_op->read(bprm->file,(char *)N_TXTADDR(ex),
+ 				  ex.a_text+ex.a_data, &pos);
+ 			goto beyond_if;
+@@ -388,7 +388,7 @@
+ 	len = PAGE_ALIGN(ex.a_text + ex.a_data);
+ 	bss = ex.a_text + ex.a_data + ex.a_bss;
+ 	if (bss > len) {
+-		error = do_brk(start_addr + len, bss - len);
++		error = do_brk_locked(start_addr + len, bss - len);
+ 		retval = error;
+ 		if (error != start_addr + len)
+ 			goto out;
+diff -Nru a/fs/binfmt_aout.c b/fs/binfmt_aout.c
+--- a/fs/binfmt_aout.c	Fri Jan  7 18:04:11 2005
++++ b/fs/binfmt_aout.c	Fri Jan  7 18:04:11 2005
+@@ -46,7 +46,7 @@
+ 	start = PAGE_ALIGN(start);
+ 	end = PAGE_ALIGN(end);
+ 	if (end > start) {
+-		unsigned long addr = do_brk(start, end - start);
++		unsigned long addr = do_brk_locked(start, end - start);
+ 		if (BAD_ADDR(addr))
+ 			return addr;
+ 	}
+@@ -317,10 +317,10 @@
+ 		loff_t pos = fd_offset;
+ 		/* Fuck me plenty... */
+ 		/* <AOL></AOL> */
+-		error = do_brk(N_TXTADDR(ex), ex.a_text);
++		error = do_brk_locked(N_TXTADDR(ex), ex.a_text);
+ 		bprm->file->f_op->read(bprm->file, (char *) N_TXTADDR(ex),
+ 			  ex.a_text, &pos);
+-		error = do_brk(N_DATADDR(ex), ex.a_data);
++		error = do_brk_locked(N_DATADDR(ex), ex.a_data);
+ 		bprm->file->f_op->read(bprm->file, (char *) N_DATADDR(ex),
+ 			  ex.a_data, &pos);
+ 		goto beyond_if;
+@@ -341,7 +341,7 @@
+ 		map_size = ex.a_text+ex.a_data;
+ #endif
+ 
+-		error = do_brk(text_addr & PAGE_MASK, map_size);
++		error = do_brk_locked(text_addr & PAGE_MASK, map_size);
+ 		if (error != (text_addr & PAGE_MASK)) {
+ 			send_sig(SIGKILL, current, 0);
+ 			return error;
+@@ -375,7 +375,7 @@
+ 
+ 		if (!bprm->file->f_op->mmap||((fd_offset & ~PAGE_MASK) != 0)) {
+ 			loff_t pos = fd_offset;
+-			do_brk(N_TXTADDR(ex), ex.a_text+ex.a_data);
++			do_brk_locked(N_TXTADDR(ex), ex.a_text+ex.a_data);
+ 			bprm->file->f_op->read(bprm->file,(char *)N_TXTADDR(ex),
+ 					ex.a_text+ex.a_data, &pos);
+ 			flush_icache_range((unsigned long) N_TXTADDR(ex),
+@@ -476,7 +476,7 @@
+ 			error_time = jiffies;
+ 		}
+ 
+-		do_brk(start_addr, ex.a_text + ex.a_data + ex.a_bss);
++		do_brk_locked(start_addr, ex.a_text + ex.a_data + ex.a_bss);
+ 		
+ 		file->f_op->read(file, (char *)start_addr,
+ 			ex.a_text + ex.a_data, &pos);
+@@ -500,7 +500,7 @@
+ 	len = PAGE_ALIGN(ex.a_text + ex.a_data);
+ 	bss = ex.a_text + ex.a_data + ex.a_bss;
+ 	if (bss > len) {
+-		error = do_brk(start_addr + len, bss - len);
++		error = do_brk_locked(start_addr + len, bss - len);
+ 		retval = error;
+ 		if (error != start_addr + len)
+ 			goto out;
+diff -Nru a/fs/binfmt_elf.c b/fs/binfmt_elf.c
+--- a/fs/binfmt_elf.c	Fri Jan  7 18:04:11 2005
++++ b/fs/binfmt_elf.c	Fri Jan  7 18:04:11 2005
+@@ -84,7 +84,7 @@
+ 	start = ELF_PAGEALIGN(start);
+ 	end = ELF_PAGEALIGN(end);
+ 	if (end > start) {
+-		unsigned long addr = do_brk(start, end - start);
++		unsigned long addr = do_brk_locked(start, end - start);
+ 		if (BAD_ADDR(addr))
+ 			return addr;
+ 	}
+@@ -379,7 +379,7 @@
+ 
+ 	/* Map the last of the bss segment */
+ 	if (last_bss > elf_bss) {
+-		error = do_brk(elf_bss, last_bss - elf_bss);
++		error = do_brk_locked(elf_bss, last_bss - elf_bss);
+ 		if (BAD_ADDR(error))
+ 			goto out_close;
+ 	}
+@@ -425,7 +425,7 @@
+ 		goto out;
+ 	}
+ 
+-	do_brk(0, text_data);
++	do_brk_locked(0, text_data);
+ 	if (!interpreter->f_op || !interpreter->f_op->read)
+ 		goto out;
+ 	if (interpreter->f_op->read(interpreter, addr, text_data, &offset) < 0)
+@@ -433,7 +433,7 @@
+ 	flush_icache_range((unsigned long)addr,
+ 	                   (unsigned long)addr + text_data);
+ 
+-	do_brk(ELF_PAGESTART(text_data + ELF_MIN_ALIGN - 1),
++	do_brk_locked(ELF_PAGESTART(text_data + ELF_MIN_ALIGN - 1),
+ 		interp_ex->a_bss);
+ 	elf_entry = interp_ex->a_entry;
+ 
+@@ -974,7 +974,7 @@
+ 	len = ELF_PAGESTART(elf_phdata->p_filesz + elf_phdata->p_vaddr + ELF_MIN_ALIGN - 1);
+ 	bss = elf_phdata->p_memsz + elf_phdata->p_vaddr;
+ 	if (bss > len)
+-		do_brk(len, bss - len);
++		do_brk_locked(len, bss - len);
+ 	error = 0;
+ 
+ out_free_ph:
+diff -Nru a/include/linux/mm.h b/include/linux/mm.h
+--- a/include/linux/mm.h	Fri Jan  7 18:04:11 2005
++++ b/include/linux/mm.h	Fri Jan  7 18:04:11 2005
+@@ -575,6 +575,7 @@
+ extern int do_munmap(struct mm_struct *, unsigned long, size_t);
+ 
+ extern unsigned long do_brk(unsigned long, unsigned long);
++extern unsigned long do_brk_locked(unsigned long, unsigned long);
+ 
+ static inline void __vma_unlink(struct mm_struct * mm, struct vm_area_struct * vma, struct vm_area_struct * prev)
+ {
+diff -Nru a/kernel/ksyms.c b/kernel/ksyms.c
+--- a/kernel/ksyms.c	Fri Jan  7 18:04:11 2005
++++ b/kernel/ksyms.c	Fri Jan  7 18:04:11 2005
+@@ -88,6 +88,7 @@
+ EXPORT_SYMBOL(do_mmap_pgoff);
+ EXPORT_SYMBOL(do_munmap);
+ EXPORT_SYMBOL(do_brk);
++EXPORT_SYMBOL(do_brk_locked);
+ EXPORT_SYMBOL(exit_mm);
+ EXPORT_SYMBOL(exit_files);
+ EXPORT_SYMBOL(exit_fs);
+diff -Nru a/mm/mmap.c b/mm/mmap.c
+--- a/mm/mmap.c	Fri Jan  7 18:04:11 2005
++++ b/mm/mmap.c	Fri Jan  7 18:04:11 2005
+@@ -1116,6 +1116,21 @@
+ 	return addr;
+ }
+ 
++/* locking version of do_brk. */
++unsigned long do_brk_locked(unsigned long addr, unsigned long len)
++{
++	unsigned long ret;
++
++	down_write(&current->mm->mmap_sem);
++	ret = do_brk(addr, len);
++	up_write(&current->mm->mmap_sem);
++
++	return ret;
++}
++
++
++
++
+ /* Build the RB tree corresponding to the VMA list. */
+ void build_mmap_rb(struct mm_struct * mm)
+ {
 
+--JP+T4n/bALQSJXh8--

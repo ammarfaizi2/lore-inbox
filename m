@@ -1,48 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310695AbSCMQEf>; Wed, 13 Mar 2002 11:04:35 -0500
+	id <S310703AbSCMQIF>; Wed, 13 Mar 2002 11:08:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310703AbSCMQEZ>; Wed, 13 Mar 2002 11:04:25 -0500
-Received: from ns1.advfn.com ([212.161.99.144]:32008 "EHLO mail.advfn.com")
-	by vger.kernel.org with ESMTP id <S310695AbSCMQEX>;
-	Wed, 13 Mar 2002 11:04:23 -0500
-Message-Id: <200203131604.g2DG4Ls23185@mail.advfn.com>
-Content-Type: text/plain; charset=US-ASCII
-From: Tim Kay <timk@advfn.com>
-Reply-To: timk@advfn.com
-Organization: Advfn.com
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: IO-APIC reports this may help?
-Date: Wed, 13 Mar 2002 16:05:58 +0000
-X-Mailer: KMail [version 1.3.2]
+	id <S310718AbSCMQHz>; Wed, 13 Mar 2002 11:07:55 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:5651 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S310711AbSCMQHq>; Wed, 13 Mar 2002 11:07:46 -0500
+Subject: Re: linux-2.5.6 scsi DMA mapping and compilation fixes (not yet working)
+To: adam@yggdrasil.com (Adam J. Richter)
+Date: Wed, 13 Mar 2002 16:22:56 +0000 (GMT)
+Cc: davej@suse.de, linux-kernel@vger.kernel.org
+In-Reply-To: <200203131551.HAA09551@adam.yggdrasil.com> from "Adam J. Richter" at Mar 13, 2002 07:51:14 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16lBWi-0006kZ-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-	just a quickie, our Dell Poweredge boxes - Serverworks motherboard - are 
-continually pumping out IO-APIC errors as I've reported here before, we have 
-three of the same boxes running FreeBSD (limitless file descriptors per 
-process - sorry, we need it!) and I've just noticed that dmesg on these says 
-that:
+> 	Diffing the 2.4.18 and 2.5.6 versions of NCR53C8x.c and
+> fdomain.c, they look the same, aside from some io_request_lock's
+> replaced by scsi_host->host_lock.  dtc.c appears to have a few
+> minor changes, which I assume are for 2.5.  So, it looks like
+> the NCR53C80 drivers in 2.5.7-pre1 are approximately the correct
+> starting point for generating working NCR53C80 drivers in 2.5 (as
+> opposed to recopying them from 2.4).  Please correct me if I am wrong.
 
-IO APIC - APIC_IO: Testing 8254 interrupt delivery
-APIC_IO: Broken MP table detected: 8254 is not connected to IOAPIC #0 intpin 
-2 
-APIC_IO: routing 8254 via 8259 and IOAPIC #0 intpin 0 
+I don't know what has been merged beyond Dave Jones tree. DaveJ should be
+able to tell you. A general give away that you have the right one is that
+they are formatted to the linux CodingStyle document.
 
-Does this help anyone diagnose the error??
-
-Best of luck,
-
-Tim
-
--- 
-----------------
-Tim Kay
-systems administrator
-Advfn.com Plc - http://www.advfn.com/
-timk@advfn.com
-Tel: 020 7070 0941
-Fax: 020 7070 0959
+Alan

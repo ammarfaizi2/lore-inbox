@@ -1,58 +1,60 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314642AbSEBQjY>; Thu, 2 May 2002 12:39:24 -0400
+	id <S314647AbSEBQkA>; Thu, 2 May 2002 12:40:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314647AbSEBQjY>; Thu, 2 May 2002 12:39:24 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:50190 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S314642AbSEBQjW>; Thu, 2 May 2002 12:39:22 -0400
-Message-ID: <3CD15CFA.1090208@evision-ventures.com>
-Date: Thu, 02 May 2002 17:36:26 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
-X-Accept-Language: en-us, pl
-MIME-Version: 1.0
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-CC: arjanv@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel
-In-Reply-To: <E173HX6-00041D-00@the-village.bc.nu>	<3CD13FF3.5020406@evision-ventures.com>	<3CD15996.8EB1699F@redhat.com> <200205021559.g42Fxud19755@vindaloo.ras.ucalgary.ca>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 8bit
+	id <S314648AbSEBQj7>; Thu, 2 May 2002 12:39:59 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:21575 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S314647AbSEBQj6>; Thu, 2 May 2002 12:39:58 -0400
+Date: Thu, 2 May 2002 18:40:37 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Cc: Daniel Phillips <phillips@bonn-fries.net>,
+        Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Bug: Discontigmem virt_to_page() [Alpha,ARM,Mips64?]
+Message-ID: <20020502184037.J11414@dualathlon.random>
+In-Reply-To: <20020502180632.I11414@dualathlon.random> <3972036796.1020330599@[10.10.2.3]>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-U¿ytkownik Richard Gooch napisa³:
-> Arjan van de Ven writes:
+On Thu, May 02, 2002 at 09:10:00AM -0700, Martin J. Bligh wrote:
+> > You can trivially map the phys mem between 1G and 1G+256M to be in a
+> > direct mapping between 3G+256M and 3G+512M, then you can put such 256M
+> > at offset 1G into the ZONE_NORMAL of node-id 1 with discontigmem too.
+> > 
+> > The constraints you have on the normal memory are only two:
+> > 
+> > 1) direct mapping
+> > 2) DMA
+> > 
+> > so as far as the ram is capable of 32bit DMA with pci32 and it's mapped
+> > in the direct mapping you can put it into the normal zone. There is no
+> > difference at all between discontimem or nonlinear in this sense.
 > 
->>someone using perl to replace the built-in kernel version in the .o
->>file)
+> Now imagine an 8 node system, with 4Gb of memory in each node.
+> First 4Gb is in node 0, second 4Gb is in node 1, etc.
 > 
-> 
-> Oh, my! Do people really do that?!?
+> Even with 64 bit DMA, the real problem is breaking the assumption
+> that mem between 0 and 896Mb phys maps 1-1 onto kernel space.
+> That's 90% of the difficulty of what Dan's doing anyway, as I
+> see it.
 
-Yes they do, if they wont for example to get some
-PCTEL win chip driver working. No matter what Alan and some others
-think is good for them :-).
+You don't need any additional common code abstraction to make virtual
+address 3G+256G to point to physical address 1G as in my example above,
+after that you're free to put the physical ram between 1G and 1G+256M
+into the zone normal of node 1 and the stuff should keep working but
+with zone-normal spread in more than one node.  You just have full
+control on virt_to_page, pci_map_single, __va.  Actually it may be as
+well cleaner to just let the arch define page_address() when
+discontigmem is enabled (instead of hacking on top of __va), that's a
+few liner. (the only true limit you have is on the phys ram above 4G,
+that cannot definitely go into zone-normal regardless if it belongs to a
+direct mapping or not because of pci32 API)
 
-The main problem with mod-versions is the simple fact
-that policy doesn't belong in to the kernel it belongs
-in the user space. And mod-version is *just policy*.
-
-See... if some impaired project manager at some
-linux distro provider associated with hats,
-who does decisions like for example basing the main OS
-configuration tools on instable programming languages
-like python or perl... does decide that he needs
-the functionality of MODULEVERSIONS to get full controll about the
-users of his crappy product. Why the hell doesn't he let all this
-version checking be done for his own kernel cook-up entierly in
-his patched mod-utils? And entierly in USER SPACE? He does
-have the full scope of things which need the bless of versioning
-over them at his hands and there is *no technical* argument why this
-should be done in kernel space at all!
-
-It just DOES NOT BELONG in to the kernel-space.
-
-No matter what percentage of supposed problems it solves and
-how many problems it in reality adds...
-
+Andrea

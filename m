@@ -1,44 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290891AbSBLKCt>; Tue, 12 Feb 2002 05:02:49 -0500
+	id <S290945AbSBLKPV>; Tue, 12 Feb 2002 05:15:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290913AbSBLKCk>; Tue, 12 Feb 2002 05:02:40 -0500
-Received: from adsl-203-134.38-151.net24.it ([151.38.134.203]:4086 "EHLO
-	morgana.systemy.it") by vger.kernel.org with ESMTP
-	id <S290891AbSBLKCZ>; Tue, 12 Feb 2002 05:02:25 -0500
-Date: Tue, 12 Feb 2002 11:01:09 +0100
-From: Alessandro Rubini <rubini@gnu.org>
-To: pasky@pasky.ji.cz, linuxconsole-dev@lists.sourceforge.net,
-        linux-kernel@vger.kernel.org, gpm@lists.linux.it, salvador@inti.gov.ar,
-        jsimmons@transvirtual.com
-Subject: Re: [gpm]Reworking the selection API and moving it to userspace (gpm)?
-Message-ID: <20020212110109.A20350@morgana.systemy.it>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organization: Free Lance in Pavia, Italy.
+	id <S290944AbSBLKPL>; Tue, 12 Feb 2002 05:15:11 -0500
+Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:17161 "EHLO
+	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S290930AbSBLKOz>; Tue, 12 Feb 2002 05:14:55 -0500
+Date: Tue, 12 Feb 2002 11:14:46 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: <roman@serv>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: "David S. Miller" <davem@redhat.com>, <davidm@hpl.hp.com>,
+        <anton@samba.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: thread_info implementation
+In-Reply-To: <3C68E0C3.543A1AD6@mandrakesoft.com>
+Message-ID: <Pine.LNX.4.33.0202121105300.11589-100000@serv>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-On Feb 6th, Petr Baudis:
-> [...] However, James Simmons said that he will be working on
-> this for 2.5 and move it to userspace completely, reworking gpm.
+On Tue, 12 Feb 2002, Jeff Garzik wrote:
 
-That would be great. We (gpm list) have been talking about it a few
-years ago, but Ian Zimmerman reported a problem with mapping glyphs to
-keyboard input: there was no mean (at least back then) to pass the
-complete mapping from the kernel to user space.  Sure doing it for the
-trivial mapping is trivial, and I think it would be an interesting
-experiment.  I was even thinking to have a try some time ago, when I
-was the gpm maintainer.
+> ...or number 3, do a conversion to 2.5.4 thread_info then embed the task
+> structure inside struct thread_info, like what was just done with VFS
+> inodes.
 
-> I would like to ask if there's any movement in this issue. I would
-> be even willing to help, if possible :).
+That's possible.
 
-Please get on the gpm mailing list (gpm@lists.linux.it) and let's put
-together an implementation.
+>  (embedding the general struct in the arch-specific struct would
+> make sense to me, whereas I can definitely see how embedding the
+> arch-specific struct in the general struct would be annoying)
 
-Best
-/alessandro
+It's not really the same, the private part of the inode is really private
+to the specific fs. thread_info is arch specific, but it fields have to be
+accessed by generic code. At compile time there is also always only one
+thread_info contrary to vfs inodes.
+Anyway, it's not really important which structure includes which, it just
+has to be decided for all archs uniformly to get include dependencies
+right.
+
+bye, Roman
+

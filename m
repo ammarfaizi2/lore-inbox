@@ -1,78 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261202AbVCZSQl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261206AbVCZSXq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261202AbVCZSQl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Mar 2005 13:16:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261204AbVCZSQl
+	id S261206AbVCZSXq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Mar 2005 13:23:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261204AbVCZSXq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Mar 2005 13:16:41 -0500
-Received: from smtp-106-saturday.nerim.net ([62.4.16.106]:14088 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S261202AbVCZSQi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Mar 2005 13:16:38 -0500
-Date: Sat, 26 Mar 2005 19:16:36 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: samba@samba.org, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [2.6 patch] fs/smbfs/request.c: turn NULL dereference into
- BUG()
-Message-Id: <20050326191636.3cbd77b4.khali@linux-fr.org>
-In-Reply-To: <20050326131132.GB3237@stusta.de>
-References: <20050325001540.GF3966@stusta.de>
-	<20050326100253.3edbb2fc.khali@linux-fr.org>
-	<20050326125301.GA3237@stusta.de>
-	<20050326131132.GB3237@stusta.de>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 26 Mar 2005 13:23:46 -0500
+Received: from grendel.digitalservice.pl ([217.67.200.140]:21439 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S261206AbVCZSXl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Mar 2005 13:23:41 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: "Li, Shaohua" <shaohua.li@intel.com>
+Subject: Re: 2.6.12-rc1-mm3: box hangs solid on resume from disk while resuming device drivers
+Date: Sat, 26 Mar 2005 19:23:51 +0100
+User-Agent: KMail/1.7.1
+Cc: "Andrew Morton" <akpm@osdl.org>, "Brown, Len" <len.brown@intel.com>,
+       linux-kernel@vger.kernel.org, "Pavel Machek" <pavel@suse.cz>
+References: <16A54BF5D6E14E4D916CE26C9AD30575017EDC38@pdsmsx402.ccr.corp.intel.com> <200503251519.22680.rjw@sisk.pl>
+In-Reply-To: <200503251519.22680.rjw@sisk.pl>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200503261923.52020.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Adrian,
+Hi,
 
-> On Sat, Mar 26, 2005 at 01:53:01PM +0100, Adrian Bunk wrote:
-> >...
-> > The problem is actually only in the SMB_RECV_END and
-> > SMB_RECV_REQUEST  cases and all code after the NULL pointer
-> > dereference is actually dead  code.
-> >...
+On Friday, 25 of March 2005 15:19, Rafael J. Wysocki wrote: 
+> On Friday, 25 of March 2005 13:54, you wrote:
+> ]--snip--[
+> > >My box is still hanged solid on resume (swsusp) by the drivers:
+> > >
+> > >ohci_hcd
+> > >ehci_hcd
+> > >yenta_socket
+> > >
+> > >possibly others, too.  To avoid this, I had to revert the following
+> > patch from the Len's tree:
+> > >
+> > >diff -Naru a/drivers/acpi/pci_link.c b/drivers/acpi/pci_link.c
+> > >--- a/drivers/acpi/pci_link.c	2005-03-24 04:57:27 -08:00
+> > >+++ b/drivers/acpi/pci_link.c	2005-03-24 04:57:27 -08:00
+> > >@@ -72,10 +72,12 @@
+> > > 	u8			active;			/* Current IRQ
+> > */
+> > > 	u8			edge_level;		/* All IRQs */
+> > > 	u8			active_high_low;	/* All IRQs */
+> > >-	u8			initialized;
+> > > 	u8			resource_type;
+> > > 	u8			possible_count;
+> > > 	u8			possible[ACPI_PCI_LINK_MAX_POSSIBLE];
+> > >+	u8			initialized:1;
+> > >+	u8			suspend_resume:1;
+> > >+	u8			reserved:6;
+> > > };
+> > >
+> > > struct acpi_pci_link {
+> > >@@ -530,6 +532,10 @@
+> > >
+> > > 	ACPI_FUNCTION_TRACE("acpi_pci_link_allocate");
+> > >
+> > >+	if (link->irq.suspend_resume) {
+> > >+		acpi_pci_link_set(link, link->irq.active);
+> > >+		link->irq.suspend_resume = 0;
+> > >+	}
+> > > 	if (link->irq.initialized)
+> > > 		return_VALUE(0);
+> > 
+> > How about just remove below line:
+> > >+		acpi_pci_link_set(link, link->irq.active);
 > 
-> OK, this was also wrong...
+> You mean apply the patch again and remove just the single
+> line?  No effect (ie hangs).
 
-I can confirm, I gave it a try and had to reboot ;)
+It looks like removing this line couldn't help.
 
-You are right that the problem is only in the SMB_RECV_END and
-SMB_RECV_REQUEST cases. I had missed that point in the patch I proposed.
+Apparently, acpi_pci_link_set(link, link->irq.active) must be called
+_before_ the call to pci_write_config_word() in
+drivers/pci/pci.c:pci_set_power_state(), because the box hangs
+otherwise.  However, with the patch applied,
+acpi_pci_link_set(link, link->irq.active) is only called through
+pcibios_enable_irq() in pcibios_enable_device(), which is _after_
+the call to pci_set_power_state() in pci_enable_device_bars(),
+so it's too late.
 
-> Third try.
-> (...)
-> In a case documented as
->   We should never be called with any of these states
-> BUG() in a case that would later result in a NULL pointer dereference.
-> (...)
-> --- linux-2.6.12-rc1-mm3-full/fs/smbfs/request.c.old	2005-03-26 13:19:19.000000000 +0100
-> +++ linux-2.6.12-rc1-mm3-full/fs/smbfs/request.c	2005-03-26 13:41:30.000000000 +0100
-> @@ -786,8 +642,7 @@ int smb_request_recv(struct smb_sb_info 
->  		/* We should never be called with any of these states */
->  	case SMB_RECV_END:
->  	case SMB_RECV_REQUEST:
-> -		server->rstate = SMB_RECV_END;
-> -		break;
-> +		BUG();
->  	}
+Hence, it seems, if you really want to get rid of the
+irqrouter_resume(), whatever the reason, the simplest fix
+seems to be to change the order of calls to pci_set_power_state()
+and pcibios_enable_device() in pci_enable_device_bars():
 
-Yes, after reading the whole thing again, it seems to be the correct
-thing to do, providing that "should never" is a reference to an internal
-state and not something from the outside. I don't know myself, but you
-seem to do. Maybe someone from the samba team could confirm?
+--- old/drivers/pci/pci.c	2005-03-26 19:10:09.000000000 +0100
++++ linux-2.6.12-rc1-mm2/drivers/pci/pci.c	2005-03-26 19:10:54.000000000 +0100
+@@ -442,9 +442,9 @@ pci_enable_device_bars(struct pci_dev *d
+ {
+ 	int err;
+ 
+-	pci_set_power_state(dev, PCI_D0);
+ 	if ((err = pcibios_enable_device(dev, bars)) < 0)
+ 		return err;
++	pci_set_power_state(dev, PCI_D0);
+ 	return 0;
+ }
+ 
+though I'm not sure if that's legal.
 
-BTW, it looks to me like Urban Widmark, the author of this module and
-supposedly the maintainer of it as well, has vanished some times ago.
-Last seen 2004-06-21, and no working e-mail address (both failes for
-me). Shouldn't we mark smbfs as unmaintained in MAINTAINERS, or have
-someone else take over? Any volunteer?
+Greets,
+Rafael 
 
-Thanks,
+
 -- 
-Jean Delvare
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

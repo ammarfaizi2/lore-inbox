@@ -1,48 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317169AbSHGIsW>; Wed, 7 Aug 2002 04:48:22 -0400
+	id <S317117AbSHGJTP>; Wed, 7 Aug 2002 05:19:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317170AbSHGIsW>; Wed, 7 Aug 2002 04:48:22 -0400
-Received: from purple.csi.cam.ac.uk ([131.111.8.4]:1180 "EHLO
-	purple.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S317169AbSHGIsV>; Wed, 7 Aug 2002 04:48:21 -0400
-Message-Id: <5.1.0.14.2.20020807094345.03ac2380@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Wed, 07 Aug 2002 09:52:26 +0100
-To: andersen@codepoet.org
-From: Anton Altaparmakov <aia21@cantab.net>
-Subject: Re: [BK-PATCH-2.5] NTFS 2.0.24: Cleanups
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020807013250.GA30858@codepoet.org>
-References: <E17cFG4-0007hW-00@storm.christs.cam.ac.uk>
- <E17cFG4-0007hW-00@storm.christs.cam.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S317140AbSHGJTP>; Wed, 7 Aug 2002 05:19:15 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:11014 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S317117AbSHGJTO>; Wed, 7 Aug 2002 05:19:14 -0400
+From: Nikita Danilov <Nikita@Namesys.COM>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15696.59115.395706.489896@laputa.namesys.com>
+Date: Wed, 7 Aug 2002 13:22:51 +0400
+X-PGP-Fingerprint: 43CE 9384 5A1D CD75 5087  A876 A1AA 84D0 CCAA AC92
+X-PGP-Key-ID: CCAAAC92
+X-PGP-Key-At: http://wwwkeys.pgp.net:11371/pks/lookup?op=get&search=0xCCAAAC92
+To: Linux Kernel Mailing List <Linux-Kernel@Vger.Kernel.ORG>
+Subject: kernel thread exit race
+X-Mailer: VM 7.07 under 21.5  (beta6) "bok choi" XEmacs Lucid
+X-Drdoom-Fodder: CERT root drdoom satan passwd security
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 02:32 07/08/02, Erik Andersen wrote:
->On Wed Aug 07, 2002 at 02:05:04AM +0100, Anton Altaparmakov wrote:
-> >    - Do not allow read-write remounts of read-only volumes with errors.
->
->I thought the current NTFS driver does not yet support writing...
+Hello,
 
-Correct, and if you look at the code you will notice the #ifdef NTFS_RW 
-around it... The read-only compiled driver doesn't have any write related 
-code. Only the read-write compiled driver has, but at the moment this is 
-just adding necesary safety bits before starting to add actual write code. 
-Writing is under development and you will be seing more and more bits 
-related to it appearing. (-:
+what is the politically correct way to exit from a kernel thread daemon
+without module unload races?
 
-Best regards,
+Currently most kernel threads exit with something like
 
-         Anton
+	wake_up(&daemon_done_wait_queue);
+	return 0;
 
+(or complete() in stead of wake_up()). Problem is that thread waiting
+for daemon shutdown can start running on another CPU while daemon is
+still executing and unload module, in particular unmapping page with
+daemon code.
 
--- 
-   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
--- 
-Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
-Linux NTFS Maintainer / IRC: #ntfs on irc.openprojects.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+Reiserfs used to do something like
 
+    /*
+     * BKL will be released in do_exit()
+     */
+    lock_kernel();
+	wake_up(&daemon_done_wait_queue);
+	return 0;
+
+and wait for daemon completion under BKL so that when waiter resumes,
+daemon is definitely not executing module code. This looks like a hack,
+though. Is there a better solution?
+
+Nikita.

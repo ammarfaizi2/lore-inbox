@@ -1,79 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262865AbRE0WhG>; Sun, 27 May 2001 18:37:06 -0400
+	id <S262867AbRE0WtR>; Sun, 27 May 2001 18:49:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262866AbRE0Wgq>; Sun, 27 May 2001 18:36:46 -0400
-Received: from virgo.cus.cam.ac.uk ([131.111.8.20]:33933 "EHLO
-	virgo.cus.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S262865AbRE0Wgf>; Sun, 27 May 2001 18:36:35 -0400
-Message-Id: <5.1.0.14.2.20010527232717.04827460@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Sun, 27 May 2001 23:37:19 +0100
-To: Martin von Loewis <loewis@informatik.hu-berlin.de>
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: [Linux-ntfs] Re: [Linux-NTFS-Dev] Re: ANN: NTFS new
-  release available (1.1.15)
-Cc: jgarzik@mandrakesoft.com, linux-kernel@vger.kernel.org,
-        Linux-ntfs@tiger.informatik.hu-berlin.de,
-        linux-ntfs-dev@lists.sourceforge.net
-In-Reply-To: <200105271253.OAA22557@pandora.informatik.hu-berlin.de>
-In-Reply-To: <5.1.0.14.2.20010527123154.00a96640@pop.cus.cam.ac.uk>
- <5.1.0.14.2.20010526011903.00aab050@pop.cus.cam.ac.uk>
- <5.1.0.14.2.20010526000503.04716ec0@pop.cus.cam.ac.uk>
- <5.1.0.14.2.20010526011903.00aab050@pop.cus.cam.ac.uk>
- <5.1.0.14.2.20010527123154.00a96640@pop.cus.cam.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S262866AbRE0WtI>; Sun, 27 May 2001 18:49:08 -0400
+Received: from crete.csd.uch.gr ([147.52.16.2]:36749 "EHLO crete.csd.uch.gr")
+	by vger.kernel.org with ESMTP id <S262867AbRE0Ws6>;
+	Sun, 27 May 2001 18:48:58 -0400
+Organization: 
+Date: Mon, 28 May 2001 01:48:40 +0300 (EET DST)
+From: mythos <papadako@csd.uoc.gr>
+To: <linux-kernel@vger.kernel.org>
+Subject: Matrox G400 Dualhead
+Message-ID: <Pine.GSO.4.33.0105280144330.23684-100000@iridanos.csd.uch.gr>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 13:53 27/05/2001, Martin von Loewis wrote:
-> > Yes and no. They will be uncompressed but not when opening the inode. It
-> > will be "uncompress required extent's run list on demand".
->
->Are you sure this can work?
+I have a serious problem when usind the second head of my Matrox with the
+matroxfb driver.If I login to /dev/tty0 (fb0) and then to /dev/tty6(fb1)
+and make fb1 to scroll,if I switch back to /dev/tty0 and make fb0 to
+scroll while fb1 is still scrolling I get a segmentation fault.Also
+sometimes I get a message like this:
+INIT:Id "1" respawning too fast disabled for 5 minutes.
+Can anyone help me ?
 
-No.
+		Mythos
 
->Initially, I thought I could use the attribute list to only uncompress the 
->extend that has the VCN I'm interested in.
-
-Same idea here.
-
->That would not work: NT would split individual runs across extends
->(i.e. split them in the middle).
-
-Argh! That seems really stupid thing to do, as it makes it difficult to 
-interpret what the highest_vcn/lowest_vcn field of attribute extents is 
-supposed to mean!?!
-
-This does however explain some of the code uglyness I have seen (and chosen 
-to ignore) in the ntfs.sys disassembly run list handling...
-
->Did I misunderstand, or do you have a solution for that as well.
-
-No solution. I wasn't aware this could happen. I knew a compression block 
-could be split in it halves but I didn't realize this braindamaged 
-complication.
-
-I guess we will have to decode the whole run list in one go then. Anything 
-else would be slower over all. - What we could do of course is to walk the 
-mapping pairs array real quick not reading the numbers only to get the 
-correct starting offset into the next extent and then only decode that one 
-but that would mean walking the mapping pairs array repeatedly (once to get 
-each extent) which would be overall slower than just getting the lot at 
-once. - I maintain that we should do this on demand and not on inode open, 
-though. - I will have another think about this, but if it is true that NT 
-splits the records anywhere, then it would be impossible to start at any 
-extent other than the first one.
-
-Anton
-
-
--- 
-   "Nothing succeeds like success." - Alexandre Dumas
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://sf.net/projects/linux-ntfs/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
 

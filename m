@@ -1,75 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288955AbSBIO12>; Sat, 9 Feb 2002 09:27:28 -0500
+	id <S288959AbSBIOda>; Sat, 9 Feb 2002 09:33:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288956AbSBIO1S>; Sat, 9 Feb 2002 09:27:18 -0500
-Received: from mta1.rcsntx.swbell.net ([151.164.30.25]:1192 "EHLO
-	mta1.rcsntx.swbell.net") by vger.kernel.org with ESMTP
-	id <S288955AbSBIO1D>; Sat, 9 Feb 2002 09:27:03 -0500
-Date: Sat, 09 Feb 2002 08:29:15 -0600
-From: Jason Ferguson <jferg3@swbell.net>
-Subject: [PATCH] Fix make pdfdocs
-To: linux-kernel@vger.kernel.org
-Cc: marcelo@conectiva.com.br
-Message-id: <1013264955.512.4.camel@werewolf>
-MIME-version: 1.0
-X-Mailer: Evolution/1.0.2
-Content-type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature"; boundary="=-zrnjpFSexC0Wggsdp9G1"
+	id <S288969AbSBIOdU>; Sat, 9 Feb 2002 09:33:20 -0500
+Received: from lacrosse.corp.redhat.com ([12.107.208.154]:57469 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S288963AbSBIOdO>; Sat, 9 Feb 2002 09:33:14 -0500
+Date: Sat, 9 Feb 2002 09:33:05 -0500
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Andrew Morton <akpm@zip.com.au>, Andrea Arcangeli <andrea@suse.de>,
+        Rik van Riel <riel@conectiva.com.br>,
+        "David S. Miller" <davem@redhat.com>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Gerd Knorr <kraxel@bytesex.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] __free_pages_ok oops
+Message-ID: <20020209093305.A13748@redhat.com>
+In-Reply-To: <3C630D5D.CD66795@zip.com.au> <Pine.LNX.4.21.0202081649120.1497-100000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.21.0202081649120.1497-100000@localhost.localdomain>; from hugh@veritas.com on Fri, Feb 08, 2002 at 05:46:56PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Feb 08, 2002 at 05:46:56PM +0000, Hugh Dickins wrote:
+> Ben, you probably have an AIO opinion here.  Is there a circumstance
+> in which AIO can unpin a user page at interrupt time, after the
+> calling task has (exited or) unmapped the page?
 
---=-zrnjpFSexC0Wggsdp9G1
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+If the user unmaps the page, then aio is left holding the last reference 
+to the page and will unmap it from irq or bh context (potentially task 
+context too).  With networked aio, pages from userspace (anonymous or 
+page cache pages) will be released by the network stack from bh context.  
+Even now, I'm guess that should be possible with the zero copy flag...
 
-Hi, Im actually resubmitting a patch I dug up in the archives from David
-Gomez back in October to fix a problem when creating the
-deviceiobook.pdf file.=20
-
-Details and patch below.
-
-Jason
-
-
-i, this patch fix an error when generating postscript files. Error is
-caused by the absence of documentation in include/asm/io.h.
-
---- deviceiobookold.tmpl        Sun Oct 28 22:28:36 2001
-+++ deviceiobook.tmpl   Sun Oct 28 22:28:45 2001
-@@ -224,9 +224,5 @@
-
-   </chapter>
-
--  <chapter id=3D"pubfunctions">
--     <title>Public Functions Provided</title>
--  !Einclude/asm-i386/io.h
--  </chapter>
-
- </book>
-
-
-David G=F3mez
-
-"The question of whether computers can think is just like the question
-of
- whether submarines can swim." -- Edsger W. Dijkstra
-
-
-
---=-zrnjpFSexC0Wggsdp9G1
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQA8ZTI7Fw7JmibuIQURAi7/AJ9EnC5jKXbtJs5bhkYCxN4MBK6hnACff5WC
-dkCLngLtXpWARMQ5LkMAA3A=
-=m93F
------END PGP SIGNATURE-----
-
---=-zrnjpFSexC0Wggsdp9G1--
-
+		-ben

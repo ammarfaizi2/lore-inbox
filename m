@@ -1,43 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262007AbUEJXYl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263229AbUEJXYk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262007AbUEJXYl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 May 2004 19:24:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262902AbUEJXR0
+	id S263229AbUEJXYk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 May 2004 19:24:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262008AbUEJXT0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 May 2004 19:17:26 -0400
-Received: from 216-239-45-4.google.com ([216.239.45.4]:8689 "EHLO
-	216-239-45-4.google.com") by vger.kernel.org with ESMTP
-	id S263020AbUEJXOF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 May 2004 19:14:05 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] add path-oriented proc_mkdir_path() function to /proc
-Message-Id: <E1BNJyD-0001YR-IU@peregrine.corp.google.com>
-From: Edward Falk <efalk@google.com>
-Date: Mon, 10 May 2004 16:14:01 -0700
+	Mon, 10 May 2004 19:19:26 -0400
+Received: from x35.xmailserver.org ([69.30.125.51]:54932 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S262007AbUEJXNB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 May 2004 19:13:01 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Mon, 10 May 2004 16:12:58 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mdolabs.com
+To: Daniel Jacobowitz <dan@debian.org>
+cc: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+       Fabiano Ramos <ramos_fabiano@yahoo.com.br>, Andi Kleen <ak@muc.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: ptrace in 2.6.5
+In-Reply-To: <20040510225818.GA24796@nevyn.them.org>
+Message-ID: <Pine.LNX.4.58.0405101610480.1156@bigblue.dev.mdolabs.com>
+References: <1UlcA-6lq-9@gated-at.bofh.it> <m365b4kth8.fsf@averell.firstfloor.org>
+ <1084220684.1798.3.camel@slack.domain.invalid> <877jvkx88r.fsf@devron.myhome.or.jp>
+ <873c67yk5v.fsf@devron.myhome.or.jp> <20040510225818.GA24796@nevyn.them.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[patch to allow creation of e.g. /proc/foo/bar/ with one function call.]
+On Mon, 10 May 2004, Daniel Jacobowitz wrote:
 
-> Hmm.. Looks like a useful utility function (there's certainly enough deep
-> trees in my /proc/sys tree), but I wonder...
+> On Tue, May 11, 2004 at 07:47:08AM +0900, OGAWA Hirofumi wrote:
+> > OGAWA Hirofumi <hirofumi@mail.parknet.co.jp> writes:
+> > 
+> > > So single-step exception happen *after* executed the "mov ...".
+> > > Probably you need to use the breakpoint instead of single-step.
+> > 
+> > Ah, sorry. Just use PTRACE_SYSCALL instead of PTRACE_SINGLESTEP.
+> > It's will stop before/after does syscall.
 > 
-> 1) Do we have cases where code should be implementing "it had *better* exist"
-> checks?  This may be important if an intermediate directory "should have" been
-> created by sysctl or something, and has special permission needs..
-> 
-> 2) Alternatively, does using this open up accidental collisions where we should
-> have checked something *doesnt* exist already, and complain if it does?
-> 
-> (Feel free to address either one by adding a "Dont do that then" comment ;)
+> Doing it this way is pretty lousy - you have to inspect the code after
+> every step to see if it's an int $0x80.  Is there some reason not to
+> report a trap on the syscall return path if single-stepping?
 
-Don't do that, then.  :)
+Well, the "iret" restore TF, and Intel states that the TF flag must be set 
+at the beginning of the instruction for the trap to be fired. The next 
+insn has the TF set, and the tap is fired. But the EIP is the one 
+following the trapped insn.
 
-OK, long answer:
 
-1 & 2) are beyond the scope of my patch, but it seems to me that
-additional functionality could be added -- perhaps in the form of O_CREAT,
-O_EXCL flags -- if demand warranted it.  Perhaps this could be done in
-a later patch?
 
-	-ed falk, efalk@google.com
+- Davide
+

@@ -1,55 +1,109 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261399AbSITHFG>; Fri, 20 Sep 2002 03:05:06 -0400
+	id <S261258AbSITGyV>; Fri, 20 Sep 2002 02:54:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261509AbSITHFG>; Fri, 20 Sep 2002 03:05:06 -0400
-Received: from twilight.ucw.cz ([195.39.74.230]:26601 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S261399AbSITHFE>;
-	Fri, 20 Sep 2002 03:05:04 -0400
-Date: Fri, 20 Sep 2002 09:09:55 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Brad Hards <bhards@bigpond.net.au>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, Meelis Roos <mroos@linux.ee>,
-       linux-kernel@vger.kernel.org
-Subject: Re: compile error in pre7-ac2: usb & input
-Message-ID: <20020920090955.B79295@ucw.cz>
-References: <Pine.LNX.4.44.0209191555240.1928-100000@ondatra.tartu-labor> <20020919155452.A75192@ucw.cz> <200209200709.20787.bhards@bigpond.net.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200209200709.20787.bhards@bigpond.net.au>; from bhards@bigpond.net.au on Fri, Sep 20, 2002 at 07:09:20AM +1000
+	id <S261637AbSITGyV>; Fri, 20 Sep 2002 02:54:21 -0400
+Received: from dp.samba.org ([66.70.73.150]:37760 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S261258AbSITGyP>;
+	Fri, 20 Sep 2002 02:54:15 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] CPU possible optimization
+Date: Fri, 20 Sep 2002 16:51:36 +1000
+Message-Id: <20020920065921.9AEA12C0CB@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 20, 2002 at 07:09:20AM +1000, Brad Hards wrote:
+[ This Works For Me(tm), but changing the boot order is always fraught
+  with danger...  Should save some space as other things get converted
+  to use the per-cpu infrastructure. ]
 
-> On Thu, 19 Sep 2002 23:54, Vojtech Pavlik wrote:
-> > On Thu, Sep 19, 2002 at 04:04:08PM +0300, Meelis Roos wrote:
-> > > drivers/usb/usbdrv.o: In function `hidinput_hid_event':
-> > > drivers/usb/usbdrv.o(.text+0x11573): undefined reference to `input_event'
-> > > drivers/usb/usbdrv.o(.text+0x115ee): undefined reference to `input_event'
-> > > drivers/usb/usbdrv.o(.text+0x11600): undefined reference to `input_event'
-> > > drivers/usb/usbdrv.o(.text+0x11641): undefined reference to `input_event'
-> > > drivers/usb/usbdrv.o(.text+0x11664): undefined reference to `input_event'
-> > > drivers/usb/usbdrv.o(.text+0x11682): more undefined references to
-> > > `input_event' follow drivers/usb/usbdrv.o: In function
-> > > `hidinput_connect':
-> > > drivers/usb/usbdrv.o(.text+0x118d4): undefined reference to
-> > > `input_register_device' drivers/usb/usbdrv.o: In function
-> > > `hidinput_disconnect':
-> > > drivers/usb/usbdrv.o(.text+0x118f3): undefined reference to
-> > > `input_unregister_device'
-> >
-> > Well, you enabled HID as built-in and Input as modular. HID needs Input.
-> Not quite. CONFIG_USB + CONFIG_USB_HIDDEV doesn't need input. Unfortunately 
-> CONFIG_USB_HIDINPUT does, and it is a dep_bool.
-> The only clean way I can see is to build HID as three seperate modules - a 
-> core, the input interface, and the hiddev interface.  Even that is pretty 
-> ugly.
+Name: per-cpu only for possible CPUs
+Author: Rusty Russell
+Status: Tested on 2.5.34 2-way i386
 
-More modules, oh no!
+D: This allocates per-cpu areas only for those CPUs which may actually
+D: exist, before each one comes online.
 
--- 
-Vojtech Pavlik
-SuSE Labs
+diff -urNp --exclude TAGS -X /home/rusty/current-dontdiff --minimal linux-2.5.34/init/main.c working-2.5.34-percpu_possible/init/main.c
+--- linux-2.5.34/init/main.c	Tue Sep 10 09:11:21 2002
++++ working-2.5.34-percpu_possible/init/main.c	Thu Sep 12 15:01:31 2002
+@@ -309,32 +309,36 @@ static void __init smp_init(void)
+ #define smp_init()	do { } while (0)
+ #endif
+ 
+-static inline void setup_per_cpu_areas(void) { }
++static inline void setup_per_cpu_area(unsigned int cpu) { }
+ static inline void smp_prepare_cpus(unsigned int maxcpus) { }
+ 
+ #else
+ 
+ #ifdef __GENERIC_PER_CPU
++/* Created by linker magic */
++extern char __per_cpu_start[], __per_cpu_end[];
++
+ unsigned long __per_cpu_offset[NR_CPUS];
+ 
+-static void __init setup_per_cpu_areas(void)
++/* Sets up per-cpu area for boot CPU. */
++static void __init setup_per_cpu_area(unsigned int cpu)
+ {
+-	unsigned long size, i;
++	unsigned long size;
+ 	char *ptr;
+-	/* Created by linker magic */
+-	extern char __per_cpu_start[], __per_cpu_end[];
+ 
+ 	/* Copy section for each CPU (we discard the original) */
+ 	size = ALIGN(__per_cpu_end - __per_cpu_start, SMP_CACHE_BYTES);
+ 	if (!size)
+ 		return;
+ 
+-	ptr = alloc_bootmem(size * NR_CPUS);
++	/* First CPU happens really early... */
++	if (cpu == smp_processor_id())
++		ptr = alloc_bootmem(size);
++	else
++		ptr = kmalloc(size, GFP_ATOMIC);
+ 
+-	for (i = 0; i < NR_CPUS; i++, ptr += size) {
+-		__per_cpu_offset[i] = ptr - __per_cpu_start;
+-		memcpy(ptr, __per_cpu_start, size);
+-	}
++	__per_cpu_offset[cpu] = ptr - __per_cpu_start;
++	memcpy(ptr, __per_cpu_start, size);
+ }
+ #endif /* !__GENERIC_PER_CPU */
+ 
+@@ -343,7 +347,16 @@ static void __init smp_init(void)
+ {
+ 	unsigned int i;
+ 
+-	/* FIXME: This should be done in userspace --RR */
++	for (i = 0; i < NR_CPUS; i++) {
++		if (cpu_possible(i)) {
++			if (i != smp_processor_id())
++				setup_per_cpu_area(i);
++		} else {
++			/* Force a NULL deref on use */
++			__per_cpu_offset[i] = (char *)0 - __per_cpu_start;
++		}
++	}
++
+ 	for (i = 0; i < NR_CPUS; i++) {
+ 		if (num_online_cpus() >= max_cpus)
+ 			break;
+@@ -395,7 +408,7 @@ asmlinkage void __init start_kernel(void
+ 	lock_kernel();
+ 	printk(linux_banner);
+ 	setup_arch(&command_line);
+-	setup_per_cpu_areas();
++	setup_per_cpu_area(smp_processor_id());
+ 	printk("Kernel command line: %s\n", saved_command_line);
+ 	parse_options(command_line);
+ 	trap_init();
+
+
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

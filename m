@@ -1,46 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318170AbSIBADv>; Sun, 1 Sep 2002 20:03:51 -0400
+	id <S318168AbSIBACB>; Sun, 1 Sep 2002 20:02:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318173AbSIBADu>; Sun, 1 Sep 2002 20:03:50 -0400
-Received: from sccrmhc02.attbi.com ([204.127.202.62]:35319 "EHLO
-	sccrmhc02.attbi.com") by vger.kernel.org with ESMTP
-	id <S318170AbSIBADu>; Sun, 1 Sep 2002 20:03:50 -0400
-Subject: Re: OOPS: USB and/or devicefs
-From: Nicholas Miell <nmiell@attbi.com>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org, mochel@osdl.org
-In-Reply-To: <20020901205859.A29797@flint.arm.linux.org.uk>
-References: <1030270093.1531.8.camel@entropy>
-	<20020828054647.GA26390@kroah.com> <1030908511.1374.17.camel@entropy> 
-	<20020901205859.A29797@flint.arm.linux.org.uk>
-Content-Type: text/plain
+	id <S318170AbSIBACB>; Sun, 1 Sep 2002 20:02:01 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:10769 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318168AbSIBACA>;
+	Sun, 1 Sep 2002 20:02:00 -0400
+Message-ID: <3D72AE2C.F1806BDD@zip.com.au>
+Date: Sun, 01 Sep 2002 17:17:48 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.33 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Daniel Phillips <phillips@arcor.de>
+CC: Christian Ehrhardt <ehrhardt@mathematik.uni-ulm.de>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC] [PATCH] Include LRU in page count
+References: <3D644C70.6D100EA5@zip.com.au> <E17ld5N-0004cg-00@starship> <3D729DD3.AE3681C9@zip.com.au> <E17leDK-0004dA-00@starship>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 01 Sep 2002 17:08:13 -0700
-Message-Id: <1030925294.1452.2.camel@entropy>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-09-01 at 12:58, Russell King wrote:
-> On Sun, Sep 01, 2002 at 12:28:30PM -0700, Nicholas Miell wrote:
-> > On Tue, 2002-08-27 at 22:46, Greg KH wrote:
-> > > Does this still happen on 2.5.32?  I was unable to reproduce it on
-> > > either 2.5.31, 2.5.31-bk, or 2.5.32.
-> > > 
-> > 
-> > I can reproduce the oops reliably -- but you have to enable slab
-> > poisoning to do it.
+Daniel Phillips wrote:
 > 
-> You want to apply zwane's USB patch, and my 2.5.32-usb.diff patch.
-> Both appeared on lkml today.  It should fix this precise problem.
+> On Monday 02 September 2002 01:08, Andrew Morton wrote:
+> > Daniel Phillips wrote:
+> > > Note that I changed the spin_lock in page_cache_release to a trylock, maybe
+> > > it's worth checking out the effect on contention.  With a little head
+> > > scratching we might be able to get rid of the spin_lock in lru_cache_add as
+> > > well.  That leaves (I think) just the two big scan loops.  I've always felt
+> > > it's silly to run more than one of either at the same time anyway.
+> >
+> > No way.  Take a look at http://samba.org/~anton/linux/2.5.30/
+> >
+> > That's 8-way power4, the workload is "dd from 7 disks
+> > dd if=/dev/sd* of=/dev/null bs=1024k".
+> >
+> > The CPU load in this situation was dominated by the VM.  The LRU list and page
+> > reclaim.  Spending more CPU in lru_cache_add() than in copy_to_user() is
+> > pretty gross.
 > 
+> Are we looking at the same thing?  The cpu load there is dominated by cpu_idle,
+> 89%.
 
-2.5.33 + my minor compilation fixes + "[PATCH] 2.5.32-usb" +
-"[PATCH][2.5] pci_free_consistent on ohci initialisation failure" +
-"[PATCH][2.5] set pci dma mask for ohci-hcd" still results in the same
-oops.
+Apart from that, dummy ;)  The absolute numbers are proportional
+to IO bandwidth.  And 7/8ths of a scsi disk per CPU isn't much.
 
-Was there another USB patch today from Zwane that I missed?
+>  Anyway, if your point is that it makes sense to run shrink_cache or
+> refill_inactive in parallel, I don't see it because they'll serialize on the
+> lru lock anyway.  What would make sense is to make shink_cache nonblocking.
 
+Well shrink_list() runs locklessly now.  But there remains a significant
+cost in shrink_cache(), a little of which will be due to the hopefully-removable
+page_cache_get() inside the lock.

@@ -1,72 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129230AbQKHNxw>; Wed, 8 Nov 2000 08:53:52 -0500
+	id <S129152AbQKHNxw>; Wed, 8 Nov 2000 08:53:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129181AbQKHNxn>; Wed, 8 Nov 2000 08:53:43 -0500
-Received: from humbolt.geo.uu.nl ([131.211.28.48]:15372 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S129152AbQKHNxZ>; Wed, 8 Nov 2000 08:53:25 -0500
-Date: Wed, 8 Nov 2000 14:53:11 +0100 (CET)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Szabolcs Szakacsits <szaka@f-secure.com>
-cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        Linus Torvalds <torvalds@transmeta.com>, Ingo Molnar <mingo@elte.hu>
-Subject: Re: Looking for better VM
-In-Reply-To: <Pine.LNX.4.21.0011081052010.1242-100000@fs129-190.f-secure.com>
-Message-ID: <Pine.LNX.4.05.10011081450320.3666-100000@humbolt.nl.linux.org>
+	id <S129230AbQKHNxm>; Wed, 8 Nov 2000 08:53:42 -0500
+Received: from cerberus.s2k.com ([204.176.206.253]:44551 "EHLO
+	cerberus.s2k.com") by vger.kernel.org with ESMTP id <S129181AbQKHNxX>;
+	Wed, 8 Nov 2000 08:53:23 -0500
+Subject: Re: Installing kernel 2.4
+X-Mailer: Lotus Notes Release 5.0.3  March 21, 2000
+Message-ID: <OFE1DF3190.2EF12079-ON85256991.004BD0EB@infinium.com>
+Date: Wed, 8 Nov 2000 08:49:15 -0500
+X-MIMETrack: Serialize by Router on WHQNTSE1/Infinium Software(Release 5.0.4 |June 8, 2000) at
+ 11/08/2000 08:49:17 AM
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=us-ascii
+To: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+From: Bruce_Holzrichter@infinium.com
+Cc: davej@suse.de, jmerkey@vger.timpanogas.org, linux-kernel@vger.kernel.org,
+        linux-kernel-owner@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 8 Nov 2000, Szabolcs Szakacsits wrote:
-> On Mon, 6 Nov 2000, Rik van Riel wrote:
-> > On Mon, 6 Nov 2000, Szabolcs Szakacsits wrote:
-> > > On Wed, 1 Nov 2000, Rik van Riel wrote:
-> > > > but simply because 
-> > > > it appears there has been amazingly little research on this 
-> > > > subject and it's completely unknown which approach will work 
-> > > There has been lot of research, this is the reason most Unices support
-> > > both non-overcommit and overcommit memory handling default to
-> > > non-overcommit [think of reliability and high availability].
-> > It's a shame you didn't take the trouble to actually
-> > go out and see that non-overcommit doesn't solve the
-> > "out of memory" deadlock problem.
-> 
-> Read my *entire* email again and please try to understand. No deadlock
-> at all since kernel *falls back* to process killing if memory reserved
-> for *root* is also out.
-> 
-> You could ask, so what's the point for non-overcommit if we use
-> process killing in the end? And the answer, in *practise* this almost
-> never happens, root can always clean up and no processes are lost
-> [just as when disk is "full" except the reserved area for root]. See?
-> Human get a chance against hard-wired AI.
-> 
-> I also didn't say non-overcommit should be used as default and a
-> patch http://www.cs.helsinki.fi/linux/linux-kernel/2000-13/1208.html,
-> developed for 2.3.99-pre3 by Eduardo Horvath and unfortunately was
-> ignored completely, implemented it this way. 
 
-OK. This is a lot more reasonable. I'm actually looking
-into putting non-overcommit as a configurable option in
-the kernel.
+>
+> On Wed, Nov 08, 2000 at 03:25:56AM +0000, davej@suse.de wrote:
+> > On Tue, 7 Nov 2000, Jeff V. Merkey wrote:
+> >
+> > > If the compiler always aligned all functions and data on 16 byte
+> > > boundries (NetWare)  for all i386 code, it would run a lot faster.
+> >
+> > Except on architectures where 16 byte alignment isn't optimal.
+> >
+> > > Cache line alignment could be an option in the loader .... after all,
+> > > it's hte loader that locates data in memory.  If Linux were PE based,
+> > > relocation logic would be a snap with this model (like NT).
+> >
+> > Are you suggesting multiple files of differing alignments packed into
+> > a single kernel image, and have the loader select the correct one at
+> > runtime ? I really hope I've misinterpreted your intention.
+>
+> Or more practically, a smart loader than could select a kernel image
+> based on arch and auto-detect to load the correct image. I don't really
+> think it matters much what mechanism is used.
+>
+> What makes more sense is to pack multiple segments for different
+> processor architecures into a single executable package, and have the
+> loader pick the right one (the NT model).  It could be used for
+> SMP and non-SMP images, though, as well as i386, i586, i686, etc.
 
-However, this does not save you from the fact that the
-system is essentially deadlocked when nothing can get
-more memory and nothing goes away. Non-overcommit won't
-give you any extra reliability unless your applications
-are very well behaved ... in which case you don't need
-non-overcommit.
 
-regards,
-
-Rik
---
-The Internet is not a network of computers. It is a network
-of people. That is its real strength.
-
-http://www.conectiva.com/		http://www.surriel.com/
+And this would fit on my 1.4bm floppy so I can boot my hard driveless
+firewalling system, correct?
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

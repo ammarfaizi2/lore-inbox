@@ -1,74 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266034AbUHaRoZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265196AbUHaRqr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266034AbUHaRoZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 13:44:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265978AbUHaRm4
+	id S265196AbUHaRqr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 13:46:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265932AbUHaRmn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 13:42:56 -0400
-Received: from amsfep18-int.chello.nl ([213.46.243.13]:50262 "EHLO
-	amsfep18-int.chello.nl") by vger.kernel.org with ESMTP
-	id S265805AbUHaRk7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 13:40:59 -0400
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-Q5
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040830090608.GA25443@elte.hu>
-References: <1093715573.8611.38.camel@krustophenia.net>
-	 <20040828194449.GA25732@elte.hu> <200408282210.03568.pnambic@unu.nu>
-	 <20040828203116.GA29686@elte.hu>
-	 <1093727453.8611.71.camel@krustophenia.net>
-	 <20040828211334.GA32009@elte.hu> <1093727817.860.1.camel@krustophenia.net>
-	 <1093737080.1385.2.camel@krustophenia.net>
-	 <1093746912.1312.4.camel@krustophenia.net> <20040829054339.GA16673@elte.hu>
-	 <20040830090608.GA25443@elte.hu>
-Content-Type: text/plain
-Date: Tue, 31 Aug 2004 19:40:57 +0200
-Message-Id: <1093974057.7484.5.camel@twins>
+	Tue, 31 Aug 2004 13:42:43 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:32192 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S265978AbUHaRlJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 13:41:09 -0400
+Date: Tue, 31 Aug 2004 19:41:02 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Andrew Morton <akpm@osdl.org>, digilnux@dgii.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [patch] 2.6.9-rc1-mm2: char/pcxx.c doesn't compile
+Message-ID: <20040831174102.GF3466@fs.tum.de>
+References: <20040830235426.441f5b51.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 1.5.91 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040830235426.441f5b51.akpm@osdl.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-08-30 at 11:06 +0200, Ingo Molnar wrote:
-> i've uploaded -Q5 to:
-> 
->   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc1-bk4-Q5
-> 
-> ontop of:
-> 
->   http://redhat.com/~mingo/voluntary-preempt/diff-bk-040828-2.6.8.1.bz2
-> 
-> -Q5 should fix the PS2 problems and the early boot problems, and it
-> might even fix the USB, ACPI and APIC problems some people were
-> reporting.
-> 
-> There were a number of bugs that led to the PS2 problems:
-> 
->  - a change to __cond_resched() in the -Q series caused the starvation
->    of the IRQ1 and IRQ12 threads during init - causing a silent timeout
->    and misdetection in the ps2 driver(s).
-> 
->  - even with the starvation bug fixed, we must set system_state to
->    SCHEDULER_OK only once the init thread has started - otherwise the
->    idle thread might hang during bootup.
-> 
->  - the redirected IRQ handling now matches that of non-redirected IRQs
->    better, the outer loop in generic_handle_IRQ has been flattened.
-> 
-> i also re-added the synchronize_irq() fix, it was not causing the PS2
-> problems.
-> 
-> 	Ingo
+The following compile error might not be specific to -mm:
 
-Hi Ingo,
+<--  snip  -->
 
-this one is great, it's been rock solid for over 24h now. No more SMP
-problems for me. Thanks for all the hard work.
+...
+  CC      drivers/char/pcxx.o
+drivers/char/pcxx.c: In function `pcxe_cleanup':
+drivers/char/pcxx.c:209: warning: unused variable `e2'
+drivers/char/pcxx.c: At top level:
+drivers/char/pcxx.c:229: `pcxe_init' undeclared here (not in a function)
+drivers/char/pcxx.c:230: warning: type defaults to `int' in declaration of `module_cleanup'
+drivers/char/pcxx.c:230: warning: parameter names (without types) in function declaration
+drivers/char/pcxx.c:230: warning: data definition has no type or storage class
+drivers/char/pcxx.c:1016: redefinition of `__initcall_pcxe_init'
+drivers/char/pcxx.c:229: `__initcall_pcxe_init' previously defined here
+drivers/char/pcxx.c:1016: `pcxe_init' undeclared here (not in a function)
+drivers/char/pcxx.c:1017: `pcxe_exit' undeclared here (not in a function)
+drivers/char/pcxx.c: In function `pcxe_tiocmget':
+drivers/char/pcxx.c:2009: `mstat' undeclared (first use in this function)
+drivers/char/pcxx.c:2009: (Each undeclared identifier is reported only once
+drivers/char/pcxx.c:2009: for each function it appears in.)
+drivers/char/pcxx.c: In function `pcxe_tiocmset':
+drivers/char/pcxx.c:2072: warning: control reaches end of non-void function
+drivers/char/pcxx.c: At top level:
+drivers/char/pcxx.c:1044: warning: `pcxe_init' defined but not used
+make[2]: *** [drivers/char/pcxx.o] Error 1
 
-Kind regards.
+<--  snip  -->
 
--- 
-Peter Zijlstra <a.p.zijlstra@chello.nl>
+
+The patch below (only compilation tested) fixes all errors and warnings.
+
+
+diffstat output:
+ drivers/char/pcxx.c |   15 +++++----------
+ 1 files changed, 5 insertions(+), 10 deletions(-)
+
+
+Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
+
+--- linux-2.6.9-rc1-mm2-full/drivers/char/pcxx.c.old	2004-08-31 13:30:28.000000000 +0200
++++ linux-2.6.9-rc1-mm2-full/drivers/char/pcxx.c	2004-08-31 14:06:28.000000000 +0200
+@@ -206,7 +200,7 @@
+ {
+ 
+ 	unsigned long	flags;
+-	int e1, e2;
++	int e1;
+ 
+ 	printk(KERN_NOTICE "Unloading PC/Xx version %s\n", VERSION);
+ 
+@@ -223,12 +217,6 @@
+ 	restore_flags(flags);
+ }
+ 
+-/*
+- * pcxe_init() is our init_module():
+- */
+-module_init(pcxe_init);
+-module_cleanup(pcxe_cleanup);
+-
+ static inline struct channel *chan(register struct tty_struct *tty)
+ {
+ 	if (tty) {
+@@ -1013,9 +1001,6 @@
+ }
+ #endif
+ 
+-module_init(pcxe_init)
+-module_exit(pcxe_exit)
+-
+ static struct tty_operations pcxe_ops = {
+ 	.open = pcxe_open,
+ 	.close = pcxe_close,
+@@ -1561,6 +1546,8 @@
+ 	return ret;
+ }
+ 
++module_init(pcxe_init)
++module_exit(pcxe_cleanup)
+ 
+ static void pcxxpoll(unsigned long dummy)
+ {
+@@ -1995,6 +1982,7 @@
+ 	volatile struct board_chan *bc;
+ 	unsigned long flags;
+ 	int mflag = 0;
++	int mstat;
+ 
+ 	if(ch)
+ 		bc = ch->brdchan;
+@@ -2069,6 +2057,7 @@
+ 	pcxxparam(tty,ch);
+ 	memoff(ch);
+ 	restore_flags(flags);
++	return 0;
+ }
+ 
+ 
 

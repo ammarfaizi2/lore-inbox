@@ -1,49 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275037AbRJBOxJ>; Tue, 2 Oct 2001 10:53:09 -0400
+	id <S275043AbRJBPBu>; Tue, 2 Oct 2001 11:01:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275043AbRJBOw7>; Tue, 2 Oct 2001 10:52:59 -0400
-Received: from [213.236.192.200] ([213.236.192.200]:17460 "EHLO
-	mail.circlestorm.org") by vger.kernel.org with ESMTP
-	id <S275037AbRJBOwy>; Tue, 2 Oct 2001 10:52:54 -0400
-Message-ID: <00d401c14b52$39b6fe60$d2c0ecd5@dead2>
-From: "Dead2" <dead2@circlestorm.org>
-To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-In-Reply-To: <4.3.2.7.2.20011003004105.02280710@mail.ispdr.net.au> <1002033562.29779.46.camel@steph>
-Subject: Re: Single .c files
-Date: Tue, 2 Oct 2001 16:55:04 +0200
-Organization: CircleStorm Productions
+	id <S275044AbRJBPBl>; Tue, 2 Oct 2001 11:01:41 -0400
+Received: from eventhorizon.antefacto.net ([193.120.245.3]:57001 "EHLO
+	eventhorizon.antefacto.net") by vger.kernel.org with ESMTP
+	id <S275043AbRJBPBV>; Tue, 2 Oct 2001 11:01:21 -0400
+Message-ID: <3BB9D598.7030808@antefacto.com>
+Date: Tue, 02 Oct 2001 15:56:24 +0100
+From: Padraig Brady <padraig@antefacto.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010913
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Anthony <aslan@ispdr.net.au>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Single .c files
+In-Reply-To: <4.3.2.7.2.20011003004105.02280710@mail.ispdr.net.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-No, that is not what patches are for..  Patches does not have whole files in
-them,
-just the fragments that differs..
+http://lxr.linux.no/source/
+Padraig.
 
-Unfortunatley I don't know where you might find the individual files..
+Anthony wrote:
 
--=Dead2=-
+> Hi everyone,
+>     Just a quick question: Is it possible for an average person (like 
+> me) to download from somewhere, single .c files from the latest stable 
+> kernel? I only need a few files from the 2.4.9 or .10 release and I'm 
+> really not keen on downloading all 27Mb. :) Any info on this would be 
+> great.
 
------ Original Message -----
-From: "Stephane Dudzinski" <stephane@antefacto.com>
-> That is what patches are for, get them from your closest kernel.org
-> mirror.
->
-> On Tue, 2001-10-02 at 15:43, Anthony wrote:
-> > Hi everyone,
-> > Just a quick question: Is it possible for an average person (like me) to
-> > download from somewhere, single .c files from the latest stable kernel?
-I
-> > only need a few files from the 2.4.9 or .10 release and I'm really not
-keen
-> > on downloading all 27Mb. :) Any info on this would be great.
 
 

@@ -1,53 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289362AbSAVTPb>; Tue, 22 Jan 2002 14:15:31 -0500
+	id <S289357AbSAVTQK>; Tue, 22 Jan 2002 14:16:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289360AbSAVTPU>; Tue, 22 Jan 2002 14:15:20 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:59048
-	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S289357AbSAVTPN>; Tue, 22 Jan 2002 14:15:13 -0500
-Date: Tue, 22 Jan 2002 13:57:14 -0500
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Paul Gortmaker <p_gortmaker@yahoo.com>
-Cc: Dave Jones <davej@suse.de>, Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Calling EISA experts
-Message-ID: <20020122135714.A10908@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Paul Gortmaker <p_gortmaker@yahoo.com>, Dave Jones <davej@suse.de>,
-	Jeff Garzik <jgarzik@mandrakesoft.com>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020117015456.A628@thyrsus.com> <20020117121723.B22171@suse.de> <3C46B718.26F52BD5@mandrakesoft.com> <20020117124849.F22171@suse.de> <20020117085056.B7299@thyrsus.com> <3C4C0056.4F50C3D6@yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3C4C0056.4F50C3D6@yahoo.com>; from p_gortmaker@yahoo.com on Mon, Jan 21, 2002 at 06:49:42AM -0500
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+	id <S289360AbSAVTQB>; Tue, 22 Jan 2002 14:16:01 -0500
+Received: from trantor.cosmic.com ([209.58.189.187]:5901 "EHLO cosmic.com")
+	by vger.kernel.org with ESMTP id <S289357AbSAVTP5>;
+	Tue, 22 Jan 2002 14:15:57 -0500
+From: mirian@cosmic.com (Mirian Crzig Lennox)
+X-Newsgroups: cosmic.linux.kernel
+Subject: network hangs, NETDEV WATCHDOG messages, Dual AMD Duron, APIC
+Date: Tue, 22 Jan 2002 19:16:16 +0000 (UTC)
+Organization: The Cosmic Computing Corporation of Alpha Centauri
+Message-ID: <slrna4rek0.akh.mirian@trantor.cosmic.com>
+X-Complaints-To: news@trantor.cosmic.com
+User-Agent: slrn/0.9.6.4 (Linux)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Gortmaker <p_gortmaker@yahoo.com>:
-> Minimal approach: Register motherboard EISA ID (i.e. slot zero) ports in
-> /proc/ioports.  Works on all kernel versions.  See $0.02 patch below.
-> 
-> This is probably the least intrusive way to get what you want.  It doesn't
-> add Yet Another Proc File, and costs zero bloat to the 99.9% of us who 
-> have a better chance of meeting Aunt Tillie than an EISA box. 
+I've seen a few other reports of this; let me add mine to the mix in
+hopes of working out a solution:
 
-Yup.  This is the first, and so far the only, C-level kernel patch that
-I've added to the CML2 kit.
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+I have a dual processor AMD Duron, using the Tyan Tiger motherboard and
+Intel APIC.  On every kernel I've tried, from the 2.4.6 that comes with
+Mandrake to 2.4.17 and 2.4.18-pre3 with ac-patches, I get the same
+problem:  when transferring files over my local network, the first 5K or
+so arrive properly and then my network interface goes completely dead.
+This happens predictably and reliably.  The problem does not happen with
+bursty net activity (ssh logins) on my local net, or at all with file
+transfers across the internet ... just sustained network activity with
+other machines on my local net.
 
-Let us hope our weapons are never needed --but do not forget what 
-the common people knew when they demanded the Bill of Rights: An 
-armed citizenry is the first defense, the best defense, and the 
-final defense against tyranny.
-   If guns are outlawed, only the government will have guns. Only 
-the police, the secret police, the military, the hired servants of 
-our rulers.  Only the government -- and a few outlaws.  I intend to 
-be among the outlaws.
-        -- Edward Abbey, "Abbey's Road", 1979
+One the network device goes dead, it stays dead and the NETDEV WATCHDOG
+messages appear in the syslog, periodically, until (a) the net device is
+ifconfig'ed down, or (b) the driver module (tulip.o) is unloaded.  After
+that, if the module is reloaded or the device ifconfig'ed back up, the
+net is fine again, until the next such file transfer.
+
+I've tried most of the advice that others have suggested (moving the
+network card to another PCI slot, using the -noapic boot option).  I've
+even applied both of the suggested patches for this problem (both of
+which appear to attempt to address the problem by edge/level'ing the
+relevant IRQ.  I can verify that this code is triggered properly, and
+operates on the correct IRQ, but it does not unwedge the network device
+(and in fact, the code just keeps getting called over and over again,
+along with the NETDEV WATCHDOG messages.
+
+I'm fairly conversant with Linux kernel code, but I don't really
+understand the inner magic of APIC.  Can someone help me in getting to
+the bottom of this problem?
+
+--Mirian
+

@@ -1,182 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130336AbRAaHzF>; Wed, 31 Jan 2001 02:55:05 -0500
+	id <S131142AbRAaH74>; Wed, 31 Jan 2001 02:59:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130417AbRAaHyz>; Wed, 31 Jan 2001 02:54:55 -0500
-Received: from cold.fortyoz.org ([64.40.111.214]:14086 "HELO cold.fortyoz.org")
-	by vger.kernel.org with SMTP id <S130336AbRAaHyx>;
-	Wed, 31 Jan 2001 02:54:53 -0500
-Date: Tue, 30 Jan 2001 23:55:25 -0800
-From: David Raufeisen <david@fortyoz.org>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>,
-        linux-kernel@vger.kernel.org
-Subject: Re:  VT82C686A corruption with 2.4.x
-Message-ID: <20010130235525.A7513@fortyoz.org>
-Reply-To: David Raufeisen <david@fortyoz.org>
-In-Reply-To: <Pine.LNX.4.21.0101301716490.3105-100000@ns-01.hislinuxbox.com> <Pine.LNX.4.21.0101301755330.3205-200000@ns-01.hislinuxbox.com> <20010131083642.A964@suse.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <20010131083642.A964@suse.cz>; from "Vojtech Pavlik" on Wednesday, 31 January 2001, at 08:36:42 (+0100)
-X-Operating-System: Linux 2.2.17 i686
+	id <S131234AbRAaH7r>; Wed, 31 Jan 2001 02:59:47 -0500
+Received: from mailgw.prontomail.com ([216.163.180.10]:46093 "EHLO
+	c0mailgw04.prontomail.com") by vger.kernel.org with ESMTP
+	id <S131142AbRAaH7i>; Wed, 31 Jan 2001 02:59:38 -0500
+Message-ID: <3A77C502.4010504@mvista.com>
+Date: Tue, 30 Jan 2001 23:55:46 -0800
+From: george anzinger <george@mvista.com>
+Reply-To: george@mvista.com
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.12-20b i686; en-US; m18) Gecko/20001107 Netscape6/6.0
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Joe deBlaquiere <jadb@redhat.com>
+CC: David Woodhouse <dwmw2@infradead.org>, yodaiken@fsmlabs.com,
+        Andrew Morton <andrewm@uow.edu.au>, Nigel Gamble <nigel@nrg.org>,
+        linux-kernel@vger.kernel.org,
+        linux-audio-dev@ginette.musique.umontreal.ca
+Subject: Re: [linux-audio-dev] low-latency scheduling patch for 2.4.0
+In-Reply-To: <3A75A70C.4050205@redhat.com>  <200101220150.UAA29623@renoir.op.net> <Pine.LNX.4.05.10101211754550.741-100000@cosmic.nrg.org>, <Pine.LNX.4.05.10101211754550.741-100000@cosmic.nrg.org>; <20010128061428.A21416@hq.fsmlabs.com> <3A742A79.6AF39EEE@uow.edu.au> <3A74462A.80804@redhat.com> <20010129084410.B32652@hq.fsmlabs.com> <30672.980867280@redhat.com> <3A76E155.2030905@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday, 31 January 2001, at 08:36:42 (+0100),
-Vojtech Pavlik wrote:
+Joe deBlaquiere wrote:
 
-> Hi!
+~snip~
+
+> The locical answer is run with HZ=10000 so you get 100us intervals, 
+> right ;o). 
+
+Lets not assume we need the overhead of HZ=10000 to get 100us 
+alarm/timer resolution.  How about a timer that ticks when we need the 
+next tick...
+
+On systems with multiple hardware timers you could kick off a 
+> single event at 200us, couldn't you? I've done that before with the 
+> extra timer assigned exclusively to a resource. 
+
+With the right hardware resource, one high res counter can give you all 
+the various tick resolutions you need. BTDT on HPRT.
+
+George
+
+It's not a giant time 
+> slice, but at least you feel like you're allowing something to happen, 
+> right?
 > 
-> 1) You don't seem to have any drives on the VIA controller. If this is
-> true, I don't think this can be a VIA IDE driver problem.
->
+>> 
+>> -- 
+>> dwmw2
 
-Hi, Are you referring to Mark or me?
-
-I have drives on my VIA (only..) IDE controller:
-
-VP_IDE: IDE controller on PCI bus 00 dev 39
-VP_IDE: chipset revision 16
-VP_IDE: not 100% native mode: will probe irqs later
-VP_IDE: VIA vt82c686a IDE UDMA66 controller on pci0:7.1
-VP_IDE: ATA-66/100 forced bit set (WARNING)!!
-    ide0: BM-DMA at 0xffa0-0xffa7, BIOS settings: hda:DMA, hdb:DMA
-VP_IDE: ATA-66/100 forced bit set (WARNING)!!
-    ide1: BM-DMA at 0xffa8-0xffaf, BIOS settings: hdc:DMA, hdd:pio
-hda: Maxtor 51536H2, ATA DISK drive
-hdb: Maxtor 94098U8, ATA DISK drive
-hdc: CD-ROM 52X/AKH, ATAPI CD/DVD-ROM drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide1 at 0x170-0x177,0x376 on irq 15
-hda: 30015216 sectors (15368 MB) w/2048KiB Cache, CHS=1868/255/63, UDMA(66)
-hdb: 80041248 sectors (40981 MB) w/2048KiB Cache, CHS=4982/255/63, UDMA(66)
-hdc: ATAPI 52X CD-ROM drive, 192kB Cache, UDMA(33)
-Uniform CD-ROM driver Revision: 3.12
-Partition check:
- hda: hda1 hda2
- hdb: hdb1
- 
-> 2) In your original message you suggest bs=1024M, which isn't a very
-> good idea, even on a 768 MB system. Here with bs=1024k it seems to run
-> fine.
->
-> 3) You sent next to none VIA related debugging info. lspci -v itself
-> isn't much valuable because I don't get the register contents. Also
-> hdparm -i of the drives attached to the VIA chip would be useful. Plus
-> also the contents of /proc/ide/via.
-
-I didn't supply anything either, even though my configuration works great it
-might prove useful to someone comparing:
-
-bash-2.04# hdparm -i /dev/hda
-
-/dev/hda:
-
- Model=Maxtor 51536H2, FwRev=JAC61HU0, SerialNo=F203VTHC
- Config={ Fixed }
- RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=57
- BuffType=DualPortCache, BuffSize=2048kB, MaxMultSect=16, MultSect=off
- CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=30015216
- IORDY=on/off, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
- PIO modes: pio0 pio1 pio2 pio3 pio4 
- DMA modes: mdma0 mdma1 mdma2 udma0 udma1 udma2 udma3 *udma4 udma5 
-bash-2.04# hdparm -i /dev/hdb
-
-/dev/hdb:
-
- Model=Maxtor 94098U8, FwRev=FA500S60, SerialNo=G8066RQC
- Config={ Fixed }
- RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=57
- BuffType=DualPortCache, BuffSize=2048kB, MaxMultSect=16, MultSect=off
- CurCHS=17475/15/63, CurSects=16513875, LBA=yes, LBAsects=80041248
- IORDY=on/off, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
- PIO modes: pio0 pio1 pio2 pio3 pio4 
- DMA modes: mdma0 mdma1 mdma2 udma0 udma1 udma2 udma3 *udma4 
-bash-2.04# 
-
-bash-2.04# cat /proc/ide/via 
-----------VIA BusMastering IDE Configuration----------------
-Driver Version:                     2.1e
-South Bridge:                       VIA vt82c686a rev 0x22
-Command register:                   0x7
-Latency timer:                      32
-PCI clock:                          33MHz
-Master Read  Cycle IRDY:            0ws
-Master Write Cycle IRDY:            0ws
-FIFO Output Data 1/2 Clock Advance: off
-BM IDE Status Register Read Retry:  on
-Max DRDY Pulse Width:               No limit
------------------------Primary IDE-------Secondary IDE------
-Read DMA FIFO flush:           on                  on
-End Sect. FIFO flush:          on                  on
-Prefetch Buffer:               on                  on
-Post Write Buffer:             on                  on
-FIFO size:                      8                   8
-Threshold Prim.:              1/2                 1/2
-Bytes Per Sector:             512                 512
-Both channels togth:          yes                 yes
--------------------drive0----drive1----drive2----drive3-----
-BMDMA enabled:        yes       yes       yes        no
-Transfer Mode:       UDMA      UDMA      UDMA   DMA/PIO
-Address Setup:       30ns      30ns      30ns     120ns
-Active Pulse:        90ns      90ns      90ns     330ns
-Recovery Time:       30ns      30ns      30ns     270ns
-Cycle Time:          30ns      30ns      60ns     600ns
-Transfer Rate:   66.0MB/s  66.0MB/s  33.0MB/s   3.3MB/s
-
-bash-2.04# lspci -v (trimmed)
-00:00.0 Host bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133] (rev 02)
-        Flags: bus master, medium devsel, latency 8
-        Memory at e0000000 (32-bit, prefetchable) [size=64M]
-        Capabilities: [a0] AGP version 2.0
-        Capabilities: [c0] Power Management version 2
-
-00:01.0 PCI bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133 AGP] (prog-if 00 [Normal decode])
-        Flags: bus master, 66Mhz, medium devsel, latency 0
-        Bus: primary=00, secondary=01, subordinate=01, sec-latency=0
-        I/O behind bridge: 00009000-00009fff
-        Memory behind bridge: dde00000-dfefffff
-        Prefetchable memory behind bridge: cdc00000-ddcfffff
-        Capabilities: [80] Power Management version 2
-
-00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South] (rev 22)
-        Subsystem: VIA Technologies, Inc. VT82C686/A PCI to ISA Bridge
-        Flags: bus master, stepping, medium devsel, latency 0
-
-00:07.1 IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 10) (prog-if 8a [Master SecP PriP])
-        Flags: bus master, medium devsel, latency 32
-        I/O ports at ffa0 [size=16]
-        Capabilities: [c0] Power Management version 2
-
-00:07.2 USB Controller: VIA Technologies, Inc. UHCI USB (rev 10) (prog-if 00 [UHCI])
-        Subsystem: Unknown device 0925:1234
-        Flags: bus master, medium devsel, latency 64, IRQ 9
-        I/O ports at cc00 [size=32]
-        Capabilities: [80] Power Management version 2
-
-00:07.3 USB Controller: VIA Technologies, Inc. UHCI USB (rev 10) (prog-if 00 [UHCI])
-        Subsystem: Unknown device 0925:1234
-        Flags: bus master, medium devsel, latency 64, IRQ 9
-        I/O ports at d000 [size=32]
-        Capabilities: [80] Power Management version 2
-
-00:07.4 SMBus: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev 30)
-        Flags: medium devsel
-        Capabilities: [68] Power Management version 2
-
-> 4) Did you check the problem you're experiencing isn't a memory problem?
-> That'd go away with removing some RAM.
-
-I assume this was to Mark, I have no problem:)
- 
-> Vojtech Pavlik
-> SuSE Labs
-
--- 
-David Raufeisen <david@fortyoz.org>
-Cell: (604) 818-3596
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

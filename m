@@ -1,110 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317334AbSGIIED>; Tue, 9 Jul 2002 04:04:03 -0400
+	id <S317338AbSGIINu>; Tue, 9 Jul 2002 04:13:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317338AbSGIIEC>; Tue, 9 Jul 2002 04:04:02 -0400
-Received: from jack.stev.org ([217.79.103.51]:54554 "EHLO jack.stev.org")
-	by vger.kernel.org with ESMTP id <S317334AbSGIIEB>;
-	Tue, 9 Jul 2002 04:04:01 -0400
-Message-ID: <016e01c22720$1be7ad80$0cfea8c0@ezdsp.com>
-From: "James Stevenson" <mistral@stev.org>
-To: <jbradford@dial.pipex.com>
-Cc: <linux-kernel@vger.kernel.org>
-References: <200207090708.IAA00510@darkstar.example.net>
-Subject: Re: ATAPI + cdwriter problem
-Date: Tue, 9 Jul 2002 09:10:36 +0100
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4910.0300
+	id <S317339AbSGIINt>; Tue, 9 Jul 2002 04:13:49 -0400
+Received: from meg.hrz.tu-chemnitz.de ([134.109.132.57]:18448 "EHLO
+	meg.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S317338AbSGIINt>; Tue, 9 Jul 2002 04:13:49 -0400
+Date: Tue, 9 Jul 2002 10:16:15 +0200
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Douglas Gilbert <dougg@torque.net>, linux-kernel@vger.kernel.org
+Subject: Re: direct-to-BIO for O_DIRECT
+Message-ID: <20020709101615.B14399@nightmaster.csn.tu-chemnitz.de>
+References: <3D2A5F34.F38B893F@torque.net> <3D2A6608.7C43EE3@zip.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <3D2A6608.7C43EE3@zip.com.au>; from akpm@zip.com.au on Mon, Jul 08, 2002 at 09:26:48PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > seems strange ide-scsi is the only thing i have ever had problems with.
-> > i know it also does not work with the other 2 cd drives in the machine
-as
-> > well.
->
-> On the same ATA controller?
->
-> > 1 is an old HP 2x2x6 7200+ writer (writes ok reading problems)
-> > and a normall 44x reader(will causes opps on reading bad media)
->
-> That makes me strongly suspect at it it the ATA interface to blame.  Can
-you try the CD-writer on another one?
+On Mon, Jul 08, 2002 at 09:26:48PM -0700, Andrew Morton wrote:
+> > > It would be nice if we could just map a set of user pages
+> > > to a scatterlist.
+> > 
+> > After disabling kiobufs in sg I would like such a drop
+> > in replacement.
+> 
+> Ben had lightweight sg structures called `kvecs' and `kveclets'. And
+> library functions to map pages into them.  And code to attach them
+> to BIOs.  So we'll be looking at getting that happening.
 
-the other 2 drives are on a different controller not a prmoise its running
-off the motherboard.
+BIOs are for BLOCK devices we want sth. like this for CHARACTER
+devices.
 
-its a via chipset motherboard which botht the old 2x writer and 44x are on
-the secondary channel
-----------VIA BusMastering IDE Configuration----------------
-Driver Version:                     3.34
-South Bridge:                       VIA vt82c586b
-Revision:                           ISA 0x41 IDE 0x6
-Highest DMA rate:                   UDMA33
-BM-DMA base:                        0xc000
-PCI clock:                          33.3MHz
-Master Read  Cycle IRDY:            1ws
-Master Write Cycle IRDY:            1ws
-BM IDE Status Register Read Retry:  yes
-Max DRDY Pulse Width:               No limit
------------------------Primary IDE-------Secondary IDE------
-Read DMA FIFO flush:          yes                 yes
-End Sector FIFO flush:         no                  no
-Prefetch Buffer:              yes                 yes
-Post Write Buffer:            yes                  no
-Enabled:                      yes                 yes
-Simplex only:                  no                  no
-Cable Type:                   40w                 40w
--------------------drive0----drive1----drive2----drive3-----
-Transfer Mode:       UDMA      UDMA       DMA      UDMA
-Address Setup:       30ns      30ns      60ns      30ns
-Cmd Active:          90ns      90ns      90ns      90ns
-Cmd Recovery:        30ns      30ns      90ns      90ns
-Data Active:         90ns      90ns      90ns      90ns
-Data Recovery:       30ns      30ns      90ns      30ns
-Cycle Time:          60ns      60ns     180ns      60ns
-Transfer Rate:   33.3MB/s  33.3MB/s  11.1MB/s  33.3MB/s
+I just want sth. along the lines of this:
 
-the whole ide system looks a bit like this.
+/* Pin down (COMPLETE!) user pages and put them into a scatter gather list */
+int sg_map_user_pages(struct scatterlist *sgl, const unsigned int nr_pages, 
+		unsigned long uaddr, int rw) {
+	int res, i;
+	struct page *pages[nr_pages];
 
-hda: IBM-DTTA-351680, ATA DISK drive
-hdb: IBM-DTLA-305040, ATA DISK drive
-hdc: HP CD-Writer+ 7200, ATAPI CD/DVD-ROM drive
-hdd: IDE/ATAPI CD-ROM 44X, ATAPI CD/DVD-ROM drive
-hde: Maxtor 4G160J8, ATA DISK drive
-hdf: Maxtor 4G160J8, ATA DISK drive
-hdg: 32X10, ATAPI CD/DVD-ROM drive
+	down_read(&current->mm->mmap_sem);
+	res = get_user_pages(
+			current,
+			current->mm,
+			uaddr,
+			nr_pages,
+			rw == READ, /* logic is perversed^Wreversed here :-( */
+			0, /* don't force */
+			&pages[0],
+			NULL);
+	up_read(&current->mm->mmap_sem);
 
-i have some time over the next few days so i could try to recreate crash
-and try stuff.
+	/* Errors and no page mapped should return here */
+	if (res <= 0) return res;
 
-> > > > i have  bunch of messages like these and a hung cd writer
-> > > >
-> > > > scsi : aborting command due to timeout : pid 28231, scsi0, channel
-0, id
-> > 2,
-> > > > lun 0 Test Unit Ready 00 00 00 00 00
-> > > > SCSI host 0 abort (pid 28231) timed out - resetting
-> > > > SCSI bus is being reset for host 0 channel 0.
-> > > > hdg: ATAPI reset timed-out, status=0xd0
-> > > > PDC202XX: Secondary channel reset.
-> > > > ide3: reset: success
-> > > > hdg: irq timeout: status=0xc0 { Busy }
-> > > > hdg: status timeout: status=0xd0 { Busy }
-> > > > hdg: drive not ready for command
-> > > >
-> > > >
-> > > > anyone be able to suggest any action to help prevent it in the
-future ?
-> > > >
-> > > > thanks
-> > > >     James
-> > > >
-> > > > --------------------------
-> > > > Mobile: +44 07779080838
-> > > > http://www.stev.org
-> > > >   7:10pm  up 57 min,  3 users,  load average: 2.05, 1.84, 1.10
+	for (i=1; i < res; i++) {
+		sgl[i].page = pages[i];	
+	}
+	return res;
+}
 
+/* And unmap them... */
+int sg_unmap_user_pages(struct scatterlist *sgl, const unsigned int nr_pages) {
+	int i;
 
+	for (i=0; i < nr_pages; i++)
+		page_cache_release(sgl[i].page);
+
+	return 0;
+}
+
+Possibly more complicated and less error prone, but you get the
+idea ;-)
+
+Regards
+
+Ingo Oeser
+-- 
+Science is what we can tell a computer. Art is everything else. --- D.E.Knuth

@@ -1,55 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262271AbVBXMQV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262299AbVBXMTE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262271AbVBXMQV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 07:16:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262299AbVBXMQV
+	id S262299AbVBXMTE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 07:19:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262330AbVBXMTD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 07:16:21 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:20102 "EHLO
-	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S262271AbVBXMQM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 07:16:12 -0500
-Date: Thu, 24 Feb 2005 12:15:29 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Nick Warne <nick@linicks.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel BUG at mm/rmap.c:483!
-In-Reply-To: <200502232205.18610.nick@linicks.net>
-Message-ID: <Pine.LNX.4.61.0502241159060.6630@goblin.wat.veritas.com>
-References: <200502232205.18610.nick@linicks.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	Thu, 24 Feb 2005 07:19:03 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:40077 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262299AbVBXMQb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Feb 2005 07:16:31 -0500
+Date: Thu, 24 Feb 2005 17:46:49 +0530
+From: Maneesh Soni <maneesh@in.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Vivek Goyal <vgoyal@in.ibm.com>, haveblue@us.ibm.com,
+       fastboot@lists.osdl.org, linux-kernel@vger.kernel.org,
+       ebiederm@xmission.com
+Subject: Re: [Fastboot] Re: [PATCH] Fix for broken kexec on panic
+Message-ID: <20050224121649.GB5781@in.ibm.com>
+Reply-To: maneesh@in.ibm.com
+References: <1109236432.5148.192.camel@terminator.in.ibm.com> <20050224011312.29668947.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050224011312.29668947.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Feb 2005, Nick Warne wrote:
+On Thu, Feb 24, 2005 at 01:13:12AM -0800, Andrew Morton wrote:
+> Vivek Goyal <vgoyal@in.ibm.com> wrote:
+> >
+> > Kexec on panic is broken on i386 in 2.6.11-rc3-mm2 because of
+> >  re-organization of boot memory allocator initialization code.
 > 
-> I upgraded memory - all 4 sticks - over Christmas, and after a few weeks 
-> uptime, tried 2.4.10 again.
+> OK...
 > 
-> I have had no problems since - so perhaps I did have bad memory (it was old).
-> But all tests never showed anything untoward.
-> 
-> I was always suspicious why my 2.6.4 build ran OK, but newer builds always 
-> failed.  Could it be a subtle fault in memory whilst building kernels that 
-> does it?
+> Where are we up to with these patches, btw?  Do you consider them
+> close-to-complete?  Do you have a feel for what proportion of machines will
+> work correctly?
 
-Perhaps, though I don't remember hearing of any example of that.
+After the rework of kexec patches, there is very minimal kernel code needed
+for kdump and most of the code is in user space kexec-tools. The changes
+needed in kexec-tools to load the crashdump kernel and generate ELF headers,
+for x86 architecture are done and will be posted for comments today by Vivek. 
 
-I think what typically happens, on a build the size of the kernel,
-is that one of the compilations collapses with a SIGSEGV because some
-pointer within gcc gets corrupted by the bad memory, so the build
-fails to complete; rather than completing with a bad vmlinux output.
+Currently the work remaining is to capture the old-kernel memory during second 
+kernel boot up. There is some lack of consensus whether this functionality 
+should go in kernel-space (/proc/vmcore) or user-space (a separate utility
+which can be run from initrd). Before the last kexec rework, kdump has the 
+facility to do /proc/vmcore and now it has to be re-done accordingly. There is 
+some code already done by Eric to do it in user-space. We are evaluating both
+the approaches and should arrive at the conclusion asap.
 
-A more likely cause for what you saw, if the bad memory is low down
-or high up (and what I mean by high may change: wli made an important
-change to memory allocation ordering in 2.6.8 which would affect it),
-is that one kernel's image or system initialization will happen to
-allocate the bad memory to something scarcely used, where another
-may allocate it to something vital.
+Thanks
+Maneesh
 
-But please don't place too much weight on my idle speculations,
-others have a better appreciation of these issues.
-
-Hugh
+-- 
+Maneesh Soni
+Linux Technology Center, 
+IBM India Software Labs,
+Bangalore, India
+email: maneesh@in.ibm.com
+Phone: 91-80-25044990

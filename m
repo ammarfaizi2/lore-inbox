@@ -1,45 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317015AbSEWVga>; Thu, 23 May 2002 17:36:30 -0400
+	id <S317016AbSEWVh0>; Thu, 23 May 2002 17:37:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317016AbSEWVg3>; Thu, 23 May 2002 17:36:29 -0400
-Received: from daimi.au.dk ([130.225.16.1]:47723 "EHLO daimi.au.dk")
-	by vger.kernel.org with ESMTP id <S317015AbSEWVg3>;
-	Thu, 23 May 2002 17:36:29 -0400
-Message-ID: <3CED60D7.9E5032D7@daimi.au.dk>
-Date: Thu, 23 May 2002 23:36:23 +0200
-From: Kasper Dupont <kasperd@daimi.au.dk>
-Organization: daimi.au.dk
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.9-31smp i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Benjamin LaHaise <bcrl@redhat.com>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>, linux-mm@redhat.com
-Subject: Re: [PATCH] 2.4.19-pre8 vm86 smp locking fix
-In-Reply-To: <20020523165105.A27881@redhat.com>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S317017AbSEWVhZ>; Thu, 23 May 2002 17:37:25 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:20474 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S317016AbSEWVhX>; Thu, 23 May 2002 17:37:23 -0400
+Date: Thu, 23 May 2002 17:37:16 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Christer Weinigel <wingel@acolyte.hack.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.17 /dev/ports
+Message-ID: <20020523173716.B12899@devserv.devel.redhat.com>
+In-Reply-To: <Pine.LNX.4.33.0205231251430.2815-100000@penguin.transmeta.com> <3CED438B.6090906@evision-ventures.com> <20020523212239.EA736F5B@acolyte.hack.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin LaHaise wrote:
+> From: Christer Weinigel <wingel@acolyte.hack.org>
+> Date: Thu, 23 May 2002 23:22:39 +0200 (CEST)
+
+> Martin Dalecki <dalecki@evision-ventures.com> wrote:
 > 
-> arch/i386/kernel/vm86.c performs page table operations without obtaining
-> any locks.  This patch obtains page_table_lock around the the table walk
-> and modification.
+> > "I will submitt my dual 8255 PIO ISA card driver from 1.xx days
+> > immediately for kernel inclusion"
+> 
+> Please do *grin* I will probably have to write a driver for just such
+> a card (a PC104 card though, but that's just a differenct connector),
+> so I'd love to have such a driver. [...]
 
-This patch can also be applied against 2.4.19-pre8-ac5.
-The patch command does report:
-patching file arch/i386/kernel/vm86.c
-Hunk #1 succeeded at 124 (offset 27 lines).
+The 8255 is way too flexible for a single driver to be possible,
+IMHO. Also, it is used in devices which plug into a variety of
+upstream APIs, which makes the factorization not worth the effort.
+E.g. what if you have 8255 driving a 9 track tape and 8255 driving
+HP-IB bus? I think it would hardly be reasonable to unify those.
+OTOH, If Martin submits a header file with register breakdown,
+it may be useful (unlike a continuation of /dev/port discussion).
 
-Since this missing lock is completely unrelated to the
-other bugfixes in vm86 I don't expect any bad interactions.
-
-The pagetable access in arch/i386/kernel/vm86.c is related
-to another access in arch/i386/mm/fault.c. Did anybody
-verify that the other file does correct locking?
-
--- 
-Kasper Dupont -- der bruger for meget tid på usenet.
-For sending spam use mailto:razor-report@daimi.au.dk
+-- Pete

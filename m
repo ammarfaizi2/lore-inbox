@@ -1,89 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269700AbUINUSO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269661AbUINUdO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269700AbUINUSO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 16:18:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269773AbUINUOw
+	id S269661AbUINUdO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 16:33:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269731AbUINU3k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 16:14:52 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:38078 "EHLO
+	Tue, 14 Sep 2004 16:29:40 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:41918 "EHLO
 	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S269737AbUINUKv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 16:10:51 -0400
-Subject: Re: I2O Updates + Questions
+	id S269738AbUINUXs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 16:23:48 -0400
+Subject: Re: [patch] sched: fix scheduling latencies for !PREEMPT kernels
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Markus Lidel <Markus.Lidel@shadowconnect.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <41473F00.50109@shadowconnect.com>
-References: <1095174189.16988.10.camel@localhost.localdomain>
-	 <41473F00.50109@shadowconnect.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Robert Love <rml@ximian.com>, Andrea Arcangeli <andrea@novell.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Ingo Molnar <mingo@elte.hu>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040914192104.GB9106@holomorphy.com>
+References: <20040914114228.GD2804@elte.hu> <4146EA3E.4010804@yahoo.com.au>
+	 <20040914132225.GA9310@elte.hu> <4146F33C.9030504@yahoo.com.au>
+	 <20040914140905.GM4180@dualathlon.random> <41470021.1030205@yahoo.com.au>
+	 <20040914150316.GN4180@dualathlon.random>
+	 <1095185103.23385.1.camel@betsy.boston.ximian.com>
+	 <20040914185212.GY9106@holomorphy.com>
+	 <1095188569.23385.11.camel@betsy.boston.ximian.com>
+	 <20040914192104.GB9106@holomorphy.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <1095188880.17043.65.camel@localhost.localdomain>
+Message-Id: <1095189593.16988.72.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 14 Sep 2004 20:08:03 +0100
+Date: Tue, 14 Sep 2004 20:19:57 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2004-09-14 at 19:57, Markus Lidel wrote:
-> > - Add recieve_to_virt and send_to_virt to clean up remaining
-> >   virt_to_* usage. (I've tweaked them to reflect the i2o_dma
-> >   objects) so hopefully I got it right
-> > - Post an 8 byte startup message area. Some Promises scribble on the
-> >   wrong dword. Also catch this
-> > - Fix several cases where messages got written to I/O space without
-> >   i2o_raw_writel
-> > - Fix a case where we skipped dpt controllers on quiesce and didnt
-> >   skip them on enable
-> > - Add some bits to try and get promise behaving again
-> > - Cleaned up the probe loop
-> > - Removed the remainder of i2o_retry and used the trick I was using
-> >   in my test code from back whenever- on congestion report BUS_BUSY
-> >   and leave it to the scsi layer
-> 
-> Ohohhh... i2o_core.c shouldn't be there anymore... I've split up 
-> i2o_core.c in own files e. g. iop.c, pci.c, ...
+On Maw, 2004-09-14 at 20:21, William Lee Irwin III wrote:
+> The "safely call schedule() while holding it" needs quite a bit of
+> qualification; it's implicitly dropped during voluntary context
+> switches and reacquired when rescheduled, but it's not valid to force
+> such a task into an involuntary context switch and calling schedule()
+> implies dropping the lock, so it has to be done at the proper times.
+> This is a complex semantic that likely trips up numerous callers (as
+> well as attempts to explain it, though surely you know these things,
+> and merely wanted a shorter line for the bullet point).
 
-Ah probably someone didnt propogate the deletion. That happens. 
+The problem is people think of the BKL as a lock. It isn't a lock it has
+never been a lock and it's all DaveM's fault 8) for naming it that when
+he moved my asm entry point stuff into C.
 
-> > Looking at the code the event stuff seems totally broken in the new code
-> > both in core and the commented out i2o_block code (which now leaks
-> 
-> The I2O Block driver doesn't use the event notifaction anymore, instead 
-> it uses the probe and remove functions to add or remove disks...
+The BKL turns on old style unix non-pre-emptive sematics between all
+code that is within lock_kernel sections, that is it. That also makes it
+hard to clean up because lock_kernel is delimiting code properties (its
+essentially almost a function attribute) and spin_lock/down/up and
+friends are real locks and lock data.
 
-It sets the event pointer so seems to get called with an event which it
-fails to reply to (as required) and fails to kfree the kmalloc'd 
-message. It would also be nice to keep the 0x20 message watch for
-promise cards (at least when testing) since a promise firmware crash
-isnt otherwise visible except as 16Mb of I/O going missing
-> 
-> > memory). Also i2o_scsi error path does a readl on msg->body[3] which is
-> > wrong as msg->body[3] is in kernel space and its contents are an I2O
-> > side message value so should get fed to i2o_send_to_virt().
-> 
-> The msg points to the outbound queue of the controller, don't i need a 
-> readl there?
+I've seen very few cases where there is a magic transform from one to
+the other because of this. So if you want to kill the BKL add proper
+locking to data structures covered by BKL users until the lock_kernel
+simply does nothing.
 
-Messages from the controller to the kernel are in kernel memory. They
-are the ones we allocated and posted. The data in body[3] is a message
-offset in I2O space if I remember rightly.
+> or sweeps others care to devolve to me, so I'll largely be using
+> whatever tactic whoever cares to drive all this (probably Alan) prefers.
 
-> > Other question is message size - right now it uses the 2.4 message size
-> > which is twice what all the vendors recommend as working best (and
-> > doesn't work at all on AMI)
-> 
-> The message size from the outbound queue of the I2O controller?
-> 
-> Yep, the dpt_i2o driver even set it to 17 instead of 128 :-)
-> 
-> Sorry for the mistake with the i2o_core.c.
-> 
-> Thanks for taking time to look at the I2O driver!
+Fix the data structure locking starting at the lowest level is how I've
+always tackled these messes. When the low level locking is right the
+rest just works (usually 8)).
 
-No problem. I'll take a look at the split version of the driver and see
-if the same fixes are needed. Since the bugs involved go back to my
-original code they may well do.
+	"Lock data not code"
 
 Alan
 

@@ -1,32 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263572AbTHZLNH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Aug 2003 07:13:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263593AbTHZLNH
+	id S263602AbTHZL1T (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Aug 2003 07:27:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263604AbTHZL1S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Aug 2003 07:13:07 -0400
-Received: from ginger.cmf.nrl.navy.mil ([134.207.10.161]:21890 "EHLO
-	ginger.cmf.nrl.navy.mil") by vger.kernel.org with ESMTP
-	id S263572AbTHZLNG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Aug 2003 07:13:06 -0400
-Message-Id: <200308261112.h7QBCVNv020928@ginger.cmf.nrl.navy.mil>
-To: Lukasz Trabinski <lukasz@wsisiz.edu.pl>
-cc: linux-kernel@vger.kernel.org, linux-atm-general@lists.sourceforge.net,
-       Bartlomiej Solarz-Niesluchowski <solarz@wsisiz.edu.pl>
-Subject: Re: [Linux-ATM-General] linux-2.4.22 Oops on ATM PCA-200EPC 
-In-Reply-To: Message from Lukasz Trabinski <lukasz@wsisiz.edu.pl> 
-   of "Tue, 26 Aug 2003 01:11:13 +0200." <Pine.LNX.4.53.0308260104580.17995@oceanic.wsisiz.edu.pl> 
-Date: Tue, 26 Aug 2003 07:12:33 -0400
-From: chas williams <chas@cmf.nrl.navy.mil>
-X-Spam-Score: (*) hits=1.7
+	Tue, 26 Aug 2003 07:27:18 -0400
+Received: from angband.namesys.com ([212.16.7.85]:39040 "EHLO
+	angband.namesys.com") by vger.kernel.org with ESMTP id S263602AbTHZL1S
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Aug 2003 07:27:18 -0400
+Date: Tue, 26 Aug 2003 15:27:16 +0400
+From: Oleg Drokin <green@namesys.com>
+To: Christoph Hellwig <hch@angband.namesys.com>, marcelo@hera.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] backport iget_locked from 2.5/2.6
+Message-ID: <20030826112716.GA14680@namesys.com>
+References: <20030825140714.GA17359@lst.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030825140714.GA17359@lst.de>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->I have always used vanilla kernel with very old patch for ATM
->(name: linux-2.3.99-pre6-fore200e-0.2f.patch) It worked well -
->trouble-free. 
->I have just tried vanilla 2.4.22, here is oops. ATM doesn't work :(
+Helllo!
 
-what did you do to get this crash?  just startup an interface?
-is clip built as a module?
+On Mon, Aug 25, 2003 at 04:07:14PM +0200, Christoph Hellwig wrote:
 
+> Provide an iget variant without unlocking the inode and ->read_inode
+> call.  This is needed for XFS and IIRC the reiserfs folks wanted it,
+> too.
+
+No. This patch is useless for our purposes. (and coda/nfs ).
+We wanted to get rid of a race where inode allocation and
+filling fs specific parts are done non-atomically.
+The patch below does not achieve this. We still fill inode private part
+outside of inode_lock locked region.
+
+Bye,
+    Oleg

@@ -1,43 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276347AbRI1WQw>; Fri, 28 Sep 2001 18:16:52 -0400
+	id <S276322AbRI1WZn>; Fri, 28 Sep 2001 18:25:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276346AbRI1WQn>; Fri, 28 Sep 2001 18:16:43 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:57867 "EHLO
+	id <S276324AbRI1WZe>; Fri, 28 Sep 2001 18:25:34 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:60683 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S276348AbRI1WQ1>; Fri, 28 Sep 2001 18:16:27 -0400
-Subject: Re: floppy hang with 2.4.9-ac1x
-To: thunder7@xs4all.nl
-Date: Fri, 28 Sep 2001 23:21:42 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010928210355.A2837@middle.of.nowhere> from "thunder7@xs4all.nl" at Sep 28, 2001 09:03:55 PM
+	id <S276322AbRI1WZV>; Fri, 28 Sep 2001 18:25:21 -0400
+Subject: Re: CPU frequency shifting "problems"
+To: andrew.grover@intel.com (Grover, Andrew)
+Date: Fri, 28 Sep 2001 23:30:22 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk ('Alan Cox'), torvalds@transmeta.com,
+        padraig@antefacto.com, linux-kernel@vger.kernel.org
+In-Reply-To: <8FB7D6BCE8A2D511B88C00508B68C2081971D8@orsmsx102.jf.intel.com> from "Grover, Andrew" at Sep 27, 2001 06:24:56 PM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15n60s-00006n-00@the-village.bc.nu>
+Message-Id: <E15n69G-000089-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 2.4.9-ac10 onwards, IIRC) hard-hangs my linux system....
+> effective frequency at all. Even if you knew all the details of SpeedStep
+> (and I've seen the same MS doc you have Alan and was surprised at its
+> detail) you'd still be hosed if the CPU throttles...you'd be hosed in a
+> *good* way because at least any delays would be longer (not shorter) than
+> expected but your times would be off nonetheless.
 
-Knowing exactly which release would be useful
+Remember you get an interrupt from the transition that you can steal from
+the ROM gunge, or is that another deep intel secret you can't comment on 8)
 
-> dual P3/700, SMP kernel, gcc-3.0.1, Abit VP6 with VIA 694X chipset,
-> mtools-3.9.7
-
-Does it occur with gcc 2.95/2.96 ?
-
-> the console hangs, and switching to another doesn't work. Also the
-> num-lock key is dead. The floppy light stays on, but it doesn't sound
-> like it is doing anything but spinning the motor.
-> There are no messages in the system logs.
-> 
-> Any hints on what to do?
-
-Try an older gcc to eliminate that case (I dont think it is the guilty party
-but I dont trust the memory barriers in such an old ugly driver to be right)
-and then find out which precise release broke it
+Just why are intel so obsessed by secrets about something every other vendor
+does anyway ? 
 
 Alan

@@ -1,97 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283510AbRK3F1W>; Fri, 30 Nov 2001 00:27:22 -0500
+	id <S283513AbRK3Ffc>; Fri, 30 Nov 2001 00:35:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283509AbRK3F1M>; Fri, 30 Nov 2001 00:27:12 -0500
-Received: from wiprom2mx2.wipro.com ([203.197.164.42]:60036 "EHLO
-	wiprom2mx2.wipro.com") by vger.kernel.org with ESMTP
-	id <S283510AbRK3F0x>; Fri, 30 Nov 2001 00:26:53 -0500
-Message-ID: <3C0715CF.8050703@wipro.com>
-Date: Fri, 30 Nov 2001 10:44:55 +0530
-From: "BALBIR SINGH" <balbir.singh@wipro.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
-X-Accept-Language: en-us
-MIME-Version: 1.0
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Patch to update scsi_debug.c
-In-Reply-To: <3C071573.5090EB1@interlog.com>
-Content-Type: multipart/mixed;
-	boundary="----=_NextPartTM-000-62e569e5-e550-11d5-a216-0000e22173f5"
-To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
+	id <S283512AbRK3FfW>; Fri, 30 Nov 2001 00:35:22 -0500
+Received: from sdsl-216-36-113-151.dsl.sea.megapath.net ([216.36.113.151]:45530
+	"EHLO stomata.megapathdsl.net") by vger.kernel.org with ESMTP
+	id <S283508AbRK3FfN>; Fri, 30 Nov 2001 00:35:13 -0500
+Subject: drivers/block/block.o: In function `rd_blkdev_pagecache_IO' and
+	`rd_make_request': undefined reference to `bio_size'
+From: Miles Lane <miles@megapathdsl.net>
+To: LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.99.2 (Preview Release)
+Date: 29 Nov 2001 21:33:52 -0800
+Message-Id: <1007098432.25394.2.camel@stomata.megapathdsl.net>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This is a multi-part message in MIME format.
+I haven't seen this mentioned on the list, yet.
 
-------=_NextPartTM-000-62e569e5-e550-11d5-a216-0000e22173f5
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+drivers/block/block.o: In function `rd_blkdev_pagecache_IO':
+drivers/block/block.o(.text+0x2884): undefined reference to `bio_size'
+drivers/block/block.o: In function `rd_make_request':
+drivers/block/block.o(.text+0x2a28): undefined reference to `bio_size'
+
+CONFIG_X86=y
+CONFIG_ISA=y
+CONFIG_UID16=y
+
+CONFIG_MODULES=y
+CONFIG_KMOD=y
+
+CONFIG_MK7=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_L1_CACHE_SHIFT=6
+CONFIG_X86_TSC=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_USE_3DNOW=y
+CONFIG_X86_PGE=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_NOHIGHMEM=y
+
+CONFIG_BLK_DEV_FD=m
+CONFIG_BLK_DEV_LOOP=m
+CONFIG_BLK_DEV_RAM=y
+CONFIG_BLK_DEV_RAM_SIZE=4096
+CONFIG_BLK_DEV_INITRD=y
+
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_IDEDISK_MULTI_MODE=y
+CONFIG_BLK_DEV_IDESCSI=m
+
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_BLK_DEV_ADMA=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_BLK_DEV_AMD74XX=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_IDEDMA_IVB=y
+CONFIG_BLK_DEV_IDE_MODES=y
 
 
-The ramdisk emulation should be easy to do, you
-can get sample code from most of the iSCSI
-implementations on Linux. Most of them simulate a
-ramdisk on the target side.
-
-Balbir
-
-Douglas Gilbert wrote:
-
->Pete Zaitcev <zaitcev@redhat.com> wrote:
->
->>I would like to have scsi_debug with a variable number 
->>of hosts. Patch is attached. Does anyone object to the 
->>demise of scsi_debug.h?
->>
->
-><snipped patch/>
->
->Pete,
->Maybe you may like to consider this effort. Apart from allowing
->extra hosts (hundreds of them via boot/module option) it is
->like a RAM disk. The default RAM allocation is 8 MB which
->can be overridden by a boot/module option. You can
->run fdisk on it, make a fs, mount it, etc.
->
->See:
->http://www.torque.net/sg/sdebug.html
->
->It runs properly on SMP (Eric's didn't) and supports a
->reasonable number of SCSI commands including READ_16 and
->WRITE_16. I used the latter 2 commands to test (via sg)
->that the recently added 16 byte CDBs worked.
->
->BTW I kept scsi_debug.h as most other SCSI adapter drivers
->have .h and .c components.
->
->Doug Gilbert
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
-
-
-
-------=_NextPartTM-000-62e569e5-e550-11d5-a216-0000e22173f5
-Content-Type: text/plain;
-	name="InterScan_Disclaimer.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="InterScan_Disclaimer.txt"
-
--------------------------------------------------------------------------------------------------------------------------
-Information transmitted by this E-MAIL is proprietary to Wipro and/or its Customers and
-is intended for use only by the individual or entity to which it is
-addressed, and may contain information that is privileged, confidential or
-exempt from disclosure under applicable law. If you are not the intended
-recipient or it appears that this mail has been forwarded to you without
-proper authority, you are notified that any use or dissemination of this
-information in any manner is strictly prohibited. In such cases, please
-notify us immediately at mailto:mailadmin@wipro.com and delete this mail
-from your records.
-----------------------------------------------------------------------------------------------------------------------
-
-------=_NextPartTM-000-62e569e5-e550-11d5-a216-0000e22173f5--

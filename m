@@ -1,98 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272240AbRHWJWs>; Thu, 23 Aug 2001 05:22:48 -0400
+	id <S272103AbRHWJ3V>; Thu, 23 Aug 2001 05:29:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272241AbRHWJWi>; Thu, 23 Aug 2001 05:22:38 -0400
-Received: from d06lmsgate-2.uk.ibm.com ([195.212.29.2]:41356 "EHLO
-	d06lmsgate-2.uk.ibm.com") by vger.kernel.org with ESMTP
-	id <S272240AbRHWJWW>; Thu, 23 Aug 2001 05:22:22 -0400
+	id <S272242AbRHWJ3J>; Thu, 23 Aug 2001 05:29:09 -0400
+Received: from d12lmsgate.de.ibm.com ([195.212.91.199]:50836 "EHLO
+	d12lmsgate.de.ibm.com") by vger.kernel.org with ESMTP
+	id <S272241AbRHWJ3E>; Thu, 23 Aug 2001 05:29:04 -0400
 Importance: Normal
-Subject: Re: Is there any interest in Dynamic API
-To: Keith Owens <kaos@ocs.com.au>
+Subject: Re: Allocation of sk_buffs in the kernel
+To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
 Cc: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
-Message-ID: <OFD58750A9.2C3F311E-ON80256AB1.00331AB2@portsmouth.uk.ibm.com>
-From: "Richard J Moore" <richardj_moore@uk.ibm.com>
-Date: Thu, 23 Aug 2001 10:21:25 +0100
-X-MIMETrack: Serialize by Router on D06ML023/06/M/IBM(Release 5.0.6 |December 14, 2000) at
- 23/08/2001 10:19:40
+X-Mailer: Lotus Notes Release 5.0.4a  July 24, 2000
+Message-ID: <OF551C0474.A161B459-ONC1256AB1.00337905@de.ibm.com>
+From: "Jens Hoffrichter" <HOFFRICH@de.ibm.com>
+Date: Thu, 23 Aug 2001 11:29:11 +0200
+X-MIMETrack: Serialize by Router on d12ml040/12/M/IBM(Release 5.0.8 |June 18, 2001) at
+ 23/08/2001 11:29:11
 MIME-Version: 1.0
 Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > > Maybe Jens should use something like WAITQUEUE_DEBUG if he want to
+know
+> > > where alloc_skb and friends were called, see include/linux/wait.h 8)
+> > Do you mean I should use something LIKE the WAITQUEUE_DEBUG (eg.
+> > implementing something like that in skbuff.c) or I should use
+> > WAITQUEUE_DEBUG?
+> no, just use the same idea that is used to debug wait_queues
+OK, then I interpreted the code in wait.h right ;)
 
-"Kieth Owens" <kaos@ocs.com.au> wrote:
->"Richard J Moore" <richardj_moore@uk.ibm.com> wrote:
->>I was wondering whether the kernel community had any interest in seeing a
->>dynamic api capability in the kernel. What I have in mind the ability for
-a
->>kernel module to request a system call entry be added by supplying a call
->>name to a create_dynamic_api service.
+> > Are there any examples how to use the WAITQUEUE_DEBUG?
+
+> oops, I mean the __waker thing, for debugging you could get the address
+of
+> the caller with current_text_addr() and store it in an extra sk_buff
+field
+> so that later on you could know who create the skb.
+But where should I fill this field in the sk_buff? I know that alloc_skb
+creates an sk_buff, so this would be of no use for me. Or do you mean to
+add something like that to the initialization of the sk_buff struct, like a
+"long allocator = current_text_addr()" in skbuff.h? Is something like this
+possible? I'm not sure about it....
+
+> About the example of WAITQUEUE_DEBUG:
 >
->Why does this remind me of SVCUPDTE?
+> after being awaken you could do this:
 
-Damn! I've been rumbled.
+>                 dprintk("sleeper=%p, waker=%lx\n",
+>                          current_text_addr(), wait.__waker);
 
->
->You will have problems on architectures where indirect function calls
->require extra handling.  IA64 has to load a global data pointer (gp) as
->well as the function address for an indirect call.  The existing
->syscall table avoids this overhead because all system calls are in the
->kernel with a constant gp.  To allow syscalls to modules you either
->load a gp for each entry point (which slows down all syscalls) or you
->need arch specific trampoline code to enter and exit a syscall in a
->module.  PPC64 looks like it has the same problem.
->
->There is also the problem of generating syscalls in userspace pic code.
->Each arch is different, look at all the hassles glibc goes through to
->create syscall interfaces.  It is not surprising that _syscall[0-5] are
->deprecated interfaces.  It is much easier to use a device or fs interface.
+> in a inline function does the trick, but this is just an example of a
+> function that uses an extra debug field in a structure that is alocated
+> somewhere and you want to know who allocated it later on.
 
-Thanks, these are good areguments for not pursuing this. We'll proceed with
-conversion of dprobes to a device driver rather than a kernel module.
+> Yes, you'll have to decode the address from syslog, gotcha?
+But the __waker member is filled by a macro from wait.h, if I had seen it
+right. Where would you issue such a dprintk call?
 
+Sorry about my missing knowledge about wait queues, but I don't get the
+point where to fill the member. That I could print it later on, thats
+clear, but how to fill it?
 
-Richard Moore -  RAS Project Lead - Linux Technology Centre (ATS-PIC).
-http://oss.software.ibm.com/developerworks/opensource/linux
-Office: (+44) (0)1962-817072, Mobile: (+44) (0)7768-298183
-IBM UK Ltd,  MP135 Galileo Centre, Hursley Park, Winchester, SO21 2JN, UK
-
-
-Keith Owens <kaos@ocs.com.au> on 23/08/2001 03:44:22
-
-Please respond to Keith Owens <kaos@ocs.com.au>
-
-To:   Richard J Moore/UK/IBM@IBMGB
-cc:   linux-kernel@vger.kernel.org
-Subject:  Re: Is there any interest in Dynamic API
-
-
-On Wed, 22 Aug 2001 18:44:27 +0100,
-"Richard J Moore" <richardj_moore@uk.ibm.com> wrote:
->I was wondering whether the kernel community had any interest in seeing a
->dynamic api capability in the kernel. What I have in mind the ability for
-a
->kernel module to request a system call entry be added by supplying a call
->name to a create_dynamic_api service.
-
-Why does this remind me of SVCUPDTE?
-
-You will have problems on architectures where indirect function calls
-require extra handling.  IA64 has to load a global data pointer (gp) as
-well as the function address for an indirect call.  The existing
-syscall table avoids this overhead because all system calls are in the
-kernel with a constant gp.  To allow syscalls to modules you either
-load a gp for each entry point (which slows down all syscalls) or you
-need arch specific trampoline code to enter and exit a syscall in a
-module.  PPC64 looks like it has the same problem.
-
-There is also the problem of generating syscalls in userspace pic code.
-Each arch is different, look at all the hassles glibc goes through to
-create syscall interfaces.  It is not surprising that _syscall[0-5] are
-deprecated interfaces.  It is much easier to use a device or fs interface.
-
-
-
-
+CU,
+Jens
 

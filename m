@@ -1,44 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261474AbTDXPuZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 11:50:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263723AbTDXPuZ
+	id S263396AbTDXQCz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 12:02:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263726AbTDXQCz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 11:50:25 -0400
-Received: from almesberger.net ([63.105.73.239]:32265 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id S261474AbTDXPuZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 11:50:25 -0400
-Date: Thu, 24 Apr 2003 13:01:51 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: Matthias Schniedermeyer <ms@citd.de>
-Cc: Pat Suwalski <pat@suwalski.net>, Jamie Lokier <jamie@shareable.org>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, Marc Giger <gigerstyle@gmx.ch>,
+	Thu, 24 Apr 2003 12:02:55 -0400
+Received: from watch.techsource.com ([209.208.48.130]:15066 "EHLO
+	techsource.com") by vger.kernel.org with ESMTP id S263396AbTDXQCx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Apr 2003 12:02:53 -0400
+Message-ID: <3EA8114A.4020309@techsource.com>
+Date: Thu, 24 Apr 2003 12:31:06 -0400
+From: Timothy Miller <miller@techsource.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: root@chaos.analogic.com
+CC: Chuck Ebbert <76306.1226@compuserve.com>, Jens Axboe <axboe@suse.de>,
        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Bug 623] New: Volume not remembered.
-Message-ID: <20030424130151.O3557@almesberger.net>
-References: <20030423231149.I3557@almesberger.net> <25450000.1051152052@[10.10.2.4]> <20030424003742.J3557@almesberger.net> <20030424071439.GB28253@mail.jlokier.co.uk> <20030424103858.M3557@almesberger.net> <20030424134904.GA18149@citd.de> <3EA7EFF5.3060900@suwalski.net> <20030424143433.GA18374@citd.de> <20030424120403.N3557@almesberger.net> <20030424152303.GA18573@citd.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030424152303.GA18573@citd.de>; from ms@citd.de on Thu, Apr 24, 2003 at 05:23:03PM +0200
+Subject: Re: [PATCH] 2.4.21-rc1 pointless IDE noise reduction
+References: <200304241128_MC3-1-35DA-F3DA@compuserve.com> <Pine.LNX.4.53.0304241147420.32073@chaos>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthias Schniedermeyer wrote:
-> man amixer
 
-Thanks. Yes, this indeed seems to map to some functionality that's
-understood by the kernel.
 
-Strange. So does this mean that non-ALSA mixers should not work when
-using ALSA ? Why do they seem to anyway ? Is the driver or hardware
-side of this mute flag just rarely implemented ? Or is the kernel
-default not always "mute" ?
+Richard B. Johnson wrote:
 
-- Werner
+>On Thu, 24 Apr 2003, Chuck Ebbert wrote:
+>
+>  
+>
+>>Jens Axboe wrote:
+>>
+>>
+>>    
+>>
+>>>>+	return((drive->id->cfs_enable_1 & 0x0400) ? 1 : 0);
+>>>> }
+>>>>        
+>>>>
+>>>Seconded, it causes a lot more confusion than it does good.
+>>>      
+>>>
+>>  The return looks like a function call in that last line.
+>>
+>>  That's one of the few things I find really annoying -- extra parens
+>>are fine when they make code clearer, but not there.
+>>
+>>
+>>-------
+>> Chuck [ C Style Police, badge #666 ]
+>>    
+>>
+>
+>return((drive->id->cfs_enable_1 & 0x0400) ? 1 : 0);
+>                                  ^^^^^^|__________ wtf?
+>These undefined numbers in the code are much more annoying to me...
+>but I don't have a C Style Police Badge.
+>
+>Also, whatever that is, 0x400, I'll call it MASK, can have shorter
+>code like:
+>
+>   return (drive->id->cfs_enable_1 && MASK); // TRUE/FALSE
+>... for pedantics...
+>   return (int) (drive->id->cfs_enable_1 && MASK);
+>
+>
+>  
+>
 
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/
+That wouldn't work, because && isn't a bitwise operator.  But I agree 
+that the ( x ? 1 : 0 ) method may not be very efficient, because it may 
+involve branches.
+
+Two alternatives:
+
+(a)     !!(x & 0x400)
+
+(b)     (x & 0x400) >> 10
+
+
+

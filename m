@@ -1,54 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263989AbTH1NkO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Aug 2003 09:40:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263997AbTH1NkO
+	id S264019AbTH1NpA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Aug 2003 09:45:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264023AbTH1No7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Aug 2003 09:40:14 -0400
-Received: from nice-1-a7-62-147-77-76.dial.proxad.net ([62.147.77.76]:56326
-	"EHLO monpc") by vger.kernel.org with ESMTP id S263989AbTH1NkL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Aug 2003 09:40:11 -0400
-From: Guillaume Chazarain <guichaz@yahoo.fr>
-To: Nick Piggin <piggin@cyberone.com.au>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Date: Thu, 28 Aug 2003 15:43:56 +0200
-X-Priority: 3 (Normal)
-Message-Id: <A00409NJIDDBTRJI86KG96C8BZX3VHF.3f4e071c@monpc>
-Subject: Re: [PATCH]O18.1int
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-X-Mailer: Opera 6.06 build 1145
+	Thu, 28 Aug 2003 09:44:59 -0400
+Received: from mailhost.tue.nl ([131.155.2.7]:8708 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id S264019AbTH1No5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Aug 2003 09:44:57 -0400
+Date: Thu, 28 Aug 2003 15:44:54 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: "H.Rosmanith (Kernel Mailing List)" <kernel@wildsau.idv.uni.linz.at>
+Cc: root@chaos.analogic.com, linux-kernel@vger.kernel.org
+Subject: Re: usb-storage: how to ruin your hardware(?)
+Message-ID: <20030828154454.A2343@pclin040.win.tue.nl>
+References: <Pine.LNX.4.53.0308271123480.659@chaos> <200308280259.h7S2xFKV031299@wildsau.idv.uni.linz.at>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200308280259.h7S2xFKV031299@wildsau.idv.uni.linz.at>; from kernel@wildsau.idv.uni.linz.at on Thu, Aug 28, 2003 at 04:59:14AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-28/08/03 14:34:15, Nick Piggin <piggin@cyberone.com.au> wrote:
->Guillaume Chazarain wrote:
->
->>Hi Con (and linux-kernel),
->>
->>I noticed a regression wrt 2.6.0-test4 and 2.4.22 with this
->>big context-switcher:
->>
->
->Hi Guillaume,
->If you get the time, would you be able to try my patch? Thanks.
+On Thu, Aug 28, 2003 at 04:59:14AM +0200, H.Rosmanith (Kernel Mailing List) wrote:
 
-Here are the results for Nick's v8:
+> the contradiction to this is that the flashdisk can be used
+> in a "partition-less" state where it is possible to use the
+> whole device at one: "mke2fs /dev/sdb". you have to use the
+> vendor formating-tool to make the flashdisk look like an USB_FDD
+> device. but even in USB_HDD mode with partitions, the partitions
+> still look strange, not ending on cylinder boundaries and so on.
 
-top(1):
+I have seen several posts from you, but all in this vague, almost
+information-free style.
 
-  639 g         30   0  1336  260 1308 R 51.2  0.1   0:03.80 a.out
-  638 g         22   0  1336  260 1308 S 47.3  0.1   0:03.39 a.out
+It would be of interest if you described your actions and the results
+in detail. Or if you gave explicitly the partition table that you
+consider strange.
 
-User time (seconds): 0.57
-System time (seconds): 2.72
-Elapsed (wall clock) time (h:mm:ss or m:ss): 0:06.85
-Minor (reclaiming a frame) page faults: 17
+[If you only think about cylinder boundaries: cylinders do not exist,
+and cylinder boundaries do not exist either. So that in itself does
+not mean a thing.]
 
-
-Guillaume.
-
-
-
+Andries
 

@@ -1,71 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265802AbUFOSJg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265804AbUFOSJu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265802AbUFOSJg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jun 2004 14:09:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265804AbUFOSJg
+	id S265804AbUFOSJu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jun 2004 14:09:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265808AbUFOSJt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jun 2004 14:09:36 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:32282 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S265802AbUFOSJ2 (ORCPT
+	Tue, 15 Jun 2004 14:09:49 -0400
+Received: from tor.morecom.no ([64.28.24.90]:59091 "EHLO tor.morecom.no")
+	by vger.kernel.org with ESMTP id S265804AbUFOSJj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jun 2004 14:09:28 -0400
-Date: Tue, 15 Jun 2004 11:18:16 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Andi Kleen <ak@muc.de>
-Cc: manfred@colorfullife.com, linux-kernel@vger.kernel.org,
-       lse-tech@lists.sourceforge.net, ak@muc.de, anton@samba.org
-Subject: Re: NUMA API observations
-Message-Id: <20040615111816.0d397f90.pj@sgi.com>
-In-Reply-To: <20040615110320.GD50463@colin2.muc.de>
-References: <40CE824D.9020300@colorfullife.com>
-	<20040615110320.GD50463@colin2.muc.de>
-Organization: SGI
-X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 15 Jun 2004 14:09:39 -0400
+Subject: Re: mode data=journal in ext3. Is it safe to use?
+From: Petter Larsen <pla@morecom.no>
+To: ext3 <ext3-users@redhat.com>
+Cc: ext3@philwhite.org, Nicolas.Kowalski@imag.fr, linux-kernel@vger.kernel.org
+In-Reply-To: <40FB8221D224C44393B0549DDB7A5CE83E31B1@tor.lokal.lan>
+References: <40FB8221D224C44393B0549DDB7A5CE83E31B1@tor.lokal.lan>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1087322976.1874.36.camel@pla.lokal.lan>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Tue, 15 Jun 2004 20:09:37 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi wrote:
-> But it doesn't really help because
-> applications have to work with older kernels.
+Hello
 
-It doesn't help right away.  But one can eventually phase out cruft.
-Provide the new, deprecate the old, then perhaps in 2.7/2.8 kernels,
-discontinue the old.
+I try again.
 
-Such renewal work is valuable to the long term health of Linux.
+Can anybody of you acknowledge or not if mode data=journal in ext3 is
+safe to use in Linux kernel 2.6.x?
 
-I can't do it - I wouldn't want Andrew dreading my submissions anymore
-than he already does, and William's questions as to just how I was
-explaining to my employer the value of my labors would be increasingly
-unanswerable. <grin>
+Wee need to have a very consistent and integrity for our filesystem, and
+it would then be desired to journal both data and metadata.
 
-> cpumask_t is more an kernel internal implementation detail
-> and should not really be exposed to user space, so 
-> it's better not to do the sysctl neither.
+But if this mode can corrupt the filesystem as both Phil White and
+Nicolas Kowalski has experienced, it may be more advised to use mode
+data=ordered instead.
 
-Bingo.
+Data integrity is much more important for us than speed.
 
-When you find yourself in a hole, stop digging.
+What do you people out there say?
 
-I'd go a step further - even as an internal kernel detail, it was poorly
-chosen, as evidenced by the amount of commentary it takes the big-endian
-64 bit machines, in the files include/asm-ppc64/bitops.h and
-include/asm-s390/bitops.h, to explain the bitmap data type.
+I also try to post this in the kernel mailing list. I have not
+subscribed to the kml so if anybody there have som advisory about this I
+would be pleased if you could CC me.
 
-Perhaps a byte array, rather than an unsigned long array, would be
-better.
-
-And the brain damage is also on the other side of the kernel-user
-boundary.  Don't get me started on the botch that glibc made of this.
-
-This is a nice case study in the propagation properties of suboptimal
-design choices, and in the unintended consequences flowing from the
-choices of basic data structures.
-
+Petter
+ 
+On Mon, 2004-06-07 at 10:21, Petter Larsen wrote:
+> Hello
+> 
+> I can see several postings on this mailing-list that people have
+> problem
+> with mounting ext3 partition with mode data=journal.
+> 
+> See URL's:
+> https://www.redhat.com/archives/ext3-users/2004-March/msg00000.html
+> https://www.redhat.com/archives/ext3-users/2004-March/msg00050.html
+> 
+> We are going to use ext3 on a Compact Flash disk in true IDE mode. We
+> need this filesystem to be as safe and consistent as possible. We can
+> not tolerate any garbage in the files after a crash or sudden power
+> failures. We have then decided to use ext3 with mode data=journal.
+> 
+> Can I rely on this?
+> We use kernel 2.6.5 on PowerPC 8260, and may be using newer kernels
+> later in the project.
+> 
+> 
+> Best regards
+> --
+> Petter Larsen
+> cand. scient.
+> moreCom as
+> 913 17 222
+> 
+> 
+> _______________________________________________
+> Ext3-users mailing list
+> Ext3-users@redhat.com
+> https://www.redhat.com/mailman/listinfo/ext3-users
 -- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+Petter Larsen
+cand. scient.
+moreCom as
+913 17 222

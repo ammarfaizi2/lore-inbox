@@ -1,53 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262331AbTFTOjo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jun 2003 10:39:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262361AbTFTOjo
+	id S262361AbTFTOlz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jun 2003 10:41:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262363AbTFTOlz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jun 2003 10:39:44 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:1921 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262331AbTFTOjn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jun 2003 10:39:43 -0400
-Date: Fri, 20 Jun 2003 10:55:40 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Thomas Frase <thomas.frase@ist-einmalig.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: root shell exploit still working in kernel 2.4.21
-In-Reply-To: <004d01c33738$7031e440$0200a8c0@brainbug>
-Message-ID: <Pine.LNX.4.53.0306201054300.6559@chaos>
-References: <004d01c33738$7031e440$0200a8c0@brainbug>
+	Fri, 20 Jun 2003 10:41:55 -0400
+Received: from moutng.kundenserver.de ([212.227.126.184]:31721 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S262361AbTFTOlx convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jun 2003 10:41:53 -0400
+content-class: urn:content-classes:message
+Subject: AW: Problem unmounting initrd-romfs in 2.4.21
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Date: Fri, 20 Jun 2003 16:55:48 +0200
+X-MimeOLE: Produced By Microsoft Exchange V6.0.4417.0
+Message-ID: <BDB86409B697CB4DBB8A5BF487B9D61A3934@srv01.losekann.local>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Problem unmounting initrd-romfs in 2.4.21
+Thread-Index: AcM3Ov3PJDnzqYq8TKWvzX7zdRDp4QAAAzXQ
+From: "Tobias Reinhard" <T.Reinhard@losekann.de>
+To: "Andreas Haumer" <andreas@xss.co.at>
+Cc: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 20 Jun 2003, Thomas Frase wrote:
+>> I'm booting up with a initrd in a romfs. After loading all needed 
+>> modules and pivoting root I unmount the initrd and flush the used 
+>> buffers.
+>>
+>> Since I updated to 2.4.21 I can't unmount the initrd - it says it's 
+>> busy, but it's no (or at least lsof does say so).
+>>
+>> I use kernel 2.4.21 with /drivers/Makefile , /drivers/ide and 
+>> /include/linux/ide.h from ac1 to reenable ide-modules.
+>>
+>> Anyone know the problem?
+>>
+>Hm, just a guess: do you have devfs mounted to /dev
+>on the initial ramdisk (probably automounted by the
+>kernel, with config option CONFIG_DEVFS_MOUNT=y)?
+Yes, I use DEVFS and this was my first thought too. But even if I
+unmount /dev before pivoting it's busy. (btw. it worked that way up to
+2.4.20)
 
-> hello!
->
-> the problem:
-> i tried an exploit (url given below) with debian woody kernel 2.4.18
-> and self compiled kernel 2.4.21 resulting in a root shell.
->
-> exploit code url: (found via google)
-> http://isec.pl/cliph/isec-ptrace-kmod-exploit.c
->
-> as described in the source the exploit uses the well known ptrace bug
-> which i thought was fixed in kernel 2.4.21.
->
-> i don't know why it still works or how to fix it. i told someone people
-> in #debian.de (quakenet) about the results of the exploit and they
-> asked me to post a bug report here.
+>Check the output of "mount", it'll show you if there's
+>still something mounted under the "old" root.
+After booting up completely I have the devfs at /dev where it should be
+and the old root at /mnt. But it's still not umount-able. No other
+mounts below it and no open files.
 
-The binary is 4755 (SUID!) What do you expect. Delete it and
-recompile from a non-root account.
+>We use initrd + devfs for ages now (we even use romfs for initrd like
+you do), and it works fine with 2.4.21 too.
 
+I just tried with 2.4.21-ac1 and it words perfectly. But I also want
+grsecurity- and crypto-patch - so I can't use ac1... :-(
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
-
+Tobias

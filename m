@@ -1,63 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272605AbTHEJOc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 05:14:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272608AbTHEJOb
+	id S272599AbTHEJUV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 05:20:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272626AbTHEJUV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 05:14:31 -0400
-Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:36509
-	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
-	id S272605AbTHEJOY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 05:14:24 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Mike Galbraith <efault@gmx.de>
-Subject: Re: [PATCH] O13int for interactivity
-Date: Tue, 5 Aug 2003 19:19:28 +1000
-User-Agent: KMail/1.5.3
-Cc: Oliver Neukum <oliver@neukum.org>, Andrew Morton <akpm@osdl.org>,
-       piggin@cyberone.com.au, linux-kernel@vger.kernel.org, mingo@elte.hu,
-       felipe_alfaro@linuxmail.org
-References: <5.2.1.1.2.20030805102719.01a06d48@pop.gmx.net> <5.2.1.1.2.20030805104620.01974e28@pop.gmx.net>
-In-Reply-To: <5.2.1.1.2.20030805104620.01974e28@pop.gmx.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200308051919.28681.kernel@kolivas.org>
+	Tue, 5 Aug 2003 05:20:21 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:23739 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S272599AbTHEJUG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Aug 2003 05:20:06 -0400
+From: Andries.Brouwer@cwi.nl
+Date: Tue, 5 Aug 2003 11:20:02 +0200 (MEST)
+Message-Id: <UTC200308050920.h759K2n21546.aeb@smtp.cwi.nl>
+To: aebr@win.tue.nl, akpm@osdl.org
+Subject: Re: i_blksize
+Cc: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org, torvalds@osdl.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 5 Aug 2003 19:09, Mike Galbraith wrote:
-> At 06:43 PM 8/5/2003 +1000, Con Kolivas wrote:
-> >On Tue, 5 Aug 2003 18:27, Mike Galbraith wrote:
-> > > At 06:20 PM 8/5/2003 +1000, Con Kolivas wrote:
-> > > >Every experiment I've tried at putting tasks at the start of the queue
-> > > >instead
-> > > >of the end has resulted in some form of starvation so should not be
-> > > > possible for any user task and I've abandoned it.
-> > >
-> > > (ditto:)
-> >
-> >Superuser access real time tasks may be worth reconsidering though...
->
-> If they were guaranteed ultra-light, maybe, but userland is just not
-> trustworthy.
+    From: Andrew Morton <akpm@osdl.org>
 
-Agreed 
+    >  You propose to remove i_blksize.
+    >  It is used in stat only, so we have to produce some value for stat.
+    >  Do you want to replace
+    >      inode->i_blksize
+    >  by
+    >      inode->i_sb->s_optimal_io_size
+    >  ?
 
-> Better imho would be something like Davide's SOFT_RR with an additional
-> automatic priority adjust per cpu usage or something (cpu usage being a
-> [very] little bit of a latency hint, and a great 'hurt me' hint).  Best
-> would be an API that allowed userland applications to describe their
-> latency requirements explicitly, with the scheduler watching users of this
-> API like a hawk, ever ready to sanction abusers.  Anything I think about in
-> this area gets uncomfortably close to hard rt though, and all of the wisdom
-> I've heard on LKLM over the years wrt separation of problem spaces comes
-> flooding back.
+    No, that's different.  You are referring to stat.st_blksize.  That is a
+    different animal, and we can leave that alone.
 
-I'll pass. There's enough on my plate already. Soft_rr in some form is a 
-decent idea but best tackled separately.
+    inode->i_blksize is equal to (1 << inode->i_blkbits) always, all the time. 
+    It is just duplicated nonsense and usually leads to poorer code -
+    multiplications instead of shifts.
 
-Con
+    It should be a pretty easy incremental set of patches to ease i_blksize out
+    of the kernel.
 
+Hmm. Let me first read stat.c.
+
+generic_fillattr():
+	stat->blksize = inode->i_blksize;
+vfs_getattr():
+	generic_fillattr(inode, stat);
+	if (!stat->blksize)
+		stat->blksize = s->s_blocksize;
+cp_new_stat64():
+	tmp.st_blksize = stat->blksize;
+	copy_to_user(statbuf, &tmp, sizeof(tmp));
+
+So really, if inode->i_blksize has a nonzero value,
+this value is returned in stat.st_blksize.
+
+Remains your other claim: inode->i_blksize == (1 << inode->i_blkbits).
+I don't see any code that would enforce that.
+
+Andries
+
+[and there are lots of comments around:
+	inode->i_blksize = PAGE_SIZE;   /* This is the optimal IO size ... */
+]
+
+Maybe also a good candidate for renaming if it is not eliminated?

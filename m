@@ -1,58 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262281AbUK3UUH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262285AbUK3UXF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262281AbUK3UUH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 15:20:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262285AbUK3UUH
+	id S262285AbUK3UXF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 15:23:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262288AbUK3UXF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 15:20:07 -0500
-Received: from ip189.73.1311O-CUD12K-02.ish.de ([62.143.73.189]:9089 "EHLO
-	mocm.de") by vger.kernel.org with ESMTP id S262281AbUK3UUB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 15:20:01 -0500
-From: Marcus Metzler <mocm@mocm.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 30 Nov 2004 15:23:05 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:22918 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S262285AbUK3UWe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Nov 2004 15:22:34 -0500
+Message-Id: <200411302022.iAUKMTeJ022147@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.1 10/11/2004 with nmh-1.1-RC3
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       John Richard Moser <nigelenki@comcast.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Designing Another File System 
+In-Reply-To: Your message of "Tue, 30 Nov 2004 14:14:10 EST."
+             <200411301914.iAUJEAJx001591@turing-police.cc.vt.edu> 
+From: Valdis.Kletnieks@vt.edu
+References: <41ABF7C5.5070609@comcast.net> <200411301828.iAUISgf8031548@turing-police.cc.vt.edu> <1101836768.25629.66.camel@localhost.localdomain>
+            <200411301914.iAUJEAJx001591@turing-police.cc.vt.edu>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_-1825020352P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
-Message-ID: <16812.54768.113410.288108@mocm.de>
-Date: Tue, 30 Nov 2004 21:20:00 +0100
-To: linux-kernel@vger.kernel.org
-Subject: GPL violation by iRiver
-X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
-Reply-To: mocm@mocm.de
-X-Face: X!$Vwl\?,AW_[zm^ej\MLxN>q;R?C_sRZ*XE4V;BGT28Ewyd\:TS')W'G#Dgay8ci$*{lEd
- 02(Nk0OndG\752U>lozmb_R1poDm6mgHm_4.}bdS0hh.`xGUI.X2x_50T9.?_v~.,QI*$2:Q=HV@>F
- IP6%l~E:T|w,X[eC;|YD(A9X'sS"r$l]g<4CjAm4|f7o0>6zGwUPLinP0.d=E+_%?4>0A9'esEZ=9h
- $#b[g*/q/g'GVj-hDc,+V_]1.H^N,1Bju,>5FZn"B
+Date: Tue, 30 Nov 2004 15:22:29 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+--==_Exmh_-1825020352P
+Content-Type: text/plain; charset=us-ascii
 
-I recently bought an iRiver PMP-140 portable multimedia player which
-runs under Linux. Unfortunately, I could neither find the offer for
-the source code required by the GPL nor would the support people at
-iriver USA tell me where I can get the source code. They just said
-that it is not possible to get the sources. I also emailed to iRiver
-Germany but haven`t received an answer yet.
-Has anybody else tried to contact them? If you are interested, there
-is a new firmware available here:
-http://service.iriver.co.kr/cs_view.asp?idx=409&page=0&p_name=PMP-140&SrchItem=&SrchString=&SrchProduct=
-(klick on PMP100kor-v201.zip).
+On Tue, 30 Nov 2004 14:14:10 EST, Valdis.Kletnieks@vt.edu said:
 
-Using string on the unzipped files shows that at least the Linux
-kernel and busybox are used in the firmware.
+> See "Clearing and sanitization matrix" from the bottom of:
+> http://www.dss.mil/isec/chapter8.htm
 
-I tried to send this email to legal@lists.gpl-vioaltions.org but it came
-back with a no route to host error which I also get for the website
-now, although I could load it just a half an hour ago.
+"I'm sorry, that's an old, worn out magic word" ;)
 
-What should be the next step?
+For what it's worth, that table is in the original 1995 version.
+"Change 2" in Feb 01 completely redid chapter 8, and removed said
+table.  It's unclear what, if any, replacement table should be used.
+I'll follow up if I find out anything specific - the current text just says:
 
-Marcus
+"Instructions on clearing, sanitization and release of IS media shall be issued
+by the accrediting CSA."
 
--- 
-/--------------------------------------------------------------------\
-| Dr. Marcus O.C. Metzler        |                                   |
-| mocm@metzlerbros.de            | http://www.metzlerbros.de/        |
-\--------------------------------------------------------------------/
- |>>>             Quis custodiet ipsos custodies                 <<<|
+
+
+--==_Exmh_-1825020352P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFBrNaEcC3lWbTT17ARAnaVAKCteDLf4TDoXzx2zkuWM/gKkjUS/QCgwmi/
+QWWHvWM9OoWlQDgnUsgfGmI=
+=5mWJ
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-1825020352P--

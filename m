@@ -1,41 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267248AbSLKSF5>; Wed, 11 Dec 2002 13:05:57 -0500
+	id <S267260AbSLKSM7>; Wed, 11 Dec 2002 13:12:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267252AbSLKSF4>; Wed, 11 Dec 2002 13:05:56 -0500
-Received: from havoc.daloft.com ([64.213.145.173]:23272 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id <S267248AbSLKSF4>;
-	Wed, 11 Dec 2002 13:05:56 -0500
-Date: Wed, 11 Dec 2002 13:13:37 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Dave Jones <davej@codemonkey.org.uk>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5 Changes doc update.
-Message-ID: <20021211181337.GD2612@gtf.org>
-References: <20021211172559.GA8613@suse.de> <20021211175810.GC2612@gtf.org> <20021211180719.GB10008@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021211180719.GB10008@suse.de>
-User-Agent: Mutt/1.3.28i
+	id <S267261AbSLKSM7>; Wed, 11 Dec 2002 13:12:59 -0500
+Received: from [195.212.29.4] ([195.212.29.4]:36245 "EHLO
+	d06lmsgate-4.uk.ibm.COM") by vger.kernel.org with ESMTP
+	id <S267260AbSLKSM6> convert rfc822-to-8bit; Wed, 11 Dec 2002 13:12:58 -0500
+From: rasman@uk.ibm.com
+Reply-To: rasman@uk.ibm.com
+Organization: IBM
+To: mdew <mdew@orcon.net.nz>
+Subject: Re: CD Writing in 2.5.51
+Date: Wed, 11 Dec 2002 18:18:31 +0000
+User-Agent: KMail/1.4.1
+References: <1039598049.480.7.camel@nirvana> <8765u03jjj.fsf@web.de> <1039606504.447.0.camel@nirvana>
+In-Reply-To: <1039606504.447.0.camel@nirvana>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Message-Id: <200212111818.31197.rasman@uk.ibm.com>
+X-MIMETrack: Itemize by SMTP Server on D06ML023/06/M/IBM(Release 5.0.9a |January 7, 2002) at
+ 11/12/2002 18:20:37,
+	Serialize by Router on D06ML023/06/M/IBM(Release 5.0.9a |January 7, 2002) at
+ 11/12/2002 18:20:41,
+	Serialize complete at 11/12/2002 18:20:41
+Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 11, 2002 at 06:07:19PM +0000, Dave Jones wrote:
-> On Wed, Dec 11, 2002 at 12:58:10PM -0500, Jeff Garzik wrote:
->  > I think the coolest things (to me) of the new build system need to be
->  > noted too,
->  > 
->  > - "make" is now the preferred target; it does <arch-zimage> and modules.
->  > - "make -jN" is now the preferred parallel-make execution.  Do not
->  >   bother to provide "MAKE=xxx".
-> 
-> Yup. Added. Thanks.
-> Something else that I've noticed (but not found documented) is that
-> make dep seems to be automagickly done somewhen. An explicit make dep
-> takes about a second, and doesn't seem to do much at all.
+On Wednesday 11 Dec 2002 11:35 am, mdew wrote:
+Any idea why I can't get a CDRW to be read yet I can happily burn and read a  
+CD-R? Do I have to access the CDRW through a different device and/or mount a 
+fs for CDRW?
 
-I would check with Kai on that... IIRC there _is_ a purpose to "make
-dep", creating some file that's needed before the build process begins.
-Maybe that's fixed now...
+When I load a burnt CDRW the system complains of bad media yet no problem 
+under w2k.
 
+I'm using a UJDA720
+
+-- 
+Richard J Moore
+RAS Team Lead - IBM Linux Technology Centre

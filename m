@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265993AbRF1Pe0>; Thu, 28 Jun 2001 11:34:26 -0400
+	id <S265995AbRF1PqI>; Thu, 28 Jun 2001 11:46:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265997AbRF1PeQ>; Thu, 28 Jun 2001 11:34:16 -0400
-Received: from ns.caldera.de ([212.34.180.1]:55736 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S265994AbRF1PeD>;
-	Thu, 28 Jun 2001 11:34:03 -0400
-Date: Thu, 28 Jun 2001 17:33:50 +0200
-From: Marcus Meissner <Marcus.Meissner@caldera.de>
-To: charles.white@compaq.com, linux-kernel@vger.kernel.org,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, arrays@compaq.com
-Subject: PATCH: cciss small pci id table patch
-Message-ID: <20010628173350.A12535@caldera.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S265997AbRF1Pps>; Thu, 28 Jun 2001 11:45:48 -0400
+Received: from spc.esa.lanl.gov ([128.165.46.232]:2432 "HELO spc.esa.lanl.gov")
+	by vger.kernel.org with SMTP id <S265995AbRF1Ppq>;
+	Thu, 28 Jun 2001 11:45:46 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Steven Cole <scole@lanl.gov>
+Reply-To: scole@lanl.gov
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: 2.4.6-pre6 cs46xx build error with CONFIG_SOUND_FUSION=m
+Date: Thu, 28 Jun 2001 09:42:55 -0600
+X-Mailer: KMail [version 1.2]
+Cc: linux-kernel@vger.kernel.org, fdavis@andrew.cmu.edu
+In-Reply-To: <E15FdnX-00076n-00@the-village.bc.nu>
+In-Reply-To: <E15FdnX-00076n-00@the-village.bc.nu>
+MIME-Version: 1.0
+Message-Id: <01062809425500.01131@spc.esa.lanl.gov>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thursday 28 June 2001 09:33, Alan Cox wrote:
+> > With CONFIG_SOUND_FUSION=m, I get the following error for 2.4.6-pre6
+> > during make modules:
+> >
+> > I've got a number of older 2.4.[3,4,5] kernels, so I'll go back and try
+> > to figure out when the change occured, but this is the first time I've
+> > seen this particular build error.
+>
+> I've fixed the build bug in ac20.. just uploading now
 
-The cciss driver in 2.4.5-ac19 is missing the terminating {0,}.
+At the suggestion of Frank Davis, I tried 2.4.5-ac19, and it built just fine for me
+with CONFIG_SOUND_FUSION=m, and sound is also working with 2.4.5-ac19.
 
-Ciao, Marcus
+I don't see -ac20 yet, but will try it later today with CONFIG_SOUND_FUSION=m
+and CONFIG_SOUND_FUSION=y.
 
-Index: drivers/block/cciss.c
-===================================================================
-RCS file: /build/mm/work/repository/linux-mm/drivers/block/cciss.c,v
-retrieving revision 1.23
-diff -u -r1.23 cciss.c
---- drivers/block/cciss.c	2001/05/27 18:05:54	1.23
-+++ drivers/block/cciss.c	2001/06/28 15:27:34
-@@ -63,6 +63,7 @@
-                         0x0E11, 0x4080, 0, 0, 0},
- 	{ PCI_VENDOR_ID_COMPAQ, PCI_DEVICE_ID_COMPAQ_CISSB,
-                         0x0E11, 0x4082, 0, 0, 0},
-+	{0,}
- };
- MODULE_DEVICE_TABLE(pci, cciss_pci_device_id);
- 
+Thanks,
+Steven

@@ -1,58 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266719AbUBEUA1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 15:00:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266720AbUBEUA1
+	id S266679AbUBEUFu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 15:05:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266775AbUBEUFu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 15:00:27 -0500
-Received: from waste.org ([209.173.204.2]:22232 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S266719AbUBEUAU (ORCPT
+	Thu, 5 Feb 2004 15:05:50 -0500
+Received: from mail.kroah.org ([65.200.24.183]:53404 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S266679AbUBEUFs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 15:00:20 -0500
-Date: Thu, 5 Feb 2004 13:59:24 -0600
-From: Matt Mackall <mpm@selenic.com>
-To: Maneesh Soni <maneesh@in.ibm.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Dipankar Sarma <dipankar@in.ibm.com>,
-       "Martin J. Bligh" <mjbligh@us.ibm.com>,
-       Christian Borntraeger <CBORNTRA@de.ibm.com>
-Subject: Re: [RFC/T 0/6] sysfs backing store (with symlink)
-Message-ID: <20040205195923.GI31138@waste.org>
-References: <20040204113758.GA4234@in.ibm.com>
+	Thu, 5 Feb 2004 15:05:48 -0500
+Date: Thu, 5 Feb 2004 12:05:35 -0800
+From: Greg KH <greg@kroah.com>
+To: Deepak Saxena <dsaxena@plexity.net>, mingo@redhat.com
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: 2.6.2-mm1 aka "Geriatric Wombat"
+Message-ID: <20040205200535.GA14646@kroah.com>
+References: <20040205014405.5a2cf529.akpm@osdl.org> <20040205192328.GA25331@plexity.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040204113758.GA4234@in.ibm.com>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20040205192328.GA25331@plexity.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 04, 2004 at 05:07:58PM +0530, Maneesh Soni wrote:
-> Hi All,
+On Thu, Feb 05, 2004 at 12:23:28PM -0700, Deepak Saxena wrote:
+> On Feb 05 2004, at 01:44, Andrew Morton was caught saying:
+> > 
+> > +dmapool-needs-pci.patch
+> > 
+> >  The dmapool code doesn't build with CONFIG_PCI=n.  But it should.  Needs
+> >  work.
 > 
-> Please find following patches for sysfs-backing store. This version has
-> support for putting symlinks also on backing store. Earlier it has support
-> for text/binary attribute files. 
-> 
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=107269078726254&w=2
-> 
-> Apart from a few bug fixes, the main change in this version is for symlinks. 
-> sysfs_create_link() now does not create dentry/inode for the link, but 
-> allocates a sysfs_dirent and adds it the parent sysfs_dirent's s_children 
-> list. dentry/inode for the link is created when the symlink is first looked up. 
-> 
-> I request Martin and Mackall to _replace_ the old patch set with the 
-> new one in their trees.
+> Hmm..that defeats the purpose of making it generic. :(
 
-I finally got around to testing this in tiny, and it works quite well.
-I actually got it working in my mem=2m test case, though it was a
-little tight.
+I agree.  I think the comment was that UML didn't build properly, but I
+really don't see what the error would be.
 
-It's the philosophy of -tiny to make all new features optional, so I'm
-currently in the process of making it a config option and am going
-back through and adding CONFIG_SYSFS_BACK. Will post a new version
-as part of my next -tiny shortly.
+Could the original submitter of this patch please send us the error
+messages that this patch is supposed to fix?
 
--- 
-Matt Mackall : http://www.selenic.com : Linux development and consulting
+thanks,
+
+greg k-h

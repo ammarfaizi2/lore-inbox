@@ -1,73 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267088AbRGOWKw>; Sun, 15 Jul 2001 18:10:52 -0400
+	id <S267086AbRGOWGX>; Sun, 15 Jul 2001 18:06:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267101AbRGOWKn>; Sun, 15 Jul 2001 18:10:43 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:22029 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S267088AbRGOWKc>; Sun, 15 Jul 2001 18:10:32 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: "Ken Hirsch" <kenhirsch@myself.com>, "Chris Wedgwood" <cw@f00f.org>,
-        "John Alvord" <jalvo@mbay.net>
-Subject: Re: [PATCH] 64 bit scsi read/write
-Date: Mon, 16 Jul 2001 00:14:21 +0200
-X-Mailer: KMail [version 1.2]
-Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
-        "Andrew Morton" <andrewm@uow.edu.au>,
-        "Andreas Dilger" <adilger@turbolinux.com>,
-        "Albert D. Cahalan" <acahalan@cs.uml.edu>,
-        "Ben LaHaise" <bcrl@redhat.com>,
-        "Ragnar Kjxrstad" <kernel@ragnark.vestdata.no>,
-        <linux-fsdevel@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <mike@bigstorage.com>, <kevin@bigstorage.com>, <linux-lvm@sistina.com>
-In-Reply-To: <Pine.LNX.4.20.0107142304010.17541-100000@otter.mbay.net> <20010715180752.B7993@weta.f00f.org> <005501c10d30$54e0e260$7c853dd0@hppav>
-In-Reply-To: <005501c10d30$54e0e260$7c853dd0@hppav>
+	id <S267088AbRGOWGM>; Sun, 15 Jul 2001 18:06:12 -0400
+Received: from thebsh.namesys.com ([212.16.0.238]:60932 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S267086AbRGOWFx>; Sun, 15 Jul 2001 18:05:53 -0400
+Message-ID: <3B5213BB.12F792C3@namesys.com>
+Date: Mon, 16 Jul 2001 02:05:47 +0400
+From: Hans Reiser <reiser@namesys.com>
+Organization: Namesys
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i686)
+X-Accept-Language: en, ru
 MIME-Version: 1.0
-Message-Id: <01071600142101.06482@starship>
-Content-Transfer-Encoding: 7BIT
+To: Daniel Phillips <phillips@bonn-fries.net>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, volodya@mindspring.com,
+        Adam Schrotenboer <ajschrotenboer@lycosmail.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Stability of ReiserFS onj Kernel 2.4.x (sp. 2.4.[56]{-ac*}
+In-Reply-To: <E15LopT-0004Cm-00@the-village.bc.nu> <3B51C864.C98B61DE@namesys.com> <01071523304400.06482@starship>
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 15 July 2001 15:16, Ken Hirsch wrote:
-> Chris Wedgwood <cw@f00f.org> wrote:
-> > On Sat, Jul 14, 2001 at 11:05:36PM -0700, John Alvord wrote:
-> > >
-> > >     In the IBM solution to this (1977-78, VM/CMS) the critical data
-> > > was written at the begining and the end of the block. If the two
-> > > data items didn't match then the block was rejected.
-> >
-> > Neat.
-> >
-> > Simple and effective.  Presumably you can also checksum the block,
-> > and check that.
->
-> The first technique is not sufficient with modern disk controllers,
-> which may reorder sector writes within a block.  A checksum,
-> especially a robust CRC32, is sufficient, but rather expensive.
+Daniel Phillips wrote:
+> 
+> On Sunday 15 July 2001 18:44, Hans Reiser wrote:
+> > The limits for reiserfs and ext2 for kernels 2.4.x are the same (and
+> > they are 2Tb not 1Tb).  The limits are not in the individual
+> > filesystems.  We need to have Linux go to 64 bit blocknumbers in
+> > 2.5.x, I am seeing a lot of customer demand for it.  (Or we could use
+> > scalable integers, which would be better.)
+> 
+> Or we could introduce the notion of logical blocksize for each block
+> minor so that we can measure blocks in the same units the filesystem
+> uses.  This would give us 16 TB while being able to stay with 32 bits
+> everywhere outside the block drivers themselves.
+> 
+> We are not that far away from being able to handle 8K blocks, so that
+> would bump it up to 32 TB.
+> 
+> --
+> Daniel
+16TB is not enough.
 
-As somebody else pointed out, not if you don't have to compute it on
-every block, as with journalling or atomic commit.
+I agree that blocknumbers are a significant space user in FS metadata, which is why I think scalable
+integers are correct.
 
-> Mohan has a clever technique that is computationally trivial and only
-> uses one bit per sector:
-> http://www.almaden.ibm.com/u/mohan/ICDE95.pdf
->
-> Unfortunately, it's also patented:
-> http://www.delphion.com/details?pn=US05418940__
-
-Fortunately, it's clunky and unappealing compared to the simple 
-checksum method, applied only to those blocks that define consistency
-points.  I don't think this is patented.  I'd be disturbed if it was,
-since it's obvious.
-
-> Perhaps IBM will clarify their position with respect to free software
-> and patents in the upcoming conference.
-
-Wouldn't that be nice.  Imagine, IBM comes out and says, we admit it,
-patents are a net burden on everybody, even us - from now on, we use
-them only against those who use them against us, and we'll put that
-in writing.  Right.
-
---
-Daniel
+Hans

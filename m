@@ -1,59 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263628AbTGAT5m (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jul 2003 15:57:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263637AbTGAT5m
+	id S263547AbTGAT7O (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jul 2003 15:59:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263597AbTGAT7O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jul 2003 15:57:42 -0400
-Received: from nat9.steeleye.com ([65.114.3.137]:64007 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S263628AbTGAT5d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jul 2003 15:57:33 -0400
-Subject: Re: [RFC] block layer support for DMA IOMMU bypass mode
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: Alex Williamson <alex_williamson@hp.com>
-Cc: Grant Grundler <grundler@parisc-linux.org>, Jens Axboe <axboe@suse.de>,
-       ak@suse.de, davem@redhat.com, suparna@in.ibm.com,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Bjorn Helgaas <bjorn_helgaas@hp.com>
-In-Reply-To: <3F01E81E.813FCDAC@hp.com>
-References: <1057077975.2135.54.camel@mulgrave>
-	<20030701191941.GF14683@dsl2.external.hp.com>  <3F01E81E.813FCDAC@hp.com>
-Content-Type: text/plain
+	Tue, 1 Jul 2003 15:59:14 -0400
+Received: from lns-th2-5f-81-56-227-145.adsl.proxad.net ([81.56.227.145]:17543
+	"EHLO smtp.ced-2.eu.org") by vger.kernel.org with ESMTP
+	id S263547AbTGAT7C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jul 2003 15:59:02 -0400
+Message-ID: <3F01EB61.7030307@ifrance.com>
+Date: Tue, 01 Jul 2003 22:13:21 +0200
+From: =?ISO-8859-1?Q?C=E9dric?= <cedriccsm2@ifrance.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20030624
+X-Accept-Language: fr-fr, fr, en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.21 cd-writer problem
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 01 Jul 2003 15:11:16 -0500
-Message-Id: <1057090278.1775.117.camel@mulgrave>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-07-01 at 14:59, Alex Williamson wrote:
->    The thing that's got me concerned about this is that it allows
-> for sg lists that contains both entries that the block layer
-> expects will be mapped into the iommu and ones that it expects
-> to bypass.  I don't like the implications of parsing through
-> sg lists looking for bypass-able and non-bypass-able groupings.
-> This seems like a lot more overhead than we have now and the
-> complexity of merging partially bypass-able scatterlists seems
-> time consuming.
-> 
->    The current ia64 sba_iommu does a quick and dirty sg bypass
-> check.  If the device can dma to any memory address, the entire
-> sg list is bypassed.  If not, the entire list is coalesced and
-> mapped by the iommu.  The idea being that true performance
-> devices will have 64bit dma masks and be able to quickly bypass.
-> Everything else will at least get the benefit of coalescing
-> entries to make more efficient dma.  The coalescing is a bit
-> simpler since it's the entire list as well.  With this proposal,
-> we'd have to add a lot of complexity to partially bypass sg
-> lists.  I don't necessarily see that as a benefit.  Thanks,
+Hi,
 
-But if that's all you want, you simply set the BIO_VMERGE_BYPASS_MASK to
-the full u64 set bitmask.  Then it will only turn off virtual merging
-for devices that have a fully set dma_mask, and your simple test will
-work.
+I'm having trouble with my cd-writer :
 
-James
+/dev/hdd:
 
+  Model=Hewlett-Packard CD-Writer Plus 7500, FwRev=1.0a, SerialNo=YMT3WLUJLS
+  Config={ Fixed Removeable DTR<=5Mbs DTR>10Mbs nonMagnetic }
+  RawCHS=0/0/0, TrkSize=0, SectSize=0, ECCbytes=0
+  BuffType=unknown, BuffSize=0kB, MaxMultSect=0
+  (maybe): CurCHS=0/0/0, CurSects=0, LBA=yes, LBAsects=0
+  IORDY=on/off, tPIO={min:180,w/IORDY:120}, tDMA={min:120,rec:120}
+  PIO modes:  pio0 pio1 pio2 pio3 pio4
+  DMA modes:  sdma0 sdma1 sdma2 mdma0 mdma1 *mdma2
+  AdvancedPM=no
+
+It is recognized with linux 2.4.18, and isnt with 2.4.21. My box freeze 
+at its detection.
+I've tried ide-scsi, which complains about a timeout, and freeze too.
+
+I'm currently locked to linux 2.4.18, and thats a problem for me 
+(pthreads bug, etc..).
+
+Does someone have a tip, an idea, or something ?
+
+Thanks.
 

@@ -1,69 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131267AbRBLVuO>; Mon, 12 Feb 2001 16:50:14 -0500
+	id <S131193AbRBLVty>; Mon, 12 Feb 2001 16:49:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131479AbRBLVty>; Mon, 12 Feb 2001 16:49:54 -0500
-Received: from mailout00.sul.t-online.com ([194.25.134.16]:16393 "EHLO
-	mailout00.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S131426AbRBLVtj>; Mon, 12 Feb 2001 16:49:39 -0500
-Date: 12 Feb 2001 22:39:00 +0200
-From: kaih@khms.westfalen.de (Kai Henningsen)
-To: matti.aarnio@zmailer.org
-cc: linux-kernel@vger.kernel.org
-Message-ID: <7vh2Hebmw-B@khms.westfalen.de>
-In-Reply-To: <20010212133324.B15688@mea-ext.zmailer.org>
-Subject: Re: lkml subject line
-X-Mailer: CrossPoint v3.12d.kh5 R/C435
+	id <S131372AbRBLVtp>; Mon, 12 Feb 2001 16:49:45 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:26117 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S131231AbRBLVta>; Mon, 12 Feb 2001 16:49:30 -0500
+Subject: Re: 2.2.19pre10 doesn't compile on alphas (sunrpc)
+To: carlos@fisica.ufpr.br (Carlos Carvalho)
+Date: Mon, 12 Feb 2001 21:49:29 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <14984.18005.694178.241076@hoggar.fisica.ufpr.br> from "Carlos Carvalho" at Feb 12, 2001 06:23:49 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Organization: Organisation? Me?! Are you kidding?
-In-Reply-To: <20010212133324.B15688@mea-ext.zmailer.org>
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
-X-Fix-Your-Modem: +++ATS2=255&WO1
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14SQqi-0008Bm-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-matti.aarnio@zmailer.org (Matti Aarnio)  wrote on 12.02.01 in <20010212133324.B15688@mea-ext.zmailer.org>:
+> net/network.a(sunrpc.o): In function `xprt_ping_reserve':
+> sunrpc.o(.text+0x4b94): undefined reference to `BUG'
+> sunrpc.o(.text+0x4b98): undefined reference to `BUG'
+> 
+> Looks like a problem in Trond's patches, also it doesn't happen with
+> pre9. It links in intel machines. I didn't reboot to test yet...
 
-> On Mon, Feb 12, 2001 at 11:20:40AM +0000, Guennadi Liakhovetski wrote:
-> > Dear all (and list maintainers in particular)
-> >
-> > Wouldn't it be a good idea to prepend all lkml subjects with [LKML] like
-> > many other lists do to distinguish lkml messages from the rest.
->
->   NO!
+The ideal solution would be for someone to provide BUG() on the Alpha platform
+as in 2.4. That would sort things cleanly
 
-Indeed. What a bad idea that would be.
-
->   If you want to pre-filter messages traveling thru  linux-kernel  list,
->   all you need to do is to check the content of   Return-Path:  header.
-
-On the other hand, that's also not a very good scheme. There *is* a good  
-way to do this, and it would be really nice if vger could be taught to do  
-it: add a List-Id: header (draft-chandhok-listid-04.txt RFC-to-be,  
-implemented in lots of mailing list managers already).
-
-Examples from that doc:
-
-    List-Id: List Header Mailing List <list-header.nisto.com>
-    List-Id: <commonspace-users.list-id.within.com>
-    List-Id: "Lena's Personal Joke List"
-             <lenas-jokes.da39efc25c530ad145d41b86f7420c3b.021999.localhost>
-    List-Id: "An internal CMU List" <0Jks9449.list-id.cmu.edu>
-    List-Id: <da39efc25c530ad145d41b86f7420c3b.052000.localhost>
-
->   Or perhaps my utter aborrence is due to the way how GNU MAILMAN handles
->   that tagging (badly, that is).
-
-Mailman, incidentally, _has_ List-Id: support.
-
-> /Matti Aarnio  -- vger postmaster, not listmaster
-
-Still ...
-
-
-MfG Kai
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

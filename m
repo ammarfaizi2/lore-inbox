@@ -1,36 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263208AbTDCB3J>; Wed, 2 Apr 2003 20:29:09 -0500
+	id <S263229AbTDCBhe>; Wed, 2 Apr 2003 20:37:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263228AbTDCB3J>; Wed, 2 Apr 2003 20:29:09 -0500
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:59666
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S263208AbTDCB3I>; Wed, 2 Apr 2003 20:29:08 -0500
-Subject: Re: back-trace on mounting ide cd-rom
-From: Robert Love <rml@tech9.net>
-To: Andrew Morton <akpm@digeo.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20030402154500.3e6b9a62.akpm@digeo.com>
-References: <1049326318.2872.36.camel@localhost>
-	 <20030402154500.3e6b9a62.akpm@digeo.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1049334036.1196.0.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 (1.2.3-1) 
-Date: 02 Apr 2003 20:40:37 -0500
-Content-Transfer-Encoding: 7bit
+	id <S263231AbTDCBhd>; Wed, 2 Apr 2003 20:37:33 -0500
+Received: from bgl1mr1-a-fixed.sancharnet.in ([61.1.128.45]:4741 "EHLO
+	bgl1mr1-a-fixed.sancharnet.in") by vger.kernel.org with ESMTP
+	id <S263229AbTDCBhW>; Wed, 2 Apr 2003 20:37:22 -0500
+Date: Wed, 02 Apr 2003 11:44:50 +0530
+From: Bijoy Thomas <bijoys_2000@rediffmail.com>
+Subject: Plz help!!
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Message-id: <000501c2f984$1c2b6340$78ec013d@bijoy>
+MIME-version: 1.0
+X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 7BIT
+X-Priority: 3
+X-MSMail-priority: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-04-02 at 18:45, Andrew Morton wrote:
+Hi guys!!!
+ 
+        This is my first mail to ts list and i'm eagerly awaiting a
+reply. I was goin thru the printk source and found out that pritk was
+calling the write method of struct console 's present on a list
+pointed to by console_drivers. So I thot of adding my own console
+driver like this....
+ 
+#define MODULE
+#define __KERNEL__
+#include<linux/module.h>
+#include<linux/kernel.h>
+#include<linux/console.h>
+#include<linux/sched.h>
+ 
+void my_write(struct console *co,const char *buf,unsigned count)
+{
+  struct tty_struct *my_tty;
+  my_tty = current->tty;
+  if(my_tty != NULL)
+  {
+    ((my_tty->driver).write)(my_tty,0,buf,strlen(buf));
+  }
+}
+ 
+struct console my_console = {
+name:"MYCON",
+write:my_write,
+flags:CON_ENABLED,
+index:-1,
+};
+ 
+int init_module()
+{
+  register_console(&my_console);
+  return 0;
+}
+ 
+void cleanup_module()
+{
+}
+ 
+When I insmoded the module (in run level 3) it worked fine. While it
+was still inserted i typed 'startx' and when i pressed 'Enter' ,the
+machine instantly rebooted!!! I tried this again and it happened. With
+MYCON registered ,if I issue the startx command ,the machine reboots.
+Also if MYCON is registered and I shutdown using 'init 0' again the reboot 
+happens.Can anyone explain??
+ 
+bye
+Bijoy Jacob Thomas
 
-> ah, my new debug code is buggy.  It is legal to wait upon a zero-ref buffer
-> if that buffer's page is locked.
-
-That fixed it (or it is not reproducing itself).
-
-Thanks, Andrew.  Glad to be of service.
-
-	Robert Love
 

@@ -1,59 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262341AbUCHJj0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Mar 2004 04:39:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262431AbUCHJj0
+	id S262431AbUCHJjp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Mar 2004 04:39:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262433AbUCHJjp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Mar 2004 04:39:26 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:61090 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262341AbUCHJjY (ORCPT
+	Mon, 8 Mar 2004 04:39:45 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:14742 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262431AbUCHJjl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Mar 2004 04:39:24 -0500
-Date: Mon, 8 Mar 2004 10:39:21 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Justin Piszcz <jpiszcz@hotmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.6.3 CD Burning Problems, Looks Kernel Realted
-Message-ID: <20040308093921.GR23525@suse.de>
-References: <Law10-F224x1h7AzQpq0004dd3c@hotmail.com>
+	Mon, 8 Mar 2004 04:39:41 -0500
+Subject: Re: Some highmem pages still in use after shrink_all_memory()?
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Andy Isaacson <adi@hexapodia.org>
+Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20040308063639.GA20793@hexapodia.org>
+References: <20040307144921.GA189@elf.ucw.cz>
+	 <20040307164052.0c8a212b.akpm@osdl.org>
+	 <20040308063639.GA20793@hexapodia.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-yYfa1jM95IYhBjvWg8eN"
+Organization: Red Hat, Inc.
+Message-Id: <1078738772.4678.5.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Law10-F224x1h7AzQpq0004dd3c@hotmail.com>
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Mon, 08 Mar 2004 10:39:32 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 07 2004, Justin Piszcz wrote:
-> Not only cdrdao, but cdrecord as well only see's the SECOND IDE channel.
-> Why is this?
-> 
-> I have my main disk on a Promise board incase anyone wonders what that is 
-> (hde).
-> 
-> $ ./cdrecord dev=ATAPI --scanbus
-> Cdrecord-Clone 2.01a26 (i686-pc-linux-gnu) Copyright (C) 1995-2004 J?rg 
-> Schilling
-> scsidev: 'ATAPI'
-> devname: 'ATAPI'
-> scsibus: -2 target: -2 lun: -2
-> Warning: Using ATA Packet interface.
-> Warning: The related libscg interface code is in pre alpha.
-> Warning: There may be fatal problems.
-> Using libscg version 'schily-0.7'.
-> scsibus0:
->        0,0,0     0) 'PLEXTOR ' 'CD-R   PX-W1210A' '1.10' Removable CD-ROM
->        0,1,0     1) 'TOSHIBA ' 'DVD-ROM SD-M1712' '1004' Removable CD-ROM
->        0,2,0     2) *
->        0,3,0     3) *
->        0,4,0     4) *
->        0,5,0     5) *
->        0,6,0     6) *
->        0,7,0     7) *
 
-Why are you reporting it here and not to the maintainer of above tool?
-And why are you scanning the bus, when you know perfectly well where you
-devices are attached? dev=/dev/hdX and be done with it.
+--=-yYfa1jM95IYhBjvWg8eN
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
--- 
-Jens Axboe
+> Note that there are some applications for which it is a *bug* if an
+> mlocked page gets written out to magnetic media.  (gpg, for example.)
+
+mlock() does not guarantee things not hitting magnetic media, just as
+mlock() doesn't guarantee that the physical address of a page doesn't
+change. mlock guarantees that you won't get hard pagefaults and that you
+have guaranteed memory for the task at hand (eg for realtime apps and
+oom-critical stuff)
+
+--=-yYfa1jM95IYhBjvWg8eN
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQBATD9SxULwo51rQBIRAo4hAKCkTGaqJcW5hXGgog4Pqac2Jvx9ZgCgh9Tm
+tU+TNBbj3d4x1Z/01jXbSTE=
+=FkkM
+-----END PGP SIGNATURE-----
+
+--=-yYfa1jM95IYhBjvWg8eN--
 

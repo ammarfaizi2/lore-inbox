@@ -1,24 +1,28 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270451AbTGNQa7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 12:30:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270465AbTGNQa6
+	id S270467AbTGNQdX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 12:33:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270640AbTGNQdW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 12:30:58 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:62684 "EHLO
+	Mon, 14 Jul 2003 12:33:22 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:64476 "EHLO
 	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S270451AbTGNQar (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 12:30:47 -0400
-Date: Mon, 14 Jul 2003 13:43:00 -0300 (BRT)
+	id S270467AbTGNQcI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 12:32:08 -0400
+Date: Mon, 14 Jul 2003 13:44:26 -0300 (BRT)
 From: Marcelo Tosatti <marcelo@conectiva.com.br>
 X-X-Sender: marcelo@freak.distro.conectiva
-To: James Bourne <jbourne@hardrock.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-       marcelo@conectiva.com
-Subject: Re: PATCH: fix agpgart list
-In-Reply-To: <Pine.LNX.4.44.0307140939540.24584-100000@cafe.hardrock.org>
-Message-ID: <Pine.LNX.4.55L.0307141342420.28660@freak.distro.conectiva>
-References: <Pine.LNX.4.44.0307140939540.24584-100000@cafe.hardrock.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: John Bradford <john@grabjohn.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       torvalds@osdl.org
+Subject: Re: Linux v2.6.0-test1
+In-Reply-To: <1058195269.561.72.camel@dhcp22.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.55L.0307141343370.28660@freak.distro.conectiva>
+References: <200307141139.h6EBd09g000700@81-2-122-30.bradfords.org.uk> 
+ <1058182417.561.47.camel@dhcp22.swansea.linux.org.uk> 
+ <Pine.LNX.4.55L.0307141055530.18257@freak.distro.conectiva>
+ <1058195269.561.72.camel@dhcp22.swansea.linux.org.uk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -26,35 +30,17 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Mon, 14 Jul 2003, James Bourne wrote:
+On Mon, 14 Jul 2003, Alan Cox wrote:
 
-> On Mon, 14 Jul 2003, Alan Cox wrote:
+> On Llu, 2003-07-14 at 14:56, Marcelo Tosatti wrote:
+> > > Then you'll just have to wait a few months
+> >
+> > I will start looking at 2.4 security fixes which are not applied in 2.6.
+> >
+> > If someone is already doing that, please tell me.
 >
-> > diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.22-pre5/include/linux/agp_backend.h linux.22-pre5-ac1/include/linux/agp_backend.h
-> > --- linux.22-pre5/include/linux/agp_backend.h	2003-07-14 12:27:43.000000000 +0100
-> > +++ linux.22-pre5-ac1/include/linux/agp_backend.h	2003-07-14 13:05:58.000000000 +0100
-> > @@ -66,6 +66,7 @@
-> >  	VIA_APOLLO_KM266,
-> >  	VIA_APOLLO_KT400,
-> >  	VIA_APOLLO_P4M266,
-> > +	VIA_APOLLO_P4X400,
-> >  	SIS_GENERIC,
-> >  	AMD_GENERIC,
-> >  	AMD_IRONGATE,
->
-> Hi,
-> you'll also note a missing break; at the end of the case statement in
-> agpsupport.c as follows
->
-> --- linux-2.4.22pre5/drivers/char/drm-4.0/agpsupport.c~	2003-07-12 14:36:59.000000000 +0700
-> +++ linux-2.4.22pre5/drivers/char/drm-4.0/agpsupport.c	2003-07-12 14:36:59.000000000 +0700
-> @@ -278,6 +278,7 @@
->  		case VIA_APOLLO_KT400:  head->chipset = "VIA Apollo KT400";
->  			break;
->  		case VIA_APOLLO_P4X400:	head->chipset = "VIA Apollo P4X400";
-> +			break;
->  #endif
->
->  		case VIA_APOLLO_PRO: 	head->chipset = "VIA Apollo Pro";
+> I'm working on the recent exec and proc stuff. strncpy needs people who can
+> do their native asm though.
 
-Patch applied, thanks.
+Right. I'll look at any other possible (misc) security problem which is
+fixed in 2.4.

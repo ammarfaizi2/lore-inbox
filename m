@@ -1,59 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267828AbUG3UWU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267825AbUG3UWi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267828AbUG3UWU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jul 2004 16:22:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267819AbUG3UWS
+	id S267825AbUG3UWi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jul 2004 16:22:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267819AbUG3UWi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jul 2004 16:22:18 -0400
-Received: from fw.osdl.org ([65.172.181.6]:28089 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267828AbUG3UVv (ORCPT
+	Fri, 30 Jul 2004 16:22:38 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:38358 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S267825AbUG3UU6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jul 2004 16:21:51 -0400
-Date: Fri, 30 Jul 2004 13:20:16 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: James Bottomley <James.Bottomley@HansenPartnership.com>
-Cc: ak@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Improve pci_alloc_consistent wrapper on preemptive
- kernels
-Message-Id: <20040730132016.5906caa7.akpm@osdl.org>
-In-Reply-To: <1091218419.1968.46.camel@mulgrave>
-References: <20040730190227.29913e23.ak@suse.de>
-	<20040730130238.0f68f5e7.akpm@osdl.org>
-	<1091218419.1968.46.camel@mulgrave>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 30 Jul 2004 16:20:58 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: Exposing ROM's though sysfs
+Date: Fri, 30 Jul 2004 13:20:19 -0700
+User-Agent: KMail/1.6.2
+Cc: Jon Smirl <jonsmirl@yahoo.com>, lkml <linux-kernel@vger.kernel.org>
+References: <20040730193546.GA328@ucw.cz> <20040730194150.7072.qmail@web14927.mail.yahoo.com> <20040730194854.GA436@ucw.cz>
+In-Reply-To: <20040730194854.GA436@ucw.cz>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200407301320.19892.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Bottomley <James.Bottomley@HansenPartnership.com> wrote:
+On Friday, July 30, 2004 12:48 pm, Vojtech Pavlik wrote:
+> On Fri, Jul 30, 2004 at 12:41:50PM -0700, Jon Smirl wrote:
+> > I looked at PCI quirks, they all seem to be fixing chipset issues. Do
+> > we want to start including adapter specific quirks along with the more
+> > general chipset one?
 >
-> On Fri, 2004-07-30 at 16:02, Andrew Morton wrote:
-> > We're paying for past sins here.  I think it would be better to create a
-> > new version of pci_alloc_consistent() which takes gfp_flags, then migrate
-> > the drivers you care about to use it.  That way the benefit is available on
-> > non-preempt kernels too.
-> > 
-> > The ultimate aim of course would be to deprecate then remove the old
-> > function.
-> 
-> True, that's why it was added for dma_alloc_coherent().
-> 
-> Is there any need for a new wrapper?  Why not just use
-> dma_alloc_coherent() from now on?
-> 
+> It's mostly chipsets, but not just chipsets - take a look at the S3
+> entries.
 
-Sounds sane.  But the default version in asm-generic/dma-mapping.h needs to
-be fixed up:
+I think Martin's suggestion of just caching them all at probe time (or 
+optionally at driver attach time) is probably the simplest and easiest to get 
+right.  It could be controllable via a boot time parameter.  But I'm not 
+entirely opposed to using pci quirks.
 
-static inline void *
-dma_alloc_coherent(struct device *dev, size_t size, dma_addr_t *dma_handle,
-		   int flag)
-{
-	BUG_ON(dev->bus != &pci_bus_type);
-
-	return pci_alloc_consistent(to_pci_dev(dev), size, dma_handle);
-}
-
-If we stick with this model, we'll still need a new pci_alloc_consistent_gfp().
+Jesse

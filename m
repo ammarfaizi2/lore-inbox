@@ -1,45 +1,84 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316175AbSEKAHj>; Fri, 10 May 2002 20:07:39 -0400
+	id <S316173AbSEKANj>; Fri, 10 May 2002 20:13:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316176AbSEKAHi>; Fri, 10 May 2002 20:07:38 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:40426 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S316175AbSEKAHh>;
-	Fri, 10 May 2002 20:07:37 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
+	id <S316176AbSEKANi>; Fri, 10 May 2002 20:13:38 -0400
+Received: from asooo.flowerfire.com ([63.254.226.247]:64652 "EHLO
+	asooo.flowerfire.com") by vger.kernel.org with ESMTP
+	id <S316173AbSEKANh>; Fri, 10 May 2002 20:13:37 -0400
+Date: Fri, 10 May 2002 19:13:05 -0500
+From: Ken Brownfield <ken@irridia.com>
+To: Luigi Genoni <kernel@Expansa.sns.it>
+Cc: Christoph Hellwig <hch@infradead.org>,
+        "David S. Miller" <davem@redhat.com>, dank@kegel.com,
+        arjanv@redhat.com, marcelo@conectiva.com.br, khttpd-users@alt.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: khttpd rotten?
+Message-ID: <20020510191305.B17142@asooo.flowerfire.com>
+In-Reply-To: <20020509110925.A10839@infradead.org> <Pine.LNX.4.44.0205091502290.490-100000@Expansa.sns.it>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15580.24766.424170.333718@napali.hpl.hp.com>
-Date: Fri, 10 May 2002 17:07:26 -0700
-To: Andreas Dilger <adilger@clusterfs.com>
-Cc: Peter Chubb <peter@chubb.wattle.id.au>,
-        Jeremy Andrews <jeremy@kerneltrap.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] remove 2TB block device limit
-In-Reply-To: <20020510234623.GC12975@turbolinux.com>
-X-Mailer: VM 7.03 under Emacs 21.1.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Fri, 10 May 2002 17:46:23 -0600, Andreas Dilger <adilger@clusterfs.com> said:
+I've been using it quite fruitfully.  I think taking it out of 2.4 isn't
+a good decision.  If 2.4 is supposed to be a stable tree with few major
+changes, suddenly taking out functionality that some people rely on
+seems inconsistent with that goal.  This action would be much more fatal
+for the average person who doesn't routinely add feature patchsets to
+their kernels, unlike most of us.
 
-  Andreas> For 64-bit systems like Alpha, it is relatively easy to use
-  Andreas> 8kB blocks for ext3.  It has been discouraged because such
-  Andreas> a filesystem is non-portable to other (smaller page-sized)
-  Andreas> filesystems.  Maybe this rationale should be re-examined -
-  Andreas> I could probably whip up a configure option for e2fsprogs
-  Andreas> to allow 8kB blocks in a few hours.
+However, I am by no means saying khttpd deserves to be in the kernel,
+per se.  But the decision to remove or not should be a consensus either
+way.
 
-If you do this, please consider allowing a block size up to 64KB.
-The ia64 kernel offers a choice of 4, 8, 16, and 64KB page size.
+Taking it out of 2.5 seems like a very good idea, especially if it's not
+being maintained, and especially once TUX2 becomes production-quality,
 
-  Andreas> Does x86-64 and/or ia64 actually _use_ > 4kB page sizes?
+Replace khttpd with TUX2 in 2.5, says this 'more silent' khttpd user. :)
+-- 
+Ken.
+ken@irridia.com
 
-ia64 linux normally uses > 4KB.  The recommended page size at the
-moment is 16KB.  I didn't think 64KB would become realistic for quite
-some time, but performance is surprisingly good, even on today's
-systems.
 
-	--david
+On Thu, May 09, 2002 at 03:04:26PM +0200, Luigi Genoni wrote:
+| 
+| 
+| On Thu, 9 May 2002, Christoph Hellwig wrote:
+| 
+| > On Thu, May 09, 2002 at 02:49:12AM -0700, David S. Miller wrote:
+| > >    > have little time to fix it.  I say pull it from
+| > >    > 2.4.19-pre9.  Marcello, put it out of its misery asap, please...
+| > >    > it'd time for khttpd to become a standalone patch again.
+| > >
+| > >    Okay, what about the following:
+| > >
+| > > Are you willing to start being the khttp maintainer?
+| > >
+| > > I have not seen updates or any attempts at maintaining the
+| > > thing in about 2 years.  Basically, since it went into the
+| > > tree.
+| > >
+| > > If we aren't changing that situation, we are not removing
+| > > the impetus for taking khttpd out of the tree entirely.
+| >
+| > If khttpd is out-of-tree I volunteer for collecting patches if that
+| > is enough for the maintainer status.  But I have to admit that I don't
+| > really care for it..
+| > -
+|  I do care, but I have no time at all.
+| Onestly, I do not think I am the only one using khttpd fruitfully, but I
+| tend to suspect that people using it are more silent in front of people
+| who do not care for it.
+| 
+| 
+| 
+| 
+| 
+| -
+| To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+| the body of a message to majordomo@vger.kernel.org
+| More majordomo info at  http://vger.kernel.org/majordomo-info.html
+| Please read the FAQ at  http://www.tux.org/lkml/

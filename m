@@ -1,57 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131337AbRAABfg>; Sun, 31 Dec 2000 20:35:36 -0500
+	id <S131363AbRAABg4>; Sun, 31 Dec 2000 20:36:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131332AbRAABfQ>; Sun, 31 Dec 2000 20:35:16 -0500
-Received: from isis.telemach.net ([213.143.65.10]:3339 "HELO isis.telemach.net")
-	by vger.kernel.org with SMTP id <S131197AbRAABfK>;
-	Sun, 31 Dec 2000 20:35:10 -0500
-Message-ID: <3A4FD789.EF4C6125@telemach.net>
-Date: Mon, 01 Jan 2001 02:04:09 +0100
-From: Jure Pecar <pegasus@telemach.net>
-Organization: Select Technology
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test10 i586)
-X-Accept-Language: en
+	id <S131365AbRAABgq>; Sun, 31 Dec 2000 20:36:46 -0500
+Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:19986 "EHLO
+	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S131363AbRAABge>; Sun, 31 Dec 2000 20:36:34 -0500
+Date: Mon, 1 Jan 2001 02:06:05 +0100 (CET)
+From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+To: Kostas Nikoloudakis <kostas@corp124.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: system call fails with ENOMEM after long operation
+In-Reply-To: <3A4FBD2F.D80A7716@corp124.com>
+Message-ID: <Pine.LNX.3.96.1010101015330.22558B-100000@artax.karlin.mff.cuni.cz>
 MIME-Version: 1.0
-To: andrea@suse.de, jef@acme.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: linux 2.2.19pre and thttpd (VM-global problem?) 
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi again,
+> So why is the kernel having difficulty allocating memory for its
+> internal operations? We are suspecting memory fragmentation issues 
+> (at the application level which might have adverse sideefects for the
+> kernel). Is it something that we can do so that the kernel will be
+> able to allocate the needed memory for carrying out the system call?
 
-I can't manage to reproduce the problem on my home box, based on redhat7
-... thttpd runs ok on 2.2.18 with raid patch, 2.2.18-cdhs
-(www.linuxraid.org) and 2.2.19pre3aa4 ... I tought it might be some
-compiler/glibc problem, but even if i get a kernel and a statically
-compiled thttpd from the box that is making problems(rh6.0) and run it
-here, it runs ok ... 
-What more can i try? I'd really like to find out what's going on ... 
+Try this patch.
 
-I checked those bits Alan Cox mentioned and cdhs patch puts them like
-this (include/linux/fs.h btw):
+Mikulas
 
-#define BH_LowPrio      7       /* 1 if the buffer is lowprio */
-#define BH_Wait_IO      8       /* 1 if we should throttle on this
-buffer */
-
-Andrea, in your pre3aa4 patch you put them vice versa:
-
-#define BH_Wait_IO      7       /* 1 if we should throttle on this
-buffer */
-#define BH_LowPrio      8       /* 1 if the buffer is lowprio */
-
-I dont think this really matters, but which way should be official? :)
-
-and btw, happy new year to all of you.
-
--- 
+--- linux/mm/page_alloc.c__	Thu Mar  9 15:12:31 2000
++++ linux/mm/page_alloc.c	Tue Mar 21 09:50:12 2000
+@@ -237,6 +237,15 @@
+ 	RMQUEUE_TYPE(order, 1);
+ 	spin_unlock_irqrestore(&page_alloc_lock, flags);
+ 
++	if (!(current->flags & PF_MEMALLOC) && (gfp_mask & __GFP_WAIT)) {
++		int freed;
++		current->trashing_mem = 1;
++		current->flags |= PF_MEMALLOC;
++		freed = try_to_free_pages(gfp_mask);
++		current->flags &= ~PF_MEMALLOC;
++		if (freed) goto ok_to_allocate;
++	}
++
+ nopage:
+ 	return 0;
+ }
 
 
-Pegasus
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264536AbTFQBzJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jun 2003 21:55:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264534AbTFQBxc
+	id S264531AbTFQB6n (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jun 2003 21:58:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264534AbTFQBzY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jun 2003 21:53:32 -0400
-Received: from palrel13.hp.com ([156.153.255.238]:64671 "EHLO palrel13.hp.com")
-	by vger.kernel.org with ESMTP id S264531AbTFQBxG (ORCPT
+	Mon, 16 Jun 2003 21:55:24 -0400
+Received: from palrel12.hp.com ([156.153.255.237]:63684 "EHLO palrel12.hp.com")
+	by vger.kernel.org with ESMTP id S264535AbTFQByk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jun 2003 21:53:06 -0400
-Date: Mon, 16 Jun 2003 19:06:59 -0700
+	Mon, 16 Jun 2003 21:54:40 -0400
+Date: Mon, 16 Jun 2003 19:08:33 -0700
 To: Marcelo Tosatti <marcelo@conectiva.com.br>,
        Jeff Garzik <jgarzik@pobox.com>,
        Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.4] Secondary nack code fixes
-Message-ID: <20030617020659.GF30944@bougret.hpl.hp.com>
+Subject: [PATCH 2.4] Fix IrIAP skb leak
+Message-ID: <20030617020833.GH30944@bougret.hpl.hp.com>
 Reply-To: jt@hpl.hp.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -27,43 +27,41 @@ From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ir241_secondary_rr.diff :
-	o [CORRECT] fix the secondary function to send RR and frames without
-		the poll bit when it detect packet losses
+ir241_iriap_skb_leak.diff :
+		<Patch from Jan Kiszka>
+	o [CORRECT] Fix obvious skb leak in IrIAP state machines
 
 
-diff -u -p linux/net/irda/irlap_event.d8.c linux/net/irda/irlap_event.c
---- linux/net/irda/irlap_event.d8.c	Mon Dec  2 16:12:36 2002
-+++ linux/net/irda/irlap_event.c	Mon Dec  2 16:14:20 2002
-@@ -1869,7 +1869,7 @@ static int irlap_state_nrm_s(struct irla
- 				irlap_update_nr_received(self, info->nr);
- 			
- 				irlap_wait_min_turn_around(self, &self->qos_tx);
--				irlap_send_rr_frame(self, CMD_FRAME);
-+				irlap_send_rr_frame(self, RSP_FRAME);
- 			
- 				irlap_start_wd_timer(self, self->wd_timeout);
- 			}
-@@ -2033,18 +2033,18 @@ static int irlap_state_nrm_s(struct irla
- 		irlap_update_nr_received(self, info->nr);
- 		if (self->remote_busy) {
- 			irlap_wait_min_turn_around(self, &self->qos_tx);
--			irlap_send_rr_frame(self, CMD_FRAME);
-+			irlap_send_rr_frame(self, RSP_FRAME);
- 		} else
--			irlap_resend_rejected_frames(self, CMD_FRAME);
-+			irlap_resend_rejected_frames(self, RSP_FRAME);
- 		irlap_start_wd_timer(self, self->wd_timeout);
+diff -u -p linux/net/irda/iriap_event.d7.c linux/net/irda/iriap_event.c
+--- linux/net/irda/iriap_event.d7.c	Mon Dec  2 16:24:29 2002
++++ linux/net/irda/iriap_event.c	Mon Dec  2 16:25:50 2002
+@@ -251,22 +251,25 @@ static void state_s_call(struct iriap_cb
+ static void state_s_make_call(struct iriap_cb *self, IRIAP_EVENT event, 
+ 			      struct sk_buff *skb) 
+ {
++	struct sk_buff *tx_skb;
++
+ 	ASSERT(self != NULL, return;);
+ 
+ 	switch (event) {
+ 	case IAP_CALL_REQUEST:
+-		skb = self->skb;
++		tx_skb = self->skb;
+ 		self->skb = NULL;
+ 		
+-		irlmp_data_request(self->lsap, skb);
++		irlmp_data_request(self->lsap, tx_skb);
+ 		iriap_next_call_state(self, S_OUTSTANDING);
  		break;
- 	case RECV_SREJ_CMD:
- 		irlap_update_nr_received(self, info->nr);
- 		if (self->remote_busy) {
- 			irlap_wait_min_turn_around(self, &self->qos_tx);
--			irlap_send_rr_frame(self, CMD_FRAME);
-+			irlap_send_rr_frame(self, RSP_FRAME);
- 		} else
--			irlap_resend_rejected_frame(self, CMD_FRAME);
-+			irlap_resend_rejected_frame(self, RSP_FRAME);
- 		irlap_start_wd_timer(self, self->wd_timeout);
+ 	default:
+ 		IRDA_DEBUG(0, "%s(), Unknown event %d\n", __FUNCTION__, event);
+-		if (skb)
+-			dev_kfree_skb(skb);
  		break;
- 	case WD_TIMER_EXPIRED:
+ 	}
++	/* Cleanup time ! */
++	if (skb)
++		dev_kfree_skb(skb);
+ }
+ 
+ /*

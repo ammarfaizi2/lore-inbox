@@ -1,45 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264687AbTFQMZy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jun 2003 08:25:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264689AbTFQMZy
+	id S264683AbTFQMXz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jun 2003 08:23:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264685AbTFQMXz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jun 2003 08:25:54 -0400
-Received: from mail2.sonytel.be ([195.0.45.172]:9675 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S264687AbTFQMZw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jun 2003 08:25:52 -0400
-Date: Tue, 17 Jun 2003 14:39:00 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       linux-net@vger.kernel.org
-Subject: Re: o net: use hlist for struct sock hash lists
-In-Reply-To: <200306162214.h5GMEG3k016075@hera.kernel.org>
-Message-ID: <Pine.GSO.4.21.0306171437430.17930-100000@vervain.sonytel.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 17 Jun 2003 08:23:55 -0400
+Received: from verdi.et.tudelft.nl ([130.161.38.158]:56704 "EHLO
+	verdi.et.tudelft.nl") by vger.kernel.org with ESMTP id S264683AbTFQMXy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jun 2003 08:23:54 -0400
+Date: Tue, 17 Jun 2003 14:37:45 +0200
+From: Rob van Nieuwkerk <robn@verdi.et.tudelft.nl>
+To: linux-kernel@vger.kernel.org
+Cc: robn@verdi.et.tudelft.nl, Arjan van de Ven <arjanv@redhat.com>,
+       Alan Cox <alan@redhat.com>
+Subject: gcc-3.2.2 miscompiles kernel 2.4.* O_DIRECT code ?
+Message-ID: <20030617123745.GA5717@verdi.et.tudelft.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 Jun 2003, Linux Kernel Mailing List wrote:
+Hi,
 
-> ChangeSet 1.1320, 2003/06/16 12:11:44-03:00, acme@conectiva.com.br
-> 
-> 	o net: use hlist for struct sock hash lists
+I found out that O_DIRECT does not work correctly on 2.4 kernels
+compiled with the RH gcc-3.2.2-5 on RH9.  It is working fine with
+kernels compiled with the RH gcc-2.96-113 on RH 7.3.
 
-Causes the following warning:
+The sympton is that read() only returns zeroes (as data).  No errors.
+It happens with several 2.4 kernels I have tried, including 2.4.21-ac1.
 
-| net/ipx/af_ipx.c:276: warning: declaration of `node' shadows a parameter
+I don't know if this is a RH9 gcc specific bug or if it is a generic
+gcc3 problem. That's why I post here: to find out if more people
+have seen this.
 
-Gr{oetje,eeting}s,
+I also filed a bug in RH's bugzilla.  See this for more details:
 
-						Geert
+	https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=97529
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
-
+	greetings,
+	Rob van Nieuwkerk

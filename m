@@ -1,47 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284014AbRLAJCi>; Sat, 1 Dec 2001 04:02:38 -0500
+	id <S284015AbRLAJMA>; Sat, 1 Dec 2001 04:12:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284015AbRLAJC2>; Sat, 1 Dec 2001 04:02:28 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:49397
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S284014AbRLAJCS>; Sat, 1 Dec 2001 04:02:18 -0500
-Date: Sat, 1 Dec 2001 01:02:12 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Andrew Morton <akpm@zip.com.au>, war <war@starband.net>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Is it normal for freezing while...
-Message-ID: <20011201010212.G489@mikef-linux.matchmail.com>
-Mail-Followup-To: Andrew Morton <akpm@zip.com.au>, war <war@starband.net>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <3C085B04.50ABE0B5@starband.net> <3C0867A3.5119D2BC@zip.com.au> <3C087023.9683B8AF@starband.net> <3C0875DA.A54BC89E@zip.com.au> <20011201002631.F489@mikef-linux.matchmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011201002631.F489@mikef-linux.matchmail.com>
-User-Agent: Mutt/1.3.23i
+	id <S284016AbRLAJLv>; Sat, 1 Dec 2001 04:11:51 -0500
+Received: from web20502.mail.yahoo.com ([216.136.226.137]:34375 "HELO
+	web20502.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S284015AbRLAJLl>; Sat, 1 Dec 2001 04:11:41 -0500
+Message-ID: <20011201091140.62223.qmail@web20502.mail.yahoo.com>
+Date: Sat, 1 Dec 2001 10:11:40 +0100 (CET)
+From: =?iso-8859-1?q?willy=20tarreau?= <wtarreau@yahoo.fr>
+Subject: Re: Did someone try to boot 2.4.16 on a 386 ? [SOLVED] 
+To: Keith Owens <kaos@ocs.com.au>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <11661.1007177721@ocs3.intra.ocs.com.au>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 01, 2001 at 12:26:31AM -0800, Mike Fedyk wrote:
-> On Fri, Nov 30, 2001 at 10:16:58PM -0800, Andrew Morton wrote:
-> > Being a cautious chap, I think I'll submit that patch, with
-> > the default setting to "off", so there is no change to default
-> > kernel behaviour.   Then people can run `elvtune -b' to enable it.
-> > 
-> 
-> Hmm...
-> 
-> mikef-linux:/home/mfedyk# elvtune /dev/hda
-> 
-> /dev/hda elevator ID            0
->         read_latency:           8192
->         write_latency:          16384
->         max_bomb_segments:      0
-> 
-....
+> A perfect example of why having the same tree for
+> source and generated files and using cp -al is a
+> bad idea.  cp -al picks up both source and
+> objects and you have to hope that anything that is
+> overwritten is hard link safe (I can tell you now
+> that it is not).
 
-As pointed out on irc, and in email, Andrew's elevator patch wasn't in
-2.4.17-pre2...
+well, at least I only duplicate clean sources before
+applying a patch. So there is absolutely no shared
+object. It's just that when I try patches, I have
+about 20 source trees and it's cool to have the
+ability to navigate through versions without having
+to store 3 GB. Moreover, diff -urN is much faster
+this way. But it true that this is a "use at your own
+risk".
 
-False alarm. :)
+> kbuild 2.5 allows multiple builds from the same
+> source tree into separate object trees
+> with different configs and is safe.
+
+Interesting, I think I'll definitely take a look at
+it.
+ 
+> >I'll check around to see if there are other parts
+> >which risk to modify a file on disk without
+> previously
+> >unlink it.
+> 
+> Any Makefile that does "some_command > target_file"
+> or runs a utility that does open(O_TRUNC) instead
+> of unlink(), open(O_EXCL).
+
+there was such an example in the past with aicasm.
+Anyway, I think that any tool, script or Makefile
+that modifies the source tree and which results in
+a diff between the two trees after a "make distclean"
+is at risk because it can induce diffs between some
+files that can't always apply to another clean tree.
+
+> BTW, cp -al of a pristine source tree to multiple
+> source trees followed by multiple compiles in
+> parallel is not safe either. make dep relies on
+> changing time stamps for include files, because
+> the include files are hard linked, a change in
+> one compile affects the other trees, with
+> undefined results.  Also fixed in kbuild 2.5.
+
+Never needed to do that yet.
+
+Regards,
+Willy
+
+
+___________________________________________________________
+Do You Yahoo!? -- Une adresse @yahoo.fr gratuite et en français !
+Yahoo! Courrier : http://courrier.yahoo.fr

@@ -1,41 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281719AbRLQRt0>; Mon, 17 Dec 2001 12:49:26 -0500
+	id <S281463AbRLQRqg>; Mon, 17 Dec 2001 12:46:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281739AbRLQRtQ>; Mon, 17 Dec 2001 12:49:16 -0500
-Received: from dnai-216-15-110-218.cust.dnai.com ([216.15.110.218]:14556 "EHLO
-	mail.3pardata.com") by vger.kernel.org with ESMTP
-	id <S281719AbRLQRtA>; Mon, 17 Dec 2001 12:49:00 -0500
-Date: Mon, 17 Dec 2001 09:48:53 -0800 (PST)
-From: Castor Fu <castor@3pardata.com>
-X-X-Sender: <castor@marais>
-To: <linux-kernel@vger.kernel.org>
-Subject: i386 machine_restart unsafe in interrupt context
-Message-ID: <Pine.LNX.4.33.0112170935520.1623-100000@marais>
+	id <S281719AbRLQRq0>; Mon, 17 Dec 2001 12:46:26 -0500
+Received: from [24.217.2.182] ([24.217.2.182]:2003 "EHLO linux.local")
+	by vger.kernel.org with ESMTP id <S281463AbRLQRqM>;
+	Mon, 17 Dec 2001 12:46:12 -0500
+Message-Id: <200112171838.fBHIccf01240@linux.local>
+Content-Type: text/plain; charset=US-ASCII
+X-KMail-Redirect-From: Its Squash <squash2@dropnet.net>
+Subject: [PATCH] eepro100.c support for  82801CAM (ie in Compaq Evo N600c)
+From: Its Squash <squash2@dropnet.net> (by way of Its Squash
+	<squash2@dropnet.net>)
+Date: Mon, 17 Dec 2001 12:38:38 -0600
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a problem where systems fail to reboot on panic().  I've resolved
-it by changing smp_send_stop() to use an NMI (like the KDB patch does to
-manage communication).
+Greetings,
 
-The source of the problem is that the panic path has the following:
+This chipset uses the normal eepro100 driver, but needs to be updated to
+recognise the PCI ID. The following patch adds this.  This is already fixed
+in 2.4.17-rc1.
 
-    panic()
-        machine_restart()
-            machine_real_restart()
-                smp_send_stop()
-                    smp_call_function()
+- Josh
 
-and smp_call_function() is not safe in an interrupt context.
+--- drivers/net/eepro100.c.orig Mon Nov 12 11:47:18 2001
++++ drivers/net/eepro100.c      Mon Dec 17 09:51:13 2001
+@@ -168,6 +169,9 @@
+ #ifndef PCI_DEVICE_ID_INTEL_ID1030
+ #define PCI_DEVICE_ID_INTEL_ID1030 0x1030
+ #endif
++#ifndef PCI_DEVICE_ID_INTEL_ID1038
++#define PCI_DEVICE_ID_INTEL_ID1038 0x1038
++#endif
 
-I imagine people might want to handle this differently, but I'd be
-happy to diffs if there's interest.  It may be that there are enough
-cases like this that smp_call_function might want a version that
-uses an NMI. . .
 
-    -Castor Fu
-    castor@3par.com
-
+ static int speedo_debug = 1;
+@@ -2270,6 +2274,8 @@
+        { PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ID1029,
+                PCI_ANY_ID, PCI_ANY_ID, },
+        { PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ID1030,
++               PCI_ANY_ID, PCI_ANY_ID, },
++       { PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ID1038,
+                PCI_ANY_ID, PCI_ANY_ID, },
+        { PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801BA_7,
+                PCI_ANY_ID, PCI_ANY_ID, },

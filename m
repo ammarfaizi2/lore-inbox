@@ -1,43 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261385AbVB0NRz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261386AbVB0NZd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261385AbVB0NRz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Feb 2005 08:17:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261386AbVB0NRz
+	id S261386AbVB0NZd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Feb 2005 08:25:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261388AbVB0NZd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Feb 2005 08:17:55 -0500
-Received: from mail-ex.suse.de ([195.135.220.2]:3508 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261385AbVB0NRx (ORCPT
+	Sun, 27 Feb 2005 08:25:33 -0500
+Received: from mailfe03.swip.net ([212.247.154.65]:62945 "EHLO swip.net")
+	by vger.kernel.org with ESMTP id S261386AbVB0NZ0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Feb 2005 08:17:53 -0500
-From: Andreas Gruenbacher <agruen@suse.de>
-To: Matt Mackall <mpm@selenic.com>
-Subject: Re: [PATCH 1/8] lib/sort: Heapsort implementation of sort()
-Date: Sun, 27 Feb 2005 14:17:51 +0100
-User-Agent: KMail/1.7.1
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <2.416337461@selenic.com>
-In-Reply-To: <2.416337461@selenic.com>
-MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200502271417.51654.agruen@suse.de>
-X-Length: 1138
-Content-Type: text/plain;
-  charset="utf-8"
+	Sun, 27 Feb 2005 08:25:26 -0500
+X-T2-Posting-ID: icQHdNe7aEavrnKIz+aKnQ==
+Subject: [PATCH] sysfs: Signedness problem
+From: Alexander Nyberg <alexn@dsv.su.se>
+To: gregkh@suse.de
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Date: Sun, 27 Feb 2005 14:25:23 +0100
+Message-Id: <1109510723.2295.3.camel@boxen>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt,
+count is size_t, fill_write_buffer() may return a negative number
+which would evade the 'count > 0' checks and do bad things.
 
-On Monday 31 January 2005 08:34, Matt Mackall wrote:
-> This patch adds a generic array sorting library routine. This is meant
-> to replace qsort, which has two problem areas for kernel use.
+found by the Coverity tool
 
-the sort function is broken. When sorting the integer array {1, 2, 3, 4, 5}, 
-I'm getting {2, 3, 4, 5, 1} as a result. Can you please have a look?
+Signed-off-by: Alexander Nyberg <alexn@dsv.su.se>
 
-Thanks,
--- 
-Andreas Gruenbacher <agruen@suse.de>
-SUSE Labs, SUSE LINUX PRODUCTS GMBH
+===== fs/sysfs/file.c 1.22 vs edited =====
+--- 1.22/fs/sysfs/file.c	2004-11-04 03:04:14 +01:00
++++ edited/fs/sysfs/file.c	2005-02-26 15:48:19 +01:00
+@@ -231,15 +231,16 @@ static ssize_t
+ sysfs_write_file(struct file *file, const char __user *buf, size_t count, loff_t *ppos)
+ {
+ 	struct sysfs_buffer * buffer = file->private_data;
++	ssize_t len;
+ 
+ 	down(&buffer->sem);
+-	count = fill_write_buffer(buffer,buf,count);
+-	if (count > 0)
+-		count = flush_write_buffer(file->f_dentry,buffer,count);
+-	if (count > 0)
+-		*ppos += count;
++	len = fill_write_buffer(buffer, buf, count);
++	if (len > 0)
++		len = flush_write_buffer(file->f_dentry, buffer, len);
++	if (len > 0)
++		*ppos += len;
+ 	up(&buffer->sem);
+-	return count;
++	return len;
+ }
+ 
+ static int check_perm(struct inode * inode, struct file * file)
+
 

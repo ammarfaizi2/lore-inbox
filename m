@@ -1,71 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269162AbUINGUI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269157AbUINGSP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269162AbUINGUI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 02:20:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269065AbUINGUI
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 02:20:08 -0400
-Received: from holomorphy.com ([207.189.100.168]:23697 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S269063AbUINGSP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
+	id S269157AbUINGSP (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 14 Sep 2004 02:18:15 -0400
-Date: Mon, 13 Sep 2004 23:18:00 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Roger Luethi <rl@hellgate.ch>
-Cc: Albert Cahalan <albert@users.sf.net>, Andrew Morton OSDL <akpm@osdl.org>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       Paul Jackson <pj@sgi.com>
-Subject: Re: [1/1][PATCH] nproc v2: netlink access to /proc information
-Message-ID: <20040914061800.GD9106@holomorphy.com>
-References: <20040908184028.GA10840@k3.hellgate.ch> <20040908184130.GA12691@k3.hellgate.ch> <20040909003529.GI3106@holomorphy.com> <20040909184300.GA28278@k3.hellgate.ch> <20040909184933.GG3106@holomorphy.com> <20040909191142.GA30151@k3.hellgate.ch> <1094941556.1173.12.camel@cube> <20040914055946.GA20929@k3.hellgate.ch>
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269152AbUINGSP
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Tue, 14 Sep 2004 02:18:15 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:26039 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S269063AbUINGSM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 02:18:12 -0400
+Date: Tue, 14 Sep 2004 08:16:43 +0200
+From: Jens Axboe <axboe@suse.de>
+To: linux-kernel@vger.kernel.org
+Cc: len.brown@intel.com
+Subject: [ACPI Debug] String: Length 0x0F, "Entering RTMP()"
+Message-ID: <20040914061641.GD2336@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040914055946.GA20929@k3.hellgate.ch>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 11 Sep 2004 18:25:56 -0400, Albert Cahalan wrote:
->> No. First of all, I think they can be offered. Until proven
->> otherwise, I'll assume that the !CONFIG_MMU case is buggy.
+Hi,
 
-On Tue, Sep 14, 2004 at 07:59:46AM +0200, Roger Luethi wrote:
-> I agree with you that those specific fields should be offered for
-> !CONFIG_MMU. However, if for some reason they cannot carry a value
-> that fits the field description, they should not be offered at all. The
-> ambiguity of having 0 mean either "0" or "this field is not available"
-> is bad. Trying to read a specific field _can_ fail, and applications
-> had better handle that case (it's still trivial compared to having to
-> parse different /proc file layouts depending on the configuration).
+2.6.9-rc2 is throwing a lot of these errors on my system:
 
-Apart from doing something it's supposed to for !CONFIG_MMU and using
-the internal kernel accounting I set up for the CONFIG_MMU=y case I'm
-not very concerned about this. I have a vague notion there should
-probably be some consistency with the /proc/ precedent but am not
-particularly tied to it. We should probably ask Greg Ungerer (the
-maintainer of the external MMU-less patches) about what he prefers
-since it's likely we can't anticipate all of the !CONFIG_MMU concerns.
+[ACPI Debug] String: Length 0x0F, "Entering RTMP()"
+[ACPI Debug] String: Length 0x0F, "Entering TIN2()"
+[ACPI Debug] String: Length 0x0F, "Existing RTMP()"
 
+About 450 of these three lines repeated so far, seem to get one every 5
+seconds or so. Box is an Athlon64 solo, let me know if you want more
+info (and what).
 
-On Sat, 11 Sep 2004 18:25:56 -0400, Albert Cahalan wrote:
->> mean that fewer apps can run on !CONFIG_MMU boxes. It's
->> same problem as "All the world's a VAX". It's better that
->> the apps work; an author working on a Pentium 4 Xeon is
->> likely to write code that relies on the fields and might
->> not really understand what "no MMU" is all about.
+-- 
+Jens Axboe
 
-On Tue, Sep 14, 2004 at 07:59:46AM +0200, Roger Luethi wrote:
-> The presumed wrong assumptions underlying broken tools of the future
-> are not a good base for designing a new interface. My interest is in
-> making it easy to write correct applications (or in fixing broken apps
-> that won't work, say, on !CONFIG_MMU systems).
-
-I don't really know what the approach to app compatibility used by
-userspace for !CONFIG_MMU is; I'll refer you to Greg Ungerer as my
-knowledge of the CONFIG_MMU usage models and/or whatever userspace
-is used in tandem with it outside the VM's internals is rather scant.
-
-
--- wli

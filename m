@@ -1,46 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135980AbRDTSun>; Fri, 20 Apr 2001 14:50:43 -0400
+	id <S135982AbRDTSzD>; Fri, 20 Apr 2001 14:55:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135978AbRDTSuX>; Fri, 20 Apr 2001 14:50:23 -0400
-Received: from goat.cs.wisc.edu ([128.105.166.42]:40973 "EHLO goat.cs.wisc.edu")
-	by vger.kernel.org with ESMTP id <S135980AbRDTSuN>;
-	Fri, 20 Apr 2001 14:50:13 -0400
-To: linux-kernel@vger.kernel.org
-Cc: pcroth@cs.wisc.edu, epaulson@cs.wisc.edu
-Subject: Re: BUG: Global FPU corruption in 2.2
-In-Reply-To: <cpx7l0g3mfk.fsf@goat.cs.wisc.edu>
-From: Victor Zandy <zandy@cs.wisc.edu>
-Date: 20 Apr 2001 13:50:06 -0500
-In-Reply-To: Victor Zandy's message of "19 Apr 2001 11:05:03 -0500"
-Message-ID: <cpx8zkvz9r5.fsf@goat.cs.wisc.edu>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) Emacs/20.3
+	id <S135984AbRDTSyx>; Fri, 20 Apr 2001 14:54:53 -0400
+Received: from smtp1.cern.ch ([137.138.128.38]:5130 "EHLO smtp1.cern.ch")
+	by vger.kernel.org with ESMTP id <S135978AbRDTSyo>;
+	Fri, 20 Apr 2001 14:54:44 -0400
+To: Jeff Dike <jdike@karaya.com>
+Cc: Matthew Wilcox <matthew@wil.cx>,
+        Bob McElrath <rsmcelrath@students.wisc.edu>,
+        linux-kernel@vger.kernel.org, parisc-linux@parisc-linux.org
+Subject: Re: [parisc-linux] Re: OK, let's try cleaning up another nit. Is  anyone paying attention?
+In-Reply-To: <200104201900.OAA03252@ccure.karaya.com>
+From: Jes Sorensen <jes@linuxcare.com>
+Date: 20 Apr 2001 20:53:32 +0200
+In-Reply-To: Jeff Dike's message of "Fri, 20 Apr 2001 14:00:00 -0500"
+Message-ID: <d3elunfln7.fsf@lxplus015.cern.ch>
+User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> "Jeff" == Jeff Dike <jdike@karaya.com> writes:
 
-Victor Zandy <zandy@cs.wisc.edu> writes:
-> We have found that one of our programs can cause system-wide
-> corruption of the x86 FPU under 2.2.16 and 2.2.17.  That is, after we
-> run this program, the FPU gives bad results to all subsequent
-> processes.
+Jeff> matthew@wil.cx said:
+>> http://www.kernel.org/ has a list of architecture websites.  Also
+>> the CREDITS / MAINTAINERS files tend to list the people who are
+>> involved.
 
-We have now tested 2.4.2 and 2.2.19.
+Jeff> Except it's restricted to processor ports, which would leave you
+Jeff> not knowing about UML.
 
-2.2.19 has the same problem.
+I'd be highly surprised if they said no to adding UML to the list if
+you mailed them a request to update the page.
 
-2.4.3 does not seem to be affected.  Unfortunately, we really need a
-working 2.2 kernel at this time.
-
-We also patched the 2.2.19 kernel with the PIII patch found in
-/pub/linux/kernel/people/andrea/patches/v2.2/2.2.19pre13/PIII-10.bz2
-on ftp.kernel.org.  Same problem.
-
-Does anyone have any ideas for us?
-
-Thanks.
-
-Vic
-
+Jes

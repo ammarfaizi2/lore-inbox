@@ -1,35 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263607AbRFKTRu>; Mon, 11 Jun 2001 15:17:50 -0400
+	id <S263630AbRFKTgl>; Mon, 11 Jun 2001 15:36:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263630AbRFKTRk>; Mon, 11 Jun 2001 15:17:40 -0400
-Received: from rigel.cs.pdx.edu ([131.252.208.59]:28802 "EHLO rigel.cs.pdx.edu")
-	by vger.kernel.org with ESMTP id <S263607AbRFKTR0>;
-	Mon, 11 Jun 2001 15:17:26 -0400
-Date: Mon, 11 Jun 2001 12:17:21 -0700 (PDT)
-From: Naren Devaiah <naren@cs.pdx.edu>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: 2.4.6pre2: Unresolved symbols in 3c59x
-Message-ID: <Pine.GSO.4.21.0106111212410.16983-100000@spica.cs.pdx.edu>
+	id <S263634AbRFKTgb>; Mon, 11 Jun 2001 15:36:31 -0400
+Received: from ns.suse.de ([213.95.15.193]:16147 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S263630AbRFKTgR>;
+	Mon, 11 Jun 2001 15:36:17 -0400
+Date: Mon, 11 Jun 2001 21:37:22 +0200 (CEST)
+From: egger@suse.de
+Reply-To: egger@suse.de
+Subject: Re: [PATCH 2.4.5-ac12] New Sony Vaio Motion Eye camera driver
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.21.0106101659380.2242-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/plain; charset=us-ascii
+Message-Id: <20010611213516.13CFBA885@Nicole.muc.suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On 10 Jun, Linus Torvalds wrote:
 
-Building 2.4.6pre2 with 3c59x.c as a module causes do_softirq to be
-reported as an unresolved symbol during module load.
+> I have to say that I have absolutely no idea. I only use little-endian
+> machines myself (and 99% x86).
 
-2.4.6pre1 has a similar problem
+> Also, which ATI Xv stuff are you talking about?
 
+ I'm talking about original ATI Xv stuff in X 4.1.0 making trouble.
+ I'm really ccurious whether they fixed the problem in the GATOS
+ driver.
 
-2.4.5 works without a fuss.
+> Has the Gatos code (or some other code) maybe been integrated into 4.1.0
+> now? I haven't followed X CVS for the last months very closely..
 
-Versions:
-modutils 2.4.6
-egcs 1.1.2
+ Doesn't seem so, at least the linuxvideo people advertise their "ati.2"
+ module for 4.1.0 on their website, but only in source or i386 binary.
+ :/
 
-
--Naren
+Servus,
+       Daniel
 

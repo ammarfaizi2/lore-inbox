@@ -1,276 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266805AbSKHQuY>; Fri, 8 Nov 2002 11:50:24 -0500
+	id <S266806AbSKHQvS>; Fri, 8 Nov 2002 11:51:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266806AbSKHQuY>; Fri, 8 Nov 2002 11:50:24 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:54666 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S266805AbSKHQuU>;
-	Fri, 8 Nov 2002 11:50:20 -0500
-Date: Fri, 8 Nov 2002 17:56:41 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Torben Mathiasen <torben.mathiasen@hp.com>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH-2.5.46] IDE BIOS timings
-Message-ID: <20021108165641.GA18126@suse.de>
-References: <20021107164009.GL1737@tmathiasen> <1036775438.16898.31.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1036775438.16898.31.camel@irongate.swansea.linux.org.uk>
+	id <S266807AbSKHQvS>; Fri, 8 Nov 2002 11:51:18 -0500
+Received: from ophelia.ess.nec.de ([193.141.139.8]:10669 "EHLO
+	ophelia.ess.nec.de") by vger.kernel.org with ESMTP
+	id <S266806AbSKHQvP> convert rfc822-to-8bit; Fri, 8 Nov 2002 11:51:15 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Erich Focht <efocht@ess.nec.de>
+To: Michael Hohnbaum <hohnbaum@us.ibm.com>
+Subject: Re: NUMA scheduler BK tree
+Date: Fri, 8 Nov 2002 17:57:22 +0100
+User-Agent: KMail/1.4.1
+Cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>, Robert Love <rml@tech9.net>,
+       Anton Blanchard <anton@samba.org>, Ingo Molnar <mingo@elte.hu>,
+       Stephen Hemminger <shemminger@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+References: <200211061734.42713.efocht@ess.nec.de> <1036712788.3178.15.camel@dyn9-47-17-164.beaverton.ibm.com>
+In-Reply-To: <1036712788.3178.15.camel@dyn9-47-17-164.beaverton.ibm.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200211081757.22876.efocht@ess.nec.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 08 2002, Alan Cox wrote:
-> On Thu, 2002-11-07 at 16:40, Torben Mathiasen wrote:
-> > Linus,
-> > 
-> > Please accept the attached for 2.5.46.
-> > 
-> > It introduces a new boot parameter (eg. ide0=biostimings) that forces the
-> > IDE driver to honour BIOS DMA/PIO timings. Sometimes the BIOS has a better
-> > overview of how the IDE devices are connected/setup and some chipsets doesn't
-> > support >ata66 speed detection.
-> > 
-> > The patch has been tested for quite a while on both PIIX and serverworks.
-> 
-> Linus please drop this patch for now. Its not been tested on enough
-> controllers, its making things unneccessarily ugly and its also just
-> going to make updates hard.
+Michael,
 
-Alan, the patch is pretty much straight forward. Cleaning up the magic
-numbers and ->autotune consistencies is a good thing, imo.
+thanks for the results, they look really good!
 
-I'm attaching Torben's modified version which adds symbolic names
-instead of using more weird autotune magics.
+There's a problem with your script for Schedbench: the column labels
+are permuted! Instead of
+>                              Elapsed   TotalUser    TotalSys     AvgUser
+you should have
+>                              AvgUser   Elapsed      TotalUser    TotalSys
 
---- linux-2.5.46-clean/include/linux/ide.h	2002-11-08 10:17:50.000000000 +0100
-+++ linux-2.5.46/include/linux/ide.h	2002-11-08 10:51:36.000000000 +0100
-@@ -96,6 +96,14 @@
- #define ERROR_RECAL	1	/* Recalibrate every 2nd retry */
- 
- /*
-+ * Tune flags
-+ */
-+#define IDE_TUNE_BIOS		3
-+#define IDE_TUNE_NOAUTO		2
-+#define IDE_TUNE_AUTO		1
-+#define IDE_TUNE_DEFAULT	0
-+
-+/*
-  * state flags
-  */
- #define DMA_PIO_RETRY	1	/* retrying in PIO */
-@@ -743,7 +751,8 @@
- 	unsigned nice0		: 1;	/* give obvious excess bandwidth */
- 	unsigned nice2		: 1;	/* give a share in our own bandwidth */
- 	unsigned doorlocking	: 1;	/* for removable only: door lock/unlock works */
--	unsigned autotune	: 2;	/* 1=autotune, 2=noautotune, 0=default */
-+	unsigned autotune	: 3;	/* 1=autotune, 2=noautotune, 
-+					   3=biostimings, 0=default */
- 	unsigned remap_0_to_1	: 2;	/* 0=remap if ezdrive, 1=remap, 2=noremap */
- 	unsigned ata_flash	: 1;	/* 1=present, 0=default */
- 	unsigned blocked        : 1;	/* 1=powermanagment told us not to do anything, so sleep nicely */
-diff -ur linux-2.5.46-clean/drivers/ide/ide-dma.c linux-2.5.46/drivers/ide/ide-dma.c
---- linux-2.5.46-clean/drivers/ide/ide-dma.c	2002-11-08 10:16:58.000000000 +0100
-+++ linux-2.5.46/drivers/ide/ide-dma.c	2002-11-08 10:35:41.000000000 +0100
-@@ -1028,9 +1028,18 @@
- 
- 	if (hwif->chipset != ide_trm290) {
- 		u8 dma_stat = hwif->INB(hwif->dma_status);
--		printk(", BIOS settings: %s:%s, %s:%s",
-+		printk(", BIOS settings: %s:%s%s, %s:%s%s",
- 		       hwif->drives[0].name, (dma_stat & 0x20) ? "DMA" : "pio",
--		       hwif->drives[1].name, (dma_stat & 0x40) ? "DMA" : "pio");
-+		       hwif->drives[0].autotune == IDE_TUNE_BIOS ? 
-+		       		" (used)" : "",
-+		       hwif->drives[1].name, (dma_stat & 0x40) ? "DMA" : "pio",
-+		       hwif->drives[1].autotune == IDE_TUNE_BIOS ? 
-+		       		" (used)" : "");
-+
-+		if (hwif->drives[0].autotune == IDE_TUNE_BIOS)
-+			hwif->drives[0].using_dma = (dma_stat & 0x20);
-+		if (hwif->drives[1].autotune == IDE_TUNE_BIOS)
-+			hwif->drives[1].using_dma = (dma_stat & 0x40);
- 	}
- 	printk("\n");
- 
-diff -ur linux-2.5.46-clean/drivers/ide/ide-probe.c linux-2.5.46/drivers/ide/ide-probe.c
---- linux-2.5.46-clean/drivers/ide/ide-probe.c	2002-11-08 10:16:58.000000000 +0100
-+++ linux-2.5.46/drivers/ide/ide-probe.c	2002-11-08 10:34:17.000000000 +0100
-@@ -434,7 +434,9 @@
- 		if (hwif->INB(IDE_STATUS_REG) == (BUSY_STAT|READY_STAT))
- 			return 4;
- 
--		if (rc == 1 && cmd == WIN_PIDENTIFY && drive->autotune != 2) {
-+		if ((rc == 1 && cmd == WIN_PIDENTIFY) &&
-+			((drive->autotune == IDE_TUNE_DEFAULT) ||
-+			(drive->autotune == IDE_TUNE_AUTO))) {
- 			unsigned long timeout;
- 			printk("%s: no response (status = 0x%02x), "
- 				"resetting drive\n", drive->name,
-@@ -699,7 +701,8 @@
- 	for (unit = 0; unit < MAX_DRIVES; ++unit) {
- 		ide_drive_t *drive = &hwif->drives[unit];
- 		if (drive->present) {
--			if (hwif->tuneproc != NULL && drive->autotune == 1)
-+			if (hwif->tuneproc != NULL && 
-+				drive->autotune == IDE_TUNE_AUTO)
- 				/* auto-tune PIO mode */
- 				hwif->tuneproc(drive, 255);
- 			/*
-@@ -711,7 +714,9 @@
- 			 * Move here to prevent module loading clashing.
- 			 */
- 	//		drive->autodma = hwif->autodma;
--			if ((drive->autotune != 2) && (hwif->ide_dma_check)) {
-+			if ((hwif->ide_dma_check) &&
-+				((drive->autotune == IDE_TUNE_DEFAULT) ||
-+				(drive->autotune == IDE_TUNE_AUTO))) {
- 				/*
- 				 * Force DMAing for the beginning of the check.
- 				 * Some chipsets appear to do interesting
-diff -ur linux-2.5.46-clean/drivers/ide/ide.c linux-2.5.46/drivers/ide/ide.c
---- linux-2.5.46-clean/drivers/ide/ide.c	2002-11-08 10:16:58.000000000 +0100
-+++ linux-2.5.46/drivers/ide/ide.c	2002-11-08 10:28:39.000000000 +0100
-@@ -2621,7 +2621,8 @@
-  *				Not fully supported by all chipset types,
-  *				and quite likely to cause trouble with
-  *				older/odd IDE drives.
-- *
-+ * "hdx=biostimings"	: driver will NOT attempt to tune interface speed 
-+ * 				(DMA/PIO) but always honour BIOS timings.
-  * "hdx=slow"		: insert a huge pause after each access to the data
-  *				port. Should be used only as a last resort.
-  *
-@@ -2658,6 +2659,8 @@
-  * "idex=noautotune"	: driver will NOT attempt to tune interface speed
-  *				This is the default for most chipsets,
-  *				except the cmd640.
-+ * "idex=biostimings"	: driver will NOT attempt to tune interface speed 
-+ * 				(DMA/PIO) but always honour BIOS timings.
-  * "idex=serialize"	: do not overlap operations on idex and ide(x^1)
-  * "idex=four"		: four drives on idex and ide(x^1) share same ports
-  * "idex=reset"		: reset interface before first use
-@@ -2733,7 +2736,8 @@
- 		const char *hd_words[] = {"none", "noprobe", "nowerr", "cdrom",
- 				"serialize", "autotune", "noautotune",
- 				"slow", "swapdata", "bswap", "flash",
--				"remap", "noremap", "scsi", NULL};
-+				"remap", "noremap", "scsi", "biostimings",
-+				NULL};
- 		unit = s[2] - 'a';
- 		hw   = unit / MAX_DRIVES;
- 		unit = unit % MAX_DRIVES;
-@@ -2775,10 +2779,10 @@
- 				printk(" -- USE \"ide%d=serialize\" INSTEAD", hw);
- 				goto do_serialize;
- 			case -6: /* "autotune" */
--				drive->autotune = 1;
-+				drive->autotune = IDE_TUNE_AUTO;
- 				goto done;
- 			case -7: /* "noautotune" */
--				drive->autotune = 2;
-+				drive->autotune = IDE_TUNE_NOAUTO;
- 				goto done;
- 			case -8: /* "slow" */
- 				drive->slow = 1;
-@@ -2804,6 +2808,9 @@
- 				drive->scsi = 0;
- 				goto bad_option;
- #endif /* defined(CONFIG_BLK_DEV_IDESCSI) && defined(CONFIG_SCSI) */
-+			case -15: /* "biostimings" */
-+				drive->autotune = IDE_TUNE_BIOS;
-+				goto done;
- 			case 3: /* cyl,head,sect */
- 				drive->media	= ide_disk;
- 				drive->cyl	= drive->bios_cyl  = vals[0];
-@@ -2841,9 +2848,10 @@
- 		 * -8,-9,-10 : are reserved for future idex calls to ease the hardcoding.
- 		 */
- 		const char *ide_words[] = {
--			"noprobe", "serialize", "autotune", "noautotune", "reset", "dma", "ata66",
--			"minus8", "minus9", "minus10",
--			"four", "qd65xx", "ht6560b", "cmd640_vlb", "dtc2278", "umc8672", "ali14xx", "dc4030", NULL };
-+			"noprobe", "serialize", "autotune", "noautotune", 
-+			"reset", "dma", "ata66", "minus8", "minus9", "minus10",
-+			"four", "qd65xx", "ht6560b", "cmd640_vlb", "dtc2278", 
-+			"umc8672", "ali14xx", "dc4030", "biostimings", NULL };
- 		hw = s[3] - '0';
- 		hwif = &ide_hwifs[hw];
- 		i = match_parm(&s[4], ide_words, vals, 3);
-@@ -2862,6 +2870,10 @@
- 		}
- 
- 		switch (i) {
-+			case -19: /* "biostimings" */
-+				hwif->drives[0].autotune = IDE_TUNE_BIOS;
-+				hwif->drives[1].autotune = IDE_TUNE_BIOS;
-+				goto done;
- #ifdef CONFIG_BLK_DEV_PDC4030
- 			case -18: /* "dc4030" */
- 			{
-@@ -2949,12 +2961,12 @@
- 				hwif->reset = 1;
- 				goto done;
- 			case -4: /* "noautotune" */
--				hwif->drives[0].autotune = 2;
--				hwif->drives[1].autotune = 2;
-+				hwif->drives[0].autotune = IDE_TUNE_NOAUTO;
-+				hwif->drives[1].autotune = IDE_TUNE_NOAUTO;
- 				goto done;
- 			case -3: /* "autotune" */
--				hwif->drives[0].autotune = 1;
--				hwif->drives[1].autotune = 1;
-+				hwif->drives[0].autotune = IDE_TUNE_AUTO;
-+				hwif->drives[1].autotune = IDE_TUNE_AUTO;
- 				goto done;
- 			case -2: /* "serialize" */
- 			do_serialize:
-@@ -3211,7 +3223,8 @@
- 	spin_lock(&drives_lock);
- 	list_add(&drive->list, &driver->drives);
- 	spin_unlock(&drives_lock);
--	if (drive->autotune != 2) {
-+	if ((drive->autotune == IDE_TUNE_DEFAULT) ||
-+		(drive->autotune == IDE_TUNE_AUTO)) {
- 		/* DMA timings and setup moved to ide-probe.c */
- 		if (!driver->supports_dma && HWIF(drive)->ide_dma_off_quietly)
- //			HWIF(drive)->ide_dma_off_quietly(drive);
-diff -ur linux-2.5.46-clean/drivers/ide/setup-pci.c linux-2.5.46/drivers/ide/setup-pci.c
---- linux-2.5.46-clean/drivers/ide/setup-pci.c	2002-11-08 10:16:58.000000000 +0100
-+++ linux-2.5.46/drivers/ide/setup-pci.c	2002-11-08 10:46:57.000000000 +0100
-@@ -590,6 +590,7 @@
- 	u32 port, at_least_one_hwif_enabled = 0, autodma = 0;
- 	int pciirq = 0;
- 	int tried_config = 0;
-+	int drive0_tune, drive1_tune;
- 	ata_index_t index;
- 	u8 tmp = 0;
- 	ide_hwif_t *hwif, *mate = NULL;
-@@ -698,11 +699,20 @@
- 		ide_hwif_setup_dma(dev, d, hwif);
- bypass_legacy_dma:
- #endif	/* CONFIG_BLK_DEV_IDEDMA */
-+
-+		drive0_tune = hwif->drives[0].autotune;
-+		drive1_tune = hwif->drives[1].autotune;
-+
- 		if (d->init_hwif)
- 			/* Call chipset-specific routine
- 			 * for each enabled hwif
- 			 */
- 			d->init_hwif(hwif);
-+		
-+		if (drive0_tune == IDE_TUNE_BIOS) /* biostimings */
-+			hwif->drives[0].autotune = IDE_TUNE_BIOS;
-+		if (drive1_tune == IDE_TUNE_BIOS)
-+			hwif->drives[1].autotune = IDE_TUNE_BIOS;
- 
- 		mate = hwif;
- 		at_least_one_hwif_enabled = 1;
+The numbers make more sense like that ;-)
+Could you please send me your script for schedbench?
 
--- 
-Jens Axboe
+BTW: the bk repository has now two distinct changesets, one for the
+"core" the other one for the initial balancing. Larry McVoy showed me
+how to do things right with the names assigned to the changesets.
+
+Thanks!
+
+Regards,
+Erich
+
+
+On Friday 08 November 2002 00:46, Michael Hohnbaum wrote:
+> On Wed, 2002-11-06 at 08:34, Erich Focht wrote:
+> > in order to make it easier to keep up with the main Linux tree I've
+> > set up a bitkeeper repository with our NUMA scheduler at
+> >        bk://numa-ef.bkbits.net/numa-sched
+> > (Web view:  http://numa-ef.bkbits.net/)
+...
+> Tested this on a 4 node NUMAQ.  Worked fine.  Results:
+>
+> $reportbench stock46 sched46
+> Kernbench:
+>                              Elapsed        User      System         CPU
+>                  stock46      20.66s    194.062s      53.39s     1197.4%
+>                  sched46     19.988s    191.302s     50.692s     1210.4%
+>
+> Schedbench 4:
+>                              Elapsed   TotalUser    TotalSys     AvgUser
+>                  stock46       27.27       40.64      109.13        0.85
+>                  sched46       23.10       41.32       92.42        0.76
+>
+> Schedbench 8:
+>                              Elapsed   TotalUser    TotalSys     AvgUser
+>                  stock46       39.18       55.12      313.56        1.68
+>                  sched46       34.45       51.24      275.63        2.28
+>
+> Schedbench 16:
+>                              Elapsed   TotalUser    TotalSys     AvgUser
+>                  stock46       56.39       72.44      902.45        5.12
+>                  sched46       56.73       71.31      907.88        4.19
+>
+> Schedbench 32:
+>                              Elapsed   TotalUser    TotalSys     AvgUser
+>                  stock46       90.47      203.28     2895.41       10.39
+>                  sched46       60.95      143.21     1950.72       10.31
+>
+> Schedbench 64:
+>                              Elapsed   TotalUser    TotalSys     AvgUser
+>                  stock46      105.00      439.04     6720.90       25.02
+>                  sched46       59.07      262.98     3781.06       19.59
+>
+> The schedbench runs were ran once each.  Kernbench is the average of
+> 5 runs.
+>
+>           Michael
 

@@ -1,70 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261565AbVDESw7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261893AbVDES4q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261565AbVDESw7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 14:52:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261891AbVDESvG
+	id S261893AbVDES4q (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 14:56:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261905AbVDESzC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 14:51:06 -0400
-Received: from smtp002.mail.ukl.yahoo.com ([217.12.11.33]:45464 "HELO
-	smtp002.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S261514AbVDESs6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 14:48:58 -0400
-From: Blaisorblade <blaisorblade@yahoo.it>
-To: Renate Meijer <kleuske@xs4all.nl>
-Subject: Re: [08/08] uml: va_copy fix
-Date: Tue, 5 Apr 2005 20:53:19 +0200
-User-Agent: KMail/1.7.2
-Cc: Greg KH <gregkh@suse.de>, stable@kernel.org, jdike@karaya.com,
-       linux-kernel@vger.kernel.org
-References: <20050405164539.GA17299@kroah.com> <20050405164815.GI17299@kroah.com> <c8cb775b8f5507cbac1fb17b1028cffc@xs4all.nl>
-In-Reply-To: <c8cb775b8f5507cbac1fb17b1028cffc@xs4all.nl>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 5 Apr 2005 14:55:02 -0400
+Received: from fmr22.intel.com ([143.183.121.14]:12192 "EHLO
+	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
+	id S261893AbVDESvV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 14:51:21 -0400
+Date: Tue, 5 Apr 2005 11:51:13 -0700
+From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12-rc2-mm1
+Message-ID: <20050405115113.A17809@unix-os.sc.intel.com>
+References: <20050405000524.592fc125.akpm@osdl.org> <42523F5D.7020201@yahoo.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200504052053.20078.blaisorblade@yahoo.it>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <42523F5D.7020201@yahoo.com.au>; from nickpiggin@yahoo.com.au on Tue, Apr 05, 2005 at 05:33:49PM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 05 April 2005 20:47, Renate Meijer wrote:
-> On Apr 5, 2005, at 6:48 PM, Greg KH wrote:
-> > -stable review patch.  If anyone has any objections, please let us
-> > know.
-> >
-> > ------------------
-> >
-> > Uses __va_copy instead of va_copy since some old versions of gcc
-> > (2.95.4
-> > for instance) don't accept va_copy.
->
-> Are there many kernels still being built with 2.95.4? It's quite
-> antiquated, as far as
-> i'm aware.
->
-> The use of '__' violates compiler namespace.
-Why? The symbol is defined by the compiler itself.
-> If 2.95.4 were not easily 
-> replaced by
-> a much better version (3.3.x? 3.4.x) I would see a reason to disregard
-> this, but a fix
-> merely to satisfy an obsolete compiler?
+On Tue, Apr 05, 2005 at 05:33:49PM +1000, Nick Piggin wrote:
+> Andrew Morton wrote:
+> 
+> > +sched-remove-unnecessary-sched-domains.patch
+> > +sched-improve-pinned-task-handling-again.patch
+> [snip]
+> > 
+> >  CPU scheduler updates
+> > 
+> 
+> It is no problem that you picked these up for testing. But
+> don't merge them yet, please.
+> 
+> Suresh's underlying problem with the unnecessary sched domains
+> is a failing of sched-balance-exec and sched-balance-fork, which
 
-Let's not flame, Linus Torvalds said "we support GCC 2.95.3, because the newer 
-versions are worse compilers in most cases". One user complained, even 
-because he uses Debian, and I cannot do less than make sure that we comply 
-with the requirements we have choosen (compiling with that GCC).
+That wasn't the only motivation. For example, on non-HT cpu's we shouldn't
+be setting up SMT sched-domain, same with NUMA domains on non-NUMA systems.
 
-Please let's not start a flame on this. Consider me as having no opinion on 
-this except not wanting to break on purpose Debian users. If you want, submit 
-a patch removing Gcc 2.95.3 from supported versions, and get ready to fight 
-for it (and probably loose).
+> I am working on now.
+> 
+> Removing unnecessary domains is a nice optimisation, but just
+> needs to account for a few more flags before declaring that a
 
-Also, that GCC has discovered some syscall table errors in UML - I sent a 
-separate patch, which was a bit big sadly (in the reduced version, about 70 
-lines + description).
--- 
-Paolo Giarrusso, aka Blaisorblade
-Linux registered user n. 292729
-http://www.user-mode-linux.org/~blaisorblade
+Can you elaborate when we require a domain with special flags but has
+no or only one group in it.
 
+> domain is unnecessary (not to mention this probably breaks if
+> isolcpus= is used). I have made some modifications to the patch
+
+I have tested my patch with "ioslcpus=" and it works just fine.
+
+> to fix these problems.
+> 
+> Lastly, I'd like to be a bit less intrusive with pinned task
+> handling improvements. I think we can do this while still being
+> effective in preventing livelocks.
+
+We want to see this fixed. Please post your patch and I can let you know
+the test results.
+
+> 
+> I will keep you posted with regards to the various scheduler
+> patches.
+
+Nick, Can you post the patches you sent me earlier to this list?
+
+thanks,
+suresh

@@ -1,41 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S137166AbREKQ23>; Fri, 11 May 2001 12:28:29 -0400
+	id <S137169AbREKQ37>; Fri, 11 May 2001 12:29:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S137167AbREKQ2I>; Fri, 11 May 2001 12:28:08 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:54370 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S137166AbREKQ1y>; Fri, 11 May 2001 12:27:54 -0400
-Date: Fri, 11 May 2001 18:27:39 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: x86 bootmem corruption
-Message-ID: <20010511182739.S30355@athlon.random>
-In-Reply-To: <20010511180737.Q30355@athlon.random> <E14yFci-0001Ho-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E14yFci-0001Ho-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, May 11, 2001 at 05:18:35PM +0100
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S137168AbREKQ3v>; Fri, 11 May 2001 12:29:51 -0400
+Received: from bacchus.veritas.com ([204.177.156.37]:8414 "EHLO
+	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
+	id <S137167AbREKQ3h>; Fri, 11 May 2001 12:29:37 -0400
+Date: Fri, 11 May 2001 16:41:25 +0100 (BST)
+From: Mark Hemment <markhe@veritas.com>
+To: null <null@null.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: nasty SCSI performance drop-outs (potential test case)
+In-Reply-To: <Pine.LNX.4.21.0105111006390.32238-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.21.0105111635140.31900-100000@alloc>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 11, 2001 at 05:18:35PM +0100, Alan Cox wrote:
-> > reserved.  This is the fix against 2.4.5pre1. This might explain weird
-> > crashes and "reserved twice" error messages at boot on highmem systems.
-> 
-> Reserved twice occurs for two known reasons
-> 
-> BIOS reporting the same region twice or overlaps (fixed in -ac sent to Linus)
-> find_smp_config blindly reserves pages that may already be marked as ROM and
-> thus reserved anyway
 
-when it happens because of a double reserve that's fine I know, it _can_
-be harmless, I'm not trying to hide those messages. What I'm saying is
-that it can _also_ indicate somebody allocated the page before we reserved
-it and currently x86 allocates from the bootmem allocator before
-reserving all its pages, that's a bug and I provided the fix.
+On Fri, 11 May 2001, null wrote: 
+> Time to mkfs the same two 5GB LUNs in parallel is 54 seconds.  Hmmm.
+> Bandwidth on two CPUs is totally consumed (99.9%) and a third CPU is
+> usually consumed by the kupdated process.  Activity lights on the storage
+> device are mostly idle during this time.
 
-Andrea
+  I see you've got 1.2GBytes, so are using HIGHMEM support?
+
+  I sumbitted a patch a few weeks back, against the buffer cache, which
+makes it behave better with HIGHMEM.  The patch improved the time take to
+create large filesystems.
+
+  This got picked up by Alan in his -ac series.  Can't remember exactly
+when Alan merged it, but it is definitely in 2.4.4-ac3.  I'd recommend
+giving it a try.
+
+Mark
+
+

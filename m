@@ -1,49 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131289AbRCWQ5t>; Fri, 23 Mar 2001 11:57:49 -0500
+	id <S131241AbRCWRCt>; Fri, 23 Mar 2001 12:02:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131286AbRCWQ5m>; Fri, 23 Mar 2001 11:57:42 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:17794 "EHLO
-	e31.bld.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S131270AbRCWQ5b>; Fri, 23 Mar 2001 11:57:31 -0500
-To: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] sane access to per-fs metadata (was Re: [PATCH] Documentation/ioctl-number.txt)
-X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
-Message-ID: <OF791BBBC5.E3FCBEEE-ON87256A18.005BA3B7@LocalDomain>
-From: "Bryan Henderson" <hbryan@us.ibm.com>
-Date: Fri, 23 Mar 2001 09:56:47 -0700
-X-MIMETrack: Serialize by Router on D03NM088/03/M/IBM(Release 5.0.6 |December 14, 2000) at
- 03/23/2001 09:56:48 AM,
-	Serialize complete at 03/23/2001 09:56:48 AM
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S131244AbRCWRCj>; Fri, 23 Mar 2001 12:02:39 -0500
+Received: from darkstar.internet-factory.de ([195.122.142.9]:36277 "EHLO
+	darkstar.internet-factory.de") by vger.kernel.org with ESMTP
+	id <S131241AbRCWRCd>; Fri, 23 Mar 2001 12:02:33 -0500
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Holger Lubitz <h.lubitz@internet-factory.de>
+Newsgroups: lists.linux.kernel
+Subject: Re: NTP on 2.4.2?
+Date: Fri, 23 Mar 2001 18:01:52 +0100
+Organization: Internet Factory AG
+Message-ID: <3ABB8180.D42B7BA3@internet-factory.de>
+In-Reply-To: <20010323162345.A24604@flint.arm.linux.org.uk>
+NNTP-Posting-Host: bastille.internet-factory.de
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-Trace: darkstar.internet-factory.de 985366912 936 195.122.142.158 (23 Mar 2001 17:01:52 GMT)
+X-Complaints-To: usenet@internet-factory.de
+NNTP-Posting-Date: 23 Mar 2001 17:01:52 GMT
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-ac23 i686)
+X-Accept-Language: en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-How it can be used? Well, say it you've mounted JFS on /usr/local
->% mount -t jfsmeta none /mnt -o jfsroot=/usr/local
->% ls /mnt
->stats     control   bootcode whatever_I_bloody_want
->% cat /mnt/stats
->master is on /usr/local
->fragmentation = 5%
->696942 reads, yodda, yodda
->% echo "defrag 69 whatever 42 13" > /mnt/control
->% umount /mnt
+Russell King wrote:
+> Is anyone else using NTP with 2.4.2, and if so, are you synchronising
+> properly?
 
-There's a lot of cool simplicity in this, both in implementation and 
-application, but it leaves something to be desired in functionality.  This 
-is partly because the price you pay for being able to use existing, 
-well-worn Unix interfaces is the ancient limitations of those interfaces 
--- like the inability to return adequate error information.
+Works for me. (RH7, ntp-4.0.99j-7, Kernel 2.4.2-ac23 - but worked with
+plain 2.4.2, too)
 
-Specifically, transactional stuff looks really hard in this method.
-If I want the user to know why his "defrag" command failed, how would I 
-pass that information back to him?  What if I want to warn him of of a 
-filesystem inconsistency I found along the way?  Or inform him of how 
-effective the defrag was?  And bear in mind that multiple processes may be 
-issuing commands to /mnt/control simultaneously.
-
-With ioctl, I can easily match a response of any kind to a request.  I can 
-even return an English text message if I want to be friendly.
-
+Holger

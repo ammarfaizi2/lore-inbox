@@ -1,55 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269673AbRHCXEe>; Fri, 3 Aug 2001 19:04:34 -0400
+	id <S269668AbRHCXFy>; Fri, 3 Aug 2001 19:05:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269669AbRHCXEZ>; Fri, 3 Aug 2001 19:04:25 -0400
-Received: from cs159246.pp.htv.fi ([213.243.159.246]:18843 "EHLO
-	porkkala.cs159246.pp.htv.fi") by vger.kernel.org with ESMTP
-	id <S269667AbRHCXEU>; Fri, 3 Aug 2001 19:04:20 -0400
-Message-ID: <3B6B2DC4.B13B4B1@pp.htv.fi>
-Date: Sat, 04 Aug 2001 02:03:32 +0300
-From: Jussi Laako <jlaako@pp.htv.fi>
-X-Mailer: Mozilla 4.76 [en] (Win98; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: bvermeul@devel.blackstar.nl
-CC: Russell King <rmk@arm.linux.org.uk>, Per Jessen <per.jessen@enidan.com>,
-        linux-kernel@vger.kernel.org, linux-laptop@vger.kernel.org
-Subject: Re: PCMCIA control I82365 stops working with 2.4.4
-In-Reply-To: <Pine.LNX.4.33.0108012139330.31291-100000@devel.blackstar.nl>
+	id <S269675AbRHCXFo>; Fri, 3 Aug 2001 19:05:44 -0400
+Received: from weta.f00f.org ([203.167.249.89]:3472 "HELO weta.f00f.org")
+	by vger.kernel.org with SMTP id <S269668AbRHCXFa>;
+	Fri, 3 Aug 2001 19:05:30 -0400
+Date: Sat, 4 Aug 2001 11:06:14 +1200
+From: Chris Wedgwood <cw@f00f.org>
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, Chris Mason <mason@suse.com>
+Subject: Re: [PATCH] 2.4.8-pre3 fsync entire path (+reiserfs fsync semantic change patch)
+Message-ID: <20010804110614.A17925@weta.f00f.org>
+In-Reply-To: <9keqr6$egl$1@penguin.transmeta.com> <01080315090600.01827@starship> <Pine.GSO.4.21.0108031400590.3272-100000@weyl.math.psu.edu> <9keqr6$egl$1@penguin.transmeta.com> <5.1.0.14.2.20010803232810.0415b840@pop.cus.cam.ac.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <5.1.0.14.2.20010803232810.0415b840@pop.cus.cam.ac.uk>
+User-Agent: Mutt/1.3.20i
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-bvermeul@devel.blackstar.nl wrote:
-> 
-> Try going to your bios and setting the PCMCIA adapter to Cardbus/16bit
-> instead of Auto. The Toshiba Topic chipsets are buggy, change their PCI
+On Fri, Aug 03, 2001 at 11:29:29PM +0100, Anton Altaparmakov wrote:
 
-Dunno how to change those. The machine had just windows based setup program.
+    Your patch down()s a semaphore without calling up() in the error
+    code path...
 
-> identifiers with different bios settings, and are just a plain pain in 
-> the ass to get working. Then use the yenta driver (preferrably in 
-> kernel), and I think you will find it works now. :)
-
-I wonder why it stopped working, because it was working just fine until
-lately. I don't care if it's CardBus or old ISA-based PCMCIA because it
-makes no difference as long as it works. I've been using it for years with
-Linux and FreeBSD.
-
-> Bas Vermeulen, who has had some bad experiences with Toshiba laptops. And
-> it's impossible to get specs for em too.
-
-Btw. is there any completely working laptop? I've got lot of problems with
-Dell and IBM laptops. I've really started to hate all this mobile stuff that
-never works...
+Errors? Nah, you won't get errors :)
 
 
-Best regards,
+Yes, it does... I did a quick copy of the code from above and didn't
+check it. I'll fix that shortly.
 
-	- Jussi Laako
 
--- 
-PGP key fingerprint: 161D 6FED 6A92 39E2 EB5B  39DD A4DE 63EB C216 1E4B
-Available at PGP keyservers
+
+  --cw

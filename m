@@ -1,43 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129147AbQKGHnG>; Tue, 7 Nov 2000 02:43:06 -0500
+	id <S129233AbQKGHwt>; Tue, 7 Nov 2000 02:52:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129802AbQKGHm4>; Tue, 7 Nov 2000 02:42:56 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:58754 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S129147AbQKGHmu>;
-	Tue, 7 Nov 2000 02:42:50 -0500
-Date: Mon, 6 Nov 2000 23:27:54 -0800
-Message-Id: <200011070727.XAA02574@pizda.ninka.net>
-From: "David S. Miller" <davem@redhat.com>
-To: jordy@napster.com
-CC: linux-kernel@vger.kernel.org, kuznet@ms2.inr.ac.ru
-In-Reply-To: <3A07B01A.1E70EE20@napster.com> (message from Jordan Mendelson on
-	Mon, 06 Nov 2000 23:32:42 -0800)
-Subject: Re: Poor TCP Performance 2.4.0-10 <-> Win98 SE PPP
-In-Reply-To: <3A07662F.39D711AE@napster.com> <200011070428.UAA01710@pizda.ninka.net> <3A079127.47B2B14C@napster.com> <200011070533.VAA02179@pizda.ninka.net> <3A079D83.2B46A8FD@napster.com> <200011070603.WAA02292@pizda.ninka.net> <3A07A4B0.A7E9D62@napster.com> <200011070656.WAA02435@pizda.ninka.net> <3A07AC45.DCC961FF@napster.com> <200011070712.XAA02511@pizda.ninka.net> <3A07B01A.1E70EE20@napster.com>
+	id <S129177AbQKGHwj>; Tue, 7 Nov 2000 02:52:39 -0500
+Received: from shell.webmaster.com ([209.133.28.73]:9436 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP
+	id <S129121AbQKGHwa>; Tue, 7 Nov 2000 02:52:30 -0500
+From: "David Schwartz" <davids@webmaster.com>
+To: "J. Dow" <jdow@earthlink.net>, <dank@alumni.caltech.edu>,
+        <atmproj@yahoo.com>, <linux-kernel@vger.kernel.org>
+Subject: RE: malloc(1/0) ??
+Date: Mon, 6 Nov 2000 23:52:28 -0800
+Message-ID: <NCBBLIEPOCNJOAEKBEAKAEAJLMAA.davids@webmaster.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <04c301c0488a$694d6360$0a25a8c0@wizardess.wiz>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   Date: Mon, 06 Nov 2000 23:32:42 -0800
-   From: Jordan Mendelson <jordy@napster.com>
+> From: "Dan Kegel" <dank@alumni.caltech.edu>
+> > atmproj@yahoo.com asked:
+> > > [Why does this program not crash?]
+> > >
+> > > main()
+> > > {
+> > >    char *s;
+> > >    s = (char*)malloc(0);
+> > >    strcpy(s,"fffff");
+> > >    printf("%s\n",s);
+> > > }
+> >
+> > It doesn't crash because the standard malloc is
+> > optimized for speed, not for finding bugs.
+> >
+> > Try linking it with a debugging malloc, e.g.
+> >   cc bug.c -lefence
+> > and watch it dump core.
+>
+> I'm not sure that is fully responsive, Dan. Why doesn't the
+> strcpy throw a hissyfit and coredump?
 
-   Ok, but why doesn't 2.2.16 exhibit this behavior?
+	Why should it? Do you think that when you allocate memory, the chunk of
+mappable memory you got always ends on the exact byte you asked it to? When
+you invoke undefined behavior, anything can happen.
 
-   We've had reports from quite a number of people complaining about
-   this and I'm fairly certain not all of them are from Earthlink.
+	DS
 
-The only thing different is that 2.2.x is packetizing the write()
-system calls on the server differently, otherwise there is no
-difference whatsoever.
-
-What 2.4.x is doing is completely legal.  Really, even if not all of
-these people are from Earthlink (well, you should see if this is for
-certain) they may all be using the same buggy terminal server at these
-different ISPs.
-
-Later,
-David S. Miller
-davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

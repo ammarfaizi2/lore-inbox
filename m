@@ -1,54 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265495AbUFCESP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265494AbUFCESE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265495AbUFCESP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jun 2004 00:18:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265497AbUFCESO
+	id S265494AbUFCESE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jun 2004 00:18:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265495AbUFCESE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 00:18:14 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:46038 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265495AbUFCESK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 00:18:10 -0400
-Message-ID: <40BEA673.8080301@pobox.com>
-Date: Thu, 03 Jun 2004 00:17:55 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: netdev@oss.sgi.com, linux-kernel@vger.kernel.org, jkmaline@cc.hut.fi,
-       james.p.ketrenos@intel.com
-Subject: Re: wireless-2.6 queue opened
-References: <40BE9ED8.9020505@pobox.com> <20040602211038.287628ac.davem@redhat.com>
-In-Reply-To: <20040602211038.287628ac.davem@redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 3 Jun 2004 00:18:04 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:313 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S265494AbUFCESB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jun 2004 00:18:01 -0400
+Date: Wed, 2 Jun 2004 21:25:47 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, ak@suse.de, greg@kroah.com
+Subject: Re: [PATCH] fix sys cpumap for > 352 NR_CPUS
+Message-Id: <20040602212547.448c7cc7.pj@sgi.com>
+In-Reply-To: <1086222156.29391.337.camel@bach>
+References: <20040602161115.1340f698.pj@sgi.com>
+	<1086222156.29391.337.camel@bach>
+Organization: SGI
+X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller wrote:
-> On Wed, 02 Jun 2004 23:45:28 -0400
-> Jeff Garzik <jgarzik@pobox.com> wrote:
-> 
-> 
->>Given that there are at least 3 complete wireless stacks (or 
->>thereabouts) floating about for Linux, I picked one that I felt had the 
->>best chance of being _evolved_ into a nice, clean, generic wireless 
->>stack:  HostAP.
-> 
-> 
-> Even though I authored one of the "other" stacks, I'm totally fine
-> with this choice.  Mainly because I simply lack the time or resources
-> to continue working on the stack I started.
+Rusty wrote:
+> Then just use -1UL as the arg to scnprintf, if you don't have a real
+> number.  That way the overflow will at least have a chance of detection
+> in the sysfs code, which I think it should check in
+> file.c:fill_read_buffer().  Greg?
 
+That doesn't make sense.
 
-Actually...   I want to use some of your stuff too.  :)  HostAP is a 
-successful implementation, but your stuff was a good example of the glue 
-needed to tie 802.11 tightly to the net stack.
+My node_read_cpumap() routine is being passed a finite length buffer
+into which it is supposed to put some characters.  Unless by contract
+or passed value it knows the length of that buffer, it cannot safely
+know how far it can write.
 
-HostAP still has some "its a separate driver" stuff it needs to get rid 
-of, as it is made more generic.
+Apparently, from Andrews comments and from the line:
 
-	Jeff
+  buffer->page = (char *) get_zeroed_page(GFP_KERNEL);
 
+in file.c:fill_read_buffer(), the length is PAGE_SIZE, by contract.
 
+Greg - perhaps a comment in include/linux/sysdev.h, near the declarations
+for the show() and store() routines, specifying the buffer sizing,
+would be appropriate?
+
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

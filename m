@@ -1,59 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129071AbQKFMIS>; Mon, 6 Nov 2000 07:08:18 -0500
+	id <S129033AbQKFMQy>; Mon, 6 Nov 2000 07:16:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129346AbQKFMH6>; Mon, 6 Nov 2000 07:07:58 -0500
-Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:41990 "EHLO
-	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
-	id <S129071AbQKFMHz>; Mon, 6 Nov 2000 07:07:55 -0500
-Message-Id: <200011061206.eA6C6Lw05318@pincoya.inf.utfsm.cl>
-To: Michael Meissner <meissner@spectacle-pond.org>
-cc: Russ Allbery <rra@stanford.edu>, Tim Riker <Tim@Rikers.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: non-gcc linux? (was Re: Where did kgcc go in 2.4.0-test10?) 
-In-Reply-To: Message from Michael Meissner <meissner@spectacle-pond.org> 
-   of "Sat, 04 Nov 2000 03:40:02 CDT." <20001104034002.A26612@munchkin.spectacle-pond.org> 
-Date: Mon, 06 Nov 2000 09:06:21 -0300
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	id <S129057AbQKFMQo>; Mon, 6 Nov 2000 07:16:44 -0500
+Received: from mailgate2.zdv.Uni-Mainz.DE ([134.93.8.57]:26865 "EHLO
+	mailgate2.zdv.Uni-Mainz.DE") by vger.kernel.org with ESMTP
+	id <S129033AbQKFMQa>; Mon, 6 Nov 2000 07:16:30 -0500
+Date: Mon, 6 Nov 2000 13:16:19 +0100
+From: Dominik Kubla <dominik.kubla@uni-mainz.de>
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] document ECN in 2.4 Configure.help
+Message-ID: <20001106131618.B5696@uni-mainz.de>
+Mail-Followup-To: "David S. Miller" <davem@redhat.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <200011060615.WAA05490@cx518206-b.irvn1.occa.home.com> <200011060703.XAA23404@pizda.ninka.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+User-Agent: Mutt/1.0.1i
+In-Reply-To: <200011060703.XAA23404@pizda.ninka.net>; from davem@redhat.com on Sun, Nov 05, 2000 at 11:03:00PM -0800
+X-No-Archive: yes
+Restrict: no-external-archive
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Meissner <meissner@spectacle-pond.org> said:
+On Sun, Nov 05, 2000 at 11:03:00PM -0800, David S. Miller wrote:
+...
+> OH, btw, for all folks out there.  If there ever is an instance where
+> I (Alexey too) send email directly to your email address (not via
+> linux-kernel for example) your site will be effectively ECN tested.
+> We run ECN on all the time on our workstations.  (it's actually nice,
+> a lot of crap web sites I used to visit occaisionally are no longer
+> reachable :-) the only major loss is theregister.co.uk :-( )
+...
 
-[...]
+Well, that can be fixed quite easily: install a local junkbuster and
+set it to proxy requests to theregister.co.uk via one of the public
+junkbuster proxies. That has the nice side effect of killing unwanted
+ads as well... ;-)
 
-> Now people seem to be advocating moving the kernel to use features from C99
-> that haven't even been coded yet (which mean when coded using the latest
-> codegen as well).  Note, I seriously doubt Linus will want a flag day (ie,
-> after a given kernel release, you must use revision n of the compiler, but
-> before that release, you must use revision n-1 of the compiler), so you still
-> have to maintain support for the old GCC way of doing things, in addition to
-> the C99 way of doing things probably for a year or so.
-
-The recommended compiler is changing, it is now up to egcs-1.1.2. There is
-a long lag, to be sure.
-
-In any case, C99 _will_ come, so it is worthwhile to rewrite gcc-isms that
-C99 does differently and egcs-1.1.2 supports *if* it doesn't impose a
-penalty of some other sort. The point is that many gcc extensions are
-poorly documented and moreover their semantics have changed over time (The
-kernel is one of the main users of gcc extensions, other software has to
-cater for being compiled with other compilers, and is thus more restricted
-here. I'd guess glibc is second here. Little used extensions tend to be
-broken or wobbly.). C99 is well documented, but the implementation of its
-features might not be solid yet...
-
-Named structure initializers and varargs macros come to mind. The code
-should also be checked for possible use of restrict parameters.
+Cheers,
+  Dominik
 -- 
-Dr. Horst H. von Brand                       mailto:vonbrand@inf.utfsm.cl
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
-
-
-
-
+http://petition.eurolinux.org/index_html - No Software Patents In Europe!
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

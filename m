@@ -1,33 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261473AbTIRPVf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Sep 2003 11:21:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261512AbTIRPVf
+	id S261586AbTIRPjG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Sep 2003 11:39:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261602AbTIRPjG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Sep 2003 11:21:35 -0400
-Received: from [62.231.65.103] ([62.231.65.103]:47500 "EHLO
-	gw-rtr.ultrapopular.com") by vger.kernel.org with ESMTP
-	id S261473AbTIRPVe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Sep 2003 11:21:34 -0400
-Message-ID: <3F69CD40.20106@easynet.ro>
-Date: Thu, 18 Sep 2003 18:20:32 +0300
-From: Alexandru Damian <ddalex_krn@easynet.ro>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; ro-RO; rv:1.4) Gecko/20030624
-X-Accept-Language: ro, en, en-us
-MIME-Version: 1.0
-To: kernel <linux-kernel@vger.kernel.org>
-Subject: Maximum number of sockets...
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 18 Sep 2003 11:39:06 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:46997 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S261586AbTIRPjE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Sep 2003 11:39:04 -0400
+Date: Thu, 18 Sep 2003 16:38:31 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Andi Kleen <ak@suse.de>
+Cc: Linus Torvalds <torvalds@osdl.org>, Nick Piggin <piggin@cyberone.com.au>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       richard.brunner@amd.com
+Subject: Re: [PATCH] Athlon/Opteron Prefetch Fix for 2.6.0test5 + numbers
+Message-ID: <20030918153831.GA7548@mail.jlokier.co.uk>
+References: <20030917202100.GC4723@wotan.suse.de> <Pine.LNX.4.44.0309171332200.2523-100000@laptop.osdl.org> <20030917211200.GA5997@wotan.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030917211200.GA5997@wotan.suse.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andi Kleen wrote:
+> I added a check for LDT entries now. This means prefetch exceptions
+> inside non standard code segments will be not handled (I will fix
+> that in a follow up patch)
 
+> +	/* Don't check for LDT code segments because they could have
+> +	   non zero bases. Better would be to add in the base in this case. */
+> +	if (regs->xcs & (1<<2))
+> +		return 0;
 
-   It may seem a pretty stupid question, but what do I need to
-modify in a 2.4.22 kernel to increase the maximum number of sockets
-available to userland programs.
+It is possible to have a non-standard code segment in the GDT, too.
+Thus a better to check is "unlikely((regs->xcs & 0xffff) != __USER_CS)".
 
-Thanks,
-Alex
+One way to add in the correct base would be to use the real segment
+register.  Don't call __get_user: call your own special function which
+uses %gs, and temporarily load regs->xcs into %gs.
 
+Alternatively you can just calculate the base and add it.
+
+-- Jamie

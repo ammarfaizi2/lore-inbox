@@ -1,43 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263711AbUA3Utz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jan 2004 15:49:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263760AbUA3Utz
+	id S263760AbUA3UuQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jan 2004 15:50:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263796AbUA3UuQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jan 2004 15:49:55 -0500
-Received: from mailr-2.tiscali.it ([212.123.84.82]:173 "EHLO
-	mailr-2.tiscali.it") by vger.kernel.org with ESMTP id S263711AbUA3Utx
+	Fri, 30 Jan 2004 15:50:16 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:18174 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S263760AbUA3UuJ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jan 2004 15:49:53 -0500
-Date: Fri, 30 Jan 2004 21:49:56 +0100
-From: Kronos <kronos@kronoz.cjb.net>
-To: linux-kernel@vger.kernel.org
-Cc: marcelo.tosatti@cyclades.com
-Subject: Re: [Compile Regression] 2.4.25-pre8: 126 warnings 0 errors
-Message-ID: <20040130204956.GA21643@dreamland.darkstar.lan>
-Reply-To: kronos@kronoz.cjb.net
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58L.0401301700420.2675@logos.cnet>
-User-Agent: Mutt/1.4i
+	Fri, 30 Jan 2004 15:50:09 -0500
+In-Reply-To: <0041A388-5121-11D8-B18F-000A95A0560C@us.ibm.com>
+References: <401026CD.2030600@us.ibm.com> <0041A388-5121-11D8-B18F-000A95A0560C@us.ibm.com>
+Mime-Version: 1.0 (Apple Message framework v612)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <DD98690D-5365-11D8-ABCB-000A95A0560C@us.ibm.com>
+Content-Transfer-Encoding: 7bit
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, mochel@digitalimplant.org,
+       Andrew Morton <akpm@osdl.org>
+From: Hollis Blanchard <hollisb@us.ibm.com>
+Subject: Re: (driver model) bus kset list manipulation bug
+Date: Fri, 30 Jan 2004 14:49:58 -0600
+To: Greg KH <greg@kroah.com>
+X-Mailer: Apple Mail (2.612)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti <marcelo.tosatti@cyclades.com> ha scritto:
-> This is a shame. These warnings piled up during time.
-> 
-> It is very likely that all of them are harmless,
-> but they need to be fixed.
-> 
-> Will find to look into some of them. Help is appreciated.
+On Jan 27, 2004, at 5:31 PM, Hollis Blanchard wrote:
+>
+> devices_subsys looks like it's only used for two things: global 
+> hotplug policy and suspend. Of the 3 hotplug functions it provides 
+> (dev_hotplug_filter, dev_hotplug_name, and dev_hotplug), 2 of them 
+> refer to bus data or code anyways.
+>
+> I'm very surprised to see it's used by device_shutdown(). I thought 
+> one of the points of the device tree was to do depth-first-suspend, so 
+> e.g we don't try to suspend a PCI bridge and *then* try to suspend 
+> children of that bridge. Instead we're walking a global list in the 
+> reverse order they were registered. I guess this works because busses 
+> are discovered from the root down, so going backwards will give you 
+> the deepest first.
 
-If you want I can work on them in the weekend.
+To reply to myself again (starting to get the hint...), I wonder how 
+long the global devices_subsys list will work for power-suspend once we 
+start hotplugging devices and busses? Seems to me that a cascading bus 
+power-down message is what has to happen...
 
-Luca
 -- 
-Home: http://kronoz.cjb.net
-"La teoria e` quando sappiamo come funzionano le cose ma non funzionano.
- La pratica e` quando le cose funzionano ma non sappiamo perche`.
- Abbiamo unito la teoria e la pratica: le cose non funzionano piu` e non
- sappiamo il perche`." -- A. Einstein
+Hollis Blanchard
+IBM Linux Technology Center
+

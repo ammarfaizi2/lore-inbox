@@ -1,82 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262971AbTJaAH3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Oct 2003 19:07:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262993AbTJaAH3
+	id S262928AbTJaADc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Oct 2003 19:03:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262937AbTJaADc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Oct 2003 19:07:29 -0500
-Received: from fw.osdl.org ([65.172.181.6]:30361 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262971AbTJaAH1 (ORCPT
+	Thu, 30 Oct 2003 19:03:32 -0500
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:56082
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id S262928AbTJaADb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Oct 2003 19:07:27 -0500
-Date: Thu, 30 Oct 2003 16:07:19 -0800
-From: cliff white <cliffw@osdl.org>
-To: gene.heskett@verizon.net
+	Thu, 30 Oct 2003 19:03:31 -0500
+Subject: Re: uptime reset after about 45 days
+From: Robert Love <rml@tech9.net>
+To: Miquel van Smoorenburg <miquels@cistron.nl>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test9 vs sound
-Message-Id: <20031030160719.76bee7f6.cliffw@osdl.org>
-In-Reply-To: <200310301008.27871.gene.heskett@verizon.net>
-References: <200310301008.27871.gene.heskett@verizon.net>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.9; i686-pc-linux-gnu)
+In-Reply-To: <bns75b$ssn$1@news.cistron.nl>
+References: <1067552357.3fa18e65d1fca@secure.solidusdesign.com>
+	 <Pine.LNX.4.44.0310310005090.11473-100000@gaia.cela.pl>
+	 <bns75b$ssn$1@news.cistron.nl>
+Content-Type: text/plain
+Message-Id: <1067558584.1183.13.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Thu, 30 Oct 2003 19:03:05 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 30 Oct 2003 10:08:27 -0500
-Gene Heskett <gene.heskett@verizon.net> wrote:
+On Thu, 2003-10-30 at 18:34, Miquel van Smoorenburg wrote:
 
-> Where can I find a step by step tutorial on installing alsa since OSS 
-> has been deprecated?  I've been using the shareware OSS on this mobo 
-> for years, the audio chipset is VIA 8233 family.  I have as much of 
-> it compiled into the kernel as there are checkmarks in kconfig but 
-> nothing soundwise is working yet.  I also put that LXD option on the 
-> grub line, but thats being ignored, the dmesg comment is still there.
-> If grub.conf wasn't where it goes, please advise on that too.
+> No, that's only on 2.6, and it has been fixed in 2.6 too.
+> The 2.4 32 bits kernels run with HZ=100.
 > 
-> I've been booted to this for about 10 hours now, and so far sound is 
-> the only thing not working that I've needed.  Not all of my usb stuff 
-> has been exercized yet though.
-> 
-> So far it just plain feels good, congrats to all involved.
-> 
-> Mmm, the pair of warnings about the check_region call being deprecated 
-> are still there in the advansys driver, but it worked normally for 
-> amanda last night.
+> Sounds like the gentoo-kernel has just upped HZ to 1000 without
+> fixing these problems properly. That's .. disappointing.
 
-I would start from the source:
-http://alsa-project.org/documentation.php3
-Or, try the Linux Audio Users Guide:
+Yup.  Last I heard, they merged the variable-HZ patch, set HZ to 1000,
+but did but merge Tim's 64-bit jiffies patch.
 
-http://www.djcj.org/LAU/guide/index.php
+So they roll over in 49 days.
 
-A setup guide for the via8233, with module config info is here:
-
-http://alsa.opensrc.org/index.php?page=via8233
-
-cliffw
+	Robert Love
 
 
-> 
-> -- 
-> Cheers, Gene
-> AMD K6-III@500mhz 320M
-> Athlon1600XP@1400mhz  512M
-> 99.27% setiathome rank, not too shabby for a WV hillbilly
-> Yahoo.com attornies please note, additions to this message
-> by Gene Heskett are:
-> Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
-
--- 
-The church is near, but the road is icy.
-The bar is far, but i will walk carefully. - Russian proverb

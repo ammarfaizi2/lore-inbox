@@ -1,83 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267112AbSKSGgb>; Tue, 19 Nov 2002 01:36:31 -0500
+	id <S267118AbSKSGkL>; Tue, 19 Nov 2002 01:40:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267114AbSKSGgb>; Tue, 19 Nov 2002 01:36:31 -0500
-Received: from dp.samba.org ([66.70.73.150]:13495 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S267112AbSKSGga>;
-	Tue, 19 Nov 2002 01:36:30 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: "Adam J. Richter" <adam@yggdrasil.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Patch: module-init-tools-0.6/modprobe.c - support subdirectories 
-In-reply-to: Your message of "Mon, 18 Nov 2002 07:32:47 -0800."
-             <20021118073247.A10109@adam.yggdrasil.com> 
-Date: Tue, 19 Nov 2002 17:42:38 +1100
-Message-Id: <20021119064333.C5C1C2C2C4@lists.samba.org>
+	id <S267116AbSKSGkL>; Tue, 19 Nov 2002 01:40:11 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:46862
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S267114AbSKSGkJ>; Tue, 19 Nov 2002 01:40:09 -0500
+Date: Mon, 18 Nov 2002 22:42:54 -0800 (PST)
+From: Andre Hedrick <andre@pyxtechnologies.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: Douglas Gilbert <dougg@torque.net>,
+       "J. E. J. Bottomley" <James.Bottomley@SteelEye.com>,
+       Linus Torvalds <torvalds@transmeta.com>, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: linux-2.4.18-modified-scsi-h.patch
+In-Reply-To: <3DD9DA23.1070102@pobox.com>
+Message-ID: <Pine.LNX.4.10.10211182239570.2779-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20021118073247.A10109@adam.yggdrasil.com> you write:
-> 	The following untested patch adds subdirectory support to
-> module-init-tools-0.6/modprobe.c.  I really need this for tools that I
-> use for building initial ramdisks to do things like select all SCSI
-> and IDE drivers without having to release a new version of the ramdisk
-> maker every time a new SCSI or IDE driver is added.  The patch is a net
-> addition of four lines to modprobe.c.
+On Tue, 19 Nov 2002, Jeff Garzik wrote:
 
-Hmm, I'm not entirely convinced.  Moving back into subdirs introduces
-a namespace which isn't really there.  However, as you say, it's
-trivial.
+> Andre Hedrick wrote:
+> 
+> > Greetings Doug et al.
+> >
+> > Please consider the addition of this simple void ptr to the scsi_request
+> > struct.  The addition of this simple void pointer allows one to map any
+> > and all request execution caller the facility to search for a specific
+> > operation without having to run in circles.  Hunting for these details
+> > over the global device list of all HBA's is silly and one of the key
+> > reasons why there error recovery path is so painful.
+> >
+> >
+> > Scsi_Request    *req = sc_cmd->sc_request;
+> > blah_blah_t     *trace = NULL;
+> >
+> > trace = (blah_blah_t *)req->trace_ptr;
+> >
+> >
+> > Therefore the specific transport invoking operations via the midlayer will
+> > have the ablity to track and trace any operation.
+> >
+> > It will save everyone headaches.
+> >
+> > Cheers,
+> >
+> >
+> > Andre Hedrick, CTO & Founder
+> > iSCSI Software Solutions Provider
+> > http://www.PyXTechnologies.com/
+> >
+> >
+> > ------------------------------------------------------------------------
+> >
+> > --- linux/drivers/scsi/scsi.h.orig	2002-10-31 01:45:39.000000000 -0800
+> > +++ linux/drivers/scsi/scsi.h	2002-10-31 01:46:31.000000000 -0800
+> > @@ -667,8 +667,11 @@
+> >  	unsigned short sr_sglist_len;	/* size of malloc'd scatter-gather list */
+> >  	unsigned sr_underflow;	/* Return error if less than
+> >  				   this amount is transferred */
+> > +	void *trace_ptr;	/* capable of cmd-cmnd-error tracing */
+> 
+> 
+> ok
+> 
+> 
+> >  };
+> >
+> > +#define MODIFIED_SCSI_H
+> 
+> 
+> This falls into C style :)  Instead of this I would do
+> 
+> 	#define HAVE_TRACE_PTR 1
+> 
+> just like we already do HAVE_xxx in include/linux/netdevice.h and other 
+> places.
+> 
+> 	Jeff
 
-> 	I am sorry I was not able to test this change, but it would be
-> a lot of work for me to bring up a system without module device ID
-> table support.  I know your ChangeLog says that support is coming.  I
-> wonder if it would break your module utilities to leave the old macros
-> device ID macros in place and let people run the existing depmod.
+Works for me, just need to test the state of intelligence of the SCSI
+stack and if it is possible to teach the old dog a new trick.  The ablitly
+to logically seek an operation without chasing, the link list of devices
+and outstanding commands, it tail!
 
-I'm actually tempted to push your patch for the moment, since it might
-be a week before device ID support is tested and polished enough to go
-in, with everything else I am doing.  OTOH, the current method exposes
-kernel internals to external userspace programs, which is why I do it
-differently.
+Cheers,
 
-> 	I also worry about about the latency of reading the
-> kernel symbols for all modules every time modprobe is called.  If I
-> want to have all of the modules installed, that's at least 1143
-> modules on x86, and this might be the standard installation of a Linux
-> distribution.  Here again, the existing depmod program could be used.
+Andre Hedrick, CTO & Founder 
+iSCSI Software Solutions Provider
+http://www.PyXTechnologies.com/
 
-Yes, it's a fairly obvious optimization: I'd be very interesting in
-timing measurements.  Another method is to use
-/var/cache/modprobe/`uname-r`.dep and use it if available and more
-recent than any module (removes the requirement for depmod).
-
-> 	Finally, I am skeptical of the benefits being worth the cost
-> of putting an ELF relocator and symbol table parser in the kernel.
-
->From the (just posted) FAQ:
-
-Q: Doesn't putting linking code into the kernel just add bloat?
-A: The total linking code is about 200 generic lines, 100
-   x86-specific lines.  The ia64 linking code is about 500 lines (it's
-   the most complex).  Richard Henderson has a great suggestion for
-   simplifying it furthur, which I'm implementing now.  "insmod" is
-   now a single portable system call, meaning insmod can be written in
-   about 20 lines of code.
-
-   The previous code had to implement the two module loading
-   system calls, the module querying system call, and the /proc/ksyms
-   output, required a little more code than the current x86 linker.
-
-Q: Why not just fix the old code?
-A: Because having something so intimate with the kernel in userspace
-   greatly restricts what changes the kernel can make.  Moving into
-   the kernel means I have implemented modversions, typesafe
-   extensible module parameters and kallsyms without altering
-   userspace in any way.  Future extensions won't have to worry about
-   the version of modutils problem.
-
-Hope that clarifies,
-Rusty,
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

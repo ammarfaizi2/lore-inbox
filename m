@@ -1,35 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267422AbRGLD5i>; Wed, 11 Jul 2001 23:57:38 -0400
+	id <S267423AbRGLEja>; Thu, 12 Jul 2001 00:39:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267423AbRGLD53>; Wed, 11 Jul 2001 23:57:29 -0400
-Received: from f123.law8.hotmail.com ([216.33.241.123]:18697 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S267422AbRGLD5J>;
-	Wed, 11 Jul 2001 23:57:09 -0400
-X-Originating-IP: [192.4.16.150]
-Reply-To: jatin.shah@yale.edu
-From: "Jatin Shah" <jatin_shah100@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Resource busy
-Date: Wed, 11 Jul 2001 23:57:05 -0400
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F123WsJ4X0q1y9v2N3t00013f69@hotmail.com>
-X-OriginalArrivalTime: 12 Jul 2001 03:57:06.0115 (UTC) FILETIME=[B75AA130:01C10A86]
+	id <S267424AbRGLEjK>; Thu, 12 Jul 2001 00:39:10 -0400
+Received: from rillanon.amristar.com.au ([202.181.77.23]:25619 "HELO
+	amristar.com.au") by vger.kernel.org with SMTP id <S267423AbRGLEjJ>;
+	Thu, 12 Jul 2001 00:39:09 -0400
+From: "Daniel Harvey" <daniel@amristar.com.au>
+To: "Chris Wedgwood" <cw@f00f.org>, <hahn@coffee.psychology.mcmaster.ca>,
+        <linux-kernel@vger.kernel.org>
+Subject: RE: FW: UPDATE: Linux SLOW on Compaq Armada 110 PIII Speedstep
+Date: Thu, 12 Jul 2001 12:43:08 +0800
+Message-ID: <NEBBJDBLILDEDGICHAGAKEAFCGAA.daniel@amristar.com.au>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+In-Reply-To: <20010712154739.A2877@weta.f00f.org>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-	I have an application that uses an USB camera. This app is bit buggy and 
-when it crashes (segmentation fault) it locks the devices so that the app 
-always gets the message "Device or Resource Busy"(Thats error EBUSY). Note 
-that app, mmaps device to memory.
+At last getting something different!
 
-        Now that app has crashed how do I release the device? rmmod on 
-camera driver (or uhci) does not work.
+linux 2.4.5 with:
 
-Jatin
-PS: Please cc me the response.
-_________________________________________________________________
-Get your FREE download of MSN Explorer at http://explorer.msn.com
+no options - slow
+mem=64M - fast
+mem=128M - fast
+mem=200M - fast
+mem=224M - fast
+mem=240M - fast
+mem=248M - fast
+mem=249M - fast/medium, fast 'make dep' but slow boot/reboot
+mem=250M - slow
+mem=252M - slow
+mem=256M - hangs on boot, last line="Freeing unused kernel memory: 196k
+freed"
+
+
+> -----Original Message-----
+> From: Chris Wedgwood [mailto:cw@f00f.org]
+> Sent: Thursday, 12 July 2001 11:48 AM
+> To: Daniel Harvey
+> Subject: Re: FW: UPDATE: Linux SLOW on Compaq Armada 110 PIII Speedstep
+>
+>
+> On Thu, Jul 12, 2001 at 11:48:31AM +0800, Daniel Harvey wrote:
+>
+>     That's the weird thing - 2.4.5 is just as slow! Even though,
+> as you say, it
+>     has the patch etc incorporated ...
+>
+> boot 2.4.5 with the command line optino "mem=64M" and see how slow it is
+>
+>
+>
+>   --cw
+>
 

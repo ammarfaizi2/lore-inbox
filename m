@@ -1,53 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262345AbVBYBXd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262586AbVBYBjp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262345AbVBYBXd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 20:23:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262579AbVBYBXd
+	id S262586AbVBYBjp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 20:39:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262588AbVBYBjp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 20:23:33 -0500
-Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:25530 "EHLO
-	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
-	id S262345AbVBYBX3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 20:23:29 -0500
-Date: Fri, 25 Feb 2005 02:23:26 +0100
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11-rc2-mm1 strange messages
-Message-ID: <20050225012326.GA14302@gamma.logic.tuwien.ac.at>
-References: <20050125121704.GA22610@gamma.logic.tuwien.ac.at> <20050125102834.7e549322.akpm@osdl.org> <20050224141015.GA6756@gamma.logic.tuwien.ac.at> <20050224150326.3a82986c.akpm@osdl.org>
+	Thu, 24 Feb 2005 20:39:45 -0500
+Received: from main.gmane.org ([80.91.229.2]:17300 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S262586AbVBYBjm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Feb 2005 20:39:42 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Kay Sievers <kay.sievers@vrfy.org>
+Subject: Re: [PATCH] Symlink /sys/class/block to /sys/block
+Date: Fri, 25 Feb 2005 01:35:13 +0000 (UTC)
+Message-ID: <loom.20050225T020954-395@post.gmane.org>
+References: <courier.4217CBC9.000027C1@mail.farside.org.uk> <20050222190412.GA23687@suse.de> <courier.421C5047.00003EBA@mail.farside.org.uk> <20050224233458.GB26941@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050224150326.3a82986c.akpm@osdl.org>
-User-Agent: Mutt/1.3.28i
-From: Norbert Preining <preining@logic.at>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: main.gmane.org
+User-Agent: Loom/3.14 (http://gmane.org/)
+X-Loom-IP: 213.39.203.103 (Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041228 Firefox/1.0 Fedora/1.0-8)
+X-Gmane-MailScanner: Found to be clean
+X-Gmane-MailScanner: Found to be clean
+X-MailScanner-From: glk-linux-kernel@m.gmane.org
+X-MailScanner-To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Don, 24 Feb 2005, Andrew Morton wrote:
-> What does the stack backtrace from iounmap-debugging.patch say?
+Greg KH <gregkh <at> suse.de> writes:
 
-iounmap: bad address c00fffd9
- [<c03f8430>] trap_init+0x30/0x190
- [<c03f2697>] start_kernel+0x47/0x1c0
+> 
+> On Wed, Feb 23, 2005 at 09:43:35AM +0000, Malcolm Rowe wrote:
+> > Greg KH writes: 
+> > 
+> > >>Following the discussion in [1], the attached patch creates 
+> > >>/sys/class/block
+> > >>as a symlink to /sys/block. The patch applies to 2.6.11-rc4-bk7.  
+> > >>
+> > >>Please cc: me on any replies - I'm not subscribed to the mailing list. 
+> > >Hm, your patch is linewrapped, and can't be applied :(
+> > 
+> > Bah, and I did send it to myself first, but I guess my mailer un-flowed it 
+> > for me .  I'll try to find a better mailer. 
+> > 
+> > >But more importantly:
+> > >>static void disk_release(struct kobject * kobj)
+> > >
+> > >Did you try to remove a disk (like a usb device) and see what happens
+> > >here?  Hint, this isn't the proper place to remove the symlink...
+> > 
+> > Er, yeah. Oops. 
+> > 
+> > *Is* there a sensible place to remove the symlink from, though?  Nobody 
+> > seems to call subsystem_unregister(&block_subsys), which is the place I'd 
+> > expect to add a call to, and I can't see anything that's otherwise 
+> > obvious... 
+> 
+> If the subsystem is never unregistered, then don't worry about undoing
+> the symlink.
+
+This symlink will break a lot of applications out there. If there is not a
+_very_ good reason for it, we should not do that.
+
+The "dev" file unfortunately does not tell you if it's a char or block
+device node and that should be solved by something better than matching a
+magic string somewhere in the middle of a devpath.
+
+The hotplug events will still have the /block/* devpath, so this symlink
+will give us nothing than problems.
+
+Thanks,
+Kay
 
 
-Best wishes
-
-Norbert
-
--------------------------------------------------------------------------------
-Norbert Preining <preining AT logic DOT at>                 Università di Siena
-sip:preining@at43.tuwien.ac.at                             +43 (0) 59966-690018
-gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
--------------------------------------------------------------------------------
-"What was the self-sacrifice?"
-"I jettisoned half of a much loved and I think
-irreplaceable pair of shoes."
-"Why was that self-sacrifice?"
-"Because they were mine!" said Ford crossly.
-"I think we have different value systems."
-"Well mine's better."
-"That's according to your... oh never mind."
-                 --- Douglas Adams, The Hitchhikers Guide to the Galaxy

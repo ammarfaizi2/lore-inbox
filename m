@@ -1,57 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264590AbTFTUOa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jun 2003 16:14:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264605AbTFTUO3
+	id S264592AbTFTUQY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jun 2003 16:16:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264605AbTFTUQY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jun 2003 16:14:29 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:62851 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S264590AbTFTUOU convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jun 2003 16:14:20 -0400
-Date: Fri, 20 Jun 2003 13:23:14 -0700 (PDT)
-Message-Id: <20030620.132314.35673846.davem@redhat.com>
-To: joern@wohnheim.fh-wedel.de
-Cc: linux-kernel@vger.kernel.org, jmorris@intercode.com.au,
-       dwmw2@infradead.org
-Subject: Re: [RFC] Breaking data compatibility with userspace bzlib
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20030620195658.GB22732@wohnheim.fh-wedel.de>
-References: <20030620185915.GD28711@wohnheim.fh-wedel.de>
-	<20030620.124510.28800472.davem@redhat.com>
-	<20030620195658.GB22732@wohnheim.fh-wedel.de>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	Fri, 20 Jun 2003 16:16:24 -0400
+Received: from daffy.hulpsystems.net ([64.246.21.252]:34731 "EHLO
+	daffy.hulpsystems.net") by vger.kernel.org with ESMTP
+	id S264592AbTFTUPF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jun 2003 16:15:05 -0400
+Subject: RE: [OT] Re: Troll Tech [was Re: Sco vs. IBM]
+From: Martin List-Petersen <martin@list-petersen.dk>
+To: Michael Kalus <Michael.Kalus@rci.rogers.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <887CB94BF0AE3A4CA62241C3DAF0E5F001924911@rssesngtamba.rci.rogers.ca>
+References: <887CB94BF0AE3A4CA62241C3DAF0E5F001924911@rssesngtamba.rci.rogers.ca>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-QZcfKmTkgBGwl0dYqFlJ"
+Organization: 
+Message-Id: <1056140931.30881.3.camel@loke>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 20 Jun 2003 22:28:51 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Jörn Engel <joern@wohnheim.fh-wedel.de>
-   Date: Fri, 20 Jun 2003 21:56:58 +0200
 
-   On Fri, 20 June 2003 12:45:10 -0700, David S. Miller wrote:
-   > Therefore we couldn't make the compress cryptolib interface
-   > take scatterlists elements either, which is a huge problem.
-   
-   Is there a reason to use the zlib and nothing but the zlib for the
-   cryptolib?  RFCs 1950 - 1952?  Or would any form of compression do, in
-   principle at least?
+--=-QZcfKmTkgBGwl0dYqFlJ
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-Because it's not very sensible to have 2 pieces of code that
-do exactly the same thing? :-)
-   
-   In the worst case, I consider it not too hard to add a wrapper
-   interface to the zlib to do the scatter-gather handling.
+On Fri, 2003-06-20 at 19:48, Michael Kalus wrote:
+> Interrestingly enough though, I am wondering if the attitude of the big
+> companies (e.g. Sun, IBM, HP etc.) isn't slowly changing, that they come =
+to
+> see themselves more as a service and less as a software company? If that'=
+s
+> the case than they might actually not stop OSS or their people from worki=
+ng
+> on OSS projects.
 
-It's not that simple.
+Isn't AIX free anyway (i think you got it for free, when you bought the
+hardware), meaning IBM actually earns on the service and the hardware ?
 
-Is the wrapper called in IRQ or BH or user context?  This matters
-to determine what kind of kmap() operations you must use in the
-wrapper.
+That's were they are and that's were that marked is going. (Just my
+humble opinion).
 
-That's merely the beginning of the problems with this kind of idea.
+> Just my 2 cents.
 
-Don't let my statements stall your work, it was just a FYI and
-something we should take care of in the 2.7.x timeframe not now.
+That would be about 20 =F8re here :o)
+
+Regards,
+Martin List-Petersen
+martin at list-petersen dot dk
+--
+Spence's Admonition:
+        Never stow away on a kamikaze plane.
+
+
+--=-QZcfKmTkgBGwl0dYqFlJ
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA+826CzAGaxP8W1ugRAsmMAJ9MTNKSzxIFKRlcbjB0BQ4rir0vJwCgtrn+
+L5ElMSd0+8a9V6+DuZQD/LU=
+=mhKE
+-----END PGP SIGNATURE-----
+
+--=-QZcfKmTkgBGwl0dYqFlJ--
+

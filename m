@@ -1,50 +1,31 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316915AbSEVKEF>; Wed, 22 May 2002 06:04:05 -0400
+	id <S315513AbSEVKHK>; Wed, 22 May 2002 06:07:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316916AbSEVKEE>; Wed, 22 May 2002 06:04:04 -0400
-Received: from AMontpellier-201-1-3-85.abo.wanadoo.fr ([193.252.1.85]:13587
-	"EHLO microsoft.com") by vger.kernel.org with ESMTP
-	id <S316915AbSEVKEE> convert rfc822-to-8bit; Wed, 22 May 2002 06:04:04 -0400
-Subject: Re: suspend-to-{RAM,disk} for 2.5.17
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Pavel Machek <pavel@ucw.cz>,
+	id <S315522AbSEVKHJ>; Wed, 22 May 2002 06:07:09 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:13583 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S315513AbSEVKHJ>; Wed, 22 May 2002 06:07:09 -0400
+Message-ID: <3CEB5EF4.604@evision-ventures.com>
+Date: Wed, 22 May 2002 11:03:48 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
+X-Accept-Language: en-us, pl
+MIME-Version: 1.0
+To: Xavier Bestel <xavier.bestel@free.fr>
+CC: Linus Torvalds <torvalds@transmeta.com>, Pavel Machek <pavel@ucw.cz>,
         Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
         ACPI mailing list <acpi-devel@lists.sourceforge.net>
-In-Reply-To: <3CEB3F93.7030508@evision-ventures.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Ximian Evolution 1.0.4.99 
-Date: 22 May 2002 12:03:03 +0200
-Message-Id: <1022061793.28881.29.camel@nomade>
-Mime-Version: 1.0
+Subject: Re: suspend-to-{RAM,disk} for 2.5.17
+In-Reply-To: <Pine.LNX.4.33.0205211557410.1307-100000@penguin.transmeta.com>	 <3CEB3F93.7030508@evision-ventures.com> <1022061793.28881.29.camel@nomade>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le mer 22/05/2002 à 08:49, Martin Dalecki a écrit :
-> Oh and please reject the idea of compressing the pages
-> you are writing to disk for the following reaons:
-> 
-> 1. compression is not deterministic in terms of the possible space
-> savings, you will still have to provide the required amount of space.
-> 
-> 2. every compression algorithm has theoretical cases where the
-> compression mechanism is actually increasing the space requirements.
-> 
-> 3. Compressing around 360 Mbytes of data will take quite a lot
-> of time.
-> 
-> 4. Point 3 will make the CPU go high - not nice if the suspend
-> happens in case of battery emergency...
+Uz.ytkownik Xavier Bestel napisa?:
 
-Compressing pages will speed up the process, and doing it on the fly
-will be more IO-bound than CPU-bound. I think trading some CPU power to
-gain HD time isn't so uninteresting.
+> Compressing pages will speed up the process, and doing it on the fly
 
-Concerning point 2, you could always compress by chunks (say 1M) and
-take the compressed version only if it's smaller.
-
-	Xav
-
+Did you ever in you life tar czvf ./some_dir and have a look at top?!
 

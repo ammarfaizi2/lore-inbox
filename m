@@ -1,76 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266242AbUHRMck@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266186AbUHRM3r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266242AbUHRMck (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Aug 2004 08:32:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266223AbUHRMaL
+	id S266186AbUHRM3r (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Aug 2004 08:29:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266173AbUHRM3W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Aug 2004 08:30:11 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:227 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S266147AbUHRM0H (ORCPT
+	Wed, 18 Aug 2004 08:29:22 -0400
+Received: from acheron.informatik.uni-muenchen.de ([129.187.214.135]:16103
+	"EHLO acheron.informatik.uni-muenchen.de") by vger.kernel.org
+	with ESMTP id S266201AbUHRM1X (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Aug 2004 08:26:07 -0400
-Date: Wed, 18 Aug 2004 14:27:03 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Florian Schmidt <mista.tapas@gmx.net>
-Cc: Lee Revell <rlrevell@joe-job.com>, Thomas Charbonnel <thomas@undata.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Subject: Re: [patch] voluntary-preempt-2.6.8.1-P3
-Message-ID: <20040818122703.GA17301@elte.hu>
-References: <1092627691.867.150.camel@krustophenia.net> <20040816034618.GA13063@elte.hu> <1092628493.810.3.camel@krustophenia.net> <20040816040515.GA13665@elte.hu> <1092654819.5057.18.camel@localhost> <20040816113131.GA30527@elte.hu> <20040816120933.GA4211@elte.hu> <1092716644.876.1.camel@krustophenia.net> <20040817080512.GA1649@elte.hu> <20040818141231.4bd5ff9d@mango.fruits.de>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="Q68bSM7Ycu6FN28Q"
-Content-Disposition: inline
-In-Reply-To: <20040818141231.4bd5ff9d@mango.fruits.de>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Wed, 18 Aug 2004 08:27:23 -0400
+Message-ID: <41234B2A.7040507@bio.ifi.lmu.de>
+Date: Wed, 18 Aug 2004 14:27:22 +0200
+From: Frank Steiner <fsteiner-mail@bio.ifi.lmu.de>
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040503)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Marc Ballarin <Ballarin.Marc@gmx.de>
+Cc: andreas.messer@gmx.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.6.8.1 Mis-detect CRDW as CDROM
+References: <411FD919.9030702@comcast.net>	<20040816231211.76360eaa.Ballarin.Marc@gmx.de>	<4121A689.8030708@bio.ifi.lmu.de>	<200408171311.06222.satura@proton>	<20040817155927.GA19546@proton-satura-home>	<41234500.5080500@bio.ifi.lmu.de> <20040818142046.36499779.Ballarin.Marc@gmx.de>
+In-Reply-To: <20040818142046.36499779.Ballarin.Marc@gmx.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Marc,
 
---Q68bSM7Ycu6FN28Q
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Marc Ballarin wrote:
+
+> growisofs and dvd+r-format open the device read-only, even though they try
+> to do writes.
+> 
+> Two choices:
+> 1) declare all needed commands as safe for read 
+
+yes, that's what I tried, but it had no effect. For instance, I declared
+
+                safe_for_read(GPCMD_READ_FORMAT_CAPACITIES),
+
+which is 0x23, but growisofs still complains with
+
+Aug 18 13:52:21 aiken kernel: THIS IS MY NEW PATCH SCSI-CMD Filter: 0x23 not allowed with read-mode
+
+That's what I don't understand. I think the line above should declare
+0x23 as safe for read, but it seems to be ignored.
+
+ > (you might as well disable filtering completely...)
+
+Likely I will end up with this :-/
 
 
-* Florian Schmidt <mista.tapas@gmx.net> wrote:
+> 
+> 2) replace O_RDONLY in dvd+r-tools sources with O_RDWR and recompile
+> (that's what I did).
 
-> Hi, it applied against 2.6.8.1 with some offsets and some buzz [?].
-> Well anyways it compiled fine and the copy_page_range latency is
-> gone.. Now i also see the extracty entropy thing, too..
+I will check that!
 
-could you try the attached patch that changes SHA_CODE_SIZE to 3 - does
-this reduce the latency caused by extract_entropy?
+cu,
+Frank
 
-> Btw: one question: at one point in time the IRQ handlers were in the
-> SCHED_FIFO scheduling class. Why has this changed?
+-- 
+Dipl.-Inform. Frank Steiner   Web:  http://www.bio.ifi.lmu.de/~steiner/
+Lehrstuhl f. Bioinformatik    Mail: http://www.bio.ifi.lmu.de/~steiner/m/
+LMU, Amalienstr. 17           Phone: +49 89 2180-4049
+80333 Muenchen, Germany       Fax:   +49 89 2180-99-4049
 
-so that they dont starve the audio threads by default - the audio IRQ
-has to get another priority anyway. Maybe we could try a default
-SCHED_FIFO prio lower than the typical rt_priority of jackd - e.g. 30?
-
-	Ingo
-
---Q68bSM7Ycu6FN28Q
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=1
-
---- linux/drivers/char/random.c.orig	
-+++ linux/drivers/char/random.c	
-@@ -942,7 +942,7 @@ EXPORT_SYMBOL(add_disk_randomness);
- #define HASH_TRANSFORM SHATransform
- 
- /* Various size/speed tradeoffs are available.  Choose 0..3. */
--#define SHA_CODE_SIZE 0
-+#define SHA_CODE_SIZE 3
- 
- /*
-  * SHA transform algorithm, taken from code written by Peter Gutmann,
-
---Q68bSM7Ycu6FN28Q--

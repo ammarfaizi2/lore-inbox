@@ -1,66 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264052AbTGGRDF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jul 2003 13:03:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264075AbTGGRDF
+	id S264192AbTGGRPS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jul 2003 13:15:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265076AbTGGRPR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jul 2003 13:03:05 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:12940 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264052AbTGGRDC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jul 2003 13:03:02 -0400
-Date: Sun, 6 Jul 2003 22:50:42 -0700
-From: Greg KH <greg@kroah.com>
-To: Manuel Estrada Sainz <ranty@debian.org>
-Cc: Joshua Kwan <joshk@triplehelix.org>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: orinoco USB driver
-Message-ID: <20030707055042.GA25011@kroah.com>
-References: <20030706001601.GA8592@triplehelix.org> <20030706225325.GA16186@ranty.pantax.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 7 Jul 2003 13:15:17 -0400
+Received: from smtp808.mail.sc5.yahoo.com ([66.163.168.187]:53299 "HELO
+	smtp808.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S264192AbTGGRPP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jul 2003 13:15:15 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Peter Berg Larsen <pebl@math.ku.dk>
+Subject: Re: [PATCH] Synaptics: support for pass-through port (stick)
+Date: Mon, 7 Jul 2003 12:31:15 -0500
+User-Agent: KMail/1.5.1
+Cc: linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>
+References: <Pine.LNX.4.40.0307071400140.28730-100000@shannon.math.ku.dk>
+In-Reply-To: <Pine.LNX.4.40.0307071400140.28730-100000@shannon.math.ku.dk>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20030706225325.GA16186@ranty.pantax.net>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200307071231.16178.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 07, 2003 at 12:53:25AM +0200, Manuel Estrada Sainz wrote:
-> On Sat, Jul 05, 2003 at 05:16:01PM -0700, Joshua Kwan wrote:
-> > I'm currently trying to get my Avaya Wireless 'Silver' USB device to
-> > work with the orinoco_usb driver v0.2.1.
-> > 
-> > Firstly, it is not 'supported.' So I had to use force_unsupported=1.
-> > But the firmware you download is from Avaya's site, so it seems to me
-> > like it should work!
-> > 
-> > Here's what i get:
-> > 
-> > firesong:/usr/src/orinoco-usb-0.2.1# modprobe orinoco_usb debug=1 force_unsupported=1
-> > /usr/src/orinoco-usb-0.2.1/driver/orinoco_usb.c: Device is not supported (you may want to set force_unsupported=1)
-> > /usr/src/orinoco-usb-0.2.1/driver/orinoco_usb.c: Trying to handle device anyway as requested
-> > /usr/src/orinoco-usb-0.2.1/driver/orinoco_usb.c:bridge_probe: ENTER
-> > /usr/src/orinoco-usb-0.2.1/driver/orinoco_usb.c: No firmware to download
-> > /usr/src/orinoco-usb-0.2.1/driver/orinoco_usb.c:bridge_remove_in_urb: no urb to remove
-> > /usr/src/orinoco-usb-0.2.1/driver/orinoco_usb.c:bridge_delete: ENTER
-> > unregister_netdevice: device wlan%d/cf4f3000 never was registered
-> > /usr/src/orinoco-usb-0.2.1/driver/orinoco_usb.c:bridge_delete: EXIT
-> > /usr/src/orinoco-usb-0.2.1/driver/orinoco_usb.c:bridge_probe: EXIT
-> > drivers/usb/core/usb.c: registered new driver Orinoco USB
-> > orinoco_usb.c v0.2.1 (Manuel Estrada Sainz <ranty@debian.org>)
-> > 
-> > The light does not come on and I don't get any device. I notice that the
-> > firmware is loaded from a .SYS file and installed into the hotplug
-> > /usr/lib directory. When is this loaded?
-> > 
-> > Do you have any pointers? It would be really nice to get the card to
-> > work!
-> 
->  You need a working hotplug package for the new driver to work.
+On Monday 07 July 2003 07:09 am, Peter Berg Larsen wrote:
+> On Mon, 7 Jul 2003, Peter Berg Larsen wrote:
+>
+> Replying to myself.
+>
+> > > button reporting (only left and right as I am not sure to which buttons
+> > > up/down should be mapped),
+> >
+> > hmm. You dont know what the guest protocol, so you can't just | the
+> > button information. However, reallity is that this will work for nearly
+> > anybody now.
+>
+> This is not the greatest idea as the guest sometimes does not recieve the
+> button release. This is bad only if the userdriver multiplex the
+> micebuttons from different mice, because it would then seem as the user
+> holds the button down.
+>
 
-What do you mean?  Does the base linux-hotplug scripts need to be
-changed for this device somehow?
+So should we just get rid of all button multiplexing in kernel module and 
+leave it to the userland (gpm/XFree)? Not trying to bail out, just want to 
+find the best solution...
 
-thanks,
-
-greg k-h
+Dmitry

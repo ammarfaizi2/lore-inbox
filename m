@@ -1,88 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268051AbUJGWas@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268255AbUJGWXG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268051AbUJGWas (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 18:30:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269878AbUJGW2Y
+	id S268255AbUJGWXG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 18:23:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266175AbUJGWW3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 18:28:24 -0400
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:7592
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S269873AbUJGW1s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 18:27:48 -0400
-Date: Thu, 7 Oct 2004 15:26:34 -0700
-From: "David S. Miller" <davem@davemloft.net>
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-Cc: martijn@entmoot.nl, hzhong@cisco.com, jst1@email.com,
-       linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
-       davem@redhat.com
-Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
-Message-Id: <20041007152634.5374a774.davem@davemloft.net>
-In-Reply-To: <4165C20D.8020808@nortelnetworks.com>
-References: <00e501c4ac9a$556797d0$b83147ab@amer.cisco.com>
-	<41658C03.6000503@nortelnetworks.com>
-	<015f01c4acbe$cf70dae0$161b14ac@boromir>
-	<4165B9DD.7010603@nortelnetworks.com>
-	<20041007150035.6e9f0e09.davem@davemloft.net>
-	<4165C20D.8020808@nortelnetworks.com>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 7 Oct 2004 18:22:29 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:5072 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S269859AbUJGWTM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 18:19:12 -0400
+Subject: [ANNOUNCE] October Release of LTP now available
+To: linux-kernel@vger.kernel.org, ltp-list@lists.sourceforge.net,
+       ltp-announce@lists.sourceforge.net
+X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
+Message-ID: <OF944502BF.97D1185A-ON85256F26.007A6594-86256F26.007A94A2@us.ibm.com>
+From: Marty Ridgeway <mridge@us.ibm.com>
+Date: Thu, 7 Oct 2004 17:18:54 -0500
+X-MIMETrack: Serialize by Router on D01ML072/01/M/IBM(Release 6.0.2CF2 HFB2|August 27, 2004) at
+ 10/07/2004 18:18:55
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 07 Oct 2004 16:24:13 -0600
-Chris Friesen <cfriesen@nortelnetworks.com> wrote:
 
-> I believe you misread what I said.  Just before the above quote, I said "We are 
-> discussing the case where the socket is nonblocking and the udp checksum is 
-> corrupt, right? "
 
-And in that case we return -EAGAIN and always have.
 
-> What I had in mind was that the non-blocking file descriptor have select() 
-> return without verifying the checksum, and if it was discovered to be bad at 
-> recvmsg() time, we return EAGAIN.
 
-That's what we do.  In net/ipv4/udp.c:udp_recvmsg()
+Changes in the October LTP release:
 
-	if (skb->ip_summed==CHECKSUM_UNNECESSARY) {
-		err = skb_copy_datagram_iovec(skb, sizeof(struct udphdr), msg->msg_iov,
-					      copied);
-	} else if (msg->msg_flags&MSG_TRUNC) {
-		if (__udp_checksum_complete(skb))
-			goto csum_copy_err;
-		err = skb_copy_datagram_iovec(skb, sizeof(struct udphdr), msg->msg_iov,
-					      copied);
-	} else {
-		err = skb_copy_and_csum_datagram_iovec(skb, sizeof(struct udphdr), msg->msg_iov);
+LTP-20041007
+- Applied fix from patch 1037010, submitted by mator.
+- Changes from Kris Wilson on RH specific changes
+- Changes from the security team testcases
+- Add HOWTO for pci tests
+- Changes for pci testcases
+- Disable -std=c99 and -peandtic flags in writetest's Makefile.  Some users
+of very old gcc versions
+  had problems with this, but it looks like those versions of gcc will
+still compile it ok.
+- Fix typo and add log statement if a failure on loading the test module
+- Changes requested from the security team for fix PPC64 error
+- Small fix to chown03 and fchown04.  tst_tmpdir() call was happening in a
+spot that would cause
+  it to break under certain automation environments.
+- un-spamify fork11 test
+- Fix getrlimit02.  Rajeev Tiwari <rajeevti@in.ibm.com> pointed out that
+RLIMIT_NLIMIT was now too
+  low in the usr include files for newer kernels to cause this to fail.
+Defined a new high one that
+  ought to work for the forseeable future.
+- Overhaul madvise02.  Removed some invalid testcases, fixed one case that
+was an invalid failure, and a lot of cleanup
+- Changes from SuSE for mincore tests
+- Changes from Ihno for Itainium failures
+- Changes from SuSE for setdomainname tests
+- Changes submitted from SuSE for sethostname
+- Changes to fix statfs03 error on trying to write to protected directory
+- Change to fix defect 10947, failure on tmp directory
+- Applied IA64 specific patch from Jacky Malcles:
 
-		if (err == -EINVAL)
-			goto csum_copy_err;
-	}
- ...
-csum_copy_err:
-	UDP_INC_STATS_BH(UDP_MIB_INERRORS);
 
-	/* Clear queue. */
-	if (flags&MSG_PEEK) {
-		int clear = 0;
-		spin_lock_irq(&sk->sk_receive_queue.lock);
-		if (skb == skb_peek(&sk->sk_receive_queue)) {
-			__skb_unlink(skb, &sk->sk_receive_queue);
-			clear = 1;
-		}
-		spin_unlock_irq(&sk->sk_receive_queue.lock);
-		if (clear)
-			kfree_skb(skb);
-	}
+Linux Test Project
+Linux Technology Center
+IBM Corporation
 
-	skb_free_datagram(sk, skb);
 
-	if (noblock)
-		return -EAGAIN;	
-	goto try_again;
+Internet E-Mail : mridge@us.ibm.com
+IBM, 11501 Burnet Rd, Austin, TX  78758
+Phone (512) 838-1356 - T/L 678-1356 - Bldg. 908/1C005
+Austin, TX.
 
-If socket is non-blocking, return -EAGAIN, else go back to "try_again"
-where we block on packet arrival or error.

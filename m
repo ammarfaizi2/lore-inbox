@@ -1,48 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318663AbSHAIqb>; Thu, 1 Aug 2002 04:46:31 -0400
+	id <S318666AbSHAItr>; Thu, 1 Aug 2002 04:49:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318666AbSHAIqb>; Thu, 1 Aug 2002 04:46:31 -0400
-Received: from [217.167.51.129] ([217.167.51.129]:496 "EHLO zion.wanadoo.fr")
-	by vger.kernel.org with ESMTP id <S318663AbSHAIqa>;
-	Thu, 1 Aug 2002 04:46:30 -0400
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>, Lincoln Dale <ltd@cisco.com>
-Cc: David Luyer <david_luyer@pacific.net.au>,
-       "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.19ac3rc3 on IBM x330/x340 SMP - "ps" time skew
-Date: Thu, 1 Aug 2002 10:49:19 +0200
-Message-Id: <20020801084920.15476@192.168.4.1>
-In-Reply-To: <200208010133.g711Xq7338295@saturn.cs.uml.edu>
-References: <200208010133.g711Xq7338295@saturn.cs.uml.edu>
-X-Mailer: CTM PowerMail 3.1.2 F <http://www.ctmdev.com>
+	id <S318669AbSHAItr>; Thu, 1 Aug 2002 04:49:47 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:30468 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318666AbSHAItq>;
+	Thu, 1 Aug 2002 04:49:46 -0400
+Message-ID: <3D48F915.3FADA08F@zip.com.au>
+Date: Thu, 01 Aug 2002 02:02:13 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc3-ac3 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+To: Jens Axboe <axboe@suse.de>
+CC: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.4.19-rc5
+References: <20020801074953.GJ1644@suse.de> <Pine.LNX.4.44.0208010406230.1728-100000@freak.distro.conectiva> <20020801081010.GA1096@suse.de>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->2.2.xx i386 as shipped by Linus
->2.4.xx i386 with HZ modified
->
->Come on, write the code if you think it's so easy.
->You get bonus points for supporting 2.0.xx kernels
->and the IA-64 kernel with that same executable.
->
->Maybe you think I should tell these people to go to Hell?
->In that case, what about the Alpha systems that ran HZ at
->1200 instead of 1024?
+Jens Axboe wrote:
+> 
+> ...
+> > Anyway, lets wait for the numbers.
+> 
+> It just 'feels' like the sort of change that might have odd side
+> effects.
 
-Isn't HZ value passed down to userland via the ELF aux table ?
+It's almost impossible to get READA to do anything.  For example, in
+current 2.5, if a READA attempt is actually aborted, end_buffer_io_sync
+reports a "buffer I/O error".  Every time. And nobody has reported this.
 
-(At least the "userland visible" one, which isn't the kernel
-internal one in recent 2.5's, oh well...)
+It _is_ possible to hit this in 2.5, because of ext2_preread_inode().
 
-That's a reason I don't understand why Linus did this separation
-between "userland visibl" HZ and kernel internal HZ. I would have
-just changed the kernel HZ and let userland be fixed to use the
-value passed via the aux table instead of hard coding it.
-
-Ben.
-
-
+Probably, also it's possible to hit it in 2.4 with hundreds of processes
+all issuing ext3 directory readahead.  But it's pretty remote.

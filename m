@@ -1,36 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265754AbSJYAdR>; Thu, 24 Oct 2002 20:33:17 -0400
+	id <S265721AbSJYBBk>; Thu, 24 Oct 2002 21:01:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265755AbSJYAdN>; Thu, 24 Oct 2002 20:33:13 -0400
-Received: from sccrmhc03.attbi.com ([204.127.202.63]:41601 "EHLO
-	sccrmhc03.attbi.com") by vger.kernel.org with ESMTP
-	id <S265754AbSJYAdJ>; Thu, 24 Oct 2002 20:33:09 -0400
-Date: Thu, 24 Oct 2002 17:39:18 -0700
-From: "H. J. Lu" <hjl@lucon.org>
-To: "Leech, Christopher" <christopher.leech@intel.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>,
-       linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: PCI device order problem
-Message-ID: <20021024173918.A23457@lucon.org>
-References: <BD9B60A108C4D511AAA10002A50708F2073175F8@orsmsx118.jf.intel.com>
+	id <S265727AbSJYBBk>; Thu, 24 Oct 2002 21:01:40 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:28421
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S265721AbSJYBBk>; Thu, 24 Oct 2002 21:01:40 -0400
+Subject: Re: [Lse-tech] Re: [PATCH]updated ipc lock patch
+From: Robert Love <rml@tech9.net>
+To: Rick Lindsley <ricklind@us.ibm.com>
+Cc: Andrew Morton <akpm@digeo.com>, Hugh Dickins <hugh@veritas.com>,
+       cmm@us.ibm.com, manfred@colorfullife.com, linux-kernel@vger.kernel.org,
+       dipankar@in.ibm.com, lse-tech@lists.sourceforge.net
+In-Reply-To: <200210250035.g9P0ZQD11398@eng4.beaverton.ibm.com>
+References: <200210250035.g9P0ZQD11398@eng4.beaverton.ibm.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 24 Oct 2002 21:07:50 -0400
+Message-Id: <1035508071.735.366.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <BD9B60A108C4D511AAA10002A50708F2073175F8@orsmsx118.jf.intel.com>; from christopher.leech@intel.com on Thu, Oct 24, 2002 at 05:25:01PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 24, 2002 at 05:25:01PM -0700, Leech, Christopher wrote:
-> 
-> If you're that concerned about possible ordering changes due to future BIOS
-> upgrades, I'd suggest setting up an /etc/mactab and using nameif to control
-> interface naming from userspace.
-> 
+On Thu, 2002-10-24 at 20:35, Rick Lindsley wrote:
 
-That is not enough. I use PXE to install RedHat. The RedHat 7.3 installer only
-deals with ethX.
+> There was a time when "inline" was a very cool tool because it had been
+> judged that the overhead of actually calling a function was just too
+> heinous to contemplate.  From comments in this and other discussions,
+> is it safe to say that the pendulum has now swung the other way?  I see
+> a lot of people concerned about code size and apparently returning to
+> the axiom of "if you use it more than once, make it a function."  Are
+> we as a community coming around to using inlining only on very tight,
+> very critical functions?
 
+I think so, at least Andrew is championing us in that direction.  But I
+agree.
 
-H.J.
+It somewhere became the notion if the function is small, it
+automatically should be inlined.  I suspect Andrew has even stricter
+criteria than me (I think super small functions should be inlined) but
+the general "its only a couple of lines" or "it could be a macro" are
+not sufficient criterion for inlining.
+
+So, my thoughts on suitable criteria would be:
+
+	- used only once and only ever in that one spot (i.e.
+	  it really could be part of the caller, but it was pulled
+	  out for cleanliness.  Keep it inline to not have the
+	  cleanliness cause a performance degradation (however
+	  small)).
+
+	- small functions, where small is so small the function
+	  overhead is nearly the same size.  Stuff that might not
+	  even do anything but return a permutation of an argument,
+	  etc.
+
+	- very very time critical functions in time critical places
+
+So that removes the previous criteria of "the function is N lines or
+smaller" where N is some number less than 100 :)
+
+	Robert Love
+

@@ -1,43 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267480AbTCESX2>; Wed, 5 Mar 2003 13:23:28 -0500
+	id <S267425AbTCESdM>; Wed, 5 Mar 2003 13:33:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267481AbTCESX2>; Wed, 5 Mar 2003 13:23:28 -0500
-Received: from h214n1fls32o988.telia.com ([62.20.176.214]:1284 "EHLO
-	sirius.nix.badanka.com") by vger.kernel.org with ESMTP
-	id <S267480AbTCESX1>; Wed, 5 Mar 2003 13:23:27 -0500
-Message-Id: <200303051833.h25IXtAx086878@sirius.nix.badanka.com>
-Date: Wed, 5 Mar 2003 19:33:54 +0100
-From: Henrik Persson <nix@socialism.nu>
-To: linux-kernel@vger.kernel.org
-Subject: Re: kernel issue
-In-Reply-To: <20030305182213.GB13420@gtf.org>
-References: <F83FprhMOgRGkQ6mByS00023670@hotmail.com>
-	<20030305182213.GB13420@gtf.org>
-X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S267427AbTCESdM>; Wed, 5 Mar 2003 13:33:12 -0500
+Received: from PACIFIC-CARRIER-ANNEX.MIT.EDU ([18.7.21.83]:35525 "EHLO
+	pacific-carrier-annex.mit.edu") by vger.kernel.org with ESMTP
+	id <S267425AbTCESdL>; Wed, 5 Mar 2003 13:33:11 -0500
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Kostadin Karaivanov <larry@minfin.bg>, linux-kernel@vger.kernel.org
+From: Derek Atkins <derek@ihtfp.com>
+Subject: Re: ipsec-tools 0.1 + kernel 2.5.64
+References: <sjmof4pvfx7.fsf@kikki.mit.edu>
+	<20030305182715.A27888@infradead.org>
+Date: 05 Mar 2003 13:43:30 -0500
+In-Reply-To: <20030305182715.A27888@infradead.org>
+Message-ID: <sjmbs0pvelp.fsf@kikki.mit.edu>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 5 Mar 2003 13:22:13 -0500
-Jeff Garzik <jgarzik@pobox.com> wrote:
+Christoph Hellwig <hch@infradead.org> writes:
 
-> I'm curious if you asked the same thing of Microsoft, FreeBSD, OpenBSD,
-> and every other operating system vendor, or are you just ignorant of how
-> the world works in general?
+> It's new in glibc 2.3
 
-He's probably just ignorant. It's not linux that is the problem when it
-comes to military..uh..thingies.. Politics that doesn't have anything to
-do with linux or something that involves linux, or at least something that
-way, should IMHO stay outside of LKML..
+Ahh.. Thanks.  I'm still using older versions myself.
 
-Free software for everyone means free software for everyone, US.mil
-included.
+> #ifdef <OS> is a very bad style.  As you're already using autoconf
+> I'd suggest just checking for HAVE_GETIFADDRS
+
+Well, the problem is that the replacement function is only valid on
+Linux, so I need to have the <OS> test in there anyways.  It may be
+"bad style", but the test needs to exist _somewhere_.  Besides, I've
+never been one to be convinced to do something purely based on
+stylistic arguments.  Give me a real technical reason why it needs to
+be different and I'll consider changing it.
+
+-derek
 
 -- 
-Henrik Persson
-e-mail: nix@socialism.nu
-WWW: http://nix.badanka.com            ICQ: 26019058
-PGP-key: http://nix.badanka.com/pgp    PGP-KeyID: 0x43B68116
+       Derek Atkins, SB '93 MIT EE, SM '95 MIT Media Laboratory
+       Member, MIT Student Information Processing Board  (SIPB)
+       URL: http://web.mit.edu/warlord/    PP-ASEL-IA     N1NWH
+       warlord@MIT.EDU                        PGP key available

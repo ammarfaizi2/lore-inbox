@@ -1,59 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263349AbTFDOuY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jun 2003 10:50:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263354AbTFDOuY
+	id S263354AbTFDOy1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jun 2003 10:54:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263355AbTFDOy1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jun 2003 10:50:24 -0400
-Received: from ghostwheel.llnl.gov ([134.9.11.149]:45279 "EHLO
-	ghostwheel.llnl.gov") by vger.kernel.org with ESMTP id S263349AbTFDOuX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jun 2003 10:50:23 -0400
-Date: Wed, 4 Jun 2003 08:03:36 -0700 (PDT)
-From: Chuck Harding <charding@llnl.gov>
-To: Linux Kernel Discussion List <linux-kernel@vger.kernel.org>
-Subject: Re: Subject: Unresolved symbols from 'make modules_install'
-In-Reply-To: <1982.1054704241@kao2.melbourne.sgi.com>
-Message-ID: <Pine.LNX.4.55.0306040800050.9083@ghostwheel.llnl.gov>
-References: <1982.1054704241@kao2.melbourne.sgi.com>
-Organization: Lawrence Livermore National Laboratory
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 4 Jun 2003 10:54:27 -0400
+Received: from mail.cpt.sahara.co.za ([196.41.29.142]:65269 "EHLO
+	workshop.saharact.lan") by vger.kernel.org with ESMTP
+	id S263354AbTFDOy0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jun 2003 10:54:26 -0400
+Subject: Re: I2C/Sensors 2.5.70
+From: Martin Schlemmer <azarah@gentoo.org>
+To: Margit Schubert-While <margitsw@t-online.de>
+Cc: KML <linux-kernel@vger.kernel.org>
+In-Reply-To: <5.1.0.14.2.20030604163948.00af3d28@pop.t-online.de>
+References: <5.1.0.14.2.20030604163948.00af3d28@pop.t-online.de>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1054738541.5280.14.camel@workshop.saharacpt.lan>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3- 
+Date: 04 Jun 2003 16:55:41 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oops - bad editing - as I said in the message that made it to the list, and I
-quote:
+On Wed, 2003-06-04 at 16:51, Margit Schubert-While wrote:
+> Is anybody looking at getting $Subject working ?
+> At the moment i2c-sensor.c never gets compiled which is bad as
+> it contains i2c_detect needed by all the sensors.
 
-I tried sending this yesterday but it didn't make it to the list, either
-because of the number of lines or because of the size of the attachments B-|
-If needed, I can send the full output from the depmod command.
+Will have to check with Greg here.
 
-On Wed, 4 Jun 2003, Keith Owens wrote:
+> And (assuming sensors works) where does the sensor info(fan, temp etc.)
+> get put?
+> 
 
-> On Tue, 3 Jun 2003 10:27:05 -0700 (PDT),
-> Chuck Harding <charding@llnl.gov> wrote:
-> >with no errors, when I run the 'make modules_install' I get a bunch
-> >of occurrances of unresolved symbol errors from 'depmod -ae -F System.map 2.x.x'
-> >most of which are for what appear to be core functions that the
-> >modules would need (output is attached
->
-> You did not include any output from make modules_install.
+In /sys/bus/i2c/....
 
-it's 127k long - I don't think it works to send attachments that large to the
-list.
 
->
-> >as is my .config
->
-> .config is from a 2.5 kernel, not 2.4.
->
-
-That's because I was trying to build 2.5.70 as there are some of the new
-features in it that I wanted to try out.
+Regards,
 
 -- 
-Charles D. (Chuck) Harding <charding@llnl.gov>  Voice: 925-423-8879
-Senior Computer Associate                         Fax: 925-422-8920
-Computation Directorate, Lawrence Livermore National Laboratory
-Livermore, CA USA  http://www.llnl.gov  GPG Public Key ID: B9EB6601
+Martin Schlemmer
+
+

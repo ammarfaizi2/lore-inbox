@@ -1,83 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264538AbUEDRyK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264541AbUEDRwR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264538AbUEDRyK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 May 2004 13:54:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264543AbUEDRyK
+	id S264541AbUEDRwR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 May 2004 13:52:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264345AbUEDRwR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 May 2004 13:54:10 -0400
-Received: from adsl-83-231.38-151.net24.it ([151.38.231.83]:26121 "EHLO
-	gateway.milesteg.arr") by vger.kernel.org with ESMTP
-	id S264538AbUEDRyD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 May 2004 13:54:03 -0400
-Date: Tue, 4 May 2004 19:54:01 +0200
-From: Daniele Venzano <webvenza@libero.it>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
-Subject: Re: [PATCH] sis900 fix (Was: [CHECKER] Resource leaks in driver shutdown functions)
-Message-ID: <20040504175401.GA21789@gateway.milesteg.arr>
-Mail-Followup-To: "Randy.Dunlap" <rddunlap@osdl.org>,
-	linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
-References: <3580.171.64.70.92.1083609961.spork@webmail.coverity.com> <20040504084326.GA11133@gateway.milesteg.arr> <20040504082849.56f16613.rddunlap@osdl.org>
+	Tue, 4 May 2004 13:52:17 -0400
+Received: from eatkyo297232.adsl.ppp.infoweb.ne.jp ([219.97.64.232]:61102 "HELO
+	pia3.com") by vger.kernel.org with SMTP id S264541AbUEDRwL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 May 2004 13:52:11 -0400
+Date: Wed, 5 May 2004 02:52:22 +0900
+From: Keiichiro Tokunaga <kei@pia3.com>
+To: Greg KH <greg@kroah.com>
+Cc: Keiichiro Tokunaga <tokunaga.keiich@soft.fujitsu.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC] New sysfs tree for hotplug
+Message-Id: <20040505025222.70df6716.kei@pia3.com>
+Organization: pia3.com
+X-Mailer: Sylpheed version 0.9.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="qMm9M+Fa2AknHoGS"
-Content-Disposition: inline
-In-Reply-To: <20040504082849.56f16613.rddunlap@osdl.org>
-X-Operating-System: Debian GNU/Linux on kernel Linux 2.4.25-grsec
-X-Copyright: Forwarding or publishing without permission is prohibited.
-X-Truth: La vita e' una questione di culo, o ce l'hai o te lo fanno.
-X-GPG-Fingerprint: 642A A345 1CEF B6E3 925C  23CE DAB9 8764 25B3 57ED
-User-Agent: Mutt/1.5.5.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---qMm9M+Fa2AknHoGS
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-On Tue, May 04, 2004 at 08:28:49AM -0700, Randy.Dunlap wrote:
-> On Tue, 4 May 2004 10:43:26 +0200 Daniele Venzano wrote:
+On Mon, 26 Apr 2004 16:55:55 -0700, Greg KH wrote:
+> On Mon, Apr 26, 2004 at 02:58:08PM +0900, Keiichiro Tokunaga wrote:
+> >
+> > I think it depends on a hotplug driver that is invoked when writing to
+> > a "eject" file. In the board case, a board hotplug driver (I'm making)
+> > handles those CPUs, memory, and PCI slots on the board. So my
+> > story for board hotplug is:
+> >
+> > - user checks/knows what resources are on the board (dependency)
+> > - user writes to the "eject" file of the board properly (invocation)
 > 
-> | Thank you for the spotting, the sis900 dirver was really missing a call
-> | to netif_device_detach in sis900_suspend.
-> | 
-> | Attached is a trivial patch that fixes the issue.
+> Why not make a program that does all of this from userspace? It would
+> turn off the proper CPUs, memory, and pci slots for a specific "board".
+> Otherwise you are going to have to either:
+> - hook the current CPU, memory, and pci hotplug code to allow it
+> to be called from within the kernel
+> - have your kernel code write to a the sysfs files from within
+> kernelspace.
 > 
-> Just how trivial is the patch?
-A one liner, against 2.6.5.
+> Neither of which are acceptable things :(
 
-> -ENOATTACHMENT
-Sorry, now is attached and is available at this url:
-http://teg.homeunix.org/kernel_patches.html
+Actually I'm expecting to use the first option (hook) in the
+current code of the board hotplug :)
+The board hotplug is supposed to support "board attachment and
+detachment".  That requires hardware manipulation.  So, the
+hotplug code (at least, a part of the code) needs to live in
+the kernel space.  Anyway, I would finish the first rough patches
+in a few days and post them.  Please take a look at them to see
+what I'm trying to do.
 
-The patch is tested, compiles and run. Could not test that very code
-path because of other unrelated errors during suspend, that I was having
-before this change.
-But it's really a bug, there is a call to netif_device_attach inside
-sis900_resume, but there is no corresponding netif_device_detach in
-sis900_suspend.
-
-Hope this clarifies.
-
--- 
------------------------------
-Daniele Venzano
-Web: http://teg.homeunix.org
-
-
---qMm9M+Fa2AknHoGS
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="sis900-detach.diff"
-
---- linux-2.6.5/drivers/net/sis900.c	2004-04-05 17:33:30.000000000 +0200
-+++ linux-2.6.5-exp/drivers/net/sis900.c	2004-05-04 10:15:06.000000000 +0200
-@@ -2195,6 +2195,7 @@
- 		return 0;
- 
- 	netif_stop_queue(net_dev);
-+	netif_device_detach(net_dev);
- 
- 	/* Stop the chip's Tx and Rx Status Machine */
- 	outl(RxDIS | TxDIS | inl(ioaddr + cr), ioaddr + cr);
-
---qMm9M+Fa2AknHoGS--
+Thank you,
+Kei

@@ -1,82 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264440AbRFQC1l>; Sat, 16 Jun 2001 22:27:41 -0400
+	id <S264454AbRFQCop>; Sat, 16 Jun 2001 22:44:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264439AbRFQC1b>; Sat, 16 Jun 2001 22:27:31 -0400
-Received: from 200-206-139-161-br-arqfisb1.public.telesp.net.br ([200.206.139.161]:50948
-	"EHLO blackjesus.async.com.br") by vger.kernel.org with ESMTP
-	id <S264440AbRFQC1O>; Sat, 16 Jun 2001 22:27:14 -0400
-Date: Sat, 16 Jun 2001 23:26:47 -0300 (BRT)
-From: Christian Robottom Reis <kiko@async.com.br>
-To: <eepro100@scyld.com>
-cc: <saw@saw.sw.com.sg>, <linux-kernel@vger.kernel.org>
-Subject: eepro100 problems with 2.2.19 _and_ 2.4.0
-Message-ID: <Pine.LNX.4.32.0106161923290.339-100000@blackjesus.async.com.br>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264492AbRFQCog>; Sat, 16 Jun 2001 22:44:36 -0400
+Received: from draco.cus.cam.ac.uk ([131.111.8.18]:2012 "EHLO
+	draco.cus.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S264454AbRFQCoV>; Sat, 16 Jun 2001 22:44:21 -0400
+Message-Id: <5.1.0.14.2.20010617034356.00a6e960@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Sun, 17 Jun 2001 03:44:48 +0100
+To: linux-ntfs-dev@lists.sourceforge.net
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: ANN: Linux-NTFS 1.0.0 stable released
+Cc: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linux-NTFS 1.0.0 stable is now released.
 
-Hello everybody,
+Get it from http://sf.net/projects/linux-ntfs/
 
-I'm having a ton of problems with a set of boxes that use an onboard
-variant of the eepro100. I'm not sure what version it is (#$@#*&$@ Intel
-documentation - motherboard is model D815EEA2) but eepro100-diag reports:
+NTFS utilities
+==============
+NtfsFix v1.15 - Attempt to fix an NTFS partition that has been damaged by 
+the Linux NTFS driver. Note that you should run it every time after you 
+have used the Linux NTFS driver to write to an NTFS partition to prevent 
+massive data corruption from happening when Windows mounts the partition. 
+IMPORTANT: Run this only *after* unmounting the partition in Linux but 
+*before* rebooting into Windows NT/2000 or you *will* suffer! - You have 
+been warned!
 
-eepro100-diag.c:v2.05 6/13/2001 Donald Becker (becker@scyld.com)
- http://www.scyld.com/diag/index.html
-Index #1: Found a Intel i82562 Pro/100 V adapter at 0xdf00.
-i82557 chip registers at 0xdf00:
-  00000000 00000000 00000000 00080002 183f0000 00000000
+mkntfs v1.39 - Format a partition with the NTFS filesystem. See man 8 
+mkntfs for command line options.
 
-Okay, now for the bad part. Symptoms:
+NtfsDump_LogFile v1.0 - Interpret and display information about the journal 
+($LogFile) of an NTFS volume.
 
-* slow transfers (internet ftps are the case) hard lock box.
-* interactive use hard locks box.
-* basic Netperf tests run fine.
-* wget of > 20MB files from local server run fine.
+dumplog v1.0. - As NtfsDump_LogFile but operates on a file rather than a 
+partition, so can use it on a live mounted file system.
 
-Steps to reproduce problem:
+ldm v1.3 - Interpret and display the Logical Disk Manager database (of a 
+Windows 2000/XP dynamic disk/block device).
 
-* Run large ( > 2MB works ) ftp transfer in box.
-* ssh in from another box and attempt an ls -lR /
+NTFS library
+============
+Provides common NTFS access functions to the ntfstools and other foreign 
+open source applications. Note, that the library is still under heavy 
+development and doesn't include the majority of functionality yet. It only 
+is capable of just about supporting the current ntfstools, so I wouldn't 
+recommend using it for your own applications at this stage.
 
-So it seems that only when the network i/o is low does the lock occur.
+Changes:
+* mkntfs release and bugfixes to libntfs and the other utilities. Includes 
+a man (8) page.
+* ldm release which dumps the ldm database on Win2k/XP dynamic disks.
+* updated ntfsdump_logfile and new dumplog operating on the logfile itself 
+rather than the partition, suitable for live mounted file systems.
+* Building of shared libraries is disabled by default as it breaks on some 
+systems.
+* Probably need at least gcc-2.95 or something like that from now on.
 
-I've tried up to now four sets of drivers (all non-modules):
+Please report any bugs/problems to:
+         linux-ntfs-dev@lists.sf.net
 
-* 2.2.19 straight (Andrey?)
-	Kills networking, but stays alive - reports (typed in):
-	epro100: cmd_wait for (0xffffff00) timedout with (0xffffff00)!
+Enjoy,
 
-* 2.2.19 with Donald's eepro100.c scyld:network/
-	Hard lock (seems to take longer to hang) - it also creates
-	8 devices eth0-eth7!
-
-* 2.2.19 with Donald's eepro100.c fromscyld:network/test/
-	Hard lock (pretty fast) - no multiple creation bugs
-
-* 2.4.5 straight
-	Hangs ssh connection, reports (typed in):
-	epro100: wait_for_cmd_done timeout!
-	Data socket timed out:
-	eth0: Transmit timed out: status 0050  0c00 at 907/935 command 000c0000.
-
-So now I'm left here stuck with a stupid unworking on-board card.
-
-Donald, Andrey, anyone? have you seen this before? What can I do to help
-this get diagnosed properly?
-
-BTW: eepro100-diag reports sleep mode on - this is bad, right? And I can
-turn it off?
-
-Take care,
---
-/\/\ Christian Reis, Senior Engineer, Async Open Source, Brazil
-~\/~ http://async.com.br/~kiko/ | [+55 16] 274 4311
+         Anton
 
 
-
-
+-- 
+   "Nothing succeeds like success." - Alexandre Dumas
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://sf.net/projects/linux-ntfs/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
 

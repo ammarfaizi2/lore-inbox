@@ -1,93 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261801AbTGAJ1W (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jul 2003 05:27:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261808AbTGAJ1V
+	id S261773AbTGAJ0u (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jul 2003 05:26:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261808AbTGAJ0u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jul 2003 05:27:21 -0400
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:996 "HELO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id S261801AbTGAJ1L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jul 2003 05:27:11 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Date: Tue, 1 Jul 2003 19:40:30 +1000
+	Tue, 1 Jul 2003 05:26:50 -0400
+Received: from ip-86-245.evc.net ([212.95.86.245]:44161 "EHLO hal9003.1g6.biz")
+	by vger.kernel.org with ESMTP id S261773AbTGAJ0q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jul 2003 05:26:46 -0400
+From: Nicolas <linux@1g6.biz>
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.71 oops 
+Date: Tue, 1 Jul 2003 11:44:12 +0200
+User-Agent: KMail/1.5
+Organization: 1G6
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-ID: <16129.22286.274059.518816@gargle.gargle.HOWL>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: Re: [RFC/PATCH] Touchpads in absolute mode (synaptics) and mousedev
-In-Reply-To: message from Dmitry Torokhov on Tuesday July 1
-References: <200307010303.53405.dtor_core@ameritech.net>
-X-Mailer: VM 7.16 under Emacs 21.3.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Disposition: inline
+Message-Id: <200307011144.12868.linux@1g6.biz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday July 1, dtor_core@ameritech.net wrote:
-> Hi,
-> 
-> I was trying to teach mousedev to bind to new synaptics driver. This 
-> may be useful for gpm and other programs that don't have native event
-> processing module written yet. Unfortunately absolute to relative 
-> conversion in mousedev only suits for tablets (digitizers) and not for
-> touchpads because:
-> 
-> - touchpads are not precise; when I take my finger off touchpad and then
->   touch it again somewhere else I do not expect my cursor jump anywhere,
->   I only expect cursor to move when I move my finger while pressing 
->   touchpad.
 
-Yep, that's a bug.  mousedev needs to know when there is or isn't a
-finger and ignore absolute differences when there is no finger.
+Hello I was under high IO-wait with 2.5.71,
+I lanched a "fileschanged" with "fam" on my whole
+filesystem but a misconfig sent many lines to syslog, like
 
-> - synaptics has Y axis reversed from what mousedev expects.
-> 
-> I tried to modify mousedev to account for differences between touchpads 
-> in absolute mode and digitizers in absolute mode but all my solutions 
-> required ugly flags - brrr... So what if we:
-> 
-> 1. Modify mousedev so if an input device announces that it generates both
->    relative and absolute events mousedev will discard all absolute axis 
->    events and will rely on device supplied relative events.
+"Jul  1 11:36:34 hal9003 xinetd[923]: warning: can't get client address: 
+Transport endpoint is not connected
+Jul  1 11:36:34 hal9003 xinetd[923]: libwrap refused connection to sgi_fam 
+from <no address>
+Jul  1 11:36:34 hal9003 xinetd[924]: warning: can't get client address: 
+Transport endpoint is not connected
+Jul  1 11:36:34 hal9003 xinetd[924]: libwrap refused connection to sgi_fam 
+from <no address>
+Jul  1 11:36:34 hal9003 xinetd[925]: warning: can't get client address: 
+Transport endpoint is not connected
+Jul  1 11:36:34 hal9003 xinetd[925]: libwrap refused connection to sgi_fam 
+from <no address>
+"
+And then I had an oops :
 
-Nah.  I have an ALPS dualpoint which generates ABSolute events for the
-touchpad part and RElative events for the pointstick part.  I want
-them both.
+Jul  1 11:36:34 hal9003 kernel: Unable to handle kernel paging request at 
+virtual address 35b70ae1
+Jul  1 11:36:34 hal9003 kernel:  printing eip:
+Jul  1 11:36:34 hal9003 kernel: c0135ed9
+Jul  1 11:36:34 hal9003 kernel: *pde = 00000000
+Jul  1 11:36:34 hal9003 kernel: Oops: 0002 [#1]
+Jul  1 11:36:34 hal9003 kernel: CPU:    0
+Jul  1 11:36:34 hal9003 kernel: EIP:    0060:[__rmqueue+143/288]    Not 
+tainted
+Jul  1 11:36:34 hal9003 kernel: EIP:    0060:[<c0135ed9>]    Not tainted
+Jul  1 11:36:34 hal9003 kernel: EFLAGS: 00010002
+Jul  1 11:36:34 hal9003 kernel: EIP is at __rmqueue+0x8f/0x120
+Jul  1 11:36:34 hal9003 kernel: eax: 00000002   ebx: c02e08b8   ecx: 00000001   
+edx: c02e08ac
+Jul  1 11:36:34 hal9003 kernel: esi: 00000001   edi: c02e08ec   ebp: d4729e60   
+esp: d4729e38
+Jul  1 11:36:34 hal9003 kernel: ds: 007b   es: 007b   ss: 0068
+Jul  1 11:36:34 hal9003 kernel: Process xinetd (pid: 7708, threadinfo=d4728000 
+task=d2d0b380)
+Jul  1 11:36:34 hal9003 kernel: Stack: 00000000 000000d0 c0156ad3 f6d94e0c 
+00000246 00011e0e c12f3230 c02e08ac
+Jul  1 11:36:34 hal9003 kernel:        00000000 00000000 d4729e88 c013629b 
+c02e08ac 00000001 c02e08ac cf3cc008
+Jul  1 11:36:34 hal9003 kernel:        00000246 c02e08ac 000001f8 00000000 
+d4729ed0 c013635c c02e08ac 00000001
+Jul  1 11:36:34 hal9003 kernel: Call Trace:
+Jul  1 11:36:34 hal9003 kernel:  [path_release+22/60] path_release+0x16/0x3c
+Jul  1 11:36:34 hal9003 kernel:  [<c0156ad3>] path_release+0x16/0x3c
+Jul  1 11:36:34 hal9003 kernel:  [buffered_rmqueue+203/265] 
+buffered_rmqueue+0xcb/0x109
+Jul  1 11:36:34 hal9003 kernel:  [<c013629b>] buffered_rmqueue+0xcb/0x109
+Jul  1 11:36:34 hal9003 kernel:  [__alloc_pages+131/770] 
+__alloc_pages+0x83/0x302
+Jul  1 11:36:34 hal9003 kernel:  [<c013635c>] __alloc_pages+0x83/0x302
+Jul  1 11:36:34 hal9003 kernel:  [__get_free_pages+39/64] 
+__get_free_pages+0x27/0x40
+Jul  1 11:36:34 hal9003 kernel:  [<c0136602>] __get_free_pages+0x27/0x40
+Jul  1 11:36:34 hal9003 kernel:  [dup_task_struct+207/241] 
+dup_task_struct+0xcf/0xf1
+Jul  1 11:36:34 hal9003 kernel:  [<c011b014>] dup_task_struct+0xcf/0xf1
+Jul  1 11:36:34 hal9003 kernel:  [copy_process+111/2611] 
+copy_process+0x6f/0xa33
+Jul  1 11:36:34 hal9003 kernel:  [<c011b9c2>] copy_process+0x6f/0xa33
+Jul  1 11:36:34 hal9003 kernel:  [sys_select+539/1310] sys_select+0x21b/0x51e
+Jul  1 11:36:34 hal9003 kernel:  [<c015ba51>] sys_select+0x21b/0x51e
+Jul  1 11:36:34 hal9003 kernel:  [do_fork+77/348] do_fork+0x4d/0x15c
+Jul  1 11:36:34 hal9003 kernel:  [<c011c3d3>] do_fork+0x4d/0x15c
+Jul  1 11:36:34 hal9003 kernel:  [default_wake_function+0/46] 
+default_wake_function+0x0/0x2e
+Jul  1 11:36:34 hal9003 kernel:  [<c0119d63>] default_wake_function+0x0/0x2e
+Jul  1 11:36:34 hal9003 kernel:  [sys_fork+56/60] sys_fork+0x38/0x3c
+Jul  1 11:36:34 hal9003 kernel:  [<c01079e5>] sys_fork+0x38/0x3c
+Jul  1 11:36:34 hal9003 kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
+Jul  1 11:36:34 hal9003 kernel:  [<c0108fc7>] syscall_call+0x7/0xb
+Jul  1 11:36:34 hal9003 kernel:
+Jul  1 11:36:34 hal9003 kernel: Code: 89 bb 29 02 89 75 e0 be 01 00 00 00 8b 
+4d f0 8b 45 ec 89 4d
 
-> 2. Add absolute->relative conversion code to touchpad drivers themselves
->    as drivers should know the best how to do that. If they turn out to be
->    similar across different touchpads then the common module could be 
->    made.
-> 
-> What you think?
-
-I think that mousedev should be just clever enough to mostly work and
-no cleverer.  Anything more interesting should be done in user-space.
-
-For example, there is the idea of treating one edge of a touch pad
-like a scroll wheel.  I don't think this should be done in the
-kernel. 
-I have just started working on a program to do this.  It opens
-/dev/input/event1 (in my case) to read events from the touchpad.  It
-uses an ioctl to "grab" the device so mousedev doesn't see any events
-directly.
-Then it opens /dev/input/uinput and registers itself as a mouse-like
-device.  It copies event from one to the other with some translation.
-It will eventually do all the magic abs->rel translations that I want
-and notice corner-taps and such.  At the moment it only does some
-simple mapping of button events so that I can use one of my two 'left'
-buttons as a 'middle' button.
-
-I actually think that it should be possible to do everything in
-user-space.  I find it quite awkward that I *cannot* get a clear
-channel from a user-space program to the PS/2 aux port like I could in
-2.4 via /dev/psaux.  I would really like to be able to open some
-device, "GRAB" it, and then have complete control of the PS/2 AUX
-port.  Then I could similarly open /dev/input/uinput and do exactly
-what translations I wanted.
-
-NeilBrown

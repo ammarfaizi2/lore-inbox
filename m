@@ -1,47 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268301AbUHXUmf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268299AbUHXUoP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268301AbUHXUmf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 16:42:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268299AbUHXUme
+	id S268299AbUHXUoP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 16:44:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268295AbUHXUoO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 16:42:34 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:41890 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S268303AbUHXUmK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 16:42:10 -0400
-Subject: Re: silent semantic changes with reiser4
-From: Lee Revell <rlrevell@joe-job.com>
-To: Christoph Hellwig <hch@lst.de>
-Cc: Andrew Morton <akpm@osdl.org>, reiser@namesys.com,
-       linux-fsdevel@vger.kernel.org,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040824203844.GA26999@lst.de>
-References: <20040824202521.GA26705@lst.de>
-	 <1093379718.817.63.camel@krustophenia.net>  <20040824203844.GA26999@lst.de>
-Content-Type: text/plain
-Message-Id: <1093380127.817.67.camel@krustophenia.net>
+	Tue, 24 Aug 2004 16:44:14 -0400
+Received: from pfepc.post.tele.dk ([195.41.46.237]:28238 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S268299AbUHXUoG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Aug 2004 16:44:06 -0400
+Date: Tue, 24 Aug 2004 22:44:44 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: [BK PATCH] kbuild: fix cc-version
+Message-ID: <20040824204444.GA26136@mars.ravnborg.org>
+Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 24 Aug 2004 16:42:08 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-08-24 at 16:38, Christoph Hellwig wrote:
-> On Tue, Aug 24, 2004 at 04:35:18PM -0400, Lee Revell wrote:
-> > On Tue, 2004-08-24 at 16:25, Christoph Hellwig wrote:
-> > >    - O_DIRECTORY opens succeed on all files on reiser4.  Besides breaking
-> > >      .htaccess handling in apache and glibc compilation this also renders
-> > >      this flag entirely useless and opens up the races it tries to
-> > >      prevent against cmpletely useless
-> > 
-> > So `find -type d' would list every file on the system?
-> 
-> the find I have here is using lstat and not open with O_DIRECTORY, so
-> no.
-> 
+When consolidating gcc version handling a bug were introduced.
+It made make spit out
 
-Ugh, how embarrassing, I completely forgot about stat().
+/bin/sh: line 1: [: too many arguments
 
-Lee
+when building the kernel.
+As a side-effect all gcc version checks were failing.
 
+Patch below.
+
+Linus - please pull from
+bk://linux-sam.bkbits.net/kbuild
+
+[Only cset pushed since last update].
+
+	Sam
+
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2004/08/24 22:36:35+02:00 sam@mars.ravnborg.org 
+#   kbuild: fix cc-version
+#   
+#   cc-version needs to use $(shell to get the gcc version.
+#   Before if gave the following error when building the kernel:
+#   
+#   /bin/sh: line 1: [: too many arguments
+#   
+#   And all checks for gcc version were broken.
+#   
+#   Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+# 
+# Makefile
+#   2004/08/24 22:34:30+02:00 sam@mars.ravnborg.org +2 -2
+#   fix cc-version
+# 
+diff -Nru a/Makefile b/Makefile
+--- a/Makefile	2004-08-24 22:37:19 +02:00
++++ b/Makefile	2004-08-24 22:37:19 +02:00
+@@ -279,8 +279,8 @@
+ 
+ # cc-version
+ # Usage gcc-ver := $(call cc-version $(CC))
+-cc-version = $(CONFIG_SHELL) $(srctree)/scripts/gcc-version.sh \
+-              $(if $(1), $(1), $(CC))
++cc-version = $(shell $(CONFIG_SHELL) $(srctree)/scripts/gcc-version.sh \
++              $(if $(1), $(1), $(CC)))
+ 
+ 
+ # Look for make include files relative to root of kernel src

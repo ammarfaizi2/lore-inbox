@@ -1,48 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280028AbRKNCvO>; Tue, 13 Nov 2001 21:51:14 -0500
+	id <S280031AbRKNDLt>; Tue, 13 Nov 2001 22:11:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280030AbRKNCvF>; Tue, 13 Nov 2001 21:51:05 -0500
-Received: from rigel.neo.shinko.co.jp ([210.225.91.71]:3314 "EHLO
-	rigel.neo.shinko.co.jp") by vger.kernel.org with ESMTP
-	id <S280028AbRKNCuz>; Tue, 13 Nov 2001 21:50:55 -0500
-Message-ID: <3BF1DBFF.C02A5274@neo.shinko.co.jp>
-Date: Wed, 14 Nov 2001 11:50:39 +0900
-From: nakai <nakai@neo.shinko.co.jp>
-X-Mailer: Mozilla 4.78 [ja] (WinNT; U)
-X-Accept-Language: ja,en,pdf
+	id <S280034AbRKNDLj>; Tue, 13 Nov 2001 22:11:39 -0500
+Received: from demai05.mw.mediaone.net ([24.131.1.56]:27087 "EHLO
+	demai05.mw.mediaone.net") by vger.kernel.org with ESMTP
+	id <S280031AbRKNDLc>; Tue, 13 Nov 2001 22:11:32 -0500
+Message-Id: <200111140311.fAE3BfW07279@demai05.mw.mediaone.net>
+Content-Type: text/plain; charset=US-ASCII
+From: Brian <hiryuu@envisiongames.net>
+To: "David S. Miller" <davem@redhat.com>
+Subject: Re: What Athlon chipset is most stable in Linux?
+Date: Tue, 13 Nov 2001 22:11:29 -0500
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.30.0111131559580.8219-100000@rtlab.med.cornell.edu> <200111132137.fADLbdW01289@demai05.mw.mediaone.net> <20011113.183256.15406047.davem@redhat.com>
+In-Reply-To: <20011113.183256.15406047.davem@redhat.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: badblocks fails with promise 100TX2
-Content-Type: text/plain; charset=iso-2022-jp
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When I run badblocks, it failed, sometime it hanged OS.
+The original question was for a cluster (of, presumably, servers).
+If you're playing a quake client on an application server, you deserve 
+what you get.
 
-Condition:
-    runs 2 badblocks command at same time, check different drives.
-    EX) badblocks /dev/hdh4; badblocks /dev/hde4
-    /dev/hdh and /dev/hde is connected to promise fasttrak 66
-    (with pdc20267 chip). I also tested with fasttrak 100TX2 (with
-    pdc20268), and got same results.
-    Duron(800)/VT133/VIA686b
-    RedHat7.1(with 2.4.10 kernel)
-Results:
-    They report many blocks(are broken). If I kill one badblocks
-    command, another badblocks command stops reporting blocks. 
-    I think there is conflict when read out.
-    On 2.4.2, there is no problem (but can not use fasttrak 100).
-    
-I know, there is some changes on ide-pci.c between 2.4.2 and 2.4.10,
-and many changes on pdc202xx.c. Something go wrong?
-I just want to build software RAID. But by this problem, I can
-not build Software RAID with new promise 100TX2 card.
+	-- Brian
 
--- 
--=-=-=-=  SHINKO ELECTRIC INDUSTRIES CO., LTD.           =-=-=-=-
-=-=-=-=-    Core Technology Research & Laboratory,       -=-=-=-=
--=-=-=-=      Infomation Technology Research Dept.       =-=-=-=-
-=-=-=-=-  Name:Hisakazu Nakai          TEL:026-283-2866  -=-=-=-=
--=-=-=-=  Mail:nakai@neo.shinko.co.jp  FAX:026-283-2820  =-=-=-=-
+On Tuesday 13 November 2001 09:32 pm, David S. Miller wrote:
+>    From: Brian <hiryuu@envisiongames.net>
+>    Date: Tue, 13 Nov 2001 16:37:28 -0500
+>
+>    We've tried a number of boards for our application servers and the
+> only UP AMD DDR board I trust right now is the Gigabyte GA-7DX.  They
+> are rock solid.
+>
+> Try to use the AGP slot with a Radeon of GeForce card, do something
+> as simple as playing some quake with com_maxfps > 85 and the machine
+> will hang solidly.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+> in the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,43 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271260AbRHOQQh>; Wed, 15 Aug 2001 12:16:37 -0400
+	id <S271261AbRHOQV5>; Wed, 15 Aug 2001 12:21:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271262AbRHOQQ1>; Wed, 15 Aug 2001 12:16:27 -0400
-Received: from ns.muni.cz ([147.251.4.33]:21422 "EHLO aragorn.ics.muni.cz")
-	by vger.kernel.org with ESMTP id <S271260AbRHOQQR>;
-	Wed, 15 Aug 2001 12:16:17 -0400
-Newsgroups: cz.muni.redir.linux-kernel
-Path: news
-From: Zdenek Kabelac <kabi@i.am>
-Subject: Spinlock for accessing graphical hardware (G400)
-Message-ID: <3B7AA05A.46C8EC03@i.am>
-Date: Wed, 15 Aug 2001 16:16:26 GMT
-X-Nntp-Posting-Host: dual.fi.muni.cz
-Content-Transfer-Encoding: 7bit
-X-Accept-Language: cs, en
+	id <S271268AbRHOQVr>; Wed, 15 Aug 2001 12:21:47 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:60683 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S271261AbRHOQV0>; Wed, 15 Aug 2001 12:21:26 -0400
+Subject: Re: ll_rw_blk.c changes from 2.4.8 not in -ac
+To: marcelo@conectiva.com.br (Marcelo Tosatti)
+Date: Wed, 15 Aug 2001 17:24:03 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org (lkml),
+        axboe@suse.de (Jens Axboe)
+In-Reply-To: <Pine.LNX.4.21.0108151147520.26259-100000@freak.distro.conectiva> from "Marcelo Tosatti" at Aug 15, 2001 11:50:29 AM
+X-Mailer: ELM [version 2.5 PL5]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Mime-Version: 1.0
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.8-pre7-RTL3.0 i686)
-Organization: unknown
-To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15X3Sd-0003WO-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi 
+> Why 2.4.8-ac does not contain 2.4.8's ll_rw_blk.c changes ? (the ones
+> which remove the "queued_sectors" logic)
+> 
+> Those changes improve IO latency a lot.
 
-I would like to know if there is any way, how could I create my own
-driver for
-the graphics card (G400) - I mean there are XFree, DRM, mga conscole 
-and I want
-to se my own driver - but I really need something like  common lock for
-accessing
-hardware registers.
+Because I want to seperate out the issues. Also the RA on -ac is much higher
+so the effect is very different.
 
-Is there any way how one could one achieve such thing on SMP machine ?
-Does anyone plan to add such thing ?
-(I do not want to add my driver to Drm nor to console device)
-
-thanks
-
-kabi
-
+When we change things one at a time, then they can be measured.

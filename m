@@ -1,102 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262039AbUKDBzL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262043AbUKDBzS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262039AbUKDBzL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 20:55:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262045AbUKDBzL
+	id S262043AbUKDBzS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 20:55:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262046AbUKDBzS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 20:55:11 -0500
-Received: from host157-148.pool8289.interbusiness.it ([82.89.148.157]:55955
+	Wed, 3 Nov 2004 20:55:18 -0500
+Received: from host157-148.pool8289.interbusiness.it ([82.89.148.157]:58259
 	"EHLO zion.localdomain") by vger.kernel.org with ESMTP
-	id S262039AbUKDBzA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 20:55:00 -0500
-Subject: [patch 02/20] Uml: add startup check for mmap(...PROT_EXEC...) from /tmp.
+	id S262043AbUKDBzH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Nov 2004 20:55:07 -0500
+Subject: [patch 11/20] uml: remove SIGPROF from change_signals
 To: akpm@osdl.org
 Cc: jdike@addtoit.com, linux-kernel@vger.kernel.org,
        user-mode-linux-devel@lists.sourceforge.net, cw@f00f.org,
        blaisorblade_spam@yahoo.it
 From: blaisorblade_spam@yahoo.it
-Date: Thu, 04 Nov 2004 00:17:18 +0100
-Message-Id: <20041103231719.0CC3A36389@zion.localdomain>
+Date: Thu, 04 Nov 2004 00:17:40 +0100
+Message-Id: <20041103231740.3112355C7D@zion.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This adds a check that /tmp is not mounted noexec.  UML needs to be able
-to do PROT_EXEC mmaps of temp files.  Previously, a noexec /tmp would
-cause an early mysterious UML crash.
-(Actually, not /tmp but $TMP, which often is the same).
+From: Paolo 'Blaisorblade' Giarrusso <blaisorblade_spam@yahoo.it>, Jeff Dike <jdike@addtoit.com>
+
+Since local_irq_save() and local_irq_disable() should match (apart from saving
+the flags), get/set_signals must match [un]block_signals, i.e. change_signals;
+since get/set_signals don't enable/disable SIGPROF (and this behaviour is safe
+as explained in the comment the patch adds, since the profiling code does not
+interact with the kernel code), not even change_signals must toggle it.
 
 Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade_spam@yahoo.it>
 ---
 
- vanilla-linux-2.6.9-paolo/arch/um/include/mem_user.h |    1 
- vanilla-linux-2.6.9-paolo/arch/um/kernel/mem_user.c  |   22 ++++++++++++++++++-
- vanilla-linux-2.6.9-paolo/arch/um/kernel/um_arch.c   |    5 ++++
- 3 files changed, 27 insertions(+), 1 deletion(-)
+ vanilla-linux-2.6.9-paolo/arch/um/kernel/signal_user.c |    5 ++++-
+ 1 files changed, 4 insertions(+), 1 deletion(-)
 
-diff -puN arch/um/include/mem_user.h~uml-tmp-exec arch/um/include/mem_user.h
---- vanilla-linux-2.6.9/arch/um/include/mem_user.h~uml-tmp-exec	2004-11-03 23:44:37.382877056 +0100
-+++ vanilla-linux-2.6.9-paolo/arch/um/include/mem_user.h	2004-11-03 23:44:37.387876296 +0100
-@@ -67,6 +67,7 @@ extern void map_memory(unsigned long vir
- extern int protect_memory(unsigned long addr, unsigned long len, 
- 			  int r, int w, int x, int must_succeed);
- extern unsigned long get_kmem_end(void);
-+extern void check_tmpexec(void);
- 
- #endif
- 
-diff -puN arch/um/kernel/mem_user.c~uml-tmp-exec arch/um/kernel/mem_user.c
---- vanilla-linux-2.6.9/arch/um/kernel/mem_user.c~uml-tmp-exec	2004-11-03 23:44:37.383876904 +0100
-+++ vanilla-linux-2.6.9-paolo/arch/um/kernel/mem_user.c	2004-11-03 23:44:37.388876144 +0100
-@@ -83,6 +83,26 @@ static int create_tmp_file(unsigned long
- 	return(fd);
+diff -puN arch/um/kernel/signal_user.c~uml-remove-SIGPROF-change_signals arch/um/kernel/signal_user.c
+--- vanilla-linux-2.6.9/arch/um/kernel/signal_user.c~uml-remove-SIGPROF-change_signals	2004-11-03 23:44:59.984441096 +0100
++++ vanilla-linux-2.6.9-paolo/arch/um/kernel/signal_user.c	2004-11-03 23:44:59.986440792 +0100
+@@ -57,6 +57,10 @@ int change_sig(int signal, int on)
+ 	return(!sigismember(&old, signal));
  }
  
-+void check_tmpexec(void)
-+{
-+	void *addr;
-+	int err, fd = create_tmp_file(UM_KERN_PAGE_SIZE);
++/* Both here and in set/get_signal we don't touch SIGPROF, because we must not
++ * disable profiling; it's safe because the profiling code does not interact
++ * with the kernel code at all.*/
 +
-+	addr = mmap(NULL, UM_KERN_PAGE_SIZE,
-+		    PROT_READ | PROT_WRITE | PROT_EXEC, MAP_PRIVATE, fd, 0);
-+	printf("Checking PROT_EXEC mmap in /tmp...");
-+	fflush(stdout);
-+	if(addr == MAP_FAILED){
-+		err = errno;
-+		perror("failed");
-+		if(err == EPERM)
-+			printf("/tmp must be not mounted noexec\n");
-+		exit(1);
-+	}
-+	printf("OK\n");
-+	munmap(addr, UM_KERN_PAGE_SIZE);
-+}
-+
- static int have_devanon = 0;
- 
- void check_devanon(void)
-@@ -111,7 +131,7 @@ static int create_anon_file(unsigned lon
- 		exit(1);
- 	}
- 
--	addr = mmap(NULL, len, PROT_READ | PROT_WRITE , MAP_PRIVATE, fd, 0);
-+	addr = mmap(NULL, len, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0);
- 	if(addr == MAP_FAILED){
- 		os_print_error((int) addr, "mapping physmem file");
- 		exit(1);
-diff -puN arch/um/kernel/um_arch.c~uml-tmp-exec arch/um/kernel/um_arch.c
---- vanilla-linux-2.6.9/arch/um/kernel/um_arch.c~uml-tmp-exec	2004-11-03 23:44:37.385876600 +0100
-+++ vanilla-linux-2.6.9-paolo/arch/um/kernel/um_arch.c	2004-11-03 23:44:37.388876144 +0100
-@@ -321,6 +321,11 @@ int linux_main(int argc, char **argv)
- 	uml_start = CHOOSE_MODE_PROC(set_task_sizes_tt, set_task_sizes_skas, 0,
- 				     &host_task_size, &task_size);
- 
-+	/* Need to check this early because mmapping happens before the
-+	 * kernel is running.
-+	 */
-+	check_tmpexec();
-+
- 	brk_start = (unsigned long) sbrk(0);
- 	CHOOSE_MODE_PROC(before_mem_tt, before_mem_skas, brk_start);
- 	/* Increase physical memory size for exec-shield users
+ static void change_signals(int type)
+ {
+ 	sigset_t mask;
+@@ -65,7 +69,6 @@ static void change_signals(int type)
+ 	sigaddset(&mask, SIGVTALRM);
+ 	sigaddset(&mask, SIGALRM);
+ 	sigaddset(&mask, SIGIO);
+-	sigaddset(&mask, SIGPROF);
+ 	if(sigprocmask(type, &mask, NULL) < 0)
+ 		panic("Failed to change signal mask - errno = %d", errno);
+ }
 _

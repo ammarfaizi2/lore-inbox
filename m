@@ -1,81 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130317AbRCPHcF>; Fri, 16 Mar 2001 02:32:05 -0500
+	id <S130381AbRCPHhf>; Fri, 16 Mar 2001 02:37:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130384AbRCPHbz>; Fri, 16 Mar 2001 02:31:55 -0500
-Received: from mailout04.sul.t-online.com ([194.25.134.18]:6669 "EHLO
-	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S130317AbRCPHbq>; Fri, 16 Mar 2001 02:31:46 -0500
-Message-ID: <3AB1CF32.F02D33FF@t-online.de>
-Date: Fri, 16 Mar 2001 09:30:42 +0100
-From: Gunther.Mayer@t-online.de (Gunther Mayer)
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
-X-Accept-Language: en
+	id <S130388AbRCPHhZ>; Fri, 16 Mar 2001 02:37:25 -0500
+Received: from csl.Stanford.EDU ([171.64.66.149]:31416 "EHLO csl.Stanford.EDU")
+	by vger.kernel.org with ESMTP id <S130384AbRCPHhQ>;
+	Fri, 16 Mar 2001 02:37:16 -0500
+From: Dawson Engler <engler@csl.Stanford.EDU>
+Message-Id: <200103160736.XAA04682@csl.Stanford.EDU>
+Subject: Re: [CHECKER] 9 potential copy_*_user bugs in 2.4.1
+To: viro@math.psu.edu (Alexander Viro)
+Date: Thu, 15 Mar 2001 23:36:23 -0800 (PST)
+Cc: linux-kernel@vger.kernel.org, mc@cs.Stanford.EDU
+In-Reply-To: <Pine.GSO.4.21.0103152146550.10709-100000@weyl.math.psu.edu> from "Alexander Viro" at Mar 15, 2001 10:11:46 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-To: alan@lxorguk.ukuu.org.uk
-CC: linux-kernel@vger.kernel.org
-Subject: Patch(2.4.2): isapnp detect fix (wrong checksum)
-Content-Type: multipart/mixed;
- boundary="------------B53AC69B36E4583888D1D0E5"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------B53AC69B36E4583888D1D0E5
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+> Looks like you've missed at least one place. Have you marked pointer
+> arguments of syscalls as tainted? Path in question looks so:
 
-Hi,
-this fix lets linux detect cards which don't
-have a correct checksum.
+In the exokernel param checker we do, but not for the one in linux ---
+most of the pointers seemed to be devices, so I never added it.  Afer
+your for bug example, I'll go hack the checker ;-)
 
-These are probably common, it seems isapnptools _silently_
-fixes this up !
+> 	* if method's argument is ever tainted - all instances of that
+> method have that argument tainted.
+> 
+> Is it possible to implement? The last rule may be tricky - we need to
+> remember that field foo of structure bar has tainted nth argument and
+> keep track of all functions assigned to foo, either by initialization
+> or by direct assignment. Could that be done?
 
-Please apply if you like, comments welcome.
+It should be.  We're using a trick similar to this one to build up
+equivalence classes of interrupt handlers tracking which functions are
+assigned to struct fields, or passed as the same parameter to a
+function (request_irq being the prime example).  You'd expect that if 
+any function passed/assigned to a given function/field is an 
+interrupt handler then the rest are too.
 
-Regards, Gunther
+The big win will be when checkers can get at global data structure
+initializers.  From an outsiders view, it seems like most device
+methods are registered that way.
 
---- linux/drivers/pnp/isapnp.c-2.4.2-orig       Fri Mar 16 09:08:47 2001
-+++ linux/drivers/pnp/isapnp.c  Fri Mar 16 09:21:45 2001
-@@ -993,10 +993,15 @@
-                        header[4], header[5], header[6], header[7], header[8]);
-                printk("checksum = 0x%x\n", checksum);
- #endif
--               if (checksum == 0x00 || checksum != header[8])  /* not valid CSN */
-+               /* Don't be strict on the checksum, here !
-+                   e.g. 'SCM SwapBox Plug and Play' has header[8]==0 (should be: b7)*/
-+               if (header[8] == 0)
-+                       ;
-+               else if (checksum == 0x00 || checksum != header[8])     /* not valid CSN */
-                        continue;
-                if ((card = isapnp_alloc(sizeof(struct pci_bus))) == NULL)
-                        continue;
-+
-                card->number = csn;
-                card->vendor = (header[1] << 8) | header[0];
-                card->device = (header[3] << 8) | header[2];
---------------B53AC69B36E4583888D1D0E5
-Content-Type: application/octet-stream;
- name="gmdiff-242-isapnp-checksum-swapbox"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename="gmdiff-242-isapnp-checksum-swapbox"
-
-LS0tIGxpbnV4L2RyaXZlcnMvcG5wL2lzYXBucC5jLTIuNC4yLW9yaWcJRnJpIE1hciAxNiAw
-OTowODo0NyAyMDAxCisrKyBsaW51eC9kcml2ZXJzL3BucC9pc2FwbnAuYwlGcmkgTWFyIDE2
-IDA5OjIxOjQ1IDIwMDEKQEAgLTk5MywxMCArOTkzLDE1IEBACiAJCQloZWFkZXJbNF0sIGhl
-YWRlcls1XSwgaGVhZGVyWzZdLCBoZWFkZXJbN10sIGhlYWRlcls4XSk7CiAJCXByaW50aygi
-Y2hlY2tzdW0gPSAweCV4XG4iLCBjaGVja3N1bSk7CiAjZW5kaWYKLQkJaWYgKGNoZWNrc3Vt
-ID09IDB4MDAgfHwgY2hlY2tzdW0gIT0gaGVhZGVyWzhdKQkvKiBub3QgdmFsaWQgQ1NOICov
-CisJCS8qIERvbid0IGJlIHN0cmljdCBvbiB0aGUgY2hlY2tzdW0sIGhlcmUgIQorICAgICAg
-ICAgICAgICAgICAgIGUuZy4gJ1NDTSBTd2FwQm94IFBsdWcgYW5kIFBsYXknIGhhcyBoZWFk
-ZXJbOF09PTAgKHNob3VsZCBiZTogYjcpKi8KKwkJaWYgKGhlYWRlcls4XSA9PSAwKQorCQkJ
-OworCQllbHNlIGlmIChjaGVja3N1bSA9PSAweDAwIHx8IGNoZWNrc3VtICE9IGhlYWRlcls4
-XSkJLyogbm90IHZhbGlkIENTTiAqLwogCQkJY29udGludWU7CiAJCWlmICgoY2FyZCA9IGlz
-YXBucF9hbGxvYyhzaXplb2Yoc3RydWN0IHBjaV9idXMpKSkgPT0gTlVMTCkKIAkJCWNvbnRp
-bnVlOworCiAJCWNhcmQtPm51bWJlciA9IGNzbjsKIAkJY2FyZC0+dmVuZG9yID0gKGhlYWRl
-clsxXSA8PCA4KSB8IGhlYWRlclswXTsKIAkJY2FyZC0+ZGV2aWNlID0gKGhlYWRlclszXSA8
-PCA4KSB8IGhlYWRlclsyXTsK
---------------B53AC69B36E4583888D1D0E5--
-
+Dawson
+Dawson

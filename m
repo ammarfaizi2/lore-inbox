@@ -1,75 +1,140 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263490AbTEDBD1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 May 2003 21:03:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263493AbTEDBD1
+	id S263493AbTEDBVY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 May 2003 21:21:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263495AbTEDBVY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 May 2003 21:03:27 -0400
-Received: from mta5.snfc21.pbi.net ([206.13.28.241]:40581 "EHLO
-	mta5.snfc21.pbi.net") by vger.kernel.org with ESMTP id S263490AbTEDBD0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 May 2003 21:03:26 -0400
-Date: Sat, 03 May 2003 18:27:28 -0700
-From: David Brownell <david-b@pacbell.net>
-Subject: [Fwd: [PATCH 2.5.68] USB Gadget framework (0/6)]
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Message-id: <3EB46C80.3010500@pacbell.net>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en, fr
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
+	Sat, 3 May 2003 21:21:24 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:45831
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id S263493AbTEDBVW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 May 2003 21:21:22 -0400
+Date: Sat, 3 May 2003 18:28:22 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Reserving an ATA interface
+In-Reply-To: <Pine.SOL.4.30.0305031905060.10296-100000@mion.elka.pw.edu.pl>
+Message-ID: <Pine.LNX.4.10.10305031826220.4263-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-FYI:  sent this morning to linux-usb-devel.
+On Sat, 3 May 2003, Bartlomiej Zolnierkiewicz wrote:
 
--------- Original Message --------
-Subject: [PATCH 2.5.68] USB Gadget framework (0/6)
-Date: Sat, 03 May 2003 11:45:06 -0700
-From: David Brownell <david-b@pacbell.net>
-To: Greg KH <greg@kroah.com>,  linux-usb-devel@lists.sourceforge.net
+> 
+> On 3 May 2003, Benjamin Herrenschmidt wrote:
+> 
+> >
+> > > Yesterday I was thinking about:
+> > > - default arch hwifs, added/probed in ide_init_defult_hwifs() if no
+> > >   IDE PCI/PCI (depends on arch, should be IDE PCI?) support is compiled in
+> > > - PCI hwifs
+> > > - legacy hwifs probed in ide_setup()
+> > > - legacy hwifs probed after PCI
+> > > and about ide_register_hw() + initializing flag.
+> > >
+> > > What a mess... ordering issues can make you crazy.
+> >
+> > Yup, I'd suggest we think about re-writing all that stuff for 2.7 :)
+> 
+> Yes, only remaining question is how... :-)
 
-Followups to this message will  include patches with the core
-of a "USB Gadget" framework.  As you know, this is something
-we've wanted for the 2.5 kernel.  I see this as a good seed,
-the Linux developer community as fertile ground, and with
-spring here (Northern hemisphere, y'all), it's time to see
-what we'll grow!
+I will reveal in time, as this is already done.
 
-The API is hardware-neutral, and passes straight down to drivers
-for device-side USB controllers.  The "gadget drivers" implement
-USB device functionality using that API, including "endpoint zero"
-policies to configure that hardware for the desired functionality.
-They talk to host-side USB device drivers, such as those found
-today in all mainstream Linux kernels.
+2.7 I will release the remainder of my voodoo.
 
-       1 <linux/usb_gadget.h> ... API, and inlined implementation.
+> > > > The simplest solution I have in mind is to add an hwif flag,
+> > > > called "hold" (or whatever better name you find). Drivers like
+> > > > ide/ppc/pmac.c would set this flag for the "hotswap" media bay
+> > > > interface, and not for others.
+> > >
+> > > This change is obviously correct and it doesn't have influence on
+> > > any existing code.
+> > >
+> > > > The only change to the core code would then be for ide_register_hw
+> > > > to 'skip' those when searching for an available slot, and to call
+> > > > init_hwif_data when (!hwif->present && !hwif->hold) to handle case 2
+> > > > where the iops & other hwif fields (mmio among others) need to be
+> > > > reset to initial/legacy state.
+> > >
+> > > Less safe change but also okay, as callers .
+> > > btw, Can't "ghost ides" be dealed inside ppc specific code?
+> > >      Do you know when interface is valid and when it is "ghost",
+> > >      and what other OS-es do in this case?
+> >
+> > Not re-using the slot for an interface with the "hold" bit won't
+> > affect anybody but setters of that bit, so we are ok. The act of
+> > calling init_hwif_data when !present && !hold is the one bringing
+> > a possible change of behaviour to existing code.
+> >
+> > However, who calls ide_register_hw() dynamically ? ide-cs and ?
+> > I don't think there would much harm in re-calling init_hwif_data
+> > at this point since hwif->present is not set, we _are_ re-using
+> > the hwif, wether it was previously initialized or not by somebody
+> > else. In this case, we really want to "clean" it, don't we ?
+> 
+> Yes.
+> 
+> > Right now, the only problem with re-initializing this way that
+> > I've found is with hotswap interfaces like ide-pmac, because
+> > they will have preset special MMIO ops etc... and that call
+> > would revert that pre-setting. That's exactly why such interfaces
+> > should set the "hold" bit to "reserve" the hwif slot. You see
+> > the point ? I don't think there are much drivers aroung playing
+> > with such tricks though.
+> >
+> > All I can do within ide pmac itself is set or not that "hold"
+> > bit for those interfaces. I just need to set it on the hotswap
+> > ones (wthr they have devices connected or not) that way they
+> > stay around "reserved" for when a device gets plugged. Other
+> > "fixed" interfaces will have hwif->present cleared automatically
+> > by the probe code, and thus will be "freed" for other uses, if
+> > they don't have any device attached.
+> > (Which is why that init_hwif_data is needed to reset their hwif
+> > to something good default, and not whatever ide pmac have set).
+> >
+> > In 2.5, I can be slightly smarted since I'm calling the probe
+> > myself and no longer rely on the automatic initial probe done
+> > by the IDE layer, like for PCI devices, so I can actually
+> > "clear" those "empty" interfaces myself after they are probed.
+> > But still, it makes sense to have this "hold" flag to let a
+> > hotswap interface reserve a slot, and it makes sense when the
+> > interface isn't held by anybody to "clean it up" before giving
+> > it to somebody else.
+> 
+> Fully agreed.
+> 
+> > The only problem I see right now is for a dynamic interface
+> > (like ide-cs) where the _controller_ itself is hotswap, so
+> > the hwif slot cannot be reserved in advance _and_ that interface
+> > needs special IOps (which is fortunately not the case of ide-cs)
+> >
+> > Such an interface can't really know what slot will be
+> > picked by ide_register_hw() and can't "prepare" the HWIF with
+> > special iops, so it won't be much harmed by the fact we are
+> > calling init_hwif_data, but still, we should ultimately think
+> > about splitting completely the fact of allocating an hwif slot,
+> > setting it up, and triggering a probe on it. Those are 3 different
+> > things that are currently mixed in bad ways. I don't beleive
+> > fixing that fits in the 2.6 timeframe though.
+> 
+> Yeah, to be done, probably 2.7 :\.
+> --
+> Bartlomiej
+> 
+> > Ben.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-       2 drivers/usb/gadget/net2280.[hc] ... implements that API,
-         for the Net2280 peripheral controller.  This connects
-         using PCI, and supports USB 2.0 high speed.  So it's
-         relatively demanding of that API.
-
-       3 drivers/usb/gadget/zero.c  ... simple gadget driver for
-         testing
-
-       4 drivers/usb/gadget/ether.c  ... CDC Ethernet gadget driver,
-         supports high speed link
-
-       5 drivers/usb/gadget/usbstring.c ... optional utility code,
-         for use by gadget drivers
-
-       6 kconfig/kbuild support for all the above.
-
-These patches are against 2.5.68 current.  Please merge them
-towards Linus' tree.
-
-- Dave
-
-
-
-
-
-
+Andre Hedrick
+LAD Storage Consulting Group
 

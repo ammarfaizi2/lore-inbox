@@ -1,60 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267625AbUIJDSP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267649AbUIJDYv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267625AbUIJDSP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 23:18:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267679AbUIJDSP
+	id S267649AbUIJDYv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 23:24:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267685AbUIJDYv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 23:18:15 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:59884 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S267625AbUIJDSM (ORCPT
+	Thu, 9 Sep 2004 23:24:51 -0400
+Received: from ozlabs.org ([203.10.76.45]:10189 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S267649AbUIJDYt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 23:18:12 -0400
-Subject: Re: Major XFS problems...
-From: Greg Banks <gnb@melbourne.sgi.com>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Cc: Jakob Oestergaard <jakob@unthought.net>,
-       Anando Bhattacharya <a3217055@gmail.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <16F6CCFE-02D6-11D9-B8B0-000393ACC76E@mac.com>
-References: <20040908123524.GZ390@unthought.net>
-	 <322909db040908080456c9f291@mail.gmail.com>
-	 <20040908154434.GE390@unthought.net>
-	 <1094661418.19981.36.camel@hole.melbourne.sgi.com>
-	 <20040909140017.GP390@unthought.net>
-	 <1094784025.19981.188.camel@hole.melbourne.sgi.com>
-	 <16F6CCFE-02D6-11D9-B8B0-000393ACC76E@mac.com>
-Content-Type: text/plain
-Organization: Silicon Graphics Inc, Australian Software Group.
-Message-Id: <1094786694.19981.209.camel@hole.melbourne.sgi.com>
+	Thu, 9 Sep 2004 23:24:49 -0400
+Date: Fri, 10 Sep 2004 13:24:11 +1000
+From: Anton Blanchard <anton@samba.org>
+To: William Lee Irwin III <wli@holomorphy.com>,
+       Linus Torvalds <torvalds@osdl.org>, Paul Mackerras <paulus@samba.org>,
+       Zwane Mwaikambo <zwane@linuxpower.ca>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Matt Mackall <mpm@selenic.com>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>
+Subject: Re: [PATCH][5/8] Arch agnostic completely out of line locks / ppc64
+Message-ID: <20040910032411.GK11358@krispykreme>
+References: <16704.52551.846184.630652@cargo.ozlabs.ibm.com> <20040909220040.GM3106@holomorphy.com> <16704.59668.899674.868174@cargo.ozlabs.ibm.com> <20040910000903.GS3106@holomorphy.com> <Pine.LNX.4.58.0409091712270.5912@ppc970.osdl.org> <20040910003505.GG11358@krispykreme> <Pine.LNX.4.58.0409091750300.5912@ppc970.osdl.org> <20040910014228.GH11358@krispykreme> <20040910015040.GI11358@krispykreme> <20040910022204.GA2616@holomorphy.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Fri, 10 Sep 2004 13:24:55 +1000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040910022204.GA2616@holomorphy.com>
+User-Agent: Mutt/1.5.6+20040818i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-09-10 at 13:04, Kyle Moffett wrote:
-> On Sep 09, 2004, at 22:40, Greg Banks wrote:
-> > Like I said, knfsd does unnatural things to the dcache.
-> 
-> Perhaps there needs to be a standard API that knfsd can use to do many
-> of the (currently) non-standard dcache operations.  This would likely be
-> useful for other kernel-level file-servers that would be useful to have
-> (OpenAFS? Coda?).  Of course, I could just be totally ignorant of some
-> nasty reason for the unstandardized hackery, but it doesn't hurt to
-> ask. :-D
+ 
+> Well, there are patches that do this along with other more useful
+> things in the works (my spin on this is en route shortly, sorry the
+> response was delayed due to a power failure).
 
-In 2.6 there is an API and knfsd code is less interwoven with dcache
-internals.  In practice what this means is that the dcache code paths
-which are only exercised by NFS move from NFS code into fs/dcache.c
-and fs/exportfs/ and have a pretty wrapper but are not any less
-unnatural or NFS-specific.  The problem is the need to convert an NFS
-file handle off the wire (which contains an inode number) into a dentry.
-This kind of bottom-up construction of dentry paths is *painful* as
-the dcache really wants to grow from an fs root down.
+OK. I just sent out a minimal fix, hopefully there isnt too much overlap :)
 
-Greg.
--- 
-Greg Banks, R&D Software Engineer, SGI Australian Software Group.
-I don't speak for SGI.
-
-
+Anton

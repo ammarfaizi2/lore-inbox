@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261874AbVCLBer@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261884AbVCLBmb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261874AbVCLBer (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 20:34:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261877AbVCLBeq
+	id S261884AbVCLBmb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 20:42:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261893AbVCLBfD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 20:34:46 -0500
-Received: from fire.osdl.org ([65.172.181.4]:61573 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261874AbVCLBcl (ORCPT
+	Fri, 11 Mar 2005 20:35:03 -0500
+Received: from fire.osdl.org ([65.172.181.4]:9350 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261884AbVCLBdR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 20:32:41 -0500
-Date: Fri, 11 Mar 2005 17:32:33 -0800
+	Fri, 11 Mar 2005 20:33:17 -0500
+Date: Fri, 11 Mar 2005 17:33:08 -0800
 From: Andrew Morton <akpm@osdl.org>
 To: Felix von Leitner <felix-linuxkernel@fefe.de>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
 Subject: Re: 2.6.11: USB broken on nforce4, ipv6 still broken, centrino
  speedstep even more broken than in 2.6.10
-Message-Id: <20050311173233.462971be.akpm@osdl.org>
+Message-Id: <20050311173308.7a076e8f.akpm@osdl.org>
 In-Reply-To: <20050311202122.GA13205@fefe.de>
 References: <20050311202122.GA13205@fefe.de>
 X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
@@ -25,39 +25,20 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+
+(Added netdev cc)
+
 Felix von Leitner <felix-linuxkernel@fefe.de> wrote:
 >
-> My new nForce 4 mainboard has 10 or so USB 2.0 outlets.  In Windows,
-> they all work.  In Linux, two of them work.  Putting my USB stick or
-> anything else in one of the others produces nothing in Linux.
-> Apparently no IRQ getting through or something?
+> Now about IPv6: npush and npoll are two applications I wrote.  npush
+> sends multicast announcements and opens a TCP socket.  npoll receives
+> the multicast announcement and connects to the source IP/port/scope_id
+> of the announcement.  If both are run on the same machine, npoll sees
+> the link local address of eth0 as source IP, and the interface number of
+> eth0 as scope_id.  So far so good.  Trying to connect() however hangs.
+> Since this has been broken in different ways for as long as I can
+> remember in Linux, and I keep complaining about it every half a year or
+> so.  Can't someone fix this once and for all?  IPv4 checks whether we
+> are connecting to our own address and reroutes through loopback, why
+> can't IPv6?
 > 
-> This is what /proc/interrupts has to say:
-> 
->   177:    9503618   IO-APIC-level  ohci_hcd, eth0
-> 
-> These are the USB boot messages:
-> 
->   usbcore: registered new driver usbfs
->   usbcore: registered new driver hub
->   ehci_hcd 0000:00:02.1: new USB bus registered, assigned bus number 1
->   ehci_hcd 0000:00:02.1: USB 2.0 initialized, EHCI 1.00, driver 26 Oct 2004
->   hub 1-0:1.0: USB hub found
->   ohci_hcd: 2004 Nov 08 USB 1.1 'Open' Host Controller (OHCI) Driver (PCI)
->   ohci_hcd 0000:00:02.0: new USB bus registered, assigned bus number 2
->   hub 2-0:1.0: USB hub found
->   usbcore: registered new driver usblp
->   drivers/usb/class/usblp.c: v0.13: USB Printer Device Class driver
->   Initializing USB Mass Storage driver...
->   usb 2-4: new low speed USB device using ohci_hcd and address 2
->   usbcore: registered new driver usb-storage
->   USB Mass Storage support registered.
->   input: USB HID v1.10 Mouse [B16_b_02 USB-PS/2 Optical Mouse] on
->   usb-0000:00:02.0-4
->   usbcore: registered new driver usbhid
->   drivers/usb/input/hid-core.c: v2.0:USB HID core driver
->   HUB0 XVR0 XVR1 XVR2 XVR3 USB0 USB2 MMAC MMCI UAR1
-> 
-> As you can see, it appears to work in principle.
-
-Did it work correctly on any earlier kernel?  If so, which one(s)?

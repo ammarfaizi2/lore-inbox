@@ -1,47 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261490AbSJUOuq>; Mon, 21 Oct 2002 10:50:46 -0400
+	id <S261392AbSJUOtV>; Mon, 21 Oct 2002 10:49:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261497AbSJUOup>; Mon, 21 Oct 2002 10:50:45 -0400
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:30984 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S261495AbSJUOuo>;
-	Mon, 21 Oct 2002 10:50:44 -0400
-Date: Mon, 21 Oct 2002 07:55:48 -0700
-From: Greg KH <greg@kroah.com>
-To: Peter <pk@q-leap.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: oops still occurs with usb-serial converter
-Message-ID: <20021021145548.GA30857@kroah.com>
-References: <S.0001127744@wolnet.de>
+	id <S261491AbSJUOtV>; Mon, 21 Oct 2002 10:49:21 -0400
+Received: from crack.them.org ([65.125.64.184]:10761 "EHLO crack.them.org")
+	by vger.kernel.org with ESMTP id <S261392AbSJUOtU>;
+	Mon, 21 Oct 2002 10:49:20 -0400
+Date: Mon, 21 Oct 2002 10:54:32 -0400
+From: Daniel Jacobowitz <dan@debian.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: phil-list@redhat.com, Linus Torvalds <torvalds@transmeta.com>,
+       Alexander Viro <viro@math.psu.edu>,
+       S Vamsikrishna <vamsi_krishna@in.ibm.com>,
+       Mark Gross <markgross@thegnar.org>, Ulrich Drepper <drepper@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] thread-aware coredumps, 2.5.43-C3
+Message-ID: <20021021145432.GA22470@nevyn.them.org>
+Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, phil-list@redhat.com,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Alexander Viro <viro@math.psu.edu>,
+	S Vamsikrishna <vamsi_krishna@in.ibm.com>,
+	Mark Gross <markgross@thegnar.org>,
+	Ulrich Drepper <drepper@redhat.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200210081627.g98GRZP18285@unix-os.sc.intel.com> <Pine.LNX.4.44.0210171009240.12653-100000@localhost.localdomain> <20021017164040.GA12608@nevyn.them.org> <1035210573.28189.127.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <S.0001127744@wolnet.de>
-User-Agent: Mutt/1.4i
+In-Reply-To: <1035210573.28189.127.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 21, 2002 at 12:02:38PM +0200, Peter wrote:
-> Hello,
+On Mon, Oct 21, 2002 at 03:29:33PM +0100, Alan Cox wrote:
+> On Thu, 2002-10-17 at 17:40, Daniel Jacobowitz wrote:
+> > My only problem with this is that you're waiting for all threads by
+> > SIGKILLing them.  If a process vforks or clones, and then the child
+> > crashes, the parent will receive a SIGKILL - iff we are dumping core. 
+> > That's a change in behavior that seems a bit too arbitrary to me.
 > 
-> The attached kernel oops still occurs (was reported with kernel 2.4.19
-> on July, 29th):
-> 
-> Hardware:
->   Dell Inspiron 2600 Laptop
->   USB-Serial Converter: UC-232A
-> 
-> Software:
->   minicom (V1.82.1)
->   kernel: 2.4.20-pre11
-> 
-> modules loaded:
-> pl2303                 10104   1
-> usbserial              17468   0 [pl2303]
-> uhci                   23600   0 (unused)
+> It also has a security impact when you construct a fork/fork/crash
+> sequence that sends sigkill to the module loader or a kernel thread
+> during start up that has not yet dropped its association with the user
+> code.
 
-Does the same problem happen with usb-uhci instead of uhci?
+Why?  It's not like userspace couldn't send that SIGKILL on its own,
+right?  If it's still killable it had better be safe to do so.
 
-thanks,
-
-greg k-h
+-- 
+Daniel Jacobowitz
+MontaVista Software                         Debian GNU/Linux Developer

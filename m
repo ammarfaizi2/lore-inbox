@@ -1,11 +1,11 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269115AbTCBDp3>; Sat, 1 Mar 2003 22:45:29 -0500
+	id <S267285AbTCBEHP>; Sat, 1 Mar 2003 23:07:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269117AbTCBDp3>; Sat, 1 Mar 2003 22:45:29 -0500
-Received: from virtisp1.zianet.com ([216.234.192.105]:11785 "HELO
+	id <S267476AbTCBEHP>; Sat, 1 Mar 2003 23:07:15 -0500
+Received: from virtisp1.zianet.com ([216.234.192.105]:6158 "HELO
 	mesatop.zianet.com") by vger.kernel.org with SMTP
-	id <S269115AbTCBDp2>; Sat, 1 Mar 2003 22:45:28 -0500
+	id <S267285AbTCBEHP>; Sat, 1 Mar 2003 23:07:15 -0500
 Subject: Re: [PATCH] kernel source spellchecker
 From: Steven Cole <elenstev@mesatop.com>
 To: Dan Kegel <dank@kegel.com>
@@ -18,31 +18,26 @@ References: <Pine.LNX.4.44.0303011503590.29947-101000@korben.citd.de>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Evolution/1.0.2-5mdk 
-Date: 01 Mar 2003 20:54:36 -0700
-Message-Id: <1046577278.2543.445.camel@spc1.mesatop.com>
+Date: 01 Mar 2003 21:16:23 -0700
+Message-Id: <1046578585.2544.451.camel@spc1.mesatop.com>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 On Sat, 2003-03-01 at 20:02, Dan Kegel wrote:
 > My corrections file is up at http://www.kegel.com/spell-fix-dan1.txt
-[snip]
+
 > 
 > Any other changes people want to see in the script
-> or the corrections file?   Should I add fixes for
-> uncommon errors (those that happen only in one or two files)?
+> or the corrections file?  
 
-Correction:
-transmitting=transmiting
-triggered=tiggered,triggerred
-trigging=triggerg
-^^^^^^^^
-This should be "triggering" here (I hope).
+Another correction to the corrections file:
 
-[steven@spc5 linux]$ find . -type f | xargs grep triggerg
-./sound/isa/sb/emu8000_callback.c:         for triggerg the voice */
-./sound/isa/sb/emu8000_pcm.c:      for triggerg the voice */
-./sound/pci/emu10k1/emu10k1_callback.c:    for triggerg the voice */
+Licensed=Licenced
+         ^^^^^^^^
+I think Licenced is OK in the UK.
+See http://www.gsu.edu/~wwwesl/egw/jones/differences.htm
 
 Steven
+
 

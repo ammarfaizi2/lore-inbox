@@ -1,37 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266703AbUH3H2T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265773AbUH3HnZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266703AbUH3H2T (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 03:28:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266879AbUH3H2T
+	id S265773AbUH3HnZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 03:43:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266876AbUH3HnZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 03:28:19 -0400
-Received: from mail.it-technology.at ([62.99.145.147]:60086 "EHLO
-	mail.it-technology.at") by vger.kernel.org with ESMTP
-	id S266703AbUH3H2R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 03:28:17 -0400
-Message-ID: <38386.192.168.1.2.1093850895.squirrel@www.it-technology.at>
-Date: Mon, 30 Aug 2004 09:28:15 +0200 (CEST)
-Subject: PROBLEM: fix fealnx.c hangs on SMP, 2.4.27 
-From: "Peter Holik" <peter@holik.at>
-To: <linux-kernel@vger.kernel.org>
-X-Priority: 3
-Importance: Normal
-X-Mailer: SquirrelMail (version 1.2.10)
+	Mon, 30 Aug 2004 03:43:25 -0400
+Received: from hibernia.jakma.org ([212.17.55.49]:53122 "EHLO
+	hibernia.jakma.org") by vger.kernel.org with ESMTP id S265773AbUH3HnX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Aug 2004 03:43:23 -0400
+Date: Mon, 30 Aug 2004 08:42:41 +0100 (IST)
+From: Paul Jakma <paul@clubi.ie>
+X-X-Sender: paul@fogarty.jakma.org
+To: Helge Hafting <helgehaf@aitel.hist.no>
+cc: Albert Cahalan <albert@users.sourceforge.net>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       rlrevell@joe-job.com, clemtaylor@comcast.net, qg@biodome.org,
+       rogers@isi.edu
+Subject: Re: reverse engineering pwcx
+In-Reply-To: <20040829210436.GA24350@hh.idb.hist.no>
+Message-ID: <Pine.LNX.4.61.0408300836010.2441@fogarty.jakma.org>
+References: <1093709838.434.6797.camel@cube> <20040829210436.GA24350@hh.idb.hist.no>
+X-NSA: arafat al aqsar jihad musharef jet-A1 avgas ammonium qran inshallah allah al-akbar martyr iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas british airways washington
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-static void set_rx_mode(struct net_device *dev)
-{
-   spinlock_t *lp = &((struct netdev_private *)dev->priv)->lock;
-   unsigned long flags;
-   spin_lock_irqsave(lp, flags);
-   __set_rx_mode(dev);
--  spin_unlock_irqrestore(&lp, flags);
-+  spin_unlock_irqrestore(lp, flags);
-}
+On Sun, 29 Aug 2004, Helge Hafting wrote:
 
+> There's no need for faith or speculation here.
+> Put the chip under a microscope and count the pixels,
+> or rather measure their size and estimate their number.
 
+The lavarnd guy did and counted 160x120:
 
+ 	http://slashdot.org/comments.pl?sid=119578&cid=10091208
+
+regards,
+-- 
+Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
+Fortune:
+"You don't go out and kick a mad dog.  If you have a mad dog with rabies, you
+take a gun and shoot him."
+-- Pat Robertson, TV Evangelist, about Muammar Kadhafy

@@ -1,48 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261707AbUL3TvD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261705AbUL3Tx4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261707AbUL3TvD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Dec 2004 14:51:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261705AbUL3TvD
+	id S261705AbUL3Tx4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Dec 2004 14:53:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261706AbUL3Tx4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Dec 2004 14:51:03 -0500
-Received: from hobbit.corpit.ru ([81.13.94.6]:63574 "EHLO hobbit.corpit.ru")
-	by vger.kernel.org with ESMTP id S261704AbUL3Tu6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Dec 2004 14:50:58 -0500
-Message-ID: <41D45C1F.5030307@tls.msk.ru>
-Date: Thu, 30 Dec 2004 22:50:55 +0300
-From: Michael Tokarev <mjt@tls.msk.ru>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
-X-Accept-Language: en-us, en
+	Thu, 30 Dec 2004 14:53:56 -0500
+Received: from imap.gmx.net ([213.165.64.20]:41151 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261705AbUL3Txw convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Dec 2004 14:53:52 -0500
+X-Authenticated: #116626
+From: Alexander Kern <alex.kern@gmx.de>
+To: Stas Sergeev <stsp@aknet.ru>
+Subject: Re: bug: cd-rom autoclose no longer works (fix attempt)
+Date: Thu, 30 Dec 2004 20:52:57 +0100
+User-Agent: KMail/1.7.2
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
+References: <200412301853.48677.alex.kern@gmx.de> <41D4483C.9030005@aknet.ru>
+In-Reply-To: <41D4483C.9030005@aknet.ru>
 MIME-Version: 1.0
-To: "Peter T. Breuer" <ptb@lab.it.uc3m.es>
-Cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org,
-       dm-crypt@saout.de
-Subject: Re: PROBLEM: Kernel 2.6.10 crashing repeatedly and hard
-References: <m3is6k4oeu.fsf@reason.gnu-hamburg> <m38y7fn4ay.fsf@reason.gnu-hamburg> <v3rda2-hjn.ln1@news.it.uc3m.es>
-In-Reply-To: <v3rda2-hjn.ln1@news.it.uc3m.es>
-X-Enigmail-Version: 0.89.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=KOI8-R; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200412302053.00850.alex.kern@gmx.de>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter T. Breuer wrote:
-> In gmane.linux.raid Georg C. F. Greve <greve@fsfeurope.org> wrote:
-> 
-> Yes, well, don't put the journal on the raid partition. Put it
-> elsewhere (anyway, journalling and raid do not mix, as write ordering
-> is not - deliberately - preserved in raid, as far as I can tell).
+Am Donnerstag, 30. Dezember 2004 19:26 schrieb Stas Sergeev:
+> Hello.
+Hello,
+>
+> Alexander Kern wrote:
+> >> The ide-cd.c change is as per 2.4.20
+> >> which works. For some reasons
+> >> sense.ascq == 0 for me when the tray
+> >> is opened.
+> >
+> > ascq = 0 is legal.
+> > According to mmc3r10g
+> > asc 3a
+> > ascq 0 is MEDIUM NOT PRESENT
+> > ascq 1 is MEDIUM NOT PRESENT - TRAY CLOSED
+> > ascq 2 is MEDIUM NOT PRESENT - TRAY OPEN
+> > What in my eyes means, your drive is impossible to determine is tray open
+> > or closed.
+>
+> I think so too, this is the problem most
+> likely. However, my cd-roms are not that
+> ancient, I expect there are millions of
+> the like ones around. Breaking autoclose
+> for all of them after it worked for ages,
+> is no good IMO.
+>
+Can agree with you, but a modern cdrom should be able to konwn, is it open or 
+not. This patch change basic behaviour for all cdroms.
+> > Linux assumes if not known tray is closed. That is better default, it
+> > avoids infinate trying to close.
+>
+> I don't think so. It is safe to assume the
+> tray is opened, at least it worked in the
+> past (or were there the real problems with
+> this?) You can always try to close it only
+> once, and if that still returns 0, then
+> bail out. One extra closing attempt should
+> not do any harm I suppose. That's exactly
+> what my patch does (I hope). And that's most
+> likely how it used to work before. I'll be
+> disappointed if autoclose will remain broken -
+> it was the very usefull feature, it will be
+> missed. Unless there are the real technical
+> reasons against the old behaviour, of course.
+Old behaviour has another problems, and revert to 2.4.20 code base is a bad 
+solution. I have nothing against changing the default.
+The patch must be minimal...
+         
+	if (sense.sense_key == NOT_READY) {
+               if (sense.asc == 0x3a) {
+-                        if (sense.ascq == 0 || sense.ascq == 1)
++                        if (sense.ascq == 1)
+                                return CDS_NO_DISC;
+-                        else if (sense.ascq == 2)
++                        else if (sense.ascq == 0 || sense.ascq == 2)
+                                return CDS_TRAY_OPEN;
+                }
+         }
 
-This is a sort of a nonsense, really.  Both claims, it seems.
-I can't say for sure whenever write ordering is preserved by
-raid -- it should, and if it isn't, it's a bug and should be
-fixed.  Nothing else is wrong with placing journal into raid
-(the same as the filesystem in question).  Suggesting to remove
-journal just isn't fair: the journal is here for a reason.
-And, finally, the kernel should not crash.  If something like
-this is unsupported, it should refuse to do so, instead of
-crashing randomly.
+Regards Alex
 
-/mjt
+P.S. S Novym Godom!

@@ -1,61 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268916AbRHaSlC>; Fri, 31 Aug 2001 14:41:02 -0400
+	id <S268908AbRHaSlC>; Fri, 31 Aug 2001 14:41:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268926AbRHaSkw>; Fri, 31 Aug 2001 14:40:52 -0400
-Received: from unused ([12.150.234.220]:33789 "EHLO one.isilinux.com")
-	by vger.kernel.org with ESMTP id <S268916AbRHaSkk>;
-	Fri, 31 Aug 2001 14:40:40 -0400
-Message-ID: <3B8FDA36.5010206@interactivesi.com>
-Date: Fri, 31 Aug 2001 13:40:54 -0500
-From: Timur Tabi <ttabi@interactivesi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3+) Gecko/20010815
-X-Accept-Language: en-us
+	id <S268916AbRHaSkx>; Fri, 31 Aug 2001 14:40:53 -0400
+Received: from cardinal0.Stanford.EDU ([171.64.15.238]:22430 "EHLO
+	cardinal0.Stanford.EDU") by vger.kernel.org with ESMTP
+	id <S268908AbRHaSkj>; Fri, 31 Aug 2001 14:40:39 -0400
+Date: Fri, 31 Aug 2001 11:40:43 -0700 (PDT)
+From: Ted Unangst <tedu@stanford.edu>
+To: "Peter T. Breuer" <ptb@it.uc3m.es>
+cc: Roman Zippel <zippel@linux-m68k.org>,
+        linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
+In-Reply-To: <fa.eeq0k8v.1v28iaa@ifi.uio.no>
+Message-ID: <Pine.GSO.4.31.0108311139230.19375-100000@cardinal0.Stanford.EDU>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: kernel hangs in 118th call to vmalloc
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm writing a driver for the 2.4.2 kernel.  I need to use this kernel 
-because this driver needs to be compatible with a stock Red Hat system. 
-  Patches to the kernel are not an option.
+On Fri, 31 Aug 2001, Peter T. Breuer wrote:
 
-The purpose of the driver is to locate a device that exists on a 
-specific memory chip.  To help find it, I've written this routine:
+> "Roman Zippel wrote:"
+> > [ptb wrote]
+> > > Stanford checker? Is that a programmable C type checker? If so, lemmee
+> > > at it. Have you a URL, btw?
+> >
+> > http://verify.stanford.edu/SVC/
+> > You should search the archive to look for some good examples, how it can
+> > help.
+>
+> Hmm .. it looks like a model checker, and only for 1st order logic
+> (i.e. not CTL). It seems very primitive. What's the point of using this
+> instead of the many sphisticated model checkers and theorem provers out
+> there?
 
-#define CLEAR_BLOCK_SIZE 1048576UL        // must be a multiple of 1MB
-#define CLEAR_BLOCK_COUNT ((PHYSICAL_HOP * 2) / CLEAR_BLOCK_SIZE)
+that's the wrong checker.  see http://hands.stanford.edu.
 
-void clear_out_memory(void)
-{
-     void *p[CLEAR_BLOCK_COUNT];
-     unsigned i;
-     unsigned long size = 0;
 
-     for (i=0; i<CLEAR_BLOCK_COUNT; i++)
-     {
-         p[i] = vmalloc(CLEAR_BLOCK_SIZE);
-         if (!p[i])
-             break;
-         size += CLEAR_BLOCK_SIZE;
-     }
 
-     while (--i)
-         vfree(p[i]);
 
-     printk("Paged %luMB of memory\n", size / 1048576UL);
-}
 
-What this routine does is call vmalloc() repeatedly for a number of 1MB 
-chunks until it fails or until it's allocated 128MB (CLEAR_BLOCK_COUNT 
-is equal to 128 in this case).  Then, it starts freeing them.
+>
+> Peter
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-The side-effect of this routine is to page-out up to 128MB of RAM. 
-Unfortunately, on a 128MB machine, the 118th call to vmalloc() hangs the 
-system.  I was expecting it to return NULL instead.
-
-Is this a bug in vmalloc()?  If so, is there a work-around that I can use?
+--
+"First, it was not a strip bar, it was an erotic club.  And second,
+what can I say?  I'm a night owl."
+      - M. Barry, Mayor of Washington, DC
 

@@ -1,42 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312464AbSDELJ3>; Fri, 5 Apr 2002 06:09:29 -0500
+	id <S310214AbSDELMj>; Fri, 5 Apr 2002 06:12:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310214AbSDELJU>; Fri, 5 Apr 2002 06:09:20 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:41875 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S293076AbSDELJG>;
-	Fri, 5 Apr 2002 06:09:06 -0500
-Date: Fri, 05 Apr 2002 03:02:51 -0800 (PST)
-Message-Id: <20020405.030251.28451401.davem@redhat.com>
-To: stelian.pop@fr.alcove.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: socket write(2) after remote shutdown(2) problem ?
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20020405105509.GE16595@come.alcove-fr>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S311594AbSDELMa>; Fri, 5 Apr 2002 06:12:30 -0500
+Received: from artemis.rus.uni-stuttgart.de ([129.69.1.28]:40849 "EHLO
+	artemis.rus.uni-stuttgart.de") by vger.kernel.org with ESMTP
+	id <S310214AbSDELMN>; Fri, 5 Apr 2002 06:12:13 -0500
+Date: Fri, 5 Apr 2002 13:12:02 +0200 (MEST)
+From: Erich Focht <efocht@ess.nec.de>
+To: Ingo Molnar <mingo@elte.hu>
+cc: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
+Subject: O(1) scheduler: lockup with set_cpus_allowed
+Message-ID: <Pine.LNX.4.21.0204051202230.10372-100000@sx6.ess.nec.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Stelian Pop <stelian.pop@fr.alcove.com>
-   Date: Fri, 5 Apr 2002 12:55:09 +0200
-   
-   > 	* client socket receives a TCP reset
-   
-   How is the client socket supposed to know it received a TCP reset
-   (I am talking from the application point of view, not the kernel...) ?
+Hi,
 
-You may find out by attempting to read data, or you may use the
-extended IP error reporting Linux has.
+there is a potential lockup problem with the current
+set_cpus_allowed() mechanism. As the comment right before the function
+suggests, one should make sure that the task referenced is valid and that
+it doesn't exit prematurely. Therefore in a pseudo-device driver used for
+changing the cpus_allowed masks of processes I do:
 
-But all of this is irrelevant.  When a server closes and says "send me
-no more data", this implies that the server told the client it doesn't
-want any more data.  If the client sends data, this is a gross fatal
-error, so TCP resets in FIN_WAIT{1,2} states.
+	read_lock(&tasklist_lock);
+	task = find_task_by_pid(pid);
+	if (task)
+		set_cpus_allowed(task, new_mask);
+	read_unlock(&tasklist_lock);
 
-RFC 793 originally specified to queue the data, RFC 1122 is where
-the current behavior is defined.
+This is accessed by a user-space program, for example:
+% oncpu -c 0 $$
+pins the shell to logical CPU #0.
+
+The lockup with the new task migration mechanism can be observed if one
+does:
+
+	for cpu in 1 3 5 ; do
+		oncpu -c $cpu $$
+		run_job.sh > out.$cpu &
+	done
+
+For cpu=1 everything goes well, the shell is pinned to CPU#1, forks
+run_job.sh (which itself forks another process) which is pinned to CPU#1,
+too (cpus_allowed is inherited by children).
+
+For cpu=3 the shell forks, execs "oncpu -c 3 $$" (which is pinned to
+CPU#1), this one calls the device driver which gets a read_lock of
+tasklist_lock. Then set_cpus_allowed() wakes up migration_CPU1 which
+migrates the shell to CPU#3. When migration_CPU1 finishes, it reactivates
+the "oncpu" process (which was running on CPU#1) but the currently running
+process is "run_job.sh" on CPU#1. This one forks and spinlocks on
+tasklist_lock, which it will never get because "oncpu" never gets the
+chance to read_unlock(&tasklist_lock).
+
+So the problem is that it is not guaranteed that the task calling
+set_cpus_allowed() will run right after migration_task() finished its
+job.
+
+How about raising the priority in set_cpus_allowed() before the
+	down(&req.sem);
+and resetting it afterwards? Would this help?
+
+Another possible solution would be to take care of the validity of the
+task inside set_cpus_allowed(), i.e. pass it a pid as argument, lock the
+tasklist there and unlock it in migration_task().
+
+Any ideas, comments?
+
+Best regards,
+Erich
+
 
 

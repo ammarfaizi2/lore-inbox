@@ -1,39 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269975AbRHJTUl>; Fri, 10 Aug 2001 15:20:41 -0400
+	id <S269976AbRHJTWb>; Fri, 10 Aug 2001 15:22:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269976AbRHJTUb>; Fri, 10 Aug 2001 15:20:31 -0400
-Received: from freya.cs.umass.edu ([128.119.240.41]:18444 "EHLO
-	freya.cs.umass.edu") by vger.kernel.org with ESMTP
-	id <S269975AbRHJTUN>; Fri, 10 Aug 2001 15:20:13 -0400
-Date: Fri, 10 Aug 2001 15:20:24 -0400 (EDT)
-From: Xianglong Huang <xlhuang@cs.umass.edu>
-To: <linux-kernel@vger.kernel.org>
-cc: Xianglong Huang <xlhuang@freya.cs.umass.edu>
-Subject: About signal stack
-Message-ID: <Pine.OSF.4.31.0108101513400.17807-100000@freya.cs.umass.edu>
+	id <S269985AbRHJTWV>; Fri, 10 Aug 2001 15:22:21 -0400
+Received: from neon-gw.transmeta.com ([63.209.4.196]:65284 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S269976AbRHJTWI>; Fri, 10 Aug 2001 15:22:08 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Writes to mounted devices containing file-systems.
+Date: 10 Aug 2001 12:21:42 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9l1c86$2jv$1@cesium.transmeta.com>
+In-Reply-To: <Pine.LNX.3.95.1010810075750.10479A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there,
+Followup to:  <Pine.LNX.3.95.1010810075750.10479A-100000@chaos.analogic.com>
+By author:    "Richard B. Johnson" <root@chaos.analogic.com>
+In newsgroup: linux.dev.kernel
+> 
+> In this company, they hired a "CIO" who thinks that no computers
+> should have any local storage or boot capability. They must all
+> boot from some secure (M$) file-server. They will not be allowed
+> to have local disks and, horrors -- of course no floppy drives or
+> CD-ROMS.
+> 
 
-Now I am implementing sigaltstack() system call in a simulator. What
-confused me is that I thought the signal stack is pointed by the register
-sp. I mean, while the signal handler is running, it will use the address
-of signal stack as its stack pointer and run the function on this stack.
-But I found by GDB that it is not the case. After I use sigaltstack() in
-the program and invoked the signal handler, the sp is not changed by the
-value I gave to signal stack by sigaltstack().
+This is actually a lot easier to do in Linux (using PXELINUX and
+NFSroot) -- M$ thinks of this as a threat to their licensing
+(fleecing) model.
 
-My question is: What is the signal stack used for if it is not to replace
-the stack pointer? How can I check the value of signal stack by GDB?
-Thanks a lot!
+Seriously, you should use this as an inroad -- central control setups
+is something Unix absolutely excels at, and Windows does hideously
+poorly.
 
-Regards,
-Long
+> He doesn't care that we are in the business of making software-driven
+> machines so we require access to the guts of computers and their
+> operating systems.
 
-ps: Please cc the answer to my email address because I am not on the
-list. Thanks
+Test machines obviously can't be done this way, but they shouldn't
+contain important data.  (And don't expect great performance, either,
+although with modern file servers and networks it can be better than
+you'd think.)
 
+> The next one will be:
+> 
+> 	"Linux is insecure..."
+
+Consider SirCam and Code Red an "education campaign" for the
+clueless.
+
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

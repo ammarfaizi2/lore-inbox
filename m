@@ -1,68 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269364AbUI3Sc0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269392AbUI3Sds@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269364AbUI3Sc0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Sep 2004 14:32:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269386AbUI3ScZ
+	id S269392AbUI3Sds (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Sep 2004 14:33:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269400AbUI3Sdr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Sep 2004 14:32:25 -0400
-Received: from moraine.clusterfs.com ([66.246.132.190]:31398 "EHLO
-	moraine.clusterfs.com") by vger.kernel.org with ESMTP
-	id S269364AbUI3ScI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Sep 2004 14:32:08 -0400
-Date: Thu, 30 Sep 2004 12:32:00 -0600
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Stephen Tweedie <sct@redhat.com>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       "Theodore Ts'o" <tytso@mit.edu>, ext2-devel@lists.sourceforge.net
-Subject: Re: [Patch 0/10]: Cleanup online reservations for 2.6.9-rc2-mm4.
-Message-ID: <20040930183200.GR2061@schnapps.adilger.int>
-Mail-Followup-To: Stephen Tweedie <sct@redhat.com>,
-	linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-	Theodore Ts'o <tytso@mit.edu>, ext2-devel@lists.sourceforge.net
-References: <200409301323.i8UDNAR3004753@sisko.scot.redhat.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Tcb1KvpfnM4LxW2s"
-Content-Disposition: inline
-In-Reply-To: <200409301323.i8UDNAR3004753@sisko.scot.redhat.com>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	Thu, 30 Sep 2004 14:33:47 -0400
+Received: from fw.osdl.org ([65.172.181.6]:22405 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S269392AbUI3Sdn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Sep 2004 14:33:43 -0400
+Date: Thu, 30 Sep 2004 11:33:28 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: Franz Pletz <franz_pletz@t-online.de>, Michal Rokos <michal@rokos.info>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Manfred Spraul <manfred@colorfullife.com>,
+       "David S. Miller" <davem@davemloft.net>
+Subject: Re: [PATCH 2.6] Natsemi - remove compilation warnings
+In-Reply-To: <415C4EC5.4040603@pobox.com>
+Message-ID: <Pine.LNX.4.58.0409301129540.2403@ppc970.osdl.org>
+References: <200409230958.31758.michal@rokos.info> <200409231618.56861.michal@rokos.info>
+ <415C37D8.20203@t-online.de> <Pine.LNX.4.58.0409300951150.2403@ppc970.osdl.org>
+ <415C4EC5.4040603@pobox.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---Tcb1KvpfnM4LxW2s
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Sep 30, 2004  14:23 +0100, Stephen Tweedie wrote:
-> The patches to follow clean up a lot of the ext3 online reservation
-> code in 2.6.9-rc2-mm4.  There are a few minor fixes for things like
-> loglevels of printks and correcting some error returns, plus
-> refactoring a bit of existing ext3 code to allow resize to avoid dummy
-> on-stack inodes.=20
+On Thu, 30 Sep 2004, Jeff Garzik wrote:
+> >  
+> > +static inline void __iomem *ns_ioaddr(struct net_device *dev)
+> > +{
+> > +	return (void __iomem *) dev->base_addr;
+> > +}
+> > +
+> 
+> hmmmm.  Since dev->base_addr gets exported to userspace, I don't think 
+> it's that quick/easy to change.
 
-Many thanks to Stephen for putting in the effort to bring this into
-shape.  All of the patches look good.
+Hmm? This maintains the _exact_ old semantics, ie we do exactly what it 
+used to do before. The inline function doesn't save the value off 
+anywhere, it's really just a nicer way to do a cast in _one_ place rather 
+than all over the world. Also, it ends up resulting in just _one_ place 
+that knows where to get the base address, instead of several places in 
+pretty much every function in the whole driver ;-P
 
-Cheers, Andreas
---
-Andreas Dilger
-http://members.shaw.ca/adilger/             http://members.shaw.ca/golinux/
+> Wouldn't it be better to just phase out the base of dev->base_addr 
+> completely?  I tend to prefer adding a "void __iomem *regs" to struct 
+> netdev_private, and ignore dev->base_addr completely.
 
+Yes. I didn't want to change actual behaviour in a driver that I can't 
+even test, so I went for the semantically 100% equivalent cleanup patch 
+instead that just changes the syntax and gets rid of the warnings.
 
---Tcb1KvpfnM4LxW2s
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+But that's the other advantage of the ns_ioaddr() accessor function:  
+somebody who does have the hw can now phase out "base_addr", and just
+change that one one-liner function, and you can now get the base address
+from anywhere you like ;)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQFBXFEgpIg59Q01vtYRAniOAJ9FvKsO9dR/tESvMgiqsgphjxkJuQCfXoEW
-NSJ1jeZ39p1OWQVPu3lkcYU=
-=Loo/
------END PGP SIGNATURE-----
-
---Tcb1KvpfnM4LxW2s--
+		Linus

@@ -1,90 +1,129 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271720AbTGXQxo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jul 2003 12:53:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271717AbTGXQxn
+	id S271718AbTGXQyp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jul 2003 12:54:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271717AbTGXQyF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jul 2003 12:53:43 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:14741 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S271720AbTGXQwg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jul 2003 12:52:36 -0400
-From: Nikita Danilov <Nikita@Namesys.COM>
+	Thu, 24 Jul 2003 12:54:05 -0400
+Received: from mtaw4.prodigy.net ([64.164.98.52]:31885 "EHLO mtaw4.prodigy.net")
+	by vger.kernel.org with ESMTP id S271718AbTGXQwf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jul 2003 12:52:35 -0400
+Message-ID: <3F2012F8.8030103@pacbell.net>
+Date: Thu, 24 Jul 2003 10:10:16 -0700
+From: David Brownell <david-b@pacbell.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en, fr
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Pavel Machek <pavel@suse.cz>
+CC: weissg@vienna.at, kernel list <linux-kernel@vger.kernel.org>,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: [linux-usb-devel] OHCI problems with suspend/resume
+References: <20030723220805.GA278@elf.ucw.cz> <3F1F342F.70701@pacbell.net> <20030724102432.GB228@elf.ucw.cz>
+In-Reply-To: <20030724102432.GB228@elf.ucw.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <16160.4704.102110.352311@laputa.namesys.com>
-Date: Thu, 24 Jul 2003 21:07:44 +0400
-To: Daniel Egger <degger@fhm.edu>
-Cc: Hans Reiser <reiser@namesys.com>, linux-kernel@vger.kernel.org,
-       reiserfs mailing list <reiserfs-list@namesys.com>
-Subject: Re: Reiser4 status: benchmarked vs. V3 (and ext3)
-In-Reply-To: <1059062380.29238.260.camel@sonja>
-References: <3F1EF7DB.2010805@namesys.com>
-	<1059062380.29238.260.camel@sonja>
-X-Mailer: ed | telnet under Fuzzball OS, emulated on Emacs 21.5  (beta14) "cassava" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Egger writes:
- > Am Mit, 2003-07-23 um 23.02 schrieb Hans Reiser:
- > 
- > > In brief, V4 is way faster than V3, and the wandering logs are indeed 
- > > twice as fast as fixed location logs when performing writes in large 
- > > batches.
- > 
- > How do the wandering logs compare to the "wandering" logs of the log
- > structured filesystem JFFS2? Does this mean I can achieve an implicit
- > wear leveling for flash memory? 
+Pavel Machek wrote:
+> Hi!
 
-I don't know enough about jffs2, but you can read about reiser4's
-"wandering logs" and transaction manager design at the
-http://www.namesys.com/txn-doc.html.
+Good morning to you too!
 
-Briefly speaking, in usual WAL (write-ahead logging) transaction system,
-whenever block is modified, journal record, describing changes to this
-block is forced to the on-disk journal before modified block is allowed
-to be written. In the worst case this means that data are written twice.
 
-But if modified block is accessible through "pointer" of some kind
-stored in its "parent" block (one can think of ext2 inode addressing
-data blocks for example), we can 
+>>>In 2.6.0-test1, OHCI is non-functional after first suspend/resume, and
+>>>kills machine during secon suspend/resume cycle.
+>>
+>>Hmm, last time I tested suspend/resume it worked fine.
+>>That was 2.5.67, but the OHCI code hasn't had any
+>>relevant changes since then.
+> 
+> 
+>>Evidently your system used different suspend/resume paths
+>>than mine did ... :)
+> 
+> 
+> Can you try echo 4 > /proc/acpi/sleep? echo 3 breaks it, too, but that
+> is little harder to set up.
 
-1. allocate new block location on the disk ("wandered location").
+I usually test with "apm -s" ... since I've yet to come up with
+an ACPI configuration that works properly.  IRQ misconfiguration
+for USB is still a blocking issue for many people (not just me).
 
-2. update parent block to point to the wandered location.
+Going through ACPI would certainly explain some breakage; it's
+been sufficiently troublesome with USB that it's not gotten much
+testing at all.  I happened to notice this morning that ACPI's
+USB IRQ problems are one of the longest-standing open 2.6 bugs:
+http://bugme.osdl.org/show_bug.cgi?id=10 ... and it's now been
+migrated into the 2.4.22-pre series (sigh).
 
-3. store modified block content to the wandered location.
+Could you try reproducing this failure using just APM?  I could
+believe there's a generic PM issue (I've been expecting 2.6-test
+to eventually start shaking PM out); but given the amount of
+trouble ACPI has caused, we should first rule that factor out.
 
-4. add old block location to the journal. Old block is now journal
-   record for the modified version.
 
- > 
- > > We are able to perform all filesystem operations fully atomically,
- > > while getting dramatic performance improvements.  (Other attempts at
- > > introducing transactions into filesystems are said to have failed for
- > > performance reasons.)
- > 
- > How failsafe is it to switch off the power several times? When the
- > filesystem really works atomically I should have either the old or the
- > new version but no mixture. Does it still need to fsck or is the
- > transaction replay done at mount time? In case one still needs fsck,
- > what's the probability of needing user interaction? How long does it
- > need to get a filesystem back into a consistent state after a powerloss
- > (approx. per MB/GB)?
+>>>What happens is that ohci_irq gets ohci->hcca == NULL, and kills
+>>>machine. Why is ohci->hcca == NULL? ohci_stop was called from
+>>>hcd_panic() and freed ohci->hcca.
+>>
+>>Then the problem is that an IRQ is still coming in after the
+>>HCD panicked.
+> 
+> 
+> Actually, as PCI interrupts are shared, I do not find that too
+> surprising. 
 
-I should warn everybody that reiser4 is _highly_ _experimental_ at this
-moment. Don't use it for production.
+I do.  Sharing is irrelevant.  If it's been cleaned up, then
+the IRQ should no longer be bound to that device.
 
- > 
- > Background: I'm doing systems on compactflash cards and need a reliable
- > filesystem for it. At the moment I'm using a compressed JFFS2 over the
- > mtd emulation driver for block devices which works quite well but has a
- > few catches...
- > 
- > -- 
- > Servus,
- >        Daniel
 
-Calculemus!
-Nikita.
+
+>>>I believe that we should
+>>>
+>>>1) not free ohci->hcca so that system has better chance surviving
+>>>hcd_panic()
+>>
+>>Not ever????
+>>
+>>It's freed in exactly one place, after everything should be
+>>shut down.  If it wasn't shut down, that was the problem.
+>>
+>>Could you instead figure out why it wasn't shut down?
+> 
+> 
+> In case of hcd_panic(), where is interrupt deallocated?
+
+I'll have to check that out, but I noticed that one of my
+usual development machines (on which suspend/resume can
+actually be made to work) is now unusable due to some PCI
+initialization issue with Cardbus.
+
+
+>>>and 
+>>>
+>>>2) inform user when hcd panics.
+>>
+>>The OHCI code does that already on the normal panic path
+>>(controller delivers a Unrecoverable Error interrupt), but
+>>you're right that this would be better as a generic KERN_CRIT
+>>diagnostic.  (But one saying which HCD panicked, rather than
+>>leaving folk to guess which of the N it applied to...)  And
+>>I'd print that message sooner, not waiting for that task to
+>>be scheduled.
+> 
+> 
+> That would be good. I definitely had another failure path, where it
+> did not tell me that hcd is no K.O...
+
+I'll likely submit that to Greg in the next few days, cc you.
+
+- Dave
+
+
+
+
+> 								Pavel
+
+

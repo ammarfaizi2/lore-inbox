@@ -1,55 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314134AbSDLSLA>; Fri, 12 Apr 2002 14:11:00 -0400
+	id <S314107AbSDLSQO>; Fri, 12 Apr 2002 14:16:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314135AbSDLSK7>; Fri, 12 Apr 2002 14:10:59 -0400
-Received: from rover.ascpl.lib.oh.us ([199.218.0.2]:64960 "EHLO acorn.net")
-	by vger.kernel.org with ESMTP id <S314134AbSDLSK6>;
-	Fri, 12 Apr 2002 14:10:58 -0400
-Date: Fri, 12 Apr 2002 14:10:44 -0400 (EDT)
-From: Marcus Dennis <aa341@acorn.net>
-To: linux-kernel@vger.kernel.org
-cc: elenstev@mesatop.com, esr@thyrsus.com, marcelo@conectiva.com.br
-Subject: [PATCH] docfix for 2.4.x Configure.help
-Message-ID: <Pine.GSO.4.10.10204121350340.20151-100000@acorn.net>
+	id <S314131AbSDLSQO>; Fri, 12 Apr 2002 14:16:14 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:39235 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S314107AbSDLSQN>; Fri, 12 Apr 2002 14:16:13 -0400
+To: Blue Lang <blue@b-side.org>
+Cc: Michael De Nil <linux@aerythmic.be>,
+        Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Subject: Re: i830M video chip (X driver deficient)
+In-Reply-To: <Pine.LNX.4.30.0204121305430.17120-100000@gib.soccerchix.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 12 Apr 2002 12:09:21 -0600
+Message-ID: <m1ofgokcvi.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Apologies in advance if I've made an error in who this is Cc'd to.
+Blue Lang <blue@b-side.org> writes:
 
-Problem: Input core help is confusing wrt joysticks
-Description:
-The input core subsystem is necessary for 2.4 joystick support, even for
-non-usb joysticks. "Joystick support" in "Input core support" mentions
-only USB joysticks, but is necessary to have a jsX interface at all.
-Fix:
-The following patch modifies Configure.help's entry for "Input core
-support" to state that it is required for any joysticks, and "Joystick
-support" under it to remove the reference to USB.
+> On 12 Apr 2002, Eric W. Biederman wrote:
+> 
+> > It isn't memory related at all.  The problem is that the X driver uses
+> > the video BIOS to set the display modes, instead of setting the
+> > display mode by itself as it should.  I don't know if there are enough
+> > docs available from intel about this but that is the problem.
+> 
+> erm.. I thought that's what I said. Anyways, here is that link I was
+> talking about:
+> 
+> http://www.cse.unsw.edu.au/~chak/linux/c400.html
+> 
 
-Patch follows:
+My point the problem is not memory or the BIOS not allocating enough
+memory.  The problem is (a) using the BIOS and (b) the BIOS not believing
+it can to do the job when X has enough memory.
 
---- linux-2.4.18/Documentation/Configure.help.old	Thu Mar 21 12:51:16 2002
-+++ linux-2.4.18/Documentation/Configure.help	Thu Mar 21 12:56:55 2002
-@@ -12838,6 +12838,9 @@
-   Say Y here if you want to enable any of the USB HID options in the
-   USB support section which require Input core support.
- 
-+  Finally, say Y here and to Joystick Support below if you want to
-+  support any joystick or gamepad.
-+
-   Otherwise, say N.
- 
- Keyboard support
-@@ -12882,7 +12885,7 @@
- 
- Joystick support
- CONFIG_INPUT_JOYDEV
--  Say Y here if you want your USB HID joystick or gamepad to be
-+  Say Y here if you want your joystick or gamepad to be
-   accessible as char device 13:0+ - /dev/input/jsX device.
- 
-   This driver is also available as a module ( = code which can be
+All I have seen in the X error messages was an error message that the BIOS
+could not set the video mode.  My response, why the heck is the driver
+doing BIOS calls.  I'm not a fan at all of using someone else's drivers
+after the kernel loads.
 
+Heck I'm not even a fan of using a closed source BIOS.
+
+Eric

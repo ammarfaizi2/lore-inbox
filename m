@@ -1,51 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283266AbRK2PZP>; Thu, 29 Nov 2001 10:25:15 -0500
+	id <S283278AbRK2PeF>; Thu, 29 Nov 2001 10:34:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283274AbRK2PYz>; Thu, 29 Nov 2001 10:24:55 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:10248 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S283270AbRK2PYr>; Thu, 29 Nov 2001 10:24:47 -0500
+	id <S280664AbRK2Pd4>; Thu, 29 Nov 2001 10:33:56 -0500
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:3726 "EHLO
+	opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S283275AbRK2Pdw>; Thu, 29 Nov 2001 10:33:52 -0500
+Date: Thu, 29 Nov 2001 08:33:23 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Christoph Hellwig <hch@caldera.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Samuel Maftoul <maftoul@esrf.fr>, linux-kernel@vger.kernel.org
 Subject: Re: rpm builder of kernel image
-To: hch@caldera.de (Christoph Hellwig)
-Date: Thu, 29 Nov 2001 15:33:22 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), maftoul@esrf.fr (Samuel Maftoul),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20011129161519.A9688@caldera.de> from "Christoph Hellwig" at Nov 29, 2001 04:15:20 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+Message-ID: <20011129083323.T29541@cpe-24-221-152-185.az.sprintbbd.net>
+In-Reply-To: <200111291358.fATDwSh32089@ns.caldera.de> <E169Szk-0000JN-00@the-village.bc.nu> <20011129161519.A9688@caldera.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E169TBi-0000LZ-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <20011129161519.A9688@caldera.de>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Nov 29, 2001 at 04:15:20PM +0100, Christoph Hellwig wrote:
+> On Thu, Nov 29, 2001 at 03:21:00PM +0000, Alan Cox wrote:
+> > > You might want to take a look at make-krpm [1], currently I only have
+> > > support for Caldera and a default target that might work or not work
+> > > for others.  I accept patches..
+> > 
+> > Or for Linux 2.4.13 or later just type
+> > 
+> > 	make config
+> > 	make rpm
+> 
 > Yes, that's even older than my tool.  But I don't think we want that
 > infrastructure inside the kernel.
-
-Oh I think you do.
-
+> 
 >  - there are lots of packaging systems
-
-two in mainstream use. Debian dpkg and RPM. 
-
 >  - there even are lots of incompatible rpm versions
-
-There are some features in the newer RPM. The make rpm target avoids them
-and sticks to directives present in the LSB specified RPM version.
-
 >  - you really want to plug into some vendor-infrastructure, e.g.
 >    boot loader configuration
-
-That I do want to improve on. I have some ideas.
-
 >  - sooner or later I want to add some system to auto-apply patches
 >    (similar to what debian does)
+- there are other architectures which have rpm based distros.  'make
+  rpm' is currently x86-only.
 
-	patch < blah
-	make config
-	make rpm
+This really should be a vendor-provided tool, or at least something
+provided outside of the kernel by 3rd parties.
 
-Alan
-
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

@@ -1,65 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261700AbUKXDOg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261715AbUKXDRw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261700AbUKXDOg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 22:14:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261715AbUKXDOf
+	id S261715AbUKXDRw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 22:17:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261717AbUKXDRw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 22:14:35 -0500
-Received: from fw.osdl.org ([65.172.181.6]:26046 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261700AbUKXDOb (ORCPT
+	Tue, 23 Nov 2004 22:17:52 -0500
+Received: from waste.org ([209.173.204.2]:38272 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S261715AbUKXDRu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 22:14:31 -0500
-Message-ID: <41A3FBC4.5030609@osdl.org>
-Date: Tue, 23 Nov 2004 19:11:00 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Matt Domsch <Matt_Domsch@dell.com>
-CC: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>,
-       jgarzik@pobox.com, alan@redhat.com, david.balazic@hermes.si,
-       hpa@zytor.com, ak@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6] EDD: add edd=off and edd=skipmbr options
-References: <20041123230001.GE30452@lists.us.dell.com>
-In-Reply-To: <20041123230001.GE30452@lists.us.dell.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 23 Nov 2004 22:17:50 -0500
+Date: Tue, 23 Nov 2004 19:17:26 -0800
+From: Matt Mackall <mpm@selenic.com>
+To: Colin Leroy <colin@colino.net>
+Cc: linux-kernel@vger.kernel.org, hirofumi@mail.parknet.co.jp
+Subject: Re: [PATCH] let fat handle MS_SYNCHRONOUS flag
+Message-ID: <20041124031726.GF8040@waste.org>
+References: <20041118194959.3f1a3c8e.colin@colino.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041118194959.3f1a3c8e.colin@colino.net>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt Domsch wrote:
+On Thu, Nov 18, 2004 at 07:49:59PM +0100, Colin Leroy wrote:
+> Hi,
 > 
-> Peter, Andi: I've built this for x86 and x86-64, and run this on x86.
-> I'd appreciate your review of the assembly code, and suggestions for
-> improvement, prior to my submitting it to akpm for 2.6.11.
+> this patch is an RFC patch not to be applied.
+> It adds MS_SYNCHRONOUS support to FAT filesystem, so that less
+> filesystem breakage happen when disconnecting an USB key, for 
+> example. I'd like to have comments about it, because as it 
+> seems to work fine here, I'm not used to fs drivers and could
+> have made mistakes.
+> Thanks,
 > 
-> EDD: add edd=off and edd=skipmbr command line options
->     
-> New command line options
-> edd=off     (or edd=of)
-> edd=skipmbr (or edd=sk)
->  
-> These are provided to allow Linux distributions to include CONFIG_EDD=m, yet
-> allow end-users to disable parts of EDD which may not work well with their
-> system's BIOS.
+> +			if (bh != NULL) {
+> +				sync_dirty_buffer(bh);
+> +				brelse(bh);
+> +			} else {
+> +				BUG_ON(1);
 
-Sorry to nitpick this, but the doc. should include an
-'=' sign like the ones before and after it:
+This construct is really weird.
 
-  	edb=		[HW,PS2]
-+
-+	edd		[EDD]
-+			Format: {"of[f]" | "sk[ipmbr]"}
-+			See comment in arch/i386/boot/edd.S
+How about:
 
+BUG_ON(!bh);
+sync_dirty_buffer(bh);
+brelse(bh);
 
-in edd.S:
-+	movb	$0, (EDD_MBR_SIG_NR_BUF)	# zero value at EDD_MBR_SIG_NR_BUF
-+	movb	$0, (EDDNR)			# zero value at EDDNR
+Concept seems good, and the implementation otherwise looks good at
+first glance.
 
-Such obvious comments aren't needed, even if they were just
-moved from other places....
-
-Rest of the .S code makes sense to me.
-
-~Randy
+-- 
+Mathematics is the supreme nostalgia of our time.

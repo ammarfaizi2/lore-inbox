@@ -1,35 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272202AbRH3NIF>; Thu, 30 Aug 2001 09:08:05 -0400
+	id <S272204AbRH3NIg>; Thu, 30 Aug 2001 09:08:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272204AbRH3NHz>; Thu, 30 Aug 2001 09:07:55 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:39183 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S272202AbRH3NHl>; Thu, 30 Aug 2001 09:07:41 -0400
-Subject: Re: smp freeze on 2.4.9
-To: philippe.amelant@free.fr (Philippe Amelant)
-Date: Thu, 30 Aug 2001 14:06:28 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <999174855.2667.4.camel@avior> from "Philippe Amelant" at Aug 30, 2001 02:34:15 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S272206AbRH3NI1>; Thu, 30 Aug 2001 09:08:27 -0400
+Received: from denise.shiny.it ([194.20.232.1]:25993 "EHLO denise.shiny.it")
+	by vger.kernel.org with ESMTP id <S272204AbRH3NIQ>;
+	Thu, 30 Aug 2001 09:08:16 -0400
+Message-ID: <XFMail.20010830150826.pochini@shiny.it>
+X-Mailer: XFMail 1.4.7 on Linux
+X-Priority: 3 (Normal)
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15cRWe-00013T-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+In-Reply-To: <F206lZz02H67yRLVbND00001b0c@hotmail.com>
+Date: Thu, 30 Aug 2001 15:08:26 +0200 (CEST)
+From: Giuliano Pochini <pochini@shiny.it>
+To: Do-Han Kim <shinywind@hotmail.com>
+Subject: RE: bit field endian vs endian
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> interresting, i notice that i have some error apic in kernel message
-> with 2.4.3
-> i will search that on lkml archive
 
-Lots of apic errors imply problems on the link between the processors and
-io controller. A few is basically ok (there is a checksum) but a huge number
-and one day it'll checksum a bad frame ok and you are history
+On 30-Aug-2001 Do-Han Kim wrote:
+> Hello,
+> In the linux kernel source tcp.h
+> bit field endian is appeared.
+> if the machine is the big endian machine, highest bit is alligned in the
+> lowest location in byte?
 
-There is also a problem with Linus tree where apic errors causing event
-replays where the erroring component was not the CPUs can cause crashes.
-That is fixed in -ac.
+Bits arrangement in bitfields is defined in the ABI.
 
-Alan
+
+Bye.
+    Giuliano Pochini ->)|(<- Shiny Network {AS6665} ->)|(<-
+

@@ -1,34 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131227AbQLRPp0>; Mon, 18 Dec 2000 10:45:26 -0500
+	id <S131429AbQLRPq4>; Mon, 18 Dec 2000 10:46:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129325AbQLRPpQ>; Mon, 18 Dec 2000 10:45:16 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:58712 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S131227AbQLRPpF>; Mon, 18 Dec 2000 10:45:05 -0500
-Date: Mon, 18 Dec 2000 16:14:28 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Peter Samuelson <peter@cadcamlab.org>
-Cc: Daiki Matsuda <dyky@df-usa.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.2.18 asm-alpha/system.h has a problem
-Message-ID: <20001218161428.D16749@athlon.random>
-In-Reply-To: <20001217153444N.dyky@df-usa.com> <20001218033154.F3199@cadcamlab.org> <20001218154907.A16749@athlon.random> <14910.10020.692884.302587@wire.cadcamlab.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <14910.10020.692884.302587@wire.cadcamlab.org>; from peter@cadcamlab.org on Mon, Dec 18, 2000 at 09:03:00AM -0600
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S131423AbQLRPqq>; Mon, 18 Dec 2000 10:46:46 -0500
+Received: from feral.com ([192.67.166.1]:10018 "EHLO feral.com")
+	by vger.kernel.org with ESMTP id <S131071AbQLRPqa>;
+	Mon, 18 Dec 2000 10:46:30 -0500
+Date: Mon, 18 Dec 2000 07:15:52 -0800 (PST)
+From: Matthew Jacob <mjacob@feral.com>
+Reply-To: mjacob@feral.com
+To: Rico Tudor <rico@patrec.com>
+cc: Jeff Nguyen <jeff@aslab.com>, linux-kernel@vger.kernel.org
+Subject: Re: ServerWorks docs?
+In-Reply-To: <20001218100429.8407.qmail@pc7.prs.nunet.net>
+Message-ID: <Pine.BSF.4.21.0012180711330.89819-100000@beppo.feral.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 18, 2000 at 09:03:00AM -0600, Peter Samuelson wrote:
-> Not a compiler bug, a source bug of assuming a C header file can be
-> included by a C++ program. [..]
 
-C++ obviously doesn't care about the name of parameters in a function too.
+Two points:
 
-Andrea
+> More important to me is ready access to technical documentation to support
+> machines at work.  I come from the era when PDP-11's were shipped with
+> schematics, the OS, and the source to the OS.  Things have been going
+
+The only source for the OS that came 'for free' that I can recall for the
+PDP-11 was RSX-11- but that was only the bare kernel. The filesystem and the
+utilities's source wwas not available. At that time, as you can probably well
+recall, the UNIX source licence from WECO was 40K$ for v7 at Sidereal.
+
+> downhill ever since.  I'm not catching the next plane to the Bay Area
+> for "eyes only" examination of a document every time a problem arises.
+> In this regard, companies like IBM Storage and Intel win my kudos,
+
+Don't applaud either Intel or IBM too loudly. In particular, Intel. Just *try*
+and get documentation about their frickin' gigabit ethernet chip out of them.
+
+
+-matt
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,54 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264993AbTGGOkV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jul 2003 10:40:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265006AbTGGOkV
+	id S262254AbTGGOy7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jul 2003 10:54:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265006AbTGGOy7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jul 2003 10:40:21 -0400
-Received: from x35.xmailserver.org ([208.129.208.51]:12185 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S264993AbTGGOkT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jul 2003 10:40:19 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Mon, 7 Jul 2003 07:47:14 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mcafeelabs.com
-To: Mel Gorman <mel@csn.ul.ie>
-cc: Daniel Phillips <phillips@arcor.de>, Jamie Lokier <jamie@shareable.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Memory Management List <linux-mm@kvack.org>
-Subject: Re: 2.5.74-mm1
-In-Reply-To: <Pine.LNX.4.53.0307071408440.5007@skynet>
-Message-ID: <Pine.LNX.4.55.0307070745250.4428@bigblue.dev.mcafeelabs.com>
-References: <20030703023714.55d13934.akpm@osdl.org> <200307060414.34827.phillips@arcor.de>
- <Pine.LNX.4.53.0307071042470.743@skynet> <200307071424.06393.phillips@arcor.de>
- <Pine.LNX.4.53.0307071408440.5007@skynet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 7 Jul 2003 10:54:59 -0400
+Received: from mailc.telia.com ([194.22.190.4]:47349 "EHLO mailc.telia.com")
+	by vger.kernel.org with ESMTP id S262254AbTGGOy6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jul 2003 10:54:58 -0400
+X-Original-Recipient: linux-kernel@vger.kernel.org
+Subject: 2.5.74-mm2 + nvidia (and others)
+From: Christian Axelsson <smiler@lanil.mine.nu>
+Reply-To: smiler@lanil.mine.nu
+To: linux-kernel@vger.kernel.org
+Cc: linux-mm@kvack.org
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-VEN7Ie1toC77uQhxjRzf"
+Organization: LANIL
+Message-Id: <1057590519.12447.6.camel@sm-wks1.lan.irkk.nu>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4- 
+Date: 07 Jul 2003 17:08:39 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 7 Jul 2003, Mel Gorman wrote:
 
-> On Mon, 7 Jul 2003, Daniel Phillips wrote:
->
-> > And set up distros to grant it by default.  Yes.
-> >
-> > The problem I see is that it lets user space priorities invade the range of
-> > priorities used by root processes.
->
-> That is the main drawback all right but it could be addressed by having a
-> CAP_SYS_USERNICE capability which allows a user to renice only their own
-> processes to a highest priority of -5, or some other reasonable value
-> that wouldn't interfere with root processes. This capability would only be
-> for applications like music players which need to give hints to the
-> scheduler.
+--=-VEN7Ie1toC77uQhxjRzf
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-The scheduler has to work w/out external input, period. If it doesn't we
-have to fix it and not to force the user to submit external hints.
+Ok, running fine with 2.5.74-mm2 but when I try to insert the nvidia
+module (with patches from www.minion.de applied) it gives=20
 
+nvidia: Unknown symbol pmd_offset
 
+in dmesg. The vmware vmmon module gives the same error (the others wont
+compile but thats a different story).
 
-- Davide
+The nvidia module works fine under plain 2.5.74.
+
+--=20
+Christian Axelsson
+smiler@lanil.mine.nu
+
+--=-VEN7Ie1toC77uQhxjRzf
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA/CYzeyqbmAWw8VdkRAoiIAJ9C/PpUYLN0bCLCESykEUUyvUIL4ACghIms
+33tbCFy/6YtWNFlnGL0a5TU=
+=f1Ck
+-----END PGP SIGNATURE-----
+
+--=-VEN7Ie1toC77uQhxjRzf--
 

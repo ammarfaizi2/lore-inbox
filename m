@@ -1,35 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315198AbSGYP3t>; Thu, 25 Jul 2002 11:29:49 -0400
+	id <S315213AbSGYPaN>; Thu, 25 Jul 2002 11:30:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315210AbSGYP3t>; Thu, 25 Jul 2002 11:29:49 -0400
-Received: from aslan.scsiguy.com ([63.229.232.106]:57096 "EHLO
-	aslan.scsiguy.com") by vger.kernel.org with ESMTP
-	id <S315198AbSGYP3s>; Thu, 25 Jul 2002 11:29:48 -0400
-Message-Id: <200207251531.g6PFVxbA049156@aslan.scsiguy.com>
-To: Jens Axboe <axboe@suse.de>
-cc: "KOCHI, Takayoshi" <t-kouchi@mvf.biglobe.ne.jp>,
-       linux-kernel@vger.kernel.org, pcihpd-discuss@lists.sourceforge.net
-Subject: Re: [PATCH] aic7xxx driver doesn't release region 
-In-Reply-To: Your message of "Thu, 25 Jul 2002 17:28:18 +0200."
-             <20020725152818.GD23832@suse.de> 
-Date: Thu, 25 Jul 2002 09:31:59 -0600
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+	id <S315210AbSGYPaN>; Thu, 25 Jul 2002 11:30:13 -0400
+Received: from coruscant.franken.de ([193.174.159.226]:64698 "EHLO
+	coruscant.gnumonks.org") by vger.kernel.org with ESMTP
+	id <S315202AbSGYPaL>; Thu, 25 Jul 2002 11:30:11 -0400
+Date: Thu, 25 Jul 2002 09:28:11 +0200
+From: Harald Welte <laforge@gnumonks.org>
+To: zhengchuanbo <zhengcb@netpower.com.cn>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: about the performance of netfilter
+Message-ID: <20020725092811.Z15533@sunbeam.de.gnumonks.org>
+References: <200207242128878.SM00796@zhengcb>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="3IyuMspwcGTbYISR"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <200207242128878.SM00796@zhengcb>; from zhengcb@netpower.com.cn on Wed, Jul 24, 2002 at 09:24:56PM +0800
+X-Operating-System: Linux sunbeam.de.gnumonks.org 2.4.19-pre10-newnat-pptp
+X-Date: Today is Setting Orange, the 59th day of Confusion in the YOLD 3168
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Did you ask when you did the first port? 8-)
->
->In all fairness, the first port _had_ to be done from my point of view
->since I needed _something_ to test the changes on. And to defend myself
->even further, I didn't have time to ask maintainers permission before
->Linus pulled the changes in.
->
->I can probably come up with a handful more reasons if needed :-)
 
-This is opensource.  Once the code goes out, I have limited control
-over what people do with it.  This is by design and expected.  There's
-no need to defend yourself since you didn't do anything wrong.
+--3IyuMspwcGTbYISR
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
---
-Justin
+On Wed, Jul 24, 2002 at 09:24:56PM +0800, zhengchuanbo wrote:
+>=20
+> we use a linux router. i just tested the performance of the router. when =
+the
+> kernel  is build without netfilter support,the throughput of 64bytes fram=
+e is
+> about 45%. when i build the kernel with netfilter (only the ip_filter
+> module),the throughput dropped to 24%, without any rules.
+
+I assume you are talking about the iptable_filter module?=20
+
+The loss from 45 to 25 percent sounds reasonable.  You add computational=20
+overhead to the codepath for every packet. =20
+
+That initially you only achieve 45% (of what input packet rate?) indicates =
+that
+your system is in severe need of tuning. =20
+
+Please look through the mailinglist archives to find out about NAPI and
+related work.
+
+> zhengcb@netpower.com.cn
+
+--=20
+Live long and prosper
+- Harald Welte / laforge@gnumonks.org               http://www.gnumonks.org/
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D
+GCS/E/IT d- s-: a-- C+++ UL++++$ P+++ L++++$ E--- W- N++ o? K- w--- O- M+=
+=20
+V-- PS++ PE-- Y++ PGP++ t+ 5-- !X !R tv-- b+++ !DI !D G+ e* h--- r++ y+(*)
+
+--3IyuMspwcGTbYISR
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE9P6iLXaXGVTD0i/8RAnXAAKCWYXBpBNsRcliNsK8TAZt7lNL2jQCfQM4t
+uMgvsKLy/b+yfQs0WR4gFKc=
+=CrvV
+-----END PGP SIGNATURE-----
+
+--3IyuMspwcGTbYISR--

@@ -1,72 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264685AbUGFXCD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264686AbUGFXHq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264685AbUGFXCD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jul 2004 19:02:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264677AbUGFXCD
+	id S264686AbUGFXHq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jul 2004 19:07:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264692AbUGFXHq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jul 2004 19:02:03 -0400
-Received: from outpost.ds9a.nl ([213.244.168.210]:22245 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id S264660AbUGFXBs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jul 2004 19:01:48 -0400
-Date: Wed, 7 Jul 2004 01:01:47 +0200
-From: bert hubert <ahu@ds9a.nl>
-To: "David S. Miller" <davem@redhat.com>
-Cc: Stephen Hemminger <shemminger@osdl.org>, jamie@shareable.org,
-       netdev@oss.sgi.com, linux-net@vger.kernel.org,
+	Tue, 6 Jul 2004 19:07:46 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:50444 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S264686AbUGFXHo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jul 2004 19:07:44 -0400
+Date: Wed, 7 Jul 2004 00:07:38 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: William Lee Irwin III <wli@holomorphy.com>,
+       "David S. Miller" <davem@redhat.com>, Andrew Morton <akpm@osdl.org>,
        linux-kernel@vger.kernel.org
-Subject: PLS help fix: recent 2.6.7 won't connect to anything Re: [PATCH] fix tcp_default_win_scale.
-Message-ID: <20040706230147.GB6694@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	"David S. Miller" <davem@redhat.com>,
-	Stephen Hemminger <shemminger@osdl.org>, jamie@shareable.org,
-	netdev@oss.sgi.com, linux-net@vger.kernel.org,
+Subject: Re: 2.6.7-mm6
+Message-ID: <20040707000738.E28227@flint.arm.linux.org.uk>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	"David S. Miller" <davem@redhat.com>, Andrew Morton <akpm@osdl.org>,
 	linux-kernel@vger.kernel.org
-References: <20040701133738.301b9e46@dell_ss3.pdx.osdl.net> <20040701140406.62dfbc2a.davem@redhat.com> <20040702013225.GA24707@conectiva.com.br> <20040706093503.GA8147@outpost.ds9a.nl> <20040706114741.1bf98bbe@dell_ss3.pdx.osdl.net> <20040706194034.GA11021@mail.shareable.org> <20040706130549.31daa8e0@dell_ss3.pdx.osdl.net> <20040706132822.70c8174a.davem@redhat.com> <20040706133641.4a58af30@dell_ss3.pdx.osdl.net> <20040706133559.70b6380d.davem@redhat.com>
+References: <20040705023120.34f7772b.akpm@osdl.org> <20040706125438.GS21066@holomorphy.com> <20040706153417.237e454e.akpm@osdl.org> <20040706154555.79673f14.davem@redhat.com> <20040706225255.GU21066@holomorphy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040706133559.70b6380d.davem@redhat.com>
-User-Agent: Mutt/1.3.28i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040706225255.GU21066@holomorphy.com>; from wli@holomorphy.com on Tue, Jul 06, 2004 at 03:52:55PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 06, 2004 at 01:35:59PM -0700, David S. Miller wrote:
+On Tue, Jul 06, 2004 at 03:52:55PM -0700, William Lee Irwin III wrote:
+> William Lee Irwin III <wli@holomorphy.com> wrote:
+> >>> Third, some naive check for undefined symbols failed to understand the
+> >>> relocation types indicating that a given operand refers to some hard
+> >>> register, which manifest as undefined symbols in ELF executables. A
+> >>> patch to refine its criteria, which I used to build with, follows. rmk
+> >>> and hpa have some other ideas on this undefined symbol issue I've not
+> >>> quite had the opportunity to get a clear statement of yet.
+> 
+> On Tue, 6 Jul 2004 15:34:17 -0700 Andrew Morton <akpm@osdl.org> wrote:
+> > > I converted that to a non-fatal warning due to the same problem on sparc64.
+> 
+> On Tue, Jul 06, 2004 at 03:45:55PM -0700, David S. Miller wrote:
+> > Andrew, Russell posted to us in private email an objdump based
+> > check that didn't trigger for the register declaration case.
+> 
+> He seems not to have cc:'d me. Apparently *UND* isn't always the fourth
+> field so he did objdump --syms vmlinux | grep '^[^R][^E][^G].*\*UND\*'
+> instead of the awk expression I brewed up.
 
-> Therefore we do not know which of the following two it really is:
+Well, it seems it doesn't work for the .tmp_vmlinux1 object:
 
-Anybody with this problem is kindly invited to try to connect to
-213.244.168.210, port 10000, http://213.244.168.210:10000/ should work.
+$ arm-linux-objdump --syms .tmp_vmlinux1 | egrep '^([^R]|R[^E]|RE[^G]).*\*UND\*'
+00000000  w      *UND*  00000000 kallsyms_addresses
+00000000  w      *UND*  00000000 kallsyms_num_syms
+00000000  w      *UND*  00000000 kallsyms_names
+$ arm-linux-nm .tmp_vmlinux1 | grep kallsyms_names
+         w kallsyms_names
 
-If you have a problem, email me with your IP address, I have a tcpdump
-running.
-
-> 1) window scale option being stripped from SYN+ACK
-
-The remote is in fact zeus-pub.kernel.org. I assume it does not have a
-broken firewall, and I sure haven't, and it sends out to me:
-
-00:46:31.936667 192.168.1.4.34018 > 204.152.189.116.80: S 2786942165:2786942165(0) win 5840 
-	<mss 1460,sackOK,timestamp 269093190,nop,wscale 7> (DF)
-
-00:46:32.097745 204.152.189.116.80 > 192.168.1.4.34018: S 2888442437:2888442437(0) 
-	ack 2786942166 win 5792 <mss 1460,sackOK,timestamp 3563902477 26909319,nop,wscale 0> (DF)
-	                                                                                  ^
-00:46:32.098170 192.168.1.4.34018 > 204.152.189.116.80: . ack 1 win 45 
-	<nop,nop,timestamp 26909481 3563902477> (DF)
-
-So I would rule out 1), as this is a network that does not have the problem. 
-
-> 2) non-zero window option being patched into a zero window
->    scale option
-
-This looks more likely, on the outgoing SYN. We'll know tomorrow evening
-(CEST) or earlier if somebody with the problem volunteers.
-
-Regards,
-
-bert
+Seems we can't win either way. ;(
 
 -- 
-http://www.PowerDNS.com      Open source, database driven DNS Software 
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

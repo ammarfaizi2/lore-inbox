@@ -1,150 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289211AbSA1PHi>; Mon, 28 Jan 2002 10:07:38 -0500
+	id <S289136AbSA1POi>; Mon, 28 Jan 2002 10:14:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289212AbSA1PH3>; Mon, 28 Jan 2002 10:07:29 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:47555 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S289211AbSA1PHS>;
-	Mon, 28 Jan 2002 10:07:18 -0500
-Date: Mon, 28 Jan 2002 18:04:51 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: [patch] [sched] misc cleanups, 2.5.3-pre5
-Message-ID: <Pine.LNX.4.33.0201281801030.10158-100000@localhost.localdomain>
+	id <S289216AbSA1PO3>; Mon, 28 Jan 2002 10:14:29 -0500
+Received: from tele-post-20.mail.demon.net ([194.217.242.20]:2309 "EHLO
+	tele-post-20.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S289213AbSA1PON>; Mon, 28 Jan 2002 10:14:13 -0500
+From: "" <simon@baydel.com>
+To: Tim Schmielau <tim@physik3.uni-rostock.de>
+Date: Mon, 28 Jan 2002 04:21:31 -0000
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: unresolved symbols __udivdi3 and __umoddi3
+CC: <linux-kernel@vger.kernel.org>
+Message-ID: <3C54D1CB.23664.50D4C3@localhost>
+In-Reply-To: <Pine.LNX.3.95.1020125114634.762A-100000@chaos.analogic.com>
+In-Reply-To: <Pine.LNX.4.33.0201252234530.18494-100000@gans.physik3.uni-rostock.de>
+X-mailer: Pegasus Mail for Win32 (v3.12c)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+First of all I would like to thank all the people that responded to my 
+mail. Unfortunately the numbers I am using are not restricted to 
+powers of two so I could not simply shift the data. I have decided to 
+use the div64.h solution and it seems to work well. 
 
-the attached patch cleans up a few more things:
+I have looked at this header file and I do not understand the asm 
+syntax. 
 
- - initialize the scheduler a bit earlier in start_secondary().
+In particular the only x86 div instruction I know only returns a 32 bit 
+div result. Because I don't understand the div64 header I cannot 
+see how a 64 bit result is calculated.
 
- - mark more code with unlikely() conditions.
+I also tried this header in a regular application. This failed to return 
+the modulus although it works in a module.
 
- - make the load-balancer CONFIG_SMP. We used to run it on UP as well, but
-   people noticed :-)
+Is this asm syntax documented anywhere ? 
 
-with the unlikely() improvements schedule() is almost fall-through for the
-common context-switch case, only the prev->state switch creates a branch.
+Thanks Again 
 
-with all patches applied to 2.5.3-pre5, lat_ctx context switch times
-improve from 1.25 usecs to 1.12 usecs.
+Simon.
 
-	Ingo
 
-diff -rNu linux/arch/i386/kernel/smpboot.c linux/arch/i386/kernel/smpboot.c
---- linux/arch/i386/kernel/smpboot.c	Mon Jan 28 15:21:39 2002
-+++ linux/arch/i386/kernel/smpboot.c	Mon Jan 28 15:24:44 2002
-@@ -456,13 +456,14 @@
-  */
- int __init start_secondary(void *unused)
- {
-+	__cli();
-+	init_idle();
- 	/*
- 	 * Dont put anything before smp_callin(), SMP
- 	 * booting is too fragile that we want to limit the
- 	 * things done here to the most necessary things.
- 	 */
- 	cpu_init();
--	init_idle();
- 	smp_callin();
- 	while (!atomic_read(&smp_commenced))
- 		rep_nop();
-diff -rNu linux/include/asm-i386/mmu_context.h linux/include/asm-i386/mmu_context.h
---- linux/include/asm-i386/mmu_context.h	Mon Jan 28 15:21:41 2002
-+++ linux/include/asm-i386/mmu_context.h	Mon Jan 28 15:24:44 2002
-@@ -49,13 +51,13 @@
+On 25 Jan 2002, at 22:42, Tim Schmielau wrote:
 
- static inline void switch_mm(struct mm_struct *prev, struct mm_struct *next, struct task_struct *tsk, unsigned cpu)
- {
--	if (prev != next) {
-+	if (likely(prev != next)) {
- 		/* stop flush ipis for the previous mm */
- 		clear_bit(cpu, &prev->cpu_vm_mask);
- 		/*
- 		 * Re-load LDT if necessary
- 		 */
--		if (prev->context.segments != next->context.segments)
-+		if (unlikely(prev->context.segments != next->context.segments))
- 			load_LDT(next);
- #ifdef CONFIG_SMP
- 		cpu_tlbstate[cpu].state = TLBSTATE_OK;
-diff -rNu linux/kernel/sched.c linux/kernel/sched.c
---- linux/kernel/sched.c	Mon Jan 28 15:23:50 2002
-+++ linux/kernel/sched.c	Mon Jan 28 15:24:44 2002
-@@ -315,14 +315,14 @@
+> On Fri, 25 Jan 2002, Richard B. Johnson wrote:
+> 
+> > On Fri, 25 Jan 2002,  wrote:
+> >
+> > > I am writing a module and would like to perform arithmetic on long
+> > > long variables. When I try to do this the module does not load due
+> > > to the unresolved symbols __udivdi3 and __umoddi3. I notice these
+> > > are normally defined in libc. Is there any way I can do this in a
+> > > kernel module.
+> > >
+> > > Many Thanks
+> > >
+> > > Simon.
+> >
+> > Normally, in modules, the granularity is such that divisions can
+> > be made by powers-of-two. In a 32-bit world, the modulus that you
+> > obtain with umoddi3 (the remainder from a long-long, division) should
+> > normally fit within a 32-bit variable. If you insist upon doing 64-bit
+> > math in a 32-bit world, then you can either make your own procedures
+> > and link them, of you can "appropriate" them from the 'C' runtime
+> > library code, include them with your source, assemble, and link them
+> > in.
+> 
+> If 64-bit arithmetics cannot be avoided, the do_div64() macro defined in
+> include/asm/div64.h comes in handy.
+>   mod = do_div((unsigned long) x, (long) y)
+> will set  x  to the quotient x/y  and  mod  to the remainder  x%y .
+> 
+> Tim
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
- 	prepare_to_switch();
 
--	if (!mm) {
-+	if (unlikely(!mm)) {
- 		next->active_mm = oldmm;
- 		atomic_inc(&oldmm->mm_count);
- 		enter_lazy_tlb(oldmm, next, smp_processor_id());
- 	} else
- 		switch_mm(oldmm, mm, next, smp_processor_id());
+__________________________
 
--	if (!prev->mm) {
-+	if (unlikely(!prev->mm)) {
- 		prev->active_mm = NULL;
- 		mmdrop(oldmm);
- 	}
-@@ -360,6 +360,7 @@
- 	return sum;
- }
-
-+#if CONFIG_SMP
- /*
-  * Lock the busiest runqueue as well, this_rq is locked already.
-  * Recalculate nr_running if we have to drop the runqueue lock.
-@@ -539,17 +555,21 @@
- 	spin_unlock(&this_rq()->lock);
- }
-
-+#endif
-+
- /*
-  * This function gets called by the timer code, with HZ frequency.
-  * We call it with interrupts disabled.
-  */
- void scheduler_tick(task_t *p)
- {
--	unsigned long now = jiffies;
- 	runqueue_t *rq = this_rq();
-+#if CONFIG_SMP
-+	unsigned long now = jiffies;
-
- 	if (p == rq->idle)
- 		return idle_tick();
-+#endif
- 	/* Task might have expired already, but not scheduled off yet */
- 	if (p->array != rq->active) {
- 		p->need_resched = 1;
-@@ -595,8 +615,10 @@
- 			enqueue_task(p, rq->active);
- 	}
- out:
-+#if CONFIG_SMP
- 	if (!(now % BUSY_REBALANCE_TICK))
- 		load_balance(rq, 0);
-+#endif
- 	spin_unlock(&rq->lock);
- }
-
-@@ -863,9 +892,8 @@
- 		goto out_unlock;
- 	}
- 	array = p->array;
--	if (array) {
-+	if (array)
- 		dequeue_task(p, array);
--	}
- 	p->__nice = nice;
- 	p->prio = NICE_TO_PRIO(nice);
- 	if (array) {
-
+Simon Haynes - Baydel 
+Phone : 44 (0) 1372 378811
+Email : simon@baydel.com
+__________________________

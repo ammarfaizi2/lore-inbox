@@ -1,62 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288995AbSAZCqg>; Fri, 25 Jan 2002 21:46:36 -0500
+	id <S289002AbSAZDCI>; Fri, 25 Jan 2002 22:02:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288996AbSAZCq0>; Fri, 25 Jan 2002 21:46:26 -0500
-Received: from x35.xmailserver.org ([208.129.208.51]:32268 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S288995AbSAZCqL>; Fri, 25 Jan 2002 21:46:11 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Fri, 25 Jan 2002 18:53:16 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Andi Kleen <ak@suse.de>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S289000AbSAZDB6>; Fri, 25 Jan 2002 22:01:58 -0500
+Received: from zero.tech9.net ([209.61.188.187]:39436 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S288998AbSAZDBs>;
+	Fri, 25 Jan 2002 22:01:48 -0500
 Subject: Re: [PATCH] syscall latency improvement #1
-In-Reply-To: <Pine.LNX.4.33.0201251810270.16989-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.40.0201251851420.1647-100000@blue1.dev.mcafeelabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Robert Love <rml@tech9.net>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: torvalds@transmeta.com, ak@suse.de, linux-kernel@vger.kernel.org
+In-Reply-To: <3C521003.991A690B@zip.com.au>
+In-Reply-To: <p73y9il7vlr.fsf@oldwotan.suse.de>
+	<Pine.LNX.4.33.0201251741430.16917-100000@penguin.transmeta.com> 
+	<3C521003.991A690B@zip.com.au>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.1 
+Date: 25 Jan 2002 22:06:51 -0500
+Message-Id: <1012014412.3799.259.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 25 Jan 2002, Linus Torvalds wrote:
+On Fri, 2002-01-25 at 21:10, Andrew Morton wrote:
 
->
-> On Sat, 26 Jan 2002, Andi Kleen wrote:
-> > On Fri, Jan 25, 2002 at 05:53:57PM -0800, Linus Torvalds wrote:
-> > >
-> > > On 26 Jan 2002, Andi Kleen wrote:
-> > > >
-> > > > It doesn't explain the Athlon speedups. On athlon cli is ~4 cycles.
-> > >
-> > > .. and it probably serializes the instruction stream.
-> >
-> > I have word from AMD engineering that it doesn't stall the pipeline
-> > or serializes.
->
-> Note that it may not be the "cli" itself - the "iret" may be slower if it
-> has to enable interrupts that were disabled before. Ie the iret microcode
-> may have the equivalent of
->
-> 	/* Did eflags change? */
-> 	if ((new_eflags ^ old_eflags) & IF_MASK)
-> 		.. do sti/cli as appropriate ..
->
-> which would mean that the "cli" itself may take 4 cycles, but the "sti"
-> implicit in the iret will _also_ take 4 cycles and is optimized away when
-> not needed.
->
-> Which would add up to the 8 cycles needed for a ~3.4% speedup (this is
-> assuming the baseline is something like 250 cycles per system call, I've
-> not checked that assumption).
+> With cli:
+> 	./a.out  22.05s user 15.31s system 99% cpu 37.361 total
+> 
+> without cli: 
+> 	./a.out  18.29s user 17.42s system 99% cpu 35.731 total
+> 
+> 
+> That's 4.6%.  Intel P3.
 
-guys, why don't you use #rdtsc to discover where perf improvement comes from ?
+Same program, AMD Athlon MP 1600 (booted UP), kernel 2.5.3-pre5.
 
+with cli:	real 0m19.706s	user 0m11.400s	sys 0m8.290s
+without cli:	real 0m19.449s  user 0m10.630s	sys 0m8.820s
 
+That is 1.3% improvement.
 
-
-- Davide
-
+	Robert Love
 

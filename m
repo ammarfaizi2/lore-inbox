@@ -1,40 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269053AbRHBSWM>; Thu, 2 Aug 2001 14:22:12 -0400
+	id <S269067AbRHBSYM>; Thu, 2 Aug 2001 14:24:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269043AbRHBSWC>; Thu, 2 Aug 2001 14:22:02 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:48132 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S269053AbRHBSVr>; Thu, 2 Aug 2001 14:21:47 -0400
-Subject: Re: university studies?
-To: bradmont@bradmont.net (Brad Stewart)
-Date: Thu, 2 Aug 2001 19:23:28 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org (Linux Kernel)
-In-Reply-To: <20010802111309.A29322@bradmont.net> from "Brad Stewart" at Aug 02, 2001 11:13:09 AM
-X-Mailer: ELM [version 2.5 PL5]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15SN84-0001BC-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S269073AbRHBSYC>; Thu, 2 Aug 2001 14:24:02 -0400
+Received: from imo-d02.mx.aol.com ([205.188.157.34]:44784 "EHLO
+	imo-d02.mx.aol.com") by vger.kernel.org with ESMTP
+	id <S269067AbRHBSXy>; Thu, 2 Aug 2001 14:23:54 -0400
+Date: Thu, 02 Aug 2001 14:23:50 -0400
+From: hochakhung@netscape.net
+To: linux-kernel@vger.kernel.org
+Subject: TCP zero-copy
+Message-ID: <663CE32D.1D4A9213.0F45C3B8@netscape.net>
+X-Mailer: Atlas Mailer 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Thu, Aug 02, 2001 at 08:24:45AM +0100, Riley Williams wrote:
-> > One thing I will add, from long experience: If you learned BASIC
-> > first, then learn Pascal BEFORE you try to learn C or C++ as you'll
-> > come out a much better programmer than trying to learn C or C++
-> > directly after BASIC.
-> 
-> This makes me a little bit nervous...  I used to program a fair bit in BASI=
-> C ((Q|GW)BASIC mostly), and started learning C++ after that.  Could you ela=
-> borate a bit on the reasons?
+Is there currently a stable implementation for zero copy on TCP stack for linux2.4? Would anyone please point me to the patch if there is any?
+Thanks a lot
 
-pascal is a language that teaches you structured programming by making it
-excruciatingly painful to write anything else. You can write basic in C and
-sometimes people going from one language to the other basically do that.
+Steven
 
-If you have few classes and a lot of 5000 line subroutines then worry, but
-there is no reason to assume that every ex basic programmer isnt going to
-pick up C++ and good software design practices just because they once 
-wrote basic
+
+__________________________________________________________________
+Your favorite stores, helpful shopping tools and great gift ideas. Experience the convenience of buying online with Shop@Netscape! http://shopnow.netscape.com/
+
+Get your own FREE, personal Netscape Mail account today at http://webmail.netscape.com/
+

@@ -1,72 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261276AbUKHW16@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261277AbUKHWao@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261276AbUKHW16 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 17:27:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261273AbUKHW16
+	id S261277AbUKHWao (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 17:30:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261275AbUKHWan
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 17:27:58 -0500
-Received: from alog0167.analogic.com ([208.224.220.182]:12160 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261277AbUKHW1i
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 17:27:38 -0500
-Date: Mon, 8 Nov 2004 17:25:20 -0500 (EST)
-From: linux-os <linux-os@chaos.analogic.com>
-Reply-To: linux-os@analogic.com
-To: Karsten Wiese <annabellesgarden@yahoo.de>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: 2.6.10-rc1-mm3
-In-Reply-To: <200411082240.02787.annabellesgarden@yahoo.de>
-Message-ID: <Pine.LNX.4.61.0411081716280.8258@chaos.analogic.com>
-References: <200411081334.18751.annabellesgarden@yahoo.de>
- <200411082240.02787.annabellesgarden@yahoo.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Mon, 8 Nov 2004 17:30:43 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:9999 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261278AbUKHWaZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Nov 2004 17:30:25 -0500
+Date: Mon, 8 Nov 2004 23:29:52 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: linux-os@analogic.com
+Cc: Pawe?? Sikora <pluto@pld-linux.org>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6 patch] kill IN_STRING_C
+Message-ID: <20041108222952.GJ15077@stusta.de>
+References: <20041107142445.GH14308@stusta.de> <20041108161935.GC2456@wotan.suse.de> <20041108163101.GA13234@stusta.de> <200411081904.13969.pluto@pld-linux.org> <20041108183120.GB15077@stusta.de> <Pine.LNX.4.61.0411081410560.6407@chaos.analogic.com> <20041108212713.GH15077@stusta.de> <Pine.LNX.4.61.0411081640320.8258@chaos.analogic.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0411081640320.8258@chaos.analogic.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 8 Nov 2004, Karsten Wiese wrote:
+On Mon, Nov 08, 2004 at 05:15:14PM -0500, linux-os wrote:
+> >...
+> >Are you using exactly my example file?
+> >Are you using the complete gcc command line as shown by "make V=1"?
+> >Which gcc 3.3.3 are you using?
+> >
+> 
+> No, I am using (no headers):
+> -------------------
+> extern int sprintf(char *, const char *,...);
+> extern int puts(const char *);
+> static const char hello[]="Hello";
+> int xxx(void);
+> int xxx(){
+>    char buf[0x100];
+>    sprintf(buf, "%s", hello);
+>    puts(buf);
+>    return 0;
+> }
+> --------------------
+> 
+> Compiled as:
+> 
+> gcc -O2 -Wall -S -o xxx xxx.c
+>...
 
-> Am Montag 08 November 2004 13:34 schrieb Karsten Wiese:
->> Hi
->>
->> This bug is triggered by logging on to bash (runlevel 3),
->> typing "cat /proc/acpi", then <TAB> gives the correct "/" to complete,
->> the 2nd <TAB> has no visual effect, the 3rd <TAB> generates this oops:
->>
->> Unable to handle kernel paging request at virtual address f89e7b00
->>  printing eip:
->> c0187452
->> *pde = 37ff1067
->> *pte = 00000000
->> Oops: 0000 [#1]
->> PREEMPT SMP
->> Modules linked in: binfmt_misc video ohci1394 ieee1394 uhci_hcd intel_agp agpgart i2c_i801 i2c_core snd_emu10k1 snd_rawmidi snd_seq_device snd_ac97_codec snd_pcm snd_timer snd_page_alloc snd_util_mem snd_hwdep snd soundcore ext3 jbd ata_piix libata sd_mod scsi_mod
->> CPU:    0
->> EIP:    0060:[<c0187452>]    Not tainted VLI
->> EFLAGS: 00010286   (2.6.10-rc1-mm3)
->> EIP is at proc_get_inode+0xa0/0x184
->
-> Found out, what happened:
-> By accident I had ibm_acpi.ko built. Its name "ibm" was still present under "/proc/acpi".
-> This is not an ibm(-laptop)-machine, so ibm_acpi.ko is useless here.
-> "Unable to handle kernel paging request at virtual address f89e7b00":
-> this address corresponds to the "struct module *" of ibm_acpi.ko, which was not loaded anymore.
-> So the real bug here is that there is a non NULL "struct module *", where the corresponding module is unloaded.
-> Or so I guess.....
->
-> Best regards,
-> Karsten
+If you don't compile the code as it would be compiled inside the kernel, 
+that's your fault...
 
-Yes, there is a patch floating around. The problem is
-that the module name can be too long and it overwrites
-kernel structures so that when the module is unloaded, part
-of the structure remains corrupt so the kernel calls it
-on the next open().
+Please reply only if you can reproduce this with
+#include <linux/string.h>, #include <linux/kernel.h> _and_ a gcc command
+line as it would be in the kernel - everything else is useless.
 
+> Cheers,
+> Dick Johnson
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.9 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by John Ashcroft.
-                  98.36% of all statistics are fiction.
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

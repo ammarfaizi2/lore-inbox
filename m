@@ -1,48 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272038AbRIVUSa>; Sat, 22 Sep 2001 16:18:30 -0400
+	id <S272062AbRIVU3B>; Sat, 22 Sep 2001 16:29:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272062AbRIVUSU>; Sat, 22 Sep 2001 16:18:20 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:25363 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S272038AbRIVUSK>;
-	Sat, 22 Sep 2001 16:18:10 -0400
-Date: Sat, 22 Sep 2001 17:18:16 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: Peter Magnusson <iocc@linux-kernel.flashdance.cx>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: broken VM in 2.4.10-pre9
-In-Reply-To: <Pine.LNX.4.33L2.0109222158180.26508-100000@flashdance>
-Message-ID: <Pine.LNX.4.33L.0109221713170.19147-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S272197AbRIVU2v>; Sat, 22 Sep 2001 16:28:51 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:29703 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S272191AbRIVU2l>;
+	Sat, 22 Sep 2001 16:28:41 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200109222028.f8MKSmY97869@saturn.cs.uml.edu>
+Subject: Re: Tainting kernels for non-GPL or forced modules
+To: kaos@ocs.com.au (Keith Owens)
+Date: Sat, 22 Sep 2001 16:28:48 -0400 (EDT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <27975.1001164529@ocs3.intra.ocs.com.au> from "Keith Owens" at Sep 22, 2001 11:15:29 PM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 22 Sep 2001, Peter Magnusson wrote:
+Keith Owens writes:
 
-> It treats the file system cache as important as normal programs and
-> thats is very wrong. Its like this on all kernels over 2.4.7.
+> I have started work on the patch for /proc/sys/kernel/tainted with the
+> corresponding modutils and ksymoops changes.  insmod of a non-GPL
+> module ORs /proc/sys/kernel/tainted with 1, insmod -f ORs with 2.
 
-Nope, it was a bug in the page aging which caused the system
-to treat file system cache as MORE important than programs.
+So now these will taint the kernel?
 
-I think I may have fixed that bug recently, I'm waiting for
-Alan to run out of critical bugfixes so he has a suitable
-moment to integrate it into -ac ;)
+LGPL
+2-clause BSD
+X11
+public domain
 
-Until then, you can get the page aging patch from my home
-page: http://www.surriel.com/patches/
+They are all non-GPL.
 
-cheers,
+> What to do about modules with no license?  Complain and taint or
+> silently ignore?  A lot of modules in -ac14 have no MODULE_LICENSE,
+> probably because they have no MODULE_AUTHOR.  IMHO the default should
+> be complain and taint, even though it will generate lots of newbie
+> questions to l-k.
 
-Rik
--- 
-IA64: a worthy successor to i860.
+Give them separate bits.
 
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+0x00000001 unknown license
+0x00000002 fully GPL-compatible license (GPL, LGPL, 2-clause BSD, X11)
+0x00000004 other certified "Open Source" license (MPL, 4-clause BSD)
+0x00000008 source available, but w/o certified "Open Source" licensing
+0x00000010 no source available
+0x00000020 non-redistributable binary
+0x10000000 any module at all (prove that user did load a module)
+0x20000000 insmod -f
+0x40000000 hacked in, using System.map
+0x80000000 hacked in with unresolved references
 

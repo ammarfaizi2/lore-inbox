@@ -1,48 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289652AbSAWE7X>; Tue, 22 Jan 2002 23:59:23 -0500
+	id <S289675AbSAWFP4>; Wed, 23 Jan 2002 00:15:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289668AbSAWE7N>; Tue, 22 Jan 2002 23:59:13 -0500
-Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:48146 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S289652AbSAWE6z>;
-	Tue, 22 Jan 2002 23:58:55 -0500
-Date: Tue, 22 Jan 2002 20:54:05 -0800
-From: Greg KH <greg@kroah.com>
-To: Torrey Hoffman <thoffman@arnor.net>, vojtech@ucw.cz
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: depmod problem for 2.5.2-dj4
-Message-ID: <20020123045405.GA12060@kroah.com>
-In-Reply-To: <1011744752.2440.0.camel@shire.arnor.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1011744752.2440.0.camel@shire.arnor.net>
-User-Agent: Mutt/1.3.26i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Wed, 26 Dec 2001 02:40:54 -0800
+	id <S289673AbSAWFPq>; Wed, 23 Jan 2002 00:15:46 -0500
+Received: from svr3.applink.net ([206.50.88.3]:2057 "EHLO svr3.applink.net")
+	by vger.kernel.org with ESMTP id <S289668AbSAWFPf>;
+	Wed, 23 Jan 2002 00:15:35 -0500
+Message-Id: <200201230512.g0N5CIr12742@home.ashavan.org.>
+Content-Type: text/plain;
+  charset="iso-8859-15"
+From: Timothy Covell <timothy.covell@ashavan.org>
+Reply-To: timothy.covell@ashavan.org
+To: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>,
+        Daniel Nofftz <nofftz@castor.uni-trier.de>
+Subject: Re: [patch] amd athlon cooling on kt266/266a chipset
+Date: Wed, 23 Jan 2002 23:14:12 -0600
+X-Mailer: KMail [version 1.3.2]
+Cc: Daniel Nofftz <nofftz@castor.uni-trier.de>, Dave Jones <davej@suse.de>,
+        Andreas Jaeger <aj@suse.de>, Martin Peters <mpet@bigfoot.de>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.40.0201222310260.13313-100000@infcip10.uni-trier.de> <20020122224257Z289515-13997+8587@vger.kernel.org>
+In-Reply-To: <20020122224257Z289515-13997+8587@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 22, 2002 at 04:12:30PM -0800, Torrey Hoffman wrote:
-> 
-> depmod: *** Unresolved symbols in
-> /lib/modules/2.5.2-dj4/kernel/drivers/usb/hid.o
-> depmod: 	usb_make_path
-> depmod: *** Unresolved symbols in
-> /lib/modules/2.5.2-dj4/kernel/drivers/usb/usbkbd.o
-> depmod: 	usb_make_path
-> depmod: *** Unresolved symbols in
-> /lib/modules/2.5.2-dj4/kernel/drivers/usb/usbmouse.o
-> depmod: 	usb_make_path
-> make: *** [_modinst_post] Error 1
 
-Looks like you need to add a:
-	EXPORT_SYMBOL(usb_make_path);
-to the usb.c file.
+I'm confused by all of the posts and websites that
+I've read.   In particular, some of the wattage and
+temperature claims seem outrageous.   So, here's
+what I've been able to discover		
 
-Vojtech, is this a USB function that you want added to usb.c?
-Didn't you (or someone else) propose a function like this in the past?
+1. According to AMD specs, the model 3 Duron's don't
+use more that 40 Watts maximum. 
 
-thanks,
+2. With my Duron 800 on a KT133A chipset
+running folding@home and seti@home
+continuously, LM sensors reports:
 
-greg k-h
+SYS Temp: +45.2°C  
+CPU Temp: +35.1°C 
+SBr Temp: +25.8°C
+
+
+So, I see absolutely no cause for alarm, nor even a need for
+lvcool (esp. not when running seti@home).   And  I certainly
+haven't seen any Athlon PSE/AGP lockups.  So, are you all
+overclockng your systems to an incredible amount (again, 
+that's something that seems really stupid to me since the
+$$ difference between 1GHz and 800MHz is not worth the
+potential damage; and the duron is up to 1.3GHz now....)
+
+
+-- 
+timothy.covell@ashavan.org.

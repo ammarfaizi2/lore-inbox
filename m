@@ -1,74 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291170AbSBGPRS>; Thu, 7 Feb 2002 10:17:18 -0500
+	id <S291169AbSBGPQ2>; Thu, 7 Feb 2002 10:16:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291171AbSBGPRK>; Thu, 7 Feb 2002 10:17:10 -0500
-Received: from ns1.intercarve.net ([216.254.127.221]:12094 "HELO
-	ceramicfrog.intercarve.net") by vger.kernel.org with SMTP
-	id <S291170AbSBGPQ6>; Thu, 7 Feb 2002 10:16:58 -0500
-Date: Thu, 7 Feb 2002 10:13:25 -0500 (EST)
-From: "Drew P. Vogel" <dvogel@intercarve.net>
-To: Todor Todorov <ttodorov@web.de>
-Cc: "J.S.S" <jss@pacbell.net>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel reboot problem
-In-Reply-To: <3C620B28.6010902@web.de>
-Message-ID: <Pine.LNX.4.33.0202071012250.2642-100000@northface.intercarve.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S291170AbSBGPQW>; Thu, 7 Feb 2002 10:16:22 -0500
+Received: from [65.169.83.229] ([65.169.83.229]:54921 "EHLO
+	hst000004380um.kincannon.olemiss.edu") by vger.kernel.org with ESMTP
+	id <S291169AbSBGPQG>; Thu, 7 Feb 2002 10:16:06 -0500
+Date: Thu, 7 Feb 2002 09:15:18 -0600
+From: Benjamin Pharr <ben@benpharr.com>
+To: linux-kernel@vger.kernel.org
+Subject: inode.c Compile Error
+Message-ID: <20020207151518.GA5184@hst000004380um.kincannon.olemiss.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
+X-Operating-System: Linux 2.4.18-pre8
+X-PGP-ID: 0x6859792C
+X-PGP-Key: http://www.benpharr.com/public_key.asc
+X-PGP-Fingerprint: 7BF0 E432 3365 C1FC E0E3  0BE2 44E1 3E1E 6859 792C
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well, not having the proper fs drivers compiled in would not cause the
-machine to reboot at that point. The lack of an initrd-2.4.17-10.img file
-probably would though.
+I got the following error when trying to compile 2.5.4-pre2:
 
---Drew Vogel
+gcc -D__KERNEL__ -I/usr/src/linux-2.5.4-pre2/include -Wall
+-Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
+-fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
+-march=i686    -c -o inode.o inode.c
+inode.c: In function `usb_get_sb':
+inode.c:528: `usb_fill_super' undeclared (first use in this function)
+inode.c:528: (Each undeclared identifier is reported only once
+inode.c:528: for each function it appears in.)
+inode.c: At top level:
+inode.c:368: warning: `usbfs_fill_super' defined but not used
+make[3]: *** [inode.o] Error 1
+make[3]: Leaving directory `/usr/src/linux-2.5.4-pre2/drivers/usb'
+make[2]: *** [first_rule] Error 2
+make[2]: Leaving directory `/usr/src/linux-2.5.4-pre2/drivers/usb'
+make[1]: *** [_subdir_usb] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.5.4-pre2/drivers'
+make: *** [_dir_drivers] Error 2
+benix:/usr/src/linux-2.5.4-pre2# 
 
-On Thu, 7 Feb 2002, Todor Todorov wrote:
-
->Drew P. Vogel wrote:
->
->>What does the initrd= line do, and how does initrd-2.4.17-10.img get in
->>/boot?
->>
->It's a compressed file containing the compiled modules which is needed
->if a driver should be initialized before mounting the root file system,
->eg a driver for the root system. As it is in the 2.4.7 image section it
->refers only to the 2.4.7 kernel and not 2.4.18 (or whatever he tries to
->compile).
->
->And speaking of it - J.S.S., did you take the options from the Red Hat's
->stock kernel as an example to choose your options? (From your mail I
->recon that this is one of your first attempts to compile an own kernel,
->am I correct?) If you did that, you rpobably included the fs driver for
->your root system as a module and not hardlinked in the kernel - just as
->Red Hat does? In such case you would need either to provide an initrd
->image too (`man initrd`), or recompile your kernel with the driver for
->the root filesystem ( ext2 or/and ext3 or reiserfs, don't know how you
->formated your linux partition(s) ) with <y> as option for it instead of
-><m>.....
->
->Stupid me for not suggesting to check that in the first mail :-/
->
->Hope you will locate the error quickliy.
->
->Cheers
->
->--
->
->Todor Todorov           <ttodorov@web.de>
->Networkadministration   <todor.todorov@skr-skr.de>
->SKR GmbH & Co. KG       http://www.skr-skr.de
->
->-----------------
->"Only two things are infinite, the universe and the
-> human stupidity, and I'm not sure about the former"
->                               - Einstein
->
->
->
->
-
-
+Ben Pharr
+ben@benpharr.com
 

@@ -1,43 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131172AbRBVWl4>; Thu, 22 Feb 2001 17:41:56 -0500
+	id <S131187AbRBVWlg>; Thu, 22 Feb 2001 17:41:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131282AbRBVWlh>; Thu, 22 Feb 2001 17:41:37 -0500
-Received: from vitelus.com ([64.81.36.147]:7431 "EHLO vitelus.com")
-	by vger.kernel.org with ESMTP id <S131120AbRBVWl3>;
-	Thu, 22 Feb 2001 17:41:29 -0500
-Date: Thu, 22 Feb 2001 14:41:22 -0800
-From: Aaron Lehmann <aaronl@vitelus.com>
-To: Paul Gortmaker <p_gortmaker@yahoo.com>
-Cc: linux-kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Better BUG() macro - take 2
-Message-ID: <20010222144122.A32257@vitelus.com>
-In-Reply-To: <3A924B83.43133ED2@yahoo.com>
+	id <S131125AbRBVWlS>; Thu, 22 Feb 2001 17:41:18 -0500
+Received: from jalon.able.es ([212.97.163.2]:16862 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S130298AbRBVWlD>;
+	Thu, 22 Feb 2001 17:41:03 -0500
+Date: Thu, 22 Feb 2001 23:40:52 +0100
+From: "J . A . Magallon" <jamagallon@able.es>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.2ac1
+Message-ID: <20010222234052.A2995@werewolf.able.es>
+In-Reply-To: <E14VxLb-0004Nd-00@the-village.bc.nu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <3A924B83.43133ED2@yahoo.com>; from p_gortmaker@yahoo.com on Tue, Feb 20, 2001 at 05:48:35AM -0500
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <E14VxLb-0004Nd-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Thu, Feb 22, 2001 at 16:07:57 +0100
+X-Mailer: Balsa 1.1.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 20, 2001 at 05:48:35AM -0500, Paul Gortmaker wrote:
-> Ok, it appears that some people want the __FILE__, __LINE__ (or equivalent)
-> in BUG() and some don't.  Fair enough.  I used the existing config option
-> CONFIG_DEBUG_ERRORS to allow people to choose.  There was also interest
-> in having BUG() in a more sensible place (e.g. <linux/kernel.h>) and the
-> arch specific part separate (I picked <asm-xxx/system.h>).
+
+On 02.22 Alan Cox wrote:
 > 
-> This only deals with i386 - wanted to put this out for comment before
-> editing for the others.  Change for other arch is simple though - just
-> remove BUG() from asm/page.h and put the *(int *)0=0; type part of what
-> was BUG() into asm/system.h as machine_bug(). Oh, and add the config
-> option to arch/*/config.in if it isn't already in use.
+> 	ftp://ftp.kernel.org/pub/linux/kernel/people/alan/2.4/
+>
 
-I noticed the wasteful strings in the kernel image recently and am
-excited about this patch.
+Patching 2.4.2:
 
-However, shouldn't this be fixed for all architectures?
+patching file include/linux/raid/md_k.h
+Hunk #1 succeeded at 17 with fuzz 2 (offset 2 lines).
 
-Once that happens and the EXPORT_SYMBOL is #ifdef'd, I hope you submit
-this to Alan.
+I think it's because the line:
+
+18: #include <linux/kernel.h>
+
+is already present, and patch tries to add it again, so the result is:
+
+18: #include <linux/kernel.h>
+19:
+20: #include <linux/kernel.h>   // for panic()
+
+
+-- 
+J.A. Magallon                                                      $> cd pub
+mailto:jamagallon@able.es                                          $> more beer
+
+Linux werewolf 2.4.2 #1 SMP Thu Feb 22 11:40:37 CET 2001 i686
+

@@ -1,68 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262577AbTHVXBP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Aug 2003 19:01:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264515AbTHVXAy
+	id S264296AbTHVW6V (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Aug 2003 18:58:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263705AbTHVW6V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Aug 2003 19:00:54 -0400
-Received: from fw.osdl.org ([65.172.181.6]:31107 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263418AbTHVXAn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Aug 2003 19:00:43 -0400
-Date: Fri, 22 Aug 2003 15:31:35 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: akpm <akpm@osdl.org>
-Subject: [PATCH] prevent minix_fs printk type warnings
-Message-Id: <20030822153135.4b03f031.rddunlap@osdl.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 22 Aug 2003 18:58:21 -0400
+Received: from dyn-ctb-210-9-245-87.webone.com.au ([210.9.245.87]:15876 "EHLO
+	chimp.local.net") by vger.kernel.org with ESMTP id S264296AbTHVW6N
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Aug 2003 18:58:13 -0400
+Message-ID: <3F469FA4.6020203@cyberone.com.au>
+Date: Sat, 23 Aug 2003 08:56:36 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030714 Debian/1.4-2
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrew Theurer <habanero@us.ibm.com>
+CC: Bill Davidsen <davidsen@tmr.com>, "Martin J. Bligh" <mbligh@aracnet.com>,
+       Erich Focht <efocht@hpce.nec.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       LSE <lse-tech@lists.sourceforge.net>, Andi Kleen <ak@muc.de>,
+       torvalds@osdl.org
+Subject: Re: [Lse-tech] Re: [patch] scheduler fix for 1cpu/node case
+References: <Pine.LNX.3.96.1030813163849.12417I-100000@gatekeeper.tmr.com> <200308221046.31662.habanero@us.ibm.com>
+In-Reply-To: <200308221046.31662.habanero@us.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Building on 64-bit (ia64) produces printk data type warnings
-because ino_t is unsigned int there and unsigned long on x86.
 
---
-~Randy
+Andrew Theurer wrote:
 
+>On Wednesday 13 August 2003 15:49, Bill Davidsen wrote:
+>
+>>On Mon, 28 Jul 2003, Andrew Theurer wrote:
+>>
+>>>Personally, I'd like to see all systems use NUMA sched, non NUMA systems
+>>>being a single node (no policy difference from non-numa sched), allowing
+>>>us to remove all NUMA ifdefs.  I think the code would be much more
+>>>readable.
+>>>
+>>That sounds like a great idea, but I'm not sure it could be realized short
+>>of a major rewrite. Look how hard Ingo and Con are working just to get a
+>>single node doing a good job with interactive and throughput tradeoffs.
+>>
+>
+>Actually it's not too bad.  Attached is a patch to do it.  It also does 
+>multi-level node support and makes all the load balance routines 
+>runqueue-centric instead of cpu-centric, so adding something like shared 
+>runqueues (for HT) should be really easy.  Hmm, other things: inter-node 
+>balance intervals are now arch specific (AMD is "1").  The default busy/idle 
+>balance timers of 200/1 are not arch specific, but I'm thinking they should 
+>be.  And for non-numa, the scheduling policy is the same as it was with 
+>vanilla O(1). 
+>
 
-patch_name:	minix_printk.patch
-patch_version:	2003-08-22.15:25:32
-author:		Randy.Dunlap <rddunlap@osdl.org>
-description:	prevent printk() type warnings in minix fs
-product:	Linux
-product_versions: 260-test3
-diffstat:	=
- fs/minix/bitmap.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+I'm not saying you're wrong, but do you have some numbers where this
+helps? ie. two architectures that need very different balance numbers.
+And what is the reason for making AMD's balance interval 1?
 
+Also, things like nr_running_inc are supposed to be very fast. I am
+a bit worried to see a loop and CPU shared atomics in there.
 
-diff -Naur ./fs/minix/bitmap.c~mnxtypes ./fs/minix/bitmap.c
---- ./fs/minix/bitmap.c~mnxtypes	Fri Aug  8 21:39:25 2003
-+++ ./fs/minix/bitmap.c	Fri Aug 22 15:21:46 2003
-@@ -116,7 +116,7 @@
- 
- 	if (!ino || ino > sbi->s_ninodes) {
- 		printk("Bad inode number on dev %s: %ld is out of range\n",
--		       sb->s_id, ino);
-+		       sb->s_id, (unsigned long)ino);
- 		return NULL;
- 	}
- 	ino--;
-@@ -141,7 +141,7 @@
- 	*bh = NULL;
- 	if (!ino || ino > sbi->s_ninodes) {
- 		printk("Bad inode number on dev %s: %ld is out of range\n",
--		       sb->s_id, ino);
-+		       sb->s_id, (unsigned long)ino);
- 		return NULL;
- 	}
- 	ino--;
+node_2_node is an odd sounding conversion too ;)
+
+BTW. you should be CC'ing Ingo if you have any intention of scheduler
+stuff getting into 2.6.
+
 

@@ -1,46 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268071AbRIRLqh>; Tue, 18 Sep 2001 07:46:37 -0400
+	id <S269318AbRIRMHB>; Tue, 18 Sep 2001 08:07:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268145AbRIRLq1>; Tue, 18 Sep 2001 07:46:27 -0400
-Received: from ns.suse.de ([213.95.15.193]:56079 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S268071AbRIRLqS> convert rfc822-to-8bit;
-	Tue, 18 Sep 2001 07:46:18 -0400
-To: Andi Kleen <ak@suse.de>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org,
-        torvalds@transmeta.com
-Subject: Re: Linux 2.4.10-pre11 -- __builtin_expect
-In-Reply-To: <20010918031813.57E1062ABC@oscar.casa.dyndns.org.suse.lists.linux.kernel>
-	<E15jBLy-0008UF-00@the-village.bc.nu.suse.lists.linux.kernel>
-	<9o6j9l$461$1@cesium.transmeta.com.suse.lists.linux.kernel>
-	<oup4rq0bwww.fsf_-_@pigdrop.muc.suse.de>
-X-Yow: It don't mean a THING if you ain't got that SWING!!
-From: Andreas Schwab <schwab@suse.de>
-Date: 18 Sep 2001 13:13:48 +0200
-In-Reply-To: <oup4rq0bwww.fsf_-_@pigdrop.muc.suse.de> (Andi Kleen's message of "18 Sep 2001 12:44:47 +0200")
-Message-ID: <jeelp4rbtf.fsf@sykes.suse.de>
-User-Agent: Gnus/5.090003 (Oort Gnus v0.03) Emacs/21.0.106
+	id <S269326AbRIRMGl>; Tue, 18 Sep 2001 08:06:41 -0400
+Received: from dialin-145-254-153-165.arcor-ip.net ([145.254.153.165]:25860
+	"EHLO picklock.adams.family") by vger.kernel.org with ESMTP
+	id <S269318AbRIRMGf>; Tue, 18 Sep 2001 08:06:35 -0400
+Message-ID: <3BA7370C.E5F9460B@loewe-komp.de>
+Date: Tue, 18 Sep 2001 13:59:08 +0200
+From: Peter =?iso-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
+Organization: B16
+X-Mailer: Mozilla 4.77 [de] (X11; U; Linux 2.4.9-ac10 i686)
+X-Accept-Language: de, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 8BIT
+To: Sam Varshavchik <mrsam@courier-mta.com>
+CC: Joseph Cheek <joseph@cheek.com>, linux-kernel@vger.kernel.org
+Subject: Re: disregard: Re: ide zip 100 won't mount
+In-Reply-To: <courier.3BA68362.00004D02@ny.email-scan.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@suse.de> writes:
+Sam Varshavchik wrote:
+> 
+> Joseph Cheek writes:
+> 
+> > hmm, i went into windows *one more time* just to make sure it was still
+> > working, and not a hardware problem.  well... looks like it doesn't work
+> > in windows either.  must be hardware.
+> >
+> > funny thing it shows up in dmesg and in "My Computer", just can't read
+> > from it.
+> 
+> That's pretty much what the sense codes below did indicate - media problem.
+> Try a different disk.
+> 
 
-|> +#define likely(x)  __builtin_expect((x), !0) 
+I had the same problem. The second media works, the first got
+screwed up? I can't reproduce the problem now.
 
-IMHO, this should better be written as
+The media gets destroyed after partitioning and running mke2fs.
+I can't believe it myself - but have no other explanation.
 
-#define likely(x) __builtin_expect(!!(x), 1)
+When the media was broken I got:
+<7>VFS: Disk change detected on device ide0(3,64)
+<6> /dev/ide/host0/bus0/target1/lun0:<7>LDM:  DEBUG (ldm.c, 877):
+ validate_partition_table: Found basic MS-DOS partition, not a dynamic
+disk.
+<4> p1 p2 p3 p4
+<7>VFS: Disk change detected on device ide0(3,65)
+<6> /dev/ide/host0/bus0/target1/lun0:<7>LDM:  DEBUG (ldm.c, 877):
+ validate_partition_table: Found basic MS-DOS partition, not a dynamic
+disk.
+<4> p1 p2 p3 p4
+[and so on with funny device numbers up to 3,93]
 
-because x is not required to be pure boolean, so any nonzero value of x is
-as likely as 1.
+cat /proc/partitions
+   3    64      98288 ide/host0/bus0/target1/lun0/disc
+   3    65  272218546 ide/host0/bus0/target1/lun0/part1
+   3    66  269488144 ide/host0/bus0/target1/lun0/part2
+   3    67  699181456 ide/host0/bus0/target1/lun0/part3
+   3    68      10668 ide/host0/bus0/target1/lun0/part4
 
-Andreas.
+Note: a new media has NO partition - it's a floppy.
+Now is it possible that the media gets destroyed if the hardware
+tries to seek to illegal positions?
 
--- 
-Andreas Schwab                                  "And now for something
-Andreas.Schwab@suse.de				completely different."
-SuSE Labs, SuSE GmbH, Schanzäckerstr. 10, D-90443 Nürnberg
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+
+> > Joseph Cheek wrote:
+> >
+> >> i've tried 2.4.7-ac10 and 2.4.9-ac10.  same results.  at boot i get:
+> >>
+> >> Sep 17 11:02:48 seattle kernel: ide-floppy driver 0.97.sv
+> >> Sep 17 11:02:48 seattle kernel: hdd: No disk in drive
+> >> Sep 17 11:02:48 seattle kernel: hdd: 98304kB, 96/64/32 CHS, 4096 kBps,
+> >> 512
+> >> sector size, 2941 rpm
+> >>
+> >> looks good, right?  but i put a disk in and i get:
+> >>
+> >> Sep 17 14:36:23 seattle kernel: ide-floppy: hdd: I/O error, pc =  0, key
+> >> =
+> >> 2, asc = 30, ascq =  0
+> >> Sep 17 14:36:23 seattle kernel: ide-floppy: hdd: I/O error, pc = 1b, key
+> >> =
+> >> 2, asc = 30, ascq =  0
+> >> Sep 17 14:36:23 seattle kernel: hdd: No disk in drive
+> >>
+> >> not hardware, as it works in windows on the same machine.

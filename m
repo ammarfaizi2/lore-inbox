@@ -1,52 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263544AbTLXK4k (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Dec 2003 05:56:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263571AbTLXK4k
+	id S263571AbTLXLVF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Dec 2003 06:21:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263584AbTLXLVF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Dec 2003 05:56:40 -0500
-Received: from holomorphy.com ([199.26.172.102]:58278 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S263544AbTLXK4j (ORCPT
+	Wed, 24 Dec 2003 06:21:05 -0500
+Received: from AGrenoble-101-1-4-151.w217-128.abo.wanadoo.fr ([217.128.202.151]:47523
+	"EHLO awak.dyndns.org") by vger.kernel.org with ESMTP
+	id S263571AbTLXLVD convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Dec 2003 05:56:39 -0500
-Date: Wed, 24 Dec 2003 02:55:55 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, ioe-lkml@rameria.de, shemminger@osdl.org,
-       sylvain.jeaugey@bull.net, raybry@sgi.com, hch@infradead.org,
-       Simon.Derr@bull.net
-Subject: Re: [PATCH] another minor bit of cpumask cleanup
-Message-ID: <20031224105555.GF27687@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Paul Jackson <pj@sgi.com>, Rusty Russell <rusty@rustcorp.com.au>,
-	akpm@osdl.org, linux-kernel@vger.kernel.org, ioe-lkml@rameria.de,
-	shemminger@osdl.org, sylvain.jeaugey@bull.net, raybry@sgi.com,
-	hch@infradead.org, Simon.Derr@bull.net
-References: <20031223021039.5b99a04b.pj@sgi.com> <20031224023632.5D5462C260@lists.samba.org> <20031223191835.26c974f2.pj@sgi.com>
+	Wed, 24 Dec 2003 06:21:03 -0500
+Subject: Re: DevFS vs. udev
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: Stan Bubrouski <stan@ccs.neu.edu>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1072240684.2947.184.camel@duergar>
+References: <E1AYl4w-0007A5-R3@O.Q.NET>
+	 <20031224151314.700680fe.rusty@rustcorp.com.au>
+	 <1072240684.2947.184.camel@duergar>
+Content-Type: text/plain; charset=iso-8859-15
+Message-Id: <1072264524.3555.4.camel@nomade>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031223191835.26c974f2.pj@sgi.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 24 Dec 2003 12:15:25 +0100
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At some point in the past, rusty wrote:
->> In 2.7, my aim is to switch the rest of them, move more things to
->> per-cpu rather than [NR_CPUS] arrays, add the more efficient dynamic
->> per-cpu allocation, and spread the per-cpu religion by fire and the
->> sword.
+Le mer 24/12/2003 à 05:38, Stan Bubrouski a écrit :
 
-On Tue, Dec 23, 2003 at 07:18:35PM -0800, Paul Jackson wrote:
-> For folks doing really large cpu counts, like my employer, this might
-> become of interest sooner.  On the other hand, we do really large memory
-> as well, so this might not be especially critical to us.
-> If NR_CPUS arrays start to annoy us sooner, I'll know where to consult.
-
-This is primarily for the purpose of data placement, i.e. for node-local
-per-cpu elements. That said, to each his own.
+> And umm, can we kill this thread, I foresee a flamefest in the works.
 
 
--- wli
+I have to admit that devfs is the best, hands down, at a crucial lkml
+exercise: the flamefest. It seems even after it'll die, it will continue
+to attract devotees and flames.
+

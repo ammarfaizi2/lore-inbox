@@ -1,42 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261422AbSJHTK5>; Tue, 8 Oct 2002 15:10:57 -0400
+	id <S263660AbSJHUZo>; Tue, 8 Oct 2002 16:25:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261420AbSJHTK2>; Tue, 8 Oct 2002 15:10:28 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:21776 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S263239AbSJHTE6>; Tue, 8 Oct 2002 15:04:58 -0400
-Subject: PATCH: make tcic work again
-To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Date: Tue, 8 Oct 2002 20:02:08 +0100 (BST)
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S263638AbSJHUZQ>; Tue, 8 Oct 2002 16:25:16 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:18692 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S263660AbSJHUX6>;
+	Tue, 8 Oct 2002 16:23:58 -0400
+Date: Tue, 8 Oct 2002 22:28:45 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: William Lee Irwin III <wli@holomorphy.com>, Adrian Bunk <bunk@fs.tum.de>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.5.41
+Message-ID: <20021008222845.C296@elf.ucw.cz>
+References: <Pine.LNX.4.33.0210071157270.1917-100000@penguin.transmeta.com> <Pine.NEB.4.44.0210081359280.8340-100000@mimas.fachschaften.tu-muenchen.de> <20021008134107.GH12432@holomorphy.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E17yzcO-0004tg-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <20021008134107.GH12432@holomorphy.com>
+User-Agent: Mutt/1.3.23i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.2.5.41/drivers/pcmcia/tcic.c linux.2.5.41-ac1/drivers/pcmcia/tcic.c
---- linux.2.5.41/drivers/pcmcia/tcic.c	2002-10-07 22:12:24.000000000 +0100
-+++ linux.2.5.41-ac1/drivers/pcmcia/tcic.c	2002-10-07 22:53:04.000000000 +0100
-@@ -516,17 +516,12 @@
- 
- static void __exit exit_tcic(void)
- {
--    u_long flags;
-     unregister_ss_entry(&tcic_operations);
--    save_flags(flags);
--    cli();
-+    del_timer_sync(&poll_timer);
-     if (cs_irq != 0) {
- 	tcic_aux_setw(TCIC_AUX_SYSCFG, TCIC_SYSCFG_AUTOBUSY|0x0a00);
- 	free_irq(cs_irq, tcic_interrupt);
-     }
--    if (tcic_timer_pending)
--	del_timer(&poll_timer);
--    restore_flags(flags);
-     release_region(tcic_base, 16);
- } /* exit_tcic */
- 
+Hi!
+
+> > This change causes the following compile error with CONFIG_DISCONTIGMEM
+> > enabled:
+> > kernel/suspend.c: In function `count_and_copy_data_pages':
+> > kernel/suspend.c:479: `max_mapnr' undeclared (first use in this function)
+> > kernel/suspend.c:479: (Each undeclared identifier is reported only once
+> > kernel/suspend.c:479: for each function it appears in.)
+> > make[1]: *** [kernel/suspend.o] Error 1
+> > make: *** [kernel] Error 2
+> 
+> max_mapnr must die. It's mostly buggy largely because it's not what
+> people think it is. Most of the time people want max_pfn, and the rest
+> they don't want it at all.
+
+It seems more logical now.
+
+> Pavel, you might also want to make config options conflict instead of
+> panicking.
+
+Actually, I think I prefer panic(). That way it will be less broken
+when someone will try to fix discontigmem.
+
+> diff -urN linux-2.5.41/kernel/suspend.c swsusp-2.5.41/kernel/suspend.c
+> --- linux-2.5.41/kernel/suspend.c	2002-10-07 11:23:37.000000000 -0700
+> +++ swsusp-2.5.41/kernel/suspend.c	2002-10-08 06:16:54.000000000 -0700
+> @@ -474,9 +474,9 @@
+>  #ifdef CONFIG_DISCONTIGMEM
+>  	panic("Discontingmem not supported");
+>  #else
+> -	BUG_ON (max_mapnr != num_physpages);
+> +	BUG_ON (max_pfn != num_physpages);
+>  #endif
+> -	for (pfn = 0; pfn < max_mapnr; pfn++) {
+> +	for (pfn = 0; pfn < max_pfn; pfn++) {
+>  		page = pfn_to_page(pfn);
+>  		if (PageHighMem(page))
+>  			panic("Swsusp not supported on highmem boxes. Send 1GB of RAM to <pavel@ucw.cz> and try again ;-).");
+
+Applied.
+
+								Pavel
+-- 
+When do you have heart between your knees?

@@ -1,189 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318685AbSHAJky>; Thu, 1 Aug 2002 05:40:54 -0400
+	id <S318683AbSHAJjn>; Thu, 1 Aug 2002 05:39:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318692AbSHAJky>; Thu, 1 Aug 2002 05:40:54 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:13316 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S318685AbSHAJjq>; Thu, 1 Aug 2002 05:39:46 -0400
-Message-ID: <3D488A2A.7050503@evision.ag>
-Date: Thu, 01 Aug 2002 03:08:58 +0200
+	id <S318684AbSHAJjm>; Thu, 1 Aug 2002 05:39:42 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:9988 "EHLO mail.stock-world.de")
+	by vger.kernel.org with ESMTP id <S318683AbSHAJjl>;
+	Thu, 1 Aug 2002 05:39:41 -0400
+Message-ID: <3D483F0D.8000509@evision.ag>
+Date: Wed, 31 Jul 2002 21:48:29 +0200
 From: Marcin Dalecki <dalecki@evision.ag>
 Reply-To: martin@dalecki.de
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020722
 X-Accept-Language: en-us, en, pl, ru
 MIME-Version: 1.0
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCH] 2.5.29 IDE 111
-Content-Type: multipart/mixed;
- boundary="------------030703070404030507000204"
+To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: IDE from current bk tree, UDMA and two channels...
+References: <9A81BA09AB@vcnet.vc.cvut.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030703070404030507000204
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Petr Vandrovec wrote:
+> I wrote:
+> 
+>>On 30 Jul 02 at 16:25, Marcin Dalecki wrote:
+>>
+>>>>Second problem is that read operation which ends with
+>>>>"drive ready, seek complete, data request" (why it happened in first
+>>>>place?) will just read one sector from drive (it was DMA transfer,
+>>>>so drive->mult_count == 0), and then it returns from ata_error
+>>>>with ATA_OP_CONTINUES. But what continues? Drive told us that
+>>>>current operation is done, and no new operation was started, so
+>>>>there is very low chance that some IRQ will ever come, and timer was
+>>>>just removed by ata_irq_request(), so channel will never awake.
+>>>
+>>>What should continue is the retry of the operation, since otherwise
+>>>it will be abondoned in do_ide_request(). However I will recheck.
+>>
+>>It is UP machine (with SMP non-preemptible kernel). Stack trace does not 
+>>look like that it was caused by some race.
+> 
+> 
+> There is something severely broken... I reenabled
+> ide: unexpected interrupt in ata_irq_request and to my surprise here
+> we get one suprious interrupt for each request we do, on both
+> channels - primary and secondary.
+> 
+> It looked:
+> 
+> udma_pci_init: sending read command to drive
+> ata_irq_request: IRQ arrived, for us, calling handler
+> ata_irq_request: handler returned 0
+> ide: unexpected interrupt 1 15 handler=00000000
+> callstack: ata_irq_request + 7e/234, handle_IRQ_event + 29/4c,
+>            do_IRQ + df/190, common_interrupt + 18/20, do_softirq + 50/ac,
+>            do_IRQ + 179/190, common_interrupt + 18/20
+> udma_pci_init: sending read command to drive
+> ata_irq_request: IRQ arrived, for us, calling handler
+> ata_irq_request: handler returned 0
+> ide: unexpected interrupt 1 15 handler=00000000
+> callstack: same as above
+> udma_pci_init: sending read command to drive
+> ata_irq_request: IRQ arrived, for us, calling handler
+> ata_irq_request: handler returned 0
+> udma_pci_init: sending read command to drive
+> ata_irq_request: command immediately queued by do_ide_request
+> ata_irq_request: IRQ arrived, for us, calling handler
+> oops: ide_dma_intr: udmastatus=00, diskstatus=58
+> 
+> So we are getting one spurious interrupt for each UDMA request.
+> Until we do not issue new command to the drive immediately, IRQ
+> is silently ignored, and everybody is happy (?). But when we
+> queue command immediately by call to do_ide_request in
+> ata_irq_request, sooner or later spurious interrupt will
+> arrive with wrong timming, and we'll think that command is
+> done while it is still in progress.
+> 
+> I see same spurious interrupt problem on primary channel too,
+> but somehow timming is different with UDMA100, and we always find
+> command done instead of in progress when spurious interrupt happens.
+> 
+> Unfortunately ATA/ATAPIv7 says that single interrupt is triggered
+> after command is done and all data transfered, and we do not play
+> with select bit. But we play with nIEN bit of disk. Do you see
+> any reason why this should cause spurious interrupt? (system is using
+> XT-PIC, FYI)
 
-- Change over queuedata to carry the device instead of the channel
-   information.
+What I actually try to do is to maintain the nIEN bit enabled the
+times we don't do any transfer to the disk in question.
+Precisely to prevent the disk from spewing IRQs at times
+when it should not. And yes this bit is acting in a reversed manner.
+But I'm sure you already know this.
+You could of course try to make the ata_irq_enbale()
+function a no-op and see whatever this is changing anything.
 
---------------030703070404030507000204
-Content-Type: text/plain;
- name="ide-111.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="ide-111.diff"
-
-diff -durNp -X /tmp/diff.904AxP linux-2.5.29/drivers/ide/ide.c linux/drivers/ide/ide.c
---- linux-2.5.29/drivers/ide/ide.c	2002-08-01 02:38:35.000000000 +0200
-+++ linux/drivers/ide/ide.c	2002-08-01 02:46:53.000000000 +0200
-@@ -505,27 +505,13 @@ ide_startstop_t ata_error(struct ata_dev
-  */
- void do_ide_request(request_queue_t *q)
- {
--	/* FIXME: queuedata should contain the device instead.
--	 */
--	struct ata_channel *channel = q->queuedata;
-+	struct ata_device *drive = q->queuedata;
-+	struct ata_channel *ch = drive->channel;
- 
--	while (!test_and_set_bit(IDE_BUSY, channel->active)) {
--		struct ata_device *drive = NULL;
-+	while (!test_and_set_bit(IDE_BUSY, ch->active)) {
- 		unsigned int unit;
- 		ide_startstop_t ret;
- 
--		/*
--		 * Select the device corresponding to the queue.
--		 */
--		for (unit = 0; unit < MAX_DRIVES; ++unit) {
--			struct ata_device *tmp = &channel->drives[unit];
--
--			if (&tmp->queue == q) {
--				drive = tmp;
--				break;
--			}
--		}
--
- 		if (drive) {
- 			/* No request pending?! */
- 			if (blk_queue_empty(&drive->queue))
-@@ -542,7 +528,7 @@ void do_ide_request(request_queue_t *q)
- 			 */
- 			// printk(KERN_INFO "no device found!\n");
- 			for (unit = 0; unit < MAX_DRIVES; ++unit) {
--				struct ata_device *tmp = &channel->drives[unit];
-+				struct ata_device *tmp = &ch->drives[unit];
- 
- 				if (!tmp->present)
- 					continue;
-@@ -567,7 +553,7 @@ void do_ide_request(request_queue_t *q)
- 			 */
- 
- 			ide_release_lock(&ide_irq_lock);/* for atari only */
--			clear_bit(IDE_BUSY, channel->active);
-+			clear_bit(IDE_BUSY, ch->active);
- 
- 			/* All requests are done.
- 			 *
-@@ -576,15 +562,15 @@ void do_ide_request(request_queue_t *q)
- 			 * are not prepared to take them.
- 			 */
- 
--			if (channel->drive && !channel->drive->using_tcq)
--				ata_irq_enable(channel->drive, 0);
-+			if (ch->drive && !ch->drive->using_tcq)
-+				ata_irq_enable(ch->drive, 0);
- 
- 			return;
- 		}
- 
- 		/* Remember the last drive we where acting on.
- 		 */
--		channel->drive = drive;
-+		ch->drive = drive;
- 
- 		/* Feed commands to a drive until it barfs.
- 		 */
-@@ -598,14 +584,14 @@ void do_ide_request(request_queue_t *q)
- 
- 			if (!ata_can_queue(drive)) {
- 				if (!ata_pending_commands(drive)) {
--					clear_bit(IDE_BUSY, channel->active);
-+					clear_bit(IDE_BUSY, ch->active);
- 					if (drive->using_tcq)
- 						ata_irq_enable(drive, 0);
- 				}
- 				break;
- 			}
- 
--			if (test_bit(IDE_DMA, channel->active)) {
-+			if (test_bit(IDE_DMA, ch->active)) {
- 				printk(KERN_ERR "%s: error: DMA in progress...\n", drive->name);
- 				break;
- 			}
-@@ -624,7 +610,7 @@ void do_ide_request(request_queue_t *q)
- 
- 			if (!(rq = elv_next_request(&drive->queue))) {
- 				if (!ata_pending_commands(drive)) {
--					clear_bit(IDE_BUSY, channel->active);
-+					clear_bit(IDE_BUSY, ch->active);
- 					if (drive->using_tcq)
- 						ata_irq_enable(drive, 0);
- 				}
-@@ -642,7 +628,7 @@ void do_ide_request(request_queue_t *q)
- 
- 			drive->rq = rq;
- 
--			spin_unlock(channel->lock);
-+			spin_unlock(ch->lock);
- 			/* allow other IRQs while we start this request */
- 			local_irq_enable();
- 
-@@ -687,7 +673,7 @@ kill_rq:
- 				ret = ATA_OP_FINISHED;
- 
- 			}
--			spin_lock_irq(channel->lock);
-+			spin_lock_irq(ch->lock);
- 			/* continue if command started, so we are busy */
- 		} while (ret != ATA_OP_CONTINUES);
- 	}
-diff -durNp -X /tmp/diff.904AxP linux-2.5.29/drivers/ide/probe.c linux/drivers/ide/probe.c
---- linux-2.5.29/drivers/ide/probe.c	2002-08-01 02:38:36.000000000 +0200
-+++ linux/drivers/ide/probe.c	2002-08-01 02:41:57.000000000 +0200
-@@ -977,23 +977,24 @@ static int init_irq(struct ata_channel *
- 			ch->drive = drive;
- 
- 		/*
--		 * Init the per device request queue
-+		 * Init the per device request queue.
- 		 */
- 
- 		q = &drive->queue;
--		q->queuedata = drive->channel;
-+		q->queuedata = drive;
- 		blk_init_queue(q, do_ide_request, drive->channel->lock);
- 		blk_queue_segment_boundary(q, ch->seg_boundary_mask);
- 		blk_queue_max_segment_size(q, ch->max_segment_size);
- 
--		/* ATA can do up to 128K per request, pdc4030 needs smaller limit */
-+		/* ATA can do up to 128K per request, pdc4030 needs smaller
-+		 * limit. */
- #ifdef CONFIG_BLK_DEV_PDC4030
- 		if (drive->channel->chipset == ide_pdc4030)
- 			max_sectors = 127;
- #endif
- 		blk_queue_max_sectors(q, max_sectors);
- 
--		/* IDE DMA can do PRD_ENTRIES number of segments. */
-+		/* ATA DMA can do PRD_ENTRIES number of segments. */
- 		blk_queue_max_hw_segments(q, PRD_ENTRIES);
- 
- 		/* FIXME: This is a driver limit and could be eliminated. */
-
---------------030703070404030507000204--
+(Me: Scratching my head with a puzzled expression on the face...;-)
 
 

@@ -1,74 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267719AbTBKMWw>; Tue, 11 Feb 2003 07:22:52 -0500
+	id <S267797AbTBKMZl>; Tue, 11 Feb 2003 07:25:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267737AbTBKMWw>; Tue, 11 Feb 2003 07:22:52 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:21236 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S267719AbTBKMWu>; Tue, 11 Feb 2003 07:22:50 -0500
-Date: Tue, 11 Feb 2003 18:18:07 +0530
-From: Maneesh Soni <maneesh@in.ibm.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: [2.5.60] dcachebench sleeps
-Message-ID: <20030211181807.A1261@in.ibm.com>
-Reply-To: maneesh@in.ibm.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S267801AbTBKMZl>; Tue, 11 Feb 2003 07:25:41 -0500
+Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:12747 "EHLO
+	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S267797AbTBKMZj>; Tue, 11 Feb 2003 07:25:39 -0500
+Message-Id: <200302111234.h1BCYqgS004257@eeyore.valparaiso.cl>
+To: John Levon <levon@movementarian.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2/4] oprofile update: CPU type as string 
+In-Reply-To: Your message of "Tue, 11 Feb 2003 11:42:43 GMT."
+             <20030211114243.GB57908@compsoc.man.ac.uk> 
+Date: Tue, 11 Feb 2003 13:34:52 +0100
+From: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+John Levon <levon@movementarian.org> said:
+> This patch updates the horrible enum for the logical CPU type with a
+> string instead.
 
-With 2.5.60, dcachebench no more completes. All threads
-go to sleep as below. Last time I tested was with an intermediated BK diff 
-(diff-bk-030204-2.5.59) and it was working fine. 
+Better use "ia32/P4" and so on, "i386/P4" makes little sense ;-)
 
-I tried "./dcachebench -p 4 -b junk" on a 4-way SMP with pre-epmtion ON.
+You could (should?) place the CPU ID into the model spec too...
 
-dcachebench is available at 
-http://www-124.ibm.com/developerworks/opensource/linuxperf/dcachebench/dcachebench.html
-
-dcachebench   S 00000082 2336648  1082    952  1083               (NOTLB)
-Call Trace:
- [<c011f327>] sys_wait4+0x237/0x270
- [<c0118710>] default_wake_function+0x0/0x20
- [<c014ae31>] sys_llseek+0xb1/0xd0
- [<c0118710>] default_wake_function+0x0/0x20
- [<c010aa0f>] syscall_call+0x7/0xb
-
-dcachebench   S 00000086 4500872  1083   1082          1084       (NOTLB)
-Call Trace:
- [<c0128084>] sys_pause+0x14/0x20
- [<c010aa0f>] syscall_call+0x7/0xb
-
-dcachebench   S 00000082 4286241224  1084   1082          1085  1083 (NOTLB)
-Call Trace:
- [<c0114113>] smp_apic_timer_interrupt+0x113/0x140
- [<c0128084>] sys_pause+0x14/0x20
- [<c010aa0f>] syscall_call+0x7/0xb
-
-dcachebench   S 00000086 4287956936  1085   1082          1086  1084 (NOTLB)
-Call Trace:
- [<c0128084>] sys_pause+0x14/0x20
- [<c010aa0f>] syscall_call+0x7/0xb
-
-dcachebench   S 00000086 4287513032  1086   1082                1085 (NOTLB)
-Call Trace:
- [<c0128084>] sys_pause+0x14/0x20
- [<c010aa0f>] syscall_call+0x7/0xb
-
-
-Regards,
-Maneesh
-
-
-
+BTW, if nobody (except masochistic kernel source readers) sees this stuff,
+what is the point? An enum uses less space than a char * + the string.
 -- 
-Maneesh Soni
-IBM Linux Technology Center, 
-IBM India Software Lab, Bangalore.
-Phone: +91-80-5044999 email: maneesh@in.ibm.com
-http://lse.sourceforge.net/
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

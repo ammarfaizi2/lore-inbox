@@ -1,46 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262082AbTIEXlw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Sep 2003 19:41:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262726AbTIEXlw
+	id S264055AbTIEXpW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Sep 2003 19:45:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264313AbTIEXpV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Sep 2003 19:41:52 -0400
-Received: from [65.243.131.113] ([65.243.131.113]:58764 "EHLO lapdog.lund.com")
-	by vger.kernel.org with ESMTP id S262082AbTIEXlv (ORCPT
+	Fri, 5 Sep 2003 19:45:21 -0400
+Received: from mailhost.tue.nl ([131.155.2.7]:19209 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id S264055AbTIEXpT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Sep 2003 19:41:51 -0400
-From: Scott Chapman <scott_list@mischko.com>
-Reply-To: scott_list@mischko.com
-To: linux-kernel@vger.kernel.org
-Subject: Plans for better performance metrics in upcoming kernels?
-Date: Fri, 5 Sep 2003 16:41:44 -0700
-User-Agent: KMail/1.5.1
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Fri, 5 Sep 2003 19:45:19 -0400
+Date: Sat, 6 Sep 2003 01:45:16 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: John Bradford <john@grabjohn.com>
+Cc: linux-kernel@vger.kernel.org, ndiamond@wta.att.ne.jp
+Subject: Re: keyboard - was: Re: Linux 2.6.0-test4
+Message-ID: <20030906014516.A3570@pclin040.win.tue.nl>
+References: <200309051457.h85EvvPJ000124@81-2-122-30.bradfords.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200309051641.44228.scott_list@mischko.com>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200309051457.h85EvvPJ000124@81-2-122-30.bradfords.org.uk>; from john@grabjohn.com on Fri, Sep 05, 2003 at 03:57:57PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I'm wondering what the plans are for more accurate and more useful performance 
-metrics in upcoming kernels.
+On Fri, Sep 05, 2003 at 03:57:57PM +0100, John Bradford wrote:
 
-CPU Utilization by process is apparently a known-inaccuracy.
+> My keyboard which requires Set 3 to operate fully sends a distinctive
+> ID, so can be identified, and set to Set 3 automatically.
 
-There are no disk I/O metrics per process.
+Aha - maybe you told me but then I failed to extract that bit of information.
+What ID does your keyboard send?
 
-CPU Queue Length doesn't appear to be available?
+Andries
 
-Etc.
-
-Linux clearly falls behind the competition in this area. It makes it rather 
-tough to do system performance analysis on a Linux box!  :-)
-
-Is there a plan to deal with these issues?  ETA's?
-
-Cordially,
-Scott
+http://www.win.tue.nl/~aeb/linux/kbd/scancodes-6.html#ss6.3
 

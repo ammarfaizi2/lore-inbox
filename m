@@ -1,98 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264358AbUASFTn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jan 2004 00:19:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264363AbUASFTn
+	id S264364AbUASFkf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jan 2004 00:40:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264365AbUASFkf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jan 2004 00:19:43 -0500
-Received: from smtp2.clear.net.nz ([203.97.37.27]:31687 "EHLO
-	smtp2.clear.net.nz") by vger.kernel.org with ESMTP id S264358AbUASFTl
+	Mon, 19 Jan 2004 00:40:35 -0500
+Received: from mail-06.iinet.net.au ([203.59.3.38]:53202 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S264364AbUASFkd
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jan 2004 00:19:41 -0500
-Date: Mon, 19 Jan 2004 18:20:45 +1300
-From: Nigel Cunningham <ncunningham@users.sourceforge.net>
-Subject: Re: Help port swsusp to ppc.
-In-reply-to: <1074483354.10595.5.camel@gaston>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Hugang <hugang@soulinfo.com>, ncunningham@clear.net.nz,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       debian-powerpc@lists.debian.org
-Reply-to: ncunningham@users.sourceforge.net
-Message-id: <1074489645.2111.8.camel@laptop-linux>
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.4.4-8mdk
-Content-type: multipart/signed; boundary="=-rMw8OtQTd2QbnV4N+YGK";
- protocol="application/pgp-signature"; micalg=pgp-sha1
-References: <20040119105237.62a43f65@localhost>
- <1074483354.10595.5.camel@gaston>
+	Mon, 19 Jan 2004 00:40:33 -0500
+Message-ID: <400B6DAF.7090802@cyberone.com.au>
+Date: Mon, 19 Jan 2004 16:39:59 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Bill Davidsen <davidsen@tmr.com>
+CC: Valdis.Kletnieks@vt.edu, Pavel Machek <pavel@ucw.cz>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: sched-idle and disk-priorities for 2.6.X
+References: Your message of "Fri, 16 Jan 2004 19:10:47 +0100."             <20040116181047.GA1896@elf.ucw.cz> <200401161937.i0GJbJmv003365@turing-police.cc.vt.edu> <400953B9.3090900@tmr.com> <400954E1.2050807@cyberone.com.au> <400B621D.7050307@tmr.com>
+In-Reply-To: <400B621D.7050307@tmr.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-rMw8OtQTd2QbnV4N+YGK
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
 
-Hi.
+Bill Davidsen wrote:
 
-I can answer a couple of the questions:
+> Nick Piggin wrote:
+>
+>>
+>>
+>> Bill Davidsen wrote:
+>>
+>>>
+>>> Or you could use "ulimit -m" to set the RSS, of course.
+>>
+>>
+>>
+>>
+>> I don't think that would do anything with 2.6 :P
+>
+>
+> Does that imply that the feature doesn't function as documented in 
+> 2.6? Or is that a SysV-ism not in SuS and documented but not 
+> implemented, or what other reason would there be for it to not work?
+>
 
-On Mon, 2004-01-19 at 16:35, Benjamin Herrenschmidt wrote:
-> What is this file ? It's absolutely horrible....
+The first one. AFAIKS ulimit RSS doesn't do anything in the 2.6 vm.
 
-It should contain the .S equivalent to the swsusp2.c file. It would be
-best if swsusp2.c could simply be compiled, but it appears that it can't
-at the moment on x86 (I need to learn x86 assembly so I can understand
-why).
+Rik has a fairly straightforward looking implementation in his 2.4 vm
+which probably wouldn't be too hard to forward port. It doesn't impose
+a hard limit on RSS though: I'm not sure what the standards say about that.
 
-
-> >Index: arch/ppc/kernel/vmlinux.lds.S
-> >=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> >--- arch/ppc/kernel/vmlinux.lds.S	(revision 192)
-> >+++ arch/ppc/kernel/vmlinux.lds.S	(working copy)
-> >@@ -72,6 +72,12 @@
-> >     CONSTRUCTORS
-> >   }
-> >=20
-> >+  . =3D ALIGN(4096);
-> >+  __nosave_begin =3D .;
-> >+  .data_nosave : { *(.data.nosave) }
-> >+  . =3D ALIGN(4096);
-> >+  __nosave_end =3D .;
-> >+
-> >   . =3D ALIGN(32);
-> >   .data.cacheline_aligned : { *(.data.cacheline_aligned) }
->=20
-> Why do you need the above for ?
-
-That idea is to have a section that doesn't get replaced when we copy
-the original kernel back. Thus, small amounts of data that suspend uses
-or stores can be given the __nosave attribute. An example is the cpu
-frequency value, which should match the boot kernel, not the value at
-suspend time.
-
-Regards,
-
-Nigel
-
-
---=20
-My work on Software Suspend is graciously brought to you by
-LinuxFund.org.
-
---=-rMw8OtQTd2QbnV4N+YGK
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQBAC2ktVfpQGcyBBWkRAt2+AKCj4q1JcUdUVQBpoXgBuTVhwxo2LACfeCjC
-h5LFaMcYrDamGxbiSlhAQ6o=
-=5X/U
------END PGP SIGNATURE-----
-
---=-rMw8OtQTd2QbnV4N+YGK--
 

@@ -1,67 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269432AbUJFUDD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269449AbUJFUDW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269432AbUJFUDD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 16:03:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269435AbUJFUAJ
+	id S269449AbUJFUDW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 16:03:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269438AbUJFUDU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 16:00:09 -0400
-Received: from sj-iport-2-in.cisco.com ([171.71.176.71]:1101 "EHLO
-	sj-iport-2.cisco.com") by vger.kernel.org with ESMTP
-	id S269419AbUJFT7f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 15:59:35 -0400
-Reply-To: <hzhong@cisco.com>
-From: "Hua Zhong" <hzhong@cisco.com>
-To: "'Chris Friesen'" <cfriesen@nortelnetworks.com>
-Cc: "'Andries Brouwer'" <aebr@win.tue.nl>,
-       "'Joris van Rantwijk'" <joris@eljakim.nl>,
-       "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>,
-       "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
-Subject: RE: UDP recvmsg blocks after select(), 2.6 bug?
-Date: Wed, 6 Oct 2004 12:59:25 -0700
-Organization: Cisco Systems
-Message-ID: <003701c4abde$fb251f60$b83147ab@amer.cisco.com>
+	Wed, 6 Oct 2004 16:03:20 -0400
+Received: from bos-gate1.raytheon.com ([199.46.198.230]:50055 "EHLO
+	bos-gate1.raytheon.com") by vger.kernel.org with ESMTP
+	id S269439AbUJFUCc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Oct 2004 16:02:32 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc3-mm2-T1
+To: linux-kernel@vger.kernel.org
+Cc: Ingo Molnar <mingo@elte.hu>, Rui Nuno Capela <rncbc@rncbc.org>
+X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
+Message-ID: <OF57A902F3.999F14FA-ON86256F25.006D1FB5@raytheon.com>
+From: Mark_H_Johnson@raytheon.com
+Date: Wed, 6 Oct 2004 15:01:14 -0500
+X-MIMETrack: Serialize by Router on RTSHOU-DS01/RTS/Raytheon/US(Release 6.5.2|June 01, 2004) at
+ 10/06/2004 03:01:23 PM
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.6626
-In-Reply-To: <41644D86.4010500@nortelnetworks.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4939.300
-Importance: Normal
+Content-type: text/plain; charset=US-ASCII
+X-SPAM: 0.00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hua Zhong wrote:
-> 
-> > How hard is it to treat the next read to the fd as 
-> NON_BLOCKING, even if
-> > it's not set?
-> 
-> Userspace likely would not properly handle EAGAIN on a 
-> nonblocking socket.
+>Meanwhile, I'm stuck with 2.6.9-rc2-mm4-S7 (SMP), but happy.
+>
+>Strange thing is, that on my laptop, 2.6.9-rc3-mm2-S9 (UP) is doing just
+>fine. Guess that ohci_hcd now makes the difference here, against the
+>former which makes uhci_hcd bad behaved atm.
 
-But it's better than blocking the call, isn't it?
+I am having similar problems with -T1 and separately reported problems with
+a build of rc3-mm1-S8 as well (no oops, but the USB mouse is dead).
+Somewhere between those two versions (rc2-mm4-S7 and rc3-mm1-S8) is where
+the problem appears to be introduced. For now I'll stay with my working -S0
+kernel.
 
-If the caller is using NON_BLOCKING already, no change in behavior,
-otherwise it returns an error which the app may or may not handle, instead
-of blocking it (which is usually fatal). Plus it hopefully gives Posix
-compliance.
-
-I can see there could be remote DoS attacks by just sending malformed UDP
-packets.
- 
-> As far as I can tell, either you block, or you have to scan 
-> the checksum before 
-> select() returns.
-> 
-> Would it be so bad to do the checksum before marking the 
-> socket readable? 
-> Chances are we're going to receive the message "soon" 
-> anyways, so there is at 
-> least a chance it will stay hot in the cache, no?
-> 
-> Chris
-> 
+--Mark H Johnson
+  <mailto:Mark_H_Johnson@raytheon.com>
 

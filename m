@@ -1,60 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266613AbUIEMt2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266619AbUIEMvP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266613AbUIEMt2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Sep 2004 08:49:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266615AbUIEMt2
+	id S266619AbUIEMvP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Sep 2004 08:51:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266631AbUIEMvP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Sep 2004 08:49:28 -0400
-Received: from smtp.wp.pl ([212.77.101.160]:32077 "EHLO smtp.wp.pl")
-	by vger.kernel.org with ESMTP id S266613AbUIEMt0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Sep 2004 08:49:26 -0400
-From: Piotr Neuman <sikkh@wp.pl>
-To: Kasper Sandberg <lkml@metanurb.dk>
-Subject: Re: Scheduler experiences
-Date: Sun, 5 Sep 2004 14:49:24 +0200
-User-Agent: KMail/1.6.2
-Cc: LKML Mailinglist <linux-kernel@vger.kernel.org>
-References: <1094386464.18114.0.camel@localhost>
-In-Reply-To: <1094386464.18114.0.camel@localhost>
+	Sun, 5 Sep 2004 08:51:15 -0400
+Received: from mail.parknet.co.jp ([210.171.160.6]:39696 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S266619AbUIEMvF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Sep 2004 08:51:05 -0400
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] FAT: rewrite the cache for file allocation table lookup
+ (2/4)
+References: <878ybpvtpz.fsf@devron.myhome.or.jp>
+	<20040905123959.A29612@infradead.org>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Sun, 05 Sep 2004 21:50:38 +0900
+In-Reply-To: <20040905123959.A29612@infradead.org> (Christoph Hellwig's
+ message of "Sun, 5 Sep 2004 12:39:59 +0100")
+Message-ID: <87pt50vq01.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3.50 (gnu/linux)
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200409051449.24392.sikkh@wp.pl>
-X-WP-AV: skaner antywirusowy poczty Wirtualnej Polski S. A.
-X-WP-AS1: NOSPAM  Body=2 Fuz1=2  Fuz2=2                        
-X-WP-AS2: NOSPAM 
-X-WP-SPAM: NO 
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hey, i wonder which scheduler you people have the best experiences with,
-> staircase or nicksched?
+Christoph Hellwig <hch@infradead.org> writes:
 
-I'm using staircase exclusively, but I did compare it to vanilla kernel's 
-scheduler and yes the interactivity is very good (I'm running x.org and KDE 
-3.2.3 here).
+>> +#if 0
+>> +#define debug_pr(fmt, args...)	printk(fmt, ##args)
+>> +#else
+>> +#define debug_pr(fmt, args...)
+>> +#endif
+>
+> We have a pr_debug() in <linux/kernel.h> that you could use.
 
-I have had no sound skips or tvtime problems no matter what kind of disk IO 
-was being done, which includes MySQL database updates, cron scripts (running 
-rpm -V on all packages) and wwwoffle purging cached files (note I use the 
-default as IO sched). Also kernel compilation is no threat to interactivity 
-with staircase.
+I hated KERN_DEBUG. But, well, maybe pr_debug() was enough...
 
-I'm a Mandrake user and since the release of Mandrake 10 it does not renice X 
-server to higher priority so I guess Nick's scheduler would force me to tweak 
-X startup script.
+I'll replace it for now, and will delete it after public test in
+Andrew's tree.
 
-The other things I like about staircase are that it gives you kernel.compute 
-and kernel.interactive sysctls that allow to perform serious computational 
-tasks with it. Also ability to use scheduling policies with schedtool is a 
-great plus, for example using SCHED_BATCH for cpu bound applications like 
-seti@home or folding@home.
+>> +static inline int fat_max_cache(struct inode *inode)
+>> +{
+>> +	return FAT_MAX_CACHE;
+>> +}
+>
+> Do you plan to have per-inode caches later?  This seems rather useless
+> otherwise.
 
-Overall staircase has been a great experience for me.
+This cache is already per-inode.
 
-Regards
-
-Piotr Neuman
+Thanks.
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

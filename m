@@ -1,27 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261261AbVCGVyV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261266AbVCGVZk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261261AbVCGVyV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 16:54:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261273AbVCGV1M
+	id S261266AbVCGVZk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 16:25:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261801AbVCGVYR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 16:27:12 -0500
-Received: from fire.osdl.org ([65.172.181.4]:21894 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261770AbVCGVL7 (ORCPT
+	Mon, 7 Mar 2005 16:24:17 -0500
+Received: from fire.osdl.org ([65.172.181.4]:43237 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261767AbVCGUPG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 16:11:59 -0500
-Date: Mon, 7 Mar 2005 13:11:13 -0800
+	Mon, 7 Mar 2005 15:15:06 -0500
+Date: Mon, 7 Mar 2005 12:14:16 -0800
 From: Andrew Morton <akpm@osdl.org>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-Cc: ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       sct@redhat.com
-Subject: Re: [RFC] ext3/jbd race: releasing in-use journal_heads
-Message-Id: <20050307131113.0fd7477e.akpm@osdl.org>
-In-Reply-To: <1110229687.15117.612.camel@sisko.sctweedie.blueyonder.co.uk>
-References: <1109966084.5309.3.camel@sisko.sctweedie.blueyonder.co.uk>
-	<20050304160451.4c33919c.akpm@osdl.org>
-	<1110213656.15117.193.camel@sisko.sctweedie.blueyonder.co.uk>
-	<20050307123118.3a946bc8.akpm@osdl.org>
-	<1110229687.15117.612.camel@sisko.sctweedie.blueyonder.co.uk>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: dhowells@redhat.com, torvalds@osdl.org, davidm@snapgear.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/2] BDI: Provide backing device capability information
+Message-Id: <20050307121416.78381632.akpm@osdl.org>
+In-Reply-To: <E1D8Ksv-0005Br-00@dorka.pomaz.szeredi.hu>
+References: <E1D8KPt-00058Y-00@dorka.pomaz.szeredi.hu>
+	<E1D8K3T-00056q-00@dorka.pomaz.szeredi.hu>
+	<20050307041047.59c24dec.akpm@osdl.org>
+	<20050307034747.4c6e7277.akpm@osdl.org>
+	<20050307033734.5cc75183.akpm@osdl.org>
+	<20050303123448.462c56cd.akpm@osdl.org>
+	<20050302135146.2248c7e5.akpm@osdl.org>
+	<20050302090734.5a9895a3.akpm@osdl.org>
+	<9420.1109778627@redhat.com>
+	<31789.1109799287@redhat.com>
+	<13767.1109857095@redhat.com>
+	<9268.1110194624@redhat.com>
+	<9741.1110195784@redhat.com>
+	<9947.1110196314@redhat.com>
+	<22447.1110204304@redhat.com>
+	<24382.1110210081@redhat.com>
+	<24862.1110211603@redhat.com>
+	<E1D8Ksv-0005Br-00@dorka.pomaz.szeredi.hu>
 X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -29,10 +42,16 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Stephen C. Tweedie" <sct@redhat.com> wrote:
+Miklos Szeredi <miklos@szeredi.hu> wrote:
 >
-> I'm having trouble testing it, though --- I seem to be getting livelocks
->  in O_DIRECT running 400 fsstress processes in parallel; ring any bells? 
+> > Sorry, yes. Obvious. Ugh. Andrew Morton suggested flipping the logic, and
+> > although it was in conjunction with turning the concepts into bitfields, it
+> > still stands here.
+> 
+> OK, obviously Andrew has the final word in this.  I just suggested
+> that it might be safer to have the logic flipped back.
+> 
 
-Nope.  I dont think anyone has been that cruel to ext3 for a while.
-I assume this workload used to succeed?
+Experience indicates that it's safer to ignore anything I say on this topic.
+
+Yeah, it would be better to not flip the logic.

@@ -1,76 +1,111 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274774AbRJAIqz>; Mon, 1 Oct 2001 04:46:55 -0400
+	id <S274784AbRJAIsF>; Mon, 1 Oct 2001 04:48:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274777AbRJAIqf>; Mon, 1 Oct 2001 04:46:35 -0400
-Received: from tangens.hometree.net ([212.34.181.34]:30662 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S274774AbRJAIqd>; Mon, 1 Oct 2001 04:46:33 -0400
-To: linux-kernel@vger.kernel.org
-Path: forge.intermeta.de!not-for-mail
-From: "Henning P. Schmiedehausen" <mailgate@hometree.net>
-Newsgroups: hometree.linux.kernel
-Subject: Re: [patch] netconsole-2.4.10-B1
-Date: Mon, 1 Oct 2001 08:47:00 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <9p9ai4$qgh$1@forge.intermeta.de>
-In-Reply-To: <3BB693AC.6E2DB9F4@canit.se> <Pine.LNX.4.33L.0109300448210.19147-100000@imladris.rielhome.conectiva>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1001926020 5209 212.34.181.4 (1 Oct 2001 08:47:00 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Mon, 1 Oct 2001 08:47:00 +0000 (UTC)
-X-Copyright: (C) 1996-2001 Henning Schmiedehausen
-X-No-Archive: yes
-X-Newsreader: NN version 6.5.1 (NOV)
+	id <S274777AbRJAIr4>; Mon, 1 Oct 2001 04:47:56 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:31502 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S274784AbRJAIrw>; Mon, 1 Oct 2001 04:47:52 -0400
+Message-ID: <3BB82DA9.34499802@idb.hist.no>
+Date: Mon, 01 Oct 2001 10:47:37 +0200
+From: Helge Hafting <helgehaf@idb.hist.no>
+X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.4.11-pre1 i686)
+X-Accept-Language: no, en
+MIME-Version: 1.0
+To: "M. Edward Borasky" <znmeb@aracnet.com>, linux-kernel@vger.kernel.org
+Subject: Re: [OT] New Anti-Terrorism Law makes "hacking" punishable by life in 
+ prison
+In-Reply-To: <HBEHIIBBKKNOBLMPKCBBIENPDNAA.znmeb@aracnet.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel <riel@conectiva.com.br> writes:
+"M. Edward Borasky" wrote:
+> 
+> While I don't want to get involved in a comparison between the loss of some
+> 7000 human lives in a terrorist attack on buildings with productivity lost
+> due to Code Red and Nimda attacks on the world's businesses, I'd like to
+> make two points:
+> 
+> 1. The losses to businesses from just these two virus attacks are
+> *significant*, and people are angry about the fact. They're looking for
+> someone to blame, 
 
->Owww crap.  The majority of web traffic is _from_ the
->server _to_ the client. Same for ftp, realaudio, etc...
+And the one to blame here isn't the virus writer.  The ones to blame
+are:
+1. Whoever decided to install that vulnerable software.
+   This one isn't popular because it is someone inside the company. 
+   But that's where the problem is.  (Or possibly whoever hired
+   a clueless admin.  Even less popular with the administration.)
 
-Did you mean:
+   Someone trusted with important software ought to have the
+   necessary skills.  Nobody let a clueless guy design
+   _physical_ security for a bank...
 
-Server is the data source.
-Client is the data sink.
+2. Possibly the company making vulnerable software, although nobody
+   sane should select that kind of software.  A bank don't use
+   an array of piggy banks for a vault.  This is a question of 
+   marketing - did they create the impression that their software
+   was safe from trivial attacks?
 
-netconsole.o is the server (data source)
-netconsole listener is the client (data sink)
+Of course releasing a virus is bad, but we should still expect
+companies to take some measures themselves.
 
-Or did you mean:
+We do expect them to lock doors etc. - Someone who leave
+their office building _unlocked_ & unguarded, money in open drawers 
+etc.  will usually not be able to collect insurance because of
+obvious neglect.  They'll be laughed at, and nobody will cry
+about more punishment for those who walks in and grabs some
+stuff.
 
-Server is the part that offers a service
-Client is the part that uses the service
 
-netconsole listener offers the "receive console messages" service -> server
-netconsole.o uses the "receive console message" service -> client
+> 2. The Linux community should *not* believe that we are less vulnerable than
+> Microsoft! We are less vulnerable *now* only because Linux is not as
+> widespread as Windows. Were Linux, say, half of the market, the
+> vulnerability would be equal. The difference is strictly the number of
+> available hosts for these parasitic codes, not anything inherent in the
+> details of Windows or Linux, or in the organizational mechanisms (corporate
+> giant vs. "brutal meritocracy", closed source vs. open source, etc.).
 
-So both definitions are right/wrong. Choose any you like. Just
-document it and stick to it. =:-) 
+Well, I believe Linux _is_ less vulnerable.  Not invulnerable of course,
+but at least fixes appear a lot faster for linux.  That alone don't
+usually leave enough timespan for a large-scale exploit.  
+And I see many firewalls that really is a pc router running linux.
+Are there any _serious_ ones running windows?
 
-I am happy to have a network console no matter what is the client and
-what is the server.
 
-I personally, would say, that if you have a "one - many" network
-relation, then the "one" part is the server. So in this case, the
-netconsole listener would be the server and the netconsole.o the
-client(s). Which is like syslog and so conforms to the "principle of
-least surprise". :-)
+> In fact, I suspect that the open source for Linux gives creators of vicious
+> attack codes a *slight* advantage, since the vulnerabilities are there for
+> anyone to read and exploit before they are found by an alert Linux
+> community. 
 
-Or can you have multiple listeners to a single netconsole.o instance?
+Many people read open source code looking for vulnerabilities.  Yeah,
+some are exploiters.  But more of them are looking to plug the holes,
+so this is a _big_ advantage for open source, not a _slight_ advantage
+for crackers.  A hole only needs plugging _once_ before nobody can use
+it.
 
-	Regards
-		Henning
+And the people capable of finding a hole by looking at source will
+usually report it - you can get more prestige that way than by
+writing a exploit.  This boils down to who you want to impress - 
+a bunch of stupid script kiddies or a bunch of security-minded
+experts?  Some of the latter might even offer a paying job...
 
-OT: "Client/Server computing is like teenage sex. Everyone talks about
-it, almost nobody really does it and those who do, don't get it right
-most of the time". :-)
+This don't work as well for closed source.  The bugs are harder to find,
+but some are found anyway by disassembly or trial-and-error.  (What
+happens
+if I manufacture bad oversized input for this thing...)
 
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
+What do you do about such a bug?  A patch is impossible without 
+source.  Reports seems to go silently ignored.   A public report
+might get you sued.  "You are out to get us & our customers,
+and your license forbids hacking on it...."  People get bitter,
+and gets incentives to make viruses.  It becomes the only
+way of getting serious attention.
 
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   
+This incentive mostly goes away with open source, much more fun to
+be among the "good guys" who stamps out bugs & get their names
+immortalized in changelogs.
+
+Helge Hafting

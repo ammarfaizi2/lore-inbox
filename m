@@ -1,42 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263023AbTFDOol (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jun 2003 10:44:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263349AbTFDOol
+	id S263349AbTFDOuY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jun 2003 10:50:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263354AbTFDOuY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jun 2003 10:44:41 -0400
-Received: from spanner.eng.cam.ac.uk ([129.169.8.9]:24023 "EHLO
-	spanner.eng.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S263023AbTFDOok (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jun 2003 10:44:40 -0400
-Date: Wed, 4 Jun 2003 15:58:06 +0100 (BST)
-From: "P. Benie" <pjb1008@eng.cam.ac.uk>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Christoph Hellwig <hch@infradead.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] [2.5] Non-blocking write can block
-In-Reply-To: <Pine.LNX.4.44.0306040732470.13753-100000@home.transmeta.com>
-Message-ID: <Pine.HPX.4.33L.0306041546190.15504-100000@punch.eng.cam.ac.uk>
+	Wed, 4 Jun 2003 10:50:24 -0400
+Received: from ghostwheel.llnl.gov ([134.9.11.149]:45279 "EHLO
+	ghostwheel.llnl.gov") by vger.kernel.org with ESMTP id S263349AbTFDOuX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jun 2003 10:50:23 -0400
+Date: Wed, 4 Jun 2003 08:03:36 -0700 (PDT)
+From: Chuck Harding <charding@llnl.gov>
+To: Linux Kernel Discussion List <linux-kernel@vger.kernel.org>
+Subject: Re: Subject: Unresolved symbols from 'make modules_install'
+In-Reply-To: <1982.1054704241@kao2.melbourne.sgi.com>
+Message-ID: <Pine.LNX.4.55.0306040800050.9083@ghostwheel.llnl.gov>
+References: <1982.1054704241@kao2.melbourne.sgi.com>
+Organization: Lawrence Livermore National Laboratory
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 4 Jun 2003, Linus Torvalds wrote:
+Oops - bad editing - as I said in the message that made it to the list, and I
+quote:
 
-> No no no, it's wrong.
+I tried sending this yesterday but it didn't make it to the list, either
+because of the number of lines or because of the size of the attachments B-|
+If needed, I can send the full output from the depmod command.
+
+On Wed, 4 Jun 2003, Keith Owens wrote:
+
+> On Tue, 3 Jun 2003 10:27:05 -0700 (PDT),
+> Chuck Harding <charding@llnl.gov> wrote:
+> >with no errors, when I run the 'make modules_install' I get a bunch
+> >of occurrances of unresolved symbol errors from 'depmod -ae -F System.map 2.x.x'
+> >most of which are for what appear to be core functions that the
+> >modules would need (output is attached
 >
-> If you do something like this, then you also have to teach "select()"
-> about this, otherwise you just get busy looping in applications.
+> You did not include any output from make modules_install.
+
+it's 127k long - I don't think it works to send attachments that large to the
+list.
+
 >
-> In general, we shouldn't do this, unless somebody can show an application
-> where it really matters.
+> >as is my .config
+>
+> .config is from a 2.5 kernel, not 2.4.
+>
 
-I wrote the patch to solve a real-world problem with wall(1), which
-occasionally gets stuck writing to somebody's tty. I think it's reasonable
-for wall to assume that non-blocking writes are non-blocking.
+That's because I was trying to build 2.5.70 as there are some of the new
+features in it that I wanted to try out.
 
-I'll think about how to do the patch correctly.
-
-Peter
-
+-- 
+Charles D. (Chuck) Harding <charding@llnl.gov>  Voice: 925-423-8879
+Senior Computer Associate                         Fax: 925-422-8920
+Computation Directorate, Lawrence Livermore National Laboratory
+Livermore, CA USA  http://www.llnl.gov  GPG Public Key ID: B9EB6601

@@ -1,93 +1,137 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263503AbTDXBaw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 21:30:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264374AbTDXBav
+	id S263463AbTDXBix (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 21:38:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264374AbTDXBiw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 21:30:51 -0400
-Received: from ithilien.qualcomm.com ([129.46.51.59]:56464 "EHLO
-	ithilien.qualcomm.com") by vger.kernel.org with ESMTP
-	id S263503AbTDXBau (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 21:30:50 -0400
-Message-Id: <5.1.0.14.2.20030423182014.07ec6140@unixmail.qualcomm.com>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Wed, 23 Apr 2003 18:41:56 -0700
-To: "David S. Miller" <davem@redhat.com>
-From: Max Krasnyansky <maxk@qualcomm.com>
-Subject: Re: [BK ChangeSet@1.1118.1.1] new module infrastructure for
-  net_proto_family
-Cc: acme@conectiva.com.br, linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-In-Reply-To: <20030423.163043.41633133.davem@redhat.com>
-References: <5.1.0.14.2.20030423134636.100e5c60@unixmail.qualcomm.com>
- <5.1.0.14.2.20030423114915.10840678@unixmail.qualcomm.com>
- <20030423192640.GD26052@conectiva.com.br>
- <5.1.0.14.2.20030423134636.100e5c60@unixmail.qualcomm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	Wed, 23 Apr 2003 21:38:52 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:51977
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id S263463AbTDXBiu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Apr 2003 21:38:50 -0400
+Date: Wed, 23 Apr 2003 18:47:36 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: linux-kernel@vger.kernel.org
+cc: Linus Torvalds <torvalds@transmeta.com>, Andrew Morton <akpm@zip.com.au>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Jens Axboe <axboe@suse.de>,
+       Bartlomiej Zolnierkiewicz <bkz@linux-ide.org>
+Subject: ide-2.5.68.patch
+Message-ID: <Pine.LNX.4.10.10304231834240.2033-200000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; BOUNDARY="1430322656-22962417-1051148856=:2033"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 04:30 PM 4/23/2003, David S. Miller wrote:
->   From: Max Krasnyansky <maxk@qualcomm.com>
->   Date: Wed, 23 Apr 2003 15:51:11 -0700
->
->   >This is just the first part, DaveM already merged the second part,
->   >that deals with struct sock 
->
->   That's exactly what surprised me. He rejected complete patch and
->   accepted something incomplete and broken.
->
->No, it was not broken, because he told me completely where he
->was going with his changes. 
-Of course it was and still is. New socket is allocated without incrementing 
-modules ref count in sys_accept().
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
->He was building infrastructure piece by piece, and that's always an acceptable 
->way to do things as long as it is explained where one is going with the changes.
-Oh, I see. And I just sent a patch without any explanation. Ok. 
-(you might want to reread our original discussion again).
+--1430322656-22962417-1051148856=:2033
+Content-Type: text/plain; charset=us-ascii
 
->Your stuff was unacceptable from the start because you didn't put
->the ->owner into the protocol ops.
-But you didn't tell me that. You just said that it's "an ugly hack" without
-giving any other feedback.
- 
-->owner field in protocol ops did come up during discussion (I think Rusty brought 
-that up) and I explained why it shouldn't be there. But again there was no feed back 
-from you. You just ignored that thread at some point. 
 
-btw I still don't see ->owner in protocol ops. I read archives of netdev. You guys 
-didn't even talk about that.
+LKML et al.
 
-Anyway it's not important who said what now. You chose to ignore stuff that I did, fine.
-What about this though
+This patch is to promote Bartlomiej to a well earned position as the
+Global IDE Maintainer, as I have stepped tp the side to handle the SATA
+and vendor chipset issues.  My time here was to clean up the transport to
+allow the simplicity of the protocol to be expressed.
 
->>struct sock *sk_alloc(int family, int priority, int zero_it, kmem_cache_t *slab)
->>{
->>- struct sock *sk;
->>- 
->>+ struct sock *sk = NULL;
->>+
->>+ if (!net_family_get(family))
->>+ goto out;
->Ok. This is wrong. Which should be clear from reading the thread that I mentioned.
->Owner of the net_proto_family is not necessarily the owner of the 'struct sock'.
->Example: af_inet module registers net_proto_family but udp module owns the socket.
->(not that IPv4 code is modular but just an example). Another example would be Bluetooth.
->We have Bluetooth core that registers Bluetooth proto_family and several modules
->that handle specific protocols (l2cap, rfcomm, etc).
->
->Also net_proto_family has pretty much nothing to do with the struct sock. The only reason 
->we would want to hold reference to the module is if the module has replaced default 
->callbacks (i.e. sk->data_ready(), etc).
->So my point is we need sk->owner field. 
->
->I'd also prefer to see sock->owner which gives more flexibility (i.e. net_proto_family can 
->be unregistered while struct socket still exist, etc). 
->net_family_get/put() makes no sense net_proto_family has only one function npf->create() 
->which is referenced only from net/socket.c. struct socket should inherit owner field from
->struct net_proto_family by default but protocol should be able to assign ownership to a 
->different module if it needs to.
+If there is an issue where one believes I need tp be included in the
+thread please CC me as I limit my reading of lkml directly.
 
-Max
+This patch also addresses some text whose intent may be a restriction to
+GPL; however, GPL itself is flawed as it relates to concatenation or
+appending addition information to a binary program, be it a kernel or app.
+whose current license status is GPL or LGPL.  With this in mind, I will
+formally announce that all of my contributions to the kernel over the past
+5 years or so are to be dual licensed in OSL/GPL format.  I would strongly
+suggest any person who has a stake in the kernel to review OSL and
+consider.
 
+If anyone has an issue with this change, get over it.  If you can not get
+over it, you can pay for the legal opinion for review.
+
+Regards,
+
+Andre Hedrick
+LAD Storage Consulting Group
+
+The (retiring) Linux ATA/IDE guy
+
+--1430322656-22962417-1051148856=:2033
+Content-Type: text/plain; charset=us-ascii; name="ide-2.5.68.patch"
+Content-Transfer-Encoding: base64
+Content-ID: <Pine.LNX.4.10.10304231847360.2033@master.linux-ide.org>
+Content-Description: 
+Content-Disposition: attachment; filename="ide-2.5.68.patch"
+
+ZGlmZiAtdXJOIGxpbnV4LTIuNS42OC5wcmlzdGluZS9NQUlOVEFJTkVSUyBs
+aW51eC0yLjUuNjgvTUFJTlRBSU5FUlMNCi0tLSBsaW51eC0yLjUuNjgucHJp
+c3RpbmUvTUFJTlRBSU5FUlMJU2F0IEFwciAxOSAxOTo1MDowMSAyMDAzDQor
+KysgbGludXgtMi41LjY4L01BSU5UQUlORVJTCVdlZCBBcHIgMjMgMTM6MjA6
+MTYgMjAwMw0KQEAgLTg0Niw2ICs4NDYsOSBAQA0KIFM6CVN1cHBvcnRlZCAN
+CiANCiBJREUgRFJJVkVSIFtHRU5FUkFMXQ0KK1A6CUJhcnRsb21pZWogWm9s
+bmllcmtpZXdpY3oNCitNOglCLlpvbG5pZXJraWV3aWN6QGVsa2EucHcuZWR1
+LnBsDQorTToJYmt6QGxpbnV4LWlkZS5vcmcNCiBMOglsaW51eC1rZXJuZWxA
+dmdlci5rZXJuZWwub3JnDQogTDoJbGludXgtaWRlQHZnZXIua2VybmVsLm9y
+Zw0KIFM6CU1haW50YWluZWQNCkBAIC04NzAsNiArODczLDEzIEBADQogTDoJ
+bGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZw0KIFM6CU1haW50YWluZWQN
+CiANCitJREUvQ0hJUFNFVFMgQU5EIFRBU0tGSUxFIFRSQU5TUE9SVA0KK1A6
+CUFuZHJlIEhlZHJpY2sNCitNOglhbmRyZUBsaW51eC1pZGUub3JnDQorTDoJ
+bGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZw0KK0w6CWxpbnV4LWlkZUB2
+Z2VyLmtlcm5lbC5vcmcNCitTOglNYWludGFpbmVkDQorDQogSUVFRSAxMzk0
+IFNVQlNZU1RFTQ0KIFA6CUJlbiBDb2xsaW5zDQogTToJYmNvbGxpbnNAZGVi
+aWFuLm9yZw0KQEAgLTE1OTAsNiArMTYwMCwxMiBAQA0KIE06CWNocmlzdGVy
+QHdlaW5pZ2VsLnNlDQogVzoJaHR0cDovL3d3dy53ZWluaWdlbC5zZQ0KIFM6
+CVN1cHBvcnRlZA0KKw0KK1NFUklBTCBBVEEgMS4wIEFORCBJSQ0KK1A6CUFu
+ZHJlIEhlZHJpY2sNCitNOglhbmRyZUBzZXJpYWxhdGEub3JnDQorTToJYW5k
+cmVAbGludXgtaWRlLm9yZw0KK1M6CU1haW50YWluZWQNCiANCiBTR0kgVklT
+VUFMIFdPUktTVEFUSU9OIDMyMCBBTkQgNTQwDQogUDoJQW5kcmV5IFBhbmlu
+DQpkaWZmIC11ck4gbGludXgtMi41LjY4LnByaXN0aW5lL2RyaXZlcnMvaWRl
+L0lERS5LRVkuc2lnbmluZyBsaW51eC0yLjUuNjgvZHJpdmVycy9pZGUvSURF
+LktFWS5zaWduaW5nDQotLS0gbGludXgtMi41LjY4LnByaXN0aW5lL2RyaXZl
+cnMvaWRlL0lERS5LRVkuc2lnbmluZwlXZWQgRGVjIDMxIDE2OjAwOjAwIDE5
+NjkNCisrKyBsaW51eC0yLjUuNjgvZHJpdmVycy9pZGUvSURFLktFWS5zaWdu
+aW5nCVdlZCBBcHIgMjMgMTY6MjE6MzEgMjAwMw0KQEAgLTAsMCArMSwyNyBA
+QA0KKw0KK1RoZSBvcmlnaW5hbCB0ZXh0IGluIGlkZS1pby5jDQorDQorLyoN
+CisgKiBGb3IgdGhlIGF2b2lkYW5jZSBvZiBkb3VidCB0aGUgInByZWZlcnJl
+ZCBmb3JtIiBvZiB0aGlzIGNvZGUgaXMgb25lIHdoaWNoDQorICogaXMgaW4g
+YW4gb3BlbiBub24gcGF0ZW50IGVuY3VtYmVyZWQgZm9ybWF0LiBXaGVyZSBj
+cnlwdG9ncmFwaGljIGtleSBzaWduaW5nDQorICogZm9ybXMgcGFydCBvZiB0
+aGUgcHJvY2VzcyBvZiBjcmVhdGluZyBhbiBleGVjdXRhYmxlIHRoZSBpbmZv
+cm1hdGlvbg0KKyAqIGluY2x1ZGluZyBrZXlzIG5lZWRlZCB0byBnZW5lcmF0
+ZSBhbiBlcXVpdmFsZW50bHkgZnVuY3Rpb25hbCBleGVjdXRhYmxlDQorICog
+YXJlIGRlZW1lZCB0byBiZSBwYXJ0IG9mIHRoZSBzb3VyY2UgY29kZS4NCisg
+Ki8NCisNCitUaGlzIGlzc3VlcyBhcmUgY29uY2VybnMgZm9yIHNlY3VyaXR5
+IHNpZ25pbmcgb2Yga2VybmVscy4NCisNCitTaW5jZSBHUEwgY292ZXJzIHRo
+ZSBjYXNlIG9mIGFkZGl0aW9uYWwgY29kZSBhZGRlZCBvciBsaWtlZCB0byB0
+aGUgcHJvZ3JhbQ0KK211c3QgYWxzbyBiZSBHUEwsIHdlbGwgdGhpcyBpcyBv
+YnZpb3VzIC4uLiBCVVQgR1BMIGhhcyBubyBsYW5ndWFnZSB0byBoYW5kbGUN
+Citjb25jYXRlbmF0aW9uIG9yIGNvbWJpbmVkIHdvcmsuICBUaGlzIGlzIGEg
+ZmF0YWwgZmxhdyBpbiBHUEwuDQorDQorVGhpcyBpcyBhbiBpbmZvcm1hdGl2
+ZSBkb2N1bWVudCwgbm90IGEgbm9ybWF0aXZlLg0KKw0KK1NlZSBPU0wgYXR0
+YWNoZWQuDQoraHR0cDovL3d3dy5vcGVuc291cmNlLm9yZy9saWNlbnNlcy9v
+c2wucGhwDQoraHR0cDovL3d3dy5vcGVuc291cmNlLm9yZy9saWNlbnNlcy9v
+c2wtMS4xLnR4dA0KKw0KKw0KK0FuZHJlIEhlZHJpY2sNCitMaW51eCBBVEEg
+RGV2ZWxvcG1lbnQNCisNCmRpZmYgLXVyTiBsaW51eC0yLjUuNjgucHJpc3Rp
+bmUvZHJpdmVycy9pZGUvaWRlLWlvLmMgbGludXgtMi41LjY4L2RyaXZlcnMv
+aWRlL2lkZS1pby5jDQotLS0gbGludXgtMi41LjY4LnByaXN0aW5lL2RyaXZl
+cnMvaWRlL2lkZS1pby5jCVNhdCBBcHIgMTkgMTk6NTA6MzkgMjAwMw0KKysr
+IGxpbnV4LTIuNS42OC9kcml2ZXJzL2lkZS9pZGUtaW8uYwlXZWQgQXByIDIz
+IDEyOjQ3OjA1IDIwMDMNCkBAIC0xNiwxMyArMTYsOCBAQA0KICAqIE1FUkNI
+QU5UQUJJTElUWSBvciBGSVRORVNTIEZPUiBBIFBBUlRJQ1VMQVIgUFVSUE9T
+RS4gIFNlZSB0aGUgR05VDQogICogR2VuZXJhbCBQdWJsaWMgTGljZW5zZSBm
+b3IgbW9yZSBkZXRhaWxzLg0KICAqDQotICogRm9yIHRoZSBhdm9pZGFuY2Ug
+b2YgZG91YnQgdGhlICJwcmVmZXJyZWQgZm9ybSIgb2YgdGhpcyBjb2RlIGlz
+IG9uZSB3aGljaA0KLSAqIGlzIGluIGFuIG9wZW4gbm9uIHBhdGVudCBlbmN1
+bWJlcmVkIGZvcm1hdC4gV2hlcmUgY3J5cHRvZ3JhcGhpYyBrZXkgc2lnbmlu
+Zw0KLSAqIGZvcm1zIHBhcnQgb2YgdGhlIHByb2Nlc3Mgb2YgY3JlYXRpbmcg
+YW4gZXhlY3V0YWJsZSB0aGUgaW5mb3JtYXRpb24NCi0gKiBpbmNsdWRpbmcg
+a2V5cyBuZWVkZWQgdG8gZ2VuZXJhdGUgYW4gZXF1aXZhbGVudGx5IGZ1bmN0
+aW9uYWwgZXhlY3V0YWJsZQ0KLSAqIGFyZSBkZWVtZWQgdG8gYmUgcGFydCBv
+ZiB0aGUgc291cmNlIGNvZGUuDQorICogU0VFIEV4dGVybmFsIGZpbGUgZm9y
+IGNvbmNlcm5zIGFib3V0ICJwcmVmZXJyZWQgZm9ybSIuDQogICovDQotIA0K
+ICANCiAjaW5jbHVkZSA8bGludXgvY29uZmlnLmg+DQogI2luY2x1ZGUgPGxp
+bnV4L21vZHVsZS5oPg0K
+--1430322656-22962417-1051148856=:2033--

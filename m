@@ -1,54 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289564AbSAJR3R>; Thu, 10 Jan 2002 12:29:17 -0500
+	id <S289563AbSAJR2h>; Thu, 10 Jan 2002 12:28:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289565AbSAJR3I>; Thu, 10 Jan 2002 12:29:08 -0500
-Received: from ns.suse.de ([213.95.15.193]:35089 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S289564AbSAJR26>;
-	Thu, 10 Jan 2002 12:28:58 -0500
-Date: Thu, 10 Jan 2002 18:28:57 +0100 (CET)
-From: Dave Jones <davej@suse.de>
-To: Giacomo Catenazzi <cate@debian.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "H. Peter Anvin" <hpa@zytor.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: initramfs programs (was [RFC] klibc requirements)
-In-Reply-To: <3C3DCBA7.4080802@debian.org>
-Message-ID: <Pine.LNX.4.33.0201101822020.21159-100000@wotan.suse.de>
+	id <S289564AbSAJR21>; Thu, 10 Jan 2002 12:28:27 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:60937 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S289563AbSAJR2J>; Thu, 10 Jan 2002 12:28:09 -0500
+Message-ID: <3C3DCF1F.4070800@zytor.com>
+Date: Thu, 10 Jan 2002 09:27:59 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en-us, en, sv
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Giacomo Catenazzi <cate@debian.org>, Dave Jones <davej@suse.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: initramfs programs (was [RFC] klibc requirements)
+In-Reply-To: <E16Oj8m-00050R-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 10 Jan 2002, Giacomo Catenazzi wrote:
+Alan Cox wrote:
 
-> It is already difficult to maintain the database of CPU.
-> The newer CPUs have name stored directly in CPU and no more
-> in kernel :-(
+>>Surelly I will not maintain the DMI table!
+>>
+> 
+> Quite
+> 
+> 
+>>This is a call for help: how to write a table
+>>CPU - CONFIG_SYMBOL ?
+>>Now I use Vendor/Name/Family/Stepping/, but
+>>maybe with Vendor + flags (CPUID flags) the result
+>>will be more correct?
+>>
+> 
+> You need the family/model information to get the right optimisations. Its
+> often not that the instruction set is different but that the cpu
+> implementation is different that determines the choice. With a couple of 
+> exceptions cpu type is actually not too important and accidentally using
+> 486 will make little difference
+>  
 
-It's worse than you think.
-Distinguishing between XP and MP athlon for example needs
-capability bit testing.  (And some XP's _are_ now multiprocessor
-capable, just to confuse the issue some more), so relying on
-the cpuid identity string isn't foolproof.
-(Also, some implementations allow for this string to be changed,
- some folks have it set to "PenguinPowered" and the likes 8-)
 
-> This is a call for help: how to write a table
-> CPU - CONFIG_SYMBOL ?
-> Now I use Vendor/Name/Family/Stepping/, but
-> maybe with Vendor + flags (CPUID flags) the result
-> will be more correct?
+Something I'd really like to see would be to split "optimize for..." and 
+"run on..." for CPU type; just like gcc has -mmach= and -march=.
 
-Asides from the above issues, multiple CPUs have the same
-cpuid sometimes, meaning you have to check things like
-cache size as well (though most (all?) of these should
-end up with the same CONFIG_ option iirc, so this shouldn't
-be an issue -- you should check to be sure though)
+	-hpa
 
-x86info's identify.c files should give you a fairly
-comprehensive guide to the various types.
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
 

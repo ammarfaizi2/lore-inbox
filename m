@@ -1,51 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129597AbQLAKTK>; Fri, 1 Dec 2000 05:19:10 -0500
+	id <S129514AbQLAKV7>; Fri, 1 Dec 2000 05:21:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129604AbQLAKTA>; Fri, 1 Dec 2000 05:19:00 -0500
-Received: from uu194-7-68-2.unknown.uunet.be ([194.7.68.2]:35837 "EHLO
-	bartok.iverlek.kotnet.org") by vger.kernel.org with ESMTP
-	id <S129597AbQLAKSk>; Fri, 1 Dec 2000 05:18:40 -0500
-Date: Fri, 1 Dec 2000 10:47:45 +0100
-From: Arnaud Installe <ainstalle@filepool.com>
-To: David Lang <david.lang@digitalinsight.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: high load & poor interactivity on fast thread creation
-Message-ID: <20001201104745.C1413@bartok.filepool.com>
-In-Reply-To: <20001130081443.A8118@bach.iverlek.kotnet.org> <Pine.LNX.4.21.0011301459250.17363-100000@dlang.diginsite.com>
+	id <S129625AbQLAKVt>; Fri, 1 Dec 2000 05:21:49 -0500
+Received: from saw.sw.com.sg ([203.120.9.98]:20355 "HELO saw.sw.com.sg")
+	by vger.kernel.org with SMTP id <S129514AbQLAKVj>;
+	Fri, 1 Dec 2000 05:21:39 -0500
+Message-ID: <20001201175109.A4209@saw.sw.com.sg>
+Date: Fri, 1 Dec 2000 17:51:09 +0800
+From: Andrey Savochkin <saw@saw.sw.com.sg>
+To: "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>
+Cc: linux-kernel@vger.kernel.org, "David S. Miller" <davem@redhat.com>
+Subject: Re: eepro100 driver update for 2.4
+In-Reply-To: <20001117172336.B27444@saw.sw.com.sg> <3A269F47.17336A69@Hell.WH8.TU-Dresden.De>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <Pine.LNX.4.21.0011301459250.17363-100000@dlang.diginsite.com>; from david.lang@digitalinsight.com on Thu, Nov 30, 2000 at 03:00:10PM -0800
+X-Mailer: Mutt 0.93.2i
+In-Reply-To: <3A269F47.17336A69@Hell.WH8.TU-Dresden.De>; from "Udo A. Steinberg" on Thu, Nov 30, 2000 at 07:41:11PM
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 30, 2000 at 03:00:10PM -0800, David Lang wrote:
-> try the 2.4 test kernels. I had a situation of poor performance with lots
-> of processes and saw a dramatic improvement with the 2.4 kernel.
+Hello,
 
-So what load average should I expect Linux versions 2.2 and 2.4 to perform
-well under ?  I'm wondering what would be the best way to solve this
-problem: limit the number of processes created during a certain time span;
-check if the load average isn't too high before creating a new thread (and
-go to sleep if it isn't); or something else ?
+On Thu, Nov 30, 2000 at 07:41:11PM +0100, Udo A. Steinberg wrote:
+> I've been using an older EEPro100/B card until now and it's been working without any
+> problems ever since the transmitter bugs were fixed. The boot output looked like this:
+[snip]
+> Today I've installed a new model with Wake-on-LAN support and got caught by
+> above mentioned
+> 
+> eth0: card reports no RX buffers.
+> eth0: card reports no resources.
+> 
+> messages as well. Strangely those messages only ever happen during bootup and
+> *every* time. Shutting eth0 down and bringing it back up fixes the problem.
 
-Thanks very much BTW !  The list has always been very helpful.  :-)
+It's a known issue.
+I've been promised that this issue would be looked up in Intel's errata by
+people who had the access to it, but I haven't got the results yet.
 
-								Arnaud
+> What puzzles me a bit is that the newer card (721383-xxx) is an 82559 chip,
+> according to the Intel site, but the boot output doesn't say so:
+[snip]
 
-> > When creating a lot of Java threads per second linux slows down to a
-> > crawl.  I don't think this happens on NT, probably because NT doesn't
-> > create new threads as fast as Linux does.
-> > 
-> > Is there a way (setting ?) to solve this problem ?  Rate-limit the number
-> > of threads created ?  The problem occurred on linux 2.2, IBM Java 1.1.8.
+The card itself doesn't report its revision in details.
+It can be checked by `lspci'.
+Rev 8 is 82559, if I remember, and rev 9 is 82559ER.
 
--- 
-Arnaud Installe						<ainstalle@filepool.com>
+> If you have any patches or tests that would help to find and fix this init
+> bug, I'd offer to test them out, since I can reliably reproduce the problem.
 
-Man has never reconciled himself to the ten commandments.
+Sorry, no patches so far...
+I may suggest only workarounds that reduces the likelihood of the fails.
+
+Best regards
+		Andrey
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

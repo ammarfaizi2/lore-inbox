@@ -1,54 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266220AbUHGEQV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266216AbUHGEuT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266220AbUHGEQV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Aug 2004 00:16:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266221AbUHGEQV
+	id S266216AbUHGEuT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Aug 2004 00:50:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266224AbUHGEuT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Aug 2004 00:16:21 -0400
-Received: from holomorphy.com ([207.189.100.168]:65489 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S266220AbUHGEP7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Aug 2004 00:15:59 -0400
-Date: Fri, 6 Aug 2004 21:15:50 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Chris Shoemaker <c.shoemaker@cox.net>
-Cc: Gene Heskett <gene.heskett@verizon.net>, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@elte.hu>, vda@port.imtp.ilyichevsk.odessa.ua,
-       ak@suse.de
-Subject: Re: Possible dcache BUG
-Message-ID: <20040807041550.GV17188@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Chris Shoemaker <c.shoemaker@cox.net>,
-	Gene Heskett <gene.heskett@verizon.net>,
-	linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-	Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-	vda@port.imtp.ilyichevsk.odessa.ua, ak@suse.de
-References: <Pine.LNX.4.44.0408020911300.10100-100000@franklin.wrl.org> <200408060751.07605.gene.heskett@verizon.net> <Pine.LNX.4.58.0408060948310.24588@ppc970.osdl.org> <200408061316.24495.gene.heskett@verizon.net> <20040806172607.GO17188@holomorphy.com> <20040806231902.GB15493@cox.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040806231902.GB15493@cox.net>
-User-Agent: Mutt/1.5.6+20040722i
+	Sat, 7 Aug 2004 00:50:19 -0400
+Received: from sccrmhc13.comcast.net ([204.127.202.64]:24293 "EHLO
+	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S266216AbUHGEuG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Aug 2004 00:50:06 -0400
+From: "Buddy Lumpkin" <b.lumpkin@comcast.net>
+To: "'Theodore Ts'o'" <tytso@mit.edu>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: EXT intent logging
+Date: Fri, 6 Aug 2004 21:50:42 -0700
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+In-Reply-To: <20040806195615.GA14163@thunk.org>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
+Thread-Index: AcR78rrUX/UD15I8SvG2mZPQHucuawARyQXg
+Message-Id: <S266216AbUHGEuG/20040807045006Z+106@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 06, 2004 at 10:26:07AM -0700, William Lee Irwin III wrote:
->> I've not had issues around the dcache for quite some time, I think not
->> since the 2.5.65 timeframe. IIRC maneesh and dipankar had some fixes
->> that resolved all my issues not long afterward. So unfortunately I have
->> nothing strictly dcache-related to report. Chris may have been
->> referring to some potentially pathological NFS behavior I've seen for a
->> long time centered around extended periods of knfsd unresponsiveness.
+Thanks Ted,
 
-On Fri, Aug 06, 2004 at 07:19:02PM -0400, Chris Shoemaker wrote:
-> I was referring to:
-> http://www.ussg.iu.edu/hypermail/linux/kernel/0406.2/0410.html
-> ...doesn't look NFS-related to me.  OTOH, it does bear some resemblance
-> to some other oopses floating around.  Did you solve this one?
+This clears up a lot of bad assumptions I made while reading vague
+descriptions about the different ext3 journal options in miscellaneous
+places.
 
-I've not seen this ever again after some point, and don't recall enough
-of the context/etc. to say much about what was going on with it.
+--Buddy
 
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Theodore Ts'o
+Sent: Friday, August 06, 2004 12:56 PM
+To: Buddy Lumpkin
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: EXT intent logging
 
--- wli
+On Thu, Aug 05, 2004 at 09:55:28PM -0700, Buddy Lumpkin wrote:
+> A large NFS server went down recently and as it rebooted, fsck ran
+> for a while before the data volumes could be mounted. I noticed the
+> filesystem was ext3 and asked, is journaling disabled? Why on earth
+> is fsck running at all? The admin assured me this is quite normal
+> for ext3 and after a few minutes, the system was brought back
+> online.
+
+Fsck replays the journal for ext3 filesystems that were not cleanly
+unmounted.  That is, the metadata (and possibly data) blocks in the
+journal are written to the correct location on disk in order to make
+the filesystem consistent.
+
+> I looked at the configuration and it turns out the system was
+> mounted DATA=ORDERED.  That name ordered sounded to me like it
+> should do the kind of intent logging that I am accustomed to on UFS
+> and VXFS. I was very surprised to read that ext3 updates the
+> standard data/metadata blocks prior to updating the journal. 
+
+Incorrect.  Only data blocks are forced out to disk before metadata
+blocks (which are written to the journal first) changes are committed.
+The changes to the metadata blocks are not written to disk (outside of
+the journal) until after the transaction is committed.
+
+> To eliminate fsck on large filesystems, wouldn't you have to update
+> the journal first, then update the data blocks? This way in the
+> event of a crash, the last entries in the log would represent the
+> last I/O operations that were "intended" and those blocks could be
+> inspected for consistency.
+
+See above.  The metadata changes are written out to the journal first,
+but we want to make sure that before those changes are committed, that
+the data blocks pointed to by the metadata blocks are valid.  If you
+mount -o data=writeback, then data blocks constraint is not
+enforced.  This still eliminates the need for a full fsck, but even
+though the filesystem is consistent after the journal is replayed, the
+metadata blocks may be pointing at unwritten data blocks which only
+contain garbage.
+
+> Could someone explain why there isn't an option in ext3 to only log
+> metadata, but completely avoid fsck by updating the log before the
+> data blocks?
+
+"mount -o data=writeback" only logs metadata.  This seems to be what
+you are requesting.
+
+"mount -o data=journal" logs metadata blocks and data blocks into
+journal first, and then after the transaction commits, the metadata
+and data blocks are written to their final location on disk.  The
+problem with this is that all your write bandwidth is cut in half
+since all block writes get written twice to disk --- once to the
+journal, and once to the final location on disk.
+
+"mount -o data=ordered" simply defers the transaction commit until the
+data blocks are written to their final location on disk.  If the data
+writes do not make it onto the disk, before the system crashes, the
+transaction never commits and the metadata changes won't get replayed
+on filesystem recovery.
+
+In all cases, however, the need for a full fsck is not needed.  The
+reason why it is useful to have e2fsck do the journal replay, as
+opposed to letting the kernel do it when you try to mount the
+filesystem, is that if you have multiple disk drives, replaying
+journal in userspace allows multiple filesystems to be recovered in
+parallel, instead of one filesystem at a time.  Linux's fsck is
+intellignent and will spawn off multiple copies of e2fsck, one for
+each filesystem, so long as they are on separate disk spindles.
+(Running two cpoies of e2fsck on different partitions on the same disk
+drive is pointless, since the two e2fsck processes simply thrashes the
+disk heads and get in the way of each other.)
+
+Hope this helps,
+
+						- Ted
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+

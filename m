@@ -1,82 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276867AbSIVIuG>; Sun, 22 Sep 2002 04:50:06 -0400
+	id <S276876AbSIVJGq>; Sun, 22 Sep 2002 05:06:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276878AbSIVIuG>; Sun, 22 Sep 2002 04:50:06 -0400
-Received: from apollo.nbase.co.il ([194.90.137.2]:53254 "EHLO
-	apollo.nbase.co.il") by vger.kernel.org with ESMTP
-	id <S276867AbSIVIuF>; Sun, 22 Sep 2002 04:50:05 -0400
-Message-ID: <3D8D8660.80905@nbase.co.il>
-Date: Sun, 22 Sep 2002 11:59:12 +0300
-From: eran@nbase.co.il (Eran Man)
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	id <S276877AbSIVJGp>; Sun, 22 Sep 2002 05:06:45 -0400
+Received: from smtpout.mac.com ([204.179.120.89]:33240 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id <S276876AbSIVJGp>;
+	Sun, 22 Sep 2002 05:06:45 -0400
+Date: Sat, 21 Sep 2002 22:30:10 +0200
+Subject: [PATCH] 1/11 sound/oss replace cli() 
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Mime-Version: 1.0 (Apple Message framework v482)
+Cc: Linus Torvalds <torvalds@transmeta.com>
 To: linux-kernel@vger.kernel.org
-CC: bart.de.schuymer@pandora.be
-Subject: Kernel 2.5.38 EBTables breakage
-Content-Type: text/plain; charset=us-ascii; format=flowed
+From: Peter Waechtler <pwaechtler@mac.com>
 Content-Transfer-Encoding: 7bit
+Message-Id: <ED015C41-CDA0-11D6-8873-00039387C942@mac.com>
+X-Mailer: Apple Mail (2.482)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It seems like the EBTables merge in 2.5.38 is incomplete:
-....
-   gcc -Wp,-MD,./.ebtables.o.d -D__KERNEL__ 
--I/usr/src/linux-2.5.25/include -Wall -Wstrict-prototypes -Wno-trigraphs 
--O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe 
--mpreferred-stack-boundary=2 -march=i686 
--I/usr/src/linux-2.5.25/arch/i386/mach-generic -nostdinc -iwithprefix 
-include -DMODULE   -DKBUILD_BASENAME=ebtables -DEXPORT_SYMTAB  -c -o 
-ebtables.o ebtables.c
-ebtables.c:25:45: linux/netfilter_bridge/ebtables.h: No such file or 
-directory
-ebtables.c:85: variable `ebt_standard_target' has initializer but 
-incomplete type
-ebtables.c:86: extra brace group at end of initializer
-ebtables.c:86: (near initialization for `ebt_standard_target')
-ebtables.c:86: warning: excess elements in struct initializer
-ebtables.c:86: warning: (near initialization for `ebt_standard_target')
-ebtables.c:86: `EBT_STANDARD_TARGET' undeclared here (not in a function)
-ebtables.c:86: warning: excess elements in struct initializer
-ebtables.c:86: warning: (near initialization for `ebt_standard_target')
-ebtables.c:86: warning: excess elements in struct initializer
-ebtables.c:86: warning: (near initialization for `ebt_standard_target')
-ebtables.c:86: warning: excess elements in struct initializer
-ebtables.c:86: warning: (near initialization for `ebt_standard_target')
-ebtables.c:86: warning: excess elements in struct initializer
-ebtables.c:86: warning: (near initialization for `ebt_standard_target')
-ebtables.c:86: warning: excess elements in struct initializer
-ebtables.c:86: warning: (near initialization for `ebt_standard_target')
-ebtables.c:90: warning: `struct ebt_entry_watcher' declared inside 
-parameter list
-ebtables.c:90: warning: its scope is only this definition or 
-declaration, which is probably not what you want.
-ebtables.c: In function `ebt_do_watcher':
-ebtables.c:92: dereferencing pointer to incomplete type
-ebtables.c:92: dereferencing pointer to incomplete type
-ebtables.c:93: dereferencing pointer to incomplete type
-ebtables.c: At top level:
-ebtables.c:100: warning: `struct ebt_entry_match' declared inside 
-parameter list
-ebtables.c: In function `ebt_do_match':
-ebtables.c:102: dereferencing pointer to incomplete type
-ebtables.c:102: dereferencing pointer to incomplete type
-ebtables.c:103: dereferencing pointer to incomplete type
-.....
-This goes on for a couple more pages...
-On the otherhand, there is no real sign of the ebtables in include/linux:
-[eran@eran linux-2.5]$ grep -ri EBT_STANDARD_TARGET include/linux/
-[eran@eran linux-2.5]$ grep -ri ebtables include/linux/
-include/linux/netfilter_bridge.h:/* Not really a hook, but used for the 
-ebtables broute table */
-include/linux/autoconf.h:#undef  CONFIG_BRIDGE_NF_EBTABLES
-[eran@eran linux-2.5]$
--- 
-Eran Mann                 Direct  : 972-4-9936297
-Senior Software Engineer  Fax     : 972-4-9890430
-Optical Access            Email   : emann@opticalaccess.com
+This is a resent with a correction of dmasound_q40.c - I don't touch the
+IRQ handler anymore.
 
+This one just needs a parameter to synchronize_irq(irq);
 
-
+--- linux-2.5.36/sound/oss/cs4281/cs4281m.c	2002-09-21 
+19:02:02.000000000 +0200
++++ linux-2.5-cli-oss/sound/oss/cs4281/cs4281m.c	2002-08-10 
+17:13:46.000000000 +0200
+@@ -3205,7 +3205,7 @@
+  			 "cs4281: cs4281_ioctl(): DSP_RESET\n"));
+  		if (file->f_mode & FMODE_WRITE) {
+  			stop_dac(s);
+-			synchronize_irq();
++			synchronize_irq(s->irq);
+  			s->dma_dac.swptr = s->dma_dac.hwptr =
+  			    s->dma_dac.count = s->dma_dac.total_bytes =
+  			    s->dma_dac.blocks = s->dma_dac.wakeup = 0;
+@@ -3213,7 +3213,7 @@
+  		}
+  		if (file->f_mode & FMODE_READ) {
+  			stop_adc(s);
+-			synchronize_irq();
++			synchronize_irq(s->irq);
+  			s->dma_adc.swptr = s->dma_adc.hwptr =
+  			    s->dma_adc.count = s->dma_adc.total_bytes =
+  			    s->dma_adc.blocks = s->dma_dac.wakeup = 0;
+@@ -4452,7 +4452,7 @@
+  {
+  	struct cs4281_state *s = pci_get_drvdata(pci_dev);
+  	// stop DMA controller
+-	synchronize_irq();
++	synchronize_irq(s->irq);
+  	free_irq(s->irq, s);
+  	unregister_sound_dsp(s->dev_audio);
+  	unregister_sound_mixer(s->dev_mixer);
 

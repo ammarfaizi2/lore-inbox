@@ -1,193 +1,153 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261359AbVASCel@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261491AbVASDIG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261359AbVASCel (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jan 2005 21:34:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261388AbVASCel
+	id S261491AbVASDIG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jan 2005 22:08:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261550AbVASDHl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jan 2005 21:34:41 -0500
-Received: from main.gmane.org ([80.91.229.2]:24975 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261359AbVASCea (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jan 2005 21:34:30 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Alban Browaeys <prahal@yahoo.com>
-Subject: Re: thoughts on kernel security issues
-Date: Wed, 19 Jan 2005 02:34:23 +0000 (UTC)
-Message-ID: <loom.20050119T013904-64@post.gmane.org>
-References: <20050114183415.GA17481@thunk.org><Pine.LNX.4.58.0501121058120.2310@ppc970.osdl.org> <Pine.LNX.4.58.0501141047470.2310@ppc970.osdl.org> <41ED8D5F.5030409@tmr.com>
+	Tue, 18 Jan 2005 22:07:41 -0500
+Received: from ipcop.bitmover.com ([192.132.92.15]:45463 "EHLO
+	work.bitmover.com") by vger.kernel.org with ESMTP id S261491AbVASDHQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jan 2005 22:07:16 -0500
+Date: Tue, 18 Jan 2005 19:05:06 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: davidm@hpl.hp.com, carl.staelin@hp.com, "Luck, Tony" <tony.luck@intel.com>,
+       lmbench-users@bitmover.com, linux-ia64@vger.kernel.org,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Lmbench-users] Re: pipe performance regression on ia64
+Message-ID: <20050119030506.GA19700@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Linus Torvalds <torvalds@osdl.org>, davidm@hpl.hp.com,
+	carl.staelin@hp.com, "Luck, Tony" <tony.luck@intel.com>,
+	lmbench-users@bitmover.com, linux-ia64@vger.kernel.org,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200501181741.j0IHfGf30058@unix-os.sc.intel.com> <Pine.LNX.4.58.0501180951050.8178@ppc970.osdl.org> <16877.21998.984277.551515@napali.hpl.hp.com> <Pine.LNX.4.58.0501181200460.8178@ppc970.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: main.gmane.org
-User-Agent: Loom/3.14 (http://gmane.org/)
-X-Loom-IP: 82.125.145.79 (Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Galeon/1.3.18.99 (Debian package 1.3.18+arch20050108-1))
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0501181200460.8178@ppc970.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Davidsen <davidsen <at> tmr.com> writes:
+It would be good if you copied me directly since I don't read the kernel
+list anymore (I'd love to but don't have the bandwidth) and I rarely read
+the lmbench list.  But only if you want to drag me into it, of course.
 
+Carl and I both work on LMbench but not very actively.  I had really 
+hoped that once people saw how small the benchmarks are they would
+create their own:
+
+work ~/LMbench2/src wc bw_pipe.c 
+    120     340    2399 bw_pipe.c
+
+I'm very unthrilled with the idea of adding stuff to the release benchmark
+which is OS specific.  That said, there is nothing to say that you can't
+grab the benchmark and tweak your own test case in there to prove or 
+disprove your theory.
+
+If you want to take LMbench and turn it into LinuxBench or something like
+that so that it is clear that it is just a regression test for Linux then
+hacking in a bunch of tests would make a ton of sense.
+
+But, if you keep it generic I can give you output on a pile of different
+OS's on relatively recent hardware since we just upgraded our build 
+cluster:
+
+Welcome to redhat52.bitmover.com, a 2.1Ghz Athlon running Red Hat 5.2.
+Welcome to redhat62.bitmover.com, a 2.16Ghz Athlon running Red Hat 6.2.
+Welcome to redhat71.bitmover.com, a 2.1Ghz Athlon running Red Hat 7.1.
+Welcome to redhat9.bitmover.com, a 2.1Ghz Athlon running Red Hat 9.
+Welcome to amd64.bitmover.com, a 2Ghz AMD 64 running Fedora Core 1.
+Welcome to parisc.bitmover.com, a 552Mhz PA8600 running Debian 3.1
+Welcome to ppc.bitmover.com, a 400Mhz PowerPC running Yellow Dog 1.2.
+Welcome to macos.bitmover.com, a dual 1.2Ghz G4 running MacOS 10.2.8.
+Welcome to sparc.bitmover.com a 440 Mhz Sun Netra T1 running Debian 3.1.
+Welcome to alpha.bitmover.com, a 500Mhz AlphaPC running Red Hat 7.2.
+Welcome to ia64.bitmover.com, a dual 800Mhz Itanium running Red Hat 7.2.
+Welcome to freebsd.bitmover.com, a 2.17Ghz Athlon running FreeBSD 2.2.8.
+Welcome to freebsd3.bitmover.com, a 1.8Ghz Athlon running FreeBSD 3.2.
+Welcome to freebsd4.bitmover.com, a 1.8Ghz Athlon running FreeBSD 4.1.
+Welcome to freebsd5.bitmover.com, a 1.6Ghz Athlon running FreeBSD 5.1.
+Welcome to openbsd.bitmover.com, a 2.17Ghz Athlon running OpenBSD 3.4.
+Welcome to netbsd.bitmover.com, a 1Ghz Athlon running NetBSD 1.6.1.
+Welcome to sco.bitmover.com, a 1.8Ghz Athlon running SCO OpenServer R5.
+Welcome to sun.bitmover.com, a 440Mhz Sun Ultra 10 running Solaris 2.6
+Welcome to sunx86.bitmover.com, a dual 1Ghz PIII running Solaris 2.7.
+Welcome to sgi.bitmover.com, a 195Mhz MIPS IP28 running IRIX 6.5.
+Welcome to sibyte.bitmover.com, a dual 800Mhz MIPS running Debian 3.0.
+Welcome to hp.bitmover.com, a 552Mhz PA8600 running HP-UX 10.20.
+Welcome to hp11.bitmover.com, a dual 550Mhz PA8500 running HP-UX 11.11.
+Welcome to hp11-32bit.bitmover.com, a 400Mhz PA8500 running HP-UX 11.11.
+Welcome to aix.bitmover.com, a 332Mhz PowerPC running AIX 4.1.5.
+Welcome to qube.bitmover.com, a 250Mhz MIPS running Linux 2.0.34.
+Welcome to arm.bitmover.com, a 233Mhz StrongARM running Linux 2.2.
+Welcome to tru64.bitmover.com, a 600Mhz Alpha running Tru64 5.1B.
+Welcome to winxp2.bitmover.com, a 2.1Ghz Athlon running Windows XP.
+
+
+On Tue, Jan 18, 2005 at 12:17:11PM -0800, Linus Torvalds wrote:
 > 
-> With no disrespect, I don't believe you have ever been a full-time 
-> employee system administrator for any commercial or government 
-> organization, and I don't believe you have any experience trying to do 
-> security when change must be reviewed by technically naive management to 
-> justify cost, time, and policy implications. The people on the list who 
-> disagree may view the security information issue in a very different 
-> context.
-
-Basically you are saying that if i disagree, my view is irrelevant. What do you
-expect with this kind of start. 
-
-> Linus Torvalds wrote:
 > 
-> > What vendor-sec does is to make it "socially acceptable" to be a parasite. 
+> On Tue, 18 Jan 2005, David Mosberger wrote:
+> >
+> > >>>>> On Tue, 18 Jan 2005 10:11:26 -0800 (PST), Linus Torvalds <torvalds@osdl.org> said:
 > > 
-> > I personally think that such behaviour simply should not be encouraged. If
-> > you have a security "researcher" that has some reason to delay his
-> > disclosure, you should see for for what he is: looking for cheap PR. You
-> > shouldn't make excuses for it. Any research organization that sees PR as a
-> > primary objective is just misguided.
-> 
-> There are damn fine reasons for not having immediate public disclosure, 
-> it allows vandors and administrators to close the hole before the script 
-> kiddies get a hold of it. And they are the real problem, because there 
-> are so MANY of them, and they tend to do slash and burn stuff, wipe out 
-> your files, steal your identity, and other things you have to notice. 
-> They aren't smart enough to find holes themselves in most cases, they 
-> are too lazy in many cases to read the high-level hacker boards, and a 
-> few weeks of delay in many cases lets the careful avoid damage.
-> 
-> Security through obscurity doesn't work, but a small delay for a fix to 
-> be developed can prevent a lot of problems. And of course the 
-> information should be released, it encourages the creation and 
-> installation of fixes.
->
-> Oh, and many of the problem reports result in "cheap PR" consisting of a 
-> single line mention in a CERT report or similar. Most people are not 
-> doing it for the glory.
-
-Nobody told against a small delay , in most of the case that is already what is
-happening today. 
-There is a little problem in this rhetoric. You want fix fast and disclosure
-latter. As soon as the fix (we are talking about source available) is out, the
-hole is too. Wondering if chiken or egg is great flame subject.
-
-> 
-> > What's the alternative? I'd like to foster a culture of
+> >   Linus> I don't know how to make the benchmark look repeatable and
+> >   Linus> good, though.  The CPU affinity thing may be the right thing.
 > > 
-> >  (a) accepting that bugs happen, and that they aren't news, but making 
-> >      sure that the very openness of the process means that people know
-> >      what's going on exactly because it is _open_, not because some news 
-> >      organization had to make a big stink about it just to make a vendor
-> >      take notice.
-> 
-> Linux vendors aside, many vendors react in direct proportion to the bad 
-> publicity engendered. I'd like the world to work that way, but in many 
-> places it doesn't.
+> > Perhaps it should be split up into three cases:
 > > 
-> >      Right now, people seem to think that big news media warnings on 
-> >      cnet.com about SP2 fixing 15 vulnerabilities or similar is the proper
-> >      way to get people to upgrade. That just -cannot- be right.
+> > 	- producer/consumer pinned to the same CPU
+> > 	- producer/consumer pinned to different CPUs
+> > 	- producer/consumer lefter under control of the scheduler
+> > 
+> > The first two would let us observe any changes in the actual pipe
+> > code, whereas the 3rd case would tell us which case the scheduler is
+> > leaning towards (or if it starts doing something real crazy, like
+> > reschedule the tasks on different CPUs each time, we'd see a bandwith
+> > lower than case 2 and that should ring alarm bells).
 > 
-> Unfortunately reality doesn't agree with you. Many organizations have no 
-> other effective way to convince management of the need for a fix except 
-> newspaper articles and magazine articles. A sometimes that has to get to 
-> the horror story stage before action is possible.
-
-
-All those to lines to say one thing . Managing security requires social skills.
-
- 
-> > And let's not kid ourselves: the security firms may have resources that 
-> > they put into it, but the worst-case schenario is actual criminal intent. 
-> > People who really have resources to study security problems, and who have 
-> > _no_ advantage of using vendor-sec at all. And in that case, vendor-sec is 
-> > _REALLY_ a huge mistake. 
+> Yes, that would be good.
 > 
-> I think you are still missing the point, I don't care if a security firm 
-> reads mailing lists or tea leaves, does research or just knows where to 
-> find it, they are paid to do it and if they do it well and report the 
-> problems which apply to me and the source of the fixes they keep me from 
-> missing something and at the same time save me time. Even reading only 
-> good mailing lists and newsgroups it takes a lot of time to keep 
-> current, and you see a lot of stuff you don't need.
+> However, I don't know who (if anybody) maintains lmbench any more. It 
+> might be Carl Staelin (added to cc), and there used to be a mailing list 
+> which may or may not be active any more..
 > 
+> [ Background for Carl (and/or lmbench-users): 
+> 
+>   The "pipe bandwidth" test ends up giving wildly fluctuating (and even
+>   when stable, pretty nonsensical, since they depend very strongly on the
+>   size of the buffer being used to do the writes vs the buffer size in the
+>   kernel) numbers purely depending on where the reader/writer got
+>   scheduled.
+> 
+>   So a recent kernel buffer management change made lmbench numbers vary 
+>   radically, ranging from huge improvements to big decreases. It would be 
+>   useful to see the numbers as a function of CPU selection on SMP (the 
+>   same is probably true also for the scheduling latency benchmark, which 
+>   is also extremely unstable on SMP).
+> 
+>   It's not just that it has big variance - you can't just average out many 
+>   runs. It has very "modal" operation, making averages meaningless. 
+> 
+>   A trivial thing that would work for most cases is just a simple (change 
+>   the "1" to whatever CPU-mask you want for some case)
+> 
+> 	long affinity = 1;	/* bitmask: CPU0 only */
+> 	sched_setaffinity(0, sizeof(long), &affinity);
+> 
+>   but I don't know what other OS's do, so it's obviously not portable ]
+> 
+> Hmm?
+> 
+> 			Linus
+> _______________________________________________
+> Lmbench-users mailing list
+> Lmbench-users@bitmover.com
+> http://bitmover.com/mailman/listinfo/lmbench-users
 
-Does this resume to :
-I want my company to be in control. And nobody else please, because i do not
-trust them.
-Who would you want in this security board ? No hackers i believe they have no
-incentive to shut the *** up, they do not care about money or their buisness or
-who knows why.
-
-So you want :
-a/ everyboddy is wrong, we cannot understand,
-b/ crackers "are too lazy in many cases to read the high-level hacker boards"
-c/ "How can i have fix without ever having a hole ?".
-Close your eyes and believe, that s the only way to achieved absolute safety.
-I am not kidding, billions of people does this, it seems efficient (only few
-dies by accident).
-d/ the world is mad , nobody cares about security except who we are in charge
-(and have no power in the politics).
-e/ i don t care who does the job but i want my god damn system to have no holes.
-
-Sorry for this rude analysis . I assume you want :
-1/ a way to be alerted of the security hole of your application stack , and
-those only.
-2/ fix before the script kiddies.
-
-For one the fix is quite easy, it is a matter of getting security alerts in an
-easy way (maybe newsletter are getting old, what about a web as amazon does for
-stuff) and a filter on your application stack.
-
-For two, nobody can help. Script kiddies does not even read tech lists. They do
-not make the scripts. Those who made them usually don't just read ML, they read
-source, even binaries.
-And those who make a living of cracking usually do not tell anybody. No CERT
-alert. The only hope is easy to read code, audit.
-
->And they are the real problem, because there 
-> are so MANY of them, and they tend to do slash and burn stuff, wipe out 
-> your files, steal your identity, and other things you have to notice. 
-i bet you don't know what script kiddies is all about , those who want to stole
-your identity does not fit there (neither XSS, pishing nor script kiddies
- relate to kernel devel in most case).
-
-Afaik the problem discussed in this thread was not about customer as you and I
-to be alerted but upstream to have the patch at the same time. And maybe for the
-distribution to share patches faster.
-
-About politics:
-> With no disrespect, I don't believe you have ever been a full-time 
-> employee system administrator for any commercial or government 
-> organization, and I don't believe you have any experience trying to do 
-> security
-
-followed by :
-> I think you are still missing the point, I don't care if a security firm 
-> reads mailing lists or tea leaves, does research or just knows where to 
-> find it, they are paid to do it and if they do it well and report the 
-> problems which apply to me and the source of the fixes they keep me from 
-> missing something and at the same time save me time.
-
-been there done that. You cannot master security, be the sole administrator and
-deal with internal company politics (and maybe provide scripts, macros and
-documentation if time permits). This has nothing to do with the way the kernel
-deal with security alerts. We are not only paid to secure everything and admin.
-But to make choices and the right ones as ressources are limited.
-
-
-You could look for debian kernel , you have fixes backported , so you do not
-have to worry about a new feature breaking an app or an ABI change.
-All server distributions does it. Most distributions also alert their users
-about those security hole you should be warned about. Just subscribe to their
-security ML.
-
-About us as users of binaries, those problems are already resolved by 
-distribution security teams. 
-
-Cheers
-Alban
-
+-- 
+---
+Larry McVoy                lm at bitmover.com           http://www.bitkeeper.com

@@ -1,46 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267447AbTBLS2b>; Wed, 12 Feb 2003 13:28:31 -0500
+	id <S267468AbTBLSaP>; Wed, 12 Feb 2003 13:30:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267454AbTBLS2a>; Wed, 12 Feb 2003 13:28:30 -0500
-Received: from phoenix.mvhi.com ([195.224.96.167]:34833 "EHLO
+	id <S267487AbTBLSaP>; Wed, 12 Feb 2003 13:30:15 -0500
+Received: from carisma.slowglass.com ([195.224.96.167]:36113 "EHLO
 	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S267447AbTBLS2a>; Wed, 12 Feb 2003 13:28:30 -0500
-Date: Wed, 12 Feb 2003 18:38:12 +0000
-From: "'Christoph Hellwig'" <hch@infradead.org>
-To: magniett <Frederic.Magniette@lri.fr>
-Cc: "Makan Pourzandi (LMC)" <Makan.Pourzandi@ericsson.ca>,
-       "'Christoph Hellwig'" <hch@infradead.org>,
-       "Stephen D. Smalley" <sds@epoch.ncsc.mil>, greg@kroah.com,
-       torvalds@transmeta.com, linux-security-module@wirex.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCH] LSM changes for 2.5.59
-Message-ID: <20030212183812.A14810@infradead.org>
-Mail-Followup-To: 'Christoph Hellwig' <hch@infradead.org>,
-	magniett <Frederic.Magniette@lri.fr>,
-	"Makan Pourzandi (LMC)" <Makan.Pourzandi@ericsson.ca>,
-	"Stephen D. Smalley" <sds@epoch.ncsc.mil>, greg@kroah.com,
-	torvalds@transmeta.com, linux-security-module@wirex.com,
-	linux-kernel@vger.kernel.org
-References: <7B2A7784F4B7F0409947481F3F3FEF8305CC954F@eammlex037.lmc.ericsson.se> <3E4A9C4D.F580576E@lri.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3E4A9C4D.F580576E@lri.fr>; from Frederic.Magniette@lri.fr on Wed, Feb 12, 2003 at 07:11:09PM +0000
+	id <S267468AbTBLSaO>; Wed, 12 Feb 2003 13:30:14 -0500
+Date: Wed, 12 Feb 2003 18:40:01 +0000 (GMT)
+From: James Simmons <jsimmons@infradead.org>
+To: Rick Warner <rick@sapphire.no-ip.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: support for dual independent keyboards in devel kernel?
+In-Reply-To: <200301251714.07510.rick@sapphire.no-ip.com>
+Message-ID: <Pine.LNX.4.44.0302121833480.31435-100000@phoenix.infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[argg, any chance you two could get RFC-complaint mailers?]
 
-On Wed, Feb 12, 2003 at 07:11:09PM +0000, magniett wrote:
-> exist. For finishing : PLEASE, stop reducing LSM possibilities : it cost a lot to develop things for a hook and then
-> redevelopping it for a classical syscall interposition.
+> I have been doing some research on running 2 independent displays off of 1 
+> machine (ie 2 keyboards, 2 mice, 2 vid cards, 2 monitors).. there are some 
+> hacks out there now that "sort of" work.... but nothing stable and official.. 
+> it's all hacks....   I have read that support for this is planned for 
+> 2.5/2.6, and would like to know what progress has been done.  I am willing to 
+> help where I can.  I am a good C/C++ programmer, but have not done any kernel 
+> work so far.
 
-There's no one taking away the LSM patches.  Anyway life would be a lot
-simpler if you actually announced the stuff you do on lkml instead of hiding
-behind the moon.  The only chance hook you need will stay is that you
-discuss them publically here.
-
-Where's the pointer to your code?
+   You are talking about the linuxconsole project. Yes with alot of work 
+we got a multi-desktop system working. We even got several X servers with 
+several patches running on different desktops even tho they where working 
+out of one box. The main problem with this research was the console system 
+level of code was intertwine in each input and display driver. In 2.5.X 
+you see the moving of the console keyboards etc to the input api which can 
+function indepenedent of the console layer. You also had the same effect 
+with the new framebuffer layer. This was done to make driver writing easy 
+and to help the embedded space as well as prepare for the future 
+multi-desktop of linux. 
+   What has not been done is true multi-desktop support. I like to work on 
+this in the future but due to recent events in my life I have to abandon 
+such research :-(
 

@@ -1,62 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317994AbSGYAFQ>; Wed, 24 Jul 2002 20:05:16 -0400
+	id <S318098AbSGYAHQ>; Wed, 24 Jul 2002 20:07:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318049AbSGYAFQ>; Wed, 24 Jul 2002 20:05:16 -0400
-Received: from the-penguin.otak.com ([216.122.56.136]:4736 "EHLO
-	the-penguin.otak.com") by vger.kernel.org with ESMTP
-	id <S317994AbSGYAFN>; Wed, 24 Jul 2002 20:05:13 -0400
-Date: Wed, 24 Jul 2002 17:08:22 -0700
-From: Lawrence Walton <lawrence@the-penguin.otak.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: CMIPCI
-Message-ID: <20020725000822.GA855@the-penguin.otak.com>
-References: <20020724220223.GA761@the-penguin.otak.com> <ahna16$akn$1@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ahna16$akn$1@penguin.transmeta.com>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.5.24 on an i686
+	id <S318105AbSGYAHQ>; Wed, 24 Jul 2002 20:07:16 -0400
+Received: from durandal.simons-rock.edu ([64.210.108.44]:51427 "HELO
+	durandal.simons-rock.edu") by vger.kernel.org with SMTP
+	id <S318098AbSGYAHP>; Wed, 24 Jul 2002 20:07:15 -0400
+Date: Wed, 24 Jul 2002 20:10:28 -0400 (EDT)
+From: Marshal Newrock <marshal@simons-rock.edu>
+To: linux-kernel@vger.kernel.org
+Subject: HTP372 on K7RA-RAID / kernel 2.4.19rc3
+Message-ID: <Pine.LNX.4.44.0207241953240.16813-100000@minerva.simons-rock.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds [torvalds@transmeta.com] wrote:
-> In article <20020724220223.GA761@the-penguin.otak.com>,
-> Lawrence Walton  <lawrence@the-penguin.otak.com> wrote:
-> >Looks like CMIPCI does not compile right now.
-> 
-> For "'synchronize_irq()' used without args", you only need to add the
-> irq number as the argument, and it should work. Please test to verify,
-> and send in a patch..
-> 
-> 		Linus
+HPT372 IDE RAID chip on an Abit K7RA-RAID
+running a freshly installed Gentoo (has gcc-2.95)
+kernel 2.4.19rc3, using devfs.
+Western Digital 40GB ATA100 drive on /dev/hde, one partition, ext2
+filesystem.
 
-Here it is my first LK patch.
-tested even. :)
+The system has no problem recognizing the HPT372, and can see the drive
+and partitions.  I can generally mount it (mount /dev/hde1 /mnt), and 'ls
+/mnt' lists the directories.  'ls -l /mnt' will give an 'input/output
+error' for each directory.  Sometimes the ls or mount will hang, and I
+have to kill the login from another shell.
 
+Right now, I have the drive connected as /dev/hdc (replacing the CD
+drives), and working fine.
 
---- cmipci.c.orig	2002-07-24 17:01:44.000000000 -0700
-+++ cmipci.c	2002-07-24 17:02:43.000000000 -0700
-@@ -2479,7 +2479,7 @@
- 		/* reset mixer */
- 		snd_cmipci_mixer_write(cm, 0, 0);
- 
--		synchronize_irq();
-+		synchronize_irq(dev->irq);
- 
- 		free_irq(cm->irq, (void *)cm);
- 	}
+I'm sure more info is needed, so tell me what you want me to do to help
+troubleshoot this.  Please reply to me off-list as I am not subscribed.
 
-
+Thanx.  :)
 
 -- 
-*--* Mail: lawrence@otak.com
-*--* Voice: 425.739.4247
-*--* Fax: 425.827.9577
-*--* HTTP://www.otak-k.com/~lawrence/
---------------------------------------
-- - - - - - O t a k  i n c . - - - - - 
-
+Marshal Newrock, Simon's Rock College of Bard
+Caution: product may be hot after heating
 

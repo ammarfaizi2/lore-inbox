@@ -1,51 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262937AbTH1Buo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Aug 2003 21:50:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263415AbTH1Buo
+	id S263415AbTH1CEj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Aug 2003 22:04:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263450AbTH1CEi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Aug 2003 21:50:44 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:25222 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S262937AbTH1Bun
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Aug 2003 21:50:43 -0400
-Date: Thu, 28 Aug 2003 02:50:27 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Timo Sirainen <tss@iki.fi>
-Cc: root@chaos.analogic.com, Martin Konold <martin.konold@erfrakon.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Lockless file reading
-Message-ID: <20030828015027.GA4715@mail.jlokier.co.uk>
-References: <Pine.LNX.4.53.0308270925550.278@chaos> <A43789CE-D89E-11D7-9D97-000393CC2E90@iki.fi> <20030827233903.GB3759@mail.jlokier.co.uk> <1062031942.1454.147.camel@hurina>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 27 Aug 2003 22:04:38 -0400
+Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:25323
+	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
+	id S263415AbTH1CEh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Aug 2003 22:04:37 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.0-test4-mm1 - kswap hogs cpu OO takes ages to start!
+Date: Thu, 28 Aug 2003 12:11:43 +1000
+User-Agent: KMail/1.5.3
+Cc: warudkar@vsnl.net, linux-kernel@vger.kernel.org
+References: <200308272138.h7RLciK29987@webmail2.vsnl.net> <200308272137.42632.kernel@kolivas.org> <20030827125310.15ebf8f9.akpm@osdl.org>
+In-Reply-To: <20030827125310.15ebf8f9.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1062031942.1454.147.camel@hurina>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200308281211.43945.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Timo Sirainen wrote:
-> 	checksum[0]++;
-> 	xor = buf[0] ^ checksum[0];
+On Thu, 28 Aug 2003 05:53, Andrew Morton wrote:
+> Con Kolivas <kernel@kolivas.org> wrote:
+> > On Thu, 28 Aug 2003 07:38, warudkar@vsnl.net wrote:
+> > > Trying out 2.6.0-test4-mm1. Inside KDE, I start OpenOffice.org,
+> > > Rational Rose and Konsole at a time. All of these take extremely long
+> > > time to startup. (approx > 5 minutes). Kswapd hogs the CPU all the
+> > > time. X becomes unusable till all of them startup, although I can
+> > > telnet and run top. Same thing run under 2.4.18 starts up in 3 minutes,
+> > > X stays usable and kswapd never take more than 2% CPU.
+> >
+> > Yes I can reproduce this with a memory heavy load as well on low memory
+> > (linking at the end of a big kernel compile is standard problem).
+>
+> It could be that recent changes to page reclaim which improve I/O
+> scheduling have exacerbated this.
+>
+> Does this make a difference?
 
-Your algorithm isn't going to work if the new value of xor is the same
-as the old value of xor.
+Tried it. No change. 
 
-> 	do {
-> 		memcpy(copy, buf, size*2);
-> 	} while (!verify(copy, size));
-> 	memcpy(data, copy, size);
+kswapd0 can hit 90% cpu at times unless the swappiness is increased.
 
-It isn't safe because the memcpy() can read writes done on another
-processor out of order, and xor does not always change.
+Con
 
-You can read some of the newly written bytes in both the buf[] and
-checksum[] halves of the buffer, while reading some of the previous
-bytes in each half.  If the set of new bytes in the first half matches
-the set in the second half well enough (i.e. the two sets match for
-bytes which aredifferent between the old and new data blocks), and the
-xor values are the same between the old and new data blocks, then your
-test will accept a mix of old and new data bytes.
-
--- Jamie

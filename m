@@ -1,44 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293143AbSCEBks>; Mon, 4 Mar 2002 20:40:48 -0500
+	id <S293148AbSCEBmk>; Mon, 4 Mar 2002 20:42:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293148AbSCEBkj>; Mon, 4 Mar 2002 20:40:39 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:5902 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S293143AbSCEBkf>; Mon, 4 Mar 2002 20:40:35 -0500
-Subject: Re: [PATCH] 2.5: preemptive kernel on UP
-To: rml@tech9.net (Robert Love)
-Date: Tue, 5 Mar 2002 01:55:05 +0000 (GMT)
-Cc: rmk@arm.linux.org.uk (Russell King), linux-kernel@vger.kernel.org
-In-Reply-To: <1015289912.882.45.camel@phantasy> from "Robert Love" at Mar 04, 2002 07:58:31 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S293152AbSCEBma>; Mon, 4 Mar 2002 20:42:30 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:20841 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S293148AbSCEBmV>; Mon, 4 Mar 2002 20:42:21 -0500
+Date: Tue, 5 Mar 2002 02:40:46 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        Bill Davidsen <davidsen@tmr.com>, Mike Fedyk <mfedyk@matchmail.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19pre1aa1
+Message-ID: <20020305024046.Y20606@dualathlon.random>
+In-Reply-To: <20020305020546.W20606@dualathlon.random> <Pine.LNX.4.44L.0203042225340.2181-100000@imladris.surriel.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16i4AT-0001Rq-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44L.0203042225340.2181-100000@imladris.surriel.com>
+User-Agent: Mutt/1.3.22.1i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Better?
+On Mon, Mar 04, 2002 at 10:26:30PM -0300, Rik van Riel wrote:
+> On Tue, 5 Mar 2002, Andrea Arcangeli wrote:
+> > On Mon, Mar 04, 2002 at 09:01:31PM -0300, Rik van Riel wrote:
+> > > This could be expressed as:
+> > >
+> > > "node A"  HIGHMEM A -> HIGHMEM B -> NORMAL -> DMA
+> > > "node B"  HIGHMEM B -> HIGHMEM A -> NORMAL -> DMA
+> >
+> > Highmem? Let's assume you speak about "normal" and "dma" only of course.
+> >
+> > And that's not always the right zonelist layout. If an allocation asks for
+> > ram from a certain node, like during the ram bindings, we should use the
+> > current layout of the numa zonelist. If node A is the preferred, than we
+> > should allocate from node A first,
+> 
+> You're forgetting about the fact that this NUMA box only
 
-Not really
+the example you made doesn't have highmem at all.
 
-> +#if CONFIG_SMP || CONFIG_PREEMPT
+> has 1 ZONE_NORMAL and 1 ZONE_DMA while it has multiple
+> HIGHMEM zones...
 
-#if [expression]
+it has multiple zone normal and only one zone dma. I'm not forgetting
+that.
 
-try
+> This makes the fallback pattern somewhat more complex.
 
-#if defined(a) || defined(b)
+it's not more complex than the current way, it's just different and it's
+not strict, but it's the best one for allocations that doesn't "prefer"
+memory from a certain node, but OTOH we don't have an API to define
+'waek' or 'strict' allocation bheaviour so the default would better be
+the 'strict' one like in oldnuma. Infact in the future we may want to
+have also a way to define a "very strict" allocation, that means it
+won't fallback into the other nodes at all, even if there's plenty of
+memory free on them.  An API needs to be built with some bitflag
+specifying the "strength" of the numa affinity required. Your layout
+provides the 'weakest' approch, that is perfectly fine for some kind of
+non-numa-aware allocations, just like "very strict" will be necessary
+for the relocation bindings (if we cannot relocate in the right node
+there's no point to relocate in another node, let's ingore complex
+topologies for now :).
 
-Interesting that the difference pre-empt makes is so large you didnt notice
-you hadn't re-enabled it ;)
-
-Alan
---
-   "Nothing would please me more than being able to hire ten programmers 
-      and deluge the hobby market with good software." -- Bill Gates 1976
-
-   We are still waiting ....
-
+Andrea

@@ -1,34 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135599AbRALX0c>; Fri, 12 Jan 2001 18:26:32 -0500
+	id <S135594AbRALXd4>; Fri, 12 Jan 2001 18:33:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135619AbRALX0W>; Fri, 12 Jan 2001 18:26:22 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:38917 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S135599AbRALX0N>; Fri, 12 Jan 2001 18:26:13 -0500
-Subject: Re: QUESTION: Network hangs with BP6 and 2.4.x kernels, hardware
-To: torvalds@transmeta.com (Linus Torvalds)
-Date: Fri, 12 Jan 2001 23:27:28 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <93nich$1uq$1@penguin.transmeta.com> from "Linus Torvalds" at Jan 12, 2001 10:28:33 AM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14HDbX-0005E0-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S135619AbRALXdp>; Fri, 12 Jan 2001 18:33:45 -0500
+Received: from c837140-a.vncvr1.wa.home.com ([65.0.81.146]:49167 "EHLO
+	cyclonehq.dnsalias.net") by vger.kernel.org with ESMTP
+	id <S135594AbRALXdj>; Fri, 12 Jan 2001 18:33:39 -0500
+Message-Id: <5.0.2.1.0.20010112153102.021f34e8@10.0.0.254>
+X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
+Date: Fri, 12 Jan 2001 15:32:57 -0800
+To: linux-kernel@vger.kernel.org
+From: Dan B <db@cyclonehq.dnsalias.net>
+Subject: Re: [eepro100] Ok, I'm fed up now
+In-Reply-To: <20010111141435.C12616@valinux.com>
+In-Reply-To: <LAW2-F8403oHMwVN7mi0000e9c6@hotmail.com>
+ <LAW2-F8403oHMwVN7mi0000e9c6@hotmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> interrupt controllers (io-apic definitely included).  Drivers would
-> generally be better off if they disabled their own chip from sending
-> interrupts, rather than disabling the interrupt line the chip is on. 
+Has anyone gotten Intel's (non-GPL) e100 driver working in 2.4.x yet?  What 
+about their e100-ANS driver that supports FEC 800mbps?
 
-That doesn't work very well because the device irq can arrive a measurable
-number of clocks after you disable it on the source and there is no way to
-say 'and be sure the stupid thing has propogated the apic bus'
+Dan Browning, Cyclone Computer Systems, 
+danb@cyclone.computers.coZZZZZZZZZZZZZZm
 
-Alan
+At 02:14 PM 1/11/2001 -0800, you wrote:
+>On Tue, Jan 09, 2001, Kambo Lohan <kambo77@hotmail.com> wrote:
+>; I am having the same problems, I have duplicated the hard lockups / 
+>ethernet
+>; hangs on two intel 815EE boards.  It happens when send traffic through the
+>; onboard eepro100 is high, and sometimes running something like vmstat 1 in
+>; the background triggers the lockup faster.  When it locks up there is
+>; nothing in the log, no oops or anything.  Sometimes it just hangs eth0 with
+>; the (cmd timeout) msgs and an ifconfig down/up fixes it temporarily.
+>;
+>
+>
+>Kambo,
+>
+>can you run the driver with a high debug flag and log what is going on,
+>make sure you have alot of space since it talks alot.
+>
+>The card seems to be locking up with a couple of commands in the register that
+>are not known to me, my specs don't list them, hopefully the new specs talk
+>about it. At this time it's not known where the command comes from, I am
+>working on a patch that will tell a bit more about that...
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

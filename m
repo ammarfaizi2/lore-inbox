@@ -1,196 +1,221 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267199AbUBMU57 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 15:57:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267191AbUBMU56
+	id S267214AbUBMVIF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 16:08:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267217AbUBMVIF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 15:57:58 -0500
-Received: from MAIL.13thfloor.at ([212.16.62.51]:7567 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S267199AbUBMU5p (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 15:57:45 -0500
-Date: Fri, 13 Feb 2004 21:57:43 +0100
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: linux-kernel@vger.kernel.org
-Cc: linux-gcc@vger.kernel.org
-Subject: Kernel Cross Compiling
-Message-ID: <20040213205743.GA30245@MAIL.13thfloor.at>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	linux-gcc@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Fri, 13 Feb 2004 16:08:05 -0500
+Received: from intra.cyclades.com ([64.186.161.6]:42438 "EHLO
+	intra.cyclades.com") by vger.kernel.org with ESMTP id S267214AbUBMVHJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Feb 2004 16:07:09 -0500
+Date: Fri, 13 Feb 2004 18:50:02 -0200 (BRST)
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+X-X-Sender: marcelo@logos.cnet
+To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Ralf Baechle <ralf@linux-mips.org>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] 2.4: Problems with dead code/data with gcc 3.4
+In-Reply-To: <Pine.LNX.4.55.0402121613510.22119@jurand.ds.pg.gda.pl>
+Message-ID: <Pine.LNX.4.58L.0402131848050.6713@logos.cnet>
+References: <Pine.LNX.4.55.0402121613510.22119@jurand.ds.pg.gda.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Cyclades-MailScanner-Information: Please contact the ISP for more information
+X-Cyclades-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi Folks!
 
-I'm currently investigating the requirements/doability
-of a kernel cross compiling test bed/setup, able to do
-automated kernel builds for different architecture,
-just to see if it compiles and later to verify if a 
-given patch breaks that compile on any of the tested
-archs ...
+On Thu, 12 Feb 2004, Maciej W. Rozycki wrote:
 
-here a short status, and some issues I ran into so far,
-some of them with solutions, others without, and some
-interesting? observations ...
+> Hello,
+>
+>  After upgrading gcc to 3.4 I've discovered the compiler is now more
+> serious about discarding dead code or data.  As a result parts of the
+> kernel that appear unused, such as the ".setup.init" or ".modinfo"
+> sections, get removed, and the "unused" attribute only masks the problem
+> by quieting warnings.  However, gcc currently provides another attribute,
+> "used", that instead of removing warnings, actually tells the compiler
+> that whatever it's attached to is indeed used, perhaps in a way that
+> cannot be observed by the compiler.  There's code in init/main.c that
+> assumes a non-empty ".setup.init" section and failing that leads to
+> unpredictable behavior (it just hangs for me on a MIPSel/Linux box).
+>
+>  Here's a patch that makes the kernel work for me for i386/Linux.  It's
+> based on similar changes that are already present in 2.6 and leaves the
+> setup as is for gcc versions before 3.3 and using the new attribute for
+> newer versions, by defining an "__attribute_used__" macro appropriately.
+>
+>  Marcelo, would consider such a change for past 2.4.25?
+>
+>  Ralf, for MIPS/Linux the change is insufficient -- due to fragile
+> constructs in arch/mips/kernel/syscall.c some code is removed, but using
+> the "used" attribute does not help.  While the code is back again, it's
+> reordered compared to what's emitted by older compilers and it's enough to
+> stop it working.  I'm currently investigating a solution, or have you
+> perhaps looked at the problem already?  It's there for 2.6 as well.
 
-I would be happy if somebody who has done similar, or
-knows how to do it properly ;) could comment on that,
-and/or point out possible improvements ...
+Hi Maciej,
 
-TIA,
-Herbert
+For me your patch looks alright to be included in 2.4.26-pre.
 
+Please resend me it when .26 gets started.
 
-1) CROSS COMPILER / TOOLCHAIN
+Thanks!
 
-   after reading and testing several cross build and
-   toolchain building howtos, I decided to do it a little 
-   different, because I do not need glibc to compile the 
-   kernel ...
-
-   the result are two .spec files[1], or the commands 
-   used to build an appropriate toolchain ...
-   
-   for the binutils the required commands are:
-
-   	configure  	    	    	    	    	\
-		--disable-nls                           \
-		--prefix=/usr                           \
-		--mandir=/usr/share/man                 \
-		--infodir=/usr/share/info               \
-		--target=${CROSS_ARCH}-linux
-   	make
-   
-   and for the gcc (after the binutils have been
-   installed on the host):
-
-   	configure  	    	    	    	    	\
-		--enable-languages=c			\
-        	--disable-nls                           \
-		--disable-threads			\
-		--disable-shared			\
-		--disable-checking			\
-        	--prefix=/usr                           \
-        	--mandir=/usr/share/man                 \
-        	--infodir=/usr/share/info               \
-        	--target=${CROSS_ARCH}-linux
-   	make  TARGET_LIBGCC2_CFLAGS='-Dinhibit_libc  \
-		-D__gthr_posix_h'
-   
-   where ${CROSS_ARCH} is the target architecture you want
-   to compile the toochain for, in my case, this where one
-   of the following:
-
-   	alpha, hppa, hppa64, i386, ia64, m68k, mips, 
-	mips64, ppc, ppc64, s390, sparc, sparc64, x86_64
-
-  PROBLEMS HERE:
-
-   I decided to use binutils 2.14.90.0.8, and gcc 3.3.2,
-   but soon discovered that gcc-3.3.2 will not be able 
-   to build a cross compiler for some archs like the
-   alpha, ia64, powerpc and even i386 ;) without some
-   modifications[2] but with some help, I got all headers
-   fixed, except for the ia64, which still doesn't work
-
-
-2) KERNEL CROSS COMPILING
-
-   equipped with the cross compiling toolchains for all
-   but one of the architectures mentioned above, I wrote
-   a little script, which basically does nothing else 
-   but compiling a given kernel for all possible archs.
-
-   basically this can be accomplished by doing:
-
-	make ARCH=<arch> CROSS_COMPILE=<arch>-linux-
-
-
-   the first result was harrowing:
-
-				2.4.25-pre  2.6.2-rc
-   ----------------------------------------------------
-	[ARCH alpha/alpha]      succeeded.  succeeded.
-	[ARCH hppa/parisc]      failed.     failed.
-	[ARCH hppa64/parisc]    failed.     failed.
-	[ARCH i386/i386]        succeeded.  succeeded.
-	[ARCH m68k/m68k]        failed.     failed.
-	[ARCH mips/mips]        failed.     failed.
-	[ARCH mips64/mips]      failed.     failed.
-	[ARCH ppc/ppc]          succeeded.  succeeded.
-	[ARCH ppc64/ppc64]      failed.     failed.
-	[ARCH s390/s390]        failed.     failed.
-	[ARCH sparc/sparc]      failed.     succeeded.
-	[ARCH sparc64/sparc]    failed.     failed.
-	[ARCH x86_64/x86_64]    failed.     succeeded.
-
-   so only alpha, i386 and ppc did work on the first run.
-
-   what I discovered was, that there IS a big difference
-   between an empty .config file and a non exististing 
-   one, where latter allowed the make oldconfig to work
-   similar to the make defaultconfig available on 2.6,
-   and added some archs (see [3] for details)
-
-  PROBLEMS & SOLUTIONS HERE:
-
-   ppc64: 
-	CROSS32_COMPILE=ppc-linux-  
-	is needed to make this work as expected.
-
-   hppa/hppa64: 
-	seems not to compile without using a very big
-	patch, which changes a lot inside the kernel
-
-   mips/mips64:
-	seem to use the 'obsoleted' -mcpu= option
-	which results in a cc1: error: invalid option 
-	`cpu=<cpu-here>'
-
-   m68k:
-	fails with a hundred errors in the includes
-
-
-3) CONCLUSIONS
-
-   it seems that recent kernels (2.4 and 2.6) do not support
-   most of the architectures they contain without heavy
-   patching (haven't tested for arm, sh3/4, ...)
-
-   building cross compiler toolchains isn't that often done
-   otherwise it would not require such modifications, and
-   the documentation would be up to date ...
-
-   it seems that with some minor patches and kernel tweaks
-   an automated build is in reach, although some archs seem
-   to break from one release to the other ...
-
-   the non mainline branches, if they exist are some kernel
-   versions behind the current mainstream kernel, which 
-   might not mean anything ...
-
-
-4) LINKS & REFERENCES
-
-   [1]	http://vserver.13thfloor.at/Stuff/Cross/binutils-cross.spec
-	http://vserver.13thfloor.at/Stuff/Cross/gcc-cross.spec
-
-   [2]  http://vserver.13thfloor.at/Stuff/Cross/
-		gcc-3.3.2-cross-alpha-fix.diff.bz2
-		gcc-3.3.2-cross-i386-fix.diff.bz2
-		gcc-3.3.2-cross-ia64-fix.diff.bz2
-		gcc-3.3.2-cross-powerpc-fix.diff.bz2
-
-   [3]  http://vserver.13thfloor.at/Stuff/Cross/compile.info
-
-   ia64:	http://www.gelato.unsw.edu.au/kerncomp/
-   mips:	http://www.linux-mips.org/kernel.html
-   hppa:	http://www.parisc-linux.org/kernel/index.html
-   ppc64:	http://linuxppc64.org/
-   	
-
+> patch-2.4.24-gcc3-0.1
+> diff -up --recursive --new-file linux-2.4.24.macro/include/linux/compiler.h linux-2.4.24/include/linux/compiler.h
+> --- linux-2.4.24.macro/include/linux/compiler.h	2001-09-18 14:12:45.000000000 +0000
+> +++ linux-2.4.24/include/linux/compiler.h	2004-02-12 14:57:06.000000000 +0000
+> @@ -13,4 +13,10 @@
+>  #define likely(x)	__builtin_expect((x),1)
+>  #define unlikely(x)	__builtin_expect((x),0)
+>
+> +#if __GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 3)
+> +#define __attribute_used__	__attribute__((__used__))
+> +#else
+> +#define __attribute_used__	__attribute__((__unused__))
+> +#endif
+> +
+>  #endif /* __LINUX_COMPILER_H */
+> diff -up --recursive --new-file linux-2.4.24.macro/include/linux/init.h linux-2.4.24/include/linux/init.h
+> --- linux-2.4.24.macro/include/linux/init.h	2004-02-12 12:48:26.000000000 +0000
+> +++ linux-2.4.24/include/linux/init.h	2004-02-12 14:57:06.000000000 +0000
+> @@ -2,6 +2,7 @@
+>  #define _LINUX_INIT_H
+>
+>  #include <linux/config.h>
+> +#include <linux/compiler.h>
+>
+>  /* These macros are used to mark some functions or
+>   * initialized data (doesn't apply to uninitialized data)
+> @@ -67,7 +68,7 @@ extern struct kernel_param __setup_start
+>
+>  #define __setup(str, fn)								\
+>  	static char __setup_str_##fn[] __initdata = str;				\
+> -	static struct kernel_param __setup_##fn __attribute__((unused)) __initsetup = { __setup_str_##fn, fn }
+> +	static struct kernel_param __setup_##fn __attribute_used__ __initsetup = { __setup_str_##fn, fn }
+>
+>  #endif /* __ASSEMBLY__ */
+>
+> @@ -76,12 +77,12 @@ extern struct kernel_param __setup_start
+>   * or exit time.
+>   */
+>  #define __init		__attribute__ ((__section__ (".text.init")))
+> -#define __exit		__attribute__ ((unused, __section__(".text.exit")))
+> +#define __exit		__attribute_used__ __attribute__ ((__section__ (".text.exit")))
+>  #define __initdata	__attribute__ ((__section__ (".data.init")))
+> -#define __exitdata	__attribute__ ((unused, __section__ (".data.exit")))
+> -#define __initsetup	__attribute__ ((unused,__section__ (".setup.init")))
+> -#define __init_call	__attribute__ ((unused,__section__ (".initcall.init")))
+> -#define __exit_call	__attribute__ ((unused,__section__ (".exitcall.exit")))
+> +#define __exitdata	__attribute_used__ __attribute__ ((__section__ (".data.exit")))
+> +#define __initsetup	__attribute_used__ __attribute__ ((__section__ (".setup.init")))
+> +#define __init_call	__attribute_used__ __attribute__ ((__section__ (".initcall.init")))
+> +#define __exit_call	__attribute_used__ __attribute__ ((__section__ (".exitcall.exit")))
+>
+>  /* For assembly routines */
+>  #define __INIT		.section	".text.init","ax"
+> diff -up --recursive --new-file linux-2.4.24.macro/include/linux/module.h linux-2.4.24/include/linux/module.h
+> --- linux-2.4.24.macro/include/linux/module.h	2004-02-12 13:12:17.000000000 +0000
+> +++ linux-2.4.24/include/linux/module.h	2004-02-12 15:08:00.000000000 +0000
+> @@ -8,6 +8,7 @@
+>  #define _LINUX_MODULE_H
+>
+>  #include <linux/config.h>
+> +#include <linux/compiler.h>
+>  #include <linux/spinlock.h>
+>  #include <linux/list.h>
+>
+> @@ -202,19 +203,22 @@ extern int try_inc_mod_count(struct modu
+>
+>  /* For documentation purposes only.  */
+>
+> -#define MODULE_AUTHOR(name)						   \
+> -const char __module_author[] __attribute__((section(".modinfo"))) = 	   \
+> -"author=" name
+> -
+> -#define MODULE_DESCRIPTION(desc)					   \
+> -const char __module_description[] __attribute__((section(".modinfo"))) =   \
+> -"description=" desc
+> +#define MODULE_AUTHOR(name)						\
+> +const char __module_author[]						\
+> +  __attribute_used__							\
+> +  __attribute__((section(".modinfo"))) = "author=" name
+> +
+> +#define MODULE_DESCRIPTION(desc)					\
+> +const char __module_description[]					\
+> +  __attribute_used__							\
+> +  __attribute__((section(".modinfo"))) = "description=" desc
+>
+>  /* Could potentially be used by kmod...  */
+>
+> -#define MODULE_SUPPORTED_DEVICE(dev)					   \
+> -const char __module_device[] __attribute__((section(".modinfo"))) = 	   \
+> -"device=" dev
+> +#define MODULE_SUPPORTED_DEVICE(dev)					\
+> +const char __module_device[]						\
+> +  __attribute_used__							\
+> +  __attribute__((section(".modinfo"))) = "device=" dev
+>
+>  /* Used to verify parameters given to the module.  The TYPE arg should
+>     be a string in the following format:
+> @@ -229,15 +233,17 @@ const char __module_device[] __attribute
+>  	s	string
+>  */
+>
+> -#define MODULE_PARM(var,type)			\
+> -const char __module_parm_##var[]		\
+> -__attribute__((section(".modinfo"))) =		\
+> -"parm_" __MODULE_STRING(var) "=" type
+> -
+> -#define MODULE_PARM_DESC(var,desc)		\
+> -const char __module_parm_desc_##var[]		\
+> -__attribute__((section(".modinfo"))) =		\
+> -"parm_desc_" __MODULE_STRING(var) "=" desc
+> +#define MODULE_PARM(var,type)						\
+> +const char __module_parm_##var[]					\
+> +  __attribute_used__							\
+> +  __attribute__((section(".modinfo"))) =				\
+> +  "parm_" __MODULE_STRING(var) "=" type
+> +
+> +#define MODULE_PARM_DESC(var,desc)					\
+> +const char __module_parm_desc_##var[]					\
+> +  __attribute_used__							\
+> +  __attribute__((section(".modinfo"))) =				\
+> +  "parm_desc_" __MODULE_STRING(var) "=" desc
+>
+>  /*
+>   * MODULE_DEVICE_TABLE exports information about devices
+> @@ -283,9 +289,10 @@ static const struct gtype##_id * __modul
+>   * 3.	So vendors can do likewise based on their own policies
+>   */
+>
+> -#define MODULE_LICENSE(license) 	\
+> -static const char __module_license[] __attribute__((section(".modinfo"))) =   \
+> -"license=" license
+> +#define MODULE_LICENSE(license) 					\
+> +static const char __module_license[]					\
+> +  __attribute_used__							\
+> +  __attribute__((section(".modinfo"))) = "license=" license
+>
+>  /* Define the module variable, and usage macros.  */
+>  extern struct module __this_module;
+> @@ -296,11 +303,11 @@ extern struct module __this_module;
+>  #define MOD_IN_USE		__MOD_IN_USE(THIS_MODULE)
+>
+>  #include <linux/version.h>
+> -static const char __module_kernel_version[] __attribute__((section(".modinfo"))) =
+> -"kernel_version=" UTS_RELEASE;
+> +static const char __module_kernel_version[] __attribute_used__
+> +	__attribute__((section(".modinfo"))) = "kernel_version=" UTS_RELEASE;
+>  #ifdef MODVERSIONS
+> -static const char __module_using_checksums[] __attribute__((section(".modinfo"))) =
+> -"using_checksums=1";
+> +static const char __module_using_checksums[] __attribute_used__
+> +	__attribute__((section(".modinfo"))) = "using_checksums=1";
+>  #endif
+>
+>  #else /* MODULE */

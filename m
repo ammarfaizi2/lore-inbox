@@ -1,50 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265753AbSJTDnW>; Sat, 19 Oct 2002 23:43:22 -0400
+	id <S265758AbSJTEO4>; Sun, 20 Oct 2002 00:14:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265755AbSJTDnW>; Sat, 19 Oct 2002 23:43:22 -0400
-Received: from ns.suse.de ([213.95.15.193]:20490 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S265753AbSJTDnV>;
-	Sat, 19 Oct 2002 23:43:21 -0400
-Date: Sun, 20 Oct 2002 05:49:25 +0200
-From: Andi Kleen <ak@suse.de>
-To: Jim Houston <jim.houston@attbi.com>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: POSIX clocks & timers - more choices
-Message-ID: <20021020054924.A30135@wotan.suse.de>
-References: <200210190252.g9J2quf16153@linux.local.suse.lists.linux.kernel> <p73r8ennltj.fsf@oldwotan.suse.de> <3DB0FE5B.5BAA2BDB@attbi.com>
+	id <S265760AbSJTEO4>; Sun, 20 Oct 2002 00:14:56 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:9176 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S265758AbSJTEO4>;
+	Sun, 20 Oct 2002 00:14:56 -0400
+Date: Sat, 19 Oct 2002 21:13:07 -0700 (PDT)
+Message-Id: <20021019.211307.00017347.davem@redhat.com>
+To: acme@conectiva.com.br
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ipv4: only produce one record in fib_seq_show
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20021020010331.GB15254@conectiva.com.br>
+References: <20021020000943.GL14009@conectiva.com.br>
+	<20021019.173806.111570656.davem@redhat.com>
+	<20021020010331.GB15254@conectiva.com.br>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3DB0FE5B.5BAA2BDB@attbi.com>
-User-Agent: Mutt/1.3.22.1i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 19, 2002 at 02:40:27AM -0400, Jim Houston wrote:
-> > > +{
-> > > +     if (p->ary[bit] && p->ary[bit]->bitmap == (typeof(p->bitmap))-1)
-> > 
-> > Without bitfield this would look much less weird.
-> > 
-> > I would recommend using the bitops.h primitives for such stuff anyways.
-> 
-> I will.  This does look wierd, is this my code?
+   From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+   Date: Sat, 19 Oct 2002 22:03:31 -0300
+   
+   We'll, if everybody stopped using net-tools and started using iproute2 the
+   world would be a better place
 
-The typeof() cast looks weird. I had to think twice to make sense of it.
+'iproute2' would need to be able to obtain things, such as
+the snmp statistics, some other way.  Currently /proc/net/snmp
+is the only place these values are provided.
 
-> Good point.  It looks like  find_task_by_pid() needs to be protected
-> by a read_lock(&tasklist_lock).  The timers are linked into
-> a list so they will be removed when the process exits.  
-> Any sugestions on a code example that does this right are
-> welcome:-) 
+Ditto for UDP socket listings et al.  Only tcp_diag has moved
+the TCP socket information into the non-proc realm of netlink.
 
-/proc does it by increasing the count in the struct page of the stack
-page of the process. exit() knows about that. Example is somewhere in fs/proc/
-The increase has to be done inside the lock. As always one has to be careful
-with lock ordering.
-
-The standard way is to just hold the read lock of the tasklist.
-
-
--Andi
+If these facilities existed already, I'd agree with you.
+:-)

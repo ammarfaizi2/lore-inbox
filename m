@@ -1,65 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267345AbUJRSmx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265971AbUJRUaI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267345AbUJRSmx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Oct 2004 14:42:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267352AbUJRSjQ
+	id S265971AbUJRUaI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Oct 2004 16:30:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267285AbUJRSnI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Oct 2004 14:39:16 -0400
-Received: from fw.osdl.org ([65.172.181.6]:22144 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267353AbUJRSiI (ORCPT
+	Mon, 18 Oct 2004 14:43:08 -0400
+Received: from vsmtp12.tin.it ([212.216.176.206]:23753 "EHLO vsmtp12.tin.it")
+	by vger.kernel.org with ESMTP id S267424AbUJRSld (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Oct 2004 14:38:08 -0400
-Date: Mon, 18 Oct 2004 11:38:07 -0700
-From: cliff white <cliffw@osdl.org>
-To: linux-kernel@vger.kernel.org
-Cc: torvalds@osdl.org
-Subject: Re: Enough with the ad-hoc naming schemes, please
-Message-Id: <20041018113807.488969ab.cliffw@osdl.org>
-In-Reply-To: <20041018180851.GA28904@waste.org>
-References: <20041018180851.GA28904@waste.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.9; i686-pc-linux-gnu)
+	Mon, 18 Oct 2004 14:41:33 -0400
+Subject: [PATCH] Replace Dprintk with pr_debug from kernel.h - boot.c
+From: Daniele Pizzoni <auouo@tin.it>
+To: Len Brown <len.brown@intel.com>
+Cc: kernel-janitors <kernel-janitors@lists.osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1098128556.3024.58.camel@pdp11.tsho.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 18 Oct 2004 21:43:04 +0200
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 18 Oct 2004 13:08:51 -0500
-Matt Mackall <mpm@selenic.com> wrote:
+Replaced Dprintk with pr_debug from kernel.h
+Compile tested
 
-> Dear Linus,
-> 
-> I can't help but notice you've broken all the tools that rely on a
-> stable naming scheme TWICE in the span of LESS THAN ONE POINT RELEASE.
-> 
-> In both cases, this could have been avoided by using Marcello's 2.4
-> naming scheme. It's very simple: when you think something is "final",
-> you call it a "release candidate" and tag it "-rcX". If it works out,
-> you rename it _unmodified_ and everyone can trust that it hasn't
-> broken again in the interval. If it's not "final" and you're accepting
-> more than bugfixes, you call it a "pre-release" and tag it "-pre".
-> Then developers and testers and automated tools all know what to
-> expect.
+Signed-off-by: Daniele Pizzoni <auouo@tin.it>
 
-Speaking for OSDL's automated testing team, we second this motion. 
-judith
-cliffw
-OSDL
-
-
-> 
-> -- 
-> Mathematics is the supreme nostalgia of our time.
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Index: linux-2.6.9-rc4/arch/i386/kernel/acpi/boot.c
+===================================================================
+--- linux-2.6.9-rc4.orig/arch/i386/kernel/acpi/boot.c	2004-10-18 19:41:13.000000000 +0200
++++ linux-2.6.9-rc4/arch/i386/kernel/acpi/boot.c	2004-10-18 21:20:18.712354096 +0200
+@@ -23,6 +23,8 @@
+  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  */
+ 
++//#define DEBUG // pr_debug
++#include <linux/kernel.h>
+ #include <linux/init.h>
+ #include <linux/config.h>
+ #include <linux/acpi.h>
+@@ -461,7 +463,7 @@ unsigned int acpi_register_gsi(u32 gsi, 
+ 
+ 		if (edge_level == ACPI_LEVEL_SENSITIVE) {
+ 			if ((gsi < 16) && !((1 << gsi) & irq_mask)) {
+-				Dprintk(KERN_DEBUG PREFIX "Setting GSI %u as level-triggered\n", gsi);
++				pr_debug(PREFIX "Setting GSI %u as level-triggered\n", gsi);
+ 				irq_mask |= (1 << gsi);
+ 				eisa_set_level_irq(gsi);
+ 			}
 
 
--- 
-The church is near, but the road is icy.
-The bar is far, but i will walk carefully. - Russian proverb

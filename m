@@ -1,54 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132736AbRDDHzq>; Wed, 4 Apr 2001 03:55:46 -0400
+	id <S132764AbRDDH6q>; Wed, 4 Apr 2001 03:58:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132759AbRDDHzg>; Wed, 4 Apr 2001 03:55:36 -0400
-Received: from chiara.elte.hu ([157.181.150.200]:26124 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S132736AbRDDHz2>;
-	Wed, 4 Apr 2001 03:55:28 -0400
-Date: Wed, 4 Apr 2001 08:53:36 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Fabio Riccardi <fabio@chromium.com>
-Cc: Mike Kravetz <mkravetz@sequent.com>, <frankeh@us.ibm.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: a quest for a better scheduler
-In-Reply-To: <3ACA683A.89D24DED@chromium.com>
-Message-ID: <Pine.LNX.4.30.0104040835470.1708-100000@elte.hu>
+	id <S132762AbRDDH62>; Wed, 4 Apr 2001 03:58:28 -0400
+Received: from mailout05.sul.t-online.com ([194.25.134.82]:29967 "EHLO
+	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S132761AbRDDH6K>; Wed, 4 Apr 2001 03:58:10 -0400
+Message-ID: <3ACAD403.8B3897A4@egu.schule.ulm.de>
+Date: Wed, 04 Apr 2001 09:57:55 +0200
+From: Steffen Moser <moser@egu.schule.ulm.de>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3 i686)
+X-Accept-Language: de, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Thomas Foerster <puckwork@madz.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.3 : Are all 2.4.2-acXX patches included?
+In-Reply-To: <20010404071851Z132758-406+7477@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello Thomas,
 
-On Tue, 3 Apr 2001, Fabio Riccardi wrote:
+Thomas Foerster wrote:
 
-> I've spent my afternoon running some benchmarks to see if MQ patches
-> would degrade performance in the "normal case".
+> i wonder if every ac-XX patch from the 2.4.2 Kernel is included in the new
+> 2.4.3 kernel so that every bug in 2.4.2 has been fixed in 2.4.3 ?
 
-no doubt priority-queue can run almost as fast as the current scheduler.
-What i'm worried about is the restriction of the 'priority' of processes,
-it cannot depend on previous processes (and other 'current state')
-anymore.
+No, I don't think so - they are different trees. 
 
-to so we have two separate issues:
+If you want Alan's latest patches against "2.4.3", you can download:
 
-#1: priority-queue: has the fundamental goodness() design limitation.
+ 
+ftp://ftp.kernel.org/pub/linux/kernel/people/alan/2.4/patch-2.4.3-ac2.bz2
 
-#2: per-CPU-runqueues: changes semantics, makes scheduler less
-    effective due to nonglobal decisions.
+There was also a discussion about this topic some weeks ago - have a
+look at:
 
-about #1: while right now the prev->mm rule appears to be a tiny issue (it
-might not affect performance significantly), but forbidding it by
-hardcoding the assumption into data structures is a limitation of *future*
-goodness() functions. Eg. with the possible emergence of CPU-level
-threading and other, new multiprocessing technologies, this could be a
-*big* mistake.
+  http://boudicca.tux.org/hypermail/linux-kernel/2001week08/0717.html
 
-the Linux scheduler is not designed for the case of 1000 runnable
-processes.
+> Thanx a lot,
+>   Thomas
 
-	Ingo
+HTH!
 
+Best regards,
+Steffen

@@ -1,51 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287464AbSAEClI>; Fri, 4 Jan 2002 21:41:08 -0500
+	id <S287467AbSAECvL>; Fri, 4 Jan 2002 21:51:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287467AbSAECk6>; Fri, 4 Jan 2002 21:40:58 -0500
-Received: from dsl-213-023-043-154.arcor-ip.net ([213.23.43.154]:42761 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S287464AbSAECkw>;
-	Fri, 4 Jan 2002 21:40:52 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
-Subject: Re: hashed waitqueues
-Date: Sat, 5 Jan 2002 03:44:06 +0100
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <20020104094049.A10326@holomorphy.com> <E16MeqE-0001Ea-00@starship.berlin> <20020104173923.B10391@holomorphy.com>
-In-Reply-To: <20020104173923.B10391@holomorphy.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16Mgoj-0001Ew-00@starship.berlin>
+	id <S287468AbSAECvB>; Fri, 4 Jan 2002 21:51:01 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:31403 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S287467AbSAECux>;
+	Fri, 4 Jan 2002 21:50:53 -0500
+From: Andries.Brouwer@cwi.nl
+Date: Sat, 5 Jan 2002 02:50:50 GMT
+Message-Id: <UTC200201050250.CAA232926.aeb@cwi.nl>
+To: bryce@obviously.com
+Subject: Re: Why would a valid DVD show zero files on Linux?
+Cc: Lionel.Bouton@free.fr, alan@lxorguk.ukuu.org.uk,
+        linux-kernel@vger.kernel.org, util-linux@math.uio.no
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On January 5, 2002 02:39 am, William Lee Irwin III wrote:
-> 2 or 3 shift/adds is really not possible, the population counts of the
-> primes in those ranges tends to be high, much to my chagrin.
+> Here are the first 2048 1024 byte blocks.
 
-It doesn't really have to be a prime, being relatively prime is also 
-good, i.e., not too many or too small factors.  Surely there's a multiplier 
-in the right range with just two prime factors that can be computed with 3 
-shift-adds.
+Hmm. I am a bit slow, but just looked at this image.
+It looks fine in iso9660 style, provided you give the
+nojoliet option. I get:
 
-> I actually
-> tried unrolling it by hand a few times, and it was slower than
-> multiplication on i386 (and uncomfortably lengthy).
+# mount DeLorme_TopoUSA_DVD.head /mnt -t iso9660 -o loop,nojoliet
+# ls -l /mnt
+total 12
+dr-xr-xr-x    1 root     root         2048 Feb 28  2001 .
+drwxr-xr-x   31 root     root         4096 Jan  3 02:11 ..
+-r-xr-xr-x    1 root     root         2763 Feb 28  2001 cd.txt
+dr-xr-xr-x    1 root     root         2048 Feb 28  2001 data
+-r-xr-xr-x    1 root     root          196 Feb 28  2001 pdataset.txt
 
-Right, it's not worth it unless you can get it down to a handful of 
-shift-adds.  How does 2**17 - 1 (Mersenne prime #6) with right-shift by
-(16 - bits) work?
+and
 
-> I believe to address architectures where multiplication is prohibitively
-> expensive I should do some reading to determine a set of theoretically
-> sound candidates for non-multiplicative hash functions and benchmark them.
-> Knuth has some general rules about design but I would rather merely test
-> some already verified by someone else and use the one that benches best
-> than duplicate the various historical efforts to find good hash functions.
+# mount DeLorme_TopoUSA_DVD.head /mnt -t udf -o loop
+# ls -l /mnt
+total 14
+dr-xr-xr-x    3 4294967295 4294967295      184 Feb 28  2001 .
+drwxr-xr-x   31 root     root         4096 Jan  3 02:11 ..
+-r--r--r--    1 4294967295 4294967295     2763 Feb 28  2001 CD.TXT
+dr-xr-xr-x    2 4294967295 4294967295      380 Feb 28  2001 DATA
+-r--r--r--    1 4294967295 4294967295      196 Feb 28  2001 PDATASET.TXT
 
-It would be nice if you could just look up good ones in a cookbook, but you 
-can't, that cookbook doesn't exist.
+so the iso9660 version looks a bit better than the udf version.
+(But I cannot look at the actual contents because the initial
+fragment is not large enough. You can check for yourself
+whether the nojoliet mount is OK.)
 
---
-Daniel
+Thus, there do not seem reasons to change mount(2) or mount(8)
+in the way you suggested. There is no "empty iso9660 filesystem" here.
+
+Andries

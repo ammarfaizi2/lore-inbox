@@ -1,54 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261327AbVBRJqj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261328AbVBRKEL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261327AbVBRJqj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Feb 2005 04:46:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261326AbVBRJqj
+	id S261328AbVBRKEL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Feb 2005 05:04:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261326AbVBRKEL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Feb 2005 04:46:39 -0500
-Received: from fire.osdl.org ([65.172.181.4]:37589 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261325AbVBRJqf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Feb 2005 04:46:35 -0500
-Date: Fri, 18 Feb 2005 01:46:21 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Kay Sievers <kay.sievers@vrfy.org>
-Cc: linux-kernel@vger.kernel.org, greg@kroah.com, david@fubar.dk
-Subject: Re: [PATCH] add I/O error uevent for block devices
-Message-Id: <20050218014621.0b453232.akpm@osdl.org>
-In-Reply-To: <20050218083316.GA6619@vrfy.org>
-References: <20050218083316.GA6619@vrfy.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 18 Feb 2005 05:04:11 -0500
+Received: from one.firstfloor.org ([213.235.205.2]:12942 "EHLO
+	one.firstfloor.org") by vger.kernel.org with ESMTP id S261169AbVBRKEJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Feb 2005 05:04:09 -0500
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: lhms <lhms-devel@lists.sourceforge.net>, linux-mm <linux-mm@kvack.org>,
+       Andy Whitcroft <apw@shadowen.org>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH] Sparse Memory Handling (hot-add foundation)
+References: <1108685033.6482.38.camel@localhost>
+From: Andi Kleen <ak@muc.de>
+Date: Fri, 18 Feb 2005 11:04:06 +0100
+In-Reply-To: <1108685033.6482.38.camel@localhost> (Dave Hansen's message of
+ "Thu, 17 Feb 2005 16:03:53 -0800")
+Message-ID: <m1zmy2b2w9.fsf@muc.de>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kay Sievers <kay.sievers@vrfy.org> wrote:
->
-> For HAL we want to get notified about I/O errors of block devices.
->  This is especially useful for devices we are unable to poll and
->  therefore can't know if something goes wrong here.
-> 
->  Signed-off-by: David Zeuthen <david@fubar.dk>
->  Signed-off-by: Kay Sievers <kay.sievers@vrfy.org>
-> 
->  ===== fs/buffer.c 1.270 vs edited =====
->  --- 1.270/fs/buffer.c	2005-01-21 06:02:13 +01:00
->  +++ edited/fs/buffer.c	2005-02-17 22:56:05 +01:00
->  @@ -105,6 +105,7 @@ static void buffer_io_error(struct buffe
->   	printk(KERN_ERR "Buffer I/O error on device %s, logical block %Lu\n",
->   			bdevname(bh->b_bdev, b),
->   			(unsigned long long)bh->b_blocknr);
->  +	kobject_uevent(&bh->b_bdev->bd_disk->kobj, KOBJ_IO_ERROR, NULL);
->   }
+Dave Hansen <haveblue@us.ibm.com> writes:
 
-- buffer_io_error() is called from interrupt context, and
-  kobject_uevent() does multiple GFP_KERNEL allocations.  You'll need to
-  use kobject_uevent_atomic().
+> The attached patch, largely written by Andy Whitcroft, implements a
+> feature which is similar to DISCONTIGMEM, but has some added features.
+> Instead of splitting up the mem_map for each NUMA node, this splits it
+> up into areas that represent fixed blocks of memory.  This allows
+> individual pieces of that memory to be easily added and removed.
 
-- the prink_ratelimit() fix in end_buffer_async_read() should be a
-  separate patch, really.  I'll fix that up.
+[...]
 
-- there are numerous other places where an I/O error can be detected:
-  grep the tree for b_end_io and bio_end_io.
+I'm curious - how does this affect .text size for a i386 or x86-64 NUMA
+kernel? One area I wanted to improve on x86-64 for a long time was
+to shrink the big virt_to_page() etc. inline macros. Your new code
+actually looks a bit smaller.
+
+-Andi

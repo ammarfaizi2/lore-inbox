@@ -1,48 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290959AbSAaF5l>; Thu, 31 Jan 2002 00:57:41 -0500
+	id <S290960AbSAaF7v>; Thu, 31 Jan 2002 00:59:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290953AbSAaF5c>; Thu, 31 Jan 2002 00:57:32 -0500
-Received: from rj.SGI.COM ([204.94.215.100]:59041 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S290958AbSAaF5S>;
-	Thu, 31 Jan 2002 00:57:18 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
+	id <S290962AbSAaF7l>; Thu, 31 Jan 2002 00:59:41 -0500
+Received: from dsl-213-023-038-145.arcor-ip.net ([213.23.38.145]:39322 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S290960AbSAaF73>;
+	Thu, 31 Jan 2002 00:59:29 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
 To: Rob Landley <landley@trommello.org>
+Subject: Re: A modest proposal -- We need a patch penguin
+Date: Thu, 31 Jan 2002 07:03:59 +0100
+X-Mailer: KMail [version 1.3.2]
 Cc: "World Domination Now!" <linux-kernel@vger.kernel.org>
-Subject: Re: A modest proposal -- We need a patch penguin 
-In-Reply-To: Your message of "Thu, 31 Jan 2002 00:32:40 CDT."
-             <20020131053131.NGIN1833.femail28.sdc1.sfba.home.com@there> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 31 Jan 2002 16:57:10 +1100
-Message-ID: <9544.1012456630@kao2.melbourne.sgi.com>
+In-Reply-To: <200201302239.QAA39272@tomcat.admin.navo.hpc.mil> <E16W85P-0000Kc-00@starship.berlin> <20020131053131.NGIN1833.femail28.sdc1.sfba.home.com@there>
+In-Reply-To: <20020131053131.NGIN1833.femail28.sdc1.sfba.home.com@there>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16WAKF-0000L8-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 31 Jan 2002 00:32:40 -0500, 
-Rob Landley <landley@trommello.org> wrote:
->On Wednesday 30 January 2002 10:40 pm, Daniel Phillips wrote:
->> > I expect it will all get worked out eventually.  Now that the secret of
->> > the difference between maintainers and lieutenants is out.
->>
->> By the way, that never was a secret to anybody in active development.
->
->I.E. the people who knew it knew it, and hence never noticed the problem...
->
->There are, however, some people writing largeish bits of code that did not in 
->fact seem to know it.  Andre Hedrick's IDE work, Eric Raymond with the help 
->files and CML2, Kieth Owens' new build process... 
+On January 31, 2002 06:32 am, Rob Landley wrote:
+> On Wednesday 30 January 2002 10:40 pm, Daniel Phillips wrote:
+> > Rob Landley apparently wrote:
+> > > I expect it will all get worked out eventually.  Now that the secret of
+> > > the difference between maintainers and lieutenants is out.
+> >
+> > By the way, that never was a secret to anybody in active development.
+> 
+> I.E. the people who knew it knew it, and hence never noticed the problem...
+> 
+> There are, however, some people writing largeish bits of code that did not in 
+> fact seem to know it.  Andre Hedrick's IDE work, Eric Raymond with the help 
+> files and CML2, Kieth Owens' new build process...
 
-Both ESR and I definitely know about this process but kbuild is one of
-the awkward systems that affects the entire kernel.  The final kbuild
-system goes straight to Linus, there is nobody else to send it to.
+They all know who the lieutenants are, I can assure you.
 
-kbuild 2.5 must match the current makefiles and config settings before
-it can go in so it is impractible to target anything expect the
-standard kernel, there is far too much work involved in tracking
-makefile and config changes in -ac, -dj, -whoever.  Even if kbuild was
-done against another tree, it would have to be redone and reverified
-before sending to Linus, there is no way to extract kbuild 2.5 from a
-divergent tree and expect it work on Linus's tree.
+> Maybe it was even a factor in Alan Cox burning out (you'd have to ask him
+> about that)...
 
+Whatever gave you the idea that Alan is burnt out?
+
+A observation: before proposing how we should fix the Linux development
+process, perhaps you should have studied it enough to know how it works,
+first.
+
+-- 
+Daniel

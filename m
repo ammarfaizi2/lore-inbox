@@ -1,75 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261775AbUBNLQk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Feb 2004 06:16:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261779AbUBNLQk
+	id S261774AbUBNLNv (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Feb 2004 06:13:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261775AbUBNLNv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Feb 2004 06:16:40 -0500
-Received: from mail.gmx.net ([213.165.64.20]:53474 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261775AbUBNLQi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Feb 2004 06:16:38 -0500
-X-Authenticated: #4512188
-Message-ID: <402E0386.5090004@gmx.de>
-Date: Sat, 14 Feb 2004 12:16:22 +0100
-From: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208 Thunderbird/0.4
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: ross@datscreative.com.au
-CC: linux-kernel@vger.kernel.org, Jamie Lokier <jamie@shareable.org>,
-       Ian Kumlien <pomac@vapor.com>, Jesse Allen <the3dfxdude@hotmail.com>,
-       Craig Bradney <cbradney@zip.com.au>, Daniel Drake <dan@reactivated.net>
-Subject: Re: [PATCH] 2.6, 2.4, Nforce2, Experimental idle halt workaround
- instead of apic ack delay.
-References: <200402120122.06362.ross@datscreative.com.au> <402CB24E.3070105@gmx.de> <200402140041.17584.ross@datscreative.com.au> <200402141124.50880.ross@datscreative.com.au>
-In-Reply-To: <200402141124.50880.ross@datscreative.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 14 Feb 2004 06:13:51 -0500
+Received: from atari.saturn5.com ([209.237.231.200]:43661 "HELO
+	atari.saturn5.com") by vger.kernel.org with SMTP id S261774AbUBNLNu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Feb 2004 06:13:50 -0500
+Date: Sat, 14 Feb 2004 03:13:49 -0800
+From: Steve Simitzis <steve@saturn5.com>
+To: linux-kernel@vger.kernel.org
+Subject: e1000 problems in 2.6.x
+Message-ID: <20040214111349.GC1040@saturn5.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-gestalt: heart, barbed wire
+X-Cat: calico
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>But it doesn't work in the sense of cooling my machine down. Though 
->>>athcool reports disconnect is activated it behaves like it is not, ie, 
->>>turning disconnect off makes no difference in temperatures. Your old 
->>>tack patch in conjunction with 2.6.2-rc1 (linus) works like a charm, ie 
->>>no lock-ups and less temp.
->>>
->>
->>Thanks Prakash for testing it and spotting thermal problem.
->>
->>Here are some temperatures from my machine read from the bios on reboot.
->>I gave it minimal activity for the minutes prior to reboot.
->>
->>Win98, 47C
->>XPHome, 42C
->>Patched Linux 2.4.24 (1000Hz), 40C
->>Patched Linux 2.6.3-rc1-mm1, 53C  OUCH!
->>
->>Sorry, I will have to go through my latest patch and see why the temp differs
->>so much between 2.4 and 2.6. I currently use patched 2.4.24 with Suse 8.2 for
->>convenience. When it stopped the lockups on 2.6 I thought the 2.6 was
->>working the same way. 
->>
-> 
-> 
-> Found the problem for 2.6
-> 
-> After fixing it the 2.6 temperature is
-> Patched Linux 2.6.3-rc1-mm1, 38C
-> Ambient today is 1C cooler also.
+hello. since upgrading to 2.6 from 2.4.22, my e1000 devices have
+been angry. i've tried running both 2.6.2 and 2.6.3-rc2, but the
+results have been the same. when i return to 2.4.22, all of the
+problems go away.
 
-Yes, I am just trying your new patch, and it works! Furthermore it seems 
-to have less ipact on system performance than the tack one, as now 
-hdparm reports the same figures as without using APIC. Well done!
+i'm getting these over and over again:
 
-Have you read the post  from Mathieu about his finding of APIC and 8254 
-timer not being sync, which causes lock-ups? Maybe there should be the 
-correct way of fixing it. Furthermore I saw this in latest ACPI update:
-[ACPI] nforce2 timer lockup from Maciej W. Rozycki
+Feb 11 19:57:55 sg1 kernel: NETDEV WATCHDOG: eth1: transmit timed out
+Feb 11 19:57:57 sg1 kernel: e1000: eth1 NIC Link is Up 100 Mbps Full Duplex
+Feb 11 19:58:17 sg1 kernel: NETDEV WATCHDOG: eth1: transmit timed out
+Feb 11 19:58:18 sg1 kernel: e1000: eth1 NIC Link is Up 100 Mbps Full Duplex
 
-Is this the fix or something else?
+i'm also seeing about 10-20% of my RX packets as errors when running 2.6.x,
+and 0 errors when running 2.4.22.
 
-Cheers,
+another oddity is that even after forcing my interfaces to 100 Mbps
+full duplex, my switch is reporting half duplex. again, this only happens
+in 2.6.x. when running 2.4.22, full duplex is properly negotiated between
+the e1000 and my switch.
 
-Prakash
+i tried turning off TSO, as suggested elsewhere by Scott Feldman, but that
+had no effect.
+
+i would love to run 2.6, so if there's anything else i can try (or if
+this is a known problem and about to be fixed), please let me know.
+
+thanks in advance.
+
+:)
+
+-- 
+
+steve simitzis : /sim' - i - jees/
+          pala : saturn5 productions
+ www.steve.org : 415.282.9979
+  hath the daemon spawn no fire?
+

@@ -1,35 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263802AbUFKKsj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263804AbUFKKtF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263802AbUFKKsj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jun 2004 06:48:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263804AbUFKKsj
+	id S263804AbUFKKtF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jun 2004 06:49:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263806AbUFKKtF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jun 2004 06:48:39 -0400
-Received: from zero.aec.at ([193.170.194.10]:1029 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S263802AbUFKKsh (ORCPT
+	Fri, 11 Jun 2004 06:49:05 -0400
+Received: from fw.osdl.org ([65.172.181.6]:44426 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263804AbUFKKtC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jun 2004 06:48:37 -0400
-To: Paul Jackson <pj@sgi.com>
-cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.7-rc3-mm1
-References: <2576k-4hW-13@gated-at.bofh.it> <25LZK-88C-17@gated-at.bofh.it>
-From: Andi Kleen <ak@muc.de>
-Date: Fri, 11 Jun 2004 12:48:33 +0200
-In-Reply-To: <25LZK-88C-17@gated-at.bofh.it> (Paul Jackson's message of
- "Fri, 11 Jun 2004 06:40:08 +0200")
-Message-ID: <m3r7sm5q0u.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 11 Jun 2004 06:49:02 -0400
+Date: Fri, 11 Jun 2004 03:48:09 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: David Howells <dhowells@redhat.com>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Permit inode & dentry hash tables to be allocated >
+ MAX_ORDER size
+Message-Id: <20040611034809.41dc9205.akpm@osdl.org>
+In-Reply-To: <567.1086950642@redhat.com>
+References: <567.1086950642@redhat.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Jackson <pj@sgi.com> writes:
+David Howells <dhowells@redhat.com> wrote:
 >
-> Uninlining find_first_bit() reduces my i386 kernel text size by 1336 bytes.
+>  Here's a patch to allocate memory for big system hash tables with the bootmem
+>  allocator rather than with main page allocator.
 
-Sounds attractive. I planned to uninline them for some time anyways
-on x86-64, but that number makes it even more a good idea.
-
--Andi
-
+umm, why?

@@ -1,75 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261908AbVACWdm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261906AbVACWZe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261908AbVACWdm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 17:33:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261953AbVACWa4
+	id S261906AbVACWZe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 17:25:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261936AbVACWWe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 17:30:56 -0500
-Received: from banana.active-ns.com ([213.230.202.60]:950 "EHLO
-	banana.catalyst2.com") by vger.kernel.org with ESMTP
-	id S261911AbVACW0L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 17:26:11 -0500
-Message-ID: <41D9C5C2.5010606@linuxmod.co.uk>
-Date: Mon, 03 Jan 2005 22:22:58 +0000
-From: Joel Cant <lkml@linuxmod.co.uk>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: John Wong <kernel@implode.net>
-CC: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
-Subject: Re: Promise IDE DMA issue
-References: <20050102173704.GA14056@gambit.implode.net> <41D9885B.9090304@pobox.com> <20050103215250.GA9409@gambit.implode.net>
-In-Reply-To: <20050103215250.GA9409@gambit.implode.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - banana.catalyst2.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - linuxmod.co.uk
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Mon, 3 Jan 2005 17:22:34 -0500
+Received: from gprs214-29.eurotel.cz ([160.218.214.29]:12935 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261937AbVACWSa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jan 2005 17:18:30 -0500
+Date: Mon, 3 Jan 2005 23:17:18 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: hugang@soulinfo.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [hugang@soulinfo.com: [PATH]software suspend for ppc.]
+Message-ID: <20050103221718.GC25250@elf.ucw.cz>
+References: <20050103122653.GB8827@hugang.soulinfo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050103122653.GB8827@hugang.soulinfo.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Wong wrote:
+Hi!
 
->Latest 1.009 BIOS flashed last night.  I'll try out some BIOS settings, 
->but the settings work fine with Windows XP.  That's why I think it could 
->be something with the driver.  This is with the PDC202XX_NEW on kernel 
->2.6.10  The DMA timeout happens sporadically, but as of yet, has yet to
->reoccur.  The change from 1.008 to 1.009 mentions nothing about the
->Promide IDE.  
->
->John
->
->On Mon, Jan 03, 2005 at 01:00:59PM -0500, Jeff Garzik wrote:
->  
->
->>John Wong wrote:
->>    
->>
->>>I recently upgraded fron a nVidia nForce2 MCP-T based A7NX-DX
->>>motherboard to an A8V DX, Via K8T800 Pro.  Now occassionally, I get 
->>>DMA issues on a drive attached to a Promise 133 TX2 controller (20269).
->>>      
->>>
->>I would try fiddling with BIOS settings, and make sure you have the 
->>latest BIOS.
->>
->>	Jeff
->>
->>
->>
->>
->>    
->>
-Sounds simlar to the problems i'm having with the channels resetting 
-under heavy load, and then fudging DMA, and i'm not the only one havign 
-these issues, seems its a common problem with these cards, not sure if 
-theres been some slight changes in the chip itself or wether there is a 
-fault with the kernel driver, as you say, it seems that the problem does 
-not occour under windows.
+> Date: Mon, 3 Jan 2005 20:25:57 +0800
+> To: benh@kernel.crashing.org
+> Subject: [PATH]software suspend for ppc.
+> 
+> Hi Benjamin Herrenschmidt:
+> 
+>   Here is a patch to make ppc32 support suspend, Test passed in my
+>   PowerBook, against with 2.6.10-mm1. Have a look. :)
+> 
+>   I'm also someone can do more test with it. 
 
-Joel
+swsusp_arch_{suspend,resume} should really be written in
+assembly. Just compile this, disassemble it and put it into source
+file. Otherwise it looks OK.
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

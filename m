@@ -1,128 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269753AbTGOVmF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 17:42:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269761AbTGOVmE
+	id S269747AbTGOVmk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 17:42:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269761AbTGOVmk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 17:42:04 -0400
-Received: from ierw.net.avaya.com ([198.152.13.101]:27357 "EHLO
-	ierw.net.avaya.com") by vger.kernel.org with ESMTP id S269753AbTGOVl7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 17:41:59 -0400
-From: "Bhavesh P. Davda" <bhavesh@avaya.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: <fischer@norbit.de>, <dahinds@users.sourceforge.net>,
-       "Marcelo Tosatti" <marcelo@conectiva.com.br>
-Subject: [PATCH] AHA152x driver hangs on PCMCIA card eject, kernel 2.4.22-pre6
-Date: Tue, 15 Jul 2003 15:56:49 -0600
-Message-ID: <01db01c34b1b$fde04740$6e260987@rnd.avaya.com>
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=_NextPart_000_01DC_01C34AE9.B345D740"
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Importance: Normal
-X-OriginalArrivalTime: 15 Jul 2003 21:56:49.0269 (UTC) FILETIME=[FDEA3250:01C34B1B]
+	Tue, 15 Jul 2003 17:42:40 -0400
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:24837 "EHLO
+	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S269747AbTGOVmi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jul 2003 17:42:38 -0400
+Subject: Re: v2.6.0-test1 - no keyboard/mouse
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: folkert@vanheusden.com
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <200307152246.57389.folkert@vanheusden.com>
+References: <200307152246.57389.folkert@vanheusden.com>
+Content-Type: text/plain
+Message-Id: <1058306246.584.1.camel@teapot.felipe-alfaro.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 15 Jul 2003 23:57:26 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+On Tue, 2003-07-15 at 22:46, Folkert van Heusden wrote:
+> Ehrm, hello? Has this list became silent suddenly?
+> Anyway: I just tried 2.6.0-test1 on my celeron. Boots up flawlessly. Rather 
+> quick and all. X boots up, all fine.
+> Only one minor problem: the keyboard and the mouse do not work.
+> I *have* included input-core, etc.:
+> CONFIG_INPUT=y
+> CONFIG_INPUT_MOUSEDEV=y
+> CONFIG_INPUT_MOUSEDEV_PSAUX=y
+> CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+> CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+> CONFIG_INPUT_EVDEV=y
+> CONFIG_INPUT_KEYBOARD=y
+> CONFIG_INPUT_MOUSE=y
+> CONFIG_INPUT_MISC=y
+> CONFIG_INPUT_PCSPKR=y
+> CONFIG_INPUT_UINPUT=y
 
-------=_NextPart_000_01DC_01C34AE9.B345D740
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-
-Juergen, David; please review this patch, and recommend that Marcelo apply
-this patch if you think it is okay... Thanks!
-
-Attached is a patch against linux-2.4.22-pre6, to fix a hang problem when an
-Adaptec SlimSCSI (PCMCIA) adapter is ejected from a PCMCIA card reader (e.g.
-yenta/TI1225 based).
-
-The fix involves:
-
-1. A change to the common aha152x driver to ignore an interrupt in the
-top-half handler if it cannot read valid data from the I/O ports (possibly
-due to a bad host-adapter chip or an ejected PCMCIA card). This way, a
-shared interrupt handler (e.g. yenta) can pick up the interrupt if the IRQ
-is really meant for it. This is where the original hang was taking place;
-the aha152x bottom half was getting into an infinite loop, though the
-SlimSCSI card had been ejected, and the actual IRQ was meant for yenta.
-
-2. A change to the aha152x_cs stub driver to not use the SCSI error-handling
-thread code. The aha152x_cs driver calls scsi_unregister_module() as a
-queued timer task when it gets a CS_EVENT_CARD_REMOVAL event, which causes
-scsi_unregister_host() to do a down() on a semaphore, calling schedule(),
-when executing the timer_bh for the timer.
-
-Thanks!
-
-- Bhavesh
---
-Bhavesh P. Davda     E-mail    : bhavesh@avaya.com
-Avaya Inc.           Phone/Fax : (303) 538-4438
-Room B3-B03, 1300 West 120th Avenue
-Westminster, CO 80234
-
-------=_NextPart_000_01DC_01C34AE9.B345D740
-Content-Type: application/octet-stream;
-	name="linux-2.4.22-aha152x.patch"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: attachment;
-	filename="linux-2.4.22-aha152x.patch"
-
-diff -Naur linux-2.4.22-pre6/drivers/scsi/aha152x.c =
-linux-2.4.22-bpd/drivers/scsi/aha152x.c=0A=
---- linux-2.4.22-pre6/drivers/scsi/aha152x.c	2003-06-13 =
-08:51:36.000000000 -0600=0A=
-+++ linux-2.4.22-bpd/drivers/scsi/aha152x.c	2003-07-15 =
-14:38:27.000000000 -0600=0A=
-@@ -1936,6 +1936,23 @@=0A=
- 		return;=0A=
- 	}=0A=
- =0A=
-+	/*=0A=
-+	 * Read a couple of registers that are known to not be all 1's. If=0A=
-+	 * we read all 1's (-1), that means that either:=0A=
-+	 * a. The host adapter chip has gone bad, and we cannot control it,=0A=
-+	 * OR=0A=
-+	 * b. The host adapter is a PCMCIA card that has been ejected=0A=
-+	 * In either case, we cannot do anything with the host adapter at=0A=
-+	 * this point in time. So just ignore the interrupt and return.=0A=
-+	 * In the latter case, the interrupt might actually be meant for=0A=
-+	 * someone else sharing this IRQ, and that driver will handle it=0A=
-+	 */=0A=
-+	rev =3D GETPORT(REV);=0A=
-+	dmacntrl0 =3D GETPORT(DMACNTRL0);=0A=
-+	if ((rev =3D=3D 0xFF) && (dmacntrl0 =3D=3D 0xFF)) {=0A=
-+		return;=0A=
-+	}=0A=
-+=0A=
- 	/* no more interrupts from the controller, while we're busy.=0A=
- 	   INTEN is restored by the BH handler */=0A=
- 	CLRBITS(DMACNTRL0, INTEN);=0A=
-diff -Naur linux-2.4.22-pre6/drivers/scsi/pcmcia/aha152x_stub.c =
-linux-2.4.22-bpd/drivers/scsi/pcmcia/aha152x_stub.c=0A=
---- linux-2.4.22-pre6/drivers/scsi/pcmcia/aha152x_stub.c	2001-12-21 =
-10:41:55.000000000 -0700=0A=
-+++ linux-2.4.22-bpd/drivers/scsi/pcmcia/aha152x_stub.c	2003-07-15 =
-14:41:20.000000000 -0600=0A=
-@@ -244,6 +244,11 @@=0A=
- =0A=
-     /* Configure card */=0A=
-     driver_template.module =3D &__this_module;=0A=
-+    /* =0A=
-+     * Don't use the SCSI error handling thread. This causes schedule() =
-to=0A=
-+     * be called from the timer_bh when the AHA152x card is ejected=0A=
-+     */=0A=
-+    driver_template.use_new_eh_code =3D 0;=0A=
-     link->state |=3D DEV_CONFIG;=0A=
- =0A=
-     tuple.DesiredTuple =3D CISTPL_CFTABLE_ENTRY;=0A=
-
-------=_NextPart_000_01DC_01C34AE9.B345D740--
+I can't think of anything except CONFIG_VGA_CONSOLE. Is it set to "y"?
 

@@ -1,53 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262672AbSI1BSQ>; Fri, 27 Sep 2002 21:18:16 -0400
+	id <S262675AbSI1BWi>; Fri, 27 Sep 2002 21:22:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262673AbSI1BSP>; Fri, 27 Sep 2002 21:18:15 -0400
-Received: from 12-234-33-29.client.attbi.com ([12.234.33.29]:27200 "HELO
-	laura.worldcontrol.com") by vger.kernel.org with SMTP
-	id <S262672AbSI1BSN>; Fri, 27 Sep 2002 21:18:13 -0400
-From: brian@parcoursesoftware.com
-Date: Fri, 27 Sep 2002 18:23:31 -0700
-To: linux-kernel@vger.kernel.org
-Subject: SWSUSP and occasional keyboard/X locks (not GPM)
-Message-ID: <20020928012331.GA2625@top.worldcontrol.com>
-Mail-Followup-To: Brian Litzinger <brian@top.worldcontrol.com>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
+	id <S262676AbSI1BWi>; Fri, 27 Sep 2002 21:22:38 -0400
+Received: from packet.digeo.com ([12.110.80.53]:42384 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S262675AbSI1BWd>;
+	Fri, 27 Sep 2002 21:22:33 -0400
+Message-ID: <3D950590.1F9FBDC6@digeo.com>
+Date: Fri, 27 Sep 2002 18:27:44 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.38 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Luc Van Oostenryck <luc.vanoostenryck@easynet.be>,
+       Thomas Molina <tmolina@cox.net>,
+       lksctp-developers@lists.sourceforge.net
+CC: Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: (more) Sleeping function called from illegal context...
+References: <20020927233044.GA14234@kroah.com> <3D94EEBF.D6328392@digeo.com> <3D94FB89.40400@easynet.be>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-No-Archive: yes
-X-Noarchive: yes
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 28 Sep 2002 01:27:44.0732 (UTC) FILETIME=[3EF359C0:01C2668E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Luc Van Oostenryck wrote:
+> 
+> With CONFIG_PREEMPT=y on an SMP AMD (2CPU):
+> 
+> Sleeping function called from illegal context at slab.c:1374
+> f79dbe2c c0117094 c0280b00 c02847cb 0000055e f7817b40 c01328fd c02847cb
+>         0000055e f79da000 f7ede980 c03ecc58 f7817b40 c025af91 c18cf248 c0266b3e
+>         00000024 000001d0 f79da000 00000286 00000001 bffffc9c c02f63e0 c0266e20
+> Call Trace:
+>   [<c0117094>]__might_sleep+0x54/0x58
+>   [<c01328fd>]kmalloc+0x5d/0x1e0
+>   [<c025af91>]fib_add_ifaddr+0x61/0x110
+>   [<c0266b3e>]__sctp_get_local_addr_list+0x9e/0x140
+>   [<c0266e20>]sctp_netdev_event+0x30/0x60
+>   [<c01241ae>]notifier_call_chain+0x1e/0x40
+>   [<c02566f5>]inet_insert_ifa+0x1b5/0x1c0
+>   [<c02567b4>]inet_set_ifa+0xb4/0xc0
+>   [<c0257091>]devinet_ioctl+0x511/0x740
+>   [<c0259897>]inet_ioctl+0x157/0x1b0
+>   [<c021e276>]sock_ioctl+0x56/0x90
+>   [<c0150039>]sys_ioctl+0x289/0x2d8
+>   [<c0107d11>]error_code+0x2d/0x38
+>   [<c01072cf>]syscall_call+0x7/0xb
+> 
 
-I'm running 2.4.18 vanilla with swsusp patches.  I've disabled GPM
-and suspend/resume works well.
+sctp_v4_get_local_addr_list():
 
-However, occasionally when my laptop resumes everything appears ok,
-but the keyboard and mouse (touchpad) don't respond.   If I ssh
-in via the ethernet I can kill X and keyboard control comes back.
-(this is the same behavior I saw with GPM was missing things up)
-(I've actually removed the gpm executable from my machine)
+                /* XXX BUG: sleeping allocation with lock held -DaveM */
+                addr = t_new(struct sockaddr_storage_list, GFP_KERNEL);
 
-I use the 'susp' script to suspend the machine which knocks out most
-of the known problems with software suspend.
-
-I'm running XFree86 4.2.1.
-
-My laptop is a Sony VAIO FXA32 w/Duron 900MHz and 384MB RAM.
-
-You can have a look at the susp script at
-
-    http://www.litzinger.com/susp
-
-Any ideas?
-
--- 
-Brian Litzinger
-
- FREE Bug & Support Tracking tool http://www.ParcourseSoftware.com
- SFA, CRM, HelpDesk, Engineering: Small Company to Multi-National Enterprise
- Crossplatform: MS Windows, Linux, Solaris, Macintosh, mix & match
+Is true.  We're holding dev_base_lock, inetdev_lock and in_dev->lock
+here.

@@ -1,69 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265506AbTA2JG4>; Wed, 29 Jan 2003 04:06:56 -0500
+	id <S265513AbTA2JYx>; Wed, 29 Jan 2003 04:24:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265513AbTA2JG4>; Wed, 29 Jan 2003 04:06:56 -0500
-Received: from postoffice.erunway.com ([12.40.51.200]:51469 "EHLO
-	mailserver.virtusa.com") by vger.kernel.org with ESMTP
-	id <S265506AbTA2JGz>; Wed, 29 Jan 2003 04:06:55 -0500
-Date: Wed, 29 Jan 2003 15:16:08 +0600
-From: Anuradha Ratnaweera <ARatnaweera@virtusa.com>
-To: Petr Vandrovec <vandrove@vc.cvut.cz>
-Cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Where are the matroxfb updates?
-Message-ID: <20030129091608.GA549@aratnaweera.virtusa.com>
-References: <20030129020639.GA10213@aratnaweera.virtusa.com> <20030129053159.GA5999@platan.vc.cvut.cz> <20030129073629.GA26091@aratnaweera.virtusa.com> <20030129080420.GB4950@vana.vc.cvut.cz> <20030129082226.GA668@aratnaweera.virtusa.com> <20030129083752.GD4950@vana.vc.cvut.cz>
+	id <S265568AbTA2JYw>; Wed, 29 Jan 2003 04:24:52 -0500
+Received: from AGrenoble-101-1-6-201.abo.wanadoo.fr ([80.11.197.201]:7689 "EHLO
+	microsoft.com") by vger.kernel.org with ESMTP id <S265513AbTA2JYw>;
+	Wed, 29 Jan 2003 04:24:52 -0500
+Subject: Re: Bootscreen
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
+Cc: Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
+       Robert Morris <rob@r-morris.co.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200301290913.h0T9Dnp2008484@eeyore.valparaiso.cl>
+References: <200301290913.h0T9Dnp2008484@eeyore.valparaiso.cl>
+Content-Type: text/plain; charset=ISO-8859-1
+Organization: 
+Message-Id: <1043832945.9066.8.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030129083752.GD4950@vana.vc.cvut.cz>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.1.1 (Preview Release)
+Date: 29 Jan 2003 10:35:47 +0100
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 29, 2003 at 12:37:52AM -0800, Petr Vandrovec wrote:
->
-> On Wed, Jan 29, 2003 at 02:22:26PM +0600, Anuradha Ratnaweera wrote:
+Le mer 29/01/2003 à 10:13, Horst von Brand a écrit:
+> Roy Sigurd Karlsbakk <roy@karlsbakk.net> said:
 > 
-> > both monitors display the same screen.  /dev/fb1 gets registered, and
-> > ttys get moved to it with con2fb, but not to any of the monitors.  Both
-> > monitors still seem to act as /dev/fb0.  The moved tty no longer exist.
+> [...]
 > 
-> What about using matroxset to set things up?
+> > You'll never send an engineer out to replace a set-top-box. You'll just
+> > wait for the customer to return the box and send out a new one. Software
+> > doesn't fail on those - it's some 99.9% hardware failure. If you get a
+> > hang or panic or something, the boxes usually have watchdogs to take care
+> > of that (and then reboot automatically). The average computer-frightened
+> > user getting an STB from the VoD/IPTV company (or her ISP) don't want to
+> > see any kernel gibberish. They just want a nice splash screen telling
+> > them "everything's gonna be alright in 45 seconds" or something. Trouble
+> > shooting is done in the lab after the box is returned
+> 
+> Right. And this is a very specialized application, where the vendor will
+> install a heavily hacked system anyway, as they won't have standard VGA or
+> keyboard or...
 
-Config.in patch applied.
+What we did with our appliances is make them display the boot messages
+(i.e. the console) on a hidden serial port (you had to solder pins on
+the "motherboard" to get to it). That way the screen (which is only an
+LCD) is free for whatever boot message the bootloader wants to print.
 
-  # ./matroxset -m 00001111
-  # ioctl failed: Device or resource busy
-
-Have tried other variations, too.
-
-  # ls /proc/drivers/mga/
-  fb0
-  # cat /proc/drivers/mga/fb0/bios
-  BIOS:   1.2.21
-  Output: 0x00
-  TVOut:  no
-  PINS:   found
-  Info:   c02a0a8c
-
-Howerver, fb1 gets registered (yes as the secondary head of fb0).
-
-  # dmesg | grep matrox
-  Kernel command line: BOOT_IMAGE=linux ro root=306 video=matrox:vesa:0x192,font:SUN12x22,nopan
-  matroxfb: Matrox G450 detected
-  matroxfb: MTRR's turned on
-  matroxfb: 1152x864x16bpp (virtual: 1152x864)
-  matroxfb: framebuffer at 0x42000000, mapped to 0xe0805000, size 33554432
-  matroxfb_crtc2: secondary head of fb0 was registered as fb1
-
-	Anuradha
-
--- 
-
-Debian GNU/Linux (kernel 2.4.21-pre4)
-
-Adore, v.:
-	To venerate expectantly.
-		-- Ambrose Bierce, "The Devil's Dictionary"
+	Xav
 

@@ -1,55 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129183AbRACRzv>; Wed, 3 Jan 2001 12:55:51 -0500
+	id <S129183AbRACSBX>; Wed, 3 Jan 2001 13:01:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129749AbRACRzl>; Wed, 3 Jan 2001 12:55:41 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:49418 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S129436AbRACRz3>;
-	Wed, 3 Jan 2001 12:55:29 -0500
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200101020038.f020cRK00428@webber.adilger.net>
-Subject: Re: feature flags set on rev 0 fs
-In-Reply-To: <Pine.LNX.4.31.0101010027100.103-100000@clubneon.com>
- "from Chris Meadors at Jan 1, 2001 00:29:55 am"
-To: Chris Meadors <clubneon@hereintown.net>
-Date: Mon, 1 Jan 2001 17:38:26 -0700 (MST)
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-X-Mailer: ELM [version 2.4ME+ PL73 (25)]
+	id <S129267AbRACSBN>; Wed, 3 Jan 2001 13:01:13 -0500
+Received: from csa.iisc.ernet.in ([144.16.67.8]:6408 "EHLO csa.iisc.ernet.in")
+	by vger.kernel.org with ESMTP id <S129226AbRACSBH>;
+	Wed, 3 Jan 2001 13:01:07 -0500
+Date: Wed, 3 Jan 2001 22:59:48 +0530 (IST)
+From: Sourav Sen <sourav@csa.iisc.ernet.in>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: is eth header is not transmitted 
+Message-ID: <Pine.SOL.3.96.1010103223330.7550A-100000@kohinoor.csa.iisc.ernet.in>
 MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris, you write:
-> I'm seeing a new warning with the 2.4.0-prerelease (could have been
-> introduced in -pre11 or 12):
-> 
-> EXT2-fs warning: feature flags set on rev 0 fs, running e2fsck is recommended
-> 
-> Well I've run e2fsck (version 1.18) twice, and looked at the options for
-> tune2fs.
 
-The feature flag/revision level fix is only in the current development
-version of e2fsck right now (1.20.WIP).  Fortunately, the "error" is no
-more of a problem now than before the checking went into the kernel.  All
-of the current feature flags are supported by the ext2 filesystem code, so
-it will continue to work just like it always did.  The reason the checks
-were added is for features that may cause a real problem like ext3
-journalling, or Tux2 which totally changes the layout of the filesystem.
+Hi,
+	In the function ip_build_xmit(), immediately after
+sk_alloc_send_skb(), skb_reserve(skb, hh_len) is called. Now
+skb_reserve(skb,len) only increment the data pointer and tail pointer by 
+len amt.
 
-> Is there an easy way to change the rev of the fs, without a format and
-> restore?
+	Now in a particular hard_start_xmit() say for rtl8139, the data
+transfer is taking place from skb->data :
+	outl(virt_to_bus(skb->data), ioaddr + TxAddr0 + entry*4)
 
-I would just wait until e2fsck 1.20 is released and it will fix this for
-you the next time it even looks at the filesystem.  Unfortunately, the
-commands to change the revision field in the superblock is only in 1.20
-as well, so once you get that far you may as well just let e2fsck fix
-it...
+So, I cannot understand, if transfer starts from data and not head, is
+ethrnet header not transmitted? what I am missing? 
 
-Cheers, Andreas
--- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+/sourav
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

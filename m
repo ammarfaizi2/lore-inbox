@@ -1,54 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266202AbUGULTk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266449AbUGULXl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266202AbUGULTk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jul 2004 07:19:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266463AbUGULTk
+	id S266449AbUGULXl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jul 2004 07:23:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266463AbUGULXl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jul 2004 07:19:40 -0400
-Received: from pD9EB1635.dip.t-dialin.net ([217.235.22.53]:40837 "EHLO
-	undata.org") by vger.kernel.org with ESMTP id S266202AbUGULTj (ORCPT
+	Wed, 21 Jul 2004 07:23:41 -0400
+Received: from mail2.bluewin.ch ([195.186.4.73]:62953 "EHLO mail2.bluewin.ch")
+	by vger.kernel.org with ESMTP id S266449AbUGULXk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jul 2004 07:19:39 -0400
-Subject: Re: [linux-audio-dev] Re: [announce] [patch] Voluntary	Kernel
-	Preemption Patch
-From: Thomas Charbonnel <thomas@undata.org>
-To: Florian Schmidt <mista.tapas@gmx.net>
-Cc: "The Linux Audio Developers' Mailing List" 
-	<linux-audio-dev@music.columbia.edu>,
-       rlrevell@joe-job.com, Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040721125352.7e8e95a1@mango.fruits.de>
-References: <20040712163141.31ef1ad6.akpm@osdl.org>
-	 <1090306769.22521.32.camel@mindpipe> <20040720071136.GA28696@elte.hu>
-	 <200407202011.20558.musical_snake@gmx.de>
-	 <1090353405.28175.21.camel@mindpipe> <40FDAF86.10104@gardena.net>
-	 <1090369957.841.14.camel@mindpipe>
-	 <20040721125352.7e8e95a1@mango.fruits.de>
-Content-Type: text/plain
-Message-Id: <1090408695.5179.4.camel@localhost>
+	Wed, 21 Jul 2004 07:23:40 -0400
+Date: Wed, 21 Jul 2004 13:23:36 +0200
+From: Roger Luethi <rl@hellgate.ch>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: List of pending v2.4 kernel bugs
+Message-ID: <20040721112336.GA9537@k3.hellgate.ch>
+Mail-Followup-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+	linux-kernel@vger.kernel.org
+References: <20040720142640.GB2348@dmt.cyclades>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 21 Jul 2004 13:18:15 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040720142640.GB2348@dmt.cyclades>
+X-Operating-System: Linux 2.6.8-rc2-bk1 on i686
+X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
+X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Florian Schmidt wrote :
-> Hi,
-> 
-> interesting that you mention the Xserver. I use a dual graphics card setup atm [Nvidia GF3 TI and some matrox pci card]. The nvidia card seems to work flawlessly even with HW accelleration [i use nvidias evil binary only drivers]. The matrox card OTH disturbs the soundcard severely. Whenever i have activity on my second monitor i get sound artefacts in jack's output [no cracklling, it's rather as if the volume is set to 0 for short moments and then back to normal]. There's a certain chance that this artefact produces an xrun. I suppose it's because the card is on the pci bus.
-> 
-> I figured it's maybe an irq issue problem, but whatever slot i put the gfx card in - it made no difference [btw: how do i find out which resources this card uses? it is not shown by /proc/interrupts]. I also tried putting the soundcard in many different slots to maybe get it on higher prio irq, but it always gets irq 5 [according to /proc/interrupts]..
-> 
-> Should i try a different 2nd gfx card? Should i avoid pci gfx cards at all costs? Will i just have to live w/o second monitor?  How do i find out which hw resources X is really using?
-> 
-> Florian Schmidt
+On Tue, 20 Jul 2004 11:26:40 -0300, Marcelo Tosatti wrote:
+> I've created a directory to store known pending v2.4 problems,
+> at http://master.kernel.org/~marcelo/pending-2.4-issues/ 
 
-You could try to adjust the pci latency timer value of your graphic card
-and sound card, see this link for a paper on the subject by Daniel
-Robbins :
-http://www-106.ibm.com/developerworks/library/l-hw2.html
+Multicast is still broken for big-endian architectures using via-rhine
+(2.4.27-rc3). MC use on BE is rare (no bug reports!), but the bug is
+fatal for anyone trying that combination. Jeff's got the patch.
 
-Thomas
+A couple other drivers may be affected by the same thinko as well.
 
-
+Roger

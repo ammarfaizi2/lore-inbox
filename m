@@ -1,112 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261893AbVCCQFG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261869AbVCCQHh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261893AbVCCQFG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 11:05:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262019AbVCCQFF
+	id S261869AbVCCQHh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 11:07:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261909AbVCCQHg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 11:05:05 -0500
-Received: from fire.osdl.org ([65.172.181.4]:62112 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261893AbVCCQCW (ORCPT
+	Thu, 3 Mar 2005 11:07:36 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:1994 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S261869AbVCCQHY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 11:02:22 -0500
-Message-ID: <42273535.9030505@osdl.org>
-Date: Thu, 03 Mar 2005 08:03:01 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-Organization: OSDL
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
+	Thu, 3 Mar 2005 11:07:24 -0500
+Date: Thu, 3 Mar 2005 17:07:20 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: pci_find_class obsolete
+In-Reply-To: <42271D12.90408@tiscali.de>
+Message-ID: <Pine.LNX.4.61.0503031551460.1007@yvahk01.tjqt.qr>
+References: <Pine.LNX.4.61.0503031436490.22266@yvahk01.tjqt.qr>
+ <42271D12.90408@tiscali.de>
 MIME-Version: 1.0
-To: "Jeff V. Merkey" <jmerkey@utah-nac.org>
-CC: Bernd Petrovitsch <bernd@firmix.at>, gene.heskett@verizon.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Fwd: United States Patent: 6,862,609]
-References: <4226781B.7080302@utah-nac.org>	 <200503022227.40614.gene.heskett@verizon.net>	 <4226927A.6010107@utah-nac.org> <1109845583.28561.19.camel@tara.firmix.at> <422731B0.6040007@utah-nac.org>
-In-Reply-To: <422731B0.6040007@utah-nac.org>
-Content-Type: text/plain; charset=iso-8859-15; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff V. Merkey wrote:
-> Bernd Petrovitsch wrote:
-> 
->> On Wed, 2005-03-02 at 21:28 -0700, Jeff V. Merkey wrote:
->>  
->>
->>> Gene Heskett wrote:
->>>   
->>>
->>>> On Wednesday 02 March 2005 21:36, Jeff V. Merkey wrote:
->>>>     
->>>>
->>>>> Another Linux patent.....
->>>>>       
->>
->>
->> ... and another - AFAICS obvious - trivial ("prior art") patent (but I'm
->> not fluent in patent quak, I'm just a simple systems engineer).
->>
->> And one more reason to sent the European software patent directive
->> simply to hell, clarify in §52.2 to not patentability of "software"
->> discarding the word play of the patent attorneys and offices and get
->> into the head of the folks of the EPO (with whatever means are
->> necessary).
->>
->>  
->>
->>>> And that pretty much says it.  Assigned to the Canopy Group.  So SCO 
->>>> will have yet another lawsuit to threaten us with.  If they survive 
->>>>     
->>
->>
->> Apparently Canopy Group/SCO/... are not of the front of innovation since
->> "what is new on a RAID system in any way in 2005"?
->>
->>  
->>
->>>> the thrashing I've Been Moved will give them at the end of the day.
->>>>
->>>>     
->>>
->>> The way to fight the patents is for Linux developers to file their 
->>> own and start putting down stakes.
->>>   
->>
->>
->> Or simply drop the whole patent system as such. Apparently it is only
->> abused to make money of the inventions of others and for sure does not
->> help innovation as such in any way (it may help the lawyers, offices and
->> companies in that area - patent utilisation - to get rich but that area
->> has nothing to do with innovation).
->>
->>     Bernd
->>  
->>
-> Patent law in the US is based on section 113 of the United States 
-> Constitution, and patents
-> are not going away.  Live with guys.  The best way to win the patent 
-                             NO.
-> wars is for people
-> who do Linux development to file their own patents and put some stakes 
-> in the ground.
-> 
-> You guys keep saying, "stop the patents" but this is insanity.  It's 
-> like all these big companies
-> used patents like swords and are hemming linux in, and Linux stands 
-> naked and defenseless.
-> You guys need to get your own swords and fight -- start filing patents 
-> -- go to this new law
-> center "Southern Poverty Law Center" they setup I read about and get 
-> these folks to start
-> filing patents on Linux code (before you disclose it that is) and 
-> protect yourselves.  Then
-> you have ammo to negotiate cross patent agreements with MS and these 
-> other companies to create a balance of power.
 
-Morris Dees helps Linux?  That's good news.  I like the SPLC.
+>> What function would I need to use, now that pci_find_class is gone?
 
-But I would consider checking with the (new) Software Freedom
-Law Center too:  http://www.softwarefreedom.org/
+> Hi!
+> you have to use pci_get_class (). But have a look at the patches for 6111 
+> on my webiste:
 
+I use 4996 because it uses four times less kernel memory than 6111. (And on 
+top, 6111 does not give me any performance improvements over 4996.)
+
+> http://unixforge.org/~matthias-christian-ott/index.php?entry=entry050303-082233
+What's the patch doing?
+
+I do not use AGPGART/DRI - no performance plus either.
+
+
+
+Jan Engelhardt
 -- 
-~Randy

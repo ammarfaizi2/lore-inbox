@@ -1,33 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275203AbRIZODj>; Wed, 26 Sep 2001 10:03:39 -0400
+	id <S275208AbRIZODj>; Wed, 26 Sep 2001 10:03:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275208AbRIZOD3>; Wed, 26 Sep 2001 10:03:29 -0400
-Received: from [195.223.140.107] ([195.223.140.107]:22525 "EHLO athlon.random")
-	by vger.kernel.org with ESMTP id <S275207AbRIZODR>;
-	Wed, 26 Sep 2001 10:03:17 -0400
-Date: Wed, 26 Sep 2001 16:03:47 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Craig Kulesa <ckulesa@as.arizona.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: VM in 2.4.10(+tweaks) vs. 2.4.9-ac14/15(+stuff)
-Message-ID: <20010926160347.F27945@athlon.random>
-In-Reply-To: <Pine.LNX.4.33.0109260617450.3929-100000@loke.as.arizona.edu>
+	id <S275207AbRIZODa>; Wed, 26 Sep 2001 10:03:30 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:7942 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S275203AbRIZODO>; Wed, 26 Sep 2001 10:03:14 -0400
+Date: Wed, 26 Sep 2001 16:03:06 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Out of memory handling broken
+Message-ID: <20010926160306.D7290@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20010925003416.A151@bug.ucw.cz> <Pine.LNX.4.33L.0109251702540.26091-100000@duckman.distro.conectiva>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0109260617450.3929-100000@loke.as.arizona.edu>; from ckulesa@as.arizona.edu on Wed, Sep 26, 2001 at 06:38:48AM -0700
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+In-Reply-To: <Pine.LNX.4.33L.0109251702540.26091-100000@duckman.distro.conectiva>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 26, 2001 at 06:38:48AM -0700, Craig Kulesa wrote:
-> in memory, and is swapping out harder to compensate.  The ac14/ac15 tree
+Hi!
 
-2.4.10 is swapping out more also because I don't keep track of which
-pages are just uptodate on the swap space. This will be fixed as soon as
-I teach get_swap_page to collect away from the swapcache mapped
-exclusive swap pages.
+> > I need to allocate as much memory as possible (but not more).
+> > Okay, so I use out_of_memory, right?
+> 
+> Nope, out_of_memory() is about virtual memory handling,
+> not at all about physical memory.
 
-Andrea
+Yes, so... What happens at physical memory exhaustion? System crash?
+
+> > But, when I looked into out_of_memory... Of course its
+> > wrong. out_of_memory() contains
+> >
+> >         if (nr_swap_pages > 0)
+> >                 return 0;
+> >
+> > ...which is obviously wrong. It is well possible to have free
+> > swap _and_ be out of memory -- eat_memory() loop gets system to
+> > this state easily.
+> 
+> This is because you're using out_of_memory() for something
+> it was never meant for.  ;)
+
+Okay, okay. Is there any solution (in 2.4.10) in doing what I want to
+do?
+
+								Pavel
+-- 
+Causalities in World Trade Center: 6453 dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267625AbSKTFTV>; Wed, 20 Nov 2002 00:19:21 -0500
+	id <S265773AbSKTFR3>; Wed, 20 Nov 2002 00:17:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267627AbSKTFTR>; Wed, 20 Nov 2002 00:19:17 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:2578 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S267625AbSKTFR5>;
-	Wed, 20 Nov 2002 00:17:57 -0500
-Date: Tue, 19 Nov 2002 21:18:20 -0800
-From: Greg KH <greg@kroah.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] pcibios removal changes for 2.5.48
-Message-ID: <20021120051820.GD21953@kroah.com>
-References: <20021120051702.GB21953@kroah.com> <20021120051751.GC21953@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021120051751.GC21953@kroah.com>
-User-Agent: Mutt/1.4i
+	id <S267619AbSKTFR2>; Wed, 20 Nov 2002 00:17:28 -0500
+Received: from im2.mail.tds.net ([216.170.230.92]:49793 "EHLO im2.sec.tds.net")
+	by vger.kernel.org with ESMTP id <S265773AbSKTFRZ>;
+	Wed, 20 Nov 2002 00:17:25 -0500
+Date: Wed, 20 Nov 2002 00:24:03 -0500 (EST)
+From: Jon Portnoy <portnoy@tellink.net>
+X-X-Sender: portnoy@cerberus.localhost
+To: archaios <quack@bigpond.net.au>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: spinlocks, the GPL, and binary-only modules
+In-Reply-To: <002301c2905f$ec818800$0100000a@r1a4n3>
+Message-ID: <Pine.LNX.4.44.0211200022360.21801-100000@cerberus.localhost>
+References: <Pine.LNX.4.44.0211192036530.30881-100000@blessed.joshisanerd.com>
+ <Pine.LNX.4.44L.0211200057370.4103-100000@imladris.surriel.com>
+ <20021120042624.GA21122@willow.seitz.com> <002301c2905f$ec818800$0100000a@r1a4n3>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.872.3.2, 2002/11/19 20:24:56-08:00, greg@kroah.com
+Blatantly false. Have you even _read_ the GPL? It doesn't seem that way - 
+in which case why are you discussing it?
 
-PCMCIA: remove usage of pcibios_read_config_dword
+Please get your facts straight. While you're at it, please avoid making 
+yourself look like an idiot in the future.
 
+On Wed, 20 Nov 2002, archaios wrote:
 
-diff -Nru a/drivers/pcmcia/cistpl.c b/drivers/pcmcia/cistpl.c
---- a/drivers/pcmcia/cistpl.c	Tue Nov 19 21:06:55 2002
-+++ b/drivers/pcmcia/cistpl.c	Tue Nov 19 21:06:55 2002
-@@ -430,7 +430,10 @@
- #ifdef CONFIG_CARDBUS
-     if (s->state & SOCKET_CARDBUS) {
- 	u_int ptr;
--	pcibios_read_config_dword(s->cap.cb_dev->subordinate->number, 0, 0x28, &ptr);
-+	struct pci_dev *dev = pci_find_slot (s->cap.cb_dev->subordinate->number, 0);
-+	if (!dev)
-+	    return CS_BAD_HANDLE;
-+	pci_read_config_dword(dev, 0x28, &ptr);
- 	tuple->CISOffset = ptr & ~7;
- 	SPACE(tuple->Flags) = (ptr & 7);
-     } else
+> When you GPL a piece of software, you sign over your rights to the FSF. Therefore, there is very little that can be done about this;
+> from a legal perspective, the FSF _itself_ determines what is and what isn't construed as a derived work.
+> 
+> - David McIlwraith
+> ----- Original Message -----
+> From: Ross Vandegrift <ross@willow.seitz.com>
+> To: Rik van Riel <riel@conectiva.com.br>
+> Cc: <linux-kernel@vger.kernel.org>
+> Sent: Wednesday, November 20, 2002 3:26 PM
+> Subject: Re: spinlocks, the GPL, and binary-only modules
+> 
+> 
+> On Wed, Nov 20, 2002 at 12:59:26AM -0200, Rik van Riel wrote:
+[snip]
+

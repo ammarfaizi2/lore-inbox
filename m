@@ -1,46 +1,101 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293337AbSDQQFD>; Wed, 17 Apr 2002 12:05:03 -0400
+	id <S293276AbSDQQCI>; Wed, 17 Apr 2002 12:02:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293510AbSDQQFC>; Wed, 17 Apr 2002 12:05:02 -0400
-Received: from ns1.alcove-solutions.com ([212.155.209.139]:56014 "EHLO
-	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
-	id <S293337AbSDQQFC>; Wed, 17 Apr 2002 12:05:02 -0400
-Date: Wed, 17 Apr 2002 18:05:00 +0200
-From: Stelian Pop <stelian.pop@fr.alcove.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: kraxel@bytesex.org
-Subject: Re: [BKPATCH 2.4] meye driver: get parameters from the kernel command line
-Message-ID: <20020417160500.GJ1519@come.alcove-fr>
-Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
-Mail-Followup-To: Stelian Pop <stelian.pop@fr.alcove.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	kraxel@bytesex.org
-In-Reply-To: <20020417155620.GF1519@come.alcove-fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
+	id <S293337AbSDQQCH>; Wed, 17 Apr 2002 12:02:07 -0400
+Received: from seldon.terminus.sk ([195.146.17.130]:2947 "EHLO
+	seldon.terminus.sk") by vger.kernel.org with ESMTP
+	id <S293276AbSDQQCF>; Wed, 17 Apr 2002 12:02:05 -0400
+Date: Wed, 17 Apr 2002 18:06:48 +0200 (CEST)
+From: Marek Zelem <marek@terminus.sk>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] + story;) on POSIX capabilities and SUID bit
+In-Reply-To: <a9g1fb$onq$1@abraham.cs.berkeley.edu>
+Message-ID: <Pine.LNX.4.33.0204171529380.25235-100000@seldon.terminus.sk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 17, 2002 at 05:56:20PM +0200, Stelian Pop wrote:
 
-> Hi,
-> 
-> This patch enables the meye driver to get parameters on the 
-> kernel command line using a "meye=" style syntax.
-> 
-> Marcelo, please apply.
+On 16 Apr 2002, David Wagner wrote:
 
-It would be also nice if Gerd would push (again ?) its changes
-(the video_generic_ioctl -> video_usercopy ones) to Marcelo...
+> Marek Zelem  wrote:
+> >Our new formula:
+> >  * (***) pP' = (fP & X) | (fI & pI)
+> >  *       pI' = pP'
+> >  *       pE' = ((pP' & pE) | fP) & X & fE
+>
+> Can you say anything about why this is safe and doesn't introduce
+> vulnerabilities?  (The capabilities misfeature that caused sendmail
+> 8.10.1 to leak root privilege really drove home for me the subtlety of
+> this stuff.)
 
-This way we would have an identical API between 2.4 and 2.5 v4l drivers...
+New 'permitted' capabilities for process are computed by the same formula as
+the original because there is the primary aspiration to preserve the original
+POSIX formula.
+Most significat difference is in computation of 'inheritable' capabilities.
+Original formula just keeps process 'inheritable' capabilities untouched.
+(This fact was major problem of consolidate POSIX capabilities and SUID bit.)
+New formula set the 'inheritable' capabilities to correspond with the new
+'permitted'.
+There can occur four situations:
+	1) capability was in pI and will be in pI' - this correspond with
+		the original formula
+	2) capability wasn't in pI and will not be in pI' - this also
+		correspond with the original formula
+	3) capability was in pI and will not be in pI' - (so is not set
+		in new pP) - meaning: proces is NOT able to raise self pP by
+		executing "nosuid" binary. In this case is new formula
+		more restrictive then original.
+	4) capability wasn't in pI and will be in pI' - this can occure
+		only if this capability is in fP. In this case this
+		capability is also in pP'. And if is in 'permitted' caps
+		then process is allowed to add this capability into
+		'inheritable' caps. So we do nothin wrong if we set this
+		capability into pI'.
+Finally, difference in computation of pE' only aspirate to reflect pE.
+Major principle was preserved: pE' = pP' & fE. In new formula was pP'
+replaced by more complex term. But it's always true that
+	(((pP' & pE) | fP) & X & fE) IS SUBSET of (pP' & fE).
+So I think this is safe.
 
-Gerd ?
+>
+> Also, the meaning of fE and fP seem backwards from what I would have
+> expected.  Maybe this reflects a lack in my understanding in capabilities,
+> but I thought 'effective' refers to capabilities you're allowed to invoke
+> at the moment, whereas 'permitted' refers to an upper bound on what
+> capabilities you're allowed enable in 'effective', consequently I would
+> have swapped the treatment of fE and fP.  Can you clear up my confusion?
 
-Stelian.
--- 
-Stelian Pop <stelian.pop@fr.alcove.com>
-Alcove - http://www.alcove.com
+File capabilities are little different from process capabilities. Meaninig
+of file capabilities is:
+	fP - capafilities which are "forced" to process by exec().
+	     (sometimes called 'forced' capabilities)
+	fI - capabilities which is "allowed" to remain in process 'permited'.
+	     (sometimes called 'allowed' capabilities)
+	fE - capabilities which select which of 'permited' will be
+	     initially also 'effective'. (afrer exec() of course.)
+
+>
+> Finally, what's the story behind the changes to CAP_INIT_EFF_SET and
+> CAP_INIT_INH_SET, and the business with CAP_SETPCAP?  If I understand
+> correctly, one side-effect of this change is that you've changed cap_bset
+> (X, the global bound on capabilities above) to add CAP_SETPCAP to it.
+> Is this safe?  What motivated this change?  Did I understand correctly?
+
+Yes, you understand correctly. Enabling CAP_SETPCAP is safe exactly as
+enabling the CAP_SYS_MODULE, which is enabled by default. Capability
+CAP_SYS_MODULE allows process to modify the cap_bset. Maybe I am wrong,
+but my opinion is not to do inconsequential restrictions. So, this is
+reason why I decide to change CAP_INIT_EFF_SET.
+
+					Marek Zelem
+--
+  e-mail: marek@terminus.sk
+  web: http://www.terminus.sk/~marek/
+  pgp key: http://www.terminus.sk/~marek/gpg.txt
+
+
+
+

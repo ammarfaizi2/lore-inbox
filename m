@@ -1,46 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284321AbRLXBFW>; Sun, 23 Dec 2001 20:05:22 -0500
+	id <S284318AbRLXBDC>; Sun, 23 Dec 2001 20:03:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284285AbRLXBFM>; Sun, 23 Dec 2001 20:05:12 -0500
-Received: from sproxy.gmx.net ([213.165.64.20]:34846 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S284314AbRLXBFA>;
-	Sun, 23 Dec 2001 20:05:00 -0500
-Date: Mon, 24 Dec 2001 02:04:50 +0100
-From: Christian Ohm <chr.ohm@gmx.net>
-To: Mark Hahn <hahn@physics.mcmaster.ca>
+	id <S284314AbRLXBCw>; Sun, 23 Dec 2001 20:02:52 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:19727 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S284304AbRLXBCm>;
+	Sun, 23 Dec 2001 20:02:42 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Benjamin LaHaise <bcrl@redhat.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: file corruption in 2.4.16/17
-Message-ID: <20011224010450.GB1482@moongate.thevoid.net>
-In-Reply-To: <20011223025752.GA20445@moongate.thevoid.net> <Pine.LNX.4.33.0112230110110.5312-100000@coffee.psychology.mcmaster.ca>
+Subject: Re: [patch] Assigning syscall numbers for testing 
+In-Reply-To: Your message of "Sun, 23 Dec 2001 12:06:04 CDT."
+             <20011223120604.B19863@redhat.com> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0112230110110.5312-100000@coffee.psychology.mcmaster.ca>
-User-Agent: Mutt/1.3.24i
-Organization: theVoid
-X-Operating-System: Linux moongate 2.4.17 
+Date: Mon, 24 Dec 2001 12:01:12 +1100
+Message-ID: <26616.1009155672@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> none of that is meaningful (genuine companies ship invalid cables,
-> and the 20 could easily have had a lower max udma mode, etc.)
+On Sun, 23 Dec 2001 12:06:04 -0500, 
+Benjamin LaHaise <bcrl@redhat.com> wrote:
+>On Sun, Dec 23, 2001 at 04:10:21PM +1100, Keith Owens wrote:
+>> I'm glad somebody understands the code :).
+>
+>There are two directions of binary compatibility: forwads and backwards.  
+>Your patch breaks forwards compatibility if used outside the main tree.  Try 
+>to understand this.
 
-hmmm, i'll try a new one after christmas... the bios showed them both as
-'udma 66'.
+Too vague, give me an example with real code and effects.
 
-> are they both on the same channel?  also, when you boot, do you see
-> a message about the "athlon bug stomper"?  (which actually corrects 
-> a bogus kt133/etal hostbridge setting.)
-
-they are on the same channel. and i've never seen a message like this.
-
-> I can't imagine any reason to use the preemption patch, since it
-> completely corrupts all atomicity guarantees that the kernel has 
-> been codd on.  there definitely is no problem with large disks and 
-> via (and 80G is certainly not a large disk any more.)
-
-well, plain 2.4.17 corrupted files, too.
-
-bye
-christian ohm

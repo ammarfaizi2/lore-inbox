@@ -1,69 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S143587AbRAHOYy>; Mon, 8 Jan 2001 09:24:54 -0500
+	id <S143708AbRAHOd4>; Mon, 8 Jan 2001 09:33:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S143814AbRAHOYf>; Mon, 8 Jan 2001 09:24:35 -0500
-Received: from laxmls02.socal.rr.com ([24.30.163.11]:19431 "EHLO
-	laxmls02.socal.rr.com") by vger.kernel.org with ESMTP
-	id <S143587AbRAHOYZ>; Mon, 8 Jan 2001 09:24:25 -0500
-From: Shane Nay <shane@agendacomputing.com>
-Reply-To: shane@agendacomputing.com
-Organization: Agenda Computing
-To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-Subject: Re: [PATCH] cramfs is ro only, so honour this in inode->mode
-Date: Mon, 8 Jan 2001 13:17:12 +0000
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain;
-  charset="us-ascii"
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20010108141702.I10035@nightmaster.csn.tu-chemnitz.de> <0101081213390Z.02165@www.easysolutions.net> <20010108152904.K10035@nightmaster.csn.tu-chemnitz.de>
-In-Reply-To: <20010108152904.K10035@nightmaster.csn.tu-chemnitz.de>
+	id <S143752AbRAHOdq>; Mon, 8 Jan 2001 09:33:46 -0500
+Received: from relais.videotron.ca ([24.201.245.36]:22200 "EHLO
+	VL-MS-MR002.sc1.videotron.ca") by vger.kernel.org with ESMTP
+	id <S143708AbRAHOde>; Mon, 8 Jan 2001 09:33:34 -0500
+Message-ID: <3A59CD57.6FA72934@videotron.ca>
+Date: Mon, 08 Jan 2001 09:23:19 -0500
+From: Martin Laberge <mlsoft@videotron.ca>
+Organization: MLSoft
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.19pre3 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Message-Id: <01010813171211.02165@www.easysolutions.net>
-Content-Transfer-Encoding: 8bit
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: 2.4.0 - sndstat not present
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo,
+i installed 2.4.0 last week and all worked well on my amd-K6-350
+i use a cheap sound card since 2.0.36 and it always worked well too.
+it work well now in 2.4.0, BUT , /dev/sndstat report me <no such file or
+directory>
+and /proc/sound (as noted in documentation) does not exist...
 
-> You can use (GNU-)tar for this. It even keeps track of other bits like
-> ext2fs attributes, AFAIK.
+the sound work well, but i cant verify the existence of the driver with
+sndstat anymore
 
-True..., but cramfs is acting like a mountable (tar czvf) because of the 
-compressed pages.  Seems redundant to have a tar on top of what is basically 
-a segmented tar with frontal indexing (read inodes).
+could someone tell me if i should have done some additionnal
+configuration to see
+appear the /proc/sound or to enable /dev/sndstat...
 
-> > On the other hand..., maybe I'm being "selfish", and this is the right
-> > way to go. You never write to it, so why track the write bits?
->
-> Yes, I would consider this "selfish" ;-)
+maybe is it another method now in 2.4 to see the sound status...
 
-Maybe :), that's why I mentioned it.
+Best Wishes to all of you for the new year...
 
-> > (One answer is maybe later we can create a writable cramfs, but
-> > oh well)
->
-> This could then be solved with union mount and cramfs mount over
-> ramfs or any other writable Unix style fs.
->
-> Then we might need W bits, but currently they disturb things like
-> "test" and the perl equivalent, which is quite annoying and
-> complexifies code.  (Yes, I'm selfish too ;-))
+Martin Laberge
+mlsoft@videotron.ca
 
-Simplifying code is a good objective..., but we've already got the bits 
-there, and actually when you look at the patch it's adding complexity, not 
-subtracting from it.  (Adding additional operations on the fetch of every 
-inode..., plus wholesale stealing bits from operational mode of a filesystem, 
-but the bits are useless in the "normal interpretation" of it, so I see your 
-point)  I guess the part that bugs me is you make a filesystem out of a 
-directory sub-structure expecting a 1-1 relationship of the data in the 
-original directory sub-strucure, and the interpretation of your cramfs 
-filesystem.  But then you pull out the write bits, and that 1-1 relationship 
-is gone.  (I can only see my particular case, but there are probably others 
-this disturbs)
 
-Thanks,
-Shane Nay
+
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

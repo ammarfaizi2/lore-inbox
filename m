@@ -1,67 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269036AbTGQTlc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 15:41:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269106AbTGQTlc
+	id S269161AbTGQTqL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 15:46:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269219AbTGQTqL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 15:41:32 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:26794 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S269036AbTGQTlb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 15:41:31 -0400
-Date: Thu, 17 Jul 2003 16:50:44 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: Jim Gifford <maillist@jg555.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.22-pre6 deadlock
-In-Reply-To: <014501c34c9b$d93d4920$3400a8c0@W2RZ8L4S02>
-Message-ID: <Pine.LNX.4.55L.0307171649340.2003@freak.distro.conectiva>
-References: <Pine.LNX.4.55L.0307052151180.21992@freak.distro.conectiva>
- <020301c3459b$942a1860$3400a8c0@W2RZ8L4S02> <1057703020.5568.10.camel@dhcp22.swansea.linux.org.uk>
- <024801c345a2$ceeef090$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307091428450.26373@freak.distro.conectiva>
- <064101c34644$3d917850$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307100025160.6316@freak.distro.conectiva>
- <042801c3472c$f4539f80$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307110953370.28177@freak.distro.conectiva>
- <06e301c347c7$2a779590$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307111405320.29894@freak.distro.conectiva>
- <002b01c347e9$36a04110$f300a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307111749160.5537@freak.distro.conectiva>
- <001801c348a0$9dab91e0$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307141145340.23121@freak.distro.conectiva>
- <00fd01c34c8d$a03a4960$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307171545460.1789@freak.distro.c
- onectiva> <014501c34c9b$d93d4920$3400a8c0@W2RZ8L4S02>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 17 Jul 2003 15:46:11 -0400
+Received: from smtp-out2.iol.cz ([194.228.2.87]:44252 "EHLO smtp-out2.iol.cz")
+	by vger.kernel.org with ESMTP id S269161AbTGQTqD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jul 2003 15:46:03 -0400
+Date: Thu, 17 Jul 2003 22:00:40 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Peter Osterlund <petero2@telia.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: Software suspend testing in 2.6.0-test1
+Message-ID: <20030717200039.GA227@elf.ucw.cz>
+References: <m2wueh2axz.fsf@telia.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m2wueh2axz.fsf@telia.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-Jim,
+> I have done some testing of the software suspend function in
+> 2.6.0-test1. It works mostly very well, but I have found two problems.
+> 
+> The first problem is that software suspend fails if a process is
+> stopped before you invoke suspend. (For example, by starting cat from
+> the shell and pressing ctrl-z.) When the processes are woken up again,
+> the cat process is stuck in the schedule loop in refrigerator(),
+> sucking up all available cpu time.
 
-Probably (just a guess) netfilter is tainting the kernel.
+Thanks for a report. If it came with a patch it would be better
+;-). I'll take a look.
 
-Anyway, could you please try to reproduce the deadlock with stock -pre6?
+> The second problem is that freeing memory seems to be much slower than
+> it has to be. It appears to be caused by the call to
+> blk_congestion_wait() in balance_pgdat(). The patch below makes page
+> freeing much faster, although I'm quite sure the patch is not correct.
+> 
+> How can we fix this properly? The disk is mostly idle during page
+> freeing, but it looks like blk_congestion_wait still doesn't return
+> until the timeout expires. I tried HZ/2 and that made the page freeing
+> extremely slow.
+> 
+> --- linux/mm/vmscan.c.old	Thu Jul 17 21:30:09 2003
+> +++ linux/mm/vmscan.c	Thu Jul 17 21:29:58 2003
+> @@ -930,7 +930,7 @@
+>  		}
+>  		if (all_zones_ok)
+>  			break;
+> -		blk_congestion_wait(WRITE, HZ/10);
+> +		blk_congestion_wait(WRITE, HZ/50);
+>  	}
+>  	return nr_pages - to_free;
+>  }
 
-Your feedback with this oopses are very very useful Jim. Thanks a lot.
+This is certainly not okay. Andrew, you know more about vm
+internals... What does this ugly constant mean? Would it be possible
+to somehow make it variable and set it to zero during software suspend
+memory freeing?
+								Pavel
 
-On Thu, 17 Jul 2003, Jim Gifford wrote:
-
-> ----- Original Message -----
-> From: "Marcelo Tosatti" <marcelo@conectiva.com.br>
-> To: "Jim Gifford" <maillist@jg555.com>
-> Cc: "lkml" <linux-kernel@vger.kernel.org>
-> Sent: Thursday, July 17, 2003 11:46 AM
-> Subject: Re: 2.4.22-pre6 deadlock
->
->
-> >
-> > Jim,
-> >
-> > I just noticed your kernel is tained.
-> >
-> > For what reason?
-> >
-> >
->
-> The only patches I use are for netfilter options and the updated megaraid
-> driver everything else is stock.
->
-> Do you think some of the netfilter options could be causing the problems??
->
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

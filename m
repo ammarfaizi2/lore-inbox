@@ -1,51 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263017AbTEHDFE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 23:05:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263152AbTEHDFE
+	id S261179AbTEHFHy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 May 2003 01:07:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261181AbTEHFHy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 23:05:04 -0400
-Received: from fmr05.intel.com ([134.134.136.6]:39118 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S263017AbTEHDFD convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 23:05:03 -0400
-Message-ID: <A46BBDB345A7D5118EC90002A5072C780C8FE1E2@orsmsx116.jf.intel.com>
-From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-To: "'jw schultz'" <jw@pegasys.ws>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: Swap Compression
-Date: Wed, 7 May 2003 20:17:32 -0700 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="ISO-8859-1"
-Content-Transfer-Encoding: 8BIT
+	Thu, 8 May 2003 01:07:54 -0400
+Received: from outbound01.telus.net ([199.185.220.220]:63946 "EHLO
+	priv-edtnes03-hme0.telusplanet.net") by vger.kernel.org with ESMTP
+	id S261179AbTEHFHw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 May 2003 01:07:52 -0400
+Subject: 2.4.21-rc boot stalls
+From: Bob Gill <gillb4@telusplanet.net>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 07 May 2003 23:21:47 -0600
+Message-Id: <1052371307.2703.43.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi. I just built 2.4.21-rc.  It hangs on boot.  More specifically, I
+get: 
+hda: (ide_dma_test_irq) called while not waiting
+blk queue c031e840
+I/O limit 4095 Mb (mask 0xffffffff)
+setting using_dma_to 1 (on)
 
 
-> From: jw schultz [mailto:jw@pegasys.ws]
->
-> While we're having thoughts, this thread keeps me thinking
-> it would make sense to have a block device driver that would
-> be assigned unused memory.
-> 
-> I don't mean memory on video cards etc.  I'm thinking of the
-> 10% of RAM unused when 1GB systems are booted with MEM=900M
-> because they run faster with HIGHMEM turned off.
-> 
-> The primary use for this "device" would be high priority swap.
-> Even with whatever overhead it takes to access it should be
-> orders of magnitude faster than any spinning media.
+... It gets here and stalls.  No OOPS.  My ide devices are:
+cat /proc/ide/hda/model
+Maxtor 92041U4
+cat /proc/ide/hdb/model
+Maxtor 98196H8
+cat /proc/ide/hdc/model
+SAMSUNG DVD-ROM SD-608
+cat /proc/ide/hdd/model
+CR-4804TE
 
-This reminds me of some howto I saw somewhere of someway to
-use the MTD drivers to access the unused video RAM and turn
-it into swap (maybe with blkmtd?) ... probably it can be done
-with that too.
+My chipset is:
+cat /proc/ide/sis
+SiS 5513 Ultra 100 chipset
+--------------- Primary Channel ---------------- Secondary Channel
+-------------Channel Status: On 	 	 	 	 On 
+Operation Mode: Compatible 	 	 	 Compatible 
+Cable Type:     80 pins 	 	 	 80 pins
+Prefetch Count: 512 	 	 	 	 512
+Drive 0:        Postwrite Enabled 	 	 Postwrite Disabled
+                Prefetch  Enabled 	 	 Prefetch  Disabled
+                UDMA Enabled 	 	 	 UDMA Disabled
+                UDMA Cycle Time    3 CLK 	 UDMA Cycle Time    Reserved
+                Data Active Time   3 PCICLK 	 Data Active Time   3
+PCICLK
+                Data Recovery Time 1 PCICLK 	 Data Recovery Time 1
+PCICLK
+Drive 1:        Postwrite Enabled 	 	 Postwrite Disabled
+                Prefetch  Enabled 	 	 Prefetch  Disabled
+                UDMA Enabled 	 	 	 UDMA Disabled
+                UDMA Cycle Time    2 CLK 	 UDMA Cycle Time    Reserved
+                Data Active Time   3 PCICLK 	 Data Active Time   3
+PCICLK
+                Data Recovery Time 1 PCICLK 	 Data Recovery Time 3
+PCICLK
 
-I'd really love it ... I don't know if I can blame it on highmem
-or not, but since I enabled it, my system 'feels' slower.
 
-Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own
-(and my fault)
+I checked /Documentation/Changes and confirmed that all of my build
+software meets/exceeds the minimum requirements, but be aware I am using
+gcc 3.2.2 and glibc-2.3.1.  I also use hdparm to set multi-word 32 bit
+I/O with DMA (hdparm -d1 -c3 -m16 -k1) at boot time.  (Also, 2.4.21-pre6
+builds/boots/runs OK).
+
+Thanks in advance,
+
+Bob
+
+
+

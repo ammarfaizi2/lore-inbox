@@ -1,90 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268270AbUJSBy6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268280AbUJSB5R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268270AbUJSBy6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Oct 2004 21:54:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268280AbUJSBy5
+	id S268280AbUJSB5R (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Oct 2004 21:57:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268282AbUJSB5Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Oct 2004 21:54:57 -0400
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:24759 "EHLO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
-	id S268270AbUJSByu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Oct 2004 21:54:50 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Date: Tue, 19 Oct 2004 11:54:14 +1000
+	Mon, 18 Oct 2004 21:57:16 -0400
+Received: from mail.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:59063 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S268280AbUJSB4y convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Oct 2004 21:56:54 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16756.29638.846336.56357@cse.unsw.edu.au>
-Cc: Christoph Hellwig <hch@infradead.org>, schwidefsky@de.ibm.com,
-       viro@parcelfarce.linux.theplanet.co.uk, linux-kernel@vger.kernel.org
-Subject: Re: Patch to add RAID autostart to IBM partitions
-In-Reply-To: message from Pete Zaitcev on Saturday October 16
-References: <20041015224822.7d980a9e@lembas.zaitcev.lan>
-	<20041016110939.GB30336@infradead.org>
-	<20041016082937.62c15e6c@lembas.zaitcev.lan>
-X-Mailer: VM 7.19 under Emacs 21.3.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+To: torvalds@osdl.org
+Subject: BK-kernel-tools/shortlog update
+Cc: linux-kernel@vger.kernel.org, matthias.andree@gmx.de, samel@mail.cz
+From: Matthias Andree <matthias.andree@gmx.de>
+Content-ID: <Tue,_19_Oct_2004_01_56_47_+0000_0@merlin.emma.line.org>
+Content-type: text/plain; charset=iso-8859-1
+Content-Description: An object packed by metasend
+Content-Transfer-Encoding: 8BIT
+Message-Id: <20041019015647.6963790073@merlin.emma.line.org>
+Date: Tue, 19 Oct 2004 03:56:47 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday October 16, zaitcev@redhat.com wrote:
-> On Sat, 16 Oct 2004 12:09:39 +0100
-> Christoph Hellwig <hch@infradead.org> wrote:
-> 
-> > We had this for a few partition types (and full block devices) already
-> > and it's been vetoed.  Use mdadm from initrd/initramfs instead.
-> 
-> It is doable in theory, but in practice mdadm is too retarded (I'm taliking
-You sweet-talker you....
+Hello Linus,
 
-> about mdadm 1.6.0 here). Its man page says:
-> 
->     mdadm can perform (almost) all of its functions  without  having  a
->     configuration  file  and  does  not use one by default.
-> 
-> I guess "almost" is the key. Firstly, it collapses with any attempt to run
-> "mdadm -A -s" or any variation of such, because it's full of places like
-> this.
-> 
-> 	mddev_ident_t array_ident = conf_get_ident(configfile, dv->devname);
-> 	mdfd = open_mddev(dv->devname, array_ident->autof);
+you can either use "bk receive" to patch with this mail,
+or you can
+Pull from: bk://krusty.dt.e-technik.uni-dortmund.de/BK-kernel-tools
+or in cases of dire need, you can apply the patch below.
 
-Hmm, thanks for the bug report.  I'll fix that rather silly bit of
-code..... there.  The next release won't have that bug.
-> 
-> Obviously, array_ident is NULL if a config file is not present. It is
-> possible to fool the stupid thing by giving it a dummy config file,
+BK: Parent repository is http://bktools.bkbits.net/bktools
 
-There's that silver tongue again.  It makes one feel all warm
-inside....
+Patch description:
+ChangeSet@1.233, 2004-10-19 03:56:30+02:00, matthias.andree@gmx.de
+  5 new addresses
 
-> like this one:
-> 
-> DEVICE partitions
-> ARRAY /dev/md0
-> 
-> It still won't scan, aborting with this:
-> mdadm: /dev/dasda has no superblock - assembly aborted
+ChangeSet@1.232, 2004-10-19 03:43:09+02:00, matthias.andree@gmx.de
+  Support blanks and underscores as word separators in Signed-off-by: tags.
 
-Yes, you haven't told it what defines "/dev/md0", so it assumes the
-first device listed will define it, but /dev/dasda doesn't so....
+Matthias
 
-You have to tell mdadm how to recognise /dev/md0.  Possibly by UUID.
-Possibly by "minor number".
-e.g.
+------------------------------------------------------------------------
 
- DEVICE partitions
- ARRAY /dev/md0 super-minor=0
+##### DIFFSTAT #####
+ shortlog |    7 ++++++-
+ 1 files changed, 6 insertions(+), 1 deletion(-)
 
-which means "if you find any devices listed in /proc/partitions which
-contains an MD superblock which has a "md_minor" field of "0", then
-use those to assemble /dev/md0.
+##### GNUPATCH #####
+--- 1.203/shortlog	2004-10-14 08:58:06 +02:00
++++ 1.205/shortlog	2004-10-19 03:56:29 +02:00
+@@ -1009,6 +1009,7 @@
+ 'jakub:redhat.com' => 'Jakub Jelínek',
+ 'jamagallon:able.es' => 'J. A. Magallon',
+ 'james.bottomley:steeleye.com' => 'James Bottomley',
++'james.smart:emulex.com' => 'James Smart',
+ 'james:cobaltmountain.com' => 'James Mayer',
+ 'james:superbug.demon.co.uk' => 'James Courtier-Dutton',
+ 'james_mcmechan:hotmail.com' => 'James McMechan',
+@@ -1067,7 +1068,9 @@
+ 'jejb:jet.(none)' => 'James Bottomley', # wild guess
+ 'jejb:malley.(none)' => 'James Bottomley',
+ 'jejb:mulgrave.(none)' => 'James Bottomley', # from shortlog
++'jejb:pashleys.(none)' => 'James Bottomley',
+ 'jejb:raven.il.steeleye.com' => 'James Bottomley',
++'jejb:titanic.il.steeleye.com' => 'James Bottomley',
+ 'jelenz:edu.rmk.(none)' => 'John Lenz',
+ 'jelenz:students.wisc.edu' => 'John Lenz',
+ 'jenna.s.hall:intel.com' => 'Jenna S. Hall', # google
+@@ -1398,6 +1401,7 @@
+ 'louisk:cse.unsw.edu.au' => 'Louis Yu-Kiu Kwan',
+ 'lowekamp:cs.wm.edu' => 'Bruce B. Lowekamp', # lbdb
+ 'luben:splentec.com' => 'Luben Tuikov',
++'luben_tuikov:adaptec.com' => 'Luben Tuikov',
+ 'luc.vanoostenryck:easynet.be' => 'Luc Van Oostenryck', # lbdb
+ 'luca.risolia:studio.unibo.it' => 'Luca Risolia',
+ 'luca:libero.it' => 'Luca Risolia',
+@@ -1514,6 +1518,7 @@
+ 'metolent:snoqualmie.dp.intel.com' => 'Matt Tolentino',
+ 'mfedyk:matchmail.com' => 'Mike Fedyk',
+ 'mgalgoci:redhat.com' => 'Matthew Galgoci',
++'mgoodman:csua.berkeley.edu' => 'Mark Goodman',
+ 'mgreer:mivsta.com' => 'Mark A. Greer', # typo
+ 'mgreer:mvista.com' => 'Mark A. Greer', # lbdb
+ 'mhf:linuxmail.org' => 'Michael Frank',
+@@ -2947,7 +2952,7 @@
+       } else {
+ 	  print STDERR " SKIPPED FROM  $author\n" if $debug;
+       }
+-    } elsif (/^\s+Signed-off-by:\s*"?([^"]*)"?\s+\<(.*)\>\s*$/i) {
++    } elsif (/^\s+Signed[- _]off[- _]by:\s*"?([^"]*)"?\s+\<(.*)\>\s*$/i) {
+       my @nameauthor = treat_address($1, $2);
+       if ($namepref < 0) {
+ 	  ($name, $address, $author) = @nameauthor;
 
-This will often be what you want, but might not always.  e.g. if you
-have plugged in a drive that was part of /dev/md0 in another machine,
-then mdadm will have no way of knowing which drive is the "right" one.
 
-NeilBrown
+
+##### BKPATCH #####
+
+## Wrapped with gzip_b64 ##
+H4sIAF90dEECA9VW227TQBB9zn7FqEXqDTu7tteOLVJKKYLSIqqWPlFAa3uSuLG9kXfdC4R/
+Zx3TlgQVRKm42Jas9czJzJwzR8oy7O5EHS2rM5GnamuC5bDOSltXolQFamEnspg+HYlyiEeo
+pw6ljrmZ41Kfh1Mn9DmfooOcJx4TcdALMHHIMhwrrKJOIbQeZULZokwrRPP9hVQ66gyLCztt
+jodSmmP3TFTdONNjxAlW3e09a4xVibmlpcwVMXkHQicjOMNKRR1mu9df9OUEo87hs+fH+08O
+Cen34bpV6PfJPY+lRIH5ViGy3E4+zqM9RplnsD03mPrc6flkB5jtuA5Qr8tol4VA3chzIxpu
+UCeiFBa42Wo5gQ0GFiXbcM+tPyUJHNWTiaw0xLkoxwpMXajL1HCayArNWcG5rFJQOBGVMPUV
+ZCUcZcMSU0sOBlZ8GYEWQ2WTPfDdkBzckE2sX7wIoYKSzZsxR7LAhRnVyHSby2E7Imc9GngB
+601dFoR8OsBQDJKAhoJiKuL0FkLnfqVRKTRCudQQ5fRYQMgtqO/EvYJR2ozeiuvOicv9yKV/
+TVwOJZ6DSE05pVA1Enns/5WI+044NYS7/szVVxlzpv7tfhYMvdjGzM/UN5vCQt5KTr27+Jn9
++35u3fAarOr8onmsC7M7V4TcYXV2nJBTYGT36xvM9RkwV9kAVrvvT9RG28hbCz68M83M3qah
+E7W+9Hj17fuld+trS49N2smjVXt97WTTBB50szX4dKtlf2z0Vj6+6FjnZ/LxP+jYdt/vT4Rd
+wwIz5K+cmj1XtipEpSMs6hwvmq5XoL8JKy+bGBw1sZWHDcQPZxA8jaOJUKMcL5W9WsoS174F
+bEutZWGCLSig1yCdaVFmiW1MpTSiScHFavNgj87AeR1j+UHX2VieRSIVE43JDXC/icKbWXSG
+4sxvUMVQyrQQZZSoWtgxVuOmoo1p3eJeiWoMz9scg7v+55CMMBmruuinsRMGAafkCzNBPBEK
+CQAA
+

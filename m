@@ -1,44 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280891AbRKGSQS>; Wed, 7 Nov 2001 13:16:18 -0500
+	id <S280897AbRKGS1M>; Wed, 7 Nov 2001 13:27:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280892AbRKGSQI>; Wed, 7 Nov 2001 13:16:08 -0500
-Received: from stingr.net ([212.193.33.37]:28932 "EHLO stingr.net")
-	by vger.kernel.org with ESMTP id <S280891AbRKGSP4>;
-	Wed, 7 Nov 2001 13:15:56 -0500
-Date: Wed, 7 Nov 2001 21:15:53 +0300
-From: Paul P Komkoff Jr <i@stingr.net>
-To: linux-kernel@vger.kernel.org
+	id <S280893AbRKGS1D>; Wed, 7 Nov 2001 13:27:03 -0500
+Received: from mail207.mail.bellsouth.net ([205.152.58.147]:41032 "EHLO
+	imf07bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S280897AbRKGS0t>; Wed, 7 Nov 2001 13:26:49 -0500
+Message-ID: <3BE97CE0.76E531C3@mandrakesoft.com>
+Date: Wed, 07 Nov 2001 13:26:40 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.14 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Paul P Komkoff Jr <i@stingr.net>
+CC: linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] 802.1q-support for 3c59x.c
-Message-ID: <20011107211552.A1327@stingr.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20011107165318.A15577@devcon.net> <3BE95B6E.E4EB1B86@mandrakesoft.com>
-Mime-Version: 1.0
+In-Reply-To: <20011107165318.A15577@devcon.net> <3BE95B6E.E4EB1B86@mandrakesoft.com> <20011107211552.A1327@stingr.net>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3BE95B6E.E4EB1B86@mandrakesoft.com>
-User-Agent: Agent Orange
-X-Mailer: mIRC32 v5.91 K.Mardam-Bey
-X-RealName: Stingray Greatest Jr
-Organization: Stingray Software
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: RIPEMD160
+Paul P Komkoff Jr wrote:
+> 
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: RIPEMD160
+> 
+> Replying to Jeff Garzik:
+> > Have you tested this?  I should think you would need a dev->change_mtu
+> > also.
+> 
+> Jeff - why don't you add tulip mtu patch to the mainstream tulip driver ?
 
-Replying to Jeff Garzik:
-> Have you tested this?  I should think you would need a dev->change_mtu
-> also.
+because noone has submitted a tulip mtu patch to me?
 
-Jeff - why don't you add tulip mtu patch to the mainstream tulip driver ?
+right now I'm busy fixing bugs.
 
-- -- 
-Paul P 'Stingray' Komkoff 'Greatest' Jr // (icq)23200764 // (irc)Spacebar
-  PPKJ1-RIPE // (smtp)i@stingr.net // (http)stingr.net // (pgp)0xA4B4ECA4
------BEGIN PGP SIGNATURE-----
+-- 
+Jeff Garzik      | Only so many songs can be sung
+Building 1024    | with two lips, two lungs, and one tongue.
+MandrakeSoft     |         - nomeansno
 
-iEYEAREDAAYFAjvpek4ACgkQyMW8naS07KQGjACdEKzi8WF63+wjc+TGwK9w1rev
-l68AoL3npfVC2AW8sMAkuCHfjLet9r2W
-=zJBV
------END PGP SIGNATURE-----

@@ -1,114 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265153AbUAGXrW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 18:47:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265268AbUAGXrW
+	id S266345AbUAHAAN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 19:00:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266379AbUAHAAM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 18:47:22 -0500
-Received: from nwkea-mail-1.sun.com ([192.18.42.13]:57531 "EHLO
-	nwkea-mail-1.sun.com") by vger.kernel.org with ESMTP
-	id S265153AbUAGXrM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 18:47:12 -0500
-Date: Wed, 07 Jan 2004 18:47:02 -0500
-From: Mike Waychison <Michael.Waychison@Sun.COM>
-Subject: Re: [autofs] [RFC] Towards a Modern Autofs
-In-reply-to: <3FFC790A.3060206@pobox.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Mike Waychison <Michael.Waychison@Sun.COM>,
-       "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Message-id: <3FFC9A76.4070407@sun.com>
-MIME-version: 1.0
-Content-type: multipart/signed;
- boundary=------------enig12CF335458B0A93714ACE66E;
- protocol="application/pgp-signature"; micalg=pgp-sha1
-X-Accept-Language: en
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107
- Debian/1.5-3
-X-Enigmail-Version: 0.82.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-References: <1b5GC-29h-1@gated-at.bofh.it> <1b6CO-3v0-15@gated-at.bofh.it>
- <m3ad50tmlq.fsf@averell.firstfloor.org> <3FFC46EB.9050201@zytor.com>
- <3FFC7469.3050700@sun.com> <3FFC7469.3050700@sun.com>
- <3FFC790A.3060206@pobox.com>
+	Wed, 7 Jan 2004 19:00:12 -0500
+Received: from ee.oulu.fi ([130.231.61.23]:11700 "EHLO ee.oulu.fi")
+	by vger.kernel.org with ESMTP id S266345AbUAGX7S (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jan 2004 18:59:18 -0500
+Date: Thu, 8 Jan 2004 01:59:12 +0200
+From: Pekka Pietikainen <pp@ee.oulu.fi>
+To: linux-kernel@vger.kernel.org
+Cc: linux-dvb@linuxtv.org
+Subject: Use of floating point in the kernel
+Message-ID: <20040107235912.GA23812@ee.oulu.fi>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig12CF335458B0A93714ACE66E
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Hi
 
-Jeff Garzik wrote:
-> Mike Waychison wrote:
-> 
->> To put it into perspective, the I'm calling for the following major 
->> changes:
-> 
-> [...]
-> 
->> 2) move the loop that used to spin around and ask kernelspace if there 
->> was anything to expire into the VFS as well, where it won't be killed.
-> 
-> [...]
-> 
->> (1) and (2) shouldn't be hard at all to do considering David Howells 
->> has done the majority of this already. (3) is needed in order to 
->> manage direct mounts properly for when they are 'covered'.  
->> Admittedly, (4) comes off as an ugly hack.
->>
->> Also, (2) was the only 'active' task the automount daemon was doing. 
->> Everything else it did can be rewritten in the form of a usermode 
->> helper that runs only when it is needed.  This simplifies the 
->> userspace code a lot.
-> 
-> 
-> Just going by your own explanation here, #2 should not be in the kernel.
-> 
-> If we moving daemons into the kernel just because they won't be killed, 
-> we'll have Oracle in-kernel before you know it.  Completely spurious 
-> reason.
-> 
+There are a few instances of use of floating point in 2.6,
 
-You wouldn't put a bdflush daemon in userspace either would you?  The 
-loop in question is just that; (overly simplified):
+--- linux-2.6.0-1.30/drivers/media/dvb/ttpci/av7110.c~	2004-01-07 23:14:14.000000000 +0200
++++ linux-2.6.0-1.30/drivers/media/dvb/ttpci/av7110.c	2004-01-07 23:14:14.000000000 +0200
+@@ -2673,9 +2673,9 @@
+ 	buf[1] = div & 0xff;
+ 	buf[2] = 0x8e;
+ 
+-	if (freq < (u32) 16*168.25 )
++	if (freq < 2692 ) /* 16*168.25 */
+ 		config = 0xa0;
+-	else if (freq < (u32) 16*447.25)
++	else if (freq < 7156) /* 16*447.25 */
+ 		config = 0x90;
+ 	else
+ 		config = 0x30;
 
-while (1) {
-	f = ask_kernel_if_anything_looks_inactive();
-	if (f) {
-		try_to_umount(f);
-		continue;
-	} else {
-		sleep(x seconds);
-	}
-}
+(If I'm not mistaken a similar patch for this has already been sent to
+Linus, just making sure the DVB people get this in their trees as well)
+(u32) (16*168.25) would work too, I suppose.
 
-My point is, if this is the only active action done by userspace, why 
-open it up to being broken?
+The other case is a bit more widespread, patch below is mostly rhetoric :-)
+http://www.winischhofer.net/linuxsisvga.shtml#download contains the latest version
+of the sisfb that doesn't use floating point at all, so that is certainly the better
+option.
+
+--- linux-2.6.0-1.30/drivers/video/sis/sis_main.c~	2004-01-08 01:27:44.909006216 +0200
++++ linux-2.6.0-1.30/drivers/video/sis/sis_main.c	2004-01-08 01:28:19.111806600 +0200
+@@ -616,6 +616,7 @@
+ 		var->left_margin + var->xres + var->right_margin +
+ 		var->hsync_len;
+ 	unsigned int vtotal = 0; 
++#error Use of floating point in the kernel is NOT safe!
+ 	double drate = 0, hrate = 0;
+ 	int found_mode = 0;
+ 	int old_mode;
+--- linux-2.6.0-1.30/drivers/video/Kconfig~	2004-01-08 01:25:37.570364632 +0200
++++ linux-2.6.0-1.30/drivers/video/Kconfig	2004-01-08 01:25:37.571364480 +0200
+@@ -704,7 +704,7 @@
+ 
+ config FB_SIS
+ 	tristate "SIS acceleration"
+-	depends on FB && PCI
++	depends on FB && PCI && BROKEN
+ 	help
+ 	  This is the frame buffer device driver for the SiS 630 and 640 Super
+ 	  Socket 7 UMA cards.  Specs available at <http://www.sis.com.tw/>.
+
 
 -- 
-Mike Waychison
-Sun Microsystems, Inc.
-1 (650) 352-5299 voice
-1 (416) 202-8336 voice
-mailto: Michael.Waychison@Sun.COM
-http://www.sun.com
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-NOTICE:  The opinions expressed in this email are held by me,
-and may not represent the views of Sun Microsystems, Inc.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
---------------enig12CF335458B0A93714ACE66E
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Using GnuPG with Debian - http://enigmail.mozdev.org
-
-iD8DBQE//Jp7dQs4kOxk3/MRAnHVAJ0VNqJb2V4PMu24d8PS+KkhWvw5ygCglCqU
-G9lvx4I2FmwtBQNzOWaY4jI=
-=rxqP
------END PGP SIGNATURE-----
-
---------------enig12CF335458B0A93714ACE66E--
-
+Pekka Pietikainen

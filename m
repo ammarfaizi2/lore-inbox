@@ -1,46 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266755AbTBTST1>; Thu, 20 Feb 2003 13:19:27 -0500
+	id <S266735AbTBTSRc>; Thu, 20 Feb 2003 13:17:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266761AbTBTST1>; Thu, 20 Feb 2003 13:19:27 -0500
-Received: from dialup-192.130.220.203.acc01-faul-arm.comindico.com.au ([203.220.130.192]:46465
-	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S266755AbTBTST0> convert rfc822-to-8bit; Thu, 20 Feb 2003 13:19:26 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: James Buchanan <jamesbuch@iprimus.com.au>
-Reply-To: jamesbuch@iprimus.com.au
-To: Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: Linux kernel rant
-Date: Fri, 21 Feb 2003 17:29:06 +1100
-User-Agent: KMail/1.4.3
-Cc: Rik van Riel <riel@imladris.surriel.com>,
-       Tomas Szepe <szepe@pinerecords.com>, linux-kernel@vger.kernel.org
-References: <200302211551.28222.jamesbuch@iprimus.com.au> <200302211717.23993.jamesbuch@iprimus.com.au> <20030220182222.GM9800@gtf.org>
-In-Reply-To: <20030220182222.GM9800@gtf.org>
-X-Memberships: Professional Member, ACM (jamesb.au@acm.org)
-X-Hypothetical: Humans are incapable of original thought. Everything is the result of observation, experimentation, or building on/modifying what already exists.
-X-Location: Australia, NSW
-X-Religion: Athiest, Secular
-X-Operating-System: RedHat Linux/GNU
-X-Message: The Truth Is Out There
+	id <S266749AbTBTSRb>; Thu, 20 Feb 2003 13:17:31 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:20239 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S266735AbTBTSQp>; Thu, 20 Feb 2003 13:16:45 -0500
+Date: Thu, 20 Feb 2003 10:23:57 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Zwane Mwaikambo <zwane@holomorphy.com>, Chris Wedgwood <cw@f00f.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: doublefault debugging (was Re: Linux v2.5.62 --- spontaneous
+ reboots)
+In-Reply-To: <Pine.LNX.4.44.0302200949520.1385-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0302201015150.1589-100000@home.transmeta.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200302211729.06665.jamesbuch@iprimus.com.au>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 21 Feb 2003 05:22 am, Jeff Garzik wrote:
-> Here is a challenge, then:
->
-> When you install your OS of choice, please post a list of drivers
-> you are using, so we can point out the NDA'd portions.
 
-There are really that many NDAs out there in free software land?  Tell 
-me how many IDE drivers are written under an NDA.
+On Thu, 20 Feb 2003, Linus Torvalds wrote:
+> 
+> In other words, I think we need to have schedule_tail() do the 
+> release_task(), otherwise we'd release it too early while the task 
+> structure (and the stack) are both still in use.
 
-> P.S. I notice no responses to my messages.  I guess you have a
-> problem with facts, and truth...
+Well, it's not "schedule_tail()" any more, since that is no longer called 
+by the normal schedule end-path.
 
-No, where did you get this from?  I'm sure I posted a response to you, 
-but I am having trouble keeping up with everything that's coming into 
-my inbox.  Maybe I missed it.
+Test suggestion:
+
+ - remove the 
+
+        if (tsk->exit_signal == -1)
+                release_task(tsk);
+
+   from kernel/exit.c
+
+ - make "finish_switch()" something like
+
+	static void inline finish_switch(struct runqueue *rq, struct task_struct *prev)
+	{
+		finish_arch_switch(rp, prev);
+		if ((prev->state & TASK_ZOMBIE) && (prev->exit_signal == -1))
+			release_task(prev);
+	}
+
+ - make all of "kernel/sched.c" use "finish_switch()" instead of 
+   "finish_arch_switch()" (ie replace it in both schedule_tail() and the
+   end of schedule() itself).
+
+At some point we can think about trying to speed up that test for 
+release_task(), ie add some extra task-state or something that is set in 
+kernel/exit.c so that we don't slow down the task switching unnecessarily.
+
+How does this sound?
+
+Also, for debugging, how about this simple (but expensive) debugging thing
+that only works without HIGHMEM (and is obviously whitespace-damaged due
+to indenting it):
+
+	--- 1.148/mm/page_alloc.c	Wed Feb  5 20:05:13 2003
+	+++ edited/mm/page_alloc.c	Thu Feb 20 10:22:42 2003
+	@@ -685,6 +685,7 @@
+	 void __free_pages(struct page *page, unsigned int order)
+	 {
+	 	if (!PageReserved(page) && put_page_testzero(page)) {
+	+		memset(page_address(page), 0x01, PAGE_SIZE << order);
+	 		if (order == 0)
+	 			free_hot_page(page);
+	 		else
+
+which should show the effects of a buggy "release_task()" much more 
+consistently.
+
+Ehh?
+
+		Linus
+

@@ -1,81 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262912AbTFJOkf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jun 2003 10:40:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262930AbTFJOkf
+	id S262930AbTFJO5J (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jun 2003 10:57:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262942AbTFJO5J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jun 2003 10:40:35 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:60843 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S262912AbTFJOkd
+	Tue, 10 Jun 2003 10:57:09 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:897 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262930AbTFJO5H
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jun 2003 10:40:33 -0400
-Date: Tue, 10 Jun 2003 09:53:41 -0500
-Subject: Re: Misc 2.5 Fixes: cp-user-zoran
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Mime-Version: 1.0 (Apple Message framework v552)
-Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
-To: dipankar@in.ibm.com
-From: Hollis Blanchard <hollisb@us.ibm.com>
-In-Reply-To: <20030610102255.GL2194@in.ibm.com>
-Message-Id: <53B8B044-9B53-11D7-8E3D-000A95A0560C@us.ibm.com>
-Content-Transfer-Encoding: 7bit
-X-Mailer: Apple Mail (2.552)
+	Tue, 10 Jun 2003 10:57:07 -0400
+Date: Tue, 10 Jun 2003 11:12:55 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Matti Aarnio <matti.aarnio@zmailer.org>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Large files
+In-Reply-To: <20030610141759.GU28900@mea-ext.zmailer.org>
+Message-ID: <Pine.LNX.4.53.0306101057020.4326@chaos>
+References: <Pine.LNX.4.53.0306100952560.4080@chaos> <20030610141759.GU28900@mea-ext.zmailer.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday, Jun 10, 2003, at 05:22 US/Central, Dipankar Sarma wrote:
->
-> diff -puN drivers/media/video/zr36120.c~cp-user-zoran 
-> drivers/media/video/zr36120.c
-> --- 
-> linux-2.5.70-ds/drivers/media/video/zr36120.c~cp-user-zoran	2003-06-08 
-> 04:10:38.000000000 +0530
-> +++ linux-2.5.70-ds-dipankar/drivers/media/video/zr36120.c	2003-06-08 
-> 04:10:38.000000000 +0530
-> @@ -1693,12 +1693,12 @@ long vbi_read(struct video_device* dev,
->  			for (x=0; optr+1<eptr && x<-done->w; x++)
->  			{
->  				unsigned char a = iptr[x*2];
-> -				*optr++ = a;
-> -				*optr++ = a;
-> +				__put_user(a, optr++);
-> +				__put_user(a, optr++);
->  			}
->  			/* and clear the rest of the line */
->  			for (x*=2; optr<eptr && x<done->bpl; x++)
-> -				*optr++ = 0;
-> +				__put_user(0, optr++);
->  			/* next line */
->  			iptr += done->bpl;
->  		}
-> @@ -1715,10 +1715,10 @@ long vbi_read(struct video_device* dev,
->  		{
->  			/* copy to doubled data to userland */
->  			for (x=0; optr<eptr && x<-done->w; x++)
-> -				*optr++ = iptr[x*2];
-> +				__put_user(iptr[x*2], optr++);
->  			/* and clear the rest of the line */
->  			for (;optr<eptr && x<done->bpl; x++)
-> -				*optr++ = 0;
-> +				__put_user(0, optr++);
->  			/* next line */
->  			iptr += done->bpl;
->  		}
-> @@ -1727,7 +1727,7 @@ long vbi_read(struct video_device* dev,
->  	/* API compliance:
->  	 * place the framenumber (half fieldnr) in the last long
->  	 */
-> -	((ulong*)eptr)[-1] = done->fieldnr/2;
-> +	__put_user(done->fieldnr/2, ((ulong*)eptr)-1);
->  	}
->
->  	/* keep the engine running */
+On Tue, 10 Jun 2003, Matti Aarnio wrote:
 
-It's funny, I did the exact same thing for the version currently in 
-bk... but I just realized that __put_user still returns an error code, 
-so all those calls should be checked.
+> On Tue, Jun 10, 2003 at 09:57:57AM -0400, Richard B. Johnson wrote:
+> > With 32 bit return values, ix86 Linux has a file-size limitation
+> > which is currently about 0x7fffffff. Unfortunately, instead of
+> > returning from a write() with a -1 and errno being set, so that
+> > a program can do something about it, write() executes a signal(25)
+> > which kills the task even if trapped. Is this one of those <expletive
+> > deleted> POSIX requirements or is somebody going to fix it?
+>
+>   http://www.sas.com/standards/large.file/
+>
+> #define SIGXFSZ    25    /* File size limit exceeded (4.2 BSD). */
+>
+> from  fs/buffer.c:
+>
+>         err = -EFBIG;
+>         limit = current->rlim[RLIMIT_FSIZE].rlim_cur;
+>         if (limit != RLIM_INFINITY && size > (loff_t)limit) {
+>                 send_sig(SIGXFSZ, current, 0);
+>                 goto out;
+>         }
+>         if (size > inode->i_sb->s_maxbytes)
+>                 goto out;
+>
+>
 
--- 
-Hollis Blanchard
-IBM Linux Technology Center
+On the system that fails, there are no ulimits and it's the root
+account, therefore I don't know how to set the above limit to
+RLIM_INFINITY (~0LU).  It's also version  2.4.20. I don't think
+it has anything to do with 'rlim' shown above. In any event
+sending a signal when the file-size exceeds some level is preposterous.
+The write should return -1 and errno should have been set to EFBIG
+(in user space). That allows the user's database to create another
+file and keep on trucking instead of blowing up and destroying the
+user's inventory or whatever else was in process.
+
+FYI, this caused the failure of a samba server for M$ stuff. It
+gives the impression of Linux being defective. This is not good.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
 

@@ -1,67 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267765AbTAIVai>; Thu, 9 Jan 2003 16:30:38 -0500
+	id <S267731AbTAIV2x>; Thu, 9 Jan 2003 16:28:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267772AbTAIVai>; Thu, 9 Jan 2003 16:30:38 -0500
-Received: from [213.171.53.133] ([213.171.53.133]:28688 "EHLO gulipin.miee.ru")
-	by vger.kernel.org with ESMTP id <S267765AbTAIVah>;
-	Thu, 9 Jan 2003 16:30:37 -0500
-Date: Fri, 10 Jan 2003 00:39:06 +0300 (MSK)
-From: "Ruslan U. Zakirov" <cubic@miee.ru>
-To: Adam Belay <ambx1@neo.rr.com>
-cc: greg@kroah.com, linux-kernel@vger.kernel.org
-Subject: Re: [2.5.54][PATCH] SB16 convertation to new PnP layer.
-In-Reply-To: <20030109152654.GC17701@neo.rr.com>
-Message-ID: <Pine.BSF.4.05.10301100003580.97976-100000@wildrose.miee.ru>
+	id <S267738AbTAIV2x>; Thu, 9 Jan 2003 16:28:53 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:38392 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S267731AbTAIV2x> convert rfc822-to-8bit; Thu, 9 Jan 2003 16:28:53 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: James Cleverdon <jamesclv@us.ibm.com>
+Reply-To: jamesclv@us.ibm.com
+Organization: IBM xSeries Linux Solutions
+To: Jason Lunz <lunz@falooley.org>, linux-kernel@vger.kernel.org
+Subject: Re: detecting hyperthreading in linux 2.4.19
+Date: Thu, 9 Jan 2003 13:37:04 -0800
+User-Agent: KMail/1.4.3
+References: <slrnb1rlct.g2c.lunz@stoli.localnet>
+In-Reply-To: <slrnb1rlct.g2c.lunz@stoli.localnet>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200301091337.04957.jamesclv@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 9 Jan 2003, Adam Belay wrote:
-> On Thu, Jan 09, 2003 at 06:35:12PM +0300, Ruslan U. Zakirov wrote:
-> > 1) As I've understood we need to free all reserved resources when
-> > remove function called, am I right?
-> 
-> Yes, all resources must be freed or the device will not work if it is
-> attached to the driver a second time.  This is becuase the driver will
-> think the device is busy when actually the resources were just never
-> freed from the previous session.  Also the resources must be freed to
-> safetly disable the device.
-Here I have strange behavior under 2.5.55 vanilla with my patch.
-rmmod snd_*
-OK, and it understandable for me. We just unload KO(->remove was called)
-and didn't free resources(remove is empty now).
-modprobe snd_sbawe isapnp=0 (I've got legacy card)
-This cause an oops not error(logical behavior as I think because
-resources busy), but module loads anyway and sound works.
-I must reinstall binutils to install ksymoops, i'll do it tomorow after my
-exam.
-> 
-> 
-> > 2) Who decide card is accessible at some time or not?
-> 
-> This is determined by both the pnp layer and the driver model.  Becuase a
-> card is a group of devices the individual devices must also not be matched
-> to more than one driver.  PnP Card Services have a few bugs in this area,
-> all of which have been resolved in the patch I released last week.  Greg,
-> could you please forward that to Linus.
-I've this patch and going to try write remove function.
+On Thursday 09 January 2003 12:02 pm, Jason Lunz wrote:
+> Is there a way for a userspace program running on linux 2.4.19 to tell
+> the difference between a single hyperthreaded xeon P4 with HT enabled
+> and a dual hyperthreaded xeon P4 with HT disabled? The /proc/cpuinfos
+> for the two cases are indistinguishable.
+>
+> Jason
+>
+> -
 
-> > 3) And the last, where is the place of ISA not PnP cards in the device
-> > lists? As I think, they are fit with PnP bus, but their resources
-> > static(not configurable) or it's just lays under ALSA, apears in
-> > /proc/asound only and ALSA internals?
-> 
-> Currently the pnp layer does not support legacy non PnP devices.  I plan
-> to add support for them soon.  This support should achieve two objectives.
-> 1.) Reserve resources used by the legacy devices
-> 	a.) if the resources match an existing pnp devices, bind to that
-> 	    device
-> 	b.) if they conflict but do not match exactly return an error
-> 	c.) otherwise reserve the resources and prevent pnp devices from
-> 	    using them.
-> 2.) Represent these legacy devices in sysfs.  Maybe the current legacy dir
->     could be used or I may have to create "pnp_legacy".  Needs more research.
-OK. Waiting for new changes.
+In the kernel that's no problem:
+
+A) If the BIOS writers followed Intel's guidelines, just look at the physical 
+APIC IDs.  HT siblings have odd IDs, the real ones have even.
+
+B) Check the siblings table built up at boot time and used by the scheduler.
+
+I don't know of any way to do this in userland.  The whole point is that the 
+sibling processors are supposed to look like real ones.
+
+You _could_ try running two processes simultaneously in tight spin loops for 
+100 million cycles and comparing the amount of real time consumed.  That 
+would be rather unreliable and kludgey though.
+
+-- 
+James Cleverdon
+IBM xSeries Linux Solutions
+{jamesclv(Unix, preferred), cleverdj(Notes)} at us dot ibm dot com
 

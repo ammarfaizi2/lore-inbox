@@ -1,47 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263160AbUCYOY7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Mar 2004 09:24:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263167AbUCYOYz
+	id S263174AbUCYOhA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Mar 2004 09:37:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263172AbUCYOen
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Mar 2004 09:24:55 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:39898 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S263159AbUCYOYv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Mar 2004 09:24:51 -0500
-Date: Thu, 18 Mar 2004 23:04:32 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Nick Piggin <piggin@cyberone.com.au>
-Cc: Rik van Riel <riel@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-       Hugh Dickins <hugh@veritas.com>, Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH] RSS limit enforcement for 2.6
-Message-ID: <20040318220432.GB1505@openzaurus.ucw.cz>
-References: <Pine.LNX.4.44.0403151816350.12895-100000@chimarrao.boston.redhat.com> <405699C1.7010906@cyberone.com.au>
-Mime-Version: 1.0
+	Thu, 25 Mar 2004 09:34:43 -0500
+Received: from mail.scsiguy.com ([63.229.232.106]:56072 "EHLO
+	aslan.scsiguy.com") by vger.kernel.org with ESMTP id S263171AbUCYObk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Mar 2004 09:31:40 -0500
+Date: Thu, 25 Mar 2004 07:31:37 -0700
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Reply-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+To: linux-raid@vger.kernel.org
+cc: linux-kernel@vger.kernel.org
+Subject: "Enhanced" MD version 0.8.0 now available
+Message-ID: <887380000.1080225097@aslan.btc.adaptec.com>
+X-Mailer: Mulberry/3.1.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <405699C1.7010906@cyberone.com.au>
-User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+An updated snapshot of the Enahanced MD project is now available here:
 
-> >Hugh Dickins found a bug in the 2.4-rmap RSS limit enforcing
-> >code that may well explain why the previous port of the code
-> >to 2.6 resulted in bad performance.  The split active lists
-> >in 2.4-rmap probably masked the largest damages, but in 2.6
-> >it was very much visible.
-> >
-> >
-> 
-> Hi Rik,
-> What was the problem by the way?
+	http://people.freebsd.org/~gibbs/linux/SRC/emd-0.8.0-tar.gz
 
-When running lingvistics computation, machine got completely
-unusable due to bad memory pressure. nice -n 19 was
-useless. Memory limit should help.
--- 
-64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+and as diffs relative to the current 2.6 MD implementation:
+
+	http://people.freebsd.org/~gibbs/linux/SRC/emd-2.6-20040425-diffs.gz
+
+A version of "emdadm" is also avaible to for this driver:
+
+	http://people.freebsd.org/~gibbs/linux/SRC/emdadm-0.00.1.tgz
+
+This snapshot includes support for RAID0, RAID1, and the Adaptec
+ASR and DDF meta-data formats.  Additional RAID personalities and
+support for the Super90 and Super 1 meta-data formats will be added
+in the coming weeks, the end goal being to provide a superset of
+the functionality in the current MD.
+
+This drop adds the ability to create, delete, and monitor DDF and
+Adaptec ASR meta-data based arrays from emdadm in addition to including
+several bug fixes.  
+
+This release is still structured as an MD replacement.  While this
+makes the diffs supplied above more relevant from a review standpoint,
+we believe that it makes more sense at this stage in EMD development
+to provide it as a separate driver.  This change will be reflected
+in our next release.  The hope is for EMD and MD to merge as EMD is
+reviewed and altered to suite the communities needs.
+
+As always, your questions, comments, and suggestions for EMD are
+greatly appreciated.
+
+--
+Justin
 

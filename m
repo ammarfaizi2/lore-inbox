@@ -1,56 +1,195 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262530AbUKLNGz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262529AbUKLNLv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262530AbUKLNGz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Nov 2004 08:06:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262526AbUKLNF0
+	id S262529AbUKLNLv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Nov 2004 08:11:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262526AbUKLNLu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Nov 2004 08:05:26 -0500
-Received: from witte.sonytel.be ([80.88.33.193]:10221 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S262529AbUKLNEp (ORCPT
+	Fri, 12 Nov 2004 08:11:50 -0500
+Received: from mail.asstra.pl ([217.153.152.34]:56238 "EHLO mail.asstra.pl")
+	by vger.kernel.org with ESMTP id S262529AbUKLNLj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Nov 2004 08:04:45 -0500
-Date: Fri, 12 Nov 2004 14:04:33 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Andries Brouwer <Andries.Brouwer@cwi.nl>
-cc: Kyle Moffett <mrmacman_g4@mac.com>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] remove if !PARTITION_ADVANCED condition in defaults
-In-Reply-To: <20041112122052.GA13342@apps.cwi.nl>
-Message-ID: <Pine.GSO.4.61.0411121402570.27077@waterleaf.sonytel.be>
-References: <200411112302.iABN2Pu01711@apps.cwi.nl>
- <Pine.LNX.4.58.0411111507090.2301@ppc970.osdl.org> <CB00AF16-344E-11D9-857E-000393ACC76E@mac.com>
- <Pine.GSO.4.61.0411121242340.27077@waterleaf.sonytel.be>
- <20041112122052.GA13342@apps.cwi.nl>
+	Fri, 12 Nov 2004 08:11:39 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-MIMETrack: S/MIME Sign by Notes Client on Ilia Sotnikov/ASSTRA/BY(Release 6.0.2CF1|June
+ 9, 2003) at 12.11.2004 14:59:59,
+	Serialize by Notes Client on Ilia Sotnikov/ASSTRA/BY(Release 6.0.2CF1|June
+ 9, 2003) at 12.11.2004 14:59:59,
+	Serialize complete at 12.11.2004 14:59:59,
+	S/MIME Sign failed at 12.11.2004 14:59:59: The cryptographic key was not
+ found,
+	S/MIME Sign by Notes Client on Ilia Sotnikov/ASSTRA/BY(Release 5.0.12  |February
+ 13, 2003) at 12.11.2004 15:09:50,
+	Serialize by Notes Client on Ilia Sotnikov/ASSTRA/BY(Release 5.0.12  |February
+ 13, 2003) at 12.11.2004 15:09:50,
+	Serialize complete at 12.11.2004 15:09:50,
+	S/MIME Sign failed at 12.11.2004 15:09:50: The cryptographic key was not
+ found,
+	Serialize by Router on Warszawa-Passthru/ASSTRA/BY(Release 6.5.1|January 28, 2004) at
+ 11/12/2004 02:11:38 PM
+To: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: [PATCH] [Repost] IPSec: cleartext packets path for 2.6.9
+X-Mailer: Lotus Notes Release 5.0.12   February 13, 2003
+Message-ID: <OF55CB9C90.8966D0A1-ONC2256F4A.0046DD68-85256F4A.006EC3C1@asstra.by>
+From: Ilia Sotnikov/ASSTRA/BY <ilia.sotnikov@asstra.by>
+Date: Fri, 12 Nov 2004 15:11:18 +0200
+Content-Type: multipart/mixed; boundary="=_mixed 006EC3BD85256F4A_="
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 12 Nov 2004, Andries Brouwer wrote:
-> On Fri, Nov 12, 2004 at 12:50:21PM +0100, Geert Uytterhoeven wrote:
-> (wild reaction snipped)
-> 
-> Geert, have you tried?
-> Didnt you discover that the patch is perfect?
-> 
-> I get the impression that your reaction was written without reading
-> what was changed.
-> 
-> But if anything is wrong, please say explicitly what.
+--=_mixed 006EC3BD85256F4A_=
+Content-Type: text/plain; charset="us-ascii"
 
-Sorry, I shouldn't do email when I'm ill...
+IPSec: 
+Let incoming packets after decapsulation in transport mode traverse 
+the same path as with tunnels. 
+Deliver outgoing packets before encapsulation to all attached 
+PF_PACKET sockets for example, pcap based programs) without sending 
+them to a physical interface.
 
-On a second read, it indeed looks perfect. I missed the already existing `if
-PARTITION_ADVANCED' at the end of each `bool "..."' line.
+Signed-off-by: Ilia Sotnikov <ilia.sotnikov@asstra.by>
 
-Gr{oetje,eeting}s,
+Description:
+xfrm{4,6}_input() calls will return 0 even when decapsulating 
+packet in the transport mode as opposed to the original concept 
+when they return -nh->protocol. Then packets get reinjected via 
+neitf_rx() call. Although it's overhead, it allows a packet to 
+be seen in more Netfilter hooks. Below is table which shows 
+the difference in Netfilter hooks traversal.
 
-						Geert
+mangle table:
+Mode        NF Hook     Vanilla     Patched
+transport   PREROUTING  no          yes
+tunnel      PREROUTING  yes         yes
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+transport   INPUT       no          yes
+tunnel      INPUT       yes         yes
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+transport   OUTPUT      yes         yes
+tunnel      OUTPUT      yes         yes
+
+transport   POSTROUTING no          no
+tunnel      POSTROUTING no          no
+
+Additionally, pcap based programs will be able to see all 
+cleartext packets (incoming and outgoing). In vanilla kernel, you 
+will see only incoming cleartext packets after decapsulation 
+and only in the tunnel mode.
+
+PS: Please, CC me as I'm not on the list
+PPS: Please forgive me the attachement but my email client will kill
+all the indentation.
+
+
+--=_mixed 006EC3BD85256F4A_=
+Content-Type: application/octet-stream; name="linux-2.6.9-ipsec_traverse_path.diff"
+Content-Disposition: attachment; filename="linux-2.6.9-ipsec_traverse_path.diff"
+Content-Transfer-Encoding: base64
+
+ZGlmZiAtdXIgbGludXgtMi42Ljkub3JpZy9pbmNsdWRlL25ldC94ZnJtLmggbGludXgtMi42Ljkv
+aW5jbHVkZS9uZXQveGZybS5oCi0tLSBsaW51eC0yLjYuOS5vcmlnL2luY2x1ZGUvbmV0L3hmcm0u
+aAkyMDA0LTEwLTE5IDAwOjU0OjU1LjAwMDAwMDAwMCArMDMwMAorKysgbGludXgtMi42LjkvaW5j
+bHVkZS9uZXQveGZybS5oCTIwMDQtMTEtMTAgMTQ6NDE6MDAuMjA4NjAwNzg0ICswMjAwCkBAIC05
+MDksNCArOTA5LDc3IEBACiAJfQogfQogCisvKiBEZWxpdmVyIGNsZWFyLXRleHQgcGFja2V0IHRv
+IG5ldHdvcmsgdGFwcy4KKyAqCisgKiBEZWxpdmVyIElQIHBhY2tldCB0byBhbGwgYXR0YWNoZWQg
+bmV0d29yayB0YXBzIHVzaW5nIGRldl9xdWV1ZV94bWl0X25pdC4KKyAqIE5vIG91dHB1dCBzaG91
+bGQgYmUgcHJvZHVjZWQgb24gYSBwaHlzaWNhbCBpbnRlcmZhY2UuCisgKiBBY3R1YWxseSBzdW1t
+YXJ5IG9mIGlwX2ZpbmlzaF9vdXRwdXQsIGlwX2ZpbmlzaF9vdXRwdXQyLgorICovCisKK3N0YXRp
+YyBpbmxpbmUgaW50IGlwX3htaXRfbml0IChzdHJ1Y3Qgc2tfYnVmZiAqc2tiKQoreworCXN0cnVj
+dCBza19idWZmICpuZXdza2I7CisJc3RydWN0IG5ldF9kZXZpY2UgKmRldjsKKwlpbnQgaGhfbGVu
+OworCisJLyogQWxsb2NhdGUgbmV3IGJ1ZmZlciB3aXRoIHByaXZhdGUgaGVhZGVycyBhbmQgc2hh
+cmVkIGRhdGEgCisJICAgYmVjYXVzZSB3ZSBvbmx5IG5lZWQgdG8gbW9kaWZ5IHRoZSBmb3JtZXIg
+Ki8KKwluZXdza2IgPSBwc2tiX2NvcHkoc2tiLCBHRlBfQVRPTUlDKTsKKwlpZiAobmV3c2tiID09
+IE5VTEwpCisJCXJldHVybiAtRU5PTUVNOworCisJaWYgKG5ld3NrYi0+ZHN0KQorCQlkZXYgPSBu
+ZXdza2ItPmRzdC0+ZGV2OworCWVsc2UKKwkJcmV0dXJuIC1FSU5WQUw7CisKKwkvKiBBbGxvY2F0
+ZSBtb3JlIHNwYWNlIGluIHRoZSBoZWFkIGZvciBMTCBoZWFkZXJzIGlmIGFueSAqLworCWhoX2xl
+biA9IExMX1JFU0VSVkVEX1NQQUNFKGRldik7CisJaWYgKHVubGlrZWx5KHNrYl9oZWFkcm9vbShu
+ZXdza2IpIDwgaGhfbGVuICYmIGRldi0+aGFyZF9oZWFkZXIpKSB7CisJCXN0cnVjdCBza19idWZm
+ICpuZXdza2IyOworCisJCW5ld3NrYjIgPSBza2JfcmVhbGxvY19oZWFkcm9vbShuZXdza2IsIGho
+X2xlbik7CisJCWlmIChuZXdza2IyID09IE5VTEwpIHsKKwkJCWtmcmVlX3NrYiAobmV3c2tiKTsK
+KwkJCXJldHVybiAtRU5PTUVNOworCQl9CisJCWtmcmVlX3NrYiAobmV3c2tiKTsKKwkJbmV3c2ti
+ID0gbmV3c2tiMjsKKwl9CisKKwluZXdza2ItPnByb3RvY29sIAk9IGh0b25zKEVUSF9QX0lQKTsK
+KwluZXdza2ItPmRldiAJCT0gZGV2OworCisJLyogUHV0IExMIGhlYWRlciBpbnRvIHRoZSBidWZm
+ZXIgKi8KKwlpZiAoZGV2LT5oYXJkX2hlYWRlcikKKwkJaWYgKCFkZXYtPmhhcmRfaGVhZGVyKG5l
+d3NrYiwgZGV2LCBudG9ocyhuZXdza2ItPnByb3RvY29sKSwgTlVMTCwgTlVMTCwgbmV3c2tiLT5s
+ZW4pKQorCQkJcmV0dXJuIC1FSU5WQUw7CisKKwkvKiBEZWxpdmVyIHRoZSBidWZmZXIgdG8gYWxs
+IG5ldHdvcmsgdGFwcyAqLworCWRldl9xdWV1ZV94bWl0X25pdChuZXdza2IsIGRldik7CisJCisJ
+a2ZyZWVfc2tiKG5ld3NrYik7CisKKwlyZXR1cm4gMDsKK30KKworc3RhdGljIGlubGluZSB2b2lk
+IHhmcm1fZXhwYW5kX21hYyhzdHJ1Y3Qgc2tfYnVmZiAqc2tiKQoreworCXNrYi0+bWFjLnJhdyA9
+IG1lbW1vdmUoc2tiLT5kYXRhIC0gc2tiLT5tYWNfbGVuLAorCQkJCSAgIHNrYi0+bWFjLnJhdywg
+c2tiLT5tYWNfbGVuKTsKKwlza2ItPm5oLnJhdyA9IHNrYi0+ZGF0YTsKK30KKworc3RhdGljIGlu
+bGluZSB2b2lkIHhmcm1fcmVzdG9yZV9pcGgoc3RydWN0IHNrX2J1ZmYgKnNrYikKK3sKKwlpbnQg
+aXBoX2xlbiwgdG90X2xlbjsKKworCWlwaF9sZW4gPSBza2ItPmgucmF3IC0gc2tiLT5uaC5yYXc7
+CisKKwlza2JfcHVzaCAoc2tiLCBpcGhfbGVuKTsKKwl0b3RfbGVuID0gbnRvaHMoc2tiLT5uaC5p
+cGgtPnRvdF9sZW4pOworCXRvdF9sZW4gKz0gaXBoX2xlbjsKKwlza2ItPm5oLmlwaC0+dG90X2xl
+biA9IGh0b25zKHRvdF9sZW4pOworfQorCiAjZW5kaWYJLyogX05FVF9YRlJNX0ggKi8KZGlmZiAt
+dXIgbGludXgtMi42Ljkub3JpZy9uZXQvaXB2NC94ZnJtNF9pbnB1dC5jIGxpbnV4LTIuNi45L25l
+dC9pcHY0L3hmcm00X2lucHV0LmMKLS0tIGxpbnV4LTIuNi45Lm9yaWcvbmV0L2lwdjQveGZybTRf
+aW5wdXQuYwkyMDA0LTEwLTE5IDAwOjUzOjIxLjAwMDAwMDAwMCArMDMwMAorKysgbGludXgtMi42
+LjkvbmV0L2lwdjQveGZybTRfaW5wdXQuYwkyMDA0LTExLTEwIDAyOjE2OjU3LjAwMDAwMDAwMCAr
+MDIwMApAQCAtMTA1LDkgKzEwNSw3IEBACiAJCQkJaXB2NF9jb3B5X2RzY3AoaXBoLCBza2ItPmgu
+aXBpcGgpOwogCQkJaWYgKCEoeC0+cHJvcHMuZmxhZ3MgJiBYRlJNX1NUQVRFX05PRUNOKSkKIAkJ
+CQlpcGlwX2Vjbl9kZWNhcHN1bGF0ZShza2IpOwotCQkJc2tiLT5tYWMucmF3ID0gbWVtbW92ZShz
+a2ItPmRhdGEgLSBza2ItPm1hY19sZW4sCi0JCQkJCSAgICAgICBza2ItPm1hYy5yYXcsIHNrYi0+
+bWFjX2xlbik7Ci0JCQlza2ItPm5oLnJhdyA9IHNrYi0+ZGF0YTsKKwkJCXhmcm1fZXhwYW5kX21h
+Yyhza2IpOwogCQkJbWVtc2V0KCYoSVBDQihza2IpLT5vcHQpLCAwLCBzaXplb2Yoc3RydWN0IGlw
+X29wdGlvbnMpKTsKIAkJCWRlY2FwcyA9IDE7CiAJCQlicmVhazsKQEAgLTEzNCwxNyArMTMyLDI4
+IEBACiAJbWVtY3B5KHNrYi0+c3AtPngrc2tiLT5zcC0+bGVuLCB4ZnJtX3ZlYywgeGZybV9ucipz
+aXplb2Yoc3RydWN0IHNlY19kZWNhcF9zdGF0ZSkpOwogCXNrYi0+c3AtPmxlbiArPSB4ZnJtX25y
+OwogCi0JaWYgKGRlY2FwcykgewotCQlpZiAoIShza2ItPmRldi0+ZmxhZ3MmSUZGX0xPT1BCQUNL
+KSkgewotCQkJZHN0X3JlbGVhc2Uoc2tiLT5kc3QpOwotCQkJc2tiLT5kc3QgPSBOVUxMOwotCQl9
+Ci0JCW5ldGlmX3J4KHNrYik7Ci0JCXJldHVybiAwOwotCX0gZWxzZSB7Ci0JCXJldHVybiAtc2ti
+LT5uaC5pcGgtPnByb3RvY29sOworCS8qIExldCBwYWNrZXRzIGluIElQU2VjIHRyYW5zcG9ydCBt
+b2RlIHRyYXZlcnNlIHRoZSBzYW1lIHBhdGggYXMgd2l0aCB0dW5uZWwKKwkgKiAod2hpY2ggYXJl
+IGRlbGl2ZXJlZCBiYWNrIHRvIElQIHN0YWNrIHZpYSBuZXRpZl9yeCBhZnRlciBkZWNhcHN1bGF0
+aW9uKQorCSAqCisJICogc2tiLT5kYXRhIHBvaW50cyB0byBqdXN0IHBhc3QgSVAgaGVhZGVyLCBz
+a2ItPmxlbiAmIGlwaC0+dG90X2xlbiBkb2Vzbid0IAorCSAqIGNvdW50IElQIGhlYWRlciwgYSBn
+YXAgZXhpc3RzIGJldHdlZW4gc2tiLT5tYWMgYW5kIHNrYi0+bmgsIElQIGNoZWNrc3VtCisJICog
+bmVlZHMgdG8gYmUgcmVjYWxjdWxhdGVkLgorCSAqLworCisJaWYgKCEoc2tiLT5kZXYtPmZsYWdz
+JklGRl9MT09QQkFDSykpIHsKKwkJZHN0X3JlbGVhc2Uoc2tiLT5kc3QpOworCQlza2ItPmRzdCA9
+IE5VTEw7CisJfQorCisJaWYgKCFkZWNhcHMpIHsKKwkJeGZybV9yZXN0b3JlX2lwaChza2IpOwor
+CQl4ZnJtX2V4cGFuZF9tYWMoc2tiKTsKKwkJaXBfc2VuZF9jaGVjayAoc2tiLT5uaC5pcGgpOwog
+CX0KIAorCW5ldGlmX3J4KHNrYik7CisJcmV0dXJuIDA7CisKIGRyb3BfdW5sb2NrOgogCXNwaW5f
+dW5sb2NrKCZ4LT5sb2NrKTsKIAl4ZnJtX3N0YXRlX3B1dCh4KTsKZGlmZiAtdXIgbGludXgtMi42
+Ljkub3JpZy9uZXQvaXB2NC94ZnJtNF9vdXRwdXQuYyBsaW51eC0yLjYuOS9uZXQvaXB2NC94ZnJt
+NF9vdXRwdXQuYwotLS0gbGludXgtMi42Ljkub3JpZy9uZXQvaXB2NC94ZnJtNF9vdXRwdXQuYwky
+MDA0LTEwLTE5IDAwOjUzOjQ0LjAwMDAwMDAwMCArMDMwMAorKysgbGludXgtMi42LjkvbmV0L2lw
+djQveGZybTRfb3V0cHV0LmMJMjAwNC0xMS0xMCAwMjoxNjo1Ny4wMDAwMDAwMDAgKzAyMDAKQEAg
+LTExNiw2ICsxMTYsOCBAQAogCQkJZ290byBlcnJvcjsKIAl9CiAKKwkvKiBEZWxpdmVyIGNsZWFy
+IHRleHQgcGFja2V0IHRvIG5ldHdvcmsgdGFwcyAqLworCWlwX3htaXRfbml0KHNrYik7CiAJeGZy
+bTRfZW5jYXAoc2tiKTsKIAogCWVyciA9IHgtPnR5cGUtPm91dHB1dChza2IpOwpkaWZmIC11ciBs
+aW51eC0yLjYuOS5vcmlnL25ldC9pcHY2L3hmcm02X2lucHV0LmMgbGludXgtMi42LjkvbmV0L2lw
+djYveGZybTZfaW5wdXQuYwotLS0gbGludXgtMi42Ljkub3JpZy9uZXQvaXB2Ni94ZnJtNl9pbnB1
+dC5jCTIwMDQtMTAtMTkgMDA6NTU6MzYuMDAwMDAwMDAwICswMzAwCisrKyBsaW51eC0yLjYuOS9u
+ZXQvaXB2Ni94ZnJtNl9pbnB1dC5jCTIwMDQtMTEtMTAgMDI6MTY6NTcuMDAwMDAwMDAwICswMjAw
+CkBAIC05Miw5ICs5Miw3IEBACiAJCQkJaXB2Nl9jb3B5X2RzY3Aoc2tiLT5uaC5pcHY2aCwgc2ti
+LT5oLmlwdjZoKTsKIAkJCWlmICghKHgtPnByb3BzLmZsYWdzICYgWEZSTV9TVEFURV9OT0VDTikp
+CiAJCQkJaXBpcDZfZWNuX2RlY2Fwc3VsYXRlKHNrYik7Ci0JCQlza2ItPm1hYy5yYXcgPSBtZW1t
+b3ZlKHNrYi0+ZGF0YSAtIHNrYi0+bWFjX2xlbiwKLQkJCQkJICAgICAgIHNrYi0+bWFjLnJhdywg
+c2tiLT5tYWNfbGVuKTsKLQkJCXNrYi0+bmgucmF3ID0gc2tiLT5kYXRhOworCQkJeGZybV9leHBh
+bmRfbWFjKHNrYik7CiAJCQlkZWNhcHMgPSAxOwogCQkJYnJlYWs7CiAJCX0KQEAgLTEyMSwxNyAr
+MTE5LDI4IEBACiAJc2tiLT5zcC0+bGVuICs9IHhmcm1fbnI7CiAJc2tiLT5pcF9zdW1tZWQgPSBD
+SEVDS1NVTV9OT05FOwogCi0JaWYgKGRlY2FwcykgewotCQlpZiAoIShza2ItPmRldi0+ZmxhZ3Mm
+SUZGX0xPT1BCQUNLKSkgewotCQkJZHN0X3JlbGVhc2Uoc2tiLT5kc3QpOwotCQkJc2tiLT5kc3Qg
+PSBOVUxMOwotCQl9Ci0JCW5ldGlmX3J4KHNrYik7Ci0JCXJldHVybiAtMTsKLQl9IGVsc2Ugewot
+CQlyZXR1cm4gMTsKKwkvKiBMZXQgcGFja2V0cyBpbiBJUFNlYyB0cmFuc3BvcnQgbW9kZSB0cmF2
+ZXJzZSB0aGUgc2FtZSBwYXRoIGFzIHdpdGggdHVubmVsCisJICogKHdoaWNoIGFyZSBkZWxpdmVy
+ZWQgYmFjayB0byBJUCBzdGFjayB2aWEgbmV0aWZfcnggYWZ0ZXIgZGVjYXBzdWxhdGlvbikKKwkg
+KgorCSAqIHNrYi0+ZGF0YSBwb2ludHMgdG8ganVzdCBwYXN0IElQIGhlYWRlciwgc2tiLT5sZW4g
+JiBpcGgtPnRvdF9sZW4gZG9lc24ndCAKKwkgKiBjb3VudCBJUCBoZWFkZXIsIGEgZ2FwIGV4aXN0
+cyBiZXR3ZWVuIHNrYi0+bWFjIGFuZCBza2ItPm5oLCBJUCBjaGVja3N1bQorCSAqIG5lZWRzIHRv
+IGJlIHJlY2FsY3VsYXRlZC4KKwkgKi8KKworCWlmICghKHNrYi0+ZGV2LT5mbGFncyZJRkZfTE9P
+UEJBQ0spKSB7CisJCWRzdF9yZWxlYXNlKHNrYi0+ZHN0KTsKKwkJc2tiLT5kc3QgPSBOVUxMOwor
+CX0KKworCWlmICghZGVjYXBzKSB7CisJCXhmcm1fcmVzdG9yZV9pcGgoc2tiKTsKKwkJeGZybV9l
+eHBhbmRfbWFjIChza2IpOworCQlpcF9zZW5kX2NoZWNrIChza2ItPm5oLmlwaCk7CiAJfQogCisJ
+bmV0aWZfcngoc2tiKTsKKwlyZXR1cm4gLTE7CisKIGRyb3BfdW5sb2NrOgogCXNwaW5fdW5sb2Nr
+KCZ4LT5sb2NrKTsKIAl4ZnJtX3N0YXRlX3B1dCh4KTsKZGlmZiAtdXIgbGludXgtMi42Ljkub3Jp
+Zy9uZXQvaXB2Ni94ZnJtNl9vdXRwdXQuYyBsaW51eC0yLjYuOS9uZXQvaXB2Ni94ZnJtNl9vdXRw
+dXQuYwotLS0gbGludXgtMi42Ljkub3JpZy9uZXQvaXB2Ni94ZnJtNl9vdXRwdXQuYwkyMDA0LTEw
+LTE5IDAwOjU1OjA3LjAwMDAwMDAwMCArMDMwMAorKysgbGludXgtMi42LjkvbmV0L2lwdjYveGZy
+bTZfb3V0cHV0LmMJMjAwNC0xMS0xMCAwMjoxNjo1Ny4wMDAwMDAwMDAgKzAyMDAKQEAgLTExNiw2
+ICsxMTYsOCBAQAogCQkJZ290byBlcnJvcjsKIAl9CiAKKwkvKiBEZWxpdmVyIGNsZWFyIHRleHQg
+cGFja2V0IHRvIG5ldHdvcmsgdGFwcyAqLworCWlwX3htaXRfbml0KHNrYik7CiAJeGZybTZfZW5j
+YXAoc2tiKTsKIAogCWVyciA9IHgtPnR5cGUtPm91dHB1dChza2IpOwo=
+
+--=_mixed 006EC3BD85256F4A_=--

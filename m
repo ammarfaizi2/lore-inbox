@@ -1,42 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283244AbRLDTOD>; Tue, 4 Dec 2001 14:14:03 -0500
+	id <S281659AbRLDSqL>; Tue, 4 Dec 2001 13:46:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283349AbRLDTMg>; Tue, 4 Dec 2001 14:12:36 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:3253
-	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S283343AbRLDTMQ>; Tue, 4 Dec 2001 14:12:16 -0500
-Date: Tue, 4 Dec 2001 14:04:12 -0500
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Giacomo Catenazzi <cate@dplanet.ch>, linux-kernel@vger.kernel.org,
-        kbuild-devel@lists.sourceforge.net
-Subject: Re: [kbuild-devel] Converting the 2.5 kernel to kbuild 2.5
-Message-ID: <20011204140412.B24431@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Rik van Riel <riel@conectiva.com.br>,
-	Giacomo Catenazzi <cate@dplanet.ch>, linux-kernel@vger.kernel.org,
-	kbuild-devel@lists.sourceforge.net
-In-Reply-To: <20011204123620.I16578@thyrsus.com> <Pine.LNX.4.33L.0112041702380.4079-100000@imladris.surriel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33L.0112041702380.4079-100000@imladris.surriel.com>; from riel@conectiva.com.br on Tue, Dec 04, 2001 at 05:03:06PM -0200
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+	id <S283288AbRLDSo7>; Tue, 4 Dec 2001 13:44:59 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:38674 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S282910AbRLDSnX>; Tue, 4 Dec 2001 13:43:23 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [PATCH] Endianness-aware mkcramfs
+Date: 4 Dec 2001 10:42:51 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9uj5fb$1fm$1@cesium.transmeta.com>
+In-Reply-To: <3C0BD8FD.F9F94BE0@mvista.com> <3C0CB59B.EEA251AB@lightning.ch>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel <riel@conectiva.com.br>:
-> Ohhh, that sounds a lot like "I'm not the maintainer, I'm
-> not responsible for the code I submit"  ;)))
+Followup to:  <3C0CB59B.EEA251AB@lightning.ch>
+By author:    Daniel Marmier <daniel.marmier@lightning.ch>
+In newsgroup: linux.dev.kernel
+> 
+> Here you are, against kernel 2.4.16. The patch is not as clean as one
+> would like it to be, but we use it and it works well for us.
+> 
+> Basically it adds a "-b" (byteorder option) which can take four parameters:
+>    -bb	creates a big-endian cramfs,
+>    -bl	creates a little-endian cramfs,
+>    -bh	creates a cramfs with the same endianness as the host,
+>    -br	creates a cramfs with the reverse endianness as the host,
+> where "host" refers to the machine running the mkcramfs program.
+> 
+> As told above, it could be cleaner, but I don't know of a nice method of
+> accessing byteorder dependent data through structures.
+> 
 
-I will provide stable code and be responsible for its stability.  It will be
-Marcelo's call, not mine, on whether the strategic tradeoffs come out
-in favor of the back-port.
+This isn't the right way to deal with this.  The right way to deal
+with this is to get all systems to read cramfs the same way.
+
+	-hpa
 -- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
-
-Everything you know is wrong.  But some of it is a useful first approximation.
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

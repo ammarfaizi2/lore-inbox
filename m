@@ -1,55 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131641AbRCSXH3>; Mon, 19 Mar 2001 18:07:29 -0500
+	id <S131642AbRCSXJT>; Mon, 19 Mar 2001 18:09:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131642AbRCSXHT>; Mon, 19 Mar 2001 18:07:19 -0500
-Received: from [63.109.146.2] ([63.109.146.2]:19444 "EHLO mail0.myrio.com")
-	by vger.kernel.org with ESMTP id <S131641AbRCSXHN>;
-	Mon, 19 Mar 2001 18:07:13 -0500
-Message-ID: <B65FF72654C9F944A02CF9CC22034CE22E1B42@mail0.myrio.com>
-From: Torrey Hoffman <torrey.hoffman@myrio.com>
-To: "'Jeremy Jackson'" <jerj@coplanar.net>, root@chaos.analogic.com
-Cc: linux-kernel@vger.kernel.org
-Subject: on /etc/mtab vs. /proc/mounts (Was RE: Linux should better cope w
-	ith power failure)
-Date: Mon, 19 Mar 2001 15:05:55 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S131652AbRCSXJL>; Mon, 19 Mar 2001 18:09:11 -0500
+Received: from lsb-catv-1-p021.vtxnet.ch ([212.147.5.21]:49418 "EHLO
+	almesberger.net") by vger.kernel.org with ESMTP id <S131642AbRCSXI4>;
+	Mon, 19 Mar 2001 18:08:56 -0500
+Date: Tue, 20 Mar 2001 00:07:38 +0100
+From: Werner Almesberger <Werner.Almesberger@epfl.ch>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Linux should better cope with power failure
+Message-ID: <20010320000738.E19635@almesberger.net>
+In-Reply-To: <3AB66233.B85881C7@bluewin.ch> <Pine.LNX.3.95.1010319150027.9639A-100000@chaos.analogic.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.3.95.1010319150027.9639A-100000@chaos.analogic.com>; from root@chaos.analogic.com on Mon, Mar 19, 2001 at 03:15:16PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(Recipients trimmed, as this is a major change of topic...)
-[big cut]
+Richard B. Johnson wrote:
+> Unix and other such variants have what's called a Virtual File System
+> (VFS).
 
-> Actually, I think /etc/mtab is not needed at all.   
+Correct, but hardly relevant here, except possibly that this enables you
+to use a different, perhaps more resilient file system.
 
-This is already mostly correct, AFAIK.
+> The idea behind this is to keep as much recently-used file stuff
+> in memory so that the system can be as fast as if you used a RAM disk
+> instead of real physical (slow) hard disks.
 
-My embedded system uses "busybox" for mount and umount, /etc/mtab 
-does not exist, and the root file system is readonly.  
+Correct, but does not require VFS.
 
-But if I do "umount -a" it works.  So the busybox umount is already 
-reading /proc/mounts.
+Nice try, though.
 
-The only oddity I see with using /proc/mounts is that it shows:
-/dev/root / ext2 rw 0 0
-instead of
-/dev/hda1 / ext2 rw 0 0
+- Werner
 
-but this doesn't seem to cause any problems... even though /dev/root
-does not exist (!)
-
-In fact, the "mount" man page on my Mandrake 7.2 system says:
-
-"It is possible to replace /etc/mtab by a symbolic link to 
-/proc/mounts..."  and then goes on to describe some of the issues and
-problems with doing so - loopback, and paths with spaces seem to
-be the significant ones.
-
-Hopefully those problems can and will be solved soon, and then
-we can get rid of /etc/mtab completely, and keep the root partition
-read only almost all the time.
-
-Torrey Hoffman
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, ICA, EPFL, CH           Werner.Almesberger@epfl.ch /
+/_IN_N_032__Tel_+41_21_693_6621__Fax_+41_21_693_6610_____________________/

@@ -1,46 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262746AbTK1RMg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Nov 2003 12:12:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262766AbTK1RMg
+	id S262740AbTK1RKG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Nov 2003 12:10:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262746AbTK1RKG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Nov 2003 12:12:36 -0500
-Received: from ivoti.terra.com.br ([200.176.3.20]:21387 "EHLO
-	ivoti.terra.com.br") by vger.kernel.org with ESMTP id S262746AbTK1RMe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Nov 2003 12:12:34 -0500
-Message-ID: <3FC781F4.7070201@terra.com.br>
-Date: Fri, 28 Nov 2003 15:12:20 -0200
-From: Felipe W Damasio <felipewd@terra.com.br>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5) Gecko/20031007
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Nick Piggin <piggin@cyberone.com.au>
-Cc: Lista da disciplina de Sistemas Operacionais III 
-	<sisopiii-l@cscience.org>,
-       Ricardo Nabinger Sanchez <rnsanchez@terra.com.br>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [SisopIII-l] Re: [PATCH] fix #endif misplacement
-References: <20031128141927.5ff1f35a.rnsanchez@terra.com.br> <Pine.LNX.4.53.0311281732100.21904@gockel.physik3.uni-rostock.de> <3FC77A59.2090705@elipse.com.br> <3FC7803D.2050203@cyberone.com.au>
-In-Reply-To: <3FC7803D.2050203@cyberone.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 28 Nov 2003 12:10:06 -0500
+Received: from mx.laposte.net ([81.255.54.11]:52372 "EHLO mx.laposte.net")
+	by vger.kernel.org with ESMTP id S262740AbTK1RKB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Nov 2003 12:10:01 -0500
+Subject: Re: Tell user when ACPI is killing machine
+From: Frederik Deweerdt <frederik.deweerdt@laposte.net>
+To: kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20031128145558.GA576@elf.ucw.cz>
+References: <20031128145558.GA576@elf.ucw.cz>
+Content-Type: text/plain
+Message-Id: <1070039237.3669.1.camel@silenus.home>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 28 Nov 2003 18:07:17 +0100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hi Nick,
+On Fri, 2003-11-28 at 15:55, Pavel Machek wrote:
+> +	printk(KERN_EMERG "Critical temperature reached (%d C), shutting down.\n", tz->temperature);
+Maybe there should be a KELVIN_TO_CELSIUS conversion for
+tz->temperature?
 
-Nick Piggin wrote:
-> The ifdef isn't pretty, but its performance critical code, its easy to
-> understand, and there is a big comment above it. I think its OK the
-> way it is. Not that you would ever notice any difference probably.
-
-	You're right. As Lucas already pointed out, the ifdef CONFIG_NUMA is 
-actually an ifndef...
-
-	Like myself, I think Ricardo overlooked this :)
-
-	Cheers,
-
-Felipe
+Regards,
+Frederik Deweerdt
+frederik.deweerdt@laposte.net
 

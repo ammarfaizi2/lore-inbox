@@ -1,47 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289009AbSBDPEr>; Mon, 4 Feb 2002 10:04:47 -0500
+	id <S289010AbSBDPJr>; Mon, 4 Feb 2002 10:09:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289011AbSBDPEh>; Mon, 4 Feb 2002 10:04:37 -0500
-Received: from rtlab.med.cornell.edu ([140.251.145.175]:10880 "HELO
-	openlab.rtlab.org") by vger.kernel.org with SMTP id <S289009AbSBDPEW>;
-	Mon, 4 Feb 2002 10:04:22 -0500
-Date: Mon, 4 Feb 2002 10:04:21 -0500 (EST)
+	id <S289012AbSBDPJh>; Mon, 4 Feb 2002 10:09:37 -0500
+Received: from rtlab.med.cornell.edu ([140.251.145.175]:11392 "HELO
+	openlab.rtlab.org") by vger.kernel.org with SMTP id <S289010AbSBDPJT>;
+	Mon, 4 Feb 2002 10:09:19 -0500
+Date: Mon, 4 Feb 2002 10:09:19 -0500 (EST)
 From: "Calin A. Culianu" <calin@ajvar.org>
-To: Harald Welte <laforge@gnumonks.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.4.18-pre7 Fixed typo that made compiling impossible
- in /net/ipv4/netfilter/ipfwadm_core.c
-In-Reply-To: <20020204083831.G26676@sunbeam.de.gnumonks.org>
-Message-ID: <Pine.LNX.4.30.0202041003530.2423-100000@rtlab.med.cornell.edu>
+To: Oliver Feiler <kiza@gmx.net>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, <linux-kernel@vger.kernel.org>
+Subject: Re: [Patch] (was: Re: fixup descriptions in pci-pc.c)
+In-Reply-To: <20020204114644.A331@gmx.net>
+Message-ID: <Pine.LNX.4.30.0202041007260.2423-100000@rtlab.med.cornell.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Woo hoo!  The new message is much better!!
 
-On Mon, 4 Feb 2002, Harald Welte wrote:
+Also, speaking of the pci-pc.c fixup for via.. I hear for some people it
+causes massive system instability.. :(  Although for me it was the
+answer to my woes.  What to do about that?
 
-> On Mon, Feb 04, 2002 at 02:04:58AM -0500, Calin A. Culianu wrote:
-> >
-> > /net/ipv4/netfilter/ipfwadm_core.c has a typo.  The MOD_*_USE_COUNT macros
-> > are being used incorrectly.  Compiling was impossible as a result.
-> >
-> > I fixed the typos.  It's trivial, but I figured I'd submit this just to
-> > make it easier for marcello to fix this...?  (this may have been submitted
-> > by someone else already.. but my quick scan of the mailing list didn't
-> > reveal anyone having patched this).
+-Calin
+
+On Mon, 4 Feb 2002, Oliver Feiler wrote:
+
+> Hello,
 >
-> It has already been submitted, but thanks anyway :)
-
-
-Hehe I figured it would have been.. having both the properties of being
-obvious and trivial.  :)
-
-
+> 	This just changes the printk in the via_northbridge_bug fixup to some
+> more meaningful output as it is already in 2.5.3. Please apply.
 >
-> > -Calin
+> Oliver
+>
+> --- linux-2.4.18-pre7/arch/i386/kernel/pci-pc.c	Sun Feb  3 14:56:48 2002
+> +++ linux-2.4.18-pre7_testing/arch/i386/kernel/pci-pc.c	Mon Feb  4 11:30:37 2002
+> @@ -1129,7 +1129,7 @@
+>
+>  	pci_read_config_byte(d, where, &v);
+>  	if (v & 0xe0) {
+> -		printk("Trying to stomp on VIA Northbridge bug...\n");
+> +		printk("Disabling broken memory write queue.\n");
+>  		v &= 0x1f; /* clear bits 5, 6, 7 */
+>  		pci_write_config_byte(d, where, v);
+>  	}
+>
 >
 >
 

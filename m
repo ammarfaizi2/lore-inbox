@@ -1,99 +1,117 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315630AbSFTVur>; Thu, 20 Jun 2002 17:50:47 -0400
+	id <S315734AbSFTV7Z>; Thu, 20 Jun 2002 17:59:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315631AbSFTVuq>; Thu, 20 Jun 2002 17:50:46 -0400
-Received: from petasus.ch.intel.com ([143.182.124.5]:45782 "EHLO
-	petasus.ch.intel.com") by vger.kernel.org with ESMTP
-	id <S315630AbSFTVuo>; Thu, 20 Jun 2002 17:50:44 -0400
-Message-ID: <01BDB7EEF8D4D3119D95009027AE99951B0E63EA@fmsmsx33.fm.intel.com>
-From: "Griffiths, Richard A" <richard.a.griffiths@intel.com>
-To: "'Andrew Morton'" <akpm@zip.com.au>, mgross@unix-os.sc.intel.com
-Cc: "Griffiths, Richard A" <richard.a.griffiths@intel.com>,
-       "'Jens Axboe'" <axboe@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       lse-tech@lists.sourceforge.net
-Subject: RE: ext3 performance bottleneck as the number of spindles gets la
-	rge
-Date: Thu, 20 Jun 2002 14:50:32 -0700
+	id <S315746AbSFTV7Y>; Thu, 20 Jun 2002 17:59:24 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:56070 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S315734AbSFTV7X> convert rfc822-to-8bit; Thu, 20 Jun 2002 17:59:23 -0400
+Message-ID: <3D125032.3040809@evision-ventures.com>
+Date: Thu, 20 Jun 2002 23:59:14 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0.0) Gecko/20020611
+X-Accept-Language: pl, en-us
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="ISO-8859-1"
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Cort Dougan <cort@fsmlabs.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Benjamin LaHaise <bcrl@redhat.com>,
+       Rusty Russell <rusty@rustcorp.com.au>, Robert Love <rml@tech9.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: latest linus-2.5 BK broken
+References: <Pine.LNX.4.44.0206201428481.8225-100000@home.transmeta.com>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I should have mentioned the throughput we saw on 4 adapters 6 drives was
-126KB/s.  The max theoretical bus bandwith is 640MB/s.
-
------Original Message-----
-From: Andrew Morton [mailto:akpm@zip.com.au]
-Sent: Thursday, June 20, 2002 2:26 PM
-To: mgross@unix-os.sc.intel.com
-Cc: Griffiths, Richard A; 'Jens Axboe'; Linux Kernel Mailing List;
-lse-tech@lists.sourceforge.net
-Subject: Re: ext3 performance bottleneck as the number of spindles gets
-large
-
-
-mgross wrote:
+U¿ytkownik Linus Torvalds napisa³:
 > 
-> On Thursday 20 June 2002 04:18 pm, Andrew Morton wrote:
-> > Yup.  I take it back - high ext3 lock contention happens on 2.5
-> > as well, which has block-highmem.  With heavy write traffic onto
-> > six disks, two controllers, six filesystems, four CPUs the machine
-> > spends about 40% of the time spinning on locks in fs/ext3/inode.c
-> > You're un dual CPU, so the contention is less.
-> >
-> > Not very nice.  But given that the longest spin time was some
-> > tens of milliseconds, with the average much lower, it shouldn't
-> > affect overall I/O throughput.
+> On Thu, 20 Jun 2002, Martin Dalecki wrote:
 > 
-> How could losing 40% of your CPU's to spin locks NOT spank your
-throughtput?
-
-The limiting factor is usually disk bandwidth, seek latency, rotational
-latency.  That's why I want to know your bandwidth.
-
-> Can you copy your lockmeter data from its kernel_flag section?  Id like to
-> see it.
-
-I don't find lockmeter very useful.  Here's oprofile output for 2.5.23:
-
-c013ec08 873      1.07487     rmqueue                 
-c018a8e4 950      1.16968     do_get_write_access     
-c013b00c 969      1.19307     kmem_cache_alloc_batch  
-c018165c 1120     1.37899     ext3_writepage          
-c0193120 1457     1.79392     journal_add_journal_head 
-c0180e30 1458     1.79515     ext3_prepare_write      
-c0136948 6546     8.05969     generic_file_write      
-c01838ac 42608    52.4606     .text.lock.inode      
-
-So I lost two CPUs on the BKL in fs/ext3/inode.c.  The remaining
-two should be enough to saturate all but the most heroic disk
-subsystems.
-
-A couple of possibilities come to mind:
-
-1: Processes which should be submitting I/O against disk "A" are
-   instead spending tons of time asleep in the page allocator waiting
-   for I/O to complete against disk "B".
-
-2: ext3 is just too slow for the rate of data which you're trying to
-   push at it.   This exhibits as lock contention, but the root cause
-   is the cost of things like ext3_mark_inode_dirty().  And *that*
-   is something we can fix - can shave 75% off the cost of that.
-
-Need more data...
-
-
-> >
-> > Possibly something else is happening.  Have you tested ext2?
+>>Linus you forget one simple fact - a HT CPU is *not* two CPUs.
+>>It is one CPU with a slightly better utilization of the
+>>super scalar pipelines.
 > 
-> No.  We're attempting to see if we can scale to large numbers of spindles
-> with EXT3 at the moment.  Perhaps we can effect positive changes to ext3
-> before giving up on it and moving to another Journaled FS.
+> 
+> Doesn't matter. It's SMP to software, _and_ it is a perfect example of how
+> integration, in the form of almost free transistors, changes the
+> economics.
 
-Have you tried *any* other fs?
+Well but this simply still doesn't make SMP magically scale
+better. HT gives you about 12% increase in throughput on average.
+This will hardly increase your MP3 ripping expierence :-).
 
--
+> Integration is _not_ "just another way".
+> 
+> Integration fundamentally changes the whole equation.
+> 
+> When you integrate the SMP capabilities on the CPU, suddenly the world
+> changes, because suddenly SMP is cheap and easy to do for motherboard
+> manufacturers that would never have done it before. Suddenly SMP is
+> available at mass-market prices.
+
+And suddenly the Chip-Set manufacturers start to buy CPU
+designs like creazy, becouse they can see what will be next... of course.
+
+> When you integrate multiple CPU's on one standard die (either HT or real
+> CPU's), the same thing happens.
+
+Again HT is still only one CPU. You are too software centric :-).
+
+> When you start integrating crossbars etc "numa-like" stuff, like Hammer
+> apparently is doing, you get the same old technology, but it _behaves_
+> differently.
+
+Yes HT gives 12%. naive SMP gives 50% and good SMP (aka corssbar bus)
+gives 70% for two CPU. All those numbers are well below the level
+where more then 2-4 makes hardly any sense... Amdahl bites you still if you
+read it like:
+
+88% waste (well actuall this time not)
+50% waste
+20% waste
+
+on scale.
+
+However corssbar switches are indeed allowing for maximally
+64 CPUs and more importantly it's the first step since a long time
+to provide better overall system throughput. However they will still
+not be near any commodity - too much heat for the foreseeable future.
+
+> You see this outside CPU's too.
+> 
+> When people started integrating high-performance 3D onto a single die, the
+> _market_ changed. The way people used it changed. It's largely the same
+> technology that has been around for a long time in visual workstations,
+> but it's DIFFERENT thanks to low prices and easy integration into
+> bog-standard PC's.
+> 
+> A 3D tech person might say that the technology is still the same.
+> 
+> But a real human will notice that it's radically different.
+
+Yes but you can drive the technology only up to the perceptual limits
+of a human. For example since about 6 years all those advancements
+in the graphics area are largely uninterresting to me. I don't
+play computer games. Never - they are too boring. Jet another
+fan in my computer - no thank's.
+
+> Did you mention that there are a lot more resistors in computers than
+> CPU's? No. It is irrelevant. It doesn't drive technology in fundamental
+> ways - even though the amount of fundamental technolgy inherent on a
+> modern motherboard in _just_ the passive components like the resistor
+> network is way beyond what people built just a few years ago.
+
+Well the last real technological jump comparable to the invention
+of television was actually due to this kind of CPUs which you
+compare to microbes - mobiles :-). And well I'm awaiting the
+day where there will be some WinWLAN card as shoddy as those Win
+modems are... Fortunately they made 802.11b complicated enough :-)
+But with a corssbar switch in place they could well make up for
+the latency on the main CPU... oh fear... oh scare...
+
+
+
+
+

@@ -1,71 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272074AbTHDStn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 14:49:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272140AbTHDStn
+	id S272140AbTHDS54 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 14:57:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272153AbTHDS54
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 14:49:43 -0400
-Received: from net28ip52nit.parklink.com ([192.204.28.52]:4480 "EHLO
-	okcomputer") by vger.kernel.org with ESMTP id S272074AbTHDStj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 14:49:39 -0400
-Subject: [Fwd: Re: Yenta init freezes Pavilion]
-From: Pat Rondon <pat@thepatsite.com>
-Reply-To: pat@thepatsite.com
-To: linux-kernel@vger.kernel.org
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-5ieHuPlq+YqOR8bMPKmq"
-Message-Id: <1060022978.3736.3.camel@okcomputer>
+	Mon, 4 Aug 2003 14:57:56 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:10625 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S272140AbTHDS5x
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Aug 2003 14:57:53 -0400
+Date: Mon, 4 Aug 2003 11:57:25 -0700
+From: Patrick Mansfield <patmans@us.ibm.com>
+To: Paul Blazejowski <paulb@blazebox.homeip.net>
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+       "Justin T. Gibbs" <gibbs@scsiguy.com>
+Subject: Re: Badness in device_release at drivers/base/core.c:84
+Message-ID: <20030804115725.A26812@beaverton.ibm.com>
+References: <20030801182207.GA3759@blazebox.homeip.net> <20030801144455.450d8e52.akpm@osdl.org> <20030803015510.GB4696@blazebox.homeip.net> <20030802190737.3c41d4d8.akpm@osdl.org> <20030803214755.GA1010@blazebox.homeip.net> <20030803145211.29eb5e7c.akpm@osdl.org> <20030803222313.GA1090@blazebox.homeip.net> <20030803223115.GA1132@blazebox.homeip.net> <20030804093035.A24860@beaverton.ibm.com> <1060021614.889.6.camel@blaze.homeip.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 04 Aug 2003 14:49:38 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1060021614.889.6.camel@blaze.homeip.net>; from paulb@blazebox.homeip.net on Mon, Aug 04, 2003 at 02:26:54PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Aug 04, 2003 at 02:26:54PM -0400, Paul Blazejowski wrote:
+> 
+> Patrick,
+> 
+> I enabled CONFIG_SCSI_LOGGING=y in kernel then i used
+> scsi_mod.scsi_logging_level=0x140 and scsi_mod.max_scsi_luns=1 when
+> booting the kernel from lilo.I can see some debug information scroll on
+> the screen and i did see ID0 LUN0 get probed even the correct transfer
+> rate for the SCSI disk is set.I forgot but isn't there a key sequence
+> when pressed it will stop the screen output like pause/break key?
+> 
+> I have few screen snaps which can be viewed at 
+> http://www.blazebox.homeip.net:81/diffie/images/linux-2.6.0-test2/aic7xxx/
 
---=-5ieHuPlq+YqOR8bMPKmq
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Yep, the shot that might have useful information is blurred.
 
-On Mon, 2003-08-04 at 05:26, Russell King wrote:
-> Which kernel exhibited this behaviour, and which was the last kernel
-> which didn't?
+I assume you are unable to use a serial console.
 
-  Sorry, can't believe I forgot this- this is with 2.6-test2-bk3.  I'll
-have info on which kernel was the last to not exhibit this behavior
-tonight, I hope (school, work, etc. in the way).
+I can usually "Shift + page-up" as long as there is not too much data, and
+depending on your console, AFAIR I can't pause my console output.
 
-> Also, there should be other messages about pcmcia around that area -
-> it would be helpful to include those in your report.
+Also, does the adapter bios show the drive at boot time?
 
-  Just IDE messages.
-  Booting without the mentioned options, if I let it sit long enough, I
-get the following message quite a few times:
+Hopefully Justin will add more useful suggestions for debugging.
 
-swapper: page allocation failure. order:0, mode:0x20
-
-  Also, if I hit the power button while it's frozen, it continues
-booting- obvious problem with ACPI/PCMCIA, I suppose?
-  Today it's actually sometimes booting to init without the pci/acpi
-options (it seems to depend on whether I have a card in the slot,
-actually), but at some point I get the following never-ending series of
-errors:
-
-  ACPI-0398: *** Error: acpi_ev_gpe_dispatch: No handler or method for
-GPE[xx], disabling event
-
-Thanks for helping me help. ;-)
-
---=-5ieHuPlq+YqOR8bMPKmq
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/LqrCruzBsw43EvgRAq5dAJ9Tq3T054so8+FH6PEwO76QKzMscwCggKXD
-ExUJGEplSwau+F2haW9blU0=
-=+ef8
------END PGP SIGNATURE-----
-
---=-5ieHuPlq+YqOR8bMPKmq--
-
+-- Patrick Mansfield

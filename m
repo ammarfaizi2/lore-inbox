@@ -1,39 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290213AbSAORxT>; Tue, 15 Jan 2002 12:53:19 -0500
+	id <S290217AbSAOR4I>; Tue, 15 Jan 2002 12:56:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290212AbSAORxK>; Tue, 15 Jan 2002 12:53:10 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:57874 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S290213AbSAORw7>; Tue, 15 Jan 2002 12:52:59 -0500
-Message-ID: <3C446C77.3000806@evision-ventures.com>
-Date: Tue, 15 Jan 2002 18:52:55 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011226
-X-Accept-Language: en-us, pl
-MIME-Version: 1.0
-To: Martin Eriksson <nitrax@giron.wox.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Why not "attach" patches?
-In-Reply-To: <005901c19dec$59a89e30$0201a8c0@HOMER>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S290221AbSAORzu>; Tue, 15 Jan 2002 12:55:50 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:8382 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S290212AbSAORyZ>; Tue, 15 Jan 2002 12:54:25 -0500
+Date: Tue, 15 Jan 2002 10:54:18 -0700
+Message-Id: <200201151754.g0FHsIT13693@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: wichert@cistron.nl (Wichert Akkerman)
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE][PATCH] New fs to control access to system resources
+In-Reply-To: <a21pfj$amj$1@picard.cistron.nl>
+In-Reply-To: <87k7uj61tk.fsf@tigram.bogus.local>
+	<200201151653.g0FGrlG12428@vindaloo.ras.ucalgary.ca>
+	<a21pfj$amj$1@picard.cistron.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Eriksson wrote:
+Wichert Akkerman writes:
+> In article <200201151653.g0FGrlG12428@vindaloo.ras.ucalgary.ca>,
+> Richard Gooch  <rgooch@ras.ucalgary.ca> wrote:
+> >Having to set the permissions like this on each boot seems a bit
+> >painful. Why not have permissions persistence like devfs has?
+> 
+> Maybe you could abstract that persistency from devfs and move
+> it into a general layer that other filesytems can also use.
 
->Why do many of you not _attach_ patches instead of merging them with the
->mail? It's so much cleaner and easier to have a "xxx-yyy.patch" file
->attached to the mail which can be saved in an appropriate directory. Also,
->the whitespace is always retained that way.
->
->OTOH I don't have very deep knowledge of "diff" and "patch", so maybe I have
->missed something here...
->
-Don't worry - nothign prevents proper attached patches from beeing 
-applied - the FAQ is only a bit
-zealous on this ;-)
+I suggested that last week in another thread (about Yet Another
+Virtual FS), and heard a deafening silence. I'm not sure if it's
+easier to provide a general layer, or to just make things available
+via devfs. Having a general layer implies multiple persistence daemons
+(aka devfsd), one for each virtual FS with persistence.
 
+I was hoping to start some discussion about this, but it seems people
+care more about Aunt Tilly :-)
 
+I'm sure some people will scream at the top of their lungs against the
+idea of making other information available via devfs, but maybe some
+of those screams will be muffled once I release v2.0 of the devfs core
+(that's the one where the internal tree is ripped out and the dcache
+is used instead: should be a big code reduction). At least with v1.9
+of the devfs core all known races have been removed, so hopefully that
+softens the resistance :-)
 
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

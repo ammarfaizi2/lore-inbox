@@ -1,41 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261678AbVBDJa2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263273AbVBDJcW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261678AbVBDJa2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 04:30:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261292AbVBDJa1
+	id S263273AbVBDJcW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 04:32:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263272AbVBDJcW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 04:30:27 -0500
-Received: from mail.suse.de ([195.135.220.2]:2008 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S263601AbVBDJ2R (ORCPT
+	Fri, 4 Feb 2005 04:32:22 -0500
+Received: from fw.osdl.org ([65.172.181.6]:431 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263251AbVBDJcI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 04:28:17 -0500
-Date: Fri, 4 Feb 2005 10:28:01 +0100
-From: Andi Kleen <ak@suse.de>
-To: Paul Mackerras <paulus@samba.org>
-Cc: Christoph Lameter <clameter@sgi.com>, Rik van Riel <riel@redhat.com>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       David Woodhouse <dwmw2@infradead.org>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: A scrub daemon (prezeroing)
-Message-ID: <20050204092801.GE10347@wotan.suse.de>
-References: <1106828124.19262.45.camel@hades.cambridge.redhat.com> <20050202153256.GA19615@logos.cnet> <Pine.LNX.4.58.0502021103410.12695@schroedinger.engr.sgi.com> <20050202163110.GB23132@logos.cnet> <Pine.LNX.4.61.0502022204140.2678@chimarrao.boston.redhat.com> <16898.46622.108835.631425@cargo.ozlabs.ibm.com> <Pine.LNX.4.58.0502031650590.26551@schroedinger.engr.sgi.com> <16899.2175.599702.827882@cargo.ozlabs.ibm.com> <Pine.LNX.4.58.0502032220430.28851@schroedinger.engr.sgi.com> <16899.15980.791820.132469@cargo.ozlabs.ibm.com>
+	Fri, 4 Feb 2005 04:32:08 -0500
+Date: Fri, 4 Feb 2005 01:32:04 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Ian Godin <Ian.Godin@lowrydigital.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Drive performance bottleneck
+Message-Id: <20050204013204.378cbbee.akpm@osdl.org>
+In-Reply-To: <c4fc982390674caa2eae4f252bf4fc78@lowrydigital.com>
+References: <c4fc982390674caa2eae4f252bf4fc78@lowrydigital.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16899.15980.791820.132469@cargo.ozlabs.ibm.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > advantage of all the optimizations that modern memory subsystems have for
-> > linear accesses. And if hardware exists that can offload that from the cpu
-> > then the cpu caches are only minimally affected.
+Ian Godin <Ian.Godin@lowrydigital.com> wrote:
+>
 > 
-> I can believe that prezeroing could provide a benefit on some
-> machines, but I don't think it will provide any on ppc64.
+>    I am trying to get very fast disk drive performance and I am seeing 
+> some interesting bottlenecks.  We are trying to get 800 MB/sec or more 
+> (yes, that is megabytes per second).  We are currently using 
+> PCI-Express with a 16 drive raid card (SATA drives).  We have achieved 
+> that speed, but only through the SG (SCSI generic) driver.  This is 
+> running the stock 2.6.10 kernel.  And the device is not mounted as a 
+> file system.  I also set the read ahead size on the device to 16KB 
+> (which speeds things up a lot):
+> ...
+> samples  %        symbol name
+> 848185    8.3510  __copy_to_user_ll
+> 772172    7.6026  do_anonymous_page
+> 701579    6.9076  _spin_lock_irq
+> 579024    5.7009  __copy_user_intel
+> 361634    3.5606  _spin_lock
+> 343018    3.3773  _spin_lock_irqsave
+> 307462    3.0272  kmap_atomic
+> 193327    1.9035  page_fault
 
-On modern x86 clears can be done quite quickly (no memory read access) with 
-write combining writes. The problem is just that this will force the 
-page out of cache. If there is any chance that the CPU will be accessing
-the data soon it's better to do the slower cached RMW clear.
+Something funny is happening here - it looks like there's plenty of CPU
+capacity left over.
 
--Andi
+It's odd that you're getting a lot of pagefaults in this test but not with
+the sg_dd test, too.  I wonder why dd is getting so many pagefaults?  (I
+recall that sg_dd did something cheaty, but I forget what it was).
+
+Could you monitor the CPU load during the various tests?  If the `dd'
+workload isn't pegging the CPU then it could be that there's something
+wrong with the I/O submission patterns.

@@ -1,69 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262590AbUKQXqa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262624AbUKQXtB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262590AbUKQXqa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 18:46:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262566AbUKQWFe
+	id S262624AbUKQXtB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 18:49:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262600AbUKQWEO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 17:05:34 -0500
-Received: from fire.osdl.org ([65.172.181.4]:33252 "EHLO fire-1.osdl.org")
-	by vger.kernel.org with ESMTP id S262555AbUKQWBS (ORCPT
+	Wed, 17 Nov 2004 17:04:14 -0500
+Received: from smtp3.akamai.com ([63.116.109.25]:49824 "EHLO smtp3.akamai.com")
+	by vger.kernel.org with ESMTP id S262564AbUKQVMo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 17:01:18 -0500
-Message-ID: <419BC726.3030806@osdl.org>
-Date: Wed, 17 Nov 2004 13:48:22 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-Organization: OSDL
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
+	Wed, 17 Nov 2004 16:12:44 -0500
+Message-ID: <419BCD29.1DE51942@akamai.com>
+Date: Wed, 17 Nov 2004 14:14:02 -0800
+From: Prasanna Meda <pmeda@akamai.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.16-3 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>, axboe@suse.de
-Subject: [PATCH] cdrom: handle SYSCTL without PROC_FS
-Content-Type: multipart/mixed;
- boundary="------------010102070305000506010401"
+To: linux-kernel@vger.kernel.org
+Subject: Re: One more get_task_comm()
+References: <419BC8CF.424232E6@akamai.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------010102070305000506010401
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Removing assumption of  command length as 16 completely
+
+--- arch/mips/kernel/sysirix.c.saved    Wed Nov 17 13:18:50 2004
++++ arch/mips/kernel/sysirix.c  Wed Nov 17 14:09:12 2004
+@@ -282,9 +282,9 @@
+                int pid = (int) regs->regs[base + 5];
+                char *buf = (char *) regs->regs[base + 6];
+                struct task_struct *p;
+-               char comm[16];
++               char tcomm[sizeof(current->comm)];
+
+-               retval = verify_area(VERIFY_WRITE, buf, 16);
++               retval = verify_area(VERIFY_WRITE, buf, sizeof(tcomm));
+                if (retval)
+                        break;
+                read_lock(&tasklist_lock);
+@@ -294,11 +294,11 @@
+                        retval = -ESRCH;
+                        break;
+                }
+-               memcpy(comm, p->comm, 16);
++               get_task_comm(tcomm, p);
+                read_unlock(&tasklist_lock);
+
+                /* XXX Need to check sizes. */
+-               copy_to_user(buf, p->comm, 16);
++               copy_to_user(buf, tcomm, sizeof(tcomm));
+                retval = 0;
+                break;
+        }
 
 
-Fixes oops (reference to cdrom_root_table->child->)
-when CONFIG_SYSCTL=y and CONFIG_PROC_FS=n.
 
-diffstat:=
-  drivers/cdrom/cdrom.c |    2 --
-  1 files changed, 2 deletions(-)
-
-Signed-off-by: Randy Dunlap <rddunlap@osdl.org>
--- 
-
---------------010102070305000506010401
-Content-Type: text/x-patch;
- name="cdrom_sysctl_26.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="cdrom_sysctl_26.patch"
-
-diff -Naurp ./drivers/cdrom/cdrom.c~cdrom_sysctl ./drivers/cdrom/cdrom.c
---- ./drivers/cdrom/cdrom.c~cdrom_sysctl	2004-11-16 13:33:30.177562576 -0800
-+++ ./drivers/cdrom/cdrom.c	2004-11-17 13:23:54.831232024 -0800
-@@ -3336,7 +3336,6 @@ ctl_table cdrom_cdrom_table[] = {
- 
- /* Make sure that /proc/sys/dev is there */
- ctl_table cdrom_root_table[] = {
--#ifdef CONFIG_PROC_FS
- 	{
- 		.ctl_name	= CTL_DEV,
- 		.procname	= "dev",
-@@ -3344,7 +3343,6 @@ ctl_table cdrom_root_table[] = {
- 		.mode		= 0555,
- 		.child		= cdrom_cdrom_table,
- 	},
--#endif /* CONFIG_PROC_FS */
- 	{ .ctl_name = 0 }
- };
- static struct ctl_table_header *cdrom_sysctl_header;
-
---------------010102070305000506010401--

@@ -1,57 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312690AbSDSPaV>; Fri, 19 Apr 2002 11:30:21 -0400
+	id <S312582AbSDSPkp>; Fri, 19 Apr 2002 11:40:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312691AbSDSPaU>; Fri, 19 Apr 2002 11:30:20 -0400
-Received: from tolkor.sgi.com ([192.48.180.13]:10667 "EHLO tolkor.sgi.com")
-	by vger.kernel.org with ESMTP id <S312690AbSDSPaU>;
-	Fri, 19 Apr 2002 11:30:20 -0400
+	id <S312579AbSDSPko>; Fri, 19 Apr 2002 11:40:44 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:37647 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S312529AbSDSPkn>; Fri, 19 Apr 2002 11:40:43 -0400
 Subject: Re: Bio pool & scsi scatter gather pool usage
-From: Steve Lord <lord@sgi.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andrew Morton <akpm@zip.com.au>, Mark Peloquin <peloquin@us.ibm.com>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <E16yUE0-0006i7-00@the-village.bc.nu>
-Content-Type: text/plain
+To: lord@sgi.com (Steve Lord)
+Date: Fri, 19 Apr 2002 16:57:49 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), akpm@zip.com.au (Andrew Morton),
+        peloquin@us.ibm.com (Mark Peloquin),
+        linux-kernel@vger.kernel.org (Linux Kernel)
+In-Reply-To: <1019230042.10294.285.camel@jen.americas.sgi.com> from "Steve Lord" at Apr 19, 2002 10:27:22 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2 
-Date: 19 Apr 2002 10:27:22 -0500
-Message-Id: <1019230042.10294.285.camel@jen.americas.sgi.com>
-Mime-Version: 1.0
+Message-Id: <E16yalh-0007JG-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-04-19 at 03:58, Alan Cox wrote:
-> > But this gets you lowest common denominator sizes for the whole
-> > volume, which is basically the buffer head approach, chop all I/O up
-> > into a chunk size we know will always work. Any sort of nasty  boundary
-> > condition at one spot in a volume means the whole thing is crippled
-> > down to that level. It then becomes a black magic art to configure a
-> > volume which is not restricted to a small request size.
-> 
-> Its still cheaper to merge bio chains than split them. The VM issues with
-> splitting them are not nice at all since you may need to split a bio to
-> write out a page and it may be the last page
-> -
+> Just looking at how my disks ended up partitioned not many of them are
+> even on 4K boundaries, so any sort of concat built on them would
+> have a boundary case which required such a split - I think, still
+> working on my caffine intake this morning.
 
-I am well aware of the problems of allocating more memory in some of
-these places - been the bane of my life for the last couple of years
-with XFS ;-)
+Alignment and concatenation are different things altogether. On the whole I
+can blast 64K chunks on a 512 byte alignment out of my controllers. The
+partitioning doesn't bother me too much. Do we even want to consider a
+device that cannot hit its own sector size boundary ?
 
-It just feels so bad to have the ability to build a large request and
-use one bio structure and know that 99.9% of the time the lower layers
-can handle it in one chunk, but instead have to chop it into the lowest
-common denominator pieces for the sake of the other 0.1%.
-
-Just looking at how my disks ended up partitioned not many of them are
-even on 4K boundaries, so any sort of concat built on them would
-have a boundary case which required such a split - I think, still
-working on my caffine intake this morning.
-
-Steve
-
-
--- 
-
-Steve Lord                                      voice: +1-651-683-3511
-Principal Engineer, Filesystem Software         email: lord@sgi.com
+Oh and the unusual block size stuff seems to be quite easy for the bottom
+layers. The horror lurks up higher. Most file systems can't cope (doesn't
+matter too much), isofs can be mixed block size (bletch) but the killer
+seems to be how you mmap a file on a device with 2326 byte sectors sanely..
+(Just say no ?)

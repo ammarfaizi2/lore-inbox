@@ -1,33 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271884AbRH1TOM>; Tue, 28 Aug 2001 15:14:12 -0400
+	id <S271894AbRH1TSM>; Tue, 28 Aug 2001 15:18:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271886AbRH1TOC>; Tue, 28 Aug 2001 15:14:02 -0400
-Received: from mons.uio.no ([129.240.130.14]:33445 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S271884AbRH1TNr>;
-	Tue, 28 Aug 2001 15:13:47 -0400
-To: Oliver Paukstadt <oliver@paukstadt.de>
-Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: NFS Client and SMP
-In-Reply-To: <Pine.LNX.4.05.10108281806180.20438-100000@lara.stud.fh-heilbronn.de>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 28 Aug 2001 21:13:55 +0200
-In-Reply-To: Oliver Paukstadt's message of "Tue, 28 Aug 2001 18:16:34 +0200 (CEST)"
-Message-ID: <shsk7zongjw.fsf@charged.uio.no>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Cuyahoga Valley)
+	id <S271887AbRH1TSD>; Tue, 28 Aug 2001 15:18:03 -0400
+Received: from www.wen-online.de ([212.223.88.39]:41741 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S271888AbRH1TR5>;
+	Tue, 28 Aug 2001 15:17:57 -0400
+Date: Tue, 28 Aug 2001 21:17:39 +0200 (CEST)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: Hans Reiser <reiser@namesys.com>
+cc: Dieter N|tzel <Dieter.Nuetzel@hamburg.de>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        ReiserFS List <reiserfs-list@namesys.com>,
+        "Gryaznova E." <grev@namesys.botik.ru>
+Subject: Re: [reiserfs-list] Re: [resent PATCH] Re: very slow parallel read
+  performance
+In-Reply-To: <3B8B5A73.258A3A0E@namesys.com>
+Message-ID: <Pine.LNX.4.33.0108282007440.680-100000@mikeg.weiden.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 28 Aug 2001, Hans Reiser wrote:
 
-     > HY HY I have massive problems using client nfs on SMP boxes.  I
-     > can reproduce it 2.4.[0-7] on s390 and s390x and with 2.4.[0-8]
-     > on IA32.
+> Mike Galbraith wrote:
+> >
+> > On Tue, 28 Aug 2001, Dieter N|tzel wrote:
+> >
+> > > * readahead do not show dramatic differences
+> > > * killall -STOP kupdated DO
+> > >
+> > > Yes, I know it is dangerous to stop kupdated but my disk show heavy thrashing
+> > > (seeks like mad) since 2.4.7ac4. killall -STOP kupdated make it smooth and
+> > > fast, again.
+> >
+> > Interesting.
+> >
+> > A while back, I twiddled the flush logic in buffer.c a little and made
+> > kupdated only handle light flushing.. stay out of the way when bdflush
+> > is running.  This and some dynamic adjustment of bdflush flushsize and
+> > not stopping flushing right _at_ (biggie) the trigger level produced
+> > very interesting improvements.  (very marked reduction in system time
+> > for heavy IO jobs, and large improvement in file rewrite throughput)
+> >
+> >         -Mike
+>
+>
+> Can you send us the patch, and Elena will run some tests on it?
 
-One other thing. If you're running on a Gigabit network, try turning
-off jumbo frames - there seems to be some problems still with getting
-that to work properly, and it's been known to cause NFS hangs.
+I think I posted the patch once (including dumb typo), and I know I sent
+is to a couple of folks to try if they wanted, but I don't save such.
 
-Cheers,
-  Trond
+The specific patch is no longer germain.. large (more sensible) change
+to flush logic recently.  Interesting is the kupdated/vm interaction..
+I saw it getting in the way here (so I whittled it down to size.. made
+it small), and some posts I've seen seem to indicate the same.
+
+("biggie" thing is what leads to rewrite throughput increase.  Whacking
+kupdated only removes a noise source)
+
+	-Mike
+

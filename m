@@ -1,81 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261667AbUC3XYK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 18:24:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261605AbUC3XYJ
+	id S261619AbUC3X04 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 18:26:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261605AbUC3X04
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 18:24:09 -0500
-Received: from smtp-out5.blueyonder.co.uk ([195.188.213.8]:17261 "EHLO
-	smtp-out5.blueyonder.co.uk") by vger.kernel.org with ESMTP
-	id S261667AbUC3XWB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 18:22:01 -0500
-Message-ID: <406A0145.4070306@blueyonder.co.uk>
-Date: Wed, 31 Mar 2004 00:22:45 +0100
-From: Sid Boyce <sboyce@blueyonder.co.uk>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
+	Tue, 30 Mar 2004 18:26:56 -0500
+Received: from smtp4.vol.cz ([195.250.128.43]:16402 "EHLO majordomo.vol.cz")
+	by vger.kernel.org with ESMTP id S261677AbUC3X0s (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Mar 2004 18:26:48 -0500
+Message-ID: <406A020B.3010704@scssoft.com>
+Date: Wed, 31 Mar 2004 01:26:03 +0200
+From: Petr Sebor <petr@scssoft.com>
+User-Agent: Mozilla Thunderbird 0.5+ (Windows/20040326)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Chris Mason <mason@suse.com>
+To: Jeff Garzik <jgarzik@pobox.com>
 CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.5-rc3-mm1
-References: <4069DC40.3070703@blueyonder.co.uk>	 <1080681249.3547.51.camel@watt.suse.com>	 <4069ED67.5050302@blueyonder.co.uk> <1080684268.3529.72.camel@watt.suse.com> <4069F9AC.4070601@blueyonder.co.uk>
-In-Reply-To: <4069F9AC.4070601@blueyonder.co.uk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 30 Mar 2004 23:22:01.0263 (UTC) FILETIME=[CDE3D3F0:01C416AD]
+Subject: Re: [sata] libata update
+References: <4064E691.2070009@pobox.com> <4069FBC3.2080104@scssoft.com> <4069FFB1.3060503@pobox.com>
+In-Reply-To: <4069FFB1.3060503@pobox.com>
+X-Enigmail-Version: 0.83.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigDC7B2BA50333B3351EC78C2F"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sid Boyce wrote:
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigDC7B2BA50333B3351EC78C2F
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> Chris Mason wrote:
->
->> On Tue, 2004-03-30 at 16:57, Sid Boyce wrote:
->>  
->>
->>> Chris Mason wrote:
->>>
->>>   
->>>
->>>> On Tue, 2004-03-30 at 15:44, Sid Boyce wrote:
->>>>
->>>>
->>>>     
->>>>
->>>>> It builds fine on x86_64 but locks up solid at ----
->>>>> found reiserfs format "3.6" with standard journal
->>>>> Hard disk light permanently on - 2.6.5-rc2 vanilla is the last one 
->>>>> to boot fully, haven't tried 2.6.5-rc3 vanilla yet.
->>>>>  
->>>>>       
->>>>
->>>> Have you tried booting with acpi=off?
->>>>
->>>>     
->>>
->>> With acpi=off, I get a string of messages
->>>   
->>
->>
->> Try pci=noacpi
->>
->> -chris
->>
->>
->>
->>  
->>
-> Same result, locks up in the same place, I'm going to build 2.6.5-rc3 
-> vanilla now.
-> Regards
-> Sid.
->
-2.6.5-rc2 booting OK(with acpi), anything else 2.6.5-rc2-mm?,  2.6.5-rc3 
-or2.6.5-rc3-mm1 freezes.
-Regards
-Sid.
+Jeff Garzik wrote:
 
--- 
-Sid Boyce .... Hamradio G3VBV and keen Flyer
-Linux Only Shop.
+> oh, and are both disks SATA?
 
+Both drives are SATA
+
+> Or is the 37G drive a PATA drive on a PATA->SATA adapter (a.k.a. bridge)?
+
+Nope.
+
+> Do you have any special settings like BIOS RAID turned on, that might 
+> interfere with things?
+
+This thing is turned off. (at least I hope so... will check)
+
+I'll try the patch you sent as soon as I reach the machine.
+
+Thanks!
+
+Best regards,
+Petr
+
+
+--------------enigDC7B2BA50333B3351EC78C2F
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (MingW32)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFAagIMir6eWjmOQ6cRAq/tAJ0eJpVi00TkrpN9fNnMePRP7xNjAACfRWqw
+kaGauqbp1su7wUmpjEtLQ3I=
+=M90m
+-----END PGP SIGNATURE-----
+
+--------------enigDC7B2BA50333B3351EC78C2F--

@@ -1,88 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268900AbUJUJRe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266218AbUJUJkx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268900AbUJUJRe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 05:17:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268971AbUJUJM4
+	id S266218AbUJUJkx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 05:40:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268971AbUJUJgp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 05:12:56 -0400
-Received: from ra.tuxdriver.com ([24.172.12.4]:5644 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S270329AbUJTTY6 (ORCPT
+	Thu, 21 Oct 2004 05:36:45 -0400
+Received: from fw.osdl.org ([65.172.181.6]:30955 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268961AbUJUJdm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 15:24:58 -0400
-Date: Wed, 20 Oct 2004 14:20:07 -0400
-From: "John W. Linville" <linville@tuxdriver.com>
-To: netdev@oss.sgi.com, linux-kernel@vger.kernel.org, jgarzik@pobox.com
-Subject: [patch 2.6.9 5/11] tulip: Add MODULE_VERSION
-Message-ID: <20041020142007.H8775@tuxdriver.com>
-Mail-Followup-To: netdev@oss.sgi.com, linux-kernel@vger.kernel.org,
-	jgarzik@pobox.com
-References: <20041020141146.C8775@tuxdriver.com>
+	Thu, 21 Oct 2004 05:33:42 -0400
+Date: Thu, 21 Oct 2004 02:31:35 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org, rusty@rustcorp.com.au
+Subject: Re: Am I paranoid or is everyone out to break my kernel builds
+ (Breakage in drivers/pcmcia)
+Message-Id: <20041021023135.074c7988.akpm@osdl.org>
+In-Reply-To: <20041021100903.A3089@flint.arm.linux.org.uk>
+References: <20041021100903.A3089@flint.arm.linux.org.uk>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20041020141146.C8775@tuxdriver.com>; from linville@tuxdriver.com on Wed, Oct 20, 2004 at 02:11:46PM -0400
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add MODULE_VERSION to the tulip-based drivers
+Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+>
+> It would appear that this change:
+> 
+> -module_param_array(irq_list, int, irq_list_count, 0444);
+> +module_param_array(irq_list, int, &irq_list_count, 0444);
+> 
+> given:
+> 
+> static int irq_list[16];
+> static int irq_list_count;
+> 
+> breaks PCMCIA drivers.  Why?
+> 
+> #define module_param_array(name, type, num, perm)               \
+>         module_param_array_named(name, name, type, num, perm)
+> 
+> #define module_param_array_named(name, array, type, num, perm)          \
+>         static struct kparam_array __param_arr_##name                   \
+>         = { ARRAY_SIZE(array), &num, param_set_##type, param_get_##type,\
+>             sizeof(array[0]), array };                                  \
+>         module_param_call(name, param_array_set, param_array_get,       \
+>                           &__param_arr_##name, perm)
+> 
+> Take special note of the '&' before 'num' in the above initialiser, and
+> check the structure:
 
-Signed-off-by: John W. Linville <linville@tuxdriver.com>
----
- drivers/net/tulip/de2104x.c         |    1 +
- drivers/net/tulip/dmfe.c            |    1 +
- drivers/net/tulip/tulip_core.c      |    1 +
- drivers/net/tulip/winbond-840.c     |    1 +
- drivers/net/tulip/xircom_tulip_cb.c |    1 +
- 5 files changed, 5 insertions(+)
+Something's out of whack with your tree.  You should have:
 
---- linux-2.6.9/drivers/net/tulip/de2104x.c.orig
-+++ linux-2.6.9/drivers/net/tulip/de2104x.c
-@@ -56,6 +56,7 @@ KERN_INFO DRV_NAME " PCI Ethernet driver
- MODULE_AUTHOR("Jeff Garzik <jgarzik@pobox.com>");
- MODULE_DESCRIPTION("Intel/Digital 21040/1 series PCI Ethernet driver");
- MODULE_LICENSE("GPL");
-+MODULE_VERSION(DRV_VERSION);
- 
- static int debug = -1;
- MODULE_PARM (debug, "i");
---- linux-2.6.9/drivers/net/tulip/tulip_core.c.orig
-+++ linux-2.6.9/drivers/net/tulip/tulip_core.c
-@@ -115,6 +115,7 @@ static int csr0 = 0x00A00000 | 0x4800;
- MODULE_AUTHOR("The Linux Kernel Team");
- MODULE_DESCRIPTION("Digital 21*4* Tulip ethernet driver");
- MODULE_LICENSE("GPL");
-+MODULE_VERSION(DRV_VERSION);
- MODULE_PARM(tulip_debug, "i");
- MODULE_PARM(max_interrupt_work, "i");
- MODULE_PARM(rx_copybreak, "i");
---- linux-2.6.9/drivers/net/tulip/xircom_tulip_cb.c.orig
-+++ linux-2.6.9/drivers/net/tulip/xircom_tulip_cb.c
-@@ -116,6 +116,7 @@ KERN_INFO " unofficial 2.4.x kernel port
- MODULE_AUTHOR("Donald Becker <becker@scyld.com>");
- MODULE_DESCRIPTION("Xircom CBE-100 ethernet driver");
- MODULE_LICENSE("GPL v2");
-+MODULE_VERSION(DRV_VERSION);
- 
- MODULE_PARM(debug, "i");
- MODULE_PARM(max_interrupt_work, "i");
---- linux-2.6.9/drivers/net/tulip/dmfe.c.orig
-+++ linux-2.6.9/drivers/net/tulip/dmfe.c
-@@ -1986,6 +1986,7 @@ static struct pci_driver dmfe_driver = {
- MODULE_AUTHOR("Sten Wang, sten_wang@davicom.com.tw");
- MODULE_DESCRIPTION("Davicom DM910X fast ethernet driver");
- MODULE_LICENSE("GPL");
-+MODULE_VERSION(DRV_VERSION);
- 
- MODULE_PARM(debug, "i");
- MODULE_PARM(mode, "i");
---- linux-2.6.9/drivers/net/tulip/winbond-840.c.orig
-+++ linux-2.6.9/drivers/net/tulip/winbond-840.c
-@@ -144,6 +144,7 @@ KERN_INFO "  http://www.scyld.com/networ
- MODULE_AUTHOR("Donald Becker <becker@scyld.com>");
- MODULE_DESCRIPTION("Winbond W89c840 Ethernet driver");
- MODULE_LICENSE("GPL");
-+MODULE_VERSION(DRV_VERSION);
- 
- MODULE_PARM(max_interrupt_work, "i");
- MODULE_PARM(debug, "i");
+#define module_param_array_named(name, array, type, nump, perm)		\
+	static struct kparam_array __param_arr_##name			\
+	= { ARRAY_SIZE(array), nump, param_set_##type, param_get_##type,\
+	    sizeof(array[0]), array };					\
+	module_param_call(name, param_array_set, param_array_get, 	\
+			  &__param_arr_##name, perm)
+
+

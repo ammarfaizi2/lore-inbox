@@ -1,56 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315870AbSENQvi>; Tue, 14 May 2002 12:51:38 -0400
+	id <S315844AbSENQzt>; Tue, 14 May 2002 12:55:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315871AbSENQvi>; Tue, 14 May 2002 12:51:38 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:14997 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S315870AbSENQvg>;
-	Tue, 14 May 2002 12:51:36 -0400
-Date: Tue, 14 May 2002 18:51:13 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Neil Conway <nconway.list@ukaea.org.uk>
-Cc: Martin Dalecki <dalecki@evision-ventures.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.15 IDE 61
-Message-ID: <20020514165113.GT17509@suse.de>
-In-Reply-To: <E177dYp-00083c-00@the-village.bc.nu> <3CE11F90.5070701@evision-ventures.com> <3CE13943.FBD5B1D6@ukaea.org.uk> <20020514163241.GR17509@suse.de> <3CE13F99.5BDED3DF@ukaea.org.uk>
+	id <S315872AbSENQzs>; Tue, 14 May 2002 12:55:48 -0400
+Received: from holomorphy.com ([66.224.33.161]:38557 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S315844AbSENQzr>;
+	Tue, 14 May 2002 12:55:47 -0400
+Date: Tue, 14 May 2002 09:54:14 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [RFC][PATCH] iowait statistics
+Message-ID: <20020514165414.GC27957@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org,
+	linux-mm@kvack.org
+In-Reply-To: <20020514153956.GI15756@holomorphy.com> <Pine.LNX.4.44L.0205141335080.9490-100000@duckman.distro.conectiva>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 14 2002, Neil Conway wrote:
-> > To really serialize operations the queue _must_ be shared with whoever
-> > requires serialiation.
-> 
-> Why will this help?  The hardware can still be doing DMA on hda while
-> the queue's request_fn is called quite legitimately for a hdb request -
-> and the IDE code MUST impose the serialization here to avoid hitting the
-> cable with commands destined for hdb. (For example, by waiting for
-> !channel->busy.)
+On Tue, 14 May 2002, William Lee Irwin III wrote:
+>> This appears to be global across all cpu's. Maybe nr_iowait_tasks
+>> should be accounted on a per-cpu basis, where
 
-Current IDE code leaves a request on the list until it has completed
-(this is ignoring TCQ of course), so there's no way that you could start
-serving a second request before the first one completes.
+On Tue, May 14, 2002 at 01:36:00PM -0300, Rik van Riel wrote:
+> While your proposal should work, somehow I doubt it's worth
+> the complexity. It's just a statistic to help sysadmins ;)
 
-> > If not, the problem will have to be solved at the IDE level, not the
-> > block level. And that has not looked pretty in the past.
-> 
-> I just can't see a way for the block level to remove the need for the
-> busy flag.  I _think_ Alan just agreed with me.  I'm not sure but I get
-> the impression that you are saying the IDE code doesn't need to do this
-> serialization...
+I reserved judgment on that in order to present a possible mechanism.
+I'm not sure it is either; we'll know it matters if sysadmins scream.
 
-To be honest, I haven't given it too much thought right now. The nice
-thing about the queue level serialization is that it all happens
-automagically for IDE, without having it maintain any busy state on that
-itself.
 
-However, I may just talking out of my ass and implementation details
-will mean it's still better to at least manage some of the serialization
-at the ide level.
-
--- 
-Jens Axboe
-
+Cheers,
+Bill

@@ -1,56 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264320AbUAIUVX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jan 2004 15:21:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264389AbUAIUVW
+	id S264433AbUAIUXm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jan 2004 15:23:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264437AbUAIUXm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jan 2004 15:21:22 -0500
-Received: from gaia.cela.pl ([213.134.162.11]:3858 "EHLO gaia.cela.pl")
-	by vger.kernel.org with ESMTP id S264320AbUAIUVN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jan 2004 15:21:13 -0500
-Date: Fri, 9 Jan 2004 21:20:53 +0100 (CET)
-From: Maciej Zenczykowski <maze@cela.pl>
-To: Jesper Juhl <juhl-lkml@dif.dk>
-cc: Valdis.Kletnieks@vt.edu, Andrew Morton <akpm@osdl.org>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][RFC] invalid ELF binaries can execute - better sanity
- checking 
-In-Reply-To: <Pine.LNX.4.56.0401090437060.11276@jju_lnx.backbone.dif.dk>
-Message-ID: <Pine.LNX.4.44.0401092105070.1739-100000@gaia.cela.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 9 Jan 2004 15:23:42 -0500
+Received: from smtp2.clear.net.nz ([203.97.37.27]:12516 "EHLO
+	smtp2.clear.net.nz") by vger.kernel.org with ESMTP id S264433AbUAIUXi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jan 2004 15:23:38 -0500
+Date: Sat, 10 Jan 2004 09:13:26 +1300
+From: Nigel Cunningham <ncunningham@users.sourceforge.net>
+Subject: Re: Swapfiles broken on XFS.
+In-reply-to: <20040109161653.A25678@infradead.org>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: XFS list <linux-xfs@oss.sgi.com>, Karol Kozimor <sziwan@hell.org.pl>,
+       swsusp-devel <swsusp-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Reply-to: ncunningham@users.sourceforge.net
+Message-id: <1073679200.4566.12.camel@laptop-linux>
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.4.4-8mdk
+Content-type: multipart/signed; boundary="=-hbcWiGCHEkJ2xqd0E6Qb";
+ protocol="application/pgp-signature"; micalg=pgp-sha1
+References: <1073620506.3790.21.camel@laptop-linux>
+ <20040109161653.A25678@infradead.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I know of the document, but thank you for pointing it out, it's quite an
-> interresting read. Actually, reading that exact document ages ago was what
-> initially caused me to start reading the ELF loading code (thinking
-> "there's got to be something wrong here").
-> I've actually been planning to use some of the crazy stunts he pulls
-> with that code as validity checks of the code I want to implement (in
-> adition to specially tailored test-cases ofcourse).
 
-I think this points to an 'issue', if we're going to increase the checks
-in the ELF-loader (and thus increase the size of the minimal valid ELF
-file we can load, thus effectively 'bloating' (lol) some programs) we
-should probably allow some sort of direct binary executable files [i.e.
-header 'XBIN386\0' followed by Read/Execute binary code to execute by
-mapping as RX at any offset and jumping to offset 8] to allow writing
-minimal executables.  Minimalizing executables is useful for embedded
-systems, portable devices, floppy distributions and ramdisk/initrd
-situations.  Sure many of these solve this problem by UPX compressing
-busybox/crunchbox one-file-many-executables files, but it would still be
-nice to be able to dump all the extra crud in some cases.  Some of these
-distributions already contain non-standards conforming ELF files. I have a
-933 byte less and a 305 byte strings command on my initrd (taken from some
-floppy distribution) which report "ERROR: Corrupted section header size"
-via 'file *' and there is probably many many more out there.  Is this 
-worth it?  I don't know, in many ways this would be the COM to the ELF 
-EXE... the DOS analogy proves little though [note: I have no idea about 
-the a.out or COFF or whatever it's called format].
+--=-hbcWiGCHEkJ2xqd0E6Qb
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Cheers,
-MaZe.
+Hi again.
 
+Perhaps I wasn't clear enough.
+
+Both the page_io and Suspend can cope fine with block size < 4096. The
+issue is where they get the information from as to how many blocks per
+page they actually need to use when called brw_page. At the moment, they
+both assume that i_sb->s_blocksize and blocksize_bits is the place to
+go. What you're saying sounds right to me. They should both be looking
+at i_blkbits and i_blksize in the struct inode, shouldn't they? I'll
+make the change, test and submit a patch to LKML.
+
+Regards,
+
+Nigel
+
+On Sat, 2004-01-10 at 05:16, Christoph Hellwig wrote:
+> On Fri, Jan 09, 2004 at 04:55:09PM +1300, Nigel Cunningham wrote:
+> > It appears to me that a swapfile on an XFS filesystem will not work, at
+> > least some of the time.
+>=20
+> XFS sets s_blocksize to the filesystem blocksize and bdev->bd_block_size =
+/
+> i_blkbits to the XFS sector size.  The first would be 4096 in your
+> case and the latter 512.  We cannot set a bigger device block size becaus=
+e
+> XFS log writes are in 512b units.
+>=20
+> I don't think the swap code should do any assumptions about any relation
+> of the above two.
+--=20
+My work on Software Suspend is graciously brought to you by
+LinuxFund.org.
+
+--=-hbcWiGCHEkJ2xqd0E6Qb
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQA//wtgVfpQGcyBBWkRAsK0AJ0ebwIEEwf+QTFAPDaWyGtx2u7vjACfe9Ig
+RTgyvsbeNrE0YgY8PFnlhuY=
+=bn0s
+-----END PGP SIGNATURE-----
+
+--=-hbcWiGCHEkJ2xqd0E6Qb--
 

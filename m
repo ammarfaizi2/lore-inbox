@@ -1,43 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262774AbSJHAj5>; Mon, 7 Oct 2002 20:39:57 -0400
+	id <S262607AbSJHAdI>; Mon, 7 Oct 2002 20:33:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262932AbSJHAj5>; Mon, 7 Oct 2002 20:39:57 -0400
-Received: from serenity.mcc.ac.uk ([130.88.200.93]:62727 "EHLO
-	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S262774AbSJHAj4>; Mon, 7 Oct 2002 20:39:56 -0400
-Date: Tue, 8 Oct 2002 01:45:33 +0100
-From: John Levon <levon@movementarian.org>
-To: linux-kernel@vger.kernel.org
-Cc: oprofile-list@lists.sf.net, akpm@digeo.com, torvalds@transmeta.com
-Subject: [PATCH] oprofile for 2.5.41
-Message-ID: <20021008004533.GA37613@compsoc.man.ac.uk>
+	id <S262680AbSJHAdI>; Mon, 7 Oct 2002 20:33:08 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:62955 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S262607AbSJHAdH>;
+	Mon, 7 Oct 2002 20:33:07 -0400
+Date: Mon, 7 Oct 2002 17:38:46 -0700
+To: Matthew Wilcox <willy@debian.org>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Second round of ioctl cleanups
+Message-ID: <20021008003846.GA1782@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Mr. Scruff - Trouser Jazz
+User-Agent: Mutt/1.3.28i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Matthew Wilcox wrote :
+> - remove the WIRELESS_EXT conditional; always compiling this in costs
+>   almost nothing.
 
-Please see
+	Different people have different opinions about what "almost"
+mean (see flame fest about embedeed Linux), so beware ;-)
+	The bulk of the stuff that is enabled by WIRELESS_EXT is in
+core/wireless.c and core/dev.c. I would find illogical that some part
+of the Wireless Extension code are always in (your patch) and some
+conditional (core/wireless.c). But it probably doesn't matter...
+	Have fun...
 
-http://oprofile.sourceforge.net/oprofile-2.5.html
+	Jean
 
-for the necessary user-space tools, and the latest patch.
 
-Note the change to fs/locks.c is necessary, otherwise you will end up
-dropping almost all samples on the floor. A proper patch hasn't yet made
-its way Linuswards...
-
-This seems to work for me now. In the absence of any necessary major
-changes, I intend to split it up into readable chunks and feed it to
-Linus fairly soon.
-
-regards
-john
-
--- 
-"I will eat a rubber tire to the music of The Flight of the Bumblebee"

@@ -1,41 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261625AbTJAKNg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 06:13:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261761AbTJAKNg
+	id S261615AbTJAKLu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 06:11:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261625AbTJAKLt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 06:13:36 -0400
-Received: from gprs146-6.eurotel.cz ([160.218.146.6]:30592 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261625AbTJAKNf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 06:13:35 -0400
-Date: Wed, 1 Oct 2003 12:09:29 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Nicolas Mailhot <Nicolas.Mailhot@laposte.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Keyboard oddness.
-Message-ID: <20031001100929.GB398@elf.ucw.cz>
-References: <1064569422.21735.11.camel@ulysse.olympe.o2t> <20030926102403.GA8864@ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 1 Oct 2003 06:11:49 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:29143 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S261615AbTJAKLt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Oct 2003 06:11:49 -0400
+From: Vitaly Fertman <vitaly@namesys.com>
+Organization: NAMESYS
+To: Hans Reiser <reiser@namesys.com>
+Subject: Re: 2.6.0-test6 crash while reading files in /proc/fs/reiserfs/sda1
+Date: Wed, 1 Oct 2003 14:11:47 +0400
+User-Agent: KMail/1.5.1
+Cc: Zan Lynx <zlynx@acm.org>, linux-kernel@vger.kernel.org,
+       reiserfs-list@namesys.com, nikita@namesys.com
+References: <1064936688.4222.14.camel@localhost.localdomain> <200309302006.32584.vitaly@namesys.com> <3F79D71F.2020901@namesys.com>
+In-Reply-To: <3F79D71F.2020901@namesys.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20030926102403.GA8864@ucw.cz>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+Message-Id: <200310011411.47723.vitaly@namesys.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+> nikita, if vitaly doesn't solve it before you get in, it is yours to solve.
+>
+> Vitaly, what configuration did you fail to replicate it using (I hope
+> you attempted it on your machine before asking the user all this)?
 
-> Of course this won't fix any problems with USB, if there are still any.
-> My USB keyboard works just perfectly, no problems with the autorepeat.
+yes I did, 2.4.22 works fine for me.
 
-Can you try running your system with interrupts disabled for 100ms+
-sometimes? That should show any bugs/races in keyboard code. Perhaps
-you have good hardware that never ever disables interrupts for that
-long, but other people have more broken stuff.
-								Pavel
 -- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+Thanks,
+Vitaly Fertman

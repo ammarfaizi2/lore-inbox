@@ -1,64 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272515AbTGaQRV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 12:17:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274814AbTGaQRI
+	id S272522AbTGaQIw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 12:08:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272516AbTGaQIv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 12:17:08 -0400
-Received: from mail.kroah.org ([65.200.24.183]:34253 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S274811AbTGaQQ5 (ORCPT
+	Thu, 31 Jul 2003 12:08:51 -0400
+Received: from smtp-out2.iol.cz ([194.228.2.87]:10472 "EHLO smtp-out2.iol.cz")
+	by vger.kernel.org with ESMTP id S272522AbTGaQIF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 12:16:57 -0400
-Date: Thu, 31 Jul 2003 08:58:56 -0700
-From: Greg KH <greg@kroah.com>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: Grant Miner <mine0057@mrs.umn.edu>, linux-kernel@vger.kernel.org
-Subject: Re: Zio! compactflash doesn't work
-Message-ID: <20030731155856.GE3202@kroah.com>
-References: <3F26F009.4090608@mrs.umn.edu> <20030730231753.GB5491@kroah.com> <20030731011450.GA2772@win.tue.nl> <20030731041103.GA7668@kroah.com> <20030731005213.B7207@one-eyed-alien.net> <20030731100901.GB2772@win.tue.nl>
+	Thu, 31 Jul 2003 12:08:05 -0400
+Date: Thu, 31 Jul 2003 18:07:45 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: David Brownell <david-b@pacbell.net>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Alan Stern <stern@rowland.harvard.edu>,
+       Dominik Brugger <ml.dominik83@gmx.net>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: [linux-usb-devel] Re: OHCI problems with suspend/resume
+Message-ID: <20030731160745.GB342@elf.ucw.cz>
+References: <Pine.LNX.4.44L0.0307251057300.724-100000@ida.rowland.org> <1059153629.528.2.camel@gaston> <3F21B3BF.1030104@pacbell.net> <20030726210123.GD266@elf.ucw.cz> <3F288CAB.6020401@pacbell.net> <20030731094904.GC464@elf.ucw.cz> <3F291857.1030803@pacbell.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030731100901.GB2772@win.tue.nl>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <3F291857.1030803@pacbell.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 31, 2003 at 12:09:01PM +0200, Andries Brouwer wrote:
-> On Thu, Jul 31, 2003 at 12:52:13AM -0700, Matthew Dharm wrote:
+Hi!
+
+> >>- APM uses the pm_*() calls for a vetoable check,
+> >>  never issues SAVE_STATE, then goes POWER_DOWN.
+> >
+> >
+> >I remember the reason... SAVE_STATE expects user processes to be
+> >stopped, which is not the case in APM. Perhaps that is easy to fix
+> >these days...
 > 
-> > > > > > I have a Microtech CompactFlash ZiO! USB
-> > > > > > P:  Vendor=04e6 ProdID=1010 Rev= 0.05
-> > > > > > S:  Manufacturer=SHUTTLE
-> > > > > > S:  Product=SCM Micro USBAT-02
-> > > > > > 
-> > > > > > but it does not show up in /dev; this is in 2.6.0-pre1.  (It never 
-> > > > > > worked in 2.4 either.)  config is attached.  Any ideas?
-> > > > > 
-> > > > > Linux doesn't currently support this device, sorry.
-> > > > 
-> > > > Hmm. I think I recall seeing people happily using that.
-> > > > Do I misremember?
-> > > > 
-> > > > Google gives
-> > > >   http://www.scm-pc-card.de/service/linux/zio-cf.html
-> > > > and
-> > > >   http://usbat2.sourceforge.net/
-> > > 
-> > > In looking at the kernel source, I don't see support for this device.  I
-> > > do see support for others like it, but with different product ids.
-> > 
-> > Zio! apparently makes multiple CF readers.  Some of them are supported, but
-> > this particular one is not, and likely never will be.
-> 
-> This particular one has support on the place indicated.
-> Do you mean that that driver will never get into the vanilla kernel?
-> And no other driver ever will? Funny.
+> That SAVE_STATE restriction doesn't seem to be documented...
 
-No, I'm not saying that :)
-In looking at the patch, if Matt agrees that it's ok to apply I will.  I
-didn't see anything too bad in there.
-
-thanks,
-
-greg k-h
+It is not; but I could not convince myself that it is okay to call
+SAVE_STATE with userland alive, and that's why I did not add
+SAVE_STATE to apm.
+							Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

@@ -1,42 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292194AbSBTS7G>; Wed, 20 Feb 2002 13:59:06 -0500
+	id <S292195AbSBTTBG>; Wed, 20 Feb 2002 14:01:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292211AbSBTS67>; Wed, 20 Feb 2002 13:58:59 -0500
-Received: from [62.47.19.142] ([62.47.19.142]:7297 "HELO twinny.dyndns.org")
-	by vger.kernel.org with SMTP id <S292194AbSBTS6q>;
-	Wed, 20 Feb 2002 13:58:46 -0500
-Message-ID: <3C73EEC8.EF99F953@webit.com>
-Date: Wed, 20 Feb 2002 19:45:28 +0100
-From: Thomas Winischhofer <tw@webit.com>
-X-Mailer: Mozilla 4.78 [en] (Windows NT 5.0; U)
-X-Accept-Language: en,en-GB,en-US,de-AT,de-DE,de-CH,sv
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: walt <wsheets@sbcglobal.net>
-Subject: Re: [2.2.18-rc1] sis.o missing symbol errors (still)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S292211AbSBTTA5>; Wed, 20 Feb 2002 14:00:57 -0500
+Received: from msg.vizzavi.pt ([212.18.167.162]:3294 "EHLO msg.vizzavi.pt")
+	by vger.kernel.org with ESMTP id <S292195AbSBTTAt>;
+	Wed, 20 Feb 2002 14:00:49 -0500
+Date: Wed, 20 Feb 2002 19:10:39 +0000
+From: "Paulo Andre'" <l16083@alunos.uevora.pt>
+To: Jens Axboe <axboe@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Oops in _every_ 2.5 kernel - SCSI changes
+Message-ID: <20020220191039.A284@bleach>
+In-Reply-To: <20020220005811.C488@bleach> <20020220111055.GC705@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20020220111055.GC705@suse.de>; from axboe@suse.de on Wed, Feb 20, 2002 at 11:10:55 +0000
+X-Mailer: Balsa 1.3.0
+X-OriginalArrivalTime: 20 Feb 2002 19:00:43.0971 (UTC) FILETIME=[E5D52930:01C1BA40]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi again,
 
-walt wrote:
-> In order to avoid missing-symbol errors for drm/sis.o
-> *all* of the following options must be set, even though
-> the specified SiS chips are not being used: 
->
-> CONFIG_FB=y
-> CONFIG_FB_SIS=y/m
-> CONFIG_FB_SIS_300=y
-> CONFIG_FB_SIS_315=y
+On 2002.02.20 11:10 Jens Axboe wrote:
 
-I have a 630 and sisfb and sis (drm) compile well *without* 315... Just
-remember to insmod sisfb.o BEFORE sis.o.
+> Hmm, does this work? What SCSI devices do you have attached?
+> 
+> --- drivers/scsi/scsi_merge.c~	Wed Feb 20 12:08:11 2002
+> +++ drivers/scsi/scsi_merge.c	Wed Feb 20 12:07:26 2002
+> @@ -136,7 +136,7 @@
+>   			 * hardware have no practical limit.
+>  			 */
+>  			bounce_limit = BLK_BOUNCE_ANY;
+> -		else
+> +		else if (SHpnt->pci_dev)
+>  			bounce_limit = SHpnt->pci_dev->dma_mask;
+>  	} else if (SHpnt->unchecked_isa_dma)
+>  		bounce_limit = BLK_BOUNCE_ISA;
+> 
 
-Thomas
 
--- 
-Thomas Winischhofer
-Vienna/Austria
-mailto:tw@webit.com                  *** http://www.webit.com/tw
+It sure does! My days of seeking for this trivial fix are now over, 
+phew 8)
+Thanks a lot Jens, keep up the great work.
+
+// Paulo Andre'

@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318238AbSGYFLI>; Thu, 25 Jul 2002 01:11:08 -0400
+	id <S318323AbSGYFXK>; Thu, 25 Jul 2002 01:23:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318319AbSGYFLI>; Thu, 25 Jul 2002 01:11:08 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:5906 "EHLO
+	id <S318324AbSGYFXK>; Thu, 25 Jul 2002 01:23:10 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:53010 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S318238AbSGYFLI>; Thu, 25 Jul 2002 01:11:08 -0400
-Date: Wed, 24 Jul 2002 22:15:15 -0700 (PDT)
+	id <S318323AbSGYFXJ>; Thu, 25 Jul 2002 01:23:09 -0400
+Date: Wed, 24 Jul 2002 22:27:29 -0700 (PDT)
 From: Linus Torvalds <torvalds@transmeta.com>
-To: Anton Altaparmakov <aia21@cantab.net>
-cc: Alexander Viro <viro@math.psu.edu>, <Andries.Brouwer@cwi.nl>,
+To: Matt_Domsch@Dell.com
+cc: viro@math.psu.edu, <Andries.Brouwer@cwi.nl>,
        <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.28 and partitions
-In-Reply-To: <5.1.0.14.2.20020725030051.02114cb0@pop.cus.cam.ac.uk>
-Message-ID: <Pine.LNX.4.44.0207242213540.1231-100000@home.transmeta.com>
+Subject: RE: 2.5.28 and partitions
+In-Reply-To: <F44891A593A6DE4B99FDCB7CC537BBBBB8394A@AUSXMPS308.aus.amer.dell.com>
+Message-ID: <Pine.LNX.4.44.0207242222410.1231-100000@home.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -21,23 +21,24 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Thu, 25 Jul 2002, Anton Altaparmakov wrote:
+On Wed, 24 Jul 2002 Matt_Domsch@Dell.com wrote:
 >
-> >u64 for sector_t doesn't change anything for 64bit boxen that might be
-> >interested in really large disks and screws 32bit ones that shouldn't
-> >have to pay for that...
->
-> True. That's why sector_t should be a compile time option in the kernel
-> "Enable large device support > 2TiB:  Y/N". Then I am happy and loads of
-> other people because we can use large raid arrays without having to buy the
-> latest expensive system and other people are happy for having faster 32-bit
-> code... Surely we can write robust enough code which will work with either
-> sector_t size...
+> The promise of 64-bit block addresses eventually was a huge part of why I
+> worked on the GPT code in the kernel, partx, parted, etc.  I could really
+> use it today, and it'll be a solid requirement less than a year from now.
 
-Careful. One issue is user-level interfaces to the kernel. I would suggest
-any user level interface should use u64, not "sector_t". So that there is
-zero confusion. Clearly 64-bit sector numbers will be/are really close to
-being an issue for some people.
+Note that there is one place where 64 bits is simply _too_ expensive, and
+that's the page cache. In particular, the "index" in "struct page". We
+want to make "struct page" _smaller_, not larger.
 
-		Linus
+Right now that means that 16TB really is a hard limit for at least some
+device access on a 32-bit machine with a 4kB page-size (yes, you could
+make a filesystem that is bigger, but you very fundamentally cannot make
+individual files larger than 16TB).
+
+The block device layer also cannot write to the 16TB+ region using the
+page cache (but it should be possible to do it using raw device access
+with a 64-bit sector_t, so you can initialize the filesystem).
+
+			Linus
 

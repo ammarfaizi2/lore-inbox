@@ -1,56 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132614AbRC1Xu1>; Wed, 28 Mar 2001 18:50:27 -0500
+	id <S132624AbRC1X4r>; Wed, 28 Mar 2001 18:56:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132620AbRC1XuR>; Wed, 28 Mar 2001 18:50:17 -0500
-Received: from hercules.telenet-ops.be ([195.130.132.33]:28085 "HELO
-	smtp1.pandora.be") by vger.kernel.org with SMTP id <S132614AbRC1XuF>;
-	Wed, 28 Mar 2001 18:50:05 -0500
-Message-ID: <3AC26865.8D034960@pandora.be>
-Date: Thu, 29 Mar 2001 00:40:37 +0200
-From: johan verrept <johan.verrept@pandora.be>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.1 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-usb-devel@lists.sourceforge.net
-CC: linux-kernel@vger.kernel.org, Tony Hoyle <tmh@magenta-netlogic.com>
-Subject: Re: [linux-usb-devel] Repeatable lockup on SMP w/usbprocfs
-In-Reply-To: <3AC24EF0.6060800@magenta-netlogic.com>
-Content-Type: text/plain; charset=us-ascii
+	id <S132623AbRC1X4h>; Wed, 28 Mar 2001 18:56:37 -0500
+Received: from rmx441-mta.mail.com ([165.251.48.44]:20204 "EHLO
+	rmx441-mta.mail.com") by vger.kernel.org with ESMTP
+	id <S132627AbRC1X4U>; Wed, 28 Mar 2001 18:56:20 -0500
+Message-ID: <382729285.985823739747.JavaMail.root@web584-mc>
+Date: Wed, 28 Mar 2001 18:55:39 -0500 (EST)
+From: Lee Chin <leechin@mail.com>
+To: William T Wilson <fluffy@snurgle.org>
+Subject: Re: FWD: 3 NIC cards problem
+Cc: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: mail.com
+X-Originating-IP: 63.206.124.79
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tony Hoyle wrote:
-> 
-> If an application calls the USBDEVFS_SUBMITURB ioctl to submit a read,
-> when the async completion routine is called, the kernel goes into a hard
-> deadlock (no response to ping, etc.).  I've narrowed it down to the
-> async_completed routine in usb.c.  That's the only place where spinlocks
-> are used.  I'm not familiar enough with them to see what the error is,
-> though.
+Hi,
+Thanks!!! That worked.  Now I have one more problem... I am using non
+blcking sockets (set via fcntl).
 
-It is async_completed in devio.c btw.
-I have looked at this too, but I am not sure whether this happens when the completion is called or
-when the program does a USBDEVFS_REAPURB(NDELAY).
-I have looked at the code, but I do not see anything obviously wrong.
+And I am using select (with a 20 second timeout) to see when data is
+available on the socket.  I have 600 clients hitting my web server.
 
-One thing I considered weird is the "wake_up(&ps->wait);" in async_completed().
-This will wake up the program that has submitted the urb, whether is expects to be woken or not. I
-am not sure what the consequences of this are, but it seems harmless enough.
+Quite frequently, what happens is that some of the sockets that I am waiting
+on in the select (read or write) just dont have any activity in them for
+more than 20 seconds or so.... its like the client never sent any data over
+or is still waiting to connect.
 
-> The system runs fine until the packet is returned, then it just locks 
-> solid (On the alcatel USB modem I used for testing it will not respond 
-> until it gets sync, which may be several seconds).
+What could I be doing wrong (what are the common mistakes?)
 
-I have also noticed this only with the Alcatel SpeedTouch USB driver. I am not aware of any other
-driver that uses this although I am writing one that will be using this. It is very possible the
-program does something wrong (For example the code mixes the async and the sync versions of the urb
-ioctl's...), but even then it is not supposed to be able to lock up the whole machine.
+Thanks
+Lee
 
-> Others have found that just compiling SMP into the kernel is enough to
-> break it, you don't actually need two processors.
+------Original Message------
+From: William T Wilson <fluffy@snurgle.org>
+To: Lee Chin <leechin@mail.com>
+Sent: March 28, 2001 9:58:35 PM GMT
+Subject: Re: FWD: 3 NIC cards problem
 
-Probably because when you turn SMP off, spinlocks are disabled so deadlocks are avoided.
 
-	J.
+On Wed, 28 Mar 2001, Lee Chin wrote:
+
+> I have a program listening for socket connections on 192.168.1.1, port 80.
+>
+> What I want to do is have incomming connection requets for IP 192.168.2.1
+> and 192.168.3.1 on port 80 also be handled by my server running on
+> 192.168.1.1:80
+>
+> How do I do this in Linux?
+
+If you use INADDR_ANY in your sockaddr struct that you pass to bind,
+instead of your IP address, it should listen on all network interfaces.
+
+
+______________________________________________
+FREE Personalized Email at Mail.com
+Sign up at http://www.mail.com/?sr=signup

@@ -1,75 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261739AbVB1UXr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261710AbVB1UZG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261739AbVB1UXr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Feb 2005 15:23:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261741AbVB1UXq
+	id S261710AbVB1UZG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Feb 2005 15:25:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261736AbVB1UZG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Feb 2005 15:23:46 -0500
-Received: from isilmar.linta.de ([213.239.214.66]:56242 "EHLO linta.de")
-	by vger.kernel.org with ESMTP id S261739AbVB1UW1 (ORCPT
+	Mon, 28 Feb 2005 15:25:06 -0500
+Received: from soundwarez.org ([217.160.171.123]:14235 "EHLO soundwarez.org")
+	by vger.kernel.org with ESMTP id S261710AbVB1UYv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Feb 2005 15:22:27 -0500
-Date: Mon, 28 Feb 2005 21:22:26 +0100
-From: Dominik Brodowski <linux@dominikbrodowski.net>
-To: Valdis.Kletnieks@vt.edu
+	Mon, 28 Feb 2005 15:24:51 -0500
+Date: Mon, 28 Feb 2005 21:24:43 +0100
+From: Kay Sievers <kay.sievers@vrfy.org>
+To: Greg KH <greg@kroah.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11-rc4-mm1 - pcmcia weirdness/breakage
-Message-ID: <20050228202226.GA16284@isilmar.linta.de>
-Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
-	Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org
-References: <200502281948.j1SJmKdV006528@turing-police.cc.vt.edu>
+Subject: Re: split kobject creation and hotplug event generation
+Message-ID: <20050228202443.GA25248@vrfy.org>
+References: <20050226055316.GA14317@vrfy.org> <20050228194642.GA21323@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200502281948.j1SJmKdV006528@turing-police.cc.vt.edu>
+In-Reply-To: <20050228194642.GA21323@kroah.com>
 User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 28, 2005 at 02:48:20PM -0500, Valdis.Kletnieks@vt.edu wrote:
-> Symptoms:  Running '/etc/init.d/pcmcia start' bombs - cardmgr goes into
-> a loop spewing repeated 'Common memory region at 0x0: Generic or SRAM'
-> messages.  In the dmesg, we find:
+On Mon, Feb 28, 2005 at 11:46:42AM -0800, Greg KH wrote:
+> On Sat, Feb 26, 2005 at 06:53:16AM +0100, Kay Sievers wrote:
+> > This splits the implicit generation of a hotplug events from
+> > kobject_add() and kobject_del(), to give the user of of these
+> > functions control over the time the event is created.
+> > 
+> > The kobject_register() and unregister functions still have the same
+> > behavior and emit the events by themselves.
+> > 
+> > The class, block and device core is changed now to emit the hotplug
+> > event _after_ the "dev" file, the "device" symlink and the default
+> > attributes are created. This will save udev from spinning in a stat() loop
+> > to wait for the files to appear, which is expensive if we have a lot of
+> > concurrent events.
 > 
-> [4294764.989000]  <6>cs: IO port probe 0xc00-0xcff: clean.
-> [4294859.195000] cs: IO port probe 0xc00-0xcff: clean.
-> [4294859.195000] cs: IO port probe 0xc00-0xcff: clean.
-> [4294859.199000] cs: IO port probe 0x100-0x4ff: excluding 0x170-0x177 0x370-0x37f
-> [4294859.202000] cs: IO port probe 0x100-0x4ff: excluding 0x170-0x177 0x370-0x37f
-> [4294859.205000] cs: IO port probe 0x100-0x4ff: excluding 0x170-0x177 0x370-0x37f
-> [4294859.207000] cs: IO port probe 0xa00-0xaff: clean.
-> [4294859.208000] cs: IO port probe 0xa00-0xaff: clean.
-> [4294859.209000] cs: IO port probe 0xa00-0xaff: clean.
-> [4294859.369000] cs: unable to map card memory!
-> [4294859.369000] cs: unable to map card memory!
-> 
-> Now the odd part:
-> 
-> 2.6.11-rc4 works, doesn't show the last 2 'unable to map' messages.
-> 2.6.11-rc4 + linus.patch from -rc4-mm1 works as well - so it's a -mm patch doing it.
-> 
-> A full -rc4-mm1 fails, *as does* a -rc4-mm1 with all the following patches -R'ed:
-> 
-> broken-out/fix-u32-vs-pm_message_t-confusion-in-pcmcia.patch
-> broken-out/pcmcia-add-pcmcia-devices-autonomously.patch
-> broken-out/pcmcia-bridge-resource-management-fix.patch
-> broken-out/pcmcia-determine-some-useful-information-about-devices.patch
-> broken-out/pcmcia-mark-resource-setup-as-done.patch
-> broken-out/pcmcia-pcmcia_device_add.patch
-> broken-out/pcmcia-pcmcia_device_probe.patch
-> broken-out/pcmcia-pcmcia_device_remove.patch
-> broken-out/pcmcia-pd6729-convert-to-pci_register_driver.patch
-> broken-out/pcmcia-per-device-sysfs-output.patch
-> broken-out/pcmcia-rsrc_nonstatic-sysfs-input.patch
-> broken-out/pcmcia-rsrc_nonstatic-sysfs-output.patch
-> broken-out/pcmcia-update-vrc4171_card.patch
-> broken-out/pcmcia-use-bus_rescan_devices.patch
-> broken-out/pcmcia-yenta_socket-ti4150-support.patch
-> 
-> So the breakage is in *some other* -rc4-mm1 patch.  Any hints to speed up
-> the binary search?
+> So, does this solve the issue that everyone has been complaining about
+> for years with the hotplug event happening before the sysfs files are
+> present?
 
-Most likely it's
-pcmcia-bridge-resource-management-fix.patch
+I expect most of them, yes. It is not a guarantee, cause drivers can and will
+create attributes at any time. :) But the most interesting default ones, that
+people tend to expect at event time will be there _before_ the event happens.
 
-	Dominik
+To get this for the whole system and not only the class+block core, a few remainig
+places that use kobject_register() need to be changed to use kobject_add(), but
+that is a trivial change and nice too, cause it cleans up some error pathes, where
+a device needs to be unregistered in the same function and it emits two completely
+useless events for that.
+
+> And if we add this, can we pretty much get rid of all of the
+> wait_for_sysfs like logic in udev?
+
+Yes, that was the motivation to do this. With all the hotplug env vars
+we have now, we can throw out all the compiled-in lists and if some crazy
+devices still need to wait, we can add something to udev's rule logic, that a
+configured rule will wait for that file to show up.
+
+Thanks,
+Kay

@@ -1,116 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314422AbSFTNZw>; Thu, 20 Jun 2002 09:25:52 -0400
+	id <S314433AbSFTNbg>; Thu, 20 Jun 2002 09:31:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314433AbSFTNZv>; Thu, 20 Jun 2002 09:25:51 -0400
-Received: from mta01bw.bigpond.com ([139.134.6.78]:41413 "EHLO
-	mta01bw.bigpond.com") by vger.kernel.org with ESMTP
-	id <S314422AbSFTNZt>; Thu, 20 Jun 2002 09:25:49 -0400
-From: Brad Hards <bhards@bigpond.net.au>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-Subject: Re: (2.5.23) buffer layer error at buffer.c:2326
-Date: Thu, 20 Jun 2002 23:22:41 +1000
-User-Agent: KMail/1.4.5
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0206192007210.1263-100000@netfinity.realnet.co.sz> <3D10E358.D82DB604@zip.com.au> <20020620125036.B3824@redhat.com>
-In-Reply-To: <20020620125036.B3824@redhat.com>
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_THA0PP89ZUGVF7P6G1ZE"
-Message-Id: <200206202322.41275.bhards@bigpond.net.au>
+	id <S314444AbSFTNbg>; Thu, 20 Jun 2002 09:31:36 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:5938 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S314433AbSFTNbf>; Thu, 20 Jun 2002 09:31:35 -0400
+Date: Thu, 20 Jun 2002 15:32:49 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19pre10aa3
+Message-ID: <20020620133249.GG10718@dualathlon.random>
+References: <20020620055933.GA1308@dualathlon.random> <20020620130511.GA8426@werewolf.able.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020620130511.GA8426@werewolf.able.es>
+User-Agent: Mutt/1.3.27i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jun 20, 2002 at 03:05:11PM +0200, J.A. Magallon wrote:
+> 
+> On 2002.06.20 Andrea Arcangeli wrote:
+> >
+> >Only in 2.4.19pre10aa3: 07_e100-1.8.38.gz
+> >Only in 2.4.19pre10aa3: 08_e100-includes-1
+> >Only in 2.4.19pre10aa3: 09_e100-compilehack-1
+> >
+> >	Merged e100 GPL driver from Intel (also make it link
+> >	into the kernel).
+> >
+> 
+> ???
+> 
+> Current driver is 2.0.30...
+> And would not have been easier to get it from 2.5 ? You just have
+> good Makefiles, instead of hacking those from Intel, that I suppose
+> are prepared for building separate from kernel tree.
 
---------------Boundary-00=_THA0PP89ZUGVF7P6G1ZE
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: inline
+I was using this version in an environment and I preferred not to change
+this variable because I wouldn't had time to notice if it broke, but of
+course I should upgrade soon, thanks for the reminder :). For your tree
+you can backout these three patches and apply a more recent version of
+course.
 
-On Thu, 20 Jun 2002 21:50, Stephen C. Tweedie wrote:
-> Hi,
->
-> On Wed, Jun 19, 2002 at 01:02:32PM -0700, Andrew Morton wrote:
-> > What this says is: I still need to get down and set up a fault simulator
-> > and make sure that we're doing all the right things when I/O errors
-> > occur.
->
-> I've got one for 2.4:
->
-> 	http://people.redhat.com/sct/patches/testdrive/
->
-> The testdrive-1.1-for-2.4.19pre10.patch can do random fault injection,
-> at pseudo-random intervals of selectable frequency, on reads or writes
-> or both.  It's a modified loop.o which requires a separate
-> testdrive.o, and you just losetup it over a block device (or, more
-> easily, "mount -o loop /dev/foo /mnt/bar".)
-I've often thought that more "in kernel" test features should be available for 
-those who'd like to do a bit of torture testing, but don't have all the 
-patches to hand.
-In addition to this, maybe tests to:
-1. Fail kmalloc occasionally
-2. Corrupt network data packets
-3. Test USB hardware  (there was a kernel patch for isoc bandwidth tests, that 
-allowed writing to a non-existent endpoint - bitrotted now)
-and probably lots more.
+> Or just take it from jam2...I have been using both e100 and e1000
+> in the same cluster and no problem with them.
+> 
+> Btw, would you mind mergin also e1000...? ;).
 
-I'd like to see all of these enabled seperately as CONFIG_ options. They also 
-need to be protected by something like CONFIG_EXPERIMENTAL, so people don't 
-unwittingly enable them on production systems.
-An example (not meant to be applied) of this is attached. You'd then just 
-dep_(m)bool on CONFIG_TESTONLY for whatever CONFIG_KMALLOC_TESTMODE type 
-thing you've added.
+I didn't need it in any environment, and I usually try to avoid any
+driver update in -aa except in case I can test it somehow. However if
+there's significant request for this I can as well add it (in particular
+because it's unlikely to raise maintainance problems).
 
-Thoughts?
-
-Brad
-
--- 
-http://conf.linux.org.au. 22-25Jan2003. Perth, Australia. Birds in Black.
---------------Boundary-00=_THA0PP89ZUGVF7P6G1ZE
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="testonly-example.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="testonly-example.patch"
-
-diff -Naur -X dontdiff linux-2.5.23-clean/init/Config.help linux-2.5.23-testonly/init/Config.help
---- linux-2.5.23-clean/init/Config.help	Wed Jun 19 12:11:47 2002
-+++ linux-2.5.23-testonly/init/Config.help	Thu Jun 20 22:49:21 2002
-@@ -27,6 +27,21 @@
-   you say Y here, you will be offered the choice of using features or
-   drivers that are currently considered to be in the alpha-test phase.
- 
-+CONFIG_TESTONLY
-+  The kernel has certain options that are intended only for testing
-+  and should never be enabled on production systems. These options
-+  may intentionally cause failures and prevent proper operation of
-+  your system.
-+
-+  If you are trying to perform particular testing of the system, then
-+  you need to enable this option, and whatever specific tests you
-+  are interested in. Note that this option doesn't actually enable
-+  any of the test-only features, it simply protects you from seeing
-+  them in subsequent configuration questions.
-+
-+  You should say N, unless you understand absolutely everything
-+  this might affect.
-+
- CONFIG_NET
-   Unless you really know what you are doing, you should say Y here.
-   The reason is that some programs need kernel networking support even
-diff -Naur -X dontdiff linux-2.5.23-clean/init/Config.in linux-2.5.23-testonly/init/Config.in
---- linux-2.5.23-clean/init/Config.in	Wed Jun 19 12:11:48 2002
-+++ linux-2.5.23-testonly/init/Config.in	Thu Jun 20 23:12:30 2002
-@@ -1,6 +1,7 @@
- mainmenu_option next_comment
- comment 'Code maturity level options'
- bool 'Prompt for development and/or incomplete code/drivers' CONFIG_EXPERIMENTAL
-+bool 'Prompt for options that are intended only for testing' CONFIG_TESTONLY
- endmenu
- 
- mainmenu_option next_comment
-
---------------Boundary-00=_THA0PP89ZUGVF7P6G1ZE--
-
+Andrea

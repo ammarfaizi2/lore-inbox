@@ -1,64 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261803AbVAIVQb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261789AbVAIVQT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261803AbVAIVQb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jan 2005 16:16:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261808AbVAIVQa
+	id S261789AbVAIVQT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jan 2005 16:16:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261803AbVAIVQT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jan 2005 16:16:30 -0500
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:48785 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S261803AbVAIVQY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jan 2005 16:16:24 -0500
-Message-ID: <41E19F21.20001@comcast.net>
-Date: Sun, 09 Jan 2005 16:16:17 -0500
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041211)
-X-Accept-Language: en-us, en
+	Sun, 9 Jan 2005 16:16:19 -0500
+Received: from smtp-out.hotpop.com ([38.113.3.71]:19646 "EHLO
+	smtp-out.hotpop.com") by vger.kernel.org with ESMTP id S261789AbVAIVQQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jan 2005 16:16:16 -0500
+From: "Antonino A. Daplas" <adaplas@hotpop.com>
+Reply-To: adaplas@pol.net
+To: Jean Delvare <khali@linux-fr.org>, James Simmons <jsimmons@users.sf.net>,
+       Antonino Daplas <adaplas@pol.net>
+Subject: Re: [PATCH 2.6] FB: Possible fbcon cleanups
+Date: Mon, 10 Jan 2005 05:16:08 +0800
+User-Agent: KMail/1.5.4
+Cc: linux-fbdev-devel@lists.sourceforge.net,
+       LKML <linux-kernel@vger.kernel.org>
+References: <20041226151351.32608309.khali@linux-fr.org>
+In-Reply-To: <20041226151351.32608309.khali@linux-fr.org>
 MIME-Version: 1.0
-To: Andre Tomt <andre@tomt.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: printf() overhead
-References: <41E18522.7060004@comcast.net> <41E188FE.7010609@tomt.net>
-In-Reply-To: <41E188FE.7010609@tomt.net>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200501100516.08056.adaplas@hotpop.com>
+X-HotPOP: -----------------------------------------------
+                   Sent By HotPOP.com FREE Email
+             Get your FREE POP email at www.HotPOP.com
+          -----------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Sunday 26 December 2004 22:13, Jean Delvare wrote:
+> Hello,
+>
+> While browsing the video/fbcon.c source file (Linux 2.6.10-rc3) I found
+> some possible cleanups. Patch follows, feel free to apply all or parts
+> of it if it looks OK to you.
+>
+
+Looks good, thanks.
+
+Tony
 
 
-
-Andre Tomt wrote:
-| John Richard Moser wrote:
-|
-|> using strace to run a program takes aeons.  Redirecting the output to a
-|> file can be a hundred times faster sometimes.  This raises question.
-|>
-|> I understand that output to the screen is I/O.  What exactly causes it
-|> to be slow, and is there a possible way to accelerate the process?
-|
-|
-| The terminal is a major factor; gnome-terminal for example can be
-| *extremely* slow.
-|
-
-Is there a way to give the data to the terminal and let the program go
-while that happens?  Or is there an execution path (i.e. terminal says
-"WTF NO") that can be missed that way?
-
-- --
-All content of all messages exchanged herein are left in the
-Public Domain, unless otherwise explicitly stated.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFB4Z8hhDd4aOud5P8RAnhBAJ40RgKIcXdCvhnuHlfZyK60xswjGwCdFef2
-rmwEL/yAR74Q96VkpEV6Z2s=
-=bpD8
------END PGP SIGNATURE-----

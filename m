@@ -1,44 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267603AbUH2KHM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266578AbUH2KQl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267603AbUH2KHM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Aug 2004 06:07:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266578AbUH2KHL
+	id S266578AbUH2KQl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Aug 2004 06:16:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267587AbUH2KQl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Aug 2004 06:07:11 -0400
-Received: from postfix3-2.free.fr ([213.228.0.169]:6099 "EHLO
-	postfix3-2.free.fr") by vger.kernel.org with ESMTP id S267587AbUH2KHC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Aug 2004 06:07:02 -0400
-Message-ID: <1093774021.4131aac52743b@imp4-q.free.fr>
-Date: Sun, 29 Aug 2004 12:07:01 +0200
-From: castet.matthieu@free.fr
-To: linux-kernel@vger.kernel.org
-Subject: pnp and manual choose of resource : bug ?
+	Sun, 29 Aug 2004 06:16:41 -0400
+Received: from gate.perex.cz ([82.113.61.162]:29330 "EHLO mail.perex.cz")
+	by vger.kernel.org with ESMTP id S266578AbUH2KQk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Aug 2004 06:16:40 -0400
+Date: Sun, 29 Aug 2004 12:06:01 +0200 (CEST)
+From: Jaroslav Kysela <perex@suse.cz>
+X-X-Sender: perex@pnote.perex-int.cz
+To: Christoph Hellwig <hch@lst.de>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       ALSA development <alsa-devel@alsa-project.org>
+Subject: Re: Your message to Alsa-devel awaits moderator approval
+In-Reply-To: <20040828162817.GC15381@lst.de>
+Message-ID: <Pine.LNX.4.58.0408291202030.1778@pnote.perex-int.cz>
+References: <E1C161j-0006Cx-La@sc8-sf-list2.sourceforge.net>
+ <20040828162817.GC15381@lst.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.5
-X-Originating-IP: 213.228.47.30
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-due to a bug in pnpbios parser [1] I wanted to choose my configuration.
-So I looked in Documentation/pnp.txt and tried to changed it with echo "manual
-<depnum> <mode>" > resources, but it didn't work.
-After looking in drivers/pnp/interface.c, I saw that is not implemented :(
-So I try to modify the driver in order it use a good configuration. But for
-using pnp_assign_resources that let you choose an other config, the device must
-be disable, but when you activate a device with pnp_activate_dev, it call
-pnp_auto_config_dev that change the config you choose before.
+On Sat, 28 Aug 2004, Christoph Hellwig wrote:
 
-So you can't choose another configuration, without an ugly hack (dev->active =
-0; to your change; dev->active = 1;)
+> Jaroslav, could you please turn off the moderation for alsa-devel?
+> Mailinglists mentioned in MAINTAINERS should be easily accessible for
+> bugreports.
 
-Is that normal ?
+Changed. The alsa-devel list is open now. Hopefully, spam won't eat us.
 
-Matthieu
+						Jaroslav
 
-[1] : http://bugzilla.kernel.org/show_bug.cgi?id=3295
-
-PS : please CC me since I'm not subscribed to lkml.
+-----
+Jaroslav Kysela <perex@suse.cz>
+Linux Kernel Sound Maintainer
+ALSA Project, SUSE Labs

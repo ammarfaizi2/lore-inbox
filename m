@@ -1,63 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130750AbQLDAuh>; Sun, 3 Dec 2000 19:50:37 -0500
+	id <S129248AbQLDBF1>; Sun, 3 Dec 2000 20:05:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130901AbQLDAub>; Sun, 3 Dec 2000 19:50:31 -0500
-Received: from [66.30.136.189] ([66.30.136.189]:1800 "HELO
-	kullstam.ne.mediaone.net") by vger.kernel.org with SMTP
-	id <S130750AbQLDAuT>; Sun, 3 Dec 2000 19:50:19 -0500
-From: "Johan Kullstam" <kullstam@ne.mediaone.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: multiprocessor kernel problem
-In-Reply-To: <20001203020904.31A2C813F@halfway.linuxcare.com.au>
-Organization: none
-Date: 03 Dec 2000 19:22:21 -0500
-In-Reply-To: Rusty Russell's message of "Sun, 03 Dec 2000 13:08:53 +1100"
-Message-ID: <m2elzp3uiq.fsf@euler.axel.nom>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) Emacs/20.7
+	id <S129324AbQLDBFR>; Sun, 3 Dec 2000 20:05:17 -0500
+Received: from wep10a-3.wep.tudelft.nl ([130.161.65.38]:62736 "EHLO
+	wep10a-3.wep.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S129248AbQLDBFJ>; Sun, 3 Dec 2000 20:05:09 -0500
+Date: Mon, 4 Dec 2000 01:34:40 +0100 (CET)
+From: Taco IJsselmuiden <taco@wep.tudelft.nl>
+Reply-To: Taco IJsselmuiden <taco@wep.tudelft.nl>
+To: Martin Josefsson <gandalf@wlug.westbo.se>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: ip_nat_ftp and different ports
+In-Reply-To: <Pine.LNX.4.21.0012032259320.14309-100000@tux.rsn.hk-r.se>
+Message-ID: <Pine.LNX.4.21.0012040125430.14854-100000@hewpac.taco.dhs.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell <rusty@linuxcare.com.au> writes:
+On Sun, 3 Dec 2000, Martin Josefsson wrote:
 
-> In message <3A27D4D6.4DA47346@lanl.gov> you write:
-> > 
-> > I have 2.4.0  test 10 and test 11 installed on a multiprocessor (Intel)
-> > machine.  I have tried both test versions of the kernel.  I configured
-> > the kernel for single
-> > and multi processor.  When I boot single processor, iptables will run
-> > fine.  When I boot the machine with the multiprocessor kernel and run
-> > iptables, the kernel dumps several pages of hex and the final two lines
-> > of output are:
-> > 
-> > Killing interrupt handler
-> > scheduling in interrupt
+> On Sun, 3 Dec 2000, Taco IJsselmuiden wrote:
 > 
-> My development box (running test10pre5) is SMP, and it works fine.
-
-yes, but is it a dual machine or is it an N-way SMP with N > 2?  the
-other guy with iptables/SMP problems also has a quad box.  could this
-perhaps be a problem only when you have more than two processors?
-
-> I
-> haven't updated to the latest kernel version because I like my
-> filesystems in one piece, and the netfilter code hasn't changed.
+> > Hi,
+> > 
+> > I'm having trouble masquerading ftp-ports other than 20/21.
+> > For some service i'm using, i need to masquerade port 42,43,62,63 for FTP
+> > (I know it's weird...).
+> > Now, when using 2.2.x kernels i could use
+> > 'insmod ip_masq_ftp ports=21,41,42,62,63'
+> > but using 2.4.0-testx the 'ports=' parameter doesn't seem to work for
+> > ip_nat_ftp.
+> > Is there any other param I should use (couldn't find it in the docs ;(( )
 > 
-> What is your kernel configuration, and iptables version?  Have you
-> patched the kernel?
+> There is a ftp-multi patch that you can apply to get this working
+> 
+> download iptables-1.2 and run 'make patch-o-matic' and apply the ftp-multi
+> patch and recompile the ftp module... you're done.
+hmm... iptables-1.2 ?
+I can only find iptables-1.1.2 (netfilter.filewatcher.org,
+netfilter.kernelnotes.org)...
+Where could I find 1.2 then ??
 
-i tried 2.4.0-test10 (no patches) with iptables 1.1.2.  this is an alr
-revolution quad6 (4 ppros).
+I'm running 1.1.2 right now, actually, which should have the 'ftp-multi
+patch for non-standard ftp servers'...
 
-i posted this to the netfilter mailing list a while back.
-<URL:http://lists.samba.org/pipermail/netfilter/2000-November/005838.html>
+Greetz,
+Taco.
+---
+"I was only 75 years old when I met her and I was still a kid...."
+          -- Duncan McLeod
 
--- 
-J o h a n  K u l l s t a m
-[kullstam@ne.mediaone.net]
-Don't Fear the Penguin!
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

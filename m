@@ -1,39 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262902AbTJ3XHa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Oct 2003 18:07:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262932AbTJ3XHa
+	id S262960AbTJ3XJp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Oct 2003 18:09:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262965AbTJ3XJp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Oct 2003 18:07:30 -0500
-Received: from deepthot.org ([68.14.232.127]:55966 "EHLO dent.deepthot.org")
-	by vger.kernel.org with ESMTP id S262902AbTJ3XH3 (ORCPT
+	Thu, 30 Oct 2003 18:09:45 -0500
+Received: from gaia.cela.pl ([213.134.162.11]:4612 "EHLO gaia.cela.pl")
+	by vger.kernel.org with ESMTP id S262960AbTJ3XJm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Oct 2003 18:07:29 -0500
-From: Jay Denebeim <denebeim@deepthot.org>
-X-Newsgroups: dt.kernel
-Subject: Tools question
-Date: Thu, 30 Oct 2003 22:40:42 +0000 (UTC)
-Organization: Deep Thought
-Message-ID: <slrnbq34ra.dnl.denebeim@dent.deepthot.org>
-X-Complaints-To: news@deepthot.org
-User-Agent: slrn/0.9.7.4 (Linux)
-To: linuxkernel@deepthot.org
-X-SA-Exim-Mail-From: news@deepthot.org
+	Thu, 30 Oct 2003 18:09:42 -0500
+Date: Fri, 31 Oct 2003 00:09:25 +0100 (CET)
+From: Maciej Zenczykowski <maze@cela.pl>
+To: Dave Brondsema <dave@brondsema.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: uptime reset after about 45 days
+In-Reply-To: <1067552357.3fa18e65d1fca@secure.solidusdesign.com>
+Message-ID: <Pine.LNX.4.44.0310310005090.11473-100000@gaia.cela.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Given a kernel panic with a partial traceback (actually it's a jpg
-taken with a digital camera of a screen), how would I identify the
-line where the panic occured.
+> After about 45 days or so, my uptime was reset. My idle time is correct.
+> 
+> $ cat /proc/uptime
+> 94245.37 3686026.54
+> 
+> $ cat /proc/version Linux version 2.4.20-gentoo-r1
+> (root@dpb2.resnet.calvin.edu) (gcc version 3.2.2) #6 SMP Thu Apr 17
+> 14:11:34 EDT 2003
 
-Basically I want something that tells me the offsets of a given line
-of code.  I've used tools to do this on other operating systems, what
-should I use on Linux?
+Uptime is stored in jiffies which is 32bit on your arch, which results in 
+an overflow after 2^32 clock ticks. TTTicks were 100 HZ till recently 
+(overflow after 470 or so days) now, they're 1000 -> overflows after 45 
+days.  Doesn't wreck anything except for uptime display - known problem, 
+not worth the trouble fixing it would cause (64 bit values are 
+non-atomic, unless MMX/SSE which isn't allowed in kernel) - however there 
+is (if I'm not mistaken) a patch available wihich fixes this 'problem'.
 
-Jay
+However since it is only a matter of uptime display...
 
--- 
-* Jay Denebeim  Moderator       rec.arts.sf.tv.babylon5.moderated *
-* newsgroup submission address: b5mod@deepthot.org                *
-* moderator contact address:    b5mod-request@deepthot.org        *
-* personal contact address:     denebeim@deepthot.org             *
+Cheers,
+MaZe.
+

@@ -1,31 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129414AbQLMCoF>; Tue, 12 Dec 2000 21:44:05 -0500
+	id <S129846AbQLMCxJ>; Tue, 12 Dec 2000 21:53:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129999AbQLMCnz>; Tue, 12 Dec 2000 21:43:55 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:20745 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129414AbQLMCni>; Tue, 12 Dec 2000 21:43:38 -0500
-Subject: Re: 2.2.18pre21 oops reading /proc/apm
-To: neale@lowendale.com.au (Neale Banks)
-Date: Wed, 13 Dec 2000 02:14:02 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), sfr@linuxcare.com (Stephen Rothwell),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.05.10012131233210.27152-200000@marina.lowendale.com.au> from "Neale Banks" at Dec 13, 2000 01:01:43 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E1461Qi-0002Bx-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S129999AbQLMCwt>; Tue, 12 Dec 2000 21:52:49 -0500
+Received: from [195.166.20.93] ([195.166.20.93]:13322 "EHLO
+	frumious.unidec.co.uk") by vger.kernel.org with ESMTP
+	id <S129846AbQLMCwl>; Tue, 12 Dec 2000 21:52:41 -0500
+Date: Wed, 13 Dec 2000 02:21:34 GMT
+From: root <root@frumious.unidec.co.uk>
+Message-Id: <200012130221.eBD2LYs07572@frumious.unidec.co.uk>
+To: torrey.hoffman@myrio.com
+Subject: Re: National Semiconductor DP83815 ethernet driver?
+Cc: adam@yggdrasil.com, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> (3) modifies the output of /proc/apm when power status reporting is
-> disabled - on reflection, maybe this wasn't such a smart thing to do
-> (could royally stuff anybody who is automagically parsing /proc/apm?)
 
-Please dont - it correctly reports 'dunno' right now
+>From searching Google, I know some sort of driver exists. In July, Adam J.
+>Richter (adam@yggdrasil.com) posted a 2.2.16 driver he obtained from Dave
+>Gotwisner at Wyse Technologies. And Tim Hockin mentioned that he was using
+>an NSC driver, but had made some minor modifications.
+
+This one has a very murky past. Adam & I have both received the same
+driver from within NatSemi, which turned out to be a rehash of the
+driver originally written by Donald Becker (with his name and the GPL
+license removed...). It should be noted that this wasn't "written" by
+NatSemi themselves, but by a company called TeamF1.
+
+Since then Donald's original driver (natsemi.c) has been folded into the
+2.4 kernel, and I can happily report works well with 2.2 as well. It's
+certainly a lot better than the dp83815.c program, which I found had
+the tendency to hang the machine completely in high traffic (well, if
+you count ftping from a host on the same 10Mb half duplex network as
+high load ;).
+
+john
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

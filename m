@@ -1,86 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265196AbTAPAM1>; Wed, 15 Jan 2003 19:12:27 -0500
+	id <S266932AbTAPAN3>; Wed, 15 Jan 2003 19:13:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266932AbTAPAM1>; Wed, 15 Jan 2003 19:12:27 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:21991 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S265196AbTAPAMZ>; Wed, 15 Jan 2003 19:12:25 -0500
-Subject: [PATCH][RESEND] linux-2.5.58_timer-tsc-cleanup_A0
-From: john stultz <johnstul@us.ibm.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: lkml <linux-kernel@vger.kernel.org>,
-       Trivial Patch Monkey <trivial@rustcorp.com.au>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1042676113.1515.129.camel@w-jstultz2.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 15 Jan 2003 16:15:14 -0800
-Content-Transfer-Encoding: 7bit
+	id <S266940AbTAPAN3>; Wed, 15 Jan 2003 19:13:29 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:5941 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S266932AbTAPAN1>; Wed, 15 Jan 2003 19:13:27 -0500
+To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+Cc: davidm@hpl.hp.com, Sam Ravnborg <sam@ravnborg.org>,
+       Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Consolidate vmlinux.lds.S files
+References: <Pine.LNX.4.44.0301151638240.24883-100000@chaos.physics.uiowa.edu>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 15 Jan 2003 17:19:38 -0700
+In-Reply-To: <Pine.LNX.4.44.0301151638240.24883-100000@chaos.physics.uiowa.edu>
+Message-ID: <m1iswqeyjp.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, All,
-	This patch cleans up the timer_tsc code, removing the unused use_tsc
-variable and making fast_gettimeoffset_quotient static.
+Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de> writes:
 
-Please apply.
+> On Mon, 13 Jan 2003, David Mosberger wrote:
+> 
+> > 
+> >   Kai> I would suggest an approach like the following, of course
+> >   Kai> showing only a first simple step. A series of steps like this
+> >   Kai> should allow for a serious reduction in size of
+> >   Kai> arch/*/vmlinux.lds.S already, while being obviously correct and
+> >   Kai> allowing archs to do their own special thing if necessary (in
+> >   Kai> particular, IA64 seems to differ from all the other archs).
+> > 
+> > The only real difference for the ia64 vmlinux.lds.S is that it
+> > generates correct physical addressess, so that the boot loader doesn't
+> > have to know anything about the virtual layout of the kernel.
+> > Something that might be useful for other arches as well...
+> 
+> I just found another way of changing the LMA in vmlinux, which is far 
+> less intrusive than what IA-64 uses. Do you see any reason why something 
+> like the following patch (which changes the LMA for i386) wouldn't work 
+> for IA-64?
 
-thanks
--john
+Be very careful.  There are some versions of ld (I forget which)
+that do not behave correctly when PHDRS are used.
 
-
-diff -Nru a/arch/i386/kernel/smpboot.c b/arch/i386/kernel/smpboot.c
---- a/arch/i386/kernel/smpboot.c	Wed Jan 15 15:54:11 2003
-+++ b/arch/i386/kernel/smpboot.c	Wed Jan 15 15:54:11 2003
-@@ -182,8 +182,6 @@
- 
- #define NR_LOOPS 5
- 
--extern unsigned long fast_gettimeoffset_quotient;
--
- /*
-  * accurate 64-bit/32-bit division, expanded to 32-bit divisions and 64-bit
-  * multiplication. Not terribly optimized but we need it at boot time only
-@@ -223,7 +221,8 @@
- 
- 	printk("checking TSC synchronization across %u CPUs: ", num_booting_cpus());
- 
--	one_usec = ((1<<30)/fast_gettimeoffset_quotient)*(1<<2);
-+	/* convert from kcyc/sec to cyc/usec */
-+	one_usec = cpu_khz / 1000;
- 
- 	atomic_set(&tsc_start_flag, 1);
- 	wmb();
-diff -Nru a/arch/i386/kernel/timers/timer_tsc.c b/arch/i386/kernel/timers/timer_tsc.c
---- a/arch/i386/kernel/timers/timer_tsc.c	Wed Jan 15 15:54:11 2003
-+++ b/arch/i386/kernel/timers/timer_tsc.c	Wed Jan 15 15:54:11 2003
-@@ -18,7 +18,6 @@
- 
- extern spinlock_t i8253_lock;
- 
--static int use_tsc;
- /* Number of usecs that the last interrupt was delayed */
- static int delay_at_last_interrupt;
- 
-@@ -29,7 +28,7 @@
-  * Equal to 2^32 * (1 / (clocks per usec) ).
-  * Initialized in time_init.
-  */
--unsigned long fast_gettimeoffset_quotient;
-+static unsigned long fast_gettimeoffset_quotient;
- 
- static unsigned long get_offset_tsc(void)
- {
-@@ -277,7 +276,6 @@
- 		unsigned long tsc_quotient = calibrate_tsc();
- 		if (tsc_quotient) {
- 			fast_gettimeoffset_quotient = tsc_quotient;
--			use_tsc = 1;
- 			/*
- 			 *	We could be more selective here I suspect
- 			 *	and just enable this for the next intel chips ?
-
-
-
+Eric

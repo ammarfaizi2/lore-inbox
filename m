@@ -1,56 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269187AbUJKSdy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269171AbUJKSfD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269187AbUJKSdy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 14:33:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269003AbUJKSbs
+	id S269171AbUJKSfD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 14:35:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269214AbUJKSeL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 14:31:48 -0400
-Received: from mailwasher.lanl.gov ([192.65.95.54]:37472 "EHLO
-	mailwasher-b.lanl.gov") by vger.kernel.org with ESMTP
-	id S269177AbUJKS1y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 14:27:54 -0400
-Date: Mon, 11 Oct 2004 12:27:48 -0600 (MDT)
-From: "Ronald G. Minnich" <rminnich@lanl.gov>
-X-X-Sender: rminnich@linux.site
-To: Michael Krause <krause@cup.hp.com>
-cc: openib-general@openib.org, linux-kernel@vger.kernel.org
-Subject: Re: [openib-general] InfiniBand incompatible with the Linux kernel?
-In-Reply-To: <6.1.2.0.2.20041008152933.01f671a8@esmail.cup.hp.com>
-Message-ID: <Pine.LNX.4.58.0410111226460.17999@linux.site>
-References: <20041008202247.GA9653@kroah.com> <6.1.2.0.2.20041008152933.01f671a8@esmail.cup.hp.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-PMX-Version: 4.6.0.99824
-X-PMX-Version: 4.6.0.99824
+	Mon, 11 Oct 2004 14:34:11 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:37283 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S269171AbUJKSco (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Oct 2004 14:32:44 -0400
+Subject: Re: [patch rfc] towards supporting O_NONBLOCK on regular files
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: Jeff Moyer <jmoyer@redhat.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@redhat.com>, Stephen Tweedie <sct@redhat.com>
+In-Reply-To: <20041007101213.GC10234@logos.cnet>
+References: <16733.50382.569265.183099@segfault.boston.redhat.com>
+	 <20041005112752.GA21094@logos.cnet>
+	 <16739.61314.102521.128577@segfault.boston.redhat.com>
+	 <20041006120158.GA8024@logos.cnet>
+	 <1097119895.4339.12.camel@orbit.scot.redhat.com>
+	 <20041007101213.GC10234@logos.cnet>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1097519553.2128.115.camel@sisko.scot.redhat.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 11 Oct 2004 19:32:33 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+On Thu, 2004-10-07 at 11:12, Marcelo Tosatti wrote:
 
-On Fri, 8 Oct 2004, Michael Krause wrote:
+> Oh yes, theres also the indirect blocks which we might need to read from
+> disk.
 
-> Spec for free or spec for a price - neither grants anyone rights to any
-> IP contained within the specifications or on the technologies that
-> surround the specification.  The change in spec cost, while clearly
-> unfortunate, has no impact on the IP rights.  IP rights are defined by
-> the IBTA membership agreement (just like they are for PCI and any number
-> of other technologies used within the industry).  If you want to
-> implement a technology, then you have to be a member of the appropriate
-> organization and agree to the same industry-wide terms that others do.  
-> Hence, this problem is not IB-specific but a fact of life within the
-> industry.
+Right.
 
-funny, I don't recall these problems with Ethernet. 
+> Now the question is, how strict should the O_NONBLOCK implementation be 
+> in reference to "not blocking" ?
 
+Well, I suspect that depends on the application.  But if you've got an
+app that really wants to make sure its hot path is as fast as possible
+(eg. a high-throughput server multiplexing disk IO and networking
+through a single event loop), then ideally the app would want to punt
+any blocking disk IO to another thread.
 
-> Again, this is true of many technologies not just IB.  For example, if a
-> company has patents on PCI Express and someone implements a device /
-> chipset / whatever and they are not part of the PCI-SIG, then they can
-> be subject to different terms than someone who is a member of the
-> PCI-SIG.  In both cases, the access to specs, etc. has nothing to do
-> with IP licensing.
+So it's a matter of significant extra programing for a small extra
+reduction in app blocking potential.
 
-sorry, I think about protocol software differently than chips. Maybe I'm 
-thinking incorrectly here.
+I think it's worth getting this right in the long term, though.  Getting
+readahead of indirect blocks right has other benefits too --- eg. we may
+be able to fix the situation where we end up trying to read indirect
+blocks before we've even submitted the IO for the previous data blocks,
+breaking the IO pipeline ordering.
 
-ron
+--Stephen
+

@@ -1,43 +1,329 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265361AbUGNVJL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264701AbUGNVNU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265361AbUGNVJL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jul 2004 17:09:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265228AbUGNVJL
+	id S264701AbUGNVNU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jul 2004 17:13:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265781AbUGNVNU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jul 2004 17:09:11 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:15316 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265245AbUGNVJE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jul 2004 17:09:04 -0400
-Date: Wed, 14 Jul 2004 22:09:03 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-Subject: Re: gettimeofday nanoseconds patch (makes it possible for the posix-timer functions to return higher accuracy)
-Message-ID: <20040714210903.GA32326@parcelfarce.linux.theplanet.co.uk>
-References: <Pine.LNX.4.58.0407140940260.14704@schroedinger.engr.sgi.com>
+	Wed, 14 Jul 2004 17:13:20 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:63216 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S264701AbUGNVL5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jul 2004 17:11:57 -0400
+Date: Wed, 14 Jul 2004 23:11:48 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: erik@vt.edu
+Cc: jgarzik@pobox.com, linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
+Subject: [2.6 patch] net/smc9194.c: fix inline compile errors
+Message-ID: <20040714211148.GP7308@fs.tum.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0407140940260.14704@schroedinger.engr.sgi.com>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 14, 2004 at 09:41:03AM -0700, Christoph Lameter wrote:
-> The following patch introduces a new gettimeofday function using
-> struct timespec instead of struct timeval. If a platforms supports time
-> interpolation then the new gettimeofday will use that to provide a
-> gettimeofday function with higher accuracy and then also clock_gettime
-> will return with nanosecond accuracy.
+Trying to compile drivers/net/smc9194.c in 2.6.8-rc1-mm1 with gcc 3.4 
+results in compile errors starting with the following:
 
-You seem to have included two patches here that are very similar ...
-could you send the patch you intended please?
+<--  snip  -->
 
--- 
-"Next the statesmen will invent cheap lies, putting the blame upon 
-the nation that is attacked, and every man will be glad of those
-conscience-soothing falsities, and will diligently study them, and refuse
-to examine any refutations of them; and thus he will by and by convince 
-himself that the war is just, and will thank God for the better sleep 
-he enjoys after this process of grotesque self-deception." -- Mark Twain
+...
+  CC      drivers/net/smc9194.o
+drivers/net/smc9194.c: In function `smc_interrupt':
+drivers/net/smc9194.c:278: sorry, unimplemented: inlining failed in call 
+to 'smc_rcv': function body not available
+drivers/net/smc9194.c:1254: sorry, unimplemented: called from here
+drivers/net/smc9194.c:283: sorry, unimplemented: inlining failed in call 
+to 'smc_tx': function body not available
+drivers/net/smc9194.c:1258: sorry, unimplemented: called from here
+make[2]: *** [drivers/net/smc9194.o] Error 1
+
+<--  snip  -->
+
+
+The patch below moves some inlined functions above the place where they
+are called the first time.
+
+An alternative approach would be to remove the inlines.
+
+
+diffstat output:
+ drivers/net/smc9194.c |  255 +++++++++++++++++++++---------------------
+ 1 files changed, 128 insertions(+), 127 deletions(-)
+
+
+
+Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
+
+--- linux-2.6.7-mm6-full-gcc3.4/drivers/net/smc9194.c.old	2004-07-09 00:39:05.000000000 +0200
++++ linux-2.6.7-mm6-full-gcc3.4/drivers/net/smc9194.c	2004-07-09 00:47:01.000000000 +0200
+@@ -1191,133 +1191,6 @@
+ 	netif_wake_queue(dev);
+ }
+ 
+-/*--------------------------------------------------------------------
+- .
+- . This is the main routine of the driver, to handle the device when
+- . it needs some attention.
+- .
+- . So:
+- .   first, save state of the chipset
+- .   branch off into routines to handle each case, and acknowledge
+- .	    each to the interrupt register
+- .   and finally restore state.
+- .
+- ---------------------------------------------------------------------*/
+-
+-static irqreturn_t smc_interrupt(int irq, void * dev_id,  struct pt_regs * regs)
+-{
+-	struct net_device *dev 	= dev_id;
+-	int ioaddr 		= dev->base_addr;
+-	struct smc_local *lp = netdev_priv(dev);
+-
+-	byte	status;
+-	word	card_stats;
+-	byte	mask;
+-	int	timeout;
+-	/* state registers */
+-	word	saved_bank;
+-	word	saved_pointer;
+-	int handled = 0;
+-
+-
+-	PRINTK3((CARDNAME": SMC interrupt started \n"));
+-
+-	saved_bank = inw( ioaddr + BANK_SELECT );
+-
+-	SMC_SELECT_BANK(2);
+-	saved_pointer = inw( ioaddr + POINTER );
+-
+-	mask = inb( ioaddr + INT_MASK );
+-	/* clear all interrupts */
+-	outb( 0, ioaddr + INT_MASK );
+-
+-
+-	/* set a timeout value, so I don't stay here forever */
+-	timeout = 4;
+-
+-	PRINTK2((KERN_WARNING CARDNAME ": MASK IS %x \n", mask ));
+-	do {
+-		/* read the status flag, and mask it */
+-		status = inb( ioaddr + INTERRUPT ) & mask;
+-		if (!status )
+-			break;
+-
+-		handled = 1;
+-
+-		PRINTK3((KERN_WARNING CARDNAME
+-			": Handling interrupt status %x \n", status ));
+-
+-		if (status & IM_RCV_INT) {
+-			/* Got a packet(s). */
+-			PRINTK2((KERN_WARNING CARDNAME
+-				": Receive Interrupt\n"));
+-			smc_rcv(dev);
+-		} else if (status & IM_TX_INT ) {
+-			PRINTK2((KERN_WARNING CARDNAME
+-				": TX ERROR handled\n"));
+-			smc_tx(dev);
+-			outb(IM_TX_INT, ioaddr + INTERRUPT );
+-		} else if (status & IM_TX_EMPTY_INT ) {
+-			/* update stats */
+-			SMC_SELECT_BANK( 0 );
+-			card_stats = inw( ioaddr + COUNTER );
+-			/* single collisions */
+-			lp->stats.collisions += card_stats & 0xF;
+-			card_stats >>= 4;
+-			/* multiple collisions */
+-			lp->stats.collisions += card_stats & 0xF;
+-
+-			/* these are for when linux supports these statistics */
+-
+-			SMC_SELECT_BANK( 2 );
+-			PRINTK2((KERN_WARNING CARDNAME
+-				": TX_BUFFER_EMPTY handled\n"));
+-			outb( IM_TX_EMPTY_INT, ioaddr + INTERRUPT );
+-			mask &= ~IM_TX_EMPTY_INT;
+-			lp->stats.tx_packets += lp->packets_waiting;
+-			lp->packets_waiting = 0;
+-
+-		} else if (status & IM_ALLOC_INT ) {
+-			PRINTK2((KERN_DEBUG CARDNAME
+-				": Allocation interrupt \n"));
+-			/* clear this interrupt so it doesn't happen again */
+-			mask &= ~IM_ALLOC_INT;
+-
+-			smc_hardware_send_packet( dev );
+-
+-			/* enable xmit interrupts based on this */
+-			mask |= ( IM_TX_EMPTY_INT | IM_TX_INT );
+-
+-			/* and let the card send more packets to me */
+-			netif_wake_queue(dev);
+-			
+-			PRINTK2((CARDNAME": Handoff done successfully.\n"));
+-		} else if (status & IM_RX_OVRN_INT ) {
+-			lp->stats.rx_errors++;
+-			lp->stats.rx_fifo_errors++;
+-			outb( IM_RX_OVRN_INT, ioaddr + INTERRUPT );
+-		} else if (status & IM_EPH_INT ) {
+-			PRINTK((CARDNAME ": UNSUPPORTED: EPH INTERRUPT \n"));
+-		} else if (status & IM_ERCV_INT ) {
+-			PRINTK((CARDNAME ": UNSUPPORTED: ERCV INTERRUPT \n"));
+-			outb( IM_ERCV_INT, ioaddr + INTERRUPT );
+-		}
+-	} while ( timeout -- );
+-
+-
+-	/* restore state register */
+-	SMC_SELECT_BANK( 2 );
+-	outb( mask, ioaddr + INT_MASK );
+-
+-	PRINTK3(( KERN_WARNING CARDNAME ": MASK is now %x \n", mask ));
+-	outw( saved_pointer, ioaddr + POINTER );
+-
+-	SMC_SELECT_BANK( saved_bank );
+-
+-	PRINTK3((CARDNAME ": Interrupt done\n"));
+-	return IRQ_RETVAL(handled);
+-}
+-
+ /*-------------------------------------------------------------
+  .
+  . smc_rcv -  receive a packet from the card
+@@ -1509,6 +1381,134 @@
+ 	return;
+ }
+ 
++/*--------------------------------------------------------------------
++ .
++ . This is the main routine of the driver, to handle the device when
++ . it needs some attention.
++ .
++ . So:
++ .   first, save state of the chipset
++ .   branch off into routines to handle each case, and acknowledge
++ .	    each to the interrupt register
++ .   and finally restore state.
++ .
++ ---------------------------------------------------------------------*/
++
++static irqreturn_t smc_interrupt(int irq, void * dev_id,  struct pt_regs * regs)
++{
++	struct net_device *dev 	= dev_id;
++	int ioaddr 		= dev->base_addr;
++	struct smc_local *lp = netdev_priv(dev);
++
++	byte	status;
++	word	card_stats;
++	byte	mask;
++	int	timeout;
++	/* state registers */
++	word	saved_bank;
++	word	saved_pointer;
++	int handled = 0;
++
++
++	PRINTK3((CARDNAME": SMC interrupt started \n"));
++
++	saved_bank = inw( ioaddr + BANK_SELECT );
++
++	SMC_SELECT_BANK(2);
++	saved_pointer = inw( ioaddr + POINTER );
++
++	mask = inb( ioaddr + INT_MASK );
++	/* clear all interrupts */
++	outb( 0, ioaddr + INT_MASK );
++
++
++	/* set a timeout value, so I don't stay here forever */
++	timeout = 4;
++
++	PRINTK2((KERN_WARNING CARDNAME ": MASK IS %x \n", mask ));
++	do {
++		/* read the status flag, and mask it */
++		status = inb( ioaddr + INTERRUPT ) & mask;
++		if (!status )
++			break;
++
++		handled = 1;
++
++		PRINTK3((KERN_WARNING CARDNAME
++			": Handling interrupt status %x \n", status ));
++
++		if (status & IM_RCV_INT) {
++			/* Got a packet(s). */
++			PRINTK2((KERN_WARNING CARDNAME
++				": Receive Interrupt\n"));
++			smc_rcv(dev);
++		} else if (status & IM_TX_INT ) {
++			PRINTK2((KERN_WARNING CARDNAME
++				": TX ERROR handled\n"));
++			smc_tx(dev);
++			outb(IM_TX_INT, ioaddr + INTERRUPT );
++		} else if (status & IM_TX_EMPTY_INT ) {
++			/* update stats */
++			SMC_SELECT_BANK( 0 );
++			card_stats = inw( ioaddr + COUNTER );
++			/* single collisions */
++			lp->stats.collisions += card_stats & 0xF;
++			card_stats >>= 4;
++			/* multiple collisions */
++			lp->stats.collisions += card_stats & 0xF;
++
++			/* these are for when linux supports these statistics */
++
++			SMC_SELECT_BANK( 2 );
++			PRINTK2((KERN_WARNING CARDNAME
++				": TX_BUFFER_EMPTY handled\n"));
++			outb( IM_TX_EMPTY_INT, ioaddr + INTERRUPT );
++			mask &= ~IM_TX_EMPTY_INT;
++			lp->stats.tx_packets += lp->packets_waiting;
++			lp->packets_waiting = 0;
++
++		} else if (status & IM_ALLOC_INT ) {
++			PRINTK2((KERN_DEBUG CARDNAME
++				": Allocation interrupt \n"));
++			/* clear this interrupt so it doesn't happen again */
++			mask &= ~IM_ALLOC_INT;
++
++			smc_hardware_send_packet( dev );
++
++			/* enable xmit interrupts based on this */
++			mask |= ( IM_TX_EMPTY_INT | IM_TX_INT );
++
++			/* and let the card send more packets to me */
++			netif_wake_queue(dev);
++			
++			PRINTK2((CARDNAME": Handoff done successfully.\n"));
++		} else if (status & IM_RX_OVRN_INT ) {
++			lp->stats.rx_errors++;
++			lp->stats.rx_fifo_errors++;
++			outb( IM_RX_OVRN_INT, ioaddr + INTERRUPT );
++		} else if (status & IM_EPH_INT ) {
++			PRINTK((CARDNAME ": UNSUPPORTED: EPH INTERRUPT \n"));
++		} else if (status & IM_ERCV_INT ) {
++			PRINTK((CARDNAME ": UNSUPPORTED: ERCV INTERRUPT \n"));
++			outb( IM_ERCV_INT, ioaddr + INTERRUPT );
++		}
++	} while ( timeout -- );
++
++
++	/* restore state register */
++	SMC_SELECT_BANK( 2 );
++	outb( mask, ioaddr + INT_MASK );
++
++	PRINTK3(( KERN_WARNING CARDNAME ": MASK is now %x \n", mask ));
++	outw( saved_pointer, ioaddr + POINTER );
++
++	SMC_SELECT_BANK( saved_bank );
++
++	PRINTK3((CARDNAME ": Interrupt done\n"));
++	return IRQ_RETVAL(handled);
++}
++
++
+ /*----------------------------------------------------
+  . smc_close
+  .
+

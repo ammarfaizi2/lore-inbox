@@ -1,106 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268370AbUJHKHW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268445AbUJHKMa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268370AbUJHKHW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 06:07:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268445AbUJHKHW
+	id S268445AbUJHKMa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 06:12:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268496AbUJHKMa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 06:07:22 -0400
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:33444 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S268370AbUJHKHR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 06:07:17 -0400
-Mime-Version: 1.0 (Apple Message framework v619)
-To: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Message-Id: <D1F168BB-1911-11D9-B4FB-000D9352858E@linuxmail.org>
-Content-Type: multipart/mixed; boundary=Apple-Mail-1-811230711
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Subject: 2.6.9-rc3-mm3: firefox SIGSEGV
-Date: Fri, 8 Oct 2004 12:07:11 +0200
-X-Mailer: Apple Mail (2.619)
+	Fri, 8 Oct 2004 06:12:30 -0400
+Received: from smtp200.mail.sc5.yahoo.com ([216.136.130.125]:29873 "HELO
+	smtp200.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S268445AbUJHKM3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Oct 2004 06:12:29 -0400
+Message-ID: <41666794.3040701@yahoo.com.au>
+Date: Fri, 08 Oct 2004 20:10:28 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Chris Wright <chrisw@osdl.org>
+CC: Andrew Morton <akpm@osdl.org>, Nick Piggin <piggin@cyberone.com.au>,
+       linux-kernel@vger.kernel.org, davej@codemonkey.org.uk
+Subject: Re: kswapd in tight loop 2.6.9-rc3-bk-recent
+References: <20041007164044.23bac609.akpm@osdl.org> <4165E0A7.7080305@yahoo.com.au> <20041007174242.3dd6facd.akpm@osdl.org> <20041007184134.S2357@build.pdx.osdl.net> <20041007185131.T2357@build.pdx.osdl.net> <20041007185352.60e07b2f.akpm@osdl.org> <4165FF7B.1070302@cyberone.com.au> <20041007200109.57ce24ae.akpm@osdl.org> <416605CC.2080204@cyberone.com.au> <20041007203048.298029ab.akpm@osdl.org> <20041007222119.X2357@build.pdx.osdl.net>
+In-Reply-To: <20041007222119.X2357@build.pdx.osdl.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Apple-Mail-1-811230711
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	charset=US-ASCII;
-	format=flowed
+Chris Wright wrote:
+> * Andrew Morton (akpm@osdl.org) wrote:
+> 
+>>Chris, do you have time to test this, against -linus?
+> 
+> 
+> Yeah.  This patch held up against the simple testing, as did Nick's (not
+> the most recent combined one from him).
+> 
 
-I'm having trouble launching firefox-0.10.1-1.0PR1.8 from Fedora Core 
-Rawhide under 2.6.9-rc3-mm3 as it always segfaults. However, I can 
-under 2.6.9-rc3-mm2. Don't know what's really going on, so I've 
-attached the output of "strace".
+Thanks. Any/all patches should do much the same job.
 
-Any ideas?
-
---Apple-Mail-1-811230711
-Content-Transfer-Encoding: base64
-Content-Type: application/octet-stream;
-	x-unix-mode=0664;
-	name="firefox_SEGV.bz2"
-Content-Disposition: attachment;
-	filename=firefox_SEGV.bz2
-
-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
-qH5I
-
---Apple-Mail-1-811230711--
-
+I'm pretty confident this was just a minor artifact brought out
+by an earlier change, and things still look good for 2.6.9.

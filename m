@@ -1,59 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261265AbTH2SJ6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Aug 2003 14:09:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261350AbTH2SJ6
+	id S261657AbTH2SQC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Aug 2003 14:16:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261666AbTH2SQC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Aug 2003 14:09:58 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:30482
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id S261265AbTH2SJ4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Aug 2003 14:09:56 -0400
-Date: Fri, 29 Aug 2003 11:09:57 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: mutt segfault with ext3 & 1k blocks & htree in 2.6
-Message-ID: <20030829180957.GC27023@matchmail.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20030829172451.GA27023@matchmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030829172451.GA27023@matchmail.com>
-User-Agent: Mutt/1.5.4i
+	Fri, 29 Aug 2003 14:16:02 -0400
+Received: from 64-60-248-67.cust.telepacific.net ([64.60.248.67]:50837 "EHLO
+	mx.rackable.com") by vger.kernel.org with ESMTP id S261657AbTH2SP5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Aug 2003 14:15:57 -0400
+Message-ID: <3F4F96DE.7030603@rackable.com>
+Date: Fri, 29 Aug 2003 11:09:34 -0700
+From: Samuel Flory <sflory@rackable.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030827
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Subject: Re: libata update posted (was Re: VIA Serial ATA chipset)
+References: <20030813074535.C3AB427AC8@mail.medav.de> <3F4F6863.4080400@pobox.com> <3F4F8BA7.1080002@rackable.com> <3F4F949B.6030900@pobox.com>
+In-Reply-To: <3F4F949B.6030900@pobox.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 29 Aug 2003 18:15:56.0731 (UTC) FILETIME=[976020B0:01C36E59]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 29, 2003 at 10:24:51AM -0700, Mike Fedyk wrote:
-> Hi,
-> 
-> I have just converted my 25GB / partition from reiserfs to ext3 with 1k
-> blocks, and now mutt is segfaulting periodocally.
-> 
-> I suspect it is htree, because I left four mutt processes running last
-> night, and two of them segfaulted.
-> 
-> Interestingly enough, it happened about 1 minute apart, so they might have
-> checked one of the large maildir folders and that could have caused the
-> problem, except that the other two mutt processes should have checked the
-> same folders, and they didn't crash.
-> 
-> I have full strace output of each mutt process up until the segfault in two
-> cases, and up until strace was stopped in the third case.
-> 
-> Please let me know what more I can do to help track this down.
-> 
-> I have tried this with:
-> vmlinuz-2.6.0-test3-mm3
-> vmlinuz-2.6.0-test4-mm1
-> 
+Jeff Garzik wrote:
 
-How do I:
+> Samuel Flory wrote:
+>
+>> Jeff Garzik wrote:
+>>
+>>> Changes:
+>>> * continue work towards fully async taskfile API:  you call 
+>>> submit_tf(), and later on, your callback is called when the taskfile 
+>>> completes or times out.   async taskfile API is required for ATAPI 
+>>> and supporting more advanced host controllers like Promise or AHCI 
+>>> (SATA2).
+>>> * some cleanups
+>>
+>
+>>   I'm guessing there is no support for Promise yet?
+>
+>
+> Not yet.  Once I finish the item mentioned above, "async taskfile 
+> API", Promise support will appear quite rapidly.
+>
+>
+>> PS-  The driver works great on the silcon image chipset.  (Once I 
+>> realized that my Seagate drive needed newer firmware.)
+>
+>
+> Um... libata doesn't support Silicon Image yet?
+>
 
- o Find out that a directory is using htree?
- o Disable htree on my /?  (tune2fs -O ^dir_index), but then how do I get my
-   directories back to non-htree without running fsck from a rescue CD?
 
-Thanks,
+  The Intel PIIX/ICH support in the ac kernel seems to work on all my 
+onboard  Silicon Image controllers.  I think that's only your ata-scsi 
+work, however.
 
-Mike
+-- 
+Once you have their hardware. Never give it back.
+(The First Rule of Hardware Acquisition)
+Sam Flory  <sflory@rackable.com>
+
+

@@ -1,61 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262148AbTFKOeZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 10:34:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262177AbTFKOeY
+	id S262135AbTFKOdy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 10:33:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262144AbTFKOdy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 10:34:24 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:36565 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262148AbTFKOeT
+	Wed, 11 Jun 2003 10:33:54 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:49642 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S262135AbTFKOdw
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 10:34:19 -0400
-Date: Wed, 11 Jun 2003 15:48:01 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       Matthew Wilcox <willy@debian.org>, Patrick Mochel <mochel@osdl.org>
-Subject: Re: pci_domain_nr vs. /sys/devices
-Message-ID: <20030611144801.GZ28581@parcelfarce.linux.theplanet.co.uk>
-References: <1055341842.754.3.camel@gaston>
+	Wed, 11 Jun 2003 10:33:52 -0400
+Date: Wed, 11 Jun 2003 07:47:31 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Pascal Schmidt <der.eremit@email.de>
+Cc: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
+Subject: Re: [BK-CVS gateway] version tags
+Message-ID: <20030611144731.GA20493@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Pascal Schmidt <der.eremit@email.de>, Larry McVoy <lm@bitmover.com>,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0306111641140.1602-100000@neptune.local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1055341842.754.3.camel@gaston>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <Pine.LNX.4.44.0306111641140.1602-100000@neptune.local>
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.3,
+	required 7, AWL)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 11, 2003 at 04:30:42PM +0200, Benjamin Herrenschmidt wrote:
-> The new pci_domain_nr() is good for adding the PCI domain number to
-> the /sys/devices/pciN/* names, but I think that's not the proper
-> representation. It should really be
+I'll go look.  CVS takes way too long to tag, it forces a rewrite of 
+every file.  I did attempt to filter out tags that weren't of the forn
+v2.* but it looks like I screwed up.  
+
+On Wed, Jun 11, 2003 at 04:44:37PM +0200, Pascal Schmidt wrote:
 > 
->   /sys/devices/pci-domainN/pciN/*
+> Hi!
 > 
-> So we can pave the way for when we'll stop play bus number tricks and
-> actually have overlapping PCI bus numbers between domains. (I don't plan
-> to do that immediately because that would break userland & /proc/bus/pci
-> backward compatiblity)
+> I noticed both the 2.4 and 2.5 BK->CVS trees don't have version tags
+> any more (v2_5_70, for example, as in the old tree).
 > 
-> What do you think ?
-
-I don't think sysfs works like that (please correct me if I've
-misunderstood, mochel..)
-
-Look in /sys/bus/pci/devices/  There you have all the PCI devices
-lumped together in one place, and we obviously need the domain number
-in the name.  I don't know where the 0 on the end of /sys/devices/pci0/
-comes from, but if we could, I wouldn't say no to:
-
-/sys/devices/pciDDDD/DDDD:BB:SS.F
-or
-/sys/devices/pciDDDD:BB/DDDD:BB:SS.F
-(Domain,Bus,Slot,Func)
-
-I don't think the extra level of hierarchy in your suggestion is necessary
-or particularly desirable.
+> Is this intentional? Did CVS take too long to tag all files or something?
+> 
+> It was quite a nice feature to have them, very useful for finding out the
+> differences between certain kernel versions. I can live without it, 
+> though. It's still a nice service without the tags. (Thanks!)
+> 
+> -- 
+> Ciao,
+> Pascal
 
 -- 
-"It's not Hollywood.  War is real, war is primarily not about defeat or
-victory, it is about death.  I've seen thousands and thousands of dead bodies.
-Do you think I want to have an academic debate on this subject?" -- Robert Fisk
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

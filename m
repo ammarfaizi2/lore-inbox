@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268710AbUIQMCY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268711AbUIQMIy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268710AbUIQMCY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Sep 2004 08:02:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268708AbUIQMCX
+	id S268711AbUIQMIy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Sep 2004 08:08:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268714AbUIQMIy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Sep 2004 08:02:23 -0400
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:14538 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S268716AbUIQMAl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Sep 2004 08:00:41 -0400
-Date: Fri, 17 Sep 2004 21:00:35 +0900
+	Fri, 17 Sep 2004 08:08:54 -0400
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:57562 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S268711AbUIQMGZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Sep 2004 08:06:25 -0400
+Date: Fri, 17 Sep 2004 21:06:18 +0900
 From: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
 Subject: Re: [RFC&PATCH 1/2] PCI Error Recovery (readX_check)
 In-reply-to: <412FDE7B.3070609@jp.fujitsu.com>
@@ -17,7 +17,7 @@ To: Linux Kernel list <linux-kernel@vger.kernel.org>,
        linux-ia64@vger.kernel.org
 Cc: Grant Grundler <iod00d@hp.com>, Linus Torvalds <torvalds@osdl.org>,
        Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Message-id: <414AD1E3.8040703@jp.fujitsu.com>
+Message-id: <414AD33A.80701@jp.fujitsu.com>
 MIME-version: 1.0
 Content-type: text/plain; charset=us-ascii; format=flowed
 Content-transfer-encoding: 7bit
@@ -27,455 +27,479 @@ References: <412FDE7B.3070609@jp.fujitsu.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Last month I wrote:
-> I understand the needs of Documentation/pci-errors.txt for driver 
-> developers,
-
-So I wrote the document and here it is.
-I'd fully appreciate it if someone could proofread this document.
-
-Thanks,
-H.Seto
-
-#####
-
-		Description about error recovery on PCI
-
-	by Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com> on Sep-2004
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-This document describes about the implementation and usage of driver APIs
-to enable error detection and how to make PCI/PCI-X transactions safe.
-
-
-
-1. Resources used in PCI recovery
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Generally, system has multiple PCI buses, every bus could have multiple
-devices, and bus could be connected to another bus by bus bridge.
-Every (PCI-to-PCI)bridge is also handled as a PCI device.
-
-Often host bus bridge(Host-to-PCI bridge, connecting PCI system to the host)
-is also implemented as a PCI device, but this is not always true since
-it isn't definitely defined in the PCI specification.
-
-Normal(Non-bridge) PCI device has a set of status register for itself,
-and bridge has 2 sets of status register for both of its neighbor buses.
-
-Device driver can notice an error on the device by checking the status
-register of device. And also the driver could check the status registers
-of bridge for errors on bus.
-
-Note that the status register of bridge could be referred from multiple
-device drivers because the bus under the bridge could have multiple devices.
-
-Successful recovery relies on the PCI-X bus protocol, where devices
-report data parity errors to their device drivers instead of causing
-the chipset to generate a fatal error (ex. MCA on ia64) to the system.
-
-Resources you can use for recovery are:
-
-   - PCI-X bus protocol support (requirement)
-   - status register of device
-   - status register of bridge
-   - status register of host bus bridge (if available)
-
-
-
-2. Which is recoverable?
-~~~~~~~~~~~~~~~~~~~~~~~~
-
-Errors during PCI/PCI-X transactions are reported by PERR# or SERR# signals.
-
-SERR# indicates a severe system error in the system that makes it impossible
-to continue operation of the system. Generally SERR# is translated to a fatal
-error which result in a system shut down.
-
-PERR# indicates parity error during the data phase. Devices should be report
-and detect data parity errors. Since there are only few platforms supporting
-PCI error recovery, there is a traditional abuse that many platforms are
-configured to escalate recoverable PERR#s as fatal SERR#s without any try.
-
-PERR#s on the PCI/PCI-X bus can affect the following transaction:
-
-   - I/O read
-   - I/O write
-   - Memory-mapped I/O read
-   - Memory-mapped I/O write
-   - DMA from memory to device
-   - DMA from device to memory
-
-Now we are taking them into the scope of what the PCI error recovery is
-trying to support.
-
-   I/O read:
-   Memory-mapped I/O read:
-
-     In case of memory-mapped I/O read(transfer from a device to a CPU),
-     errors occurred on the path(bus) is not detectable on the device.
-     In such case, we should check the status of bridge.
-
-     However, usually there are multiple devices under the one bridge,
-     the status register of bridge is a shared resource of devices.
-     So it could happen the status indicating an error caused by one device
-     could be referred or cleared by drivers handling other device under
-     the same bridge.
-
-     Therefore some negotiations are required to access the status register
-     of bridges.
-
-   I/O write:
-   Memory-mapped I/O write:
-
-     In case of memory-mapped I/O write(transfer from a CPU to a device),
-     since errors occurred on the path(bus) come down to the destination,
-     errors are detectable on the device.
-
-     But also here is a traditional issue that if the device is configured
-     to report a parity error, PERR# asserted from it would be reported to
-     the system. Depending on the chipset or system configuration, it will
-     be escalated as a fatal error.
-
-     Under the PCI-X protocol, this error will be recoverable by the device
-     signaling its device driver. The PCI-X device will send a "Write Data
-     Parity Error" message to notify the parity error, this will not cause
-     any side effect such as SERR#.
-
-   DMA from memory to device:
-   DMA from device to memory:
-
-     In both directions, DMA transfers are handled by the memory controller.
-     The errors and completion of the transfer are delivered to the device and
-     the status register of device is changed to indicate the result of DMA.
-     Device driver could check the status to determine proper action such as
-     device reset or repeat transaction.
-
-     Recovery for DMA transfer also requires the PCI-X support to prevent the
-     system from PERR# escalation.
-
-Let me paraphrase:
-
-   We can use existing interfaces under the PCI-X support to recover almost
-   all type of PCI transactions except mmio read where we should check the
-   bridge status.
-   Special consideration on bridge status is required for mmio read recovery.
-
-
-
-3. Bridge status and Bus error
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-On data transfer, the data go through all bus and bridge on the route.
-
-If a error has occur on a bus, all forwarding bridges on the route would
-reflect the error on its status register.
-
-ex.)
-
-   ==Host==
-      |
-    [H2P Bridge]
-      |
-   --------BUS0--------
-      |
-    [P2P Bridge1]
-      |
-   --------BUS1--------
-      |              |
-    [P2P Bridge2]  [P2P Bridge3]
-      |              |
-      |             --------BUS3--------
-      |                      |
-   --------BUS2--------    [devZ]
-        |        |
-      [devX]   [devY]
-
-If BUS1 errors on transfer from a devX to a CPU, the error will be indicated
-on the status register of P2P Bridge1 and H2P Bridge. P2P Bridge2 could not
-be aware the error on BUS1 because it could be happen that Bridge2 cannot
-receive any information from Bridge1 via broken BUS1. (Still can the driver
-talk to Bridge2 via BUS1? Is it danger to rely on the status of Bridge2?)
-
-Therefore, to maximize the scope of bus error detection, we have to check
-the status of the "highest(=nearest to the host)" bridge, and the bridge
-must be realized as a PCI device(it could be not host bus bridge).
-
-
-
-4. Design and Implementation
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-4.1 Design
-~~~~~~~~~~
-
-Usually device drivers are coded with no consciousness of other drivers.
-Therefore it is not true that PCI device driver can notice the bus error
-just only checking the status registers of bridge. Because there could be
-other drivers that could change the value of the bridge status.
-
-Therefore again, some negotiations between device drivers are required to
-access the status register of bridges.
-
-What we are going to deal with is a problem in case that one bridge is
-shared by multiple devices. In case that no bridge is shared is no problem.
-
-If the bridge is shared, there are 2 ways:
-
-  - Do I/Os separately (with spinlock protection):
-     Only one of device drivers under one bridge can I/O at one time.
-     In this case there is no other driver who check or change the bridge
-     status, so the value of bridge status is guaranteed not to indicate
-     errors caused by other I/Os.
-
-  - Do I/Os concurrently (with rwlock protection):
-     Multiple device drivers under one bridge can I/O at one time.
-     In this case it is required that drivers should not change the bridge
-     status while other driver is checking the status, and also that drivers
-     who want to clear the status but find there are already errors from
-     anywhere should notify the error to all other drivers running I/O.
-     The value of bridge status indicates just only existent of error.
-     Who cause the error is not distinguishable.
-
-The former is easy to implement, but will have great impact to I/O performance.
-The latter is little complicated, but will not have such performance impact.
-
-Ordinarily, errors occur uncommonly, and even if it had occurred, it would
-be either "recoverable by single retry since it was a usual soft-error" or
-"unrecoverable since it was a seldom hard-error." Almost all of in this worst
-case, no matter who knows who cause the error, all device drivers sharing
-the same bridge should take care of the error sooner or later.
-
-Though we take the latter way.
-
-
-4.2 Procedure
-~~~~~~~~~~~~~
-
-Required procedure of device driver is:
-
-   1) Clear the status
-
-     Until the status indicating an old error, new error cannot appear on
-     the status. To detect new errors, clearing of the status register is
-     required. However, the existence of old error should be notified to
-     all working I/Os, but there is no way to know who are working on.
-     So we create a "working_device" list on bridge, and have all device
-     drivers to register its own device to the list at the beginning of I/O.
-
-     Actions in this step are:
-      - Get write_lock to protect the status and the working_device list
-      - If there are old error, notify it to all devices in working_device
-      - Clear the status
-      - Register oneself to working_device
-      - Release write_lock and Ready to I/O
-
-   2) do I/Os (mmio read)
-
-     States could be changed by results of each I/Os (i.e. error).
-     To prevent the status from vanishing, I/O needs to be excluded while
-     other device driver is clearing the status. Each I/Os can execute at
-     same time, but I/O and clearing cannot execute at same time.
-
-     Actions in this step are:
-      - Get read_lock to protect the status
-      - Do I/Os
-      - (something like barrier could be here, depends on arch)
-      - Release read_lock and Ready to next I/O
-
-   3) Check the status
-
-     Driver can know errors by notice from other driver clearing the bridge
-     status or checking the status by itself. After all, there is no longer
-     need to receive error notice from other driver, so unregistering of the
-     device from "working_device" list should be the end of this step.
-
-     Actions in this step are:
-      - Get write_lock to protect the status and the working_device list
-      - Check whether there were any error notice
-      - Check the status register of bridge
-      - Unregister oneself from working_device
-      - Release write_lock
-      - Return the result, error or non-error
-
-
-4.3 Implements
-~~~~~~~~~~~~~~
-
-Followings show changes in struct pci_dev, pci_bus:
-
-   struct pci_dev {
-   	...
-	list_head working_device;
-		/*
-		   List for management of devices sharing same bridge.
-		   Device drivers should have its device be linked to
-		   the bridge using this list, while the device is doing
-		   I/Os under the bridge.
-		 */
-	unsigned  error_status;
-		/*
-		   You have to clear this before do I/O using this device.
-		   If you find an error on the bridge when you are going to
-		   clear the bridge status, you have to notify the error to
-		   all devices registered to working_device list of the
-		   bridge by making error_status of the device to indicate
-		   error. Conversely your device could be notice errors on
-		   the bridge by checking error_status changed by other
-		   device driver or not.
-		 */
-	...
-   }
-   struct pci_bus {
-   	...
-   	struct rw_semaphore bus_lock;
-		/*
-		  Use for register/unregister of working_device,
-		  actual I/O, and clearing the bridge status.
-		 */
-   	...
-   }
-
-Recovery procedure using new APIs and internals of the APIs:
-
-   1) Clear and Save bridge status for checking the result of mm I/O read
-     void clear_pci_errors(struct pci_dev *)
-
-     {
-	write_lock();
-	if( bridge->state == error ) {
-		for_each(device, bridge->working_device)
-			device->error_status = error;
-		bridge->state = 0;
-	}
-	this->error_status = error;
-	add_list(this, bridge->working_device);
-	write_unlock();
-     }
-
-   2) Real memory mapped I/O read transactions for each types
-     X readX_check(struct pci_dev*, X *addr) [ X = (u8, u16, u32) ]
-
-     {
-	read_lock();
-	readX();
-	barrier();
-	read_unlock();
-     }
-
-   3) Check the result of mm I/O read
-     int read_pci_errors(struct pci_dev *)
-
-     {
-	write_lock();
-	del_list(this, bridge->working_device);
-	berr = bridge->state;
-	write_unlock();
-	derr = this->error_status;
-	return (berr|derr) ? 1 : 0 ;
-     }
-
-
-
-5. Usage of API
-~~~~~~~~~~~~~~~
-
-   void clear_pci_errors(struct pci_dev *)
-
-     Clear all status registers concerning the device before executing of I/O.
-     And prepare to check registering the device to the highest bridge.
-     You should call this at the beginning of session you want to check.
-
-   X readX_check(struct pci_dev*, X *addr) [ X = (u8, u16, u32) ]
-
-     Do actual I/O, with exclusion control to guarantee against the error.
-     Don't merge standard function such as:
-         X readX(addr)
-     in same session. Or the value of status register will not be guaranteed.
-
-   int read_pci_errors(struct pci_dev *)
-
-     Check status registers for the errors.
-     Returned value 0 means no error, and others mean an error.
-     You should call this at the last of session you want to check.
-
-     If you get an error from this, it does not directly mean that an error
-     caused by this session, but that an error occurred on this session or on
-     other session handled by other driver handling a device on same bridge.
-
-
-
-6. Sample code - template
-~~~~~~~~~~~~~~~~~~~~~~~~~
-
-You can write RAS-aware driver using pattern as like as following:
-
-  +----------------------------------------------------------------------------+
-  |									      |
-  |	int get_data_buffer(struct pci_dev *dev, u32 *buf, int words)	      |
-  |	{								      |
-  |		int i;							      |
-  |		unsigned long ofs = pci_resource_start(dev, 0) + DATA_OFFSET; |
-  |									      |
-  |		clear_pci_errors(dev);					      |
-  |									      |
-  |		/* Get the whole packet of data.. */			      |
-  |		for (i = 0; i < words; i++)				      |
-  |			*buf++ = readl_check(dev, ofs);			      |
-  |									      |
-  |		/* Did we have any trouble? */				      |
-  |		if (read_pci_errors(dev))				      |
-  |			return -EIO;					      |
-  |									      |
-  |		/* All systems go.. */					      |
-  |		return 0;						      |
-  |	}								      |
-  |									      |
-  +----------------------------------------------------------------------------+
-
-Device driver could implement some possible recovery such as device reset,
-repeat transaction, reallocate buf and so on.
-
-
-
-7. Notes
-~~~~~~~~
-
-7.1 Expected Environment - High-end system configuration
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-These infrastructure are not for desktops but for enterprise servers.
-
-It is assumed that most high-end hardware has enough bridges and that
-the number of devices sharing same bridge would be minimized.
-
-Any "mixed" bridge, having 2 types of device driver, is not acceptable.
-All drivers should be RAS-aware driver supporting PCI error recovery
-infrastructure. Don't use non-aware driver in such situation.
-
-As you know, my implementation was not designed on the assumption that
-"1 bridge = 1 device" like on ppc64, but on "1 bridge = 1 device group."
-Of course, there could be some group of only 1 device.
-It will depend on the structure of the system which you could configure it.
-
-
-7.2 One for all, All for one
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Devices in same group can run at same time keeping with a certain level of
-performance, and not mind being affected(or even killed!) by (PCI bus)error
-caused by someone in the group.  They either swim together or sink together.
-
-Fortunately, such error is rare occurrence, and even if it had occurred,
-it would be either "recoverable by a retry since it was a usual soft-error"
-or "unrecoverable since it was a seldom hard-error."
-
-Without this new recovery infrastructure, there is no way for system to know
-which drivers should retry the transaction to determine whether the error was
-a soft one or a hard one, and also system cannot have these drivers not to
-return the broken data to user.
-
-So now, system will choose to down, last resort comes first.
-
+This is the latest patch for PCI recovery.
+  (merge Grant's text, fix spellmisses)
+
+Signed-off-by: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
+
+diff -Nur linux-2.6.8.1/arch/i386/pci/common.c linux-2.6.8.1-pci/arch/i386/pci/common.c
+--- linux-2.6.8.1/arch/i386/pci/common.c	2004-08-14 19:55:19.000000000 +0900
++++ linux-2.6.8.1-pci/arch/i386/pci/common.c	2004-09-13 10:44:53.000000000 +0900
+@@ -118,6 +118,19 @@
+  	pci_read_bridge_bases(b);
+  }
+
++#ifdef CONFIG_PCI_ERROR_RECOVERY
++static void pci_i386_fixup_host_bridge_self(struct pci_bus *bus)
++{
++	struct pci_dev *pdev;
++
++	list_for_each_entry(pdev, &bus->devices, bus_list) {
++		if (pdev->class >> 8 == PCI_CLASS_BRIDGE_HOST) {
++			bus->self = pdev;
++			return;
++		}
++	}
++}
++#endif
+
+  struct pci_bus * __devinit pcibios_scan_root(int busnum)
+  {
+@@ -132,7 +145,16 @@
+
+  	printk("PCI: Probing PCI hardware (bus %02x)\n", busnum);
+
++#ifdef CONFIG_PCI_ERROR_RECOVERY
++{
++	struct pci_bus *bus = pci_scan_bus(busnum, &pci_root_ops, NULL);
++	if (bus)
++		pci_i386_fixup_host_bridge_self(bus);
++	return bus;
++}
++#else
+  	return pci_scan_bus(busnum, &pci_root_ops, NULL);
++#endif
+  }
+
+  extern u8 pci_cache_line_size;
+diff -Nur linux-2.6.8.1/drivers/pci/Kconfig linux-2.6.8.1-pci/drivers/pci/Kconfig
+--- linux-2.6.8.1/drivers/pci/Kconfig	2004-08-14 19:55:09.000000000 +0900
++++ linux-2.6.8.1-pci/drivers/pci/Kconfig	2004-09-13 11:02:37.000000000 +0900
+@@ -47,3 +47,11 @@
+
+  	  When in doubt, say Y.
+
++config PCI_ERROR_RECOVERY
++	bool "PCI device error recovery"
++	depends on PCI && EXPERIMENTAL
++	---help---
++	Saying Y provides PCI infrastructure to recover from some PCI errors.
++	Currently, very few PCI drivers actually implement this.
++	See Documentation/pci-errors.txt for a description of the
++	infrastructure provided.
+diff -Nur linux-2.6.8.1/drivers/pci/Makefile linux-2.6.8.1-pci/drivers/pci/Makefile
+--- linux-2.6.8.1/drivers/pci/Makefile	2004-08-14 19:56:15.000000000 +0900
++++ linux-2.6.8.1-pci/drivers/pci/Makefile	2004-09-13 10:44:53.000000000 +0900
+@@ -5,6 +5,7 @@
+  obj-y		+= access.o bus.o probe.o remove.o pci.o quirks.o \
+  			names.o pci-driver.o search.o pci-sysfs.o
+  obj-$(CONFIG_PROC_FS) += proc.o
++obj-$(CONFIG_PCI_ERROR_RECOVERY) += pci-rec.o
+
+  ifndef CONFIG_SPARC64
+  obj-y += setup-res.o
+diff -Nur linux-2.6.8.1/drivers/pci/pci.c linux-2.6.8.1-pci/drivers/pci/pci.c
+--- linux-2.6.8.1/drivers/pci/pci.c	2004-08-14 19:55:09.000000000 +0900
++++ linux-2.6.8.1-pci/drivers/pci/pci.c	2004-09-13 10:44:53.000000000 +0900
+@@ -750,6 +750,9 @@
+  	while ((dev = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL) {
+  		pci_fixup_device(PCI_FIXUP_FINAL, dev);
+  	}
++#ifdef CONFIG_PCI_ERROR_RECOVERY
++	pciwhole_lock_init();
++#endif
+  	return 0;
+  }
+
+diff -Nur linux-2.6.8.1/drivers/pci/pci-rec.c linux-2.6.8.1-pci/drivers/pci/pci-rec.c
+--- linux-2.6.8.1/drivers/pci/pci-rec.c	1970-01-01 09:00:00.000000000 +0900
++++ linux-2.6.8.1-pci/drivers/pci/pci-rec.c	2004-09-13 11:11:22.000000000 +0900
+@@ -0,0 +1,222 @@
++#include <linux/config.h>
++#include <linux/module.h>
++#include <linux/types.h>
++#include <linux/kernel.h>
++#include <linux/pci.h>
++#include <linux/init.h>
++#include <linux/ioport.h>
++#include <linux/spinlock.h>
++#include <asm/pci.h>
++#include <asm/page.h>
++#include <asm/dma.h>    /* isa_dma_bridge_buggy */
++#include <asm/semaphore.h>
++#include <linux/list.h>
++#include <linux/rwsem.h>
++
++static rwlock_t pci_whole_lock;
++
++void
++pcibus_lock_init(struct pci_bus *bus)
++{
++	init_rwsem(&bus->bus_lock);
++}
++
++void
++pcibus_lock(struct pci_bus *bus)
++{
++	down_read(&bus->bus_lock);
++}
++
++void
++pcibus_unlock(struct pci_bus *bus)
++{
++	up_read(&bus->bus_lock);
++}
++
++void
++pciwhole_lock_init(void)
++{
++	rwlock_init(&pci_whole_lock);
++}
++
++void
++pciwhole_read_lock(void)
++{
++	read_lock(&pci_whole_lock);
++}
++
++void
++pciwhole_read_unlock(void)
++{
++	read_unlock(&pci_whole_lock);
++}
++
++void
++pciwhole_write_lock(void)
++{
++	write_lock(&pci_whole_lock);
++}
++
++void
++pciwhole_write_unlock(void)
++{
++	write_unlock(&pci_whole_lock);
++}
++
++#define IF_IS_PCI_ERROR(status)                         \
++        if ((status & PCI_STATUS_REC_TARGET_ABORT)      \
++          ||(status & PCI_STATUS_REC_MASTER_ABORT)      \
++          ||(status & PCI_STATUS_DETECTED_PARITY))
++
++void
++clear_pci_errors(struct pci_dev *dev)
++{
++	u16 status;
++	struct pci_dev *prootdev, *pdev;
++	struct pci_bus *pbus;
++
++	/* find root bus bridge */
++	if (!dev->bus->self) return;
++	for (pbus = dev->bus; pbus->parent && pbus->parent->self; pbus = pbus->parent) ;
++	prootdev = pbus->self;
++	/* check status (host bus bridge or PCI to PCI bridge) */
++	switch (prootdev->hdr_type) {
++		case PCI_HEADER_TYPE_NORMAL: /* 0 */
++			pci_read_config_word(prootdev, PCI_STATUS, &status);
++			break;
++		case PCI_HEADER_TYPE_BRIDGE: /* 1 */
++			pci_read_config_word(prootdev, PCI_SEC_STATUS, &status);
++			break;
++		case PCI_HEADER_TYPE_CARDBUS: /* 2 */
++		default:
++			BUG();
++	}
++	/* "status" holds error status or not. */
++	IF_IS_PCI_ERROR(status) {
++		pciwhole_write_lock();
++		if (!list_empty(&prootdev->working_device)) {
++			/* apply for all devices under same root bus bridges */
++			list_for_each_entry(pdev, &prootdev->working_device, working_device) {
++				pdev->err_status |= status;
++			}
++		}
++		/* status clear */
++		switch (prootdev->hdr_type) {
++			case PCI_HEADER_TYPE_NORMAL: /* 0 */
++				pci_write_config_word(prootdev, PCI_STATUS, status);
++				break;
++			case PCI_HEADER_TYPE_BRIDGE: /* 1 */
++				pci_write_config_word(prootdev, PCI_SEC_STATUS, status);
++				break;
++			case PCI_HEADER_TYPE_CARDBUS: /* 2 */
++			default:
++				BUG();
++		}
++		pciwhole_write_unlock();
++	}
++	/* initialize error holding variables */
++	dev->err_status = 0;
++	/* register to root bus bridge for Multiple I/O */
++	pcibus_lock(pbus);
++	list_add(&dev->working_device, &prootdev->working_device);
++	pcibus_unlock(pbus);
++}
++
++int
++read_pci_errors(struct pci_dev *dev)
++{
++	u32	status = 0;
++	u16	raw_br_status;
++	struct pci_dev *prootdev;
++	struct pci_bus *pbus;
++
++	/* find root bus bridge */
++	if (!dev->bus->self)
++		return 0; /* pseudo-no error */
++	for (pbus = dev->bus; pbus->parent && pbus->parent->self;
++						pbus = pbus->parent) ;
++	prootdev = pbus->self;
++	/* unregister from root bus bridge */
++	pcibus_lock(pbus);
++	if (list_empty(&prootdev->working_device)) {
++		BUG();
++		return 0;
++	}
++	list_del(&dev->working_device);
++	pcibus_unlock(pbus);
++	/* check status (host bus bridge or PCI to PCI bridge) */
++	switch (prootdev->hdr_type) {
++		case PCI_HEADER_TYPE_NORMAL: /* 0 */
++			pci_read_config_word(prootdev, PCI_STATUS, &raw_br_status);
++			break;
++		case PCI_HEADER_TYPE_BRIDGE: /* 1 */
++			pci_read_config_word(prootdev, PCI_SEC_STATUS, &raw_br_status);
++			break;
++		case PCI_HEADER_TYPE_CARDBUS: /* 2 */
++		default:
++			BUG();
++	}
++	status |= raw_br_status;	/* current bridge status */
++	status |= dev->err_status;	/* saved bridge status+ */
++	IF_IS_PCI_ERROR(status) {	/* Target/Master Abort */
++		return 1;
++	}
++	return 0;
++}
++
++void pcidev_extra_init(struct pci_dev *dev)
++{
++	INIT_LIST_HEAD(&dev->working_device);
++	dev->err_status = 0;
++}
++
++u8
++readb_check(struct pci_dev *dev, u8 *addr)
++{
++	u8 val;
++
++	pciwhole_read_lock();
++	val = _readb_check(addr);
++	pciwhole_read_unlock();
++
++	return val;
++}
++
++u16
++readw_check(struct pci_dev *dev, u16 *addr)
++{
++	u16 val;
++
++	pciwhole_read_lock();
++	val = _readw_check(addr);
++	pciwhole_read_unlock();
++
++	return val;
++}
++
++u32
++readl_check(struct pci_dev *dev, u32 *addr)
++{
++	u32 val;
++
++	pciwhole_read_lock();
++	val = _readl_check(addr);
++	pciwhole_read_unlock();
++
++	return val;
++}
++
++EXPORT_SYMBOL (pcibus_lock_init);
++EXPORT_SYMBOL (pcibus_lock);
++EXPORT_SYMBOL (pcibus_unlock);
++EXPORT_SYMBOL (pciwhole_lock_init);
++EXPORT_SYMBOL (pciwhole_read_lock);
++EXPORT_SYMBOL (pciwhole_read_unlock);
++EXPORT_SYMBOL (pciwhole_write_lock);
++EXPORT_SYMBOL (pciwhole_write_unlock);
++EXPORT_SYMBOL (pcidev_extra_init);
++EXPORT_SYMBOL (clear_pci_errors);
++EXPORT_SYMBOL (read_pci_errors);
++EXPORT_SYMBOL (readb_check);
++EXPORT_SYMBOL (readw_check);
++EXPORT_SYMBOL (readl_check);
+diff -Nur linux-2.6.8.1/drivers/pci/probe.c linux-2.6.8.1-pci/drivers/pci/probe.c
+--- linux-2.6.8.1/drivers/pci/probe.c	2004-08-14 19:55:48.000000000 +0900
++++ linux-2.6.8.1-pci/drivers/pci/probe.c	2004-09-13 10:44:53.000000000 +0900
+@@ -270,6 +270,9 @@
+  		INIT_LIST_HEAD(&b->node);
+  		INIT_LIST_HEAD(&b->children);
+  		INIT_LIST_HEAD(&b->devices);
++#ifdef CONFIG_PCI_ERROR_RECOVERY
++		pcibus_lock_init(b);
++#endif
+  	}
+  	return b;
+  }
+@@ -624,6 +627,9 @@
+
+  	dev->dev.dma_mask = &dev->dma_mask;
+  	dev->dev.coherent_dma_mask = 0xffffffffull;
++#ifdef CONFIG_PCI_ERROR_RECOVERY
++	pcidev_extra_init(dev);
++#endif
+
+  	return dev;
+  }
+diff -Nur linux-2.6.8.1/include/asm-i386/io.h linux-2.6.8.1-pci/include/asm-i386/io.h
+--- linux-2.6.8.1/include/asm-i386/io.h	2004-08-14 19:56:23.000000000 +0900
++++ linux-2.6.8.1-pci/include/asm-i386/io.h	2004-09-13 10:44:53.000000000 +0900
+@@ -364,4 +364,19 @@
+  BUILDIO(w,w,short)
+  BUILDIO(l,,int)
+
++static inline unsigned char _readb_check(unsigned char *addr)
++{
++	return readb(addr);
++}
++
++static inline unsigned short _readw_check(unsigned short *addr)
++{
++	return readw(addr);
++}
++
++static inline unsigned int _readl_check(unsigned int *addr)
++{
++	return readl(addr);
++}
++
+  #endif
+diff -Nur linux-2.6.8.1/include/asm-i386/pci.h linux-2.6.8.1-pci/include/asm-i386/pci.h
+--- linux-2.6.8.1/include/asm-i386/pci.h	2004-08-14 19:55:19.000000000 +0900
++++ linux-2.6.8.1-pci/include/asm-i386/pci.h	2004-09-13 11:06:00.000000000 +0900
+@@ -99,6 +99,11 @@
+  {
+  }
+
++#ifdef CONFIG_PCI_ERROR_RECOVERY
++u8  readb_check(struct pci_dev *, u8*);
++u16 readw_check(struct pci_dev *, u16*);
++u32 readl_check(struct pci_dev *, u32*);
++#endif
+  #endif /* __KERNEL__ */
+
+  /* implement the pci_ DMA API in terms of the generic device dma_ one */
+diff -Nur linux-2.6.8.1/include/asm-ia64/io.h linux-2.6.8.1-pci/include/asm-ia64/io.h
+--- linux-2.6.8.1/include/asm-ia64/io.h	2004-08-14 19:54:48.000000000 +0900
++++ linux-2.6.8.1-pci/include/asm-ia64/io.h	2004-09-17 20:52:45.000000000 +0900
+@@ -457,4 +457,39 @@
+  #define BIO_VMERGE_BOUNDARY	(ia64_max_iommu_merge_mask + 1)
+  #endif
+
++static inline unsigned char
++_readb_check(unsigned char *addr)
++{
++	register unsigned long gr8 asm("r8");
++	unsigned char val;
++
++	val = readb(addr);
++	asm volatile ("add %0=%1,r0" : "=r"(gr8) : "r"(val));
++
++	return val;
++}
++
++static inline unsigned short
++_readw_check(unsigned short *addr)
++{
++	register unsigned long gr8 asm("r8");
++	unsigned short val;
++
++	val = readw(addr);
++	asm volatile ("add %0=%1,r0" : "=r"(gr8) : "r"(val));
++
++	return val;
++}
++
++static inline unsigned int
++_readl_check(unsigned int *addr)
++{
++	register unsigned long gr8 asm("r8");
++	unsigned int val;
++
++	val = readl(addr);
++	asm volatile ("add %0=%1,r0" : "=r"(gr8) : "r"(val));
++
++	return val;
++}
+  #endif /* _ASM_IA64_IO_H */
+diff -Nur linux-2.6.8.1/include/asm-ia64/pci.h linux-2.6.8.1-pci/include/asm-ia64/pci.h
+--- linux-2.6.8.1/include/asm-ia64/pci.h	2004-08-14 19:56:22.000000000 +0900
++++ linux-2.6.8.1-pci/include/asm-ia64/pci.h	2004-09-13 10:44:53.000000000 +0900
+@@ -119,6 +119,11 @@
+  {
+  }
+
++#ifdef CONFIG_PCI_ERROR_RECOVERY
++u8 readb_check(struct pci_dev *, u8*);
++u16 readw_check(struct pci_dev *, u16*);
++u32 readl_check(struct pci_dev *, u32*);
++#endif
+  /* generic pci stuff */
+  #include <asm-generic/pci.h>
+
+diff -Nur linux-2.6.8.1/include/linux/pci.h linux-2.6.8.1-pci/include/linux/pci.h
+--- linux-2.6.8.1/include/linux/pci.h	2004-08-14 19:55:32.000000000 +0900
++++ linux-2.6.8.1-pci/include/linux/pci.h	2004-09-13 10:44:53.000000000 +0900
+@@ -486,6 +486,10 @@
+  struct pci_dev {
+  	struct list_head global_list;	/* node in list of all PCI devices */
+  	struct list_head bus_list;	/* node in per-bus list */
++#ifdef CONFIG_PCI_ERROR_RECOVERY
++	struct list_head working_device;/* working device */
++	unsigned        err_status;     /* root bridge status and other error */
++#endif
+  	struct pci_bus	*bus;		/* bus this device is on */
+  	struct pci_bus	*subordinate;	/* bus this device bridges to */
+
+@@ -568,6 +572,9 @@
+
+  struct pci_bus {
+  	struct list_head node;		/* node in list of buses */
++#ifdef CONFIG_PCI_ERROR_RECOVERY
++       struct rw_semaphore bus_lock;   /* for serialized operation under same root bridge */
++#endif
+  	struct pci_bus	*parent;	/* parent bus this bridge is on */
+  	struct list_head children;	/* list of child buses */
+  	struct list_head devices;	/* list of devices on this bus */
+@@ -1021,5 +1028,21 @@
+  #define PCIPCI_VSFX		16
+  #define PCIPCI_ALIMAGIK		32
+
++#ifdef CONFIG_PCI_ERROR_RECOVERY
++void pcidev_extra_init(struct pci_dev *);
++void pcibus_lock_init(struct pci_bus *);
++void pcibus_lock(struct pci_bus *);
++void pcibus_unlock(struct pci_bus *);
++void pciwhole_lock_init(void);
++void pciwhole_read_lock(void);
++void pciwhole_read_unlock(void);
++void pciwhole_write_lock(void);
++void pciwhole_write_unlock(void);
++void clear_pci_errors(struct pci_dev *);
++int read_pci_errors(struct pci_dev *);
++u8  readb_check(struct pci_dev *, u8 *);
++u16 readw_check(struct pci_dev *, u16 *);
++u32 readl_check(struct pci_dev *, u32 *);
++#endif
+  #endif /* __KERNEL__ */
+  #endif /* LINUX_PCI_H */
 

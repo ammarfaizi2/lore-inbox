@@ -1,55 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264185AbTDKLvZ (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 07:51:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264338AbTDKLvZ (for <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Apr 2003 07:51:25 -0400
-Received: from griffon.mipsys.com ([217.167.51.129]:40902 "EHLO
-	zion.wanadoo.fr") by vger.kernel.org with ESMTP id S264185AbTDKLvY (for <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Apr 2003 07:51:24 -0400
-Subject: [PATCH] More radeonfb fixes
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1050062592.562.14.camel@zion.wanadoo.fr>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 11 Apr 2003 14:03:13 +0200
+	id S264086AbTDKMB2 (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 08:01:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264326AbTDKMB2 (for <rfc822;linux-kernel-outgoing>);
+	Fri, 11 Apr 2003 08:01:28 -0400
+Received: from main.gmane.org ([80.91.224.249]:60111 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S264086AbTDKMB1 (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Apr 2003 08:01:27 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Andreas Metzler <lkml-2003-03@downhill.at.eu.org>
+Subject: Re: [2.4.21-pre5] compile error in ip_conntrack_ftp.c:440:
+Date: Fri, 11 Apr 2003 12:11:33 +0000 (UTC)
+Message-ID: <b76bdl$loo$1@main.gmane.org>
+References: <b44s65$pdl$1@main.gmane.org> <61rskxlnt.ln2@elmicha.333200002251-0001.dialin.t-online.de> <b5n43a$djn$1@main.gmane.org> <b69hc0$m1p$1@main.gmane.org>
+X-Complaints-To: usenet@main.gmane.org
+X-Archive: encrypt
+User-Agent: tin/1.5.18-20030408 ("Peephole") (UNIX) (Linux/2.4.21-pre4 (i686))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here's a new patch against 2.4.20 and 2.4.21-pre7 which brings more
-fixes to radeonfb:
-
-- Fix the M6 video RAM workaround
-- Some bits in the PM code were flipped, fix that.
-- RB2D_DSTCACHE_MODE shouldn't be cleared on r300 (and
-  maybe not on others according to a comment in XFree, but
-  we keep working code for now).
-- Re-change the pitch workaround. We now align the pitch
-  when accel is enabled for a given mode, and we don't when
-  accel is disabled. That should properly deal with all cases
-  and allows us to remove the "special case" accel code
-- Bring in XFree workaround to not write the same value to
-  the PLL (can cause blanking of some panels)
-- Bring in some of Peter Horton fixes (accel reset, cleanups)
-  still some more to get in though...
-- Properly reset accel engine on each console switch so
-  we work around switching from XFree leaving it in a weird
-  state. Also extend the comparison of values causing us to
-  reload the mode on console switch.
-
-NOTE: The 2.4.20 patch no longer mess with non related entries
-in pci_ids.h, however the 2.4.21 patch still adds a couple of
-new ones not related to radeons, but that should be harmless.
-
-Patches available at:
-
-http://www.penguinppc.org/~benh/radeonfb-041103-2.4.20.diff
-http://www.penguinppc.org/~benh/radeonfb-041103-2.4.21-pre7.diff
-
-Ben.
+Andreas Metzler <lkml-2003-03@downhill.at.eu.org> wrote:
+> Andreas Metzler wrote:
+>> Michael Mauch <michael.mauch@gmx.de> wrote:
+>>> Andreas Metzler wrote:
+>>>> Since iirc 2.4.20 I get this error when compiling a kernel:
+>>>> |-------------------
+>>>> | make[2]: Entering directory `/tmp/KERNEL/linux-2.4.20-pre5/net/ipv4/netfilter'
+>>>> | make[2]: Circular /tmp/KERNEL/linux-2.4.20-pre5/include/linux/netfilter_ipv4/ip_conntrack_helper.h <- /tmp/KERNEL/linux-2.4.20-pre5/include/linux/netfilter_ipv4/ip_conntrack.h dependency dropped.
+>>>> | ld -m elf_i386 -r -o ip_conntrack.o ip_conntrack_standalone.o ip_conntrack_core.o ip_conntrack_proto_generic.o ip_conntrack_proto_tcp.o ip_conntrack_proto_udp.o ip_conntrack_proto_icmp.o
+>>>> | gcc -D__KERNEL__ -I/tmp/KERNEL/linux-2.4.20-pre5/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686 -DMODULE  -nostdinc -iwithprefix include -DKBUILD_BASENAME=ip_conntrack_ftp  -c -o ip_conntrack_ftp.o ip_conntrack_ftp.c
+>>>> | ip_conntrack_ftp.c:440: parse error before `this_object_must_be_defined_as_export_objs_in_the_Makefile'
+> [...]
+>> This fixes neither the example I posted (add this line to initial
+>> minimal config, make menuconfig, make clean dep, make modules), nor the
+>> real world example
+> 
+>> http://www.logic.univie.ac.at/~ametzler/2.4.20.breaks.config
+> [...]
+> 
+> Still reproducible with 2.4.21-pre6.
+ 
+Still reproducible with 2.4.21-pre7.
+        cu andreas
 

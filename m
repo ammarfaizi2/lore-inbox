@@ -1,48 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267370AbUHPC7h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267373AbUHPDCf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267370AbUHPC7h (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Aug 2004 22:59:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267372AbUHPC7h
+	id S267373AbUHPDCf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Aug 2004 23:02:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267374AbUHPDCe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Aug 2004 22:59:37 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:29313 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S267370AbUHPC7g (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Aug 2004 22:59:36 -0400
-Date: Mon, 16 Aug 2004 05:00:53 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Lee Revell <rlrevell@joe-job.com>
+	Sun, 15 Aug 2004 23:02:34 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:20709 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S267373AbUHPDCd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Aug 2004 23:02:33 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.8.1-P0
+From: Lee Revell <rlrevell@joe-job.com>
+To: Ingo Molnar <mingo@elte.hu>
 Cc: Florian Schmidt <mista.tapas@gmx.net>,
        linux-kernel <linux-kernel@vger.kernel.org>,
        Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Subject: Re: [patch] voluntary-preempt-2.6.8.1-P0
-Message-ID: <20040816030053.GA10323@elte.hu>
-References: <1092382825.3450.19.camel@mindpipe> <20040813104817.GI8135@elte.hu> <1092432929.3450.78.camel@mindpipe> <20040814072009.GA6535@elte.hu> <20040815115649.GA26259@elte.hu> <20040816022554.16c3c84a@mango.fruits.de> <1092622121.867.109.camel@krustophenia.net> <20040816023655.GA8746@elte.hu> <1092624221.867.118.camel@krustophenia.net> <20040816025051.GA9481@elte.hu>
+In-Reply-To: <20040816025846.GA10240@elte.hu>
+References: <1092382825.3450.19.camel@mindpipe>
+	 <20040813104817.GI8135@elte.hu> <1092432929.3450.78.camel@mindpipe>
+	 <20040814072009.GA6535@elte.hu> <20040815115649.GA26259@elte.hu>
+	 <20040816022554.16c3c84a@mango.fruits.de>
+	 <1092622121.867.109.camel@krustophenia.net> <20040816023655.GA8746@elte.hu>
+	 <1092624221.867.118.camel@krustophenia.net> <20040816025051.GA9481@elte.hu>
+	 <20040816025846.GA10240@elte.hu>
+Content-Type: text/plain
+Message-Id: <1092625400.867.126.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040816025051.GA9481@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sun, 15 Aug 2004 23:03:20 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 2004-08-15 at 22:58, Ingo Molnar wrote:
+> * Ingo Molnar <mingo@elte.hu> wrote:
+> i've attached mlock-test2.cc that should test this theory. The code
+> breaks up the mlock-ed region into 8 equal pieces and does mlock() on
+> them separately. It's basically a lock-break done in user-space. Does
+> this change the nature of xruns?
 
-* Ingo Molnar <mingo@elte.hu> wrote:
+-ENOATTACHMENT
 
-> could this be some DMA starvation effect? Or is this xrun calculated
-> from arrival of the audio interrupt (hence DMA completion) to the
-> actual running of jackd?
+Lee
 
-would there be a way to find out what portion of the xrun is caused by
-latencies of the audio card (DMA, etc.) vs. latency from the point jackd
-is woken up by the sound-driver to the point jackd preempts the mlock
-process and runs?
-
-	Ingo

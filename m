@@ -1,53 +1,57 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314600AbSEYOAt>; Sat, 25 May 2002 10:00:49 -0400
+	id <S314451AbSEYOQS>; Sat, 25 May 2002 10:16:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314602AbSEYOAs>; Sat, 25 May 2002 10:00:48 -0400
-Received: from host217-41-45-117.in-addr.btopenworld.com ([217.41.45.117]:47121
-	"EHLO ambassador.mathewson.int") by vger.kernel.org with ESMTP
-	id <S314600AbSEYOAs>; Sat, 25 May 2002 10:00:48 -0400
-Subject: Re: isofs unhide option:  troubles with Wine
-To: linux-kernel@vger.kernel.org
-From: Joseph Mathewson <joe@mathewson.co.uk>
-Reply-to: joe.mathewson@btinternet.com
-Date: Sat, 25 May 2002 15:01:42 +0100
-Message-Id: <TiM$20020525030142$2365@deschutes.mathewson.int>
-X-Mailer: TiM infinity-ALPHA6.1a
-X-TiM-Client: deschutes.mathewson.int [10.0.1.2]
-In-Reply-To: <1022334596.1262.6.camel@jwhiteh>
-Cc: Jeremy White <jwhite@codeweavers.com>
-Content-Transfer-Encoding: quoted-printable
+	id <S314456AbSEYOQR>; Sat, 25 May 2002 10:16:17 -0400
+Received: from [80.120.128.82] ([80.120.128.82]:46866 "EHLO hofr.at")
+	by vger.kernel.org with ESMTP id <S314451AbSEYOQR>;
+	Sat, 25 May 2002 10:16:17 -0400
+From: Der Herr Hofrat <der.herr@mail.hofr.at>
+Message-Id: <200205251321.g4PDLLU16552@hofr.at>
+Subject: Re: RTAI/RtLinux
+In-Reply-To: <1022334170.15111.199.camel@rawpower> from Erwin Rol at "May 25,
+ 2002 03:42:50 pm"
+To: Erwin Rol <erwin@muffin.org>
+Date: Sat, 25 May 2002 15:21:21 +0200 (CEST)
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+        RTAI users <rtai@rtai.org>
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message "Re: isofs unhide option:  troubles with Wine", <Jeremy White>
-wrote:
-
-> > >     1.  Invert the logic of the option, make it 'hide' instead
-> > >         of unhide, and so unhide is the default.
-> > 
-> > how about:
-> > 
-> > /dev/hdb /cdrom iso9660 defaults,ro,unhide,user 0 2
-> > 
-> > in your /etc/fstab. This would allow users to mount and unmount CDs.
-> > It also changes the default to unhide.
 > 
-> Yes, that is what we have to do now.  So, when our product is
-> installed, a user is presented with a confusing, and highly technical
-> question, the gist of which is:  please give us your root password
-> so we can do something you don't understand.  It's okay, trust us,
-> really...<grin>
+> > LGPL can be used as GPL. If you haven't even read the license do that
+> > before the flamewar please.
+> > 
 > 
-> Further, I would argue that if you accept that unhide is a
-> reasonable default for me to force into the fstab, then
-> it is a reasonable default for the kernel to have.
+> I know this, the point is that when you use the LGPL to be used as the
+> GPL it is not really LGPL anymore. A binary program using GLIBC depends
+> on the fact that GLIBC allows that (because of its LGPL license). What i
+> wanted to say is that "allowance" might be taken away by the patent
+> license.
 
-Is this not an issue that could be put to RedHat/Mandrake/SuSE/Turbo/etc to
-include the above fstab in their standard install.  If the user is going to have
-to upgrade their kernel to get this default, they will understand fstab.  If
-they do not understand fstab, they are going to upgrade their kernel by
-upgrading their distro anyway.  So why not push for this option in the default
-fstab of popular distros?
+The basic problem is again that some people want to have the privileges of 
+GPL without the responsibilities of GPL. That is a very old debate and I
+don't think it is sensible to krank it through again. Do GPL work and
+you can use the services of the comunity, do non-GPL and you need to 
+get these services under other terms. I realy don't see whats so wrong
+unfair and evil about this.
 
-Joe.
+> It is like a patent on VM management, or some other kernel internal
+> technique, does that mean that that patent is also has something to say
+> about ppl that write programs for that OS ? The same with LXRT (the
+> userspace part of RTAI), its implementation might fall under the patent,
+> but does the program that uses the LXRT services also fall under the
+> patent ? 
+
+The question of derived work is realy exhaustively discused and there are
+plenty of statements on this including statements by the FSF itselfe.
+mere agregation of work does not put you under any copywrite restrictions,
+derived work does - drawing this line is not easy and expecting anybody to
+give you "the definitive guide on derived work" is a bit naiv.
+You might want to scan the FSF statements on these issues...
+
+hofrat

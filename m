@@ -1,44 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284211AbRLFUuQ>; Thu, 6 Dec 2001 15:50:16 -0500
+	id <S285190AbRLFUsj>; Thu, 6 Dec 2001 15:48:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284248AbRLFUsn>; Thu, 6 Dec 2001 15:48:43 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:9477 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S284211AbRLFUrd>; Thu, 6 Dec 2001 15:47:33 -0500
-Message-ID: <3C0FD955.4510B738@zip.com.au>
-Date: Thu, 06 Dec 2001 12:47:17 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre4 i686)
-X-Accept-Language: en
+	id <S285189AbRLFUrB>; Thu, 6 Dec 2001 15:47:01 -0500
+Received: from mailout01.sul.t-online.com ([194.25.134.80]:41413 "EHLO
+	mailout01.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S284248AbRLFUqG>; Thu, 6 Dec 2001 15:46:06 -0500
+Date: 06 Dec 2001 20:12:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
+To: linux-kernel@vger.kernel.org
+cc: alan@lxorguk.ukuu.org.uk
+cc: torvalds@transmeta.com
+Message-ID: <8EK0gp-1w-B@khms.westfalen.de>
+In-Reply-To: <Pine.LNX.4.33.0112060958450.10625-100000@penguin.transmeta.com>
+Subject: Re: Linux/Pro  -- clusters
+X-Mailer: CrossPoint v3.12d.kh7 R/C435
 MIME-Version: 1.0
-To: Greg Hennessy <gsh@cox.rr.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: horrible disk thorughput on itanium
-In-Reply-To: <20011206110713.A8404@cox.rr.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Organization: Organisation? Me?! Are you kidding?
+In-Reply-To: <E16C2qa-0002RR-00@the-village.bc.nu> <Pine.LNX.4.33.0112060958450.10625-100000@penguin.transmeta.com>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg Hennessy wrote:
-> 
-> ...
-> Hydra is the itanium, leo is the 32 bit machine. The character io of
-> hydra is a factor of 10 slower than that of leo. Is this more likely a
-> kernel issue, or a glibc issue? Both machiness run standard redhat
-> 7.1, and 2.4.9-12smp kernels.
-> 
+torvalds@transmeta.com (Linus Torvalds)  wrote on 06.12.01 in <Pine.LNX.4.33.0112060958450.10625-100000@penguin.transmeta.com>:
 
-The character I/O part of bonnie++ writes a single character at a time,
-via stdio.  It's more a test of your C library than of the kernel.
+> Some of them are effectively turned off - the format timeout was increased
+> to 2 hours to make sure that it basically never triggers.
 
-The fact that you get the same throughput on each platform with
-the block I/O part of the test indicates that the hardware and
-kernel are OK, but the C library is broken.
+And I recently found out the hard way that wasn't enough, and ended up  
+cludging a utility to patch a running kernel (don't ask) to increase that  
+timeout. Turned out the drive needed a little over three hours to tell me  
+it couldn't format.
 
-Not sure how to diagnose this.  Probably you should write a
-simple five-line stdio-based test program, see if that exhibits
-the same behaviour, then fiddle with setvbuf().
+Frankly, format should really have NO timeout. Or possibly a user- 
+specified one.
 
--
+MfG Kai

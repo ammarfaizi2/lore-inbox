@@ -1,104 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262328AbTIZByR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 21:54:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262329AbTIZByR
+	id S262336AbTIZB5W (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 21:57:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262337AbTIZB5W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 21:54:17 -0400
-Received: from smtp805.mail.sc5.yahoo.com ([66.163.168.184]:9080 "HELO
-	smtp805.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262328AbTIZByP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 21:54:15 -0400
-Subject: [panic] 2.4.18 in schedule - Alpha CPU
-From: Stephen Torri <storri@sbcglobal.net>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-EADjpWyNgES+oyga4ucd"
-Message-Id: <1064541251.25019.1.camel@base>
+	Thu, 25 Sep 2003 21:57:22 -0400
+Received: from rav-az.mvista.com ([65.200.49.157]:48322 "EHLO
+	zipcode.az.mvista.com") by vger.kernel.org with ESMTP
+	id S262336AbTIZB5Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Sep 2003 21:57:16 -0400
+Subject: kernel BUG using multipath on 2.6.0-test5
+From: Steven Dake <sdake@mvista.com>
+Reply-To: sdake@mvista.com
+To: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: MontaVista Software, Inc.
+Message-Id: <1064541435.4763.51.camel@persist.az.mvista.com>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.4 
-Date: Thu, 25 Sep 2003 20:54:11 -0500
+Date: Thu, 25 Sep 2003 18:57:15 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Folks,
 
---=-EADjpWyNgES+oyga4ucd
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+I've finally gotten around to trying out 2.6.0-test5 with some automatic
+multipathing code on which I am working.  The code automatically
+determines and configures multiple paths to a device using the MD
+driver.
 
-Panic occurred when trying to run the program 'xine'. The kernel is
-2.4.18 for a Alpha PC164 system.
+My program works fine on 2.4.x + qlogic FC driver but not on 2.6.0-test5
+with qlogic FC driver.  The qlogic FC driver works for the individual
+drives, so it is less likely the cuase of the problem.
 
-Reading Oops report from the terminal
-pc=3D[<fffffc000031fca0>]
-Using defaults from ksymoops -t elf64-alpha -a alpha
-ra=3D[<fffffc000031fc94>]
-ps=3D0007
-v0=3D000000000000001b
-t0=3Dfffffc000057c770
-t1=3D0000000000000001
-t2=3D000000000036a488
-t3=3Dfffffc00035d0000
-t4=3D0000000000000000
-t5=3D0000000000000065
-t6=3D0000000000000a00
-t7=3Dfffffc00031f4000
-a0=3D0000000000000007
-a1=3D0000000000000001
-a2=3D0000000000000001
-a3=3D0000000000000000
-a4=3D0000000000000a00
-a5=3D0000000000000001
-t8=3D000000000000001f
-t9=3D0000000000000000
-t10=3Dfffffc8608926a00
-t11=3D0000000000000000
-pv=3Dfffffc00003200e0
-at=3D0000000000000000
-gp=3Dfffffc00005c1320
-sp=3Dfffffc00031f3f98
-Trace: ffffc00005c1320 fffffc000031f014
-Code: a63ddbc0 a77da938 6b5b51b3 27ba002a 23bd168c 00000081 <a43d9640>
-47e80406
+The mdstat looks like this:
+root@192.168.1.95:~# cat /proc/mdstat
+Personalities : [linear] [raid0] [raid1] [raid5] [multipath]
+md254 : active multipath sdb[1] sdd[0]
+      1000000 blocks [2/2] [UU]
 
+md255 : active multipath sda[1] sdc[0]
+      1000000 blocks [2/2] [UU]
 
->>PC;  fffffc000031fca0 <schedule+60/4a0>   <=3D=3D=3D=3D=3D
+unused devices: <none>
 
-Code;  fffffc000031fc88 <schedule+48/4a0>
-0000000000000000 <_PC>:
-Code;  fffffc000031fc88 <schedule+48/4a0>
-   0:   c0 db 3d a6       ldq  a1,-9280(gp)
-Code;  fffffc000031fc8c <schedule+4c/4a0>
-   4:   38 a9 7d a7       ldq  t12,-22216(gp)
-Code;  fffffc000031fc90 <schedule+50/4a0>
-   8:   b3 51 5b 6b       jsr  ra,(t12),46d8 <_PC+0x46d8>
-fffffc0000324360 <printk+0/280>
-Code;  fffffc000031fc94 <schedule+54/4a0>
-   c:   2a 00 ba 27       ldah gp,42(ra)
-Code;  fffffc000031fc98 <schedule+58/4a0>
-  10:   8c 16 bd 23       lda  gp,5772(gp)
-Code;  fffffc000031fc9c <schedule+5c/4a0>
-  14:   81 00 00 00       call_pal     0x81
-Code;  fffffc000031fca0 <schedule+60/4a0>   <=3D=3D=3D=3D=3D
-  18:   40 96 3d a4       ldq  t0,-27072(gp)   <=3D=3D=3D=3D=3D
-Code;  fffffc000031fca4 <schedule+64/4a0>
-  1c:   06 04 e8 47       mov  t7,t5
+I attempted a mke2fs /dev/md254 (which is the multipath device) and the
+process froze.  Looking at varlogmessages, I see:
 
-Stephen
---=20
-Stephen Torri
-GPG Key: http://www.cs.wustl.edu/~storri/storri.asc
+--------------------
 
---=-EADjpWyNgES+oyga4ucd
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+kernel BUG at drivers/scsi/scsi_lib.c:544!
+invalid operand: 0000 [#1]
+CPU:    2
+EIP:    0060:[<c01f5db3>]    Not tainted
+EFLAGS: 00010046
+EIP is at scsi_alloc_sgtable+0xed/0xfa
+eax: 00000000   ebx: e8a75378   ecx: f7ce2424   edx: f7cfd200
+esi: f7cfd200   edi: f7cfd200   ebp: f7ce2400   esp: ea11fc68
+ds: 007b   es: 007b   ss: 0068
+Process mke2fs (pid: 147, threadinfo=ea11e000 task=f76b9940)
+Stack: e8a75378 c01f172c f7d21e60 e8a75378 f7cfd200 f7cfd200 f7ce2400
+c01f631d
+       f7cfd200 00000020 e8a75378 e8a75378 f7cfd200 e8a75378 c01f6455
+f7cfd200
+       00000020 c03c4680 00000001 e8a75378 f7ce4c00 c03c4680 00000001
+c01be1aa
+Call Trace:
+ [<c01f172c>] __scsi_get_command+0x2b/0x74
+ [<c01f631d>] scsi_init_io+0x7a/0x13d
+ [<c01f6455>] scsi_prep_fn+0x75/0x171
+ [<c01be1aa>] elv_next_request+0x47/0xf1
+ [<c01bf9e9>] generic_unplug_device+0x5a/0x69
+ [<c01bfb2a>] blk_run_queues+0x85/0x9d
+ [<c014da8c>] __wait_on_buffer+0xd7/0xde
+ [<c011b4e1>] autoremove_wake_function+0x0/0x4f
+ [<c011b4e1>] autoremove_wake_function+0x0/0x4f
+ [<c014f8af>] __block_prepare_write+0x11a/0x432
+ [<c0150406>] block_prepare_write+0x34/0x4d
+ [<c015390a>] blkdev_get_block+0x0/0x5b
+ [<c01331bf>] generic_file_aio_write_nolock+0x3be/0xa9e
+ [<c015390a>] blkdev_get_block+0x0/0x5b
+ [<c013ec16>] do_anonymous_page+0x11f/0x1e9
+ [<c0134fff>] buffered_rmqueue+0xc0/0x13f
+ [<c0135111>] __alloc_pages+0x93/0x30f
+ [<c013391d>] generic_file_write_nolock+0x7e/0x9c
+ [<c013f238>] handle_mm_fault+0xf7/0x162
+ [<c0117832>] do_page_fault+0x126/0x43f
+ [<c01548cc>] blkdev_file_write+0x37/0x3b
+ [<c014c7a6>] vfs_write+0xbc/0x127
+ [<c0153ac7>] block_llseek+0x0/0xef
+ [<c014c8b6>] sys_write+0x42/0x63
+ [<c01090d7>] syscall_call+0x7/0xb
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+Code: 0f 0b 20 02 1c bb 2c c0 e9 2d ff ff ff 8b 44 24 08 8b 54 24
 
-iD8DBQA/c5xDmXRzpT81NcgRAsIpAJ4+2CwRZEgw7wU0EmTv0+OHkACcXgCgg9rx
-ks1MrLUiUILieWTsX9yvdb0=
-=C8ex
------END PGP SIGNATURE-----
+Should this work or is multipath known broken in 2.6?  Anyone have
+started debugging multipath and want to work together on it?
 
---=-EADjpWyNgES+oyga4ucd--
+Thanks
+-steve
 

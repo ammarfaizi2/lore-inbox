@@ -1,23 +1,23 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262194AbUCPOrP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Mar 2004 09:47:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262143AbUCPOnR
+	id S261915AbUCPOms (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Mar 2004 09:42:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261909AbUCPOm0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Mar 2004 09:43:17 -0500
-Received: from styx.suse.cz ([82.208.2.94]:56193 "EHLO shadow.ucw.cz")
-	by vger.kernel.org with ESMTP id S261906AbUCPOTg convert rfc822-to-8bit
+	Tue, 16 Mar 2004 09:42:26 -0500
+Received: from styx.suse.cz ([82.208.2.94]:60033 "EHLO shadow.ucw.cz")
+	by vger.kernel.org with ESMTP id S261915AbUCPOTg convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 16 Mar 2004 09:19:36 -0500
 Content-Transfer-Encoding: 7BIT
-Message-Id: <1079446776360@twilight.ucw.cz>
+Message-Id: <10794467773458@twilight.ucw.cz>
 Content-Type: text/plain; charset=US-ASCII
-Subject: [PATCH 6/44] Fix sunkbd.c to work with serport
+Subject: [PATCH 13/44] Remove the obsolete busmouse.c helper driver
 X-Mailer: gregkh_patchbomb_levon_offspring
 To: torvalds@osdl.org, vojtech@ucw.cz, linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Date: Tue, 16 Mar 2004 15:19:36 +0100
-In-Reply-To: <1079446776531@twilight.ucw.cz>
+Date: Tue, 16 Mar 2004 15:19:37 +0100
+In-Reply-To: <1079446776714@twilight.ucw.cz>
 From: Vojtech Pavlik <vojtech@suse.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
@@ -27,94 +27,87 @@ You can pull this changeset from:
 
 ===================================================================
 
-ChangeSet@1.1474.188.6, 2004-01-26 13:25:24+01:00, vojtech@suse.cz
-  input: Fix sunkbd.c to work with serport. Must sleep.
+ChangeSet@1.1474.188.14, 2004-01-27 21:01:27+01:00, aris@cathedrallabs.org
+  input: Remove the obsolete "busmouse.c" helper driver.
 
 
- sunkbd.c |   22 +++++++++++-----------
- 1 files changed, 11 insertions(+), 11 deletions(-)
+ arch/arm26/Kconfig         |    5 -----
+ drivers/char/Kconfig       |   24 ------------------------
+ drivers/char/Makefile      |    1 -
+ include/linux/miscdevice.h |    1 -
+ 4 files changed, 31 deletions(-)
 
 ===================================================================
 
-diff -Nru a/drivers/input/keyboard/sunkbd.c b/drivers/input/keyboard/sunkbd.c
---- a/drivers/input/keyboard/sunkbd.c	Tue Mar 16 13:19:57 2004
-+++ b/drivers/input/keyboard/sunkbd.c	Tue Mar 16 13:19:57 2004
-@@ -77,6 +77,7 @@
- 	struct input_dev dev;
- 	struct serio *serio;
- 	struct work_struct tq;
-+	wait_queue_head_t wait;
- 	char name[64];
- 	char phys[32];
- 	char type;
-@@ -96,11 +97,13 @@
+diff -Nru a/arch/arm26/Kconfig b/arch/arm26/Kconfig
+--- a/arch/arm26/Kconfig	Tue Mar 16 13:19:32 2004
++++ b/arch/arm26/Kconfig	Tue Mar 16 13:19:32 2004
+@@ -216,11 +216,6 @@
  
- 	if (sunkbd->reset <= -1) {		/* If cp[i] is 0xff, sunkbd->reset will stay -1. */
- 		sunkbd->reset = data;		/* The keyboard sends 0xff 0xff 0xID on powerup */
-+		wake_up_interruptible(&sunkbd->wait);
- 		goto out;
- 	}
+ source "drivers/char/Kconfig"
  
- 	if (sunkbd->layout == -1) {
- 		sunkbd->layout = data;
-+		wake_up_interruptible(&sunkbd->wait);
- 		goto out;
- 	}
- 
-@@ -176,22 +179,19 @@
- 
- static int sunkbd_initialize(struct sunkbd *sunkbd)
- {
--	int t;
+-config KBDMOUSE
+-	bool
+-	depends on ARCH_ACORN && BUSMOUSE=y
+-	default y
 -
--	t = 1000;
- 	sunkbd->reset = -2;
- 	sunkbd->serio->write(sunkbd->serio, SUNKBD_CMD_RESET);
--	while (sunkbd->reset < 0 && --t) mdelay(1);
--	if (!t) return -1;
-+	wait_event_interruptible_timeout(sunkbd->wait, sunkbd->reset >= 0, HZ);
-+	if (sunkbd->reset <0)
-+		return -1;
+ source "drivers/media/Kconfig"
  
- 	sunkbd->type = sunkbd->reset;
+ source "fs/Kconfig"
+diff -Nru a/drivers/char/Kconfig b/drivers/char/Kconfig
+--- a/drivers/char/Kconfig	Tue Mar 16 13:19:32 2004
++++ b/drivers/char/Kconfig	Tue Mar 16 13:19:32 2004
+@@ -588,30 +588,6 @@
+ 	bool "Support for console on line printer"
+ 	depends on PC9800_OLDLP
  
- 	if (sunkbd->type == 4) {	/* Type 4 keyboard */
--		t = 250;
- 		sunkbd->layout = -2;
- 		sunkbd->serio->write(sunkbd->serio, SUNKBD_CMD_LAYOUT);
--		while (sunkbd->layout < 0 && --t) mdelay(1);
--		if (!t) return -1;
-+		wait_event_interruptible_timeout(sunkbd->wait, sunkbd->layout >= 0, HZ/4);
-+		if (sunkbd->layout < 0) return -1;
- 		if (sunkbd->layout & SUNKBD_LAYOUT_5_MASK) sunkbd->type = 5;
- 	}
+-
+-menu "Mice"
+-
+-config BUSMOUSE
+-	tristate "Bus Mouse Support"
+-	---help---
+-	  Say Y here if your machine has a bus mouse as opposed to a serial
+-	  mouse. Most people have a regular serial MouseSystem or
+-	  Microsoft mouse (made by Logitech) that plugs into a COM port
+-	  (rectangular with 9 or 25 pins). These people say N here. 
+-
+-	  If you have a laptop, you either have to check the documentation or
+-	  experiment a bit to find out whether the trackball is a serial mouse
+-	  or not; it's best to say Y here for you.
+-
+-	  This is the generic bus mouse driver code. If you have a bus mouse,
+-	  you will have to say Y here and also to the specific driver for your
+-	  mouse below.
+-
+-	  To compile this driver as a module, choose M here: the
+-	  module will be called busmouse.
+-
+-endmenu
+-
+ config QIC02_TAPE
+ 	tristate "QIC-02 tape support"
+ 	help
+diff -Nru a/drivers/char/Makefile b/drivers/char/Makefile
+--- a/drivers/char/Makefile	Tue Mar 16 13:19:32 2004
++++ b/drivers/char/Makefile	Tue Mar 16 13:19:32 2004
+@@ -49,7 +49,6 @@
+ obj-$(CONFIG_TIPAR) += tipar.o
+ obj-$(CONFIG_PC9800_OLDLP) += lp_old98.o
  
-@@ -206,9 +206,8 @@
- static void sunkbd_reinit(void *data)
- {
- 	struct sunkbd *sunkbd = data;
--	int t = 1000;
+-obj-$(CONFIG_BUSMOUSE) += busmouse.o
+ obj-$(CONFIG_DTLK) += dtlk.o
+ obj-$(CONFIG_R3964) += n_r3964.o
+ obj-$(CONFIG_APPLICOM) += applicom.o
+diff -Nru a/include/linux/miscdevice.h b/include/linux/miscdevice.h
+--- a/include/linux/miscdevice.h	Tue Mar 16 13:19:32 2004
++++ b/include/linux/miscdevice.h	Tue Mar 16 13:19:32 2004
+@@ -3,7 +3,6 @@
+ #include <linux/module.h>
+ #include <linux/major.h>
  
--	while (sunkbd->reset < 0 && --t) mdelay(1);
-+	wait_event_interruptible_timeout(sunkbd->wait, sunkbd->reset >= 0, HZ);
- 
- 	sunkbd->serio->write(sunkbd->serio, SUNKBD_CMD_SETLED);
- 	sunkbd->serio->write(sunkbd->serio, 
-@@ -239,6 +238,7 @@
- 	memset(sunkbd, 0, sizeof(struct sunkbd));
- 
- 	init_input_dev(&sunkbd->dev);
-+	init_waitqueue_head(&sunkbd->wait);
- 
- 	sunkbd->dev.evbit[0] = BIT(EV_KEY) | BIT(EV_LED) | BIT(EV_SND) | BIT(EV_REP);
- 	sunkbd->dev.ledbit[0] = BIT(LED_CAPSL) | BIT(LED_COMPOSE) | BIT(LED_SCROLLL) | BIT(LED_NUML);
-@@ -275,7 +275,7 @@
- 		set_bit(sunkbd->keycode[i], sunkbd->dev.keybit);
- 	clear_bit(0, sunkbd->dev.keybit);
- 
--	sprintf(sunkbd->name, "%s/input", serio->phys);
-+	sprintf(sunkbd->phys, "%s/input0", serio->phys);
- 
- 	sunkbd->dev.name = sunkbd->name;
- 	sunkbd->dev.phys = sunkbd->phys;
+-#define BUSMOUSE_MINOR 0
+ #define PSMOUSE_MINOR  1
+ #define MS_BUSMOUSE_MINOR 2
+ #define ATIXL_BUSMOUSE_MINOR 3
 

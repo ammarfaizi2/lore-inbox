@@ -1,43 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288922AbSAXStB>; Thu, 24 Jan 2002 13:49:01 -0500
+	id <S288896AbSAXSub>; Thu, 24 Jan 2002 13:50:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288897AbSAXSsv>; Thu, 24 Jan 2002 13:48:51 -0500
-Received: from peebles.phys.ualberta.ca ([129.128.7.18]:21391 "EHLO
-	peebles.phys.ualberta.ca") by vger.kernel.org with ESMTP
-	id <S288896AbSAXSsj>; Thu, 24 Jan 2002 13:48:39 -0500
-Message-ID: <3C505702.7B665083@phys.ualberta.ca>
-Date: Thu, 24 Jan 2002 11:48:34 -0700
-From: pogosyan@phys.ualberta.ca
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.17-0.1 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: whitney@math.berkeley.edu
-CC: Rasmus =?iso-8859-1?Q?B=F8g?= Hansen <moffe@amagerkollegiet.dk>,
-        LKML <linux-kernel@vger.kernel.org>
-Subject: Re: ACPI trouble (Was: Re: [patch] amd athlon cooling on kt266/266a 
- chipset)
-In-Reply-To: <20020124155853Z287177-13996+11274@vger.kernel.org> <Pine.LNX.4.44.0201241803540.1345-100000@grignard.amagerkollegiet.dk> <200201241749.g0OHnbG02468@adsl-209-76-109-63.dsl.snfc21.pacbell.net>
+	id <S288925AbSAXSuP>; Thu, 24 Jan 2002 13:50:15 -0500
+Received: from holomorphy.com ([216.36.33.161]:22153 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S288896AbSAXStx>;
+	Thu, 24 Jan 2002 13:49:53 -0500
+Date: Thu, 24 Jan 2002 10:50:08 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>, Barry Wu <wqb123@yahoo.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Can linux support ccNUMA machine now?
+Message-ID: <20020124105008.E872@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+	"Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+	Barry Wu <wqb123@yahoo.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020123003530.60778.qmail@web13903.mail.yahoo.com> <74750000.1011782724@flay> <20020123200405.D899@holomorphy.com> <200201241215.g0OCFSE10537@Port.imtp.ilyichevsk.odessa.ua>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Description: brief message
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <200201241215.g0OCFSE10537@Port.imtp.ilyichevsk.odessa.ua>; from vda@port.imtp.ilyichevsk.odessa.ua on Thu, Jan 24, 2002 at 02:15:30PM -0200
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Note that on this motherboard (and perhaps all ASUS Via chipset
-> motherboards, including the A7V133), one needs the following line in
-> /etc/sensors.conf to get reasonable lm_sensors CPU temperatures:
->   compute temp2 @*2, @/2
-> This is as described at http://www2.lm-sensors.nu/~lm78/support.html
-> in Ticket 775.
->
+At some point in the past, I wrote:
+>> P.S.: Blame it on struct page.
 
-I have ASUS A7V266-E (AS99127F chip) and lm_sensors 2.6.2
-shows 43 C for CPU without any additional lines in /etc/sensors.conf
+On Thu, Jan 24, 2002 at 02:15:30PM -0200, Denis Vlasenko wrote:
+> Looks like running x86 with more than 16GB RAM is not a good idea.
+> If you need it, you need 64bit arch.
 
-Which sounds reasonable.   However this temperature is rarely ever change !
-I typically have 43.1,   sometimes 42.8   and that's it.   Even after 2-3 min
+There are more polite ways of refusing to boot in such situations,
+ranging from just dropping the RAM that can't be used on the floor to
+some effort to at make console messages explaining the panic visible.
 
-compiles.    So something is wrong
+On Thu, Jan 24, 2002 at 02:15:30PM -0200, Denis Vlasenko wrote:
+> This limit can be raised substantially by reducing low 4GB memory 
+> requirements, but don't you feel it's like running 16-bit DOS
+> on 686 class CPU? HIMEM.SYS, EMM, horde of DOS extenders - sounds familiar?
 
-                Dmitri
+Not familiar to me.
 
+Reducing overhead helps all boxen everywhere all the time. Turning the
+kernel upside-down for the corner case of 64GB isn't worth it, but
+finding more graceful ways to fail than not booting with no visible
+error messages, and perhaps extending the range of configurations where
+the kernel actually functions (within reason) by reducing space
+overhead is worthwhile.
+
+I haven't seen many people posting questions to the list saying "Linux
+won't boot, my machine is umpteen-way i386 SMP with 64GB of RAM". So I
+largely think of it as a sort of reminder of the negative consequences
+of overhead more than an actual goal, and the largest concern is that
+the failure mode is not graceful.
+
+On Thu, Jan 24, 2002 at 02:15:30PM -0200, Denis Vlasenko wrote:
+> However, CPU vendors war over common 64-bit arch is still ahead...
+
+64-bit machines have been what most CPU vendors have been selling for a
+few years now. Unfortunately, "most vendors" does not translate to "most
+CPU's in use", for non-technical reasons beyond the scope of this forum.
+
+
+Cheers,
+Bill

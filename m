@@ -1,58 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265130AbUE0UCH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265165AbUE0UE0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265130AbUE0UCH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 May 2004 16:02:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265158AbUE0UCH
+	id S265165AbUE0UE0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 May 2004 16:04:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265168AbUE0UE0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 May 2004 16:02:07 -0400
-Received: from moraine.clusterfs.com ([66.246.132.190]:16332 "EHLO
-	moraine.clusterfs.com") by vger.kernel.org with ESMTP
-	id S265130AbUE0UCC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 May 2004 16:02:02 -0400
-Date: Thu, 27 May 2004 14:01:59 -0600
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Valdis.Kletnieks@vt.edu
-Cc: "Luis R. Rodriguez" <mcgrof@studorgs.rutgers.edu>,
-       Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
-       prism54-devel@prism54.org
-Subject: Re: CVS tags (was  Re: [Prism54-devel] Re: [PATCH 4/14 linux-2.6.7-rc1] prism54: add support for avs header in
-Message-ID: <20040527200159.GP2603@schnapps.adilger.int>
-Mail-Followup-To: Valdis.Kletnieks@vt.edu,
-	"Luis R. Rodriguez" <mcgrof@studorgs.rutgers.edu>,
-	Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
-	prism54-devel@prism54.org
-References: <20040524083146.GE3330@ruslug.rutgers.edu> <40B631B3.4000902@pobox.com> <20040527191649.GT3330@ruslug.rutgers.edu> <200405271931.i4RJVjYB002642@turing-police.cc.vt.edu>
+	Thu, 27 May 2004 16:04:26 -0400
+Received: from delerium.kernelslacker.org ([81.187.208.145]:56781 "EHLO
+	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id S265165AbUE0UEX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 May 2004 16:04:23 -0400
+Date: Thu, 27 May 2004 21:03:20 +0100
+From: Dave Jones <davej@redhat.com>
+To: hpa@zytor.com
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: mem= handling mess.
+Message-ID: <20040527200320.GR22630@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>, hpa@zytor.com,
+	Linux Kernel <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200405271931.i4RJVjYB002642@turing-police.cc.vt.edu>
 User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On May 27, 2004  15:31 -0400, Valdis.Kletnieks@vt.edu wrote:
-> On Thu, 27 May 2004 15:16:49 EDT, Luis R. Rodriguez said:
-> > --- ksrc/islpci_eth.c
-> > +++ ksrc-new/islpci_eth.c
-> 
-> I think this was what he referred to:
-> 
-> >-/*  $Header: /var/lib/cvs/prism54-ng/ksrc/islpci_eth.c,v 1.31 2004/03 15:27:44 ajfa Exp $
-> >+/*  $Header: /var/lib/cvs/prism54-ng/ksrc/islpci_eth.c,v 1.33 2004/03/19 23:03:58 ajfa Exp $
-> 
-> as this will almost surely cause rejects (sooner or later) unless 100% of your
-> patches are applied and in the right order.
+At some point in time during 2.4, parse_cmdline_early() changed
+so that it handled such boot command lines as..
 
-This also causes grief if this file is ever imported again into a CVS-based
-SCM, unless you remember to do so with -ko.
+mem=exactmap mem=640k@0 mem=511m@1m
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+And all was good.  This change propagated forward into 2.5,
+where it sat for a while, until hpa freaked out and
+Randy Dunlap sent in cset 1.889.364.25
+
+ChangeSet 1.889.364.25 2003/03/16 23:22:16 akpm@digeo.com
+  [PATCH] Fix mem= options
+  
+  Patch from "Randy.Dunlap" <rddunlap@osdl.org>
+  
+  Reverts the recent alteration of the format of the `mem=' option.  This is
+  because `mem=' is interpreted by bootloaders and may not be freely changed.
+  
+  Instead, the new functionality to set specific memory region usages is
+  provided via the new "memmap=" option.
+  
+  The documentation for memmap= is added, and the documentation for mem= is
+  updated.
+
+This is all well and good, but 2.4 never got the same treatment.
+Result ? Now users are upgrading their 2.4 systems to 2.6,
+and finding that they don't boot any more.
+(See https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=124312
+ for example).
+
+The "`mem=' is interpreted by bootloaders and may not be freely changed."
+obviously hasn't broken the however many users of this we have in 2.4
+so I don't buy that it'll break in 2.6 either.  As its now in 2.4
+(and has been there for some time), this is something that bootloaders
+will just have to live with.
+
+		Dave
 

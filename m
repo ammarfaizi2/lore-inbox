@@ -1,62 +1,95 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131262AbQLVBcM>; Thu, 21 Dec 2000 20:32:12 -0500
+	id <S131521AbQLVBfC>; Thu, 21 Dec 2000 20:35:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131521AbQLVBcC>; Thu, 21 Dec 2000 20:32:02 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:18697 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S131262AbQLVBbq>; Thu, 21 Dec 2000 20:31:46 -0500
-Date: Thu, 21 Dec 2000 17:01:00 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Jan Niehusmann <jan@gondor.com>
-cc: Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org,
-        adilger@turbolinux.com
-Subject: Re: [PATCH] Re: fs corruption with invalidate_buffers()
-In-Reply-To: <20001222014810.A1419@gondor.com>
-Message-ID: <Pine.LNX.4.10.10012211659390.15507-100000@penguin.transmeta.com>
+	id <S131609AbQLVBew>; Thu, 21 Dec 2000 20:34:52 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:18323 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S131521AbQLVBel>;
+	Thu, 21 Dec 2000 20:34:41 -0500
+Importance: Normal
+Subject: [PATCH] Re: e820 memory detection fix for ThinkPad
+To: alan@redhat.com, linux-kernel@vger.kernel.org
+From: "Marc Joosen" <mjoosen@us.ibm.com>
+Date: Thu, 21 Dec 2000 20:04:02 -0500
+Message-ID: <OF4FB68CB1.98A5E1AA-ON852569BD.000420DA@pok.ibm.com>
+X-MIMETrack: Serialize by Router on D01ML233/01/M/IBM(Release 5.0.6 |December 14, 2000) at
+ 12/21/2000 08:04:04 PM
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Fri, 22 Dec 2000, Jan Niehusmann wrote:
-> 
-> The test I did initially was the following:
-> 
-> if(!atomic_read(&bh->b_count) &&
-> 	(destroy_dirty_buffers || !buffer_dirty(bh))
-> 	&& ! (bh->b_page && bh->b_page->mapping)
-> 	)
-> 
-> That is, I was explicitely checking for a mapped page. It worked well, too.
-> Is this more reasonable?
+David Weinhall wrote:
 
-I'd suggest just doing this instead (warning: cut-and-paste in xterm, so
-white-space damage):
+> On Tue, Dec 19, 2000 at 07:16:40PM -0500, Marc Joosen wrote:
+> >
+> >   This is a tiny patch to make the int15/e820 memory mapping work on
+IBM
+> > ThinkPads. Until now, I have had to give lilo a mem= option with one
+meg
+>
+> If this simple patch solves your problem, great! But in that case,
+> PLEASE add a note telling WHY the assignment is done for every
+> iteration; else some smarthead will probably submit a patch someday
+> in the future along the lines of "assigning this only once makes the
+> loop faster"...
+>
+> Anyhow, good spotting!
 
-	--- linux/fs/buffer.c.old     Wed Dec 20 17:50:56 2000
-	+++ linux/fs/buffer.c   Thu Dec 21 16:42:11 2000
-	@@ -639,8 +639,13 @@
-	                        continue;
-	                for (i = nr_buffers_type[nlist]; i > 0 ; bh = bh_next, i--) {
-	                        bh_next = bh->b_next_free;
-	+
-	+                       /* Another device? */
-	                        if (bh->b_dev != dev)
-	                                continue;
-	+                       /* Part of a mapping? */
-	+                       if (bh->b_page->mapping)
-	+                               continue;
-	                        if (buffer_locked(bh)) {
-	                                atomic_inc(&bh->b_count);
-	                                spin_unlock(&lru_list_lock);
+  Thanks for the tip, David. I hope that whoever wants to move that line
+out of the loop is aware that it is only executed ~10 times :) So I
+hereby submit a second version of the patch, that includes a link to
+the documentation and #defines the word SMAP (thanks to David Parsons
+for that):
 
-which just ignores mapped buffers entirely (and doesn't test for
-bh->b_page being non-NULL, because that shouldn't be allowed anyway).
 
-		Linus
+--- linux/arch/i386/boot/setup.S.orig    Mon Oct 30 17:44:29 2000
++++ linux/arch/i386/boot/setup.S   Thu Dec 21 19:37:12 2000
+@@ -289,10 +289,11 @@
+ # a whole bunch of different types, and allows memory holes and
+ # everything.  We scan through this memory map and build a list
+ # of the first 32 memory areas, which we return at [E820MAP].
+-#
++# This is documented at http://www.teleport.com/~acpi/acpihtml/topic245.htm
++
++#define SMAP  0x534d4150
+
+ meme820:
+-    movl $0x534d4150, %edx        # ascii `SMAP'
+     xorl %ebx, %ebx               # continuation counter
+     movw $E820MAP, %di            # point into the whitelist
+                              # so we can have the bios
+@@ -300,13 +301,15 @@
+
+ jmpe820:
+     movl $0x0000e820, %eax        # e820, upper word zeroed
++    movl $SMAP, %edx              # do this every time, some
++                             # bioses are forgetful
+     movl $20, %ecx           # size of the e820rec
+     pushw     %ds                 # data record.
+     popw %es
+     int  $0x15                    # make the call
+     jc   bail820                  # fall to e801 if it fails
+
+-    cmpl $0x534d4150, %eax        # check the return is `SMAP'
++    cmpl $SMAP, %eax              # check the return is `SMAP'
+     jne  bail820                  # fall to e801 if it fails
+
+ #   cmpl $1, 16(%di)              # is this usable memory?
+
+
+  Again, please copy any comments to me (mjoosen@us.ibm.com), since
+I'm not subscribed to linux-kernel.
+
+
+--
+  Marc Joosen
+  Communication Link Design
+  IBM T.J. Watson Research Center
+  Yorktown Heights, NY
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268148AbTBSHYF>; Wed, 19 Feb 2003 02:24:05 -0500
+	id <S268146AbTBSHXW>; Wed, 19 Feb 2003 02:23:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268147AbTBSHYE>; Wed, 19 Feb 2003 02:24:04 -0500
-Received: from are.twiddle.net ([64.81.246.98]:26778 "EHLO are.twiddle.net")
-	by vger.kernel.org with ESMTP id <S268148AbTBSHYD>;
-	Wed, 19 Feb 2003 02:24:03 -0500
-Date: Tue, 18 Feb 2003 23:33:52 -0800
-From: Richard Henderson <rth@twiddle.net>
-To: Keith Owens <kaos@ocs.com.au>
+	id <S268147AbTBSHXW>; Wed, 19 Feb 2003 02:23:22 -0500
+Received: from holomorphy.com ([66.224.33.161]:29592 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S268146AbTBSHXV>;
+	Wed, 19 Feb 2003 02:23:21 -0500
+Date: Tue, 18 Feb 2003 23:32:21 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Alexander Koch <efraim@clues.de>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] alpha modutils update
-Message-ID: <20030218233352.A24861@twiddle.net>
-Mail-Followup-To: Keith Owens <kaos@ocs.com.au>,
-	linux-kernel@vger.kernel.org
+Subject: Re: 2.5.62 fails to boot, Uncompressing... and then nothing
+Message-ID: <20030219073221.GR29983@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Alexander Koch <efraim@clues.de>, linux-kernel@vger.kernel.org
+References: <20030219071932.GA3746@clues.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030219071932.GA3746@clues.de>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We're now using srel32 in the exception handling macros.
+On Wed, Feb 19, 2003 at 08:19:32AM +0100, Alexander Koch wrote:
+> I am experiencing problems getting certain 2.5.60 and
+> 2.5.61 and also 2.5.62 to boot. One 2.5.60 is working,
+> the others are just doing something as I only see the
+> Uncompressing... and then nothing is happening at all
+> except my hard disc doing something which is not booting,
+> I feel. I fail to remember what the difference was between
+> the two versions of 2.5.60 (one running, the other is not).
+> Any ideas/hints on what this is?
+
+Do you have ACPI in your .config? Various ppl have been having
+issues resolved when ACPI's deconfigured lately. Breaking out an
+early printk patch of some flavor should probably help get some
+boot logs out so you can debug if you care to do so.
 
 
-r~
-
-
-
---- obj/obj_alpha.c.orig	2003-02-18 23:09:39.000000000 -0800
-+++ obj/obj_alpha.c	2003-02-18 23:30:28.000000000 -0800
-@@ -225,6 +225,14 @@
-       *iloc = (*iloc & ~0x3fff) | (v & 0x3fff);
-       break;
- 
-+    case R_ALPHA_SREL32:
-+      v -= dot;
-+      if ((Elf64_Sxword)v >= 0x80000000
-+      	  || (Elf64_Sxword)v < -(Elf64_Sxword)0x80000000)
-+	ret = obj_reloc_overflow;
-+      *iloc = v;
-+      break;
-+
-     default:
-       ret = obj_reloc_unhandled;
-       break;
+-- wli

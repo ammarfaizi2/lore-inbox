@@ -1,38 +1,93 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271973AbRIIOoF>; Sun, 9 Sep 2001 10:44:05 -0400
+	id <S271978AbRIIOrF>; Sun, 9 Sep 2001 10:47:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271976AbRIIOnp>; Sun, 9 Sep 2001 10:43:45 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:23812 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S271973AbRIIOnd>; Sun, 9 Sep 2001 10:43:33 -0400
-Subject: Re: Lockup with 2.4.9-ac9
-To: gandalf@wlug.westbo.se (Martin Josefsson)
-Date: Sun, 9 Sep 2001 15:47:40 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0109091547090.8049-100000@tux.rsn.bth.se> from "Martin Josefsson" at Sep 09, 2001 04:03:56 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S271977AbRIIOq4>; Sun, 9 Sep 2001 10:46:56 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:30002 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S271978AbRIIOqv>; Sun, 9 Sep 2001 10:46:51 -0400
+Date: Sun, 9 Sep 2001 16:47:38 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Alexander Viro <viro@math.psu.edu>
+Subject: Re: linux-2.4.10-pre5
+Message-ID: <20010909164738.T11329@athlon.random>
+In-Reply-To: <20010909061620.O11329@athlon.random> <Pine.LNX.4.33.0109082115270.1161-100000@penguin.transmeta.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15g5s4-00078f-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0109082115270.1161-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Sat, Sep 08, 2001 at 09:28:43PM -0700
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I upgraded a server from 2.4.4-ac10 to 2.4.9-ac9 two days ago and I've
-> been having problems with it since then (reverted to the old but working
-> 2.4.4-ac10 for now).
+On Sat, Sep 08, 2001 at 09:28:43PM -0700, Linus Torvalds wrote:
 > 
-> The machine simply locks up and doesn't say a word, no Oops or
-> anything, looks like a deadlock. 
-> This happened 4 times yesterday and every time there was one user that was
-> uploading a lot of data (a few GB) in quite high speeds to this LV.
+> On Sun, 9 Sep 2001, Andrea Arcangeli wrote:
+> 
+> > On Sat, Sep 08, 2001 at 08:58:26PM -0700, Linus Torvalds wrote:
+> > > I'd rather fix that, then.
+> >
+> > we'd just need to define a new kind of communication API between a ro
+> > mounted fs and the blkdev layer to avoid the special cases.
+> 
+> No, notice how the simple code _should_ work for ro-mounted filesystems
+> as-is. AND it should work for read-only opens of disks with rw-mounted
 
-The -ac tree has the LVM 1.0 code which is very new and updated reiserfs
-code. That makes the combination trickier to debug. When it hangs do the
-keyboard lights still work ? (that tells me if it hung irq off or on). In
-the latter case enabling the NMI watchdog, and sysrq key may give useful
-traces
+correct.
 
-Alan
+> filesystems. The only case it doesn't like is the "rw-open of a device
+> that is rw-mounted".
+
+it also doesn't work for ro-open of a device that is rw-mounted, hdparm
+-t as said a million of times now.
+
+> It's only filesystems that have modified buffers without marking them
+> dirty (by virtue of having pointers to buffers and delaying the dirtying
+> until later) that are broken by the "try to make sure all buffers are
+> up-to-date by reading them in" approach.
+
+All filesystems marks the buffers dirty after modifying them. The
+problem is that they don't always lock_buffer(); modify ; mark_dirty();
+unlock_buffer(), so we cannot safely do the update-I/O from disk to
+buffer cache on the pinned buffers or we risk to screwup the
+filesystem while it's in the "modify; mark_dirty()" part.
+
+> And as I don't think the concurrent "rw-open + rw-mount" case makes any
+> sense, I think the sane solution is simply to disallow it completely.
+
+I don't disallow it, I just don't guarantee coherency after that, the fs
+could be screwedup if you rw-open + rw-mount and that's ok.
+
+the case where it is not ok is hdparm: ro-open + rw-mounted.
+
+> So if we simply disallow that case, then we do not have any problem:
+> either the device was opened read-only (in which case it obviously doesn't
+> need to flush anything to disk, or invalidate/revalidate existing disk
+
+Then you are making a special case "the device was opened read-only in
+which case it obviously doesn't need to flush anything to disk" means
+you are not running the update_buffers() if the open was O_RDONLY (if
+you make this special case you would be safe on that side).  But also
+the user may do O_RDWR open and not modify the device, and still we must
+not screwup a rw-mountd fs under it.
+
+as far I can tell my synchronization code is the simpler possible and
+it's completly safe, without changing the synchronization API with the
+pinned buffers, or without making getblk to be backed on the blkdev
+pagecache enterely that has larger impact on the kernel.
+
+Making getblk to be blkdev pagecache backed seems the cleaner way to get
+rid of those aliasing issues to be allowed to just limit the very latest
+close to a __block_fsync + truncate_inode_pages() [which is a 5 lines
+cleanup compared to my current state of the patch], with it not even the
+last blkdev release will run the block_fsync since the fs still holds a
+reference on the same side, the fs will be just another blkdev user like
+if it came from userspace. However this logic is potentially more
+invasive than the blkdev-pagecache code that matters and it doesn't
+provide a single advantage to the user, so this isn't in my top list at
+the moment, sounds 2.5 cleanup material.
+
+Andrea

@@ -1,48 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313184AbSEIOh4>; Thu, 9 May 2002 10:37:56 -0400
+	id <S313189AbSEIOiu>; Thu, 9 May 2002 10:38:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313189AbSEIOhz>; Thu, 9 May 2002 10:37:55 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:46609 "EHLO
+	id <S313194AbSEIOit>; Thu, 9 May 2002 10:38:49 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:47121 "EHLO
 	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S313184AbSEIOhx>; Thu, 9 May 2002 10:37:53 -0400
-Date: Thu, 9 May 2002 10:34:18 -0400 (EDT)
+	id <S313189AbSEIOiq>; Thu, 9 May 2002 10:38:46 -0400
+Date: Thu, 9 May 2002 10:35:28 -0400 (EDT)
 From: Bill Davidsen <davidsen@tmr.com>
-To: Ng Pek Yong <npy@mailhost.net>
-cc: DervishD <raul@viadomus.com>, linux-kernel@vger.kernel.org
-Subject: Re: Slow harddisk
-In-Reply-To: <Pine.LNX.4.33.0205091900410.3354-100000@lal.cablix.com>
-Message-ID: <Pine.LNX.3.96.1020509103129.7914C-100000@gatekeeper.tmr.com>
+To: =?iso-8859-1?q?Steve=20Kieu?= <haiquy@yahoo.com>
+cc: kernel <linux-kernel@vger.kernel.org>
+Subject: Re: strange things in kernel 2.4.19-pre7-ac4 + preempt patch
+In-Reply-To: <20020509113524.86374.qmail@web10407.mail.yahoo.com>
+Message-ID: <Pine.LNX.3.96.1020509103433.7914D-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 9 May 2002, Ng Pek Yong wrote:
+On Thu, 9 May 2002, [iso-8859-1] Steve Kieu wrote:
 
-> It got worse ;)
+> I am running 2.4.19-pre7-ac4 , Mandrake 8.1 and
+> noticed  strange thing ..
 > 
-> (note: I can;t get dma to work; see below)
+>   If I logout from Xsesion, I can not see any vc ; no
+> command line, etc...; all I have is a blank screen.
+> Try tp type a command like  sudo  halt  to turn off
+> the computer, no response. But can use Ctrl + Alt +
+> Del to cleanly reboot the machine
 > 
-> # hdparm -X69 -d1 -u1 -c1 -m16 /dev/hde
-> 
-> /dev/hde:
->  setting 32-bit I/O support flag to 1
->  setting multcount to 16
->  setting unmaskirq to 1 (on)
->  setting using_dma to 1 (on)
->  HDIO_SET_DMA failed: Operation not permitted
->  setting xfermode to 69 (UltraDMA mode5)
->  multcount    = 16 (on)
->  I/O support  =  1 (32-bit)
->  unmaskirq    =  1 (on)
->  using_dma    =  0 (off)
-> [root@lal root]# hdparm  -Tt /dev/hde
+> What is the cause? thanks for your time
 
-Time to investigate why DMA doesn't work, rather than spending time trying
-to run without it. Did you build your kernel with DMA in the IDE part, by
-default, and enable chip specific features? I suspect the chipset is not
-being DMA enbled, as was the case when I had a similar issue.
+Alt-Cntl-F1 will get you to a console out of X. The X server seems still
+running.
 
 -- 
 bill davidsen <davidsen@tmr.com>

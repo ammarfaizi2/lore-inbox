@@ -1,44 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285168AbRLFQzl>; Thu, 6 Dec 2001 11:55:41 -0500
+	id <S285170AbRLFRBB>; Thu, 6 Dec 2001 12:01:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285051AbRLFQzc>; Thu, 6 Dec 2001 11:55:32 -0500
-Received: from firebird.epm.se ([194.52.86.60]:18695 "EHLO www.voxi.se")
-	by vger.kernel.org with ESMTP id <S285155AbRLFQzV>;
-	Thu, 6 Dec 2001 11:55:21 -0500
-Message-ID: <3C0FB379.4675B275@voxi.com>
-Date: Thu, 06 Dec 2001 19:05:45 +0100
-From: Erland Lewin <erl@voxi.com>
-Organization: Voxi AB
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.14 i686)
-X-Accept-Language: en
+	id <S285164AbRLFRAw>; Thu, 6 Dec 2001 12:00:52 -0500
+Received: from h152-148-10-6.outland.lucent.com ([152.148.10.6]:62886 "EHLO
+	alpo.casc.com") by vger.kernel.org with ESMTP id <S285170AbRLFRAi>;
+	Thu, 6 Dec 2001 12:00:38 -0500
+From: John Stoffel <stoffel@casc.com>
 MIME-Version: 1.0
-To: Manfred Spraul <manfred@colorfullife.com>
-CC: linux-kernel@vger.kernel.org, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>,
-        Christian Robottom Reis <kiko@async.com.br>
-Subject: Re: /proc/<pid>/stat read hang with Mozilla in 2.4.14
-In-Reply-To: <3C0F510C.E535A9A8@voxi.com> <3C0F9A53.10508@colorfullife.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15375.41990.439405.8024@gargle.gargle.HOWL>
+Date: Thu, 6 Dec 2001 11:59:50 -0500
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Rob Landley <landley@trommello.org>, "Eric S. Raymond" <esr@thyrsus.com>,
+        <linux-kernel@vger.kernel.org>, <kbuild-devel@lists.sourceforge.net>
+Subject: Re: [kbuild-devel] Converting the 2.5 kernel to kbuild 2.5
+In-Reply-To: <Pine.LNX.4.33L.0112061447560.1282-100000@duckman.distro.conectiva>
+In-Reply-To: <20011206001558.OQCD485.femail3.sdc1.sfba.home.com@there>
+	<Pine.LNX.4.33L.0112061447560.1282-100000@duckman.distro.conectiva>
+X-Mailer: VM 6.95 under Emacs 20.6.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I wrote of hangs reading various /proc/<pid>/files after a Mozilla
-crash.
 
-Manfred Spraul replied:
-> 
-> Could you check if mozilla was in the middle of a coredump? There is a
-> deadlock in the coredump handler, perhaps mozilla triggered it.
-> Could you search for a recent coredump file?
-> 
+Rik> IMHO it's not acceptable that people upgrading from one 2.4
+Rik> kernel to the next will have to install Python 2 on their
+Rik> machine. 
 
-Yes, I found a matching core dump (core.8770).
-  Is there any other information I can help with?
-  What is the status of the deadlock problem - has it been fixed in the
-latest kernel?
+So has anyone had time to test the Python version 1.5 based CML2 that
+was posted?  Would that make it more acceptable?
 
-> Or check if PF_DUMPCORE is set in tsk->flags. (Probably difficult
-> without access to /proc/n/stat)
+Rik> Security bugs are and will be discovered, you cannot make it
+Rik> impossible for people to do security upgrades.
 
-/Erland
+This is a bogus arguement, since I could say the same about installing
+new kernels.  There could (and will) be security problems with the
+kernel, so we should not release new ones until we have proved they
+are correct.
+
+Yeah, I'm being a pain here, but Rik is making a bad arguement here.
+
+Rik> Yes, I agree the method you're using to smuggle CML2 into a
+Rik> stable kernel is insidious. Please stop it.
+
+I think you're being too harsh here.  Smuggling is not happening here,
+it's been very aboveboard that CML2 might (I repeat MIGHT) be
+back-ported to the 2.4 series of kernels.  But since it would happen
+in the -pre tree, there would be plenty of notice.  And people could
+complain then.
+
+The requirement for python2 is a bit of a pain, but hey, for 2.5, it's
+not a problem.
+
+John
+   John Stoffel - Senior Unix Systems Administrator - Lucent Technologies
+	 stoffel@lucent.com - http://www.lucent.com - 978-952-7548

@@ -1,74 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318202AbSHDSwn>; Sun, 4 Aug 2002 14:52:43 -0400
+	id <S318197AbSHDSvf>; Sun, 4 Aug 2002 14:51:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318204AbSHDSwm>; Sun, 4 Aug 2002 14:52:42 -0400
-Received: from [195.39.17.254] ([195.39.17.254]:16512 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S318203AbSHDSwg>;
-	Sun, 4 Aug 2002 14:52:36 -0400
-Date: Sun, 4 Aug 2002 20:54:58 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: torvalds@transmeta.com, kernel list <linux-kernel@vger.kernel.org>
-Subject: S3 and swsusp: fixing device_resume order
-Message-ID: <20020804185457.GA15103@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Warning: Reading this can be dangerous to your mental health.
+	id <S318199AbSHDSvf>; Sun, 4 Aug 2002 14:51:35 -0400
+Received: from horkos.telenet-ops.be ([195.130.132.45]:35263 "EHLO
+	horkos.telenet-ops.be") by vger.kernel.org with ESMTP
+	id <S318197AbSHDSvd> convert rfc822-to-8bit; Sun, 4 Aug 2002 14:51:33 -0400
+X-Qmail-Scanner-Mail-From: Devilkin-LKML@blindguardian.org via whocares
+X-Qmail-Scanner: 1.10 (Clear:0. Processed in 0.068843 secs)
+Content-Type: text/plain; charset=US-ASCII
+From: Devilkin <Devilkin-LKML@blindguardian.org>
+To: Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.19-ac2
+Date: Sun, 4 Aug 2002 20:57:57 +0200
+User-Agent: KMail/1.4.1
+References: <200208041746.g74Hkgr24437@devserv.devel.redhat.com>
+In-Reply-To: <200208041746.g74Hkgr24437@devserv.devel.redhat.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200208042057.57130.Devilkin-LKML@blindguardian.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Sunday 04 August 2002 19:46, Alan Cox wrote:
+<snip>
 
-pci driver's resume must not be called during RESUME_POWER_ON because
-interrupts are still off and i8259A is not initialized [OHCI kills
-machine in such case, cardbus probably too. PCI drivers just assume
-initialized interrupts.]
+There seems to be some problem with VIA IDE IRQ's on 2.4.19-ac2.
 
-Second hunk fixes device_resume calls to be okay according to
-documentation. Please apply,
-								Pavel
+With 2.4.19-ac2 i get the following message in the logs:
 
+PCI: No IRQ known for interrupt pin A of device 00:07.1. Please try using 
+pci=biosirq.
 
---- clean/drivers/pci/pci-driver.c	Thu Jul 25 22:21:15 2002
-+++ linux-swsusp/drivers/pci/pci-driver.c	Sun Aug  4 18:23:27 2002
-@@ -90,7 +90,11 @@
- 	struct pci_dev * pci_dev = to_pci_dev(dev);
- 
- 	if (pci_dev->driver) {
--		if (level == RESUME_POWER_ON && pci_dev->driver->resume)
-+		/* We may not call PCI drivers resume at
-+		   RESUME_POWER_ON because interrupts are not yet
-+		   working at that point. Calling resume at
-+		   RESUME_RESTORE_STATE seems like solution. */
-+		if (level == RESUME_RESTORE_STATE && pci_dev->driver->resume)
- 			pci_dev->driver->resume(pci_dev);
- 	}
- 	return 0;
---- clean/kernel/suspend.c	Sun Aug  4 20:19:49 2002
-+++ linux-swsusp/kernel/suspend.c	Sun Aug  4 20:25:50 2002
-@@ -619,8 +619,8 @@
- /* Make disk drivers accept operations, again */
- static void drivers_unsuspend(void)
- {
--	device_resume(RESUME_ENABLE);
- 	device_resume(RESUME_RESTORE_STATE);
-+	device_resume(RESUME_ENABLE);
- }
- 
- /* Called from process context */
-@@ -647,8 +647,8 @@
- static void drivers_resume(int flags)
- {
- 	if (flags & RESUME_PHASE1) {
--		device_resume(RESUME_ENABLE);
- 		device_resume(RESUME_RESTORE_STATE);
-+		device_resume(RESUME_ENABLE);
- 	}
-   	if (flags & RESUME_PHASE2) {
- 		if(pm_suspend_state) {
+00:07.1 is the IDE Interface on my mainboard!
 
--- 
-Worst form of spam? Adding advertisment signatures ala sourceforge.net.
-What goes next? Inserting advertisment *into* email?
+checking with lspci gives this output:
+
+----------------
+00:07.1 IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 06) (prog-if 
+8f [Master SecP SecO PriP PriO])
+        Subsystem: VIA Technologies, Inc. Bus Master IDE
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
+Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32
+        Interrupt: pin A routed to IRQ 0
+        Region 0: I/O ports at <ignored>
+        Region 1: I/O ports at <ignored>
+        Region 2: I/O ports at <ignored>
+        Region 3: I/O ports at <ignored>
+        Region 4: I/O ports at d400 [size=16]
+        Capabilities: [c0] Power Management version 2
+                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA 
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+----------------
+
+whereas with older kernels (2.4.19-ac1 and previous kernels) this error isn't 
+given, and lspci looks as follows:
+
+----------------
+00:07.1 IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 06) (prog-if 
+8a [Master SecP PriP])
+        Subsystem: VIA Technologies, Inc. Bus Master IDE
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
+Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32
+        Region 4: I/O ports at d400 [size=16]
+        Capabilities: [c0] Power Management version 2
+                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA 
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+----------------
+which somehow looks healthier.
+
+I've reverted to -ac1 for now, which works fine on my box.
+
+DK

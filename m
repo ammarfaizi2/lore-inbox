@@ -1,63 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262453AbUKZXyD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263065AbUKZXyD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262453AbUKZXyD (ORCPT <rfc822;willy@w.ods.org>);
+	id S263065AbUKZXyD (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 26 Nov 2004 18:54:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263065AbUKZTk6
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263088AbUKZTm5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 14:40:58 -0500
+	Fri, 26 Nov 2004 14:42:57 -0500
 Received: from zeus.kernel.org ([204.152.189.113]:4291 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S262455AbUKZT1t (ORCPT
+	by vger.kernel.org with ESMTP id S262444AbUKZT1l (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 14:27:49 -0500
-Date: Fri, 26 Nov 2004 09:35:04 +1100
-From: Nathan Scott <nathans@sgi.com>
-To: Anders Saaby <as@cohaesio.com>
-Cc: linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
-Subject: Re: 2.6.9 Oops: Major problems with XFS and ext3 (VFS related?)
-Message-ID: <20041125223504.GA953@frodo>
-References: <200411241812.33529.as@cohaesio.com>
+	Fri, 26 Nov 2004 14:27:41 -0500
+Date: Fri, 26 Nov 2004 00:25:19 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Nigel Cunningham <ncunningham@linuxmail.org>
+Cc: Andrew Morton <akpm@digeo.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Suspend 2 merge: 21/51: Refrigerator upgrade.
+Message-ID: <20041125232519.GI2711@elf.ucw.cz>
+References: <1101292194.5805.180.camel@desktop.cunninghams> <1101296026.5805.275.camel@desktop.cunninghams> <20041125183332.GJ1417@openzaurus.ucw.cz> <1101420616.27250.65.camel@desktop.cunninghams> <20041125223610.GC2711@elf.ucw.cz> <1101422986.27250.106.camel@desktop.cunninghams>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200411241812.33529.as@cohaesio.com>
-User-Agent: Mutt/1.5.3i
+In-Reply-To: <1101422986.27250.106.camel@desktop.cunninghams>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 24, 2004 at 06:12:33PM +0100, Anders Saaby wrote:
-> Hi Lists, (XFS list CC'ed)
+Hi!
 
-Hi there,
+> > > > > Included in this patch is a new try_to_freeze() macro Andrew M suggested
+> > > > > a while back. The refrigerator declarations are put in sched.h to save
+> > > > > extra includes of suspend.h.
+> > > > 
+> > > > try_to_freeze looks nice. Could we get it in after 2.6.10 opens?
+> > > 
+> > > I'm hoping to get the whole thing in mm once all these replies are dealt
+> > > with. Does that sound unrealistic?
+> > 
+> > Yes, a little ;-).
+> 
+> I'm not talking about talking about problems and then doing nothing :>
+> I'm writing a list of changes as I look at each of these responses.
+> Assuming they're all addressed (or not changed for good reasons), and
+> the code is actually useful, why shouldn't it go into mm?
 
-> Here is the cituation:
-> We have a high-load mailserver serving IMAP from Maildirs. We originally had 
-> the maildirs on ext3 but the kernel eventually Oopsed every ~20 hours (Oops - 
-> included) - we then moved the Maildirs to XFS thinking the problems where 
-> history, but now we get a somewhat similar error from XFS (inluded). They 
-> both look like a race to me but I am not able to get more out of it.
-> ...
-> Here is what XFS says:
-> <SNIP>
-> Filesystem "sdb1": xfs_trans_delete_ail: attempting to delete a log item that 
-> is not in the AIL
-> xfs_force_shutdown(sdb1,0x8) called from line 382 of file 
-> fs/xfs/xfs_trans_ail.c.  Return address = 0xc0216a56
-> @Linux version 2.6.9 (root@mail1.domain.tld) (gcc version 2.96 20000731 (Red 
-> Hat Linux 7.3 2.96-113)) #1 SMP Tue Oct 19 16:04:55 CEST 2004
-> ...
-> I will be happy to supply any info and do some testing - if anyone catches 
-> interest! :-)
+It has chance to go into mm, but I do not think all 51 patches will go
+at once. And I expect few more rounds of patches / comments. (And then
+some patch / "it is too big" flamewar, too :-).
 
-Yep, very interested.  So, "serving IMAP from Maildirs" - from
-the filesystems perspective, can you describe that in detail for
-me?  I would guess that means a shallow directory tree, with quite
-large directories (how large?) and many (how many?) small files?
-(how small on average?)  How frequently are files added/removed?
+> > Silently doing nothing when user asked for sync is not nice,
+> > either. BUG() is better solution than that.
+> 
+> I don't think we should BUG because the user presses Sys-Rq S while
+> suspending. I'll make it BUG_ON() and make the Sys_Rq printk & ignore
+> when suspending. Sound reasonable?
 
-Is this easily reproducible for you?  If so, can you send me
-enough details that I can try to reproduce it locally?
-
-thanks.
-
+Yes, that's better. ... only that it means just another hook somewhere
+:-(.
+								Pavel
 -- 
-Nathan
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

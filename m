@@ -1,50 +1,132 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267111AbSKXF2f>; Sun, 24 Nov 2002 00:28:35 -0500
+	id <S267166AbSKXGax>; Sun, 24 Nov 2002 01:30:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267166AbSKXF2f>; Sun, 24 Nov 2002 00:28:35 -0500
-Received: from adsl-67-114-19-186.dsl.pltn13.pacbell.net ([67.114.19.186]:22482
-	"HELO adsl-63-202-77-221.dsl.snfc21.pacbell.net") by vger.kernel.org
-	with SMTP id <S267111AbSKXF2e>; Sun, 24 Nov 2002 00:28:34 -0500
-Message-ID: <3DE0653F.7000000@tupshin.com>
-Date: Sat, 23 Nov 2002 21:35:59 -0800
-From: Tupshin Harper <tupshin@tupshin.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020913 Debian/1.1-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Oleg Drokin <green@namesys.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: paging oops with 2.4.20-rc2
-References: <3DDD8339.2040409@tupshin.com> <20021122095450.A8056@namesys.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S267174AbSKXGax>; Sun, 24 Nov 2002 01:30:53 -0500
+Received: from Xenon.Stanford.EDU ([171.64.66.201]:27093 "EHLO
+	Xenon.Stanford.EDU") by vger.kernel.org with ESMTP
+	id <S267166AbSKXGav>; Sun, 24 Nov 2002 01:30:51 -0500
+Date: Sat, 23 Nov 2002 22:37:56 -0800
+From: Andy Chou <acc@CS.Stanford.EDU>
+To: linux-kernel@vger.kernel.org
+Cc: mc@cs.stanford.edu
+Subject: [CHECKER] 5 additional buffer overruns in 2.5.48
+Message-ID: <20021124063756.GA14294@Xenon.stanford.edu>
+Reply-To: acc@cs.stanford.edu
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well, after further examination and manipulations, I determined that 
-both the paging oops and the report of BUG page_alloc.c that I was 
-getting are eliminated after moving my swap partition off of the 
-raid0+lvm volume that it was on and onto a separate disk.
+Here are 6 additional potential buffer overruns in 2.4.58.  Again, we 
+would appreciate feedback on whether these are really errors or not.
 
-Still a bug, but a fairly obscure one. It's obviously not necessary for 
-performance reasons since the kernel stripes swaps itself, but it 
-certainly caused me a lot of headache until I figured out what was going on.
+-Andy
 
--Tupshin
 
-Oleg Drokin wrote:
+---------------------------------------------------------
+[BUG] Forgot to malloc?
+/u1/acc/linux/2.5.48/fs/cifs/cifssmb.c:233:CIFSSMBLogoff: 
+ERROR:BUFFER:233:233:Deref uninitialized pointer pSMB
+	if (atomic_read(&ses->inUse) > 0) {
+		up(&ses->sesSem);
+		return -EBUSY;
+	}
+    if(ses->secMode & (SECMODE_SIGN_REQUIRED | SECMODE_SIGN_ENABLED))
 
->Is the oops always the same and looks like the one you've posted here?
->Or is it different from time to time?
->If it always the same, can you please try to compile your kernel with
->CONFIG_REISERFS_CHECK (reiserfs debug) option enabled and see what happens?
->
->Thank you.
->
->Bye,
->    Oleg
->
->  
->
+Error --->
+        pSMB->hdr.Flags2 |= SMBFLG2_SECURITY_SIGNATURE;
+	rc = smb_init(SMB_COM_LOGOFF_ANDX, 2, 0 /* no tcon anymore */ ,
+		      (void **) &pSMB, (void **) &smb_buffer_response);
+	if (rc) {
+---------------------------------------------------------
+[BUG] [GEM] base starts at offset 4 of buf
+/u1/acc/linux/2.5.48/drivers/cdrom/cdrom.c:1170:dvd_read_physical: 
+ERROR:BUFFER:1170:1170:Array bounds error: base[16] indexed with [16]
+	layer->track_density = base[3] & 0xf;
+	layer->linear_density = base[3] >> 4;
+	layer->start_sector = base[5] << 16 | base[6] << 8 | base[7];
+	layer->end_sector = base[9] << 16 | base[10] << 8 | base[11];
+	layer->end_sector_l0 = base[13] << 16 | base[14] << 8 | base[15];
+
+Error --->
+	layer->bca = base[16] >> 7;
+
+	return 0;
+}
+---------------------------------------------------------
+[BUG] Probably forgot to malloc in first branch.
+/u1/acc/linux/2.5.48/drivers/video/sstfb.c:795:sstfb_get_fix: 
+ERROR:BUFFER:795:795:Deref uninitialized pointer var
+	fix->visual      = FB_VISUAL_TRUECOLOR;
+	/*
+	 *   According to the specs, the linelength must be of 1024 
+*pixels*.
+	 * and the 24bpp mode is in fact a 32 bpp mode.
+	 */
+
+Error --->
+	fix->line_length = (var->bits_per_pixel == 16) ? 2048 : 4096 ;
+	return 0;
+#undef sst_info
+}
+---------------------------------------------------------
+[BUG] Complex.
+/u1/acc/linux/2.5.48/drivers/net/sunhme.c:3218:happy_meal_pci_init: 
+ERROR:BUFFER:3218:3218:Array bounds error: qp->happy_meals[4] indexed with 
+[-1]
+err_out_free_res:
+	pci_release_regions(pdev);
+
+err_out_clear_quattro:
+	if (qp != NULL)
+
+Error --->
+		qp->happy_meals[qfe_slot] = NULL;
+
+	kfree(dev);
+
+---------------------------------------------------------
+[BUG]
+/u1/acc/linux/2.5.48/drivers/net/ni52.c:1133:ni52_timeout: 
+ERROR:BUFFER:1133:1133:Array bounds error: p->xmit_cmds[1] indexed with 
+[1]
+	}
+#endif
+	{
+#ifdef DEBUG
+		printk("%s: xmitter timed out, try to restart! stat: 
+%02x\n",dev->name,p->scb->cus);
+
+Error --->
+		printk("%s: command-stats: %04x 
+%04x\n",dev->name,p->xmit_cmds[0]->cmd_status,p->xmit_cmds[1]->cmd_status);
+		printk("%s: check, whether you set the right interrupt 
+number!\n",dev->name);
+#endif
+		ni52_close(dev);
+
+---------------------------------------------------------
+[BUG]
+/u1/acc/linux/2.5.48/drivers/net/3c523.c:1102:elmc_timeout: 
+ERROR:BUFFER:1102:1102:Array bounds error: p->xmit_cmds[1] indexed with 
+[1]
+
+		WAIT_4_SCB_CMD();
+		netif_wake_queue(dev);
+	} else {
+#ifdef DEBUG
+		printk("%s: xmitter timed out, try to restart! stat: 
+%04x\n", dev->name, p->scb->status);
+
+Error --->
+		printk("%s: command-stats: %04x %04x\n", dev->name, 
+p->xmit_cmds[0]->cmd_status, p->xmit_cmds[1]->cmd_status);
+#endif
+		elmc_close(dev);
+		elmc_open(dev);
+
 
 

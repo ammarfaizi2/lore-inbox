@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270542AbTGSWTF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jul 2003 18:19:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270554AbTGSWTE
+	id S270554AbTGSW1a (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jul 2003 18:27:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270555AbTGSW1a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jul 2003 18:19:04 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:4877 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S270542AbTGSWTD (ORCPT
+	Sat, 19 Jul 2003 18:27:30 -0400
+Received: from mail.kroah.org ([65.200.24.183]:28628 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S270554AbTGSW13 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jul 2003 18:19:03 -0400
-Date: Sun, 20 Jul 2003 00:33:43 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Larry McVoy <lm@bitmover.com>
-cc: Ga?l Le Mignot <kilobug@freesurf.fr>,
+	Sat, 19 Jul 2003 18:27:29 -0400
+Date: Sat, 19 Jul 2003 15:42:20 -0700
+From: Greg KH <greg@kroah.com>
+To: =?iso-8859-1?Q?Ga=EBl?= Le Mignot <kilobug@freesurf.fr>
+Cc: Larry McVoy <lm@work.bitmover.com>,
        Christian Reichert <c.reichert@resolution.de>,
-       John Bradford <john@grabjohn.com>, <lkml@lrsehosting.com>,
-       <linux-kernel@vger.kernel.org>, <rms@gnu.org>,
-       <Valdis.Kletnieks@vt.edu>
+       John Bradford <john@grabjohn.com>, lkml@lrsehosting.com,
+       linux-kernel@vger.kernel.org, lm@bitmover.com, rms@gnu.org,
+       Valdis.Kletnieks@vt.edu
 Subject: Re: [OT] HURD vs Linux/HURD
-In-Reply-To: <20030719220306.GE24197@work.bitmover.com>
-Message-ID: <Pine.LNX.4.44.0307200030500.717-100000@serv>
-References: <200307191503.h6JF3tac002376@81-2-122-30.bradfords.org.uk>
- <1058626962.30424.6.camel@stargate> <plopm3lluu8mv0.fsf@drizzt.kilobug.org>
- <20030719172311.GA23246@work.bitmover.com> <plopm3he5i8l4h.fsf@drizzt.kilobug.org>
- <20030719181249.GA24197@work.bitmover.com> <plopm38yqu8epz.fsf@drizzt.kilobug.org>
- <20030719220306.GE24197@work.bitmover.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20030719224220.GA1950@kroah.com>
+References: <200307191503.h6JF3tac002376@81-2-122-30.bradfords.org.uk> <1058626962.30424.6.camel@stargate> <plopm3lluu8mv0.fsf@drizzt.kilobug.org> <20030719172311.GA23246@work.bitmover.com> <plopm3he5i8l4h.fsf@drizzt.kilobug.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <plopm3he5i8l4h.fsf@drizzt.kilobug.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Sat, 19 Jul 2003, Larry McVoy wrote:
-
-> > Stop lying. No one at the GNU project ever claimed a code to be his if
-> > he didn't  write it. 
+On Sat, Jul 19, 2003 at 07:46:54PM +0200, Gaël Le Mignot wrote:
+>  > Drivers and networking account for about 50% of the total lines of code.
+>  > The bulk of the work in any operating system is typically drivers.  The
+>  > generic part of Linux (non-driver, non-file system) is tiny compared to 
+>  > the rest.
 > 
-> Nonsense.  Go look at the set of code actually funded by the FSF and it
-> is tiny.  The FSF tries to get everyone to sign over their copyright to
-> the FSF so they can "protect" the code and then they rename it to GNU
-> this that or the other thing.
+> Maybe  for  you,  an  OS  is  drivers.  For  me,  it's  a  design,  an
+> architecture, a  philosophy, and a way  to defend a value  that is not
+> important for you: Freedom.
 
-Larry, you've proven enough now, that you don't understand the concept of 
-free software. You can stop now. Thanks.
+Heh, let's see how well your OS works in the real world without those
+drivers :)
 
-bye, Roman
-
+greg k-h

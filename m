@@ -1,51 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263564AbUDFAs7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Apr 2004 20:48:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263572AbUDFAs7
+	id S263572AbUDFAzp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Apr 2004 20:55:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263574AbUDFAzp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Apr 2004 20:48:59 -0400
-Received: from ausmtp02.au.ibm.com ([202.81.18.187]:58590 "EHLO
-	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP id S263564AbUDFAs4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Apr 2004 20:48:56 -0400
-Subject: Re: [PATCH] Drop exported symbols list if !modules
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Andrew Morton <akpm@osdl.org>
-Cc: mpm@selenic.com, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       zwane@linuxpower.ca
-In-Reply-To: <20040405163019.4e3ab546.akpm@osdl.org>
-References: <20040405205539.GG6248@waste.org>
-	 <1081205099.15272.7.camel@bach> <20040405230723.GK6248@waste.org>
-	 <1081207046.15272.44.camel@bach>  <20040405163019.4e3ab546.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1081212494.15272.107.camel@bach>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 06 Apr 2004 10:48:14 +1000
+	Mon, 5 Apr 2004 20:55:45 -0400
+Received: from [212.28.208.94] ([212.28.208.94]:64261 "HELO dewire.com")
+	by vger.kernel.org with SMTP id S263572AbUDFAzo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Apr 2004 20:55:44 -0400
+From: Robin Rosenberg <robin.rosenberg.lists@dewire.com>
+To: Sergiy Lozovsky <serge_lozovsky@yahoo.com>
+Subject: Re: kernel stack challenge
+Date: Tue, 6 Apr 2004 02:55:40 +0200
+User-Agent: KMail/1.6.1
+Cc: Timothy Miller <miller@techsource.com>, John Stoffel <stoffel@lucent.com>,
+       Helge Hafting <helgehaf@aitel.hist.no>, linux-kernel@vger.kernel.org
+References: <20040405225250.86703.qmail@web40504.mail.yahoo.com>
+In-Reply-To: <20040405225250.86703.qmail@web40504.mail.yahoo.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200404060255.40219.robin.rosenberg.lists@dewire.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-04-06 at 09:30, Andrew Morton wrote:
-> Rusty Russell <rusty@rustcorp.com.au> wrote:
-> > Please measure it.  It's not obvious to me at all.
-> 
-> Miniscule savings
-> 
->    text    data     bss     dec     hex filename
-> 3221815  862456       0 4084271  3e522f vmlinux-before
-> 3221591  862456       0 4084047  3e514f vmlinux-after
+On Tuesday 06 April 2004 00:52, Sergiy Lozovsky wrote:
+> (I don't want to start Holly War :-) but I think, that
+> Java is lower lavel than C, I recognize, that I can be
+> wrong)
+Yes, you could..., but that's OT. Isn't LISP lower level. Just
+the names of it's instructions (Content of Address part of Register and 
+Content of Decrement part of Register) imply that. Shudddrdrrddrr. :-)
 
-Reproduced here: that's the .comment section getting a little larger.
+I like Lisp, it's a hacker language, or was at least.
 
-This gets stripped in building arch/i386/boot/vmlinux.bin, and hence
-arch/i386/boot/bzImage.
-
-So, the patch is just churn AFAICT.
-
-Thanks,
-Rusty.
--- 
-Anyone who quotes me in their signature is an idiot -- Rusty Russell
-
+-- robin

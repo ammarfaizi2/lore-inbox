@@ -1,84 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261286AbUKCA7q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261231AbUKCBD4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261286AbUKCA7q (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 19:59:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261513AbUKBVlS
+	id S261231AbUKCBD4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 20:03:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261228AbUKCBDz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 16:41:18 -0500
-Received: from mail.dif.dk ([193.138.115.101]:13518 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S261494AbUKBVkB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Nov 2004 16:40:01 -0500
-Date: Tue, 2 Nov 2004 22:48:39 +0100 (CET)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Chris Friesen <cfriesen@nortelnetworks.com>,
-       Oliver Neukum <oliver@neukum.org>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: question on common error-handling idiom
-In-Reply-To: <Pine.LNX.4.53.0411022229070.6104@yvahk01.tjqt.qr>
-Message-ID: <Pine.LNX.4.61.0411022241160.3285@dragon.hygekrogen.localhost>
-References: <4187E920.1070302@nortelnetworks.com>
- <Pine.LNX.4.61.0411022208390.3285@dragon.hygekrogen.localhost>
- <Pine.LNX.4.53.0411022229070.6104@yvahk01.tjqt.qr>
+	Tue, 2 Nov 2004 20:03:55 -0500
+Received: from lax-gate6.raytheon.com ([199.46.200.237]:2957 "EHLO
+	lax-gate6.raytheon.com") by vger.kernel.org with ESMTP
+	id S261452AbUKBVkg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Nov 2004 16:40:36 -0500
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Mark_H_Johnson@raytheon.com, Thomas Gleixner <tglx@linutronix.de>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Lee Revell <rlrevell@joe-job.com>,
+       Paul Davis <paul@linuxaudiosystems.com>,
+       LKML <linux-kernel@vger.kernel.org>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       jackit-devel <jackit-devel@lists.sourceforge.net>,
+       Rui Nuno Capela <rncbc@rncbc.org>, "K.R. Foley" <kr@cybsft.com>
+From: Mark_H_Johnson@raytheon.com
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.6.8
+Date: Tue, 2 Nov 2004 15:39:21 -0600
+Message-ID: <OF5BA77D51.DBEBBD30-ON86256F40.0076F564-86256F40.0076F5A0@raytheon.com>
+X-MIMETrack: Serialize by Router on RTSHOU-DS01/RTS/Raytheon/US(Release 6.5.2|June 01, 2004) at
+ 11/02/2004 03:39:30 PM
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=US-ASCII
+X-SPAM: 0.00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2 Nov 2004, Jan Engelhardt wrote:
+>was this already in the default bootup, or only after the crash
+>happened?
+Not quite a "crash", but definitely after I noticed the system no
+longer doing any useful work. As I said before, it was as if anything
+to do with timers was not working (e.g., sleep 1s).
 
-> >There are some places that do
-> >
-> >err = -SOMEERROR;
-> >if (some_error)
-> >	goto out;
-> >if (some_other_error)
-> >	goto out;
-> >if (another_error)
-> >	goto out;
-> >
-> >Let's see what other people think :)
-> 
-> err = -ESOME;
-> if(some_error || some_other_error || another_error) {
-> 	goto out;
-> }
-> 
-> Best.
-> 
-Agreed, but that would potentially make something like the following (from 
-fs/binfmt_elf.c::load_elf_binary) quite unreadable :
+>Does this also happen if you chrt ksoftirqd to FIFO prio 1?
+>Does the 'LOC' count increase for both cpus in /proc/interrupts?
 
-if (loc->elf_ex.e_type != ET_EXEC && loc->elf_ex.e_type != ET_DYN)
-	goto out;
-if (!elf_check_arch(&loc->elf_ex))
-	goto out;
-if (!bprm->file->f_op||!bprm->file->f_op->mmap)
-	goto out;
+It will be an hour or so before I can try either of these,
+I have a build in progress. I can check both of these with the new
+build (or the old one if you want that too).
 
-
-But that's not even the most interresting case, the interresting one is 
-the one that does
-
-err = -ERR;
-if (foo)
-	goto out;
-
-err = -ERROR;
-if (bar)
-	goto out;
-
-where there's the potential to save an instruction by moving the err= into 
-the error path.
-But as Oliver Neukum pointed out gcc may not be smart enough for that to 
-actually generate the best code.
-
-Has anyone taken a look at what recent gcc's actually do with different 
-variations of the constructs mentioned in this thread?
-
-
---
-Jesper Juhl
-
+  --Mark
 

@@ -1,41 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266808AbRGFVPK>; Fri, 6 Jul 2001 17:15:10 -0400
+	id <S266381AbRGFVOU>; Fri, 6 Jul 2001 17:14:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266852AbRGFVPA>; Fri, 6 Jul 2001 17:15:00 -0400
-Received: from kitkat.hotpop.com ([204.57.55.30]:15372 "HELO kitkat.hotpop.com")
-	by vger.kernel.org with SMTP id <S266808AbRGFVOo>;
-	Fri, 6 Jul 2001 17:14:44 -0400
-Message-ID: <004701c10660$f64923a0$43020180@linfpaulo>
-From: "Paulo" <pmateiro@hotpop.com>
-To: <linux-kernel@vger.kernel.org>
-In-Reply-To: <3B4624C9.18290280@centtech.com>
-Subject: NCR 35XXXX MCA bus and SMP
-Date: Fri, 6 Jul 2001 18:16:43 -0300
+	id <S266808AbRGFVOK>; Fri, 6 Jul 2001 17:14:10 -0400
+Received: from [199.26.153.10] ([199.26.153.10]:10245 "HELO fourelle.com")
+	by vger.kernel.org with SMTP id <S266381AbRGFVOE>;
+	Fri, 6 Jul 2001 17:14:04 -0400
+Message-ID: <3B4629A0.2AFB3AF9@fourelle.com>
+Date: Fri, 06 Jul 2001 14:12:00 -0700
+From: "Adam D. Scislowicz" <adams@fourelle.com>
+Organization: Fourelle Systems, Inc.
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-ac17 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: linux-kernel@vger.kernel.org
+CC: adams@fourelle.com
+Subject: Re: IDE0/Slave Detection Fails in 2.4.x(2.4.4, 2.4.5, and 2.4.5-ac18 
+ tested)
+In-Reply-To: <3B4605E5.DDA1B8CA@fourelle.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 1
-X-MSMail-Priority: High
-X-Mailer: Microsoft Outlook Express 5.00.2615.200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2615.200
-X-HotPOP: -----------------------------------------------
-                   Sent By HotPOP.com FREE Email
-             Get your FREE POP email at www.HotPOP.com
-          -----------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Friends, my name is Paulo.
-And i have a NCR 3525 with MCA bus and 8 processors and 512MB RAM
-, i tried Suse 6.4 and Red Hat 7.1 , but nome detected
-my MCA bus , the 8 processors and more than 64MB ... i tried kernel
-parameter
-mem=512m , but no results... only 64MB .... i recompiled the kernel (2.4.2)
-with MCA=y and SMP =y ... and no results...
-somebody can help me ?
+Just an update: I have now tested it with the 2.4.6 kernel and the problem
 
-Paulo Mateiro.
+persists :(
 
+I failed to mention in the previous email that the machine is an 2
+processor SMP machine.
+
+ -Adam
+
+"Adam D. Scislowicz" wrote:
+
+> I am having a problem where the 2.4.x(2.4.4, and 2.4.5, and 2.4.5-ac18)
+> kernel does not detect the IDE0/primary slave device. If I put a third
+> drive in the system as IDE1/secondary master then that is detected.
+> However
+> the IDE0/primary slave is never detected.
+>
+> Using the 2.2.19 kernel the IDE0/primary slave device IS detected
+> properly. This
+> can be seen below in the 2.2.19 Kernel Init Messages.
+>
+> Below is some more detailed info.
+>  *Note: Please CC me in any replay as I am not subscribed to this
+> mailiing list ;)
+>
+>  -Adam Scislowicz
+>
+> [ My IDE Controller Info (2.2.19:/proc/pci) ]
+>   Bus  0, device   7, function  1:
+>     IDE interface: Intel 82371AB PIIX4 IDE (rev 1).
+>       Medium devsel.  Fast back-to-back capable.  Master Capable.
+> Latency=64.
+>       I/O at 0xffa0 [0xffa1].
+>
+> [ The 2.2.19 Kernel Init Messages ]
+> PIIX4: IDE controller on PCI bus 00 dev 39
+> PIIX4: not 100% native mode: will probe irqs later
+>     ide0: BM-DMA at 0xffa0-0xffa7, BIOS settings: hda:pio, hdb:DMA
+>     ide1: BM-DMA at 0xffa8-0xffaf, BIOS settings: hdc:DMA, hdd:pio
+> hda: TOSHIBA THNCF032MAA, ATA DISK drive
+> hdb: IBM-DARA-206000, ATA DISK drive
+> hdc: ST320420A, ATA DISK drive
+> ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+> ide1 at 0x170-0x177,0x376 on irq 15
+> hda: TOSHIBA THNCF032MAA, 31MB w/2kB Cache, CHS=496/4/32
+> hdb: IBM-DARA-206000, 5729MB w/418kB Cache, CHS=730/255/63, UDMA
+> hdc: ST320420A, 19458MB w/2048kB Cache, CHS=39535/16/63, UDMA
+>
+> [ The 2.4.5-ac18 Kernel Init Messages ]
+> Uniform Multi-Platform E-IDE driver Revision: 6.31
+> ide: Assuming 33MHz system bus speed for PIO modes; override with
+> idebus=xx
+> PIIX4: IDE controller on PCI bus 00 dev 39
+> PIIX4: chipset revision 1
+> PIIX4: not 100% native mode: will probe irqs later
+>     ide0: BM-DMA at 0xffa0-0xffa7, BIOS settings: hda:pio, hdb:DMA
+>     ide1: BM-DMA at 0xffa8-0xffaf, BIOS settings: hdc:DMA, hdd:pio
+> hda: TOSHIBA THNCF032MAA, ATA DISK drive
+> hdc: ST320420A, ATA DISK drive
+> ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+> ide1 at 0x170-0x177,0x376 on irq 15
+> hda: 63488 sectors (33 MB) w/2KiB Cache, CHS=496/4/32, DMA
+> hdc: 39851760 sectors (20404 MB) w/2048KiB Cache, CHS=39535/16/63,
+> UDMA(33)
 

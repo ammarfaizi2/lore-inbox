@@ -1,67 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263705AbTJCKrb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Oct 2003 06:47:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263707AbTJCKrb
+	id S263713AbTJCLek (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Oct 2003 07:34:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263714AbTJCLek
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Oct 2003 06:47:31 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:14464 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S263705AbTJCKra (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Oct 2003 06:47:30 -0400
-Date: Fri, 3 Oct 2003 11:47:28 +0100
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200310031047.h93AlSWB000506@81-2-122-30.bradfords.org.uk>
-To: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
-Cc: karim@opersys.com, linux-kernel@vger.kernel.org
-In-Reply-To: <E1A5M5a-00057S-00@wisbech.cl.cam.ac.uk>
-References: <E1A5M5a-00057S-00@wisbech.cl.cam.ac.uk>
-Subject: Re: [Xen-devel] Re: [ANNOUNCE] Xen high-performance x86 virtualization 
+	Fri, 3 Oct 2003 07:34:40 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:36771 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263713AbTJCLej
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Oct 2003 07:34:39 -0400
+Date: Fri, 3 Oct 2003 12:34:37 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: Nick Piggin <piggin@cyberone.com.au>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Matthew Wilcox <willy@debian.org>
+Subject: Re: must-fix list reconciliation
+Message-ID: <20031003113437.GL24824@parcelfarce.linux.theplanet.co.uk>
+References: <3F7D3F37.1060005@cyberone.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3F7D3F37.1060005@cyberone.com.au>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > You might find that that's a dis-advantage as you scale up.
+On Fri, Oct 03, 2003 at 07:19:51PM +1000, Nick Piggin wrote:
+> Hi everyone,
+> As you might or might not know, the must-fix / should-fix lists have been
+> inadvertently forked. We are merging them again, so please don't update
+> the wiki until we have worked out what to do with them. This should be a
+> day or two at most.
 > 
-> I should probably make it clear exactly how resources are muxed in the
-> current version of Xen. 
+> I had the idea that maybe we could put them into the source tree, and
+> encourage people to keep them up to date by making them become criteria
+> for the feature and code freeze. Comments?
 
-[snip]
+I'm a little disappointed that after I spent time converting them into
+the wiki form, you're now proposing abandoning them again.  This seems
+like a retrograde step.
 
-Ah, OK, I wasn't aware how far advanced you were on this.  I should
-have read up a bit more :-).
+What I'd be more interested in doing is combining the must- and should-
+fix lists.  As a first pass, just put all the must-fix items on the
+should-fix list at pri 4.  One of the things I did was delete the things
+that appeared on both lists.  This would obviously be easier if they
+were in one list ;-)
 
-> > What is the performance penalty of running an X86-Xeno port of an OS
-> > natively on the hardware?  Some distributions may not be prepared to
-> > support it in addition to native X86, but if they can make X86-Xeno
-> > their main architecture...
-> 
-> Right, another good point. The performance penalty on a range of
-> system benchmarks (including SPEC WEB99) shows that there's up to
-> around 5% overhead for running x86-xen. This is far far less than any
-> other virtualization of x86 that is capable of running full OSes.
-
-I think we might be talking about different things -  what I meant was
-if you run a kernel compiled to support Xen on X86 natively without
-Xen, is there a big performance penalty, not if you run a single VM in
-Xen?  I'm thinking that if $BigDistro's installation CD will install
-just the same in a virtual machine as anywhere else it'll help to gain
-acceptance, and if the performance penalty is low enough, there won't
-be a problem there.  Or, to look at it another way, you're effectively
-sidestepping the need to distribute a patched OS, because the patched
-OS *is* the distributions normal OS.  On the other hand, we don't want
-to introduce anything to mainline that is going to hurt embedded
-applications, so I think it would be likely to be a distribution
-thing.
-
-> Device
-> drivers would be written according to a well-defined interface,
-> implemented within Xen, or within isolated "domains" running atop of
-> Xen. This kind of fits with the previous observation -- we want
-> zseries for x86 :-)
-
-Z/Series represents a lot more than just virtualisation :-).
-
-On the other hand, I'm sure there are installations where the
-virtualisation is the only aspect that they couldn't live without.
-
-John.
+-- 
+"It's not Hollywood.  War is real, war is primarily not about defeat or
+victory, it is about death.  I've seen thousands and thousands of dead bodies.
+Do you think I want to have an academic debate on this subject?" -- Robert Fisk

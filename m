@@ -1,78 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263256AbVCKK0p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263272AbVCKK36@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263256AbVCKK0p (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 05:26:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263259AbVCKK0o
+	id S263272AbVCKK36 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 05:29:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263266AbVCKK36
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 05:26:44 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:51675 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S263256AbVCKK01 (ORCPT
+	Fri, 11 Mar 2005 05:29:58 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:29313 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S263259AbVCKK3m (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 05:26:27 -0500
-Date: Fri, 11 Mar 2005 11:25:48 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: arjan@infradead.org, pbadari@us.ibm.com, dhowells@redhat.com,
-       torvalds@osdl.org, suparna@in.ibm.com, linux-aio@kvack.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] rwsem: Make rwsems use interrupt disabling spinlocks
-Message-ID: <20050311102548.GA24545@elte.hu>
-References: <1110327267.24286.139.camel@dyn318077bld.beaverton.ibm.com> <18744.1110364438@redhat.com> <20050309110404.GA4088@in.ibm.com> <1110366469.6280.84.camel@laptopd505.fenrus.org> <4175.1110370343@redhat.com> <1110395783.24286.207.camel@dyn318077bld.beaverton.ibm.com> <20050309114234.6598f486.akpm@osdl.org> <1110399036.6280.151.camel@laptopd505.fenrus.org> <20050311094024.GC19954@elte.hu> <20050311020717.46794d94.akpm@osdl.org>
+	Fri, 11 Mar 2005 05:29:42 -0500
+Date: Fri, 11 Mar 2005 11:29:20 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Peter Chubb <peterc@gelato.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: User mode drivers: part 1, interrupt handling (patch for 2.6.11)
+Message-ID: <20050311102920.GB30252@elf.ucw.cz>
+References: <16945.4650.250558.707666@berry.gelato.unsw.EDU.AU>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050311020717.46794d94.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <16945.4650.250558.707666@berry.gelato.unsw.EDU.AU>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-* Andrew Morton <akpm@osdl.org> wrote:
+> As many of you will be aware, we've been working on infrastructure for
+> user-mode PCI and other drivers.  The first step is to be able to
+> handle interrupts from user space. Subsequent patches add
+> infrastructure for setting up DMA for PCI devices.
+> 
+> The user-level interrupt code doesn't depend on the other patches, and
+> is probably the most mature of this patchset.
 
-> We should arrange for touch_softlockup_watchdog() to be called
-> whenever touch_nmi_watchdog() is called.
+Okay, I like it; it means way easier PCI driver development.
 
-the patch below adds a touch_softlockup_watchdog() call to every
-touch_nmi_watchdog() call.
+But... how do you handle shared PCI interrupts?
 
-[A future consolidation patch should introduce a touch_watchdogs() call
-that will do both a touch_nmi_watchdog() [if available on the platform]
-and a touch_softlockup_watchdog() call.]
+> This patch adds a new file to /proc/irq/<nnn>/ called irq.  Suitably 
+> privileged processes can open this file.  Reading the file returns the 
+> number of interrupts (if any) that have occurred since the last read.
+> If the file is opened in blocking mode, reading it blocks until 
+> an interrupt occurs.  poll(2) and select(2) work as one would expect, to 
+> allow interrupts to be one of many events to wait for.
+> (If you didn't like the file, one could have a special system call to
+> return the file descriptor).
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
+This should go into Documentation/ somewhere.
+								Pavel
 
---- linux/arch/x86_64/kernel/nmi.c.orig
-+++ linux/arch/x86_64/kernel/nmi.c
-@@ -378,6 +378,11 @@ void touch_nmi_watchdog (void)
- 	 */
- 	for (i = 0; i < NR_CPUS; i++)
- 		alert_counter[i] = 0;
-+
-+	/*
-+	 * Tickle the softlockup detector too:
-+	 */
-+	touch_softlockup_watchdog();
- }
- 
- void nmi_watchdog_tick (struct pt_regs * regs, unsigned reason)
---- linux/arch/i386/kernel/nmi.c.orig
-+++ linux/arch/i386/kernel/nmi.c
-@@ -469,6 +469,11 @@ void touch_nmi_watchdog (void)
- 	 */
- 	for (i = 0; i < NR_CPUS; i++)
- 		alert_counter[i] = 0;
-+
-+	/*
-+	 * Tickle the softlockup detector too:
-+	 */
-+	touch_softlockup_watchdog();
- }
- 
- extern void die_nmi(struct pt_regs *, const char *msg);
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

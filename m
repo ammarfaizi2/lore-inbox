@@ -1,59 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272280AbTHRTnt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Aug 2003 15:43:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272307AbTHRTnt
+	id S274991AbTHRTgi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Aug 2003 15:36:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275003AbTHRTgi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Aug 2003 15:43:49 -0400
-Received: from kweetal.tue.nl ([131.155.3.6]:8713 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id S272280AbTHRTnr (ORCPT
+	Mon, 18 Aug 2003 15:36:38 -0400
+Received: from fw.osdl.org ([65.172.181.6]:57069 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S274991AbTHRTgg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Aug 2003 15:43:47 -0400
-Date: Mon, 18 Aug 2003 21:43:45 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Felix von Leitner <felix-kernel@fefe.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test3: setuid32(8) returns EAGAIN (WTF?!)
-Message-ID: <20030818214345.A1144@pclin040.win.tue.nl>
-References: <20030817010336.GA12079@codeblau.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030817010336.GA12079@codeblau.de>; from felix-kernel@fefe.de on Sun, Aug 17, 2003 at 03:03:36AM +0200
+	Mon, 18 Aug 2003 15:36:36 -0400
+Date: Mon, 18 Aug 2003 12:36:26 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Fix up riscom8 driver to use work queues instead of task queueing.
+In-Reply-To: <20030818192529.GC19067@gtf.org>
+Message-ID: <Pine.LNX.4.44.0308181234500.5929-100000@home.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 17, 2003 at 03:03:36AM +0200, Felix von Leitner wrote:
-> I just changed from 2.5.75 to 2.6.0-test3 and suddenly my imap server
-> fails to start (it's dovecot).  It wrote to syslog:
+
+On Mon, 18 Aug 2003, Jeff Garzik wrote:
 > 
-> Aug 17 02:58:02 hellhound dovecot: Dovecot starting up
-> Aug 17 02:58:03 hellhound imap-login: setuid(8) failed: Resource temporarily unavailable
-> Aug 17 02:58:03 hellhound dovecot: Login process died too early - shutting down
-> 
-> So I strace -f it, and sure enough, here is what happens:
-> 
-> [init, fork, tzfile...]
-> 8094  chroot("/var/run/dovecot//login") = 0
-> 8094  chdir("/")                        = 0
-> 8094  setuid32(0x8)                     = -1 EAGAIN (Resource temporarily unavailable)
-> 
-> Why is this happening?
+> There was talk in another thread about fixing up workqueue to create
+> a new kernel thread, if one isn't available within five seconds.
 
-In sys.c:set_user() we see
+That's probably reasonable. Together with some upper limit to active
+threads, along with timeouting old queues when idle it would be fairly
+flexible. It's how basically all servers end up working, after all. It 
+shouldn't be that hard to do.
 
-        if (atomic_read(&new_user->processes) >=
-                                current->rlim[RLIMIT_NPROC].rlim_cur &&
-                        new_user != &root_user) {
-                free_uid(new_user);
-                return -EAGAIN;
-        }
-
-which was added in patch-2.6.0-test2.
-No doubt this causes your problem.
-
-You might check what values these variables have for you.
-
-Andries
+		Linus
 

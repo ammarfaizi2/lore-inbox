@@ -1,37 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261323AbVCFFKR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261316AbVCFFnv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261323AbVCFFKR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Mar 2005 00:10:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261322AbVCFFIv
+	id S261316AbVCFFnv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Mar 2005 00:43:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261322AbVCFFnu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Mar 2005 00:08:51 -0500
-Received: from 64-85-47-3.ip.van.radiant.net ([64.85.47.3]:15109 "EHLO
-	vlinkmail") by vger.kernel.org with ESMTP id S261316AbVCFFHp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Mar 2005 00:07:45 -0500
-Date: Sat, 5 Mar 2005 21:06:49 -0800
-From: Greg KH <greg@kroah.com>
-To: Shawn Starr <shawn.starr@rogers.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.11.1
-Message-ID: <20050306050649.GC11889@kroah.com>
-References: <200503050116.10577.shawn.starr@rogers.com>
+	Sun, 6 Mar 2005 00:43:50 -0500
+Received: from fmr21.intel.com ([143.183.121.13]:12777 "EHLO
+	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
+	id S261316AbVCFFns (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Mar 2005 00:43:48 -0500
+Date: Sat, 5 Mar 2005 21:43:37 -0800
+From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 10/13] remove aggressive idle balancing
+Message-ID: <20050305214336.A9085@unix-os.sc.intel.com>
+References: <1109229491.5177.71.camel@npiggin-nld.site> <1109229542.5177.73.camel@npiggin-nld.site> <1109229650.5177.78.camel@npiggin-nld.site> <1109229700.5177.79.camel@npiggin-nld.site> <1109229760.5177.81.camel@npiggin-nld.site> <1109229867.5177.84.camel@npiggin-nld.site> <1109229935.5177.85.camel@npiggin-nld.site> <1109230031.5177.87.camel@npiggin-nld.site> <20050224084118.GB10023@elte.hu> <421DC4DA.7000102@yahoo.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200503050116.10577.shawn.starr@rogers.com>
-User-Agent: Mutt/1.5.8i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <421DC4DA.7000102@yahoo.com.au>; from nickpiggin@yahoo.com.au on Thu, Feb 24, 2005 at 11:13:14PM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 05, 2005 at 01:16:10AM -0500, Shawn Starr wrote:
-> Sounds great, I can be a QA resource for what machines I have. 
+On Thu, Feb 24, 2005 at 11:13:14PM +1100, Nick Piggin wrote:
+> Ingo Molnar wrote:
+> > * Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+> > 
+> > 
+> >> [PATCH 6/13] no aggressive idle balancing
+> >>
+> >> [PATCH 8/13] generalised CPU load averaging
+> >> [PATCH 9/13] less affine wakups
+> >> [PATCH 10/13] remove aggressive idle balancing
+> > 
+> > 
+> > they look fine, but these are the really scary ones :-) Maybe we could
+> > do #8 and #9 first, then #6+#10. But it's probably pointless to look at
+> > these in isolation.
+> > 
 > 
-> How do people get involved in QAing these releases? 
+> Oh yes, they are very scary and I guarantee they'll cause
+> problems :P
 
-Get the last release and test it out.  If you have problems, and have
-simple/obvious patches, send them on.
+By code inspection, I see an issue with this patch
+	[PATCH 10/13] remove aggressive idle balancing
+
+Why are we removing cpu_and_siblings_are_idle check from active_load_balance?
+In case of SMT, we  want to give prioritization to an idle package while
+doing active_load_balance(infact, active_load_balance will be kicked
+mainly because there is an idle package) 
+
+Just the re-addition of cpu_and_siblings_are_idle check to 
+active_load_balance might not be enough. We somehow need to communicate 
+this to move_tasks, otherwise can_migrate_task will fail and we will 
+never be able to do active_load_balance.
 
 thanks,
-
-greg k-h
+suresh

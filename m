@@ -1,60 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262901AbSJLLgW>; Sat, 12 Oct 2002 07:36:22 -0400
+	id <S262905AbSJLLm2>; Sat, 12 Oct 2002 07:42:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262905AbSJLLgW>; Sat, 12 Oct 2002 07:36:22 -0400
-Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:33040 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S262901AbSJLLgU>; Sat, 12 Oct 2002 07:36:20 -0400
-Date: Sat, 12 Oct 2002 13:42:05 +0200
-From: Matthias Andree <matthias.andree@gmx.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: The reason to call it 3.0 is the desktop (was Re: [OT] 2.6 not 3.0 - (NUMA))
-Message-ID: <20021012114205.GB32511@merlin.emma.line.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0210041610220.2465-100000@home.transmeta.com> <200210060130.g961UjY2206214@pimout2-ext.prodigy.net> <3DA7647C.3060603@namesys.com> <20021012012807.1BB5B635@merlin.webofficenow.com>
+	id <S262906AbSJLLm2>; Sat, 12 Oct 2002 07:42:28 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:62084 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S262905AbSJLLm2>;
+	Sat, 12 Oct 2002 07:42:28 -0400
+Date: Sat, 12 Oct 2002 04:41:37 -0700 (PDT)
+Message-Id: <20021012.044137.42774593.davem@redhat.com>
+To: ahu@ds9a.nl
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: [PATCH] USAGI IPsec
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20021012111759.GA10104@outpost.ds9a.nl>
+References: <20021012.114330.78212112.yoshfuji@linux-ipv6.org>
+	<20021011.194108.102576152.davem@redhat.com>
+	<20021012111759.GA10104@outpost.ds9a.nl>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021012012807.1BB5B635@merlin.webofficenow.com>
-User-Agent: Mutt/1.5.1i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 11 Oct 2002, Rob Landley wrote:
+   From: bert hubert <ahu@ds9a.nl>
+   Date: Sat, 12 Oct 2002 13:17:59 +0200
 
-> I'm also looking for an "unmount --force" option that works on something 
-> other than NFS.  Close all active filehandles (the programs using it can just 
-> deal with EBADF or whatever), flush the buffers to disk, and unmount.  None 
-> of this "oh I can't do that, you have a zombie process with an open file...", 
-> I want  "guillotine this filesystem pronto, capice?" behavior.
+   On Fri, Oct 11, 2002 at 07:41:08PM -0700, David S. Miller wrote:
+   > We believe that the whole SPD/SAD mechanism should move
+   > eventually to a top-level flow cache shared by ipv4 and
+   > ipv6.
+   
+   Is this the proposed stacked route system?
 
-Seconded.
+Yes, for output mostly.
 
-The patch at the URL below used to work back with 2.4.9, I did not track
-what has become of it, if it still applies, I haven't needed it recently
-or if so, Alt-SysRq was fair enough for me. Maybe just updating this
-badfs and forced umount patch for 2.4.20 would suffice:
+Also the idea Alexey and I have to move towards a small
+efficient flow cache shared by IPv4/IPv6 plays into this
+as well.  There are changesets on their way to Linus tonight
+which moves ipv4 over to using ipv6's "struct flowi" from
+include/net/flow.h as the routing lookup key.
 
-http://www.moses.uklinux.net/patches/forced-umount-2.4.9.patch
-
-It gives me one reject in fs/super.c that I don't know how to fix:
-
-***************
-*** 1145,1150 ****
-  		return retval;
-  	}
-  
-  	spin_lock(&dcache_lock);
-  
-  	if (atomic_read(&sb->s_active) > 1) {
---- 1172,1180 ----
-  		return retval;
-  	}
-  
-+ 	if (flags&MNT_FORCE)
-+ 		quiesce_filesystem(mnt);
-+ 
-  	spin_lock(&dcache_lock);
-  
-  	if (atomic_read(&sb->s_active) > 1) {
+The initial ipsec is intended to be simple, singly linked
+lists for the spd/sad databases etc.  Making the feature
+freeze is pretty important right now, full blown flow cache
+is just performance improvement :)

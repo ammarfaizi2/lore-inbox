@@ -1,28 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277497AbRJERAo>; Fri, 5 Oct 2001 13:00:44 -0400
+	id <S277501AbRJEREY>; Fri, 5 Oct 2001 13:04:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277495AbRJERAY>; Fri, 5 Oct 2001 13:00:24 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:59143 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S277486AbRJERAR>; Fri, 5 Oct 2001 13:00:17 -0400
+	id <S277486AbRJEREE>; Fri, 5 Oct 2001 13:04:04 -0400
+Received: from [205.176.221.61] ([205.176.221.61]:41988 "EHLO w20303512")
+	by vger.kernel.org with ESMTP id <S277502AbRJEREC>;
+	Fri, 5 Oct 2001 13:04:02 -0400
+Message-ID: <02a101c14dbf$ea81ec40$3dddb0cd@w20303512>
+From: "Wilson" <defiler@null.net>
+To: <linux-kernel@vger.kernel.org>
+In-Reply-To: <19AB8F9FA07FB0409732402B4817D75A038B63@FILESERVER.SRF.srfarms.com>
 Subject: Re: 3ware discontinuing the Escalade Series
-To: rugolsky@ead.dsa.com
-Date: Fri, 5 Oct 2001 18:05:49 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org, lm@bitmover.com, jgiglio@smythco.com
-In-Reply-To: <20011005125259.B1221@ead45> from "rugolsky@ead.dsa.com" at Oct 05, 2001 12:52:59 PM
-X-Mailer: ELM [version 2.5 PL6]
+Date: Fri, 5 Oct 2001 13:05:19 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15pYQ1-00071M-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I really like my 7800.  At this point I guess I'm going to convert from
-> hard to soft RAID, on the theory that (unfixed) bugs in the firmware are less
-> likely to botch JBOD. 
+----- Original Message -----
+From: "Ryan C. Bonham" <Ryan@srfarms.com>
 
-Except for RAID5 the softraid is also likely to outperform a hardware raid
-controller. With RAID5 its a CPU usage tradeoff
+
+> The Adaptec 2400A IDE Raid Cards work under Linux, although you will need
+to
+> patch your kernel, the patch is available from Adaptec's website.
+> It seems like work was being done to add support for the Promise RAID
+cards,
+> it seems like Alan had support in his tree, I might be wrong about that
+> though. Alan?
+
+Unfortunately, the Adaptec cards underperform the 3Ware stuff in quite a few
+tests.
+My two main problems with the Adaptec cards: They don't offer an 8-port
+model, and the prices are significantly higher than those of the equivalent
+3Ware card..
+
+

@@ -1,32 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264818AbTANRWK>; Tue, 14 Jan 2003 12:22:10 -0500
+	id <S264748AbTANRUM>; Tue, 14 Jan 2003 12:20:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264822AbTANRWK>; Tue, 14 Jan 2003 12:22:10 -0500
-Received: from userel174.dsl.pipex.com ([62.188.199.174]:6275 "EHLO
+	id <S264818AbTANRUM>; Tue, 14 Jan 2003 12:20:12 -0500
+Received: from userel174.dsl.pipex.com ([62.188.199.174]:8067 "EHLO
 	einstein31.homenet") by vger.kernel.org with ESMTP
-	id <S264818AbTANRWJ>; Tue, 14 Jan 2003 12:22:09 -0500
-Date: Tue, 14 Jan 2003 17:31:37 +0000 (GMT)
+	id <S264748AbTANRUL>; Tue, 14 Jan 2003 12:20:11 -0500
+Date: Tue, 14 Jan 2003 17:29:58 +0000 (GMT)
 From: Tigran Aivazian <tigran@veritas.com>
 X-X-Sender: <tigran@einstein31.homenet>
-To: Patrick Mochel <mochel@osdl.org>
-cc: Arjan van de Ven <arjanv@redhat.com>, Christoph Hellwig <hch@lst.de>,
-       Hugh Dickins <hugh@veritas.com>, <torvalds@transmeta.com>,
-       <linux-kernel@vger.kernel.org>
+To: Arjan van de Ven <arjanv@redhat.com>
+cc: Christoph Hellwig <hch@lst.de>, Hugh Dickins <hugh@veritas.com>,
+       <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] don't create regular files in devfs (fwd)
-In-Reply-To: <Pine.LNX.4.33.0301140958391.1025-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.33.0301141730350.1241-100000@einstein31.homenet>
+In-Reply-To: <1042563017.1401.2.camel@laptop.fenrus.com>
+Message-ID: <Pine.LNX.4.33.0301141726280.1241-100000@einstein31.homenet>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 Jan 2003, Patrick Mochel wrote:
-> Out of curiosity, how large are the microcode updates? Or rather, what is
-> the range of sizes that you've seen?
+On 14 Jan 2003, Arjan van de Ven wrote:
 
-Each chunk is 2048 bytes long of which only 2000 bytes are the data bits
-sent to the cpus. See struct microcode in <asm/processor.h>
+> On Tue, 2003-01-14 at 17:32, Tigran Aivazian wrote:
+>
+> > If you move it all the way to sysfs (i.e. no device node in /dev) then it
+> > seems a bit odd that a device driver entry point is found somewhere other
+> > than the usual /dev.
+>
+> well
+>
+> cat firmware > /sys/processor/0/microcode
+>
+> is obviously the ultimate interface for this ;)
+
+No, because cat is using 4K chunks and the data has to be written in one
+large chunk, like this:
+
+# dd if=microcode of=/dev/cpu/microcode bs=141312 count=1
+
+This actually works fine but you need to convert microcode data from human
+readable (what Intel distribute) to binary format first. Easily done with
+microcode_ctl utility.
 
 Regards
 Tigran

@@ -1,52 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261323AbTILLMF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 07:12:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261326AbTILLMF
+	id S261364AbTILLd0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 07:33:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261419AbTILLd0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 07:12:05 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:50388 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S261323AbTILLMC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 07:12:02 -0400
-Date: Fri, 12 Sep 2003 13:11:57 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6 patch] fix nfs4xdr.c compile warning
-Message-ID: <20030912111157.GG27368@fs.tum.de>
-References: <Pine.LNX.4.44.0309081319380.1666-100000@home.osdl.org> <20030909113831.GN14800@fs.tum.de> <16225.12839.319206.649577@notabene.cse.unsw.edu.au>
+	Fri, 12 Sep 2003 07:33:26 -0400
+Received: from M897P017.adsl.highway.telekom.at ([62.47.144.17]:41861 "EHLO
+	stallburg.dyndns.org") by vger.kernel.org with ESMTP
+	id S261364AbTILLdY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Sep 2003 07:33:24 -0400
+Date: Fri, 12 Sep 2003 13:33:21 +0200
+From: maximilian attems <janitor@sternwelten.at>
+To: linux-kernel@vger.kernel.org
+Cc: coreteam@netfilter.org
+Subject: [patch] eliminate duplicate Definition in ip_nat.h
+Message-ID: <20030912113321.GA1663@mail.sternwelten.at>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="SUOF0GtieIMvvwua"
 Content-Disposition: inline
-In-Reply-To: <16225.12839.319206.649577@notabene.cse.unsw.edu.au>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 12, 2003 at 12:40:39PM +1000, Neil Brown wrote:
->...
-> > BTW:
-> > Shouldn't the return values of nfsd4_encode_open{,_confirm,_downgrade} 
-> > be checked in the switch in nfsd4_encode_operation?
-> 
-> No.  There is nothing meaningful in their return values.
 
-They return nfserr from ENCODE_SEQID_OP_TAIL.
+--SUOF0GtieIMvvwua
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-If this isn't meaningful, should I send a patch that removes this return 
-from ENCODE_SEQID_OP_TAIL and changes these three functions to return 
-void?
 
-> NeilBrown
+--- linux-2.6.0-test5/include/linux/netfilter_ipv4/ip_nat.h	Mon Sep  8 21:5=
+0:41 2003
++++ linux/include/linux/netfilter_ipv4/ip_nat.h	Fri Sep 12 13:21:25 2003
+@@ -19,11 +19,6 @@
+ #define HOOK2MANIP(hooknum) ((hooknum) !=3D NF_IP_POST_ROUTING && (hooknum=
+) !=3D NF_IP_LOCAL_IN)
+ #endif
+=20
+-/* 2.3.19 (I hope) will define this in linux/netfilter_ipv4.h. */
+-#ifndef SO_ORIGINAL_DST
+-#define SO_ORIGINAL_DST 80
+-#endif
+-
+ #define IP_NAT_RANGE_MAP_IPS 1
+ #define IP_NAT_RANGE_PROTO_SPECIFIED 2
+ /* Used internally by get_unique_tuple(). */
 
-cu
-Adrian
 
--- 
+actually 2.4.22 _and_ 2.6.0-test5 defines it :)
+please apply=20
+a++ maks
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
 
+
+--SUOF0GtieIMvvwua
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE/Ya8B6//kSTNjoX0RAuIpAJ0WQ7+jvp0t1woSxKCzbKJS4gVHlgCfXK9l
+4etg8BCQOhiCf8+679o+QZI=
+=cn9I
+-----END PGP SIGNATURE-----
+
+--SUOF0GtieIMvvwua--

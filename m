@@ -1,37 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129406AbRAJTMk>; Wed, 10 Jan 2001 14:12:40 -0500
+	id <S129436AbRAJT1t>; Wed, 10 Jan 2001 14:27:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129436AbRAJTMb>; Wed, 10 Jan 2001 14:12:31 -0500
-Received: from f229.law9.hotmail.com ([64.4.9.229]:8459 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S129406AbRAJTMU>;
-	Wed, 10 Jan 2001 14:12:20 -0500
-X-Originating-IP: [195.197.160.12]
-From: "M T" <hyponephele@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.0 umount problem
-Date: Wed, 10 Jan 2001 19:12:14 -0000
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F229GZuNY1SWoBDyseV00014ef7@hotmail.com>
-X-OriginalArrivalTime: 10 Jan 2001 19:12:14.0529 (UTC) FILETIME=[3DB97310:01C07B39]
+	id <S130270AbRAJT1j>; Wed, 10 Jan 2001 14:27:39 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:44676 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S129436AbRAJT1c>;
+	Wed, 10 Jan 2001 14:27:32 -0500
+Date: Wed, 10 Jan 2001 11:27:03 -0800
+Message-Id: <200101101927.LAA06160@pizda.ninka.net>
+From: "David S. Miller" <davem@redhat.com>
+To: torvalds@transmeta.com
+CC: ebiederm@xmission.com, andrea@suse.de, dwmw2@infradead.org,
+        zlatko@iskon.hr, riel@conectiva.com.br, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.10.10101101100001.4457-100000@penguin.transmeta.com>
+	(message from Linus Torvalds on Wed, 10 Jan 2001 11:03:21 -0800 (PST))
+Subject: Re: Subtle MM bug
+In-Reply-To: <Pine.LNX.4.10.10101101100001.4457-100000@penguin.transmeta.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>M T (hyponephele@hotmail.com) said: I'm running redhat 6.2 halt scripts 
->>and strange problem appears >>when shutting system down with kernel-2.4.0. 
->>I get message that "/ >>device is busy". I've updated util-linux 
->>(kill,mount,umount) >>according documentation without any success. I've 
->>got no problems >>with 2.2.18. Any ideas?
->
->Are you using devfs?
->
->Bill
+   Date: 	Wed, 10 Jan 2001 11:03:21 -0800 (PST)
+   From: Linus Torvalds <torvalds@transmeta.com>
 
-No I'm not.
-_________________________________________________________________________
-Get Your Private, Free E-mail from MSN Hotmail at http://www.hotmail.com.
+   "Feel free to try" is definitely the open source motto.
 
+I basically came to the conclusion that it sucks when I
+gave it a go.
+
+In my scheme I tried to save space by using very small descriptors to
+keep track of anonymous areas in processes.  This was essentially a
+vma->vm_anon pointer that kept track of the pages for you.
+
+After trying to fight this for a few days I determined that this
+doesn't work at all because of how COW dups the pages around on you.
+Also it was a devil to work out anonymous pages created due to writes
+to private mmaps of a file, as soon as one of these were made for the
+first time on a vma you had to cook up one of the anon descriptors.
+
+Yeah, I got the anon descriptor down to 2 pointers and an atomic
+counter, but it didn't work so this achievement was worthless :-)
+
+There are a few approaches that work, but they tend to take up too
+much space to be considerable, as Linus mentioned.
+
+Later,
+David S. Miller
+davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,54 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262383AbVCVLke@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262269AbVCVLlV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262383AbVCVLke (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 06:40:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262386AbVCVLke
+	id S262269AbVCVLlV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 06:41:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262386AbVCVLlV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 06:40:34 -0500
-Received: from lirs02.phys.au.dk ([130.225.28.43]:19121 "EHLO
-	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S262383AbVCVLkZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 06:40:25 -0500
-Date: Tue, 22 Mar 2005 12:39:51 +0100 (MET)
-From: Esben Nielsen <simlo@phys.au.dk>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: "Paul E. McKenney" <paulmck@us.ibm.com>, dipankar@in.ibm.com,
-       shemminger@osdl.org, akpm@osdl.org, torvalds@osdl.org,
-       rusty@au1.ibm.com, tgall@us.ibm.com, jim.houston@comcast.net,
-       manfred@colorfullife.com, gh@us.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: Real-Time Preemption and RCU
-In-Reply-To: <20050322105640.GA28861@elte.hu>
-Message-Id: <Pine.OSF.4.05.10503221220500.25802-100000@da410.phys.au.dk>
+	Tue, 22 Mar 2005 06:41:21 -0500
+Received: from fire.osdl.org ([65.172.181.4]:64726 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262269AbVCVLlR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 06:41:17 -0500
+Date: Tue, 22 Mar 2005 03:40:53 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: nickpiggin@yahoo.com.au, davem@davemloft.net, tony.luck@intel.com,
+       benh@kernel.crashing.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/5] freepgt: free_pgtables use vma list
+Message-Id: <20050322034053.311b10e6.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.61.0503212048040.1970@goblin.wat.veritas.com>
+References: <Pine.LNX.4.61.0503212048040.1970@goblin.wat.veritas.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-DAIMI-Spam-Score: 0 () 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 22 Mar 2005, Ingo Molnar wrote:
 
-> 
-> * Esben Nielsen <simlo@phys.au.dk> wrote:
-> 
-> > +static inline void rcu_read_lock(void)
-> > +{	
-> > +	preempt_disable(); 
-> > +	__get_cpu_var(rcu_data).active_readers++;
-> > +	preempt_enable();
-> > +}
-> 
-> this is buggy. Nothing guarantees that we'll do the rcu_read_unlock() on
-> the same CPU, and hence ->active_readers can get out of sync.
-> 
+With these six patches the ppc64 is hitting the BUG in exit_mmap():
 
-Ok, this have to be handled in the mitigration code somehow. I have already 
-added an 
-  current->rcu_read_depth++
-so it ought to be painless. A simple solution would be not to mititagrate
-threads with rcu_read_depth!=0.
+        BUG_ON(mm->nr_ptes);    /* This is just debugging */
 
-> 	Ingo
-> 
-
-Esben
-
+fairly early in boot.

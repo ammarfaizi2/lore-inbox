@@ -1,47 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272682AbRILHuV>; Wed, 12 Sep 2001 03:50:21 -0400
+	id <S272696AbRILID4>; Wed, 12 Sep 2001 04:03:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272692AbRILHuL>; Wed, 12 Sep 2001 03:50:11 -0400
-Received: from pat.uio.no ([129.240.130.16]:20966 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S272682AbRILHuC>;
-	Wed, 12 Sep 2001 03:50:02 -0400
+	id <S272695AbRILIDr>; Wed, 12 Sep 2001 04:03:47 -0400
+Received: from gate.terreactive.ch ([212.90.202.121]:65524 "HELO
+	toe.terreactive.ch") by vger.kernel.org with SMTP
+	id <S272693AbRILIDk>; Wed, 12 Sep 2001 04:03:40 -0400
+Message-ID: <3B9F1670.79952826@tac.ch>
+Date: Wed, 12 Sep 2001 10:01:52 +0200
+From: Roberto Nibali <ratz@tac.ch>
+Organization: terreActive
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.8 i686)
+X-Accept-Language: en, de-CH, zh-CN
 MIME-Version: 1.0
-Message-ID: <15263.5043.111878.128803@charged.uio.no>
-Date: Wed, 12 Sep 2001 09:50:11 +0200
-To: "chen, xiangping" <chen_xiangping@emc.com>
-Cc: "'nfs-request@lists.sourceforge.net'" 
-	<nfs-request@lists.sourceforge.net>,
-        linux-kernel@vger.kernel.org
-Subject: RE: Questions on NFS client inode management.
-In-Reply-To: <276737EB1EC5D311AB950090273BEFDD043BC5A3@elway.lss.emc.com>
-In-Reply-To: <276737EB1EC5D311AB950090273BEFDD043BC5A3@elway.lss.emc.com>
-X-Mailer: VM 6.89 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-User-Agent: SEMI/1.13.7 (Awazu) CLIME/1.13.6 (=?ISO-2022-JP?B?GyRCQ2YbKEI=?=
- =?ISO-2022-JP?B?GyRCJU4+MRsoQg==?=) MULE XEmacs/21.1 (patch 14) (Cuyahoga
- Valley) (i386-redhat-linux)
-Content-Type: text/plain; charset=US-ASCII
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.2.20pre10
+In-Reply-To: <E15gwc5-0003VR-00@the-village.bc.nu>
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == xiangping chen <chen> writes:
+Hi Alan,
 
-     > Hi, Trond Thanks for the reply. What kind of reclaiming scheme
-     > is used by NFS client and the Linux local file system, say
-     > ext2/ext3? Is it used for reclaiming the inode resources, or
-     > for memory in general (like killing processes)?
+> If you know any reason this should not be 2.2.20 final now is a very very
+> good time to say. I intend to call this patch 2.2.20 in a week or so barring
+> any last minute problems. Please save anything but actual bugfixes for
+> 2.2.21.
 
-I'm not really much of an expert on the memory management. I try to
-stick to doing NFS. If you are interested in the exact mechanisms of
-page reclaiming, you might want to try to study the function
-try_to_free_pages() in mm/vmscan.c. It never stops changing though ;-)
+Could you please include following patch to your tree? I need this because
+we deploy machines with more then 16 interfaces. It's not a problem for me
+to patch the kernel but a patch less to carry on each new kernel release is
+something less to be able to forget. I know, it's not an actual bugfix but
+it's also nothing to worry about since it definitely doesn't break anything
+nor unnecessary bloats the kernel.
 
+--- linux-2.2.20pre10/drivers/net/net_init.c	Wed Sep 12 09:39:15 2001
++++ linux-2.2.20pre10-ratz/drivers/net/net_init.c	Wed Sep 12 09:44:11 2001@@
+-62,7 +62,7 @@
+ */
+ 
+ /* The list of used and available "eth" slots (for "eth0", "eth1", etc.) */
+-#define MAX_ETH_CARDS 16
++#define MAX_ETH_CARDS 32
+ static struct device *ethdev_index[MAX_ETH_CARDS];
 
-     > Is there any benchmark available to test how many active inodes
-     > a particular system can support?
+Regards and thanks for including the starfire.c changes from Ion,
+Roberto Nibali, ratz
 
-Not to my knowledge, but as I say, I'm not really an expert...
-
-Cheers,
-   Trond
+-- 
+mailto: `echo NrOatSz@tPacA.cMh | sed 's/[NOSPAM]//g'`

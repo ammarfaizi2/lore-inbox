@@ -1,47 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265111AbUBPLMe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Feb 2004 06:12:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265501AbUBPLMd
+	id S263620AbUBPLGj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Feb 2004 06:06:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263983AbUBPLGj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Feb 2004 06:12:33 -0500
-Received: from mailout02.sul.t-online.com ([194.25.134.17]:9130 "EHLO
-	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S265111AbUBPLMc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Feb 2004 06:12:32 -0500
-Message-ID: <4030A561.8070701@t-online.de>
-Date: Mon, 16 Feb 2004 12:11:29 +0100
-From: Harald Dunkel <harald.dunkel@t-online.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7a) Gecko/20040214
-X-Accept-Language: en-us, en
+	Mon, 16 Feb 2004 06:06:39 -0500
+Received: from nsmtp.pacific.net.th ([203.121.130.117]:35013 "EHLO
+	nsmtp.pacific.net.th") by vger.kernel.org with ESMTP
+	id S263620AbUBPLGi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Feb 2004 06:06:38 -0500
+From: Michael Frank <mhf@linuxmail.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Reserved pages not flagged on Compaq evo?
+Date: Mon, 16 Feb 2004 19:16:16 +0800
+User-Agent: KMail/1.5.4
+Cc: Andrea Arcangeli <andrea@suse.de>
+References: <87llnyggfm.fsf@larve.net> <20040204114113.GA1110@home.larve.net> <200402042024.47784.mhf@linuxmail.org>
+In-Reply-To: <200402042024.47784.mhf@linuxmail.org>
+X-OS: KDE 3 on GNU/Linux
 MIME-Version: 1.0
-To: =?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.2: "-" or "_", thats the question
-References: <1o903-5d8-7@gated-at.bofh.it> <1pkw6-3BU-3@gated-at.bofh.it> <1prnS-4x8-1@gated-at.bofh.it> <402F8A00.8030501@uchicago.edu> <40306F65.8060702@t-online.de> <yw1xy8r3e7gb.fsf@ford.guide>
-In-Reply-To: <yw1xy8r3e7gb.fsf@ford.guide>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Seen: false
-X-ID: VsAJ3gZCYej9MmyNignHBgItD2vQyUT02xngFi+++nq2a23SLHJoYv
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200402161916.16508.mhf@linuxmail.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Måns Rullgård wrote:
-> Harald Dunkel <harald.dunkel@t-online.de> writes:
+On Wednesday 04 February 2004 20:36, Michael Frank wrote:
+> A 2.4.24 + swsusp 2.0 user reported a mce at the video base address
+> of 0xa0000 when writing the kernel image to disk (thus reading there)
+> on a Compaq evo1015v (Athlon XP 2000+)
+> 
+> NOMCE eliminates the mce but I am wondering about possible ill effects
+> should other reserved pages be invalidly accessed.
+>   
+> It looks like these pages are not flagged reserved and therfore accessed. 
+> 
+> No other mce's have ever been reported.
+> 
+> What is the suggested approach to identify the root cause?
+
+Has been verified as fixed after flagging video and BIOS pages as nosave and
+by not accessing all nosave areas during suspend and resume. 
+ 
+> Michael
 > 
 > 
-> /proc/modules uses only _ so you could use ${module_name/-/_}.
-> 
 
-Please check the archive: My original complaint was about the
-inconsistency between /proc/modules listing all modules with '_',
-and the module filenames using both '-' and '_'. For me it is
-not important which version is better. As a developer I have to
-assume that '_' and '-' are ambiguous in this context. This
-ambiguity is pretty strange for Unix, isn't it?
-
-
-Regards
-
-Harri

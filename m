@@ -1,49 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264755AbSJOTUN>; Tue, 15 Oct 2002 15:20:13 -0400
+	id <S264765AbSJOT2D>; Tue, 15 Oct 2002 15:28:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264761AbSJOTUM>; Tue, 15 Oct 2002 15:20:12 -0400
-Received: from pasmtp.tele.dk ([193.162.159.95]:50448 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S264755AbSJOTUL>;
-	Tue, 15 Oct 2002 15:20:11 -0400
-Date: Tue, 15 Oct 2002 21:25:54 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Kai Germaschewski <kai-germaschewski@uiowa.edu>,
-       Russell King <rmk@arm.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.42 broke ARM zImage/Image
-Message-ID: <20021015212554.A4299@mars.ravnborg.org>
-Mail-Followup-To: Kai Germaschewski <kai-germaschewski@uiowa.edu>,
-	Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
-References: <20021015172201.A1406@mars.ravnborg.org> <Pine.LNX.4.44.0210151028270.10165-100000@chaos.physics.uiowa.edu>
+	id <S264766AbSJOT2D>; Tue, 15 Oct 2002 15:28:03 -0400
+Received: from inet-mail4.oracle.com ([148.87.2.204]:8357 "EHLO
+	inet-mail4.oracle.com") by vger.kernel.org with ESMTP
+	id <S264765AbSJOT2C>; Tue, 15 Oct 2002 15:28:02 -0400
+Date: Tue, 15 Oct 2002 12:33:49 -0700
+From: Joel Becker <Joel.Becker@oracle.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       "Stephen C. Tweedie" <sct@redhat.com>
+Subject: Re: [PATCH] superbh, fractured blocks, and grouped io
+Message-ID: <20021015193348.GN22117@nic1-pc.us.oracle.com>
+References: <20021014135100.GD28283@suse.de> <20021014181338.GF22117@nic1-pc.us.oracle.com> <20021015074423.GE5294@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0210151028270.10165-100000@chaos.physics.uiowa.edu>; from kai-germaschewski@uiowa.edu on Tue, Oct 15, 2002 at 10:30:02AM -0500
+In-Reply-To: <20021015074423.GE5294@suse.de>
+User-Agent: Mutt/1.4i
+X-Burt-Line: Trees are cool.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 15, 2002 at 10:30:02AM -0500, Kai Germaschewski wrote:
-> Actually, we figured out what the problem was now, the link script was 
-> given as an argument to ld twice, which obviously confused it. After 
-> fixing that, all is well.
+On Tue, Oct 15, 2002 at 09:44:23AM +0200, Jens Axboe wrote:
+> We don't want to make them too large anyway, and I think that 64k-1 is
+> more than enough. Maybe it would even be better to simply use an even
+> 32kb. Consider someone writing in chunks of 64kb. It would simply suck
+> to get one 65024b request followed by a 512b one.
 
-Good spot!
+	Well, 64K-1 is really 64K-hardsect_size.  In practice, it will
+probably be 32K, as folks like power-of-two buffers.  Some people would
+claim that larger sizes (128K, 512K) can improve throughput.
 
-Russell - I'm planning to give the makefiles an additional clean-up when they
-show up in the linus kernel.
-There is still a few bits here and there that could use some attention, and
-when Linus pull the next bunch of updates from Kai the handling of clean
-has been improved. I'm planning to introduce this in arm too - just
-to finish the job in a proper way.
+Joel
 
-OK?
+-- 
 
-If you want me to do it beforehand then just give me a pointer to a tree
-where I can pull from.
+Life's Little Instruction Book #356
 
-And I'm glad the two of you got it solved, now I just fear what problems
-shows up for the next architecture...
+	"Be there when people need you."
 
-	Sam
+Joel Becker
+Senior Member of Technical Staff
+Oracle Corporation
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127

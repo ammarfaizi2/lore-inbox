@@ -1,64 +1,134 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262241AbVBBDrF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262213AbVBBDup@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262241AbVBBDrF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Feb 2005 22:47:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262257AbVBBDrE
+	id S262213AbVBBDup (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Feb 2005 22:50:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262221AbVBBDEg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Feb 2005 22:47:04 -0500
-Received: from gate.crashing.org ([63.228.1.57]:25529 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S262259AbVBBDpl (ORCPT
+	Tue, 1 Feb 2005 22:04:36 -0500
+Received: from [211.58.254.17] ([211.58.254.17]:29834 "EHLO hemosu.com")
+	by vger.kernel.org with ESMTP id S262213AbVBBCzq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Feb 2005 22:45:41 -0500
-Subject: Re: Fw: Re: 2.6.11-rc2-mm2
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Joseph Fannin <jfannin@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, Sean Neakums <sneakums@zork.net>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050202034205.GA27123@caphernaum.rivenstone.net>
-References: <20050129163117.1626d404.akpm@osdl.org>
-	 <1107155510.5905.2.camel@gaston>
-	 <20050131112106.GA3494@samarkand.rivenstone.net>
-	 <1107213513.5963.26.camel@gaston>
-	 <20050202034205.GA27123@caphernaum.rivenstone.net>
-Content-Type: text/plain
-Date: Wed, 02 Feb 2005 14:45:19 +1100
-Message-Id: <1107315919.5624.61.camel@gaston>
+	Tue, 1 Feb 2005 21:55:46 -0500
+Date: Wed, 2 Feb 2005 11:55:38 +0900
+From: Tejun Heo <tj@home-tj.org>
+To: B.Zolnierkiewicz@elka.pw.edu.pl, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org
+Subject: Re: [PATCH 2.6.11-rc2 12/29] ide: add ide_hwgroup_t.polling
+Message-ID: <20050202025538.GM621@htj.dyndns.org>
+References: <20050202024017.GA621@htj.dyndns.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050202024017.GA621@htj.dyndns.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-02-01 at 22:42 -0500, Joseph Fannin wrote:
-> On Tue, Feb 01, 2005 at 10:18:33AM +1100, Benjamin Herrenschmidt wrote:
-> > On Mon, 2005-01-31 at 06:21 -0500, Joseph Fannin wrote:
-> > 
-> > >     I'm getting a blank screen with radeonfb on two boxes here as
-> > > well. One is a beige g3, the other is i386; both have PCI Radeon 7000s
-> > > with radeonfb non-modular. 
-> > > 
-> > >     On the PC I could see the earliest kernel messages in VGA text
-> > > mode before radeonfb took over and the screen went blank -- no
-> > > penguin, and the logo is enabled.  Booting with radeonfb:off seemed to
-> > > work except for the module problem in -rc2-mm2:
-> > > 
-> > >     On the ppc box I tried both -rc2-mm1 and -rc2-mm2.  Both hung and
-> > > then rebooted after 3 minutes, so it seems to be panicing somewhere.
-> > > I backed the massive-radeonfb patch out of -mm2 and radeonfb worked,
-> > > so I got as far as the module thing again.
+> 12_ide_hwgroup_t_polling.patch
 > 
-> > 
-> > Hrm... indeed, there seem to be a problem, though I can't tell for sure
-> > what's up now, it just works on all the configs I had a chance to test
-> > on. Can you try to boot your G3 with serial console so you can see the
-> > panic message if any ?
-> 
->     Okay, I managed to get this Oops message on ppc, when modprobing a
-> modular radeonfb. I got a similar backtrace on i386 too (lost it though).
-
-Interesting ... I'll have a look. Seems like some generic change is
-causing it.
-
-Ben.
+> 	ide_hwgroup_t.polling field added.  0 in poll_timeout field
+> 	used to indicate inactive polling but because 0 is a valid
+> 	jiffy value, though slim, there's a chance that something
+> 	weird can happen.
 
 
+Signed-off-by: Tejun Heo <tj@home-tj.org>
+
+
+Index: linux-ide-export/drivers/ide/ide-io.c
+===================================================================
+--- linux-ide-export.orig/drivers/ide/ide-io.c	2005-02-02 10:28:04.260354336 +0900
++++ linux-ide-export/drivers/ide/ide-io.c	2005-02-02 10:28:04.465321080 +0900
+@@ -1314,7 +1314,7 @@ void ide_timer_expiry (unsigned long dat
+ 			/* local CPU only,
+ 			 * as if we were handling an interrupt */
+ 			local_irq_disable();
+-			if (hwgroup->poll_timeout != 0) {
++			if (hwgroup->polling) {
+ 				startstop = handler(drive);
+ 			} else if (drive_is_ready(drive)) {
+ 				if (drive->waiting_for_dma)
+@@ -1442,8 +1442,7 @@ irqreturn_t ide_intr (int irq, void *dev
+ 		return IRQ_NONE;
+ 	}
+ 
+-	if ((handler = hwgroup->handler) == NULL ||
+-	    hwgroup->poll_timeout != 0) {
++	if ((handler = hwgroup->handler) == NULL || hwgroup->polling) {
+ 		/*
+ 		 * Not expecting an interrupt from this drive.
+ 		 * That means this could be:
+Index: linux-ide-export/drivers/ide/ide-iops.c
+===================================================================
+--- linux-ide-export.orig/drivers/ide/ide-iops.c	2005-02-02 10:27:15.612247109 +0900
++++ linux-ide-export/drivers/ide/ide-iops.c	2005-02-02 10:28:04.466320918 +0900
+@@ -1028,14 +1028,14 @@ static ide_startstop_t atapi_reset_pollf
+ 			return ide_started;
+ 		}
+ 		/* end of polling */
+-		hwgroup->poll_timeout = 0;
++		hwgroup->polling = 0;
+ 		printk("%s: ATAPI reset timed-out, status=0x%02x\n",
+ 				drive->name, stat);
+ 		/* do it the old fashioned way */
+ 		return do_reset1(drive, 1);
+ 	}
+ 	/* done polling */
+-	hwgroup->poll_timeout = 0;
++	hwgroup->polling = 0;
+ 	return ide_stopped;
+ }
+ 
+@@ -1095,7 +1095,7 @@ static ide_startstop_t reset_pollfunc (i
+ 			printk("\n");
+ 		}
+ 	}
+-	hwgroup->poll_timeout = 0;	/* done polling */
++	hwgroup->polling = 0;	/* done polling */
+ 	return ide_stopped;
+ }
+ 
+@@ -1170,6 +1170,7 @@ static ide_startstop_t do_reset1 (ide_dr
+ 		udelay (20);
+ 		hwif->OUTB(WIN_SRST, IDE_COMMAND_REG);
+ 		hwgroup->poll_timeout = jiffies + WAIT_WORSTCASE;
++		hwgroup->polling = 1;
+ 		__ide_set_handler(drive, &atapi_reset_pollfunc, HZ/20, NULL);
+ 		spin_unlock_irqrestore(&ide_lock, flags);
+ 		return ide_started;
+@@ -1210,6 +1211,7 @@ static ide_startstop_t do_reset1 (ide_dr
+ 	/* more than enough time */
+ 	udelay(10);
+ 	hwgroup->poll_timeout = jiffies + WAIT_WORSTCASE;
++	hwgroup->polling = 1;
+ 	__ide_set_handler(drive, &reset_pollfunc, HZ/20, NULL);
+ 
+ 	/*
+Index: linux-ide-export/drivers/ide/pci/siimage.c
+===================================================================
+--- linux-ide-export.orig/drivers/ide/pci/siimage.c	2005-02-02 10:27:15.612247109 +0900
++++ linux-ide-export/drivers/ide/pci/siimage.c	2005-02-02 10:28:04.466320918 +0900
+@@ -590,7 +590,7 @@ static int siimage_reset_poll (ide_drive
+ 		if ((hwif->INL(SATA_STATUS_REG) & 0x03) != 0x03) {
+ 			printk(KERN_WARNING "%s: reset phy dead, status=0x%08x\n",
+ 				hwif->name, hwif->INL(SATA_STATUS_REG));
+-			HWGROUP(drive)->poll_timeout = 0;
++			HWGROUP(drive)->polling = 0;
+ 			return ide_started;
+ 		}
+ 		return 0;
+Index: linux-ide-export/include/linux/ide.h
+===================================================================
+--- linux-ide-export.orig/include/linux/ide.h	2005-02-02 10:28:04.261354174 +0900
++++ linux-ide-export/include/linux/ide.h	2005-02-02 10:28:04.467320756 +0900
+@@ -938,7 +938,9 @@ typedef struct hwgroup_s {
+ 		/* BOOL: protects all fields below */
+ 	volatile int busy;
+ 		/* BOOL: wake us up on timer expiry */
+-	int sleeping;
++	int sleeping	: 1;
++		/* BOOL: polling active & poll_timeout field valid */
++	int polling	: 1;
+ 		/* current drive */
+ 	ide_drive_t *drive;
+ 		/* ptr to current hwif in linked-list */

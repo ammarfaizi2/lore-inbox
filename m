@@ -1,36 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268458AbTBNNbp>; Fri, 14 Feb 2003 08:31:45 -0500
+	id <S268388AbTBNNjN>; Fri, 14 Feb 2003 08:39:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268462AbTBNNbp>; Fri, 14 Feb 2003 08:31:45 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:8066
+	id <S268390AbTBNNjN>; Fri, 14 Feb 2003 08:39:13 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:10114
 	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S268458AbTBNNbo>; Fri, 14 Feb 2003 08:31:44 -0500
-Subject: Re: openbkweb-0.0
+	id <S268388AbTBNNjK>; Fri, 14 Feb 2003 08:39:10 -0500
+Subject: Re: [PATCH][RFC] Proposal for a new watchdog interface using sysfs
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: David Lang <david.lang@digitalinsight.com>
-Cc: "Matthew D. Pitts" <mpitts@suite224.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0302132224470.656-100000@dlang.diginsite.com>
-References: <Pine.LNX.4.44.0302132224470.656-100000@dlang.diginsite.com>
+To: Rusty Lynch <rusty@linux.co.intel.com>
+Cc: Matt Porter <porter@cox.net>, Scott Murray <scottm@somanetworks.com>,
+       Patrick Mochel <mochel@osdl.org>, Dave Jones <davej@codemonkey.org.uk>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <1045183679.1009.7.camel@vmhack>
+References: <Pine.LNX.4.33.0302131317210.1133-100000@localhost.localdomain>
+	 <Pine.LNX.4.44.0302131603500.23407-100000@rancor.yyz.somanetworks.com>
+	 <20030213155817.B1738@home.com>  <1045173941.1009.4.camel@vmhack>
+	 <1045183679.1009.7.camel@vmhack>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Organization: 
-Message-Id: <1045233701.7958.14.camel@irongate.swansea.linux.org.uk>
+Message-Id: <1045234137.7958.17.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
-Date: 14 Feb 2003 14:41:41 +0000
+Date: 14 Feb 2003 14:48:58 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-02-14 at 06:30, David Lang wrote:
-> Guys, Larry isn't saying that you are not allowed to BUY a copy of
-> bitkeeper and reeverse engineer it, he is saying that you are not allowed
-> to get the FREE copy of bitkeeper and reverse engineer it.
+On Fri, 2003-02-14 at 00:47, Rusty Lynch wrote:
+> Ok, I had to go and read the driver-model documentation a couple of more
+> times, but after I actually started writing some code it finally started
+> to make sense.  
 
-What he says about this is not worth a sheeps fart. Most of the world 
-allows reverse engineering for compatibility, full stop. Often not for
-cloning, so writing bk extracting tools is very different to cloning BK
+The watchdog_ops is probably a good thing anyway. If you also use that
+same structure with the base watchdog module having the ioctl parser all
+the ioctl handling funnies and quirks in the drivers go away except
+for driver private stuff.
+
+Two for the price of one
 
 Alan
 

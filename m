@@ -1,38 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261533AbUKOX0k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261626AbUKOX1k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261533AbUKOX0k (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Nov 2004 18:26:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261554AbUKOX0k
+	id S261626AbUKOX1k (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Nov 2004 18:27:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261630AbUKOX1j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Nov 2004 18:26:40 -0500
-Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:2317 "EHLO
-	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S261533AbUKOX0j
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Nov 2004 18:26:39 -0500
-Date: Mon, 15 Nov 2004 23:26:35 +0000 (GMT)
-From: "Maciej W. Rozycki" <macro@linux-mips.org>
-To: Nickolai Zeldovich <kolya@MIT.EDU>
-Cc: linux-kernel@vger.kernel.org, csapuntz@stanford.edu
-Subject: Re: [patch] Fix GDT re-load on ACPI resume
-In-Reply-To: <Pine.GSO.4.58L.0411151525540.28749@contents-vnder-pressvre.mit.edu>
-Message-ID: <Pine.LNX.4.58L.0411152320520.12776@blysk.ds.pg.gda.pl>
-References: <Pine.GSO.4.58L.0411151525540.28749@contents-vnder-pressvre.mit.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 15 Nov 2004 18:27:39 -0500
+Received: from fw.osdl.org ([65.172.181.6]:43446 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261626AbUKOX10 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Nov 2004 18:27:26 -0500
+Date: Mon, 15 Nov 2004 15:27:21 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Linus Torvalds <torvalds@osdl.org>, Bjorn Helgaas <bjorn.helgaas@hp.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.10-rc2 doesn't boot
+Message-ID: <20041115152721.U14339@build.pdx.osdl.net>
+References: <Pine.LNX.4.58.0411141835150.2222@ppc970.osdl.org> <20041115040710.GA2235@stusta.de> <Pine.LNX.4.58.0411142040470.2222@ppc970.osdl.org> <20041115052920.GB7510@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20041115052920.GB7510@stusta.de>; from bunk@stusta.de on Mon, Nov 15, 2004 at 06:29:21AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 15 Nov 2004, Nickolai Zeldovich wrote:
+* Adrian Bunk (bunk@stusta.de) wrote:
+> It seems Bjorns "PCI: remove unconditional PCI ACPI IRQ routing" was 
+> merged now into your tree, but his patch to fix floppy.c wasn't 
+> merged...
 
-> This simple patch adds the 0x66 prefix to lgdt, which forces it to load
-> all 32 bits of the GDT base address, thereby removing any restrictions on
-> where the GDT can be placed in memory.  This makes ACPI resume work for me
-> on a Thinkpad T40 laptop.
-[...]
-> +	.byte	0x66			# force 32-bit operands in case
-> +					# the GDT is past 16 megabytes
->  	lgdt	real_save_gdt - wakeup_code
+What's the likelihood of getting some derivative of Bjorn's patch
+merged?  W/out the patch (and w/ floppy built) I've the same issue.
 
- You should use "lgdtl" and let gas figure out the rest.
-
-  Maciej
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

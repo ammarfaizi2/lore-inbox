@@ -1,32 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131565AbQLPOKC>; Sat, 16 Dec 2000 09:10:02 -0500
+	id <S131665AbQLPOXf>; Sat, 16 Dec 2000 09:23:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131665AbQLPOJw>; Sat, 16 Dec 2000 09:09:52 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:17210 "EHLO
+	id <S131935AbQLPOX0>; Sat, 16 Dec 2000 09:23:26 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:50490 "EHLO
 	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S131565AbQLPOJk>; Sat, 16 Dec 2000 09:09:40 -0500
-Date: Sat, 16 Dec 2000 14:39:10 +0100
+	id <S131665AbQLPOXL>; Sat, 16 Dec 2000 09:23:11 -0500
+Date: Sat, 16 Dec 2000 14:52:42 +0100
 From: Andrea Arcangeli <andrea@suse.de>
-To: Chris Mason <mason@suse.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, J Sloan <jjs@toyota.com>,
-        Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [lkml]Re: VM problems still in 2.2.18
-Message-ID: <20001216143910.A25150@inspiron.random>
-In-Reply-To: <E146zsJ-0001fT-00@the-village.bc.nu> <Pine.LNX.4.10.10012160244200.30931-100000@home.suse.com>
+To: Anuradha Ratnaweera <anuradha@gnu.org>
+Cc: Ulrich Drepper <drepper@cygnus.com>,
+        "linux-kernel@vger.kernel.or" <linux-kernel@vger.kernel.org>
+Subject: Re: 2.2.18 signal.h
+Message-ID: <20001216145242.C25150@inspiron.random>
+In-Reply-To: <20001215205721.I17781@inspiron.random> <Pine.LNX.4.21.0012161337220.1433-100000@bee.lk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.10.10012160244200.30931-100000@home.suse.com>; from mason@suse.com on Sat, Dec 16, 2000 at 02:49:40AM -0800
+In-Reply-To: <Pine.LNX.4.21.0012161337220.1433-100000@bee.lk>; from anuradha@gnu.org on Sat, Dec 16, 2000 at 01:53:50PM +0600
 X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
 X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 16, 2000 at 02:49:40AM -0800, Chris Mason wrote:
-> GFP_BUFFER.  As far as I know that should be safe, but the change is
+On Sat, Dec 16, 2000 at 01:53:50PM +0600, Anuradha Ratnaweera wrote:
+> GCC will complain the absence of a statement after `out1:out2:`, but not
+> two complains for `out1' and `out2', because they form a single entity.
 
-Yes that's ok.
+I understand the formal specs (the email from Michael is very clear). What I'm
+saying is that as the `dummy' statement is redoundant information but you're
+requiring us to put it to build a labeled-statement, you could been even more
+lazy and not define the labeled-statement as a statement so requiring us to put
+a dummy statement after every label. That would been the same kind of issue
+we're facing right now (but of course defining a labeled-statement as a
+statement and allowing recursion makes the formal specs even simpler so that
+probably wouldn't happen that easily).
 
 Andrea
 -

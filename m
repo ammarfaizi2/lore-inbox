@@ -1,74 +1,62 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315607AbSEIETC>; Thu, 9 May 2002 00:19:02 -0400
+	id <S315608AbSEIEZW>; Thu, 9 May 2002 00:25:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315608AbSEIETB>; Thu, 9 May 2002 00:19:01 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:41998
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S315607AbSEIETA>; Thu, 9 May 2002 00:19:00 -0400
-Date: Wed, 8 May 2002 21:16:30 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Lincoln Dale <ltd@cisco.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Martin Dalecki <dalecki@evision-ventures.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Padraig Brady <padraig@antefacto.com>,
-        Anton Altaparmakov <aia21@cantab.net>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.14 IDE 56
-In-Reply-To: <5.1.0.14.2.20020509122919.01645ff0@mira-sjcm-3.cisco.com>
-Message-ID: <Pine.LNX.4.10.10205082055530.924-100000@master.linux-ide.org>
+	id <S315609AbSEIEZV>; Thu, 9 May 2002 00:25:21 -0400
+Received: from samba.sourceforge.net ([198.186.203.85]:33926 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S315608AbSEIEZV>;
+	Thu, 9 May 2002 00:25:21 -0400
+From: Paul Mackerras <paulus@samba.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15577.63954.94547.51360@argo.ozlabs.ibm.com>
+Date: Thu, 9 May 2002 14:23:46 +1000 (EST)
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] fix drivers/scsi/sd.c for ppc32
+X-Mailer: VM 6.75 under Emacs 20.7.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus,
 
-Lincoln,
+This patch fixes the compile errors in sd_find_target, which is only
+used on 32-bit PPC systems, and changes the ifdef around from
+CONFIG_PPC to CONFIG_PPC32 since ppc64 doesn't need this routine.
 
-You are right on the money!
-There is about 35-40% throughput killjoy "copy-from-kernel-to-userspace".
-It is easy to demo if you have a bus analizer and can do accounting on the
-data io less the command block overhead.
+The patch is against 2.5.15.  Please apply it to your tree.
 
-CR3's are your friend, not ...
+Thanks,
+Paul.
 
-On Thu, 9 May 2002, Lincoln Dale wrote:
-
-> At 01:42 PM 8/05/2002 +0100, Alan Cox wrote:
-> >The SCSI layer is significant overhead even in 2.5.
-> 
-> i did some benchmarking on a high-end dual P3 Xeon (Serverworks chipset ) 
-> with QLogic 2300 (2gbit/s) 64/66 Fibre Channel controllers.
-> 
-> using the '/dev/sgX' interface to issue scsi reads/writes allowed me to hit 
-> the magical limit of 200mbyte/sec throughput.  (basically just about 
-> linerate).  (simultaneous "sg_read if=/dev/sgX mmap=1 bs=512 count=35M"; 
-> sg_read from the sg-tools package)
-> 
-> doing the same test thru the block-layer was basically capped at around 
-> 135mbyte/sec.  (simultaneous "dd if=/dev/sdX of=/dev/null bs=512 count=35M").
-> 
-> whether the bottleneck was copy-from-kernel-to-userspace (ie. exhaustion of 
-> Front-Side-Bus / memory bandwidth) or related to block-layer overhead and 
-> scsi layer overheads, i haven't yet validated, but at a ~35% performance 
-> difference is relatively significant nontheless.
-> 
-> cpu utlization on the sg interface was under 10%.  using 'dd' on the sd 
-> interface, both gigahertz P3 Xeons had 0% idle time.
-> 
-> 
-> cheers,
-> 
-> lincoln.
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
-Andre Hedrick
-LAD Storage Consulting Group
-
+diff -urN linux-2.5/drivers/scsi/sd.c pmac-2.5/drivers/scsi/sd.c
+--- linux-2.5/drivers/scsi/sd.c	Sat May  4 09:24:38 2002
++++ pmac-2.5/drivers/scsi/sd.c	Thu May  9 14:05:26 2002
+@@ -129,7 +129,7 @@
+ static Scsi_Disk * sd_get_sdisk(int index);
+ 
+ 
+-#if defined(CONFIG_PPC)
++#if defined(CONFIG_PPC32)
+ /**
+  *	sd_find_target - find kdev_t of first scsi disk that matches
+  *	given host and scsi_id. 
+@@ -149,7 +149,7 @@
+ {
+ 	Scsi_Disk *sdkp;
+ 	Scsi_Device *sdp;
+-	Scsi_Host *shp = hp;
++	struct Scsi_Host *shp = hp;
+ 	int dsk_nr;
+ 	unsigned long iflags;
+ 
+@@ -162,7 +162,7 @@
+ 		sdp = sdkp->device;
+ 		if (sdp && (sdp->host == shp) && (sdp->id == scsi_id)) {
+ 			read_unlock_irqrestore(&sd_dsk_arr_lock, iflags);
+-			return MKDEV_SD(k);
++			return MKDEV_SD(dsk_nr);
+ 		}
+ 	}
+ 	read_unlock_irqrestore(&sd_dsk_arr_lock, iflags);

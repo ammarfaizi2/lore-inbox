@@ -1,49 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264646AbSLLNb3>; Thu, 12 Dec 2002 08:31:29 -0500
+	id <S264617AbSLLNhL>; Thu, 12 Dec 2002 08:37:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264631AbSLLNb3>; Thu, 12 Dec 2002 08:31:29 -0500
-Received: from mta11n.bluewin.ch ([195.186.1.211]:58191 "EHLO
-	mta11n.bluewin.ch") by vger.kernel.org with ESMTP
-	id <S264646AbSLLNb2>; Thu, 12 Dec 2002 08:31:28 -0500
-Date: Thu, 12 Dec 2002 14:39:03 +0100
-From: Roger Luethi <rl@hellgate.ch>
-To: Alan Cox <alan@ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: i8253 count too high! resetting..
-Message-ID: <20021212133903.GB3224@k3.hellgate.ch>
-Mail-Followup-To: Alan Cox <alan@ukuu.org.uk>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
+	id <S264622AbSLLNhL>; Thu, 12 Dec 2002 08:37:11 -0500
+Received: from kiln.isn.net ([198.167.161.1]:32662 "EHLO kiln.isn.net")
+	by vger.kernel.org with ESMTP id <S264617AbSLLNhK>;
+	Thu, 12 Dec 2002 08:37:10 -0500
+Message-ID: <3DF8929F.437F6858@isn.net>
+Date: Thu, 12 Dec 2002 09:43:59 -0400
+From: "Garst R. Reese" <reese@isn.net>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.20-ac1 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Miles Bader <miles@gnu.org>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: romfs
+References: <3DF7CC90.99585A8C@isn.net> <buo4r9k7zz3.fsf@mcspd15.ucom.lsi.nec.co.jp>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
-X-Operating-System: Linux 2.4.21-pre1 on i686
-X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
-X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm getting my sys log filled with "i8253 count too high! resetting.." in
-2.4.21-pre1.
+Miles Bader wrote:
+> 
+ 
+>    http://romfs.sourceforge.net
+> 
+Thanks Miles,
+I tried that.
+Mail to the given address, and variants thereof, get rejected.
+[OT] I'm using the romfs structure to write data to a MultiMedia Card
+with a TI msp430f149. Reading it with linux on the USB port. Thought
+Janos might interested.
 
-The same happened in 2.2.19 with the kernel suggesting the culprit was a
-VIA686a -- which it wasn't, the chipset's ALi. The trigger differs only
-so slightly: 2.2.19 tests for
-count > LATCH-1
-whereas 2.4.21-pre1 checks
-count > LATCH
-
-The rate is high enough to be quite annoying -- here's a syslog snippet:
-
-Dec 12 14:02:33 k3 kernel: i8253 count too high! resetting..
-Dec 12 14:05:23 k3 kernel: i8253 count too high! resetting..
-Dec 12 14:05:51 k3 kernel: i8253 count too high! resetting..
-Dec 12 14:06:29 k3 kernel: i8253 count too high! resetting..
-Dec 12 14:07:30 k3 kernel: i8253 count too high! resetting..
-
-FWIW the board (an Asus A7A266) has worked reasonably well for over a year
-and I hadn't gotten the impression so far that the timer needs fixing
-desperately.
-
-Roger
+Garst

@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286403AbSAEXaw>; Sat, 5 Jan 2002 18:30:52 -0500
+	id <S286395AbSAEXbc>; Sat, 5 Jan 2002 18:31:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286395AbSAEXam>; Sat, 5 Jan 2002 18:30:42 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:46607 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S286399AbSAEXaj>; Sat, 5 Jan 2002 18:30:39 -0500
-Subject: Re: [announce] [patch] ultra-scalable O(1) SMP and UP scheduler
-To: davidel@xmailserver.org (Davide Libenzi)
-Date: Sat, 5 Jan 2002 23:41:38 +0000 (GMT)
-Cc: mingo@elte.hu (Ingo Molnar), linux-kernel@vger.kernel.org (lkml),
-        torvalds@transmeta.com (Linus Torvalds),
-        alan@lxorguk.ukuu.org.uk (Alan Cox)
-In-Reply-To: <Pine.LNX.4.40.0201051242080.1607-100000@blue1.dev.mcafeelabs.com> from "Davide Libenzi" at Jan 05, 2002 03:04:27 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S286411AbSAEXbN>; Sat, 5 Jan 2002 18:31:13 -0500
+Received: from 099.dsl6660135.nokia.surewest.net ([66.60.135.99]:20464 "HELO
+	dragonglen.net") by vger.kernel.org with SMTP id <S286399AbSAEXbB>;
+	Sat, 5 Jan 2002 18:31:01 -0500
+Date: Sat, 5 Jan 2002 15:31:13 -0800 (PST)
+From: Eric <eric@dragonglen.net>
+X-X-Sender: <eric@fire.dragonglen.invalid>
+To: Andrew Morton <akpm@zip.com.au>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.17 oops - ext2/ext3 fs corruption (?)
+In-Reply-To: <3C375AC9.52462540@zip.com.au>
+Message-ID: <Pine.LNX.4.33.0201051528400.850-100000@fire.dragonglen.invalid>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16N0RW-0001We-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > In fact it's the cr3 switch (movl %0, %%cr3) that accounts for about 30%
-> > of the context switch cost. On x86. On other architectures it's often
-> > much, much cheaper.
+On Sat, 5 Jan 2002, Andrew Morton wrote:
+
+> Eric wrote:
+> > 
+> > I seem to be having a reoccurring problem with my Red Hat 7.2 system
+> > running kernel 2.4.17.  Four times now, I have seen the kernel generate an
+> > oops.  After the oops, I find that one of file systems is no longer sane.
+> > The effect that I see is a Segmentation Fault when things like ls or du
+> > some directory (the directory is never the same).  Also, when the system
+> > is going down for a reboot, it is unable to umount the file system.  The
+> > umount command returns a "bad lseek" error.
 > 
-> TLB flushes are expensive everywhere, and you know exactly this and if you
+> Everything here points at failing hardware.  Probably memory errors.
+> People say that memtest86 is good at detecting these things.  Another
+> way to verify this is to move the same setup onto a different computer...
 
-Not every processor is dumb enough to have TLB flush on a context switch.
-If you have tags on your tlb/caches it's not a problem.
+I ran memtest86 on the system and let it complete 4 passes before I 
+stopped it.  It found no errors.  Unfortunately, I do not have another 
+system available to test this on.  Are there any other diagnostics I can 
+run to determine if this is truly a hardware problem?
 
-> Again, the history of our UP scheduler thought us that noone has been able
-> to makes it suffer with realistic/high not-stupid-benchamrks loads.
+Thanks,
 
-Apache under load, DB2, Postgresql, Lotus domino all show bad behaviour. 
-(Whether apache, db2, and postgresql want fixing differently is a seperate
- argument)
+Eric
 
-Alan
+

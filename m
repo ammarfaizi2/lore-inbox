@@ -1,45 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130247AbQKNLOI>; Tue, 14 Nov 2000 06:14:08 -0500
+	id <S129429AbQKNLYu>; Tue, 14 Nov 2000 06:24:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129891AbQKNLN6>; Tue, 14 Nov 2000 06:13:58 -0500
-Received: from BDR-OSL-25-005.telenor.no ([134.47.108.13]:58891 "HELO
-	bdr-osl-25-005.oslo.telenor.no") by vger.kernel.org with SMTP
-	id <S129429AbQKNLNk>; Tue, 14 Nov 2000 06:13:40 -0500
-Message-ID: <AF6FFF5F50E4D311B45A00A0245738C90FFC36@BDR-OSL-24-208>
-From: svein-olav.bjerkeset@bravida.no
-To: linux-kernel@vger.kernel.org
-Subject: VM problem(?) in 2.2.17
-Date: Tue, 14 Nov 2000 11:43:47 +0100
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain
+	id <S129507AbQKNLYl>; Tue, 14 Nov 2000 06:24:41 -0500
+Received: from devserv.devel.redhat.com ([207.175.42.156]:8716 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S129429AbQKNLYa>; Tue, 14 Nov 2000 06:24:30 -0500
+Date: Tue, 14 Nov 2000 05:54:10 -0500
+From: Jakub Jelinek <jakub@redhat.com>
+To: Malcolm Beattie <mbeattie@sable.ox.ac.uk>
+Cc: Keith Owens <kaos@ocs.com.au>, Peter Samuelson <peter@cadcamlab.org>,
+        Torsten.Duwe@caldera.de, Chris Evans <chris@scary.beasts.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Modprobe local root exploit
+Message-ID: <20001114055409.K1514@devserv.devel.redhat.com>
+Reply-To: Jakub Jelinek <jakub@redhat.com>
+In-Reply-To: <20001113230210.F18203@wire.cadcamlab.org> <3864.974181019@kao2.melbourne.sgi.com> <20001114104240.A30388@sable.ox.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20001114104240.A30388@sable.ox.ac.uk>; from mbeattie@sable.ox.ac.uk on Tue, Nov 14, 2000 at 10:42:41AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+On Tue, Nov 14, 2000 at 10:42:41AM +0000, Malcolm Beattie wrote:
+> Keith Owens writes:
+> > All these patches against request_module are attacking the problem at
+> > the wrong point.  The kernel can request any module name it likes,
+> > using any string it likes, as long as the kernel generates the name.
+> > The real problem is when the kernel blindly accepts some user input and
+> > passes it straight to modprobe, then the kernel is acting like a setuid
+> > wrapper for a program that was never designed to run setuid.
+> 
+> Rather than add sanity checking to modprobe, it would be a lot easier
+> and safer from a security audit point of view to have the kernel call
+> /sbin/kmodprobe instead of /sbin/modprobe. Then kmodprobe can sanitise
+> all the data and exec the real modprobe. That way the only thing that
+> needs auditing is a string munging/sanitising program.
 
-We have a Compaq server running RedHat Linux 6.2 with kernel 2.2.17
-Once in a while we get errors like:
+Well, no matter what kernel needs auditing as well, the fact that dev_load
+will without any check load any module the user wants is already problematic
+and no munging helps with it at all, especially loading old ISA drivers
+might not be a good idea.
 
-Nov 13 09:18:33 www2 kernel: VM: do_try_to_free_pages failed for httpd... 
-Nov 13 09:18:43 www2 kernel: VM: do_try_to_free_pages failed for mysqld... 
-
-The server then hangs and I have to cycle power to get it up and running
-again.
-Does anyone here know if 
-  1. this is a known problem / bug?
-  2. there is a patch available ?
-  3. the problem is described anywhere else ?
-
-Please CC to my e-mail as I am not subscribed to this list.
-
-
-Regards
-Svein Olav Bjerkeset
-Systems Eng.
-Bravida Norge AS
-svein-olav.bjerkeset@bravida.no
+	Jakub
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,85 +1,279 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279264AbRKFNoO>; Tue, 6 Nov 2001 08:44:14 -0500
+	id <S279303AbRKFNqe>; Tue, 6 Nov 2001 08:46:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279305AbRKFNoE>; Tue, 6 Nov 2001 08:44:04 -0500
-Received: from unthought.net ([212.97.129.24]:59867 "HELO mail.unthought.net")
-	by vger.kernel.org with SMTP id <S279264AbRKFNnz>;
-	Tue, 6 Nov 2001 08:43:55 -0500
-Date: Tue, 6 Nov 2001 14:43:53 +0100
-From: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Petr Baudis <pasky@pasky.ji.cz>, linux-kernel@vger.kernel.org,
-        Daniel Kobras <kobras@tat.physik.uni-tuebingen.de>,
-        Tim Jansen <tim@tjansen.de>
-Subject: Re: PROPOSAL: dot-proc interface [was: /proc stuff]
-Message-ID: <20011106144353.B3058@unthought.net>
-Mail-Followup-To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
-	Alexander Viro <viro@math.psu.edu>, Petr Baudis <pasky@pasky.ji.cz>,
-	linux-kernel@vger.kernel.org,
-	Daniel Kobras <kobras@tat.physik.uni-tuebingen.de>,
-	Tim Jansen <tim@tjansen.de>
-In-Reply-To: <20011106092133.X11619@pasky.ji.cz> <Pine.GSO.4.21.0111060326100.27713-100000@weyl.math.psu.edu>
+	id <S279305AbRKFNqZ>; Tue, 6 Nov 2001 08:46:25 -0500
+Received: from point41.gts.donpac.ru ([213.59.116.41]:52491 "EHLO orbita1.ru")
+	by vger.kernel.org with ESMTP id <S279303AbRKFNqK>;
+	Tue, 6 Nov 2001 08:46:10 -0500
+Date: Tue, 6 Nov 2001 16:46:07 +0300
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] PnP BIOS support for OPL3-SA1 sound driver (update)
+Message-ID: <20011106164607.A1722@orbita1.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="aM3YZ0Iwxop3KEKx"
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2i
-In-Reply-To: <Pine.GSO.4.21.0111060326100.27713-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Tue, Nov 06, 2001 at 03:34:40AM -0500
+User-Agent: Mutt/1.2.5i
+X-Uptime: 2:29pm  up 5 days,  3:10,  1 user,  load average: 0.00, 0.02, 0.00
+X-Uname: Linux orbita1.ru 2.2.20pre2 
+From: Andrey Panin <pazke@orbita1.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 06, 2001 at 03:34:40AM -0500, Alexander Viro wrote:
-> 
-> 
-> On Tue, 6 Nov 2001, Petr Baudis wrote:
-> 
-> > > As far as I can see, I cannot read /proc/[pid]/* info using sysctl.
-> > That can be added. We just have existing interface, and I don't propose to
-> > stick on its actual state as it isn't convenient, but to extend it to cope our
-> > needs.
-> 
-> No, that cannot.  Guys, you've been told: it won't happen.  I think that
-> was loud and clear enough.
 
-Al, sure no half-assed ad-hoc /proc substitute should go in, but there *are*
-*real* problems, and just because you don't see them in your daily life doesn't
-mean they don't exist.
+--aM3YZ0Iwxop3KEKx
+Content-Type: multipart/mixed; boundary="FL5UXtIhxfXey3p5"
+Content-Disposition: inline
 
-These real problems could use a real solution.   And *some* of us are at least
-going to *discuss* what such a solution could be.
 
-If, or when, we arrive at something where at least some of us agree, then we
-will see if it will be your decision to include it at all.  At this stage in
-the discussion the final (draft) solution may not have anything to do with
-filessytems at all.  We don't know - or at least I don't know.
+--FL5UXtIhxfXey3p5
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> 
-> Can it.  Get a dictionary and look up the meaning of "veto".
+Hi,
 
-Just because data is in a filesystem doesn't mean it doesn't need structure
-*in* the data too.
+updated patch attached. Fixed small typo (dma2 assignment) and io, irq and =
+dma
+printk added.
 
-Get over it Al.
+Best regards.
 
-> 
-> Oh, and as for "let's extend existing interfaces just because we had flunked
-> 'strings in C'" - if you need Hurd, you know where to find it.
+--=20
+Andrey Panin            | Embedded systems software engineer
+pazke@orbita1.ru        | PGP key: http://www.orbita1.ru/~pazke/AndreyPanin=
+.asc
+--FL5UXtIhxfXey3p5
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=patch-opl3sa-pnpbios3
+Content-Transfer-Encoding: quoted-printable
 
-My approach would be more like making another interface that could eventually
-gradually obsolete an older and inadequate one.   I see nothing in /proc that's
-worth extending on, as it stands today.
+diff -urN linux.vanilla/drivers/sound/opl3sa.c linux/drivers/sound/opl3sa.c
+--- linux.vanilla/drivers/sound/opl3sa.c	Mon Oct 29 13:30:14 2001
++++ linux/drivers/sound/opl3sa.c	Tue Nov  6 11:09:50 2001
+@@ -23,6 +23,8 @@
+ #include <linux/init.h>
+ #include <linux/module.h>
+=20
++#include <linux/pnp_bios.h>
++
+ #undef  SB_OK
+=20
+ #include "sound_config.h"
+@@ -35,35 +37,37 @@
+ static int sb_initialized =3D 0;
+ #endif
+=20
+-static int kilroy_was_here =3D 0;	/* Don't detect twice */
+-static int mpu_initialized =3D 0;
++static int kilroy_was_here;	/* Don't detect twice */
++static int mpu_initialized;
++
++static int *opl3sa_osp;
+=20
+-static int *opl3sa_osp =3D NULL;
++static int ctrl_port =3D 0xf86;
+=20
+-static unsigned char opl3sa_read(int addr)
++static unsigned char __init opl3sa_read(int addr)
+ {
+ 	unsigned long flags;
+ 	unsigned char tmp;
+=20
+ 	save_flags(flags);
+ 	cli();
+-	outb((0x1d), 0xf86);	/* password */
+-	outb(((unsigned char) addr), 0xf86);	/* address */
+-	tmp =3D inb(0xf87);	/* data */
++	outb((0x1d), ctrl_port);			/* password */
++	outb(((unsigned char) addr), ctrl_port);	/* address */
++	tmp =3D inb(ctrl_port + 1);			/* data */
+ 	restore_flags(flags);
+=20
+ 	return tmp;
+ }
+=20
+-static void opl3sa_write(int addr, int data)
++static void __init opl3sa_write(int addr, int data)
+ {
+ 	unsigned long flags;
+=20
+ 	save_flags(flags);
+ 	cli();
+-	outb((0x1d), 0xf86);	/* password */
+-	outb(((unsigned char) addr), 0xf86);	/* address */
+-	outb(((unsigned char) data), 0xf87);	/* data */
++	outb((0x1d), ctrl_port);			/* password */
++	outb(((unsigned char) addr), ctrl_port);	/* address */
++	outb(((unsigned char) data), ctrl_port + 1);	/* data */
+ 	restore_flags(flags);
+ }
+=20
+@@ -73,7 +77,7 @@
+=20
+ 	if (((tmp =3D opl3sa_read(0x01)) & 0xc4) !=3D 0x04)
+ 	{
+-		DDB(printk("OPL3-SA detect error 1 (%x)\n", opl3sa_read(0x01)));
++		DDB(printk(KERN_DEBUG "OPL3-SA detect error 1 (%x)\n", opl3sa_read(0x01)=
+));
+ 		/* return 0; */
+ 	}
+=20
+@@ -83,17 +87,17 @@
+ =09
+ 	if (inb(0xf87) =3D=3D tmp)
+ 	{
+-		DDB(printk("OPL3-SA detect failed 2 (%x/%x)\n", tmp, inb(0xf87)));
++		DDB(printk(KERN_DEBUG "OPL3-SA detect failed 2 (%x/%x)\n", tmp, inb(0xf8=
+7)));
+ 		return 0;
+ 	}
+ 	tmp =3D (opl3sa_read(0x04) & 0xe0) >> 5;
+=20
+ 	if (tmp !=3D 0 && tmp !=3D 1)
+ 	{
+-		DDB(printk("OPL3-SA detect failed 3 (%d)\n", tmp));
++		DDB(printk(KERN_DEBUG "OPL3-SA detect failed 3 (%d)\n", tmp));
+ 		return 0;
+ 	}
+-	DDB(printk("OPL3-SA mode %x detected\n", tmp));
++	DDB(printk(KERN_DEBUG "OPL3-SA mode %x detected\n", tmp));
+=20
+ 	opl3sa_write(0x01, 0x00);	/* Disable MSS */
+ 	opl3sa_write(0x02, 0x00);	/* Disable SB */
+@@ -112,7 +116,7 @@
+ 	int ret;
+ 	unsigned char tmp =3D 0x24;	/* WSS enable */
+=20
+-	if (check_region(0xf86, 2))	/* Control port is busy */
++	if (check_region(ctrl_port, 2))	/* Control port is busy */
+ 		return 0;
+ 	/*
+ 	 * Check if the IO port returns valid signature. The original MS Sound
+@@ -157,7 +161,7 @@
+=20
+ 	ret =3D probe_ms_sound(hw_config);
+ 	if (ret)
+-		request_region(0xf86, 2, "OPL3-SA");
++		request_region(ctrl_port, 2, "OPL3-SA");
+=20
+ 	return ret;
+ }
+@@ -189,7 +193,7 @@
+=20
+ 	if (mpu_initialized)
+ 	{
+-		DDB(printk("OPL3-SA: MPU mode already initialized\n"));
++		DDB(printk(KERN_DEBUG "OPL3-SA: MPU mode already initialized\n"));
+ 		return 0;
+ 	}
+ 	if (hw_config->irq > 10)
+@@ -238,7 +242,7 @@
+ 	if (dma2 =3D=3D -1)
+ 		dma2 =3D hw_config->dma;
+=20
+-	release_region(0xf86, 2);
++	release_region(ctrl_port, 2);
+ 	release_region(hw_config->io_base, 4);
+=20
+ 	ad1848_unload(hw_config->io_base + 4,
+@@ -280,11 +284,79 @@
+ MODULE_PARM(mpu_io,"i");
+ MODULE_PARM(mpu_irq,"i");
+=20
++#ifdef CONFIG_PNPBIOS
++
++struct opl3sa_pnpbios_dev {
++	char *name;
++	int io, ctrl, irq, dma, dma2, mpu_io, mpu_irq;
++};
++
++static struct opl3sa_pnpbios_dev opl3sa_devs[] __initdata =3D {
++	{ "YMF701B on motherboard", 1, -1, 0, 0, 1, 2, 1 },
++};
++
++static struct pnpbios_device_id opl3sa_pnpbios_table[] __initdata =3D {
++	{ "YMH0007", (unsigned long) &opl3sa_devs[0] },
++	{ "PNP0401", (unsigned long) &opl3sa_devs[0] },
++	{ }
++};
++MODULE_DEVICE_TABLE(pnpbios, opl3sa_pnpbios_table);
++
++#define field(f) ((struct opl3sa_pnpbios_dev *) dev_id->driver_data)->##f
++
++#define pnp_resource_start(dev, type, bar) \
++	((##dev##)->##type##_resource[(bar)].start)
++
++static int __init opl3sa_pnpbios_probe(void)
++{
++	struct pnpbios_device_id *dev_id =3D opl3sa_pnpbios_table;
++	struct pci_dev *dev =3D NULL;
++
++	while (dev_id->driver_data) {
++		if ((dev =3D pnpbios_find_device(dev_id->id, dev))) {
++			printk(KERN_NOTICE "opl3sa: PnP BIOS reports %s\n", field(name));
++
++			io =3D pci_resource_start(dev, field(io));
++			if (field(ctrl) !=3D -1)
++				ctrl_port =3D pci_resource_start(dev, field(ctrl));
++
++			irq =3D pnp_resource_start(dev, irq, field(irq));
++			dma =3D pnp_resource_start(dev, dma, field(dma));
++
++			printk(KERN_NOTICE "opl3sa: WSS at i/o %#x, %#x, irq %d, dma %d",
++				io, ctrl_port, irq, dma);
++
++			if (field(dma2) !=3D -1) {
++				dma2 =3D pnp_resource_start(dev, dma, field(dma2));
++				printk(", %d", dma2);
++			}
++
++			mpu_io =3D pci_resource_start(dev, field(mpu_io));
++			mpu_irq =3D pnp_resource_start(dev, irq, field(mpu_irq));
++
++			printk(". MPU401 at i/o %#x, irq %d\n", mpu_io, mpu_irq);
++
++			return 0;
++		}
++		dev_id++;
++	}
++
++	printk(KERN_NOTICE "opl3sa: No PnP BIOS devices found\n");
++	return -ENODEV;
++}
++
++#endif
++
+ static int __init init_opl3sa(void)
+ {
+ 	if (io =3D=3D -1 || irq =3D=3D -1 || dma =3D=3D -1) {
+-		printk(KERN_ERR "opl3sa: dma, irq and io must be set.\n");
+-		return -EINVAL;
++#ifdef CONFIG_PNPBIOS
++		if (opl3sa_pnpbios_probe())
++#endif
++		{
++			printk(KERN_ERR "opl3sa: dma, irq and io must be set.\n");
++			return -EINVAL;
++		}
+ 	}
+=20
+ 	cfg.io_base =3D io;
 
-Clearly you have no comprehension of the problems that people are working on
-solving with the new proc changes (or, rather, ideas for changes).
+--FL5UXtIhxfXey3p5--
 
-That's too bad.  It would have been great to have constructive critisism from
-someone with your experience.
+--aM3YZ0Iwxop3KEKx
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
--- 
-................................................................
-:   jakob@unthought.net   : And I see the elder races,         :
-:.........................: putrid forms of man                :
-:   Jakob Østergaard      : See him rise and claim the earth,  :
-:        OZ9ABN           : his downfall is at hand.           :
-:.........................:............{Konkhra}...............:
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE75+mfBm4rlNOo3YgRAv7QAJ0fUUsJ5vLGqcuHmotukbuey4SkcwCfbxS5
+rNCZ+16/lBcujt1MZ2mA+b0=
+=jCgz
+-----END PGP SIGNATURE-----
+
+--aM3YZ0Iwxop3KEKx--

@@ -1,56 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262070AbSJQWd7>; Thu, 17 Oct 2002 18:33:59 -0400
+	id <S262258AbSJQWph>; Thu, 17 Oct 2002 18:45:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262223AbSJQWd7>; Thu, 17 Oct 2002 18:33:59 -0400
-Received: from packet.digeo.com ([12.110.80.53]:5809 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S262070AbSJQWd6>;
-	Thu, 17 Oct 2002 18:33:58 -0400
-Message-ID: <3DAF3C36.2065CFD1@digeo.com>
-Date: Thu, 17 Oct 2002 15:39:50 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
+	id <S262267AbSJQWph>; Thu, 17 Oct 2002 18:45:37 -0400
+Received: from tml.hut.fi ([130.233.44.1]:45068 "EHLO tml-gw.tml.hut.fi")
+	by vger.kernel.org with ESMTP id <S262258AbSJQWpg>;
+	Thu, 17 Oct 2002 18:45:36 -0400
+Date: Fri, 18 Oct 2002 01:51:24 +0300 (EEST)
+From: Ville Nuorvala <vnuorval@morphine.tml.hut.fi>
+To: Antti Tuominen <ajtuomin@morphine.tml.hut.fi>
+cc: davem@redhat.com, <kuznet@ms2.inr.ac.ru>, <netdev@oss.sgi.com>,
+       <linux-kernel@vger.kernel.org>, <yoshfuji@wide.ad.jp>,
+       <pekkas@netcore.fi>, <torvalds@transmeta.com>, <jagana@us.ibm.com>
+Subject: Re: [PATCHSET] Mobile IPv6 for 2.5.43
+In-Reply-To: <20021017162624.GC16370@morphine.tml.hut.fi>
+Message-ID: <Pine.GSO.4.44.0210180132240.18554-100000@morphine.tml.hut.fi>
 MIME-Version: 1.0
-To: Thomas Molina <tmolina@cox.net>
-CC: Steve Parker <steve.parker@netops.co.uk>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.41 still not testable by end users
-References: <3DAE2691.76F83D1B@digeo.com> <Pine.LNX.4.44.0210171717550.18123-100000@dad.molina>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 17 Oct 2002 22:39:50.0599 (UTC) FILETIME=[1A8FA570:01C2762E]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Molina wrote:
-> 
-> ...
-> > > Oct 16 21:40:59 declan kernel:  [__might_sleep+84/96]
-> > > ...
-> > > Oct 16 21:41:00 declan kernel:  [init_irq+637/820] init_irq+0x27d/0x334
-> > >
-> >
-> > One day.  Before we all die.  Please.
-> 
-> I had that as fixed in my problem list.  It should have been integrated by
-> 2.5.42, certainly 2.5.43.  I'm not seeing any additional reports since
-> then.
+On Thu, 17 Oct 2002, Antti Tuominen wrote:
 
-Oh.  We still have:
+> Userspace tools are available at:
+> http://www.mipl.mediapoli.com/download/mipv6-tools/
 
-                if (request_irq(hwif->irq,&ide_intr,sa,hwif->name,hwgroup)) {
-                        if (!match)
-                                kfree(hwgroup);
-                        spin_unlock_irqrestore(&ide_lock, flags);
+There was a file missing from the original package, so please download
+the updated version.
 
-request_irq() was changed to use GFP_ATOMIC, so it's "fixed".
+-Ville
 
-But only for i386.
+--
+Ville Nuorvala
+Research Assistant, Institute of Digital Communications,
+Helsinki University of Technology
+email: vnuorval@tml.hut.fi, phone: +358 (0)9 451 5257
 
-request_irq() inside spinlock is a *very* common bug.  Moreso
-as people move cli()-using code across to use spinlocks.
 
-And we've just lost our ability to detect this bug.
-
-request_irq() needs to take the allocation mode as an argument.
-Should always have.  Sigh.  I'll fix it up sometime.

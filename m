@@ -1,50 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261670AbUCBPYp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Mar 2004 10:24:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261675AbUCBPYp
+	id S261676AbUCBPZu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Mar 2004 10:25:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261675AbUCBPZu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Mar 2004 10:24:45 -0500
-Received: from asteroids.scarlet-internet.nl ([213.204.195.163]:3469 "EHLO
-	asteroids.scarlet-internet.nl") by vger.kernel.org with ESMTP
-	id S261670AbUCBPYo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Mar 2004 10:24:44 -0500
-Message-ID: <1078241080.4044a7382010b@webmail.dds.nl>
-Date: Tue,  2 Mar 2004 16:24:40 +0100
-From: wdebruij@dds.nl
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: kernel reference resource thread. Share your links svp
+	Tue, 2 Mar 2004 10:25:50 -0500
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:28850 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S261676AbUCBPZj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Mar 2004 10:25:39 -0500
+Message-ID: <4044A764.1030304@nortelnetworks.com>
+Date: Tue, 02 Mar 2004 10:25:24 -0500
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.1
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Ben <linux-kernel-junk-email@slimyhorror.com>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Fw: epoll and fork()
+References: <Pine.LNX.4.44.0403020654080.24044-100000@bigblue.dev.mdolabs.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There's a lot of information available online about the linux kernel and kernel
-hacking. Having done some hacking myself I managed to find quite a few useful,
-but relatively hidden resources. Perhaps these are of interest to others as well.
-My links - having to do mostly with modules, networking and v2.4/v2.6 porting -
-can be found at 
+Davide Libenzi wrote:
 
-http://ffpf.sf.net/#kernelres
+> Sorry but what behaviour do you expect by unregistering an fd pushed by 
+> the parent from inside a child? Events work exactly the same. Since the 
+> context is shared, events are delivered only once.
 
-Since everyone on this list is doing something related to kernel hacking, my
-question to you is... do you know of some other hidden treasures? Please post
-follow-ups if you do, this might save others some valuable time (I know it took
-me ages to find some of these documents).
+For principle of least surprise, I would expect that the refcounts would 
+be bumped up so that the child could deregister without affecting the 
+parent.
 
-On a related note.. I've also implemented some standard tasks, such as module
-loading/unloading, mmap handling and /dev file usage in generalized files for
-others to use and abuse (or just read as examples). These can also be found on
-the previously mentioned webpage. All files are v2.4/v2.6 portable and some are
-both userspace/kernelspace compatible.
+Closing the fd in the child doesn't affect the fd in the parent. 
+Removing an fd from an fd_set in the child doesn't affect the fd_set in 
+the parent.  Unregistering an fd from an epoll set in the child 
+shouldn't affect the parent either.
 
-Finally, a small disclaimer: I know this post doesn't cover a very detailed
-hacking topic, but I don't know of a better list to discuss these more long-term
-goals than the LKML. Correct me if I'm wrong :)
+Chris
 
-Willem
-
-
+-- 
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
 

@@ -1,35 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281080AbRKDSiO>; Sun, 4 Nov 2001 13:38:14 -0500
+	id <S281082AbRKDSiO>; Sun, 4 Nov 2001 13:38:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281130AbRKDShR>; Sun, 4 Nov 2001 13:37:17 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:47076 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S281103AbRKDSfr>;
-	Sun, 4 Nov 2001 13:35:47 -0500
-Date: Sun, 4 Nov 2001 13:35:46 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Tim Jansen <tim@tjansen.de>
-cc: Jakob =?iso-8859-1?q?=D8stergaard=20?= <jakob@unthought.net>,
-        linux-kernel@vger.kernel.org
-Subject: Re: PROPOSAL: dot-proc interface [was: /proc stuff]
-In-Reply-To: <160RwJ-2D3EHoC@fmrl05.sul.t-online.com>
-Message-ID: <Pine.GSO.4.21.0111041331180.21449-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S281132AbRKDShV>; Sun, 4 Nov 2001 13:37:21 -0500
+Received: from ns.ithnet.com ([217.64.64.10]:46094 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S281091AbRKDSf3>;
+	Sun, 4 Nov 2001 13:35:29 -0500
+Date: Sun, 4 Nov 2001 19:35:20 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Cc: linux-kernel@vger.kernel.org, groudier@club-internet.fr
+Subject: Re: Adaptec vs Symbios performance
+Message-Id: <20011104193520.1867ae7e.skraw@ithnet.com>
+In-Reply-To: <200111041810.fA4IAQY68511@aslan.scsiguy.com>
+In-Reply-To: <20011104151726.06193c01.skraw@ithnet.com>
+	<200111041810.fA4IAQY68511@aslan.scsiguy.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.6.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 04 Nov 2001 11:10:26 -0700 "Justin T. Gibbs" <gibbs@scsiguy.com> wrote:
 
+> >On Sat, 03 Nov 2001 22:47:39 -0700 "Justin T. Gibbs" <gibbs@scsiguy.com>
+wrote
+> Show me where the real problem is, and I'll fix it.  I'll add the bottom
+> half handler too eventually, but I don't see it as a pressing item.  I'm
+> much more interested in why you are seeing the behavior you are and exactly
+> what, quantitatively, that behavior is.
 
-On Sun, 4 Nov 2001, Tim Jansen wrote:
+Hm, what more specific can I tell you, than:
 
-> On Sunday 04 November 2001 18:41, you wrote:
-> > The "fuzzy parsing" userland has to do today to get useful information
-> > out of many proc files today is not nice at all. 
-> 
-> I agree, but you dont need a binary format to achieve this. A WELL-DEFINED 
-> format is sufficient. XML is one of them, one-value-files another one. The 
+Take my box with
 
-And thinking before defining an API is the third.  Guess why XML is so
-popular alternative...
+Host: scsi1 Channel: 00 Id: 03 Lun: 00
+  Vendor: TEAC     Model: CD-ROM CD-532S   Rev: 1.0A
+  Type:   CD-ROM                           ANSI SCSI revision: 02
+Host: scsi0 Channel: 00 Id: 08 Lun: 00
+  Vendor: IBM      Model: DDYS-T36950N     Rev: S96H
+  Type:   Direct-Access                    ANSI SCSI revision: 03
+
+and an aic7xxx driver. Start xcdroast an read a cd image. You get something
+between 2968,4 and 3168,2 kB/s throughput measured from xcdroast.
+
+Now redo this with a Tekram controller (which is sym53c1010) and you get
+throughput of 3611,1 to 3620,2 kB/s.
+No special stuff or background processes or anything else involved. I wonder
+how much simpler a test could be.
+Give me values to compare from _your_ setup.
+
+If you redo this test with nfs-load (copy files from some client to your
+test-box acting as nfs-server) you will end up at 1926 - 2631 kB/s throughput
+with aic, but 3395 - 3605 kB/s with symbios.
+
+If you need more on that picture, then redo the last and start _some_
+application in the background during the test (like mozilla). Time how long it
+takes until the application is up and running. 
+If you are really unlucky you have your mail-client open during test and let it
+get mails via pop3 in a MH folder (lots of small files). You have a high chance
+that your mail-client is unusable until xcdroast is finished with cd reading -
+but not with symbios.
+
+??
+
+Regards,
+Stephan
+
 

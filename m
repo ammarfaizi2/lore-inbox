@@ -1,80 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130219AbRA3TqU>; Tue, 30 Jan 2001 14:46:20 -0500
+	id <S130516AbRA3TtA>; Tue, 30 Jan 2001 14:49:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130516AbRA3TqA>; Tue, 30 Jan 2001 14:46:00 -0500
-Received: from oe37.law11.hotmail.com ([64.4.16.94]:15885 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S130219AbRA3Tpv>;
-	Tue, 30 Jan 2001 14:45:51 -0500
-X-Originating-IP: [62.155.163.41]
-From: "[MOc]mirabilos" <MOc_mirabilos@hoTMail.com>
-To: <support@hoTMail.com>
-Subject: Important Suggestion
-Date: Tue, 30 Jan 2001 19:45:13 -0000
+	id <S132435AbRA3Tsu>; Tue, 30 Jan 2001 14:48:50 -0500
+Received: from webmail.metabyte.com ([216.218.208.53]:12132 "EHLO
+	webmail.metabyte.com") by vger.kernel.org with ESMTP
+	id <S130516AbRA3Tsk>; Tue, 30 Jan 2001 14:48:40 -0500
+Message-ID: <3A771A74.525D45AD@metabyte.com>
+Date: Tue, 30 Jan 2001 11:48:04 -0800
+From: Pete Zaitcev <zaitcev@metabyte.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.14-5.0 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: multipart/signed;	micalg=SHA1;	protocol="application/x-pkcs7-signature";	boundary="----=_NextPart_000_015A_01C08AF5.29FB0070"
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-Message-ID: <OE37PH3IhA1qfT7eEmP00001ea3@hotmail.com>
-X-OriginalArrivalTime: 30 Jan 2001 19:45:45.0429 (UTC) FILETIME=[3C937050:01C08AF5]
+To: simon.cahuk@uni-mb.si
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Ymfpci 724
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 30 Jan 2001 19:48:31.0382 (UTC) FILETIME=[9F7DDB60:01C08AF5]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+> From: Simon Cahuk (simon.cahuk@uni-mb.si)
+> Date: Tue Jan 30 2001 - 14:22:26 EST 
+> 
+> I have a ymfpci sound chip on my motherboard. I'm using ymfpci module. 
+> Under Q3A I get this: 
+> sound inilializations: 
+> Sorry but your soundcard can't do this 
 
-------=_NextPart_000_015A_01C08AF5.29FB0070
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Probably an mmap-ed sound problem or some ioctl is not implemented.
+Q3A is on my YMF list, behind power management. Please feel free
+to investigate it yourself and send any patches.
 
-Dear Hotmail Staff,
+Another thing that you can do is to try to use ALSA. I think
+that ALSA driver is superior for most cases because
+my ymfpci code is based on Jaroslav's ALSA code and
+will be replaced by ALSA eventually.
 
-as I will soon be unable to receive eMail from certain people,
-I strongly suggest exchanging the software of your Cisco fire-
-walls by a newer version _yet released_ by Cisco which is able
-to cope with ECN-connections instead of sending them RST.
-
-I do not speak only for me but also for my friends using at least
-five other Hotmail accounts and for all people who are subscribed
-to any mailing list on vger.kernel.org.
-
-Thank You,
-
--mirabilos
-
------BEGIN GEEK CODE BLOCK-----
-Version: 3.12+(proprietary extensions) # Updated:20010129 =
-nick=3Dmirabilos
-GO/S d@ s--: a--- C++ UL++++ P--- L++$(-^lang) E----(joe) W+(++) =
-loc=3D.de
-N? o K? w-(+$) O+>+++ M-- V- PS+++@ PE(--) Y+ PGP t+ 5? X+ R+ !tv(silly)
-b++++* DI- D+ G(>++) e(^age) h! r(-) y--(!y+) /* lang=3DNASM;GW-BASIC;C =
-*/
-------END GEEK CODE BLOCK------
-
-
-
-------=_NextPart_000_015A_01C08AF5.29FB0070
-Content-Type: application/x-pkcs7-signature;
-	name="smime.p7s"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
-	filename="smime.p7s"
-
-MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAMYIB/jCCAfoC
-AQEwgZowgZIxCzAJBgNVBAYTAlpBMRUwEwYDVQQIEwxXZXN0ZXJuIENhcGUxEjAQBgNVBAcTCUNh
-cGUgVG93bjEPMA0GA1UEChMGVGhhd3RlMR0wGwYDVQQLExRDZXJ0aWZpY2F0ZSBTZXJ2aWNlczEo
-MCYGA1UEAxMfUGVyc29uYWwgRnJlZW1haWwgUlNBIDIwMDAuOC4zMAIDBAMyMAkGBSsOAwIaBQCg
-gbowGAYJKoZIhvcNAQkDMQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcNMDEwMTMwMTk0NTEz
-WjAjBgkqhkiG9w0BCQQxFgQUrPotJV5Uz8mebkyciqTCHSle9TswWwYJKoZIhvcNAQkPMU4wTDAO
-BggqhkiG9w0DAgICAIAwCgYIKoZIhvcNAwcwDQYIKoZIhvcNAwICAUAwBwYFKw4DAgcwDQYIKoZI
-hvcNAwICASgwBwYFKw4DAh0wDQYJKoZIhvcNAQEBBQAEgYBXPuSCUdyr1MGmJAI/gGpHLRXqy2+U
-oAGbQGuUtk+n7rtzhgExsB3vfqLNLJG/TZirzs3XRjzPxaI8edc9SZ1mdbUu72udvGvsdX2QSOdj
-UHs/yzmvD5kIRBjUEHoqL/q10OUUkawYfjqod295mwGtCwFnxIFzD9IO3z++MhCfqwAAAAAAAA==
-
-------=_NextPart_000_015A_01C08AF5.29FB0070--
+-- Pete
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

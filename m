@@ -1,56 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267372AbUH3LvG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267737AbUH3MFY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267372AbUH3LvG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 07:51:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267737AbUH3LvG
+	id S267737AbUH3MFY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 08:05:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267774AbUH3MFX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 07:51:06 -0400
-Received: from purplechoc.demon.co.uk ([80.176.224.106]:3200 "EHLO
-	skeleton-jack.localnet") by vger.kernel.org with ESMTP
-	id S267372AbUH3LvC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 07:51:02 -0400
-Date: Mon, 30 Aug 2004 12:50:59 +0100
-To: linux-kernel@vger.kernel.org
-Subject: PS/2 mouse driver panics during boot - 2.6.8.1
-Message-ID: <20040830115059.GA8907@skeleton-jack>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040722i
-From: Peter Horton <pdh@colonel-panic.org>
+	Mon, 30 Aug 2004 08:05:23 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:12441 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S267737AbUH3MFS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Aug 2004 08:05:18 -0400
+Date: Mon, 30 Aug 2004 14:04:23 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Kenneth Lavrsen <kenneth@lavrsen.dk>
+cc: Greg KH <greg@kroah.com>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: Summarizing the PWC driver questions/answers
+In-Reply-To: <6.1.2.0.2.20040827215445.01c4ddb0@inet.uni2.dk>
+Message-ID: <Pine.GSO.4.58.0408301402490.3353@waterleaf.sonytel.be>
+References: <6.1.2.0.2.20040827215445.01c4ddb0@inet.uni2.dk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Every other time I boot my x86 box the kernel panics in
-psmouse_interrupt() because ->protocol_handler is NULL. Looks like
-psmouse_connect() runs before ->protocol_handler is set and generates an
-interrupt from the mouse. The mouse driver is built in, and I'm not
-passing it any parameters.
+On Fri, 27 Aug 2004, Kenneth Lavrsen wrote:
+> - What is the next hardware or software - currently supported by Linux -
+> that you will allow being made impossible to use for whatever fanatic
+> reasons? (This is not exactly like the principles you stated in your book).
 
-This is a Micro$oft Wireless Optical Mouse 2.0A.
+Hardware which needs a binary driver is not `supported by Linux'. You _know_
+the so-called support may vanish in the (near) future.
 
-The call stack is something like this
+Gr{oetje,eeting}s,
 
-	psmouse_interrupt
-	serio_interrupt
-	i8042_interrupt
-	handle_IRQ_event
-	do_IRQ
-	common_interrupt
-	__do_softirq
-	do_softirq
-	do_IRQ
-	common_interrupt
-	i8042_command
-	i8042_activate_port
-	i8042_open
-	i8042_interrupt
-	serio_open
-	psmouse_connect
-	serio_find_dev
-	serio_register_port
-	i8042_port_register
-	i8042_init
-	serio_init
+						Geert
 
-P.
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

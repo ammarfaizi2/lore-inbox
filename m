@@ -1,50 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261453AbUCDFQl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Mar 2004 00:16:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261454AbUCDFQl
+	id S261455AbUCDFTJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Mar 2004 00:19:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261459AbUCDFTJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Mar 2004 00:16:41 -0500
-Received: from havoc.gtf.org ([216.162.42.101]:5264 "EHLO gtf.org")
-	by vger.kernel.org with ESMTP id S261453AbUCDFQk (ORCPT
+	Thu, 4 Mar 2004 00:19:09 -0500
+Received: from fw.osdl.org ([65.172.181.6]:3809 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261455AbUCDFTF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Mar 2004 00:16:40 -0500
-Date: Thu, 4 Mar 2004 00:16:38 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Hanna Linder <hannal@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, greg@kroah.com
-Subject: Re: [PATCH 2.6] Patch to hook up PPP to simple class sysfs support
-Message-ID: <20040304051638.GA30560@havoc.gtf.org>
-References: <200403032328.i23NSwlv009796@orion.dwf.com> <22370000.1078362205@w-hlinder.beaverton.ibm.com>
+	Thu, 4 Mar 2004 00:19:05 -0500
+Date: Wed, 3 Mar 2004 21:18:50 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Amit S. Kale" <amitkale@emsyssoft.com>
+Cc: ak@suse.de, george@mvista.com, pavel@ucw.cz, linux-kernel@vger.kernel.org,
+       piggy@timesys.com, trini@kernel.crashing.org
+Subject: Re: kgdb support in vanilla 2.6.2
+Message-Id: <20040303211850.05d44b4a.akpm@osdl.org>
+In-Reply-To: <200403041036.58827.amitkale@emsyssoft.com>
+References: <20040204230133.GA8702@elf.ucw.cz.suse.lists.linux.kernel>
+	<40467BC3.7030708@mvista.com>
+	<20040304015056.4d2cc3ee.ak@suse.de>
+	<200403041036.58827.amitkale@emsyssoft.com>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <22370000.1078362205@w-hlinder.beaverton.ibm.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 03, 2004 at 05:03:26PM -0800, Hanna Linder wrote:
-> 
-> Here is a small patch to add PPP support to /sys/class.
-> 
-> Please consider for inclusion.
-> 
-> Thanks.
-> 
-> Hanna
-> ----
-> 
-> diff -Nrup -Xdontdiff linux-2.6.3/drivers/net/ppp_generic.c 
-> linux-2.6.3p/drivers/net/ppp_generic.c
-> --- linux-2.6.3/drivers/net/ppp_generic.c	2004-02-17 
-> 19:59:31.000000000 -0800
-> +++ linux-2.6.3p/drivers/net/ppp_generic.c	2004-03-03 
+"Amit S. Kale" <amitkale@emsyssoft.com> wrote:
+>
+> Flashing keyboard lights is easy on x86 and x86_64 platforms. 
 
-Please CC the PPP maintainer (paulus) and the network developers
-(netdev@oss.sgi.com) when modifying PPP.
+Please, no keyboards.  Some people want to be able to use kgdboe
+to find out why machine number 324 down the corridor just died.
 
-	Jeff
+How about just doing
 
 
+char *why_i_crashed;
+
+
+{
+	...
+	if (expr1)
+		why_i_crashed = "hit a BUG";
+	else if (expr2)
+		why_i_crashed = "divide by zero";
+	else ...
+}
+
+then provide a gdb macro which prints out the string at *why_i_crashed?
 

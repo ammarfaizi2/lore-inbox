@@ -1,56 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261772AbULUPVo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261771AbULUPUy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261772AbULUPVo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Dec 2004 10:21:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261773AbULUPVn
+	id S261771AbULUPUy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Dec 2004 10:20:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261772AbULUPUy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Dec 2004 10:21:43 -0500
-Received: from main.gmane.org ([80.91.229.2]:27300 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261772AbULUPVj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Dec 2004 10:21:39 -0500
-X-Injected-Via-Gmane: http://gmane.org/
+	Tue, 21 Dec 2004 10:20:54 -0500
+Received: from host245-95.pool217223.interbusiness.it ([217.223.95.245]:57021
+	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261771AbULUPUr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Dec 2004 10:20:47 -0500
+Subject: ATARAID and KERNEL-2.6.9
+From: Sasa Ostrouska <sasa.ostrouska@volja.net>
 To: linux-kernel@vger.kernel.org
-From: Ed L Cashin <ecashin@coraid.com>
-Subject: Re: [PATCH] ATA over Ethernet driver for 2.6.10-rc3-bk11
-Date: Tue, 21 Dec 2004 10:21:28 -0500
-Message-ID: <87vfav65jb.fsf@coraid.com>
-References: <87k6rhc4uk.fsf@coraid.com>
-	<1103356085.3369.140.camel@sfeldma-mobl.dsl-verizon.net>
+Content-Type: text/plain
+Date: Tue, 21 Dec 2004 16:18:53 +0100
+Message-Id: <1103642333.5591.5.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: adsl-34-230-221.asm.bellsouth.net
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
-Cancel-Lock: sha1:w1ElLVbASK/9q/FeMTOMLAttTJk=
+X-Mailer: Evolution 2.0.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Scott Feldman <sfeldma@pobox.com> writes:
+Dear Sirs,
 
-> On Fri, 2004-12-17 at 07:38, Ed L Cashin wrote:
->
->> +       ETH_P_AOE = 0x88a2,
->
-> include/linux/if_ether.h already defines this as ETH_P_EDP2=0x88A2; use
-> that.
->
->> +static int
->> +aoehdr_atainit(struct aoedev *d, struct aoe_hdr *h)
->> +{
->> +       u16 type = __constant_cpu_to_be16(ETH_P_AOE);
+        I have a little problem or maybe big one. I try to 
+put to work the kernel-2.6.9 on my machine. I have a slackware
+current install and the following hardware.
 
-> How about __constant_htons()?
+AMD Athlon 
+512MB RAM
+HPT 370 RAID controller 
+and 2 HDD in RAID1
 
-Hi.  Andi Kleene and you both ask why we're using the __cpu_to_be16
-kind of byte-swappers.
+So when I start the kernel-ataraid-2.4.27 everything works OK.
+When I start the installed kernel-2.6.9 I get the following error
+message:
 
-I think it comes down to a semantics thing, and it's probably
-controversial.  We are using fixed-size integers, so we specify the
-size of the integers.  A short happens to be 16-bits wide on most
-architectures, but it needn't be, esp. in the future, so it's more
-clear to say what we mean.
+VFS: Cannot openroot device "7203" or unknown-block(114,3)
+Please append a correct "root=" option 
+Kernel panic: VFS: Unable to mount root fs on unknown-block(114,3)
 
--- 
-  Ed L Cashin <ecashin@coraid.com>
+On my lilo.conf is root=/dev/ataraid/d0p3 
+as this is the / partition. 
+
+I tried to put the root=/dev/hde at the lilo prompt but no 
+success. 
+I tried many many forums but nobody was able to answer me. So 
+my last sollution is you and I will very very apreciate it if 
+you can give me some hints how to do it. I append you also a
+dmesg from the 2.4.27 kernel. 
+
+Many thanks in advance for your help !!!
+
+Best Regards
+Sasa Ostrouska
+
+
+
+
 

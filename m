@@ -1,31 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262148AbULLWC6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262151AbULLWHD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262148AbULLWC6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Dec 2004 17:02:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262149AbULLWC6
+	id S262151AbULLWHD (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Dec 2004 17:07:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262149AbULLWHC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Dec 2004 17:02:58 -0500
-Received: from gw.c9x.org ([213.41.131.17]:55890 "HELO
-	nerim.mx.42-networks.com") by vger.kernel.org with SMTP
-	id S262148AbULLWCe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Dec 2004 17:02:34 -0500
-Date: Sun, 12 Dec 2004 23:02:10 +0100
-From: Frank Denis <lkml@pureftpd.org>
-To: linux-kernel@vger.kernel.org
-Subject: Is O_DIRECT + ext3 still broken on amd64?
-Message-ID: <20041212220232.GA1427@c9x.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+	Sun, 12 Dec 2004 17:07:02 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:36516 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S262151AbULLWGq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Dec 2004 17:06:46 -0500
+Date: Sun, 12 Dec 2004 23:06:40 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Niel Lambrechts <antispam@telkomsa.net>
+cc: Linux Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: [WISHLIST] IBM HD Shock detection in Linux
+In-Reply-To: <1102888882.15558.2.camel@ksyrium.local>
+Message-ID: <Pine.LNX.4.61.0412122305010.29854@yvahk01.tjqt.qr>
+References: <1102888882.15558.2.camel@ksyrium.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  According to this post:
-  
-  http://archives.neohapsis.com/archives/mysql/2004-q3/1535.html
-  
-  At least 2.6.7 kernels were bogus on AMD64 regarding O_DIRECT with files on
-an ext3 fs.
+>I picked this up from somewhere on the net, pity that it is not c
+>code...
 
-  Is this statement still true nowadays?
+- there is "c" in "c#".
+- the code looks really ugly (is this always the case with something that's 
+written under windows?); make a silent rewrite if license allows :)
+
+>The code apparently can display the horizon, but cannot prevent
+>shocks :(
+
+How can something prevent a shock if it does not know before? What I mean is 
+that if I smack a harddrive, it can hardly evade it... nor can it prevent me 
+from smacking it.
+
+
+
+Jan Engelhardt
+-- 
+ENOSPC

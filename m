@@ -1,49 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136122AbRD2Tyk>; Sun, 29 Apr 2001 15:54:40 -0400
+	id <S131479AbRD2UEL>; Sun, 29 Apr 2001 16:04:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136156AbRD2Tyb>; Sun, 29 Apr 2001 15:54:31 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:64486 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S136122AbRD2Ty2>; Sun, 29 Apr 2001 15:54:28 -0400
-Date: Sun, 29 Apr 2001 13:54:24 -0600
-Message-Id: <200104291954.f3TJsO821517@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Gregory Maxwell <greg@linuxpower.cx>
-Cc: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
-        "David S. Miller" <davem@redhat.com>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: X15 alpha release: as fast as TUX but in user space (fwd)
-In-Reply-To: <20010429154720.B17155@xi.linuxpower.cx>
-In-Reply-To: <Pine.LNX.4.33.0104281752290.10866-100000@localhost.localdomain>
-	<20010428215301.A1052@gruyere.muc.suse.de>
-	<200104282256.f3SMuRW15999@vindaloo.ras.ucalgary.ca>
-	<9cg7t7$gbt$1@cesium.transmeta.com>
-	<3AEBF782.1911EDD2@mandrakesoft.com>
-	<15083.64180.314190.500961@pizda.ninka.net>
-	<20010429153229.L679@nightmaster.csn.tu-chemnitz.de>
-	<200104291848.f3TIm6821037@vindaloo.ras.ucalgary.ca>
-	<20010429145552.A17155@xi.linuxpower.cx>
-	<200104291902.f3TJ2Dd21232@vindaloo.ras.ucalgary.ca>
-	<20010429154720.B17155@xi.linuxpower.cx>
+	id <S136156AbRD2UDw>; Sun, 29 Apr 2001 16:03:52 -0400
+Received: from 13dyn119.delft.casema.net ([212.64.76.119]:53765 "EHLO
+	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id <S131479AbRD2UDs>; Sun, 29 Apr 2001 16:03:48 -0400
+Message-Id: <200104292003.WAA25179@cave.bitwizard.nl>
+Subject: Re: Sony Memory stick format funnies...
+In-Reply-To: <9cflov$fdv$1@cesium.transmeta.com> from "H. Peter Anvin" at "Apr
+ 28, 2001 05:03:43 pm"
+To: "H. Peter Anvin" <hpa@zytor.com>
+Date: Sun, 29 Apr 2001 22:03:40 +0200 (MEST)
+CC: linux-kernel@vger.kernel.org
+From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gregory Maxwell writes:
-> Would it make sence to have libc use the magic page for all
-> syscalls? Then on cpus with a fast syscall instruction, the magic
-> page could contain the needed junk in userspace to use it.
+H. Peter Anvin wrote:
+> Followup to:  <200104282236.AAA06021@cave.bitwizard.nl>
+> By author:    R.E.Wolff@BitWizard.nl (Rogier Wolff)
+> In newsgroup: linux.dev.kernel
+> > 
+> > # l /mnt/d1
+> > total 16
+> > drwxr-xr-x 512 root     root        16384 Mar 24 17:26 dcim/
+> > -r-xr-xr-x   1 root     root            0 May 23  2000 memstick.ind*
+> > # 
+> > 
+> > Where the *(&#$%& does that "dcim" directory come from????
+> > 
+> 
+> "dcim" probably stands for "digital camera images".  At least Canon
+> digital cameras always put their data in a directory named dcim.
 
-That's pretty much what Linus suggested. He proposed having a new
-syscall interface which was just calls into the magic page. All
-syscalls would thus be available via the magic page. The kernel could
-then selectively optimise individual syscalls (like gettimeofday(2))
-or optimise the interface into kernel space, without libc ever having
-to know about the details.
+Yes. I know. Seems to be standard. The stick is for my Sony camera. 
 
-				Regards,
+However, the question is: how in **** is the Linux kernel seeing that
+directory while it's not on the stick? (the root directory has one
+MEMSTICK.IND file, and nothing else!)
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+				Roger.
+
+-- 
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+* There are old pilots, and there are bold pilots. 
+* There are also old, bald pilots. 

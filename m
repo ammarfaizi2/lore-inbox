@@ -1,54 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263083AbSJGPK5>; Mon, 7 Oct 2002 11:10:57 -0400
+	id <S263082AbSJGPYW>; Mon, 7 Oct 2002 11:24:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263084AbSJGPK4>; Mon, 7 Oct 2002 11:10:56 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:38394 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S263083AbSJGPKy> convert rfc822-to-8bit;
-	Mon, 7 Oct 2002 11:10:54 -0400
-Message-ID: <3DA1A532.9BF70424@mvista.com>
-Date: Mon, 07 Oct 2002 08:16:02 -0700
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
+	id <S263086AbSJGPYV>; Mon, 7 Oct 2002 11:24:21 -0400
+Received: from 2-225.ctame701-1.telepar.net.br ([200.193.160.225]:6289 "EHLO
+	2-225.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S263082AbSJGPYU>; Mon, 7 Oct 2002 11:24:20 -0400
+Date: Mon, 7 Oct 2002 12:29:40 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Larry McVoy <lm@bitmover.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: best version for server?
+In-Reply-To: <20021007080132.A13486@work.bitmover.com>
+Message-ID: <Pine.LNX.4.44L.0210071228060.22735-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-To: Eduardo =?iso-8859-1?Q?P=E9rez?= <100018135@alumnos.uc3m.es>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] namespace clean
-References: <a6cf5427338512cb0ae6b015e16b896a@alumnos.uc3m.es>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eduardo Pérez wrote:
-> 
-> Currently the Linux kernel has a cryptic api namespace that confuses
-> many people when trying to code for the Linux kernel. People can't know
-> by direct examination of a symbol to what package belongs. Also symbols
-> can't be easily sorted by package.
-> 
-> I'm suggesting to use a cleaner namespace like
-> package_object_method and package_function
-> If this is accepted, symbols from new code should follow this
-> naming, and current symbols should start the transition to this cleaner
-> namespace.
-> 
-> If anybody like me think that this would help people to code for the
-> Linux kernel it would be a good idea to start this transition to a
-> cleaner namespace.
-> 
-> Most drivers and new core kernel api have a very clean namespace but
-> some old api don't.
-> 
-> What are your thoughts about this ?
+On Mon, 7 Oct 2002, Larry McVoy wrote:
 
-Then if it is a static symbol, one could use anything?  I.e.
-static symbols would not follow the rule, right?
+> We're not sure if it is something we've done or just increased usage, but
+> bkbits.net is getting hammered lately.  We see load averages in ~15-20
+> range pretty regularly.  It's got some nasty characteristics from the
+> point of view of server/VM system, tons of data and not really any good
+> working sets.
+
+There are a few things that could help here:
+
+1) Andrew Morton's io scheduler patch (read-latency2), which is
+   in the -rmap kernel
+
+2) reducing the number of outstanding IO commands in the 3ware
+   controller/driver, so akpm's io scheduler gets a chance to do
+   its work
+
+3) better readahead, if possible...
+
+regards,
+
+Rik
 -- 
-George Anzinger   george@mvista.com
-High-res-timers: 
-http://sourceforge.net/projects/high-res-timers/
-Preemption patch:
-http://www.kernel.org/pub/linux/kernel/people/rml
+Bravely reimplemented by the knights who say "NIH".
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Spamtraps of the month:  september@surriel.com trac@trac.org
+

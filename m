@@ -1,54 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129790AbRA3PKQ>; Tue, 30 Jan 2001 10:10:16 -0500
+	id <S129902AbRA3PP4>; Tue, 30 Jan 2001 10:15:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129962AbRA3PJ4>; Tue, 30 Jan 2001 10:09:56 -0500
-Received: from passion.cambridge.redhat.com ([172.16.18.67]:15493 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S129790AbRA3PJq>; Tue, 30 Jan 2001 10:09:46 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <3A74462A.80804@redhat.com> 
-In-Reply-To: <3A74462A.80804@redhat.com>  <200101220150.UAA29623@renoir.op.net> <Pine.LNX.4.05.10101211754550.741-100000@cosmic.nrg.org>, <Pine.LNX.4.05.10101211754550.741-100000@cosmic.nrg.org>; from Nigel Gamble on Sun, Jan 21, 2001 at 06:21:05PM -0800 <20010128061428.A21416@hq.fsmlabs.com> <3A742A79.6AF39EEE@uow.edu.au> 
-To: Joe deBlaquiere <jadb@redhat.com>
-Cc: Andrew Morton <andrewm@uow.edu.au>, yodaiken@fsmlabs.com,
-        Nigel Gamble <nigel@nrg.org>, linux-kernel@vger.kernel.org,
-        linux-audio-dev@ginette.musique.umontreal.ca
-Subject: Re: [linux-audio-dev] low-latency scheduling patch for 2.4.0 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 30 Jan 2001 15:08:04 +0000
-Message-ID: <30682.980867284@redhat.com>
+	id <S130996AbRA3PPh>; Tue, 30 Jan 2001 10:15:37 -0500
+Received: from mail.myrealbox.com ([192.108.102.201]:11934 "EHLO myrealbox.com")
+	by vger.kernel.org with ESMTP id <S130671AbRA3PPa>;
+	Tue, 30 Jan 2001 10:15:30 -0500
+Message-ID: <003001c08acf$7ae475f0$9b2f4189@angelw2k>
+From: "Micah Gorrell" <angelcode@myrealbox.com>
+To: "Andrey Savochkin" <saw@saw.sw.com.sg>
+Cc: "Romain Kang" <romain@kzsu.stanford.edu>, <linux-kernel@vger.kernel.org>,
+        <root@chaos.analogic.com>, "Craig I. Hagan" <hagan@cih.com>
+Subject: Re: eepro100 - Linux vs. FreeBSD
+Date: Tue, 30 Jan 2001 08:15:21 -0700
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 4.72.3612.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.3018.1300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I have been running 2.2 on many machines since its release and have updated
+to the latest version of 2.2 many times.  All of these machines have an
+eepro100 and I never saw a single problem with any of them.  I updated most
+of my machines to 2.4 over the course of a week and within a day of updating
+each of them showed the problem.  This may be pure chance but it sounds to
+me as if it is a difference with the 2.4 kernel.
 
-jadb@redhat.com said:
-> A recent example I came across is in the MTD code which invokes the
-> erase algorithm for CFI memory. This algorithm spews a command
-> sequence  to the flash chips followed by a list of sectors to erase.
-> Following  each sector adress, the chip will wait for 50usec for
-> another address,  after which timeout it begins the erase cycle. With
-> a RTLinux-style  approach the driver is eventually going to fail to
-> issue the command in  time.
+Micah
+___
+The irony is that Bill Gates claims to be making a stable operating system
+and Linus Torvalds claims to be trying to take over the world
+-----Original Message-----
+From: "Andrey Savochkin" <saw@saw.sw.com.sg>
+To: "Micah Gorrell" <angelcode@myrealbox.com>
+Cc: "Romain Kang" <romain@kzsu.stanford.edu>;
+<linux-kernel@vger.kernel.org>; <root@chaos.analogic.com>; "Craig I. Hagan"
+<hagan@cih.com>
+Date: Tuesday, January 30, 2001 12:35 AM
+Subject: Re: eepro100 - Linux vs. FreeBSD
 
-That code is within spin_lock_bh(), isn't it? So with the current 
-preemption approach, it's not going to get interrupted except by a real 
-interrupt, which hopefully won't take too long anyway. 
 
-spin_lock_bh() is used because eventually we're intending to stop the erase 
-routine from waiting for completion, and make it poll for completion from a 
-timer routine. We need protection against concurrent access to the chip 
-from that timer routine. 
-
-But perhaps we could be using spin_lock_irq() to prevent us from being
-interrupted and failing to meet the timing requirements for subsequent 
-commands to the chip if IRQ handlers really do take too long. 
-
---
-dwmw2
-
+>On Mon, Jan 29, 2001 at 11:06:11AM -0700, Micah Gorrell wrote:
+>> As stated in a number of previous messages to this list many people have
+had
+>> serious problems with the eepro100 driver in 2.4.  These problems where
+not
+>> there in 2.2 and it is not a select few machines showing this so I very
+much
+>> doubt that it is a configuration problem.  I assume that the intel driver
+>> would prolly fix all of these issues but its not ready for 2.4 yet and
+its
+>[snip]
+>
+>In the first place, the "no resource" problem is a hardware one.
+>As far as I understand, it's a buggy (or undocumented) timing requirement
+>for some revisions.
+>This problem showed with any kernel, 2.2 or 2.4, until a workaround was
+>developed.  On a single computer suffering from that problem it showed not
+on
+>every boot, but about in 30 percents.  That's why the reports were
+different.
+>So, the kernel version is irrelevant to this problem.
+>
+>Best regards
+> Andrey V.
+> Savochkin
+>
+>
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,44 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261701AbVBXB1U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261713AbVBXB3g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261701AbVBXB1U (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Feb 2005 20:27:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261713AbVBXB1U
+	id S261713AbVBXB3g (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Feb 2005 20:29:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261763AbVBXB3g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Feb 2005 20:27:20 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:30186 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261701AbVBXB1S (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Feb 2005 20:27:18 -0500
-Date: Wed, 23 Feb 2005 17:25:51 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Kaigai Kohei <kaigai@ak.jp.nec.com>
-Cc: jlan@sgi.com, akpm@osdl.org, lse-tech@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, guillaume.thouvenin@bull.net,
-       tim@physik3.uni-rostock.de, erikj@subway.americas.sgi.com,
-       limin@dbear.engr.sgi.com, jbarnes@sgi.com
-Subject: Re: [Lse-tech] Re: A common layer for Accounting packages
-Message-Id: <20050223172551.6771ce7a.pj@sgi.com>
-In-Reply-To: <421C2B99.2040600@ak.jp.nec.com>
-References: <42168D9E.1010900@sgi.com>
-	<20050218171610.757ba9c9.akpm@osdl.org>
-	<421993A2.4020308@ak.jp.nec.com>
-	<421B955A.9060000@sgi.com>
-	<421C2B99.2040600@ak.jp.nec.com>
-Organization: SGI
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 23 Feb 2005 20:29:36 -0500
+Received: from smtp200.mail.sc5.yahoo.com ([216.136.130.125]:4766 "HELO
+	smtp200.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261713AbVBXB3Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Feb 2005 20:29:24 -0500
+Message-ID: <421D2DEE.8070209@yahoo.com.au>
+Date: Thu, 24 Feb 2005 12:29:18 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Lee Revell <rlrevell@joe-job.com>
+CC: Hugh Dickins <hugh@veritas.com>, Ingo Molnar <mingo@elte.hu>,
+       Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: More latency regressions with 2.6.11-rc4-RT-V0.7.39-02
+References: <1109182061.16201.6.camel@krustophenia.net>	 <Pine.LNX.4.61.0502231908040.13491@goblin.wat.veritas.com>	 <1109187381.3174.5.camel@krustophenia.net>	 <Pine.LNX.4.61.0502231952250.14603@goblin.wat.veritas.com>	 <1109190614.3126.1.camel@krustophenia.net>	 <Pine.LNX.4.61.0502232053320.14747@goblin.wat.veritas.com>	 <421D1171.7070506@yahoo.com.au> <1109207024.4516.6.camel@krustophenia.net>
+In-Reply-To: <1109207024.4516.6.camel@krustophenia.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> So, I think such a fork/execve/exit hooks is harmless now.
+Lee Revell wrote:
+> On Thu, 2005-02-24 at 10:27 +1100, Nick Piggin wrote: 
 
-I don't recall seeing any microbenchmarking of the impact on fork/exit
-of such hooks.  You might find such a benchmark in lmbench, or at
-http://bulk.fefe.de/scalability/.
+>>If you are using i386 with 2-level page tables (no highmem), then
+>>the behaviour should be more or less identical. Odd.
+> 
+> 
+> IIRC last time I really tested this a few months ago, the worst case
+> latency on that machine was about 150us.  Currently its 422us from the
+> same clear_page_range code path.
+> 
+> On my Athlon XP the clear_page_range latency is not showing up at all,
+> and the worst delay so far is only 35us, most of which is the timer
+> interrupt IOW that machine is showing the best achievable latency (with
+> PREEMPT_DESKTOP).  The machine seeing 422 us latencies in
+> clear_page_range is a 600Mhz C3, which is known to be a FSB limited
+> architecture.
+> 
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.650.933.1373, 1.925.600.0401
+Well it should be pretty trivial to add a break in there.
+I don't think it can get into 2.6.11 at this point though,
+so we'll revisit this for 2.6.12 if the clear_page_range
+optimisations don't get anywhere.
+
+Nick
+

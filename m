@@ -1,51 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261742AbUCPWA2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Mar 2004 17:00:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261746AbUCPWA2
+	id S261746AbUCPWBQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Mar 2004 17:01:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261750AbUCPWBQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Mar 2004 17:00:28 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:63925 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261742AbUCPWAW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Mar 2004 17:00:22 -0500
-Subject: [PATCH] Fix blkpg ioctl32 handling
-From: Jeremy Katz <katzj@redhat.com>
-To: linux-kernel@vger.kernel.org
-Cc: torvalds@osdl.org, akpm@osdl.org
-Content-Type: multipart/mixed; boundary="=-BrBIKaxjqG/lz/PADm2Z"
-Message-Id: <1079474322.7787.13.camel@edoras.local.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.5.5 (1.5.5-1) 
-Date: Tue, 16 Mar 2004 16:58:42 -0500
+	Tue, 16 Mar 2004 17:01:16 -0500
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:48325 "EHLO
+	dsl.commfireservices.com") by vger.kernel.org with ESMTP
+	id S261746AbUCPWBN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Mar 2004 17:01:13 -0500
+Date: Tue, 16 Mar 2004 17:01:15 -0500 (EST)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: Francis F Steen <steen@cogweb.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.3 ifdown race
+In-Reply-To: <4057709A.8080808@cogweb.net>
+Message-ID: <Pine.LNX.4.58.0403161659330.28447@montezuma.fsmlabs.com>
+References: <4057709A.8080808@cogweb.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 16 Mar 2004, Francis F Steen wrote:
 
---=-BrBIKaxjqG/lz/PADm2Z
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+> In kernel 2.6.3, if I take down the network connection, within a second
+> or so top shows 99.9% CPU utilization for [events/0].
+> When I restablish a network connection, it calms down at once.
+>
+> I had the same behavior in 2.6.0.
+>
+> Details below -- what can I do to get more information on what is happening?
 
-Simple obvious patch so that all calls to blkpg from the non-native
-environment don't get -EINVAL
+Compile in CONFIG_MAGIC_SYSRQ and then when the load goes up do;
 
-Jeremy
+alt + syrq + t
 
---=-BrBIKaxjqG/lz/PADm2Z
-Content-Disposition: attachment; filename=linux-2.6.4-blkpg.patch
-Content-Type: text/x-diff; name=linux-2.6.4-blkpg.patch; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
---- linux-2.6.4/fs/compat_ioctl.c.blkpg	2004-03-16 16:12:17.761705684 -0500
-+++ linux-2.6.4/fs/compat_ioctl.c	2004-03-16 16:12:40.186738770 -0500
-@@ -1952,6 +1952,7 @@
- 		set_fs (KERNEL_DS);
- 		err = sys_ioctl(fd, cmd, (unsigned long)&a);
- 		set_fs (old_fs);
-+                break;
- 	default:
- 		return -EINVAL;
- 	}                                        
-
---=-BrBIKaxjqG/lz/PADm2Z--
+you're interested in the call traces from events/0
 

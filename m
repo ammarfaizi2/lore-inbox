@@ -1,80 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132919AbREIDOp>; Tue, 8 May 2001 23:14:45 -0400
+	id <S133022AbREIDFZ>; Tue, 8 May 2001 23:05:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133029AbREIDOf>; Tue, 8 May 2001 23:14:35 -0400
-Received: from mta1.snfc21.pbi.net ([206.13.28.122]:57836 "EHLO
-	mta1.snfc21.pbi.net") by vger.kernel.org with ESMTP
-	id <S132919AbREIDOa>; Tue, 8 May 2001 23:14:30 -0400
-Date: Tue, 08 May 2001 20:09:46 -0700
-From: David Brownell <david-b@pacbell.net>
-Subject: Re: pci_pool_free from IRQ
-To: "David S. Miller" <davem@redhat.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        "Albert D. Cahalan" <acahalan@cs.uml.edu>,
-        Pete Zaitcev <zaitcev@redhat.com>, johannes@erdfelt.com,
-        rmk@arm.linux.org.uk, linux-kernel@vger.kernel.org
-Message-id: <059e01c0d835$819eace0$6800000a@brownell.org>
-MIME-version: 1.0
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-Content-type: text/plain; charset="iso-8859-1"
-Content-transfer-encoding: 7bit
-X-MSMail-Priority: Normal
-X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-In-Reply-To: <200105082108.f48L8X1154536@saturn.cs.uml.edu>
- <E14xFD5-0000hh-00@the-village.bc.nu>
- <15096.27479.707679.544048@pizda.ninka.net>
- <050701c0d80f$8f876ca0$6800000a@brownell.org>
- <15096.38109.228916.621891@pizda.ninka.net>
-X-Priority: 3
+	id <S132919AbREIDFO>; Tue, 8 May 2001 23:05:14 -0400
+Received: from [63.143.102.194] ([63.143.102.194]:47350 "EHLO
+	foo.penguincomputing.com") by vger.kernel.org with ESMTP
+	id <S133022AbREIDFI>; Tue, 8 May 2001 23:05:08 -0400
+Date: Tue, 8 May 2001 20:05:06 -0700 (PDT)
+From: Jim Wright <jwright@penguincomputing.com>
+Reply-To: Jim Wright <jwright@penguincomputing.com>
+To: <redhat-devel-list@redhat.com>, <linux-kernel@vger.kernel.org>,
+        Jeremy Hogan <jhogan@redhat.com>, Mike Vaillancourt <mikev@redhat.com>
+cc: Jim Wright <jwright@penguincomputing.com>,
+        Philip Pokorny <ppokorny@penguincomputing.com>
+Subject: bug in redhat gcc 2.96
+Message-ID: <Pine.LNX.4.33.0105081927320.1798-100000@foo.penguincomputing.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  > Pete's patch to pci_pool_free() is fine with me, and I'd be glad
->  > to see that bit of pci interface cleaned up.  Any changes needed
->  > other than the pci.txt doc update?
-> 
-> Ummm... What Alan's saying is:
+We believe we have found a bug in gcc.  We have been trying to track
+down why the .../drivers/scsi/sym53c8xx.c driver oopses with a divide
+by zero when initializing at line 5265, which reads:
 
-(consistent with what I said -- those are two separate issues!)
+        period = (4 * div_10M[0] + np->clock_khz - 1) / np->clock_khz;
 
-> 1) Whatever driver is trying to shut down from IRQ context
->    is broken must be fixed.  pci_pool is fine.
+We believe the bug is that gcc is generating incorrect code for this:
 
-In _that_ respect, yes.  pci_pool_destroy() called in shutdown
-context "should" be OK.  Getting rid of pages then is fine.
+                if      (f1 < 55000)            f1 =  40000;
+		else                            f1 =  80000;
 
-> 2) The Documentation/ files which suggest that such device
->    removal from IRQs is "OK" must be fixed because it is not
->    "OK" to handle device removal from IRQ context.
+Here is the test code to demonstrate this:
 
-All agreed.
+% cat bug.c
+int main (int argc, char *argv[])
+{
+    unsigned f1;
 
-> So Pete's change is not needed.  A fix for the documentation and
-> broken drivers is needed instead.
+    f1 = (unsigned)argc;
 
-Two issues are mixed up there.  Doc should address both:
+    if (f1 < 5) {
+	f1 = 4;
+    } else {
+	f1 = 8;
+    }
+    exit (f1);
+}
 
-Documentation/pci.txt
+And here are commands to exhibit the problem.
 
-    ... that remove() is never called in_interrupt
-        point (2) above
+% for i in 0 1 2 3 4 5 6 ; do ln bug.c bug$i.c ; done
+% for i in 0 1 2 3 4 5 6 ; do gcc -save-temps -O$i -o bug$i bug$i.c ; done
+% for i in 0 1 2 3 4 5 6 ; do ./bug$i 1 2 ; echo $? ; done
+% for i in 0 1 2 3 4 5 6 ; do ./bug$i 1 2 3 4 5 6 7 ; echo $? ; done
 
-Documentation/DMA-mapping.txt
+The level 0 optimization assembly code appears correct.  For level 1 and
+above, the compiler emits a long-subtract-with-borrow statement which
+leaves EAX either 0 filled or 1 filled, based on the carry flag.
 
-    pci_free_consistent() -- do not call in_interrupt
-        ... unless we bugfix the ARM behavior "soon"
+As this is with Red Hat's version of gcc, I'm not sending
+this to the gcc folks.  RPMs of gcc with this problem
+include gcc-2.96-69 and gcc-2.96-81.  This has been logged
+as http://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=39764.
+Any suggestions for a way to cope with this?  We have a
+customer who's system fails due to this.
 
-    pci_pool_destroy() -- do not call in_interrupt
-        ... normally called on device remove()
-        
-    pci_pool_free() -- may be called in_interrupt
-        ... often called in device interrupt handling
 
-Pete's patch deferred some pci_free_consistent calls from
-pci_pool_free() where they're unsafe (on ARM) to where
-they're safe (all architectures, as discussed above).
-
-- Dave
-
+-- 
+Jim Wright   Software Engineer   Penguin Computing
+jwright@penguincomputing.com   v:415-358-2609   f:415-358-2646
 

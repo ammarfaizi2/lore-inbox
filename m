@@ -1,100 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264649AbSL0GVm>; Fri, 27 Dec 2002 01:21:42 -0500
+	id <S264795AbSL0G7s>; Fri, 27 Dec 2002 01:59:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264677AbSL0GVm>; Fri, 27 Dec 2002 01:21:42 -0500
-Received: from TYO202.gate.nec.co.jp ([202.32.8.202]:30916 "EHLO
-	TYO202.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id <S264649AbSL0GVl>; Fri, 27 Dec 2002 01:21:41 -0500
-To: Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCH] [v850]  Add support for ROM kernel on v850 AS85EP1 target
-Cc: linux-kernel@vger.kernel.org
-Reply-To: Miles Bader <miles@gnu.org>
-Message-Id: <20021227062943.A530D3703@mcspd15.ucom.lsi.nec.co.jp>
-Date: Fri, 27 Dec 2002 15:29:43 +0900 (JST)
-From: miles@lsi.nec.co.jp (Miles Bader)
+	id <S264797AbSL0G7r>; Fri, 27 Dec 2002 01:59:47 -0500
+Received: from mx11.dmz.fedex.com ([199.81.193.118]:33290 "EHLO
+	mx11.sac.fedex.com") by vger.kernel.org with ESMTP
+	id <S264795AbSL0G7r>; Fri, 27 Dec 2002 01:59:47 -0500
+Date: Fri, 27 Dec 2002 15:06:01 +0800 (SGT)
+From: Jeff Chua <jchua@fedex.com>
+X-X-Sender: root@boston.corp.fedex.com
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: 2.5.5x COMMAND_LINE_SIZE cmdline problem
+In-Reply-To: <200212182242.OAA03454@adam.yggdrasil.com>
+Message-ID: <Pine.LNX.4.51.0212271457460.27890@boston.corp.fedex.com>
+References: <200212182242.OAA03454@adam.yggdrasil.com>
+MIME-Version: 1.0
+X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 12/27/2002
+ 03:07:59 PM,
+	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 12/27/2002
+ 03:08:02 PM,
+	Serialize complete at 12/27/2002 03:08:02 PM
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -ruN -X../cludes linux-2.5.53-moo.orig/arch/v850/kernel/as85ep1.c linux-2.5.53-moo/arch/v850/kernel/as85ep1.c
---- linux-2.5.53-moo.orig/arch/v850/kernel/as85ep1.c	2002-11-28 10:24:54.000000000 +0900
-+++ linux-2.5.53-moo/arch/v850/kernel/as85ep1.c	2002-12-26 14:59:12.000000000 +0900
-@@ -44,8 +44,10 @@
- 
- void __init mach_early_init (void)
- {
-+#ifndef CONFIG_ROM_KERNEL
- 	const u32 *src;
- 	register u32 *dst asm ("ep");
-+#endif
- 
- 	AS85EP1_CSC(0) = 0x0403;
- 	AS85EP1_BCT(0) = 0xB8B8;
-@@ -53,25 +55,28 @@
- 	AS85EP1_BCC    = 0x0012;
- 	AS85EP1_ASC    = 0;
- 	AS85EP1_LBS    = 0x00A9;
--	AS85EP1_RFS(1) = 0x8205;
--	AS85EP1_RFS(3) = 0x8205;
--	AS85EP1_SCR(1) = 0x20A9;
--	AS85EP1_SCR(3) = 0x20A9;
- 
- 	AS85EP1_PORT_PMC(6)  = 0xFF; /* A20-25, A0,A1 有効 */
- 	AS85EP1_PORT_PMC(7)  = 0x0E; /* CS1,2,3       有効 */
- 	AS85EP1_PORT_PMC(9)  = 0xFF; /* D16-23        有効 */
- 	AS85EP1_PORT_PMC(10) = 0xFF; /* D24-31        有効 */
- 
--	AS85EP1_IRAMM = 0x3;	/* 内蔵命令RAMは「write-mode」になります */
-+	AS85EP1_RFS(1) = 0x800c;
-+	AS85EP1_RFS(3) = 0x800c;
-+	AS85EP1_SCR(1) = 0x20A9;
-+	AS85EP1_SCR(3) = 0x20A9;
- 
--	/* The early chip we have is buggy, so that writing the interrupt
-+#ifndef CONFIG_ROM_KERNEL
-+	/* The early chip we have is buggy, and writing the interrupt
- 	   vectors into low RAM may screw up, so for non-ROM kernels, we
- 	   only rely on the reset vector being downloaded, and copy the
- 	   rest of the interrupt vectors into place here.  The specific bug
- 	   is that writing address N, where (N & 0x10) == 0x10, will _also_
- 	   write to address (N - 0x10).  We avoid this (effectively) by
- 	   writing in 16-byte chunks backwards from the end.  */
-+
-+	AS85EP1_IRAMM = 0x3;	/* 内蔵命令RAMは「write-mode」になります */
-+
- 	src = (u32 *)(((u32)&_intv_copy_src_end - 1) & ~0xF);
- 	dst = (u32 *)&_intv_copy_dst_start
- 		+ (src - (u32 *)&_intv_copy_src_start);
-@@ -83,6 +88,7 @@
- 	} while (src > (u32 *)&_intv_copy_src_start);
- 
- 	AS85EP1_IRAMM = 0x0;	/* 内蔵命令RAMは「read-mode」になります */
-+#endif /* !CONFIG_ROM_KERNEL */
- 
- 	nb85e_intc_disable_irqs ();
- }
-@@ -107,16 +113,20 @@
- 	*ram_len = RAM_END - RAM_START;
- }
- 
-+/* Convenience macros.  */
-+#define SRAM_END	(SRAM_ADDR + SRAM_SIZE)
-+#define SDRAM_END	(SDRAM_ADDR + SDRAM_SIZE)
-+
- void __init mach_reserve_bootmem ()
- {
- 	extern char _root_fs_image_start, _root_fs_image_end;
- 	u32 root_fs_image_start = (u32)&_root_fs_image_start;
- 	u32 root_fs_image_end = (u32)&_root_fs_image_end;
- 
--	/* We can't use the space between SRAM and SDRAM, so prevent the
--	   kernel from trying.  */
--	reserve_bootmem (SRAM_ADDR + SRAM_SIZE,
--			 SDRAM_ADDR - (SRAM_ADDR + SRAM_SIZE));
-+	if (SDRAM_ADDR < RAM_END && SDRAM_ADDR > RAM_START)
-+		/* We can't use the space between SRAM and SDRAM, so
-+		   prevent the kernel from trying.  */
-+		reserve_bootmem (SRAM_END, SDRAM_ADDR - SRAM_END);
- 
- 	/* Reserve the memory used by the root filesystem image if it's
- 	   in RAM.  */
+
+
+When booting the kernel with a long command line arguments, the kernel
+will hang under 2.5.52, 2.5.53. Short command line is ok. 2.5.51 is ok.
+
+# cat /proc/cmdline
+root=/dev/hda2 ro reboot=hard hostname=boston.corp.fedex.com master=hda
+network=none nssdns=0 apm=1 gpm=1 pccards=2 dma=1 lvm=1 reiser=1
+modules="dm-mod ide-disk ide-probe-mod" /d /k autoexec BOOT_IMAGE=bzc1
+
+I've tried both loadlin and linld with the same result.
+
+It seems that COMMAND_LINE_SIZE is defined at several places with
+different values ...
+
+./arch/sh/kernel/setup.c
+./arch/um/kernel/user_util.c
+./arch/i386/kernel/setup.c
+./include/asm-i386/setup.h
+
+
+Thanks,
+Jeff.
+

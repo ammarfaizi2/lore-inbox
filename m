@@ -1,84 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318032AbSIJTMW>; Tue, 10 Sep 2002 15:12:22 -0400
+	id <S318047AbSIJTWP>; Tue, 10 Sep 2002 15:22:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318033AbSIJTMV>; Tue, 10 Sep 2002 15:12:21 -0400
-Received: from pop.gmx.net ([213.165.64.20]:49696 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S318032AbSIJTMN> convert rfc822-to-8bit;
-	Tue, 10 Sep 2002 15:12:13 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Marc-Christian Petersen <m.c.p@gmx.net>
-Organization: WOLK - Working Overloaded Linux Kernel
-To: linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] [PATCH] Linux-2.5.34-mcp1
-Date: Tue, 10 Sep 2002 21:10:52 +0200
-X-Mailer: KMail [version 1.4]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200209102044.57514.m.c.p@gmx.net>
+	id <S318044AbSIJTWN>; Tue, 10 Sep 2002 15:22:13 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:5066 "EHLO e31.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S318035AbSIJTWK>;
+	Tue, 10 Sep 2002 15:22:10 -0400
+Date: Tue, 10 Sep 2002 12:26:50 -0700
+From: Patrick Mansfield <patmans@us.ibm.com>
+To: Lars Marowsky-Bree <lmb@suse.de>
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: [RFC] Multi-path IO in 2.5/2.6 ?
+Message-ID: <20020910122650.A13738@eng2.beaverton.ibm.com>
+References: <patmans@us.ibm.com> <200209091734.g89HY5p11796@localhost.localdomain> <20020909170847.A24352@eng2.beaverton.ibm.com> <20020910131606.GQ2992@marowsky-bree.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20020910131606.GQ2992@marowsky-bree.de>; from lmb@suse.de on Tue, Sep 10, 2002 at 03:16:06PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there,
+On Tue, Sep 10, 2002 at 03:16:06PM +0200, Lars Marowsky-Bree wrote:
+> On 2002-09-09T17:08:47,
+>    Patrick Mansfield <patmans@us.ibm.com> said:
 
-since v2.5.25 the devel kernel series didn't boot for me. I've tested each new 
-version but without success. Saw "Loading Linux..." and after that, a blank 
-screen, even sysrq was non-working, even Serial Console didn't give me _any_ 
-output. I was really afraid, since I was not able to find that problem, that 
-future 2.5.xx kernels won't boot for me also, BUT fortunately v2.5.34 boots 
-again for me :-) and is working fine so far and I am really impressed how 
-v2.5 goes ahead :-)
+> > Yes negotiation is at the adapter level, but that does not have to be tied
+> > to a Scsi_Device. I need to search for Scsi_Device::hostdata usage to
+> > figure out details, and to figure out if anything is broken in the current
+> > scsi multi-path code - right now it requires the same adapter drivers be
+> > used and that certain Scsi_Host parameters are equal if multiple paths
+> > to a Scsi_Device are found.
+> 
+> This seems to be a serious limitation. There are good reasons for wanting to
+> use different HBAs for the different paths.
 
-Therefor I decided to make a really small patch available for vanilla v2.5.34 
-kernel which includes the following:
+What reasons? Adapter upgrades/replacement on a live system? I can imagine
+someone using different HBAs so that they won't hit the same bug in both
+HBAs, but that is a weak argument; I would think such systems would want
+some type of cluster failover.
 
- o   2.5.34-mm1                                (Andrew Morton)
- o   aty128 Framebuffer fixes                  (Paul Mackerras)
- o   ftape damage fix                          (Mikael Pettersson)
- o   devfs fix                                 (Alexander Viro)
- o   do_syslog__down_try lock lockup           (Ingo Molnar)
- o   floppy driver init/exit fixes             (Mikael Pettersson)
- o   pcibios_fixup_irqs-static                 (Adam J. Richter)
- o   some tuning                               (me)
-     - OPEN_MAX 1024
-     - NR_FILE 65536
-     - NR_RESERVED_FILES 128
-     - TCP_KEEPALIVE_TIME (5*60*HZ)
-     - int sysctl_local_port_range[2] = { 1024, 9999 };
- o   ext3 version information fix              (me)
- o   ALSA v0.9.0rc3                            (ALSA Team)
- o   XFS + KDB (2.5.33-20020908-cvs)           (SGI)
+If the HBAs had the same memory and other limitations, it should function
+OK, but it is hard to figure out exactly what might happen (if the HBAs had
+different error handling characteristics, handled timeouts differently,
+etc.). It would be easy to get rid of the checking for the same drivers,
+(the code actually checks for the same drivers via Scsi_Host::hostt, not
+the same hardware) - so it would allow multiple paths if the same driver
+is used for different HBA's.
 
+> And the Scsi_Device might be quite different. Imagine something like two
+> storage boxes which do internal replication among them; yes, you'd only want
+> to use one of them normal (because the Cache-coherency traffic is going to
+> kill performance otherwise), but you can failover from one to the other even
+> if they have different SCSI serials etc.
 
-I hope you need this a bit and find it usefull as I do.
+> And software RAID on top of multi-pathing is a typical example for a truely
+> fault tolerant configuration.
+> 
+> Thats obviously easier with md, and I assume your SCSI code can also do that
+> nicely.
 
-Feedback welcome :)
+I haven't tried it, but I see no reason why it would not work.
 
+> > Agreed, but having the block layer be everything is also wrong.
+> 
+> Having the block device handling all block devices seems fairly reasonable to
+> me.
 
-md5sums:
---------
-fab4908b8b864fc36072d6f00ff64519 *linux-2.5.34-mcp1.patch.bz2
-123067907208ee27eb93a04560667012 *linux-2.5.34-mcp1.patch.gz
+Note that scsi uses the block device layer (the request_queue_t) for
+character devices - look at st.c, sg.c, and sr*.c, calls to scsi_do_req()
+or scsi_wait_req() queue to the request_queue_t. Weird but it works - you can
+open a CD via sr and sg at the same time.
 
-URL:
-----
-http://prdownloads.sf.net/wolk/linux-2.5.34-mcp1.patch.bz2?download
-http://prdownloads.sf.net/wolk/linux-2.5.34-mcp1.patch.gz?download
+> > My view is that md/volume manager multi-pathing is useful with 2.4.x, scsi
+> > layer multi-path for 2.5.x, and this (perhaps with DASD) could then evolve
+> > into generic block level (or perhaps integrated with the device model)
+> > multi-pathing support for use in 2.7.x. Do you agree or disagree with this
+> > approach?
+> 
+> Well, I guess 2.5/2.6 will have all the different multi-path implementations
+> mentioned so far (EVMS, LVM2, md, scsi, proprietary) - they all have code and
+> a userbase... All of them and future implementations can benefit from better
+> error handling and general cleanup, so that might be the best to do for now.
+> 
+> I think it is too soon to clean that up and consolidate the m-p approaches,
+> but I think it really ought to be consolidated in 2.7, and this seems like a
+> good time to start planning for that one.
+> 
+> 
+> Sincerely,
+>     Lars Marowsky-Brée <lmb@suse.de>
 
+The scsi multi-path code is not in 2.5.x, and I doubt it will be accepted
+without the support of James and others.
 
-
-Thanks goes out to all the great developers who made this possible !!
-
-
--- 
-Kind regards
-        Marc-Christian Petersen
-
-http://sourceforge.net/projects/wolk
-
-PGP/GnuPG Key: 1024D/569DE2E3DB441A16
-Fingerprint: 3469 0CF8 CA7E 0042 7824 080A 569D E2E3 DB44 1A16
-Key available at www.keyserver.net. Encrypted e-mail preferred.
-
-
+-- Patrick Mansfield

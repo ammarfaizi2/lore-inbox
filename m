@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262488AbUCHN7O (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Mar 2004 08:59:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262490AbUCHN7N
+	id S262490AbUCHO3Q (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Mar 2004 09:29:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262492AbUCHO3Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Mar 2004 08:59:13 -0500
-Received: from m244.net81-65-141.noos.fr ([81.65.141.244]:43665 "EHLO
-	deep-space-9.dsnet") by vger.kernel.org with ESMTP id S262488AbUCHN7N
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Mar 2004 08:59:13 -0500
-Date: Mon, 8 Mar 2004 14:59:03 +0100
-From: Stelian Pop <stelian@popies.net>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] sonypi section usage
-Message-ID: <20040308135903.GJ1800@deep-space-9.dsnet>
-Reply-To: Stelian Pop <stelian@popies.net>
-Mail-Followup-To: Stelian Pop <stelian@popies.net>,
-	"Randy.Dunlap" <rddunlap@osdl.org>,
-	lkml <linux-kernel@vger.kernel.org>
-References: <20040307195349.354f3bf1.rddunlap@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040307195349.354f3bf1.rddunlap@osdl.org>
-User-Agent: Mutt/1.4.1i
+	Mon, 8 Mar 2004 09:29:16 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:32691 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262490AbUCHO3P (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Mar 2004 09:29:15 -0500
+Date: Mon, 8 Mar 2004 09:29:57 -0500 (EST)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: Max Valdez <maxvalde@fis.unam.mx>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: distcc crashes fedora 2.4.22-1.2149.nptl
+In-Reply-To: <200403071852.18132.maxvalde@fis.unam.mx>
+Message-ID: <Xine.LNX.4.44.0403080928240.22156-100000@thoron.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 07, 2004 at 07:53:49PM -0800, Randy.Dunlap wrote:
+On Sun, 7 Mar 2004, Max Valdez wrote:
 
-> Hi Stelian,
-> 
-> Please apply to 2.6.current.
+> I know this is not the correct list to ask problems about fedora, but maybe 
+> someone knows what can be happening, and what can I do to trace the problem 
+> down. Should I try to install a vanilla kernel to see if that corrects the 
+> problem ?
 
-Thanks Randy, applied to my tree and will send it to
-Linus with the next round of updates.
+One of the fedora mailing lists would be a better place to post.
 
-Stelian.
+Do you have SELinux enabled?
+
+Try and get a log of the kernel oops via serial console, or at least write 
+down the traceback functions.
+
+
+- James
 -- 
-Stelian Pop <stelian@popies.net>
+James Morris
+<jmorris@redhat.com>
+
+
+
+

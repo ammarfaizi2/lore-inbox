@@ -1,47 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129774AbQJ0Bdd>; Thu, 26 Oct 2000 21:33:33 -0400
+	id <S129938AbQJ0Bhp>; Thu, 26 Oct 2000 21:37:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129938AbQJ0BdN>; Thu, 26 Oct 2000 21:33:13 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:46932 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129774AbQJ0BdI>; Thu, 26 Oct 2000 21:33:08 -0400
-Subject: Re: kqueue microbenchmark results
-To: jlemon@flugsvamp.com (Jonathan Lemon)
-Date: Fri, 27 Oct 2000 02:32:59 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), jlemon@flugsvamp.com (Jonathan Lemon),
-        gid@cisco.com (Gideon Glass), sim@stormix.com (Simon Kirby),
-        dank@alumni.caltech.edu (Dan Kegel), chat@freebsd.org,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20001026201042.A38500@prism.flugsvamp.com> from "Jonathan Lemon" at Oct 26, 2000 08:10:42 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E13oyOE-00044z-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S130434AbQJ0Bhf>; Thu, 26 Oct 2000 21:37:35 -0400
+Received: from cb58709-a.mdsn1.wi.home.com ([24.17.241.9]:23563 "EHLO
+	prism.flugsvamp.com") by vger.kernel.org with ESMTP
+	id <S129938AbQJ0BhS>; Thu, 26 Oct 2000 21:37:18 -0400
+Date: Thu, 26 Oct 2000 20:35:45 -0500 (CDT)
+From: Jonathan Lemon <jlemon@flugsvamp.com>
+Message-Id: <200010270135.e9R1ZjS39822@prism.flugsvamp.com>
+To: Dan Kegel <dank@alumni.caltech.edu>,
+        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux's implementation of poll() not scalable?
+X-Newsgroups: local.mail.linux-kernel
+In-Reply-To: <local.mail.linux-kernel/39F8D09B.F55AD0FD@alumni.caltech.edu>
+In-Reply-To: <local.mail.linux-kernel/Pine.LNX.4.10.10010260936330.2460-100000@penguin.transmeta.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> the application of a close event.  What can I say, "the fd formerly known
-> as X" is now gone?  It would be incorrect to say that "fd X was closed",
-> since X no longer refers to anything, and the application may have reused
-> that fd for another file.
+In article <local.mail.linux-kernel/39F8D09B.F55AD0FD@alumni.caltech.edu> you write:
+>Linus Torvalds wrote:
+>> I'd much rather have an event interface that is documented to be edge-
+>> triggered and is really _lightweight_, than have another interface that
+>> starts out with some piggy features.
+>
+>Agreed (except for that 'edge-triggered' part), but I don't think
+>'level-triggered' implies piggy.   I haven't benchmarked whether
+>kqueue() slows down the networking layer of FreeBSD yet; do you
+>suspect maintaining the level-triggered structures actually is
+>a bottleneck for them?
 
-Which is precisely why you need to know where in the chain of events this
-happened. Otherwise if I see
+I really don't think it's a bottleneck.  At the moment, all events
+are maintained on a linked list.  To dequeue an event, we simply:
 
-	'read on fd 5'
-	'read on fd 5'
+	1. take the event on the front of the list.
+	2. validate event.  (call filter function)
+	3. copy event into return array.
+	4. put event back on end of list.
 
-How do I know which read is for which fd in the multithreaded case
+If the `EV_ONESHOT' flag is set, we skip steps 2 & 4, and destroy
+the event after it is returned to the user.
+    (we want to wait only once for this particular event)
 
-> As for the multi-thread case, this would be a bug; if one thread closes
-> the descriptor, the other thread is going to get an EBADF when it goes 
-> to perform the read.
+If the `EV_CLEAR' flag is set, we skip step 4.
+    (pure edge-triggered delivery)
 
-Another thread may already have reused the fd
+Step 4 is pretty simple, just re-insertion back onto the queue.
 
+If you eliminate Step 2, then you have a `correctness' issue; where
+the application must deal with stale events.  The validation function
+is equally lightweight and doesn't (IMO) cause a performance problem.
+
+
+>> ... the "re-bind()" approach works very simply, and means that the
+>> overhead of testing whether the event is still active is not a generic
+>> thing that _always_ has to be done, but something where the application
+>> can basically give the kernel the information that "this time we're
+>> leaving the event possibly half-done, please re-test now".
+>
+>Hmm.  I don't like the extra system call, though.  Any chance you'd be
+>willing to make get_events() take a vector of bind requests, so we can
+>avoid the system call overhead of re-binding?  (Or is that too close
+>to kqueue for you?)
+
+IMO, I'd think that the calls should be orthogonal.  If the "get_events()"
+call returns an array, why shouldn't the "bind_request()" call as well?
+Otherwise you're only amortizing the system calls in one direction.
+
+
+>And are you sure apps will always know whether they need to rebind?
+>Sometimes you're faced with a protocol stack which may or may not
+>read the requests fully, and which you aren't allowed to change.
+>It'd be nice to still have a high-performance interface that can deal with 
+>that situation.
+
+Agreed.
+--
+Jonathan
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

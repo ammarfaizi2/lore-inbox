@@ -1,69 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265783AbSJTFqd>; Sun, 20 Oct 2002 01:46:33 -0400
+	id <S265781AbSJTFn0>; Sun, 20 Oct 2002 01:43:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265784AbSJTFqd>; Sun, 20 Oct 2002 01:46:33 -0400
-Received: from packet.digeo.com ([12.110.80.53]:52463 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S265783AbSJTFqb>;
-	Sun, 20 Oct 2002 01:46:31 -0400
-Message-ID: <3DB2449D.C02B57F3@digeo.com>
-Date: Sat, 19 Oct 2002 22:52:29 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.42 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: acme@conectiva.com.br, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ipv4: only produce one record in fib_seq_show
-References: <20021020050849.GD15254@conectiva.com.br> <20021019.221403.116117803.davem@redhat.com>
+	id <S265782AbSJTFn0>; Sun, 20 Oct 2002 01:43:26 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:3238 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S265781AbSJTFnZ>;
+	Sun, 20 Oct 2002 01:43:25 -0400
+Date: Sun, 20 Oct 2002 05:45:13 +0100
+From: John Levon <levon@movementarian.org>
+To: Matthew Wilcox <willy@debian.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] work around duff ABIs
+Message-ID: <20021020044513.GA54778@compsoc.man.ac.uk>
+References: <20021020053147.C5285@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 20 Oct 2002 05:52:29.0635 (UTC) FILETIME=[E02DB130:01C277FC]
+Content-Disposition: inline
+In-Reply-To: <20021020053147.C5285@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Mr. Scruff - Trouser Jazz
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" wrote:
-> 
-> ..
-> kernel/timer.c's main data structures desperately want to be per-cpu
-> or allocated at boot time also.  It, as has been noted often on this
-> list, is actually more bloat than the ipv4 statistics stuff. :-)
+On Sun, Oct 20, 2002 at 05:31:47AM +0100, Matthew Wilcox wrote:
 
-I have a bunch of patches under test which do that.
+> *sigh*.  i hate this kind of bullshit.  please, don't anyone ever try
+> to pass 64-bit args through the syscall interface again.
 
-The tricky bit is that at present, the per-cpu data for all 32
-CPUs is always allocated.  We had to change that to only allocate
-the secondary CPU's memory when the CPU is coming up.
+I was about to do exactly that ...
 
-This means that:
+> + * LFS versions of truncate are only needed on 32 bit machines.  PA-RISC
+> + * and MIPS ABIs specify 64-bit alignment for 64-bit quantities, but glibc
+> + * ignores this and passes 64-bit quantities in misaligned registers.
 
-	for (i = 0; i < NR_CPUS; i++)
-		play_with(per_cpu(something, i));
+Isn't glibc broken ?
 
-becomes a bug.  Because the per-cpu memory for not-possible
-CPUs is not allocated.  I created a `for_each_possible_cpu(i)'
-helper macro for that.
+regards
+john
 
-Another issue:
-
-	/* this is basically for_each_possible_cpu() */
-	for (i = 0; i < NR_CPUS; i++) {
-		if (cpu_possible(i)) {
-			play_with(per_cpu(something, i));
-		}
-	}
-
-the above code will fail if it is run before smp_init(), because
-smp_init() sets up cpu_callout_map() and the per-cpu memory.
-We (Dipanker and I) fixed up all the callers.
-
-The code works OK, on ia32.  But we think ia64 needs more work.
-
-That's 128k saved.  There's another 128k-odd in a huge hashtable
-in kernel/pid.c (even on uniprocessor) which needs a diet.  Also
-80k or so in runqueues.  The runqueues are set up before smp_init(),
-but I expect a cpu notifier and some reorg there will work.  Haven't
-done sched.c yet.
-
-I suspect we waste more memory than this in dynamically allocated
-hashtables and mempools though.
+-- 
+"It's a cardboard universe ... and if you lean too hard against it, you fall
+ through." 
+	- Philip K. Dick 

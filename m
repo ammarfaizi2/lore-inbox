@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261400AbSJ1RfA>; Mon, 28 Oct 2002 12:35:00 -0500
+	id <S261402AbSJ1Rhe>; Mon, 28 Oct 2002 12:37:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261432AbSJ1ReI>; Mon, 28 Oct 2002 12:34:08 -0500
-Received: from gateway.cinet.co.jp ([210.166.75.129]:61199 "EHLO
+	id <S261448AbSJ1RhX>; Mon, 28 Oct 2002 12:37:23 -0500
+Received: from gateway.cinet.co.jp ([210.166.75.129]:61711 "EHLO
 	precia.cinet.co.jp") by vger.kernel.org with ESMTP
-	id <S261400AbSJ1RXs>; Mon, 28 Oct 2002 12:23:48 -0500
-Date: Tue, 29 Oct 2002 02:30:08 +0900
+	id <S261402AbSJ1RXu>; Mon, 28 Oct 2002 12:23:50 -0500
+Date: Tue, 29 Oct 2002 02:30:09 +0900
 From: Osamu Tomita <tomita@cinet.co.jp>
 To: LKML <linux-kernel@vger.kernel.org>
 Cc: Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCHSET 10/23] add support for PC-9800 architecture (input)
-Message-ID: <20021029023008.A2277@precia.cinet.co.jp>
+Subject: [PATCHSET 12/23] add support for PC-9800 architecture (network device)
+Message-ID: <20021029023009.A2289@precia.cinet.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -19,965 +19,1760 @@ User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a part 10/23 of patchset for add support NEC PC-9800 architecture,
+This is a part 12/23 of patchset for add support NEC PC-9800 architecture,
 against 2.5.44.
 
 Summary:
- input modules
-  - add new driver for PC-9800 standard keyboard and mouse.
-  - add few changes for PC-9800 hardware spec.
+ network card modules
+  - add support for PC-9800 legacy bus network cards.
 
 diffstat:
- drivers/char/keyboard.c          |    4 
- drivers/input/keyboard/98kbd.c   |  356 +++++++++++++++++++++++++++++++++++++++
- drivers/input/keyboard/Config.in |    4 
- drivers/input/keyboard/Makefile  |    1 
- drivers/input/misc/pcspkr.c      |   24 ++
- drivers/input/mouse/98busmouse.c |  201 ++++++++++++++++++++++
- drivers/input/mouse/Config.in    |    3 
- drivers/input/mouse/Makefile     |    1 
- drivers/input/serio/98kbd-io.c   |  181 +++++++++++++++++++
- drivers/input/serio/Config.in    |    3 
- drivers/input/serio/Makefile     |    1 
- include/linux/kbd_kern.h         |    5 
- include/linux/keyboard.h         |    1 
- include/linux/serio.h            |    1 
- 14 files changed, 784 insertions(+), 2 deletions(-)
+ drivers/net/3c509.c      |   33 +++
+ drivers/net/8390.h       |    3 
+ drivers/net/Config.in    |   24 ++
+ drivers/net/Makefile     |    4 
+ drivers/net/Makefile.lib |    1 
+ drivers/net/Space.c      |    2 
+ drivers/net/at1700.c     |  115 +++++++++-
+ drivers/net/ne.c         |  517 +++++++++++++++++++++++++++++++++++++++++++++--
+ drivers/net/ne2k_cbus.h  |  467 ++++++++++++++++++++++++++++++++++++++++++
+ 9 files changed, 1137 insertions(+), 29 deletions(-)
 
 patch:
-diff -urN linux/drivers/input/keyboard/Config.in linux98/drivers/input/keyboard/Config.in
---- linux/drivers/input/keyboard/Config.in	Sat Oct 12 13:22:45 2002
-+++ linux98/drivers/input/keyboard/Config.in	Sun Oct 13 11:29:55 2002
-@@ -9,6 +9,10 @@
- dep_tristate '  XT Keyboard support' CONFIG_KEYBOARD_XTKBD $CONFIG_INPUT $CONFIG_INPUT_KEYBOARD $CONFIG_SERIO
- dep_tristate '  Newton keyboard' CONFIG_KEYBOARD_NEWTON $CONFIG_INPUT $CONFIG_INPUT_KEYBOARD $CONFIG_SERIO
- 
-+if [ "$CONFIG_PC9800" = "y" ]; then
-+   dep_tristate '  NEC PC-9801 keyboard support' CONFIG_KEYBOARD_98KBD $CONFIG_INPUT $CONFIG_INPUT_KEYBOARD $CONFIG_SERIO
-+fi
-+
- if [ "$CONFIG_SH_DREAMCAST" = "y" ]; then
-    dep_tristate '  Maple bus keyboard support' CONFIG_KEYBOARD_MAPLE $CONFIG_INPUT $CONFIG_INPUT_KEYBOARD $CONFIG_MAPLE
- fi
-diff -urN linux/drivers/input/keyboard/Makefile linux98/drivers/input/keyboard/Makefile
---- linux/drivers/input/keyboard/Makefile	Sat Oct 12 13:21:42 2002
-+++ linux98/drivers/input/keyboard/Makefile	Sun Oct 13 11:27:15 2002
-@@ -10,6 +10,7 @@
- obj-$(CONFIG_KEYBOARD_XTKBD)		+= xtkbd.o
- obj-$(CONFIG_KEYBOARD_AMIGA)		+= amikbd.o
- obj-$(CONFIG_KEYBOARD_NEWTON)		+= newtonkbd.o
-+obj-$(CONFIG_KEYBOARD_98KBD)		+= 98kbd.o
- 
- # The global Rules.make.
- 
-diff -urN linux/drivers/input/keyboard/98kbd.c linux98/drivers/input/keyboard/98kbd.c
---- linux/drivers/input/keyboard/98kbd.c	Thu Jan  1 09:00:00 1970
-+++ linux98/drivers/input/keyboard/98kbd.c	Sun Oct 27 07:45:43 2002
-@@ -0,0 +1,356 @@
+diff -Nru linux-2.5.42/drivers/net/3c509.c linux98-2.5.42/drivers/net/3c509.c
+--- linux-2.5.42/drivers/net/3c509.c	Wed Oct 16 12:27:09 2002
++++ linux98-2.5.42/drivers/net/3c509.c	Sat Oct 19 10:49:31 2002
+@@ -52,6 +52,10 @@
+ 		v1.19  16Oct2002 Zwane Mwaikambo <zwane@linuxpower.ca>
+ 			- Additional ethtool features
+ */
 +/*
-+ *  drivers/input/keyboard/98kbd.c
-+ *
-+ *  PC-9801 keyboard driver for Linux
-+ *
-+ *    Based on atkbd.c and xtkbd.c written by Vojtech Pavlik
-+ *
-+ *  Copyright (c) 2002 Osamu Tomita
-+ *  Copyright (c) 1999-2001 Vojtech Pavlik
-+ */
-+
-+/*
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or 
-+ * (at your option) any later version.
-+ * 
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ * 
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-+ * 
-+ */
-+
-+#include <linux/delay.h>
-+#include <linux/slab.h>
-+#include <linux/module.h>
-+#include <linux/input.h>
-+#include <linux/init.h>
-+#include <linux/serio.h>
-+
-+#include <asm/io.h>
-+#include <asm/pc9800.h>
-+
-+MODULE_AUTHOR("Osamu Tomita <tomita@cinet.co.jp>");
-+MODULE_DESCRIPTION("PC-9801 keyboard driver");
-+MODULE_LICENSE("GPL");
-+
-+#define KBD98_KEY	0x7f
-+#define KBD98_RELEASE	0x80
-+
-+static unsigned char kbd98_keycode[256] = {	 
-+	  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 43, 14, 15,
-+	 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 41, 26, 28, 30, 31, 32,
-+	 33, 34, 35, 36, 37, 38, 39, 40, 27, 44, 45, 46, 47, 48, 49, 50,
-+	 51, 52, 53, 12, 57,184,109,104,110,111,103,105,106,108,102,107,
-+	 74, 98, 71, 72, 73, 55, 75, 76, 77, 78, 79, 80, 81,117, 82,124,
-+	 83,185, 87, 88, 85, 89, 90,  0,  0,  0,  0,  0,  0,  0,102,  0,
-+	 99,133, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68,  0,  0,  0,  0,
-+	 54, 58, 42, 56, 29
-+};
-+
-+struct jis_kbd_conv {
-+	unsigned char scancode;
-+	struct {
-+		unsigned char shift;
-+		unsigned char keycode;
-+	} emul[2];
-+};
-+
-+static struct jis_kbd_conv kbd98_jis[] = {
-+	{0x02, {{0,   3}, {1,  40}}},
-+	{0x06, {{0,   7}, {1,   8}}},
-+	{0x07, {{0,   8}, {0,  40}}},
-+	{0x08, {{0,   9}, {1,  10}}},
-+	{0x09, {{0,  10}, {1,  11}}},
-+	{0x0a, {{0,  11}, {1, 255}}},
-+	{0x0b, {{0,  12}, {0,  13}}},
-+	{0x0c, {{1,   7}, {0,  41}}},
-+	{0x1a, {{1,   3}, {1,  41}}},
-+	{0x26, {{0,  39}, {1,  13}}},
-+	{0x27, {{1,  39}, {1,   9}}},
-+	{0x33, {{0, 255}, {1,  12}}},
-+	{0xff, {{0, 255}, {1, 255}}}	/* terminater */
-+};
-+
-+#define KBD98_CMD_SETEXKEY	0x1095	/* Enable/Disable Windows, Appli key */
-+#define KBD98_CMD_SETRATE	0x109c	/* Set typematic rate */
-+#define KBD98_CMD_SETLEDS	0x109d	/* Set keyboard leds */
-+#define KBD98_CMD_GETLEDS	0x119d	/* Get keyboard leds */
-+#define KBD98_CMD_GETID		0x019f
-+
-+#define KBD98_RET_ACK		0xfa
-+#define KBD98_RET_NAK		0xfc	/* Command NACK, send the cmd again */
-+
-+#define KBD98_KEY_JIS_EMUL	254
-+#define KBD98_KEY_NULL		255
-+
-+static char *kbd98_name = "PC-9801 Keyboard";
-+
-+struct kbd98 {
-+	unsigned char keycode[256];
-+	struct input_dev dev;
-+	struct serio *serio;
-+	char phys[32];
-+	unsigned char cmdbuf[4];
-+	unsigned char cmdcnt;
-+	signed char ack;
-+	unsigned char shift;
-+	struct jis_kbd_conv jis[16];
-+};
-+
-+void kbd98_interrupt(struct serio *serio, unsigned char data, unsigned int flags)
-+{
-+	struct kbd98 *kbd98 = serio->private;
-+	unsigned char scancode, keycode;
-+	int press, i;
-+
-+	switch (data) {
-+		case KBD98_RET_ACK:
-+			kbd98->ack = 1;
-+			return;
-+		case KBD98_RET_NAK:
-+			kbd98->ack = -1;
-+			return;
-+	}
-+
-+	if (kbd98->cmdcnt) {
-+		kbd98->cmdbuf[--kbd98->cmdcnt] = data;
-+		return;
-+	}
-+
-+	scancode = data & KBD98_KEY;
-+	keycode = kbd98->keycode[scancode];
-+	press = !(data & KBD98_RELEASE);
-+	if (keycode == KEY_RIGHTSHIFT)
-+		kbd98->shift = press;
-+
-+	switch (keycode) {
-+		case KEY_2:
-+		case KEY_6:
-+		case KEY_7:
-+		case KEY_8:
-+		case KEY_9:
-+		case KEY_0:
-+		case KEY_MINUS:
-+		case KEY_EQUAL:
-+		case KEY_GRAVE:
-+		case KEY_SEMICOLON:
-+		case KEY_APOSTROPHE:
-+			/* emulation: JIS keyboard to US101 keyboard */
-+			i = 0;
-+			while (kbd98->jis[i].scancode != 0xff) {
-+				if (scancode == kbd98->jis[i].scancode)
-+					break;
-+				i ++;
-+			}
-+
-+			keycode = kbd98->jis[i].emul[kbd98->shift].keycode;
-+			if (keycode == KBD98_KEY_NULL)
-+				return;
-+
-+			if (kbd98->jis[i].emul[kbd98->shift].shift != kbd98->shift && press) {
-+				input_report_key(&kbd98->dev, KEY_RIGHTSHIFT, !(kbd98->shift));
-+			}
-+
-+			input_report_key(&kbd98->dev, keycode, press);
-+			if (kbd98->jis[i].emul[kbd98->shift].shift != kbd98->shift && !press) {
-+				input_report_key(&kbd98->dev, KEY_RIGHTSHIFT, kbd98->shift);
-+			}
-+
-+			input_sync(&kbd98->dev);
-+			return;
-+
-+		case KBD98_KEY_NULL:
-+			return;
-+
-+		case 0:
-+			printk(KERN_WARNING "kbd98.c: Unknown key (scancode %#x) %s.\n",
-+				data & KBD98_KEY, data & KBD98_RELEASE ? "released" : "pressed");
-+			return;
-+
-+		default:
-+			input_report_key(&kbd98->dev, keycode, press);
-+			input_sync(&kbd98->dev);
-+		}
-+}
-+
-+/*
-+ * kbd98_sendbyte() sends a byte to the keyboard, and waits for
-+ * acknowledge. It doesn't handle resends according to the keyboard
-+ * protocol specs, because if these are needed, the keyboard needs
-+ * replacement anyway, and they only make a mess in the protocol.
-+ */
-+
-+static int kbd98_sendbyte(struct kbd98 *kbd98, unsigned char byte)
-+{
-+	int timeout = 10000; /* 100 msec */
-+	kbd98->ack = 0;
-+
-+	if (serio_write(kbd98->serio, byte))
-+		return -1;
-+
-+	while (!kbd98->ack && timeout--) udelay(10);
-+
-+	return -(kbd98->ack <= 0);
-+}
-+
-+/*
-+ * kbd98_command() sends a command, and its parameters to the keyboard,
-+ * then waits for the response and puts it in the param array.
-+ */
-+
-+static int kbd98_command(struct kbd98 *kbd98, unsigned char *param, int command)
-+{
-+	int timeout = 50000; /* 500 msec */
-+	int send = (command >> 12) & 0xf;
-+	int receive = (command >> 8) & 0xf;
-+	int i;
-+
-+	kbd98->cmdcnt = receive;
-+	
-+	if (command & 0xff)
-+		if (kbd98_sendbyte(kbd98, command & 0xff))
-+			return (kbd98->cmdcnt = 0) - 1;
-+
-+	for (i = 0; i < send; i++)
-+		if (kbd98_sendbyte(kbd98, param[i]))
-+			return (kbd98->cmdcnt = 0) - 1;
-+
-+	while (kbd98->cmdcnt && timeout--) udelay(10);
-+
-+	if (param)
-+		for (i = 0; i < receive; i++)
-+			param[i] = kbd98->cmdbuf[(receive - 1) - i];
-+
-+	if (kbd98->cmdcnt) 
-+		return (kbd98->cmdcnt = 0) - 1;
-+
-+	return 0;
-+}
-+
-+/*
-+ * Event callback from the input module. Events that change the state of
-+ * the hardware are processed here.
-+ */
-+
-+static int kbd98_event(struct input_dev *dev, unsigned int type, unsigned int code, int value)
-+{
-+	struct kbd98 *kbd98 = dev->private;
-+	char param[2];
-+
-+	switch (type) {
-+
-+		case EV_LED:
-+
-+			if (__PC9800SCA_TEST_BIT(0x481, 3)) {
-+				/* 98note with Num Lock key */
-+				/* keep Num Lock status     */
-+				*param = 0x60;
-+				if (kbd98_command(kbd98, param,
-+							KBD98_CMD_GETLEDS))
-+					printk(KERN_DEBUG
-+						"kbd98: Get keyboard LED"
-+						" status Error\n");
-+
-+				*param &= 1;
-+			} else {
-+				/* desktop PC-9801 */
-+				*param = 1;	/* Allways set Num Lock */
-+			}
-+
-+			*param |= 0x70
-+			       | (test_bit(LED_CAPSL,   dev->led) ? 4 : 0)
-+			       | (test_bit(LED_KANA,    dev->led) ? 8 : 0);
-+		        kbd98_command(kbd98, param, KBD98_CMD_SETLEDS);
-+
-+			return 0;
-+	}
-+
-+	return -1;
-+}
-+
-+void kbd98_connect(struct serio *serio, struct serio_dev *dev)
-+{
-+	struct kbd98 *kbd98;
-+	int i;
-+
-+	if ((serio->type & SERIO_TYPE) != SERIO_PC9800)
-+		return;
-+
-+	if (!(kbd98 = kmalloc(sizeof(struct kbd98), GFP_KERNEL)))
-+		return;
-+
-+	memset(kbd98, 0, sizeof(struct kbd98));
-+	
-+	kbd98->dev.evbit[0] = BIT(EV_KEY) | BIT(EV_LED) | BIT(EV_REP);
-+	kbd98->dev.ledbit[0] = BIT(LED_NUML) | BIT(LED_CAPSL) | BIT(LED_KANA);
-+
-+	kbd98->serio = serio;
-+
-+	init_input_dev(&kbd98->dev);
-+	kbd98->dev.keycode = kbd98->keycode;
-+	kbd98->dev.keycodesize = sizeof(unsigned char);
-+	kbd98->dev.keycodemax = ARRAY_SIZE(kbd98_keycode);
-+	kbd98->dev.event = kbd98_event;
-+	kbd98->dev.private = kbd98;
-+
-+	serio->private = kbd98;
-+
-+	if (serio_open(serio, dev)) {
-+		kfree(kbd98);
-+		return;
-+	}
-+
-+	memcpy(kbd98->jis, kbd98_jis, sizeof(kbd98_jis));
-+	memcpy(kbd98->keycode, kbd98_keycode, sizeof(kbd98->keycode));
-+	for (i = 0; i < 255; i++)
-+		set_bit(kbd98->keycode[i], kbd98->dev.keybit);
-+	clear_bit(0, kbd98->dev.keybit);
-+
-+	sprintf(kbd98->phys, "%s/input0", serio->phys);
-+
-+	kbd98->dev.name = kbd98_name;
-+	kbd98->dev.phys = kbd98->phys;
-+	kbd98->dev.id.bustype = BUS_XTKBD;
-+	kbd98->dev.id.vendor = 0x0002;
-+	kbd98->dev.id.product = 0x0001;
-+	kbd98->dev.id.version = 0x0100;
-+
-+	input_register_device(&kbd98->dev);
-+
-+	printk(KERN_INFO "input: %s on %s\n", kbd98_name, serio->phys);
-+}
-+
-+void kbd98_disconnect(struct serio *serio)
-+{
-+	struct kbd98 *kbd98 = serio->private;
-+	input_unregister_device(&kbd98->dev);
-+	serio_close(serio);
-+	kfree(kbd98);
-+}
-+
-+struct serio_dev kbd98_dev = {
-+	.interrupt =	kbd98_interrupt,
-+	.connect =	kbd98_connect,
-+	.disconnect =	kbd98_disconnect
-+};
-+
-+int __init kbd98_init(void)
-+{
-+	serio_register_device(&kbd98_dev);
-+	return 0;
-+}
-+
-+void __exit kbd98_exit(void)
-+{
-+	serio_unregister_device(&kbd98_dev);
-+}
-+
-+module_init(kbd98_init);
-+module_exit(kbd98_exit);
-diff -urN linux/drivers/input/misc/pcspkr.c linux98/drivers/input/misc/pcspkr.c
---- linux/drivers/input/misc/pcspkr.c	Mon Sep 16 11:18:31 2002
-+++ linux98/drivers/input/misc/pcspkr.c	Mon Sep 16 16:04:05 2002
-@@ -12,6 +12,7 @@
-  * the Free Software Foundation
-  */
++  FIXES for PC-9800:
++  Shu Iwanaga: 3c569B(PC-9801 C-bus) support
++*/
  
-+#include <linux/config.h>
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/init.h>
-@@ -23,7 +24,11 @@
- MODULE_LICENSE("GPL");
- 
- static char pcspkr_name[] = "PC Speaker";
-+#ifndef CONFIG_PC9800
- static char pcspkr_phys[] = "isa0061/input0";
+ #define DRV_NAME	"3c509"
+ #define DRV_VERSION	"1.19"
+@@ -168,7 +172,11 @@
+ 	struct pm_dev *pmdev;
+ #endif
+ };
++#ifdef CONFIG_PC9800
++static int id_port __initdata = 0x71d0;
 +#else
-+static char pcspkr_phys[] = "isa3fdb/input0";
+ static int id_port __initdata = 0x110;	/* Start with 0x110 to avoid new sound cards.*/
 +#endif
- static struct input_dev pcspkr_dev;
+ static struct net_device *el3_root_dev;
  
- spinlock_t i8253_beep_lock = SPIN_LOCK_UNLOCKED;
-@@ -43,11 +48,16 @@
- 	} 
+ static ushort id_read_eeprom(int index);
+@@ -389,6 +397,7 @@
+ no_pnp:
+ #endif /* __ISAPNP__ */
  
- 	if (value > 20 && value < 32767)
++#ifndef CONFIG_PC9800 /* Error for NEC C-bus */
+ 	/* Select an open I/O location at 0x1*0 to do contention select. */
+ 	for ( ; id_port < 0x200; id_port += 0x10) {
+ 		if (check_region(id_port, 1))
+@@ -403,6 +412,7 @@
+ 		printk(" WARNING: No I/O port available for 3c509 activation.\n");
+ 		return -ENODEV;
+ 	}
++#endif /* CONFIG_PC9800 */
+ 	/* Next check for all ISA bus boards by sending the ID sequence to the
+ 	   ID_PORT.  We find cards past the first by setting the 'current_tag'
+ 	   on cards as they are found.  Cards with their tag set will not
+@@ -458,7 +468,11 @@
+ 	{
+ 		unsigned int iobase = id_read_eeprom(8);
+ 		if_port = iobase >> 14;
 +#ifndef CONFIG_PC9800
- 		count = 1193182 / value;
+ 		ioaddr = 0x200 + ((iobase & 0x1f) << 4);
 +#else
-+		count = CLOCK_TICK_RATE / value;
-+#endif
- 	
- 	spin_lock_irqsave(&i8253_beep_lock, flags);
- 
- 	if (count) {
-+#ifndef CONFIG_PC9800
- 		/* enable counter 2 */
- 		outb_p(inb_p(0x61) | 3, 0x61);
- 		/* set command for counter 2, 2 byte write */
-@@ -55,9 +65,23 @@
- 		/* select desired HZ */
- 		outb_p(count & 0xff, 0x42);
- 		outb((count >> 8) & 0xff, 0x42);
-+#else /* CONFIG_PC9800 */
-+		outb(0x76, 0x3fdf);
-+		outb(0, 0x5f);
-+		outb(count & 0xff, 0x3fdb);
-+		outb(0, 0x5f);
-+		outb((count >> 8) & 0xff, 0x3fdb);
-+		/* beep on */
-+		outb(6, 0x37);
-+#endif /* !CONFIG_PC9800 */
- 	} else {
- 		/* disable counter 2 */
-+#ifndef CONFIG_PC9800
- 		outb(inb_p(0x61) & 0xFC, 0x61);
-+#else
-+		/* beep off */
-+		outb(7, 0x37);
++		ioaddr = 0x40d0 + ((iobase & 0x1f) << 8);
 +#endif
  	}
+ 	irq = id_read_eeprom(9) >> 12;
  
- 	spin_unlock_irqrestore(&i8253_beep_lock, flags);
-diff -urN linux/drivers/input/mouse/98busmouse.c linux98/drivers/input/mouse/98busmouse.c
---- linux/drivers/input/mouse/98busmouse.c	Thu Jan  1 09:00:00 1970
-+++ linux98/drivers/input/mouse/98busmouse.c	Sat Oct 26 18:36:15 2002
-@@ -0,0 +1,201 @@
-+/*
-+ *
-+ *  Copyright (c) 2002 Osamu Tomita
-+ *
-+ *  Based on the work of:
-+ *	James Banks		Matthew Dillon
-+ *	David Giller		Nathan Laredo
-+ *	Linus Torvalds		Johan Myreen
-+ *	Cliff Matthews		Philip Blundell
-+ *	Russell King		Vojtech Pavlik
-+ */
-+
-+/*
-+ * NEC PC-9801 Bus Mouse Driver for Linux
-+ */
-+
-+/*
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or 
-+ * (at your option) any later version.
-+ * 
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ * 
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-+ * 
-+ */
-+
-+#include <asm/io.h>
-+#include <asm/irq.h>
-+
-+#include <linux/config.h>
-+#include <linux/module.h>
-+#include <linux/delay.h>
-+#include <linux/ioport.h>
-+#include <linux/init.h>
-+#include <linux/input.h>
-+
-+MODULE_AUTHOR("Osamu Tomita <tomita@cinet.co.jp>");
-+MODULE_DESCRIPTION("PC-9801 busmouse driver");
-+MODULE_LICENSE("GPL");
-+
-+#define	PC98BM_BASE		0x7fd9
-+#define	PC98BM_DATA_PORT	PC98BM_BASE + 0
-+/*	PC98BM_SIGNATURE_PORT	does not exist */
-+#define	PC98BM_CONTROL_PORT	PC98BM_BASE + 4
-+/*	PC98BM_INTERRUPT_PORT	does not exist */
-+#define	PC98BM_CONFIG_PORT	PC98BM_BASE + 6
-+
-+#define	PC98BM_ENABLE_IRQ	0x00
-+#define	PC98BM_DISABLE_IRQ	0x10
-+#define	PC98BM_READ_X_LOW	0x80
-+#define	PC98BM_READ_X_HIGH	0xa0
-+#define	PC98BM_READ_Y_LOW	0xc0
-+#define	PC98BM_READ_Y_HIGH	0xe0
-+
-+#define PC98BM_DEFAULT_MODE	0x93
-+/*	PC98BM_CONFIG_BYTE	is not used */
-+/*	PC98BM_SIGNATURE_BYTE	is not used */
-+
-+#define PC98BM_TIMER_PORT	0xbfdb
-+#define PC98BM_DEFAULT_TIMER_VAL	0x00
-+
-+#define PC98BM_IRQ		13
-+
-+MODULE_PARM(pc98bm_irq, "i");
-+
-+static int pc98bm_irq = PC98BM_IRQ;
-+static int pc98bm_used = 0;
-+
-+static void pc98bm_interrupt(int irq, void *dev_id, struct pt_regs *regs);
-+
-+static int pc98bm_open(struct input_dev *dev)
-+{
-+	if (pc98bm_used++)
-+		return 0;
-+	if (request_irq(pc98bm_irq, pc98bm_interrupt, 0, "98busmouse", NULL)) {
-+		pc98bm_used--;
-+		printk(KERN_ERR "98busmouse.c: Can't allocate irq %d\n", pc98bm_irq);
-+		return -EBUSY;
+@@ -482,7 +496,15 @@
+ 	outb(0xd0 + ++current_tag, id_port);
+ 
+ 	/* Activate the adaptor at the EEPROM location. */
++#ifndef CONFIG_PC9800
+ 	outb((ioaddr >> 4) | 0xe0, id_port);
++#else
++	outb((ioaddr >> 8) | 0xe0, id_port);
++	if (irq == 7)
++		irq = 6;
++	else if (irq == 15)
++		irq = 13;
++#endif
+ 
+ 	EL3WINDOW(0);
+ 	if (inw(ioaddr) != 0x6d50) {
+@@ -1253,7 +1275,18 @@
+ 	outw(0x0001, ioaddr + 4);
+ 
+ 	/* Set the IRQ line. */
++#ifndef CONFIG_PC9800
+ 	outw((dev->irq << 12) | 0x0f00, ioaddr + WN0_IRQ);
++#else
++	{
++		int irq = dev->irq;
++		if (irq == 6)
++			irq = 7;
++		else if (irq == 13)
++			irq = 15;
++		outw((irq << 12) | 0x0f00, ioaddr + WN0_IRQ);
 +	}
-+	outb(PC98BM_ENABLE_IRQ, PC98BM_CONTROL_PORT);
-+	return 0;
-+}
-+
-+static void pc98bm_close(struct input_dev *dev)
-+{
-+	if (--pc98bm_used)
-+		return;
-+	outb(PC98BM_DISABLE_IRQ, PC98BM_CONTROL_PORT);
-+	free_irq(pc98bm_irq, NULL);
-+}
-+
-+static struct input_dev pc98bm_dev = {
-+	.evbit	= { BIT(EV_KEY) | BIT(EV_REL) },
-+	.keybit = { [LONG(BTN_LEFT)] = BIT(BTN_LEFT) | BIT(BTN_MIDDLE) | BIT(BTN_RIGHT) },
-+	.relbit	= { BIT(REL_X) | BIT(REL_Y) },
-+	.open	= pc98bm_open,
-+	.close	= pc98bm_close,
-+	.name	= "PC-9801 bus mouse",
-+	.phys	= "isa7fd9/input0",
-+	.id	= {
-+		.bustype = BUS_ISA,
-+		.vendor  = 0x0004,
-+		.product = 0x0001,
-+		.version = 0x0100,
-+	},
++#endif
+ 
+ 	/* Set the station address in window 2 each time opened. */
+ 	EL3WINDOW(2);
+diff -Nru linux-2.5.42/drivers/net/8390.h linux98-2.5.42/drivers/net/8390.h
+--- linux-2.5.42/drivers/net/8390.h	Sat Oct 12 13:22:14 2002
++++ linux98-2.5.42/drivers/net/8390.h	Tue Oct 15 23:03:22 2002
+@@ -123,7 +123,8 @@
+ #define inb_p(port)   in_8(port)
+ #define outb_p(val,port)  out_8(port,val)
+ 
+-#elif defined(CONFIG_ARM_ETHERH) || defined(CONFIG_ARM_ETHERH_MODULE)
++#elif defined(CONFIG_ARM_ETHERH) || defined(CONFIG_ARM_ETHERH_MODULE) || \
++      defined(CONFIG_NET_CBUS)
+ #define EI_SHIFT(x)	(ei_local->reg_offset[x])
+ #else
+ #define EI_SHIFT(x)	(x)
+diff -Nru linux-2.5.42/drivers/net/Config.in linux98-2.5.42/drivers/net/Config.in
+--- linux-2.5.42/drivers/net/Config.in	Sat Oct 12 13:21:30 2002
++++ linux98-2.5.42/drivers/net/Config.in	Tue Oct 15 23:03:22 2002
+@@ -112,7 +112,11 @@
+       source drivers/net/tulip/Config.in
+    fi
+    if [ "$CONFIG_ISA" = "y" -o "$CONFIG_MCA" = "y" ]; then
++    if [ "$CONFIG_PC9800" != "y" ]; then
+          dep_tristate '  AT1700/1720 support (EXPERIMENTAL)' CONFIG_AT1700 $CONFIG_EXPERIMENTAL
++    else
++         dep_tristate '  Allied Telesis RE1000Plus support (EXPERIMENTAL)' CONFIG_AT1700 $CONFIG_EXPERIMENTAL
++    fi
+    fi
+    if [ "$CONFIG_ISA" = "y" -o "$CONFIG_EISA" = "y" -o "$CONFIG_MCA" = "y" ]; then
+       tristate '  DEPCA, DE10x, DE200, DE201, DE202, DE422 support' CONFIG_DEPCA
+@@ -120,6 +124,7 @@
+    if [ "$CONFIG_ISA" = "y" -o "$CONFIG_EISA" = "y" -o "$CONFIG_PCI" = "y" ]; then
+       tristate '  HP 10/100VG PCLAN (ISA, EISA, PCI) support' CONFIG_HP100
+    fi
++  if [ "$CONFIG_PC9800" != "y" ]; then
+    dep_bool '  Other ISA cards' CONFIG_NET_ISA $CONFIG_ISA
+    if [ "$CONFIG_NET_ISA" = "y" ]; then
+       tristate '    Cabletron E21xx support' CONFIG_E2100
+@@ -146,6 +151,25 @@
+       tristate '  NE/2 (ne2000 MCA version) support' CONFIG_NE2_MCA
+       tristate '  IBM LAN Adapter/A support' CONFIG_IBMLANA
+    fi
++  else	# CONFIG_PC9800 = y
++   bool '  NEC PC-9800 C-bus cards' CONFIG_NET_CBUS
++   if [ "$CONFIG_NET_CBUS" = "y" ]; then
++      tristate '    Most NE2000-based Ethernet support' CONFIG_NE2K_CBUS
++      if [ "$CONFIG_NE2K_CBUS" != "n" ]; then
++	 bool '      Melco EGY-98 support' CONFIG_NE2K_CBUS_EGY98
++	 bool '      Melco LGY-98 support' CONFIG_NE2K_CBUS_LGY98
++	 bool '      ICM IF-27xxET support' CONFIG_NE2K_CBUS_ICM
++	 bool '      I-O DATA LA-98 support (NOT TESTED!)' CONFIG_NE2K_CBUS_IOLA98
++	 bool '      Contec C-NET(98)E/L support (NOT TESTED!)' CONFIG_NE2K_CBUS_CNET98EL
++	 if [ "$CONFIG_NE2K_CBUS_CNET98EL" != "n" ]; then
++	    hex '        C-NET(98)E/L I/O base address (aaed or 55ed)' CONFIG_NE2K_CBUS_CNET98EL_IO_BASE aaed
++	 fi
++	 bool '      Allied Telesis LA-98 Support (NOT TESTED!)' CONFIG_NE2K_CBUS_ATLA98
++	 bool '      ELECOM Laneed LD-BDN[123]A Support (NOT TESTED!)' CONFIG_NE2K_CBUS_BDN
++	 bool '      NEC PC-9801-108 Support (NOT TESTED!)' CONFIG_NE2K_CBUS_NEC108
++      fi
++   fi
++  fi	# CONFIG_PC9800
+    if [ "$CONFIG_ISA" = "y" -o "$CONFIG_EISA" = "y" -o "$CONFIG_PCI" = "y" ]; then
+      bool '  EISA, VLB, PCI and on board controllers' CONFIG_NET_PCI
+    else
+diff -Nru linux-2.5.42/drivers/net/Makefile linux98-2.5.42/drivers/net/Makefile
+--- linux-2.5.42/drivers/net/Makefile	Sat Oct 12 13:21:36 2002
++++ linux98-2.5.42/drivers/net/Makefile	Tue Oct 15 23:03:22 2002
+@@ -87,7 +87,11 @@
+ obj-$(CONFIG_ARM_ETHERH) += 8390.o
+ obj-$(CONFIG_WD80x3) += wd.o 8390.o
+ obj-$(CONFIG_EL2) += 3c503.o 8390.o
++ifneq ($(CONFIG_PC9800),y)
+ obj-$(CONFIG_NE2000) += ne.o 8390.o
++else
++obj-$(CONFIG_NE2K_CBUS) += ne.o 8390.o
++endif
+ obj-$(CONFIG_NE2_MCA) += ne2.o 8390.o
+ obj-$(CONFIG_HPLAN) += hp.o 8390.o
+ obj-$(CONFIG_HPLAN_PLUS) += hp-plus.o 8390.o
+diff -Nru linux-2.5.42/drivers/net/Makefile.lib linux98-2.5.42/drivers/net/Makefile.lib
+--- linux-2.5.42/drivers/net/Makefile.lib	Sat Oct 12 13:22:18 2002
++++ linux98-2.5.42/drivers/net/Makefile.lib	Tue Oct 15 23:03:22 2002
+@@ -19,6 +19,7 @@
+ obj-$(CONFIG_MACMACE)		+= crc32.o
+ obj-$(CONFIG_MIPS_AU1000_ENET)	+= crc32.o
+ obj-$(CONFIG_NATSEMI)		+= crc32.o	
++obj-$(CONFIG_NE2K_CBUS)		+= crc32.o
+ obj-$(CONFIG_PCMCIA_FMVJ18X)	+= crc32.o
+ obj-$(CONFIG_PCMCIA_SMC91C92)	+= crc32.o
+ obj-$(CONFIG_PCMCIA_XIRTULIP)	+= crc32.o
+diff -Nru linux-2.5.42/drivers/net/Space.c linux98-2.5.42/drivers/net/Space.c
+--- linux-2.5.42/drivers/net/Space.c	Sat Oct 12 13:21:32 2002
++++ linux98-2.5.42/drivers/net/Space.c	Tue Oct 15 23:03:22 2002
+@@ -243,7 +243,7 @@
+ #ifdef CONFIG_E2100		/* Cabletron E21xx series. */
+ 	{e2100_probe, 0},
+ #endif
+-#ifdef CONFIG_NE2000		/* ISA (use ne2k-pci for PCI cards) */
++#if defined(CONFIG_NE2000) || defined(CONFIG_NE2K_CBUS)	/* ISA & PC-9800 CBUS (use ne2k-pci for PCI cards) */
+ 	{ne_probe, 0},
+ #endif
+ #ifdef CONFIG_LANCE		/* ISA/VLB (use pcnet32 for PCI cards) */
+diff -Nru linux-2.5.42/drivers/net/at1700.c linux98-2.5.42/drivers/net/at1700.c
+--- linux-2.5.42/drivers/net/at1700.c	Sat Oct 19 13:01:49 2002
++++ linux98-2.5.42/drivers/net/at1700.c	Sat Oct 19 21:58:24 2002
+@@ -34,6 +34,10 @@
+ 	only is it difficult to detect, it also moves around in I/O space in
+ 	response to inb()s from other device probes!
+ */
++/*
++	99/03/03  Allied Telesis RE1000 Plus support by T.Hagawa
++	99/12/30	port to 2.3.35 by K.Takai
++*/
+ 
+ #include <linux/config.h>
+ #include <linux/module.h>
+@@ -79,10 +83,17 @@
+  *	ISA
+  */
+ 
++#ifndef CONFIG_PC9800
+ static int at1700_probe_list[] __initdata = {
+ 	0x260, 0x280, 0x2a0, 0x240, 0x340, 0x320, 0x380, 0x300, 0
+ };
+ 
++#else /* CONFIG_PC9800 */
++static int at1700_probe_list[] __initdata = {
++	0x1d6, 0x1d8, 0x1da, 0x1d4, 0xd4, 0xd2, 0xd8, 0xd0, 0
 +};
 +
-+static void pc98bm_interrupt(int irq, void *dev_id, struct pt_regs *regs)
-+{
-+	char dx, dy;
-+	unsigned char buttons;
++#endif /* CONFIG_PC9800 */
+ /*
+  *	MCA
+  */
+@@ -125,6 +136,7 @@
+ 
+ 
+ /* Offsets from the base address. */
++#ifndef CONFIG_PC9800
+ #define STATUS			0
+ #define TX_STATUS		0
+ #define RX_STATUS		1
+@@ -139,6 +151,7 @@
+ #define TX_START		10
+ #define COL16CNTL		11		/* Controll Reg for 16 collisions */
+ #define MODE13			13
++#define RX_CTRL			14
+ /* Configuration registers only on the '865A/B chips. */
+ #define EEPROM_Ctrl 	16
+ #define EEPROM_Data 	17
+@@ -147,8 +160,39 @@
+ #define IOCONFIG		18		/* Either read the jumper, or move the I/O. */
+ #define IOCONFIG1		19
+ #define	SAPROM			20		/* The station address PROM, if no EEPROM. */
++#define MODE24			24
+ #define RESET			31		/* Write to reset some parts of the chip. */
+ #define AT1700_IO_EXTENT	32
++#define PORT_OFFSET(o) (o)
++#else /* CONFIG_PC9800 */
++#define STATUS			(0x0000)
++#define TX_STATUS		(0x0000)
++#define RX_STATUS		(0x0001)
++#define TX_INTR			(0x0200)/* Bit-mapped interrupt enable registers. */
++#define RX_INTR			(0x0201)
++#define TX_MODE			(0x0400)
++#define RX_MODE			(0x0401)
++#define CONFIG_0		(0x0600)/* Misc. configuration settings. */
++#define CONFIG_1		(0x0601)
++/* Run-time register bank 2 definitions. */
++#define DATAPORT		(0x0800)/* Word-wide DMA or programmed-I/O dataport. */
++#define TX_START		(0x0a00)
++#define COL16CNTL		(0x0a01)/* Controll Reg for 16 collisions */
++#define MODE13			(0x0c01)
++#define RX_CTRL			(0x0e00)
++/* Configuration registers only on the '865A/B chips. */
++#define EEPROM_Ctrl 	(0x1000)
++#define EEPROM_Data 	(0x1200)
++#define CARDSTATUS	16			/* FMV-18x Card Status */
++#define CARDSTATUS1	17			/* FMV-18x Card Status */
++#define IOCONFIG		(0x1400)/* Either read the jumper, or move the I/O. */
++#define IOCONFIG1		(0x1600)
++#define	SAPROM			20		/* The station address PROM, if no EEPROM. */
++#define	MODE24			(0x1800)/* The station address PROM, if no EEPROM. */
++#define RESET			(0x1e01)/* Write to reset some parts of the chip. */
++#define PORT_OFFSET(o) ({ int _o_ = (o); (_o_ & ~1) * 0x100 + (_o_ & 1); })
++#endif /* CONFIG_PC9800 */
 +
-+	outb(PC98BM_READ_X_LOW, PC98BM_CONTROL_PORT);
-+	dx = (inb(PC98BM_DATA_PORT) & 0xf);
-+	outb(PC98BM_READ_X_HIGH, PC98BM_CONTROL_PORT);
-+	dx |= (inb(PC98BM_DATA_PORT) & 0xf) << 4;
-+	outb(PC98BM_READ_Y_LOW, PC98BM_CONTROL_PORT);
-+	dy = (inb(PC98BM_DATA_PORT) & 0xf);
-+	outb(PC98BM_READ_Y_HIGH, PC98BM_CONTROL_PORT);
-+	buttons = inb(PC98BM_DATA_PORT);
-+	dy |= (buttons & 0xf) << 4;
-+	buttons = ~buttons >> 5;
-+
-+	input_report_rel(&pc98bm_dev, REL_X, dx);
-+	input_report_rel(&pc98bm_dev, REL_Y, dy);
-+	input_report_key(&pc98bm_dev, BTN_RIGHT,  buttons & 1);
-+	input_report_key(&pc98bm_dev, BTN_MIDDLE, buttons & 2);
-+	input_report_key(&pc98bm_dev, BTN_LEFT,   buttons & 4);
-+	input_sync(&pc98bm_dev);
-+
-+	outb(PC98BM_ENABLE_IRQ, PC98BM_CONTROL_PORT);
-+}
-+
-+#ifndef MODULE
-+static int __init pc98bm_setup(char *str)
-+{
-+        int ints[4];
-+        str = get_options(str, ARRAY_SIZE(ints), ints);
-+        if (ints[0] > 0) pc98bm_irq = ints[1];
-+        return 1;
-+}
-+__setup("pc98bm_irq=", pc98bm_setup);
-+#endif
-+
-+static int __init pc98bm_init(void)
-+{
-+	int i;
-+
-+	for (i = 0; i <= 6; i += 2) {
-+		if (!request_region(PC98BM_BASE + i, 1, "98busmouse")) {
-+			printk(KERN_ERR "98busmouse.c: Can't allocate ports at %#x\n", PC98BM_BASE + i);
+ 
+ #define TX_TIMEOUT		10
+ 
+@@ -228,8 +272,20 @@
+ 	int slot, ret = -ENODEV;
+ 	struct net_local *lp;
+ 	
++#ifndef CONFIG_PC9800
+ 	if (!request_region(ioaddr, AT1700_IO_EXTENT, dev->name))
+ 		return -EBUSY;
++#else
++	for (i = 0; i < 0x2000; i += 0x0200) {
++		if (!request_region(ioaddr + i, 2, dev->name)) {
 +			while (i > 0) {
-+				i -= 2;
-+				release_region(PC98BM_BASE + i, 1);
++				i -= 0x0200;
++				release_region(ioaddr + i, 2);
 +			}
-+
 +			return -EBUSY;
 +		}
-+
 +	}
-+
-+	if (!request_region(PC98BM_TIMER_PORT, 1, "98busmouse")) {
-+		printk(KERN_ERR "98busmouse.c: Can't allocate ports at %#x\n", PC98BM_TIMER_PORT);
-+		for (i = 0; i <= 6; i += 2)
-+			release_region(PC98BM_BASE + i, 1);
-+
-+		return -EBUSY;
-+	}
-+
-+	outb(PC98BM_DEFAULT_MODE, PC98BM_CONFIG_PORT);
-+	outb(PC98BM_DISABLE_IRQ, PC98BM_CONTROL_PORT);
-+
-+	outb(PC98BM_DEFAULT_TIMER_VAL, PC98BM_TIMER_PORT);
-+
-+	input_register_device(&pc98bm_dev);
-+	
-+	printk(KERN_INFO "input: PC-9801 bus mouse at %#x irq %d\n", PC98BM_BASE, pc98bm_irq);
-+
-+	return 0;
-+}
-+
-+static void __exit pc98bm_exit(void)
-+{
-+	int i;
-+
-+	input_unregister_device(&pc98bm_dev);
-+	for (i = 0; i <= 6; i += 2)
-+		release_region(PC98BM_BASE + i, 1);
-+
-+	release_region(PC98BM_TIMER_PORT, 1);
-+}
-+
-+module_init(pc98bm_init);
-+module_exit(pc98bm_exit);
-diff -urN linux/drivers/input/mouse/Config.in linux98/drivers/input/mouse/Config.in
---- linux/drivers/input/mouse/Config.in	Sat Oct 19 13:02:28 2002
-+++ linux98/drivers/input/mouse/Config.in	Thu Oct 24 16:59:32 2002
-@@ -22,3 +22,6 @@
- if [ "$CONFIG_ARCH_ACORN" = "y" ]; then
-    dep_tristate '  Acorn RiscPC mouse' CONFIG_MOUSE_ACORN $CONFIG_INPUT $CONFIG_INPUT_MOUSE
- fi
-+if [ "$CONFIG_PC9800" = "y" ]; then
-+   dep_tristate '  NEC PC-9801 busmouse' CONFIG_BUSMOUSE_PC9800 $CONFIG_INPUT $CONFIG_INPUT_MOUSE $CONFIG_ISA
-+fi
-diff -urN linux/drivers/input/mouse/Makefile linux98/drivers/input/mouse/Makefile
---- linux/drivers/input/mouse/Makefile	Sat Oct 19 13:01:17 2002
-+++ linux98/drivers/input/mouse/Makefile	Thu Oct 24 17:00:51 2002
-@@ -12,6 +12,7 @@
- obj-$(CONFIG_MOUSE_PC110PAD)	+= pc110pad.o
- obj-$(CONFIG_MOUSE_PS2)		+= psmouse.o
- obj-$(CONFIG_MOUSE_SERIAL)	+= sermouse.o
-+obj-$(CONFIG_BUSMOUSE_PC9800)	+= 98busmouse.o
- 
- # The global Rules.make.
- 
-diff -urN linux/drivers/input/serio/Config.in linux98/drivers/input/serio/Config.in
---- linux/drivers/input/serio/Config.in	Sat Oct 12 13:22:11 2002
-+++ linux98/drivers/input/serio/Config.in	Sun Oct 13 12:59:05 2002
-@@ -21,3 +21,6 @@
- if [ "$CONFIG_SA1111" = "y" ]; then
-    dep_tristate '  Intel SA1111 keyboard controller' CONFIG_SERIO_SA1111 $CONFIG_SERIO
- fi
-+if [ "$CONFIG_PC9800" = "y" ]; then
-+   dep_tristate '  NEC PC-9801 keyboard controller' CONFIG_SERIO_98KBD $CONFIG_SERIO
-+fi
-diff -urN linux/drivers/input/serio/Makefile linux98/drivers/input/serio/Makefile
---- linux/drivers/input/serio/Makefile	Sat Oct 19 13:01:09 2002
-+++ linux98/drivers/input/serio/Makefile	Thu Oct 24 15:50:55 2002
-@@ -17,6 +17,7 @@
- obj-$(CONFIG_SERIO_SA1111)	+= sa1111ps2.o
- obj-$(CONFIG_SERIO_AMBAKMI)	+= ambakmi.o
- obj-$(CONFIG_SERIO_Q40KBD)	+= q40kbd.o
-+obj-$(CONFIG_SERIO_98KBD)	+= 98kbd-io.o
- 
- # The global Rules.make.
- 
-diff -urN linux/drivers/input/serio/98kbd-io.c linux98/drivers/input/serio/98kbd-io.c
---- linux/drivers/input/serio/98kbd-io.c	Thu Jan  1 09:00:00 1970
-+++ linux98/drivers/input/serio/98kbd-io.c	Thu Oct 24 16:29:57 2002
-@@ -0,0 +1,181 @@
-+/*
-+ *  NEC PC-9801 keyboard controller driver for Linux
-+ *
-+ *  Copyright (c) 1999-2002 Osamu Tomita <tomita@cinet.co.jp>
-+ *    Based on i8042.c written by Vojtech Pavlik
-+ */
-+
-+/*
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License version 2 as published by
-+ * the Free Software Foundation.
-+ */
-+
-+#include <asm/io.h>
-+
-+#include <linux/delay.h>
-+#include <linux/module.h>
-+#include <linux/ioport.h>
-+#include <linux/config.h>
-+#include <linux/init.h>
-+#include <linux/serio.h>
-+#include <linux/sched.h>
-+
-+MODULE_AUTHOR("Osamu Tomita <tomita@cinet.co.jp>");
-+MODULE_DESCRIPTION("NEC PC-9801 keyboard controller driver");
-+MODULE_LICENSE("GPL");
-+
-+/*
-+ * Names.
-+ */
-+
-+#define KBD98_PHYS_DESC "isa0041/serio0"
-+
-+/*
-+ * IRQs.
-+ */
-+
-+#define KBD98_IRQ	1
-+
-+/*
-+ * Register numbers.
-+ */
-+
-+#define KBD98_COMMAND_REG	0x43	
-+#define KBD98_STATUS_REG	0x43	
-+#define KBD98_DATA_REG		0x41
-+
-+spinlock_t kbd98io_lock = SPIN_LOCK_UNLOCKED;
-+
-+static struct serio kbd98_port;
-+extern struct pt_regs *kbd_pt_regs;
-+
-+static void kbd98io_interrupt(int irq, void *dev_id, struct pt_regs *regs);
-+
-+/*
-+ * kbd98_flush() flushes all data that may be in the keyboard buffers
-+ */
-+
-+static int kbd98_flush(void)
-+{
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&kbd98io_lock, flags);
-+
-+	while (inb(KBD98_STATUS_REG) & 0x02) /* RxRDY */
-+		inb(KBD98_DATA_REG);
-+
-+	if (inb(KBD98_STATUS_REG) & 0x38)
-+		printk("98kbd-io: Keyboard error!\n");
-+
-+	spin_unlock_irqrestore(&kbd98io_lock, flags);
-+
-+	return 0;
-+}
-+
-+/*
-+ * kbd98_write() sends a byte out through the keyboard interface.
-+ */
-+
-+static int kbd98_write(struct serio *port, unsigned char c)
-+{
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&kbd98io_lock, flags);
-+
-+	outb(0, 0x5f);			/* wait */
-+	outb(0x17, KBD98_COMMAND_REG);	/* enable send command */
-+	outb(0, 0x5f);			/* wait */
-+	outb(c, KBD98_DATA_REG);
-+	outb(0, 0x5f);			/* wait */
-+	outb(0x16, KBD98_COMMAND_REG);	/* disable send command */
-+	outb(0, 0x5f);			/* wait */
-+
-+	spin_unlock_irqrestore(&kbd98io_lock, flags);
-+
-+	return 0;
-+}
-+
-+/*
-+ * kbd98_open() is called when a port is open by the higher layer.
-+ * It allocates the interrupt and enables in in the chip.
-+ */
-+
-+static int kbd98_open(struct serio *port)
-+{
-+	kbd98_flush();
-+
-+	if (request_irq(KBD98_IRQ, kbd98io_interrupt, 0, "kbd98", NULL)) {
-+		printk(KERN_ERR "98kbd-io.c: Can't get irq %d for %s, unregistering the port.\n", KBD98_IRQ, "KBD");
-+		serio_unregister_port(port);
-+		return -1;
-+	}
-+
-+	return 0;
-+}
-+
-+static void kbd98_close(struct serio *port)
-+{
-+	free_irq(KBD98_IRQ, NULL);
-+
-+	kbd98_flush();
-+}
-+
-+/*
-+ * Structures for registering the devices in the serio.c module.
-+ */
-+
-+static struct serio kbd98_port =
-+{
-+	.type =		SERIO_PC9800,
-+	.write =	kbd98_write,
-+	.open =		kbd98_open,
-+	.close =	kbd98_close,
-+	.driver =	NULL,
-+	.name =		"PC-9801 Kbd Port",
-+	.phys =		KBD98_PHYS_DESC,
-+};
-+
-+/*
-+ * kbd98io_interrupt() is the most important function in this driver -
-+ * it handles the interrupts from keyboard, and sends incoming bytes
-+ * to the upper layers.
-+ */
-+
-+static void kbd98io_interrupt(int irq, void *dev_id, struct pt_regs *regs)
-+{
-+	unsigned long flags;
-+	unsigned char data;
-+
-+#ifdef CONFIG_VT
-+	kbd_pt_regs = regs;
 +#endif
-+
-+	spin_lock_irqsave(&kbd98io_lock, flags);
-+
-+	data = inb(KBD98_DATA_REG);
-+	spin_unlock_irqrestore(&kbd98io_lock, flags);
-+	serio_interrupt(&kbd98_port, data, 0);
-+
-+}
-+
-+int __init kbd98io_init(void)
-+{
-+	serio_register_port(&kbd98_port);
-+
-+	printk(KERN_INFO "serio: PC-9801 %s port at %#lx,%#lx irq %d\n",
-+	       "KBD",
-+	       (unsigned long) KBD98_DATA_REG,
-+	       (unsigned long) KBD98_COMMAND_REG,
-+	       KBD98_IRQ);
-+
-+	return 0;
-+}
-+
-+void __exit kbd98io_exit(void)
-+{
-+	serio_unregister_port(&kbd98_port);
-+}
-+
-+module_init(kbd98io_init);
-+module_exit(kbd98io_exit);
-diff -urN linux/drivers/char/keyboard.c linux98/drivers/char/keyboard.c
---- linux/drivers/char/keyboard.c	Sat Oct 19 13:01:49 2002
-+++ linux98/drivers/char/keyboard.c	Sun Oct 27 09:12:29 2002
-@@ -58,7 +58,11 @@
-  * Some laptops take the 789uiojklm,. keys as number pad when NumLock is on.
-  * This seems a good reason to start with NumLock off.
-  */
+ 
+ 		/* Resetting the chip doesn't reset the ISA interface, so don't bother.
+ 	   That means we have to be careful with the register values we probe for.
+@@ -320,10 +376,17 @@
+ 		/* Reset the internal state machines. */
+ 	outb(0, ioaddr + RESET);
+ 
+-	if (is_at1700)
++	if (is_at1700) {
 +#ifndef CONFIG_PC9800
- #define KBD_DEFLEDS 0
+ 		irq = at1700_irqmap[(read_eeprom(ioaddr, 12)&0x04)
+ 						   | (read_eeprom(ioaddr, 0)>>14)];
+-	else {
 +#else
-+#define KBD_DEFLEDS (1 << VC_NUMLOCK)
++		{
++			char re1000plus_irqmap[4] = {3, 5, 6, 12};
++			irq = re1000plus_irqmap[inb(ioaddr + IOCONFIG1) >> 6];
++		}
 +#endif
++	} else {
+ 		/* Check PnP mode for FMV-183/184/183A/184A. */
+ 		/* This PnP routine is very poor. IO and IRQ should be known. */
+ 		if (inb(ioaddr + CARDSTATUS1) & 0x20) {
+@@ -395,18 +458,22 @@
+ 	/* Set the station address in bank zero. */
+ 	outb(0x00, ioaddr + CONFIG_1);
+ 	for (i = 0; i < 6; i++)
+-		outb(dev->dev_addr[i], ioaddr + 8 + i);
++		outb(dev->dev_addr[i], ioaddr + PORT_OFFSET(8 + i));
+ 
+ 	/* Switch to bank 1 and set the multicast table to accept none. */
+ 	outb(0x04, ioaddr + CONFIG_1);
+ 	for (i = 0; i < 8; i++)
+-		outb(0x00, ioaddr + 8 + i);
++		outb(0x00, ioaddr + PORT_OFFSET(8 + i));
+ 
+ 
+ 	/* Switch to bank 2 */
+ 	/* Lock our I/O address, and set manual processing mode for 16 collisions. */
+ 	outb(0x08, ioaddr + CONFIG_1);
++#ifndef CONFIG_PC9800
+ 	outb(dev->if_port, ioaddr + MODE13);
++#else
++	outb(0, ioaddr + MODE13);
++#endif
+ 	outb(0x00, ioaddr + COL16CNTL);
+ 
+ 	if (net_debug)
+@@ -450,7 +517,12 @@
+ 	kfree(dev->priv);
+ 	dev->priv = NULL;
+ err_out:
++#ifndef CONFIG_PC9800
+ 	release_region(ioaddr, AT1700_IO_EXTENT);
++#else
++	for (i = 0; i < 0x2000; i += 0x0200)
++		release_region(ioaddr + i, 2);
++#endif
+ 	return ret;
+ }
+ 
+@@ -462,7 +534,11 @@
+ #define EE_DATA_READ	0x80	/* EEPROM chip data out, in reg. 17. */
+ 
+ /* Delay between EEPROM clock transitions. */
++#ifndef CONFIG_PC9800
+ #define eeprom_delay()	do { } while (0)
++#else
++#define eeprom_delay()	__asm__ ("out%B0 %%al,%0" :: "N"(0x5f))
++#endif
+ 
+ /* The EEPROM commands include the alway-set leading bit. */
+ #define EE_WRITE_CMD	(5 << 6)
+@@ -545,12 +621,12 @@
+ 		inw (ioaddr + STATUS), inb (ioaddr + TX_STATUS) & 0x80
+ 		? "IRQ conflict" : "network cable problem");
+ 	printk ("%s: timeout registers: %04x %04x %04x %04x %04x %04x %04x %04x.\n",
+-	 dev->name, inw (ioaddr + 0), inw (ioaddr + 2), inw (ioaddr + 4),
+-		inw (ioaddr + 6), inw (ioaddr + 8), inw (ioaddr + 10),
+-		inw (ioaddr + 12), inw (ioaddr + 14));
++	 dev->name, inw(ioaddr + TX_STATUS), inw(ioaddr + TX_INTR), inw(ioaddr + TX_MODE),
++		inw(ioaddr + CONFIG_0), inw(ioaddr + DATAPORT), inw(ioaddr + TX_START),
++		inw(ioaddr + MODE13 - 1), inw(ioaddr + RX_CTRL));
+ 	lp->stats.tx_errors++;
+ 	/* ToDo: We should try to restart the adaptor... */
+-	outw (0xffff, ioaddr + 24);
++	outw(0xffff, ioaddr + MODE24);
+ 	outw (0xffff, ioaddr + TX_STATUS);
+ 	outb (0x5a, ioaddr + CONFIG_0);
+ 	outb (0xe8, ioaddr + CONFIG_1);
+@@ -696,7 +772,7 @@
+ 				   dev->name, inb(ioaddr + RX_MODE), status);
+ #ifndef final_version
+ 		if (status == 0) {
+-			outb(0x05, ioaddr + 14);
++			outb(0x05, ioaddr + RX_CTRL);
+ 			break;
+ 		}
+ #endif
+@@ -716,7 +792,7 @@
+ 					   dev->name, pkt_len);
+ 				/* Prime the FIFO and then flush the packet. */
+ 				inw(ioaddr + DATAPORT); inw(ioaddr + DATAPORT);
+-				outb(0x05, ioaddr + 14);
++				outb(0x05, ioaddr + RX_CTRL);
+ 				lp->stats.rx_errors++;
+ 				break;
+ 			}
+@@ -726,7 +802,7 @@
+ 					   dev->name, pkt_len);
+ 				/* Prime the FIFO and then flush the packet. */
+ 				inw(ioaddr + DATAPORT); inw(ioaddr + DATAPORT);
+-				outb(0x05, ioaddr + 14);
++				outb(0x05, ioaddr + RX_CTRL);
+ 				lp->stats.rx_dropped++;
+ 				break;
+ 			}
+@@ -753,7 +829,7 @@
+ 			if ((inb(ioaddr + RX_MODE) & 0x40) == 0x40)
+ 				break;
+ 			inw(ioaddr + DATAPORT);				/* dummy status read */
+-			outb(0x05, ioaddr + 14);
++			outb(0x05, ioaddr + RX_CTRL);
+ 		}
+ 
+ 		if (net_debug > 5)
+@@ -843,7 +919,7 @@
+ 		/* Switch to bank 1 and set the multicast table. */
+ 		outw((saved_bank & ~0x0C00) | 0x0480, ioaddr + CONFIG_0);
+ 		for (i = 0; i < 8; i++)
+-			outb(mc_filter[i], ioaddr + 8 + i);
++			outb(mc_filter[i], ioaddr + PORT_OFFSET(8 + i));
+ 		memcpy(lp->mc_filter, mc_filter, sizeof(mc_filter));
+ 		outw(saved_bank, ioaddr + CONFIG_0);
+ 	}
+@@ -853,7 +929,12 @@
+ 
+ #ifdef MODULE
+ static struct net_device dev_at1700;
++#ifndef CONFIG_PC9800
+ static int io = 0x260;
++#else
++static int io = 0xd0;
++#endif
++
+ static int irq;
+ 
+ MODULE_PARM(io, "i");
+@@ -893,7 +974,15 @@
+ 
+ 	/* If we don't do this, we can't re-insmod it later. */
+ 	free_irq(dev_at1700.irq, NULL);
++#ifndef CONFIG_PC9800
+ 	release_region(dev_at1700.base_addr, AT1700_IO_EXTENT);
++#else
++	{
++		int i;
++		for (i = 0; i < 0x2000; i += 0x200)
++			release_region(dev_at1700.base_addr + i, 2);
++	}
++#endif
+ }
+ #endif /* MODULE */
+ MODULE_LICENSE("GPL");
+diff -Nru linux-2.5.42/drivers/net/ne.c linux98-2.5.42/drivers/net/ne.c
+--- linux-2.5.42/drivers/net/ne.c	Sat Oct 12 13:22:07 2002
++++ linux98-2.5.42/drivers/net/ne.c	Tue Oct 15 23:03:22 2002
+@@ -54,6 +54,26 @@
+ #include <linux/etherdevice.h>
+ #include "8390.h"
+ 
++/* backword compatibility for kernel version 2.1.57 */
++#include <linux/version.h>
++#ifndef LINUX_VERSION_CODE
++#warning LINUX_VERSION_CODE is no defined!
++#endif
++#if LINUX_VERSION_CODE < 0x20200
++#ifdef CONFIG_PCI
++#undef CONFIG_PCI
++#endif
++#ifdef CONFIG_PC98
++#define CONFIG_PC9800
++#endif
++#define mdelay(n) ({unsigned long msec=(n); while (msec--) udelay(1000);})
++#endif
++
++#ifdef CONFIG_NET_CBUS
++#undef ei_debug
++#define ei_debug 9
++#endif /* CONFIG_NET_CBUS */
++
+ /* Some defines that people can play with if so inclined. */
+ 
+ /* Do we support clones that don't adhere to 14,15 of the SAprom ? */
+@@ -69,11 +89,13 @@
+ /* #define PACKETBUF_MEMSIZE	0x40 */
+ 
+ /* A zero-terminated list of I/O addresses to be probed at boot. */
++#ifndef CONFIG_NET_CBUS
+ #ifndef MODULE
+ static unsigned int netcard_portlist[] __initdata = {
+ 	0x300, 0x280, 0x320, 0x340, 0x360, 0x380, 0
+ };
+ #endif
++#endif
+ 
+ static struct isapnp_device_id isapnp_clone_list[] __initdata = {
+ 	{	ISAPNP_CARD_ID('A','X','E',0x2011),
+@@ -94,6 +116,7 @@
+ /* A list of bad clones that we none-the-less recognize. */
+ static struct { const char *name8, *name16; unsigned char SAprefix[4];}
+ bad_clone_list[] __initdata = {
++#ifndef CONFIG_NET_CBUS
+     {"DE100", "DE200", {0x00, 0xDE, 0x01,}},
+     {"DE120", "DE220", {0x00, 0x80, 0xc8,}},
+     {"DFI1000", "DFI2000", {'D', 'F', 'I',}}, /* Original, eh?  */
+@@ -108,26 +131,54 @@
+     {"PCM-4823", "PCM-4823", {0x00, 0xc0, 0x6c}}, /* Broken Advantech MoBo */
+     {"REALTEK", "RTL8019", {0x00, 0x00, 0xe8}}, /* no-name with Realtek chip */
+     {"LCS-8834", "LCS-8836", {0x04, 0x04, 0x37}}, /* ShinyNet (SET) */
++#else /* CONFIG_NET_CBUS */
++    {"LA/T-98?", "LA/T-98", {0x00,0xa0,0xb0}},		/* I/O Data */
++    {"EGY-98?", "EGY-98", {0x00,0x40,0x26}},		/* Melco EGY98 */
++    {"ICM?", "ICM-27xx-ET", {0x00,0x80,0xc8}},		/* ICM IF-27xx-ET */
++    {"CNET-98/EL?", "CNET(98)E/L", {0x00,0x80,0x4C}},	/* Contec CNET-98/EL */
++#endif
+     {0,}
+ };
  #endif
  
- #ifndef KBD_DEFLOCK
-diff -urN linux/include/linux/kbd_kern.h linux98/include/linux/kbd_kern.h
---- linux/include/linux/kbd_kern.h	Sat Oct 19 13:02:28 2002
-+++ linux98/include/linux/kbd_kern.h	Sun Oct 27 10:23:23 2002
-@@ -43,11 +43,12 @@
- #define LED_SHOW_IOCTL 1        /* only change leds upon ioctl */
- #define LED_SHOW_MEM 2          /* `heartbeat': peek into memory */
+ /* ---- No user-serviceable parts below ---- */
  
--	unsigned char ledflagstate:3;	/* flags, not lights */
--	unsigned char default_ledflagstate:3;
-+	unsigned char ledflagstate:4;	/* flags, not lights */
-+	unsigned char default_ledflagstate:4;
- #define VC_SCROLLOCK	0	/* scroll-lock mode */
- #define VC_NUMLOCK	1	/* numeric lock mode */
- #define VC_CAPSLOCK	2	/* capslock mode */
-+#define VC_KANALOCK	3	/* kanalock mode */
++#define NE_SHIFT(x) EI_SHIFT(x)
+ #define NE_BASE	 (dev->base_addr)
+-#define NE_CMD	 	0x00
+-#define NE_DATAPORT	0x10	/* NatSemi-defined port window offset. */
+-#define NE_RESET	0x1f	/* Issue a read to reset, a write to clear. */
++#define NE_CMD	 	NE_SHIFT(0x00)
++#define NE_DATAPORT	NE_SHIFT(0x10)	/* NatSemi-defined port window offset. */
++#ifndef CONFIG_NET_CBUS
++#define NE_RESET	NE_SHIFT(0x1f) /* Issue a read to reset, a write to clear. */
++#else
++#define NE_RESET	NE_SHIFT(0x11) /* Issue a read to reset, a write to clear. */
++#endif
++
+ #define NE_IO_EXTENT	0x20
  
- 	unsigned char kbdmode:2;	/* one 2-bit value */
- #define VC_XLATE	0	/* translate keycodes using keymap */
-diff -urN linux/include/linux/keyboard.h linux98/include/linux/keyboard.h
---- linux/include/linux/keyboard.h	Sat Oct 19 13:01:13 2002
-+++ linux98/include/linux/keyboard.h	Mon Oct 21 15:59:48 2002
-@@ -9,6 +9,7 @@
- #define KG_ALT		3
- #define KG_ALTGR	1
- #define KG_SHIFTL	4
-+#define KG_KANASHIFT	4
- #define KG_SHIFTR	5
- #define KG_CTRLL	6
- #define KG_CTRLR	7
-diff -urN linux/include/linux/serio.h linux98/include/linux/serio.h
---- linux/include/linux/serio.h	Sat Oct 19 13:01:58 2002
-+++ linux98/include/linux/serio.h	Thu Oct 24 09:39:09 2002
-@@ -97,6 +97,7 @@
- #define SERIO_8042	0x01000000UL
- #define SERIO_RS232	0x02000000UL
- #define SERIO_HIL_MLC	0x03000000UL
-+#define SERIO_PC9800	0x04000000UL
+ #define NE1SM_START_PG	0x20	/* First page of TX buffer */
+ #define NE1SM_STOP_PG 	0x40	/* Last page +1 of RX ring */
+ #define NESM_START_PG	0x40	/* First page of TX buffer */
+ #define NESM_STOP_PG	0x80	/* Last page +1 of RX ring */
++#ifdef CONFIG_NE2K_CBUS_CNET98EL
++#ifndef CONFIG_NE2K_CBUS_CNET98EL_IO_BASE
++#warning CONFIG_NE2K_CBUS_CNET98EL_IO_BASE is not defined(config error?)
++#warning use 0xaaed as default
++#define CONFIG_NE2K_CBUS_CNET98EL_IO_BASE 0xaaed /* or 0x55ed */
++#endif
++#define CNET98EL_START_PG 0x00
++#define CNET98EL_STOP_PG 0x40
++#endif
++
++#ifdef CONFIG_NET_CBUS
++#include "ne2k_cbus.h"
++#endif
  
- #define SERIO_PROTO	0xFFUL
- #define SERIO_MSC	0x01
+ int ne_probe(struct net_device *dev);
+ static int ne_probe1(struct net_device *dev, int ioaddr);
+ static int ne_probe_isapnp(struct net_device *dev);
++#ifdef CONFIG_NET_CBUS
++static int ne_probe_cbus(struct net_device *dev, const struct ne2k_cbus_hwinfo *hw, int ioaddr);
++#endif
+ 
+ static int ne_open(struct net_device *dev);
+ static int ne_close(struct net_device *dev);
+@@ -162,6 +213,8 @@
+ 	E2010	 starts at 0x100 and ends at 0x4000.
+ 	E2010-x starts at 0x100 and ends at 0xffff.  */
+ 
++#ifndef CONFIG_NET_CBUS
++
+ int __init ne_probe(struct net_device *dev)
+ {
+ 	unsigned int base_addr = dev->base_addr;
+@@ -190,6 +243,95 @@
+ 	return -ENODEV;
+ }
+ 
++#else /* CONFIG_NET_CBUS */
++
++int __init ne_probe(struct net_device *dev)
++{
++	unsigned int base_addr = dev->base_addr;
++
++	SET_MODULE_OWNER(dev);
++
++	if (ei_debug > 2)
++		printk(KERN_DEBUG "ne_probe(): entered.\n");
++
++	/* If CONFIG_NET_CBUS,
++	   we need dev->priv->reg_offset BEFORE to probe */
++	if (ne2k_cbus_init(dev) != 0) {
++		return -ENOMEM;
++	}
++
++	/* First check any supplied i/o locations. User knows best. <cough> */
++	if (base_addr > 0) {
++		int result;
++		const struct ne2k_cbus_hwinfo *hw = ne2k_cbus_get_hwinfo((int)(dev->mem_start & NE2K_CBUS_HARDWARE_TYPE_MASK));
++
++		if (ei_debug > 2)
++			printk(KERN_DEBUG "ne_probe(): call ne_probe_cbus(base_addr=0x%x)\n", base_addr);
++
++		result = ne_probe_cbus(dev, hw, base_addr);
++		if (result != 0)
++			ne2k_cbus_destroy(dev);
++
++		return result;
++	}
++
++	if (ei_debug > 2)
++		printk(KERN_DEBUG "ne_probe(): base_addr is not specified.\n");
++
++#ifndef MODULE
++	/* Last resort. The semi-risky C-Bus auto-probe. */
++	if (ei_debug > 2)
++		printk(KERN_DEBUG "ne_probe(): auto-probe start.\n");
++
++	{
++		const struct ne2k_cbus_hwinfo *hw = ne2k_cbus_get_hwinfo((int)(dev->mem_start & NE2K_CBUS_HARDWARE_TYPE_MASK));
++
++		if (hw && hw->hwtype) {
++			const unsigned short *plist;
++			for (plist = hw->portlist; *plist; plist++) {
++				const struct ne2k_cbus_region *rlist;
++				for (rlist = hw->regionlist; rlist->range; rlist++) {
++					if (check_region(*plist+rlist->start, rlist->range))
++						break;
++				}
++				if (rlist->range) {
++					/* check_region() failed */ 
++					continue; /* try next base port */
++				}
++				/* check_region() succeeded */
++				if (ne_probe_cbus(dev,hw,*plist) == 0)
++					return 0;
++			}
++		}else{
++			for (hw = &ne2k_cbus_hwinfo_list[0]; hw->hwtype; hw++) {
++				const unsigned short *plist;
++				for(plist=hw->portlist; *plist; plist++){
++					const struct ne2k_cbus_region *rlist;
++
++					for (rlist = hw->regionlist; rlist->range; rlist++) {
++						if (check_region(*plist+rlist->start, rlist->range))
++							break;
++					}
++					if (rlist->range) {
++						/* check_region() failed */ 
++						continue; /* try next base port */
++					}
++					/* check_region() succeeded */
++					if (ne_probe_cbus(dev,hw,*plist) == 0)
++						return 0;
++				}
++			}
++		}
++	}
++#endif
++
++	ne2k_cbus_destroy(dev);
++
++	return -ENODEV;
++}
++
++#endif /* CONFIG_NET_CBUS */
++
+ static int __init ne_probe_isapnp(struct net_device *dev)
+ {
+ 	int i;
+@@ -231,42 +373,127 @@
+ 	return -ENODEV;
+ }
+ 
++#ifdef CONFIG_NET_CBUS
++static int __init ne_probe_cbus(struct net_device *dev, const struct ne2k_cbus_hwinfo *hw, int ioaddr)
++{
++	if (ei_debug > 2)
++		printk(KERN_DEBUG "ne_probe_cbus(): entered. (called from %p)\n",
++		       __builtin_return_address(0));
++
++	if (hw && hw->hwtype) {
++		ne2k_cbus_set_hwtype(dev, hw, ioaddr);
++		return ne_probe1(dev, ioaddr);
++	} else {
++		/* auto detect */
++
++		printk(KERN_DEBUG "ne_probe_cbus(): try to determine hardware types.\n");
++		for (hw = &ne2k_cbus_hwinfo_list[0]; hw->hwtype; hw++) {
++			ne2k_cbus_set_hwtype(dev, hw, ioaddr);
++			if (ne_probe1(dev, ioaddr)==0)
++				return 0;
++		}
++	}
++	return ENODEV;
++}
++#endif /* CONFIG_NET_CBUS */
++
+ static int __init ne_probe1(struct net_device *dev, int ioaddr)
+ {
+ 	int i;
+ 	unsigned char SA_prom[32];
++#ifndef CONFIG_NET_CBUS /* if CONFIG_NET_CBUS, wordlength is always 2! */
+ 	int wordlength = 2;
++#endif
+ 	const char *name = NULL;
+ 	int start_page, stop_page;
++#ifndef CONFIG_NET_CBUS
+ 	int neX000, ctron, copam, bad_card;
++#else
++	int neX000, bad_card;
++#endif
+ 	int reg0, ret;
+ 	static unsigned version_printed;
++#ifdef CONFIG_NET_CBUS
++	const struct ne2k_cbus_hwinfo *hw = ne2k_cbus_get_hwinfo((int)(dev->mem_start & NE2K_CBUS_HARDWARE_TYPE_MASK));
++	struct ei_device *ei_local = (struct ei_device *)(dev->priv);
++#endif
+ 
++#ifdef CONFIG_NET_CBUS
++	if (ei_debug > 2) {
++		printk(KERN_DEBUG "ne_probe1(): entered\n"
++			   "ioaddr=0x%x, hardware_type = %d(%s)\n"
++			   "ei_local->reg_offset = \n"
++			   "{ 0x%04x, 0x%04x, 0x%04x, 0x%04x, 0x%04x, 0x%04x, 0x%04x, 0x%04x, \n"
++			   "  0x%04x, 0x%04x, 0x%04x, 0x%04x, 0x%04x, 0x%04x, 0x%04x, 0x%04x, \n"
++			   "  0x%04x, 0x%04x }\n",
++			   ioaddr, hw->hwtype, hw->hwident,
++			   ei_local->reg_offset[0],  ei_local->reg_offset[1],
++			   ei_local->reg_offset[2],  ei_local->reg_offset[3],
++			   ei_local->reg_offset[4],  ei_local->reg_offset[5],
++			   ei_local->reg_offset[6],  ei_local->reg_offset[7],
++			   ei_local->reg_offset[8],  ei_local->reg_offset[9],
++			   ei_local->reg_offset[10], ei_local->reg_offset[11],
++			   ei_local->reg_offset[12], ei_local->reg_offset[13],
++			   ei_local->reg_offset[14], ei_local->reg_offset[15],
++			   ei_local->reg_offset[16], ei_local->reg_offset[17]);
++	}
++#endif
++
++#ifdef CONFIG_NE2K_CBUS_CNET98EL
++	if (hw->hwtype == NE2K_CBUS_HARDWARE_TYPE_CNET98EL) {
++		outb_p(0, CONFIG_NE2K_CBUS_CNET98EL_IO_BASE);
++		/* udelay(5000);	*/
++		outb_p(1, CONFIG_NE2K_CBUS_CNET98EL_IO_BASE);
++		/* udelay(5000);	*/
++		outb_p((ioaddr & 0xf000) >> 8 | 0x08 | 0x01, CONFIG_NE2K_CBUS_CNET98EL_IO_BASE + 2);
++		/* udelay(5000); */
++	}
++#endif
++
++#ifndef CONFIG_NET_CBUS
+ 	if (!request_region(ioaddr, NE_IO_EXTENT, dev->name))
+ 		return -EBUSY;
++#else /* CONFIG_NET_CBUS */
++	{
++		const struct ne2k_cbus_region *rlist;
++		for (rlist = hw->regionlist; rlist->range; rlist++) {
++			if (!request_region(ioaddr + rlist->start,
++						rlist->range, dev->name))
++				return -EBUSY;
++		}
++	}
++#endif /* !CONFIG_NET_CBUS */
+ 
+-	reg0 = inb_p(ioaddr);
++	reg0 = inb_p(ioaddr + NE_SHIFT(0));
+ 	if (reg0 == 0xFF) {
+ 		ret = -ENODEV;
+ 		goto err_out;
+ 	}
+ 
+ 	/* Do a preliminary verification that we have a 8390. */
++#ifdef CONFIG_NE2K_CBUS_CNET98EL
++	if (hw->hwtype != NE2K_CBUS_HARDWARE_TYPE_CNET98EL)
++#endif
+ 	{
+ 		int regd;
+ 		outb_p(E8390_NODMA+E8390_PAGE1+E8390_STOP, ioaddr + E8390_CMD);
+-		regd = inb_p(ioaddr + 0x0d);
+-		outb_p(0xff, ioaddr + 0x0d);
++		regd = inb_p(ioaddr + NE_SHIFT(0x0d));
++		outb_p(0xff, ioaddr + NE_SHIFT(0x0d));
+ 		outb_p(E8390_NODMA+E8390_PAGE0, ioaddr + E8390_CMD);
+ 		inb_p(ioaddr + EN0_COUNTER0); /* Clear the counter by reading. */
+ 		if (inb_p(ioaddr + EN0_COUNTER0) != 0) {
+ 			outb_p(reg0, ioaddr);
+-			outb_p(regd, ioaddr + 0x0d);	/* Restore the old values. */
++			outb_p(regd, ioaddr + NE_SHIFT(0x0d));	/* Restore the old values. */
+ 			ret = -ENODEV;
+ 			goto err_out;
+ 		}
+ 	}
+ 
++#ifdef CONFIG_NET_CBUS
++	if (ei_debug > 2)
++		printk(KERN_DEBUG "ne_probe1(): 8390 verification passed.\n");
++#endif
++
+ 	if (ei_debug  &&  version_printed++ == 0)
+ 		printk(KERN_INFO "%s" KERN_INFO "%s", version1, version2);
+ 
+@@ -285,6 +512,11 @@
+ 	{
+ 		unsigned long reset_start_time = jiffies;
+ 
++#ifdef CONFIG_NET_CBUS
++		/* derived from CNET98EL-patch for bad clones */
++		outb_p(E8390_NODMA | E8390_STOP, ioaddr+E8390_CMD);
++#endif
++
+ 		/* DON'T change these to inb_p/outb_p or reset will fail on clones. */
+ 		outb(inb(ioaddr + NE_RESET), ioaddr + NE_RESET);
+ 
+@@ -303,15 +535,130 @@
+ 		outb_p(0xff, ioaddr + EN0_ISR);		/* Ack all intr. */
+ 	}
+ 
++#ifdef CONFIG_NE2K_CBUS_ICM
++#if 0 /* obsoleted */
++	if (hw->hwtype == NE2K_CBUS_HARDWARE_TYPE_ICM) {
++		static const char pat[32] ="AbcdeFghijKlmnoPqrstUvwxyZ789012";
++		char buf[sizeof(pat)];
++		int maxwait = 200;
++
++		if (ei_debug > 2) {
++			printk(" [ICM-specific initialize...");
++		}
++
++		inb(ioaddr + EN0_ISR);
++		outb_p(E8390_RXOFF, ioaddr+EN0_RXCR);
++		outb_p(0x1| 0x40 | 0x8, ioaddr+EN0_DCFG); /* ENDCFG_WTS|ENDCFG_FT1|ENDCFG_LS */
++		outb_p(16384 / 256, ioaddr + EN0_STARTPG);
++		outb_p(32768 / 256, ioaddr + EN0_STOPPG);
++		ne2k_cbus_writemem(dev, ioaddr, 16384, pat, sizeof(pat));
++		while ((inb(ioaddr+EN0_ISR) & ENISR_RDC) != ENISR_RDC
++			  && --maxwait)
++			;
++		if (ei_debug > 2) {
++			printk("write pat...");
++		}
++		ne2k_cbus_readmem(dev, ioaddr, 16384, buf, sizeof(pat));
++		if (ei_debug>2) {
++			printk("read pat...");
++		}
++		if (memcmp(pat, buf, sizeof(pat))) {
++			if (ei_debug > 2) {
++				printk("compare failed.)");
++			}
++			printk(" memory failure\n");
++			return ENODEV;
++		}
++		if (ei_debug > 2) {
++			printk("compare ok...");
++		}
++		ne2k_cbus_readmem(dev, ioaddr, 0, SA_prom, 32);
++		outb(0xff, ioaddr+EN0_ISR);
++		printk("done)");
++	}
++	else
++#endif
++#endif /* CONFIG_NE2K_CBUS_ICM */
++#ifdef CONFIG_NE2K_CBUS_CNET98EL
++	if (hw->hwtype == NE2K_CBUS_HARDWARE_TYPE_CNET98EL) {
++		static const char pat[32] ="AbcdeFghijKlmnoPqrstUvwxyZ789012";
++		char buf[32];
++		int maxwait = 200;
++
++		if (ei_debug > 2) {
++			printk(" [CNET98EL-specific initialize...");
++		}
++		outb_p(E8390_NODMA | E8390_STOP, ioaddr+E8390_CMD); /* 0x20|0x1 */
++		i=inb(ioaddr);
++		if ((i & ~0x2) != (0x20 | 0x01))
++			return ENODEV;
++		if ((inb(ioaddr + 0x7) & 0x80) != 0x80)
++			return ENODEV;
++		outb_p(E8390_RXOFF, ioaddr+EN0_RXCR); /* out(ioaddr+0xc, 0x20) */
++		/* outb_p(ENDCFG_WTS|ENDCFG_FT1|ENDCFG_LS, ioaddr+EN0_DCFG); */
++		outb_p(ENDCFG_WTS|0x48, ioaddr+EN0_DCFG); /* 0x49 */
++		outb_p(CNET98EL_START_PG, ioaddr+EN0_STARTPG);
++		outb_p(CNET98EL_STOP_PG, ioaddr+EN0_STOPPG);
++		if (ei_debug > 2) {
++			printk("memory check");
++		}
++		for (i = 0; i < 65536; i += 1024) {
++			if (ei_debug > 2) {
++				printk(" %04x",i);
++			}
++			ne2k_cbus_writemem(dev,ioaddr, i, pat, 32);
++			while (((inb(ioaddr + EN0_ISR) & ENISR_RDC) != ENISR_RDC) && --maxwait)
++				;
++			ne2k_cbus_readmem(dev, ioaddr, i, buf, 32);
++			if (memcmp(pat, buf, 32)) {
++				if (ei_debug > 2) {
++					printk(" failed.");
++				}
++				break;
++			}
++		}
++		if (i != 16384) {
++			if (ei_debug > 2) {
++				printk("] ");
++			}
++			printk("memory failure at %x\n", i);
++			return ENODEV;
++		}
++		if (ei_debug > 2) {
++			printk(" good...");
++		}
++		if (!dev->irq) {
++			if (ei_debug > 2) {
++				printk("] ");
++			}
++			printk("IRQ must be specified for C-NET(98)E/L. probe failed.\n");
++			return ENODEV;
++		}
++		outb((dev->irq>5) ? (dev->irq&4):(dev->irq>>1), ioaddr + (0x2 | 0x400));
++		outb(0x7e, ioaddr + (0x4 | 0x400));
++		ne2k_cbus_readmem(dev, ioaddr, 16384, SA_prom, 32);
++		outb(0xff, ioaddr + EN0_ISR);
++		if (ei_debug > 2) {
++			printk("done]");
++		}
++	} else
++#endif /* CONFIG_NE2K_CBUS_CNET98EL */
+ 	/* Read the 16 bytes of station address PROM.
+ 	   We must first initialize registers, similar to NS8390_init(eifdev, 0).
+ 	   We can't reliably read the SAPROM address without this.
+ 	   (I learned the hard way!). */
+ 	{
+-		struct {unsigned char value, offset; } program_seq[] =
++		struct {unsigned char value; unsigned short offset;} program_seq[] = 
+ 		{
+ 			{E8390_NODMA+E8390_PAGE0+E8390_STOP, E8390_CMD}, /* Select page 0*/
++#ifndef CONFIG_NET_CBUS
+ 			{0x48,	EN0_DCFG},	/* Set byte-wide (0x48) access. */
++#else
++			/* NEC PC-9800: some board can only handle word-wide access? */
++			{0x48 | ENDCFG_WTS,	EN0_DCFG},	/* Set word-wide (0x48) access. */
++			{16384 / 256, EN0_STARTPG},
++			{32768 / 256, EN0_STOPPG},
++#endif
+ 			{0x00,	EN0_RCNTLO},	/* Clear the count regs. */
+ 			{0x00,	EN0_RCNTHI},
+ 			{0x00,	EN0_IMR},	/* Mask completion irq. */
+@@ -325,17 +672,44 @@
+ 			{E8390_RREAD+E8390_START, E8390_CMD},
+ 		};
+ 
++#ifdef CONFIG_NET_CBUS
++		if (ei_debug > 2) {
++			printk(" [outb_p");
++		}
++#endif
++
+ 		for (i = 0; i < sizeof(program_seq)/sizeof(program_seq[0]); i++)
++#ifdef CONFIG_NET_CBUS
++		{
++			if (ei_debug > 2)
++				printk("(0x%x,0x%x)",program_seq[i].value, ioaddr + program_seq[i].offset);
++#endif
+ 			outb_p(program_seq[i].value, ioaddr + program_seq[i].offset);
+-
+-	}
++#ifdef CONFIG_NET_CBUS
++		}
++		if (ei_debug > 2)
++			printk("]");
++#endif
++#ifndef CONFIG_NET_CBUS
+ 	for(i = 0; i < 32 /*sizeof(SA_prom)*/; i+=2) {
+ 		SA_prom[i] = inb(ioaddr + NE_DATAPORT);
+ 		SA_prom[i+1] = inb(ioaddr + NE_DATAPORT);
+ 		if (SA_prom[i] != SA_prom[i+1])
+ 			wordlength = 1;
+ 	}
++#else
++	insw(ioaddr + NE_DATAPORT, SA_prom, 32 >> 1);
++#endif
+ 
++	}
++
++	if (ei_debug > 2) {
++		printk("[SA_prom[]={ ");
++		for (i = 0; i < 32; i++) printk("%02x ", SA_prom[i]);
++		printk("}]");
++	}
++
++#ifndef CONFIG_NET_CBUS
+ 	if (wordlength == 2)
+ 	{
+ 		for (i = 0; i < 16; i++)
+@@ -348,8 +722,24 @@
+ 		start_page = NE1SM_START_PG;
+ 		stop_page = NE1SM_STOP_PG;
+ 	}
++#else
++	for (i = 0; i < 16; i++)
++		SA_prom[i] = SA_prom[i + i];
++#ifdef CONFIG_NE2K_CBUS_CNET98EL
++	if (hw->hwtype == NE2K_CBUS_HARDWARE_TYPE_CNET98EL) {
++		start_page = CNET98EL_START_PG;
++		stop_page = CNET98EL_STOP_PG;
++	} else {
++#endif
++		start_page = NESM_START_PG;
++		stop_page = NESM_STOP_PG;
++#ifdef CONFIG_NE2K_CBUS_CNET98EL
++	}
++#endif
++#endif
+ 
+ 	neX000 = (SA_prom[14] == 0x57  &&  SA_prom[15] == 0x57);
++#ifndef CONFIG_NET_CBUS
+ 	ctron =  (SA_prom[0] == 0x00 && SA_prom[1] == 0x00 && SA_prom[2] == 0x1d);
+ 	copam =  (SA_prom[14] == 0x49 && SA_prom[15] == 0x00);
+ 
+@@ -363,6 +753,11 @@
+ 		start_page = 0x01;
+ 		stop_page = (wordlength == 2) ? 0x40 : 0x20;
+ 	}
++#else
++	if (neX000){
++		name = "NE2000-compat";
++	}
++#endif
+ 	else
+ 	{
+ #ifdef SUPPORT_NE_BAD_CLONES
+@@ -374,12 +769,16 @@
+ 				SA_prom[1] == bad_clone_list[i].SAprefix[1] &&
+ 				SA_prom[2] == bad_clone_list[i].SAprefix[2])
+ 			{
++#ifndef CONFIG_NET_CBUS
+ 				if (wordlength == 2)
+ 				{
+ 					name = bad_clone_list[i].name16;
+ 				} else {
+ 					name = bad_clone_list[i].name8;
+ 				}
++#else
++				name = bad_clone_list[i].name16;
++#endif
+ 				break;
+ 			}
+ 		}
+@@ -387,6 +786,12 @@
+ 		{
+ 			printk(" not found (invalid signature %2.2x %2.2x).\n",
+ 				SA_prom[14], SA_prom[15]);
++#ifdef CONFIG_NET_CBUS
++			if (ei_debug > 2) {
++				printk(KERN_DEBUG "PROM prefix is: %2.2x %2.2x %2.2x\n",
++					   SA_prom[0], SA_prom[1], SA_prom[2]);
++			}
++#endif
+ 			ret = -ENXIO;
+ 			goto err_out;
+ 		}
+@@ -409,10 +814,18 @@
+ 		dev->irq = probe_irq_off(cookie);
+ 		if (ei_debug > 2)
+ 			printk(" autoirq is %d\n", dev->irq);
+-	} else if (dev->irq == 2)
++	} else
++#ifndef CONFIG_PC9800
++	if (dev->irq == 2)
+ 		/* Fixup for users that don't know that IRQ 2 is really IRQ 9,
+ 		   or don't know which one to set. */
+ 		dev->irq = 9;
++#else
++	if (dev->irq == 7)
++		/* Fixup for users that don't know that IRQ 7 is really IRQ 11,
++		   or don't know which one to set. */
++		dev->irq = 11;
++#endif
+ 
+ 	if (! dev->irq) {
+ 		printk(" failed to detect IRQ line.\n");
+@@ -443,13 +856,22 @@
+ 		dev->dev_addr[i] = SA_prom[i];
+ 	}
+ 
++#ifndef CONFIG_NET_CBUS
+ 	printk("\n%s: %s found at %#x, using IRQ %d.\n",
+ 		dev->name, name, ioaddr, dev->irq);
++#else
++	printk("\n%s: %s found at %#x, hardware type %d(%s), using IRQ %d.\n",
++		   dev->name, name, ioaddr, hw->hwtype, hw->hwident, dev->irq);
++#endif
+ 
+ 	ei_status.name = name;
+ 	ei_status.tx_start_page = start_page;
+ 	ei_status.stop_page = stop_page;
++#ifndef CONFIG_NET_CBUS
+ 	ei_status.word16 = (wordlength == 2);
++#else
++	ei_status.word16 = (2 == 2); /* wordlength is always 2 */
++#endif
+ 
+ 	ei_status.rx_start_page = start_page + TX_PAGES;
+ #ifdef PACKETBUF_MEMSIZE
+@@ -468,10 +890,23 @@
+ 	return 0;
+ 
+ err_out_kfree:
++#ifndef CONFIG_NET_CBUS
+ 	kfree(dev->priv);
+ 	dev->priv = NULL;
++#else
++	ne2k_cbus_destroy(dev);
++#endif
+ err_out:
++#ifndef CONFIG_NET_CBUS
+ 	release_region(ioaddr, NE_IO_EXTENT);
++#else
++	{
++		const struct ne2k_cbus_region *rlist;
++		for (rlist = hw->regionlist; rlist->range; rlist++) {
++			release_region(ioaddr + rlist->start, rlist->range);
++		}
++	}
++#endif
+ 	return ret;
+ }
+ 
+@@ -495,10 +930,18 @@
+ static void ne_reset_8390(struct net_device *dev)
+ {
+ 	unsigned long reset_start_time = jiffies;
++#ifdef CONFIG_NET_CBUS
++	struct ei_device *ei_local = (struct ei_device *)(dev->priv);
++#endif
+ 
+ 	if (ei_debug > 1)
+ 		printk(KERN_DEBUG "resetting the 8390 t=%ld...", jiffies);
+ 
++#ifdef CONFIG_NET_CBUS
++	/* derived from CNET98EL-patch for bad clones... */
++	outb_p(E8390_NODMA | E8390_STOP, NE_BASE + E8390_CMD);  /* 0x20 | 0x1 */
++#endif
++
+ 	/* DON'T change these to inb_p/outb_p or reset will fail on clones. */
+ 	outb(inb(NE_BASE + NE_RESET), NE_BASE + NE_RESET);
+ 
+@@ -521,6 +964,9 @@
+ static void ne_get_8390_hdr(struct net_device *dev, struct e8390_pkt_hdr *hdr, int ring_page)
+ {
+ 	int nic_base = dev->base_addr;
++#ifdef CONFIG_NET_CBUS
++	struct ei_device *ei_local = (struct ei_device *)(dev->priv);
++#endif
+ 
+ 	/* This *shouldn't* happen. If it does, it's the last thing you'll see */
+ 
+@@ -563,6 +1009,9 @@
+ #endif
+ 	int nic_base = dev->base_addr;
+ 	char *buf = skb->data;
++#ifdef CONFIG_NET_CBUS
++	struct ei_device *ei_local = (struct ei_device *)(dev->priv);
++#endif
+ 
+ 	/* This *shouldn't* happen. If it does, it's the last thing you'll see */
+ 	if (ei_status.dmaing)
+@@ -573,6 +1022,15 @@
+ 		return;
+ 	}
+ 	ei_status.dmaing |= 0x01;
++
++#ifdef CONFIG_NET_CBUS
++	/* derived from ICM-patch */
++	/* round up count to a word */
++	if (count & 1) {
++	    count++;
++	}
++#endif
++
+ 	outb_p(E8390_NODMA+E8390_PAGE0+E8390_START, nic_base+ NE_CMD);
+ 	outb_p(count & 0xff, nic_base + EN0_RCNTLO);
+ 	outb_p(count >> 8, nic_base + EN0_RCNTHI);
+@@ -630,6 +1088,9 @@
+ #ifdef NE_SANITY_CHECK
+ 	int retries = 0;
+ #endif
++#ifdef CONFIG_NET_CBUS
++	struct ei_device *ei_local = (struct ei_device *)(dev->priv);
++#endif
+ 
+ 	/* Round the count up for word writes.  Do we need to do this?
+ 	   What effect will an odd byte count have on the 8390?
+@@ -730,16 +1191,25 @@
+ #ifdef MODULE
+ #define MAX_NE_CARDS	4	/* Max number of NE cards per module */
+ static struct net_device dev_ne[MAX_NE_CARDS];
+-static int io[MAX_NE_CARDS];
+-static int irq[MAX_NE_CARDS];
+-static int bad[MAX_NE_CARDS];	/* 0xbad = bad sig or no reset ack */
++static int __initdata io[MAX_NE_CARDS];
++static int __initdata irq[MAX_NE_CARDS];
++static int __initdata bad[MAX_NE_CARDS];  /* 0xbad = bad sig or no reset ack */
++#ifdef CONFIG_PC9800
++static int __initdata hwtype[MAX_NE_CARDS] = { 0, }; /* board type */
++#endif
+ 
+ MODULE_PARM(io, "1-" __MODULE_STRING(MAX_NE_CARDS) "i");
+ MODULE_PARM(irq, "1-" __MODULE_STRING(MAX_NE_CARDS) "i");
+ MODULE_PARM(bad, "1-" __MODULE_STRING(MAX_NE_CARDS) "i");
++#ifdef CONFIG_PC9800
++MODULE_PARM(hwtype, "1-" __MODULE_STRING(MAX_NE_CARDS) "i");
++#endif
+ MODULE_PARM_DESC(io, "I/O base address(es),required");
+ MODULE_PARM_DESC(irq, "IRQ number(s)");
+ MODULE_PARM_DESC(bad, "Accept card(s) with bad signatures");
++#ifdef CONFIG_PC9800
++MODULE_PARM_DESC(hwtype, "Board type of PC-9800 C-Bus NIC");
++#endif
+ MODULE_DESCRIPTION("NE1000/NE2000 ISA/PnP Ethernet driver");
+ MODULE_LICENSE("GPL");
+ 
+@@ -757,6 +1227,9 @@
+ 		dev->irq = irq[this_dev];
+ 		dev->mem_end = bad[this_dev];
+ 		dev->base_addr = io[this_dev];
++#ifdef CONFIG_PC9800
++		dev->mem_start = hwtype[this_dev];
++#endif
+ 		dev->init = ne_probe;
+ 		if (register_netdev(dev) == 0) {
+ 			found++;
+@@ -781,14 +1254,30 @@
+ 	for (this_dev = 0; this_dev < MAX_NE_CARDS; this_dev++) {
+ 		struct net_device *dev = &dev_ne[this_dev];
+ 		if (dev->priv != NULL) {
++#ifndef CONFIG_NET_CBUS
+ 			void *priv = dev->priv;
++#endif
+ 			struct pci_dev *idev = (struct pci_dev *)ei_status.priv;
+ 			if (idev)
+ 				idev->deactivate(idev);
+ 			free_irq(dev->irq, dev);
++#ifndef CONFIG_NET_CBUS
+ 			release_region(dev->base_addr, NE_IO_EXTENT);
++#else /* CONFIG_NET_CBUS */
++			{
++				const struct ne2k_cbus_hwinfo *hw = ne2k_cbus_get_hwinfo((int)(dev->mem_start & NE2K_CBUS_HARDWARE_TYPE_MASK));
++				const struct ne2k_cbus_region *rlist;
++				for (rlist = hw->regionlist; rlist->range; rlist++) {
++					release_region(dev->base_addr + rlist->start, rlist->range);
++				}
++			}
++#endif /* !CONFIG_NET_CBUS */
+ 			unregister_netdev(dev);
++#ifndef CONFIG_NET_CBUS
+ 			kfree(priv);
++#else
++			ne2k_cbus_destroy(dev);
++#endif
+ 		}
+ 	}
+ }
+diff -Nru linux-2.5.42/drivers/net/ne2k_cbus.h linux98-2.5.42/drivers/net/ne2k_cbus.h
+--- linux-2.5.42/drivers/net/ne2k_cbus.h	Thu Jan  1 09:00:00 1970
++++ linux98-2.5.42/drivers/net/ne2k_cbus.h	Sat Oct 26 14:26:13 2002
+@@ -0,0 +1,467 @@
++/* ne2k_cbus.h: 
++   vender-specific information definition for NEC PC-9800
++   C-bus Ethernet Cards
++   Used in ne.c 
++
++   (C)1998,1999 KITAGWA Takurou & Linux/98 project
++*/
++
++#include <linux/config.h>
++
++/* Hardware type definition (derived from *BSD) */
++#define NE2K_CBUS_HARDWARE_TYPE_MASK 0xff
++
++/* 0: reserved for auto-detect */
++/* 1: (not tested)
++   Allied Telesis CentreCom LA-98-T */
++#define NE2K_CBUS_HARDWARE_TYPE_ATLA98 1
++/* 2: (not tested)
++   ELECOM Laneed
++   LD-BDN[123]A
++   PLANET SMART COM 98 EN-2298-C
++   MACNICA ME98 */
++#define NE2K_CBUS_HARDWARE_TYPE_BDN 2
++/* 3:
++   Melco EGY-98
++   Contec C-NET(98)E*A/L*A,C-NET(98)P */
++#define NE2K_CBUS_HARDWARE_TYPE_EGY98 3
++/* 4:
++   Melco LGY-98,IND-SP,IND-SS
++   MACNICA NE2098 */
++#define NE2K_CBUS_HARDWARE_TYPE_LGY98 4
++/* 5:
++   ICM DT-ET-25,DT-ET-T5,IF-2766ET,IF-2771ET
++   PLANET SMART COM 98 EN-2298-T,EN-2298P-T
++   D-Link DE-298PT,DE-298PCAT
++   ELECOM Laneed LD-98P */
++#define NE2K_CBUS_HARDWARE_TYPE_ICM 5
++/* 6: (reserved for SIC-98, which is not supported in this driver.) */
++/* 7: (unused in *BSD?)
++   <Original NE2000 compatible>
++   <for PCI/PCMCIA cards>
++*/
++#define NE2K_CBUS_HARDWARE_TYPE_NE2K 7
++/* 8: (not tested)
++   NEC PC-9801-108 */
++#define NE2K_CBUS_HARDWARE_TYPE_NEC108 8
++/* 9:
++   I-O DATA LA-98,LA/T-98 */
++#define NE2K_CBUS_HARDWARE_TYPE_IOLA98 9
++/* 10: (reserved for C-NET(98), which is not supported in this driver.) */
++/* 11:
++   Contec C-NET(98)E,L */
++#define NE2K_CBUS_HARDWARE_TYPE_CNET98EL 11
++
++#define NE2K_CBUS_HARDWARE_TYPE_MAX 11
++
++/* HARDWARE TYPE ID 12-31: reserved */
++
++struct ne2k_cbus_offsetinfo {
++	unsigned short skip;
++	unsigned short offset8; /* +0x8 - +0xf */
++	unsigned short offset10; /* +0x10 */
++	unsigned short offset1f; /* +0x1f */
++};
++
++struct ne2k_cbus_region {
++	unsigned short start;
++	short range;
++};
++
++struct ne2k_cbus_hwinfo {
++	const unsigned short hwtype;
++	const unsigned char *hwident;
++#ifndef MODULE
++	const unsigned short *portlist;
++#endif
++	const struct ne2k_cbus_offsetinfo *offsetinfo;
++	const struct ne2k_cbus_region *regionlist;
++};
++
++/* XXX */
++/* we can't use first __initdata with const? */
++static struct {} ne2k_cbus_dummy_for_initdata __attribute__((unused)) __initdata = {};
++
++#ifdef CONFIG_NE2K_CBUS_ATLA98
++#ifndef MODULE
++static const unsigned short atla98_portlist[] __initdata = {
++	0xd0,
++	0
++};
++#endif
++#define atla98_offsetinfo ne2k_offsetinfo
++#define atla98_regionlist ne2k_regionlist
++#endif /* CONFIG_NE2K_CBUS_ATLA98 */
++
++#ifdef CONFIG_NE2K_CBUS_BDN
++#ifndef MODULE
++static const unsigned short bdn_portlist[] __initdata = {
++	0xd0,
++	0
++};
++#endif
++static const struct ne2k_cbus_offsetinfo bdn_offsetinfo __initdata = {
++#if 0
++	/* comes from FreeBSD(98) ed98.h */
++	0x1000, 0x8000, 0x100, 0xc200 /* ??? */
++#else
++	/* comes from NetBSD/pc98 if_ne_isa.c */
++	0x1000, 0x8000, 0x100, 0x7f00 /* ??? */
++#endif
++};
++static const struct ne2k_cbus_region bdn_regionlist[] __initdata = {
++	{0x0,1},{0x1000,1},{0x2000,1},{0x3000,1},
++	{0x4000,1},{0x5000,1},{0x6000,1},{0x7000,1},
++	{0x8000,1},{0x9000,1},{0xa000,1},{0xb000,1},
++	{0xc000,1},{0xd000,1},{0xe000,1},{0xf000,1},{0x100,1},{0x7f00,1},
++	{0x0,0}
++};
++#endif /* CONFIG_NE2K_CBUS_BDN */
++
++#ifdef CONFIG_NE2K_CBUS_EGY98
++#ifndef MODULE
++static const unsigned short egy98_portlist[] __initdata = {
++	0xd0,
++	0
++};
++#endif
++static const struct ne2k_cbus_offsetinfo egy98_offsetinfo __initdata = {
++	0x02, 0x100, 0x200, 0x300
++};
++static const struct ne2k_cbus_region egy98_regionlist[] __initdata = {
++	{0x0,1}, {0x2,1}, {0x4,1}, {0x6,1}, {0x8,1}, {0xa,1}, {0xc,1}, {0xe,1},
++	{0x100,1}, {0x102,1}, {0x104,1}, {0x106,1},
++	{0x108,1}, {0x10a,1}, {0x10c,1}, {0x10e,1},
++	{0x200,1}, {0x300,1},
++	{0x0,0}
++};
++#endif /* CONFIG_NE2K_CBUS_EGY98 */
++
++#ifdef CONFIG_NE2K_CBUS_LGY98
++#ifndef MODULE
++static const unsigned short lgy98_portlist[] __initdata = {
++	0xd0, 0x10d0, 0x20d0, 0x30d0, 0x40d0, 0x50d0, 0x60d0, 0x70d0,
++	0
++};
++#endif
++static const struct ne2k_cbus_offsetinfo lgy98_offsetinfo __initdata = {
++	0x01, 0x08, 0x200, 0x300
++};
++static const struct ne2k_cbus_region lgy98_regionlist[] __initdata = {
++	{0x0,16}, {0x200,1}, {0x300,1},
++	{0x0,0}
++};
++#endif /* CONFIG_NE2K_CBUS_LGY98 */
++
++#ifdef CONFIG_NE2K_CBUS_ICM
++#ifndef MODULE
++static const unsigned short icm_portlist[] __initdata = {
++	/* ICM */
++	0x56d0,
++	/* LD-98PT */
++	0x46d0, 0x66d0, 0x76d0, 0x86d0, 0x96d0, 0xa6d0, 0xb6d0, 0xc6d0,
++	0
++};
++#endif
++static const struct ne2k_cbus_offsetinfo icm_offsetinfo __initdata = {
++	0x01, 0x08, 0x100, 0x10f
++};
++static const struct ne2k_cbus_region icm_regionlist[] __initdata = {
++	{0x0,16}, {0x100,16},
++	{0x0,0}
++};
++#endif /* CONFIG_NE2K_CBUS_ICM */
++
++#if defined(CONFIG_NE2K_CBUS_NE2K) && !defined(MODULE)
++static const unsigned short ne2k_portlist[] __initdata = {
++	0xd0, 0x300, 0x280, 0x320, 0x340, 0x360, 0x380,
++	0
++};
++#endif
++#if defined(CONFIG_NE2K_CBUS_NE2K) || defined(CONFIG_NE2K_CBUS_ATLA98)
++static const struct ne2k_cbus_offsetinfo ne2k_offsetinfo __initdata = {
++	0x01, 0x08, 0x10, 0x1f
++};
++static const struct ne2k_cbus_region ne2k_regionlist[] __initdata = {
++	{0x0,32},
++	{0x0,0}
++};
++#endif
++
++#ifdef CONFIG_NE2K_CBUS_NEC108
++#ifndef MODULE
++static const unsigned short nec108_portlist[] __initdata = {
++    0x770, 0x2770, 0x4770, 0x6770,
++	0
++};
++#endif
++static const struct ne2k_cbus_offsetinfo nec108_offsetinfo __initdata = {
++	0x02, 0x1000, 0x888, 0x88a
++};
++static const struct ne2k_cbus_region nec108_regionlist[] __initdata = {
++	{0x0,1}, {0x2,1}, {0x4,1}, {0x6,1}, {0x8,1}, {0xa,1}, {0xc,1}, {0xe,1},
++	{0x1000,1}, {0x1002,1}, {0x1004,1}, {0x1006,1},
++	{0x1008,1}, {0x100a,1}, {0x100c,1}, {0x100e,1},
++	{0x118,1}, {0x11a,1}, {0x11c,1}, {0x11e,1},
++	{0x0,0}
++};
++#endif
++
++#ifdef CONFIG_NE2K_CBUS_IOLA98
++#ifndef MODULE
++static const unsigned short iola98_portlist[] __initdata = {
++	0xd0, 0xd2, 0xd4, 0xd6, 0xd8, 0xda, 0xdc, 0xde,
++	0
++};
++#endif
++static const struct ne2k_cbus_offsetinfo iola98_offsetinfo __initdata = {
++	0x1000, 0x8000, 0x100, 0xf100
++};
++static const struct ne2k_cbus_region iola98_regionlist[] __initdata = {
++	{0x0,1},{0x1000,1},{0x2000,1},{0x3000,1},
++	{0x4000,1},{0x5000,1},{0x6000,1},{0x7000,1},
++	{0x8000,1},{0x9000,1},{0xa000,1},{0xb000,1},
++	{0xc000,1},{0xd000,1},{0xe000,1},{0xf000,1},{0x100,1},{0xf100,1},
++	{0x0,0}
++};
++#endif /* CONFIG_NE2K_CBUS_IOLA98 */
++
++#ifdef CONFIG_NE2K_CBUS_CNET98EL
++#ifndef MODULE
++static const unsigned short cnet98el_portlist[] __initdata = {
++	0x3d0, 0x13d0, 0x23d0, 0x33d0, 0x43d0, 0x53d0, 0x60d0, 0x70d0,
++	0
++};
++#endif
++static const struct ne2k_cbus_offsetinfo cnet98el_offsetinfo __initdata = {
++	0x01, 0x08, 0x40e, 0x400
++};
++static const struct ne2k_cbus_region cnet98el_regionlist[] __initdata = {
++	{0x0, 16}, {0x400, 16},
++	{0x0,0}
++};
++#endif
++
++
++/* port information table (for ne.c initialize/probe process) */
++
++static const struct ne2k_cbus_hwinfo ne2k_cbus_hwinfo_list[] __initdata = {
++#ifdef CONFIG_NE2K_CBUS_ATLA98
++/* NOT TESTED */
++	{
++		NE2K_CBUS_HARDWARE_TYPE_ATLA98,
++		"LA-98-T",
++#ifndef MODULE
++		atla98_portlist,
++#endif
++		&atla98_offsetinfo, atla98_regionlist
++	},
++#endif
++#ifdef CONFIG_NE2K_CBUS_BDN
++/* NOT TESTED */
++	{
++		NE2K_CBUS_HARDWARE_TYPE_BDN,
++		"LD-BDN[123]A",
++#ifndef MODULE
++		bdn_portlist,
++#endif
++		&bdn_offsetinfo, bdn_regionlist
++	},
++#endif
++#ifdef CONFIG_NE2K_CBUS_ICM
++	{
++		NE2K_CBUS_HARDWARE_TYPE_ICM,
++		"IF-27xxET",
++#ifndef MODULE
++		icm_portlist,
++#endif
++		&icm_offsetinfo, icm_regionlist
++	},
++#endif
++#ifdef CONFIG_NE2K_CBUS_NE2K
++	{
++		NE2K_CBUS_HARDWARE_TYPE_NE2K,
++		"NE2000 compat.",
++#ifndef MODULE
++		ne2k_portlist,
++#endif
++		&ne2k_offsetinfo, ne2k_regionlist
++	},
++#endif
++#ifdef CONFIG_NE2K_CBUS_NEC108
++/* NOT supported yet! */
++	{
++		NE2K_CBUS_HARDWARE_TYPE_NEC108,
++		"PC-9801-108",
++#ifndef MODULE
++		nec108_portlist,
++#endif
++		&nec108_offsetinfo, nec108_regionlist
++	},
++#endif
++#ifdef CONFIG_NE2K_CBUS_IOLA98
++	{
++		NE2K_CBUS_HARDWARE_TYPE_IOLA98,
++		"LA-98",
++#ifndef MODULE
++		iola98_portlist,
++#endif
++		&iola98_offsetinfo, iola98_regionlist
++	},
++#endif
++#ifdef CONFIG_NE2K_CBUS_CNET98EL
++	{
++		NE2K_CBUS_HARDWARE_TYPE_CNET98EL,
++		"C-NET(98)E/L",
++#ifndef MODULE
++		cnet98el_portlist,
++#endif
++		&cnet98el_offsetinfo, cnet98el_regionlist
++	},
++#endif
++/* NOTE: LGY98 must be probed before EGY98, or system stalled!? */
++#ifdef CONFIG_NE2K_CBUS_LGY98
++	{
++		NE2K_CBUS_HARDWARE_TYPE_LGY98,
++		"LGY-98",
++#ifndef MODULE
++		lgy98_portlist,
++#endif
++		&lgy98_offsetinfo, lgy98_regionlist
++	},
++#endif
++#ifdef CONFIG_NE2K_CBUS_EGY98
++	{
++		NE2K_CBUS_HARDWARE_TYPE_EGY98,
++		"EGY-98",
++#ifndef MODULE
++		egy98_portlist,
++#endif
++		&egy98_offsetinfo, egy98_regionlist
++	},
++#endif
++	{
++		0,"unsupported hardware",
++#ifndef MODULE
++		NULL,
++#endif
++		NULL,NULL
++	}
++};
++
++static int __init ne2k_cbus_init(struct net_device *dev)
++{
++	struct ei_device *ei_local;
++	if(dev->priv == NULL) {
++		ei_local = kmalloc(sizeof(struct ei_device), GFP_KERNEL);
++		if (ei_local == NULL)
++			return -ENOMEM;
++		memset(ei_local, 0, sizeof(struct ei_device));
++		ei_local->reg_offset = kmalloc(sizeof(typeof(*ei_local->reg_offset))*18, GFP_KERNEL);
++		if (ei_local->reg_offset == NULL){
++			kfree(ei_local);
++			return -ENOMEM;
++		}
++		spin_lock_init(&ei_local->page_lock);
++		dev->priv = ei_local;
++	}
++	return 0;
++}
++
++static void ne2k_cbus_destroy(struct net_device *dev)
++{
++	struct ei_device *ei_local = (struct ei_device *)(dev->priv);
++	if(ei_local != NULL){
++		if(ei_local->reg_offset)
++			kfree(ei_local->reg_offset);
++		kfree(dev->priv);
++		dev->priv=NULL;
++	}
++}
++
++static const struct ne2k_cbus_hwinfo * __init ne2k_cbus_get_hwinfo(int hwtype)
++{
++	const struct ne2k_cbus_hwinfo *hw;
++
++	for(hw=&ne2k_cbus_hwinfo_list[0]; hw->hwtype; hw++){
++		if(hw->hwtype==hwtype) break;
++	}
++	return hw;
++}
++
++static void __init ne2k_cbus_set_hwtype(struct net_device *dev, const struct ne2k_cbus_hwinfo *hw, int ioaddr)
++{
++	struct ei_device *ei_local=(struct ei_device *)(dev->priv);
++	int i;
++	int hwtype_old=(dev->mem_start & NE2K_CBUS_HARDWARE_TYPE_MASK);
++
++	if (!ei_local)
++		panic("Gieee! ei_local == NULL!! (from %p)",
++		       __builtin_return_address(0));
++
++	dev->mem_start &= (~NE2K_CBUS_HARDWARE_TYPE_MASK);
++	dev->mem_start |= (hw->hwtype & NE2K_CBUS_HARDWARE_TYPE_MASK);
++
++	if(ei_debug>2){
++		printk(KERN_DEBUG "hwtype changed: %d -> %d\n",hwtype_old,(int)(dev->mem_start & NE2K_CBUS_HARDWARE_TYPE_MASK));
++	}
++
++	if(hw->offsetinfo){
++		for(i=0;i<8;i++){
++			ei_local->reg_offset[i] = hw->offsetinfo->skip * i;
++		}
++		for(i=8;i<16;i++){
++			ei_local->reg_offset[i] =
++				hw->offsetinfo->skip*(i-8) + hw->offsetinfo->offset8;
++		}
++#ifdef CONFIG_NE2K_CBUS_NEC108
++		if(hw->hwtype==NE2K_CBUS_HARDWARE_TYPE_NEC108){
++			int adj = (ioaddr & 0xf000) /2;
++			ei_local->reg_offset[16] = 
++				(hw->offsetinfo->offset10 | adj) - ioaddr;
++			ei_local->reg_offset[17] = 
++				(hw->offsetinfo->offset1f | adj) - ioaddr;
++		}else{
++#endif /* CONFIG_NE2K_CBUS_NEC108 */
++			ei_local->reg_offset[16] = hw->offsetinfo->offset10;
++			ei_local->reg_offset[17] = hw->offsetinfo->offset1f;
++#ifdef CONFIG_NE2K_CBUS_NEC108
++		}
++#endif
++	}else{
++		/* make dummmy offset list */
++		for(i=0;i<16;i++){
++			ei_local->reg_offset[i] = i;
++		}
++		ei_local->reg_offset[16] = 0x10;
++		ei_local->reg_offset[17] = 0x1f;
++	}
++}
++
++#if defined(CONFIG_NE2K_CBUS_ICM) || defined(CONFIG_NE2K_CBUS_CNET98EL)
++static void __init ne2k_cbus_readmem(struct net_device *dev, int ioaddr, unsigned short memaddr, char *buf, unsigned short len)
++{
++	struct ei_device *ei_local = (struct ei_device *)(dev->priv);
++	outb_p(E8390_NODMA | E8390_START, ioaddr+E8390_CMD);
++	outb_p(               len & 0xff, ioaddr+EN0_RCNTLO);
++	outb_p(               len >> 8  , ioaddr+EN0_RCNTHI);
++	outb_p(           memaddr & 0xff, ioaddr+EN0_RSARLO);
++	outb_p(           memaddr >> 8  , ioaddr+EN0_RSARHI);
++	outb_p(E8390_RREAD | E8390_START, ioaddr+E8390_CMD);
++	insw(ioaddr+NE_DATAPORT, buf, len>>1);
++}
++static void __init ne2k_cbus_writemem(struct net_device *dev, int ioaddr, unsigned short memaddr, const char *buf, unsigned short len)
++{
++	struct ei_device *ei_local = (struct ei_device *)(dev->priv);
++	outb_p(E8390_NODMA | E8390_START, ioaddr+E8390_CMD);
++	outb_p(                ENISR_RDC, ioaddr+EN0_ISR);
++	outb_p(              len & 0xff , ioaddr+EN0_RCNTLO);
++	outb_p(              len >> 8   , ioaddr+EN0_RCNTHI);
++	outb_p(          memaddr & 0xff , ioaddr+EN0_RSARLO);
++	outb_p(          memaddr >> 8   , ioaddr+EN0_RSARHI);
++	outb_p(E8390_RWRITE | E8390_START, ioaddr+E8390_CMD);
++	outsw(ioaddr+NE_DATAPORT, buf, len>>1);
++}
++#endif
++
++/* End of ne2k_cbus.h */

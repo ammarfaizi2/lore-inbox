@@ -1,79 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264154AbUFBVCH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264153AbUFBVDh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264154AbUFBVCH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 17:02:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264153AbUFBVBg
+	id S264153AbUFBVDh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 17:03:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264170AbUFBVDh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 17:01:36 -0400
-Received: from Mail.MNSU.EDU ([134.29.1.12]:18368 "EHLO mail.mnsu.edu")
-	by vger.kernel.org with ESMTP id S264138AbUFBVAu (ORCPT
+	Wed, 2 Jun 2004 17:03:37 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:62865 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S264153AbUFBVDL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 17:00:50 -0400
-Message-ID: <40BE4002.5010905@mnsu.edu>
-Date: Wed, 02 Jun 2004 16:00:50 -0500
-From: "Jeffrey E. Hundstad" <jeffrey.hundstad@mnsu.edu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040514
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Wed, 2 Jun 2004 17:03:11 -0400
+Date: Wed, 2 Jun 2004 23:04:21 +0200
+From: Ingo Molnar <mingo@elte.hu>
 To: linux-kernel@vger.kernel.org
-Subject: Re: aacraid hangs at boot on linux-2.4.27-pre1 20 second delay at
- lilo prompt makes it succeed
-References: <40BD03C8.5060504@mnsu.edu>
-In-Reply-To: <40BD03C8.5060504@mnsu.edu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: [patch] exec-shield patch for 2.6.7-rc2-bk2, integrated with NX
+Message-ID: <20040602210421.GA22011@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My previous information was a bit in error.  I incorrectly remembered 
-where the system would hang.  It hangs in the place indicated below:
 
-SCSI subsystem driver Revision: 1.00
-Red Hat/Adaptec aacraid driver (1.1-3 Apr 22 2004 14:34:42)
-AAC0: kernel 2.8.4 build 6089
-AAC0: monitor 2.8.4 build 6089
-AAC0: bios 2.8.0 build 6089
-AAC0: serial 635081d3fafaf001
-scsi0 : percraid
------- THE SYSTEM HANGS HERE ------
-  Vendor: DELL      Model:                   Rev: V1.0
-  Type:   Direct-Access                      ANSI SCSI revision: 02
+Here's the latest exec-shield patch for 2.6.7-rc2-bk2, integrated with
+the 'NX' feature (see the announcement from earlier today):
 
+  http://redhat.com/~mingo/exec-shield/exec-shield-on-nx-2.6.7-rc2-bk2-A7
 
-Jeffrey E. Hundstad wrote:
+you first have to apply the NX patch, which can be found at:
 
-> While booting linux-2.4.27-pre1 the system hangs.  If I put a 20 
-> second delay in at the lilo prompt then the system always boot 
-> successfully.  ...I just pulled 20 seconds out of the air... less time 
-> might work,  but I haven't tried.  I've also tried linux-2.4.24 with 
-> the same results.
->
-> I've since updated the system and raid card to the most current bios. 
-> and it hasn't helped.  The old raid bios was build 6082.
->
-> The system hangs right before the "Red Hat/Apaptec..." line below.
->
-> dmesg:
-> Red Hat/Adaptec aacraid driver (1.1-3 Apr 22 2004 14:34:42)
-> AAC0: kernel 2.8.4 build 6089
-> AAC0: monitor 2.8.4 build 6089
-> AAC0: bios 2.8.0 build 6089
-> AAC0: serial 635081d3fafaf001
-> scsi0 : percraid
->  Vendor: DELL      Model:                   Rev: V1.0
->  Type:   Direct-Access                      ANSI SCSI revision: 02
-> megaraid: v1.18k (Release Date: Thu Aug 28 10:05:11 EDT 2003)
-> megaraid: no BIOS enabled.
->
-> /proc/version:
-> Linux version 2.4.27-pre1 (ricardo@krypton) (gcc version 2.95.4 
-> 20011002 (Debian prerelease)) #1 SMP Thu Apr 22 14:33:58 CDT 2004
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+  http://redhat.com/~mingo/nx-patches/nx-2.6.7-rc2-bk2-AE
 
+prebuild kernel RPMs for Fedora Core 2, with this latest version of
+exec-shield, are available at:
+
+    http://redhat.com/~arjanv/2.6/RPMS.kernel/
+
+(kernel-2.6.6-1.411 has this latest, NX-aware exec-shield.)
+
+if the CPU supports NX (and the kernel has been compiled with
+CONFIG_HIGHMEM64G) then exec-shield will use NX to provide page-level
+finegrained control over execution. On legacy CPUs that dont support NX
+the segment-limit method is used to control execution (in a coarser
+way). In the NX case the segment-limit is turned off altogether.
+
+e.g. on an Athlon64 box the boot message looks:
+
+  NX (Execute Disable) protection: active
+
+on a CPU without NX the boot message is:
+
+  NX (Execute Disable) protection: not present!
+  Using x86 segment limits to approximate NX protection
+
+note: the NX patch will also protect against kernel-space code
+injection.
+
+all the other components of exec-shield are identical between NX and
+non-NX: the brk area is non-executable, libraries and PIE binaries are
+moved into the ascii-shield as much as possible, and all aspects of the
+address space are randomized.
+
+	Ingo

@@ -1,62 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264510AbUAaLKy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Jan 2004 06:10:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264536AbUAaLKy
+	id S264537AbUAaLlH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Jan 2004 06:41:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264538AbUAaLlH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Jan 2004 06:10:54 -0500
-Received: from disk.smurf.noris.de ([192.109.102.53]:9442 "EHLO
-	server.smurf.noris.de") by vger.kernel.org with ESMTP
-	id S264510AbUAaLKx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Jan 2004 06:10:53 -0500
-From: "Matthias Urlichs" <smurf@smurf.noris.de>
-Date: Sat, 31 Jan 2004 11:46:06 +0100
-To: linux-kernel@vger.kernel.org
-Subject: BUG: NTPL: waitpid() doesn't return?
-Message-ID: <20040131104606.GA25534@kiste>
+	Sat, 31 Jan 2004 06:41:07 -0500
+Received: from spc1-leed3-6-0-cust58.leed.broadband.ntl.com ([80.7.68.58]:3062
+	"EHLO arthur.pjc.net") by vger.kernel.org with ESMTP
+	id S264537AbUAaLlD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 Jan 2004 06:41:03 -0500
+Date: Sat, 31 Jan 2004 11:41:01 +0000
+From: Patrick Caulfield <pcaulfie@redhat.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Steve@ChyGwyn.com
+Subject: Re: [PATCH] 1/2 DECnet fix SDF_WILD
+Message-ID: <20040131114101.GA3224@tykepenguin.com>
+References: <20040126113106.GB21366@tykepenguin.com> <20040130124348.40c5c014.davem@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="PNTmBPCT7hxwcZjr"
 Content-Disposition: inline
+In-Reply-To: <20040130124348.40c5c014.davem@redhat.com>
 User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This partial trace is from Debian's mini-dinstall, which is a
-multithreaded Python script.
 
-What happens here is that it spawns a bunch of threads, then some of
-these fork+execve external programs which they waitpid() for.
+--PNTmBPCT7hxwcZjr
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
 
-Unfortunately, some of these waitpid() calls don't return even though 
-the waited-for process clearly has exited.
+On Fri, Jan 30, 2004 at 12:43:48PM -0800, David S. Miller wrote:
+> On Mon, 26 Jan 2004 11:31:06 +0000
+> Patrick Caulfield <patrick@tykepenguin.com> wrote:
+> 
+> > This patch fixes the operation of SDF_WILD sockets on Linux 2.6.0/1
+> > (they don't currently work at all).
+> 
+> Please resubmit your patches as attachments or somehow otherwise
+> teach your email client not to turn tabs into spaces as this corrupts
+> your patches.
 
-This is kernel 2.6.2-rc2, unmodified (except for modularized IDE).
+Sorry about that. Here are both patches attached (and in -p1 format this time
+too)
 
-I've kept all the intervening clone() calls in the trace, hopefully
-somebody can shed some light on what might be going on here.
+patrick
 
-(Imagine random other things happening between all of the following lines.)
 
-31338 execve("/usr/bin/mini-dinstall", ["mini-dinstall"], [/* 12 vars */]) = 0
-31338 rt_sigaction(SIGCHLD, NULL, {SIG_DFL}, 8) = 0
-31338 execve("/usr/bin/mini-dinstall", ["mini-dinstall"], [/* 12 vars */]) = 0
-31338 clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x4018e0c8) = 31339
-31339 clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x4018e0c8) = 31340
-31340 clone(child_stack=0x42edbb48, flags=CLONE_VM|CLONE_FS|CLONE_FILES|CLONE_SIGHAND|CLONE_THREAD|CLONE_SYSVSEM|CLONE_SETTLS|CLONE_PARENT_SETTID|CLONE_CHILD_CLEARTID|CLONE_DETACHED, parent_tidptr=0x42edbc18, {entry_number:6, base_addr:0x42edbbd0, limit:1048575, seg_32bit:1, contents:0, read_exec_only:0, limit_in_pages:1, seg_not_present:0, useable:1}, child_tidptr=0x42edbc18) = 31345
-31342 clone( <unfinished ...>
-31342 <... clone resumed> child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x416dbc18) = 31346
-31346 execve("/usr/bin/apt-ftparchive", ["apt-ftparchive", "packages", "testing/all"], [/* 12 vars */] <unfinished ...>
-31346 <... execve resumed> )            = 0
-31346 exit_group(0)                     = ?
-31340 --- SIGCHLD (Child exited) @ 0 (0) ---
-31342 waitpid(31346,  <unfinished ...>
+--PNTmBPCT7hxwcZjr
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: attachment; filename=decnet-patch1
 
-This last call never returns.
+diff -u linux-2.6.1.orig/net/decnet/af_decnet.c linux-2.6.1/net/decnet/af_decnet.c
+--- linux-2.6.1.orig/net/decnet/af_decnet.c	2004-01-31 11:33:22.000000000 +0000
++++ linux-2.6.1/net/decnet/af_decnet.c	2004-01-31 11:34:30.000000000 +0000
+@@ -163,7 +163,7 @@
+ 	struct dn_scp *scp = DN_SK(sk);
+ 
+ 	if (scp->addr.sdn_flags & SDF_WILD)
+-		return hlist_empty(&dn_wild_sk) ? NULL : &dn_wild_sk;
++		return hlist_empty(&dn_wild_sk) ? &dn_wild_sk : NULL;
+ 
+ 	return &dn_sk_hash[scp->addrloc & DN_SK_HASH_MASK];
+ }
 
-Any ideas?
+--PNTmBPCT7hxwcZjr
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: attachment; filename=decnet-patch2
 
-NB: When not using strace, the waidpid() call does return;
-unfortunately, it does so with "[Errno 10] No child processes".
+diff -u linux-2.6.1.orig/net/decnet/dn_route.c linux-2.6.1/net/decnet/dn_route.c
+--- linux-2.6.1.orig/net/decnet/dn_route.c	2003-12-18 02:59:42.000000000 +0000
++++ linux-2.6.1/net/decnet/dn_route.c	2004-01-31 11:34:38.000000000 +0000
+@@ -1720,7 +1720,8 @@
+ 
+ static void dn_rt_cache_seq_stop(struct seq_file *seq, void *v)
+ {
+-	rcu_read_unlock();
++	if (v)
++		rcu_read_unlock();
+ }
+ 
+ static int dn_rt_cache_seq_show(struct seq_file *seq, void *v)
 
--- 
-Matthias Urlichs     |     noris network AG     |     http://smurf.noris.de/
+--PNTmBPCT7hxwcZjr--

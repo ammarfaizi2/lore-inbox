@@ -1,74 +1,113 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129675AbRAPRNB>; Tue, 16 Jan 2001 12:13:01 -0500
+	id <S129627AbRAPRNV>; Tue, 16 Jan 2001 12:13:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129627AbRAPRMv>; Tue, 16 Jan 2001 12:12:51 -0500
-Received: from irz301.inf.tu-dresden.de ([141.76.2.1]:19908 "EHLO
-	irz301.inf.tu-dresden.de") by vger.kernel.org with ESMTP
-	id <S129436AbRAPRMk>; Tue, 16 Jan 2001 12:12:40 -0500
-Date: Tue, 16 Jan 2001 18:12:07 +0100
-From: Adam Lackorzynski <al10@inf.tu-dresden.de>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] PCI-Devices and ServerWorks chipset
-Message-ID: <20010116181207.A1325@inf.tu-dresden.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S129849AbRAPRNB>; Tue, 16 Jan 2001 12:13:01 -0500
+Received: from m918-mp1-cvx1c.col.ntl.com ([213.104.79.150]:6148 "EHLO
+	[213.104.79.150]") by vger.kernel.org with ESMTP id <S129436AbRAPRM5>;
+	Tue, 16 Jan 2001 12:12:57 -0500
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Cc: "Pierre Rousselet" <pierre.rousselet@wanadoo.fr>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.0-x features ?
+In-Reply-To: <200101151959.f0FJxDB248265@saturn.cs.uml.edu>
+From: "John Fremlin" <vii@altern.org>
+Date: 16 Jan 2001 13:14:18 +0000
+In-Reply-To: "Albert D. Cahalan"'s message of "Mon, 15 Jan 2001 14:59:13 -0500 (EST)"
+Message-ID: <m2wvbvod05.fsf@boreas.yi.org.>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (GTK)
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="=-=-="
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--=-=-=
 
-The patch below (against vanilla 2.4.0) makes Linux recognize
-PCI-Devices sitting in another PCI bus than 0 (or 1).
+ "Albert D. Cahalan" <acahalan@cs.uml.edu> writes:
 
-This was tested on a Netfinity 7100-8666 using a ServerWorks chipset.
+> > 1) top (procps-2.0.7) gives me the messages :
+> > 'bad data in /proc/uptime'
+> > 'bad data in /proc/loadavg'
+> > cat /proc/uptime 
+> > 1435.30 904.74
+> > cat /proc/loadavg
+> > 0.01 0.21 0.29 1/17 19444
+> > What is wrong ?
 
-
-00:00.0 Host bridge: ServerWorks CNB20HE (rev 21)
-00:00.1 Host bridge: ServerWorks CNB20HE (rev 01)
-00:00.2 Host bridge: ServerWorks: Unknown device 0006
-00:00.3 Host bridge: ServerWorks: Unknown device 0006
-00:01.0 SCSI storage controller: Adaptec 7896
-00:01.1 SCSI storage controller: Adaptec 7896
-00:05.0 Ethernet controller: Advanced Micro Devices [AMD] 79c970 [PCnet LANCE] (rev 44)
-00:06.0 VGA compatible controller: S3 Inc. Trio 64 3D (rev 01)
-00:0f.0 ISA bridge: ServerWorks OSB4 (rev 4f)
-00:0f.1 IDE interface: ServerWorks: Unknown device 0211
-00:0f.2 USB Controller: ServerWorks: Unknown device 0220 (rev 04)
-02:04.0 Ethernet controller: Digital Equipment Corporation DECchip 21142/43 (rev 41)
-02:06.0 RAID bus controller: IBM: Unknown device 01bd
-
-The last two lines do not occur without the patch.
+You probably have locale settings where the decimal point is a comma
+so scanf on /proc/loadavg etc. doesn't work. The following patch
+(submitted to RedHat ages ago) fixes that for me.
 
 
-diff -ur linux-2.4.0/linux/arch/i386/kernel/pci-pc.c linux/arch/i386/kernel/pci-pc.c
---- linux-2.4.0/linux/arch/i386/kernel/pci-pc.c Thu Jun 22 16:17:16 2000
-+++ linux/arch/i386/kernel/pci-pc.c     Tue Jan 16 18:10:30 2001
-@@ -849,10 +849,13 @@
-         * ServerWorks host bridges -- Find and scan all secondary buses.
-         * Register 0x44 contains first, 0x45 last bus number routed there.
-         */
--       u8 busno;
--       pci_read_config_byte(d, 0x44, &busno);
--       printk("PCI: ServerWorks host bridge: secondary bus %02x\n", busno);
--       pci_scan_bus(busno, pci_root_ops, NULL);
-+       u8 busno_first, busno_last, i;
-+       pci_read_config_byte(d, 0x44, &busno_first);
-+       pci_read_config_byte(d, 0x45, &busno_last);
-+       for (i = busno_first; i <= busno_last; i++) {
-+               printk("PCI: ServerWorks host bridge: secondary bus %02x\n", i);
-+               pci_scan_bus(i, pci_root_ops, NULL);
-+       }
-        pcibios_last_bus = -1;
- }
+--=-=-=
+Content-Type: text/x-patch
+Content-Disposition: attachment; filename=procps-2.0.7-intl.patch
+
+diff -u --recursive procps-2.0.7-orig/proc/sysinfo.c procps-2.0.7-hacked/proc/sysinfo.c
+--- procps-2.0.7-orig/proc/sysinfo.c	Mon Jul 10 20:36:13 2000
++++ procps-2.0.7-hacked/proc/sysinfo.c	Wed Nov 29 23:11:41 2000
+@@ -13,6 +13,8 @@
+ #include <stdlib.h>
+ #include <string.h>
+ #include <ctype.h>
++#include <locale.h>
++#include <assert.h>
  
+ #include <unistd.h>
+ #include <fcntl.h>
+@@ -62,12 +64,19 @@
+ /***********************************************************************/
+ int uptime(double *uptime_secs, double *idle_secs) {
+     double up=0, idle=0;
++    char*numeric=setlocale(LC_NUMERIC,0);
++    /* It is necessary to save and restore the numeric locale, because
++    if the locale we're in happens to use , instead of decimal point,
++    we can't sscanf the values in /proc/uptime */
++    setlocale(LC_NUMERIC,"C");
+ 
+     FILE_TO_BUF(UPTIME_FILE,uptime_fd);
+     if (sscanf(buf, "%lf %lf", &up, &idle) < 2) {
+ 	fprintf(stderr, "bad data in " UPTIME_FILE "\n");
+ 	return 0;
+     }
++    setlocale(LC_NUMERIC,numeric);
++
+     SET_IF_DESIRED(uptime_secs, up);
+     SET_IF_DESIRED(idle_secs, idle);
+     return up;	/* assume never be zero seconds in practice */
+@@ -171,12 +180,20 @@
+ /***********************************************************************/
+ int loadavg(double *av1, double *av5, double *av15) {
+     double avg_1=0, avg_5=0, avg_15=0;
++    /* It is necessary to save and restore the numeric locale, because
++    if the locale we're in happens to use , instead of decimal point,
++    we can't sscanf the values in /proc/loadavg */
++    char*numeric=setlocale(LC_NUMERIC,0);
++    setlocale(LC_NUMERIC,"C");
+     
+     FILE_TO_BUF(LOADAVG_FILE,loadavg_fd);
+     if (sscanf(buf, "%lf %lf %lf", &avg_1, &avg_5, &avg_15) < 3) {
+ 	fprintf(stderr, "bad data in " LOADAVG_FILE "\n");
+ 	exit(1);
++
+     }
++    setlocale(LC_NUMERIC,numeric);
++    
+     SET_IF_DESIRED(av1,  avg_1);
+     SET_IF_DESIRED(av5,  avg_5);
+     SET_IF_DESIRED(av15, avg_15);
+
+--=-=-=
 
 
-Adam
+[...]
+
+
 -- 
-Adam                 al10@inf.tu-dresden.de
-  Lackorzynski         http://a.home.dhs.org
+
+	http://www.penguinpowered.com/~vii
+
+--=-=-=--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

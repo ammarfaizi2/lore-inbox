@@ -1,18 +1,23 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265764AbRFXPF0>; Sun, 24 Jun 2001 11:05:26 -0400
+	id <S264238AbRFXPH0>; Sun, 24 Jun 2001 11:07:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265765AbRFXPFQ>; Sun, 24 Jun 2001 11:05:16 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:1798 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S265764AbRFXPFG>;
-	Sun, 24 Jun 2001 11:05:06 -0400
-Date: Sun, 24 Jun 2001 12:04:43 -0300 (BRST)
+	id <S264241AbRFXPHQ>; Sun, 24 Jun 2001 11:07:16 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:7942 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S264238AbRFXPHD>;
+	Sun, 24 Jun 2001 11:07:03 -0400
+Date: Sun, 24 Jun 2001 12:06:37 -0300 (BRST)
 From: Rik van Riel <riel@conectiva.com.br>
-To: Jason McMullan <jmcmullan@linuxcare.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: What are the VM motivations??
-In-Reply-To: <20010621190103.A888@jmcmullan.resilience.com>
-Message-ID: <Pine.LNX.4.21.0106241203420.7419-100000@imladris.rielhome.conectiva>
+To: Anuradha Ratnaweera <anuradha@gnu.org>
+Cc: Tom Sightler <ttsig@tuxyturvy.com>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        Mike Galbraith <mikeg@wen-online.de>, Pavel Machek <pavel@suse.cz>,
+        John Stoffel <stoffel@casc.com>,
+        Roger Larsson <roger.larsson@norran.net>, thunder7@xs4all.nl,
+        Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Early flush (was: spindown)
+In-Reply-To: <20010624092038.A242@bee.lk>
+Message-ID: <Pine.LNX.4.21.0106241205190.7419-100000@imladris.rielhome.conectiva>
 X-spambait: aardvark@kernelnewbies.org
 X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
@@ -20,23 +25,23 @@ Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Jun 2001, Jason McMullan wrote:
+On Sun, 24 Jun 2001, Anuradha Ratnaweera wrote:
 
-> 	One we know how we would 'train' our little VM critter, we 
-> will know how to measure its performance. Once we have measures, we
-> can have good benchmarks. Once we have good benchmarks - we can pick
-> a good VM alg. 
-> 
-> 	Or heck, let's just make the VM a _real_ Neural Network, that
+> It is not uncommon to have a large number of tmp files on the disk(s)
+> (Rik also pointed this out somewhere early in the original thread) and
+> it is sensible to keep all of them in buffers if RAM is sufficient.
+> Transfering _very_ large files is not _that_ common so why shouldn't
+> that case be handled from the user space by calling sync(2)?
 
-OK.  I challenge you to come up with:
+Wait a moment.
 
-1) the set of inputs for the neural network
-2) the set of outputs
-3) the goal for training the thing
+The only observed bad case I've heard about here is
+that of large files being written out.
 
-I'm pretty fed up with people who want to "change the VM"
-but never give any details of their ideas.
+It should be easy enough to just trigger writeout of
+pages of an inode once that inode has more than a
+certain amount of dirty pages in RAM ... say, something
+like freepages.high ?
 
 regards,
 

@@ -1,43 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264238AbUEMONQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264213AbUEMOQj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264238AbUEMONQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 May 2004 10:13:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264218AbUEMOMo
+	id S264213AbUEMOQj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 May 2004 10:16:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264218AbUEMOQi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 May 2004 10:12:44 -0400
-Received: from palrel13.hp.com ([156.153.255.238]:54930 "EHLO palrel13.hp.com")
-	by vger.kernel.org with ESMTP id S264229AbUEMOKk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 May 2004 10:10:40 -0400
-From: "Sourav Sen" <souravs@india.hp.com>
-To: "'Dave Hansen'" <haveblue@us.ibm.com>,
-       "'Sourav Sen'" <souravs@india.hp.com>
-Cc: "'Greg KH'" <greg@kroah.com>, <Matt_Domsch@dell.com>,
-       "'Matthew E Tolentino'" <matthew.e.tolentino@intel.com>,
-       <linux-ia64@vger.kernel.org>,
-       "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
-Subject: RE: [2.6.6 PATCH] Exposing EFI memory map
-Date: Thu, 13 May 2004 19:40:29 +0530
-Message-ID: <012201c438f4$0cbb6580$39624c0f@india.hp.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2911.0)
-Importance: Normal
-In-Reply-To: <1084378516.14581.56.camel@nighthawk>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4910.0300
+	Thu, 13 May 2004 10:16:38 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:6902 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S264213AbUEMOP4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 May 2004 10:15:56 -0400
+Date: Thu, 13 May 2004 16:15:49 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.6-mm2
+Message-ID: <20040513141548.GG22202@fs.tum.de>
+References: <20040513032736.40651f8e.akpm@osdl.org> <20040513114520.A8442@infradead.org> <20040513035134.2e9013ea.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040513035134.2e9013ea.akpm@osdl.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-+ We're planning on doing this anyway for memory hotplug, so some of the
-+ work and ideas are already there.  I'd be happy to point you to some
-+ past discussions and code on the subject.  
+On Thu, May 13, 2004 at 03:51:34AM -0700, Andrew Morton wrote:
+> Christoph Hellwig <hch@infradead.org> wrote:
+> >
+> > > +hugetlb_shm_group-sysctl-gid-0-fix.patch
+> > > 
+> > >  Don't make gid 0 special for hugetlb shm.
+> > 
+> > As Oracle has agreed on fixing their DB to use hugetlbfs could we
+> > please stop doctoring around on this broken patch and revert it.
+> 
+> Once I'm convinced that kernel.org kernels will be able to run applications
+> which vendor kernels will run, sure.
+>...
 
-	Yes, please.
+Vendor 2.4 kernels support the "old" EVMS application.
 
-Thanks
-Sourav
+Despite this fact, the code was rejected by Linus during 2.5.
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

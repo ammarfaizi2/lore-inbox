@@ -1,30 +1,27 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262498AbVCBWWl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262458AbVCBWX4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262498AbVCBWWl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 17:22:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262516AbVCBWTp
+	id S262458AbVCBWX4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 17:23:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262507AbVCBWTX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 17:19:45 -0500
-Received: from fire.osdl.org ([65.172.181.4]:42685 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262509AbVCBWRg (ORCPT
+	Wed, 2 Mar 2005 17:19:23 -0500
+Received: from fire.osdl.org ([65.172.181.4]:39869 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262500AbVCBWRS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 17:17:36 -0500
-Date: Wed, 2 Mar 2005 14:14:15 -0800
+	Wed, 2 Mar 2005 17:17:18 -0500
+Date: Wed, 2 Mar 2005 14:17:11 -0800
 From: Andrew Morton <akpm@osdl.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: jgarzik@pobox.com, netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: [2.6.11-rc4-mm1 patch] fix buggy IEEE80211_CRYPT_* selects
-Message-Id: <20050302141415.517b6b08.akpm@osdl.org>
-In-Reply-To: <20050302215607.GF4608@stusta.de>
-References: <20050223014233.6710fd73.akpm@osdl.org>
-	<20050226113123.GJ3311@stusta.de>
-	<42256078.1040002@pobox.com>
-	<20050302140833.GD4608@stusta.de>
-	<42261004.4000501@pobox.com>
-	<20050302123829.51dbc44b.akpm@osdl.org>
-	<42262B08.2040401@pobox.com>
-	<20050302131817.2e61805f.akpm@osdl.org>
-	<20050302215607.GF4608@stusta.de>
+To: Kai Makisara <Kai.Makisara@kolumbus.fi>
+Cc: marcelo.tosatti@cyclades.com, myeatman@vale-housing.co.uk,
+       linux-kernel@vger.kernel.org, gene.heskett@verizon.net
+Subject: Re: Problems with SCSI tape rewind / verify on 2.4.29
+Message-Id: <20050302141711.00ec7147.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.61.0503022334280.9132@kai.makisara.local>
+References: <E7F85A1B5FF8D44C8A1AF6885BC9A0E472B886@ratbert.vale-housing.co.uk>
+	<20050302120332.GA27882@logos.cnet>
+	<Pine.LNX.4.61.0503022253360.9132@kai.makisara.local>
+	<20050302132512.5853cd3b.akpm@osdl.org>
+	<Pine.LNX.4.61.0503022334280.9132@kai.makisara.local>
 X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -32,17 +29,25 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk <bunk@stusta.de> wrote:
+Kai Makisara <Kai.Makisara@kolumbus.fi> wrote:
 >
-> > Would be better to just do:
-> > 
-> > config CRYPTO_AES
-> > 	select CRYPTO_AES_586 if (X86 && !X86_64)
-> > 	select CRYPTO_AES_OTHER if !(X86 && !X86_64)
-> > 
-> > and hide CRYPTO_AES_586 and CRYPTO_AES_OTHER from the outside world.
-> 
-> 
->   http://www.ussg.iu.edu/hypermail/linux/kernel/0502.3/0518.html
+> f seek with tape is changed back to returning success, this would enable 
+> correct tar --verify at the beginning of the tape. However, I am not sure 
+> what happens if we are not at the beginning. I will investigate this and 
+> suggest a long term fix to the tar people (a fix that should be compatible 
+> with all Unix tape semantics I know) and also suggest possible fixes to st 
+> (this may include automatic writing of a filemark when BSF is used after 
+> writes).
 
-Please resubmit.
+Yes, please let's get a tar fix in the pipeline.
+
+GNU tar must run on a lot of operating systems.  It's odd.
+
+> If you think want to make st return success for seeks even if nothing 
+> happens (as it did earlier), I don't have anything against that. It would 
+> solve the practical problem several people have reported recently. (My 
+> recommendation for the people seeing this problem is to do verification 
+> separately with 'tar -d'.)
+
+Yes, I think we need to grit our teeth and do this.  I'll stick a comment
+in there.

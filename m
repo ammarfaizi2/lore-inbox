@@ -1,88 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264831AbSJPDF7>; Tue, 15 Oct 2002 23:05:59 -0400
+	id <S264837AbSJPDaw>; Tue, 15 Oct 2002 23:30:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264834AbSJPDF7>; Tue, 15 Oct 2002 23:05:59 -0400
-Received: from vladimir.pegasys.ws ([64.220.160.58]:2057 "HELO
-	vladimir.pegasys.ws") by vger.kernel.org with SMTP
-	id <S264831AbSJPDF6>; Tue, 15 Oct 2002 23:05:58 -0400
-Date: Tue, 15 Oct 2002 20:11:45 -0700
-From: jw schultz <jw@pegasys.ws>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Better fork() (and possbly others) failure diagnostics
-Message-ID: <20021016031145.GD7844@pegasys.ws>
-Mail-Followup-To: jw schultz <jw@pegasys.ws>,
-	linux-kernel@vger.kernel.org
-References: <20021015115517.GA2514@atrey.karlin.mff.cuni.cz> <20021015061610.A986@pegasys.ws> <20021015154621.GA10243@atrey.karlin.mff.cuni.cz>
-Mime-Version: 1.0
+	id <S264839AbSJPDaw>; Tue, 15 Oct 2002 23:30:52 -0400
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:31370 "HELO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S264837AbSJPDav>; Tue, 15 Oct 2002 23:30:51 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Date: Wed, 16 Oct 2002 13:36:34 +1000
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021015154621.GA10243@atrey.karlin.mff.cuni.cz>
-User-Agent: Mutt/1.3.27i
+Content-Transfer-Encoding: 7bit
+Message-ID: <15788.57026.234504.747098@notabene.cse.unsw.edu.au>
+Cc: trond.myklebust@fys.uio.no, linux-kernel@vger.kernel.org
+Subject: Re: nfs-server slowdown in 2.4.20-pre10 with client 2.2.19
+In-Reply-To: message from Stephan von Krawczynski on Tuesday October 15
+References: <20021013172138.0e394d96.skraw@ithnet.com>
+	<15785.64463.490494.526616@notabene.cse.unsw.edu.au>
+	<20021014045410.4721c209.skraw@ithnet.com>
+	<15786.15416.668502.225074@notabene.cse.unsw.edu.au>
+	<20021015194538.10f54ef3.skraw@ithnet.com>
+X-Mailer: VM 7.07 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 15, 2002 at 05:46:21PM +0200, Michal Kara wrote:
-> > Take a look at the manpages.  It is very clear there that
-> > EAGAIN has two meanings: try again because what you request
-> > isn't available yet, and request exceeds resource limits (at
-> > the moment).  Basically POSIX and SUS direct that EAGAIN is
-> > the correct error code for resource limit exceedance.
+On Tuesday October 15, skraw@ithnet.com wrote:
+> On Mon, 14 Oct 2002 13:38:32 +1000
+> Neil Brown <neilb@cse.unsw.edu.au> wrote:
 > 
->   The fork() manpage says:
+> Hello Neil,
+> hello Trond,
 > 
-> EAGAIN fork cannot allocate sufficient memory to copy the
-> parent's page tables and allocate a task  structure
-> for the child.
+> > This night I will try to reduce rsize/wsize from the current 8192 down to
+> > 1024 as suggested by Jeff.
 > 
->   No word about limits. But that may classify as a manpage problem.
+> Ok. The result is: it is again way slower. I was not even capable to transfer 5
+> GB within 18 hours, that's when I shot the thing down.
+> Anything else I can test?
 
-I'd say so.
+All I can suggest is a binary search among the patches that comprise
+the difference between pre9 and pre10 to see when the problem comes
+in.
 
-Also i meant that you should do a survey of manpages that
-site EAGAIN and not just fork(2).  The pattern is clear.
+There are about 40 patches, so about 6 test runs  should find the
+culprit.
 
-> > I agree it would be nice if rlimit caused its own error code
-> > but such a change at this time would break far to many things.
-> 
->   I can think only of some applications retrying when they get EAGAIN...
+I tried to extract them from bk and have put the 40 patches at:
 
-It is the application that you can't think of that will bite
-someone else.  Further it isn't just whether they try again.
-Some poorly written apps may test errno for known values and
-behave oddly if they get an errno that isn't listed in the
-manpages.  Also it is common to work around limits.  Many
-apps are written to economize if it gets EAGAIN when
-allocating memory.
+  http://www.cse.unsw.edu.au/~neilb/pre10/
 
-> > Your alternative of a klogging an error is not appropriate
-> > either.  Hitting an rlimit is not a system, but a user
-> > error.
-> 
->   On workstation or multi-user server yes. But not on, say, web server.
-> There hitting the limit is a problem and administrator should do something
-> about it. When your nightly processing job hits limit (and when you run it
-> by hand, it doesn't) , "Something wrong" is not to much helpful to solve the
-> problem.
+There is a p-all.tgz  that contains them all.
 
-Which is why your nightly job or server should be logging
-its errors from user space.
-
->   But WHICH limit. This is what this is all about. If there was only one,
-> then it is OK. And you cannot even display the limit/usage for running
-> process to give you a hint.
-
-That is unfortunately a deductive process.  You can call
-getrlimit and getrusage and try to guess but which one
-caused the problem may be, i'll admit, an unknown.
-In reality it is seldom that opaque.
-
-Most of the time it is not hard to tell what caused it by
-the syscall.  For fork it will be RLIMIT_NPROC.
-
--- 
-________________________________________________________________
-	J.W. Schultz            Pegasystems Technologies
-	email address:		jw@pegasys.ws
-
-		Remember Cernan and Schmitt
+NeilBrown

@@ -1,140 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264754AbUD1LaO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264735AbUD1Lb0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264754AbUD1LaO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 07:30:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264735AbUD1LaN
+	id S264735AbUD1Lb0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 07:31:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264737AbUD1Lb0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 07:30:13 -0400
-Received: from gizmo03bw.bigpond.com ([144.140.70.13]:9101 "HELO
-	gizmo03bw.bigpond.com") by vger.kernel.org with SMTP
-	id S264754AbUD1L3c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 07:29:32 -0400
-From: Ross Dickson <ross@datscreative.com.au>
-Reply-To: ross@datscreative.com.au
-Organization: Dat's Creative Pty Ltd
-To: Len Brown <len.brown@intel.com>, a.verweij@student.tudelft.nl
-Subject: Re: IO-APIC on nforce2 [PATCH] + [PATCH] for nmi_debug=1 + [PATCH] for idle=C1halt, 2.6.5
-Date: Wed, 28 Apr 2004 21:33:34 +1000
-User-Agent: KMail/1.5.1
-Cc: Jesse Allen <the3dfxdude@hotmail.com>,
-       "Prakash K. Cheemplavam" <PrakashKC@gmx.de>,
-       Craig Bradney <cbradney@zip.com.au>, christian.kroener@tu-harburg.de,
-       linux-kernel@vger.kernel.org, "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
-       Jamie Lokier <jamie@shareable.org>, Daniel Drake <dan@reactivated.net>,
-       Ian Kumlien <pomac@vapor.com>, Allen Martin <AMartin@nvidia.com>
-References: <Pine.GHP.4.44.0404271807470.6154-100000@elektron.its.tudelft.nl> <1083088854.2322.38.camel@dhcppc4>
-In-Reply-To: <1083088854.2322.38.camel@dhcppc4>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 28 Apr 2004 07:31:26 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:35236 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S264735AbUD1LbO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Apr 2004 07:31:14 -0400
+Date: Wed, 28 Apr 2004 13:30:56 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Moritz Muehlenhoff <jmm@informatik.uni-bremen.de>
+Cc: linux-kernel@vger.kernel.org, ken@kenjo.org, cw@f00f.org
+Subject: Re: [BUG] DVD writing in 2.6.6-rc2
+Message-ID: <20040428113056.GA2150@suse.de>
+References: <1083088772.2679.11.camel@tiger> <20040427183607.GA3011@suse.de> <8n23m1-g22.ln1@legolas.mmuehlenhoff.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200404282133.34887.ross@datscreative.com.au>
+In-Reply-To: <8n23m1-g22.ln1@legolas.mmuehlenhoff.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 28 April 2004 04:00, Len Brown wrote:
-> On Tue, 2004-04-27 at 13:02, Arjen Verweij wrote:
+On Wed, Apr 28 2004, Moritz Muehlenhoff wrote:
+> Jens Axboe wrote:
+> >> I have a problem when using growisofs version 5.19.
+> >> 
+> >> The problem is that in the very end when gowisofs tries to flush the
+> >> cache. When stracing the process I can see it sits in a call to poll
+> >> that never returns. 
+> >
+> > I noted the same thing yesterday with cdrdao, so yours is not an
+> > isolated incident. I'll debug it tomorrow.
 > 
-> > After having his box run with cat /dev/hda > /dev/null for a night
-> > straight no lockup has occured. The brand of his motherboard is Shuttle.
-> 
-> My shuttle is a FN41 board in a SN41G2 system.
->
+> I can confirm this bug for kernel 2.6.3-rc4 as well, so it's not too recent.
+> I found the following on my console after quitting k3b ungracefully, maybe
 
-I have had 3 Albatron KM18G pro and one Epox8rga+.
- 
-> I found "rev 1.0" BIOS (FN41S00X of 12/18/2002) on Shuttle's ftp site
-> and downgraded to that, but still no hang.
+This is really strange, I haven't been able to locate a kernel problem.
+Looking at command traces, cdrdao issues two FLUSH_CACHE commands when
+ending the writes. The last commands are:
 
-My Albatrons hang with bios R1.01, R1.01a, R1.04 which is latest, probably also
-hang with earlier bios but have not tried. I have emailed Albatron in last couple
-of weeks re Allen's comments on Nvidia reference bios and about lockups but
-have had no response as yet.
+0x2a (last real write)
+0x35 (first flush cache) (takes about 10 seconds to complete)
+0x00 (test unit ready)
+0x51 (read disc info, length 4)
+0x35 (2nd flush cache) -> never completes
 
-My Epox hangs but does not have latest bios - don't have floppy hooked up in 
-that box to flash it to latest bios as yet.
+That last sync cache never generates an interrupt, so cdrdao gets stuck
+forever waiting on it. I cannot even reproduce this with a test case
 
-> 
-> It may be this board never hangs no matter what,
-> or perhaps C1 disconnect was simply disabled in that BIOS
-> b/c there was no option for it in Advanced Chipset Features
-> like there is for the most recent BIOS.
-
-Maybe other MOBO manufacturers skimp on filter caps and regulator damping
-ability and a resonance occurs in the on-board supply rails? Do Shuttle make
-any claims to using an improved on board regulator? Or Shuttle may have 
-always programmed more time in C1 cycle handshakes if such is 
-configurable? 
-
-> 
-> Other things about my board.
-> I run "optimized defaults", I don't overclock anything.
-> Processor is an AMD XP 2200+
-> Does anybody else see the hang with this processor model?
-> I wonder if the hang is processor model or speed dependent?
-
-I have tried XP2200, XP2400, XP2500, I know I get lockups with both t'bred
-and barton cores. Epox mobo has been tried with both Aopen H-500A and 
-Elanvital full size case and power supplies. My albatron are all in Aopen m-atx
-H-400A cases.
-
-> 
-> > Does anyone have some input on how to tackle this problem?
-> 
-> Unfortunately I don't have tools for debugging nvidia + amd hardware.
-> I would expect that those companies do, however.  So encouraging them
-> to reproduce the hang internally may be the best way to go.
-
-Ditto I figured out early on it could do with emulator or bond out cpu/chipset
-and tried to draw in Nvidia and AMD starting in December last year.
-http://linux.derkeiler.com/Mailing-Lists/Kernel/2003-12/2549.html
-
-It was cc'd to Mr Allen Martin of Nvidia as were other emails on topic.
-His reply was "\0" so I assumed he was on a long holiday or no longer worked
-there. It has been good to hear from him on the topic some 4 months later.
-Don't scare him off! -we appear to be making some progress. 
-
-I also spoke to Mr Michael Apthorpe of AMD in Australia in December and 
-forwarded the support request email who replied "Thanks Ross I will forwards
-it on and see what comes back." But nothing has to date.
-
-In January I spotted Mr Richard Brunner of AMD had previously corresponded
-with the LKML so I emailed him and he was interested at the time but said
-whilst he could not promise anything he would forward my query to the hardware
-certification labs. And guess what - he was right to promise nothing as I have 
-received "\0" to date.
-
-I followed up with the AMD guys in February this year but again received "\0".
-
-> 
-> > buy Len the cheapest broken nforce2 board I can find at pricewatch.com and
-> > have it shipped to his house :)
-> 
-> I got tangled in this b/c this board (actually, the reference BIOS for
-> this chipset) had some unusual ACPI related failures.  If the failures
-> turn out to be related to ACPI, I'll do what I can to help.  But I
-> expect that hardware debugging tools may be necessary before the
-> hang issue is completely explained and solved.
-
-I have had good (100%) success in reproducing the fault with the Albatron 
-KM18G pro MOBO. I needed m-atx form factor and distributor was local to me.
-Makes very nice - cheap and stable system but only with the lockup workaround.
-
-I also recollect that Windows had lockups with nforce2 for a while depending 
-whether you ran the Nvidia or Microsoft driver.
-http://lkml.org/lkml/2003/12/13/5
-Anybody got the inside running on that one and what was different between the 
-two drivers?
-
-Regards
-Ross.
-
-> 
-> -Len
-> 
-> 
-> 
-> 
-> 
+-- 
+Jens Axboe
 

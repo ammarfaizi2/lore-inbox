@@ -1,57 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261234AbTEAMbX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 May 2003 08:31:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261236AbTEAMbX
+	id S261239AbTEAMmF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 May 2003 08:42:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261241AbTEAMmF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 May 2003 08:31:23 -0400
-Received: from 34.mufa.noln.chcgil24.dsl.att.net ([12.100.181.34]:40701 "EHLO
-	tabby.cats.internal") by vger.kernel.org with ESMTP id S261234AbTEAMbW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 May 2003 08:31:22 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Jesse Pollard <jesse@cats-chateau.net>
-To: Jeff Randall <randall@uph.com>, Larry McVoy <lm@work.bitmover.com>,
-       "Downing, Thomas" <Thomas.Downing@ipc.com>,
-       Larry McVoy <lm@bitmover.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Why DRM exists [was Re: Flame Linus to a crisp!]
-Date: Thu, 1 May 2003 07:43:17 -0500
-X-Mailer: KMail [version 1.2]
-References: <170EBA504C3AD511A3FE00508BB89A9202032941@exnanycmbx4.ipc.com> <20030430152041.GA22038@work.bitmover.com> <20030430105554.A15778@uph.com>
-In-Reply-To: <20030430105554.A15778@uph.com>
+	Thu, 1 May 2003 08:42:05 -0400
+Received: from smtp03.web.de ([217.72.192.158]:38418 "EHLO smtp.web.de")
+	by vger.kernel.org with ESMTP id S261239AbTEAMmF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 May 2003 08:42:05 -0400
+Message-ID: <3EB118F9.9030003@web.de>
+Date: Thu, 01 May 2003 14:54:17 +0200
+From: Michael Hunold <hunold-ml@web.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.3b) Gecko/20030312
+X-Accept-Language: de-at, de, en-us, en
 MIME-Version: 1.0
-Message-Id: <03050107431700.26224@tabby>
-Content-Transfer-Encoding: 7BIT
+To: Junfeng Yang <yjf@stanford.edu>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, mc@stanford.edu
+Subject: Re: [CHECKER] 5 potential user-pointer errors that allow arbitrary
+ reads from kernel
+References: <Pine.GSO.4.44.0304302131150.22117-100000@elaine24.Stanford.EDU>
+In-Reply-To: <Pine.GSO.4.44.0304302131150.22117-100000@elaine24.Stanford.EDU>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 30 April 2003 10:55, Jeff Randall wrote:
-> On Wed, Apr 30, 2003 at 08:20:41AM -0700, Larry McVoy wrote:
-> > My point wasn't about theft, it was about reimplementation.
-> > I stand behind that point, what I've seen for more than a decade is
-> > reimplementation after reimplementation.  I'm not saying there is no
-> > value to that or that it is illegal or that there are no improvements
-> > (compare Unix diff to GNU diff if you want to see some imrovements).
-> > There is tons of value in having free versions of useful tools.
-> > There is also tons of value in the creation of new work.
-> >
-> > What I haven't seen is a lot of revolutionary work.  All of that seems
-> > to come from commercial companies and at a pretty slow pace.  There are
-> > a lot of false starts, commercial failures, whatever.  But a few slam
-> > dunks as well.
->
-> Mosaic was pretty revolutionary for it's time.. as was Sendmail..
-> source was available for both from the start.
+Hello Junfeng,
 
-Mosaic is/was derived from two sources - gopher for network communication 
-(derived from network news and/or e-mail) and SGML combined with display only
-word processor applications (postscript and pdf previewers).
+> This is a resend (the previous report was ignored, however I feel that
+> these bugs could be severe).
 
-sendmail was derived from a message routing protocol originally using UUCP, 
-written to promote research in message routing, and flexibility to reduce the
-re-implementation time required on earlier applications. (somewhere there is a
-quote from Eric Allman along the lines of "...If I had known how popular it
-would become I would have asked for a dime for each installation...")
+> Please confirm or clarify. Thanks!
 
-Neither looked revolutionary at the time.
+> [BUG] proc_dir_entry.write_proc can take tainted inputs.
+> av7110_ir_write_proc is assigned to proc_dir_entry.write_proc
+> 
+> /home/junfeng/linux-2.5.63/drivers/media/dvb/av7110/av7110_ir.c:116:av7110_ir_write_proc:
+> ERROR:TAINTED:116:116: passing tainted ptr 'buffer' to __constant_memcpy
+> [Callstack:
+> /home/junfeng/linux-2.5.63/net/core/pktgen.c:991:av7110_ir_write_proc((tainted
+> 1))]
+
+Confirmed. I'll post a patch when I'm back at work again on Monday.
+
+CU
+Michael.
+

@@ -1,48 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129524AbRCWFtg>; Fri, 23 Mar 2001 00:49:36 -0500
+	id <S129669AbRCWGC1>; Fri, 23 Mar 2001 01:02:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129529AbRCWFt1>; Fri, 23 Mar 2001 00:49:27 -0500
-Received: from h24-65-193-28.cg.shawcable.net ([24.65.193.28]:61935 "EHLO
+	id <S129638AbRCWGCS>; Fri, 23 Mar 2001 01:02:18 -0500
+Received: from h24-65-193-28.cg.shawcable.net ([24.65.193.28]:64495 "EHLO
 	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S129524AbRCWFtQ>; Fri, 23 Mar 2001 00:49:16 -0500
+	id <S129595AbRCWGCG>; Fri, 23 Mar 2001 01:02:06 -0500
 From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200103230548.f2N5mM407684@webber.adilger.int>
-Subject: Re: [linux-lvm] EXT2-fs panic (device lvm(58,0)):
-In-Reply-To: <Pine.LNX.4.33.0103222100370.18794-100000@devserv.devel.redhat.com>
- from Alexander Viro at "Mar 22, 2001 09:04:15 pm"
-To: Alexander Viro <aviro@redhat.com>
-Date: Thu, 22 Mar 2001 22:48:22 -0700 (MST)
-CC: "Stephen C. Tweedie" <sct@redhat.com>, linux-fsdevel@webber.adilger.int,
-        Linux kernel development list <linux-kernel@vger.kernel.org>
+Message-Id: <200103230600.f2N60CU07723@webber.adilger.int>
+Subject: Re: [RFC] sane access to per-fs metadata (was Re: [PATCH] Documentation/ioctl-number.txt)
+In-Reply-To: <Pine.GSO.4.21.0103221720250.5619-100000@weyl.math.psu.edu> from
+ Alexander Viro at "Mar 22, 2001 06:07:44 pm"
+To: Alexander Viro <viro@math.psu.edu>
+Date: Thu, 22 Mar 2001 23:00:12 -0700 (MST)
+CC: Dave Kleikamp <shaggy@austin.ibm.com>,
+        Linus Torvalds <torvalds@transmeta.com>, linux-fsdevel@vger.kernel.org,
+        linux-kernel@vger.kernel.org
 X-Mailer: ELM [version 2.4ME+ PL66 (25)]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al Viro writes:
-> On Fri, 23 Mar 2001, Stephen C. Tweedie wrote:
-> > On Wed, Mar 07, 2001 at 01:35:05PM -0700, Andreas Dilger wrote:
-> > > The only remote possibility is in ext2_free_blocks() if block+count
-> > > overflows a 32-bit unsigned value.  Only 2 places call ext2_free_blocks()
-> > > with a count != 1, and ext2_free_data() looks to be OK.  The other
-> > > possibility is that i_prealloc_count is bogus - that is it!  Nowhere
-> > > is i_prealloc_count initialized to zero AFAICS.
-> > >
-> > Did you ever push this to Alan and/or Linus?  This looks pretty
-> > important!
+Al, you write:
+> 	* You can get rid of any need to register ioctls, etc.
+> 	* You can add debugging/whatever at any moment with no need to
+> 	  update any utilities - everything is available from plain shell
+> 	* You can conveniently view whatever metadata you want - no need to
+> 	  shove everything into ioctls on one object.
+> 	* You can use normal permissions control - just set appropriate
+> 	  permission bits for objects on jfsmeta
 > 
-> It isn't. Check fs/inode.c::clean_inode(). Specifically,
->         memset(&inode->u, 0, sizeof(inode->u));
-> The thing is called both by get_empty_inode() and by get_new_inode() (the
-> former - just before returning, the latter - just before calling
-> ->read_inode()).
+> IOW, you can get normal filesystem view (meaning that you have all usual
+> UNIX toolkit available) for per-fs control stuff. And keep the ability to
+> do proper locking - it's the same driver that handles the main fs and you
+> have access to superblock. No need to change the API - everything is already
+> there...
+> 	I'll post an example patch for ext2 (safe access to superblock,
+> group descriptors, inode table and bitmaps on a live fs) after this weekend
+> (== when misc shit will somewhat settle down).
 
-If this is the case, then all of the other zero initializations can be
-removed as well.  I figured that if most of the fields needed to be
-zeroed, then ones _not_ being zeroed would lead to this problem.
-
-FYI Stephen, the original poster followed up that the problem was with
-an IBM SCSI RAID card...
+I look forward to seeing the ext2 code.  I was just in the process of
+adding ioctls to ext3 to do online resizing within transactions.  Maybe
+I'll rather use this interface if it looks good.  Will it work on 2.2,
+or does it depend too much on new VFS?
 
 Cheers, Andreas
 -- 

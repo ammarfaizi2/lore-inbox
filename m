@@ -1,44 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267619AbTAMQTi>; Mon, 13 Jan 2003 11:19:38 -0500
+	id <S267399AbTAMQSF>; Mon, 13 Jan 2003 11:18:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267631AbTAMQTi>; Mon, 13 Jan 2003 11:19:38 -0500
-Received: from web13709.mail.yahoo.com ([216.136.175.251]:64086 "HELO
-	web13709.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S267619AbTAMQTh>; Mon, 13 Jan 2003 11:19:37 -0500
-Message-ID: <20030113162827.46498.qmail@web13709.mail.yahoo.com>
-Date: Mon, 13 Jan 2003 08:28:27 -0800 (PST)
-From: Mad Hatter <slokus@yahoo.com>
-Subject: bootsect.S: 2 questions
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	id <S267431AbTAMQSF>; Mon, 13 Jan 2003 11:18:05 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:39338 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S267399AbTAMQSE>;
+	Mon, 13 Jan 2003 11:18:04 -0500
+Date: Mon, 13 Jan 2003 17:26:38 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Terje Eggestad <terje.eggestad@scali.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: any chance of 2.6.0-test*?
+Message-ID: <20030113162638.GY14017@suse.de>
+References: <Pine.LNX.4.44.0301121100380.14031-100000@home.transmeta.com> <1042400094.1208.26.camel@RobsPC.RobertWilkens.com> <1042400219.1208.29.camel@RobsPC.RobertWilkens.com> <20030112195347.GJ3515@louise.pinerecords.com> <1042401817.1209.54.camel@RobsPC.RobertWilkens.com> <1042472605.5404.72.camel@pc-16.office.scali.no> <20030113154954.GR14017@suse.de> <1042475145.5404.86.camel@pc-16.office.scali.no>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1042475145.5404.86.camel@pc-16.office.scali.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, Jan 13 2003, Terje Eggestad wrote:
+> On man, 2003-01-13 at 16:49, Jens Axboe wrote:
+> > On Mon, Jan 13 2003, Terje Eggestad wrote:
+> > > Considering that doing kernel development is hard enough, new
+> > > development is almost always done on uni processors kernels that do only
+> > > one thing at the time. Then when you base logic is OK, you move to a
+> > > SMP, which means (adding and) debugging you spin locks.
+> > 
+> > Goto's aside, I find the above extremely bad advise. You should _always_
+> > develop with smp and for smp from the very start, or you will most
+> > likely not get it right later on. With preempt, this becomes even more
+> > important.
+> 
+> You should, and I do, *design* with smp in mind, and I throw in
+> smplock/unlonk as I go, but I tend to make first runs on a UP. 
+> 
+> I see your point on preemt, though.
+> You do first runs on SMP? 
 
-I was looking through the linux (2.5.56) arch/i386/boot/bootsect.S and was
-puzzled about a couple of things:
+Always, if for nothing else than the benefit of a better debugging
+environment.
 
-1. Near line 221 we have:
-       sread:  .word 0             # sectors read of current track
-       head:   .word 0             # current head
-       track:  .word 0             # current track
+> > > Considering that fucking up spin locks are prone to corrupting your
+> > > machine, one very simple trick to makeing fewer mistakes to to have one,
+> > > and only one, unlock for every lock. 
+> > 
+> > Taking a spin lock twice will hard lock the machine, however on smp you
+> > will typically have the luxury of an nmi watchdog which will help you
+> > solve this quickly. Double unlock will oops immediately if you run with
+> > spin lock debugging (you probably should, if you are developing kernel
+> > code).
+> 
+> I have the console on a serial port, and a terminal server. With kdb,
+> you can enter the kernel i kdb even when deadlocked.
 
-   However, since a diskette can have at most 2 heads, 80 tracks and 36 sectors
-   per track, why are these not bytes instead of words especially since space is
-   at such a tight premium in this code ?
+Even if spinning with interrupt disabled?
 
-2. Near line 272 we have "movw    $7, %bx" but the documentation I've
-    been able to find about the "int 0x10" BIOS call says that for service
-    code 0xe (write character and advance cursor), it does not take an
-    attribute byte input parameter but rather uses the existing attribute. Is
-    this movw instruction superfluous ?
+-- 
+Jens Axboe
 
-Thanks. 
-
-__________________________________________________
-Do you Yahoo!?
-Yahoo! Mail Plus - Powerful. Affordable. Sign up now.
-http://mailplus.yahoo.com

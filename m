@@ -1,52 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129667AbRCCSzH>; Sat, 3 Mar 2001 13:55:07 -0500
+	id <S129664AbRCCS6h>; Sat, 3 Mar 2001 13:58:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129666AbRCCSy5>; Sat, 3 Mar 2001 13:54:57 -0500
-Received: from 513.holly-springs.nc.us ([216.27.31.173]:46813 "EHLO
-	513.holly-springs.nc.us") by vger.kernel.org with ESMTP
-	id <S129664AbRCCSyx>; Sat, 3 Mar 2001 13:54:53 -0500
-Message-Id: <200103031945.f23JjSQ22763@513.holly-springs.nc.us>
-Subject: Re: Q: How to get physical memory size from user space without proc
-	fs
-From: Michael Rothwell <rothwell@holly-springs.nc.us>
-To: Denis Perchine <dyp@perchine.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.10.10103031332480.11778-100000@mx.webmailstation.com>
-Content-Type: text/plain
-X-Mailer: Evolution (0.8/+cvs.2001.02.14.08.55 - Preview Release)
-Date: 03 Mar 2001 14:55:54 -0500
-Mime-Version: 1.0
+	id <S129666AbRCCS61>; Sat, 3 Mar 2001 13:58:27 -0500
+Received: from tomts8.bellnexxia.net ([209.226.175.52]:30853 "EHLO
+	tomts8-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S129664AbRCCS6Y>; Sat, 3 Mar 2001 13:58:24 -0500
+Message-ID: <3AA13DC6.D6DA5501@coplanar.net>
+Date: Sat, 03 Mar 2001 13:53:58 -0500
+From: Jeremy Jackson <jerj@coplanar.net>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jon Masters <jonathan@jonmasters.org>
+CC: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Forwarding broadcast traffic
+In-Reply-To: <200103031054.KAA29868@localhost.localdomain> <3AA12CD8.7F948E0D@coplanar.net> <3AA138A1.72E99C7C@jonmasters.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-pyhsmem = `free | grep Mem | tr -s "/ / /" | cut -f2 -d" "`
+Jon Masters wrote:
 
+> Jeremy Jackson wrote:
+>
+> > try bridging instead if ip forwarding.  use netfilter too if you want
+>
+> I mentioned bridging before - I don't want some kind of transparent
+> bridge, really so what I would need is for the router to be contactable
+> in the same way as before and for regular traffic to pass normally but
+> with a special arrangement for certain broadcast traffic.
+>
+> Is it possible to selectively bridge broadcast traffic in the way I have
+> described?
+>
+> Normally of course I'd have the router either being a standard router or
+> a bridge but in this case some kind of hybrid arrangement would be
+> preferable.
+>
+> Thanks for your help,
+>                         --jcm
 
-On 03 Mar 2001 13:37:42 -0500, Denis Perchine wrote:
-> Hello,
-> 
-> actually the question is in subj.
-> Problem is that there is a program which needs to know physical memory
-> size. This information is used to justify memory consumption as after some
-> swapping performance is drops dramatically, and it is better to finish.
-> 
-> I know that this is not the best idea, but it is assumed that this program
-> is the only one running on the machine.
-> 
-> I do not want to use proc as some people can just do not mount it.
-> 
-> Any comments, suggestions?
-> 
-> Thanks in advance.
-> 
-> Denis Perchine.
-> 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Well it you give the server an ip alias address that's on the subnet
+of the clients, bridge the two segments together,
+but use netfilter to drop all packets that aren't your
+broadcasts, it might do the trick.  I'm not to familiar with
+bridging, but i'm confident that 2.4's netfilter can do it...
+you can filter/route based on pretty much *any* data
+in the packet, by manually specifying an arbitrary offset
+in the headers and bit pattern if necessary IIRC.
+
+if you know which port IP port it's easy.
+
+Can you be more specific... is this an IP broadcast?
+or ethernet only like IPX or NetBEUI?
+perhaps subnetting with "invalid" netmasks could
+cause broadcast to reach entire supernet even
+though subnets are on diff segments (in case of IP)
 

@@ -1,49 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267595AbUIVUmp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267521AbUIVUst@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267595AbUIVUmp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Sep 2004 16:42:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267651AbUIVUmo
+	id S267521AbUIVUst (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Sep 2004 16:48:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267651AbUIVUss
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Sep 2004 16:42:44 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:25472 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S267595AbUIVUmd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Sep 2004 16:42:33 -0400
-Date: Wed, 22 Sep 2004 16:42:02 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Dave Aubin <daubin@actuality-systems.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Is there a user space pci rescan method?
-In-Reply-To: <E8F8DBCB0468204E856114A2CD20741F2C13D2@mail.local.ActualitySystems.com>
-Message-ID: <Pine.LNX.4.53.0409221640550.1479@chaos.analogic.com>
-References: <E8F8DBCB0468204E856114A2CD20741F2C13D2@mail.local.ActualitySystems.com>
+	Wed, 22 Sep 2004 16:48:48 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:38372 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S267521AbUIVUss (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Sep 2004 16:48:48 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.9-rc2-mm2
+Date: Wed, 22 Sep 2004 16:48:30 -0400
+User-Agent: KMail/1.7
+Cc: linux-kernel@vger.kernel.org
+References: <20040922131210.6c08b94c.akpm@osdl.org>
+In-Reply-To: <20040922131210.6c08b94c.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200409221648.30234.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 22 Sep 2004, Dave Aubin wrote:
+On Wednesday, September 22, 2004 4:12 pm, Andrew Morton wrote:
+> - This kernel doesn't work on ia64 (instant reboot).  But neither does
+>   2.6.9-rc2, nor current Linus -bk.  Is it just me?
 
-> Hi,
->
->   Is there a user space or perhaps simple kernel module way to
-> rescan the pci bus?  I currently have a user mode program modify
-> the pci bus, but I can not push the user mode program to the
-> bios for reasons I can't get in to.
->   Currently I use this user mode program, then do a big hammer
-> approach of a reboot to get the kernel to see the pci device.  Is there
-> a nicer way of doing this?  Can someone kindly educate me.
->
-> Huge Thanks,
-> Dave:)
-> -
+I certainly hope so.  Current bk works on my 2p Altix, and iirc 2.6.9-rc2 
+worked as well.  I'm trying 2.6.9-rc2-mm2 right now.  I haven't tried 
+generic_defconfig yet either, maybe that's it?
 
-Did you try `setpci` and `lspci`?
-You can sometimes get things working without resorting to a boot.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
+Jesse

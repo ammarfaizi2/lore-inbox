@@ -1,59 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261711AbUDCLas (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Apr 2004 06:30:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261717AbUDCLas
+	id S261712AbUDCMA3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Apr 2004 07:00:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261718AbUDCMA3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Apr 2004 06:30:48 -0500
-Received: from dbl.q-ag.de ([213.172.117.3]:25740 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S261711AbUDCLaq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Apr 2004 06:30:46 -0500
-Message-ID: <406EA054.2020401@colorfullife.com>
-Date: Sat, 03 Apr 2004 13:30:28 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.4.1) Gecko/20031114
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org, Adam Nielsen <a.nielsen@optushome.com.au>
-Subject: Re: [PATCH] Fix kernel lockup in RTL-8169 gigabit ethernet driver
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sat, 3 Apr 2004 07:00:29 -0500
+Received: from imladris.demon.co.uk ([193.237.130.41]:50565 "EHLO
+	baythorne.infradead.org") by vger.kernel.org with ESMTP
+	id S261712AbUDCMA2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Apr 2004 07:00:28 -0500
+Subject: Re: mtd - No flash chips recognised.
+From: David Woodhouse <dwmw2@infradead.org>
+To: David L <idht4n@hotmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <BAY2-F51ktUhFFWfBnj0002977e@hotmail.com>
+References: <BAY2-F51ktUhFFWfBnj0002977e@hotmail.com>
+Content-Type: text/plain
+Message-Id: <1080993623.17863.123.camel@imladris.demon.co.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8.dwmw2.2) 
+Date: Sat, 03 Apr 2004 13:00:23 +0100
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by baythorne.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew wrote:
+On Fri, 2004-04-02 at 08:39 -0800, David L wrote:
+> I'm trying to use 2.6.4 with a Mobile DiskOnChip.  I get the message
+> "No flash chips recognised".  It looks like the DoC_IdentChip function
+> in doc2001.c is finding a nand_flash_id of 0xa5, which isn't one of the
+> ids listed in nand_ids.c.
 
->The logic is faulty, or at least very odd.
->
->	tx_left = tp->cur_tx - dirty_tx;
->
->	while (tx_left > 0) {
->		int entry = dirty_tx % NUM_TX_DESC;
->
->		if (!(le32_to_cpu(tp->TxDescArray[entry].status) & OWNbit)) {
->			...
->		}
->	}
->
->Why is that `if' test there at all?  If it ever returns false, the box
->locks up.  A BUG_ON(le32_to_cpu(tp->TxDescArray[entry].status) & OWNbit)
->might make more sense.
->  
->
-tx_left counts packets submitted by hard_xmit_start to the hardware. 
-Initially OWNbit is set, the packet is owned by the nic. The OWNbit is 
-cleared by the hardware after the packet was sent. A packet with OWNbit 
-set means that the nic didn't send it yet to the wire. I think the "else 
-break;" patch is correct, but someone with docs should confirm that.
+Er, then it should surely be saying 'No recognised DiskOnChip found' or
+something to that effect?
 
-Adam: did you see deadlocks that disappeared after applying your patch? 
-It shouldn't deadlock - it should loop until the nic sends the packet to 
-the wire. It might take a few msecs, but then it should continue. 
-Perhaps gcc optimized away the reload from memory and loops on a 
-register. Or there is another bug that is hidden by your patch.
+2.6 supports the DiskOnChip 2000, Millennium and Millennium Plus. There
+is no support yet for newer devices. 
 
---
-    Manfred
+-- 
+dwmw2
+
 

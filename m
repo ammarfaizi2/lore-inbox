@@ -1,59 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265977AbUAKUfh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jan 2004 15:35:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265978AbUAKUfg
+	id S265972AbUAKUeR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jan 2004 15:34:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265977AbUAKUeR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jan 2004 15:35:36 -0500
-Received: from mail.bluebottle.com ([69.20.6.25]:53935 "EHLO mail.bluebottle")
-	by vger.kernel.org with ESMTP id S265977AbUAKUf1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jan 2004 15:35:27 -0500
-Date: Sun, 11 Jan 2004 18:35:21 -0200 (BRST)
-From: =?ISO-8859-1?Q?Fr=E9d=E9ric_L=2E_W=2E_Meunier?= <1@pervalidus.net>
-X-X-Sender: fredlwm@pervalidus.dyndns.org
-To: Murilo Pontes <murilo_pontes@yahoo.com.br>
-cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
-Subject: Re: BUG: The key "/ ?" on my abtn2 keyboard is dead with kernel
- 2.6.1
-In-Reply-To: <200401111545.59290.murilo_pontes@yahoo.com.br>
-Message-ID: <Pine.LNX.4.58.0401111831070.342@pervalidus.dyndns.org>
-References: <200401111545.59290.murilo_pontes@yahoo.com.br>
-X-Archive: encrypt
+	Sun, 11 Jan 2004 15:34:17 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:13984 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265972AbUAKUeP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jan 2004 15:34:15 -0500
+Message-ID: <4001B32B.1030305@pobox.com>
+Date: Sun, 11 Jan 2004 15:33:47 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Christophe Saout <christophe@saout.de>
+CC: dm-devel@sistina.com, Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Arjan van de Ven <arjanv@redhat.com>, Andries Brouwer <aebr@win.tue.nl>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: partition detection in 2.7
+References: <40016A11.90605@gmx.at> <1073849697.24036.11.camel@leto.cs.pocnet.net>
+In-Reply-To: <1073849697.24036.11.camel@leto.cs.pocnet.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 11 Jan 2004, Murilo Pontes wrote:
+Christophe Saout wrote:
+> The plan for Linux 2.7 is to rip out partition detection from the kernel
+> and do everything in userspace (probably initramfs). So someone could
+> start by making the partition detection code a library.
 
->
-> 15:34:36 [root@murilo:/MRX/drivers]#diff -urN linux-2.6.0/drivers/input/keyboard/atkbd.c linux-2.6.1/drivers/input/keyboard/atkbd.c > test.diff
-> 15:35:12 [root@murilo:/MRX/drivers]#wc -l test.diff
->     387 test.diff
-> -------------> May be wrong?!
->
-> 15:30:13 [root@murilo:/MRX/drivers]#dmesg | grep serio
-> serio: i8042 AUX port at 0x60,0x64 irq 12
-> input: ImPS/2 Generic Wheel Mouse on isa0060/serio1
-> serio: i8042 KBD port at 0x60,0x64 irq 1
-> input: AT Translated Set 2 keyboard on isa0060/serio0
-> atkbd.c: Unknown key released (translated set 2, code 0x7a on isa0060/serio0).
-> atkbd.c: Unknown key released (translated set 2, code 0x7a on isa0060/serio0).
-> ----------> Last two lines, is apper each startx startup!!!!
 
-Also reported by me - see
-http://marc.theaimsgroup.com/?l=linux-kernel&m=107376128814606&w=2
+Linus just vehementally stated recently that partition parsing wouldn't 
+be leaving the kernel :)
 
-showkey under 2.4: keycode  89
+However, I do think we will eventually move to a middle ground, where 
+partition parsing code will be in the kernel _source_ tree, but it will 
+be in initramfs as you describe.
 
-But I didn't use startx, only the frame buffer. Maybe why I
-didn't get such "atkbd.c: Unknown key released (translated set
-2, code 0x7a on isa0060/serio0)." messages ?
+The reason being is that block device attachment and setup is growing 
+more complicated over time, as people move to things like dm+lvm2+md or 
+iscsi+dm+evms.  Thus, the support code to make those device combinations 
+to be used as a root device will get more and more complex.
 
-Vojtech: Does "[PATCH] Re: bad scancode for USB keyboard" -
-http://marc.theaimsgroup.com/?l=linux-kernel&m=107384731209938&w=2
-also fix it ?
+RAID and device mapper were actually two big reasons why I am pushing 
+for klibc (pushed back to 2.7 now) and initramfs in the kernel source 
+tree.  LVM, some EFI bits, dm, and md all have boot components are 
+mainly in the kernel because they need to happen (a) early and (b) 
+always, not because they actually need to be compiled into the kernel 
+image itself.
 
--- 
-http://www.pervalidus.net/contact.html
+	Jeff
+
+
+

@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280484AbRKJFRi>; Sat, 10 Nov 2001 00:17:38 -0500
+	id <S280480AbRKJFYs>; Sat, 10 Nov 2001 00:24:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280480AbRKJFR3>; Sat, 10 Nov 2001 00:17:29 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:33288 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S280484AbRKJFRX>; Sat, 10 Nov 2001 00:17:23 -0500
-Message-ID: <3BECB84D.9D8341ED@zip.com.au>
-Date: Fri, 09 Nov 2001 21:17:01 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14-pre8 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Steven Walter <srwalter@yahoo.com>
-CC: linux-kernel@vger.kernel.org, andrea@e-mind.com
-Subject: Re: Insanely high "Cached" value
-In-Reply-To: <20011109230439.A13013@hapablap.dyn.dhs.org>
+	id <S280496AbRKJFYj>; Sat, 10 Nov 2001 00:24:39 -0500
+Received: from samba.sourceforge.net ([198.186.203.85]:14606 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S280480AbRKJFY2>;
+	Sat, 10 Nov 2001 00:24:28 -0500
+Date: Sat, 10 Nov 2001 16:20:06 +1100
+From: Anton Blanchard <anton@samba.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: ak@suse.de, mingo@elte.hu, linux-kernel@vger.kernel.org
+Subject: Re: speed difference between using hard-linked and modular drives?
+Message-ID: <20011110162006.C767@krispykreme>
+In-Reply-To: <20011109064540.A13498@wotan.suse.de> <20011108.220444.95062095.davem@redhat.com> <20011109073946.A19373@wotan.suse.de> <20011108.231632.18311891.davem@redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20011108.231632.18311891.davem@redhat.com>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steven Walter wrote:
-> 
-> My system has been running a little over twelve days now, and I just
-> noticed that the "Cached" value in both 'free' and /proc/meminfo is
-> insanely high.  This wasn't the case the last time I checked, which was
-> probably a day ago.
-> 
-> Just before checking it this time, I ran a "du -s *" in /usr, which
-> generated a lot of I/O, as it to be expected.  Perhaps the large amount
-> of I/O has uncovered a bug of some sort?
-> 
-> This is kernel 2.4.13 (hopefully it's not something that's already been
-> reported and fixed; I haven't seen it if is has) patched with ext3, kdb,
-> lm_sensors, and the pre-empt patch.  Seems likely to be only a simple VM
-> problem, however, and an asthetic one at that.
+ 
+Hi,
 
-It's an ext3 bug.  Harmless, fixed in the (ext3-enriched) 2.4.15-pre2.
+> It _IS_ a big deal.  Fetching _ONE_ hash chain cache line
+> is always going to be cheaper than fetching _FIVE_ to _TEN_
+> page struct cache lines while walking the list.
 
--
+Exactly, the reason I found the pagecache hash was too small was because
+__find_page_nolock was one of the worst offenders when doing zero copy
+web serving of a large dataset.
+
+> Even if prefetch would kill all of this overhead (sorry, it won't), it
+> is _DUMB_ and _STUPID_ to bring those _FIVE_ to _TEN_ cache lines into
+> the processor just to lookup _ONE_ page.
+
+Yes you cant expect prefetch to help you when you use the data 10
+instructions after you issue the prefetch. (ie walking the hash chain)
+
+Anton

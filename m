@@ -1,46 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261628AbUDCIXS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Apr 2004 03:23:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261638AbUDCIXS
+	id S261631AbUDCIk2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Apr 2004 03:40:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261648AbUDCIk2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Apr 2004 03:23:18 -0500
-Received: from gprs214-57.eurotel.cz ([160.218.214.57]:38528 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261628AbUDCIXR (ORCPT
+	Sat, 3 Apr 2004 03:40:28 -0500
+Received: from lbo.net1.nerim.net ([62.212.103.219]:441 "EHLO gyver.homeip.net")
+	by vger.kernel.org with ESMTP id S261631AbUDCIk0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Apr 2004 03:23:17 -0500
-Date: Sat, 3 Apr 2004 10:23:03 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: Chris Friesen <cfriesen@nortelnetworks.com>,
-       =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>, mj@ucw.cz,
-       jack@ucw.cz, "Patrick J. LoPresti" <patl@users.sourceforge.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] cowlinks v2
-Message-ID: <20040403082303.GA1316@elf.ucw.cz>
-References: <s5g7jx31int.fsf@patl=users.sf.net> <20040329231635.GA374@elf.ucw.cz> <20040402165440.GB24861@wohnheim.fh-wedel.de> <20040402180128.GA363@elf.ucw.cz> <20040402181707.GA28112@wohnheim.fh-wedel.de> <20040402182357.GB410@elf.ucw.cz> <20040402200921.GC653@mail.shareable.org> <20040402213933.GB246@elf.ucw.cz> <406DE280.6050109@nortelnetworks.com> <20040403004947.GI653@mail.shareable.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040403004947.GI653@mail.shareable.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+	Sat, 3 Apr 2004 03:40:26 -0500
+Message-ID: <406E787B.30308@inet6.fr>
+Date: Sat, 03 Apr 2004 10:40:27 +0200
+From: Lionel Bouton <Lionel.Bouton@inet6.fr>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Roland Mas <roland.mas@free.fr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Drivers *dropped* between releases? (sis5513.c)
+References: <1GDM3-6G3-5@gated-at.bofh.it> <1GFEd-8b8-15@gated-at.bofh.it> <87zn9t1nju.fsf@mirexpress.internal.placard.fr.eu.org>
+In-Reply-To: <87zn9t1nju.fsf@mirexpress.internal.placard.fr.eu.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Roland Mas wrote the following on 04/03/2004 10:19 AM :
 
-> > Could you not change it back to a normal inode when refcount becomes 1? 
-> 
-> You can only do that if the cowid object has a pointer to the last
-> remaining reference to it.  That's possible, but more complicated and
-> would incur a little more I/O per cow operation.
+>[...]
+>  More relevant info (maybe): I got an old version of the Debian
+>installer, which uses an older kernel, and the process goes on
+>normally (well, it halts later because the built-in NIC has a stupid
+>MAC address, but that's another problem).
+>
+>  
+>
 
-You'd have to have pointers to all references to it... because you
-can't tell in advance which one will be the last to go away.
+If you can find the time, please check that this old installer doesn't 
+use the sis5513 driver or DMA transfers. If it does both, I'd be really 
+interested by the exact kernel version used. If it doesn't, you'd 
+probably found yourself a workaround by disabling dma at boot time.
 
-But I agree its not a big problem.
-								Pavel
+Best regards,
+
 -- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+Lionel Bouton - inet6
+---------------------------------------------------------------------
+   o              Siege social: 51, rue de Verdun - 92158 Suresnes
+  /      _ __ _   Acces Bureaux: 33 rue Benoit Malon - 92150 Suresnes
+ / /\  /_  / /_   France
+ \/  \/_  / /_/   Tel. +33 (0) 1 41 44 85 36
+  Inetsys S.A.    Fax  +33 (0) 1 46 97 20 10
+ 
+

@@ -1,61 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263245AbTEINSh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 09:18:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263246AbTEINSh
+	id S263250AbTEINbc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 09:31:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263257AbTEINbc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 09:18:37 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:56330 "EHLO
-	www.home.local") by vger.kernel.org with ESMTP id S263245AbTEINSg
+	Fri, 9 May 2003 09:31:32 -0400
+Received: from mail.set-software.de ([193.218.212.121]:23713 "EHLO
+	gateway.local.net") by vger.kernel.org with ESMTP id S263250AbTEINbb convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 09:18:36 -0400
-Date: Fri, 9 May 2003 15:27:57 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: Willy Tarreau <willy@w.ods.org>, gibbs@scsiguy.com,
-       marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
-Subject: Re: Undo aic7xxx changes
-Message-ID: <20030509132757.GA16649@alpha.home.local>
-References: <Pine.LNX.4.55L.0305071716050.17793@freak.distro.conectiva> <2804790000.1052441142@aslan.scsiguy.com> <20030509120648.1e0af0c8.skraw@ithnet.com> <20030509120659.GA15754@alpha.home.local> <20030509150207.3ff9cd64.skraw@ithnet.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030509150207.3ff9cd64.skraw@ithnet.com>
-User-Agent: Mutt/1.4i
+	Fri, 9 May 2003 09:31:31 -0400
+From: Michael Knigge <Michael.Knigge@set-software.de>
+Date: Fri, 09 May 2003 13:42:41 GMT
+Message-ID: <20030509.13424122@knigge.local.net>
+Subject: 3ware Raid
+To: linux-kernel@vger.kernel.org
+X-Mailer: Mozilla/3.0 (compatible; StarOffice/5.1; Win32)
+X-Priority: 3 (Normal)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 09, 2003 at 03:02:07PM +0200, Stephan von Krawczynski wrote:
- 
-> I cannot say which version of the driver it was, the only thing I can tell you
-> is that the archive was called aic79xx-linux-2.4-20030410-tar.gz.
+Hi all,
 
-That's really interesting, because I got the bug since around this version
-(20030417 IIRC), and it locked up only on SMP, sometimes during boot, or
-during heavy disk accesses caused by "updatedb" and "make -j dep". It's
-fixed in 20030502 from http://people.freebsd.org/~gibbs/linux/SRC/
+this is not a "kernel-only" question but maybe someone who knows 3ware 
+raid controllers (and the driver) could help me.
 
-> I can't tell, basic problem in my setup is that it seems virtually impossible
-> to bring some 100GB of data onto a streamer connected to the above aic. It
-> crashes almost every day with a freeze and no oops or other message.
+Currently my 3ware 6xxx RAID controller tells me that my RAID-Array 
+(stripe-set with two maxtor 120 GB disks) is incomplete (even if I 
+delete the array and create a new one - after a reboot the array is 
+marked "incomplete").
 
-I had the same symptom which is very frustrating, I agree. I even had
-difficulties to catch the NMI watchdog output which was often truncated.
+The BIOS of the 3ware controller shows me both disks, but one is 
+always makred as "available" and the raid-array is missing one drive.
 
-> I am at the moment willing to await 2.4.21 and see, and if that does not solve it,
+The strange part: the Linux kernel doesn't care about this and mounts 
+my array correctly! And the array works so far - it seems to me, don't 
+know if there will be any surprises the next days ;-)
 
-Well, would you at least agree to retest current version from the above URL ?
-I find it a bit of a shame that the driver goes back in -rc stage.
 
-Marcelo, do you have some information about the setup from the people who reported
-hangs to you ? Perhaps we could even ask them to confirm that Justin's updated
-driver fixes their problems ?
+Now... should I care about this? Is my array broken or not? And why 
+does the Linux driver think my array is ok and the 3ware BIOS not?
 
-> This is a system in production and not particularly useful for debugging a lot
-> and correspoding downtime.
+Thanks for any help,
+  Michael
 
-I certainly can understand ;-)
 
-Regards,
-Willy
+
+
+
 

@@ -1,74 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263929AbTDWBnh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Apr 2003 21:43:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263932AbTDWBnh
+	id S263926AbTDWBkl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Apr 2003 21:40:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263927AbTDWBkl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Apr 2003 21:43:37 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:38595 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S263929AbTDWBnd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Apr 2003 21:43:33 -0400
-Subject: [PATCH] Small bug fix for aio
-From: Mingming Cao <cmm@us.ibm.com>
-To: bcrl@redhat.com, akpm@digeo.com
-Cc: linux-kernel@vger.kernel.org, linux-aio@kvack.org
-Content-Type: multipart/mixed; boundary="=-J1SWzDJljbfhsVT+MOwZ"
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 22 Apr 2003 18:54:51 -0700
-Message-Id: <1051062904.2808.37.camel@w-ming.beaverton.ibm.com>
+	Tue, 22 Apr 2003 21:40:41 -0400
+Received: from granite.he.net ([216.218.226.66]:3600 "EHLO granite.he.net")
+	by vger.kernel.org with ESMTP id S263926AbTDWBkk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Apr 2003 21:40:40 -0400
+Date: Tue, 22 Apr 2003 18:54:54 -0700
+From: Greg KH <greg@kroah.com>
+To: Hanna Linder <hannal@us.ibm.com>
+Cc: Patrick Mochel <mochel@osdl.org>, linux-kernel@vger.kernel.org,
+       andmike@us.ibm.com
+Subject: Re: [RFC] Device class rework [0/5]
+Message-ID: <20030423015454.GA6298@kroah.com>
+References: <20030422205545.GA4701@kroah.com> <172940000.1051059583@w-hlinder>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <172940000.1051059583@w-hlinder>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Apr 22, 2003 at 05:59:43PM -0700, Hanna Linder wrote:
+> --On Tuesday, April 22, 2003 01:55:45 PM -0700 Greg KH <greg@kroah.com> wrote:
+> 
+> > Here's a set of patches that rework the current class support in the
+> > kernel today into something that works a bit better, and is simpler to
+> > use.
+> 
+> I did a quick sanity test of these patches on a 2-way PIII.
+> It built and booted fine for me. I don't have any devices that 
+> span multiple classes but the patch hasnt changed any of my 
+> existing /sys/class output.
 
---=-J1SWzDJljbfhsVT+MOwZ
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Hm, are you sure you applied them and are using that kernel?  :)
 
-Hi,
+/sys/class should look something like this:
 
-Here is a trivial patch fixed a bug in ioctx_alloc(). If
-aio_setup_ring() failed, ioctx_alloc() should pass the return error from
-aio_setup_ring() back to sys_io_setup().
+$ tree /sys/class/
+/sys/class/
+|-- cpu
+|   `-- cpu0
+|       |-- device -> ../../../devices/sys/cpu0
+|       `-- foo
+|-- input
+`-- tty
+    |-- console0
+    |   `-- dev
+    |-- ptmx0
+    |   `-- dev
+    |-- pts0
+    |   `-- dev
+    |-- pts1
+    |   `-- dev
+    |-- pts2
+    |   `-- dev
+    |-- pts3
+    |   `-- dev
+    |-- pts4
+    |   `-- dev
+    |-- pts5
+    |   `-- dev
+    |-- pts6
+    |   `-- dev
+    |-- pts7
+    |   `-- dev
+    |-- pty0
+    |   `-- dev
+    |-- pty1
+    |   `-- dev
+... and so on...
 
-Please apply. Thanks.
 
---=-J1SWzDJljbfhsVT+MOwZ
-Content-Disposition: attachment; filename=aiofix.patch
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/x-patch; name=aiofix.patch; charset=UTF-8
+thanks,
 
-diff -urNp linux-2.5.68/fs/aio.c 2568/fs/aio.c
---- linux-2.5.68/fs/aio.c	Sat Apr 19 19:49:25 2003
-+++ 2568/fs/aio.c	Tue Apr 22 17:52:21 2003
-@@ -204,6 +204,7 @@ static struct kioctx *ioctx_alloc(unsign
- {
- 	struct mm_struct *mm;
- 	struct kioctx *ctx;
-+	int ret =3D 0;
-=20
- 	/* Prevent overflows */
- 	if ((nr_events > (0x10000000U / sizeof(struct io_event))) ||
-@@ -233,7 +234,8 @@ static struct kioctx *ioctx_alloc(unsign
- 	INIT_LIST_HEAD(&ctx->run_list);
- 	INIT_WORK(&ctx->wq, aio_kick_handler, ctx);
-=20
--	if (aio_setup_ring(ctx) < 0)
-+	ret =3D aio_setup_ring(ctx);
-+	if (unlikely(ret < 0))
- 		goto out_freectx;
-=20
- 	/* limit the number of system wide aios */
-@@ -259,7 +261,7 @@ out_cleanup:
-=20
- out_freectx:
- 	kmem_cache_free(kioctx_cachep, ctx);
--	ctx =3D ERR_PTR(-ENOMEM);
-+	ctx =3D ERR_PTR(ret);
-=20
- 	dprintk("aio: error allocating ioctx %p\n", ctx);
- 	return ctx;
-
---=-J1SWzDJljbfhsVT+MOwZ--
-
+greg k-h

@@ -1,54 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261372AbVAUAZF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261427AbVAUA0J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261372AbVAUAZF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 19:25:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262243AbVAUAYj
+	id S261427AbVAUA0J (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 19:26:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261546AbVAUAZQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 19:24:39 -0500
-Received: from fw.osdl.org ([65.172.181.6]:33257 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262232AbVAUAX1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 19:23:27 -0500
-Date: Thu, 20 Jan 2005 16:23:25 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: jnf <jnf@innocence-lost.us>
-Cc: Chris Wright <chrisw@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: linux capabilities ?
-Message-ID: <20050120162325.O24171@build.pdx.osdl.net>
-References: <Pine.LNX.4.61.0501201053070.24484@fhozvffvba.vaabprapr-ybfg.arg> <20050120134918.N469@build.pdx.osdl.net> <Pine.LNX.4.61.0501201547230.24484@fhozvffvba.vaabprapr-ybfg.arg>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.61.0501201547230.24484@fhozvffvba.vaabprapr-ybfg.arg>; from jnf@innocence-lost.us on Thu, Jan 20, 2005 at 03:54:57PM -0700
+	Thu, 20 Jan 2005 19:25:16 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:64952 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261427AbVAUAYz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jan 2005 19:24:55 -0500
+Date: Fri, 21 Jan 2005 00:24:43 +0000 (GMT)
+From: James Simmons <jsimmons@www.infradead.org>
+X-X-Sender: jsimmons@pentafluge.infradead.org
+To: Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>
+cc: Matt Mackall <mpm@selenic.com>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [Linux-fbdev-devel] Re: Radeon framebuffer weirdness in -mm2
+In-Reply-To: <1106265837.18397.19.camel@gaston>
+Message-ID: <Pine.LNX.4.56.0501210024010.14061@pentafluge.infradead.org>
+References: <20050120232122.GF3867@waste.org>  <20050120153921.11d7c4fa.akpm@osdl.org>
+  <20050120234844.GF12076@waste.org> <1106265837.18397.19.camel@gaston>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* jnf (jnf@innocence-lost.us) wrote:
-> I will read the paper before commenting on it further, however I cannot
-> see what dangers it would really provide that a setuid program doesnt
-> already have- other than the ability to give another non-root process root
-> like abilities. However, the more I ponder it, it seems as if you could
 
-It was a dangerous failure mode when a capability isn't present that hit
-sendmail.
-
-> accomplish a lot of things with a set of ACL's and Capabilities (think
-> compartmentalizing everything from each other where no one thing has full
-> control of anything other than its particular subsystem).
-
-Yes, that's the ideal.  Unfortunately it doesn't work out quite so
-neatly ;-/
-
-> > Since /proc/kmsg is 0400 you need CAP_DAC_READ_SEARCH (don't necessarily
-> > need full override).  Otherwise, you are right, you do need CAP_SYS_ADMIN.
-> > Or just use syslog(2) directly, and you'll avoid the DAC requirement.
+> > > > I'm seeing radeonfb on my ThinkPad T30 go weird on reboot (lots of
+> > > > horizontal lines) and require powercycling to fix. Worked fine with 2.6.10.
+> > > 
+> > > Which radeon driver? CONFIG_FB_RADEON_OLD or CONFIG_FB_RADEON?
+> > 
+> > FB_RADEON.
+> > 
+> > > (cc Ben, who is the likely cuprit ;)
+> > 
+> > Btw, ajoshi's address from MAINTAINERS is bouncing.
 > 
-> Hrm, even a chmod of it didn't appear to really affect things?
+> The file should be updated, I am the radeonfb maintainer now.
 
-Should, and it makes a difference for me.
-
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+Speaking of. Should we nuke the old radeonfb driver?
+ 

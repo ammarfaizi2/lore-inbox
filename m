@@ -1,84 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265309AbSJaV1v>; Thu, 31 Oct 2002 16:27:51 -0500
+	id <S265287AbSJaVZ3>; Thu, 31 Oct 2002 16:25:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265325AbSJaV1v>; Thu, 31 Oct 2002 16:27:51 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:38133 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S265309AbSJaV1r>;
-	Thu, 31 Oct 2002 16:27:47 -0500
-Subject: Re: Proposal for new lock ownership scheme to support NFS over distributed
- filesystems
-To: Matthew Wilcox <willy@debian.org>
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       willy@www.linux.org.uk
-X-Mailer: Lotus Notes Release 5.0.2a (Intl) 23 November 1999
-Message-ID: <OF189FE435.22D1CABF-ON87256C63.00761152@us.ibm.com>
-From: Juan Gomez <juang@us.ibm.com>
-Date: Thu, 31 Oct 2002 13:34:07 -0800
-X-MIMETrack: Serialize by Router on D03NM694/03/M/IBM(Release 6.0|September 26, 2002) at
- 10/31/2002 14:34:06
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
+	id <S265284AbSJaVZ3>; Thu, 31 Oct 2002 16:25:29 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:7908 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S265287AbSJaVZ2>;
+	Thu, 31 Oct 2002 16:25:28 -0500
+Date: Thu, 31 Oct 2002 21:30:32 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: "David C. Hansen" <haveblue@us.ibm.com>
+Cc: Linus Torvalds <torvalds@transmeta.COM>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] (3/3) stack overflow checking for x86
+Message-ID: <20021031213032.GA25685@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	"David C. Hansen" <haveblue@us.ibm.com>,
+	Linus Torvalds <torvalds@transmeta.COM>,
+	lkml <linux-kernel@vger.kernel.org>
+References: <1036091906.4272.87.camel@nighthawk> <1036092052.4272.96.camel@nighthawk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1036092052.4272.96.camel@nighthawk>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Oct 31, 2002 at 11:20:52AM -0800, David C. Hansen wrote:
+ > * stack checking (3/3)
+ >    - use gcc's profiling features to check for stack overflows upon
+ >      entry to functions.
+ >    - Warn if the task goes over 4k.
+ >    - Panic if the stack gets within 512 bytes of overflowing.
+ >    - use kksymoops information, if available
+ > 
+ > This won't apply cleanly without the irqstack patch, but the conflict is
+ > easy to resolve.  It requires the thread_info cleanup.
 
+I'm wondering about interaction between this patch and the
+already merged CONFIG_DEBUG_STACKOVERFLOW ?
 
+		Dave
 
-
-Sure I can also cc that list.
-
-Regarding your comments I do have a test implementation that takes care of
-storing files_struct for local locks so this is not a problem.
-(By the way, the use of that field to store that seems very bad idea imho)
-
-Regarding IPv4 not being the only protocol, I would say yes that is a
-problem and in fact I the one solution to this would be to enlarge
-fl_owner field, but thats a lot of work.
-
-In any case my main problem is to find a unique node identifier that is not
-bound to the underlying protocol you are using without requiring
-clustering between the nodes that are participating as part of nas head,
-suggestions on how to create a clean portable solution are welcome.
-
-
-Juan
-
-
-
-|---------+---------------------------->
-|         |           Matthew Wilcox   |
-|         |           <willy@debian.org|
-|         |           >                |
-|         |           Sent by:         |
-|         |           <willy@www.linux.|
-|         |           org.uk>          |
-|         |                            |
-|         |                            |
-|         |           10/31/02 01:08 PM|
-|         |                            |
-|---------+---------------------------->
-  >------------------------------------------------------------------------------------------------------------------|
-  |                                                                                                                  |
-  |       To:       Juan Gomez/Almaden/IBM@IBMUS                                                                     |
-  |       cc:       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org                                      |
-  |       Subject:  Re: Proposal for new lock ownership scheme to support NFS over distributed filesystems           |
-  |                                                                                                                  |
-  |                                                                                                                  |
-  >------------------------------------------------------------------------------------------------------------------|
-
-
-
-
-Hey, how about cc'ing either me or linux-fsdevel when discussing file
-locking in the future as described in MAINTAINERS?
-
-Your idea doesn't work because we need fl_owner to be the files_struct
-for local locks.  It also doesn't work because IPv4 is not the only
-protocol which NFS runs over.
-
---
-Revolutions do not require corporate support.
-
-
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk

@@ -1,42 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281420AbRLDSIM>; Tue, 4 Dec 2001 13:08:12 -0500
+	id <S283219AbRLDRpH>; Tue, 4 Dec 2001 12:45:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281147AbRLDSGs>; Tue, 4 Dec 2001 13:06:48 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:5323 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S281158AbRLDSGY>;
-	Tue, 4 Dec 2001 13:06:24 -0500
-From: David Mosberger <davidm@hpl.hp.com>
+	id <S281153AbRLDRnm>; Tue, 4 Dec 2001 12:43:42 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:35488 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S281645AbRLDRmv>; Tue, 4 Dec 2001 12:42:51 -0500
+Date: Tue, 04 Dec 2001 09:41:21 -0800
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: "M. Edward Borasky" <znmeb@aracnet.com>, linux-kernel@vger.kernel.org
+Subject: Re: Over 4-way systems considered harmful :-)
+Message-ID: <2436533899.1007458881@mbligh.des.sequent.com>
+In-Reply-To: <HBEHIIBBKKNOBLMPKCBBCEOJECAA.znmeb@aracnet.com>
+X-Mailer: Mulberry/2.0.8 (Win32)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15373.4236.462183.167170@napali.hpl.hp.com>
-Date: Tue, 4 Dec 2001 10:06:04 -0800
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: davidm@hpl.hp.com, tony.luck@intel.com,
-        arjanv@redhat.com (Arjan van de Ven), linux-kernel@vger.kernel.org,
-        linux-ia64@linuxia64.org, marcelo@conectiva.com.br, davem@redhat.com
-Subject: Re: [Linux-ia64] patch to no longer use ia64's software mmu
-In-Reply-To: <E16BJqq-0002qu-00@the-village.bc.nu>
-In-Reply-To: <15373.2854.619707.822462@napali.hpl.hp.com>
-	<E16BJqq-0002qu-00@the-village.bc.nu>
-X-Mailer: VM 6.76 under Emacs 20.4.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Tue, 4 Dec 2001 17:59:28 +0000 (GMT), Alan Cox <alan@lxorguk.ukuu.org.uk> said:
+> I'm going to weigh in here in favor of limiting effort on SMP development by
+> the core Linux team to systems with 4 processors and under. And not just
+> because I'd like to see those developers freed up to work on my M-Audio
+> Delta 66 :-). The economics of massively parallel MIMD machines just aren't
+> there. Sure, the military guys would *love* to have a petaflop engine, but
+> they're gonna build 'em anyway and quite probably not bother to contribute
+> their kernel source on this mailing list. *Commercial* applications for
+> supercomputers of this level are few and far between. I'm happy with my
+> GFlop-level UP Athlon Thunderbird. And if Moore's Law (or the AMD equivalent
+> :-) still holds, in 12 months I'll have something twice as fast (I've had it
+> for six months already :-).
 
-  Alan> ISA DMA. While there is no ISA DMA on ia64 (thankfully) many
-  Alan> PCI cards have 26-31 bit limits.
-  >>  We could do this if we there was a GFP_4GB zone.  Now that 2.5
-  >> is open for business, it won't be long, right?
+Two things.
 
-  Alan> I don't see the need: GFP_DMA is the ISA DMA zone. pci_* API
-  Alan> is used by everyone else [for 2.5].
+1) If a company (say, IBM) pays people to work on 8 / 16 way scalability
+because that's what they want out of Linux, then stopping development
+on that isn't going to get effort redirected to fixing your soundcard (yes,
+I realise you were being flippant, but the point's the same), the headcount
+is just going to disappear. AKA your choice isn't "patches for 8 way
+scalablilty, or patches for subsystem X that you're more interested in",
+your choice is "patches for 8-way scalabity, or no patches". Provided that
+those patches don't break anything else, you still win overall by getting them.
 
-Without a 4GB zone, you may end up creating bounce buffers needlessly
-for 32-bit capable DMA devices, no?
+2) Working on scalability for 8 / 16 way machines will show up races,
+performance problems et al that exist on 2 / 4 way machines but don't
+show up as often, or as obviously. I have a 16 way box that shows up
+races in the Linux kernel that might take you years to find on a 2 way.
 
-	--david
+What I'm trying to say is that you still win. Not as much as maybe you'd
+like, but, hey, it's work you're getting for free, so don't complain too 
+much about it. The maintainers are very good at beating the message
+into us that we can't make small systems any worse performing whilst
+making the big systems better.
+
+Martin.
+

@@ -1,77 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S143908AbRA1Ta0>; Sun, 28 Jan 2001 14:30:26 -0500
+	id <S143909AbRA1TcG>; Sun, 28 Jan 2001 14:32:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S143909AbRA1TaQ>; Sun, 28 Jan 2001 14:30:16 -0500
-Received: from [63.95.87.168] ([63.95.87.168]:22540 "HELO xi.linuxpower.cx")
-	by vger.kernel.org with SMTP id <S143908AbRA1TaJ>;
-	Sun, 28 Jan 2001 14:30:09 -0500
-Date: Sun, 28 Jan 2001 14:30:07 -0500
-From: Gregory Maxwell <greg@linuxpower.cx>
-To: Dominik Kubla <dominik.kubla@uni-mainz.de>,
-        James Sutherland <jas88@cam.ac.uk>,
-        David Schwartz <davids@webmaster.com>,
-        Jamie Lokier <lk@tantalophile.demon.co.uk>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [OT] Re: hotmail not dealing with ECN
-Message-ID: <20010128143007.A13195@xi.linuxpower.cx>
-In-Reply-To: <NCBBLIEPOCNJOAEKBEAKCECMNFAA.davids@webmaster.com> <Pine.SOL.4.21.0101272308030.701-100000@green.csi.cam.ac.uk> <20010127191159.B7467@xi.linuxpower.cx> <20010128021025.D800@uni-mainz.de> <20010127233543.D7467@xi.linuxpower.cx> <20010128135753.A2766@uni-mainz.de>
+	id <S143940AbRA1Tb4>; Sun, 28 Jan 2001 14:31:56 -0500
+Received: from kashiwa8-84.ppp-1.dion.ne.jp ([210.157.148.84]:5650 "EHLO
+	ask.ne.jp") by vger.kernel.org with ESMTP id <S143909AbRA1Tbk>;
+	Sun, 28 Jan 2001 14:31:40 -0500
+Date: Mon, 29 Jan 2001 04:31:43 +0900
+From: Bruce Harada <bruce@ask.ne.jp>
+To: "paradox3" <paradox3@maine.rr.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Poor SCSI drive performance on SMP machine, 2.2.16
+Message-Id: <20010129043143.3ac5fd99.bruce@ask.ne.jp>
+In-Reply-To: <002901c08951$f751bfa0$b001a8c0@caesar>
+In-Reply-To: <003f01c088fb$a35c06e0$b001a8c0@caesar> <20010128174016.3fba71ad.bruce@ask.ne.jp>
+	<002901c08951$f751bfa0$b001a8c0@caesar>
+X-Mailer: Sylpheed version 0.4.9 (GTK+ 1.2.6; Linux 2.2.17; i686)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.8i
-In-Reply-To: <20010128135753.A2766@uni-mainz.de>; from dominik.kubla@uni-mainz.de on Sun, Jan 28, 2001 at 01:57:53PM +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 28, 2001 at 01:57:53PM +0100, Dominik Kubla wrote:
-> On Sat, Jan 27, 2001 at 11:35:43PM -0500, Gregory Maxwell wrote:
-> ...
-> > An attack against an Xray system is much more likely to come from inside the
-> > companies network.
-> ...
+
+Hm. As a point of comparison, I use a similar system to yours (full SCSI,
+though, no IDE) and I can copy a 100MB file from disk-to-disk, or on the
+same disk, in around 13 seconds. Where are you copying to the SCSI drive
+from - the same drive, an IDE disk, CDROM? If IDE, what are its
+particulars? (Check with hdparm -iI /dev/hd?)
+
+--
+Bruce Harada
+bruce@ask.ne.jp
+
+
+
+On Sun, 28 Jan 2001 12:44:29 -0500
+"paradox3" <paradox3@maine.rr.com> wrote:
+>
+> I don't get any messages relating to the drives in any syslog output.
 > 
-> We are not talking about attacks here, we are talking about undefined
-> behaviour when (perhaps poorly designed) systems encounter network
-> packages that use new or experimental features: I have seen MRI scanners
-> panic when they received SNMP queries and SNMP has been around for ages!
-
-The discussion was over centralized firewalls. Putting a firewall right on
-top of a system is the same as putting it on the system. Putting a firewall
-on your Internet connection would be insufficient to protect such a system.
-
-It's not a question of how long something has been around. You should be
-able to send line noise into the Ethernet port of any IP host and not have
-it behave adversly. Anything less and you *WILL* have problems.
-
-I would hope that you have enough sense to NOT connect any such broken
-systems in any way to a public network. 
-
-Yet, another point against firewalls: Apparently they encourage computer
-professionals to behave criminally negligent by making it acceptable to
-implement broken life critical services. 
-
-Firewalling your hospital's Internet connection to prevent your tomographic
-equipment from producing bad results due to a port scan rather then
-correctly repairing the system is computer equivalent of placing the fuel tank
-on the outside of the frame on a car (Pinto): Since it's protected by it's
-own wall and the outer body, casual impacts won't make the defect noticeable.
-
-Less people would have died in the pinto if the fuel tank was made of
-sugar-glass and placed prominently on the hood. Not because it's safer that
-way, but because out of both of the defective configurations the
-tank-on-the-hood is obviously broken and would get fixed or not used.
-
-Firewalls only actually improve security when there is only a single domain
-of trust behind them. Often we have multiple domains of trust even within a
-single system. Internet filtering firewalls provide nothing more then a
-false sense of security, and some opportunistic script kiddie protection.
-
-The continued profiteering by security 'experts' and acceptance of
-magic-boxes by systems administrators ensures that better solutions are not
-implemented.
-
-
+> >
+> > Do you get messages like the ones below in /var/log/messages?
+> >
+> >   sym53c875-0-<0,0>: QUEUE FULL! 8 busy, 7 disconnected CCBs
+> >   sym53c875-0-<0,0>: tagged command queue depth set to 7
+> >
+> > In fact, do you get any messages in your log files that look like they
+> > might be related?
+> >
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

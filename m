@@ -1,39 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261568AbUBUOxR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Feb 2004 09:53:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261566AbUBUOxR
+	id S261569AbUBUO7g (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Feb 2004 09:59:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261570AbUBUO7g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Feb 2004 09:53:17 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:7698 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261569AbUBUOxQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Feb 2004 09:53:16 -0500
-Date: Sat, 21 Feb 2004 14:53:09 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Mark Hindley <mark@hindley.uklinux.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.6.3 fix 8250_pnp resource allocation
-Message-ID: <20040221145308.A1937@flint.arm.linux.org.uk>
-Mail-Followup-To: Mark Hindley <mark@hindley.uklinux.net>,
-	linux-kernel@vger.kernel.org
-References: <20040221142804.GA5292@titan.home.hindley.uklinux.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040221142804.GA5292@titan.home.hindley.uklinux.net>; from mark@hindley.uklinux.net on Sat, Feb 21, 2004 at 02:28:04PM +0000
+	Sat, 21 Feb 2004 09:59:36 -0500
+Received: from s2.ukfsn.org ([217.158.120.143]:38372 "EHLO mail.ukfsn.org")
+	by vger.kernel.org with ESMTP id S261569AbUBUO7c (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Feb 2004 09:59:32 -0500
+From: "Nick Warne" <nick@ukfsn.org>
+To: linux-kernel@vger.kernel.org
+Date: Sat, 21 Feb 2004 14:59:29 -0000
+MIME-Version: 1.0
+Subject: Re: 2.6.3 RT8139too NIC problems
+Message-ID: <40377251.25966.4C15915@localhost>
+X-mailer: Pegasus Mail for Windows (v4.12a)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 21, 2004 at 02:28:04PM +0000, Mark Hindley wrote:
-> Patch below to ensure that 8250_pnp sets necessary flags so that 8250
-> driver will reserve ioports.
+> > > Linux233 kernel: NETDEV WATCHDOG: eth1: transmit timed out
+> > > Linux233 kernel: eth1: link up, 10Mbps, half-duplex, lpa 0x0000
+> > > Linux233 kernel: nfs: server 486Linux not responding, still trying
+> > > Linux233 kernel: nfs: server 486Linux not responding, still trying
+> > > Linux233 kernel: NETDEV WATCHDOG: eth0: transmit timed out
+> > > Linux233 kernel: nfs: server 486Linux OK
+> > > Linux233 kernel: nfs: server 486Linux OK
+> > > Linux233 kernel: nfs: server 486Linux not responding, still trying
+> > > Linux233 kernel: NETDEV WATCHDOG: eth0: transmit timed out
+> > > Linux233 kernel: nfs: server 486Linux OK
 
-Thanks, applied.
+Well, I am at a loss now or any idea what to do next.  I have tried 
+everything this morning to build this an eliminate the problem.  
+Whatever I do, kernel builds nice, boots nice and no problems... 
+except for these NIC timeouts - it makes 2.6.3 totally unusable for 
+me.
+
+I state again, these _very_same_ cards work perfectly under any other 
+kernel I have ever used over the last 3 years (like I am back on 
+2.6.2 right now).
+
+Nick
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+"I am not Spock", said Leonard Nimoy.
+"And it is highly illogical of humans to assume so."
+

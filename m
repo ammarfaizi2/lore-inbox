@@ -1,61 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263935AbRFNDhh>; Wed, 13 Jun 2001 23:37:37 -0400
+	id <S263976AbRFNDmG>; Wed, 13 Jun 2001 23:42:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263975AbRFNDh1>; Wed, 13 Jun 2001 23:37:27 -0400
-Received: from f23.law3.hotmail.com ([209.185.241.23]:59658 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S263935AbRFNDhW>;
-	Wed, 13 Jun 2001 23:37:22 -0400
-X-Originating-IP: [65.25.189.2]
-From: "John William" <jw2357@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Cc: kurt@garloff.de
-Subject: tmscsim.o INQUIRY inconsistency in 2.2.19
-Date: Thu, 14 Jun 2001 03:37:15 
+	id <S263975AbRFNDlq>; Wed, 13 Jun 2001 23:41:46 -0400
+Received: from 1-084.ctame701-2.telepar.net.br ([200.181.138.84]:254 "HELO
+	brinquedo.distro.conectiva") by vger.kernel.org with SMTP
+	id <S263976AbRFNDlh>; Wed, 13 Jun 2001 23:41:37 -0400
+Date: Thu, 14 Jun 2001 00:41:28 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
+Cc: "Daniel" <ddickman@nyc.rr.com>,
+        "Linux kernel" <linux-kernel@vger.kernel.org>
+Subject: Re: obsolete code must die
+Message-ID: <20010614004128.A8206@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Horst von Brand <vonbrand@sleipnir.valparaiso.cl>,
+	"Daniel" <ddickman@nyc.rr.com>,
+	"Linux kernel" <linux-kernel@vger.kernel.org>
+In-Reply-To: <ddickman@nyc.rr.com> <200106140155.f5E1ts5X003318@sleipnir.valparaiso.cl>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F23vEbjkyqU7a0xtAEH000007a3@hotmail.com>
-X-OriginalArrivalTime: 14 Jun 2001 03:37:16.0088 (UTC) FILETIME=[4E79EB80:01C0F483]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <200106140155.f5E1ts5X003318@sleipnir.valparaiso.cl>; from vonbrand@sleipnir.valparaiso.cl on Wed, Jun 13, 2001 at 09:55:54PM -0400
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is this a known bug in tmscsim.o (2.0f, included with 2.2.19):
+Em Wed, Jun 13, 2001 at 09:55:54PM -0400, Horst von Brand escreveu:
+> "Daniel" <ddickman@nyc.rr.com> said:
+> > I really think doing a clean up is worthwhile. Maybe while looking for stuff
+> > to clean up we'll even be able to better comment the existing code. Any
+> > other features people would like to get rid of? Any comments or suggestions?
+> > I'd love to start a good discussion about this going so please send me your
+> > 2 cents.
+> 
+> Try it, and come back with patches.
 
-I have the following devices (cat /proc/scsi/scsi)
+hey, the KJP needs volunteers to tackle this bug/cleanup list:
 
-Attached devices:
-Host: scsi0 Channel: 00 Id: 00 Lun: 00
-  Vendor: SEAGATE  Model: ST15230N         Rev: 0638
-  Type:   Direct-Access                    ANSI SCSI revision: 02
-Host: scsi0 Channel: 00 Id: 04 Lun: 00
-  Vendor: TOSHIBA  Model: CD-ROM XM-3601TA Rev: 0725
-  Type:   CD-ROM                           ANSI SCSI revision: 02
+http://bazar.conectiva.com.br/~acme/TODO
 
-cat /proc/scsi/tmscsim/0
+More info available at http://kernel-janitor.sourceforge.net/, the Stanford
+Checker also found bugs that have to be fixed (link provided in the KJP
+page), please help.
 
-Tekram DC390/AM53C974 PCI SCSI Host Adapter, Driver Version 2.0f 2000-12-20
-SCSI Host Nr 0, AM53C974 Adapter Nr 0
-IOPortBase 0xff00, IRQ 10
-MaxID 7, MaxLUN 8, AdapterID 7, SelTimeout 250 ms, DelayReset 1 s
-TagMaxNum 16, Status 0x00, ACBFlag 0x00, GlitchEater 24 ns
-Statistics: Cmnds 257518, Cmnds not sent directly 25959, Out of SRB conds 0
-            Lost arbitrations 6240, Sel. connected 0, Connected: No
-Nr of attached devices: 2, Nr of DCBs: 2
-Map of attached LUNs: 01 00 00 00 01 00 00 00
-Idx ID LUN Prty Sync DsCn SndS TagQ NegoPeriod SyncSpeed SyncOffs MaxCmd
-00  00  00  Yes  Yes  Yes  Yes  Yes   100 ns    10.0 M      15      16
-01  04  00  Yes  Yes  Yes  Yes  No    236 ns     4.0 M      15      01
-Commands in Queues: Query: 0:
+As for what I want to get rid of? Bugs, getting rid of those would be
+excellent ;)
 
-Often (but not always), on boot, I get Sync as "No" for the hard drive (Idx 
-0). Doing "echo 'inquiry 0' > 0" always fixes the problem after boot but for 
-some reason, the driver doesn't (always) pick up on this at boot time. It 
-doesn't seem to matter if it's a boot up from power-off or soft reboot.
-
-The drive, Seagate Hawk, support synchronous operation and sync negotiation.
-
-- John
-
-_________________________________________________________________
-Get your FREE download of MSN Explorer at http://explorer.msn.com
-
+- Arnaldo (the one that is porting a network stack to 2.4 that would warrant
+           death penalty if Daniel was the judge ;) )

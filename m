@@ -1,37 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318241AbSGXHK7>; Wed, 24 Jul 2002 03:10:59 -0400
+	id <S318244AbSGXHMB>; Wed, 24 Jul 2002 03:12:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318244AbSGXHK7>; Wed, 24 Jul 2002 03:10:59 -0400
-Received: from ns1.systime.ch ([194.147.113.1]:64521 "EHLO mail.systime.ch")
-	by vger.kernel.org with ESMTP id <S318241AbSGXHK6>;
-	Wed, 24 Jul 2002 03:10:58 -0400
-From: "Martin Brulisauer" <martin@uceb.org>
-To: Thunder from the hill <thunder@ngforever.de>
-Date: Wed, 24 Jul 2002 09:13:46 +0200
-Subject: RE: kbuild 2.5.26 - arch/alpha
-CC: "'Jan-Benedict Glaw'" <jbglaw@lug-owl.de>, <linux-kernel@vger.kernel.org>
-Message-ID: <3D3E6FCA.23195.2901857@localhost>
-References: <002801c232a1$7894db20$1211a8c0@pitzeier.priv.at>
-In-reply-to: <Pine.LNX.4.44.0207240047210.3200-101000@hawkeye.luckynet.adm>
-X-mailer: Pegasus Mail for Win32 (v3.12c)
+	id <S318245AbSGXHMB>; Wed, 24 Jul 2002 03:12:01 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:63699 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S318244AbSGXHL7>;
+	Wed, 24 Jul 2002 03:11:59 -0400
+Date: Wed, 24 Jul 2002 09:13:58 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Andrew Morton <akpm@zip.com.au>, Robert Love <rml@tech9.net>,
+       george anzinger <george@mvista.com>,
+       Zwane Mwaikambo <zwane@linuxpower.ca>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] irqlock patch -G3. [was Re: odd memory corruption
+ in2.5.27?]
+In-Reply-To: <Pine.LNX.4.44.0207232016410.6943-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0207240903060.2193-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 24 Jul 2002, at 0:53, Thunder from the hill wrote:
-> Hi,
-> 
-> On Wed, 24 Jul 2002, Oliver Pitzeier wrote:
-> > > There was a quite good patch sent to l-k some weeks ago which
-> > > (basically) still applies. I'm using this one (with watering 
-> > > eyes waiting for a compileable Linus-Kernel...).
-> > 
-> > I go and search it...
-> 
-> Possibly this one?
-Don't waste our time. If you have to say anything
-constructive do it. If not - keep out of the thread.
 
-Best Regards,
-Martin
+On Tue, 23 Jul 2002, Linus Torvalds wrote:
+
+> > And yet here we have a case where a spin_unlock() will
+> > go and turn on local interrupts.  Only with CONFIG_PREEMPT,
+> > and even then, extremely rarely.
+> 
+> I think that's just a bug, the same way it was a bug that preemtion would
+> sometimes set tsk->state to TASK_RUNNING.
+> 
+> I think Robert already sent a fix: make "preempt_schedule()" refuse to
+> schedule if local interrupts are disabled.
+
+my problem with Robert's patch is that the intention is not debugging, the
+intention of the change was make it the standard thing. This just hides
+serious bugs like the one in slab.c. I'd suggest to rather fix these bugs
+and be aware of them via a debugging mechanism, instead of putting one
+more (not quite cheap) check into one of our hotpaths.
+
+> That, together with making it a warning (so that we can _fix_ places
+> that have unbalanced irq/spinlock behaviour) shoul dbe fine. [...]
+
+yep - i've moved the check from schedule() to preempt_schedule(), which
+clearly is the most serious offender. This enabled the removal of the
+CONFIG_DEBUG_IRQ_SCHEDULE define.
+
+	Ingo
 

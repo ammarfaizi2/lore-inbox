@@ -1,35 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266416AbRGHC6I>; Sat, 7 Jul 2001 22:58:08 -0400
+	id <S266418AbRGHD2T>; Sat, 7 Jul 2001 23:28:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266417AbRGHC56>; Sat, 7 Jul 2001 22:57:58 -0400
-Received: from ppp0.ocs.com.au ([203.34.97.3]:19205 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S266416AbRGHC5w>;
-	Sat, 7 Jul 2001 22:57:52 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [Acpi] Re: ACPI fundamental locking problems 
-In-Reply-To: Your message of "Sun, 08 Jul 2001 00:14:24 +0200."
-             <20010708001424.B10370@pcep-jamie.cern.ch> 
-Mime-Version: 1.0
+	id <S266419AbRGHD2J>; Sat, 7 Jul 2001 23:28:09 -0400
+Received: from vmail1.wmis.net ([216.109.195.1]:25353 "EHLO vmail1.wmis.net")
+	by vger.kernel.org with ESMTP id <S266418AbRGHD2A>;
+	Sat, 7 Jul 2001 23:28:00 -0400
+From: Rick Hayner <rhayner@complink.net>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sun, 08 Jul 2001 12:57:46 +1000
-Message-ID: <21945.994561066@ocs3.ocs-net>
+Content-Transfer-Encoding: 7bit
+Message-ID: <15175.54038.760468.100479@rhayner.selfhost.com>
+Date: Sat, 7 Jul 2001 23:27:18 -0400
+To: linux-kernel@vger.kernel.org
+Subject: trying again.
+X-Mailer: VM 6.92 under Emacs 20.7.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 8 Jul 2001 00:14:24 +0200, 
-Jamie Lokier <lk@tantalophile.demon.co.uk> wrote:
->On this theme, it's just occured to me that the module loader could be
->taught to map ramfs pages directly to module code/data space.  That
->would save a little memory.
 
-I doubt it.  insmod relocates the code and data sections, discards
-sections, inserts a struct module, hooks the module into the existing
-change and generally mangles the object before it can be used by the
-kernel.  Any change to a page prevents it being mapped against cramfs.
-If you had a complete page that was identical before and after insmod
-had done its work I would be astonished.
+Hello to all.
 
+I'm sorry if this is the wrong list to post this question to, but I
+did 4 days ago, and haven't seen anything concerning my problem.
+
+I have a Ricoh mp7120a cdrw drive.  Since it is a atapi drive, i must
+use ide-scsi and sg to use it with cdrecord.  However there is a
+strange problem with the audio cd players.  After issuing a command to
+stop an audio cd from playing, two play commands are required to start
+the cd playing again.  This doesn't happen if I use the ide-cd driver,
+and point /dev/cdrom to /dev/hdc.
+
+There is no documentation at all on ide-scsi, and I can't find any
+error messages anywhere.  I have the following append command in
+lilo.conf
+append="hdc=ide-scsi"
+
+If someone is working on this, or has any idea as to what's happening,
+I would sure appreciate it.   I am using kernel version 2.2.19.  this
+also occurred with 2.2.18.  the audio cd players return no error
+messages at all.  when the first play command is issued after a stop
+command, I just get the shell prompt back with nothing happening to
+the cd-rw drive at all, until I ether open and close the drive, or
+issue a second play command.  If I open and close the drive between
+stop and play commands, it plays the cd every time.
+
+Thanks.
+
+-- 
+Rick Hayner
+rhayner@complink.net
+Member spebsqsa, Baritone Kalamazoo Mall City Chorus.
+Amateur radio station wa8jqv

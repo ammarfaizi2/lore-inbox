@@ -1,58 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262071AbUCIRku (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Mar 2004 12:40:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262075AbUCIRku
+	id S262073AbUCIRlo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Mar 2004 12:41:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262075AbUCIRlo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Mar 2004 12:40:50 -0500
-Received: from mtaw6.prodigy.net ([64.164.98.56]:1213 "EHLO mtaw6.prodigy.net")
-	by vger.kernel.org with ESMTP id S262071AbUCIRkk (ORCPT
+	Tue, 9 Mar 2004 12:41:44 -0500
+Received: from ztxmail03.ztx.compaq.com ([161.114.1.207]:64008 "EHLO
+	ztxmail03.ztx.compaq.com") by vger.kernel.org with ESMTP
+	id S262073AbUCIRlh convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Mar 2004 12:40:40 -0500
-Message-ID: <404E00B5.5060603@pacbell.net>
-Date: Tue, 09 Mar 2004 09:36:53 -0800
-From: David Brownell <david-b@pacbell.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en, fr
+	Tue, 9 Mar 2004 12:41:37 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: davidm@hpl.hp.com
-CC: Grant Grundler <iod00d@hp.com>, Greg KH <greg@kroah.com>, vojtech@suse.cz,
-       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org, pochini@shiny.it
-Subject: Re: [linux-usb-devel] Re: serious 2.6 bug in USB subsystem?
-References: <20031028013013.GA3991@kroah.com>	<200310280300.h9S30Hkw003073@napali.hpl.hp.com>	<3FA12A2E.4090308@pacbell.net>	<16289.29015.81760.774530@napali.hpl.hp.com>	<16289.55171.278494.17172@napali.hpl.hp.com>	<3FA28C9A.5010608@pacbell.net>	<16457.12968.365287.561596@napali.hpl.hp.com>	<404959A5.6040809@pacbell.net>	<16457.26208.980359.82768@napali.hpl.hp.com>	<4049FE57.2060809@pacbell.net>	<20040308061802.GA25960@cup.hp.com>	<16460.49761.482020.911821@napali.hpl.hp.com>	<404CEA36.2000903@pacbell.net> <16461.35657.188807.501072@napali.hpl.hp.com>
-In-Reply-To: <16461.35657.188807.501072@napali.hpl.hp.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: objrmap-core-1 (rmap removal for file mappings to avoid 4:4 in <=16G machines)
+Date: Tue, 9 Mar 2004 11:40:34 -0600
+Message-ID: <45B36A38D959B44CB032DA427A6E106406F92DD3@cceexc18.americas.cpqcorp.net>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: objrmap-core-1 (rmap removal for file mappings to avoid 4:4 in <=16G machines)
+Thread-Index: AcQF+8zxd1bCzmPkSX2opkMVq7ovggAAGKpQ
+From: "Bond, Andrew" <andrew.bond@hp.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>,
+       "Andrea Arcangeli" <andrea@suse.de>, "Ingo Molnar" <mingo@elte.hu>
+Cc: "Arjan van de Ven" <arjanv@redhat.com>,
+       "Linus Torvalds" <torvalds@osdl.org>, "Andrew Morton" <akpm@osdl.org>,
+       <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 09 Mar 2004 17:41:21.0261 (UTC) FILETIME=[BC0649D0:01C405FD]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Mosberger wrote:
-> How about something along the following lines?  The patch is relative
-> to 2.6.4-rc1.  What it does is add a new state ED_DESCHEDULED, which
-> is treated exactly like ED_IDLE, except that in this state, the HC may
-> still be referring to the ED in question.  Thus, if
-
-Sounds exactly like ED_UNLINK -- except maybe that it's not
-been put onto ed_rm_list (with ED_DEQUEUE set).
-
-Why add another state?
 
 
-The parts of this patch that came from the one I sent earlier
-are obviously correct (what were your test results for that?),
-and there's non-worrisome noise (printks etc).
+> -----Original Message-----
+> From: linux-kernel-owner@vger.kernel.org [mailto:linux-kernel-
+> owner@vger.kernel.org] On Behalf Of Martin J. Bligh
+> Sent: Tuesday, March 09, 2004 12:23 PM
+> To: Andrea Arcangeli; Ingo Molnar
+> Cc: Arjan van de Ven; Linus Torvalds; Andrew Morton; linux-
+> kernel@vger.kernel.org
+> Subject: Re: objrmap-core-1 (rmap removal for file mappings to avoid
+4:4
+> in <=16G machines)
+> 
+> > what is your point, that OASB is a worthless workload and the only
+thing
+> > that matters is TPC-C? Maybe you should discuss your point with
+Oracle
+> > not with me, since I don't know what the two benchmarks are doing
+> > differently. TCP-C was tested too of course, but maybe not in 32G
+boxes,
+> > frankly I thought OASB was harder than TCP-C, as I think Martin
+> > mentioned too two days ago.
+> 
+> OASB seems harder on the VM than TPC-C, yes. It seems to create
+thousands
+> of processes, and fill the user address space up completely as well
+(2GB
+> shared segments or whatever).
+> 
+> M.
+> 
 
-But some parts worry me.  Like changing that code to BUG()
-on a driver behavior that's perfectly reasonable; and removing
-some of the PCI posting, which makes it easier for the HC
-and its driver to disagree about schedule status.
+Both the OASB and TPC-C workloads put pressure on the VM subsystem, but
+in different ways.
 
+The OASB environment has a small (compared to TPC-C) shared memory area,
+but 1000's of Oracle user processes will be created that attach to this
+shared memory area.  The goal here is to push the maximum amount of
+users onto the server.
 
-> The BTC keyboard, however, still does NOT work.  I'm fairly certain
-> now that this is indeed a separate problem in the HID.  The reason
+The TPC-C environment will have a very large shared memory area
+(typically the maximum a machine will allow) that may generate a large
+number of vmas.  However, there are very few (may be few hundred) Oracle
+users processes.
 
-That was my original suspicion, you may recall ... :)
+Experience has been that the OASB benchmarks will tend to push VM into
+system lockup conditions more than TPC-C.
 
-- Dave
-
+Andy

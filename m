@@ -1,80 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262803AbVCJRf7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262781AbVCJR4I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262803AbVCJRf7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 12:35:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262790AbVCJRcW
+	id S262781AbVCJR4I (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 12:56:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262785AbVCJRvx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 12:32:22 -0500
-Received: from mail8.fw-bc.sony.com ([160.33.98.75]:47500 "EHLO
-	mail8.fw-bc.sony.com") by vger.kernel.org with ESMTP
-	id S262899AbVCJR1K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 12:27:10 -0500
-Message-ID: <42308351.4090606@am.sony.com>
-Date: Thu, 10 Mar 2005 09:26:41 -0800
-From: Tim Bird <tim.bird@am.sony.com>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: linux kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] printk-times bugfix for loglevel-only printks
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Thu, 10 Mar 2005 12:51:53 -0500
+Received: from fire.osdl.org ([65.172.181.4]:26596 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262771AbVCJRoH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Mar 2005 12:44:07 -0500
+Date: Thu, 10 Mar 2005 09:43:59 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Greg KH <greg@kroah.com>, Neil Brown <neilb@cse.unsw.edu.au>,
+       linux-kernel@vger.kernel.org, Chris Wright <chrisw@osdl.org>,
+       torvalds@osdl.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [RFC] -stable, how it's going to work.
+Message-ID: <20050310174359.GP5389@shell0.pdx.osdl.net>
+References: <20050309072833.GA18878@kroah.com> <16944.6867.858907.990990@cse.unsw.edu.au> <20050310164312.GC16126@kroah.com> <1110475644.12805.43.camel@mindpipe>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1110475644.12805.43.camel@mindpipe>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
+* Lee Revell (rlrevell@joe-job.com) wrote:
+> On Thu, 2005-03-10 at 08:43 -0800, Greg KH wrote:
+> > That, and a zillion other specific wordings that people suggested fall
+> > under the:
+> > 	or some "oh, that's not good" issue
+> > rule.
+> 
+> So just to be 100% clear, no sound with 2.6.N where the sound worked
+> with 2.6.N-1 absolutely does qualify.  Right?
 
-This patch fixes a bug with the recently added printk-times feature.
+Depends, is listening to music while you work critical...? j/k ;-)
+Yeah, that's a driver regression...used to work, now it's broken.
+If fix is back out all changes, that's not so nice, if it's a
+'one-liner' then definitely.  Have a concrete example and patch?
 
-In the case where a printk consists of only the log level (followed
-subsequently by printks with more text for the same line), the
-printk-times code doesn't correctly recognize the end of the
-string, and starts emitting chars at the 0 byte at the end of the
-string.
-
-The patch below fixes this problem.  It also adjusts the handling
-of printed_len in the routine, which was affected by the
-printk-times feature.
-
-Please apply. Thanks.
- -- Tim Bird, Senior Software Engineer, Sony Electronics
-
-diffstat:
- printk.c |    5 +++++
- 1 files changed, 5 insertions(+)
-
-Signed-off-by: Tim Bird <tim.bird@am.sony.com>
-Acked-by: Tony Luck <tony.luck@intel.com>
---------------------------------------
-diff -pruN printk-1/kernel/printk.c printk-fix1/kernel/printk.c
---- printk-1/kernel/printk.c	2005-03-09 15:42:04.550944124 -0800
-+++ printk-fix1/kernel/printk.c	2005-03-09 15:36:18.928567360 -0800
-@@ -579,6 +579,7 @@ asmlinkage int vprintk(const char *fmt,
- 				   p[1] <= '7' && p[2] == '>') {
- 					loglev_char = p[1];
- 					p += 3;
-+					printed_len += 3;
- 				} else {
- 					loglev_char = default_message_loglevel
- 						+ '0';
-@@ -593,6 +594,7 @@ asmlinkage int vprintk(const char *fmt,
-
- 				for (tp = tbuf; tp < tbuf + tlen; tp++)
- 					emit_log_char (*tp);
-+				printed_len += tlen - 3;
- 			} else {
- 				if (p[0] != '<' || p[1] < '0' ||
- 				   p[1] > '7' || p[2] != '>') {
-@@ -601,8 +603,11 @@ asmlinkage int vprintk(const char *fmt,
- 						+ '0');
- 					emit_log_char('>');
- 				}
-+				printed_len += 3;
- 			}
- 			log_level_unknown = 0;
-+			if (!*p)
-+				break;
- 		}
- 		emit_log_char(*p);
- 		if (*p == '\n')
+thanks
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

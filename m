@@ -1,48 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261517AbVCaP4d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261414AbVCaQBZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261517AbVCaP4d (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 10:56:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261518AbVCaP4c
+	id S261414AbVCaQBZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 11:01:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261518AbVCaQBZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 10:56:32 -0500
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:12759 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S261517AbVCaP4T (ORCPT
+	Thu, 31 Mar 2005 11:01:25 -0500
+Received: from pat.uio.no ([129.240.130.16]:30378 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S261414AbVCaQBV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 10:56:19 -0500
-Message-Id: <200503311556.j2VFu9Hc007903@laptop11.inf.utfsm.cl>
-To: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFD] 'nice' attribute for executable files 
-In-Reply-To: Message from =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com> 
-   of "Wed, 30 Mar 2005 18:55:24 +0200." <yw1xpsxhvzsz.fsf@ford.inprovide.com> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
-Date: Thu, 31 Mar 2005 11:56:09 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b2 (inti.inf.utfsm.cl [200.1.21.155]); Thu, 31 Mar 2005 11:56:10 -0400 (CLT)
+	Thu, 31 Mar 2005 11:01:21 -0500
+Subject: Re: NFS client latencies
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Andrew Morton <akpm@osdl.org>, rlrevell@joe-job.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20050331151000.GA6013@elte.hu>
+References: <20050330231801.129b0715.akpm@osdl.org>
+	 <20050331073017.GA16577@elte.hu>
+	 <1112270304.10975.41.camel@lade.trondhjem.org>
+	 <1112272451.10975.72.camel@lade.trondhjem.org>
+	 <20050331135825.GA2214@elte.hu>
+	 <1112279522.20211.8.camel@lade.trondhjem.org>
+	 <20050331143930.GA4032@elte.hu>
+	 <1112280891.20211.29.camel@lade.trondhjem.org>
+	 <20050331145825.GA5107@elte.hu>
+	 <1112281616.20211.40.camel@lade.trondhjem.org>
+	 <20050331151000.GA6013@elte.hu>
+Content-Type: text/plain
+Date: Thu, 31 Mar 2005 11:00:58 -0500
+Message-Id: <1112284858.11124.16.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.548, required 12,
+	autolearn=disabled, AWL 1.40, FORGED_RCVD_HELO 0.05,
+	UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-=?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com> said:
-> Wiktor <victorjan@poczta.onet.pl> writes:
+to den 31.03.2005 Klokka 17:10 (+0200) skreiv Ingo Molnar:
+> * Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
+> 
+> > > would it be safe to collect locked entries into a separate, local list, 
+> > > so that the restart would only see newly added entries? Then once the 
+> > > moving of all entries has been done, all the locked entries could be 
+> > > added back to the commit_list via one list_add. (can anything happen to 
+> > > those locked entries that would break this method?)
+> > 
+> > You are not allowed to remove an entry from the list if it is locked 
+> > by someone else. Locking grants temporary ownership of the entry.
+> 
+> well, removing a neighboring entry will change the locked entry's link 
+> fields (e.g. req->wb_list.prev), so this ownership cannot involve this 
+> particular list, can it?
 
-[...]
+The point is that you are taking something that was previously globally
+visible and owned by somebody else and making it globally invisible by
+placing it on a private list.
+I'm not sure whether or not that is going to cause bugs in the current
+code (it may actually be safe with the current code), but as far as
+clean ownership semantics go, it sucks.
 
-> > max renice ulimit is quite good idea, but it allows to change nice of
-> > *any* process user has permissions to. it could be implemented also,
-> > but the idea of 'nice' file attribute is to allow *only* some process
-> > be run with lower nice. what's more, that nice would be *always* the
-> > same (at process startup)!
-
-> It can be done entirely in userspace, if you want it.  Just hack your
-> shell to examine some extended attribute of your choice, and adjust
-> the nice value before executing files.  Then arrange to have the shell
-> run with a negative nice value.  This can be easily accomplished with
-> a simple wrapper, only for the shell.
-
-Even better: Write a C wrapper for each affected program that just renices
-it as needed.
+Cheers,
+  Trond
 -- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Trond Myklebust <trond.myklebust@fys.uio.no>
+

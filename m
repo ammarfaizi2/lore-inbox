@@ -1,216 +1,290 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264055AbSIQLPR>; Tue, 17 Sep 2002 07:15:17 -0400
+	id <S264056AbSIQLUp>; Tue, 17 Sep 2002 07:20:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264056AbSIQLPR>; Tue, 17 Sep 2002 07:15:17 -0400
-Received: from purple.csi.cam.ac.uk ([131.111.8.4]:2761 "EHLO
-	purple.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S264055AbSIQLPP>; Tue, 17 Sep 2002 07:15:15 -0400
-Message-Id: <5.1.0.14.2.20020917115134.00b24e30@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Tue, 17 Sep 2002 12:21:06 +0100
-To: ptb@it.uc3m.es
-From: Anton Altaparmakov <aia21@cantab.net>
-Subject: Re: (fwd) Re: [RFC] mount flag "direct"
-Cc: linux kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <200209091630.g89GULK19758@oboe.it.uc3m.es>
-References: <Pine.SOL.3.96.1020906164920.7282A-100000@virgo.cus.cam.ac.uk>
+	id <S264058AbSIQLUo>; Tue, 17 Sep 2002 07:20:44 -0400
+Received: from pcow053o.blueyonder.co.uk ([195.188.53.96]:24595 "EHLO
+	blueyonder.co.uk") by vger.kernel.org with ESMTP id <S264056AbSIQLUk>;
+	Tue, 17 Sep 2002 07:20:40 -0400
+Subject: Problems accessing USB Mass Storage
+From: Mark C <gen-lists@blueyonder.co.uk>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-7) 
+Date: 17 Sep 2002 12:25:37 +0100
+Message-Id: <1032261937.1170.13.camel@stimpy.angelnet.internal>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 17:30 09/09/02, Peter T. Breuer wrote:
->A concrete question wrt the current file i/o data flow ...
-
-Hi, sorry for delay in replying... I am rather busy, organising house move...
-
->"Anton Altaparmakov wrote:"
-> > VFS: on file read we eventually reach:
-> >
-> > mm/filemap.c::generic_file_read() which calls
-> > mm/filemap.c::do_generic_file_read() which breaks the request into units
-> > of PAGE_CACHE_SIZE, i.e. into individual pages and calls the file system's
-> > address space ->readpage() method for each of those pages.
-> >
-> > Assuming the file system uses the generic readpage implementation, i.e.
-> > fs/buffer.c::block_read_full_page(), this in turn breaks the page into
-> > blocksize blocks (for NTFS 512 bytes, remember?) and calls the FS
-> > supplied get_block() callback, once for each blocksize block (in the form
->
->There is an inode arg passed to the fs get_block. Is this really the
->inode of a file, or is it a single inode associated with the mount
->(I see we only use it to get to the sb and thence the blocksize)
-
-It is the inode of a file. In fact the inode of the file for which 
-get_block is called. Otherwise how would the filesystem know which file's 
-block needs to be looked up?
-
->I am confused because ext_get_block says it's the file inode:
->
->  static int ext2_get_block(struct inode *inode, sector_t iblock, struct
->  buffer_head *bh_result, int create)
->  ...
->  int depth = ext2_block_to_path(inode, iblock, offsets, &boundary);
->  ...
->
->   *      ext2_block_to_path - parse the block number into array of offsets
->   *      @inode: inode in question (we are only interested in its superblock)
->           ^^^^^^^^^^^^^^^^^^^^^^^^
->   *      @i_block: block number to be parsed
->   ...
->
->and the vfs layer seems to pass mapping->host, which I believe should
->be associated with the mount.
-
-No. mapping->host _is_ the inode to which this address space mapping 
-belongs, i.e. mapping->host->i_mapping == mapping (I am thinking about the 
-usual case here, lets ignore weird and wonderful things done by various 
-network fs).
-
->   int block_read_full_page(struct page *page, get_block_t *get_block)
->   {
->           struct inode *inode = page->mapping->host;
->
->(all kernel 2.5.31).
->
-> > of a struct buffer_head).
-> >
-> > This finds where this 512 byte block is, and maps the buffer head (i.e.
->
->Now, you say (and I believe you!) that the get_block call finds where
->the block is. But I understand you to say that the data pased in by VFS
->is in local offsets ..  that corresponds to what I see:
->block_read_full_page() gets passed a page struct and then calculates the
->first and last (local?) blocks from page->index ...
-
-                 ^^^^ yes, local, better logical, or file offset.
-
->   iblock = page->index << (PAGE_CACHE_SHIFT - inode->i_blkbits);
->   lblock = (inode->i_size+blocksize-1) >> inode->i_blkbits;
->
->and that makes it seem as though the page already contained an offset
->relative to the device, or logical in some other way that will now
->be resolved by the fs specific get_block() call.
-
-Correct. The VFS initializes the page->index to the logical file offset (in 
-units of PAGE_CACHE_SIZE blocks). That is how we know which file offset the 
-page belongs to.
-
-This is then used as you show above to convert the file offset into 
-blocksize sized blocks in the code you quoted above.
-
-get_block is then given each block and looks it up.
-
->  However, the ext2
->get_block only consults the superblock, nothing else when resolving
->the logical blk number. So no inode gets looked at, as far as I can
->see, at least in the simple cases ("direct inode"?). In the general
->case there is some sort of chain lookup, that starts with the
->superblock and goes somewhere ...
->
->     partial = ext2_get_branch(inode, depth, offsets, chain, &err);
->
->    **
->     *      ext2_get_branch - read the chain of indirect blocks leading to 
-> data
->     *      @inode: inode in question
->     *      @depth: depth of the chain (1 - direct pointer, etc.)
->     *      @offsets: offsets of pointers in inode/indirect blocks
->     *      @chain: place to store the result
->     *      @err: here we store the error value
->
->Which seems to be trying to say that the inode arg is something that's
->meant to be really the inode, not just some dummy that leads to the
->superblock for purposes of getting the blksiz.
-
-Yes.
-
->So I'm confused.
-
-(-: I hope you are less confused by now. The inode must be the actual inode 
-and not some fake object otherwise get_block doesn't know which file it is 
-working on which would make looking up the file offsets and converting them 
-to disk positions impossible.
-
->I'm also confused about how come the page already contains what seems
->to be a device-relative offset (or other logical) block number.
-
-The VFS sets that up. for example see mm/filemap.c::
-
-do_generic_file_read ->
-         alloc_page;
-         add_to_page_cache_lru();
-                 -> add_to_page_cache();
-
-alloc_page just allocates a page and the add_ functions actually put it in 
-its correct place setting up page->index and entering it properly into the 
-radix tree.
-
-include/linux/pagemap.h::___add_to_page_cache() does the actual page->index 
-setting which you will find is called in the above call chain.
-
-> > sets up the buffer_head to point to the correct on disk location) and
->
->But the setup seems to be trivial in the "direct" case for ext2.
->And I don't see how that can be because the VFS ought /not/ to have
->enough info to make it trivial?
-
-That is entirely fs dependent! Each fs works in completely different way. 
-The more get_block functions you read the more different methods you will see.
-
-> > returns it to the VFS, i.e. to block_read_full_page() which then goes and
-> > calls get_block() for the next blocksize block, etc...
->
->Now, if I go back to mm/do_generic_file_read(), I see that it's working
->on a struct file, and passes that file struct to the fs specific
->readpage.
->
->         error = mapping->a_ops->readpage(filp, page);
->
->I can believe that maybe the magic is there. But no, that's the
->it's the generic ext2_readpage that gets used, and that _drops_
->the file pointer!
->
->        static int ext2_readpage(struct file *file, struct page *page)
->        {
->                return mpage_readpage(page, ext2_get_block);
->        }
->
->so, um, somehow the page contained all the info necessary to do lookups
->on disk in ext2, no FS info required.
-
-Correct. You should _never_ look at the file argument to read page because 
-it can be NULL and in such circumstances you will choke on that...
-
-The page is all you need:
-
-page->index tells you the logical file offset in units of PAGE_CACHE_SIZE 
-inside the file.
-
-page->mapping->host gives you the inode of the file and thus all the 
-information you need to resolve the page to its on disk location.
-
->Do I read this right? How the heck di that page info get filled in in
->the first place? How can it be enough? It can't be!
-
-Of course it can be. ->index and ->mapping are both set at the same time in 
-the ___add_to_page_cache static inline helper. Both are fully sufficient in 
-that they specifiy the inode/file (page->mapping->host), the volume this 
-file belongs to (page->mapping->host->i_sb), the offset in the file the 
-page belongs to (page->index).
-
-What more do you need?
-
-Best regards,
-
-         Anton
-
-
 -- 
-   "I haven't lost my mind... it's backed up on tape." - Peter da Silva
--- 
-Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
-Linux NTFS Maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+---
+To steal ideas from one person is plagiarism;
+to steal from many is research.
+
+I'm trying to access a USB digital camera under RedHat null Beta2 
+
+The Camera information is as follows:
+
+USB Epsilon 1.3  (Digital Dreams)
+Resolution 1600 x 1280 pixels
+Image sensor CMOS
+LCD Screen 1.5" colour TFT
+Internal memory 8MB NAND Gate Flash
+External Memory Build in Smart Media card slot
+Viewfinder Optical
+Digital zoom X 4
+Image capacity (with build in memory)   1600x1200 - 20
+                                        1280x1024 - 29
+                                        640x480 - 121
+White balance Auto/Day/Shade/Bulb/Fl
+Exposure Auto/Manual
+Image format JPG, AVI (through software)
+Computer interface USB
+Power control Auto off (10 seconds)
+
+
+I'm running a standard kernel 2.4.19-ac2 with USB Mass Storage degugging
+Information.and also RedHat's 2.4.18-12.5 
+(the below messages was taken for the 2.4.19-ac2)
+
+When I plug it in its detected as: 
+
+[root@stimpy mark]# usb.c: USB device 2 (vend/prod 0x733/0x1310) is not
+claimed by any active driver.
+  Vendor:           Model: 1.3M DigitalCAM   Rev: 1.00
+  Type:   Direct-Access                      ANSI SCSI revision: 02
+Attached scsi removable disk sda at scsi1, channel 0, id 0, lun 0
+SCSI device sda: 16384 512-byte hdwr sectors (8 MB)
+sda: test WP failed, assume Write Enabled
+ sda1
+
+
+Which means that the kernel has seen it and its being treated as a mass
+Storage device, thus treated as a SCSI device.
+
+So I also ran cdrecord -scanbus and that listed the device as well. 
+
+scsibus1: 
+        1,0,0   100) '        ' '1.3M DigitalCAM ' '1.00' Removable Disk
+
+After reading several pages on USB and Mass storage, I have found out
+how I should be able to access it
+
+The following Kernel modules that are relevant to this device are loaded
+as below:
+
+vfat                   11356   0  (autoclean)
+fat                    36888   0  (autoclean) [vfat]
+sr_mod                 16248   0  (autoclean)
+usb-storage           102352   0
+usb-ohci               19528   0  (unused)
+usbcore                69888   1  [usb-storage hid usb-ohci]
+aic7xxx               123444   0
+sd_mod                 13104   0
+scsi_mod               99716   4  [sr_mod usb-storage aic7xxx sd_mod]
+
+The file system on the camera is FAT (this can be accessed by VMware
+running on this Box, as a removable device (which is running a Virtual
+WinXp O/S) through the USB port using the drivers for windows supplied
+by the manufacturer)
+
+mount /dev/sda /mnt/camera
+
+and
+
+/sbin/modprobe fat && mount -t fat /dev/sda /mnt/camera
+
+I've also tried vat, auto, autofs and /dev/sda[0-10] as well.
+
+Also running the following, it cannot access the device either:
+
+[root@stimpy dev]# dd if=/dev/sda of=/dev/null bs=1k count=1
+dd: reading `/dev/sda': Input/output error
+0+0 records in
+0+0 records out
+
+It seems it cannot find a partition table on the device, in WinXp I can
+happily right click and create folders on the camera, It can also
+Identify the amount of space on the device 8MB, when first plugged it.
+
+And I have also tried the following as well:
+
+[root@stimpy mark]# cat /dev/sda | file  -
+cat: /dev/sda: Input/output error
+standard input:              empty
+
+
+Please see below the output of dmesg -n 9, with USB Mass storage
+debugging turned on (sorry for the large amount)
+
+---------------------- cut -----------------------------
+
+hub.c: USB new device connect on bus1/1, assigned device number 2
+usb.c: USB device 2 (vend/prod 0x733/0x1310) is not claimed by any
+active driver.
+Initializing USB Mass Storage driver...
+usb.c: registered new driver usb-storage
+usb-storage: act_altsettting is 0
+usb-storage: id_index calculated to be: 85
+usb-storage: Array length appears to be: 87
+usb-storage: USB Mass Storage device detected
+usb-storage: Endpoints: In: 0xdb6b0b20 Out: 0xdb6b0b34 Int: 0xdb6b0b48
+(Period 1)
+usb-storage: New GUID 07331310000ffffffffff700
+usb-storage: GetMaxLUN command result is 1, data is 0
+usb-storage: Transport: Bulk
+usb-storage: Protocol: Transparent SCSI
+usb-storage: *** thread sleeping.
+scsi1 : SCSI emulation for USB Mass Storage devices
+usb-storage: queuecommand() called
+usb-storage: *** thread awakened.
+usb-storage: Command INQUIRY (6 bytes)
+usb-storage: 12 00 00 00 ff 00 4f da d4 33 4f da
+usb-storage: Bulk command S 0x43425355 T 0x8 Trg 0 LUN 0 L 255 F 128 CL
+6
+usb-storage: Bulk command transfer result=0
+usb-storage: usb_stor_transfer_partial(): xfer 255 bytes
+usb-storage: usb_stor_bulk_msg() returned 0 xferred 36/255
+usb-storage: Bulk data transfer result 0x1
+usb-storage: Attempting to get CSW...
+usb-storage: Bulk status result = 0
+usb-storage: Bulk status Sig 0x53425355 T 0x8 R 219 Stat 0x0
+usb-storage: Fixing INQUIRY data to show SCSI rev 2
+usb-storage: scsi cmd done, result=0x0
+usb-storage: *** thread sleeping.
+  Vendor:           Model: 1.3M DigitalCAM   Rev: 1.00
+  Type:   Direct-Access                      ANSI SCSI revision: 02
+usb-storage: queuecommand() called
+usb-storage: *** thread awakened.
+usb-storage: Bad target number (1/0)
+usb-storage: *** thread sleeping.
+usb-storage: queuecommand() called
+usb-storage: *** thread awakened.
+usb-storage: Bad target number (2/0)
+usb-storage: *** thread sleeping.
+usb-storage: queuecommand() called
+usb-storage: *** thread awakened.
+usb-storage: Bad target number (3/0)
+usb-storage: *** thread sleeping.
+usb-storage: queuecommand() called
+usb-storage: *** thread awakened.
+usb-storage: Bad target number (4/0)
+usb-storage: *** thread sleeping.
+usb-storage: queuecommand() called
+usb-storage: *** thread awakened.
+usb-storage: Bad target number (5/0)
+usb-storage: *** thread sleeping.
+usb-storage: queuecommand() called
+usb-storage: *** thread awakened.
+usb-storage: Bad target number (6/0)
+usb-storage: *** thread sleeping.
+usb-storage: queuecommand() called
+usb-storage: *** thread awakened.
+usb-storage: Bad target number (7/0)
+usb-storage: *** thread sleeping.
+Attached scsi removable disk sda at scsi1, channel 0, id 0, lun 0
+usb-storage: queuecommand() called
+usb-storage: *** thread awakened.
+usb-storage: Command TEST_UNIT_READY (6 bytes)
+usb-storage: 00 00 00 00 00 00 00 00 00 00 30 da
+usb-storage: Bulk command S 0x43425355 T 0x10 Trg 0 LUN 0 L 0 F 0 CL 6
+usb-storage: Bulk command transfer result=0
+usb-storage: Attempting to get CSW...
+usb-storage: Bulk status result = 0
+usb-storage: Bulk status Sig 0x53425355 T 0x10 R 0 Stat 0x0
+usb-storage: scsi cmd done, result=0x0
+usb-storage: *** thread sleeping.
+usb-storage: queuecommand() called
+usb-storage: *** thread awakened.
+usb-storage: Command READ_CAPACITY (10 bytes)
+usb-storage: 25 00 00 00 00 00 00 00 00 00 30 da
+usb-storage: Bulk command S 0x43425355 T 0x11 Trg 0 LUN 0 L 8 F 128 CL
+10
+usb-storage: Bulk command transfer result=0
+usb-storage: usb_stor_transfer_partial(): xfer 8 bytes
+usb-storage: usb_stor_bulk_msg() returned 0 xferred 8/8
+usb-storage: usb_stor_transfer_partial(): transfer complete
+usb-storage: Bulk data transfer result 0x0
+usb-storage: Attempting to get CSW...
+usb-storage: Bulk status result = 0
+usb-storage: Bulk status Sig 0x53425355 T 0x11 R 0 Stat 0x0
+usb-storage: scsi cmd done, result=0x0
+usb-storage: *** thread sleeping.
+SCSI device sda: 16384 512-byte hdwr sectors (8 MB)
+usb-storage: queuecommand() called
+usb-storage: *** thread awakened.
+usb-storage: Command MODE_SENSE (6 bytes)
+usb-storage: 1a 00 3f 00 ff 00 00 00 00 00 30 da
+usb-storage: Bulk command S 0x43425355 T 0x12 Trg 0 LUN 0 L 255 F 128 CL
+6
+usb-storage: Bulk command transfer result=0
+usb-storage: usb_stor_transfer_partial(): xfer 255 bytes
+usb-storage: usb_stor_bulk_msg() returned -32 xferred 0/255
+usb-storage: clearing endpoint halt for pipe 0xc0038280
+usb-storage: usb_stor_clear_halt: result=0
+usb-storage: usb_stor_transfer_partial(): unknown error
+usb-storage: Bulk data transfer result 0x2
+usb-storage: Attempting to get CSW...
+usb-storage: Bulk status result = 0
+usb-storage: Bulk status Sig 0x53425355 T 0x12 R 255 Stat 0x1
+usb-storage: -- transport indicates command failure
+usb-storage: Issuing auto-REQUEST_SENSE
+usb-storage: Bulk command S 0x43425355 T 0x12 Trg 0 LUN 0 L 18 F 128 CL
+6
+usb-storage: Bulk command transfer result=0
+usb-storage: usb_stor_transfer_partial(): xfer 18 bytes
+usb-storage: usb_stor_bulk_msg() returned 0 xferred 18/18
+usb-storage: usb_stor_transfer_partial(): transfer complete
+usb-storage: Bulk data transfer result 0x0
+usb-storage: Attempting to get CSW...
+usb-storage: Bulk status result = 0
+usb-storage: Bulk status Sig 0x53425355 T 0x12 R 0 Stat 0x0
+usb-storage: -- Result from auto-sense is 0
+usb-storage: -- code: 0x70, key: 0x5, ASC: 0x24, ASCQ: 0x0
+usb-storage: Illegal Request: invalid field in CDB
+usb-storage: scsi cmd done, result=0x2
+usb-storage: *** thread sleeping.
+sda: test WP failed, assume Write Enabled
+ sda:<7>usb-storage: queuecommand() called
+usb-storage: *** thread awakened.
+usb-storage: Command READ_10 (10 bytes)
+usb-storage: 28 00 00 00 00 00 00 00 08 00 30 da
+usb-storage: Bulk command S 0x43425355 T 0x13 Trg 0 LUN 0 L 4096 F 128
+CL 10
+usb-storage: Bulk command transfer result=0
+usb-storage: usb_stor_transfer_partial(): xfer 4096 bytes
+usb-storage: usb_stor_bulk_msg() returned 0 xferred 4096/4096
+usb-storage: usb_stor_transfer_partial(): transfer complete
+usb-storage: Bulk data transfer result 0x0
+usb-storage: Attempting to get CSW...
+usb-storage: Bulk status result = 0
+usb-storage: Bulk status Sig 0x53425355 T 0x13 R 0 Stat 0x0
+usb-storage: scsi cmd done, result=0x0
+usb-storage: *** thread sleeping.
+ sda1
+WARNING: USB Mass Storage data integrity not assured
+USB Mass Storage device found at 2
+USB Mass Storage support registered.
+Attached scsi CD-ROM sr0 at scsi0, channel 0, id 2, lun 0
+sr0: scsi3-mmc drive: 24x/24x writer cd/rw xa/form2 cdda tray
+cdrom: This disc doesn't have any tracks I recognize!
+
+---------------------- cut -----------------------------
+
+Not being a programmer or kernel developer, I'm not sure where the error
+lies, Its going to be either a USB device driver bug or the actual
+camera itself (thus relying on the Windows drivers doing the actual
+work, rather than properly implementing USB Mass Storage)
+
+After several conversations with the RedHat mailing list,
+I have not got any closer with regards to finding out where the error
+actually lies
+
+Can anyone possibly help on this one. 
+
+Thanks in advance
+
+Mark
 

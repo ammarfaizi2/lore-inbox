@@ -1,73 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261151AbTKNXqb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Nov 2003 18:46:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261152AbTKNXqb
+	id S264339AbTKOAAI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Nov 2003 19:00:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264367AbTKOAAH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Nov 2003 18:46:31 -0500
-Received: from aneto.able.es ([212.97.163.22]:6619 "EHLO aneto.able.es")
-	by vger.kernel.org with ESMTP id S261151AbTKNXq3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Nov 2003 18:46:29 -0500
-Date: Sat, 15 Nov 2003 00:46:27 +0100
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Greg Louis <glouis@dynamicro.on.ca>
-Cc: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.23-pre8-pac1 and -rc1-pac1 NFSv3 problem
-Message-ID: <20031114234627.GA12679@werewolf.able.es>
-References: <20031111182647.GA25026@athame.dynamicro.on.ca> <20031111190000.GA25290@athame.dynamicro.on.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 14 Nov 2003 19:00:07 -0500
+Received: from out002pub.verizon.net ([206.46.170.141]:23995 "EHLO
+	out002.verizon.net") by vger.kernel.org with ESMTP id S264339AbTKOAAB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Nov 2003 19:00:01 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: None that appears to be detectable by casual observers
+To: Andries Brouwer <aebr@win.tue.nl>
+Subject: Re: 2.6.0-test9 VFAT problem
+Date: Fri, 14 Nov 2003 18:59:59 -0500
+User-Agent: KMail/1.5.1
+Cc: "Patrick Beard" <patrick@scotcomms.co.uk>, linux-kernel@vger.kernel.org
+References: <20031114113224.GR21265@home.bofhlet.net> <200311140945.36537.gene.heskett@verizon.net> <20031114202339.GB18107@win.tue.nl>
+In-Reply-To: <20031114202339.GB18107@win.tue.nl>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20031111190000.GA25290@athame.dynamicro.on.ca> (from glouis@dynamicro.on.ca on Tue, Nov 11, 2003 at 20:00:00 +0100)
-X-Mailer: Balsa 2.0.15
+Message-Id: <200311141859.59669.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out002.verizon.net from [151.205.12.17] at Fri, 14 Nov 2003 18:00:00 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Friday 14 November 2003 15:23, Andries Brouwer wrote:
+>On Fri, Nov 14, 2003 at 09:45:36AM -0500, Gene Heskett wrote:
+>> Nov 14 09:19:51 coyote kernel: hub 3-2:1.0: new USB device on port
+>> 3, assigned address 9 Nov 14 09:19:51 coyote kernel: scsi4 : SCSI
+>> emulation for USB Mass Storage devices Nov 14 09:19:52 coyote
+>> kernel:   Vendor: OLYMPUS   Model: C-3020ZOOM(U)     Rev: 1.00 Nov
+>> 14 09:19:52 coyote kernel:   Type:   Direct-Access                
+>>      ANSI SCSI revision: 02 Nov 14 09:19:52 coyote kernel: SCSI
+>> device sda: 128000 512-byte hdwr sectors (66 MB) Nov 14 09:19:52
+>> coyote kernel: sda: assuming drive cache: write through Nov 14
+>> 09:19:52 coyote kernel:  sda: sda1
+>> Nov 14 09:20:34 coyote kernel: FAT: Filesystem panic (dev sda1)
+>> Nov 14 09:20:34 coyote kernel:     fat_free: deleting beyond EOF
+>> (i_pos 0) Nov 14 09:20:34 coyote kernel:     File system has been
+>> set read-only
+>>
+>> Comments?  Screwed up kernel .config? Is mount "-t vfat" the
+>> correct filesystem?
+>
+>It would have been interesting to see the filesystem after this
+> error message. Can you reproduce the error?
+>
+>(vfat? I don't know - most cameras just use msdos, but vfat doesnt
+> harm, I suppose)
+>
+>The error message means that the fatfs followed a chain of clusters
+> in order to delete them all and found a free cluster before finding
+> an end-of-file mark.
 
-On 11.11, Greg Louis wrote:
-> On 20031111 (Tue) at 1326:47 -0500, Greg Louis wrote:
-> > Kernels 2.4.23-pre7-pac1 and 2.4.23-rc1 are ok but -pre8-pac1 and
-> > -rc1-pac1 behave as follows: mounting a remote directory via NFS with
-> > v3 enabled (client and server) seems to work ok, and running mount with
-> > no parameters shows the NFS mount, but any attempt at access fails with
-> > a message like
-> >   /bin/ls: reading directory /whatever/it/was: Input/output error
-> 
-> Reverting all changes to fs/nfs/* since 2.4.23-pre7-pac1, and only
-> those, corrects the problem.
-> 
-
-/metoo
-
-annwn:~> bpsh 0 mount   
-none on /proc type proc (rw)
-none on /dev/pts type devpts (rw,mode=0620)
-none on /dev/shm type tmpfs (rw)
-none on /tmp type tmpfs (rw)
-192.168.0.1:/lib on /lib type nfs (ro,noatime,nfsvers=3,nolock,addr=192.168.0.1)
-192.168.0.1:/bin on /bin type nfs (ro,noatime,nfsvers=3,nolock,addr=192.168.0.1)
-192.168.0.1:/sbin on /sbin type nfs (ro,noatime,nfsvers=3,nolock,addr=192.168.0.1)
-192.168.0.1:/usr on /usr type nfs (ro,noatime,nfsvers=3,nolock,addr=192.168.0.1)
-192.168.0.1:/opt on /opt type nfs (ro,noatime,nfsvers=3,nolock,addr=192.168.0.1)
-192.168.0.1:/home on /home type nfs (rw,nfsvers=3,noac,addr=192.168.0.1)
-192.168.0.1:/work on /work/shared type nfs (rw,nfsvers=3,noac,addr=192.168.0.1)
-
-annwn:~> bpsh 0 pwd
-/home/magallon
-
-annwn:~> bpsh 0 ls
-ls: reading directory .: Invalid argument
-
-It works for some time, and then it breaks.
-Could you send me the patch you used to revert those changes ?
-I will try to make a diff from rc1 to pre7 and reverse.
-
-TIA
+And I could possibly have created that empty sector by not treating 
+the card as a LIFO I suppose...  Makes a certain amount of sense, but 
+why did a powerdown and a reconnect fix it?  Some compacting routine 
+in the cameras soft maybe?
 
 -- 
-J.A. Magallon <jamagallon()able!es>     \                 Software is like sex:
-werewolf!able!es                         \           It's better when it's free
-Mandrake Linux release 10.0 (Cooker) for i586
-Linux 2.4.23-rc1-jam1 (gcc 3.3.1 (Mandrake Linux 9.2 3.3.1-4mdk))
+Cheers, Gene
+AMD K6-III@500mhz 320M
+Athlon1600XP@1400mhz  512M
+99.27% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attornies please note, additions to this message
+by Gene Heskett are:
+Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
+

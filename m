@@ -1,47 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136767AbREAXVq>; Tue, 1 May 2001 19:21:46 -0400
+	id <S136770AbREAXZy>; Tue, 1 May 2001 19:25:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136766AbREAXVe>; Tue, 1 May 2001 19:21:34 -0400
-Received: from e56090.upc-e.chello.nl ([213.93.56.90]:5380 "EHLO unternet.org")
-	by vger.kernel.org with ESMTP id <S136764AbREAXVX>;
-	Tue, 1 May 2001 19:21:23 -0400
-Date: Wed, 2 May 2001 01:21:22 +0200
-From: Frank de Lange <frank@unternet.org>
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: * Re: Severe trashing in 2.4.4
-Message-ID: <20010502012122.B23616@unternet.org>
-In-Reply-To: <20010501235046.A23616@unternet.org> <15087.16421.328004.457998@pizda.ninka.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <15087.16421.328004.457998@pizda.ninka.net>; from davem@redhat.com on Tue, May 01, 2001 at 04:00:53PM -0700
+	id <S136768AbREAXZq>; Tue, 1 May 2001 19:25:46 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:28426 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S136766AbREAXZb>;
+	Tue, 1 May 2001 19:25:31 -0400
+Date: Tue, 1 May 2001 20:25:14 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Christoph Rohland <cr@sap.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        "J . A . Magallon" <jamagallon@able.es>,
+        Rogier Wolff <R.E.Wolff@BitWizard.nl>,
+        Wakko Warner <wakko@animx.eu.org>,
+        Xavier Bestel <xavier.bestel@free.fr>,
+        Goswin Brederlow <goswin.brederlow@student.uni-tuebingen.de>,
+        William T Wilson <fluffy@snurgle.org>, Matt_Domsch@Dell.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: 2.4 and 2GB swap partition limit
+In-Reply-To: <m3n18xcral.fsf@linux.local>
+Message-ID: <Pine.LNX.4.21.0105012020370.19012-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 01, 2001 at 04:00:53PM -0700, David S. Miller wrote:
+On 1 May 2001, Christoph Rohland wrote:
+> On Mon, 30 Apr 2001, Alan Cox wrote:
+> >> paging in just released 2.4.4, but in previuos kernel, a page that
+> >> was paged-out, reserves its place in swap even if it is paged-in
+> >> again, so once you have paged-out all your ram at least once, you
+> >> can't get any more memory, even if swap is 'empty'.
+> > 
+> > This is a bug in the 2.4 VM, nothing more or less. It and the
+> > horrible bounce buffer bugs are forcing large machines to remain on
+> > 2.2. So it has to get fixed
 > 
-> Frank, thanks for doing all the legwork to resolve the networking
-> side of this problem.
+> Yes, it is a bug. and thanks for stating this so clearly.
 
-No problem...
+I finished my USENIX paper (yeah I know, exactly on the deadline ;))
+so now I have time again. This bug is one of the more important ones
+on my TODO list.
 
-I just diff'd the 'old' and 'new' kernel trees. The one which produced the
-ravenous skb_hungry kernels was for all intents and purposed identical to the
-one which produced the (working, bug_free(tm)) kernel I'm currently running...
+Let me see if I can cook up a race-free way of fixing this one.
 
-Must be the weather...
+regards,
 
-Cheers//Frank
--- 
-  WWWWW      _______________________
- ## o o\    /     Frank de Lange     \
- }#   \|   /                          \
-  ##---# _/     <Hacker for Hire>      \
-   ####   \      +31-320-252965        /
-           \    frank@unternet.org    /
-            -------------------------
- [ "Omnis enim res, quae dando non deficit, dum habetur
-    et non datur, nondum habetur, quomodo habenda est."  ]
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+

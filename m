@@ -1,41 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132482AbRDHEKq>; Sun, 8 Apr 2001 00:10:46 -0400
+	id <S132488AbRDHEMS>; Sun, 8 Apr 2001 00:12:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132483AbRDHEKg>; Sun, 8 Apr 2001 00:10:36 -0400
-Received: from u-197-10.karlsruhe.ipdial.viaginterkom.de ([62.180.10.197]:10737
-	"EHLO dea.waldorf-gmbh.de") by vger.kernel.org with ESMTP
-	id <S132482AbRDHEKY>; Sun, 8 Apr 2001 00:10:24 -0400
-Date: Sun, 8 Apr 2001 06:09:35 +0200
-From: Ralf Baechle <ralf@conectiva.com.br>
-To: Matti Aarnio <matti.aarnio@zmailer.org>
-Cc: Michael Peddemors <michael@linuxmagic.com>,
-        Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
-Subject: Re: goodbye
-Message-ID: <20010408060935.A23553@bacchus.dhis.org>
-In-Reply-To: <Pine.LNX.4.21.0104031800030.14090-100000@imladris.rielhome.conectiva> <20010404012102Z131724-406+7418@vger.kernel.org> <20010408023228.L805@mea-ext.zmailer.org>
+	id <S132484AbRDHEMI>; Sun, 8 Apr 2001 00:12:08 -0400
+Received: from cogent.ecohler.net ([216.135.202.106]:52411 "EHLO
+	cogent.ecohler.net") by vger.kernel.org with ESMTP
+	id <S132483AbRDHELq>; Sun, 8 Apr 2001 00:11:46 -0400
+Date: Sun, 8 Apr 2001 00:11:32 -0400
+From: lists@sapience.com
+To: linux-kernel@vger.kernel.org
+Cc: gibbs@scsiguy.com
+Subject: Re: aic7xxx 6.1.10 and 2.4.4-pre1
+Message-ID: <20010408001132.A28840@sapience.com>
+In-Reply-To: <20010407195031.B25801@sapience.com> <200104080139.f381dZs92143@aslan.scsiguy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010408023228.L805@mea-ext.zmailer.org>; from matti.aarnio@zmailer.org on Sun, Apr 08, 2001 at 02:32:28AM +0300
-X-Accept-Language: de,en,fr
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <200104080139.f381dZs92143@aslan.scsiguy.com>; from gibbs@scsiguy.com on Sat, Apr 07, 2001 at 07:39:35PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 08, 2001 at 02:32:28AM +0300, Matti Aarnio wrote:
 
-> 	The incentive behind the DUL is to force users not to post
-> 	straight out to the world, but to use their ISP's servers
-> 	for outbound email --- normal M$ users do that, after all.
-> 	Only spammers - and UNIX powerusers - want to post directly
-> 	to the world from dialups.  And UNIX powerusers should know
-> 	better, and be able to use ISP relay service anyway.
+I used 5000ms. I still freeze up with 2.4.3 + 6.1.10.
 
-Surprise - my ISP doesn't even seem to have one.  Raw IP, nothing else.
-Like god made ISPs.
+Unfortunately i could not see any messages and nothing got logged.
+This time an fsck allowed me to boot back to 2.4.1.  
 
-  Ralf
+The visible symptoms were the same as before (2.4.3 + 6.1.8) but this time I was
+unable to flip virtual consoles before the freeze so I dont even
+know 100% what is causing it - it boots fine - and the scsi driver 
+makes no complaints - it all looks normal. X starts up and I can login. 
+it starts ok and windows start popping up -  shortly thereafter it freezes 
+- just like before. 
 
---
-"Embrace, Enhance, Eliminate" - it worked for the pope, it'll work for Bill.
+I will try investigate further and see if I can get any more log messages.
+
+Is there any debug boot option or compile flag that will help me find out more 
+what is going on?  
+
+/var/log/messages says this about scsi.
+
+Apr  7 19:56:13 snap kernel: scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.1.10
+Apr  7 19:56:13 snap kernel:         <Adaptec 2940 Ultra2 SCSI adapter>
+Apr  7 19:56:13 snap kernel:         aic7890/91: Wide Channel A, SCSI Id=7, 32/255 SCBs
+Apr  7 19:56:13 snap kernel: 
+Apr  7 19:56:13 snap kernel:   Vendor: YAMAHA    Model: CRW8424S          Rev: 1.0d
+Apr  7 19:56:13 snap kernel:   Type:   CD-ROM                             ANSI SCSI revision: 02
+Apr  7 19:56:13 snap kernel:   Vendor: SEAGATE   Model: ST318275LW        Rev: 0001
+Apr  7 19:56:13 snap kernel:   Type:   Direct-Access                      ANSI SCSI revision: 02
+Apr  7 19:56:13 snap kernel: (scsi0:A:5): 80.000MB/s transfers (40.000MHz, offset 15, 16bit)
+Apr  7 19:56:13 snap kernel:   Vendor: SEAGATE   Model: ST318275LW        Rev: 0001
+Apr  7 19:56:13 snap kernel:   Type:   Direct-Access                      ANSI SCSI revision: 02
+Apr  7 19:56:13 snap kernel: (scsi0:A:6): 80.000MB/s transfers (40.000MHz, offset 15, 16bit)
+Apr  7 19:56:13 snap kernel: scsi0:0:5:0: Tagged Queuing enabled.  Depth 253
+Apr  7 19:56:13 snap kernel: scsi0:0:6:0: Tagged Queuing enabled.  Depth 253
+
+

@@ -1,50 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264366AbTLVOuH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Dec 2003 09:50:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264382AbTLVOuH
+	id S264405AbTLVPFl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Dec 2003 10:05:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264419AbTLVPFl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Dec 2003 09:50:07 -0500
-Received: from shadow02.cubit.at ([80.78.231.91]:18842 "EHLO
-	skeletor.netshadow.at") by vger.kernel.org with ESMTP
-	id S264366AbTLVOuE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Dec 2003 09:50:04 -0500
-Subject: /proc/meminfo values
-From: Andreas Unterkircher <unki@netshadow.at>
-Reply-To: unki@netshadow.at
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1072104601.1165.33.camel@winsucks>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 22 Dec 2003 15:50:01 +0100
+	Mon, 22 Dec 2003 10:05:41 -0500
+Received: from 12-211-66-152.client.attbi.com ([12.211.66.152]:12674 "EHLO
+	waltsathlon.localhost.net") by vger.kernel.org with ESMTP
+	id S264405AbTLVPFk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Dec 2003 10:05:40 -0500
+Message-ID: <3FE70842.1020502@comcast.net>
+Date: Mon, 22 Dec 2003 07:05:38 -0800
+From: Walt H <waltabbyh@comcast.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031121
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Nicklas Bondesson <nikomail@hotmail.com>
+Cc: linux-kernel@vger.kernel.org, andre@linux-ide.org
+Subject: Re: Error mounting root fs on 72:01 using Promise FastTrak TX2000
+ (PDC20271)
+References: <BAY8-DAV19JuYW8iOqz00010341@hotmail.com>
+In-Reply-To: <BAY8-DAV19JuYW8iOqz00010341@hotmail.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hello.
+Nicklas Bondesson wrote:
+> Do I have to include anything else than this??
+> 
+> <*> ATA/IDE/MFM/RLL support
+>   IDE, ATA and ATAPI Block devices -->
+> 	<*> PROMISE PDC202{68|69|70|71|75|76|77} support (NEW)
+> 	[*] Special FastTrack Feature
+> 
+> 	<*> Support for IDE Raid Controllers (EXPERIMENTAL)
+> 	<*> Support Promise software RAID (Fasttrak(tm)) (EXPERIMENTAL)
+>  
+> /Nicke
+> 
 
-one question, didn't find any other information souce.
+I believe that should do it. dmesg doesn't have any info about the ataraid
+driver being loaded? If it's scrolling out of the kernel buffer, you can try
+bumping up the size through the kernel config. The option is under the "Kernel
+Hacking" section and is CONFIG_LOG_BUF_SHIFT. Change it to 17 or 18 to be sure.
+A reboot with this new kernel should give you a full dmesg afterward, hopefully
+showing what's wrong with the ataraid stuff.
 
-in kernel 2.4 /proc/meminfo writes back exactly mem info values
-in the first 2 lines like:
+-Walt
 
-cat /proc/meminfo
-        total:    used:    free:  shared: buffers:  cached:
-Mem:  244191232 238395392  5795840        0  2732032 138403840
-Swap: 509923328 147443712 362479616
+PS. I don't remember when this took place, but there were some changes to the
+promise drivers in 2.4 around 2.4.21 I think. There should be drivers for both
+the older Promise and the newer. I remember always choosing both, complete with
+pdcraid just to be sure.
 
-
-but with 2.6 it looks like they have been removed. where can i get the
-exactly free memory (+ swap) from the kernel so i havn't to use the
-kb-values which i get back from /proc/meminfo?
-
-i try to check the source good from "free" (with the -b option it
-returns the bytes-value) which seems to simple multiply *1024 to
-the kb values.
-
-
-thanks for any info!
-
-greetings, andi
 

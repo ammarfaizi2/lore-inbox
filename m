@@ -1,54 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317424AbSG3Xo3>; Tue, 30 Jul 2002 19:44:29 -0400
+	id <S317429AbSG3Xvr>; Tue, 30 Jul 2002 19:51:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317429AbSG3Xo3>; Tue, 30 Jul 2002 19:44:29 -0400
-Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:16646 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S317424AbSG3Xo2>;
-	Tue, 30 Jul 2002 19:44:28 -0400
-Date: Tue, 30 Jul 2002 16:46:31 -0700
-From: Greg KH <greg@kroah.com>
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCH] devfs cleanups for 2.5.29
-Message-ID: <20020730234630.GA17979@kroah.com>
-References: <20020730225359.GA17826@kroah.com> <200207302312.g6UNC7Z10529@vindaloo.ras.ucalgary.ca> <20020730231841.GA17955@kroah.com>
-Mime-Version: 1.0
+	id <S317433AbSG3Xvr>; Tue, 30 Jul 2002 19:51:47 -0400
+Received: from CPE-203-51-28-61.nsw.bigpond.net.au ([203.51.28.61]:49905 "EHLO
+	e4.eyal.emu.id.au") by vger.kernel.org with ESMTP
+	id <S317429AbSG3Xvr>; Tue, 30 Jul 2002 19:51:47 -0400
+Message-ID: <3D47275B.E89A8958@eyal.emu.id.au>
+Date: Wed, 31 Jul 2002 09:55:07 +1000
+From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Organization: Eyal at Home
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc3 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Alan Cox <alan@redhat.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.19rc3-ac5
+References: <200207301356.g6UDuq900731@devserv.devel.redhat.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020730231841.GA17955@kroah.com>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.2.21 (i586)
-Reply-By: Tue, 02 Jul 2002 22:24:53 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 30, 2002 at 04:18:41PM -0700, Greg KH wrote:
-> On Tue, Jul 30, 2002 at 05:12:07PM -0600, Richard Gooch wrote:
-> > 
-> > Your patch misses the reason why I created those functions: some
-> > drivers had to always register with the major table. With your
-> > "fixups", those drivers will break when "devfs=only" is passed in. If
-> > you first fix the drivers so that they work without an entry in the
-> > major table, then your patch is safe to apply.
+Alan Cox wrote:
 > 
-> Ah, then this "feature" should be written down somewhere.  Which drivers
-> does this happen for?  And why penalize _all_ of the kernel drivers for
-> only the few that need this?
+> [+ indicates stuff that went to Marcelo, o stuff that has not,
+>  * indicates stuff that is merged in mainstream now, X stuff that proved
+>    bad and was dropped out]
+> 
+> This patch contains SiS IDE updates. Usual caveats apply. The HP merge is
+> now down to 5340 lines.
+> 
+> Linux 2.4.19rc3-ac5
 
-Actually, in reading through the devfs documentation some more about the
-"devfs=only" option, I think this patch should be accepted.  Just
-because you have not fixed up some remaining drivers for the (to quote
-you) "dedicated souls" who want to use this option.
+I see wrong EXTRAVERSION:
 
-Don't force such a large and intrusive API change into loads of drivers
-that do not want anything to do with devfs, just because your feature is
-not yet complete.
+--- linux.19rc3/Makefile        2002-07-29 12:54:46.000000000 +0100
++++ linux.19rc3-ac5/Makefile    2002-07-29 14:02:12.000000000 +0100
+@@ -1,7 +1,7 @@
+ VERSION = 2
+ PATCHLEVEL = 4
+ SUBLEVEL = 19
+-EXTRAVERSION = -rc3
++EXTRAVERSION = -rc3-ac4
 
-If nothing else, it would force you (or people who actually use
-"devfs=only") to fix those remaining drivers, which I would expect you
-to view as a good thing :)
-
-thanks,
-
-greg k-h
+--
+Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>

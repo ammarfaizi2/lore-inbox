@@ -1,36 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129584AbRA2WzY>; Mon, 29 Jan 2001 17:55:24 -0500
+	id <S129562AbRA2XDS>; Mon, 29 Jan 2001 18:03:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130599AbRA2WzF>; Mon, 29 Jan 2001 17:55:05 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:27659 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S129584AbRA2WzA>; Mon, 29 Jan 2001 17:55:00 -0500
-Date: Mon, 29 Jan 2001 16:49:53 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+	id <S129610AbRA2XDH>; Mon, 29 Jan 2001 18:03:07 -0500
+Received: from 24-240-45-22.hsacorp.net ([24.240.45.22]:32641 "EHLO
+	penguin.linuxhardware.org") by vger.kernel.org with ESMTP
+	id <S129562AbRA2XCu>; Mon, 29 Jan 2001 18:02:50 -0500
+Date: Mon, 29 Jan 2001 18:02:23 -0500 (EST)
+From: Kernel Related Emails <kernel@penguin.linuxhardware.org>
 To: linux-kernel@vger.kernel.org
-Cc: jmerkey@timpanogas.org
-Subject: Re: [ANNOUNCE] Dolphin PCI-SCI RPM Drivers 1.1-4 released
-Message-ID: <20010129164953.A15219@vger.timpanogas.org>
-In-Reply-To: <20010129142723.A14086@vger.timpanogas.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20010129142723.A14086@vger.timpanogas.org>; from jmerkey@vger.timpanogas.org on Mon, Jan 29, 2001 at 02:27:23PM -0700
+Subject: DVD Disk Detection
+Message-ID: <Pine.LNX.4.21.0101291759200.6259-100000@penguin.linuxhardware.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I was just wondering if anyone had any suggestions to check to see if a
+DVD is in a users DVD drive.  Currently if you run a CDROM_DISC_STATUS on
+a DVD you get a CDS_DATA_1 returned.  What kernel level call would
+destinguish between an actual Data CD and a DVD?
 
-Relative to some performance questions folks have asked, the SCI 
-adapters are limited by PCI bus speeds.  If your system supports 
-64-bit PCI you get much higher numbers.  If you have a system 
-that supports 100+ Megabyte/second PCI throughput, the SCI 
-adapters will exploit it.
-
-This test was performed in on a 32-bit PCI system with a PCI bus
-architecture that's limited to 70 MB/S.  
-
-Jeff
+Thanks,
+Kris Kersey
+kernel@linuxhardware.org
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

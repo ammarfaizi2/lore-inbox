@@ -1,41 +1,115 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131999AbRAPUTI>; Tue, 16 Jan 2001 15:19:08 -0500
+	id <S131009AbRAPUXs>; Tue, 16 Jan 2001 15:23:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131940AbRAPUS6>; Tue, 16 Jan 2001 15:18:58 -0500
-Received: from mail2.megatrends.com ([155.229.80.11]:9221 "EHLO
-	mail2.megatrends.com") by vger.kernel.org with ESMTP
-	id <S131929AbRAPUSs>; Tue, 16 Jan 2001 15:18:48 -0500
-Message-ID: <1355693A51C0D211B55A00105ACCFE64E95198@ATL_MS1>
-From: Venkatesh Ramamurthy <Venkateshr@ami.com>
-To: "'Dr. Kelsey Hudson'" <kernel@blackhole.compendium-tech.com>
-Cc: "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: Linux not adhering to BIOS Drive boot order?
-Date: Tue, 16 Jan 2001 15:14:22 -0500
+	id <S131229AbRAPUXi>; Tue, 16 Jan 2001 15:23:38 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:40323 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S131009AbRAPUX0>; Tue, 16 Jan 2001 15:23:26 -0500
+Date: Tue, 16 Jan 2001 15:23:19 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Update on RTS/CTS serial problem with 2.4.0
+Message-ID: <Pine.LNX.3.95.1010116152144.23250A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2448.0)
-Content-Type: text/plain
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> you're forgetting that in /etc/lilo.conf there is a directive called
-> 'append='... all the user has to do is merely add
-> 'append="scsihosts=whatever,whatever"' into their config file and rerun
-> lilo. problem solved
-> 
-> besides, how many 'end-users' do you know of that will have multiple scsi
-> adapters in one system? how many end-users -period- will have even a
-> *single* scsi adapter in their systems? do we need to bloat the kernel
-> with automatic things like this? no... i think it is handled fine the way
-> it is. if the user wants to add more than one scsi adapter into his
-> system, let him read some documentation on how to do so. (is this even a
-> documented feature? if not, i think it should be added to the docs...)
-	[Venkatesh Ramamurthy]  Dont you think that mounting and booting
-based on disk label names is better, then relying on device nodes which can
-change when a new card is added?. The existing patch for 2.2.xx is quite
-small and it does not bloat the kernel too much either. I think we can port
-it for 2.4.XX with ease.In my words it is worth the effort 
+
+I previously reported a problem trying to disable hardware flow-control
+of serial ports in the Linux kernel 2.4.0. This problem did not
+exist in Linux version 2.2.18.
+
+This problem occurs when the initial console has been redirected out
+to a serial port as is the case with one of our embedded systems.
+
+It appears that the device must be closed, i.e., nobody using the
+terminal, before the CTS/RTS disabling takes affect. A work around
+(that works) is to set the terminal, close it, then open and set
+it again. This is basically what `setserial` does to an otherwise
+unused terminal. It seems as though this should not be necessary.
+
+Here is a snippet of code that works.
+
+/*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-*/
+/*
+ *  We may have failed to open an initial console. Therefore, we do the
+ *  terminal stuff over from scratch.
+ */
+    memset(&mem->st, 0x00, sizeof(struct termios));
+    mem->st.c_cc[VINTR]    = (char) 'C' - 64;
+    mem->st.c_cc[VQUIT]    = (char) '\\'- 64;
+    mem->st.c_cc[VERASE]   = (char) '?' + 64;
+    mem->st.c_cc[VKILL]    = (char) 'U' - 64;
+    mem->st.c_cc[VEOF]     = (char) 'D' - 64;
+    mem->st.c_cc[VTIME]    = (char)  0;
+    mem->st.c_cc[VMIN]     = (char)  1;
+    mem->st.c_cc[VSWTC]    = (char) '@' - 64;
+    mem->st.c_cc[VSTART]   = (char) 'Q' - 64;
+    mem->st.c_cc[VSTOP]    = (char) 'S' - 64;
+    mem->st.c_cc[VSUSP]    = (char) 'Z' - 64;
+    mem->st.c_cc[VEOL]     = (char) '@' - 64;
+    mem->st.c_cc[VREPRINT] = (char) 'R' - 64;
+    mem->st.c_cc[VDISCARD] = (char) 'O' - 64;
+    mem->st.c_cc[VWERASE]  = (char) 'W' - 64;
+    mem->st.c_cc[VLNEXT]   = (char) 'V' - 64;
+    mem->st.c_cc[VEOL2]    = (char) '@' - 64;
+    mem->st.c_oflag = OPOST|ONLCR;
+    mem->st.c_iflag = ICRNL|IXON;
+    mem->st.c_lflag = ISIG|ICANON|ECHO|ECHOE|ECHOK|ECHOCTL|ECHOKE|IEXTEN;
+    mem->st.c_cflag = B9600|CS8|CREAD|HUPCL|CLOCAL;
+/*
+ *  Because of a bug in the Linux 2.4.0 terminal driver, we have to do
+ *  this twice to get the flow-control turned off.
+ */
+    for(i=0; i< 2; i++)
+    {
+        (void)close(STDIN_FILENO);
+        (void)close(STDOUT_FILENO);
+        (void)close(STDERR_FILENO);
+        if((fd = open(stdcmd, O_RDWR|O_NDELAY, 0)) < 0)
+            fd = open(Altcons, O_RDWR|O_NDELAY);
+        if((flags = fcntl(fd, F_GETFL, 0)) != -1)
+        {
+            flags &= ~O_NDELAY;
+            (void)fcntl(fd, F_SETFL, flags);
+        }
+        if(!!fd)
+        {
+            (void)dup2(fd, STDIN_FILENO);
+            (void)dup2(fd, STDOUT_FILENO);
+            (void)dup2(fd, STDERR_FILENO);
+            if(fd > 2) (void)close(fd);
+        }
+        else                         /* fd is STDIN_FILENO  */
+        {
+            (void)dup(fd);           /* Make STDOUT_FILENO  */
+            (void)dup(fd);           /* Make STDERR_FILENO  */
+        }
+        if(tcflush(STDIN_FILENO, TCIFLUSH) < 0)
+            ERRORS(Tcflush);
+        if(tcsetattr(STDIN_FILENO, TCSANOW, &mem->st) < 0)
+            ERRORS(Tcsetattr);
+    }
+
+I can't see anything that I have done wrong that would otherwise
+prevent this from working the first time through.
+
+Comments?
+
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.0 on an i686 machine (799.53 BogoMips).
+
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

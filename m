@@ -1,55 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312495AbSCUVIf>; Thu, 21 Mar 2002 16:08:35 -0500
+	id <S312497AbSCUVPZ>; Thu, 21 Mar 2002 16:15:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312498AbSCUVIZ>; Thu, 21 Mar 2002 16:08:25 -0500
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:55440
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S312495AbSCUVIK>; Thu, 21 Mar 2002 16:08:10 -0500
-Date: Thu, 21 Mar 2002 14:03:56 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] zlib double-free bug
-Message-ID: <20020321210356.GI25237@opus.bloom.county>
-In-Reply-To: <3C985A46.D3C73301@aitel.hist.no> <Pine.LNX.4.44.0203200943230.3615-100000@xanadu.home> <a7dev9$n51$1@cesium.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
+	id <S312499AbSCUVPG>; Thu, 21 Mar 2002 16:15:06 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:35797 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S312497AbSCUVO5>; Thu, 21 Mar 2002 16:14:57 -0500
+Date: Thu, 21 Mar 2002 22:14:38 +0100 (CET)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@zip.com.au>
+Subject: [patch] fix the last .text.exit error in 2.4.19-pre4
+Message-ID: <Pine.NEB.4.44.0203212211200.2125-100000@mimas.fachschaften.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 21, 2002 at 12:14:33PM -0800, H. Peter Anvin wrote:
-> Followup to:  <Pine.LNX.4.44.0203200943230.3615-100000@xanadu.home>
-> By author:    Nicolas Pitre <nico@cam.org>
-> In newsgroup: linux.dev.kernel
-> >
-> > On Wed, 20 Mar 2002, Helge Hafting wrote:
-> > 
-> > > Nicolas Pitre wrote:
-> > > 
-> > > > > Removable media?
-> > > > 
-> > > > Most if not all removable media are not ment to be used with JFFS2.
-> > > 
-> > > Nothing is _meant_ to be exploited either.  Someone could
-> > > create a cdrom with jffs2 (linux don't demand that cd's use iso9660)
-> > 
-> > But JFFS2 demands to be used with AN MTD device, not a block device.  And
-> > most MTD device, if not all of them, on which JFFS2 is used aren't
-> > removable.
-> 
-> Isn't this whole discussion a bit silly?  If I'm not mistaken, we're
-> talking about a one-line known fix here...
+Hi Marcelo,
 
-It's getting there.  The 'issue' is that the best way to fix it (maybe
-2.4.20-pre1 even) is to backport the 2.5 zlib which doesn't have this
-problem and removes most of the copies of zlib from the kernel.  If it's
-not really a problem now, why fix it?  (Tho it should be a safe fix now
-that Paul has produced a patch which doesn't suffer from random oopses
-or other problems).
+there's still one .text.exit error in 2.4.19-pre4:
 
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+drivers/char/char.o(.data+0xad74): undefined reference to `local symbols
+in discarded section .text.exit'
+
+It seems the following part of the latest version of Andrew Morton's
+.text.exit fixes didn't make it into 2.4.19-pre4 (with this patch it's
+fixed):
+
+--- linux-2.4.18-rc1/drivers/char/wdt_pci.c	Wed Feb 13 12:59:10 2002
++++ linux-akpm/drivers/char/wdt_pci.c	Thu Feb 14 19:23:21 2002
+@@ -577,7 +577,7 @@ out_reg:
+ }
+
+
+-static void __exit wdtpci_remove_one (struct pci_dev *pdev)
++static void __devexit wdtpci_remove_one (struct pci_dev *pdev)
+ {
+ 	/* here we assume only one device will ever have
+ 	 * been picked up and registered by probe function */
+@@ -602,7 +602,7 @@ static struct pci_driver wdtpci_driver =
+ 	name:		"wdt-pci",
+ 	id_table:	wdtpci_pci_tbl,
+ 	probe:		wdtpci_init_one,
+-	remove:		wdtpci_remove_one,
++	remove:		__devexit_p(wdtpci_remove_one),
+ };
+
+
+
+
+cu
+Adrian
+
+

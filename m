@@ -1,64 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312145AbSCRFqu>; Mon, 18 Mar 2002 00:46:50 -0500
+	id <S312200AbSCRFra>; Mon, 18 Mar 2002 00:47:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312150AbSCRFql>; Mon, 18 Mar 2002 00:46:41 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:1246 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S312145AbSCRFq2>; Mon, 18 Mar 2002 00:46:28 -0500
-Date: Sun, 17 Mar 2002 22:46:25 -0700
-Message-Id: <200203180546.g2I5kP412586@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
+	id <S312199AbSCRFrL>; Mon, 18 Mar 2002 00:47:11 -0500
+Received: from nycsmtp1out.rdc-nyc.rr.com ([24.29.99.226]:41385 "EHLO
+	nycsmtp1out.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
+	id <S312150AbSCRFqx>; Mon, 18 Mar 2002 00:46:53 -0500
+Message-ID: <3C957ED4.6010808@linuxhq.com>
+Date: Mon, 18 Mar 2002 00:44:52 -0500
+From: John Weber <john.weber@linuxhq.com>
+Organization: Linux Headquarters
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: Another entry for the MCE-hang list
+Subject: Linux 2.5: Yamaha YMF744B
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hi, all. I just booted 2.4.19-pre3, and it hung right after the MCE
-message. This is an Asus P2B-D with two Intel 450 MHz PIII's. Output
-of /proc/cpuinfo appended.
+I just wanted to put in another report.
 
-				Regards,
+My Yamaha 744B Sound is not working with Linux 2.5.7-pre2 and ALSA Sound 
+Support.
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+I know about the muting, so please don't bother emailing with that.  I 
+am also aware that a there was some discussion about undocumented setup 
+required for the 744B chip specifically.  I was wondering whether this 
+issue had been resolved.  Does anyone else have a Yamaha 744B working 
+with linux 2.5?
 
-processor	: 0
-vendor_id	: GenuineIntel
-cpu family	: 6
-model		: 7
-model name	: Pentium III (Katmai)
-stepping	: 3
-cpu MHz		: 451.032
-cache size	: 512 KB
-fdiv_bug	: no
-hlt_bug		: no
-f00f_bug	: no
-coma_bug	: no
-fpu		: yes
-fpu_exception	: yes
-cpuid level	: 2
-wp		: yes
-flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx fxsr sse
-bogomips	: 897.84
-
-processor	: 1
-vendor_id	: GenuineIntel
-cpu family	: 6
-model		: 7
-model name	: Pentium III (Katmai)
-stepping	: 3
-cpu MHz		: 451.032
-cache size	: 512 KB
-fdiv_bug	: no
-hlt_bug		: no
-f00f_bug	: no
-coma_bug	: no
-fpu		: yes
-fpu_exception	: yes
-cpuid level	: 2
-wp		: yes
-flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx fxsr sse
-bogomips	: 901.12
+PS - Everything is fine with the OSS drivers in both 2.5 and 2.4.
 

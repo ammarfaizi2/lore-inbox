@@ -1,72 +1,186 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263142AbTJKQsj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Oct 2003 12:48:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263189AbTJKQsj
+	id S263131AbTJKQmR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Oct 2003 12:42:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263142AbTJKQmR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Oct 2003 12:48:39 -0400
-Received: from h80ad24a2.async.vt.edu ([128.173.36.162]:56719 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S263142AbTJKQsi (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Oct 2003 12:48:38 -0400
-Message-Id: <200310111648.h9BGmZ6s026348@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: asdfd esadd <retu834@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.7 thoughts: common well-architected object model 
-In-Reply-To: Your message of "Sat, 11 Oct 2003 09:06:21 PDT."
-             <20031011160621.22378.qmail@web13006.mail.yahoo.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <20031011160621.22378.qmail@web13006.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-381369844P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Sat, 11 Oct 2003 12:48:34 -0400
+	Sat, 11 Oct 2003 12:42:17 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:64642 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S263131AbTJKQmM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Oct 2003 12:42:12 -0400
+Date: Sat, 11 Oct 2003 18:40:03 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [patch] SMP races in the timer code, timer-fix-2.6.0-test7-A0
+In-Reply-To: <Pine.LNX.4.56.0310111713440.8641@earth>
+Message-ID: <Pine.LNX.4.56.0310111833550.11661@earth>
+References: <3F881B46.6070301@colorfullife.com> <Pine.LNX.4.56.0310111713440.8641@earth>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-381369844P
-Content-Type: text/plain; charset=us-ascii
 
-On Sat, 11 Oct 2003 09:06:21 PDT, you said:
+On Sat, 11 Oct 2003, Ingo Molnar wrote:
+
+> it would be much cleaner to add another timer->running field, especially
+> since this would be the 8th word-sized field in struct timer_list,
+> making it a nice round structure size.
 > 
-> the other OS has an at this stage highly consistent
-> object model user along the lines of COM+ from the
-> kernel up encompassing a single event, thread etc.
-> model. Things are quite consistently wrapped, user
-> mode exposed if needed etc. If people were to fully
-> draw on it and the simpler .net BCL and not ride win32
-> that would (will be) a killer.  
+> btw., there's a third type of timer race we have. If a timer function is
+> delayed by more than 1 timer tick [which could happen under eg. UML],
+> then it's possible for the timer function to run on another CPU in
+> parallel to the already executing timer function.
 
-If all your friends jumped off a cliff, would you do it too?
+i've implemented the timer->running field, and it's quite straightforward
+and solves all 3 types of races. It also simplifies del_timer_sync() quite
+visibly, and it's probably a fair del_timer_sync() speedup as well. I
+tested the attached patch on SMP and UP x86 as well, works fine for me.
 
-I submit to you that the reason The Other OS needs the concept of a object
-model from the kernel through to user space is because the architects had a
-very fuzzy concept of "boundary".  Yes, you need stuff like that if your GUI
-and your IIS (yes, really, Win2003 apparently has IIS on the kernel side of the
-boundary now).  If you have a syscall interface, the kernel is free to
-implement read() in any way it wants, and the userspace calling read() is able
-to use it for pretty much anything.
+the timer->running field is now also used to guarantee serialization of
+timer->fn execution of the same timer [race #3]. This is a quite
+reasonable thing to expect, and a fair portion of timer users do expect
+this.
 
-Ask yourself:  (a) Could I implement .NET in userspace using the supplied syscalls?
-(b) If .NET was implemented and enforced kernel-side, could I implement CORBA?
+	Ingo
 
-Remember - it's quite possible that the user wants some OTHER GUI, or some
-OTHER thread model, or some OTHER.....  We're not the operating system run by
-jackboots.
-
-
---==_Exmh_-381369844P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE/iDRicC3lWbTT17ARAuimAJ9fybP+eq2KAwkZ4W/Zjzf70LC+RwCg5POa
-HzuzXTFPJmbm+imlPQCbKrs=
-=sw4R
------END PGP SIGNATURE-----
-
---==_Exmh_-381369844P--
+--- linux/include/linux/timer.h.orig	
++++ linux/include/linux/timer.h	
+@@ -18,6 +18,7 @@ struct timer_list {
+ 	unsigned long data;
+ 
+ 	struct tvec_t_base_s *base;
++	unsigned long running;
+ };
+ 
+ #define TIMER_MAGIC	0x4b87ad6e
+@@ -29,6 +30,7 @@ struct timer_list {
+ 		.base = NULL,					\
+ 		.magic = TIMER_MAGIC,				\
+ 		.lock = SPIN_LOCK_UNLOCKED,			\
++		.running = 0,					\
+ 	}
+ 
+ /***
+@@ -42,6 +44,7 @@ static inline void init_timer(struct tim
+ {
+ 	timer->base = NULL;
+ 	timer->magic = TIMER_MAGIC;
++	timer->running = 0;
+ 	spin_lock_init(&timer->lock);
+ }
+ 
+--- linux/kernel/timer.c.orig	
++++ linux/kernel/timer.c	
+@@ -57,7 +57,6 @@ typedef struct tvec_root_s {
+ struct tvec_t_base_s {
+ 	spinlock_t lock;
+ 	unsigned long timer_jiffies;
+-	struct timer_list *running_timer;
+ 	tvec_root_t tv1;
+ 	tvec_t tv2;
+ 	tvec_t tv3;
+@@ -67,14 +66,6 @@ struct tvec_t_base_s {
+ 
+ typedef struct tvec_t_base_s tvec_base_t;
+ 
+-static inline void set_running_timer(tvec_base_t *base,
+-					struct timer_list *timer)
+-{
+-#ifdef CONFIG_SMP
+-	base->running_timer = timer;
+-#endif
+-}
+-
+ /* Fake initialization */
+ static DEFINE_PER_CPU(tvec_base_t, tvec_bases) = { SPIN_LOCK_UNLOCKED };
+ 
+@@ -315,35 +306,27 @@ EXPORT_SYMBOL(del_timer);
+  * the timer it also makes sure the handler has finished executing on other
+  * CPUs.
+  *
+- * Synchronization rules: callers must prevent restarting of the timer,
+- * otherwise this function is meaningless. It must not be called from
+- * interrupt contexts. Upon exit the timer is not queued and the handler
+- * is not running on any CPU.
++ * Synchronization rules: callers must prevent restarting of the timer
++ * (except restarting the timer from the timer function itself), otherwise
++ * this function is meaningless. It must not be called from interrupt
++ * contexts. Upon exit the timer is not queued and the handler is not
++ * running on any CPU.
+  *
+- * The function returns whether it has deactivated a pending timer or not.
++ * The function returns the number of times it has deactivated a pending
++ * timer.
+  */
+ int del_timer_sync(struct timer_list *timer)
+ {
+-	tvec_base_t *base;
+-	int i, ret = 0;
++	int ret = 0;
+ 
+ 	check_timer(timer);
+ 
+ del_again:
+ 	ret += del_timer(timer);
+ 
+-	for (i = 0; i < NR_CPUS; i++) {
+-		if (!cpu_online(i))
+-			continue;
+-
+-		base = &per_cpu(tvec_bases, i);
+-		if (base->running_timer == timer) {
+-			while (base->running_timer == timer) {
+-				cpu_relax();
+-				preempt_check_resched();
+-			}
+-			break;
+-		}
++	while (unlikely(timer->running)) {
++		cpu_relax();
++		preempt_check_resched();
+ 	}
+ 	smp_rmb();
+ 	if (timer_pending(timer))
+@@ -417,16 +400,36 @@ repeat:
+  			fn = timer->function;
+  			data = timer->data;
+ 
++#ifdef CONFIG_SMP
++			/*
++			 * If the timer is running on another CPU then
++			 * wait for it - without holding the base lock.
++			 * This is a very rare but possible situation.
++			 *
++			 * Re-start the whole processing after that, the
++			 * timer might have been removed while we dropped
++			 * the lock.
++			 */
++			if (unlikely(timer->running)) {
++				spin_unlock_irq(&base->lock);
++				while (timer->running)
++					cpu_relax();
++				spin_lock_irq(&base->lock);
++				goto repeat;
++			}
++			timer->running = 1;
++#endif
+ 			list_del(&timer->entry);
+ 			timer->base = NULL;
+-			set_running_timer(base, timer);
+ 			spin_unlock_irq(&base->lock);
+ 			fn(data);
+ 			spin_lock_irq(&base->lock);
++#ifdef CONFIG_SMP
++			timer->running = 0;
++#endif
+ 			goto repeat;
+ 		}
+ 	}
+-	set_running_timer(base, NULL);
+ 	spin_unlock_irq(&base->lock);
+ }
+ 

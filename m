@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289671AbSBERcB>; Tue, 5 Feb 2002 12:32:01 -0500
+	id <S289679AbSBERcT>; Tue, 5 Feb 2002 12:32:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289679AbSBERby>; Tue, 5 Feb 2002 12:31:54 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:52229 "HELO
+	id <S289686AbSBERcD>; Tue, 5 Feb 2002 12:32:03 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:63237 "HELO
 	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S289677AbSBERbn>; Tue, 5 Feb 2002 12:31:43 -0500
+	id <S289685AbSBERbp>; Tue, 5 Feb 2002 12:31:45 -0500
 Date: Tue, 5 Feb 2002 20:31:38 +0300
 From: Oleg Drokin on behalf of Hans Reiser <reiser@namesys.com>
 To: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
         reiserfs-dev@namesys.com
-Subject: [PATCH] reiserfs patchset, patch 4 of 9 04-nfs_stale_inode_access.diff
-Message-ID: <20020205203138.A9896@namesys.com>
+Subject: [PATCH] reiserfs patchset, patch 6 of 9 06-return_braindamage_removal.diff
+Message-ID: <20020205203138.A9915@namesys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -26,11 +26,8 @@ This set of patches of which this is one will update ReiserFS in 2.5.3
 with latest bugfixes. Also it cleanups the code a bit and adds more helpful
 messages in some places.
 
-04-nfs_stale_inode_access.diff
-    This is to fix a case where stale NFS handles are correctly detected as
-    stale, but inodes assotiated with them are still valid and present in cache,    hence there is no way to deal with files, these handles are attached to.
-    Bug was found and explained by
-    Anne Milicia <milicia@missioncriticallinux.com>
+06-return_braindamage_removal.diff
+    Kill stupid code like 'goto label ; return 1;'
 
 
 The other patches in this set are:
@@ -69,51 +66,40 @@ The other patches in this set are:
     Bitopts arguments must be long, not int.
 
 
---- linux-2.5.3/fs/reiserfs/inode.c.orig	Tue Feb  5 16:15:04 2002
-+++ linux-2.5.3/fs/reiserfs/inode.c	Tue Feb  5 16:42:00 2002
-@@ -1154,6 +1154,7 @@
- 	/* a stale NFS handle can trigger this without it being an error */
- 	pathrelse (&path_to_sd);
- 	make_bad_inode(inode) ;
-+	inode->i_nlink = 0;
- 	return;
-     }
+--- linux-2.5.3/fs/reiserfs/fix_node.c.orig	Thu Jan 31 09:25:23 2002
++++ linux-2.5.3/fs/reiserfs/fix_node.c	Tue Feb  5 16:48:52 2002
+@@ -2356,7 +2356,6 @@
+     for ( n_h = 0; n_h < MAX_HEIGHT && p_s_tb->insert_size[n_h]; n_h++ ) { 
+ 	if ( (n_ret_value = get_direct_parent(p_s_tb, n_h)) != CARRY_ON ) {
+ 	    goto repeat;
+-	    return n_ret_value;
+ 	}
  
-@@ -1186,6 +1187,27 @@
+ 	if ( (n_ret_value = check_balance (n_op_mode, p_s_tb, n_h, n_item_num,
+@@ -2365,7 +2364,6 @@
+ 		/* No balancing for higher levels needed. */
+ 		if ( (n_ret_value = get_neighbors(p_s_tb, n_h)) != CARRY_ON ) {
+ 		    goto repeat;
+-		    return n_ret_value;
+ 		}
+ 		if ( n_h != MAX_HEIGHT - 1 )  
+ 		    p_s_tb->insert_size[n_h + 1] = 0;
+@@ -2373,17 +2371,14 @@
+ 		break;
+ 	    }
+ 	    goto repeat;
+-	    return n_ret_value;
+ 	}
  
- }
+ 	if ( (n_ret_value = get_neighbors(p_s_tb, n_h)) != CARRY_ON ) {
+ 	    goto repeat;
+-	    return n_ret_value;
+ 	}
  
-+/**
-+ * reiserfs_find_actor() - "find actor" reiserfs supplies to iget4().
-+ *
-+ * @inode:    inode from hash table to check
-+ * @inode_no: inode number we are looking for
-+ * @opaque:   "cookie" passed to iget4(). This is &reiserfs_iget4_args.
-+ *
-+ * This function is called by iget4() to distinguish reiserfs inodes
-+ * having the same inode numbers. Such inodes can only exist due to some
-+ * error condition. One of them should be bad. Inodes with identical
-+ * inode numbers (objectids) are distinguished by parent directory ids.
-+ *
-+ */
-+static int reiserfs_find_actor( struct inode *inode, 
-+				unsigned long inode_no, void *opaque )
-+{
-+    struct reiserfs_iget4_args *args;
-+
-+    args = opaque;
-+    return INODE_PKEY( inode ) -> k_dir_id == args -> objectid;
-+}
- 
- struct inode * reiserfs_iget (struct super_block * s, const struct cpu_key * key)
- {
-@@ -1193,7 +1215,8 @@
-     struct reiserfs_iget4_args args ;
- 
-     args.objectid = key->on_disk_key.k_dir_id ;
--    inode = iget4 (s, key->on_disk_key.k_objectid, 0, (void *)(&args));
-+    inode = iget4 (s, key->on_disk_key.k_objectid, 
-+		   reiserfs_find_actor, (void *)(&args));
-     if (!inode) 
- 	return ERR_PTR(-ENOMEM) ;
- 
+ 	if ( (n_ret_value = get_empty_nodes(p_s_tb, n_h)) != CARRY_ON ) {
+-	    goto repeat;
+-	    return n_ret_value; /* No disk space, or schedule occurred and
++	    goto repeat;        /* No disk space, or schedule occurred and
+ 				   analysis may be invalid and needs to be redone. */
+ 	}
+     

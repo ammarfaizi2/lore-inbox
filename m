@@ -1,52 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262175AbTFIVyp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jun 2003 17:54:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262176AbTFIVyp
+	id S262177AbTFIV7R (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jun 2003 17:59:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262179AbTFIV7R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jun 2003 17:54:45 -0400
-Received: from mail-in-04.arcor-online.net ([151.189.21.44]:10441 "EHLO
-	mail-in-04.arcor-online.net") by vger.kernel.org with ESMTP
-	id S262175AbTFIVyo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jun 2003 17:54:44 -0400
-From: Daniel Phillips <dphillips@sistina.com>
-Reply-To: dphillips@sistina.com
-Organization: Sistina
-To: dm-devel@sistina.com, Greg KH <greg@kroah.com>,
-       Joe Thornber <thornber@sistina.com>
-Subject: Re: [dm-devel] Re: [RFC] device-mapper ioctl interface
-Date: Tue, 10 Jun 2003 00:08:54 +0200
-User-Agent: KMail/1.5.2
-Cc: dm-devel@sistina.com, Linux Mailing List <linux-kernel@vger.kernel.org>
-References: <20030605093943.GD434@fib011235813.fsnet.co.uk> <20030606171700.GC12231@kroah.com>
-In-Reply-To: <20030606171700.GC12231@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 9 Jun 2003 17:59:17 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:56265 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S262177AbTFIV7Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jun 2003 17:59:16 -0400
+Date: Mon, 9 Jun 2003 15:09:05 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: rwhron@earthlink.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BENCHMARK] 12% improvement in fork load from mm3 to mm4
+Message-Id: <20030609150905.7e37bc1f.akpm@digeo.com>
+In-Reply-To: <20030609220255.GA8524@rushmore>
+References: <20030609220255.GA8524@rushmore>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200306100008.54715.dphillips@sistina.com>
+X-OriginalArrivalTime: 09 Jun 2003 22:12:56.0127 (UTC) FILETIME=[475604F0:01C32ED4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 06 June 2003 19:17, Greg KH wrote:
-> On Thu, Jun 05, 2003 at 10:39:43AM +0100, Joe Thornber wrote:
-> > Here's the header file for the the proposed new ioctl interface for
-> > dm.  We've tried to change as little as possible to minimise code
-> > changes in LVM2 and EVMS.
+rwhron@earthlink.net wrote:
 >
-> Minor comment:
-> 	- please do not use uint_32t types in kernel header files.  Use
-> 	  the proper __u32 type which is guarenteed to be the proper
-> 	  size across the user/kernel boundry.
+> > autoconf build test creates about 1.2 million processes in
+> > 35 minutes.  On quad xeon, there was an improvement of
+> > ~ 12% between 2.5.70-mm3 and 2.5.70-mm4.
+> > 
+> >               Avg of 3 runs
+> > 2.5.70-mm3    829.0
+> > 2.5.70-mm4    737.9
+> 
+> profile shows the biggest change is in do_page_fault.
 
-I'm not sure what we were both smoking, but obviously all flavors of u32 
-should be the same size regardless of where they are located.  As I 
-understand it, the only interesting difference between __u32 and u32 is that 
-the former is standard C while the latter is Linux's (sensible) local 
-dialect.
+Well that's amusing.  In mm4 I replaced the patch which runs
+remap_file_pages() against all prot_exec mappings with a patch which just
+prefaults those mappings into pagecache.
 
-Regards,
+The difference _should_ be that in mm3, all pte's are set up at mmap time.
+So -mm4 should have more pagefaults, not less.
 
-Daniel
+Something fishy is going on there.  Makes one wonder if remap_file_pages()
+is successfully avoiding the minor fault.
 

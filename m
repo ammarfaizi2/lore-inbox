@@ -1,61 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262492AbTBTUC4>; Thu, 20 Feb 2003 15:02:56 -0500
+	id <S264910AbTBTULh>; Thu, 20 Feb 2003 15:11:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263137AbTBTUCz>; Thu, 20 Feb 2003 15:02:55 -0500
-Received: from tapu.f00f.org ([202.49.232.129]:39825 "EHLO tapu.f00f.org")
-	by vger.kernel.org with ESMTP id <S262492AbTBTUCy>;
-	Thu, 20 Feb 2003 15:02:54 -0500
-Date: Thu, 20 Feb 2003 12:13:00 -0800
-From: Chris Wedgwood <cw@f00f.org>
+	id <S265987AbTBTULh>; Thu, 20 Feb 2003 15:11:37 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:9349
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S264910AbTBTULg>; Thu, 20 Feb 2003 15:11:36 -0500
+Subject: Re: doublefault debugging (was Re: Linux v2.5.62 --- spontaneous
+	reboots)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Zwane Mwaikambo <zwane@holomorphy.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>, Ingo Molnar <mingo@elte.hu>,
+       Dave Hansen <haveblue@us.ibm.com>,
+       Zwane Mwaikambo <zwane@holomorphy.com>, Chris Wedgwood <cw@f00f.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: doublefault debugging (was Re: Linux v2.5.62 --- spontaneous reboots)
-Message-ID: <20030220201300.GA27814@f00f.org>
-References: <Pine.LNX.4.44.0302201245100.10184-100000@localhost.localdomain> <Pine.LNX.4.44.0302200717230.2142-100000@home.transmeta.com>
+In-Reply-To: <Pine.LNX.4.44.0302200847060.2493-100000@home.transmeta.com>
+References: <Pine.LNX.4.44.0302200847060.2493-100000@home.transmeta.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1045776104.3790.34.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0302200717230.2142-100000@home.transmeta.com>
-User-Agent: Mutt/1.3.28i
-X-No-Archive: Yes
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 20 Feb 2003 21:21:45 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 20, 2003 at 07:43:16AM -0800, Linus Torvalds wrote:
+On Thu, 2003-02-20 at 16:54, Linus Torvalds wrote:
+> Ok, the 4kB stack definitely won't work in real life, but that's because 
+> we have some hopelessly bad stack users in the kernel. But the debugging 
+> part would be good to try (in fact, it might be a good idea to keep the 
+> 8kB stack, but with rather anal debugging. Just the "mcount" part should 
+> do that).
 
-> This could explain Chris' problems too - my doublefault thing won't
-> help much if recursion on the stack has clobbered a lot of kernel
-> state (and the doublefault will likely happen only after enough
-> state is clobbered that even the doublefault handling might have
-> trouble).
+You also need IRQ stacks to get down to 4K. The wrong pattern of ten
+different IRQ handlers using a mere 200 bytes each will eventually
+happen and eventually kill you otherwise.
 
-An overflow *might* explain why
+> That ide_unregister() thing uses up >2kB in just one call! And there are 
+> several in the 1.5kB range too, with a long list of ~500 byte offenders.
 
-  - it never happens under 2.4.x
+ide_unregister is a really stupid one. Its copying a struct mostly to
+restore fields it shouldnt be restoring but should be setting in the 
+allocator. I hadn't realised quite how bad it was. Added to the ide
+shitlist
 
-  - for some configurations of 2.5.x it never seems to happen either
-
-  - for some configurations of 2.5.x it does happen, but it's very
-    nebulous as to which options are required to make this happen;
-    very few options seems table,  many options crashes quickly, and a
-    in-between it lasts for what might be slightly longer periods of
-    time
-
-Now, one thing I'm using that many people may not be is XFS, ACLs &
-quota.  Since IRIX has almost inifinite memory available in
-kernel-space, I should check to make sure XFS isn't sucking too much
-stack space somewhere...  it could be that it is, and depending on the
-right magic internal XFS state and when an interrupt arrives or
-similar, something goes splat.
-
-I have the stack checking on, but as observed it may not suffice.  I
-wonder if 16k stacks are possible for testing?
-
-
-
-  --cw
 

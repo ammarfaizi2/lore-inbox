@@ -1,59 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263714AbTDDOit (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 09:38:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263724AbTDDOiO (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 09:38:14 -0500
-Received: from [61.11.16.46] ([61.11.16.46]:15372 "EHLO mailpune.cygnet.co.in")
-	by vger.kernel.org with ESMTP id S263714AbTDDOaK (for <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Apr 2003 09:30:10 -0500
-Subject: Re: Deactivating TCP checksumming
-From: Abhishek Agrawal <abhishek@abhishek.agrawal.name>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <3E8C9DDD.3080205@pobox.com>
-References: <F91mkXMUIhAumscmKC00000f517@hotmail.com>
-	<20030401122824.GY29167@mea-ext.zmailer.org> <b6fda2$oec$1@main.gmane.org>
-	<20030402203653.GA2503@gtf.org> <b6fi8m$j4g$1@main.gmane.org>
-	<20030402205855.GA4125@gtf.org> <b6i5t1$h0t$1@main.gmane.org>
-	<3E8C9DDD.3080205@pobox.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10)
-Date: 04 Apr 2003 19:38:12 +0530
-Message-Id: <1049465292.3352.31.camel@abhilinux.cygnet.co.in>
+	id S263471AbTDDRrA (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 12:47:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263530AbTDDRor (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 12:44:47 -0500
+Received: from adsl-67-121-155-183.dsl.pltn13.pacbell.net ([67.121.155.183]:11232
+	"EHLO triplehelix.org") by vger.kernel.org with ESMTP
+	id S263900AbTDDRjK (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 4 Apr 2003 12:39:10 -0500
+Date: Fri, 4 Apr 2003 09:50:34 -0800
+To: Andrey Panin <pazke@orbita1.ru>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] missing FB_VISUAL_PSEUDOCOLOR in fb_prepare_logo()
+Message-ID: <20030404175034.GA819@triplehelix.org>
+References: <20030404095837.GB964@pazke>
 Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="6c2NcOVqGQ03X4Wi"
+Content-Disposition: inline
+In-Reply-To: <20030404095837.GB964@pazke>
+User-Agent: Mutt/1.5.4i
+From: Joshua Kwan <joshk@triplehelix.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-04-04 at 02:17, Jeff Garzik wrote:
 
->
-> CHECKSUM_HW is for receive, not transmit.  Read the comments at the top
-> of include/linux/skbuff.h.
->
-Actually CHECKSUM_HW can be set at either of the "producer" ends. At
-least this is what I gather from  tcp_output.c
+--6c2NcOVqGQ03X4Wi
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-// tcp_output.c:454
-if (!skb_shinfo(skb)->nr_frags && skb->ip_summed != CHECKSUM_HW) {
-  //...
-        }
-else {
-                skb->ip_summed = CHECKSUM_HW;
-                skb_split(skb, buff, len);
-     }
+On Fri, Apr 04, 2003 at 01:58:37PM +0400, Andrey Panin wrote:
+> Hi,
+>=20
+> this patch (2.5.66) fixes mighty penguin logo not appearing
+> on visual workstation framebuffer. The trouble is missing
+> 'case FB_VISUAL_PSEUDOCOLOR:' in fb_prepare_logo() function.
 
-AND
+This repairs the logo for me on i386 as well. Thanks.
+If only the console cursor weren't so dodgy ... it would be=20
+perfect now ;)
 
-//1014 dev.c:dev_queue_xmit()
-        /* If packet is not checksummed and device does not support
-         * checksumming for this protocol, complete checksumming here.
-         */
-        if (skb->ip_summed == CHECKSUM_HW &&
-            (!(dev->features&(NETIF_F_HW_CSUM|NETIF_F_NO_CSUM)) &&
-             (!(dev->features&NETIF_F_IP_CSUM) ||
-              skb->protocol != htons(ETH_P_IP)))) {
-                if ((skb = skb_checksum_help(skb)) == NULL)
-                        return -ENOMEM;
-        }
+-Josh
 
+--=20
+New PGP public key: 0x27AFC3EE
 
+--6c2NcOVqGQ03X4Wi
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+jcXqT2bz5yevw+4RAp4PAKClgfAeT60JPbjD5oyAv4yl5BPXzACgheyL
+bYW5yjnuJ+HcbDDuppPt9pg=
+=HsSw
+-----END PGP SIGNATURE-----
+
+--6c2NcOVqGQ03X4Wi--

@@ -1,49 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262155AbREPXxC>; Wed, 16 May 2001 19:53:02 -0400
+	id <S262149AbREPXxn>; Wed, 16 May 2001 19:53:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262149AbREPXww>; Wed, 16 May 2001 19:52:52 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:38149 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S262155AbREPXwn>; Wed, 16 May 2001 19:52:43 -0400
-Date: Wed, 16 May 2001 16:52:01 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Geert Uytterhoeven <geert@linux-m68k.org>,
-        Jonathan Lundell <jlundell@pobox.com>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        James Simmons <jsimmons@transvirtual.com>,
-        Neil Brown <neilb@cse.unsw.edu.au>,
-        "H. Peter Anvin" <hpa@transmeta.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        viro@math.psu.edu
-Subject: Re: LANANA: To Pending Device Number Registrants
-In-Reply-To: <E150AgG-0004bb-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.21.0105161650010.8079-100000@penguin.transmeta.com>
+	id <S262159AbREPXxc>; Wed, 16 May 2001 19:53:32 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:50189 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S262149AbREPXxU>; Wed, 16 May 2001 19:53:20 -0400
+Subject: Re: [PATCH] rootfs (part 1)
+To: cr@sap.com (Christoph Rohland)
+Date: Thu, 17 May 2001 00:49:15 +0100 (BST)
+Cc: torvalds@transmeta.com (Linus Torvalds),
+        viro@math.psu.edu (Alexander Viro), linux-kernel@vger.kernel.org
+In-Reply-To: <m3ofst5gs5.fsf@linux.local> from "Christoph Rohland" at May 16, 2001 07:45:46 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E150B2Z-0004fV-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Thu, 17 May 2001, Alan Cox wrote:
->
-> > Are FireWire (and USB) disks always detected in the same order? Or does it
-> > behave like ADB, where you never know which mouse/keyboard is which
-> > mouse/keyboard?
+> cr:/speicher/src/u4ac9 $ ls -l mm/shmem.o*
+> -rw-r--r--    1 cr       users      154652 Mai 16 19:27 mm/shmem.o-tmpfs
+> -rw-r--r--    1 cr       users      180764 Mai 16 19:24 mm/shmem.o+tmpfs
+> cr:/speicher/src/u4ac9 $ ls -l fs/ramfs/ramfs.o
+> -rw-r--r--    1 cr       users      141452 Mai 16 19:27 fs/ramfs/ramfs.o
 > 
-> USB disks are required (haha etc) to have serial numbers. Firewire similarly
-> has unique disk identifiers.  
+> So CONFIG_TMPFS adds 26k and ramfs 140k.
 
-Well, as that doesn't actually work out in practice, the good news is that
-USB at least _tries_ to always walk the tree the same way when detecting
-devices, so if you don't change where your devices are in the topologu
-they should show up in similar places.
+I think you have a major tool problem.
 
-Of course, "not changing topology" also means things like not powering off
-devices with external power supplies etc..
+bash-2.04$ size mm/shmem.o
+   text	   data	    bss	    dec	    hex	filename
+   7422	    572	      0	   7994	   1f3a	mm/shmem.o
+bash-2.04$ size fs/ramfs/ramfs.o 
+   text	   data	    bss	    dec	    hex	filename
+   3185	    368	      0	   3553	    de1	fs/ramfs/ramfs.o
 
-The serial numbers are probably not that reliable.
+Never trust ls -l size for binaries, its very very unrelated.
 
-		Linus
+So ramfs is 3553 bytes, shmem.o in total is 8K on current -ac.
+
 

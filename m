@@ -1,34 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318075AbSHKTBp>; Sun, 11 Aug 2002 15:01:45 -0400
+	id <S318153AbSHKTQk>; Sun, 11 Aug 2002 15:16:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318121AbSHKTBp>; Sun, 11 Aug 2002 15:01:45 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:9231 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S318075AbSHKTBp>; Sun, 11 Aug 2002 15:01:45 -0400
-Date: Sun, 11 Aug 2002 12:06:57 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andrew Morton <akpm@zip.com.au>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 4/21] fix ARCH_HAS_PREFETCH
-In-Reply-To: <3D56B13A.D3F741D1@zip.com.au>
-Message-ID: <Pine.LNX.4.44.0208111203520.9930-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318237AbSHKTQk>; Sun, 11 Aug 2002 15:16:40 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:33524 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S318153AbSHKTQj>; Sun, 11 Aug 2002 15:16:39 -0400
+Subject: Re: [PATCH] Linux-2.5 fix/improve get_pid()
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Paul Larson <plars@austin.ibm.com>,
+       Hubertus Franke <frankeh@us.ibm.com>,
+       Rik van Riel <riel@conectiva.com.br>, Andries Brouwer <aebr@win.tue.nl>,
+       Andrew Morton <akpm@zip.com.au>, andrea@suse.de,
+       Dave Jones <davej@suse.de>, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020810194813.D306@kushida.apsleyroad.org>
+References: <20020810182317.A306@kushida.apsleyroad.org>
+	<Pine.LNX.4.44.0208101132490.2197-100000@home.transmeta.com> 
+	<20020810194813.D306@kushida.apsleyroad.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 11 Aug 2002 21:41:14 +0100
+Message-Id: <1029098474.16236.58.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Sun, 11 Aug 2002, Andrew Morton wrote:
+On Sat, 2002-08-10 at 19:48, Jamie Lokier wrote:
+> Linus Torvalds wrote:
+> > > Oh dear -- what of programs that assume duplicate inode numbers are hard
+> > > links, and therefore assume the same contents will be found in each
+> > > duplicate?
+> > 
+> > Well, anybody who tries to back up /proc with "tar" is in for some 
+> > surprises anyway ;)
 > 
-> It's actually a special-case inside the compiler to not optimise
-> away such constructs.
+> I was thinking of an over-intelligent `find'.  But hey, as long as this
+> is only for the weird and wonderful /proc :-)
 
-I thought that special case was removed long ago, because it is untenable 
-in C++ etc (where such empty loops happen due to various abstraction 
-issues, and not optimizing them away is just silly).
-
-But testing shows that you're right at least for 2.95 and 2.96. Argh
-
-		Linus
+If they hold both handles open and stat them and find the same inode
+number then yes its a bug. We have lots of room for inode numbers to
+handle 2^30 processes and allow for 2^30 other files
 

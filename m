@@ -1,47 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264813AbTFBRaj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 13:30:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264814AbTFBRaj
+	id S264811AbTFBRiA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 13:38:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264812AbTFBRiA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 13:30:39 -0400
-Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:17163 "EHLO
-	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
-	id S264813AbTFBRaP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 13:30:15 -0400
-Date: Mon, 2 Jun 2003 19:43:22 +0200
-From: Jurriaan <thunder7@xs4all.nl>
-To: Josh Litherland <josh@temp123.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Working UP IOAPIC ?
-Message-ID: <20030602174322.GA26533@middle.of.nowhere>
-Reply-To: thunder7@xs4all.nl
-References: <20030602173231.GA10363@temp123.org>
+	Mon, 2 Jun 2003 13:38:00 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:28434 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S264811AbTFBRh7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jun 2003 13:37:59 -0400
+Date: Mon, 2 Jun 2003 18:51:18 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Paul Rolland <rol@as2917.net>
+Cc: "'Ruud Linders'" <rkmp@xs4all.nl>, linux-kernel@vger.kernel.org
+Subject: Re: Serial port numbering (ttyS..) wrong for 2.5.61+
+Message-ID: <20030602185118.B776@flint.arm.linux.org.uk>
+Mail-Followup-To: Paul Rolland <rol@as2917.net>,
+	'Ruud Linders' <rkmp@xs4all.nl>, linux-kernel@vger.kernel.org
+References: <3ED9E025.1060801@xs4all.nl> <015a01c3283c$11642370$2101a8c0@witbe>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030602173231.GA10363@temp123.org>
-X-Message-Flag: Still using Outlook? Please Upgrade to real software!
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <015a01c3283c$11642370$2101a8c0@witbe>; from rol@as2917.net on Sun, Jun 01, 2003 at 02:48:14PM +0200
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Josh Litherland <josh@temp123.org>
-Date: Mon, Jun 02, 2003 at 12:32:31PM -0500
-> Are there any mainboards for AMD Thoroughbred core on which the UP
-> IOAPIC works with Linux?  I've tried several, all have had floods of
-> APIC error (02) and (00), and I understand from previous postings that
-> this indicates my APIC bus is buggy.
+On Sun, Jun 01, 2003 at 02:48:14PM +0200, Paul Rolland wrote:
+> Numbering seems to be coming out of 
+> drivers/serial/core.c : uart_find_match_or_unused
+> which is responsible for finding an unused state for the port.
 > 
-My Epox 8K9A3+ works perfectly with it's APIC, as long as I don't use
-ACPI, that is. I'm using a XP2400, this board has a VIA KT400 chipset.
+> However, the code there seems to be clean and I guess we should look
+> where the state are initialized.
 
-Never seen any APIC errors.
+When we add a port to the system, we try to find in order:
 
-HTH,
-Jurriaan
+- a port which matches the base address
+- a port which is unallocated
+
+Probably the easiest way to stop the "ttyS14" occuring would be to
+clear the port information at boot when we don't find a port.
+
 -- 
-Be warned that typing \fBkillall \fIname\fP may not have the desired
-effect on non-Linux systems, especially when done by a privileged user.
-	From the killall manual page
-Debian (Unstable) GNU/Linux 2.5.70 4112 bogomips load av: 0.26 0.30 0.12
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

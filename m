@@ -1,57 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261279AbVAWKTR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261272AbVAWKgc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261279AbVAWKTR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Jan 2005 05:19:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261293AbVAWKSB
+	id S261272AbVAWKgc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Jan 2005 05:36:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261285AbVAWKfo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Jan 2005 05:18:01 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:62471 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261285AbVAWKRB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Jan 2005 05:17:01 -0500
-Date: Sun, 23 Jan 2005 11:17:00 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
+	Sun, 23 Jan 2005 05:35:44 -0500
+Received: from rproxy.gmail.com ([64.233.170.206]:63797 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261272AbVAWKc4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Jan 2005 05:32:56 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=KMkGo0X8TBC3LSp/ik6cKk5R8c7CJl9HRC6qqbzeGc/ePtPsjLGEmGUn/QEYxOQxEI4Ns5SPU5yoF+bZeVklI6cBcU4qqEvan+HPHaUCipuQ1lbmYRSCazMPVaqRD/yQpUgNgm6CusGzFFQ+Q+Dof0K7Qpf3oACT1kBGMdl9iuM=
+Message-ID: <aad1205e050123023214c4fa5c@mail.gmail.com>
+Date: Sun, 23 Jan 2005 18:32:54 +0800
+From: andyliu <liudeyan@gmail.com>
+Reply-To: andyliu <liudeyan@gmail.com>
+To: Adrian Bunk <bunk@stusta.de>
+Subject: Re: [2.6 patch] loop.c: make two functions static
 Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/block/rd.c: make two variables static
-Message-ID: <20050123101700.GI3212@stusta.de>
+In-Reply-To: <20050123101710.GJ3212@stusta.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <20050123101710.GJ3212@stusta.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes two needlessly global variables static.
+hi, adrian
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+i always see patches which set functions and variables to static.
+what's the main difference between static and non-static things?
 
----
+On Sun, 23 Jan 2005 11:17:10 +0100, Adrian Bunk <bunk@stusta.de> wrote:
+> This patch makes two needlessly global functions static.
+> 
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> 
+> ---
+> 
+>  drivers/block/loop.c |    4 ++--
+>  1 files changed, 2 insertions(+), 2 deletions(-)
+> 
+> This patch was already sent on:
+> - 29 Nov 2004
+> 
+> --- linux-2.6.10-rc1-mm3-full/drivers/block/loop.c.old  2004-11-06 20:09:10.000000000 +0100
+> +++ linux-2.6.10-rc1-mm3-full/drivers/block/loop.c      2004-11-06 20:09:31.000000000 +0100
+> @@ -1114,7 +1114,7 @@
+>  EXPORT_SYMBOL(loop_register_transfer);
+>  EXPORT_SYMBOL(loop_unregister_transfer);
+> 
+> -int __init loop_init(void)
+> +static int __init loop_init(void)
+>  {
+>         int     i;
+> 
+> @@ -1189,7 +1189,7 @@
+>         return -ENOMEM;
+>  }
+> 
+> -void loop_exit(void)
+> +static void loop_exit(void)
+>  {
+>         int i;
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
- drivers/block/rd.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
 
-This patch was already sent on:
-- 29 Nov 2004
-
---- linux-2.6.10-rc1-mm3-full/drivers/block/rd.c.old	2004-11-06 20:18:40.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/block/rd.c	2004-11-06 20:19:25.000000000 +0100
-@@ -77,7 +77,7 @@
-  * architecture-specific setup routine (from the stored boot sector
-  * information).
-  */
--int rd_size = CONFIG_BLK_DEV_RAM_SIZE;		/* Size of the RAM disks */
-+static int rd_size = CONFIG_BLK_DEV_RAM_SIZE;	/* Size of the RAM disks */
- /*
-  * It would be very desirable to have a soft-blocksize (that in the case
-  * of the ramdisk driver is also the hardblocksize ;) of PAGE_SIZE because
-@@ -89,7 +89,7 @@
-  * behaviour. The default is still BLOCK_SIZE (needed by rd_load_image that
-  * supposes the filesystem in the image uses a BLOCK_SIZE blocksize).
-  */
--int rd_blocksize = BLOCK_SIZE;			/* blocksize of the RAM disks */
-+static int rd_blocksize = BLOCK_SIZE;		/* blocksize of the RAM disks */
- 
- /*
-  * Copyright (C) 2000 Linus Torvalds.
-
+-- 
+Yours andyliu

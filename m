@@ -1,79 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261211AbUL2A7d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261272AbUL2BOU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261211AbUL2A7d (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Dec 2004 19:59:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261271AbUL2A7c
+	id S261272AbUL2BOU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Dec 2004 20:14:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261273AbUL2BOU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Dec 2004 19:59:32 -0500
-Received: from dsl-209-183-20-58.tor.primus.ca ([209.183.20.58]:11648 "EHLO
-	node1.opengeometry.net") by vger.kernel.org with ESMTP
-	id S261211AbUL2A70 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Dec 2004 19:59:26 -0500
-Date: Tue, 28 Dec 2004 19:59:22 -0500
-From: William Park <opengeometry@yahoo.ca>
-To: linux-kernel@vger.kernel.org
-Subject: Re: waiting 10s before mounting root filesystem?
-Message-ID: <20041229005922.GA2520@node1.opengeometry.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20041227195645.GA2282@node1.opengeometry.net> <20041227201015.GB18911@sweep.bur.st> <41D07D56.7020702@netshadow.at>
+	Tue, 28 Dec 2004 20:14:20 -0500
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:34482
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S261272AbUL2BOR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Dec 2004 20:14:17 -0500
+Date: Tue, 28 Dec 2004 17:12:46 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [sunrpc] remove xdr_kmap()
+Message-Id: <20041228171246.496f3eab.davem@davemloft.net>
+In-Reply-To: <20041228230416.GM771@holomorphy.com>
+References: <20041228230416.GM771@holomorphy.com>
+X-Mailer: Sylpheed version 1.0.0rc (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41D07D56.7020702@netshadow.at>
-User-Agent: Mutt/1.4.2i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 27, 2004 at 10:23:34PM +0100, Andreas Unterkircher wrote:
-> >>How do I make the kernel to wait about 10s before attempting to
-> >>mount root filesystem?  Is there obscure kernel parameter?
-> >>
-> >>I can load the kernel from /dev/fd0, then mount /dev/hda2 as root
-> >>filesystem.  But, I can't seem to mount /dev/sda1 (USB key drive) as
-> >>root filesystem.  All relevant USB and SCSI modules are compiled
-> >>into the kernel.  I think kernel is too fast in panicking.  I would
-> >>like the kernel to wait about 10s until 'usb-storage' and 'sd_mod'
-> >>work out all the details.
-> >
-> >This is really suited to the task of an initrd, then you can spin
-> >until the usb storage device comes up in a bash script or something
-> >similar.
->
-> Or you could try a patch from Randy Dunlap & Eric Lammerts [1] which 
-> loops around in do_mounts.c
-> until the root filesystem can be mounted.... not that beautiful - but it 
-> works :)
-> 
-> [1] http://www.xenotime.net/linux/usb/usbboot-2422.patch
-> 
-> Cheers,
-> Andreas
-> 
-> PS: In the same manner you can do it with 2.6
+On Tue, 28 Dec 2004 15:04:16 -0800
+William Lee Irwin III <wli@holomorphy.com> wrote:
 
-Thanks Andreas.  I can now boot from my el-cheapo USB key drive (256MB
-SanDisk Cruzer Mini).  Since mine takes about 5sec to show up, I decided
-to wait 5sec instead of 1sec.  Here is diff for 2.6.10:
+> In this process, I stumbled over a blatant kmap() deadlock in
+> xdr_kmap(), which fortunately is never called.
 
---- ./init/do_mounts.c--orig	2004-12-27 17:36:35.000000000 -0500
-+++ ./init/do_mounts.c	2004-12-28 17:27:26.000000000 -0500
-@@ -301,7 +301,14 @@ retry:
- 				root_device_name, b);
- 		printk("Please append a correct \"root=\" boot option\n");
- 
-+#if 0	/* original code */
- 		panic("VFS: Unable to mount root fs on %s", b);
-+#else
-+		printk ("Waiting 5 seconds to try again...\n");
-+		set_current_state(TASK_INTERRUPTIBLE);
-+		schedule_timeout(5 * HZ);
-+		goto retry;
-+#endif
- 	}
- 	panic("VFS: Unable to mount root fs on %s", __bdevname(ROOT_DEV, b));
- out:
-
--- 
-William Park <opengeometry@yahoo.ca>
-Open Geometry Consulting, Toronto, Canada
-Linux solution for data processing. 
+This got zapped by a cleanup patch by Adrian Bunk which
+I applied yesterdat.  Linus just hasn't pulled from my
+tree yet.

@@ -1,40 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262084AbSIYWG1>; Wed, 25 Sep 2002 18:06:27 -0400
+	id <S262125AbSIYWRv>; Wed, 25 Sep 2002 18:17:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262100AbSIYWG1>; Wed, 25 Sep 2002 18:06:27 -0400
-Received: from ausadmmsrr501.aus.amer.dell.com ([143.166.83.88]:21002 "HELO
-	AUSADMMSRR501.aus.amer.dell.com") by vger.kernel.org with SMTP
-	id <S262084AbSIYWG1>; Wed, 25 Sep 2002 18:06:27 -0400
-X-Server-Uuid: ff595059-9672-488a-bf38-b4dee96ef25b
-Message-ID: <20BF5713E14D5B48AA289F72BD372D68C1E8C1@AUSXMPC122.aus.amer.dell.com>
-From: Matt_Domsch@Dell.com
-To: greg@kroah.com
-cc: mochel@osdl.org, linux-kernel@vger.kernel.org
-Subject: RE: devicefs requests
-Date: Wed, 25 Sep 2002 17:11:43 -0500
+	id <S262127AbSIYWRv>; Wed, 25 Sep 2002 18:17:51 -0400
+Received: from dsl-213-023-040-245.arcor-ip.net ([213.23.40.245]:29131 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S262125AbSIYWRu>;
+	Wed, 25 Sep 2002 18:17:50 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Dave Olien <dmo@osdl.org>, "David S. Miller" <davem@redhat.com>
+Subject: Re: DAC960, documentation links
+Date: Thu, 26 Sep 2002 00:23:11 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: davidm@hpl.hp.com, Nicolas Turro <Nicolas.Turro@sophia.inria.fr>,
+       axboe@suse.de, _deepfire@mail.ru, linux-kernel@vger.kernel.org
+References: <20020923120400.A15452@acpi.pdx.osdl.net> <E17ttf4-0003iY-00@starship> <E17uKWQ-0003uA-00@starship>
+In-Reply-To: <E17uKWQ-0003uA-00@starship>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-X-WSS-ID: 118CEB15876158-01-01
-Content-Type: text/plain; 
- charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17uKYp-0003uF-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Fair enough.  I actually only need the 64-bit unique ID that 
-> the USB device provides, and its parent PCI device.  
+On Thursday 26 September 2002 00:20, Daniel I wrote
+> This appears to be the best that Mylex can offer:
+> 
+>    http://www.mylex.com/support/index.html
+>    (contact technical support)
+> 
+> As you said.
 
-Oh, and of course being able to walk the list of existing devices on that
-bus (similar to bus_for_each_dev() now, with a callback mechanism that
-allows comparison of one device (BIOSs idea of a device) with what the
-device thinks of itself - to allow matching.
+Wait:
 
--Matt
+  http://www.mylex.com/products/hpr/ex2000/eXtremeRAID2000.pdf
 
---
-Matt Domsch
-Sr. Software Engineer, Lead Engineer, Architect
-Dell Linux Solutions www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
-
+-- 
+Daniel

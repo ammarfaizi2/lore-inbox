@@ -1,43 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264779AbUEPSdq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264781AbUEPSjA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264779AbUEPSdq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 May 2004 14:33:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264782AbUEPSdq
+	id S264781AbUEPSjA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 May 2004 14:39:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264782AbUEPSjA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 May 2004 14:33:46 -0400
-Received: from mail.kroah.org ([65.200.24.183]:52920 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S264779AbUEPSdn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 May 2004 14:33:43 -0400
-Date: Sun, 16 May 2004 11:31:55 -0700
-From: Greg KH <greg@kroah.com>
-To: David Brownell <david-b@pacbell.net>
-Cc: Linus Torvalds <torvalds@osdl.org>, akpm@osdl.org,
-       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [linux-usb-devel] [BK PATCH] USB changes for 2.6.6
-Message-ID: <20040516183155.GA17468@kroah.com>
-References: <20040514224516.GA16814@kroah.com> <20040515113251.GA27011@suse.de> <Pine.LNX.4.58.0405151034500.10718@ppc970.osdl.org> <40A7AA0B.5000200@pacbell.net>
+	Sun, 16 May 2004 14:39:00 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:18116 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S264781AbUEPSi6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 May 2004 14:38:58 -0400
+Date: Sun, 16 May 2004 20:38:49 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Andrew Morton <akpm@osdl.org>, greg@kroah.com
+Cc: linux-kernel@vger.kernel.org
+Subject: 2.6.6-mm3: USB console.c doesn't compile
+Message-ID: <20040516183849.GO22742@fs.tum.de>
+References: <20040516025514.3fe93f0c.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <40A7AA0B.5000200@pacbell.net>
+In-Reply-To: <20040516025514.3fe93f0c.akpm@osdl.org>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 16, 2004 at 10:51:07AM -0700, David Brownell wrote:
-> Linus Torvalds wrote:
-> 
-> >... would never have
-> >compiled with debugging on anyway. 
-> 
-> Speaking of which, please consider merging this.  It
-> missed Greg's push on Friday, but it's needed to build
-> OHCI and EHCI with CONFIG_USB_DEBUG when !CONFIG_PM.
+The following compile error comes from Linus' tree:
 
-I'm making up a few more patches to send to Linus tomorrow with a few
-bug fixes like this for the USB code.  I'll fix this up properly...
+<--  snip  -->
 
-thanks,
+...
+  CC      drivers/usb/serial/console.o
+drivers/usb/serial/console.c: In function `usb_console_setup':
+drivers/usb/serial/console.c:140: warning: implicit declaration of function `serial_paranoia_check'
+...
+  LD      .tmp_vmlinux1
+drivers/built-in.o(.init.text+0x698c8): In function `usb_console_setup':
+: undefined reference to `serial_paranoia_check'
+make: *** [.tmp_vmlinux1] Error 1
 
-greg k-h
+<--  snip   -->
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

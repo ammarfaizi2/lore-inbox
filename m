@@ -1,54 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261660AbTLLSMN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Dec 2003 13:12:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261719AbTLLSMN
+	id S261605AbTLLSIq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Dec 2003 13:08:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261659AbTLLSIq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Dec 2003 13:12:13 -0500
-Received: from mta4.rcsntx.swbell.net ([151.164.30.28]:6597 "EHLO
-	mta4.rcsntx.swbell.net") by vger.kernel.org with ESMTP
-	id S261660AbTLLSMK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Dec 2003 13:12:10 -0500
-Date: Fri, 12 Dec 2003 10:12:06 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Rik van Riel <riel@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Mem: and Swap: lines in /proc/meminfo
-Message-ID: <20031212181206.GL15401@matchmail.com>
-Mail-Followup-To: Rik van Riel <riel@redhat.com>,
-	linux-kernel@vger.kernel.org
-References: <20031211230511.GI15401@matchmail.com> <Pine.LNX.4.44.0312120658001.17287-100000@chimarrao.boston.redhat.com>
+	Fri, 12 Dec 2003 13:08:46 -0500
+Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:52121
+	"EHLO animx.eu.org") by vger.kernel.org with ESMTP id S261605AbTLLSIq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Dec 2003 13:08:46 -0500
+Date: Fri, 12 Dec 2003 13:17:04 -0500
+From: Wakko Warner <wakko@animx.eu.org>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6 and IDE "geometry"
+Message-ID: <20031212131704.A26577@animx.eu.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0312120658001.17287-100000@chimarrao.boston.redhat.com>
-User-Agent: Mutt/1.5.4i
+X-Mailer: Mutt 0.95.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 12, 2003 at 07:00:30AM -0500, Rik van Riel wrote:
-> On Thu, 11 Dec 2003, Mike Fedyk wrote:
-> 
-> > > Note that the inactive clean pages count (more or less)
-> > > as free pages, too.
-> > 
-> > But I should count it as "Inactive" right?
-> 
-> Yeah.
+Is there anyway to get kernel 2.6 to use the geometry the bios has for an
+IDE drive?
 
-OK.
+I have a installation setup that installs a non-linux os and I partition the
+drive under linux.  In 2.4 this has worked flawlessly, however, 2.6 reports
+as # cylinders/16 heads/63 sectors.
 
-> > What can happen to Inact_clean pages besides being freed, and used on
-> > the free memory list?
-> 
-> The data that's still in the page could be referenced again, in which
-> case the page gets moved to the inactive dirty list and from there on
-> to the active list.
-> 
-> In effect, the inactive clean list is a "soft free" list, which means
-> we can keep a larger number of pages almost-free, without wasting
-> memory.
-> 
-
-So it doesn't have to be dirty to go in the dirty list, only referenced?
-What about Inact_laundry?
+-- 
+ Lab tests show that use of micro$oft causes cancer in lab animals

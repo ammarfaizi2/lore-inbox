@@ -1,68 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265437AbSKRXRE>; Mon, 18 Nov 2002 18:17:04 -0500
+	id <S266810AbSKRXaA>; Mon, 18 Nov 2002 18:30:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265385AbSKRXPp>; Mon, 18 Nov 2002 18:15:45 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:35601 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S265368AbSKRXPE>;
-	Mon, 18 Nov 2002 18:15:04 -0500
-Message-ID: <3DD9761A.8030501@pobox.com>
-Date: Mon, 18 Nov 2002 18:22:02 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021018
-X-Accept-Language: en-us, en
+	id <S266948AbSKRX3U>; Mon, 18 Nov 2002 18:29:20 -0500
+Received: from guru.webcon.net ([66.11.168.140]:65184 "EHLO guru.webcon.net")
+	by vger.kernel.org with ESMTP id <S266810AbSKRX3E>;
+	Mon, 18 Nov 2002 18:29:04 -0500
+Date: Mon, 18 Nov 2002 18:35:59 -0500 (EST)
+From: Ian Morgan <imorgan@webcon.net>
+To: Zwane Mwaikambo <zwane@holomorphy.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][2.4-AC] sync 2.4 asm-i386/cpufeature.h to 2.5.47
+In-Reply-To: <Pine.LNX.4.44.0211181831031.1538-100000@montezuma.mastecende.com>
+Message-ID: <Pine.LNX.4.44.0211181835470.6121-100000@light.webcon.net>
+Organization: "Webcon, Inc."
 MIME-Version: 1.0
-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-CC: "David S. Miller" <davem@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] tr: make CONFIG_TR depend on CONFIG_LLC=y
-References: <20021116111344.GD24641@conectiva.com.br> <1037660711.5785.2.camel@rth.ninka.net> <3DD973B6.900@pobox.com> <20021118231926.GG30075@conectiva.com.br>
-In-Reply-To: <20021116111344.GD24641@conectiva.com.br>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arnaldo Carvalho de Melo wrote:
+On Mon, 18 Nov 2002, Zwane Mwaikambo wrote:
 
-> Em Mon, Nov 18, 2002 at 06:11:50PM -0500, Jeff Garzik escreveu:
->
-> >David S. Miller wrote:
-> >
-> >
-> >>On Sat, 2002-11-16 at 03:13, Arnaldo Carvalho de Melo wrote:
-> >>
-> >>
-> >>>	Please pull from:
-> >>>
-> >>>master.kernel.org:/home/acme/BK/net-2.5
-> >>
-> >>
-> >>Pulled, thanks.
-> >
-> >hmmm, did you look at the requirements here?
-> >
-> >when I looked at this a couple weeks ago, it did not seem like the best
-> >fix, just the easiest...
->
->
-> Previously the 802.2 llc1 code was statically linked when TR was selected,
-> problem is now the llc1 code is not separated from the llc2 one, which is
-> way bigger, my plans are to:
->
-> 1. make llc1 be available separately, so that we can have the previous
->    behaviour
-> 2. to make TR be available as a module
->
-> Suggestions on better ways to deal with this are welcome...
+> On Mon, 18 Nov 2002, Ian Morgan wrote:
+> 
+> > On Sun, 17 Nov 2002, Zwane Mwaikambo wrote:
+> > 
+> > > Ian this should fix your compilation problem.
+> > > Alan, Dave this applies clean to 2.4.19 vanilla too.
+> > 
+> > Close. Really close. It compiles, but now has an unresolvable symbol?
+> > 
+> > depmod: *** Unresolved symbols in
+> > /lib/modules/2.4.20-rc1-ac4/kernel/arch/i386/kernel/p4-clockmod.o
+> > depmod:         smp_num_siblings
+> > 
+> > This is baffling me, because 'smp_num_siblings' is indeed listed in
+> > System.map as:
+> > 
+> > c0292e28 D smp_num_siblings
+> > 
+> > Any clues?
+> 
+> Is CONFIG_SMP set?
 
+Yup.
 
+Regards,
+Ian Morgan
 
-I could have sworn I fixed this specific problem a month or so ago with 
-a Makefile edit and maybe a tiny code edit....  I'll see if I can dig up 
-the patch.
-
-	Jeff
-
-
+-- 
+-------------------------------------------------------------------
+ Ian E. Morgan          Vice President & C.O.O.       Webcon, Inc.
+ imorgan@webcon.ca          PGP: #2DA40D07           www.webcon.ca
+    *  Customized Linux network solutions for your business  *
+-------------------------------------------------------------------
 

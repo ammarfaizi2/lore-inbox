@@ -1,137 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131197AbQLHTrH>; Fri, 8 Dec 2000 14:47:07 -0500
+	id <S130745AbQLHTvh>; Fri, 8 Dec 2000 14:51:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130745AbQLHTq5>; Fri, 8 Dec 2000 14:46:57 -0500
-Received: from [207.107.233.99] ([207.107.233.99]:39697 "EHLO
-	posto.microflex.ca") by vger.kernel.org with ESMTP
-	id <S131197AbQLHTqq>; Fri, 8 Dec 2000 14:46:46 -0500
-Reply-To: <jna@microflex.ca>
-From: "Jean-Francois Nadeau" <jna@microflex.ca>
-To: <linux-kernel@vger.kernel.org>
-Subject: Kernel oops 2.2.17
-Date: Fri, 8 Dec 2000 14:14:31 -0500
-Message-ID: <001d01c0614b$1886c1e0$a11410ac@microflex.ca>
+	id <S132282AbQLHTv2>; Fri, 8 Dec 2000 14:51:28 -0500
+Received: from blackhole.compendium-tech.com ([206.55.153.26]:55796 "EHLO
+	sol.compendium-tech.com") by vger.kernel.org with ESMTP
+	id <S130745AbQLHTvS>; Fri, 8 Dec 2000 14:51:18 -0500
+Date: Fri, 8 Dec 2000 11:20:18 -0800 (PST)
+From: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>
+To: "Jeff V. Merkey" <jmerkey@timpanogas.org>
+cc: Andi Kleen <ak@suse.de>, Rainer Mager <rmager@vgkk.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Signal 11
+In-Reply-To: <3A303CAD.5600DE5A@timpanogas.org>
+Message-ID: <Pine.LNX.4.21.0012081119460.24557-100000@sol.compendium-tech.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook 8.5, Build 4.71.2173.0
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Don't post the core file... It's system-dependant and really wont do
+anyone but yourself a shred of good.
 
-Hi,
+On Thu, 7 Dec 2000, Jeff V. Merkey wrote:
 
-We run a heavily accessed Apache 1.3.6 Web server on a Redhat 6.0 distro
-over 2.2.17.  We upgraded from 2.2.16 and I now got some kernel oops.
+> 
+> 
+> Andi Kleen wrote:
+> > 
+> > On Thu, Dec 07, 2000 at 06:24:34PM -0700, Jeff V. Merkey wrote:
+> > >
+> > > Andi,
+> > >
+> > > It's related to some change in 2.4 vs. 2.2.  There are other programs
+> > > affected other than X, SSH also get's spurious signal 11's now and again
+> > > with 2.4 and glibc <= 2.1 and it does not occur on 2.2.
+> > 
+> > So have you enabled core dumps and actually looked at the core dumps
+> > of the programs using gdb to see where they crashed ?
+> 
+> Yes.  I can only get the SSH crash when I am running remotely from the
+> house over the internet, and it only shows then when running a build in
+> jobserver mode (parallel build).  The X problem seems related as well,
+> since it's related to (usually) NetScape spawing off a forked process. 
+> I will attempt to recreate tonight, and post the core dump file.  
+> 
+> Jeff 
+> 
+> 
+> 
+> 
+> 
+> > 
+> > -Andi
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
+> 
 
-System is :
-
-AMD Athlon 600 Mhz.
-512 MB RAM.
-gcc version egcs-2.91.66
-glibc 2.1.3-21
-
-Kernel tweaks :
-
-echo 1 > /proc/sys/net/ipv4/tcp_syncookies
-echo 1 > /proc/sys/net/ipv4/conf/all/hidden
-echo 1 > /proc/sys/net/ipv4/conf/lo/hidden
-echo 60 > /proc/sys/net/ipv4/tcp_fin_timeout
-echo 16384 > /proc/sys/fs/file-max
-echo 32768 > /proc/sys/fs/inode-max
-
-
-I had 5 kernel Oops on the "tar" process every day. (it starts a backup
-every morning).  Then,  the master httpsd stops working and could not be
-killed (even with kill -9 !).
-
-Something strange is that it crashed at the same virtual address :
-
-Dec  5 06:03:20 trinity kernel: Unable to handle kernel NULL pointer
-dereference at virtual address 00000010
-Dec  6 06:03:01 trinity kernel: Unable to handle kernel NULL pointer
-dereference at virtual address 00000010
-Dec  7 06:03:06 trinity kernel: Unable to handle kernel NULL pointer
-dereference at virtual address 00000010
-Dec  7 17:01:54 trinity kernel: Unable to handle kernel NULL pointer
-dereference at virtual address 00000010
-Dec  8 06:03:02 trinity kernel: Unable to handle kernel NULL pointer
-dereference at virtual address 00000010
-
-
-Here's the output from ksymoops for the httpsd crash.
-
------------------------
-No modules in ksyms, skipping objects
-Warning, no symbols in lsmod, is /proc/modules a valid lsmod file?
-Dec  7 17:01:54 trinity kernel: Unable to handle kernel NULL pointer
-dereference at virtual address 00000010
-Dec  7 17:01:54 trinity kernel: current->tss.cr3 = 03f00000, %%cr3 =
-03f00000
-Dec  7 17:01:54 trinity kernel: *pde = 00000000
-Dec  7 17:01:54 trinity kernel: Oops: 0000
-Dec  7 17:01:54 trinity kernel: CPU:    0
-Dec  7 17:01:54 trinity kernel: EIP:
-0010:[update_vm_cache_conditional+138/328]
-Dec  7 17:01:54 trinity kernel: EFLAGS: 00010202
-Dec  7 17:01:54 trinity kernel: eax: 00000000   ebx: cb255ed0   ecx:
-00000008   edx: 00000008
-Dec  7 17:01:54 trinity kernel: esi: 00000000   edi: 0001ffff   ebp:
-00000400   esp: c1fb5e9c
-Dec  7 17:01:54 trinity kernel: ds: 0018   es: 0018   ss: 0018
-Dec  7 17:01:54 trinity kernel: Process httpsd (pid: 21775, process nr: 127,
-stackpage=c1fb5000)
-Dec  7 17:01:54 trinity kernel: Stack: cb255ed0 cf1d0c00 00000008 0cb255ed
-c0138ba1 cb255ed0 0000d000 cf1d0c00
-Dec  7 17:01:54 trinity kernel:        00000400 40349000 cf66f660 ffffffea
-cb255f1c 00001000 c9bf8300 c9bf8300
-Dec  7 17:01:54 trinity kernel:        c9bf8300 c1fb5f08 0000d000 00000000
-00000000 00000000 dd6b9a00 00000000
-Dec  7 17:01:54 trinity kernel: Call Trace: [ext2_file_write+1045/1572]
-[__kfree_skb+161/168] [boomerang_interrupt+700/908] [u
-Dec  7 17:01:54 trinity kernel: Code: 39 59 08 75 e1 8b 5c 24 20 39 59 0c 75
-d8 ff 41 14 b8 02 00
-Warning: trailing garbage ignored on Code: line
-  Text: 'Code: 39 59 08 75 e1 8b 5c 24 20 39 59 0c 75 d8 ff 41 14 b8 02 00
-'
-  Garbage: '  '
-
-Code:  00000000 Before first symbol            00000000 <_IP>: <===
-Code:  00000000 Before first symbol               0:    39 59 08
-cmpl   %ebx,0x8(%ecx) <===
-Code:  00000003 Before first symbol               3:    75 e1
-jne     ffffffe6 <END_OF_CODE+3fdb01be/????>
-Code:  00000005 Before first symbol               5:    8b 5c 24 20
-movl   0x20(%esp,1),%ebx
-Code:  00000009 Before first symbol               9:    39 59 0c
-cmpl   %ebx,0xc(%ecx)
-Code:  0000000c Before first symbol               c:    75 d8
-jne     ffffffe6 <END_OF_CODE+3fdb01be/????>
-Code:  0000000e Before first symbol               e:    ff 41 14
-incl   0x14(%ecx)
-Code:  00000011 Before first symbol              11:    b8 02 00 00 00
-movl   $0x2,%eax
-
-
-5 warnings issued.  Results may not be reliable.
-
------------------------
-
-
-
-Do you have any idea of the problem ?
-
-Regards,
-
-Jean-Francois Nadeau
-Network Administrator at Microflex
-(418)694-2300 ext.141
+-- 
+ Kelsey Hudson                                           khudson@ctica.com 
+ Software Engineer
+ Compendium Technologies, Inc                               (619) 725-0771
+---------------------------------------------------------------------------     
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,36 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263427AbTJBRYA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Oct 2003 13:24:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263423AbTJBRX5
+	id S263454AbTJBRbf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Oct 2003 13:31:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263482AbTJBRbf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Oct 2003 13:23:57 -0400
-Received: from mta1.cl.cam.ac.uk ([128.232.0.15]:13963 "EHLO
-	wisbech.cl.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S263426AbTJBRXz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Oct 2003 13:23:55 -0400
-To: "Theodore Ts'o" <tytso@mit.edu>
-cc: xen-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [Xen-devel] Re: [ANNOUNCE] Xen high-performance x86 virtualization 
-In-Reply-To: Your message of "Thu, 02 Oct 2003 12:39:11 EDT."
-             <20031002163911.GD13652@thunk.org> 
-Date: Thu, 02 Oct 2003 18:23:47 +0100
-From: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
-Message-Id: <E1A57B6-0007y9-00@wisbech.cl.cam.ac.uk>
+	Thu, 2 Oct 2003 13:31:35 -0400
+Received: from zamok.crans.org ([138.231.136.6]:3513 "EHLO zamok.crans.org")
+	by vger.kernel.org with ESMTP id S263454AbTJBRbd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Oct 2003 13:31:33 -0400
+Date: Thu, 2 Oct 2003 19:31:32 +0200
+To: Petri Koistinen <petri.koistinen@iki.fi>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ksoftirqd & kswapd returning nothing while non-void
+Message-ID: <20031002173132.GA11177@darwin.crans.org>
+References: <Pine.LNX.4.58.0310021953260.5991@dsl-hkigw4g29.dial.inet.fi>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0310021953260.5991@dsl-hkigw4g29.dial.inet.fi>
+X-Warning: Email may contain unsmilyfied humor and/or satire.
+User-Agent: Mutt/1.5.4i
+From: Vincent Hanquez <tab@tuxfamily.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> And the amount of work to port the architecture-specific porions of
-> Xen to x86-xeno would be.....?   :-)
+On Thu, Oct 02, 2003 at 07:59:20PM +0300, Petri Koistinen wrote:
+> Hi!
+> 
+> I just compiled latest 2.6.0-test kernel and noticed these two warnings:
+> [snip]
+> 
+> Is here something that should be worried about?
 
-To allow efficient switching in and out of Xen we take a small amount
-of every virtual address space, and also grab ring 0. Since we don't
-hide that from overlying OSes, we couldn't do a full recursive
-implementation of Xen -- we'd run out of rings (quickly) and address
-space (eventually) :-) 
+kswapd and ksoftirqd are daemons which never returns (loop forever).
+to squeeze the warnings it may be good to set a fake return statement;
 
-Full recursion needs full virtualization. Our approach offers much
-better performance in the situations where full virtualization isn't
-required -- i.e., where it's feasible to distribute a ported OS.
-
- -- Keir
+-- 
+Tab

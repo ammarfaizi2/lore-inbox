@@ -1,58 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315487AbSFTUpe>; Thu, 20 Jun 2002 16:45:34 -0400
+	id <S315513AbSFTUtD>; Thu, 20 Jun 2002 16:49:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315503AbSFTUpd>; Thu, 20 Jun 2002 16:45:33 -0400
-Received: from pallas.or.intel.com ([134.134.214.21]:64974 "EHLO
-	pallas.or.intel.com") by vger.kernel.org with ESMTP
-	id <S315487AbSFTUpc>; Thu, 20 Jun 2002 16:45:32 -0400
-Message-ID: <01BDB7EEF8D4D3119D95009027AE99951B0E63E6@fmsmsx33.fm.intel.com>
-From: "Griffiths, Richard A" <richard.a.griffiths@intel.com>
-To: "'Andrew Morton'" <akpm@zip.com.au>,
+	id <S315528AbSFTUtC>; Thu, 20 Jun 2002 16:49:02 -0400
+Received: from zok.sgi.com ([204.94.215.101]:47780 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S315513AbSFTUtB>;
+	Thu, 20 Jun 2002 16:49:01 -0400
+Message-ID: <005b01c2189b$b390bd40$cc059aa3@engr.sgi.com>
+From: "John Hawkes" <hawkes@sgi.com>
+To: "Dave Hansen" <haveblue@us.ibm.com>, "Gross, Mark" <mark.gross@intel.com>
+Cc: "'Russell Leighton'" <russ@elegant-software.com>,
+       "Andrew Morton" <akpm@zip.com.au>, <mgross@unix-os.sc.intel.com>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       <lse-tech@lists.sourceforge.net>,
        "Griffiths, Richard A" <richard.a.griffiths@intel.com>
-Cc: "'Jens Axboe'" <axboe@suse.de>, mgross@unix-os.sc.intel.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       lse-tech@lists.sourceforge.net
-Subject: RE: ext3 performance bottleneck as the number of spindles gets la
-	rge
-Date: Thu, 20 Jun 2002 13:45:22 -0700
+References: <59885C5E3098D511AD690002A5072D3C057B499E@orsmsx111.jf.intel.com> <3D11FE5F.8000207@us.ibm.com>
+Subject: Re: [Lse-tech] Re: ext3 performance bottleneck as the number of spindles gets large
+Date: Thu, 20 Jun 2002 13:47:32 -0700
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
 Content-Type: text/plain;
 	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-No.  The platform group is set on a journaling file system. They had already
-run a comparison of the ones available and based on their criteria, ext3 was
-the best choice.  Based on the lockmeter data, it does look as though the
-scaling is trapped behind the BKL.
+From: "Dave Hansen" <haveblue@us.ibm.com>
+> > We'll report out our findings on the lock contention, and throughput
+> > data for some other FS then.  I'd like recommendations on what file
+> > systems to try, besides ext2.
+>
+> Do you really need a journaling FS?  If not, I think ext2 is a sure
+> bet to be the fastest.  If you do need journaling, try reiserfs and
+jfs.
 
-Richard
+XFS in 2.4.x scales much better on larger CPU counts than do ext3 or
+ReiserFS.  That's because XFS is a much lighter user of the BKL in 2.4.x
+than ext3, ReiserFS, or ext2.
 
------Original Message-----
-From: Andrew Morton [mailto:akpm@zip.com.au]
-Sent: Thursday, June 20, 2002 1:19 PM
-To: Griffiths, Richard A
-Cc: 'Jens Axboe'; mgross@unix-os.sc.intel.com; Linux Kernel Mailing
-List; lse-tech@lists.sourceforge.net
-Subject: Re: ext3 performance bottleneck as the number of spindles gets
-large
+John Hawkes
+hawkes@sgi.com
 
-
-"Griffiths, Richard A" wrote:
-> 
-> We ran without highmem enabled so the Kernel only saw 1GB of memory.
-> 
-
-Yup.  I take it back - high ext3 lock contention happens on 2.5
-as well, which has block-highmem.  With heavy write traffic onto
-six disks, two controllers, six filesystems, four CPUs the machine
-spends about 40% of the time spinning on locks in fs/ext3/inode.c
-You're un dual CPU, so the contention is less.
-
-Not very nice.  But given that the longest spin time was some
-tens of milliseconds, with the average much lower, it shouldn't
-affect overall I/O throughput.
-
-Possibly something else is happening.  Have you tested ext2?

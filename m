@@ -1,36 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288978AbSAFQIZ>; Sun, 6 Jan 2002 11:08:25 -0500
+	id <S288981AbSAFQLP>; Sun, 6 Jan 2002 11:11:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288980AbSAFQIK>; Sun, 6 Jan 2002 11:08:10 -0500
-Received: from chac.inf.utfsm.cl ([200.1.19.54]:41738 "EHLO chac.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id <S288978AbSAFQH6>;
-	Sun, 6 Jan 2002 11:07:58 -0500
-Message-Id: <200201061302.g06D2Uf9011204@sleipnir.valparaiso.cl>
-To: Anton Blanchard <anton@samba.org>
+	id <S288980AbSAFQLF>; Sun, 6 Jan 2002 11:11:05 -0500
+Received: from frank.gwc.org.uk ([212.240.16.7]:56849 "EHLO frank.gwc.org.uk")
+	by vger.kernel.org with ESMTP id <S288979AbSAFQKt>;
+	Sun, 6 Jan 2002 11:10:49 -0500
+Date: Sun, 6 Jan 2002 16:10:43 +0000 (GMT)
+From: Alistair Riddell <ali@gwc.org.uk>
+To: Jens Axboe <axboe@suse.de>
 cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Remove 8 bytes from struct page on 64bit archs 
-In-Reply-To: Your message of "Sun, 06 Jan 2002 23:39:14 +1100."
-             <20020106123913.GA5407@krispykreme> 
-X-mailer: MH [Version 6.8.4]
-X-charset: ISO_8859-1
-Date: Sun, 06 Jan 2002 10:02:30 -0300
-From: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
+Subject: Re: no highmem with 2GB RAM?
+In-Reply-To: <20020106111737.C8673@suse.de>
+Message-ID: <Pine.LNX.4.21.0201061608370.7728-100000@frank.gwc.org.uk>
+X-foo: bar
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anton Blanchard <anton@samba.org> said:
+On Sun, 6 Jan 2002, Jens Axboe wrote:
 
-[...]
-
-> Here is a very simple patch (ppc64 only so far). For archs that have
-> more than one memory zone, they should define the following:
+> On Sat, Jan 05 2002, Alistair Riddell wrote:
+> > I have a couple of SMP i386 boxes with 2GB RAM. They suffer from poor
+> > performance due to block IO page bouncing with highmem enabled. I have
+> > tried the block-highmem patch but this causes occasional oopses and even
+> > panics under high IO load.
 > 
-> #define ARCH_NR_ZONES 3
-> #define GET_PAGE_ZONE(page)		(page)->zone
-> #define SET_PAGE_ZONE(page, __zone)	(page)->zone = (__zone)
+> Well thanks for sending in a bug report on that. Mind doing so?
 
-Better sprinkle in a few more ()'s...
+See below message, please let me know if I can provide any further
+information.
+
+Date: Thu, 29 Nov 2001 09:04:26 +0000 (GMT)
+From: Alistair Riddell <ali@gwc.org.uk>
+To: Jens Axboe <axboe@suse.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] block-highmem-all-18b
+
+Erk... I applied this patch to 2.2.16pre1 on a 2GB SMP machine with an
+onboard aic7899 scsi controller. This morning I came in to find the
+machine had panicked with "Ththththaats all folks.  Too dangerous to
+continue." 
+
+There was nothing else in syslog either remotely or on disk, and nothing
+else on the console apart from the panic.
+
+Any ideas what might cause this?
+
+Let me know if I can provide any further information.
+
+
+On Thu, 22 Nov 2001, Jens Axboe wrote:
+
+> A minor update version, nothing major. Changes:
+> 
+> - Megaraid highmem I/O enabled again, since 2.4.14 this should be safe.
+>   Verified by Arjan. (me)
+> - Change can_dma_32 to highmem_io to make the meaning more clear (me).
+> - Drop discontig pfn change for now (me)
+> 
+> Find it here:
+> 
+> *.kernel.org/pub/linux/kernel/people/axboe/patches/2.4.15-pre9/block-highmem-all-18b.bz2
+
 -- 
-Horst von Brand                             vonbrand@sleipnir.valparaiso.cl
-Casilla 9G, Vin~a del Mar, Chile                               +56 32 672616
+Alistair Riddell - BOFH
+IT Manager, George Watson's College, Edinburgh
+Tel: +44 131 446 6070    Fax: +44 131 452 8594
+Microsoft - because god hates us
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+
+-- 
+Alistair Riddell - BOFH
+IT Manager, George Watson's College, Edinburgh
+Tel: +44 131 446 6070    Fax: +44 131 452 8594
+Microsoft - because god hates us
+

@@ -1,46 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262558AbVAQStl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262593AbVAQSyI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262558AbVAQStl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jan 2005 13:49:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262588AbVAQStl
+	id S262593AbVAQSyI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jan 2005 13:54:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262834AbVAQSyI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jan 2005 13:49:41 -0500
-Received: from mail.dif.dk ([193.138.115.101]:5521 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S262558AbVAQSqx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jan 2005 13:46:53 -0500
-Date: Mon, 17 Jan 2005 19:49:42 +0100 (CET)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Brian Henning <brian@strutmasters.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: smbfs in 2.6.8 SMP kernel
-In-Reply-To: <41EC003B.7040606@strutmasters.com>
-Message-ID: <Pine.LNX.4.61.0501171939190.2730@dragon.hygekrogen.localhost>
-References: <41EBD4E8.70905@strutmasters.com> <Pine.LNX.4.61.0501171633140.20155@jjulnx.backbone.dif.dk>
- <41EC003B.7040606@strutmasters.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 17 Jan 2005 13:54:08 -0500
+Received: from pimout1-ext.prodigy.net ([207.115.63.77]:37567 "EHLO
+	pimout1-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S262593AbVAQSxz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jan 2005 13:53:55 -0500
+Date: Mon, 17 Jan 2005 10:53:19 -0800
+From: Chris Wedgwood <cw@f00f.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       LKML <linux-kernel@vger.kernel.org>, Paul Mackerras <paulus@samba.org>,
+       Christoph Hellwig <hch@infradead.org>
+Subject: Re: [PATCH] __get_cpu_var should use __smp_processor_id() not smp_processor_id()
+Message-ID: <20050117185319.GA20328@taniwha.stupidest.org>
+References: <20050117055044.GA3514@taniwha.stupidest.org> <20050117073809.GA3654@taniwha.stupidest.org> <20050117144016.GC10341@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050117144016.GC10341@elte.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 17 Jan 2005, Brian Henning wrote:
+On Mon, Jan 17, 2005 at 03:40:16PM +0100, Ingo Molnar wrote:
 
-> Jesper Juhl wrote:
-> > If I remember correctly there was some smbfs breakage a few releases back -
-> > 2.6.8 sounds about right. I'd suggest you try a newer kernel like 2.6.10 or
-> > 2.6.11-rc1 and see if that works better.
-> 
-> No luck with smbfs in 2.6.10 with SMP either; however, I discovered the
-> existence of CIFS (which I previously did not know about), and it appears to
-> work smoothly in place of smbfs.
-> 
-Perhaps if you could provide some more details on the breakage, that would 
-make it easier for people to help you and track down the bug. Take a look 
-at the REPORTING-BUGS document in the kernel source dir for a sample 
-bugreporting form that will help you get all relevant details posted (in 
-addition to what you already posted).
+> no ... normally you should only use __get_cpu_var() if you know that
+> you are in a non-preempt case. It's a __ internal function for a
+> reason.  Where did it trigger?
 
-
--- 
-Jesper Juhl
-
+XFS has statistics which are 'per cpu' but doesn't use per_cpu
+variables, __get_cpu_var(foo)++ is used (it doesn't have to be preempt
+safe since it's just stats and who cares if they are a bit wrong).

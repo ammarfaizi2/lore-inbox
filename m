@@ -1,55 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267504AbUIAXD6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267435AbUIAXAM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267504AbUIAXD6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 19:03:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268058AbUIAXAr
+	id S267435AbUIAXAM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 19:00:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268058AbUIAVBl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 19:00:47 -0400
-Received: from dfw-gate1.raytheon.com ([199.46.199.230]:11885 "EHLO
-	dfw-gate1.raytheon.com") by vger.kernel.org with ESMTP
-	id S267490AbUIAW5K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 18:57:10 -0400
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-Q7
-To: Thomas Charbonnel <thomas@undata.org>
-Cc: "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
-       Ingo Molnar <mingo@elte.hu>, Lee Revell <rlrevell@joe-job.com>
-X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
-Message-ID: <OFA48649D2.721211FD-ON86256F02.007CEFE1@raytheon.com>
-From: Mark_H_Johnson@raytheon.com
-Date: Wed, 1 Sep 2004 17:56:22 -0500
-X-MIMETrack: Serialize by Router on RTSHOU-DS01/RTS/Raytheon/US(Release 6.5.2|June 01, 2004) at
- 09/01/2004 05:56:28 PM
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-X-SPAM: 0.00
+	Wed, 1 Sep 2004 17:01:41 -0400
+Received: from baikonur.stro.at ([213.239.196.228]:30177 "EHLO
+	baikonur.stro.at") by vger.kernel.org with ESMTP id S267994AbUIAU53
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Sep 2004 16:57:29 -0400
+Subject: [patch 20/25]  ec3104: replace schedule_timeout() with 	msleep()
+To: linux-kernel@vger.kernel.org
+Cc: akpm@digeo.com, janitor@sternwelten.at
+From: janitor@sternwelten.at
+Date: Wed, 01 Sep 2004 22:57:28 +0200
+Message-ID: <E1C2cAa-0007TW-JF@sputnik>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->With Q7 I still get rx latency issues (> 130 us non-preemptible section
->from rtl8139_poll). Moreover network connections were extremely slow
->(almost hung) until I set /proc/sys/net/core/netdev_backlog_granularity
->to 2.
 
-The default of 1 caused a couple services to fail start up - most
-annoying failure was NIS. I changed netdev_backlog_granularity to
-eight (8) in /etc/sysctl.conf and came up fine. The system is under
-test right now, though will probably tomorrow before I get full
-results.
 
-It appears to have fewer > 500 usec traces than previous
-tests so the -Q7 stuff appears to work (though has not made it to
-the disk tests where I generally have more problems yet).
 
-One place where we may need to consider more mcount() calls is in
-the scheduler. I got another 500+ msec trace going from dequeue_task
-to __switch_to.
 
-I also looked briefly at find_first_bit since it appears in a number
-of traces. Just curious, but the coding for the i386 version is MUCH
-different in style than several other architectures (e.g, PPC64, SPARC).
-Is there some reason why it is recursive on the x86 and a loop in the
-others?
 
---Mark H Johnson
-  <mailto:Mark_H_Johnson@raytheon.com>
 
+I would appreciate any comments from the janitor@sternweltens list. This is one (of
+a few) places where I had to make a decision to set the state before the
+call to
+
+schedule_timeout();
+
+This of course affected any decision to replace the code with msleep()
+or not. Please inform if the other state from the one I used is desired.
+
+Thanks,
+Nish
+
+
+
+Description: Uses msleep() instead of schedule_timeout() to guarantee
+the task delays at least the desired time amount.
+
+Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
+Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
+
+
+
+---
+
+ linux-2.6.9-rc1-bk7-max/drivers/char/ec3104_keyb.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+diff -puN drivers/char/ec3104_keyb.c~msleep-drivers_char_ec3104_keyb drivers/char/ec3104_keyb.c
+--- linux-2.6.9-rc1-bk7/drivers/char/ec3104_keyb.c~msleep-drivers_char_ec3104_keyb	2004-09-01 19:34:45.000000000 +0200
++++ linux-2.6.9-rc1-bk7-max/drivers/char/ec3104_keyb.c	2004-09-01 19:34:45.000000000 +0200
+@@ -412,7 +412,7 @@ static void ec3104_keyb_clear_state(void
+ 	k->last_msr = 0;
+ 
+ 	for (;;) {
+-		schedule_timeout(HZ/10);
++		msleep(100);
+ 
+ 		msr = ctrl_inb(EC3104_SER4_MSR);
+ 	
+
+_

@@ -1,40 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135835AbRDTJdi>; Fri, 20 Apr 2001 05:33:38 -0400
+	id <S135834AbRDTJd3>; Fri, 20 Apr 2001 05:33:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135836AbRDTJd3>; Fri, 20 Apr 2001 05:33:29 -0400
-Received: from quechua.inka.de ([212.227.14.2]:21550 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id <S135835AbRDTJdN>;
-	Fri, 20 Apr 2001 05:33:13 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: light weight user level semaphores
-In-Reply-To: <E14qHRp-0007Yc-00@the-village.bc.nu> <Pine.LNX.4.31.0104190944090.4074-100000@penguin.transmeta.com>
-Organization: private Linux site, southern Germany
-Date: Fri, 20 Apr 2001 11:29:31 +0200
-From: Olaf Titz <olaf@bigred.inka.de>
-Message-Id: <E14qXEU-0005xo-00@g212.hadiko.de>
+	id <S135836AbRDTJdU>; Fri, 20 Apr 2001 05:33:20 -0400
+Received: from optltdwall.optibase.co.il ([199.203.76.13]:45622 "EHLO
+	linux.optibase.co.il") by vger.kernel.org with ESMTP
+	id <S135834AbRDTJdL>; Fri, 20 Apr 2001 05:33:11 -0400
+Message-ID: <3AE0025C.3020107@optibase.com>
+Date: Fri, 20 Apr 2001 12:33:16 +0300
+From: Constantine Gavrilov <const-g@optibase.com>
+Organization: Optibase
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.2-ac26customSMP i686; en-US; 0.8) Gecko/20010211
+X-Accept-Language: en
+MIME-Version: 1.0
+To: lewis@sistina.com
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [repost] Announce: Linux-OpenLVM mailing list
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Ehh.. I will bet you $10 USD that if libc allocates the next file
-> descriptor on the first "malloc()" in user space (in order to use the
-> semaphores for mm protection), programs _will_ break.
+ > Hmm...i guess there is a communication issue here.  It sounds like the
+ >  message that our ML server was sending was misleading.  We were not
+ > rejecting mail because of content.  The ML server was rejecting it 
+because
+ > the address was not subscribed.  Our idea was that we don't want spam.
+ > If it's completely unmoderated, then we will get a *lot* of spam.
 
-Of course, but this is a result from sloppy coding. In general, open()
-can just return anything and about the only case where you can even
-think of ignoring its result is this:
- close(0); close(1); close(2);
- open("/dev/null", O_RDWR); dup(0); dup(0);
-(which is even not clean for other reasons).
+I do not think there is a miscommunication here. First, someone gets an 
+e-mail saying that your message "waits for moderator's approval". Then 
+you get a message saying that your "message was rejected by the 
+moderator because you are not subscribed to the list".
 
-I can't imagine depending on the "fact" that the first fd I open is 3,
-the next is 4, etc. And what if the routine in question is not
-malloc() but e.g. getpwuid()? Both are just arbitrary library
-functions, and one of them clearly does open file descriptors,
-depending on their implementation.
+Mind it, those were bug reports, not spam. I took your beta code, tested 
+it, saw real bugs and problems and wrote bug reports  BECAUSE YOU 
+INCOURAGE PEOPLE TO DO SO AND GIVE THOSE EMAILS IN THE DOCUMENTATION!!!
 
-What would the reason[1] be for wanting contiguous fd space anyway?
+There is no place in the source tree docs that say the list is 
+moderated.  It it had said so, I would have not wasted my time. I felt 
+really pissed off for waisting my time. BTW, other e-mails given in the 
+documentation just bounce. If you do not want people sending bug 
+reports, update your documentation. It is not polite to make people 
+waste their time!
 
-Olaf
+-- 
+----------------------------------------
+Constantine Gavrilov
+Linux Leader
+Optibase Ltd
+7 Shenkar St, Herzliya 46120, Israel
+Phone: (972-9)-970-9140
+Fax:   (972-9)-958-6099
+----------------------------------------
 
-[1] apart from not having understood how poll() works of course.

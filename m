@@ -1,40 +1,118 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310829AbSCLM1c>; Tue, 12 Mar 2002 07:27:32 -0500
+	id <S310295AbSCLMgb>; Tue, 12 Mar 2002 07:36:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310868AbSCLM1W>; Tue, 12 Mar 2002 07:27:22 -0500
-Received: from dsl-213-023-043-170.arcor-ip.net ([213.23.43.170]:41109 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S310829AbSCLM1J>;
-	Tue, 12 Mar 2002 07:27:09 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Andrea Arcangeli <andrea@suse.de>, Rik van Riel <riel@conectiva.com.br>
-Subject: Re: 2.4.19pre2aa1
-Date: Tue, 12 Mar 2002 13:21:35 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: wli@parcelfarce.linux.theplanet.co.uk,
-        "Richard B. Johnson" <root@chaos.analogic.com>,
-        linux-kernel@vger.kernel.org, hch@infradead.org,
-        phillips@bonn-fries.net
-In-Reply-To: <20020312070645.X10413@dualathlon.random> <Pine.LNX.4.44L.0203120746000.2181-100000@imladris.surriel.com> <20020312124728.L25226@dualathlon.random>
-In-Reply-To: <20020312124728.L25226@dualathlon.random>
+	id <S310940AbSCLMgW>; Tue, 12 Mar 2002 07:36:22 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:35845 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S310295AbSCLMgF>; Tue, 12 Mar 2002 07:36:05 -0500
+Subject: Linux 2.2.21-rc1
+To: linux-kernel@vger.kernel.org
+Date: Tue, 12 Mar 2002 12:51:49 +0000 (GMT)
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16klHb-0001up-00@starship>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Message-Id: <E16klkr-0003bj-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On March 12, 2002 12:47 pm, Andrea Arcangeli wrote:
-> If it's pure random mul will make no difference to
-> the distribution. And the closer we're to pure random like in the
-> wait_table hash, the less mul will help and the more important will be
-> to just get right the two contigous pages in the same cacheline and
-> nothing else.
 
-You're ignoring the possibility (probability) of corner cases.  I'm not
-sure why you're beating away on this, Bill has done a fine job of coming
-up with hashes that are both satisfactory for the common case and have
-sound reasons for being resistant to corner cases.
+2.2.21rc1
+o	Add farsync driver				(Bob Dunlop)
+o	Fix x86 cpu type reporting in some cases	(Barry Nathan)
+o	Fix module_license tag compatibility macro	(Keith Owens)
+o	Update MAINTAINERS entry			(Mark McClelland)
+o	Fix fb.h comment error				(Krzysiek Taraszka)
+o	Zlib fix					(Arjan van de Ven)
+o	Back out problem mce change
 
--- 
-Daniel
+2.2.21pre4
+o	Fix FAT breakage in pre3			(Dmitry Levin)
+o	Add S/390 LCS driver (IBM opensourced it now)	(DJ Barrow,
+							 Frank Pavlic)
+o	Update COPYING file to match FSF update		(Dan Quinlann)
+	| basically swap 19xx example for this century..
+o	Fix a file name comment				(William Stearns)
+o	Add realtek phy support to 2.2 sis900 driver	(Allan Jacobsen)
+o	Fix MCE address reporting order, fix oops with	(Dave Jones)
+	newer gcc due to bad asm constraints
+o	Starfire update					(Ion Badulescu)
+o	Always victimise the dcache a little when	(John Lash, me)
+	short of memory
+
+2.2.21pre3
+o	Fix a case where a non blocking tty write could	(Peter Benie)
+	get stuck
+o	Fix non blocking midi close on es1370, es1371	(me)
+	sonicvibes right this time 
+o	Fix menu/xconfig warnings			(René Scharfe)
+o	Fix non blocking midi close on cmpci, cs4281,	(me)
+	esssolo, trident.
+o	Add eepro100VE ident				(Hanno Boeck)
+o	Fix DRM oops case				(Herbert Xu)
+o	Fix an oops causing datagram AF_UNIX race	(Paul Menage)
+o	Support newer geodes using new CPUID properly	(Hiroshi Miura)
+o	Fix up RTC build for non pmac ppc boxes		(Tom Rini)
+o	Fix MCE address reporting			(Pete Wyckoff)
+o	Vibra16 docs update				(Neale Banks)
+o	Eicon include file fix				(Herbert Xu)
+o	ISDN loop and header fixes			(Kai Germaschewski)
+o	Fix eepro100 out of memory during init path	(Neale Banks)
+o	Fix BSD partition table handling breakage	(Andries Brouwer)
+o	Add WD XD signature to xd driver		(Paul)
+o	3Ware driver update				(Adam Radford)
+o	S/390 debugging updates				(Carsten Otte)
+o	S/390 DASD updates				(Carsten Otte)
+o	S/390 CIO updates				(Carsten Otte)
+o	Update USB serial, belkin, digi_acceleport,	(Greg Kroah-Hartmann)
+	empeg, ftdsio, edgeport, keyspan, mctu232,
+	omninet, prolific, visor
+o	Cyberjack USB driver				(Matthias Bruestle)
+o	USB ir dongle driver				(Greg Kroah-Hartmann)
+o	Support very large FAT file systems		(Vijay Kumar)
+o	Backport 2.4 modversions build fix		(Mikael Pettersson)
+o	Backport 2.4 es1371 init for new revs		(Julian Anastasov)
+o	3c507 driver fixes				(Mark Mackenzie)
+o	ext2 obscure group descriptor corruption fix	(Daniel Phillips,
+							 Al Viro)
+o	Correct a problem where rpciod didnt give up	(Andreas Haumer)
+	its current dir
+
+2.2.21pre2
+o	Fix non blocking midi close on es1370, es1371	(me)
+	sonicvibes
+o	Update osst driver				(Willem Riede)
+o	Update machine check support in 2.2 to match 2.4(Dave Jones)
+o	Additional P4, Rise, Winchip handling for setup	(Dave Jones)
+o	Fix extended MMX initialisation on Cyrix MII	(me)
+o	Backport a lot of x86 setup (cache size etc)	(Dave Jones)
+o	ISDN cleanups					(Kai Germaschewski)
+o	Backport eicon driver fixes			(Kai Germaschewski)
+o	ISDN ppp fixes					(Andre Beck)
+o	Fix timeout handling in eicon driver		(Kai Germaschewski)
+o	Fix null pointer bug in isdnloop		(Kai Germaschewski)
+o	Menuconfig refresh fixup			(Willy Tarreau)
+o	Modular ati frame buffer build fix		(Krzysztof Taraszka)
+o	Backport VIA chipset fixes to 2.2		(me)
+o	Make DCD high->low work on SX16 with CLOCAL set	(Ado Arnolds)
+
+2.2.21pre1
+o	Fix potential corruption with vmalloc on	(Ralf Baechle)
+	virtually cached boxes
+o	Small PPC build fixups				(Tom Rini)
+o	zImage booting fix				(Kalev Soikonen)
+o	EIO on NFS read fixup				(Trond Myklebust)
+o	Update 3ware raid driver			(Adam Radford)
+o	page_alloc race fix				(Andrea Arcangeli)
+o	Update USB maintainers				(Greg Kroah-Hartmann)
+o	bttv clipcount=0 fix				(Solar Designer)
+o	Fix multiple eepro driver bugs			(Aris)
+o	Sym53c8xx queue handling fix			(Gerard Roudier)
+o	Update SubmittingDrivers document		(Michal Svec)
+o	8139too performance tune			(Jens David)
+o	procfs follow link return fix			(Solar Designer)
+o	Backport SEM_UNDO overflow fix from 2.4		(Leonid Igolnik)
+o	VM86 fixes					(Manfred Spraul)
+o	Fix alpha build					(Kim Heino)

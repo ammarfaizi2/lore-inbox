@@ -1,116 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267301AbUBSPMV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 10:12:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267306AbUBSO64
+	id S267334AbUBSPQm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 10:16:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267357AbUBSPM6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 09:58:56 -0500
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:58340 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S267305AbUBSOzm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 09:55:42 -0500
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] IDE update for 2.6.3 (7/9)
-Date: Thu, 19 Feb 2004 15:59:02 +0100
-User-Agent: KMail/1.5.3
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200402191559.02022.bzolnier@elka.pw.edu.pl>
+	Thu, 19 Feb 2004 10:12:58 -0500
+Received: from main.gmane.org ([80.91.224.249]:25321 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S267318AbUBSPAb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Feb 2004 10:00:31 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: =?iso-8859-1?q?Leandro_Guimar=E3es_Faria_Corsetti_Dutra?= 
+	<leandro@dutra.fastmail.fm>
+Subject: Re: ext3 on raid5 failure
+Date: Thu, 19 Feb 2004 11:58:19 -0300
+Organization: =?ISO-8859-1?Q?=20Fam=C3=ADlia?= Dutra
+Message-ID: <pan.2004.02.19.14.58.19.746370@dutra.fastmail.fm>
+References: <400A5FAA.5030504@portrix.net> <20040118180232.GD1748@srv-lnx2600.matchmail.com> <20040119153005.GA9261@thunk.org> <pan.2004.02.19.02.32.37.90698@dutra.fastmail.fm> <40346EAD.5010403@portrix.net> <1077198600.11696.19.camel@moacir.wlt.com.br>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 200-138-088-244.mganm7001.dsl.brasiltelecom.net.br
+User-Agent: Pan/0.14.2 (This is not a psychotic episode. It's a cleansing moment of clarity. (Debian GNU/Linux))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 19 Feb 2004 10:50:00 -0300, Leandro Guimarães Faria Corcete Dutra
+wrote:
 
-[IDE] remove dead/unfinished taskfile version of ide_cmd_ioctl()
+> I am now
+> trying to figure out how to run fsx-linux, documentation seems scarce.
 
- linux-2.6.3-root/drivers/ide/ide-taskfile.c |   65 ----------------------------
- 1 files changed, 65 deletions(-)
+	If anyone is interested on fsx-linux output for a PROBLEM report, 
+please tell me how to run it.  Google and even the sources were of no help
+to me.
 
-diff -puN drivers/ide/ide-taskfile.c~ide_cmd_ioctl drivers/ide/ide-taskfile.c
---- linux-2.6.3/drivers/ide/ide-taskfile.c~ide_cmd_ioctl	2004-02-19 02:11:21.212111024 +0100
-+++ linux-2.6.3-root/drivers/ide/ide-taskfile.c	2004-02-19 02:11:21.218110112 +0100
-@@ -1669,7 +1669,6 @@ EXPORT_SYMBOL(ide_wait_cmd);
-  */
- int ide_cmd_ioctl (ide_drive_t *drive, unsigned int cmd, unsigned long arg)
- {
--#if 1
- 	int err = 0;
- 	u8 args[4], *argbuf = args;
- 	u8 xfer_rate = 0;
-@@ -1720,70 +1719,6 @@ abort:
- 	if (argsize > 4)
- 		kfree(argbuf);
- 	return err;
--
--#else
--
--	int err = -EIO;
--	u8 args[4], *argbuf = args;
--	u8 xfer_rate = 0;
--	int argsize = 0;
--	ide_task_t tfargs;
--
--	if (NULL == (void *) arg) {
--		struct request rq;
--		ide_init_drive_cmd(&rq);
--		return ide_do_drive_cmd(drive, &rq, ide_wait);
--	}
--
--	if (copy_from_user(args, (void *)arg, 4))
--		return -EFAULT;
--
--	memset(&tfargs, 0, sizeof(ide_task_t));
--	tfargs.tfRegister[IDE_FEATURE_OFFSET] = args[2];
--	tfargs.tfRegister[IDE_NSECTOR_OFFSET] = args[3];
--	tfargs.tfRegister[IDE_SECTOR_OFFSET]  = args[1];
--	tfargs.tfRegister[IDE_LCYL_OFFSET]    = 0x00;
--	tfargs.tfRegister[IDE_HCYL_OFFSET]    = 0x00;
--	tfargs.tfRegister[IDE_SELECT_OFFSET]  = 0x00;
--	tfargs.tfRegister[IDE_COMMAND_OFFSET] = args[0];
--
--	if (args[3]) {
--		argsize = (SECTOR_WORDS * 4 * args[3]);
--		argbuf = kmalloc(argsize, GFP_KERNEL);
--		if (argbuf == NULL)
--			return -ENOMEM;
--	}
--
--	if (set_transfer(drive, &tfargs)) {
--		xfer_rate = args[1];
--		if (ide_ata66_check(drive, &tfargs))
--			goto abort;
--	}
--
--	tfargs.command_type = ide_cmd_type_parser(&tfargs);
--	err = ide_raw_taskfile(drive, &tfargs, argbuf);
--
--	if (!err && xfer_rate) {
--		/* active-retuning-calls future */
--		ide_set_xfer_rate(driver, xfer_rate);
--		ide_driveid_update(drive);
--	}
--abort:
--	args[0] = tfargs.tfRegister[IDE_COMMAND_OFFSET];
--	args[1] = tfargs.tfRegister[IDE_FEATURE_OFFSET];
--	args[2] = tfargs.tfRegister[IDE_NSECTOR_OFFSET];
--	args[3] = 0;
--
--	if (copy_to_user((void *)arg, argbuf, 4))
--		err = -EFAULT;
--	if (argbuf != NULL) {
--		if (copy_to_user((void *)arg, argbuf + 4, argsize))
--			err = -EFAULT;
--		kfree(argbuf);
--	}
--	return err;
--
--#endif
- }
- 
- EXPORT_SYMBOL(ide_cmd_ioctl);
+	No big deal, I will produce a PROBLEM report with or without it.
 
-_
+
+-- 
+Leandro Guimarães Faria Corsetti Dutra           +55 (11) 5685 2219
+Av Sgto Geraldo Santana, 1100 6/71               +55 (11) 5686 9607
+04.674-000  São Paulo, SP                                    BRASIL
+http://br.geocities.com./lgcdutra/
 

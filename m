@@ -1,97 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275478AbRIZSxc>; Wed, 26 Sep 2001 14:53:32 -0400
+	id <S275479AbRIZSxc>; Wed, 26 Sep 2001 14:53:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275479AbRIZSxX>; Wed, 26 Sep 2001 14:53:23 -0400
-Received: from darkwing.uoregon.edu ([128.223.142.13]:23274 "EHLO
-	darkwing.uoregon.edu") by vger.kernel.org with ESMTP
-	id <S275478AbRIZSxS>; Wed, 26 Sep 2001 14:53:18 -0400
-Date: Wed, 26 Sep 2001 11:54:20 -0700 (PDT)
-From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
-X-X-Sender: <joelja@twin.uoregon.edu>
-To: jones <little.jones.family@ntlworld.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: newsgroup of all mailing lists ?
-In-Reply-To: <B7D7DFB1.8013%little.jones.family@ntlworld.com>
-Message-ID: <Pine.LNX.4.33.0109261149130.24652-100000@twin.uoregon.edu>
+	id <S275480AbRIZSxW>; Wed, 26 Sep 2001 14:53:22 -0400
+Received: from leg-64-133-146-200-RIA.sprinthome.com ([64.133.146.200]:34573
+	"EHLO mail.pirk.com") by vger.kernel.org with ESMTP
+	id <S275479AbRIZSxM>; Wed, 26 Sep 2001 14:53:12 -0400
+Date: Wed, 26 Sep 2001 11:53:37 -0700 (PDT)
+From: Steve Pirk <orion@deathcon.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: IP aliasing/Virtual IP's in 2.2.19 or 2.4.10
+Message-ID: <Pine.LNX.4.21.0109261152370.7017-100000@mail.pirk.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-the group linux.kernel which is a unidirectional mail-news gateway (as it
-should be) from anti-phl.bofh.it appears to be working currently...
 
-also fa.linux.kernel appears to be working as well gatewayed by ifi.uio.no
+This much I have found so far...
+In /usr/src/linux-2.2.16/.config :
+CONFIG_IP_MASQUERADE=y
+CONFIG_IP_MASQUERADE_ICMP=y
+CONFIG_IP_MASQUERADE_MOD=y
+CONFIG_IP_MASQUERADE_IPAUTOFW=m
+CONFIG_IP_MASQUERADE_IPPORTFW=m
+CONFIG_IP_MASQUERADE_MFW=m
 
-here's the header from your messaged gatewayed by that host to my
-newserver:
+In /usr/src/linux-2.2.19/.config
+no CONFIG_IP_MASQUERADE lines at all....
 
-Path:
+Would it be save to add them to a 2.2.19 or 2.4.10 .config file?
+Is aliasing/masquerading enabled by default in kernel versions
+above 2.2.19?
 
-platform.uoregon.edu!logbridge.uoregon.edu!news.tele.dk!small.news.tele.dk!
-	129.240.148.23!uio.no!nntp.uio.no!ifi.uio.no!internet-mailinglist
-Newsgroups: fa.linux.kernel
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-User-Agent: Microsoft-Outlook-Express-Macintosh-Edition/5.02.2022
-Original-Date: Wed, 26 Sep 2001 19:40:33 +0100
-Original-Message-ID: <B7D7DFB1.8013%little.jones.family@ntlworld.com>
-Sender: linux-kernel-owner@vger.kernel.org
-Precedence: bulk
-X-Mailing-List: linux-kernel@vger.kernel.org
-Organization: Internet mailing list
-Lines: 27
-Xref: platform.uoregon.edu fa.linux.kernel:30840
-Date: Wed, 26 Sep 2001 18:42:50 +0000
-From: jones <little.jones.family@ntlworld.com>
-To: linux-kernel@vger.kernel.org
-Subject: newsgroup of all mailing lists ?
-Message-Id: <fa.mppi6qv.1900tjl@ifi.uio.no>
+Steve
+--
+On Tue, 25 Sep 2001, J Sloan wrote:
 
-
-
-joelja
-
-
-On Wed, 26 Sep 2001, jones wrote:
-
-> dear all
->
-> I would like to know which kind people turn the mailing list into a
-> newsgroup ?
->
-> this would enable me to read at my leisure and not have my inbox overflow.
-> I am connected to NTL (UK) the same as I believe Mr. A Cox, but I can not
-> find a working newsgroup the NTL administrator has asked me for details and
-> I am afraid I don't know (hence this mail).
->
-> can someone give me some advice ?
->
-> regards
->
-> john jones
->
-> p.s. I am not subscribed to the list so can you CC me or the list whichever
-> is appropriate
->
-> p.p.s. I am interested in other lists such as linux-mips and not just the
-> core linux M.L.
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+  JS> Well now that you mention it I'm not sure
+  JS> which option it is now - but rest assured
+  JS> it works in e.g. the default Red Hat 7.x and
+  JS> roswell kernels, and it works on my self
+  JS> compiled kernels - I can send you my
+  JS> .config if you want - or maybe someone
+  JS> else on the list will fill in the blanks -
+  JS> 
+  JS> cu
+  JS> 
+  JS> jjs
+  JS> 
+  JS> Steve Pirk wrote:
+  JS> 
+  JS> > I remember a while back that there was an option in make menuconfig
+  JS> > to enable IP masquerading or IP aliasing - The last version I
+  JS> > remember seeing it in was 2.2.16. I am trying to enable virtual
+  JS> > addresses on my box (eth0 and eth0:0 eth0:1 etc), and I am
+  JS> > getting the following errors:
+  JS> > SIOCSIFADDR: No such device
+  JS> > SIOCSIFFLAGS: No such device
+  JS> > when I issue the command:
+  JS> > /sbin/ifconfig eth0:0 64.133.146.201 broadcast 64.133.146.255 \
+  JS> > netmask 255.255.255.224
+  JS> >
+  JS> > In the 2.2.16 menuconfig there was the following option inside of
+  JS> > Network Options:
+  JS> > [*] IP: masquerading
+  JS> > Enabling this allow me to define virtual IP's. I cannot find the
+  JS> > same option in 2.2.19, 2.4.4, or in 2.4.10.
+  JS> > Does anyone know where/how to enable this much needed fuctionality?
+  JS> >
+  JS> > Thansk in advance.
+  JS> > --
+  JS> > Steve Pirk
+  JS> > orion@deathcon.com . deathcon.com . pirk.com . webops.com . t2servers.com
+  JS> >
+  JS> > -
+  JS> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+  JS> > the body of a message to majordomo@vger.kernel.org
+  JS> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+  JS> > Please read the FAQ at  http://www.tux.org/lkml/
+  JS> 
 
 -- 
---------------------------------------------------------------------------
-Joel Jaeggli				       joelja@darkwing.uoregon.edu
-Academic User Services			     consult@gladstone.uoregon.edu
-     PGP Key Fingerprint: 1DE9 8FCA 51FB 4195 B42A 9C32 A30D 121E
---------------------------------------------------------------------------
-It is clear that the arm of criticism cannot replace the criticism of
-arms.  Karl Marx -- Introduction to the critique of Hegel's Philosophy of
-the right, 1843.
+Steve Pirk
+orion@deathcon.com . deathcon.com . pirk.com . webops.com . t2servers.com 
 
 

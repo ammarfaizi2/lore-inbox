@@ -1,51 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262285AbTD3SVj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Apr 2003 14:21:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262289AbTD3SVj
+	id S262279AbTD3SUK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Apr 2003 14:20:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262285AbTD3SUK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Apr 2003 14:21:39 -0400
-Received: from granite.he.net ([216.218.226.66]:14607 "EHLO granite.he.net")
-	by vger.kernel.org with ESMTP id S262285AbTD3SVi (ORCPT
+	Wed, 30 Apr 2003 14:20:10 -0400
+Received: from pointblue.com.pl ([62.89.73.6]:57610 "EHLO pointblue.com.pl")
+	by vger.kernel.org with ESMTP id S262279AbTD3SUK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Apr 2003 14:21:38 -0400
-Date: Wed, 30 Apr 2003 11:35:44 -0700
-From: Greg KH <greg@kroah.com>
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Cc: Andrew Morton <akpm@digeo.com>, LKML <linux-kernel@vger.kernel.org>,
-       linux-mm@kvack.org
-Subject: Re: 2.5.68-mm3
-Message-ID: <20030430183544.GB23891@kroah.com>
-References: <20030429235959.3064d579.akpm@digeo.com> <1051696273.591.4.camel@teapot.felipe-alfaro.com>
+	Wed, 30 Apr 2003 14:20:10 -0400
+Subject: [PATCH] 2.5.68-bk10 net/core/netfilter.c, missing "i" declaration
+From: Grzegorz Jaskiewicz <gj@pointblue.com.pl>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: linus <torvalds@transmeta.com>, Rusty Russell <rusty@rustcorp.com.au>
+Content-Type: text/plain
+Organization: K4 Labs
+Message-Id: <1051727542.21774.18.camel@gregs>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1051696273.591.4.camel@teapot.felipe-alfaro.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 30 Apr 2003 19:32:22 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 30, 2003 at 11:51:13AM +0200, Felipe Alfaro Solana wrote:
-> 
-> drivers/pcmcia/cs.c: In function `pcmcia_register_socket':
-> drivers/pcmcia/cs.c:361: `dev' undeclared (first use in this function)
-> drivers/pcmcia/cs.c:361: (Each undeclared identifier is reported only
-> once
-> drivers/pcmcia/cs.c:361: for each function it appears in.)
-> drivers/pcmcia/cs.c: At top level:
-> drivers/pcmcia/cs.c:391: conflicting types for
-> `pcmcia_unregister_socket'
-> drivers/pcmcia/cs.c:306: previous declaration of
-> `pcmcia_unregister_socket'
-> make[4]: *** [drivers/pcmcia/cs.o] Error 1
-> make[3]: *** [drivers/pcmcia] Error 2
-> make[2]: *** [drivers] Error 2
-> make[1]: *** [vmlinux] Error 2
-> 
-> Config file attached :-)
+diff -r -u linux-2.5.68-bk10-changed/net/core/netfilter.c
+linux-2.5.68-bk10-org/net/core/netfilter.c
+--- linux-2.5.68-bk10-changed/net/core/netfilter.c      2003-04-30
+19:30:20.000000000 +0100
++++ linux-2.5.68-bk10-org/net/core/netfilter.c  2003-04-30
+19:27:57.000000000 +0100
+@@ -550,6 +550,7 @@
+                 unsigned int verdict)
+ {
+        struct list_head *elem = &info->elem->list;
++       struct list_head *i;
 
-Does this also happen on the latest -bk tree?
 
-thanks,
+        rcu_read_lock();
 
-greg k-h
+
+-- 
+Grzegorz Jaskiewicz <gj@pointblue.com.pl>
+K4 Labs
+

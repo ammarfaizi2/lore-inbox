@@ -1,94 +1,117 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129385AbQKRSww>; Sat, 18 Nov 2000 13:52:52 -0500
+	id <S130151AbQKRS4M>; Sat, 18 Nov 2000 13:56:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130462AbQKRSwn>; Sat, 18 Nov 2000 13:52:43 -0500
-Received: from web3401.mail.yahoo.com ([204.71.203.55]:37129 "HELO
-	web3407.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S129385AbQKRSwg>; Sat, 18 Nov 2000 13:52:36 -0500
-Message-ID: <20001118182230.14470.qmail@web3407.mail.yahoo.com>
-Date: Sat, 18 Nov 2000 19:22:30 +0100 (CET)
-From: Markus Schoder <markus_schoder@yahoo.de>
-Subject: Re: Freeze on FPU exception with Athlon
-To: Linus Torvalds <torvalds@transmeta.com>,
-        Brian Gerst <bgerst@didntduck.org>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S130462AbQKRS4C>; Sat, 18 Nov 2000 13:56:02 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:7461 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S130151AbQKRSzs>; Sat, 18 Nov 2000 13:55:48 -0500
+Date: Sat, 18 Nov 2000 19:25:42 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: "H . J . Lu" <hjl@valinux.com>
+Cc: linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: lseek/llseek allows the negative offset
+Message-ID: <20001118192542.B24555@athlon.random>
+In-Reply-To: <20001117155913.A26622@valinux.com> <20001117160900.A27010@valinux.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20001117160900.A27010@valinux.com>; from hjl@valinux.com on Fri, Nov 17, 2000 at 04:09:00PM -0800
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---- Linus Torvalds <torvalds@transmeta.com> wrote: > 
-
-> If I'm right, the proper test-program should be
-> something like
+On Fri, Nov 17, 2000 at 04:09:00PM -0800, H . J . Lu wrote:
+> On Fri, Nov 17, 2000 at 03:59:13PM -0800, H . J . Lu wrote:
+> > # gcc x.c
+> > # ./a.out
+> > lseek on -100000: -100000
+> > write: File too large
+> > 
+> > Should kernel allow negative offsets for lseek/llseek?
+> > 
+> > 
 > 
+> Never mind. I was running the wrong kernel.
 
-Your test program is indeed sufficient to trigger the
-freeze.  Unfortunately the patch does not make a
-difference :(
+With 2.2.18pre21aa2 this little proggy:
 
-My test program caused the exception (and the freeze)
-unintendedly in the return statement since the
-division was optimized away as Brian pointed out.
+main()
+{
+	int fd = creat("x", 0600);
+	lseek(fd, 0x80000000, 0);
+}
 
-Some more data points:
+get confused this way:
 
-SysRq is definitely not working after the freeze :(
-Judging from the processor temperature after rebooting
-the processor is very busy.
+lseek(3, 2147483648, SEEK_SET)          = -1 ERRNO_0 (Success)
+_exit(-2147483648)                      = ?
 
-I know of another guy with the exact same CPU (Athlon
-Thunderbird 900MHz) and mainboard (ABIT KT7-RAID) who
-has the same problem.
+I fixed it this way:
 
-I use gcc 2.95.2 to compile the kernel.
+diff -urN 2.2.18pre21/fs/read_write.c lseek/fs/read_write.c
+--- 2.2.18pre21/fs/read_write.c	Tue Sep  5 02:28:49 2000
++++ lseek/fs/read_write.c	Sat Nov 18 18:42:55 2000
+@@ -53,6 +53,10 @@
+ 	struct dentry * dentry;
+ 	struct inode * inode;
+ 
++	retval = -EINVAL;
++	if (offset < 0)
++		goto out_nolock;
++
+ 	lock_kernel();
+ 	retval = -EBADF;
+ 	file = fget(fd);
+@@ -69,6 +73,7 @@
+ 	fput(file);
+ bad:
+ 	unlock_kernel();
++out_nolock:
+ 	return retval;
+ }
+ 
+@@ -83,6 +88,11 @@
+ 	struct inode * inode;
+ 	loff_t offset;
+ 
++	retval = -EINVAL;
++	offset = ((loff_t) offset_high << 32) | offset_low;
++	if (offset < 0)
++		goto out_nolock;
++
+ 	lock_kernel();
+ 	retval = -EBADF;
+ 	file = fget(fd);
+@@ -96,8 +106,7 @@
+ 	if (origin > 2)
+ 		goto out_putf;
+ 
+-	offset = llseek(file, ((loff_t) offset_high << 32) | offset_low,
+-			origin);
++	offset = llseek(file, offset, origin);
+ 
+ 	retval = (int)offset;
+ 	if (offset >= 0) {
+@@ -109,6 +118,7 @@
+ 	fput(file);
+ bad:
+ 	unlock_kernel();
++out_nolock:
+ 	return retval;
+ }
+ #endif
 
-I couldn't so far find out where the problem was
-introduced since the older 2.4.0-test kernels do not
-support the HPT370.  I will recable the drive to the
-primary controller and try again.
 
-I will also try to compile a non AMD specific kernel
-and see if that makes a difference.  If just this 40GB
-drive would fsck faster :)
+I've not tried yet in practice but by reading sources 2.4.x has the same bug
+since doing the check internally to ext2 is too late to handle the 32bit
+(non-lfs) lseek interface.  After moving the checks into the vfs (that seems
+the right thing to do to me) the check internally to ext2 can be removed of
+course (it was superflous anyways because ext2 file size is limited to 4T
+that's not negative value in 64bit signed math)
 
-Note that cpuinfo shows model 4 whereas e.g. Brian had
-model 2 if that means anything.
-
-/proc/cpuinfo:
-processor       : 0
-vendor_id       : AuthenticAMD
-cpu family      : 6
-model           : 4
-model name      : AMD Athlon(tm) Processor
-stepping        : 2
-cpu MHz         : 900.000063
-cache size      : 256 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 1
-wp              : yes
-features        : fpu vme de pse tsc msr pae mce cx8
-sep mtrr pge mca cmov pat pse36 mmx fxsr syscall
-mmxext 3dnowext 3dnow
-bogomips        : 1795.69
-
-
---
-Markus
-
-
-__________________________________________________________________
-Do You Yahoo!?
-Gesendet von Yahoo! Mail - http://mail.yahoo.de
-Gratis zum Millionär! - http://10millionenspiel.yahoo.de
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,45 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265974AbTGILPI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jul 2003 07:15:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265976AbTGILPH
+	id S265976AbTGILV2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jul 2003 07:21:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265985AbTGILV2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jul 2003 07:15:07 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:23216
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S265974AbTGILPF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jul 2003 07:15:05 -0400
-Subject: Re: [PATCH] Readd BUG for SMP TLB IPI
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andi Kleen <ak@suse.de>
-Cc: torvalds@osdl.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030709124915.3d98054b.ak@suse.de>
-References: <20030709124915.3d98054b.ak@suse.de>
+	Wed, 9 Jul 2003 07:21:28 -0400
+Received: from griffon.mipsys.com ([217.167.51.129]:6103 "EHLO gaston")
+	by vger.kernel.org with ESMTP id S265976AbTGILV1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jul 2003 07:21:27 -0400
+Subject: Re: [Linux-fbdev-devel] fbdev and power management
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: James Simmons <jsimmons@infradead.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>
+In-Reply-To: <Pine.LNX.4.44.0307090024170.32323-100000@phoenix.infradead.org>
+References: <Pine.LNX.4.44.0307090024170.32323-100000@phoenix.infradead.org>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1057750022.6255.41.camel@dhcp22.swansea.linux.org.uk>
+Message-Id: <1057750557.514.22.camel@gaston>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 09 Jul 2003 12:27:02 +0100
+X-Mailer: Ximian Evolution 1.4.0 
+Date: 09 Jul 2003 13:35:58 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2003-07-09 at 11:49, Andi Kleen wrote:
-> Adding an ACK for this path is also no good, because then the SMP flusher would
-> need to detect this case and "retransmit" the IPI, otherwise it would hang too
-> in the loop waiting for other CPUs. But nobody has ever seen such a hang, so it's safe
-> to assume that all hardware guarantees it cannot happen.
 
-We have recorded retransmitted IPI's on some boards (notably the
-infamous BP6). They do happen. Early 2.4 had a fix for handling the
-replay case too, but someone lost it and BP6 boards no longer work as
-reliably.
+> No patches at this time. I need to learn the new power management code. 
+> Where are the docs for them ? 
 
-An IPI can be retried and the retry for dual PII at least seems to hit
-all the CPUs. Even on a 2 CPU box this has been observed - I assume
-because the error was raised by the IO APIC when it got a garbled IPI.
+The PM code in radeonfb is probably only useful for Mac laptops where
+we have to manually put the chip in D2 state. I don't think x86 laptops
+use D2...
 
-Go ask Intel if you doubt it.
+Note that I have a patch adding some basic PM support to fbdev in 2.5
+that I need to send you for review. The PM is always initiated by the
+low level driver which gets notified of PM events by its parent bus,
+what I added is a way for the driver to "broadcast" that to clients
+like fbcon so fbcon can stop touching the framebuffer while the chip
+is potentially off, and can restore the display on wakeup.
+
+I'll send that to you asap. 
+
+Note: The Power Management isn't well implemented in 2.5 yet. The
+infrastructure is mostly there, but the driver side semantics are
+still wrong. Patrick Mochel has a new implementation that is much
+better, but he didn't merge it upstream yet. I expect this will
+happen around Kernel Summit / OLS.
+
+Ben.
 

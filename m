@@ -1,107 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261807AbSIPLzc>; Mon, 16 Sep 2002 07:55:32 -0400
+	id <S262014AbSIPMNM>; Mon, 16 Sep 2002 08:13:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261923AbSIPLzb>; Mon, 16 Sep 2002 07:55:31 -0400
-Received: from dp.samba.org ([66.70.73.150]:15049 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S261807AbSIPLzY>;
-	Mon, 16 Sep 2002 07:55:24 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Daniel Phillips <phillips@arcor.de>, Roman Zippel <zippel@linux-m68k.org>
-Cc: Jamie Lokier <lk@tantalophile.demon.co.uk>,
-       Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Raceless module interface 
-In-reply-to: Your message of "Fri, 13 Sep 2002 15:34:53 +0200."
-             <E17pqaz-000891-00@starship> 
-Date: Mon, 16 Sep 2002 12:17:33 +1000
-Message-Id: <20020916120022.22FFC2C12A@lists.samba.org>
+	id <S262017AbSIPMNM>; Mon, 16 Sep 2002 08:13:12 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:52496 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S262014AbSIPMNL>; Mon, 16 Sep 2002 08:13:11 -0400
+From: Alan Cox <alan@redhat.com>
+Message-Id: <200209161218.g8GCI7301692@devserv.devel.redhat.com>
+Subject: Re: [PATCH] Experimental IDE oops dumper v0.1
+To: rusty@rustcorp.com.au (Rusty Russell)
+Date: Mon, 16 Sep 2002 08:18:07 -0400 (EDT)
+Cc: alan@redhat.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20020916120022.AD2EA2C06F@lists.samba.org> from "Rusty Russell" at Sep 16, 2002 09:52:46 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <E17pqaz-000891-00@starship> you write:
-> On Friday 13 September 2002 08:51, Rusty Russell wrote:
-> > If you split registration interfaces into reserve (can fail) and
-> > use (can't fail), then you do:
-> 
-> Why is that different from:
-> 
->  	int my_module_init(void)
->  	{
->  		int ret;
->  		ret = reserve_foo();
->  		if (ret != 0)
->  			return ret;
->  		ret = reserve_bar();
->  		if (ret != 0) {
->  			unreserve_foo();
-> 	 		return ret;
-> 		}
->  		use_foo();
->  		use_bar();
-> 		return 0;
->  	}
+> +	/* Pause (at least 400ns) in case we just issued a command */
+> +	oopser_usec(1);
+> +	for (i = 0; i < 1000; i++) {
+> +		b = inb(HD_STATUS);
+> +		if (!(b & BUSY_STAT)) {
+> +			if (b & ERR_STAT) return 0;
+> +			if (b & flag) return 1;
+> +		}
+> +		oopser_usec(1000);
 
-As I said:
+This will stop working on SATA when VDMA goes into newer controllers btw.
 
-R> Of course you can simulate a two-stage within a single-stage, of course,
-R> by doing int single_stage(void) { stage_one(); stage_two(); }, so
-R> "need" is a bit strong.
+> +	/* Bits 24-27, 0x40=LBA, 0x10=slave */
+> +	if (!wait_before_command()) return -EIO;
+> +	outb(0x40 | (master ? 0 : 0x10) | ((lba >> 24) & 0x0F), HD_CURRENT);
 
-> Of course, and you might consider actually reading my [RFC].
+Doesn't work for LBA48
 
-You weighed into a debate without background, with a longwinded
-"original" suggestion which wasn't, and then you accuse *me* of not
-reading?
+> +	if (!wait_before_command()) return -EIO;
+> +	outb(0x40 | (master ? 0 : 0x10) | ((lba >> 24) & 0x0F), HD_CURRENT);
 
-You divided modules into counting and non-counting.  This is overly
-simplistic.  In fact, *interfaces* are divided into counting and
-non-counting: a module may use both.  A module which only uses
-counting interfaces is trivially safe from unload races.  The
-interesting problem is module which control their own reference
-counts, because they use one or more non-counting interfaces.
+Ditto
 
-Your "solution" does not work:
+> +/* Called with interrupts off */
+> +int oopser_read_ide(char dump[512], unsigned int block)
+> +{
+> +	/* Wait for non-busy: if not, reset anyway */
+> +	wait_before_command();
+> +	/* Soft reset of drive (set nIEN as well) */
+> +	outb(0x0e, HD_CMD);
 
->	unregister_callpoints(...);
->	magic_wait_for_quiescence();
->	return cleanup_foo(...);
+Be careful here - one or two drives get nIEN backwards, you might just
+want to turn off interrupts and be done with it
 
-In fact, it would look like:
+> +	oopser_usec(1); /* 400ns according to spec */
+> +	outb(0x0a, HD_CMD);
 
->	unregister_callpoints(...);
->	synchronize_kernel();
->	if (atomic_read(&usecount) != 0) {
->		reregister_callpoints(...);
->		return -EBUSY;
->	}
->	cleanup_foo();
+You really need to reset and reprogram/retune the controller as well.
 
-Now, think what happens if reregister_callpoints() fails.  So we need
-"unuse_xxx" here then.
+I like the infrastructure but the IDE dumper code is wishful thinking
+in one or two spots. You don't know f the controller is in DMA modes,
+tuned for different things to the drives or legacy free. Im not sure what
+to do for legacy free cases but the other bits like LBA48 and retuning
+probably can be handled with some small chipset specific hooks
 
-Now, *think* for one moment, from the point of view of the author of
-one of these modules.  Now, how are you going to explain the subtle
-requirements of your "two stage in one" interfaces?  Bear in mind that
-the init races weren't even understood by anyone on linux-kernel until
-two years ago, and you're dealing with a newbie kernel programmer.
-
-Now do you see my preference for taking the weight off the shoulders
-of module authors?  It's just not sane to ask them to deal with these
-fairly esoteric races, and expect them to get it right.
-
-We could simply ban modules from using non-counting interfaces.  Or we
-could introduce two-stage registration interfaces and then simply ban
-their unloading.  Or we can make their unloading a kernel hacking
-option.  Or we can provide all the infrastructure, and allow the
-module authors to set their own comfort level.
-
-> Don't forget that the Unix way has traditionally been to use the
-> simplest interface that will do the job; if you propose a fat
-> interface you need to prove that the thin one cannot do the job.
-
-Gee, really?  You're so clever!
-
-You patronising little shit,
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+Alan

@@ -1,41 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266157AbUHYVjE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265487AbUHYVeh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266157AbUHYVjE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 17:39:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266085AbUHYVjD
+	id S265487AbUHYVeh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 17:34:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264980AbUHYVdN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 17:39:03 -0400
-Received: from marasystems.com ([213.150.153.194]:13457 "EHLO
-	filer.marasystems.com") by vger.kernel.org with ESMTP
-	id S266157AbUHYVfi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 17:35:38 -0400
-Date: Wed, 25 Aug 2004 23:35:05 +0200 (CEST)
-From: Henrik Nordstrom <hno@marasystems.com>
-To: Harald Welte <laforge@netfilter.org>
-cc: Netfilter Development Mailinglist 
-	<netfilter-devel@lists.netfilter.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.9-rc1
-In-Reply-To: <20040825203206.GS5824@sunbeam.de.gnumonks.org>
-Message-ID: <Pine.LNX.4.61.0408252334230.28603@filer.marasystems.com>
-References: <Pine.LNX.4.58.0408240031560.17766@ppc970.osdl.org>
- <412CDFEE.1010505@triplehelix.org> <20040825203206.GS5824@sunbeam.de.gnumonks.org>
+	Wed, 25 Aug 2004 17:33:13 -0400
+Received: from wsip-68-99-153-203.ri.ri.cox.net ([68.99.153.203]:33500 "EHLO
+	blue-labs.org") by vger.kernel.org with ESMTP id S269157AbUHYVVW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Aug 2004 17:21:22 -0400
+Message-ID: <412CF299.2070805@blue-labs.org>
+Date: Wed, 25 Aug 2004 16:12:09 -0400
+From: David Ford <david+challenge-response@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.8a3) Gecko/20040825
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: 2.6.9-rc1 & iptables (ASSERT net/ipv4/netfilter/ip_nat_helper.c:428
+ &ip_nat_lock writelocked)
+Content-Type: multipart/mixed;
+ boundary="------------060305080203020604000104"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 25 Aug 2004, Harald Welte wrote:
+This is a multi-part message in MIME format.
+--------------060305080203020604000104
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> The 'problem' is that we try to get a readlock while we're already
-> protected under a write lock.
->
-> Please see the following [quite trivial, but yet untested] patch:
->
-> EXPORT_SYMBOL(ip_nat_used_tuple);
-> +EXPORT_SYMBOL(ip_nat_find_helper);
+I just booted into 2.6.9-rc1.  Dmesg is flooded with this.  Not only 
+that, but it stalls the machine until I come back to the keyboard.  Thus 
+any network connections timeout.
 
-Why this new exported symbol?
+ASSERT net/ipv4/netfilter/ip_nat_helper.c:428 &ip_nat_lock writelocked
+ASSERT net/ipv4/netfilter/ip_nat_helper.c:428 &ip_nat_lock writelocked
+ASSERT net/ipv4/netfilter/ip_nat_helper.c:428 &ip_nat_lock writelocked
+ASSERT net/ipv4/netfilter/ip_nat_helper.c:428 &ip_nat_lock writelocked
+ASSERT net/ipv4/netfilter/ip_nat_helper.c:428 &ip_nat_lock writelocked
+ASSERT net/ipv4/netfilter/ip_nat_helper.c:428 &ip_nat_lock writelocked
+ASSERT net/ipv4/netfilter/ip_nat_helper.c:428 &ip_nat_lock writelocked
+ASSERT net/ipv4/netfilter/ip_nat_helper.c:428 &ip_nat_lock writelocked
+ASSERT net/ipv4/netfilter/ip_nat_helper.c:428 &ip_nat_lock writelocked
+Hangcheck: hangcheck value past margin!
+ASSERT net/ipv4/netfilter/ip_nat_helper.c:428 &ip_nat_lock writelocked
+ASSERT net/ipv4/netfilter/ip_nat_helper.c:428 &ip_nat_lock writelocked
+ASSERT net/ipv4/netfilter/ip_nat_helper.c:428 &ip_nat_lock writelocked
+ASSERT net/ipv4/netfilter/ip_nat_helper.c:428 &ip_nat_lock writelocked
+ASSERT net/ipv4/netfilter/ip_nat_helper.c:428 &ip_nat_lock writelocked
+ASSERT net/ipv4/netfilter/ip_nat_helper.c:428 &ip_nat_lock writelocked
+ASSERT net/ipv4/netfilter/ip_nat_helper.c:428 &ip_nat_lock writelocked
+ASSERT net/ipv4/netfilter/ip_nat_helper.c:428 &ip_nat_lock writelocked
+ASSERT net/ipv4/netfilter/ip_nat_helper.c:428 &ip_nat_lock writelocked
+ASSERT net/ipv4/netfilter/ip_nat_helper.c:428 &ip_nat_lock writelocked
+ASSERT net/ipv4/netfilter/ip_nat_helper.c:428 &ip_nat_lock writelocked
+ASSERT net/ipv4/netfilter/ip_nat_helper.c:428 &ip_nat_lock writelocked
+ASSERT net/ipv4/netfilter/ip_nat_helper.c:428 &ip_nat_lock writelocked
 
-Regards
-Henrik
+
+--------------060305080203020604000104
+Content-Type: text/x-vcard; charset=utf-8;
+ name="david+challenge-response.vcf"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="david+challenge-response.vcf"
+
+begin:vcard
+fn:David Ford
+n:Ford;David
+email;internet:david@blue-labs.org
+title:Industrial Geek
+tel;home:Ask please
+tel;cell:(203) 650-3611
+x-mozilla-html:TRUE
+version:2.1
+end:vcard
+
+
+--------------060305080203020604000104--

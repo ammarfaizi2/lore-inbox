@@ -1,56 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278461AbRJOWTm>; Mon, 15 Oct 2001 18:19:42 -0400
+	id <S278463AbRJOWYw>; Mon, 15 Oct 2001 18:24:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278457AbRJOWTc>; Mon, 15 Oct 2001 18:19:32 -0400
-Received: from cc1095243-a.thrp1.fl.home.com ([24.37.231.148]:5898 "EHLO
-	Artifact") by vger.kernel.org with ESMTP id <S278447AbRJOWTY>;
-	Mon, 15 Oct 2001 18:19:24 -0400
-Message-ID: <009a01c155c7$89fa9c40$c800000a@Artifact>
-From: "Wilson" <defiler@null.net>
-To: <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.3.96.1011015173113.21274F-100000@gatekeeper.tmr.com>
-Subject: Re: Dual Athlon XP 1800+ on Tyan Thunder K7 or Tiger MP anyone?
-Date: Mon, 15 Oct 2001 18:20:04 -0400
+	id <S278458AbRJOWYd>; Mon, 15 Oct 2001 18:24:33 -0400
+Received: from dfw-smtpout1.email.verio.net ([129.250.36.41]:53139 "EHLO
+	dfw-smtpout1.email.verio.net") by vger.kernel.org with ESMTP
+	id <S278457AbRJOWYT>; Mon, 15 Oct 2001 18:24:19 -0400
+Message-ID: <3BCB6230.905E5C21@bigfoot.com>
+Date: Mon, 15 Oct 2001 15:24:48 -0700
+From: Tim Moore <timothymoore@bigfoot.com>
+Organization: Yoyodyne Propulsion Systems, Inc.
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.2.20p10i i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Mike Fedyk <mfedyk@matchmail.com>
+CC: Slo Mo Snail <slomo@beermail.no-ip.com>,
+        "M. Edward (Ed) Borasky" <znmeb@aracnet.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: How many versions of VM are there?
+In-Reply-To: <Pine.LNX.4.33.0110151105400.22170-100000@shell1.aracnet.com> <E15tEoY-0000dt-00@beermail.no-ip.com> <20011015141520.A4482@mikef-linux.matchmail.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------ Original Message -----
-From: "Bill Davidsen" <davidsen@tmr.com>
-To: "Jeffrey W. Baker" <jwbaker@acm.org>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: Monday, October 15, 2001 5:37 PM
-Subject: Re: Dual Athlon XP 1800+ on Tyan Thunder K7 or Tiger MP anyone?
+Mike Fedyk wrote:
+> 
+> On Mon, Oct 15, 2001 at 10:58:22PM +0200, Slo Mo Snail wrote:
+> > As far as I know there are 2 different version of VM:
+> > 2.2.x and 2.4.x-acyy: Rik von Riel's VM (but I'm not sure wether it's the
+> > same VM)
+> 
+> No.
+> 
+> It's not the same VM.  2.2 had a VM change from Andrea at about 2.2.17-18,
+> don't know about before...
 
+2.2.19pre2
+o       Drop the page aging for a moment to merge the
+        Andrea VM
+o       Merge Andrea's VM-global patch                  (Andrea
+Arcangeli)
 
-> On Thu, 11 Oct 2001, Jeffrey W. Baker wrote:
->
-> > Registered ECC PC2100 DIMMs are $40 for 256MB at crucial.com.  The local
-> > computer shop has $129 for random taiwanese 512MB DIMM and $193 for
-> > Corsair brand of same.
-> >
-> > I dunno where your $900/GB figure comes from.
->
-> 512MB registered at $450ea. The 256MB are about the cost you mention, but
-> allow only a single GB with no room for expansion. I tried all weekend to
-> get into crutial.com and kept getting "too busy to accept you" messages,
-> so it may be great but not currently useful. Yes I tried from several
-> site, and at 2:10am Morning when I was fixing a server...
->
-
-I see 512MB PC2100 Registered DIMMs for $105 on Pricewatch.
-Am I missing something here?
-
-They accused us of suppressing freedom of expression.
-This was a lie and we could not let them publish it.
--- Nelba Blandon, Nicaraguan Interior Ministry Director of Censorship
-
-
+rgds,
+tim.
+--

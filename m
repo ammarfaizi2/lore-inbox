@@ -1,57 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263732AbTDTXe1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Apr 2003 19:34:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263733AbTDTXe1
+	id S263731AbTDTXdw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Apr 2003 19:33:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263732AbTDTXdw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Apr 2003 19:34:27 -0400
-Received: from arnor.apana.org.au ([203.14.152.115]:30217 "EHLO
-	arnor.me.apana.org.au") by vger.kernel.org with ESMTP
-	id S263732AbTDTXeZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Apr 2003 19:34:25 -0400
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: kpfleming@cox.net (Kevin P. Fleming), linux-kernel@vger.kernel.org
-Subject: Re: 2.5.68 oops booting with initrd
-In-Reply-To: <3EA22FDD.6010109@cox.net>
-X-Newsgroups: apana.lists.os.linux.kernel
-User-Agent: tin/1.5.17-20030301 ("Bubbles") (UNIX) (Linux/2.4.20-1-686-smp (i686))
-Message-Id: <E197OVO-0008VR-00@gondolin.me.apana.org.au>
-Date: Mon, 21 Apr 2003 09:45:54 +1000
+	Sun, 20 Apr 2003 19:33:52 -0400
+Received: from fluent2.pyramid.net ([206.100.220.213]:57504 "EHLO
+	fluent2.pyramid.net") by vger.kernel.org with ESMTP id S263731AbTDTXdv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Apr 2003 19:33:51 -0400
+X-Not-Legal-Opinion: IANAL I am not a lawyer
+X-For-Entertainment-Purposes-Only: True
+Message-Id: <5.2.0.9.0.20030420163516.02076ec0@fluent2.pyramid.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
+Date: Sun, 20 Apr 2003 16:45:49 -0700
+To: "Leonard Milcin, Jr" <thervoy@post.pl>
+From: Stephen Satchell <list@fluent2.pyramid.net>
+Subject: Re: (OT) md5sum proving to be an EXCELLENT memory test
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3EA317F6.2000504@post.pl>
+References: <5.2.0.9.0.20030420132915.01d28c40@fluent2.pyramid.net>
+ <6uwuhpl2u5.fsf@zork.zork.net>
+ <Pine.LNX.4.44.0304192002580.9909-100000@penguin.transmeta.com>
+ <6uwuhpl2u5.fsf@zork.zork.net>
+ <5.2.0.9.0.20030420132915.01d28c40@fluent2.pyramid.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kevin P. Fleming <kpfleming@cox.net> wrote:
-> Very small and simple kernel configuration (includes devfs, which is 
-> where this problem came from), using Etherboot to load it along with a 
-> small (768K) initrd.
+At 11:58 PM 4/20/03 +0200, Leonard Milcin, Jr wrote:
+> > (...)
+>>as perfect.)  Perform md5sum on the files on the server and save the 
+>>results, and the signatures would be different from run to run on the 
+>>same files.
+>>Incompatible RAM.
+> > (...)
+>
+>I had the same situation with some cheap mobo (ECS K7S5A+) of friend of 
+>mine. You don't need to check md5sums. Why is MD5 better than any other 
+>method? I just simply found, that when I copy file A to B, and then A to 
+>C, it is possible that B and C differs. Most of the time with one byte.
+>
+>The advice is to use some good memory test suite from time to time - it 
+>will do better its job than you just checking signatures on large files.
 
-> Call Trace:
->  [<c0114000>] default_wake_function+0x0/0x20
->  [<c01099cc>] __down_failed+0x8/0xc
->  [<c01772d9>] .text.lock.util+0x55/0x7c
+The "good memory test suite" I have didn't catch it.  The copy method you 
+suggest didn't catch it.  The BIOS memory check didn't catch it.  Only the 
+linux compile method -- mentioned on this list -- did catch it.  And so did 
+using md5sum on very long files.
 
-This should fix it.
--- 
-Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
-Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+(Maybe you missed reading the part that md5sum on small files never 
+fails.  File copies on smaller files don't fail, either.  Otherwise, how 
+did I get a Linux environment loaded and running with no problem?)
+
+I'm pissed about this because, when I purchased the RAM a year and a half 
+ago, I used the memory test suite to see if the stuff would work in these 
+servers, AND THE TESTS PASSED.  So I accepted the RAM.  The money-back 
+guarantee is long gone.  No, I didn't try a kernel compile.  My stupidity 
+for believing in running only one diagnostic.
+
+The server in question ran for a year as a moderate-use Web server, and 
+would mystery only once in a great while.  It was taken out of service when 
+a faster computer replaced it.  It's only now I find out the truth about 
+the RAM incompatibility in it, when I tried to use the 40-GB hard drive in 
+it as a staging vehicle.
+
+
 --
-Index: fs/partitions/check.c
-===================================================================
-RCS file: /home/gondolin/herbert/src/CVS/debian/kernel-source-2.5/fs/partitions/check.c,v
-retrieving revision 1.1.1.8
-retrieving revision 1.6
-diff -u -r1.1.1.8 -r1.6
---- fs/partitions/check.c	7 Apr 2003 17:32:48 -0000	1.1.1.8
-+++ fs/partitions/check.c	13 Apr 2003 00:15:54 -0000	1.6
-@@ -414,7 +414,8 @@
- 	unlink_gendisk(disk);
- 	disk_stat_set_all(disk, 0);
- 	disk->stamp = disk->stamp_idle = 0;
--	devfs_remove_partitions(disk);
-+	if (disk->minors != 1)
-+		devfs_remove_partitions(disk);
- 	if (disk->driverfs_dev) {
- 		sysfs_remove_link(&disk->kobj, "device");
- 		sysfs_remove_link(&disk->driverfs_dev->kobj, "block");
+X -> unknown; Spurt -> drip of water under pressure
+Expert -> X-Spurt -> Unknown drip under pressure.
+

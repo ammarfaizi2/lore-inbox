@@ -1,107 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266585AbUHSQQe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266590AbUHSQQo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266585AbUHSQQe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 12:16:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266590AbUHSQQe
+	id S266590AbUHSQQo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 12:16:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266591AbUHSQQn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 12:16:34 -0400
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:8697 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S266585AbUHSQQa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 12:16:30 -0400
-Message-ID: <4124D25C.20703@acm.org>
-Date: Thu, 19 Aug 2004 11:16:28 -0500
-From: Corey Minyard <minyard@acm.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
+	Thu, 19 Aug 2004 12:16:43 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:1991 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S266590AbUHSQQi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Aug 2004 12:16:38 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+Subject: kernbench on 512p
+Date: Thu, 19 Aug 2004 12:16:33 -0400
+User-Agent: KMail/1.6.2
 MIME-Version: 1.0
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Patch to 2.6.8.1-mm2 to allow multiple NMI handlers to be registered
-References: <4124BACB.30100@acm.org> <16676.51035.924323.992044@alkaid.it.uu.se>
-In-Reply-To: <16676.51035.924323.992044@alkaid.it.uu.se>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Disposition: inline
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200408191216.33667.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mikael Pettersson wrote:
+I set out to benchmark the page cache round robin stuff I posted earlier to 
+see whether round robining across 256 nodes would really hurt kernbench 
+performance.  What I found was that things aren't scaling well enough to make 
+reasonable measurements.
 
->Corey Minyard writes:
-> > +static int k7_watchdog_reset(int handled)
-> > +{
-> > +	unsigned int low, high;
-> > +	int          source;
-> > +
-> > +	rdmsr(MSR_K7_PERFCTR0, low, high);
->
->Please use rdpmc() instead of rdmsr() when reading counter registers.
->Ditto in the other places.
->(I know oprofile doesn't, but that's no excuse.)
->  
->
-Ok, no problem.
+                      time     user   system   %cpu    ctx    sleeps
+2.6.8.1-mm1+nodespan  108.622  1588   10536    11158  31193   397966
+2.6.8.1-mm1+ns+rr     105.614  1163    8631     9302  27774   420888
 
-> > +	/* 
-> > +	 * If the timer has overflowed, this is certainly a watchdog
-> > +	 * source
-> > +	 */
-> > +	source = (low & (1 << 31)) == 0;
-> > +	if (source)
->
->Why not "if ((int)low >= 0)"?
->  
->
-IIRC, the docs state that timer goes off if the high bit is cleared in 
-the register.  I was just going with the documentation description.  Not 
-a big deal either way, I don't think.
+2.6.8.1-mm1+nodespan is just 2.6.8.1-mm1 with my last node-span patch applied.  
+2.6.8.1-mm1+ns+rr is that plus the page cache round robin patch I posted 
+recently.  I just extracted the 'optimal run' average for each of the above 
+lines.
 
-> > +	/*
-> > +	 * The only thing that SHOULD be before us is the oprofile
-> > +	 * code.  If it has handled an NMI, then we shouldn't.  This
-> > +	 * is a rather unnatural relationship, it would much better to
-> > +	 * build a perf-counter handler and then tie both the
-> > +	 * watchdog and oprofile code to it.  Then this ugliness
-> > +	 * could go away.
-> > +	 */
->
->Depending on the value of nmi_watchdog and how oprofile was
->set up, neither, just one, or both of them can cause NMIs.
->Only one of them can do it via the performance counters, however.
->  
->
-For nmi_watchdog=1, I can come from both the performance counters and 
-the IOAPIC only if they both go off at almost exactly the same time 
-(there is only one edge for both).  Otherwise, the oprofile code can 
-tell if it is the source, and it will return if it handled it or not.  
-The race is small, but there.  I guess I might have to implement the 
-ugliness I describe below.
+Here's the kernel profile.  It would be nice if the patch to show which lock 
+is contended got included.  I think it was discussed awhile back, but I don't 
+have one against the newly merged profiling code.
 
->How do you handle multiple simultaneous NMIs from different sources?
->  
->
-That's why the current NMI hardware sucks so bad.  In general, you 
-cannot tell easily.  However, you can tell if the NMI came from at least 
-the NMI watchdog if nmi_watchdog=2.  And you can usually tell if it was 
-an ECC error or I/O error.  I'm working on getting things changed in 
-IPMI to be able to tell if one came from IPMI.  At OLS, we talked about 
-this for a while and people are going to start trying to push the 
-hardware vendors to improve the NMI hardware so the source can always be 
-known.  So things are not perfect, but I believe they are usable.
+[root@ascender root]# readprofile -m System.map | sort -nr | head -30
+208218076 total                                     30.1677
+90036167 ia64_pal_call_static                     468938.3698
+88140492 default_idle                             229532.5312
+10312592 ia64_save_scratch_fpregs                 161134.2500
+10306777 ia64_load_scratch_fpregs                 161043.3906
+8723555 ia64_spinlock_contention                 90870.3646
+121385 rcu_check_quiescent_state                316.1068
+ 40464 file_move                                180.6429
+ 32374 file_kill                                144.5268
+ 25316 atomic_dec_and_lock                       98.8906
+ 24814 clear_page                               155.0875
+ 17709 file_ra_state_init                       110.6813
+ 17603 clear_page_tables                         13.4169
+ 16822 copy_page                                 65.7109
+ 16683 del_timer_sync                            32.5840
+ 15098 zap_pte_range                              7.8635
+ 15076 __d_lookup                                16.8259
+ 13275 find_get_page                             31.9111
+ 12898 __copy_user                                5.5214
+ 10472 finish_task_switch                        36.3611
+ 10037 ia64_pfn_valid                            52.2760
+  8610 get_zone_counts                           22.4219
+  7905 current_kernel_time                       41.1719
+  7155 __down_trylock                            22.3594
+  7063 _pagebuf_find                              4.9049
+  6995 xfs_ilock                                 13.6621
+  6965 tasklet_action                             8.3714
+  6494 free_page_and_swap_cache                  28.9911
+  5652 nr_free_pages                             22.0781
+  5555 xfs_trans_push_ail                         3.6165
 
-You cannot tell (well, I think you can, but it would be tricky*) if the 
-NMI came from the nmi_watchdog=1 (IOAPIC) because that requires claiming 
-a lock to look at the timer registers.  You cannot claim locks in an 
-NMI, at least not general locks.  Other sources depend on the capability 
-of the hardware.
+This is a 64p profile only.  If I set the prof_cpu_mask to include all 512 
+CPUs, the system livelocks.  I reset the counter right after the warmup run, 
+partly through the half load run, and collected it after a few runs were 
+complete.
 
 Thanks,
-
--Corey
-
-* If the processor has compare-and-swap (486 and newer do, I believe), 
-you can create an "processor-owned" lock that you can atomically claim 
-and set ownership of.  With that, the NMI handler could could first 
-check and see if the processor it was running on owned the lock, and do 
-the appropriate thing if it did.  Otherwise it could claim the spinlock 
-normally.  Ugly, but possible.
+Jesse

@@ -1,62 +1,94 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275086AbRJAODk>; Mon, 1 Oct 2001 10:03:40 -0400
+	id <S275096AbRJAOb6>; Mon, 1 Oct 2001 10:31:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275098AbRJAODb>; Mon, 1 Oct 2001 10:03:31 -0400
-Received: from relais.videotron.ca ([24.201.245.36]:45738 "EHLO
-	VL-MS-MR001.sc1.videotron.ca") by vger.kernel.org with ESMTP
-	id <S275096AbRJAODS>; Mon, 1 Oct 2001 10:03:18 -0400
-Date: Mon, 1 Oct 2001 10:03:43 -0400
-From: Greg Ward <gward@python.net>
-To: bugs@linux-ide.org, linux-kernel@vger.kernel.org
-Subject: Re: "hde: timeout waiting for DMA": message gone, same behaviour
-Message-ID: <20011001100343.A625@cthulhu.mems-exchange.org>
-In-Reply-To: <20010921134402.A975@gerg.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010921134402.A975@gerg.ca>
-User-Agent: Mutt/1.3.20i
+	id <S275097AbRJAObr>; Mon, 1 Oct 2001 10:31:47 -0400
+Received: from mail.spylog.com ([194.67.35.220]:47507 "HELO mail.spylog.com")
+	by vger.kernel.org with SMTP id <S275096AbRJAObc>;
+	Mon, 1 Oct 2001 10:31:32 -0400
+Date: Mon, 1 Oct 2001 18:27:53 +0400
+From: "Oleg A. Yurlov" <kris@spylog.com>
+X-Mailer: The Bat! (v1.53d)
+Reply-To: "Oleg A. Yurlov" <kris@spylog.com>
+Organization: SpyLOG Ltd.
+X-Priority: 3 (Normal)
+Message-ID: <1101445461994.20011001182753@spylog.com>
+To: linux-kernel@vger.kernel.org
+Subject: RAID sync
+MIME-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 21 September 2001, I said:
-> Having problems with an ATA/100 drive under Linux 2.4.{2,9}.
-[...]
->   Partition check:
->    hda:hda: timeout waiting for DMA
->   ide_dmaproc: chipset supported ide_dma_timeout func only: 14
->   hda: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest }
->   [...repeat 2 times...]
->   hda: DMA disabled
->   ide0: reset: success
->    hda1
 
-After a lengthy thread with many helpful tips from lots of people, I
-have resolved this problem.  It was a bad hard drive after all.  I tried
-the drive in two separate computers, with four operating systems (Linux,
-Windows 98, MS-DOS, and DR-DOS).
-  * Linux had the problems described ("DMA timeout" message)
-  * Windows 98 didn't complain or have lengthy timeouts, but it
-    turned DMA off on the drive in question
-  * MS-DOS (version 5.0 and 6.22, booted from a floppy) crashed cold on
-    bootup -- probably as soon as it tried to read the MBR of the disk
-  * DR-DOS didn't complain or crash
+        Привет :-)
 
-In my humble estimation, Linux 2.4.9 and 2.4.10 deal with this "DMA
-timeout" problem about as well as can be expected.  One revision the
-kernel IDE folks might consider is that, as soon as a DMA timeout is
-detected, turn off DMA on the affected drive.  This is what Linux 2.4.2
-did, and it at least avoided repeating the lengthy timeout delays I
-experienced with 2.4.2 on bootup.  With 2.4.9/10, the timeout delay
-repeated every time I accessed the drive until I explicitly turned DMA
-off with "hdparm -d0".
+        Kernel 2.4.6.SuSE-4GB-SMP, 2 CPU, 2Gb RAM, 4 HDD SCSI, M/B Intel L440GX.
+Messages from dmesg:
 
-Many thanks to all who had suggestions and ideas.  I love the Linux
-community, almost as much as I hate flaky hardware.  ;-)
+(scsi0:0:3:0) Synchronous at 80.0 Mbyte/sec, offset 63.
+SCSI device sdd: 35843670 512-byte hdwr sectors (18352 MB)
+ sdd: sdd1 sdd2
+md: raid1 personality registered
+md: raid5 personality registered
+raid5: measuring checksumming speed
+   8regs     :  1321.600 MB/sec
+   32regs    :   978.400 MB/sec
+   pIII_sse  :  1632.400 MB/sec
+   pII_mmx   :  1790.000 MB/sec
+   p5_mmx    :  1885.200 MB/sec
+raid5: using function: pIII_sse (1632.400 MB/sec)
+md: md driver 0.90.0 MAX_MD_DEVS=256, MD_SB_DISKS=27
+md: Autodetecting RAID arrays.
+(read) sda2's sb offset: 15815872 [events: 0000001d]
+(read) sdb2's sb offset: 15815872 [events: 0000001c]
+(read) sdc2's sb offset: 15815872 [events: 0000001d]
+(read) sdd2's sb offset: 15815872 [events: 0000001d]
+md: autorun ...
+md: considering sdd2 ...
+md:  adding sdd2 ...
+md:  adding sdc2 ...
+md: created md1
+md: bind<sdc2,1>
+md: bind<sdd2,2>
+md: running: <sdd2><sdc2>
+md: now!
+md: sdd2's event counter: 0000001d
+md: sdc2's event counter: 0000001d
+md1: max total readahead window set to 508k
+md1: 1 data-disks, max readahead per data-disk: 508k
+raid1: device sdd2 operational as mirror 1
+raid1: device sdc2 operational as mirror 0
+raid1: raid set md1 active with 2 out of 2 mirrors
+md: updating md1 RAID superblock on device
+md: sdd2 [events: 0000001e](write) sdd2's sb offset: 15815872
+md: sdc2 [events: 0000001e](write) sdc2's sb offset: 15815872
+md: considering sdb2 ...
+md:  adding sdb2 ...
+md:  adding sda2 ...
+md: created md0
+md: bind<sda2,1>
+md: bind<sdb2,2>
+md: running: <sdb2><sda2>
+md: now!
+md: sdb2's event counter: 0000001c
+md: sda2's event counter: 0000001d
+md: superblock update time inconsistency -- using the most recent one
+md: freshest: sda2
+md0: max total readahead window set to 508k
+md0: 1 data-disks, max readahead per data-disk: 508k
+raid1: device sdb2 operational as mirror 1
+raid1: device sda2 operational as mirror 0
+raid1: raid set md0 active with 2 out of 2 mirrors
+md: updating md0 RAID superblock on device
+md: sdb2 [events: 0000001e](write) sdb2's sb offset: 15815872
+md: sda2 [events: 0000001e](write) sda2's sb offset: 15815872
+md: ... autorun DONE.
 
-        Greg
--- 
-Greg Ward - programmer-at-large                         gward@python.net
-http://starship.python.net/~gward/
-Life is too short for ordinary music.
+        Why RAID do not start synchronization ? It is normal ?
+
+--
+Oleg A. Yurlov aka Kris Werewolf, SysAdmin      OAY100-RIPN
+mailto:kris@spylog.com                          +7 095 332-03-88
+

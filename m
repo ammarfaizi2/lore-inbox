@@ -1,43 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261903AbVAHJv3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261959AbVAHJxX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261903AbVAHJv3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jan 2005 04:51:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261825AbVAHJsi
+	id S261959AbVAHJxX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jan 2005 04:53:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261825AbVAHJvw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jan 2005 04:48:38 -0500
-Received: from pop.gmx.net ([213.165.64.20]:54150 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261829AbVAHJqJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jan 2005 04:46:09 -0500
-X-Authenticated: #12437197
-Date: Sat, 8 Jan 2005 11:49:18 +0200
-From: Dan Aloni <da-x@gmx.net>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] make mrproper to clean scripts/kconfig/libkconfig.so
-Message-ID: <20050108094918.GA19474@callisto.yi.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 8 Jan 2005 04:51:52 -0500
+Received: from grendel.digitalservice.pl ([217.67.200.140]:65215 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S261858AbVAHJse (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jan 2005 04:48:34 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: ncunningham@linuxmail.org, Pavel Machek <pavel@ucw.cz>
+Subject: Re: 2.6.10-mm2: swsusp regression [update]
+Date: Sat, 8 Jan 2005 10:49:02 +0100
+User-Agent: KMail/1.7.1
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20050106002240.00ac4611.akpm@osdl.org> <1105135940.2488.39.camel@desktop.cunninghams> <200501080156.06145.rjw@sisk.pl>
+In-Reply-To: <200501080156.06145.rjw@sisk.pl>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
-X-Y-GMX-Trusted: 0
+Message-Id: <200501081049.02862.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Dan Aloni <da-x@gmx.net>
+On Saturday, 8 of January 2005 01:56, Rafael J. Wysocki wrote:
+> On Friday, 7 of January 2005 23:12, Nigel Cunningham wrote:
+> > Hi.
+> > 
+> > On Fri, 2005-01-07 at 23:45, Rafael J. Wysocki wrote:
+> > > > ..so... could you go through sysdev_register()s, one by one,
+> > > > commenting them to see which one causes the regression? That driver
+> > > > then needs to be fixed.
+> > > > 
+> > > > Go after mtrr and time in first places.
+> > > 
+> > > OK, but it'll take some time.
+> > 
+> > There's an MTRR fix in the -overloaded ck patches. Perhaps it is what
+> > you're after. (Or perhaps it's already included :>)
+> > 
+> > http://kem.p.lodz.pl/~peter/cko/fixes/2.6.10-cko1-swsusp_fix.patch
+> 
+> Thanks for pointing it out.  I have adapted this patch to -mm2, but 
+> unfortunately it does not fix the issue.  Still searching. ;-)
 
---- linux-2.6.10/scripts/kconfig/Makefile	2004-12-25 11:52:42.000000000 +0200
-+++ linux-2.6.10/scripts/kconfig/Makefile	2005-01-08 11:31:37.000000000 +0200
-@@ -91,7 +91,7 @@
- gconf-objs	:= gconf.o kconfig_load.o zconf.tab.o
- endif
- 
--clean-files	:= lkc_defs.h qconf.moc .tmp_qtcheck \
-+clean-files	:= lkc_defs.h qconf.moc .tmp_qtcheck libkconfig.so \
- 		   .tmp_gtkcheck zconf.tab.c zconf.tab.h lex.zconf.c
- 
- # generated files seem to need this to find local include files
+The regression is caused by the timer driver.  Obviously, turning 
+timer_resume() in arch/x86_64/kernel/time.c into a NOOP makes it go away.
 
+It looks like a locking problem to me.  I'll try to find a fix, although 
+someone who knows more about these things would probably do it faster. :-)
+
+Greets,
+RJW
 
 -- 
-Dan Aloni
-da-x@gmx.net
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

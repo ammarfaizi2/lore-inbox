@@ -1,66 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268497AbUIQHV3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268520AbUIQHVs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268497AbUIQHV3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Sep 2004 03:21:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268515AbUIQHV3
+	id S268520AbUIQHVs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Sep 2004 03:21:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268515AbUIQHVs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Sep 2004 03:21:29 -0400
-Received: from rproxy.gmail.com ([64.233.170.194]:28141 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S268497AbUIQHV1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Sep 2004 03:21:27 -0400
-Message-ID: <470b6397040917002148431e02@mail.gmail.com>
-Date: Fri, 17 Sep 2004 00:21:27 -0700
-From: Tony Lee <tony.p.lee@gmail.com>
-Reply-To: Tony Lee <tony.p.lee@gmail.com>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: [patch] remove the BKL (Big Kernel Lock), this time for real
-Cc: Bill Huey <bhuey@lnxw.com>, "David S. Miller" <davem@davemloft.net>,
-       davidsen@tmr.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20040917064321.GA8146@elte.hu>
+	Fri, 17 Sep 2004 03:21:48 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:54285 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S268520AbUIQHVr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Sep 2004 03:21:47 -0400
+Date: Fri, 17 Sep 2004 08:21:41 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Nigel Cunningham <ncunningham@linuxmail.org>
+Cc: Andrew Morton <akpm@digeo.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH]: Suspend2 Merge: Device driver fixes 1/2
+Message-ID: <20040917082141.A10537@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Nigel Cunningham <ncunningham@linuxmail.org>,
+	Andrew Morton <akpm@digeo.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <1095331532.3855.133.camel@laptop.cunninghams>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <m3vfefa61l.fsf@averell.firstfloor.org>
-	 <cic7f9$i4m$1@gatekeeper.tmr.com>
-	 <20040916222903.GA4089@nietzsche.lynx.com>
-	 <20040916154011.3f0dbd54.davem@davemloft.net>
-	 <20040916225102.GA4386@nietzsche.lynx.com>
-	 <20040917064321.GA8146@elte.hu>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1095331532.3855.133.camel@laptop.cunninghams>; from ncunningham@linuxmail.org on Thu, Sep 16, 2004 at 08:45:32PM +1000
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 17 Sep 2004 08:43:21 +0200, Ingo Molnar <mingo@elte.hu> wrote:
-> 
-> * Bill Huey <bhuey@lnxw.com> wrote:
-> 
-> > Judging from how the Linux code is done and the numbers I get from
-> > Bill Irwin in casual conversation, the Linux SMP approach is clearly
-> > the right track at this time with it's hand honed per-CPU awareness of
-> > things. The only serious problem that spinlocks have as they aren't
-> > preemptable, which is what Ingo is trying to fix.
-> 
-> a clarification: note that the current BKL is a special case. No way do
-> i suggest that the BKS is the proper model for any SMP implementation.
-> It is a narrow special-case because it wraps historic UP-only kernel
-> code.
-> 
-> our primary multiprocessing primitives are still the following 4:
-> lockless data structures, RCU, spinlocks and mutexes. (reverse ordered
-> by level of parallelism.) The BKS is basically a fifth method, a special
-> type of semaphore that i'd never want to be seen used by any new SMP
-> code. It is completely local to sched.c.
-> 
->         Ingo
+the right list for network driver patches is netdev@oss.sgi.com.  Please
+also provide a meaningfull subject line (mentioning what you to to which
+driver)
 
-I coded a IPC system before use atomic add + share memory.  
-It works very well (fast) on 4 CPU SMP system, since it doesn't use 
-any locking API at all.    Very good for resource allocation for 
-SMP.     I implemented speciall malloc/free use by ISR, different
-prority process
-completely without any lock.   Negative side, it use more memory.
-
-
--- 
--Tony
-Having a lot of fun with Xilinx Virtex Pro II reconfigurable HW + ppc + Linux

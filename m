@@ -1,52 +1,95 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130036AbQKCBCk>; Thu, 2 Nov 2000 20:02:40 -0500
+	id <S129750AbQKCBJC>; Thu, 2 Nov 2000 20:09:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130218AbQKCBCa>; Thu, 2 Nov 2000 20:02:30 -0500
-Received: from kleopatra.acc.umu.se ([130.239.18.150]:26809 "EHLO
-	kleopatra.acc.umu.se") by vger.kernel.org with ESMTP
-	id <S130036AbQKCBCY>; Thu, 2 Nov 2000 20:02:24 -0500
-Date: Fri, 3 Nov 2000 02:02:16 +0100
-From: David Weinehall <tao@acc.umu.se>
-To: Elizabeth Morris-Baker <eamb@liu.fafner.com>
-Cc: Torben Mathiasen <torben@kernel.dk>, linux-kernel@vger.kernel.org
-Subject: Re: scsi init problem in 2.4.0-test10? [PATCH]
-Message-ID: <20001103020216.A29681@khan.acc.umu.se>
-In-Reply-To: <20001103005034.C1353@torben> <200011030024.SAA08567@liu.fafner.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <200011030024.SAA08567@liu.fafner.com>; from eamb@liu.fafner.com on Thu, Nov 02, 2000 at 06:24:47PM -0600
+	id <S130020AbQKCBIm>; Thu, 2 Nov 2000 20:08:42 -0500
+Received: from iq.sch.bme.hu ([152.66.226.168]:4648 "EHLO iq.rulez.org")
+	by vger.kernel.org with ESMTP id <S129750AbQKCBIb>;
+	Thu, 2 Nov 2000 20:08:31 -0500
+Date: Fri, 3 Nov 2000 03:15:46 +0100 (CET)
+From: Sasi Peter <sape@iq.rulez.org>
+To: Greg KH <greg@wirex.com>, Johannes Erdfelt <johannes@erdfelt.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [SUCCESS] Re: 2.2.18pre19
+In-Reply-To: <20001102191625.T25191@sventech.com>
+Message-ID: <Pine.LNX.4.10.10011030313160.1293-100000@iq.rulez.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 02, 2000 at 06:24:47PM -0600, Elizabeth Morris-Baker wrote:
+Short answer UHCI JE does work for me, no more strange errors...
+
+The weird thig is that I have used 2.2 USB backports since the begining,
+but I have always used the other UHCI, and up till now it used to work for
+me, except for now, but now it seems to be ok w/ the JE variant.
+
+Thanks for the help.
+
+by,
+
+SaPE
+
+On Thu, 2 Nov 2000, Greg KH wrote:
+
+> On Fri, Nov 03, 2000 at 02:08:53AM +0100, Sasi Peter wrote:
+> > On Thu, 2 Nov 2000, Greg KH wrote:
 > > 
+> > > Could you send the result of /proc/interrupts and 'lspci -v'?
+> > > Also, have you tried the alternate UHCI controller driver?
+> > > Or tried USB as modules, instead of compiled in?
+> > 
+> > Here you go. I did work w/ the very same hw with pre15.
 > 
-> 	Yes, I know that is in the spec, but truly,
-> 	some scsi devices do act this way....
-> 	Maybe they need to read the spec :>
+> Looks like USB and your sound card is on the same interrupt.  Is there
+> any BIOS settings you can make to move these around?
 > 
-> 	I have included the START_STOP for Matthew, but
-> 	I never see it execute with the ATLAS disks...
-> 	A diff follows for those that want to try it..
+> > I have never really knew what the UHCI JE was all about... So it can be
+> > used in place of the original UHCI? I will make a try. (and why JE?)
 > 
-> 	cheers, 
+> Long story, short answer: 2 different developers working on support for
+> the same device.  Both drivers work better for some people on different
+> devices.  JE is the author's initials (Johannes Erdfelt).
 > 
-> 	Elizabeth
+> Personally for some devices I have I like one version, for others, I
+> like the other one.  Now if Johannes would ever fix the QUEUE_BULK bug,
+> I would be back to using only one driver :)
+> 
+> Let me know if moving the IRQs helps out.
+> 
+> greg k-h
+> 
+> 
+> -- 
+> greg@(kroah|wirex).com
+> http://immunix.org/~greg
+> 
 
-Well, if I'm not all mistaken, this is the code that got removed earlier
-on from the kernel because it caused some SCSI-adapters to hang on
-scsi-scan?! If so, what's better: to follow the specs and penalise the
-bad guys, or ignore the specs and penalise the good guys...
+On Thu, 2 Nov 2000, Johannes Erdfelt wrote:
 
+> On Fri, Nov 03, 2000, Sasi Peter <sape@iq.rulez.org> wrote:
+> > On Thu, 2 Nov 2000, Greg KH wrote:
+> > 
+> > > Could you send the result of /proc/interrupts and 'lspci -v'?
+> > > Also, have you tried the alternate UHCI controller driver?
+> > > Or tried USB as modules, instead of compiled in?
+> > 
+> > Here you go. I did work w/ the very same hw with pre15.
+> > 
+> > I have never really knew what the UHCI JE was all about... So it can be
+> > used in place of the original UHCI? I will make a try. (and why JE?)
+> 
+> Yes, it's a drop in replacement. Choose one or the other.
+> 
+> "JE" because it's my initials.
+> 
+> JE
+> 
 
-/David Weinehall
-  _                                                                 _
- // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
-//  Project MCA Linux hacker        //  Dance across the winter sky //
-\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </
+--  SaPE
+
+Peter, Sasi <sape@sch.hu>
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,53 +1,117 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270230AbTGWMR7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 08:17:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270240AbTGWMR7
+	id S270239AbTGWM1I (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 08:27:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270237AbTGWM1I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 08:17:59 -0400
-Received: from [163.118.102.59] ([163.118.102.59]:29071 "EHLO
-	mail.drunkencodepoets.com") by vger.kernel.org with ESMTP
-	id S270230AbTGWMR6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 08:17:58 -0400
-Date: Wed, 23 Jul 2003 08:19:46 -0400
-From: paterley <paterley@DrunkenCodePoets.com>
-To: Jason <jason@project-lace.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: AMD MP, SMP, Tyan 2466
-Message-Id: <20030723081946.44d4fe10.paterley@DrunkenCodePoets.com>
-In-Reply-To: <1058846559.8494.17.camel@big-blue.project-lace.org>
-References: <BB41BCD3.17A02%kernel@mousebusiness.com>
-	<1058846559.8494.17.camel@big-blue.project-lace.org>
-Organization: DrunkenCodePoets.com
-X-Mailer: Sylpheed version 0.9.3 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 23 Jul 2003 08:27:08 -0400
+Received: from vtens.prov-liege.be ([193.190.122.60]:16295 "EHLO
+	mesepl.epl.prov-liege.be") by vger.kernel.org with ESMTP
+	id S270239AbTGWM1E convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jul 2003 08:27:04 -0400
+Message-ID: <D9B4591FDBACD411B01E00508BB33C1B01BCA5C4@mesadm.epl.prov-liege.be>
+From: "Frederick, Fabian" <Fabian.Frederick@prov-liege.be>
+To: jimis@gmx.net, linux-kernel@vger.kernel.org
+Subject: RE: Feature proposal (scheduling related)
+Date: Wed, 23 Jul 2003 14:42:08 +0200
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 22 Jul 2003 00:02:39 -0400
-Jason <jason@project-lace.org> wrote:
+Jimis,
 
-> Hello,
-> 
-> I'm coming into this conversation a bit late, so I might be missing
-> something and appologize if I am.  But  I have the same board and
-> experienced some intersting weirdness with PC2100 NON ECC chips on this
-> board as well.  I was using High performance ram from Mushkin at the
-> time.  Now here's the interesting part, according to some small print in
-> the manual, non ecc ram works up to 1.5Gb.  Knowing this, I bought 1Gb
-> of it, 2 512MB sticks.  I put them both in, and the board only sees
-> 512Mb.  So I talk to Mushkin about it, apparently they've done some
-> testing with this board.  Non ECC memory is EXTREMELY flakey in this
-> board.  So flakey that Tyan, unofficially mind you, recommened to them
-> that they not suggest to their customers to put non ecc memory in this
-> board.  So I got 1Gb of ECC Registered memory, and have yet to have a
-> problem with it.
+	I have been thinking about some /etc/nice file where kernel could
+pick up process nice
+when doing the sys_execve stuff.Maybe it could help ...
 
-Actually, your 2 dimm problem could have (probably) been solved by rearranging
-your dimms.  I have the 2462ung (thunder k7) and the only way I could get 512 
-megs (give me a break I'm a porr college student) was to put one in slot 1 and 
-one in slot 3 (numbering starting at 0).
+Regards,
+Fabian
 
-Pat Erley-- 
+-----Message d'origine-----
+De : jimis@gmx.net [mailto:jimis@gmx.net]
+Envoyé : mercredi 23 juillet 2003 12:58
+À : linux-kernel@vger.kernel.org
+Objet : Feature proposal (scheduling related)
+
+
+With the current scheduler we can prioritize the CPU usage for each process.
+
+What I think would be extremely useful (as I have needed it many times) is
+the 
+scheduling of disk I/O and net I/O traffic. 2 examples showing the
+importance 
+(the numbers are estimations just to explain whati I mean):
+
+1)I 'm connected to the internet via dial-up, therefore I only have 40 kbits
+of 
+bandwidth available. What I want to do is listen to icecast radio via xmms
+(at 
+22 kbits), download the kernel sources with wget, and browse the web at the
+same 
+time. Currently I think that this is *impossible* (correct me if I'm wrong)
+as 
+the radio will be full of pauses and the browsing experience painfully slow.
+
+What I would like to be able to do (let's suppose nice has the --net option
+to 
+set net I/O priority):
+$ nice --net -1 xmms
+$ nice --net 1 wget ftp://.../KernelSources.tar.bz2
+$ mozilla
+This way, xmms which has top priority whould always get the 22kbits it
+needs. 
+What remains should go to the browser when I ask for a web page, and when
+the 
+browser doesn't request anything (let's say I'm reading a big doc in tldp)
+what 
+remains should go to wget. Wget has lower priority and won't irritate the 
+browsing experience, though the file will be downloaded when there is free 
+bandwidth.
+
+2) Normally mozilla starts in 5 seconds after intense disk I/O to load all 
+needed libraries. If I run in the background a long disk intense process
+(like find / -name 'whatever' -xdev) loading mozilla could need 20 boring 
+seconds, or doing other simple tasks might be irritating slow. What I would
+like 
+to be able to do is (once again let's suppose nice has the --disk option to
+set 
+disk I/O priority):
+$ nice --disk 1 find / -name 'whatever' -xdev
+$ mozilla
+and load mozilla ,which has the default disk priority 0, fast. The scheduler
+
+should give to mozilla most disk troughput when it needs it.
+
+Notes:
+1) PLEASE CC REPLIES BACK TO ME since I 'm not subscribed to the list (I
+can't 
+stand the traffic). However I 'll be checking periodically the list via
+NNTP.
+2) As I have no idea of kernel programming I hope what I propose is
+aplicable 
+and relevant to the kernel, as I believe. Sorry if not.
+3) I hope what I propose is implementable using the existing scheduler. It
+would 
+be nice to have one scheduler to handle them all.
+4) I believe that these features don't need a lot of CPU power because the
+disk 
+and net I/O troughput are relatively slow.
+5) If you think that UNIX tradition forbits what I propose I must say that
+these 
+features could be invisible to programs, setting the new  priorities to the 
+default 0 or maybe to the same number as CPU priority.
+
+Thank you very much for your time,
+Dimitris
+
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

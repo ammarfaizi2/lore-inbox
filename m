@@ -1,59 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131755AbRCOPJO>; Thu, 15 Mar 2001 10:09:14 -0500
+	id <S131761AbRCOP0y>; Thu, 15 Mar 2001 10:26:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131756AbRCOPIz>; Thu, 15 Mar 2001 10:08:55 -0500
-Received: from yuan.picktips.com ([203.161.224.83]:31240 "EHLO
-	yuan.picktips.com") by vger.kernel.org with ESMTP
-	id <S131755AbRCOPIt>; Thu, 15 Mar 2001 10:08:49 -0500
-Date: Thu, 15 Mar 2001 23:02:39 +0800 (CST)
-From: Otto Fung <ottofung@picktips.com>
-To: bsuparna@in.ibm.com
-cc: mid@earth.zigamorph.net, linux-kernel@vger.kernel.org
-Subject: Re: Core dumps for threads: Request for your patch (hack)
-In-Reply-To: <CA256A10.00419BCF.00@d73mta05.au.ibm.com>
-Message-ID: <Pine.LNX.4.10.10103152302010.22017-100000@yuan.picktips.com>
+	id <S131760AbRCOP0o>; Thu, 15 Mar 2001 10:26:44 -0500
+Received: from netsonic.fi ([194.29.192.20]:31753 "EHLO nalle.netsonic.fi")
+	by vger.kernel.org with ESMTP id <S131759AbRCOP0f>;
+	Thu, 15 Mar 2001 10:26:35 -0500
+Date: Thu, 15 Mar 2001 17:25:44 +0200 (EET)
+From: Sampsa Ranta <sampsa@netsonic.fi>
+To: <linux-kernel@vger.kernel.org>, <linux-net@vger.kernel.org>
+Subject: Performance is weird (fwd)
+Message-ID: <Pine.LNX.4.33.0103151717020.2681-100000@nalle.netsonic.fi>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+--
+Subject: Performance is weird
+The following message was first posted to linux-atm mailing list, it
+is followed with one of the replies I got, thanks Werner Almesberger
+<Werner.Almesberger@epfl.ch>.
 
-Can I get a copy of your patch, too?
+Actually, with 2.4.3pre4 kernel I got something like 66Mbit/s which were
+better than the 2.4.2 results.
+--
 
-On Thu, 15 Mar 2001 bsuparna@in.ibm.com wrote:
+ Hello,
 
-> 
-> >
-> >(I have a complimentary hack that will dump the stacks of all the
-> >rest of the threads as well (though its a good trick to get gdb to
-> >interpret this). Available upon request.)
-> >
-> 
-> Hello Adam,
-> 
-> Could I take a look at your patch ?
-> 
-> Regards
-> Suparna
-> 
->   Suparna Bhattacharya
->   IBM Software Lab, India
->   E-mail : bsuparna@in.ibm.com
->   Phone : 91-80-5267117, Extn : 2525
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+I am running a set of ForeRunner LE 155 cards on two Athlon 900
+machines. The cards are currently back to back connected. I am having
+problems with performance and this problem seems a bit curious to me.
 
--- 
-Otto Fung
-Tel   (Mobile)  : +852 9871 6871
-Email (Work)    : ottofung@picktips.com
-Email (Personal): ottofung@computer.org
+The boxes are running kernel versions 2.4.2 with the builtin ATM
+functionality.
+
+First when the machine is idle and i run ttcp_atm, the record is:
+
+[root@akvagw test]# ./ttcp_atm -t -a -s 0.90
+ttcp-t: buflen=8192, nbuf=2048, align=16384/0, port=5013  atm  -> 0.90
+ttcp-t: socket
+ttcp-t: 16777216 bytes in 3.805066 real seconds = 4305.838585 KB/sec
+(35.273430
+Mb/sec)
+
+I can get the same result when I run it as many times as I want when the
+machine is idle, however, the performance of the increases a lot when I
+give the processor something to do, for example compile the kernel, when
+gcc is compiling the kernel, I get better results:
+
+[root@akvagw test]# ./ttcp_atm -t -a -s 0.90
+ttcp-t: buflen=8192, nbuf=2048, align=16384/0, port=5013  atm  -> 0.90
+ttcp-t: socket
+ttcp-t: 16777216 bytes in 0.997561 real seconds = 16424.058278 KB/sec (134.545885 Mb/sec)
+
+For the record, the remote machine does not affect the tests, because the
+machine just sends data even when none listens.
+
+Can someone explain, and maybe do something, please? Or am I supposed to
+compile kernel all the time on my production ATM routers.
+
+Same seems to apply when I stream UDP via my 3C905C card to one of my
+routers, first I get 60Mbytes / s, then 94Mbytes/s when I start to compile
+the kernel.
+
+ Thanks,
+   Sampsa Ranta
+   sampsa@netsonic.fi
+
+
+"
+Don't know where those "negative CPU cycles" come from. It's probably
+a driver problem. Could be that either you're triggering scheduling of a
+softirq or such, where there normally wouldn't be one (but should be),
+or that there's a race condition leading to the loss of an event
+(softirq, tasklet, wait queue, etc.), and background activity makes this
+happen in the correct order.
+"
+
+
+
+
 

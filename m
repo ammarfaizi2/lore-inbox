@@ -1,275 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288677AbSBMTNf>; Wed, 13 Feb 2002 14:13:35 -0500
+	id <S288731AbSBMTW5>; Wed, 13 Feb 2002 14:22:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288748AbSBMTN2>; Wed, 13 Feb 2002 14:13:28 -0500
-Received: from mail3.aracnet.com ([216.99.193.38]:51156 "EHLO
-	mail3.aracnet.com") by vger.kernel.org with ESMTP
-	id <S288677AbSBMTNL>; Wed, 13 Feb 2002 14:13:11 -0500
-Date: Wed, 13 Feb 2002 11:13:20 -0800 (PST)
-From: "M. Edward (Ed) Borasky" <znmeb@aracnet.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: VM tuning documentation -- or lack thereof -- in 2.4 mainline
-In-Reply-To: <Pine.LNX.4.10.10202131042000.29350-100000@www.transvirtual.com>
-Message-ID: <Pine.LNX.4.33.0202131106170.14523-100000@shell1.aracnet.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S288787AbSBMTWs>; Wed, 13 Feb 2002 14:22:48 -0500
+Received: from [63.231.122.81] ([63.231.122.81]:62063 "EHLO lynx.adilger.int")
+	by vger.kernel.org with ESMTP id <S288731AbSBMTWa>;
+	Wed, 13 Feb 2002 14:22:30 -0500
+Date: Wed, 13 Feb 2002 12:21:59 -0700
+From: Andreas Dilger <adilger@turbolabs.com>
+To: Eugene Chupkin <ace@credit.com>
+Cc: linux-kernel@vger.kernel.org, tmeagher@credit.com
+Subject: Re: 2.4.x ram issues?
+Message-ID: <20020213122159.A16078@lynx.turbolabs.com>
+Mail-Followup-To: Eugene Chupkin <ace@credit.com>,
+	linux-kernel@vger.kernel.org, tmeagher@credit.com
+In-Reply-To: <20020212213119.A25535@lynx.turbolabs.com> <Pine.LNX.4.10.10202131058110.683-100000@mail.credit.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.10.10202131058110.683-100000@mail.credit.com>; from ace@credit.com on Wed, Feb 13, 2002 at 11:05:32AM -0800
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm trying to get some documentation on tuning the VM in the mainline
-2.4 kernel. I looked at "/usr/src/linux/Documentation/sysctl/vm.txt" and
-discovered it was only valid for 2.2.10. So I have annotated the file
-with what I've been able to glean from a running 2.4.12 system. Can the
-VM hackers on this list fill in the blanks for me and confirm what I
-have done here? Thanks!!
+On Feb 13, 2002  11:05 -0800, Eugene Chupkin wrote:
+> On Tue, 12 Feb 2002, Andreas Dilger wrote:
+> > The other possibility with that much RAM is that the page tables are taking
+> > up all of the low RAM.  Andrea has a patch to put the page tables into
+> > higmem in the recent -aa kernels.
+> 
+> I got it, the 2.4.18pre2aa2/pte-highmem-5 but I can't seem to figure out
+> what to patch this on, I tried patching it on to 2.2.17, 2.2.18-pre1,
+> and 2.2.18-pre2. On all those I get a Hunk failed. Any feedback is
+> appreciated.
 
-------------------------------------------------------------------------
-Documentation for /proc/sys/vm/*	kernel version 2.2.10
-	(c) 1998, 1999,  Rik van Riel <riel@nl.linux.org>
+You may need to use a whole bunch of -aa patches to get it to apply.  In
+general, the -aa tree is tuned for large machines such as yours, so you
+are probably better off getting the whole thing.
 
-znmeb> Annotated on a system running the 2.4.12 kernel
-znmeb> M. Edward Borasky, 2002-02-13
-znmeb> Lines preceded by "znmeb> " are mine.
-
-For general info and legal blurb, please look in README.
-
-==============================================================
-
-This file contains the documentation for the sysctl files in
-/proc/sys/vm and is valid for Linux kernel version 2.2.
-
-The files in this directory can be used to tune the operation
-of the virtual memory (VM) subsystem of the Linux kernel, and
-one of the files (bdflush) also has a little influence on disk
-usage.
-
-Default values and initialization routines for most of these
-files can be found in mm/swap.c.
-
-Currently, these files are in /proc/sys/vm:
-- bdflush
-- buffermem
-znmeb> buffermem not present in 2.4.12
-
-- freepages
-znmeb> freepages not present in 2.4.12
-
-- kswapd
-- overcommit_memory
-- page-cluster
-- pagecache
-znmeb> pagecache not present in 2.4.12
-
-- pagetable_cache
-
-==============================================================
-znmeb> the bdflush documentation looks correct for 2.4.12. The code
-znmeb> referenced below is identical.
-
-bdflush:
-
-This file controls the operation of the bdflush kernel
-daemon. The source code to this struct can be found in
-linux/fs/buffer.c. It currently contains 9 integer values,
-of which 4 are actually used by the kernel.
-
->From linux/fs/buffer.c:
---------------------------------------------------------------
-union bdflush_param {
-	struct {
-		int nfract;	/* Percentage of buffer cache dirty to
-				   activate bdflush */
-		int dummy1;	/* old "ndirty" */
-		int dummy2;	/* old "nrefill" */
-		int dummy3;	/* unused */
-		int interval;	/* jiffies delay between kupdate flushes */
-		int age_buffer;	/* Time for normal buffer to age */
-		int nfract_sync;/* Percentage of buffer cache dirty to
-				   activate bdflush synchronously */
-		int dummy4;	/* unused */
-		int dummy5;	/* unused */
-	} b_un;
-	unsigned int data[N_PARAM];
-} bdf_prm = {{30, 64, 64, 256, 5*HZ, 30*HZ, 60, 0, 0}};
---------------------------------------------------------------
-
-int nfract:
-The first parameter governs the maximum number of dirty
-buffers in the buffer cache. Dirty means that the contents
-of the buffer still have to be written to disk (as opposed
-to a clean buffer, which can just be forgotten about).
-Setting this to a high value means that Linux can delay disk
-writes for a long time, but it also means that it will have
-to do a lot of I/O at once when memory becomes short. A low
-value will spread out disk I/O more evenly, at the cost of
-more frequent I/O operations.  The default value is 30%,
-the minimum is 0%, and the maximum is 100%.
-
-int interval:
-The fifth parameter, interval, is the minimum rate at
-which kupdate will wake and flush.  The value is expressed in
-jiffies (clockticks), the number of jiffies per second is
-normally 100 (Alpha is 1024). Thus, x*HZ is x seconds.  The
-default value is 5 seconds, the minimum is 0 seconds, and the
-maximum is 600 seconds.
-
-int age_buffer:
-The sixth parameter, age_buffer, governs the maximum time
-Linux waits before writing out a dirty buffer to disk.  The
-value is in jiffies.  The default value is 30 seconds,
-the minimum is 1 second, and the maximum 6,000 seconds.
-
-int nfract_sync:
-The seventh parameter, nfract_sync, governs the percentage
-of buffer cache that is dirty before bdflush activates
-synchronously.  This can be viewed as the hard limit before
-bdflush forces buffers to disk.  The default is 60%, the
-minimum is 0%, and the maximum is 100%.
-
-==============================================================
-znmeb> Following section "commented out"; files don't exist in 2.4.12.
-
-znmeb> buffermem:
-znmeb>
-znmeb> The three values in this file correspond to the values in
-znmeb> the struct buffer_mem. It controls how much memory should
-znmeb> be used for buffer memory. The percentage is calculated
-znmeb> as a percentage of total system memory.
-znmeb>
-znmeb> The values are:
-znmeb> min_percent	-- this is the minimum percentage of memory
-znmeb> 		   that should be spent on buffer memory
-znmeb> borrow_percent  -- UNUSED
-znmeb> max_percent     -- UNUSED
-znmeb>
-znmeb> ==============================================================
-znmeb> freepages:
-znmeb>
-znmeb> This file contains the values in the struct freepages. That
-znmeb> struct contains three members: min, low and high.
-znmeb>
-znmeb> The meaning of the numbers is:
-znmeb>
-znmeb> freepages.min	When the number of free pages in the system
-znmeb> 		reaches this number, only the kernel can
-znmeb> 		allocate more memory.
-znmeb> freepages.low	If the number of free pages gets below this
-znmeb> 		point, the kernel starts swapping aggressively.
-znmeb> freepages.high	The kernel tries to keep up to this amount of
-znmeb> 		memory free; if memory comes below this point,
-znmeb> 		the kernel gently starts swapping in the hopes
-znmeb> 		that it never has to do real aggressive swapping.
-znmeb>
-==============================================================
-
-kswapd:
-
-Kswapd is the kernel swapout daemon. That is, kswapd is that
-piece of the kernel that frees memory when it gets fragmented
-or full. Since every system is different, you'll probably want
-some control over this piece of the system.
-
-The numbers in this page correspond to the numbers in the
-struct pager_daemon {tries_base, tries_min, swap_cluster
-}; The tries_base and swap_cluster probably have the
-largest influence on system performance.
-
-tries_base	The maximum number of pages kswapd tries to
-		free in one round is calculated from this
-		number. Usually this number will be divided
-		by 4 or 8 (see mm/vmscan.c), so it isn't as
-		big as it looks.
-		When you need to increase the bandwidth to/from
-		swap, you'll want to increase this number.
-znmeb> default is 512
-
-tries_min	This is the minimum number of times kswapd
-		tries to free a page each time it is called.
-		Basically it's just there to make sure that
-		kswapd frees some pages even when it's being
-		called with minimum priority.
-znmeb> default is 32
-
-swap_cluster	This is the number of pages kswapd writes in
-		one turn. You want this large so that kswapd
-		does it's I/O in large chunks and the disk
-		doesn't have to seek often, but you don't want
-		it to be too large since that would flood the
-		request queue.
-znmeb> default is 8
-
-==============================================================
-
-overcommit_memory:
-
-This value contains a flag that enables memory overcommitment.
-When this flag is 0, the kernel checks before each malloc()
-to see if there's enough memory left. If the flag is nonzero,
-the system pretends there's always enough memory.
-
-This feature can be very useful because there are a lot of
-programs that malloc() huge amounts of memory "just-in-case"
-and don't use much of it.
-
-Look at: mm/mmap.c::vm_enough_memory() for more information.
-znmeb> default is 0
-
-==============================================================
-
-page-cluster:
-
-The Linux VM subsystem avoids excessive disk seeks by reading
-multiple pages on a page fault. The number of pages it reads
-is dependent on the amount of memory in your machine.
-
-The number of pages the kernel reads in at once is equal to
-2 ^ page-cluster. Values above 2 ^ 5 don't make much sense
-for swap because we only cluster swap data in 32-page groups.
-znmeb> default is 4, 2^4 = 16 pages = 64 K bytes
-
-==============================================================
-
-znmeb> this file is not in 2.4.12 -- what a pity :((
-znmeb> pagecache:
-
-znmeb> This file does exactly the same as buffermem, only this
-znmeb> file controls the struct page_cache, and thus controls
-znmeb> the amount of memory used for the page cache.
-znmeb>
-znmeb> In 2.2, the page cache is used for 3 main purposes:
-znmeb> - caching read() data from files
-znmeb> - caching mmap()ed data and executable files
-znmeb> - swap cache
-znmeb>
-znmeb> When your system is both deep in swap and high on cache,
-znmeb> it probably means that a lot of the swapped data is being
-znmeb> cached, making for more efficient swapping than possible
-znmeb> with the 2.0 kernel.
-
-==============================================================
-
-pagetable_cache:
-
-The kernel keeps a number of page tables in a per-processor
-cache (this helps a lot on SMP systems). The cache size for
-each processor will be between the low and the high value.
-
-On a low-memory, single CPU system you can safely set these
-values to 0 so you don't waste the memory. On SMP systems it
-is used so that the system can do fast pagetable allocations
-without having to acquire the kernel memory lock.
-
-For large systems, the settings are probably OK. For normal
-systems they won't hurt a bit. For small systems (<16MB ram)
-it might be advantageous to set both values to 0.
-
-znmeb> defaults are 25 and 50 (low and high watermarks).
-znmeb> What are the units???
-----------------------------------------------------------------
-M. Edward Borasky
-znmeb@borasky-research.net
-
-The COUGAR Project
-http://www.borasky-research.com/Cougar.htm
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 

@@ -1,78 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265745AbUBJQqb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Feb 2004 11:46:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265933AbUBJQqb
+	id S266007AbUBJQs1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Feb 2004 11:48:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265978AbUBJQs0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Feb 2004 11:46:31 -0500
-Received: from mail.kroah.org ([65.200.24.183]:10458 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S265745AbUBJQq2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Feb 2004 11:46:28 -0500
-Date: Tue, 10 Feb 2004 08:46:12 -0800
-From: Greg KH <greg@kroah.com>
-To: Geert Uytterhoeven <geert@linux-m68k.org>, kkeil@suse.de,
-       isdn4linux@listserv.isdn4linux.de, kai.germaschewski@gmx.de
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] PCI Update for 2.6.3-rc1
-Message-ID: <20040210164612.GB27221@kroah.com>
-References: <10763689362321@kroah.com> <Pine.GSO.4.58.0402101702420.2261@waterleaf.sonytel.be>
+	Tue, 10 Feb 2004 11:48:26 -0500
+Received: from turing-police.cirt.vt.edu ([128.173.54.129]:65152 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S266008AbUBJQsY (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Feb 2004 11:48:24 -0500
+Message-Id: <200402101647.i1AGlvrC006918@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Markus Gaugusch <markus@gaugusch.at>
+Cc: David =?iso-8859-2?q?Posp=ED=B9il?= <foton2@post.cz>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Security patch for 2.6.2 
+In-Reply-To: Your message of "Tue, 10 Feb 2004 17:16:37 +0100."
+             <Pine.LNX.4.58.0402101716070.7848@dynast.gaugusch.at> 
+From: Valdis.Kletnieks@vt.edu
+References: <200402101709.04825.foton2@post.cz>
+            <Pine.LNX.4.58.0402101716070.7848@dynast.gaugusch.at>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.58.0402101702420.2261@waterleaf.sonytel.be>
-User-Agent: Mutt/1.4.1i
+Content-Type: multipart/signed; boundary="==_Exmh_-1135267522P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Tue, 10 Feb 2004 11:47:57 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 10, 2004 at 05:03:17PM +0100, Geert Uytterhoeven wrote:
-> On Mon, 9 Feb 2004, Greg KH wrote:
-> > ChangeSet 1.1500.11.2, 2004/01/30 16:34:48-08:00, ambx1@neo.rr.com
-> >
-> > [PATCH] PCI: Remove uneeded resource structures from pci_dev
-> >
-> > The following patch remove irq_resource and dma_resource from pci_dev.  It
-> > appears that the serial pci driver depends on irq_resource, however, it may be
-> > broken portions of an old quirk.  I attempted to maintain the existing behavior
-> > while removing irq_resource.  I changed FL_IRQRESOURCE to FL_NOIRQ.  Russell,
-> > could you provide any comments?  irq_resource and dma_resource are most likely
-> > remnants from when pci_dev was shared with pnp.
-> 
-> FYI, at least one ISDN driver seems to need it as well:
-> 
-> | drivers/isdn/hardware/avm/b1isa.c: In function `b1isa_init':
-> | drivers/isdn/hardware/avm/b1isa.c:183: structure has no member named `irq_resource'
+--==_Exmh_-1135267522P
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-Ick, I don't really think we want users trying to override the irq
-number of their pci cards...
+On Tue, 10 Feb 2004 17:16:37 +0100, Markus Gaugusch said:
+> On Feb 10, David Posp=ED=A8il <foton2@post.cz> wrote:
+> =
 
-Here's the patch that fixes this, and one other isdn driver up.  ISDN
-people, feel free to add this to your huge patch :)
+> > Where can I find security patch for 2.6.2 ?
+> > Problem : look at this site : http://www.securityfocus.com/archive/1/=
+353217
+> > It is remote root exploit :-(
+> No, it is local root exploit. And the patch is attached to that posting=
+=2E
 
-thanks,
+Is the *real* problem here that smbfs doesn't understand the moral
+equivalent of 'mount -o nosuid/nodev/noexec/no-etc'?
 
-greg k-h
+--==_Exmh_-1135267522P
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-===== b1isa.c 1.9 vs edited =====
---- 1.9/drivers/isdn/hardware/avm/b1isa.c	Tue Jul 15 03:01:29 2003
-+++ edited/b1isa.c	Tue Feb 10 08:43:39 2004
-@@ -180,7 +180,6 @@
- 			break;
- 
- 		isa_dev[i].resource[0].start = io[i];
--		isa_dev[i].irq_resource[0].start = irq[i];
- 
- 		if (b1isa_probe(&isa_dev[i]) == 0)
- 			found++;
-===== t1isa.c 1.11 vs edited =====
---- 1.11/drivers/isdn/hardware/avm/t1isa.c	Tue Jul 15 03:01:29 2003
-+++ edited/t1isa.c	Tue Feb 10 08:44:01 2004
-@@ -519,7 +519,6 @@
- 			break;
- 
- 		isa_dev[i].resource[0].start = io[i];
--		isa_dev[i].irq_resource[0].start = irq[i];
- 
- 		if (t1isa_probe(&isa_dev[i], cardnr[i]) == 0)
- 			found++;
+iD8DBQFAKQs9cC3lWbTT17ARAtJQAJ4/dBsZUdU3RIE0a7F8zrML1Rs2oQCguL+B
+5aaYhlHy2P9QV9NDf4evrRI=
+=Hqrt
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-1135267522P--

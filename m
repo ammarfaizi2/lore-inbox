@@ -1,44 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264748AbSLQGfe>; Tue, 17 Dec 2002 01:35:34 -0500
+	id <S264749AbSLQGia>; Tue, 17 Dec 2002 01:38:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264749AbSLQGfe>; Tue, 17 Dec 2002 01:35:34 -0500
-Received: from twinlark.arctic.org ([208.44.199.239]:26006 "EHLO
-	twinlark.arctic.org") by vger.kernel.org with ESMTP
-	id <S264748AbSLQGfd>; Tue, 17 Dec 2002 01:35:33 -0500
-Date: Mon, 16 Dec 2002 22:43:30 -0800 (PST)
-From: dean gaudet <dean-list-linux-kernel@arctic.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Dave Jones <davej@codemonkey.org.uk>, Ingo Molnar <mingo@elte.hu>,
-       "" <linux-kernel@vger.kernel.org>, "" <hpa@transmeta.com>
-Subject: Re: Intel P6 vs P7 system call performance
-In-Reply-To: <Pine.LNX.4.44.0212162204300.1800-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.50.0212162241150.26163-100000@twinlark.arctic.org>
-References: <Pine.LNX.4.44.0212162204300.1800-100000@home.transmeta.com>
-X-comment: visit http://arctic.org/~dean/legal for information regarding copyright and disclaimer.
+	id <S264760AbSLQGia>; Tue, 17 Dec 2002 01:38:30 -0500
+Received: from 169.imtp.Ilyichevsk.Odessa.UA ([195.66.192.169]:6665 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S264749AbSLQGi3>; Tue, 17 Dec 2002 01:38:29 -0500
+Message-Id: <200212170640.gBH6dws16015@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=US-ASCII
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: Xavier LaRue <paxl@videotron.ca>, linux-kernel@vger.kernel.org
+Subject: Re: Dual P3 550 Katmai Bug
+Date: Tue, 17 Dec 2002 09:29:15 -0200
+X-Mailer: KMail [version 1.3.2]
+References: <20021216182724.30ba0aa6.paxl@videotron.ca>
+In-Reply-To: <20021216182724.30ba0aa6.paxl@videotron.ca>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 Dec 2002, Linus Torvalds wrote:
+On 16 December 2002 21:27, Xavier LaRue wrote:
+> Hi all,
+> As I asked later this day.. my L2 cache is'nt detected on my dual p3
+> 550. But I have another fuzy problem,
 
-> It's not as good as a pure user-mode solution using tsc could be, but
-> we've seen the kinds of complexities that has with multi-CPU systems, and
-> they are so painful that I suspect the sysenter approach is a lot more
-> palatable even if it doesn't allow for the absolute best theoretical
-> numbers.
+That's not a big loss. Undetected cache works as good as detected ;)
 
-don't many of the multi-CPU problems with tsc go away because you've got a
-per-cpu physical page for the vsyscall?
+> all application take more cpu power in smp ( like xmms who was taking
+> .3% take around 3% under and SMP kernel ( I use ps axuf to say this )
 
-i.e. per-cpu tsc epoch and scaling can be set on that page.
+SMP operation incur locking overhead.
 
-the only trouble i know of is what happens when an interrupt occurs and
-the task is rescheduled on another cpu... in theory you could test %eip
-against 0xfffffxxx and "rollback" (or complete) any incomplete
-gettimeofday call prior to saving a task's state.  but i bet that test is
-undesirable on all interrupt paths.
+> .. I think the bug came from the kernel(2.4.18) since I build the
+> smp kernel before adding my second processor and it was using as much
+> cpu .. and another fuzzy problem, Sometime ( read one time at each 15
+> min ) the cpu0 OR cpu1 get more and more loaded till it get 100% of
+> cpu load and then it reget back to 0%.
 
--dean
+Can you look which app does this? I see similar thing on SMP kernel
+running on single Duron. xmms does this. xmms bug?
 
+> My question is .. do update my kernel to a 2.4.20 ( or another
+> version ) should fix my problem, also could upgrading to another
+> kernel should debug my cache problem ?? BTW, I'm not using an Debian
+> stock kernel.. I build it yesterday from real scratch.. (make clean
+> dep; make bzImage;... )
+
+Try newer kernel, cache detection was discussed here recently.
+Or search archives...
+--
+vda

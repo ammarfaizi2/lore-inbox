@@ -1,38 +1,112 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318387AbSGaPJz>; Wed, 31 Jul 2002 11:09:55 -0400
+	id <S317686AbSGaPSp>; Wed, 31 Jul 2002 11:18:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318388AbSGaPJz>; Wed, 31 Jul 2002 11:09:55 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:37878 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318387AbSGaPJz>; Wed, 31 Jul 2002 11:09:55 -0400
-Subject: Re: 2.4.19-rc3+SMP+VIA-ApolloPro-133T-Spinlock.h-Panic
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: damian@kohlfeld.com
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <003301c238a2$807e8d70$c504050a@corp.anobi.com>
-References: <003301c238a2$807e8d70$c504050a@corp.anobi.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 31 Jul 2002 17:29:54 +0100
-Message-Id: <1028132994.7886.86.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S317694AbSGaPSo>; Wed, 31 Jul 2002 11:18:44 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:63662 "EHLO e1.ny.us.ibm.com.")
+	by vger.kernel.org with ESMTP id <S317686AbSGaPSl>;
+	Wed, 31 Jul 2002 11:18:41 -0400
+Importance: Normal
+Sensitivity: 
+Subject: Re: [Jfs-discussion] Re: Testing of filesystems
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Cc: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>,
+       JFS-Discussion <jfs-discussion@www-124.southbury.usf.ibm.com>,
+       linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
+Message-ID: <OF5CB62C2E.2FD15638-ON85256C07.0053C37D@pok.ibm.com>
+From: "James Inman" <jayinman@us.ibm.com>
+Date: Wed, 31 Jul 2002 10:19:58 -0500
+X-MIMETrack: Serialize by Router on D01ML063/01/M/IBM(Release 5.0.10 |March 28, 2002) at
+ 07/31/2002 11:20:02 AM
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-07-31 at 15:56, damian@kohlfeld.com wrote:
-> The kernel is crashing at line 86 of spinlock.h when I run the driver upload
-> for a Dialogic Voice Board.  It says In Interrupt Handler - not syncing.
-> This is an application which was written for a uniprocessor environment and
-> I suspect this to be the issue.  Is there a way to specifically bind an
-> application and it's children to a specified cpu?
 
-That is a kernel side crash. Your driver is failing, take it up with
-whoever wrote it since Dialogic stuff seems to be binary only.
+Here is a link to a list of tools we use to perform stress,system, and
+integration testing on JFS and EVMS, among other things.  We have used
+these tools to test every JFS build that has dropped for the past 1.5
+years.  I'll be happy to answer any questions you may have about our tools
+and methods.
 
-You might also want to look at the Asterisk wildcard stuff which does
-have open source drivers and for a lot of applications can be rather
-neat
-http://store.yahoo.com/asteriskpbx/noname.html
+http://ltp.sourceforge.net/tooltable.php
+
+Jay Inman
+Linux Test Project
+IBM Linux Technology Center
+Tie Line: 678-9277   External: 512-838-9277
+http://ltp.sourceforge.net
+"Outside a dog, a book is man's best friend.  And inside a dog, its too
+dark to read."  - Groucho Marx
+
+
+Roy Sigurd Karlsbakk <roy@karlsbakk.net>@www-124.southbury.usf.ibm.com on
+07/30/2002 07:30:33 AM
+
+Sent by:    jfs-discussion-admin@www-124.southbury.usf.ibm.com
+
+
+To:    "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>,
+       JFS-Discussion <jfs-discussion@www-124.southbury.usf.ibm.com>,
+       linux-kernel@vger.kernel.org
+cc:
+Subject:    [Jfs-discussion] Re: Testing of filesystems
+
+
+
+
+What sort of tools _have_ been used to test JFS to date? and - what
+version(s)
+have been tested?
+
+On Tuesday 30 July 2002 14:22, Bill Rugolsky Jr. wrote:
+> On Tue, Jul 30, 2002 at 11:49:02AM +0200, Axel Siebenwirth wrote:
+> > I wonder what a good way is to stress test my JFS filesystem. Is there
+a
+> > tool that does something like that maybe? Dont't want performance
+> > testing, just all kinds of stress testing to see how the filesystem
+"is"
+> > and to check integrity and functionality.
+>
+> See the ext3 cvs tree at
+>
+>    http://sourceforge.net/projects/gkernel
+>
+> [Jeff Garzik's CVS tree hosts the ext3 tree.]
+>
+> Andrew Morton, being conscientious and methodical, has written lots of
+> filesystem testing tools during his work on ext3.  Some of these tests
+> are for specific ext3 regressions, but many are useful as general
+> integrity tests oriented toward journalled filesystems.  He has also
+> ported/improved several other tools, including a bunch of changes to
+> the notorious FSX, the File System eXerciser.
+>
+> The Namesys folks also have a test suite for Reiserfs, see
+www.namesys.com.
+>
+> Regards,
+>
+>    Bill Rugolsky
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+--
+Roy Sigurd Karlsbakk, Datavaktmester
+
+Computers are like air conditioners.
+They stop working when you open Windows.
+
+_______________________________________________
+Jfs-discussion mailing list
+Jfs-discussion@www-124.ibm.com
+http://www-124.ibm.com/developerworks/oss/mailman/listinfo/jfs-discussion
+
+
+
 

@@ -1,66 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266678AbSKUNSb>; Thu, 21 Nov 2002 08:18:31 -0500
+	id <S266682AbSKUNSf>; Thu, 21 Nov 2002 08:18:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266686AbSKUNSa>; Thu, 21 Nov 2002 08:18:30 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:57322 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S266678AbSKUNS2>; Thu, 21 Nov 2002 08:18:28 -0500
-Date: Thu, 21 Nov 2002 14:24:59 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5 kconfig doesn't handle "&& m" correctly
-Message-ID: <20021121132459.GC18869@fs.tum.de>
-References: <20021121083912.GE11952@fs.tum.de> <Pine.LNX.4.44.0211211350270.2113-100000@serv>
+	id <S266686AbSKUNSe>; Thu, 21 Nov 2002 08:18:34 -0500
+Received: from mailout04.sul.t-online.com ([194.25.134.18]:32970 "EHLO
+	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S266682AbSKUNS2>; Thu, 21 Nov 2002 08:18:28 -0500
+Message-Id: <4.3.2.7.2.20021121142223.00b546c0@mail.dns-host.com>
+X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
+Date: Thu, 21 Nov 2002 14:25:54 +0100
+To: linux-kernel@vger.kernel.org
+From: Margit Schubert-While <margit@margit.com>
+Subject: L1_CACHE_SHIFT value for P4 ?
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0211211350270.2113-100000@serv>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 21, 2002 at 01:57:30PM +0100, Roman Zippel wrote:
+Andi,
+L2 cache lines = L2 cache size ?
+This P4 has got 512KB L2 cache.
 
-> Hi,
-
-Hi Roman,
-
-> On Thu, 21 Nov 2002, Adrian Bunk wrote:
-> 
-> > config SOUND_WAVEFRONT
-> > 	tristate "Full support for Turtle Beach WaveFront (Tropez Plus, Tropez, Maui) synth/soundcards"
-> > 	depends on SOUND_OSS && m
-> > ...
-> > 
-> > <--  snip  -->
-> > 
-> > 
-> > It seems the "&& m" (a common way to ensure that something can only be
-> > built modular) isn't handled correctly.
-> 
-> Did you disable modules? When modules are disabled tristate symbols are 
-
-yes, this was with a .config without modules support.
-
-> treated like booleans, that means they are visible if the dependencies are 
-> different than 'n'. For this it should be possible to automatically add 
-> '&& MODULES' if the parser sees a 'm'. I'll have to check this out.
-
-My first thought is that this sounds like a workaround. Is there a good
-reason not to restore the semantics of the old kconfig that interpreted
-dependencies as a restriction of the input range?
-
-> bye, Roman
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+processor         : 0
+vendor_id          : GenuineIntel
+cpu family          : 15
+model                : 2
+model name      : Intel(R) Pentium(R) 4 CPU 2.40GHz
+stepping            : 4
+cpu MHz            : 2400.143
+cache size         : 512 KB
+fdiv_bug            : no
+hlt_bug              : no
+f00f_bug           : no
+coma_bug        : no
+fpu                     : yes
+fpu_exception   : yes
+cpuid level         : 2
+wp                      : yes
+flags                  : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr 
+pge mca cmov pat pse36
+                             clflush dts acpi mmx fxsr sse sse2 ss ht tm
+bogomips         : 4784.12
 

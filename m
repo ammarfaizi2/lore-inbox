@@ -1,55 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266245AbUITLAp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266195AbUITLDU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266245AbUITLAp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Sep 2004 07:00:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266244AbUITK7h
+	id S266195AbUITLDU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Sep 2004 07:03:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266244AbUITLBA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Sep 2004 06:59:37 -0400
-Received: from cantor.suse.de ([195.135.220.2]:8334 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S266195AbUITK7N (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Sep 2004 06:59:13 -0400
-Date: Mon, 20 Sep 2004 12:56:18 +0200
-From: Olaf Hering <olh@suse.de>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
-Subject: Re: OOM & [OT] util-linux-2.12e
-Message-ID: <20040920105618.GB24928@suse.de>
-References: <UTC200409192205.i8JM52C25370.aeb@smtp.cwi.nl> <20040920094602.GA24466@suse.de> <Pine.LNX.4.61.0409201220200.3460@scrub.home>
+	Mon, 20 Sep 2004 07:01:00 -0400
+Received: from arnor.apana.org.au ([203.14.152.115]:4113 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S266195AbUITK7j
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Sep 2004 06:59:39 -0400
+Date: Mon, 20 Sep 2004 20:57:20 +1000
+To: Martin Bouzek <martin.bouzek@radas-atc.cz>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, davem@davemloft.net,
+       netdev@oss.sgi.com
+Subject: Re: Minor IPSec bug + solution
+Message-ID: <20040920105720.GA14214@gondor.apana.org.au>
+References: <E1C83f1-0002X7-00@gondolin.me.apana.org.au> <1095413173.2708.106.camel@mabouzek> <20040917102720.GA14579@gondor.apana.org.au> <1095666589.2723.8.camel@mabouzek>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.61.0409201220200.3460@scrub.home>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+In-Reply-To: <1095666589.2723.8.camel@mabouzek>
+User-Agent: Mutt/1.5.6+20040722i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Mon, Sep 20, Roman Zippel wrote:
-
-> Hi,
+On Mon, Sep 20, 2004 at 09:49:49AM +0200, Martin Bouzek wrote:
 > 
-> On Mon, 20 Sep 2004, Olaf Hering wrote:
-> 
-> >  On Mon, Sep 20, Andries.Brouwer@cwi.nl wrote:
-> > 
-> > > then /etc/mtab can die. Comments? Better solutions?
-> > 
-> > Andries, /etc/mtab is obsolete since the day when /proc/self/mounts was
-> > introduced. So, kill it today from your mount binary! TODAY. ...
-> 
-> How do you distinguish between manual and automatic loop device setup?
+> Ok. And would it be possible to check the protocols too (eg.
+> tmpl->id.proto == x->id.proto)? If it is realy not possible to make the
 
--v
+Obviously not, since IPCOMP != IPIP.
 
-> How do you filter /proc/mounts for chroot environments?
+> IPComp/required tunnel to work, it would be nice to mention it in for
+> example the setkey man page. It could save quite lot of time to some
+> people. (like me :-) ).
 
-you have a chroot enviroment without /proc mounted?
-Then just create /proc/mounts?
+IPComp is the main reason why we have optional SAs at all.  So
+IPComp/required definitely does not make sense.
 
+As to the documentation of this issue, feel free to write something up
+and send it to either the kernel maintainers or one of the user-space
+projects.
+
+Cheers,
 -- 
-USB is for mice, FireWire is for men!
-
-sUse lINUX ag, nÜRNBERG
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

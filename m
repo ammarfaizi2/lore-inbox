@@ -1,55 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264351AbTLaMZi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Dec 2003 07:25:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264391AbTLaMZi
+	id S264391AbTLaMZq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Dec 2003 07:25:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264396AbTLaMZp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Dec 2003 07:25:38 -0500
-Received: from maxlb1ip.uk2net.com ([213.239.57.81]:1939 "EHLO
-	maxio3.uk2net.com") by vger.kernel.org with ESMTP id S264351AbTLaMZg
+	Wed, 31 Dec 2003 07:25:45 -0500
+Received: from fencepost.gnu.org ([199.232.76.164]:45289 "EHLO
+	fencepost.gnu.org") by vger.kernel.org with ESMTP id S264391AbTLaMZn
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Dec 2003 07:25:36 -0500
-Message-ID: <32877.82.41.17.215.1072873536.squirrel@maxproxy1.uk2net.com>
-In-Reply-To: <200312311203.hBVC3cw08536@www.americangreetings.com>
-References: <200312311203.hBVC3cw08536@www.americangreetings.com>
-Date: Wed, 31 Dec 2003 12:25:36 -0000 (GMT)
-From: "donna" <donna@psifer.co.uk>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Reply-To: donna@psifer.co.uk
-User-Agent: SquirrelMail/1.4.1
-MIME-Version: 1.0
-X-Priority: 3
-Importance: Normal
-X-SA-Exim-Mail-From: donna@psifer.co.uk
-Subject: spam abuse
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-SA-Exim-Version: 3.0 (built Tue May 27 21:41:10 CEST 2003)
+	Wed, 31 Dec 2003 07:25:43 -0500
+Date: Wed, 31 Dec 2003 07:21:55 -0500
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6.0-mm2] e100 driver hangs after period of moderate receive load
+Message-ID: <20031231122155.GA13323@gnu.org>
+References: <20031231110209.GA9858@gnu.org> <3FF2BCDE.5010302@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3FF2BCDE.5010302@pobox.com>
+User-Agent: Mutt/1.3.28i
+From: Lennert Buytenhek <buytenh@gnu.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi i recieved the following unsolicited email from what appears to be your
-address
+On Wed, Dec 31, 2003 at 07:11:10AM -0500, Jeff Garzik wrote:
+
+> >After banging on an e100 card for about ten minutes with a ~60kpps stream,
+> >the interface stops receiving packets.  Interrupts come in once every few
+> >seconds (from /proc/interrupts), but no packets are received anymore at 
+> >all.
+> >Lots of slab corruption messages in the syslog that were generated during
+> >that packet stream (see other email I sent.)  Stopping the packet stream
+> >still leaves the interface unusable.  'ifconfig eth1 down ; ifconfig eth1 
+> >up'
+> >seems to fix things.
+> 
+> Is NAPI enabled for this driver?  The interrupt behavior seems normal 
+> for NAPI, but certainly the rest of the behavior does not...
+
+Yes, NAPI was indeed enabled.
+
+I 'went back' to 2.6.1-rc1 and that seems fine now.  Any patches you want
+me to try on top of 2.6.0-mm2?
 
 
-Re: Check out the eCard I sent you from Yahoo! Greetings
-> Viewing your eCard is a snap!  Just choose from the following options:
->
-> Click on the following link:
-> http://www.yahoo.americangreetings.com/view.pd?i=19215730&m=3704&rr=y&source=yahoo999
->
-> or
->
-> Copy and paste the above link into your web browser's address window.
->
-> or
->
-> Enter this eCard number, 192157303704, on our eCard Pick Up page at
-> http://www.yahoo.americangreetings.com/findit.pd?source=yahoo999
->
-> We hope you enjoy your eCard.  If you have any comments or questions,
-> please visit
-> http://www.yahoo.americangreetings.com/emailus.pd?source=yahoo999
->
-> Thanks for using Yahoo! Greetings with AmericanGreetings.com.
->
+--L

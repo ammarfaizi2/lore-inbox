@@ -1,42 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261969AbTELHVJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 03:21:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261970AbTELHVJ
+	id S261970AbTELHb2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 03:31:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261971AbTELHb2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 03:21:09 -0400
-Received: from almesberger.net ([63.105.73.239]:63247 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id S261969AbTELHVI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 03:21:08 -0400
-Date: Mon, 12 May 2003 04:33:43 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: anyone ever implemented a reparent(pid) syscall?
-Message-ID: <20030512043343.A1861@almesberger.net>
-References: <3EBBF965.4060001@nortelnetworks.com> <20030510063936.D13069@almesberger.net> <3EBF1398.9090704@nortelnetworks.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 12 May 2003 03:31:28 -0400
+Received: from tomts26.bellnexxia.net ([209.226.175.189]:63641 "EHLO
+	tomts26-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S261970AbTELHb1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 May 2003 03:31:27 -0400
+From: Ed Tomlinson <tomlins@cam.org>
+Organization: me
+To: "David S. Miller" <davem@redhat.com>, Andrew Morton <akpm@digeo.com>
+Subject: Re: Slab corruption mm3 + davem fixes
+Date: Mon, 12 May 2003 03:44:50 -0400
+User-Agent: KMail/1.5.9
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, rusty@rustcorp.com.au,
+       laforge@netfilter.org
+References: <20030511031940.97C24251B@oscar.casa.dyndns.org> <20030511151506.172eee58.akpm@digeo.com> <1052692449.4471.4.camel@rth.ninka.net>
+In-Reply-To: <1052692449.4471.4.camel@rth.ninka.net>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <3EBF1398.9090704@nortelnetworks.com>; from cfriesen@nortelnetworks.com on Sun, May 11, 2003 at 11:23:04PM -0400
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200305120344.50347.tomlins@cam.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Friesen wrote:
-> Sure. So the monitorer starts up, attempts to watch a pid, gets an error
-> saying that it doesn't exist, and handles it.
+On May 11, 2003 06:34 pm, David S. Miller wrote:
+> > > Yeah, more bugs in the NAT netfilter changes.  Debugging this one
+> > > patch is becomming a full time job :-(
 
-You'd still have a PID reuse race. Of course, you could also
-cover this by checking the process' start time ...
+But you do it well...  Looks like this fixes the slab problems here with
+69-bk from Sunday am.
 
-But just designing the parent to be simple enough to be reliable
-and/or generic enough that it doesn't even need to be upgraded
-still looks like a more promising approach to me.
+> > > This should fix it.  Rusty, you're computing checksums and mangling
+> > > src/dst using header pointers potentially pointing to free'd skbs.
+> >
+> > Did you mean to send a one megabyte diff?
+>
+> Let's try this again, here is the correct patch :-)
 
-- Werner
-
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/
+Thanks
+Ed Tomlinson

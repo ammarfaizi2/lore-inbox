@@ -1,59 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265668AbSKFHP4>; Wed, 6 Nov 2002 02:15:56 -0500
+	id <S265669AbSKFHRI>; Wed, 6 Nov 2002 02:17:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265669AbSKFHP4>; Wed, 6 Nov 2002 02:15:56 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:47057 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S265668AbSKFHPz>;
-	Wed, 6 Nov 2002 02:15:55 -0500
-Date: Wed, 6 Nov 2002 08:22:23 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Adam Kropelin <akropel1@rochester.rr.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.46: ide-cd cdrecord (almost) success report
-Message-ID: <20021106072223.GB4369@suse.de>
-References: <20021106041330.GA9489@www.kroptech.com>
-Mime-Version: 1.0
+	id <S265670AbSKFHRI>; Wed, 6 Nov 2002 02:17:08 -0500
+Received: from packet.digeo.com ([12.110.80.53]:59567 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S265669AbSKFHRG>;
+	Wed, 6 Nov 2002 02:17:06 -0500
+Message-ID: <3DC8C378.A585B7E9@digeo.com>
+Date: Tue, 05 Nov 2002 23:23:36 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.45 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Benjamin LaHaise <bcrl@redhat.com>
+CC: Badari Pulavarty <pbadari@us.ibm.com>, linux-aio@kvack.org,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2/2] 2.5.46 AIO support for raw/O_DIRECT
+References: <200211060103.gA613a321256@eng2.beaverton.ibm.com> <3DC86DAC.4EBB59C8@digeo.com> <20021106020505.A11610@redhat.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021106041330.GA9489@www.kroptech.com>
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 06 Nov 2002 07:23:37.0116 (UTC) FILETIME=[6C12D5C0:01C28565]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 05 2002, Adam Kropelin wrote:
-> I felt like making some coasters tonight so I figured it was a good time
-> to give ide-cd a chance with cdrecord. For the most part, it worked
-> great! I was stunned, in fact, by how smoothly it went after I upgraded
-> my cdtools. I was running SMP + preempt and it wrote smoothly at 12x
-> with < 2% CPU usage the whole time. Buffer capacity never dropped below
-> 98%.
+Benjamin LaHaise wrote:
 > 
-> I was almost disappointed at not making any coasters so I decided to
-> stress it a bit. I tried running 'make -j10 bzImage' on the 2.5.46
-> kernel tree while it was writing and that also worked! Buffer never
-> dropped below 96%. (This machine is 2x Xeon 450, 256 MB RAM, BTW.)
+> On Tue, Nov 05, 2002 at 05:17:32PM -0800, Andrew Morton wrote:
+> > Or not proceed with this patch at all.  If this is to be the
+> > only code which wishes to perform page list motion at interrupt
+> > time, perhaps it's not justifiable?
+> >
+> > I really don't have a feeling for how valuable this is, nor
+> > do I know whether there will be other code which wants to
+> > perform page list manipulation at interrupt time.
+> 
+> I can think of a few other places that would like to perform page
+> motion from irq context: anything else doing zero copy or page
+> flipping, and more importantly the O(1) vm code that's being worked
+> on.  The latter is actually quite important as we've got a number
+> of customers running into problems with some of the algorithms in
+> the 2.4 kernel where the kernel does not perform any list motion
+> from irq context and this results in excess cpu time spent traversing
+> lists to see if io has completed.
 
-That sounds very good so far!
+Interesting.  Would it be possible to get more details on this
+problem?
 
-> Still without coaster I tried one more thing...
-> 'dd if=/dev/zero of=foo bs=1M' in parallel with another burn. That one
-> did it in. ;) I'm running ext3 and the writeout load totally killed
-> burn, which isn't surprising. I was asking for it, I know. What happened
+We can shuffle pages around on the LRU from interrupts at present.
+But not the address_space lists and buffer stuff.
 
-Really, this should work. The deadline scheduler should handle this just
-fine in fact. Which device is your burner and which device is the hard
-drive? It sounds like a bug.
+We could remove the address_space lists and page->list altogether
+with a bit of radix tree work.  I started in on that but got distracted.
 
-> when the cdrecord buffer underran was surprising, though: oops below.
-> Very repeatable. Can supply copious hw details if it helps.
+mapping->clean_pages is actually obsolete now - we never walk it.  It
+could be replaced with list_del_init() everywhere.
 
-I'll try and reproduce that here, there's been a similar report (same
-oops) before. If you can just send me the dmesg output after a boot that
-should be fine.
+> > In fact I also don't know where the whole AIO thing sits at
+> > present.  Is it all done and finished?  Is there more to come,
+> > and if so, what??
+> 
+> There's more to come.  The bits I'm working on are running in kernel
+> context mainly to simplify the copy_*_user case since we don't have
+> full zero copy semantics available and coping with pinned pages is
+> a challenge in a multiuser system, plus it makes reusing the existing
+> networking code a lot easier.  Basically, anything that involves a
+> copy of data is likely to be better implemented running in a task to
+> get the priority of execution correct, whereas anything involving
+> zero copy io is going to want completion from irq or bottom half
+> context and hence dirty pages.  Does that make sense?
 
-Thanks a lot for testing, it's this kind of testing I need to iron out
-the last few bugs!
-
--- 
-Jens Axboe
-
+OK, thanks.  So I guess we make those locks irq-safe.  I don't
+expect that would be feasible in 2.4 because of the hold times in 
+truncate - it should be OK in 2.5.  I'll do the patch.

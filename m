@@ -1,41 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265581AbSK1OwQ>; Thu, 28 Nov 2002 09:52:16 -0500
+	id <S265612AbSK1PEP>; Thu, 28 Nov 2002 10:04:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265589AbSK1OwP>; Thu, 28 Nov 2002 09:52:15 -0500
-Received: from 213-187-164-3.dd.nextgentel.com ([213.187.164.3]:24009 "EHLO
-	mail.pronto.tv") by vger.kernel.org with ESMTP id <S265581AbSK1OwM> convert rfc822-to-8bit;
-	Thu, 28 Nov 2002 09:52:12 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Organization: ProntoTV AS
-To: Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: LKCD slides from http://lkcd.sourceforge.net/ in .ppc format only?
-Date: Thu, 28 Nov 2002 15:59:32 +0100
-User-Agent: KMail/1.4.1
+	id <S265633AbSK1PEP>; Thu, 28 Nov 2002 10:04:15 -0500
+Received: from ip68-13-110-204.om.om.cox.net ([68.13.110.204]:1796 "EHLO
+	lap.molina") by vger.kernel.org with ESMTP id <S265612AbSK1PEO>;
+	Thu, 28 Nov 2002 10:04:14 -0500
+Date: Thu, 28 Nov 2002 09:03:14 -0600 (CST)
+From: Thomas Molina <tmolina@copper.net>
+X-X-Sender: tmolina@lap.molina
+To: Andries Brouwer <aebr@win.tue.nl>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] README change
+In-Reply-To: <20021128133439.GA5795@win.tue.nl>
+Message-ID: <Pine.LNX.4.44.0211280901350.1023-100000@lap.molina>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200211281559.32056.roy@karlsbakk.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi
+On Thu, 28 Nov 2002, Andries Brouwer wrote:
 
-at http://lkcd.sourceforge.net/, there's a link to "Slides from the LKCD talk 
-during LinuxWorld Expo 2000 (OLD)" 
-(http://lkcd.sourceforge.net/docs/linuxworld2000), and "Slides from the Linux 
-and RAS talk during LinuxWorld Expo 2002" 
-(http://lkcd.sourceforge.net/docs/linuxworld2002), but all the slides are in 
-microsoft powerpoint format. Anyone that cares to convert them into something 
-readable?
+> On Wed, Nov 27, 2002 at 06:26:05PM -0600, Thomas Molina wrote:
+> 
+> -   Do NOT use the /usr/src/linux area! This area has a (usually
+> -   incomplete) set of kernel headers that are used by the library header
+> -   files.  They should match the library, and not get messed up by
+> -   whatever the kernel-du-jour happens to be.
+> +   Do NOT use /usr/src/linux! This directory should contain the source
+> +   and headers of the kernel gcc was compile with.  They should match 
+> +   the compiler, and not get messed up by whatever the kernel-du-jour
+> +   happens to be.
+> 
+> The original text was not bad.
+> The new text is completely wrong.
 
-roy
--- 
-Roy Sigurd Karlsbakk, Datavaktmester
-ProntoTV AS - http://www.pronto.tv/
-Tel: +47 9801 3356
-
-Computers are like air conditioners.
-They stop working when you open Windows.
+Yeah, I tried a simple word replacement and went too far.  Please see my 
+updated patch.  I apologize to everyone for messing up good words.
 

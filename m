@@ -1,62 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262094AbTCHQpC>; Sat, 8 Mar 2003 11:45:02 -0500
+	id <S262082AbTCHQoQ>; Sat, 8 Mar 2003 11:44:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262096AbTCHQpB>; Sat, 8 Mar 2003 11:45:01 -0500
-Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:20745 "EHLO
-	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S262094AbTCHQow>; Sat, 8 Mar 2003 11:44:52 -0500
-Date: Sat, 8 Mar 2003 17:55:15 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: David Lang <david.lang@digitalinsight.com>
-cc: "H. Peter Anvin" <hpa@zytor.com>, Russell King <rmk@arm.linux.org.uk>,
-       Linus Torvalds <torvalds@transmeta.com>, Greg KH <greg@kroah.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [BK PATCH] klibc for 2.5.64 - try 2
-In-Reply-To: <Pine.LNX.4.44.0303071753100.1933-100000@dlang.diginsite.com>
-Message-ID: <Pine.LNX.4.44.0303081727460.5042-100000@serv>
-References: <Pine.LNX.4.44.0303071753100.1933-100000@dlang.diginsite.com>
+	id <S262094AbTCHQoQ>; Sat, 8 Mar 2003 11:44:16 -0500
+Received: from as12-5-6.spa.s.bonet.se ([217.215.177.162]:34027 "EHLO
+	www.tnonline.net") by vger.kernel.org with ESMTP id <S262082AbTCHQoP>;
+	Sat, 8 Mar 2003 11:44:15 -0500
+Date: Sat, 8 Mar 2003 17:54:47 +0100
+From: Anders Widman <andewid@tnonline.net>
+X-Mailer: The Bat! (v1.63 Beta/6)
+Reply-To: Anders Widman <andewid@tnonline.net>
+Organization: TNOnline.net
+X-Priority: 3 (Normal)
+Message-ID: <18084636656.20030308175447@tnonline.net>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.x IDE: Statis=0x58 - Drive not ready for command
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Fri, 7 Mar 2003, David Lang wrote:
+I get lots of errors like these:
 
-> > There is still the possibility to support multiple libc implementation, if
-> > you don't like dietlibc, you're still free to use klibc.
-> 
-> along the same lines if you don't like klibc you are free to use or
-> implement dietlibc or anything else.
+kernel: PDC202XX: Secondary channel reset.
+kernel: hdh: drive not ready for command
+kernel: ide3: reset: success
+kernel: hdf: status error: status=0x58 { DriveReady SeekComplete DataRequest }
+kernel: hdf: drive not ready for command
+kernel: hdh: status error: status=0x58 { DriveReady SeekComplete DataRequest }
+kernel: hdh: drive not ready for command
+kernel: hdh: status timeout: status=0xd0 { Busy }
+kernel: PDC202XX: Secondary channel reset.
+kernel: hdh: drive not ready for command
+kernel: ide3: reset: success
 
-Ok, it seems this requires a larger explanation.
-It doesn't matter what you or I like. As long as dietlibc or klibc and 
-linux are separate projects, I don't care much about the license. I have 
-little problems to contribute to a BSD project, if you look at the m68k 
-fpu emulator you will find a dual license. I hope this makes it clear that 
-I'm not against the BSD license.
+* Running virtually every kernel since 2.4.17-2.4-21-x.
+* All harddrives UDMA100.
+* Tried with DMA and unmask IRQ off.
+* Tried with and without ACPI, APIC and APM.
+* Happens to all harddrives.
+* Cabling,  power,  hardware  and drives thorowly checked and replaced
+  for testing.
+* Tested with one VIA KT266a motherboard and two Intel 440BX
+* SMART values good.
+* To all my testing I have not found any problems with the hardware.
+* When to many of these IDE error occur the system freezes.
+* Errors occur with the internal controller as well as the two Promise
+  PDC20268 (U100 Tx2) controllers.
 
-The problem starts as soon as klibc becomes part of the linux kernel, as 
-it would give a clear preference to similiar projects as dietlibc. It's 
-hard to imagine, that this will not cause any problem. The easiest 
-solution would be relicense klibc under a license which is closer to the 
-kernel license, but on the other hand meets the requirements the current 
-license was choosen for. AFAICS a libgcc like license would do this job, 
-but Peter made it very clear, that he does not want a different license, 
-although it's unfortunately unclear why, but I have to respect that.
+What  should  I do to fix this? I do not want to run Windows as I need
+LVM to manage the diskspace. Windows does however run very stable.
 
-This means now we have to come back to the original problem: what problems 
-might occur, if klibc is integrated and distributed with the kernel? Will 
-it be possible to use dietlibc? What does that mean for other early 
-userspace code, has to be licensed under the klibc license? Can I take 
-source from a GPL project and integrate that into klibc?
-I think it's important to discuss such questions now, as long as still 
-possible without a lawyer, is the module story not warning enough?
-My opinion at this point is, as long as Peter avoids to dicuss these 
-issues, we should also consider to avoid integrating klibc in the kernel.
+Any tips or ideas are welcome!
 
-bye, Roman
+Regards,
+Anders
+
+
+--------
+PGP public key: https://tnonline.net/secure/pgp_key.txt
 

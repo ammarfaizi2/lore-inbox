@@ -1,76 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270370AbTHSMmO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 08:42:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270391AbTHSMmO
+	id S269659AbTHSMiA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 08:38:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270365AbTHSMiA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 08:42:14 -0400
-Received: from gw-nl5.philips.com ([212.153.235.109]:57077 "EHLO
-	gw-nl5.philips.com") by vger.kernel.org with ESMTP id S270370AbTHSMmM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 08:42:12 -0400
-Message-ID: <3F421B6C.2050300@basmevissen.nl>
-Date: Tue, 19 Aug 2003 14:43:24 +0200
-From: Bas Mevissen <ml@basmevissen.nl>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Anders Karlsson <anders@trudheim.com>
-Cc: Christian Axelsson <smiler@lanil.mine.nu>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Current status of Intel PRO/Wireless 2100
-References: <3F3CA3A0.5030905@lanil.mine.nu> <1060942697.2296.83.camel@tor.trudheim.com>
-In-Reply-To: <1060942697.2296.83.camel@tor.trudheim.com>
-X-Enigmail-Version: 0.76.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 19 Aug 2003 08:38:00 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:27540 "EHLO
+	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S269659AbTHSMh6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Aug 2003 08:37:58 -0400
+Subject: RE: [2.4 PATCH] bugfix: ARP respond on all devices
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Richard Underwood <richard@aspectgroup.co.uk>
+Cc: "'David S. Miller'" <davem@redhat.com>,
+       Stephan von Krawczynski <skraw@ithnet.com>, willy@w.ods.org,
+       carlosev@newipnet.com, lamont@scriptkiddie.org, davidsen@tmr.com,
+       bloemsaa@xs4all.nl, Marcelo Tosatti <marcelo@conectiva.com.br>,
+       netdev@oss.sgi.com, linux-net@vger.kernel.org, layes@loran.com,
+       torvalds@osdl.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <353568DCBAE06148B70767C1B1A93E625EAB57@post.pc.aspectgroup.co.uk>
+References: <353568DCBAE06148B70767C1B1A93E625EAB57@post.pc.aspectgroup.co.uk>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1061296544.30566.8.camel@dhcp23.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.3 (1.4.3-3) 
+Date: 19 Aug 2003 13:35:45 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anders Karlsson wrote:
+On Maw, 2003-08-19 at 13:02, Richard Underwood wrote:
+> 	ARP is local to a broadcast net. The ARP standard explicitly
+> prohibits responding to an ARP request on a different interface.
 
-> On Fri, 2003-08-15 at 10:10, Christian Axelsson wrote:
-> 
+Correct, but we don't do that
 
-  (mini-PCI WLAN cards in notebooks)
+> 	If you broadcast a request asking for a reply on an entirely
+> different subnet, you're asking for trouble. You REDUCE the likelyhood of a
+> successful ARP reply, not increase it.
 
-> For the time being those mini-PCI cards is dead weight in the laptop I
-> am afraid. I hope that either Intel suddenly sees sense (snowflake in
-> hell analogy coming on) or some bright spark reverse engineers the card
-> and writes an alpha driver that surpasses the functionality of the Intel
-> beta drivers they keep under lock and key internally.
-> 
-> I'll probably locate some Prism CardBus card in the meantime to use.
-> 
+You increase it and you shortcut on shared lans. Thats really a seperate
+issue to the question of which source is used. If you loopback someone
+elses address on your own lo device I'm not suprised weird shit happens,
+put the alias on eth0 where it belongs.
 
-My dead weight was called Dell TrueMobile 1300 (with BroadCom chipset). 
-What I did is buying a NetGear WG311 PCI card (802.11b/g). It contains a 
-mini-pci card in a slot unders a metal cover and some small stuff on the 
-PCI-shape PCB.
+> 	All you can possibly achieve by sending REQUESTS from the wrong IP
+> number is assist screwed up networks where you've got multiple subnets on
+> the same copper and cause a shed-load of security issues.
 
-The cover is easy to remove (only 3 pins) and the antenna is not 
-soldered, but connected with the same connector as in my notebook. I 
-could only connect 1 (main) antenna, but the PCI card has only one 
-antenna too. So you only loose antenna diversity.
-
-The NetGear contains an Atheros chipset. There is some open source stuff 
-available (URL forgotten) and a driver (mafwifi) with a binary-only 
-hardware abstraction. Not really what you want, but at least a start. A 
-combination of both may lead to a more desirable result. But for me it 
-is fine to use. Only I can not issue bug reports when the driver has 
-been loaded since the last boot.
-
-Oh,
-#include <stddisclaimer.h>
-#include <donttryat.h>
-#include <nowarrenty.h>
-
-Regards,
-
-Bas.
-
-BTW. I have a PCI card with Broadcom chipset for sale now :-)
+Not in general. If you are using ARP your lan is hardly "secure". For
+most situations the trust across multiple aggregated lans is the same,
+if it isnt people use vlan (which rarely helps 8))
 
 
 

@@ -1,45 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262086AbVCAXfj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262125AbVCAXhn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262086AbVCAXfj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 18:35:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262119AbVCAXfj
+	id S262125AbVCAXhn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 18:37:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262120AbVCAXhm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 18:35:39 -0500
-Received: from sccrmhc11.comcast.net ([204.127.202.55]:38602 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S262086AbVCAXf3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 18:35:29 -0500
-Message-ID: <4224FC33.6040405@acm.org>
-Date: Tue, 01 Mar 2005 17:35:15 -0600
-From: Corey Minyard <minyard@acm.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Greg KH <greg@kroah.com>, Sergey Vlasov <vsu@altlinux.ru>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] New operation for kref to help avoid locks
-References: <42209BFD.8020908@acm.org>	 <20050226232026.5c12d5b0.vsu@altlinux.ru> <4220F6C8.4020002@acm.org>	 <20050301201528.GA23484@kroah.com>	 <1109710964.6293.166.camel@laptopd505.fenrus.org>	 <4224E499.5060800@acm.org> <1109715256.6293.180.camel@laptopd505.fenrus.org>
-In-Reply-To: <1109715256.6293.180.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 1 Mar 2005 18:37:42 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:29962 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262125AbVCAXh0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Mar 2005 18:37:26 -0500
+Date: Tue, 1 Mar 2005 23:37:20 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Karol Kozimor <sziwan@hell.org.pl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel BUG at drivers/serial/8250.c:1256!
+Message-ID: <20050301233720.B17470@flint.arm.linux.org.uk>
+Mail-Followup-To: Karol Kozimor <sziwan@hell.org.pl>,
+	linux-kernel@vger.kernel.org
+References: <20050301230946.GA30841@hell.org.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050301230946.GA30841@hell.org.pl>; from sziwan@hell.org.pl on Wed, Mar 02, 2005 at 12:09:46AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
+On Wed, Mar 02, 2005 at 12:09:46AM +0100, Karol Kozimor wrote:
+> I've finally got around to test latest kernels and managed to find a bug in 
+> the serial subsystem, which happens during suspend.
 
->>Just doing an atomic operation is not faster than doing a lock, an 
->>atomic operation, then an unlock?  Am I missing something?
->>    
->>
->
->if the lock and the atomic are on the same cacheline they're the same
->cost on most modern cpus...
->  
->
-Ah, I see.  Not likely to ever be the case with this.  The lock will 
-likely be with the main data structure (the list, or whatever) and the 
-refcount will be in the individual item in the main data structure (list 
-entry).
+Yes, serial_cs is claiming that we don't have a device associated with
+the port, so we're treating it as a legacy port.  However, serial_cs is
+implementing the suspend/resume methods.  This is wrong, since that
+means the port will be suspended twice, and hence causes this bug.
 
--Corey
+serial_cs needs to register the ports along with the PCMCIA device with
+which the port belongs to.  This will stop it being treated as a legacy
+serial port.
+
+Unfortunately, it's too late tonight for me to dig into PCMCIA to work
+out how we get at the device structure - I can't find any examples off
+hand either.  Therefore, it may be a while before I can produce a patch
+to resolve this.
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

@@ -1,32 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312381AbSC3EFU>; Fri, 29 Mar 2002 23:05:20 -0500
+	id <S312385AbSC3EY5>; Fri, 29 Mar 2002 23:24:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312382AbSC3EFK>; Fri, 29 Mar 2002 23:05:10 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:56081 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S312381AbSC3EFB>;
-	Fri, 29 Mar 2002 23:05:01 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@sgi.com>
-To: "Jeremy Jackson" <jerj@coplanar.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [QUESTION] which kernel debugger is "best"? 
-In-Reply-To: Your message of "Fri, 29 Mar 2002 18:38:50 -0800."
-             <010b01c1d794$07c7c9b0$7e0aa8c0@bridge> 
+	id <S312390AbSC3EYs>; Fri, 29 Mar 2002 23:24:48 -0500
+Received: from 24-25-196-177.san.rr.com ([24.25.196.177]:16145 "HELO
+	acmay.homeip.net") by vger.kernel.org with SMTP id <S312385AbSC3EYf>;
+	Fri, 29 Mar 2002 23:24:35 -0500
+Date: Fri, 29 Mar 2002 20:24:33 -0800
+From: andrew may <acmay@acmay.homeip.net>
+To: J Sloan <jjs@lexus.com>
+Cc: Linux kernel <linux-kernel@vger.kernel.org>,
+        Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+Subject: Re: Kernel hosed or Nvidia modules?
+Message-ID: <20020329202433.L1097@ecam.san.rr.com>
+In-Reply-To: <E16r842-0002Nb-00@the-village.bc.nu> <3CA51A37.2020701@lexus.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sat, 30 Mar 2002 15:04:49 +1100
-Message-ID: <2344.1017461089@ocs3.intra.ocs.com.au>
+X-Mailer: Mutt 1.0pre3us
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 29 Mar 2002 18:38:50 -0800, 
-"Jeremy Jackson" <jerj@coplanar.net> wrote:
->What are people using?  neither kdb or kgdb appear to support
->2.5.7 (kdb does 2.5.5)... or do real men debug with prink() ?
+On Fri, Mar 29, 2002 at 05:51:51PM -0800, J Sloan wrote:
+> Hopefully some nvidia folks lurk on the list,
+> in case it is somehow related...
 
-I just uploaded kdb patches for 2.5.7 to
-ftp://oss.sgi.com/projects/kdb/download/v2.1.  They compile but have not
-been booted, I don't have much time to work on 2.5 kernels.  I have no
-idea if it will work with a preemptible kernel or not.
-
+I really dobt they do, but they do have have forum at
+nvnews.net and have even posted patches there.

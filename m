@@ -1,48 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266409AbSLDLie>; Wed, 4 Dec 2002 06:38:34 -0500
+	id <S266425AbSLDLvK>; Wed, 4 Dec 2002 06:51:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266417AbSLDLie>; Wed, 4 Dec 2002 06:38:34 -0500
-Received: from mail2.sonytel.be ([195.0.45.172]:23216 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S266409AbSLDLid>;
-	Wed, 4 Dec 2002 06:38:33 -0500
-Date: Wed, 4 Dec 2002 12:44:15 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
-cc: James Simmons <jsimmons@infradead.org>, Brad Douglas <Brad@NERUO.com>,
-       luther@dpt-info.u-strasbg.fr, adaplas@pol.net,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Linux Frame Buffer Device Development 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       linux-fbdev-devel-admin@lists.sourceforge.net
-Subject: Re: [OT] Re: [Linux-fbdev-devel] [PATCH] FBDev: vga16fb port
-In-Reply-To: <95A9172394F@vcnet.vc.cvut.cz>
-Message-ID: <Pine.GSO.4.21.0212041242170.4748-100000@vervain.sonytel.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S266433AbSLDLvK>; Wed, 4 Dec 2002 06:51:10 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:8196 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S266425AbSLDLvJ>;
+	Wed, 4 Dec 2002 06:51:09 -0500
+Date: Wed, 4 Dec 2002 12:57:43 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: Linus <torvalds@transmeta.com>, LKML <linux-kernel@vger.kernel.org>,
+       anton@samba.org, "David S. Miller" <davem@redhat.com>, ak@muc.de,
+       davidm@hpl.hp.com, schwidefsky@de.ibm.com, ralf@gnu.org,
+       willy@debian.org
+Subject: Re: [PATCH] compatibility syscall layer (lets try again)
+Message-ID: <20021204115743.GA6494@elf.ucw.cz>
+References: <20021204180224.406d143c.sfr@canb.auug.org.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021204180224.406d143c.sfr@canb.auug.org.au>
+User-Agent: Mutt/1.4i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 4 Dec 2002, Petr Vandrovec wrote:
-> FYI, I'm going to unsubscribe myself from linux-fbdev-devel.
-> I'm not interested in reading messages on list which is not public:
-> I get again an error that my message is waiting for moderator approval,
-> and as such list is unsuitable for any realtime discussion.
+Hi!
 
-Yes, I know it's annoying :-(
-
-But, AFAIK we don't know yet
-  1. who changed the list to a moderated list
-  2. who is actually moderating it
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
-
+> Below is the generic part of the start of the compatibility syscall layer.
+> I think I have made it generic enough that each architecture can define
+> what compatibility means.
+> 
+> To use this,an architecture must create asm/compat.h and provide typedefs
+> for (currently) compat_time_t, compat_suseconds_t, struct compat_timespec.
+					~~~~
+					Maybe we need better name?
+				This is too easy to missparse ;-).
+									Pavel
+-- 
+Worst form of spam? Adding advertisment signatures ala sourceforge.net.
+What goes next? Inserting advertisment *into* email?

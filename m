@@ -1,93 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261744AbUL3XKK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261743AbUL3XPU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261744AbUL3XKK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Dec 2004 18:10:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261743AbUL3XKK
+	id S261743AbUL3XPU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Dec 2004 18:15:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261750AbUL3XPU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Dec 2004 18:10:10 -0500
-Received: from mail.tyan.com ([66.122.195.4]:8452 "EHLO tyanweb.tyan")
-	by vger.kernel.org with ESMTP id S261744AbUL3XJz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Dec 2004 18:09:55 -0500
-Message-ID: <3174569B9743D511922F00A0C943142307290FE1@TYANWEB>
-From: YhLu <YhLu@tyan.com>
-To: Andi Kleen <ak@muc.de>
-Cc: linux-kernel@vger.kernel.org, discuss@x86-64.org, Matt_Domsch@dell.com
-Subject: RE: 256 apic id for amd64
-Date: Thu, 30 Dec 2004 15:19:01 -0800
+	Thu, 30 Dec 2004 18:15:20 -0500
+Received: from one.firstfloor.org ([213.235.205.2]:64435 "EHLO
+	one.firstfloor.org") by vger.kernel.org with ESMTP id S261743AbUL3XPN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Dec 2004 18:15:13 -0500
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Davide Libenzi <davidel@xmailserver.org>, Mike Hearn <mh@codeweavers.com>,
+       Thomas Sailer <sailer@scs.ch>, Eric Pouech <pouech-eric@wanadoo.fr>,
+       Daniel Jacobowitz <dan@debian.org>, Roland McGrath <roland@redhat.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, wine-devel <wine-devel@winehq.com>
+Subject: Re: ptrace single-stepping change breaks Wine
+References: <200411152253.iAFMr8JL030601@magilla.sf.frob.com>
+	<530468570412291343d1478cf@mail.gmail.com>
+	<Pine.LNX.4.58.0412291622560.2353@ppc970.osdl.org>
+	<Pine.LNX.4.58.0412291703400.30636@bigblue.dev.mdolabs.com>
+	<Pine.LNX.4.58.0412291745470.2353@ppc970.osdl.org>
+	<Pine.LNX.4.58.0412292050550.22893@ppc970.osdl.org>
+	<Pine.LNX.4.58.0412292055540.22893@ppc970.osdl.org>
+	<Pine.LNX.4.58.0412292106400.454@bigblue.dev.mdolabs.com>
+	<Pine.LNX.4.58.0412292256350.22893@ppc970.osdl.org>
+	<Pine.LNX.4.58.0412300953470.2193@bigblue.dev.mdolabs.com>
+	<53046857041230112742acccbe@mail.gmail.com>
+	<Pine.LNX.4.58.0412301130540.22893@ppc970.osdl.org>
+	<Pine.LNX.4.58.0412301436330.22893@ppc970.osdl.org>
+From: Andi Kleen <ak@muc.de>
+Date: Fri, 31 Dec 2004 00:15:11 +0100
+In-Reply-To: <Pine.LNX.4.58.0412301436330.22893@ppc970.osdl.org> (Linus
+ Torvalds's message of "Thu, 30 Dec 2004 14:46:17 -0800 (PST)")
+Message-ID: <m1mzvvjs3k.fsf@muc.de>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.6.9 has a good feature and you remove that in 2.6.10.
+Linus Torvalds <torvalds@osdl.org> writes:
 
-That is if the io apic is set to above 0xf, io_apic.c will find one below
-0xf unused and update the table.
+> It's a bit more involved than I'd like, since especially the "popf" case 
+> just is pretty complex, but I'd love to hear whether it works.
+>
+> NOTE NOTE NOTE! I've tested it, but only on one small test-case, so it 
+> might be totally broken in many ways. I'd love to have people who are x86 
+> and ptrace-aware give this a second look, and I'm confident Jesse will 
+> find that it won't work, but can hopefully try to debug it a bit with 
+> this..
 
-YH
+Just looking at all this complexiy and thinking about
+making it work on x86-64 too doesn't exactly give a good
+feeling in my spine.
 
------Original Message-----
-From: Andi Kleen [mailto:ak@muc.de] 
-Sent: Thursday, December 30, 2004 10:45 AM
-To: YhLu
-Cc: linux-kernel@vger.kernel.org; discuss@x86-64.org; Matt_Domsch@dell.com
-Subject: Re: 256 apic id for amd64
+Not to belittle your archivement Linus but it all looks
+very overengineered to me.
 
-YhLu <YhLu@tyan.com> writes:
+I think such complex instruction emulation games will be 
+hard to maintain and there are very surely bugs in so 
+much subtle code. 
 
-> Can someone who maintains the x86-64 io_apic.c look at my patch about 256
-> apic id for amd64?
+Can someone repeat again what was wrong with the old ptrace
+semantics before the initial change that caused all these complex
+changes?  It seemed to work well for years. How about we just
+go back to the old state, revert all the recent ptrace changes 
+and skip all that?
 
-First in general if you want patches submitted look up the maintainer
-in the MAINTAINERS file in the source tree and send it directly
-to the appropiate person and mailing list.
+e.g. reporting TF after popf in ptrace doesnt really seem like a big
+issue to me that is worth fixing with that much code.  It is more an
+unimportant corner case, isnt it? Same thing with forcing TF after
+popf.  I bet most debuggers in existence get this special case wrong
+and so far the world hasn't collapsed because of that.
 
-Just curious - how many IO-APICs does your system have?
-
-Then I don't like your patch very much, since it doesnt handle 
-Intel systems. The best fix is probably to 
-
-i386 also has a different (but Intel specific fix) - uses either
-0xf or 0xff based on the APIC version. Just dropping it seems
-better to me though. I suppose Matt (cc'ed) who apparently
-wrote this code originally used it to work around some BIOS
-bug, and at least we can hope for now that there are no 
-EM64T boxes with that particular BIOS bug.
-
-I will add this patch.
+I would love to skip this all on x86-64, but I would prefer
+to not make the behaviour incompatible to i386.
 
 -Andi
 
-Remove check that limited max number of IO-APIC to 8.
-
-The original check was apparently to work around some old BIOS
-bugs and we just assume x86-64 machines don't have this class of
-problems.
-
-Signed-off-by: Andi Kleen <ak@suse.de>
-
-diff -u linux-2.6.10/arch/x86_64/kernel/io_apic.c-o
-linux-2.6.10/arch/x86_64/kernel/io_apic.c
---- linux-2.6.10/arch/x86_64/kernel/io_apic.c-o	2004-12-24
-22:34:45.000000000 +0100
-+++ linux-2.6.10/arch/x86_64/kernel/io_apic.c	2004-12-30
-19:41:08.000000000 +0100
-@@ -1160,13 +1160,6 @@
- 		
- 		old_id = mp_ioapics[apic].mpc_apicid;
- 
--		if (mp_ioapics[apic].mpc_apicid >= 0xf) {
--			apic_printk(APIC_QUIET,KERN_ERR "BIOS bug,
-IO-APIC#%d ID is %d in the MPC table!...\n",
--				apic, mp_ioapics[apic].mpc_apicid);
--			apic_printk(APIC_QUIET,KERN_ERR "... fixing up to
-%d. (tell your hw vendor)\n",
--				reg_00.bits.ID);
--			mp_ioapics[apic].mpc_apicid = reg_00.bits.ID;
--		}
- 
- 		printk(KERN_INFO "Using IO-APIC %d\n",
-mp_ioapics[apic].mpc_apicid);
- 

@@ -1,44 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267357AbTBXQVO>; Mon, 24 Feb 2003 11:21:14 -0500
+	id <S267354AbTBXQVD>; Mon, 24 Feb 2003 11:21:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267359AbTBXQVN>; Mon, 24 Feb 2003 11:21:13 -0500
-Received: from bitmover.com ([192.132.92.2]:50641 "EHLO mail.bitmover.com")
-	by vger.kernel.org with ESMTP id <S267357AbTBXQVM>;
-	Mon, 24 Feb 2003 11:21:12 -0500
-Date: Mon, 24 Feb 2003 08:31:19 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Benjamin LaHaise <bcrl@redhat.com>
-Cc: Larry McVoy <lm@bitmover.com>, William Lee Irwin III <wli@holomorphy.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org
+	id <S267357AbTBXQVD>; Mon, 24 Feb 2003 11:21:03 -0500
+Received: from hq.fsmlabs.com ([209.155.42.197]:27039 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S267354AbTBXQVC>;
+	Mon, 24 Feb 2003 11:21:02 -0500
+Date: Mon, 24 Feb 2003 09:17:58 -0700
+From: yodaiken@fsmlabs.com
+To: William Lee Irwin III <wli@holomorphy.com>, Andrew Morton <akpm@digeo.com>,
+       Bill Huey <billh@gnuppy.monkey.org>, lm@work.bitmover.com,
+       mbligh@aracnet.com, davidsen@tmr.com, greearb@candelatech.com,
+       linux-kernel@vger.kernel.org
 Subject: Re: Minutes from Feb 21 LSE Call
-Message-ID: <20030224163119.GD5665@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Benjamin LaHaise <bcrl@redhat.com>, Larry McVoy <lm@bitmover.com>,
-	William Lee Irwin III <wli@holomorphy.com>,
-	"Martin J. Bligh" <mbligh@aracnet.com>,
-	linux-kernel@vger.kernel.org
-References: <20030222195642.GI1407@work.bitmover.com> <2080000.1045947731@[10.10.2.4]> <20030222231552.GA31268@work.bitmover.com> <3610000.1045957443@[10.10.2.4]> <20030224045616.GB4215@work.bitmover.com> <48940000.1046063797@[10.10.2.4]> <20030224065826.GA5665@work.bitmover.com> <20030224075142.GA10396@holomorphy.com> <20030224154725.GB5665@work.bitmover.com> <20030224112314.H15376@redhat.com>
+Message-ID: <20030224091758.A11805@hq.fsmlabs.com>
+References: <Pine.LNX.3.96.1030223182350.999E-100000@gatekeeper.tmr.com> <33350000.1046043468@[10.10.2.4]> <20030224045717.GC4215@work.bitmover.com> <20030224074447.GA4664@gnuppy.monkey.org> <20030224075430.GN10411@holomorphy.com> <20030224080052.GA4764@gnuppy.monkey.org> <20030224004005.5e46758d.akpm@digeo.com> <20030224085031.GP10411@holomorphy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030224112314.H15376@redhat.com>
-User-Agent: Mutt/1.4i
-X-MailScanner: Found to be clean
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030224085031.GP10411@holomorphy.com>; from wli@holomorphy.com on Mon, Feb 24, 2003 at 12:50:31AM -0800
+Organization: FSM Labs
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 24, 2003 at 11:23:14AM -0500, Benjamin LaHaise wrote:
-> kernel for specific applications.  I'm curious if there is a collection 
-> of lmbench results of hand configured and compiled kernels vs the vendor 
-> module based kernels across 2.0, 2.2, 2.4 and recent 2.5 on the same 
-> uniprocessor and dual processor configuration.  
+On Mon, Feb 24, 2003 at 12:50:31AM -0800, William Lee Irwin III wrote:
+> Bill Huey (Hui) <billh@gnuppy.monkey.org> wrote:
+> >> especially given some of the IO performance improvement that
+> >> happened as a courtesy of preempt.
+> 
+> On Mon, Feb 24, 2003 at 12:40:05AM -0800, Andrew Morton wrote:
+> > There is no evidence for any such thing.  Nor has any plausible
+> > theory been put forward as to why such an improvement should occur.
+> 
+> There's a vague notion in my head that it should decrease scheduling
 
-If someone were willing to build the init script infra structure to 
-reboot to a new kernel, run the test, etc., I'll buy a couple of 
-machines and just let them run through this.  I'd like to do it 
-with the cache miss counters turned on so if P4's do a nicer job
-of counting than Athlons, I'll get those.
+Vague notions seems to be the level of data on this topic.
+
 -- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+---------------------------------------------------------
+Victor Yodaiken 
+Finite State Machine Labs: The RTLinux Company.
+www.fsmlabs.com  www.rtlinux.com
+1+ 505 838 9109
+

@@ -1,40 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269544AbRGaXqT>; Tue, 31 Jul 2001 19:46:19 -0400
+	id <S269547AbRGaXx3>; Tue, 31 Jul 2001 19:53:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269545AbRGaXqK>; Tue, 31 Jul 2001 19:46:10 -0400
-Received: from weta.f00f.org ([203.167.249.89]:22158 "HELO weta.f00f.org")
-	by vger.kernel.org with SMTP id <S269544AbRGaXp5>;
-	Tue, 31 Jul 2001 19:45:57 -0400
-Date: Wed, 1 Aug 2001 11:46:35 +1200
-From: Chris Wedgwood <cw@f00f.org>
-To: Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
+	id <S269546AbRGaXxT>; Tue, 31 Jul 2001 19:53:19 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:55565 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S269549AbRGaXxR>; Tue, 31 Jul 2001 19:53:17 -0400
+Date: Tue, 31 Jul 2001 20:53:22 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Chris Wedgwood <cw@f00f.org>
+Cc: <linux-kernel@vger.kernel.org>
 Subject: Re: ext3-2.4-0.9.4
-Message-ID: <20010801114635.C8839@weta.f00f.org>
-In-Reply-To: <20010731032104.O2650@mea-ext.zmailer.org> <Pine.LNX.4.33L.0107302219340.5582-100000@duckman.distro.conectiva> <20010731232947.C13258@emma1.emma.line.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010731232947.C13258@emma1.emma.line.org>
-User-Agent: Mutt/1.3.18i
-X-No-Archive: Yes
+In-Reply-To: <20010801114635.C8839@weta.f00f.org>
+Message-ID: <Pine.LNX.4.33L.0107312052460.5582-100000@duckman.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Tue, Jul 31, 2001 at 11:29:47PM +0200, Matthias Andree wrote:
+On Wed, 1 Aug 2001, Chris Wedgwood wrote:
+> On Tue, Jul 31, 2001 at 11:29:47PM +0200, Matthias Andree wrote:
+>
+>     If I understand SUS v2 correctly, fsync() must sync meta data
+>     corresponding to the file.
+>
+>     If Linux ext2 doesn't to that, it might be a good idea to change
+>     that so it does.
+>
+> Define 'meta-data' --- linux sync's any inode and/or bitmap
+> changes, fsyn on a file will ensure it is intact but not that it
+> can't get lost.
 
-    If I understand SUS v2 correctly, fsync() must sync meta data
-    corresponding to the file.
+Syntactically correct, but quite useless IMHO ;)
 
-    If Linux ext2 doesn't to that, it might be a good idea to change
-    that so it does.
-
-Define 'meta-data' --- linux sync's any inode and/or bitmap changes,
-fsyn on a file will ensure it is intact but not that it can't get
-lost.
+Rik
+--
+Executive summary of a recent Microsoft press release:
+   "we are concerned about the GNU General Public License (GPL)"
 
 
-
-  --cw
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
 

@@ -1,47 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317978AbSFSTJ7>; Wed, 19 Jun 2002 15:09:59 -0400
+	id <S317979AbSFSTKI>; Wed, 19 Jun 2002 15:10:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317979AbSFSTJ6>; Wed, 19 Jun 2002 15:09:58 -0400
-Received: from 12-234-169-113.client.attbi.com ([12.234.169.113]:48593 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S317978AbSFSTJ5>; Wed, 19 Jun 2002 15:09:57 -0400
-Date: Wed, 19 Jun 2002 13:03:38 -0400 (EDT)
-From: Christopher Li <chrisl@gnuchina.org>
-X-X-Sender: chrisl@localhost.localdomain
-To: "Stephen C. Tweedie" <sct@redhat.com>
-cc: Alexander Viro <viro@math.psu.edu>, DervishD <raul@pleyades.net>,
-       Linux-kernel <linux-kernel@vger.kernel.org>,
-       <ext2-devel@lists.sourceforge.net>
-Subject: Re: [Ext2-devel] Re: Shrinking ext3 directories
-In-Reply-To: <20020619113734.D2658@redhat.com>
-Message-ID: <Pine.LNX.4.44.0206191256550.20859-100000@localhost.localdomain>
+	id <S317980AbSFSTKH>; Wed, 19 Jun 2002 15:10:07 -0400
+Received: from rj.sgi.com ([192.82.208.96]:35733 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S317979AbSFSTKE>;
+	Wed, 19 Jun 2002 15:10:04 -0400
+Message-ID: <D93B36D3895ED51183870004AC38ABA7AD88B9@mtv-atc-006e--n.corp.sgi.com>
+From: Gene Yee <gyee@sgi.com>
+To: linux-kernel@vger.kernel.org
+Subject: SMBFS Problems: smb_proc_readdir_long: name=, result=-2, rcls=1, 
+	err=123
+Date: Wed, 19 Jun 2002 12:10:02 -0700
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2655.55)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Here is a quick overview:
 
-On Wed, 19 Jun 2002, Stephen C. Tweedie wrote:
+I am able to make a connection to a Win2K share and access all the
+directories and files, except one.  It is rather large also...  When I
+access try to access the directory, it will leave the error:
+smb_proc_readdir_long: name=, result=-2, rcls=1, err=123 in the
+/var/messages.  It normally shows 0 files in the directory, but if I enter
+'ls' enough times it will give me roughly half the files in the directory.
+I am listing the properties of the directory below.
 
-> Hi,
-> 
-> On Tue, Jun 18, 2002 at 06:18:49PM -0400, Alexander Viro wrote:
->  
-> > IOW, making sure that empty blocks in the end of directory get freed
-> > is a matter of 10-20 lines.  If you want such patch - just tell, it's
-> > half an hour of work...
-> 
-> It's certainly easier at the tail, but with htree we may have
-> genuinely enormous directories and being able to hole-punch arbitrary
-> coalesced blocks could be a huge win.  Also, doing the coalescing
-I would can contribute on that. I am thinking about it anyway.
-Daniel might already has some code there.
+Size: 225GB (241,700,612,216 bytes)
+Size on disk: 225GB (241,760,051,200 bytes)
+Contains: 17,466 Files, 1,215 Folders
 
-I have a silly question, where is that ext3 CVS? Under sourcefourge
-ext2/ext3 or gkernel?
+I was running 2.4.18 with the Hendrick patch to support a 160GB HD.  I have
+since moved up to 2.4.19pre10 hoping the fix the samba problem, I have also
+upgraded to the latest Samba on the server, thinking a new smbmount might
+help. None of this made a difference. 
 
-Chris
+Let me know if there is any other information I can provide.
 
-
+Any suggestion will be appreciated...

@@ -1,61 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270021AbRHYRiX>; Sat, 25 Aug 2001 13:38:23 -0400
+	id <S270025AbRHYRkN>; Sat, 25 Aug 2001 13:40:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269891AbRHYRiN>; Sat, 25 Aug 2001 13:38:13 -0400
-Received: from [209.250.58.175] ([209.250.58.175]:8196 "EHLO
-	hapablap.dyn.dhs.org") by vger.kernel.org with ESMTP
-	id <S269909AbRHYRh4>; Sat, 25 Aug 2001 13:37:56 -0400
-Date: Sat, 25 Aug 2001 12:37:36 -0500
-From: Steven Walter <srwalter@yahoo.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Odd __alloc_pages failure in 2.4.9
-Message-ID: <20010825123736.A709@hapablap.dyn.dhs.org>
-Mail-Followup-To: Steven Walter <srwalter@yahoo.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20010825113344.A528@hapablap.dyn.dhs.org>
-Mime-Version: 1.0
+	id <S270050AbRHYRkD>; Sat, 25 Aug 2001 13:40:03 -0400
+Received: from hermes.domdv.de ([193.102.202.1]:24838 "EHLO zeus.domdv.de")
+	by vger.kernel.org with ESMTP id <S270025AbRHYRjo>;
+	Sat, 25 Aug 2001 13:39:44 -0400
+Message-ID: <XFMail.20010825193951.ast@domdv.de>
+X-Mailer: XFMail 1.4.6-3 on Linux
+X-Priority: 3 (Normal)
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010825113344.A528@hapablap.dyn.dhs.org>; from srwalter@yahoo.com on Sat, Aug 25, 2001 at 11:33:44AM -0500
-X-Uptime: 12:36pm  up 5 min,  0 users,  load average: 1.08, 0.87, 0.40
+Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+Date: Sat, 25 Aug 2001 19:39:51 +0200 (CEST)
+Organization: D.O.M. Datenverarbeitung GmbH
+From: Andreas Steinmetz <ast@domdv.de>
+To: linux-kernel@vger.kernel.org
+Subject: new aic7xxx code in 2.4.9 causes kernel panics
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hmm... I just recompiled with gcc 2.95.3, and now it works.  The kernel
-had been compiled with gcc 3.0; guess its a compiler bug.
+Hi,
+please CC me on replies as I'm not subscribed to the list.
 
-I'll look into this more and see if I can't file a formal gcc bugreport.
+The new aix7xxx driver in 2.4.9 panics the system during reboot. This may or
+may not be related to the kernel raid code (the system in question runs a small
+native ext2 partition for kernels/lilo and all other partitions are ext2/raid1
+(autodetect).
 
-On Sat, Aug 25, 2001 at 11:33:44AM -0500, Steven Walter wrote:
-> Running kernel 2.4.9, if I start xcdroast 0.98alpha9 as an ordinary
-> user, the system seems to freeze indefinitely.
-> 
-> If I start it as root, however, the system only freeze for 2-3 seconds.
-> After this time, if I check dmesg, I get a slew of __alloc_pages
-> failures, even 0-order failures.
-> 
-> Being unable to diagnose the complete lockup in the user case any
-> better, I assume that this is what's happening there, too, only
-> indefinitely.
-> 
-> The system is an AMD Thunderbird 900MHz with 2 IDE CD-ROM drives, both
-> use ide-scsi.  One is a burner, the other is a DVD-ROM drive.
-> 
-> I'll try and get a backtrace of whats happening during the lockup later
-> when I can hook up my serial console.
-> -- 
-> -Steven
-> In a time of universal deceit, telling the truth is a revolutionary act.
-> 			-- George Orwell
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+What happens during reboot is that after the 'flushing signals' message from
+the raid code there was a 20 to 30 second delay, then the new aic7xxx code
+complained about 'ABORT' and then caused a kernel panic. This scenario was
+reproducable.
 
--- 
--Steven
-In a time of universal deceit, telling the truth is a revolutionary act.
-			-- George Orwell
+Unfortunately I didn't have the time to write down the exact details as I had
+to get the system working and did revert to the old aix7xxx code which works
+flawlessly.
+
+
+Andreas Steinmetz
+D.O.M. Datenverarbeitung GmbH

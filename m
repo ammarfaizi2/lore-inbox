@@ -1,42 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130349AbRABRzS>; Tue, 2 Jan 2001 12:55:18 -0500
+	id <S131252AbRABR5T>; Tue, 2 Jan 2001 12:57:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131134AbRABRzJ>; Tue, 2 Jan 2001 12:55:09 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:63506 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130349AbRABRyy>; Tue, 2 Jan 2001 12:54:54 -0500
-Subject: Re: Compile errors: RCPCI, LANE, and others
-To: daniel@kabuki.eyep.net (Daniel Stone)
-Date: Tue, 2 Jan 2001 17:25:11 +0000 (GMT)
-Cc: elmer@ylenurme.ee (Elmer Joandi), linux-kernel@vger.kernel.org
-In-Reply-To: <20010102142920Z131090-439+7909@vger.kernel.org> from "Daniel Stone" at Jan 03, 2001 01:02:21 AM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S131259AbRABR5A>; Tue, 2 Jan 2001 12:57:00 -0500
+Received: from passion.cambridge.redhat.com ([172.16.18.67]:31872 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S131258AbRABR4p>; Tue, 2 Jan 2001 12:56:45 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <20010102125545.A8981@ping.be> 
+In-Reply-To: <20010102125545.A8981@ping.be>  <Pine.LNX.4.10.10012311205020.1210-100000@penguin.transmeta.com> <3A514236.2000801@grips.com> 
+To: Kurt Roeckx <Q@ping.be>
+Cc: Gerold Jury <geroldj@grips.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Happy new year^H^H^H^Hkernel.. 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14DVBT-0002YO-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Date: Tue, 02 Jan 2001 17:25:30 +0000
+Message-ID: <12020.978456330@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > md5sum: WARNING: 11 of 12 computed checksums did NOT match
-> This indicates a corrupted download.
 
-Nope the MD5 sums are for certified versions of the isdn drivers. They should
-not match
+Q@ping.be said:
+>  I'm using the hisax driver too (build in), and it works perfectly for
+> me. 
 
-> > objcopy: Warning: Output file cannot represent architecture UNKNOWN!
-> um. this is completely rooted. what compiler are you using, what
-> distribution? (hint: if it's redhat 7, don't bother).
+I've also seen my machine die on taking down the ippp0 interface
+("service isdn stop") - not on hanging up ("isdnctrl hangup ippp0").
 
-Bzzt, wrong. Red Hat 7 compiles the 2.4 tree beautifully with gcc 2.96 as well.
-Please grow up.
+I keep forgetting to investigate, because it's extremely rare that I 
+actually disconnect or reboot, rather than just hitting the reset button 
+when X has segfaulted again.
 
-> > i2o_block.c:595: warning: #warning "RACE"
-> this is most likely a bad thing, yes.
+Is your machine SMP?
 
-Yeah its to remind me to fix a small race
+--
+dwmw2
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,51 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262193AbTJYC2H (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Oct 2003 22:28:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262286AbTJYC2H
+	id S262274AbTJYCgk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Oct 2003 22:36:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262286AbTJYCgk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Oct 2003 22:28:07 -0400
-Received: from MAIL.13thfloor.at ([212.16.62.51]:12978 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S262274AbTJYC2E (ORCPT
+	Fri, 24 Oct 2003 22:36:40 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:1971 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S262274AbTJYCgj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Oct 2003 22:28:04 -0400
-Date: Sat, 25 Oct 2003 04:28:03 +0200
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: Matt Domsch <Matt_Domsch@dell.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH 2.4] EDD 4-byte MBR disk signature for the boot disk
-Message-ID: <20031025022803.GA18168@DUK2.13thfloor.at>
-Mail-Followup-To: Matt Domsch <Matt_Domsch@dell.com>,
-	linux-kernel@vger.kernel.org
-References: <20031014104508.GA5820@win.tue.nl> <20031014133804.GC15295@iguana.domsch.com>
+	Fri, 24 Oct 2003 22:36:39 -0400
+Date: Fri, 24 Oct 2003 19:30:34 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Tomas Szepe <szepe@pinerecords.com>
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com, grof@dragon.cz
+Subject: Re: possible bug in tcp_input.c
+Message-Id: <20031024193034.30f1caed.davem@redhat.com>
+In-Reply-To: <20031024162959.GB11154@louise.pinerecords.com>
+References: <20031024162959.GB11154@louise.pinerecords.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031014133804.GC15295@iguana.domsch.com>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 14, 2003 at 08:38:09AM -0500, Matt Domsch wrote:
-> >    Can you remind me why you want to retrieve the boot disk?
+On Fri, 24 Oct 2003 18:29:59 +0200
+Tomas Szepe <szepe@pinerecords.com> wrote:
+
+> /* tcp_input.c, line 1138 */
+> static inline int tcp_head_timedout(struct sock *sk, struct tcp_opt *tp)
+> {
+>   return tp->packets_out && tcp_skb_timedout(tp, skb_peek(&sk->write_queue));
+> }
 > 
-> Fair question.  Consider the case of automated factory install of a
-> new system.  One may configure the system to have multiple disk
-> controllers and multiple disks on them, attached in just about any
-> way.  One common configuration our customers like is to have two disks
-> attached to one controller on which to put the OS, then maybe 8 more
-> disks on a second SCSI backplane going to two channels of another
-> controller on which they want to build their database files.
+> The passed NULL (and yes, this is where we are getting one) is dereferenced
+> immediately in:
 > 
-> Right now, there's no good way to determine programatically from
-> within Linux which disk controller and disk the BIOS will decide is
-> the boot device.
+> /* tcp_input.c, line 1133 */
+> static inline int tcp_skb_timedout(struct tcp_opt *tp, struct sk_buff *skb)
+> {
+>   return (tcp_time_stamp - TCP_SKB_CB(skb)->when > tp->rto);
+> }
 
-hmm, IIRC devfs makes a /dev/root symlink pointing
-to the root device ... is this not what you want?
+If tp->packets_out is non-zero (which by definition it is
+in your case else the right hand side of the "&&" would not be
+evaluated) then we _MUST_ have some packets in sk->write_queue.
 
-please ignore if I talk nonsense ...
-
-best,
-Herbert
-
+Something is being fiercely corrupted.  Probably some piece of
+netfilter is freeing up an SKB one too many times thus corrupting
+the TCP write queue list pointers.

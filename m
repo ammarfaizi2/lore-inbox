@@ -1,43 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261868AbRETMNf>; Sun, 20 May 2001 08:13:35 -0400
+	id <S261493AbRETMdk>; Sun, 20 May 2001 08:33:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261886AbRETMN0>; Sun, 20 May 2001 08:13:26 -0400
-Received: from jurassic.park.msu.ru ([195.208.223.243]:7174 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id <S261868AbRETMNO>; Sun, 20 May 2001 08:13:14 -0400
-Date: Sun, 20 May 2001 16:12:34 +0400
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Richard Henderson <rth@twiddle.net>, linux-kernel@vger.kernel.org
-Subject: Re: alpha iommu fixes
-Message-ID: <20010520161234.B8223@jurassic.park.msu.ru>
-In-Reply-To: <20010518214617.A701@jurassic.park.msu.ru> <20010519155502.A16482@athlon.random> <20010519231131.A2840@jurassic.park.msu.ru> <20010520044013.A18119@athlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010520044013.A18119@athlon.random>; from andrea@suse.de on Sun, May 20, 2001 at 04:40:13AM +0200
+	id <S261859AbRETMda>; Sun, 20 May 2001 08:33:30 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:16571 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S261493AbRETMdQ>;
+	Sun, 20 May 2001 08:33:16 -0400
+Date: Sun, 20 May 2001 14:32:10 +0200 (MET DST)
+From: Andries.Brouwer@cwi.nl
+Message-Id: <UTC200105201232.OAA55488.aeb@vlet.cwi.nl>
+To: abramo@alsa-project.org, viro@math.psu.edu
+Subject: Re: no ioctls for serial ports? [was Re: LANANA: To Pending DeviceNumberRegistrants]
+Cc: alan@lxorguk.ukuu.org.uk, hpa@transmeta.com, jgarzik@mandrakesoft.com,
+        jsimmons@transvirtual.com, linux-kernel@vger.kernel.org,
+        neilb@cse.unsw.edu.au, pavel@suse.cz, torvalds@transmeta.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 20, 2001 at 04:40:13AM +0200, Andrea Arcangeli wrote:
-> I was only talking about when you get the "pci_map_sg failed" because
-> you have not 3 but 300 scsi disks connected to your system and you are
-> writing to all them at the same time allocating zillons of pte, and one
-> of your drivers (possibly not even a storage driver) is actually not
-> checking the reval of the pci_map_* functions. You don't need a pte
-> memleak to trigger it, even regardless of the fact I grown the dynamic
-> window to 1G which makes it 8 times harder to trigger than in mainline.
+> Getting a list of all ioctls in the tree, along with types of their arguments
+> would be a great start. Anyone willing to help with that?
 
-I think you're too pessimistic. Don't mix "disks" and "controllers" --
-SCSI adapter with 10 drives attached is a single DMA agent, not 10 agents.
+% man 2 ioctl_list
 
-If you're so concerned about Big Iron, go ahead and implement 64-bit PCI
-support, it would be right long-term solution. I'm pretty sure that
-high-end servers use mostly this kind of hardware.
+gives a very outdated list. Collecting the present list is trivial
+but time-consuming. If anyone does I would be happy if he also
+sent me an updated ioctl_list.2
 
-Oh, well. This doesn't mean that I'm disagreed with what you said. :-)
-Driver writers must realize that pci mappings are limited resources.
+Andries
 
-Ivan.
+[PS I released man-pages-1.36 a few days ago]

@@ -1,83 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131614AbRBMOUJ>; Tue, 13 Feb 2001 09:20:09 -0500
+	id <S131717AbRBMOdB>; Tue, 13 Feb 2001 09:33:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131648AbRBMOT7>; Tue, 13 Feb 2001 09:19:59 -0500
-Received: from mailout00.sul.t-online.com ([194.25.134.16]:44046 "EHLO
-	mailout00.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S131614AbRBMOTr>; Tue, 13 Feb 2001 09:19:47 -0500
-Message-ID: <3A8942FA.484BE2FC@programmfabrik.de>
-Date: Tue, 13 Feb 2001 15:21:46 +0100
-From: Martin Rode <Martin.Rode@programmfabrik.de>
-Organization: Programmfabrik GmbH
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.1-9mdk i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: BUG in sched.c, Kernel 2.4.1?
-Content-Type: multipart/mixed;
- boundary="------------16A4805A2B21852AB6B0634A"
+	id <S131718AbRBMOcw>; Tue, 13 Feb 2001 09:32:52 -0500
+Received: from asterix.hrz.tu-chemnitz.de ([134.109.132.84]:41872 "EHLO
+	asterix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S131717AbRBMOck>; Tue, 13 Feb 2001 09:32:40 -0500
+Date: Tue, 13 Feb 2001 15:32:21 +0100
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Support for maximal supported mode
+Message-ID: <20010213153221.B472@nightmaster.csn.tu-chemnitz.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------16A4805A2B21852AB6B0634A
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: base64
+Hi Andre,
+hi lkml,
 
-QWZ0ZXIgdXBncmFkaW5nIHRvIGtlcm5lbCAyLjQuMSBteSBib3ggbG9ja2VkIGhhcmQgYWZ0
-ZXIgc3RhcnRpbmcgdGhlDQpyZWd1bGFyIGFya2VpYSBiYWNrdXAuIEkgaGFkIHByZXZpb3Vz
-bHkgcHJvYmxlbXMgd2l0aCBNTSBvbiBrZXJuZWwNCjIuMi4xOCBhbmQgPiAyLjIuMTlwcmUy
-LiBNeSByZXBvcnQgYSBmZXcgZGF5cyBhZ28gaXMgc3RpbGwgdW5hbnN3ZXJlZC4NCg0KSSB3
-b3VsZCBiZSBnbGFkIGlmIHNvbWVvbmUgd291bGQgYmUgY29tbWVudCB0aGlzIHRpbWUuDQoN
-CkhlcmUncyB0aGUgdHlwZWQgY3Jhc2ggZHVtcDoNCg0Kc3QwOiBCbG9jayBsaW1pdHMgMSAt
-IDE2Nzc3MjE1IGJ5dGVzLg0KU2NoZWR1bGluZyBhbiBpbnRlcnJ1cHQNCmtlcm5lbCBCVUcg
-YXQgc2NoZWQuYzo3MTQhDQppbnZhbGlkIG9wZXJhbmQ6IDAwMDANCkNQVTogMA0KRUlQOiAw
-MDEwOls8YzAxMTM3ODE+XQ0KRUZMQUdTOiAwMDAxMDI4Mg0KZWF4OiAwMDAwMDAxYiBlYngg
-MDAwMDAwMDAgZWN4IGRmNGY2MDAwIGVkeCAwMDAwMDAwMQ0KZXNpOiAwMDFjZmZlMyBlZGkg
-ZGI1ZWVkZTAgZWJwIGRjMGU5ZjQwIGVzcCBkYzBlOWVmMA0KZHMgMDAxOCBlcyAwMDE4IHNz
-IDAwMTgNCnByb2Nlc3MgbzNmbG93IChwaWQgMTMxODAgc3RhY2twYWdlIGRjMGU5MDAwKQ0K
-c3RhY2s6IGMwMWYyNmYzIGMwMWYyODU2IDAwMDAwMmNhIGRiNWVlZDgwIGRjMGU4MDAwIGRi
-NWVlZGUwIGRjMGU5ZjE4DQpkYzBlODAwMCAwMDAwMzNiYSAwMDAwMDAwMCAwMDAwMDAwMCAw
-MDAwMDBlNyAwMDAwMDAxYyAwMDAwMDAxYw0KZmZmZmZmZjMgZGMwZTgwMDAgMDAwMDA4MDAg
-MDAwMDAwMDAgZGMwZTgwMDAgZGMwZTlmNjggYzAxMzljNDQNCmQ0ODhiZjgwIDAwMDAwMDAw
-DQoNCmNhbGwgdHJhY2U6IFs8Y2MwMTM5YzQ0Pl0gWzxjMDEzOWQxYz5dIFs8YzAxMzBhZjY+
-XSBbPGMwMTA4ZTkzPl0NCg0KY29kZTogMGYgMGIgOGQgNjUgYmMgNWIgNWUgNWYgODkgZWMg
-NWQgYzMgOGQgNzYgMDAgNTUgODkgZTUgODMgZWMNCktlcm5lbCBwYW5pYzogQWllZSwga2ls
-bGluZyBpbnRlcnJ1cHQgaGFuZGxlciENCkluIGludGVycnVwdCBoYW5kbGVyIC0gbm90IHN5
-bmNpbmcNCg0KSWYgbmVjZXNzZXJheSBJIGNhbiBzZW5kIHlvdSBteSBrZXJuZWwgLmNvbmZp
-Zy4gQUNQSSBpcyBkaXNhYmxlZC4NCg0KDQpMb2FkZWQgTW9kdWxlcyBhcmU6DQoNClttYXJ0
-aW5AYmFydCBtYXJ0aW5dJCAvc2Jpbi9sc21vZA0KTW9kdWxlICAgICAgICAgICAgICAgICAg
-U2l6ZSAgVXNlZCBieQ0KcGFycG9ydF9wYyAgICAgICAgICAgICAyMzMyOCAgIDEgKGF1dG9j
-bGVhbikNCmxwICAgICAgICAgICAgICAgICAgICAgIDU1MjAgICAxIChhdXRvY2xlYW4pDQpw
-YXJwb3J0ICAgICAgICAgICAgICAgIDI0ODMyICAgMSAoYXV0b2NsZWFuKSBbcGFycG9ydF9w
-YyBscF0NCnZtbmV0ICAgICAgICAgICAgICAgICAgMTc5ODQgICAxDQp2bW1vbiAgICAgICAg
-ICAgICAgICAgIDE3OTM2ICAgMCAodW51c2VkKQ0KbmZzZCAgICAgICAgICAgICAgICAgICA3
-MTc5MiAgIDggKGF1dG9jbGVhbikNCm5mcyAgICAgICAgICAgICAgICAgICAgODAwMzIgICAy
-IChhdXRvY2xlYW4pDQpsb2NrZCAgICAgICAgICAgICAgICAgIDUwMTkyICAgMSAoYXV0b2Ns
-ZWFuKSBbbmZzZCBuZnNdDQpzdW5ycGMgICAgICAgICAgICAgICAgIDYyMzY4ICAgMSAoYXV0
-b2NsZWFuKSBbbmZzZCBuZnMgbG9ja2RdDQp0dWxpcCAgICAgICAgICAgICAgICAgIDM3MjY0
-ICAgMSAoYXV0b2NsZWFuKQ0Kc3QgICAgICAgICAgICAgICAgICAgICAyNzE2OCAgIDAgKHVu
-dXNlZCkNCnZmYXQgICAgICAgICAgICAgICAgICAgMTE2OTYgICAwICh1bnVzZWQpDQpmYXQg
-ICAgICAgICAgICAgICAgICAgIDMyNDgwICAgMCBbdmZhdF0NCkFNNTNDOTc0ICAgICAgICAg
-ICAgICAgMTMyNDggICAwICh1bnVzZWQpDQpuY3I1M2M4eHggICAgICAgICAgICAgIDU2OTI4
-ICAgOA0Kc2RfbW9kICAgICAgICAgICAgICAgICAxMTY0OCAgIDgNCnNjc2lfbW9kICAgICAg
-ICAgICAgICAgOTEwNTYgICA0IFtzdCBBTTUzQzk3NCBuY3I1M2M4eHggc2RfbW9kXQ0KW21h
-cnRpbkBiYXJ0IG1hcnRpbl0kDQoNCg0KUmVnYXJkcywNCg0KDQpNYXJ0aW4NCg0KDQoNCg==
---------------16A4805A2B21852AB6B0634A
-Content-Type: text/x-vcard; charset=iso-8859-1;
- name="Martin.Rode.vcf"
-Content-Transfer-Encoding: base64
-Content-Description: Card for Martin Rode
-Content-Disposition: attachment;
- filename="Martin.Rode.vcf"
+I need to add support for a maximum transfer mode selection on
+drives and channels.
 
-YmVnaW46dmNhcmQgCm46Um9kZTtNYXJ0aW4KdGVsO2NlbGw6KzQ5LTE3MS0xMjU5NTI1CnRl
-bDtmYXg6KzQ5LTMwLTQyODEtODAwOAp0ZWw7d29yazorNDktMzAtNDI4MS04MDAxCngtbW96
-aWxsYS1odG1sOlRSVUUKdXJsOnd3dy5wcm9ncmFtbWZhYnJpay5kZS9+bWFydGluCm9yZzpQ
-cm9ncmFtbWZhYnJpayBHbWJIO0VudHdpY2tsdW5nCmFkcjo7O0ZyYW5rZnVydGVyIEFsbGVl
-IDczZDsxMDI0NyBCZXJsaW47OztHZXJtYW55CnZlcnNpb246Mi4xCmVtYWlsO2ludGVybmV0
-Ok1hcnRpbi5Sb2RlQHByb2dyYW1tZmFicmlrLmRlCnRpdGxlOkRpcGwuLUtmbS4KeC1tb3pp
-bGxhLWNwdDo7LTI4OTYwCmZuOk1hcnRpbiBSb2RlCmVuZDp2Y2FyZAo=
---------------16A4805A2B21852AB6B0634A--
+Reason: I have an ata flash disk as boot & root disk, that can
+   only sucessfully do pio2 and it takes several minutes (5-10)
+   until it will use pio2. This is not acceptable for embedded
+   use.
 
+I would like to add sth. like:
+
+hda=udma2,sdma0,pio2
+
+or 
+
+ide0=udma0
+
+
+To say, that this device should only be allowed to use these
+modes (or worse according to the mode selection list).
+
+I'm just afraid that I'll not be competent enough to implement
+the sequence right (for setting it safely, without data
+corruption).
+
+Hope I can get some hints about some open pitfalls while
+implementing it straightforward just using set_transfer in a
+manner seen by ioctl.
+
+And I would like to know the stage, at which I could should start
+applying this setting (since parsing is before ide is set up).
+
+Many Thanks in Advance
+
+Regards
+
+Ingo Oeser
+-- 
+10.+11.03.2001 - 3. Chemnitzer LinuxTag <http://www.tu-chemnitz.de/linux/tag>
+         <<<<<<<<<<<<       come and join the fun       >>>>>>>>>>>>

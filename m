@@ -1,57 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265628AbRF1Kdo>; Thu, 28 Jun 2001 06:33:44 -0400
+	id <S265629AbRF1KoP>; Thu, 28 Jun 2001 06:44:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265629AbRF1Kde>; Thu, 28 Jun 2001 06:33:34 -0400
-Received: from medusa.sparta.lu.se ([194.47.250.193]:28016 "EHLO
-	medusa.sparta.lu.se") by vger.kernel.org with ESMTP
-	id <S265628AbRF1Kd2>; Thu, 28 Jun 2001 06:33:28 -0400
-Date: Thu, 28 Jun 2001 11:19:37 +0200 (MET DST)
-From: Bjorn Wesen <bjorn@sparta.lu.se>
-Reply-To: Bjorn Wesen <bjorn@sparta.lu.se>
-To: lar@cs.york.ac.uk
-cc: linux-kernel@vger.kernel.org
-Subject: RE: Cosmetic JFFS patch.
-In-Reply-To: <JKEGJJAJPOLNIFPAEDHLKECBDEAA.laramie.leavitt@btinternet.com>
-Message-ID: <Pine.LNX.3.96.1010628105039.30572A-100000@medusa.sparta.lu.se>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265630AbRF1KoG>; Thu, 28 Jun 2001 06:44:06 -0400
+Received: from ppp0.ocs.com.au ([203.34.97.3]:64782 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S265629AbRF1Kns>;
+	Thu, 28 Jun 2001 06:43:48 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: ankry@green.mif.pg.gda.pl
+cc: jgarzik@mandrakesoft.com (Jeff Garzik), elenstev@mesatop.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4.6-pre6 fix drivers/net/Config.in error 
+In-Reply-To: Your message of "Thu, 28 Jun 2001 10:45:55 +0200."
+             <200106280845.KAA20122@sunrise.pg.gda.pl> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 28 Jun 2001 20:43:38 +1000
+Message-ID: <6121.993725018@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Jun 2001, Laramie Leavitt wrote:
-> > dmesg buffer space is rather limited and IMHO there isn't space to
-> > waste on credit-giving in boot logs.
-> 
-> Here here.  You don't see annoying log-eating copyright messages
-> printed out in the Windows boot. Just imagine:
+On Thu, 28 Jun 2001 10:45:55 +0200 (MET DST), 
+Andrzej Krzysztofowicz <ankry@pg.gda.pl> wrote:
+>Keith Owens wrote:
+>> Index: 6-pre6.1/drivers/net/Config.in
+>> -   dep_bool '  EISA, VLB, PCI and on board controllers' CONFIG_NET_PCI
+>> +   if [ "$CONFIG_ISA" = "y" -o "$CONFIG_EISA" = "y" -o "$CONFIG_PCI" = "y" ]; then
 
-There's a difference; someone paid for that Windows code and you paid to
-get windows and don't care about who did what. But when someone puts down
-a lot of work to contributes something for free which others find useful
-and actually use, don't you think it might be prudent to let them at least
-write who contributed it, if a line is going to be printed anyway to say
-device that or that has been registred ?
+>CONFIG_EISA check in this condition is redundant.
 
-I know it sounds a bit like an "advertisment space" but it's always been
-so; people have been releasing code for free since noone knows how long
-and often one major factor has been that their peers will go "wow did
-you do that". Otherwise why would anyone ever write their name in an About
-box when they release a freeware program. And dmesg is the Linux kernels
-About box (someone might argue that the code is the about box but
-unfortunately most people dont read the headers in every .c file they
-use).
+True, but the line is a cut and paste from higher up in
+drivers/net/Config.in.  Even though it is redundant, it is consistent
+with the rest of the file.
 
-See the old BSD license - distribution-wise it's more free than the GPL
-but you still had to give credit where credit is due when getting a free
-lunch from someone elses work (I think this requirement was dropped in the
-current BSD license)
-
-The risk is that some people might take it quite personally to get their
-names removed and might not be as interested to see their code in the
-kernel in the future. Of course as long as it's GPL nothing would stop it
-anyway, but I still think it's a good idea to give credit for others hard
-work.
-
-/Bjorn
+drivers/net/Config.in needs a major cleanup, lots of the if statements
+can go and be replaced by dep_xxx statements, CONFIG_ETHERTAP is marked
+obsolete but is tested against experimental, CONFIG_ZNET is marked
+experimental but is tested against obsolete, etc.  I started to clean
+up the file then decided to leave it, the entire thing is being
+replaced in 2.5 anyway.
 

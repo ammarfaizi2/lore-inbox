@@ -1,85 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277073AbRJHTJI>; Mon, 8 Oct 2001 15:09:08 -0400
+	id <S277092AbRJHTNI>; Mon, 8 Oct 2001 15:13:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277074AbRJHTI7>; Mon, 8 Oct 2001 15:08:59 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:4852 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S277073AbRJHTIs>; Mon, 8 Oct 2001 15:08:48 -0400
-Message-ID: <3BC1F7D6.E84D617B@mvista.com>
-Date: Mon, 08 Oct 2001 12:00:38 -0700
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
+	id <S277085AbRJHTM6>; Mon, 8 Oct 2001 15:12:58 -0400
+Received: from zok.SGI.COM ([204.94.215.101]:35215 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S277084AbRJHTMo>;
+	Mon, 8 Oct 2001 15:12:44 -0400
+Date: Mon, 8 Oct 2001 12:12:06 -0700
+From: Jesse Barnes <jbarnes@sgi.com>
+To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Whining about NUMA. :)  [Was whining about 2.5...]
+In-Reply-To: <1814766007.1002542145@mbligh.des.sequent.com>
+Message-ID: <Pine.SGI.4.21.0110081207520.1003634-100000@spamtin.engr.sgi.com>
 MIME-Version: 1.0
-To: Georg Nikodym <georgn@somanetworks.com>
-CC: Pantelis Antoniou <panto@intracom.gr>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] Standard way of generating assembler offsets
-In-Reply-To: <28136.1002196028@ocs3.intra.ocs.com.au>
-		<3BC1735F.41CBF5C1@intracom.gr>  <3BC1E294.1A4FB12D@mvista.com> <1002563771.21079.3.camel@keller>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Georg Nikodym wrote:
-> 
-> At the risk of sticking my foot in it, is there something wrong with the
-> ANSI C offsetof() macro, defined in <stddef.h>?
-> 
-> --Georg
-No, and it could have been (and was) written prio to ANSI C defining
-it.  Something like:
+On Mon, 8 Oct 2001, Martin J. Bligh wrote:
 
-#define offsetof(x, instruct) &((struct instruct *)0)->x
+> Depending on how much extra latency each hop introduces, it may well
+> not be worth adding the complexity of differentiating beyond local vs
+> remote? At least at first ...
 
-The issues that CPP resolves have to deal with the following sort of
-structure:
+Well, there's already some code to do that (mm/numa.c), but I'm not sure
+how applicable it will be to your arch.
+ 
+> Do you know how many hops SGI can get, and how much extra latency 
+> you introduce? I know we're something like 10:1 ratio at the moment 
+> between local and remote. 
 
-struct instruct {
-	struct foo * bar;
-#ifdef CONFIG_OPTION_DIDDLE
-	int diddle_flag;
-	int diddle_array[CONFIG_DIDDLE_SIZE];
-#endif
-	int x;
-}
+I think we're something like 1.5:1, and we have machines with up to 256
+nodes at the moment, so there can be quite a few hops in the worst case.
+ 
+> I guess my main point was that the number of levels was more like constant 
+> than linear. Maybe for large interconnected switched systems with small 
+> switches, it's n log n, but in practice I think log n is small enough to be 
+> considered constant (the number of levels of switches).
 
-Or for the simple need for a constant:
+Depends on how big your node count gets I guess.
+ 
+> That's what I was planning on ... we'd need m x n classzones, where m
+> was the number of levels, and n the number of nodes. Each search would
+> obviously be through m classzones. I'll go poke at the current code some more.
 
-#define Const (CONFIG_DIDDLE_SIZE * sizeof(int))
+Yeah, classzones is one way to go about this.  There are some other simple
+ways to do nearest node allocation though, given the current
+codebase.  I'm still trying to figure out which is the most flexible.
 
-Of course you could have any number of constant operators in the
-expression.  Note also, that the array in the structure above is defined
-by a CONFIG symbol.  This could also involve math, i.e.:
+Jesse
 
-#define CONFIG_DIDDLE_SIZE CLOCK_RATE / HZ
-
-and so on.  All in all, it best to let CPP do what it does best and
-scarf up the result:
-
-#define GENERATE_CONSTANT(name,c) printf(#name " equ %d\n",c)
-
-then:
-
-GENERATE_CONSTANT(diddle_size,CONFIG_DIDDLE_SIZE);
-
-In the code we did, we put all the GENERATE macros in a .h file.  The
-the code looked like:
-
-#include.... all the headers needed....
-
-#include <generate.h>
-
-GENERATE....  all the generate macro calls...
-
-} // all done (assumes that the "main(){" is in the generate.h file)
-
-This whole mess was included as comments in the asm file.  The make rule
-then used a sed script to extract it, compile and run it to produce a
-new header file which the asm source included outside of the above
-stuff.
-
-George

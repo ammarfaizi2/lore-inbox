@@ -1,70 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317002AbSHAUUr>; Thu, 1 Aug 2002 16:20:47 -0400
+	id <S316996AbSHAUP0>; Thu, 1 Aug 2002 16:15:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316994AbSHAUUq>; Thu, 1 Aug 2002 16:20:46 -0400
-Received: from mail.webmaster.com ([216.152.64.131]:33534 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP
-	id <S316969AbSHAUUp> convert rfc822-to-8bit; Thu, 1 Aug 2002 16:20:45 -0400
-From: David Schwartz <davids@webmaster.com>
-To: <davidsen@tmr.com>
-CC: Alexander Viro <viro@math.psu.edu>, <linux-kernel@vger.kernel.org>
-X-Mailer: PocoMail 2.61 (1055) - Licensed Version
-Date: Thu, 1 Aug 2002 13:24:11 -0700
-In-Reply-To: <Pine.LNX.3.96.1020801142558.15133C-100000@gatekeeper.tmr.com>
-Subject: Re: Funding GPL projects or funding the GPL?
+	id <S317002AbSHAUP0>; Thu, 1 Aug 2002 16:15:26 -0400
+Received: from mailrelay1.lanl.gov ([128.165.4.101]:23492 "EHLO
+	mailrelay1.lanl.gov") by vger.kernel.org with ESMTP
+	id <S316996AbSHAUPY>; Thu, 1 Aug 2002 16:15:24 -0400
+Subject: Re: Linux v2.4.19-rc5
+From: Steven Cole <elenstev@mesatop.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: Jens Axboe <axboe@suse.de>, lkml <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@zip.com.au>, Steven Cole <scole@lanl.gov>
+In-Reply-To: <Pine.LNX.4.44.0208010406230.1728-100000@freak.distro.conectiva>
+References: <Pine.LNX.4.44.0208010406230.1728-100000@freak.distro.conectiva>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2-5mdk 
+Date: 01 Aug 2002 14:15:45 -0600
+Message-Id: <1028232945.3147.99.camel@spc9.esa.lanl.gov>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-Message-ID: <20020801202412.AAA21031@shell.webmaster.com@whenever>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2002-08-01 at 01:14, Marcelo Tosatti wrote:
+> 
+> On Thu, 1 Aug 2002, Jens Axboe wrote:
+> 
+> > On Thu, Aug 01 2002, Marcelo Tosatti wrote:
+> > > <akpm@zip.com.au> (02/08/01 1.663)
+> > > 	[PATCH] disable READA
+> >
+> > Since -rc5 is not to be found yet, I don't know what version of this
+> > made it in. Is READA just being disabled on SMP, or was it the general
+> > #if 0 change that got included?
+> 
+> Its being disabled on UP and SMP. I dont like having such readahead IO
+> mode working only for UP.
+> 
+> > I'm asking since plain disabling READA might have nasty performance
+> > effects. Andrew, I bet you did some numbers on this, care to share?
+> 
+> If thats true (the performance effects) I'll release -final with IMO not
+> very coherent READA semantics :)
+> 
+> Anyway, lets wait for the numbers.
 
->First, we were talking about written for free vs. written to make money.
->Second, the quality of the output depends on the quality of the process,
->not how much you pay for it. Equally likely isn't what I said, either.
+Marcelo,
 
-	I give one person $2,000 and one person $50,000 to buy a car. Would you 
-argue that they are equally likely to come back with quality cars?
+Here are some dbench numbers, from the "for what it's worth" department.
+This was done with SMP kernels, on a dual p3 box, SCSI disk, ext2.
+The first column is dbench clients.  The numbers are throughput
+in MB/sec.  The 2.5.29 kernel had a few RR-supplied smp fixes.
+Looks like for this limited test, 2.4.19-rc5 holds up pretty well.
+I've also ran this set of tests several times on -rc5 using ext3
+and data=writeback, and everything looks fine.
 
->One last time: commercial software is not a guaranty of quality nor is
->being free an indication of being shoddy.
+Steven
 
-	Now you're changing the argument on me. First we were talking about code 
-quailty and financial compensation. Now we're talking about code quality and 
-cost. The two are really not related. A person can produce a product that is 
-free either with or without being paid.
+		2.4.19-rc2	2.4.19-rc5	2.5.29
 
->Clearly if you underpay people
->for any work you are likely to get poor work, but that doesn't apply to
->someone who is being paid in satisfaction and recognition, and who has a
->real motivation to do it to the best of her/his ability.
+1		114.616		113.402		112.668
+2		173.234		183.829		175.148
+3		185.995		187.411		184.63
+4		185.447		186.891		188.199
+6		191.115		191.439		191.787
+8		191.962		191.551		191.53
+10		192.984		194.036		194.923
+12		183.847		185.73		195.328
+16		183.609		183.439		196.224
+20		181.519		179.956		193.681
+24		183.509		183.387		194.09
+28		176.04		175.832		169.326
+32		174.583		163.09		137.815
+36		155.04		164.154		121.861
+40		155.37		156.028		102.014
+44		152.546		138.171		91.6088
+48		146.419		135.447		84.3884
+52		139.788		125.968		89.2374
+56		113.933		122.592		81.021
+64		110.792		106.484		84.648
+80				87.4692		60.6054
+96				87.7201		57.9622
+112				74.9503		49.468
+128				67.2649		47.0254
 
-	Yes, but who will that person be and how many of them will there be? That 
-will depend upon how much money is available. Some people will do wonderful 
-work for free, and if you have no money, those are the only people you can 
-use and you get as much time as they can spare or afford to give at best. If 
-you have money, you can still use those people, but you can also use people 
-who need money.
-
->>    This reminds me of the proofs that supposedly showed that locking up
->>convicted criminals for longer didn't lower the crime rate. Are we honestly
->>supposed to believe that otherwise honest people commit more crimes to make
->>up the difference?
-
->Glad it reminds you, I sure as hell don't see the point... and I never saw
->any such thing. Studies show that locking people up longer doesn't make
->*that person* less likely to commit a crime, which is not at all the same
->thing as the crime rate in crimes per unit time by all persons.
-
-	This is exactly the point. A given programmer may not create better code 
-with greater compensation. However, a programming project can create better 
-code with greater compensation. (Assuming we don't randomly pick projects and 
-dump money on them, of course. Assuming the money is at least placed by the 
-people who went to the trouble of earning it choosing where they think it 
-will do the most good.)
-
-	DS
 
 

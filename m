@@ -1,42 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265369AbTBOWdk>; Sat, 15 Feb 2003 17:33:40 -0500
+	id <S265368AbTBOWce>; Sat, 15 Feb 2003 17:32:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265378AbTBOWdk>; Sat, 15 Feb 2003 17:33:40 -0500
-Received: from [81.2.122.30] ([81.2.122.30]:6148 "EHLO darkstar.example.net")
-	by vger.kernel.org with ESMTP id <S265369AbTBOWdi>;
-	Sat, 15 Feb 2003 17:33:38 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200302152244.h1FMidpW000307@darkstar.example.net>
-Subject: Re: openbkweb-0.0
-To: akpm@digeo.com (Andrew Morton)
-Date: Sat, 15 Feb 2003 22:44:39 +0000 (GMT)
-Cc: lm@bitmover.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20030215142455.7264ad36.akpm@digeo.com> from "Andrew Morton" at Feb 15, 2003 02:24:55 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S265369AbTBOWce>; Sat, 15 Feb 2003 17:32:34 -0500
+Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:53572
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S265368AbTBOWcd>; Sat, 15 Feb 2003 17:32:33 -0500
+Date: Sat, 15 Feb 2003 17:39:01 -0500 (EST)
+From: Zwane Mwaikambo <zwane@holomorphy.com>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Ulrich Weigand <weigand@immd1.informatik.uni-erlangen.de>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: Re: [PATCH][2.5][8/14] smp_call_function_on_cpu - s390
+In-Reply-To: <200302152207.XAA09202@faui11.informatik.uni-erlangen.de>
+Message-ID: <Pine.LNX.4.50.0302151734280.16012-100000@montezuma.mastecende.com>
+References: <200302152207.XAA09202@faui11.informatik.uni-erlangen.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > I always thought that that is what the bk-commit mailing lists were
-> > for?  I could be wrong about that, not having used BitKeeper - if so,
-> > what are they for, and would it not be possible to simply have a
-> > mailing list which got sent a diff every time Linus' updated his tree?
-> 
-> The latest diff against the last-released kernel is always available
-> at http://www.kernel.org/pub/linux/kernel/v2.5/testing/cset/
-> 
-> "Gzipped full patch from ..."
+On Sat, 15 Feb 2003, Ulrich Weigand wrote:
 
-So it's perfectly possible to poll
-http://www.kernel.org/pub/linux/kernel/v2.5/testing/cset/ every half
-hour or so, run it through:
+> I'm not sure I understand what you mean here.  In any case, at least
+> on S/390, doing a SIGP to an invalid CPU will simply get you an
+> 'not operational' indication (condition code 3), so in fact the
+> only problem *is* the busy loop on num_cpus ...
 
-/HREF="(.*)">Gzippped full patch/
+On other architectures it can get nasty if you send an interprocessor 
+interrupt out onto the bus for an invalid cpu destination. 
+Since not having the online map will be a problem for you I'll add the 
+mask = ... & cpu_online_map to cover the concerns you have.
 
-retrieve $1, download it, then gzip -dc /tmp/latest_changeset.gz patch
--p1
-
-John.
+Thanks,
+	Zwane
+-- 
+function.linuxpower.ca

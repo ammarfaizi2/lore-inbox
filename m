@@ -1,40 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261709AbVCOR6x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261713AbVCORtp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261709AbVCOR6x (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 12:58:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261703AbVCORt4
+	id S261713AbVCORtp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 12:49:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261703AbVCORtd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 12:49:56 -0500
-Received: from adsl-216-102-214-42.dsl.snfc21.pacbell.net ([216.102.214.42]:24594
-	"EHLO cynthia.pants.nu") by vger.kernel.org with ESMTP
-	id S261688AbVCORte (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 12:49:34 -0500
-Date: Tue, 15 Mar 2005 09:49:30 -0800
-From: Brad Boyer <flar@allandria.com>
-To: Linas Vepstas <linas@austin.ibm.com>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>, akpm@osdl.org,
-       linuxppc64-dev@ozlabs.org, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] PPC64 iSeries: cleanup viopath
-Message-ID: <20050315174929.GC10301@pants.nu>
-References: <20050315143412.0c60690a.sfr@canb.auug.org.au> <0961a209ce72bb9f2a01b163aa6e6fbd@penguinppc.org> <20050316025339.318fc246.sfr@canb.auug.org.au> <20050315174310.GH498@austin.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 15 Mar 2005 12:49:33 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:18147 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S261688AbVCORss (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Mar 2005 12:48:48 -0500
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: Adrian Bunk <bunk@stusta.de>
+Subject: Re: [PATCH] gcc4 fix for sn_serial.c
+Date: Tue, 15 Mar 2005 09:48:02 -0800
+User-Agent: KMail/1.7.2
+Cc: akpm@osdl.org, pfg@sgi.com, linux-kernel@vger.kernel.org
+References: <200503141132.39284.jbarnes@engr.sgi.com> <20050315010358.GF3207@stusta.de>
+In-Reply-To: <20050315010358.GF3207@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20050315174310.GH498@austin.ibm.com>
-User-Agent: Mutt/1.3.28i
+Message-Id: <200503150948.03100.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 15, 2005 at 11:43:10AM -0600, Linas Vepstas wrote:
-> FWIW, keep in mind that a cache miss due to large structures not fitting
-> is a zillion times more expensive than byte-aligning in the cpu 
-> (even if byte operands had a cpu perf overhead, which I don't think 
-> they do on ppc).
+On Monday, March 14, 2005 5:03 pm, Adrian Bunk wrote:
+> > -static struct uart_driver sal_console_uart = {
+> > +struct uart_driver sal_console_uart = {
+> >   .owner = THIS_MODULE,
+> >   .driver_name = "sn_console",
+> >   .dev_name = DEVICE_NAME,
+>
+> Why can't you solve this without making sal_console_uart global?
 
-Actually, there is a small overhead to bytes if you make them signed.
-That's why char is unsigned by default on ppc.
+I think that would mean moving some of the structure initializaiton into an 
+init function somewhere.  But the compiler knows the addrs of these 
+structures, so there must be a better way to do it, I just don't know it.  
+Any suggestions?
 
-	Brad Boyer
-	flar@allandria.com
-
+Jesse

@@ -1,62 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264850AbUEMVML@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264886AbUEMVOB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264850AbUEMVML (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 May 2004 17:12:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264886AbUEMVMK
+	id S264886AbUEMVOB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 May 2004 17:14:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264904AbUEMVOB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 May 2004 17:12:10 -0400
-Received: from sccrmhc11.comcast.net ([204.127.202.55]:35480 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S264850AbUEMVMH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 May 2004 17:12:07 -0400
-Subject: 2.6.5 panic while unloading cisco_ipsec
-From: Geoff Mishkin <gmishkin@comcast.net>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1084482726.7506.6.camel@amsa>
+	Thu, 13 May 2004 17:14:01 -0400
+Received: from sampa7.prodam.sp.gov.br ([200.230.190.107]:55826 "EHLO
+	sampa7.prodam.sp.gov.br") by vger.kernel.org with ESMTP
+	id S264886AbUEMVN7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 May 2004 17:13:59 -0400
+Date: Thu, 13 May 2004 18:13:22 -0300
+From: "Luiz Fernando N. Capitulino" <lcapitulino@prefeitura.sp.gov.br>
+To: Fernando Paredes <Fernando.Paredes@Sun.COM>
+Cc: "Luiz Fernando N. Capitulino" <lcapitulino@prefeitura.sp.gov.br>,
+       Andrew Morton <akpm@osdl.org>, eric.valette@free.fr,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.6-mm2 : Hitting Num Lock kills keyboard
+Message-ID: <20040513211322.GC723@lorien.prodam>
+Mail-Followup-To: Fernando Paredes <Fernando.Paredes@Sun.COM>,
+	"Luiz Fernando N. Capitulino" <lcapitulino@prefeitura.sp.gov.br>,
+	Andrew Morton <akpm@osdl.org>, eric.valette@free.fr,
+	linux-kernel@vger.kernel.org
+References: <40A3C951.9000501@free.fr> <40A3CF97.5000405@free.fr> <20040513125750.59434a33.akpm@osdl.org> <20040513204822.GA723@lorien.prodam> <40A3E39C.2090603@sun.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 13 May 2004 17:12:06 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40A3E39C.2090603@sun.com>
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please let me know if I'm posting this in the wrong place.  I get a
-kernel panic with kernel 2.6.5 (compiled with gcc 2.95.3) when I try to
-unload the Cisco VPN client's (4.0.3b) cisco_ipsec module.  I know it's
-a binary-only module, so I'm not sure how much help this will be, but
-here's the text I managed to pull off the screen when I tried rmmod'ing
-it:
+Em Thu, May 13, 2004 at 04:07:40PM -0500, Fernando Paredes escreveu:
 
-(Not sure if there is anything above this, this is all that fit on the
-screen, and I didn't find anything in the logs)
-PREEMPT
-CPU:	0
-EIP:	0060:[<c02a9d26>]    Tainted: PF
-EFLAGS:	00010202   (2.6.5)
-EIP is at qdisc_destroy+0x6/0xc4
-eax: 00000064	ebx: c6daa000	ecx: c6dabf20	edx: c6dabf28
-esi: 00000064	edi: ce5fd028	ebp: c6dabf6c	esp: c6dabf28
-ds: 007b   es: 007b   ss:0068
-Process rmmod (pid: 7134, threadinfo=c6daa000 task=c6db19c0)
-Stack: c6daa000 d0abb600 c02a9ff3 00000064 d0abb600 d0abb600 c02a1426
-d0abb600
-       d0abb600 00000000 c0398a9c c02440c8 d0abb600 d0ae8f80 d0a99aec
-d0abb600
-       d0ae8f80 c6daa000 c012f724 bffff730 00000000 bffff730 00000000
-63736963
-Call Trace:
- [<c02a9ff3>] dev_shutdown+0x57/0xe4
- [<c02a1426>] unregister_netdevice+0x192/0x288
- [<c02440c8>] unregister_netdev+0x10/0x28
- [<d0a99aec>] cleanup_module+0x1c/0x30 [cisco_ipsec]
- [<c012f724>] sys_delete_module+0x140/0x174
- [<c0143803>] sys_munmap+0x37/0x54
- [<c0108f2f>] syscall_call+0x7/0xb
+| Does this happen in a Toshiba laptop?
 
-Code: 8b 5e 0c ff 4e 18 0f 94 c0 84 c0 0f 84 a8 00 00 00 8b 56 2c
- <0>Kernel panic: Fatal exception in interrupt
-In interrupt handler - not syncing
+ In my case don't.
 
-			--Geoff Mishkin <gmishkin@comcast.net>
-
+-- 
+Luiz Fernando N. Capitulino
+<http://www.telecentros.sp.gov.br>

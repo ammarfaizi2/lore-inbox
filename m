@@ -1,37 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132914AbRDQWbj>; Tue, 17 Apr 2001 18:31:39 -0400
+	id <S132920AbRDQWd7>; Tue, 17 Apr 2001 18:33:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132919AbRDQWbU>; Tue, 17 Apr 2001 18:31:20 -0400
-Received: from spc2.esa.lanl.gov ([128.165.67.191]:53953 "HELO
-	spc2.esa.lanl.gov") by vger.kernel.org with SMTP id <S132914AbRDQWbK>;
-	Tue, 17 Apr 2001 18:31:10 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Steven Cole <scole@lanl.gov>
-Reply-To: scole@lanl.gov
-To: alan@lxorguk.ukuu.org.uk
-Subject: 2.4.3-ac8 build error with CONFIG_DEBUG_KERNEL not set
-Date: Tue, 17 Apr 2001 16:37:17 -0600
-X-Mailer: KMail [version 1.2]
-Cc: linux-kernel@vger.kernel.org, elenstev@mesatop.com
+	id <S132919AbRDQWdt>; Tue, 17 Apr 2001 18:33:49 -0400
+Received: from relay1.pair.com ([209.68.1.20]:60168 "HELO relay1.pair.com")
+	by vger.kernel.org with SMTP id <S132918AbRDQWdc>;
+	Tue, 17 Apr 2001 18:33:32 -0400
+X-pair-Authenticated: 203.164.4.223
+From: "Manfred Bartz" <md-linux-kernel@logi.cc>
+Message-ID: <20010417223234.15095.qmail@logi.cc>
+To: linux-kernel@vger.kernel.org
+Subject: Re: IP Acounting Idea for 2.5
+In-Reply-To: <BF9651D8732ED311A61D00105A9CA3150446DA2E@berkeley.gci.com>
+X-Subversion: anarchy bomb crypto drug explosive fission gun nuclear sex terror
+In-Reply-To: Leif Sawyer's message of "Tue, 17 Apr 2001 11:09:09 -0800"
+Organization: rows-n-columns
+Date: 18 Apr 2001 08:32:34 +1000
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) XEmacs/21.1 (Bryce Canyon)
 MIME-Version: 1.0
-Message-Id: <01041716371704.01250@spc2.esa.lanl.gov>
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I got the following with CONFIG_DEBUG_KERNEL not set:
+Leif Sawyer <lsawyer@gci.com> writes:
 
-kernel/kernel.o(__ksymtab+0xc80): undefined reference to `handle_sysrq'
-kernel/kernel.o(__ksymtab+0xc88): undefined reference to `__handle_sysrq_nolock'
-kernel/kernel.o(__ksymtab+0xc90): undefined reference to `__sysrq_lock_table'
-kernel/kernel.o(__ksymtab+0xc98): undefined reference to `__sysrq_unlock_table'
-kernel/kernel.o(__ksymtab+0xca0): undefined reference to `__sysrq_get_key_op'
-kernel/kernel.o(__ksymtab+0xca8): undefined reference to `__sysrq_put_key_op'
-make: *** [vmlinux] Error 1
+> Jesse Pollard replies:
+> to Leif Sawyer who wrote: 
+> > > Besides, what would be gained in making the counters RO, if 
+> > > they were cleared every time the module was loaded/unloaded?
+> > 
+> > 1. Knowlege that the module was reloaded.
+> > 2. Knowlege that the data being measured is correct
+> > 3. Having reliable measures
+> > 4. being able to derive valid statistics
 
-However, with CONFIG_DEBUG_KERNEL and CONFIG_MAGIC_SYSRQ set to y,
-I got a clean build. 
+> Good.  Now that we have valid objectives to reach, which of these
+> are NOT met by making the fixes entirely in userspace, ...
 
-Steven
+By this logic you could ask why we need separate user spaces,
+just fix all applications so they cooperate nicely.
 
+> They're still all met, right?
+
+No.  Because they require well behaved, cooperative user programs.
+
+> And we haven't had to fill the kernel with more cruft.
+
+Nonsense.  Removing counter reset capabilities reduces kernel cruft.
+
+-- 
+Manfred Bartz

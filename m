@@ -1,88 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264353AbUBMXkc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 18:40:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267221AbUBMXkc
+	id S267203AbUBMXmA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 18:42:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267210AbUBMXmA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 18:40:32 -0500
-Received: from smtp06.auna.com ([62.81.186.16]:4814 "EHLO smtp06.retemail.es")
-	by vger.kernel.org with ESMTP id S264353AbUBMXka (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 18:40:30 -0500
-Date: Sat, 14 Feb 2004 00:40:28 +0100
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: strxxx and gcc-3.4
-Message-ID: <20040213234028.GA3765@werewolf.able.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 2.0.16
+	Fri, 13 Feb 2004 18:42:00 -0500
+Received: from kinesis.swishmail.com ([209.10.110.86]:62220 "EHLO
+	kinesis.swishmail.com") by vger.kernel.org with ESMTP
+	id S267203AbUBMXly (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Feb 2004 18:41:54 -0500
+Message-ID: <402D6262.90301@techsource.com>
+Date: Fri, 13 Feb 2004 18:48:50 -0500
+From: Timothy Miller <miller@techsource.com>
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: Balaji Calidas <balaji@techsource.com>
+Subject: Getting lousy NFS + tar-pipe throughput on 2.4.20
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all...
+I'm running a fresh install of RH9 (kernel 2.4.20-something) on a 
+workstation.  The workstation is an Athlon 3200+ with 512 megs of RAM on 
+an ABIT KV7 (KT600 chipset).  The ethernet controller built into the KV7 
+is "VIA RhineII".  The file system is ext3.
 
-Finally I got the problem with emu10k1. It was a sprintf->strcpy that
-the compiler could not inline. And out-of-line strcpy was not exported.
-Exporting it solved the problem (in -mm tree, that has the out-of-line
-versions).
 
-Current situation: even -mm, that includes many fixes for gcc-3.4, can
-fail to build. Currently in 2.6.3-rc2-mm1 there are:
+We are mounting an NFS filesystem from a Sun box using automount, and 
+we're using a tar-pipe to move data from the server to the workstation. 
+  Both tars of the tar-pipe are running on the workstation, so the 
+network traffic is all NFS.
 
-werewolf:/usr/src/linux-2.6.3-rc2-mm1# grep -r sprintf * | grep \"%s\" | wc -l
-63
+(1) We have verified that the disk load on the server is very low.  The 
+disk is not being saturated.
 
-instances of that stupid sprintf(s,"%s", .... ) thing.
+(2) We have verified that the ethernet on the server is not being saturated.
 
-Options:
-- Fix all of them. I don't like it, the kernel should not depend on what
-  gcc does internally
-- Use -fno-builtin-sprintf. I think gcc swaps sprintf to strcpy because
-  it sees it as a builtin, but as finds a declaration for an external
-  strcpy does not use the builtin for strcpy.
-- Kill off all str/mem functions and just let gcc insert builtins.
+(3) The workstation is connected to the server through a switch, so it's 
+not competing for bandwidth with anything else.
 
-  info for gcc-3.3 says:
 
-   The ISO C90 functions `abs', `cos', `exp', `fabs', `fprintf',
-`fputs', `labs', `log', `memcmp', `memcpy', `memset', `printf',
-`putchar', `puts', `scanf', `sin', `snprintf', `sprintf', `sqrt',
-`sscanf', `strcat', `strchr', `strcmp', `strcpy', `strcspn', `strlen',
-`strncat', `strncmp', `strncpy', `strpbrk', `strrchr', `strspn',
-`strstr', `vprintf' and `vsprintf' are all recognized as built-in
-functions unless `-fno-builtin' is specified (or
-`-fno-builtin-FUNCTION' is specified for an individual function).  All
-of these functions have corresponding versions prefixed with
-`__builtin_'.
+In theory, we should get about 10 megabytes/sec throughput, but what 
+we're measuring is about 1 to 2 megs/sec.
 
-  info for gcc-3.4
 
-   The ISO C90 functions `abort', `abs', `acos', `asin', `atan2',
-`atan', `calloc', `ceil', `cosh', `cos', `exit', `exp', `fabs',
-`floor', `fmod', `fprintf', `fputs', `frexp', `fscanf', `labs',
-`ldexp', `log10', `log', `malloc', `memcmp', `memcpy', `memset',
-`modf', `pow', `printf', `putchar', `puts', `scanf', `sinh', `sin',
-`snprintf', `sprintf', `sqrt', `sscanf', `strcat', `strchr', `strcmp',
-`strcpy', `strcspn', `strlen', `strncat', `strncmp', `strncpy',
-`strpbrk', `strrchr', `strspn', `strstr', `tanh', `tan', `vfprintf',
-`vprintf' and `vsprintf' are all recognized as built-in functions unless
-`-fno-builtin' is specified (or `-fno-builtin-FUNCTION' is specified
-for an individual function).  All of these functions have corresponding
-versions prefixed with `__builtin_'.
+The workstation is using a single 120 gig WD IDE drive (WD1200JB), which 
+as I was talking about in other emails should be able to do up to 30 
+megs/sec for writes.
 
-So at least the common interesting things are
- `memcmp', `memcpy', `memset'
- `strcat', `strchr', `strcmp', `strcpy', `strcspn', `strlen',
- `strncat', `strncmp', `strncpy', `strpbrk', `strrchr', `strspn', `strstr', 
- `sprintf', `snprintf', `sscanf', `vsprintf'
 
-Preferences ?
+While this tar-pipe is going on, the workstation is very unresponsive. 
+"top" reports that kernel CPU usage is anywhere from 30% to 70%, but 
+mostly around 40%.  User space is using about 10%; that varies also. 
+Despite the fact that there is some amount of idle time, the X cursor 
+jumps about badly.
 
--- 
-J.A. Magallon <jamagallon()able!es>     \                 Software is like sex:
-werewolf!able!es                         \           It's better when it's free
-Mandrake Linux release 10.0 (RC1) for i586
-Linux 2.6.3-rc2-jam1 (gcc 3.4.0 (Mandrake Linux 10.0 3.4.0-0.1mdk))
+We're not compressing or anything.  We're just doing the tar-pipe. 
+Therefore, the workstation should be experiencing very little load while 
+it transfers a mere 10 megs/sec to disk.  Buffering in RAM should also 
+allow the kernel to order writes efficiently.
+
+Since the source tar process is talking to an NFS volume, the overhead 
+of opening, reading, and closing small files could hurt throughput 
+(would have been better to rsh the source tar so that the tar data is 
+what was going over ethernet through a single socket).  But that should 
+_reduce_ the amount of I/O that is being accomplished, thereby reducing 
+the work being done by the workstation.  It would just WAIT more.  It 
+should not be unresponsive.
+
+
+I would like to investigate this performance issue, but I don't know 
+what tools I should run to investigate.  If anyone could please give me 
+some tips on it, I would be most appreciative.
+
+Thanks!
+

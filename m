@@ -1,33 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318841AbSH1NlS>; Wed, 28 Aug 2002 09:41:18 -0400
+	id <S318825AbSH1Niy>; Wed, 28 Aug 2002 09:38:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318842AbSH1NlS>; Wed, 28 Aug 2002 09:41:18 -0400
-Received: from e.kth.se ([130.237.48.5]:34576 "EHLO elixir.e.kth.se")
-	by vger.kernel.org with ESMTP id <S318841AbSH1NlR>;
-	Wed, 28 Aug 2002 09:41:17 -0400
-To: linux-kernel@vger.kernel.org
-Subject: OOM strangeness
-From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Date: 28 Aug 2002 15:45:37 +0200
-Message-ID: <yw1xptw3xfjy.fsf@fruxo.e.kth.se>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Channel Islands)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S318833AbSH1Niy>; Wed, 28 Aug 2002 09:38:54 -0400
+Received: from mta.sara.nl ([145.100.16.144]:43215 "EHLO mta.sara.nl")
+	by vger.kernel.org with ESMTP id <S318825AbSH1Nix>;
+	Wed, 28 Aug 2002 09:38:53 -0400
+Date: Wed, 28 Aug 2002 15:43:02 +0200
+Subject: Re: [patch] SImple Topology API v0.3 (1/2)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Mime-Version: 1.0 (Apple Message framework v482)
+Cc: <linux-kernel@vger.kernel.org>
+To: Thunder from the hill <thunder@lightweight.ods.org>
+From: Remco Post <r.post@sara.nl>
+In-Reply-To: <Pine.LNX.4.44.0208280711390.3234-100000@hawkeye.luckynet.adm>
+Message-Id: <12A602D1-BA8C-11D6-A20D-000393911DE2@sara.nl>
+Content-Transfer-Encoding: 7bit
+X-Pgp-Agent: GPGMail 0.5.3 (v20)
+X-Mailer: Apple Mail (2.482)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Yesterday I was compiling some things with gcc 3.1.1.  When compiling
-a rather large file with lots of optimizations, gcc was kill by the
-OOM killer, even though I have 768 MB of ram and most of it was free.
-Repeating the compilation succeeded.  GCC did use ~250 MB or so, but
-that shouldn't be a problem.
 
-What could be causing this?  A bug?  Kernel version is 2.4.19-rc3 with
-superpage patch on an Alpha 164SX system.
+On woensdag, augustus 28, 2002, at 03:14 , Thunder from the hill wrote:
 
--- 
-Måns Rullgård
-mru@users.sf.net
+> Hi,
+>
+> On Tue, 27 Aug 2002, Pavel Machek wrote:
+>>> -   bool 'Multiquad NUMA system' CONFIG_MULTIQUAD
+>>> +   bool 'Multi-node NUMA system support' CONFIG_X86_NUMA
+>>
+>> Why not simply CONFIG_NUMA?
+>
+> Because NUMA is subordinate to X86, and another technology named NUMA
+> might appear? Nano-uplinked micro-array... No Ugliness Munched Archive?
+> Whatever...
+
+Until we port Linux to SGI Origin 200/2000/3000 NUMA clusters....
+
+And AFAIK there are more hw suppliers working on designing NUMA systems. 
+All more
+or less the same, and again all very different.
+
+- ---
+Met vriendelijke groeten,
+
+Remco Post
+
+SARA - Stichting Academisch Rekencentrum Amsterdam    http://www.sara.nl
+High Performance Computing  Tel. +31 20 592 8008    Fax. +31 20 668 3167
+PGP keys at http://home.sara.nl/~remco/keys.asc
+
+"I really didn't foresee the Internet. But then, neither did the computer
+industry. Not that that tells us very much of course - the computer 
+industry
+didn't even foresee that the century was going to end." -- Douglas Adams
+
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (Darwin)
+
+iD8DBQE9bNNxBIoCv9yTlOwRAtxNAJ42ZsWw5mcYsgJySLoLxdarIFsGHQCgmfoH
+dw0bN9YSjpeX9HhfC3RO9g8=
+=J8cK
+-----END PGP SIGNATURE-----
+

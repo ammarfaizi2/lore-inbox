@@ -1,39 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262564AbTLICqF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Dec 2003 21:46:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262566AbTLICqE
+	id S262598AbTLIDBY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Dec 2003 22:01:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262601AbTLIDBY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Dec 2003 21:46:04 -0500
-Received: from CPE-65-30-34-80.kc.rr.com ([65.30.34.80]:39301 "EHLO
-	cognition.home.hanaden.com") by vger.kernel.org with ESMTP
-	id S262564AbTLICqD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Dec 2003 21:46:03 -0500
-Message-ID: <3FD53769.10208@hanaden.com>
-Date: Mon, 08 Dec 2003 20:46:01 -0600
-From: hanasaki <hanasaki@hanaden.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031204 Thunderbird/0.4RC1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test11 java application memory usage
-References: <3FD51FDC.30904@kc.rr.com>
-In-Reply-To: <3FD51FDC.30904@kc.rr.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)
+	Mon, 8 Dec 2003 22:01:24 -0500
+Received: from MAIL.13thfloor.at ([212.16.62.51]:13442 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S262598AbTLIDBW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Dec 2003 22:01:22 -0500
+Date: Tue, 9 Dec 2003 04:01:21 +0100
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: Erik Hensema <erik@hensema.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: incorrect inode count on reiserfs
+Message-ID: <20031209030121.GB3664@MAIL.13thfloor.at>
+Mail-Followup-To: Erik Hensema <erik@hensema.net>,
+	linux-kernel@vger.kernel.org
+References: <3FD47BFC.9020008@scssoft.com> <16340.33245.887082.96412@laputa.namesys.com> <slrnbt9322.27h.erik@bender.home.hensema.net> <pan.2003.12.08.16.09.22.30237@smurf.noris.de> <slrnbt9cti.31m.erik@bender.home.hensema.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <slrnbt9cti.31m.erik@bender.home.hensema.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Running 2.6.0-test11 and netbeans.org and tomcat under Java(TM) 2 
-Runtime Environment, Standard Edition (build 1.4.2-b28) and havent seen 
-anything remotely like this.
-
-hemp4fuel wrote:
-> I am running 2.6.0-test11 with a duron 1.3ghz with 630mb ram using 
-> reiserfs and suns 1.4.2_01 jre, with 2.4.xx kernels the java based 
-> application I run used around 35-50mb memory, with the 2.6.0-test11 it 
-> goes right to 250mb and rises from there.  When I revert back to 2.4.23 
-> it is back to 35-50mb memory usage.
+On Mon, Dec 08, 2003 at 05:24:02PM +0000, Erik Hensema wrote:
+> Matthias Urlichs (smurf@smurf.noris.de) wrote:
+> > Hi, Erik Hensema wrote:
+> > 
+> >> But innwatch checks for a out-of-inodes condition. How can it differentiate
+> >> between a undefined number of inodes (field set to 0) and a system that ran
+> >> out of inodes (field dropped to 0)?
+> >> 
+> > Create a file. Watch that succeed. Check whether this succeeds, and that
+> > the number of free inodes is still zero.
+> > Delete the file. Check that the number of free inodes is _still_ zero.
+> > 
+> > Repeat a few times, with random sub-second delay if you're feeling
+> > especially paranoid today, for added confidence.
 > 
-> Dustin
+> So what hack is uglier? ;-)
+
+hmm, well, maybe the fact that an 'inode' filesystem
+which ran out of inodes will not report a total of 
+0 inodes could help against all this uglyness ...
+
+best,
+Herbert
+
+> -- 
+> Erik Hensema <erik@hensema.net>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

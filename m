@@ -1,58 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261552AbTCGMdE>; Fri, 7 Mar 2003 07:33:04 -0500
+	id <S261573AbTCGMpt>; Fri, 7 Mar 2003 07:45:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261553AbTCGMdE>; Fri, 7 Mar 2003 07:33:04 -0500
-Received: from 237.oncolt.com ([213.86.99.237]:48857 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S261552AbTCGMdD>; Fri, 7 Mar 2003 07:33:03 -0500
-Subject: Re: 2.5.51 CRC32 undefined
-From: David Woodhouse <dwmw2@infradead.org>
-To: Arun Prasad <arun@netlab.hcltech.com>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-In-Reply-To: <3E674B7C.E442D16@netlab.hcltech.com>
-References: <3E674B7C.E442D16@netlab.hcltech.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1047040816.32200.59.camel@passion.cambridge.redhat.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4.dwmw2) 
-Date: 07 Mar 2003 12:40:17 +0000
-Content-Transfer-Encoding: 7bit
+	id <S261578AbTCGMpW>; Fri, 7 Mar 2003 07:45:22 -0500
+Received: from d06lmsgate-2.uk.ibm.com ([195.212.29.2]:28131 "EHLO
+	d06lmsgate-2.uk.ibm.com") by vger.kernel.org with ESMTP
+	id <S261573AbTCGMnc> convert rfc822-to-8bit; Fri, 7 Mar 2003 07:43:32 -0500
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Organization: IBM Deutschland GmbH
+To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: [PATCH] s390 (4/7): lcs network driver.
+Date: Fri, 7 Mar 2003 13:37:30 +0100
+User-Agent: KMail/1.5
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200303071337.30448.schwidefsky@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-03-06 at 13:22, Arun Prasad wrote:
+* Cannot free net_device in lcs_stop_device as you want the user
+  to start network when doing ifconfig up and not oopsing the kernel.
+* Receiving a LGW initiated stoplan first try to reset the card, stop it when
+  reset fails
 
->     CONFIG_CRC32=y
->     CONFIG_PCNET32=m
+diffstat:
+ lcs.c |   14 +++++++++-----
+ 1 files changed, 9 insertions(+), 5 deletions(-)
 
-	<...>
-
->     pcnet32: Unknown symbol crc32_le
-
-The problem is that crc32.o isn't actually linked into the kernel,
-because no symbols from it are referenced when the linker is asked to
-pull in lib/lib.a
-
-Set CONFIG_CRC32=m. We probably shouldn't allow it to be set to 'Y' in
-the first place., given the above.
-
-===== lib/Kconfig 1.2 vs edited =====
---- 1.2/lib/Kconfig	Fri Nov  1 12:07:52 2002
-+++ edited/lib/Kconfig	Fri Mar  7 12:37:54 2003
-@@ -6,6 +6,7 @@
+diff -urN linux-2.5.64/drivers/s390/net/lcs.c linux-2.5.64-s390/drivers/s390/net/lcs.c
+--- linux-2.5.64/drivers/s390/net/lcs.c	Wed Mar  5 04:28:59 2003
++++ linux-2.5.64-s390/drivers/s390/net/lcs.c	Fri Mar  7 11:40:40 2003
+@@ -11,7 +11,7 @@
+  *			  Frank Pavlic (pavlic@de.ibm.com) and
+  *		 	  Martin Schwidefsky <schwidefsky@de.ibm.com>
+  *
+- *    $Revision: 1.44 $	 $Date: 2003/02/18 19:49:02 $
++ *    $Revision: 1.45 $	 $Date: 2003/02/26 09:06:37 $
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License as published by
+@@ -59,7 +59,7 @@
+ /**
+  * initialization string for output
+  */
+-#define VERSION_LCS_C  "$Revision: 1.44 $"
++#define VERSION_LCS_C  "$Revision: 1.45 $"
  
- config CRC32
- 	tristate "CRC32 functions"
-+	depends on m
- 	help
- 	  This option is provided for the case where no in-kernel-tree
- 	  modules require CRC32 functions, but a module built outside the
-
-
-
-
--- 
-dwmw2
+ static char version[] __initdata = "LCS driver ("VERSION_LCS_C "/" VERSION_LCS_H ")";
+ 
+@@ -358,6 +358,7 @@
+ 		kfree(ipm_list);
+ 	}
+ #endif
++	kfree(card->dev);
+ 	/* Cleanup channels. */
+ 	lcs_cleanup_channel(&card->write);
+ 	lcs_cleanup_channel(&card->read);
+@@ -1434,6 +1435,7 @@
+ lcs_lgw_stoplan_thread(void *data)
+ {
+ 	struct lcs_card *card;
++	int rc;
+ 
+ 	card = (struct lcs_card *) data;
+ 	daemonize("lgwstop");
+@@ -1446,7 +1448,11 @@
+ 	else
+ 		PRINT_ERR("Stoplan %s initiated by LGW failed!\n",
+ 			  card->dev->name);
+-	return 0;
++	/*Try to reset the card, stop it on failure */
++        rc = lcs_resetcard(card);
++        if (rc != 0)
++                rc = lcs_stopcard(card);
++        return rc;
+ }
+ 
+ /**
+@@ -1599,8 +1605,6 @@
+ 	LCS_DBF_TEXT(2, trace, "stopdev");
+ 	card   = (struct lcs_card *) dev->priv;
+ 	netif_stop_queue(dev);
+-	// FIXME: really free the net_device here ?!?
+-	kfree(card->dev);
+ 	rc = lcs_stopcard(card);
+ 	if (rc)
+ 		PRINT_ERR("Try it again!\n ");
 

@@ -1,71 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263516AbTDCUrB 
-	(for <rfc822;willy@w.ods.org>); Thu, 3 Apr 2003 15:47:01 -0500
+	id S263449AbTDCUpx 
+	(for <rfc822;willy@w.ods.org>); Thu, 3 Apr 2003 15:45:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id S263530AbTDCUrB 
-	(for <rfc822;linux-kernel-outgoing>); Thu, 3 Apr 2003 15:47:01 -0500
-Received: from [207.103.213.66] ([207.103.213.66]:64784 "EHLO
-	sandman.sandgate.com") by vger.kernel.org with ESMTP
-	id S263516AbTDCUq7 
-	(for <rfc822;linux-kernel@vger.kernel.org>); Thu, 3 Apr 2003 15:46:59 -0500
-From: "Dennis Cook" <cook@sandgate.com>
-To: "Jeff Garzik" <jgarzik@pobox.com>
-Cc: <linux-kernel@vger.kernel.org>, <kernelnewbies@nl.linux.org>
-Subject: RE: Deactivating TCP checksumming
-Date: Thu, 3 Apr 2003 15:57:53 -0500
-Message-ID: <IJEHKLJHMGFNGKMEBBFNMEIICBAA.cook@sandgate.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+	id S263455AbTDCUpx 
+	(for <rfc822;linux-kernel-outgoing>); Thu, 3 Apr 2003 15:45:53 -0500
+Received: from [12.47.58.55] ([12.47.58.55]:6532 "EHLO pao-ex01.pao.digeo.com")
+	by vger.kernel.org with ESMTP id S263449AbTDCUpw 
+	(for <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Apr 2003 15:45:52 -0500
+Date: Thu, 3 Apr 2003 12:56:34 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: dmccr@us.ibm.com
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.5.66-mm2] Fix page_convert_anon locking issues
+Message-Id: <20030403125634.5afa54fb.akpm@digeo.com>
+In-Reply-To: <20030403120611.6691399e.akpm@digeo.com>
+References: <8910000.1049303582@baldur.austin.ibm.com>
+	<20030402132939.647c74a6.akpm@digeo.com>
+	<80300000.1049320593@baldur.austin.ibm.com>
+	<20030402150903.21765844.akpm@digeo.com>
+	<102170000.1049325787@baldur.austin.ibm.com>
+	<20030402153845.0770ef54.akpm@digeo.com>
+	<110950000.1049326945@baldur.austin.ibm.com>
+	<20030402155220.651a1005.akpm@digeo.com>
+	<116640000.1049327888@baldur.austin.ibm.com>
+	<92070000.1049381395@[10.1.1.5]>
+	<20030403120611.6691399e.akpm@digeo.com>
+X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-Importance: Normal
-In-Reply-To: <3E8C9DDD.3080205@pobox.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+X-OriginalArrivalTime: 03 Apr 2003 20:57:13.0684 (UTC) FILETIME=[9A26F940:01C2FA23]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In the 3c59x.c, e1000, and other adapter drivers, ip_summed is
-what is being checked for value CHECKSUM_HW when sending
-a packet.
+Andrew Morton <akpm@digeo.com> wrote:
+>
+> page_referenced() has the same problem, so refill_inactive_zone() will need
+> to lock pages too.
 
-> -----Original Message-----
-> From: Jeff Garzik [mailto:jgarzik@pobox.com]
-> Sent: Thursday, April 03, 2003 03:47 PM
-> To: Dennis Cook
-> Cc: linux-kernel@vger.kernel.org; kernelnewbies@nl.linux.org
-> Subject: Re: Deactivating TCP checksumming
-> 
-> 
-> Dennis Cook wrote:
-> > Based on various feedback, on my RH Linux 2.4.18 kernel I tried the
-> > following:
-> > 
-> > Set "features" bit NETIF_F_IP_CSUM set (the only feature bit set).
-> > In my network driver start-transmit check for "CHECKSUM_HW" in 
-> ip_summed.
-> > Using a small test program, use "sendfile" to copy a file to a network
-> > socket FD.
-> > Result is none of the packets presented to my network adapter 
-> driver have
-> > ip_summed set to CHECKSUM_HW, so the SW IP stack has already
-> > computed checksums.
-> 
-> CHECKSUM_HW is for receive, not transmit.  Read the comments at the top 
-> of include/linux/skbuff.h.
-> 
-> 
-> > Is this mechanism possibly broken on kernel 2.4?
-> 
-> 
-> it works quite well.
-> 
-> 	Jeff
-> 
-> 
-> 
-> 
+Complete bollocks.  As long as the pte chains are consistent while
+refill_inactive_zone holds pte_chain_lock (they darn well should be),
+concurrent page_referenced() and page_convert_anon() is fine.
+
+It could be that page_referenced() returns an inappropriate answer, but it's
+so rare we don't care.
+
+Which is good.  We really don't want to lock pages in refill_inactive_zone()
+to keep the extremely rare page_convert_anon() away.  refill_inactive_zone()
+is more a bath-temperature path than a hotpath, but still...
 

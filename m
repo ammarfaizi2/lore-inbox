@@ -1,64 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270474AbTGNAhM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jul 2003 20:37:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270480AbTGNAhL
+	id S268006AbTGNBBp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jul 2003 21:01:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270416AbTGNBBo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jul 2003 20:37:11 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:1735 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S270474AbTGNAhF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jul 2003 20:37:05 -0400
-Date: Sun, 13 Jul 2003 17:42:42 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Valdis.Kletnieks@vt.edu
-Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
-       netdev@oss.sgi.com
-Subject: Re: TCP IP Offloading Interface
-Message-Id: <20030713174242.3ceb8213.davem@redhat.com>
-In-Reply-To: <200307140046.h6E0kcMQ021180@turing-police.cc.vt.edu>
-References: <ODEIIOAOPGGCDIKEOPILCEMBCMAA.alan@storlinksemi.com>
-	<20030713004818.4f1895be.davem@redhat.com>
-	<52u19qwg53.fsf@topspin.com>
-	<20030713160200.571716cf.davem@redhat.com>
-	<20030713233503.GA31793@work.bitmover.com>
-	<20030713164003.21839eb4.davem@redhat.com>
-	<20030713235424.GB31793@work.bitmover.com>
-	<20030713165323.3fc2601f.davem@redhat.com>
-	<200307140046.h6E0kcMQ021180@turing-police.cc.vt.edu>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+	Sun, 13 Jul 2003 21:01:44 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:56724 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S268006AbTGNBBe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Jul 2003 21:01:34 -0400
+Date: Mon, 14 Jul 2003 02:15:55 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Markus Gaugusch <markus@gaugusch.at>
+Cc: Dmitry Torokhov <dtor_core@ameritech.net>,
+       swsusp-devel <swsusp-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Swsusp-devel] Re: Thoughts wanted on merging Software Suspend enhancements
+Message-ID: <20030714011555.GB22663@mail.jlokier.co.uk>
+References: <1057963547.3207.22.camel@laptop-linux> <20030712140057.GC284@elf.ucw.cz> <200307121734.29941.dtor_core@ameritech.net> <20030712225143.GA1508@elf.ucw.cz> <20030713133517.GD19132@mail.jlokier.co.uk> <20030713193114.GD570@elf.ucw.cz> <1058130071.1829.2.camel@laptop-linux> <Pine.LNX.4.53.0307132305500.1090@phoenix.kerstin.at>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.53.0307132305500.1090@phoenix.kerstin.at>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 13 Jul 2003 20:46:38 -0400
-Valdis.Kletnieks@vt.edu wrote:
+Markus Gaugusch wrote:
+> Also, if we are talking security, someone with console access already has
+> the machine in his hands - no need to be too paranoid I think.
 
-> On Sun, 13 Jul 2003 16:53:23 PDT, "David S. Miller" said:
-> 
-> > I really don't see why receive is so much of a big deal
-> > compared to send, and we do a send side version of this
-> > stuff already with zero problems.
-> 
-> Well.... there's optimizations you can do on the send side..
+Think of pressing the suspend button or closing the lid, and walking
+off while it is suspending.
 
-I consider the send side complete covered already.  We don't
-touch any of the data portion, we only put together the
-headers.
-
-> It's hard to do tricks like that when you don't know (for instance) how
-> many IP option fields the packet has until you've already started sucking
-> the packet off the wire - at which point either the NIC itself has to be clever
-> (Hmm, there's that IP offload again) or you have literally about 30 CPU cycles
-> to do interrrupt latency *and* decide what to do....
-
-There are cards, both existing and in development, that have
-very simple header parsing engines you can program to do stuff
-like this, it isn't hard at all.
-
-But this is only half of the problem, you need a flow cache and
-clever RX buffer management as well to make the RX side zero-copy
-stuff work.
-
+-- Jamie

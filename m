@@ -1,57 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263527AbTJLUmZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Oct 2003 16:42:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263531AbTJLUmZ
+	id S263525AbTJLUjv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Oct 2003 16:39:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263527AbTJLUjv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Oct 2003 16:42:25 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:50631 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S263527AbTJLUmY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Oct 2003 16:42:24 -0400
-Message-ID: <3F89BCAE.8090404@namesys.com>
-Date: Mon, 13 Oct 2003 00:42:22 +0400
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Mark Williams (MWP)" <mwp@internode.on.net>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: ReiserFS causing kernel panic?
-References: <20031012121331.GA665@linux.comp> <yw1xhe2eiqru.fsf@zaphod.guide> <20031012140048.GA554@linux.comp>
-In-Reply-To: <20031012140048.GA554@linux.comp>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 12 Oct 2003 16:39:51 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:4484
+	"EHLO velociraptor.random") by vger.kernel.org with ESMTP
+	id S263525AbTJLUju (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Oct 2003 16:39:50 -0400
+Date: Sun, 12 Oct 2003 22:40:16 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Rik van Riel <riel@redhat.com>
+Cc: Hugh Dickins <hugh@veritas.com>, Matt_Domsch@Dell.com,
+       marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org,
+       benh@kernel.crashing.org
+Subject: Re: [PATCH] page->flags corruption fix
+Message-ID: <20031012204016.GA1887@velociraptor.random>
+References: <20031012143617.GS16013@velociraptor.random> <Pine.LNX.4.44.0310121319210.31175-100000@cluless.boston.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0310121319210.31175-100000@cluless.boston.redhat.com>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Williams (MWP) wrote:
+On Sun, Oct 12, 2003 at 01:20:27PM -0400, Rik van Riel wrote:
+> Agreed, the __free_pages_ok() change can almost certainly be
+> undone and made more efficient.
 
->>"Mark Williams (MWP)" <mwp@internode.on.net> writes:
->>
->>    
->>
->>>I am having rather ugly problems with this card using the PDC20269 chip.
->>>Almost as soon as either of the HDDs on the controller are used, the
->>>kernel hangs solid with a dump of debugging info.
->>>      
->>>
->>That dump could be useful.  Also full output of dmesg and "lspci -vv"
->>can be helpful.
->>    
->>
->
->Ok, seems this is not a controller fault, but really a problem with
->ReiserFS (!!).
->
->It seems one of the HDDs on the controller i thought had a problem is
->corrupted, and the corrupted ReiserFS on it is causing the kernel to
->panic.
->  
->
-reiserfs is not warranted to work on corrupted hdds.....
+ok great, many thanks for double checking.
 
--- 
-Hans
-
-
+Andrea - If you prefer relying on open source software, check these links:
+	    rsync.kernel.org::pub/scm/linux/kernel/bkcvs/linux-2.[45]/
+	    http://www.cobite.com/cvsps/

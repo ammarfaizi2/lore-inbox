@@ -1,54 +1,95 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132754AbRDNGDe>; Sat, 14 Apr 2001 02:03:34 -0400
+	id <S132760AbRDNGa0>; Sat, 14 Apr 2001 02:30:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132757AbRDNGDZ>; Sat, 14 Apr 2001 02:03:25 -0400
-Received: from turnover.lancs.ac.uk ([148.88.17.220]:40957 "EHLO
-	helium.chromatix.org.uk") by vger.kernel.org with ESMTP
-	id <S132754AbRDNGDP>; Sat, 14 Apr 2001 02:03:15 -0400
-Message-Id: <l03130307b6fd92802be1@[192.168.239.105]>
-In-Reply-To: <Pine.LNX.4.33.0104131932260.1502-100000@asdf.capslock.lan>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Date: Sat, 14 Apr 2001 06:40:56 +0100
-To: "Mike A. Harris" <mharris@opensourceadvocate.org>,
-        Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-From: Jonathan Morton <chromi@cyberspace.org>
-Subject: Re: OOM killer *WORKS* for a change!
+	id <S132763AbRDNGaQ>; Sat, 14 Apr 2001 02:30:16 -0400
+Received: from echo.sound.net ([205.242.192.21]:10182 "HELO echo.sound.net")
+	by vger.kernel.org with SMTP id <S132760AbRDNG37>;
+	Sat, 14 Apr 2001 02:29:59 -0400
+Date: Sat, 14 Apr 2001 01:29:27 -0500 (CDT)
+From: Hal Duston <hald@sound.net>
+To: linux-kernel@vger.kernel.org
+cc: alan@lxorguk.ukuu.org.uk
+Subject: PATCH: ps2esdi another one
+Message-ID: <Pine.GSO.4.10.10104140125220.13529-200000@sound.net>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="-559023410-851401618-987229583=:13529"
+Content-ID: <Pine.GSO.4.10.10104140127050.13529@sound.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->I just ran netscape which for some reason or another went totally
->whacky and gobbled RAM.  It has done this before and made the box
->totally unuseable in 2.2.17-2.2.19 befor the kernel killed 90% of
->my running apps before getting the right one.  This time, it
->OOM'd and killed Netscape and I got control back instantly.  This
->is with 2.4.2.  I hope this is a good sign!
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-Maybe, but 2.4.2 and 2.4.3 are still using the "old" killer algorithms
-which can behave erratically.  I haven't looked at 2.2.x OOM killers at
-all, so I don't know how they compare.  At some point in the near future, I
-want to separate my patches out so they can receive individual attention
-and hopefully get applied.
+---559023410-851401618-987229583=:13529
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-ID: <Pine.GSO.4.10.10104140127051.13529@sound.net>
 
-BTW, on this subject, if anyone sent me a mail which I haven't replied to,
-I probably never got it due to e-mail problems with my ISP.  If it's still
-relevant, please resend.
+All,
 
---------------------------------------------------------------
-from:     Jonathan "Chromatix" Morton
-mail:     chromi@cyberspace.org  (not for attachments)
-big-mail: chromatix@penguinpowered.com
-uni-mail: j.d.morton@lancaster.ac.uk
+Here is my second patch for ps2esdi.  
+This patch corrects/updates DMA access.  
+In case my mailer mangles it, it is available at 
+http://www.sound.net/projects/ps2esdi/ps2esdi-2.4.3.patch1
 
-The key to knowledge is not to rely on people to teach you it.
+Thanks, and not on the list,
+Hal Duston
+hald@sound.net
 
-Get VNC Server for Macintosh from http://www.chromatix.uklinux.net/vnc/
+---559023410-851401618-987229583=:13529
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME="ps2esdi-2.4.3.patch1"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.GSO.4.10.10104140126230.13529@sound.net>
+Content-Description: 
+Content-Disposition: ATTACHMENT; FILENAME="ps2esdi-2.4.3.patch1"
 
------BEGIN GEEK CODE BLOCK-----
-Version 3.12
-GCS$/E/S dpu(!) s:- a20 C+++ UL++ P L+++ E W+ N- o? K? w--- O-- M++$ V? PS
-PE- Y+ PGP++ t- 5- X- R !tv b++ DI+++ D G e+ h+ r++ y+(*)
------END GEEK CODE BLOCK-----
-
-
+QnJpbmcgRE1BIHVwIHRvIGRhdGUgd2l0aCBjdXJyZW50IE1DQV9ETUEgYXJj
+aGl0ZWN0dXJlLg0KDQpVc2UgbWNhX2RtYSBmdW5jdGlvbnMgYW5kIG1hY3Jv
+cy4NClJlcGxhY2UgY2xpL3N0aSB3aXRoIHRoZSBETUEgc3BpbmxvY2suDQoN
+Ci0tLSBsaW51eC0yLjQuMy1oZGQwL2RyaXZlcnMvYmxvY2svcHMyZXNkaS5j
+CVR1ZSBBcHIgMTAgMDA6NTA6MjYgMjAwMQ0KKysrIGxpbnV4LTIuNC4zLWhk
+ZDEvZHJpdmVycy9ibG9jay9wczJlc2RpLmMJVHVlIEFwciAxMCAwMDo1MTow
+NSAyMDAxDQpAQCAtNTIsNiArNTIsNyBAQA0KICNpbmNsdWRlIDxhc20vaW8u
+aD4NCiAjaW5jbHVkZSA8YXNtL3NlZ21lbnQuaD4NCiAjaW5jbHVkZSA8YXNt
+L2RtYS5oPg0KKyNpbmNsdWRlIDxhc20vbWNhX2RtYS5oPg0KICNpbmNsdWRl
+IDxhc20vdWFjY2Vzcy5oPg0KIA0KICNkZWZpbmUgUFMyRVNESV9JUlEgMTQN
+CkBAIC02NTcsMzMgKzY1OCwyMyBAQA0KIC8qIHByZXBhcmUgZm9yIGRtYSAt
+IGRvIGFsbCB0aGUgbmVjZXNzYXJ5IHNldHVwICovDQogc3RhdGljIHZvaWQg
+cHMyZXNkaV9wcmVwX2RtYShjaGFyICpidWZmZXIsIHVfc2hvcnQgbGVuZ3Ro
+LCB1X2NoYXIgZG1hX3htb2RlKQ0KIHsNCi0JdV9pbnQgdGM7DQotCQ0KLQli
+dWZmZXI9KGNoYXIgKil2aXJ0X3RvX2J1cyhidWZmZXIpOw0KLQ0KKwl1bnNp
+Z25lZCBsb25nIGZsYWdzOw0KICNpZiAwDQogCXByaW50aygicHMyZXNkaTog
+Yl93YWl0OiAlcFxuIiwgJkNVUlJFTlQtPmJoLT5iX3dhaXQpOw0KICNlbmRp
+Zg0KLQljbGkoKTsNCisJZmxhZ3MgPSBjbGFpbV9kbWFfbG9jaygpOw0KIA0K
+LQlvdXRiKGRtYV9hcmJfbGV2ZWwgfCBETUFfTUFTS19DSEFOLCBQT1JUX0RN
+QV9GTik7DQorCW1jYV9kaXNhYmxlX2RtYShkbWFfYXJiX2xldmVsKTsNCiAN
+Ci0Jb3V0YihkbWFfYXJiX2xldmVsIHwgRE1BX1dSSVRFX0FERFIsIFBPUlRf
+RE1BX0ZOKTsNCi0Jb3V0YigodV9pbnQpIGJ1ZmZlciAmICh1X2ludCkgMHhm
+ZiwgUE9SVF9ETUFfRVgpOw0KLQlvdXRiKCgodV9pbnQpIGJ1ZmZlciA+PiA4
+KSAmICh1X2ludCkgMHhmZiwgUE9SVF9ETUFfRVgpOw0KLQlvdXRiKCgodV9p
+bnQpIGJ1ZmZlciA+PiAxNikgJiAodV9pbnQpIDB4ZmYsIFBPUlRfRE1BX0VY
+KTsNCisJbWNhX3NldF9kbWFfYWRkcihkbWFfYXJiX2xldmVsLCB2aXJ0X3Rv
+X2J1cyhidWZmZXIpKTsNCiANCi0Jb3V0YihkbWFfYXJiX2xldmVsIHwgRE1B
+X1dSSVRFX1RDLCBQT1JUX0RNQV9GTik7DQotCXRjID0gKGxlbmd0aCAqIFNF
+Q1RfU0laRSAvIDIpIC0gMTsNCi0Jb3V0Yih0YyAmIDB4ZmYsIFBPUlRfRE1B
+X0VYKTsNCi0Jb3V0YigodGMgPj4gOCkgJiAweGZmLCBQT1JUX0RNQV9FWCk7
+DQorCW1jYV9zZXRfZG1hX2NvdW50KGRtYV9hcmJfbGV2ZWwsIGxlbmd0aCAq
+IDUxMiAvIDIpOw0KIA0KLQlvdXRiKGRtYV9hcmJfbGV2ZWwgfCBETUFfV1JJ
+VEVfTU9ERSwgUE9SVF9ETUFfRk4pOw0KLQlvdXRiKGRtYV94bW9kZSwgUE9S
+VF9ETUFfRVgpOw0KKwltY2Ffc2V0X2RtYV9tb2RlKGRtYV9hcmJfbGV2ZWws
+IGRtYV94bW9kZSk7DQogDQotCW91dGIoZG1hX2FyYl9sZXZlbCB8IERNQV9V
+Tk1BU0tfQ0hBTiwgUE9SVF9ETUFfRk4pOw0KKwltY2FfZW5hYmxlX2RtYShk
+bWFfYXJiX2xldmVsKTsNCiANCi0Jc3RpKCk7DQorCXJlbGVhc2VfZG1hX2xv
+Y2soZmxhZ3MpOw0KIA0KIH0JCQkJLyogcHJlcGFyZSBmb3IgZG1hICovDQog
+DQpAQCAtODYxLDcgKzg1Miw5IEBADQogCXN3aXRjaCAoaW50X3JldF9jb2Rl
+ICYgMHgwZikgew0KIAljYXNlIElOVF9UUkFOU0ZFUl9SRVE6DQogCQlwczJl
+c2RpX3ByZXBfZG1hKENVUlJFTlQtPmJ1ZmZlciwgQ1VSUkVOVC0+Y3VycmVu
+dF9ucl9zZWN0b3JzLA0KLQkJICAgIChDVVJSRU5ULT5jbWQgPT0gUkVBRCkg
+PyBETUFfUkVBRF8xNiA6IERNQV9XUklURV8xNik7DQorCQkgICAgKENVUlJF
+TlQtPmNtZCA9PSBSRUFEKQ0KKwkJICAgID8gTUNBX0RNQV9NT0RFXzE2IHwg
+TUNBX0RNQV9NT0RFX1dSSVRFIHwgTUNBX0RNQV9NT0RFX1hGRVINCisJCSAg
+ICA6IE1DQV9ETUFfTU9ERV8xNiB8IE1DQV9ETUFfTU9ERV9SRUFEKTsNCiAJ
+CW91dGIoQ1RSTF9FTkFCTEVfRE1BIHwgQ1RSTF9FTkFCTEVfSU5UUiwgRVNE
+SV9DT05UUk9MKTsNCiAJCWVuZGluZyA9IC0xOw0KIAkJYnJlYWs7DQo=
+---559023410-851401618-987229583=:13529--

@@ -1,76 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271210AbTGWTEt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 15:04:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271226AbTGWTDx
+	id S271219AbTGWS6A (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 14:58:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271217AbTGWS5S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 15:03:53 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:59154
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S271210AbTGWTC2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 15:02:28 -0400
-Date: Wed, 23 Jul 2003 12:08:45 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Martin Diehl <lists@mdiehl.de>, Adrian Bunk <bunk@fs.tum.de>,
-       "Adam J. Richter" <adam@yggdrasil.com>, andersen@codepoet.org,
-       jgarzik@pobox.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Promise SATA driver GPL'd
-In-Reply-To: <1058965063.5516.41.camel@dhcp22.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.10.10307231202520.13376-100000@master.linux-ide.org>
-MIME-Version: 1.0
+	Wed, 23 Jul 2003 14:57:18 -0400
+Received: from vladimir.pegasys.ws ([64.220.160.58]:57098 "EHLO
+	vladimir.pegasys.ws") by vger.kernel.org with ESMTP id S271219AbTGWS4n
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jul 2003 14:56:43 -0400
+Date: Wed, 23 Jul 2003 12:11:45 -0700
+From: jw schultz <jw@pegasys.ws>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: ICMP REQUEST
+Message-ID: <20030723191145.GC15719@pegasys.ws>
+Mail-Followup-To: jw schultz <jw@pegasys.ws>,
+	"'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+References: <E04CF3F88ACBD5119EFE00508BBB212104BCD649@exch-01.noida.hcltech.com> <20030723181212.GB15719@pegasys.ws> <Pine.LNX.4.53.0307231422010.15818@chaos>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.53.0307231422010.15818@chaos>
+User-Agent: Mutt/1.3.27i
+X-Message-Flag: This Outlook installation has been found to be susceptible to misuse.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Alan,
-
-The simple flaw is present and pointed out in my inital statement.
-
-GPL provides no means to enable the author/copyright holder to defend and
-recover legal fees occurred during discovery and litigation.
-
-What I find odd in you politics which stinks, is you and redhat are
-pumping OSL into new features which are not generally submitted to the
-standard base.  I do not care, but it does look funny.
-
-Interesting points how the issues of holding the kernel to GPLv2 may
-actually be a restriction to invalidate the actually license.  This tends
-to make it possible for more arguements against the author when pursuing
-violations.
-
-Just a nickel to stir the pot.
-
-Andre Hedrick
-LAD Storage Consulting Group
-
-On 23 Jul 2003, Alan Cox wrote:
-
-> On Mer, 2003-07-23 at 13:32, Martin Diehl wrote:
-> > If the copyright holder puts a note on his code saying it is released 
-> > under version 2 of the GPL then clearly neither the "or any later" nor the 
-> > "not specified" cases apply. And I really fail to see how one could 
-> > argue this were an additional restriction compared to GPL v2 literally!
+On Wed, Jul 23, 2003 at 02:26:41PM -0400, Richard B. Johnson wrote:
+> On Wed, 23 Jul 2003, jw schultz wrote:
 > 
-> If the copyright holder is not permitted to make such a restriction and
-> use the existing code then yes.
+> > On Wed, Jul 23, 2003 at 12:53:35PM +0530, Hemanshu Kanji Bhadra, Noida wrote:
+> > > Hi, All
+> > >
+> > > i am developing a  ping program, through my program I get ECHO_REPLY..but I
+> > > dont get ECHO_REQUEST.
+> > >
+> > > is that the ECHO_REQUEST is handled by kernel.?
+> > >
+> > > please respond as it is urgent.
+> >
+> > In most cases ICMP ECHO_REQUEST is handled by the NIC.  The
+> > kernel doesn't even see it.  That is why you can ping a
+> > crashed system; the NIC is still configured.
+> >
 > 
-> > Btw, you aren't saying linux-kernel would *not* come with a valid GPL, 
-> > according to linux/COPYING, are you?
-> 
-> The kernel is under GPL. I'm not sure what Linus scribblings make change
-> if anything. I understand why Linus did it "I dont want the FSF doing 
-> something silly" and also why the FSF did it "so we can fix the license".
-> 
-> Ultimately it makes little difference, Linus is perfectly entitled to
-> refuse to add anything that doesn't allow GPLv2 use to his kernel tree.
-> 
-> GPLv2 only effectively means your code becomes non-free if a flaw is
-> found in that GPL revision, and nobody can fix it for 70 years so its
-> an awkward trade off
-> 
-> I suspect this is getting offtopic 8)
-> 
+> No. It may be handled entirely in an interrupt service routine, but
+> never by the hardware alone, even the "smart" hardware that does
+> IP checksumming. There isn't enough information available. The
+> echo request contains the IP that the caller seeks to respond.
+> The responder needs to know, not only its IP address, but also the
+> IP address of all the IPs it's going to ARP (proxy ARP).
 
+Thanks for the correction although i wouldn't say "never".
+
+I did have experience with some minis where the NIC did
+handle ICMP internally for anything on the local subnet for
+which it already had an arp entry.  But these NICs had
+68000s as embedded processors, did bi-directional DMA and
+offloaded part of the network stack.  The NIC would continue
+to respond even while a new kernel was being booted,
+glitching only when the NIC was reset.  Back when CPU clocks
+were 16MHz this kind of offloading made sense.  My
+experience seems to have clouded current expectations.
+
+-- 
+________________________________________________________________
+	J.W. Schultz            Pegasystems Technologies
+	email address:		jw@pegasys.ws
+
+		Remember Cernan and Schmitt

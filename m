@@ -1,92 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266953AbTBQIXx>; Mon, 17 Feb 2003 03:23:53 -0500
+	id <S266944AbTBQJbI>; Mon, 17 Feb 2003 04:31:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266961AbTBQIXx>; Mon, 17 Feb 2003 03:23:53 -0500
-Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:14495
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S266953AbTBQIXv>; Mon, 17 Feb 2003 03:23:51 -0500
-Date: Mon, 17 Feb 2003 03:32:09 -0500 (EST)
-From: Zwane Mwaikambo <zwane@holomorphy.com>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Richard Henderson <rth@twiddle.net>
-cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH][2.5] Protect smp_call_function_data w/ spinlocks on
- Alpha
-In-Reply-To: <20030217001544.A13101@twiddle.net>
-Message-ID: <Pine.LNX.4.50.0302170316500.18087-100000@montezuma.mastecende.com>
-References: <Pine.LNX.4.50.0302140634000.3518-100000@montezuma.mastecende.com>
- <20030214175332.A19234@jurassic.park.msu.ru>
- <Pine.LNX.4.50.0302141158070.3518-100000@montezuma.mastecende.com>
- <20030217001544.A13101@twiddle.net>
+	id <S266948AbTBQJbI>; Mon, 17 Feb 2003 04:31:08 -0500
+Received: from mail2.sonytel.be ([195.0.45.172]:23190 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S266944AbTBQJbH>;
+	Mon, 17 Feb 2003 04:31:07 -0500
+Date: Mon, 17 Feb 2003 10:40:33 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Art Haas <ahaas@airmail.net>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Linux/m68k on Mac <linux-mac68k@mac.linux-m68k.org>,
+       Linux/PPC Development <linuxppc-dev@lists.linuxppc.org>
+Subject: Re: [PATCH] C99 initializers for drivers/macintosh/mac_hid.c
+In-Reply-To: <20030215203928.GC20146@debian>
+Message-ID: <Pine.GSO.4.21.0302171039350.16817-100000@vervain.sonytel.be>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 17 Feb 2003, Richard Henderson wrote:
-
-> On Fri, Feb 14, 2003 at 12:16:12PM -0500, Zwane Mwaikambo wrote:
-> > Ok the reason being is that the lock not only protects the 
-> > smp_call_function_data pointer but also acts as a lock for that critical 
-> > section. Without it you'll constantly be overwriting the pointer halfway 
-> > through IPI acceptance (or even worse whilst a remote CPU is assigning the 
-> > data members).
+On Sat, 15 Feb 2003, Art Haas wrote:
+> This patch converts the file to use C99 initializers to improve
+> readability and remove warnings if '-W' is used.
 > 
-> Really.  Show me the sequence there? 
+> Art Haas
+> 
+> ===== drivers/macintosh/mac_hid.c 1.8 vs edited =====
+> --- 1.8/drivers/macintosh/mac_hid.c	Tue Oct  8 05:51:31 2002
+> +++ edited/drivers/macintosh/mac_hid.c	Sat Feb 15 13:19:37 2003
 
-/* Acquire the smp_call_function_data mutex.  */
-if (pointer_lock(&smp_call_function_data, &data, retry))
-	return -EBUSY;
+Apparently this file is no longer used? I couldn't find CONFIG_MAC_EMUMOUSEBTN
+in any Kconfig, unless it's in the PPC tree only.
 
-say we remove the pointer lock there and do a single atomic assignment
+Gr{oetje,eeting}s,
 
-...
+						Geert
 
-if (atomic_read(&data.unstarted_count) > 0) {
-	...
-}
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-we got at least one IPI 
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 
-/* We either got one or timed out -- clear the lock. */
-mb();
-smp_call_function_data = 0;
-
-We clear smp_call_function_data
-
-...
-
-cpuX receives the IPI
-
-case IPI_CALL_FUNC:
-{
-	struct smp_call_struct *data;
-	void (*func)(void *info);
-	void *info;
-	int wait;
-
-	data = smp_call_function_data;
-	func = data->func;
-	info = data->info;
-...
-
-Assigns whatever the pointer happens to be at the time, be it NULL or the 
-next incoming message call.
-
-Therefore we'd need a lock to protect both the variable and critical 
-section.
-
-> I happen to like the pointer_lock a lot, and think we should
-> make more use of it on systems known to have cmpxchg.  It
-> saves on the number of cache lines that have to get bounced
-> between processors.
-
-I have to agree there, it would save on locked operations per 
-'acquisition' which can be a win on a lot of systems.
-
-	Zwane
--- 
-function.linuxpower.ca

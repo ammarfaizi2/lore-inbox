@@ -1,54 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289096AbSBDRJO>; Mon, 4 Feb 2002 12:09:14 -0500
+	id <S289114AbSBDRMC>; Mon, 4 Feb 2002 12:12:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289108AbSBDRJC>; Mon, 4 Feb 2002 12:09:02 -0500
-Received: from smtp01ffm.de.uu.net ([192.76.144.150]:54072 "EHLO
-	smtp01ffm.de.uu.net") by vger.kernel.org with ESMTP
-	id <S289096AbSBDRIr> convert rfc822-to-8bit; Mon, 4 Feb 2002 12:08:47 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Tobias Wollgam <tobias.wollgam@materna.de>
-Organization: Materna GmbH
-To: linux-kernel@vger.kernel.org
-Subject: Re: UNDI/PXE for 2.4.x available?
-Date: Mon, 4 Feb 2002 18:08:43 +0100
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <20020204154633.E2BC267F3@penelope.materna.de> <a3md05$ps3$1@cesium.transmeta.com>
-In-Reply-To: <a3md05$ps3$1@cesium.transmeta.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-X-Encoded: Changed encoding from 8bit for 7bit transmission
-Message-Id: <20020204170844.2AB5667F1@penelope.materna.de>
+	id <S289117AbSBDRLx>; Mon, 4 Feb 2002 12:11:53 -0500
+Received: from 120-VALL-X8.libre.retevision.es ([62.83.212.120]:45316 "EHLO
+	ragnar-hojland.com") by vger.kernel.org with ESMTP
+	id <S289114AbSBDRLi>; Mon, 4 Feb 2002 12:11:38 -0500
+Date: Mon, 4 Feb 2002 11:19:28 +0100
+From: Ragnar Hojland Espinosa <ragnar@jazzfree.com>
+To: Oliver Feiler <kiza@gmx.net>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
+Subject: Re: [Patch] (was: Re: fixup descriptions in pci-pc.c)
+Message-ID: <20020204111928.A2356@ragnar-hojland.com>
+In-Reply-To: <20020203152913.A533@gmx.net> <Pine.LNX.4.30.0202032342400.1158-100000@rtlab.med.cornell.edu> <20020204114644.A331@gmx.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020204114644.A331@gmx.net>; from kiza@gmx.net on Mon, Feb 04, 2002 at 11:46:44AM +0100
+Organization: Mediocrity Naysayers Ltd
+X-Homepage: http://lightside.eresmas.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We want to install PCs over ethernet with PXE. For the first boot from 
-net we have nothing than the network, we don't know the hardware, so an 
-UNDI in the kernel would be perfect. IMHO
+On Mon, Feb 04, 2002 at 11:46:44AM +0100, Oliver Feiler wrote:
+> Hello,
+> 
+> 	This just changes the printk in the via_northbridge_bug fixup to some 
+> more meaningful output as it is already in 2.5.3. Please apply.
+> 
+> Oliver
+> 
+> --- linux-2.4.18-pre7/arch/i386/kernel/pci-pc.c	Sun Feb  3 14:56:48 2002
+> +++ linux-2.4.18-pre7_testing/arch/i386/kernel/pci-pc.c	Mon Feb  4 11:30:37 2002
+> @@ -1129,7 +1129,7 @@
+>  
+>  	pci_read_config_byte(d, where, &v);
+>  	if (v & 0xe0) {
+> -		printk("Trying to stomp on VIA Northbridge bug...\n");
+> +		printk("Disabling broken memory write queue.\n");
+>  		v &= 0x1f; /* clear bits 5, 6, 7 */
+>  		pci_write_config_byte(d, where, v);
+>  	}
 
-> I think you'll have that problem with any UNDI driver; in either case
-> I suspect that (a) performance will stink no matter what 
+Even more meaningful:
 
-That's ok for the things we will do.
-
-> and (b) it won't work properly with SMP unless you apply really
-> heavy locking.
-
-Does it matter in our case?
- 
-> The PXE people at Intel really seems enamored with the idea of using
-> the UNDI stack all the way into the operating system; 
-
-We need it not to run an operating system, we need it for the 
-installation of an operating system.
-
-
-On the other hand, UNDI will deliver a network driver for all PXE-cards 
-that come up before there is any direct hardware support. (Ok, then b 
-matters)
+	"Disabling VIA Northbridge broken memory write queue.\n"
 
 -- 
-Tobias Wollgam * Softwaredevelopment * Business Unit Information 
-MATERNA GmbH Information & Communications
-Vosskuhle 37 * 44141 Dortmund  
-http://www.materna.de
+____/|  Ragnar Højland      Freedom - Linux - OpenGL |    Brainbench MVP
+\ o.O|  PGP94C4B2F0D27DE025BE2302C104B78C56 B72F0822 | for Unix Programming
+ =(_)=  "Thou shalt not follow the NULL pointer for  | (www.brainbench.com)
+   U     chaos and madness await thee at its end."      [56 pend. Jan  8]

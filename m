@@ -1,49 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265014AbUFAMnP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264579AbUFAMq1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265014AbUFAMnP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jun 2004 08:43:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264579AbUFAMnO
+	id S264579AbUFAMq1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jun 2004 08:46:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265018AbUFAMq1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jun 2004 08:43:14 -0400
-Received: from main.gmane.org ([80.91.224.249]:26760 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S265014AbUFAMnL (ORCPT
+	Tue, 1 Jun 2004 08:46:27 -0400
+Received: from gprs214-199.eurotel.cz ([160.218.214.199]:13696 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S264579AbUFAMq0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jun 2004 08:43:11 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Giuseppe Bilotta <bilotta78@hotpop.com>
-Subject: Re: BUG FIX: atkbd.c keyboard driver bug [Was: keyboard problem with 2.6.6]
-Date: Tue, 1 Jun 2004 14:42:25 +0200
-Message-ID: <MPG.1b2695fa65d7f2ec9896b3@news.gmane.org>
-References: <200406010904.i5194pSo010367@fire-2.osdl.org> <xb7iseb7gtv.fsf@savona.informatik.uni-freiburg.de> <20040601095518.GA1527@ucw.cz>
+	Tue, 1 Jun 2004 08:46:26 -0400
+Date: Tue, 1 Jun 2004 14:46:17 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Andi Kleen <ak@muc.de>
+Cc: Andrey Panin <pazke@donpac.ru>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/13] 2.6.7-rc1-mm1, Simplify DMI matching data
+Message-ID: <20040601124617.GD10233@elf.ucw.cz>
+References: <20Oc4-HT-25@gated-at.bofh.it> <m3zn7su4lv.fsf@averell.firstfloor.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: ppp-114-140.29-151.libero.it
-X-Newsreader: MicroPlanet Gravity v2.60
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m3zn7su4lv.fsf@averell.firstfloor.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vojtech Pavlik wrote:
-> The kernel works with real keys. There is no real sysrq key. My
-> definition of sanity is to base your thinking on reality where possible.
+Hi!
 
-My keyboard has a separate key for SysRq (as much as 
-'separate' makes sense for laptop keyboards; it's a Fn-
-activated key).
+> > simplify DMI blacklist table by removing the need to fill
+> > unused slots with NO_MATCH macro.
+> 
+> Can you please delay that patch for 2.7?
+> 2.6 is for bug fixes, not for cleanups.
 
-If you want to go the route you're going, all laptop keyboards 
-should have the numeric keypad produce the same emulated 
-scancodes as some alphanumeric keys. This does sound a little, 
-uhm, ridiculous to me.
-
+Current DMI setup is terminally broken by keeping whole blacklist in
+one place. Fixing it very good idea.
+								Pavel
 -- 
-Giuseppe "Oblomov" Bilotta
-
-Can't you see
-It all makes perfect sense
-Expressed in dollar and cents
-Pounds shillings and pence
-                  (Roger Waters)
-
+934a471f20d6580d5aad759bf0d97ddc

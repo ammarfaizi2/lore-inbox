@@ -1,37 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280415AbRKJBLh>; Fri, 9 Nov 2001 20:11:37 -0500
+	id <S280372AbRKJBP5>; Fri, 9 Nov 2001 20:15:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280372AbRKJBL1>; Fri, 9 Nov 2001 20:11:27 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:59366 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S280415AbRKJBLM>;
-	Fri, 9 Nov 2001 20:11:12 -0500
-Date: Fri, 9 Nov 2001 20:11:10 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [CFT][PATCH] long-living cache for block devices
-In-Reply-To: <Pine.LNX.4.33.0111091700230.1350-100000@penguin.transmeta.com>
-Message-ID: <Pine.GSO.4.21.0111092010150.12727-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S280382AbRKJBPs>; Fri, 9 Nov 2001 20:15:48 -0500
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:43477 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S280372AbRKJBPj>; Fri, 9 Nov 2001 20:15:39 -0500
+Date: Fri, 9 Nov 2001 20:15:35 -0500
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Petro <petro@auctionwatch.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Machine Crash--Can someone decipher this for me?
+Message-ID: <20011109201535.C1923@redhat.com>
+In-Reply-To: <20011109170857.I22434@auctionwatch.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011109170857.I22434@auctionwatch.com>; from petro@auctionwatch.com on Fri, Nov 09, 2001 at 05:08:57PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Fri, 9 Nov 2001, Linus Torvalds wrote:
-
+On Fri, Nov 09, 2001 at 05:08:57PM -0800, Petro wrote:
 > 
-> On Fri, 9 Nov 2001, Alexander Viro wrote:
-> >
-> > 	Logics looks so: upon the final close() we finish all pending
-> > IO and destroy all buffer_heads for device.
-> 
-> Why do yu care about destroying buffer-heads?
-> 
-> You might as well leave them active, I don't see what you win from trying
-> to get rid of them aggressively. They'll go away when the pages go away..
+>     About 10 minutes ago we had one of our DB machines crashed, and I
+>     really need to find out why. 
 
-The simplest way to make sure that all IO is over (including readaheads).
+Don't run 2.4.13-ac8 on x86.  It won't work.
 
+		-ben

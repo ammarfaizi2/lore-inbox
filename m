@@ -1,70 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261857AbULaEGx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261856AbULaELM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261857AbULaEGx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Dec 2004 23:06:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261858AbULaEGx
+	id S261856AbULaELM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Dec 2004 23:11:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261858AbULaELM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Dec 2004 23:06:53 -0500
-Received: from out014pub.verizon.net ([206.46.170.46]:3821 "EHLO
-	out014.verizon.net") by vger.kernel.org with ESMTP id S261857AbULaEGq
+	Thu, 30 Dec 2004 23:11:12 -0500
+Received: from bay23-f3.bay23.hotmail.com ([64.4.22.53]:54014 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S261856AbULaELC
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Dec 2004 23:06:46 -0500
-Message-ID: <41D4D069.3020300@verizon.net>
-Date: Thu, 30 Dec 2004 23:07:05 -0500
-From: Jim Nelson <james4765@verizon.net>
-Reply-To: james4765@gmail.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Coywolf Qi Hunt <coywolf@gmail.com>
-CC: Jesper Juhl <juhl-lkml@dif.dk>, David Howells <dhowells@redhat.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: printk loglevel policy?
-References: <Pine.LNX.4.61.0412310259230.4725@dragon.hygekrogen.localhost> <2cd57c9004123018203b7e38ef@mail.gmail.com>
-In-Reply-To: <2cd57c9004123018203b7e38ef@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH at out014.verizon.net from [209.158.220.243] at Thu, 30 Dec 2004 22:06:44 -0600
+	Thu, 30 Dec 2004 23:11:02 -0500
+Message-ID: <BAY23-F3A1A0D822202DE6063EC9B99D0@phx.gbl>
+X-Originating-IP: [80.179.101.209]
+X-Originating-Email: [jeniffer@firstgroupsecurity.com]
+From: "Jeniffer Donald" <jeniffer@firstgroupsecurity.com>
+To: jeniffer@firstgroupsecurity.com
+Subject: GREETINGS AND CONGRATULATIONS
+Date: Thu, 30 Dec 2004 22:10:56 -0600
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+X-OriginalArrivalTime: 31 Dec 2004 04:11:00.0835 (UTC) FILETIME=[BCADCB30:01C4EEEE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Coywolf Qi Hunt wrote:
-> Hi all, 
-> 
-> Recently, I've seen a lot of add loglevel to printk patches. 
-> grep 'printk("' -r | wc shows me 2433. There are probably 2433 printk
-> need to patch, is it?  What's this printk loglevel policy, all these
-> printk calls need loglevel adjusted?  The default loglevel is
-> KERN_WARNING.
-> 
-> 
-> --coywolf
+WINNING NOTIFICATION
 
-Not every printk() needs a loglevel.  For example:
+DEAR SIR/MADAM,
 
-	printk (KERN_WARN "blah...");
+RESULTS FOR SECOND CATEGORY DRAWS.
 
-	some stuff...
+After a successful completion of the second category draws of CYBER-LOTTO 
+GAMES INTERNATIONAL PROGRAMS. You have emerged one of the winners of the 
+CYBER-LOTTO GAME INTERNATIONAL PROGRAMS, which is part of SWIFT LOTTERY 
+PROMOTIONS promotional draws. Participants were selected through a computer 
+ballot system drawn from 30,000 email
+addresses of individuals and companies from America,Africa, Asia, Australia, 
+Canada, Europe, Middle East,and New Zealand as part of our International 
+Promotions Program.
 
-	printk ("bleh...");
+We got a notification from SWIFT LOTTERY PROMOTIONS to get intouch with you 
+on how to claim your prize.
+You attached to:
 
-	more stuff...
+SERIAL NUMBER:14-83-DNL drew the
+LUCKY NUMBER:11,16, 29,RGN 36, 38, 42 and
+REFERENCE NUMBER: ASL-WF74-5G2
+BATCH NUMBER:OX2T-3T2T-D2N
 
-	printk ("done\n");
+You have therefore been awarded a lump sum pay out of 2,000,000.00EUROS in 
+cash, which is the winning payout for second categories winners. This is 
+from the total prize money of 16,000,000.00Euros shared among the eight 
+international winners in the SECOND category.
 
-is used in a lot of areas.
+CONGRATULATIONS!
+You have to contact the (FIRST GROUP SECURITY LTD LONDON) for immdiate 
+remittance your E-mail address won the lucky number. To avoid mix up of 
+numbers and names of any kind, we request that you keep this award strictly 
+from public notice until the entire process of transferring your claims has 
+been completed, and your funds remitted to your account. This is part of our 
+security protocol to avoid double claiming or unscrupulous acts by 
+participants of this program.
 
-You'll also see:
-#ifdef VERBOSE_DEBUG
-#define FOO_DEBUG(a, b) printk ("%s: %s\n", a, b)
-#else
-#define FOO_DEBUG(a, b)
-#endif
 
-which is normally only used for debug builds.
+CONTACT MR MICHEAL EDWARD, PAYMENT OFFICER.
+FIRST GROUP SECURITY, LONDON-UNITED KINGDOM
+EMAIL:kelvin@firstgroupsecurity.com
+TEL : 44 704 011 6713 .
 
-The logging levels are, for the most part, common sense.  KERN_ERR for error 
-conditions, KERN_INFO for informational (i. e. "driver just loaded", "new disk 
-detected"), KERN_CRIT if your computer just caught on fire (!), and KERN_DEBUG for 
-any kind of verbose printing.
 

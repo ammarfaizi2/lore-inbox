@@ -1,49 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269725AbUICS37@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269737AbUICSed@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269725AbUICS37 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 14:29:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269729AbUICS3i
+	id S269737AbUICSed (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 14:34:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269704AbUICSeQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 14:29:38 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:40321 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S269725AbUICS2X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 14:28:23 -0400
-Subject: Re: lockup with voluntary preempt R0 and VP, KP, etc, disabled
-From: Lee Revell <rlrevell@joe-job.com>
-To: Florian Schmidt <mista.tapas@gmx.net>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>,
-       felipe_alfaro@linuxmail.org
-In-Reply-To: <20040903140811.37ae8067@mango.fruits.de>
-References: <20040903120957.00665413@mango.fruits.de>
-	 <20040903100946.GA22819@elte.hu> <20040903123139.565c806b@mango.fruits.de>
-	 <20040903103244.GB23726@elte.hu> <20040903135919.719db41d@mango.fruits.de>
-	 <20040903140425.26fddf8e@mango.fruits.de>
-	 <20040903140811.37ae8067@mango.fruits.de>
-Content-Type: text/plain
-Message-Id: <1094236105.6575.16.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 03 Sep 2004 14:28:26 -0400
-Content-Transfer-Encoding: 7bit
+	Fri, 3 Sep 2004 14:34:16 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:21889 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S269519AbUICSbV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 14:31:21 -0400
+Date: Fri, 3 Sep 2004 14:31:14 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Need to configure AT/LANTIC NE2000 ethernet
+Message-ID: <Pine.LNX.4.53.0409031427100.7534@chaos>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-09-03 at 08:08, Florian Schmidt wrote:
-> On Fri, 3 Sep 2004 14:04:25 +0200
-> Florian Schmidt <mista.tapas@gmx.net> wrote:
-> 
-> > 
-> > and for completeness sake here's my kernel .config:
-> > 
-> [snip]
-> 
-> btw: how can i set a different kernel "name" so the modules get their
-> own subdir in /lib/? 
-> 
 
-Change EXTRAVERSION in the top level kernel Makefile.  The newer VP
-patches do this for you.
+Anybody know where Donald Becker's atlantic.c program is??
+I modified ne.c to recognize a (ZIATEC) card, the correct IRQ was
+found, etc. Linux is perfectly happy.... but the board
+doesn't send or receive anything. Probably the AUI isn't
+turned on.
 
-Lee
+ZIATEC seems to have been gobbled up and I need to replace the
+home-brew software in about 1000 systems with Linux.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
+            Note 96.31% of all statistics are fiction.
 

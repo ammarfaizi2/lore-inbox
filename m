@@ -1,47 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261935AbTCaXrd>; Mon, 31 Mar 2003 18:47:33 -0500
+	id <S261928AbTCaXts>; Mon, 31 Mar 2003 18:49:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261937AbTCaXrc>; Mon, 31 Mar 2003 18:47:32 -0500
-Received: from shimura.Math.Berkeley.EDU ([169.229.58.53]:31638 "EHLO
-	shimura.math.berkeley.edu") by vger.kernel.org with ESMTP
-	id <S261935AbTCaXrb>; Mon, 31 Mar 2003 18:47:31 -0500
-Date: Mon, 31 Mar 2003 15:58:48 -0800 (PST)
-From: Wayne Whitney <whitney@math.berkeley.edu>
-Reply-To: whitney@math.berkeley.edu
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG] 2.5.65: Caching MSR_IA32_SYSENTER_CS kills dosemu
-In-Reply-To: <Pine.LNX.4.44.0303311122070.5431-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0303311551040.2220-100000@mf1.private>
+	id <S261941AbTCaXts>; Mon, 31 Mar 2003 18:49:48 -0500
+Received: from hq.pm.waw.pl ([195.116.170.10]:62954 "EHLO hq.pm.waw.pl")
+	by vger.kernel.org with ESMTP id <S261928AbTCaXtq>;
+	Mon, 31 Mar 2003 18:49:46 -0500
+To: linux-kernel@vger.kernel.org
+References: <7C078C66B7752B438B88E11E5E20E72E0EF78D@GENERAL.farsite.co.uk>
+Subject: Generic HDLC update for 2.4.21-pre6, 2.4.21pre5-ac3, 2.5.66
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: 01 Apr 2003 02:00:41 +0200
+Message-ID: <m3istzf5na.fsf@defiant.pm.waw.pl>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 31 Mar 2003, Linus Torvalds wrote:
+Hi,
 
-> On Mon, 31 Mar 2003, Wayne Whitney wrote:
-> >
-> > I run dosemu 1.0.2.1 on the 2.5.x kernels.  Upgrading from 2.5.64 to
-> > 2.5.65 (or 2.5.66) causes dosemu to no longer work:  it locks up the
-> > machine shortly after I run it.
-> 
-> There appears to be at least one bug (that is longstanding but might be 
-> made worse by the MSR stuff). However, that one should matter only with 
-> preemption enabled. What's your configuration?
+Kevin Curtis <kevin.curtis@farsite.co.uk> writes:
 
-UP with preempt.  2.5.66 with the patch you sent still locks up.  I should
-mention that I am running two copies of a hacked XFree86 on two different
-sets of KVM hardware, but that doesn't require any kernel patches (well, a
-small one to the input layer).
+> Hi Marcelo,
+> 	what about the Generic HDLC patch?   Please please please can we
+> have it in 2.4.21?  I am sure others would like to see it there too.
 
-> Also, do you actually have a new library that uses SYSENTER (ie recent 
-> redhat beta), and whct kind of CPU do you have?
+I've put the updated HDLC patch (against 2.4.21pre6) in:
+ftp://ftp.pm.waw.pl/pub/linux/hdlc/current/hdlc-2.4.21pre6.patch.gz
 
-Well, I have glibc-2.3.1-51, from RedHat Rawhide February 20, so it sounds
-like that uses SYSENTER.  The CPU is an Althon XP, stepping 6-6-2.
+against 2.4.21-pre5-ac3:
+ftp://ftp.pm.waw.pl/pub/linux/hdlc/current/hdlc-2.4.21pre5-ac3.patch.gz
 
-Cheers, Wayne
+against 2.5.66 (this is, of course, a little different):
+ftp://ftp.pm.waw.pl/pub/linux/hdlc/current/hdlc-2.5.66.patch.gz
 
+Tested on all hardware I've access to (C101 and N2) on 2.4 and 2.5 kernels.
 
+No much changes from previous release (the one in Alan's 2.4 tree): my (low
+level) drivers have now smaller TX packet rings to decrease TX latency for
+high priority packets (LMI etc), and there is only one RAM-sizing routine
+for both cards (as well as for drivers not included in the official tree).
+
+The code has been cleaned a bit.
+kmalloc(GFP_KERNEL) in interrupt context has been fixed.
+Some __init etc fixes.
+No ABI/API changes.
+
+Marcelo, please apply to 2.4.21-pre6,
+Alan, please apply to 2.4.21-pre5-ac3,
+Linus, please apply to 2.5.66.
+
+Thanks.
+-- 
+Krzysztof Halasa
+Network Administrator

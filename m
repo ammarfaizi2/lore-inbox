@@ -1,36 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278229AbRJWUhQ>; Tue, 23 Oct 2001 16:37:16 -0400
+	id <S278225AbRJWUjG>; Tue, 23 Oct 2001 16:39:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278225AbRJWUg5>; Tue, 23 Oct 2001 16:36:57 -0400
-Received: from lsb-catv-1-p021.vtxnet.ch ([212.147.5.21]:2323 "EHLO
-	almesberger.net") by vger.kernel.org with ESMTP id <S278226AbRJWUgu>;
-	Tue, 23 Oct 2001 16:36:50 -0400
-Date: Tue, 23 Oct 2001 22:37:06 +0200
-From: Werner Almesberger <wa@almesberger.net>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Q] pivot_root and initrd
-Message-ID: <20011023223706.A8463@almesberger.net>
-In-Reply-To: <3BD5ABF3.1040404@usa.net> <9r4c24$g2k$1@cesium.transmeta.com>
-Mime-Version: 1.0
+	id <S278221AbRJWUis>; Tue, 23 Oct 2001 16:38:48 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:23302 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S278227AbRJWUim>; Tue, 23 Oct 2001 16:38:42 -0400
+Subject: Re: HPT370/366 testers needed
+To: bcrl@redhat.com (Benjamin LaHaise)
+Date: Tue, 23 Oct 2001 21:45:26 +0100 (BST)
+Cc: thockin@sun.com (Tim Hockin),
+        linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
+In-Reply-To: <20011023152547.E27797@redhat.com> from "Benjamin LaHaise" at Oct 23, 2001 03:25:47 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9r4c24$g2k$1@cesium.transmeta.com>; from hpa@zytor.com on Tue, Oct 23, 2001 at 11:14:28AM -0700
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15w8QQ-0000xh-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H. Peter Anvin wrote:
-> The right thing is to get rid of the old initrd compatibility cruft,
-> but that's a 2.5 change.
+> the bios set it to something less than we expect it to, or to leave 
+> this kind of pci hackery to the generic pci layer.  It's important to
+> note that quite a few drivers share this bug at present.  Cheers,
 
-Yes, change_root is obsolete (and relies on assumptions that are no
-longer valid in several cases), and there has been plenty of time for
-distributors to switch. An early funeral in 2.5 is a good idea.
-
-- Werner
-
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Lausanne, CH                    wa@almesberger.net /
-/_http://icawww.epfl.ch/almesberger/_____________________________________/
+Time for pci_set_cacheline_size() ?

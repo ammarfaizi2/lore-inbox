@@ -1,42 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283064AbRK1OKN>; Wed, 28 Nov 2001 09:10:13 -0500
+	id <S282142AbRK1OIK>; Wed, 28 Nov 2001 09:08:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283058AbRK1OJg>; Wed, 28 Nov 2001 09:09:36 -0500
-Received: from [139.85.108.65] ([139.85.108.65]:58310 "EHLO rpppc1.hns.com")
-	by vger.kernel.org with ESMTP id <S283057AbRK1OIw>;
-	Wed, 28 Nov 2001 09:08:52 -0500
-To: linux-kernel@vger.kernel.org
-Subject: 3c905 problem
-From: nbecker@fred.net
-Date: 28 Nov 2001 09:08:47 -0500
-Message-ID: <x88ofln7ztc.fsf@rpppc1.hns.com>
+	id <S283054AbRK1OIB>; Wed, 28 Nov 2001 09:08:01 -0500
+Received: from gw-nl5.philips.com ([212.153.235.99]:20230 "EHLO
+	gw-nl5.philips.com") by vger.kernel.org with ESMTP
+	id <S282149AbRK1OHs>; Wed, 28 Nov 2001 09:07:48 -0500
+From: peter.kourzanov@philips.com
+To: <Marko.vanDooren@student.kuleuven.ac.be>
+Subject: PROBLEM: Using Philips CDD3610 cd-writer crashes my system with every 2.4
+ kernel
+Importance: Normal
+Cc: <linux-kernel@vger.kernel.org>
+Date: Wed, 28 Nov 2001 15:07:39 +0100
+Message-ID: <OF94229560.923EF2BC-ONC1256B12.004D4CE7@diamond.philips.com>
+X-MIMETrack: Serialize by Router on ehv501soh/H/SERVER/PHILIPS(Release 5.0.5 |September
+ 22, 2000) at 28/11/2001 15:08:00
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry to bother you with a stupid question, but I don't know enough to
-understand this.
+Hi Marko,
 
-I moved a machine which has a 3c905 connected to a linksys autosense
-10/100 hub.  I set no options on the 3c905 module.
+I used to have this problem, but its simply solvable by upgrading the firmware from 3.01 to 3.09. For some unknown reason 3.01 stops working with 2.4. You also get 700mb CD support for free;-)
 
-I get millions of dreaded:
+Greets,
+Pjotr Kourzanov
 
- Nov 28 08:58:15 adglinux1 kernel:   9: @cf2b3440  length 800005ea status 000105ea
-Nov 28 08:58:15 adglinux1 kernel:   10: @cf2b3480  length 800005ea status 000105ea
-Nov 28 08:58:15 adglinux1 kernel:   11: @cf2b34c0  length 800005ea status 000105ea
-Nov 28 08:58:15 adglinux1 kernel:   12: @cf2b3500  length 800005ea status 000105ea
-Nov 28 08:58:15 adglinux1 kernel:   13: @cf2b3540  length 800005ea status 000105ea
-Nov 28 08:58:15 adglinux1 kernel:   14: @cf2b3580  length 80000043 status 00010043
-Nov 28 08:58:15 adglinux1 kernel:   15: @cf2b35c0  length 80000043 status 00010043
-Nov 28 08:58:15 adglinux1 kernel: eth0: Transmit error, Tx status register 82.
-Nov 28 08:58:15 adglinux1 kernel: Probably a duplex mismatch.  See Documentation/networking/vortex.txt
-Nov 28 08:58:15 adglinux1 kernel:   Flags; bus-master 1, dirty 77261(13) current 77263(15)
 
-What exactly does this mean?  How do I fix it?  I have looked at
-Documentation/networking/vortex.txt, but I don't know what this
-HDX/FDX means exactly, and how works with a hub or switch.  Would my
-problem be fixed by replacing the hub with a "switch"?
 

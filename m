@@ -1,13 +1,13 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270178AbRH1DXB>; Mon, 27 Aug 2001 23:23:01 -0400
+	id <S270199AbRH1DWL>; Mon, 27 Aug 2001 23:22:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270201AbRH1DWw>; Mon, 27 Aug 2001 23:22:52 -0400
-Received: from james.kalifornia.com ([208.179.59.2]:25977 "EHLO
+	id <S270178AbRH1DWB>; Mon, 27 Aug 2001 23:22:01 -0400
+Received: from james.kalifornia.com ([208.179.59.2]:31294 "EHLO
 	james.kalifornia.com") by vger.kernel.org with ESMTP
-	id <S270178AbRH1DWl>; Mon, 27 Aug 2001 23:22:41 -0400
-Message-ID: <3B8B0E99.3090305@blue-labs.org>
-Date: Mon, 27 Aug 2001 23:23:05 -0400
+	id <S270201AbRH1DVu>; Mon, 27 Aug 2001 23:21:50 -0400
+Message-ID: <3B8B0E60.9030604@blue-labs.org>
+Date: Mon, 27 Aug 2001 23:22:08 -0400
 From: David Ford <david@blue-labs.org>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3+) Gecko/20010826
 X-Accept-Language: en-us

@@ -1,66 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267422AbUHWTEW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268129AbUHXCBz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267422AbUHWTEW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 15:04:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267400AbUHWTBW
+	id S268129AbUHXCBz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 22:01:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267311AbUHXCBt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 15:01:22 -0400
-Received: from mail.kroah.org ([69.55.234.183]:10948 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S267303AbUHWShC convert rfc822-to-8bit
+	Mon, 23 Aug 2004 22:01:49 -0400
+Received: from h-66-166-151-206.snvacaid.covad.net ([66.166.151.206]:24589
+	"EHLO menlomart.com") by vger.kernel.org with ESMTP id S268129AbUHXB50
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 14:37:02 -0400
-X-Fake: the user-agent is fake
-Subject: Re: [PATCH] PCI and I2C fixes for 2.6.8
-User-Agent: Mutt/1.5.6i
-In-Reply-To: <1093286087677@kroah.com>
-Date: Mon, 23 Aug 2004 11:34:47 -0700
-Message-Id: <1093286087695@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <greg@kroah.com>
+	Mon, 23 Aug 2004 21:57:26 -0400
+Message-ID: <006d01c4897d$ab8bce00$1000a8c0@websys>
+From: "Karthi Jothi" <karthi@onspecinc.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Need help in mounting two-LUN atapi flash card reader
+Date: Mon, 23 Aug 2004 18:57:11 -0700
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+X-MDRemoteIP: 66.166.151.202
+X-Return-Path: karthi@onspecinc.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1807.56.25, 2004/08/06 15:26:03-07:00, johnpol@2ka.mipt.ru
-
-[PATCH] w1: Added w1_check_family().
-
-w1_check_family() checks new family before registering it.
-
-Signed-off-by: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
-
-
- drivers/w1/w1_family.c |   11 +++++++++++
- 1 files changed, 11 insertions(+)
-
-
-diff -Nru a/drivers/w1/w1_family.c b/drivers/w1/w1_family.c
---- a/drivers/w1/w1_family.c	2004-08-23 11:04:14 -07:00
-+++ b/drivers/w1/w1_family.c	2004-08-23 11:04:14 -07:00
-@@ -27,11 +27,22 @@
- spinlock_t w1_flock = SPIN_LOCK_UNLOCKED;
- static LIST_HEAD(w1_families);
+Hi,
  
-+static int w1_check_family(struct w1_family *f)
-+{
-+	if (!f->fops->rname || !f->fops->rbin || !f->fops->rval || !f->fops->rvalname)
-+		return -EINVAL;
-+
-+	return 0;
-+}
-+
- int w1_register_family(struct w1_family *newf)
- {
- 	struct list_head *ent, *n;
- 	struct w1_family *f;
- 	int ret = 0;
-+
-+	if (w1_check_family(newf))
-+		return -EINVAL;
+Need help in mouting two-LUN atapi flash card reader. 
  
- 	spin_lock(&w1_flock);
- 	list_for_each_safe(ent, n, &w1_families) {
+Linux Distribution - Redhat 8.0
+Kernal version - 2.4.18-14
+
+Details about the device attempting to mount:
+
+1.  The device used for mounting is a Atap flash card reader and it is not
+an USB device.  It uses 40-PIN ide connector and cable. It is connected as
+secondary master to the linux system.
+
+2.  Size of the device matches to that off floppy drive.  It has one
+connector for CompactFlash --- for LUN0  and second connector for
+SmartMedia/MMC/MS --- for LUN1.
+
+Appreciate your help.
+ 
+With best regards
+Karthi
+
+With best regards,
+Karthi
+OnSpec Electronic Inc
+
 

@@ -1,56 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129408AbRCZWPt>; Mon, 26 Mar 2001 17:15:49 -0500
+	id <S129466AbRCZWL7>; Mon, 26 Mar 2001 17:11:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129495AbRCZWPb>; Mon, 26 Mar 2001 17:15:31 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:50192 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129506AbRCZWNo>; Mon, 26 Mar 2001 17:13:44 -0500
-Date: Mon, 26 Mar 2001 14:12:50 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: <John.L.Byrne@compaq.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Larger dev_t
-In-Reply-To: <3ABFB20E.DFB37BFA@kahuna.cag.cpqcorp.net>
-Message-ID: <Pine.LNX.4.31.0103261409490.12326-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129464AbRCZWLu>; Mon, 26 Mar 2001 17:11:50 -0500
+Received: from [213.96.224.204] ([213.96.224.204]:28932 "HELO man.beta.es")
+	by vger.kernel.org with SMTP id <S129466AbRCZWKB>;
+	Mon, 26 Mar 2001 17:10:01 -0500
+Date: Tue, 27 Mar 2001 00:08:43 +0200
+From: Santiago Garcia Mantinan <manty@udc.es>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Problems with Wake on LAN
+Message-ID: <20010327000843.A2230@manty.net>
+In-Reply-To: <20010326210846.A1182@manty.net> <3ABF95F8.84508E68@mandrakesoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <3ABF95F8.84508E68@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Mon, Mar 26, 2001 at 02:18:16PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Are you using Becker's ftp://www.scyld.com/pub/diag/ether-wake.c ?
 
+Yes.
 
-On Mon, 26 Mar 2001, John Byrne wrote:
+> Did you turn on the enable_wol module option?  Note that might be a new
+> option in the 2.4.3-preXX series...
 
-> > Re: Larger dev_t
-> >
-> On Sat Mar 24 2001 Linus Torvalds (torvalds@transmeta.com) wrote:
-> > There is no way in HELL I will ever accept a 64-bit dev_t.
-> >
-> > I _will_ accept a 32-bit dev_t, with 12 bits for major numbers, and 20
-> > bits for minor numbers.
->
-> Do you have any interest in doing away with the concept of major and
-> minor numbers altogether; turning the dev_t into an opaque unique id?
+Well, it is indeed a 2.4.3-pre feature, as I had looked for it on 2.4.2, it
+was not there, but it is at least on pre8.
 
-Inside the kernel we'll eventually do that.
+This new driver allows me to WOL, but only if I don't choose ACPI, if I
+choose ACPI then I have the same problem as with 2.4.2. APM works ok though.
 
-However, outside the kernel you still need the notion of device numbers if
-for no other reasons than legacy /dev space (other applications like 'tar'
-care too, but they only care about uniqueness, not about much else).
+Thanks for your help, now I'm gonna ask the ACPI guys about this.
 
-> At the application level, the kinds of information that is derived from
-> the major/minor number should probably be derived in some other manner
-> such as a library or system call.
-
-It is. It's called "stat()", and a lot of people do depend on a
-device number being available. Few people care what that number actually
-_is_, though.
-
-So device numbers aren't going away, they are very much part of the UNIX
-legacy. We don't need to care about them too much inside the kernel,
-though. What most drivers really want to know is "sub-unit number", and
-not much else.
-
-			Linus
-
+Regards...
+-- 
+Manty/BestiaTester -> http://manty.net

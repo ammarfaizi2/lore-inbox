@@ -1,43 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261216AbVCXUwv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261214AbVCXU5l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261216AbVCXUwv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 15:52:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261219AbVCXUwB
+	id S261214AbVCXU5l (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 15:57:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261318AbVCXU5j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 15:52:01 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:29417 "EHLO
+	Thu, 24 Mar 2005 15:57:39 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:50409 "EHLO
 	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261179AbVCXUvZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 15:51:25 -0500
-Message-ID: <4243283D.7000603@pobox.com>
-Date: Thu, 24 Mar 2005 15:51:09 -0500
+	id S261315AbVCXU4e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Mar 2005 15:56:34 -0500
+Message-ID: <42432972.5020906@pobox.com>
+Date: Thu, 24 Mar 2005 15:56:18 -0500
 From: Jeff Garzik <jgarzik@pobox.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: David McCullough <davidm@snapgear.com>
-CC: cryptoapi@lists.logix.cz, linux-kernel@vger.kernel.org,
-       linux-crypto@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       James Morris <jmorris@redhat.com>,
-       Herbert Xu <herbert@gondor.apana.org.au>, michal@logix.cz
+To: johnpol@2ka.mipt.ru
+CC: David McCullough <davidm@snapgear.com>, cryptoapi@lists.logix.cz,
+       linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, James Morris <jmorris@redhat.com>,
+       Herbert Xu <herbert@gondor.apana.org.au>
 Subject: Re: [PATCH] API for true Random Number Generators to add entropy
  (2.6.11)
-References: <20050315133644.GA25903@beast> <20050324042708.GA2806@beast> <20050324043300.GA2621@havoc.gtf.org> <20050324044621.GC3124@beast> <42424C6D.2020605@pobox.com> <20050324125210.GC7115@beast>
-In-Reply-To: <20050324125210.GC7115@beast>
+References: <20050315133644.GA25903@beast> <20050324042708.GA2806@beast>	 <1111665551.23532.90.camel@uganda> <4242B712.50004@pobox.com>	 <20050324132342.GD7115@beast> <1111671993.23532.115.camel@uganda>
+In-Reply-To: <1111671993.23532.115.camel@uganda>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David McCullough wrote:
-> Jivin Jeff Garzik lays it down ...
+Evgeniy Polyakov wrote:
+> On Thu, 2005-03-24 at 23:23 +1000, David McCullough wrote:
 > 
->>David McCullough wrote:
+>>Jivin Jeff Garzik lays it down ...
 >>
->>>Jivin Jeff Garzik lays it down ...
+>>>Evgeniy Polyakov wrote:
 >>>
->>>
->>>>On Thu, Mar 24, 2005 at 02:27:08PM +1000, David McCullough wrote:
+>>>>On Thu, 2005-03-24 at 14:27 +1000, David McCullough wrote:
 >>>>
 >>>>
 >>>>>Hi all,
@@ -56,68 +55,54 @@ David McCullough wrote:
 >>>>>Adding this can dramatically improve the performance of /dev/random on
 >>>>>small embedded systems which do not generate much entropy.
 >>>>
->>>>We've already had hardware RNG support for a while now.
 >>>>
->>>>No kernel patching needed.
+>>>>People will not apply any kind of such changes.
+>>>>Both OCF and acrypto already handle all RNG cases - no need for any kind
+>>>>of userspace daemon or entropy (re)injection mechanism.
+>>>>Anyone who want to use HW randomness may use OCF/acrypto mechanism.
+>>>>For example here is patch to enable acrypto support for hw_random.c
+>>>>It is very simple and support only upto 4 bytes request, of course it
+>>>>is 
+>>>>not interested for anyone, but it is only 2-minutes example:
 >>>
+>>>If you want to add entropy to the kernel entropy pool from hardware RNG, 
+>>>you should use the userland daemon, which detects non-random (broken) 
+>>>hardware and provides throttling, so that RNG data collection does not 
+>>>consume 100% CPU.
 >>>
->>>Are you talking about /dev/hw_random ?  If not then sorry I didn't see it 
->>>:-(
+>>>If you want to use the hardware RNG directly, it's simple:  just open 
+>>>/dev/hw_random.
 >>>
->>>On a lot of the small systems I work on,  /dev/random is completely
->>>unresponsive,  and all the apps use /dev/random,  not /dev/hw_random.
->>>
->>>Would you suggest making /dev/random point to /dev/hw_random then ?
+>>>Hardware RNG should not go kernel->kernel without adding FIPS tests and 
+>>>such.
 >>
->>All the apps are supposed to use /dev/random, so that's correct.
+>>For reference,  the RNG on the Safenet I am using this with is
+>>FIPS140 certified.  I believe the HIFN part  is also but I place the doc that
+>>says so.
 > 
 > 
-> Ok
+> At least HIFN 795x is certified.
 > 
-> 
->>For Hardware RNGs, userspace rngd daemon obtains entropy, checks it 
->>(mainly checking for hardware failures), and then stuffs entropy into 
->>the kernel random device.   http://sf.net/projects/gkernel/
->>
->>On the "to do" list is making rngd directly generate entropy use 
->>'xstore' on VIA CPUs, rather than going kernel -> userland -> kernel.
->>
->>Also, there are other entropy daemons floating about.  I think there is 
->>one that obtains noise from an audio device.
-> 
-> 
-> I had looked at hw_random,  but it seemed a little platform specific (x86),
-> and it doesn't currently have a way for RNG providers to register themselves.
-> Admittedly I did not know how it's output was being used in practice.
-> 
-> The drivers I am working with do crypto/public key and RNG.  Not all of
-> them can easily have the RNG support taken from the driver and plugged
-> into hw_random.c,  since it is (in most cases) a single PCI chip with
-> it's own  registers, initialisation and configuration,  that,  IMO
-> belongs in the driver for the particular chip.
+> Idea to validate entropy data is good in general, 
+> but it should be implemented in a way allowing external both in-kernel
+> and userspace
+> processes to contribute data.
+> So for in-kernel use we need such a mechanism, and userspace gkernel
+> daemon
+> should use it(as the latest "step") too.
 
-Agreed.
+See the earlier discussion, when data validation was -removed- from the 
+original Intel RNG driver, and moved to userspace.
 
 
-> Not that it isn't possible,  but hw_random would start supporting a
-> much larger number of HW variants and I think it would get ugly.
+> Your changes are correct, ioctl(RNDADDENTROPY) could even use it instead
+> of direct
+> add_entropy_words()/credit_entropy_store(), but without external entropy
+> contributors
+> it will not be applied by maintainers.
 
-Agreed.
-
-
-> It would be possible to add a "register" interface to hw_random so that
-> you can register other RNG's easily.  This would seem reasonable.
-
-Agreed.
-
-
-> I work on fairly resource constrained embedded devices a lot of the
-> time, so when I can avoid adding applications and reduce kernel size,
-> I do.  Thus my motivation to add a simple API for adding entropy to
-> /dev/random.
-
-We already have the facilities to add entropy, as current use of 
-hw_random+rngd shows.
+No changes are needed, as the system is currently functional without 
+these changes.
 
 	Jeff
 

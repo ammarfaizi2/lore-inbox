@@ -1,47 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129187AbQKPBYn>; Wed, 15 Nov 2000 20:24:43 -0500
+	id <S129069AbQKPB0n>; Wed, 15 Nov 2000 20:26:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129132AbQKPBYd>; Wed, 15 Nov 2000 20:24:33 -0500
-Received: from falcon.prod.itd.earthlink.net ([207.217.120.74]:25782 "EHLO
-	falcon.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
-	id <S129187AbQKPBYW>; Wed, 15 Nov 2000 20:24:22 -0500
-From: dep <dennispowell@earthlink.net>
-To: "Karnik, Rahul" <rakarnik@davidson.edu>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: VIA IDE bug with WD drive?
-Date: Wed, 15 Nov 2000 19:56:43 -0500
-X-Mailer: KMail [version 1.2]
-Content-Type: text/plain; charset=US-ASCII
-In-Reply-To: <1DE3DA661DC2D31190030090273D1E6A0153FA97@pobox.davidson.edu>
-In-Reply-To: <1DE3DA661DC2D31190030090273D1E6A0153FA97@pobox.davidson.edu>
-MIME-Version: 1.0
-Message-Id: <00111519564300.04831@depoffice.localdomain>
-Content-Transfer-Encoding: 7BIT
+	id <S129094AbQKPB0d>; Wed, 15 Nov 2000 20:26:33 -0500
+Received: from harpo.it.uu.se ([130.238.12.34]:58609 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S129091AbQKPB0Z>;
+	Wed, 15 Nov 2000 20:26:25 -0500
+Date: Thu, 16 Nov 2000 01:56:09 +0100 (MET)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200011160056.BAA20778@harpo.it.uu.se>
+To: hpa@zytor.com, linux-kernel@vger.kernel.org
+Subject: Re: New bluesmoke patch available, implements MCE-without-MCA support
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 15 November 2000 19:30, Karnik, Rahul wrote:
+On 15 Nov 2000, H. Peter Anvin wrote:
 
-| I get the following error if I try to enable DMA on my Abit KT7
-| motherboard with a VIA2C686 chipset:
-|
-| hdb: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest
-| } hdb: timeout waiting for DMA
-| hda: DMA disabled
-| hdb: DMA disabled
-| ide0: reset: success
+>This implements support for MCE on chips which don't support MCA (in
+>addition to enabling MCA for non-Intel chips, like Athlon, which
+>supports MCA.)
+>
+>I would appreciate it if people who have chips with MCE but no MCA --
+>this includes older AMD chips and some Cyrix chips at the very least
+>-- would please be so kind and try this out.
 
-i get the same thing, along with a crc error, over and over on a 
-20-gig WD IDE drive. alternately puzzling and frightening. 
-apparently, wd uses some nonstandard goofball error checking thing 
-that just doesn't work with linux at present. it *seems* to do no 
-harm.
--- 
-dep
---
-Everyone is entitled to his own opinion but not his own facts.
-                                    -- Daniel Patrick Moynahan
+I have a K6-III which announces MCE but not MCA, so I was going to
+test this on that machine.
+
+However, both the K6-III manual and the K6 BIOS guide state quite
+clearly that the K6 family only has a "stub" MCE implementation.
+The MCE capability is announced, there are two MCE-related MSRs,
+and there is a CR4.MCE flag, but none of it actually _does_ anything.
+
+The new CPU detection code should probably clear FEATURE_MCE for K6 CPUs.
+(We might consider it an AMD bug, but in their defense, they do state
+that the stub implementation was done for "compatibility" reasons.)
+
+/Mikael
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

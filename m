@@ -1,37 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281009AbRLGNnK>; Fri, 7 Dec 2001 08:43:10 -0500
+	id <S280002AbRLGNlz>; Fri, 7 Dec 2001 08:41:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281217AbRLGNmy>; Fri, 7 Dec 2001 08:42:54 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:26122 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S281009AbRLGNmR>; Fri, 7 Dec 2001 08:42:17 -0500
-Subject: Re: Kernel freezing....
-To: jcarminati@yahoo.com (Jorge Carminati)
-Date: Fri, 7 Dec 2001 13:51:27 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20011207133020.41163.qmail@web13905.mail.yahoo.com> from "Jorge Carminati" at Dec 07, 2001 05:30:20 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S281128AbRLGNll>; Fri, 7 Dec 2001 08:41:41 -0500
+Received: from ns.suse.de ([213.95.15.193]:43017 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S280002AbRLGNlZ>;
+	Fri, 7 Dec 2001 08:41:25 -0500
+Date: Fri, 7 Dec 2001 14:41:21 +0100 (CET)
+From: Dave Jones <davej@suse.de>
+To: James Davies <james_m_davies@yahoo.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Kiril Vidimce <vkire@pixar.com>,
+        Dan Maas <dmaas@dcine.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: kernel: ldt allocation failed
+In-Reply-To: <1007730652.1575.1.camel@Lord>
+Message-ID: <Pine.LNX.4.33.0112071439430.20718-100000@Appserv.suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Message-Id: <E16CLPT-0005sN-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> In all the cases the compiled kernel had set exactly the same options,
-> **just changed the cpu optimization type**. Kernel version 2.4.16.
-> 
-> Conclusion: IMHO it´s a kernel bug. The same .config optimized for AMD
-> freezes, and Red Hat's default kernel does the same. Luckily for my
-> investment it´s not a memory bug.
+On 7 Dec 2001, James Davies wrote:
 
-The AMD K7 stuff will trigger hardware bugs on some VIA boards. We know
-that bit. Why the RH one crashes may be that or may be a different bug
-fixed between 2.4.9->16. 
+> source code IS available for free under a restrictive license. the GLX
+> drivers are closed.
 
-Either way this is good news. The machine seems fine and the newer kernel
-seems to be behaving well.
+Bzzzt...
 
-Alan
+>From the tarball you posted a link to..
+
+-rwxr-xr-x    1 davej    users      889615 Nov 27 20:39 Module-nvkernel*
+
+(davej@noodles:NVIDIA_kernel-1.0-2313)$ file Module-nvkernel
+Module-nvkernel: ELF 32-bit LSB relocatable, Intel 80386, version 1, not
+stripped
+
+No-one but nvidia knows whats in this.
+
+regards,
+Dave.
+
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs
+

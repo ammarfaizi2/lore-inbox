@@ -1,80 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261841AbTJGF0u (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Oct 2003 01:26:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261850AbTJGF0u
+	id S261861AbTJGGDL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Oct 2003 02:03:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261863AbTJGGDL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Oct 2003 01:26:50 -0400
-Received: from dyn-ctb-210-9-245-93.webone.com.au ([210.9.245.93]:17156 "EHLO
-	chimp.local.net") by vger.kernel.org with ESMTP id S261841AbTJGF0s
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Oct 2003 01:26:48 -0400
-Message-ID: <3F824E66.7020006@cyberone.com.au>
-Date: Tue, 07 Oct 2003 15:25:58 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: maneesh@in.ibm.com
-CC: Patrick Mochel <mochel@osdl.org>, Dipankar Sarma <dipankar@in.ibm.com>,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Greg KH <gregkh@us.ibm.com>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC 0/6] Backing Store for sysfs
-References: <20031006202656.GB9908@in.ibm.com> <Pine.LNX.4.44.0310061321440.985-100000@localhost.localdomain> <20031007043157.GA9036@in.ibm.com>
-In-Reply-To: <20031007043157.GA9036@in.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 7 Oct 2003 02:03:11 -0400
+Received: from h80ad25f1.async.vt.edu ([128.173.37.241]:17806 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261861AbTJGGDI (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Oct 2003 02:03:08 -0400
+Message-Id: <200310070603.h97631Yl011804@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: "Daniel B." <dsb@smart.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: IDE DMA errors, massive disk corruption: Why? Fixed Yet? Whynot re-do failed op? 
+In-Reply-To: Your message of "Tue, 07 Oct 2003 01:24:19 EDT."
+             <3F824E03.C309F2BE@smart.net> 
+From: Valdis.Kletnieks@vt.edu
+References: <785F348679A4D5119A0C009027DE33C105CDB20A@mcoexc04.mlm.maxtor.com> <3F81CE9A.851806B8@smart.net> <200310062045.h96KjxJP008005@turing-police.cc.vt.edu> <3F81D995.D9C13F33@smart.net> <3F81DE1D.6070304@pobox.com>
+            <3F824E03.C309F2BE@smart.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_867867771P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Tue, 07 Oct 2003 02:03:01 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--==_Exmh_867867771P
+Content-Type: text/plain; charset=us-ascii
 
+On Tue, 07 Oct 2003 01:24:19 EDT, "Daniel B." said:
 
-Maneesh Soni wrote:
+> So if some command/batch/etc. wasn't acknowledged, why can't the 
+> kernel retry the command/batch/etc.?
 
->On Mon, Oct 06, 2003 at 01:29:20PM -0700, Patrick Mochel wrote:
->
->>Uh, that's about the same thing I suggested, though probably not as 
->>concisely: 
->>
->>"As I said before, I don't know the right solution, but the directions to 
->>look in are related to attribute groups. Attributes definitely consume the 
->>most amount of memory (as opposed to the kobject hierachy), so delaying 
->>their creation would help, hopefully without making the interface too 
->>awkward. 
->>
->
->Ok.. attributes do consume maximum in sysfs. In the system I mentioned
->leaf dentries are about 65% of the total.
->
->
->>You can also use the assumption that an attribute group exists for all the 
->>kobjects in a kset, and that a kobject knows what kset it belongs to. And
->>
->
->That's not correct... kobject corresponding to /sys/block/hda/queue 
->doesnot know which kset it belongs to and what are its attributes. Same
->for /sys/block/hda/queue/iosched.
->
->
->>that eventually, all attributes should be added as part of an attribute 
->>group.."
->>
->>Attributes are the leaf entries, and they don't need to always exist. But, 
->>you have easy access to them via the attribute groups of the ksets the 
->>kobjects belong to. 
->>
->>
->
->Having backing store just for leaf dentries should be fine. But there is 
->_no_ easy access for attributes. For this also I see some data change required 
->as of now. The reasons are 
-> - not all kobjects belong to a kset. For example, /sys/block/hda/queue
-> - not all ksets have attribute groups
->  
->
+The problem is that the disk ack'ed the command when the block went into the
+write cache.  You *DONT* in general get back another ack when the block
+actually hits the platters.
 
-queue and iosched might not be good examples as they are somewhat broken
-wrt the block device scheme. Possibly they will be put in their own kset,
-with /sys/block/hda/queue symlinked to them.
+> Given the serious of disk data corruption, why isn't the Linux kernel
+> more reliable here?  Hasn't this family of IDE problems been around
+> for a couple of years now?
 
+It's hard for the kernel to be more reliable unless you just disable the write cache.
 
+The biggest reason we don't see more issues like this is that the average MTBF
+really is up in the 100K hours and up range, and most drives probably get
+around to actually writing all the blocks out every minute or so - so you're
+looking at literally a 1 in a million shot at corruption.  Most of the time,
+it's writing back in-order enough that no badness happens - and with the rise
+of journaled file systems like ext3 and jfs and resierfs, the chance of
+actually getting bit by it drops even more (you'd have to hit a case where the
+blocks were re-ordered *and* the corresponding journal blocks didn't get
+written either).
+
+Yes, this family of problems has been around ever since write caches were
+introduced. It's just taken until now that we've got file system code that's
+rock solid enough that the write cache is a major reliability issue - for the
+longest time, one kernel bug or another has been more of a concern.
+See the IDE corruption in early 2.5 kernels that scared a LOT of people
+away - I believe that one was done all by the kernel, without any help
+from the disk's write cache. ;)
+
+--==_Exmh_867867771P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE/glcVcC3lWbTT17ARAnUrAJwLpEfIrEwxTAZ7dxngdkdH2ppeTwCcD9Zp
+DUtumwT88NBupkkCS4n1sI4=
+=3U17
+-----END PGP SIGNATURE-----
+
+--==_Exmh_867867771P--

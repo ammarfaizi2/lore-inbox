@@ -1,37 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261412AbVAMBS3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261458AbVALVYC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261412AbVAMBS3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 20:18:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261482AbVAMBSA
+	id S261458AbVALVYC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 16:24:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261383AbVALVWR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 20:18:00 -0500
-Received: from umhlanga.stratnet.net ([12.162.17.40]:39078 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S261470AbVALVrt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 16:47:49 -0500
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-In-Reply-To: 
-X-Mailer: Roland's Patchbomber
-Date: Wed, 12 Jan 2005 13:46:21 -0800
-Message-Id: <20051121346.ovB7UajyiLcLxIWH@topspin.com>
+	Wed, 12 Jan 2005 16:22:17 -0500
+Received: from gprs214-252.eurotel.cz ([160.218.214.252]:55776 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S261454AbVALVCE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jan 2005 16:02:04 -0500
+Date: Wed, 12 Jan 2005 22:01:47 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Andi Kleen <ak@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ncunningham@linuxmail.org
+Subject: Re: 2.6.10-mm2: swsusp regression [update]
+Message-ID: <20050112210147.GJ1408@elf.ucw.cz>
+References: <20050106002240.00ac4611.akpm@osdl.org> <200501081610.57625.rjw@sisk.pl> <20050108154439.GA24771@elf.ucw.cz> <200501121951.48102.rjw@sisk.pl>
 Mime-Version: 1.0
-To: akpm@osdl.org
-From: Roland Dreier <roland@topspin.com>
-X-SA-Exim-Connect-IP: 127.0.0.1
-X-SA-Exim-Mail-From: roland@topspin.com
-Subject: [PATCH][0/18] InfiniBand: updates for 2.6.11-rc1
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
-X-SA-Exim-Scanned: Yes (on eddore)
-X-OriginalArrivalTime: 12 Jan 2005 21:46:22.0141 (UTC) FILETIME=[28134ED0:01C4F8F0]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200501121951.48102.rjw@sisk.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here are updates since the initial merge to drivers/infiniband taken
-from the OpenIB repository.  This is a mix of cleanups, bug fixes and
-small features.  There shouldn't be anything controversial or risky.
+Hi!
 
-Thanks,
-  Roland
+> [-- snip --]
+> > > > > The regression is caused by the timer driver.  Obviously, turning 
+> > > > > timer_resume() in arch/x86_64/kernel/time.c into a NOOP makes it go
+> > > > > away. 
+> [-- snip --]
+> > > > 
+> > > > ..you might want to look at i386 time code, they have common
+> > > > ancestor, and i386 one seems to work.
+> 
+> Well, I've changed timer_resume() in arch/x86_64/kernel/time.c into the 
+> following function:
 
+Ugh, looking at arch/i386/kernel/time.c... "This could have never
+worked".
+
+It does something like get_cmos_time() - get_cmos_time()*HZ. It looks
+seriously wrong.
+
+> (for example - the second number is always negative and huge).  Would it mean 
+> that get_cmos_time() needs fixing?
+
+get_cmos_time() looks okay, but timer){suspend,resume} looks
+hopelessly broken.
+
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

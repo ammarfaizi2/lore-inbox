@@ -1,51 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129704AbRAEQ0n>; Fri, 5 Jan 2001 11:26:43 -0500
+	id <S129725AbRAEQbx>; Fri, 5 Jan 2001 11:31:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130105AbRAEQ0d>; Fri, 5 Jan 2001 11:26:33 -0500
-Received: from aeon.tvd.be ([195.162.196.20]:4421 "EHLO aeon.tvd.be")
-	by vger.kernel.org with ESMTP id <S129704AbRAEQ0Q>;
-	Fri, 5 Jan 2001 11:26:16 -0500
-Date: Fri, 5 Jan 2001 17:25:16 +0100 (CET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linux/m68k <linux-m68k@lists.linux-m68k.org>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Linux/m68k 2.4.0
-Message-ID: <Pine.LNX.4.05.10101051628490.634-100000@callisto.of.borg>
+	id <S129911AbRAEQbn>; Fri, 5 Jan 2001 11:31:43 -0500
+Received: from mailout1-1.nyroc.rr.com ([24.92.226.146]:7892 "EHLO
+	mailout1-1.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id <S129725AbRAEQb0>; Fri, 5 Jan 2001 11:31:26 -0500
+Message-ID: <3A55F6DB.24041B4C@rochester.rr.com>
+Date: Fri, 05 Jan 2001 11:31:23 -0500
+From: Chris Kloiber <ckloiber@rochester.rr.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-ac1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] VESA framebuffer w/ MTRR locks 2.4.0 on init
+In-Reply-To: <E14EZMf-0007vp-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alan Cox wrote:
+> 
+> > 1)  The amount of video memory is being incorrectly reported my the VESA call
+> > used in arch/i386/video.S (INT 10h AX=4f00h).  My Dell Inspiron 3200 (NeoMagic
+> > video) returns that it has 31 64k blocks of video memory, instead of the
+> > correct 32.  This means that vesafb thinks that I've got 1984k of video ram,
+> 
+> You have 31. The last one is used for audio buffering
+> 
+> > 2)  When the vesafb goes to mtrr_add its range (with the incorrect 1984k size)
+> > mtrr_add fails with -EINVAL.  The code in vesafb_init then goes into a while
+> > loop with no exit, as each size mtrr fails.
+> >                  while (mtrr_add(video_base, temp_size, MTRR_TYPE_WRCOMB,
+> > 1)==-EINVAL) {
+> >                          temp_size >>= 1;
+> >                  }
+> 
+> Ok that one is the bug.
 
-Of course 2.4.0 runs on m68k as well :-)
+Possibly related symptoms:
 
-Sorry, no real changes since last release, but I wanted to get something out of
-the door as soon as possible. Today is my last holiday, so my Linux development
-efforts will be much smaller next week. Someone to take over again?
+kernel 2.4.0-ac1 compiled with gcc version 2.96 20000731 (Red Hat Linux
+7.0)
 
-The patch is quite short. Looks like the stressy period just before a new major
-release is good for our patch acceptance rate. It's like a duel: who can handle
-the most stress, and who gives up... Linus might have lost this time :-)
+last 2 lines in dmesg output:
+mtrr: 0xd8000000,0x2000000 overlaps existing 0xd8000000,0x1000000
+mtrr: 0xd8000000,0x2000000 overlaps existing 0xd8000000,0x1000000
 
-If you can live without `exotic' architectures (Atari, Mac, Sun3, ... :-), the
-patch is... tiny.
+cat /proc/mtrr
+reg00: base=0x00000000 (   0MB), size= 256MB: write-back, count=1
+reg01: base=0xd8000000 (3456MB), size=  16MB: write-combining, count=1
+reg05: base=0xd0000000 (3328MB), size=  64MB: write-combining, count=1
+ 
 
-Good luck! Enjoy!
-
-    http://home.tvd.be/cr26864/Download/linux-m68k-2.4.0.diff.bz2
-
-Gr{oetje,eeting}s,
-
-			Geert (hoping this historical message ends up on /. ;-)
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
-
+My video card is Voodoo3/3000/AGP and my motherboard is an MSI-6330
+(Athlon Tbird 800)
+I am experiencing text console video corruption. In tdfxfb mode or
+regular vesafb it looks like a horizontal line of color pixels that
+grows, in 'regular' text mode I get flashing characters or the font
+degrades into unreadable mess. X is fine.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

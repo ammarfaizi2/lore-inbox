@@ -1,61 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262147AbSJPLrX>; Wed, 16 Oct 2002 07:47:23 -0400
+	id <S262370AbSJPLwx>; Wed, 16 Oct 2002 07:52:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262255AbSJPLrW>; Wed, 16 Oct 2002 07:47:22 -0400
-Received: from [211.167.76.68] ([211.167.76.68]:40659 "HELO soulinfo")
-	by vger.kernel.org with SMTP id <S262147AbSJPLrV>;
-	Wed, 16 Oct 2002 07:47:21 -0400
-Date: Wed, 16 Oct 2002 19:51:41 +0800
-From: Hu Gang <hugang@soulinfo.com>
-To: linux-kernel@vger.kernel.org, Pavel Machek <pavel@ucw.cz>
-Subject: patch: make software suspend speedup in vmware virtual machine.
-Message-Id: <20021016195141.653ec380.hugang@soulinfo.com>
-Organization: Beijing Soul
-X-Mailer: Sylpheed version 0.8.2claws28 (GTK+ 1.2.10; i386-linux-debian-i386-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1"; boundary="=.B21I2j0:vv:cO6"
+	id <S262371AbSJPLwx>; Wed, 16 Oct 2002 07:52:53 -0400
+Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:53718 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S262370AbSJPLww>; Wed, 16 Oct 2002 07:52:52 -0400
+Date: Wed, 16 Oct 2002 13:59:17 +0200 (MET DST)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: jw schultz <jw@pegasys.ws>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: mapping 36 bit physical addresses into 32 bit virtual
+In-Reply-To: <20021016100439.GF7844@pegasys.ws>
+Message-ID: <Pine.GSO.3.96.1021016135305.14774H-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=.B21I2j0:vv:cO6
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+On Wed, 16 Oct 2002, jw schultz wrote:
 
-Hello all:
+> OK. I guess i'm wrong.  It may be that the hardware was
+> locked into 32bit mode.  The development period was a couple
+> of years so we were running on essentially 89-90 tech with a
+> faster clock.
 
-With this patch 2.5.43 can resume only need ~5sec.
-without this patch 2.5.43 also can resume, but need ~240sec.
-
-This patch also can work in normal machine. But need more test.
---------------------------------------------------
---- arch/i386/kernel/suspend.c~old	Wed Oct 16 19:39:42 2002
-+++ arch/i386/kernel/suspend.c	Wed Oct 16 19:38:21 2002
-@@ -290,8 +290,8 @@
- 		for (loop2=0; loop2 < PAGE_SIZE; loop2++) {
- 			*(((char *)((pagedir_nosave+loop)->orig_address))+loop2) =
- 				*(((char *)((pagedir_nosave+loop)->address))+loop2);
--			__flush_tlb();
- 		}
-+		__flush_tlb();
- 	}
- 
- 	restore_processor_context();
-
+ I'm not sure if you can lock a MIPS system into the 32-bit mode at all,
+certainly not the processor -- it always runs with 64-bit operations
+enabled when in the kernel mode (for the user and supervisor modes it's
+selectable), though you may disable 64-bit addressing.  A system may be
+incapable of 64-bit operation if its system controller doesn't support
+doubleword transfers on the host bus, but I'm not sure if it's possible to
+force an R4k CPU to only use 32-bit transfers for cache fills and
+writebacks.  Probably not.  So that's really the matter of software only. 
 
 -- 
-		- Hu Gang
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
 
---=.B21I2j0:vv:cO6
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.0 (GNU/Linux)
-
-iD8DBQE9rVLQPM4uCy7bAJgRAouXAJ9LvxGejdHyZgKmr2jFv8cBqPI+hQCdHqYg
-nSNH1S7P2DUNdRLRMSJLJtg=
-=Hfqw
------END PGP SIGNATURE-----
-
---=.B21I2j0:vv:cO6--

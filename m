@@ -1,34 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317072AbSHAVMR>; Thu, 1 Aug 2002 17:12:17 -0400
+	id <S317107AbSHAVSO>; Thu, 1 Aug 2002 17:18:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317102AbSHAVMQ>; Thu, 1 Aug 2002 17:12:16 -0400
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:46347 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S317072AbSHAVMQ>; Thu, 1 Aug 2002 17:12:16 -0400
-Date: Thu, 1 Aug 2002 23:15:36 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: David Woodhouse <dwmw2@infradead.org>, David Howells <dhowells@redhat.com>,
-       <alan@redhat.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: manipulating sigmask from filesystems and drivers 
-In-Reply-To: <Pine.LNX.4.33.0208011348430.12015-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0208012313200.8911-100000@serv>
+	id <S317115AbSHAVSO>; Thu, 1 Aug 2002 17:18:14 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:35083 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S317107AbSHAVSN>; Thu, 1 Aug 2002 17:18:13 -0400
+Message-ID: <3D49A532.1090606@evision.ag>
+Date: Thu, 01 Aug 2002 23:16:34 +0200
+From: Marcin Dalecki <dalecki@evision.ag>
+Reply-To: martin@dalecki.de
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.1b) Gecko/20020722
+X-Accept-Language: en-us, en, pl, ru
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: martin@dalecki.de, Petr Vandrovec <VANDROVE@vc.cvut.cz>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.29 IDE 110
+References: <C917933AE2@vcnet.vc.cvut.cz>  <3D499862.6070305@evision.ag> <1028238427.14871.95.camel@irongate.swansea.linux.org.uk>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+U¿ytkownik Alan Cox napisa³:
+> On Thu, 2002-08-01 at 21:21, Marcin Dalecki wrote:
+> 
+>>Maybe not a loop device? But how about handling this at partition scan
+>>time then? Partitions are after all nothing else then devices
+>>with remapped sectors in first place. Could you manage to insert
+>>at the proper place in paritions/*.c the magical + 1.
+>>It could then be turned in no instant in to a global kernel
+>>option - whch it what it is after all.
+> 
+> 
+> Is there any reason this can't be dumped on LVM2 and/or EVMS whichever
+> gets in ?
 
-On Thu, 1 Aug 2002, Linus Torvalds wrote:
+Lets not forgett that the code removed would allow to read behind the
+partion in question and was broken therefore. However the real world
+example from Petr worries me and makes me thinking that the partition
+scanning time solution could turn out to be most adequate -> we have the
+FAT partition ID there at hand and could adjust the partition
+parameters in question properly with ease. Both of them: offset *and* size.
 
-> Go read the standards. Some IO is not interruptible.
-
-Which standard? Which "some IO"?
-Some programs rely on interruptable IO, e.g. to implement timeouts.
-/me is confused.
-
-bye, Roman
+Petr would you mind dumping the dd=/dev/hdx count=10 of the
+disk in question at me? Or do you preferr to go after this blotch
+yourself?
 

@@ -1,42 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281496AbRKMF2D>; Tue, 13 Nov 2001 00:28:03 -0500
+	id <S281502AbRKMF3x>; Tue, 13 Nov 2001 00:29:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281502AbRKMF1y>; Tue, 13 Nov 2001 00:27:54 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:55449 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S281496AbRKMF1m>;
-	Tue, 13 Nov 2001 00:27:42 -0500
-Date: Tue, 13 Nov 2001 00:27:41 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S281503AbRKMF3p>; Tue, 13 Nov 2001 00:29:45 -0500
+Received: from zero.tech9.net ([209.61.188.187]:8979 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S281502AbRKMF3k>;
+	Tue, 13 Nov 2001 00:29:40 -0500
 Subject: Re: GPLONLY kernel symbols???
-In-Reply-To: <200111130503.fAD53ns17951@vindaloo.ras.ucalgary.ca>
-Message-ID: <Pine.GSO.4.21.0111130019340.22925-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Robert Love <rml@tech9.net>
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200111130523.fAD5NRK18457@vindaloo.ras.ucalgary.ca>
+In-Reply-To: <200111130324.fAD3OE916102@vindaloo.ras.ucalgary.ca>
+	<Pine.GSO.4.21.0111122249160.22925-100000@weyl.math.psu.edu>
+	<200111130358.fAD3wgb16617@vindaloo.ras.ucalgary.ca>
+	<3BF09E44.58D138A6@mandrakesoft.com>
+	<200111130437.fAD4b2j17329@vindaloo.ras.ucalgary.ca>
+	<3BF0A788.8CCBC91@mandrakesoft.com>
+	<200111130500.fAD50Wi17879@vindaloo.ras.ucalgary.ca>
+	<3BF0AC47.221B6CD6@mandrakesoft.com> 
+	<200111130523.fAD5NRK18457@vindaloo.ras.ucalgary.ca>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.99.1+cvs.2001.11.11.08.57 (Preview Release)
+Date: 13 Nov 2001 00:29:35 -0500
+Message-Id: <1005629381.838.0.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Mon, 12 Nov 2001, Richard Gooch wrote:
-
-> Alexander Viro writes:
-> > No, you shouldn't.  For those of us who have similar problems with
-> > reviewing your code patch (later - CVS or RCS) will appear on
-> > ftp.math.psu.edu/pub/viro/ tommorrow.  End of story.
+On Tue, 2001-11-13 at 00:23, Richard Gooch wrote:
+> The problem is that I'm not the only writer of that code.
+> Occasionally, global API changes are made, and these aren't sent to
+> me, but go to Linus directly, unfortunately. So I do have to merge
+> stuff back into my tree from time to time.
 > 
-> So is this the hostile takeover you've mentioned? Even though I'm
-> addressing the devfs races you've complained about so often, and have
-> been releasing these patches, you still wish to pursue this hostile
-> action?
+> A few days ago I was thinking about this, and I thought how cool it
+> would be to have a reliable utility that could convert between the two
+> coding styles. If I had that (and it was bulletproof) then it could be
+> used with some kind of userfs to give me two views of the kernel: the
+> underlying one "raw" one, to which I'd apply patches and generate them
+> from, and a "sanitised" one, that I would read and edit.
 
-Oh, for crying out loud!  You've very eloquently described the problems
-with reading code in alien style.  You have said that you were tired
-with other folks complaining about coding style of devfs.  I replied
-telling these people where to look for a version that will be in
-standard kernel style, so that they could get off your back.  What's
-your problem with _that_, for fsck sake?
+Good lord, and you would dream this up and use it before just using the
+same coding style as the rest of us? :)
+
+Maybe I am biased because I find CodingStyle beautiful, but I can't
+understand why it is so hard to just play nicely with the rest of us.  I
+diffed a patch for Alan against mtrr.c a week or so back to fix some
+compile bug, and I was confused doing a _two line_ diff.
+
+	Robert Love
 

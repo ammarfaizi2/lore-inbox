@@ -1,90 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275023AbTHLC6O (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 22:58:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275024AbTHLC6O
+	id S274997AbTHLDbG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 23:31:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275000AbTHLDbG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 22:58:14 -0400
-Received: from main.gmane.org ([80.91.224.249]:48546 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S275023AbTHLC6G (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 22:58:06 -0400
-Mail-Followup-To: linux-kernel@vger.kernel.org
-X-Injected-Via-Gmane: http://gmane.org/
+	Mon, 11 Aug 2003 23:31:06 -0400
+Received: from abraham.CS.Berkeley.EDU ([128.32.37.170]:37126 "EHLO
+	abraham.cs.berkeley.edu") by vger.kernel.org with ESMTP
+	id S274997AbTHLDbB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Aug 2003 23:31:01 -0400
 To: linux-kernel@vger.kernel.org
-From: ilmari@ilmari.org (=?utf-8?b?RGFnZmlubiBJbG1hcmkg?=
-	=?utf-8?b?TWFubnPDpWtlcg==?=)
-Subject: Re: C99 Initialisers
-Date: Tue, 12 Aug 2003 04:57:53 +0200
-Organization: Program-, Informasjons- og Nettverksteknologisk Gruppe, UiO
-Message-ID: <d8jzniflgzy.fsf@wirth.ping.uio.no>
-References: <20030812020226.GA4688@zip.com.au> <1060654733.684.267.camel@localhost>
- <20030812023936.GE3169@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Complaints-To: usenet@sea.gmane.org
-Mail-Copies-To: never
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.2 (gnu/linux)
-Cancel-Lock: sha1:tjOYvPtEe+GRVQzs+NwV53CiI3o=
-Cc: kernel-janitor-discuss@lists.sourceforge.net
+Path: not-for-mail
+From: daw@mozart.cs.berkeley.edu (David Wagner)
+Newsgroups: isaac.lists.linux-kernel
+Subject: Re: [PATCH] loop: fixing cryptoloop troubles.
+Date: Tue, 12 Aug 2003 03:30:22 +0000 (UTC)
+Organization: University of California, Berkeley
+Distribution: isaac
+Message-ID: <bh9n0e$nbf$1@abraham.cs.berkeley.edu>
+References: <20030810023606.GA15356@ghanima.endorphin.org> <1060525667.14835.4.camel@chtephan.cs.pocnet.net> <20030810210306.GA2235@ghanima.endorphin.org> <1060553236.25524.49.camel@chtephan.cs.pocnet.net>
+NNTP-Posting-Host: mozart.cs.berkeley.edu
+X-Trace: abraham.cs.berkeley.edu 1060659022 23919 128.32.153.211 (12 Aug 2003 03:30:22 GMT)
+X-Complaints-To: usenet@abraham.cs.berkeley.edu
+NNTP-Posting-Date: Tue, 12 Aug 2003 03:30:22 +0000 (UTC)
+X-Newsreader: trn 4.0-test74 (May 26, 2000)
+Originator: daw@mozart.cs.berkeley.edu (David Wagner)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Wilcox <willy@debian.org> writes:
-
-> On Mon, Aug 11, 2003 at 07:18:53PM -0700, Robert Love wrote:
->> Convert GNU-style to C99-style.  I think converting unnamed initializers
->> to named initializers is a Good Thing, too.
+Christophe Saout  wrote:
+>Before encryption the data to be encrypted gets xor'ed with the result
+>from the previous encrypted block. The idea in cryptoloop is that not
+>the result from the previous run gets used but a specially constructed
+>dummy block that has the sector number (little-endian encoded) in the
+>first four bytes and is null every where else. So you simply get some
+>additional perturbation based on the sector number, so that zero-filled
+>sectors always looked differently after encoding.
 >
-> By and large ... here's a counterexample:
+>When decoding this means that the sector number is xor'ed over the
+>encrypted block. If, when decoding, the sector number doesn't match that
+>one that was put in the iv while encoding that sector, you will get
+>errors in the first four bytes, mostly one or few bits flipped.
 
-[snip unnamed initialisation]
+Unrelated to the corruption issues:
 
-> I don't think anyone would appreciate you converting that to:
+Is this how cryptoloop works?  The sector number is used directly as the
+IV (not the encrypted sector number)?  In other words, if X denotes the
+first block of plaintext and S the sector number, then the first block
+of ciphertext is C = E_K(X ^ S)?
 
-[snip C99 named initialisation]
+If yes, I noticed a small security weakness.  This usage of CBC mode can
+leak a few bits of information about the plaintext data, in some cases.
+For instance, consider the following example.  Let X denote the first block
+of plaintext at sector S, and X' the first block of plaintext at sector S'.
+Suppose X' = X^1 and S' = S^1 (here "^" denotes xor, as usual).  Then
+C = E_K(X^S), and C' = E_K(X'^S') = E_K((X^1)^(S^1)) = E_K(X^S) = C.
+This condition can be recognized in the encrypted data.
 
-To the contrary (and I agree with Jeff):
+In other words, here's the attack.  The attacker looks at two sectors,
+number S and S', and looks at the first block of ciphertext in each sector,
+call them C and C'.  If C = C', then the attacker knows that
+X = X' ^ S ^ S', where X and X' denote the first block of plaintext in
+each sector.  If plaintext were totally random, this would almost never
+happen (with probability 2^-64 for a 64-bit block cipher).  However,
+plaintext data often isn't exactly random.  There are some plausible
+ways that the condition X = X' ^ S ^ S' could arise with non-negligible
+probability, and if this happens, information leaks to the attacker.
 
-From: Jeff Garzik <jgarzik@pobox.com>
-To: davej@redhat.com
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] c99 initialisers for random.c
-Message-ID: <20030811144709.GA32180@gtf.org>
-References: <E19mCuO-0003da-00@tetrachloride>
-
-On Mon, Aug 11, 2003 at 02:40:24PM +0100, davej@redhat.com wrote:
-> diff -urpN --exclude-from=/home/davej/.exclude bk-linus/drivers/char/random.c linux-2.5/drivers/char/random.c
-> --- bk-linus/drivers/char/random.c	2003-08-04 01:00:22.000000000 +0100
-> +++ linux-2.5/drivers/char/random.c	2003-08-06 18:59:31.000000000 +0100
->@@ -1850,27 +1850,62 @@ static int uuid_strategy(ctl_table *tabl
-> }
-> 
-> ctl_table random_table[] = {
->-	{RANDOM_POOLSIZE, "poolsize",
->-	 &sysctl_poolsize, sizeof(int), 0644, NULL,
->-	 &proc_do_poolsize, &poolsize_strategy},
-[...]
->-       {0}
->+	{
->+		.ctl_name	= RANDOM_POOLSIZE,
->+		.procname	= "poolsize",
->+		.data		= &sysctl_poolsize,
->+		.maxlen		= sizeof(int),
->+		.mode		= 0644,
->+		.proc_handler	= &proc_do_poolsize,
->+		.strategy	= &poolsize_strategy,
->+	},
-[...]
->+	{ .ctl_name = 0 }
-> };
-> 
-> static void sysctl_init_random(struct entropy_store *random_state)
-
-Wow.  That is so much more clean (to my eyes).
-
-	Jeff
-
--- 
-ilmari
-
+Is this a problem worth fixing?  You'll have to decide.  Fortunately,
+there is a simple fix: use the encrypted sector number as IV, not the
+plaintext sector number.  In other words, the IV would be E_K(S), and
+thus the first block of ciphertext would be C = E_K(X ^ E_K(S)).  This
+fix makes the above attack go away.

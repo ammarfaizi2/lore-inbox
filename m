@@ -1,77 +1,79 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315885AbSEGQNw>; Tue, 7 May 2002 12:13:52 -0400
+	id <S315887AbSEGQOA>; Tue, 7 May 2002 12:14:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315887AbSEGQNv>; Tue, 7 May 2002 12:13:51 -0400
-Received: from PACIFIC-CARRIER-ANNEX.MIT.EDU ([18.7.21.83]:27298 "EHLO
-	pacific-carrier-annex.mit.edu") by vger.kernel.org with ESMTP
-	id <S315885AbSEGQNu>; Tue, 7 May 2002 12:13:50 -0400
-Message-Id: <200205071613.MAA22929@contents-vnder-pressvre.mit.edu>
+	id <S315888AbSEGQN7>; Tue, 7 May 2002 12:13:59 -0400
+Received: from vana.vc.cvut.cz ([147.32.240.58]:33408 "EHLO vana.vc.cvut.cz")
+	by vger.kernel.org with ESMTP id <S315887AbSEGQN6>;
+	Tue, 7 May 2002 12:13:58 -0400
+Date: Tue, 7 May 2002 18:13:57 +0200
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
 To: linux-kernel@vger.kernel.org
-Subject: [patch] use sysctl to adjust SOMAXCONN 
-Date: Tue, 07 May 2002 12:13:45 -0400
-From: Nickolai Zeldovich <kolya@MIT.EDU>
+Subject: Fwd: NLS mappings for iso-8859-* encodings
+Message-ID: <20020507161357.GC15298@vana.vc.cvut.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch allows the effective SOMAXCONN value to be adjusted
-by sysctl, as net.core.listen_max.  The user-space value remains
-fixed at the current value of 128, so this should not affect the
-behavior of applications by default.  A value larger than 128 is
-sometimes useful for benchmarking purposes, when lots of new TCP
-connections are established at once.
+Hi,
+  I sent message below to linux-fsdevel yesterday, but I received no
+feedback. Meanwhile I also created patch which does changes proposed
+below (map 0x80-0x9F to unicode 0x80-0x9F for ISO encodings).
+Patch is available at http://platan.vc.cvut.cz/nls3.patch (39KB).
 
--- kolya
+  If I'll not receive any feedback, I plan to send it to Linus soon.
+Currently if you'll mount NCP filesystem with accented characters
+without proper iocharset/codepage options, you'll not see filenames
+with accented characters at all, as they will not pass through
+char2uni of default (iso8859-1) NLS (there was warning printk,
+but it was way to DoS...).
 
---- linux-2.5.14/net/socket.c.orig	Sun May  5 23:37:59 2002
-+++ linux-2.5.14/net/socket.c	Tue May  7 12:09:56 2002
-@@ -1055,14 +1055,15 @@
-  *	ready for listening.
-  */
- 
-+int sysctl_listen_max = SOMAXCONN;
- asmlinkage long sys_listen(int fd, int backlog)
- {
- 	struct socket *sock;
- 	int err;
- 	
- 	if ((sock = sockfd_lookup(fd, &err)) != NULL) {
--		if ((unsigned) backlog > SOMAXCONN)
--			backlog = SOMAXCONN;
-+		if ((unsigned) backlog > sysctl_listen_max)
-+			backlog = sysctl_listen_max;
- 		err=sock->ops->listen(sock, backlog);
- 		sockfd_put(sock);
- 	}
---- linux-2.5.14/net/core/sysctl_net_core.c.orig	Sun May  5 23:38:00 2002
-+++ linux-2.5.14/net/core/sysctl_net_core.c	Tue May  7 12:09:56 2002
-@@ -29,6 +29,7 @@
- extern int sysctl_core_destroy_delay;
- extern int sysctl_optmem_max;
- extern int sysctl_hot_list_len;
-+extern int sysctl_listen_max;
- 
- #ifdef CONFIG_NET_DIVERT
- extern char sysctl_divert_version[];
-@@ -88,6 +89,9 @@
- 	 (void *)sysctl_divert_version, 32, 0444, NULL,
- 	 &proc_dostring},
- #endif /* CONFIG_NET_DIVERT */
-+	{NET_CORE_LISTEN_MAX, "listen_max",
-+	 &sysctl_listen_max, sizeof(int), 0644, NULL,
-+	 &proc_dointvec},
- #endif /* CONFIG_NET */
- 	{ 0 }
- };
---- linux-2.5.14/include/linux/sysctl.h.orig	Sun May  5 23:37:52 2002
-+++ linux-2.5.14/include/linux/sysctl.h	Tue May  7 12:10:34 2002
-@@ -203,7 +203,8 @@
- 	NET_CORE_NO_CONG=14,
- 	NET_CORE_LO_CONG=15,
- 	NET_CORE_MOD_CONG=16,
--	NET_CORE_DEV_WEIGHT=17
-+	NET_CORE_DEV_WEIGHT=17,
-+	NET_CORE_LISTEN_MAX=18
- };
- 
- /* /proc/sys/net/ethernet */
+  I do not want to use way SMB does (map unknown characters to
+:x## string) as it is not trivial to map them back. But if you
+think that it is correct that some NLS tables contain characters
+without unicode equivalents...
+					Thanks,
+						Petr Vandrovec
+						vandrove@vc.cvut.cz
+
+----- Forwarded (typos cleared) message -----
+
+Resent-Message-Id: <200205071658.RAA26606@zikova.cvut.cz>
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization:  CC CTU Prague
+To: linux-fsdevel@vger.kernel.org
+Subject:       NLS mappings for iso-8859-* encodings
+X-Mailing-List: 	linux-fsdevel@vger.kernel.org
+
+Hi,
+  today it was pointed to me (see Debian bugreport #145654,
+http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=145654) that
+all nls_iso8859-* mappings available in kernel refuse to map
+characters in range 0x80-0x9F to anything reasonable.
+
+  This behavior means, that with NLS default set to any of
+iso8859-* encoding (including default iso-8859-1) filesystems
+which contain data in cp850/852/437 codepages will have bad
+problems, as majority of accented characters live in 0x80-0x9F
+range in these codepages.
+
+  And worse is that old 2.2.x kernels defaulted to 1:1 mapping,
+so people were used to see wrong accented characters, but all filenames.
+Now they see nothing :-( 
+
+  Is there any reason why 0x80-0x9F range is not mapped identically
+to 0x80-0x9F unicode range? I believe that unicode is even defined
+as having first 256 characters identical to iso8859-1.
+                                                Thanks,
+                                                    Petr Vandrovec
+                                                    vandrove@vc.cvut.cz
+                                                    
+-
+To unsubscribe from this list: send the line "unsubscribe linux-fsdevel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+----- End forwarded message -----

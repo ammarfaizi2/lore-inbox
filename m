@@ -1,128 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270347AbRHHGFL>; Wed, 8 Aug 2001 02:05:11 -0400
+	id <S270350AbRHHGLw>; Wed, 8 Aug 2001 02:11:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270348AbRHHGFC>; Wed, 8 Aug 2001 02:05:02 -0400
-Received: from demai05.mw.mediaone.net ([24.131.1.56]:48021 "EHLO
-	demai05.mw.mediaone.net") by vger.kernel.org with ESMTP
-	id <S270347AbRHHGEr>; Wed, 8 Aug 2001 02:04:47 -0400
-Message-Id: <200108080604.f7864wa22844@demai05.mw.mediaone.net>
-Content-Type: text/plain; charset=US-ASCII
-From: Brian <hiryuu@envisiongames.net>
-To: linux-kernel@vger.kernel.org
-Subject: Oops/Panic in 2.4.7
-Date: Wed, 8 Aug 2001 02:05:13 -0400
-X-Mailer: KMail [version 1.3]
+	id <S270349AbRHHGLb>; Wed, 8 Aug 2001 02:11:31 -0400
+Received: from [63.209.4.196] ([63.209.4.196]:11026 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S270348AbRHHGLX>; Wed, 8 Aug 2001 02:11:23 -0400
+Date: Tue, 7 Aug 2001 23:08:32 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: lkml <linux-kernel@vger.kernel.org>, Rik van Riel <riel@conectiva.com.br>
+Subject: Re: [PATCH] total_free_shortage() using zone_free_shortage()
+In-Reply-To: <Pine.LNX.4.21.0108080057030.13081-100000@freak.distro.conectiva>
+Message-ID: <Pine.LNX.4.33.0108072248070.925-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Affter about a week, our main web server coughed up at least four
-	Unable to handle kernel NULL pointer dereference at virtual address...
-(klogd or syslogd died during the 4th) followed by a
-	Unable to handle kernel paging request at virtual address ef2a571c
-It finally died with
-	Kernel panic: Attempted to kill init!
 
-This kernel was compiled as UP w/modules disabled on
-	gcc version 2.95.4 20010721 (Debian prerelease)
-We have also crashed 2.4.4 and 2.4.6 (both made with 2.95.2) within 
-the past month, but I didn't drive out to get an oops from those.
+On Wed, 8 Aug 2001, Marcelo Tosatti wrote:
+>
+> Testing.
 
-The server is a basic P3/750 with 512MB RAM and no swap (it was 
-pretty much just getty and portmap in there, anyway).
+Btw, after doing the math I can already tell you that the constraints this
+patch puts on "free" memory are much too aggressive.
 
-This is the last complete oops in syslog:
-ksymoops 2.4.1 on i686 2.4.7.  Options used
-     -v /tmp/vmlinux (specified)
-     -K (specified)
-     -L (specified)
-     -O (specified)
-     -m /System.map (specified)
+We should let the inactive_clean numbers grow much more than this patch
+does - the plenty-limit for "inactive" pages (ie "zone_inactive_plenty()"
+is a hefty "zone->size/3", and I think the plenty-limit for "free" pages
+should be noticeably higher than just "zone->pages_high".
 
-Unable to handle kernel NULL pointer dereference at virtual address 00000008
-c0136a40
-*pde = 00000000
-Oops: 0000
-CPU:    0
-EIP:    0010:[do_pollfd+20/136]
-EFLAGS: 00010297
-eax: 00000008   ebx: 00000000   ecx: 00000001   edx: c2fa88c0
-esi: 00000000   edi: 00000008   ebp: 00000000   esp: d94adf20
-ds: 0018   es: 0018   ss: 0018
-Process httpd (pid: 18289, stackpage=d94ad000)
-Stack: 00000000 00000000 bfff3dd8 000001f4 c0136b39 00000001 00000008 d94adf58
-       d94adf5c 00000001 00000000 bfff3dd8 d94adfbc d94ac000 00000000 00000000
-       c0136d8d 00000001 00000000 00000001 c2fa88c0 d94adfb4 000001f5 d94ac000
-Call Trace: [do_poll+133/220] [sys_poll+509/784] [sys_socketcall+281/512] [system_call+51/56]
-Code: 8b 07 31 f6 85 c0 7c 56 e8 5b 2e ff ff 89 c3 be 20 00 00 00
-Using defaults from ksymoops -t elf32-i386 -a i386
+Right now pages_high defaults to (zone->size / 128) * 3, so with the patch
+we basically stop laundering a zone when it has 2.5% inactive_clean +
+outright free pages. Which is fairly obviously hugely bogus now that I
+actually did the math ;)
 
-Code;  00000000 Before first symbol
-00000000 <_EIP>:
-Code;  00000000 Before first symbol
-   0:   8b 07                     mov    (%edi),%eax
-Code;  00000002 Before first symbol
-   2:   31 f6                     xor    %esi,%esi
-Code;  00000004 Before first symbol
-   4:   85 c0                     test   %eax,%eax
-Code;  00000006 Before first symbol
-   6:   7c 56                     jl     5e <_EIP+0x5e> 0000005e Before first symbol
-Code;  00000008 Before first symbol
-   8:   e8 5b 2e ff ff            call   ffff2e68 <_EIP+0xffff2e68> ffff2e68 <END_OF_CODE+3fdc3410/????>
-Code;  0000000d Before first symbol
-   d:   89 c3                     mov    %eax,%ebx
-Code;  0000000f Before first symbol
-   f:   be 20 00 00 00            mov    $0x20,%esi
+The current patch "zone_free_plenty()" logic also happens to be just at
+the corner of what __alloc_pages() thinks is good, so the anti-hysteresis
+doesn't actually end up working in that sense - we end up bouncing around
+that magic "pages_high" value.
 
-This is the oops immediately before the panic:
-ksymoops 2.4.1 on i686 2.4.7.  Options used
-     -v /tmp/vmlinux (specified)
-     -K (specified)
-     -L (specified)
-     -O (specified)
-     -m /System.map (specified)
+Rik, Marcelo, any suggestions on less obviously bogus "plenty" values?
 
-Unable to handle kernel paging request at virtual address ef2a571c
-c01210bc
-*pde = 00000000
-Oops: 0000
-CPU:    0
-EIP:    0010:[<c01210bc>]
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010082
-eax: 081d70c1   ebx: c1881d40   ecx: df298c80   edx: ceb49400
-esi: 00000292   edi: 000000f0   ebp: bffff80c   esp: c188bf54
-ds: 0018   es: 0018   ss: 0018
-Process init (pid: 1, stackpage=c188b000)
-Stack: 0804dee7 fffffff4 c188bfa4 c013211c c1881d40 000000f0 c188bfa4 bffff84c
-       c188bfa4 c013301d 0804dee7 c188bfa4 bffff84c 0804dee7 c012ff16 0804dee7
-       00000009 c188bfa4 c188a000 bffff84c 00000000 c81fdee0 c81fdee4 c81fdee8
-Call Trace: [<c013211c>] [<c013301d>] [<c012ff16>] [<c0106afb>]
-Code: 8b 44 82 18 89 42 14 83 f8 ff 75 08 8b 02 89 43 08 8d 76 00
- 
->>EIP; c01210bc <kmem_cache_alloc+24/54>   <=====
-Trace; c013211c <getname+1c/9c>
-Trace; c013301d <__user_walk+11/58>
-Trace; c012ff16 <sys_newstat+16/70>
-Trace; c0106afb <system_call+33/38>
-Code;  c01210bc <kmem_cache_alloc+24/54>
-00000000 <_EIP>:
-Code;  c01210bc <kmem_cache_alloc+24/54>   <=====
-   0:   8b 44 82 18               mov    0x18(%edx,%eax,4),%eax   <=====
-Code;  c01210c0 <kmem_cache_alloc+28/54>
-   4:   89 42 14                  mov    %eax,0x14(%edx)
-Code;  c01210c3 <kmem_cache_alloc+2b/54>
-   7:   83 f8 ff                  cmp    $0xffffffff,%eax
-Code;  c01210c6 <kmem_cache_alloc+2e/54>
-   a:   75 08                     jne    14 <_EIP+0x14> c01210d0 <kmem_cache_alloc+38/54>
-Code;  c01210c8 <kmem_cache_alloc+30/54>
-   c:   8b 02                     mov    (%edx),%eax
-Code;  c01210ca <kmem_cache_alloc+32/54>
-   e:   89 43 08                  mov    %eax,0x8(%ebx)
-Code;  c01210cd <kmem_cache_alloc+35/54>
-  11:   8d 76 00                  lea    0x0(%esi),%esi
+My personal "random number" would be to just to multiply that limit by
+two, and make the plenty test say that we have enough free if we have more
+than 2*zone->pages_free.
 
-Thanks,
-	-- Brian
+I also think that 5% "free or really easily freeable" sounds a bit more
+reasonable than 2.5%.
+
+Comments?
+
+			Linus
+

@@ -1,84 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129101AbRBLTVS>; Mon, 12 Feb 2001 14:21:18 -0500
+	id <S129471AbRBLT0i>; Mon, 12 Feb 2001 14:26:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129144AbRBLTVJ>; Mon, 12 Feb 2001 14:21:09 -0500
-Received: from code.and.org ([63.113.167.33]:19332 "EHLO mail.and.org")
-	by vger.kernel.org with ESMTP id <S129031AbRBLTUz>;
-	Mon, 12 Feb 2001 14:20:55 -0500
-To: hps@tanstaafl.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: DNS goofups galore...
-In-Reply-To: <95ulrk$aik$1@forge.intermeta.de>
-	<3A83335A.A5764CD7@transmeta.com> <968mgd$l8m$1@forge.intermeta.de>
-From: James Antill <james@and.org>
-Content-Type: text/plain; charset=US-ASCII
-Date: 12 Feb 2001 14:19:01 -0500
-In-Reply-To: "Henning P. Schmiedehausen"'s message of "Mon, 12 Feb 2001 12:55:41 +0000 (UTC)"
-Message-ID: <nn4rxz7lqy.fsf@code.and.org>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Capitol Reef)
-MIME-Version: 1.0
+	id <S129144AbRBLT02>; Mon, 12 Feb 2001 14:26:28 -0500
+Received: from kweetal.tue.nl ([131.155.2.7]:18467 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id <S129129AbRBLT0X>;
+	Mon, 12 Feb 2001 14:26:23 -0500
+Message-ID: <20010212202621.A29164@win.tue.nl>
+Date: Mon, 12 Feb 2001 20:26:21 +0100
+From: Guest section DW <dwguest@win.tue.nl>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Matti Aarnio <matti.aarnio@zmailer.org>,
+        Guennadi Liakhovetski <g.liakhovetski@ragingbull.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: lkml subject line
+In-Reply-To: <20010212161347.A28981@win.tue.nl> <Pine.GSO.4.21.0102121118580.10132-100000@acms23> <20010212133324.B15688@mea-ext.zmailer.org> <20010212161347.A28981@win.tue.nl> <6195.981991148@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93i
+In-Reply-To: <6195.981991148@redhat.com>; from David Woodhouse on Mon, Feb 12, 2001 at 03:19:08PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Henning P. Schmiedehausen" <hps@tanstaafl.de> writes:
-
-> hpa@transmeta.com (H. Peter Anvin) writes:
+On Mon, Feb 12, 2001 at 03:19:08PM +0000, David Woodhouse wrote:
 > 
-> >>         In other words, you do a lookup, you start with a primary lookup
-> >> and then possibly a second lookup to resolve an MX or CNAME.  It's only
-> >> the MX that points to a CNAME that results in yet another lookup.  An
-> >> MX pointing to a CNAME is almost (almost, but not quite) as bad as a
-> >> CNAME pointing to a CNAME.
-> >> 
+> dwguest@win.tue.nl said:
+> >  There are advantages: distinguish personal messages from mailing list
+> > messages, and distinguish between different mailing lists. And
+> > disadvantages - maybe only one: sacrificing valuable Subject: line
+> > space. 
 > 
-> >There is no reducibility problem for MX -> CNAME, unlike the CNAME ->
-> >CNAME case.
-> 
-> >Please explain how there is any different between an CNAME or MX pointing
-> >to an A record in a different SOA versus an MX pointing to a CNAME
-> >pointing to an A record where at least one pair is local (same SOA).
-> 
-> CNAME is the "canonical name" of a host. Not an alias. There is good
-> decriptions for the problem with this in the bat book. Basically it
-> breaks if your mailer expects one host on the other side (mail.foo.org) 
-> and suddently the host reports as mail.bar.org). The sender is
-> allowed to assume that the name reported after the "220" greeting
-> matches the name in the MX. This is impossible with a CNAME:
-> 
-> mail.foo.org.   IN A 1.2.3.4
-> mail.bar.org.   IN CNAME mail.foo.org.
-> bar.org.        IN MX 10 mail.bar.org.
-> 
-> % telnet mail.bar.org smtp
-> 220 mail.foo.org ESMTP ready
->     ^^^^^^^^^^^^
-> 
-> This kills loop detection. Yes, it is done this way =%-) and it breaks
-> if done wrong.
+> The advantages can all be gained without that disadvantage by just learning 
+> to filter mail on other headers instead of the subject line.
 
- This is humour, yeh ?
+Correct. But that introduces other disadvantages again.
+It may be inconvenient to separate incoming mail into
+a number of separate mailboxes that one has to visit
+one by one. (Entirely apart from the question whether the
+local setup makes it possible or convenient to do any filtering.)
+Maybe you had other constructions in mind,
+but I cannot think of any that would not waste some time.
 
- I would be supprised if even sendmail assumed braindamage like the
-above.
- For instance something that is pretty common is...
-
-foo.example.com.         IN A 4.4.4.4
-foo.example.com.         IN MX 10 mail.example.com.
-foo.example.com.         IN MX 20 backup-mx1.example.com.
-
-; This is really mail.example.org.
-backup-mx1.example.com.  IN A 1.2.3.4
-
-...another is to have "farms" of mail servers (the A record for the MX
-has multiple entries).
- If it "broke" as you said, then a lot of mail wouldn't be being routed.
-
--- 
-# James Antill -- james@and.org
-:0:
-* ^From: .*james@and\.org
-/dev/null
+Andries
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

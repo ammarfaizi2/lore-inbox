@@ -1,85 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264389AbUD0W7h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264306AbUD0W6h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264389AbUD0W7h (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 18:59:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264392AbUD0W7h
+	id S264306AbUD0W6h (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 18:58:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264388AbUD0W6h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 18:59:37 -0400
-Received: from stokkie.demon.nl ([82.161.49.184]:64404 "HELO stokkie.net")
-	by vger.kernel.org with SMTP id S264389AbUD0W71 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 18:59:27 -0400
-Date: Wed, 28 Apr 2004 00:59:23 +0200 (CEST)
-From: "Robert M. Stockmann" <stock@stokkie.net>
-To: Michael Poole <mdpoole@troilus.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Blacklist binary-only modules lying about their license
-In-Reply-To: <878ygh147m.fsf@sanosuke.troilus.org>
-Message-ID: <Pine.LNX.4.44.0404280036330.13769-100000@hubble.stokkie.net>
+	Tue, 27 Apr 2004 18:58:37 -0400
+Received: from chococat.sd.dreamhost.com ([66.33.206.16]:23986 "EHLO
+	chococat.sd.dreamhost.com") by vger.kernel.org with ESMTP
+	id S264306AbUD0W6e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Apr 2004 18:58:34 -0400
+Message-ID: <4609.171.64.70.113.1083106713.spork@webmail.coverity.com>
+In-Reply-To: <20040427221446.GA2662@one-eyed-alien.net>
+References: <4448.171.64.70.113.1083102442.spork@webmail.coverity.com>
+    <20040427221446.GA2662@one-eyed-alien.net>
+Date: Tue, 27 Apr 2004 15:58:33 -0700 (PDT)
+Subject: Re: [CHECKER] Implementation inconsistencies in 2.6.3
+From: "Ken Ashcraft" <ken@coverity.com>
+To: "Matthew Dharm" <mdharm-kernel@one-eyed-alien.net>
+Cc: linux-kernel@vger.kernel.org
+Reply-To: ken@coverity.com
+User-Agent: DreamHost Webmail
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-AntiVirus: scanned for viruses by AMaViS 0.2.2 (ftp://crashrecovery.org/pub/linux/amavis/)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Apr 2004, Michael Poole wrote:
+> On Tue, Apr 27, 2004 at 02:47:22PM -0700, Ken Ashcraft wrote:
+>> I'm trying to cross check implementations of the same interface for
+>> errors.  I assume that if functions are assigned to the same function
+>> pointer, they are implementations of a common interface and should be
+>> consistent with each other.  For example, if one implementation checks
+>> one
+>> of its arguments for NULL, the other implementation should also check
+>> that
+>> argument for NULL.
+>>
+>> In this case, I'm looking at which arguments are referenced at all in
+>> the
+>> implementation.  If we have 10 implementations and 9 of them read
+>> argument
+>> 1 and the 10th fails to read argument 1, the 10th implementation may be
+>> missing some code.  In each of the reports below, I give an example
+>> implementation that does read the argument.  That is followed by an
+>> implementation that fails to read the argument.
+>>
+>
+>> ---------------------------------------------------------
+>> [BUG] (mdharm-usb@one-eyed-alien.net) looks like it should return count
+>> instead of strlen(buf), but this is in scsiglue.c, so is it special
+>> code?
+>>
+>> example:
+>> /home/kash/linux/2.6.3/linux-2.6.3/drivers/scsi/scsi_sysfs.c:274:store_rescan_field:
+>> NOTE:READ: Checking arg count [EXAMPLE=device_attribute.store-2]
+>>
+>> /home/kash/linux/2.6.3/linux-2.6.3/drivers/usb/storage/scsiglue.c:321:store_max_sectors:
+>> ERROR:READ: Not checking arg [COUNTER=device_attribute.store-2]  [fit=1]
+>> [fit_fn=1] [fn_ex=0] [fn_counter=1] [ex=233] [counter=1] [z >
+>> 3.20943839741638] [fn-z = -4.35889894354067]
+>>
+>> 	return sprintf(buf, "%u\n", sdev->request_queue->max_sectors);
+>> }
+>>
+>> /* Input routine for the sysfs max_sectors file */
+>>
+>> Error --->
+>> static ssize_t store_max_sectors(struct device *dev, const char *buf,
+>> 		size_t count)
+>> {
+>> 	struct scsi_device *sdev = to_scsi_device(dev);
+>
+> My understanding was that I was supposed to return the number of bytes in
+> the buffer that I actually used.  I thought 'count' was the maximum size I
+> could use.
+>
 
-> "Robert M. Stockmann" <stock@stokkie.net> writes:
-> 
-> [snip]
-> > To be more specific about what i am complaining about, here's a 
-> > error message i get when doing ./configure inside ntfsprogs-1.8.4 :
-> >
-> > checking version of gcc... 2.95.3, bad
-> > configure: error: Please upgrade your gcc compiler to gcc-2.96+ or gcc-3+ 
-> > version! Earlier compiler versions will NOT work as these do not support 
-> > unnamed/annonymous structures and unions which are used heavily in linux-ntfs.
-> > [jackson:stock]:(~/src/ntfsprogs-1.8.4)$
-> >
-> > Aha, unnamed/annonymous structures and unions .....
-> 
-> Please keep rants about applications' coding style where they belong:
-> off the linux-kernel list.  If you bothered to READ what Linus wrote,
-> you would see that the structure being defined has a name -- in fact,
-> gcc requires that, since the structure would be defined at file scope
-> rather than inside another structure or union.
-> 
-> Michael
+That sounds feasible.  I can't find any documentation on the interface, so
+I can't tell.  However, there are ~233 functions that at least reference
+count.  Many of them are almost identical: they call sscanf or strtol to
+get a length out of buf, pass that length to some subroutine, and then
+unconditionally return count.  This is a more representative example than
+the one listed above.
 
-Hi Michael,
+static ssize_t set_pwm_enable1(struct device *dev, const char *buf,
+                                size_t count)
+{
+        struct i2c_client *client = to_i2c_client(dev);
+        struct asb100_data *data = i2c_get_clientdata(client);
+        unsigned long val = simple_strtoul(buf, NULL, 10);
+        data->pwm &= 0x0f; /* keep the duty cycle bits */
+        data->pwm |= (val ? 0x80 : 0x00);
+        asb100_write_value(client, ASB100_REG_PWM1, data->pwm);
+        return count;
+}
 
-look i have made complaints about gcc-3.x some time ago, on the gcc
-mailinglist. Also there they put my opinions aside, with arguments
-like any powerfull feature can be used in a bad and in a good way. 
-The powerfull feature here is the C99 coding style, which allows for 
-unnamed and anonymous structures and unions. Don't kill our C99 cause it
-can do bad things. Of course not.
-
-However when dealing with OEM hardware vendors, which have signed contracts
-with Microsoft about windows drivers, i think we cannot allow these same
-OEM hardware vendors to introduce binary only drivers of unknown quality into
-the linux kernel. Its exactly these events which give the Linux kernel, or
-even Linux in general, give a bad reputation. Think about rants like this  :
-
-"The Promise FastTrak TX4000 IDE-RAID controller works perfect inside Windows,
- but inside Linux i even lost my data."
-
-The Promise Fasttrak issue i discussed here :
-
-http://gcc.gnu.org/ml/gcc/2004-02/msg00293.html
-
-If every major hardware vendor (like e.g. Adaptec, LSI Logic) will change
-its policy, to implement its drivers as semi- binary only kernel modules, like
-Promise did with its FastTrak line of controllers, like in the example above,
-the Open Source lable of the linux kernel can be placed into the computer
-museum. Isn't that exactly what a certain Redmond software company wants
-to achieve?
-
-Cheers,
-
-Robert
--- 
-Robert M. Stockmann - RHCE
-Network Engineer - UNIX/Linux Specialist
-crashrecovery.org  stock@stokkie.net
 

@@ -1,45 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264629AbUGFVuH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264627AbUGFVzU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264629AbUGFVuH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jul 2004 17:50:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264609AbUGFVuH
+	id S264627AbUGFVzU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jul 2004 17:55:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264609AbUGFVzU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jul 2004 17:50:07 -0400
-Received: from palrel11.hp.com ([156.153.255.246]:6343 "EHLO palrel11.hp.com")
-	by vger.kernel.org with ESMTP id S264584AbUGFVuC (ORCPT
+	Tue, 6 Jul 2004 17:55:20 -0400
+Received: from mailer1.psc.edu ([128.182.58.100]:32489 "EHLO mailer1.psc.edu")
+	by vger.kernel.org with ESMTP id S264502AbUGFVzR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jul 2004 17:50:02 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
+	Tue, 6 Jul 2004 17:55:17 -0400
+Date: Tue, 6 Jul 2004 17:55:12 -0400 (EDT)
+From: John Heffner <jheffner@psc.edu>
+To: "David S. Miller" <davem@redhat.com>
+cc: <netdev@oss.sgi.com>, <linux-net@vger.kernel.org>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] fix tcp_default_win_scale.
+In-Reply-To: <20040706133559.70b6380d.davem@redhat.com>
+Message-ID: <Pine.NEB.4.33.0407061751380.10143-100000@dexter.psc.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16619.7814.759319.469038@napali.hpl.hp.com>
-Date: Tue, 6 Jul 2004 14:49:58 -0700
-To: Peter Martuccelli <peterm@redhat.com>
-Cc: akpm@osdl.org, faith@redhat.com, davidm@hpl.hp.com,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
-       ray.lanza@hp.com
-Subject: Re: [PATCH] IA64 audit support
-In-Reply-To: <200406301556.i5UFuGg8009251@redrum.boston.redhat.com>
-References: <200406301556.i5UFuGg8009251@redrum.boston.redhat.com>
-X-Mailer: VM 7.18 under Emacs 21.3.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch is mostly fine with me (it looks identical to me as the last
-version I saw from Ray; but my memory may be fuzzy).
+Another bit to addr to the firewall / window scale mess:  I remember from
+a while ago that the Cisco PIX firewalls would not allow a window scale of
+greater than 8.  I don't know if they've fixed this or not.  It seems
+like some sort of arbitrary limit.
 
-There are two minor things I'd like to see changed, though:
+This is obviously not the problem people are seeing now, but could be a
+problem in the future.
 
- - Use IS_IA32_PROCESS() instead of testing psr.is directly (the macro
-   gets defined by system.h and using it ensures that the
-   IA-32-specific code will go away if the ia32 subsystem is not
-   compiled into the kernel).
+  -John
 
- - Remove trailing white-space.
-
-Thanks,
-
-	--david

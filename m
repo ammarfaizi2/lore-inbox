@@ -1,44 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287804AbSAIQ0q>; Wed, 9 Jan 2002 11:26:46 -0500
+	id <S287840AbSAIQ24>; Wed, 9 Jan 2002 11:28:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287809AbSAIQ0a>; Wed, 9 Jan 2002 11:26:30 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:65152 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S287804AbSAIQZm>; Wed, 9 Jan 2002 11:25:42 -0500
-Date: Wed, 9 Jan 2002 11:27:58 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Michael Zhu <mylinuxk@yahoo.ca>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: About Loop Device
-In-Reply-To: <20020109161927.23679.qmail@web14907.mail.yahoo.com>
-Message-ID: <Pine.LNX.3.95.1020109112617.5394A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S287838AbSAIQ2i>; Wed, 9 Jan 2002 11:28:38 -0500
+Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:8208 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S287828AbSAIQ2Y>;
+	Wed, 9 Jan 2002 11:28:24 -0500
+Date: Wed, 9 Jan 2002 08:26:07 -0800
+From: Greg KH <greg@kroah.com>
+To: Patrick Mochel <mochel@osdl.org>
+Cc: Pavel Machek <pavel@suse.cz>, Anton Altaparmakov <aia21@cam.ac.uk>,
+        felix-dietlibc@fefe.de, linux-kernel@vger.kernel.org
+Subject: Re: initramfs programs (was [RFC] klibc requirements)
+Message-ID: <20020109162606.GB20572@kroah.com>
+In-Reply-To: <20020109155608.GG21317@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.33.0201090802390.865-100000@segfault.osdlab.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0201090802390.865-100000@segfault.osdlab.org>
+User-Agent: Mutt/1.3.25i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Wed, 12 Dec 2001 14:23:12 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 9 Jan 2002, Michael Zhu wrote:
-[SNIPPED...]
-
-> connection between my own loop device with the floppy
-> disk? I mean how I can connect the loop device with
-> the floppy disk to hook the READ/WRITE operations to
-> the floppy disk.
+On Wed, Jan 09, 2002 at 08:04:44AM -0800, Patrick Mochel wrote:
 > 
-> Michael
-> 
+> Will we need cardmgr in the future, or will be able to get away with
+> /sbin/hotplug?
 
-mount -o loop /dev/fd0 /mnt
+Hopefully only /sbin/hotplug if the pcmcia port to the kernel is ever
+finished (some people were working on it.)  If not, then we will need
+cardmgr for some cards.
 
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (797.90 BogoMips).
-
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
-
-
+greg k-h

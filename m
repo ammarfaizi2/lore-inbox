@@ -1,50 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261600AbSJQByJ>; Wed, 16 Oct 2002 21:54:09 -0400
+	id <S261625AbSJQBz5>; Wed, 16 Oct 2002 21:55:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261625AbSJQByJ>; Wed, 16 Oct 2002 21:54:09 -0400
-Received: from orion.netbank.com.br ([200.203.199.90]:51214 "EHLO
-	orion.netbank.com.br") by vger.kernel.org with ESMTP
-	id <S261600AbSJQByH>; Wed, 16 Oct 2002 21:54:07 -0400
-Date: Wed, 16 Oct 2002 23:00:01 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: "David S. Miller" <davem@redhat.com>
-Cc: neilb@cse.unsw.edu.au, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ipv4: make arp seq_file show method only produce one record per call
-Message-ID: <20021017020001.GV7541@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	"David S. Miller" <davem@redhat.com>, neilb@cse.unsw.edu.au,
-	linux-kernel@vger.kernel.org
-References: <20021017011108.GT7541@conectiva.com.br> <20021016.181550.88499112.davem@redhat.com> <15790.4803.492885.687276@notabene.cse.unsw.edu.au> <20021016.182814.23034875.davem@redhat.com>
+	id <S261627AbSJQBz5>; Wed, 16 Oct 2002 21:55:57 -0400
+Received: from smtp1.san.rr.com ([24.25.195.37]:34716 "EHLO smtp1.san.rr.com")
+	by vger.kernel.org with ESMTP id <S261625AbSJQBzz>;
+	Wed, 16 Oct 2002 21:55:55 -0400
+Date: Wed, 16 Oct 2002 18:59:03 -0700
+From: Andrew Vasquez <praka@san.rr.com>
+To: linux-kernel@vger.kernel.org
+Cc: Michael Clark <michael@metaparadigm.com>, J Sloan <joe@tmsusa.com>,
+       GrandMasterLee <masterlee@digitalroadkill.net>,
+       Simon Roscic <simon.roscic@chello.at>,
+       Arjan van de Ven <arjanv@redhat.com>
+Subject: Re: [Kernel 2.5] Qlogic 2x00 driver
+Message-ID: <20021017015903.GA20960@praka.local.home>
+Mail-Followup-To: Andrew Vasquez <praka@san.rr.com>,
+	linux-kernel@vger.kernel.org,
+	Michael Clark <michael@metaparadigm.com>, J Sloan <joe@tmsusa.com>,
+	GrandMasterLee <masterlee@digitalroadkill.net>,
+	Simon Roscic <simon.roscic@chello.at>,
+	Arjan van de Ven <arjanv@redhat.com>
+References: <200210152120.13666.simon.roscic@chello.at> <1034710299.1654.4.camel@localhost.localdomain> <200210152153.08603.simon.roscic@chello.at> <3DACD41F.2050405@metaparadigm.com> <1034740592.29313.0.camel@localhost> <3DACEB6E.6050700@metaparadigm.com> <3DACEC85.3020208@tmsusa.com> <3DACF908.70207@metaparadigm.com> <20021016054035.GM15552@clusterfs.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021016.182814.23034875.davem@redhat.com>
+In-Reply-To: <20021016054035.GM15552@clusterfs.com>
 User-Agent: Mutt/1.4i
-X-Url: http://advogato.org/person/acme
+X-Operating-System: Linux 2.4.20-pre10-ac2
+X-Message-Flag: Get a real e-mail client.  http://www.mutt.org/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Wed, Oct 16, 2002 at 06:28:14PM -0700, David S. Miller escreveu:
->    From: Neil Brown <neilb@cse.unsw.edu.au>
->    Date: Thu, 17 Oct 2002 11:30:43 +1000
->    
->    I use seq->private for private state for /proc/fs/nfs/exports.
->    It works nicely.
->    You need to define an 'open' the sets it up, and a 'release' to
->    tear it down, rather than doing it in start/stop.
->    See fs/nfsd/fnsctl.c:exports_open
+On Tue, 15 Oct 2002, Andreas Dilger wrote:
+
+> On Oct 16, 2002  13:28 +0800, Michael Clark wrote:
+> > Every one i was getting oops when used with a combination
+> > of ext3, LVM1 and qla2x00 driver.
+> > 
+> > Since taking LVM1 out of the picture, my oopsing problem has
+> > gone away. This could of course not be LVM1's fault but the
+> > fact that qla driver is a stack hog or something - i don't have
+> > enough information to draw any conclusions all at the moment
+> > i'm too scared to try LVM again (plus the time it takes to
+> > migrate a few hundred gigs of storage).
 > 
-> Hmmm, Arnaldo? :-)
+> Yes, we have seen that ext3 is a stack hog in some cases, and I
+> know there were some fixes in later LVM versions to remove some
+> huge stack allocations.  Arjan also reported stack problems with
+> qla2x00, so it is not a surprise that the combination causes
+> problems.
+> 
+The stack issues were a major problem in the 5.3x series driver.  I
+believe, I can check tomorrow, 5.38.9 (the driver Dell distributes)
+contains fixes for the stack clobbering -- qla2x00-rh1-3 also contain
+the fixes.
 
-	I know that it works :-) I just refrained from using it because it is
-not the designed purpose for this field, as per what the author stated to me,
-so I didn't wanted to use in a way that could change under my feet in the
-future when Al decided to do some change in seq_file.
+IAC, I believe the support tech working with MasterLee had asked 
+for additional information regarding the configuration as well as
+some basic logs.  Ideally we'd like to setup a similiar configuration
+in house and see what's happening...
 
-	But if Al changes his mind and state that this is valid use, great,
-I'll happily use it.
-
-	See my other post with Al's comments.
-
-- Arnaldo
+--
+Andrew Vasquez | praka@san.rr.com |
+DSS: 0x508316BB, FP: 79BD 4FAC 7E82 FF70 6C2B  7E8B 168F 5529 5083 16BB

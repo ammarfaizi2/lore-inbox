@@ -1,69 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266115AbUI0FZd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266009AbUI0F2z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266115AbUI0FZd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Sep 2004 01:25:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266116AbUI0FZd
+	id S266009AbUI0F2z (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Sep 2004 01:28:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266116AbUI0F2y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Sep 2004 01:25:33 -0400
-Received: from pfepa.post.tele.dk ([195.41.46.235]:48973 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S266115AbUI0FZX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Sep 2004 01:25:23 -0400
-Date: Mon, 27 Sep 2004 09:25:49 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Arkadiusz Miskiewicz <arekm@pld-linux.org>
-Cc: linux-kernel@vger.kernel.org, sam@ravnborg.org
-Subject: Re: external modules documentation
-Message-ID: <20040927072549.GC8613@mars.ravnborg.org>
-Mail-Followup-To: Arkadiusz Miskiewicz <arekm@pld-linux.org>,
-	linux-kernel@vger.kernel.org, sam@ravnborg.org
-References: <20040918112900.GA22428@lst.de> <200409232224.50234.arekm@pld-linux.org>
+	Mon, 27 Sep 2004 01:28:54 -0400
+Received: from chilli.pcug.org.au ([203.10.76.44]:5047 "EHLO smtps.tip.net.au")
+	by vger.kernel.org with ESMTP id S266009AbUI0F2v (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Sep 2004 01:28:51 -0400
+Date: Mon, 27 Sep 2004 15:28:36 +1000
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Andrew Morton <akpm@osdl.org>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       linuxppc64-dev@ozlabs.org
+Subject: [PATCH] PPC64: fix CONFIG check typo
+Message-Id: <20040927152836.624c503d.sfr@canb.auug.org.au>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200409232224.50234.arekm@pld-linux.org>
-User-Agent: Mutt/1.5.6i
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1";
+ boundary="Signature=_Mon__27_Sep_2004_15_28_36_+1000_UY1mZqle7kz0LNzF"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 23, 2004 at 10:24:50PM +0200, Arkadiusz Miskiewicz wrote:
-> On Saturday 18 of September 2004 13:29, Christoph Hellwig wrote:
-> > Sam,
-> >
-> > is there any reason your patch from June still isn't merged?
-> >
-> [...]
-> > +Prepare the kernel for building external modules
-> > +------------------------------------------------
-> > +When building external modules the kernel is expected to be prepared.
-> > +This includes the precense of certain binaries, the kernel configuration
-> > +and the symlink to include/asm.
-> > +To do this a convinient target is made:
-> > +
-> > + make modules_prepare
-> > +
-> > +For a typical distribution this would look like the follwoing:
-> > +
-> > + make modules_prepare O=/lib/modules/linux-<kernel version>/build
-> Tthis means that one, unmodified source tree is _not_ usable for multiple 
-> architectures. You can't use the same, prepared sources and for example 
-> create noarch.rpm or burn on cd and then use for external modules building on 
-> different architectures.
+--Signature=_Mon__27_Sep_2004_15_28_36_+1000_UY1mZqle7kz0LNzF
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 
-You are doing it wrong.
-You need in your case one source tree, several output dirs.
-So use
-make ARCH=sparc CROSS_COMPILE=xxx O=~/build/sparc ...
+Hi Andrew,
 
-make ARCH=ppc CROSS_COMPILE=xxx O=~/build/ppc ...
+This should allow sys_rtas to work again on PPC64 pSeries.
 
-The patch below is flawed.
+Signed-off-by: Stephen Rothwell <sfr@canb.auug.org.au>
 
-> 
-> We are using this:
-> http://cvs.pld-linux.org/cgi-bin/cvsweb/SOURCES/linux-kbuild-extmod.patch?rev=1.2
-> to get external modules working for multiple archs with the same sources:
-> http://cvs.pld-linux.org/cgi-bin/cvsweb/SPECS/template-kernel-module.spec?rev=1.14
+-- 
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
 
+diff -ruN 2.6.9-rc2-bk12/arch/ppc64/kernel/misc.S 2.6.9-rc2-bk12.sfr.1/arch/ppc64/kernel/misc.S
+--- 2.6.9-rc2-bk12/arch/ppc64/kernel/misc.S	2004-09-27 12:10:57.000000000 +1000
++++ 2.6.9-rc2-bk12.sfr.1/arch/ppc64/kernel/misc.S	2004-09-27 15:11:39.000000000 +1000
+@@ -687,7 +687,7 @@
+ 	ld	r30,-16(r1)
+ 	blr
+ 
+-#ifndef CONFIG_PPC_PSERIE	/* hack hack hack */
++#ifndef CONFIG_PPC_PSERIES	/* hack hack hack */
+ #define ppc_rtas	sys_ni_syscall
+ #endif
+ 
 
-	Sam
+--Signature=_Mon__27_Sep_2004_15_28_36_+1000_UY1mZqle7kz0LNzF
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQFBV6UN4CJfqux9a+8RAqumAJ0RBZjn7tnIZuxGB/+xvIgU4RCG8wCeO4Jq
+NX4wPb5ppDUNtaC1bmsiXLk=
+=I8WI
+-----END PGP SIGNATURE-----
+
+--Signature=_Mon__27_Sep_2004_15_28_36_+1000_UY1mZqle7kz0LNzF--

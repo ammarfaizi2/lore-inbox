@@ -1,91 +1,93 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264672AbRFTXOB>; Wed, 20 Jun 2001 19:14:01 -0400
+	id <S262634AbRFTXRW>; Wed, 20 Jun 2001 19:17:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264673AbRFTXNv>; Wed, 20 Jun 2001 19:13:51 -0400
-Received: from 216-60-128-137.ati.utexas.edu ([216.60.128.137]:50822 "HELO
-	tsunami.webofficenow.com") by vger.kernel.org with SMTP
-	id <S264672AbRFTXNe>; Wed, 20 Jun 2001 19:13:34 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@webofficenow.com>
-Reply-To: landley@webofficenow.com
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>, landley@webofficenow.com
-Subject: Re: Alan Cox quote? (was: Re: accounting for threads)
-Date: Wed, 20 Jun 2001 14:12:24 -0400
-X-Mailer: KMail [version 1.2]
-Cc: ttabi@interactivesi.com (Timur Tabi),
-        linux-kernel@vger.kernel.org (linux-kernel@vger.kernel.org)
-In-Reply-To: <200106202120.f5KLKO5320707@saturn.cs.uml.edu>
-In-Reply-To: <200106202120.f5KLKO5320707@saturn.cs.uml.edu>
-MIME-Version: 1.0
-Message-Id: <0106201412240B.00776@localhost.localdomain>
-Content-Transfer-Encoding: 7BIT
+	id <S263016AbRFTXRM>; Wed, 20 Jun 2001 19:17:12 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:7296 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S262634AbRFTXRC>; Wed, 20 Jun 2001 19:17:02 -0400
+Date: Wed, 20 Jun 2001 17:16:51 -0600
+Message-Id: <200106202316.f5KNGpl00703@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Larry McVoy <lm@bitmover.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Miles Lane <miles@megapathdsl.net>,
+        linux-kernel@vger.kernel.org
+Subject: Re: The latest Microsoft FUD.  This time from BillG, himself.
+In-Reply-To: <20010620153345.I3089@work.bitmover.com>
+In-Reply-To: <993069751.10191.0.camel@agate>
+	<E15Cq9u-0000CX-00@the-village.bc.nu>
+	<20010620153345.I3089@work.bitmover.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 20 June 2001 17:20, Albert D. Cahalan wrote:
-> Rob Landley writes:
-> > My only real gripe with Linux's threads right now [...] is
-> > that ps and top and such aren't thread aware and don't group them
-> > right.
-> >
-> > I'm told they added some kind of "threadgroup" field to processes
-> > that allows top and ps and such to get the display right.  I haven't
-> > noticed any upgrades, and haven't had time to go hunting myself.
->
-> There was a "threadgroup" added just before the 2.4 release.
-> Linus said he'd remove it if he didn't get comments on how
-> useful it was, examples of usage, etc. So I figured I'd look at
-> the code that weekend, but the patch was removed before then!
+Larry McVoy writes:
+> On Wed, Jun 20, 2001 at 11:09:10PM +0100, Alan Cox wrote:
+> > > http://www.zdnet.com/zdnn/stories/news/0,4586,5092935,00.html > 
+> > 
+> > Of course the URL that goes with that is :
+> > 	http://www.microsoft.com/windows2000/interix/features.asp
+> > 
+> > Yes., Microsoft ship GNU C (quite legally) as part of their offerings...
+> 
+> Which brings up an interesting question for us all.  Let's postulate, for
+> the sake of discussion, that we agree on the following:
+> 
+>     a) Linux (or just about any Unix) is a better low level OS than NT
+>     b) Microsoft's application infrastructure is better (the COM layer,
+>        the stuff that lets apps talk to each, the desktop, etc).
+> 
+> I know we can argue that KDE/GNOME/whatever is going to get there or is
+> there or is better, etc., but for the time being lets just pretend that
+> the Microsoft stuff is better.
+> 
+> What would be wrong with Microsoft/Linux?  It would be:
+> 
+>     a) the Linux kernel
+>     b) the Microsoft API ported to X
+>     c) Microsoft apps
+>     d) Linux apps
+> 
+> Since Microsoft is all about making money, it doesn't matter if they
+> charge for the dll's or the OS, either one is fine, you can't run Word
+> without them.  If you don't need the Microsoft apps, you could strip
+> them off and strip off the dlls and ship all the rest of it without
+> giving Microsoft a dime.  If you do need the apps or you want the app
+> infrastructure, you have to give Microsoft exactly what you have to give
+> them today - money - but you can run Word side by side with Ghostview
+> or whatever.  Microsoft could charge exactly the same amount for the
+> dll's as they charge for the OS, none of the end users can tell the
+> difference anyway.
+> 
+> I'm unimpressed with what Microsoft calls an operating system and
+> I'm equally unimpressed with what Unix calls an application layer.
+> For the last 10 years, Unix has gotten the OS right and the apps wrong
+> and Microsoft has gotten the apps right and the OS wrong.  Seems like
+> there is potential for a win-win.
+> 
+> You can scream all you want that "it isn't free software" but the
+> fact of the matter is that you all scream that and then go do your
+> slides for your Linux talks in PowerPoint.
 
-Can we give him feedback now, asking him to put it back?
+Actually, it wouldn't bother me at all if they did that. If they
+didn't violate the GPL (i.e. didn't make proprietary changes to the
+kernel and libc and various utilities). I guess they could make
+proprietary hacks to X, which I wouldn't want, otherwise I expect that
+normal X apps would become 2nd class citizens. If people want to pay
+for M$ office I'd much rather see them using Linux underneath. That
+way they have a decent OS and the chances of them being slowly weaned
+away from M$ products as free alternatives become available (or they
+get comfortable with the idea of free alternatives). Trying to get
+people to change wholesale is a lot harder.
 
-> Submit patches to me, under the LGPL please. The FSF isn't likely
-> to care. What, did you think this was the GNU system or something?
+I suspect M$ doesn't want to do this, because while they could keep
+flogging Office for a long time (I hear it's better than the
+alternatives), they would find it harder to flog all the smaller
+ancillary programmes, as there would be more viable alternatives.  I
+expect M$ will hang on to the bitter end. There's also a lot of
+emotional attachment to their OS which is driving their policy, I bet.
 
-I've stopped even TRYING to patch bash.  try a for loop calling "echo $$&", 
-eery single process bash forks off has the PARENT'S value for $$, which is 
-REALLY annoying if you spend an afternoon writing code not knowing that and 
-then wonder why the various process's temp file sare stomping each other...
+				Regards,
 
-Oh, and anybody who can explain this is welcome to try:
-
-lines=`ls -l | awk '{print "\""$0"\""}'`
-for i in $lines
-do
-  echo line:$i
-done
-
-> How about a filesystem filter to spit out patches, or a filesystem
-> interface to version control?
-
-Explain please?
-
-The patches-linus-actuall-applies mailing list idea is based on how Linus 
-says he works: he appends patches he likes to a file and then calls patch -p1 
-< thatfile after a mail reading session.  It wouldn't be too much work for 
-somebody to write a toy he could use that lets him work about the same way 
-but forwards the messages to another folder where they can go out on an 
-otherwise read-only list.  (No extra work for Linus.  This is EXTREMELY 
-important, 'cause otherwise he'll never touch it.)
-
-The advantage of this way is:
-
-1) We know who sent the patches.  (We get the message with the "from" headers 
-intact.)
-
-2) Patch mails have descriptions in them most of the time, at least saying 
-why, if not what they do.
-
-3) This way, we know (more or less in realtime) that Linus has gotten a patch 
-and applied it to his tree.  (What version and everything.)  It may be backed 
-out again later, but we could give him another tool that can do that and 
-notify the list...
-
-This way, no mucking about with version control, no extra work for Linus, and 
-in fact he doesn't have to worry about keeping track of what patches he's 
-applied and when because he has a place he can go check if he forgets.
-
-Now everybody tell me why this won't work. (Sure, all at once, why not...)
-
-Rob
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

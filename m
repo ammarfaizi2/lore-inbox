@@ -1,79 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262299AbTFFVyA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jun 2003 17:54:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262303AbTFFVx7
+	id S262312AbTFFWJT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jun 2003 18:09:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262316AbTFFWJT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jun 2003 17:53:59 -0400
-Received: from exchange-1.umflint.edu ([141.216.3.48]:7663 "EHLO
-	Exchange-1.umflint.edu") by vger.kernel.org with ESMTP
-	id S262299AbTFFVx6 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jun 2003 17:53:58 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-Content-Class: urn:content-classes:message
+	Fri, 6 Jun 2003 18:09:19 -0400
+Received: from miranda.zianet.com ([216.234.192.169]:61195 "HELO
+	miranda.zianet.com") by vger.kernel.org with SMTP id S262312AbTFFWJR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jun 2003 18:09:17 -0400
+Message-ID: <3EE1143A.9030801@zianet.com>
+Date: Fri, 06 Jun 2003 16:22:50 -0600
+From: kwijibo@zianet.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030529
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: 2.4.20 Modprobe setting of eth0,eth1 does not seem to work
-Date: Fri, 6 Jun 2003 18:04:41 -0400
-Message-ID: <37885B2630DF0C4CA95EFB47B30985FB020EC0D2@exchange-1.umflint.edu>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.4.20 Modprobe setting of eth0,eth1 does not seem to work
-Thread-Index: AcMsdAxvwglcuuz2RJiUTT2zBirapwAALh5Q
-From: "Lauro, John" <jlauro@umflint.edu>
-To: <jmerkey@s1.uscreditbank.com>, <linux-kernel@vger.kernel.org>
-Cc: <jmerkey@utah-nac.org>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Smart Array driver
+References: <3EE0D5E0.4060408@zianet.com> <16096.59965.283412.477292@gargle.gargle.HOWL> <3EE0F90C.8030604@zianet.com>
+In-Reply-To: <3EE0F90C.8030604@zianet.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I assume you mean between keyboard and chair???
+Ok, I lied.  I am back to the question of does the driver work
+correctly with 2.5.x.  I see it recognize the hardware on bootup
+but it can't ever find the root partition.
 
-Anyways...
+Here is the df of it on a 2.4.x system
 
-If I do anything semi-advanced with e1000 cards, I end up getting
-Intel's drivers.  It's a minor pain when switching kernel versions
-(especially to a different version number) as the default scripts
-assume you are already booted (uname -r) in the kernel you are
-building for and are not part of the kernel source tree...
+/dev/cciss/c0d0p2    280132792   2405636 263497184   1% /
 
-I suggest you try e1000-5.0.43 from Intel, and also iANS-2.3.35 (or
-higher if either of them have updates).
+So they grub kernel config line looks like so
 
-I don't know if you are doing any advanced features like vlan tagging
-or not.  Anyways, it's one area that drivers from Intel's site does
-work better then the native stock kernel drivers.  Specifically as an
-example, virtual Ethernets over different vlan tags when combined with
-vmware gsx server works with Intel's iANS, but not with the stock vlan
-support.
+kernel /vmlinuz-2.5.70 ro root=/dev/cciss/c0d0p2
 
-I know, it doesn't answer your question...  but it gives you something
-else to try...
+I get this on boot up with 2.5.x:
 
-> -----Original Message-----
-> From: jmerkey@s1.uscreditbank.com
-[mailto:jmerkey@s1.uscreditbank.com]
-> Sent: Friday, June 06, 2003 5:40 PM
-> To: linux-kernel@vger.kernel.org
-> Cc: jmerkey@utah-nac.org
-> Subject: 2.4.20 Modprobe setting of eth0,eth1 does not seem to work
-> 
-> 
-> 
-> In 2.4.20 if I attempt to use the Intel multiport e1000 drivers with
-> modules.conf trying to hard set the eth0,eth1, etc. assignments
-modprobe
-> does
-> not appear to be assigning the adapter aliases correctly.  I am
-assuming
-> this may be due to an interface issue between the Keyboard and
-monitor. :-
-> )
-> 
-> Modules.conf file attached.  Anyone got any ideas here?
-> 
-> Jeff
-> 
+VFS: Cannot open root device "/cciss/c0d0p2" or unknown-block(0,0)
+
+I don't see what I have wrong in my configs.
+Has anyone been able to boot off this RAID controller under 2.5.x?
+
+Steve
+
+
+kwijibo@zianet.com wrote:
+
+> Argh, I thought I had checked that option.  That option
+> was off and it worked when I turned it on. It didn't boot
+> all the way because the kernel didn't understand the
+> / label on the partition.  Something I can fix however.
+>
+> Thanks.
+>
+> John Stoffel wrote:
+>
+>> kwijibo> Is the Compaq Smart Array 5XXX driver 2.5.x ready?  Before I
+>> kwijibo> get to far into debugging this computer I figure I would ask.
+>> kwijibo> It boots fine in 2.4.x kernels but when I try 2.5.70 it
+>> kwijibo> freezes at the Uncompressing Linux line.  I thought maybe I
+>> kwijibo> didn't the console set up right for 2.5 but as far as I can
+>> kwijibo> tell it is and even if it wasn't it should still continue
+>> kwijibo> booting and eventually be pingable.  My first thought was of
+>> kwijibo> the RAID controller.  This is on a HP Proliant ML530.  Any
+>> kwijibo> suggestions?  Config attached.
+>>
+>> I was going to suggest that you make sure ACPI was turned off, but
+>> your config shows that already.  Make sure you have CONFIG_VGA_CONSOLE
+>> set is all I can think of.
+>>
+>> John
+>> -
+>> To unsubscribe from this list: send the line "unsubscribe 
+>> linux-kernel" in
+>> the body of a message to majordomo@vger.kernel.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>> Please read the FAQ at  http://www.tux.org/lkml/
+>>
+>>
+>>  
+>>
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe 
+> linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
+
 

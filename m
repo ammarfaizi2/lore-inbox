@@ -1,46 +1,33 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <S155388AbQEQCa1>; Tue, 16 May 2000 22:30:27 -0400
-Received: by vger.rutgers.edu id <S155477AbQEQCaH>; Tue, 16 May 2000 22:30:07 -0400
-Received: from xena.acsu.buffalo.edu ([128.205.7.121]:32858 "HELO xena.acsu.buffalo.edu") by vger.rutgers.edu with SMTP id <S155491AbQEQC3t>; Tue, 16 May 2000 22:29:49 -0400
-Date: Tue, 16 May 2000 22:48:27 -0400 (EDT)
-From: James Simmons <jsimmons@acsu.buffalo.edu>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: FrameBuffer List <linux-fbdev@vuser.vu.union.edu>, Linux Kernel Mailing List <linux-kernel@vger.rutgers.edu>
-Subject: Re: [PATCH] updated Mips Magnum frame buffer device
-In-Reply-To: <Pine.LNX.4.05.10005162223490.17982-100000@callisto.of.borg>
-Message-ID: <Pine.LNX.4.10.10005162241050.3106-100000@maxwell.futurevision.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Received: by vger.rutgers.edu via listexpand id <S155207AbQEQPBW>; Wed, 17 May 2000 11:01:22 -0400
+Received: by vger.rutgers.edu id <S155375AbQEQPBF>; Wed, 17 May 2000 11:01:05 -0400
+Received: from mailhost.uni-koblenz.de ([141.26.64.1]:48001 "EHLO mailhost.uni-koblenz.de") by vger.rutgers.edu with ESMTP id <S155427AbQEQO76>; Wed, 17 May 2000 10:59:58 -0400
+Date: Wed, 17 May 2000 14:18:00 +0200
+From: Ralf Baechle <ralf@uni-koblenz.de>
+To: Andries Brouwer <aeb@veritas.com>
+Cc: Hans-Joachim Baader <hans@grumbeer.inka.de>, linux-kernel@vger.rutgers.edu
+Subject: Re: Historical Archive
+Message-ID: <20000517141800.C677@uni-koblenz.de>
+References: <E12pgd6-0003fo-00@the-village.bc.nu> <200005110310.XAA21546@tsx-prime.MIT.EDU> <20000513000716.A21182@veritas.com> <m12qVZg-0000HBC@grumbeer.inka.de> <20000514014309.A890@veritas.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20000514014309.A890@veritas.com>; from aeb@veritas.com on Sun, May 14, 2000 at 01:43:09AM +0200
+X-Accept-Language: de,en,fr
 Sender: owner-linux-kernel@vger.rutgers.edu
 
+On Sun, May 14, 2000 at 01:43:09AM +0200, Andries Brouwer wrote:
 
-On Tue, 16 May 2000, Geert Uytterhoeven wrote:
+> I am always looking for missing bits, but disks were small
+> in those days, and very little survives.
+> Probably old CDs (or floppies) are the best chance.
+> [In case anyone has these: I would be interested in old libc
+> sources as well, say libc-4.4 and earlier.]
 
-> On Tue, 16 May 2000, James Simmons wrote:
-> > Yet another frame buffer driver updated to the new API. I don't know 
-> > the author's email address. Please test since I lack this hardware. It
-> > does compile. 
-> 
-> Forwarded to tsbogend@alpha.franken.de (see CREDITS :-), who's probably busy
-> with the PA-RISC port.
-> 
-> BTW, drivers that conform to the new API can have fb_ops->fb_get_{var,fix,cmap}
-> == NULL as well, if fbmem.c takes care of that.
+I recently found various very old Linux/68k kernel sources, anybody
+interested?
 
-Once all the drivers conform we can remove those functions from fb_ops.
-The ultimate goal being fbgen is really intergrated into fbdev. It will
-make life much easier for driver writers. I will wipe up a patch for
-pan_display tomorrow for detecting xxfb_pan_display and allowing drivers
-that lack support for it to have it set to NULL. 
-
-Q: Why did they deprecate a.out support in linux?
-A: Because a nasty coff is bad for your elf.
-
-James Simmons  [jsimmons@linux-fbdev.org]               ____/| 
-fbdev/gfx developer                                     \ o.O| 
-http://www.linux-fbdev.org                               =(_)= 
-http://linuxgfx.sourceforge.net                            U
-
+  Ralf
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

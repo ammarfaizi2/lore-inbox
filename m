@@ -1,42 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276132AbRJBScK>; Tue, 2 Oct 2001 14:32:10 -0400
+	id <S276244AbRJBSeK>; Tue, 2 Oct 2001 14:34:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276124AbRJBScA>; Tue, 2 Oct 2001 14:32:00 -0400
-Received: from sweetums.bluetronic.net ([66.57.88.6]:38142 "EHLO
-	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
-	id <S276118AbRJBSbu>; Tue, 2 Oct 2001 14:31:50 -0400
-Date: Tue, 2 Oct 2001 14:32:08 -0400 (EDT)
-From: Ricky Beam <jfbeam@bluetopia.net>
-X-X-Sender: <jfbeam@sweetums.bluetronic.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Andrew Morton <akpm@zip.com.au>,
-        Lorenzo Allegrucci <lenstra@tiscalinet.it>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Huge console switching lags
-In-Reply-To: <E15oUD9-0005Ua-00@the-village.bc.nu>
-Message-ID: <Pine.GSO.4.33.0110021423140.22872-100000@sweetums.bluetronic.net>
+	id <S276160AbRJBSeA>; Tue, 2 Oct 2001 14:34:00 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:49929 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S276120AbRJBSdt>; Tue, 2 Oct 2001 14:33:49 -0400
+Subject: Re: 2.4.10 hangs on console switch
+To: larsch@cs.auc.dk (Lars Christensen)
+Date: Tue, 2 Oct 2001 19:39:20 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.GSO.4.33.0110022019330.12401-100000@mega.cs.auc.dk> from "Lars Christensen" at Oct 02, 2001 08:21:14 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15oURs-0005XB-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2 Oct 2001, Alan Cox wrote:
->A console switch has to wait until queued I/O to that console is complete,
+> > You are using the Nvidia drivers aren't you. They seem to have timing
+> > dependant screen mode switch problems. The timing has changed in 2.4.10
+> 
+> Not the nvidia supplied drivers. I am using the nvidia driver (nv)  that
+> comes with XFree86 4.1.0. I did not compile in kernel agpgart and driver
+> support.
 
-Ok, so fix that. (assuming that's not "waiting on the hardware" queued IO)
+I'm seeing  reports of this one always with nvidia cards and with both sets
+of Nvidia drivers - I guess they both do the same thing and have the same
+bug, or the user mode XFree bit is in both cases doing it.
 
->Also a console switch on a frame buffer with no hardware banking can take
->a lot of time.
+Right now thats all I can really point at as a pattern, I dont know why the
+problem should be there
 
-Oh, *grin*, forgot about those evil framebuffer consoles. (never use them
-myself, they really are freakin' slow.)  Arguablly, all access to fbdev's
-should be from a process context (it's like having X in the kernel.)
-
-In that case, keventd needs to be a high priority real-time task.  If it
-takes SECONDS to change consoles, I'm very likely to assume the machine is
-locked and push the reset button (and I'm sure many others will do the same.)
-
---Ricky
-
-
+Alan

@@ -1,70 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273181AbRIJDdo>; Sun, 9 Sep 2001 23:33:44 -0400
+	id <S273186AbRIJDgq>; Sun, 9 Sep 2001 23:36:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273184AbRIJDde>; Sun, 9 Sep 2001 23:33:34 -0400
-Received: from oe39.law11.hotmail.com ([64.4.16.96]:49162 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S273181AbRIJDdS>;
-	Sun, 9 Sep 2001 23:33:18 -0400
-X-Originating-IP: [142.179.28.112]
-From: "David Grant" <davidgrant79@hotmail.com>
-To: <jacob@chaos2.org>, "Joe Fago" <cfago@tconl.com>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.21.0109091843220.31509-100000@inbetween.blorf.net>
-Subject: Re: 2.4.9: PDC20267 not working
-Date: Sun, 9 Sep 2001 20:30:25 -0700
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
-Message-ID: <OE39Zeh7UmNgW6VPMzP00004bf8@hotmail.com>
-X-OriginalArrivalTime: 10 Sep 2001 03:33:34.0606 (UTC) FILETIME=[5ED072E0:01C139A9]
+	id <S273185AbRIJDgg>; Sun, 9 Sep 2001 23:36:36 -0400
+Received: from family.zawodny.com ([63.174.200.26]:35089 "EHLO
+	family.zawodny.com") by vger.kernel.org with ESMTP
+	id <S273183AbRIJDga>; Sun, 9 Sep 2001 23:36:30 -0400
+Date: Sun, 9 Sep 2001 20:37:46 -0700
+From: Jeremy Zawodny <Jeremy@Zawodny.com>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: Robert Love <rml@tech9.net>, Arjan Filius <iafilius@xs4all.nl>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Feedback on preemptible kernel patch
+Message-ID: <20010909203746.B640@peach.zawodny.com>
+In-Reply-To: <Pine.LNX.4.33.0109092317330.16723-100000@sjoerd.sjoerdnet> <1000071474.16805.20.camel@phantasy> <20010910031728Z16177-26183+705@humbolt.nl.linux.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010910031728Z16177-26183+705@humbolt.nl.linux.org>
+User-Agent: Mutt/1.3.20i
+X-message-flag: Mailbox corrupt.  Please upgrade your mail software.
+X-Uptime: 20:36:14 up 42 days, 18:34, 10 users,  load average: 0.00, 0.01, 0.00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
------ Original Message -----
-From: "Jacob Luna Lundberg" <kernel@gnifty.net>
-To: "Joe Fago" <cfago@tconl.com>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: Sunday, September 09, 2001 6:46 PM
-Subject: Re: 2.4.9: PDC20267 not working
-
-
+On Mon, Sep 10, 2001 at 05:24:36AM +0200, Daniel Phillips wrote:
+> On September 9, 2001 11:37 pm, Robert Love wrote:
+> > On Sun, 2001-09-09 at 17:23, Arjan Filius wrote:
+> > > After my succes report i _do_ noticed something unusual:
+> > > 
+> > > I'm not sure it's preempt related, but you wanted feedback :)
+> > > 
+> > > Sep  9 23:08:02 sjoerd kernel: __alloc_pages: 0-order allocation failed (gfp=0x70/1).
+> > > Sep  9 23:08:02 sjoerd last message repeated 93 times
+> > > Sep  9 23:08:02 sjoerd kernel: cation failed (gfp=0x70/1).
+> > > Sep  9 23:08:02 sjoerd kernel: __alloc_pages: 0-order allocation failed (gfp=0x70/1).
 >
-> On Sun, 9 Sep 2001, Joe Fago wrote:
->
-> > System hangs on boot:
->
-> > PDC20267: IDE controller on PCI bus 00 dev 40
->
-> > This is the only device attached to the controller. Any suggestions?
->
-> I have seen this before.  I have a system that will do it every time right
-> now, in fact.  You can try setting interrupts to edge-triggered in your
-> BIOS if it has such an option; this usually ``fixes'' the problem for me.
-> Of course, it will mean you can't share PCI interrupts, if I understand it
-> correctly.  However, I'm not sure what's going on and nobody has commented
-> on it thus far that I know of.  :(
+> 
+> This may not be your fault.  It's a GFP_NOFS recursive allocation -
+> this comes either from grow_buffers or ReiserFS, probably the
+> former.  In either case, it means we ran completely out of free
+> pages, even though the caller is willing to wait.  Hmm.  It smells
+> like a loophole in vm scanning.
 
-Mine has problems as well.  I know there are workarounds, but I'm not
-experienced enough to do these.  Joe: what error messages do you get?  I get
-the "hde: timeout waiting for dma" errors.  After that I have to cold start
-my PC to get it working.  BTW, I have a PDC20265, but I think these are
-probably almost identical (or at least the behaviour we are getting is
-probably due to the same problem in the code).
+I've seen that error on a couple 2.4.9 systems at work.  It's
+certainly VM related, 'cause it doesn't happen when I disable swap on
+them.  I've disabled it for performance reasons (the VM system is a
+little retarded in 2.4.x IMHO, so I'm just not letting it swap).
 
-I also suspect that maybe what kind of hard drive you have makes a
-difference as well, because some people can get their Promise IDE to work
-fine, while others can't.  I have a Quantum Fireball Plus AS.
-
-In case you didn't know, Andre Hedrick met with some dude from Promise
-called Craig Lyons on Wednesday.  I haven't heard of any news from the
-meeting, but supposedly Craig was going to give Andre some API for the
-Ultra/Fastrack line of chips.  Hopefully it went down on Wednesday.
-
-David Grant
+Jeremy
+-- 
+Jeremy D. Zawodny     |  Perl, Web, MySQL, Linux Magazine, Yahoo!
+<Jeremy@Zawodny.com>  |  http://jeremy.zawodny.com/

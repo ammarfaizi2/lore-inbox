@@ -1,67 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269292AbRGaNmw>; Tue, 31 Jul 2001 09:42:52 -0400
+	id <S269291AbRGaNlw>; Tue, 31 Jul 2001 09:41:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269296AbRGaNmn>; Tue, 31 Jul 2001 09:42:43 -0400
-Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:9233 "EHLO
-	roc-24-169-102-121.rochester.rr.com") by vger.kernel.org with ESMTP
-	id <S269292AbRGaNmk>; Tue, 31 Jul 2001 09:42:40 -0400
-Date: Tue, 31 Jul 2001 09:41:25 -0400
-From: Chris Mason <mason@suse.com>
-To: Hans Reiser <reiser@namesys.com>, Chris Wedgwood <cw@f00f.org>
-cc: Rik van Riel <riel@conectiva.com.br>, Christoph Hellwig <hch@caldera.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: ReiserFS / 2.4.6 / Data Corruption
-Message-ID: <687650000.996586885@tiny>
-In-Reply-To: <3B668FA2.5E76BE1E@namesys.com>
-X-Mailer: Mulberry/2.0.8 (Linux/x86)
+	id <S269296AbRGaNlo>; Tue, 31 Jul 2001 09:41:44 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:64128 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S269291AbRGaNle>; Tue, 31 Jul 2001 09:41:34 -0400
+Date: Tue, 31 Jul 2001 09:41:40 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Controlling Terminal
+Message-ID: <Pine.LNX.3.95.1010731093430.18329A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
 
+Sorry about off-topic, but how do I create a "controlling
+terminal" for a process. I know how to open the device,
+dup it to 0, 1, 2, set up signals, etc. However, the
+shell (bash) won't allow job-control, and ^C kills bash
+instead of what it's executing.
 
-On Tuesday, July 31, 2001 02:59:46 PM +0400 Hans Reiser <reiser@namesys.com>
-wrote:
+I'm trying to run a shell off a multiplexed RF link. I've
+got a good clean 8-bit link. I should not have to use
+a pty. The driver's output "looks" like a terminal so it
+should be able to be a controlling terminal.
 
-[ CONFIG_REISERFS_CHECK ]
+Cheers,
+Dick Johnson
 
-> Last I ran benchmarks the performance cost was 30-40%, but this was some
-> time ago.  I think that the coders have been quietly culling some checks
-> out of the FS, and so it does not cost as much anymore.  I would prefer
-> that the "excesive" checks had stayed in.
-> 
-> Sigh, I see I cannot persuade in this argument.  It seems Linus is right,
-> and debugging checks don't belong in debugged code even if they would make
-> it easier for persons hacking on the code to debug their latest hacks.
-> 
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
 
-In the end, the distributions are responsible for their own quality control,
-and they are free to turn on whatever debugging features they like.  You can
-yell, scream, call them names, and in general piss them off however you like
-and they will still be absolutely correct in turning on whatever debugging
-check they feel is important.
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
 
-The right way to deal with this is ask why they think it's important to turn
-on the checks.  The goal behind code under CONFIG_REISERFS_CHECK is to add
-extra runtime consistency checks, but without CONFIG_REISERFS_CHECK on, the
-code should still make sure it isn't hosing the disk.  In other words, the
-goal is like this:
-
-if (some_error) {
-#ifdef CONFIG_REISERFS_CHECK
-    panic("some_error") ;
-#else
-    gracefully_recover
-#endif
-
-There are places CONFIG_REISERFS_CHECK does extra scanning of the metadata
-and such, but all of these are supposed to be things that can be recovered
-from with the debugging off.  Anything else is a bug.
-
--chris
 

@@ -1,53 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261872AbTKBX42 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Nov 2003 18:56:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261873AbTKBX42
+	id S261873AbTKCAQF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Nov 2003 19:16:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261875AbTKCAQF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Nov 2003 18:56:28 -0500
-Received: from smtp803.mail.ukl.yahoo.com ([217.12.12.140]:20603 "HELO
-	smtp803.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S261872AbTKBX41 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Nov 2003 18:56:27 -0500
-Subject: ALSA (snd-via82xx) + 2.4 kernel + VAIO laptops w/VIA VT82C686
-From: Lars Peterson <peterson@cs.uwp.edu>
-Reply-To: peterson@cs.uwp.edu
-To: alsa-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Cc: Warren Togami <warren@togami.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1067817384.31747.223.camel@mango.larspeterson.homeip.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 02 Nov 2003 17:56:24 -0600
-Content-Transfer-Encoding: 7bit
+	Sun, 2 Nov 2003 19:16:05 -0500
+Received: from h24-76-142-122.wp.shawcable.net ([24.76.142.122]:41738 "HELO
+	signalmarketing.com") by vger.kernel.org with SMTP id S261873AbTKCAQC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Nov 2003 19:16:02 -0500
+Date: Sun, 2 Nov 2003 18:15:56 -0600 (CST)
+From: Derek Foreman <manmower@signalmarketing.com>
+X-X-Sender: manmower@uberdeity
+To: Andrew Morton <akpm@osdl.org>
+cc: ahuisman@cistron.nl, linux-kernel@vger.kernel.org, nuno.silva@vgertech.com
+Subject: Re: READAHEAD
+In-Reply-To: <20031031012946.3adedc14.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0311021645260.853@uberdeity>
+References: <bnrdqi$uho$1@news.cistron.nl> <20031030134407.0c97c86e.akpm@osdl.org>
+ <3FA25377.3050207@cistron.nl> <20031031012846.48fa233c.akpm@osdl.org>
+ <20031031012946.3adedc14.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Fri, 31 Oct 2003, Andrew Morton wrote:
 
-I struggled with getting ALSA sound to work on my Sony VAIO PCG-FXA49
-until I googled this workaround:
-http://lists.freshrpms.net/pipermail/rpm-list/2002-November/002250.html
+> Andrew Morton <akpm@osdl.org> wrote:
+> >
+> > Please, just use time, cat, dd, etc.
+> >
+> >  	mount /dev/xxx /mnt/yyy
+> >  	dd if=/dev/zero of=/mnt/yyy/x bs=1M count=1024
+> >  	umount /dev/xxx
+> >  	mount /dev/xxx /mnt/yyy
+> >  	time cat /mnt/yyy/x > /dev/null
+>
+> And you can do the same against /dev/hdaN if you have a scratch
+> partition; that would be interesting.
 
-My laptop hard locks upon trying to load the snd-via82xx module UNLESS
-the OSS via82cxx_audio module has already been loaded & unloaded.
+I don't have a scratch partition, but the effect is quite apparent when
+reading from /dev/hd*
 
-Warren suggested that I report this to those responsible for maintaining
-the 2.4 and ALSA, since he claims the problem appears to have gone away
-in post 2.5.47-ac4 kernels.
+I have 384 megs of ram, no swap, and echo 0 > /proc/sys/vm/swappiness
+kernel is 2.6.0-test9
 
-Environment:
-Gentoo Linux 1.4
-Kernel 2.4.22-ck2
-Alsa-{drivers,utils,lib,tools}-0.9.8
+hdparm -qa 0 /dev/hde ; dd if=/dev/hde of=/dev/null bs=1M count=1024
+1024+0 records in
+1024+0 records out
+1073741824 bytes transferred in 103.038178 seconds (10420815 bytes/sec)
 
-Hardware:
-1.2 GHz AMD Athlon 4
-512MB SDRAM
-VIA KT133/KM133 Chipset
+hdparm -qa 128 /dev/hde ; dd if=/dev/hde of=/dev/null bs=1M count=1024
+1024+0 records in
+1024+0 records out
+1073741824 bytes transferred in 34.171719 seconds (31421943 bytes/sec)
 
-Please cc responses to me as I'm not subscribed to either list.
+hdparm -qa 256 /dev/hde ; dd if=/dev/hde of=/dev/null bs=1M count=1024
+1024+0 records in
+1024+0 records out
+1073741824 bytes transferred in 34.994348 seconds (30683293 bytes/sec)
 
-Lars Peterson
+hdparm -qa 4096 /dev/hde ; dd if=/dev/hde of=/dev/null bs=1M count=1024
+1024+0 records in
+1024+0 records out
+1073741824 bytes transferred in 22.268371 seconds (48218247 bytes/sec)
 
+(hdparm -t /dev/hde opens /dev/hde and reads it for a few seconds, so
+these numbers are much the same as my hdparm -t scores)
+
+I also get similar results from /dev/md0 in another machine (the only
+not-ide device I can test on... but it's still a bunch of ide drives).
+
+note...
+For people playing with hdparm, hdparm -a 123 -t /dev/drive doesn't set
+the readahead before running the test.

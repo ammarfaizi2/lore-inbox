@@ -1,47 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262152AbUBXERd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Feb 2004 23:17:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262154AbUBXERd
+	id S262156AbUBXE0Y (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Feb 2004 23:26:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262158AbUBXE0X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 23:17:33 -0500
-Received: from mail-04.iinet.net.au ([203.59.3.36]:49874 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S262152AbUBXERc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 23:17:32 -0500
-Message-ID: <403ACEFC.4070208@cyberone.com.au>
-Date: Tue, 24 Feb 2004 15:11:40 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Chris Wedgwood <cw@f00f.org>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] vm-fix-all_zones_ok (was Re: 2.6.3-mm3)
-References: <20040222172200.1d6bdfae.akpm@osdl.org> <40395ACE.4030203@cyberone.com.au> <20040222175507.558a5b3d.akpm@osdl.org> <40396ACD.7090109@cyberone.com.au> <40396DA7.70200@cyberone.com.au> <4039B4E6.3050801@cyberone.com.au> <4039BE41.1000804@cyberone.com.au> <20040223005948.10a3b325.akpm@osdl.org> <20040223224723.GA27639@dingdong.cryptoapps.com>
-In-Reply-To: <20040223224723.GA27639@dingdong.cryptoapps.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 23 Feb 2004 23:26:23 -0500
+Received: from mtvcafw.sgi.com ([192.48.171.6]:56161 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id S262156AbUBXE0W (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Feb 2004 23:26:22 -0500
+X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: strosake@austin.ibm.com
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] arch-specific callout in panic() 
+In-reply-to: Your message of "Mon, 23 Feb 2004 12:33:09 MDT."
+             <403A4765.8010908@austin.ibm.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 24 Feb 2004 15:25:30 +1100
+Message-ID: <5298.1077596730@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-Chris Wedgwood wrote:
-
->On Mon, Feb 23, 2004 at 12:59:48AM -0800, Andrew Morton wrote:
+On Mon, 23 Feb 2004 12:33:09 -0600, 
+Mike Strosaker <strosake@austin.ibm.com> wrote:
+>Andrew Morton wrote:
+>> We have the panic_notifier_list in there.  Cannot you hook into that?
 >
->
->>We've never clearly defined whether pages_high == free_pages means
->>the zone is under limits.  According to __alloc_pages() it means
->>that the zone is not under limits, so you've fixed two bugs there.
->>
->
->FWIW 2.6.3-mm3 with the above fix right now seems to behave much
->better in my non-contrived cases than previous kernels I've tested
->with.
->
+>panic_notifier_list is not used becasue we need to ensure that the
+>actions in machine_panic are the last ones taken.
 
-Out of interest, what is the worst you can make it do with
-contrived cases?
+panic_notifier_list, like all entries defined via
+notifier_chain_register, is run in priority order, with LIFO order
+within priority.  Register machine_panic first with priority INT_MIN
+and it gets called last.
+
+Which reduces your problem to "which one of the 57 initcall levels do I
+use for registering machine_panic first on the panic_notifier_list"?
 

@@ -1,49 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291250AbSBGT5Y>; Thu, 7 Feb 2002 14:57:24 -0500
+	id <S291232AbSBGT6e>; Thu, 7 Feb 2002 14:58:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291248AbSBGT5F>; Thu, 7 Feb 2002 14:57:05 -0500
-Received: from gw-yyz.somanetworks.com ([216.126.67.39]:33502 "EHLO
-	somanetworks.com") by vger.kernel.org with ESMTP id <S291247AbSBGT4r>;
-	Thu, 7 Feb 2002 14:56:47 -0500
-Date: Thu, 7 Feb 2002 14:55:46 -0500
-From: Mark Frazer <mark@somanetworks.com>
-To: Christoph Hellwig <hch@ns.caldera.de>
-Cc: Martin Wirth <Martin.Wirth@dlr.de>, akpm@zip.com.au, torvalds@transmet.com,
-        mingo@elte.hu, rml@tech9.net, nigel@nrg.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [RFC] New locking primitive for 2.5
-Message-ID: <20020207145546.A14022@somanetworks.com>
-In-Reply-To: <3C629F91.2869CB1F@dlr.de> <200202071822.g17IMgS14802@ns.caldera.de>
+	id <S291258AbSBGT60>; Thu, 7 Feb 2002 14:58:26 -0500
+Received: from lacrosse.corp.redhat.com ([12.107.208.154]:9651 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S291232AbSBGT6R>; Thu, 7 Feb 2002 14:58:17 -0500
+Date: Thu, 7 Feb 2002 19:58:15 +0000
+From: Tim Waugh <twaugh@redhat.com>
+To: John Weber <weber@nyc.rr.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [OOPS] Linux 2.5 and Parallel Port Zip 100
+Message-ID: <20020207195815.A12571@redhat.com>
+In-Reply-To: <3C62DABF.5040303@nyc.rr.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="F5PMopVgTaFKhUu5"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200202071822.g17IMgS14802@ns.caldera.de>; from hch@ns.caldera.de on Thu, Feb 07, 2002 at 07:22:42PM +0100
-X-Message-Flag: Lookout!
-Organization: Detectable, well, not really
-X-Fry: How can I live my life if I can't tell good from evil?
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3C62DABF.5040303@nyc.rr.com>; from weber@nyc.rr.com on Thu, Feb 07, 2002 at 02:51:27PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig <hch@ns.caldera.de> [02/02/07 14:41]:
-> What about the following instead:
-> 
-> 	combi_lock(struct combilock *x, int spin);
-> 	combi_unlock(struct combilock *x);
 
-how about
-        combi_lock (struct combilock *x, int canblock, int shouldblock);
+--F5PMopVgTaFKhUu5
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Where the should block flag is copied to the mutex once it's held by
-the caller to indicate to new threads grabbing the lock how long the
-lock will be held for.
+On Thu, Feb 07, 2002 at 02:51:27PM -0500, John Weber wrote:
 
-For locks that are held for some short duration tasks and some long
-duration tasks, the holder should indicate how long the lock will be held.
-I'd consider that an improvement over the "spin for a while then block"
-idea.
+> Who is maintaining the linux iomega stuff?
 
-Interrupt handlers can't block, so we need a flag to never block.
+For 2.4.x, me (in theory).  I don't have time for 2.5.x at the moment.
 
--mark
+Tim.
+*/
+
+--F5PMopVgTaFKhUu5
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE8YtxWyaXy9qA00+cRAsB1AKCR2IjeE6Z3BA0JwgzqYtcDAFBdAQCfdmp2
+YKkcsou+CKM4Q6yV3eUtPk0=
+=3fMp
+-----END PGP SIGNATURE-----
+
+--F5PMopVgTaFKhUu5--

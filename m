@@ -1,45 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316621AbSGQUHk>; Wed, 17 Jul 2002 16:07:40 -0400
+	id <S316632AbSGQUMJ>; Wed, 17 Jul 2002 16:12:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316632AbSGQUHk>; Wed, 17 Jul 2002 16:07:40 -0400
-Received: from mailrelay.ds.lanl.gov ([128.165.47.40]:13981 "EHLO
-	mailrelay.ds.lanl.gov") by vger.kernel.org with ESMTP
-	id <S316621AbSGQUGz>; Wed, 17 Jul 2002 16:06:55 -0400
-Subject: 2.5.25-dj2, kernel BUG at dcache.c:361
-From: Steven Cole <elenstev@mesatop.com>
-To: Dave Jones <davej@suse.de>
-Cc: linux-kernel@vger.kernel.org, Steven Cole <scole@lanl.gov>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2-5mdk 
-Date: 17 Jul 2002 14:06:50 -0600
-Message-Id: <1026936410.11636.107.camel@spc9.esa.lanl.gov>
+	id <S316666AbSGQUMI>; Wed, 17 Jul 2002 16:12:08 -0400
+Received: from mnh-1-10.mv.com ([207.22.10.42]:36357 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S316632AbSGQUMG>;
+	Wed, 17 Jul 2002 16:12:06 -0400
+Message-Id: <200207172117.QAA03530@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: linux-kernel@vger.kernel.org, user-mode-linux-user@lists.sourceforge.net
+Subject: [ANNOUNCE] UML 2.5.26
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 17 Jul 2002 16:17:56 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-While running 2.5.25-dj2 and dbench with increasing numbers of clients,
-my test machine locked up with the following message:
+After a long, relaxing period of ignoring 2.5, I decided that it was about
+to catch up.  So, UML 2.5.26 is available.  It is the same code as the current
+UML - 2.4.18-40.
 
-kernel BUG at dcache.c:361!
+This went through my testing without major problems.  However, it was a quick
+merge (I started on Thursday with 2.5.3-pre5 and finished on Monday with 
+2.5.25), so there may be lurking problems.
 
-I tried to copy down the following register dump but was unable to.
-Nothing interesting saved in /var/log/messages.
+Any problems should be reported to the uml-devel list
+(user-mode-linux-user at lists dot sourceforge dot net).
 
-This is fairly repeatable in that it happens with running dbench with
-more than 32 clients.  I saw it once with as few as 6 clients.  After
-getting weary of running fsck on an ext2 /home partition, I added a
-journal to /home and mounted it as ext3.  With /home (where dbench is
-running) mounted as ext3, I got the following message just before the
-BUG:
+At some point in the near future, I am going to split this up a bit and 
+send it to Linus.
 
-EXT3-fs error (device sd(8,8): ext3_free_blocks: freeing blocks not in
-datazone - block = 7939096, count = 13.
+The patch is available at
+	http://uml-pub.ists.dartmouth.edu/uml/uml-patch-2.5.26-1.bz2
 
-The test machine is a dual p3 1mb memory, scsi, 2.5.25-dj2 SMP kernel.
+For the other UML mirrors and other downloads, see 
+	http://user-mode-linux.sourceforge.net/dl-sf.html
 
-Steven
+Other links of interest:
 
+	The UML project home page : http://user-mode-linux.sourceforge.net
+	The UML Community site : http://usermodelinux.org
 
+				Jeff
 

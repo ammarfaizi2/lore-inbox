@@ -1,245 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263867AbTKFXCi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Nov 2003 18:02:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263868AbTKFXCi
+	id S263891AbTKFXRr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Nov 2003 18:17:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264079AbTKFXRr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Nov 2003 18:02:38 -0500
-Received: from fmr05.intel.com ([134.134.136.6]:52931 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S263867AbTKFXCc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Nov 2003 18:02:32 -0500
-Subject: [PATCH] SMP signal latency fix up.
-From: Mark Gross <mgross@linux.co.intel.com>
-Reply-To: mgross@linux.co.intel.com
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: TSP
-Message-Id: <1068159641.3555.51.camel@localhost.localdomain>
+	Thu, 6 Nov 2003 18:17:47 -0500
+Received: from orion.netbank.com.br ([200.203.199.90]:38150 "EHLO
+	orion.netbank.com.br") by vger.kernel.org with ESMTP
+	id S263891AbTKFXPu convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Nov 2003 18:15:50 -0500
+Date: Thu, 6 Nov 2003 21:15:46 -0200
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Fabio Coatti <cova@ferrara.linux.it>
+Cc: Marcel Holtmann <marcel@holtmann.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: test9 and bluetooth
+Message-ID: <20031106231545.GN3345@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Fabio Coatti <cova@ferrara.linux.it>,
+	Marcel Holtmann <marcel@holtmann.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200311021853.47300.cova@ferrara.linux.it> <1068031899.10388.180.camel@pegasus> <200311062240.38099.cova@ferrara.linux.it>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 06 Nov 2003 15:00:41 -0800
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <200311062240.38099.cova@ferrara.linux.it>
+X-Url: http://advogato.org/person/acme
+Organization: Conectiva S.A.
+User-Agent: Mutt/1.5.4i
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Em Thu, Nov 06, 2003 at 10:40:38PM +0100, Fabio Coatti escreveu:
+> Alle 12:31, mercoledì 05 novembre 2003, Marcel Holtmann ha scritto:
+> 
+> >
+> > please try this with a non SMP kernel and/or a non preempt kernel. Do
+> > you have enabled the Bluetooth SCO support for the HCI USB driver?
+> 
+> As said I've tried 2.6.0-test9 [UP, SMP] preemp and SMP non preempt, all with 
+> the same behaviour, that means immediate machine freeze whenever the usb 
+> bluetooth dongle is removed from USB port. 
+> I've also got crashes whenever I've turned off the machine, with bluetooth and 
+> hci_usb modules loaded.
+> I've wrote down the message (by hand, so errors are possible) , hoping that 
+> this can help. If it's possible to get the full message, please let me know, 
+> a part of it has scrolled out of the screen (i can use a serial port 
+> terminal, if needed).
 
-The program after the patch should execute the following command line within a fraction of a second.
-time ./ping_pong -c 10000
+That would be good indeed.
+ 
+> here is the trace:
 
-Running on SMP and the 2.6.0-test9 kernel, it takes about 10000 * 1/HZ seconds.  Running this 
-command with maxcpus=1 the command finishes in fraction of a second.  Under SMP the 
-signal delivery isn't kicking the task if its in the run state on the other CPU.
+What about the last routine that caused the oops? I.e. the one that appears
+above the registers?
+ 
+> uhci_irq+0x67/0x16c [uhci_hcd]
+> do_IRQ+0xC1/0x141
+> usb_hcd_irq+0x36/0x5f
+> handle_IRQ_event+0x3a/0x64
 
-The following patch has been tested and seems to fix the problem.  
-I'm confident about the change to sched.c actualy fixes a cut and paste bug.
-
-The change to signal.c IS needed to fix the problem, but I'm not sure there isn't a better way.
-
-Please have take a look
-
---mgross
-
-diff -urN -X dontdiff linux-2.6.0-test9/kernel/sched.c /opt/linux-2.6.0-test9/kernel/sched.c
---- linux-2.6.0-test9/kernel/sched.c    2003-10-25 11:44:29.000000000 -0700
-+++ /opt/linux-2.6.0-test9/kernel/sched.c       2003-11-06 13:04:03.628116240 -0800
-@@ -626,13 +626,13 @@
-                        }
-                        success = 1;
-                }
--#ifdef CONFIG_SMP
--               else
--                       if (unlikely(kick) && task_running(rq, p) && (task_cpu(p) != smp_processor_id()))
--                               smp_send_reschedule(task_cpu(p));
--#endif
-                p->state = TASK_RUNNING;
-        }
-+#ifdef CONFIG_SMP
-+               else
-+               if (unlikely(kick) && task_running(rq, p) && (task_cpu(p) != smp_processor_id()))
-+                       smp_send_reschedule(task_cpu(p));
-+#endif
-        task_rq_unlock(rq, &flags);
-
-        return success;
-diff -urN -X dontdiff linux-2.6.0-test9/kernel/signal.c /opt/linux-2.6.0-test9/kernel/signal.c
---- linux-2.6.0-test9/kernel/signal.c   2003-10-25 11:43:27.000000000 -0700
-+++ /opt/linux-2.6.0-test9/kernel/signal.c      2003-11-06 12:18:22.000000000 -0800
-@@ -555,6 +555,9 @@
-                wake_up_process_kick(t);
-                return;
-        }
-+       if (t->state == TASK_RUNNING ) 
-+               wake_up_process_kick(t);
-+       
- }
-
- /*
-
-
----------------------------------- test program ---------------------------
-/* ping_pong.c */
-
-#include <argp.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <math.h>
-#include <pthread.h>
-#include <signal.h>
-
-int argp_parse_option(int key, char *arg, struct argp_state *argp_state);
-
-struct state {
-	pthread_t receive;
-	pthread_t send;
-	int signal;
-	int count;
-	int yield;
-        volatile int flags;
-	volatile int sync_flags;
-};
-
-static struct state _state = {
-	.signal = SIGUSR1,
-	.flags = 0,
-	.sync_flags = 0,
-	.yield = 0,
-};
-static const struct argp_option argp_options[] = {
-	{"count", 'c', "COUNT", 0, "Number of signals exchanged"},
-	{"signal", 'n', "SIGNUM", 0, "The sended signal"},
-	{"yield", 'y', NULL, 0, "Make receiver yield while waiting"},
-	{0}
-};
-static const struct argp argp = {
-	.options = argp_options,
-	.parser = argp_parse_option,
-};
-
-int argp_parse_option(int key, char *arg, struct argp_state *argp_state)
-{
-	struct state *state = argp_state->input;
-	switch (key) {		
-	case 'n':
-		if (sscanf(arg, "%u", &state->signal) != 1) {
-			perror("invalid signal argument");
-			return -EINVAL;
-		}		
-		break;
-	case 'c':
-		if (sscanf(arg, "%i", &state->count) != 1) {
-			perror("invalid count argument");
-			return -EINVAL;
-		}		
-		break;
-	case 'y':
-		state->yield = 1;
-		break;
-		
-	}
-
-	return 0;
-}
-
-
-static void * sender (void *arg)
-{
-	struct state * state = (struct state *) arg;
-	sigset_t action;
-	int c = 0, r = 0;
-	int sig;
-	
-	sigemptyset (&action);
-	sigaddset (&action, state->signal);
-	sigprocmask (SIG_BLOCK, &action, 0);
-
-	/* wait for the receiver to get ready for receiving signals */
-	while (state->sync_flags == 0)
-		sched_yield();
-
-	while ( c++ < state->count ) {
-		/* ping */
-		pthread_kill ( state->receive, state->signal);	
-
-		/* pong */
-		if ((r = sigwait(&action, &sig)) != 0) {
-			perror("sigwait");
-			state->flags = 1;
-			pthread_exit(&r);
-		}
-	}
-
-	state->flags = 1;
- 	pthread_exit (&r);	
-}
-   
-static void handler(int signum)
-{
-	struct state * state = &_state;
-	pthread_kill(state->send, state->signal);
-}
-static void * receiver (void *arg)
-{
-	struct state * state = (struct state *) arg;
-	struct sigaction action;
-	int r;
-	
-	action.sa_handler = handler;
-	sigemptyset (&action.sa_mask);
-	action.sa_flags = 0;	
-	if ((r = sigaction (state->signal, &action, 0)) != 0) {
-		perror("sigaction");
-		pthread_exit(&r);
-	}
-
-	/* let the sender thread know we are ready to start receiving */
-	state->sync_flags = 1;
-
-	while ( state->flags == 0 ) { 
-		if (state->yield)
-			sched_yield();
-		else
-			/*spin*/;
-	}
-
-	/* ...and done */
-	pthread_exit(&r);	
-}	
-
-int main(int argc, char *argv[])
-{
-	int result = 0;
-	void * thread_result;
-	struct state *state = &_state;
-
-	if (argp_parse(&argp, argc, argv, ARGP_IN_ORDER, 0, state) != 0)
-		exit(-1);
-
-	result = pthread_create (&state->receive, NULL, receiver, state);
-	if ( result != 0 ) {
-		perror("pthread_create");
-		exit(-1);
-	}
-
-	result = pthread_create (&state->send, NULL, sender, state);
-	if ( result != 0 ) {
-		perror("pthread_create");
-		exit(-1);
-	}
-
-	result = pthread_join ( state->send, &thread_result);	
-	if ( result != 0 ) {
-		perror("pthread_join");
-		exit(-1);
-	}
-
-	result = pthread_join ( state->receive, &thread_result);	
-	if ( result != 0 ) {
-		perror("pthread_join");
-		exit(-1);
-	}
-	
-	return 0;
-}
-
+- Arnaldo

@@ -1,93 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269583AbUJAJVV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269727AbUJAJZX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269583AbUJAJVV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 05:21:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269727AbUJAJVV
+	id S269727AbUJAJZX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 05:25:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269728AbUJAJZW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 05:21:21 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:51108 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S269583AbUJAJVS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 05:21:18 -0400
-Date: Fri, 1 Oct 2004 11:18:25 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
-Cc: Borislav Petkov <petkov@uni-muenster.de>, Andrew Morton <akpm@osdl.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Fw: Re: 2.6.9-rc2-mm4
-Message-ID: <20041001091825.GC3008@suse.de>
-References: <20040929214637.44e5882f.akpm@osdl.org> <200409301825.41124.bzolnier@elka.pw.edu.pl> <200409302346.35214.petkov@uni-muenster.de> <200410010130.51769.bzolnier@elka.pw.edu.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200410010130.51769.bzolnier@elka.pw.edu.pl>
+	Fri, 1 Oct 2004 05:25:22 -0400
+Received: from sandesha.sasken.com ([164.164.56.19]:7663 "EHLO
+	mail3.sasken.com") by vger.kernel.org with ESMTP id S269727AbUJAJZS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Oct 2004 05:25:18 -0400
+From: "Geetha S.L" <geethals@sasken.com>
+Subject: One query!!!
+Date: Fri, 1 Oct 2004 14:55:02 +0530
+Message-ID: <cjj7pe$lsb$1@ncc-z.sasken.com>
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Newsreader: Microsoft Outlook Express 6.00.2800.1409
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+To: linux-kernel@vger.kernel.org
+X-News-Gateway: ncc-z.sasken.com
+X-imss-version: 2.7
+X-imss-result: Passed
+X-imss-scores: Clean:15.61705 C:22 M:2 S:5 R:5
+X-imss-settings: Baseline:1 C:1 M:1 S:1 R:1 (0.0000 0.0000)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 01 2004, Bartlomiej Zolnierkiewicz wrote:
-> On Thursday 30 September 2004 23:46, Borislav Petkov wrote:
-> > On Thursday 30 September 2004 18:25, Bartlomiej Zolnierkiewicz wrote:
-> > > On Thursday 30 September 2004 17:32, Borislav Petkov wrote:
-> > > > On Thursday 30 September 2004 14:52, Bartlomiej Zolnierkiewicz wrote:
-> > > > > On Thursday 30 September 2004 06:46, Andrew Morton wrote:
-> > > > > > ide broke :(   Maybe Bart's bk tree?
-> > > > >
-> > > > > no, disk works just fine ;)  If it is my tree I will happilly fix it.
-> > > > >
-> > > > > Borislav, could you apply only these patches from -mm4 and retest?
-> > > > >
-> > > > > linus.patch
-> > > > > bk-ide-dev.patch
-> > > > >
-> > > > > > Begin forwarded message:
-> > > > > >
-> > > > > > Date: Wed, 29 Sep 2004 12:43:35 +0200
-> > > > > > From: Borislav Petkov <petkov@uni-muenster.de>
-> > > > > > To: Andrew Morton <akpm@osdl.org>
-> > > > > > Cc: linux-kernel@vger.kernel.org
-> > > > > > Subject: Re: 2.6.9-rc2-mm4
-> > > > > >
-> > > > > >
-> > > > > > <snip>
-> > > > > >
-> > > > > > Hello,
-> > > > > >  I've already posted about problems with audio extraction but it went
-> > > > > > unnoticed. Here's a recount: When I attempt to read an audio cd into
-> > > > > > wavs with cdda2wav, the process starts but after a while the
-> > > > > > completion meter freezes and klogd says "hdc: lost interrupt" and
-> > > > > > cdda2wav hangs itself. Disabling DMA doesn't help as well as the boot
-> > > > > > option "pci=routeirq" too. Older kernels like 2.6.7 do not show such
-> > > > > > behavior and there audio extraction runs fine. Sysinfo attached.
-> > > > > >
-> > > > > > Regards,
-> > > > > > Boris.
-> > > >
-> > > > Hi people,
-> > > >
-> > > >  well, I've applied the above patches but no change - same "hdc: lost
-> > > > interrupt" message. 2.6.9-rc3 behaves the same, as expected.
-> > >
-> > > Well, if 2.6.9-rc3 fails then it is not my tree...
-> > >
-> > > Please find kernel version which introduces this bug.
-> > >
-> > 
-> > Just compiled 2.6.8.1 and tested audio extraction. The bug is there.
-> > After that, reran the test with 2.6.7. Everything went fine. So it must have 
-> > been between 2.6.7 and 2.6.8.1 when the bug got introduced. Any additional 
-> > debugging options in the ATA/IDE cd driver i could turn on so that I could 
-> > get more verbose messages while executing cdda2wav?
-> 
-> I'm not aware of any.  Jens?
 
-I don't see any changes that could impact this from 2.6.7 to 2.6.8. We
-tightened the dma alignment (from 4 to 32 bytes), but should not cause
-problems going in that direction. Unless the other path is buggy, of
-course.
+hello all...
+I am very new to this AMAZING world of kernels and linux...
+I hve one small query...donno if this is the platform for this query....
+I want to know if there is any way to erase all the previously used commands
+..on the command prompt or the shell prompt..
 
-Does dma make a difference? Please try 2.6.9-rc3 as well.
+Hopeful on getting my query solved..
 
--- 
-Jens Axboe
+Thanks and Regards,
+Geetha
 
+
+
+                           SASKEN BUSINESS DISCLAIMER
+This message may contain confidential, proprietary or legally Privileged information. In case you are not the original intended Recipient of the message, you must not, directly or indirectly, use, Disclose, distribute, print, or copy any part of this message and you are requested to delete it and inform the sender. Any views expressed in this message are those of the individual sender unless otherwise stated. Nothing contained in this message shall be construed as an offer or acceptance of any offer by Sasken Communication Technologies Limited ("Sasken") unless sent with that express intent and with due authority of Sasken. Sasken has taken enough precautions to prevent the spread of viruses. However the company accepts no liability for any damage caused by any virus transmitted by this email

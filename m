@@ -1,40 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265268AbRGBOSj>; Mon, 2 Jul 2001 10:18:39 -0400
+	id <S265300AbRGBOYK>; Mon, 2 Jul 2001 10:24:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265300AbRGBOSa>; Mon, 2 Jul 2001 10:18:30 -0400
-Received: from datafoundation.com ([209.150.125.194]:56580 "EHLO
-	datafoundation.com") by vger.kernel.org with ESMTP
-	id <S265268AbRGBOSV>; Mon, 2 Jul 2001 10:18:21 -0400
-Date: Mon, 2 Jul 2001 10:18:14 -0400 (EDT)
-From: John Jasen <jjasen@datafoundation.com>
-To: Juergen Wolf <JuWo@N-Club.de>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Problem with SMC Etherpower II + kernel newer 2.4.2
-In-Reply-To: <3B40611D.F1485C1B@N-Club.de>
-Message-ID: <Pine.LNX.4.30.0107021014230.15054-100000@flash.datafoundation.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265302AbRGBOYA>; Mon, 2 Jul 2001 10:24:00 -0400
+Received: from t2.redhat.com ([199.183.24.243]:7410 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S265300AbRGBOX4>; Mon, 2 Jul 2001 10:23:56 -0400
+X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <d3bsn7gftr.fsf@lxplus015.cern.ch> 
+In-Reply-To: <d3bsn7gftr.fsf@lxplus015.cern.ch>  <3652.993803483@warthog.cambridge.redhat.com> 
+To: Jes Sorensen <jes@sunsite.dk>
+Cc: David Howells <dhowells@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        linux-kernel@vger.kernel.org, arjanv@redhat.com
+Subject: Re: [RFC] I/O Access Abstractions 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 02 Jul 2001 15:22:56 +0100
+Message-ID: <3484.994083776@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2 Jul 2001, Juergen Wolf wrote:
 
-> currently I experience some strange problems with every kernels newer
-> than 2.4.2 and my SMC Etherpower II network card. While running such a
-> kernel, the network hangs and I get lots of errors like these listed
-> below:
+jes@sunsite.dk said:
+>  But it's going to cost for the ones who do not support this. 
 
-under the dumb question department:
+You don't need to make it out-of-line for all cases - or indeed in any case
+where it isn't out-of-line already. Some architectures may have only IO
+calls out-of-line (many already do). Some may have MMIO calls out-of-line
+too - some already do that too.
 
-a) bad cable?
-b) not negotiating speed and duplex with the switch correctly?
-c) bad card?
-d) IRQ sharing causing a conflict?
+It would just be nice to have a standard way of doing it, and in particular
+it would be nice to pass the struct resource into the out-of-line functions
+in the case where they _are_ out of line, so that the Iyou/O functions don't
+have to play evil tricks with the numbers they're given to work out which bus
+the caller wanted to talk to.
 
-I'm less predisposed to blame the card in general or the driver, as I have
-probably about a dozen SMC epic100 cards here, in single processor x86,
-dual x86, and dual alphas that have been flawless from about 2.2.14 to
-2.4.4.
+#ifdef OUT_OF_LINE_MMIO
+#define res_readb(res, adr) (res->access_ops->readb(res, adr)
+#else
+#define res_readb(res, adr) readb(adr)
+#endif
+
+etc.
+
+--
+dwmw2
 
 

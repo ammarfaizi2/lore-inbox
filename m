@@ -1,34 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262999AbREWHix>; Wed, 23 May 2001 03:38:53 -0400
+	id <S263006AbREWICJ>; Wed, 23 May 2001 04:02:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263002AbREWHin>; Wed, 23 May 2001 03:38:43 -0400
-Received: from highland.isltd.insignia.com ([195.217.222.20]:58127 "EHLO
-	highland.isltd.insignia.com") by vger.kernel.org with ESMTP
-	id <S262999AbREWHid>; Wed, 23 May 2001 03:38:33 -0400
-Message-ID: <3B0B6940.708B64A8@insignia.com>
-Date: Wed, 23 May 2001 08:39:44 +0100
-From: Stephen Thomas <stephen.thomas@insignia.com>
-Organization: Insignia Solutions
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4-ac13 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Vojtech Pavlik <vojtech@suse.cz>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Gameport analog joystick broken in 2.4.4-ac13
-In-Reply-To: <3B0ADD9D.5424DE7F@insignia.com> <20010523092354.B1046@suse.cz>
-Content-Type: text/plain; charset=us-ascii
+	id <S263008AbREWIB7>; Wed, 23 May 2001 04:01:59 -0400
+Received: from 205-158-62-54.outblaze.com ([205.158.62.54]:22926 "HELO
+	ws1_1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id <S263006AbREWIBx>; Wed, 23 May 2001 04:01:53 -0400
+Message-ID: <20010523080152.19119.qmail@mail.com>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
 Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Khader Syed" <sid.carter@techie.com>
+To: linux-kernel@vger.kernel.org
+Date: Wed, 23 May 2001 16:01:52 +0800
+Subject: Changing the Number of processes/tasks
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vojtech Pavlik wrote:
-> This is weird - there were no changes in joystick code between the two
-> as far as I know. Have you tried loading the modules manually?
+Hi Folks,
+How can I change the Number of processes that can be run on the 2.4 kernel ?
+Is there a way to change that ? I would be glad if someone can direct me in this regards. In kernel 2.2.x, we could modify tasks.h to accompliish the task. How do we
+go about doing it in the 2.4 kernel ?
+Sorry if this question has been answered before, I could not find it in the archives.
+Thanks in Advance
+Regards
+           Carter
+-- 
 
-No I haven't.  And, as I said in my reply to Alan's message, I can't
-even get the failure to repeat reliably (or at all) any more.  I'll
-keep an eye on this but right now I suspect the joystick hardware
-more than the drivers :-).
+_______________________________________________
+Get your free email from http://www.mail.com
 
-Stephen

@@ -1,31 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129062AbQJ3SVZ>; Mon, 30 Oct 2000 13:21:25 -0500
+	id <S129485AbQJ3SWF>; Mon, 30 Oct 2000 13:22:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129042AbQJ3SVP>; Mon, 30 Oct 2000 13:21:15 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:8011 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129090AbQJ3SU6>; Mon, 30 Oct 2000 13:20:58 -0500
-Subject: Re: kmalloc() allocation.
-To: root@chaos.analogic.com
-Date: Mon, 30 Oct 2000 18:22:02 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org (Linux kernel)
-In-Reply-To: <Pine.LNX.3.95.1001030104956.735A-100000@chaos.analogic.com> from "Richard B. Johnson" at Oct 30, 2000 10:57:32 AM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S129546AbQJ3SVz>; Mon, 30 Oct 2000 13:21:55 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:19296 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S129042AbQJ3SVq>; Mon, 30 Oct 2000 13:21:46 -0500
+Date: Mon, 30 Oct 2000 19:21:27 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: "Jeff V. Merkey" <jmerkey@timpanogas.org>
+Cc: Chris Evans <chris@scary.beasts.org>, Ingo Molnar <mingo@elte.hu>,
+        "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: 2.2.18Pre Lan Performance Rocks!
+Message-ID: <20001030192127.H21935@athlon.random>
+In-Reply-To: <Pine.LNX.4.21.0010301755210.26279-100000@ferret.lmh.ox.ac.uk> <39FDB775.45E5653C@timpanogas.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E13qJZL-00076K-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <39FDB775.45E5653C@timpanogas.org>; from jmerkey@timpanogas.org on Mon, Oct 30, 2000 at 11:01:25AM -0700
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> How much memory would it be reasonable for kmalloc() to be able
-> to allocate to a module?
+On Mon, Oct 30, 2000 at 11:01:25AM -0700, Jeff V. Merkey wrote:
+> If we implement a ring 0 Linux, all of this will remain intact with the
+> need to 
+> port modules into the kernel at all.  
 
-64K probably less. kmalloc allocates physically linear spaces. vmalloc will
-happily grab you 2Mb of space but it will not be physically linear
+I don't understand what you mean sorry, could you elaborate?
 
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

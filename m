@@ -1,88 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262259AbULMN1b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262262AbULMNoi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262259AbULMN1b (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Dec 2004 08:27:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262260AbULMN1b
+	id S262262AbULMNoi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Dec 2004 08:44:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262263AbULMNoi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Dec 2004 08:27:31 -0500
-Received: from alog0285.analogic.com ([208.224.222.61]:1920 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262259AbULMN1Y
+	Mon, 13 Dec 2004 08:44:38 -0500
+Received: from wsip-68-99-153-203.ri.ri.cox.net ([68.99.153.203]:400 "EHLO
+	blue-labs.org") by vger.kernel.org with ESMTP id S262262AbULMNof
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Dec 2004 08:27:24 -0500
-Date: Mon, 13 Dec 2004 08:25:52 -0500 (EST)
-From: linux-os <linux-os@chaos.analogic.com>
-Reply-To: linux-os@analogic.com
-To: Zhenyu Wu <y030729@njupt.edu.cn>
-cc: quade@hsnr.de, linux-kernel@vger.kernel.org
-Subject: Re: about kernel_thread!
-In-Reply-To: <302945938.22534@njupt.edu.cn>
-Message-ID: <Pine.LNX.4.61.0412130823410.4142@chaos.analogic.com>
-References: <302945938.22534@njupt.edu.cn>
+	Mon, 13 Dec 2004 08:44:35 -0500
+Message-ID: <41BD9CCC.6010005@blue-labs.org>
+Date: Mon, 13 Dec 2004 08:44:44 -0500
+From: David Ford <david+challenge-response@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.3) Gecko/20041012
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+CC: Danny Beaudoin <beaudoin_danny@hotmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: Description should be updated
+References: <BAY21-F31C2845A332866774C3A2CF3AB0@phx.gbl> <41BCEB0A.3060807@osdl.org>
+In-Reply-To: <41BCEB0A.3060807@osdl.org>
+X-Enigmail-Version: 0.86.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/mixed;
+ boundary="------------070206070400060608080102"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13 Dec 2004, Zhenyu Wu wrote:
+This is a multi-part message in MIME format.
+--------------070206070400060608080102
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> Oh, my god. I find another problem, my linux kernel is 2.4.20, and i can't find
-> the function allow_signal at all. BTW, whether there is such funcion in kernel
-> 2.4.20?
+Danny, attached is a patch you may like.
+
+David
+
+Randy.Dunlap wrote:
+
+> Danny Beaudoin wrote:
 >
-> Thanks,
-> Zhenyu Wu
+>> Hi again!
+>> In Device Drivers/Graphics Support/Console display driver support/VGA 
+>> test console (NEW) 
 >
 
-Normally we do our own work... However, if you understand macros,
-these might help you.
+--------------070206070400060608080102
+Content-Type: text/x-patch;
+ name="VGA_CONSOLE.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="VGA_CONSOLE.diff"
 
+--- drivers/video/console/Kconfig~	2004-12-13 08:41:30.926219984 -0500
++++ drivers/video/console/Kconfig	2004-12-13 08:41:30.927219832 -0500
+@@ -9,15 +9,15 @@
+ 	depends on !ARCH_ACORN && !ARCH_EBSA110 && !4xx && !8xx && !SPARC32 && !SPARC64 && !M68K && !PARISC
+ 	default y
+ 	help
+-	  Saying Y here will allow you to use Linux in text mode through a
+-	  display that complies with the generic VGA standard. Virtually
+-	  everyone wants that.
++	  This is always enabled on X86 systems.  If your system is embedded
++	  or not X86 and you want to use Linux in text mode through a
++	  display that complies with the generic VGA standard, say Y here.
+ 
+ 	  The program SVGATextMode can be used to utilize SVGA video cards to
+ 	  their full potential in text mode. Download it from
+ 	  <ftp://ibiblio.org/pub/Linux/utils/console/>.
+ 
+-	  Say Y.
++	  If unsure, say Y (default).
+ 
+ #	if [ "$CONFIG_PCI" = "y" -a "$CONFIG_VGA_CONSOLE" = "y" ]; then
+ #	   bool '   Allow VGA on any bus?' CONFIG_VGA_HOSE
 
-//
-//  Copyright(c)  2004  Analogic Corporation
-//
-//
-//  This program may be distributed under the GNU Public License
-//  version 2, as published by the Free Software Foundation, Inc.,
-//  59 Temple Place, Suite 330 Boston, MA, 02111.
-//
-//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-
-#ifndef _CONFIG_H_
-#define _CONFIG_H_
-//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-//
-//  Below are macros to handle different kernel versions.
-//
-#ifndef IRQ_HANDLED
-#define IRQ_HANDLED 
-typedef void irqreturn_t;
-#endif
-
-#ifdef KVER6
-#define REMAP(a,b,c,d,e) remap_page_range((a), (b), (c), (d), (e))
-#define __io_virt(p) ((void *)(p))
-#define DAEMONIZE             \
-     daemonize("%s", devname); \
-     allow_signal(SIGTERM)
-#define PCI_FIND_DEVICE(a,b,c) pci_get_device((a),(b),(c))
-#else
-#define lock_kernel()
-#define unlock_kernel()
-#define REMAP(a,b,c,d,e) remap_page_range((b), (c), (d), (e))
-#define DAEMONIZE                          \
-     exit_files(current);                   \
-     daemonize();                           \
-     spin_lock_irq(&current->sigmask_lock); \
-     sigemptyset(&current->blocked);        \
-     recalc_sigpending(current);            \
-     spin_unlock_irq(&current->sigmask_lock)
-#define PCI_FIND_DEVICE(a,b,c) pci_find_device((a),(b),(c))
-#endif
-#endif
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.9 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by John Ashcroft.
-                  98.36% of all statistics are fiction.
+--------------070206070400060608080102--

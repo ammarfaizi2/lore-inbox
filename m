@@ -1,34 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129908AbQLSP0P>; Tue, 19 Dec 2000 10:26:15 -0500
+	id <S129289AbQLSPkV>; Tue, 19 Dec 2000 10:40:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129950AbQLSP0F>; Tue, 19 Dec 2000 10:26:05 -0500
-Received: from minus.inr.ac.ru ([193.233.7.97]:48906 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S129908AbQLSPZw>;
-	Tue, 19 Dec 2000 10:25:52 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200012191454.RAA13529@ms2.inr.ac.ru>
-Subject: Re: ip_defrag / ip_conntrack issues (was Re: [PATCH] Fix netfilter
-To: davem@redhat.com (David S. Miller)
-Date: Tue, 19 Dec 2000 17:54:35 +0300 (MSK)
-Cc: tleete@mountain.net, laforge@gnumonks.org, rusty@linuxcare.com.au,
-        netfilter-devel@us5.samba.org, linux-kernel@vger.kernel.org
-In-Reply-To: <200012191412.GAA06310@pizda.ninka.net> from "David S. Miller" at Dec 19, 0 06:12:39 am
-X-Mailer: ELM [version 2.4 PL24]
+	id <S130202AbQLSPkL>; Tue, 19 Dec 2000 10:40:11 -0500
+Received: from [204.17.222.1] ([204.17.222.1]:21768 "EHLO picard.csihq.com")
+	by vger.kernel.org with ESMTP id <S129289AbQLSPj5>;
+	Tue, 19 Dec 2000 10:39:57 -0500
+Message-ID: <03a001c069cd$8a593c50$e1de11cc@csihq.com>
+From: "Mike Black" <mblack@csihq.com>
+To: "linux-kernel@vger.kernel.or" <linux-kernel@vger.kernel.org>
+Subject: 2.2.18aa2 weird problem
+Date: Tue, 19 Dec 2000 10:08:27 -0500
 MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+I've got three machines -- two are identical motherboards.  I've been using
+the same kernel binary on all three machines for over a year thru all the
+upgrades since 2.2.15 (16, 17, and now 18aa2).
 
-> able to lockup/OOPS his machine by logging into X as a user who had
-> his home directory over NFS. 
+Now that I've compiled 2.2.18aa2 it only works on two of the machines.  Both
+of these use RAID1/IDE for boot drives.  The machine that doesn't work uses
+a boot floppy as the root drive is RAID5.
 
-I believe this report is to be ignored. It is fully meaningless.
-X has nothing to do with NFS, NFS is with X, and defragmenter is
-at least with one of them.
+When the "bad" machine boots a "df" that has been inserted in rc.inet2 shows
+the correct root drive having been mounted.  But, it seems as though the
+system cannot see most of the RAID5 mount.  Booting complains about
+/etc/mtab~ not being a directory, /lib/modules/2.2.18aa2 not existing (even
+though it IS there), and several other files missing.  Executable binaries
+seem to work though (i.e. all daemons try to start up).
 
-Alexey
+The end results is that I can't login to the console (typing doesn't even
+echo any characters).  So, I'm somewhat restricted on what I can debug.
+Remote telnet doesn't work either.  Can't reboot either, have to alt-sysrq-U
+and hit the reset key.
+
+Rebooting this machine to 2.2.17-RAID works just fine
+
+Might there be a problem with RAID5 as root?
+
+________________________________________
+Michael D. Black   Principal Engineer
+mblack@csihq.com  321-676-2923,x203
+http://www.csihq.com  Computer Science Innovations
+http://www.csihq.com/~mike  My home page
+FAX 321-676-2355
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,50 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262414AbVAUQaX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262418AbVAUQeS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262414AbVAUQaX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 11:30:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262412AbVAUQaX
+	id S262418AbVAUQeS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 11:34:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262419AbVAUQeR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 11:30:23 -0500
-Received: from bluebox.CS.Princeton.EDU ([128.112.136.38]:43405 "EHLO
-	bluebox.CS.Princeton.EDU") by vger.kernel.org with ESMTP
-	id S262414AbVAUQaQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 11:30:16 -0500
-From: "Marc E. Fiuczynski" <mef@CS.Princeton.EDU>
-To: "Jens Axboe" <axboe@suse.de>, <Valdis.Kletnieks@vt.edu>
-Cc: "Peter Williams" <pwil3058@bigpond.net.au>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       "Con Kolivas" <kernel@kolivas.org>, "Chris Han" <xiphux@gmail.com>
-Subject: RE: [ANNOUNCE][RFC] plugsched-2.0 patches ...
-Date: Fri, 21 Jan 2005 11:29:55 -0500
-Message-ID: <NIBBJLJFDHPDIBEEKKLPIEDNDIAA.mef@cs.princeton.edu>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-In-Reply-To: <20050121141136.GG2790@suse.de>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2314.1300
+	Fri, 21 Jan 2005 11:34:17 -0500
+Received: from styx.suse.cz ([82.119.242.94]:60617 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S262418AbVAUQdb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Jan 2005 11:33:31 -0500
+Date: Fri, 21 Jan 2005 17:35:40 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: dtor_core@ameritech.net
+Cc: Prarit Bhargava <prarit@sgi.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][RFC]: Clean up resource allocation in i8042 driver
+Message-ID: <20050121163540.GC4795@ucw.cz>
+References: <41F11C66.5000707@sgi.com> <d120d500050121074313788f99@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <d120d500050121074313788f99@mail.gmail.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paraphrasing Jens Axboe:
-> I don't think you can compare [plugsched with the plugio framework].
-> Yes they are both schedulers, but that's about where the 'similarity'
-> stops. The CPU scheduler must be really fast, overhead must be kept
-> to a minimum. For a disk scheduler, we can affort to burn cpu cycles
-> to increase the io performance. The extra abstraction required to
-> fully modularize the cpu scheduler would come at a non-zero cost as
-> well, but I bet it would have a larger impact there. I doubt you
-> could measure the difference in the disk scheduler.
+On Fri, Jan 21, 2005 at 10:43:36AM -0500, Dmitry Torokhov wrote:
+> Hi,
+> 
+> On Fri, 21 Jan 2005 10:14:46 -0500, Prarit Bhargava <prarit@sgi.com> wrote:
+> > Hi,
+> > 
+> > The following patch cleans up resource allocations in the i8042 driver
+> > when initialization fails.
+> > 
+> ...
+> > 
+> >                if (i8042_command(&param, I8042_CMD_CTL_TEST)) {
+> > -                       printk(KERN_ERR "i8042.c: i8042 controller self test timeout.\n");
+> > +                       if (i8042_read_status() != 0xFF)
+> > +                               printk(KERN_ERR "i8042.c: i8042 controller self test timeout.\n");
+> > +                       else
+> > +                               printk(KERN_ERR "i8042.c: no i8042 controller found.\n");
+> 
+> Is this documented somewhere?
 
-Modularization usually is done through a level of indirection (function
-pointers).  I have a can of "indirection be gone" almost ready to spray over
-the plugsched framework that would reduce the overhead to zero at runtime.
-I'd be happy to finish that work if it makes it more palpable to integrate a
-plugsched framework into the kernel?
+No. But vacant ports usually return 0xff. The problem here is that 0xff
+is a valid value for the status register, too. Fortunately this patch
+checks for 0xff only after the timeout failed.
 
-Marc
+Anyway, I suppose we could fail silently here on ia64 machines where
+ACPI is present.
 
+> >        if (i8042_platform_init())
+> > +       {
+> > +               del_timer_sync(&i8042_timer);
+> >                return -EBUSY;
+> > +       }
+> > 
+> 
+> Couple of comments:
+>  - i8042_timer has not been started yet so there is no need to delete
+> it in either of the chinks.
+
+Indeed.
+
+> - opening brace placement does not follow Linux coding style.
+> 
+> I think I have some changes to i8042 in my tree, I will add
+> i8042_platform_exit calls to the init routine. Thanks for noticing it!
+
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

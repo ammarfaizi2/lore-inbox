@@ -1,55 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262941AbTJJPTa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Oct 2003 11:19:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262942AbTJJPTa
+	id S262640AbTJJP1S (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Oct 2003 11:27:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262814AbTJJP1S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Oct 2003 11:19:30 -0400
-Received: from holomorphy.com ([66.224.33.161]:22145 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S262941AbTJJPT3 (ORCPT
+	Fri, 10 Oct 2003 11:27:18 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:11961 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262640AbTJJP1Q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Oct 2003 11:19:29 -0400
-Date: Fri, 10 Oct 2003 08:21:20 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: G?bor L?n?rt <lgb@lgb.hu>,
-       Stuart Longland <stuartl@longlandclan.hopto.org>,
-       Stephan von Krawczynski <skraw@ithnet.com>,
-       Fabian.Frederick@prov-liege.be, linux-kernel@vger.kernel.org
-Subject: Re: 2.7 thoughts
-Message-ID: <20031010152120.GE727@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Jamie Lokier <jamie@shareable.org>, G?bor L?n?rt <lgb@lgb.hu>,
-	Stuart Longland <stuartl@longlandclan.hopto.org>,
-	Stephan von Krawczynski <skraw@ithnet.com>,
-	Fabian.Frederick@prov-liege.be, linux-kernel@vger.kernel.org
-References: <D9B4591FDBACD411B01E00508BB33C1B01F13BCE@mesadm.epl.prov-liege.be> <20031009115809.GE8370@vega.digitel2002.hu> <20031009165723.43ae9cb5.skraw@ithnet.com> <3F864F82.4050509@longlandclan.hopto.org> <20031010125137.4080a13b.skraw@ithnet.com> <3F86BD0E.4060607@longlandclan.hopto.org> <20031010143529.GT5112@vega.digitel2002.hu> <20031010144723.GC727@holomorphy.com> <20031010151231.GD28795@mail.shareable.org>
-Mime-Version: 1.0
+	Fri, 10 Oct 2003 11:27:16 -0400
+From: Tom Zanussi <zanussi@us.ibm.com>
+Message-ID: <16262.53132.204302.597010@gargle.gargle.HOWL>
+Date: Fri, 10 Oct 2003 10:26:04 -0500
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031010151231.GD28795@mail.shareable.org>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+Content-Transfer-Encoding: 7bit
+To: "David S. Miller" <davem@redhat.com>
+Cc: karim@opersys.com, jmorris@redhat.com, zanussi@us.ibm.com,
+       linux-kernel@vger.kernel.org, bob@watson.ibm.com
+Subject: Re: [PATCH][RFC] relayfs (1/4) (Documentation)
+In-Reply-To: <20031010005703.0daf3e19.davem@redhat.com>
+References: <Pine.LNX.4.44.0310091311440.14415-100000@thoron.boston.redhat.com>
+	<3F859DF1.8000602@opersys.com>
+	<20031010005703.0daf3e19.davem@redhat.com>
+X-Mailer: VM(ViewMail) 7.01 under Emacs 20.7.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
->> You need at least enough warning to get out of critical sections (e.g.
->> holding a spinlock) and dump registers out to memory. i.e. as long as it
->> takes to schedule out whatever's currently running on the thing.
->> ... and unless you want to start enforcing realtime bounds, the answer
->> to "how long do you have to give the kernel to do it?" is "forever".
->> In practice, it won't take forever, but no finite time is enforcible.
+David S. Miller writes:
+ > On Thu, 09 Oct 2003 13:42:09 -0400
+ > Karim Yaghmour <karim@opersys.com> wrote:
+ > 
+ > > 
+ > > James Morris wrote:
+ > > > It should be possible to make Netlink sockets mmapable (like the packet 
+ > > > socket).
+ > > 
+ > > So would you consider running printk on Netlink sockets? Do you think Netlink
+ > > could accomodate something as intensive as tracing? etc.
+ > 
+ > Of course it can.  Look, netlink is used on routers to transfer
+ > hundreds of thousands of routing table entries in one fell swoop
+ > between a user process and the kernel every time the next hop Cisco
+ > has a BGP routing flap.
+ > 
+ > If you must have "enterprise wide client server" performance, we can
+ > add mmap() support to netlink sockets just like AF_PACKET sockets support
+ > such a thing.  But I _really_ doubt you need this and unlike netlink sockets
+ > relayfs has no queueing model, whereas not only does netlink have one it's
+ > been tested in real life.
+ > 
+ > You guys are really out of your mind if you don't just take the netlink
+ > printk thing I did months ago and just run with it.  When someone first
+ > told showed me this relayfs thing, I nearly passed out in disbelief that
+ > people are still even considering non-netlink solutions.
+ > 
 
-On Fri, Oct 10, 2003 at 04:12:31PM +0100, Jamie Lokier wrote:
-> You can create a very peculiar scheduling state to make even
-> spinlocked sections multi-task, so the CPU can be released in a finite
-> time and quickly - about as quickly as taking an NMI and broadcasting
-> the critical IPIs to tell other CPUs to take over.
-> The peculiar state is restored to normal as soon as the number
-> of concurrent critical sections no longer exceeds the number of real CPUs.
+Well, if you add mmap() support, and remove all the dependencies
+Netlink has on networking code, and add a non-sockets-based interface,
+then you'd have something that could be used by everyone regardless of
+whether they have networking configured in.  You'd also then have
+something just as 'untested in real life' as relayfs, unless it really
+does just boil down to some minor tweaks.
 
-DOH. Okay, that would do it.
+Some other things relayfs supports which I'm not sure (literally)
+Netlink supports
 
+- relay_write() can be called from any context
+- relayfs has support for per-CPU buffering
+- it doesn't require a memory allocation for each packet, so can be
+  used in low-memory situations
+- relayfs by design supports packet buffering, so can be used at boot time
+- relayfs is reliable - the only way packets get dropped is if the
+  buffer fills up, but this is addressed by a dynamic resizing
+  capability, or by making the buffers larger to start out with.
 
--- wli
+-- 
+Regards,
+
+Tom Zanussi <zanussi@us.ibm.com>
+IBM Linux Technology Center/RAS
+

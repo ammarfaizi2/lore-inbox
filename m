@@ -1,37 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269031AbUJQDeM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269030AbUJQDg0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269031AbUJQDeM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Oct 2004 23:34:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269032AbUJQDeM
+	id S269030AbUJQDg0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Oct 2004 23:36:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269032AbUJQDg0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Oct 2004 23:34:12 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:41170 "EHLO
+	Sat, 16 Oct 2004 23:36:26 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:42450 "EHLO
 	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S269031AbUJQDeK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Oct 2004 23:34:10 -0400
-Subject: Re: b44 misdetected on Dell Inspiron 1100
+	id S269030AbUJQDgU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Oct 2004 23:36:20 -0400
+Subject: Re: failure in /mm/memory.c
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Anand Kumria <wildfire@progsoc.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <pan.2004.10.16.03.11.01.490609@progsoc.org>
-References: <pan.2004.10.16.03.11.01.490609@progsoc.org>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: christophpfister@bluemail.ch,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041016120911.GW5607@holomorphy.com>
+References: <412EB75E00164E05@mssazhh-int.msg.bluewin.ch>
+	 <20041016120911.GW5607@holomorphy.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <1097980276.13429.15.camel@localhost.localdomain>
+Message-Id: <1097980417.13428.17.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sun, 17 Oct 2004 03:31:18 +0100
+Date: Sun, 17 Oct 2004 03:33:39 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sad, 2004-10-16 at 04:11, Anand Kumria wrote:
-> 0000:02:01.0 Ethernet controller: Broadcom Corporation BCM4401 100Base-T (rev 01)
->         Subsystem: Unknown device 4401:1028
-> [..]
+On Sad, 2004-10-16 at 13:09, William Lee Irwin III wrote:
+> On Sat, Oct 16, 2004 at 12:32:35PM +0100, christophpfister@bluemail.ch wrote:
+> > i found a failure in function remap_pte_range in memory.c
 
-That would be Dell (or more likely whoever built the laptop for them).
-The SSID's are just guides to the precise vendor variant/board so don't
-matter too much if they are backwards. Your hardware should just work.
-
-Funny however.
+I think the bug is in the comment not the code !
 

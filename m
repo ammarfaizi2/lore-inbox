@@ -1,51 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261789AbTCaS4D>; Mon, 31 Mar 2003 13:56:03 -0500
+	id <S261798AbTCaTAk>; Mon, 31 Mar 2003 14:00:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261793AbTCaS4C>; Mon, 31 Mar 2003 13:56:02 -0500
-Received: from vsmtp4.tin.it ([212.216.176.224]:3303 "EHLO smtp4.cp.tin.it")
-	by vger.kernel.org with ESMTP id <S261789AbTCaS4C>;
-	Mon, 31 Mar 2003 13:56:02 -0500
-Date: Mon, 31 Mar 2003 20:56:48 +0200
-From: Simone Piunno <pioppo@ferrara.linux.it>
-To: Peter Bieringer <pb@bieringer.de>
-Cc: usagi-users@linux-ipv6.org, netdev@oss.sgi.com, ds6-devel@deepspace6.net,
+	id <S261830AbTCaTAk>; Mon, 31 Mar 2003 14:00:40 -0500
+Received: from holomorphy.com ([66.224.33.161]:39108 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S261798AbTCaTAh>;
+	Mon, 31 Mar 2003 14:00:37 -0500
+Date: Mon, 31 Mar 2003 11:11:23 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Janet Morgan <janetmor@us.ibm.com>
+Cc: akpm@digeo.com, suparna@in.ibm.com, bcrl@redhat.com, linux-aio@kvack.org,
        linux-kernel@vger.kernel.org
-Subject: Re: [ds6-devel] Re: (usagi-users 02296) IPv6 duplicate address bugfix
-Message-ID: <20030331185648.GA3928@ferrara.linux.it>
-References: <20030330122705.GA18283@ferrara.linux.it> <9360000.1049135038@worker.muc.bieringer.de>
+Subject: Re: [Patch 2/2] Retry based aio read - filesystem read changes
+Message-ID: <20030331191123.GB13178@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Janet Morgan <janetmor@us.ibm.com>, akpm@digeo.com,
+	suparna@in.ibm.com, bcrl@redhat.com, linux-aio@kvack.org,
+	linux-kernel@vger.kernel.org
+References: <20030305144754.A1600@in.ibm.com> <20030305150026.B1627@in.ibm.com> <20030305024254.7f154afc.akpm@digeo.com> <20030305174452.A1882@in.ibm.com> <3E8889B4.FB716506@us.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <9360000.1049135038@worker.muc.bieringer.de>
-User-Agent: Mutt/1.4i
-Organization: Ferrara LUG
-X-Operating-System: Linux 2.4.20-skas3
-X-Message: GnuPG/PGP5 are welcome
-X-Key-ID: 860314FC/C09E842C
-X-Key-FP: 9C15F0D3E3093593AC952C92A0CD52B4860314FC
-X-Key-URL: http://members.ferrara.linux.it/pioppo/mykey.asc
+In-Reply-To: <3E8889B4.FB716506@us.ibm.com>
+User-Agent: Mutt/1.3.28i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 31, 2003 at 08:23:58PM +0200, Peter Bieringer wrote:
+On Mon, Mar 31, 2003 at 10:32:20AM -0800, Janet Morgan wrote:
+>   70% of all calls to schedule were from __lock_page:
+>         Based on the profile data, almost all calls to _lock_page were
+>         from do_generic_mapping_read (see filemap.c/Line 101 below).
+>         Suparna's patch already retries here.
 
-> Address was already added by autoconfiguration on receiving advertisement
-> (limited lifetime). Now the same address would be added manually (unlimited
-> lifetime).
-> 
-> What (should) happen?
-> 
-> Mho: manual add is allowed, both addresses need to be listed.
+Can you tell whether these are due to hash collisions or contention on
+the same page?
 
-I'd prefer this variant:
+If they're due to hash collisions, things could easily be done to help
+(though they wouldn't guarantee not sleeping entirely they'd be good
+for general performance).
 
-manual add is allowed and overwrites the autoconfigured address.
 
--- 
- Simone Piunno -- http://members.ferrara.linux.it/pioppo 
-.-------  Adde parvum parvo magnus acervus erit  -------.
- Ferrara Linux Users Group - http://www.ferrara.linux.it 
- Deep Space 6, IPv6 on Linux - http://www.deepspace6.net 
- GNU Mailman, Mailing List Manager - http://www.list.org 
-`-------------------------------------------------------'
+-- wli

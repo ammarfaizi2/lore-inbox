@@ -1,95 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268581AbUJDTf2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268383AbUJDTsT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268581AbUJDTf2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 15:35:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268568AbUJDTcX
+	id S268383AbUJDTsT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 15:48:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268379AbUJDToT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 15:32:23 -0400
-Received: from fw.osdl.org ([65.172.181.6]:5053 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268486AbUJDTUY (ORCPT
+	Mon, 4 Oct 2004 15:44:19 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:7300 "EHLO e35.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S268410AbUJDTkn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 15:20:24 -0400
-Date: Mon, 4 Oct 2004 12:18:05 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Stefano Rivoir <s.rivoir@gts.it>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-rc3-mm2
-Message-Id: <20041004121805.2bffcd99.akpm@osdl.org>
-In-Reply-To: <4161462A.5040806@gts.it>
-References: <20041004020207.4f168876.akpm@osdl.org>
-	<4161462A.5040806@gts.it>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 4 Oct 2004 15:40:43 -0400
+Message-Id: <200410041146.i94Bi54h012775@owlet.beaverton.ibm.com>
+To: Paul Jackson <pj@sgi.com>
+cc: "Martin J. Bligh" <mbligh@aracnet.com>, pwil3058@bigpond.net.au,
+       frankeh@watson.ibm.com, dipankar@in.ibm.com, akpm@osdl.org,
+       ckrm-tech@lists.sourceforge.net, efocht@hpce.nec.com,
+       lse-tech@lists.sourceforge.net, hch@infradead.org, steiner@sgi.com,
+       jbarnes@sgi.com, sylvain.jeaugey@bull.net, djh@sgi.com,
+       linux-kernel@vger.kernel.org, colpatch@us.ibm.com, Simon.Derr@bull.net,
+       ak@suse.de, sivanich@sgi.com
+Subject: Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement 
+In-reply-to: Your message of "Sun, 03 Oct 2004 17:45:39 PDT."
+             <20041003174539.1652ea2b.pj@sgi.com> 
+Date: Mon, 04 Oct 2004 04:44:05 -0700
+From: Rick Lindsley <ricklind@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stefano Rivoir <s.rivoir@gts.it> wrote:
->
-> Andrew Morton wrote:
-> 
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc3/2.6.9-rc3-mm2/
-> > 
-> > 
-> > - Hopefully those x86 compile errors are fixed up.
-> > 
-> > - Various fairly minor updates
-> 
-> (#ifdef around is_irq_stack_ptr already applied)
-> 
-> Kernel BUGs at boot time, here is what I see (copied by hand, I hope 
-> Stack and Code hex values are not that important :)):
-> 
-> [...]
-> IP: routing cache hash table of 4096 buckets, 32KBytes
-> kmem_cache_create: Early error in slab ip_fib_hash
-> -----[ cut here ] -----
-> kernel BUG at mm/slab.c:1185!
-> invalid operand: 0000 [#1]
-> PREEMPT
-> Modules linked in:
-> CPU:	0
-> EIP:	0060:[<c01348f6>]	Not tainted VLI
-> EFLAGS: 00010282 (2.6.9-rc3-mm2)
-> EIP is at kmem_cache_create+0x51d/0x53e
-> eax: 00000036  ebx: 00000000  ecx: c02b7f04  edx: 00001d9f
-> esi: 00000000  edi: 000000ff  ebp: c15fe3c0  esp: dff83f30
-> ds: 007b    es: 007b    ss: 0068
-> Process swapper: (pid: 1, threadinfo=dff82000 task=dff815f0)
-> Stack: (stripped, hope you don't need this :)
-> Call trace:
->   [<>] fib_hash_init+0xd8/0xe2
->   [<>] ip_fib_init+0xa/0x32
->   [<>] ip_rt_init+0x1cc/0x2e3
->   [<>] ip_init+0xf/0x14
->   [<>] inet_init+0xd0/0x1b3
->   [<>] do_initcalls+0x27/0xad
->   [<>] init+0x0/0xf8
->   [<>] init+0x0/0xf8
->   [<>] init+0x2a/0xf8
->   [<>] kernel_thread_helper+0x0/0xb
->   [<>] kernel_thread_helper+0x5/0xb
+    I move 'em.  I have user code that identifies the kernel threads
+    whose cpus_allowed is a superset of cpus_online_map, and I put them
+    in a nice little padded cell with init and the classic Unix daemons,
+    called the 'bootcpuset'.
 
-That's odd.  I'd be suspecting that in_interrupt() is falsely returning true.
+So the examples you gave before were rather oversimplified, then?
+You talked about dividing up a 256 cpu machine but didn't mention that
+some portion of that must be reserved for the "bootcpuset".  Would this
+be enforced by the kernel, or the administrator?
 
-Can you try this patch, see what it says?
+I might suggest a simpler approach.  As a matter of policy, at least one
+cpu must remain outside of cpusets so that system processes like init,
+getty, lpd, etc. have a place to run.
 
-And can you send the .config along?
+    The tasks whose cpus_allowed is a strict _subset_ of cpus_online_map
+    need to be where they are.  These are things like the migration
+    helper threads, one for each cpu.  They get a license to violate
+    cpuset boundaries.
 
+Literally, or figuratively?  (How do we recognize these tasks?)
 
-diff -puN mm/slab.c~a mm/slab.c
---- 25/mm/slab.c~a	2004-10-04 12:16:00.808822288 -0700
-+++ 25-akpm/mm/slab.c	2004-10-04 12:17:25.822898184 -0700
-@@ -1180,6 +1180,9 @@ kmem_cache_create (const char *name, siz
- 		(size < BYTES_PER_WORD) ||
- 		(size > (1<<MAX_OBJ_ORDER)*PAGE_SIZE) ||
- 		(dtor && !ctor)) {
-+			printk("in_interrupt(): %ld\n", in_interrupt());
-+			printk("preempt_count(): %x\n", preempt_count());
-+			printk("size: %zd\n", size);
- 			printk(KERN_ERR "%s: Early error in slab %s\n",
- 					__FUNCTION__, name);
- 			BUG();
-_
+    I will probably end up submitting a patch at some point, that changes
+    two lines, one in ____call_usermodehelper() and one in kthread(), from
+    setting the cpus_allowed on certain kernel threads to CPU_MASK_ALL,
+    so that instead these lines set that cpus_allowed to a new mask,
+    a kernel global variable that can be read and written via the cpuset
+    api.  But other than that, I don't need anymore kernel hooks than I
+    already have, and even now, I can get everything that's causing me
+    any grief pinned into the bootcpuset.
 
+Will cpus in exclusive cpusets be asked to service interrupts?
+
+Martin pointed out the problem with looking at overloaded cpus repeatedly,
+only to find (repeatedly) we can't steal any of their processes.
+This is a real problem, but exists today outside of any cpuset changes.
+A decaying failure rate might provide a hint to the scheduler to alleviate
+this problem, or maybe the direct route of just checking more thoroughly
+from the beginning is the answer.
+
+    So with my bootcpuset, the problem is reduced, to a few tasks
+    per CPU, such as the migration threads, which must remain pinned
+    on their one CPU (or perhaps on just the CPUs local to one Memory
+    Node).  These tasks remain in the root cpuset, which by the scheme
+    we're contemplating, doesn't get a sched_domain in the fancier
+    configurations.
+
+You just confused me on many different levels:
+
+    * what is the root cpuset? Is this the same as the "bootcpuset" you
+      made mention of?
+
+    * so where *do* these tasks go in the "fancier configurations"?
+
+    * what does it mean "not to get a sched_domain"?  That the tasks in
+      the root cpuset can't move?  Can't run?  One solution to the
+      problem Martin described is to completely split the hierarchy that
+      sched_domain represents, with a different, disjoint tree for each
+      group of cpus in a cpuset.  But wouldn't changing cpus_allowed
+      in every process do the same thing? (Isn't that how this would be
+      implemented at the lowest layer?)
+
+I really haven't heard of anything that couldn't be handled adequately
+through cpus_allowed so far other than "kicking everybody off a cpu"
+which would need some new code.  (Although, probably not, now that I
+think of it, with the new hotplug cpu code wanting to do that too.)
+
+    If we just wrote the code, and quit trying to find a grand unifying
+    theory to explain it consistently with the rest of our design,
+    it would probably work just fine.
+
+I'll assume we're missing a smiley here.
+
+So we want to pin a process to a cpu or set of cpus: set cpus_allowed to
+    that cpu or that set of cpus.
+So we want its children to be subject to the same restriction: children
+    already inherit the cpus_allowed mask of their parent.
+We want to keep out everyone who shouldn't be here: then clear the
+    bits for the restrictive cpus in their cpus_allowed mask when the
+    restriction is created.
+
+When you "remove a cpuset" you just or in the right bits in everybody's
+cpus_allowed fields and they start migrating over.
+
+To me, this all works for the cpu-intensive, gotta have it with 1% runtime
+variation example you gave.  Doesn't it?  And it seems to work for the
+department-needs-8-cpus-to-do-as-they-please example too, doesn't it?
+The scheduler won't try to move a process to someplace it's not allowed.
+
+Rick

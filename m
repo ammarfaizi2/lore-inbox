@@ -1,56 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263145AbVCJVUz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263150AbVCJVZL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263145AbVCJVUz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 16:20:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263147AbVCJVUz
+	id S263150AbVCJVZL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 16:25:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263148AbVCJVZK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 16:20:55 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:61134 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S263145AbVCJVUk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 16:20:40 -0500
-Date: Thu, 10 Mar 2005 15:54:20 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       James Simmons <jsimmons@pentafluge.infradead.org>,
-       Linux Frame Buffer Device Development 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Michal Januszewski <spock@gentoo.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       "Antonino A. Daplas" <adaplas@hotpop.com>
-Subject: Re: [Linux-fbdev-devel] [announce 0/7] fbsplash - The Framebuffer Splash
-Message-ID: <20050310145419.GD632@openzaurus.ucw.cz>
-References: <20050308015731.GA26249@spock.one.pl> <200503091301.15832.adaplas@hotpop.com> <9e473391050308220218cc26a3@mail.gmail.com> <Pine.LNX.4.62.0503091033400.22598@numbat.sonytel.be> <1110392212.3116.215.camel@localhost.localdomain> <Pine.LNX.4.56.0503092043380.7510@pentafluge.infradead.org> <1110408049.9942.275.camel@localhost.localdomain> <Pine.LNX.4.62.0503101009240.9227@numbat.sonytel.be>
+	Thu, 10 Mar 2005 16:25:10 -0500
+Received: from fire.osdl.org ([65.172.181.4]:19656 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S263150AbVCJVVP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Mar 2005 16:21:15 -0500
+Date: Thu, 10 Mar 2005 13:21:14 -0800
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Steven Cole <elenstev@mesatop.com>
+Cc: linux-kernel@vger.kernel.org, Russell King <rmk+serial@arm.linux.org.uk>
+Subject: Re: Problem with PPPD on dialup with 2.6.11-bk1 and later; 2.6.11
+ is OK
+Message-ID: <20050310132114.5eda19d7@dxpl.pdx.osdl.net>
+In-Reply-To: <200503091914.24612.elenstev@mesatop.com>
+References: <200503091914.24612.elenstev@mesatop.com>
+Organization: Open Source Development Lab
+X-Mailer: Sylpheed-Claws 1.0.1 (GTK+ 1.2.10; x86_64-unknown-linux-gnu)
+X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
+ /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0503101009240.9227@numbat.sonytel.be>
-User-Agent: Mutt/1.3.27i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+> Stephen Hemminger also wrote: (Someting's busted with serial in 2.6.11 latest)
+> >Some checkin since 2.6.11 has caused the serial driver to
+> >drop characters.  Console output is chopped and messages are garbled.
+> >Even the shell prompt gets truncated.
 
-> > > Thank you. We need some kind of basic console in the kernel. I'm not the 
-> > > biggest fan of eye candy. So moving the console to userspace for eye candy 
-> > > is a dumb idea.
-> > 
-> > Thats why moving the eye candy console into user space is such a good
-> > idea. You don't have to run it 8) It also means that the console
-> > development is accessible to all the crazy rasterman types.
+> Searching lkml archive, I found:
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=111031501416334&w=2
 > 
-> Yep. The basic console we already have. Everyone who wants eye candy can switch
-> from basic console to user space console in early userspace.
-> 
+> I also found that reverting that patch made the problem go away for 2.6.11-bk1.
 
-Heh, I'm afraid it does not work like that. Anyone who wants eye-candy
-simply applies broken patch to their kernel... unless their distribution applied one
-already.
 
-Situation where we have one working eye-candy patch would certainly
-be an improvement.
-				Pavel
--- 
-64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
-
+Yes, this patch is the problem. A fix showed up today.
+Current kernels work fine, thanks.

@@ -1,38 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266572AbUIEM2b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266574AbUIEMag@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266572AbUIEM2b (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Sep 2004 08:28:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266566AbUIEM2b
+	id S266574AbUIEMag (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Sep 2004 08:30:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266582AbUIEMag
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Sep 2004 08:28:31 -0400
-Received: from c002781a.fit.bostream.se ([217.215.235.8]:3474 "EHLO
-	mail.tnonline.net") by vger.kernel.org with ESMTP id S266572AbUIEM1v
+	Sun, 5 Sep 2004 08:30:36 -0400
+Received: from c002781a.fit.bostream.se ([217.215.235.8]:10642 "EHLO
+	mail.tnonline.net") by vger.kernel.org with ESMTP id S266574AbUIEMaZ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Sep 2004 08:27:51 -0400
-Date: Sun, 5 Sep 2004 14:27:39 +0200
+	Sun, 5 Sep 2004 08:30:25 -0400
+Date: Sun, 5 Sep 2004 14:30:12 +0200
 From: Spam <spam@tnonline.net>
 Reply-To: Spam <spam@tnonline.net>
 X-Priority: 3 (Normal)
-Message-ID: <285406007.20040905142739@tnonline.net>
+Message-ID: <1819110960.20040905143012@tnonline.net>
 To: Tonnerre <tonnerre@thundrix.ch>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Lee Revell <rlrevell@joe-job.com>,
-       Pavel Machek <pavel@ucw.cz>, Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Jamie Lokier <jamie@shareable.org>, David Masover <ninja@slaphack.com>,
+CC: Christer Weinigel <christer@weinigel.se>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>, Pavel Machek <pavel@ucw.cz>,
+       David Masover <ninja@slaphack.com>, Jamie Lokier <jamie@shareable.org>,
        Chris Wedgwood <cw@f00f.org>, <viro@parcelfarce.linux.theplanet.co.uk>,
-       Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@lst.de>,
-       Hans Reiser <reiser@namesys.com>, <linux-fsdevel@vger.kernel.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Christoph Hellwig <hch@lst.de>, Hans Reiser <reiser@namesys.com>,
+       <linux-fsdevel@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
        Alexander Lyamin aka FLX <flx@namesys.com>,
        ReiserFS List <reiserfs-list@namesys.com>
 Subject: Re: silent semantic changes with reiser4
-In-Reply-To: <20040905120758.GI26560@thundrix.ch>
-References: <rlrevell@joe-job.com> <1094079071.1343.25.camel@krustophenia.net>
- <200409021425.i82EPn9i005192@laptop11.inf.utfsm.cl>
- <1535878866.20040902214144@tnonline.net>
- <20040902194909.GA8653@atrey.karlin.mff.cuni.cz>
- <1094155277.11364.92.camel@krustophenia.net>
- <1094152590.5726.37.camel@localhost.localdomain>
- <20040905120758.GI26560@thundrix.ch>
+In-Reply-To: <20040905115854.GH26560@thundrix.ch>
+References: <200408311931.i7VJV8kt028102@laptop11.inf.utfsm.cl>
+ <Pine.LNX.4.58.0408311252150.2295@ppc970.osdl.org>
+ <m3eklm9ain.fsf@zoo.weinigel.se> <20040905111743.GC26560@thundrix.ch>
+ <1215700165.20040905135749@tnonline.net> <20040905115854.GH26560@thundrix.ch>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
@@ -44,32 +41,23 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 > Salut,
 
-> On Thu, Sep 02, 2004 at 08:16:35PM +0100, Alan Cox wrote:
->> Thats how you get yourself a non useful OS. Fix it in a library and
->> share it between the apps that care. Like say.. gnome-vfs2
+> On Sun, Sep 05, 2004 at 01:57:49PM +0200, Spam wrote:
+>>   What if I do not use emacs, but vim, mcedit, gedit, or some other
+>>   editor? It doesn't seem logical to have to patch every application
+>>   that uses files.
 
-> Even KIOslave has  it. They even support sftp and  stuff just by using
-> shared files  in /tmp in reality.  That's a much  saner interface than
-> doing it all in the kernel.
+> We would have to do that in  either case, so let's patch them to do it
+> in a nonintrusive way. And as to reading and writing inside tar files,
+> write and/or  use a really nice  userspace library to do  it. (As does
+> MacOS/X, as does KDE, etc.)
 
-> I  mean,  the  kernel  is  supposed  to support  access  to  the  disk
-> drives. Who says that it's got  to be the uppermost VFS level? You can
-> be perfectly happy to build your own  VFS on top of it (or use other's
-> implementations, that is.)
+  The problem with the userspace library is standardization. What
+  would be needed is a userspace library that has a extensible plugin
+  interface that is standardized. Otherwise we would need lots of
+  different libraries, and I seriously doubt that 1) this will happen
+  and 2) we get all Linux programs to be patched to use it.
 
-  Yes, we have several VFS versions. KDE and Gnome has their own, mc
-  another, and so on. None is compatible with the other and all data
-  is unavailable if you do not use a program specifically coded to use
-  the particular VFS you stored the data with.
-
-> I can  already see people moving  to FreeBSD if  this gets implemented
-> into the kernel...
-
-  Why? No one has to use it. you do not have to load FS/VFS plugins so
-  you can extend the functionality of your filesystem with stuff like
-  compression, encryption, sorting, filtering, etc etc..
-
-  
+  ~S
 
 > 			    Tonnerre
 

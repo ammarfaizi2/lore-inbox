@@ -1,68 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262106AbSJNTLN>; Mon, 14 Oct 2002 15:11:13 -0400
+	id <S262105AbSJNTIG>; Mon, 14 Oct 2002 15:08:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262107AbSJNTLN>; Mon, 14 Oct 2002 15:11:13 -0400
-Received: from cynaptic.com ([128.121.116.181]:10763 "EHLO cynaptic.com")
-	by vger.kernel.org with ESMTP id <S262106AbSJNTLM>;
-	Mon, 14 Oct 2002 15:11:12 -0400
-From: "Eff Norwood" <enorwood@effrem.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Why so many intr/s? VM problem?
-Date: Mon, 14 Oct 2002 12:17:03 -0700
-Message-ID: <CFEAJJEGMGECBCJFLGDBOEGECFAA.enorwood@effrem.com>
+	id <S262106AbSJNTIG>; Mon, 14 Oct 2002 15:08:06 -0400
+Received: from gate.perex.cz ([194.212.165.105]:12813 "EHLO gate.perex.cz")
+	by vger.kernel.org with ESMTP id <S262105AbSJNTID>;
+	Mon, 14 Oct 2002 15:08:03 -0400
+Date: Mon, 14 Oct 2002 21:10:04 +0200 (CEST)
+From: Jaroslav Kysela <perex@perex.cz>
+X-X-Sender: <perex@pnote.perex-int.cz>
+To: Adam Belay <ambx1@neo.rr.com>
+cc: "torvalds@transmeta.com" <torvalds@transmeta.com>,
+       "alan@lxorguk.ukuu.org.uk" <alan@lxorguk.ukuu.org.uk>,
+       "greg@kroah.com" <greg@kroah.com>,
+       "jdthood@yahoo.co.uk" <jdthood@yahoo.co.uk>,
+       "boissiere@nl.linux.org" <boissiere@nl.linux.org>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] PnP Layer Rewrite V0.7 - 2.4.42
+In-Reply-To: <20021014135452.GB444@neo.rr.com>
+Message-ID: <Pine.LNX.4.33.0210142101000.7202-100000@pnote.perex-int.cz>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Importance: Normal
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+On Mon, 14 Oct 2002, Adam Belay wrote:
 
-I have a 2.4.18 kernel running on a dual 2.4Ghz Xeon platform using software
-RAID 5 via IBM's EVMS and EXT3. The system is being used as an NFS server
-and although local disk performance is excellent, NFS performance (over UDP
-and TCP, vers 2 and 3 with multiple different client mount block sizes) is
-poor to bad. Looking at mpstat while the system is under load shows the
-%system to be quite high (94-96%) but most interestingly shows the number of
-intr/s (context switches) to be 17-18K plus!
+> Linux Plug and Play Rewrite V0.7
+>
+> After much testing the Linux PnP Rewrite is ready to be included. For
+> those who would like to try it, be sure to enable debugging or else it
+> will operate silently. Also enable both PnP protocols.
 
-Since I was not sure what was causing all of these context switches, I
-installed SGI kernprof and ran it during a 15 minute run. I used this
-command to start kernprof: 'kernprof -r -d time -f 1000 -t pc -b -c all' and
-this one to stop it: 'kernprof -e -i | sort -nr +2 | less >
-big_csswitch.txt'
+A few notes. Please, could you leave the raw proc interface for ISA PnP?
+I mean isapnp_proc_bus_read() function. Also, encoding device/vendor to 
+7-byte string seems like wasting bytes and CPU cycles. If you use 2/2 byte 
+format, you'll spare 3 bytes and comparing of two short values (or one 
+int value) is always less expensive.
 
-The output of this collection is located here (18Kb):
+Anyway, I like this code. It seems that you don't use standard pci_dev / 
+pci_bus structures as I was forced by Linus at ISA PnP code inclusion 
+time. But it's true that we have new device model, so these things might 
+be private. Also, don't forget to remove additional ISA PnP members from 
+pci structures when Linus approves pnp_dev and pnp_card structures.
 
-http://www.effrem.com/linux/kernel/dev/big_csswitch.txt
+						Jaroslav
 
-Most interesting to me is why in the top three results:
-
-default_idle [c010542c]: 861190
-_text_lock_inode [c015d031]: 141795
-UNKNOWN_KERNEL [c01227f0]: 101532
-
-that default_idle would be the highest value when the CPUs showed 94-96%
-busy. Also interesting is what UNKNOWN_KERNEL is. ???
-
-The server described above has 14 internal IDE disks configured as software
-Raid 5 and connected to the network with one Syskonnect copper gigabit card.
-I used 30 100 base-T connected clients all of which performed sequential
-writes to one large 1.3TB volume on the file server. They were mounted
-NFSv2, UDP, 8K r+w size for this run. I was able to achieve only 35MB/sec of
-sustained NFS write throughput. Local disk performance (e.g. dd file) for
-sustained writes is *much* higher. I am using knfsd with the latest 2.4.18
-Neil Brown fixes from his site. Distribution is Debian 3.0 Woody Stable.
-
-Many thanks in advance for the insight,
-
-Eff Norwood
-
+-----
+Jaroslav Kysela <perex@suse.cz>
+Linux Kernel Sound Maintainer
+ALSA Project  http://www.alsa-project.org
+SuSE Linux    http://www.suse.com
 

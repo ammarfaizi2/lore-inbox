@@ -1,60 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262965AbVCDRG1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262913AbVCDRRd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262965AbVCDRG1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 12:06:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262964AbVCDRGT
+	id S262913AbVCDRRd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 12:17:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262614AbVCDRRc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 12:06:19 -0500
-Received: from adsl-69-149-197-17.dsl.austtx.swbell.net ([69.149.197.17]:46737
-	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
-	id S262989AbVCDRDN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 12:03:13 -0500
-Subject: [PATCH 2.6] fix register access typo in synclinkmp
-From: Paul Fulghum <paulkf@microgate.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1109955994.7160.2.camel@deimos.microgate.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Fri, 04 Mar 2005 11:06:34 -0600
-Content-Transfer-Encoding: 7bit
+	Fri, 4 Mar 2005 12:17:32 -0500
+Received: from 200-170-96-180.veloxmail.com.br ([200.170.96.180]:54647 "HELO
+	qmail-out.veloxmail.com.br") by vger.kernel.org with SMTP
+	id S262913AbVCDRQQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Mar 2005 12:16:16 -0500
+X-qfilter-stat: ok
+Date: Fri, 4 Mar 2005 14:16:14 -0300 (BRT)
+From: =?ISO-8859-1?Q?Fr=E9d=E9ric_L=2E_W=2E_Meunier?= <2@pervalidus.net>
+To: Jean Delvare <khali@linux-fr.org>
+cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: radeonfb blanks my monitor
+In-Reply-To: <42283AE5.9030700@linux-fr.org>
+Message-ID: <Pine.LNX.4.62.0503041415050.163@darkstar.example.net>
+References: <Pine.LNX.4.62.0503022347070.311@darkstar.example.net>  <1109823010.5610.161.camel@gaston> 
+	<Pine.LNX.4.62.0503030134200.311@darkstar.example.net> <1109825452.5611.163.camel@gaston>
+	<Pine.LNX.4.62.0503031149280.311@darkstar.example.net> <42283AE5.9030700@linux-fr.org>
+X-Archive: encrypt
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-1212385995-1109956574=:163"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix register access typo in synclinkmp.c
-that caused value to be written to wrong register.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
--- 
-Paul Fulghum
-paulkf@microgate.com
+--8323328-1212385995-1109956574=:163
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 
---- linux-2.6.11/drivers/char/synclinkmp.c	2005-03-02 01:37:50.000000000 -0600
-+++ linux-2.6.11-mg/drivers/char/synclinkmp.c	2005-03-04 11:02:29.000000000 -0600
-@@ -1,5 +1,5 @@
- /*
-- * $Id: synclinkmp.c,v 4.29 2004/08/27 20:06:41 paulkf Exp $
-+ * $Id: synclinkmp.c,v 4.34 2005/03/04 15:07:10 paulkf Exp $
-  *
-  * Device driver for Microgate SyncLink Multiport
-  * high speed multiprotocol serial adapter.
-@@ -487,7 +487,7 @@ module_param_array(maxframe, int, NULL, 
- module_param_array(dosyncppp, int, NULL, 0);
- 
- static char *driver_name = "SyncLink MultiPort driver";
--static char *driver_version = "$Revision: 4.29 $";
-+static char *driver_version = "$Revision: 4.34 $";
- 
- static int synclinkmp_init_one(struct pci_dev *dev,const struct pci_device_id *ent);
- static void synclinkmp_remove_one(struct pci_dev *dev);
-@@ -4528,7 +4528,7 @@ void async_mode(SLMP_INFO *info)
- 	 * 07..05  Reserved, must be 0
- 	 * 04..00  RRC<4..0> Rx FIFO trigger active 0x00 = 1 byte
- 	 */
--	write_reg(info, TRC0, 0x00);
-+	write_reg(info, RRC, 0x00);
- 
- 	/* TRC0 Transmit Ready Control 0
- 	 *
+On Fri, 4 Mar 2005, Jean Delvare wrote:
 
+> Fr=E9d=E9ric, can you check in /etc/modprobe.conf if you have a=20
+> line like: options i2c-algo-bit bit_test=3D1 If you do, please=20
+> comment it out and see if it changes anything.
 
+Yes, I had, but commenting it out didn't change anything.
+
+--=20
+How to contact me - http://www.pervalidus.net/contact.html
+
+--8323328-1212385995-1109956574=:163--

@@ -1,44 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268697AbUIQLbm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268703AbUIQLmU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268697AbUIQLbm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Sep 2004 07:31:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268708AbUIQLaz
+	id S268703AbUIQLmU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Sep 2004 07:42:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268701AbUIQLmU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Sep 2004 07:30:55 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:10215 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S268697AbUIQL3M (ORCPT
+	Fri, 17 Sep 2004 07:42:20 -0400
+Received: from gate.crashing.org ([63.228.1.57]:50090 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S268703AbUIQLlK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Sep 2004 07:29:12 -0400
-Date: Fri, 17 Sep 2004 04:28:31 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Stelian Pop <stelian@popies.net>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [RFC, 2.6] a simple FIFO implementation
-Message-Id: <20040917042831.253fe8df.pj@sgi.com>
-In-Reply-To: <20040917102413.GA3089@crusoe.alcove-fr>
-References: <20040913135253.GA3118@crusoe.alcove-fr>
-	<20040915153013.32e797c8.akpm@osdl.org>
-	<20040916064320.GA9886@deep-space-9.dsnet>
-	<20040916000438.46d91e94.akpm@osdl.org>
-	<20040916104535.GA3146@crusoe.alcove-fr>
-	<20040916100050.17a9b341.akpm@osdl.org>
-	<20040916180908.GB9886@deep-space-9.dsnet>
-	<20040916171817.78ab4430.akpm@osdl.org>
-	<20040917102413.GA3089@crusoe.alcove-fr>
-Organization: SGI
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Fri, 17 Sep 2004 07:41:10 -0400
+Subject: Re: [PATCH] pmac: don't add =?ISO-8859-1?Q?=22=B0C=22?= suffix in
+	sys for adt746x driver
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Colin Leroy <colin@colino.net>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.GSO.4.58.0409171249500.19914@waterleaf.sonytel.be>
+References: <1095401127.5105.73.camel@gaston>
+	 <Pine.GSO.4.58.0409171249500.19914@waterleaf.sonytel.be>
+Content-Type: text/plain; charset=iso-8859-1
+Message-Id: <1095421135.5107.79.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 17 Sep 2004 21:38:57 +1000
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stelian wrote:
-> A third and I hope final version of the patch follows.
+On Fri, 2004-09-17 at 20:50, Geert Uytterhoeven wrote:
+> On Fri, 17 Sep 2004, Benjamin Herrenschmidt wrote:
+> > The adt746x driver currently adds a "°C" suffix to temperatures exposed
+> > via sysfs, and I don't like that. First, we all agree that any other unit
+> > here makes no sense (do we ? do we ? yes of course :) and I don't like
+> 
+> Universal temperature, in K? And you'll never ever see negative numbers ;-)
 
-The struct kfifo is quite a bit more readable - nice.
+I was waiting for this one :)
 
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+Ben.
+
+

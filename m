@@ -1,42 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266830AbUHCWwI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261184AbUHCXEM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266830AbUHCWwI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 18:52:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266902AbUHCWwI
+	id S261184AbUHCXEM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 19:04:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266825AbUHCXEM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 18:52:08 -0400
-Received: from fw.osdl.org ([65.172.181.6]:63668 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266830AbUHCWwF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 18:52:05 -0400
-Date: Tue, 3 Aug 2004 15:52:02 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Chris Wright <chrisw@osdl.org>, Arjan van de Ven <arjanv@redhat.com>,
-       Rik van Riel <riel@redhat.com>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: [patch] mlock-as-nonroot revisted
-Message-ID: <20040803155202.S1924@build.pdx.osdl.net>
-References: <Pine.LNX.4.44.0408031654290.5948-100000@dhcp83-102.boston.redhat.com> <20040803210737.GI2241@dualathlon.random> <20040803211339.GB26620@devserv.devel.redhat.com> <20040803213634.GK2241@dualathlon.random> <20040803213856.GB10978@devserv.devel.redhat.com> <20040803215150.GM2241@dualathlon.random> <20040803150118.Q1924@build.pdx.osdl.net> <20040803221121.GN2241@dualathlon.random> <20040803153335.R1924@build.pdx.osdl.net> <20040803224200.GO2241@dualathlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 3 Aug 2004 19:04:12 -0400
+Received: from smtp06.ya.com ([62.151.11.163]:62137 "EHLO smtp.ya.com")
+	by vger.kernel.org with ESMTP id S261184AbUHCXEJ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Aug 2004 19:04:09 -0400
+From: Luis Miguel =?iso-8859-1?q?Garc=EDa_Mancebo?= <ktech@wanadoo.es>
+To: Greg KH <greg@kroah.com>
+Subject: Re: USB troubles in rc2
+Date: Wed, 4 Aug 2004 01:04:00 +0200
+User-Agent: KMail/1.6.82
+Cc: LKML <linux-kernel@vger.kernel.org>, akpm@osdl.org,
+       linux-usb-devel@lists.sourceforge.net
+References: <200408022100.54850.ktech@wanadoo.es> <200408031046.57137.ktech@wanadoo.es> <20040803135730.GB13390@kroah.com>
+In-Reply-To: <20040803135730.GB13390@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20040803224200.GO2241@dualathlon.random>; from andrea@suse.de on Wed, Aug 04, 2004 at 12:42:00AM +0200
+Message-Id: <200408040104.00177.ktech@wanadoo.es>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Andrea Arcangeli (andrea@suse.de) wrote:
-> On Tue, Aug 03, 2004 at 03:33:35PM -0700, Chris Wright wrote:
-> > Heh, yeah in a place like hugetlb_put_quota?
-> 
-> yep. that's the kind of function I was looking for to update/release the
-> accounting, but it's not there, and sure it wasn't there in the previous
-> patch either.
+El Martes, 3 de Agosto de 2004 15:57, Greg KH escribió:
+> On Tue, Aug 03, 2004 at 10:46:57AM +0200, Luis Miguel Garc?a Mancebo wrote:
+> > With 2.6.7-mm7 don't work either, but I can revert the bk-usb.patch in
+> > the andrew tree and all works ok. Even the camera:
+>
+> So 2.6.7 (with no patches) worked for you?  Did 2.6.8-rc1 break?  Or was
+> it 2.6.8-rc2 that broke your box?
+>
+> thanks,
+>
+> greg k-h
 
-I didn't see it there either.  But I think it's fixable.
+I have been testing various kernels. Here's the restult:
 
-thanks,
--chris
+2.6.7-mm7   DON'T WORK
+2.6.7-mm7 (with bk-usb.patch reverted) WORKS
+
+2.6.7-rc1    DON'T WORK
+2.6.7-rc2    DON'T WORK
+
+
+So I think the problems started on vanilla in 2.6.8-rc1 but was already there 
+in 2.6.7-mm7.
+
+Thanks  a lot. Any patch do you want for me to test?
+
 -- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+Luis Miguel García Mancebo
+Universidad de Deusto / Deusto University
+Spain

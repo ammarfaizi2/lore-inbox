@@ -1,119 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129126AbRDBUAq>; Mon, 2 Apr 2001 16:00:46 -0400
+	id <S131270AbRDBUBq>; Mon, 2 Apr 2001 16:01:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131309AbRDBUAh>; Mon, 2 Apr 2001 16:00:37 -0400
-Received: from idiom.com ([216.240.32.1]:61200 "EHLO idiom.com")
-	by vger.kernel.org with ESMTP id <S131300AbRDBUAa>;
-	Mon, 2 Apr 2001 16:00:30 -0400
-Message-ID: <3AC8313E.DF217C0E@namesys.com>
-Date: Mon, 02 Apr 2001 11:58:54 +0400
-From: Hans Reiser <reiser@namesys.com>
-Organization: Namesys
-X-Mailer: Mozilla 4.74 [en] (X11; U; Linux 2.2.14 i686)
-X-Accept-Language: en, ru
+	id <S131300AbRDBUB1>; Mon, 2 Apr 2001 16:01:27 -0400
+Received: from mailgw.prontomail.com ([216.163.180.10]:453 "EHLO
+	c0mailgw04.prontomail.com") by vger.kernel.org with ESMTP
+	id <S131270AbRDBUBZ>; Mon, 2 Apr 2001 16:01:25 -0400
+Message-ID: <3AC8D95E.7E3A68B0@mvista.com>
+Date: Mon, 02 Apr 2001 12:56:14 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.2.12-20b i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Rasmus =?koi8-r?Q?B=F8g?= Hansen <moffe@amagerkollegiet.dk>
-CC: linux-kernel@vger.kernel.org,
-   ReiserFS Mailing List <reiserfs-list@namesys.com>,
-   Robert NEDBAL <R.Nedbal@sh.cvut.cz>, reiserfs-dev@namesys.com
-Subject: Re: [reiserfs-list] Re: ReiserFS - corrupted files (2.4.3)
-In-Reply-To: <Pine.LNX.4.33.0104021821500.989-100000@7812-grignard.amagerkollegiet.dk>
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 8bit
+To: nigel@nrg.org
+CC: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH for 2.5] preemptible kernel
+In-Reply-To: <Pine.LNX.4.05.10104011408460.14420-100000@cosmic.nrg.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-monstr will debug this and elena will enter it into our buglist file.
+Nigel Gamble wrote:
+> 
+> On Sat, 31 Mar 2001, george anzinger wrote:
+> > I think this should be:
+> >                 if (p->has_cpu || p->state & TASK_PREEMPTED)) {
+> > to catch tasks that were preempted with other states.
+> 
+> But the other states are all part of the state change that happens at a
+> non-preemtive schedule() point, aren't they, so those tasks are already
+> safe to access the data we are protecting.
+> 
+If your saying that the task's "thinking" about a state change is
+sufficient, ok.  The point is that a task changes it state prior to
+calling schedule() and then, sometimes, doesn't call schedule and just
+changes its state back to running.  Preemption can happen at any of
+these times, after all that is what the TASK_PREEMPTED flag is used for.
 
-Hans
+On a higher level, I think the scanning of the run list to set flags and
+counters is a bit off.  If these things need to be counted and kept
+track of, the tasks should be doing it "in the moment" not some other
+task at some distant time.  For example if what is being protected is a
+data structure, a counter could be put in the structure that keeps track
+of the number of tasks that are interested in seeing it stay around.  As
+I understand the objective of the method being explored, a writer wants
+to change the structure, but old readers can continue to use the old
+while new readers get the new structure.  The issue then is when to
+"garbage collect" the no longer used structures.  It seems to me that
+the pointer to the structure can be changed to point to the new one when
+the writer has it set up.  Old users continue to use the old.  When they
+are done, they decrement the use count.  When the use count goes to
+zero, it is time to "garbage collect".  At this time, the "garbage man"
+is called (one simple one would be to check if the structure is still
+the one a "new" task would get).  Various methods exist for determing
+how and if the "garbage man" should be called, but this sort of thing,
+IMNSHO, does NOT belong in schedule().
 
-Rasmus Bøg Hansen wrote:
-> 
-> Hello
-> 
-> I am getting musch the same types of corruption. I am on a K6-2 with a
-> 30Gb IBM HD and 256Mb RAM running vanilla 2.4.3 with iptables and squid
-> caching proxy. The problems arise on the cache part of the FS (i.e. with
-> many file operations).
-> 
-> I am considering using reiserfsck (3.x.0j) to fix it, but it has to wait
-> until the morning - so in the meantime perhaps somebody can use the info
-> about the corruptions? I have nowhere to back up my rather large (in
-> comparison to other space on the box) cache, but if it goes lost in the
-> process of rebuilding it, it does not matter so much.
-> 
-> What should I do to help? I will try to debug the problem if necessary -
-> should I turb on internal checks?
-> 
-> On Mon, 2 Apr 2001, Robert NEDBAL wrote:
-> 
-> > Hello,
-> > I'm using ReiserFS on my primary filesystem and yesterday, I have found
-> > that some files are corrupted. Yesterday I had to reset computer becase
-> > X Window freezed. Maybe it caused this problem.
-> >
-> > This comes from log:
-> 
-> [SNIP]
-> 
-> My log goes much the same (although I have fewer errors - it seems to
-> affect only few files):
-> Mar 30 10:32:09 wiibroe kernel: reiserfs: checking transaction log
-> (device 16:01) ...
-> Mar 30 10:32:09 wiibroe kernel: Using r5 hash to sort names
-> Mar 30 10:32:09 wiibroe kernel: ReiserFS version 3.6.25
-> [...]
-> Apr  2 14:36:10 wiibroe kernel: is_leaf: item location seems wrong:
-> *OLD*[1214 319934 0x8f1 DIRECT], item_len 0, item_location 0,
-> free_space(entry_count) 2289
-> Apr  2 14:36:10 wiibroe kernel: vs-5150: search_by_key: invalid format
-> found in block 132193. Fsck?
-> Apr  2 14:36:10 wiibroe kernel: is_leaf: item location seems wrong:
-> *OLD*[1214 319934 0x8f1 DIRECT], item_len 0, item_location 0,
-> free_space(entry_count) 2289
-> Apr  2 14:36:10 wiibroe kernel: vs-5150: search_by_key: invalid format
-> found in block 132193. Fsck?
-> Apr  2 14:36:10 wiibroe kernel: vs-13050: reiserfs_update_sd: i/o
-> failure occurred trying to update [1214 319936 0x0 SD] stat datais_leaf:
-> item location seems wrong: *OLD*[1214 319934 0x8f1 DIRECT], item_len 0,
-> item_location 0, free_space(entry_count) 2289
-> Apr  2 14:36:10 wiibroe kernel: vs-5150: search_by_key: invalid format
-> found in block 132193. Fsck?
-> Apr  2 14:36:10 wiibroe kernel: vs-: reiserfs_delete_solid_item: i/o
-> failure occurred trying to delete [1214 319936 0x0 SD]
-> [...]
-> Apr  2 18:36:25 wiibroe kernel: vs-13042: reiserfs_read_inode2: [1020
-> 271248 0x0 SD] not found
-> Apr  2 18:36:25 wiibroe kernel: vs-13048: reiserfs_iget: bad_inode. Stat
-> data of (1020 271248) not found
-> Apr  2 18:36:50 wiibroe kernel: is_leaf: item location seems wrong:
-> *OLD*[1214 319934 0x8f1 DIRECT], item_len 0, item_location 0,
-> free_space(entry_count) 2289
-> Apr  2 18:36:50 wiibroe kernel: vs-5150: search_by_key: invalid format
-> found in block 132193. Fsck?
-> Apr  2 18:36:50 wiibroe kernel: vs-13070: reiserfs_read_inode2: i/o
-> failure occurred trying to find stat data of [1214 319935 0x0 SD]
-> Apr  2 18:36:50 wiibroe kernel: vs-13048: reiserfs_iget: bad_inode. Stat
-> data of (1214 319935) not found
-> 
-> > When I want to list corrupted directory, I get this:
-> 
-> What I get is:
-> 
-> root@wiibroe:/var/spool/squid# find /var/spool/squid/ -type f | xargs ls
-> > /dev/null
-> find: /var/spool/squid/01/C5/0001C5DA: Ingen sådan fil eller filkatalog
-> find: /var/spool/squid/01/C5/0001C5E6: Ingen sådan fil eller filkatalog
-> find: /var/spool/squid/03/F5/0003F5E9: Adgang nægtet
-> find: /var/spool/squid/04/B6/0004B6E0: Adgang nægtet
-> 
-> (Ingen sådan fil eller filkatalog = No such file or directory
->  Adgang nægtet = Access denied)
-> 
-> Rasmus Bøg Hansen
-> 
-> --
-> -- [ Rasmus 'Møffe' Bøg Hansen ] --------------------------------------
-> if (getenv(EDITOR) == "vim") {karma++};
-> --------------------------------- [ moffe at amagerkollegiet dot dk ] -
+George

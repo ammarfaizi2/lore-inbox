@@ -1,46 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318229AbSIEXeU>; Thu, 5 Sep 2002 19:34:20 -0400
+	id <S318242AbSIEXkV>; Thu, 5 Sep 2002 19:40:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318243AbSIEXeU>; Thu, 5 Sep 2002 19:34:20 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:52999 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S318229AbSIEXeT>; Thu, 5 Sep 2002 19:34:19 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [PATCH][2.4.20-pre5] non syscall gettimeofday
-Date: 5 Sep 2002 16:38:35 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <al8ptr$up3$1@cesium.transmeta.com>
-References: <1031267553.10830.71.camel@dell_ss3.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
+	id <S318286AbSIEXkV>; Thu, 5 Sep 2002 19:40:21 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:7335 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S318242AbSIEXkU>;
+	Thu, 5 Sep 2002 19:40:20 -0400
+Message-Id: <200209052343.g85Nhbh05323@w-gaughen.beaverton.ibm.com>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: mannthey@us.ibm.com
+Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org,
+       marcelo@conectiva.com.br
+Subject: Re: 2.4.20pre5 not booting on numa-q with CONFIG_MULTIQUAD 
+In-Reply-To: Message from Alan Cox <alan@lxorguk.ukuu.org.uk> 
+   of "06 Sep 2002 00:11:10 BST." <1031267470.7834.12.camel@irongate.swansea.linux.org.uk> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 05 Sep 2002 16:43:37 -0700
+From: Patricia Gaughen <gone@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <1031267553.10830.71.camel@dell_ss3.pdx.osdl.net>
-By author:    Stephen Hemminger <shemminger@osdl.org>
-In newsgroup: linux.dev.kernel
-> 
-> The following patch implements a shared memory interface to allow
-> implementing gettimeofday (and other clock measurement) using the TSC
-> counter on i386.  On a 1.6G Xeon this reduces gettimeofday from 1.2 us
-> per call to .17 us per call.
-> 
 
-This sounds like a vsyscall.  Since we have discussed vsyscalls on and
-off without getting anywhere, I'd like to know how your implementation
-does it -- the #1 proposal I think was to map in a page at 0xfffff000
-and have the vsyscall code there.
+I tested with the patch and the box boots. :-) So, can we get this applied to 
+the 2.4 tree?
 
-Note that the vsyscall needs to bounce to a regular syscall if TSC
-time/gettimeofday aren't available.
+Great find, Keith.
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+Thanks, 
+Pat
+
+  > On Thu, 2002-09-05 at 23:44, mannthey@us.ibm.com wrote:
+  > > diff -urN linux-2.4.19/drivers/pci/pci.c linux-2.4.20-pre5/drivers/pci/pc
+  > i.c
+  > > --- linux-2.4.20-pre5/drivers/pci/pci.c      Sat Sep  7 06:29:04 2002
+  > > +++ linux-2.4.20-pre5-test/drivers/pci/pci.c Sat Sep  7 06:10:26 2002
+  > > @@ -586,7 +586,7 @@
+  > >                 i + 1, /* PCI BAR # */
+  > >                 pci_resource_len(pdev, i), pci_resource_start(pdev, i),
+  > >                 pdev->slot_name);
+  > > -       while(--i <= 0)
+  > > +       while(--i >= 0)
+  > >                 pci_release_region(pdev, i);
+  > > 
+  > >         return -EBUSY;
+  > 
+
+

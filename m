@@ -1,41 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262556AbVCaBoY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262390AbVCaBxM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262556AbVCaBoY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 20:44:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262568AbVCaBoY
+	id S262390AbVCaBxM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 20:53:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262441AbVCaBxM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 20:44:24 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:34261 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S262556AbVCaBoI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 20:44:08 -0500
-Subject: Re: 2.6.11, USB: High latency?
-From: Lee Revell <rlrevell@joe-job.com>
-To: David Brownell <david-b@pacbell.net>
-Cc: kus Kusche Klaus <kus@keba.com>, stern@rowland.harvard.edu,
-       linux-usb-users@lists.sourceforge.net, linux-kernel@vger.kernel.org
-In-Reply-To: <200503301740.49647.david-b@pacbell.net>
-References: <200503301457.35464.david-b@pacbell.net>
-	 <200503301728.09969.david-b@pacbell.net>
-	 <1112232746.19975.41.camel@mindpipe>
-	 <200503301740.49647.david-b@pacbell.net>
-Content-Type: text/plain
-Date: Wed, 30 Mar 2005 20:44:03 -0500
-Message-Id: <1112233444.19975.55.camel@mindpipe>
+	Wed, 30 Mar 2005 20:53:12 -0500
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:54680 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S262390AbVCaBxJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 20:53:09 -0500
+Date: Wed, 30 Mar 2005 17:52:57 -0800
+From: "H. J. Lu" <hjl@lucon.org>
+To: Pau Aliagas <linuxnow@newtral.org>
+Cc: lkml <linux-kernel@vger.kernel.org>, Andi Kleen <ak@muc.de>,
+       binutils@sources.redhat.com
+Subject: Re: i386/x86_64 segment register issuses (Re: PATCH: Fix x86 segment register access)
+Message-ID: <20050331015257.GB20979@lucon.org>
+References: <m14qev3h8l.fsf@muc.de> <Pine.LNX.4.58.0503291618520.6036@ppc970.osdl.org> <20050330015312.GA27309@lucon.org> <Pine.LNX.4.58.0503291815570.6036@ppc970.osdl.org> <20050330040017.GA29523@lucon.org> <Pine.LNX.4.58.0503300738430.6036@ppc970.osdl.org> <20050330210801.GA15384@lucon.org> <Pine.LNX.4.62.0503310015490.7060@pau.intranet.ct> <20050331003437.GB19573@lucon.org> <Pine.LNX.4.62.0503310253180.7060@pau.intranet.ct>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.62.0503310253180.7060@pau.intranet.ct>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-03-30 at 17:40 -0800, David Brownell wrote:
-> This all seems off-topic for latency though.  :)
+On Thu, Mar 31, 2005 at 02:57:57AM +0200, Pau Aliagas wrote:
+> On Wed, 30 Mar 2005, H. J. Lu wrote:
+> 
+> >>>That is what the assembler generates, and should have generated, for
+> >>>"movw %ds,(%eax)" since Nov. 4, 2004.
+> >>
+> >>Could this be the reason for the reported slowdown in the last six months?
+> >
+> >Can you elaborate?
+> 
+> There's an unexplained slowdown of kernel 2.6 detailed in this thread:
+> http://kerneltrap.org/node/4940
 > 
 
-Disagree, in the bug reports I saw from JACK users the symptoms are
-exactly the same as a kernel latency problem.  The only clear hint that
-it's something else is that the RT kernel and mainline are equally
-affected.
+It is dated as "November 13, 2002 - 13:58". The assembler change was
+made on Nov. 4, 2004. I don't think they are related at all.
 
-Lee
+> I don't want at all to justify it with the change you talk about in gas, 
+> but maybe it is worth to check if it has anything to do with it. The 
+> slowdown happened in this last six months.
 
+
+H.J.

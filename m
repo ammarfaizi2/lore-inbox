@@ -1,68 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289239AbSBZXpA>; Tue, 26 Feb 2002 18:45:00 -0500
+	id <S289298AbSBZXru>; Tue, 26 Feb 2002 18:47:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289026AbSBZXon>; Tue, 26 Feb 2002 18:44:43 -0500
-Received: from tassadar.physics.auth.gr ([155.207.123.25]:51352 "EHLO
-	tassadar.physics.auth.gr") by vger.kernel.org with ESMTP
-	id <S289298AbSBZXnn>; Tue, 26 Feb 2002 18:43:43 -0500
-Date: Wed, 27 Feb 2002 01:43:35 +0200 (EET)
-From: Dimitris Zilaskos <dzila@tassadar.physics.auth.gr>
-To: Andrew Morton <akpm@zip.com.au>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: assertion failure : ext3 & lvm , 2.4.17 smp & 2.4.18-ac1 smp
-In-Reply-To: <3C7C1A88.AA6CE5DD@zip.com.au>
-Message-ID: <Pine.LNX.4.44.0202270141090.11106-100000@tassadar.physics.auth.gr>
+	id <S289026AbSBZXrn>; Tue, 26 Feb 2002 18:47:43 -0500
+Received: from dsl-213-023-039-032.arcor-ip.net ([213.23.39.32]:61837 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S289272AbSBZXpQ>;
+	Tue, 26 Feb 2002 18:45:16 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Rainer Ellinger <rainer@ellinger.de>
+Subject: Re: Congrats Marcelo,
+Date: Mon, 25 Feb 2002 01:38:39 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Steve Lord <lord@sgi.com>, Andreas Dilger <adilger@turbolabs.com>,
+        "Dennis, Jim" <jdennis@snapserver.com>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+In-Reply-To: <2D0AFEFEE711D611923E009027D39F2B153AD4@cdserv.meridian-data.com> <E16f8Ey-0002qn-00@starship.berlin> <3C7C18EB.4090509@ellinger.de>
+In-Reply-To: <3C7C18EB.4090509@ellinger.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16f9A7-0002ry-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 26 Feb 2002, Andrew Morton wrote:
+On February 27, 2002 12:23 am, Rainer Ellinger wrote:
+> I think development in 2.5 should focus on including this waiting patches
+> and come to a end and release asap. I think it's more important to catch up 
+> with real world needs and existing patches, than working on new 
+> developments.
 
-> Dimitris Zilaskos wrote:
-> >
-> > Assertion failure in do_get_write_access() at transaction.c:730: "(((jh2bh(jh))->b_state & (1UL << BH_Uptodate)) != 0)"
->
-> This was fixed in the ext3 patch which went into 2.4.18-pre5
+They're both important.  If we focus only on features without evolving the 
+underlying mechanisms we'll quickly end up with Windows.
 
-well i just got another one
+Don't even think about asking Linus to stop working on new stuff.
 
-Assertion failure in do_get_write_access() at transaction.c:730:
-"(((jh2bh(jh))->b_state & (1UL << BH_Uptodate)) != 0)"
-invalid operand: 0000
-CPU:    1
-EIP:    0010:[<c016297a>]    Not tainted
-EFLAGS: 00010286
-eax: 0000007b   ebx: d44ffa94   ecx: 00000097   edx: 00000001
-esi: cf514de0   edi: d44ffa00   ebp: c49f8f10   esp: d1bebcd4
-ds: 0018   es: 0018   ss: 0018
-Process wget (pid: 11038, stackpage=d1beb000)
-Stack: c0288aa0 c0288eae c0288a80 000002da c0289060 d44ffa00 cf514de0
-c49f8f10
-       d44ffa94 00000001 00000001 00000000 00000000 dbd3b660 c0162a3d
-cf514de0
-       c49f8f10 00000000 00000000 00001076 d7272400 d1bebd8c c0157e00
-cf514de0
-Call Trace: [<c0162a3d>] [<c0157e00>] [<c023de59>] [<c0159b46>]
-[<c0159e1f>]
-   [<c015a47e>] [<c021e98e>] [<c015a5c6>] [<c01380eb>] [<c013891e>]
-[<c015a56c>]
-   [<c015aa6d>] [<c015a56c>] [<c01299b0>] [<c015874a>] [<c0135747>]
-[<c0106e7b>]
-
-Code: 0f 0b 83 c4 14 90 8b 4d 00 8b 41 38 0f b6 50 25 8b 7d 0c 8b
-
-uname -an :
-Linux test 2.4.18-ac1 #2 SMP Tue Feb 26 23:13:44 EET 2002 i686 unknown
-
-Kind regards ,
-
---
-=============================================================================
-
-Dimitris Zilaskos
-
-Department of Physics @ Aristotle Univercity of Thessaloniki , Greece
-=============================================================================
-
+-- 
+Daniel

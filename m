@@ -1,42 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264928AbUFLVuz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264931AbUFLVzD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264928AbUFLVuz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jun 2004 17:50:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264931AbUFLVuz
+	id S264931AbUFLVzD (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jun 2004 17:55:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264932AbUFLVzD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jun 2004 17:50:55 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:33707 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264928AbUFLVux
+	Sat, 12 Jun 2004 17:55:03 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:27052 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264931AbUFLVzA
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jun 2004 17:50:53 -0400
-Date: Sat, 12 Jun 2004 18:51:47 -0300
+	Sat, 12 Jun 2004 17:55:00 -0400
+Date: Sat, 12 Jun 2004 18:55:55 -0300
 From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Michael Knigge <Michael.Knigge@set-software.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: New 3ware driver for 2.4.x ?
-Message-ID: <20040612215147.GA8436@logos.cnet>
-References: <20040610.6193488@knigge.local.net>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Subject: Re: [HPT366] Fix /proc/ide/hpt366 crash
+Message-ID: <20040612215555.GB8436@logos.cnet>
+References: <20040609112024.GC23623@gondor.apana.org.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040610.6193488@knigge.local.net>
+In-Reply-To: <20040609112024.GC23623@gondor.apana.org.au>
 User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 10, 2004 at 06:19:34AM +0000, Michael Knigge wrote:
-> All,
+On Wed, Jun 09, 2004 at 09:20:25PM +1000, Herbert Xu wrote:
+> Hi Marcelo:
 > 
-> any chance that the new 3ware Driver (for the new 9xxx series of their 
-> controllers) will be added in one of the next Linux 2.4.x Kernels?
-> 
-> Andrew Morten has it applied to his 2.6.7-rc1-mm1 already - I could 
-> provide the 2.4.x version of the driver. It is contained on my Driver 
-> CD and it is under the GPL. Oh... and yes, it works ;-)
+> The following patch which fixes fixes the disk spindown problem when
+> /proc/ide/hpt366 is read has been in 2.6 for a couple of months.  It
+> has just been verified that the same fix is needed and works under
+> 2.4 (see http://bugs.debian.org/250171).
 
-Hi Michael,
-
-There has not been activity from the driver maintainer in that respect.
-
-After a couple of months in v2.6 it could be added to v2.4, if there is still 
-interest at that time.
+Applied, thanks Herbert.

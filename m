@@ -1,59 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262175AbTE0BBm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 May 2003 21:01:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262176AbTE0BBm
+	id S262176AbTE0BBv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 May 2003 21:01:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262182AbTE0BBu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 May 2003 21:01:42 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:43407 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S262175AbTE0BBl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 May 2003 21:01:41 -0400
-Date: Mon, 26 May 2003 18:13:09 -0700 (PDT)
-Message-Id: <20030526.181309.02272953.davem@redhat.com>
-To: andrea@suse.de
-Cc: akpm@digeo.com, davidsen@tmr.com, haveblue@us.ibm.com, habanero@us.ibm.com,
-       mbligh@aracnet.com, linux-kernel@vger.kernel.org
-Subject: Re: userspace irq balancer
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20030527010903.GF3767@dualathlon.random>
-References: <20030527004115.GD3767@dualathlon.random>
-	<20030526.174841.116378513.davem@redhat.com>
-	<20030527010903.GF3767@dualathlon.random>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Mon, 26 May 2003 21:01:50 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:12236
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S262176AbTE0BBt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 May 2003 21:01:49 -0400
+Subject: Re: [BK PATCHES] add ata scsi driver
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Jens Axboe <axboe@suse.de>, James Bottomley <James.Bottomley@SteelEye.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0305261429550.13489-100000@home.transmeta.com>
+References: <Pine.LNX.4.44.0305261429550.13489-100000@home.transmeta.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1053994617.17128.27.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 27 May 2003 01:16:58 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Andrea Arcangeli <andrea@suse.de>
-   Date: Tue, 27 May 2003 03:09:03 +0200
+On Llu, 2003-05-26 at 22:34, Linus Torvalds wrote:
+> Even if we drop our timeouts from 30 seconds (or whatever they are now)
+> down to just a few seconds, that's a _loooong_ time, and we should be a
+> lot more proactive about things. Audio/video stuff tends to want things
+> with latencies in the tenth-of-a-second range, even when they buffer
+> things up internally to hide the worst cases.
 
-   I'm not going to implement the above in 2.4, that sounds a 2.5 thing,
+Many IDE drives will take several seconds to give up on a failing I/O
+because they do all the recovery themselves. IDE CD/DVD can be
+especially bad for this.
 
-Then your 2.4.x load balancing is buggy for networking.
-You simply cannot ignore this issue and act as if it
-does not exist and does not have huge consequence for IRQ
-load balancing decisions.
-
-   but my point is that by just ignoring ksoftirqd in the idle selection
-   should avoid the biggest of the NAPI issues.
-
-On a properly functioning system, ksoftirqd should not be running.
-
-   > But deciding how to intepret these measurements and what to do in
-   > response is a userlevel policy decision.  This also coincides with
-   > how cpufreq works.
-   
-   you mean you can have slightly different modes selectable by sysctl
-   right?
-
-One posibility.  Another is a descriptor describing things like
-how much to weight hardware vs. software IRQ load, vs. process
-load etc.
-
-   or do you really want to generate a reschedule per second
-
-No, nothing like this.

@@ -1,62 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262006AbUEAPJf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261735AbUEAPOq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262006AbUEAPJf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 May 2004 11:09:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262238AbUEAPJf
+	id S261735AbUEAPOq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 May 2004 11:14:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262213AbUEAPOq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 May 2004 11:09:35 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:28110 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S262006AbUEAPJc
+	Sat, 1 May 2004 11:14:46 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:13697 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S261735AbUEAPOp
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 May 2004 11:09:32 -0400
-Date: Sat, 1 May 2004 10:08:57 -0500
-From: "Jose R. Santos" <jrsantos@austin.ibm.com>
-To: Olaf Dietsche <olaf+list.linux-kernel@olafdietsche.de>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, anton@samba.org,
-       dheger@us.ibm.com, slpratt@us.ibm.com
-Subject: Re: [PATCH] dentry and inode cache hash algorithm performance changes.
-Message-ID: <20040501150857.GA17778@austin.ibm.com>
-References: <20040430195504.GE14271@rx8.ibm.com> <8765bg4af9.fsf@goat.bogus.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 1 May 2004 11:14:45 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Andrew Morton <akpm@osdl.org>, CaT <cat@zip.com.au>
+Subject: Re: libata + siI3112 + 2.6.5-rc3 hang
+Date: Sat, 1 May 2004 17:15:53 +0200
+User-Agent: KMail/1.5.3
+Cc: linux-kernel@vger.kernel.org, jgarzik@pobox.com
+References: <20040429234258.GA6145@zip.com.au> <20040501030828.GE2109@zip.com.au> <20040430222157.17f5db82.akpm@osdl.org>
+In-Reply-To: <20040430222157.17f5db82.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <8765bg4af9.fsf@goat.bogus.local>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Message-Id: <200405011715.53580.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Olaf Dietsche <olaf+list.linux-kernel@olafdietsche.de> [2004-05-01 14:08:26 +0200]:
-> Judging from the graphs (!), I don't see a real difference for
-> dcache. There's just one outlier (depth 11) for the old hash function,
-> which seems to be translated to multiple depth 9 entries. The
-> histograms seem to confirm, that there's at most a minimal difference,
-> if they'd be equally scaled.
-> 
-> Maybe this is due to qstr hashes, which were used by both approaches
-> as input?
+On Saturday 01 of May 2004 07:21, Andrew Morton wrote:
+> CaT <cat@zip.com.au> wrote:
+> > Here's the patch that Joe sent me. It doesn't apply cleanly mainly due
+> >  to formatting errors in the patch but a bit of manual fixerupping made
+> >  it all apply.
+> >
+> >  --- 8< ---
+> >  --- linux-2.6.4-orig/arch/i386/pci/fixup.c      2004-03-11
+> >  03:55:36.000000000 +0100
+> >  +++ linux-2.6.4/arch/i386/pci/fixup.c   2004-03-16 13:12:25.706569480
+> > +0100 @@ -187,6 +187,22 @@
+> >                 dev->transparent = 1;
+> >  }
+> >
+> >  +/*
+> >  + * Halt Disconnect and Stop Grant Disconnect (bit 4 at offset 0x6F)
+> >  + * must be disabled when APIC is used (or lockups will happen).
+> >  + */
 
-SpecSFS is not really the best benchmark to show the efficiency of the
-dentry hash function.  I need to come up with a better defense for the
-this hash functions.  While I did not do the study for this hash
-function, mathematically speaking this hash algorithm should always
-create a equal or better hash.  SFS just shows equal (well, slightly
-better), so Ill work on getting some more data to back up the "better"
-claim.
+LOL, CaT this is my old patch. :)
 
-> The inode hash seems to be distributed more evenly with the new hash
-> function. Although the inode histogram suggests, that most buckets are
-> in the 0-2 depth range, with the old hash function leading slightly in
-> the zero depth range.
+> I had this in -mm for a while.  Ended up dropping it because it made some
+> people's CPUs run warmer and because it "wasn't the right fix".
+>
+> Does anyone know what the right fix is?  If not, it seems that a warm CPU
+> is better than a non-functional box.  Maybe enable it via a boot option?
 
-Thats a good thing.  With the new hash function, we get 25% more bucket
-usage and most of the bucket are only 1 object deep.  This buckets take
-up memory so we better use them.   The old hash functions was no very
-efficient in spreading the hashes across all the buckets, with the new
-hash function we have 4.5 times more buckets with only 1 object deep so
-it scales better as we increase the number of buckets as well.
+Ross' recent patch is a good workaround.
 
-It also provides a 3% improvement on the overall SFS number with half
-the number of buckets use which I believe its a great improvement from 
-just a hash algorithm change.
-
--JRS

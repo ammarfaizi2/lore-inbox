@@ -1,32 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261771AbUB0JPy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 04:15:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261776AbUB0JPy
+	id S261750AbUB0JTV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 04:19:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261764AbUB0JTV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 04:15:54 -0500
-Received: from b.frontend.um.mediaways.net ([62.53.231.7]:63966 "HELO
-	b.frontend.um.mediaways.net") by vger.kernel.org with SMTP
-	id S261771AbUB0JPx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 04:15:53 -0500
-From: Rudorff <leitzentrale@telebel.de>
-Organization: Ministerium =?utf-8?q?f=C3=BCr?= =?utf-8?q?=20=C3=84u=C3=9Ferstes?=
-To: linux-kernel@vger.kernel.org
-Subject: sorry!
-Date: Fri, 27 Feb 2004 10:15:48 +0100
-User-Agent: KMail/1.5.3
-References: <200402271009.20894.leitzentrale@telebel.de>
-In-Reply-To: <200402271009.20894.leitzentrale@telebel.de>
+	Fri, 27 Feb 2004 04:19:21 -0500
+Received: from ztxmail02.ztx.compaq.com ([161.114.1.206]:51204 "EHLO
+	ztxmail02.ztx.compaq.com") by vger.kernel.org with ESMTP
+	id S261750AbUB0JTP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Feb 2004 04:19:15 -0500
+Message-ID: <403F0C06.2070809@toughguy.net>
+Date: Fri, 27 Feb 2004 14:51:10 +0530
+From: Raj <obelix123@toughguy.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031016
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+To: Sonika Sachdeva <sonikam@magnum.barc.ernet.in>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Linux scheduler Implementation details
+References: <403F0B66.A7920233@magnum.barc.ernet.in>
+In-Reply-To: <403F0B66.A7920233@magnum.barc.ernet.in>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200402271015.48893.leitzentrale@telebel.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-subscribe linux-kernel
+Sonika Sachdeva wrote:
 
-lists
+>Hello List,
+>
+>I want to simulate the Linux Scheduler, ie Calculate the priorities, counters
+>and define to some extent how much time a given process will take to execute on
+>the system. Can anyone suggest some pointers?
+>
+>Thank you
+>Sonika
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>  
+>
+Documentation/sched-design.txt
+Documentation/sched-coding.txt
+
+and oh ofcourse, kernel/sched.c :-)
+
+/Raj
 

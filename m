@@ -1,61 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266674AbUIORmy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267195AbUIORgf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266674AbUIORmy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 13:42:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266511AbUIORlj
+	id S267195AbUIORgf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 13:36:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267251AbUIOReJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 13:41:39 -0400
-Received: from mail2.iserv.net ([204.177.184.152]:57758 "EHLO mail2.iserv.net")
-	by vger.kernel.org with ESMTP id S267259AbUIORlF (ORCPT
+	Wed, 15 Sep 2004 13:34:09 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:40919 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S266878AbUIORc7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 13:41:05 -0400
-Message-ID: <41487EAB.1000004@didntduck.org>
-Date: Wed, 15 Sep 2004 13:40:59 -0400
-From: Brian Gerst <bgerst@didntduck.org>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
+	Wed, 15 Sep 2004 13:32:59 -0400
+Date: Wed, 15 Sep 2004 10:30:48 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: john stultz <johnstul@us.ibm.com>
+cc: george anzinger <george@mvista.com>,
+       Albert Cahalan <albert@users.sourceforge.net>,
+       lkml <linux-kernel@vger.kernel.org>, tim@physik3.uni-rostock.de,
+       Ulrich.Windl@rz.uni-regensburg.de, Len Brown <len.brown@intel.com>,
+       linux@dominikbrodowski.de, David Mosberger <davidm@hpl.hp.com>,
+       Andi Kleen <ak@suse.de>, paulus@samba.org, schwidefsky@de.ibm.com,
+       jimix@us.ibm.com, keith maanthey <kmannth@us.ibm.com>,
+       greg kh <greg@kroah.com>, Patricia Gaughen <gone@us.ibm.com>,
+       Chris McDermott <lcm@us.ibm.com>
+Subject: Re: [RFC][PATCH] new timeofday core subsystem (v.A0)
+In-Reply-To: <1095268408.29408.2918.camel@cog.beaverton.ibm.com>
+Message-ID: <Pine.LNX.4.58.0409151025090.3219@schroedinger.engr.sgi.com>
+References: <1095265942.29408.2847.camel@cog.beaverton.ibm.com> 
+ <Pine.LNX.4.58.0409150940420.1249@schroedinger.engr.sgi.com>
+ <1095268408.29408.2918.camel@cog.beaverton.ibm.com>
 MIME-Version: 1.0
-To: =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>
-CC: Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Being more anal about iospace accesses..
-References: <Pine.LNX.4.58.0409081543320.5912@ppc970.osdl.org> <Pine.LNX.4.58.0409150737260.2333@ppc970.osdl.org> <Pine.LNX.4.58.0409150859100.2333@ppc970.osdl.org> <20040915165450.GD6158@wohnheim.fh-wedel.de>
-In-Reply-To: <20040915165450.GD6158@wohnheim.fh-wedel.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jörn Engel wrote:
-> On Wed, 15 September 2004 09:30:42 -0700, Linus Torvalds wrote:
-> 
->>For example, if you don't know (or, more importantly - don't care) what 
->>kind of IO interface you use, you can now do something like
->>
->>	void __iomem * map = pci_iomap(dev, bar, maxbytes);
->>	...
->>	status = ioread32(map + DRIVER_STATUS_OFFSET);
-> 
-> 
-> C now supports pointer arithmetic with void*?  I hope the width of a
-> void is not architecture dependent, that would introduce more subtle
-> bugs.
-> 
-> Jörn
-> 
+On Wed, 15 Sep 2004, john stultz wrote:
 
-http://gcc.gnu.org/onlinedocs/gcc-3.4.2/gcc/Pointer-Arith.html#Pointer-Arith
+> On Wed, 2004-09-15 at 09:46, Christoph Lameter wrote:
+> > On Wed, 15 Sep 2004, john stultz wrote:
+> >
+> > > > struct time_source_t {
+> > > > 	u8 type;
+> > > > 	u8 shift;
+> > > > 	u32 multiply;
+> > > > 	void *address;
+> > > > 	u64 mask;
+> > > > 	int (*interrupt_at)(u64 counter_value);
+> > > > };
+> > >
+> > > Could you explain the interrupt_at function further?
+> >
+> > Generates a timer interrupt when a certain counter value has been reached.
+> > This is a common feature of most clock chips that I am aware of.
+>
+> Well, not all time sources have that feature. Both TSC, and cyclone
+> don't. You'd have to do something else for those. This is why my
+> proposal has absolutely nothing to do with interrupt generation. It has
+> a single hook that needs to be called only every once in a while, which
+> can be done however any architecture wants.
+>
+> Interrupt generation has more to do with soft-timers and scheduling then
+> time of day anyway.
 
-5.18 Arithmetic on void- and Function-Pointers
+Hmm... I think this is a serious issue. The ability to exactly time an
+interrupt and therefore specific actions is important. Maybe we can have a
+fall back to soft interrupts if interrupt_at == NULL?
 
-In GNU C, addition and subtraction operations are supported on pointers 
-to void and on pointers to functions. This is done by treating the size 
-of a void or of a function as 1.
+If the scheduler could assign dynamic time slices to processes then new
+more effective designs of process scheduling become possible. F.e. on an
+SMP system if a single process is running and no other contention exists
+then the scheduler can simply let the process run without interruption.
 
-A consequence of this is that sizeof is also allowed on void and on 
-function types, and returns 1.
+On the other hand the system may reduce the time slices assigned to a
+process that causes significant load on the system in order to insure the
+responsiveness of other applications despite the load.
 
-The option -Wpointer-arith requests a warning if these extensions are used.
+If one can schedule a tick dynamically then also NTP time correction can
+be "scheduled" when it is likely that the clock has sufficiently deviated
+from standard time. As soon as the time source has been sufficiently tamed
+by scaling it correctly then the periods of checkup on the time source
+could be gradually expanded.
 
---
-				Brian Gerst
+Real time features such as posix-timer's also depend on the ability to
+deliver a signal at an exact point in time. Soft timers can only give a
+very rough approximation in these cases.
+
+So I think this feature is essential.
+

@@ -1,58 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266034AbUGTR2z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266049AbUGTR3X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266034AbUGTR2z (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jul 2004 13:28:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266063AbUGTR2z
+	id S266049AbUGTR3X (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jul 2004 13:29:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266063AbUGTR3X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jul 2004 13:28:55 -0400
-Received: from pfepc.post.tele.dk ([195.41.46.237]:25950 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S266049AbUGTR22
+	Tue, 20 Jul 2004 13:29:23 -0400
+Received: from w130.z209220038.sjc-ca.dsl.cnc.net ([209.220.38.130]:63214 "EHLO
+	mail.inostor.com") by vger.kernel.org with ESMTP id S266049AbUGTR3T
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jul 2004 13:28:28 -0400
-Date: Tue, 20 Jul 2004 21:28:58 +0200
-From: sam@ravnborg.org
-To: Pavel Machek <pavel@suse.cz>
-Cc: Patrick Mochel <mochel@digitalimplant.org>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@zip.com.au>
-Subject: Re: [0/25] Merge pmdisk and swsusp
-Message-ID: <20040720192858.GB9147@mars.ravnborg.org>
-Mail-Followup-To: Pavel Machek <pavel@suse.cz>,
-	Patrick Mochel <mochel@digitalimplant.org>,
-	linux-kernel@vger.kernel.org, Andrew Morton <akpm@zip.com.au>
-References: <Pine.LNX.4.50.0407171449200.28258-100000@monsoon.he.net> <20040720164640.GH10921@atrey.karlin.mff.cuni.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040720164640.GH10921@atrey.karlin.mff.cuni.cz>
-User-Agent: Mutt/1.5.6i
+	Tue, 20 Jul 2004 13:29:19 -0400
+Message-ID: <40FD561D.1010404@inostor.com>
+Date: Tue, 20 Jul 2004 10:27:57 -0700
+From: Shesha Sreenivasamurthy <shesha@inostor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'kernelnewbies@nl.linux.org'" <kernelnewbies@nl.linux.org>
+Subject: O_DIRECT
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 20, 2004 at 06:46:40PM +0200, Pavel Machek wrote:
-> Hi!
-> 
-> > In the end, these patches remove pmdisk from the kernel and clean up the
-> > swsusp code base. The result is a single code base with greatly improved
-> > code, that will hopefully help others underestand it better.
-> 
-> Followup patch:
-> 
-> * if machine halt fails, it is very dangerous to continue.
-> 
-> diff -ur linux.middle/kernel/power/disk.c linux/kernel/power/disk.c
-> --- linux.middle/kernel/power/disk.c	2004-07-19 08:58:08.000000000 -0700
-> +++ linux/kernel/power/disk.c	2004-07-19 15:00:16.000000000 -0700
-> @@ -63,6 +63,9 @@
->  		break;
->  	}
->  	machine_halt();
-> +	/* Valid image is on the disk, if we continue we risk serious data corruption
-> +	   after resume. */
-> +	while(1);
+I am having trouble with O_DIRECT. Trying to read or write from a block 
+device partition.
 
-Would be nicer to use:
+1. Can O_DIRECT be used on a plain block device partition say 
+"/dev/sda11" without having a filesystem on it.
 
-	while(1)
-		/* Loop forever */;
+2. If no file system is created then what should be the softblock size. 
+I am using the IOCTL "BLKBSZGET". Is this correct?
 
-	Sam
+3. Can we use SEEK_END with O_DIRECT on a partition without filesystem.
+
+Any help will be highly regarded.
+
+-Shesha
+
+

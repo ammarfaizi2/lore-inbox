@@ -1,54 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268405AbRGXRxW>; Tue, 24 Jul 2001 13:53:22 -0400
+	id <S268401AbRGXRzM>; Tue, 24 Jul 2001 13:55:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268400AbRGXRxD>; Tue, 24 Jul 2001 13:53:03 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:27153 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S268401AbRGXRwx>; Tue, 24 Jul 2001 13:52:53 -0400
-Date: Tue, 24 Jul 2001 14:52:50 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Mike Castle <dalgoda@ix.netcom.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] Optimization for use-once pages
-In-Reply-To: <20010724104453.G5835@thune.mrc-home.com>
-Message-ID: <Pine.LNX.4.33L.0107241451210.20326-100000@duckman.distro.conectiva>
+	id <S268400AbRGXRyw>; Tue, 24 Jul 2001 13:54:52 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:16258 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S268401AbRGXRyr>; Tue, 24 Jul 2001 13:54:47 -0400
+Date: Tue, 24 Jul 2001 13:54:37 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Damien TOURAINE <damien.touraine@limsi.fr>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Call to the scheduler...
+In-Reply-To: <3B5DB110.3080606@limsi.fr>
+Message-ID: <Pine.LNX.3.95.1010724134717.32263A-100000@chaos.analogic.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Tue, 24 Jul 2001, Mike Castle wrote:
-> On Tue, Jul 24, 2001 at 02:07:32PM -0300, Rik van Riel wrote:
-> > > I hate to bother you directly, but I don't wish to start a flame
-> > > war on lkml. How exactly would you explain two accesses as
-> > > being "used once"?
-> >
-> > Because they occur in a very short interval, an interval MUCH
-> > shorter than the time scale in which the VM subsystem looks at
-> > referenced bits, etc...
->
-> Would mmap() then a for(;;) loop over the range be an example of
-> such a use?
+On Tue, 24 Jul 2001, Damien TOURAINE wrote:
 
-Yes. The problem here, however, would be that we'll only find
-the referenced bit in the page table some time later.
+> Hi !
+> I would like to implement a system to actively wait something but 
+> without eating a lot of CPU.
+> Thus, I would like to know if there is any way to force the scheduler of 
+> Linux to pre-empt the current process/thread, like the "sginap(0)" 
+> function within IRIX.
+> Moreover, I don't want to have to be root to execute such function.
+> 
+> Friendly
+>     Damien TOURAINE
+> 
 
-This is another reason for having a "new" queue like 2Q's A1in
-queue. It means we can both count all accesses in the first short
-period as one access AND we can avoid actually doing anything
-special as these accesses happen....
+Try sched_yield(). Accounting may still be messed up so the process
+may be 'charged' for CPU time that it gave up. Also, usleep(n) works
+very well with accounting working.
 
-regards,
+This works, does not seem to load the system, but `top` shows
+99+ CPU time usage:
 
-Rik
---
-Executive summary of a recent Microsoft press release:
-   "we are concerned about the GNU General Public License (GPL)"
+main()
+{
+    for(;;) sched_yield();
+
+}
+
+This works and `top` shows nothing being used:
+
+main()
+{
+
+    for(;;) usleep(1);
+
+}
 
 
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
+
 

@@ -1,54 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318602AbSH1DUC>; Tue, 27 Aug 2002 23:20:02 -0400
+	id <S318614AbSH1DV7>; Tue, 27 Aug 2002 23:21:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318607AbSH1DUC>; Tue, 27 Aug 2002 23:20:02 -0400
-Received: from alta.whitings.org ([65.169.182.99]:8105 "EHLO whitings.org")
-	by vger.kernel.org with ESMTP id <S318602AbSH1DUB>;
-	Tue, 27 Aug 2002 23:20:01 -0400
-Date: Tue, 27 Aug 2002 22:24:47 -0500
-From: Peter Whiting <pete@sprint.net>
+	id <S318622AbSH1DV7>; Tue, 27 Aug 2002 23:21:59 -0400
+Received: from pacific.moreton.com.au ([203.143.238.4]:38082 "EHLO
+	dorfl.internal.moreton.com.au") by vger.kernel.org with ESMTP
+	id <S318614AbSH1DV6>; Tue, 27 Aug 2002 23:21:58 -0400
+Message-ID: <3D6C431E.4090709@snapgear.com>
+Date: Wed, 28 Aug 2002 13:27:26 +1000
+From: Greg Ungerer <gerg@snapgear.com>
+Organization: SnapGear
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: tx problem on Biostar M7VKQ (VT8361 chipset)
-Message-ID: <20020828032447.GA31437@sprint.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
+Subject: [PATCH]: (resend) tivial mtdblock.c fix
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just installed linux on a biostar M7VKQ and am having trouble
-with ethernet packets not making it to the wire. I've removed
-everything from the data path (down to a crossover cable now)
-and running tcpdump on both ends shows the biostar box sending
-packets that occasionally don't show up in the tcpdump on the
-other end. When it happens it happens to 5-6 packets in a row,
-which, in the case of a large data transfer stalls tcp until it's
-retransmit timers kick in.
+Hi All,
 
-The loss only happens when the biostar box is one of the
-endpoints. I am currently using 2.4.18-11 (redhat null beta) on
-the rig. I booted with an older kernel and saw the same behavior.
-I disabled the onboard ethernet adapter and slapped in a spare -
-the results were similar (though slightly better). End result: I
-can't push more than 3-4 Mb/s through the box - ftp or scp.
+Trivial fixup to mtdblock.c. The logical sense of the command check
+is wrong. Against 2.5.32.
 
-The motherboard uses a VIA chipset:
-00:00.0 Host bridge: VIA Technologies, Inc. VT8361 [KLE133] Host Bridge
-00:01.0 PCI bridge: VIA Technologies, Inc. VT8361 [KLE133] AGP Bridge
-00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South] (rev 40)
-00:07.1 IDE interface: VIA Technologies, Inc. VT82C586B PIPC Bus Master IDE (rev 06)
-00:07.2 USB Controller: VIA Technologies, Inc. USB (rev 1a)
-00:07.3 USB Controller: VIA Technologies, Inc. USB (rev 1a)
-00:07.4 Bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev 40)
-00:07.5 Multimedia audio controller: VIA Technologies, Inc. VT82C686 AC97 Audio Controller (rev 50)
-00:0b.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139/8139C (rev 10)
-01:00.0 VGA compatible controller: Trident Microsystems CyberBlade/i1
+Regards
+Greg
 
-I've seen some discussion of the VT8361 on the list in the
-past, but my issue appears to be somewhat different. Any
-suggestions/recommendations are appreciated.
 
-cheers,
-pete
+  ------------------------------------------------------------------------
+--- drivers/mtd/mtdblock.c.org	Wed Aug 28 13:09:33 2002
++++ drivers/mtd/mtdblock.c	Wed Aug 28 13:10:40 2002
+@@ -406,7 +406,7 @@
+  		if (minor(req->rq_dev) >= MAX_MTD_DEVICES)
+  			panic(__FUNCTION__": minor out of bound");
+
+-		if (req->flags & REQ_CMD)
++		if (! (req->flags & REQ_CMD))
+  			goto end_req;
+
+  		if ((req->sector + req->current_nr_sectors) > (mtdblk->mtd->size >> 9))
+
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
+SnapGear Pty Ltd                               PHONE:    +61 7 3435 2888
+825 Stanley St,                                  FAX:    +61 7 3891 3630
+Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
+

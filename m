@@ -1,82 +1,29 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315726AbSECVrn>; Fri, 3 May 2002 17:47:43 -0400
+	id <S315725AbSECVvG>; Fri, 3 May 2002 17:51:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315727AbSECVrm>; Fri, 3 May 2002 17:47:42 -0400
-Received: from www.transvirtual.com ([206.14.214.140]:2057 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S315726AbSECVrl>; Fri, 3 May 2002 17:47:41 -0400
-Date: Fri, 3 May 2002 14:47:14 -0700 (PDT)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Antonino Daplas <adaplas@pol.net>
-cc: fbdev <linux-fbdev-devel@lists.sourceforge.net>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Linux-fbdev-devel] Comments on fbgen.c and fbcon-accel.c
-In-Reply-To: <1020419481.724.0.camel@daplas>
-Message-ID: <Pine.LNX.4.10.10205031444260.9732-100000@www.transvirtual.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315727AbSECVvF>; Fri, 3 May 2002 17:51:05 -0400
+Received: from kweetal.tue.nl ([131.155.2.7]:49945 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id <S315725AbSECVvE>;
+	Fri, 3 May 2002 17:51:04 -0400
+Date: Fri, 3 May 2002 23:51:02 +0200
+From: Guest section DW <dwguest@win.tue.nl>
+To: Jeff Dike <jdike@karaya.com>
+Cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net,
+        user-mode-linux-user@lists.sourceforge.net
+Subject: Re: UML is now self-hosting!
+Message-ID: <20020503215102.GA24653@win.tue.nl>
+In-Reply-To: <200205032108.QAA04417@ccure.karaya.com> <200205032224.RAA04965@ccure.karaya.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Congratulations!
 
-> I have a few observations on fbgen and fbcon-accel.
-
-Don't mix fbgen with fbcon-accel. The new gen_* stuff in fbgen.c is meant
-to replace the old fbgen_* stuff. That is why the below doesn't work.
- 
-> 1.  fbcon_accel_clear_margins may not work correctly with fbgen since
-> fbcon_accel will use the xoffset and yoffset values from info->var.  
-> 
->     void fbcon_accel_clear_margins(struct vc_data *vc, struct display
->     *p,
->     			       int bottom_only)
->     {
->     	<<<snip>>> 
->     
->     	if (bh) {
->     		region.dx = info->var.xoffset;
->                     region.dy = info->var.yoffset + bs;
->                     region.width  = rs;
->                     region.height = bh;
->     		info->fbops->fb_fillrect(info, &region);
->     	}
->     }
-> 
-> However fbgen_pan_display updates the xoffset and yoffset in
-> fb_display[con].var. So margins don't get cleared if the driver supports
-> y-panning or y-wrapping.
-> 
->     int fbgen_pan_display(struct fb_var_screeninfo *var, int con,
->     		      struct fb_info *info)
->     {
->     	<<< snip >>>
->     
->         if (con == info->currcon) {
->     	if (fbhw->pan_display) {
->     	    if ((err = fbhw->pan_display(var, info2)))
->     		return err;
->     	} else
->     	    return -EINVAL;
->         }
->         fb_display[con].var.xoffset = var->xoffset;
->         fb_display[con].var.yoffset = var->yoffset;
->     
->     	<<< snip >>>
->     }
-
-> 2. Also, fbgen_switch basically just do an fbgen_do_set_var()
-> (decode_var(), followed by set_par()).  This is okay most times, but
-> it's probably better if fbgen_switch also does an encode_fix() since
-> fbcon's drawing functions also rely on fix->line_length.
-
-Most likely that is also broken. I haven't thought about it since I plan
-to make all the old fbgen_* functions go away.
-
-> If an fb_fix_screeninfo is not updated, display corruption occurs when
-> switching to another display with a different pixelformat.
-
-Correct. That is why I require info->fix to be updated when set_par is
-called.
-
-
+[Reminds me of the good old times 30 years ago -
+had a tower of three virtual machines on top of a
+real PDP 8/I. Now that you can run UML under UML,
+can you run UML under UML under UML?]

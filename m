@@ -1,44 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129392AbQLDPtr>; Mon, 4 Dec 2000 10:49:47 -0500
+	id <S129770AbQLDQ1c>; Mon, 4 Dec 2000 11:27:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129692AbQLDPth>; Mon, 4 Dec 2000 10:49:37 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:17316 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S129392AbQLDPt1>;
-	Mon, 4 Dec 2000 10:49:27 -0500
-Date: Mon, 4 Dec 2000 10:19:00 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        Andrew Morton <andrewm@uow.edu.au>,
-        Jonathan Hudson <jonathan@daria.co.uk>, linux-kernel@vger.kernel.org
-Subject: Re: corruption
-In-Reply-To: <20001204150043.C8700@redhat.com>
-Message-ID: <Pine.GSO.4.21.0012041014500.5153-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129844AbQLDQ1N>; Mon, 4 Dec 2000 11:27:13 -0500
+Received: from [202.106.187.156] ([202.106.187.156]:9741 "HELO sina.com")
+	by vger.kernel.org with SMTP id <S129770AbQLDQ1M>;
+	Mon, 4 Dec 2000 11:27:12 -0500
+Date: Sat, 2 Dec 2000 10:20:23 +0800
+From: hugang <linuxbest@sina.com>
+To: linux-kernel@vger.kernel.org
+Subject: Path: for oom_kill.c
+In-Reply-To: <NDBBIAJKLMMHOGKNMGFNMEADCPAA.chris.swiedler@sevista.com>
+In-Reply-To: <NDBBIAJKLMMHOGKNMGFNMEADCPAA.chris.swiedler@sevista.com>
+X-Mailer: Sylpheed version 0.4.6 (GTK+ 1.2.8; Linux 2.4.0-test12; i686)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Message-Id: <20001204162712Z129770-439+868@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello all:
+	
+old    ---->     points = p->mm->total_vm;
+       
+change to --->   points = p->pid;
 
 
-On Mon, 4 Dec 2000, Stephen C. Tweedie wrote:
+	I write a shell to test it,
 
-> unmap_buffer() calls mark_buffer_clean() calls refile_buffer() calls
-> remove_inode_queue(), which is why we don't see this all the time.
+cat > bin/hello
+hello
+^D
 
-Not enough, since you can hit the window between the request completion
-(bh is marked clean) and getting it picked by flush_dirty_buffers() et.al.
-If you get destroy_inode() before that window will close...
-
-> However, refile_buffer() is only calling the remove_inode_queue() if
-> the buffer disposition changes.  I'm looking to see where we may be
-> going wrong here --- the refile_buffer() is not atomic wrt. the
-> bh->b_inode structures.
-
-See above. Point about the metadata (bforget() is not enough) also stands,
-ditto for ext2_update_inode() one.
-
+hello
+before change it ,kernel will kill some pid, to change it kernel will kill hello(bash).
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

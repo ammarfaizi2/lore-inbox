@@ -1,19 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261511AbVARAJi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261528AbVARALM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261511AbVARAJi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jan 2005 19:09:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261531AbVARAJi
+	id S261528AbVARALM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jan 2005 19:11:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261531AbVARAKq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jan 2005 19:09:38 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:20353 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261511AbVARAIO
+	Mon, 17 Jan 2005 19:10:46 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:54146 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261522AbVARAIP
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jan 2005 19:08:14 -0500
-Date: Mon, 17 Jan 2005 16:08:09 -0800
+	Mon, 17 Jan 2005 19:08:15 -0500
+Date: Mon, 17 Jan 2005 16:07:29 -0800
 From: Greg KH <greg@kroah.com>
 To: linux-kernel@vger.kernel.org
-Subject: [RFC] sysdev: change locking to use a class based spinlock
-Message-ID: <20050118000809.GB30597@kroah.com>
+Message-ID: <20050118000729.GA30597@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,7 +20,8 @@ User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-<this time with a valid subject...>
+Subject [RFC] sysdev: change locking to use a class based spinlock
+Reply-To: 
 
 Here's another patch in my steps of removing the use of the subsystem
 rwsem lock.  I've converted the sysdev subsystem here to use a spinlock

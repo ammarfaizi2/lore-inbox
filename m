@@ -1,34 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267381AbUJSVU6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269738AbUJSVXp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267381AbUJSVU6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 17:20:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269502AbUJSVRV
+	id S269738AbUJSVXp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 17:23:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269645AbUJSVVM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 17:17:21 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:51378 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S269899AbUJSVQP
+	Tue, 19 Oct 2004 17:21:12 -0400
+Received: from h-68-165-86-241.dllatx37.covad.net ([68.165.86.241]:36188 "EHLO
+	sol.microgate.com") by vger.kernel.org with ESMTP id S269690AbUJSVRg
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 17:16:15 -0400
-Message-ID: <41758410.2020200@pobox.com>
-Date: Tue, 19 Oct 2004 17:16:00 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Rate of change
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 19 Oct 2004 17:17:36 -0400
+Subject: Re: Linux v2.6.9 and GPL Buyout
+From: Paul Fulghum <paulkf@microgate.com>
+To: Pekka Pietikainen <pp@ee.oulu.fi>
+Cc: "Jeff V. Merkey" <jmerkey@drdos.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041019210254.GA561@ee.oulu.fi>
+References: <Pine.LNX.4.58.0410181540080.2287@ppc970.osdl.org>
+	 <417550FB.8020404@drdos.com>  <20041019210254.GA561@ee.oulu.fi>
+Content-Type: text/plain
+Message-Id: <1098220642.3275.1.camel@deimos.microgate.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Tue, 19 Oct 2004 16:17:22 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2004-10-19 at 16:02, Pekka Pietikainen wrote:
+> arch/m68k/sun3/leds.c is available (dual BSD/GPL) for the price of two beers 
 
-850 changesets and 3383 revisions since 2.6.9 was released,
-a little over 24 hours ago.
+Hmmm... what brand?
+I hope you hold out for more than Coors Light.
 
-That's pretty impressive.
-
-	Jeff
-
-
+-- 
+Paul Fulghum
+paulkf@microgate.com
 

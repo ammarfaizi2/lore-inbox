@@ -1,74 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318938AbSICVoH>; Tue, 3 Sep 2002 17:44:07 -0400
+	id <S318943AbSICVoZ>; Tue, 3 Sep 2002 17:44:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318941AbSICVoH>; Tue, 3 Sep 2002 17:44:07 -0400
-Received: from smtp02.uc3m.es ([163.117.136.122]:31240 "HELO smtp.uc3m.es")
-	by vger.kernel.org with SMTP id <S318938AbSICVoF>;
-	Tue, 3 Sep 2002 17:44:05 -0400
-Date: Tue, 3 Sep 2002 23:48:32 +0200
-Message-Id: <200209032148.g83LmWU14950@oboe.it.uc3m.es>
-From: "Peter T. Breuer" <ptb@it.uc3m.es>
-To: david.lang@digitalinsight.com
-Subject: (fwd) Re: [RFC] mount flag "direct"
-Cc: linux-kernel@vger.kernel.org
+	id <S318944AbSICVoU>; Tue, 3 Sep 2002 17:44:20 -0400
+Received: from host194.steeleye.com ([216.33.1.194]:16913 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S318943AbSICVoQ>; Tue, 3 Sep 2002 17:44:16 -0400
+Message-Id: <200209032148.g83LmeP09177@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: James Bottomley <James.Bottomley@SteelEye.com>,
+       "Justin T. Gibbs" <gibbs@scsiguy.com>, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Subject: Re: aic7xxx sets CDR offline, how to reset? 
+In-Reply-To: Message from Doug Ledford <dledford@redhat.com> 
+   of "Tue, 03 Sep 2002 17:13:21 EDT." <20020903171321.A12201@redhat.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 03 Sep 2002 16:48:39 -0500
+From: James Bottomley <James.Bottomley@steeleye.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry I'm getting behind with the mail. Meetings, and I'm flying
-towmorrow.
+dledford@redhat.com said:
+> But, regardless, the REQ_BARRIER ordering *can* be preserved  while
+> using abort processing.  Since the command that needs aborting is,  as
+> you are hypothesizing, before the REQ_BARRIER command, and since it
+> hasn't completed, then the REQ_BARRIER command can not be complete and
+>  neither can any of the commands behind the REQ_BARRIER.
 
-> On Tue, 3 Sep 2002, Peter T. Breuer wrote:
-> > If it doesn't cause the data to be read twice, then it ought to, and
-> > I'll fix it (given half a clue as extra pay ..:-)
-> 
-> writing then reading the same file may cause it to be read from the disk,
-> but reading /foo/bar then reading /foo/bar again will not cause two reads
-> of all data.
+You are correct.  However, as soon as you abort the problem command (assuming 
+the device recovers from this), it will go on its merry way processing the 
+remaining commands in the queue.  Assuming one of these is the barrier, you've 
+no way now of re-queueing the aborted command so that it comes before the 
+ordered tag barrier.  You can try using a head of queue tag, but it's still a 
+nasty race.
 
-Hmm. I just did a quick check on 2.5.31, and to me it looks as though
-two consequtive reads BOTH drop through to the driver. Yes, I am
-certain - I've repeated the experiment 4 times reading the same 400K,
-and each time the block driver registers 400 read requests.
+> On direct access  devices you are only concerned about ordering around
+> the barrier, not  ordering of the actual tagged commands, so for abort
+> you can actually call  abort on all the commands past the REQ_BARRIER
+> command first, then the  REQ_BARRIER command, then the hung command.
+> That would do the job and  preserve REQ_BARRIER ordering while still
+> using aborts.
 
-> some filesystems go to a lot fo work to orginize the metadata in
-> particular in memory to access things more efficiantly, you will have to
-> go into each filesystem and modify them to not do this.
+I agree, but the most likely scenario is that now you're trying to abort 
+almost every tag for that device in the system.  Isn't reset a simpler 
+alternative to this?
 
-Well, I'll have to divert them. Is there not some trick that can be
-used? A bitmap mmapped to the device, if that's not nonsensical in
-kernel space?
+> > At best, abort probably causes a command to overtake a barrier it shouldn't, 
+> > at worst we abort the ordered tag that is the barrier and transactional 
+> > integrity is lost.
+> > 
+> > When error correction is needed, we have to return all the commands for that 
+> > device to the block layer so that ordering and barrier issues can be taken 
+> > care of in the reissue.
 
-> in addition you will have lots of potential races as one system reads a
-> block of data, modifies it, then writes it while the other system does the
+> Not really, this would be easily enough done in the ML_QUEUE area of
+> the  scsi layer, but it matters not to me.  However, if you throw a
+> BDR, then  you have cancelled all outstanding commands and (typically)
+> initiated a  hard reset of the device which then requires a device
+> settle time.  All of  this is more drastic and typically takes longer
+> than the individual aborts  which are completed in a single connect->
+> disconnect cycle without ever  hitting a data phase and without
+> triggering a full device reset and  requiring a settle time. 
 
-Uh, I am confident that there can  be no races with respect to data
-writes provided I manage to make the VFS operations atomic via
-appropriate shared locking. What one has to get rid of is cached
-metadata state. I'm open to suggestions.
+I agree.  I certainly could do it.  I'm just a lazy so-and-so.  However, think 
+what it does.  Apart from me having to do more work, the code becomes longer 
+and the error recovery path more convoluted and difficult to follow.  The 
+benefit?  well, error recovery might be faster in certain circumstances.  I 
+just don't see that it's a cost effective change.  If you're hitting error 
+recovery so often that whether it recovers in  half a second or several 
+seconds makes a difference, I'd say there's something else wrong.
 
-> yes this is stuff that could be added to all filesystems, but will the
-> filesystem maintainsers let you do this major surgery to their systems?
+James
 
-Depends how a patch looks, I guess.
 
-> for example the XFS and JFS teams are going to a lot of effort to maintain
-> their systems to be compatable with other OS's, they probably won't
-
-Yes.
-
-> appriciate all the extra conditionals that you will need to put in to
-> do all of this.
-
-I don't see any conditionals. These will be methods, i.e. redirects.
-Anyway, what's an if test between friends :-).
-
-> even for ext2 there are people (including linus I believe) that are saying
-> that major new features should not be added to ext2, but to a new
-
-I agree! But I wouldn't see adding VFS ops to replace FS-specific
-code as a new feature, rather a consolidation of common codes.
-
-> filesystem forked off of ext2 (ext3 for example or a fork of it).
-
-Peter

@@ -1,39 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264582AbTGGDQ0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jul 2003 23:16:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264601AbTGGDQ0
+	id S264601AbTGGD2F (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jul 2003 23:28:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264608AbTGGD2F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jul 2003 23:16:26 -0400
-Received: from fed1mtao02.cox.net ([68.6.19.243]:13998 "EHLO
-	fed1mtao02.cox.net") by vger.kernel.org with ESMTP id S264582AbTGGDQZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jul 2003 23:16:25 -0400
-Date: Sun, 6 Jul 2003 20:30:58 -0700
-From: "Barry K. Nathan" <barryn@pobox.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Nick Piggin <piggin@cyberone.com.au>, barryn@pobox.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [BUG] heavy disk access sometimes freezes 2.5.73-mm[123]
-Message-ID: <20030707033058.GA2860@ip68-4-255-84.oc.oc.cox.net>
-References: <20030703090541.GB5044@ip68-101-124-193.oc.oc.cox.net> <20030706204630.GA2904@ip68-4-255-84.oc.oc.cox.net> <3F08DA84.7010500@cyberone.com.au> <20030706193722.79352bc3.akpm@osdl.org>
+	Sun, 6 Jul 2003 23:28:05 -0400
+Received: from louise.pinerecords.com ([213.168.176.16]:55464 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id S264601AbTGGD2D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Jul 2003 23:28:03 -0400
+Date: Mon, 7 Jul 2003 05:42:17 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Ryan Mack <lists@mackman.net>,
+       Markus Plail <linux-kernel@gitteundmarkus.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.21 ServerWorks DMA Bugs
+Message-ID: <20030707034217.GD303@louise.pinerecords.com>
+References: <20030706184242.A20851@ucw.cz> <Pine.LNX.4.10.10307061740150.29935-100000@master.linux-ide.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030706193722.79352bc3.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.10.10307061740150.29935-100000@master.linux-ide.org>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 06, 2003 at 07:37:22PM -0700, Andrew Morton wrote:
-> Nick Piggin <piggin@cyberone.com.au> wrote:
-> >
-> Barry says the problem started with 2.5.73-mm1.  There was a reiserfs patch
-> added in that kernel.
+> [andre@linux-ide.org]
 > 
-> Does a `patch -R' of this fix it up?
-[patch snipped]
+> Caution!
+> 
+> Serverworks has OEM's who have BIOS's which are setup for a reason.
+> If the BIOS is configured for any reason the the driver stomps on the BIOS
+> settings there will be damage to the content on the media.
+> 
+> Just the view from an insider in the know.
 
-Yes, backing that patch out fixes it.
+Hmm, I certainly wouldn't expect a $3500 server to come with busted
+IDE, but thanks for the suggestion, we'll take extra care.
 
--Barry K. Nathan <barryn@pobox.com>
+-- 
+Tomas Szepe <szepe@pinerecords.com>

@@ -1,189 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262147AbVATPHO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262151AbVATPJn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262147AbVATPHO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 10:07:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262149AbVATPHO
+	id S262151AbVATPJn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 10:09:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262152AbVATPJm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 10:07:14 -0500
-Received: from mail.kroah.org ([69.55.234.183]:5587 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262147AbVATPG4 (ORCPT
+	Thu, 20 Jan 2005 10:09:42 -0500
+Received: from users.linvision.com ([62.58.92.114]:37271 "HELO bitwizard.nl")
+	by vger.kernel.org with SMTP id S262151AbVATPJF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 10:06:56 -0500
-Date: Thu, 20 Jan 2005 07:06:46 -0800
-From: Greg KH <greg@kroah.com>
-To: Karim Yaghmour <karim@opersys.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Andi Kleen <ak@muc.de>, Roman Zippel <zippel@linux-m68k.org>,
-       Tom Zanussi <zanussi@us.ibm.com>,
-       Robert Wisniewski <bob@watson.ibm.com>, Tim Bird <tim.bird@AM.SONY.COM>
-Subject: Re: [PATCH] relayfs redux for 2.6.10: lean and mean
-Message-ID: <20050120150646.GG13036@kroah.com>
-References: <41EF4E74.2000304@opersys.com>
+	Thu, 20 Jan 2005 10:09:05 -0500
+Date: Thu, 20 Jan 2005 15:57:39 +0100
+From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+To: lkml@bitwizard.nl, pavel@ucw.cz, steve@chygwyn.com,
+       James.Bottomley@SteelEye.com, Paul.Clements@SteelEye.com,
+       erik@harddisk-recovery.nl
+Subject: PATCH: nbd fix. 
+Message-ID: <20050120145739.GA1189@bitwizard.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="liOOAslEiF7prFVr"
 Content-Disposition: inline
-In-Reply-To: <41EF4E74.2000304@opersys.com>
-User-Agent: Mutt/1.5.6i
+User-Agent: Mutt/1.3.28i
+Organization: BitWizard.nl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 20, 2005 at 01:23:48AM -0500, Karim Yaghmour wrote:
-> +static struct inode *
-> +relayfs_get_inode(struct super_block *sb, int mode, dev_t dev)
-> +{
-> +	struct inode * inode;
-> +
-> +	inode = new_inode(sb);
-> +
-> +	if (inode) {
-> +		inode->i_mode = mode;
-> +		inode->i_uid = current->fsuid;
-> +		inode->i_gid = current->fsgid;
 
-Are you sure you want these two fields set to the value of current-> ?
-
-> +/*
-> + * File creation. Allocate an inode, and we're done..
-> + */
-> +/* SMP-safe */
-> +static int
-> +relayfs_mknod(struct inode *dir, struct dentry *dentry, int mode, dev_t dev)
-> +{
-> +	struct inode * inode;
-> +	int error = -ENOSPC;
-> +
-> +	inode = relayfs_get_inode(dir->i_sb, mode, dev);
-
-Need to check for dentry->d_inode here before using it.
-
-> +	if (inode) {
-> +		d_instantiate(dentry, inode);
-> +		dget(dentry);	/* Extra count - pin the dentry in core */
-> +		error = 0;
-> +	}
-> +	return error;
-> +}
-> +
-> +static int
-> +relayfs_mkdir(struct inode * dir, struct dentry * dentry, int mode)
-> +{
-> +	int retval;
-> +
-> +	retval = relayfs_mknod(dir, dentry, mode | S_IFDIR, 0);
-
-(mode & (S_IRWXUGO | S_ISVTX)) | S_IFDIR
-instead of just | with S_IFDIR, right?
-
-> +
-> +	if (!retval)
-> +		dir->i_nlink++;
-> +	return retval;
-> +}
-> +
-> +static int
-> +relayfs_create(struct inode *dir, struct dentry *dentry, int mode, struct nameidata *nd)
-> +{
-> +	return relayfs_mknod(dir, dentry, mode | S_IFREG, 0);
-
-(mode & S_IALLUGO) | S_IFREG
-here too, to be safe, right?
-
-> +}
-> +
-> +static int
-> +relayfs_symlink(struct inode * dir, struct dentry *dentry, const char * symname)
-> +{
-> +	struct inode *inode;
-> +	int error = -ENOSPC;
-> +
-> +	inode = relayfs_get_inode(dir->i_sb, S_IFLNK|S_IRWXUGO, 0);
-> +
-> +	if (inode) {
-> +		int l = strlen(symname)+1;
-> +		error = page_symlink(inode, symname, l);
-> +		if (!error) {
-> +			d_instantiate(dentry, inode);
-> +			dget(dentry);
-> +		} else
-> +			iput(inode);
-> +	}
-> +	return error;
-> +}
-
-Why do you want to allow symlinks in relayfs?
-
-> +
-> +/**
-> + *	relayfs_create_entry - create a relayfs directory or file
-> + *	@name: the name of the file to create
-> + *	@parent: parent directory
-> + *	@dentry: result dentry
-> + *	@entry_type: type of file to create (S_IFREG, S_IFDIR)
-> + *	@mode: mode
-> + *	@data: data to associate with the file
-> + *
-> + *	Creates a file or directory with the specifed permissions.
-> + */
-> +static int
-> +relayfs_create_entry(const char * name, struct dentry * parent, struct dentry **dentry, int entry_type, int mode, void * data)
-> +{
-> +	struct qstr qname;
-> +	struct dentry * d;
-> +
-> +	int error = 0;
-> +
-> +	error = simple_pin_fs("relayfs", &relayfs_mount, &relayfs_mount_count);
-> +	if (error) {
-> +		printk(KERN_ERR "Couldn't mount relayfs: errcode %d\n", error);
-> +		return error;
-> +	}
-> +
-> +	qname.name = name;
-> +	qname.len = strlen(name);
-> +	qname.hash = full_name_hash(name, qname.len);
-> +
-> +	if (parent == NULL)
-> +		if (relayfs_mount && relayfs_mount->mnt_sb)
-> +			parent = relayfs_mount->mnt_sb->s_root;
-> +
-> +	if (parent == NULL) {
-> +		simple_release_fs(&relayfs_mount, &relayfs_mount_count);
-> + 		return -EINVAL;
-> +	}
-> +
-> +	parent = dget(parent);
-> +	down(&parent->d_inode->i_sem);
-> +	d = lookup_hash(&qname, parent);
-> +	if (IS_ERR(d)) {
-> +		error = PTR_ERR(d);
-> +		goto release_mount;
-> +	}
-> +
-> +	if (d->d_inode) {
-> +		error = -EEXIST;
-> +		goto release_mount;
-> +	}
-> +
-> +	if (entry_type == S_IFREG)
-> +		error = relayfs_create(parent->d_inode, d, entry_type | mode, NULL);
-> +	else
-> +		error = relayfs_mkdir(parent->d_inode, d, entry_type | mode);
-
-Why not just go off of the mode here?  That would let you get rid of a
-paramater, as you need mode to be set properly anyway for directories.
+--liOOAslEiF7prFVr
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
 
+The NBD driver seems to require CAP_SYSADMIN capabilities for 
+innocent things like asking what the capacity is. 
 
-> +	if (error)
-> +		goto release_mount;
-> +
-> +	if ((entry_type == S_IFREG) && data) {
-> +		d->d_inode->u.generic_ip = data;
-> +		goto exit; /* don't release mount for regular files */
-> +	}
+Patch attached. 
 
-Same here.
+	Roger. 
 
-thanks,
 
-greg k-h
+-- 
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+Q: It doesn't work. A: Look buddy, doesn't work is an ambiguous statement. 
+Does it sit on the couch all day? Is it unemployed? Please be specific! 
+Define 'it' and what it isn't doing. --------- Adapted from lxrbot FAQ
+
+--liOOAslEiF7prFVr
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=nbd_fix
+
+diff -ur linux-2.4.28.clean/drivers/block/nbd.c linux-2.4.28.nbd-fix/drivers/block/nbd.c
+--- linux-2.4.28.clean/drivers/block/nbd.c	Wed Jan 19 18:14:01 2005
++++ linux-2.4.28.nbd-fix/drivers/block/nbd.c	Wed Jan 19 16:36:59 2005
+@@ -408,10 +408,7 @@
+ 	int dev, error, temp;
+ 	struct request sreq ;
+ 
+-	/* Anyone capable of this syscall can do *real bad* things */
+ 
+-	if (!capable(CAP_SYS_ADMIN))
+-		return -EPERM;
+ 	if (!inode)
+ 		return -EINVAL;
+ 	dev = MINOR(inode->i_rdev);
+@@ -419,6 +416,20 @@
+ 		return -ENODEV;
+ 
+ 	lo = &nbd_dev[dev];
++
++	/* these are innocent, but.... */
++	switch (cmd) {
++	case BLKGETSIZE:
++		return put_user(nbd_bytesizes[dev] >> 9, (unsigned long *) arg);
++	case BLKGETSIZE64:
++		return put_user((u64)nbd_bytesizes[dev], (u64 *) arg);
++	}
++
++	/* ... anyone capable of any of the below ioctls can do *real bad* 
++	   things */
++	if (!capable(CAP_SYS_ADMIN))
++		return -EPERM;
++
+ 	switch (cmd) {
+ 	case NBD_DISCONNECT:
+ 	        printk("NBD_DISCONNECT\n");
+@@ -524,10 +535,6 @@
+ 		       dev, lo->queue_head.next, lo->queue_head.prev, requests_in, requests_out);
+ 		return 0;
+ #endif
+-	case BLKGETSIZE:
+-		return put_user(nbd_bytesizes[dev] >> 9, (unsigned long *) arg);
+-	case BLKGETSIZE64:
+-		return put_user((u64)nbd_bytesizes[dev], (u64 *) arg);
+ 	}
+ 	return -EINVAL;
+ }
+
+--liOOAslEiF7prFVr--

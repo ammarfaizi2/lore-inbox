@@ -1,46 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132027AbRDTXmZ>; Fri, 20 Apr 2001 19:42:25 -0400
+	id <S132044AbRDTXqG>; Fri, 20 Apr 2001 19:46:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132044AbRDTXmQ>; Fri, 20 Apr 2001 19:42:16 -0400
-Received: from m125-mp1-cvx1b.col.ntl.com ([213.104.72.125]:48002 "EHLO
-	[213.104.72.125]") by vger.kernel.org with ESMTP id <S132027AbRDTXmF>;
-	Fri, 20 Apr 2001 19:42:05 -0400
-To: Pavel Machek <pavel@suse.cz>
-Cc: "Acpi-PM (E-mail)" <linux-power@phobos.fachschaften.tu-muenchen.de>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Let init know user wants to shutdown
-In-Reply-To: <E14pgBe-0003gg-00@the-village.bc.nu>
-	<m2k84jkm1j.fsf@boreas.yi.org.> <20010420190128.A905@bug.ucw.cz>
-From: John Fremlin <chief@bandits.org>
-Date: 21 Apr 2001 00:41:54 +0100
-In-Reply-To: <20010420190128.A905@bug.ucw.cz>
-Message-ID: <m2snj3xhod.fsf@bandits.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Solid Vapor)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S132121AbRDTXp4>; Fri, 20 Apr 2001 19:45:56 -0400
+Received: from libra.cus.cam.ac.uk ([131.111.8.19]:31890 "EHLO
+	libra.cus.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S132044AbRDTXps>; Fri, 20 Apr 2001 19:45:48 -0400
+Message-Id: <5.0.2.1.2.20010421003159.04a028f0@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
+Date: Sat, 21 Apr 2001 00:48:11 +0100
+To: Wayne.Brown@altec.com
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: Current status of NTFS support
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <86256A34.0079A841.00@smtpnotes.altec.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- Pavel Machek <pavel@suse.cz> writes:
+At 23:08 20/04/2001, Wayne.Brown@altec.com wrote:
+>Where does write support for NTFS stand at the moment?  I noticed that 
+>it's still marked "Dangerous" in the kernel configuration.
 
-[...]
+It is extremely dangerous. Never use unless you are desperate. It creates 
+corrupt files and especially directories. It also cannot delete at all (not 
+implemented). - If you do write you have to run ntfsfix utility on the 
+partition after umount before rebooting into Windows which will let chkdsk 
+run on next reboot which should fix all problems created by the driver. - 
+ntfsfix is part of the Linux-NTFS project. You can download the 
+source/source rpm or pre-compiled rpm from 
+http://sourceforge.net/projects/linux-ntfs/
 
-> > I'm wondering if that veto business is really needed. Why not reject
-> > *all* APM rejectable events, and then let the userspace event handler
-> > send the system to sleep or turn it off? Anybody au fait with the APM
-> > spec?
-> 
-> My thinkpad actually started blinking with some LED when you pressed
-> the button. LED went off when you rejected or when sleep was
-> completed.
+>This is important to me because it looks like I'll have to start using it 
+>next week. My office laptop is going to be "upgraded" from Windows 98 to 2000.
 
-Does the led start blinking when the system sends an apm suspend? In
-that case I don't think you'd notice the brief period between the
-REJECT and the following suspend from userspace ;-)
+Forget it. Windows 2000 NTFS is supported only read-only. The driver will 
+refuse to mount read-write (unless you are using an out of date kernel in 
+which case it will probably just destroy your partition!). I strongly 
+suggest to use kernel 2.4.4-pre5 at least or a 2.4.x-acXYZ kernel (at least 
+2.4.2-ac something IIRC) as these kernels contain many important fixes.
 
-[...]
+>Of course, I hardly ever boot into Windows any more since installing a 
+>Linux partition last year.  But our corporate email standard forces me to 
+>use Lotus Notes, which I run under Wine.   The Notes executables and 
+>databases are installed on my Windows partition.  The upgrade, though, 
+>will involve wiping the hard drive, allocating
+>the whole drive to a single NTFS partition, and reinstalling Notes after 
+>installing Windows 2000 .  That means bye-bye FAT32 partition and hello 
+>NTFS.  I can't mount it read-only because I'll still have to update my 
+>Notes databases from Linux.  So how risky is this?
+
+Simple answer: you can't. 100% data loss is unfortunately guaranteed if you 
+start using it like this, maybe not in one day, maybe not in two but 
+eventually you will try to boot into Windows and find it doesn't exist any 
+more...
+
+>Also, I'll have to recreate my Linux partitions after the upgrade.  Does 
+>anyone know if FIPS can split a partition safely that was created under 
+>Windows 2000/NT?  It worked fine for Windows 98, but I'm a little worried 
+>about what might happen if I try to use it on an NTFS partition.
+
+It can't. You need to buy Partition Magic or similar utility to do this. 
+There is AFAIK no free NTFS resizer available (yet!).
+
+The best solution for you is to ask really kindly (by them a beer?) to have 
+your laptop installed with one partition which doesn't fill your entire 
+disk (i.e. just ask them to make the partition whatever size you want) and 
+to use the FAT-32 filesystem instead of NTFS. Windows 2000 is quite happy 
+to do both of these. You could even save them the trouble and do the 
+partitioning and formatting for them and just ask them to install Windows 
+2000 on your C: drive using FAT-32. Then pray they will oblige. Otherwise 
+you will have to spend some money on partition magic I am afraid (or 
+equivalent obviously).
+
+If you go for the repartition yourself approach you should be able to keep 
+your current linux install. You can use GNU parted to resize you Linux 
+partitions so you have enough space for Win2k (find it on 
+ftp.gnu.org/gnu/parted/).
+
+Hope this helps,
+
+         Anton
+
 
 -- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://sourceforge.net/projects/linux-ntfs/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
 
-	http://www.penguinpowered.com/~vii

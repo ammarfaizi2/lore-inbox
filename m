@@ -1,34 +1,56 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314132AbSDVMLo>; Mon, 22 Apr 2002 08:11:44 -0400
+	id <S314140AbSDVMSZ>; Mon, 22 Apr 2002 08:18:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314138AbSDVMLn>; Mon, 22 Apr 2002 08:11:43 -0400
-Received: from dsl-213-023-039-131.arcor-ip.net ([213.23.39.131]:2202 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S314132AbSDVMLm>;
-	Mon, 22 Apr 2002 08:11:42 -0400
+	id <S314141AbSDVMSY>; Mon, 22 Apr 2002 08:18:24 -0400
+Received: from mikonos.cyclades.com.br ([200.230.227.67]:268 "EHLO
+	firewall.cyclades.com.br") by vger.kernel.org with ESMTP
+	id <S314140AbSDVMSX>; Mon, 22 Apr 2002 08:18:23 -0400
 Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
-Subject: Re: [OFF TOPIC] BK license change
-Date: Sun, 21 Apr 2002 14:12:16 +0200
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <20020421095715.A10525@work.bitmover.com>
+From: Elias <elias@cyclades.com>
+Organization: Cyclades
+To: Krzysztof Halasa <khc@pm.waw.pl>
+Subject: Re: [Generic HDLC layer] Frame Relay / CIR
+Date: Mon, 22 Apr 2002 09:18:36 -0300
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <02041611300500.01020@elias.cyclades.com.br> <m34ri8n1ca.fsf@defiant.pm.waw.pl>
+Cc: "Linux Kernel" <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
+Message-Id: <02042209183600.01077@elias.cyclades.com.br>
 Content-Transfer-Encoding: 7BIT
-Message-Id: <E16zGCW-0001EM-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 21 April 2002 18:57, Larry McVoy wrote:
-> I'm considering a change to the BKL which says that N days after a
-> changeset is made, that changeset (and its ancestory) must be available
-> on a public bk server.  In other words, put a hard limit on how long
-> you may hide.
+Em Quinta 18 Abril 2002 18:28, you wrote:
+> Hi,
+>
+> Elias <elias@cyclades.com> writes:
+> > 	I'm start to implement CIR feature for the Frame-Relay  of the
+> > Generic HDLC
+> > layer.
+>
+> Ok.
+>
+> BTW: What exactly do you want to implement? Outbound rate limiting on
+> congested PVCs? Or *ECN signaling and CIR/EIR enforcing?
 
-More red tape is usually bad.  You want to do it to protect your commericial
-interests?  Fine.  However, the GPL does not need Bitkeeper to be its robocop.
-GPL violations have a way of coming to light without this sort of automated
-enforcement.
+
+	In this first moment, I will work only in DE bit according with CIR limit.
+
 
 -- 
-Daniel
+******************************************
+	Elias Henrique Ferreira
+ /\_/\	elias@cyclades.com
+ |@ @| 	Fone:(0xx11)5033-3347  
+  /T\	P&D - Cyclades Brasil
+     	UIN: 12087223
+(Use fixed font to see the cat)
+******************************************
+
+
+
+
+
+
+

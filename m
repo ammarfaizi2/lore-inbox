@@ -1,88 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263802AbUE1TCu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263804AbUE1TFh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263802AbUE1TCu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 May 2004 15:02:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263804AbUE1TCu
+	id S263804AbUE1TFh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 May 2004 15:05:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263806AbUE1TFh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 May 2004 15:02:50 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:10679 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S263802AbUE1TCr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 May 2004 15:02:47 -0400
-Date: Fri, 28 May 2004 21:01:29 +0200
-From: Arjan van de Ven <arjanv@redhat.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: "Nakajima, Jun" <jun.nakajima@intel.com>, Jeff Garzik <jgarzik@pobox.com>,
-       Andrew Morton <akpm@osdl.org>, Anton Blanchard <anton@samba.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: CONFIG_IRQBALANCE for AMD64?
-Message-ID: <20040528190129.GF9898@devserv.devel.redhat.com>
-References: <7F740D512C7C1046AB53446D372001730182BB40@scsmsx402.amr.corp.intel.com> <2750000.1085769212@flay> <20040528184411.GE9898@devserv.devel.redhat.com> <4160000.1085770644@flay>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Pql/uPZNXIm1JCle"
+	Fri, 28 May 2004 15:05:37 -0400
+Received: from ned.cc.purdue.edu ([128.210.189.24]:25765 "EHLO
+	ned.cc.purdue.edu") by vger.kernel.org with ESMTP id S263804AbUE1TFb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 May 2004 15:05:31 -0400
+From: Patrick Finnegan <pat@computer-refuge.org>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Alpha compile error on 2.6.7-rc1
+Date: Fri, 28 May 2004 14:05:30 -0500
+User-Agent: KMail/1.5.4
+Cc: rth@twiddle.net
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <4160000.1085770644@flay>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200405281405.30638.pat@computer-refuge.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Machine is a 21164A Alpha (164LX motherboard).  The error is:
 
---Pql/uPZNXIm1JCle
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+  CC      arch/alpha/mm/init.o
+arch/alpha/mm/init.c: In function `show_mem':
+arch/alpha/mm/init.c:120: structure has no member named `count'
+make[1]: *** [arch/alpha/mm/init.o] Error 1
+make: *** [arch/alpha/mm] Error 2
 
-On Fri, May 28, 2004 at 11:57:24AM -0700, Martin J. Bligh wrote:
-> >> Here's my start at a list ... I'm sure it's woefully incomplete.
-> >> 
-> >> 1. Utilize all CPUs roughly evenly for IRQ processing load (anything that's
-> >> not measured by the scheduler at least, because it's unfair to other 
-> >> processes).
-> > 
-> > yep; irqbalance approximates irq processing load by irq count, which seems
-> > to be ok-ish so far.
-> 
+Patch is below.
 
-> Isn't that exactly what the in-kernel one does though? which people were
-> complaining about (wrt network backend (softirq?) processing)? And some
-> interrupts are much heavier than others, surely?
+Alpha: Fixup arch/alpha/mm/init.c to match struct page changes 
 
-irqbalance uses class based balancing to try to balance the "some are
-heavier than others" thing. 
+--- linux-2.6.7-rc1.old/arch/alpha/mm/init.c	2004-05-28 13:53:04.000000000 -0500
++++ linux-2.6.7-rc1/arch/alpha/mm/init.c	2004-05-28 13:53:52.000000000 -0500
+@@ -117,7 +117,7 @@
+ 		else if (!page_count(mem_map+i))
+ 			free++;
+ 		else
+-			shared += atomic_read(&mem_map[i].count) - 1;
++			shared += atomic_read(&mem_map[i]._count) - 1;
+ 	}
+ 	printk("%ld pages of RAM\n",total);
+ 	printk("%ld free pages\n",free);
 
->  
-> >> Also, we may well have more than 1 CPU's worth of traffic to
-> >> process in a large network server.
-> > 
-> > One NIC? I've yet to see that ;)
-> 
-> No, multiple NICs. but if I shove 8 gigabit adaptors in a machine, we need
-> more than 1 cpu to process it ... 
-
-yeah, and if you have more than 1 cpu, irqbalanced *will* spread them.
-
-> Is there actually any algorithmic difference between the user-space and
-> in-kernel ones? or is this just a philosophical debate about user vs kernel
-> placement of code? ;-)
-
-the userspace one is quite different and uses different level of information
-(for example it makes class groups of irq's, eg it groups all ethernet
-irq's, all storage irq's etc in separate classes and uses the class info in
-the balancing algorithm). That surely is beyond what you'd want to do inside
-the kernel, but it works great ;)
-
-
-
---Pql/uPZNXIm1JCle
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQFAt4yJxULwo51rQBIRAsb6AKCpH7GMkxcklhBlSilY91xhvoZ52ACeJGNi
-vHBk3bPDkqaptaXltRjviB4=
-=3uHy
------END PGP SIGNATURE-----
-
---Pql/uPZNXIm1JCle--
+-- Pat
+Purdue University ITAP/RCS        ---  http://www.itap.purdue.edu/rcs/
+The Computer Refuge               ---  http://computer-refuge.org

@@ -1,109 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266733AbUIOBMG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266703AbUIOBQI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266733AbUIOBMG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 21:12:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266703AbUIOBMG
+	id S266703AbUIOBQI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 21:16:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266798AbUIOBQH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 21:12:06 -0400
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:40670 "EHLO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
-	id S266733AbUIOBLS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 21:11:18 -0400
-From: Darren Williams <dsw@gelato.unsw.edu.au>
-To: hotdog day <hotdogday@gmail.com>
-Date: Wed, 15 Sep 2004 11:11:14 +1000
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-rc2 and Hyperthreading. (SMT)
-Message-ID: <20040915011114.GA3195@cse.unsw.EDU.AU>
-Mail-Followup-To: hotdog day <hotdogday@gmail.com>,
-	linux-kernel@vger.kernel.org
-References: <7798951e04091317273b1bed29@mail.gmail.com> <41465244.9010603@yahoo.com.au> <7798951e040913212154d3b3f9@mail.gmail.com> <7798951e04091322402fe830ff@mail.gmail.com> <7798951e040913224462ea2243@mail.gmail.com>
+	Tue, 14 Sep 2004 21:16:07 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:36777 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S266703AbUIOBP6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 21:15:58 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk12-R5
+From: Lee Revell <rlrevell@joe-job.com>
+To: Rui Nuno Capela <rncbc@rncbc.org>
+Cc: Ingo Molnar <mingo@elte.hu>, Florian Schmidt <mista.tapas@gmx.net>,
+       "K.R. Foley" <kr@cybsft.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       felipe_alfaro@linuxmail.org
+In-Reply-To: <37312.195.245.190.93.1094728166.squirrel@195.245.190.93>
+References: <20040903120957.00665413@mango.fruits.de>
+	 <20040904195141.GA6208@elte.hu> <20040905140249.GA23502@elte.hu>
+	 <1094597710.16954.207.camel@krustophenia.net>
+	 <1094598822.16954.219.camel@krustophenia.net>
+	 <32930.192.168.1.5.1094601493.squirrel@192.168.1.5>
+	 <20040908082358.GB680@elte.hu> <20040908083158.GA1611@elte.hu>
+	 <37312.195.245.190.93.1094728166.squirrel@195.245.190.93>
+Content-Type: text/plain
+Message-Id: <1095210962.2406.79.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <7798951e040913224462ea2243@mail.gmail.com>
-User-Agent: Mutt/1.5.6+20040523i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 14 Sep 2004 21:16:02 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 Sep 2004, hotdog day wrote:
-
-> Does anyone have any other suggestions on this issue? I know others
-> who are experincing the same thing.
+On Thu, 2004-09-09 at 07:09, Rui Nuno Capela wrote:
+> 4) Then I wandered: the problem must be in one of plugged USB devices. And
+> right I was: my WACOM GRAPHIRE2 USB tablet was the culprit. Strange
+> enough, the hid and wacom modules weren't compiled in yet. Some more
+> iterations later, and it didn't matter if those modules are in or not: if
+> the tablet is plugged in at boot time the VP+SMP combination freezes.
 > 
+> 5) Incidentally I found that I must unplug the tablet at boot time of
+> freshly built VP+SMP kernel. Then I found that installing the linuxwacom
+> project [http://linuxwacom.sourceforge.net] drivers, which adds some
+> changes to mousedev (built-in), evdev and wacom kernel modules, I end up
+> with a kernel that I can boot and run later already with the tablet
+> plugged in.
 > 
-> On Tue, 14 Sep 2004 00:40:57 -0500, hotdog day <hotdogday@gmail.com> wrote:
-> > Actually, it just hardlocked again. Is there anything else that could
-> > be done, or am I stuck without SMP?
-> > 
-> > 
-> > 
-> > 
-> > On Mon, 13 Sep 2004 23:21:05 -0500, hotdog day <hotdogday@gmail.com> wrote:
-> > > Turning off CONFIG_SCHED_SMT has apparently fixed the issue.
-> > >
-> > > Three Q's:
-> > >
-> > > 1) Am I taking some kind of performance hit by doing this?
-> > >
-> > > 2) Is this something we can look forward to seeing fixed?
-> > >
-> > > 3) Do you need any info from me to help you?
-> > >
-> > > Thanks,
-> > >
-> > > Troy McFerron
-> > >
-> > >
-> > >
-> > >
-> > > On Tue, 14 Sep 2004 12:07:00 +1000, Nick Piggin <nickpiggin@yahoo.com.au> wrote:
-> > > >
-> > > >
-> > > > hotdog day wrote:
-> > > > > I have been testing the 2.6.9-rc1, and 2.6.9-rc2 kernel patches over
-> > > > > the past couple days and have been having some issues with
-> > > > > hyperthreading (SMT) turned on.
-I have tested 2.6.9-rc2 on a 3.0 Ghz HT and all seams OK, results of LTP
-message, and meminfo at:
-http://quasar.cse.unsw.edu.au/~dsw/public-files/x86
+> 6) Now that had found the major showstopper, I decided to go for audio:
+> among some other thingies, switched ALSA sound modules on, included the
+> realtime-lsm patch and built what comes to be my latest VP+SMP working
+> kernel. And it boots OK. Great.
+> 
+> 7) Now let's start jackd... start some client applications, hear some
+> sound, and... horror! The system hangs completetly. The time it takes to
+> hang is by no means deterministic. Soon or later it hangs. Hard-reboot is
+> always the only way around, no magic-sysrq :( Gasp, I've seen this before.
+> 
+> 8) Indeed, only by disabling both softirq and hardirq preeemption I get an
+> usable VP+SMP kernel. But that's no surprise either, it has been always
+> like that until Q3, which was the latest VP+SMP combination that didn't
+> suffer with the Wacom tablet presence at boot/init time. I only hoped the
+> (soft|hard)irq trouble would be solved by R9 time.
 
-Not extensive though no lockups and left running overnight.
+Rui, did you ever get this working?  Other testers are not reporting
+problems, it would be good to know if there are still bugs lurking.
 
-> > > > >
-> > > > > This problem first exhibited itself when I was testing
-> > > > > 2.6.9-rc2-mm2-love2. I noticed the following quirks that ONLY show
-> > > > > themselves with hyperthreading enabled on my 3.0C Pentium 4.
-> > > > >
-> > > > > Random HARD LOCKS. No messages from the kernel. Just a good swift hard lock.
-> > > > >
-> > > > > Hard locks when mounting two cdrom drives in quick succession.
-I'll try this tonight.
+Have you tried booting with hard and softirq preemption disabled and
+enabling them one at a time?
 
-> > > > >
-> > > > > Turning off hyperthreading solves these issues.  Going back to 2.6.8.1
-> > > > > solves these issues.
-> > > > >
-> > > > > I then tried 2.6.9-rc1 with no mm or love patches. I had the exact same issues.
-> > > > >
-> > > > > Today I downloaded the prepatch to 2.6.9-rc2 and applied it to clean
-> > > > > 2.6.8 source. The issues are still there.
-> > > > >
-> > > > > I hope someone is paying attention to the way scheduler tweaks and
-> > > > > changes are affecting SMT enabled kernels. I don't think anyone wants
-> > > > > to disable features of their hardware in order to run an optimized
-> > > > > scheduler.
-> > > >
-> > > > Try turning off CONFIG_SCHED_SMT and see how you go. Thanks.
-> > > >
-> > >
-> >
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
---------------------------------------------------
-Darren Williams <dsw AT gelato.unsw.edu.au>
-Gelato@UNSW <www.gelato.unsw.edu.au>
---------------------------------------------------
+Lee
+
+
+

@@ -1,68 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264626AbSJTT0T>; Sun, 20 Oct 2002 15:26:19 -0400
+	id <S264004AbSJTTXW>; Sun, 20 Oct 2002 15:23:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264627AbSJTT0T>; Sun, 20 Oct 2002 15:26:19 -0400
-Received: from port326.ds1-brh.adsl.cybercity.dk ([217.157.160.207]:5241 "EHLO
-	mail.jaquet.dk") by vger.kernel.org with ESMTP id <S264626AbSJTT0S>;
-	Sun, 20 Oct 2002 15:26:18 -0400
-Date: Sun, 20 Oct 2002 21:32:17 +0200
-From: Rasmus Andersen <rasmus@jaquet.dk>
+	id <S264625AbSJTTXV>; Sun, 20 Oct 2002 15:23:21 -0400
+Received: from news.cistron.nl ([62.216.30.38]:52999 "EHLO ncc1701.cistron.net")
+	by vger.kernel.org with ESMTP id <S264004AbSJTTXV>;
+	Sun, 20 Oct 2002 15:23:21 -0400
+From: Rene Blokland <reneb@orac.aais.org>
+Subject: Re: Re2: loadlin with 2.5.?? kernels
+Date: Sun, 20 Oct 2002 21:26:56 +0200
+Organization: Cistron
+Message-ID: <slrnar60rv.8ud.reneb@orac.aais.org>
+References: <1c6.531124.2ae44a91@aol.com> <5.1.0.14.2.20021020202108.00b890f8@pop.gmx.net>
+Reply-To: reneb@cistron.nl
+X-Trace: ncc1701.cistron.net 1035142132 15957 195.64.94.30 (20 Oct 2002 19:28:52 GMT)
+X-Complaints-To: abuse@cistron.nl
 To: linux-kernel@vger.kernel.org
-Subject: Error in get_swap_page? (2.5.44)
-Message-ID: <20021020213217.A17457@jaquet.dk>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="nFreZHaLTZJo0R7j"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-X-PGP-Key: http://www.jaquet.dk/rasmus/pubkey.asc
-X-PGP-Fingerprint: 925A 8E4B 6D63 1C22 BFB9  29CF 9592 4049 9E9E 26CE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <5.1.0.14.2.20021020202108.00b890f8@pop.gmx.net>, Mike Galbraith wrote:
 
---nFreZHaLTZJo0R7j
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> What was the last version that booted for you no problem?  (other than size)
+> 
+>          -Mike
 
-Hi,
+In my case x.38 that is the last, I don't no anymore why not .39 (did it
+compile?)
+But sure .40 didn't boot with loadlin and an image dd'd to a floppy
 
-Unless I am mistaken, we return stuff (entry) from the local=20
-stack in swapfile.c::get_swap_page. Am I mistaken?
+-- 
+Groeten / Regards, Rene J. Blokland
 
-Code in question:
-
-swp_entry_t get_swap_page(void)
-{
-        struct swap_info_struct * p;
-        unsigned long offset;
-        swp_entry_t entry;
-        int type, wrapped =3D 0;
-
-        entry.val =3D 0;  /* Out of memory */
-[...]
-
-out:
-        swap_list_unlock();
-        return entry;
-}
-
-
-Regards,
-  Rasmus
-
---nFreZHaLTZJo0R7j
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.0 (GNU/Linux)
-
-iD8DBQE9swTAlZJASZ6eJs4RAlVPAJ94e0AUsOsrpbFeiHu40gphZl0FSQCfemPf
-4fpK3IsdLSEZzboZJZ92kFw=
-=o5LY
------END PGP SIGNATURE-----
-
---nFreZHaLTZJo0R7j--

@@ -1,68 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261900AbUJZCED@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262187AbUJZDUN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261900AbUJZCED (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 22:04:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261844AbUJZCC3
+	id S262187AbUJZDUN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 23:20:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262121AbUJZCxA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 22:02:29 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:11152 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S261900AbUJZBbx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 21:31:53 -0400
-Date: Mon, 25 Oct 2004 18:31:13 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-cc: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
-Subject: Hugepages demand paging V2 [7/8]: sh64 arch modifications
-In-Reply-To: <Pine.LNX.4.58.0410251825020.12962@schroedinger.engr.sgi.com>
-Message-ID: <Pine.LNX.4.58.0410251830370.12962@schroedinger.engr.sgi.com>
-References: <B05667366EE6204181EABE9C1B1C0EB504BFA47C@scsmsx401.amr.corp.intel.com>
- <Pine.LNX.4.58.0410251825020.12962@schroedinger.engr.sgi.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 25 Oct 2004 22:53:00 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:43954 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S262163AbUJZCio (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Oct 2004 22:38:44 -0400
+Subject: Re: How is user space notified of CPU speed changes?
+From: Lee Revell <rlrevell@joe-job.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Robert Love <rml@novell.com>
+In-Reply-To: <1098626510.24073.9.camel@localhost.localdomain>
+References: <1098399709.4131.23.camel@krustophenia.net>
+	 <1098444170.19459.7.camel@localhost.localdomain>
+	 <1098508238.13176.17.camel@krustophenia.net>
+	 <1098566366.24804.8.camel@localhost.localdomain>
+	 <1098571334.29081.21.camel@krustophenia.net>
+	 <1098626510.24073.9.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Mon, 25 Oct 2004 22:38:43 -0400
+Message-Id: <1098758323.9166.3.camel@krustophenia.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Changelog
-	* Provide huge_update_mmu_cache through update_mmu_cache (which is just counting
-	  the number of calls)
-	* Extend flush_dcache_page to handle compound pages
-	* Not build and not tested
+On Sun, 2004-10-24 at 15:02 +0100, Alan Cox wrote:
+> Are you trying to use tsc for delays or measure CPU speed. The original
+> question you asked was about CPU speed and the two are very different.
 
+No we are only using it as a cheap way to do microsecond level timing.
+Are you saying we should just use gettimeofday() instead?
+jack_get_microseconds() is called at least twice per period which can be
+several thousand times per second.  Is the overhead of a system call
+really low enough that this should work?  rdtsc is definitely cheap
+enough.
 
-Index: linux-2.6.9/include/asm-sh64/pgtable.h
-===================================================================
---- linux-2.6.9.orig/include/asm-sh64/pgtable.h	2004-10-21 12:01:24.000000000 -0700
-+++ linux-2.6.9/include/asm-sh64/pgtable.h	2004-10-25 14:55:29.000000000 -0700
-@@ -462,6 +462,7 @@
-
- extern void update_mmu_cache(struct vm_area_struct * vma,
- 			     unsigned long address, pte_t pte);
-+#define huge_update_mmu_cache update_mmu_cache
-
- /* Encode and decode a swap entry */
- #define __swp_type(x)			(((x).val & 3) + (((x).val >> 1) & 0x3c))
-Index: linux-2.6.9/arch/sh64/mm/cache.c
-===================================================================
---- linux-2.6.9.orig/arch/sh64/mm/cache.c	2004-10-25 15:02:58.000000000 -0700
-+++ linux-2.6.9/arch/sh64/mm/cache.c	2004-10-25 15:03:16.000000000 -0700
-@@ -990,7 +990,16 @@
-
- void flush_dcache_page(struct page *page)
- {
--	sh64_dcache_purge_phy_page(page_to_phys(page));
-+	if (likely(!PageCompound))
-+		sh64_dcache_purge_phy_page(page_to_phys(page));
-+	else {
-+		int nr;
-+
-+		page = page->private;
-+		nr = 1 << page[1].index;
-+		while (nr--)
-+			sh64_dcache_purge_phy_page(page_to_phys(page++));
-+	}
- 	wmb();
- }
-
+Lee
 

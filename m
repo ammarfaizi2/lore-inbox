@@ -1,44 +1,47 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu id <971942-18554>; Thu, 9 Jul 1998 21:06:40 -0400
-Received: from venus.star.net ([199.232.114.5]:1257 "EHLO venus.star.net" ident: "root") by vger.rutgers.edu with ESMTP id <971940-18554>; Thu, 9 Jul 1998 21:06:17 -0400
-Message-ID: <35A579F3.68F549AF@star.net>
-Date: Thu, 09 Jul 1998 22:18:27 -0400
-From: Bill Hawes <whawes@star.net>
-X-Mailer: Mozilla 4.05 [en] (WinNT; I)
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: ganesh.sittampalam@magd.ox.ac.uk, "Stephen C. Tweedie" <sct@redhat.com>, Virtual Memory problem report list <linux-kernel@vger.rutgers.edu>, mingo@valerie.inf.elte.hu, Alan Cox <number6@the-village.bc.nu>, "David S. Miller" <davem@dm.cobaltmicro.com>
+Received: by vger.rutgers.edu id <971945-18554>; Thu, 9 Jul 1998 21:13:50 -0400
+Received: from neon-best.transmeta.com ([206.184.214.10]:19642 "EHLO neon.transmeta.com" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with ESMTP id <971944-18554>; Thu, 9 Jul 1998 21:12:48 -0400
+Date: Thu, 9 Jul 1998 19:18:33 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Bill Hawes <whawes@star.net>
+cc: ganesh.sittampalam@magd.ox.ac.uk, "Stephen C. Tweedie" <sct@redhat.com>, Virtual Memory problem report list <linux-kernel@vger.rutgers.edu>, mingo@valerie.inf.elte.hu, Alan Cox <number6@the-village.bc.nu>, "David S. Miller" <davem@dm.cobaltmicro.com>
 Subject: Re: Progress! was: Re: Yet more VM writable swap-cached pages
-References: <Pine.LNX.3.96.980709182436.431F-100000@penguin.transmeta.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <35A579F3.68F549AF@star.net>
+Message-ID: <Pine.LNX.3.96.980709191306.431I-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-Linus Torvalds wrote:
 
-> -extern inline pte_t pte_wrprotect(pte_t pte)   { pte_val(pte) &= ~_PAGE_RW; return pte; }
->  extern inline pte_t pte_rdprotect(pte_t pte)   { pte_val(pte) &= ~_PAGE_USER; return pte; }
->  extern inline pte_t pte_exprotect(pte_t pte)   { pte_val(pte) &= ~_PAGE_USER; return pte; }
->  extern inline pte_t pte_mkclean(pte_t pte)     { pte_val(pte) &= ~_PAGE_DIRTY; return pte; }
->  extern inline pte_t pte_mkold(pte_t pte)       { pte_val(pte) &= ~_PAGE_ACCESSED; return pte; }
-> -extern inline pte_t pte_mkwrite(pte_t pte)     { pte_val(pte) |= _PAGE_RW; return pte; }
->  extern inline pte_t pte_mkread(pte_t pte)      { pte_val(pte) |= _PAGE_USER; return pte; }
->  extern inline pte_t pte_mkexec(pte_t pte)      { pte_val(pte) |= _PAGE_USER; return pte; }
->  extern inline pte_t pte_mkdirty(pte_t pte)     { pte_val(pte) |= _PAGE_DIRTY; return pte; }
->  extern inline pte_t pte_mkyoung(pte_t pte)     { pte_val(pte) |= _PAGE_ACCESSED; return pte; }
-> +
-> +/*
-> + * These are harder, as writability is two bits, not one..
-> + */
-> +extern inline int pte_write(pte_t pte)         { return (pte_val(pte) & _PAGE_WRITABLE) == _PAGE_WRITABLE; }
-> +extern inline pte_t pte_wrprotect(pte_t pte)   { pte_val(pte) &= ~((pte_val(pte) & _PAGE_PRESENT) << 1); return pte; }
-> +extern inline pte_t pte_mkwrite(pte_t pte)     { pte_val(pte) |= _PAGE_RW; return pte; }
-                                                                    ^^^^^^^^
-Did you mean to put in _PAGE_WRITABLE here, or can the pte_mkwrite macro always assume the
-PRESENT bit is already set?
 
-Regards,
-Bill
+On Thu, 9 Jul 1998, Bill Hawes wrote:
+>
+> > +extern inline pte_t pte_mkwrite(pte_t pte)     { pte_val(pte) |= _PAGE_RW; return pte; }
+>                                                                     ^^^^^^^^
+> Did you mean to put in _PAGE_WRITABLE here, or can the pte_mkwrite macro always assume the
+> PRESENT bit is already set?
+
+I decided that it cannot matter. If somebody tries to make a PROT_NONE
+page writable by using pte_mkwrite(), there is already a bug there, and
+I'm happier keeping it PROT_NONE than I am to mark it present. 
+
+Note that this can not happen through a normal page fault, because a
+normal page fault would have noticed that we don't actually have write
+permission to the page at all. As such, the only way somebody can mark a
+PROT_NONE page writable is if we're doing the nasty "bring in all the
+pages because somebody did a mlock[all]() on us". 
+
+In which case the above does the right thing, by certainly bringing the
+page in, but not actually allowing anybody to read/write to it (actually,
+I don't think this can happen even in that case, because if we have
+PROT_NONE then the make_pages_present() stuff will not try to bring it
+into memory writably, so we won't even try to make it writable). 
+
+In short, the above really only makes sense if PRESENT is already set, and
+if it was PROT_NONE from before it is a no-op which is fine.
+
+		Linus
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

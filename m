@@ -1,30 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261608AbUCBLgb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Mar 2004 06:36:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261611AbUCBLgb
+	id S261618AbUCBLkF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Mar 2004 06:40:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261622AbUCBLkE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Mar 2004 06:36:31 -0500
-Received: from svr44.ehostpros.com ([66.98.192.92]:64971 "EHLO
-	svr44.ehostpros.com") by vger.kernel.org with ESMTP id S261608AbUCBLgW
+	Tue, 2 Mar 2004 06:40:04 -0500
+Received: from svr44.ehostpros.com ([66.98.192.92]:35276 "EHLO
+	svr44.ehostpros.com") by vger.kernel.org with ESMTP id S261618AbUCBLjm
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Mar 2004 06:36:22 -0500
+	Tue, 2 Mar 2004 06:39:42 -0500
 From: "Amit S. Kale" <amitkale@emsyssoft.com>
 Organization: EmSysSoft
-To: Tom Rini <trini@kernel.crashing.org>, George Anzinger <george@mvista.com>
-Subject: Re: [Kgdb-bugreport] [KGDB PATCH][2/7] Serial updates, take 2
-Date: Tue, 2 Mar 2004 17:06:03 +0530
-User-Agent: KMail/1.5
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+To: Tom Rini <trini@kernel.crashing.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
        Pavel Machek <pavel@suse.cz>, kgdb-bugreport@lists.sourceforge.net
-References: <20040227212301.GC1052@smtp.west.cox.net> <403FD868.4090007@mvista.com> <20040301152807.GQ1052@smtp.west.cox.net>
-In-Reply-To: <20040301152807.GQ1052@smtp.west.cox.net>
+Subject: Re: [KGDB PATCH][1/7] Add / use kernel/Kconfig.kgdb
+Date: Tue, 2 Mar 2004 17:09:26 +0530
+User-Agent: KMail/1.5
+References: <20040227212301.GC1052@smtp.west.cox.net>
+In-Reply-To: <20040227212301.GC1052@smtp.west.cox.net>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200403021706.03925.amitkale@emsyssoft.com>
+Message-Id: <200403021709.26396.amitkale@emsyssoft.com>
 X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
 X-AntiAbuse: Primary Hostname - svr44.ehostpros.com
 X-AntiAbuse: Original Domain - vger.kernel.org
@@ -33,132 +33,358 @@ X-AntiAbuse: Sender Address Domain - emsyssoft.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch broke Ctrl+C response on my system. Fix as follows
-With this fix I can kill or detach gdb with pending console messages and then 
-connect a new gdb.
+It also makes core.patch dependent on 8250.patch
+Any ideas on fixing that?
 
-Is following fix ok to checkin? (interdiff)
+-Amit
 
-@@ -412,11 +418,11 @@
- +              /* The user has selected one of ttyS[0-3], which we pull
- +               * from rs_table[].  If this doesn't exist, user error. */
- +              gdb_async_info.port = gdb_async_info.state->port =
--+                  rs_table[KGDB_PORT].port;
-++                  rs_table[kgdb8250_ttyS].port;
- +              gdb_async_info.line = gdb_async_info.state->irq =
--+                  rs_table[KGDB_PORT].irq;
--+              gdb_async_info.state->io_type = rs_table[KGDB_PORT].io_type;
--+              reg_shift = rs_table[KGDB_PORT].iomem_reg_shift;
-++                  rs_table[kgdb8250_ttyS].irq;
-++              gdb_async_info.state->io_type = 
-rs_table[kgdb8250_ttyS].io_type;
-++              reg_shift = rs_table[kgdb8250_ttyS].iomem_reg_shift;
- +      }
- +
- +      switch (gdb_async_info.state->io_type) {
-
-
-
-On Monday 01 Mar 2004 8:58 pm, Tom Rini wrote:
-> On Fri, Feb 27, 2004 at 03:53:12PM -0800, George Anzinger wrote:
-> > Tom Rini wrote:
-> > >On Fri, Feb 27, 2004 at 02:44:33PM -0800, George Anzinger wrote:
-> > >>Couple of comments below...
-> > >>
-> > >>Tom Rini wrote:
-> > >
-> > >[snip]
-> > >
-> > >>>-	spin_unlock(&uart_interrupt_lock);
-> > >>>-	local_irq_restore(flags);
-> > >>>-
-> > >>
-> > >>I think you need at least this (especially in SMP, but works in all):
-> > >>	char iir = serial_inb(kgdb8250_port + (UART_IIR << reg_shift));
-> > >>       if(iir & UART_IIR_RDI){
-> > >>
-> > >>>+		kgdb_schedule_breakpoint();
-> > >>
-> > >>	}
-> > >>
-> > >>>	return IRQ_HANDLED;
-> > >
-> > >Would this be to ensure that we only schedule one breakpoint not 2?
-> >
-> > Well, that too, but the notion is to take care of an interrupt on cpu 1
-> > while doing console output on cpu 0.  If cpu 0 doesn't grab the '+' fast
-> > enough to prevent the interrupt cpu 1 may get an interrupt with no
-> > characters in the fifo. This code just ignores that.
+On Saturday 28 Feb 2004 2:53 am, Tom Rini wrote:
+> Hello.  The following patch moves all of the config options into one file,
+> kernel/Kconfig.kgdb.
 >
-> OK, done.
+> diff -zrupN linux-2.6.3+nothing/arch/i386/Kconfig
+> linux-2.6.3+config+serial/arch/i386/Kconfig ---
+> linux-2.6.3+nothing/arch/i386/Kconfig	2004-02-27 12:16:14.296187607 -0700
+> +++ linux-2.6.3+config+serial/arch/i386/Kconfig	2004-02-27
+> 12:16:13.707320867 -0700 @@ -1253,36 +1253,7 @@ config DEBUG_SPINLOCK_SLEEP
+>  	  If you say Y here, various routines which may sleep will become very
+>  	  noisy if they are called with a spinlock held.
 >
-> > >[snip]
-> > >
-> > >>>+		/* If we get the start of another packet, this means
-> > >>>+		 * that GDB is attempting to reconnect.  We will NAK
-> > >>>+		 * the packet being sent, and stop trying to send this
-> > >>>+		 * packet. */
-> > >>>+		if (ch == '$') {
-> > >>>+			kgdb_serial->write_char('-');
-> > >>>			if (kgdb_serial->flush)
-> > >>>				kgdb_serial->flush();
-> > >>>-			breakpoint();
-> > >>
-> > >>Flags go up in my mind here about recursion...  What if we are already
-> > >>handling a breakpoint???  This may all be cool, but, as I said, alarms
-> > >>are ringing.
-> > >
-> > >There's two cases here, IMHO.  If GDB is connected, the only time we'll
-> > >get a '$' when we're sending a packet is if we're out-of-sync (in
-> > >regular gdb/kgdb communication) or we're prempting a console message
-> > >(i.e. we're trying to send something while gdb wants to break in).
-> >
-> > I am a little unclear about this.  Assuming that the user has not been so
-> > dumb as to put a breakpoint in kgdb's console handling code, I suspect
-> > that the entry code should allow the console message to complete prior to
-> > sending the first message to gdb.
+> -config KGDB
+> -	bool "KGDB: kernel debugging with remote gdb"
+> -	depends on DEBUG_KERNEL
+> -	select DEBUG_INFO
+> -	select FRAME_POINTER
+> -	help
+> -	  If you say Y here, it will be possible to remotely debug the
+> -	  kernel using gdb. This enlarges your kernel image disk size by
+> -	  several megabytes and requires a machine with more than 128 MB
+> -	  RAM to avoid excessive linking time.
+> -	  Documentation of kernel debugger available at
+> -	  http://kgdb.sourceforge.net
+> -	  This is only useful for kernel hackers. If unsure, say N.
+> -
+> -config KGDB_THREAD
+> -	bool "KGDB: Thread analysis"
+> -	depends on KGDB
+> -	help
+> -	  With thread analysis enabled, gdb can talk to kgdb stub to list
+> -	  threads and to get stack trace for a thread. This option also enables
+> -	  some code which helps gdb get exact status of thread. Thread analysis
+> -	  adds some overhead to schedule and down functions. You can disable
+> -	  this option if you do not want to compromise on speed.
+> -
+> -config KGDB_CONSOLE
+> -	bool "KGDB: Console messages through gdb"
+> -	depends on KGDB
+> -	help
+> -	  If you say Y here, console messages will appear through gdb.
+> -	  Other consoles such as tty or ttyS will continue to work as usual.
+> +source "kernel/Kconfig.kgdb"
 >
-> I don't think so.  If you don't break out of put_packet(), kgdb will
-> try to send the packet (console or for a previous, now dead, session)
-> forever.  And gdb will keep trying to send it's first packet, timing out
-> and moving on.
+>  config FRAME_POINTER
+>  	bool "Compile the kernel with frame pointers"
+> diff -zrupN linux-2.6.3+nothing/arch/ppc/Kconfig
+> linux-2.6.3+config+serial/arch/ppc/Kconfig ---
+> linux-2.6.3+nothing/arch/ppc/Kconfig	2004-02-27 12:16:14.403163398 -0700
+> +++ linux-2.6.3+config+serial/arch/ppc/Kconfig	2004-02-27
+> 12:16:13.771306387 -0700 @@ -1170,52 +1170,7 @@ config DEBUG_SPINLOCK_SLEEP
+>  	  If you say Y here, various routines which may sleep will become very
+>  	  noisy if they are called with a spinlock held.
 >
-> > I made a rather lame attempt to do this
-> > in the -mm kgdb.  What I think should happen is that, on entry kgdb
-> > should send an nmi to all but self. The kgdb nmi code (at in_kgdb() in
-> > the -mm patch) should check to see if the CURRENT cpu is in the kgdb
-> > console code and, if so, set a flag for the console code that a kgdb
-> > entry is pending and then return.  The console code should check this
-> > flag on exit, after clearing the "i am in console" flag and if set, do a
-> > send nmi self.  This would allow the console code to complete prior to
-> > the kgdb entry while still rounding up all the other cpus with the nmi.
+> -config KGDB
+> -	bool "Include kgdb kernel debugger"
+> -	depends on DEBUG_KERNEL
+> -	select DEBUG_INFO
+> -	select FRAME_POINTER
+> -	help
+> -	  Include in-kernel hooks for kgdb, the Linux kernel source level
+> -	  debugger.  See <http://kgdb.sourceforge.net/> for more information.
+> -	  Unless you are intending to debug the kernel, say N here.
+> -
+> -choice
+> -	prompt "Serial Port"
+> -	depends on KGDB
+> -	default KGDB_TTYS1
+> -
+> -config KGDB_TTYS0
+> -	bool "ttyS0"
+> -
+> -config KGDB_TTYS1
+> -	bool "ttyS1"
+> -
+> -config KGDB_TTYS2
+> -	bool "ttyS2"
+> -
+> -config KGDB_TTYS3
+> -	bool "ttyS3"
+> -
+> -endchoice
+> -
+> -config KGDB_THREAD
+> -	bool "KGDB: Thread analysis"
+> -	depends on KGDB
+> -	help
+> -	  With thread analysis enabled, gdb can talk to kgdb stub to list
+> -	  threads and to get stack trace for a thread. This option also enables
+> -	  some code which helps gdb get exact status of thread. Thread analysis
+> -	  adds some overhead to schedule and down functions. You can disable
+> -	  this option if you do not want to compromise on speed.
+> -
+> -config KGDB_CONSOLE
+> -	bool "Enable serial console thru kgdb port"
+> -	depends on KGDB && 8xx || 8260
+> -	help
+> -	  If you enable this, all serial console messages will be sent
+> -	  over the gdb stub.
+> -	  If unsure, say N.
+> +source "kernel/Kconfig.kgdb"
 >
-> IMHO, that's awfully complex for something we can just not skip out on.
+>  config XMON
+>  	bool "Include xmon kernel debugger"
+> diff -zrupN linux-2.6.3+nothing/arch/x86_64/Kconfig
+> linux-2.6.3+config+serial/arch/x86_64/Kconfig ---
+> linux-2.6.3+nothing/arch/x86_64/Kconfig	2004-02-27 12:16:14.350175389 -0700
+> +++ linux-2.6.3+config+serial/arch/x86_64/Kconfig	2004-02-27
+> 12:16:13.718318378 -0700 @@ -465,37 +465,7 @@ config IOMMU_LEAK
+>           Add a simple leak tracer to the IOMMU code. This is useful when
+> you are debugging a buggy device driver that leaks IOMMU mappings.
 >
-> > >If things get out-of-sync in normal gdb/kgdb
-> > >communication, what will happen w/o this change is that we get stuck in
-> > >a "Packet instead of ACK" loop on gdb, and we get stuck trying to
-> > >transmit that same packet on the kgdb side.   I think that if we call
-> > >breakpoint() here we can try and start over...
-> >
-> > The problem is that you are now doing a breakpoint from inside kgdb while
-> > handling a prior breakpoint.
+> -config KGDB
+> -	bool "KGDB: kernel debugging with remote gdb"
+> -	depends on DEBUG_KERNEL
+> -	select DEBUG_INFO
+> -	select FRAME_POINTER
+> -	help
+> -	  If you say Y here, it will be possible to remotely debug the
+> -	  kernel using gdb. This enlarges your kernel image disk size by
+> -	  several megabytes and requires a machine with more than 128 MB
+> -	  RAM to avoid excessive linking time.
+> -	  Documentation of kernel debugger available at
+> -	  http://kgdb.sourceforge.net
+> -	  This is only useful for kernel hackers. If unsure, say N.
+> -
+> -config KGDB_THREAD
+> -	bool "KGDB: Thread analysis"
+> -	depends on KGDB
+> -	help
+> -	  With thread analysis enabled, gdb can talk to kgdb stub to list
+> -	  threads and to get stack trace for a thread. This option also enables
+> -	  some code which helps gdb get exact status of thread. Thread analysis
+> -	  adds some overhead to schedule and down functions. You can disable
+> -	  this option if you do not want to compromise on speed.
+> -
+> -config KGDB_CONSOLE
+> -	bool "KGDB: Console messages through gdb"
+> -	depends on KGDB
+> -	help
+> -	  If you say Y here, console messages will appear through gdb.
+> -	  Other consoles such as tty or ttyS will continue to work as usual.
+> -
+> +source "kernel/Kconfig.kgdb"
+>  endmenu
 >
-> Only in the case where we aren't out-of-sync, but gdb died /
-> disconnected and we then hit a breakpoint.
+>  source "security/Kconfig"
+> diff -zrupN linux-2.6.3+nothing/drivers/net/Kconfig
+> linux-2.6.3+config+serial/drivers/net/Kconfig ---
+> linux-2.6.3+nothing/drivers/net/Kconfig	2004-02-27 12:16:14.521136701 -0700
+> +++ linux-2.6.3+config+serial/drivers/net/Kconfig	2004-02-27
+> 12:06:22.000000000 -0700 @@ -187,12 +187,6 @@ config NET_ETHERNET
+>  	  Note that the answer to this question won't directly affect the
+>  	  kernel: saying N will just cause the configurator to skip all
+>  	  the questions about Ethernet network cards. If unsure, say N.
+> -
+> -config KGDB_ETH
+> -	bool "KGDB: On ethernet"
+> -	depends on KGDB
+> -	help
+> -	  Uses ethernet interface for kgdb.
 >
-> > At the very least you would need to consider
-> > very carefully what happens after the breakpoint.  It is not clear that
-> > you can recover from this condition... but you may be able to look
-> > around.
+>  config MII
+>  	tristate "Generic Media Independent Interface device support"
+> diff -zrupN linux-2.6.3+nothing/drivers/serial/Kconfig
+> linux-2.6.3+config+serial/drivers/serial/Kconfig ---
+> linux-2.6.3+nothing/drivers/serial/Kconfig	2004-02-27 12:16:14.545131271
+> -0700 +++ linux-2.6.3+config+serial/drivers/serial/Kconfig	2004-02-27
+> 12:06:30.000000000 -0700 @@ -6,34 +6,6 @@
 >
-> I don't follow you here.  I agree that in the case of hitting a
-> breakpoint while gdb isn't connected isn't necessarily clean, but since
-> gdb didn't go away cleanly, and there isn't a way for it to tell us it's
-> trying to recover, I'm not sure what we can do aside from clear out the
-> existing breakpoints (just like we could have done, if gdb was still
-> connected) and keep going.  We should document that this particular
-> behavior might not be a good thing, but it's just that one corner case
-> of things (disconnect is fine, detach/reattach is fine, heck even gdb
-> dying and not hitting a breakpoint is fine).
+>  menu "Serial drivers"
+>
+> -config KGDB_8250
+> -	bool "KGDB: On generic serial port (8250)"
+> -	depends on KGDB
+> -	help
+> -	  Uses generic serial port (8250) for kgdb. This is independent of the
+> -	  option 9250/16550 and compatible serial port.
+> -
+> -config KGDB_PORT
+> -	hex "hex I/O port address of the debug serial port"
+> -	depends on KGDB_8250
+> -	default  3f8
+> -	help
+> -	  Some systems (x86 family at this writing) allow the port
+> -	  address to be configured.  The number entered is assumed to be
+> -	  hex, don't put 0x in front of it.  The standard address are:
+> -	  COM1 3f8 , irq 4 and COM2 2f8 irq 3.  Setserial /dev/ttySx
+> -	  will tell you what you have.  It is good to test the serial
+> -	  connection with a live system before trying to debug.
+> -
+> -config KGDB_IRQ
+> -	int "IRQ of the debug serial port"
+> -	depends on KGDB_8250
+> -	default 4
+> -	help
+> -	  This is the irq for the debug port.  If everything is working
+> -	  correctly and the kernel has interrupts on a control C to the
+> -	  port should cause a break into the kernel debug stub.
+> -
+>  #
+>  # The new 8250/16550 serial drivers
+>  config SERIAL_8250
+> diff -zrupN linux-2.6.3+nothing/kernel/Kconfig.kgdb
+> linux-2.6.3+config+serial/kernel/Kconfig.kgdb ---
+> linux-2.6.3+nothing/kernel/Kconfig.kgdb	1969-12-31 17:00:00.000000000 -0700
+> +++ linux-2.6.3+config+serial/kernel/Kconfig.kgdb	2004-02-27
+> 12:16:13.000000000 -0700 @@ -0,0 +1,141 @@
+> +config KGDB
+> +	bool "KGDB: kernel debugging with remote gdb"
+> +	depends on DEBUG_KERNEL
+> +	select DEBUG_INFO
+> +	select FRAME_POINTER
+> +	# XXX: Doesn't work w/o this right now
+> +	select KGDB_THREAD if PPC32
+> +	help
+> +	  If you say Y here, it will be possible to remotely debug the
+> +	  kernel using gdb. This enlarges your kernel image disk size by
+> +	  several megabytes and requires a machine with more than 128 MB
+> +	  RAM to avoid excessive linking time.
+> +	  Documentation of kernel debugger available at
+> +	  http://kgdb.sourceforge.net
+> +	  This is only useful for kernel hackers. If unsure, say N.
+> +
+> +choice
+> +	prompt "Method for KGDB communication"
+> +	depends on KGDB
+> +	default PPC_SIMPLE_SERIAL if PPC32 && (8xx || 8260)
+> +	default KGDB_8250
+> +	help
+> +	  There are a number of different ways in which you can communicate
+> +	  with KGDB.  The oldest is using a serial driver.  A newer method
+> +	  is to use UDP packets and a special network driver.
+> +
+> +config KGDB_8250
+> +	bool "KGDB: On generic serial port (8250)"
+> +	help
+> +	  Uses generic serial port (8250) for kgdb. This is independent of the
+> +	  option 9250/16550 and compatible serial port.
+> +
+> +config KGDB_ETH
+> +	bool "KGDB: On ethernet"
+> +	select NETPOLL
+> +	select NETPOLL_TRAP
+> +	select NETPOLL_RX
+> +	help
+> +	  Uses ethernet interface for kgdb.
+> +
+> +config PPC_SIMPLE_SERIAL
+> +	bool "KGDB: On any serial port"
+> +	depends on PPC32
+> +	help
+> +	  Use a very simple, and not necessarily feature complete serial
+> +	  driver.  This is the only serial option currently for MPC8xx or
+> +	  MPC82xx based ports that do not offer an 8250-style UART.
+> +
+> +endchoice
+> +
+> +config KGDB_SIMPLE_SERIAL
+> +	bool "Simple selection of KGDB serial port"
+> +	depends on KGDB_8250 || PPC_SIMPLE_SERIAL
+> +	help
+> +	  If you say Y here, you will only have to pick the baud rate
+> +	  and serial port (ttyS) that you wish to use for KGDB.  If you
+> +	  say N, you will have provide the I/O port and IRQ number.  Note
+> +	  that if your serial ports are iomapped, then you must say Y here.
+> +	  If in doubt, say Y.
+> +
+> +choice
+> +	depends on KGDB_8250 || PPC_SIMPLE_SERIAL
+> +    	prompt "Debug serial port BAUD"
+> +	default KGDB_115200BAUD
+> +	help
+> +	  Gdb and the kernel stub need to agree on the baud rate to be
+> +	  used.  Some systems (x86 family at this writing) allow this to
+> +	  be configured.
+> +
+> +config KGDB_9600BAUD
+> +	bool "9600"
+> +
+> +config KGDB_19200BAUD
+> +	bool "19200"
+> +
+> +config KGDB_38400BAUD
+> +	bool "38400"
+> +
+> +config KGDB_57600BAUD
+> +	bool "57600"
+> +
+> +config KGDB_115200BAUD
+> +	bool "115200"
+> +endchoice
+> +
+> +choice
+> +	prompt "Serial port for KGDB"
+> +	depends on KGDB_SIMPLE_SERIAL
+> +	default KGDB_TTYS0
+> +
+> +config KGDB_TTYS0
+> +	bool "ttyS0"
+> +
+> +config KGDB_TTYS1
+> +	bool "ttyS1"
+> +
+> +config KGDB_TTYS2
+> +	bool "ttyS2"
+> +
+> +config KGDB_TTYS3
+> +	bool "ttyS3"
+> +
+> +endchoice
+> +
+> +config KGDB_PORT
+> +	hex "hex I/O port address of the debug serial port"
+> +	depends on !KGDB_SIMPLE_SERIAL && (KGDB_8250 || PPC_SIMPLE_SERIAL)
+> +	default  3f8
+> +	help
+> +	  Some systems (x86 family at this writing) allow the port
+> +	  address to be configured.  The number entered is assumed to be
+> +	  hex, don't put 0x in front of it.  The standard address are:
+> +	  COM1 3f8 , irq 4 and COM2 2f8 irq 3.  Setserial /dev/ttySx
+> +	  will tell you what you have.  It is good to test the serial
+> +	  connection with a live system before trying to debug.
+> +
+> +config KGDB_IRQ
+> +	int "IRQ of the debug serial port"
+> +	depends on !KGDB_SIMPLE_SERIAL && (KGDB_8250 || PPC_SIMPLE_SERIAL)
+> +	default 4
+> +	help
+> +	  This is the irq for the debug port.  If everything is working
+> +	  correctly and the kernel has interrupts on a control C to the
+> +	  port should cause a break into the kernel debug stub.
+> +
+> +config KGDB_THREAD
+> +	bool "KGDB: Thread analysis"
+> +	depends on KGDB
+> +	help
+> +	  With thread analysis enabled, gdb can talk to kgdb stub to list
+> +	  threads and to get stack trace for a thread. This option also enables
+> +	  some code which helps gdb get exact status of thread. Thread analysis
+> +	  adds some overhead to schedule and down functions. You can disable
+> +	  this option if you do not want to compromise on speed.
+> +
+> +config KGDB_CONSOLE
+> +	bool "KGDB: Console messages through gdb"
+> +	depends on KGDB
+> +	help
+> +	  If you say Y here, console messages will appear through gdb.
+> +	  Other consoles such as tty or ttyS will continue to work as usual.
 

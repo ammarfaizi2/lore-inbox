@@ -1,68 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269300AbUIBX2d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269303AbUIBXbh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269300AbUIBX2d (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 19:28:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269305AbUIBX20
+	id S269303AbUIBXbh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 19:31:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269163AbUIBX2w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 19:28:26 -0400
-Received: from mail.shareable.org ([81.29.64.88]:15307 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S269289AbUIBXYt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 19:24:49 -0400
-Date: Fri, 3 Sep 2004 00:23:50 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Cc: Lee Revell <rlrevell@joe-job.com>, Pavel Machek <pavel@ucw.cz>,
-       Spam <spam@tnonline.net>, David Masover <ninja@slaphack.com>,
-       Chris Wedgwood <cw@f00f.org>, viro@parcelfarce.linux.theplanet.co.uk,
-       Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@lst.de>,
-       Hans Reiser <reiser@namesys.com>, linux-fsdevel@vger.kernel.org,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: silent semantic changes with reiser4
-Message-ID: <20040902232350.GA32244@mail.shareable.org>
-References: <rlrevell@joe-job.com> <1094155277.11364.92.camel@krustophenia.net> <200409022200.i82M0ihC026321@laptop11.inf.utfsm.cl>
+	Thu, 2 Sep 2004 19:28:52 -0400
+Received: from fw.osdl.org ([65.172.181.6]:13514 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S269304AbUIBX2K (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 19:28:10 -0400
+Date: Thu, 2 Sep 2004 16:25:45 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Tim Bird <tim.bird@am.sony.com>
+Cc: bunk@fs.tum.de, ncunningham@linuxmail.org, ak@muc.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch]  kill __always_inline
+Message-Id: <20040902162545.6b7ae079.akpm@osdl.org>
+In-Reply-To: <4137A8E4.9090803@am.sony.com>
+References: <20040831221348.GW3466@fs.tum.de>
+	<20040831153649.7f8a1197.akpm@osdl.org>
+	<20040831225244.GY3466@fs.tum.de>
+	<1093993946.8943.33.camel@laptop.cunninghams>
+	<20040831163914.4c7c543c.akpm@osdl.org>
+	<20040902194600.GE15358@fs.tum.de>
+	<4137A8E4.9090803@am.sony.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200409022200.i82M0ihC026321@laptop11.inf.utfsm.cl>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Horst von Brand wrote:
-> > > You really need archive support in find. At the very least you need
-> > > option "enter archives" vs. "do not enter archives". Entering archives
-> > > automagically is seriously wrong.
-> 
-> I have used find(1) for quite some time now, and have never (or very
-> rarely) missed this.
+Tim Bird <tim.bird@am.sony.com> wrote:
+>
+> Finally, I think it's bad form to change the meaning of a compiler
+> keyword.  It misleading for 'inline' to mean something different
+> in the kernel than it does everywhere else.  It means a developer
+> can't use standard gcc documentation to understand kernel code, without
+> inside knowledge.  This can be painful for casual or new kernel
+> developers.
 
-I've occasionally had the need to search all files on my system for
-the one file which contains a particular phrase -- all I remember is
-the phrase.
+yes, it's horrid.  But until and unless gcc gets fixed, what choice do we
+have?  Without this hack, kernel text size increases significantly.
 
-Just doing "grep -R" was a tedious job: at least half an hour.
+We don't want to have to patch the kernel source in a zillion places for
+what is hopefully a temporary problem.  I'd much rather add `--dwim-dammit'
+to the gcc command line.
 
-Sometimes, I want to search all source files on my system for a
-particular word, for example to search for uses of a particular system
-call or library function.
+> +#include <linux/compiler.h>	/* for inline weirdness */
+>   #include <asm/param.h>
 
-That would require something that could search through all the .tar.gz
-files and .zip files (nested if necessary) as well as plain files.  It
-would take so long -- hours at least, maybe more than a day -- that
-I've never bothered doing such a thing.
+Mozilla white-space-stuffed your patch.  You'll have to use attachments.
 
-"find "that entered archives really wouldn't help (although sometimes
-"locate" that entered archives would be nice).
-
-In other words, I'd use that capability if it was magically fast, but
-as we expect it to be insanely slow (just grepping gigabytes is slow)
-that makes it not so useful.
-
-However, if we ever see that search engine index thing happen, it
-would be a most excellent capability if it searched inside archive
-files too.  I would definitely use that.  Not often, but occasionally I would.
-
--- Jamie

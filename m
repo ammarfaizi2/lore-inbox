@@ -1,72 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264675AbUESXmk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264693AbUESXpw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264675AbUESXmk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 May 2004 19:42:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264697AbUESXmk
+	id S264693AbUESXpw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 May 2004 19:45:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264697AbUESXpw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 May 2004 19:42:40 -0400
-Received: from mail-gw.ygnition.net ([66.135.144.21]:44043 "EHLO
-	quirrell.iqcicom.com") by vger.kernel.org with ESMTP
-	id S264675AbUESXmi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 May 2004 19:42:38 -0400
-Date: Wed, 19 May 2004 16:36:07 -0700 (PDT)
-From: Muthukumar Ratty <muthu@iqmail.net>
-To: <linux-kernel@vger.kernel.org>
-cc: <akpm@osdl.org>
-Subject: [PATCH] 2.6.6-mm4 compile fix.
-Message-ID: <Pine.LNX.4.33.0405191632190.14047-100000@Muruga.localdomain>
+	Wed, 19 May 2004 19:45:52 -0400
+Received: from mail8.fw-bc.sony.com ([160.33.98.75]:60125 "EHLO
+	mail8.fw-bc.sony.com") by vger.kernel.org with ESMTP
+	id S264693AbUESXpu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 May 2004 19:45:50 -0400
+Message-ID: <40ABF1C0.1010804@am.sony.com>
+Date: Wed, 19 May 2004 16:46:08 -0700
+From: Tim Bird <tim.bird@am.sony.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4) Gecko/20030624 Netscape/7.1 (ax)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+CC: Christoph Hellwig <hch@infradead.org>,
+       Mark Gross <mgross@linux.jf.intel.com>,
+       linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ANNOUNCE: CE Linux Forum - Specification V1.0 draft
+References: <40A90D00.7000005@am.sony.com> <20040517201910.A1932@infradead.org> <200405171342.49891.mgross@linux.intel.com> <20040518074854.A7348@infradead.org> <40ABB5E2.3040908@am.sony.com> <20040519225729.A28893@flint.arm.linux.org.uk>
+In-Reply-To: <20040519225729.A28893@flint.arm.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Russell King wrote:
+> On Wed, May 19, 2004 at 12:30:42PM -0700, Tim Bird wrote:
+> 
+>>The non-normative section of this spec. explains where this was
+>>a problem in 2.4, and why it is desirable, from the standpoint of
+>>bootup time reduction, to avoid these busywaits.
+> 
+> In this case, it's really a bug that IDE is using a busy wait where it
+> should be using a sleeping wait.  It's a bug, plain and simple.  To
+> wrap the bug into "a spec" somehow seems wrong to me, especially when
+> it would be far better to report the problem as a bug.
 
-Andrew,
-Compilation fails for me at drivers/media/radio/radio-cadet.c. Its because
-of the readq change introduced in -mm4. Patch attached.
+Sometimes it's difficult to discern what the intention or correctness
+of a piece of code is, when you have limited experience with the code.
+I know, we could have just asked...
 
-thanks,
-Muthu.
+> 
+> Sure, specs make suit-wearing people happy, but that doesn't mean that
+> they're appropriate as a bug reporting method. 8)
 
+Agreed.  :-)  We should probably mutate this into a more general
+statement that says "busywaits are not appreciated as a delay mechanism
+by drivers on bootup."
 
-
---- drivers/media/radio/radio-cadet.c	2004-05-19 16:30:25.672467232 -0700
-+++ drivers/media/radio/radio-cadet.c.readq	2004-05-19 16:30:01.444150496 -0700
-@@ -45,7 +45,7 @@ static int users=0;
- static int curtuner=0;
- static int tunestat=0;
- static int sigstrength=0;
--static wait_queue_head_t radio_readq;
-+static wait_queue_head_t readq;
- struct timer_list tunertimer,rdstimer,readtimer;
- static __u8 rdsin=0,rdsout=0,rdsstat=0;
- static unsigned char rdsbuf[RDS_BUFFER];
-@@ -309,7 +309,7 @@ void cadet_handler(unsigned long data)
- 	 * Service pending read
- 	 */
- 	if( rdsin!=rdsout)
--	        wake_up_interruptible(&radio_readq);
-+	        wake_up_interruptible(&readq);
-
- 	/*
- 	 * Clean up and exit
-@@ -343,7 +343,7 @@ static ssize_t cadet_read(struct file *f
- 	if(rdsin==rdsout) {
-   	        if (file->f_flags & O_NONBLOCK)
- 		        return -EWOULDBLOCK;
--	        interruptible_sleep_on(&radio_readq);
-+	        interruptible_sleep_on(&readq);
- 	}
- 	while( i<count && rdsin!=rdsout)
- 	        readbuf[i++]=rdsbuf[rdsout++];
-@@ -473,7 +473,7 @@ static int cadet_open(struct inode *inod
- 	if(users)
- 		return -EBUSY;
- 	users++;
--	init_waitqueue_head(&radio_readq);
-+	init_waitqueue_head(&readq);
- 	return 0;
- }
-
-
+=============================
+Tim Bird
+Architecture Group Co-Chair
+CE Linux Forum
+Senior Staff Engineer
+Sony Electronics
+E-mail: Tim.Bird@am.sony.com
+=============================
 

@@ -1,47 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262201AbSIZGTy>; Thu, 26 Sep 2002 02:19:54 -0400
+	id <S262202AbSIZG2j>; Thu, 26 Sep 2002 02:28:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262202AbSIZGTy>; Thu, 26 Sep 2002 02:19:54 -0400
-Received: from h24-77-26-115.gv.shawcable.net ([24.77.26.115]:63360 "EHLO
-	completely") by vger.kernel.org with ESMTP id <S262201AbSIZGTy>;
-	Thu, 26 Sep 2002 02:19:54 -0400
-From: Ryan Cumming <ryan@completely.kicks-ass.org>
-To: "Theodore Ts'o" <tytso@mit.edu>
-Subject: Re: [BK PATCH] Add ext3 indexed directory (htree) support
-Date: Wed, 25 Sep 2002 23:25:04 -0700
-User-Agent: KMail/1.4.7-cool
-Cc: linux-kernel@vger.kernel.org
-References: <E17uINs-0003bG-00@think.thunk.org> <200209252223.13758.ryan@completely.kicks-ass.org> <20020926055755.GA5612@think.thunk.org>
-In-Reply-To: <20020926055755.GA5612@think.thunk.org>
-MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="big5"
-Content-Transfer-Encoding: 8bit
-Content-Description: clearsigned data
-Content-Disposition: inline
-Message-Id: <200209252325.08391.ryan@completely.kicks-ass.org>
+	id <S262203AbSIZG2j>; Thu, 26 Sep 2002 02:28:39 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:60035 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S262202AbSIZG2i>;
+	Thu, 26 Sep 2002 02:28:38 -0400
+Date: Wed, 25 Sep 2002 23:27:41 -0700 (PDT)
+Message-Id: <20020925.232741.02300012.davem@redhat.com>
+To: akpm@digeo.com
+Cc: axboe@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] deadline io scheduler
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <3D92A61E.40BFF2D0@digeo.com>
+References: <20020925172024.GH15479@suse.de>
+	<3D92A61E.40BFF2D0@digeo.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+   From: Andrew Morton <akpm@digeo.com>
+   Date: Wed, 25 Sep 2002 23:15:58 -0700
+   
+   I'd like to gain a solid understanding of what these three knobs do.
+   Could you explain that a little more?
 
-On September 25, 2002 22:57, Theodore Ts'o wrote:
-> On Wed, Sep 25, 2002 at 10:23:11PM -0700, Ryan Cumming wrote:
-> > It seems to be running stable now. Linux 2.4.19, UP Athlon, GCC 3.2.
->
-> Just to humor me, can you try it with gcc 2.95.4?  I just want to
-> eliminate one variable....
-Before I go again, any suggestions on how to reliably capture these error 
-messages? Because the filesystem goes read-only immediately, 
-/var/log/messages is hardly useful.
+My basic understanding of fifo_batch is:
 
-- -Ryan
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.0 (GNU/Linux)
+1) fifo_batch is how many contiguous requests can be in
+   a "set"
 
-iD8DBQE9kqhELGMzRzbJfbQRAkENAJ42ihIhFYwW8+0ssBjgY9OJK4u3nQCeKAz5
-RUgZltxYOScsTMG9HwAsdso=
-=au0V
------END PGP SIGNATURE-----
+2) we send out one write "set" for every two read "sets"
+
+3) a seek works out to "seek_cost" contiguous requests,
+   cost wise, this gets subtracted from how many requests
+   the current "set" has left that are allowed to be used

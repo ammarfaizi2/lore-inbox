@@ -1,58 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267247AbSK3N5s>; Sat, 30 Nov 2002 08:57:48 -0500
+	id <S267244AbSK3Nyo>; Sat, 30 Nov 2002 08:54:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267252AbSK3N5r>; Sat, 30 Nov 2002 08:57:47 -0500
-Received: from twister.ispgateway.de ([62.67.200.3]:19722 "HELO
-	twister.ispgateway.de") by vger.kernel.org with SMTP
-	id <S267247AbSK3N5p>; Sat, 30 Nov 2002 08:57:45 -0500
-Date: Sat, 30 Nov 2002 15:05:18 +0100
-From: Steffen Moser <lists@steffen-moser.de>
+	id <S267245AbSK3Nyo>; Sat, 30 Nov 2002 08:54:44 -0500
+Received: from 174-121-ADSL.red.retevision.es ([80.224.121.174]:62915 "EHLO
+	jerry.marcet.dyndns.org") by vger.kernel.org with ESMTP
+	id <S267244AbSK3Nyn>; Sat, 30 Nov 2002 08:54:43 -0500
+Date: Sat, 30 Nov 2002 15:02:04 +0100
+From: Javier Marcet <jmarcet@pobox.com>
 To: Rik van Riel <riel@conectiva.com.br>
-Cc: Javier Marcet <jmarcet@pobox.com>, linux-kernel@vger.kernel.org
-Subject: Re: Exaggerated swap usage
-Message-ID: <20021130140518.GB1735@steffen-moser.de>
-Mail-Followup-To: Rik van Riel <riel@conectiva.com.br>,
-	Javier Marcet <jmarcet@pobox.com>, linux-kernel@vger.kernel.org
-References: <20021129115405.GD15682@jerry.marcet.dyndns.org> <Pine.LNX.4.44L.0211291429260.15981-100000@imladris.surriel.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Exaggerated swap usage && -aa lockup
+Message-ID: <20021130140204.GA15565@jerry.marcet.dyndns.org>
+References: <20021130013832.GF15682@jerry.marcet.dyndns.org> <Pine.LNX.4.44L.0211292349550.15981-100000@imladris.surriel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="9jxsPFA5p3P2qPhR"
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L.0211291429260.15981-100000@imladris.surriel.com>
-User-Agent: Mutt/1.4i
+In-Reply-To: <Pine.LNX.4.44L.0211292349550.15981-100000@imladris.surriel.com>
+X-Editor: Vim http://www.vim.org/
+X-Operating-System: Gentoo GNU/Linux 1.4 / 2.5.47-ac6 i686 AMD Athlon(TM) XP 1800+ AuthenticAMD
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* On Fri, Nov 29, 2002 at 02:31 PM (-0200), Rik van Riel wrote:
 
-> On Fri, 29 Nov 2002, Javier Marcet wrote:
-> 
-> > In recent 2.4.20 pre and rc kernels ( I tend to use the ac branch ), I
-> > had notice my system, when using X mainly, got terribly slow after some
-> > use.
-> 
-> First, lets get one thing straight:  the problem is the slowness,
-> not necessarily the swap usage.  
+--9jxsPFA5p3P2qPhR
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I've experienced a similar problem with "linux-2.4.20-rc2-ac3", 
-"linux-2.4.20-rc4-ac1" and "linux-2.4.20-ac1". At first I also
-thought it's a swap problem, but this seems to be a wrong con-
-clusion, too. 
+* Rik van Riel <riel@conectiva.com.br> [021130 02:57]:
 
-The problem occurs, for example, when Mozilla and RealPlayer are
-running and I start to compile something or copy large files. The 
-RealPlayer interrupts, the mouse sometimes doesn't move smoothly 
-any more, and so on. 
+>> root # vmstat 1
+>> procs -----------memory---------- ---swap-- -----io---- --system-- ----c=
+pu----
+>>  r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy=
+ id wa
+>>  0  1 265048   5248  32248 119108    6   15    65    62  252   585 21  6=
+ 73  0
+>>  1  6 266648   4480  32316 120300    0 4656  2152  4652 1348   821 13  8=
+ 79  0
+>>  1  0 265052   4496  31036 120184    8  336  1668   340 1226   765 15  7=
+ 78  0
+>>  0  1 265052   4496  31112 121564    4    0  3152     0 1198   894 18  8=
+ 74  0
+>>  1  0 265052   4504  31076 123112    0    0  3024  8576 1229   857 17  7=
+ 76  0
+>                                      ^^^^^^^^^^^^^^^^^^^
 
-Using "linux-2.4.20" I don't see this behaviour.
+>Looks like my guess was right after all.  The amount of swap
+>IO is maybe 10% of the amount of filesystem IO in your vmstat
+>snippet above.
 
-I've collected some information when running "linux-2.4.20-ac1" 
-and "linux-2.4.20". I've uploaded it to:
+[...]
 
-  http://www.uni-ulm.de/~s_smoser/lkml/
+>Two things could be happening here:
 
-The "vmstat"- and "ps"-files were created during the "cp" of about 
-2,5 GB of data from one hard disk to the other one. 
+>1) the kernel decides to cache the wrong things in the
+>   page cache
 
-Bye,
-Steffen
+>and/or
+
+>2) the IO scheduler is giving worse latencies now
+
+>If the problem is (1) it might get resolved by using the -rmap
+>or -aa kernels.  If the problem is (2) you'll want Andrew Morton's
+>read_latency patch (which I'll port to 2.4.20 real soon now).
+
+I tend to believe is (1). I was using 2.4.20-jam0 (-aa derived) all this
+morning. It seemed to behave better than 2.4.20-rc4-ac1 on this point. I
+compiled a couple apps without problems, had different apps and servers
+running while both si & so and bi & bo were low. However, when I was
+uncompressing mozilla-1.2.tar.gz the system locked up, just as
+2.4.20-rc2aa1 did days before. ALT-SYSRQ allowed me to reboot, but I did
+not take note of any kernel dump...
+
+
+I am now running 2.5.47-ac6 and things are _way_ better in any aspect.
+I'll post some vmstat output later when the system has been running for
+a while. So far it has already uncompressed mozilla's source with no
+slowdown or lockup.
+
+
+--=20
+Javier Marcet <jmarcet@pobox.com>
+
+--9jxsPFA5p3P2qPhR
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iEYEARECAAYFAj3oxNwACgkQx/ptJkB7frw5sgCfexHxDc5IhByzTV0R4O71lGHp
+NEAAnjQR3NaGeOflHs7sXg9rSN5o09A9
+=qAO8
+-----END PGP SIGNATURE-----
+
+--9jxsPFA5p3P2qPhR--

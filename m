@@ -1,42 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270269AbRHHCTf>; Tue, 7 Aug 2001 22:19:35 -0400
+	id <S270270AbRHHCZG>; Tue, 7 Aug 2001 22:25:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270270AbRHHCTZ>; Tue, 7 Aug 2001 22:19:25 -0400
-Received: from blackhole.compendium-tech.com ([64.156.208.74]:26522 "EHLO
+	id <S270272AbRHHCYz>; Tue, 7 Aug 2001 22:24:55 -0400
+Received: from blackhole.compendium-tech.com ([64.156.208.74]:28570 "EHLO
 	sol.compendium-tech.com") by vger.kernel.org with ESMTP
-	id <S270269AbRHHCTK>; Tue, 7 Aug 2001 22:19:10 -0400
-Date: Tue, 7 Aug 2001 19:19:16 -0700 (PDT)
+	id <S270270AbRHHCYp>; Tue, 7 Aug 2001 22:24:45 -0400
+Date: Tue, 7 Aug 2001 19:24:50 -0700 (PDT)
 From: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>
 X-X-Sender: <kernel@sol.compendium-tech.com>
-To: Thodoris Pitikaris <thodoris@cs.teiher.gr>
+To: s0mbre <johnpol@2ka.mipt.ru>
 cc: <linux-kernel@vger.kernel.org>
-Subject: Re: is this a bug?
-In-Reply-To: <3B6FD644.7020409@cs.teiher.gr>
-Message-ID: <Pine.LNX.4.33.0108071916100.23797-100000@sol.compendium-tech.com>
+Subject: Re[2]: Encrypted Swap (random off-topic snippet)
+In-Reply-To: <12735.010807@2ka.mipt.ru>
+Message-ID: <Pine.LNX.4.33.0108071920520.23797-100000@sol.compendium-tech.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 7 Aug 2001, Thodoris Pitikaris wrote:
+On Tue, 7 Aug 2001, s0mbre wrote:
 
-> As you will see in the attached file (it's a dmesg from the boot)
-> I have an 1Ghz athlon cpu with a VIA KT133 on a gigabyte GA-7ZX
-> motherboard with 100mhz SDRAM.When I compiled the kernel with
-> cputype=Athlon I continiusly experienced this crash.When I compiled with
-> cputype=i686 everything went smooth (OS is Redhat 7.1)
+> "But, as you are aware, there are other way to get information.  And
+> with a pair of pliers and a blowtorch.."
+> (c) Chris Wedgwood
 
-It's a bug in that screwed up compiler redhat shipped with 7.1. AFAIK, the
-only difference between an athlon-specific kernel and an i686-specific
-kernel are the options in the compiler command line when compiling the
-kernel.
+I do believe that's an excerpt from a line from the movie "Pulp Fiction,"
+written and directed by Quentin Tarrantino.
 
-Is gcc 3.0 binary compatible with the stupid redhat compiler? If it is, I
-would upgrade to that. I haven't, myself, because I simply don't know (and
-can't find any information one way or the other) if binaries from the two
-compilers are compatible. Someone who knows better, could you shed some
-light on the subject?
+The full line is (if memory serves me right):
+
+"What now? I'll tell you what now. I'm gonna get me some hard,
+ pipe-hittin' n***as, and they're gonna go to work on mr.
+ soon-to-be-livin'-the-rest-of-his-short-ass-life-in-agonizing-pain
+ rapist here with a pair of pliers and a blowtorch. That's what now."
+
+I really shouldn't pollute the list like this.
 
  Kelsey Hudson                                           khudson@ctica.com
  Software Engineer

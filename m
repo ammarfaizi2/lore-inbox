@@ -1,62 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264374AbTKNTeT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Nov 2003 14:34:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264442AbTKNTeT
+	id S264582AbTKNT26 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Nov 2003 14:28:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264584AbTKNT26
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Nov 2003 14:34:19 -0500
-Received: from mrelay1.cc.umr.edu ([131.151.1.120]:28350 "EHLO smtp.umr.edu")
-	by vger.kernel.org with ESMTP id S264374AbTKNTeR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Nov 2003 14:34:17 -0500
-Subject: Changes between 2.4.21 and 2.4.22-pre1 affecting filesystem mounts?
-From: Nathan Neulinger <nneul@umr.edu>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <1068831962.2668.5.camel@infinity.cc.umr.edu>
-References: <1068817830.30727.12.camel@cessna>
-	 <1068831962.2668.5.camel@infinity.cc.umr.edu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: UMR Information Technology
-Message-Id: <1068838455.2770.7.camel@infinity.cc.umr.edu>
+	Fri, 14 Nov 2003 14:28:58 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:3596
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id S264582AbTKNT25 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Nov 2003 14:28:57 -0500
+Date: Fri, 14 Nov 2003 11:28:58 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Anton Blanchard <anton@samba.org>
+Cc: Jack Steiner <steiner@sgi.com>, Andrew Morton <akpm@osdl.org>,
+       Ravikiran G Thirumalai <kiran@in.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: hot cache line due to note_interrupt()
+Message-ID: <20031114192858.GL2014@mis-mike-wstn.matchmail.com>
+Mail-Followup-To: Anton Blanchard <anton@samba.org>,
+	Jack Steiner <steiner@sgi.com>, Andrew Morton <akpm@osdl.org>,
+	Ravikiran G Thirumalai <kiran@in.ibm.com>,
+	linux-kernel@vger.kernel.org
+References: <20031110215844.GC21632@sgi.com> <20031111082915.GC1130@llm08.in.ibm.com> <20031111115804.4aaafd28.akpm@osdl.org> <20031114174535.GA30388@sgi.com> <20031114191045.GN26020@krispykreme>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 14 Nov 2003 13:34:16 -0600
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031114191045.GN26020@krispykreme>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry for the resend if you've already seen this, I had addr wrong...
-Any ideas?
+On Sat, Nov 15, 2003 at 06:10:46AM +1100, Anton Blanchard wrote:
+> 
+> > Probably too late for 2.6.0, but here is a patch that disables noirqdebug:
+> 
+> Why dont you just disable it during boot somewhere in sgi ia64 specific
+> code? It doesnt seem right to disable this after all the driver effort
+> it took to make it work.
+> 
+> And yes Im a paid up member of the "we build stupidly big machines"
+> club. I'll disable where applicable in ppc64 specific code.
 
-On Fri, 2003-11-14 at 11:46, Nathan Neulinger wrote:
-> Narrowed this down to it breaking between 2.4.21 release and
-> 2.4.22-pre1. (2.4.21 works fine, 22-pre1 does not.) I read over the
-> detailed 2.4.22 ChangeLog and sure don't see anything that jumps out at
-> me as a likely cause... Any ideas?
-> 
-> Basically, client looks like it starts up just fine, but there's nothing
-> there. /afs is definately mounted, but the mount is non-functional and
-> complains about not being a directory. 
-> 
-> -- Nathan
-> 
-> On Fri, 2003-11-14 at 07:50, Nathan Neulinger wrote:
-> > I haven't dug into this in depth yet, but figured I'd ask in case the
-> > answer was obvious to any kernel developers - tried updating to
-> > 2.4.23-rc1 w/ openafs, and the filesystem mounts, but every traversal
-> > attempt results in ENOTDIR. Is there something that changed in kernel
-> > structures/functions/interfaces that needs to be addressed in openafs
-> > src to fix this? Pointers to change info appreciated. 
-> > 
-> > -- Nathan
-> > 
-> > ------------------------------------------------------------
-> > Nathan Neulinger                       EMail:  nneul@umr.edu
-> > University of Missouri - Rolla         Phone: (573) 341-4841
-> > UMR Information Technology             Fax: (573) 341-4216
--- 
+Since the problem only starts when the cache line bounces between the CPUs,
+then it might be better to just disable if more than 150 processors are
+detected?
 
-------------------------------------------------------------
-Nathan Neulinger                       EMail:  nneul@umr.edu
-University of Missouri - Rolla         Phone: (573) 341-6679
-UMR Information Technology             Fax: (573) 341-4216
+If it's a layering voilation to disable this during SMP init, then maybe
+there can be a smp-quirks.c file where exceptions can be put.

@@ -1,42 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291318AbSBGV3H>; Thu, 7 Feb 2002 16:29:07 -0500
+	id <S291320AbSBGVaR>; Thu, 7 Feb 2002 16:30:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291320AbSBGV2t>; Thu, 7 Feb 2002 16:28:49 -0500
-Received: from bitmover.com ([192.132.92.2]:54238 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S291318AbSBGV23>;
-	Thu, 7 Feb 2002 16:28:29 -0500
-Date: Thu, 7 Feb 2002 13:28:28 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: linux-2.5.4-pre1 - bitkeeper testing
-Message-ID: <20020207132828.E27932@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0202052328470.32146-100000@ash.penguinppc.org> <20020207165035.GA28384@ravel.coda.cs.cmu.edu> <200202072306.PAA08272@morrowfield.home> <20020208002324.C423@stingr.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020208002324.C423@stingr.net>; from i@stingr.net on Fri, Feb 08, 2002 at 12:23:24AM +0300
+	id <S291321AbSBGVaG>; Thu, 7 Feb 2002 16:30:06 -0500
+Received: from dsl-213-023-038-235.arcor-ip.net ([213.23.38.235]:9618 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S291320AbSBGV30>;
+	Thu, 7 Feb 2002 16:29:26 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Mike Touloumtzis <miket@bluemug.com>
+Subject: Re: How to check the kernel compile options ?
+Date: Thu, 7 Feb 2002 22:33:41 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: "H. Peter Anvin" <hpa@zytor.com>,
+        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <a3mjhc$qba$1@cesium.transmeta.com> <E16YvYs-00015d-00@starship.berlin> <20020207210823.GH26826@bluemug.com>
+In-Reply-To: <20020207210823.GH26826@bluemug.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16YwAn-000169-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 08, 2002 at 12:23:24AM +0300, Paul P Komkoff Jr wrote:
-> Also bitkeeper ... I don't use X. and without damn renametool I cannot do
-> proper renaming :(((
+On February 7, 2002 10:08 pm, Mike Touloumtzis wrote:
+> On Thu, Feb 07, 2002 at 09:54:30PM +0100, Daniel Phillips wrote:
+> > On February 7, 2002 09:34 pm, Mike Touloumtzis wrote:
+> > > Some possible available avenues of argument for you are:
+> > 
+> > I think you're just arguing for the sake of argument, which basically sums
+> > up all the arguments we've seen against this.
+> 
+> Not at all.  I really believe that embedded unnecessary information in
+> the kernel is a bad idea.  I don't want my kernels to get any bigger
+> than they are now unless useful features are being added (I have no
+> problem with that).  I develop for embedded devices, so I'm particularly
+> sensitive to this issue.
 
-You can.  We just have to tell you how.
+I've heard that one before, from people who should know better.  That's what 
+config options are for, or it's certainly a major reason for having config 
+options.  Heck, I'd be satisfied if it was off by default.  I'd *always* turn 
+it on, personally.
 
-cd `bk bin`
-vi import		# this is a shell script
-Look for a call to "bk patch".
-You will see some funny arguments, those are there to generate a list
-of "creates" and "deletes" which are passed to renametool.  Instead 
-of calling renametool, write your on way of doing text based rename
-matchup and stick it in there.
+> My understanding is that "keep features out of the kernel if possible"
+> is the majority opinion, not a crackpot weirdo stance.
 
-Next problem, please :-)
+Right, but would you buy a car without upholstery on the seats?  Wait, maybe 
+you would.
+
+> > Let me put it in simple terms: you've got an alarm clock, haven't you?  
+> > When you set the alarm, you don't need to have any little light on the 
+> > front that tells you the alarm is set, do you?  Because, after all you're 
+> > not stupid, you know you set it.  And you can always get out of bed and 
+> > look at the position of the switch, right?
+> 
+> I don't think this is a close enough analogy to illustrate anything.
+
+Right, it's tough to explain usability to someone who has no clue what that 
+is.
+
+OK, I'm out, I've made my point, you are welcome to attempt to demolish it 
+without fear of retaliation.
+
 -- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+Daniel

@@ -1,56 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262045AbSJVDPD>; Mon, 21 Oct 2002 23:15:03 -0400
+	id <S262038AbSJVDRM>; Mon, 21 Oct 2002 23:17:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262046AbSJVDPC>; Mon, 21 Oct 2002 23:15:02 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:54278
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S262045AbSJVDPB>; Mon, 21 Oct 2002 23:15:01 -0400
-Subject: Re: Son of crunch time: the list v1.2.
-From: Robert Love <rml@tech9.net>
-To: landley@trommello.org
-Cc: Jeff Garzik <jgarzik@pobox.com>,
-       Guillaume Boissiere <boissiere@adiglobal.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <200210211642.10435.landley@trommello.org>
-References: <20021021135137.2801edd2.rusty@rustcorp.com.au>
-	<200210211536.25109.landley@trommello.org> <3DB4B1B9.4070303@pobox.com> 
-	<200210211642.10435.landley@trommello.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 21 Oct 2002 23:20:49 -0400
-Message-Id: <1035256849.1044.3.camel@phantasy>
-Mime-Version: 1.0
+	id <S262046AbSJVDRL>; Mon, 21 Oct 2002 23:17:11 -0400
+Received: from ecs.syr.edu ([128.230.208.14]:17911 "EHLO erebus.ecs.syr.edu")
+	by vger.kernel.org with ESMTP id <S262038AbSJVDRK>;
+	Mon, 21 Oct 2002 23:17:10 -0400
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.18-14smp sys_call_table not found by the LKM loader
+Message-ID: <1035256996.3db4c4a484a23@webmail.ecs.syr.edu>
+Date: Mon, 21 Oct 2002 23:23:16 -0400 (EDT)
+From: Haizhi Xu <hxu02@ecs.syr.edu>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: IMP/PHP IMAP webmail program 2.2.8
+X-Originating-IP: 128.230.14.117
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-10-21 at 17:42, Rob Landley wrote:
 
-> On Monday 21 October 2002 21:02, Jeff Garzik wrote:
-> > Rob Landley wrote:
+Hi, Friends:
+I use linux kernel 2.4.18-14smp. I am trying a kernel module with a reference to
+sys_call_table as:
+extern void *sys_call_table[];
+However, when loading the module into the kernel, the loader reports:
+unresolved symbol sys_call_table
+I read the following and related messages. My question is:
+Is it true that I can NOT reference sys_call_table[] from a kernel loadable
+module in 2.4.18-14smp or higher version kernels? Then if I need to intercept
+system calls, how should I do it?
+Thanks a lot for answers.
+Hai
+
+
+
+Re: Two fixes for 2.4.19-pre5-ac3
+Erik Tews (erik.tews@gmx.net)
+Mon, 8 Apr 2002 01:31:22 +0200
+
+    * Messages sorted by: [ date ][ thread ][ subject ][ author ]
+    * Next message: Brendan J Simon: "Re: [kbuild-devel] Re: Announce: Kernel
+Build for 2.5, Release 2.0 is available"
+    * Previous message: Alan Cox: "Re: 2.4.18 AND Geode GX1/200Mhz problem"
+* In reply to: Alan Cox: "Re: Two fixes for 2.4.19-pre5-ac3"
+
+On Sun, Apr 07, 2002 at 06:42:05PM +0100, Alan Cox wrote:
+> > And, unless this is reversed the OpenAFS kernel module won't load (it
+> > needs sys_call_table.):
 >
-> > > 9) High resolution timers (George Anzinger, etc.)
-> > > http://high-res-timers.sourceforge.net/
-> >
-> > no comment, I've heard arguments that high-res timers would be useful,
-> > but haven't read the patch myself so won't comment...
-> 
-> I vaguely remember Linus had some objections that it plays with the clock tick 
-> and potentially penalizes everybody...  Hmmm...
-> 
-> A quick google comes up with this:
-> 
-> http://www.cs.helsinki.fi/linux/linux-kernel/2002-28/0360.html
+> Correct. There was agreement a very long time ago that code should not patch
+> the syscall table (for one its not safe). AFS probably needs fixing so the
+> AFS syscall hook is exported portably and nicely in the syscall code.
 
-George said he would change the code to meet Linus's issues (re the sub
-jiffies stuff).  But there was not much debate either way, and I suspect
-George may in fact be correct.
+I am really not an expert on kernel-programming but I remember that
+there was a security-hole in the ptrace-code with which one a local user
+could gain root access. And there was a little kernel-modul with a
+wrapper-function for the ptrace-syscall that made traces only possible
+if the user who was calling this syscall was root. So if I understand
+right if we don't export the syscall-table it is impossible to write
+such syscall-wrapper-functions and it requires to recompile the kernel
+and reboot the machiene to fix such an security-hole.
 
-George also offered an interface-only version of the patch that
-implements the POSIX clocks and timers syscalls, without the high
-resolution support, so it would be nice to at the very least merge the
-missing POSIX functionality.
-
-	Robert Love
+So wouldn't it be better to export the syscall-table and just write into
+the documentation that it is not a good idea to manipulate syscalls or
+write a compiler-makro that gives out a warning when such a module is
+beeing compiled.
 

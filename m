@@ -1,41 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132572AbRDAWdg>; Sun, 1 Apr 2001 18:33:36 -0400
+	id <S132586AbRDAWth>; Sun, 1 Apr 2001 18:49:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132573AbRDAWd1>; Sun, 1 Apr 2001 18:33:27 -0400
-Received: from smtp6vepub.gte.net ([206.46.170.27]:32031 "EHLO
-	smtp6ve.mailsrvcs.net") by vger.kernel.org with ESMTP
-	id <S132572AbRDAWdM>; Sun, 1 Apr 2001 18:33:12 -0400
-Message-ID: <3AC7AC2F.D390C923@neuronet.pitt.edu>
-Date: Sun, 01 Apr 2001 18:31:11 -0400
-From: "Rafael E. Herrera" <raffo@neuronet.pitt.edu>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.18 i686)
-X-Accept-Language: en
+	id <S132583AbRDAWt1>; Sun, 1 Apr 2001 18:49:27 -0400
+Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:19474 "EHLO
+	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
+	id <S132574AbRDAWtY>; Sun, 1 Apr 2001 18:49:24 -0400
+Date: Sun, 1 Apr 2001 17:48:34 -0500 (CDT)
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+To: Manfred Spraul <manfred@colorfullife.com>
+cc: "Albert D. Cahalan" <acahalan@cs.uml.edu>, lm@bitmover.com,
+   linux-kernel@vger.kernel.org
+Subject: Re: bug database braindump from the kernel summit
+In-Reply-To: <004601c0baf5$8fac4700$5517fea9@local>
+Message-ID: <Pine.LNX.3.96.1010401174633.28121d-100000@mandrakesoft.mandrakesoft.com>
 MIME-Version: 1.0
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>
-CC: Stephen Rothwell <sfr@canb.auug.org.au>,
-   Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-   Linux Frame Buffer Device Development 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-   Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: Recent problems with APM and XFree86-4.0.1
-In-Reply-To: <20010331021514.A6784@pcep-jamie.cern.ch> <200103310537.f2V5bDO06729@pcug.org.au> <20010331162513.C7946@pcep-jamie.cern.ch> <20010401234156.B15813@pcep-jamie.cern.ch>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jamie Lokier wrote:
+On Sun, 1 Apr 2001, Manfred Spraul wrote:
+> From: "Jeff Garzik" <jgarzik@mandrakesoft.com>
+> >
+> > /proc/pci data alone with every bug report is usually invaluable.
 > 
-> I've noticed other changes in suspend/resume.  I'm running Gnome now,
-> and it insists on running xscreensaver whenever I close the lid.
-> Somehow it is noticing the APM event, because this is very consistent.
-> Does anyone know how to disable this?  The setting "No screensaver"
-> under the list of screensavers didn't help -- it just runs a blank
-> screensaver which is even more confusing, because the computer appears
-> not to have resumed (when it's just a black screensaver).
+> Even if the bug is a compile error?
 
-Look at the s option in the man pages for xset, that may help.
+In fact, yes.  Having the tuple of: .config, /proc/pci, and compile
+error output, you can see additionally if the user is doing something
+wrong.
 
--- 
-     Rafael
+It allows you to fix the user as well as the compile error ;-)
+
+
+> E.g.
+> BUG REPORT (a real one, I didn't have the time yet to post a patch):
+> kernel versions: tested with 2.4.2-ac24, afaics 2.4.3 is also affected
+> Description:
+> Several config options are missing in the 'if' at the end of
+> linux/drivers/net/pcmcia/Config.in.
+> This means that CONFIG_PCMCIA_NETCARD is not set, and then (iirc) the
+> kernel won't link.
+> 
+> CONFIG_ARCNET_COM20020_CS
+> CONFIG_PCMCIA_HERMES
+> CONFIG_AIRONET4500_CS
+> CONFIG_PCMCIA_IBMTR
+> are missing.
+
+noted.
+
+> Obviously too much data doesn't hurt, as long as
+> * it's hidden somewhere deep in a database, clearly separated from the
+> important parts (if there is an oops: decoded oops, description, how
+> easy is it to trigger the bug, steps to reproduce)
+> * very easy for the bug reporter to collect.
+> * not mandatory.
+
+agreed.
+
+Regards,
+
+	Jeff
+
+
+
+

@@ -1,98 +1,135 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265708AbTAFCrj>; Sun, 5 Jan 2003 21:47:39 -0500
+	id <S265689AbTAFCns>; Sun, 5 Jan 2003 21:43:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265786AbTAFCri>; Sun, 5 Jan 2003 21:47:38 -0500
-Received: from warden-p.diginsite.com ([208.29.163.248]:5277 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP
-	id <S265708AbTAFCrh>; Sun, 5 Jan 2003 21:47:37 -0500
-From: David Lang <david.lang@digitalinsight.com>
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Cc: Paul Rolland <rol@witbe.net>, linux-kernel@vger.kernel.org
-Date: Sun, 5 Jan 2003 18:43:35 -0800 (PST)
-Subject: Re: [2.5.54] Oops IDE-SCSI and failure AIC7xxx
-In-Reply-To: <418420000.1041781806@aslan.scsiguy.com>
-Message-ID: <Pine.LNX.4.44.0301051838180.23962-100000@dlang.diginsite.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265708AbTAFCns>; Sun, 5 Jan 2003 21:43:48 -0500
+Received: from otaku.freeshell.org ([207.202.214.131]:27647 "EHLO
+	sdf.lonestar.org") by vger.kernel.org with ESMTP id <S265689AbTAFCnr>;
+	Sun, 5 Jan 2003 21:43:47 -0500
+Date: Sun, 5 Jan 2003 18:52:12 -0800
+From: Kannan Soundarapandian <isildur@sdf.lonestar.org>
+To: groudier@free.fr
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: sym_glue.c file typo
+Message-ID: <20030106025212.GA824@sdf.lonestar.org>
+References: <20030105073229.GA9592@sdf.lonestar.org> <20030105090320.GA10622@sdf.lonestar.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030105090320.GA10622@sdf.lonestar.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I get the same 'failed memory mapped' error (and the inability to run 2.5
-kernels) on my SIS K6 board which has been running without a problem with
-2.2 and 2.4 kernels.
-this is /proc/pci from 2.4.18
+Hello all,
 
-PCI devices found:
-  Bus  0, device   0, function  0:
-    Host bridge: Silicon Integrated Systems [SiS] 530 Host (rev 2).
-      Master Capable.  Latency=32.
-      Non-prefetchable 32 bit memory at 0xe8000000 [0xebffffff].
-  Bus  0, device   0, function  1:
-    IDE interface: Silicon Integrated Systems [SiS] 5513 [IDE] (rev 208).
-      Master Capable.  Latency=128.
-      I/O at 0xffa0 [0xffaf].
-  Bus  0, device   1, function  0:
-    ISA bridge: Silicon Integrated Systems [SiS] 85C503/5513 (rev 177).
-  Bus  0, device   1, function  1:
-    Class ff00: Silicon Integrated Systems [SiS] ACPI (rev 0).
-  Bus  0, device   2, function  0:
-    PCI bridge: Silicon Integrated Systems [SiS] 5591/5592 AGP (rev 0).
-      Master Capable.  No bursts.  Min Gnt=12.
-  Bus  0, device  10, function  0:
-    SCSI storage controller: Adaptec AHA-294x / AIC-7871 (rev 3).
-      IRQ 9.
-      Master Capable.  Latency=32.  Min Gnt=8.Max Lat=8.
-      I/O at 0xda00 [0xdaff].
-      Non-prefetchable 32 bit memory at 0xeffef000 [0xeffeffff].
-  Bus  0, device  11, function  0:
-    Ethernet controller: 3Com Corporation 3c595 100BaseTX [Vortex] (rev
-0).
-      IRQ 11.
-      Master Capable.  Latency=248.  Min Gnt=3.Max Lat=8.
-      I/O at 0xdc00 [0xdc1f].
-  Bus  0, device  12, function  0:
-    Multimedia audio controller: C-Media Electronics Inc CM8338A (rev 16).
-      IRQ 10.
-      Master Capable.  Latency=32.  Min Gnt=2.Max Lat=24.
-      I/O at 0xde00 [0xdeff].
-  Bus  1, device   0, function  0:
-    VGA compatible controller: Silicon Integrated Systems [SiS] 6306
-3D-AGP (rev 162).
-      Master Capable.  Latency=32.  Min Gnt=2.
-      Prefetchable 32 bit memory at 0xff000000 [0xff7fffff].
-      Non-prefetchable 32 bit memory at 0xe7ef0000 [0xe7efffff].
-      I/O at 0xcc00 [0xcc7f].
+Sorry about the post without newlines. I'm reposting the message.
 
-David Lang
+Kannan
 
-On Sun, 5 Jan 2003, Justin T. Gibbs wrote:
 
-> Date: Sun, 05 Jan 2003 08:50:06 -0700
-> From: Justin T. Gibbs <gibbs@scsiguy.com>
-> To: Paul Rolland <rol@witbe.net>, linux-kernel@vger.kernel.org
-> Subject: Re: [2.5.54] Oops IDE-SCSI and failure AIC7xxx
+
+Hello all,
+
+I'm having a problem with the sym53c8xx_2 driver.
+                
+I'm getting pretty much nowhere mucking around by myself. I don't know if I'm
+missing something very simple, but the sym53c8xx_2 driver (built into the
+kernel) seems to just completely ignore my onboard LSI 53C1010-33 controller.
+
+It was working perfectly with the 2.4 series of kernels.  My parameters are as
+follows:
+
+Linux kernel : 2.5.53
+Machine Specs: Dual P-III 1GHz SMP
+Motherboard  : Asus CUR-DLS with Serverwrks LE chipset
+Controller chip: LSI 53C1010-33
+HDD : Quantum Atlas 10K2
+
+During Boot-up I get an error like so:
+
+HBA driver sym53c8xx didn't set a release method, please fix the template
+
+but looking at the source in hosts.c, this seems to be more of a warning than an
+error, since a default value is being set anyway.
+  
+Setting the boot time verbosity parameter to 2 (maximum) causes the
+configuration parameters to be echoed by the sym53c8xx driver during boot-up but
+nothing more.
+
+I'm quite confused now. This driver used to work quite well with the 2.4 series
+kernels. Another thing is that doing a diff on the files sym_hipd.c in the
+2.4.19 sources and the 2.5.53 sources shows the following:
+
+diff sym_hipd.c ../../../../linux-2.5.53/drivers/scsi/sym53c8xx_2/sym_hipd.c
+53c53
+< #define SYM_DRIVER_NAME       "sym-2.1.17a"
+---
+> #define SYM_DRIVER_NAME       "sym-2.1.16a"
+ 
+ 
+ie.. the newer kernel has the lower version number. IS this how its supposed to
+be? I did apply some patches (I lost track of which) a while ago to my 2.4.19
+kernel though.. I don't know if that updated any drivers.
+ 
+Anyways, can someone please point me to where I can find the latest version of
+this driver please? or let me know if any solution occurs to you. I'd be happy
+to furnish any other details.
+  
+Thanks a lot in advance. Kindly CC any replies to this address
+                  
+Kannan
+                  
+  
+On Sat, Jan 04, 2003 at 11:32:29PM -0800, Kannan Soundarapandian wrote:
+> Hi,
+> 
+> There's a non-critical typo in the file sym_glue.c in the new 2.5 series
+kernels on line 2221. It says
+>                 "verb:%d,debug:0x%x,setlle_delay:%d\n",
+> should be:
+>                 "verb:%d,debug:0x%x,settle_delay:%d\n",
+> in file :
+> linux/drivers/scsi/sym53c8xx_2/sym_glue.c
+> 
+> I am having a lot of trouble getting my scsi card to be detected by the
+kernel. I am testing version 2.5.53 right now and have compiled in support for
+sym53c8xx_2, sd and generic scsi into the kernel.
 >
-> > Out of this, two problems :
-> >  - AIC7xxx fails to use DMA, with :
-> > aic7xxx: PCI Device 0:8:0 failed memory mapped test.  Using PIO.
-> > scsi0: PCI error Interrupt at seqaddr = 0x3
-> > scsi0: Signaled a Target Abort
+> During boot up the scsi driver shows signs of life when I use a verbosity
+level of 2 but doesn't seem to recognise my card. I am still trying out
+everything and anything. I will get back to you if I really hit the bottom.
 >
-> This is because your system is violating the PCI spec.  There is
-> now an explicit test for this during driver initialization so that
-> the driver doesn't unexpectedly fail later.  I can change the driver
-> so that it doesn't print out the diagnostic if it would make you
-> feel better. 8-)
+> fyi, My machine is a Dual processor P-III 1GHz machine with the Serverworks LE
+chipset. If you can think of anything please do let me know.
 >
-> Just out of curiosity, what MB/Chipset are you using?
+> Thanks very much for your work and time :-) Great driver btw. It works
+perfectly with the 2.4 series kernels.
 >
 > --
-> Justin
+> ---------------------------------------------------------------
+> Kannan Soundarapandian,
+> OSU, Corvallis, OR-97330.
+> ---------------------------------------------------------------
+> SDF Public Access UNIX System - Powered by NetBSD 1.5!
 >
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
 >
+>
+>
+>
+> ~~~
+
+--
+---------------------------------------------------------------
+Kannan Soundarapandian,
+OSU, Corvallis, OR-97330.
+---------------------------------------------------------------
+SDF Public Access UNIX System - Powered by NetBSD 1.5!
+
+
+
+
+
+~~
+
+

@@ -1,49 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261661AbVA3JeT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261662AbVA3JiL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261661AbVA3JeT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jan 2005 04:34:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261662AbVA3JeT
+	id S261662AbVA3JiL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jan 2005 04:38:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261663AbVA3JiL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jan 2005 04:34:19 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:52240 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261661AbVA3JeP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jan 2005 04:34:15 -0500
-Date: Sun, 30 Jan 2005 10:34:13 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: reiserfs-dev@namesys.com
-Cc: linux-kernel@vger.kernel.org
-Subject: reiser4 cryptcompress.c: X<Y<=Z comparison
-Message-ID: <20050130093413.GD3185@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+	Sun, 30 Jan 2005 04:38:11 -0500
+Received: from witte.sonytel.be ([80.88.33.193]:53457 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S261662AbVA3JiH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jan 2005 04:38:07 -0500
+Date: Sun, 30 Jan 2005 10:37:42 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Pierre Ossman <drzeus-list@drzeus.cx>
+cc: Christoph Hellwig <hch@infradead.org>, LKML <linux-kernel@vger.kernel.org>,
+       wbsd-devel@list.drzeus.cx
+Subject: Re: [Wbsd-devel] [PATCH 540] MMC_WBSD depends on ISA
+In-Reply-To: <41FBAC44.9020502@drzeus.cx>
+Message-ID: <Pine.GSO.4.61.0501301034310.1953@waterleaf.sonytel.be>
+References: <200501072250.j07MonUe012310@anakin.of.borg> <41E22B4F.4090402@drzeus.cx>
+ <41FB91A3.7060404@drzeus.cx> <20050129135714.GA320@infradead.org>
+ <20050129145417.A12311@flint.arm.linux.org.uk> <20050129150023.GA959@infradead.org>
+ <41FBAC44.9020502@drzeus.cx>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-gcc 4.0 gives the following warning:
+On Sat, 29 Jan 2005, Pierre Ossman wrote:
+> Christoph Hellwig wrote:
+> > > > Russell, please undo this patch. isa_virt_to_bus() is not dependent on
+> > > > CONFIG_ISA. It causes problems on x86_64 platforms which cannot enable
+> > > > ISA support.
+> > 
+> > Actually it is, x86_64 just refuses to set CONFIG_ISA despite having
+> > isa-like devices.
+> > 
+> > Either way a new driver shouldn't use isa_virt_to_bus at all but rather
+> > use the proper DMA API and all those problems go away.
+> >  
+> The problem was that the DMA API didn't work for x86_64 when I wrote the
+> driver. I see now that it has been fixed.
+> isa_virt_to_bus still works even though CONFIG_ISA is not configured. So I
+> still think that the ISA dependency should be removed.
 
-<--  snip  -->
+... which makes it selectable again on all platforms that don't have ISA and
+don't provide isa_virt_to_bus(), where it still breaks.
 
-...
-  CC      fs/reiser4/plugin/cryptcompress.o
-fs/reiser4/plugin/cryptcompress.c: In function 'grab_cluster_pages':
-fs/reiser4/plugin/cryptcompress.c:1415: warning: comparisons like X<=Y<=Z do  have their mathematical meaning
-...
+Please don't remove the dependency...
 
-<--  snip  -->
+> I'll move to the new API when I have the time to properly test it.
 
-After a quick look, it seems gcc is correct and this assertion needs a
-correction.
+.. but change it to e.g. `depends on ISA || X86_64', until you have moved it to
+the new API.
 
-cu
-Adrian
+Gr{oetje,eeting}s,
 
--- 
+						Geert
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

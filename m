@@ -1,45 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263694AbUCUR6R (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Mar 2004 12:58:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263695AbUCUR6R
+	id S263679AbUCUSHo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Mar 2004 13:07:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263680AbUCUSHo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Mar 2004 12:58:17 -0500
-Received: from moutng.kundenserver.de ([212.227.126.187]:4082 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S263694AbUCUR6Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Mar 2004 12:58:16 -0500
-From: Hans-Peter Jansen <hpj@urpla.net>
-To: root@chaos.analogic.com, Jamie Lokier <jamie@shareable.org>
-Subject: Re: spurious 8259A interrupt
-Date: Sun, 21 Mar 2004 18:58:07 +0100
-User-Agent: KMail/1.5.4
-Cc: Robert_Hentosh@Dell.com, Linux kernel <linux-kernel@vger.kernel.org>
-References: <6C07122052CB7749A391B01A4C66D31E014BEA49@ausx2kmps304.aus.amer.dell.com> <20040319130609.GE2650@mail.shareable.org> <Pine.LNX.4.53.0403190825070.929@chaos>
-In-Reply-To: <Pine.LNX.4.53.0403190825070.929@chaos>
+	Sun, 21 Mar 2004 13:07:44 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:51355 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263679AbUCUSHn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Mar 2004 13:07:43 -0500
+Message-ID: <405DD9E2.4030308@pobox.com>
+Date: Sun, 21 Mar 2004 13:07:30 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>
+CC: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Wilfried Weissmann <Wilfried.Weissmann@gmx.at>,
+       Device mapper devel list <dm-devel@redhat.com>,
+       Arjan van de Ven <arjanv@redhat.com>
+Subject: Re: ATARAID/FakeRAID/HPTRAID/PDCRAID as dm targets?
+References: <405C8B39.8080609@gmx.net> <405CAEC7.9080104@pobox.com> <405CFC85.70004@backtobasicsmgmt.com>
+In-Reply-To: <405CFC85.70004@backtobasicsmgmt.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200403211858.07445.hpj@urpla.net>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:18d01dd0a2a377f0376b761557b5e99a
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 19 March 2004 14:48, Richard B. Johnson wrote:
->
-> The IRQ7 spurious is usually an artifact of a crappy motherboard
-> design where the CPU "thinks" it was interrupted, but the
-> controller didn't wiggle the CPUs INT line.
+Kevin P. Fleming wrote:
+> Jeff Garzik wrote:
+> 
+>> So go ahead, and I'll lend you as much help as I can.  I have the full 
+>> Promise RAID docs, and it seems like another guy on the lists has full 
+>> Silicon Image "medley" RAID docs...
+> 
+> 
+> If these "soft" RAID implementations only support RAID-0/1/0+1/1+0, is 
+> there really any need for a new DM target? Wouldn't you just need a 
+> userspace tool to recognize the array and do the "dmsetup" operations to 
+> make it usable?
 
-Thanks for the nice explanation, Richard. 
 
-I even see them on my x86_64 box in 64 bit mode. (K8VT800 based)
-Furtunately only occasionally.
+Ideally yes.  I don't see an in-tree RAID1 dm target though....
 
-I thought, AMD took the chance to fix that kind of crap in the new 
-architecture, but obviously they failed in this respect :-(
+	Jeff
 
-Pete
+
 

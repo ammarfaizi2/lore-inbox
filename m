@@ -1,54 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130198AbQLHXRk>; Fri, 8 Dec 2000 18:17:40 -0500
+	id <S131941AbQLHXZu>; Fri, 8 Dec 2000 18:25:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132173AbQLHXRb>; Fri, 8 Dec 2000 18:17:31 -0500
-Received: from hera.cwi.nl ([192.16.191.1]:34022 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S130198AbQLHXRR>;
-	Fri, 8 Dec 2000 18:17:17 -0500
-Date: Fri, 8 Dec 2000 23:46:39 +0100
-From: Andries Brouwer <aeb@veritas.com>
-To: Matan Ziv-Av <matan@svgalib.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Big IDE HD unclipping and IBM drive
-Message-ID: <20001208234639.A538@veritas.com>
-In-Reply-To: <Pine.LNX.4.21_heb2.09.0012082319530.962-100000@matan.home>
+	id <S132075AbQLHXZl>; Fri, 8 Dec 2000 18:25:41 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:46856 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S131941AbQLHXZ2>;
+	Fri, 8 Dec 2000 18:25:28 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: jna@microflex.ca
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel oops 2.2.17 
+In-Reply-To: Your message of "Fri, 08 Dec 2000 14:14:31 CDT."
+             <001d01c0614b$1886c1e0$a11410ac@microflex.ca> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.LNX.4.21_heb2.09.0012082319530.962-100000@matan.home>; from matan@svgalib.org on Fri, Dec 08, 2000 at 11:24:56PM +0200
+Date: Sat, 09 Dec 2000 09:54:55 +1100
+Message-ID: <5167.976316095@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 08, 2000 at 11:24:56PM +0200, Matan Ziv-Av wrote:
+On Fri, 8 Dec 2000 14:14:31 -0500, 
+"Jean-Francois Nadeau" <jna@microflex.ca> wrote:
+>Dec  7 17:01:54 trinity kernel: EIP:
+>0010:[update_vm_cache_conditional+138/328]
 
-> I have an IBM drive, DTLA-307075 (75GB), and a bios that hangs with
-> large disks. I use a jumper to clip it to 32GB size, so the bios can
-> boot into linux. The problem is that WIN_READ_NATIVE_MAX returns 32GB,
-> and not the true size, and even trying to set the correct size with
-> WIN_SET_MAX fails. Is there a way to use this combination (Bios, HD,
-> Linux)?
+You are letting klogd convert the oops, it is broken.  Change klogd to
+run with "klogd -x", reproduce the oops and get a clean decode with
+ksymoops.
 
-Don't know where you found WIN_READ_NATIVE_MAX,
-or what program you tried in order to fiddle with
-these things. The ATA standard calls the command
-READ NATIVE MAX ADDRESS.
+>Warning: trailing garbage ignored on Code: line
+>  Text: 'Code: 39 59 08 75 e1 8b 5c 24 20 39 59 0c 75 d8 ff 41 14 b8 02 00
+>'
+>  Garbage: '  '
 
-So far I have seen success with READ_NATIVE_MAX_ADDRESS
-and SET_MAX_ADDRESS on Maxtor drives but do not offhand
-recall any reports on IBM DTLA drives.
-(Posted a few times a setmax.c utility that you can try.)
+Looks like an old ksymoops, current is 2.3.5, from
+ftp://ftp.<country>.kernel.org/pub/linux/utils/kernel/ksymoops/v2.3
 
-You can also try to contact IBM support.
-Files like dtla_spw.pdf only mention that you can clip capacity
-using a jumper, but there is no hint that it would be
-possible to unclip using SET_MAX_ADDRESS.
-
-Be careful that you do not lock the disk.
-(The command only functions as a SET_MAX_ADDRESS when
-immediately preceded by a READ_NATIVE_MAX_ADDRESS.)
-
-Andries
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

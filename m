@@ -1,47 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129091AbQKPTbi>; Thu, 16 Nov 2000 14:31:38 -0500
+	id <S129076AbQKPTnc>; Thu, 16 Nov 2000 14:43:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130074AbQKPTbS>; Thu, 16 Nov 2000 14:31:18 -0500
-Received: from h00059aa0e40d.ne.mediaone.net ([24.91.9.69]:29426 "EHLO
-	flowers.house.larsshack.org") by vger.kernel.org with ESMTP
-	id <S129091AbQKPTbK>; Thu, 16 Nov 2000 14:31:10 -0500
-Date: Thu, 16 Nov 2000 14:01:06 -0500 (EST)
-From: Lars Kellogg-Stedman <lars@larsshack.org>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: BUG: 2.2.17 (sparc) fails in kmem_cache_alloc() w/ "large" initrd
-Message-ID: <Pine.LNX.4.21.0011161356450.13357-100000@flowers>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129069AbQKPTnW>; Thu, 16 Nov 2000 14:43:22 -0500
+Received: from nas1-8.kmp.club-internet.fr ([213.44.17.8]:38909 "EHLO
+	microsoft.com") by vger.kernel.org with ESMTP id <S130406AbQKPTnI>;
+	Thu, 16 Nov 2000 14:43:08 -0500
+Message-Id: <200011161908.UAA08671@microsoft.com>
+Subject: [PATCH] Re: Local root exploit with kmod and modutils > 2.1.121
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>
+In-Reply-To: <200011161856.VAA03745@ms2.inr.ac.ru>
+Content-Type: text/plain
+X-Mailer: Evolution 0.6 (Developer Preview)
+Date: 16 Nov 2000 18:08:35 -0100
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Howdy,
 
-I have a couple of Sun sparcstation 2's (sun4c architectire) that reliably
-fail in kmem_cache_alloc() whenever their kernel+initrd (net)boot image is
-larger than about 2MB.
+Hi,
 
-Each system has 48MB of RAM.  Here's some relevant boot output
-(printk() isn't actually working at this point, so I've stuck
-prom_printf() in a few critical spots):
+as modprobe (insmod) seems to have POSIX args handling, we should perhaps add "--"
+to the modprobe cmdline, in order to stop further args processing, and to avoid
+mixing a textual argument with an option.
+BTW, it should perhaps be generalized.
 
-  Memory: 32528k available (972k kernel code, 940k data, 136k init) [f0000000,f2ffe000]
-  kmem_alloc: Bad slab magic (corrupt) (name=kmem_cache)
+Xav
 
-The "bad magic" error is being triggered because at this point in
-__kmem_cache_alloc(), slabp->s_magic == 0.
 
-Any thoughts on where to go from here?  I've traced it this far through
-liberal application of prom_printf(), but I don't know anything about the
-whole memory allocation system, so I'm not sure where to look next.
+--- linux-2.4-test10/kernel/kmod.c	Tue Sep 26 01:18:55 2000
++++ linux/kernel/kmod.c	Thu Nov 16 19:57:45 2000
+@@ -133,7 +133,7 @@
+ static int exec_modprobe(void * module_name)
+ {
+ 	static char * envp[] = { "HOME=/", "TERM=linux", "PATH=/sbin:/usr/sbin:/bin:/usr/bin", NULL };
+-	char *argv[] = { modprobe_path, "-s", "-k", (char*)module_name, NULL };
++	char *argv[] = { modprobe_path, "-s", "-k", "--", (char*)module_name, NULL };
+ 	int ret;
+ 
+ 	ret = exec_usermodehelper(modprobe_path, argv, envp);
 
-Cheers,
-
--- Lars
-
--- 
-Lars Kellogg-Stedman <lars@larsshack.org> --> http://www.larsshack.org/
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,66 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267579AbUHEHJO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267582AbUHEHKT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267579AbUHEHJO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 03:09:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267584AbUHEHJN
+	id S267582AbUHEHKT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 03:10:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267583AbUHEHKT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 03:09:13 -0400
-Received: from smtp102.mail.sc5.yahoo.com ([216.136.174.140]:50879 "HELO
-	smtp102.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S267579AbUHEHI4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 03:08:56 -0400
-Message-ID: <4111DC6B.2090902@yahoo.com.au>
-Date: Thu, 05 Aug 2004 17:06:19 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040707 Debian/1.7-5
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Albert Cahalan <albert@users.sf.net>
-CC: Peter Williams <pwil3058@bigpond.net.au>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       kernel@kolivas.org, Andrew Morton OSDL <akpm@osdl.org>
-Subject: Re: SCHED_BATCH and SCHED_BATCH numbering
-References: <1091638227.1232.1750.camel@cube>	 <41118AAE.7090107@bigpond.net.au> <41118D0C.9090103@yahoo.com.au>	 <411196EE.9050408@bigpond.net.au> <41119A3B.2020202@yahoo.com.au>	 <4111A39C.40200@bigpond.net.au>  <4111A418.5030101@yahoo.com.au> <1091672930.3547.1781.camel@cube>
-In-Reply-To: <1091672930.3547.1781.camel@cube>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 5 Aug 2004 03:10:19 -0400
+Received: from webmail-outgoing.us4.outblaze.com ([205.158.62.67]:43216 "EHLO
+	webmail-outgoing.us4.outblaze.com") by vger.kernel.org with ESMTP
+	id S267582AbUHEHKL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 03:10:11 -0400
+X-OB-Received: from unknown (205.158.62.81)
+  by wfilter.us4.outblaze.com; 5 Aug 2004 07:07:43 -0000
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
 Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Clayton Weaver" <cgweav@email.com>
+To: linux-kernel@vger.kernel.org
+Date: Thu, 05 Aug 2004 02:10:10 -0500
+Subject: Re: [ANNOUNCE] OpenSSI 1.0.0 released!!
+X-Originating-Ip: 172.135.58.171
+X-Originating-Server: ws1-2.us4.outblaze.com
+Message-Id: <20040805071010.89D621F50B1@ws1-2.us4.outblaze.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Albert Cahalan wrote:
-> On Wed, 2004-08-04 at 23:06, Nick Piggin wrote:
-> 
->>Peter Williams wrote:
->>
->>
->>>Nick Piggin wrote:
->>>
->>>
->>>>However if you add or remove scheduling policies, your
->>>>p->policy method breaks.
->>>
->>>
->>>Not if Albert's numbering system is used.
->>>
->>
->>What if another realtime policy is added? Or one is removed?
-> 
-> 
-> What if, what if...
-> 
-> You're going to have to change the code anyway.
-> One might toss this into <linux/sched.h> to make
-> as a nice reminder:
-> 
-> #define SCHEDS_RT (SCHED_RR|SCHED_FIFO)
-> 
+Just out of curiousity, how does Beowulf handle
+devices across nodes?
 
-I'm not saying your renumbering is a bad idea, but making the
-argument that it would simplify rt_task is bogus.
+Seems like it would have comparable issues
+to deal with, and if they were using devfs
+in its present form we would have heard a lot
+about it by now (remembering Beowulf user input
+into the old network latency under load
+discussions.)
 
-> As it is now, SCHED_FIFO is already used as a
-> bit flag in one place.
-> 
+Is the Beowulf code still online, open source,
+etc?
 
-But it isn't a bit flag, we're just lucky it works. Submit a
-patch?
+Regards,
+
+Clayton Weaver
+<mailto: cgweav@email.com>
+(anything after this is the price
+of free email)
+
+
+-- 
+___________________________________________________________
+Sign-up for Ads Free at Mail.com
+http://promo.mail.com/adsfreejump.htm
+

@@ -1,81 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265150AbUANJGv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jan 2004 04:06:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265178AbUANJGu
+	id S265658AbUANJP2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jan 2004 04:15:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265517AbUANJOx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jan 2004 04:06:50 -0500
-Received: from pD9E5637F.dip.t-dialin.net ([217.229.99.127]:18816 "EHLO
-	averell.firstfloor.org") by vger.kernel.org with ESMTP
-	id S265150AbUANJGL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jan 2004 04:06:11 -0500
-Date: Wed, 14 Jan 2004 10:06:03 +0100
-From: Andi Kleen <ak@muc.de>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, jh@suse.cz
-Subject: [PATCH] Add CONFIG for -mregparm=3
-Message-ID: <20040114090603.GA1935@averell>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	Wed, 14 Jan 2004 04:14:53 -0500
+Received: from [151.99.250.84] ([151.99.250.84]:4350 "EHLO
+	ciliegio.cs.interbusiness.it") by vger.kernel.org with ESMTP
+	id S265439AbUANJNn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jan 2004 04:13:43 -0500
+From: "Andrea Pusceddu" <a.pusceddu@remosa-valves.com>
+Organization: Remosa SpA | www.remosa-valves.com
+To: linux-kernel@vger.kernel.org
+Date: Wed, 14 Jan 2004 10:13:20 +0100
+MIME-Version: 1.0
+Subject: [USB-STORAGE] Repeatable lost files problem
+Reply-to: a.pusceddu@remosa-valves.com
+Message-ID: <40051640.20530.684C08@localhost>
+X-mailer: Pegasus Mail for Windows (v4.12a)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
-Using -mregparm=3 shrinks the kernel further:
+I have a weird repeateable problem using a mp3 player (Medion PRO2 256 MB) 
+seen under linux as a usb mass storage, through usb-storage module.
 
-(compiled with gcc 3.4, without -funit-at-a-time, using the later
-and together with -Os shrinks .text even more, making over 700KB difference) 
+Device: MP3 Player and USB storage device (256MB)
 
-4129346  708629  207240 5045215  4cfbdf vmlinux
-3892905  708629  207240 4808774  496046 vmlinux-regparm
+vendor ID 0x66f (Sigmatel Inc)
+chipset ID :  0x8000 
 
-This one helps even more, >236KB .text difference. Clearly worth
-the effort.
+It is reported to work correctly with usb-storage on 
+http://www.qbik.ch/usb/devices/index.php
 
-This patch adds an option to use -mregparm=3 while compiling the kernel.
-I did an LTP run and it showed no additional failures over an non 
-regparm kernel.
+relevant modules: usb-storage, usb-ohci
+Debian Woody (stable) with default kernel 2.4.18bf
+hotplug or usbmgr (same problem with both)
 
-According to some gcc developers it should be safe to use in all
-gccs that are still supports (2.95 and up) 
+This is how to reproduce the trouble:
+1) plug in the device 
+2) mount -t auto  /dev/sda  /mnt/usbdrive
+3) cp ./filecopiedfromlinux.foo  /mnt/usbdrive
+4) ls /mnt/usbdrive :
+	filecopiedfromwindows.foo
+	filecopiedfromlinux.foo
+5) umount /mnt/usbdrive
+6) unplug physically the device, i.e. disconnect it from usb port
+7) from the Player LCD display i can actually see both files, and I can 
+even listen to them, if they are MP3 audio files. So the files ARE in the 
+usb drive! I do swear it :)
 
-I didn't make it the default because it will break all binary only
-modules (although they can be fixed by adding a wrapper that 
-calls them with "asmlinkage"). Actually it may be a good idea to 
-make this default with 2.7.1 or somesuch.
+But if now the weirdness comes up: if  I do as follows:
 
-diff -u linux-34/arch/i386/Kconfig-o linux-34/arch/i386/Kconfig
---- linux-34/arch/i386/Kconfig-o	2004-01-09 09:27:09.000000000 +0100
-+++ linux-34/arch/i386/Kconfig	2004-01-14 08:43:29.815530072 +0100
-@@ -820,6 +820,14 @@
- 	depends on (((X86_SUMMIT || X86_GENERICARCH) && NUMA) || (X86 && EFI))
- 	default y
- 
-+config REGPARM
-+	bool "Use register arguments (EXPERIMENTAL)"
-+	default n
-+	help
-+	Compile the kernel with -mregparm=3. This uses an different ABI
-+	and passes the first three arguments of a function call in registers.
-+	This will probably break binary only modules.	
-+	
- endmenu
- 
- 
-diff -u linux-34/arch/i386/Makefile-o linux-34/arch/i386/Makefile
---- linux-34/arch/i386/Makefile-o	2003-09-28 10:53:14.000000000 +0200
-+++ linux-34/arch/i386/Makefile	2004-01-13 20:16:32.000000000 +0100
-@@ -47,6 +47,8 @@
- cflags-$(CONFIG_MCYRIXIII)	+= $(call check_gcc,-march=c3,-march=i486) $(align)-functions=0 $(align)-jumps=0 $(align)-loops=0
- cflags-$(CONFIG_MVIAC3_2)	+= $(call check_gcc,-march=c3-2,-march=i686)
- 
-+cflags-$(CONFIG_REGPARM) 	+= -mregparm=3
-+
- CFLAGS += $(cflags-y)
- 
- # Default subarch .c files
+8) plug in the device again
+9) mount again as in step 2)
+10) ls /mnt/usbdrive :
+	filecopiedfromwindows.foo
 
+The file copied from Linux has been deleted! What's weird, IMHO, is that 
+ONLY the file(s) copied from Linux are lost, regardless of file content and 
+size. File(s) copied by means of windows are not "volatile" , i.e. they 
+persist between the sessions! Astonishing, isn't it?
 
+Some additional info:
+a) If I skip step 6), thus I don't  disconnect physically the device, then 
+the problem disappears.
+b) If I perform steps the corresponding of steps 8, 9, 10 using windows, 
+the filecopiedfromlinux are lost as well.
+I think there's something wrong with the chipset, even if its reported as 
+working.
+c) I can read and copy and use all files in the usb drive, without any 
+problems. If don't remove the usb player, I don't experience any 
+corruption.
+d) My Linux Box is rather old (AMD K6-II 400 MHz, 512 MB Ram), but it works 
+well and is stable. 
+e) Sometimes it's possible to recover files using some undelete utility.
+
+I can post dmesg output if this can help, or give you any other information 
+you may need to focus the problem.
+
+Sorry for the very long message, but I wanted to be as more precise as i 
+can. 
+Thank you for the time you all spend in developing Linux kernel,  I think 
+that our poor world is a bit better also because of you. 
+
+-- 
+Call me Ishmael
 

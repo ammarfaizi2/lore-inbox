@@ -1,40 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267364AbTAOW2i>; Wed, 15 Jan 2003 17:28:38 -0500
+	id <S267366AbTAOWdY>; Wed, 15 Jan 2003 17:33:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267366AbTAOW2i>; Wed, 15 Jan 2003 17:28:38 -0500
-Received: from pop018pub.verizon.net ([206.46.170.212]:16355 "EHLO
-	pop018.verizon.net") by vger.kernel.org with ESMTP
-	id <S267364AbTAOW2h>; Wed, 15 Jan 2003 17:28:37 -0500
-From: "Guillaume Boissiere" <boissiere@adiglobal.com>
-To: linux-kernel@vger.kernel.org
-Date: Wed, 15 Jan 2003 17:36:38 -0500
+	id <S267368AbTAOWdY>; Wed, 15 Jan 2003 17:33:24 -0500
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:16028 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S267366AbTAOWdX>; Wed, 15 Jan 2003 17:33:23 -0500
+Date: Wed, 15 Jan 2003 16:42:00 -0600 (CST)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: davidm@hpl.hp.com
+cc: Sam Ravnborg <sam@ravnborg.org>,
+       Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
+       <ebiederm@xmission.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Consolidate vmlinux.lds.S files
+In-Reply-To: <15907.5503.334066.50256@napali.hpl.hp.com>
+Message-ID: <Pine.LNX.4.44.0301151638240.24883-100000@chaos.physics.uiowa.edu>
 MIME-Version: 1.0
-Subject: [STATUS 2.5]  January 15, 2003
-Message-ID: <3E259C26.5828.1912568@localhost>
-X-mailer: Pegasus Mail for Windows (v4.02)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
-X-Authentication-Info: Submitted using SMTP AUTH LOGIN at pop018.verizon.net from [66.171.96.253] at Wed, 15 Jan 2003 16:37:24 -0600
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Probably the most important thing since last week is the merge of Andrew
-Morton's work to remove the last remaining sources of high scheduling 
-latency aka "Linux 2.6, multimedia OS".
+On Mon, 13 Jan 2003, David Mosberger wrote:
 
-On the bugzilla side, 155 bugs and counting.  And there are lots and lots
-of compile warnings since the introduction of the deprecated keyword 
-(see http://www.osdl.org/archive/cherry/stability/ John Cherry's excellent 
-page for details).
+> 
+>   Kai> I would suggest an approach like the following, of course
+>   Kai> showing only a first simple step. A series of steps like this
+>   Kai> should allow for a serious reduction in size of
+>   Kai> arch/*/vmlinux.lds.S already, while being obviously correct and
+>   Kai> allowing archs to do their own special thing if necessary (in
+>   Kai> particular, IA64 seems to differ from all the other archs).
+> 
+> The only real difference for the ia64 vmlinux.lds.S is that it
+> generates correct physical addressess, so that the boot loader doesn't
+> have to know anything about the virtual layout of the kernel.
+> Something that might be useful for other arches as well...
 
-As usual, let me know if anything is missing or inaccurate on the status
-page.  Cheers,
+I just found another way of changing the LMA in vmlinux, which is far 
+less intrusive than what IA-64 uses. Do you see any reason why something 
+like the following patch (which changes the LMA for i386) wouldn't work 
+for IA-64?
 
--- Guillaume
+--Kai
 
 
-The status page:  http://www.kernelnewbies.org/status
-Bugzilla:  http://bugzilla.kernel.org/
+===== arch/i386/vmlinux.lds.S 1.24 vs edited =====
+--- 1.24/arch/i386/vmlinux.lds.S	Wed Jan 15 11:48:42 2003
++++ edited/arch/i386/vmlinux.lds.S	Wed Jan 15 16:36:04 2003
+@@ -7,6 +7,7 @@
+ OUTPUT_FORMAT("elf32-i386", "elf32-i386", "elf32-i386")
+ OUTPUT_ARCH(i386)
+ ENTRY(_start)
++PHDRS { kernel PT_LOAD AT(0x100000) ; }
+ jiffies = jiffies_64;
+ SECTIONS
+ {
+@@ -17,7 +18,7 @@
+ 	*(.text)
+ 	*(.fixup)
+ 	*(.gnu.warning)
+-	} = 0x9090
++	} :kernel = 0x9090
+ 
+   _etext = .;			/* End of text section */
+ 
 

@@ -1,58 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261486AbTBXP3S>; Mon, 24 Feb 2003 10:29:18 -0500
+	id <S267222AbTBXPhX>; Mon, 24 Feb 2003 10:37:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264711AbTBXP3S>; Mon, 24 Feb 2003 10:29:18 -0500
-Received: from relay-2.fastweb.it ([213.140.2.40]:59591 "EHLO
-	mail.fastwebnet.it") by vger.kernel.org with ESMTP
-	id <S261486AbTBXP3R>; Mon, 24 Feb 2003 10:29:17 -0500
-Date: Mon, 24 Feb 2003 16:39:30 +0100
-From: thefly <thefly@acaro.org>
-To: linux-kernel@vger.kernel.org
-Subject: What was wrong with merge-mem?
-Message-ID: <20030224153930.GA674@tyler>
+	id <S267227AbTBXPhX>; Mon, 24 Feb 2003 10:37:23 -0500
+Received: from bitmover.com ([192.132.92.2]:11215 "EHLO mail.bitmover.com")
+	by vger.kernel.org with ESMTP id <S267222AbTBXPhW>;
+	Mon, 24 Feb 2003 10:37:22 -0500
+Date: Mon, 24 Feb 2003 07:47:25 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: William Lee Irwin III <wli@holomorphy.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>, Larry McVoy <lm@bitmover.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Minutes from Feb 21 LSE Call
+Message-ID: <20030224154725.GB5665@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	William Lee Irwin III <wli@holomorphy.com>,
+	"Martin J. Bligh" <mbligh@aracnet.com>,
+	Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0302221417120.2686-100000@coffee.psychology.mcmaster.ca> <1510000.1045942974@[10.10.2.4]> <20030222195642.GI1407@work.bitmover.com> <2080000.1045947731@[10.10.2.4]> <20030222231552.GA31268@work.bitmover.com> <3610000.1045957443@[10.10.2.4]> <20030224045616.GB4215@work.bitmover.com> <48940000.1046063797@[10.10.2.4]> <20030224065826.GA5665@work.bitmover.com> <20030224075142.GA10396@holomorphy.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="BOKacYhQ+x31HxR3"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Mailer: Mutt 1.5.3i (2002-12-17)
-X-Editor: VIM - Vi IMproved 6.1 (2002 Mar 24, compiled Feb  8 2003 12:42:35)
-User-Agent: Mutt/1.5.3i
+In-Reply-To: <20030224075142.GA10396@holomorphy.com>
+User-Agent: Mutt/1.4i
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Feb 23, 2003 at 11:51:42PM -0800, William Lee Irwin III wrote:
+> Now it's time to turn the question back around on you. Why do you not
+> want Linux to work well on a broader range of systems than it does now?
 
---BOKacYhQ+x31HxR3
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I never said that I didn't.  I'm just taking issue with the choosen path
+which has been demonstrated to not work.
 
-Hello everybody,
-	i'm planning to port merge-mem to 2.4/2.5, i've started=20
-designing the whole stuff, but what i miss is what was wrong with the
-previous attempt. I googled the past posts but could'nt find much about
-it, just someone who reports security problems that i don't share.=20
+"Let's scale Linux by multi threading"
 
+    "Err, that really sucked for everyone who has tried it in the past, all
+    the code paths got long and uniprocessor performance suffered"
 
-TIA
+"Oh, but we won't do that, that would be bad".
 
---=20
-    Claudio "thefly" Martella
-    thefly@acaro.org
-    claudio.martella@polimi.it
-    GNU/PG keyid: 0x8EA95625
-  - Powered by Debian GNU/Linux -
+    "Great, how about you measure the changes carefully and really show that?"
 
---BOKacYhQ+x31HxR3
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+"We don't need to measure the changes, we know we'll do it right".
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+And just like in every other time this come up in every other engineering
+organization, the focus is in 2x wherever we are today.  It is *never*
+about getting to 100x or 1000x.
 
-iD8DBQE+WjyyygeBqo6pViURAvUYAKDUxvbd1CvSpNPT2pPM4KtZxPHsUACglqQ1
-/aDZss6AAkJNKOuHC0VX8+g=
-=rOjI
------END PGP SIGNATURE-----
-
---BOKacYhQ+x31HxR3--
+If you were looking at the problem assuming that the same code had to
+run on uniprocessor and a 1000 way smp, right now, today, and designing
+for it, I doubt very much we'd have anything to argue about.  A lot of
+what I'm saying starts to become obviously true as you increase the 
+number of CPUs but engineers are always seduced into making it go 2x 
+farther than it does today.  Unfortunately, each of those 2x increases
+comes at some cost and they add up.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

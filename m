@@ -1,42 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264090AbUE1Wdj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264022AbUE1VkP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264090AbUE1Wdj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 May 2004 18:33:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264119AbUE1Wao
+	id S264022AbUE1VkP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 May 2004 17:40:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263979AbUE1VkL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 May 2004 18:30:44 -0400
-Received: from quechua.inka.de ([193.197.184.2]:21928 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S264061AbUE1W2w (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 May 2004 18:28:52 -0400
-From: Bernd Eckenfels <ecki-news2004-05@lina.inka.de>
+	Fri, 28 May 2004 17:40:11 -0400
+Received: from mail.kroah.org ([65.200.24.183]:39859 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S264022AbUE1ViI convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 May 2004 17:38:08 -0400
+X-Fake: the user-agent is fake
+Subject: Re: [PATCH] PCI fixes for 2.6.7-rc1
+User-Agent: Mutt/1.5.6i
+In-Reply-To: <1085780116326@kroah.com>
+Date: Fri, 28 May 2004 14:35:16 -0700
+Message-Id: <10857801163004@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 To: linux-kernel@vger.kernel.org
-Subject: Re: why swap at all?
-Organization: Deban GNU/Linux Homesite
-In-Reply-To: <200405290037.17775.vda@port.imtp.ilyichevsk.odessa.ua>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.6.5 (i686))
-Message-Id: <E1BTpqM-0005LZ-00@calista.eckenfels.6bone.ka-ip.net>
-Date: Sat, 29 May 2004 00:28:50 +0200
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <200405290037.17775.vda@port.imtp.ilyichevsk.odessa.ua> you wrote:
->> The benchmark involved was ls.  It took several seconds.  If I ran it again
->> in 5 seconds or so, it was fine.  Much longer and it would take several
->> seconds again.  Sounds like pages getting evicted in LRU order.
-> 
-> By what magic system can know that you are going to do ls again
-> in 2 minutes?
+ChangeSet 1.1759, 2004/05/28 13:37:08-07:00, lcapitulino@prefeitura.sp.gov.br
 
-The problem is more about the blocks cp touches, less  about predicting the ls workload.
+[PATCH] PCI: fix pci/probe.c possible NULL pointer.
 
-> cp should use fadvise() and say that it _really_ does not need those pages.
+ In drivers/pci/probe.c::pci_scan_bridge() the call for pci_alloc_child_bus()
+can return NULL, but it is not handled by the function (detected by
+Coverity's checker).
 
-Yes, indeed. On the other hand the sequential read could be detected by the kernel, too.
+ The patch bellow fix that returning `max' if we got the NULL, but
+I do not know if it is right. I guess it is, because in that case
+the function will act in the same way as with `pass != 0'.
 
-Greetings
-Bernd
--- 
-eckes privat - http://www.eckes.org/
-Project Freefire - http://www.freefire.org/
+Signed-off by: Luiz Capitulino <lcapitulino@prefeitura.sp.gov.br>
+Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
+
+
+ drivers/pci/probe.c |    2 ++
+ 1 files changed, 2 insertions(+)
+
+
+diff -Nru a/drivers/pci/probe.c b/drivers/pci/probe.c
+--- a/drivers/pci/probe.c	Fri May 28 14:28:53 2004
++++ b/drivers/pci/probe.c	Fri May 28 14:28:53 2004
+@@ -366,6 +366,8 @@
+ 			return max;
+ 		busnr = (buses >> 8) & 0xFF;
+ 		child = pci_alloc_child_bus(bus, dev, busnr);
++		if (!child)
++			return max;
+ 		child->primary = buses & 0xFF;
+ 		child->subordinate = (buses >> 16) & 0xFF;
+ 		child->bridge_ctl = bctl;
+

@@ -1,94 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287731AbSAAD7e>; Mon, 31 Dec 2001 22:59:34 -0500
+	id <S287733AbSAAEEf>; Mon, 31 Dec 2001 23:04:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287729AbSAAD7Z>; Mon, 31 Dec 2001 22:59:25 -0500
-Received: from cm61-15-169-117.hkcable.com.hk ([61.15.169.117]:22400 "EHLO
-	cm61-15-169-117.hkcable.com.hk") by vger.kernel.org with ESMTP
-	id <S287727AbSAAD7Q>; Mon, 31 Dec 2001 22:59:16 -0500
-Message-ID: <3C313324.3010504@rcn.com.hk>
-Date: Tue, 01 Jan 2002 11:55:16 +0800
-From: David Chow <davidchow@rcn.com.hk>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Daniel Phillips <phillips@bonn-fries.net>
-CC: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-        Alexander Viro <viro@math.psu.edu>,
-        Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-        linux-fsdevel@vger.kernel.org
-Subject: Re: [RFC] [WIP] Unbork fs.h, 3 of 3
-In-Reply-To: <Pine.LNX.4.33.0112311004580.1404-100000@penguin.transmeta.com> <E16L8JK-0000ao-00@starship.berlin>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S287729AbSAAEEY>; Mon, 31 Dec 2001 23:04:24 -0500
+Received: from barbados.bluemug.com ([63.195.182.101]:27911 "EHLO
+	barbados.bluemug.com") by vger.kernel.org with ESMTP
+	id <S287735AbSAAEEQ>; Mon, 31 Dec 2001 23:04:16 -0500
+Date: Mon, 31 Dec 2001 20:03:59 -0800
+To: Keith Owens <kaos@ocs.com.au>
+Cc: Larry McVoy <lm@bitmover.com>, "Eric S. Raymond" <esr@thyrsus.com>,
+        Dave Jones <davej@suse.de>, "Eric S. Raymond" <esr@snark.thyrsus.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+Subject: Re: State of the new config & build system
+Message-ID: <20011231200359.A22497@bluemug.com>
+Mail-Followup-To: Keith Owens <kaos@ocs.com.au>,
+	Larry McVoy <lm@bitmover.com>, "Eric S. Raymond" <esr@thyrsus.com>,
+	Dave Jones <davej@suse.de>,
+	"Eric S. Raymond" <esr@snark.thyrsus.com>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>,
+	linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+In-Reply-To: <20011227174723.V25698@work.bitmover.com> <19047.1009504678@ocs3.intra.ocs.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <19047.1009504678@ocs3.intra.ocs.com.au>
+X-PGP-ID: 5C09BB33
+X-PGP-Fingerprint: C518 67A5 F5C5 C784 A196  B480 5C97 3BBD 5C09 BB33
+From: Mike Touloumtzis <miket@bluemug.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just some comments and questions about the new fs.h .. its great to hear 
-improvements in the new year!
+On Fri, Dec 28, 2001 at 12:57:58PM +1100, Keith Owens wrote:
+> 
+> Unlike the broken make dep, kbuild 2.5 extracts accurate dependencies
+> by using the -MD option of cpp and post processing the cpp list.  The
+> post processing code is slow because the current design requires every
+> compile to read a complete list of all the files, giving O(n^2)
+> effects.  Mark 2 of the core code will use a shared database with
+> concurrent update so post processing is limited to looking up just the
+> required files, instead of reading the complete list every time.
 
-Are you people going to put this on the 2.5? It seems you are keeping 
-the generic_ip pointer for compatibility. And I guess this is what other 
-file systems (those not included in the standardkernel sources) are 
-using, at least I am the one.
+Why not use '$(GCC) -c -Wp,-MD,foo.d foo.c' to generate the dependencies
+as a side effect of the regular compile step?  This enables you to skip
+the initial dependency preprocessing step entirely, and could lead to a
+speedup over even the current fastdep system.  You still have to massage
+the dependencies but you can do it based on the side-effect dependency
+output of the _previous_ build, to whatever degree that output exists.
 
-Daniel Phillips wrote:
+This strategy allows for lazy dependency generation in those cases in
+which the dependencies need not be known--for example, if floppy.o
+doesn't exist, you know it needs to be built no matter which header
+files floppy.c may include.  This breaks down in some cases (as when a
+.c file depends on a generated .h file) but those breakdown cases can
+be explicitly identified, and a full dependency tree be generated for
+them in an eager, rather than a lazy, fashion.
 
->On December 31, 2001 07:16 pm, Linus Torvalds wrote:
->
->>How about using a descriptor structure instead of the macro, and making
->>the filesystem declaration syntax look more like
->>
->>	static struct file_system_type ext2_descriptor = {
->>		owner:		THIS_MODULE,
->>		fs_flags:	FS_REQUIRES_DEV,
->>		name:		"ext2",
->>		read_super:	ext2_read_super,
->>		super_size:	sizeof(ext2_sb_info),
->>
->		^^^^^---> changed sb to super, lines up better
->
->>		inode_size:	sizeof(struct ext2_inode_info)
->>	};
->>
-I am using the generic_ip to hold my fs inode data pointer. During the 
-implementation, I tested both approaches... but it seems not sigficant 
-in detection of inode cache allocation overheads in read_inode(). Its 
-worth to talk about memory consumptions because it is silly to allocate 
-the largest possible inode cache sizes. I strongly agree with the new fs 
-declaration interface becuase of higher efficiency and less overhead, 
-but it seems more and more fs are supported in Linux, the effort to 
-patch all fs'es is a lot of work.
+It seems like it's worth it if it leads to a near 100% speedup over the
+current kbuild 2.5.  The "build whole clean tree" case is a common one
+even among kernel developers, e.g. for compile-testing patches before
+resending them.
 
-I am working on a compression file systmes, many thing varies such that 
-I have to use dynamically link allocated structures in the inode cache.
-
->>
->>which is more readable, and inherently documents _what_ those things are.
->>
->>[snip halfway macro format]
->>
->>What do you think?
->>
->
->It's much nicer, here's (1 of 3) again, with the Linus-style ext2_fs
->declaration.
->
->--
->Daniel
->
-For the remount issue, I don't think its just affect the root 
-filesystem, for me I also reload other settings during a remount. For 
-feature oriented filesystems, remount may be use more frequent then 
-umount and mount. Other admins may also remount their /usr fs and other 
-protected fs to read-only for safe after altering their fs. Why not 
-changing the remount behaviour in VFS not to call module_exit()? I also 
-can't see why VFS has to call module_exit() in remount if we have 
-remount() in super_operations ... I think remount operations are fs 
-specific and shuold pass this job to super_operations->remount . I think 
-it is a better way to solve the root fs problem. But it would require 
-even more work to get all fs to obey the new standard. If you want nice 
-and clean efficient solutions, work is must anyway... good luck.
-
-David Chow
-
+miket

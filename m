@@ -1,54 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317546AbSGVQOr>; Mon, 22 Jul 2002 12:14:47 -0400
+	id <S317498AbSGVQSE>; Mon, 22 Jul 2002 12:18:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317597AbSGVQOr>; Mon, 22 Jul 2002 12:14:47 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:49668 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S317546AbSGVQOq>; Mon, 22 Jul 2002 12:14:46 -0400
-Date: Mon, 22 Jul 2002 17:17:53 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: linux-kernel@vger.kernel.org
-Subject: [MOAN] CONFIG_SERIAL_CONSOLE
-Message-ID: <20020722171753.H2838@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S317600AbSGVQSD>; Mon, 22 Jul 2002 12:18:03 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:32011 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S317498AbSGVQSC>; Mon, 22 Jul 2002 12:18:02 -0400
+Message-ID: <3D3C2FA1.2010703@evision.ag>
+Date: Mon, 22 Jul 2002 18:15:29 +0200
+From: Marcin Dalecki <dalecki@evision.ag>
+Reply-To: martin@dalecki.de
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020625
+X-Accept-Language: en-us, en, pl, ru
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] 2.5.27 read_write - take 2
+References: <Pine.LNX.4.44.0207201218390.1230-100000@home.transmeta.com> 	<3D3C11DE.7010000@evision.ag> <1027356923.31787.47.camel@irongate.swansea.linux.org.uk>
+Content-Type: multipart/mixed;
+ boundary="------------090509090901060700070806"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks to Tom for spotting this.
+This is a multi-part message in MIME format.
+--------------090509090901060700070806
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-We seem to have configuration breakage in several architectures regarding
-CONFIG_SERIAL_CONSOLE.  This option began life to select the serial console
-code in serial.c, and had its own "bool" option in drivers/char/Config.in
+Alan Cox wrote:
+> On Mon, 2002-07-22 at 15:08, Marcin Dalecki wrote:
+> 
+>>- It is fixing completely confused wild casting to 32 bits.
+>>
+>>- Actually adding a comment explaining the obscure code, which is
+>>   relying on integer arithmetics overflow.
+> 
+> 
+> Better yet take the code from 2.4.19-rc3. The code you fixed up is still
+> wrong. Sincie iov_len is not permitted to exceed 2Gb (SuS v3, found by
+> the LSB test suite) the actual fix turns out to be even simpler and
+> cleaner than the one you did
 
-However, several architectures seem to be using this to select similar
-code in their serial drivers by the following method (eg, from ppc):
+You are right. It makes sese, since readv and writev are
+supposed to return ssize_t. Fixed patch version attached.
 
-if [ "$CONFIG_8260" = "y" ]; then
-   define_bool CONFIG_SERIAL_CONSOLE y
-   choice 'Machine Type'        \
-        "EST8260        CONFIG_EST8260  \
-         SBS8260        CONFIG_SBS8260  \
-         RPXSUPER       CONFIG_RPX6     \
-         TQM8260        CONFIG_TQM8260  \
-         Willow         CONFIG_WILLOW"  Willow
-fi
 
-Since ppc also include{s,d} drivers/char/Config.in, this means there was
-a define_bool _and_ bool for the same configuration variable.  This sounds
-contary to the shell-nature of the configure scripts, and therefore illegal,
-and as such gets broken when changes happen.
 
-Firstly, these platform specific serial drivers need to be ported to the
-new serial driver (cvs available...)  They can then use
-CONFIG_SERIAL_CORE_CONSOLE to indicate whether a serial console has been
-built into the kernel or not.  But please don't go and hijack this
-configuration symbol like you did the CONFIG_SERIAL_CONSOLE symbol.
+--------------090509090901060700070806
+Content-Type: text/plain;
+ name="read_write-2.5.27.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="read_write-2.5.27.diff"
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+diff -urN linux-2.5.27/fs/read_write.c linux/fs/read_write.c
+--- linux-2.5.27/fs/read_write.c	2002-07-22 17:51:25.000000000 +0200
++++ linux/fs/read_write.c	2002-07-22 17:57:22.000000000 +0200
+@@ -306,12 +306,16 @@
+ 	tot_len = 0;
+ 	ret = -EINVAL;
+ 	for (i = 0 ; i < count ; i++) {
+-		size_t tmp = tot_len;
+-		int len = iov[i].iov_len;
++		ssize_t tmp = tot_len;
++		ssize_t len = iov[i].iov_len;
++
++		/* check for SSIZE_MAX overflow */
+ 		if (len < 0)
+ 			goto out;
+-		(u32)tot_len += len;
+-		if (tot_len < tmp || tot_len < (u32)len)
++
++		tot_len += len;
++		/* check for overflows */
++		if (tot_len < tmp)
+ 			goto out;
+ 	}
+ 
+
+--------------090509090901060700070806--
 

@@ -1,55 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262389AbUDUNnH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262170AbUDUNsf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262389AbUDUNnH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Apr 2004 09:43:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262190AbUDUNnH
+	id S262170AbUDUNsf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Apr 2004 09:48:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262190AbUDUNse
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Apr 2004 09:43:07 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:42392 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262389AbUDUNnE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Apr 2004 09:43:04 -0400
-Message-ID: <40867A2A.9070709@us.ibm.com>
-Date: Wed, 21 Apr 2004 08:42:02 -0500
-From: Brian King <brking@us.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827
-X-Accept-Language: en-us, en
+	Wed, 21 Apr 2004 09:48:34 -0400
+Received: from wombat.indigo.net.au ([202.0.185.19]:12293 "EHLO
+	wombat.indigo.net.au") by vger.kernel.org with ESMTP
+	id S262170AbUDUNsd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Apr 2004 09:48:33 -0400
+Date: Wed, 21 Apr 2004 21:52:01 +0800 (WST)
+From: raven@themaw.net
+To: Christoph Hellwig <hch@infradead.org>
+cc: Andrew Morton <akpm@osdl.org>, viro@parcelfarce.linux.theplanet.co.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.6-rc1-mm1
+In-Reply-To: <20040421141901.B5551@infradead.org>
+Message-ID: <Pine.LNX.4.58.0404212135520.3740@donald.themaw.net>
+References: <20040418230131.285aa8ae.akpm@osdl.org> <20040419202538.A15701@infradead.org>
+ <Pine.LNX.4.58.0404200911090.12229@wombat.indigo.net.au>
+ <20040419182657.7870aee9.akpm@osdl.org> <20040421100835.A3577@infradead.org>
+ <Pine.LNX.4.58.0404212035280.3740@donald.themaw.net> <20040421141901.B5551@infradead.org>
 MIME-Version: 1.0
-To: Chris Wright <chrisw@osdl.org>
-CC: Rusty Russell <rusty@rustcorp.com.au>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Srivatsa Vaddagiri <vatsa@in.ibm.com>
-Subject: Re: [PATCH] Use workqueue for call_usermodehelper
-References: <1082345766.30154.13.camel@bach> <20040419113854.H22989@build.pdx.osdl.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-1.7, required 8,
+	EMAIL_ATTRIBUTION, IN_REP_TO, NO_REAL_NAME, QUOTED_EMAIL_TEXT,
+	REFERENCES, REPLY_WITH_QUOTES, USER_AGENT_PINE)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wright wrote:
-> * Rusty Russell (rusty@rustcorp.com.au) wrote:
+On Wed, 21 Apr 2004, Christoph Hellwig wrote:
+
+> On Wed, Apr 21, 2004 at 08:39:59PM +0800, raven@themaw.net wrote:
+> > While I understand the motive for not exporting the lock the question of 
+> > how one should obtain vfsmount structs when needed remains?
 > 
->>[ Vatsa, this should solve your NUMA+HOTPLUG_CPU deadlock too, I think ]
->>
->>This uses the create_singlethread_workqueue() function presented in the
->>last patch, although it could just as easily use create_workqueue().
+> You shouldn't.
 > 
-> 
-> Nice, this seems like it should fixup the problem Brian was seeing too,
-> and maintain return code from kernel_thread(), etc. instead of the async
-> option.  Brian, did you give these changes a whirl? (they're in latest
-> -mm tree)
 
-I tried out the fix on my system and it seemed to work fine. However, I
-am having trouble recreating the deadlock with old code now that my
-system has been reconfigured...
+Shouldn't need them?
 
--Brian
+But your point is that they shouldn't need to be used and an different 
+design is should be used, right.
 
+Could make life hard for the automounter.
+Possibly somewhat harder to solve the remaining limitations of autofs.
+But I haven't got a clear enough picture of what's needed yet (still).
 
--- 
-Brian King
-eServer Storage I/O
-IBM Linux Technology Center
+I guess your point is that these services should reside in the VFS proper?
+
+Ian
 

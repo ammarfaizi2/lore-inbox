@@ -1,61 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261535AbVBAEQG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261537AbVBAETO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261535AbVBAEQG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 23:16:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261537AbVBAEQF
+	id S261537AbVBAETO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 23:19:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261538AbVBAETO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 23:16:05 -0500
-Received: from smtp200.mail.sc5.yahoo.com ([216.136.130.125]:24665 "HELO
-	smtp200.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261535AbVBAEQA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 23:16:00 -0500
-Message-ID: <41FF0281.6090903@yahoo.com.au>
-Date: Tue, 01 Feb 2005 15:16:01 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Christoph Lameter <clameter@sgi.com>
-CC: Andi Kleen <ak@muc.de>, Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
-       hugh@veritas.com, linux-mm@kvack.org, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org, benh@kernel.crashing.org
-Subject: Re: page fault scalability patch V16 [3/4]: Drop page_table_lock
- in handle_mm_fault
-References: <41E5B7AD.40304@yahoo.com.au> <Pine.LNX.4.58.0501121552170.12669@schroedinger.engr.sgi.com> <41E5BC60.3090309@yahoo.com.au> <Pine.LNX.4.58.0501121611590.12872@schroedinger.engr.sgi.com> <20050113031807.GA97340@muc.de> <Pine.LNX.4.58.0501130907050.18742@schroedinger.engr.sgi.com> <20050113180205.GA17600@muc.de> <Pine.LNX.4.58.0501131701150.21743@schroedinger.engr.sgi.com> <20050114043944.GB41559@muc.de> <Pine.LNX.4.58.0501140838240.27382@schroedinger.engr.sgi.com> <20050114170140.GB4634@muc.de> <Pine.LNX.4.58.0501281233560.19266@schroedinger.engr.sgi.com> <Pine.LNX.4.58.0501281237010.19266@schroedinger.engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.58.0501281237010.19266@schroedinger.engr.sgi.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 31 Jan 2005 23:19:14 -0500
+Received: from waste.org ([216.27.176.166]:33422 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S261537AbVBAETL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jan 2005 23:19:11 -0500
+Date: Mon, 31 Jan 2005 20:18:58 -0800
+From: Matt Mackall <mpm@selenic.com>
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/8] base-small: CONFIG_BASE_SMALL for small systems
+Message-ID: <20050201041858.GT2891@waste.org>
+References: <1.687457650@selenic.com> <200502010055.j110tWbd022651@laptop11.inf.utfsm.cl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200502010055.j110tWbd022651@laptop11.inf.utfsm.cl>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter wrote:
-> The page fault handler attempts to use the page_table_lock only for short
-> time periods. It repeatedly drops and reacquires the lock. When the lock
-> is reacquired, checks are made if the underlying pte has changed before
-> replacing the pte value. These locations are a good fit for the use of
-> ptep_cmpxchg.
+On Mon, Jan 31, 2005 at 09:55:32PM -0300, Horst von Brand wrote:
+> Matt Mackall <mpm@selenic.com> said:
+> > This patch series introduced a new pair of CONFIG_EMBEDDED options call
+> > CONFIG_BASE_FULL/CONFIG_BASE_SMALL. Disabling CONFIG_BASE_FULL sets
+> > the boolean CONFIG_BASE_SMALL to 1 and it is used to shrink a number
+> > of core data structures. The space savings for the current batch is
+> > around 14k.
 > 
-> The following patch allows to remove the first time the page_table_lock is
-> acquired and uses atomic operations on the page table instead. A section
-> using atomic pte operations is begun with
-> 
-> 	page_table_atomic_start(struct mm_struct *)
-> 
-> and ends with
-> 
-> 	page_table_atomic_stop(struct mm_struct *)
-> 
+> Why _two_ config options?
 
-Hmm, this is moving toward the direction my patches take.
+Um, Andrew made me do it?
 
-I think it may be the right way to go if you're lifting the ptl
-from some core things, because some architectures won't want to
-audit and stuff, and some may need the lock.
+One option is an int and is used thusly:
 
-Naturally I prefer the complete replacement that is made with
-my patch - however this of course means one has to move
-*everything* over to be pte_cmpxchg safe, which runs against
-your goal of getting the low hanging fruit with as little fuss
-as possible for the moment.
+#define FOO (CONFIG_BASE_SMALL ? 1 : 1000)
 
+But it's also sometimes useful to have two opposing options so that
+you can use:
 
+obj-(CONFIG_OBJ_A) += a.obj obj-(CONFIG_OBJ_B) += b.obj
+
+-- 
+Mathematics is the supreme nostalgia of our time.

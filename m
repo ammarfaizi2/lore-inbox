@@ -1,48 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318987AbSIDAtK>; Tue, 3 Sep 2002 20:49:10 -0400
+	id <S318993AbSIDAuF>; Tue, 3 Sep 2002 20:50:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318988AbSIDAtK>; Tue, 3 Sep 2002 20:49:10 -0400
-Received: from 2-210.ctame701-1.telepar.net.br ([200.193.160.210]:28805 "EHLO
-	2-210.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S318987AbSIDAtJ>; Tue, 3 Sep 2002 20:49:09 -0400
-Date: Tue, 3 Sep 2002 21:53:27 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: William Lee Irwin III <wli@holomorphy.com>
-cc: Andrew Morton <akpm@zip.com.au>, lkml <linux-kernel@vger.kernel.org>,
-       "linux-mm@kvack.org" <linux-mm@kvack.org>
-Subject: Re: 2.5.33-mm1
-In-Reply-To: <20020904004028.GS888@holomorphy.com>
-Message-ID: <Pine.LNX.4.44L.0209032152210.1857-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S318994AbSIDAuF>; Tue, 3 Sep 2002 20:50:05 -0400
+Received: from ausadmmsps308.aus.amer.dell.com ([143.166.224.103]:21261 "HELO
+	AUSADMMSPS308.aus.amer.dell.com") by vger.kernel.org with SMTP
+	id <S318993AbSIDAuD>; Tue, 3 Sep 2002 20:50:03 -0400
+X-Server-Uuid: 5333cdb1-2635-49cb-88e3-e5f9077ccab5
+Message-ID: <20BF5713E14D5B48AA289F72BD372D6821CC2C@AUSXMPC122.aus.amer.dell.com>
+From: Matt_Domsch@Dell.com
+To: phillips@arcor.de
+cc: linux-kernel@vger.kernel.org
+Subject: RE: [RFC][PATCH] x86 BIOS Enhanced Disk Device (EDD) polling
+Date: Tue, 3 Sep 2002 19:54:31 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2650.21)
+X-WSS-ID: 116B864D1501271-01-01
+Content-Type: text/plain; 
+ charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 3 Sep 2002, William Lee Irwin III wrote:
+> How about providing an example of how you'd export the root 
+> via driverfs,
+> with a view to educating those of us who are still don't have 
+> much of a clue how driverfs fits in with big picture?
 
-> count_list() appears to be the largest consumer of cpu after this is
-> done, or so say the profiles after running updatedb by hand on
-> 2.5.33-mm1 on a 900MHz P-III T21 Thinkpad with 256MB of RAM.
-                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Right now that includes me which is why I used proc for now. :-)
 
-> Maybe it's old news. Just thought I'd try running a test on something
-> tiny for once. (new kbd/mouse config options were a PITA BTW)
-
-You've got an interesting idea of tiny ;)
-
-Somehow I have the idea that the Linux users with 64 MB
-of RAM or less have _more_ memory together than what's
-present in all the >8GB Linux servers together...
-
-regards,
-
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
+--
+Matt Domsch
+Sr. Software Engineer, Lead Engineer, Architect
+Dell Linux Solutions www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com
+#1 US Linux Server provider for 2001 and Q1/2002! (IDC May 2002)
 

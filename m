@@ -1,41 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264449AbTH2F7P (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Aug 2003 01:59:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264451AbTH2F7O
+	id S264438AbTH2GpO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Aug 2003 02:45:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264437AbTH2GpN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Aug 2003 01:59:14 -0400
-Received: from tmi.comex.ru ([217.10.33.92]:56973 "EHLO gw.home.net")
-	by vger.kernel.org with ESMTP id S264449AbTH2F7O convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Aug 2003 01:59:14 -0400
-X-Comment-To: =?iso-8859-1?q?Ram=F3n?= Rey =?koi8-r?b?VmljZW50ZfOuoJI=?=
-To: =?iso-8859-1?q?Ram=F3n?= Rey =?koi8-r?b?VmljZW50ZfOu?= 
-	<retes_simbad@yahoo.es>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       ext2-devel@lists.sourceforge.net
-Subject: Re: [RFC] extents support for EXT3
-From: Alex Tomas <bzzz@tmi.comex.ru>
-Organization: HOME
-Date: Fri, 29 Aug 2003 10:04:41 +0400
-In-Reply-To: <1062086590.2623.3.camel@debian> =?iso-8859-1?q?(Ram=F3n?= Rey
- =?koi8-r?b?VmljZW50ZfOuoJIncw==?= message of "Fri, 29 Aug 2003 00:00:45
- +0200")
-Message-ID: <m3r835rocm.fsf@bzzz.home.net>
-User-Agent: Gnus/5.090018 (Oort Gnus v0.18) Emacs/21.2 (gnu/linux)
-References: <m33cfm19ar.fsf@bzzz.home.net> <1062086590.2623.3.camel@debian>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8BIT
+	Fri, 29 Aug 2003 02:45:13 -0400
+Received: from D7182.pppool.de ([80.184.113.130]:10146 "EHLO
+	karin.de.interearth.com") by vger.kernel.org with ESMTP
+	id S264438AbTH2GpG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Aug 2003 02:45:06 -0400
+Subject: Re: UP optimizations ..
+From: Daniel Egger <degger@fhm.edu>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: herbert@13thfloor.at,
+       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>
+In-Reply-To: <16204.62914.298711.293389@gargle.gargle.HOWL>
+References: <20030827160315.GD26817@www.13thfloor.at>
+	 <16204.62914.298711.293389@gargle.gargle.HOWL>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-2n4AfUZH6IbNO+jkpJEC"
+Message-Id: <1062058995.965.2.camel@sonja>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 28 Aug 2003 10:23:16 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> RamÃ³n Rey Vicenteó®  (RRV) writes:
 
- RRV> This patch could be included with ext3 in 2.6.x?
+--=-2n4AfUZH6IbNO+jkpJEC
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-well, as Andreas already said I don't try to get this patch into 2.6.
-this is impossible, obviously. lots of work need to be done before mainline.
-userspace utility (fsck, debugfs) should be prepared. at this time
-I'd like to get comments, suggestions and wider testing, of course ;)
+Am Mit, 2003-08-27 um 20.17 schrieb Mikael Pettersson:
+
+> +#else
+> +
+> +static inline int task_cpu(const struct task_struct *p)
+> +{
+> +	return 0;
+> +}
+> +
+> +static inline void set_task_cpu(struct task_struct *p, int cpu)
+> +{
+> +}
+> +
+> +static inline unsigned long task_cpus_allowed(const struct task_struct *=
+p)
+> +{
+> +	return ~0UL;
+> +}
+> +
+> +static inline void set_task_cpus_allowed(struct task_struct *p,
+> +					 unsigned long cpus_allowed)
+> +{
+> +}
+> +
+> +static inline void set_task_cpus_runnable(struct task_struct *p,
+> +					  unsigned long cpus_runnable)
+> +{
+> +}
+> +
+> +#endif /* CONFIG_SMP */
+
+Shouldn't these be marked const?
+
+--=20
+Servus,
+       Daniel
+
+--=-2n4AfUZH6IbNO+jkpJEC
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA/Tbvzchlzsq9KoIYRAgILAKDcKFFmQVSiT47ZN8dHHmZrIXCOaQCdHkGR
+ySzvc2bLeiahR9039/7C6g8=
+=XUdf
+-----END PGP SIGNATURE-----
+
+--=-2n4AfUZH6IbNO+jkpJEC--
 

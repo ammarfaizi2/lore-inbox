@@ -1,48 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261784AbVCYUjJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261242AbVCYUns@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261784AbVCYUjJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Mar 2005 15:39:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261778AbVCYUjI
+	id S261242AbVCYUns (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Mar 2005 15:43:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261778AbVCYUns
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Mar 2005 15:39:08 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:7184 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261800AbVCYUi5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Mar 2005 15:38:57 -0500
-Date: Fri, 25 Mar 2005 20:38:53 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Luca <kronos@kronoz.cjb.net>, David Woodhouse <dwmw2@infradead.org>
-Cc: Linux Serial <linux-serial@vger.kernel.org>, linux-kernel@vger.kernel.org
-Subject: Re: Garbage on serial console after serial driver loads
-Message-ID: <20050325203853.C12715@flint.arm.linux.org.uk>
-Mail-Followup-To: Luca <kronos@kronoz.cjb.net>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Linux Serial <linux-serial@vger.kernel.org>,
-	linux-kernel@vger.kernel.org
-References: <20050325202414.GA9929@dreamland.darkstar.lan>
+	Fri, 25 Mar 2005 15:43:48 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:49589 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261242AbVCYUnp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Mar 2005 15:43:45 -0500
+Subject: resubmit - [PATCH 0/4] sparsemem intro patches
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-mm <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Fri, 25 Mar 2005 12:43:43 -0800
+Message-Id: <1111783423.9691.65.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050325202414.GA9929@dreamland.darkstar.lan>; from kronos@kronoz.cjb.net on Fri, Mar 25, 2005 at 09:24:15PM +0100
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 25, 2005 at 09:24:15PM +0100, Luca wrote:
-> I attached a null modem cable to my notebook and I'm seeing garbage as
-> soon as the serial driver is loaded. I tried booting with init=/bin/bash
-> to be sure that it's not some rc script doing strange things to the
-> serial port, but this didn't solve the problem.
+Andrew, I noticed that these were dropped out of 2.6.12-mm1:
 
-I'm uncertain how this problem can occur, unless you have one of:
+> -sparsemem-base-teach-discontig-about-sparse-ranges.patch
+> -sparsemem-base-simple-numa-remap-space-allocator.patch
+> -sparsemem-base-reorganize-page-flags-bit-operations.patch
+> -sparsemem-base-early_pfn_to_nid-works-before-sparse-is-initialized.patch
+> 
+> This was breaking compilation in various ways on various
+> architectures.
+> Returned to manufacturer.
 
-* serial debugging enabled (which isn't compatible with serial console)
-* a NS16550A, in which case dwmw2 needs to rework his autodetect code to
-  adjust the baud rate appropriately.
+I *think* those problems were caused by the actual sparsemem patches
+that I posted for RFC, not the base "intro" patches.  (I have fixes for
+the problems that you were hitting with the RFC patches ready, too)
 
-I suspect your case is the latter.
+I've run these through a bunch of compile tests, including arm and alpha
+with and without DISCONTIGMEM, and they seem OK.  They also boot just
+fine on a bunch of ppc64 and i386 configurations.  
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Can these go back into -mm?
+
+----
+
+The following four patches provide the last needed changes before the
+introduction of sparsemem.  For a more complete description of what this
+will do, please see this patch:
+
+http://www.sr71.net/patches/2.6.11/2.6.11-bk7-mhp1/broken-out/B-sparse-150-sparsemem.patch
+
+or previous posts on the subject:
+http://marc.theaimsgroup.com/?t=110868540700001&r=1&w=2
+http://marc.theaimsgroup.com/?l=linux-mm&m=109897373315016&w=2
+
+Three of these are i386-only, but one of them reorganizes the macros
+used to manage the space in page->flags, and will affect all platforms.
+There are analogous patches to the i386 ones for ppc64, ia64, and
+x86_64, but those will be submitted by the normal arch maintainers.
+
+The combination of the four patches has been test-booted on a variety of
+i386 hardware, and compiled for ppc64, i386, and x86-64 with about 17
+different .configs.  It's also been runtime-tested on ia64 configs (with
+more patches on top).
+
+-- Dave
+

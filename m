@@ -1,54 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280750AbRKJW4I>; Sat, 10 Nov 2001 17:56:08 -0500
+	id <S280755AbRKJXPW>; Sat, 10 Nov 2001 18:15:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280751AbRKJWzt>; Sat, 10 Nov 2001 17:55:49 -0500
-Received: from mailin10.bigpond.com ([139.134.6.87]:57074 "EHLO
-	mailin10.bigpond.com") by vger.kernel.org with ESMTP
-	id <S280750AbRKJWzr>; Sat, 10 Nov 2001 17:55:47 -0500
-Message-ID: <000001c16a3b$76fb25f0$1401a8c0@vaio>
-From: "Robert Lowery" <cangela@bigpond.net.au>
-To: <akpm@zip.com.au>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Assertion failure wth ext3 on standard Redhat 7.2 kernel
-Date: Sat, 10 Nov 2001 22:57:19 +1100
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S280756AbRKJXPN>; Sat, 10 Nov 2001 18:15:13 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:64244
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S280755AbRKJXOy>; Sat, 10 Nov 2001 18:14:54 -0500
+Date: Sat, 10 Nov 2001 15:14:41 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: J Sloan <jjs@pobox.com>
+Cc: Sven Vermeulen <sven.vermeulen@rug.ac.be>,
+        Linux-Kernel Development Mailinglist 
+	<linux-kernel@vger.kernel.org>
+Subject: Re: Networking: repeatable oops in 2.4.15-pre2
+Message-ID: <20011110151441.D446@mikef-linux.matchmail.com>
+Mail-Followup-To: J Sloan <jjs@pobox.com>,
+	Sven Vermeulen <sven.vermeulen@rug.ac.be>,
+	Linux-Kernel Development Mailinglist <linux-kernel@vger.kernel.org>
+In-Reply-To: <20011110132139.A872@Zenith.starcenter> <3BED766B.BEBA6EB0@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3BED766B.BEBA6EB0@pobox.com>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This problem has gone away now that I have removed the extra 64M RAM that I
-added recently.
+On Sat, Nov 10, 2001 at 10:48:11AM -0800, J Sloan wrote:
+> Sven Vermeulen wrote:
+> 
+> > J Sloan (jjs@pobox.com) wrote:
+> > > I have been running the 2.4.15-pre kernels and
+> > > have found an interesting oops. I can reproduce
+> > > it immediately, and reliably, just by issuing an ssh
+> > > command (as a normal user).
+> >
+> > I'm currently running Linux 2.4.15-pre2 and have no troubles with ssh. I can
+> > safely login onto other hosts, or issuing commands like
+> >         ssh -l someuser@somehost mutt
+> > or copy files
+> >         scp somefile someuser@somehost:
+> >
+> > I'm not using OpenSSH 3.0 yet (2.9p2). I'm not running any firewall or
+> > transparent proxying.
+> 
+> Thanks for the info, this is what I suspected -
+> 
+> only people running iptables appear to be
+> seeing this problem.
+> 
 
-Funny that memtest86 did not pick up any problems.  Must be stray gamma rays
-;)
+I don't know...
 
-Thanks
+I have netfilter compiled in, but I don't have any filter rules yet.  This
+is on smp too...
 
--Robert
------ Original Message -----
-From: "Robert Lowery" <cangela@bigpond.net.au>
-To: <akpm@zip.com.au>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: Friday, November 09, 2001 10:45 PM
-Subject: Re: Assertion failure wth ext3 on standard Redhat 7.2 kernel
+Have you been able to tell if you need to use mangling, or nat, or will just
+filter rules do the job of reproducing?
 
-
-> > >It looks like memory corruption of some form - a structure
-> > >member has an impossible value. Are you using any less-than-mainstream
-> > >device drivers in that box?
-> P.S. The problem occurs on a completely virgin Redhat 7.2 install as well
-as
-> after I have applied all available updates. (after a few crashes and
-reboots
-> while applying them).
->
-> -Robert
->
-
+Mike

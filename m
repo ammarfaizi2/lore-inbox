@@ -1,47 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135681AbREDBlG>; Thu, 3 May 2001 21:41:06 -0400
+	id <S135723AbREDBzQ>; Thu, 3 May 2001 21:55:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135689AbREDBkq>; Thu, 3 May 2001 21:40:46 -0400
-Received: from horus.its.uow.edu.au ([130.130.68.25]:33701 "EHLO
-	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S135681AbREDBkk>; Thu, 3 May 2001 21:40:40 -0400
-Message-ID: <3AF20855.D5F565F5@uow.edu.au>
-Date: Fri, 04 May 2001 11:39:33 +1000
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-ac13 i686)
+	id <S135738AbREDBzG>; Thu, 3 May 2001 21:55:06 -0400
+Received: from chromium11.wia.com ([207.66.214.139]:26894 "EHLO
+	neptune.kirkland.local") by vger.kernel.org with ESMTP
+	id <S135723AbREDBzD>; Thu, 3 May 2001 21:55:03 -0400
+Message-ID: <3AF20CE3.63C92B3C@chromium.com>
+Date: Thu, 03 May 2001 18:58:59 -0700
+From: Fabio Riccardi <fabio@chromium.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.2 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: jalaja devi <jala_74@yahoo.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Device driver from kernel2.2.x to kernel2.4
-In-Reply-To: <E14vO2i-00060Y-00@the-village.bc.nu> <20010503190308.79916.qmail@web13702.mail.yahoo.com>
+To: mingo@elte.hu
+CC: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Christopher Smith <x@xman.org>, Andrew Morton <andrewm@uow.edu.au>,
+        "Timothy D. Witham" <wookie@osdlab.org>, David_J_Morse@Dell.com
+Subject: Re: X15 alpha release: as fast as TUX but in user space
+In-Reply-To: <Pine.LNX.4.33.0105011906420.2202-100000@localhost.localdomain>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jalaja devi wrote:
-> 
-> I want to port a Network driver from kernel2.2.x to
-> 2.4. Could anyone please point me a handy pointer
-> where i can find a complete documentation.
+I have fixed the stale header cache problem. Files are statted on every
+request, no "practical" tricks.
 
-http://www.firstfloor.org/~andi/softnet/
+Performance doesn't seem to have suffered :)
 
-Also, take a look at acenic.c and eepro100.c.  They
-both support 2.2 and 2.4.  The compatibility macros
-will provide pointers.
+I also have added a cache garbage collector to close "old" file descriptors
+and remove even older header cache entries. This should make sure that you
+don't exceed your system resources. The definition of old and the sweep
+frequency are user configurable.
 
-> I could find some, but not the complete changes
-> required.
-> 
-> Also, Approximate time estimation for this migration
-> from an experienced developer would be much helpful.
+You can download the new version
+from: http://www.chromium.com/X15-Alpha-3.tgz
 
-It took me about 30 minutes to scruffily hack a 2.2 net
-driver into the 2.4 APIs.  I'd allow a day to do it
-properly.  Plus another day for testing, especially
-if you want to support SMP well.
+ - Fabio
 
--
+Ingo Molnar wrote:
+
+> On Tue, 1 May 2001, Fabio Riccardi wrote:
+>
+> > This is actually a bug in the current X15, I know how to fix it (with
+> > negligible overhead) but I've been lazy :)
+>
+> yep, i think it's pretty straightforward: you have a cache of open file
+> descriptors (like Squid i think), and you can start a background 'cache
+> synchronization thread' that does a stat() on every open file's real VFS
+> path, every second or so. This should have small overhead (the number of
+> file descriptors cached should be limited anyway via some sort of LRU),
+> and guarantees 'practical coherency', without having the overhead of
+> immediate coherency. [total coherency is pointless anyway, not even the
+> kernel guarantees it to all parallel VFS users.]
+>
+>         Ingo
+

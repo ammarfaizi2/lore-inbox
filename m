@@ -1,79 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264429AbUESQen@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264428AbUESQeh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264429AbUESQen (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 May 2004 12:34:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264426AbUESQen
+	id S264428AbUESQeh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 May 2004 12:34:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264429AbUESQeh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 May 2004 12:34:43 -0400
-Received: from postfix4-1.free.fr ([213.228.0.62]:42141 "EHLO
-	postfix4-1.free.fr") by vger.kernel.org with ESMTP id S264429AbUESQei
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 May 2004 12:34:38 -0400
-Message-ID: <40AB8CDF.8060408@free.fr>
-Date: Wed, 19 May 2004 18:35:43 +0200
-From: matthieu castet <castet.matthieu@free.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040413 Debian/1.6-5
-X-Accept-Language: fr-fr, en, en-us
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [patch] bug in cpuid & msr on nosmp machine
-X-Enigmail-Version: 0.83.6.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/mixed;
- boundary="------------060108090909050307060504"
+	Wed, 19 May 2004 12:34:37 -0400
+Received: from phoenix.infradead.org ([213.86.99.234]:57870 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S264428AbUESQeg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 May 2004 12:34:36 -0400
+Date: Wed, 19 May 2004 17:34:32 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Jesse Barnes <jbarnes@engr.sgi.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, pfg@sgi.com,
+       Erik Jacobson <erikj@sgi.com>
+Subject: Re: [PATCH] implement TIOCGSERIAL in sn_serial.c
+Message-ID: <20040519173432.A28656@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Jesse Barnes <jbarnes@engr.sgi.com>, akpm@osdl.org,
+	linux-kernel@vger.kernel.org, pfg@sgi.com,
+	Erik Jacobson <erikj@sgi.com>
+References: <200405191109.51751.jbarnes@engr.sgi.com> <200405191150.08967.jbarnes@engr.sgi.com> <20040519165618.A28238@infradead.org> <200405191217.13635.jbarnes@engr.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200405191217.13635.jbarnes@engr.sgi.com>; from jbarnes@engr.sgi.com on Wed, May 19, 2004 at 12:17:13PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060108090909050307060504
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Wed, May 19, 2004 at 12:17:13PM -0400, Jesse Barnes wrote:
+> > And the point of an ioctl copying two values that are compltely irrelevant
+> > for userspace with your driver are? [please fill in here]
+> 
+> What, you think userland isn't interested in the FIFO depth?  Or are you 
+> suggesting that we fill in all the values?  Pat?
 
-hi,
+I want to say this awfully smells like a quickhack.  And your secrecy on
+why you need this doesn't help either.  So what userspace needs to know
+your fifo depth?
 
-on monocpu machine (and maybe even on smp machine), when you try to 
-acces to a cpu that don't exist (/dev/cpu/1/cpuid), cpuid (msr) call 
-cpu_online, but on nosmp machine if the cpu!=0 this procude a BUG();
-So I add a check that verify if the cpu can exist before calling cpu_online.
-
-Matthieu CASTET
-
---------------060108090909050307060504
-Content-Type: text/x-patch;
- name="cpuid.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="cpuid.patch"
-
---- linux/arch/i386/kernel/cpuid.c	2004-05-18 20:47:05.000000000 +0200
-+++ linux-2.6.5/arch/i386/kernel/cpuid.c	2004-04-04 05:36:12.000000000 +0200
-@@ -135,7 +135,7 @@
-   int cpu = iminor(file->f_dentry->d_inode);
-   struct cpuinfo_x86 *c = &(cpu_data)[cpu];
- 
--  if (cpu >= num_possible_cpus() || !cpu_online(cpu))
-+  if (!cpu_online(cpu))
-     return -ENXIO;		/* No such CPU */
-   if ( c->cpuid_level < 0 )
-     return -EIO;		/* CPUID not supported */
-
---------------060108090909050307060504
-Content-Type: text/x-patch;
- name="msr.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="msr.patch"
-
---- linux/arch/i386/kernel/msr.c	2004-05-19 18:25:09.000000000 +0200
-+++ linux-2.6.5/arch/i386/kernel/msr.c	2004-04-04 05:36:57.000000000 +0200
-@@ -241,7 +241,7 @@
-   int cpu = iminor(file->f_dentry->d_inode);
-   struct cpuinfo_x86 *c = &(cpu_data)[cpu];
-   
--  if (cpu >= num_possible_cpus() || !cpu_online(cpu))
-+  if (!cpu_online(cpu))
-     return -ENXIO;		/* No such CPU */
-   if ( !cpu_has(c, X86_FEATURE_MSR) )
-     return -EIO;		/* MSR not supported */
-
---------------060108090909050307060504--

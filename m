@@ -1,37 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263727AbTETLyM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 May 2003 07:54:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263729AbTETLyM
+	id S263729AbTETL4X (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 May 2003 07:56:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263732AbTETL4W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 May 2003 07:54:12 -0400
-Received: from navigator.sw.com.sg ([213.247.162.11]:26041 "EHLO
-	navigator.sw.com.sg") by vger.kernel.org with ESMTP id S263727AbTETLyL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 May 2003 07:54:11 -0400
-From: Vladimir Serov <vserov@infratel.com>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <3ECA1A66.7090404@infratel.com>
-Date: Tue, 20 May 2003 16:07:02 +0400
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-Subject: Re: [BUG] nfs client stuck in D state in linux 2.4.17 - 2.4.21-pre5
-References: <20030318155731.1f60a55a.skraw@ithnet.com>	<3E79EAA8.4000907@infratel.com>	<15993.60520.439204.267818@charged.uio.no>	<3E7ADBFD.4060202@infratel.com> <shsof45nf58.fsf@charged.uio.no>	<3E7B0051.8060603@infratel.com>	<15995.578.341176.325238@charged.uio.no>	<3E7B10DF.5070005@infratel.com>	<15995.5996.446164.746224@charged.uio.no>	<3E7B1DF9.2090401@infratel.com>	<15995.10797.983569.410234@charged.uio.no>	<3EC8DA1B.50304@infratel.com> <shsel2uqsh0.fsf@charged.uio.no>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 20 May 2003 07:56:22 -0400
+Received: from meg.hrz.tu-chemnitz.de ([134.109.132.57]:49869 "EHLO
+	meg.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id S263729AbTETL4V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 May 2003 07:56:21 -0400
+Date: Tue, 20 May 2003 09:39:33 +0200
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: Riley Williams <Riley@Williams.Name>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: try_then_request_module
+Message-ID: <20030520093933.O659@nightmaster.csn.tu-chemnitz.de>
+References: <20030519110832.G626@nightmaster.csn.tu-chemnitz.de> <BKEGKPICNAKILKJKMHCAOEPLDAAA.Riley@Williams.Name>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <BKEGKPICNAKILKJKMHCAOEPLDAAA.Riley@Williams.Name>; from Riley@Williams.Name on Mon, May 19, 2003 at 07:50:02PM +0100
+X-Spam-Score: -5.0 (-----)
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *19I5vj-0000nB-00*3fhPCoP54a6*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust wrote:
+Hi Riley,
 
->Did you try the patch I sent you last week? (appended below)
->
->Cheers,
->  Trond
->
-Yes I do, Trond.
-It doesn't help, and probably shouldn't, because it's UP not SMP system.
+On Mon, May 19, 2003 at 07:50:02PM +0100, Riley Williams wrote:
+>  >    int module_loaded_flag=0;
 
-Cheers, Vladimir.
+Tell that we don't know, whether the module is loaded
+>  > retry_with_module_loaded:
+>  >    
+>  >    /* search code */
+
+Do the search.    
+
+>  >    if (!module_loaded_flag && !found) {
+
+Test, whether we did not yet explicitly load the module and not
+found the entry either.
+
+>  >       module_loaded_flag=1;
+
+Tell that we loaded it (if we cannot load it, then we fall
+through).
+
+>  >       if (!request_module(bla))
+>  >          goto retry_with_module_loaded;
+
+Restart search after successful module load.
+
+>  >    }
+>  >    return found;
+
+> Out of curiosity, what exactly is the purpose of the goto in the
+> above code? Since we set module_loaded_flag just prior to it, the
+> first if statement must fail after the goto, so we just fall down
+> to where we would have been without the goto.
+ 
+That is intended. I just reuse the search code here instead of
+duplicating it. 
+
+Since I load the module to broaden my search range, I can also
+try to load the module there. Without module support this goto
+will never execute and most of that code there compiled away.
+
+That's why I consider try_then_request_module() not needed.
+But people seem to have big problems with using gotos and still
+reading the code (although it's quite common in the kernel), so
+try_then_request_module() might solve this *social* problem ;-)
+
+Regards
+
+Ingo Oeser

@@ -1,50 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265513AbTAEWtw>; Sun, 5 Jan 2003 17:49:52 -0500
+	id <S265361AbTAEWzC>; Sun, 5 Jan 2003 17:55:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265517AbTAEWtw>; Sun, 5 Jan 2003 17:49:52 -0500
-Received: from louise.pinerecords.com ([213.168.176.16]:53453 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S265513AbTAEWtv>; Sun, 5 Jan 2003 17:49:51 -0500
-Date: Sun, 5 Jan 2003 23:58:16 +0100
-From: Tomas Szepe <szepe@pinerecords.com>
-To: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
-Message-ID: <20030105225816.GK5984@louise.pinerecords.com>
-References: <20030102013736.GA2708@gnuppy.monkey.org> <1041802518.15071.0.camel@irongate.swansea.linux.org.uk> <avaavp$gjb$1@forge.intermeta.de>
+	id <S265368AbTAEWzC>; Sun, 5 Jan 2003 17:55:02 -0500
+Received: from server0027.freedom2surf.net ([194.106.33.36]:28885 "EHLO
+	server0027.freedom2surf.net") by vger.kernel.org with ESMTP
+	id <S265361AbTAEWzA>; Sun, 5 Jan 2003 17:55:00 -0500
+Date: Sun, 5 Jan 2003 23:05:53 +0000
+From: Ian Molton <spyro@f2s.com>
+To: linux-kernel@vger.kernel.org
+Subject: UPDATED ipaq usbserial driver
+Message-Id: <20030105230553.1c7a8758.spyro@f2s.com>
+Organization: The Dragon Roost
+X-Mailer: Sylpheed version 0.8.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <avaavp$gjb$1@forge.intermeta.de>
+Content-Type: multipart/mixed;
+ boundary="Multipart_Sun__5_Jan_2003_23:05:53_+0000_08410508"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> [hps@intermeta.de]
-> 
-> The original statement was 
-> 
-> --- cut ---
-> "Microsoft making 370 times more than RedHat says _nothing_ about
-> their actual achievement in terms of software development."
-> --- cut ---
+This is a multi-part message in MIME format.
 
-And it holds true, because
+--Multipart_Sun__5_Jan_2003_23:05:53_+0000_08410508
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-1) A huge part of RedHat's work in software development goes into free
-(as in beer) software, which skews the better_product<->higher_revenue
-correlation vigorously.
+This adds support for the toshiba e740 PDA to the ipaq driver. please
+apply.
 
-2) better_product<->higher_revenue doesn't work terribly well when the
-market is dominated by a monopoly, does it?
 
-3) Microsoft doesn't only sell software.
+--Multipart_Sun__5_Jan_2003_23:05:53_+0000_08410508
+Content-Type: application/octet-stream;
+ name="ipaq.diff"
+Content-Disposition: attachment;
+ filename="ipaq.diff"
+Content-Transfer-Encoding: base64
 
-...
+ZGlmZiAtdXJOIGxpbnV4LTIuNC4yMC9kcml2ZXJzL3VzYi9zZXJpYWwvaXBhcS5jIGxpbnV4LTIu
+NC4yMS1wcmUyL2RyaXZlcnMvdXNiL3NlcmlhbC9pcGFxLmMKLS0tIGxpbnV4LTIuNC4yMC9kcml2
+ZXJzL3VzYi9zZXJpYWwvaXBhcS5jCTIwMDMtMDEtMDUgMjM6MDI6MTMuMDAwMDAwMDAwICswMDAw
+CisrKyBsaW51eC0yLjQuMjEtcHJlMi9kcml2ZXJzL3VzYi9zZXJpYWwvaXBhcS5jCTIwMDMtMDEt
+MDUgMjI6NTk6MTYuMDAwMDAwMDAwICswMDAwCkBAIC05LDcgKzksMTAgQEAKICAqCXRoZSBGcmVl
+IFNvZnR3YXJlIEZvdW5kYXRpb247IGVpdGhlciB2ZXJzaW9uIDIgb2YgdGhlIExpY2Vuc2UsIG9y
+CiAgKgkoYXQgeW91ciBvcHRpb24pIGFueSBsYXRlciB2ZXJzaW9uLgogICoKLSAqICgyNi8xMS8y
+MDAyKSBnYW5lc2gKKyAqICgwNS8wMS8yMDAzKSBJYW4gTW9sdG9uCisgKiAgICAgIEFkZGVkIHRv
+c2hpYmEgdmVkb3IgaWQgYW5kIHByb2R1Y3QgaWQgZm9yIHRoZSBlNzQwCisgKgorICogKDI2LzEx
+LzIwMDMpIGdhbmVzaAogICogCUFkZGVkIGluc21vZCBvcHRpb25zIHRvIHNwZWNpZnkgcHJvZHVj
+dCBhbmQgdmVuZG9yIGlkLgogICogCVVzZSBtb2Rwcm9iZSBpcGFxIHZlbmRvcj0weGZvbyBwcm9k
+dWN0PTB4YmFyCiAgKgpAQCAtNzAsNyArNzMsNyBAQAogCiAjZGVmaW5lIERSSVZFUl9WRVJTSU9O
+ICJ2MC40IgogI2RlZmluZSBEUklWRVJfQVVUSE9SICJHYW5lc2ggVmFyYWRhcmFqYW4gPGdhbmVz
+aEB2ZXJpdGFzLmNvbT4iCi0jZGVmaW5lIERSSVZFUl9ERVNDICJVU0IgQ29tcGFxIGlQQVEsIEhQ
+IEpvcm5hZGEsIENhc2lvIEVNNTAwIGRyaXZlciIKKyNkZWZpbmUgRFJJVkVSX0RFU0MgIlVTQiBD
+b21wYXEgaVBBUSwgSFAgSm9ybmFkYSwgQ2FzaW8gRU01MDAsIFRvc2hpYmEgZTc0MCBkcml2ZXIi
+CiAKIHN0YXRpYyBpbnQJcHJvZHVjdCwgdmVuZG9yOwogCkBAIC05OCw2ICsxMDEsNyBAQAogCXsg
+VVNCX0RFVklDRShIUF9WRU5ET1JfSUQsIEhQX0pPUk5BREFfNTQ4X0lEKSB9LAogCXsgVVNCX0RF
+VklDRShIUF9WRU5ET1JfSUQsIEhQX0pPUk5BREFfNTY4X0lEKSB9LAogCXsgVVNCX0RFVklDRShD
+QVNJT19WRU5ET1JfSUQsIENBU0lPX0VNNTAwX0lEKSB9LAorCXsgVVNCX0RFVklDRShUT1NISUJB
+X1ZFTkRPUl9JRCwgVE9TSElCQV9FNzQwX0lEKSB9LAogCXsgfQkJCQkJLyogVGVybWluYXRpbmcg
+ZW50cnkgKi8KIH07CiAKZGlmZiAtdXJOIGxpbnV4LTIuNC4yMC9kcml2ZXJzL3VzYi9zZXJpYWwv
+aXBhcS5oIGxpbnV4LTIuNC4yMS1wcmUyL2RyaXZlcnMvdXNiL3NlcmlhbC9pcGFxLmgKLS0tIGxp
+bnV4LTIuNC4yMC9kcml2ZXJzL3VzYi9zZXJpYWwvaXBhcS5oCTIwMDItMTEtMjggMjM6NTM6MTQu
+MDAwMDAwMDAwICswMDAwCisrKyBsaW51eC0yLjQuMjEtcHJlMi9kcml2ZXJzL3VzYi9zZXJpYWwv
+aXBhcS5oCTIwMDMtMDEtMDUgMjI6NDc6NTMuMDAwMDAwMDAwICswMDAwCkBAIC0yNiw2ICsyNiw5
+IEBACiAjZGVmaW5lIENBU0lPX1ZFTkRPUl9JRAkJMHgwN2NmCiAjZGVmaW5lIENBU0lPX0VNNTAw
+X0lECQkweDIwMDIKIAorI2RlZmluZSBUT1NISUJBX1ZFTkRPUl9JRAkweDA5MzAKKyNkZWZpbmUg
+VE9TSElCQV9FNzQwX0lECQkweDA3MDYKKwogLyoKICAqIFNpbmNlIHdlIGNhbid0IHF1ZXVlIG91
+ciBidWxrIHdyaXRlIHVyYnMgKGRvbid0IGtub3cgd2h5IC0gaXQganVzdAogICogZG9lc24ndCB3
+b3JrKSwgd2UgY2FuIHNlbmQgZG93biBvbmx5IG9uZSB3cml0ZSB1cmIgYXQgYSB0aW1lLiBUaGUg
+c2ltcGxpc3RpYwo=
 
-Don't make me come up with more.  Larry's comparison is totally laughable
-if it is to support the thesis "Microsoft has achieved much more in software
-development than RedHat."
-
--- 
-Tomas Szepe <szepe@pinerecords.com>
+--Multipart_Sun__5_Jan_2003_23:05:53_+0000_08410508--

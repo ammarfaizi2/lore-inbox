@@ -1,64 +1,120 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263621AbUDFFRI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 01:17:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263628AbUDFFRI
+	id S263626AbUDFF2i (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 01:28:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263629AbUDFF2i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 01:17:08 -0400
-Received: from phoenix.infradead.org ([213.86.99.234]:15877 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S263621AbUDFFRB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 01:17:01 -0400
-Date: Tue, 6 Apr 2004 06:16:46 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, hugh@veritas.com, vrajesh@umich.edu,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [RFC][PATCH 1/3] radix priority search tree - objrmap complexity fix
-Message-ID: <20040406061646.B14800@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andrea Arcangeli <andrea@suse.de>, Andrew Morton <akpm@osdl.org>,
-	hugh@veritas.com, vrajesh@umich.edu, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org
-References: <20040402192941.GP21341@dualathlon.random> <20040402205410.A7194@infradead.org> <20040402203514.GR21341@dualathlon.random> <20040403094058.A13091@infradead.org> <20040403152026.GE2307@dualathlon.random> <20040403155958.GF2307@dualathlon.random> <20040403170258.GH2307@dualathlon.random> <20040405105912.A3896@infradead.org> <20040405131113.A5094@infradead.org> <20040406042222.GP2234@dualathlon.random>
+	Tue, 6 Apr 2004 01:28:38 -0400
+Received: from ozlabs.org ([203.10.76.45]:65445 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S263626AbUDFF2e (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Apr 2004 01:28:34 -0400
+Date: Tue, 6 Apr 2004 15:25:38 +1000
+From: David Gibson <david@gibson.dropbear.id.au>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Anton Blanchard <anton@samba.org>, Paul Mackerras <paulus@samba.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       linux-kernel@vger.kernel.org, linuxppc64-dev@lists.linuxppc.org
+Subject: Yet another PPC64 hugepage bugfix
+Message-ID: <20040406052538.GH15981@zax>
+Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
+	Andrew Morton <akpm@osdl.org>, Anton Blanchard <anton@samba.org>,
+	Paul Mackerras <paulus@samba.org>,
+	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+	linux-kernel@vger.kernel.org, linuxppc64-dev@lists.linuxppc.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040406042222.GP2234@dualathlon.random>; from andrea@suse.de on Tue, Apr 06, 2004 at 06:22:22AM +0200
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 06, 2004 at 06:22:22AM +0200, Andrea Arcangeli wrote:
-> What really happens is that you get errors with my tree because xfs in
-> some unlikely case is messing with set_bit on the page->private of slab
-> pages of order > 0.
+Andrew, please apply.  Found this again while looking at hugepage
+extensions.  Haven't actually had it bite yet - the race is small and
+the other bug will never be triggered in 32-bit processes, and the
+function is rarely called on 64-bit processes.
 
-Yes, that case would be a filesystem with blocksize < PAGE_SIZE and a buffer
-with a size of > PAGE_SIZE && < MAX_SLAB_SIZE.
+This patch fixes two bugs in the (same part of the) PPC64 hugepage
+code.  First the method we were using to free stale PTE pages was not
+safe with some recent changes (race condition).  BenH has fixed this
+to work in the new way.  Second, we were not checking for a valid PGD
+entry before dereferencing the PMD page when scanning for stale PTE
+page pointers.
 
-Can you try the patch below (testing it now, but I'm pretty sure it'll fix it)
-instead of all the kmalloc changes?:
-
---- linux-2.5/fs/xfs/linux/xfs_buf.c	2004-04-02 20:10:56.000000000 +0200
-+++ linux-2.6.5-aa3/fs/xfs/linux/xfs_buf.c	2004-04-06 09:13:05.275317568 +0200
-@@ -448,7 +448,8 @@ _pagebuf_lookup_pages(
- 				if (flags & PBF_READ)
- 					pb->pb_locked = 1;
- 				good_pages--;
--			} else if (!PagePrivate(page)) {
-+			} else if ((pb->pb_flags & _PBF_PAGECACHE) &&
-+					!PagePrivate(page)) {
- 				unsigned long	i, range;
+===== arch/ppc64/mm/hugetlbpage.c 1.14 vs edited =====
+Index: working-2.6/arch/ppc64/mm/hugetlbpage.c
+===================================================================
+--- working-2.6.orig/arch/ppc64/mm/hugetlbpage.c	2004-04-05 17:45:53.000000000 +1000
++++ working-2.6/arch/ppc64/mm/hugetlbpage.c	2004-04-06 15:09:29.383726856 +1000
+@@ -247,6 +247,7 @@
+ {
+ 	struct vm_area_struct *vma;
+ 	unsigned long addr;
++	struct mmu_gather *tlb;
  
- 				/*
-@@ -1289,7 +1290,8 @@ bio_end_io_pagebuf(
- 			SetPageError(page);
- 		} else if (blocksize == PAGE_CACHE_SIZE) {
- 			SetPageUptodate(page);
--		} else if (!PagePrivate(page)) {
-+		} else if ((pb->pb_flags & _PBF_PAGECACHE) &&
-+				!PagePrivate(page)) {
- 			unsigned int	j, range;
+ 	if (mm->context.low_hpages)
+ 		return 0; /* The window is already open */
+@@ -262,32 +263,39 @@
  
- 			ASSERT(blocksize < PAGE_CACHE_SIZE);
+ 	/* Clean up any leftover PTE pages in the region */
+ 	spin_lock(&mm->page_table_lock);
++	tlb = tlb_gather_mmu(mm, 0);
+ 	for (addr = TASK_HPAGE_BASE_32; addr < TASK_HPAGE_END_32;
+ 	     addr += PMD_SIZE) {
+ 		pgd_t *pgd = pgd_offset(mm, addr);
+-		pmd_t *pmd = pmd_offset(pgd, addr);
+-
+-		if (! pmd_none(*pmd)) {
+-			struct page *page = pmd_page(*pmd);
+-			pte_t *pte = (pte_t *)pmd_page_kernel(*pmd);
+-			int i;
+-
+-			/* No VMAs, so there should be no PTEs, check
+-			 * just in case. */
+-			for (i = 0; i < PTRS_PER_PTE; i++) {
+-				BUG_ON(! pte_none(*pte));
+-				pte++;
+-			}
++		pmd_t *pmd;
++		struct page *page;
++		pte_t *pte;
++		int i;
+ 
++		if (pgd_none(*pgd))
++			continue;
++		pmd = pmd_offset(pgd, addr);
++		if (!pmd || pmd_none(*pmd))
++			continue;
++		if (pmd_bad(*pmd)) {
++			pmd_ERROR(*pmd);
+ 			pmd_clear(pmd);
+-			pgtable_remove_rmap(page);
+-			pte_free(page);
++			continue;
+ 		}
++		pte = (pte_t *)pmd_page_kernel(*pmd);
++		/* No VMAs, so there should be no PTEs, check just in case. */
++		for (i = 0; i < PTRS_PER_PTE; i++) {
++			BUG_ON(!pte_none(*pte));
++			pte++;
++		}
++		page = pmd_page(*pmd);
++		pmd_clear(pmd);
++		pgtable_remove_rmap(page);
++		pte_free_tlb(tlb, page);
+ 	}
++	tlb_finish_mmu(tlb, TASK_HPAGE_BASE_32, TASK_HPAGE_END_32);
+ 	spin_unlock(&mm->page_table_lock);
+ 
+-	/* FIXME: do we need to scan for PTEs too? */
+-
+ 	mm->context.low_hpages = 1;
+ 
+ 	/* the context change must make it to memory before the slbia,
+
+
+-- 
+David Gibson			| For every complex problem there is a
+david AT gibson.dropbear.id.au	| solution which is simple, neat and
+				| wrong.
+http://www.ozlabs.org/people/dgibson

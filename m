@@ -1,45 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316683AbSGBJRc>; Tue, 2 Jul 2002 05:17:32 -0400
+	id <S316715AbSGBJ2H>; Tue, 2 Jul 2002 05:28:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316684AbSGBJRc>; Tue, 2 Jul 2002 05:17:32 -0400
-Received: from d12lmsgate-2.de.ibm.com ([195.212.91.200]:20392 "EHLO
-	d12lmsgate-2.de.ibm.com") by vger.kernel.org with ESMTP
-	id <S316683AbSGBJRb>; Tue, 2 Jul 2002 05:17:31 -0400
-Importance: Normal
-Sensitivity: 
-Subject: Re: hd_geometry question.
-To: Andries Brouwer <aebr@win.tue.nl>
+	id <S316723AbSGBJ2G>; Tue, 2 Jul 2002 05:28:06 -0400
+Received: from ns.suse.de ([213.95.15.193]:62223 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S316715AbSGBJ2F>;
+	Tue, 2 Jul 2002 05:28:05 -0400
+To: Timo Benk <t_benk@web.de>
 Cc: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
-Message-ID: <OF25B15FAC.FE67359D-ONC1256BEA.0032B6AA@de.ibm.com>
-From: "Martin Schwidefsky" <schwidefsky@de.ibm.com>
-Date: Tue, 2 Jul 2002 11:16:06 +0200
-X-MIMETrack: Serialize by Router on D12ML016/12/M/IBM(Release 5.0.9a |January 7, 2002) at
- 02/07/2002 11:19:48
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Subject: Re: allocate memory in userspace
+References: <20020701172659.GA4431@toshiba.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 02 Jul 2002 11:30:34 +0200
+In-Reply-To: Timo Benk's message of "1 Jul 2002 19:29:57 +0200"
+Message-ID: <p73vg7ywk79.fsf@oldwotan.suse.de>
+X-Mailer: Gnus v5.7/Emacs 20.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Timo Benk <t_benk@web.de> writes:
 
->About a partition one wants to know start and length.
->About a full disk one wants to know size, and perhaps a (fake) geometry.
->
->The vital partition data cannot depend on obscure hardware info.
->So, the units used must be well-known. Earlier, everything was in
->512-byte sectors, but there are a few places where that is inconvenient
->or unnatural, and now that one has more than 2^32 sectors and 64 bits
->are needed anyway, things are measured in bytes.
->
->That the start field comes with the HDIO_GETGEO ioctl and the size with
->the BLKGETSIZE ioctl is due to history. Both are given in 512-byte sectors.
->BLKGETSIZE64 gives bytes.
+> I am a kernel newbie and i am writing a module. I 
+> need to allocate some memory in userspace because
+> i want to access syscalls like open(), lstat() etc.
+> I need to call these methods in the kernel, and in
+> my special case there is no other way, but i 
+> do not want to reimplement all the syscalls.
+> 
+> I read that it should be possible, but i cannot
+> find any example or recipe on how to do it.
 
-Just to make sure I got that right, HDIO_GETGEO delivers a FAKE geometry
-based on the assumption that the sector size is 512 bytes ?
+mm_segment_t oldfs = get_fs(); 
+set_fs(KERNEL_DS); 
+ret = sys_yoursyscall(kernelargs ...) 
+set_fs(oldfs); 
 
-blue skies,
-   Martin
+Do not even think about using mmap or accessing sys_call_table for this.
+Your other post was so tasteless that it would be good if you retracted
+it with a followup because it would be very bad to have such an bad example 
+in the l-k archives open to innocent search machine users uncommented.
 
-
+-Andi

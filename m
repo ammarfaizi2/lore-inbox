@@ -1,47 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262205AbVCHXOp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262233AbVCIA4B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262205AbVCHXOp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 18:14:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262222AbVCHXO1
+	id S262233AbVCIA4B (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 19:56:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262133AbVCIA4B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 18:14:27 -0500
-Received: from mail0.lsil.com ([147.145.40.20]:9927 "EHLO mail0.lsil.com")
-	by vger.kernel.org with ESMTP id S262193AbVCHXFv (ORCPT
+	Tue, 8 Mar 2005 19:56:01 -0500
+Received: from fire.osdl.org ([65.172.181.4]:59350 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262218AbVCHX2G (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 18:05:51 -0500
-Message-ID: <0E3FA95632D6D047BA649F95DAB60E570230CC17@exa-atlanta>
-From: "Bagalkote, Sreenivas" <sreenib@lsil.com>
-To: "'Arjan van de Ven'" <arjan@infradead.org>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
-       "'James Bottomley'" <James.Bottomley@SteelEye.com>,
-       "'Matt_Domsch@Dell.com'" <Matt_Domsch@Dell.com>,
-       Andrew Morton <akpm@osdl.org>,
-       "'Christoph Hellwig'" <hch@infradead.org>
-Subject: RE: [ANNOUNCE][PATCH 2.6.11 1/3] megaraid_sas: Announcing new mod
-	ule  for LSI Logic's SAS based MegaRAID controllers
-Date: Tue, 8 Mar 2005 18:05:11 -0500 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2657.72)
+	Tue, 8 Mar 2005 18:28:06 -0500
+Subject: Re: [PATCH] 2.6.10 -  direct-io async short read bug
+From: Daniel McNeil <daniel@osdl.org>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: Suparna Bhattacharya <suparna@in.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>,
+       "linux-aio@kvack.org" <linux-aio@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1110309508.24286.74.camel@dyn318077bld.beaverton.ibm.com>
+References: <1110189607.11938.14.camel@frecb000686>
+	 <20050307223917.1e800784.akpm@osdl.org>  <20050308090946.GA4100@in.ibm.com>
+	 <1110302614.24286.61.camel@dyn318077bld.beaverton.ibm.com>
+	 <1110309508.24286.74.camel@dyn318077bld.beaverton.ibm.com>
 Content-Type: text/plain
+Message-Id: <1110324434.6521.23.camel@ibm-c.pdx.osdl.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 08 Mar 2005 15:27:14 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
->>  source "drivers/scsi/megaraid/Kconfig.megaraid"
->> +source "drivers/scsi/megaraid/Kconfig.megaraid_sas"
->>  
->
->why a fully separate file and not add your ONE config option to
->Kconfig.megaraid instead ??
->
+On Tue, 2005-03-08 at 11:18, Badari Pulavarty wrote:
+> > Andrew, please don't apply the original patch. We shouldn't even attempt
+> > to submit IO beyond the filesize. We should truncate the IO request to
+> > filesize. I will send a patch today to fix this.
+> > 
+> 
+> Well, spoke too soon. This is an ugly corner case :( But I have
+> a ugly hack to fix it :)
+> 
+> Let me ask you a basic question: Do we support DIO reads on a file
+> which is not blocksize multiple in size ? (say 12K - 10 bytes) ?
 
-Arjan, I didn't want to needlessly couple megaraid and megaraid_sas.
-Since they are in the same directory, I couldn't avoid having single
-Makefile. I thought at least these two should be separate to be consistent
-with their independent nature.
+> What about the ones which are not 4K but 512 byte multiple ? (say 7K) ?
+> 
+> I need answer to those, to figure out how hard I should try to fix this.
+> 
+> Anyway, here is ugly version of the patch - which will limit the IO
+> size to filesize and uses lower blocksizes to read the file (since
+> the filesize is only 3K, it would go down to 512 byte blocksize).
 
-If this is not a good enough reason, I will merge these two files.
+Badari,
 
-Thanks,
-Sreenivas
+Just to be clear, are you just asking about what we should support on a
+DIO read that spans EOF?
+
+For DIO reads past EOF the options are:
+
+1. return EINVAL if the DIO goes past EOF.
+
+2. truncate the request to file size (which is what your patch does)
+    and if it works, it works.
+
+3. truncate the request to a size that actually works - like a multiple
+    of 512.
+
+4. Do the full i/o since the user buffer is big enough, truncate the
+    result returned to file size (and clear out the user buffer where it
+    read past EOF).
+
+Number 4 would make it easy on the user-level code, but AIO DIO might be
+a bit tricky and might be a security hole since the data would be dma'ed
+there and then cleared.  I need to look at the code some more.
+
+1 and 2 both seem valid and are better than returning the wrong result.
+
+3 seems like it would confuse applications.
+
+Thoughts?
+
+Daniel 
+
+
+
+
+

@@ -1,35 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261159AbTEMMjS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 08:39:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261161AbTEMMjS
+	id S261161AbTEMMlm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 08:41:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261163AbTEMMlm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 08:39:18 -0400
-Received: from siaab1aa.compuserve.com ([149.174.40.1]:54773 "EHLO
-	siaab1aa.compuserve.com") by vger.kernel.org with ESMTP
-	id S261159AbTEMMjR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 08:39:17 -0400
-Date: Tue, 13 May 2003 08:49:06 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: [PATCH] Use correct x86 reboot vector
-To: "wingel@zoo.weinigel.se" <wingel@zoo.weinigel.se>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Message-ID: <200305130851_MC3-1-38A3-A3B4@compuserve.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+	Tue, 13 May 2003 08:41:42 -0400
+Received: from main.gmane.org ([80.91.224.249]:14812 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261161AbTEMMlk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 08:41:40 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Andreas Happe <andreashappe@gmx.net>
+Subject: [ACPI-1121] Method execution failed
+Date: Tue, 13 May 2003 14:50:41 +0200
+Message-ID: <slrnbc1qh1.11d.andreashappe@flatline.ath.cx>
+X-Complaints-To: usenet@main.gmane.org
+User-Agent: slrn/0.9.7.4 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christer Weinigel wrote:
+kernel version: 2.5.69-bk7,
+hardware: hp omnibook 6100, i830m
 
-> BTW, what does Windows do here?  Whatever Windows is using should work
-> with Linux too.
+the kernel boots (which is a huge improvement compared to older
+releases, thanks), but i get the attached error.
 
-  I've only ever seen NT4/2K do a warm reboot, if that's relevant.
+After the system is booted there's a interessting situation, some parts
+of acpi seem to be loaded (i have /proc/thermal_zone et al (shoudn't it
+be /proc/acpi/* ?)), but they don't work.
 
-  FreeBSD unmaps every page in the machine and then flushes the
-TLB as its last-resort reboot attempt.  I assume this causes a
-triplefault...
+The interessting bootup lines (apic is disabled):
+
+| ACPI: RSDP (v000 PTLTD                      ) @ 0x000f6610
+| ACPI: RSDT (v001 PTLTD  EBRSDT   00576.00000) @ 0x0ff682e4
+| ACPI: FADT (v001 QUANTA EBmador  00576.00000) @ 0x0ff73b64
+| ACPI: BOOT (v001 PTLTD  EBBFTBL$ 00576.00000) @ 0x0ff73bd8
+| ACPI: DSDT (v001 HP-MCD EB DSDT  00576.00000) @ 0x00000000
+| ACPI: BIOS passes blacklist
+...
+| ACPI: Subsystem revision 20030418
+| ACPI-1121: *** Error: Method execution failed [\_SB_.PCI0.HUB_.FDS_.
+|               FCB1.CSID] (Node c12c55c0), AE_NOT_EXIST
+| ACPI-1121: *** Error: Method execution failed
+|	       [\_SB_.PCI0.HUB_.FDS_._REG] (Node c12c5940), AE_NOT_EXIST
+| ACPI: Unable to start the ACPI Interpreter
+...
+| ACPI: ACPI tables contain no PCI IRQ routing entries
+
+thx,
+andreas
+

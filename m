@@ -1,32 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275994AbRJUMex>; Sun, 21 Oct 2001 08:34:53 -0400
+	id <S276032AbRJUMfo>; Sun, 21 Oct 2001 08:35:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276032AbRJUMen>; Sun, 21 Oct 2001 08:34:43 -0400
-Received: from eik.ii.uib.no ([129.177.16.3]:61065 "EHLO ii.uib.no")
-	by vger.kernel.org with ESMTP id <S275994AbRJUMej>;
-	Sun, 21 Oct 2001 08:34:39 -0400
-Date: Sun, 21 Oct 2001 14:34:10 +0200
-From: Jan-Frode Myklebust <janfrode@parallab.uib.no>
-To: safemode <safemode@speakeasy.net>
-Cc: Christoph Rohland <cr@sap.com>,
-        ML-linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel Compile in tmpfs crumples in 2.4.12 w/epoll patch
-Message-ID: <20011021143409.A4900@ii.uib.no>
-In-Reply-To: <016a01c15831$ef51c5c0$5c044589@legato.com> <3BD28673.1060302@sap.com> <20011021120755.A1252@parallab.uib.no> <E15vHVx-0001Nc-00@ii.uib.no>
-Mime-Version: 1.0
+	id <S276050AbRJUMfe>; Sun, 21 Oct 2001 08:35:34 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:15119 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S276032AbRJUMfU>; Sun, 21 Oct 2001 08:35:20 -0400
+Subject: Re: DoS and Root Compromise Kernel Bug?
+To: jeremy@kerneltrap.com (Jeremy Andrews)
+Date: Sun, 21 Oct 2001 13:42:11 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20011019140853.445e5237.jeremy@kerneltrap.com> from "Jeremy Andrews" at Oct 19, 2001 02:08:53 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E15vHVx-0001Nc-00@ii.uib.no>; from safemode@speakeasy.net on Sun, Oct 21, 2001 at 08:15:33AM -0400
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15vHvf-0006D4-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>   Yesterday Rafal Wojtczuk posted to BugTraq regarding two kernel bugs:
+>    
+> http://www.securityfocus.com/cgi-bin/archive.pl?id=1&mid=221337&start=2001-10-15&end=2001-10-21
 > 
-> Like someone said before a while ago.  This is a binutils problem.  Update to 
-> a newer version. 
-> 
+>   I'm curious to understand more about these bugs.  I.E., are they real?  And,
+> are they fixed in 2.4.12 as claimed?  How about in the -ac series?
 
-Upgraded to binutils 2.11.92.0.7, but it didn't help.
+2.4.12 / 2.4.12-ac have both fixed.
+2.2.20 is still pending but will fix it
 
+>   The second bug allows for a root compromise via ptrace. The requirements are
+> that /usr/bin/newgrp be suid root (as in my RedHat 7.0 server), and that newgrp
+> not prompt for a password when run without arguments (again, as is the case with
+> my RedHat 7.0 server). Rafal says the attack only appears to work on Linux.
 
-  -jf
+So far yes. The FreeBSD folks and others were also made privy to the problem
+well before he published it to bugtraq and seem to be completely in the
+clear.
+
+Alan

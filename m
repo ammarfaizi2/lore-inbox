@@ -1,92 +1,198 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261660AbTKUXTO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Nov 2003 18:19:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261732AbTKUXTO
+	id S261732AbTKUXbN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Nov 2003 18:31:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261735AbTKUXbN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Nov 2003 18:19:14 -0500
-Received: from modemcable067.88-70-69.mc.videotron.ca ([69.70.88.67]:27521
-	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S261660AbTKUXTK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Nov 2003 18:19:10 -0500
-Date: Fri, 21 Nov 2003 18:17:45 -0500 (EST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-cc: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH][2.6-mm] __kunmap/oprofile final link failure
-Message-ID: <Pine.LNX.4.53.0311211811040.2498@montezuma.fsmlabs.com>
+	Fri, 21 Nov 2003 18:31:13 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:44972 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261732AbTKUXbD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Nov 2003 18:31:03 -0500
+Date: Fri, 21 Nov 2003 15:56:06 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+cc: lse-tech <lse-tech@lists.sourceforge.net>
+Subject: 2.6.0-test9-mjb3
+Message-ID: <944600000.1069458966@flay>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-arch/i386/kernel/built-in.o(.text+0x927): In function `__switch_to':
-arch/i386/kernel/process.c:564: undefined reference to 
-`__kunmap_atomic_type'
-arch/i386/kernel/built-in.o(.text+0x92e):arch/i386/kernel/process.c:565: 
-undefined reference to `__kunmap_atomic_type'
-arch/i386/kernel/built-in.o(.text+0x939):arch/i386/kernel/process.c:566: 
-undefined reference to `__kmap_atomic'
-arch/i386/kernel/built-in.o(.text+0x944):arch/i386/kernel/process.c:567: 
-undefined reference to `__kmap_atomic'
-arch/i386/kernel/built-in.o(.text+0x94e):arch/i386/kernel/process.c:572: 
-undefined reference to `__kmap_atomic_vaddr'
-arch/i386/oprofile/built-in.o(.text+0x171a): In function 
-`oprofile_reset_stats':
-include/asm/bitops.h:251: undefined reference to `cpu_possible_map'
-arch/i386/oprofile/built-in.o(.text+0x179e): In function 
-`oprofile_create_stats_files':
-include/asm/bitops.h:251: undefined reference to `cpu_possible_map'
+The patchset contains mainly performance, scalability and NUMA stuff, 
+and anything else that stops things from irritating me. It's meant to be 
+pretty stable, not so much a testing ground for new stuff.
 
-Test compiled with NR_CPUS = 4, 64 and !CONFIG_SMP on i386
+I'd be very interested in feedback from anyone willing to test on any 
+platform, however large or small.
 
-Index: linux-2.6.0-test9-mm5/arch/i386/kernel/process.c
-===================================================================
-RCS file: /build/cvsroot/linux-2.6.0-test9-mm5/arch/i386/kernel/process.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 process.c
---- linux-2.6.0-test9-mm5/arch/i386/kernel/process.c	21 Nov 2003 20:59:15 -0000	1.1.1.1
-+++ linux-2.6.0-test9-mm5/arch/i386/kernel/process.c	21 Nov 2003 22:20:00 -0000
-@@ -50,6 +50,7 @@
- #include <asm/desc.h>
- #include <asm/tlbflush.h>
- #include <asm/cpu.h>
-+#include <asm/atomic_kmap.h>
- #ifdef CONFIG_MATH_EMULATION
- #include <asm/math_emu.h>
- #endif
-Index: linux-2.6.0-test9-mm5/drivers/oprofile/oprofile_stats.c
-===================================================================
-RCS file: /build/cvsroot/linux-2.6.0-test9-mm5/drivers/oprofile/oprofile_stats.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 oprofile_stats.c
---- linux-2.6.0-test9-mm5/drivers/oprofile/oprofile_stats.c	21 Nov 2003 20:59:40 -0000	1.1.1.1
-+++ linux-2.6.0-test9-mm5/drivers/oprofile/oprofile_stats.c	21 Nov 2003 21:27:44 -0000
-@@ -10,7 +10,8 @@
- #include <linux/oprofile.h>
- #include <linux/cpumask.h>
- #include <linux/threads.h>
-- 
-+#include <linux/smp.h>
-+
- #include "oprofile_stats.h"
- #include "cpu_buffer.h"
-  
-Index: linux-2.6.0-test9-mm5/include/linux/cpumask.h
-===================================================================
-RCS file: /build/cvsroot/linux-2.6.0-test9-mm5/include/linux/cpumask.h,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 cpumask.h
---- linux-2.6.0-test9-mm5/include/linux/cpumask.h	21 Nov 2003 20:59:57 -0000	1.1.1.1
-+++ linux-2.6.0-test9-mm5/include/linux/cpumask.h	21 Nov 2003 21:52:39 -0000
-@@ -39,9 +39,8 @@ typedef unsigned long cpumask_t;
- 
- 
- #ifdef CONFIG_SMP
--
-+#include <asm/smp.h>
- extern cpumask_t cpu_online_map;
--extern cpumask_t cpu_possible_map;
- 
- #define num_online_cpus()		cpus_weight(cpu_online_map)
- #define cpu_online(cpu)			cpu_isset(cpu, cpu_online_map)
+ftp://ftp.kernel.org/pub/linux/kernel/people/mbligh/2.6.0-test9/patch-2.6.0-test9-mjb3.bz2
+
+Since 2.6.0-test9-mjb2 (~ = changed, + = added, - = dropped)
+
+Notes: 
+
+Now in Linus' tree:
+
+Dropped:
+
+New:
+
++ protocol254					Paul Mackerras / Omkhar 
+	Allow protocol 254
+
++ slabtune					Dave McCracken
+	Take slab in bigger bites on larger machines
+
++ less_bouncy					Martin J. Bligh
+	Stop bouncing warm tasks cross node
+
++ topdown					Bill Irwin
+	Turn userspace upside down for fun & profit
+
++ sysfs_vs_dcache				Maneesh Soni
+	Fix race.
+
++ imcplicit_large_page				Adam Litke
+	Utilize large pages without application modifciation.
+
+Pending:
+lotsa_sds
+config_numasched
+4/4 split
+list_of_lists
+Hyperthreaded scheduler (Ingo Molnar)
+scheduler callers profiling (Anton or Bill Hartner)
+Child runs first (akpm)
+Kexec
+e1000 fixes
+Update the lost timer ticks code
+pidmaps_nodepages (Dave Hansen)
+
+Present in this patch:
+
+kgdb						Various
+	Stolen from akpm's 2.6.0-test9-mm2
+
+early_printk					Dave Hansen / Keith Mannthey
+	Allow printk before console_init
+
+confighz					Andrew Morton / Dave Hansen
+	Make HZ a config option of 100 Hz or 1000 Hz
+
+config_page_offset				Dave Hansen / Andrea
+	Make PAGE_OFFSET a config option
+
+numameminfo					Martin Bligh / Keith Mannthey
+	Expose NUMA meminfo information under /proc/meminfo.numa
+
+sched_tunables					Robert Love
+	Provide tunable parameters for the scheduler (+ NUMA scheduler)
+
+partial_objrmap					Dave McCracken
+	Object based rmap for filebacked pages.
+
+spinlock_inlining				Andrew Morton & Martin J. Bligh
+	Inline spinlocks for profiling. Made into a ugly config option by me.
+
+lockmeter					John Hawkes / Hanna Linder
+	Locking stats.
+
+sched_interactive				Ingo Molnar
+	Bugfix for interactive scheduler
+
+local_balance_exec				Martin J. Bligh
+	Modify balance_exec to use node-local queues when idle
+
+tcp_speedup					Martin J. Bligh
+	Speedup TCP (avoid double copy) as suggested by Linus
+
+disable preempt					Martin J. Bligh
+	I broke preempt somehow, temporarily disable it to stop accidents
+
+ppc64 pci fix					Anton Blanchard
+	Fix some ppc64 pci thing or other.
+
+per_node_idt					Zwane Mwaikambo
+	Per node IDT so we can do silly numbers of IO-APICs on NUMA-Q
+
+aiofix2						Mingming Cao
+	fixed a bug in ioctx_alloc()
+
+config_irqbal					Keith Mannthey
+	Make irqbalance a config option
+
+percpu_real_loadavg				Dave Hansen / Martin J. Bligh
+	Tell me what the real load average is, and tell me per cpu.
+
+nolock						Dave McCracken
+	Nah, we don't like locks.
+
+mbind_part1					Matt Dobson
+	Bind some memory for NUMA.
+
+mbind_part2					Matt Dobson
+	Bind some more memory for NUMA.
+
+per_node_rss					Matt Dobson
+	Track which nodes tasks mem is on, so sched can be sensible.
+
+pfn_to_nid					Martin J. Bligh
+	Dance around the twisted rats nest of crap in i386 include.
+
+gfp_node_strict					Dave Hansen
+	Add a node strict binding as a gfp mask option
+
+page_lock					William Lee Irwin
+	Conditionally convert mapping->page_lock back to an rwlock
+
+irqbal_fast					Adam Litke
+	Balance IRQs more readily
+
+kcg						Adam Litke
+	Acylic call graphs from the kernel. Wheeeeeeeeeeeee!
+
+numa_mem_equals 				Dave Hansen
+	mem= command line parameter NUMA awareness.
+
+schedstat					Rick Lindsley
+	Provide lotsa scheduler statistics
+
+autoswap					Con Kolivas
+	Auto-tune swapiness
+
+ext2_fix					Andrew Morton
+	Fix a race in ext2
+
+emulex driver					Emulex
+	Driver for emulex fiberchannel cards
+
+qlogic driver					Qlogic
+	The qlogic driver
+
+protocol254					Paul Mackerras / Omkhar 
+	Allow protocol 254
+
+slabtune					Dave McCracken
+	Take slab in bigger bites on larger machines
+
+less_bouncy					Martin J. Bligh
+	Stop bouncing warm tasks cross node
+
+topdown						Bill Irwin
+	Turn userspace upside down for fun & profit
+
+sysfs_vs_dcache					Maneesh Soni
+	Fix race.
+
+imcplicit_large_page				Adam Litke
+	Utilize large pages without application modifciation.
+
+-mjb						Martin J. Bligh
+	Add a tag to the makefile
+
+

@@ -1,37 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318078AbSHDPkq>; Sun, 4 Aug 2002 11:40:46 -0400
+	id <S318034AbSHDPj7>; Sun, 4 Aug 2002 11:39:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318086AbSHDPkq>; Sun, 4 Aug 2002 11:40:46 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:18424 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318078AbSHDPko>; Sun, 4 Aug 2002 11:40:44 -0400
-Subject: Re: 2.4.19 IDE Partition Check issue
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: alien.ant@ntlworld.com
-Cc: Alex Davis <alex14641@yahoo.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <3D4D4544.4045B5D3@ntlworld.com>
-References: <20020804054239.62923.qmail@web9203.mail.yahoo.com>
-	<1028470037.14195.24.camel@irongate.swansea.linux.org.uk> 
-	<3D4D4544.4045B5D3@ntlworld.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 04 Aug 2002 18:02:33 +0100
-Message-Id: <1028480553.14195.35.camel@irongate.swansea.linux.org.uk>
+	id <S318078AbSHDPj6>; Sun, 4 Aug 2002 11:39:58 -0400
+Received: from ppp-217-133-220-178.dialup.tiscali.it ([217.133.220.178]:16332
+	"EHLO home.ldb.ods.org") by vger.kernel.org with ESMTP
+	id <S318034AbSHDPj6>; Sun, 4 Aug 2002 11:39:58 -0400
+Subject: Re: [PATCH] [RFC] [2.5 i386] GCC 3.1 -march support, PPRO_FENCE
+	reduction, prefetch fixes and other CPU-related changes
+From: Luca Barbieri <ldb@ldb.ods.org>
+To: Sebastian Droege <sebastian.droege@gmx.de>
+Cc: Linux-Kernel ML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020804173245.1e3254f7.sebastian.droege@gmx.de>
+References: <1028471237.1294.515.camel@ldb> 
+	<20020804173245.1e3254f7.sebastian.droege@gmx.de>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-0j2s9Eb4CfjE6w3Ta7Gh"
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 04 Aug 2002 17:43:23 +0200
+Message-Id: <1028475803.1294.529.camel@ldb>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-08-04 at 16:16, alien.ant@ntlworld.com wrote:
-> 
-> Alan - I'm wondering if this issue is related to Maxtor drives? All the
-> reports I have seen of this problem have featured drives from this
-> manufacturer.
 
-The ALi hang may well be sort of this. If its what Andre thinks then its
-lack of support for LBA48 on ALi interface hardware (or at least for the
-documentation we currently have on how to program it). If so -ac2 should
-sort that one out
+--=-0j2s9Eb4CfjE6w3Ta7Gh
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+
+> is there really support for SSE prefetch in athlons _without_ SSE?!
+> I don't know but this seems wrong...
+Yes, according to
+<http://www.amd.com/products/cpg/athlon/techdocs/pdf/22466.pdf>.
+AMD added several intructions in Athlons including movntq, sfence and
+prefetchnta/t0/t1/t2.
+The last 4 instructions are what I call "SSE prefetch" (they could
+called MMXEXT prefetch instead, but it's not much better).
 
 
+--=-0j2s9Eb4CfjE6w3Ta7Gh
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQA9TUubdjkty3ft5+cRAiQUAKDektyg1InXEXB1reKKupdk8X+xMgCg3Dd9
+wlnb0FJ66T7jg778vuDD73k=
+=VIe0
+-----END PGP SIGNATURE-----
+
+--=-0j2s9Eb4CfjE6w3Ta7Gh--

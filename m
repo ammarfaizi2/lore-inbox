@@ -1,82 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268661AbTBZG17>; Wed, 26 Feb 2003 01:27:59 -0500
+	id <S268660AbTBZGYM>; Wed, 26 Feb 2003 01:24:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268662AbTBZG17>; Wed, 26 Feb 2003 01:27:59 -0500
-Received: from holomorphy.com ([66.224.33.161]:55737 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S268661AbTBZG15>;
-	Wed, 26 Feb 2003 01:27:57 -0500
-Date: Tue, 25 Feb 2003 22:37:16 -0800
+	id <S268661AbTBZGYM>; Wed, 26 Feb 2003 01:24:12 -0500
+Received: from holomorphy.com ([66.224.33.161]:54969 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S268660AbTBZGYL>;
+	Wed, 26 Feb 2003 01:24:11 -0500
+Date: Tue, 25 Feb 2003 22:32:06 -0800
 From: William Lee Irwin III <wli@holomorphy.com>
-To: linux-kernel@vger.kernel.org
-Subject: pgcl-2.5.63-1
-Message-ID: <20030226063716.GJ10396@holomorphy.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>,
+       Rik van Riel <riel@imladris.surriel.com>,
+       Andrea Arcangeli <andrea@suse.de>, Andrew Morton <akpm@digeo.com>,
+       Hanna Linder <hannal@us.ibm.com>, lse-tech@lists.sf.et,
+       linux-kernel@vger.kernel.org
+Subject: Re: Minutes from Feb 21 LSE Call
+Message-ID: <20030226063206.GN10411@holomorphy.com>
 Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	"Martin J. Bligh" <mbligh@aracnet.com>,
+	Rik van Riel <riel@imladris.surriel.com>,
+	Andrea Arcangeli <andrea@suse.de>, Andrew Morton <akpm@digeo.com>,
+	Hanna Linder <hannal@us.ibm.com>, lse-tech@lists.sf.et,
 	linux-kernel@vger.kernel.org
+References: <20030225191817.GT29467@dualathlon.random> <372680000.1046201260@flay> <20030225203001.GV29467@dualathlon.random> <417110000.1046206424@flay> <20030225211718.GY29467@dualathlon.random> <20030225212635.GE10411@holomorphy.com> <Pine.LNX.4.50L.0302260221380.17379-100000@imladris.surriel.com> <20030226053805.GK10411@holomorphy.com> <10220000.1046239279@[10.10.2.4]> <20030226061440.GM10411@holomorphy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20030226061440.GM10411@holomorphy.com>
 User-Agent: Mutt/1.3.25i
 Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-*****      if you don't hack the kernel, stop reading now      *****
+On Tue, Feb 25, 2003 at 10:01:20PM -0800, Martin J. Bligh wrote:
+>> It seemed, at least on the simple kernel compile tests that I did, that all
+>> the long chains are not anonymous. It killed 95% of the space issue, which
+>> given the simplicity of the patch was pretty damned stunning. Yes, there's
+>> a pointer per page I guess we could kill in the struct page itself, but I
+>> think you already have a better method for killing mem_map bloat ;-)
 
-pgcl is a forward port and/or 2.5.x (re)implementation of page
-clustering, originally implemented by Hugh Dickins for 2.4.7.
-Don't blame Hugh -- all the bugs are mine and his code worked.
+On Tue, Feb 25, 2003 at 10:14:40PM -0800, William Lee Irwin III wrote:
+> I'm not going to get up in arms about this unless there's a serious
+> performance issue that's going to get smacked down that I want to have
+> a say in how it gets smacked down. aa is happy with the filebacked
+> stuff, so I'm not pressing it (much) further.
+> And yes, page clustering is certainly on its way and fast. I'm getting
+> very close to the point where a general announcement will be in order.
+> There's basically "one last big bug" and two bits of gross suboptimality
+> I want to clean up before bringing the world to bear on it.
 
-This patch is currently in a WIP phase of programming with various
-relatively severe bugs getting worked out, though I've yet to encounter
-non-fsck-recoverable filesystem corruption with remotely current sources.
-Don't bother trying if you aren't prepared to debug.
-
-The patch is available from:
-ftp://ftp.kernel.org/pub/linux/kernel/people/wli/vm/pgcl/
-
-The patches are incremental and "unpackaged". You will have to fetch
-the incremental pgcl-2.5.62-1A, pgcl-2.5.62-1B, etc. diffs to apply
-on top of pgcl-2.5.62-1 etc. Well, pgcl-2.5.63-1 is current, but you
-get the idea.
-
-If you change PAGE_SIZE back to MMUPAGE_SIZE, you shouldn't be able
-to observe any difference in behavior. If you do, send me either a
-patch or a comprehensible(!) bug report. This is _not_ for naive users.
-
-Known issues:
-(0) This code is currently x86-32 only. Dropping something to say
-	PAGE_SIZE == MMUPAGE_SIZE into other arches's code is trivial
-	but largely meaningless.
-(1) aio is 100% untested, and probably broken.
-(2) Unusual corner cases appear to show binary compatibility breakage.
-	This varies by distro; by and large /bin/sh should run, and
-	most of the apps needed for initscripts run. Worse comes to
-	worse init=/bin/sash or some other static executable should run,
-	though if there's a bug in initial user stack setup that could
-	defeat even static executables used for init=...
-(3) SCSI ioctl's are probably broken, but 100% untested.
-(4) Various drivers attempt to vmalloc() and/or ioremap() excessively
-	large regions now that PAGE_SIZE has changed. They may fail
-	during registration, but nothing interesting at runtime.
-(5) Some machines stopped booting probably because of either arch code
-	missed during the audits or flat out bugs.
-(6) I saw some spontaneous reboots ca. 2.5.59 on a stinkpad. The
-	source of the stuff was never tracked down, and no recent boots.
-(7) L3 pagetables aren't fixed up to prevent internal fragmentation.
-	This means PAGE_SIZE will get allocated for every 4KB of
-	L3 pagetables required for a given workload.
-(8) Anonymous pagefault handling hasn't been fixed up to prevent
-	internal fragmentation. This means that most of the time,
-	PAGE_SIZE will get allocated for every 4KB of anonymous
-	memory faulted in. Easily fixable, but not merged due to
-	the fact it provokes bugs more easily with some of the
-	get_user_pages() users.
-(9) Various pagetable indexing algorithms were "sort of needlessly"
-	swizzled around to deal with non-contiguous pagetables set
-	up by page_table_init() and friends. The arch code should
-	be eventually fixed up to make the rest of the world happy
-	and the changes to core/whatever code made for it reverted.
+Screw it. Here it comes, ready or not. hch, I hope you were right...
 
 
 -- wli

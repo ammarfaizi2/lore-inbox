@@ -1,87 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261610AbVB1Oml@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261205AbVB1OnJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261610AbVB1Oml (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Feb 2005 09:42:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261205AbVB1Omk
+	id S261205AbVB1OnJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Feb 2005 09:43:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261389AbVB1OnI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Feb 2005 09:42:40 -0500
-Received: from smtp-out.hotpop.com ([38.113.3.71]:30661 "EHLO
-	smtp-out.hotpop.com") by vger.kernel.org with ESMTP id S261389AbVB1OmO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Feb 2005 09:42:14 -0500
-From: "Antonino A. Daplas" <adaplas@hotpop.com>
-Reply-To: adaplas@pol.net
-To: linux-fbdev-devel@lists.sourceforge.net, Olaf Hering <olh@suse.de>,
-       linux-nvidia@lists.surfsouth.com
-Subject: Re: [Linux-fbdev-devel] Re: 2.6.11-rc5, rivafb i2c oops, bogus error handling
-Date: Mon, 28 Feb 2005 22:41:54 +0800
-User-Agent: KMail/1.5.4
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.58.0502232014190.18997@ppc970.osdl.org> <20050227203214.GA15572@suse.de>
-In-Reply-To: <20050227203214.GA15572@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	Mon, 28 Feb 2005 09:43:08 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:10928 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S261205AbVB1OnE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Feb 2005 09:43:04 -0500
+Date: Mon, 28 Feb 2005 15:43:06 +0100
+From: Martin Mares <mj@ucw.cz>
+To: colbuse@ensisun.imag.fr
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [patch 3/2] drivers/char/vt.c: remove unnecessary code
+Message-ID: <20050228144306.GA16596@atrey.karlin.mff.cuni.cz>
+References: <1109596437.422319158044b@webmail.imag.fr> <20050228132849.B16460@flint.arm.linux.org.uk> <1109599275.4223242b6b560@webmail.imag.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200502282241.55815.adaplas@hotpop.com>
-X-HotPOP: -----------------------------------------------
-                   Sent By HotPOP.com FREE Email
-             Get your FREE POP email at www.HotPOP.com
-          -----------------------------------------------
+In-Reply-To: <1109599275.4223242b6b560@webmail.imag.fr>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 28 February 2005 04:32, Olaf Hering wrote:
->  On Wed, Feb 23, Linus Torvalds wrote:
-> > This time it's really supposed to be a quickie, so people who can, please
-> > check it out, and we'll make the real 2.6.11 asap.
->
-> Here is another one, probably not new.
-> Is riva_get_EDID_i2c a bit too optimistic by not having a $i2cadapter_ok
-> member in riva_par->riva_i2c_chan? It calls riva_probe_i2c_connector
-> even if riva_create_i2c_busses fails to register all 3 busses.
->
+Hello!
 
-Thanks,
+> I agree :) . But, if we look to the code, we can notice that there is actually
+> no reason for npar to be unsigned. What do you think of this version?
 
-Can you try this?
+What does it try to solve?  Your version is in no way better than the previous one.
+The previous one was more readable and it's quite possible that both
+will be compiled to the same sequence of instructions.
 
-Fixed error handling in rivafb-i2c.c if bus registration fails.
+Also, as Arjan noted, if you want to improve the code, use memset.
 
-Signed-off-by: Antonino Daplas <adaplas@pol.net>
----
-
- rivafb-i2c.c |   11 +++++++++--
- 1 files changed, 9 insertions(+), 2 deletions(-)
-
-diff -Nru a/drivers/video/riva/rivafb-i2c.c b/drivers/video/riva/rivafb-i2c.c
---- a/drivers/video/riva/rivafb-i2c.c	2005-01-13 03:57:12 +08:00
-+++ b/drivers/video/riva/rivafb-i2c.c	2005-02-28 08:22:06 +08:00
-@@ -120,8 +120,12 @@
- 	rc = i2c_bit_add_bus(&chan->adapter);
- 	if (rc == 0)
- 		dev_dbg(&chan->par->pdev->dev, "I2C bus %s registered.\n", name);
--	else
--		dev_warn(&chan->par->pdev->dev, "Failed to register I2C bus %s.\n", name);
-+	else {
-+		dev_warn(&chan->par->pdev->dev,
-+			 "Failed to register I2C bus %s.\n", name);
-+		chan->par = NULL;
-+	}
-+
- 	return rc;
- }
- 
-@@ -171,6 +175,9 @@
- 		},
- 	};
- 	u8 *buf;
-+
-+	if (!chan->par)
-+		return NULL;
- 
- 	buf = kmalloc(EDID_LENGTH, GFP_KERNEL);
- 	if (!buf) {
-
-
+				Have a nice fortnight
+-- 
+Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
+Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
+American patent law: two monkeys, fourteen days.

@@ -1,67 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265587AbSKZIv0>; Tue, 26 Nov 2002 03:51:26 -0500
+	id <S264629AbSKZIvV>; Tue, 26 Nov 2002 03:51:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266295AbSKZIv0>; Tue, 26 Nov 2002 03:51:26 -0500
-Received: from dhcp31182033.columbus.rr.com ([24.31.182.33]:61454 "EHLO
-	nineveh.rivenstone.net") by vger.kernel.org with ESMTP
-	id <S265587AbSKZIvY>; Tue, 26 Nov 2002 03:51:24 -0500
-From: "Joseph Fannin" <jhf@rivenstone.net>
-Date: Tue, 26 Nov 2002 03:58:40 -0500
-To: Shawn Starr <spstarr@sh0n.net>, linux-kernel@vger.kernel.org
-Subject: Re: [PROBLEM][SOUND][2.5] - ALSA & OSS cannot find SBAWE32 Card
-Message-ID: <20021126085840.GA1033@zion.rivenstone.net>
-Mail-Followup-To: Shawn Starr <spstarr@sh0n.net>,
-	linux-kernel@vger.kernel.org
-References: <200211260258.05564.spstarr@sh0n.net>
+	id <S265587AbSKZIvU>; Tue, 26 Nov 2002 03:51:20 -0500
+Received: from point41.gts.donpac.ru ([213.59.116.41]:60164 "EHLO orbita1.ru")
+	by vger.kernel.org with ESMTP id <S264629AbSKZIvU>;
+	Tue, 26 Nov 2002 03:51:20 -0500
+Date: Tue, 26 Nov 2002 11:57:43 +0300
+From: Andrey Panin <pazke@orbita1.ru>
+To: Patrick Finnegan <pat@purdueriots.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux Kernel on NCR Worldmark 5100 and 3450 Workstation
+Message-ID: <20021126085743.GA314@pazke.ipt>
+Mail-Followup-To: Patrick Finnegan <pat@purdueriots.com>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0211252242590.7540-100000@ibm-ps850.purdueriots.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="u3/rZRmxL6MmkK24"
+	protocol="application/pgp-signature"; boundary="EeQfGwPcQSOJBaQU"
 Content-Disposition: inline
-In-Reply-To: <200211260258.05564.spstarr@sh0n.net>
+In-Reply-To: <Pine.LNX.4.44.0211252242590.7540-100000@ibm-ps850.purdueriots.com>
 User-Agent: Mutt/1.4i
+X-Uname: Linux pazke 2.2.17
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---u3/rZRmxL6MmkK24
+--EeQfGwPcQSOJBaQU
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Nov 26, 2002 at 02:58:05AM -0500, Shawn Starr wrote:
+On Mon, Nov 25, 2002 at 10:45:27PM -0500, Patrick Finnegan wrote:
+> Does anyone know anything about getting a Linux kernel to boot on either
+> of these machines?  The Worldmark 5100 is a massive multiprocessor Pentium
+> Pro machine with two MCA buses.  The 3450 is a quad-Pentium workstation
+> with a single MCA bus.
 
-> ALSA device list:
->    No soundcards found.
->=20
-> dmesg 2.4.20-pre7 - OSS: - WORKS
-> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D
-
-    Me too!
-
-    In 2.5.47 mainline and 2.5.49-ac1 the ALSA drivers (either sb16 or
-sbawe) load but don't detect devices if PNP support is built in.  The
-same card (an awe64) works fine under 2.4.19.
-
-    Without PNP sb16 works (with only sb16 features) but sbawe will
-not load, complaining that it can't find the awe bits.
+You can ask James Bottomley <james.bottomley@hansenpartnership.com>=20
+about these machines, may be they have Voyager nature.
 
 --=20
-Joseph Fannin
-jhf@rivenstone.net
+Andrey Panin            | Embedded systems software developer
+pazke@orbita1.ru        | PGP key: wwwkeys.eu.pgp.net
 
-
---u3/rZRmxL6MmkK24
+--EeQfGwPcQSOJBaQU
 Content-Type: application/pgp-signature
 Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+Version: GnuPG v1.0.1 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-iD8DBQE94ze/Wv4KsgKfSVgRAsnEAJ45sZoBIIbjmD9QfcQO00mVZKPzWwCfXjHU
-kkR4761udQIyl9e1Jv0pMew=
-=ir5a
+iD8DBQE94zeHBm4rlNOo3YgRAvflAJ9ynNb8UWhCPArD+NeuVJz5A8FKhACfRzKa
+AXHdUEu+U8HL8FrfFHpKt6c=
+=F0sQ
 -----END PGP SIGNATURE-----
 
---u3/rZRmxL6MmkK24--
+--EeQfGwPcQSOJBaQU--

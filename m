@@ -1,45 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266941AbTAPAXY>; Wed, 15 Jan 2003 19:23:24 -0500
+	id <S266939AbTAPAee>; Wed, 15 Jan 2003 19:34:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266944AbTAPAXX>; Wed, 15 Jan 2003 19:23:23 -0500
-Received: from sj-msg-core-3.cisco.com ([171.70.157.152]:38052 "EHLO
-	sj-msg-core-3.cisco.com") by vger.kernel.org with ESMTP
-	id <S266941AbTAPAXW>; Wed, 15 Jan 2003 19:23:22 -0500
-Message-ID: <3E25FD8C.1030103@cisco.com>
-Date: Wed, 15 Jan 2003 16:32:12 -0800
-From: "Jarrett L. Redd" <jredd@cisco.com>
-Organization: Andiamo Systems, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: /proc/meminfo behaviour...
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S266944AbTAPAed>; Wed, 15 Jan 2003 19:34:33 -0500
+Received: from c16688.thoms1.vic.optusnet.com.au ([210.49.244.54]:3009 "EHLO
+	mail.kolivas.net") by vger.kernel.org with ESMTP id <S266939AbTAPAed>;
+	Wed, 15 Jan 2003 19:34:33 -0500
+Message-ID: <1042677806.3e26002e98f98@kolivas.net>
+Date: Thu, 16 Jan 2003 11:43:26 +1100
+From: Con Kolivas <conman@kolivas.net>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: $299.95 /mo  Max/Max  10 GB  $119 /GB  Charged
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Guys, is this normal?
+Cannot allocate memory : fork error with 2.5.5x 
 
-# head -2 /proc/meminfo
-         total:    used:    free:  shared: buffers:  cached:
-Mem:  193830912 76816384 117014528        0   425984 72572928
-                          ^^^^^^^^^
-# sleep 1
-# head -2 /proc/meminfo
-         total:    used:    free:  shared: buffers:  cached:
-Mem:  193830912 76869632 116961280        0   430080 72609792
-                          ^^^^^^^^^
-#
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
+User-Agent: Internet Messaging Program (IMP) 3.1
 
-This is on a PC with no swap and no disk, booting off an initrd stored 
-on a compact flash.  I can understand that while sleep is running, the 
-amount of free memory is reduced.  Why does the number stay reduced even 
-after it is done running?  No matter how long you wait, the number never 
-comes back up.  Is the memory really gone or is there something I don't 
-understand about /proc/meminfo?  Or does this have something to do with 
-the ramdisk?  Thanks.
 
--Jarrett Redd
 
+Since moving contest (http://contest.kolivas.net) to c I get an error trying to
+fork with all 2.5 kernels I try after running it on the 6th load. The error does
+not occur with any 2.4 kernels. I have confirmed it is still present on 2.5.58.
+
+To reproduce the problem:
+Run the latest version of contest without arguments (0.61pre) and after
+no_load,cacherun,process_load,ctar_load,xtar_load and io_load it bombs out with:
+bmark.c:43: SYSTEM ERROR: Cannot allocate memory : fork error
+
+This is not an application error and does not occur with 2.4.x kernels. It
+happens every time and with all 2.5 kernels I have tried. I can start contest
+again without problems after each error and eventually will run into the same error.
+
+Con

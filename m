@@ -1,68 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266081AbRGGJR0>; Sat, 7 Jul 2001 05:17:26 -0400
+	id <S266069AbRGGJjB>; Sat, 7 Jul 2001 05:39:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266074AbRGGJRQ>; Sat, 7 Jul 2001 05:17:16 -0400
-Received: from smtp.mailbox.co.uk ([195.82.125.32]:10123 "EHLO
-	smtp.mailbox.net.uk") by vger.kernel.org with ESMTP
-	id <S266069AbRGGJRB>; Sat, 7 Jul 2001 05:17:01 -0400
-Date: Sat, 7 Jul 2001 10:16:57 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.6 PCMCIA NET modular build breakage
-Message-ID: <20010707101657.C10927@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S266074AbRGGJiw>; Sat, 7 Jul 2001 05:38:52 -0400
+Received: from borg.metroweb.co.za ([196.23.181.81]:23046 "EHLO
+	borg.metroweb.co.za") by vger.kernel.org with ESMTP
+	id <S266069AbRGGJin>; Sat, 7 Jul 2001 05:38:43 -0400
+From: Henry <henry@borg.metroweb.co.za>
+To: Andrew Morton <andrewm@uow.edu.au>
+Subject: Re: OOPS (kswapd) in 2.4.5 and 2.4.6
+Date: Sat, 7 Jul 2001 11:33:25 +0200
+X-Mailer: KMail [version 1.0.28]
+Content-Type: text/plain; charset=US-ASCII
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <01070516412506.06182@borg> <01070708085101.00793@borg> <3B46C342.A27D6C50@uow.edu.au>
+In-Reply-To: <3B46C342.A27D6C50@uow.edu.au>
+MIME-Version: 1.0
+Message-Id: <01070711384402.00793@borg>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Seems like its something that appeared between 2.4.5 and 2.4.6.  Anyone
-know the correct fix, other than reversing the change?
 
------ Forwarded message from Nicolas Pitre <nico@cam.org> -----
----------- Forwarded message ----------
-Date: Fri, 6 Jul 2001 12:17:54 +0400
-From: Oleg Drokin <green@iXcelerator.com>
-To: nico@CAM.ORG
-Subject: 2.4.6-rmk1-np1 breakage
+> 
+> I wonder why it only affects you.  Is the drive which holds
+> your swap partition running in PIO mode?  `hdparm' will tell
+> you.  If it is, then that could easily cause the page to come
+> unlocked before brw_page() has finished touching the buffer
+> ring.  Then all it takes is a parallel try_to_free_buffers
+> on the other CPU.
 
-Hello!
+Here's output from htparm:
 
-   these sevaral bits from latest patch do not allow kernel to build
-   when PCMCIA netcard is selected, but all if the cards are selected as modules
+/dev/hda:
+ multcount    =  0 (off)
+ I/O support  =  0 (default 16-bit)
+ unmaskirq    =  0 (off)
+ using_dma    =  0 (off)
+ keepsettings =  0 (off)
+ nowerr       =  0 (off)
+ readonly     =  0 (off)
+ readahead    =  8 (on)
+ geometry     = 2494/255/63, sectors = 40079088, start = 0
 
-diff -uNr linux-2.4.5-rmk7-np1/drivers/net/pcmcia/Config.in linux-2.4.6-rmk1-np1/drivers/net/pcmcia/Config.in
---- linux-2.4.5-rmk7-np1/drivers/net/pcmcia/Config.in   Mon May 28 10:21:00 2001
-+++ linux-2.4.6-rmk1-np1/drivers/net/pcmcia/Config.in   Wed Jul  4 10:47:46 2001@@ -32,13 +32,4 @@
-    fi
- fi
+Does this provide the info you need?
 
--if [ "$CONFIG_PCMCIA_3C589" = "y" -o "$CONFIG_PCMCIA_3C574" = "y" -o \
--     "$CONFIG_PCMCIA_FMVJ18X" = "y" -o "$CONFIG_PCMCIA_PCNET" = "y" -o \
--     "$CONFIG_PCMCIA_NMCLAN" = "y" -o "$CONFIG_PCMCIA_SMC91C92" = "y" -o \
--     "$CONFIG_PCMCIA_XIRC2PS" = "y" -o "$CONFIG_PCMCIA_RAYCS" = "y" -o \
--     "$CONFIG_PCMCIA_NETWAVE" = "y" -o "$CONFIG_PCMCIA_WAVELAN" = "y" -o \
--     "$CONFIG_PCMCIA_XIRTULIP" = "y" ]; then
--   define_bool CONFIG_PCMCIA_NETCARD y
--fi
+I believe another chap responded to my post with a similar issue (also
+SMP machine).
 
-And this bit for top level Makefile
-
--DRIVERS-$(CONFIG_PCMCIA_NETCARD) += drivers/net/pcmcia/pcmcia_net.o
-+DRIVERS-$(CONFIG_NET_PCMCIA) += drivers/net/pcmcia/pcmcia_net.o
-
-Since all net cards are modules, object list for pcmcia_net.o is empty and
-kernel can't be linked.
-
-Bye,
-    Oleg
-
-
------ End forwarded message -----
-
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Uptime now 21:55 with no oops.
 

@@ -1,75 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262120AbVADXpU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262414AbVADXqk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262120AbVADXpU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 18:45:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262430AbVADXmw
+	id S262414AbVADXqk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 18:46:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262407AbVADXho
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 18:42:52 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:22667 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262120AbVADXlx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 18:41:53 -0500
-Message-ID: <41DB299C.3030405@pobox.com>
-Date: Tue, 04 Jan 2005 18:41:16 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Eric Mudama <edmudama@gmail.com>,
-       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Albert Lee <albertcc@tw.ibm.com>, IDE Linux <linux-ide@vger.kernel.org>,
-       Doug Maxey <dwm@maxeymade.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, Jens Axboe <axboe@suse.de>
-Subject: Re: libata PATA support - work items?
-References: <006301c4ee5c$49e6a230$95714109@tw.ibm.com> <311601c9050101111929aef5ba@mail.gmail.com>
-In-Reply-To: <311601c9050101111929aef5ba@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 4 Jan 2005 18:37:44 -0500
+Received: from fw.osdl.org ([65.172.181.6]:438 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262120AbVADXXV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jan 2005 18:23:21 -0500
+Date: Tue, 4 Jan 2005 15:23:17 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>, Chris Wright <chrisw@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Stephen Smalley <sds@epoch.ncsc.mil>,
+       James Morris <jmorris@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] properly split capset_check+capset_set
+Message-ID: <20050104152317.B2357@build.pdx.osdl.net>
+References: <20050104162745.GA400@IBM-BWN8ZTBWA01.austin.ibm.com> <1104857632.17166.35.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1104857632.17166.35.camel@localhost.localdomain>; from alan@lxorguk.ukuu.org.uk on Tue, Jan 04, 2005 at 10:03:59PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric Mudama wrote:
-> On Thu, 30 Dec 2004 18:42:33 +0800, Albert Lee <albertcc@tw.ibm.com> wrote:
+* Alan Cox (alan@lxorguk.ukuu.org.uk) wrote:
+> On Maw, 2005-01-04 at 16:27, Serge E. Hallyn wrote:
+> > The attached patch removes checks from kernel/capability.c which are
+> > redundant with cap_capset_check() code, and moves the capset_check()
+> > calls to immediately before the capset_set() calls.  This allows
+> > capset_check() to accurately check the setter's permission to set caps
+> > on the target.  Please apply.
 > 
->>    2. C/H/S addressing; libata currently hardcoded to use LBA
-> 
-> 
-> 
-> Are there really people who want to run a newer 2.4 or a 2.6 kernel,
-> who have disks that do not support LBA mode?  CHS will never address
-> more than 32GB of the drive (unless you use vendor unique
-> implementations) and heck, most companies don't even build drives that
-> small anymore...  CHS is very messy, LBA is so much simpler.   Can we
-> just stick with that?
+> Why does this help ?
 
+Without this change, the check was done without knowing who the target
+really was, so the code that sets it had to check as well.
 
-Well.......  :)
+> A partial failure now returns no error ?
 
-Originally when I started libata, I targetted it at modern PCI IDE BMDMA 
-(i.e. Intel ICH4-like) controllers, with an eye towards FIS-based 
-controllers such as Intel AHCI or SiI 3124.
+It never did.  Now it behaves the same as signal delivery which returns
+success if any signals were delivered, and failure if none were delivered.
 
-As a result, I intentionally hardcoded several things such as LBA 
-support, when writing libata.
-
-Over time, I have consistently seen these "hardcode it" decisions 
-reversed, and the hardcoding removed, mainly to add support for 
-controllers that are an existing PATA chip (with no SATA modifications) 
-glued next to a PATA->SATA transparent bridge.  These controllers 
-essentially require PATA support.  Also, in the community, Bart, Alan 
-Cox, and others (hi Albert) have been interested in supporting some PATA 
-controllers with libata.
-
-So while my original intention with libata was "Bart does the IDE driver 
-for PATA, and I do the IDE driver for SATA", and make a clean break, it 
-seems that libata is moving more and more towards eventually having full 
-PATA support for many controllers, with all that entails.
-
-So, that said, I think it is important for libata to fully support PATA, 
-if it is to support it at all.  That means handling the errata that Alan 
-always bugs me about, and that means handling C/H/S support as well.
-
-	Jeff
-
-
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

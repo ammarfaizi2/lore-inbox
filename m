@@ -1,44 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261782AbTIYKO1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 06:14:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261781AbTIYKO1
+	id S261788AbTIYKRO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 06:17:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261787AbTIYKRO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 06:14:27 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:13548 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S261782AbTIYKO0 (ORCPT
+	Thu, 25 Sep 2003 06:17:14 -0400
+Received: from vitelus.com ([64.81.243.207]:37271 "EHLO vitelus.com")
+	by vger.kernel.org with ESMTP id S261784AbTIYKQj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 06:14:26 -0400
-Date: Thu, 25 Sep 2003 03:01:09 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Joe Perches <joe@perches.com>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: [PATCH] 2.6.0-bk6 net/core/dev.c
-Message-Id: <20030925030109.09bbedca.davem@redhat.com>
-In-Reply-To: <1064423867.15283.11.camel@localhost.localdomain>
-References: <Pine.LNX.4.44.0309241012110.3178-100000@home.osdl.org>
-	<1064423867.15283.11.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+	Thu, 25 Sep 2003 06:16:39 -0400
+Date: Thu, 25 Sep 2003 03:15:46 -0700
+From: Aaron Lehmann <aaronl@vitelus.com>
+To: Nick Piggin <piggin@cyberone.com.au>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: Complete I/O starvation with 3ware raid on 2.6
+Message-ID: <20030925101546.GL22525@vitelus.com>
+References: <20030925071252.GE22525@vitelus.com> <20030925004301.171f6645.akpm@osdl.org> <20030925075852.GI22525@vitelus.com> <20030925011052.6f8beab2.akpm@osdl.org> <20030925083142.GK22525@vitelus.com> <3F72B1BC.7080405@cyberone.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3F72B1BC.7080405@cyberone.com.au>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 24 Sep 2003 10:17:47 -0700
-Joe Perches <joe@perches.com> wrote:
+On Thu, Sep 25, 2003 at 07:13:32PM +1000, Nick Piggin wrote:
+> But the load average will be 11 because there are processes stuck in the
+> kernel somewhere in D state. Have a look for them. They might be things
+> like pdflush, kswapd, scsi_*, etc.
 
-> On Wed, 2003-09-24 at 10:13, Linus Torvalds wrote:
-> > Looks sane, but wouldn't it be cleaner to put this ugly special case logic
-> > with casts etc in an inline function and make the code a bit more readable
-> > at the same time?
-> 
-> I've got those.
-> 
-> I've done the ((void*)1) conversions to PKT_SHARED_SKBs
-> and found this missing.  I'll submit those separately.
+They're pdflush and kjournald. I don't have sysrq support compiled in
+at the moment.
 
-Send me what you have and I'll review and apply it.
-
-I haven't accomplished anything today because I've been sick,
-but tomorrow I should be back to full speed once more.
+I've noticed the problem does not occur when the raid can absorb data
+faster than the other drive can throw data at it. My naive mind is
+pretty sure that this is just an issue of way too much being queued
+for writing. If someone could tell me how to control this parameter,
+I'd definately give it a try [tomorrow]. All I've found on my own is
+#define TW_Q_LENGTH 256 in 3w-xxxx.h and am not sure if this is the
+right thing to change or safe to change.

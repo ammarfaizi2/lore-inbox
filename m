@@ -1,55 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266072AbUFDXOw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266078AbUFDXOz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266072AbUFDXOw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 19:14:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266063AbUFDXMV
+	id S266078AbUFDXOz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 19:14:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266070AbUFDXOQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 19:12:21 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:56728 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S266069AbUFDXI1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 19:08:27 -0400
-Date: Sat, 5 Jun 2004 00:08:19 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: linux-kernel@vger.kernel.org
-Cc: perex@suse.cz, torvalds@osdl.org
-Subject: [RFC] ASLA design, depth of code review and lack thereof
-Message-ID: <20040604230819.GR12308@parcelfarce.linux.theplanet.co.uk>
+	Fri, 4 Jun 2004 19:14:16 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:61113 "EHLO
+	baythorne.infradead.org") by vger.kernel.org with ESMTP
+	id S266043AbUFDXJ4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Jun 2004 19:09:56 -0400
+Subject: Re: jff2 filesystem in vanilla
+From: David Woodhouse <dwmw2@infradead.org>
+To: Daniel Egger <de@axiros.com>
+Cc: cijoml@volny.cz, linux-kernel@vger.kernel.org
+In-Reply-To: <F84CE3DA-B605-11D8-B781-000A958E35DC@axiros.com>
+References: <200406041000.41147.cijoml@volny.cz>
+	 <F84CE3DA-B605-11D8-B781-000A958E35DC@axiros.com>
+Content-Type: text/plain
+Message-Id: <1086390590.4588.70.camel@imladris.demon.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
+Date: Sat, 05 Jun 2004 00:09:50 +0100
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by baythorne.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ladies and gentlemen, may I politely ask what description would fit somebody
-who have made the following
+On Fri, 2004-06-04 at 11:02 +0200, Daniel Egger wrote:
+> JFFS2 is included in the standard kernels IIRC, however I'd recommend
+> using the CVS version from the official repository as there are huge
+> improvements in there.
 
-        case SNDRV_PCM_FORMAT_FLOAT_BE:
-        {
-                union {
-                        float f;
-                        u_int32_t i;
-                } u;
-                u.f = 0.0;
-#ifdef SNDRV_LITTLE_ENDIAN
-                return bswap_32(u.i);
-#else
-                return u.i;
-#endif
-        }
-and quite a few similar, er, wonders an ioctl?
+JFFS2 in the 2.4 kernel is an old stable branch.
 
-That's right.  This code just has to be in the kernel.  It can't be in
-a library, oh no.  It can't be a trivial macro that would result in
-compiler generating the constant, no sir - it just had to be proudly
-dumped into the great barfbag in the tree.
+The code in 2.6 and in CVS is much faster to mount, especially, and it
+also supports NAND flash.
 
-And that leads to a really interesting question: how many people had ever
-read that code?  Or documentation covering that ioctl, while we are at it.
+Linus' tree is updated periodically when I'm sufficiently happy with the
+stability of the development tree in CVS, and when I have time to merge
+it, test it and read through all the changes for sanity -- which often
+involves redoing some of them. You should be OK using what's in the
+kernel -- let me know if you have problems.
 
-Unless I'm mistaken, ALSA used revision control for a long, long time.
-Jaroslav, could you please find the origin of that little wonder and
-share with the class - who had done that, why it had been committed into
-ALSA tree and how did it manage to survive until the merge into the main
-tree?
+> To use it on a non-MTD[1] device you will need an emulation layer,
+> the pseudo Block-MTD device. And you will need some additional partition
+> using ext2/ext3/reiserfs/FAT containing the kernel for your Grub/LILO
+> bootloader.
+
+JFFS2 on blkmtd isn't ideal -- it's designed to work on real flash. But
+it works. It could do with someone making it use the stuff we did for
+NAND -- batching writes into 512-byte chunks etc. 
+
+-- 
+dwmw2
+
+

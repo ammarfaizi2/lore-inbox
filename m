@@ -1,45 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262173AbUKKFF1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261311AbUKKFvx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262173AbUKKFF1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Nov 2004 00:05:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262176AbUKKFF0
+	id S261311AbUKKFvx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Nov 2004 00:51:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262093AbUKKFvx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Nov 2004 00:05:26 -0500
-Received: from ozlabs.org ([203.10.76.45]:5281 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S262173AbUKKFFV (ORCPT
+	Thu, 11 Nov 2004 00:51:53 -0500
+Received: from fw.osdl.org ([65.172.181.6]:14053 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261311AbUKKFvw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Nov 2004 00:05:21 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 11 Nov 2004 00:51:52 -0500
+Date: Wed, 10 Nov 2004 21:51:42 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Tim Hockin <thockin@google.com>
+Cc: linux-kernel@vger.kernel.org, greg@kroah.com
+Subject: Re: small PCI probe patch for odd 64 bit BARs
+Message-Id: <20041110215142.3a81b426.akpm@osdl.org>
+In-Reply-To: <20041111044809.GE19615@google.com>
+References: <20041111044809.GE19615@google.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-ID: <16786.62032.421264.819206@cargo.ozlabs.ibm.com>
-Date: Thu, 11 Nov 2004 16:02:08 +1100
-From: Paul Mackerras <paulus@samba.org>
-To: Jake Moilanen <moilanen@austin.ibm.com>
-Cc: Leo Przybylski <leo@leosandbox.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       "Martin J. Bligh" <mbligh@aracnet.com>
-Subject: Re: Blast and data miscompare
-In-Reply-To: <20041109093400.34b49953@localhost>
-References: <41847C52.8030702@leosandbox.org>
-	<20041109093400.34b49953@localhost>
-X-Mailer: VM 7.18 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jake Moilanen writes:
+Tim Hockin <thockin@google.com> wrote:
+>
+> +			sz = pci_size(sz, 0xffffffff);
 
-> Not sure if it's the same problem.  But we were seeing a miscompare on
-> 2.4 due to a incorrect COW happening, followed by a hardware hash hole
-> w/ PPC64.
-> 
-> To fix it we had to make sure that the PTE was cleared and the TLB's
-> flushed before the new PTE was established.
-> 
-> Martin, was this fixed on 2.6?
-
-It can't happen on 2.6; when BenH rewrote the PTE handling in 2.6
-earlier this year, this was one of the things we made sure couldn't be
-a problem.
-
-Paul.
+pci_size() takes three arguments, so this patch appears to not have been
+runtime tested :( 

@@ -1,38 +1,150 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270073AbRIEBv7>; Tue, 4 Sep 2001 21:51:59 -0400
+	id <S270159AbRIEBzu>; Tue, 4 Sep 2001 21:55:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270132AbRIEBvu>; Tue, 4 Sep 2001 21:51:50 -0400
-Received: from zok.SGI.COM ([204.94.215.101]:49878 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S270073AbRIEBvk>;
-	Tue, 4 Sep 2001 21:51:40 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.9-ac6 
-In-Reply-To: Your message of "Mon, 03 Sep 2001 15:05:29 +0200."
-             <20010903150529.J699@athlon.random> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 05 Sep 2001 11:51:11 +1000
-Message-ID: <16601.999654671@kao2.melbourne.sgi.com>
+	id <S270134AbRIEBzl>; Tue, 4 Sep 2001 21:55:41 -0400
+Received: from jffdns01.or.intel.com ([134.134.248.3]:36039 "EHLO
+	ganymede.or.intel.com") by vger.kernel.org with ESMTP
+	id <S270132AbRIEBz0>; Tue, 4 Sep 2001 21:55:26 -0400
+Message-ID: <4148FEAAD879D311AC5700A0C969E89006CDE0E4@orsmsx35.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: "'ebuddington@wesleyan.edu'" <ebuddington@wesleyan.edu>,
+        linux-kernel@vger.kernel.org
+Subject: RE: 2.4.9-ac5: acpi BUG
+Date: Tue, 4 Sep 2001 15:27:34 -0700 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 3 Sep 2001 15:05:29 +0200, 
-Andrea Arcangeli <andrea@suse.de> wrote:
->On Mon, Sep 03, 2001 at 02:50:47AM +0100, Alan Cox wrote:
->> 2.4.9-ac6
->> o	Add MODULE_LICENSE tags to telephony		(Robert Love)
->> o	Add MODULE_LICENSE tags to drivers/video	(Robert Love)
->> o	Add MODULE_LICENSE tags to zorro		(Robert Love)
->
->what's the point of such information? If something I would understand to
->specify the licence of a module when it's _not_ GPL.
+I am mystified how this could still be happening with acpi=off.
 
-The next version of insmod will warn about modules with no
-MODULE_LICENSE at all and inform about modules with proprietary
-licences.  Both cases will mark the kenrel as tainted which will show
-up on bug reports.
+Anyways, I think I know the root cause, so I'll see if I can fix it.
+
+Regards -- Andy
+
+> -----Original Message-----
+> From: Eric Buddington 
+> [mailto:eric@ma-northadams1a-387.bur.adelphia.net]
+> Sent: Tuesday, September 04, 2001 12:03 PM
+> To: linux-kernel@vger.kernel.org
+> Subject: 2.4.9-ac5: acpi BUG
+> Importance: High
+> 
+> 
+> Andy and whoever else cares,
+> 
+> This is similar (identical?) to previous failures I've had. This is
+> 100% repeatable, even with acpi=off. The system is a K6-II. I have an
+> almost identical kernel running on my PII Omnibook with no such
+> problem.
+> 
+> -Eric
+> 
+> -------------------------------------------------
+> ksymoops 2.4.1 on i586 2.4.3-ac3.  Options used
+>      -V (default)
+>      -K (specified)
+>      -L (specified)
+>      -o /packages/linux/2.4.9-ac5/k6/lib/modules/2.4.9-ac5 (specified)
+>      -m /packages/linux/2.4.9-ac5/k6/boot/System.map (specified)
+> 
+> No modules in ksyms, skipping objects
+> kernel BUG at sched.c:712!
+> invalid operand: 0000
+> CPU:    0
+> EIP:    0010:[<c0113e2d>]
+> Using defaults from ksymoops -t elf32-i386 -a i386
+> EFLAGS: 00010082
+> eax: 0000001b   ebx: c1218000   ecx: 00000001   edx: 00000ae6
+> esi: c1219dc0   edi: c0190340   ebp: c1219d84   esp: c1219d58
+> ds: 0018   es: 0018   ss: 0018
+> Process swapper (pid: 1, stackpage=c1219000)
+> Stack: c024b86f 000002c8 c024b856 c1219dc0 c1218000 00000000 
+> c1218000 00000711 
+>        c1218000 c1219dc0 c0190340 c1219e7c c0106f45 00000711 
+> c0189b10 c7fa2540 
+>        c1219dc0 c0190340 c1219e7c 00000008 00000018 00000018 
+> 00000078 c01054ed 
+> Call Trace: [<c0190340>] [<c0106f45>] [<c0189b10>] 
+> [<c0190340>] [<c01054ed>] 
+>    [<c0189c5e>] [<c0189b10>] [<c0189d9c>] [<c019039a>] 
+> [<c0190340>] [<c018fc2f>] 
+>    [<c018fba8>] [<c0190cdb>] [<c01895fc>] [<c0108329>] 
+> [<c01895f0>] [<c01084b6>] 
+>    [<c010a6c4>] [<c018973a>] [<c0192d0a>] [<c01927ed>] 
+> [<c0192447>] [<c019151d>] 
+>    [<c0190efe>] [<c01903c5>] [<c0190360>] [<c018faa7>] 
+> [<c018c830>] [<c01a1b15>] 
+>    [<c0105000>] [<c0105053>] [<c0105000>] [<c01054f6>] [<c0105040>] 
+> Code: 0f 0b 83 c4 0c 8d 65 f4 5b 5e 5f 5d c3 8d b6 00 00 00 00 8b 
+> 
+> >>EIP; c0113e2d <schedule+5d/400>   <=====
+> Trace; c0190340 <acpi_ev_global_lock_thread+0/20>
+> Trace; c0106f45 <reschedule+5/10>
+> Trace; c0189b10 <acpi_os_queue_exec+0/e0>
+> Trace; c0190340 <acpi_ev_global_lock_thread+0/20>
+> Trace; c01054ed <kernel_thread+1d/30>
+> Trace; c0189c5e <acpi_os_schedule_exec+6e/120>
+> Trace; c0189b10 <acpi_os_queue_exec+0/e0>
+> Trace; c0189d9c <acpi_os_queue_for_execution+8c/160>
+> Trace; c019039a <acpi_ev_global_lock_handler+3a/50>
+> Trace; c0190340 <acpi_ev_global_lock_thread+0/20>
+> Trace; c018fc2f <acpi_ev_fixed_event_dispatch+3f/d0>
+> Trace; c018fba8 <acpi_ev_fixed_event_detect+58/a0>
+> Trace; c0190cdb <acpi_ev_sci_handler+1b/30>
+> Trace; c01895fc <acpi_irq+c/10>
+> Trace; c0108329 <handle_IRQ_event+39/80>
+> Trace; c01895f0 <acpi_irq+0/10>
+> Trace; c01084b6 <do_IRQ+56/a0>
+> Trace; c010a6c4 <call_do_IRQ+5/11>
+> Trace; c018973a <acpi_os_out16+a/10>
+> Trace; c0192d0a <acpi_hw_low_level_write+19a/1b0>
+> Trace; c01927ed <acpi_hw_register_write+9d/260>
+> Trace; c0192447 <acpi_hw_register_bit_access+2e7/3f0>
+> Trace; c019151d <acpi_enable_event+6d/c0>
+> Trace; c0190efe <acpi_install_fixed_event_handler+7e/a0>
+> Trace; c01903c5 <acpi_ev_init_global_lock_handler+15/30>
+> Trace; c0190360 <acpi_ev_global_lock_handler+0/50>
+> Trace; c018faa7 <acpi_ev_initialize+47/60>
+> Trace; c018c830 <acpi_enable_subsystem+60/b0>
+> Trace; c01a1b15 <acpi_init+135/180>
+> Trace; c0105000 <_stext+0/0>
+> Trace; c0105053 <init+13/140>
+> Trace; c0105000 <_stext+0/0>
+> Trace; c01054f6 <kernel_thread+26/30>
+> Trace; c0105040 <init+0/140>
+> Code;  c0113e2d <schedule+5d/400>
+> 00000000 <_EIP>:
+> Code;  c0113e2d <schedule+5d/400>   <=====
+>    0:   0f 0b                     ud2a      <=====
+> Code;  c0113e2f <schedule+5f/400>
+>    2:   83 c4 0c                  add    $0xc,%esp
+> Code;  c0113e32 <schedule+62/400>
+>    5:   8d 65 f4                  lea    0xfffffff4(%ebp),%esp
+> Code;  c0113e35 <schedule+65/400>
+>    8:   5b                        pop    %ebx
+> Code;  c0113e36 <schedule+66/400>
+>    9:   5e                        pop    %esi
+> Code;  c0113e37 <schedule+67/400>
+>    a:   5f                        pop    %edi
+> Code;  c0113e38 <schedule+68/400>
+>    b:   5d                        pop    %ebp
+> Code;  c0113e39 <schedule+69/400>
+>    c:   c3                        ret    
+> Code;  c0113e3a <schedule+6a/400>
+>    d:   8d b6 00 00 00 00         lea    0x0(%esi),%esi
+> Code;  c0113e40 <schedule+70/400>
+>   13:   8b 00                     mov    (%eax),%eax
+> 
+>  <0>Kernel panic: Aiee, killing interrupt handler!
+> -
+> To unsubscribe from this list: send the line "unsubscribe 
+> linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

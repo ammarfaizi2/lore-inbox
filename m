@@ -1,161 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261537AbVARAXV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261229AbVARAZo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261537AbVARAXV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jan 2005 19:23:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261532AbVARAXV
+	id S261229AbVARAZo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jan 2005 19:25:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261544AbVARAZh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jan 2005 19:23:21 -0500
-Received: from gannet.scg.man.ac.uk ([130.88.94.110]:13584 "EHLO
-	gannet.scg.man.ac.uk") by vger.kernel.org with ESMTP
-	id S261537AbVARAXH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jan 2005 19:23:07 -0500
-Message-ID: <41EC7A60.9090707@gentoo.org>
-Date: Tue, 18 Jan 2005 02:54:24 +0000
-From: Daniel Drake <dsd@gentoo.org>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041209)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Joseph Fannin <jhf@rivenstone.net>, linux-kernel@vger.kernel.org,
-       Neil Brown <neilb@cse.unsw.edu.au>,
-       William Park <opengeometry@yahoo.ca>
-Subject: [PATCH] Wait and retry mounting root device (revised)
-References: <20050114002352.5a038710.akpm@osdl.org> <20050116005930.GA2273@zion.rivenstone.net>
-In-Reply-To: <20050116005930.GA2273@zion.rivenstone.net>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/mixed;
- boundary="------------090709070200020602070105"
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *1Cqh9G-000KaX-1B*YuZka5xjGto*
+	Mon, 17 Jan 2005 19:25:37 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:40599 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S261542AbVARAZG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jan 2005 19:25:06 -0500
+Date: Tue, 18 Jan 2005 01:25:00 +0100
+From: Andries Brouwer <Andries.Brouwer@cwi.nl>
+To: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org
+Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [Bugme-new] [Bug 4054] Linux partition table reading
+Message-ID: <20050118002446.GA29495@apps.cwi.nl>
+References: <20050117094325.0b54606c.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050117094325.0b54606c.akpm@osdl.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090709070200020602070105
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+> Date: Mon, 17 Jan 2005 03:21:30 -0800
+> From: bugme-daemon@osdl.org
+> Subject: [Bugme-new] [Bug 4054]
+> 
+> Problem Description:
+> Dane-elec 512MB USB keychain drive (using factory FAT partitions)
+> works fine in windows, and on friend's 2.6.10-rc2-mm4 dual Athlon XP,
+> but partition won't mount on my K7/K8 machines.
 
-Retry up to 20 times if mounting the root device fails.  This fixes booting
-from usb-storage devices, which no longer make their partitions immediately
-available.
+Solution:
 
-This should allow booting from root=/dev/sda1 and root=8:1 style parameters, 
-whilst not breaking booting from RAID or initrd :)
-I have also cleaned up the mount_block_root() function a bit.
+You have enabled CONFIG_ACORN_PARTITION_CUMANA. Don't.
 
-Based on an earlier patch from William Park <opengeometry@yahoo.ca>
-Replaces the existing waiting-10s-before-mounting-root-filesystem.patch patch 
-in 2.6.11-rc1-mm1
+Details:
+In partitions/check.c the adfspart_check_CUMANA routine
+is called earlier than msdos_partition().
+This routine adfspart_check_CUMANA() does an adfs_partition() test to see
+whether the thing is an adfs partition. That test does adfs_checkbblk()
+which checks a checksum. The probability that random garbage will pass
+this test is 1 in 256. Disable CONFIG_ACORN_PARTITION_CUMANA unless you
+actually have an Acorn and Cumana partitions.
 
-Signed-off-by: Daniel Drake <dsd@gentoo.org>
+Remarks:
+With low frequency people stumble over this problem.
+Typically they enable all possible partition types
+and do not read any help texts for the various types,
+so adding warnings would not help.
 
---------------090709070200020602070105
-Content-Type: text/x-patch;
- name="boot-delay-retry-v3.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="boot-delay-retry-v3.patch"
+Of course it is a bug that the kernel starts doing random partition
+recognition. These USB devices all have a DOS-type partition table.
+Certainly msdos_partition() should be tried first for them.
 
---- linux-2.6.10/init/do_mounts.c.orig	2005-01-16 19:18:57.000000000 +0000
-+++ linux-2.6.10/init/do_mounts.c	2005-01-17 01:42:25.000000000 +0000
-@@ -6,6 +6,7 @@
- #include <linux/suspend.h>
- #include <linux/root_dev.h>
- #include <linux/security.h>
-+#include <linux/delay.h>
- 
- #include <linux/nfs_fs.h>
- #include <linux/nfs_fs_sb.h>
-@@ -261,6 +262,9 @@ static void __init get_fs_names(char *pa
- static int __init do_mount_root(char *name, char *fs, int flags, void *data)
- {
- 	int err = sys_mount(name, "/root", fs, flags, data);
-+	if (err == -EACCES && (flags | MS_RDONLY) == 0)
-+		err = sys_mount(name, "/root", fs, flags | MS_RDONLY, data);
-+
- 	if (err)
- 		return err;
- 
-@@ -273,38 +277,56 @@ static int __init do_mount_root(char *na
- 	return 0;
- }
- 
-+static int __init mount_root_try_all_fs(char *name, char *fs_names, int flags, void *data)
-+{
-+	char *p;
-+	int err = -EFAULT;
-+
-+	for (p = fs_names; *p; p += strlen(p)+1) {
-+		err = do_mount_root(name, p, flags, root_mount_data);
-+		if (err != -EINVAL)
-+			break;
-+	}
-+
-+	return err;
-+}
-+
- void __init mount_block_root(char *name, int flags)
- {
- 	char *fs_names = __getname();
--	char *p;
- 	char b[BDEVNAME_SIZE];
-+	int tryagain = 20;
- 
- 	get_fs_names(fs_names);
--retry:
--	for (p = fs_names; *p; p += strlen(p)+1) {
--		int err = do_mount_root(name, p, flags, root_mount_data);
--		switch (err) {
--			case 0:
--				goto out;
--			case -EACCES:
--				flags |= MS_RDONLY;
--				goto retry;
--			case -EINVAL:
--				continue;
--		}
--	        /*
--		 * Allow the user to distinguish between failed sys_open
--		 * and bad superblock on root device.
--		 */
--		__bdevname(ROOT_DEV, b);
--		printk("VFS: Cannot open root device \"%s\" or %s\n",
--				root_device_name, b);
--		printk("Please append a correct \"root=\" boot option\n");
- 
--		panic("VFS: Unable to mount root fs on %s", b);
-+	while (--tryagain) {
-+		int err = mount_root_try_all_fs(name, fs_names, flags, root_mount_data);
-+		if (err == 0)
-+			goto out;
-+
-+		/*
-+		 * The root device may not be ready yet, so we retry a number of times
-+		 */
-+		printk(KERN_WARNING "VFS: Waiting %dsec for root device...\n",
-+		       tryagain);
-+		ssleep(1);
-+		if (!ROOT_DEV) {
-+			ROOT_DEV = name_to_dev_t(saved_root_name);
-+			create_dev(name, ROOT_DEV, root_device_name);
-+		}
- 	}
--	panic("VFS: Unable to mount root fs on %s", __bdevname(ROOT_DEV, b));
--out:
-+
-+	/*
-+	 * Allow the user to distinguish between failed sys_open
-+	 * and bad superblock on root device.
-+	 */
-+	__bdevname(ROOT_DEV, b);
-+	printk(KERN_CRIT "VFS: Cannot open root device \"%s\" or %s\n",
-+	       root_device_name, b);
-+	printk(KERN_CRIT "Please append a correct \"root=\" boot option\n");
-+	panic("VFS: Unable to mount root fs on %s", b);
-+
-+ out:
- 	putname(fs_names);
- }
-  
+And earlier already, it is bad that block_dev.c:do_open() does an
+automatic rescan_partitions().
 
---------------090709070200020602070105--
+Every now and then I mumble about these things, and usually Linus
+disagrees. However, these days we have udev and partx and
+blockdev --rereadpt.
+I do not really see any reason why the kernel should do
+automatic partition guessing for any disk encountered.
+(That is just as bad as automatic mounting for any filesystems seen.)
+I suppose we should slowly stop doing that, at least for all non-rootfs disks.
+
+Andries
+
+> Jan 17 03:52:00 erg kernel: SCSI device sda: 985088 512-byte hdwr sectors (504 MB)
+> Jan 17 03:52:00 erg kernel: sda: Write Protect is off
+> Jan 17 03:52:00 erg kernel:  /dev/scsi/host11/bus0/target0/lun0: [CUMANA/ADFS]
+> p1<5>Attached scsi removable disk sda at scsi11, channel 0, id 0, lun 0

@@ -1,79 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263196AbUC2Xyg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 18:54:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263191AbUC2Xyg
+	id S263191AbUC2X7G (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 18:59:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263202AbUC2X7G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 18:54:36 -0500
-Received: from mhub-w5.tc.umn.edu ([160.94.160.35]:10880 "EHLO
-	mhub-w5.tc.umn.edu") by vger.kernel.org with ESMTP id S263202AbUC2Xy0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 18:54:26 -0500
-Subject: Re: older kernels + new glibc?
-From: Matthew Reppert <repp0017@tc.umn.edu>
-To: DervishD <raul@pleyades.net>
-Cc: "Richard B. Johnson" <root@chaos.analogic.com>,
-       Lev Lvovsky <lists1@sonous.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20040329222710.GA8204@DervishD>
-References: <5516F046-81C1-11D8-A0A8-000A959DCC8C@sonous.com>
-	 <Pine.LNX.4.53.0403291602340.2893@chaos>  <20040329222710.GA8204@DervishD>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-sMbQPhsQ4bFUCAMmxltg"
-Message-Id: <1080604519.32741.8.camel@minerva>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 29 Mar 2004 17:55:20 -0600
+	Mon, 29 Mar 2004 18:59:06 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:36767 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S263191AbUC2X7B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Mar 2004 18:59:01 -0500
+To: Jamie Lokier <jamie@shareable.org>
+Cc: =?iso-8859-1?q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
+       Davide Libenzi <davidel@xmailserver.org>,
+       "Patrick J. LoPresti" <patl@users.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] cowlinks v2
+References: <m1vfkq80oy.fsf@ebiederm.dsl.xmission.com>
+	<20040327214238.GA23893@mail.shareable.org>
+	<m1ptax97m6.fsf@ebiederm.dsl.xmission.com>
+	<m1brmhvm1s.fsf@ebiederm.dsl.xmission.com>
+	<20040328122242.GB32296@mail.shareable.org>
+	<m14qs8vipz.fsf@ebiederm.dsl.xmission.com>
+	<20040328235528.GA2693@mail.shareable.org>
+	<m1zna0tp55.fsf@ebiederm.dsl.xmission.com>
+	<20040329123658.GA4984@mail.shareable.org>
+	<m18yhjh2d4.fsf@ebiederm.dsl.xmission.com>
+	<20040329230537.GA8568@mail.shareable.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 29 Mar 2004 16:58:33 -0700
+In-Reply-To: <20040329230537.GA8568@mail.shareable.org>
+Message-ID: <m1u107fbo6.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jamie Lokier <jamie@shareable.org> writes:
 
---=-sMbQPhsQ4bFUCAMmxltg
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> Eric W. Biederman wrote:
+> > So I see a problem with Scenario C.   Perhaps you can refute it.
+> 
+> Ick.  You're right.  I cannot refute it.
 
-On Mon, 2004-03-29 at 16:27, DervishD wrote:
->     Hi Richard :)
->=20
->  * Richard B. Johnson <root@chaos.analogic.com> dixit:
-> > For glibc compatibility you need to get rid of the sym-link(s)
-> > /usr/include/asm and /usr/include/linux in older distributions.
-> > You need to replace those with headers copied from the kernel
-> > in use when the C runtime library was compiled. If you can't find
-> > those, you can either upgrade your C runtime library, or copy
-> > headers from some older kernel that was known to work.
-> > In any event, you need to remove the sym-link that ends up
-> > pointing to your 'latest and greatest' kernel.
->=20
->     Mmm, I'm confused. As far as I knew, you *should* use symlinks to
-> your current (running) kernel includes for /usr/include/asm and
-> /usr/include/linux. I've been doing this for years (in fact I
-> compiled my libc back in the 2.2 days IIRC), without problems. Why it
-> should be avoided and what kind of problems may arise if someone
-> (like me) has those symlinks?
+The upside is since we can't it makes the implementation much easier :)
+ 
+> Fwiw, I would have broken the directory cows on the first write, not
+> the open.
 
-See http://www.kernelnewbies.org/faq/index.php3#headers
+I did it only so that programs do not see inode numbers change under
+them.  For the copy that gets the original inode numbers delaying
+until write is fine, for the copy with the new inode numbers to avoid
+surprises you need to break the cow on the directory and move it to
+the files on readdir, stat, and open.
+ 
+> Thus, snapshots using lazy directory copies requires either that there
+> are no hard links of the type you described (e.g. when snapshotting
+> the root of the filesystem), or rather complex metadata to track the
+> hard links, not dissimilar to the metadata needed to preserve hard
+> links _within_ the snapshot.  They both seem far too complex to be worth it.
 
-The correct place, I've read, to get the headers for the current running
-kernel is /lib/modules/$(uname -r)/build/include ... which of course
-assumes that you keep your kernel in the same place you built it from,
-but that's not a worse assumption than whatever you'd assume for
-/usr/include/{linux,asm} symlinks to work I'm sure.
+Agreed.
+ 
+> Hard links just don't play well with lazy cowlinked directories.
+>
+> They are fine with non-lazy directory cowlinking, where the whole
+> directory tree is duplicated and only files are cow'd.  Note that this
+> doesn't apply to the original implementation which used hard links
+> with a special flag: maintaining hard links in conjunction with
+> cowlinks requires the inode duplication we've been talking about.
 
-Basically, the potential problem as I understand it is binary
-incompatibility with the currently installed glibc.
+? The problem is lazy propagation of the cow flag.  The implementation
+for ordinary files does not matter.  Only the implementation
+for directories matters.
+ 
+> Btw, if we have cowlinks implemented using inode duplication, then it
+> isn't necessary for both inodes to have the same metadata such as
+> mtime, ctime, mode etc.  Only the data is shared.  That means the
+> sendfile() system call could conceivably be overloaded, meaning to
+> copy the data, and let "cp --cow" decide whether it wants to copy the
+> metadata (same as as "cp -rp" or "cp -rpd"), or not (same as "cp -r").
 
-Matt
+Sendfile feels about right but it has a few issues that complication
+something like this.  It works on file descriptors, and it takes
+a length parameter.
 
---=-sMbQPhsQ4bFUCAMmxltg
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+There is a lot of room for things to go wrong when implementing
+cowlink(const char *oldname, const char *newname) in user space.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+Since the semantics are a delayed sendfile in other ways sendfile
+feels like a good fit.
 
-iD8DBQBAaLdmA9ZcCXfrOTMRAjOnAJ0Yoak9YRM+dKIlv4VOBOYef8tlkgCfacTH
-6FMIemJ5txkot81Si8Ak0fo=
-=pVRm
------END PGP SIGNATURE-----
-
---=-sMbQPhsQ4bFUCAMmxltg--
+Eric
 

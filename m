@@ -1,49 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315278AbSIHV4c>; Sun, 8 Sep 2002 17:56:32 -0400
+	id <S315388AbSIHV44>; Sun, 8 Sep 2002 17:56:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315388AbSIHV4c>; Sun, 8 Sep 2002 17:56:32 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:31109 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S315278AbSIHV4c>;
-	Sun, 8 Sep 2002 17:56:32 -0400
-Date: Sun, 8 Sep 2002 17:00:04 -0500
-From: Amos Waterland <apw@us.ibm.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: pwaechtler@mac.com, golbi@mat.uni.torun.pl, linux-kernel@vger.kernel.org,
-       Jakub Jelinek <jakub@redhat.com>, Ulrich Drepper <drepper@redhat.com>
-Subject: Re: [PATCH] POSIX message queues
-Message-ID: <20020908170004.A3257@kvasir.austin.ibm.com>
-References: <B547AE30-C26B-11D6-87AD-00039387C942@mac.com> <Pine.LNX.4.44.0209071716460.17119-100000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0209071716460.17119-100000@localhost.localdomain>; from mingo@elte.hu on Sat, Sep 07, 2002 at 05:17:35PM +0200
+	id <S315413AbSIHV4z>; Sun, 8 Sep 2002 17:56:55 -0400
+Received: from [63.209.4.196] ([63.209.4.196]:518 "EHLO neon-gw.transmeta.com")
+	by vger.kernel.org with ESMTP id <S315388AbSIHV4y>;
+	Sun, 8 Sep 2002 17:56:54 -0400
+Date: Sun, 8 Sep 2002 15:01:02 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Zwane Mwaikambo <zwane@mwaikambo.name>
+cc: Ingo Molnar <mingo@elte.hu>, Robert Love <rml@tech9.net>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][RFC] per isr in_progress markers
+In-Reply-To: <Pine.LNX.4.44.0209081700460.1096-100000@linux-box.realnet.co.sz>
+Message-ID: <Pine.LNX.4.44.0209081453010.1293-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 07, 2002 at 05:17:35PM +0200, Ingo Molnar wrote:
-> 
-> On Sat, 7 Sep 2002 pwaechtler@mac.com wrote:
-> 
-> > OTOH I can't see a _big_ problem when a process with sufficient
-> > permissions can trash the message queues - otherwise I wonder why file
-> > permissions are granted "per user" and not "per process".
-> 
-> yes - furthermore, processes from the same user can 'trash' queues anyway,
-> via ptrace() or mmaping /proc.
 
-That is correct, but it is not the issue though.  The issue is that
-completely unrelated processes can spoof/destroy each other's messages.
+On Sun, 8 Sep 2002, Zwane Mwaikambo wrote:
+>
+> Here is a newer (untested) patch incorporating Ingo's suggestions as well 
+> as adding an extra request_irq flag so that isrs can use isr_unmask_irq() 
+> to enable their interrupt lines.
 
-If a queue is set up with mq_open(name, O_CREAT|O_RDWR, S_IWOTH, &attr),
-the process which set it up expects that "others" (processes not owned
-by the user or by users in his/her group) will be able to send, and only
-send, messages.  If shared memory is used, "others" must be able to
-update the data structures representing the queue, so they will be able
-to do a lot more than just send.
+Hmm.. I really don't get the point of what this is supposed to actually 
+help.
 
-The fundamental problem is that filesystem permissions do not map
-cleanly to message queue permissions.  Does this make sense?  Thanks.
+Clearly, if the device doesn't share the irq line, this doesn't matter. 
+Similarly, it shouldn't matter if there is just one device that is active 
+(ie irq line sharing with some slow device where the interrupt happens 
+fairly seldom).
 
-Amos Waterland
+As far as I can tell, the only time when this might be an advantage is an 
+SMP machine with multiple devices sharing an extremely busy irq line. Then 
+the per-isr in-progress bit allows multiple CPU's to actively handle 
+several of the devices at the same time.
+
+Or is there some other case where this is helpful?
+
+The reason I don't much like this is:
+
+ - bigger SMP machines don't tend to share all that many interrupts
+   anyway, since they all use IO-APICs and tend to have fairly sparse irq
+   setups (as opposed to most laptops, which often seem to put every PCI
+   device on the same irq)
+
+ - if both devices really _are_ that actively pushing a lot of interrupts, 
+   it sounds like you actually want to keep the caches hot on one CPU
+   instead of randomly taking the irq on various CPU's. Have you actually 
+   got performance numbers to show otherwise? That irq lock is going to 
+   bounce back and forth a _lot_, quite possibly undoing any advantage of 
+   the patch.
+
+ - on all the cases where this _doesn't_ help, it just potentially makes 
+   the stack depth even deeper.
+
+So I'd really like to understand what the upsides are..
+
+		Linus
+

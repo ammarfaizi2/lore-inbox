@@ -1,407 +1,163 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261574AbTI3Pc3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 11:32:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261570AbTI3Pc2
+	id S261588AbTI3Pbe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 11:31:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261587AbTI3Pbe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 11:32:28 -0400
-Received: from pix-525-pool.redhat.com ([66.187.233.200]:7475 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id S261585AbTI3Pbn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 11:31:43 -0400
-Message-ID: <3F79A1E3.2020902@RedHat.com>
-Date: Tue, 30 Sep 2003 11:31:47 -0400
-From: Steve Dickson <SteveD@redhat.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20030925
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-CC: nfs@lists.sourceforge.net, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: UPDATED: Re: [NFS] Re: [PATCH v2] reduce NFS stack usage
-References: <mailman.1064420466.30286.linux-kernel2news@redhat.com>	<3F7335B4.1070002@RedHat.com> <shsk77w3bii.fsf@charged.uio.no> <3F78E27F.1020609@RedHat.com>
-In-Reply-To: <3F78E27F.1020609@RedHat.com>
-Content-Type: multipart/mixed;
- boundary="------------040701010502090000070008"
+	Tue, 30 Sep 2003 11:31:34 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:6022 "EHLO mail.shareable.org")
+	by vger.kernel.org with ESMTP id S261585AbTI3PbP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Sep 2003 11:31:15 -0400
+Date: Tue, 30 Sep 2003 16:30:52 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Dave Jones <davej@redhat.com>, John Bradford <john@grabjohn.com>,
+       akpm@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: your mail
+Message-ID: <20030930153052.GE28876@mail.shareable.org>
+References: <200309300817.h8U8HGrf000881@81-2-122-30.bradfords.org.uk> <20030930133113.GC23333@redhat.com> <20030930140627.GB28876@mail.shareable.org> <20030930145007.GB12812@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030930145007.GB12812@redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040701010502090000070008
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Dave Jones wrote:
+>  > I'm not sure what the fuss is; a strict 386 kernel runs just fine
+>  > without any problems on an Athlon.  But anyway...
+> 
+> Unless it got configured away as proposed in your earlier patch.
 
+No, I don't understand.  What about my patch, or indeed anything else,
+stops a "strict 386" kernel from running on an Athlon?
 
-While doing some testing with this patch I found
-a hole in one of the return paths...
+>  > The latter is for distro boots.  The former is for that
+>  > 386-as-a-firewall with 1MB of RAM, where it _really_ has to trim
+>  > everything it can, and no errata thank you.
+> 
+> Again, 'trimming' away a few hundred bytes of errata workarounds
+> is ridiculous when we have bigger fish to fry where we can save
+> KBs of .text size, and MB's of runtime memory.
 
-diff -u linux-2.4/fs/nfs/dir.c linux-2.4/fs/nfs/dir.c
---- linux-2.4/fs/nfs/dir.c      2003-09-30 10:34:46.000000000 -0400
-+++ linux-2.4/fs/nfs/dir.c      2003-09-29 20:36:46.000000000 -0400
-@@ -572,7 +572,6 @@
-        nfs_renew_times(dentry);
-  out_valid:
-        unlock_kernel();
-+       nfs_dirop_free(fhandle, fattr);
-        return 1;
-  out_bad:
-        NFS_CACHEINV(dir);
+Well I think both are worthwhile.  Low hanging fruit and all that -
+this is an example of a small saving that's very clear and easy.
 
+>  > I've not heard of anyone actually wanting a strict 386 kernel lately,
+>  > but strict 486 is not so unusual.
+> 
+> ISTR that current gcc's emit 486 instructions anyway, so its possible
+> that with a modern toolchain, you can't *build* a 386 kernel.
+> I'm not sure if that got fixed or not, I don't track gcc lists any more.
 
-Attached is the updated patch...
+Afaict GCC has fine targetting for the 386, better than it did years
+ago.  It didn't used to use the "leave" instruction, have an option to
+optimise for size, or options for selecting exactly which
+architectural instruction set it would use.
 
-SteveD.
+Anyway, that there is very little difference between 386 and 486 from
+an application point of view anyway.  You may be thinking of the
+recent C++ ABI debacle, I think it was, which accidentially turned out
+to require some instruction emulation in the Debian kernel.  I think
+they've fixed it in GCC now.
 
---------------040701010502090000070008
-Content-Type: text/plain;
- name="linux-2.4.23-nfs-stackoverflow1.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="linux-2.4.23-nfs-stackoverflow1.patch"
+>  > Just as some people want a P4 optimised kernel, and some people want a
+>  > K7 optimised kernel, so some people want a 386 or 486 or Pentium
+>  > optimised kernel.  Lowest-common-denominator means it runs on
+>  > everything, and isn't really anything to do with 386 any more - that's
+>  > not really the lowest-common-denominator, by virtue of the obvious
+>  > fact that pure 386 code isn't reliable on all other CPUs.
+> 
+> Elaborate? "pure 386 code" (whatever that means in your definition)
+> should run perfectly reliable on every CPU we care about.
 
---- linux-2.4/fs/nfs/inode.c.orig	2003-09-29 13:39:47.000000000 -0400
-+++ linux-2.4/fs/nfs/inode.c	2003-09-29 20:15:12.000000000 -0400
-@@ -1133,6 +1133,8 @@ extern int nfs_init_readpagecache(void);
- extern int nfs_destroy_readpagecache(void);
- extern int nfs_init_writepagecache(void);
- extern int nfs_destroy_writepagecache(void);
-+extern int nfs_init_diroppagecache(void);
-+extern void nfs_destroy_diroppagecache(void);
- 
- /*
-  * Initialize NFS
-@@ -1153,6 +1155,10 @@ static int __init init_nfs_fs(void)
- 	if (err)
- 		return err;
- 
-+	err = nfs_init_diroppagecache();
-+	if (err)
-+		return err;
-+
- #ifdef CONFIG_PROC_FS
- 	rpc_proc_register(&nfs_rpcstat);
- #endif
-@@ -1161,6 +1167,7 @@ static int __init init_nfs_fs(void)
- 
- static void __exit exit_nfs_fs(void)
- {
-+	nfs_destroy_diroppagecache();
- 	nfs_destroy_writepagecache();
- 	nfs_destroy_readpagecache();
- 	nfs_destroy_nfspagecache();
---- linux-2.4/fs/nfs/dir.c.orig	2003-09-29 13:39:47.000000000 -0400
-+++ linux-2.4/fs/nfs/dir.c	2003-09-30 10:34:46.000000000 -0400
-@@ -69,6 +69,51 @@ struct inode_operations nfs_dir_inode_op
- 	revalidate:	nfs_revalidate,
- 	setattr:	nfs_notify_change,
- };
-+static kmem_cache_t *nfs_ddata_cachep;
-+
-+int nfs_init_diroppagecache(void)
-+{
-+	nfs_ddata_cachep = kmem_cache_create("nfs_diropt_data",
-+					     sizeof(struct nfs_fh) + sizeof(struct nfs_fattr),
-+					     0, SLAB_HWCACHE_ALIGN,
-+					     NULL, NULL);
-+	if (nfs_ddata_cachep == NULL)
-+		return -ENOMEM;
-+
-+	return 0;
-+}
-+
-+void nfs_destroy_diroppagecache(void)
-+{
-+	if (kmem_cache_destroy(nfs_ddata_cachep))
-+		printk(KERN_INFO "nfs_diropt_data: not all structures were freed\n");
-+}
-+static __inline__ int 
-+nfs_dirop_alloc(struct nfs_fh **fh, struct nfs_fattr **fattr)
-+{
-+	void *mem;
-+	static int len = sizeof(struct nfs_fh) + sizeof(struct nfs_fattr);
-+
-+	mem = kmem_cache_alloc(nfs_ddata_cachep, GFP_NOFS);
-+	if (mem == NULL)
-+		return -ENOMEM;
-+
-+	memset(mem, 0, len);
-+	*fh = (struct nfs_fh *)mem;
-+	*fattr = (struct nfs_fattr *) (mem + sizeof(struct nfs_fh));
-+
-+	return 0;
-+}
-+static __inline__ void 
-+nfs_dirop_free(struct nfs_fh *fh, struct nfs_fattr *fattr)
-+{
-+	void *mem = ((void *)fh < (void *)fattr ? 
-+		(void *)fh : (void *)fattr);
-+
-+	kmem_cache_free(nfs_ddata_cachep, mem);
-+
-+	return;
-+}
- 
- typedef u32 * (*decode_dirent_t)(u32 *, struct nfs_entry *, int);
- typedef struct {
-@@ -352,12 +397,16 @@ static int nfs_readdir(struct file *filp
- 	nfs_readdir_descriptor_t my_desc,
- 			*desc = &my_desc;
- 	struct nfs_entry my_entry;
-+	struct nfs_fh   *fh;
-+	struct nfs_fattr *fattr;
- 	long		res;
- 
- 	res = nfs_revalidate(dentry);
- 	if (res < 0)
- 		return res;
- 
-+	if (nfs_dirop_alloc(&fh, &fattr))
-+		return -ENOMEM;
- 	/*
- 	 * filp->f_pos points to the file offset in the page cache.
- 	 * but if the cache has meanwhile been zapped, we need to
-@@ -366,6 +415,8 @@ static int nfs_readdir(struct file *filp
- 	 */
- 	memset(desc, 0, sizeof(*desc));
- 	memset(&my_entry, 0, sizeof(my_entry));
-+	my_entry.fh = fh;
-+	my_entry.fattr = fattr;
- 
- 	desc->file = filp;
- 	desc->target = filp->f_pos;
-@@ -393,6 +444,8 @@ static int nfs_readdir(struct file *filp
- 			break;
- 		}
- 	}
-+	nfs_dirop_free(fh, fattr);
-+
- 	if (desc->error < 0)
- 		return desc->error;
- 	if (res < 0)
-@@ -476,8 +529,11 @@ static int nfs_lookup_revalidate(struct 
- 	struct inode *dir;
- 	struct inode *inode;
- 	int error;
--	struct nfs_fh fhandle;
--	struct nfs_fattr fattr;
-+	struct nfs_fh *fhandle;
-+	struct nfs_fattr *fattr;
-+
-+	if (nfs_dirop_alloc(&fhandle, &fattr))
-+		return 0;
- 
- 	lock_kernel();
- 	dir = dentry->d_parent->d_inode;
-@@ -505,17 +561,18 @@ static int nfs_lookup_revalidate(struct 
- 	if (NFS_STALE(inode))
- 		goto out_bad;
- 
--	error = NFS_PROTO(dir)->lookup(dir, &dentry->d_name, &fhandle, &fattr);
-+	error = NFS_PROTO(dir)->lookup(dir, &dentry->d_name, fhandle, fattr);
- 	if (error)
- 		goto out_bad;
--	if (memcmp(NFS_FH(inode), &fhandle, sizeof(struct nfs_fh))!= 0)
-+	if (memcmp(NFS_FH(inode), fhandle, sizeof(struct nfs_fh))!= 0)
- 		goto out_bad;
--	if ((error = nfs_refresh_inode(inode, &fattr)) != 0)
-+	if ((error = nfs_refresh_inode(inode, fattr)) != 0)
- 		goto out_bad;
- 
- 	nfs_renew_times(dentry);
-  out_valid:
- 	unlock_kernel();
-+	nfs_dirop_free(fhandle, fattr);
- 	return 1;
-  out_bad:
- 	NFS_CACHEINV(dir);
-@@ -529,6 +586,7 @@ static int nfs_lookup_revalidate(struct 
- 	}
- 	d_drop(dentry);
- 	unlock_kernel();
-+	nfs_dirop_free(fhandle, fattr);
- 	return 0;
- }
- 
-@@ -575,8 +633,8 @@ static struct dentry *nfs_lookup(struct 
- {
- 	struct inode *inode;
- 	int error;
--	struct nfs_fh fhandle;
--	struct nfs_fattr fattr;
-+	struct nfs_fh *fhandle;
-+	struct nfs_fattr *fattr;
- 
- 	dfprintk(VFS, "NFS: lookup(%s/%s)\n",
- 		dentry->d_parent->d_name.name, dentry->d_name.name);
-@@ -586,15 +644,17 @@ static struct dentry *nfs_lookup(struct 
- 		goto out;
- 
- 	error = -ENOMEM;
-+	if (nfs_dirop_alloc(&fhandle, &fattr))
-+		goto out;
- 	dentry->d_op = &nfs_dentry_operations;
- 
--	error = NFS_PROTO(dir)->lookup(dir, &dentry->d_name, &fhandle, &fattr);
-+	error = NFS_PROTO(dir)->lookup(dir, &dentry->d_name, fhandle, fattr);
- 	inode = NULL;
- 	if (error == -ENOENT)
- 		goto no_entry;
- 	if (!error) {
- 		error = -EACCES;
--		inode = nfs_fhget(dentry, &fhandle, &fattr);
-+		inode = nfs_fhget(dentry, fhandle, fattr);
- 		if (inode) {
- 	    no_entry:
- 			d_add(dentry, inode);
-@@ -603,6 +663,7 @@ static struct dentry *nfs_lookup(struct 
- 		nfs_renew_times(dentry);
- 	}
- out:
-+	nfs_dirop_free(fhandle, fattr);
- 	return ERR_PTR(error);
- }
- 
-@@ -642,13 +703,16 @@ out_err:
- static int nfs_create(struct inode *dir, struct dentry *dentry, int mode)
- {
- 	struct iattr attr;
--	struct nfs_fattr fattr;
--	struct nfs_fh fhandle;
-+	struct nfs_fattr *fattr;
-+	struct nfs_fh *fhandle;
- 	int error;
- 
- 	dfprintk(VFS, "NFS: create(%x/%ld, %s\n",
- 		dir->i_dev, dir->i_ino, dentry->d_name.name);
- 
-+	if (nfs_dirop_alloc(&fhandle, &fattr))
-+		return -ENOMEM;
-+
- 	attr.ia_mode = mode;
- 	attr.ia_valid = ATTR_MODE;
- 
-@@ -660,11 +724,13 @@ static int nfs_create(struct inode *dir,
- 	 */
- 	nfs_zap_caches(dir);
- 	error = NFS_PROTO(dir)->create(dir, &dentry->d_name,
--					 &attr, 0, &fhandle, &fattr);
-+					 &attr, 0, fhandle, fattr);
- 	if (!error)
--		error = nfs_instantiate(dentry, &fhandle, &fattr);
-+		error = nfs_instantiate(dentry, fhandle, fattr);
- 	else
- 		d_drop(dentry);
-+
-+	nfs_dirop_free(fhandle, fattr);
- 	return error;
- }
- 
-@@ -674,23 +740,28 @@ static int nfs_create(struct inode *dir,
- static int nfs_mknod(struct inode *dir, struct dentry *dentry, int mode, int rdev)
- {
- 	struct iattr attr;
--	struct nfs_fattr fattr;
--	struct nfs_fh fhandle;
-+	struct nfs_fattr *fattr;
-+	struct nfs_fh *fhandle;
- 	int error;
- 
- 	dfprintk(VFS, "NFS: mknod(%x/%ld, %s\n",
- 		dir->i_dev, dir->i_ino, dentry->d_name.name);
- 
-+	if (nfs_dirop_alloc(&fhandle, &fattr))
-+		return -ENOMEM;
-+
- 	attr.ia_mode = mode;
- 	attr.ia_valid = ATTR_MODE;
- 
- 	nfs_zap_caches(dir);
- 	error = NFS_PROTO(dir)->mknod(dir, &dentry->d_name, &attr, rdev,
--					&fhandle, &fattr);
-+					fhandle, fattr);
- 	if (!error)
--		error = nfs_instantiate(dentry, &fhandle, &fattr);
-+		error = nfs_instantiate(dentry, fhandle, fattr);
- 	else
- 		d_drop(dentry);
-+
-+	nfs_dirop_free(fhandle, fattr);
- 	return error;
- }
- 
-@@ -700,13 +771,16 @@ static int nfs_mknod(struct inode *dir, 
- static int nfs_mkdir(struct inode *dir, struct dentry *dentry, int mode)
- {
- 	struct iattr attr;
--	struct nfs_fattr fattr;
--	struct nfs_fh fhandle;
-+	struct nfs_fattr *fattr;
-+	struct nfs_fh *fhandle;
- 	int error;
- 
- 	dfprintk(VFS, "NFS: mkdir(%x/%ld, %s\n",
- 		dir->i_dev, dir->i_ino, dentry->d_name.name);
- 
-+	if (nfs_dirop_alloc(&fhandle, &fattr))
-+		return -ENOMEM;
-+
- 	attr.ia_valid = ATTR_MODE;
- 	attr.ia_mode = mode | S_IFDIR;
- 
-@@ -720,12 +794,14 @@ static int nfs_mkdir(struct inode *dir, 
- 	d_drop(dentry);
- #endif
- 	nfs_zap_caches(dir);
--	error = NFS_PROTO(dir)->mkdir(dir, &dentry->d_name, &attr, &fhandle,
--					&fattr);
-+	error = NFS_PROTO(dir)->mkdir(dir, &dentry->d_name, &attr, fhandle,
-+					fattr);
- 	if (!error)
--		error = nfs_instantiate(dentry, &fhandle, &fattr);
-+		error = nfs_instantiate(dentry, fhandle, fattr);
- 	else
- 		d_drop(dentry);
-+
-+	nfs_dirop_free(fhandle, fattr);
- 	return error;
- }
- 
---- linux-2.4/fs/nfs/nfs3xdr.c.orig	2003-09-29 13:39:47.000000000 -0400
-+++ linux-2.4/fs/nfs/nfs3xdr.c	2003-09-29 20:37:09.000000000 -0400
-@@ -616,10 +616,10 @@ nfs3_decode_dirent(u32 *p, struct nfs_en
- 	p = xdr_decode_hyper(p, &entry->cookie);
- 
- 	if (plus) {
--		p = xdr_decode_post_op_attr(p, &entry->fattr);
-+		p = xdr_decode_post_op_attr(p, entry->fattr);
- 		/* In fact, a post_op_fh3: */
- 		if (*p++) {
--			p = xdr_decode_fhandle(p, &entry->fh);
-+			p = xdr_decode_fhandle(p, entry->fh);
- 			/* Ugh -- server reply was truncated */
- 			if (p == NULL) {
- 				dprintk("NFS: FH truncated\n");
-@@ -629,7 +629,7 @@ nfs3_decode_dirent(u32 *p, struct nfs_en
- 		} else {
- 			/* If we don't get a file handle, the attrs
- 			 * aren't worth a lot. */
--			entry->fattr.valid = 0;
-+			entry->fattr->valid = 0;
- 		}
- 	}
- 
---- linux-2.4/include/linux/nfs_xdr.h.orig	2003-09-29 13:40:08.000000000 -0400
-+++ linux-2.4/include/linux/nfs_xdr.h	2003-09-29 20:18:20.000000000 -0400
-@@ -109,8 +109,8 @@ struct nfs_entry {
- 	const char *		name;
- 	unsigned int		len;
- 	int			eof;
--	struct nfs_fh		fh;
--	struct nfs_fattr	fattr;
-+	struct nfs_fh		*fh;
-+	struct nfs_fattr	*fattr;
- };
- 
- /*
+If that were true, why are we talking about needing workarounds for
+non-386 chips to work correctly?
 
---------------040701010502090000070008--
+The canonical example is the F00F sequence: reliable on a 386, crashes
+a Pentium.  That's a fine example of pure 386 code not being reliable
+on a higher CPU.  And that's why it isn't safe to run Linux 1.0 on
+your Pentium web server.
 
+> So first you argue for compiling out a few hundred bytes of errata
+> workaround, now you want to instead compile in checks & printk's
+> (which probably add up to not far off the same amount of space).
+
+Oh, I have nothing against __init space :)
+
+>  > By selecting a PII kernel, it is possible to configure out the code
+>  > for X86_PPRO_FENCE and X86_F00F_BUG, yet as far as I can tell, those
+>  > _can_ possibly boot on kernels where the errata are needed, and nary a
+>  > printk is emitted for it.  Nasty bugs they are, too.
+> 
+> Indeed. That's arguably a bug that occured when someone split the
+> original CONFIG_M686 into _M686 & MPENTIUMII.
+
+It's a bit more complicated.  It dates from before we had the
+"alternative" macro, and it was still cool to optimise spin_unlock()
+into the most minimal instruction sequence at compile time.
+
+It's only since then that we've been generalising to "M586 should run
+on all later models correctly".  Arguably, tidying up in the process.
+
+Now we could use "alternative" to put the locked store or non-locked
+store there and it would not look out of place.
+
+If we're honest, Linux seems to have evolved through the 2.5 series
+from "optimise the primitives as tight as reasonable for a target
+architecture" to "a few nops here and there won't hurt".  Perhaps
+Transmeta's malign influence, as nops cost virtually nothing on those :)
+
+Or perhaps it's because CPU models have branched and don't make a
+straight line any more.  So we have to do more run-time checking to
+keep it sane.
+
+>  > More generally than the CPU, you can also configure out BLK_DEV_RZ1000
+>  > which is another crucial workaround that needs to go in any
+>  > lowest-common-denominator kernel.
+> 
+> I wouldn't look at the history of drivers/ide/ as a shining example of
+> good design 8-)
+
+No, but as an example of needing to enable all the workarounds for a
+distro boot kernel, it's a glorious gem.  Even now people aren't quite
+sure if multi-sector mode or DMA should be enabled by default :)
+
+>  > Basically, if you're building a
+>  > distro boot kernel, you must turn on all known workarounds.  That's
+>  > certainly lowest-common-denominator, but it's a far cry from the
+>  > configuration that a 386-as-firewall user wants.
+> 
+> Ok, I see what you're getting at, but Adrian's patch turned arch/i386/Kconfig
+> and arch/i386/Makefile into guacamole.  After spending so much time
+> getting that crap into something maintainable, it seemed a huge step
+> backwards to litter it with dozens of ifdefs and duplication.
+> There has to be a cleaner way of pleasing everyone.
+
+Perhaps it's in a name.  It doesn't help that there's an assumed
+linear progression of CPUs to support, up to the point where they
+branch off all over the place in feature space.  In the linear part,
+CONFIG_M586, CONFIG_M686 etc. seem to mean "support this CPU or
+later", whatever later means (and it's not stated exactly).  After the
+explosion of different feature directions, they stop meaning that and
+just become optimisation knobs, as all the different essential features
+are supported at run time.
+
+Personally I think Adrian's patch's heart is in the right place,
+simply because the menu options make more sense than the present
+rather confusion decision, if you intend to (or might ever, take your
+pick) run a kernel compiled for one CPU on another.  I am never sure,
+for example, if it's safe to take the hard disk from my K6 and drop it
+into a P5MMX box and boot from it.  The kernel config just doesn't
+make that clear.
+
+With Adrian's it does, even if the code behind it is a little like
+guacamole.  Perhaps the code could be cleaner; I don't see that
+individual CPU model support is much different than what we already
+have, except for the option to fix features at compile time rather than
+run time.
+
+And that gives me an idea.... ;)
+
+-- Jamie

@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261663AbVAISWf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261681AbVAIS1k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261663AbVAISWf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jan 2005 13:22:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261674AbVAISWf
+	id S261681AbVAIS1k (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jan 2005 13:27:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261685AbVAIS1k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jan 2005 13:22:35 -0500
-Received: from fsmlabs.com ([168.103.115.128]:27299 "EHLO fsmlabs.com")
-	by vger.kernel.org with ESMTP id S261663AbVAISWc (ORCPT
+	Sun, 9 Jan 2005 13:27:40 -0500
+Received: from fsmlabs.com ([168.103.115.128]:45219 "EHLO fsmlabs.com")
+	by vger.kernel.org with ESMTP id S261681AbVAIS1i (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jan 2005 13:22:32 -0500
-Date: Sun, 9 Jan 2005 11:20:53 -0700 (MST)
+	Sun, 9 Jan 2005 13:27:38 -0500
+Date: Sun, 9 Jan 2005 11:27:20 -0700 (MST)
 From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
 To: Andi Kleen <ak@muc.de>
 cc: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] x86_64: Notify user of MCE events (updated 2)
+Subject: Re: [PATCH] x86_64: Notify user of MCE events (updated)
 In-Reply-To: <m1fz1av5am.fsf@muc.de>
-Message-ID: <Pine.LNX.4.61.0501091119460.13639@montezuma.fsmlabs.com>
+Message-ID: <Pine.LNX.4.61.0501091127030.13639@montezuma.fsmlabs.com>
 References: <Pine.LNX.4.61.0501082121380.13639@montezuma.fsmlabs.com>
  <m1sm5av9fd.fsf@muc.de> <Pine.LNX.4.61.0501091005590.13639@montezuma.fsmlabs.com>
  <m1fz1av5am.fsf@muc.de>
@@ -24,56 +24,21 @@ Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-x86_64 uses a userspace mce utility to decode MCEs, this patch will ensure
-that the user is notified of MCE events being logged too.
+On Sun, 9 Jan 2005, Andi Kleen wrote:
 
-Updated to incorporate suggestions from Andi Kleen
+> Zwane Mwaikambo <zwane@arm.linux.org.uk> writes:
+> > +	 */
+> > +	if (notify_user && console_logged) {
+> > +		notify_user = 0;
+> > +		clear_bit(0, &console_logged);
+> > +		printk(KERN_EMERG "Machine check exception logged\n");
+> 
+> Another suggestion: don't make this KERN_EMERG. Make it KERN_INFO. 
+> Logged errors are usually correct, so there is no need for an 
+> emergency.
+> 
+> Also since these are not always exceptions (but can be read from
+> the polling timer) I would call them "machine check events" 
 
-Signed-off-by: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Thanks for the comments, i've updated the patch.
 
-Index: linux-2.6.10-mm1/arch/x86_64/kernel/mce.c
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.10-mm1/arch/x86_64/kernel/mce.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 mce.c
---- linux-2.6.10-mm1/arch/x86_64/kernel/mce.c	4 Jan 2005 04:03:35 -0000	1.1.1.1
-+++ linux-2.6.10-mm1/arch/x86_64/kernel/mce.c	9 Jan 2005 18:18:25 -0000
-@@ -31,6 +31,8 @@ static int mce_dont_init;
- static int tolerant = 1;
- static int banks;
- static unsigned long bank[NR_BANKS] = { [0 ... NR_BANKS-1] = ~0UL };
-+static unsigned long console_logged;
-+static int notify_user;
- 
- /*
-  * Lockless MCE logging infrastructure.
-@@ -68,6 +70,9 @@ void mce_log(struct mce *mce)
- 	smp_wmb();
- 	mcelog.entry[entry].finished = 1;
- 	smp_wmb();
-+
-+	if (!test_and_set_bit(0, &console_logged))
-+		notify_user = 1;
- }
- 
- static void print_mce(struct mce *m)
-@@ -252,6 +257,19 @@ static void mcheck_timer(void *data)
- {
- 	on_each_cpu(mcheck_check_cpu, NULL, 1, 1);
- 	schedule_delayed_work(&mcheck_work, check_interval * HZ);
-+
-+	/*
-+	 * It's ok to read stale data here for notify_user and
-+	 * console_logged as we'll simply get the updated versions
-+	 * on the next mcheck_timer execution and atomic operations
-+	 * on console_logged act as synchronization for notify_user
-+	 * writes.
-+	 */
-+	if (notify_user && console_logged) {
-+		notify_user = 0;
-+		clear_bit(0, &console_logged);
-+		printk(KERN_INFO "Machine check events logged\n");
-+	}
- }
- 
- 

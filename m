@@ -1,67 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261625AbVBWV61@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261612AbVBWWBd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261625AbVBWV61 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Feb 2005 16:58:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261623AbVBWV44
+	id S261612AbVBWWBd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Feb 2005 17:01:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261629AbVBWWBA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Feb 2005 16:56:56 -0500
-Received: from hostmaster.org ([212.186.110.32]:59613 "EHLO hostmaster.org")
-	by vger.kernel.org with ESMTP id S261629AbVBWVzv (ORCPT
+	Wed, 23 Feb 2005 17:01:00 -0500
+Received: from fire.osdl.org ([65.172.181.4]:17858 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261616AbVBWWAn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Feb 2005 16:55:51 -0500
-Subject: tun/tap(bochs) on AMD64
-From: Thomas Zehetbauer <thomasz@hostmaster.org>
-To: linux-kernel@vger.kernel.org, discuss@x86-64.org
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-q37hyykiZdgFfB8/F8lP"
-Date: Wed, 23 Feb 2005 22:54:48 +0100
-Message-Id: <1109195688.4387.28.camel@hostmaster.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+	Wed, 23 Feb 2005 17:00:43 -0500
+Date: Wed, 23 Feb 2005 14:00:45 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Olof Johansson <olof@austin.ibm.com>
+cc: Jamie Lokier <jamie@shareable.org>, Joe Korty <joe.korty@ccur.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       rusty@rustcorp.com.au
+Subject: Re: [PATCH/RFC] Futex mmap_sem deadlock
+In-Reply-To: <20050223191254.GA5608@austin.ibm.com>
+Message-ID: <Pine.LNX.4.58.0502231356580.18997@ppc970.osdl.org>
+References: <20050222190646.GA7079@austin.ibm.com> <20050222115503.729cd17b.akpm@osdl.org>
+ <20050222210752.GG22555@mail.shareable.org> <Pine.LNX.4.58.0502221317270.2378@ppc970.osdl.org>
+ <20050223144940.GA880@tsunami.ccur.com> <Pine.LNX.4.58.0502230751140.2378@ppc970.osdl.org>
+ <20050223171015.GD10256@austin.ibm.com> <20050223182203.GA10931@mail.shareable.org>
+ <Pine.LNX.4.58.0502231033540.2378@ppc970.osdl.org> <20050223184946.GA11473@mail.shareable.org>
+ <20050223191254.GA5608@austin.ibm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-q37hyykiZdgFfB8/F8lP
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
 
-Hi,
+On Wed, 23 Feb 2005, Olof Johansson wrote:
+> 
+> How's this? I went with get_val_no_fault(), since it isn't really a
+> get_user.*() any more (ptr being passed in), and no_paging is a little
+> misleading (not all faults are due to paging).
 
-I am trying to get bochs to use tun/tap on x86_64, strace reveals the
-following problem:
+Applied with minor cosmetic changes. I'm like a dog who likes to pee on 
+things to show his territory, so I changed "get_val_no_fault" to 
+"get_futex_value_locked", and I made sure that the return value is 
+sensible (return 0 or -EFAULT rather than the "__memcpy_from_user()" 
+return value which is how many bytes we couldn't copy).
 
-open("/dev/net/tun", O_RDWR)            =3D 7
-ioctl(7, TUNSETIFF, 0x7fffffffe6c0)     =3D -1 EINVAL (Invalid argument)
+Not that we care (we just check the return value against zero anyway,
+which is success in both cases), but the compiler should be able to
+optimize it away, and it might avoid some confusion down the line..
 
-I wonder if this a tun/tap or a bochs problem. Any clues?
-
-Tom
-
---=20
-  T h o m a s   Z e h e t b a u e r   ( TZ251 )
-  PGP encrypted mail preferred - KeyID 96FFCB89
-      finger thomasz@hostmaster.org for key
-
-Linux is like a Wigwam..  No Windows, no Gates, and Apache inside.
-
-
-
-
---=-q37hyykiZdgFfB8/F8lP
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iQEVAwUAQhz7qGD1OYqW/8uJAQLuRgf6AtKxE47Eq8oKkA6jrFUO8GdlQovpXOL4
-U74Cr99S0pVm7wdIuu1pZIAF5UP7ZqDrmHgNjnEZAFo1fzABkJh6DhxYwN8v4dTn
-aTglc8HBJtXtO7mh8b01bZSe7hfvDZKDnp6edwcFujHEwLqGuY7C1v68HKYUxQ9V
-eFShwdUgMYzj+E/gfROabPPKkwSp4MPSsKnhNSVlRc5YvgG38WnjjP9IRCAKQMOB
-DVDaczONKQ1i0NcrFYSbWz0eveBMsT8RjtB/0WReQHePKVJ3t8gPj+ZkLr5nbwte
-lkt5X9EPjkfiLfv3bSl33DaUgBL2xiTkJlNgaYPNK+YYvJOROXRZFA==
-=YOkr
------END PGP SIGNATURE-----
-
---=-q37hyykiZdgFfB8/F8lP--
-
+		Linus

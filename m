@@ -1,35 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318237AbSHKTTF>; Sun, 11 Aug 2002 15:19:05 -0400
+	id <S318331AbSHKT05>; Sun, 11 Aug 2002 15:26:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318238AbSHKTTF>; Sun, 11 Aug 2002 15:19:05 -0400
-Received: from horkos.telenet-ops.be ([195.130.132.45]:48583 "EHLO
-	horkos.telenet-ops.be") by vger.kernel.org with ESMTP
-	id <S318237AbSHKTTE> convert rfc822-to-8bit; Sun, 11 Aug 2002 15:19:04 -0400
-X-Qmail-Scanner-Mail-From: Devilkin-LKML@blindguardian.org via whocares
-X-Qmail-Scanner: 1.10 (Clear:0. Processed in 0.066724 secs)
-Content-Type: text/plain; charset=US-ASCII
-From: Devilkin <Devilkin-LKML@blindguardian.org>
-To: <Hell.Surfers@cwctv.net>
-Subject: Re: Re: 2.4.19 IDE Partition Check issue (again)
-Date: Sun, 11 Aug 2002 21:25:41 +0200
-User-Agent: KMail/1.4.1
-References: <09e824508190b82DTVMAIL1@smtp.cwctv.net>
-In-Reply-To: <09e824508190b82DTVMAIL1@smtp.cwctv.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200208112125.41416.Devilkin-LKML@blindguardian.org>
+	id <S318332AbSHKT04>; Sun, 11 Aug 2002 15:26:56 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:36340 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S318331AbSHKT04>; Sun, 11 Aug 2002 15:26:56 -0400
+Subject: Re: unix.o missing module license
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Christian Kurz <shorty@getuid.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020810090826.GL23894@salem.getuid.de>
+References: <20020810090826.GL23894@salem.getuid.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 11 Aug 2002 21:51:23 +0100
+Message-Id: <1029099083.16421.64.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 11 August 2002 21:08, Hell.Surfers@cwctv.net wrote:
-> i have a liveEVAL cd (SuSE 7.3) and a maxtor hard disk et 686, it freezes
-> on writing bootloader, hangs with a constantbeep.. I wonder if this is
-> related...
+On Sat, 2002-08-10 at 10:08, Christian Kurz
+wrote:                                  
+> |filename:    /lib/modules/2.4.20-pre1/kernel/net/unix/unix.o
+> |description: <none>
+> |author:      <none>
+> |license:     <none>
+> 
+> I would appreciate if at least the license and even better also some
+> author name would be added. Thanks.
 
-Have you disabled you BIOS' bootsector virus protection?
+The author info wouldnt be useful. I stopped maintaining it long ago
 
-This often causes such beeps...
-
-DK

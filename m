@@ -1,56 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261799AbTISX3r (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Sep 2003 19:29:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261807AbTISX3q
+	id S261256AbTISXtu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Sep 2003 19:49:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261273AbTISXtu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Sep 2003 19:29:46 -0400
-Received: from fw.osdl.org ([65.172.181.6]:60061 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261799AbTISX3p (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Sep 2003 19:29:45 -0400
-Date: Fri, 19 Sep 2003 16:29:37 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Jeffrey Layton <jtlayton@poochiereds.net>
+	Fri, 19 Sep 2003 19:49:50 -0400
+Received: from hqemgate00.nvidia.com ([216.228.112.144]:42511 "EHLO
+	hqemgate00.nvidia.com") by vger.kernel.org with ESMTP
+	id S261256AbTISXtt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Sep 2003 19:49:49 -0400
+Message-ID: <8F12FC8F99F4404BA86AC90CD0BFB04F039F714A@mail-sc-6.nvidia.com>
+From: Allen Martin <AMartin@nvidia.com>
+To: "'Merlin Hughes'" <lnx@merlin.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: PCI/ACPI related boot hang with 2.6.0-test5-bk3 on KT266A mobo
-Message-ID: <20030919162937.B16516@osdlab.pdx.osdl.net>
-References: <1063982354.17540.173.camel@tesla.mmt.bellhowell.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1063982354.17540.173.camel@tesla.mmt.bellhowell.com>; from jtlayton@poochiereds.net on Fri, Sep 19, 2003 at 10:39:14AM -0400
+Subject: RE: [PATCH] 2.4.23-pre4 add support for udma6 to nForce IDE drive
+	 r 
+Date: Fri, 19 Sep 2003 16:49:45 -0700
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Jeffrey Layton (jtlayton@poochiereds.net) wrote:
+> Interesting; lots of ACPI edge-triggered interrupts:
 > 
-> I'll happily provide more info or test patches for this if you can tell
+>   dagda:~# cat /proc/interrupts 
+>              CPU0       
+>     0:     519365    IO-APIC-edge  timer
+>     1:      16713    IO-APIC-edge  keyboard
+>     2:          0          XT-PIC  cascade
+>     8:          4    IO-APIC-edge  rtc
+>     9:          0   IO-APIC-level  acpi
+>    14:     863415    IO-APIC-edge  ide0
+>    15:     201651    IO-APIC-edge  ide1
+>    19:     306188   IO-APIC-level  nvidia
+>    20:      57261   IO-APIC-level  usb-ohci, eth0
+>    21:          0   IO-APIC-level  ehci_hcd, NVidia nForce2
+>    22:          3   IO-APIC-level  usb-ohci, ohci1394
+>   NMI:          0 
+>   LOC:     519312 
+>   ERR:          0
+>   MIS:          0
 
-Does this patch fix it for you?
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+Your interrupts look fine, this is the way they should be.
 
 
-===== drivers/acpi/pci_link.c 1.17 vs edited =====
---- 1.17/drivers/acpi/pci_link.c	Sun Aug 31 16:14:25 2003
-+++ edited/drivers/acpi/pci_link.c	Tue Sep 16 16:59:46 2003
-@@ -456,7 +456,6 @@
- 		irq = link->irq.active;
- 	} else {
- 		irq = link->irq.possible[0];
--	}
- 
- 		/* 
- 		 * Select the best IRQ.  This is done in reverse to promote 
-@@ -466,6 +465,7 @@
- 			if (acpi_irq_penalty[irq] > acpi_irq_penalty[link->irq.possible[i]])
- 				irq = link->irq.possible[i];
- 		}
-+	}
- 
- 	/* Attempt to enable the link device at this IRQ. */
- 	if (acpi_pci_link_set(link, irq)) {
+> ... but no stability problems since the primary drive has been
+> running at UDMA133. Earlier UDMA100 freezes were completely
+> repeatable; identical kernel, just without your two patches.
+
+You can try downgrading your drive to udma5 to see if udma6 really does make
+it more stable (hdparm -X udma5 /dev/hdX) but I can't think of any reason
+why it should.
+
+> I take it that I should boot with noapic in future to be safe.
+
+I've been telling people to disable APIC / ACPI because of the interrupt
+problem, but your interrupts are fine, so I'd leave it alone.  I'm curious,
+what version BIOS do you have?
+
+-Allen

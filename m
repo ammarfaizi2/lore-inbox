@@ -1,35 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278114AbRJRUEW>; Thu, 18 Oct 2001 16:04:22 -0400
+	id <S277894AbRJRUGD>; Thu, 18 Oct 2001 16:06:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278118AbRJRUEM>; Thu, 18 Oct 2001 16:04:12 -0400
-Received: from femail15.sdc1.sfba.home.com ([24.0.95.142]:21225 "EHLO
-	femail15.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S278114AbRJRUEI>; Thu, 18 Oct 2001 16:04:08 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Steve Snyder <swsnyder@home.com>
-Reply-To: swsnyder@home.com
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: DVD-RAM and Linux?
-Date: Thu, 18 Oct 2001 15:04:34 -0500
-X-Mailer: KMail [version 1.2]
-MIME-Version: 1.0
-Message-Id: <01101815043401.01020@mercury.snydernet.lan>
-Content-Transfer-Encoding: 7BIT
+	id <S277868AbRJRUF5>; Thu, 18 Oct 2001 16:05:57 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:35590 "EHLO
+	deathstar.prodigy.com") by vger.kernel.org with ESMTP
+	id <S278118AbRJRUEe>; Thu, 18 Oct 2001 16:04:34 -0400
+Date: Thu, 18 Oct 2001 16:05:07 -0400
+Message-Id: <200110182005.f9IK57506905@deathstar.prodigy.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Poor floppy performance in kernel 2.4.10
+X-Newsgroups: linux.dev.kernel
+In-Reply-To: <200110181632.f9IGW9i29729@schroeder.cs.wisc.edu>
+Organization: TMR Associates, Schenectady NY
+From: davidsen@tmr.com (bill davidsen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm playing with an external, SCSI-based DVD-RAM drive (a Hitachi GF-2050, 
-marketed by Fantom).  I've got a few questions regarding Linux support for 
-DVD-RAM:
+In article <200110181632.f9IGW9i29729@schroeder.cs.wisc.edu> nleroy@cs.wisc.edu wrote:
+| On Thursday 18 October 2001 11:17, Ville Herva wrote:
+| 
+| (snip)
+| > That's propably beacause it syncs the writes on close().
+| >
+| > Perhaps you could try the trick Linus suggested in another thread, namely:
+| >
+| > sleep 1000 < /dev/fd0 &
+| >
+| > mdir
+| > mcopy
+| > mdir
+| > mcopy
+| > <do whatever>
+| >
+| > kill %1
+| >
+| > That keeps one (dummy) reference to the floppy device open until you're
+| > done using it.
+| 
+| Perhaps there should be a pair of "mtools" added: mopen and mclose, that do 
+| basically this.  That way it could be a "standard" item, documented in man 
+| pages, etc., not some secret that only the l-k users know.  Thoughts?
 
-1. I assume Linux supports read-only access of a DVD-RAM drive, but which 
-filesystem should be used to access the device?
+  The change prevents use of stale data, and is a good one. mtools was a
+hack from the days when some operating systems didn't speak DOS file
+format, and reliability is more important than performance.
 
-2. Does Linux support write access to DVD-RAM devices?  If so, can someone 
-point me to a HOW-TO?
+  That said, can't you just keep the drive accessed and avoid the
+problem?
+  sleep 3600 </dev/fd0 &
+should do it. Just kill the process when you eject the floppy, or you
+will get back the stale data problem.
 
-3. This device supports both single- (2.7GB) and double-sided (5.4GB) 
-media.  Does Linux make any distinction between the 2 types?
+  I don't believe the detection of a new floppy in the drive is reliable
+on all systems or they would have flushed on loading a new diskette. I
+seem to remember that not all drives provide the signal, at least back
+when I wrote my last floppy driver (DEC Rainbow, about 20 years ago).
 
-Thanks.
+-- 
+bill davidsen <davidsen@tmr.com>
+  His first management concern is not solving the problem, but covering
+his ass. If he lived in the middle ages he'd wear his codpiece backward.

@@ -1,52 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129387AbQLKVI0>; Mon, 11 Dec 2000 16:08:26 -0500
+	id <S129716AbQLKVMG>; Mon, 11 Dec 2000 16:12:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129716AbQLKVIG>; Mon, 11 Dec 2000 16:08:06 -0500
-Received: from jalon.able.es ([212.97.163.2]:40630 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S129387AbQLKVIF>;
-	Mon, 11 Dec 2000 16:08:05 -0500
-Date: Mon, 11 Dec 2000 21:37:26 +0100
-From: "J . A . Magallon" <jamagallon@able.es>
-To: Heiko.Carstens@de.ibm.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: CPU attachent and detachment in a running Linux system
-Message-ID: <20001211213726.A1750@werewolf.able.es>
-Reply-To: jamagallon@able.es
-In-Reply-To: <C12569B2.004D4100.00@d12mta01.de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <C12569B2.004D4100.00@d12mta01.de.ibm.com>; from Heiko.Carstens@de.ibm.com on Mon, Dec 11, 2000 at 15:03:47 +0100
-X-Mailer: Balsa 1.0.0
+	id <S129983AbQLKVL5>; Mon, 11 Dec 2000 16:11:57 -0500
+Received: from front4.grolier.fr ([194.158.96.54]:64234 "EHLO
+	front4.grolier.fr") by vger.kernel.org with ESMTP
+	id <S129716AbQLKVLp> convert rfc822-to-8bit; Mon, 11 Dec 2000 16:11:45 -0500
+Date: Mon, 11 Dec 2000 20:40:59 +0100 (CET)
+From: Gérard Roudier <groudier@club-internet.fr>
+To: davej@suse.de
+cc: Jamie Lokier <lk@tantalophile.demon.co.uk>, Martin Mares <mj@suse.cz>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: pdev_enable_device no longer used ?
+In-Reply-To: <Pine.LNX.4.21.0012110018180.19534-100000@neo.local>
+Message-ID: <Pine.LNX.4.10.10012112028170.1912-100000@linux.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Mon, 11 Dec 2000 15:03:47 Heiko.Carstens@de.ibm.com wrote:
+
+On Mon, 11 Dec 2000 davej@suse.de wrote:
+
+> On Mon, 11 Dec 2000, Jamie Lokier wrote:
 > 
-> Recently I had some thoughts on how to realise CPU attachment and
-> detachment in a running Linux system (based on the 2.4 kernel).
+> > Here are a few more:
+> > 
+> >  net/acenic.c: pci_write_config_byte(ap->pdev, PCI_CACHE_LINE_SIZE,
 > 
-> CPU attachment and detachment would make sense on an S/390 when there
-> are several Linuxes running, each in its own logical partition. This
-> way a CPU could be taken from one partition and be given to another
-> partition (e.g. dependent on the current workload) on the fly without
-> the need to reboot anything.
+> Acenic is at least setting it to the correct values, not hardcoding it.
 > 
+> >  net/gmac.c: PCI_CACHE_LINE_SIZE, 8);
+> 
+> Ick.
+> 
+> >  scsi/sym53c8xx.c: printk(NAME53C8XX ": PCI_CACHE_LINE_SIZE set to %d (fix-up).\n",
+> 
+> **vomit**
 
-Perhaps the PSet project can help you, take a look at
+A BASTARD you are. Linux was born thanks to volunteers that spent
+thousands of hours on their free time for helping development. If you
+vomit on me, let me shit on you.
 
-http://isunix.it.ilstu.edu/~thockin/pset/
+> On the plus side, they made it arch independant. Shame it's incomplete.
+> If you look at the x86 path, its missing Pentium 4 support (x86==15).
 
-I think it can be a good thing, now that linux has to manage with many
-CPUs. But i think it is discontinued.
+Most of the code in Linux was there years ago prior to the Pentium 4 that, 
+by the way, looks like the buggiest thing that are ever existed.
 
--- 
-Juan Antonio Magallon Lacarta                                 #> cd /pub
-mailto:jamagallon@able.es                                     #> more beer
+> It also screws up on Athlon where it should be set to 16, but gets 8.
 
-Linux werewolf 2.2.18-vm #1 SMP Mon Dec 11 02:36:30 CET 2000 i686
+Same for this one.
+
+> I wouldn't be surprised if the other arch's were missing some definitions
+> too.  The fact that this driver is a port of FreeBSD driver may be the
+> reason why SMP_CACHE_BYTES wasn't used instead, and the author opted
+> for that monster. But still, the whole thing is completely unnecessary.
+
+The driver is back to FreeBSD and is intended to go to other Free O/Ses as 
+I will find time for.
+
+[...]
+
+  Gérard.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

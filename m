@@ -1,55 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262202AbUCBWsi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Mar 2004 17:48:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262296AbUCBWrw
+	id S262278AbUCBWpE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Mar 2004 17:45:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261989AbUCBWnm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Mar 2004 17:47:52 -0500
-Received: from mail.gmx.de ([213.165.64.20]:54948 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262289AbUCBWql (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Mar 2004 17:46:41 -0500
-X-Authenticated: #271361
-Date: Tue, 2 Mar 2004 23:46:26 +0100
-From: Edgar Toernig <froese@gmx.de>
-To: Albert Cahalan <albert@users.sf.net>
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>, hpa@zytor.com,
-       cloos@jhcloos.com, root@chaos.analogic.com, nuno@itsari.org
-Subject: Re: something funny about tty's on 2.6.4-rc1-mm1
-Message-Id: <20040302234626.1f00e788.froese@gmx.de>
-In-Reply-To: <1078254284.2232.385.camel@cube>
-References: <1078254284.2232.385.camel@cube>
+	Tue, 2 Mar 2004 17:43:42 -0500
+Received: from fed1mtao05.cox.net ([68.6.19.126]:20689 "EHLO
+	fed1mtao05.cox.net") by vger.kernel.org with ESMTP id S262278AbUCBWnD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Mar 2004 17:43:03 -0500
+Date: Tue, 2 Mar 2004 15:43:01 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: "Amit S. Kale" <akale@users.sourceforge.net>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: kgdb: fix kgdbeth compilation and make it init late enough
+Message-ID: <20040302224301.GK20227@smtp.west.cox.net>
+References: <20040302112500.GA485@elf.ucw.cz> <20040302153250.GE16434@smtp.west.cox.net> <20040302222827.GD1225@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040302222827.GD1225@elf.ucw.cz>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Albert Cahalan wrote:
->
-> > As RBJ said, ptys are now recycled in pid-like fashion,
-> > which means numbers won't be reused until wraparound
-> > happens.  This is good for security/fault tolerance,
-> > at least to some minor degree.
+On Tue, Mar 02, 2004 at 11:28:27PM +0100, Pavel Machek wrote:
+
+> Hi!
 > 
-> Ouch. It's bad for display and bad for typing.
-> What is easier to type?
+> > > CONFIG_NO_KGDB_CPUS can not be found anywhere in the patches => its
+> > > probably not needd any more.
+> > 
+> > I don't know if we can do that.  There's some funky locking stuff done
+> > on SMP, which for some reason can't be done to NR_CPUS (or, no one has
+> > tried doing that).
 > 
-> ps -t pts/6
-> ps -t pts/1014962
+> There was no CONFIG_NO_KGDB_CPUS anywhere else in the CVS, that means
+> that test could not have been right.
 
-IMHO more important: what about utmp?  It would become terribly
-large.  Beside that, such huge numbers won't fit into ut_id.
+That doesn't mean the right answer is to remove it.  However, after
+talking with George (who might speak up now anyhow) for 2.6 we can just
+do the SMP locking stuff at NR_CPUS, since that's configurable.
 
-Ciao, ET.
-
---[man utmp extract]--
-...
-    char ut_id[4];     /* init id or abbrev. ttyname */
-...
-    xterm(1)  and  other  terminal emulators directly create a
-    USER_PROCESS record and generate the ut_id  by  using  the
-    last  two  letters  of  /dev/ttyp%c  or  by  using p%d for
-    /dev/pts/%d.  If they find a  DEAD_PROCESS  for  this  id,
-    they  recycle  it,  otherwise they create a new entry.
-...
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

@@ -1,34 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290719AbSBLCSp>; Mon, 11 Feb 2002 21:18:45 -0500
+	id <S290689AbSBLBd2>; Mon, 11 Feb 2002 20:33:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290720AbSBLCSf>; Mon, 11 Feb 2002 21:18:35 -0500
-Received: from air-2.osdl.org ([65.201.151.6]:38410 "EHLO osdlab.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S290719AbSBLCS0>;
-	Mon, 11 Feb 2002 21:18:26 -0500
-Date: Mon, 11 Feb 2002 18:14:25 -0800 (PST)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: 2.5.x doc. links
-Message-ID: <Pine.LNX.4.33L2.0202111809440.10878-100000@dragon.pdx.osdl.net>
+	id <S290687AbSBLBdR>; Mon, 11 Feb 2002 20:33:17 -0500
+Received: from exchange.macrolink.com ([64.173.88.99]:61961 "EHLO
+	exchange.macrolink.com") by vger.kernel.org with ESMTP
+	id <S290689AbSBLBdD>; Mon, 11 Feb 2002 20:33:03 -0500
+Message-ID: <11E89240C407D311958800A0C9ACF7D13A7694@EXCHANGE>
+From: Ed Vance <EdV@macrolink.com>
+To: "'Jens Maurer'" <jmaurer@cck.uni-kl.de>
+Cc: "'linux-kernel'" <linux-kernel@vger.kernel.org>
+Subject: changing file /usr/share/kudzu/pcitable
+Date: Mon, 11 Feb 2002 17:32:57 -0800
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
 Hi,
 
-I made some updates to "2.5 porting help" at
-http://www.osdl.org/archive/rddunlap/linux-port-25x.html .
+Where do I submit changes to the /usr/share/kudzu/pcitable file?  Have some
+new devices to add.  Have already submitted the new PCI ids to SourceForge. 
 
-If James (fbdev), Vojtech (input), ALSA project, V4L project,
-or Jean (wireless) would like changes, please let me know.
-
-TBD:	more USB updates
-	kthread() abstraction [when added to 2.5]
-
--- 
-~Randy
+Thanks,
+---------------------------------------------------------------- 
+Ed Vance              edv@macrolink.com
+Macrolink, Inc.       1500 N. Kellogg Dr  Anaheim, CA  92807
+----------------------------------------------------------------
 

@@ -1,57 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262885AbVCWJE2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262887AbVCWJHL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262885AbVCWJE2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 04:04:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262887AbVCWJE1
+	id S262887AbVCWJHL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 04:07:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262889AbVCWJHL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 04:04:27 -0500
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:64261 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S262885AbVCWJEU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 04:04:20 -0500
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Jesper Juhl <juhl-lkml@dif.dk>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] devfs: remove a redundant NULL pointer check prior to kfree()
-Date: Wed, 23 Mar 2005 11:04:10 +0200
-User-Agent: KMail/1.5.4
-Cc: Richard Gooch <rgooch@atnf.csiro.au>
-References: <Pine.LNX.4.62.0503222351350.2683@dragon.hyggekrogen.localhost>
-In-Reply-To: <Pine.LNX.4.62.0503222351350.2683@dragon.hyggekrogen.localhost>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
+	Wed, 23 Mar 2005 04:07:11 -0500
+Received: from rproxy.gmail.com ([64.233.170.203]:28458 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262887AbVCWJG5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Mar 2005 04:06:57 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=NFbJzKfHeaFxXMISnlZQugqtb+42fLeNNUnlloC23/HT7Vb6fWSurgf87DfqEBpTg1VJIdBw02tID9n4hhXRylZcYR2v13q4gIQvBD09/d/nlZOpCvJNZ3h85NLLRtn8YTuKOEx3ZkNNzGg3RCvyi7A2I3sxOHoG0HTmSnOqXac=
+Message-ID: <3de2c80b05032301067d6e4db3@mail.gmail.com>
+Date: Wed, 23 Mar 2005 10:06:53 +0100
+From: zyphr <infzyphr@gmail.com>
+Reply-To: zyphr <infzyphr@gmail.com>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org
+Subject: Re: 140 bugs, many of which are post-2.6.10 regressions - got a list?
+In-Reply-To: <Pine.LNX.4.61.0503221514370.32335@yvahk01.tjqt.qr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200503231104.10704.vda@port.imtp.ilyichevsk.odessa.ua>
+References: <Pine.LNX.4.61.0503221514370.32335@yvahk01.tjqt.qr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 23 March 2005 00:55, Jesper Juhl wrote:
+On Tue, 22 Mar 2005 15:14:47 +0100 (MET), Jan Engelhardt
+<jengelh@linux01.gwdg.de> wrote:
 > 
-> Remove a redundant NULL pointer check prior to kfree(). kfree() has no 
-> problem with NULL pointers.
+> Jesper Juhl wrote:
+> >I'm wondering if you have a list of those bugs somewhere?
+> 
+> I think I've found something in his tree...
+> http://kernel.org/pub/linux/kernel/people/akpm/must-fix/
+> Not sure if it is what you look for.
 > 
 > 
-> Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
-> 
-> --- linux-2.6.12-rc1-mm1-orig/fs/devfs/base.c	2005-03-02 08:37:49.000000000 +0100
-> +++ linux-2.6.12-rc1-mm1/fs/devfs/base.c	2005-03-22 23:51:23.000000000 +0100
-> @@ -2738,10 +2738,8 @@ static int devfsd_close(struct inode *in
->  	entry = fs_info->devfsd_first_event;
->  	fs_info->devfsd_first_event = NULL;
->  	fs_info->devfsd_last_event = NULL;
-> -	if (fs_info->devfsd_info) {
-> -		kfree(fs_info->devfsd_info);
-> -		fs_info->devfsd_info = NULL;
-> -	}
-> +	kfree(fs_info->devfsd_info);
-> +	fs_info->devfsd_info = NULL;
->  	spin_unlock(&fs_info->devfsd_buffer_lock);
->  	fs_info->devfsd_pgrp = 0;
->  	fs_info->devfsd_task = NULL;
+> Jan Engelhardt
 
-IIRC devfs is deprecated and has less than a year to live.
---
-vda
-
+Those are almost 2 years old ;-)

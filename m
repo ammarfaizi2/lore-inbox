@@ -1,58 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262011AbUCLIP2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Mar 2004 03:15:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262022AbUCLIP2
+	id S262022AbUCLIS4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Mar 2004 03:18:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262031AbUCLIS4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 03:15:28 -0500
-Received: from web21107.mail.yahoo.com ([216.136.227.109]:32076 "HELO
-	web21107.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262011AbUCLIP0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 03:15:26 -0500
-Message-ID: <20040312081525.26148.qmail@web21107.mail.yahoo.com>
-Date: Fri, 12 Mar 2004 00:15:25 -0800 (PST)
-From: Chris Grzegorczyk <chris_grze@yahoo.com>
-Subject: Multiport Serial Device Support - Exar XR17L154
-To: linux-kernel@vger.kernel.org
+	Fri, 12 Mar 2004 03:18:56 -0500
+Received: from mail.dsa-ac.de ([62.112.80.99]:5643 "EHLO k2.dsa-ac.de")
+	by vger.kernel.org with ESMTP id S262022AbUCLISy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Mar 2004 03:18:54 -0500
+Date: Fri, 12 Mar 2004 09:18:50 +0100 (CET)
+From: Guennadi Liakhovetski <gl@dsa-ac.de>
+To: <linux-kernel@vger.kernel.org>
+Subject: CardBus 16-bit IO on 32-bit-IO platforms
+Message-ID: <Pine.LNX.4.33.0403120902380.15941-100000@pcgl.dsa-ac.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have failed to find reference to this particular
-device anywhere beside Exar:
+Hello all
 
-[1] Exar XR17L154 
-http://www.exar.com/product.php?ProdNumber=XR17L154&areaID=3
-Note: The page indicates that "A Linux driver is also
-available.", but I can't seem to get my hands on it.
+I am trying to get CardBus to work on a PXA-based platform (kernel
+2.4.21 so far). CardBus cards seem to work (at least one of them - a
+USB2.0 card), however, I have problems getting 16-bit PCMCIA cards to
+work.
 
-[2] System:
-PC104 / Intel PIIX Compatible
-16MB CompactFlash
-Celeron 1.2Ghz @ 800Mhz 
-2.4.25 / 2.6.3
+I specified an IO-range from the statically mapped PCI IO-range in
+/etc/pcmcia/config.opts, fixed a couple of hard-coded 16-bit assumptions
+in yenta-driver and arount it, this IO-range gets successfully allocated,
+then it comes to the point of writing these addresses to the CardBus
+controller's configuration registers, and they are 16-bit... And then it
+doesn't work.
 
-I have noted support for the Exar ST16C555/XR16... in
-char/serial.c, however, the XR17L154 differs in that
-it has a 32 bit interface ( linear addressing ) with
-all 4 UARTs on the same IRQ.  My attempts to have the
-kernel recognize the device have failed. 
+So, my question to all, having experience running CardBus on platforms,
+where IO doesn't lie in the first 64K - how is that done?
 
-Is there a chance of having this device work under the
-stock kernel ( 2.4.25 )?
+Thanks
+Guennadi
+---------------------------------
+Guennadi Liakhovetski, Ph.D.
+DSA Daten- und Systemtechnik GmbH
+Pascalstr. 28
+D-52076 Aachen
+Germany
 
-If not, can someone suggest an existing multiport
-driver which could serve as a reasonable starting
-point for development by a kernel newbie?
-
-TAI, greatly appreciated.
-
-Chris
-
-p.s. Please CC in replies as I am not subscribed.
-
-__________________________________
-Do you Yahoo!?
-Yahoo! Search - Find what you’re looking for faster
-http://search.yahoo.com

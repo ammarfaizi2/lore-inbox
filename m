@@ -1,52 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314835AbSGQO0e>; Wed, 17 Jul 2002 10:26:34 -0400
+	id <S314707AbSGQO0M>; Wed, 17 Jul 2002 10:26:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315119AbSGQO0e>; Wed, 17 Jul 2002 10:26:34 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:1030 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S314835AbSGQO0d>; Wed, 17 Jul 2002 10:26:33 -0400
-Date: Wed, 17 Jul 2002 15:29:29 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: linux-kernel@vger.kernel.org, jsimmons@transvirtual.com
-Subject: Link errors with CONFIG_VT=n, CONFIG_SYSRQ=y
-Message-ID: <20020717152929.A5856@flint.arm.linux.org.uk>
+	id <S314835AbSGQO0M>; Wed, 17 Jul 2002 10:26:12 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:60592 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S314707AbSGQO0L>;
+	Wed, 17 Jul 2002 10:26:11 -0400
+Date: Wed, 17 Jul 2002 16:29:04 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Stelian Pop <stelian.pop@fr.alcove.com>, Vojtech Pavlik <vojtech@suse.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: input subsystem config ?
+Message-ID: <20020717162904.B19935@ucw.cz>
+References: <20020716143415.GO7955@tahoe.alcove-fr> <20020717095618.GD14581@tahoe.alcove-fr> <20020717120135.A12452@ucw.cz> <20020717101001.GE14581@tahoe.alcove-fr> <20020717140804.B12529@ucw.cz> <20020717132459.GF14581@tahoe.alcove-fr> <20020717154448.A19761@ucw.cz> <20020717135823.GG14581@tahoe.alcove-fr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020717135823.GG14581@tahoe.alcove-fr>; from stelian.pop@fr.alcove.com on Wed, Jul 17, 2002 at 03:58:23PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-lkml, James,
+On Wed, Jul 17, 2002 at 03:58:23PM +0200, Stelian Pop wrote:
+> On Wed, Jul 17, 2002 at 03:44:48PM +0200, Vojtech Pavlik wrote:
+> 
+> > Try this patch, 
+> 
+> It doesn't change anything:
+>
+> > if it doesn't work, we'll have to try more changes, like
+> > trying to skip the AUX port detection that might confuse the chip ....
+> 
+> I should enhance however that it works with the old pc_keyb driver.
 
-When building 2.5.26 with CONFIG_VT=n and CONFIG_SYSRQ=y, the resulting
-kernel can't be linked:
+Yes, I know. That's why I suggested skipping the detection, as the
+pc_keyb driver doesn't do that.
 
-drivers/built-in.o: In function `sysrq_handle_unraw':
-drivers/built-in.o(.text+0x14694): undefined reference to `fg_console'
-drivers/built-in.o(.text+0x14698): undefined reference to `kbd_table'
+Try this:
 
-The following is a work-around for this problem.  There is probably
-a cleaner solution to this.
-
---- orig/drivers/char/sysrq.c	Wed Jul 17 15:10:39 2002
-+++ linux/drivers/char/sysrq.c	Wed Jul 17 15:27:18 2002
-@@ -81,10 +81,12 @@
- static void sysrq_handle_unraw(int key, struct pt_regs *pt_regs,
- 			       struct tty_struct *tty) 
- {
-+#ifdef CONFIG_VT
- 	struct kbd_struct *kbd = &kbd_table[fg_console];
+--- i8042.c.old	Wed Jul 17 16:05:57 2002
++++ i8042.c	Wed Jul 17 16:27:54 2002
+@@ -571,6 +571,8 @@
  
- 	if (kbd)
- 		kbd->kbdmode = VC_XLATE;
+ 	i8042_flush();
+ 
++#if 0
++
+ /*
+  * Internal loopback test - filters out AT-type i8042's
+  */
+@@ -621,6 +625,11 @@
+ 	i8042_ctr &= ~I8042_CTR_AUXINT;
+ 
+ 	if (i8042_command(&i8042_ctr, I8042_CMD_CTL_WCTR))
++		return -1;
++
 +#endif
- }
- static struct sysrq_key_op sysrq_unraw_op = {
- 	handler:	sysrq_handle_unraw,
++
++	if (i8042_command(&param, I8042_CMD_AUX_ENABLE))
+ 		return -1;
+ 
+ 	return 0;
+
+> I don't know the internals but it may give you a hint...
+> 
+> > Btw, what's the exact chipset involved?
+> 
+> It's a Sony VAIO Picturebook C1VE, lspci:
+> 00:00.0 Host bridge: Transmeta Corporation LongRun Northbridge
+> 00:00.1 RAM memory: Transmeta Corporation SDRAM controller
+> 00:00.2 RAM memory: Transmeta Corporation BIOS scratchpad
+> 00:07.0 ISA bridge: Intel Corp. 82371AB/EB/MB PIIX4 ISA (rev 02)
+> 00:07.1 IDE interface: Intel Corp. 82371AB/EB/MB PIIX4 IDE (rev 01)
+> 00:07.2 USB Controller: Intel Corp. 82371AB/EB/MB PIIX4 USB (rev 01)
+> 00:07.3 Bridge: Intel Corp. 82371AB/EB/MB PIIX4 ACPI (rev 03)
+> 00:08.0 FireWire (IEEE 1394): Texas Instruments TSB43AA22 IEEE-1394 Controller (PHY/Link Integrated) (rev 02)
+> 00:09.0 Multimedia audio controller: Yamaha Corporation YMF-754 [DS-1E Audio Controller]
+> 00:0b.0 Multimedia controller: Kawasaki Steel Corporation: Unknown device ff01 (rev 01)
+> 00:0c.0 CardBus bridge: Ricoh Co Ltd RL5c475 (rev 80)
+> 00:0d.0 VGA compatible controller: ATI Technologies Inc Rage Mobility P/M (rev 64)
+
+Oh my. So likely there the i8042 chip is implemented in software
+entirely ...
 
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+Vojtech Pavlik
+SuSE Labs

@@ -1,53 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264827AbSJVRhA>; Tue, 22 Oct 2002 13:37:00 -0400
+	id <S264819AbSJVRna>; Tue, 22 Oct 2002 13:43:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264828AbSJVRg7>; Tue, 22 Oct 2002 13:36:59 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:20674 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S264827AbSJVRg5>;
-	Tue, 22 Oct 2002 13:36:57 -0400
-Date: Tue, 22 Oct 2002 10:36:40 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Benjamin LaHaise <bcrl@redhat.com>, Rik van Riel <riel@conectiva.com.br>
-cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-       Bill Davidsen <davidsen@tmr.com>, Dave McCracken <dmccr@us.ibm.com>,
-       Andrew Morton <akpm@digeo.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linux Memory Management <linux-mm@kvack.org>
-Subject: Re: [PATCH 2.5.43-mm2] New shared page table patch
-Message-ID: <396790000.1035308200@flay>
-In-Reply-To: <20021022131930.A20957@redhat.com>
-References: <2629464880.1035240956@[10.10.2.3]> <Pine.LNX.4.44L.0210221405260.1648-100000@duckman.distro.conectiva> <20021022131930.A20957@redhat.com>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	id <S264818AbSJVRm4>; Tue, 22 Oct 2002 13:42:56 -0400
+Received: from imo-d05.mx.aol.com ([205.188.157.37]:40701 "EHLO
+	imo-d05.mx.aol.com") by vger.kernel.org with ESMTP
+	id <S264784AbSJVRmf>; Tue, 22 Oct 2002 13:42:35 -0400
+Message-ID: <3DB58F56.9030208@netscape.net>
+Date: Tue, 22 Oct 2002 13:48:06 -0400
+From: Nicholas Wourms <nwourms@netscape.net>
+User-Agent: Mozilla/5.0 (Windows; U; Win 9x 4.90; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Christoph Hellwig <hch@infradead.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Son of crunch time: the list v1.2.
+References: <20021021135137.2801edd2.rusty@rustcorp.com.au> <200210211536.25109.landley@trommello.org> <3DB4B1B9.4070303@pobox.com> <200210211642.10435.landley@trommello.org> <3DB4BD8F.1010707@pobox.com> <ap420c$m3v$1@main.gmane.org> <20021022184041.A2142@infradead.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-Mailer: Unknown (No Version)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> > I think it will for most of the situations we run aground with now
->> > (normally 5000 oracle tasks sharing a 2Gb shared segment, or some
->> > such monster).
->> 
->> 10 GB pagetable overhead, for 2 GB of data.  No customer I
->> know would accept that much OS overhead.
->> 
->> To reduce the overhead we could either reclaim the page
->> tables and reconstruct them when needed (lots of work) or
->> we could share the page tables (less runtime overhead).
+Christoph Hellwig wrote:
+> On Tue, Oct 22, 2002 at 01:32:49PM -0400, Nicholas Wourms wrote:
 > 
-> Or you use 4MB pages.  That tends to work much better and has less 
-> complexity.  Shared page tables don't work well on x86 when you have 
-> a database trying to access an SGA larger than the virtual address 
-> space, as each process tends to map its own window into the buffer 
-> pool.  Highmem with 32 bit va just plain sucks.  The right answer is 
-> to change the architecture of the application to not run with 5000 
-> unique processes.
+>>As was stated by Dave Jones[1], this is something that will probably should 
+>>go in after the freeze.  I'm afraid that having seperate patches is just 
+>>unacceptable.
+> 
+> 
+> If you want your volume manager of choice beein included in 2.6 help to
+> get it in shape quickly.  It's rather simple..
+> 
 
-Bear in mind that large pages are neither swap backed or file backed
-(vetoed by Linus), for starters. There are other large app problem scenarios 
-apart from Oracle ;-)
-
-M.
+Like arguing with a brick wall...
 

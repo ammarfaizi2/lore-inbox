@@ -1,45 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316491AbSIIFbI>; Mon, 9 Sep 2002 01:31:08 -0400
+	id <S316500AbSIIFgX>; Mon, 9 Sep 2002 01:36:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316499AbSIIFbI>; Mon, 9 Sep 2002 01:31:08 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:56475 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S316491AbSIIFbI>;
-	Mon, 9 Sep 2002 01:31:08 -0400
-Date: Sun, 08 Sep 2002 22:28:10 -0700 (PDT)
-Message-Id: <20020908.222810.60190726.davem@redhat.com>
-To: phillips@arcor.de
-Cc: imran.badr@cavium.com, linux-kernel@vger.kernel.org
-Subject: Re: Calculating kernel logical address ..
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <E17oGvT-0006mX-00@starship>
-References: <E17oGD2-0006lP-00@starship>
-	<20020908.220008.79156946.davem@redhat.com>
-	<E17oGvT-0006mX-00@starship>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S316512AbSIIFgW>; Mon, 9 Sep 2002 01:36:22 -0400
+Received: from dp.samba.org ([66.70.73.150]:48099 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S316500AbSIIFgW>;
+	Mon, 9 Sep 2002 01:36:22 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Pavel Machek <pavel@suse.cz>
+Cc: "David S. Miller" <davem@redhat.com>, torvalds@transmeta.com,
+       linux-kernel@vger.kernel.org, akpm@zip.com.au
+Subject: Re: [PATCH] Important per-cpu fix. 
+In-reply-to: Your message of "Fri, 06 Sep 2002 09:57:43 GMT."
+             <20020906095743.A35@toy.ucw.cz> 
+Date: Mon, 09 Sep 2002 13:45:02 +1000
+Message-Id: <20020909054106.19E762C0C4@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Daniel Phillips <phillips@arcor.de>
-   Date: Mon, 9 Sep 2002 07:17:30 +0200
+In message <20020906095743.A35@toy.ucw.cz> you write:
+> Hi!
+> 
+> > > Actually Rusty what's the big deal, add an "initializer"
+> > > arg to the macro.  It doesn't hurt anyone, it doesn't lose
+> > > any space in the kernel image, and the macro arg reminds
+> > > people to do it.
+> > > 
+> > > I think it's a small price to pay to keep a longer range
+> > > of compilers supported :-)
+> > 
+> > I disagree.  They might not have a convenient (static) initializer, in
+> > which case it's simply cruel and unusual, to work around an obscure
+> > compiler bug.
+> 
+> Ugh? of course it will always have convient initializer, namely zero.
 
-   On Monday 09 September 2002 07:00, David S. Miller wrote:
-   > Actually, KSEG0 the most Linux friendly design in the world
-   > particularly in 64-bit mode.
-   
-   That's easy to say until you try and work with it (I assume you have,
-   and forgot).  Just try to do a 3G/1G split on it, for example.
+What if you really need to initialize them at runtime?  You're putting
+a static initializer there simply to mask an obscure toolchain bug.
+I'd really prefer dotting:
 
-Maybe you missed the "64-bit mode" part of what I said. :-)
+	/* FIXME: Initializer required so gcc 2.96 doesn't put in BSS */
+	DEFINE_PER_CPU(int, xxx) = 0;
 
-In 64-bit mode there is no need to do any kind of split.
-You just use the KSEG mapping with full cache coherency for
-all of physical memory as the PAGE_OFFSET area.
+everywhere, which can be deleted later, to enforcing it for everyone
+in the infrastructure when it doesn't always make sense.
 
-I forget if it was KSEG0 or some other number, but I know it
-works.
-
-   
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,57 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261572AbVCIEDU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261491AbVCIESH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261572AbVCIEDU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 23:03:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261599AbVCIECp
+	id S261491AbVCIESH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 23:18:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261495AbVCIESH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 23:02:45 -0500
-Received: from mail.joq.us ([67.65.12.105]:24457 "EHLO sulphur.joq.us")
-	by vger.kernel.org with ESMTP id S261572AbVCIECj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 23:02:39 -0500
-To: Matt Mackall <mpm@selenic.com>
-Cc: Andrew Morton <akpm@osdl.org>, paul@linuxaudiosystems.com,
-       cfriesen@nortelnetworks.com, chrisw@osdl.org, hch@infradead.org,
-       rlrevell@joe-job.com, arjanv@redhat.com, mingo@elte.hu,
-       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [request for inclusion] Realtime LSM
-References: <20050112185258.GG2940@waste.org>
-	<200501122116.j0CLGK3K022477@localhost.localdomain>
-	<20050307195020.510a1ceb.akpm@osdl.org>
-	<20050308043349.GG3120@waste.org>
-	<20050307204044.23e34019.akpm@osdl.org>
-	<87acpesnzi.fsf@sulphur.joq.us> <20050308063344.GM3120@waste.org>
-	<87zmxd4heb.fsf@sulphur.joq.us> <20050309034442.GU3120@waste.org>
-From: "Jack O'Quin" <joq@io.com>
-Date: Tue, 08 Mar 2005 22:04:43 -0600
-In-Reply-To: <20050309034442.GU3120@waste.org> (Matt Mackall's message of
- "Tue, 8 Mar 2005 19:44:42 -0800")
-Message-ID: <87acpd4g84.fsf@sulphur.joq.us>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
-MIME-Version: 1.0
+	Tue, 8 Mar 2005 23:18:07 -0500
+Received: from rgminet04.oracle.com ([148.87.122.33]:49810 "EHLO
+	rgminet04.oracle.com") by vger.kernel.org with ESMTP
+	id S261491AbVCIESB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Mar 2005 23:18:01 -0500
+Date: Tue, 8 Mar 2005 20:07:57 -0800
+From: Joel Becker <Joel.Becker@oracle.com>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: Daniel McNeil <daniel@osdl.org>, Suparna Bhattacharya <suparna@in.ibm.com>,
+       Andrew Morton <akpm@osdl.org>,
+       S?bastien Dugu? <sebastien.dugue@bull.net>,
+       "linux-aio@kvack.org" <linux-aio@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.6.10 -  direct-io async short read bug
+Message-ID: <20050309040757.GY27331@ca-server1.us.oracle.com>
+Mail-Followup-To: Badari Pulavarty <pbadari@us.ibm.com>,
+	Daniel McNeil <daniel@osdl.org>,
+	Suparna Bhattacharya <suparna@in.ibm.com>,
+	Andrew Morton <akpm@osdl.org>,
+	S?bastien Dugu? <sebastien.dugue@bull.net>,
+	"linux-aio@kvack.org" <linux-aio@kvack.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <1110189607.11938.14.camel@frecb000686> <20050307223917.1e800784.akpm@osdl.org> <20050308090946.GA4100@in.ibm.com> <1110302614.24286.61.camel@dyn318077bld.beaverton.ibm.com> <1110309508.24286.74.camel@dyn318077bld.beaverton.ibm.com> <1110324434.6521.23.camel@ibm-c.pdx.osdl.net> <1110326043.24286.134.camel@dyn318077bld.beaverton.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1110326043.24286.134.camel@dyn318077bld.beaverton.ibm.com>
+X-Burt-Line: Trees are cool.
+X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
+User-Agent: Mutt/1.5.6+20040907i
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt Mackall <mpm@selenic.com> writes:
+On Tue, Mar 08, 2005 at 03:54:04PM -0800, Badari Pulavarty wrote:
+> > 1. return EINVAL if the DIO goes past EOF.
+> > 
+> > 2. truncate the request to file size (which is what your patch does)
+> >     and if it works, it works.
+> > 
+> > 3. truncate the request to a size that actually works - like a multiple
+> >     of 512.
+> > 
+> > 4. Do the full i/o since the user buffer is big enough, truncate the
+> >     result returned to file size (and clear out the user buffer where it
+> >     read past EOF).
+> > 
+> > Number 4 would make it easy on the user-level code, but AIO DIO might be
+> > a bit tricky and might be a security hole since the data would be dma'ed
+> > there and then cleared.  I need to look at the code some more.
 
-> On Tue, Mar 08, 2005 at 09:39:24PM -0600, Jack O'Quin wrote:
->> >> 4. is undocumented and has never been tested in any real music studios
->> >
->> > Well you'll have a bit to test it before it goes to Linus.
->> 
->> Only toy tests will be possible without the required userspace tools.
->
-> Chris posted the requisite change to pam_limits as well.
+	Solaris, which does forcedirectio as a mount option, actually
+will do buffered I/O on the trailing part.  Consider it like a bounce
+buffer.  That way they don't DMA the trailing data and succeed the I/O.
+The I/O returns actual bytes till EOF, just like read(2) is supposed to.
+	Either this or a fully DMA'd number 4 is really what we should
+do.  If security can only be solved via a bounce buffer, who cares?  If
+the user created themselves a non-aligned file to open O_DIRECT, that's
+their problem if the last part-sector is negligably slower.
 
-Sure.  
+Joel
 
-You and Chris and I can find a way to test it.  Those are "toy tests".
-
-The RT-LSM has been used for over a year by hundreds (probably
-thousands) of musicians in studios making real music.  That's what I
-mean by "real music studios".  We won't be able to do that kind of
-testing for the rlimits solution until next year.
 -- 
-  joq
+
+Life's Little Instruction Book #3
+
+	"Watch a sunrise at least once a year."
+
+Joel Becker
+Senior Member of Technical Staff
+Oracle
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127

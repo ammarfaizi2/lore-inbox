@@ -1,63 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130036AbRBQIRu>; Sat, 17 Feb 2001 03:17:50 -0500
+	id <S129453AbRBQIT7>; Sat, 17 Feb 2001 03:19:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129545AbRBQIRk>; Sat, 17 Feb 2001 03:17:40 -0500
-Received: from zooty.lancs.ac.uk ([148.88.16.231]:22264 "EHLO
-	zooty.lancs.ac.uk") by vger.kernel.org with ESMTP
-	id <S130036AbRBQIRa>; Sat, 17 Feb 2001 03:17:30 -0500
-Message-Id: <l03130344b6b3e2eb2f9e@[192.168.239.101]>
-In-Reply-To: <Pine.LNX.4.30.0102161828500.14561-100000@anime.net>
-In-Reply-To: <4.3.2.7.2.20010216211931.00c6d360@mail.osagesoftware.com>
+	id <S130462AbRBQITt>; Sat, 17 Feb 2001 03:19:49 -0500
+Received: from twilight.cs.hut.fi ([130.233.40.5]:40196 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
+	id <S129453AbRBQITe>; Sat, 17 Feb 2001 03:19:34 -0500
+Date: Sat, 17 Feb 2001 10:19:17 +0200
+From: Ville Herva <vherva@mail.niksula.cs.hut.fi>
+To: linux-kernel@vger.kernel.org, zole@diamondhead.hesbynett.no
+Subject: Re: 2.4.1-ac16 - Loopback device seems broken
+Message-ID: <20010217101917.S1040@niksula.cs.hut.fi>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Date: Sat, 17 Feb 2001 08:16:51 +0000
-To: Dan Hollis <goemon@anime.net>, David Relson <relson@osagesoftware.com>
-From: Jonathan Morton <chromi@cyberspace.org>
-Subject: re:  XOR  [ was: Linux stifles innovation... ]
-Cc: <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010217082558.10830.qmail@diamondhead.hesbynett.no>; from zole@diamondhead.hesbynett.no on Sat, Feb 17, 2001 at 08:25:58AM -0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>  > > > You know XOR is patented (yes, the logical bit operation XOR).
+On Sat, Feb 17, 2001 at 08:25:58AM -0000, you [Ole  André  Vadla  Ravnås ] claimed:                                                                       
+> I don't know if this is broken in 2.4.1-ac17 and                              
+> 2.4.2-pre4, but, what happens when mounting a filesystem                      
+> using the loopback device is that the process 'dies' in some                  
+> way and there's no way I can kill it.                                         
+> This is what I did:                                                           
+> mount /test-ext2-image.img /mnt/testimage -o loop,rw -t ext2                  
+> And after that there's no way I can get the process killed...                 
 
->>  > > 	But wasn't that Xerox that had that?
+Known problem.                                                                  
+                                                                                
+Go                                                                              
+                                                                                
+ftp://ftp.kernel.org/pub/linux/people/axboe                                     
+                                                                                
+and take the latest loop-? patch from there. Let Jens Axboe know if it works    
+or if you still have problems. Particularry, if you can reliably reproduce      
+the problem you referred.
+                                                                                
+I hear the patch should get merged to 2.4.1ac soon.                             
 
->>  > US Patent #4,197,590 held by NuGraphics, Inc.
+> Please CC replies to this email-address:                                      
+> zole@diamondhead.hesbynett.no                                                 
+> As I'm not currently subscribed to the linux kernel mailing-list. :-)         
 
->> The patent was for using the technique of using XOR for dragging/moving
->> parts of a graphics image without erasing other parts.  Also, since the
->> patent was granted in 1980, the inventors have had their 17 years of patent
->> protection, and we're all free to use the technique - legally!
->
->So you approve of 4,197,590 and think it was an innovative and non obvious
->invention in 1980?
+And, your address zole@diamondhead.hesbynett.no does not work. I'm kinda
+puzzled about how you expect people to reply you. With smoke signals?
+                                                                               
+> Ole AndréFå deg en gratis webmail fra Hesbynett!                              
+> http://diamondhead.hesbynett.no                                               
 
-Dunno about that, but I have heard of "clever techniques" using XOR in
-graphic sprite manipulation being used in microcomputer games in the
-early/mid 80's.  No mention of NuGraphics' patent was present - in fact
-this code was available in an "Assembly for fun" type book which I still
-have a copy of.
-
-The computer on which these techniques was demonstrated was the BBC
-Microcomputer, released in 1981 and based on a 2 MHz 6502.  Similar
-techniques were doubtless used on games for the Apple ][ which was released
-several years previously using a 1 MHz 6502.
-
---------------------------------------------------------------
-from:     Jonathan "Chromatix" Morton
-mail:     chromi@cyberspace.org  (not for attachments)
-big-mail: chromatix@penguinpowered.com
-uni-mail: j.d.morton@lancaster.ac.uk
-
-The key to knowledge is not to rely on people to teach you it.
-
-Get VNC Server for Macintosh from http://www.chromatix.uklinux.net/vnc/
-
------BEGIN GEEK CODE BLOCK-----
-Version 3.12
-GCS$/E/S dpu(!) s:- a20 C+++ UL++ P L+++ E W+ N- o? K? w--- O-- M++$ V? PS
-PE- Y+ PGP++ t- 5- X- R !tv b++ DI+++ D G e+ h+ r- y+
------END GEEK CODE BLOCK-----
-
-
+Uh, yeah.
+                                                                                
+                                                                                
+-- v --                                                                         
+                                                                                
+v@iki.fi                                                                        

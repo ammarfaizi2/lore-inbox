@@ -1,173 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263798AbTDXWAC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 18:00:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264439AbTDXWAC
+	id S263759AbTDXV7F (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 17:59:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263798AbTDXV7F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 18:00:02 -0400
-Received: from mailout.zma.compaq.com ([161.114.64.103]:14860 "EHLO
-	zmamail03.zma.compaq.com") by vger.kernel.org with ESMTP
-	id S263798AbTDXV7r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 17:59:47 -0400
-Date: Thu, 24 Apr 2003 17:11:40 -0500
+	Thu, 24 Apr 2003 17:59:05 -0400
+Received: from zcamail04.zca.compaq.com ([161.114.32.104]:8209 "EHLO
+	zcamail04.zca.compaq.com") by vger.kernel.org with ESMTP
+	id S263759AbTDXV7C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Apr 2003 17:59:02 -0400
+Date: Thu, 24 Apr 2003 17:10:44 -0500
 From: mikem@beardog.cca.cpqcorp.net
-Message-Id: <200304242211.h3OMBel01137@beardog.cca.cpqcorp.net>
+Message-Id: <200304242210.h3OMAiD01134@beardog.cca.cpqcorp.net>
 To: axboe@suse.de
-Subject: RE:cciss patches for 2.4.21-rc1, 2 of 4
+Subject: cciss patches for 2.4.21-rc1, 1 of 4
 Cc: linux-kernel@vger.kernel.org, mike.miller@hp.com, steve.cameron@hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-20030424
+2003/04/24
 
 Changes:
-	1. Modifies the way we find the cciss config table. Required 
-	   for some architectures.
-	2. Now uses the pci_resource_XXXX wrappers for code compatibility.
+	1. Changes marketing name of 6400 to 6402.
+	2. Adds support for the 6404/256 expansion module.
 
-diff -urN lx2421rc1-p1/drivers/block/cciss.c lx2421rc1/drivers/block/cciss.c
---- lx2421rc1-p1/drivers/block/cciss.c	Thu Apr 24 15:05:49 2003
-+++ lx2421rc1/drivers/block/cciss.c	Thu Apr 24 14:58:19 2003
-@@ -2438,25 +2438,54 @@
- 	c->io_mem_addr = 0;
- 	c->io_mem_length = 0;
- }
-+static int find_PCI_BAR_index(struct pci_dev *pdev,
-+               unsigned long pci_bar_addr)
-+{
-+	int i, offset, mem_type, bar_type;
-+	if (pci_bar_addr == PCI_BASE_ADDRESS_0) /* looking for BAR zero? */
-+		return 0;
-+	offset = 0;
-+	for (i=0; i<DEVICE_COUNT_RESOURCE; i++) {
-+		bar_type = pci_resource_flags(pdev, i) &
-+			PCI_BASE_ADDRESS_SPACE; 
-+		if (bar_type == PCI_BASE_ADDRESS_SPACE_IO)
-+			offset += 4;
-+		else {
-+			mem_type = pci_resource_flags(pdev, i) &
-+				PCI_BASE_ADDRESS_MEM_TYPE_MASK; 
-+			switch (mem_type) {
-+				case PCI_BASE_ADDRESS_MEM_TYPE_32:
-+				case PCI_BASE_ADDRESS_MEM_TYPE_1M:
-+					offset += 4; /* 32 bit */
-+					break;
-+				case PCI_BASE_ADDRESS_MEM_TYPE_64:
-+					offset += 8;
-+					break;
-+				case PCI_BASE_ADDRESS_MEM_PREFETCH:
-+				break;
-+			}
-+		}
-+		if (offset == pci_bar_addr - PCI_BASE_ADDRESS_0)
-+			return i+1;
-+	}
-+	return -1;
-+}
-+			
- static int cciss_pci_init(ctlr_info_t *c, struct pci_dev *pdev)
- {
- 	ushort vendor_id, device_id, command;
- 	unchar cache_line_size, latency_timer;
- 	unchar irq, revision;
--	uint addr[6];
- 	__u32 board_id;
--	int cfg_offset;
--	int cfg_base_addr;
--	int cfg_base_addr_index;
-+	__u64 cfg_offset;
-+	__u32 cfg_base_addr;
-+	__u64 cfg_base_addr_index;
- 	int i;
+diff -urN lx2421p7.orig/Documentation/cciss.txt lx2421p7-1/Documentation/cciss.txt
+--- lx2421p7.orig/Documentation/cciss.txt	Mon Apr  7 10:23:52 2003
++++ lx2421p7-1/Documentation/cciss.txt	Mon Apr  7 15:27:12 2003
+@@ -11,7 +11,8 @@
+ 	* SA 5312
+ 	* SA 641
+ 	* SA 642
+-	* SA 6400
++	* SA 6402
++	* SA 6404/256
  
- 	vendor_id = pdev->vendor;
- 	device_id = pdev->device;
- 	irq = pdev->irq;
+ If nodes are not already created in the /dev/cciss directory
  
--	for(i=0; i<6; i++)
--		addr[i] = pdev->resource[i].start;
--
- 	if (pci_enable_device(pdev)) {
- 		printk(KERN_ERR "cciss: Unable to Enable PCI device\n");
- 		return -1;
-@@ -2482,12 +2511,12 @@
- 		return -1;
- 	}
- 	/* search for our IO range so we can protect it */
--	for (i=0; i<6; i++) {
-+	for (i=0; i<DEVICE_COUNT_RESOURCE; i++) {
- 		/* is this an IO range */
--		if (pdev->resource[i].flags & 0x01) {
--			c->io_mem_addr = pdev->resource[i].start;
--			c->io_mem_length = pdev->resource[i].end -
--				pdev->resource[i].start +1; 
-+		if (pci_resource_flags(pdev, i) & 0x01) {
-+			c->io_mem_addr = pci_resource_start(pdev, i);
-+			c->io_mem_length = pci_resource_end(pdev, i) -
-+				pci_resource_start(pdev, i) + 1; 
- #ifdef CCISS_DEBUG
- 			printk("IO value found base_addr[%d] %lx %lx\n", i,
- 				c->io_mem_addr, c->io_mem_length);
-@@ -2511,7 +2540,7 @@
- 	printk("device_id = %x\n", device_id);
- 	printk("command = %x\n", command);
- 	for(i=0; i<6; i++)
--		printk("addr[%d] = %x\n", i, addr[i]);
-+		printk("addr[%d] = %x\n", i, pci_resource_start(pdev, i);
- 	printk("revision = %x\n", revision);
- 	printk("irq = %x\n", irq);
- 	printk("cache_line_size = %x\n", cache_line_size);
-@@ -2526,7 +2555,7 @@
-          *   table
- 	 */
+diff -urN lx2421p7.orig/drivers/block/cciss.c lx2421p7-1/drivers/block/cciss.c
+--- lx2421p7.orig/drivers/block/cciss.c	Mon Apr  7 10:23:53 2003
++++ lx2421p7-1/drivers/block/cciss.c	Mon Apr  7 15:33:15 2003
+@@ -44,12 +44,12 @@
+ #include <linux/genhd.h>
  
--	c->paddr = addr[0] ; /* addressing mode bits already removed */
-+	c->paddr = pci_resource_start(pdev, 0); /* addressing mode bits already removed */
- #ifdef CCISS_DEBUG
- 	printk("address 0 = %x\n", c->paddr);
- #endif /* CCISS_DEBUG */ 
-@@ -2535,21 +2564,27 @@
- 	/* get the address index number */
- 	cfg_base_addr = readl(c->vaddr + SA5_CTCFG_OFFSET);
- 	/* I am not prepared to deal with a 64 bit address value */
--	cfg_base_addr &= 0xffff;
-+	cfg_base_addr &= (__u32) 0x0000ffff;
- #ifdef CCISS_DEBUG
- 	printk("cfg base address = %x\n", cfg_base_addr);
- #endif /* CCISS_DEBUG */
--	cfg_base_addr_index = (cfg_base_addr  - PCI_BASE_ADDRESS_0)/4;
-+	cfg_base_addr_index =
-+		find_PCI_BAR_index(pdev, cfg_base_addr);
- #ifdef CCISS_DEBUG
- 	printk("cfg base address index = %x\n", cfg_base_addr_index);
- #endif /* CCISS_DEBUG */
-+	if (cfg_base_addr_index == -1) {
-+		printk(KERN_WARNING "cciss: Cannot find cfg_base_addr_index\n");
-+		release_io_mem(hba[i]);
-+		return -1;
-+	}
+ #define CCISS_DRIVER_VERSION(maj,min,submin) ((maj<<16)|(min<<8)|(submin))
+-#define DRIVER_NAME "HP CISS Driver (v 2.4.42)"
+-#define DRIVER_VERSION CCISS_DRIVER_VERSION(2,4,42)
++#define DRIVER_NAME "HP CISS Driver (v 2.4.44)"
++#define DRIVER_VERSION CCISS_DRIVER_VERSION(2,4,44)
  
- 	cfg_offset = readl(c->vaddr + SA5_CTMEM_OFFSET);
- #ifdef CCISS_DEBUG
- 	printk("cfg offset = %x\n", cfg_offset);
- #endif /* CCISS_DEBUG */
- 	c->cfgtable = (CfgTable_struct *) 
--		remap_pci_mem((addr[cfg_base_addr_index] & 0xfffffff0)
-+		remap_pci_mem(pci_resource_start(pdev, cfg_base_addr_index)
- 				+ cfg_offset, sizeof(CfgTable_struct));
- 	c->board_id = board_id;
+ /* Embedded module documentation macros - see modules.h */
+ MODULE_AUTHOR("Charles M. White III - Hewlett-Packard Company");
+-MODULE_DESCRIPTION("Driver for HP SA5xxx SA6xxx Controllers version 2.4.42");
++MODULE_DESCRIPTION("Driver for HP SA5xxx SA6xxx Controllers version 2.4.44");
+ MODULE_SUPPORTED_DEVICE("HP SA5i SA5i+ SA532 SA5300 SA5312 SA641 SA642 SA6400"); 
+ MODULE_LICENSE("GPL");
  
-diff -urN lx2421rc1-p1/drivers/block/cciss.h lx2421rc1/drivers/block/cciss.h
---- lx2421rc1-p1/drivers/block/cciss.h	Thu Apr 24 09:37:52 2003
-+++ lx2421rc1/drivers/block/cciss.h	Thu Apr 24 14:59:51 2003
-@@ -45,8 +45,8 @@
- 	char	firm_ver[4]; // Firmware version 
- 	struct pci_dev *pdev;
- 	__u32	board_id;
--	ulong   vaddr;
--	__u32	paddr;	
-+	unsigned long vaddr;
-+	unsigned long paddr;	
- 	unsigned long io_mem_addr;
- 	unsigned long io_mem_length;
- 	CfgTable_struct *cfgtable;
+@@ -73,6 +73,8 @@
+                         0x0E11, 0x409B, 0, 0, 0},
+ 	{ PCI_VENDOR_ID_COMPAQ, PCI_DEVICE_ID_COMPAQ_CISSC,
+                         0x0E11, 0x409C, 0, 0, 0},
++	{ PCI_VENDOR_ID_COMPAQ, PCI_DEVICE_ID_COMPAQ_CISSC,
++                        0x0E11, 0x409D, 0, 0, 0},
+ 	{0,}
+ };
+ MODULE_DEVICE_TABLE(pci, cciss_pci_device_id);
+@@ -90,7 +92,8 @@
+ 	{ 0x40830E11, "Smart Array 5312", &SA5B_access},
+ 	{ 0x409A0E11, "Smart Array 641", &SA5_access},
+ 	{ 0x409B0E11, "Smart Array 642", &SA5_access},
+-	{ 0x409C0E11, "Smart Array 6400", &SA5_access},
++	{ 0x409C0E11, "Smart Array 6402", &SA5_access},
++	{ 0x409C0E11, "Smart Array 6404/256", &SA5_access},
+ };
+ 
+ /* How long to wait (in millesconds) for board to go into simple mode */

@@ -1,73 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272323AbTHNM2R (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Aug 2003 08:28:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272324AbTHNM2R
+	id S272333AbTHNMfA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Aug 2003 08:35:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272338AbTHNMfA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Aug 2003 08:28:17 -0400
-Received: from lmail.actcom.co.il ([192.114.47.13]:19869 "EHLO
-	smtp1.actcom.net.il") by vger.kernel.org with ESMTP id S272323AbTHNM2M
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Aug 2003 08:28:12 -0400
-Date: Thu, 14 Aug 2003 15:28:02 +0300
-From: Muli Ben-Yehuda <mulix@mulix.org>
-To: Simon Haynes <simon@baydel.com>
-Cc: Matti Aarnio <matti.aarnio@zmailer.org>, linux-kernel@vger.kernel.org
-Subject: Re: File access
-Message-ID: <20030814122802.GC7387@actcom.co.il>
-References: <67597854DA5@baydel.com> <20030814121917.GX6898@mea-ext.zmailer.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="NU0Ex4SbNnrxsi6C"
-Content-Disposition: inline
-In-Reply-To: <20030814121917.GX6898@mea-ext.zmailer.org>
-User-Agent: Mutt/1.5.4i
+	Thu, 14 Aug 2003 08:35:00 -0400
+Received: from mail2.sonytel.be ([195.0.45.172]:49344 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S272333AbTHNMe6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Aug 2003 08:34:58 -0400
+Date: Thu, 14 Aug 2003 14:34:54 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: jw schultz <jw@pegasys.ws>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: C99 Initialisers
+In-Reply-To: <20030814105216.GA26892@pegasys.ws>
+Message-ID: <Pine.GSO.4.21.0308141433240.12289-100000@vervain.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 14 Aug 2003, jw schultz wrote:
+> On Thu, Aug 14, 2003 at 12:05:28PM +0200, Geert Uytterhoeven wrote:
+> > On Wed, 13 Aug 2003, Jeff Garzik wrote:
+> > > > On Wed, Aug 13, 2003 at 03:44:44PM -0400, Jeff Garzik wrote:
+> > > >>enums are easy  putting direct references would be annoying, but I also 
+> > > >>argue it's potentially broken and wrong to store and export that 
+> > > >>information publicly anyway.  The use of enums instead of pointers is 
+> > > >>practically required because there is a many-to-one relationship of ids 
+> > > >>to board information structs.
+> > > > 
+> > > > The hard part is that it's actually many-to-many.  The same card can have
+> > > > multiple drivers.  one driver can support many cards.
+> > > 
+> > > pci_device_tables are (and must be) at per-driver granularity.  Sure the 
+> > > same card can have multiple drivers, but that doesn't really matter in 
+> > > this context, simply because I/we cannot break that per-driver 
+> > > granularity.  Any solution must maintain per-driver granularity.
+> > 
+> > Aren't there any `hidden multi-function in single-function' PCI devices out
+> > there? E.g. cards with a serial and a parallel port?
+> > 
+> > At least for the Zorro bus, these exist. E.g. the Ariadne card contains both
+> > Ethernet and 2 parallel ports, so the Ariadne Ethernet driver and the (still to
+> > be written) Ariadne parallel port driver are both drivers for the same Zorro
+> > device.
+> 
+> I'm not sure but i think most of those look like multiple
+> pci devices rather than one device with multiple functions.
+> I've got an Initio 9520UW: One PCI card with two ini9x00 UW
+> SCSI HBAs sharing one interrupt and one EEPro100 on another
+> interrupt.  During scan it seems to me to be three devices
+> sitting behind a bridge.
 
---NU0Ex4SbNnrxsi6C
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+In most cases it is.
 
-On Thu, Aug 14, 2003 at 03:19:17PM +0300, Matti Aarnio wrote:
-> On Thu, Aug 14, 2003 at 12:32:18PM +0100, Simon Haynes wrote:
-> > I am currently developing a module which I would like to configure
-> > via a simple text file.=20
-> >=20
-> > I cannot seem to find any information on accessing files via a kernel=
-=20
-> > module.
-> >=20
-> > Is this possible and if so how is it done ?
->=20
->   Yes, but it is rather complicated business, and really should not
->   be done in kernel.   It can be done, but like Richard said, defining
->   your own set of IOCTLs for the device is better.  The complicated
->   configuration file parsing can then reside in the user-space utility
->   program.
+Just found a PCI example myself: there exists iDTV chips that connect to a PCI
+bus. It's one device, but internally it has graphics, video, USB, IDE, ...
+So you'll have different drivers.
 
-Indeed, do it in user space. But don't use ioctl unless it fits the
-problem better than the other solutions. Use read / write on a device
-file, or a special purpose file system, or sysfs, or even /proc. The
-exact mechanism you should use depends on the nature of the user space
-- kernel space communications.=20
---=20
-Muli Ben-Yehuda
-http://www.mulix.org
+Gr{oetje,eeting}s,
 
+						Geert
 
---NU0Ex4SbNnrxsi6C
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 
-iD8DBQE/O4BRKRs727/VN8sRAlghAJ9o3T80HDl3Pwe050IUMwYfX+h49QCfW6Tx
-4yR+npB1pQmdgLw4iMxBrhM=
-=zvMb
------END PGP SIGNATURE-----
-
---NU0Ex4SbNnrxsi6C--

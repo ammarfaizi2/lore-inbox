@@ -1,49 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271771AbTGRQla (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 12:41:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270255AbTGRQjv
+	id S267293AbTGROvc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 10:51:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268255AbTGROsx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 12:39:51 -0400
-Received: from fw.osdl.org ([65.172.181.6]:45264 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267517AbTGRQiP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 12:38:15 -0400
-Date: Fri, 18 Jul 2003 09:45:42 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Peter Osterlund <petero2@telia.com>
-Cc: pavel@ucw.cz, linux-kernel@vger.kernel.org
-Subject: Re: Software suspend testing in 2.6.0-test1
-Message-Id: <20030718094542.07b2685a.akpm@osdl.org>
-In-Reply-To: <m2el0nvnhm.fsf@telia.com>
-References: <m2wueh2axz.fsf@telia.com>
-	<20030717200039.GA227@elf.ucw.cz>
-	<20030717130906.0717b30d.akpm@osdl.org>
-	<m2d6g8cg06.fsf@telia.com>
-	<20030718032433.4b6b9281.akpm@osdl.org>
-	<20030718152205.GA407@elf.ucw.cz>
-	<m2el0nvnhm.fsf@telia.com>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 18 Jul 2003 10:48:53 -0400
+Received: from vdp160.ath01.cas.hol.gr ([195.97.116.161]:24960 "EHLO
+	pfn1.pefnos") by vger.kernel.org with ESMTP id S271716AbTGROJN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jul 2003 10:09:13 -0400
+From: "P. Christeas" <p_christ@hol.gr>
+To: Scott Robert Ladd <coyote@coyotegulch.com>
+Date: Fri, 18 Jul 2003 17:26:32 +0300
+User-Agent: KMail/1.5
+Cc: lkml <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Disposition: inline
+Subject: Re: [PATCH] PATCH: typo bits (aka. linguistics in lkml)
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200307181726.32548.p_christ@hol.gr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Osterlund <petero2@telia.com> wrote:
->
-> I tried the patch below, but it didn't work. Nothing (or very little)
-> was swapped out to disk. I also tried using GFP_KERNEL, but that
-> seemed to cause a deadlock. (Maybe it would have gone OOM if I had
-> waited long enough). I think the problem is that pdflush and friends
-> are already frozen when this code runs.
+>Alan Cox wrote:
+>>>>- * It's now support isochronous mode and more effective than hc_sl811.o
+>>>>+ * It's now support isosynchronous mode and more effective than 
+hc_sl811.o
+>>>
+>>>I thought the correct term was `isochronous'...
+>> 
+>> Perhaps someone can clarify - however isochornus is definitely wrong either 
+way
 
-Oh, we shouldn't be doing this sort of thing when the kernel threads are
-refrigerated.  We do need kswapd services for the trick you tried.
+>"Isochronous" is correct; it is a synonym for "isochronal", which means 
+>"uniform in time; of equal duration". That is, I believe, apropos to the 
+>intended meaning of the comment above.
 
-And all flavours of ext3_writepage() can block on kjournald activity, so if
-kjournald is refrigerated during the memory shrink the machine can deadlock.
+>"Isosynchronous" does not appear in any of my dictionaries.
 
-It would be much better to freeze kernel threads _after_ doing the big
-memory shrink.
+Exactly. The valid word is 'isochronous', which characterizes timeslices of 
+equal length.
+It is different from 'synchronous', which is thhings that happen at the same 
+time, i.e. in parallel. In some extent, this word is used to mean things that 
+will also end at the same time.
 

@@ -1,75 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261610AbVAYI4v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261726AbVAYJCL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261610AbVAYI4v (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 03:56:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261726AbVAYI4v
+	id S261726AbVAYJCL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 04:02:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261729AbVAYJCL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 03:56:51 -0500
-Received: from aun.it.uu.se ([130.238.12.36]:8662 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S261610AbVAYI4s (ORCPT
+	Tue, 25 Jan 2005 04:02:11 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:27869 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261726AbVAYJCD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 03:56:48 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16886.2489.823835.17801@alkaid.it.uu.se>
-Date: Tue, 25 Jan 2005 09:56:25 +0100
-From: Mikael Pettersson <mikpe@csd.uu.se>
+	Tue, 25 Jan 2005 04:02:03 -0500
+Date: Tue, 25 Jan 2005 10:01:31 +0100
+From: Ingo Molnar <mingo@elte.hu>
 To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Mikael Pettersson <mikpe@csd.uu.se>,
-       linuxppc-dev list <linuxppc-dev@ozlabs.org>,
-       Paul Mackerras <paulus@samba.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: BUG: 2.6.11-rc2 and -rc1 hang during boot on PowerMacs
-In-Reply-To: <1106623515.6244.11.camel@gaston>
-References: <200501221723.j0MHN6eD000684@harpo.it.uu.se>
-	<1106441036.5387.41.camel@gaston>
-	<1106529935.5587.9.camel@gaston>
-	<16885.13185.849070.479328@alkaid.it.uu.se>
-	<1106623515.6244.11.camel@gaston>
-X-Mailer: VM 7.17 under Emacs 20.7.1
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: Problem with cpu_rest() change
+Message-ID: <20050125090131.GA4986@elte.hu>
+References: <1106534442.5272.10.camel@gaston>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1106534442.5272.10.camel@gaston>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Herrenschmidt writes:
- > On Mon, 2005-01-24 at 18:42 +0100, Mikael Pettersson wrote:
- > > Benjamin Herrenschmidt writes:
- > >  > On Sun, 2005-01-23 at 11:43 +1100, Benjamin Herrenschmidt wrote:
- > >  > 
- > >  > > I know about this problem, I'm working on a proper fix. Thanks for your
- > >  > > report.
- > >  > 
- > >  > Can you send me the PVR value for both of these CPUs
- > >  > (cat /proc/cpuinfo) ? I can't find right now why they would lock up
- > >  > unless the default idle loop is _not_ run properly, that is for some
- > >  > reason, NAP or DOZE mode end up not beeing enabled. Can you send me
- > >  > your .config as well ?
- > > 
- > > === cpuinfo.emac ===
- > > processor	: 0
- > > cpu		: 7447/7457, altivec supported
- > > clock		: 1249MHz
- > > revision	: 1.1 (pvr 8002 0101)
- > > bogomips	: 830.66
- > > machine		: PowerMac6,4
- > > motherboard	: PowerMac6,4 MacRISC3 Power Macintosh 
- > > detected as	: 287 (Unknown Intrepid-based)
- > > pmac flags	: 00000000
- > > L2 cache	: 512K unified
- > > memory		: 256MB
- > > pmac-generation	: NewWorld
- > 
- > Ok, it's normal that the Beige G3 doesn't do NAP, and the 7455 cannot do
- > DOZE, so I suspect it's all normal and my patch fixes it.
- > 
- > However, the eMac should have been doing NAP. Can you check what's up in
- > arch/ppc/plaform/pmac_feature.c with powersave_nap ? is it set at all ?
- > It should be visible from userland at /proc/sys/kernel/powersave-nap
- > and should be set to 1 by default on your machine... unless your cpu
- > node in the device-tree has the "flush-on-lock" property...
 
-On the eMac:
-/proc/sys/kernel/powersave-nap exists and contains "0".
-/proc/device-tree/cpus/PowerPC,G4/flush-on-lock exists as an empty file.
+* Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
 
-/Mikael
+> Hi Ingo !
+> 
+> Could you explain me precisely what is the race you are fixing by
+> adding local_irq_disable() to rest_init() ?
+
+it can be bad for the idle task to hold the BKL and to have preemption
+enabled - in such a situation the scheduler will get confused if an
+interrupt triggers a forced preemption in that small window. But it's
+not necessary to keep IRQs disabled after the BKL has been dropped. In
+fact i think IRQ-disabling doesnt have to be done at all, the patch
+below ought to solve this scenario equally well, and should solve the
+PPC side-effects too.
+
+Tested ontop of 2.6.11-rc2 on x86 PREEMPT+SMP and PREEMPT+!SMP (which
+IIRC were the config variants that triggered the original problem), on
+an SMP and on a UP system.
+
+	Ingo
+
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+
+--- linux/init/main.c.orig
++++ linux/init/main.c
+@@ -373,14 +373,9 @@ static void noinline rest_init(void)
+ {
+ 	kernel_thread(init, NULL, CLONE_FS | CLONE_SIGHAND);
+ 	numa_default_policy();
+-	/*
+-	 * Re-enable preemption but disable interrupts to make sure
+-	 * we dont get preempted until we schedule() in cpu_idle().
+-	 */
+-	local_irq_disable();
+-	preempt_enable_no_resched();
+ 	unlock_kernel();
+- 	cpu_idle();
++	preempt_enable_no_resched();
++	cpu_idle();
+ } 
+ 
+ /* Check for early params. */

@@ -1,33 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263040AbREaJ0p>; Thu, 31 May 2001 05:26:45 -0400
+	id <S263055AbREaJ1z>; Thu, 31 May 2001 05:27:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263041AbREaJ0f>; Thu, 31 May 2001 05:26:35 -0400
-Received: from cipro.dia.unisa.it ([192.41.218.249]:25609 "EHLO
-	cipro.dia.unisa.it") by vger.kernel.org with ESMTP
-	id <S263040AbREaJ0U>; Thu, 31 May 2001 05:26:20 -0400
-Message-ID: <3B160D84.76417D29@cipro.dia.unisa.it>
-Date: Thu, 31 May 2001 11:23:16 +0200
-From: Angela Picariello <angpic@cipro.dia.unisa.it>
-X-Mailer: Mozilla 4.74 [en] (X11; U; Linux 2.2.16 i686)
-X-Accept-Language: en
+	id <S263049AbREaJ1p>; Thu, 31 May 2001 05:27:45 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:38924 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S263041AbREaJ1a>; Thu, 31 May 2001 05:27:30 -0400
+Subject: Re: Oops with 2.4.5-ac3
+To: jose@servidor.jaimedelamo.eu.org (Jose Carlos Garcia Sogo)
+Date: Thu, 31 May 2001 10:24:58 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010531094556.A599@hal9000> from "Jose Carlos Garcia Sogo" at May 31, 2001 09:45:56 AM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: UDP SERVER IN KERNEL MODE
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E155OhO-0007Hg-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+>    I'm using NVIDIA's module for a TNT2 M64 card.
 
-I'm implementing a server udp in kernel mode.
-I've many difficult to find an example.
+Then talk to Nvidia. Nobody else can help debug their binary and obfuscated
+code. Or duplicate the problem without ever having loaded the nvidia modules
+that boot. 
 
-I've kernel version 2.2.16.
-
-(Anyway I accept every suggest).
-
-Can you help me?
-
+Alan
 

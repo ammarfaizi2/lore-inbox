@@ -1,67 +1,25 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315267AbSIDT30>; Wed, 4 Sep 2002 15:29:26 -0400
+	id <S315413AbSIDTc4>; Wed, 4 Sep 2002 15:32:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315275AbSIDT30>; Wed, 4 Sep 2002 15:29:26 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:30852 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S315267AbSIDT3Z>; Wed, 4 Sep 2002 15:29:25 -0400
-Date: Wed, 4 Sep 2002 10:13:22 -0700
-From: Mike Anderson <andmike@us.ibm.com>
-To: James Bottomley <James.Bottomley@steeleye.com>
-Cc: Jeremy Higdon <jeremy@classic.engr.sgi.com>,
-       Doug Ledford <dledford@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "Justin T. Gibbs" <gibbs@scsiguy.com>, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-Subject: Re: aic7xxx sets CDR offline, how to reset?
-Message-ID: <20020904171322.GA1645@beaverton.ibm.com>
-Mail-Followup-To: James Bottomley <James.Bottomley@steeleye.com>,
-	Jeremy Higdon <jeremy@classic.engr.sgi.com>,
-	Doug Ledford <dledford@redhat.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	"Justin T. Gibbs" <gibbs@scsiguy.com>, linux-kernel@vger.kernel.org,
-	linux-scsi@vger.kernel.org
-References: <10209040040.ZM49716@classic.engr.sgi.com> <200209041624.g84GOJC02683@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200209041624.g84GOJC02683@localhost.localdomain>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.0.32 on an i486
+	id <S315419AbSIDTc4>; Wed, 4 Sep 2002 15:32:56 -0400
+Received: from adsl-64-172-54-251.dsl.snfc21.pacbell.net ([64.172.54.251]:63505
+	"EHLO mail.lmaugustin.com") by vger.kernel.org with ESMTP
+	id <S315413AbSIDTcz>; Wed, 4 Sep 2002 15:32:55 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Leonard Zubkoff killed
+Message-Id: <E17mfxx-000865-00@mail.lmaugustin.com>
+From: "Larry M. Augustin" <lma@lmaugustin.com>
+Date: Wed, 04 Sep 2002 12:37:29 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Bottomley [James.Bottomley@steeleye.com] wrote:
-> jeremy@classic.engr.sgi.com said:
-> > For example, in Fibrechannel using class 3 (the usual)
-> 
-> > 	send command (command frame corrupted; device does not receive)
-> > 	send barrier (completes normally)
-> > 	... (lots of time goes by, many more commands are processed)
-> > 	timeout original command whose command frame was corrupted 
-> 
-> This doesn't look right to me from the SCSI angle  I don't see how you can get 
-> a successful disconnect on a command the device doesn't receive (I take it 
-> this is some type of Fibre magic?).  Of course, if the device (or its proxy) 
-> does receive the command then the ordered queue tag implementation requires 
-> that the corrupted frame command be processed prior to the barrier,  this 
-> isn't optional if you obey the spec.  Thus, assuming the processor does no 
-> integrity checking of the command until it does processing (this should be a 
-> big if), then we still must get notification of the failed command before the 
-> barrier tag is begun.  Obviously, from that notification we do then race to 
-> eliminate the overtaking tags.
+Many of you may know Linux kernel developer Leonard Zubkoff (BusLogic
+and DAC960 maintainer, among other contributions).  Leonard was killed
+recently in a helicopter crash.  See
+http://www.ktva.com/Stories/0,1413,163%257E6883%257E834332,00.html.
+Leonard was one of the smartest people that I know, and I consider
+myself lucky enough to have been privileged to work with him.  He will
+be missed.
 
-In FC class 3 if you are logged into a port then notice of this loss
-doesn't happen until a upper level timeout occurs (ULTP?). The loss can
-happen prior to the command reaching the device (i.e. the switch can
-drop the frame). If a corrupted frame makes it to the device it will be
-discarded as there is not much it can do with a frame containing unreliable
-data. In FC class 2 frames are ack'd so the recovery can be much more
-responsive.
-
-
--Mike
--- 
-Michael Anderson
-andmike@us.ibm.com
-
+Larry

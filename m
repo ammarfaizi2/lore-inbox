@@ -1,95 +1,153 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262864AbSJAVWF>; Tue, 1 Oct 2002 17:22:05 -0400
+	id <S262838AbSJAVkP>; Tue, 1 Oct 2002 17:40:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262866AbSJAVWF>; Tue, 1 Oct 2002 17:22:05 -0400
-Received: from dsl-213-023-043-077.arcor-ip.net ([213.23.43.77]:7583 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S262864AbSJAVWE>;
-	Tue, 1 Oct 2002 17:22:04 -0400
-From: Daniel Phillips <phillips@arcor.de>
-To: Paul P Komkoff Jr <i@stingr.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [STUPID TESTCASE] ext3 htree vs. reiserfs on 2.5.40-mm1
-Date: Tue, 1 Oct 2002 23:27:50 +0200
-X-Mailer: KMail [version 1.3.2]
-References: <20021001195914.GC6318@stingr.net>
-In-Reply-To: <20021001195914.GC6318@stingr.net>
+	id <S262839AbSJAVkP>; Tue, 1 Oct 2002 17:40:15 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:60888 "EHLO
+	mtvmime01.veritas.com") by vger.kernel.org with ESMTP
+	id <S262838AbSJAVkM>; Tue, 1 Oct 2002 17:40:12 -0400
+Date: Tue, 1 Oct 2002 22:46:27 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Andrew Morton <akpm@digeo.com>
+cc: Christoph Rohland <cr@sap.com>, <linux-kernel@vger.kernel.org>
+Subject: [PATCH] tmpfs 2/9 partial shmem_holdpage 
+In-Reply-To: <Pine.LNX.4.44.0210012240470.2602-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0210012244550.2602-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_EMNBZ2GJXA2W13LL5Q2U"
-Message-Id: <E17wUYa-0006Dl-00@starship>
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The earlier partial truncation fix in shmem_truncate admits it is racy,
+and I've now seen that (though perhaps more likely when mpage_writepages
+was writing pages it shouldn't).  A cleaner fix is, not to repeat the
+memclear in shmem_truncate, but to hold the partial page in memory
+throughout truncation, by shmem_holdpage from shmem_notify_change.
 
---------------Boundary-00=_EMNBZ2GJXA2W13LL5Q2U
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 8bit
+--- tmpfs1/mm/shmem.c	Tue Oct  1 19:48:54 2002
++++ tmpfs2/mm/shmem.c	Tue Oct  1 19:48:59 2002
+@@ -68,8 +68,6 @@
+ static spinlock_t shmem_ilock = SPIN_LOCK_UNLOCKED;
+ atomic_t shmem_nrpages = ATOMIC_INIT(0); /* Not used right now */
+ 
+-static struct page *shmem_getpage_locked(struct shmem_inode_info *, struct inode *, unsigned long);
+-
+ /*
+  * shmem_recalc_inode - recalculate the size of an inode
+  *
+@@ -329,7 +327,6 @@
+ static void shmem_truncate (struct inode * inode)
+ {
+ 	unsigned long index;
+-	unsigned long partial;
+ 	unsigned long freed = 0;
+ 	struct shmem_inode_info * info = SHMEM_I(inode);
+ 
+@@ -337,29 +334,6 @@
+ 	inode->i_ctime = inode->i_mtime = CURRENT_TIME;
+ 	spin_lock (&info->lock);
+ 	index = (inode->i_size + PAGE_CACHE_SIZE - 1) >> PAGE_CACHE_SHIFT;
+-	partial = inode->i_size & ~PAGE_CACHE_MASK;
+-
+-	if (partial) {
+-		swp_entry_t *entry = shmem_swp_entry(info, index-1, 0);
+-		struct page *page;
+-		/*
+-		 * This check is racy: it's faintly possible that page
+-		 * was assigned to swap during truncate_inode_pages,
+-		 * and now assigned to file; but better than nothing.
+-		 */
+-		if (!IS_ERR(entry) && entry->val) {
+-			spin_unlock(&info->lock);
+-			page = shmem_getpage_locked(info, inode, index-1);
+-			if (!IS_ERR(page)) {
+-				memclear_highpage_flush(page, partial,
+-					PAGE_CACHE_SIZE - partial);
+-				unlock_page(page);
+-				page_cache_release(page);
+-			}
+-			spin_lock(&info->lock);
+-		}
+-	}
+-
+ 	while (index < info->next_index) 
+ 		freed += shmem_truncate_indirect(info, index);
+ 
+@@ -369,9 +343,11 @@
+ 	up(&info->sem);
+ }
+ 
+-static int shmem_notify_change(struct dentry * dentry, struct iattr *attr)
++static int shmem_notify_change(struct dentry *dentry, struct iattr *attr)
+ {
++	static struct page *shmem_holdpage(struct inode *, unsigned long);
+ 	struct inode *inode = dentry->d_inode;
++	struct page *page = NULL;
+ 	long change = 0;
+ 	int error;
+ 
+@@ -384,13 +360,27 @@
+ 		if (change > 0) {
+ 			if (!vm_enough_memory(change))
+ 				return -ENOMEM;
+-		} else
++		} else if (attr->ia_size < inode->i_size) {
+ 			vm_unacct_memory(-change);
++			/*
++			 * If truncating down to a partial page, then
++			 * if that page is already allocated, hold it
++			 * in memory until the truncation is over, so
++			 * truncate_partial_page cannnot miss it were
++			 * it assigned to swap.
++			 */
++			if (attr->ia_size & (PAGE_CACHE_SIZE-1)) {
++				page = shmem_holdpage(inode,
++					attr->ia_size >> PAGE_CACHE_SHIFT);
++			}
++		}
+ 	}
+ 
+ 	error = inode_change_ok(inode, attr);
+ 	if (!error)
+ 		error = inode_setattr(inode, attr);
++	if (page)
++		page_cache_release(page);
+ 	if (error)
+ 		vm_unacct_memory(change);
+ 	return error;
+@@ -729,6 +719,33 @@
+ 	return error;
+ }
+ 
++static struct page *shmem_holdpage(struct inode *inode, unsigned long idx)
++{
++	struct shmem_inode_info *info = SHMEM_I(inode);
++	struct page *page;
++	swp_entry_t *entry;
++	swp_entry_t swap = {0};
++
++	/*
++	 * Somehow, it feels wrong for truncation down to cause any
++	 * allocation: so instead of a blind shmem_getpage, check that
++	 * the page has actually been instantiated before holding it.
++	 */
++	spin_lock(&info->lock);
++	page = find_get_page(inode->i_mapping, idx);
++	if (!page) {
++		entry = shmem_swp_entry(info, idx, 0);
++		if (!IS_ERR(entry))
++			swap = *entry;
++	}
++	spin_unlock(&info->lock);
++	if (swap.val) {
++		if (shmem_getpage(inode, idx, &page) < 0)
++			page = NULL;
++	}
++	return page;
++}
++
+ struct page * shmem_nopage(struct vm_area_struct * vma, unsigned long address, int unused)
+ {
+ 	struct page * page;
 
-On Tuesday 01 October 2002 21:59, Paul P Komkoff Jr wrote:
-> This is the stupidiest testcase I've done but it worth seeing (maybe)
-> 
-> We create 300000 files
-
-How big are the files?
-
-> named from 00000000 to 000493E0 in one directory, then delete it in order.
-
-You probably want to try creating the files in random order as well.  A
-program to do that is attached, use in the form:
-
-    randfiles <basename> <count> y
-
-where 'y' means 'print the names', for debugging purposes.
-
-What did your delete command look like, "rm -rf" or "echo * | xargs rm"?
-
-> Tests taken on ext3+htree and reiserfs. ext3 w/o htree hadn't
-> evaluated because it will take long long time ...
-> 
-> both filesystems was mounted with noatime,nodiratime and ext3 was
-> data=writeback to be somewhat fair ...
-> 
-> 	       	real 	      	user  		sys
-> reiserfs:
-> Creating: 	3m13.208s	0m4.412s	2m54.404s
-> Deleting:	4m41.250s	0m4.206s	4m17.926s
-> 
-> Ext3:
-> Creating:	4m9.331s	0m3.927s	2m21.757s
-> Deleting:	9m14.838s	0m3.446s	1m39.508s
-> 
-> htree improved this a much but it still beaten by reiserfs. seems odd
-> to me - deleting taking twice time then creating ...
-
-Only 300,000 files, you haven't got enough to cause inode table thrashing,
-though some kernels shrink the inode cache too agressively and that can
-cause thrashing at lower numbers.  Maybe a bottleneck in the journal?
-
-Not that anybody is going to complain about any of the above - it's still
-running less than 1 ms/create, 2 ms/delete.  Still, it's slower than I'm
-used to.
-
--- 
-Daniel
-
---------------Boundary-00=_EMNBZ2GJXA2W13LL5Q2U
-Content-Type: text/x-c;
-  charset="koi8-r";
-  name="randfiles.c"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="randfiles.c"
-
-I2luY2x1ZGUgPHN0ZGxpYi5oPgoKI2RlZmluZSBzd2FwKHgsIHkpIGRvIHsgdHlwZW9mKHgpIHog
-PSB4OyB4ID0geTsgeSA9IHo7IH0gd2hpbGUgKDApCgppbnQgbWFpbiAoaW50IGFyZ2MsIGNoYXIg
-KmFyZ3ZbXSkKewoJaW50IG4gPSAoYXJnYyA+IDIpPyBzdHJ0b2woYXJndlsyXSwgMCwgMTApOiAw
-OwoJaW50IGksIHNpemUgPSA1MCwgc2hvdyA9IGFyZ2MgPiAzICYmICFzdHJuY21wKGFyZ3ZbM10s
-ICJ5IiwgMSk7CgljaGFyIG5hbWVbc2l6ZV07CglpbnQgY2hvb3NlW25dOwoKCWZvciAoaSA9IDA7
-IGkgPCBuOyBpKyspIGNob29zZVtpXSA9IGk7Cglmb3IgKGkgPSBuOyBpOyBpLS0pIHN3YXAoY2hv
-b3NlW2ktMV0sIGNob29zZVtyYW5kKCkgJSBpXSk7Cglmb3IgKGkgPSAwOyBpIDwgbjsgaSsrKQoJ
-ewoJCXNucHJpbnRmKG5hbWUsIHNpemUsICIlcyVpIiwgYXJndlsxXSwgY2hvb3NlW2ldKTsKCQlp
-ZiAoc2hvdykgcHJpbnRmKCJjcmVhdGUgJXNcbiIsIG5hbWUpOwoJCWNsb3NlKG9wZW4obmFtZSwg
-MDEwMCkpOwoJfQoJcmV0dXJuIDA7Cn0KCgo=
-
---------------Boundary-00=_EMNBZ2GJXA2W13LL5Q2U--

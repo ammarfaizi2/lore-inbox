@@ -1,58 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268212AbUIBLFk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268228AbUIBLJm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268212AbUIBLFk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 07:05:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268240AbUIBLFW
+	id S268228AbUIBLJm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 07:09:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268284AbUIBLJd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 07:05:22 -0400
-Received: from denise.shiny.it ([194.20.232.1]:2275 "EHLO denise.shiny.it")
-	by vger.kernel.org with ESMTP id S268212AbUIBLCL (ORCPT
+	Thu, 2 Sep 2004 07:09:33 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:50669 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S268228AbUIBLIu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 07:02:11 -0400
-Date: Thu, 2 Sep 2004 13:00:49 +0200 (CEST)
-From: Giuliano Pochini <pochini@denise.shiny.it>
-To: Spam <spam@tnonline.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: The argument for fs assistance in handling archives
-In-Reply-To: <812032218.20040902120259@tnonline.net>
-Message-ID: <Pine.LNX.4.58.0409021252430.7698@denise.shiny.it>
-References: <20040826150202.GE5733@mail.shareable.org>
- <200408282314.i7SNErYv003270@localhost.localdomain> <20040901200806.GC31934@mail.shareable.org>
- <Pine.LNX.4.58.0409011311150.2295@ppc970.osdl.org> <20040902002431.GN31934@mail.shareable.org>
- <413694E6.7010606@slaphack.com> <Pine.LNX.4.58.0409012037300.2295@ppc970.osdl.org>
- <4136A14E.9010303@slaphack.com> <Pine.LNX.4.58.0409012259340.2295@ppc970.osdl.org>
- <4136C876.5010806@namesys.com> <Pine.LNX.4.58.0409020030220.2295@ppc970.osdl.org>
- <4136E0B6.4000705@namesys.com> <4699bb7b04090202121119a57b@mail.gmail.com>
- <4136E756.8020105@hist.no> <4699bb7b0409020245250922f9@mail.gmail.com>
- <812032218.20040902120259@tnonline.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 2 Sep 2004 07:08:50 -0400
+Date: Thu, 2 Sep 2004 13:10:03 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: linux-kernel@vger.kernel.org
+Cc: "K.R. Foley" <kr@cybsft.com>,
+       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
+       Daniel Schmitt <pnambic@unu.nu>, Lee Revell <rlrevell@joe-job.com>,
+       Mark_H_Johnson@raytheon.com
+Subject: [patch] voluntary-preempt-2.6.9-rc1-bk4-Q9
+Message-ID: <20040902111003.GA4256@elte.hu>
+References: <OF04883085.9C3535D2-ON86256F00.0065652B@raytheon.com> <20040902063335.GA17657@elte.hu> <20040902065549.GA18860@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040902065549.GA18860@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+i've released the -Q9 patch:
 
-On Thu, 2 Sep 2004, Spam wrote:
+  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc1-bk4-Q9
 
->   Well. wasn't the idea that unless programs specifically tried to
->   open the file-as-dir as a directory it would look like a file?
->
->   ls -F would show it as file. Or have I understood wrong?
+ontop of:
 
-Yes, otherwise apps that do
+  http://redhat.com/~mingo/voluntary-preempt/diff-bk-040828-2.6.8.1.bz2
 
-if (S_ISDIR()) {
-	..
-} else if (S_ISREG()) {
-	..
-}
+Changes:
 
-would behave differently from apps that check the file in
-different order, and they would probably break because in
-a regular fs that order is not important. The goal is to
-keep the semantic changes as hidden as possible for apps
-that don't know about the new features.
+ - fixed the cond_resched_softirq() bug noticed by Mika Penttila.
 
+ - updated the preemption-friendly network-RX code but 8193too.c still
+   produces delayed packets so netdev_backlog_granularity now defaults
+   to 2, which seems to be working fine on my testbox.
 
---
-Giuliano.
+ - the latency_trace output now includes the kernel and patch version,
+   for easier sorting of reports.
+
+	Ingo

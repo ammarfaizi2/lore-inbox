@@ -1,82 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261938AbTD2EBY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Apr 2003 00:01:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261939AbTD2EBY
+	id S261940AbTD2E1x (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Apr 2003 00:27:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261946AbTD2E1x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Apr 2003 00:01:24 -0400
-Received: from granite.he.net ([216.218.226.66]:14352 "EHLO granite.he.net")
-	by vger.kernel.org with ESMTP id S261938AbTD2EBW (ORCPT
+	Tue, 29 Apr 2003 00:27:53 -0400
+Received: from aktion1.adns.de ([62.116.145.13]:30665 "EHLO aktion1.adns.de")
+	by vger.kernel.org with ESMTP id S261940AbTD2E1w (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Apr 2003 00:01:22 -0400
-Date: Mon, 28 Apr 2003 21:15:35 -0700
-From: Greg KH <greg@kroah.com>
-To: maxk@qualcomm.com
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: [Bluetooth] HCI USB driver update. Support for SCO over HCI USB.
-Message-ID: <20030429041535.GA2093@kroah.com>
-References: <200304290317.h3T3HOdA027579@hera.kernel.org>
-Mime-Version: 1.0
+	Tue, 29 Apr 2003 00:27:52 -0400
+Message-ID: <3EAE0224.2030502@asbest-online.de>
+Date: Tue, 29 Apr 2003 06:40:04 +0200
+From: Sven Krohlas <sven@asbest-online.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:1.4b) Gecko/20030423
+X-Accept-Language: de, de-at, de-de, de-li, de-lu, de-ch, en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.21-rc1 freezes
+References: <fa.gkftieo.3iqshi@ifi.uio.no> <fa.ikvjpcr.34s8rv@ifi.uio.no>
+In-Reply-To: <fa.ikvjpcr.34s8rv@ifi.uio.no>
+X-Enigmail-Version: 0.74.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200304290317.h3T3HOdA027579@hera.kernel.org>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 24, 2003 at 09:03:28PM +0000, Linux Kernel Mailing List wrote:
-> ChangeSet 1.971.22.2, 2003/03/24 13:03:28-08:00, maxk@qualcomm.com
-> 
-> 	[Bluetooth] HCI USB driver update. Support for SCO over HCI USB.
-> 	URB and buffer managment rewrite.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Max, you need to be very careful with this:
+Hi,
 
-> -static void hci_usb_interrupt(struct urb *urb, struct pt_regs *regs);
-> +struct _urb *_urb_alloc(int isoc, int gfp)
-> +{
-> +	struct _urb *_urb = kmalloc(sizeof(struct _urb) +
-> +				sizeof(struct usb_iso_packet_descriptor) * isoc, gfp);
-> +	if (_urb) {
-> +		memset(_urb, 0, sizeof(*_urb));
-> +		_urb->urb.count = (atomic_t)ATOMIC_INIT(1);
-> +		spin_lock_init(&_urb->urb.lock);
-> +	}
-> +	return _urb;
-> +}
+>>Could you have a look at my boot.log and see if you've got
+>>similar hardware? Maybe we can narrow the problem down a bit.
+>
+> 	I have VIA chipset too (KT400), I hope it is not chipset specific. Int=
+> el, SIS
+> people how are you doing?
 
-You aren't calling usb_alloc_urb() and:
+Hey, don't forget my Ali one ;)
+I see the problem with a Ali Aladdin V (ALI1543)
 
-> +struct _urb *_urb_dequeue(struct _urb_queue *q)
-> +{
-> +	struct _urb *_urb = NULL;
-> +        unsigned long flags;
-> +        spin_lock_irqsave(&q->lock, flags);
-> +	{
-> +		struct list_head *head = &q->head;
-> +		struct list_head *next = head->next;
-> +		if (next != head) {
-> +			_urb = list_entry(next, struct _urb, list);
-> +			list_del(next); _urb->queue = NULL;
-> +		}
-> +	}
-> +	spin_unlock_irqrestore(&q->lock, flags);
-> +	return _urb;
-> +}
+linux:/home/sven # lspci
+00:00.0 Host bridge: Acer Laboratories Inc. [ALi] M1541 (rev 04)
+00:01.0 PCI bridge: Acer Laboratories Inc. [ALi] M1541 PCI to AGP Controller (rev 04)
+00:02.0 USB Controller: Acer Laboratories Inc. [ALi] USB 1.1 Controller (rev 03)
+00:03.0 Bridge: Acer Laboratories Inc. [ALi] M7101 PMU
+00:07.0 ISA bridge: Acer Laboratories Inc. [ALi] M1533 PCI to ISA Bridge [Aladdin IV] (rev c3)
+00:09.0 SCSI storage controller: LSI Logic / Symbios Logic 53c875 (rev 26)
+00:0a.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139/8139C/8139C+ (rev 10)
+00:0b.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8029(AS)
+00:0c.0 Unknown mass storage controller: Promise Technology, Inc. 20269 (rev 02)
+00:0f.0 IDE interface: Acer Laboratories Inc. [ALi] M5229 IDE (rev c1)
+01:00.0 VGA compatible controller: nVidia Corporation NV4 [Riva TnT] (rev 04)
 
-You aren't calling usb_free_urb() as you are embedding a struct urb
-within your struct _urb structure.  Any reason you can't use a struct
-urb * instead and call the usb core's functions to create and return a
-urb?
+BTW: At least DMA is working for me again with rc1 on my M1541 :-)
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
 
-Otherwise any changes to the internal urb structures, and the
-usb_alloc_urb() and usb_free_urb() functions will have to be mirrored
-here in your functions, and I know I will forget to do that :)
+iD8DBQE+rgIiUKRT/HXmN7cRAplyAKDjW3VJU3f1hgHdOluiBEATfys3PQCg1xcr
++S5tDsirlzpaJ9qhNmXIVGA=
+=U8lZ
+-----END PGP SIGNATURE-----
 
-Other than that, it's nice to see Bluetooth SCO support for Linux, very
-nice job.
-
-thaks,
-
-greg k-h

@@ -1,44 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274611AbRIYKoj>; Tue, 25 Sep 2001 06:44:39 -0400
+	id <S274627AbRIYK5k>; Tue, 25 Sep 2001 06:57:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274614AbRIYKo3>; Tue, 25 Sep 2001 06:44:29 -0400
-Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:25100 "HELO
-	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with SMTP
-	id <S274611AbRIYKoP>; Tue, 25 Sep 2001 06:44:15 -0400
-Date: Tue, 25 Sep 2001 12:44:40 +0200
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-To: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
-Subject: Re: [PATCH] 2.4.10 improved reiserfs a lot, but could still be better
-Message-ID: <20010925124440.B1390@emma1.emma.line.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	reiserfs-list@namesys.com
-In-Reply-To: <20010925044949.JNOU8313.femail42.sdc1.sfba.home.com@there> <Pine.LNX.4.30.0109251335520.18440-100000@gamma.student.ljbc>
+	id <S274628AbRIYK5a>; Tue, 25 Sep 2001 06:57:30 -0400
+Received: from [195.66.192.167] ([195.66.192.167]:41744 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S274627AbRIYK5U>; Tue, 25 Sep 2001 06:57:20 -0400
+Date: Tue, 25 Sep 2001 13:55:37 +0300
+From: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
+X-Mailer: The Bat! (v1.44)
+Reply-To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
+Organization: IMTP
+X-Priority: 3 (Normal)
+Message-ID: <2418997466.20010925135537@port.imtp.ilyichevsk.odessa.ua>
+To: "Dan Mann" <daniel_b_mann1@hotmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Linux VM design
+In-Reply-To: <OE53f3LSW50Pfs56PHo00002624@hotmail.com>
+In-Reply-To: <20010916204528.6fd48f5b.skraw@ithnet.com>
+ <Pine.LNX.3.96.1010920231251.26679B-100000@gatekeeper.tmr.com>
+ <20010921124338.4e31a635.skraw@ithnet.com>
+ <20010922105332Z16449-2757+1233@humbolt.nl.linux.org>
+ <6514162334.20010924123631@port.imtp.ilyichevsk.odessa.ua>
+ <OE53f3LSW50Pfs56PHo00002624@hotmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.30.0109251335520.18440-100000@gamma.student.ljbc>
-User-Agent: Mutt/1.3.22.1i
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 25 Sep 2001, Beau Kuiper wrote:
+Hello Dan,
+Monday, September 24, 2001, 10:11:08 PM, you wrote:
 
-> I can imagine how it improves sequenial write performace too. With the
-> write cache off, the computer cannot send another write request to the IDE
-> device until the last one had finished. By the time the computer is told
-> the request was finished and it has sent a new request to the drive, the
-> disk would have spun out of the place it was supposed to be placed. The
-> drive will then have to wait for the disk to spin around fully again
-> before doing the write. With the write cache enabled, several requests can
-> be placed into the drive buffer and written in the single revolution of
-> the drive.
+DM> I hope this isn't the wrong place to ask this but,  wouldn't it be better to
+DM> increase ram size and decrease swap size as memory requirements grow?  For
+DM> instance, say I have a lightly loaded machine, that has 192MB of ram.  From
+DM> everything I've heard in the past, I'd use roughly 192MB of swap with this
+DM> machine.  The problem I would imagine is that if all 192MB got used wouldn't
+DM> it be terribly slow to read/write that much data back in?  Would less swap,
+DM> say 32 MB make the kernel more restrictive with it's available memory and
+DM> make the box more responsive when it's heavily using swap?
 
-Might be an explanation. How big are the chunks of data that the
-kernel sends to the disk?
+If you want everything to be fast, buy more RAM and use no swap whatsoever.
 
+Swap is useful if your total memory requirements are big but working
+set is significantly smaller. You need RAM to cover working set
+and RAM+swap to cover total memory requirements.
+
+As you can see, amount of RAM and swap thus *application dependent*.
 -- 
-Matthias Andree
+Best regards, VDA
+mailto:VDA@port.imtp.ilyichevsk.odessa.ua
 
-"Those who give up essential liberties for temporary safety deserve
-neither liberty nor safety." - Benjamin Franklin
+

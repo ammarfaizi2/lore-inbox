@@ -1,48 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129080AbRBOXmu>; Thu, 15 Feb 2001 18:42:50 -0500
+	id <S129080AbRBOX6C>; Thu, 15 Feb 2001 18:58:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129107AbRBOXmk>; Thu, 15 Feb 2001 18:42:40 -0500
-Received: from jalon.able.es ([212.97.163.2]:18321 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S129080AbRBOXmb>;
-	Thu, 15 Feb 2001 18:42:31 -0500
-Date: Fri, 16 Feb 2001 00:42:19 +0100
-From: "J . A . Magallon" <jamagallon@able.es>
-To: Chip Salzenberg <chip@valinux.com>
-Cc: "Justin T . Gibbs" <gibbs@scsiguy.com>, linux-kernel@vger.kernel.org
-Subject: Re: aic7xxx (and sym53c8xx) plans
-Message-ID: <20010216004219.G995@werewolf.able.es>
-In-Reply-To: <85F1402515F13F498EE9FBBC5E07594220AD85@TTGCS.teamtoolz.net> <200102151747.f1FHlDO64938@aslan.scsiguy.com> <20010215212007.A995@werewolf.able.es> <20010215122836.B30852@valinux.com>
+	id <S129104AbRBOX5w>; Thu, 15 Feb 2001 18:57:52 -0500
+Received: from smtp1.cern.ch ([137.138.128.38]:27916 "EHLO smtp1.cern.ch")
+	by vger.kernel.org with ESMTP id <S129080AbRBOX5u>;
+	Thu, 15 Feb 2001 18:57:50 -0500
+Date: Fri, 16 Feb 2001 00:57:42 +0100
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: x86 ptep_get_and_clear question
+Message-ID: <20010216005742.B3207@pcep-jamie.cern.ch>
+In-Reply-To: <3A8C254F.17334682@colorfullife.com> <200102151905.LAA62688@google.engr.sgi.com> <20010215201945.A2505@pcep-jamie.cern.ch> <96heaj$bvs$1@penguin.transmeta.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20010215122836.B30852@valinux.com>; from chip@valinux.com on Thu, Feb 15, 2001 at 21:28:36 +0100
-X-Mailer: Balsa 1.1.1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <96heaj$bvs$1@penguin.transmeta.com>; from torvalds@transmeta.com on Thu, Feb 15, 2001 at 12:31:15PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 02.15 Chip Salzenberg wrote:
-> According to J . A . Magallon:
+Linus Torvalds wrote:
+> It _could_ be that the TLB data actually also contains the pointer to
+> the place where it was fetched, and a "mark dirty" becomes
 > 
-> Might I suggest that Justin imitate the maintainers of lm_sensors, and
-> create a program (shell script, Perl program, whatever) that *creates*
-> a patch against any given Linux source tree?  Obviously it could break
-> in the face of weird trees, but even minimal flexibility would save him
-> a lot of work ...
+> 	read *ptr locked
+> 	val |= D
+> 	write *ptr unlock
 
-So you can end with 1Mb of patch doing
+If you want to take it really far, it _could_ be that the TLB data
+contains both the pointer and the original pte contents.  Then "mark
+dirty" becomes
 
--#endif /* Hello */
-+#endif Hello
+       val |= D
+       write *ptr
 
-like happens in i2c-lm
+> Now, I will agree that I suspect most x86 _implementations_ will not do
+> this. TLB's are too timing-critical, and nobody tends to want to make
+> them bigger than necessary - so saving off the source address is
+> unlikely.
 
-Better a real patch...
- 
--- 
-J.A. Magallon                                                      $> cd pub
-mailto:jamagallon@able.es                                          $> more beer
+Then again, these hypothetical addresses etc. aren't part of the
+associative lookup, so could be located in something like an ordinary
+cache ram, with just an index in the TLB itself.
 
-Linux werewolf 2.4.1-ac14 #1 SMP Thu Feb 15 16:05:52 CET 2001 i686
-
+-- Jamie

@@ -1,62 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129382AbRBLUcK>; Mon, 12 Feb 2001 15:32:10 -0500
+	id <S129606AbRBLUkQ>; Mon, 12 Feb 2001 15:40:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129724AbRBLUcB>; Mon, 12 Feb 2001 15:32:01 -0500
-Received: from minus.inr.ac.ru ([193.233.7.97]:46098 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S129382AbRBLUbu>;
-	Mon, 12 Feb 2001 15:31:50 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200102122031.XAA31392@ms2.inr.ac.ru>
-Subject: Re: 2.4.1 errors under heavy network load
-To: magnus.walldal@b-linc.COM (Magnus Walldal)
-Date: Mon, 12 Feb 2001 23:31:17 +0300 (MSK)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <HFEDLHHPHHEOBHLNPJOKMEHECAAA.magnus.walldal@b-linc.com> from "Magnus Walldal" at Feb 12, 1 08:45:07 pm
-X-Mailer: ELM [version 2.4 PL24]
+	id <S129688AbRBLUkF>; Mon, 12 Feb 2001 15:40:05 -0500
+Received: from yellow.csi.cam.ac.uk ([131.111.8.67]:34187 "EHLO
+	yellow.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S129606AbRBLUjx>; Mon, 12 Feb 2001 15:39:53 -0500
+Date: Mon, 12 Feb 2001 20:39:19 +0000 (GMT)
+From: James Sutherland <jas88@cam.ac.uk>
+To: "H. Peter Anvin" <hpa@zytor.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: LILO and serial speeds over 9600
+In-Reply-To: <969b4m$sbp$1@cesium.transmeta.com>
+Message-ID: <Pine.SOL.4.21.0102122025320.22949-100000@yellow.csi.cam.ac.uk>
 MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On 12 Feb 2001, H. Peter Anvin wrote:
 
-> Then we did the following tuning attempt:
+> Followup to:  <Pine.LNX.4.10.10102120849580.3761-100000@main.cyclades.com>
+> By author:    Ivan Passos <lists@cyclades.com>
+> In newsgroup: linux.dev.kernel
+> > 
+> > Since I still want to add support for speeds up to 115200, the other two
+> > questions are still up (see below):
+> > 
+> > > - If not, do I need to change just LILO to do that, or do I need to change
+> > >   the kernel as well (I don't think I'd need to do that too, as the serial 
+> > >   console kernel code does support up to 115.2Kbps, but it doesn't hurt to 
+> > >   ask ... ;) ??
+> > > - Does another bootloader (e.g. GRUB) support serial speeds higher than
+> > >   9600bps?? If so, which one(s)??
+> > 
+> > I'd really appreciate any help.
+> > 
+> 
+> SYSLINUX supports up to 57600 (it doesn't support 115200 because it
+> stores the number in a 16-bit register) but seriously... why the heck
+> does this matter?  It isn't booting the kernel off the serial line,
+> you know.  A console at 38400 is really quite sufficient... if you
+> need something more than that, you probably should be logging in via
+> the network.
+> 
+> I have toyed a few times about having a simple Ethernet- or UDP-based
+> console protocol (TCP is too heavyweight, sorry) where a machine would
+> seek out a console server on the network.  Anyone has any ideas about
+> it?
 
-Please, cat /proc/net/tcp and /proc/net/sockstat
-and send result to me (gzipped), together with /proc/sys/net/ipv4/tcp_*
-values
+Excellent plan: data centre sysadmins the world over will worship your
+name if it works...
+
+What exactly do you have in mind: a bidirectional connection you could
+use to control everything from LILO/Grub onwards? Should be feasible,
+anyway.
+
+I'd go with UDP for this, rather than raw Ethernet. Use DHCP to get the IP
+address(es) to connect to as console hosts? (That or a command line
+option...)
+
+The first thing is the kernel: just wrap around printk so as soon as eth0
+is up, you set up a session and start sending packets.
 
 
-> echo "20480" > /proc/sys/net/ipv4/tcp_max_orphans
-
-Also, you want to increase memory allowed for TCP
-echo "X/2 X/2 X" > /proc/sys/net/ipv4/tcp_mem
-where X is memory in pages.
-
-20480 is a crazy number. Valid applications cannot leave
-so much of orphans. Do you understand that this is more than
-80MB of wasted memory?
+I'll do a server to receive these sessions - simple text (no vt100 etc),
+one window per session - and work on the protocol spec. Anyone willing
+to do the client end of things - lilo, grub, kernel, etc??
 
 
-> echo "1" > tcp_orphan_retries
+James.
 
-Bad idea. Default value is the lowest possible.
-
-
-> echo 30 > /proc/sys/net/ipv4/tcp_keepalive_time
-> echo 2 > /proc/sys/net/ipv4/tcp_keepalive_probes
-
-Bad idea.
-
-
-
-> Oh btw. we got what I think is a "bad one" too...
-> Feb 12 16:42:35 mcquack kernel: KERNEL: assertion (tp->lost_out == 0) failed
-> at tcp_input.c(1202):tcp_remove_reno_sacks
-
-Absolutely harmless. This is debugging message.
-
-Alexey
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

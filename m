@@ -1,91 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264849AbUEYNun@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264846AbUEYN4F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264849AbUEYNun (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 May 2004 09:50:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264850AbUEYNun
+	id S264846AbUEYN4F (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 09:56:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264850AbUEYN4E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 09:50:43 -0400
-Received: from postfix3-1.free.fr ([213.228.0.44]:6362 "EHLO
-	postfix3-1.free.fr") by vger.kernel.org with ESMTP id S264849AbUEYNub
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 May 2004 09:50:31 -0400
-Message-ID: <40B34F1E.5020206@free.fr>
-Date: Tue, 25 May 2004 15:50:22 +0200
-From: baptiste coudurier <baptiste.coudurier@free.fr>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040306)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: MORE THAN 10 IDE CONTROLLERS
-References: <40B23D4A.4010708@free.fr> <40B34946.9030500@g-house.de> <40B34C35.3090303@ru.mvista.com>
-In-Reply-To: <40B34C35.3090303@ru.mvista.com>
-X-Enigmail-Version: 0.83.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)
+	Tue, 25 May 2004 09:56:04 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:39554 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S264846AbUEYN4C (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 May 2004 09:56:02 -0400
+Date: Tue, 25 May 2004 15:55:36 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Kevin Corry <kevcorry@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, Lars Marowsky-Bree <lmb@suse.de>,
+       braam <braam@clusterfs.com>, torvalds@osdl.org, akpm@osdl.org,
+       "'Phil Schwan'" <phil@clusterfs.com>
+Subject: Re: [PATCH/RFC] Lustre VFS patch
+Message-ID: <20040525135535.GT1952@suse.de>
+References: <20040525064730.GB14792@suse.de> <20040525082305.BAEE93101A0@moraine.clusterfs.com> <20040525105252.GJ22750@marowsky-bree.de> <200405250835.24110.kevcorry@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200405250835.24110.kevcorry@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Tue, May 25 2004, Kevin Corry wrote:
+> On Tuesday 25 May 2004 5:52 am, Lars Marowsky-Bree wrote:
+> > Maybe you could fix this in the test harness / Lustre itself instead and
+> > silently discard the writes internally if told so via an (internal)
+> > option, instead of needing a change deeper down in the IO layer, or use
+> > a DM target which can give you all the failure scenarios you need?
+> >
+> > In particular the last one - a fault-injection DM target - seems like a
+> > very valuable tool for testing in general, but the Lustre-internal
+> > approach may be easier in the long run.
+> 
+> See dm-flakey.c in the latest -udm patchset for a fairly simple version of a 
+> "fault-injection" target.
+> 
+> http://sources.redhat.com/dm/patches.html
 
-Eugeny S. Mints wrote:
-| Christian Kujau wrote:
-|
-| baptiste coudurier schrieb:
-| | Does anyone know what are major/minors for hdu, hdv, hdw, hdx ?
-|
-| not being a professional, i see:
-|
-| evil@sheep:~$ la /dev/hd?
-| brw-rw----    1 root     disk       3,   0 2004-03-10 11:33 /dev/hda
-| brw-rw----    1 root     disk       3,  64 2004-03-10 11:33 /dev/hdb
-| brw-rw----    1 root     disk      22,   0 2004-03-10 11:33 /dev/hdc
-| brw-rw----    1 root     disk      22,  64 2004-03-10 11:33 /dev/hdd
-| brw-rw----    1 root     disk      33,   0 2004-03-10 11:40 /dev/hde
-| brw-rw----    1 root     disk      33,  64 2004-03-10 11:40 /dev/hdf
-| brw-rw----    1 root     disk      34,   0 2004-03-10 11:40 /dev/hdg
-| brw-rw----    1 root     disk      34,  64 2004-03-10 11:40 /dev/hdh
-|
-| so, it's a major number for every controller (e.g. "22" for hdc+hdd each
-| belonging to one controller). hdi+hdj would be major 35, minor [0|64] ?
-| i'd try this out for hdx and further...
-|
-|
-|> afaik even the 2.6.x kernel defines only 10 major numbers for IDE
-|> devices (from 0 upto 9). All are predefined - see include/linux/major.h
-|
-|
-| did you try devfs/udev? perhaps it could solve this by itsself....?
-|
-| Christian.
-|
-| PS: maybe Documentation/devices.txt helps out too.
-|
-| --
-| BOFH excuse #75:
-|
-| There isn't any problem
+Would by far be the superior solution.
 
-I finally patched the kernel sucessfully, adding some new major numbers
+-- 
+Jens Axboe
 
-Everything seems to work fine execpt for hdparm yet. Im still working on it.
-I can supply a patch if anyone is interested.
-Thks for your help
-
-- --
-Baptiste Coudurier					UIN : 1980693
-Debian GNU/Linux user			          ESF Courchevel 1850
-GnuPG fp: 8D77 134D 20CC 9220 201F:C5DB 0AC9 325C 5C1A BAAA
-checking for life_signs in -lKenny... no
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iQCVAwUBQLNPHgrJMlxcGrqqAQLM4gQAlbHpflsWyuwssE4SoWn5QqteJfetM/bE
-v1YYEtEDbeIlceOMxpH53mwoFv2w0bLiE3dqoiG2NA4o7yA7v+DJq6s599rwmR8o
-KhQYAt/kzMpgzUBPK9Q1qZRKFppM16EwwwKqoehK1z9vAd99Opnm6/Zo8LjYibh1
-YYsNtowc6gE=
-=VcMI
------END PGP SIGNATURE-----

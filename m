@@ -1,45 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268035AbUHKMRy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268039AbUHKMZY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268035AbUHKMRy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 08:17:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268039AbUHKMRy
+	id S268039AbUHKMZY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 08:25:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268041AbUHKMZX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 08:17:54 -0400
-Received: from gprs214-4.eurotel.cz ([160.218.214.4]:61569 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S268035AbUHKMRw (ORCPT
+	Wed, 11 Aug 2004 08:25:23 -0400
+Received: from styx.suse.cz ([82.119.242.94]:65412 "EHLO shadow.ucw.cz")
+	by vger.kernel.org with ESMTP id S268039AbUHKMZU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 08:17:52 -0400
-Date: Wed, 11 Aug 2004 14:17:35 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Christoph Hellwig <hch@infradead.org>,
-       Jeff Chua <jeffchua@silk.corp.fedex.com>,
-       Tomas Szepe <szepe@pinerecords.com>, netdev@oss.sgi.com,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: ipw2100 wireless driver
-Message-ID: <20040811121735.GA31171@elf.ucw.cz>
-References: <20040714114135.GA25175@elf.ucw.cz> <Pine.LNX.4.60.0407141947270.27995@boston.corp.fedex.com> <20040714115523.GC2269@elf.ucw.cz> <20040809201556.GB9677@louise.pinerecords.com> <Pine.LNX.4.61.0408101258130.1290@boston.corp.fedex.com> <20040810075558.A14154@infradead.org> <20040810101640.GF9034@atrey.karlin.mff.cuni.cz> <20040810113439.A15100@infradead.org>
+	Wed, 11 Aug 2004 08:25:20 -0400
+Date: Wed, 11 Aug 2004 14:27:11 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: linux-kernel@vger.kernel.org, "David N. Welton" <davidw@eidetix.com>,
+       Sascha Wilde <wilde@sha-bang.de>
+Subject: Re: 2.6 kernel won't reboot on AMD system - 8042 problem?
+Message-ID: <20040811122711.GA5759@ucw.cz>
+References: <4107E788.8030903@eidetix.com> <41122C82.3020304@eidetix.com> <200408110131.14114.dtor_core@ameritech.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040810113439.A15100@infradead.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <200408110131.14114.dtor_core@ameritech.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > I know very little about wireless-2.6 tree (where to get it without
-> > bitkeeper?), but...
+On Wed, Aug 11, 2004 at 01:31:13AM -0500, Dmitry Torokhov wrote:
+> On Thursday 05 August 2004 07:48 am, David N. Welton wrote:
+> > By putting a series of 'crashme/reboot' calls into the kernel, I 
+> > narrowed a possibl cause of it down to this bit of code in 
+> > drivers/input/serio.c:753
+> > 
+> > /*
+> >  * Write CTR back.
+> >  */
+> > 
+> > 	if (i8042_command(&i8042_ctr, I8042_CMD_CTL_WCTR)) {
+> > 		printk(KERN_ERR "i8042.c: Can't write CTR while initializing i8042.\n");
+> > 		return -1;
+> > 	}
+> > 
+> > If I do the reboot instructions before this, it reboots fine. 
+> > Afterwards, and it just sits there, no reboot.
 > 
-> http://gkernel.bkbits.net:8080/wireless-2.6 it the bkweb interface, that's
-> the only thing I've looked at myself so far.
+> 
+> Hi,
+> 
+> Could you please try the patch below? I am interested in tests both with
+> and without keyboard/mouse. The main idea is to leave ports that have been
+> disabled by BIOS alone... The patch compiles but otherwise untested. Against
+> 2.6.7.
 
-Hmm, strange, one merge in last 8 weeks. That's not too active
-project. Are you sure this is the right tree to work against?
+Well, this has a problem - plugging a mouse later will never work, as
+the interface will be disabled by the BIOS if a mouse is not present at
+boot.
 
-Are there plain diffs somewhere?
-								Pavel
+> 
+> BTW, do you both have the same motherboard/chipset? Maybe a dmi entry is in
+> order...
+> 
+> Thanks!
+> 
+
 -- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Vojtech Pavlik
+SuSE Labs, SuSE CR

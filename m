@@ -1,23 +1,24 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263184AbTEMDCL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 23:02:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263171AbTEMDBQ
+	id S263160AbTEMC4P (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 22:56:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263162AbTEMC4L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 23:01:16 -0400
-Received: from cerebus.wirex.com ([65.102.14.138]:20210 "EHLO
+	Mon, 12 May 2003 22:56:11 -0400
+Received: from cerebus.wirex.com ([65.102.14.138]:9969 "EHLO
 	figure1.int.wirex.com") by vger.kernel.org with ESMTP
-	id S263184AbTEMDBH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 23:01:07 -0400
-Date: Mon, 12 May 2003 20:13:04 -0700
+	id S263160AbTEMC4H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 May 2003 22:56:07 -0400
+Date: Mon, 12 May 2003 20:08:04 -0700
 From: Chris Wright <chris@wirex.com>
 To: linux-kernel@vger.kernel.org, hch@infradead.org, gregkh@kroah.com,
        linux-security-module@wirex.com
-Cc: anton@samba.org
+Cc: rmk@arm.linux.org.uk
 Subject: Re: [PATCH] Early init for security modules
-Message-ID: <20030512201304.S19432@figure1.int.wirex.com>
+Message-ID: <20030512200804.K19432@figure1.int.wirex.com>
 Mail-Followup-To: linux-kernel@vger.kernel.org, hch@infradead.org,
-	gregkh@kroah.com, linux-security-module@wirex.com, anton@samba.org
+	gregkh@kroah.com, linux-security-module@wirex.com,
+	rmk@arm.linux.org.uk
 References: <20030512200309.C20068@figure1.int.wirex.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -38,15 +39,28 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 This is just the arch specific linker bits for the early initialization
 for security modules patch.  Does this look sane for this arch?
 
---- 1.14/arch/ppc64/vmlinux.lds.S	Wed Apr  2 00:42:56 2003
-+++ edited/arch/ppc64/vmlinux.lds.S	Mon May 12 16:16:59 2003
-@@ -104,6 +104,9 @@
-   __con_initcall_start = .;
-   .con_initcall.init : { *(.con_initcall.init) }
-   __con_initcall_end = .;
-+  __security_initcall_start = .;
-+  .security_initcall.init : { *(.security_initcall.init) }
-+  __security_initcall_end = .;
-   . = ALIGN(4096);
-   __initramfs_start = .;
-   .init.ramfs : { *(.init.ramfs) }
+--- 1.15/arch/arm/vmlinux-armo.lds.in	Wed Apr  2 00:42:56 2003
++++ edited/arch/arm/vmlinux-armo.lds.in	Mon May 12 16:16:54 2003
+@@ -43,6 +43,9 @@
+ 		__con_initcall_start = .;
+ 			*(.con_initcall.init)
+ 		__con_initcall_end = .;
++		__security_initcall_start = .;
++			*(.security_initcall.init)
++		__security_initcall_end = .;
+ 		. = ALIGN(32768);
+ 		__init_end = .;
+ 	}
+
+--- 1.24/arch/arm/vmlinux-armv.lds.in	Sun Apr 27 08:35:24 2003
++++ edited/arch/arm/vmlinux-armv.lds.in	Mon May 12 16:16:55 2003
+@@ -53,6 +53,9 @@
+ 		__con_initcall_start = .;
+ 			*(.con_initcall.init)
+ 		__con_initcall_end = .;
++		__security_initcall_start = .;
++			*(.security_initcall.init)
++		__security_initcall_end = .;
+ 		. = ALIGN(32);
+ 		__initramfs_start = .;
+ 			usr/built-in.o(.init.ramfs)

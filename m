@@ -1,49 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268648AbUIXJaq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268637AbUIXJko@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268648AbUIXJaq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 05:30:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268646AbUIXJaq
+	id S268637AbUIXJko (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 05:40:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268646AbUIXJkn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 05:30:46 -0400
-Received: from holomorphy.com ([207.189.100.168]:37342 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S268648AbUIXJag (ORCPT
+	Fri, 24 Sep 2004 05:40:43 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:56448 "EHLO ucw.cz")
+	by vger.kernel.org with ESMTP id S268637AbUIXJkl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 05:30:36 -0400
-Date: Fri, 24 Sep 2004 02:30:06 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-rc2-mm3
-Message-ID: <20040924093006.GY9106@holomorphy.com>
-References: <20040924014643.484470b1.akpm@osdl.org>
+	Fri, 24 Sep 2004 05:40:41 -0400
+Date: Fri, 24 Sep 2004 11:40:17 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Bjorn Helgaas <bjorn.helgaas@hp.com>
+Cc: Dmitry Torokhov <dtor_core@ameritech.net>,
+       Hans-Frieder Vogt <hfvogt@gmx.net>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-input@atrey.karlin.mff.cuni.cz
+Subject: Re: [PATCH 2.6.9-rc2-mm1] i8042 ACPI enumeration update
+Message-ID: <20040924094017.GD2575@ucw.cz>
+References: <200409211352.22318.bjorn.helgaas@hp.com> <20040922050921.GB4532@ucw.cz> <200409220919.24474.bjorn.helgaas@hp.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040924014643.484470b1.akpm@osdl.org>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+In-Reply-To: <200409220919.24474.bjorn.helgaas@hp.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 24, 2004 at 01:46:43AM -0700, Andrew Morton wrote:
-> - This is a quick not-very-well-tested release - it can't be worse than
->   2.6.9-rc2-mm2, which had a few networking problems.
-> - Added Dmitry Torokhov's input system tree to the -mm bk tree lineup.
-> +512x-altix-timer-interrupt-livelock-fix-vs-269-rc2-mm2.patch
->  profiler speedup
+On Wed, Sep 22, 2004 at 09:19:24AM -0600, Bjorn Helgaas wrote:
+> On Tuesday 21 September 2004 11:09 pm, Vojtech Pavlik wrote:
+> > Could you send me the complete patch (as opposed to this differential
+> > one)? I think it's probably time to include it into the input tree as it
+> > seems functional enough. 
+> 
+> Here it is.  This includes allow-i8042-register-location-override-2.patch
+> from the -mm patchset and the differential patch I sent yesterday.
+> 
+> Attached rather than inline because I haven't figured out how to
+> unbreak Kmail-1.7's tab to space conversions.
 
-Hmm, it's more that the profiler failed to meet a hard RT deadline
-(yes, Linux has some of those) i.e. finishing its work before the next
-timer interrupt occurs. I suppose a speedup is the nature of the fix...
+Thanks, applied.
 
-
-On Fri, Sep 24, 2004 at 01:46:43AM -0700, Andrew Morton wrote:
-> +sparc32-early-tick_ops.patch
->  Avoid early oops on sparc32 with the zaphod scheduler
-
-This is probably sparc64; I've not been doing much with -mm on sparc32
-apart from compiletests in favor of chasing longer-term issues e.g.
-HyperSPARC DMA, SMP, etc., largely using mainline point releases.
-
-
--- wli
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

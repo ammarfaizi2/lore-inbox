@@ -1,71 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265732AbUA0SrN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 13:47:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265740AbUA0SrN
+	id S265149AbUA0Syu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 13:54:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265363AbUA0Syu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 13:47:13 -0500
-Received: from fw.osdl.org ([65.172.181.6]:28071 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265732AbUA0SrH (ORCPT
+	Tue, 27 Jan 2004 13:54:50 -0500
+Received: from kluizenaar.xs4all.nl ([213.84.184.247]:55438 "EHLO samwel.tk")
+	by vger.kernel.org with ESMTP id S265149AbUA0Sys (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 13:47:07 -0500
-Date: Tue, 27 Jan 2004 10:46:48 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: George Anzinger <george@mvista.com>
-Cc: eric.piel@tremplin-utc.net, minyard@acm.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Incorrect value for SIGRTMAX, MIPS nonsense removed,
- timer_gettime fix
-Message-Id: <20040127104648.1e749f5d.akpm@osdl.org>
-In-Reply-To: <40162D2D.3030406@mvista.com>
-References: <1074979873.4012e421714b1@mailetu.utc.fr>
-	<40162D2D.3030406@mvista.com>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 27 Jan 2004 13:54:48 -0500
+Message-ID: <4016B3F0.1060804@samwel.tk>
+Date: Tue, 27 Jan 2004 19:54:40 +0100
+From: Bart Samwel <bart@samwel.tk>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031221 Thunderbird/0.4
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Bill Davidsen <davidsen@tmr.com>
+CC: linux-kernel@vger.kernel.org, lkv@isg.de
+Subject: Re: Is there a way to keep the 2.6 kjournald from writing to idle
+ disks? (to allow spin-downs)
+References: <Pine.LNX.3.96.1040127133932.11664B-100000@gatekeeper.tmr.com>
+In-Reply-To: <Pine.LNX.3.96.1040127133932.11664B-100000@gatekeeper.tmr.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-SA-Exim-Mail-From: bart@samwel.tk
+X-SA-Exim-Scanned: No; SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-George Anzinger <george@mvista.com> wrote:
->
-> The attached patch does the following:
-> 
-> Removes C++ comment in favor of C style.
-> 
-> Removes the special treatment for MIPS SIGEV values.  We only require (and error 
-> if this fails) that the SIGEV_THREAD_ID value not share bits with the other 
-> SIGEV values.  Note that mips has yet to define this value so when they do...
-> 
-> Corrects the check for the signal range to be from 1 to SIGRTMAX inclusive.
-> 
-> Adds a check to verify that kmem_cache_alloc() actually returned a timer, error 
-> if not.
-> 
-> Fixes a bug in timer_gettime() where the incorrect value was returned if a 
-> signal was pending on the timer OR the timer was a SIGEV_NONE timer.
+Bill Davidsen wrote:
+> Well, it's the o.p. system, not mine, but I don't see how noatime will
+> help him, the atime shouldn't change unless he's doing disk access, and
+> if he's doing disk access the disk will spin up anyway.
 
-> -	if ((event->sigev_notify & ~SIGEV_NONE & MIPS_SIGEV) &&
-> -			event->sigev_signo &&
-> -			((unsigned) (event->sigev_signo > SIGRTMAX)))
-> +	if (((event->sigev_notify & ~SIGEV_THREAD_ID) != SIGEV_NONE) &&
-> +	    ((unsigned int) (event->sigev_signo - 1) >= SIGRTMAX))
->  		return NULL;
+> The place noatime helps is when actually doing reads to open files, and
+> getting an inode update free with every read. His problem is that
+> something really is accessing the drive, and he won't get the desired
+> spindown until that's addressed.
 
-I was wondering if someone would try this one :( Really, this is just over
-the top.  Take pity upon your readers, and do:
+If something really is accessing the drive, noatime might still help as 
+long as the accesses are from the cache. BTW, it wasn't clear to me from 
+his posts that he knows that something is _really_ accessing the drive, 
+I thought he only had kjournald activity -- and that might be explained 
+by atime updates. But I might have missed something of course!
 
-	if (((event->sigev_notify & ~SIGEV_THREAD_ID) != SIGEV_NONE) &&
-		(event->sigev_signo <= 0 || event->sigev_signo > SIGRTMAX))
+> I hope the original poster is following this ;-)
 
-> @@ -804,7 +826,7 @@
->  	 * equal to jiffies, so the timer notify function is called directly.
->  	 * We do not even queue SIGEV_NONE timers!
->  	 */
-> -	if (!(timr->it_sigev_notify & SIGEV_NONE)) {
-> +	if (!((timr->it_sigev_notify & ~SIGEV_THREAD_ID) == SIGEV_NONE)) {
->  		if (timr->it_timer.expires == jiffies)
->  			timer_notify_task(timr);
->  		else
+I added him to the CC list again. That should fix it. :)
 
-Are you sure this is correct?   If so, using != would be clearer.
-
+-- Bart

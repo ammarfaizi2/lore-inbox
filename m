@@ -1,65 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267304AbUGNC4H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267308AbUGNDBN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267304AbUGNC4H (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jul 2004 22:56:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267306AbUGNC4G
+	id S267308AbUGNDBN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jul 2004 23:01:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267309AbUGNDBN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jul 2004 22:56:06 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:44457 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S267304AbUGNC4C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jul 2004 22:56:02 -0400
-Subject: Bizarre audio behavior
-From: Lee Revell <rlrevell@joe-job.com>
-To: alsa-devel <alsa-devel@lists.sourceforge.net>
-Cc: paul@linuxaudiosystems.com, linux-kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1089773762.2729.24.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 13 Jul 2004 22:56:03 -0400
-Content-Transfer-Encoding: 7bit
+	Tue, 13 Jul 2004 23:01:13 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:38564 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S267308AbUGNDBH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jul 2004 23:01:07 -0400
+To: Andi Kleen <ak@muc.de>
+Cc: ncunningham@linuxmail.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: GCC 3.4 and broken inlining.
+References: <2fFzK-3Zz-23@gated-at.bofh.it> <2fG2F-4qK-3@gated-at.bofh.it>
+	<2fG2G-4qK-9@gated-at.bofh.it> <2fPfF-2Dv-21@gated-at.bofh.it>
+	<2fPfF-2Dv-19@gated-at.bofh.it>
+	<m34qohrdel.fsf@averell.firstfloor.org>
+	<1089349003.4861.17.camel@nigel-laptop.wpcb.org.au>
+	<orr7rjo8cr.fsf@livre.redhat.lsd.ic.unicamp.br>
+	<20040711055216.GA87770@muc.de>
+From: Alexandre Oliva <aoliva@redhat.com>
+Organization: Red Hat Global Engineering Services Compiler Team
+Date: 14 Jul 2004 00:00:54 -0300
+In-Reply-To: <20040711055216.GA87770@muc.de>
+Message-ID: <orsmbvpa1l.fsf@livre.redhat.lsd.ic.unicamp.br>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok, this is absolutely bizarre.  If I run JACK from a GNOME terminal,
-even with a large period size, all I get are these error messages:
+On Jul 11, 2004, Andi Kleen <ak@muc.de> wrote:
 
-load = 0.1875 max usecs: 5.000, spare = 1328.000
-delay of 2996.000 usecs exceeds estimated spare time of 1328.000; restart ...
-delay of 2665.000 usecs exceeds estimated spare time of 1328.000; restart ...
-delay of 45411.000 usecs exceeds estimated spare time of 1328.000; restart ...
-delay of 32071.000 usecs exceeds estimated spare time of 1328.000; restart ...
-delay of 34742.000 usecs exceeds estimated spare time of 1328.000; restart ...
-delay of 3217.000 usecs exceeds estimated spare time of 1328.000; restart ...
-delay of 3077.000 usecs exceeds estimated spare time of 1328.000; restart ...
-delay of 45437.000 usecs exceeds estimated spare time of 1328.000; restart ...
-delay of 10693.000 usecs exceeds estimated spare time of 1328.000; restart ...
-delay of 5342.000 usecs exceeds estimated spare time of 1328.000; restart ...
-load = 0.9565 max usecs: 23.000, spare = 1310.000
-delay of 5342.000 usecs exceeds estimated spare time of 1310.000; restart ...
-delay of 53432.000 usecs exceeds estimated spare time of 1310.000; restart ...
+>> Meanwhile, you should probably distinguish between must-inline,
+>> should-inline, may-inline, should-not-inline and must-not-inline
+>> functions.  Attribute always_inline covers the must-inline case; the
 
-etc.
+> You're asking us to do a lot of work just to work around compiler bugs?
 
-If I run if from an xterm or a text console, it works perfectly, even 
-with a really small buffer:
+Not asking.  Just suggesting that you make your request to the
+compiler clearer.  This may enable the compiler to do a better job for
+you.  You don't have to switch it all at once.  Keep inline as
+always_inline, if you like, and downgrade other inline requests as you
+see fit.
 
-load = 0.9302 max usecs: 5.000, spare = 661.000
-load = 0.8405 max usecs: 5.000, spare = 661.000
-load = 1.7716 max usecs: 18.000, spare = 648.000
-load = 2.1621 max usecs: 17.000, spare = 649.000
-load = 2.8828 max usecs: 24.000, spare = 642.000
-load = 1.8168 max usecs: 5.000, spare = 661.000
-load = 1.2838 max usecs: 5.000, spare = 661.000
-load = 1.7680 max usecs: 15.000, spare = 651.000
-load = 1.2594 max usecs: 5.000, spare = 661.000
-load = 1.0051 max usecs: 5.000, spare = 661.000
+Of course having inline expand to something containing always_inline
+will take a bit of preprocessor hackery to get other macros to expand
+to the inline keyword without this attribute.
 
-etc.
+> I can see the point of having must-inline - that's so rare that
+> it can be declared by hand. May inline is also done, except
+> for a few misguided people who use -O3. should not inline seems
+> like overkill.
 
-I have no idea where this bug could be, it seems like it would have to be 
-display-related.
+`should not inline' is the default: a function not declared as inline
+won't be inlined unless several conditions are met, e.g., compiling
+with -O3 and/or -finline-all-functions.  It's the other cases to tune
+inlining directives that would be useful.
 
-Lee 
-
+-- 
+Alexandre Oliva             http://www.ic.unicamp.br/~oliva/
+Red Hat Compiler Engineer   aoliva@{redhat.com, gcc.gnu.org}
+Free Software Evangelist  oliva@{lsd.ic.unicamp.br, gnu.org}

@@ -1,48 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263486AbTJLQYi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Oct 2003 12:24:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263487AbTJLQYi
+	id S263482AbTJLQSl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Oct 2003 12:18:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263484AbTJLQSl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Oct 2003 12:24:38 -0400
-Received: from smtp1.adl2.internode.on.net ([203.16.214.181]:32016 "EHLO
-	smtp1.adl2.internode.on.net") by vger.kernel.org with ESMTP
-	id S263486AbTJLQYh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Oct 2003 12:24:37 -0400
-Date: Mon, 13 Oct 2003 01:54:34 +0930
-From: "Mark Williams (MWP)" <mwp@internode.on.net>
-To: Tomas Szepe <szepe@pinerecords.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: ReiserFS causing kernel panic?
-Message-ID: <20031012162434.GB725@linux.comp>
-References: <20031012121331.GA665@linux.comp> <yw1xhe2eiqru.fsf@zaphod.guide> <20031012140048.GA554@linux.comp> <20031012143245.GA21010@louise.pinerecords.com>
+	Sun, 12 Oct 2003 12:18:41 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:36812 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S263482AbTJLQSk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Oct 2003 12:18:40 -0400
+Date: Sun, 12 Oct 2003 09:18:28 -0700
+To: linux-kernel@vger.kernel.org
+Cc: mochel@osdl.org
+Subject: [PATCH] Make pmdisk suspend more reliable
+Message-ID: <20031012161828.GA1728@atomide.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="tKW2IUtsqtDRztdT"
 Content-Disposition: inline
-In-Reply-To: <20031012143245.GA21010@louise.pinerecords.com>
-User-Agent: Mutt/1.5.3i
+User-Agent: Mutt/1.3.28i
+X-Mailer: Mutt http://www.mutt.org/
+X-URL: http://www.muru.com/ http://www.atomide.com
+X-Accept-Language: fi en
+X-Location: USA, California, San Francisco
+From: Tony Lindgren <tony@atomide.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Oct-12 2003, Sun, 23:30 +0930
-> Mark Williams (MWP) <mwp@internode.on.net> wrote:
-> 
-> > > "Mark Williams (MWP)" <mwp@internode.on.net> writes:
-> > > 
-> > > > I am having rather ugly problems with this card using the PDC20269 chip.
-> > > > Almost as soon as either of the HDDs on the controller are used, the
-> > > > kernel hangs solid with a dump of debugging info.
-> > > 
-> > > That dump could be useful.  Also full output of dmesg and "lspci -vv"
-> > > can be helpful.
-> > 
-> > Ok, seems this is not a controller fault, but really a problem with
-> > ReiserFS (!!).
-> 
-> Do you really expect reiserfs code (or any other fs code for that matter)
-> not to choke on a corrupted filesystem?
-> 
-> Put the disk on a trusted controller and fsck.
 
-No, i wouldnt expect reiserfs to handle the data on the FS, but i also
-wouldnt have expected it to cause a kernel panic and hang the system.
+--tKW2IUtsqtDRztdT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+Hi Patrick & all,
+
+Here's a little patch to make pmdisk suspend to disk work on my old
+laptop. Basically at least the PMDISK_SIG never got to the disk, and
+finding the suspend image would fail without this patch. The patch is
+against linux-2.6.0-test7.
+
+Pls cc me on any replies, I'm not on the list right now.
+
+Regards,
+
+Tony
+
+
+
+--tKW2IUtsqtDRztdT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline; filename="pmdisk-bdflush.patch"
+
+--- linux-2.6.0-test7/kernel/power/pmdisk.c-orig	2003-10-12 18:35:58.000000000 +0300
++++ linux-2.6.0-test7/kernel/power/pmdisk.c	2003-10-12 19:00:32.000000000 +0300
+@@ -35,6 +35,7 @@
+ 
+ 
+ extern int pmdisk_arch_suspend(int resume);
++extern int wakeup_bdflush(long nr_pages);
+ 
+ #define __ADDRESS(x)  ((unsigned long) phys_to_virt(x))
+ #define ADDRESS(x) __ADDRESS((x) << PAGE_SHIFT)
+@@ -372,6 +373,9 @@
+ 		goto FreePagedir;
+ 
+ 	error = mark_swapfiles(prev);
++
++	/* Make sure the data gets to disk */
++	wakeup_bdflush(0);
+  Done:
+ 	return error;
+  FreePagedir:
+
+--tKW2IUtsqtDRztdT--

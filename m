@@ -1,49 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270248AbTGWNpq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 09:45:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270324AbTGWNpp
+	id S270324AbTGWNqX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 09:46:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270325AbTGWNqW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 09:45:45 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:4992 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S270248AbTGWNpe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 09:45:34 -0400
-Date: Wed, 23 Jul 2003 15:08:57 +0100
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200307231408.h6NE8vCV000217@81-2-122-30.bradfords.org.uk>
-To: john@grabjohn.com, root@mauve.demon.co.uk
-Subject: Re: 2.4.22-pre7: are security issues solved?
-Cc: a.marsman@aYniK.com, alan@lxorguk.ukuu.org.uk, davem@redhat.com,
-       herbert@gondor.apana.org.au, linux-kernel@vger.kernel.org
+	Wed, 23 Jul 2003 09:46:22 -0400
+Received: from rth.ninka.net ([216.101.162.244]:46464 "EHLO rth.ninka.net")
+	by vger.kernel.org with ESMTP id S270324AbTGWNqV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jul 2003 09:46:21 -0400
+Date: Wed, 23 Jul 2003 07:00:26 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: "Carlos Velasco" <carlosev@newipnet.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Re: ARP with wrong ip?
+Message-Id: <20030723070026.610ac63e.davem@redhat.com>
+In-Reply-To: <200307231541180759.1C8EFFB1@192.168.128.16>
+References: <200307182357260552.063FA10C@192.168.128.16>
+	<200307231541180759.1C8EFFB1@192.168.128.16>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > > If I know your password is 7 characters I have a smaller
-> > > > space of passwords to search to just brute-force it.
-> > >
-> > > It's much smaller if you didn't know that it was at most 7 characters
-> > > long.  However, if you did know the upper bound, or you were just
-> > > brute forcing all passwords starting from 1 character, then the
-> > > difference is relatively minor.  This is because
-> <snip>
-> > One time passwords are much more secure.
->
-> Nope.
-> Changing password to a password of similar complexity every 10 seconds
-> doesn't make it much less likely to be guessed than a static password.
+On Wed, 23 Jul 2003 15:41:18 +0200
+"Carlos Velasco" <carlosev@newipnet.com> wrote:
 
-For the attack in question, it does, as long as no two consecutive
-passwords have the same number of characters.
+> I have submitted a patch for this issue, as it's found in 2.6.0-test1 too.
+> 
+> Can someone take a look to this bug and process the patch?
+> 
+> http://bugzilla.kernel.org/show_bug.cgi?id=978
 
-For example, if the list of OTPs is:
-
-alpha
-beta
-epsilon
-
-The user logs in using the first password, and somebody logs that it
-has five characters.  The next valid password, (the only valid one),
-has four.
-
-John.
+Maybe if you submitted the bug report and/or patch via
+to the "networking" mailing list, instead of linux-kernel
+and bugzilla where none of the "networking" developers
+pay attention, your report would be more likely to be looked
+at.

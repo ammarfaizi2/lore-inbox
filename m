@@ -1,43 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290389AbSBKUnB>; Mon, 11 Feb 2002 15:43:01 -0500
+	id <S290333AbSBKUoV>; Mon, 11 Feb 2002 15:44:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290377AbSBKUmp>; Mon, 11 Feb 2002 15:42:45 -0500
-Received: from nycsmtp2out.rdc-nyc.rr.com ([24.29.99.227]:31454 "EHLO
-	nycsmtp2out.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
-	id <S290361AbSBKUmU>; Mon, 11 Feb 2002 15:42:20 -0500
-Message-ID: <3C682CA2.5060407@nyc.rr.com>
-Date: Mon, 11 Feb 2002 15:42:10 -0500
-From: John Weber <weber@nyc.rr.com>
-Organization: WorldWideWeber
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
-X-Accept-Language: en-us
+	id <S290310AbSBKUoQ>; Mon, 11 Feb 2002 15:44:16 -0500
+Received: from Expansa.sns.it ([192.167.206.189]:32019 "EHLO Expansa.sns.it")
+	by vger.kernel.org with ESMTP id <S290361AbSBKUoE>;
+	Mon, 11 Feb 2002 15:44:04 -0500
+Date: Mon, 11 Feb 2002 21:42:09 +0100 (CET)
+From: Luigi Genoni <kernel@Expansa.sns.it>
+To: Robert Love <rml@tech9.net>
+cc: Arkadiy Chapkis - Arc <achapkis@mail.dls.net>,
+        <LINUX-KERNEL@vger.kernel.org>
+Subject: Re: thread_info implementation
+In-Reply-To: <1013458767.6785.459.camel@phantasy>
+Message-ID: <Pine.LNX.4.44.0202112140280.6590-100000@Expansa.sns.it>
 MIME-Version: 1.0
-To: John Weber <weber@nyc.rr.com>
-CC: linux-kernel@vger.kernel.org, Pete Zaitcev <zaitcev@redhat.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Linux 2.5.4 Sound Driver Problem
-In-Reply-To: <fa.c0t1afv.1f02hrj@ifi.uio.no> <fa.jvah72v.1h34cqd@ifi.uio.no> <3C682264.7060707@nyc.rr.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Weber wrote:
->> Try to do this. Open drivers/sound/Config.in, and find YMFPCI
->> tristate, then delete $CONFIG_SOUND_OSS from that line.
->> Edit .config, and remove CONFIG_SOUND_OSS. Rerun make oldconfig,
->> when prompted for CONFIG_SOUND_OSS, say N. This should work.
-> 
-> 
-> if [ "$CONFIG_SOUND_OSS" = "y" -o "$CONFIG_SOUND_OSS" = "m" ]; then
->    bool '      Verbose initialisation' CONFIG_SOUND_TRACEINIT
->    bool '      Persistent DMA buffers' CONFIG_SOUND_DMAP
-> 
-> The YMFPCI option was in the body of the above if statement, so I had
-> to move it out of there to be able to enable it without enabling 
-> CONFIG_SOUND_OSS.  I hope this is what you meant.
-> 
 
-This works, by the way.
+
+On 11 Feb 2002, Robert Love wrote:
+
+> On Mon, 2002-02-11 at 12:39, Arkadiy Chapkis - Arc wrote:
+>
+> > In file included from
+> > /usr/local/src/test/linux-2.5.4/include/linux/spinlock.h:7,
+> >                  from
+> > /usr/local/src/test/linux-2.5.4/include/linux/module.h:11,
+> >                  from loop.c:55:
+> > /usr/local/src/test/linux-2.5.4/include/linux/thread_info.h:10:29:
+> > asm/thread_info.h: No such file or directory
+>
+> This is known.  I don't believe any arches except i386 and SPARC64 are
+> using the new thread_info / task_struct implementation introduced during
+> 2.5.4-pre.
+You are optimist.
+I could not manage to make my sparc64 boot with 2.5.3+ kernels.
+Now, Actually my problem is reiserFS on sparc64 (I already posted about
+this). Let's hope I could run 2.5 on sparc64 soon ;)
+
+Luigi
+
+>
+> I think I saw some changesets from Jeff Garzik wrt alpha thread_info
+> support, so perhaps in 2.5.5-pre1.
+>
+> 	Robert Love
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 

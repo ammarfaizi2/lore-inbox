@@ -1,43 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261595AbTKXUuF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Nov 2003 15:50:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261602AbTKXUuE
+	id S261406AbTKXUwQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Nov 2003 15:52:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261433AbTKXUwQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Nov 2003 15:50:04 -0500
-Received: from roc-24-169-2-225.rochester.rr.com ([24.169.2.225]:32896 "EHLO
-	death.krwtech.com") by vger.kernel.org with ESMTP id S261595AbTKXUuC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Nov 2003 15:50:02 -0500
-Date: Mon, 24 Nov 2003 15:49:59 -0500 (EST)
-From: Ken Witherow <ken@krwtech.com>
-X-X-Sender: ken@death
-Reply-To: Ken Witherow <ken@krwtech.com>
-To: Burton Windle <bwindle@fint.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: aic7xxx loading oops in 2.6.0-test10
-In-Reply-To: <Pine.LNX.4.58.0311241524310.1245@morpheus>
-Message-ID: <Pine.LNX.4.58.0311241549110.758@death>
-References: <200311241736.23824.jlell@JakobLell.de> <Pine.LNX.4.53.0311241205500.18425@chaos>
- <20031124173527.GA1561@mail.shareable.org> <1069700224.459.60.camel@hosts>
- <Pine.LNX.4.58.0311241457330.575@death> <Pine.LNX.4.58.0311241524310.1245@morpheus>
-Organization: KRW Technologies
+	Mon, 24 Nov 2003 15:52:16 -0500
+Received: from mail.ccur.com ([208.248.32.212]:23302 "EHLO exchange.ccur.com")
+	by vger.kernel.org with ESMTP id S261406AbTKXUwO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Nov 2003 15:52:14 -0500
+Message-ID: <3FC26F78.10303@ccur.com>
+Date: Mon, 24 Nov 2003 15:52:08 -0500
+From: John Blackwood <john.blackwood@ccur.com>
+Reply-To: john.blackwood@ccur.com
+Organization: Concurrent Computer Corporation
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030716
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+CC: ak@muc.de
+Subject: [PATCH] arch/x86_64/kernel/signal.c linux-2.6.0-test10
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 24 Nov 2003, Burton Windle wrote:
+Hi Andi,
 
-> http://marc.theaimsgroup.com/?l=linux-scsi&m=106965748506343&w=2
->
-> This one-liner fixed my hang-on-boot with my AIC7880.
+In linux-2.6.0-test10, I believe that there are several lines of code
+in the x86_64 version of handle_signal() that will not ever be executed
+and can most likely be removed.
 
-This patch does indeed fix the hang for me
+I also believe that there are several lines that should be added to the
+end of the do_signal() routine for handling the -ERESTART_RESTARTBLOCK
+case.
 
+Thank you.
 
--- 
-       Ken Witherow <phantoml AT rochester.rr.com>
-           ICQ: 21840670  AIM: phantomlordken
-               http://www.krwtech.com/ken
+diff -ru linux-2.6.0-test10/arch/x86_64/kernel/signal.c 
+linux/arch/x86_64/kernel/signal.c
+--- linux-2.6.0-test10/arch/x86_64/kernel/signal.c      2003-11-23 
+20:32:33.000000000 -0500
++++ linux/arch/x86_64/kernel/signal.c   2003-11-24 11:30:18.000000000 -0500
+@@ -371,10 +371,6 @@
+                                regs->rax = regs->orig_rax;
+                                regs->rip -= 2;
+                }
+-               if (regs->rax == (unsigned long)-ERESTART_RESTARTBLOCK){
+-                       regs->rax = __NR_restart_syscall;
+-                       regs->rip -= 2;
+-               }
+        }
+
+ #ifdef CONFIG_IA32_EMULATION
+@@ -453,6 +449,10 @@
+                        regs->rax = regs->orig_rax;
+                        regs->rip -= 2;
+                }
++               else if (res == -ERESTART_RESTARTBLOCK) {
++                       regs->rax = __NR_restart_syscall;
++                       regs->rip -= 2;
++               }
+        }
+        return 0;
+ }
+
 

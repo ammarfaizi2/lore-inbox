@@ -1,59 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272122AbRIJXQ2>; Mon, 10 Sep 2001 19:16:28 -0400
+	id <S272121AbRIJXPi>; Mon, 10 Sep 2001 19:15:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272124AbRIJXQJ>; Mon, 10 Sep 2001 19:16:09 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:7185 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S272122AbRIJXQD>; Mon, 10 Sep 2001 19:16:03 -0400
-Date: Mon, 10 Sep 2001 16:16:18 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Daniel Phillips <phillips@bonn-fries.net>
-cc: Rik van Riel <riel@conectiva.com.br>,
-        Andreas Dilger <adilger@turbolabs.com>,
-        Andrea Arcangeli <andrea@suse.de>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: linux-2.4.10-pre5
-In-Reply-To: <20010910230721Z16600-26187+42@humbolt.nl.linux.org>
-Message-ID: <Pine.LNX.4.33.0109101611450.1034-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S272122AbRIJXP2>; Mon, 10 Sep 2001 19:15:28 -0400
+Received: from imap.digitalme.com ([193.97.97.75]:42574 "EHLO digitalme.com")
+	by vger.kernel.org with ESMTP id <S272121AbRIJXPV>;
+	Mon, 10 Sep 2001 19:15:21 -0400
+Subject: Trident sound compiled in in 2.4.9 and 2.4.10-pre7
+From: "Trever L. Adams" <vichu@digitalme.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-D9Y0OnooDpshmdAgAs5u"
+X-Mailer: Evolution/0.13.99+cvs.2001.09.05.07.08 (Preview Release)
+Date: 10 Sep 2001 19:15:16 -0400
+Message-Id: <1000163728.1010.4.camel@aurora>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Tue, 11 Sep 2001, Daniel Phillips wrote:
+--=-D9Y0OnooDpshmdAgAs5u
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> On September 11, 2001 12:39 am, Rik van Riel wrote:
-> > On Mon, 10 Sep 2001, Linus Torvalds wrote:
-> >
-> > > (Ugly secret: because I tend to have tons of memory, I sometimes do
-> > >
-> > > 	find tree1 tree2 -type f | xargs cat > /dev/null
-> >
-> > This suggests we may want to do agressive readahead on the
-> > inode blocks.
->
-> While that is most probably true, that wasn't his point.  He preloaded the
-> page cache.
+My system crashes with an oops (haven't written it down yet).  I found
+that if I compile the trident sound as a module it doesn't crash.  This
+is true even after insert.  If I don't compile it as a module it oopses
+on boot right before it would bring up the Networking things (after the
+few lines of output are given for sound).
 
-Well, yes, but more importantly, I pre-loaded my page cache _with_io_that_
-_is_more_likely_to_be_consecutive_.
+I just wanted to provide a heads up.  I will be trying to capture the
+oops soon and sending it on.
 
-This means that the preload + subsequent diff is already likely to be
-faster than doing just one "diff" would have been.
+It works fine in 2.4.8.
 
-So it' snot just about preloading. It's also about knowing about access
-patterns beforehand - something that the kernel really cannot do.
+Trever Adams
 
-Pre-loading your cache always depends on some limited portion of
-prescience. If you preload too aggressively compared to your knowledge of
-future usage patterns, you're _always_ going to lose. I think that the
-kernel doing physical read-ahead is "too aggressive", while doing it
-inside "diff" (that _knows_ the future patterns) is not.
+--=-D9Y0OnooDpshmdAgAs5u
+Content-Type: application/pgp-signature
 
-And doing it by hand depends on the user knowing what he will do in the
-future. In some cases that's fairly easy for the user to guess ;)
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-		Linus
+iD8DBQA7nUmEnkhkvieoi8wRAulLAKCYY94bRQPIhsgYsBCkjaPD3GSXMQCeM84/
+VTpVs2Yu11hVrmdl4NPAZDc=
+=Y2oS
+-----END PGP SIGNATURE-----
+
+--=-D9Y0OnooDpshmdAgAs5u--
 

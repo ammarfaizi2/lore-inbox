@@ -1,61 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261897AbTHaHxA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Aug 2003 03:53:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261934AbTHaHxA
+	id S261871AbTHaHrZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Aug 2003 03:47:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261897AbTHaHrY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Aug 2003 03:53:00 -0400
-Received: from auth22.inet.co.th ([203.150.14.104]:26641 "EHLO
-	auth22.inet.co.th") by vger.kernel.org with ESMTP id S261897AbTHaHw6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Aug 2003 03:52:58 -0400
-From: Michael Frank <mhf@linuxmail.org>
-To: Patrick Mochel <mochel@osdl.org>
-Subject: Re: 2.6.0-test4: Tested the Power Management Update
-Date: Sun, 31 Aug 2003 15:52:20 +0800
-User-Agent: KMail/1.5.2
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-References: <200308311027.08779.mhf@linuxmail.org>
-In-Reply-To: <200308311027.08779.mhf@linuxmail.org>
-X-OS: KDE 3 on GNU/Linux
-MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200308311551.04559.mhf@linuxmail.org>
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sun, 31 Aug 2003 03:47:24 -0400
+Received: from pentafluge.infradead.org ([213.86.99.235]:47777 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261871AbTHaHrX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Aug 2003 03:47:23 -0400
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: cb-lkml@fish.zetnet.co.uk
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030829184919.GA21155@xaqithis.com>
+References: <20030829184919.GA21155@xaqithis.com>
+Message-Id: <1062315980.32736.41.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Sun, 31 Aug 2003 09:46:21 +0200
+X-SA-Exim-Mail-From: benh@kernel.crashing.org
+Subject: Re: [2.6.0-test4] IDE power management
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-SA-Exim-Version: 3.0+cvs (built Mon Aug 18 15:53:30 BST 2003)
+X-SA-Exim-Scanned: Yes
+X-Pentafluge-Mail-From: <benh@kernel.crashing.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 31 August 2003 10:34, Michael Frank wrote:
-> 6) MINOR UNCHANGED: As to the mouse, i8042 does not resume, so I
-> config i8042 as a module and reload it on resume. However, current
-> drivers/input/serio/Kconfig makes this impossible, which I whined
-> about a few times already ;)
->
-> config SERIO_I8042
-> tristate "i8042 PC Keyboard controller" if EMBEDDED || !X86
->
-> Maybe bug in kconfig: Even when X86 if off, can't touch i8042
-> using menuconfig.
 
-No, just another BUG in my head: I mistook X86_GENERIC for X86
-- How BRILLIANT to _hide_ X86 away in arch/i386/Kconfig - it 
-is even inaccessible ....
+> hda: start_power_step(step: 0)
+> hda: start_power_step(step: 1)
+> hda: complete_power_step(step: 1, stat: 50, err:0)
+> hda: completing PM request, suspend
+> hda: a request made it's way while we are power managing
+> --- power down/up occurs here
+> hda: Wakeup request inited, waiting for !BSY...
+> hda: start_power_step(step: 1000)
+> hda: completing PM request, resume
+> ...
+> hda: lost interrupt
+> 
+> The hard disk won't allow any accesses any more.
+> 
+> APM suspend to RAM doesn't work properly on this machine, so I haven't
+> tested that.
 
-mainmenu "Linux Kernel Configuration"
+I'm afraid we may have APM junk getting in our way. It would be
+interesting to check out what is the request that made its way while
+power managing, though I usually consider this is harmless...
 
-  config X86
-	bool
-	default y
-	help
-	  This is Linux's home port.  Linux was originally native to the Intel
-	  386, and runs on all the later x86 processors including the Intel
-	  486, 586, Pentiums, and various instruction-set-compatible chips by
-	  AMD, Cyrix, and others.
+The lost interrupt problem may or may not be related, it could well
+be an IRQ routing problem as well. Did you have DMA enabled ? What
+happens if you disable that before suspend ? You can also add some
+printk to piix_config_drive_xfer_rate() in piix.c to check if that
+is properly getting called and doesn't fail.
 
-Couldn't one have a better way of handling this ?
+Ben.
 
-Regards
-Michael
 

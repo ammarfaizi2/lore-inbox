@@ -1,46 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267693AbTBKXZx>; Tue, 11 Feb 2003 18:25:53 -0500
+	id <S267921AbTBKXfk>; Tue, 11 Feb 2003 18:35:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267915AbTBKXZx>; Tue, 11 Feb 2003 18:25:53 -0500
-Received: from phobos.hpl.hp.com ([192.6.19.124]:51911 "EHLO phobos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S267693AbTBKXZw>;
-	Tue, 11 Feb 2003 18:25:52 -0500
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S267539AbTBKXfk>; Tue, 11 Feb 2003 18:35:40 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:30080
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S267921AbTBKXfj>; Tue, 11 Feb 2003 18:35:39 -0500
+Subject: Re: Can't enable dma on /dev/hda
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: maxxle <maxxle@t-online.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1044991886.3923.43.camel@sam>
+References: <1044991886.3923.43.camel@sam>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-ID: <15945.31739.980916.94425@napali.hpl.hp.com>
-Date: Tue, 11 Feb 2003 14:40:59 -0800
-To: Andrew Morton <akpm@digeo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: fix fadvise64() return type
-In-Reply-To: <20030207140015.0fe40a34.akpm@digeo.com>
-X-Mailer: VM 7.07 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
-X-MailScanner: Found to be clean
+Organization: 
+Message-Id: <1045010715.2326.2.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 12 Feb 2003 00:45:15 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please remember to declare the return-type of syscall stubs as "long".
-On 64-bit platforms, it's generally necessary to ensure that the
-entire 64-bit return value is valid (and can be checked against
-negative values).
+On Tue, 2003-02-11 at 19:31, maxxle wrote:
+> Hi!
+> 
+> I'm running a debian 3.0 System using kernel 2.4.19 (also tried 2.4.20).
+> On this system it's not possible to enable dma on /dev/hda (HDD IDE)
+> 
+> The MoBo is a VIA Board called VIA-C3M266 (CLE266 chipset)
+> Northbridge: VT8623
+> Southbridge: VT8235
 
-Thanks,
+You need 2.4.21pre for the 8235
 
-	--david
-
-===== mm/fadvise.c 1.1 vs edited =====
---- 1.1/mm/fadvise.c	Mon Feb  3 23:46:36 2003
-+++ edited/mm/fadvise.c	Tue Feb 11 14:38:21 2003
-@@ -20,7 +20,7 @@
-  * POSIX_FADV_WILLNEED could set PG_Referenced, and POSIX_FADV_NOREUSE could
-  * deactivate the pages and clear PG_Referenced.
-  */
--int sys_fadvise64(int fd, loff_t offset, size_t len, int advice)
-+long sys_fadvise64(int fd, loff_t offset, size_t len, int advice)
- {
- 	struct file *file = fget(fd);
- 	struct inode *inode;

@@ -1,92 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262351AbVAJRsH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262352AbVAJRqE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262351AbVAJRsH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 12:48:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262390AbVAJRrT
+	id S262352AbVAJRqE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 12:46:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262356AbVAJRpl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 12:47:19 -0500
-Received: from relay1.tiscali.de ([62.26.116.129]:60897 "EHLO
-	webmail.tiscali.de") by vger.kernel.org with ESMTP id S262372AbVAJRZ4
+	Mon, 10 Jan 2005 12:45:41 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:15835 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S262352AbVAJRVD convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 12:25:56 -0500
-Message-ID: <41E2BAAB.3070805@tiscali.de>
-Date: Mon, 10 Jan 2005 18:26:03 +0100
-From: Matthias-Christian Ott <matthias.christian@tiscali.de>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040916)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alexey Dobriyan <adobriyan@mail.ru>
-CC: Adam Anthony <aanthony@sbs.com>, netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] /driver/net/wan/sbs520
-References: <200501101947.33917.adobriyan@mail.ru>
-In-Reply-To: <200501101947.33917.adobriyan@mail.ru>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 10 Jan 2005 12:21:03 -0500
+X-Fake: the user-agent is fake
+Subject: Re: [PATCH] PCI patches for 2.6.10
+User-Agent: Mutt/1.5.6i
+In-Reply-To: <11053776574174@kroah.com>
+Date: Mon, 10 Jan 2005 09:20:58 -0800
+Message-Id: <11053776582@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexey Dobriyan wrote:
+ChangeSet 1.1938.447.9, 2004/12/17 14:01:35-08:00, pavel@ucw.cz
 
->On Mon, 10 Jan 2005 07:46:52 -0700, Adam Anthony wrote:
->
->  
->
->>With the permission of my employer, SBS Technologies, Inc., I have
->>released a patch for 2.4 kernels that supports the 520 Series of WAN
->>adapters.
->>    
->>
->
->My editor shows ^M at the end of every line of new Documentation/Configure.help,
->MAINTAINERS (add ~63400 bogus lines!). Please, look at the patch _after_
->generating it.
->
->  
->
->>+obj-$(CONFIG_LANMEDIA)		+=		syncppp.o^M
->>    
->>
->
->  
->
->>+subdir-$(CONFIG_LANMEDIA) += lmc^M
->>    
->>
->
->Also random ^M's.
-> 
->--- linux-2.4.28-virgin/drivers/net/wan/sbs520/lnxosl.c
->+++ /usr/src/linux-2.4.28/drivers/net/wan/sbs520/lnxosl.c
->
->  
->
->>+// Programming Language:	C^M
->>+// Target Processor:		Any^M
->>+// Target Operating System: Linux^M
->>    
->>
->
->Well, this is pretty obvious to everyone here. :-)
->
->  
->
->>+// This software may be used and distributed according to the terms^M
->>+// of the GNU General Public License, incorporated herein by reference.^M
->>    
->>
->
->Stupid question: do you mean GPL version 2 or something else?
->
->	Alexey
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
-That's ugly, that are Microsoft line endings.
+[PATCH] PCI: Cleanup PCI power states
 
-Matthias-Christian Ott
+> > > > This is step 0 before adding type-safety to PCI layer... It introduces
+> > > > constants and uses them to clean driver up. I'd like this to go in
+> > > > now, so that I can convert drivers during 2.6.10... Please apply,
+
+Okay, here it is, slightly expanded version. It actually makes use of
+newly defined type for type-checking purposes; still no code changes.
+
+From: Pavel Machek <pavel@ucw.cz>
+Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
+
+
+ drivers/pci/pci.c   |    8 ++++----
+ include/linux/pci.h |   14 +++++++++++---
+ 2 files changed, 15 insertions(+), 7 deletions(-)
+
+
+diff -Nru a/drivers/pci/pci.c b/drivers/pci/pci.c
+--- a/drivers/pci/pci.c	2005-01-10 09:02:17 -08:00
++++ b/drivers/pci/pci.c	2005-01-10 09:02:17 -08:00
+@@ -229,7 +229,7 @@
+ /**
+  * pci_set_power_state - Set the power state of a PCI device
+  * @dev: PCI device to be suspended
+- * @state: Power state we're entering
++ * @state: PCI power state (D0, D1, D2, D3hot, D3cold) we're entering
+  *
+  * Transition a device to a new power state, using the Power Management 
+  * Capabilities in the device's config space.
+@@ -242,7 +242,7 @@
+  */
+ 
+ int
+-pci_set_power_state(struct pci_dev *dev, int state)
++pci_set_power_state(struct pci_dev *dev, pci_power_t state)
+ {
+ 	int pm;
+ 	u16 pmcsr, pmc;
+@@ -354,7 +354,7 @@
+ {
+ 	int err;
+ 
+-	pci_set_power_state(dev, 0);
++	pci_set_power_state(dev, PCI_D0);
+ 	if ((err = pcibios_enable_device(dev, bars)) < 0)
+ 		return err;
+ 	return 0;
+@@ -428,7 +428,7 @@
+  * 0 if operation is successful.
+  * 
+  */
+-int pci_enable_wake(struct pci_dev *dev, u32 state, int enable)
++int pci_enable_wake(struct pci_dev *dev, pci_power_t state, int enable)
+ {
+ 	int pm;
+ 	u16 value;
+diff -Nru a/include/linux/pci.h b/include/linux/pci.h
+--- a/include/linux/pci.h	2005-01-10 09:02:17 -08:00
++++ b/include/linux/pci.h	2005-01-10 09:02:17 -08:00
+@@ -480,6 +480,14 @@
+ #define DEVICE_COUNT_COMPATIBLE	4
+ #define DEVICE_COUNT_RESOURCE	12
+ 
++typedef int __bitwise pci_power_t;
++
++#define PCI_D0	((pci_power_t __force) 0)
++#define PCI_D1	((pci_power_t __force) 1)
++#define PCI_D2	((pci_power_t __force) 2)
++#define PCI_D3hot	((pci_power_t __force) 3)
++#define PCI_D3cold	((pci_power_t __force) 4)
++
+ /*
+  * The pci_dev structure is used to describe PCI devices.
+  */
+@@ -508,7 +516,7 @@
+ 					   this if your device has broken DMA
+ 					   or supports 64-bit transfers.  */
+ 
+-	u32             current_state;  /* Current operating state. In ACPI-speak,
++	pci_power_t     current_state;  /* Current operating state. In ACPI-speak,
+ 					   this is D0-D3, D0 being fully functional,
+ 					   and D3 being off. */
+ 
+@@ -797,8 +805,8 @@
+ /* Power management related routines */
+ int pci_save_state(struct pci_dev *dev);
+ int pci_restore_state(struct pci_dev *dev);
+-int pci_set_power_state(struct pci_dev *dev, int state);
+-int pci_enable_wake(struct pci_dev *dev, u32 state, int enable);
++int pci_set_power_state(struct pci_dev *dev, pci_power_t state);
++int pci_enable_wake(struct pci_dev *dev, pci_power_t state, int enable);
+ 
+ /* Helper functions for low-level code (drivers/pci/setup-[bus,res].c) */
+ void pci_bus_assign_resources(struct pci_bus *bus);
+

@@ -1,39 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282067AbRLKRZM>; Tue, 11 Dec 2001 12:25:12 -0500
+	id <S282064AbRLKRYw>; Tue, 11 Dec 2001 12:24:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282242AbRLKRYw>; Tue, 11 Dec 2001 12:24:52 -0500
-Received: from minus.inr.ac.ru ([193.233.7.97]:15122 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S282067AbRLKRYq>;
-	Tue, 11 Dec 2001 12:24:46 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200112111724.UAA02436@ms2.inr.ac.ru>
-Subject: Re: TCP LAST-ACK state broken in 2.4.17-pre2
-To: davem@redhat.com (David S. Miller)
-Date: Tue, 11 Dec 2001 20:24:15 +0300 (MSK)
-Cc: Mika.Liljeberg@welho.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20011210.161332.30184646.davem@redhat.com> from "David S. Miller" at Dec 10, 1 04:13:32 pm
-X-Mailer: ELM [version 2.4 PL24]
-MIME-Version: 1.0
+	id <S282242AbRLKRYn>; Tue, 11 Dec 2001 12:24:43 -0500
+Received: from ns.caldera.de ([212.34.180.1]:34732 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S282064AbRLKRYg>;
+	Tue, 11 Dec 2001 12:24:36 -0500
+Date: Tue, 11 Dec 2001 18:23:50 +0100
+Message-Id: <200112111723.fBBHNoY14804@ns.caldera.de>
+From: Christoph Hellwig <hch@ns.caldera.de>
+To: alan@lxorguk.ukuu.org.uk (Alan Cox)
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.16 & OOM killer screw up (fwd)
+X-Newsgroups: caldera.lists.linux.kernel
+In-Reply-To: <E16DqhI-0005vG-00@the-village.bc.nu>
+User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.2 (i686))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+In article <E16DqhI-0005vG-00@the-village.bc.nu> you wrote:
+>> > I'm not happy about your usage of magic numbers, either. So it is
+>> > still running on solid 2.2.19 until further notice (or until Rik loses
+>> > his patience. ;-) )
+>> 
+>> I've lost patience and have decided to move development away
+>> from the main tree.  http://linuxvm.bkbits.net/   ;)
+>
+> Are your patches available in a format that is accessible using free
+> software ?
 
-> A socket in a synchronized state is required to enforce legal sequence
-> numbers, is it not?
+As bitkeeper-ignorant I've found nice snapshots on
+http://www.surriel.com/patches/.
 
-They are . :-)
+For BSD advocates it might be a problem that these are unified diffs
+that are only applyable with GPL-licensed patch(1) version..
 
-Well, assuming that this is really illegal we could just add
-missing LAST_ACK close to its relative CLOSING, CLOSE_WAIT
-(where it was forgotten old days occasionally, I think).
-It is minimal change and this is good.
+	Christoph
 
-But I look at problem at our side: if we receive such packet yet,
-what should we make? Earlier we sent an ACK and dropped
-bad segment or aborted connection. Now we just blackhole them
-and the bug with missing case LAST_ACK just allowed to see the fact
-that we changed behaviour, which is not good. :-)
-
-Alexey
+-- 
+Of course it doesn't work. We've performed a software upgrade.

@@ -1,22 +1,21 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292972AbSCEMXH>; Tue, 5 Mar 2002 07:23:07 -0500
+	id <S292996AbSCEMcb>; Tue, 5 Mar 2002 07:32:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293011AbSCEMW7>; Tue, 5 Mar 2002 07:22:59 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:20740 "HELO
+	id <S293042AbSCEMcW>; Tue, 5 Mar 2002 07:32:22 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:4101 "HELO
 	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S292972AbSCEMWr>; Tue, 5 Mar 2002 07:22:47 -0500
-Date: Tue, 5 Mar 2002 09:22:25 -0300 (BRT)
+	id <S292996AbSCEMcH>; Tue, 5 Mar 2002 07:32:07 -0500
+Date: Tue, 5 Mar 2002 09:31:49 -0300 (BRT)
 From: Rik van Riel <riel@conectiva.com.br>
 X-X-Sender: riel@duckman.distro.conectiva
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        Bill Davidsen <davidsen@tmr.com>, Mike Fedyk <mfedyk@matchmail.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.19pre1aa1
-In-Reply-To: <20020305024046.Y20606@dualathlon.random>
-Message-ID: <Pine.LNX.4.44L.0203050921510.1413-100000@duckman.distro.conectiva>
+To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Cc: Andrea Arcangeli <andrea@suse.de>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        <lse-tech@lists.sourceforge.net>
+Subject: Re: [PATCH] breaking up the pagemap_lru_lock in rmap
+In-Reply-To: <793424263.1015276658@[10.10.2.3]>
+Message-ID: <Pine.LNX.4.44L.0203050930070.1413-100000@duckman.distro.conectiva>
 X-spambait: aardvark@kernelnewbies.org
 X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
@@ -24,25 +23,27 @@ Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 5 Mar 2002, Andrea Arcangeli wrote:
-> On Mon, Mar 04, 2002 at 10:26:30PM -0300, Rik van Riel wrote:
-> > On Tue, 5 Mar 2002, Andrea Arcangeli wrote:
-> > > On Mon, Mar 04, 2002 at 09:01:31PM -0300, Rik van Riel wrote:
-> > > > This could be expressed as:
-> > > >
-> > > > "node A"  HIGHMEM A -> HIGHMEM B -> NORMAL -> DMA
-> > > > "node B"  HIGHMEM B -> HIGHMEM A -> NORMAL -> DMA
+On Mon, 4 Mar 2002, Martin J. Bligh wrote:
 
-> the example you made doesn't have highmem at all.
+> > Maybe that's more a sympthom that the rmap is doing
+> > something silly with the lock acquired,
 >
-> > has 1 ZONE_NORMAL and 1 ZONE_DMA while it has multiple
-> > HIGHMEM zones...
->
-> it has multiple zone normal and only one zone dma. I'm not forgetting
-> that.
+> It seems that we're reusing the pagemap_lru_lock for both the lru chain
+> and the pte chain locking, which is hurting somewhat. Maybe a per-zone
+> lock is enough to break this up (would also dispose of cross-node lock
+> cacheline bouncing) ... I still think the two chains need to be seperated
+> from each other though.
 
-Your reality doesn't seem to correspond well with NUMA-Q
-reality.
+Absolutely agreed.  I'll happily accept patches for this,
+but unfortunately don't have the time to implement this
+myself right now.
+
+The reason the pagemap_lru_lock protects both the lru
+lists and the pte_chain lists is that it was the easiest
+way to get -rmap running on SMP and I had (and still have)
+a pretty large TODO list of -rmap and unrelated things...
+
+regards,
 
 Rik
 -- 

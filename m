@@ -1,43 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267484AbUHSWnW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267487AbUHSWpr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267484AbUHSWnW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 18:43:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267487AbUHSWnW
+	id S267487AbUHSWpr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 18:45:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267489AbUHSWpr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 18:43:22 -0400
-Received: from sccrmhc13.comcast.net ([204.127.202.64]:59793 "EHLO
+	Thu, 19 Aug 2004 18:45:47 -0400
+Received: from sccrmhc13.comcast.net ([204.127.202.64]:38302 "EHLO
 	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S267484AbUHSWnU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 18:43:20 -0400
+	id S267487AbUHSWpq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Aug 2004 18:45:46 -0400
 From: jmerkey@comcast.net
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
+To: Christoph Hellwig <hch@infradead.org>
 Cc: linux-kernel@vger.kernel.org, jmerkey@drdos.com
-Subject: Re: kallsyms 2.6.8 address ordering 
-Date: Thu, 19 Aug 2004 22:43:18 +0000
-Message-Id: <081920042243.1790.41252D06000BA3BD000006FE2200762194970A059D0A0306@comcast.net>
+Subject: Re: 2.6.8 kmem_cache_alloc barfs
+Date: Thu, 19 Aug 2004 22:45:45 +0000
+Message-Id: <081920042245.28325.41252D98000E459100006EA52200734840970A059D0A0306@comcast.net>
 X-Mailer: AT&T Message Center Version 1 (Jul 16 2004)
 X-Authenticated-Sender: am1lcmtleUBjb21jYXN0Lm5ldA==
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+regparm=3 in an external modules build creates this problem if you reference internal 
+linux includes and makefile commands from an externally built module.  I notice stack 
+passing is on where it needs to be in exported symbols **IF** they are defined properly.
+There are some holes with this for folks creating external modules that call into a kernel
+with objects that are mismatched from the compile.
 
-
-
->
-> This is probably just working to get the most out of the kernel, and the
-> constraint of "making kernel debuggers easy to write" just isn't in the
-> requirements. The kernel hackers (rightly so, IMVHO) reserve the right to
-> change interfases at the drop of a hat. If third parties get burned, just
-> too bad.
-
-Makes a lot of unnecessary work for others to keep up.  Some of the interfaces being 
-changed are broken as a result.  It's not progress to break something that shouldn't 
-need changing.  Just IMHO....
+This was the source of the bug.
 
 Jeff
 
-> -- 
-> Dr. Horst H. von Brand                   User #22616 counter.li.org
-> Departamento de Informatica                     Fono: +56 32 654431
-> Universidad Tecnica Federico Santa Maria              +56 32 654239
-> Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+
+> On Thu, Aug 19, 2004 at 06:18:20PM +0000, jmerkey@comcast.net wrote:
+> > 
+> > in 2.6.8 with all features and config options (at least those that will build) 
+> with 4GB memory option selected, kmem_cache_alloc crashes when called with 
+> requests for 64KB chunks of memory which exceed the kernel address space of 1GB 
+> in size rather than returning an out of memory error.  
+> 
+> testcase please.
+> 

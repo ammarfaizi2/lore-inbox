@@ -1,45 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264712AbTE1MuX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 08:50:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264713AbTE1MuW
+	id S264727AbTE1Mzx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 08:55:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264728AbTE1Mzw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 08:50:22 -0400
-Received: from hq.pm.waw.pl ([195.116.170.10]:49577 "EHLO hq.pm.waw.pl")
-	by vger.kernel.org with ESMTP id S264712AbTE1MuS (ORCPT
+	Wed, 28 May 2003 08:55:52 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:24246 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S264727AbTE1Mzs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 08:50:18 -0400
-To: <linux-kernel@vger.kernel.org>
-Subject: Linux 2.4.21-rc4
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: 28 May 2003 01:42:02 +0200
-Message-ID: <m3brxokldh.fsf@defiant.pm.waw.pl>
-MIME-Version: 1.0
+	Wed, 28 May 2003 08:55:48 -0400
+Date: Wed, 28 May 2003 15:08:39 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
+Cc: Marc-Christian Petersen <m.c.p@wolk-project.de>,
+       Andrew Morton <akpm@digeo.com>, kernel@kolivas.org,
+       matthias.mueller@rz.uni-karlsruhe.de, manish@storadinc.com,
+       andrea@suse.de, marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.20: Proccess stuck in __lock_page ...
+Message-ID: <20030528130839.GW845@suse.de>
+References: <3ED2DE86.2070406@storadinc.com> <200305281305.44073.m.c.p@wolk-project.de> <20030528042700.47372139.akpm@digeo.com> <200305281331.26959.m.c.p@wolk-project.de> <20030528125312.GV845@suse.de> <3ED4B49A.4050001@gmx.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3ED4B49A.4050001@gmx.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Compiled with RH 3.2.2 gcc - could I help by providing patches?
+On Wed, May 28 2003, Carl-Daniel Hailfinger wrote:
+> Jens Axboe wrote:
+> > On Wed, May 28 2003, Marc-Christian Petersen wrote:
+> > 
+> >>On Wednesday 28 May 2003 13:27, Andrew Morton wrote:
+> >>
+> >>>Guys, you're the ones who can reproduce this.  Please spend more time
+> >>>working out which chunk (or combination thereof) actually fixes the
+> >>>problem.  If indeed any of them do.
+> >>
+> >>As I said, I will test it this evening. ATM I don't have time to
+> >>recompile and reboot. This evening I will test extensively, even on
+> >>SMP, SCSI, IDE and so on.
+> > 
+> > May I ask how you are reproducing the bad results? I'm trying in vain
+> > here...
+> 
+> Quoting Con Kolivas:
+> 
+> dd if=/dev/zero of=dump bs=4096 count=512000
 
-intrepid:/usr/src/linux-2.4$ make bzImage modules
-md5sum: WARNING: 1 of 13 computed checksums did NOT match
-sm_osl.c: In function `sm_osl_suspend':
-sm_osl.c:671: warning: unused variable `wakeup_address'
-generic.h:138: warning: `unknown_chipset' defined but not used
-make[3]: Circular /usr/src/linux-2.4/include/linux/netfilter_ipv4/ip_conntrack_helper.h <- /usr/src/linux-2.4/include/linux/netfilter_ipv4/ip_conntrack.h dependency dropped.
-ip_nat_helper.c: In function `ip_nat_resize_packet':
-ip_nat_helper.c:87: warning: unused variable `data'
-ip_nat_helper.c: In function `ip_nat_helper_register':
-ip_nat_helper.c:493: warning: concatenation of string literals with __FUNCTION__ is deprecated
-ip_nat_helper.c: In function `ip_nat_helper_unregister':
-ip_nat_helper.c:577: warning: concatenation of string literals with __FUNCTION__ is deprecated
-time.c:433: warning: `do_gettimeoffset_cyclone' defined but not used
-dmi_scan.c: In function `dmi_decode':
-dmi_scan.c:832: warning: unused variable `data'
-agpgart_be.c: In function `agp_generic_create_gatt_table':
-agpgart_be.c:580: warning: assignment from incompatible pointer type
-balloc.c: In function `ext2_new_block':
-balloc.c:524: warning: long unsigned int format, int arg (arg 4)
+already tried that, no go. on ide/scsi? what filesystem? how much ram?
+anything else running? smp/up?
+
 -- 
-Krzysztof Halasa
-Network Administrator
+Jens Axboe
+

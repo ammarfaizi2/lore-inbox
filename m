@@ -1,66 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262192AbUKKId1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262194AbUKKIfU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262192AbUKKId1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Nov 2004 03:33:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262193AbUKKId1
+	id S262194AbUKKIfU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Nov 2004 03:35:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262193AbUKKIfU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Nov 2004 03:33:27 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:19463 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S262192AbUKKIdW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Nov 2004 03:33:22 -0500
-Date: Thu, 11 Nov 2004 09:33:12 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: "Andrey J. Melnikoff (TEMHOTA)" <temnota@kmv.ru>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.4.28-rc1] process stuck in release_task() call
-Message-ID: <20041111083312.GE783@alpha.home.local>
-References: <20041109162445.GM24130@kmv.ru> <20041110185813.GD12867@logos.cnet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041110185813.GD12867@logos.cnet>
-User-Agent: Mutt/1.4i
+	Thu, 11 Nov 2004 03:35:20 -0500
+Received: from smtp201.mail.sc5.yahoo.com ([216.136.129.91]:53152 "HELO
+	smtp201.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262194AbUKKIfM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Nov 2004 03:35:12 -0500
+Message-ID: <4193243D.3000201@yahoo.com.au>
+Date: Thu, 11 Nov 2004 19:35:09 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Mark Hindley <mark@hindley.uklinux.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: OOPS: 2.6.9
+References: <20041110074851.GA9757@titan.home.hindley.uklinux.net> <4191D13C.3060308@yahoo.com.au> <20041111072734.GA1671@titan.home.hindley.uklinux.net>
+In-Reply-To: <20041111072734.GA1671@titan.home.hindley.uklinux.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcelo,
-
-> > >>EIP; c012073d <release_task+1fd/230>   <=====
-(...)
-> > c0120540 <release_task>:
-> > c0120540:       55                      push   %ebp
-> > ....
-> > c0120736:       89 d8                   mov    %ebx,%eax
-> > c0120738:       e8 73 dd 01 00          call   c013e4b0 <free_pages> <= here
+Mark Hindley wrote:
+> On Wed, Nov 10, 2004 at 07:28:44PM +1100, Nick Piggin wrote:
+>  
 > 
-> is this release_task+1fd?  Can you send me the full disassemble of release_task?
+>>   a9 40 00 00 00            test   $0x40,%eax
+>>   74 08                     je     33 <_EIP+0x33>
+>>   0f 0b                     ud2a
+>>
+>>So eax (20001045) is page->flags, which is
+>>PG_locked | PG_referenced | PG_active | PG_private, I think.
+>>
+>>You might have flipped a bit. Can you run memtest86 on the system overnight?
+>>
+> 
+> 
+> Ran for 12 hours overnight. Extended tests, no errors.
+> 
 
-Yes it is because the next instruction after call will be at c0120738+5 =
-c012073d = release_task+1fd. (the return address on the stack is the
-address of the next instruction after the call).
+OK, it's just that it's a pretty common path in the kernel, and if
+there was a bug there you'd be very unlucky to be the only one
+hitting it. Still, it's possible. Probably the best thing to do is
+report it if it happens again.
 
-> It can't be blocked here, its a "call" instruction. 
+Oh, what sort of system is it? CPU, how much RAM, etc?
 
-Seems rather strange indeed ! Perhaps this is not the disassembled function
-of the *running* kernel ? it would be good to disassemble vmlinux and ensure
-that it is exactly the one currently running. I too have already lost lots
-of time searching a wrong bug because I disassembled the wrong kernel, so
-I'm certain it can happen even when we're very careful :-(
-
-> free_pages can't block either. Odd.  
-
-Marcelo, I have two questions for my own understanding :
-  - free_pages does spin_lock(&zone->lock) around the while() loop.
-    Considering that someone else could hold the lock (bug, etc...), it
-    could block here. But my feeling is that if such a lock were kept held,
-    the system would be totally frozen because everything which would want
-    to free memory would get stuck (even a process exit). Am I right ?
-
-  - would it enhance performance a bit to put a bunch of 'unlikely()' in all
-    the ifs which end in BUG(), especially inside the loop ?
-
-Regards,
-Willy
-
+Sorry I can't be of more help.

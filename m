@@ -1,44 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270800AbRH1MQp>; Tue, 28 Aug 2001 08:16:45 -0400
+	id <S270795AbRH1MPF>; Tue, 28 Aug 2001 08:15:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270814AbRH1MQf>; Tue, 28 Aug 2001 08:16:35 -0400
-Received: from smtpde02.sap-ag.de ([194.39.131.53]:64386 "EHLO
-	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S270800AbRH1MQb>; Tue, 28 Aug 2001 08:16:31 -0400
-From: Christoph Rohland <cr@sap.com>
-To: Jens Axboe <axboe@suse.de>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-        "David S. Miller" <davem@redhat.com>
-Subject: Re: [patch] zero-bounce block highmem I/O, #13
-In-Reply-To: <20010827123700.B1092@suse.de> <m3itf85vlr.fsf@linux.local>
-	<20010828125520.L642@suse.de> <20010828134141.M642@suse.de>
-Organisation: SAP LinuxLab
-Date: 28 Aug 2001 14:16:11 +0200
-In-Reply-To: <20010828134141.M642@suse.de>
-Message-ID: <m3ae0k5qic.fsf@linux.local>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
+	id <S270800AbRH1MO4>; Tue, 28 Aug 2001 08:14:56 -0400
+Received: from d12lmsgate.de.ibm.com ([195.212.91.199]:2176 "EHLO
+	d12lmsgate.de.ibm.com") by vger.kernel.org with ESMTP
+	id <S270795AbRH1MOx> convert rfc822-to-8bit; Tue, 28 Aug 2001 08:14:53 -0400
+Importance: Normal
+Subject: re: VM: Bad swap entry 0044cb00
+To: linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
+Message-ID: <OFA77434C9.FE08E5EE-ONC1256AB6.0043214E@de.ibm.com>
+From: "Christian Borntraeger" <CBORNTRA@de.ibm.com>
+Date: Tue, 28 Aug 2001 14:15:07 +0200
+X-MIMETrack: Serialize by Router on D12ML020/12/M/IBM(Release 5.0.6 |December 14, 2000) at
+ 28/08/2001 14:14:34
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-SAP: out
-X-SAP: out
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jens,
+Hello,
 
-On Tue, 28 Aug 2001, Jens Axboe wrote:
-> Ok found the bug -- SCSI was accidentally using blk_seg_merge_ok
-> when it just wanted to test if we were crossing a 4GB physical
-> address boundary or not. Doh! Attached incremental patch should fix
-> the SCSI performance issue. I'm testing right now...
+I faced the same problem with the VM System on an S/390-System and Kernel
+2.4.7 + S/390 patches. As there is hardware ECC-checking it is not a memory
+problem.
+I can reproduce the problem If I put load on the system (256 MB RAM, 512 MB
+SWAP on a file, 3CPUs).
 
-Yup, performance is back to 2.4.9 level. But I do not see an
-improvement.
+To reproduce this behaviour I run a lot of programs which consume all the
+heap memory.
+The C++ program uses the new function until the OOM killer is activated.
 
-I will now do a database import.
+I start several of this programs with nohup prog &
 
-Greetings
-		Christoph
+This behaviour startet with 2.4.7.
+With all previous Kernel versions since 2.4.0 there were a kernel BUG
+messages during this test. The messages changed regularly with every new
+kernel version, unfortunately we were not able to track this problem down.
+Kernel 2.2 runs fine.
+
+--
+Mit freundlichen Grüßen / Best Regards
+
+Christian Bornträger
+IBM Deutschland Entwicklung GmbH
+eServer SW  System Evaluation + Test
+email: CBORNTRA@de.ibm.com
+Tel +49 7031-16-3507
 
 

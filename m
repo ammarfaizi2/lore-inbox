@@ -1,48 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262944AbTJECYb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Oct 2003 22:24:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262948AbTJECYb
+	id S262942AbTJECPN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Oct 2003 22:15:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262944AbTJECPN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Oct 2003 22:24:31 -0400
-Received: from eleanor.physics.ucsb.edu ([128.111.8.116]:9644 "EHLO
-	eleanor.physics.ucsb.edu") by vger.kernel.org with ESMTP
-	id S262944AbTJECYa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Oct 2003 22:24:30 -0400
-Date: Sat, 4 Oct 2003 19:25:08 -0700 (PDT)
-From: David Whysong <dwhysong@physics.ucsb.edu>
-To: <linux-kernel@vger.kernel.org>
-Subject: MCE non fatal errors on an opteron CPU (fwd)
-Message-ID: <Pine.LNX.4.33.0310041924420.5264-100000@eleanor.physics.ucsb.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 4 Oct 2003 22:15:13 -0400
+Received: from rrba-bras-193-121.telkom-ipnet.co.za ([165.165.193.121]:44416
+	"EHLO nosferatu.lan") by vger.kernel.org with ESMTP id S262942AbTJECPG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Oct 2003 22:15:06 -0400
+Subject: Did sombody leave the debugging on for latest 2.6 bk's ?
+From: Martin Schlemmer <azarah@gentoo.org>
+Reply-To: azarah@gentoo.org
+To: KML <linux-kernel@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-asBMoHOAjRLt59X6QM9K"
+Message-Id: <1065320855.11114.262.camel@nosferatu.lan>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sun, 05 Oct 2003 04:27:36 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi,
+--=-asBMoHOAjRLt59X6QM9K
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-I'm getting these messages every 15 seconds. Can someone tell me what this
-means?
+Hi
 
-Oct  2 15:55:35 sleepy kernel: MCE: The hardware reports a non fatal,
-correctable incident occurred on CPU 1.
-Oct  2 15:55:35 sleepy kernel: Bank 0: c408400000000833
-Oct  2 15:55:36 sleepy kernel: MCE: The hardware reports a non fatal,
-correctable incident occurred on CPU 1.
-Oct  2 15:55:36 sleepy kernel: Bank 1: d400400000000853
-Oct  2 15:55:36 sleepy kernel: MCE: The hardware reports a non fatal,
-correctable incident occurred on CPU 1.
-Oct  2 15:55:36 sleepy kernel: Bank 2: d400400000000813
-Oct  2 15:55:36 sleepy kernel: MCE: The hardware reports a non fatal,
-correctable incident occurred on CPU 1.
-Oct  2 15:55:36 sleepy kernel: Bank 4: 9408400100000813
+Get below all over the place.  I have not changed anything particular
+on the box, and its not been doing this with test5 kernels.  Anything
+specific I can look at ?  Hardware issues that is shown now with
+debugging turned up or something ?
+
+-------
+cc1: page allocation failure. order:2, mode:0x20
+cc1: page allocation failure. order:2, mode:0x20
+cc1: page allocation failure. order:2, mode:0x20
+cc1: page allocation failure. order:2, mode:0x20
+cc1: page allocation failure. order:2, mode:0x20
+cc1: page allocation failure. order:2, mode:0x20
+nt: page allocation failure. order:2, mode:0x20
+cc1: page allocation failure. order:2, mode:0x20
+syslogd: page allocation failure. order:2, mode:0x20
+cc1: page allocation failure. order:2, mode:0x20
+cc1: page allocation failure. order:2, mode:0x20
+cc1: page allocation failure. order:2, mode:0x20
+cc1: page allocation failure. order:2, mode:0x20
+cc1: page allocation failure. order:2, mode:0x20
+cc1: page allocation failure. order:2, mode:0x20
+cc1: page allocation failure. order:2, mode:0x20
+cc1: page allocation failure. order:2, mode:0x20
+cc1: page allocation failure. order:2, mode:0x20
+cc1: page allocation failure. order:2, mode:0x20
+------
 
 
--- 
-David Whysong                                       dwhysong@physics.ucsb.edu
-Astrophysics graduate student         University of California, Santa Barbara
-My public PGP keys are on my web page - http://www.physics.ucsb.edu/~dwhysong
-DSS PGP Key 0x903F5BD6  :  FE78 91FE 4508 106F 7C88  1706 B792 6995 903F 5BD6
-D-H PGP key 0x5DAB0F91  :  BC33 0F36 FCCD E72C 441F  663A 72ED 7FB7 5DAB 0F91
+Thanks,
+
+--=20
+
+Martin Schlemmer
+Gentoo Linux Developer, Desktop/System Team Developer
+Cape Town, South Africa
+
+
+
+--=-asBMoHOAjRLt59X6QM9K
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQA/f4GXqburzKaJYLYRAodlAJkBQloDAgldhvTULAkuczMewtWKiQCbBX5X
+9EwlpIWmxltrim+n4FnaHXk=
+=FIUF
+-----END PGP SIGNATURE-----
+
+--=-asBMoHOAjRLt59X6QM9K--
 

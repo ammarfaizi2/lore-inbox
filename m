@@ -1,47 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287279AbRL2Xps>; Sat, 29 Dec 2001 18:45:48 -0500
+	id <S287255AbRL2XqI>; Sat, 29 Dec 2001 18:46:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287268AbRL2Xpj>; Sat, 29 Dec 2001 18:45:39 -0500
-Received: from bitmover.com ([192.132.92.2]:50856 "EHLO bitmover.bitmover.com")
-	by vger.kernel.org with ESMTP id <S287260AbRL2XpV>;
-	Sat, 29 Dec 2001 18:45:21 -0500
-Date: Sat, 29 Dec 2001 15:45:20 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Edgar Toernig <froese@gmx.de>
-Cc: Larry McVoy <lm@bitmover.com>, Daniel Phillips <phillips@bonn-fries.net>,
-        Timothy Covell <timothy.covell@ashavan.org>,
-        linux-kernel@vger.kernel.org
+	id <S287250AbRL2XqA>; Sat, 29 Dec 2001 18:46:00 -0500
+Received: from ns.suse.de ([213.95.15.193]:48910 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S287270AbRL2Xpo>;
+	Sat, 29 Dec 2001 18:45:44 -0500
+Date: Sun, 30 Dec 2001 00:45:41 +0100 (CET)
+From: Dave Jones <davej@suse.de>
+To: Stewart Smith <stewart@softhome.net>
+Cc: <timothy.covell@ashavan.org>, <linux-kernel@vger.kernel.org>
 Subject: Re: RFC: Linux Bug Tracking & Feature Tracking DB
-Message-ID: <20011229154520.D21760@work.bitmover.com>
-Mail-Followup-To: Edgar Toernig <froese@gmx.de>,
-	Larry McVoy <lm@bitmover.com>,
-	Daniel Phillips <phillips@bonn-fries.net>,
-	Timothy Covell <timothy.covell@ashavan.org>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <200112290657.fBT6vMSr008000@svr3.applink.net> <20011229105525.C19306@work.bitmover.com> <3C2E14AB.69CEA694@gmx.de> <E16KRjh-0000GP-00@starship.berlin> <3C2E4934.D582AB91@gmx.de> <20011229150247.A21733@work.bitmover.com> <3C2E51E9.A9B279D8@gmx.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <3C2E51E9.A9B279D8@gmx.de>; from froese@gmx.de on Sun, Dec 30, 2001 at 12:29:45AM +0100
+In-Reply-To: <5DF55AEA-FCB4-11D5-880A-00039350C45A@softhome.net>
+Message-ID: <Pine.LNX.4.33.0112300038040.1336-100000@Appserv.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> After that I heard nothing more from you.  I got the impression that a
-> libc5 system was not commercially interesting enough...
+On Sun, 30 Dec 2001, Stewart Smith wrote:
 
-Huh.  Well, it's easy enough to add that to the list of build machines, 
-I think I can build libc5 binaries on redhat52, and we support that.
+> What about instead of tracking bugs and if they've been squashed. Why
+> don't we build a database of known bugs with different kernel versions.
+> i.e. You can go to the site and get a complete list of every single bug
+> that people have entered about 2.0.36 you're still running on that box
+> under the stairs.
+> People could then 'vote' on the bug, so we could keep track of what's a
+> big problem for a lot of people, and what's something that just one
+> person found not to work.
 
-> > And, it would be nice if you raised the issue with us rather than the
-> > kernel list, they aren't going to build your BK image for you.
-> 
-> I asked nobody to build a BK image for me.  You are constantly misusing
-> the lkml as a BK promotion facility.  
+Congratulations, you just invented bugzilla 8)
+The only thing I dislike about bugzilla (and lookalikes) is that
+someone has to go through them pruning them, updating them etc
+and this is a lot of work.
+Look at $vendor_of_choice's bugzilla entry for the kernel.
+You'll see hundreds, nay, thousands of reports filed.
 
-If you feel that way, might I kindly suggest you add a simple rule to your
-procmail filters and spare yourself (and the rest of the world) some pain?
-I can show you how to do it if you don't know how, it would be no problem.
+It's an immense amount of data to track.
+Some people have no problem with this, others loath it.
+
+The advantage email has over this are too numerous to list,
+but they start with the fact that lots of kernel developers are
+lazy[*]. 2-3 keypresses to archive a patch for looking at later/merging
+are about the level of involvement thats aimed for.
+Having to start a browser, go to the bugzilla site, log in, search/browse
+for bugs etc.. way too involved.
+
+Dave.
+
+[*] In the sense that if life can be made easier, it should be.
+
 -- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs
+

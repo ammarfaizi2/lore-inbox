@@ -1,39 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278788AbRKAMCW>; Thu, 1 Nov 2001 07:02:22 -0500
+	id <S276591AbRKAMLd>; Thu, 1 Nov 2001 07:11:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278792AbRKAMCM>; Thu, 1 Nov 2001 07:02:12 -0500
-Received: from due.stud.ntnu.no ([129.241.56.71]:43531 "HELO due.stud.ntnu.no")
-	by vger.kernel.org with SMTP id <S278788AbRKAMCA>;
-	Thu, 1 Nov 2001 07:02:00 -0500
-Date: Thu, 1 Nov 2001 13:00:44 +0100
-From: =?iso-8859-1?Q?Thomas_Lang=E5s?= <tlan@stud.ntnu.no>
-To: Andrey Savochkin <saw@saw.sw.com.sg>
-Cc: Juergen Hasch <Hasch@t-online.de>, linux-kernel@vger.kernel.org,
-        J Sloan <jjs@pobox.com>
-Subject: Re: Intel EEPro 100 with kernel drivers
-Message-ID: <20011101130044.D3409@stud.ntnu.no>
-Reply-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20011029021339.B23985@stud.ntnu.no> <3BDCD06E.8AF8FF69@pobox.com> <20011031090125.B10751@stud.ntnu.no> <15yzpC-26N6dEC@fwd04.sul.t-online.com> <20011101141111.A27180@castle.nmd.msu.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011101141111.A27180@castle.nmd.msu.ru>; from saw@saw.sw.com.sg on Thu, Nov 01, 2001 at 02:11:11PM +0300
+	id <S275265AbRKAMLW>; Thu, 1 Nov 2001 07:11:22 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:3082 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S271800AbRKAMLL>;
+	Thu, 1 Nov 2001 07:11:11 -0500
+Date: Thu, 1 Nov 2001 10:10:56 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Mark Hahn <hahn@physics.mcmaster.ca>
+Cc: safemode <safemode@speakeasy.net>, <linux-kernel@vger.kernel.org>
+Subject: Re: graphical swap comparison of aa and rik vm
+In-Reply-To: <Pine.LNX.4.10.10111010056100.31484-100000@coffee.psychology.mcmaster.ca>
+Message-ID: <Pine.LNX.4.33L.0111011009090.2963-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrey Savochkin:
-> It should be Rx_TCO_Packets, not Tx.
-> The problem described in Intel's advisory is related to incorrect processing
-> of receiving packets.
+On Thu, 1 Nov 2001, Mark Hahn wrote:
 
-But if it's this bug that's triggered with NFS-traffic, then the counter
-should be increasing with every timeout, right? Not just one time. I get a
-lot of timeout and the counter is still just 1.
+> also, if you merely sum the SI and SO columns for each:
+> 		sum(SI)		sum(SO)		sum(SI+SO)
+>       Rik-VM	43564		317448		290032
+>       AA-VM	118284		171748		361012
+> to me, this looks like the same point: Rik being SO-happy,
+> Andrea having to SI a lot more.  interesting also that Andrea wins the race,
+> in spite of poorer SO choices and more swap traffic overall.
 
-I'm going out to buy me another NIC and try tests a bit systematically, and
-report back with the results afterwards.
+I think this is because in safemode's test, the swap space
+gets exhausted.  My VM works better when there is lots of
+swap space available but degrades in the (rare) case where
+swap space is exhausted.
 
+Testing corner cases always gives interesting results ;)
+
+regards,
+
+Rik
 -- 
-Thomas
+DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

@@ -1,37 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131012AbRCMPY1>; Tue, 13 Mar 2001 10:24:27 -0500
+	id <S131141AbRCMPi2>; Tue, 13 Mar 2001 10:38:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131076AbRCMPYS>; Tue, 13 Mar 2001 10:24:18 -0500
-Received: from jalon.able.es ([212.97.163.2]:11193 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S131012AbRCMPYJ>;
-	Tue, 13 Mar 2001 10:24:09 -0500
-Date: Tue, 13 Mar 2001 16:23:41 +0100
-From: "J . A . Magallon" <jamagallon@able.es>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: cdfs
-Message-ID: <20010313162341.C1311@werewolf.able.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 1.1.2
+	id <S131145AbRCMPiS>; Tue, 13 Mar 2001 10:38:18 -0500
+Received: from ns.caldera.de ([212.34.180.1]:23558 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S131141AbRCMPiB>;
+	Tue, 13 Mar 2001 10:38:01 -0500
+Date: Tue, 13 Mar 2001 16:37:17 +0100
+Message-Id: <200103131537.QAA13169@ns.caldera.de>
+From: Christoph Hellwig <hch@caldera.de>
+To: jamagallon@able.es ("J . A . Magallon")
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: cdfs
+X-Newsgroups: caldera.lists.linux.kernel
+In-Reply-To: <20010313162341.C1311@werewolf.able.es>
+User-Agent: tin/1.4.1-19991201 ("Polish") (UNIX) (Linux/2.2.14 (i686))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, 
+In article <20010313162341.C1311@werewolf.able.es> you wrote:
+> Hi, 
+>
+> Recently I read the BeOS www page, and answerd a question in other mailing
+> list. Both things have remind me of a pretty file system: 'cdfs'.
+>
+> Anybody knows if there is a port of 'cdfs' (Audio CD File System) for Linux ?
 
-Recently I read the BeOS www page, and answerd a question in other mailing
-list. Both things have remind me of a pretty file system: 'cdfs'.
+There is a cdfs, but it does more then just adding audio CDs to the namespace...
+Take a look at:
 
-Anybody knows if there is a port of 'cdfs' (Audio CD File System) for Linux ?
-Which fs now in kernel would be good as a template to start ?
-I am always looking for something enough easy to start kernel programming,
-and this could be a nice start (look, throw away all your ripping soft
-and just do a 'cp').
+http://www.elis.rug.ac.be/~ronsse/cdfs/
+
+	Christoph
 
 -- 
-J.A. Magallon                                                      $> cd pub
-mailto:jamagallon@able.es                                          $> more beer
-
-Linux werewolf 2.4.2-ac19 #3 SMP Mon Mar 12 23:50:29 CET 2001 i686
-
+Of course it doesn't work. We've performed a software upgrade.

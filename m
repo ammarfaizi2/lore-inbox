@@ -1,52 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268446AbUILFDf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268445AbUILFB6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268446AbUILFDf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Sep 2004 01:03:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268455AbUILFDf
+	id S268445AbUILFB6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Sep 2004 01:01:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268447AbUILFB6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Sep 2004 01:03:35 -0400
-Received: from fw.osdl.org ([65.172.181.6]:7333 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268446AbUILFCE (ORCPT
+	Sun, 12 Sep 2004 01:01:58 -0400
+Received: from holomorphy.com ([207.189.100.168]:12163 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S268445AbUILFAd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Sep 2004 01:02:04 -0400
-Date: Sat, 11 Sep 2004 22:00:03 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Zwane Mwaikambo <zwane@fsmlabs.com>
-Cc: torvalds@osdl.org, paulus@samba.org, linux-kernel@vger.kernel.org,
-       anton@samba.org, jun.nakajima@intel.com, ak@suse.de, mingo@elte.hu
-Subject: Re: [PATCH] Yielding processor resources during lock contention
-Message-Id: <20040911220003.0e9061ad.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.53.0409120009510.2297@montezuma.fsmlabs.com>
-References: <Pine.LNX.4.58.0409021231570.4481@montezuma.fsmlabs.com>
-	<16703.60725.153052.169532@cargo.ozlabs.ibm.com>
-	<Pine.LNX.4.53.0409090810550.15087@montezuma.fsmlabs.com>
-	<Pine.LNX.4.58.0409090751230.5912@ppc970.osdl.org>
-	<Pine.LNX.4.58.0409090754270.5912@ppc970.osdl.org>
-	<Pine.LNX.4.53.0409091107450.15087@montezuma.fsmlabs.com>
-	<Pine.LNX.4.53.0409120009510.2297@montezuma.fsmlabs.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sun, 12 Sep 2004 01:00:33 -0400
+Date: Sat, 11 Sep 2004 22:00:30 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Chris Wedgwood <cw@f00f.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, Arjan van de Ven <arjanv@redhat.com>
+Subject: Re: [PATCH] Kill CONFIG_4KSTACKS
+Message-ID: <20040912050030.GD2660@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Chris Wedgwood <cw@f00f.org>, LKML <linux-kernel@vger.kernel.org>,
+	Arjan van de Ven <arjanv@redhat.com>
+References: <20040911204125.GA26179@taniwha.stupidest.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040911204125.GA26179@taniwha.stupidest.org>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zwane Mwaikambo <zwane@fsmlabs.com> wrote:
->
-> The following patch introduces cpu_lock_yield which allows architectures 
->  to possibly yield processor resources during lock contention.
+On Sat, Sep 11, 2004 at 01:41:25PM -0700, Chris Wedgwood wrote:
+> http://linux.bkbits.net:8080/linux-2.5/cset@407af9a3SmWwuO0CEQwLmAZoLXAcCA
+> seems to indicate 8K stacks are deprecated.  This removes the option
+> completely so were now use 4k-process + 4k-irq stacks all the time.
+> Probably a bit premature...
 
-err.. Haven't you just invented a really sucky semaphore?
-
-> The original 
->  requirement stems from Paul's requirement on PPC64 LPAR systems to yield 
->  the processor to the hypervisor instead of spinning.
-
-Maybe Paul needs to use a semaphore.
+Another, distinct patch to add warnings or errors for all versions of
+gcc prior to the stack fix commit might be helpful.
 
 
-Now, maybe Paul has tied himself into sufficiently tangly locking knots
-that in some circumstances he needs to spin on the lock and cannot schedule
-away.  But he can still use a semaphore and spin on down_trylock.
-
-Confused by all of this.
+-- wli

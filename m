@@ -1,46 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132302AbRAYS1v>; Thu, 25 Jan 2001 13:27:51 -0500
+	id <S133049AbRAYS3l>; Thu, 25 Jan 2001 13:29:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135654AbRAYS1l>; Thu, 25 Jan 2001 13:27:41 -0500
-Received: from pcep-jamie.cern.ch ([137.138.38.126]:28169 "EHLO
-	pcep-jamie.cern.ch") by vger.kernel.org with ESMTP
-	id <S132302AbRAYS13>; Thu, 25 Jan 2001 13:27:29 -0500
-Date: Thu, 25 Jan 2001 19:27:21 +0100
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: linux-kernel@vger.kernel.org, tmolina@home.com
-Subject: Re: problem with dd for floppy under 2.4.0
-Message-ID: <20010125192721.C5109@pcep-jamie.cern.ch>
-In-Reply-To: <200101231208.NAA29008@harpo.it.uu.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200101231208.NAA29008@harpo.it.uu.se>; from mikpe@csd.uu.se on Tue, Jan 23, 2001 at 01:08:54PM +0100
+	id <S130927AbRAYS3b>; Thu, 25 Jan 2001 13:29:31 -0500
+Received: from [38.204.212.32] ([38.204.212.32]:50048 "HELO srv2.ecropolis.com")
+	by vger.kernel.org with SMTP id <S133049AbRAYS3Y>;
+	Thu, 25 Jan 2001 13:29:24 -0500
+Date: Thu, 25 Jan 2001 13:29:24 -0500 (EST)
+From: Jeremy Hansen <jeremy@xxedgexx.com>
+To: linux-kernel@vger.kernel.org
+Subject: hotmail can't deal with ECN
+Message-ID: <Pine.LNX.4.21.0101251328240.2961-100000@srv2.ecropolis.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mikael Pettersson wrote:
-> There's a known bug in dd where it incorrectly attempts to truncate
-> the output file even though it's a block device.
 
-dd also attempts to truncate a character device, therefore fails in the
-same way.
+After mentioning ECN, this is the response I received from hotmail.
 
-The kernel should probably return EINVAL for this rather than EPERM.
+-jeremy
 
-> In kernels older
-> than 2.4.0-test10 or so it got away with this, but now the kernel
-> correctly returns an error.
-> 
-> Use the 'conv=notrunc' option to dd to fix this, i.e.
-> 
->     dd if=rootfs.gz of=/dev/fd0 bs=1k conv=notrunc seek=XXX
+---
 
-If only it were so easy to fix the program that calls dd...
+From: MSN Hotmail Support <support_x@hotmail.com>
+To: jeremy@xxedgexx.com
+Subject: RE: CST23725481ID - Ban on Ecropolis
 
--- Jamie
+Jeremy,
+
+Some of the routers and load balencers that we use will drop any packet
+that contains any bits in the reserved section of TCP headers.  There are
+firmware updates being planned by our vendor, but they are not available
+yet.  Also, we have to wait until they are fully stable before we can use
+them on our site.  We can't have our routers and load balancers falling
+over constantly under stress because of bugs in the firmware.  When we
+can, we will update, until then, there is nothing that we can do about
+this.
+
+We apologize for any inconvenience.
+
+David
+MSN Hotmail Customer Support
+
+
+
+
+
+
+
+--
+this is my sig.
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

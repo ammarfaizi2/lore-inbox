@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293092AbSDDSwQ>; Thu, 4 Apr 2002 13:52:16 -0500
+	id <S293249AbSDDTFe>; Thu, 4 Apr 2002 14:05:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293204AbSDDSwF>; Thu, 4 Apr 2002 13:52:05 -0500
-Received: from zero.tech9.net ([209.61.188.187]:21511 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S293092AbSDDSvw>;
-	Thu, 4 Apr 2002 13:51:52 -0500
-Subject: Re: Patch: linux-2.5.8-pre1/kernel/exit.c change caused BUG() at
-	boot time
-From: Robert Love <rml@tech9.net>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: torvalds@transmeta.com, "Adam J. Richter" <adam@yggdrasil.com>,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <3CAC9B32.2050000@us.ibm.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 
-Date: 04 Apr 2002 13:51:49 -0500
-Message-Id: <1017946309.22303.492.camel@phantasy>
-Mime-Version: 1.0
+	id <S293386AbSDDTFY>; Thu, 4 Apr 2002 14:05:24 -0500
+Received: from www.transvirtual.com ([206.14.214.140]:53001 "EHLO
+	www.transvirtual.com") by vger.kernel.org with ESMTP
+	id <S293249AbSDDTFP>; Thu, 4 Apr 2002 14:05:15 -0500
+Date: Thu, 4 Apr 2002 11:04:47 -0800 (PST)
+From: James Simmons <jsimmons@transvirtual.com>
+To: Dave Jones <davej@suse.de>
+cc: Geert Uytterhoeven <geert@linux-m68k.org>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] new fbdev api.
+In-Reply-To: <20020404135817.Q20040@suse.de>
+Message-ID: <Pine.LNX.4.10.10204041100590.1937-100000@www.transvirtual.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-04-04 at 13:28, Dave Hansen wrote:
 
-> I've replicated the problem too.
-> I've diabled preemption in the area where it used to be disabled because 
-> of the old lock_kernel().  I'm sending this message from a machine with 
-> that patch applied, so the patch does fix it.  As the comment says, this 
-> is something that the preempt experts need to take a look at.
-> Linus, this is a hack, and there is probably still a window where 
-> preemption can happen.  But, it is a band-aid until we find the real 
-> problem.
+> Indeed, the fb changes are the largest chunk of -dj right now.
+> The three heavy-weight patches pending integration by their maintainers
+> make up for half of whats left to be resynced..
+> 
+> (davej@noodles:resync)$ ll new-*
+> -rw-r--r--    1 davej    users      527576 Apr  1 21:48 new-console-layer.diff
 
-Thanks for the CC.  I've been looking into this problem.  I am not too
-sure why we require protection from concurrency via preemption and not
-via SMP.  In other words, why are we SMP-safe but not preempt-safe here.
+Alot to go here. The merge is half way done. 
 
-I don't really have an answer.
+> -rw-r--r--    1 davej    users     2005697 Apr  1 03:12 new-fbdev.diff
 
-The problem I saw on boot was the BUG being triggered on the last line.
-If we are able to preempt here and cause some problem, what proof is
-there that we don't have a race wrt SMP?
+I have more too :-/ I'm breaking it up as much as possible. I also have a 
+few more changes/fixes to send your way but I'm going to wait for that.
 
-	Robert Love
+> -rw-r--r--    1 davej    users      396297 Apr  1 19:01 new-input-layer.diff
+
+I talked to Vojtech about this so they will be going in soon. 
 

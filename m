@@ -1,42 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271672AbRHVP0J>; Wed, 22 Aug 2001 11:26:09 -0400
+	id <S272033AbRHVPgx>; Wed, 22 Aug 2001 11:36:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272029AbRHVPZ7>; Wed, 22 Aug 2001 11:25:59 -0400
-Received: from ns.suse.de ([213.95.15.193]:46093 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S271672AbRHVPZs>;
-	Wed, 22 Aug 2001 11:25:48 -0400
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: why no call to add_interrupt_randomness() on PPC?
-In-Reply-To: <3B83C430.7E5F59C3@nortelnetworks.com.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 22 Aug 2001 17:26:01 +0200
-In-Reply-To: Chris Friesen's message of "22 Aug 2001 16:44:06 +0200"
-Message-ID: <oupitfgnmk6.fsf@pigdrop.muc.suse.de>
-User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.7
+	id <S272034AbRHVPgc>; Wed, 22 Aug 2001 11:36:32 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:1294 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S272033AbRHVPga>; Wed, 22 Aug 2001 11:36:30 -0400
+Subject: Re: Qlogic/FC firmware
+To: jfbeam@bluetopia.net (Ricky Beam)
+Date: Wed, 22 Aug 2001 16:39:38 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.GSO.4.33.0108220951530.6389-100000@sweetums.bluetronic.net> from "Ricky Beam" at Aug 22, 2001 10:44:14 AM
+X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15Za6U-0001ht-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Friesen <cfriesen@nortelnetworks.com> writes:
+> I'm missing the "in the case of sparc" clause.  The sparc (and maybe others?)
+> have to keep the firmware image in memory in the case that it needs to reload
 
-> With all the talk about randomness, I went to see where my current system
-> (2.2.19 on PPC) was getting random numbers from.  I was kind of surprised to see
-> that there is no call to add_interrupt_randomness() in arch/ppc/kernel/irq.c.
-> 
-> Does anyone know why this call is not present in ppc_irq_dispatch_handler()? 
-> Would it be appropriate for me to make a patch for this?  Who would be the
-> appropriate person to send this to?
+Read the source code. The driver never reloads the firmware on a running
+card. So if the sparc needed that it never worked anyway, and I don't follow
+your argument.
 
-Nobody except for a few really obscure drivers use SA_SAMPLE_RANDOM
-with their interrupt handlers (none on ppc as far as I can see) On
-i386 all the gathering is normally done via the keyboard/mouse drivers
-and the blk interface. The reason e.g. Macs normally do not gather
-entropy is that they're using the new input layer for keyboard and
-mouse which for some reason doesn't feed its events into the entropy
-pool. I believe Wojtech did a patch for it, but I don't know if it has
-been merged into the ppc tree yet.
+If you do need to reload the firmware on real live sparc setups after driver
+setup then someone needs to do some patching.
 
--Andi
+Unlike you, I actually read the source
+
+Alan
+

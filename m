@@ -1,42 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131491AbRCWWdR>; Fri, 23 Mar 2001 17:33:17 -0500
+	id <S131479AbRCWW3h>; Fri, 23 Mar 2001 17:29:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131489AbRCWWcJ>; Fri, 23 Mar 2001 17:32:09 -0500
-Received: from ganymede.isdn.uiuc.edu ([192.17.19.210]:63505 "EHLO
-	ganymede.isdn.uiuc.edu") by vger.kernel.org with ESMTP
-	id <S131480AbRCWWbQ>; Fri, 23 Mar 2001 17:31:16 -0500
-Date: Fri, 23 Mar 2001 16:29:56 -0600
-From: Bill Wendling <wendling@ganymede.isdn.uiuc.edu>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: "J . A . Magallon" <jamagallon@able.es>,
-        Linux Kernel <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH] gcc-3.0 warnings
-Message-ID: <20010323162956.A27066@ganymede.isdn.uiuc.edu>
-In-Reply-To: <20010323011140.A1176@werewolf.able.es> <E14gFRT-0003f4-00@the-village.bc.nu>
-Mime-Version: 1.0
+	id <S131488AbRCWW32>; Fri, 23 Mar 2001 17:29:28 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:8465 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S131480AbRCWW2y>; Fri, 23 Mar 2001 17:28:54 -0500
+Subject: Re: [PATCH] Fix races in 2.4.2-ac22 SysV shared memory
+To: viro@math.psu.edu (Alexander Viro)
+Date: Fri, 23 Mar 2001 22:29:45 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        torvalds@transmeta.com (Linus Torvalds),
+        sct@redhat.com (Stephen C. Tweedie), linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, bcrl@redhat.com (Ben LaHaise),
+        cr@sap.com (Christoph Rohland)
+In-Reply-To: <Pine.GSO.4.21.0103231721120.10092-100000@weyl.math.psu.edu> from "Alexander Viro" at Mar 23, 2001 05:23:29 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <E14gFRT-0003f4-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Mar 23, 2001 at 12:28:32AM +0000
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14ga44-0005Zq-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Also sprach Alan Cox:
+> > > 	+       page = find_lock_page(mapping, idx);
+> > > 
+> > > Ehh.. Sleeping with the spin-lock held? Sounds like a truly bad idea.
+> > 
+> > Umm find_lock_page doesnt sleep does it ?
+> 
+> It certainly does. find_lock_page() -> __find_lock_page() -> lock_page() ->
+> -> __lock_page() -> schedule().
 
-} > -	default:
-} > +	default:;
-} 
-} Agree - done
-} 
-This kind of coding makes me want to cry. What's so wrong with:
+Ok I missed the lock page one. Yep.
 
-	default:
-		break;
-	
-instead? The ';' is hard to notice and, if people don't leave the
-"default:" at the end, then bad things could happen...
+Alan
 
--- 
-|| Bill Wendling			wendling@ganymede.isdn.uiuc.edu

@@ -1,57 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261771AbVDEPAw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261774AbVDEPCp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261771AbVDEPAw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 11:00:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261773AbVDEPAw
+	id S261774AbVDEPCp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 11:02:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261775AbVDEPCo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 11:00:52 -0400
-Received: from hades.almg.gov.br ([200.198.60.36]:40322 "EHLO
-	hades.almg.gov.br") by vger.kernel.org with ESMTP id S261771AbVDEPAl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 11:00:41 -0400
-Message-ID: <4252A821.9030506@almg.gov.br>
-Date: Tue, 05 Apr 2005 12:00:49 -0300
-From: Humberto Massa <humberto.massa@almg.gov.br>
-User-Agent: Mozilla Thunderbird 1.0+ (Windows/20050224)
+	Tue, 5 Apr 2005 11:02:44 -0400
+Received: from mail48-s.fg.online.no ([148.122.161.48]:26253 "EHLO
+	mail48-s.fg.online.no") by vger.kernel.org with ESMTP
+	id S261774AbVDEPBX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 11:01:23 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: Logitech MX1000 Horizontal Scrolling
+References: <873bxfoq7g.fsf@quasar.esben-stien.name>
+	<87zmylaenr.fsf@quasar.esben-stien.name>
+	<20050204195410.GA5279@ucw.cz>
+	<873bvyfsvs.fsf@quasar.esben-stien.name>
+	<87zmxil0g8.fsf@quasar.esben-stien.name>
+	<1110056942.16541.4.camel@localhost>
+	<87sm37vfre.fsf@quasar.esben-stien.name>
+	<87wtsjtii6.fsf@quasar.esben-stien.name>
+	<20050308205210.GA3986@ucw.cz> <1112083646.12986.3.camel@localhost>
+	<87psxcsq06.fsf@quasar.esben-stien.name> <87u0mn3l4e.fsf@blackdown.de>
+	<87acodvrw5.fsf@quasar.esben-stien.name>
+	<Pine.LNX.4.62.0504042347510.29842@angst.gnu-designs.com>
+From: Esben Stien <b0ef@esben-stien.name>
+X-Home-Page: http://www.esben-stien.name
+Date: Tue, 05 Apr 2005 16:58:36 +0200
+In-Reply-To: <Pine.LNX.4.62.0504042347510.29842@angst.gnu-designs.com> (David
+ A. Desrosiers's message of "Mon, 4 Apr 2005 23:48:57 -0400 (EDT)")
+Message-ID: <877jjhtgmb.fsf@quasar.esben-stien.name>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3.50 (gnu/linux)
 MIME-Version: 1.0
-To: debian-legal@lists.debian.org, debian-kernel@lists.debian.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: non-free firmware in kernel modules, aggregation and unclear
- 	copyright notice.
-References: <lLj-vC.A.92G.w4pUCB@murphy>
-In-Reply-To: <lLj-vC.A.92G.w4pUCB@murphy>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Josselin Mouette wrote:
+"David A. Desrosiers" <desrod@gnu-designs.com> writes:
 
->You are mixing apples and oranges. The fact that the GFDL sucks has
->nothing to do with the firmware issue. With the current situation of
->firmwares in the kernel, it is illegal to redistribute binary images of
->the kernel. Full stop. End of story. Bye bye. Redhat and SuSE may still
->be willing to distribute such binary images, but it isn't our problem.
->  
->
-Yes, GFDL has nothing to do with the main issue. No, it is not 
-necessarily illegal to redistribute binary images of the kernel as they 
-are today (see below). The first problem is that they (the complete 
-w/firmware kernel binary images) are not DFSG-free, anyway. The second 
-problem is that some firmware blobs don't have explicitly stated in the 
-kernel tree which exactly are their licensing terms for redistribution 
--- those are, in principle, undistributable.
+> Using these same instructions [..] doesn't work at all
 
->Putting the firmwares outside the kernel makes them distributable. Some
->distributions will want to include them, some others not. But the
->important point is that it makes that redistribution legal.
->  
->
-If putting the firmwares outside the kernel makes *them* distributable, 
-then the binary kernel image is already distributable -- just not 
-DFSG-free. The important fact WRT Debian, IMHO, is that putting the 
-firmwares outside the kernel makes the kernel binary image DFSG-free.
+This is too little information to work with. Please be more specific
+as to what you've done.
 
-HTH,
-Massa
-
+-- 
+Esben Stien is b0ef@esben-stien.name
+         http://www.
+          irc://irc.                /%23contact
+          [sip|iax]:
+           jid:b0ef@

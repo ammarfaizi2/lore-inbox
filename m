@@ -1,59 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262341AbTHaQW4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Aug 2003 12:22:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262420AbTHaQW4
+	id S262033AbTHaQWy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Aug 2003 12:22:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262347AbTHaQWy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Aug 2003 12:22:56 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:5321 "EHLO smtp.bitmover.com")
-	by vger.kernel.org with ESMTP id S262341AbTHaQWw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Aug 2003 12:22:52 -0400
-Date: Sun, 31 Aug 2003 09:22:43 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Larry McVoy <lm@bitmover.com>,
-       Pascal Schmidt <der.eremit@email.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: bandwidth for bkbits.net (good news)
-Message-ID: <20030831162243.GC18767@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Andrea Arcangeli <andrea@suse.de>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, Larry McVoy <lm@bitmover.com>,
-	Pascal Schmidt <der.eremit@email.de>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20030830230701.GA25845@work.bitmover.com> <Pine.LNX.4.44.0308310256420.16308-100000@neptune.local> <20030831013928.GN24409@dualathlon.random> <20030831025659.GA18767@work.bitmover.com> <1062335711.31351.44.camel@dhcp23.swansea.linux.org.uk> <20030831144505.GS24409@dualathlon.random> <1062343891.10323.12.camel@dhcp23.swansea.linux.org.uk> <20030831154450.GV24409@dualathlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030831154450.GV24409@dualathlon.random>
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
-	required 7, AWL, DATE_IN_PAST_06_12)
+	Sun, 31 Aug 2003 12:22:54 -0400
+Received: from rwcrmhc13.comcast.net ([204.127.198.39]:11418 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S262033AbTHaQWv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Aug 2003 12:22:51 -0400
+Date: Sun, 31 Aug 2003 12:22:08 -0400
+From: Chris Heath <chris@heathens.co.nz>
+To: Ralf.Hildebrandt@charite.de
+Subject: Re: Re:Re: Linux 2.6.0-test4
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: 20030830145900.GB6862@charite.de
+Message-Id: <20030831120605.08D6.CHRIS@heathens.co.nz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Becky! ver. 2.06.02
+X-Antirelay: Good relay from local net1 127.0.0.1/32
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 31, 2003 at 05:44:50PM +0200, Andrea Arcangeli wrote:
-> > It doesn't work when you dont control incoming. As a simple extreme
-> > example if I pingflood you from a fast site then no amount of shaping
-> > your end of the link will help, it has to be shaped at the ISP end.
+> Aug 27 18:53:41 hummus2 kernel: atkbd.c: Unknown key (set 2, scancode 0x9d, on isa0060/serio0) pressed.
+> Aug 27 19:15:14 hummus2 kernel: atkbd.c: Unknown key (set 2, scancode 0xb9, on isa0060/serio0) pressed.
+> Aug 27 19:42:50 hummus2 kernel: atkbd.c: Unknown key (set 2, scancode 0x9d, on isa0060/serio0) pressed.
+> Aug 28 10:14:14 hummus2 kernel: atkbd.c: Unknown key (set 2, scancode 0x9d, on isa0060/serio0) pressed.
 > 
-> sure, that's why I said it won't work with synflood. 
+> Basically, CTRL was stuck. Even when I switched to X11.
 
-Someone syncs w/ bkbits every 19 seconds 24x7.  We also run our web server
-here.   All traffic to from bitmover.com/bitkeeper.com/bkbits.net goes
-through that T1 line.
+Well, this completely baffles me.  I thought X11 maintains its own
+keydown array.
 
-You guys who are saying it can work are thinking (a) one connection of 
-long duration (think about all the web hits on bkbits.net, those are all
-short and new TCP connections) and (b) that a little settling time is OK.
+Anyway, I've included a patch that should hopefully give us better
+debugging information.  When you get an unknown key error, it will also
+dump the last 16 bytes that were sent from the keyboard.  Be careful
+with this one.  If you post any errors to the list, make sure it doesn't
+contain any sensitive passwords. :-)
 
-There is a reason that the phone networks don't work like IP networks.
-The bandwidth is allocated whether you use it or not and your phone works.
-Doing optimistic allocation and then backing off means that the phones
-don't work.
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+Chris
+
+
+--- a/drivers/input/serio/i8042.c	2003-08-09 11:58:10.000000000 -0400
++++ b/drivers/input/serio/i8042.c	2003-08-31 10:16:55.000000000 -0400
+@@ -62,6 +62,7 @@
+ static unsigned char i8042_last_release;
+ static unsigned char i8042_mux_open;
+ struct timer_list i8042_timer;
++unsigned char i8042_history[16];
+ 
+ /*
+  * Shared IRQ's require a device pointer, but this driver doesn't support
+@@ -334,6 +335,14 @@
+ static char i8042_mux_short[4][16];
+ static char i8042_mux_phys[4][32];
+ 
++void dump_i8042_history(void) {
++	int i;
++	printk(KERN_WARNING "i8042 history: ");
++	for (i=0; i<sizeof(i8042_history); i++)
++		printk("%02x ", i8042_history[i]);
++	printk("\n");
++}
++
+ /*
+  * i8042_interrupt() is the most important function in this driver -
+  * it handles the interrupts from the i8042, and sends incoming bytes
+@@ -405,6 +414,8 @@
+ 			continue;
+ 		}
+ 
++		memmove(i8042_history, &i8042_history[1], sizeof(i8042_history)-1);
++		i8042_history[sizeof(i8042_history)-1] = data;
+ 		if (data > 0x7f) {
+ 			unsigned char index = (data & 0x7f) | (i8042_last_e0 << 7);
+ 			/* work around hardware that doubles key releases */
+--- a/drivers/input/keyboard/atkbd.c	2003-06-22 18:45:06.000000000 -0400
++++ b/drivers/input/keyboard/atkbd.c	2003-08-31 10:11:51.000000000 -0400
+@@ -131,6 +131,7 @@
+  * atkbd_interrupt(). Here takes place processing of data received from
+  * the keyboard into events.
+  */
++void dump_i8042_history(void);
+ 
+ static irqreturn_t atkbd_interrupt(struct serio *serio, unsigned char data,
+ 			unsigned int flags, struct pt_regs *regs)
+@@ -193,6 +194,7 @@
+ 		case ATKBD_KEY_UNKNOWN:
+ 			printk(KERN_WARNING "atkbd.c: Unknown key (set %d, scancode %#x, on %s) %s.\n",
+ 				atkbd->set, code, serio->phys, atkbd->release ? "released" : "pressed");
++			dump_i8042_history();
+ 			break;
+ 		default:
+ 			input_regs(&atkbd->dev, regs);
+

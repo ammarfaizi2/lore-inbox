@@ -1,60 +1,132 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316715AbSE3PbZ>; Thu, 30 May 2002 11:31:25 -0400
+	id <S316728AbSE3Pd4>; Thu, 30 May 2002 11:33:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316751AbSE3PbZ>; Thu, 30 May 2002 11:31:25 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:16652 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S316715AbSE3PbX>; Thu, 30 May 2002 11:31:23 -0400
-Date: Thu, 30 May 2002 08:31:21 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <Andries.Brouwer@cwi.nl>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.18 IDE 73
-In-Reply-To: <3CF63535.6000907@evision-ventures.com>
-Message-ID: <Pine.LNX.4.44.0205300826100.877-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316751AbSE3Pdz>; Thu, 30 May 2002 11:33:55 -0400
+Received: from supreme.pcug.org.au ([203.10.76.34]:45280 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id <S316728AbSE3Pdx>;
+	Thu, 30 May 2002 11:33:53 -0400
+Date: Fri, 31 May 2002 01:33:36 +1000
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: torvalds@transmeta.com, trivial@rustcorp.com.au,
+        linux-kernel@vger.kernel.org, Mark Zealey <mark@zealos.org>
+Subject: Re: [PATCH] generic copy_siginfo_to_user cleanup
+Message-Id: <20020531013336.4056d2d0.sfr@canb.auug.org.au>
+In-Reply-To: <20020530154754.41f6595a.sfr@canb.auug.org.au>
+X-Mailer: Sylpheed version 0.7.6 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Linus,
 
-
-On Thu, 30 May 2002, Martin Dalecki wrote:
+On Thu, 30 May 2002 15:47:54 +1000 Stephen Rothwell <sfr@canb.auug.org.au> wrote:
 >
-> LAST WARNING:
->
-> Every body out there: watch out to use LABEL= in /etc/fstab or you will
-> not be able to reboot between 2.4 and 2.5 soon!
+> This patch does two things:
+> 	- makes copy_siginfo_to_user always return either 0 or
+> 		-EFAULT (as all its callers either expect or don't
+> 		care about).
+> 	- explicitly copies the correct union of the siginfo structure.
+> 
+> Compiles on i386.  Obviously correct :-)
 
-Absolutely not, Martin. We need to have people be able to upgrade easily,
-we're already scaring away too many people from this.
+Well, almost :-)
 
-> 1. Extract device registration from SCSI code.
->
-> 2. Let the ATA/ATAPI code hook up on it. (ide-cs is the most difficult one.)
->
-> 3. Let the old ATA/ATAPI major go down the bin...
+New patch, only difference is && changed to &.
 
-The minor/major numbers should stay the same, they are just "mappings".
-Device drivers shouldn't even care, and in fact we should aim for a setup
-where we have a new cleaned-up "disk major", but at the same time we
-should support the old major/minors so that people can easily use the same
-disk images across different kernel versions.
+-- 
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
 
-That should be fairly easy to do, by just making sure that we (a) remove
-the kdev_t from "struct request", (b) replace it with a controller and
-disk index and (c) make "open()" do some fairly trivial mapping and save
-that mapping in the "bdev", so that make_request() and friends can
-trivially just fill in the data.
-
-Voila, end of minor/major problems, and you can suddenly do things like
-show the _same_ device on many minor/major numbers (so that you can have
-it _both_ on a backwards-compatible place _and_ a new cleaned-up place).
-
-And the device drivers wouldn't ever even _know_ what device number the
-user saw on disk was.
-
-		Linus
-
+diff -ruN 2.5.19/kernel/signal.c 2.5.19-si.2/kernel/signal.c
+--- 2.5.19/kernel/signal.c	Thu May 30 09:44:39 2002
++++ 2.5.19-si.2/kernel/signal.c	Thu May 30 15:24:47 2002
+@@ -1043,37 +1043,58 @@
+ 
+ int copy_siginfo_to_user(siginfo_t *to, siginfo_t *from)
+ {
++	int err;
++
+ 	if (!access_ok (VERIFY_WRITE, to, sizeof(siginfo_t)))
+ 		return -EFAULT;
+ 	if (from->si_code < 0)
+-		return __copy_to_user(to, from, sizeof(siginfo_t));
+-	else {
+-		int err;
+-
+-		/* If you change siginfo_t structure, please be sure
+-		   this code is fixed accordingly.
+-		   It should never copy any pad contained in the structure
+-		   to avoid security leaks, but must copy the generic
+-		   3 ints plus the relevant union member.  */
+-		err = __put_user(from->si_signo, &to->si_signo);
+-		err |= __put_user(from->si_errno, &to->si_errno);
+-		err |= __put_user((short)from->si_code, &to->si_code);
+-		/* First 32bits of unions are always present.  */
++		return __copy_to_user(to, from, sizeof(siginfo_t))
++			? -EFAULT : 0;
++	/*
++	 * If you change siginfo_t structure, please be sure
++	 * this code is fixed accordingly.
++	 * It should never copy any pad contained in the structure
++	 * to avoid security leaks, but must copy the generic
++	 * 3 ints plus the relevant union member.
++	 */
++	err = __put_user(from->si_signo, &to->si_signo);
++	err |= __put_user(from->si_errno, &to->si_errno);
++	err |= __put_user((short)from->si_code, &to->si_code);
++	switch (from->si_code & __SI_MASK) {
++	case __SI_KILL:
++		err |= __put_user(from->si_pid, &to->si_pid);
++		err |= __put_user(from->si_uid, &to->si_uid);
++		break;
++	case __SI_TIMER:
++		err |= __put_user(from->si_timer1, &to->si_timer1);
++		err |= __put_user(from->si_timer2, &to->si_timer2);
++		break;
++	case __SI_POLL:
++		err |= __put_user(from->si_band, &to->si_band);
++		err |= __put_user(from->si_fd, &to->si_fd);
++		break;
++	case __SI_FAULT:
++		err |= __put_user(from->si_addr, &to->si_addr);
++		break;
++	case __SI_CHLD:
++		err |= __put_user(from->si_pid, &to->si_pid);
++		err |= __put_user(from->si_uid, &to->si_uid);
++		err |= __put_user(from->si_status, &to->si_status);
++		err |= __put_user(from->si_utime, &to->si_utime);
++		err |= __put_user(from->si_stime, &to->si_stime);
++		break;
++	case __SI_RT: /* This is not generated by the kernel as of now. */
++		err |= __put_user(from->si_pid, &to->si_pid);
++		err |= __put_user(from->si_uid, &to->si_uid);
++		err |= __put_user(from->si_int, &to->si_int);
++		err |= __put_user(from->si_ptr, &to->si_ptr);
++		break;
++	default: /* this is just in case for now ... */
+ 		err |= __put_user(from->si_pid, &to->si_pid);
+-		switch (from->si_code >> 16) {
+-		case __SI_FAULT >> 16:
+-			break;
+-		case __SI_CHLD >> 16:
+-			err |= __put_user(from->si_utime, &to->si_utime);
+-			err |= __put_user(from->si_stime, &to->si_stime);
+-			err |= __put_user(from->si_status, &to->si_status);
+-		default:
+-			err |= __put_user(from->si_uid, &to->si_uid);
+-			break;
+-		/* case __SI_RT: This is not generated by the kernel as of now.  */
+-		}
+-		return err;
++		err |= __put_user(from->si_uid, &to->si_uid);
++		break;
+ 	}
++	return err;
+ }
+ 
+ #endif

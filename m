@@ -1,39 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261344AbUKTJv6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261482AbUKTJ5p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261344AbUKTJv6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Nov 2004 04:51:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261482AbUKTJv6
+	id S261482AbUKTJ5p (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Nov 2004 04:57:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261490AbUKTJ5p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Nov 2004 04:51:58 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:19718 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261344AbUKTJvq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Nov 2004 04:51:46 -0500
-Date: Sat, 20 Nov 2004 09:51:36 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Michal Rokos <michal@rokos.info>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Patch 2.6] PCMCIA ds - Exclude uneeded code when ! CONFIG_PROC_FS
-Message-ID: <20041120095136.E7482@flint.arm.linux.org.uk>
-Mail-Followup-To: Michal Rokos <michal@rokos.info>,
-	linux-kernel@vger.kernel.org
-References: <200410151434.58571.michal@rokos.info>
+	Sat, 20 Nov 2004 04:57:45 -0500
+Received: from smtp-106-saturday.nerim.net ([62.4.16.106]:530 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S261482AbUKTJ5o
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Nov 2004 04:57:44 -0500
+Date: Sat, 20 Nov 2004 10:57:40 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: Justin Thiessen <jthiessen@penguincomputing.com>
+Cc: greg@kroah.com, sensors@Stimpy.netroedge.com, linux-kernel@vger.kernel.org
+Subject: Re: adm1026 driver port for kernel 2.6.10-rc2  [RE-REVISED DRIVER]
+Message-Id: <20041120105740.1a238842.khali@linux-fr.org>
+In-Reply-To: <20041118185612.GA20728@penguincomputing.com>
+References: <20041102221745.GB18020@penguincomputing.com>
+	<NN38qQl1.1099468908.1237810.khali@gcu.info>
+	<20041103164354.GB20465@penguincomputing.com>
+	<20041118185612.GA20728@penguincomputing.com>
+Reply-To: LM Sensors <sensors@stimpy.netroedge.com>
+X-Mailer: Sylpheed version 1.0.0beta3 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200410151434.58571.michal@rokos.info>; from michal@rokos.info on Fri, Oct 15, 2004 at 02:34:58PM +0200
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 15, 2004 at 02:34:58PM +0200, Michal Rokos wrote:
-> just a oneliner to remove unneeded definition that is done below in the 
-> code anyway.
+Hi Justin,
 
-Applied, thanks.
+> Ok, let's try this (yet) again:
+
+I'm sorry to insist be we really want this as a patch against
+2.6.10-rc2. That's what Greg needs. As said earlier, the patch would
+include the new adm1026.c file (obviously) as well as the necessary
+changes to Kconfig and Makefile.
+
+Other than that I'm fine with the code itself.
+
+Thanks.
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+Jean Delvare
+http://khali.linux-fr.org/

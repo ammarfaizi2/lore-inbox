@@ -1,67 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264519AbUFEDfJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265995AbUFEDtD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264519AbUFEDfJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 23:35:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265972AbUFEDfJ
+	id S265995AbUFEDtD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 23:49:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265972AbUFEDtD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 23:35:09 -0400
-Received: from ozlabs.org ([203.10.76.45]:12673 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S264519AbUFEDe6 (ORCPT
+	Fri, 4 Jun 2004 23:49:03 -0400
+Received: from palrel12.hp.com ([156.153.255.237]:30884 "EHLO palrel12.hp.com")
+	by vger.kernel.org with ESMTP id S264524AbUFEDs7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 23:34:58 -0400
+	Fri, 4 Jun 2004 23:48:59 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <16577.16335.438208.835040@cargo.ozlabs.ibm.com>
-Date: Sat, 5 Jun 2004 13:36:47 +1000
-From: Paul Mackerras <paulus@samba.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Colin Leroy <colin@colino.net>, Michel <daenzer@debian.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.7-rc2: no more AGP?
-In-Reply-To: <1086365839.12665.0.camel@gaston>
-References: <20040604174818.03a4f795@jack.colino.net>
-	<1086365839.12665.0.camel@gaston>
+Message-ID: <16577.17064.857172.598873@napali.hpl.hp.com>
+Date: Fri, 4 Jun 2004 20:48:56 -0700
+To: Greg KH <greg@kroah.com>
+Cc: davidm@hpl.hp.com, Michael_E_Brown@dell.com, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org
+Subject: Re: EFI-support for SMBIOS driver
+In-Reply-To: <20040605032902.GA7069@kroah.com>
+References: <16577.6469.833064.763671@napali.hpl.hp.com>
+	<20040605032902.GA7069@kroah.com>
 X-Mailer: VM 7.18 under Emacs 21.3.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Herrenschmidt writes:
+>>>>> On Fri, 4 Jun 2004 20:29:02 -0700, Greg KH <greg@kroah.com> said:
 
-> On Fri, 2004-06-04 at 10:48, Colin Leroy wrote:
-> > Hi,
-> > 
-> > just a lousy bugreport... I noticed that agpgart doesn't work anymore on
-> > 2.6.7-rc2. Xorg reports that AGP isn't supported, and dmesg doesn't show
-> > the
-> > agpgart: Putting AGP V2 device at 0000:00:0b.0 into 4x mode
-> > agpgart: Putting AGP V2 device at 0000:00:10.0 into 4x mode
-> > 
-> > It only shows
-> > Linux agpgart interface v0.100 (c) Dave Jones
-> > agpgart: Detected Apple UniNorth 2 chipset
-> > agpgart: Maximum main memory to use for agp memory: 565M
-> > agpgart: configuring for size idx: 4
-> > agpgart: AGP aperture is 16M @ 0x0
-> 
-> Right, something seems broken. I'm also having problems with USB
-> sleep & wakeup and with cpufreq. Argh, I've been away from ppc32 for
-> too long !
+  Greg> On Fri, Jun 04, 2004 at 05:52:21PM -0700, David Mosberger
+  Greg> wrote:
 
-You need this patch.  Michel Daenzer tells me that the
-cant_use_aperture check isn't needed.
+  >> The patch below adds EFI support to the SMBIOS driver.
 
-Paul.
+  Greg> The smbios driver is gone in 2.6.7-rc.  You don't need a
+  Greg> driver for this, as you can do everything from userspace.
 
-diff -urN linux-2.5/drivers/char/drm/drm_agpsupport.h pmac-2.5/drivers/char/drm/drm_agpsupport.h
---- linux-2.5/drivers/char/drm/drm_agpsupport.h	2004-05-11 13:19:51.000000000 +1000
-+++ pmac-2.5/drivers/char/drm/drm_agpsupport.h	2004-05-28 22:21:33.000000000 +1000
-@@ -109,8 +109,6 @@
- 		return -EBUSY;
- 	if (!drm_agp->acquire)
- 		return -EINVAL;
--	if ( dev->agp->cant_use_aperture )
--		return -EINVAL;
- 	if ((retcode = drm_agp->acquire()))
- 		return retcode;
- 	dev->agp->acquired = 1;
+I know full well that it can be done in user-level --- via /dev/mem,
+which lots of people dislike.  I certainly don't feel strongly about
+it, but the SMBIOS driver made sense to me.
+
+	--david

@@ -1,47 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129282AbRBTVEB>; Tue, 20 Feb 2001 16:04:01 -0500
+	id <S130532AbRBTVGb>; Tue, 20 Feb 2001 16:06:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129791AbRBTVDv>; Tue, 20 Feb 2001 16:03:51 -0500
-Received: from ns2.cypress.com ([157.95.67.5]:13552 "EHLO ns2.cypress.com")
-	by vger.kernel.org with ESMTP id <S129282AbRBTVDj>;
-	Tue, 20 Feb 2001 16:03:39 -0500
-Message-ID: <3A92DB9F.28DF79F1@cypress.com>
-Date: Tue, 20 Feb 2001 15:03:27 -0600
-From: Thomas Dodd <ted@cypress.com>
-Organization: Cypress Semiconductor Southeast Design Center
-X-Mailer: Mozilla 4.76 [en] (X11; U; SunOS 5.8 sun4u)
-X-Accept-Language: en-US, en-GB, en, de-DE, de-AT, de-CH, de, zh-TW, zh-CN, zh
+	id <S130136AbRBTVGV>; Tue, 20 Feb 2001 16:06:21 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:12038 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129791AbRBTVGR>; Tue, 20 Feb 2001 16:06:17 -0500
+Subject: Re: [beta patch] SSE copy_page() / clear_page()
+To: pavel@suse.cz (Pavel Machek)
+Date: Tue, 20 Feb 2001 21:08:13 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), pavel@suse.cz (Pavel Machek),
+        manfred@colorfullife.com (Manfred Spraul),
+        torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org
+In-Reply-To: <20010220215216.C17159@atrey.karlin.mff.cuni.cz> from "Pavel Machek" at Feb 20, 2001 09:52:16 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Re: kernel/printk.c: increasing the buffer size to capture 
- devfsd debug messages.
-In-Reply-To: <3A92A99E.2F255CB3@yk.rim.or.jp> <20010220111542.A4106@tenchi.datarithm.net> <3A92C76C.6519DF1A@cypress.com> <20010220121727.B4106@tenchi.datarithm.net> <3A92D930.6F11B505@cypress.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E14VK1A-0000hh-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Dodd wrote:
+> > Does the prefetch instruction fault on PIII/PIV then - the K7 one appears not
+> > to be a source of faults
 > 
-> Robert Read wrote:
-> >
-> > Ok, here is a simple patch to add a config option, I'm compiling it
-> > now, so it's not tested yet.  One question: what is the best way to
-> > force this option to be a power of 2?
-> 
-> Why not just make the config option in Kbytes.
-> and do:
-> 
-> #define LOG_BUF_LEN (CONFIG_PRINTK_BUF_LEN * 1024)
-> 
-> since the config option has a default option and will
-> always be defined, is the #ifdef check really needed?
+> My fault. I was told that prefetch instructions are always
+> non-faulting.
 
-Oops...
-
-It's not needed if all arch's have the config option added.
-Only parisc uses a different file, config.common instead of config.in
-Would this break any thing?
-
-	-Thomas
+I also thought it was non faulting

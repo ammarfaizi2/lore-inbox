@@ -1,54 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263584AbTE1Fi5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 01:38:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264537AbTE1Fi5
+	id S264535AbTE1Fnr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 01:43:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264537AbTE1Fnr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 01:38:57 -0400
-Received: from holomorphy.com ([66.224.33.161]:10477 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S263584AbTE1Fi4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 01:38:56 -0400
-Date: Tue, 27 May 2003 22:52:01 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: Ivan Gyurdiev <ivg2@cornell.edu>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: kernel BUG at include/linux/blkdev (2.5.70)
-Message-ID: <20030528055201.GT8978@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Zwane Mwaikambo <zwane@linuxpower.ca>,
-	Ivan Gyurdiev <ivg2@cornell.edu>,
-	LKML <linux-kernel@vger.kernel.org>
-References: <200305272323.29063.ivg2@cornell.edu> <20030528052934.GS8978@holomorphy.com> <Pine.LNX.4.50.0305280130160.15323-100000@montezuma.mastecende.com>
+	Wed, 28 May 2003 01:43:47 -0400
+Received: from opus.cs.columbia.edu ([128.59.20.100]:39391 "EHLO
+	opus.cs.columbia.edu") by vger.kernel.org with ESMTP
+	id S264535AbTE1Fnq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 May 2003 01:43:46 -0400
+Subject: Re: permission() operating on inode instead of dentry?
+From: Shaya Potter <spotter@cs.columbia.edu>
+To: viro@parcelfarce.linux.theplanet.co.uk
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20030528054804.GF27916@parcelfarce.linux.theplanet.co.uk>
+References: <1054099180.6942.71.camel@zaphod>
+	 <20030528054804.GF27916@parcelfarce.linux.theplanet.co.uk>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1054101380.7005.113.camel@zaphod>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.50.0305280130160.15323-100000@montezuma.mastecende.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 28 May 2003 01:56:20 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 27, 2003 at 11:23:29PM -0400, Ivan Gyurdiev wrote:
->>> Out of nowhere on mozilla open (after it worked fine all afternoon):
->>> ------------[ cut here ]------------
->>> kernel BUG at include/linux/blkdev.h:408!
->>> invalid operand: 0000 [#1]
->>> CPU:    0
->>> EIP:    0060:[<c02322be>]    Tainted: P  
->>> EFLAGS: 00010046
->>> EIP is at blk_queue_start_tag+0x8e/0x100
+I'm going to assume this mean "it's a reasonable idea, all that matters
+is the execution"
 
-On Tue, 27 May 2003, William Lee Irwin III wrote:
->> This appears to be tainted by a proprietary module. Please reproduce
->> without it or forward the bugreport to the originator of the module.
+On Wed, 2003-05-28 at 01:48, viro@parcelfarce.linux.theplanet.co.uk
+wrote:
+> On Wed, May 28, 2003 at 01:19:40AM -0400, Shaya Potter wrote:
+> > [please cc: responses to me, have 10k message backlog in l-k folder)
+> > 
+> > Is there a good reason why the fs permission function operates on the
+> > inode instead of the dentry? It would seem if the dentry was passed into
+> > the function instead of the inode, one would have a better structure to
+> > play with, such as being able to use d_put() to get the real path name. 
+> > The inode is still readily accessible from the dentry.
+> 
+> man grep.
+> 
+> Then use the resulting knowledge to find the callers of said function in
+> the tree.
+> 
+> Then think where you would get dentry (and vfsmount, since you want path)
+> for each of these.  Exclude ones that have them available.  See which
+> functions contain the rest of calls.
 
-On Wed, May 28, 2003 at 01:38:35AM -0400, Zwane Mwaikambo wrote:
-> Looks valid;
-> We tried to remove the previous request.. but there was none. The BUG 
-> check looks odd (what happens to the first tag?)
+Why would the calling process not be the right place?  Everything should
+have a calling process, or am I missing something?
 
-Okay, I'll back off and let someone with a remote clue of what's going
-on in ll_rw_blk.c take over.
+<snipped how to get it done>
 
--- wli
+thanks,
+
+shaya
+

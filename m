@@ -1,33 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136082AbREBXXm>; Wed, 2 May 2001 19:23:42 -0400
+	id <S136088AbREBXo7>; Wed, 2 May 2001 19:44:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136088AbREBXXd>; Wed, 2 May 2001 19:23:33 -0400
-Received: from ppp0.ocs.com.au ([203.34.97.3]:21255 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S136082AbREBXXU>;
-	Wed, 2 May 2001 19:23:20 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: joe.mathewson@btinternet.com
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Logging kernel oops 
-In-Reply-To: Your message of "Wed, 02 May 2001 20:57:16 +0100."
-             <200105021957.f42JvH511805@localhost.localdomain> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 03 May 2001 09:23:12 +1000
-Message-ID: <5151.988845792@ocs3.ocs-net>
+	id <S136092AbREBXos>; Wed, 2 May 2001 19:44:48 -0400
+Received: from oboe.it.uc3m.es ([163.117.139.101]:21510 "EHLO oboe.it.uc3m.es")
+	by vger.kernel.org with ESMTP id <S136088AbREBXol>;
+	Wed, 2 May 2001 19:44:41 -0400
+From: "Peter T. Breuer" <ptb@it.uc3m.es>
+Message-Id: <200105022344.f42NiZ727894@oboe.it.uc3m.es>
+Subject: Re: [OT] Interrupting select
+To: "linux kernel" <linux-kernel@vger.kernel.org>
+Date: Thu, 3 May 2001 01:44:35 +0200 (MET DST)
+X-Anonymously-To: 
+Reply-To: ptb@it.uc3m.es
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 02 May 2001 20:57:16 +0100, 
-"Joseph Mathewson" <joe@mathewson.co.uk> wrote:
->What is the preferred what of getting debugging information from a kernel
->oops?  Is my only way connecting a monitor and getting a pencil and paper? 
->Is there any conceivable way I can get some useful debugging information
->(on reset) without plugging in a keyboard/monitor?
+"Mark Hahn wrote:"
+> >              while (1) {
+> >                  int res = select(n,rfds,wfds,efds,&timeout);
+> >                  if (res > 0)
+> >                     return res;    // data or error is expected
+> >                  if (res == 0) {
+> >                     return -ETIME; // timeo in select
+> >                  }
+> >              }
+> > 
+> > A resounding "no". kill -9 hurts it but it's invulnerable to everything
+> > else.
+> 
+> um, shouldn't you be testing for res==-1, as well?
+> specifically that condition and errno==EINTR is how I'd expect
+> signals to effect the loop...
 
-Add a serial console (linux/Documentation/serial-console.txt) and
-install the kernel debugger of your choice.  kdb is good ;)
-http://oss.sgi.com/projects/kdb/download
+Possibly .. if so that's the answer. But the man page doesn't say so:
+
+          tained in the descriptor sets, which may be zero if the
+          timeout expires before anything interesting happens.  On
+          error, -1 is returned, and errno is set appropriately;
+
+I assumed that "error" is something like trying to  watch for a
+negative number or zero descriptors, or having a fd_set that doesn't
+contain open fd's. The reason I assumed that is because EINTR is not
+listed as a possible:
+
+    
+ERRORS
+       EBADF   An invalid file descriptor was given in one of the
+               sets.
+       EINTR   A non blocked signal was caught.
+       EINVAL  n is negative.
+       ENOMEM  select was unable to allocate memory for  internal
+               tables.
+
+But I'm willing to give it a try! Thanks!
+
+Now back to your regularly scheduled programs ...
+
+Peter
 

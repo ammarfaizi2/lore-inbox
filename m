@@ -1,36 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129584AbRAaD1i>; Tue, 30 Jan 2001 22:27:38 -0500
+	id <S129742AbRAaDet>; Tue, 30 Jan 2001 22:34:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129742AbRAaD13>; Tue, 30 Jan 2001 22:27:29 -0500
-Received: from odin.sinectis.com.ar ([216.244.192.158]:8461 "EHLO
-	mail.sinectis.com.ar") by vger.kernel.org with ESMTP
-	id <S129584AbRAaD10>; Tue, 30 Jan 2001 22:27:26 -0500
-Date: Wed, 31 Jan 2001 00:27:27 -0300
-From: John R Lenton <john@grulic.org.ar>
-To: Linux-Kernel ML <linux-kernel@vger.kernel.org>
-Subject: Re: Disk is cheap?
-Message-ID: <20010131002727.G3439@grulic.org.ar>
-Mail-Followup-To: Linux-Kernel ML <linux-kernel@vger.kernel.org>
-In-Reply-To: <00fc01c08aee$e6c28090$0100a8c0@homeip.net>
+	id <S130107AbRAaDek>; Tue, 30 Jan 2001 22:34:40 -0500
+Received: from mnh-1-13.mv.com ([207.22.10.45]:60430 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S129742AbRAaDe1>;
+	Tue, 30 Jan 2001 22:34:27 -0500
+Message-Id: <200101310444.XAA04925@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: user-mode-linux-user@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: user-mode port 0.38-2.4.1
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <00fc01c08aee$e6c28090$0100a8c0@homeip.net>; from eccesys@topmail.de on Tue, Jan 30, 2001 at 06:58:22PM -0000
+Date: Tue, 30 Jan 2001 23:44:37 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 30, 2001 at 06:58:22PM -0000, mirabilos wrote:
-> I accept donations in IDE and SCSI, as well as parport devices.
+The user-mode port of 2.4.1 is available.
 
-I have a parport device (one of the few things left from my XT).
-I can send it to you if you pay shipping.
+I added support for attaching file descriptors and pts devices to UML serial 
+lines and consoles, plus specifying input and output channels separately.  
+'no-xterm' can now be duplicated with 'con0=fd:0,fd:1 con=pty'.
 
--- 
-John Lenton (john@grulic.org.ar) -- Random fortune:
-Saints should always be judged guilty until they are proven innocent.
-- George Orwell
+There is now page dirty and access bit support.
+
+Fixed various bugs - gdb is now told where the binary really is, rather than 
+assuming that it is ./linux, kreiserfsd now exits correctly, rather than 
+hanging the system when it returns, and a recursively segfaulting process no 
+longer crashes the system.
+
+Several more symbols were exported.
+
+The project's home page is http://user-mode-linux.sourceforge.net
+
+Downloads are available at http://sourceforge.net/project/filelist.php?group_id
+=429 and ftp://ftp.nl.linux.org/pub/uml/
+
+				Jeff
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,50 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266186AbSKLEHC>; Mon, 11 Nov 2002 23:07:02 -0500
+	id <S266203AbSKLEJX>; Mon, 11 Nov 2002 23:09:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266191AbSKLEHC>; Mon, 11 Nov 2002 23:07:02 -0500
-Received: from packet.digeo.com ([12.110.80.53]:19706 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S266186AbSKLEHB>;
-	Mon, 11 Nov 2002 23:07:01 -0500
-Message-ID: <3DD07FF4.2E1BC593@digeo.com>
-Date: Mon, 11 Nov 2002 20:13:40 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
-X-Accept-Language: en
+	id <S266210AbSKLEJX>; Mon, 11 Nov 2002 23:09:23 -0500
+Received: from fmr01.intel.com ([192.55.52.18]:11226 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id <S266203AbSKLEJV>;
+	Mon, 11 Nov 2002 23:09:21 -0500
+Message-ID: <A46BBDB345A7D5118EC90002A5072C7806CAC920@orsmsx116.jf.intel.com>
+From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+To: "'Jamie Lokier'" <lk@tantalophile.demon.co.uk>,
+       Rusty Russell <rusty@rustcorp.com.au>
+Cc: "'mingo@redhat.com'" <mingo@redhat.com>,
+       "'Mark Mielke'" <mark@mark.mielke.cc>, linux-kernel@vger.kernel.org
+Subject: RE: Users locking memory using futexes
+Date: Mon, 11 Nov 2002 20:16:08 -0800
 MIME-Version: 1.0
-To: Andrew McGregor <andrew@indranet.co.nz>, jt@hpl.hp.com,
-       Thomas Molina <tmolina@cox.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [BUG] Oopsen with pcmcia aironet wireless (2.5.47)
-References: <5860000.1037069226@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 12 Nov 2002 04:13:43.0389 (UTC) FILETIME=[E35C90D0:01C28A01]
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew McGregor wrote:
+
+> Perez-Gonzalez, Inaky wrote:
+> > [...] each time you lock a futex you are pinning the containing page
+> > into physical memory, that would cause that if you have, for
+> > example, 4000 futexes locked in 4000 different pages, there is going
+> > to be 4 MB of memory locked in [...]
 > 
-> I see lots of oopsen when I insert an Aironet PC4800 802.11 card.
+> Ouch!  It looks to me like userspace can use FUTEX_FD to lock many
+> pages of memory, achieving the same as mlock() but without the
+> resource checks.
 
-They are debug warnings, not oopses.
+This raises a good point - I guess we should be doing something like
+checking user limits (against locked memory, 'ulimit -l'). Something along
+the lines of this [warning, dirty-fastly-scratched-draft, untested]:
 
-> ...
-> Nov 12 15:40:39 localhost kernel: end_request: I/O error, dev hdb, sector 0
-> Nov 12 15:40:39 localhost last message repeated 3 times
-> Nov 12 15:40:39 localhost kernel: end_request: I/O error, dev hdc, sector 0
-> Nov 12 15:40:39 localhost last message repeated 2 times
+diff -u futex.c.orig futex.c
+--- futex.c.orig	2002-11-11 20:06:22.000000000 -0800
++++ futex.c	2002-11-11 20:08:48.000000000 -0800
+@@ -261,8 +261,12 @@
+ 	struct page *page;
+ 	struct futex_q q;
+ 
++	if (current->mm->total_vm + 1 >
++            (current->rlim[RLIMIT_MEMLOCK].rlim_cur >> PAGE_SHIFT))
++          return -ENOMEM;
++        
+ 	init_waitqueue_head(&q.waiters);
+-
++        
+ 	lock_futex_mm();
+ 
+ 	page = __pin_page(uaddr - offset);
+@@ -358,6 +362,11 @@
+ 	if (signal < 0 || signal > _NSIG)
+ 		goto out;
+ 
++	ret = -ENOMEM;
++        if (current->mm->total_vm + 1 >
++            (current->rlim[RLIMIT_MEMLOCK].rlim_cur >> PAGE_SHIFT))
++          goto out;
++        
+ 	ret = get_unused_fd();
+ 	if (ret < 0)
+ 		goto out;
 
-hm.  IDE sick?
+However, we could break the semantics of other programs that expect that the
+amount of memory they lock is the only one that is used in the rlimit ... 
 
-> Nov 12 15:40:39 localhost kernel: Debug: sleeping function called from
-> illegal context at include/asm/semaphore.h:145
-> Nov 12 15:40:39 localhost kernel: Call Trace:
-> Nov 12 15:40:39 localhost kernel:  [<e1a59215>] PC4500_readrid+0x55/0x160
+What else could be done?
 
-airo_get_stats is called under the read_lock(&dev_base_lock); which was
-taken in dev_get_info.  So it may not call sleeping functions (ie:
-down_interruptible()).
+Inaky Perez-Gonzalez -- Not speaking for Intel - opinions are my own [or my
+fault]
 
-It would appear that no netdevice->get_stats() method is allowed to sleep,
-which seems pretty dumb, IMVHO.

@@ -1,79 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265097AbUFXVM6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265681AbUFXVRR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265097AbUFXVM6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jun 2004 17:12:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265760AbUFXVMS
+	id S265681AbUFXVRR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jun 2004 17:17:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265654AbUFXVRR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jun 2004 17:12:18 -0400
-Received: from washoe.rutgers.edu ([165.230.95.67]:53463 "EHLO
-	washoe.rutgers.edu") by vger.kernel.org with ESMTP id S265837AbUFXVJw
+	Thu, 24 Jun 2004 17:17:17 -0400
+Received: from coyote.holtmann.net ([217.160.111.169]:39649 "EHLO
+	mail.holtmann.net") by vger.kernel.org with ESMTP id S265681AbUFXVQy
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jun 2004 17:09:52 -0400
-Date: Thu, 24 Jun 2004 17:09:47 -0400
-From: Yaroslav Halchenko <yoh@psychology.rutgers.edu>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: alienware hardware
-Message-ID: <20040624210947.GV728@washoe.rutgers.edu>
-Mail-Followup-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-	linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <20040624191026.GP728@washoe.rutgers.edu> <200406242315.56213.vda@port.imtp.ilyichevsk.odessa.ua> <20040624202626.GS728@washoe.rutgers.edu> <200406242358.55782.vda@port.imtp.ilyichevsk.odessa.ua>
+	Thu, 24 Jun 2004 17:16:54 -0400
+Subject: Oops with 2.6.7-bk
+From: Marcel Holtmann <marcel@holtmann.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1088111809.4160.1.camel@pegasus>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200406242358.55782.vda@port.imtp.ilyichevsk.odessa.ua>
-X-Image-Url: http://www.onerussian.com/img/yoh.png
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 24 Jun 2004 23:16:49 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-it is seems to be more general problem, because it slows down not only
-dpkg process - booting on 2.4.26 kernel takes about 5 minutes to
-complete and of cause no dpkg is involved in that process.
+Hi,
 
-I took dpkg as just single example, I don't what to try else on...
-bogomips reports about 50% of what is in /proc/cpuinfo, so it looks
-normal... I'm suspecting IDE, so it looks like when app has to work with
-HDD then it slows down although HDD bulb doesn't report an activity....
-but I might be wrong. btw - I will put hdparm as well on the
-webpage
+I got this oops on boot with the latest Bitkeeper snapshot of 2.6.7
 
-We are about to setup X on that beast and I will try may be some other
-programs... suggestions?
+NET: Registered protocol family 23
+cs: IO port probe 0x0100-0x04ff: excluding 0x378-0x37f 0x4d0-0x4d7
+cs: IO port probe 0x0800-0x08ff: clean.
+cs: IO port probe 0x0c00-0x0cff: clean.
+cs: IO port probe 0x0a00-0x0aff: clean.
+Unable to handle kernel paging request at virtual address e012fa84
+ printing eip:
+c015052f
+*pde = 00000000
+Oops: 0002 [#1]
+Modules linked in: ds irda binfmt_misc yenta_socket pcmcia_core ehci_hcd ohci_hcd 8250_pci 8250 serial_core snd_intel8x0 snd_ac97_codec snd_pcm_oss snd_mi
+xer_oss snd_pcm snd_timer snd_page_alloc snd_mpu401_uart snd_rawmidi snd soundcore hci_usb bluetooth usbhid uhci_hcd usbcore intel_agp agpgart evdev nls_i
+so8859_1 nls_cp437 vfat fat eth1394 st w83781d i2c_sensor i2c_i801 i2c_core ohci1394 ieee1394 sd_mod aic7xxx scsi_mod e100 mii unix
+CPU:    0
+EIP:    0060:[<c015052f>]    Not tainted
+EFLAGS: 00010297   (2.6.7) 
+EIP is at page_follow_link_light+0x2b/0x3b
+eax: c0157ed4   ebx: dfbcff14   ecx: 00000017   edx: dc466000
+esi: dc9445c8   edi: dfbcff14   ebp: 00000017   esp: dfbcfef0
+ds: 007b   es: 007b   ss: 0068
+Process tar (pid: 3346, threadinfo=dfbce000 task=dfb948c0)
+Stack: dc9445c8 dfbcfef8 c1388cc0 00000000 c015022b dc9445c8 dfbcff14 dc9445c8 
+       b96990f5 df5fd005 00000012 dffd5200 de3173cc 40db43b2 3ad56960 de317408 
+       c0157ed4 de3173cc 00000001 dfbcff40 40db43b2 3ad56960 40db43b2 3ad56960 
+Call Trace:
+ [<c015022b>] generic_readlink+0x2a/0x84
+ [<c0157ed4>] update_atime+0xd0/0xd5
+ [<c0149f39>] sys_readlink+0xb1/0xb5
+ [<c0103be3>] syscall_call+0x7/0xb
+Code: 89 54 83 20 31 d2 89 d0 8b 5c 24 0c 83 c4 10 c3 83 ec 0c 89 
 
---
-Yarik
+Regards
 
+Marcel
 
-On Thu, Jun 24, 2004 at 11:58:55PM +0300, Denis Vlasenko wrote:
-> On Thursday 24 June 2004 23:26, Yaroslav Halchenko wrote:
-> > please have a look at
-> > http://www.onerussian.com/Linux/bugs/alien/topout
-
-> > which has 4 runs of top in it
-
-
-> > Also I put more relevant information in
-> > http://www.onerussian.com/Linux/bugs/alien/
-
-> > Spasibki Zaranee
-
->   PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM   TIME COMMAND [K [0m
->  1501 root      25   0 25072  17M 13612 R    67.5  1.7   1:03 dpkg [K
->  1509 root      19   0  2060 1016  1852 R    25.8  0.0   0:00 top [K
-
-> So, dpkg is misbehaving. Not a kernel problem.
-
-> Do a
-
-> # strace -p 1501
-
-> and you'll se what's going on
--- 
-                                                  Yaroslav Halchenko
-                  Research Assistant, Psychology Department, Rutgers
-          Office  (973) 353-5440 x263
-   Ph.D. Student  CS Dept. NJIT
-             Key  http://www.onerussian.com/gpg-yoh.asc
- GPG fingerprint  3BB6 E124 0643 A615 6F00  6854 8D11 4563 75C0 24C8
 

@@ -1,48 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261327AbVDDSj2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261325AbVDDSjR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261327AbVDDSj2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 14:39:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261326AbVDDSjW
+	id S261325AbVDDSjR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 14:39:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261326AbVDDSjQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 14:39:22 -0400
-Received: from stat16.steeleye.com ([209.192.50.48]:35298 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S261327AbVDDSjP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Apr 2005 14:39:15 -0400
-Subject: Re: [PATCH scsi-misc-2.6 08/13] scsi: move request preps in other
-	places into prep_fn()
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Tejun Heo <htejun@gmail.com>
-Cc: Jens Axboe <axboe@suse.de>, SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050401052542.GG11318@htj.dyndns.org>
-References: <20050331090647.FEDC3964@htj.dyndns.org>
-	 <20050331090647.94FFEC1E@htj.dyndns.org>
-	 <1112292464.5619.30.camel@mulgrave> <20050401052542.GG11318@htj.dyndns.org>
-Content-Type: text/plain
-Date: Mon, 04 Apr 2005 13:39:04 -0500
-Message-Id: <1112639944.5813.66.camel@mulgrave>
+	Mon, 4 Apr 2005 14:39:16 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:44245 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261325AbVDDSjN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Apr 2005 14:39:13 -0400
+Date: Mon, 4 Apr 2005 19:39:09 +0100
+From: Matthew Wilcox <matthew@wil.cx>
+To: Greg KH <greg@kroah.com>
+Cc: Sven Luther <sven.luther@wanadoo.fr>, Michael Poole <mdpoole@troilus.org>,
+       debian-legal@lists.debian.org, debian-kernel@lists.debian.org,
+       linux-kernel@vger.kernel.org, Jes Sorensen <jes@trained-monkey.org>,
+       linux-acenic@sunsite.dk
+Subject: Re: non-free firmware in kernel modules, aggregation and unclear copyright notice.
+Message-ID: <20050404183909.GI18349@parcelfarce.linux.theplanet.co.uk>
+References: <20050404100929.GA23921@pegasos> <87ekdq1xlp.fsf@sanosuke.troilus.org> <20050404141647.GA28649@pegasos> <20050404175130.GA11257@kroah.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-2) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050404175130.GA11257@kroah.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-04-01 at 14:25 +0900, Tejun Heo wrote:
->  Ah.. with later requeue path consolidation patches, all requests get
-> their sense buffer cleared during requeueing, which, IMHO, is more
-> logical.  Moving scsi_init_cmd_errh() should come after the patch.
-> Sorry. :-)
-> 
->  I'll make another take of this patchset (maybe subset) after issues
-> are resolved.  I'll split and reorder relocation of scsi_init_cmd_errh
-> then.
+On Mon, Apr 04, 2005 at 10:51:30AM -0700, Greg KH wrote:
+> Then let's see some acts.  We (lkml) are not the ones with the percieved
+> problem, or the ones discussing it.
 
-Thanks.  It would help me enormously if you explained what bugs you were
-fixing at the top of each patch, and also only do patchsets that are
-dependent on each other (I already have your serial_numer_at_timeout and
-internal_timeout removal patches in the scsi-misc-2.6 tree).
+Actually, there are some legitimate problems with some of the files in
+the Linux source base.  Last time this came up, the Acenic firmware was
+mentioned:
 
-James
+http://lists.debian.org/debian-legal/2004/12/msg00078.html
 
+Seems to me that situation is still not resolved.
 
+-- 
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

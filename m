@@ -1,47 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262918AbUCWXWt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Mar 2004 18:22:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262919AbUCWXWt
+	id S262905AbUCWXXY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Mar 2004 18:23:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262910AbUCWXXX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Mar 2004 18:22:49 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:47783 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262918AbUCWXWo (ORCPT
+	Tue, 23 Mar 2004 18:23:23 -0500
+Received: from havoc.gtf.org ([216.162.42.101]:37532 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S262905AbUCWXXU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Mar 2004 18:22:44 -0500
-Date: Tue, 23 Mar 2004 18:22:25 -0500 (EST)
-From: Ingo Molnar <mingo@redhat.com>
-X-X-Sender: mingo@devserv.devel.redhat.com
-To: Kurt Garloff <garloff@suse.de>
-cc: Linux kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Non-Exec stack patches
-In-Reply-To: <20040323231256.GP4677@tpkurt.garloff.de>
-Message-ID: <Pine.LNX.4.58.0403231820420.320@devserv.devel.redhat.com>
-References: <20040323231256.GP4677@tpkurt.garloff.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 23 Mar 2004 18:23:20 -0500
+Date: Tue, 23 Mar 2004 18:23:19 -0500
+From: David Eger <eger@havoc.gtf.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Patch postscript - UTF-8ifying the kernel sources..
+Message-ID: <20040323232319.GF25510@havoc.gtf.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Wed, 24 Mar 2004, Kurt Garloff wrote:
+I'm not sure how much faith I have that those patches got to the mailing
+list in one piece, as they're specifically not 7-bit clean...
 
-> find attached a patch to parse the elf binaries for a PT_GNU_STACK
-> section to set the stack non-executable if possible.
-> Most parts have been shamelessly stolen from Ingo Molnar's more
-> ambitious stackshield
-> http://people.redhat.com/mingo/exec-shield/exec-shield-2.6.4-C9
-> 
-> The toolchain has meainwhile support for marking the binaries with a
-> PT_GNU_STACK section with ot without x bit as needed.
-> 
-> If no such section is found, we leave the stack to whatever the arch
-> defaults to. If there is one, we explicitly disabled the VM_EXEC bit if
-> no x bit is found, otherwise explicitly enable.
-> 
-> I believe this part should be merged into official mainstream kernels.
-> Ingo, what do you think?
+So just in case, they're also posted as:
 
-agreed, and the patch looks good to me.
+http://www.yak.net/random/linux-2.6.4-utf8-cleanup-auto.diff
+http://www.yak.net/random/linux-2.6.4-utf8-cleanup-jp.diff
+http://www.yak.net/random/linux-2.6.4-utf8-cleanup-wrong.diff
+http://www.yak.net/random/linux-2.6.4-utf8-cleanup-cstrings2utf8.diff
 
-	Ingo
+-dte
+

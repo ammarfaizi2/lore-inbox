@@ -1,18 +1,17 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315674AbSECTd3>; Fri, 3 May 2002 15:33:29 -0400
+	id <S315679AbSECTdp>; Fri, 3 May 2002 15:33:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315679AbSECTd2>; Fri, 3 May 2002 15:33:28 -0400
-Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:51982 "EHLO
-	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S315674AbSECTdW>; Fri, 3 May 2002 15:33:22 -0400
-Date: Fri, 3 May 2002 21:33:14 +0200 (CEST)
+	id <S315680AbSECTdo>; Fri, 3 May 2002 15:33:44 -0400
+Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:14 "EHLO
+	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S315679AbSECTdc>; Fri, 3 May 2002 15:33:32 -0400
+Date: Fri, 3 May 2002 21:33:25 +0200 (CEST)
 From: Roman Zippel <zippel@linux-m68k.org>
 To: Linus Torvalds <torvalds@transmeta.com>
 cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.5.13: remove VALID_PAGE
-In-Reply-To: <Pine.LNX.4.33.0205021648330.26798-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.21.0205032103180.23113-100000@serv>
+Subject: [PATCH] 2.5.13: replace mk_pte_phys() with pfn_pte()
+Message-ID: <Pine.LNX.4.21.0205032125340.23113-100000@serv>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -20,747 +19,649 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-On Thu, 2 May 2002, Linus Torvalds wrote:
-
-> You're going to hate me, but I'm going to ask you to do one more thing: 
-> make "mk_pte_phys()" go away, and replace it with "pfn_pte(pfn,prot)". 
-> Because logically it _is_ the reverse of "pte_pfn()", and that also means 
-> that the HIGHMEM stuff on x86 would get cleaned up (we can generate 
-> highmem pages without having a 64-bit physical address, we just have the 
-> same old 32-bit PFN).
-
-That makes sense.
-
-> Pretty please?
-
-How could it resist this. :)
-Below is the old patch rediffed for 2.5.13. The other patch follows
-shortly. Changelog:
-
-This patch removes VALID_PAGE(), as the test was always too late for
-discontinous memory configuration. It is replaced with pfn_valid()/
-virt_addr_valid(), which are used to test the original input value.
-Other helper functions:
-pte_pfn() - extract the page number from a pte
-pfn_to_page()/page_to_pfn() - convert a page number to/from a page struct
+Here is the patch to replace mk_pte_phys() with pfn_pte() and so creates
+the counterpart to pte_pfn().
 
 bye, Roman
 
-Index: arch/arm/mach-arc/small_page.c
-===================================================================
-RCS file: /home/other/cvs/linux/linux-2.5/arch/arm/mach-arc/small_page.c,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 small_page.c
---- arch/arm/mach-arc/small_page.c	4 Feb 2002 16:13:00 -0000	1.1.1.1
-+++ arch/arm/mach-arc/small_page.c	3 May 2002 11:27:09 -0000
-@@ -150,8 +150,8 @@
- 	unsigned long flags;
- 	struct page *page;
- 
--	page = virt_to_page(spage);
--	if (VALID_PAGE(page)) {
-+	if (virt_addr_valid(spage)) {
-+		page = virt_to_page(spage);
- 
- 		/*
- 		 * The container-page must be marked Reserved
-Index: arch/arm/mm/fault-armv.c
-===================================================================
-RCS file: /home/other/cvs/linux/linux-2.5/arch/arm/mm/fault-armv.c,v
-retrieving revision 1.1.1.5
-diff -u -r1.1.1.5 fault-armv.c
---- arch/arm/mm/fault-armv.c	16 Apr 2002 08:42:51 -0000	1.1.1.5
-+++ arch/arm/mm/fault-armv.c	3 May 2002 11:27:09 -0000
-@@ -240,9 +240,13 @@
-  */
- void update_mmu_cache(struct vm_area_struct *vma, unsigned long addr, pte_t pte)
+diff -ur arch/alpha/kernel/core_irongate.c arch/alpha/kernel/core_irongate.c
+--- arch/alpha/kernel/core_irongate.c	Fri May  3 13:26:55 2002
++++ arch/alpha/kernel/core_irongate.c	Fri May  3 12:07:51 2002
+@@ -421,6 +421,7 @@
+ 		     unsigned long phys_addr, unsigned long flags)
  {
--	struct page *page = pte_page(pte);
-+	unsigned long pfn = pte_pfn(pte);
-+	struct page *page;
- 
--	if (VALID_PAGE(page) && page->mapping) {
-+	if (!pfn_valid(pfn))
-+		return;
-+	page = pfn_to_page(pfn);
-+	if (page->mapping) {
- 		if (test_and_clear_bit(PG_dcache_dirty, &page->flags))
- 			__flush_dcache_page(page);
- 
-Index: arch/ia64/mm/init.c
-===================================================================
-RCS file: /home/other/cvs/linux/linux-2.5/arch/ia64/mm/init.c,v
-retrieving revision 1.1.1.4
-diff -u -r1.1.1.4 init.c
---- arch/ia64/mm/init.c	1 May 2002 08:54:00 -0000	1.1.1.4
-+++ arch/ia64/mm/init.c	3 May 2002 11:27:09 -0000
-@@ -109,6 +109,7 @@
- void
- free_initrd_mem (unsigned long start, unsigned long end)
- {
-+	struct page *page;
- 	/*
- 	 * EFI uses 4KB pages while the kernel can use 4KB  or bigger.
- 	 * Thus EFI and the kernel may have different page sizes. It is
-@@ -147,11 +148,12 @@
- 		printk(KERN_INFO "Freeing initrd memory: %ldkB freed\n", (end - start) >> 10);
- 
- 	for (; start < end; start += PAGE_SIZE) {
--		if (!VALID_PAGE(virt_to_page(start)))
-+		if (!virt_addr_valid(start))
- 			continue;
--		clear_bit(PG_reserved, &virt_to_page(start)->flags);
--		set_page_count(virt_to_page(start), 1);
--		free_page(start);
-+		page = virt_to_page(start);
-+		clear_bit(PG_reserved, &page->flags);
-+		set_page_count(page, 1);
-+		__free_page(page);
- 		++totalram_pages;
- 	}
- }
-Index: arch/mips/mm/umap.c
-===================================================================
-RCS file: /home/other/cvs/linux/linux-2.5/arch/mips/mm/umap.c,v
-retrieving revision 1.1.1.2
-diff -u -r1.1.1.2 umap.c
---- arch/mips/mm/umap.c	4 Feb 2002 16:39:40 -0000	1.1.1.2
-+++ arch/mips/mm/umap.c	3 May 2002 11:27:09 -0000
-@@ -116,8 +116,12 @@
- static inline void free_pte(pte_t page)
- {
- 	if (pte_present(page)) {
--		struct page *ptpage = pte_page(page);
--		if ((!VALID_PAGE(ptpage)) || PageReserved(ptpage))
-+		unsigned long pfn = pte_pfn(page);
-+		struct page *ptpage;
-+		if (!pfn_valid(pfn))
-+			return;
-+		ptpage = pfn_to_page(pfn);
-+		if (PageReserved(ptpage))
- 			return;
- 		__free_page(ptpage);
- 		if (current->mm->rss <= 0)
-Index: arch/mips64/mm/umap.c
-===================================================================
-RCS file: /home/other/cvs/linux/linux-2.5/arch/mips64/mm/umap.c,v
-retrieving revision 1.1.1.2
-diff -u -r1.1.1.2 umap.c
---- arch/mips64/mm/umap.c	4 Feb 2002 16:39:42 -0000	1.1.1.2
-+++ arch/mips64/mm/umap.c	3 May 2002 11:27:09 -0000
-@@ -115,8 +115,12 @@
- static inline void free_pte(pte_t page)
- {
- 	if (pte_present(page)) {
--		struct page *ptpage = pte_page(page);
--		if ((!VALID_PAGE(ptpage)) || PageReserved(ptpage))
-+		unsigned long pfn = pte_pfn(page);
-+		struct page *ptpage;
-+		if (!pfn_valid(pfn))
-+			return;
-+		ptpage = pfn_to_page(pfn);
-+		if (PageReserved(ptpage))
- 			return;
- 		__free_page(ptpage);
- 		if (current->mm->rss <= 0)
-Index: arch/sh/mm/fault.c
-===================================================================
-RCS file: /home/other/cvs/linux/linux-2.5/arch/sh/mm/fault.c,v
-retrieving revision 1.1.1.2
-diff -u -r1.1.1.2 fault.c
---- arch/sh/mm/fault.c	4 Feb 2002 16:39:48 -0000	1.1.1.2
-+++ arch/sh/mm/fault.c	3 May 2002 11:27:09 -0000
-@@ -290,6 +290,7 @@
- 	unsigned long vpn;
- #if defined(__SH4__)
- 	struct page *page;
-+	unsigned long pfn;
- 	unsigned long ptea;
- #endif
- 
-@@ -298,11 +299,14 @@
- 		return;
- 
- #if defined(__SH4__)
--	page = pte_page(pte);
--	if (VALID_PAGE(page) && !test_bit(PG_mapped, &page->flags)) {
--		unsigned long phys = pte_val(pte) & PTE_PHYS_MASK;
--		__flush_wback_region((void *)P1SEGADDR(phys), PAGE_SIZE);
--		__set_bit(PG_mapped, &page->flags);
-+	pfn = pte_pfn(pte);
-+	if (pfn_valid(pfn)) {
-+		page = pfn_to_page(pfn);
-+		if (!test_bit(PG_mapped, &page->flags)) {
-+			unsigned long phys = pte_val(pte) & PTE_PHYS_MASK;
-+			__flush_wback_region((void *)P1SEGADDR(phys), PAGE_SIZE);
-+			__set_bit(PG_mapped, &page->flags);
-+		}
- 	}
- #endif
- 
-Index: arch/sparc/mm/generic.c
-===================================================================
-RCS file: /home/other/cvs/linux/linux-2.5/arch/sparc/mm/generic.c,v
-retrieving revision 1.1.1.2
-diff -u -r1.1.1.2 generic.c
---- arch/sparc/mm/generic.c	4 Feb 2002 16:39:50 -0000	1.1.1.2
-+++ arch/sparc/mm/generic.c	3 May 2002 11:27:09 -0000
-@@ -19,8 +19,12 @@
- 	if (pte_none(page))
- 		return;
- 	if (pte_present(page)) {
--		struct page *ptpage = pte_page(page);
--		if ((!VALID_PAGE(ptpage)) || PageReserved(ptpage))
-+		unsigned long pfn = pte_pfn(page);
-+		struct page *ptpage;
-+		if (!pfn_valid(pfn))
-+			return;
-+		ptpage = pfn_to_page(pfn);
-+		if (PageReserved(ptpage))
- 			return;
- 		page_cache_release(ptpage);
- 		return;
-Index: arch/sparc/mm/sun4c.c
-===================================================================
-RCS file: /home/other/cvs/linux/linux-2.5/arch/sparc/mm/sun4c.c,v
-retrieving revision 1.1.1.3
-diff -u -r1.1.1.3 sun4c.c
---- arch/sparc/mm/sun4c.c	16 Apr 2002 08:43:36 -0000	1.1.1.3
-+++ arch/sparc/mm/sun4c.c	3 May 2002 11:27:09 -0000
-@@ -1327,7 +1327,7 @@
- 	unsigned long page;
- 
- 	page = ((unsigned long)bufptr) & PAGE_MASK;
--	if (!VALID_PAGE(virt_to_page(page))) {
-+	if (!virt_addr_valid(page)) {
- 		sun4c_flush_page(page);
- 		return (__u32)bufptr; /* already locked */
- 	}
-@@ -2106,7 +2106,7 @@
- static int sun4c_pmd_bad(pmd_t pmd)
- {
- 	return (((pmd_val(pmd) & ~PAGE_MASK) != PGD_TABLE) ||
--		(!VALID_PAGE(virt_to_page(pmd_val(pmd)))));
-+		(!virt_addr_valid(pmd_val(pmd))));
- }
- 
- static int sun4c_pmd_present(pmd_t pmd)
-Index: arch/sparc64/kernel/traps.c
-===================================================================
-RCS file: /home/other/cvs/linux/linux-2.5/arch/sparc64/kernel/traps.c,v
-retrieving revision 1.1.1.4
-diff -u -r1.1.1.4 traps.c
---- arch/sparc64/kernel/traps.c	3 May 2002 08:02:44 -0000	1.1.1.4
-+++ arch/sparc64/kernel/traps.c	3 May 2002 11:27:09 -0000
-@@ -1312,10 +1312,8 @@
- 			}
- 
- 			if (recoverable) {
--				struct page *page = virt_to_page(__va(afar));
--
--				if (VALID_PAGE(page))
--					get_page(page);
-+				if (pfn_valid(afar >> PAGE_SHIFT))
-+					get_page(pfn_to_page(afar >> PAGE_SHIFT));
- 				else
- 					recoverable = 0;
- 
-Index: arch/sparc64/mm/generic.c
-===================================================================
-RCS file: /home/other/cvs/linux/linux-2.5/arch/sparc64/mm/generic.c,v
-retrieving revision 1.1.1.4
-diff -u -r1.1.1.4 generic.c
---- arch/sparc64/mm/generic.c	3 May 2002 08:02:44 -0000	1.1.1.4
-+++ arch/sparc64/mm/generic.c	3 May 2002 11:27:09 -0000
-@@ -20,8 +20,12 @@
- 	if (pte_none(page))
- 		return;
- 	if (pte_present(page)) {
--		struct page *ptpage = pte_page(page);
--		if ((!VALID_PAGE(ptpage)) || PageReserved(ptpage))
-+		unsigned long pfn = pte_pfn(page);
-+		struct page *ptpage;
-+		if (!pfn_valid(pfn))
-+			return;
-+		ptpage = pfn_to_page(page);
-+		if (PageReserved(ptpage))
- 			return;
- 		page_cache_release(ptpage);
- 		return;
-Index: arch/sparc64/mm/init.c
-===================================================================
-RCS file: /home/other/cvs/linux/linux-2.5/arch/sparc64/mm/init.c,v
-retrieving revision 1.1.1.7
-diff -u -r1.1.1.7 init.c
---- arch/sparc64/mm/init.c	1 May 2002 08:54:34 -0000	1.1.1.7
-+++ arch/sparc64/mm/init.c	3 May 2002 11:27:09 -0000
-@@ -187,11 +187,13 @@
- 
- void update_mmu_cache(struct vm_area_struct *vma, unsigned long address, pte_t pte)
- {
--	struct page *page = pte_page(pte);
-+	struct page *page;
-+	unsigned long pfn;
- 	unsigned long pg_flags;
- 
--	if (VALID_PAGE(page) &&
--	    page->mapping &&
-+	pfn = pte_pfn(pte);
-+	if (pfn_valid(pfn) &&
-+	    (page = pfn_to_page(pfn), page->mapping) &&
- 	    ((pg_flags = page->flags) & (1UL << PG_dcache_dirty))) {
- 		int cpu = ((pg_flags >> 24) & (NR_CPUS - 1UL));
- 
-@@ -260,10 +262,14 @@
- 			continue;
- 
- 		if (pte_present(pte) && pte_dirty(pte)) {
--			struct page *page = pte_page(pte);
-+			struct page *page;
- 			unsigned long pgaddr, uaddr;
-+			unsigned long pfn = pte_pfn(pte);
- 
--			if (!VALID_PAGE(page) || PageReserved(page) || !page->mapping)
-+			if (!pfn_valid(pfn))
-+				continue;
-+			page = pfn_to_page(pfn);
-+			if (PageReserved(page) || !page->mapping)
- 				continue;
- 			pgaddr = (unsigned long) page_address(page);
- 			uaddr = address + offset;
-Index: fs/proc/array.c
-===================================================================
-RCS file: /home/other/cvs/linux/linux-2.5/fs/proc/array.c,v
-retrieving revision 1.1.1.7
-diff -u -r1.1.1.7 array.c
---- fs/proc/array.c	16 Apr 2002 08:45:32 -0000	1.1.1.7
-+++ fs/proc/array.c	3 May 2002 11:27:09 -0000
-@@ -416,6 +416,7 @@
- 	do {
- 		pte_t page = *pte;
- 		struct page *ptpage;
-+		unsigned long pfn;
- 
- 		address += PAGE_SIZE;
- 		pte++;
-@@ -424,8 +425,11 @@
- 		++*total;
- 		if (!pte_present(page))
- 			continue;
--		ptpage = pte_page(page);
--		if ((!VALID_PAGE(ptpage)) || PageReserved(ptpage))
-+		pfn = pte_pfn(page);
-+		if (!pfn_valid(pfn))
-+			continue;
-+		ptpage = pfn_to_page(pfn);
-+		if (PageReserved(ptpage))
- 			continue;
- 		++*pages;
- 		if (pte_dirty(page))
-Index: include/asm-cris/processor.h
-===================================================================
-RCS file: /home/other/cvs/linux/linux-2.5/include/asm-cris/processor.h,v
-retrieving revision 1.1.1.2
-diff -u -r1.1.1.2 processor.h
---- include/asm-cris/processor.h	4 Feb 2002 16:41:16 -0000	1.1.1.2
-+++ include/asm-cris/processor.h	3 May 2002 11:27:09 -0000
-@@ -102,7 +102,7 @@
-         unsigned long eip = 0;   \
-         unsigned long regs = (unsigned long)user_regs(tsk); \
-         if (regs > PAGE_SIZE && \
--            VALID_PAGE(virt_to_page(regs))) \
-+            virt_addr_valid(regs)) \
-               eip = ((struct pt_regs *)regs)->irp; \
-         eip; })
- 
-Index: include/asm-i386/page.h
-===================================================================
-RCS file: /home/other/cvs/linux/linux-2.5/include/asm-i386/page.h,v
-retrieving revision 1.1.1.3
-diff -u -r1.1.1.3 page.h
---- include/asm-i386/page.h	25 Feb 2002 13:57:28 -0000	1.1.1.3
-+++ include/asm-i386/page.h	3 May 2002 12:03:27 -0000
-@@ -131,8 +131,12 @@
- #define MAXMEM			((unsigned long)(-PAGE_OFFSET-VMALLOC_RESERVE))
- #define __pa(x)			((unsigned long)(x)-PAGE_OFFSET)
- #define __va(x)			((void *)((unsigned long)(x)+PAGE_OFFSET))
--#define virt_to_page(kaddr)	(mem_map + (__pa(kaddr) >> PAGE_SHIFT))
--#define VALID_PAGE(page)	((page - mem_map) < max_mapnr)
-+#define pfn_to_page(pfn)	(mem_map + (pfn))
-+#define page_to_pfn(page)	((unsigned long)((page) - mem_map))
-+#define virt_to_page(kaddr)	pfn_to_page(__pa(kaddr) >> PAGE_SHIFT)
-+
-+#define pfn_valid(pfn)		((pfn) < max_mapnr)
-+#define virt_addr_valid(kaddr)	pfn_valid(__pa(kaddr) >> PAGE_SHIFT)
- 
- #define VM_DATA_DEFAULT_FLAGS	(VM_READ | VM_WRITE | VM_EXEC | \
- 				 VM_MAYREAD | VM_MAYWRITE | VM_MAYEXEC)
-Index: include/asm-i386/pgtable-2level.h
-===================================================================
-RCS file: /home/other/cvs/linux/linux-2.5/include/asm-i386/pgtable-2level.h,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 pgtable-2level.h
---- include/asm-i386/pgtable-2level.h	4 Feb 2002 15:41:30 -0000	1.1.1.1
-+++ include/asm-i386/pgtable-2level.h	3 May 2002 11:36:44 -0000
-@@ -56,8 +56,9 @@
- }
- #define ptep_get_and_clear(xp)	__pte(xchg(&(xp)->pte_low, 0))
- #define pte_same(a, b)		((a).pte_low == (b).pte_low)
--#define pte_page(x)		(mem_map+((unsigned long)(((x).pte_low >> PAGE_SHIFT))))
-+#define pte_page(x)		pfn_to_page(pte_pfn(x))
- #define pte_none(x)		(!(x).pte_low)
-+#define pte_pfn(x)		((unsigned long)(((x).pte_low >> PAGE_SHIFT)))
- #define __mk_pte(page_nr,pgprot) __pte(((page_nr) << PAGE_SHIFT) | pgprot_val(pgprot))
- 
- #endif /* _I386_PGTABLE_2LEVEL_H */
-Index: include/asm-i386/pgtable-3level.h
-===================================================================
-RCS file: /home/other/cvs/linux/linux-2.5/include/asm-i386/pgtable-3level.h,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 pgtable-3level.h
---- include/asm-i386/pgtable-3level.h	4 Feb 2002 15:41:30 -0000	1.1.1.1
-+++ include/asm-i386/pgtable-3level.h	3 May 2002 11:37:08 -0000
-@@ -86,8 +86,9 @@
- 	return a.pte_low == b.pte_low && a.pte_high == b.pte_high;
- }
- 
--#define pte_page(x)	(mem_map+(((x).pte_low >> PAGE_SHIFT) | ((x).pte_high << (32 - PAGE_SHIFT))))
-+#define pte_page(x)	pfn_to_page(pte_pfn(x))
- #define pte_none(x)	(!(x).pte_low && !(x).pte_high)
-+#define pte_pfn(x)	(((x).pte_low >> PAGE_SHIFT) | ((x).pte_high << (32 - PAGE_SHIFT)))
- 
- static inline pte_t __mk_pte(unsigned long page_nr, pgprot_t pgprot)
- {
-Index: include/asm-m68k/processor.h
-===================================================================
-RCS file: /home/other/cvs/linux/linux-2.5/include/asm-m68k/processor.h,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 processor.h
---- include/asm-m68k/processor.h	4 Feb 2002 15:41:31 -0000	1.1.1.1
-+++ include/asm-m68k/processor.h	3 May 2002 11:27:09 -0000
-@@ -139,7 +139,7 @@
-     ({			\
- 	unsigned long eip = 0;	 \
- 	if ((tsk)->thread.esp0 > PAGE_SIZE && \
--	    (VALID_PAGE(virt_to_page((tsk)->thread.esp0)))) \
-+	    (virt_addr_valid((tsk)->thread.esp0))) \
- 	      eip = ((struct pt_regs *) (tsk)->thread.esp0)->pc; \
- 	eip; })
- #define	KSTK_ESP(tsk)	((tsk) == current ? rdusp() : (tsk)->thread.usp)
-Index: include/asm-sh/pgalloc.h
-===================================================================
-RCS file: /home/other/cvs/linux/linux-2.5/include/asm-sh/pgalloc.h,v
-retrieving revision 1.1.1.2
-diff -u -r1.1.1.2 pgalloc.h
---- include/asm-sh/pgalloc.h	4 Feb 2002 16:41:25 -0000	1.1.1.2
-+++ include/asm-sh/pgalloc.h	3 May 2002 11:27:09 -0000
-@@ -105,10 +105,13 @@
- 
- 	pte_clear(ptep);
- 	if (!pte_not_present(pte)) {
--		struct page *page = pte_page(pte);
--		if (VALID_PAGE(page)&&
--		    (!page->mapping || !(page->mapping->i_mmap_shared)))
--			__clear_bit(PG_mapped, &page->flags);
-+		struct page *page;
-+		unsigned long pfn = pte_pfn(pte);
-+		if (pfn_valid(pfn)) {
-+			page = pfn_to_page(page);
-+			if (!page->mapping || !page->mapping->i_mmap_shared)
-+				__clear_bit(PG_mapped, &page->flags);
-+		}
- 	}
- 	return pte;
- }
-Index: mm/memory.c
-===================================================================
-RCS file: /home/other/cvs/linux/linux-2.5/mm/memory.c,v
-retrieving revision 1.1.1.10
-diff -u -r1.1.1.10 memory.c
---- mm/memory.c	1 May 2002 08:57:37 -0000	1.1.1.10
-+++ mm/memory.c	3 May 2002 11:27:09 -0000
-@@ -76,8 +76,12 @@
-  */
- void __free_pte(pte_t pte)
- {
--	struct page *page = pte_page(pte);
--	if ((!VALID_PAGE(page)) || PageReserved(page))
-+	struct page *page;
-+	unsigned long pfn = pte_pfn(pte);
-+	if (!pfn_valid(pfn))
-+		return;
-+	page = pfn_to_page(pfn);
-+	if (PageReserved(page))
- 		return;
- 	if (pte_dirty(pte))
- 		set_page_dirty(page);		
-@@ -269,6 +273,7 @@
- 			do {
- 				pte_t pte = *src_pte;
- 				struct page *ptepage;
-+				unsigned long pfn;
- 				
- 				/* copy_one_pte */
- 
-@@ -278,9 +283,11 @@
- 					swap_duplicate(pte_to_swp_entry(pte));
- 					goto cont_copy_pte_range;
- 				}
--				ptepage = pte_page(pte);
--				if ((!VALID_PAGE(ptepage)) || 
--				    PageReserved(ptepage))
-+				pfn = pte_pfn(pte);
-+				if (!pfn_valid(pfn))
-+					goto cont_copy_pte_range;
-+				ptepage = pfn_to_page(pfn);
-+				if (PageReserved(ptepage))
- 					goto cont_copy_pte_range;
- 
- 				/* If it's a COW mapping, write protect it both in the parent and the child */
-@@ -356,9 +363,13 @@
- 		if (pte_none(pte))
- 			continue;
- 		if (pte_present(pte)) {
--			struct page *page = pte_page(pte);
--			if (VALID_PAGE(page) && !PageReserved(page))
--				freed ++;
-+			struct page *page;
-+			unsigned long pfn = pte_pfn(pte);
-+			if (pfn_valid(pfn)) {
-+				page = pfn_to_page(pfn);
-+				if (!PageReserved(page))
-+					freed++;
-+			}
- 			/* This will eventually call __free_pte on the pte. */
- 			tlb_remove_page(tlb, ptep, address + offset);
- 		} else {
-@@ -451,6 +462,7 @@
- 	pgd_t *pgd;
- 	pmd_t *pmd;
- 	pte_t *ptep, pte;
+ 	unsigned long end;
 +	unsigned long pfn;
  
- 	pgd = pgd_offset(mm, address);
- 	if (pgd_none(*pgd) || pgd_bad(*pgd))
-@@ -472,8 +484,11 @@
- 	preempt_enable();
- 	if (pte_present(pte)) {
- 		if (!write ||
--		    (pte_write(pte) && pte_dirty(pte)))
--			return pte_page(pte);
-+		    (pte_write(pte) && pte_dirty(pte))) {
-+			pfn = pte_pfn(pte);
-+			if (pfn_valid(pfn))
-+				return pfn_to_page(pfn);
-+		}
- 	}
- 
- out:
-@@ -488,8 +503,6 @@
- 
- static inline struct page * get_page_map(struct page *page)
- {
--	if (!VALID_PAGE(page))
--		return 0;
- 	return page;
- }
- 
-@@ -860,11 +873,10 @@
+ 	address &= ~PMD_MASK;
+ 	end = address + size;
+@@ -428,17 +429,17 @@
  		end = PMD_SIZE;
+ 	if (address >= end)
+ 		BUG();
++	pfn = phys_addr >> PAGE_SHIFT;
  	do {
- 		struct page *page;
--		pte_t oldpage;
--		oldpage = ptep_get_and_clear(pte);
-+		pte_t oldpage = ptep_get_and_clear(pte);
-+		unsigned long pfn = phys_addr >> PAGE_SHIFT;
- 
--		page = virt_to_page(__va(phys_addr));
--		if ((!VALID_PAGE(page)) || PageReserved(page))
-+		if (!pfn_valid(pfn) || PageReserved(pfn_to_page(pfn)))
-  			set_pte(pte, mk_pte_phys(phys_addr, prot));
- 		forget_pte(oldpage);
- 		address += PAGE_SIZE;
-@@ -977,10 +989,11 @@
- 	unsigned long address, pte_t *page_table, pmd_t *pmd, pte_t pte)
- {
- 	struct page *old_page, *new_page;
-+	unsigned long pfn = pte_pfn(pte);
- 
--	old_page = pte_page(pte);
--	if (!VALID_PAGE(old_page))
-+	if (!pfn_valid(pfn))
- 		goto bad_wp_page;
-+	old_page = pfn_to_page(pfn);
- 
- 	if (!TestSetPageLocked(old_page)) {
- 		int reuse = can_share_swap_page(old_page);
-Index: mm/msync.c
-===================================================================
-RCS file: /home/other/cvs/linux/linux-2.5/mm/msync.c,v
-retrieving revision 1.1.1.3
-diff -u -r1.1.1.3 msync.c
---- mm/msync.c	1 May 2002 08:57:37 -0000	1.1.1.3
-+++ mm/msync.c	3 May 2002 11:27:09 -0000
-@@ -26,10 +26,14 @@
- 	pte_t pte = *ptep;
- 
- 	if (pte_present(pte) && pte_dirty(pte)) {
--		struct page *page = pte_page(pte);
--		if (VALID_PAGE(page) && !PageReserved(page) && ptep_test_and_clear_dirty(ptep)) {
--			flush_tlb_page(vma, address);
--			set_page_dirty(page);
-+		struct page *page;
-+		unsigned long pfn = pte_pfn(pte);
-+		if (pfn_valid(pfn)) {
-+			page = pfn_to_page(pfn);
-+			if (!PageReserved(page) && ptep_test_and_clear_dirty(ptep)) {
-+				flush_tlb_page(vma, address);
-+				set_page_dirty(page);
-+			}
+ 		if (!pte_none(*pte)) {
+ 			printk("irongate_remap_area_pte: page already exists\n");
+ 			BUG();
  		}
- 	}
- 	return 0;
-Index: mm/page_alloc.c
-===================================================================
-RCS file: /home/other/cvs/linux/linux-2.5/mm/page_alloc.c,v
-retrieving revision 1.1.1.10
-diff -u -r1.1.1.10 page_alloc.c
---- mm/page_alloc.c	3 May 2002 08:05:28 -0000	1.1.1.10
-+++ mm/page_alloc.c	3 May 2002 11:27:09 -0000
-@@ -101,8 +101,6 @@
- 		BUG();
- 	if (page->mapping)
- 		BUG();
--	if (!VALID_PAGE(page))
--		BUG();
- 	if (PageLocked(page))
- 		BUG();
- 	if (PageLRU(page))
-@@ -295,8 +293,6 @@
- 						BUG();
- 					if (page->mapping)
- 						BUG();
--					if (!VALID_PAGE(page))
--						BUG();
- 					if (PageLocked(page))
- 						BUG();
- 					if (PageLRU(page))
-@@ -477,8 +473,10 @@
+-		set_pte(pte, 
+-			mk_pte_phys(phys_addr, 
+-				    __pgprot(_PAGE_VALID | _PAGE_ASM | 
+-					     _PAGE_KRE | _PAGE_KWE | flags)));
++		set_pte(pte, pfn_pte(pfn,
++				     __pgprot(_PAGE_VALID | _PAGE_ASM | 
++					      _PAGE_KRE | _PAGE_KWE | flags)));
+ 		address += PAGE_SIZE;
+-		phys_addr += PAGE_SIZE;
++		pfn++;
+ 		pte++;
+ 	} while (address && (address < end));
+ }
+diff -ur arch/alpha/mm/init.c arch/alpha/mm/init.c
+--- arch/alpha/mm/init.c	Fri May  3 13:26:55 2002
++++ arch/alpha/mm/init.c	Fri May  3 12:10:15 2002
+@@ -250,12 +250,12 @@
+ 		/* Set up the third level PTEs and update the virtual
+ 		   addresses of the CRB entries.  */
+ 		for (i = 0; i < crb->map_entries; ++i) {
+-			unsigned long paddr = crb->map[i].pa;
++			unsigned long pfn = crb->map[i].pa >> PAGE_SHIFT;
+ 			crb->map[i].va = vaddr;
+ 			for (j = 0; j < crb->map[i].count; ++j) {
+ 				set_pte(pte_offset_kernel(pmd, vaddr),
+-					mk_pte_phys(paddr, PAGE_KERNEL));
+-				paddr += PAGE_SIZE;
++					pfn_pte(pfn, PAGE_KERNEL));
++				pfn++;
+ 				vaddr += PAGE_SIZE;
+ 			}
+ 		}
+diff -ur arch/arm/mach-arc/mm.c arch/arm/mach-arc/mm.c
+--- arch/arm/mach-arc/mm.c	Fri May  3 13:26:55 2002
++++ arch/arm/mach-arc/mm.c	Fri May  3 12:20:27 2002
+@@ -138,7 +138,7 @@
+ 	page_nr = max_low_pfn;
  
- void free_pages(unsigned long addr, unsigned int order)
+ 	pte = alloc_bootmem_low_pages(PTRS_PER_PTE * sizeof(pte_t));
+-	pte[0] = mk_pte_phys(PAGE_OFFSET + 491520, PAGE_READONLY);
++	pte[0] = pfn_pte((PAGE_OFFSET + 491520) >> PAGE_SHIFT, PAGE_READONLY);
+ 	pmd_populate(&init_mm, pmd_offset(swapper_pg_dir, 0), pte);
+ 
+ 	for (i = 1; i < PTRS_PER_PGD; i++)
+diff -ur arch/arm/mm/ioremap.c arch/arm/mm/ioremap.c
+--- arch/arm/mm/ioremap.c	Fri May  3 13:26:55 2002
++++ arch/arm/mm/ioremap.c	Fri May  3 12:21:09 2002
+@@ -51,7 +51,7 @@
+ 			printk("remap_area_pte: page already exists\n");
+ 			BUG();
+ 		}
+-		set_pte(pte, mk_pte_phys(phys_addr, pgprot));
++		set_pte(pte, pfn_pte(phys_addr >> PAGE_SHIFT, pgprot));
+ 		address += PAGE_SIZE;
+ 		phys_addr += PAGE_SIZE;
+ 		pte++;
+diff -ur arch/arm/mm/minicache.c arch/arm/mm/minicache.c
+--- arch/arm/mm/minicache.c	Fri May  3 13:26:55 2002
++++ arch/arm/mm/minicache.c	Fri May  3 12:21:38 2002
+@@ -43,7 +43,7 @@
+  */
+ unsigned long map_page_minicache(unsigned long virt)
  {
--	if (addr != 0)
-+	if (addr != 0) {
-+		BUG_ON(!virt_addr_valid(addr));
- 		__free_pages(virt_to_page(addr), order);
-+	}
+-	set_pte(minicache_pte, mk_pte_phys(__pa(virt), minicache_pgprot));
++	set_pte(minicache_pte, pfn_pte(__pa(virt) >> PAGE_SHIFT, minicache_pgprot));
+ 	flush_tlb_kernel_page(minicache_address);
+ 
+ 	return minicache_address;
+diff -ur arch/arm/mm/mm-armv.c arch/arm/mm/mm-armv.c
+--- arch/arm/mm/mm-armv.c	Fri May  3 13:26:55 2002
++++ arch/arm/mm/mm-armv.c	Fri May  3 12:21:51 2002
+@@ -198,7 +198,7 @@
+ 	}
+ 	ptep = pte_offset_kernel(pmdp, virt);
+ 
+-	set_pte(ptep, mk_pte_phys(phys, __pgprot(prot)));
++	set_pte(ptep, pfn_pte(phys >> PAGE_SHIFT, __pgprot(prot)));
  }
  
  /*
-Index: mm/slab.c
-===================================================================
-RCS file: /home/other/cvs/linux/linux-2.5/mm/slab.c,v
-retrieving revision 1.1.1.6
-diff -u -r1.1.1.6 slab.c
---- mm/slab.c	1 May 2002 08:57:37 -0000	1.1.1.6
-+++ mm/slab.c	3 May 2002 11:27:09 -0000
-@@ -1415,15 +1415,16 @@
- #if DEBUG
- # define CHECK_NR(pg)						\
- 	do {							\
--		if (!VALID_PAGE(pg)) {				\
-+		if (!virt_addr_valid(pg)) {			\
- 			printk(KERN_ERR "kfree: out of range ptr %lxh.\n", \
- 				(unsigned long)objp);		\
- 			BUG();					\
- 		} \
- 	} while (0)
--# define CHECK_PAGE(page)					\
-+# define CHECK_PAGE(addr)					\
- 	do {							\
--		CHECK_NR(page);					\
-+		struct page *page = virt_to_page(addr);		\
-+		CHECK_NR(addr);					\
- 		if (!PageSlab(page)) {				\
- 			printk(KERN_ERR "kfree: bad ptr %lxh.\n", \
- 				(unsigned long)objp);		\
-@@ -1439,7 +1440,7 @@
+diff -ur arch/cris/mm/ioremap.c arch/cris/mm/ioremap.c
+--- arch/cris/mm/ioremap.c	Fri May  3 13:26:55 2002
++++ arch/cris/mm/ioremap.c	Fri May  3 12:23:25 2002
+@@ -17,6 +17,7 @@
+ 	unsigned long phys_addr, unsigned long flags)
  {
- 	slab_t* slabp;
+ 	unsigned long end;
++	unsigned long pfn;
  
--	CHECK_PAGE(virt_to_page(objp));
-+	CHECK_PAGE(objp);
- 	/* reduces memory footprint
- 	 *
- 	if (OPTIMIZE(cachep))
-@@ -1519,7 +1520,7 @@
- #ifdef CONFIG_SMP
- 	cpucache_t *cc = cc_data(cachep);
- 
--	CHECK_PAGE(virt_to_page(objp));
-+	CHECK_PAGE(objp);
- 	if (cc) {
- 		int batchcount;
- 		if (cc->avail < cc->limit) {
-@@ -1601,7 +1602,7 @@
- {
- 	unsigned long flags;
- #if DEBUG
--	CHECK_PAGE(virt_to_page(objp));
-+	CHECK_PAGE(objp);
- 	if (cachep != GET_PAGE_CACHE(virt_to_page(objp)))
+ 	address &= ~PMD_MASK;
+ 	end = address + size;
+@@ -24,16 +25,17 @@
+ 		end = PMD_SIZE;
+ 	if (address >= end)
  		BUG();
- #endif
-@@ -1626,7 +1627,7 @@
- 	if (!objp)
- 		return;
- 	local_irq_save(flags);
--	CHECK_PAGE(virt_to_page(objp));
-+	CHECK_PAGE(objp);
- 	c = GET_PAGE_CACHE(virt_to_page(objp));
- 	__kmem_cache_free(c, (void*)objp);
- 	local_irq_restore(flags);
-Index: mm/vmalloc.c
-===================================================================
-RCS file: /home/other/cvs/linux/linux-2.5/mm/vmalloc.c,v
-retrieving revision 1.1.1.5
-diff -u -r1.1.1.5 vmalloc.c
---- mm/vmalloc.c	24 Apr 2002 12:36:58 -0000	1.1.1.5
-+++ mm/vmalloc.c	3 May 2002 11:27:09 -0000
-@@ -45,8 +45,12 @@
- 		if (pte_none(page))
- 			continue;
- 		if (pte_present(page)) {
--			struct page *ptpage = pte_page(page);
--			if (VALID_PAGE(ptpage) && (!PageReserved(ptpage)))
-+			struct page *ptpage;
-+			unsigned long pfn = pte_pfn(page);
-+			if (!pfn_valid(pfn))
-+				continue;
-+			ptpage = pfn_to_page(pfn);
-+			if (!PageReserved(ptpage))
- 				__free_page(ptpage);
- 			continue;
- 		}
-Index: mm/vmscan.c
-===================================================================
-RCS file: /home/other/cvs/linux/linux-2.5/mm/vmscan.c,v
-retrieving revision 1.1.1.8
-diff -u -r1.1.1.8 vmscan.c
---- mm/vmscan.c	1 May 2002 08:57:37 -0000	1.1.1.8
-+++ mm/vmscan.c	3 May 2002 11:27:09 -0000
-@@ -216,9 +216,10 @@
- 
++	pfn = phys_addr >> PAGE_SHIFT;
  	do {
- 		if (pte_present(*pte)) {
--			struct page *page = pte_page(*pte);
-+			unsigned long pfn = pte_pfn(*pte);
-+			struct page *page = pfn_to_page(pfn);
+ 		if (!pte_none(*pte)) {
+ 			printk("remap_area_pte: page already exists\n");
+ 			BUG();
+ 		}
+-		set_pte(pte, mk_pte_phys(phys_addr, __pgprot(_PAGE_PRESENT | __READABLE | 
+-							     __WRITEABLE | _PAGE_GLOBAL |
+-							     _PAGE_KERNEL | flags)));
++		set_pte(pte, pfn_pte(pfn, __pgprot(_PAGE_PRESENT | __READABLE | 
++						   __WRITEABLE | _PAGE_GLOBAL |
++						   _PAGE_KERNEL | flags)));
+ 		address += PAGE_SIZE;
+-		phys_addr += PAGE_SIZE;
++		pfn++;
+ 		pte++;
+ 	} while (address && (address < end));
+ }
+diff -ur arch/i386/kernel/acpi.c arch/i386/kernel/acpi.c
+--- arch/i386/kernel/acpi.c	Fri May  3 13:26:55 2002
++++ arch/i386/kernel/acpi.c	Fri May  3 12:23:55 2002
+@@ -550,7 +550,7 @@
  
--			if (VALID_PAGE(page) && !PageReserved(page)) {
-+			if (pfn_valid(pfn) && !PageReserved(page)) {
- 				count -= try_to_swap_out(mm, vma, address, pte, page, classzone);
- 				if (!count) {
- 					address += PAGE_SIZE;
+ 	/* fill page with low mapping */
+ 	for (i = 0; i < PTRS_PER_PTE; i++)
+-		set_pte(ptep + i, mk_pte_phys(i << PAGE_SHIFT, PAGE_SHARED));
++		set_pte(ptep + i, pfn_pte(i, PAGE_SHARED));
+ 
+ 	pgd = pgd_offset(current->active_mm, 0);
+ 	pmd = pmd_alloc(current->mm,pgd, 0);
+diff -ur arch/i386/mm/init.c arch/i386/mm/init.c
+--- arch/i386/mm/init.c	Fri May  3 13:26:55 2002
++++ arch/i386/mm/init.c	Fri May  3 12:25:13 2002
+@@ -122,7 +122,7 @@
+ 	}
+ 	pte = pte_offset_kernel(pmd, vaddr);
+ 	/* <phys,flags> stored as-is, to permit clearing entries */
+-	set_pte(pte, mk_pte_phys(phys, flags));
++	set_pte(pte, pfn_pte(phys >> PAGE_SHIFT, flags));
+ 
+ 	/*
+ 	 * It's enough to flush this one mapping.
+@@ -239,7 +239,7 @@
+ 				vaddr = i*PGDIR_SIZE + j*PMD_SIZE + k*PAGE_SIZE;
+ 				if (end && (vaddr >= end))
+ 					break;
+-				*pte = mk_pte_phys(__pa(vaddr), PAGE_KERNEL);
++				*pte = pfn_pte(__pa(vaddr) >> PAGE_SHIFT, PAGE_KERNEL);
+ 			}
+ 			set_pmd(pmd, __pmd(_KERNPG_TABLE + __pa(pte_base)));
+ 			if (pte_base != pte_offset_kernel(pmd, 0))
+@@ -375,7 +375,7 @@
+ 	pmd = pmd_offset(pgd, vaddr);
+ 	pte = pte_offset_kernel(pmd, vaddr);
+ 	old_pte = *pte;
+-	*pte = mk_pte_phys(0, PAGE_READONLY);
++	*pte = pfn_pte(0, PAGE_READONLY);
+ 	local_flush_tlb();
+ 
+ 	boot_cpu_data.wp_works_ok = do_test_wp_bit(vaddr);
+diff -ur arch/i386/mm/ioremap.c arch/i386/mm/ioremap.c
+--- arch/i386/mm/ioremap.c	Fri May  3 13:26:55 2002
++++ arch/i386/mm/ioremap.c	Fri May  3 12:26:39 2002
+@@ -20,6 +20,7 @@
+ 	unsigned long phys_addr, unsigned long flags)
+ {
+ 	unsigned long end;
++	unsigned long pfn;
+ 
+ 	address &= ~PMD_MASK;
+ 	end = address + size;
+@@ -27,15 +28,16 @@
+ 		end = PMD_SIZE;
+ 	if (address >= end)
+ 		BUG();
++	pfn = phys_addr >> PAGE_SHIFT;
+ 	do {
+ 		if (!pte_none(*pte)) {
+ 			printk("remap_area_pte: page already exists\n");
+ 			BUG();
+ 		}
+-		set_pte(pte, mk_pte_phys(phys_addr, __pgprot(_PAGE_PRESENT | _PAGE_RW | 
++		set_pte(pte, pfn_pte(pfn, __pgprot(_PAGE_PRESENT | _PAGE_RW | 
+ 					_PAGE_DIRTY | _PAGE_ACCESSED | flags)));
+ 		address += PAGE_SIZE;
+-		phys_addr += PAGE_SIZE;
++		pfn++;
+ 		pte++;
+ 	} while (address && (address < end));
+ }
+diff -ur arch/ia64/kernel/efi.c arch/ia64/kernel/efi.c
+--- arch/ia64/kernel/efi.c	Fri May  3 13:26:55 2002
++++ arch/ia64/kernel/efi.c	Fri May  3 12:27:07 2002
+@@ -268,7 +268,7 @@
+ 		 */
+ 		ia64_clear_ic(flags);
+ 		ia64_itr(0x1, IA64_TR_PALCODE, vaddr & mask,
+-			 pte_val(mk_pte_phys(md->phys_addr, PAGE_KERNEL)), IA64_GRANULE_SHIFT);
++			 pte_val(pfn_pte(md->phys_addr >> PAGE_SHIFT, PAGE_KERNEL)), IA64_GRANULE_SHIFT);
+ 		local_irq_restore(flags);
+ 		ia64_srlz_i();
+ 	}
+diff -ur arch/ia64/mm/init.c arch/ia64/mm/init.c
+--- arch/ia64/mm/init.c	Fri May  3 13:27:09 2002
++++ arch/ia64/mm/init.c	Fri May  3 12:27:24 2002
+@@ -291,7 +291,7 @@
+ 	ia64_srlz_d();
+ 
+ 	ia64_itr(0x2, IA64_TR_PERCPU_DATA, PERCPU_ADDR,
+-		 pte_val(mk_pte_phys(__pa(my_cpu_data), PAGE_KERNEL)), PAGE_SHIFT);
++		 pte_val(pfn_pte(__pa(my_cpu_data) >> PAGE_SHIFT, PAGE_KERNEL)), PAGE_SHIFT);
+ 
+ 	__restore_flags(flags);
+ 	ia64_srlz_i();
+diff -ur arch/ia64/sn/kernel/misctest.c arch/ia64/sn/kernel/misctest.c
+--- arch/ia64/sn/kernel/misctest.c	Fri May  3 13:26:55 2002
++++ arch/ia64/sn/kernel/misctest.c	Fri May  3 12:27:49 2002
+@@ -89,7 +89,7 @@
+ 			printk("zzzspec: probe %ld, 0x%lx\n", res, val);
+ 			ia64_clear_ic(flags);
+ 			ia64_itc(0x2, 0xe00000ff00000000UL,
+-			          pte_val(mk_pte_phys(0xff00000000UL,
++			          pte_val(pfn_pte(0xff00000000UL >> PAGE_SHIFT,
+ 				  __pgprot(__DIRTY_BITS|_PAGE_PL_0|_PAGE_AR_RW))), _PAGE_SIZE_256M);
+ 			local_irq_restore(flags);
+ 			ia64_srlz_i ();
+diff -ur arch/mips/gt64120/momenco_ocelot/setup.c arch/mips/gt64120/momenco_ocelot/setup.c
+--- arch/mips/gt64120/momenco_ocelot/setup.c	Fri May  3 13:26:55 2002
++++ arch/mips/gt64120/momenco_ocelot/setup.c	Fri May  3 12:28:15 2002
+@@ -78,7 +78,7 @@
+ 
+ static char reset_reason;
+ 
+-#define ENTRYLO(x) ((pte_val(mk_pte_phys((x), PAGE_KERNEL_UNCACHED)) >> 6)|1)
++#define ENTRYLO(x) ((pte_val(pfn_pte((x) >> PAGE_SHIFT, PAGE_KERNEL_UNCACHED)) >> 6)|1)
+ 
+ static void __init setup_l3cache(unsigned long size);
+ 
+diff -ur arch/mips/mm/ioremap.c arch/mips/mm/ioremap.c
+--- arch/mips/mm/ioremap.c	Fri May  3 13:26:55 2002
++++ arch/mips/mm/ioremap.c	Fri May  3 12:29:04 2002
+@@ -18,6 +18,7 @@
+ 	unsigned long phys_addr, unsigned long flags)
+ {
+ 	unsigned long end;
++	unsigned long pfn;
+ 	pgprot_t pgprot = __pgprot(_PAGE_GLOBAL | _PAGE_PRESENT | __READABLE
+ 	                           | __WRITEABLE | flags);
+ 
+@@ -27,14 +28,15 @@
+ 		end = PMD_SIZE;
+ 	if (address >= end)
+ 		BUG();
++	pfn = phys_addr >> PAGE_SHIFT;
+ 	do {
+ 		if (!pte_none(*pte)) {
+ 			printk("remap_area_pte: page already exists\n");
+ 			BUG();
+ 		}
+-		set_pte(pte, mk_pte_phys(phys_addr, pgprot));
++		set_pte(pte, pfn_pte(pfn, pgprot));
+ 		address += PAGE_SIZE;
+-		phys_addr += PAGE_SIZE;
++		pfn++;
+ 		pte++;
+ 	} while (address && (address < end));
+ }
+diff -ur arch/ppc/mm/pgtable.c arch/ppc/mm/pgtable.c
+--- arch/ppc/mm/pgtable.c	Fri May  3 13:26:55 2002
++++ arch/ppc/mm/pgtable.c	Fri May  3 12:29:36 2002
+@@ -237,7 +237,7 @@
+ 	pg = pte_alloc_kernel(&init_mm, pd, va);
+ 	if (pg != 0) {
+ 		err = 0;
+-		set_pte(pg, mk_pte_phys(pa & PAGE_MASK, __pgprot(flags)));
++		set_pte(pg, pfn_pte(pa >> PAGE_SHIFT, __pgprot(flags)));
+ 		if (mem_init_done)
+ 			flush_HPTE(0, va, pmd_val(*pd));
+ 	}
+diff -ur arch/ppc64/mm/init.c arch/ppc64/mm/init.c
+--- arch/ppc64/mm/init.c	Fri May  3 13:26:55 2002
++++ arch/ppc64/mm/init.c	Fri May  3 12:30:02 2002
+@@ -240,7 +240,7 @@
+ 		ptep = pte_alloc_kernel(&ioremap_mm, pmdp, ea);
+ 
+ 		pa = absolute_to_phys(pa);
+-		set_pte(ptep, mk_pte_phys(pa & PAGE_MASK, __pgprot(flags)));
++		set_pte(ptep, pfn_pte(pa >> PAGE_SHIFT, __pgprot(flags)));
+ 		spin_unlock(&ioremap_mm.page_table_lock);
+ 	} else {
+ 		/* If the mm subsystem is not fully up, we cannot create a
+diff -ur arch/s390/mm/init.c arch/s390/mm/init.c
+--- arch/s390/mm/init.c	Fri May  3 13:26:55 2002
++++ arch/s390/mm/init.c	Fri May  3 13:31:18 2002
+@@ -118,9 +118,8 @@
+         pte_t   pte;
+ 	int     i;
+         unsigned long tmp;
+-        unsigned long address=0;
++        unsigned long pfn = 0;
+         unsigned long pgdir_k = (__pa(swapper_pg_dir) & PAGE_MASK) | _KERNSEG_TABLE;
+-	unsigned long end_mem = (unsigned long) __va(max_low_pfn*PAGE_SIZE);
+         static const int ssm_mask = 0x04000000L;
+ 
+ 	/* unmap whole virtual address space */
+@@ -136,7 +135,7 @@
+ 
+         pg_dir = swapper_pg_dir;
+ 
+-        while (address < end_mem) {
++        while (pfn < max_low_pfn) {
+                 /*
+                  * pg_table is physical at this point
+                  */
+@@ -149,11 +148,11 @@
+                 pg_dir++;
+ 
+                 for (tmp = 0 ; tmp < PTRS_PER_PTE ; tmp++,pg_table++) {
+-                        pte = mk_pte_phys(address, PAGE_KERNEL);
+-                        if (address >= end_mem)
++                        pte = pfn_pte(pfn, PAGE_KERNEL);
++                        if (pfn >= max_low_pfn)
+                                 pte_clear(&pte);
+                         set_pte(pg_table, pte);
+-                        address += PAGE_SIZE;
++                        pfn++;
+                 }
+         }
+ 
+diff -ur arch/s390/mm/ioremap.c arch/s390/mm/ioremap.c
+--- arch/s390/mm/ioremap.c	Fri May  3 13:26:55 2002
++++ arch/s390/mm/ioremap.c	Fri May  3 13:33:18 2002
+@@ -21,6 +21,7 @@
+         unsigned long phys_addr, unsigned long flags)
+ {
+         unsigned long end;
++        unsigned long pfn;
+ 
+         address &= ~PMD_MASK;
+         end = address + size;
+@@ -28,15 +29,15 @@
+                 end = PMD_SIZE;
+ 	if (address >= end)
+ 		BUG();
++        pfn = phys_addr >> PAGE_SHIFT;
+         do {
+                 if (!pte_none(*pte)) {
+                         printk("remap_area_pte: page already exists\n");
+ 			BUG();
+ 		}
+-                set_pte(pte, mk_pte_phys(phys_addr,
+-                                         __pgprot(_PAGE_PRESENT | flags)));
++                set_pte(pte, pfn_pte(pfn, __pgprot(_PAGE_PRESENT | flags)));
+                 address += PAGE_SIZE;
+-                phys_addr += PAGE_SIZE;
++                pfn++;
+                 pte++;
+         } while (address && (address < end));
+ }
+diff -ur arch/s390x/mm/init.c arch/s390x/mm/init.c
+--- arch/s390x/mm/init.c	Fri May  3 13:26:55 2002
++++ arch/s390x/mm/init.c	Fri May  3 13:33:47 2002
+@@ -116,10 +116,9 @@
+         pte_t * pt_dir;
+         pte_t   pte;
+ 	int     i,j,k;
+-        unsigned long address=0;
++        unsigned long pfn = 0;
+         unsigned long pgdir_k = (__pa(swapper_pg_dir) & PAGE_MASK) |
+           _KERN_REGION_TABLE;
+-	unsigned long end_mem = (unsigned long) __va(max_low_pfn*PAGE_SIZE);
+ 	static const int ssm_mask = 0x04000000L;
+ 
+ 	unsigned long zones_size[MAX_NR_ZONES] = {0, 0, 0};
+@@ -147,7 +146,7 @@
+ 	
+         for (i = 0 ; i < PTRS_PER_PGD ; i++,pg_dir++) {
+ 
+-                if (address >= end_mem) {
++                if (pfn >= max_low_pfn) {
+                         pgd_clear(pg_dir);
+                         continue;
+                 }          
+@@ -156,7 +155,7 @@
+                 pgd_populate(&init_mm, pg_dir, pm_dir);
+ 
+                 for (j = 0 ; j < PTRS_PER_PMD ; j++,pm_dir++) {
+-                        if (address >= end_mem) {
++                        if (pfn >= max_low_pfn) {
+                                 pmd_clear(pm_dir);
+                                 continue; 
+                         }          
+@@ -165,13 +164,13 @@
+                         pmd_populate(&init_mm, pm_dir, pt_dir);
+ 	
+                         for (k = 0 ; k < PTRS_PER_PTE ; k++,pt_dir++) {
+-                                pte = mk_pte_phys(address, PAGE_KERNEL);
+-                                if (address >= end_mem) {
++                                pte = mk_pte_phys(pfn, PAGE_KERNEL);
++                                if (pfn >= max_low_pfn) {
+                                         pte_clear(&pte); 
+                                         continue;
+                                 }
+                                 set_pte(pt_dir, pte);
+-                                address += PAGE_SIZE;
++                                pfn++;
+                         }
+                 }
+         }
+diff -ur arch/s390x/mm/ioremap.c arch/s390x/mm/ioremap.c
+--- arch/s390x/mm/ioremap.c	Fri May  3 13:26:55 2002
++++ arch/s390x/mm/ioremap.c	Fri May  3 13:34:25 2002
+@@ -21,6 +21,7 @@
+         unsigned long phys_addr, unsigned long flags)
+ {
+         unsigned long end;
++        unsigned long pfn;
+ 
+         address &= ~PMD_MASK;
+         end = address + size;
+@@ -28,15 +29,15 @@
+                 end = PMD_SIZE;
+ 	if (address >= end)
+ 		BUG();
++        pfn = phys_addr >> PAGE_SHIFT;
+         do {
+                 if (!pte_none(*pte)) {
+                         printk("remap_area_pte: page already exists\n");
+ 			BUG();
+ 		}
+-                set_pte(pte, mk_pte_phys(phys_addr,
+-                                         __pgprot(_PAGE_PRESENT | flags)));
++                set_pte(pte, pfn_pte(pfn, __pgprot(_PAGE_PRESENT | flags)));
+                 address += PAGE_SIZE;
+-                phys_addr += PAGE_SIZE;
++                pfn++;
+                 pte++;
+         } while (address && (address < end));
+ }
+diff -ur arch/sh/mm/cache-sh4.c arch/sh/mm/cache-sh4.c
+--- arch/sh/mm/cache-sh4.c	Fri May  3 13:26:55 2002
++++ arch/sh/mm/cache-sh4.c	Fri May  3 12:49:40 2002
+@@ -398,7 +398,7 @@
+ 		pte_t entry;
+ 		unsigned long flags;
+ 
+-		entry = mk_pte_phys(phys_addr, pgprot);
++		entry = pfn_pte(phys_addr >> PAGE_SHIFT, pgprot);
+ 		down(&p3map_sem[(address & CACHE_ALIAS)>>12]);
+ 		set_pte(pte, entry);
+ 		save_and_cli(flags);
+@@ -437,7 +437,7 @@
+ 		pte_t entry;
+ 		unsigned long flags;
+ 
+-		entry = mk_pte_phys(phys_addr, pgprot);
++		entry = pfn_pte(phys_addr >> PAGE_SHIFT, pgprot);
+ 		down(&p3map_sem[(address & CACHE_ALIAS)>>12]);
+ 		set_pte(pte, entry);
+ 		save_and_cli(flags);
+diff -ur arch/sh/mm/ioremap.c arch/sh/mm/ioremap.c
+--- arch/sh/mm/ioremap.c	Fri May  3 13:26:55 2002
++++ arch/sh/mm/ioremap.c	Fri May  3 12:50:36 2002
+@@ -17,6 +17,7 @@
+ 	unsigned long size, unsigned long phys_addr, unsigned long flags)
+ {
+ 	unsigned long end;
++	unsigned long pfn;
+ 	pgprot_t pgprot = __pgprot(_PAGE_PRESENT | _PAGE_RW |
+ 				   _PAGE_DIRTY | _PAGE_ACCESSED |
+ 				   _PAGE_HW_SHARED | _PAGE_FLAGS_HARD | flags);
+@@ -27,14 +28,15 @@
+ 		end = PMD_SIZE;
+ 	if (address >= end)
+ 		BUG();
++	pfn = phys_addr >> PAGE_SHIFT;
+ 	do {
+ 		if (!pte_none(*pte)) {
+ 			printk("remap_area_pte: page already exists\n");
+ 			BUG();
+ 		}
+-		set_pte(pte, mk_pte_phys(phys_addr, pgprot));
++		set_pte(pte, pfn_pte(pfn, pgprot));
+ 		address += PAGE_SIZE;
+-		phys_addr += PAGE_SIZE;
++		pfn++;
+ 		pte++;
+ 	} while (address && (address < end));
+ }
+diff -ur arch/sparc/mm/srmmu.c arch/sparc/mm/srmmu.c
+--- arch/sparc/mm/srmmu.c	Fri May  3 13:26:55 2002
++++ arch/sparc/mm/srmmu.c	Fri May  3 12:51:41 2002
+@@ -2043,7 +2043,7 @@
+ 	BTFIXUPSET_CALL(pgd_clear, srmmu_pgd_clear, BTFIXUPCALL_SWAPO0G0);
+ 
+ 	BTFIXUPSET_CALL(mk_pte, srmmu_mk_pte, BTFIXUPCALL_NORM);
+-	BTFIXUPSET_CALL(mk_pte_phys, srmmu_mk_pte_phys, BTFIXUPCALL_NORM);
++	BTFIXUPSET_CALL(pfn_pte, srmmu_pfn_pte, BTFIXUPCALL_NORM);
+ 	BTFIXUPSET_CALL(mk_pte_io, srmmu_mk_pte_io, BTFIXUPCALL_NORM);
+ 	BTFIXUPSET_CALL(pgd_set, srmmu_pgd_set, BTFIXUPCALL_NORM);
+ 	BTFIXUPSET_CALL(pmd_set, srmmu_pmd_set, BTFIXUPCALL_NORM);
+diff -ur arch/sparc/mm/sun4c.c arch/sparc/mm/sun4c.c
+--- arch/sparc/mm/sun4c.c	Fri May  3 13:27:09 2002
++++ arch/sparc/mm/sun4c.c	Fri May  3 12:52:01 2002
+@@ -2526,7 +2526,7 @@
+ 	BTFIXUPSET_CALL(pgd_clear, sun4c_pgd_clear, BTFIXUPCALL_NOP);
+ 
+ 	BTFIXUPSET_CALL(mk_pte, sun4c_mk_pte, BTFIXUPCALL_NORM);
+-	BTFIXUPSET_CALL(mk_pte_phys, sun4c_mk_pte_phys, BTFIXUPCALL_NORM);
++	BTFIXUPSET_CALL(pfn_pte, sun4c_pfn_pte, BTFIXUPCALL_NORM);
+ 	BTFIXUPSET_CALL(mk_pte_io, sun4c_mk_pte_io, BTFIXUPCALL_NORM);
+ 	
+ 	BTFIXUPSET_INT(pte_modify_mask, _SUN4C_PAGE_CHG_MASK);
+diff -ur arch/x86_64/mm/init.c arch/x86_64/mm/init.c
+--- arch/x86_64/mm/init.c	Fri May  3 13:26:57 2002
++++ arch/x86_64/mm/init.c	Fri May  3 12:52:23 2002
+@@ -125,7 +125,7 @@
+ 	pte = pte_offset_kernel(pmd, vaddr);
+ 	if (pte_val(*pte))
+ 		pte_ERROR(*pte);
+-	set_pte(pte, mk_pte_phys(phys, prot));
++	set_pte(pte, pfn_pte(phys >> PAGE_SHIFT, prot));
+ 
+ 	/*
+ 	 * It's enough to flush this one mapping.
+diff -ur arch/x86_64/mm/ioremap.c arch/x86_64/mm/ioremap.c
+--- arch/x86_64/mm/ioremap.c	Fri May  3 13:26:57 2002
++++ arch/x86_64/mm/ioremap.c	Fri May  3 12:53:25 2002
+@@ -20,6 +20,7 @@
+ 	unsigned long phys_addr, unsigned long flags)
+ {
+ 	unsigned long end;
++	unsigned long pfn;
+ 
+ 	address &= ~PMD_MASK;
+ 	end = address + size;
+@@ -27,15 +28,16 @@
+ 		end = PMD_SIZE;
+ 	if (address >= end)
+ 		BUG();
++	pfn = phys_addr >> PAGE_SHIFT;
+ 	do {
+ 		if (!pte_none(*pte)) {
+ 			printk("remap_area_pte: page already exists\n");
+ 			BUG();
+ 		}
+-		set_pte(pte, mk_pte_phys(phys_addr, __pgprot(_PAGE_PRESENT | _PAGE_RW | 
++		set_pte(pte, pfn_pte(pfn, __pgprot(_PAGE_PRESENT | _PAGE_RW | 
+ 					_PAGE_GLOBAL | _PAGE_DIRTY | _PAGE_ACCESSED | flags)));
+ 		address += PAGE_SIZE;
+-		phys_addr += PAGE_SIZE;
++		pfn++;
+ 		pte++;
+ 	} while (address && (address < end));
+ }
+Only in drivers/pci: classlist.h
+diff -ur include/asm-i386/pgtable-2level.h include/asm-i386/pgtable-2level.h
+--- include/asm-i386/pgtable-2level.h	Fri May  3 13:36:44 2002
++++ include/asm-i386/pgtable-2level.h	Fri May  3 14:31:39 2002
+@@ -59,6 +59,6 @@
+ #define pte_page(x)		pfn_to_page(pte_pfn(x))
+ #define pte_none(x)		(!(x).pte_low)
+ #define pte_pfn(x)		((unsigned long)(((x).pte_low >> PAGE_SHIFT)))
+-#define __mk_pte(page_nr,pgprot) __pte(((page_nr) << PAGE_SHIFT) | pgprot_val(pgprot))
++#define pfn_pte(pfn, prot)	__pte(((pfn) << PAGE_SHIFT) | pgprot_val(prot))
+ 
+ #endif /* _I386_PGTABLE_2LEVEL_H */
+diff -ur include/asm-i386/pgtable-3level.h include/asm-i386/pgtable-3level.h
+--- include/asm-i386/pgtable-3level.h	Fri May  3 13:37:08 2002
++++ include/asm-i386/pgtable-3level.h	Fri May  3 13:04:35 2002
+@@ -90,7 +90,7 @@
+ #define pte_none(x)	(!(x).pte_low && !(x).pte_high)
+ #define pte_pfn(x)	(((x).pte_low >> PAGE_SHIFT) | ((x).pte_high << (32 - PAGE_SHIFT)))
+ 
+-static inline pte_t __mk_pte(unsigned long page_nr, pgprot_t pgprot)
++static inline pte_t pfn_pte(unsigned long page_nr, pgprot_t pgprot)
+ {
+ 	pte_t pte;
+ 
+diff -ur include/asm-i386/pgtable.h include/asm-i386/pgtable.h
+--- include/asm-i386/pgtable.h	Fri May  3 13:26:57 2002
++++ include/asm-i386/pgtable.h	Fri May  3 14:40:39 2002
+@@ -229,10 +229,7 @@
+  * and a page entry and page directory to the page they refer to.
+  */
+ 
+-#define mk_pte(page, pgprot)	__mk_pte((page) - mem_map, (pgprot))
+-
+-/* This takes a physical page address that is used by the remapping functions */
+-#define mk_pte_phys(physpage, pgprot)	__mk_pte((physpage) >> PAGE_SHIFT, pgprot)
++#define mk_pte(page, pgprot)	pfn_pte(page_to_pfn(page), (pgprot))
+ 
+ static inline pte_t pte_modify(pte_t pte, pgprot_t newprot)
+ {
+diff -ur mm/memory.c mm/memory.c
+--- mm/memory.c	Fri May  3 13:27:09 2002
++++ mm/memory.c	Fri May  3 12:55:10 2002
+@@ -866,21 +866,22 @@
+ 	unsigned long phys_addr, pgprot_t prot)
+ {
+ 	unsigned long end;
++	unsigned long pfn;
+ 
+ 	address &= ~PMD_MASK;
+ 	end = address + size;
+ 	if (end > PMD_SIZE)
+ 		end = PMD_SIZE;
++	pfn = phys_addr >> PAGE_SHIFT;
+ 	do {
+ 		struct page *page;
+ 		pte_t oldpage = ptep_get_and_clear(pte);
+-		unsigned long pfn = phys_addr >> PAGE_SHIFT;
+ 
+ 		if (!pfn_valid(pfn) || PageReserved(pfn_to_page(pfn)))
+- 			set_pte(pte, mk_pte_phys(phys_addr, prot));
++ 			set_pte(pte, pfn_pte(pfn, prot));
+ 		forget_pte(oldpage);
+ 		address += PAGE_SIZE;
+-		phys_addr += PAGE_SIZE;
++		pfn++;
+ 		pte++;
+ 	} while (address && (address < end));
+ }
 
 

@@ -1,34 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267190AbSLRGAg>; Wed, 18 Dec 2002 01:00:36 -0500
+	id <S267170AbSLRF5d>; Wed, 18 Dec 2002 00:57:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267202AbSLRGAg>; Wed, 18 Dec 2002 01:00:36 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:48143 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S267190AbSLRGAf>;
-	Wed, 18 Dec 2002 01:00:35 -0500
-Date: Tue, 17 Dec 2002 22:05:51 -0800
-From: Greg KH <greg@kroah.com>
-To: William Lee Irwin III <wli@holomorphy.com>, chris@wirex.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: converting cap_set_pg() to for_each_task_pid()
-Message-ID: <20021218060551.GM28629@kroah.com>
-References: <20021218055742.GE12812@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021218055742.GE12812@holomorphy.com>
-User-Agent: Mutt/1.4i
+	id <S267173AbSLRF5d>; Wed, 18 Dec 2002 00:57:33 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:48901 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S267170AbSLRF5c>; Wed, 18 Dec 2002 00:57:32 -0500
+Date: Tue, 17 Dec 2002 22:06:41 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Brian Gerst <bgerst@didntduck.org>
+cc: Andi Kleen <ak@suse.de>, <mingo@elte.hu>, <linux-kernel@vger.kernel.org>,
+       <davej@suse.de>
+Subject: Re: Intel P6 vs P7 system call performance
+In-Reply-To: <3E0006D2.3000907@quark.didntduck.org>
+Message-ID: <Pine.LNX.4.44.0212172205590.1233-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 17, 2002 at 09:57:42PM -0800, William Lee Irwin III wrote:
-> I have a pending patch that converts cap_set_pg() to the
-> for_each_task_pid() API. Could you review this, and if it
-> pass, include it in your tree?
 
-This is functionally the same, right?
-And if so, why do the change, is this now faster somehow?
 
-thanks,
+On Wed, 18 Dec 2002, Brian Gerst wrote:
+>
+> How about this patch?  Instead of making a per-cpu trampoline, write to
+> the msr during each context switch.
 
-greg k-h
+I wanted to avoid slowing down the context switch, but I didn't actually
+time how much the MSR write hurts you (it needs to be conditional, though,
+I think).
+
+		Linus
+

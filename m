@@ -1,54 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132809AbRC2Spo>; Thu, 29 Mar 2001 13:45:44 -0500
+	id <S132808AbRC2Sky>; Thu, 29 Mar 2001 13:40:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132815AbRC2SpY>; Thu, 29 Mar 2001 13:45:24 -0500
-Received: from h24-65-193-28.cg.shawcable.net ([24.65.193.28]:1781 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S132809AbRC2SpR>; Thu, 29 Mar 2001 13:45:17 -0500
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200103291844.f2TIiSK09176@webber.adilger.int>
-Subject: Re: Bug in the file attributes ?
-In-Reply-To: <Pine.LNX.4.21.0103292011480.20805-100000@ilaws.aurora-linux.net>
- from Xavier Ordoquy at "Mar 29, 2001 08:20:32 pm"
-To: Xavier Ordoquy <xordoquy@aurora-linux.com>
-Date: Thu, 29 Mar 2001 11:44:27 -0700 (MST)
-CC: linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+	id <S132809AbRC2Sko>; Thu, 29 Mar 2001 13:40:44 -0500
+Received: from nat-pool.corp.redhat.com ([199.183.24.200]:2486 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S132808AbRC2Skf>; Thu, 29 Mar 2001 13:40:35 -0500
+Date: Thu, 29 Mar 2001 13:39:27 -0500
+From: Bill Nottingham <notting@redhat.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: opl3sa2 in 2.4.2 on Toshiba Tecra 8000
+Message-ID: <20010329133927.A9950@devserv.devel.redhat.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <01032910124007.00454@neo> <0103291819180K.00454@neo> <20010329112507.A27209@devserv.devel.redhat.com> <01032920202300.00483@neo>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <01032920202300.00483@neo>; from k@ailis.de on Thu, Mar 29, 2001 at 08:20:23PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Xavier Ordoquy writes:
-> I just made a manipulation that disturbs me. So I'm asking whether it's a
-> bug or a features.
+Klaus Reimer (k@ailis.de) said: 
+> Hi,
 > 
-> user> su
-> root> echo "test" > test
-> root> ls -l
-> -rw-r--r--   1 root     root            5 Mar 29 19:14 test
-> root> exit
-> user> rm test
-> rm: remove write-protected file `test'? y
-> user> ls test
-> ls: test: No such file or directory
+> > > modprobe opl3sa2 io=0x538 mss_io=0x530 mpu_io=0x330 irq=5 dma=1 dma2=0
+> > > isapnp=0
+> > It would be what you put in the io= parameter. 0x538 does *not* look
+> > right.
 > 
-> This is in the user home directory.
-> Since the file is read only for the user, it should not be able to remove
-> it. Moreover, the user can't write to test.
+> These are the sound-settings in the BIOS:
+> 
+> WSS I/O: 0x530
+> SBPro I/O: 0x220
+> Synth I/O: 0x388
+> IRQ: 5
+> WSS (Play) DMA: 1
+> WSS (Rec) DMA & SBPro-DMA: 0
+> Control I/O: 0x538
+> MPU I/O: 0x330
 
-This is definitely not a bug.  Deleting a file (under *nix) does not
-"modify" the file at all, it is modifying the directory where the file
-resides.  In this case, a user _will_ have permission to write into
-their home directory, so they can delete the file, but not modify it.
+Hm, OK, then never mind. :) I don't have an opl3sa2 here to test
+how well the current driver works.
 
-Why do such a thing?  If you have group/world write permission on a
-directory, then people who have write permission to the _directory_
-should be able to delete files even if they don't own them.  However,
-if you set the "sticky" bit on the directory (chmod +t /dir), then only
-the owner of the file can delete it, like in /tmp.
-
-Cheers, Andreas
--- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+Bill

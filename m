@@ -1,65 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268993AbUINGAz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269045AbUINGID@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268993AbUINGAz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 02:00:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269038AbUINGAz
+	id S269045AbUINGID (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 02:08:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269063AbUINGID
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 02:00:55 -0400
-Received: from mail6.bluewin.ch ([195.186.4.229]:28565 "EHLO mail6.bluewin.ch")
-	by vger.kernel.org with ESMTP id S268993AbUINGAx (ORCPT
+	Tue, 14 Sep 2004 02:08:03 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:58292 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S269045AbUINGIA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 02:00:53 -0400
-Date: Tue, 14 Sep 2004 07:59:46 +0200
-From: Roger Luethi <rl@hellgate.ch>
-To: Albert Cahalan <albert@users.sf.net>
-Cc: William Lee Irwin III <wli@holomorphy.com>,
-       Andrew Morton OSDL <akpm@osdl.org>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       Paul Jackson <pj@sgi.com>
-Subject: Re: [1/1][PATCH] nproc v2: netlink access to /proc information
-Message-ID: <20040914055946.GA20929@k3.hellgate.ch>
-Mail-Followup-To: Albert Cahalan <albert@users.sf.net>,
-	William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton OSDL <akpm@osdl.org>,
-	linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-	Paul Jackson <pj@sgi.com>
-References: <20040908184028.GA10840@k3.hellgate.ch> <20040908184130.GA12691@k3.hellgate.ch> <20040909003529.GI3106@holomorphy.com> <20040909184300.GA28278@k3.hellgate.ch> <20040909184933.GG3106@holomorphy.com> <20040909191142.GA30151@k3.hellgate.ch> <1094941556.1173.12.camel@cube>
+	Tue, 14 Sep 2004 02:08:00 -0400
+Date: Tue, 14 Sep 2004 08:06:29 +0200
+From: Jens Axboe <axboe@suse.de>
+To: "C.Y.M." <syphir@syphir.sytes.net>
+Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Changes to ide-probe.c in 2.6.9-rc2 causing improper detection
+Message-ID: <20040914060628.GC2336@suse.de>
+References: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA9mKu6AlYok2efOpJ3sb3O+KAAAAQAAAAjtLAU+gqyUq8AePOBiNtXQEAAAAA@syphir.sytes.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1094941556.1173.12.camel@cube>
-X-Operating-System: Linux 2.6.9-rc1-mm4nproc on i686
-X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
-X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA9mKu6AlYok2efOpJ3sb3O+KAAAAQAAAAjtLAU+gqyUq8AePOBiNtXQEAAAAA@syphir.sytes.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 11 Sep 2004 18:25:56 -0400, Albert Cahalan wrote:
-> > One nitpick: As vmexe and vmlib are always 0 for !CONFIG_MMU, we should
-> > ifdef them out of the list of offered fields for that configuration (and
-> > maybe in nproc_ps_field as well).
-> 
-> No. First of all, I think they can be offered. Until proven
-> otherwise, I'll assume that the !CONFIG_MMU case is buggy.
+On Mon, Sep 13 2004, C.Y.M. wrote:
+> After installing 2.6.9-rc2 on my PC today (x86 VIA Chipset motherboard and
+> Athlon XP CPU), The IDE detection during boot in probing for ide2-5 and
+> displaying errors, and the hard drives that it does find are telling me that
+> "hda: cache flushes not supported" (when they are displayed as supported
+> when using 2.6.9-rc1.
 
-I agree with you that those specific fields should be offered for
-!CONFIG_MMU. However, if for some reason they cannot carry a value
-that fits the field description, they should not be offered at all. The
-ambiguity of having 0 mean either "0" or "this field is not available"
-is bad. Trying to read a specific field _can_ fail, and applications
-had better handle that case (it's still trivial compared to having to
-parse different /proc file layouts depending on the configuration).
+Your drive doesn't advertise FLUSH_CACHE support, the model for when we
+use these commands changed between -rc1 and -rc2. This essentially means
+that you have to turn off write back caching for safe operations on a
+journalled drive.
 
-> mean that fewer apps can run on !CONFIG_MMU boxes. It's
-> same problem as "All the world's a VAX". It's better that
-> the apps work; an author working on a Pentium 4 Xeon is
-> likely to write code that relies on the fields and might
-> not really understand what "no MMU" is all about.
+Alan, I bet there are a lot of these. Maybe we should consider letting
+the user manually flag support for FLUSH_CACHE, at least it is in their
+hands then.
 
-The presumed wrong assumptions underlying broken tools of the future
-are not a good base for designing a new interface. My interest is in
-making it easy to write correct applications (or in fixing broken apps
-that won't work, say, on !CONFIG_MMU systems).
+-- 
+Jens Axboe
 
-Roger

@@ -1,36 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263926AbTJEWUH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Oct 2003 18:20:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263928AbTJEWUH
+	id S263897AbTJEWEi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Oct 2003 18:04:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263899AbTJEWEi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Oct 2003 18:20:07 -0400
-Received: from rth.ninka.net ([216.101.162.244]:23709 "EHLO rth.ninka.net")
-	by vger.kernel.org with ESMTP id S263926AbTJEWUC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Oct 2003 18:20:02 -0400
-Date: Sun, 5 Oct 2003 15:19:57 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Georg Chini <georg.chini@triaton-webhosting.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: SPARC64 and 32: Several problems with 2.6.0-test5 and test6
-Message-Id: <20031005151957.531924b8.davem@redhat.com>
-In-Reply-To: <3F808216.3090106@triaton-webhosting.com>
-References: <3F808216.3090106@triaton-webhosting.com>
-X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 5 Oct 2003 18:04:38 -0400
+Received: from [193.138.115.2] ([193.138.115.2]:39179 "HELO
+	diftmgw.backbone.dif.dk") by vger.kernel.org with SMTP
+	id S263897AbTJEWEg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Oct 2003 18:04:36 -0400
+Date: Mon, 6 Oct 2003 00:03:42 +0200 (CEST)
+From: Jesper Juhl <jju@dif.dk>
+To: linux-kernel@vger.kernel.org
+Subject: How come the assembler can't count? (probably insignificant, but
+ 0x37ffffff truncated to 0x37ffffff seems strange) 
+Message-ID: <Pine.LNX.4.56.0310052356590.25637@jju_lnx.backbone.dif.dk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 05 Oct 2003 22:41:58 +0200
-Georg Chini <georg.chini@triaton-webhosting.com> wrote:
 
-> I did some testing with test5 and test6 kernels on
-> my Sparc Ultra1 and Sparcstation 5. Here is a summary
-> of the problems I observed. Maybe this helps to fix
-> things.
+This is probably completely insignificant, but I'm wondering why I get
+warnings like the following when compiling 2.6.0-test* kernels :
 
-Your report is appreciated, but it's be more useful if
-you reported it to the sparc specific list instead of here.
+tmp/cc211T0f.s: Assembler messages:
+/tmp/cc211T0f.s:860: Warning: value 0x37ffffff truncated to 0x37ffffff
+
+It seems like the assembler can't count since it seems to believe that
+truncating a value to the same exact value would make a difference...
+I've been trying to find the reason for this message, but so far I've not
+been able to locate it. Does someone have an explanation for this
+seemingly bogus warning?
+
+
+/Jesper Juhl
+
+

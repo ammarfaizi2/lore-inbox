@@ -1,67 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265936AbSLSSsc>; Thu, 19 Dec 2002 13:48:32 -0500
+	id <S265909AbSLSS4I>; Thu, 19 Dec 2002 13:56:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265939AbSLSSsc>; Thu, 19 Dec 2002 13:48:32 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:15851 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S265936AbSLSSsa>;
-	Thu, 19 Dec 2002 13:48:30 -0500
-Date: Thu, 19 Dec 2002 10:56:30 -0800
-To: Dumitru Ciobarcianu <Dumitru.Ciobarcianu@ines.ro>,
-       James McKenzie <james@fishsoup.dhs.org>,
-       Christian Gennerat <christian.gennerat@polytechnique.org>,
-       Martin Lucina <mato@kotelna.sk>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.4] : donauboe IrDA driver (resend)
-Message-ID: <20021219185630.GC6703@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-References: <20021219024632.GB1746@bougret.hpl.hp.com> <1040310314.1225.9.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1040310314.1225.9.camel@localhost.localdomain>
-User-Agent: Mutt/1.3.28i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+	id <S265939AbSLSS4I>; Thu, 19 Dec 2002 13:56:08 -0500
+Received: from fmr01.intel.com ([192.55.52.18]:58572 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id <S265909AbSLSS4I>;
+	Thu, 19 Dec 2002 13:56:08 -0500
+Message-ID: <A46BBDB345A7D5118EC90002A5072C7806CACA31@orsmsx116.jf.intel.com>
+From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+To: "'Robert Love'" <rml@tech9.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: [PATCH 2.5.52] Use __set_current_state() instead of current->
+	 state = (take 1)
+Date: Thu, 19 Dec 2002 11:04:06 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 19, 2002 at 05:05:16PM +0200, Dumitru Ciobarcianu wrote:
-> 
-> Hello,
-> 
-> This module does not load all the time for me.
-> If I do an "modprobe donauboe" it gives something like:
-> 
-[...]
-> 
-> If I try a few more times it will finally load...
-> 
-> The kernel is 2.4.20.0.pp.9 (RH rawhide kernel - 2.4.20-ac1 based) +
-> acpi20021205 . I don't know why lspci shows "Toshiba Tecra 8100". The
-> machine is an Toshiba Satellite Pro 4320.
 
-	As I don't have this hardware, I fully depend on people trying
-the code to know if it works or not. This driver has been for 6 months
-in kernel 2.5.X and on my web page (and advertised on the IrDA mailing
-list), and it's only today that I get the first negative bug report.
-	I really wonder what I do wrong. Maybe I should throw untested
-code straight in 2.4.X, like other people do, that may bring the bug
-report faster.
+> > And that would now really work when CONFIG_X86_OOSTORE=1 is required
+> > [after all, it is a write, so it'd need the equivalent of a wmb() or
+> > xchg()].
+> 
+> Is this a hint that your employer may have an x86 chip in the future
+> with weak ordering? :)
 
-	From my casual look at the driver code, it looks like the
-hardware self test is failing. There is a way to disable this self
-test via module parameter "do_probe". Maybe you want to check that.
-	Also, would you mind sending this bug report to all three
-maintainers of the driver ? Also : would you mind sending the log
-output of the old toshoboe driver (assuming it works - does it ?).
+Hmmm ... taking into account that there are some many thousands of
+employees in my company and that I know less than one hundred ...
+and that they are all software ... well, I don't think I am into
+the rumour mill :]
 
-	Have fun...
+Inaky Perez-Gonzalez -- Not speaking for Intel - opinions are my own [or my
+fault]
 
-	Jean
-
-P.S. : Full e-mail is at :
-	http://marc.theaimsgroup.com/?l=linux-kernel&m=104031025012364&w=2

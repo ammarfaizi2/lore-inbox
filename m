@@ -1,53 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284879AbRLPWcG>; Sun, 16 Dec 2001 17:32:06 -0500
+	id <S284874AbRLPWa0>; Sun, 16 Dec 2001 17:30:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284890AbRLPWb4>; Sun, 16 Dec 2001 17:31:56 -0500
-Received: from mail-smtp.uvsc.edu ([161.28.224.157]:34863 "HELO
-	mail-smtp.uvsc.edu") by vger.kernel.org with SMTP
-	id <S284879AbRLPWbo> convert rfc822-to-8bit; Sun, 16 Dec 2001 17:31:44 -0500
-Message-Id: <sc1c97f4.074@mail-smtp.uvsc.edu>
-X-Mailer: Novell GroupWise Internet Agent 5.5.4.1
-Date: Sun, 16 Dec 2001 12:47:37 -0700
-From: "Tyler BIRD" <birdty@uvsc.edu>
-To: <aneesh.kumar@digital.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Alpha  - how to fill the PC
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S284879AbRLPWaR>; Sun, 16 Dec 2001 17:30:17 -0500
+Received: from ns01.netrox.net ([64.118.231.130]:8139 "EHLO smtp01.netrox.net")
+	by vger.kernel.org with ESMTP id <S284874AbRLPWaI> convert rfc822-to-8bit;
+	Sun, 16 Dec 2001 17:30:08 -0500
+Subject: Re: Is /dev/shm needed?
+From: Robert Love <rml@tech9.net>
+To: =?ISO-8859-1?Q?Ra=FAlN=FA=F1ez?= de Arenas Coronado 
+	<raul@viadomus.com>
+Cc: Linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <E16FjME-0000WW-00@DervishD.viadomus.com>
+In-Reply-To: <E16FjME-0000WW-00@DervishD.viadomus.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
+X-Mailer: Evolution/1.0.0.99+cvs.2001.12.10.08.57 (Preview Release)
+Date: 16 Dec 2001 17:30:47 -0500
+Message-Id: <1008541849.11242.2.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-One thing I thought of is the process on lets say node2 have exactly the same
-address space as on node 1 when it is migrated.  You could be trying to return from a syscall
-to an address space of a process that doesn't exist on the node or hasn't migrated yet.
+On Sun, 2001-12-16 at 17:02, RaúlNúñez de Arenas Coronado wrote:
 
-Just a thought
+>     I don't know if /dev/shm (mounted with shmfs or the newer tmpfs)
+> is needed for proper SYSV IPC operation with newer (2.4.16 and newer)
+> kernel. Anyone can help?
 
->>> "Aneesh Kumar K.V" <aneesh.kumar@digital.com> 12/16/01 06:19AM >>>
-Hi, 
+It is not needed.  /dev/shm mounted with tmpfs is only needed for POSIX
+shared memory, which is still fairly rare.  SysV IPC will work fine.
 
- 	I am trying to do  process migration between nodes  using alpha
-architecture. For explaining what is happening I will take the process
-getting migrated from node1 to node2. I am using struct pt_regs  for
-rebuilding the process on  node2.I am getting the same  value of struct
-pt_regs on node1 and on node2 ( I print is using dik_show_regs) Now I
-want to set the value of registers including the program counter with
-the value i got from node1. Right now I am doing
-ret_from_sys_call(&regs). But then i am getting a Oops . The Oops
-message contain all the register values same as that I got from node1
-except pc and ra 
+>     Moreover: I want to move my /tmp from disk to tmpfs for speed (I
+> make a lot of compiling, so I think it would help). Is this a good
+> idea? If so, what size can be appropriate for a small system that is
+> not permanently running?
 
-	Any idea where I went wrong ? 
+Some say it helps, others don't.  Solaris has a similar feature, and it
+seems to work for them.  However, Linux is light and our page-cache
+works well.  Not so sure it is ideal.
 
- -aneesh 
+In other words, if you have memory to spare and the data ought to be
+cached, Linux probably will cache it anyhow.  On the other hand, if you
+have lots of memory to spare, give it a try.  Mount /tmp or all of /var
+in tmpfs.
 
+It is dynamic, so you don't need to specify a size.  If you want to give
+a maximum size (probably a good idea), give one.  Depends on what your
+tmp usages are and how much free memory you have.
 
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org 
-More majordomo info at  http://vger.kernel.org/majordomo-info.html 
-Please read the FAQ at  http://www.tux.org/lkml/
+	Robert Love
 

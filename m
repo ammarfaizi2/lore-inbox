@@ -1,52 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311210AbSCLOSB>; Tue, 12 Mar 2002 09:18:01 -0500
+	id <S311203AbSCLOYm>; Tue, 12 Mar 2002 09:24:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311212AbSCLORv>; Tue, 12 Mar 2002 09:17:51 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:8457 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S311210AbSCLORj>;
-	Tue, 12 Mar 2002 09:17:39 -0500
-Date: Tue, 12 Mar 2002 14:17:38 +0000
-From: wli@holomorphy.com
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: Andrea Arcangeli <andrea@suse.de>, wli@parcelfarce.linux.theplanet.co.uk,
-        linux-kernel@vger.kernel.org, riel@surriel.com, hch@infradead.org,
-        phillips@bonn-fries.net
+	id <S311211AbSCLOYd>; Tue, 12 Mar 2002 09:24:33 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:21314 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S311203AbSCLOYV>; Tue, 12 Mar 2002 09:24:21 -0500
+Date: Tue, 12 Mar 2002 15:25:34 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: Rik van Riel <riel@conectiva.com.br>,
+        wli@parcelfarce.linux.theplanet.co.uk,
+        "Richard B. Johnson" <root@chaos.analogic.com>,
+        linux-kernel@vger.kernel.org, hch@infradead.org
 Subject: Re: 2.4.19pre2aa1
-Message-ID: <20020312141738.D14628@holomorphy.com>
-Mail-Followup-To: wli@holomorphy.com,
-	"Richard B. Johnson" <root@chaos.analogic.com>,
-	Andrea Arcangeli <andrea@suse.de>,
-	wli@parcelfarce.linux.theplanet.co.uk, linux-kernel@vger.kernel.org,
-	riel@surriel.com, hch@infradead.org, phillips@bonn-fries.net
-In-Reply-To: <20020312135605.P25226@dualathlon.random> <Pine.LNX.3.95.1020312083126.14299A-100000@chaos.analogic.com>
+Message-ID: <20020312152534.U25226@dualathlon.random>
+In-Reply-To: <20020312070645.X10413@dualathlon.random> <Pine.LNX.4.44L.0203120746000.2181-100000@imladris.surriel.com> <20020312124728.L25226@dualathlon.random> <E16klHb-0001up-00@starship>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.3.95.1020312083126.14299A-100000@chaos.analogic.com>; from root@chaos.analogic.com on Tue, Mar 12, 2002 at 08:33:23AM -0500
+In-Reply-To: <E16klHb-0001up-00@starship>
+User-Agent: Mutt/1.3.22.1i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 12, 2002 at 08:33:23AM -0500, Richard B. Johnson wrote:
-> This is a simple random number generator. It takes a pointer to your
-> own private long, somewhere in your code, and returns a long random
-> number with a period of 0xfffd4011. I ran a program for about a
-> year, trying to find a magic number that will produce a longer
-> period.
+On Tue, Mar 12, 2002 at 01:21:35PM +0100, Daniel Phillips wrote:
+> On March 12, 2002 12:47 pm, Andrea Arcangeli wrote:
+> > If it's pure random mul will make no difference to
+> > the distribution. And the closer we're to pure random like in the
+> > wait_table hash, the less mul will help and the more important will be
+> > to just get right the two contigous pages in the same cacheline and
+> > nothing else.
 > 
-> You could add a ldiv and return the modulus to set hash-table limits.
-> ANDs are not good because, in principle, you could get many numbers
-> in which all the low bits are zero.
-> 
-> 
-> The advantage of this simple code is it works quickly. The disadvantages
-> are, of course, its not portable and a rotation of a binary number
-> is not a mathematical function, lending itself to rigorous analysis.
+> You're ignoring the possibility (probability) of corner cases.  I'm not
 
-Would you mind explaining what the point of this is? AFAICT this is
-meaningless noise inspired by the words "/dev/random".
+The corner cases cannot go away with a mul. If what you care about are
+corner cases you shouldn't have dropped page->wait.
 
+I changed the hashfn to make it better IMHO, Bill says it is suboptimal,
+but I would prefer to see it happening on real load too before returning
+to the mul. Counting the number of collisions per second under load
+should be good enough measurement, nominal performance would be the
+other variable but I doubt there's anything to measure in real time
+differences.
 
-Bill
+If I'm generating visibly more collisions, I will be very glad to return
+to the mul hashfn of course.
+
+AFIK my current hashfn is never been tested in precendence on this kind
+of random input of the wait_table pages.
+
+Andrea

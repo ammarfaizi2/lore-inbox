@@ -1,47 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267539AbTAQOgc>; Fri, 17 Jan 2003 09:36:32 -0500
+	id <S267498AbTAQOeJ>; Fri, 17 Jan 2003 09:34:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267540AbTAQOgc>; Fri, 17 Jan 2003 09:36:32 -0500
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:38563 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S267539AbTAQOgb>; Fri, 17 Jan 2003 09:36:31 -0500
-Date: Fri, 17 Jan 2003 08:44:22 -0600 (CST)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: Mikael Pettersson <mikpe@csd.uu.se>
-cc: rusty@rustcorp.com.au, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.59 vmlinux.lds.S change broke modules
-In-Reply-To: <15911.64825.624251.707026@harpo.it.uu.se>
-Message-ID: <Pine.LNX.4.44.0301170840200.14924-100000@chaos.physics.uiowa.edu>
+	id <S267512AbTAQOeJ>; Fri, 17 Jan 2003 09:34:09 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:3859 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S267498AbTAQOeI>; Fri, 17 Jan 2003 09:34:08 -0500
+Date: Fri, 17 Jan 2003 09:40:31 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Jim Houston <jim.houston@attbi.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] IDE OnTrack remap for 2.5.58
+In-Reply-To: <200301161814.h0GIEbb02258@linux.local>
+Message-ID: <Pine.LNX.3.96.1030117093447.10871B-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 17 Jan 2003, Mikael Pettersson wrote:
+On Thu, 16 Jan 2003, Jim Houston wrote:
 
-> What happens is that __find_symbol() oopses because the kernel's
-> symbol table is in la-la land. (Note the bogus kernel adress
-> 2220c021 it tried to dereference above.)
-> 
-> Reverting 2.5.59's patch to arch/i386/vmlinux.lds.S cured the
-> problem and modules now load correctly for me.
+> I'm running a Seagate 80 GB disk in an old Pentium Pro dual processor.
+> I installed the current Redhat (phoebe) beta, and it works fine until
+> I try to boot a 2.5.58 kernel.  It fails to mount the root disk because
+> the disk has been setup with OnTrack remaping.  I didn't do anything
+> to ask for this remapping.  Perhaps Seagate is shipping with this pre-
+> installed?
 
-That's interesting. It doesn't happen for me, but I'm using older 
-binutils. The patch really only changes two things (except for ARM):
-o whitespace
-o It adds AT(ADDR(section) - 0)
+Interesting if they are, but probably too late to determine. In any case
+you *might* be able to clean it up with the extended menu geometry stuff
+in fdisk. You might be able to go into the BIOS and tell it to use LBA,
+although you might also lose what's on the drive that way.
 
-Both of these should be NOPs, but apparently not. Could you try removing
-the AT(...) from include/asm-generic/vmlinux.lds.h?
+> I went back and looked through the patches and found that the remapping
+> support was removed in patch-2.5.30.  The comments in the mailing list
+> suggest that it belonged in user space.  I have not found code/instructions
+> on how to do this.  Since then, most of IDE code has been reverted to the
+> 2.4 versions but not this bit.
 
-Also, what does
-	objdump -h vmlinux
-and
-	grep __start_ System.map
-say?
+I suspect that this will not go back in the mainline kernel, although the
+"best done in user space" comment made by someone is a bit of a challenge
+when you need it in place to get the system booted... Best avoid needing
+it if you can.
 
---Kai
+I saved the patch, some of the local users might have ned of it.
 
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

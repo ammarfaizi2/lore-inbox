@@ -1,45 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317221AbSEXRz2>; Fri, 24 May 2002 13:55:28 -0400
+	id <S317215AbSEXR4j>; Fri, 24 May 2002 13:56:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317216AbSEXRz1>; Fri, 24 May 2002 13:55:27 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:18173 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S317215AbSEXRz0>; Fri, 24 May 2002 13:55:26 -0400
-Subject: Re: Compiling 2.2.19 with -O3 flag
-From: Robert Love <rml@tech9.net>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Marcus Meissner <mm@ns.caldera.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020524184402.A24780@infradead.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 24 May 2002 10:55:20 -0700
-Message-Id: <1022262920.956.258.camel@sinai>
+	id <S317224AbSEXR4i>; Fri, 24 May 2002 13:56:38 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:49792 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S317215AbSEXR4g>;
+	Fri, 24 May 2002 13:56:36 -0400
+Date: Fri, 24 May 2002 10:42:09 -0700 (PDT)
+Message-Id: <20020524.104209.31440798.davem@redhat.com>
+To: wjhun@ayrnetworks.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Possible discrepancy regarding streaming DMA mappings in
+ DMA-mapping.txt?
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20020524104345.J7205@ayrnetworks.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-05-24 at 10:44, Christoph Hellwig wrote:
+   From: William Jhun <wjhun@ayrnetworks.com>
+   Date: Fri, 24 May 2002 10:43:46 -0700
+   
+   So, if I'm not mistaken, you are saying that I need to call
+   pci_dma_sync_single() *after* the DMA so that the CPU reclaims ownership
+   to the buffer? That's fine and probably serves a good purpose on other
+   architectures, but wouldn't I also need to do one before the DMA (after
+   the CPU write) operation to flush write buffers/writeback any cachelines
+   I've modified for non-cache-coherent architectures?
 
-> -Os implies -O2 + additional size-reducing features:
-> 
-> [hch@sb hch]$ grep -r optimize_size /work/people/hch/gcc/gcc | wc -l
->     250
-> [hch@sb hch]$
-> 
-> A bunch of matches are in ChangeLog and most are target-specific,
-> but I guess you got the point..
+I see what your problem is, the interfaces were designed such
+that the CPU could read the data.  It did not consider writes.
 
-I know this...maybe I am not being clear.  I realize -Os is a derivate
-of -O2, but is it not an interesting note if -Os can be as fast (or
-faster) than -O2 and still generate smaller binaries?  That is my point.
+It was designed to handle a case like a networking driver where
+a receive packet is inspected before we decide whether we accept the
+packet or just give it back to the card.
 
-If -Os is equivalent in speed to -O2 but also generates smaller objects,
-then why have -O2?  If it does not generate smaller objects (which is
-what my testing has shown) then it is worthless.  Unless it is faster
-than -O2, like Alan said, in which case then the two options need to
-rethink themselves ;-)
-
-	Robert Love
-
+Feel free to design the "cpu writes, back to device ownership"
+interfaces and submit a patch :-)

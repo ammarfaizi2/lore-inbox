@@ -1,99 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266695AbUHECYC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267470AbUHECdb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266695AbUHECYC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Aug 2004 22:24:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267386AbUHECYC
+	id S267470AbUHECdb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Aug 2004 22:33:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267473AbUHECdb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Aug 2004 22:24:02 -0400
-Received: from smtp106.mail.sc5.yahoo.com ([66.163.169.226]:32127 "HELO
-	smtp106.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S266695AbUHECX6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Aug 2004 22:23:58 -0400
-Message-ID: <41119A3B.2020202@yahoo.com.au>
-Date: Thu, 05 Aug 2004 12:23:55 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.1) Gecko/20040726 Debian/1.7.1-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Peter Williams <pwil3058@bigpond.net.au>
-CC: Albert Cahalan <albert@users.sf.net>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       kernel@kolivas.org, Andrew Morton OSDL <akpm@osdl.org>
-Subject: Re: SCHED_BATCH and SCHED_BATCH numbering
-References: <1091638227.1232.1750.camel@cube> <41118AAE.7090107@bigpond.net.au> <41118D0C.9090103@yahoo.com.au> <411196EE.9050408@bigpond.net.au>
-In-Reply-To: <411196EE.9050408@bigpond.net.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 4 Aug 2004 22:33:31 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:28857 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S267470AbUHECd0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Aug 2004 22:33:26 -0400
+Date: Wed, 4 Aug 2004 19:32:43 -0700
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: zaitcev@redhat.com, spot@redhat.com, akpm@osdl.org
+Subject: Make MAX_INIT_ARGS 25
+Message-Id: <20040804193243.36009baa@lembas.zaitcev.lan>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 0.9.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Williams wrote:
+Hello, everyone:
 
-> Nick Piggin wrote:
->
->> Peter Williams wrote:
->>
->>> Albert Cahalan wrote:
->>>
->>>> Are these going to be numbered consecutively, or might
->>>> they better be done like the task state? SCHED_FIFO is
->>>> in fact already treated this way in one place. One might
->>>> want to test values this way:
->>>>
->>>> if(foo & (SCHED_ISO|SCHED_RR|SCHED_FIFO))  ...
->>>>
->>>> (leaving aside SCHED_OTHER==0, or just translate
->>>> that single value for the ABI)
->>>>
->>>> I'd like to see these get permenant allocations
->>>> soon, even if the code doesn't go into the kernel.
->>>> This is because user-space needs to know the values.
->>>
->>>
->>>
->>>
->>> Excellent idea.  The definition of rt_task() could become:
->>>
->>> #define rt_task(p) ((p)->policy & (SCHED_RR|SCHED_FIFO))
->>>
->>> instead of the highly dodgy:
->>
->
-> I probably should have said "slightly" instead of "highly" here but I 
-> got carried away. :-)
->
->>>
->>> #define rt_task(p) ((p)->prio < MAX_RT_PRIO)
->>>
->>
->> Nothing wrong with that, is there?
->
->
-> It's sloppy logic in that "prio" being less than MAX_RT_PRIO is a 
-> consequence of the task being real time not the definition of it.  At 
-> the moment it is a sufficient condition for identifying a task as real 
-> time but that may not always be the case.
+We at Red Hat shipped a larger number of arguments for quite some time,
+it was required for installations on IBM mainframe (s390), which doesn't
+have a good way to pass arguments. I tried to submit it before, but only
+half-heartedly, because I saw it as not benefitting folks at large, so
+why bloat, right?
 
-Actually, p->prio < MAX_RT_PRIO iff rt_task(p). This can't change 
-without horribly breaking
-stuff.
+I really hate carrying divergent patches in Red Hat tree, even small
+ones like this one, but there wasn't enough pull to integrate.
+Recently I saw patches which try to make the MAX_INIT_ARGS and
+MAX_INIT_ENVS configurable. Apparently, it's needed for someone else
+besides mainframe now. This is an example (from Mike McLean):
 
-> But, the real issue is, what's the point of having a field, "policy", 
-> that IS the definitive indicator of the task's scheduling policy if 
-> you don't use it?  An rt_task() function/macro defined in terms of the 
-> policy field with this suggested numbering scheme should always be 
-> correct.
->
-> At the moment rt_task(p) could be defined as ((p)->policy != 
-> SCHED_OTHER) but the addition of SCHED_ISO and SCHED_BATCH would break 
-> that.  Another option would be (((p)->policy == SCHED_FIFO) || 
-> ((p)->policy == SCHED_RR)) but that's a little long winded and 
-> (avoiding it) is probably the reason for the current definition. 
+> There are a number of reasonable situations that go past the current 
+> limits of 8.  One that comes to mind is when you want to perform a 
+> manual vnc install on a headless machine using anaconda.  This requires 
+> passing in a number of parameters to get anaconda past the initial 
+> (no-gui) loader screens.
 
+I thought about it and decided that making this configurable is more
+trouble than it's worth. We'd need a new entry, all to save a few words.
+There would be a need to document it, and to ask users "are you sure you
+configured your MAX_INIT_FOO to 20?" OTOH, if we just bump it, any
+software can just look at version and magically know if the kernel
+supports larger number of arguments, at the moment of kernel installation.
+Say, if Linus takes it now, 2.6.8 and above would be "ok for jumpstart".
 
-Conversely, p->prio < MAX_RT_PRIO neatly defines a task as being 
-realtime without worrying
-about what exact policy it is using. However if you add or remove 
-scheduling policies, your
-p->policy method breaks.
+I'd like to ask (Andrew? Linus?) simply to bump the value somewhat,
+without any complications. The value of 25 is specifically selected
+to show that it's arbitrary. Mike wanted 32, but that just looked too
+meaningful.
 
+-- Pete
+
+--- linux-2.6.7/init/main.c	2004-06-16 16:54:07.000000000 -0700
++++ linux-2.6.7-usb/init/main.c	2004-08-04 19:16:22.566593218 -0700
+@@ -102,8 +102,8 @@
+ /*
+  * Boot command-line arguments
+  */
+-#define MAX_INIT_ARGS 8
+-#define MAX_INIT_ENVS 8
++#define MAX_INIT_ARGS 25
++#define MAX_INIT_ENVS 25
+ 
+ extern void time_init(void);
+ /* Default late time init is NULL. archs can override this later. */

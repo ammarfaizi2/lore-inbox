@@ -1,46 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261264AbVCQWOF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261215AbVCQWPk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261264AbVCQWOF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Mar 2005 17:14:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261263AbVCQWOF
+	id S261215AbVCQWPk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Mar 2005 17:15:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261212AbVCQWPj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Mar 2005 17:14:05 -0500
-Received: from mail.tmr.com ([216.238.38.203]:65029 "EHLO gatekeeper.tmr.com")
-	by vger.kernel.org with ESMTP id S261259AbVCQWOB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Mar 2005 17:14:01 -0500
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Bill Davidsen <davidsen@tmr.com>
-Newsgroups: mail.linux-kernel
-Subject: Memory Stick Changes in 2.6.11?
-Date: Thu, 17 Mar 2005 17:19:49 -0500
-Organization: TMR Associates, Inc
-Message-ID: <d1cup0$une$1@gatekeeper.tmr.com>
+	Thu, 17 Mar 2005 17:15:39 -0500
+Received: from av1-1-sn4.m-sp.skanova.net ([81.228.10.116]:39905 "EHLO
+	av1-1-sn4.m-sp.skanova.net") by vger.kernel.org with ESMTP
+	id S261215AbVCQWPa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Mar 2005 17:15:30 -0500
+Date: Thu, 17 Mar 2005 23:15:21 +0100
+From: Voluspa <voluspa@telia.com>
+To: Voluspa <lista1@telia.com>
+Cc: linux-os@analogic.com, hancockr@shaw.ca, B.Zolnierkiewicz@elka.pw.edu.pl,
+       linux-kernel@vger.kernel.org
+Subject: Re: Awful long timeouts for flash-file-system
+Message-Id: <20050317231521.500dcf68.voluspa@telia.com>
+In-Reply-To: <20050317050623.14f24754.lista1@telia.com>
+References: <20050317050623.14f24754.lista1@telia.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Trace: gatekeeper.tmr.com 1111096928 31470 192.168.12.100 (17 Mar 2005 22:02:08 GMT)
-X-Complaints-To: abuse@tmr.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was pulling some pictures out of memory sticks from a camera, and 
-after I pulled tham I was removing the image files from the stick. One 
-of the sticks mounted read-only. After a few attempts to explicitly use 
-"rw" in the mount command and things like that, I booted back into 
-2.6.10 and found the stick mounted rw.
+On Thu, 17 Mar 2005 05:06:23 +0100 Voluspa wrote:
 
-I looked at the code, and I don't see anything obvious. Can someone 
-point me to where the change is made?
+<some junk>
 
-OT: I think that if I explicitly use the rw option the mount should do 
-what I ask or fail. This "I can't do what you want so I did something 
-else" behaviour make scripts more complex.
+Went back to 2.6.10 and just got one of those dma_timer_expiry freezes.
+Seems the disk is on the blink then. Sorry about the noise.
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+Mvh
+Mats Johannesson
+--

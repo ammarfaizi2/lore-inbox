@@ -1,50 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265226AbUG0MdJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265317AbUG0MfM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265226AbUG0MdJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 08:33:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265215AbUG0MdI
+	id S265317AbUG0MfM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 08:35:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265198AbUG0Met
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 08:33:08 -0400
-Received: from mail.tv-sign.ru ([213.234.233.51]:140 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S265226AbUG0M3l (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 08:29:41 -0400
-Message-ID: <41064BB8.4F8B7543@tv-sign.ru>
-Date: Tue, 27 Jul 2004 16:34:00 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
+	Tue, 27 Jul 2004 08:34:49 -0400
+Received: from out002pub.verizon.net ([206.46.170.141]:18669 "EHLO
+	out002.verizon.net") by vger.kernel.org with ESMTP id S265199AbUG0MdE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jul 2004 08:33:04 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Organization: Organization: undetectable
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.8-rc2 crashes
+Date: Tue, 27 Jul 2004 12:33:04 -0400
+User-Agent: KMail/1.6
 MIME-Version: 1.0
-To: Rajesh Venkatasubramanian <vrajesh@umich.edu>
-Cc: linux-kernel@vger.kernel.org, Hugh Dickins <hugh@veritas.com>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] prio_tree iterator cleanup.
-Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200407271233.04205.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out002.verizon.net from [141.153.127.25] at Tue, 27 Jul 2004 07:33:03 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Rajesh,
+Greetings everybody;
 
-Rajesh Venkatasubramanian wrote:
->
-> If you can post your 2nd and 3rd patches independent of your
-> first patch, that will be great.
+I have now had 4 crashes while running 2.6.8-rc2, the last one
+requiring a full powerdown before the intel-8x0 could
+re-establish control over the sound.
 
-Ok, i'll do it at weekend.
+All have had an initial Opps located in prune_dcache, and were
+logged as follows:
+Jul 27 07:58:58 coyote kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000000
+Jul 27 07:58:58 coyote kernel:  printing eip:
+Jul 27 07:58:58 coyote kernel: c0164376
+Jul 27 07:58:58 coyote kernel: *pde = 00000000
+Jul 27 07:58:58 coyote kernel: Oops: 0002 [#1]
+Jul 27 07:58:58 coyote kernel: PREEMPT
+Jul 27 07:58:58 coyote kernel: Modules linked in: tuner tvaudio bttv video_buf btcx_risc eeprom snd_seq_oss snd_seq
+_midi_event snd_seq snd_pcm_oss snd_mixer_oss snd_bt87x snd_intel8x0 snd_ac97_codec snd_pcm snd_timer snd_page_allo
+c snd_mpu401_uart snd_rawmidi snd_seq_device snd forcedeth sg
+Jul 27 07:58:58 coyote kernel: CPU:    0
+Jul 27 07:58:58 coyote kernel: EIP:    0060:[<c0164376>]    Not tainted
+Jul 27 07:58:58 coyote kernel: EFLAGS: 00010216   (2.6.8-rc2-nf2)
+Jul 27 07:58:58 coyote kernel: EIP is at prune_dcache+0x36/0x1c0
+Jul 27 07:58:58 coyote kernel: eax: c03706f8   ebx: dbbf1090   ecx: dbbf5c34   edx: 00000000
+Jul 27 07:58:58 coyote kernel: esi: ed1f8990   edi: c1989000   ebp: 0000001e   esp: c1989ef8
+Jul 27 07:58:58 coyote kernel: ds: 007b   es: 007b   ss: 0068
+Jul 27 07:58:58 coyote kernel: Process kswapd0 (pid: 66, threadinfo=c1989000 task=c1978050)
+Jul 27 07:58:58 coyote kernel: Stack: ed1f8990 c1989ef8 0000002a 00000000 c1989000 f7ffea20 c016491f 0000002a
+Jul 27 07:58:58 coyote kernel:        c013ab6b 0000002a 000000d0 0001df9e 022f2e00 00000000 0000012a 00000000
+Jul 27 07:58:58 coyote kernel:        c036f6e4 00000002 00000007 c036f5c0 c013bf11 00000020 000000d0 00000000
+Jul 27 07:58:58 coyote kernel: Call Trace:
+Jul 27 07:58:58 coyote kernel:  [<c016491f>] shrink_dcache_memory+0x1f/0x50
+Jul 27 07:58:58 coyote kernel:  [<c013ab6b>] shrink_slab+0x14b/0x190
+Jul 27 07:58:58 coyote kernel:  [<c013bf11>] balance_pgdat+0x1b1/0x200
+Jul 27 07:58:58 coyote kernel:  [<c013c027>] kswapd+0xc7/0xe0
+Jul 27 07:58:58 coyote kernel:  [<c01146b0>] autoremove_wake_function+0x0/0x60
+Jul 27 07:58:58 coyote kernel:  [<c0103fb2>] ret_from_fork+0x6/0x14
+Jul 27 07:58:58 coyote kernel:  [<c01146b0>] autoremove_wake_function+0x0/0x60
+Jul 27 07:58:58 coyote kernel:  [<c013bf60>] kswapd+0x0/0xe0
+Jul 27 07:58:58 coyote kernel:  [<c0102251>] kernel_thread_helper+0x5/0x14
+Jul 27 07:58:58 coyote kernel: Code: 89 02 89 49 04 89 09 a1 fc 06 37 c0 0f 18 00 90 ff 0d 04 07
+Jul 27 07:58:58 coyote kernel:  <6>note: kswapd0[66] exited with preempt_count 1
+Jul 27 07:58:58 coyote kernel: c_pid_flush+0x17/0x30
+Jul 27 07:58:58 coyote kernel:  [<c011779d>] release_task+0x13d/0x1e0
+Jul 27 07:58:58 coyote kernel:  [<c011923b>] wait_task_zombie+0x15b/0x1c0
+Jul 27 07:58:58 coyote kernel:  [<c0119653>] sys_wait4+0x213/0x260
+Jul 27 07:58:58 coyote kernel:  [<c0113420>] default_wake_function+0x0/0x20
+Jul 27 07:58:58 coyote kernel:  [<c0113420>] default_wake_function+0x0/0x20
+Jul 27 07:58:58 coyote kernel:  [<c01196c7>] sys_waitpid+0x27/0x2b
+Jul 27 07:58:58 coyote kernel:  [<c0104089>] sysenter_past_esp+0x52/0x71
 
-> Please covert vma_prio_tree_next in arch/* directories if you
-> plan to post a new version of your 3rd patch.
+With several iterations of this appended next:
+Jul 27 07:58:58 coyote kernel: bad: scheduling while atomic!
+Jul 27 07:58:58 coyote kernel:  [<c030dc3c>] schedule+0x47c/0x490
+Jul 27 07:58:58 coyote kernel:  [<c01673e4>] __wait_on_inode+0x84/0xa0
+Jul 27 07:58:58 coyote kernel:  [<c0113420>] default_wake_function+0x0/0x20
+Jul 27 07:58:58 coyote kernel:  [<c0113420>] default_wake_function+0x0/0x20
+Jul 27 07:58:58 coyote kernel:  [<c016d7ea>] __writeback_single_inode+0x5a/0xc0
+Jul 27 07:58:58 coyote kernel:  [<c016d9be>] sync_sb_inodes+0x16e/0x290
+Jul 27 07:58:58 coyote kernel:  [<c016dc4e>] sync_inodes_sb+0x7e/0xa0
+Jul 27 07:58:58 coyote kernel:  [<c016ddcb>] sync_inodes+0x7b/0xa0
+Jul 27 07:58:58 coyote kernel:  [<c014e1f4>] do_sync+0x44/0x80
+Jul 27 07:58:58 coyote kernel:  [<c014e23f>] sys_sync+0xf/0x20
+Jul 27 07:58:58 coyote kernel:  [<c011667f>] panic+0xff/0x110
+Jul 27 07:58:58 coyote kernel:  [<c0118e9f>] do_exit+0x3ff/0x420
+Jul 27 07:58:58 coyote kernel:  [<c0111640>] do_page_fault+0x0/0x51b
+Jul 27 07:58:58 coyote kernel:  [<c0104968>] die+0xf8/0x100
+Jul 27 07:58:58 coyote kernel:  [<c011181b>] do_page_fault+0x1db/0x51b
+Jul 27 07:58:58 coyote kernel:  [<c0105e12>] do_IRQ+0x102/0x1a0
+Jul 27 07:58:58 coyote kernel:  [<c030da4e>] schedule+0x28e/0x490
+Jul 27 07:58:58 coyote kernel:  [<c0111640>] do_page_fault+0x0/0x51b
+Jul 27 07:58:58 coyote kernel:  [<c0104285>] error_code+0x2d/0x38
+Jul 27 07:58:58 coyote kernel:  [<c01647d6>] select_parent+0x56/0xb0
+Jul 27 07:58:58 coyote kernel:  [<c0164840>] shrink_dcache_parent+0x10/0x30
+Jul 27 07:58:58 coyote kernel:  [<c017b557>] proc_pid_flush+0x17/0x30
+Jul 27 07:58:59 coyote kernel:  [<c011779d>] release_task+0x13d/0x1e0
+Jul 27 07:58:59 coyote kernel:  [<c011923b>] wait_task_zombie+0x15b/0x1c0
+Jul 27 07:58:59 coyote kernel:  [<c0119653>] sys_wait4+0x213/0x260
+Jul 27 07:58:59 coyote kernel:  [<c0113420>] default_wake_function+0x0/0x20
+Jul 27 07:58:59 coyote kernel:  [<c0113420>] default_wake_function+0x0/0x20
+Jul 27 07:58:59 coyote kernel:  [<c01196c7>] sys_waitpid+0x27/0x2b
+Jul 27 07:58:59 coyote kernel:  [<c0104089>] sysenter_past_esp+0x52/0x71
 
-Oh, sorry. I promise, i will read man grep 3 times.
+Now, someone gave me the syntax to do a dis on this, but I'm no intel
+assembly guru.  If someone could repeat that such that I could apply
+it to fs/cache.o, I'd be happy to fwd the results to whomever it might
+apply to.
 
-> However, your 1st patch is intrusive and I am not convinced
-> that it improves the code very much.
-> Overall I am inclined to leave the prio_tree code as it is.
+I'd revert to rc1, but I'd have to figure out a way to use this .config
+in that tree, I've changed motherboards and this is the only version
+I've brought into compliance with this new hardware.
 
-Yes, i understand, it changes working code without real gain.
-However, i will send it as 3rd patch, in the case you will
-change you mind.
-
-Thank you,
-Oleg.
+-- 
+Cheers, Gene
+There are 4 boxes to be used in defense of liberty. 
+Soap, ballot, jury, and ammo.
+Please use in that order, starting now.  -Ed Howdershelt, Author
+Additions to this message made by Gene Heskett are Copyright 2004, 
+Maurice E. Heskett, all rights reserved.

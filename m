@@ -1,44 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272579AbTHEIQN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 04:16:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272587AbTHEIQM
+	id S272576AbTHEIPz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 04:15:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272574AbTHEIPz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 04:16:12 -0400
-Received: from tom.hrz.tu-chemnitz.de ([134.109.132.38]:27327 "EHLO
-	tom.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id S272579AbTHEIQJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 04:16:09 -0400
-Date: Tue, 5 Aug 2003 10:15:25 +0200
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: Alan Shih <alan@storlinksemi.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Nivedita Singhvi <niv@us.ibm.com>,
-       Werner Almesberger <werner@almesberger.net>, netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: TOE brain dump
-Message-ID: <20030805101525.P670@nightmaster.csn.tu-chemnitz.de>
-References: <20030804163606.Q639@nightmaster.csn.tu-chemnitz.de> <ODEIIOAOPGGCDIKEOPILEEOCDAAA.alan@storlinksemi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 5 Aug 2003 04:15:55 -0400
+Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:10397
+	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
+	id S272576AbTHEIPx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Aug 2003 04:15:53 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Oliver Neukum <oliver@neukum.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] O13int for interactivity
+Date: Tue, 5 Aug 2003 18:20:59 +1000
+User-Agent: KMail/1.5.3
+Cc: piggin@cyberone.com.au, linux-kernel@vger.kernel.org, mingo@elte.hu,
+       felipe_alfaro@linuxmail.org
+References: <200308050207.18096.kernel@kolivas.org> <200308051726.14501.kernel@kolivas.org> <200308051012.12951.oliver@neukum.org>
+In-Reply-To: <200308051012.12951.oliver@neukum.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <ODEIIOAOPGGCDIKEOPILEEOCDAAA.alan@storlinksemi.com>; from alan@storlinksemi.com on Mon, Aug 04, 2003 at 10:19:21AM -0700
-X-Spam-Score: -4.5 (----)
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *19jwzG-00034j-00*RgAXBNAHfIU*
+Message-Id: <200308051820.59266.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 04, 2003 at 10:19:21AM -0700, Alan Shih wrote:
-> So would main processor still need a copy of the data for re-transmission?
-> Won't that defeat the purpose?
+On Tue, 5 Aug 2003 18:12, Oliver Neukum wrote:
+> Am Dienstag, 5. August 2003 09:26 schrieb Con Kolivas:
+> > On Tue, 5 Aug 2003 16:03, Andrew Morton wrote:
+> > > We do prefer that TASK_UNINTERRUPTIBLE processes are woken promptly so
+> > > they can submit more IO and go back to sleep.  Remember that we are
+> > > artificially leaving the disk head idle in the expectation that the
+> > > task will submit more I/O.  It's pretty sad if the CPU scheduler leaves
+> > > the anticipated task in the doldrums for five milliseconds.
+> >
+> > Indeed that has been on my mind. This change doesn't affect how long it
+> > takes to wake up. It simply prevents tasks from getting full interactive
+> > status during the period they are doing unint. sleep.
+>
+> If you take that to its logical conclusion, such tasks should be woken
+> immediately. Likewise, the io scheduler should be notified when you know
+> that the task won't do io or will do other io, like waiting on character
+> devices, go paging out or terminate.
 
-No, since I didn't state that a retransmission is done along the
-pipe, because you cannot go back in a pipeline.
+Every experiment I've tried at putting tasks at the start of the queue instead 
+of the end has resulted in some form of starvation so should not be possible 
+for any user task and I've abandoned it.
 
-A retransmission can be done at the end of the pipe, where this
-can also be done in hardware.
-
-Regards
-
-Ingo Oeser
+Con
 

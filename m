@@ -1,45 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265350AbUAYWsa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jan 2004 17:48:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265351AbUAYWsa
+	id S265340AbUAYWr3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jan 2004 17:47:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265345AbUAYWr3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jan 2004 17:48:30 -0500
-Received: from d213-103-156-147.cust.tele2.ch ([213.103.156.147]:3394 "EHLO
-	kameha") by vger.kernel.org with ESMTP id S265350AbUAYWs2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jan 2004 17:48:28 -0500
-Message-ID: <401447C1.6020902@freesurf.ch>
-Date: Sun, 25 Jan 2004 23:48:33 +0100
-From: Marc Mongenet <Marc.Mongenet@freesurf.ch>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: fr, en
+	Sun, 25 Jan 2004 17:47:29 -0500
+Received: from jam.adverticum.net ([195.228.75.77]:34703 "EHLO
+	jam.adverticum.net") by vger.kernel.org with ESMTP id S265340AbUAYWr2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jan 2004 17:47:28 -0500
+From: "Jecs Attila" <welder@coder.hu>
+To: jgarzik@pobox.com
+Reply-To: "Jecs Attila" <welder@coder.hu>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net, tranter@pobox.com
-Subject: Re: 2.4.25pre7 - cannot mount 128MB vfat fs on Minolta camera
-References: <4013D155.3080900@freesurf.ch> <87y8rw2eyy.fsf@devron.myhome.or.jp> <40140221.40901@freesurf.ch> <87isiz3luw.fsf@devron.myhome.or.jp> <20040125214625.GB28000@kroah.com>
-In-Reply-To: <20040125214625.GB28000@kroah.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Mailer: PrimPosta
+Subject: [PATCH] tulip driver compiler warning
+Message-Id: <20040125224627.0E216BFFCE@jam.adverticum.net>
+Date: Sun, 25 Jan 2004 23:46:27 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-
-> Marc Mongenet <Marc.Mongenet@freesurf.ch> writes:
->> Hi, I have a Minolta DiMAGE F100 camera and two memory cards,
->> a 16 MB and a 128 MB.
- >> So, I can mount the 16 MB card or the 128 MB card with any kernel,
- >> BUT I have to reboot the system when I change the cards. Example:
-
-> Yes, run 'eject' after removing the media before inserting the new
-> media.  That should fix the problem.
-
-Fixed.
-It does not seem to be well known.
-I suggest to add this information in the eject documentation.
-
-Thanks,
-Marc Mongenet
+This will hopefully remove the compiler warning when compiling the new 
+driver option of the tulip driver in 2.6.2-rc1-mm3. 
+ 
+fix-tulip-driver-compiler-warning.patch 
+ 
+--- drivers/net/tulip/tulip_core.c.orig	2004-01-25 23:19:53.000000000 
++0100 
++++ drivers/net/tulip/tulip_core.c	2004-01-25 23:20:17.000000000 
++0100 
+@@ -253,7 +253,9 @@ static void tulip_down(struct net_device 
+ static struct net_device_stats *tulip_get_stats(struct net_device 
+*dev); 
+ static int private_ioctl(struct net_device *dev, struct ifreq *rq, int 
+cmd); 
+ static void set_rx_mode(struct net_device *dev); 
++#ifdef CONFIG_NET_POLL_CONTROLLER 
+ static void poll_tulip(struct net_device *dev); 
++#endif 
+  
+ static void tulip_set_power_state (struct tulip_private *tp, 
+ 				   int sleep, int snooze) 
+ 

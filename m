@@ -1,40 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316592AbSG3VUk>; Tue, 30 Jul 2002 17:20:40 -0400
+	id <S316579AbSG3VRd>; Tue, 30 Jul 2002 17:17:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316599AbSG3VUk>; Tue, 30 Jul 2002 17:20:40 -0400
-Received: from rwcrmhc51.attbi.com ([204.127.198.38]:23271 "EHLO
-	rwcrmhc51.attbi.com") by vger.kernel.org with ESMTP
-	id <S316592AbSG3VUj>; Tue, 30 Jul 2002 17:20:39 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Eric Altendorf <EricAltendorf@orst.edu>
-Reply-To: EricAltendorf@orst.edu
-To: Wade <neroz@iinet.net.au>
-Subject: Re: 2.5.25: spurious 8259A interrupt: IRQ7
-Date: Tue, 30 Jul 2002 13:54:07 -0700
-User-Agent: KMail/1.4.1
-Cc: linux-kernel@vger.kernel.org
-References: <200207300952.28460.EricAltendorf@orst.edu> <200207301042.31667.EricAltendorf@orst.edu> <1028063051.487.65.camel@debian>
-In-Reply-To: <1028063051.487.65.camel@debian>
+	id <S316580AbSG3VRd>; Tue, 30 Jul 2002 17:17:33 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:53777 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S316579AbSG3VRb> convert rfc822-to-8bit; Tue, 30 Jul 2002 17:17:31 -0400
+Date: Tue, 30 Jul 2002 14:20:36 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Greg KH <greg@kroah.com>
+cc: Vojtech Pavlik <vojtech@suse.cz>, <linux-kernel@vger.kernel.org>,
+       <linuxconsole-dev@lists.sourceforge.net>
+Subject: Re: [patch] Input cleanups for 2.5.29 [2/2]
+In-Reply-To: <20020730210938.GA16657@kroah.com>
+Message-ID: <Pine.LNX.4.33.0207301417190.2051-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200207301354.07552.EricAltendorf@orst.edu>
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-MIME-Autoconverted: from 8bit to quoted-printable by deepthought.transmeta.com id g6ULKYj06157
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 30 July 2002 14:04, Wade wrote:
-> On Wed, 2002-07-31 at 03:42, Eric Altendorf wrote:
-> > OK -- I'll take that explanation.  I mentioned it because it
-> > happened in the first half hour of using this kernel
-> > specifically, and I'd never seen it before.
->
-> I only see this if I have IO-APIC turned on for a uniprocessor
-> system.
+On Tue, 30 Jul 2002, Greg KH wrote:
 
-FWIW, I don't have IO-APIC turned on (and didn't before either)
+> On Tue, Jul 30, 2002 at 03:23:42PM +0200, Vojtech Pavlik wrote:
+> > -#include <asm/types.h>
+> > +#include <stdint.h>
+> 
+> Why?  I thought we were not including any glibc (or any other libc)
+> header files when building the kernel?
 
-eric
+Indeed. This is unacceptable.
 
--- 
-"First they ignore you.  Then they laugh at you.
- Then they fight you.  And then you win."             -Gandhi
+Especially as the standard types are total crap, and the u8 etc are a lot 
+more readable. People should realize:
+
+ - the "int" is superfluous. Of _course_ it's an integer. If it was a 
+   floating point number, it would be fp16/fp32/fp64/fp80/whatever.
+ - the "_t" is there only for namespace collisions, sane people can chose 
+   to ignore it.
+
+What do you have left after you have removed the crap? Yup. u8, u16, etc. 
+And if you want to share with user space, there's the long-accepted 
+namespace collision avoidance of prepending two underscores.
+
+Fix it, Vojtech.
+
+		Linus
+

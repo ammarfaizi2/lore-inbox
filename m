@@ -1,83 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270443AbTHGRGt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 13:06:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270444AbTHGRGt
+	id S270439AbTHGQ56 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 12:57:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270443AbTHGQ55
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 13:06:49 -0400
-Received: from 066-241-084-054.bus.ashlandfiber.net ([66.241.84.54]:1664 "EHLO
-	bigred.russwhit.org") by vger.kernel.org with ESMTP id S270443AbTHGRGr
+	Thu, 7 Aug 2003 12:57:57 -0400
+Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:38383 "EHLO
+	laptop.fenrus.com") by vger.kernel.org with ESMTP id S270439AbTHGQ5z
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 13:06:47 -0400
-Date: Thu, 7 Aug 2003 10:03:55 -0700 (PDT)
-From: Russell Whitaker <russ@ashlandhome.net>
-X-X-Sender: russ@bigred.russwhit.org
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Fw: 2.6.0: lp not working
-In-Reply-To: <20030807082248.3c08c9ac.rddunlap@osdl.org>
-Message-ID: <Pine.LNX.4.53.0308070952340.215@bigred.russwhit.org>
-References: <20030806130452.722d7fb2.rddunlap@osdl.org>
- <20030806223820.5578d282.rddunlap@osdl.org> <Pine.LNX.4.53.0308070222360.357@bigred.russwhit.org>
- <20030807082248.3c08c9ac.rddunlap@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 7 Aug 2003 12:57:55 -0400
+Subject: Re: [APM]  CPU idle calls causing problem with ASUS P4PE MoBo
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Kathy Frazier <kfrazier@mdc-dayton.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <PMEMILJKPKGMMELCJCIGIEPOCDAA.kfrazier@mdc-dayton.com>
+References: <PMEMILJKPKGMMELCJCIGIEPOCDAA.kfrazier@mdc-dayton.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-tVgVwPzUzdHVMCj82Eo0"
+Organization: Red Hat, Inc.
+Message-Id: <1060275464.5142.5.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 (1.4.4-2) 
+Date: Thu, 07 Aug 2003 18:57:45 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--=-tVgVwPzUzdHVMCj82Eo0
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-On Thu, 7 Aug 2003, Randy.Dunlap wrote:
+On Thu, 2003-08-07 at 18:08, Kathy Frazier wrote:
+> I am experiencing problems with the CPU idle call feature on an ASUS P4PE
+> (Intel 82845PE MCH and Intel 82801DB ICH4 chipsets).  I am using kernel
+> 2.4.20-8 (Red Hat 9.0).=20
 
-> On Thu, 7 Aug 2003 02:31:53 -0700 (PDT) Russell Whitaker <russ@ashlandhome.net> wrote:
+that's an old kernel.. several updates have followed since... several
+machines have been added to the apm idle blacklist in later kernels
 >
-> | On Wed, 6 Aug 2003, Randy.Dunlap wrote:
-> |
-> | > | Date: Tue, 5 Aug 2003 22:43:17 -0700 (PDT)
-> | > | From: Russell Whitaker <russ@ashlandhome.net>
-> | > | To: linux-kernel@vger.kernel.org
-> | > | Subject: 2.6.0: lp not working
-> | > |
-> | > |
-> | > | Hi
-> | > | Edited lilo.conf so I can boot either kernel-2.6.0-test2
-> | > | (default) or kernel-2.4.21, using hda1.
-> | > |
-> | > | lpr a small file, no print. ctrl-alt-del and rebooted using
-> | > | 2.4.21, file printed. Checked the two config files and could
-> | > | not find any difference in this area.
-> | > |
-> | > | Printer is a Panasonic dot-matrix running in text mode.
-> | > | Also using patch bk5.
-> | >
-> | > Is "Parallel Printer support" built into your kernel or built as a
-> | > module?  If built as a module, are you sure that the module is
-> | > loaded?  If modular, please provide contents of /proc/modules
-> | > when you try to print.
-> | >
-> | Built as a module
-> | Found lp.ko in /lib/modules/2.6.0-test2-bk4/kernel/drivers/char
-> | lp <file> then lpq shows <file> in queue
-> |
-> | contents of /proc/modules
-> | ipt_LOG 5376 1 - Live 0xf891a000
-> | ipt_limit 2496 1 - Live 0xf8915000
-> | ipt_state 1792 2 - Live 0xf8913000
-> | iptable_filter 2752 1 - Live 0xf88d3000
-> | ip_tables 22080 4 ipt_LOG,ipt_limit,ipt_state,iptable_filter, Live 0xf88d8000
-> | ip_conntrack_ftp 72308 0 - Live 0xf88fe000
-> | ip_conntrack 43092 2 ipt_state,ip_conntrack_ftp, Live 0xf88df000
-> | ide_cd 41536 0 - Live 0xf88ba000
-> | cdrom 35168 1 ide_cd, Live 0xf88c6000
->
-> I guess I don't get it.  Why isn't "lp" listed in /proc/modules?
-> Did you load it or is that the problem -- that it's not being
-> auto-loaded?
-> Does the <file> print if you load the lp module?
->
-By golly I think you got it - it's not being auto-loaded.
-As su, "modeprobe lp"  and the file printed.
-Sorry I didn't think of that myself.
+>  We were having trouble with our system "hanging"
+> after running for a while.    By this I mean, that no IRQs are getting
+> through, but software components are still running.  We have a proprietar=
+y
+> PCI DMA bus master device that works fine in PIII system, but the plans a=
+re
+> to ship our product using this ASUS MoBo.  In the process of trying to de=
+bug
+> this problem, we have updated BIOS, tweaked BIOS parameters, added debug =
+to
+> the kernel to determine the status of our IRQ, etc.  When I changed the
+> CONFIG_APM_CPU_IDLE to no, our 3 hour test runs to completion.  Previousl=
+y
+> this test would cause the system to hang within minutes.  I have tried
+> various combinations of APM tweaking with the following results:
 
-Thanks,
-  Russ
+if you can mail the top part of the dmidecode output (the part that has
+the bios idents) the machine can trivially be added to the apm idle
+blacklist.
+
+
+--=-tVgVwPzUzdHVMCj82Eo0
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA/MoUIxULwo51rQBIRAht9AJ9DCcWMT35STv1KpjupXUoO0YO48wCdEu75
+2UxCXojO6IJbaXwCVKBvytk=
+=S4Sc
+-----END PGP SIGNATURE-----
+
+--=-tVgVwPzUzdHVMCj82Eo0--

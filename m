@@ -1,51 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265370AbUAEU3L (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 15:29:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265390AbUAEU3L
+	id S265357AbUAEUlN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 15:41:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265359AbUAEUlN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 15:29:11 -0500
-Received: from madrid10.amenworld.com ([62.193.203.32]:4365 "EHLO
-	madrid10.amenworld.com") by vger.kernel.org with ESMTP
-	id S265370AbUAEU3H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 15:29:07 -0500
-Date: Mon, 5 Jan 2004 21:29:36 +0100
-From: DervishD <raul@pleyades.net>
-To: Andrew Walrond <andrew@walrond.org>
-Cc: Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Weird problems with printer using USB
-Message-ID: <20040105202936.GE15884@DervishD>
-References: <20040105192430.GA15884@DervishD> <200401051950.23418.andrew@walrond.org>
+	Mon, 5 Jan 2004 15:41:13 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:45965 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S265357AbUAEUku (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jan 2004 15:40:50 -0500
+Date: Mon, 5 Jan 2004 12:35:09 -0800
+From: "David S. Miller" <davem@redhat.com>
+To: Andi Kleen <ak@muc.de>
+Cc: gibbs@scsiguy.com, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Subject: Re: [BUG] x86_64 pci_map_sg modifies sg list - fails multiple
+ map/unmaps
+Message-Id: <20040105123509.4bacf670.davem@redhat.com>
+In-Reply-To: <m3brpi41q0.fsf@averell.firstfloor.org>
+References: <2938942704.1073325455@aslan.btc.adaptec.com>
+	<m3brpi41q0.fsf@averell.firstfloor.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200401051950.23418.andrew@walrond.org>
-User-Agent: Mutt/1.4i
-Organization: Pleyades
-User-Agent: Mutt/1.4i <http://www.mutt.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi Andrew :)
+On Mon, 05 Jan 2004 20:47:19 +0100
+Andi Kleen <ak@muc.de> wrote:
 
- * Andrew Walrond <andrew@walrond.org> dixit:
-> tried a shorter usb cable and it's worked perfectly ever since. I
-> know it sounds unlikely (all the cables were within the 10ft
-> allowed for usb1), but it worked for me. Might be worth a try.
+> Actually I disabled merging by default in the latest x86-64 code,
+> but it can be still enabled by the user using options (it makes some
+> adapters run several percent faster). I would appreciate if you could
+> fix the problem anyways.
+> 
+> I was actually planning to add a BUG() for this. Should do that.
+> There is already one that triggers often when the problem occurs.
 
-    The cable is OK, I've tested with two cables and with a USB
-memory stick and all works ok. Seems like the printer doesn't like to
-have both the parallel cable and the USB cable plugged at the same
-time, but sometimes it worked, so... The final cause seems to be the
-size of the file I want to print. The larger, the more chances to
-fail. I'll try a new cable tomorrow, probably, but I'll give a newer
-kernel a try.
+Andi, you must not modify sg->length in any way shape or form.
 
-    Thanks :)
+The following is legal:
 
-    Raúl Núñez de Arenas Coronado
+	pci_map_sg(..&sg);
+	pci_unmap_sg(...&sg);
+	pci_map_sg(..&sg);
 
--- 
-Linux Registered User 88736
-http://www.pleyades.net & http://raul.pleyades.net/
+If you must modify the length field for DMA, you must have a seperate
+dma_length member of the scatterlist structure on your platform, see what
+sparc64 does here.
+
+If the documentation states this wrongly, it's a doc bug.

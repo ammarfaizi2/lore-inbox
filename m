@@ -1,67 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262690AbUCHQf5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Mar 2004 11:35:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262691AbUCHQf5
+	id S262687AbUCHQeh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Mar 2004 11:34:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262690AbUCHQeh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Mar 2004 11:35:57 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:10963 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S262690AbUCHQfx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Mar 2004 11:35:53 -0500
-Date: Mon, 8 Mar 2004 17:35:52 +0100
-From: Jan Kara <jack@suse.cz>
-To: Juan Pablo Abuyeres <jpabuyer@tecnoera.com>
-Cc: Damian =?iso-8859-2?Q?Wojs=B3aw?= <damian.wojslaw@eltekenergy.pl>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.3 + reiser + quota support
-Message-ID: <20040308163552.GA17574@atrey.karlin.mff.cuni.cz>
-References: <Pine.LNX.4.44.0403051232470.3537-100000@118.eltek> <1078497744.27546.7.camel@blackbird.tecnoera.com> <20040308143612.GA19628@atrey.karlin.mff.cuni.cz> <1078762136.5333.25.camel@blackbird.tecnoera.com>
+	Mon, 8 Mar 2004 11:34:37 -0500
+Received: from fw.osdl.org ([65.172.181.6]:40151 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262687AbUCHQee (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Mar 2004 11:34:34 -0500
+Date: Mon, 8 Mar 2004 08:34:33 -0800
+From: cliff white <cliffw@osdl.org>
+To: linux-kernel@vger.kernel.org
+Subject: Recent Reaim results
+Message-Id: <20040308083433.67485899.cliffw@osdl.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1078762136.5333.25.camel@blackbird.tecnoera.com>
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Mon, 2004-03-08 at 11:36, Jan Kara wrote:
-> > > On Fri, 2004-03-05 at 08:33, Damian Wojs³aw wrote:
-> > > > > [root@test mnt]#
-> > > > > and /var/log/messages says:
-> > > > > Mar  4 19:15:46 test kernel: reiserfs_getopt: unknown option "usrquota"
-> > > > 
-> > > > 	If I remember correclty, reiserfs needs an additional patch to
-> > > > support quota. I know this patch exists for 2.4.X kernels.
-> > > 
-> > > Yes, patches to support quota exist for 2.4.x kernels, because 2.4.x is
-> > > not supposed to support quota for reiserfs in the vanilla distribution.
-> > > Those patches are at
-> > > ftp://ftp.suse.com/pub/people/mason/patches/reiserfs/quota-2.4
-> > > and work fine.
-> > > 
-> > > But kernel 2.6.x is supposed to support quota for ext2, ext3 _and_
-> > > reiserfs without any patch. So I am doing something wrong (I hope), or
-> > > there is a bug around here.
-> >   Actually the text in Configure is a bit misleading. In 2.6 you also
-> > need an additional patch for ReiserFS. Chris Mason created it a few days
-> > ago so it might be available at his FTP..
-> > 								Honza
-> 
-> that would be it
-> ftp://ftp.suse.com/pub/people/mason/patches/data-logging/experimental/2.6.3
-> 
-> Thanks!
-> 
-> ps: how much should I be intimidated by that "experimental" directory
-> name?
-  Because the patch was created a few days ago it is not very widely
-tested (I mean tested in the real environment..)... That is the reason
-why it is in experimental (at least I'd guess :)).
 
-								Honza
+Test results from the OSDL reaim test. 
+The -mm kernels now appear to be scaling a bit nice.
+I dunno why, but the 8-ways like -mm2 :)
+
+The is the 'database' load, a mixture of IO and CPU activity.
+
+2-CPU - (all AS scheduler)
+
+Kernel 			Max JPM		Percent change
+linux-2.6.3		1266.95		0.0
+2.6.4-rc1		1284.43		1.38
+2.6.4-rc1-mm2		1316.93		3.90
+
+4-CPU  ( all AS )
+linux-2.6.3		5313.36		0.0
+2.6.4-rc1		5218.87		-1.78
+2.6.4-rc1-mm2		5391.00 	1.46
+
+8-CPU (both) 
+linux-2.6.3		8663,87		0.0 (deadline)
+linux-2.6.3		8776.32		1.35 (AS)
+2.6.4-rc1		8664.95		0.0 (deadline)
+2.6.4-rc1		8795.75		1.57 (AS)
+2.6.4-rc1-mm2		9405.53		8.62  (deadline)
+2.6.4-rc1-mm2		9159.24		5.77  (AS) 
+
+--------
+cliffw
+OSDL
+http://	developer.osdl.org/cliffw/reaim  ( More results )
+	
+
 
 -- 
-Jan Kara <jack@suse.cz>
-SuSE CR Labs
+The church is near, but the road is icy.
+The bar is far, but i will walk carefully. - Russian proverb

@@ -1,119 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273696AbRIWXzX>; Sun, 23 Sep 2001 19:55:23 -0400
+	id <S273697AbRIWX5y>; Sun, 23 Sep 2001 19:57:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273697AbRIWXzO>; Sun, 23 Sep 2001 19:55:14 -0400
-Received: from CPE-61-9-148-170.vic.bigpond.net.au ([61.9.148.170]:2569 "EHLO
-	front.ozlabs.ibm.com") by vger.kernel.org with ESMTP
-	id <S273696AbRIWXy5>; Sun, 23 Sep 2001 19:54:57 -0400
-Date: Mon, 24 Sep 2001 09:49:59 +1000
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Nikita@namesys.com, akpm@zip.com.au, george@mvista.com, andrea@suse.de,
-        rml@tech9.net, Dieter.Nuetzel@hamburg.de, mason@suse.com,
-        kuib-kl@ljbc.wa.edu.au, linux-kernel@vger.kernel.org, andrea@suse.de
-Subject: Re: [reiserfs-list] Re: [PATCH] Significant performace improvements on reiserfs systems
-Message-Id: <20010924094959.4b6725c0.rusty@rustcorp.com.au>
-In-Reply-To: <E15kPGJ-0008EU-00@the-village.bc.nu>
-In-Reply-To: <15275.2374.92496.536594@gargle.gargle.HOWL>
-	<E15kPGJ-0008EU-00@the-village.bc.nu>
-X-Mailer: Sylpheed version 0.5.3 (GTK+ 1.2.10; powerpc-unknown-linux-gnu)
+	id <S273701AbRIWX5o>; Sun, 23 Sep 2001 19:57:44 -0400
+Received: from adsl-63-195-80-148.dsl.snfc21.pacbell.net ([63.195.80.148]:49045
+	"EHLO pincoya.com") by vger.kernel.org with ESMTP
+	id <S273697AbRIWX5e> convert rfc822-to-8bit; Sun, 23 Sep 2001 19:57:34 -0400
+Date: Sun, 23 Sep 2001 17:11:45 -0700
+From: Gordon Oliver <gordo@pincoya.com>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] /dev/epoll update ...
+Message-ID: <20010923171145.A15109@furble>
+Reply-To: gordo@pincoya.com
+In-Reply-To: <3BA97155.4D2D53AC@distributopia.com> <XFMail.20010920101821.davidel@xmailserver.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <XFMail.20010920101821.davidel@xmailserver.org>; from davidel@xmailserver.org on Thu, Sep 20, 2001 at 10:18:21 -0700
+X-Mailer: Balsa 1.2.pre3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 21 Sep 2001 13:18:31 +0100 (BST)
-Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+On 2001.09.20 10:18 Davide Libenzi wrote:
+> If you need to request the current status of a socket you've to
+> f_ops->poll the fd.
+> The cost of the extra read, done only for fds that are not "ready", is
+> nothing
+> compared to the cost of a linear scan with HUGE numbers of fds.
+> You could implement a solution where the low level io functions goes
+> directly to write
+> inside the mmapped fd set where the data buffer is empty or the out
+> buffer is full.
+> This would be a way more intrusive patch whose perf gain won't match the
+> cost.
 
-> > In Solaris, before spinning on a busy spin-lock, thread checks whether
-> > spin-lock holder runs on the same processor. If so, thread goes to sleep
-> > and holder wakes it up on spin-lock release. The same, I guess is going
-> 
-> 
-> > for interrupts that are served as separate threads. This way, one can
-> > re-schedule with spin-locks held.
-> 
-> This is one of the things interrupt handling by threads gives you, but the
-> performance cost is not nice. When you consider that ksoftirqd when it
-> kicks in (currently far too often) takes up to 10% off gigabit ethernet
-> performance, you can appreciate why we don't want to go that path.
+But you missed the obvious optimization of doing an f_ops->poll when
+the file is _added_. This means that you'll get an initial event when
+there is data ready. This means you still never do a scan (only check
+when an fd is added), but you don't have to do an empty read every time
+you add an fd.
 
-I've been thinking about this: I know some people have been fiddling with making
-do_softirq spin X times before kicking ksoftirqd, but how about the following?
+Before you argue that this does not save a system call, it will in
+the typical case of:
+   <add fd>
+   <fail read>
+   <wait on events>
+   <successful read>
 
-Cheers,
-Rusty.
-
---- linux-pmac/kernel/softirq.c	Sun Sep  9 15:11:37 2001
-+++ working-pmac-ksoftirq/kernel/softirq.c	Mon Sep 24 09:44:07 2001
-@@ -63,11 +63,12 @@
- 	int cpu = smp_processor_id();
- 	__u32 pending;
- 	long flags;
--	__u32 mask;
-+	long start;
- 
- 	if (in_interrupt())
- 		return;
- 
-+	start = jiffies;
- 	local_irq_save(flags);
- 
- 	pending = softirq_pending(cpu);
-@@ -75,32 +76,32 @@
- 	if (pending) {
- 		struct softirq_action *h;
- 
--		mask = ~pending;
- 		local_bh_disable();
--restart:
--		/* Reset the pending bitmask before enabling irqs */
--		softirq_pending(cpu) = 0;
-+		do {
-+			/* Reset the pending bitmask before enabling irqs */
-+			softirq_pending(cpu) = 0;
- 
--		local_irq_enable();
-+			local_irq_enable();
- 
--		h = softirq_vec;
-+			h = softirq_vec;
- 
--		do {
--			if (pending & 1)
--				h->action(h);
--			h++;
--			pending >>= 1;
--		} while (pending);
--
--		local_irq_disable();
--
--		pending = softirq_pending(cpu);
--		if (pending & mask) {
--			mask &= ~pending;
--			goto restart;
--		}
-+			do {
-+				if (pending & 1)
-+					h->action(h);
-+				h++;
-+				pending >>= 1;
-+			} while (pending);
-+
-+			local_irq_disable();
-+
-+			pending = softirq_pending(cpu);
-+
-+			/* Don't spin here forever... */
-+		} while (pending && start == jiffies);
- 		__local_bh_enable();
- 
-+		/* If a timer tick went off, assume we're overloaded,
-+                   and kick in ksoftirqd */
- 		if (pending)
- 			wakeup_softirqd(cpu);
- 	}
-
-
+Note that it has the additional advantage of making the dispatch code
+in the user application easier. You no longer have to do special code
+to handle the speculative read after adding the fd.
+	-gordo

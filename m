@@ -1,90 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129355AbRBDNcU>; Sun, 4 Feb 2001 08:32:20 -0500
+	id <S129146AbRBDNri>; Sun, 4 Feb 2001 08:47:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129146AbRBDNcK>; Sun, 4 Feb 2001 08:32:10 -0500
-Received: from ausmtp01.au.ibm.COM ([202.135.136.97]:6148 "EHLO
-	ausmtp01.au.ibm.com") by vger.kernel.org with ESMTP
-	id <S129355AbRBDNbz>; Sun, 4 Feb 2001 08:31:55 -0500
-From: bsuparna@in.ibm.com
-X-Lotus-FromDomain: IBMIN@IBMAU
-To: "Stephen C. Tweedie" <sct@redhat.com>
-cc: linux-kernel@vger.kernel.org, kiobuf-io-devel@lists.sourceforge.net,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Christoph Hellwig <hch@caldera.de>, Andi Kleen <ak@suse.de>
-Message-ID: <CA2569E9.004A45B6.00@d73mta03.au.ibm.com>
-Date: Sun, 4 Feb 2001 18:54:58 +0530
-Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait 
-	/notify + callback chains
-Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S130764AbRBDNr1>; Sun, 4 Feb 2001 08:47:27 -0500
+Received: from smtp-rt-1.wanadoo.fr ([193.252.19.151]:26101 "EHLO
+	anagyris.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S129146AbRBDNrI>; Sun, 4 Feb 2001 08:47:08 -0500
+Message-ID: <3A7D5CFB.1C21ECD2@wanadoo.fr>
+Date: Sun, 04 Feb 2001 14:45:31 +0100
+From: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
+Organization: Home PC
+X-Mailer: Mozilla 4.76 [fr] (X11; U; Linux 2.4.2-pre1 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Pierfrancesco Caci <p.caci@tin.it>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.1 segfault when doing "ls /dev/"
+In-Reply-To: <87u26avkfp.fsf@penny.ik5pvx.ampr.org>
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Pierfrancesco Caci wrote:
 
->Hi,
->
->On Fri, Feb 02, 2001 at 12:51:35PM +0100, Christoph Hellwig wrote:
->> >
->> > If I have a page vector with a single offset/length pair, I can build
->> > a new header with the same vector and modified offset/length to split
->> > the vector in two without copying it.
->>
->> You just say in the higher-level structure ignore from x to y even if
->> they have an offset in their own vector.
->
->Exactly --- and so you end up with something _much_ uglier, because
->you end up with all sorts of combinations of length/offset fields all
->over the place.
->
->This is _precisely_ the mess I want to avoid.
->
->Cheers,
-> Stephen
+>    48 ?        S      0:00 /sbin/devfsd /dev
 
-It appears that we are coming across 2 kinds of requirements for kiobuf
-vectors - and quite a bit of debate centering around that.
+on my box devfsd has pid 15, it comes just after the [kdaems]
 
-1. In the block device i/o world, where large i/os may be involved, we'd
-like to be able to describe chunks/fragments that contain multiple pages;
-which is why it  make sense to have a single <offset, length> pair for the
-entire set of pages in a kiobuf, rather than having to deal with per page
-offset/len fields.
+    1 ?        S      0:04 init
+    2 ?        SW     0:00 [keventd]
+    3 ?        SW     0:00 [kapm-idled]
+    4 ?        SW     0:00 [kswapd]
+    5 ?        SW     0:00 [kreclaimd]
+    6 ?        SW     0:00 [bdflush]
+    7 ?        SW     0:00 [kupdate]
+    8 ?        SW     0:00 [kreiserfsd]
+   15 ?        S      0:00 devfsd /dev
 
-2. In the networking world, we deal with smaller fragments (for protocol
-headers and stuff, and small packets) ideally chained together, typically
-not page aligned, with the ability to extend the list at least at the head
-and tail (and maybe some reshuffling in case of ip fragmentation?); so I
-guess that's why it seems good to have an <offset, length> pair per
-page/fragment. (If there can be multiple fragments in a page, even this
-might not be frugal enough ... )
+and it works with 2.4.x
 
-Looks like there are 2 kinds of entities that we are looking for in the kio
-descriptor:
-     - A collection of physical memory pages (call it say, a page_list)
-     - A collection of fragments of memory described as <offset, len>
-tuples w.r.t this collection
-     (offset in turn could be <index in page-list, offset-in-page> if it
-helps) (call this collection a frag_list)
-
-Can't we define a kiobuf structure as just this ? A combination of a
-frag_list and a page_list ? (Clone kiobufs might share the original
-kiobuf's page_list, but just split parts of the frag_list)
-How hard is it to maintain and to manipulate such a structure ?
-
-BTW, We could have a higher level io container that includes a <status>
-field and a <wait_queue_head> to take care of i/o completion (If we have a
-wait queue head, then I don't think we need a separate callback function if
-we have Ben's wakeup functions in place).
-
-Or,  is this going in the direction of a cross between and elephant and a
-bicycle :-)  ?
-
-Regards
-Suparna
-
-
+-- 
+------------------------------------------------
+ Pierre Rousselet <pierre.rousselet@wanadoo.fr>
+------------------------------------------------
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

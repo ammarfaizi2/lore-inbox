@@ -1,66 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263386AbUJ2Rci@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263437AbUJ2Rit@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263386AbUJ2Rci (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 13:32:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263382AbUJ2RXY
+	id S263437AbUJ2Rit (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 13:38:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263345AbUJ2RRn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 13:23:24 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:55429 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S263429AbUJ2RUd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 13:20:33 -0400
-Message-Id: <200410291720.i9THKPas013399@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.1 10/11/2004 with nmh-1.1-RC3
-To: davids@webmaster.com
-Cc: Manu Abraham <manu@kromtek.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: BK kernel workflow 
-In-Reply-To: Your message of "Fri, 29 Oct 2004 09:41:42 PDT."
-             <MDEHLPKNGKAHNMBLJOLKAEGFPGAA.davids@webmaster.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <MDEHLPKNGKAHNMBLJOLKAEGFPGAA.davids@webmaster.com>
+	Fri, 29 Oct 2004 13:17:43 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:40936 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S263162AbUJ2RPV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 13:15:21 -0400
+Date: Fri, 29 Oct 2004 19:16:08 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Florian Schmidt <mista.tapas@gmx.net>
+Cc: Paul Davis <paul@linuxaudiosystems.com>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       LKML <linux-kernel@vger.kernel.org>, Lee Revell <rlrevell@joe-job.com>,
+       mark_h_johnson@raytheon.com, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       jackit-devel <jackit-devel@lists.sourceforge.net>,
+       Rui Nuno Capela <rncbc@rncbc.org>
+Subject: Re: [Fwd: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4]
+Message-ID: <20041029171608.GA14449@elte.hu>
+References: <20041029090957.GA1460@elte.hu> <200410291101.i9TB1uhp002490@localhost.localdomain> <20041029111408.GA28259@elte.hu> <20041029161433.GA6717@elte.hu> <20041029183256.564897b2@mango.fruits.de> <20041029162316.GA7743@elte.hu> <20041029163155.GA9005@elte.hu> <20041029191652.1e480e2d@mango.fruits.de> <20041029170237.GA12374@elte.hu> <20041029170948.GA13727@elte.hu>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-1682831821P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Fri, 29 Oct 2004 13:20:25 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041029170948.GA13727@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-1682831821P
-Content-Type: text/plain; charset=us-ascii
 
-On Fri, 29 Oct 2004 09:41:42 PDT, David Schwartz said:
+* Ingo Molnar <mingo@elte.hu> wrote:
 
-> 	This position is conditioned on two facts, either:
+>  5971  ioctl(7, 0x4143, 0x446b7d3c)      = 0
+>  5971  ioctl(7, 0x4140, 0x446b7d3c)      = 0
+>  5971  ioctl(7, 0x4142, 0x446b7d3c)      = 0
 > 
-> 	1) Linus does not distribute his BK tree, or
-> 
-> 	2) Linus' BK tree is not a derivative work of the Linux kernel
-> 
-> 	If both of these are false, then the tree must be covered by the GPL. I
-> think 2 is clearly false.
+> which ones are these? Look at the patch for how to change a .ioctl one
+> to .ioctl_nobkl (lame solution ...). So if your setup uses any other
+> ioctl (sndctl perhaps?) then you should change that one to nobkl too.
 
-The *contents of the source of the tree itself* are indeed GPL, and I doubt that
-anybody argues otherwise.  The actual method(s) used to *STORE* said contents
-are *NOT* GPL - if you argue that the fact of storing the source in a BK tree
-renders the BK itself GPL, then we should stroll over to Redmond with a laptop
-that has a copy of the source untarred into an NTFS filesystem, and demand that
-they cough up the source for NTFS.
+note that even if just one of these ioctls is still a BKL user then
+-V0.5.12 will show no significant difference. So i've uploaded -V0.5.13
+with some more converted. I think this should cover the above ones, but
+i'm not 100% sure.
 
-Is anybody arguing that doing that would GPL NTFS? If no, then it doesn't GPL
-any of the BK bits either.
-
---==_Exmh_-1682831821P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFBgnvZcC3lWbTT17ARAo/0AJ9YatQemlyT3tTSRYh9SSf7fjNXHACfQ871
-9zgmN22M67bsZ8PgkrNtN4Q=
-=3TcG
------END PGP SIGNATURE-----
-
---==_Exmh_-1682831821P--
+	Ingo

@@ -1,58 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261677AbUKXCeZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261693AbUKXClv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261677AbUKXCeZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 21:34:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261693AbUKXCeZ
+	id S261693AbUKXClv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 21:41:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261688AbUKXClv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 21:34:25 -0500
-Received: from 65-75.sh.cgocable.ca ([205.151.65.75]:60394 "EHLO mail.pixel.ca")
-	by vger.kernel.org with ESMTP id S261677AbUKXCeX (ORCPT
+	Tue, 23 Nov 2004 21:41:51 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:21151 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261693AbUKXClF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 21:34:23 -0500
-From: "Mario Gaucher" <zadiglist@zadig.ca>
-To: linux-kernel@vger.kernel.org
-Subject: framebuffer problem on a PowerMac 7300
-Date: Tue, 23 Nov 2004 21:34:20 -0500
-Message-Id: <20041124021824.M80598@zadig.ca>
-X-Mailer: Open WebMail 2.41 20040926
-X-OriginatingIP: 192.168.25.10 (zadig)
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset=iso-8859-1
+	Tue, 23 Nov 2004 21:41:05 -0500
+Date: Wed, 24 Nov 2004 04:42:57 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Esben Nielsen <simlo@phys.au.dk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Priority Inheritance Test (Real-Time Preemption)
+Message-ID: <20041124034257.GA12571@elte.hu>
+References: <20041123133456.GA10453@elte.hu> <Pine.OSF.4.05.10411232343010.4816-100000@da410.ifa.au.dk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.OSF.4.05.10411232343010.4816-100000@da410.ifa.au.dk>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a PowerMac 7300
-kernel 2.6.8 works fine on this computer
-kernel 2.6.9 does not work
 
-I have the same problem that John Mock has with his PowerMac 8500...
-framebuffer does not work with 2.6.9 (everything is black with a few thin
-diagonal lines of dots and dashes)... this is with the onboard video
-(controlfb driver).
-With a Matrox Millenium PCI card (matroxfb driver), I get something on the
-screen but except for the little Tux in the corner, all characters on the
-screen are corrupted... 
+* Esben Nielsen <simlo@phys.au.dk> wrote:
 
-it works fine with 2.6.8 kernel with both drivers
+> I have an idea about what the error(s) is(are): In rt.c policy ==
+> SCHED_NORMAL tasks are threaded specially. A task boosted into the
+> real-time realm by mutex_setprio() is _still_ SCHED_NORMAL and do not
+> gain all the privileges of a real-time task. I suggest that the tests
+> on SCHED_NORMAL are replaced by using the rt_task() test which just
+> looks at the current priority and thus also would be true on tasks
+> temporarely boosted in the real-time realm. [...]
 
-I tried with 2.6.10-rc2-bk8 (that I got on kernel.org) and I have the same
-problem...
+ah, indeed. I thought i fixed all these places but you are right that
+there's one more instance remaining, in pick_new_owner():
 
-Because frame buffer does not work, I can not boot this computer... it
-does not respond to ping when I have this problem...
++               if (w->task->policy == SCHED_NORMAL)
++                       break;
 
-I did not try any pre-2.6.9 kernel, so I do not know where it stops to work.
+> [...] Another thing: A SCHED_NORMAL task will not be added to the
+> pi_waiters list, but it ought to be when it is later boosted into the
+> real-time realm. [...]
 
+ok, this is an important one too. Fixing this bug will complicate
+pi_setprio() some more, but should be pretty straightforward: the task
+that is boosted can be blocked on a single rt-mutex at most.
 
-I am not a programmer, so I can not offer any code to fix this problem...
-but if can test some kernel patches to get this problem fixed, I will be
-happy to do it.
+i'll fix these bugs in the next release. Your systematic testing of PI
+is very useful, it already uncovered _tons_ of PI bugs that would be
+quite hard to find via normal testing.
 
+> [...] Also, you ignore all tasks being SCHED_NORMAL in the tail of the
+> wait list when you try to find the next owner: It could be that one of
+> those is boosted.
 
-sorry, I did not reply to the original message sent by John Mock, because
-I was not subscribed to this mailing list when he sent his message...
+correct.
 
+> --- linux-2.6.10-rc2-mm2-V0.7.30-9/drivers/char/blocker.c.orig  2004-11-23 20:18:28.000000000 +0100
+> +++ linux-2.6.10-rc2-mm2-V0.7.30-9/drivers/char/blocker.c       2004-11-23 20:41:57.742899751 +0100
 
-- - - - - - - - - - - - - - - - - - - -
-Excuse my bad english :-)
+thx, i'll add this too. Do you have uploaded the matching pi_test
+userspace changes too? (url?)
+
+	Ingo

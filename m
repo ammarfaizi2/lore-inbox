@@ -1,54 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265887AbUIOMhJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264980AbUIOMnG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265887AbUIOMhJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 08:37:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265489AbUIOMhI
+	id S264980AbUIOMnG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 08:43:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264997AbUIOMnF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 08:37:08 -0400
-Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:39833 "EHLO
-	mail.rtr.ca") by vger.kernel.org with ESMTP id S264953AbUIOMhC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 08:37:02 -0400
-Message-ID: <4148370B.4070704@rtr.ca>
-Date: Wed, 15 Sep 2004 08:35:23 -0400
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en, en-us
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Mark Lord <lsml@rtr.ca>, James Bottomley <James.Bottomley@SteelEye.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] New QStor SATA/RAID Driver for 2.6.9-rc2
-References: <41471163.10709@rtr.ca> <414723B0.1090600@pobox.com> <1095186343.2008.29.camel@mulgrave> <4147AB5A.4060804@rtr.ca> <20040915024720.GA23694@havoc.gtf.org>
-In-Reply-To: <20040915024720.GA23694@havoc.gtf.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 15 Sep 2004 08:43:05 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:7136 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S264980AbUIOMnC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 08:43:02 -0400
+Date: Wed, 15 Sep 2004 14:41:25 +0200
+From: Jens Axboe <axboe@suse.de>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc1-mm5
+Message-ID: <20040915124124.GC4111@suse.de>
+References: <20040913015003.5406abae.akpm@osdl.org> <20040915113635.GO9106@holomorphy.com> <20040915113833.GA4111@suse.de> <20040915122852.GQ9106@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040915122852.GQ9106@holomorphy.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I would really like to work on consolidating the ATA code in libata,
-though.  As the name implies, it's a library -- don't feel that your
-driver must conform to the libata driver API in order to make use of all
-its functions.  And feel free to add to it.
+On Wed, Sep 15 2004, William Lee Irwin III wrote:
+> On Mon, Sep 13, 2004 at 01:50:03AM -0700, Andrew Morton wrote:
+> >>> +cfq-iosched-v2.patch
+> >>>  Major revamp of the CFQ IO scheduler
+> 
+> On Wed, Sep 15 2004, William Lee Irwin III wrote:
+> >> While editing some files while booted into 2.6.9-rc1-mm5:
+> >> # ----------- [cut here ] --------- [please bite here ] ---------
+> >> Kernel BUG at cfq_iosched:1359
+> 
+> On Wed, Sep 15, 2004 at 01:38:34PM +0200, Jens Axboe wrote:
+> > Hmm, ->allocated is unbalanced. What is your io setup like (adapter,
+> > etc)?
+> 
+> 2 Maxtor Atlas10K 10Krpm U320 disks attached to some aic7902's. No
+> binary or 3rd-party modules anywhere near the box' fs or even the
+> network the thing is on. lspci output follows.
 
-Yes, there are definite code sharing possibilities there to be explored.
-Right now, my first priority is to get support for this hardware
-into the kernel.  This same driver source will also be backported
-to mid-2.4.xx series, both Redhat and generic.
+Hmm, I can only see this happening if rq->flags has its direction bit
+changed between the allocation time and the time of freeing. I'll look
+over scsi and see if I can find any traces of that, don't see any
+immediately.
 
-After that, we can modify some interfaces to reduce the small overlaps
-that may present.
-
-Next revision is due out later today.  It may still have a few warts
-to work out, but I think it is looking much better than before.
-
-Better to have a decent hardware driver within the tree,
-than an unknown vendor-only binary driver outside the tree.
-
-Cheers
 -- 
-Mark Lord
-(hdparm keeper & the original "Linux IDE Guy")
+Jens Axboe
+

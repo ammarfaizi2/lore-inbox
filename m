@@ -1,56 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263367AbVCKPRa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263364AbVCKPRT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263367AbVCKPRa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 10:17:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263350AbVCKPRa
+	id S263364AbVCKPRT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 10:17:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263350AbVCKPRT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 10:17:30 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:54726 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S263367AbVCKPRE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 10:17:04 -0500
-Date: Fri, 11 Mar 2005 16:16:44 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Simone Piunno <simone.piunno@wseurope.com>
-Cc: Baruch Even <baruch@ev-en.org>, Fabio Coatti <fabio.coatti@wseurope.com>,
-       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       linux-kernel@vger.kernel.org
-Subject: Re: bonnie++ uninterruptible under heavy I/O load
-Message-ID: <20050311151644.GJ28188@suse.de>
-References: <200503111208.20283.simone.piunno@wseurope.com> <200503111420.52890.fabio.coatti@wseurope.com> <42319D2D.7060402@ev-en.org> <200503111514.34949.simone.piunno@wseurope.com>
+	Fri, 11 Mar 2005 10:17:19 -0500
+Received: from nessie.weebeastie.net ([220.233.7.36]:54429 "EHLO
+	theirongiant.lochness.weebeastie.net") by vger.kernel.org with ESMTP
+	id S263364AbVCKPRC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Mar 2005 10:17:02 -0500
+Date: Sat, 12 Mar 2005 02:11:17 +1100
+From: CaT <cat@zip.com.au>
+To: "YOSHIFUJI Hideaki / ?$B5HF#1QL@" <yoshfuji@linux-ipv6.org>
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com, pekkas@netcore.fi
+Subject: Re: ipv6 and ipv4 interaction weirdness
+Message-ID: <20050311151116.GF14146@zip.com.au>
+References: <20050311121655.GE14146@zip.com.au> <20050311.085815.100748583.yoshfuji@linux-ipv6.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200503111514.34949.simone.piunno@wseurope.com>
+In-Reply-To: <20050311.085815.100748583.yoshfuji@linux-ipv6.org>
+Organisation: Furball Inc.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 11 2005, Simone Piunno wrote:
-> Alle 14:29, venerdì 11 marzo 2005, Baruch Even ha scritto:
+On Fri, Mar 11, 2005 at 08:58:15AM -0600, YOSHIFUJI Hideaki / ?$B5HF#1QL@ wrote:
+> > If it bound to :: port 22 then 0.0.0.0:22 would fail.
+> > 
+> > On the other hand if I got it to bind to each address individually then
+> > both ipv4 (2 addresses) and ipv6 (1 address) binds would succeed.
+> > 
+> > Maybe I'm just looking at it wrong but shouldn't ipv4 and ipv6 interfere
+> > with each other?
 > 
-> > echo t > /proc/sysrq-trigger
+> It is 100% intended, even it is not similar to BSD variants do.
 > 
-> Before killing bonnie:
+> IPv4 and IPv6 share address/port space.
+> :: and 0.0.0.0 is special "any" address, thus they confict.
+> ::ffff:a.b.c.d and a.b.c.d also conflict.
 
-I'm guessing your problem is that bonnie dirtied tons of data before you
-killed it, so it has to flush it out. If you run out of request entries,
-you will get to sleep uninterruptibly on those while the data is
-flushing. I don't see anything unexpected here, it is normal behaviour.
+Argh! Ofcourse. That makes sense. In the IPv6 ip space, IPv4 was made a
+subset so anything that decides to bind 0.0.0.0:22 (for eg) would
+prevent another bind to :: much like binding to 10.1.1.1:22 would
+prevent a 0.0.0.0:22 bind. Having changed ListenAddress to :: it works
+as it should and I get responses in the IPv4 ip space.
 
-> bonnie++      D ffff81010383f820     0  2042   2016
-> (NOTLB)
-> ffff8100f51d7248 0000000000000082 000000010000007d 000000000003bd42 
-> ffff8101ffeee1f0 ffff8101ff538a60 ffff8101ff538cd8 0000000000000292 
-> 0000000000000292 0000000000000282 
-> Call Trace:<ffffffff804a0b11>{io_schedule+49} 
-> <ffffffff80365a8e>{get_request_wait+174} 
-> <ffffffff801459d0>{autoremove_wake_function+0} 
-> <ffffffff801459d0>{autoremove_wake_function+0} 
-> <ffffffff8036697c>{__make_request+812} 
-
-This is what is happening here, after you kill it.
+Joy. Thanks for the clue. I've so rarely come across the ::ffff: ip
+space that I completely forgot about it.
 
 -- 
-Jens Axboe
-
+    "It goes against the grain of modern education to teach children to
+    program. What fun is there in making plans, acquiring discipline in
+    organising thoughts, devoting attention to detail and learning to be
+    self-critical?" -- Alan Perlis

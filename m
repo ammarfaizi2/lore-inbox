@@ -1,57 +1,94 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285732AbRL2VWA>; Sat, 29 Dec 2001 16:22:00 -0500
+	id <S286334AbRL2V2j>; Sat, 29 Dec 2001 16:28:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285568AbRL2VVj>; Sat, 29 Dec 2001 16:21:39 -0500
-Received: from Backfire.WH8.TU-Dresden.De ([141.30.225.118]:40592 "EHLO
-	backfire.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-	id <S285732AbRL2VVa>; Sat, 29 Dec 2001 16:21:30 -0500
-Message-Id: <200112292121.fBTLLSuT021964@backfire.WH8.TU-Dresden.De>
-From: Gregor Jasny <gjasny@wh8.tu-dresden.de>
-Organization: Networkadministrator WH8/DD/Germany
-To: linux-kernel@vger.kernel.org
-Subject: [Patch] Add support for Sony DSC-P5
-Date: Sat, 29 Dec 2001 22:21:28 +0100
-X-Mailer: KMail [version 1.3.2]
-X-PGP-fingerprint: B0FA 69E5 D8AC 02B3 BAEF  E307 BD3A E495 93DD A233
-X-PGP-public-key: finger gjasny@hell.wh8.tu-dresden.de
+	id <S286233AbRL2V2a>; Sat, 29 Dec 2001 16:28:30 -0500
+Received: from mail.sonytel.be ([193.74.243.200]:15548 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S285568AbRL2V2S>;
+	Sat, 29 Dec 2001 16:28:18 -0500
+Date: Sat, 29 Dec 2001 22:28:07 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+        Linux/PPC Development <linuxppc-dev@lists.linuxppc.org>
+Subject: Re: Sym53c8xx tape corruption squashed! (was: Re: SCSI Tape corruption
+ - update)
+In-Reply-To: <20011229184019.V1580-100000@gerard>
+Message-ID: <Pine.GSO.4.21.0112292224220.277-100000@vervain.sonytel.be>
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_SBJ4JJQGKWL53FQGX5BT"
+Content-Type: TEXT/PLAIN; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 29 Dec 2001, [ISO-8859-1] Gérard Roudier wrote:
+> On Sat, 29 Dec 2001, Geert Uytterhoeven wrote:
+> > On Sat, 29 Dec 2001, [ISO-8859-1] Gérard Roudier wrote:
+> > > On Fri, 28 Dec 2001, Geert Uytterhoeven wrote:
+> > > > The sym-2 driver has a define for modifying the PCI latency timer
+> > > > (SYM_SETUP_PCI_FIX_UP), but it is never used, so I see no corruption.
+> > >
+> > > By default sym-2 use value 3 for the pci_fix_up (cache line size + memory
+> > > write and invalidate). The latency timer fix-up has been removed, since it
+> > > is rather up to the generic PCI driver to tune latency timers.
+> > >
+> > > > Is this a hardware bug in my SCSI host adapter (53c875 rev 04) or my host
+> > > > bridge (VLSI VAS96011/12 Golden Gate II for PPC), or a software bug in the
+> > > > driver (wrong burst_max)?
+> > >
+> > > Great bug hunting!
+> > >
+> > > It is about certainly not a software bug in the driver. Any latency timer
+> > > value should not give any trouble if hardware was flawless. Just the PCI
+> > > performances could be affected.
+> >
+> > I played a bit with sym-2 and setpci. Everything goes fine as long as the PCI
+> > latency timer value is smaller than 0x16 (yes, at first I thought it was
+> > decimal, but setpci parameters are in hex).
+> 
+> Interesting result, even if it doesn't trigger any of my guessing
+> capabilities, for now. :-)
+> 
+> Just it means that the 875 must release the PCI BUS if its GNT# signal is
+> deasserted by PCI arbiter and current transaction lasted 22 PCI cycles or
+> more since the assertion of FRAME#.
 
---------------Boundary-00=_SBJ4JJQGKWL53FQGX5BT
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+Exactly my thoughts.
 
-Hello!
+> If I remember correctly, the problem occurred when data is written to the
+> device. Is it ok?
 
-The appended patch let the usb-storage module recognize my Sony DSC-P5 as a 
-SCSI Harddisk.
+Yes.
 
-Please apply. It's against 2.4.17-rc2.
+> If so, the MWI problem I pointed out in my previous posting is unlikely to
+> apply. But, for user data DMA write, the 875 may execute Memory Read Line
+> or Memory Read Multiple Lines transactions. It would be interesting to
+> know if it makes difference disabling those capabilities.
+> 
+> Setting to zero the PCI cache line register in the PCI configuration space
+> does force the chip not to use any of the cache line based PCI
+> transactions. It is brute force but should work.
 
-Best Regards,
--G. Jasny
---------------Boundary-00=_SBJ4JJQGKWL53FQGX5BT
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="dsc-p5.patch"
-Content-Transfer-Encoding: base64
-Content-Description: Makes my Sony DSC-P5 work
-Content-Disposition: attachment; filename="dsc-p5.patch"
+Note that on my system the PCI cache line register in the PCI configuration
+space of the '875 is already set to zero.
 
-LS0tIHVudXN1YWxfZGV2cy5oLm9yaWcJU2F0IERlYyAyOSAyMTo0NTowOSAyMDAxCisrKyB1bnVz
-dWFsX2RldnMuaAlTYXQgRGVjIDI5IDIxOjQ3OjQxIDIwMDEKQEAgLTE2OCw2ICsxNjgsMTIgQEAK
-IAkJVVNfU0NfU0NTSSwgVVNfUFJfQ0IsIE5VTEwsCiAJCVVTX0ZMX1NJTkdMRV9MVU4gfCBVU19G
-TF9TVEFSVF9TVE9QIHwgVVNfRkxfTU9ERV9YTEFURSApLAogCitVTlVTVUFMX0RFViggIDB4NTRj
-LCAweDAwMTAsIDB4MDEwNiwgMHgwMzI4LAorCQkiU29ueSIsCisJCSJEU0MtUDUiLAorCQlVU19T
-Q19TQ1NJLCBVU19QUl9DQiwgTlVMTCwKKwkJVVNfRkxfU0lOR0xFX0xVTiB8IFVTX0ZMX1NUQVJU
-X1NUT1AgfCBVU19GTF9NT0RFX1hMQVRFICksCisJCQogLyogUmVwb3J0ZWQgYnkgd2luQGdlZWtz
-Lm5sICovCiBVTlVTVUFMX0RFViggIDB4MDU0YywgMHgwMDI1LCAweDAxMDAsIDB4MDEwMCwgCiAJ
-CSJTb255IiwK
+> In order to disable separately those features, some IO register bits must
+> be set to zero. The faster way is to hack the driver (sym_hipd.c) at some
+> place, for example (entered by hand just for you):
 
---------------Boundary-00=_SBJ4JJQGKWL53FQGX5BT--
+So I don't think it would help to test this, since PCI_CACHE_LINE_SIZE is set
+to 0?
+
+Anyway, thanks for your time and suggestions!
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+

@@ -1,65 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288859AbSAXSkv>; Thu, 24 Jan 2002 13:40:51 -0500
+	id <S288891AbSAXSql>; Thu, 24 Jan 2002 13:46:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288862AbSAXSkb>; Thu, 24 Jan 2002 13:40:31 -0500
-Received: from vana.vc.cvut.cz ([147.32.240.58]:54660 "EHLO vana.vc.cvut.cz")
-	by vger.kernel.org with ESMTP id <S288859AbSAXSkY>;
-	Thu, 24 Jan 2002 13:40:24 -0500
-Date: Thu, 24 Jan 2002 19:40:11 +0100
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-To: Wayne Whitney <whitney@math.berkeley.edu>
-Cc: Rasmus B?g Hansen <moffe@amagerkollegiet.dk>,
-        LKML <linux-kernel@vger.kernel.org>
-Subject: Re: ACPI trouble (Was: Re: [patch] amd athlon cooling on kt266/266a chipset)
-Message-ID: <20020124184011.GA23785@vana.vc.cvut.cz>
-In-Reply-To: <20020124155853Z287177-13996+11274@vger.kernel.org> <Pine.LNX.4.44.0201241803540.1345-100000@grignard.amagerkollegiet.dk> <200201241749.g0OHnbG02468@adsl-209-76-109-63.dsl.snfc21.pacbell.net>
-Mime-Version: 1.0
+	id <S288896AbSAXSqd>; Thu, 24 Jan 2002 13:46:33 -0500
+Received: from abasin.nj.nec.com ([138.15.150.16]:16652 "HELO
+	abasin.nj.nec.com") by vger.kernel.org with SMTP id <S288891AbSAXSqT>;
+	Thu, 24 Jan 2002 13:46:19 -0500
+From: Sven Heinicke <sven@research.nj.nec.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200201241749.g0OHnbG02468@adsl-209-76-109-63.dsl.snfc21.pacbell.net>
-User-Agent: Mutt/1.3.27i
+Content-Transfer-Encoding: 7bit
+Message-ID: <15440.22127.875361.718680@abasin.nj.nec.com>
+Date: Thu, 24 Jan 2002 13:46:07 -0500 (EST)
+To: linux-kernel@vger.kernel.org
+Subject: ReiserFS and RAID5
+X-Mailer: VM 6.72 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 24, 2002 at 09:49:37AM -0800, Wayne Whitney wrote:
-> In mailing-lists.linux-kernel, Rasmus B?g Hansen wrote:
-> 
-> > When running /sbin/poweroff from runlevel 3 or 5, 'halt -i -d -p' is
-> > again the last command run, follwing this from the kernel: 
-> >   Power down.  
-> >   hwsleep-0178 [02] Acpi_enable_sleep_state: Entering S5 
-> > And again my system hangs.
-> 
-> I have an ASUS A7V motherboard, similar to your ASUS A7V133.  I find
-> that stock kernel (2.4.18-pre7) APM powers off the machine, but stock
-> kernel ACPI does not.  However, the Intel ACPI patch, available from
-> http://developer.intel.com/technology/IAPC/acpi/downloads.htm against
-> kernel 2.4.16, does power down my machine.  I was able to forward port
-> this to 2.4.18-pre7 without too much trouble by starting with 2.4.16,
-> applying the Intel ACPI patch first, and then applying kernel
-> patch-2.4.17 and kernel patch-2.4.18-pre7.
 
-I still have this in my tree. I have no idea who is wrong, whether parser
-or BIOS.
-					Best regards,
-						Petr Vandrovec
-						vandrove@vc.cvut.cz
+We had a drive go bad on a RAID5 with reiserfs on it.  The file system
+was built with reiserfsprogs-3.x.0h tools and the systems was running
+Linux 2.4.13.  As we had an issue it will be updated to the latest
+kernel, it had been stable up to now.
 
-diff -urdN linux/drivers/acpi/hardware/hwsleep.c linux/drivers/acpi/hardware/hwsleep.c
---- linux/drivers/acpi/hardware/hwsleep.c	Wed Oct 24 21:06:22 2001
-+++ linux/drivers/acpi/hardware/hwsleep.c	Tue Jan 22 16:17:46 2002
-@@ -152,6 +152,13 @@
- 		return status;
- 	}
- 
-+	/* Broken ACPI table on ASUS A7V... it reports type 7, but poweroff is type 2... 
-+	   sleep is type 1 while ACPI reports type 3, but as I was not able to get 
-+	   machine to wake from this state without unplugging power cord... */
-+	if (type_a == 7 && type_b == 7 && sleep_state == ACPI_STATE_S5 && !memcmp(acpi_gbl_DSDT->oem_id, "ASUS\0\0", 6)
-+			&& !memcmp(acpi_gbl_DSDT->oem_table_id, "A7V     ", 8)) {
-+		type_a = type_b = 2;
-+	}
- 	/* run the _PTS and _GTS methods */
- 
- 	MEMSET(&arg_list, 0, sizeof(arg_list));
+A drive failed and left the partition in a funk.  When I ran ls in the
+RAID directory it would freeze up the ls (I suspect in a hardware wait
+of some kind).  I uncommented the partition from the fstab file then
+tied to shut down the system, but that froze up that system and I hit
+the reset key.
+
+The system came up, the raid started rebuilding itsself with the spare
+drive.  I tried to mount the drive and it didn't mount.  I updated my
+reiserfs tools to reiserfsprogs-3.x.0j.  I ran reiserfsck on the
+partition, I wish I kept the exact error message but didn't, it said
+something was wrong with the tree and segfaulted.  I then ran it with
+--rebuild-tree and went home.
+
+The next morning the raid rebuild and the fsck was finished (should of
+I waited for the raid rebuild to finish before running reiserfsck?).
+I mounted the disk read only.  The df command reported 1% full when
+before it was like 35% full.
+
+But, all was not lost.  inspecting the partition all the data seemed
+to be good.  We hurriedly we copied the files to another partition,
+took another night, oddly one directory didn't get copied. 
+
+Then some testing:
+
+1. umounted to mounted /mnt/raid0 a coupld of time in read only mode.
+   (nothing changed).
+
+2. mounted in read-write.
+   (nothing changed)
+
+3. touched /mnt/raid0/foo
+   (nothing changed)
+
+4. rm /mnt/raid0/foo
+   (nothing changed in df).  Lost a whole bunch of data according to
+   du and other programs.  Specifically, we were able to copy:
+
+121M	  scoutabout/08Oct01
+59G	  scoutabout/21Nov01
+38G	  scoutabout/23Jul01
+5.4G	  scoutabout/23Jul01Output
+65G	  scoutabout/27Nov01
+4.1G	  scoutabout/29Jun01
+
+But now the corrupted file system reads:
+
+121M	/mnt/raid0/scoutabout/08Oct01
+1.0k	/mnt/raid0/scoutabout/12Nov01
+59G	/mnt/raid0/scoutabout/21Nov01
+38G	/mnt/raid0/scoutabout/23Jul01
+238M	/mnt/raid0/scoutabout/23Jul01Output
+65G	/mnt/raid0/scoutabout/27Nov01
+4.1G	/mnt/raid0/scoutabout/29Jun01
+
+and that is the state we are in.  At least most of our data is saved.
+Did I do anything wrong that might of been able to keep the RAID
+stable after the drive crash?  Would reiser developers want me to try
+anything on it to help them debug it and make the support more stable.
+
+Thanks,
+
+ Sven

@@ -1,85 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261165AbVAaMYO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261167AbVAaMZp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261165AbVAaMYO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 07:24:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261177AbVAaMYO
+	id S261167AbVAaMZp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 07:25:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261169AbVAaMZo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 07:24:14 -0500
-Received: from mail.tv-sign.ru ([213.234.233.51]:13291 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S261165AbVAaMUz (ORCPT
+	Mon, 31 Jan 2005 07:25:44 -0500
+Received: from mailr.eris.qinetiq.com ([128.98.1.9]:35789 "HELO
+	mailr.qinetiq-tim.net") by vger.kernel.org with SMTP
+	id S261167AbVAaMZc convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 07:20:55 -0500
-Message-ID: <41FE319E.E265C599@tv-sign.ru>
-Date: Mon, 31 Jan 2005 16:24:46 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
+	Mon, 31 Jan 2005 07:25:32 -0500
+From: Mark Watts <m.watts@eris.qinetiq.com>
+Organization: QinetiQ
+To: linux-kernel@vger.kernel.org
+Subject: Re: My System doesn't use swap!
+Date: Mon, 31 Jan 2005 12:32:50 +0000
+User-Agent: KMail/1.6.1
+Cc: Matthias-Christian Ott <matthias.christian@tiscali.de>,
+       Michael Buesch <mbuesch@freenet.de>
+References: <41FE1B4B.2060305@tiscali.de> <200501311157.10932.mbuesch@freenet.de> <41FE2814.9030503@tiscali.de>
+In-Reply-To: <41FE2814.9030503@tiscali.de>
 MIME-Version: 1.0
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] rc2-mm2: unneeded cli/sti in fix-preemption-race patch
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200501311232.50935.m.watts@eris.qinetiq.com>
+X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.29.0.5; VDF: 6.29.0.52; host: mailr.qinetiq-tim.net)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Thomas Gleixner wrote:
->
-> The patch prevents this by leaving interrupts disabled and calling
-> a seperate function preempt_schedule_irq().
 
-sched-fix-preemption-race-core-i386.patch:
->
->	+++ 25-akpm/arch/i386/kernel/entry.S
->	@@ -189,6 +189,7 @@ ENTRY(resume_userspace)
->	 
->	 #ifdef CONFIG_PREEMPT
->	 ENTRY(resume_kernel)
->	+	cli
+> Michael Buesch wrote:
+> >Quoting Matthias-Christian Ott <matthias.christian@tiscali.de>:
+> >>Hi!
+> >>I have mysterious Problem:
+> >>90 % of my Ram are used (340 MB), but 0 Byte of my Swap (2GB) is used
+> >>and about about 150 MB are swappable.
+> >>
+> >>[matthias-christian@iceowl ~]$ free
+> >>             total       used       free     shared    buffers     cached
+> >>Mem:        383868     362176      21692          0         12     208956
+> >>-/+ buffers/cache:     153208     230660
 
-I think this 'cli' is unneeded. resume_kernel: is used on
-return path from do_IRQ() which leaves interrupts disabled.
-irq_desc->handler->end() should not enable interrupts, yes?
+Note that ~200MB are being used for disk caching.
+If your system need to allocate more ram, the disk cache will reduce before 
+swap is used.
 
-And we have preempt_stop==cli in ret_from_exception: case,
-before ret_from_intr.
+Mark.
 
->	+++ 25-akpm/kernel/sched.c
->	@@ -2872,6 +2872,48 @@ need_resched:
->	...
->	+asmlinkage void __sched preempt_schedule_irq(void)
->	+{
->	...
->	+	local_irq_enable();
->	+	schedule();
+- -- 
+Mark Watts
+Senior Systems Engineer
+QinetiQ Trusted Information Management
+Trusted Solutions and Services group
+GPG Public Key ID: 455420ED
 
-It is ok to enter schedule() with interrupts disabled, so this
-'sti' seems to be unneeded too.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-Am I missed something?
-
-Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
-
---- 2.6.11-rc2-mm2/arch/i386/kernel/entry.S~	Mon Jan 31 14:09:37 2005
-+++ 2.6.11-rc2-mm2/arch/i386/kernel/entry.S	Mon Jan 31 14:55:25 2005
-@@ -189,7 +189,6 @@ ENTRY(resume_userspace)
- 
- #ifdef CONFIG_PREEMPT
- ENTRY(resume_kernel)
--	cli
- 	cmpl $0,TI_preempt_count(%ebp)	# non-zero preempt_count ?
- 	jnz restore_all
- need_resched:
---- 2.6.11-rc2-mm2/kernel/sched.c~	Mon Jan 31 14:09:54 2005
-+++ 2.6.11-rc2-mm2/kernel/sched.c	Mon Jan 31 14:57:44 2005
-@@ -2971,7 +2971,6 @@ need_resched:
- 	saved_lock_depth = task->lock_depth;
- 	task->lock_depth = -1;
- #endif
--	local_irq_enable();
- 	schedule();
- 	local_irq_disable();
- #ifdef CONFIG_PREEMPT_BKL
+iD8DBQFB/iVyBn4EFUVUIO0RAmRBAJ46Vk2Z69/i+bMrj1gbSF8obHgEkgCgw8iU
+NgRDBYk+YoiRuWZZ2gFT8NE=
+=R02H
+-----END PGP SIGNATURE-----

@@ -1,59 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135695AbRDSUh3>; Thu, 19 Apr 2001 16:37:29 -0400
+	id <S135697AbRDSUit>; Thu, 19 Apr 2001 16:38:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135696AbRDSUhW>; Thu, 19 Apr 2001 16:37:22 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:4357 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S135695AbRDSUhC>; Thu, 19 Apr 2001 16:37:02 -0400
-Date: Thu, 19 Apr 2001 17:36:55 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Christoph Hellwig <hch@ns.caldera.de>
-Cc: <linux-lvm-admin@sistina.com>, <linux-kernel@vger.kernel.org>,
-        <linux-openlvm@nl.linux.org>
-Subject: Re: Your message to linux-lvm awaits moderator approval
-In-Reply-To: <20010419220326.A9016@caldera.de>
-Message-ID: <Pine.LNX.4.33.0104191734120.17635-100000@duckman.distro.conectiva>
+	id <S135698AbRDSUig>; Thu, 19 Apr 2001 16:38:36 -0400
+Received: from pop.gmx.net ([194.221.183.20]:22 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S135696AbRDSUiN>;
+	Thu, 19 Apr 2001 16:38:13 -0400
+Message-ID: <3ADE6C70.5A12D80A@gmx.de>
+Date: Thu, 19 Apr 2001 06:41:20 +0200
+From: Edgar Toernig <froese@gmx.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: kambo@home.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: CONFIG_PACKET_MMAP help
+In-Reply-To: <10336.010418@home.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 19 Apr 2001, Christoph Hellwig wrote:
-> On Thu, Apr 19, 2001 at 09:56:52PM +0200, linux-lvm-admin@sistina.com wrote:
-> > Your mail to 'linux-lvm' with the subject
-> >
-> >     Re: [linux-lvm] Re: [repost] Announce: Linux-OpenLVM mailing list
-> >
-> > Is being held until the list moderator can review it for approval.
+Hi,
 
-	[snip moderator message]
+kambo@home.com wrote:
+> 
+> 1. for tp_frame_size, I dont want to truncate any data on ethernet, I
+> need 1514 bytes, is this the best way to do it and not waste space?
+> 
+> static const int TURBO_FRAME_SIZE=
+>      TPACKET_ALIGN(TPACKET_ALIGN(sizeof(tpacket_hdr)) +
+>                    TPACKET_ALIGN(sizeof(struct sockaddr_ll)+ETH_HLEN) + 1500);
 
-> This doesn't look very open btw.  And I'm a longtime subsriber to linux-lvm...
+Looks OK.  Maybe instead of ETH_HLEN min(ETH_HLEN,16)?  The framesize
+calculation is really strange...
 
-It seems I was also put on moderation just after the message
-that they opened up the list.
+> 2. what is tp_block_nr for?  I dont understand it, I just set it to 1
+> and make tp_block_size big enough for all the frames I need, so its
+> just one contiguous space, all I need is about a megabyte I think.
 
-Either they're not telling us the truth, or they don't know
-how to handle their mailer setup. I don't particularly care
-which, because with both possible reasons I've pretty much
-lost trust in their ability to handle Linux LVM development.
+Better go the other way around - set tb_block_size to PAGE_SIZE and
+tb_block_nr appropriate.  tb_block_size is the contiguous physical memory
+the kernel tries to allocate.  Anything above PAGE_SIZE is likely to fail.
+For you that would mean only 2 packets per 4k-page.  You could try to
+start with bigger (power of 2) block sizes and go down to smaller ones if
+it fails (ENOMEM). [1].  Btw, there's in implicit limit on tb_block_nr.
+The vector to manage the blocks is kmalloc'ed and may not be larger than
+128kb giving max 32768 blocks.  Hmm... moment... seems there's a similar
+limit for tp_frame_nr (max 32768 frames).  I'm pretty sure _that_ limit
+was not there when I worked with this during 2.3.  Not so nice on gigabit
+ethernet :-(
 
-Well, no, I've lost it a long time ago after Andreas' patches
-got dropped over and over again and comments on the LVM code
-got refused by the moderators at Sistina ...
+> 3. is this the general approach for the api?
+> [...]
 
-regards,
+Looks OK too.
 
-Rik
---
-Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
+>    if (tp->status == 0) poll() for pollin on the socket  /* is there a
+>    race here? */
 
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
+No race.
 
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
+> 4. what does the copy threshold setsockopt tuning accomplish? doesnt it always
+> have to copy anyway, to the mmaped area?
 
+I haven't used it myself.  Reading the sources it does something different.
+Afaics when active if there's a packet that has been truncated by the
+framesize it is additionally stored in the socket's receive queue to be
+fetched by a normal read/recv.  It notifies you about this by setting
+the TP_STATUS_COPY bit.  So it seems to mean: copy to socket if threshold
+(framesize) exceeded.
+
+Ciao, ET.
+
+
+[1] The PACKET_RX_RING sockopt accepts all block sizes that are a multiple
+of PAGE_SIZE but always allocates a power of 2 size chunk.  So using non
+power of 2 sizes will waste locked kernel memory.
 

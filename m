@@ -1,48 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272189AbRHXQEN>; Fri, 24 Aug 2001 12:04:13 -0400
+	id <S272204AbRHXQGN>; Fri, 24 Aug 2001 12:06:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272202AbRHXQEE>; Fri, 24 Aug 2001 12:04:04 -0400
-Received: from ns.suse.de ([213.95.15.193]:39179 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S272189AbRHXQDv>;
-	Fri, 24 Aug 2001 12:03:51 -0400
-Date: Fri, 24 Aug 2001 18:04:00 +0200
-From: Andi Kleen <ak@suse.de>
-To: Ben Greear <greearb@candelatech.com>
-Cc: Andi Kleen <ak@suse.de>, Bernhard Busch <bbusch@biochem.mpg.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Poor Performance for ethernet bonding
-Message-ID: <20010824180400.B2848@gruyere.muc.suse.de>
-In-Reply-To: <3B865882.24D57941@biochem.mpg.de.suse.lists.linux.kernel> <oupg0ahmv2a.fsf@pigdrop.muc.suse.de> <3B867096.3A1D7DE@candelatech.com> <20010824172256.A2531@gruyere.muc.suse.de> <3B86769D.17A979D7@candelatech.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3B86769D.17A979D7@candelatech.com>; from greearb@candelatech.com on Fri, Aug 24, 2001 at 08:45:33AM -0700
+	id <S272210AbRHXQGD>; Fri, 24 Aug 2001 12:06:03 -0400
+Received: from ns.suse.de ([213.95.15.193]:46859 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S272204AbRHXQFu> convert rfc822-to-8bit;
+	Fri, 24 Aug 2001 12:05:50 -0400
+Date: Fri, 24 Aug 2001 18:06:00 +0200 (CEST)
+From: Dave Jones <davej@suse.de>
+To: Padraig Brady <Padraig@AnteFacto.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] CPU temperature control
+In-Reply-To: <3B86771E.3050207@AnteFacto.com>
+Message-ID: <Pine.LNX.4.30.0108241801420.14354-100000@Appserv.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 24, 2001 at 08:45:33AM -0700, Ben Greear wrote:
-> On the surface, multi-path routing sounds complicated to me, while
-> layer-2 bonding seems relatively trivial to set up/administer.  Since we do
-> support bonding, if it's a simple fix to make it better, we
-> might as well do that, eh?
+On Fri, 24 Aug 2001, Padraig Brady wrote:
 
-multipath routing is really not complicated; I don't know why it "sounds"
-complicated to you. Of course you could always add new features to the kernel
-because the existing ones which do the same thing in a better way
-"sound complicated" to someone; I doubt it is a good use of developer time 
-however. 
+> I'm using a C3 700MHz CPU underclocked to 466MHz (66MHz FSB),
+> and @ full load I'm getting the CPU to 63°C in a fanless 1U case.
+> What I would like is to throttle the CPU back X% if the temperature
+> exceeds say 50% which I can easily read using lm sensors.
+> So, what's the best way to do this? user space / kernel space??
+> Note the C3 has a suspend on halt (instruction) option which will
+> help things also.
 
-BTW when you would teach bonding about flows it wouldn't be layer-2 anymore.
+Russell King has been working on a architecture independant framework
+for this kind of feature. I recently started work on VIA support for it.
+After this weekend, my socket 370 motherboard should turn up and
+I'll be able to test / finish the support for it.
 
-To kill the "sounds complicated" myth: 
+You can find the code so far at..
+cvs -d :pserver:cvs@pubcvs.arm.linux.org.uk:/mnt/src/cvsroot login
+cvs -d :pserver:cvs@pubcvs.arm.linux.org.uk:/mnt/src/cvsroot co cpufreq
 
-ip route add 10.0.0.0/8 nexthop dev eth0 nexthop dev eth1 
+So far, there are several implementations in there, in various stages
+of completion. The various x86 types need finishing, and it'll be
+ready (as long as rmk has nothing else to add to it) for submission.
 
-gives you a multipath route with eth0 and eth1 with the same weight for 
-10.0.0.0 netmask 255.0.0.0. If you replace 10.0.0.0/8 with default it'll
-be your default route. The kernel does the rest.
+regards,
 
+Dave.
 
--Andi
+-- 
+| Dave Jones.        http://www.suse.de/~davej
+| SuSE Labs
+

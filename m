@@ -1,47 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261738AbSJQT7K>; Thu, 17 Oct 2002 15:59:10 -0400
+	id <S261854AbSJQT6G>; Thu, 17 Oct 2002 15:58:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261728AbSJQT7K>; Thu, 17 Oct 2002 15:59:10 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:23563
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S261738AbSJQT7J>; Thu, 17 Oct 2002 15:59:09 -0400
-Subject: Re: [PATCH] pre-decoded wchan output
-From: Robert Love <rml@tech9.net>
-To: Christoph Hellwig <hch@infradead.org>
+	id <S262003AbSJQT6G>; Thu, 17 Oct 2002 15:58:06 -0400
+Received: from carisma.slowglass.com ([195.224.96.167]:31495 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S261854AbSJQT6F>; Thu, 17 Oct 2002 15:58:05 -0400
+Date: Thu, 17 Oct 2002 21:04:02 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Greg KH <greg@kroah.com>
 Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-       riel@conectiva.com.br
-In-Reply-To: <20021017205803.A7555@infradead.org>
-References: <1034882043.1072.589.camel@phantasy> 
-	<20021017205803.A7555@infradead.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 17 Oct 2002 16:04:36 -0400
-Message-Id: <1034885077.718.595.camel@phantasy>
+       linux-security-module@wirex.com
+Subject: Re: [PATCH] remove sys_security
+Message-ID: <20021017210402.A7741@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Greg KH <greg@kroah.com>, torvalds@transmeta.com,
+	linux-kernel@vger.kernel.org, linux-security-module@wirex.com
+References: <20021017195015.A4747@infradead.org> <20021017185352.GA32537@kroah.com> <20021017195838.A5325@infradead.org> <20021017190723.GB32537@kroah.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021017190723.GB32537@kroah.com>; from greg@kroah.com on Thu, Oct 17, 2002 at 12:07:23PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-10-17 at 15:58, Christoph Hellwig wrote:
+On Thu, Oct 17, 2002 at 12:07:23PM -0700, Greg KH wrote:
+> But this will require every security module project to petition for a
+> syscall, which would be a pain, and is the whole point of having this
+> sys_security call.
 
-> Can't you just left the old, nuerical one in even if CONFIG_KALLSYMS
-> ise set?  One ifdef less and far less surprises..
+And the whole point of the reemoval is to not make adding syscalls
+easy.  Adding a syscall needs review and most often you actually want
+a saner interface.
 
-But why?  Save the call to get_wchan()...
+> How would they be done differently now?  Multiple different syscalls?
 
-Ideally I would like to remove the field altogether but thats too much
-breakage.
+Yes.
 
-A value of zero in the field position is an indication the wchan file
-exists, too.
+> 
+> I do know that Dave Miller has also complained about the sys_security
+> call in the past, and the difficulties along the same lines as the
+> ioctl 32bit problem.  If we were to go to individual syscalls for every
+> security function, this would go away.
 
-The ifdefs there do not bother me.  I think its pretty clear why its
-being done, although I could add a comment to the "0UL" value saying
-"now in /proc/#/wchan" or whatever.
-
-But, no, I do not agree.  No human can parse /proc/#/stats anyhow. 
-Since procps needs to be updated for 3.0 anyhow, it will be fine.
-
-	Robert Love
+Yes, doing the 32bit translation for a call where you don't actually
+know what the arguments mean is impossible.  See the 32bit ioctl
+compatiblity mess.
 

@@ -1,50 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266829AbUGVHr3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266650AbUGVH6J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266829AbUGVHr3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jul 2004 03:47:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266833AbUGVHr3
+	id S266650AbUGVH6J (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jul 2004 03:58:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266832AbUGVH6J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jul 2004 03:47:29 -0400
-Received: from run.smurf.noris.de ([192.109.102.41]:21140 "EHLO
-	server.smurf.noris.de") by vger.kernel.org with ESMTP
-	id S266829AbUGVHrS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jul 2004 03:47:18 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Matthias Urlichs <smurf@smurf.noris.de>
-Newsgroups: smurf.list.linux.kernel
-Subject: Re: [PATCH] Delete cryptoloop
-Date: Thu, 22 Jul 2004 09:43:42 +0200
-Organization: {M:U} IT Consulting
-Message-ID: <pan.2004.07.22.07.43.41.872460@smurf.noris.de>
-References: <Pine.LNX.4.58.0407211609230.19655@devserv.devel.redhat.com> <20040721230044.20fdc5ec.akpm@osdl.org> <Pine.LNX.4.58.0407212319560.13098@devserv.devel.redhat.com>
-NNTP-Posting-Host: kiste.smurf.noris.de
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: server.smurf.noris.de 1090482222 12450 192.109.102.35 (22 Jul 2004 07:43:42 GMT)
-X-Complaints-To: smurf@noris.de
-NNTP-Posting-Date: Thu, 22 Jul 2004 07:43:42 +0000 (UTC)
-User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table)
-X-Face: '&-&kxR\8+Pqalw@VzN\p?]]eIYwRDxvrwEM<aSTmd'\`f#k`zKY&P_QuRa4EG?;#/TJ](:XL6B!-=9nyC9o<xEx;trRsW8nSda=-b|;BKZ=W4:TO$~j8RmGVMm-}8w.1cEY$X<B2+(x\yW1]Cn}b:1b<$;_?1%QKcvOFonK.7l[cos~O]<Abu4f8nbL15$"1W}y"5\)tQ1{HRR?t015QK&v4j`WaOue^'I)0d,{v*N1O
+	Thu, 22 Jul 2004 03:58:09 -0400
+Received: from mailgate.pit.comms.marconi.com ([169.144.68.6]:18840 "EHLO
+	mailgate.pit.comms.marconi.com") by vger.kernel.org with ESMTP
+	id S266650AbUGVH6F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jul 2004 03:58:05 -0400
+Message-ID: <313680C9A886D511A06000204840E1CF08F43050@whq-msgusr-02.pit.comms.marconi.com>
+From: "Povolotsky, Alexander" <Alexander.Povolotsky@marconi.com>
+To: crossgcc <crossgcc@sources.redhat.com>
+Cc: "'Hollis Blanchard'" <hollisb@us.ibm.com>,
+       "'bertrand marquis'" <bertrand_marquis@yahoo.fr>,
+       "'trevor_scroggins@hotmail.com'" <trevor_scroggins@hotmail.com>,
+       "'Dan Kegel'" <dank@kegel.com>,
+       "'Geert Uytterhoeven'" <geert@linux-m68k.org>,
+       "'linuxppc-dev@lists.linuxppc.org'" <linuxppc-dev@lists.linuxppc.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: No rule to make target `net/ipv4/netfilter/ipt_ecn.o'
+Date: Thu, 22 Jul 2004 03:57:14 -0400
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2657.72)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, James Morris wrote:
+Hi,
 
-> It would be good if we could get some further review on the issue by an 
-> independent, well known cryptographer.
+Geert Uytterhoeven wrote:
+>Re: missing elf.h (for mk_elfconfig.c)  while  building zIma ge for PPC on
+Intel platform (windows XP) using cygwin
+>/usr/include is the correct location, though. Did you install libelf-dev
+under Cygwin?
 
-Well, I'm not, but ...
+I just did
 
-AFAIK, the main issue is: If I write some data to the start of block N, I
-get a bit pattern. If I write the same data *anywhere* else (the middle of
-block N, the start of block M != N, a different on-disk bit pattern must
-result.
+Dan  Kegel wrote: 
+>In other words, download and install
+>   http://www.gnu.org/directory/libs/misc/libelf.html
+>which will I think provide <gelf.h>;
+>you can then make an elf.h that just does
+>   #include <gelf.h>
+>and you should be good to go.  (I haven't tried it myself.)
+>- Dan   
 
-If there are identical bit patterns, then the system is vulnerable.
-Obviously, this vulnerability doesn't depend on whether you're using
-cryptoloop or dm-crypt.
+I created such elf.h file and placed it into /usr/include under Cygwin in Z:
 
--- 
-Matthias Urlichs
+It works (the problem is solved) - so consider it to be tested now !
+
+Thanks to everyone for help !
+Best Regards,
+Alex
+
+PS But the compilation did not complete, the next error is:
+
+make[3]: *** No rule to make target
+ `net/ipv4/netfilter/ipt_ecn.o', needed by `net/ipv4/netfilter/built-in.o'.
+Stop.
+make[2]: *** [net/ipv4/netfilter] Error 2
+make[1]: *** [net/ipv4] Error 2
+make: *** [net] Error 2
+ 

@@ -1,64 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264389AbTIIUTf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 16:19:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264388AbTIIUTe
+	id S264369AbTIIU0V (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 16:26:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264388AbTIIUTm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 16:19:34 -0400
-Received: from 64-60-248-67.cust.telepacific.net ([64.60.248.67]:18259 "EHLO
-	mx.rackable.com") by vger.kernel.org with ESMTP id S264498AbTIIURk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 16:17:40 -0400
-Message-ID: <3F5E33D2.7070103@rackable.com>
-Date: Tue, 09 Sep 2003 13:10:58 -0700
-From: Samuel Flory <sflory@rackable.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030827
+	Tue, 9 Sep 2003 16:19:42 -0400
+Received: from smtp4.hy.skanova.net ([195.67.199.133]:53954 "EHLO
+	smtp4.hy.skanova.net") by vger.kernel.org with ESMTP
+	id S264497AbTIIURf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Sep 2003 16:17:35 -0400
+Message-ID: <3F5E5137.2010902@telia.com>
+Date: Wed, 10 Sep 2003 00:16:23 +0200
+From: Miffe <miffe-miffe@telia.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030825
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Matt Mackall <mpm@selenic.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: sleeping function called from invalid context
-References: <3F5DEBA5.9060607@rackable.com> <20030909194727.GI31897@waste.org>
-In-Reply-To: <20030909194727.GI31897@waste.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+CC: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Lockups when booting with CardBus NIC inserted
+References: <1063135080.1228.10.camel@teapot.felipe-alfaro.com>
+In-Reply-To: <1063135080.1228.10.camel@teapot.felipe-alfaro.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 09 Sep 2003 20:17:39.0397 (UTC) FILETIME=[6AA5C750:01C3770F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt Mackall wrote:
+Felipe Alfaro Solana wrote:
+> Is anyone experiencing this?
 
->On Tue, Sep 09, 2003 at 08:03:01AM -0700, Samuel Flory wrote:
->  
->
->> I'm seeing this on arjanv's 2.6.0-0.test4.1.33 kernel.
->>    
->>
->
->  
->
->>Debug: sleeping function called from invalid context at 
->>include/asm/uaccess.h:473
->>Call Trace:
->>[<c011b7dd>] __might_sleep+0x5d/0x70
->>[<c010d0ea>] save_v86_state+0x6a/0x200
->>    
->>
->
->It's a warning about the possibility of hitting a very old but rarely
->hit bug, system should work the same as it always has despite the
->warning. I'm working on this, but it's ugly. Hope to post a patch in
->the next week or so.
->
->  
->
+Yes, in 2.6.0-test5.
+It stops after
 
-  That's good to know.  I was actually running for at least a on an 
-older kernel before i noticed in in dmesg.
-
--- 
-Once you have their hardware. Never give it back.
-(The First Rule of Hardware Acquisition)
-Sam Flory  <sflory@rackable.com>
+PCI: Enabling device 0000:00:03.0 (0000 -> 0002)
+Yenta: CardBus bridge found at 0000:00:03.0 [1028:00bb]
+Yenta: Using CSCINT to route CSC interrupts to PCI
+Yenta: Routing CardBus interrupts to PCI
+Yenta: ISA IRQ list 0098, PCI irq10
+Socket status: 30000020
 
 

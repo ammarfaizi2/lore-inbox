@@ -1,31 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271812AbTHDPmc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 11:42:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271814AbTHDPmb
+	id S271816AbTHDPmP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 11:42:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271818AbTHDPmO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 11:42:31 -0400
-Received: from smtp.mailbox.co.uk ([195.82.125.32]:5013 "EHLO
-	smtp.mailbox.co.uk") by vger.kernel.org with ESMTP id S271812AbTHDPma
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 11:42:30 -0400
-Date: Mon, 4 Aug 2003 16:33:26 +0100 (BST)
-From: Jon Masters <jonathan@jonmasters.org>
-To: linux-kernel@vger.kernel.org
-cc: jcm@jonmasters.org
-Subject: Xuart Lite Serial Driver
-Message-ID: <Pine.LNX.4.10.10308041631270.9441-100000@router>
+	Mon, 4 Aug 2003 11:42:14 -0400
+Received: from mx01.netapp.com ([198.95.226.53]:11724 "EHLO mx01.netapp.com")
+	by vger.kernel.org with ESMTP id S271816AbTHDPmO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Aug 2003 11:42:14 -0400
+From: Brian Pawlowski <beepy@netapp.com>
+Message-Id: <200308041542.h74Fg9k26251@orbit-fe.eng.netapp.com>
+Subject: Re: FS: hardlinks on directories
+In-Reply-To: <20030804134415.GA4454@win.tue.nl> from Andries Brouwer at "Aug 4, 3 03:44:15 pm"
+To: aebr@win.tue.nl (Andries Brouwer)
+Date: Mon, 4 Aug 2003 08:42:09 -0700 (PDT)
+Cc: skraw@ithnet.com, linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME++ PL40 (25)]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+I'm still waking up, but '..' obviously breaks the "no cycle"
+observations.
 
-I am writing some code for various Xilinx soft devices and would like to
-know whether there is already a contributed patch for the Xuart Lite?
+It's just that '..' is well known name by utilities as opposed
+to arbitrary links. Symlinks as poor man's link can create unwanted
+cycles (but are caught again by utils?)
 
-Cheers,
-
-Jon.
+I was always wondering what to do with all those spare CPU cycles,
+running around in circles in the file system will soak them up. :-)
 

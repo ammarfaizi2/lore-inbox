@@ -1,40 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265249AbRGATZs>; Sun, 1 Jul 2001 15:25:48 -0400
+	id <S264652AbRGAUJ5>; Sun, 1 Jul 2001 16:09:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265264AbRGATZi>; Sun, 1 Jul 2001 15:25:38 -0400
-Received: from cx48762-a.cv1.sdca.home.com ([24.0.158.22]:59714 "EHLO
-	train.sweet-haven.com") by vger.kernel.org with ESMTP
-	id <S265249AbRGATZW>; Sun, 1 Jul 2001 15:25:22 -0400
-Date: Sun, 1 Jul 2001 12:24:38 -0700 (PDT)
-From: Lew Wolfgang <wolfgang@train.sweet-haven.com>
-To: Kurt Maxwell Weber <kmw@rowsw.com>
-cc: J Sloan <jjs@mirai.cx>, <linux-kernel@vger.kernel.org>
+	id <S264738AbRGAUJr>; Sun, 1 Jul 2001 16:09:47 -0400
+Received: from adsl-204-0-249-112.corp.se.verio.net ([204.0.249.112]:23539
+	"EHLO tabby.cats-chateau.net") by vger.kernel.org with ESMTP
+	id <S264652AbRGAUJf>; Sun, 1 Jul 2001 16:09:35 -0400
+From: Jesse Pollard <jesse@cats-chateau.net>
+Reply-To: jesse@cats-chateau.net
+To: kmw@rowsw.com, Kurt Maxwell Weber <kmw@rowsw.com>, J Sloan <jjs@mirai.cx>
 Subject: Re: Uncle Sam Wants YOU!
+Date: Sun, 1 Jul 2001 15:03:45 -0500
+X-Mailer: KMail [version 1.0.28]
+Content-Type: text/plain; charset=US-ASCII
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200107011602.MAA01357@smarty.smart.net> <3B3F707C.9BF8BCF7@mirai.cx> <01070114030902.14899@zaphodbeeblebrox>
 In-Reply-To: <01070114030902.14899@zaphodbeeblebrox>
-Message-ID: <Pine.LNX.4.33.0107011213050.5284-100000@train.sweet-haven.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <01070115092401.00290@tabby>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 1 Jul 2001, Kurt Maxwell Weber wrote:
-> In that case, I have the following options:
-> 1) Start my own ISP
-> 2) Use Windows XP
-> 3) Not use Windows XP and not be able to use my current ISP
-> 4) Go to a different ISP
+On Sun, 01 Jul 2001, Kurt Maxwell Weber wrote:
+>On Sunday 01 July 2001 13:48, you wrote:
+>> Kurt Maxwell Weber wrote:
+>> > I'm going to take a break from lurking to point out that I am not
+>> > dissatisfied with Windows.  It has its uses, as do Linux (and NetBSD, and
+>> > Solaris, and the other operating systems I have installed at home). 
+>> > Frankly, I don't have a problem with Microsoft.  If I don't like their
+>> > product, I'm free to choose not to use it.
+>>
+>> You do understand, don't you, that microsoft is
+>> working frantically to take that choice away from
+>> you? it's easy to sit back and say it doesn't affect
+>> you, til one day you realize that you can't connect
+>> to your ISP unless you are running windows xp.
+>>
+>> Then it hits you, and it's too late.
 >
-> I'll just have to decide which I value more.  As long as I won't be killed
-> for using a different OS, I still have a choice.
+>In that case, I have the following options:
+>1) Start my own ISP
 
-But these are false alternatives!  "I'll give you a choice, I remove
-either your right foot or your left arm.  Your choice."  The choice
-of "neither" is not given.  All I want is true alternatives.  I
-hope that one of those alternatives will be to opt out of the
-coercive, advertising rich, commercial environment that is in
-our future.
+Only if the upstream provider doesn't require you to use windows.
 
-Regards,
-Lew Wolfgang
+>2) Use Windows XP
+>3) Not use Windows XP and not be able to use my current ISP
+>4) Go to a different ISP
 
+You may not be able to find another. It took me a year. I gave up. I was
+fortunate that Verio doesn't care what you have... though if you use
+the dialup or basic dsl, MS is it, or no real support.
+
+>I'll just have to decide which I value more.  As long as I won't be killed 
+>for using a different OS, I still have a choice.
+
+No, but you might be forced out of a job.
+
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: jesse@cats-chateau.net
+
+Any opinions expressed are solely my own.

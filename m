@@ -1,32 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282756AbRK0Cxl>; Mon, 26 Nov 2001 21:53:41 -0500
+	id <S282757AbRK0C5d>; Mon, 26 Nov 2001 21:57:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282760AbRK0Cxc>; Mon, 26 Nov 2001 21:53:32 -0500
-Received: from femail11.sdc1.sfba.home.com ([24.0.95.107]:42960 "EHLO
-	femail11.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S282757AbRK0CxU>; Mon, 26 Nov 2001 21:53:20 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@trommello.org>
-Reply-To: landley@trommello.org
-Organization: Boundaries Unlimited
-Subject: Re: [RFC] 2.5/2.6/2.7 transition [was Re: Linux 2.4.16-pre1]
-Date: Mon, 26 Nov 2001 18:52:12 -0500
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <E168Szh-0006un-00@the-village.bc.nu> <0111261642580L.02001@localhost.localdomain>
-In-Reply-To: <0111261642580L.02001@localhost.localdomain>
-MIME-Version: 1.0
-Message-Id: <0111261851570S.02001@localhost.localdomain>
-Content-Transfer-Encoding: 7BIT
-To: linux-kernel@vger.kernel.org
+	id <S282758AbRK0C5Z>; Mon, 26 Nov 2001 21:57:25 -0500
+Received: from queen.bee.lk ([203.143.12.182]:17565 "EHLO queen.bee.lk")
+	by vger.kernel.org with ESMTP id <S282757AbRK0C5K>;
+	Mon, 26 Nov 2001 21:57:10 -0500
+Date: Tue, 27 Nov 2001 08:56:21 +0600
+From: Anuradha Ratnaweera <anuradha@gnu.org>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Anuradha Ratnaweera <anuradha@gnu.org>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        lkml <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, editors@newsforge.com,
+        lwn@lwn.net
+Subject: Re: Linux 2.4.16
+Message-ID: <20011127085621.A14241@bee.lk>
+In-Reply-To: <Pine.LNX.4.21.0111261003070.13400-100000@freak.distro.conectiva> <20011127083530.A13584@bee.lk> <3C02FDF4.22927E4A@mandrakesoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3C02FDF4.22927E4A@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Mon, Nov 26, 2001 at 09:44:04PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 26 November 2001 16:42, Rob Landley wrote:
+On Mon, Nov 26, 2001 at 09:44:04PM -0500, Jeff Garzik wrote:
+> Anuradha Ratnaweera wrote:
+> > 
+> > On Mon, Nov 26, 2001 at 10:30:08AM -0200, Marcelo Tosatti wrote:
+> > >
+> > > final:
+> > > - Fix 8139too oops                            (Philipp Matthias Hahn)
+> > 
+> > Won't that be a good idea to keep the -final the same as the last -pre?
+> 
+> No.  There is absolutely no reason not to fix this oops.
 
-> I also can't think of a distribution that doesn't have at least a yearly
-> major release cycle.
+I wasn't refering to 8139 driver, but the kernel release policy.
 
-Okay, Debian.
+Well, there was another thread on LKML which discusses this issue in detail.
 
-Rob
+Cheers,
+
+Anuradha
+
+-- 
+
+Debian GNU/Linux (kernel 2.4.13)
+
+It is easier to resist at the beginning than at the end.
+		-- Leonardo da Vinci
+

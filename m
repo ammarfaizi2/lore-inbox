@@ -1,97 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271638AbRHVSdr>; Wed, 22 Aug 2001 14:33:47 -0400
+	id <S271975AbRHVSer>; Wed, 22 Aug 2001 14:34:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271975AbRHVSdb>; Wed, 22 Aug 2001 14:33:31 -0400
-Received: from web10908.mail.yahoo.com ([216.136.131.44]:23303 "HELO
-	web10908.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S272074AbRHVSc5>; Wed, 22 Aug 2001 14:32:57 -0400
-Message-ID: <20010822183312.11829.qmail@web10908.mail.yahoo.com>
-Date: Wed, 22 Aug 2001 11:33:12 -0700 (PDT)
-From: Brad Chapman <kakadu_croc@yahoo.com>
-Subject: Re: brlock_is_locked()?
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010822.112619.62651200.davem@redhat.com>
+	id <S272074AbRHVSej>; Wed, 22 Aug 2001 14:34:39 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:26636 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S271975AbRHVSe0>; Wed, 22 Aug 2001 14:34:26 -0400
+Message-ID: <3B83FB3F.A0BDC056@zip.com.au>
+Date: Wed, 22 Aug 2001 11:34:39 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.8-ac8 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="0-1098571825-998505192=:11773"
+To: Adrian Cox <adrian@humboldt.co.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Filling holes in ext2
+In-Reply-To: <3B83E9FD.6020801@humboldt.co.uk>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---0-1098571825-998505192=:11773
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
---- "David S. Miller" <davem@redhat.com> wrote:
->    From: Brad Chapman <kakadu_croc@yahoo.com>
->    Date: Wed, 22 Aug 2001 11:17:55 -0700 (PDT)
+Adrian Cox wrote:
 > 
->    	At this section of the code, it doesn't really matter who in the
->    netfilter/network stack has BR_NETPROTO_LOCK, just that we need to know if
->    it's already locked by someone else, or unlocked for us to use. Is what
-> I'm
->    asking for physically possible?
+> I've been looking at generic_file_write() a lot recently, and I'm a
+> little bothered by this section, as mangled here by Mozilla:
 > 
-> As a reader, the BR_NETPROTO_LOCK nests.  So no deadlock.
+> status = mapping->a_ops->prepare_write(file, page, offset, offset+bytes);
+> if (status)
+>         goto unlock;
+> status = __copy_from_user(kaddr+offset, buf, bytes);
+> flush_dcache_page(page);
+> if (status)
+>         goto fail_write;
+> status = mapping->a_ops->commit_write(file, page, offset, offset+bytes);
 > 
-> If the situation involves a writer, you must make sure that locking
-> rules are well defined and abided by.  No matter what you do, if you
-> try to conditionalize locking by testing if the lock is held, another
-> SMP can always get in there after you check it and corrupt your data.
-> The lock is basically pointless if you start testing it's locked
-> state.
+> If the __copy_from_user() does fail when writing to a hole or extending
+> a file on ext2, disk blocks get added to the file, but are never
+> cleared. The result is that data from a free block appears in the file.
+
+Yup.
+
+> I've not managed to trigger this in a real system, but I have explored
+> the failure path by running UML under gdb. I filled the filesystem with
+> data as root (yes > /mnt/test), deleted the files, then triggered this
+> path on an application running as a normal user. The result was that
+> root's old data appeared in the user file.
 > 
-> Basically, "fix your code" ;-)
-> 
-> It's often easy to do this.  If you have two paths, one which is going
-> to already have the lock and one which won't, just make two functions
-> like so:
-> 
-> void __func(void)
-> {
-> 	do_stuff();
-> }
-> 
-> void func(void)
-> {
-> 	lock();
-> 	__func();
-> 	unlock();
-> }
-> 
-> I don't see why this is such a big problem.
-> 
-> Later,
-> David S. Miller
-> davem@redhat.com
+> So:
+> Can this really happen on the mainstream kernel? (The kernel I tested on
+>   was 2.4.7 with the corresponding UML patch.)
 
-Mr. Miller,
+Yes, it can.
 
-	It almost isn't. The problem starts when a third-party protocol
-module grabs BR_NETPROTO_LOCK, unloads itself from the networking stack,
-and then tries to call ip6_conntrack_protocol_unregister(). Deadlock.
-The problem is that we need TWO locks: the brlock to seal the network stack,
-and the conntrack rwlock to delete the protocol struct. Sure, you can
-always share the rwlock and leave it at that, but if all you need it for
-is to load/unload your protocol functions, then why bother polluting
-the symbol tables?
-	What do you think? Share the rwlock and make everybody who has
-the brlock just use the core function?
+> Can this actually be exploited?  I assume the test on __copy_from_user()
+> is there in case another thread changes memory mappings while
+> generic_file_write() is running. My attempts to do this haven't yet
+> succeeded.
 
-Brad
+I'd expect it to occur if you simply pass an unmapped address
+to write()?
+ 
+> If this can happen, does it matter?
 
+It matters.  -ac kernels handle this by clearing out the blocks
+on the error path in __block_prepare_write().  If you retest with
+-ac kernels, you should just see zeroes.
 
-=====
-Brad Chapman
+> Should ext2 have an abort_write() operation like ext3() has?
 
-Permanent e-mail: kakadu_croc@yahoo.com
-Current e-mail: kakadu@adelphia.net
+abort_write() is an expediency - it was (much) easier and safer
+to add a new operation rather than running all over the kernel
+and redefining the commit_write() API.
 
-Reply to the address I used in the message to you,
-please!
+ext3 definitely needs to know about prepare/commit imbalance in
+lo_send() and generic_file_write(), and in block_symlink() if that
+is ever changed to error out after the prepare_write().
 
-__________________________________________________
-Do You Yahoo!?
-Make international calls for as low as $.04/minute with Yahoo! Messenger
-http://phonecard.yahoo.com/
---0-1098571825-998505192=:11773--
+But long-term, we need to change the commit_write() definition so
+that it is called even in the error case, thus informing the
+underlying fs of the partial write.
+
+-

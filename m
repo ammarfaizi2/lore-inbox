@@ -1,136 +1,112 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130834AbRDBRLJ>; Mon, 2 Apr 2001 13:11:09 -0400
+	id <S130820AbRDBR27>; Mon, 2 Apr 2001 13:28:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131063AbRDBRLA>; Mon, 2 Apr 2001 13:11:00 -0400
-Received: from mfo01.iij.ad.jp ([202.232.2.118]:32773 "EHLO mfo01.iij.ad.jp")
-	by vger.kernel.org with ESMTP id <S130834AbRDBRKs>;
-	Mon, 2 Apr 2001 13:10:48 -0400
-From: okuyamak@dd.iij4u.or.jp
-Date: Tue, 03 Apr 2001 02:07:56 +0900 (LMT)
-Message-Id: <20010403.020756.107318465.okuyamak@dd.iij4u.or.jp>
-To: neilb@cse.unsw.edu.au
-Cc: linux-kernel@vger.kernel.org
-Subject: nfsd vfs.c does not seems to fsync() with file overwrite, when it
- have to.
-X-Mailer: Mew version 1.95b43 on Emacs 20.4 / Mule 4.1 (AOI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S131184AbRDBR2u>; Mon, 2 Apr 2001 13:28:50 -0400
+Received: from eventhorizon.antefacto.net ([193.120.245.3]:49350 "EHLO
+	eventhorizon.antefacto.net") by vger.kernel.org with ESMTP
+	id <S131079AbRDBR2n>; Mon, 2 Apr 2001 13:28:43 -0400
+Message-ID: <3AC8C49B.10100@AnteFacto.com>
+Date: Mon, 02 Apr 2001 19:27:39 +0100
+From: Padraig Brady <Padraig@AnteFacto.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0-ac4 i686; en-US; 0.8.1) Gecko/20010326
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andre Hedrick <andre@linux-ide.org>
+CC: Steffen Grunewald <steffen@gfz-potsdam.de>, linux-kernel@vger.kernel.org,
+   rsmith@bitworks.com
+Subject: Re: Cool Road Runner
+In-Reply-To: <Pine.LNX.4.10.10104020738550.12531-100000@master.linux-ide.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Neil,
+Andre Hedrick wrote:
 
-I think I've found bug in nfsd. Here's patch for fixing.
-I'd like to explain what's problem and what's changed, after patch.
+> On Mon, 2 Apr 2001, Padraig Brady wrote:
+> 
+>> OK can we just have a technical discussion?
+> 
+> Please, lets do, I am tired of the battles
+> 
+>> I.E. no need for PCMCIA or any of that. I understood from your 
+>> responses that you didn't realise this?
+> 
+> This valid that I do not know everything and that CFA does interesting
+> things more than what was specified in the past.
+
+cool.
 
 
-diff -urN ./linux.orig/fs/nfsd/vfs.c ./linux/fs/nfsd/vfs.c
---- ./linux.orig/fs/nfsd/vfs.c	Tue Mar 13 11:13:28 2001
-+++ ./linux/fs/nfsd/vfs.c	Mon Apr  2 22:08:00 2001
-@@ -746,15 +746,14 @@
- 				current->state = TASK_RUNNING;
- 				dprintk("nfsd: write resume %d\n", current->pid);
- 			}
-+                }
+>> 2. Compact Flash in this application (I.E. solid state hard disk) is 
+>> getting very popular as prices are tumbling.
+>> 
+>> 3. Having a config parameter (uneeded kludge in my opinion), like hdx=flash
+>>      even if hdx is not a compact flash is confusing. Can we call it hdx=probe
+>>      which fits nicely with the noprobe option.
+>> 
+>>> I then explained why the detection was failing and pointed where to verify.
+>> 
+>> No you didn't. You mentioned a 30 second timeout, but not why it
+>> was caused. Have you seen this yourself or can you point us at who
+>> reported this to you?
+> 
+> Sorry phone call and email got mixed togather.
+> But I did explain that there could be a failure to detect if PDIAG/DASP
+> if one or the other devices was held to long and the wrong device reported
+> a signature in the task register.  Also that the if you reversed the two
+> device it would correctly report always.
+> 
+
+Hmm, OK.
+
+>> 
+>>> After 3-5 attempts and I can not get the point across because the other
+>>> party keeps going off in different directions to do "what about this",
+>> 
+>> Emm, I think *you* were going off describing your application with
+>> a "bazar ata-bridge", not the simple use of a compact flash as a
+>> hard disk.
+> 
+> Not quite, the electronic differences and flash in native mode is
+> incompatable, if you put it in to a mode that is 5V compatable then it
+> does seem possible and reasonable to work.  Your imperical data points
+> verify this issue.
+
+cool
+
  
--			if (inode->i_state & I_DIRTY) {
--				dprintk("nfsd: write sync %d\n", current->pid);
--				nfsd_sync(&file);
--			}
-+                dprintk("nfsd: write sync %d\n", current->pid);
-+                nfsd_sync(&file);
- #if 0
--			wake_up(&inode->i_wait);
-+                wake_up(&inode->i_wait);
- #endif
--		}
-+
- 		last_ino = inode->i_ino;
- 		last_dev = inode->i_dev;
- 	}
+> What really needs to happen is that all the devices that are CFA-like
+> which require name parsing for detecting should have the "flash" rule
+> imposed.  Whereas the ones that correctly report 0x848A for word 0 of the
+> identify page may be exempt.
+
+sounds good if we can easily differentiate between buggy & non-buggy flash.
 
 
-OKEY, here's what's being changed and why.
+> This seems like a reasonable step given that you are pointing out you
+> a have modern CFA's that are more than just CFA's.
 
-According to RFC, nfs v2 requires write to sync everytime it
-required.  nfs v3 have status given, which takes variable of
-UNSTABLE, DATASYNC, and FILESYNC. And when it's DATASYNC or
-FILESYNC, it also requires write to be synced.
-
-nfs v2 write should be equivalent to FILESYNC of v3.  FILESYNC
-requires "ALL" the metadata and "write" requested data to be
-syncronously written to storage. DATASYNC requires file related
-metadata and "write" requested data to be syncronously written to
-storage.
-
-Currently, Linux does not support FILESYNC. Though it does not
-report like so. I think this is reasonable. And if so, we need to
-make DATASYNC to work properly.
+I'm not sure I have. They seem to following the latest spec I
+downloaded from www.compactflash.org
 
 
-DATASYNC requires to write data to storage even if file system is
-being MOUNTED asyncronously. I mean ext2 can be mounted in 'async'
-mode, and yet nfsd must prove file to be fsync()-ed.
+> Would that work for you?
+> 
+>>> I finally pointed out facts that distrub people, and gave up on trying to
+>>> show/present/give the answer and offered to then enforce their beliefs of
+>>> reality.
+>>> 
+>>> So I state a few facts very pointed to get their attention again and that
+>>> is additude??
+>> 
+>> Actually I thought the final email was a little more concise/informative, thanks.
+> 
+> Well I am glad that somebody gleened some information and providing
+> feedback so that forward progress is possible, and not the classic battles.
 
-Because 
+cool,
 
-L710:	err = file.f_op->write(&file, buf, cnt, &file.f_pos);
+Padraig.
 
-does not store dirty pages to storage in case of async, we need to
-call fsync() in case if variable stable is non 0.
-
-
-Whether we should call nfsd_sync() or not, should not depend on
-whether    EX_WGATHER(exp)   is true or not. So,  calling nfsd_sync()
-should be outside 
-
-       if ( EX_WGATHER(exp) ) {...}
-
-statement.
-
-
-Also, it should not depend on whether (inode->i_state & I_DIRTY) is
-true or not, because   (inode->i_state & I_DIRTY)  is true only when
-inode is being changed ( i.e. when append write is being held ),
-while we need to sync written data to filesystem even when we only
-over wrote already existing data area.
-
-This means we are required to write ALL the dirty pages and dirty
-inodes at this point, if    status    is non 0.
-
-
-On other hand, with these patches, nfsd + any file system with fsync
-functionality will work correctly even with
-
-	       export(sync) + mount(async) 
-
-combination. This is quite useful, for nfs v3 allow UNSTABLE write (
-which requires only to recieve write data ) and have COMMIT command
-to run fsync() at different timing. To make this work in good
-performance, mount is needed to be async mount, so that write()
-request will not write any data or metadata to storage.
-
-
-Wishing my explaint didn't confuse you.
-
-best regards,
----- 
-Kenichi Okuyama@Tokyo Research Lab. IBM-Japan, Co.
-
-P.S.  I don't really think we should wait for 10msec At point of
-Gathered writes. I don't think this will be of any help.
-It's because fsync() have locking of it's own.
-
-While someone have already started storing same file as current code
-focuses, to storage, it's not that we should wait for specific
-timing. Rather, it's at fsync() timing that reqires mutual storing
-and waiting. No one should have right of getting into loop of
-calling ll_rw_block() inside fsync(), except for the very first one,
-who's waiting for block-write, until it finish.
-
-This mutex functionality SHOULD be what is being supported by
-fsync() and if not, we shold simply dive into fsync() for another
-write. Even if you over wrote to storage, usually it will not ask
-you for extra 10msec.

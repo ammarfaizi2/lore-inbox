@@ -1,67 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279788AbRKVOgj>; Thu, 22 Nov 2001 09:36:39 -0500
+	id <S279739AbRKVOl3>; Thu, 22 Nov 2001 09:41:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279783AbRKVOg3>; Thu, 22 Nov 2001 09:36:29 -0500
-Received: from ns0.ipal.net ([206.97.148.120]:13735 "HELO vega.ipal.net")
-	by vger.kernel.org with SMTP id <S279778AbRKVOgY>;
-	Thu, 22 Nov 2001 09:36:24 -0500
-Date: Thu, 22 Nov 2001 08:36:23 -0600
-From: Phil Howard <phil-linux-kernel@ipal.net>
-To: linux-kernel@vger.kernel.org
-Subject: EINTR vs ERESTARTSYS, ERESTARTSYS not defined
-Message-ID: <20011122083623.A18057@vega.ipal.net>
+	id <S279722AbRKVOlT>; Thu, 22 Nov 2001 09:41:19 -0500
+Received: from elin.scali.no ([62.70.89.10]:26886 "EHLO elin.scali.no")
+	by vger.kernel.org with ESMTP id <S279739AbRKVOlM>;
+	Thu, 22 Nov 2001 09:41:12 -0500
+Subject: Re: [Q] was the SYSENTER/SYSCALL fast system calls completed or
+	discared in the end??
+From: Terje Eggestad <terje.eggestad@scali.no>
+To: Pavel Machek <pavel@suse.cz>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20011121225402.A175@elf.ucw.cz>
+In-Reply-To: <1006184327.19902.2.camel@pc-16.office.scali.no> 
+	<20011121225402.A175@elf.ucw.cz>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.99.0 (Preview Release)
+Date: 22 Nov 2001 15:41:09 +0100
+Message-Id: <1006440069.22598.4.camel@pc-16.office.scali.no>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The accept() call does indeed return errno==ERESTARTSYS to user space
-when coming back from signal handling, even though other things like
-poll() return errno==EINTR.  This would not really be a problem except
-for this in include/linux/errno.h starting at line 6:
+ons, 2001-11-21 kl. 22:54 skrev Pavel Machek:
+> 
+> On Mon 19-11-01 16:38:45, Terje Eggestad wrote:
+> > subject says it all....
+> > 
+> > I remember there was a discussion and a patch floating around that 
+> > implemented SYSCALL/SYSRET, just want to know what happened to it....
+> 
+> discarded
 
-+=============================================================================
-| #ifdef __KERNEL__
-| 
-| /* Should never be seen by user programs */
-| #define ERESTARTSYS     512
-| #define ERESTARTNOINTR  513
-| #define ERESTARTNOHAND  514     /* restart if no handler.. */
-| #define ENOIOCTLCMD     515     /* No ioctl command */
-+=============================================================================
+Because there was no perf benefit  or because the patch was in poor
+quality?
 
-So which way is it _supposed_ to be (so someone can patch things up
-to make it consistent):
 
-1.  User space should never see ERESTARTSYS from any system call
-
-2.  ERESTARTSYS can be seen from system call and is defined somewhere
-
-In user space I have to define __KERNEL__ to get programs to compile
-when coded to know about all possible (valid?) values of errno from
-system calls.  As seen from strace:
-
-+=============================================================================
-| [pid  6453] accept(5, 0xbffff908, [16]) = ? ERESTARTSYS (To be restarted)
-| [pid  6453] --- SIGALRM (Alarm clock) ---
-| [pid  6453] getppid()                   = 6452
-| [pid  6453] gettimeofday({1006439405, 5879}, NULL) = 0
-| [pid  6453] setitimer(ITIMER_REAL, {it_interval={0, 0}, it_value={9, 994121}}, NULL) = 0
-| [pid  6453] rt_sigreturn(0x5)           = -1 EINTR (Interrupted system call)
-| [pid  6453] accept(5, 0xbffff908, [16]) = ? ERESTARTSYS (To be restarted)
-| [pid  6453] --- SIGALRM (Alarm clock) ---
-| [pid  6453] getppid()                   = 6452
-| [pid  6453] gettimeofday({1006439415, 6422}, NULL) = 0
-| [pid  6453] setitimer(ITIMER_REAL, {it_interval={0, 0}, it_value={9, 993578}}, NULL) = 0
-| [pid  6453] rt_sigreturn(0x5)           = -1 EINTR (Interrupted system call)
-| [pid  6453] accept(5, 0xbffff908, [16]) = ? ERESTARTSYS (To be restarted)
-+=============================================================================
-
+> 
+> -- 
+> <sig in construction>
 -- 
------------------------------------------------------------------
-| Phil Howard - KA9WGN |   Dallas   | http://linuxhomepage.com/ |
-| phil-nospam@ipal.net | Texas, USA | http://phil.ipal.org/     |
------------------------------------------------------------------
+_________________________________________________________________________
+
+Terje Eggestad                  terje.eggestad@scali.no
+Scali Scalable Linux Systems    http://www.scali.com
+
+Olaf Helsets Vei 6              tel:    +47 22 62 89 61 (OFFICE)
+P.O.Box 70 Bogerud                      +47 975 31 574  (MOBILE)
+N-0621 Oslo                     fax:    +47 22 62 89 51
+NORWAY            
+_________________________________________________________________________
+

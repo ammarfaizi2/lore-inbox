@@ -1,43 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261169AbUCQStI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Mar 2004 13:49:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261939AbUCQStH
+	id S261946AbUCQSup (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Mar 2004 13:50:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261898AbUCQSup
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Mar 2004 13:49:07 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:30349 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261169AbUCQStF
+	Wed, 17 Mar 2004 13:50:45 -0500
+Received: from jurand.ds.pg.gda.pl ([153.19.208.2]:57011 "EHLO
+	jurand.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S261946AbUCQSun
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Mar 2004 13:49:05 -0500
-Date: Wed, 17 Mar 2004 13:50:11 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: VINOD GOPAL <vinod_gopal74@yahoo.com>
-cc: John Bradford <john@grabjohn.com>, linux-kernel@vger.kernel.org
-Subject: Re: arithmetic functions for linux driver
-In-Reply-To: <20040317181537.43286.qmail@web60709.mail.yahoo.com>
-Message-ID: <Pine.LNX.4.53.0403171338500.19593@chaos>
-References: <20040317181537.43286.qmail@web60709.mail.yahoo.com>
+	Wed, 17 Mar 2004 13:50:43 -0500
+Date: Wed, 17 Mar 2004 19:50:41 +0100 (CET)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Andrew Morton <akpm@osdl.org>, Mikael Pettersson <mikpe@csd.uu.se>
+Cc: thomas.schlichter@web.de, phil.el@wanadoo.fr, schwab@suse.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6.4-rc2] bogus semicolon behind if()
+In-Reply-To: <20040317102550.2ca7737c.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.55.0403171946550.14525@jurand.ds.pg.gda.pl>
+References: <200403090014.03282.thomas.schlichter@web.de>
+ <20040308162947.4d0b831a.akpm@osdl.org> <20040309070127.GA2958@zaniah>
+ <200403091208.20556.thomas.schlichter@web.de> <Pine.LNX.4.55.0403171734090.14525@jurand.ds.pg.gda.pl>
+ <20040317102550.2ca7737c.akpm@osdl.org>
+Organization: Technical University of Gdansk
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 17 Mar 2004, VINOD GOPAL wrote:
+On Wed, 17 Mar 2004, Andrew Morton wrote:
 
-> The range of input is varying.
-> Iam looking for floating point arithmetic functions
-> like log10, pow , sin ,exp , cos etc.
->
+> I still have a couple of NMI patches in -mm:
+> 
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.5-rc1/2.6.5-rc1-mm1/broken-out/nmi_watchdog-local-apic-fix.patch
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.5-rc1/2.6.5-rc1-mm1/broken-out/nmi-1-hz.patch
+> 
+> What should we do with these?
 
-Like the range of input from an ADC? You get the data in
-the kernel and you muck with it in user-mode after you
-have it.
+ I think we should ask Mikael Pettersson as he is the local APIC watchdog 
+expert.  Mikael?
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
-
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +

@@ -1,68 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315416AbSIDUhY>; Wed, 4 Sep 2002 16:37:24 -0400
+	id <S315415AbSIDVGp>; Wed, 4 Sep 2002 17:06:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315419AbSIDUhY>; Wed, 4 Sep 2002 16:37:24 -0400
-Received: from fed1mtao02.cox.net ([68.6.19.243]:24259 "EHLO
-	fed1mtao02.cox.net") by vger.kernel.org with ESMTP
-	id <S315416AbSIDUhX>; Wed, 4 Sep 2002 16:37:23 -0400
-Date: Wed, 4 Sep 2002 13:56:52 -0700
-From: Matt Porter <porter@cox.net>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Craig Arsenault <penguin@wombat.ca>,
-       "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-       Tom Rini <trini@kernel.crashing.org>, linux-kernel@vger.kernel.org,
-       linuxppc-dev@lists.linuxppc.org
-Subject: Re: consequences of lowering "MAX_LOW_MEM"?
-Message-ID: <20020904135652.C27144@home.com>
-References: <Pine.LNX.4.44L.0209041453060.8359-100000@tabmow.ca.nortel.com> <20020904200227.30104@192.168.4.1>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020904200227.30104@192.168.4.1>; from benh@kernel.crashing.org on Wed, Sep 04, 2002 at 10:02:27PM +0200
+	id <S315427AbSIDVGp>; Wed, 4 Sep 2002 17:06:45 -0400
+Received: from web13808.mail.yahoo.com ([216.136.175.18]:22276 "HELO
+	web13808.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S315415AbSIDVGo>; Wed, 4 Sep 2002 17:06:44 -0400
+Message-ID: <20020904211118.37877.qmail@web13808.mail.yahoo.com>
+Date: Wed, 4 Sep 2002 14:11:18 -0700 (PDT)
+From: "M.L.PrasannaK.R." <mlpkr@yahoo.com>
+Subject: fsuid0 caps
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="0-18106085-1031173878=:37422"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 04, 2002 at 10:02:27PM +0200, Benjamin Herrenschmidt wrote:
-> 
-> >
-> >> >I think you'll find yourself with no virtual address space left to
-> >> >do vmalloc / fixmap / kmap type stuff. Or at least you would on i386,
-> >> >I presume it's the same for ppc. Sounds like you may have left
-> >> >yourself enough space for fixmap & kmap, but any calls to vmalloc
-> >> >will probably fail ?
-> >>
-> >> Yes, same problem on PPC, you'll run out of virtual space quite
-> >> quickly for vmalloc and ioremap. Stuff a video board with lots
-> >> of VRAM or any PCI card exposing large MMIO regions into your
-> >> machines and it will probably not even boot.
-> >>
-> >> Ben.
-> >>
-> >
-> >Ben,
-> >  But doesn't using Matt's suggestion and moving both MAX_LOW_MEM and
-> >changing KERNELBASE take care of this?  It's an embedded board with no
-> >video, but it does have one PCI Mezzanine Card (PMC) on it.
-> 
-> Yes, Matt's suggestion would work, though I never tried lowering
-> KERNELBASE. I don't think the kernel supports lowering it below
-> 0x80000000 btw.
+--0-18106085-1031173878=:37422
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Take a look at those options. :)  I added one to tweak TASK_SIZE
-from the PPC default of 0x80000000.
+In reply to
+ttp://www.uwsg.iu.edu/hypermail/linux/kernel/0204.3/0380.html
 
-I've run a system with a TASK_SIZE of 1GB, MAX_LOW_MEM at 16MB,
-PAGE_OFFSET at 0x40000000, and HIGHMEM on with the PKMAP_BASE
-placed up higher than the default 0xfe000000 (with a 1GB of RAM
-installed) to allow for close to 3GB of vmalloc space.  Certain
-embedded systems with large PCI windows (like non-transparent
-bridges, for example) gobble up vmalloc space pretty darn quickly.
-This is just getting worse with RapidIO on a 32-bit processor.
+This is documentation error. There is also a break in default
+semantics of uid0 that needs to be fixed.
+It is not a security hole as it results in the reduced capabilities
+rather than in the increased capabilities.
 
-Regards,
--- 
-Matt Porter
-porter@cox.net
-This is Linux Country. On a quiet night, you can hear Windows reboot.
+setresuid(x,x,-1) clears effective caps.
+setfsuid(0) rstores CAP_FS_MASK effective caps.
+setresuid(-1,-1,x) clears both effective and permitted caps.
+Both fs and non fs caps are lost.
+
+This results in uid0 with no capabilties and no way of
+restoring them. If this is valid issue, something like
+the following patch fixes it.
+
+Thanks,
+MLPKR.
+
+
+
+__________________________________________________
+Do You Yahoo!?
+Yahoo! Finance - Get real-time stock quotes
+http://finance.yahoo.com
+--0-18106085-1031173878=:37422
+Content-Type: application/x-unknown; name="fsuid_caps.patch"
+Content-Transfer-Encoding: base64
+Content-Description: fsuid_caps.patch
+Content-Disposition: attachment; filename="fsuid_caps.patch"
+
+LS0tIHN5cy5jCUZyaSBBdWcgMzAgMTg6NDI6MjAgMjAwMgorKysgL3RtcC9z
+eXMuYwlXZWQgU2VwICA0IDIwOjEyOjUxIDIwMDIKQEAgLTQ1MCw3ICs0NTAs
+NyBAQAogICoKICAqICAxKSBXaGVuIHNldCp1aWRpbmcgX2Zyb21fIG9uZSBv
+ZiB7cixlLHN9dWlkID09IDAgX3RvXyBhbGwgb2YKICAqICB7cixlLHN9dWlk
+ICE9IDAsIHRoZSBwZXJtaXR0ZWQgYW5kIGVmZmVjdGl2ZSBjYXBhYmlsaXRp
+ZXMgYXJlCi0gKiAgY2xlYXJlZC4KKyAqICBjbGVhcmVkIHdpdGggdGhlIGV4
+Y2VwdGlvbiBjYXNlIHJlbGF0ZWQgdG8gZnN1aWQuIFNlZSBiZWxvdy4KICAq
+CiAgKiAgMikgV2hlbiBzZXQqdWlkaW5nIF9mcm9tXyBldWlkID09IDAgX3Rv
+XyBldWlkICE9IDAsIHRoZSBlZmZlY3RpdmUKICAqICBjYXBhYmlsaXRpZXMg
+b2YgdGhlIHByb2Nlc3MgYXJlIGNsZWFyZWQuCkBAIC00NzIsNiArNDcyLDE1
+IEBACiAgKiBLZWVwaW5nIHVpZCAwIGlzIG5vdCBhbiBvcHRpb24gYmVjYXVz
+ZSB1aWQgMCBvd25zIHRvbyBtYW55IHZpdGFsCiAgKiBmaWxlcy4uCiAgKiBU
+aGFua3MgdG8gT2xhZiBLaXJjaCBhbmQgUGV0ZXIgQmVuaWUgZm9yIHNwb3R0
+aW5nIHRoaXMuCisgKgorICogQ2hhbmdlOgorICogIEludmFyaWFudCBmc3Vp
+ZCA9MCBpZmYgb25lIG9mIHRoZSB7cixlLHN9dWlkID09IDAgaXMgbm8gbW9y
+ZSB2YWxpZC4KKyAqICBTbyBydWxlIDEgc2hvdWxkIGJlIG1vZGlmaWVkIGFz
+CisgKiAgNCkgV2hlbiBzZXQqdWlkaW5nIF9mcm9tXyBvbmUgb2Yge3IsZSxz
+fXVpZCA9PSAwIF90b18gYWxsIG9mCisgKiAge3IsZSxzfXVpZCAhPSAwLCB0
+aGUgZmlsZSBzeXN0ZW0gcGVybWl0dGVkIGFuZCBlZmZlY3RpdmUgCisgKiAg
+Y2FwYWJpbGl0aWVzIGFyZSBjbGVhcmVkIGJhc2VkIG9uIHRoZSB2YWx1ZSBv
+ZiBmc3VpZCAhPSAwLCAKKyAqICBhbmQgb3RoZXIgZWZmZWN0aXZlIGFuZCBw
+ZXJtaXR0ZWQgY2FwYWJpbHRpZXMgd2lsbCBiZSBjbGVhcmVkIAorICogIHJl
+Z2FyZGxlc3Mgb2YgdGhlIHZhbHVlIG9mIGZzdWlkLgogICovCiBzdGF0aWMg
+aW5saW5lIHZvaWQgY2FwX2VtdWxhdGVfc2V0eHVpZChpbnQgb2xkX3J1aWQs
+IGludCBvbGRfZXVpZCwgCiAJCQkJICAgICAgIGludCBvbGRfc3VpZCkKQEAg
+LTQ3OSw4ICs0ODgsMTQgQEAKIAlpZiAoKG9sZF9ydWlkID09IDAgfHwgb2xk
+X2V1aWQgPT0gMCB8fCBvbGRfc3VpZCA9PSAwKSAmJgogCSAgICAoY3VycmVu
+dC0+dWlkICE9IDAgJiYgY3VycmVudC0+ZXVpZCAhPSAwICYmIGN1cnJlbnQt
+PnN1aWQgIT0gMCkgJiYKIAkgICAgIWN1cnJlbnQtPmtlZXBfY2FwYWJpbGl0
+aWVzKSB7Ci0JCWNhcF9jbGVhcihjdXJyZW50LT5jYXBfcGVybWl0dGVkKTsK
+LQkJY2FwX2NsZWFyKGN1cnJlbnQtPmNhcF9lZmZlY3RpdmUpOworCQlpZiAo
+Y3VycmVudC0+ZnN1aWQgIT0gMCkgeworCQkJY2FwX2NsZWFyKGN1cnJlbnQt
+PmNhcF9wZXJtaXR0ZWQpOworCQkJY2FwX2NsZWFyKGN1cnJlbnQtPmNhcF9l
+ZmZlY3RpdmUpOworCQl9CisJCWVsc2UgeworCQkJY2FwX3QoY3VycmVudC0+
+Y2FwX2VmZmVjdGl2ZSkgJj0gQ0FQX0ZTX01BU0s7CisJCQljYXBfdChjdXJy
+ZW50LT5jYXBfcGVybWl0dGVkKSAmPSBDQVBfRlNfTUFTSzsKKwkJfQogCX0K
+IAlpZiAob2xkX2V1aWQgPT0gMCAmJiBjdXJyZW50LT5ldWlkICE9IDApIHsK
+IAkJY2FwX2NsZWFyKGN1cnJlbnQtPmNhcF9lZmZlY3RpdmUpOwo=
+
+--0-18106085-1031173878=:37422--

@@ -1,52 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261682AbSIXOHI>; Tue, 24 Sep 2002 10:07:08 -0400
+	id <S261681AbSIXODX>; Tue, 24 Sep 2002 10:03:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261683AbSIXOHI>; Tue, 24 Sep 2002 10:07:08 -0400
-Received: from pop.gmx.de ([213.165.64.20]:12882 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S261682AbSIXOHH>;
-	Tue, 24 Sep 2002 10:07:07 -0400
-Message-ID: <3D9072B8.5090106@gmx.at>
-Date: Tue, 24 Sep 2002 16:12:08 +0200
-From: Wilfried Weissmann <Wilfried.Weissmann@gmx.at>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
+	id <S261682AbSIXODW>; Tue, 24 Sep 2002 10:03:22 -0400
+Received: from [213.38.169.194] ([213.38.169.194]:49935 "EHLO
+	proxy.herefordshire.gov.uk") by vger.kernel.org with ESMTP
+	id <S261681AbSIXODW>; Tue, 24 Sep 2002 10:03:22 -0400
+Message-ID: <0EBC45FCABFC95428EBFC3A51B368C9501AF48@jessica.herefordshire.gov.uk>
+From: "Randal, Phil" <prandal@herefordshire.gov.uk>
+To: "Linux-Kernel (E-mail)" <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH-RFC] README 1ST - New problem logging macros (2.5.38)
+Date: Tue, 24 Sep 2002 15:04:38 +0100
 MIME-Version: 1.0
-To: Arjan van de Ven <arjanv@redhat.com>
-CC: Petr Slansky <slansky@usa.net>, alan@redhat.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: hpt370 raid driver
-References: <20020924132445Z261665-8740+289@vger.kernel.org> <1032875703.2607.0.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2656.59)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
-> On Tue, 2002-09-24 at 15:29, Petr Slansky wrote:
+That's a moot point.
+
+You'll have to ask RedHat et al why they persist in backporting
+security patches to "old" releases of Apache (etc) instead of
+releasing the new versions.  The effect is the same, with
+vulnerabilities being squashed, but the version numbers reported
+suggesting otherwise.
+
+Phil
+
+---------------------------------------------
+Phil Randal
+Network Engineer
+Herefordshire Council
+Hereford, UK 
+
+> -----Original Message-----
+> From: Gerhard Mack [mailto:gmack@innerfire.net]
+> Sent: 24 September 2002 14:59
+> To: Denis Vlasenko
+> Cc: Larry Kessler; linux-kernel mailing list
+> Subject: Re: [PATCH-RFC] README 1ST - New problem logging macros
+> (2.5.38)
 > 
->>Hi Alan!
->>do you know that there is a source code of driver for HPT370 raid at the
->>manufacturer web?
->>
->>http://www.highpoint-tech.com/370drivers_down.htm
->>http://www.highpoint-tech.com/hpt3xx-opensource-v13.tgz
->>
->>Maybe that this can be added to the kernel, there are many motherboards on the
->>market with such controller onboard. Is there any poblem with this driver?
+> 
+> On Tue, 24 Sep 2002, Denis Vlasenko wrote:
+> 
+> > Regarding translation problem: it makes life easier to 
+> admins, i.e. you
+> > enable Linux to be used by more stupid admins :-).
+> 
+> Judging by the fact that most linux webservers were still running
+> vunlerable versions of apache as of the last netcraft survey 
+> I'd say that
+> goal has been already been hit. ;)
+> 
+> 	Gerhard
 > 
 > 
-> It's a binary only driver with some glue code.... not open source.
-
-The header files are good. They show the structure of the raid signature 
-and some info about the event logs. They could be reused by the linux 
-module, however I do not know if the copyright is a problem there. Does 
-anyone know...?
-
-Bye,
-Wilfried
-
--- 
-Ing. Wilfried Weissmann               mailto: Wilfried.Weissmann@gmx.at
-Benedikt-Schellingergasse 18/19a      Tel.: +43 1 78 64 739
-1150 Wien                             Mobil: +43 676 944 44 65
-
+> --
+> Gerhard Mack
+> 
+> gmack@innerfire.net
+> 
+> <>< As a computer I find your faith in technology amusing.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe 
+> linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

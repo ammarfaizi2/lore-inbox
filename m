@@ -1,46 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283717AbRLZUBE>; Wed, 26 Dec 2001 15:01:04 -0500
+	id <S283286AbRLZT4Y>; Wed, 26 Dec 2001 14:56:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284800AbRLZUAy>; Wed, 26 Dec 2001 15:00:54 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:1542 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S283717AbRLZUAg>; Wed, 26 Dec 2001 15:00:36 -0500
-Date: Wed, 26 Dec 2001 18:01:15 -0200
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Eliezer@conectiva.com.br, dos@conectiva.com.br, Santos@conectiva.com.br,
-        =?iso-8859-1?Q?Magalh=E3es_=3Cmagalhaes=40intime-ne?=@conectiva.com.br,
-        =?iso-8859-1?B?dC5jb20uYnI+?=@conectiva.com.br
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: writing device drivers
-Message-ID: <20011226180115.F24237@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Eliezer@conectiva.com.br, dos@conectiva.com.br,
-	Santos@conectiva.com.br,
-	=?iso-8859-1?Q?Magalh=E3es_=3Cmagalha?=@conectiva.com.br,
-	=?iso-8859-1?B?ZXNAaW50aW1lLW5ldC5jb20uYnI+?=@conectiva.com.br,
-	<linux-kernel@vger.kernel.org>
-In-Reply-To: <F68qvDuJhqFo9iLG7c500010b4e@hotmail.com> <01c301c18e45$6e2dd6b0$6400000a@cyber>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <01c301c18e45$6e2dd6b0$6400000a@cyber>
-User-Agent: Mutt/1.3.23i
-X-Url: http://advogato.org/person/acme
+	id <S283717AbRLZT4M>; Wed, 26 Dec 2001 14:56:12 -0500
+Received: from flrtn-2-m1-236.vnnyca.adelphia.net ([24.55.67.236]:52102 "EHLO
+	jyro.mirai.cx") by vger.kernel.org with ESMTP id <S283286AbRLZTzt>;
+	Wed, 26 Dec 2001 14:55:49 -0500
+Message-ID: <3C2A2B2F.1030001@pobox.com>
+Date: Wed, 26 Dec 2001 11:55:27 -0800
+From: J Sloan <jjs@pobox.com>
+Organization: J S Concepts
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011221
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.18-pre1
+In-Reply-To: <Pine.LNX.4.21.0112261510230.9875-100000@freak.distro.conectiva>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Wed, Dec 26, 2001 at 05:42:16PM -0200, Eliezer dos Santos Magalhães escreveu:
-> where can I find a good paper , or something good that could teach me how to
-> write device drivers ?? I really would like to know , mainly network device
-> drivers , for example , how could I re-write the rtl8139 driver ?
+Just a reminder, sis woes persist -
+all else seems fine at this point.
 
-http://www.xml.com/ldd/chapter/book/index.html
+if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.4.18pre1; fi
+depmod: *** Unresolved symbols in 
+/lib/modules/2.4.18pre1/kernel/drivers/char/drm/sis.o
+depmod:         sis_malloc_Ra3329ed5
+depmod:         sis_free_Rced25333
 
-More specifically:
+Regards,
 
-Chapter 14: Network Drivers
-http://www.xml.com/ldd/chapter/book/ch14.html
+jjs
 
-- Arnaldo
+Marcelo Tosatti wrote:
+
+>Hi, 
+>
+>So here it goes the first pre of 2.4.18 series: Pretty big patch with 3
+>arch updates. 
+>
+>Nothing critical to the core, though.
+>
+>
+>pre1:
+>
+>- S390 merge					(IBM)
+>- SuperH merge					(SuperH team)
+>- PPC merge					(Benjamin Herrenschmidt)
+>- PCI DMA update				(David S. Miller)
+>- radeonfb update 				(Ani Joshi)
+>- aty128fb update				(Ani Joshi)
+>- Add nVidia GeForce3 support to rivafb		(Ani Joshi)
+>- Add PM support to opl3sa2			(Zwane Mwaikambo)
+>- Basic ethtool support for 3com, starfire
+>  and pcmcia net drivers			(Jeff Garzik)
+>- Add MII ethtool interface			(Jeff Garzik)
+>- starfire,sundance,dl2k,sis900,8139{too,cp},
+>  natsemi driver updates			(Jeff Garzik)
+>- ufs/minix: mark inodes as bad in case of read
+>  failure					(Christoph Hellwig)
+>- ReiserFS fixes				(Oleg Drokin)
+>- sonypi update					(Stelian Pop)
+>- n_hdlc update					(Paul Fulghum)
+>- Fix compile error on aty_base.c		(Tobias Ringstrom)
+>- Document cpu_to_xxxx() on kernel-hacking doc  (Rusty Russell)
+>- USB update					(Greg KH)
+>- Fix sysctl console loglevel bug on 
+>  IA64 (and possibly other archs)		(Jesper Juhl) 
+>- Update Athlon/VIA PCI quirks			(Calin A. Culianu)
+>- blkmtd update					(Simon Evans)
+>- boot protocol update (makes the highest 
+>  possible initrd address available to the 
+>  bootloader)					(H. Peter Anvin)
+>- NFS fixes					(Trond Myklebust)
+>
+>
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+
+

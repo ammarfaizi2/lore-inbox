@@ -1,83 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267966AbUHWVwU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267628AbUHWWXJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267966AbUHWVwU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 17:52:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267555AbUHWVu6
+	id S267628AbUHWWXJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 18:23:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267293AbUHWWTv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 17:50:58 -0400
-Received: from mail011.syd.optusnet.com.au ([211.29.132.65]:56707 "EHLO
-	mail011.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S267399AbUHWVtJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 17:49:09 -0400
-Message-ID: <412A663D.2050104@kolivas.org>
-Date: Tue, 24 Aug 2004 07:48:45 +1000
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
-X-Accept-Language: en-us, en
+	Mon, 23 Aug 2004 18:19:51 -0400
+Received: from x35.xmailserver.org ([69.30.125.51]:5519 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S267628AbUHWWSi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Aug 2004 18:18:38 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Mon, 23 Aug 2004 15:18:27 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mdolabs.com
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Andi Kleen <ak@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [patch] lazy TSS's I/O bitmap copy ...
+In-Reply-To: <Pine.LNX.4.58.0408231500160.17766@ppc970.osdl.org>
+Message-ID: <Pine.LNX.4.58.0408231516460.3222@bigblue.dev.mdolabs.com>
+References: <Pine.LNX.4.58.0408231311460.3221@bigblue.dev.mdolabs.com>
+ <20040823233249.09e93b86.ak@suse.de> <Pine.LNX.4.58.0408231436370.3222@bigblue.dev.mdolabs.com>
+ <Pine.LNX.4.58.0408231500160.17766@ppc970.osdl.org>
 MIME-Version: 1.0
-To: "Prakash K. Cheemplavam" <prakashkc@gmx.de>
-Cc: Joshua Schmidlkofer <menion@asylumwear.com>,
-       ck kernel mailing list <ck@vds.kolivas.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.8.1-ck4
-References: <412880BF.6050503@kolivas.org> <412A2398.8050702@asylumwear.com> <412A271F.3040802@gmx.de>
-In-Reply-To: <412A271F.3040802@gmx.de>
-X-Enigmail-Version: 0.84.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigB31B70EAFE1E44D8713C628D"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigB31B70EAFE1E44D8713C628D
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Mon, 23 Aug 2004, Linus Torvalds wrote:
 
-Prakash K. Cheemplavam wrote:
-> Joshua Schmidlkofer wrote:
-> | I don't know what or why, but I am experiancing a nightmare with
-> | interactivity and heavy nfs use.   I am using Gentoo, and I have my
-> | portage tree exported from a central server.   Trying to do an emerge
-> | update world is taking forever.
+> On Mon, 23 Aug 2004, Davide Libenzi wrote:
+> > 
+> > The eventually double GPF would happen only on TSS-IObmp-lazy tasks, ie 
+> > tasks using the I/O bitmap.
 > 
-> [snip]
+> You could also check for the error code (at least the low 16 bits) being 
+> 0, I guess, just to cut down the noise.
+
+Yep, that's right there available.
+
+
+
+> >	 The check for the I/O opcode can certainly be 
+> > done though, even if it'd make the code a little bit more complex.
 > 
-> Yup I think I have a regression here, as well. I remember an older
-> version of ck exhibited this, but the last one for 2.6.7 did work well
-> (I think even the one for 2.8.6-rc4 was ok), IIRC. In my case, when
-> doing a (niced) compile in background, some windows react very slow, ie
-> Mozilla Thunderbird takes ages to switch trough mails or cliking on an
-> icon in kde to load up konsole takes about 10seconds or more (shoud come
-> up <1sec normally).
+> Have to be very careful there to avoid nasty security issues. And with
+> ins/outs, you can have various prefixes etc, so decoding is not as trivial
+> as it could otherwise be. Even the regular in/out can have a data size
+> overrides..
 > 
-> Using 2.8.6.1-ck4
+> in/out is also commonly used from vm86 mode, so decoding it really needs
+> to get all of the segmentation base crap right too. Nasty nasty nasty. 
 > 
-> HTH,
-> 
-> Prakash
+> In short, I think that if we do this at all, I'd much rather just do the
+> simple "trap twice" thing that Davide did. It's too easy to get it wrong
+> otherwise.
 
-For both of you this only happens with NFS? Can you reproduce the 
-problem in flight and send me the output of 'top -n -n 1' while it's 
-happening? Also if you have time can you confirm this happens with just 
-the staircase patch and none of the other patches?
+IMHO since the GPF path is not a fast path like a page fault, we shouldn't 
+be in bad shape with the current approach. No?
 
-Cheers,
-Con
 
---------------enigB31B70EAFE1E44D8713C628D
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+- Davide
 
-iD8DBQFBKmZAZUg7+tp6mRURAmcnAJsFbNlPdfoVtChxg15nv8DEwWneggCgkkHc
-4eeGvAlxXRP3ui7NtEuNkqA=
-=sUMg
------END PGP SIGNATURE-----
-
---------------enigB31B70EAFE1E44D8713C628D--

@@ -1,64 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264797AbRHMTnQ>; Mon, 13 Aug 2001 15:43:16 -0400
+	id <S266448AbRHMTnG>; Mon, 13 Aug 2001 15:43:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266381AbRHMTnG>; Mon, 13 Aug 2001 15:43:06 -0400
-Received: from [207.171.197.68] ([207.171.197.68]:7298 "EHLO bbs.bsdprime.org")
-	by vger.kernel.org with ESMTP id <S264797AbRHMTmz>;
-	Mon, 13 Aug 2001 15:42:55 -0400
-Message-ID: <3B782D38.3080600@cheek.com>
-Date: Mon, 13 Aug 2001 12:40:40 -0700
-From: Joseph Cheek <joseph@cheek.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2) Gecko/20010712
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: "Peter J. Braam" <braam@clusterfilesystem.com>,
-        Johannes Erdfelt <johannes@erdfelt.com>, linux-kernel@vger.kernel.org,
-        linux-usb-users@lists.sourceforge.net
-Subject: Re: 2.4.8-ac2 USB keyboard capslock hang
-In-Reply-To: <E15WM1P-0007uJ-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S266381AbRHMTmq>; Mon, 13 Aug 2001 15:42:46 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:10624 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S264797AbRHMTmk>;
+	Mon, 13 Aug 2001 15:42:40 -0400
+Date: Mon, 13 Aug 2001 12:42:26 -0700 (PDT)
+Message-Id: <20010813.124226.92585606.davem@redhat.com>
+To: groudier@free.fr
+Cc: alan@lxorguk.ukuu.org.uk, sandy@storm.ca, linux-kernel@vger.kernel.org
+Subject: Re: struct page to 36 (or 64) bit bus address?
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20010813205023.P806-100000@gerard>
+In-Reply-To: <20010813.072157.71088670.davem@redhat.com>
+	<20010813205023.P806-100000@gerard>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=big5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+X-MIME-Autoconverted: from base64 to 8bit by leeloo.zip.com.au id FAA11778
 
-this bug has been around since 2.4.3-ac *at least*, and the linux-usb 
-folks are aware of it [but can't get a repro].  i've had repros since 
-2.4.3-ac.
+   From: Gérard Roudier <groudier@free.fr>
+   Date: Mon, 13 Aug 2001 21:07:50 +0200 (CEST)
 
-this is the first time afaik that this bug has been reported on a non 
-ms-natural-pro keyboard tho.
+   That's the major problem if we ever want to preserve some ordering in the
+   queuing of SCSI IOs.
 
-Alan Cox wrote:
+When DMA mapping operation fails, you simply "stop queueing".  Queue
+freezes and nothing new is executed.
 
->>On Mon, Aug 13, 2001 at 06:56:48PM +0100, Alan Cox wrote:
->>
->>>Roswell is the Red Hat 7.2 beta, so its probably another bug that was fixed
->>>in the USB and input updates in -ac
->>>
->>It hangs on 2.4.8-ac2, so was this bug fix lost perhaps? 
->>
->
->It would be useful to know if 2.4.7ac3 say works and if so which one after
->that it broke at
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
+DMA wakeup makes you start where you left off.  I cannot see any
+ordering constraints violated by this as a side effect.  It is like a
+"cork" for running scsi commands in the driver.
 
--- 
-thanks!
+The purpose of the hypothetical kernel thread is to get out
+of interrupt context if that is deemed necessary.
 
-joe
+It may not be.
 
---
-Joseph Cheek, CTO, Redmond Linux Corp.
-joseph@redmondlinux.org, www.redmondlinux.org
-Redmond Linux.  Linux is for everyone.
-
-
-
+Later,
+David S. Miller
+davem@redhat.com
+ı:.Ë›±Êâmçë¢kaŠÉb²ßìzwm…ébïîË›±Êâmébìÿ‘êçz_âØ^n‡r¡ö¦zËëh™¨è­Ú&£ûàz¿äz¹Ş—ú+€Ê+zf£¢·hšˆ§~†­†Ûiÿÿïêÿ‘êçz_è®æj:+v‰¨ş)ß£ømšSåy«­æ¶…­†ÛiÿÿğÃí»è®å’i

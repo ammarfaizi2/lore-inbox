@@ -1,54 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264839AbSLaTC4>; Tue, 31 Dec 2002 14:02:56 -0500
+	id <S264699AbSLaTFK>; Tue, 31 Dec 2002 14:05:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264814AbSLaTC4>; Tue, 31 Dec 2002 14:02:56 -0500
-Received: from mail.webmaster.com ([216.152.64.131]:63198 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP
-	id <S264786AbSLaTCz> convert rfc822-to-8bit; Tue, 31 Dec 2002 14:02:55 -0500
-From: David Schwartz <davids@webmaster.com>
-To: <davidsen@tmr.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-X-Mailer: PocoMail 2.63 (1077) - Licensed Version
-Date: Tue, 31 Dec 2002 11:11:18 -0800
-In-Reply-To: <Pine.LNX.3.96.1021231095710.10544A-100000@gatekeeper.tmr.com>
-Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
+	id <S264702AbSLaTFK>; Tue, 31 Dec 2002 14:05:10 -0500
+Received: from bitmover.com ([192.132.92.2]:5057 "EHLO mail.bitmover.com")
+	by vger.kernel.org with ESMTP id <S264699AbSLaTFH>;
+	Tue, 31 Dec 2002 14:05:07 -0500
+Date: Tue, 31 Dec 2002 11:13:31 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Richard Henderson <rth@twiddle.net>, linux-kernel@vger.kernel.org
+Subject: Re: [TGAFB] implement the imageblit acceleration hook
+Message-ID: <20021231191331.GC5607@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Richard Henderson <rth@twiddle.net>, linux-kernel@vger.kernel.org
+References: <20021231004138.A13860@twiddle.net> <Pine.LNX.4.44.0212311100260.2697-100000@home.transmeta.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-Message-ID: <20021231191120.AAA19490@shell.webmaster.com@whenever>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0212311100260.2697-100000@home.transmeta.com>
+User-Agent: Mutt/1.4i
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+By the way, we know there are some security holes in BKD.  We're just 
+about to push bk-3.0.1 out the door which closes the ones we know about
+but you might want to be careful until you upgrade.  Part of the reason
+we provide hosting at bkbits.net is because then the security problems 
+are our problem, not yours.  
 
-On Tue, 31 Dec 2002 10:03:14 -0500 (EST), Bill Davidsen wrote:
->On Tue, 31 Dec 2002, David Schwartz wrote:
+We don't care if you run your own BKD, in fact we like it, the ultimate
+vision is a world of servers, not some centralized single point of
+failure, but until we've let the script kiddies beat on us for a bit
+longer you might set up at bkbits.net and I'll help you with a trigger
+which will autopush to there.  So you can have your local clones of
+whatever, you push into it, it pushes into your-proj.bkbits.net and maybe
+sends mail to an interest list.  Let me know if that would be useful
+(it works, this is how we update linux.bkbits.net from linus.bkbits.net).
 
->>II don't expect anyone to GPL unless they think they get more benefit 
->>from
->>GPLing than the potential harm done. People GPL code because they want to
->>'donate' it to improve the open source movement, community, and code base.
->>Attempting to arm twist such donations is worse than foolish. You think the
->>open source community should be a bunch of bullies? Convince people open
->>source is best, and avoid them if they don't agree.
+You may contact me offline and I'll tell you what the security problems
+are (not doing it here for the obvious reason).
 
->Certainly anyone who has had a problem, posted an oops, and been told that
->no one will even look at a dump from a system with the nvidia driver might
->think they were being bullied...
+On Tue, Dec 31, 2002 at 11:00:56AM -0800, Linus Torvalds wrote:
+> 
+> On Tue, 31 Dec 2002, Richard Henderson wrote:
+> >
+> > Please pull from
+> > 
+> > 	bk://are.twiddle.net/tgafb-2.5
+> 
+> Richard, you forgot to restart bkd again. Maybe add it to your 
+> initscripts?
+> 
+> 	bk://are.twiddle.net/tgafb-2.5: Connection refused
+> 
+> Heh,
+> 
+> 		Linus
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-	There's a difference between people thinking they are being bullied and 
-being a bunch of bullies. ;)
-
-	I would hope that the situation would be explained politely -- kind of like 
-this:  "Unfortunately, with closed-source software, only someone who has the 
-source code can debug it. If you can replicate the problem without any 
-closed-source drivers, we'll do our best to help you. But if you can only 
-replicate the problem with a closed-source module installed, odds are the 
-problem is in that module, and even if it wasn't, we couldn't track it down."
-
-	That doesn't really seem like bullying and helps to clarify the 
-disadvantages of using closed-source software.
-
-	DS
-
-
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

@@ -1,83 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288146AbSACCk3>; Wed, 2 Jan 2002 21:40:29 -0500
+	id <S288153AbSACCo1>; Wed, 2 Jan 2002 21:44:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288145AbSACCkS>; Wed, 2 Jan 2002 21:40:18 -0500
-Received: from harpo.it.uu.se ([130.238.12.34]:38810 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S288146AbSACCkI>;
-	Wed, 2 Jan 2002 21:40:08 -0500
-Date: Thu, 3 Jan 2002 03:39:56 +0100 (MET)
-From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200201030239.DAA21812@harpo.it.uu.se>
-To: alan@lxorguk.ukuu.org.uk
-Subject: [PATCH] 2.2.21pre CONFIG_MODVERSIONS make rules update
-Cc: linux-kernel@vger.kernel.org
+	id <S288151AbSACCoR>; Wed, 2 Jan 2002 21:44:17 -0500
+Received: from ns.suse.de ([213.95.15.193]:29967 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S288150AbSACCoG>;
+	Wed, 2 Jan 2002 21:44:06 -0500
+Date: Thu, 3 Jan 2002 03:44:03 +0100 (CET)
+From: Dave Jones <davej@suse.de>
+To: "Eric S. Raymond" <esr@thyrsus.com>
+Cc: Lionel Bouton <Lionel.Bouton@free.fr>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: ISA slot detection on PCI systems?
+In-Reply-To: <20020102211038.C21788@thyrsus.com>
+Message-ID: <Pine.LNX.4.33.0201030327501.5131-100000@Appserv.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan,
+On Wed, 2 Jan 2002, Eric S. Raymond wrote:
 
-Here's a backport of the 2.4 CONFIG_MODVERSIONS make rules for
-2.2.21pre. This is needed on fast boxes since 'make dep' can update
-modversions.h at sub-second intervals, and this breaks make's
-'st_mtime'-based dependency checking. (Without this patch, it's
-basically impossible to build 2.2.20 with modversions on my P4,
-due to incomplete expansion of symbol versions.)
+> > hardware), I think you're barking up the wrong tree with this
+> > anyway.
+> But at the least I could have logic that says: if you get a DMI
+> readout and there are no ISA slots listed, *then* do useful deductions.
 
-/Mikael
+See other posting with examples of dramatic failures of
+'slots in box, but dmi says none' and 'no slots, dmi says some'.
+still think this is usable ? You're nuts.
 
-diff -ruN linux-2.2.21pre2/Makefile linux-2.2.21pre2.modver-2.4-backport/Makefile
---- linux-2.2.21pre2/Makefile	Wed Jan  2 14:01:50 2002
-+++ linux-2.2.21pre2.modver-2.4-backport/Makefile	Wed Jan  2 14:11:07 2002
-@@ -445,6 +445,9 @@
- #	set -e; for i in $(SUBDIRS); do $(MAKE) -C $$i fastdep ;done
- # let this be made through the fastdep rule in Rules.make
- 	$(MAKE) $(patsubst %,_sfdep_%,$(SUBDIRS)) _FASTDEP_ALL_SUB_DIRS="$(SUBDIRS)"
-+ifdef CONFIG_MODVERSIONS
-+	$(MAKE) update-modverfile
-+endif
- 
- MODVERFILE :=
- 
-diff -ruN linux-2.2.21pre2/Rules.make linux-2.2.21pre2.modver-2.4-backport/Rules.make
---- linux-2.2.21pre2/Rules.make	Mon Dec 11 22:10:06 2000
-+++ linux-2.2.21pre2.modver-2.4-backport/Rules.make	Wed Jan  2 14:11:07 2002
-@@ -230,8 +230,16 @@
- 	
- $(addprefix $(MODINCL)/,$(SYMTAB_OBJS:.o=.ver)): $(TOPDIR)/include/linux/autoconf.h
- 
--$(TOPDIR)/include/linux/modversions.h: $(addprefix $(MODINCL)/,$(SYMTAB_OBJS:.o=.ver))
--	@echo updating $(TOPDIR)/include/linux/modversions.h
-+# updates .ver files but not modversions.h
-+fastdep: $(addprefix $(MODINCL)/,$(SYMTAB_OBJS:.o=.ver))
-+
-+# updates .ver files and modversions.h like before (is this needed?)
-+dep: fastdep update-modverfile
-+
-+endif # SYMTAB_OBJS 
-+
-+# update modversions.h, but only if it would change
-+update-modverfile:
- 	@(echo "#ifndef _LINUX_MODVERSIONS_H";\
- 	  echo "#define _LINUX_MODVERSIONS_H"; \
- 	  echo "#include <linux/modsetver.h>"; \
-@@ -240,11 +248,14 @@
- 	    if [ -f $$f ]; then echo "#include <linux/modules/$${f}>"; fi; \
- 	  done; \
- 	  echo "#endif"; \
--	) > $@
--
--dep fastdep: $(TOPDIR)/include/linux/modversions.h
--
--endif # SYMTAB_OBJS 
-+	) > $(TOPDIR)/include/linux/modversions.h.tmp
-+	@if [ -r $(TOPDIR)/include/linux/modversions.h ] && cmp -s $(TOPDIR)/include/linux/modversions.h $(TOPDIR)/include/linux/modversions.h.tmp; then \
-+		echo $(TOPDIR)/include/linux/modversions.h was not updated; \
-+		rm -f $(TOPDIR)/include/linux/modversions.h.tmp; \
-+	else \
-+		echo $(TOPDIR)/include/linux/modversions.h was updated; \
-+		mv -f $(TOPDIR)/include/linux/modversions.h.tmp $(TOPDIR)/include/linux/modversions.h; \
-+	fi
- 
- $(M_OBJS): $(TOPDIR)/include/linux/modversions.h
- ifdef MAKING_MODULES
+> This is fine if all we want is to impress each other with our wizardliness.
+> If, on the other hand, we are serious about world domination, it's an
+> attitude that's got to go.  We have enough real technical problems to solve
+> without surrounding Linux with a thicket of pseudo-problems.
+
+You're solving a non-problem.
+Some examples of target audience you're aiming for in your previous
+mail were I believe..
+
+o  The geek next door who wants to tinker and learn about the kernel.
+   Said geek is going to learn a damn sight more currently than he will
+   with a dumbed down pointy clicky "build me a kernel" button.
+
+o  Aunt Tilley.
+   Vendors already ship an array of kernels which should make it
+   unnecessary for her to have to build a kernel.
+
+If you still think world domination is going to appear by idiotproofing
+the kernel build process, I think you're in for a surprise.
+We have far bigger usability problems in userspace. The point is that
+$newcomertolinux doesn't need to know what a kernel is, let alone
+have to build one. They just see "Booting progress" "Log in" "Desktop".
+
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs
+

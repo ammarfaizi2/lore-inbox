@@ -1,112 +1,78 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314242AbSEXHRq>; Fri, 24 May 2002 03:17:46 -0400
+	id <S314228AbSEXHYx>; Fri, 24 May 2002 03:24:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314266AbSEXHRp>; Fri, 24 May 2002 03:17:45 -0400
-Received: from [195.223.140.120] ([195.223.140.120]:15696 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S314242AbSEXHRn>; Fri, 24 May 2002 03:17:43 -0400
-Date: Fri, 24 May 2002 09:16:57 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: linux-kernel@vger.kernel.org
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Alexander Viro <viro@math.psu.edu>
-Subject: negative dentries wasting ram
-Message-ID: <20020524071657.GI21164@dualathlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S314266AbSEXHYw>; Fri, 24 May 2002 03:24:52 -0400
+Received: from gate.perex.cz ([194.212.165.105]:24076 "EHLO gate.perex.cz")
+	by vger.kernel.org with ESMTP id <S314228AbSEXHYv> convert rfc822-to-8bit;
+	Fri, 24 May 2002 03:24:51 -0400
+Date: Fri, 24 May 2002 09:24:06 +0200 (CEST)
+From: Jaroslav Kysela <perex@suse.cz>
+X-X-Sender: <perex@pnote.perex-int.cz>
+To: Dagfinn Ilmari =?iso-8859-1?q?Manns=E5ker?= <ilmari@ping.uio.no>
+cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Latest ALSA code available for tests
+In-Reply-To: <d8ju1oynut3.fsf@thrir.ifi.uio.no>
+Message-ID: <Pine.LNX.4.33.0205240922090.746-100000@pnote.perex-int.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I actually noticed that after an unlink the dentry wasn't released (the
-inode was released the dentry wasn't). At first I thought it was a bug,
-then while reading the code I noticed this is intentional.  So after
-creating some thousand of different names and then deleting them and
-then recreating again different names and deleting them, the size of the
-dcache keeps growing again and again like a memory leak until the vm
-starts shrinking unrelated pagecache and then finally prune_dcache
-started collecting the first negative dentries away after the dcache
-grown like crazy and the hashtable is overfull.
+On Fri, 24 May 2002, Dagfinn Ilmari [iso-8859-1] Mannsåker wrote:
 
-You can try yourself with:
+> Jaroslav Kysela <perex@suse.cz> writes:
+> 
+> > Hi all,
+> >
+> > 	the latest ALSA -> kernel patch is available for tests at
+> >
+> > ftp://ftp.alsa-project.org/pub/kernel-patches/alsa-2002-05-23-1-linux-2.5.17-cs1.582.patch.gz
+> >
+> > 	I'd like to ask interested people to test this patch and report
+> > especially compilation problems, because there are some fixes in code
+> > dependency for OSS emulation layer. Also Hammerfall DSP code was recently
+> > added.
+> 
+> It all compiled fine here, and depmod doesn't complain about any
+> unresolved symbols. However, when I try to load snd.o, it tells that
+> snd_mixer_oss_notify_callback is unresolved. The relevant config
+> parameters are:
+> 
+> CONFIG_SOUND=y
+> CONFIG_SND=m
+> CONFIG_SND_OSSEMUL=y
+> CONFIG_SND_MIXER_OSS=m
+> CONFIG_SND_PCM_OSS=m
+> CONFIG_SND_RTCTIMER=m
+> CONFIG_SND_MAESTRO3=m
 
-	while :; do >$RANDOM; done
+Thanks. Bellow patch (apply in sound/core directory) should fix this 
+problem:
 
-and then rm *, then restart, and rm again, and monitor the size of the
-i/dcache via slabinfo, inodes returns back to zero after rm -r, dcache
-only goes up.
+Index: init.c
+===================================================================
+RCS file: /cvsroot/alsa/alsa-kernel/core/init.c,v
+retrieving revision 1.8
+diff -u -r1.8 init.c
+--- init.c      23 May 2002 08:20:38 -0000      1.8
++++ init.c      24 May 2002 06:57:41 -0000
+@@ -33,7 +33,7 @@
+ snd_card_t *snd_cards[SNDRV_CARDS] = {[0 ... (SNDRV_CARDS-1)] = NULL};
+ rwlock_t snd_card_rwlock = RW_LOCK_UNLOCKED;
 
-as far I can see that negative dentries are not caching anything, they
-should be dropped immediatly, they even slowdown the lookups because
-they're hashed.
-
-I'm pretty sure I want to avoid to waste my ram with negative dentries,
-after I `rm` a file I want the dentry for such file to go away too, not
-only the inode. I want free ram space for useful cache.
-
-So I did this patch that seems to work for me (this also takes care of
-when a creat fails, there may be other corner cases like creat-failure).
-The directories were just released correctly because of d_unhash, it was
-a problem only for the files (and of course the negative dentries are
-all collected away when the parent dir is rmdirred, but how do you know
-that the parent dir will ever go away?). I can very well imagine spools
-where an huge number of files is regularly created and deleted with
-timestamped names, always different and the parent dir never going away.
-
-Negative dentries should be only temporary entities, for example between
-the allocation of the dentry and the create of the inode, they shouldn't
-be left around waiting the vm to collect them. They maybe more
-intersting with nfs, maybe if something is been invalidated because the
-server timeouts or stuff like that, while we wait it's fine to have
-negative dentries, but to ensure good performance negative dentries
-should be always controlled and never left floating around for an
-undefinite time, since they are no cache, they should be collected away
-at the last dput (infact another approch is to d_drop implicitly inside
-dput, if d_inode is null, right before the check for d_hash but I didn't
-took that approch because it was less obvious for fs like nfs that
-may make more special usage of negative dentries).
-
-the patch is only slightly tested under uml, the first chunk is
-obviously safe, the other a bit less, so beware that it can corrupt your
-fs.
-
-Comments?
-
---- 2.4.19pre8aa4/fs/dcache.c.~1~	Fri May 24 05:57:21 2002
-+++ 2.4.19pre8aa4/fs/dcache.c	Fri May 24 08:33:27 2002
-@@ -812,6 +812,7 @@ out:
-  
- void d_delete(struct dentry * dentry)
- {
-+#ifdef DENTRY_WASTE_RAM
- 	/*
- 	 * Are we the only user?
- 	 */
-@@ -821,6 +822,7 @@ void d_delete(struct dentry * dentry)
- 		return;
- 	}
- 	spin_unlock(&dcache_lock);
-+#endif
- 
- 	/*
- 	 * If not, just drop the dentry and let dput
---- 2.4.19pre8aa4/fs/namei.c.~1~	Fri May 24 05:57:21 2002
-+++ 2.4.19pre8aa4/fs/namei.c	Fri May 24 08:35:05 2002
-@@ -1055,6 +1055,10 @@ do_last:
- 			mode &= ~current->fs->umask;
- 		error = vfs_create(dir->d_inode, dentry, mode);
- 		up(&dir->d_inode->i_sem);
-+#ifndef DENTRY_WASTE_RAM
-+		if (error)
-+			d_drop(dentry);
-+#endif
- 		dput(nd->dentry);
- 		nd->dentry = dentry;
- 		if (error)
+-#if defined(CONFIG_SND_MIXER_OSS) || defined(CONFIG_SND_MIXER_OSS)
++#if defined(CONFIG_SND_MIXER_OSS) || defined(CONFIG_SND_MIXER_OSS_MODULE)
+ int (*snd_mixer_oss_notify_callback)(snd_card_t *card, int free_flag);
+ #endif
 
 
-Andrea
+						Jaroslav
+
+-----
+Jaroslav Kysela <perex@suse.cz>
+Linux Kernel Sound Maintainer
+ALSA Project  http://www.alsa-project.org
+SuSE Linux    http://www.suse.com
+

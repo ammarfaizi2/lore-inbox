@@ -1,66 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286099AbRLIAJM>; Sat, 8 Dec 2001 19:09:12 -0500
+	id <S286102AbRLIAUF>; Sat, 8 Dec 2001 19:20:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286096AbRLIAIw>; Sat, 8 Dec 2001 19:08:52 -0500
-Received: from vp242.dmp01.sea.blarg.net ([206.124.142.242]:34184 "EHLO
-	mail.rudedog.org") by vger.kernel.org with ESMTP id <S286090AbRLIAIr>;
-	Sat, 8 Dec 2001 19:08:47 -0500
+	id <S286103AbRLIATz>; Sat, 8 Dec 2001 19:19:55 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:8205 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S286102AbRLIATs>; Sat, 8 Dec 2001 19:19:48 -0500
 To: linux-kernel@vger.kernel.org
-Subject: 2.4.16: Bizarre TCP throughput problems
-From: Dave Carrigan <dave@rudedog.org>
-Organization: Rudedog.org
-Date: 08 Dec 2001 16:08:45 -0800
-Message-ID: <87d71pl0fm.fsf@cbgb.rudedog.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Civil Service)
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: File copy system call proposal
+Date: 8 Dec 2001 16:19:26 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9uuame$ssu$1@cesium.transmeta.com>
+In-Reply-To: <1007782956.355.2.camel@quinn.rcn.nmt.edu> <9us387$poh$1@cesium.transmeta.com> <1007791439.355.7.camel@quinn.rcn.nmt.edu> <E16Chyk-0000zH-00@starship.berlin>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(I am not subscribed, so please CC me with any responses)
+Followup to:  <E16Chyk-0000zH-00@starship.berlin>
+By author:    Daniel Phillips <phillips@bonn-fries.net>
+In newsgroup: linux.dev.kernel
+> 
+> There's some merit to this idea.  As Peter pointed out, an in-kernel cp isn't 
+> needed: mmap+write does the job.  The question is, how to avoid the 
+> copy_from_user and double caching of data?
+> 
 
-I am having a very problem with TCP throughput between two systems
-running on my LAN. The problem system works fine with 2.4.14, but has
-abysmal TCP throughput under 2.4.16, but only when talking to some
-systems on the LAN. Here is a chart with some tests that I made:
+One thing that one could do for an in-kernel copy is to extend
+sendfile() to support any kind of file descriptor.  That'd be a very
+clean way to do it.
 
- Client		Server	Protocol	Throughput
- cbgb-2.4.16	pern	NFS/UDP		~12 MB/s, .5s to copy a 5MB file
- cbgb-2.4.14	pern	HTTP/TCP	 12 MB/s, .5s to copy a 5MB file
- cbgb-2.4.16	pern	HTTP/TCP	7.45 KB/s, 300s to copy a 2MB file
- cbgb-2.4.16	pern	SCP/TCP		(Very poor; I was too impatient to measure)
- cbgb-2.4.16	heechee	SCP/TCP		  84 KB/s, 1 minute to copy a 5MB file
- cbgb-2.4.16	idoru	HTTP/TCP	  54 KB/s, 21s to copy a 1.2MB file
- heechee-2.4.16	pern	HTTP/TCP	1024 KB/s, 5s to copy a 5MB file
- vmware-2.2.19	pern	HTTP/TCP	 297 KB/s, 18s to copy a 5MB file
- pern		cbgb	SCP/TCP		 297 KB/s, 19s to copy a 5MB file
-
-- cbgb is the problem system; with a tulip card.
-- pern is the problem server; also with a tulip card.
-- heechee is my firewall with a 8139too card.
-- idoru is a server on the other end of a SSH VPN (DSL at both ends).
-- vmware is a virtual vmware machine running inside of cbgb.
-
-As you can see from the chart, NFS over UDP between cbgb and pern is
-fine. However HTTP over TCP has terrible performance; 2.4.14 has orders
-of magnitude better performance. It's not pern's problem, because
-heechee has no trouble transferring the same file. It's also not
-exclusively cbgb's fault, because it doesn't seem to have any problems
-talking to idoru or to heechee. Nor are there any problems going the
-other way (copying from cbgb to pern). The most bizarre thing is my test
-on the vmware machine. It also doesn't seem to have problems
-communicating with pern, even though it's a virtual machine that is
-obviously using cbgb's hardware to do the copying. I should also add
-that interactive ssh from cbgb to pern seems fine.
-
-Pern's card is a 'Lite-On Communications Inc LNE100TX (rev 32)'.
-Cbgb's card is a 'Lite-On Communications Inc LNE100TX [Linksys EtherFast 10/100] (rev 37)'.
-
-Does anyone have any suggestions as to what's going on here?
-
+	-hpa
 -- 
-Dave Carrigan (dave@rudedog.org)            | Yow! These PRESERVES should be
-UNIX-Apache-Perl-Linux-Firewalls-LDAP-C-DNS | FORCE-FED to PENTAGON
-Seattle, WA, USA                            | OFFICIALS!!
-http://www.rudedog.org/                     | 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

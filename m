@@ -1,34 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318875AbSHEU5H>; Mon, 5 Aug 2002 16:57:07 -0400
+	id <S318885AbSHEVEK>; Mon, 5 Aug 2002 17:04:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318878AbSHEU5H>; Mon, 5 Aug 2002 16:57:07 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:43764 "EHLO
+	id <S318881AbSHEVEF>; Mon, 5 Aug 2002 17:04:05 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:49396 "EHLO
 	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318875AbSHEU5H>; Mon, 5 Aug 2002 16:57:07 -0400
-Subject: Re: Linux 2.4.19-ac4
+	id <S318839AbSHEVEB>; Mon, 5 Aug 2002 17:04:01 -0400
+Subject: Re: Heavy Clock-Drift after update from Kernel 2.4.9 to 2.4.19
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: James Mayer <james@cobaltmountain.com>
+To: Matthias Schniedermeyer <ms@citd.de>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020805205608.GA24188@galileo>
-References: <200208051147.g75Blh720012@devserv.devel.redhat.com> 
-	<20020805205608.GA24188@galileo>
+In-Reply-To: <Pine.LNX.4.44.0208052251170.21076-100000@korben.citd.de>
+References: <Pine.LNX.4.44.0208052251170.21076-100000@korben.citd.de>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 05 Aug 2002 23:19:31 +0100
-Message-Id: <1028585971.18478.92.camel@irongate.swansea.linux.org.uk>
+Date: 05 Aug 2002 23:26:23 +0100
+Message-Id: <1028586383.18478.100.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-08-05 at 21:56, James Mayer wrote:
-> > The IDE debugging continues. -ac4 should fix the breakages in ac2/ac3. It
-> > hopefully also fixes the ALi hangs with non ALi north bridges (mostly 
-> > Transmeta boxes).
-> 
-> This update fixes my Transmeta box's ALi north bridge lockup.
+On Mon, 2002-08-05 at 22:03, Matthias Schniedermeyer wrote:
 
-Ok anyone else still have ALi IDE hangs with 2.4.19-ac4 or can I cross
-ALi off the problem list now ?
+> A bit strange is that it seems to depend on load. Higher load seems to
+> cause less/none clock drift.
+> (e.g. when i compile something in background, the "rotating thing" in
+> mozilla doesn't spin to fast)
+> 
+> Hardware is a Dual-PIII-933Mhz. Kernel is configured as SMP.
+> Any more details needed?
+
+Can you grab /proc/interrupts every 5 minutes for an hour and send me
+the resulting file ?
 

@@ -1,57 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261539AbTLLAGo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Dec 2003 19:06:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264436AbTLLAGo
+	id S264437AbTLLAIJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Dec 2003 19:08:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264443AbTLLAHr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Dec 2003 19:06:44 -0500
-Received: from fmr05.intel.com ([134.134.136.6]:41395 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S261539AbTLLAGn convert rfc822-to-8bit
+	Thu, 11 Dec 2003 19:07:47 -0500
+Received: from alhya.freenux.org ([213.41.137.38]:32694 "EHLO
+	moria.freenux.org") by vger.kernel.org with ESMTP id S264437AbTLLAHk convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Dec 2003 19:06:43 -0500
-content-class: urn:content-classes:message
+	Thu, 11 Dec 2003 19:07:40 -0500
+From: Mickael Marchand <marchand@kde.org>
+To: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Silicon image 3114 SATA link (really basic support)
+Date: Fri, 12 Dec 2003 01:07:49 +0100
+User-Agent: KMail/1.5.94
+References: <20031203204445.GA26987@gtf.org> <200312091954.28224.marchand@kde.org> <200312092114.47241.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <200312092114.47241.bzolnier@elka.pw.edu.pl>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Disposition: inline
+Content-Type: Text/Plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: [RFC/PATCH] FUSYN 5/10: kernel fuqueues
-Date: Thu, 11 Dec 2003 16:06:18 -0800
-Message-ID: <A20D5638D741DD4DBAAB80A95012C0AE0125E21E@orsmsx409.jf.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [RFC/PATCH] FUSYN 5/10: kernel fuqueues
-Thread-Index: AcPAQlZrfTfo8dT4SsqxC3kC/ON3KgAAS+TQ
-From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-To: <gene.heskett@verizon.net>, "Matt Mackall" <mpm@selenic.com>
-Cc: <linux-kernel@vger.kernel.org>, <robustmutexes@lists.osdl.org>
-X-OriginalArrivalTime: 12 Dec 2003 00:06:19.0336 (UTC) FILETIME=[C4C91480:01C3C043]
+Message-Id: <200312120107.55031.marchand@kde.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> From: Gene Heskett [mailto:gene.heskett@verizon.net]
-> 
-> inaky.perez-gonzalez@intel.com wrote:
-> >>  include/linux/fuqueue.h |  451
-> >> ++++++++++++++++++++++++++++++++++++++++++++++++
-> >> include/linux/plist.h   |  197 ++++++++++++++++++++
-> >>  kernel/fuqueue.c        |  220 +++++++++++++++++++++++
-> >>  3 files changed, 868 insertions(+)
-> >>
-> >> +++ linux/include/linux/fuqueue.h	Wed Nov 19 16:42:50 2003
-> >
-> >I don't suppose you've run this feature name past anyone in
-> > marketting or PR?
-> 
-> Obviously not...
+Hi,
 
-So?
+if anyone is able to tell me how to find the io address of the SATA ports I 
+could make this patch support the 4 drives of Sil3114 (only the 2 first are 
+working atm).
+As I really don't know how to find this, I prefer ask to the kernel experts ;)
+Once I have this info, making the patch is a matter of a few minutes I think
 
-I am already asking for new names for whoever doesn't like
-them, like me ... I have more interesting things to do than
-looking for names.
+I tried looking at lspci/scanpci outputs but could not really find any usefull 
+informations recording io ports.
 
-Care to suggest any? :0]
+Cheers,
+Mik
 
-Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own (and my fault)
+Le Tuesday 09 December 2003 21:14, Bartlomiej Zolnierkiewicz a écrit :
+> On Tuesday 09 of December 2003 19:54, Mickael Marchand wrote:
+> > the attached patch makes _both_ drivers work (whereas the previous one
+> > made only the libata one working)
+>
+> Great!  Now I know it is really working.
+>
+> I've already corrected your previous patch and included it in -bart1 patch:
+> http://www.kernel.org/pub/linux/kernel/people/bart/2.6.0-test11-bart1/broke
+>n-out/ide-siimage-sil3114.patch
+>
+> Yes, I forgot to send you corrected patch, sorry. :-)
+>
+> --bart
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQE/2QbVyOYzc4nQ8j0RAhO/AJ9bm0gJ7uwGlKquhXaIYm1GMRBVWQCdGPwn
+wbQskwDqvS7PI54zTefPquM=
+=p1UV
+-----END PGP SIGNATURE-----

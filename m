@@ -1,38 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263452AbTLDSbs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Dec 2003 13:31:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263785AbTLDSbq
+	id S263787AbTLDScV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Dec 2003 13:32:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263788AbTLDScQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Dec 2003 13:31:46 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:1706 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263452AbTLDSaH (ORCPT
+	Thu, 4 Dec 2003 13:32:16 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:173 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S263787AbTLDScJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Dec 2003 13:30:07 -0500
-Date: Thu, 04 Dec 2003 10:29:53 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Jesse Barnes <jbarnes@sgi.com>, IWAMOTO Toshihiro <iwamoto@valinux.co.jp>
-cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: memory hotremove prototype, take 3
-Message-ID: <14880000.1070562593@flay>
-In-Reply-To: <20031204182729.GA7965@sgi.com>
-References: <20031201034155.11B387007A@sv1.valinux.co.jp> <187360000.1070480461@flay> <20031204035842.72C9A7007A@sv1.valinux.co.jp> <152440000.1070516333@10.10.2.4> <20031204154406.7FC587007A@sv1.valinux.co.jp> <20031204182729.GA7965@sgi.com>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 4 Dec 2003 13:32:09 -0500
+Date: Thu, 4 Dec 2003 10:30:41 -0800
+From: "David S. Miller" <davem@redhat.com>
+To: "Feldman, Scott" <scott.feldman@intel.com>
+Cc: mukansai@emailplus.org, laforge@netfilter.org,
+       netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org
+Subject: Re: Extremely slow network with e1000 & ip_conntrack
+Message-Id: <20031204103041.21aefd8d.davem@redhat.com>
+In-Reply-To: <C6F5CF431189FA4CBAEC9E7DD5441E0102CBDD21@orsmsx402.jf.intel.com>
+References: <C6F5CF431189FA4CBAEC9E7DD5441E0102CBDD21@orsmsx402.jf.intel.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> IIRC, memory is contiguous within a NUMA node.  I think Goto-san will
->> clarify this issue when his code gets ready. :-)
-> 
-> Not on all systems.  On sn2 we use ia64's virtual memmap to make memory
-> within a node appear contiguous, even though it may not be.
+On Thu, 4 Dec 2003 09:37:19 -0800
+"Feldman, Scott" <scott.feldman@intel.com> wrote:
 
-Wasn't there a plan to get rid of that though? I forget what it was,
-probably using CONFIG_NONLINEAR too ... ?
+> TSO is support on 82540.  Turning off TSO is a workaround, but what's
+> behind the dependency of TSO and ip_conntrack?
 
-M.
+Netfilter wants to see the _real_ packets that will be sent onto the
+wire.  TSO is a template by which to create such packets, not the real
+thing.
 
+So when and if we go into netfilter, we must un-TSO the packet so
+that netfilter can look at what it really wants to.

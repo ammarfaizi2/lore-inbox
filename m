@@ -1,84 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266805AbSKUQRe>; Thu, 21 Nov 2002 11:17:34 -0500
+	id <S266834AbSKUQcR>; Thu, 21 Nov 2002 11:32:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266806AbSKUQRe>; Thu, 21 Nov 2002 11:17:34 -0500
-Received: from [207.61.129.108] ([207.61.129.108]:684 "EHLO mail.datawire.net")
-	by vger.kernel.org with ESMTP id <S266805AbSKUQRa> convert rfc822-to-8bit;
-	Thu, 21 Nov 2002 11:17:30 -0500
-From: Shawn Starr <shawn.starr@datawire.net>
-Organization: Datawire Communication Networks Inc.
-To: linux-kernel@vger.kernel.org
-Subject: Re: A7M266-D
-Date: Thu, 21 Nov 2002 11:24:36 -0500
-User-Agent: KMail/1.4.7
+	id <S266837AbSKUQcR>; Thu, 21 Nov 2002 11:32:17 -0500
+Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:60678 "EHLO
+	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S266834AbSKUQcQ>; Thu, 21 Nov 2002 11:32:16 -0500
+Date: Thu, 21 Nov 2002 17:38:50 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Adrian Bunk <bunk@fs.tum.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5 kconfig doesn't handle "&& m" correctly
+In-Reply-To: <20021121132459.GC18869@fs.tum.de>
+Message-ID: <Pine.LNX.4.44.0211211655250.2113-100000@serv>
+References: <20021121083912.GE11952@fs.tum.de> <Pine.LNX.4.44.0211211350270.2113-100000@serv>
+ <20021121132459.GC18869@fs.tum.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200211211124.36280.shawn.starr@datawire.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Works fine in 2.4.18+ (since I had the machine only durning 2.4.18).
+Hi,
 
-Shawn.
+On Thu, 21 Nov 2002, Adrian Bunk wrote:
 
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of jan
-Sent: Thursday, November 21, 2002 8:34 AM
-To: linux-kernel@vger.kernel.org
-Subject: A7M266-D
+> > treated like booleans, that means they are visible if the dependencies are 
+> > different than 'n'. For this it should be possible to automatically add 
+> > '&& MODULES' if the parser sees a 'm'. I'll have to check this out.
+> 
+> My first thought is that this sounds like a workaround. Is there a good
+> reason not to restore the semantics of the old kconfig that interpreted
+> dependencies as a restriction of the input range?
 
-dear list,
+It still does mostly, that's one case I missed. The old config had more 
+than one semantic regarding visible input range (the shell 'if' semantic 
+and the dep_* dependencies, which differed again between the commands), 
+kconfig has only one. So it's not matter of restoring semantics, but 
+translating them correctly. In general a symbol is now visibile is if the 
+dependencies are !='n', "restoring" would mean to change this into ='y' 
+only for tristate symbols when MODULES='n', this would be an even larger 
+hack. Translating 'm' into 'm && MODULES' is the cleaner solution, as it 
+doesn't change the base kconfig logic.
 
-i have an A7M266-D board with two AMD Athlon MP 2000+ on it.
-Unfortunately I am unable to compile the correct driver for the AM7441 
-IDE Controller (using 2.4.19)
-I always get this under SuSE :
-
-AMD7441: detected chipset, but driver not compiled in!
-
-When using a precompiled SUSE or RedHat Kernel it gets recognized.
-
-
-
-SuSE Linux 2.4.18-64GB-SMP output :
-
-AMD_IDE: IDE controller on PCI bus 00 dev 39
-AMD_IDE: chipset revision 4
-AMD_IDE: not 100% native mode: will probe irqs later
-AMD_IDE: AMD-768 Opus (rev 04) IDE UDMA100 controller on pci00:07.1
-     ide0: BM-DMA at 0xd800-0xd807, BIOS settings: hda:DMA, hdb:pio
-     ide1: BM-DMA at 0xd808-0xd80f, BIOS settings: hdc:pio, hdd:pio
-
-RedHat 2.4.18-14smp output :
-
-AMD7441: IDE controller on PCI bus 00 dev 39
-AMD7441: chipset revision 4
-AMD7441: not 100% native mode: will probe irqs later
-AMD7441: disabling single-word DMA support (revision < C4)
-     ide0: BM-DMA at 0xd800-0xd807, BIOS settings: hda:DMA, hdb:pio
-     ide1: BM-DMA at 0xd808-0xd80f, BIOS settings: hdc:DMA, hdd:pio
-
-
-What am I doing wrong ? and why RedHat and SuSE Kernel have no Problem 
-with this Chipset ?
-
-
-best regards,
-
-
-Jan
--- 
-Shawn Starr
-UNIX Systems Administrator, Operations
-Datawire Communication Networks Inc.
-10 Carlson Court, Suite 300
-Toronto, ON, M9W 6L2
-T: 416-213-2001 ext 179  F: 416-213-2008
-shawn.starr@datawire.net
-"The power to Transact" - http://www.datawire.net
+bye, Roman
 

@@ -1,55 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266104AbUA1RAf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jan 2004 12:00:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266100AbUA1RAf
+	id S266107AbUA1RDu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jan 2004 12:03:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266109AbUA1RDt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jan 2004 12:00:35 -0500
-Received: from palrel12.hp.com ([156.153.255.237]:18095 "EHLO palrel12.hp.com")
-	by vger.kernel.org with ESMTP id S266074AbUA1RAd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jan 2004 12:00:33 -0500
-Date: Wed, 28 Jan 2004 09:01:53 -0800
-From: Grant Grundler <iod00d@hp.com>
-To: Linus Torvalds <torvalds@osdl.org>,
-       Hironobu Ishii <ishii.hironobu@jp.fujitsu.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-ia64 <linux-ia64@vger.kernel.org>
-Subject: Re: [RFC/PATCH, 2/4] readX_check() performance evaluation
-Message-ID: <20040128170153.GA5494@cup.hp.com>
-References: <00a301c3e541$c13a6350$2987110a@lsd.css.fujitsu.com> <Pine.LNX.4.58.0401271847440.10794@home.osdl.org> <20040128085825.A3591@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040128085825.A3591@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Wed, 28 Jan 2004 12:03:49 -0500
+Received: from oceanic.wsisiz.edu.pl ([213.135.44.33]:19824 "EHLO
+	oceanic.wsisiz.edu.pl") by vger.kernel.org with ESMTP
+	id S266107AbUA1RDr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jan 2004 12:03:47 -0500
+Date: Wed, 28 Jan 2004 18:03:41 +0100 (CET)
+From: Lukasz Trabinski <lukasz@trabinski.net>
+X-X-Sender: lukasz@oceanic.wsisiz.edu.pl
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-kernel@vger.kernel.org, riel@redhat.com
+Subject: Re: Linux 2.4.25-pre6
+In-Reply-To: <1075302289.1633.158.camel@hades.cambridge.redhat.com>
+Message-ID: <Pine.LNX.4.58LT.0401281758470.29541@oceanic.wsisiz.edu.pl>
+References: <200401202125.i0KLPOgh007806@lt.wsisiz.edu.pl> 
+ <Pine.LNX.4.58L.0401201940470.29729@logos.cnet> 
+ <Pine.LNX.4.58LT.0401210746350.2482@lt.wsisiz.edu.pl> 
+ <Pine.LNX.4.58L.0401210852490.5072@logos.cnet> 
+ <Pine.LNX.4.58LT.0401211225560.31684@oceanic.wsisiz.edu.pl> 
+ <1074686081.16045.141.camel@imladris.demon.co.uk> 
+ <Pine.LNX.4.58LT.0401211702100.23288@oceanic.wsisiz.edu.pl> 
+ <Pine.LNX.4.58L.0401211809220.5874@logos.cnet> <1075302289.1633.158.camel@hades.cambridge.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-2
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 28, 2004 at 08:58:25AM +0000, Russell King wrote:
-> On Tue, Jan 27, 2004 at 06:55:17PM -0800, Linus Torvalds wrote:
-> > Does anybody see any downsides to something like this?
+On Wed, 28 Jan 2004, David Woodhouse wrote:
+
+Hello.
+
+> On Wed, 2004-01-21 at 18:12 -0200, Marcelo Tosatti wrote:
+> > Lets try the clueless approach and remove the inode reclaim highmem fixes
+> > from Rik.
+> > 
+> > Please revert the attached patch (againts -pre6).
 > 
-> What if the failing PCI access happened in an interrupt routine?
-> (I'm thinking of the situation where you may need to read the PCI
-> status registers to find out whether an error occurred.)
+> Did this make a difference?
 
-The driver needs to be able to clean up in any context.
-That's why I'm advocating what willy called an "exception framework".
+Machine works for 5 days without any crash or any oops.
 
-While I like linus' suggestion is better than the original,
-it spreads the driver error recovery code throughout the driver.
-That upside is it can handle every situation.
-The downside is numerous error paths makes the regular code alot
-harder to read and maintain.
+oceanic:~# uptime
+ 17:58:56  up 5 days, 22:08, 28 users,  load average: 0.41, 0.53, 0.60
 
-> Also, for that matter, what if a network device receives an abort
-> while performing BM-DMA?
+2.4.25-pre6 + nohighmem.patch
 
-The next PIO read will see the error caused by BM-DMA.
 
-> Do we even care about either of these two scenarios?
-
-yes. IO Error recovery has to deal with every scenario.
-
-grant
+-- 
+*[ £ukasz Tr±biñski ]*
+SysAdmin @wsisiz.edu.pl

@@ -1,97 +1,116 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265605AbUABQNf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jan 2004 11:13:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265618AbUABQNf
+	id S265603AbUABQMW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jan 2004 11:12:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265605AbUABQMW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jan 2004 11:13:35 -0500
-Received: from smtp4.hy.skanova.net ([195.67.199.133]:19429 "EHLO
-	smtp4.hy.skanova.net") by vger.kernel.org with ESMTP
-	id S265605AbUABQNA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jan 2004 11:13:00 -0500
-To: Jens Axboe <axboe@suse.de>
-Cc: arjanv@redhat.com, Andrew Morton <akpm@osdl.org>, packet-writing@suse.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: ext2 on a CD-RW
-References: <Pine.LNX.4.44.0401020022060.2407-100000@telia.com>
-	<20040101162427.4c6c020b.akpm@osdl.org> <m2llorkuhn.fsf@telia.com>
-	<1073034412.4429.1.camel@laptop.fenrus.com> <m2k74a8vyr.fsf@telia.com>
-	<20040102105915.GO5523@suse.de>
-From: Peter Osterlund <petero2@telia.com>
-Date: 02 Jan 2004 17:12:43 +0100
-In-Reply-To: <20040102105915.GO5523@suse.de>
-Message-ID: <m2n09672is.fsf@telia.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	Fri, 2 Jan 2004 11:12:22 -0500
+Received: from mail.convergence.de ([212.84.236.4]:7871 "EHLO
+	mail.convergence.de") by vger.kernel.org with ESMTP id S265603AbUABQMT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jan 2004 11:12:19 -0500
+Message-ID: <3FF5986C.8060806@convergence.de>
+Date: Fri, 02 Jan 2004 17:12:28 +0100
+From: Michael Hunold <hunold@convergence.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.6b) Gecko/20031205 Thunderbird/0.4
+X-Accept-Language: de-de, de-at, de, en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Jeff Chua <jeffchua@silk.corp.fedex.com>
+CC: Jens Axboe <axboe@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: GetASF failed on DVD authentication
+References: <Pine.LNX.4.58.0401021616580.4954@boston.corp.fedex.com> <20040102103949.GL5523@suse.de> <Pine.LNX.4.58.0401022219290.10338@silk.corp.fedex.com>
+In-Reply-To: <Pine.LNX.4.58.0401022219290.10338@silk.corp.fedex.com>
+Content-Type: multipart/mixed;
+ boundary="------------010106090501020105090500"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe <axboe@suse.de> writes:
+This is a multi-part message in MIME format.
+--------------010106090501020105090500
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> On Fri, Jan 02 2004, Peter Osterlund wrote:
-> > 
-> > Old versions of the packet writing code did just that, but Jens told
-> > me that bio splitting was evil, so when the merge_bvec_fn
-> > functionality was added to the kernel, I started to use it.
-> > 
-> >         http://lists.suse.com/archive/packet-writing/2002-Aug/0044.html
+Helloo
+
+On 02.01.2004 15:25, Jeff Chua schrieb:
+> On Fri, 2 Jan 2004, Jens Axboe wrote:
+
+> USB drive is a Pioneer DVR-SK11B-J. It's reported as ...
 > 
-> Splitting is evil, but unfortunately it's a necessary evil... There are
-> a few kernel helpers to make supporting it easier (see bio_split()). Not
-> so sure how well that'll work for you, you may have to do the grunt work
-> yourself.
+> scsi0 : SCSI emulation for USB Mass Storage devices
+>   Vendor: PIONEER   Model: DVD-RW  DVR-K11   Rev: 1.00
+>   Type:   CD-ROM                             ANSI SCSI revision: 02
+> 
+> I've tried at least 2 other USB drives (Plextor PX-208U, and Sony CRX85U),
+> and both of these drives also exhibit the same problem.
 
-It seems like bio_split() does exactly what I need. The patch below
-makes 2kb blocksize ext2 work and also fixes the performance problem
-compared to 4kb blocksize ext2. Thanks to everyone involved for their
-help.
+>>>Linux version is 2.4.24-pre3.
 
---- linux/drivers/block/pktcdvd.c.old	2004-01-02 16:58:52.000000000 +0100
-+++ linux/drivers/block/pktcdvd.c	2004-01-02 16:59:26.000000000 +0100
-@@ -2083,11 +2083,23 @@
- 		(unsigned long long)bio->bi_sector,
- 		(unsigned long long)(bio->bi_sector + bio_sectors(bio)));
- 
--	/* Some debug code to make sure the merge_bvec_fn function is working. */
-+	/* Check if we have to split the bio */
- 	{
-+		struct bio_pair *bp;
- 		sector_t last_zone;
-+		int first_sectors;
-+
- 		last_zone = ZONE(bio->bi_sector + bio_sectors(bio) - 1, pd);
--		BUG_ON(last_zone != zone);
-+		if (last_zone != zone) {
-+			BUG_ON(last_zone != zone + pd->settings.size);
-+			first_sectors = last_zone - bio->bi_sector;
-+			bp = bio_split(bio, bio_split_pool, first_sectors);
-+			BUG_ON(!bp);
-+			pkt_make_request(q, &bp->bio1);
-+			pkt_make_request(q, &bp->bio2);
-+			bio_pair_release(bp);
-+			return 0;
-+		}
- 	}
- 
- 	/*
-@@ -2153,6 +2165,15 @@
- 	sector_t zone = ZONE(bio->bi_sector, pd);
- 	int used = ((bio->bi_sector - zone) << 9) + bio->bi_size;
- 	int remaining = (pd->settings.size << 9) - used;
-+	int remaining2;
-+
-+	/*
-+	 * A bio <= PAGE_SIZE must be allowed. If it crosses a packet
-+	 * boundary, pkt_make_request() will split the bio.
-+	 */
-+	remaining2 = PAGE_SIZE - bio->bi_size;
-+	remaining = max_t(int, remaining, remaining2);
-+
- 	BUG_ON(remaining < 0);
- 	return remaining;
- }
+> scsi0 : SCSI emulation for USB Mass Storage devices
+>   Vendor: PIONEER   Model: DVD-RW  DVR-K11   Rev: 1.00
+>   Type:   CD-ROM                             ANSI SCSI revision: 02
+> Attached scsi CD-ROM sr0 at scsi0, channel 0, id 0, lun 0
+> sr0: scsi-1 drive
 
--- 
-Peter Osterlund - petero2@telia.com
-http://w1.894.telia.com/~u89404340
+IMHO the problem is inside SCSI drive recognition system, which can be 
+found in "drivers/scsi/sr.c".
+
+The function "get_capabilities()" tries to find out which type of drive 
+you have.
+
+---------------------------schnipp--------------------------------------
+     rc = sr_do_ioctl(i, cmd, buffer, 128, 1, SCSI_DATA_READ, NULL);
+
+     if (rc) {
+         /* failed, drive doesn't have capabilities mode page */
+         scsi_CDs[i].cdi.speed = 1;
+         scsi_CDs[i].cdi.mask |= (CDC_CD_R | CDC_CD_RW | CDC_DVD_R |
+                      CDC_DVD | CDC_DVD_RAM |
+                      CDC_SELECT_DISC | CDC_SELECT_SPEED);
+         scsi_free(buffer, 512);
+         printk("sr%i: scsi-1 drive\n", i);
+         return;
+     }
+---------------------------schnipp--------------------------------------
+
+For my SCSI-2/USB drive, the above SCSI_DATA_READ command fails. As you 
+can see, in this case the driver thinks that your drive is SCSI-1, ie. a 
+CD-drive only. So DVD ioctls like the AGID commands will be filtered in 
+the lower levels, because a CD-driver does not understand them anyway.
+
+Unfortunately, the driver only knows SCSI-1 and SCSI-3, so SCSI-2 DVD 
+driver are out of luck here and get downgraded to SCSI-1 CD-ROM stuff.
+
+The patch below unmasks the DVD drive bit, ie. even if the kernel 
+misdetects your driver, it will allow DVD ioctls to be passed to your drive.
+
+This is not a safe fix, but "it works for me"(tm). I don't know how to 
+really fix it; probably adding proper SCSI-2 support.
+
+> Thanks,
+> Jeff
+
+CU
+Michael.
+
+--------------010106090501020105090500
+Content-Type: text/plain;
+ name="usb-scsi-2-dvd.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="usb-scsi-2-dvd.patch"
+
+diff -ur linux-2.4.21/drivers/scsi/sr.c linux-2.4.21.patched/drivers/scsi/sr.c
+--- linux-2.4.21/drivers/scsi/sr.c	2003-06-13 16:51:36.000000000 +0200
++++ linux-2.4.21.patched/drivers/scsi/sr.c	2003-08-27 23:52:32.000000000 +0200
+@@ -725,7 +725,7 @@
+ 		/* failed, drive doesn't have capabilities mode page */
+ 		scsi_CDs[i].cdi.speed = 1;
+ 		scsi_CDs[i].cdi.mask |= (CDC_CD_R | CDC_CD_RW | CDC_DVD_R |
+-					 CDC_DVD | CDC_DVD_RAM |
++					 /* USB-DVD-SCSI-2 hack: */ /* CDC_DVD | */  CDC_DVD_RAM |
+ 					 CDC_SELECT_DISC | CDC_SELECT_SPEED);
+ 		scsi_free(buffer, 512);
+ 		printk("sr%i: scsi-1 drive\n", i);
+
+--------------010106090501020105090500--

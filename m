@@ -1,135 +1,195 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272316AbTHNMJU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Aug 2003 08:09:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272319AbTHNMJU
+	id S272321AbTHNM1B (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Aug 2003 08:27:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272323AbTHNM1B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Aug 2003 08:09:20 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:54544 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S272316AbTHNMIN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Aug 2003 08:08:13 -0400
-Date: Thu, 14 Aug 2003 13:08:10 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Make modules work in Linus' tree on ARM
-Message-ID: <20030814130810.A332@flint.arm.linux.org.uk>
-Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
+	Thu, 14 Aug 2003 08:27:01 -0400
+Received: from chello080108023209.34.11.vie.surfer.at ([80.108.23.209]:50560
+	"HELO leto2.endorphin.org") by vger.kernel.org with SMTP
+	id S272321AbTHNM04 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Aug 2003 08:26:56 -0400
+Date: Thu, 14 Aug 2003 14:26:55 +0200
+To: linux-kernel@vger.kernel.org
+Cc: Linus Torvalds <torvalds@transmeta.com>
+Subject: [PATCH] cryptoloop: 2 fixes. resend
+Message-ID: <20030814122655.GA1485@leto2.endorphin.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="FkmkrVfFsRoUs1wW"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+User-Agent: Mutt/1.3.28i
+From: Fruhwirth Clemens <clemens-dated-1061728015.bf63@endorphin.org>
+X-Delivery-Agent: TMDA/0.51 (Python 2.1.3 on Linux/i686)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch allows modules to work in Linus' tree for ARM, and is the one
-thing which prevents Linus' tree from building for any ARM machine.
 
-After reviewing the /proc/kcore and kclist issues, I've decided that I'm
-no longer prepared to even _think_ about supporting /proc/kcore on ARM -
-it just gets too ugly, and adds too much code to make it worth the effort,
-the time or the energy to implement a solution to that problem.  This is
-especially true since most people use kgdb or similar rather than
-/proc/kcore anyway.  /proc/kcore is a "wouldn't it be nice" feature.
+--FkmkrVfFsRoUs1wW
+Content-Type: multipart/mixed; boundary="PEIAKu/WMn1b1Hv9"
+Content-Disposition: inline
 
-The reasons that I'm going with this solution rather than fixing
-/proc/kcore is that:
 
-- to add a kclist entry for each module would mean hacking the kclist
-  structure into vm_struct's ->page pointer with disgusting hacks.
-  I think we can all agree that this isn't the way to go.  The
-  alternative is to create Yet Another Memory Allocator, and this
-  isn't something I want to see in what is now an embedded architecture.
+--PEIAKu/WMn1b1Hv9
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-- we'd need to find some way to dynamically reserve the virtual mapped
-  memory regions for the kernel direct mapped RAM.  Since ARM uses a
-  generic memory initialisation implementation which handles contiguous
-  and discontiguous memory, it doesn't lend itself well to the kclist
-  approach, and I'm not about to add extra callbacks from init/main.c
-  (so we have kmalloc available) just to support this.
+Hi!
 
-If someone _else_ wants to put the effort into fixing ARM modules to work
-nicely with /proc/kcore, be my guest - I'm just no longer interested in
-this problem space.
+Two fixes for cryptoloop:
 
-Maybe in 2.7 a generic "reserve an area of memory in this region" 
-function like __get_vm_area below is in order?
+Patch #1: Fixes ECB mode. cryptoloop won't oops anymore if ECB mode is
+requested.=20
 
-Therefore, I'm providing a patch which adds the necessary changes to the
-core kernel code to make the current modules solution work for ARM.
+Patch #2: Fixes disk corruption under CBC mode caused by improper IV
+calculation in loop.c. Tested:=20
+http://marc.theaimsgroup.com/?t=3D106048335200003&r=3D1&w=3D2
 
-Please merge.
+Please apply.
 
---- orig/mm/vmalloc.c	Tue May 27 10:05:48 2003
-+++ linux/mm/vmalloc.c	Tue May 27 10:14:45 2003
-@@ -178,21 +178,11 @@
+Regards, Clemens
+
+--PEIAKu/WMn1b1Hv9
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="cryptoloop-ecb.diff"
+Content-Transfer-Encoding: quoted-printable
+
+--- drivers/block/cryptoloop.c.orig	Sun Jul 27 19:03:58 2003
++++ drivers/block/cryptoloop.c	Sat Aug  9 13:51:03 2003
+@@ -79,20 +79,70 @@
  	return err;
  }
- 
--
--/**
-- *	get_vm_area  -  reserve a contingous kernel virtual area
-- *
-- *	@size:		size of the area
-- *	@flags:		%VM_IOREMAP for I/O mappings or VM_ALLOC
-- *
-- *	Search an area of @size in the kernel virtual mapping area,
-- *	and reserved it for out purposes.  Returns the area descriptor
-- *	on success or %NULL on failure.
-- */
--struct vm_struct *get_vm_area(unsigned long size, unsigned long flags)
-+struct vm_struct *__get_vm_area(unsigned long size, unsigned long flags,
-+				unsigned long start, unsigned long end)
- {
- 	struct vm_struct **p, *tmp, *area;
--	unsigned long addr = VMALLOC_START;
-+	unsigned long addr = start;
- 
- 	area = kmalloc(sizeof(*area), GFP_KERNEL);
- 	if (unlikely(!area))
-@@ -209,12 +199,14 @@
- 
- 	write_lock(&vmlist_lock);
- 	for (p = &vmlist; (tmp = *p) ;p = &tmp->next) {
-+		if ((unsigned long)tmp->addr < addr)
-+			continue;
- 		if ((size + addr) < addr)
- 			goto out;
- 		if (size + addr <= (unsigned long)tmp->addr)
- 			goto found;
- 		addr = tmp->size + (unsigned long)tmp->addr;
--		if (addr > VMALLOC_END-size)
-+		if (addr > end - size)
- 			goto out;
- 	}
- 
-@@ -239,6 +231,21 @@
- }
- 
- /**
-+ *	get_vm_area  -  reserve a contingous kernel virtual area
-+ *
-+ *	@size:		size of the area
-+ *	@flags:		%VM_IOREMAP for I/O mappings or VM_ALLOC
-+ *
-+ *	Search an area of @size in the kernel virtual mapping area,
-+ *	and reserved it for out purposes.  Returns the area descriptor
-+ *	on success or %NULL on failure.
-+ */
-+struct vm_struct *get_vm_area(unsigned long size, unsigned long flags)
+=20
+-typedef int (*encdec_t)(struct crypto_tfm *tfm,
++
++typedef int (*encdec_ecb_t)(struct crypto_tfm *tfm,
++			struct scatterlist *sg_out,
++			struct scatterlist *sg_in,
++			unsigned int nsg);
++
++
++static int
++cryptoloop_transfer_ecb(struct loop_device *lo, int cmd, char *raw_buf,
++		     char *loop_buf, int size, sector_t IV)
 +{
-+	return __get_vm_area(size, flags, VMALLOC_START, VMALLOC_END);
++	struct crypto_tfm *tfm =3D (struct crypto_tfm *) lo->key_data;
++	struct scatterlist sg_out =3D { 0, };
++	struct scatterlist sg_in =3D { 0, };
++
++	encdec_ecb_t encdecfunc;
++	char const *in;
++	char *out;
++
++	if (cmd =3D=3D READ) {
++		in =3D raw_buf;
++		out =3D loop_buf;
++		encdecfunc =3D tfm->crt_u.cipher.cit_decrypt;
++	} else {
++		in =3D loop_buf;
++		out =3D raw_buf;
++		encdecfunc =3D tfm->crt_u.cipher.cit_encrypt;
++	}
++
++	while (size > 0) {
++		const int sz =3D min(size, LOOP_IV_SECTOR_SIZE);
++
++		sg_in.page =3D virt_to_page(in);
++		sg_in.offset =3D (unsigned long)in & ~PAGE_MASK;
++		sg_in.length =3D sz;
++
++		sg_out.page =3D virt_to_page(out);
++		sg_out.offset =3D (unsigned long)out & ~PAGE_MASK;
++		sg_out.length =3D sz;
++
++		encdecfunc(tfm, &sg_out, &sg_in, sz);
++
++		size -=3D sz;
++		in +=3D sz;
++		out +=3D sz;
++	}
++
++	return 0;
 +}
 +
-+/**
-  *	remove_vm_area  -  find and remove a contingous kernel virtual area
-  *
-  *	@addr:		base address
++typedef int (*encdec_cbc_t)(struct crypto_tfm *tfm,
+ 			struct scatterlist *sg_out,
+ 			struct scatterlist *sg_in,
+ 			unsigned int nsg, u8 *iv);
+=20
+ static int
+-cryptoloop_transfer(struct loop_device *lo, int cmd, char *raw_buf,
++cryptoloop_transfer_cbc(struct loop_device *lo, int cmd, char *raw_buf,
+ 		     char *loop_buf, int size, sector_t IV)
+ {
+ 	struct crypto_tfm *tfm =3D (struct crypto_tfm *) lo->key_data;
+ 	struct scatterlist sg_out =3D { 0, };
+ 	struct scatterlist sg_in =3D { 0, };
+=20
+-	encdec_t encdecfunc;
++	encdec_cbc_t encdecfunc;
+ 	char const *in;
+ 	char *out;
+=20
+@@ -130,6 +180,27 @@
+ 	return 0;
+ }
+=20
++static int
++cryptoloop_transfer(struct loop_device *lo, int cmd, char *raw_buf,
++		     char *loop_buf, int size, sector_t IV)
++{
++	struct crypto_tfm *tfm =3D (struct crypto_tfm *) lo->key_data;
++	if(tfm->crt_cipher.cit_mode =3D=3D CRYPTO_TFM_MODE_ECB)
++	{
++		lo->transfer =3D cryptoloop_transfer_ecb;
++		return cryptoloop_transfer_ecb(lo, cmd, raw_buf, loop_buf, size, IV);
++	}=09
++	if(tfm->crt_cipher.cit_mode =3D=3D CRYPTO_TFM_MODE_CBC)
++	{=09
++		lo->transfer =3D cryptoloop_transfer_cbc;
++		return cryptoloop_transfer_cbc(lo, cmd, raw_buf, loop_buf, size, IV);
++	}
++=09
++	/*  This is not supposed to happen */
++
++	printk( KERN_ERR "cryptoloop: unsupported cipher mode in cryptoloop_trans=
+fer!\n");
++	return -EINVAL;
++}
+=20
+ static int
+ cryptoloop_ioctl(struct loop_device *lo, int cmd, unsigned long arg)
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+--PEIAKu/WMn1b1Hv9
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="loop-2.6t2.diff"
+Content-Transfer-Encoding: quoted-printable
 
+--- drivers/block/loop.c~	Sun Jul 27 19:03:16 2003
++++ drivers/block/loop.c	Sun Aug 10 04:22:44 2003
+@@ -513,6 +513,7 @@
+ 					from_bvec->bv_len, IV);
+ 		kunmap(from_bvec->bv_page);
+ 		kunmap(to_bvec->bv_page);
++		IV +=3D from_bvec->bv_len >> 9;
+ 	}
+=20
+ 	return ret;
+
+--PEIAKu/WMn1b1Hv9--
+
+--FkmkrVfFsRoUs1wW
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE/O4APW7sr9DEJLk4RAnhLAKCNW0isb21MTx058N5M5SICCbv0GwCcCGnY
+/OzrMzoyT6EGsdFqTL5zwSM=
+=ZGp1
+-----END PGP SIGNATURE-----
+
+--FkmkrVfFsRoUs1wW--

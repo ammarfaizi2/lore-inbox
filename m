@@ -1,53 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282530AbRLFSoV>; Thu, 6 Dec 2001 13:44:21 -0500
+	id <S282525AbRLFSob>; Thu, 6 Dec 2001 13:44:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282523AbRLFSnF>; Thu, 6 Dec 2001 13:43:05 -0500
-Received: from twardziel.tenbit.pl ([195.205.163.235]:28582 "EHLO tenbit.pl")
-	by vger.kernel.org with ESMTP id <S282489AbRLFSmU>;
-	Thu, 6 Dec 2001 13:42:20 -0500
-Date: Thu, 6 Dec 2001 19:41:51 +0100
-From: =?iso-8859-2?Q?Mateusz_=A3oskot?= <m.loskot@chello.pl>
+	id <S282501AbRLFSoY>; Thu, 6 Dec 2001 13:44:24 -0500
+Received: from quechua.inka.de ([212.227.14.2]:31778 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id <S282525AbRLFSoJ>;
+	Thu, 6 Dec 2001 13:44:09 -0500
+From: Bernd Eckenfels <ecki@lina.inka.de>
 To: linux-kernel@vger.kernel.org
-Subject: Re: Strange problem with 2.4.x kernel
-Message-ID: <20011206194151.D848@cheetah.chello.pl>
-Reply-To: m.loskot@chello.pl
-Mail-Followup-To: =?iso-8859-2?Q?Mateusz_=A3oskot?= <m.loskot@chello.pl>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20011206190454.B848@cheetah.chello.pl> <20011206123342.42179ed3.reynolds@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011206123342.42179ed3.reynolds@redhat.com>; from reynolds@redhat.com on Thu, Dec 06, 2001 at 12:33:42PM -0600
-X-Os: Linux cheetah 2.4.4 
-X-Mailer: MUTT http://www.mutt.org
-X-Accept-Language: en pl
-X-Location: Europe, Poland, Warsaw
+Subject: Re: /proc/sys/vm/(max|min)-readahead effect????
+In-Reply-To: <008b01c17dce$d96b08d0$0801a8c0@Stev.org>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.16-xfs (i686))
+Message-Id: <E16C3V2-0007mg-00@calista.inka.de>
+Date: Thu, 06 Dec 2001 19:44:00 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dni 06.12 2001 r., o godzinie 12:33 Tommy Reynolds napisa³(a) co nastêpuje:
-> Uttered "Mateusz " <m.loskot@chello.pl>, spoke thus:
-> You should validate the files you download before trying to use them.  Check the
-> information at:
-> 	http://www.kernel.org/signature.html
-> for how to go about this. 
+In article <008b01c17dce$d96b08d0$0801a8c0@Stev.org> you wrote:
+>> mkfs /dev/hdb1
+>> dd if=/dev/zero of=some-file bs=x count=x
+>> What can fragment this file????
 
-Ok, I'll go there necessary...
+> say you wanna write a 500MB file
+...
+> fit because there is another file on the disk
 
-> Use ftp(1) or wget(1) to do the downloads.  Do _not_ try to get the files using
-> any web browser, such as Netscape, because they are known to mangle files that
-> they don't understand.
+it is not, he just reformated the disk
 
-I know, I used only ftp, ncftp or yafc - the same result ;-((((
-
-
-Thanks
-
-
--- 
-Mateusz £oskot
-E-mail: m.loskot@chello.pl
-GG#: 792434

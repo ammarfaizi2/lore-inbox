@@ -1,51 +1,109 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277294AbRJ3S3L>; Tue, 30 Oct 2001 13:29:11 -0500
+	id <S277431AbRJ3SaL>; Tue, 30 Oct 2001 13:30:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277393AbRJ3S3B>; Tue, 30 Oct 2001 13:29:01 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:11014 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S277294AbRJ3S2s>; Tue, 30 Oct 2001 13:28:48 -0500
-Date: Tue, 30 Oct 2001 19:29:02 +0100
-From: Jan Kara <jack@suse.cz>
-To: "David S. Miller" <davem@redhat.com>, jgarzik@mandrakesoft.com,
-        miles@megapathdsl.net, torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: What is standing in the way of opening the 2.5 tree?
-Message-ID: <20011030192902.B22781@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <1004219488.11749.19.camel@stomata.megapathdsl.net> <3BDB91D7.C7975C44@mandrakesoft.com> <20011027.224602.74750641.davem@redhat.com> <20011028185844.C1311@lynx.no>
+	id <S277435AbRJ3SaE>; Tue, 30 Oct 2001 13:30:04 -0500
+Received: from yktgi01e0-s1.watson.ibm.com ([198.81.209.16]:19848 "HELO
+	ssm22.watson.ibm.com") by vger.kernel.org with SMTP
+	id <S277431AbRJ3S3q>; Tue, 30 Oct 2001 13:29:46 -0500
+Date: Tue, 30 Oct 2001 11:29:37 -0500
+From: Hubertus Franke <frankeh@watson.ibm.com>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: lkml <linux-kernel@vger.kernel.org>, lse-tech@lists.sourceforge.net
+Subject: Re: [PATCH][RFC] Proposal For A More Scalable Scheduler ...
+Message-ID: <20011030112937.A16154@watson.ibm.com>
+Reply-To: frankeh@watson.ibm.com
+In-Reply-To: <20011030092834.A16050@watson.ibm.com> <Pine.LNX.4.40.0110300914450.1495-100000@blue1.dev.mcafeelabs.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011028185844.C1311@lynx.no>
-User-Agent: Mutt/1.3.20i
+X-Mailer: Mutt 0.95.4us
+In-Reply-To: <Pine.LNX.4.40.0110300914450.1495-100000@blue1.dev.mcafeelabs.com>; from Davide Libenzi on Tue, Oct 30, 2001 at 09:19:05AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Oct 27, 2001  22:46 -0700, David S. Miller wrote:
-> > In particular, the quota stuff, which has sat in Alan's tree forever.
-> > If Linus is ignoring the changes it probably is for a good reason
-> > but it would be nice for him to let Alan know what that reason is :-)
+* Davide Libenzi <davidel@xmailserver.org> [20011030 12;19]:"
+> On Tue, 30 Oct 2001, Hubertus Franke wrote:
 > 
-> AFAIK (not much, since I don't use quotas), the on-disk quota format used
-> by Alan's tree was changed to support 32-bit UID/GIDs, which makes it
-> incompatible with that used in the Linus tree.  However, there was also
-> some quota merging done in 2.4.13 or so, which _may_ have resolved this.
-  Actually there were two quota patches in Alan's tree. The first one was
-just some fixes in quota code - some locking changes, race fixes, dynamic allocation
-of quota structures. This patch went into 2.2.12.
-  The second patch is patch which implements new quota format. It makes
-changes in quotactl() interface and other changes visible in userspace.
-I think that is the reason why Linus doesn't want it in 2.4 and I agree with him.
-
-> Yes, it's vague, but nobody else has answered yet.  I'm only aware of these
-> issues because the ext3 code had to work with both trees, and the quota
-> compat stuff was removed in the most recent ext3 release.  That may have
-> only been an in-kernel API issue and not the on-disk format, I don't know.
+> > Davide, nice analysis.
+> > I want to point out that some (not all) of the stuff is already done
+> > in our scalable MQ scheduler (http://lse.sourceforge.net/scheduling).
+> >
+> > What we have:
+> > -------------
+> > multiple queues, each protected by their own lock to avoid
+> > the contention.
+> > Automatic Loadbalancing across all queues (yes, that creates overhead)
+> > CPU pooling as configurable mean to get from isolated queues to a fully
+> > balanced (global scheduling decision) scheduler.
+> > Also have some initial placement to the least loaded runqueue in the least
+> > loaded pool
+> >
+> > We look at this as a configurable infrastructure....
+> >
+> > What we don't have:
+> > -------------------
+> >
+> > The removal of PROC_CHANGE_PENALTY with a time decay cache affinity definition.
+> >
+> >
+> > At ALS: I will be reporting on our experience with what we have
+> > for a 8-way system and a 4x4-way NUMA system (OSDL)
+> > wrt early placement, choice of best pool size ?
+> >
+> > Are you can get an early start at:
+> > 	http://lse.sourceforge.net/scheduling/als2001/pmqs.ps
 > 
-> Cheers, Andreas
+> I see the proposed implementation as a decisive cut with the try to have
+> processes instantly moved across CPUs and stuff like na_goodness, etc..
+> Inside each CPU the scheduler is _exactly_ the same as the UP one.
+> 
 
-								Honza
---
-Jan Kara <jack@suse.cz>
-SuSE CR Labs
+Well, to that extent that what MQ does as too. We do a local decision 
+first and then compare across multiple queues. In the pooling approach
+we limit that global check to some cpus within the proximity.
+I think your CPU Weight history could fit into this model as well.
+We don't care how the local decision was reached.
+
+There is however another problem that you haven't addressed yet, which
+is realtime. As far as I can tell, the realtime semantics require a 
+strict ordering with respect to each other and their priorities.
+General approach can be either to limit all RT processes to a single CPU
+or, as we have done, declare a global RT runqueue.
+
+
+> 
+> 
+> > Are you going to be a ALS ? Maybe we can chat about what the pros and cons
+> > of each approach are and whether we could/should merge things together.
+> > I am very intriged by the "CPU History Weight" that I see as a major
+> > add-on to our stuff. What I am not so keen about is the fact
+> > you seem to only do load-balancing at fork and idle time.
+> > In a loaded system that can lead to load inbalances
+> >
+> > We do a periodic (configurable) call, which has also some drawbacks.
+> > Another thing that needs to be thought about is the metric used
+> > to determine <load> on a queue. For simplicity, runqueue length is
+> > one indication, for fairness, maybe the sum of nice-value would be ok.
+> > We experimented with both and didn't see to much of a difference, however
+> > measuring fairness is difficult to do.
+> 
+> Hey, ... that's part of Episode 2 " Balancing the world", where the evil
+> Mr. MoveSoon fight with Hysteresis for the universe domination :)
+> 
+> 
+
+Well, one has to be careful, if the system is loaded and processes are
+more long lived rather then come and go, Initial Placement and Idle-Loop 
+Load balancing doesn't get you very far with respect to decent load balancing.
+In these kind of scenarios, one needs a feedback system. Trick is to come
+up with an algorithm that is not too intrusive and that is not overcorrecting.
+Take a look at the paper link, where we experimented with some of these
+issues. We tolerated a difference tolerance around the runqueue length.  
+
+> 
+> 
+> - Davide
+> 
+
+:-#  Hubertus
+

@@ -1,69 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S144695AbRA2BLW>; Sun, 28 Jan 2001 20:11:22 -0500
+	id <S144750AbRA2BRc>; Sun, 28 Jan 2001 20:17:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S144751AbRA2BLK>; Sun, 28 Jan 2001 20:11:10 -0500
-Received: from [62.2.247.131] ([62.2.247.131]:17674 "EHLO delouw.ch")
-	by vger.kernel.org with ESMTP id <S144695AbRA2BK6> convert rfc822-to-8bit;
-	Sun, 28 Jan 2001 20:10:58 -0500
-Date: Mon, 29 Jan 2001 02:10:47 +0100 (CET)
-From: Luc de Louw <luckyluke@delouw.ch>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.4.1-pre11
-In-Reply-To: <Pine.LNX.4.10.10101281020540.3850-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.21.0101290201580.30638-100000@delouw.ch>
+	id <S144751AbRA2BRX>; Sun, 28 Jan 2001 20:17:23 -0500
+Received: from ubr-33.78.221.titusville.cfl.rr.com ([65.33.78.221]:11525 "EHLO
+	gumby.chiodini.net") by vger.kernel.org with ESMTP
+	id <S144750AbRA2BRD>; Sun, 28 Jan 2001 20:17:03 -0500
+Message-ID: <3A74C4AC.5BE0D3B7@cfl.rr.com>
+Date: Sun, 28 Jan 2001 20:17:32 -0500
+From: Bob Chiodini <rchiodini@cfl.rr.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-pre10 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+To: "David D.W. Downey" <pgpkeys@hislinuxbox.com>
+CC: "Michael H. Warfield" <mhw@wittsend.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux-2.4.1-pre11
+In-Reply-To: <Pine.LNX.4.21.0101281702220.20712-100000@ns-01.hislinuxbox.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus
+How about:
 
-On Sun, 28 Jan 2001, Linus Torvalds wrote:
+http://www.us.kernel.org/pub/linux/kernel/testing/patch-2.4.1-pre11.gz
 
+Bob...
 
-> 
-> I just uploaded it to kernel.org, and I expect that I'll do the final
-> 2.4.1 tomorrow, before leaving for NY and LinuxWorld. Please test that the
-> pre-kernel works for you..
+"David D.W. Downey" wrote:
 
-yes, it works :-)
+> >       Patch was in /pub/linux/kernel/v2.4/test/patch-2.4.1-pre11.gz
+> >
+>
+> I'm on ftp.kernel.org right this second in /pub/linux/kernel/v2.4/
+>
+> There is only a test-kernels/ subdir there, not a test/
+>
+> test-kernels/ does not contain the patch.
+>
+> David
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
 
-> 
-> The main noticeable things in pre11 are fixing some bugs that crept in
-> after 2.4.0 - the block device queuing improvements could lose wakeups
-> under extreme load by multiple clients, and the vmscanning "get rid of
-> special return codes for shared memory" thing had missed a bit.
-> 
-> This should also fix the VIA IDE driver issues (if you want safe, do NOT
-> enable auto-dma), and the reported problems with hpt366 controllers and
-> IBM drives. Hopefully these were the last major IDE issues for a while.
+--
 
-It works fine for me
-
-> 
-> Also, can people who have had unhappy relationships with their eepro100
-> please try to cuddle and make up again? The eepro100 changes should fix
-> the problem of having posted writes that basically made some of the timing
-> not work out.
-
-I'll try that at monday ( In a couple of hours I'm at work) .....
-
-> 
-> 		Linus
-> 
-
-<snip>
-
-Have a nice trip and enjoy NYC! weatherforcast for monday and wednesday
-looks great, visit the empire state buiöding its gread (if you get the
-time) I wish I could at LinuxWold too .... Have fun
-
-rgds
-
-Luc de Louw
+rchiodini@cfl.rr.com
 
 
 

@@ -1,121 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263052AbVCXGK5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262413AbVCXGUy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263052AbVCXGK5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 01:10:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263062AbVCXGJp
+	id S262413AbVCXGUy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 01:20:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262414AbVCXGUy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 01:09:45 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:60067 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263052AbVCXF5F (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 00:57:05 -0500
-Message-ID: <424256BA.2060901@in.ibm.com>
-Date: Thu, 24 Mar 2005 11:27:14 +0530
-From: Hariprasad Nellitheertha <hari@in.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
+	Thu, 24 Mar 2005 01:20:54 -0500
+Received: from smtp818.mail.sc5.yahoo.com ([66.163.170.4]:20046 "HELO
+	smtp818.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262413AbVCXGUs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Mar 2005 01:20:48 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: linux-input@atrey.karlin.mff.cuni.cz
+Subject: Re: [2.6 patch] drivers/input/serio/libps2.c: ps2_command: add a missing check
+Date: Thu, 24 Mar 2005 00:13:16 -0500
+User-Agent: KMail/1.7.2
+Cc: Adrian Bunk <bunk@stusta.de>, vojtech@suse.cz,
+       linux-kernel@vger.kernel.org
+References: <20050324031447.GY1948@stusta.de>
+In-Reply-To: <20050324031447.GY1948@stusta.de>
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       fastboot <fastboot@lists.osdl.org>
-CC: "Eric W. Biederman" <ebiederm@xmission.com>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [RFC][PATCH 5/7] Common code for the activemem map
-References: <424254E0.6060003@in.ibm.com> <42425582.7040508@in.ibm.com> <424255EA.9010905@in.ibm.com> <42425635.30808@in.ibm.com> <4242567A.5060104@in.ibm.com>
-In-Reply-To: <4242567A.5060104@in.ibm.com>
-Content-Type: multipart/mixed;
- boundary="------------010308080506060401040907"
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200503240013.16573.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------010308080506060401040907
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Wednesday 23 March 2005 22:14, Adrian Bunk wrote:
+> The Coverity checker noted that while all other uses of param in 
+> ps2_command() were guarded by a NULL check, this one wasn't.
+> 
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> 
+> --- linux-2.6.12-rc1-mm1-full/drivers/input/serio/libps2.c.old	2005-03-24 02:37:08.000000000 +0100
+> +++ linux-2.6.12-rc1-mm1-full/drivers/input/serio/libps2.c	2005-03-24 02:38:28.000000000 +0100
+> @@ -106,9 +106,10 @@ int ps2_command(struct ps2dev *ps2dev, u
+>  			command == PS2_CMD_RESET_BAT ? 1000 : 200))
+>  			goto out;
+>  
+> -	for (i = 0; i < send; i++)
+> -		if (ps2_sendbyte(ps2dev, param[i], 200))
+> -			goto out;
+> +	if (param)
+> +		for (i = 0; i < send; i++)
+> +			if (ps2_sendbyte(ps2dev, param[i], 200))
+> +				goto out;
+>  
 
-Regards, Hari
+I somewhat disagree on this one. If caller specified that command requires
+arguments to be sent and it does not provide them I'd rather had it OOPS on
+the spot. With receiving, however, caller does not really have control over
+number of characters coming from the device so specifying NULL allows just
+ignore whatever response there is.
 
---------------010308080506060401040907
-Content-Type: text/plain;
- name="activemem-common.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="activemem-common.patch"
-
-
----
-
-This patch provides the arch independent code to create the
-activemem view in the proc file system. /proc/activemem
-reflects the RAM resources that are in use by the kernel. If
-the system has been booted with mem= or memmap= options, then
-this view will reflect the truncated map.
----
-
-Signed-off-by: Hariprasad Nellitheertha <hari@in.ibm.com>
----
-
- linux-2.6.12-rc1-hari/kernel/resource.c |   29 +++++++++++++++++++++++++++++
- 1 files changed, 29 insertions(+)
-
-diff -puN kernel/resource.c~activemem-common kernel/resource.c
---- linux-2.6.12-rc1/kernel/resource.c~activemem-common	2005-03-23 17:48:12.000000000 +0530
-+++ linux-2.6.12-rc1-hari/kernel/resource.c	2005-03-23 17:48:12.000000000 +0530
-@@ -48,6 +48,15 @@ struct resource physmem_resource = {
- 
- EXPORT_SYMBOL(physmem_resource);
- 
-+struct resource activemem_resource = {
-+	.name	= "Active mem",
-+	.start	= 0ULL,
-+	.end	= ~0ULL,
-+	.flags	= IORESOURCE_MEM,
-+};
-+
-+EXPORT_SYMBOL(activemem_resource);
-+
- static DEFINE_RWLOCK(resource_lock);
- 
- #ifdef CONFIG_PROC_FS
-@@ -137,6 +146,16 @@ static int physmem_open(struct inode *in
- 	return res;
- }
- 
-+static int activemem_open(struct inode *inode, struct file *file)
-+{
-+	int res = seq_open(file, &resource_op);
-+	if (!res) {
-+		struct seq_file *m = file->private_data;
-+		m->private = &activemem_resource;
-+	}
-+	return res;
-+}
-+
- static struct file_operations proc_ioports_operations = {
- 	.open		= ioports_open,
- 	.read		= seq_read,
-@@ -158,6 +177,13 @@ static struct file_operations proc_physm
- 	.release	= seq_release,
- };
- 
-+static struct file_operations proc_activemem_operations = {
-+	.open		= activemem_open,
-+	.read		= seq_read,
-+	.llseek		= seq_lseek,
-+	.release	= seq_release,
-+};
-+
- static int __init ioresources_init(void)
- {
- 	struct proc_dir_entry *entry;
-@@ -171,6 +197,9 @@ static int __init ioresources_init(void)
- 	entry = create_proc_entry("physmem", 0, NULL);
- 	if (entry)
- 		entry->proc_fops = &proc_physmem_operations;
-+	entry = create_proc_entry("activemem", 0, NULL);
-+	if (entry)
-+		entry->proc_fops = &proc_activemem_operations;
- 	return 0;
- }
- __initcall(ioresources_init);
-_
-
---------------010308080506060401040907--
+-- 
+Dmitry

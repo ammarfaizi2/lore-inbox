@@ -1,46 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266540AbTBPM0v>; Sun, 16 Feb 2003 07:26:51 -0500
+	id <S266643AbTBPMfY>; Sun, 16 Feb 2003 07:35:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266552AbTBPM0v>; Sun, 16 Feb 2003 07:26:51 -0500
-Received: from gate.perex.cz ([194.212.165.105]:28432 "EHLO gate.perex.cz")
-	by vger.kernel.org with ESMTP id <S266540AbTBPM0u>;
-	Sun, 16 Feb 2003 07:26:50 -0500
-Date: Sun, 16 Feb 2003 13:36:49 +0100 (CET)
-From: Jaroslav Kysela <perex@suse.cz>
-X-X-Sender: perex@pnote.perex-int.cz
-To: Martin Josefsson <gandalf@wlug.westbo.se>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: ALSA broken in 2.5.61
-In-Reply-To: <1045347495.682.10.camel@tux.rsn.bth.se>
-Message-ID: <Pine.LNX.4.44.0302161336150.1060-100000@pnote.perex-int.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S266702AbTBPMfY>; Sun, 16 Feb 2003 07:35:24 -0500
+Received: from natsmtp01.webmailer.de ([192.67.198.81]:43205 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S266643AbTBPMfT>; Sun, 16 Feb 2003 07:35:19 -0500
+Date: Sun, 16 Feb 2003 13:37:42 +0100
+From: Dominik Brodowski <linux@brodo.de>
+To: Jan Dittmer <j.dittmer@portrix.net>
+Cc: cpufreq@www.linux.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: Link failure with current bk w/o CONFIG_X86_POWERNOW_K6
+Message-ID: <20030216123742.GA28689@brodo.de>
+References: <3E4F7A0E.30305@portrix.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3E4F7A0E.30305@portrix.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 15 Feb 2003, Martin Josefsson wrote:
+On Sun, Feb 16, 2003 at 12:46:22PM +0100, Jan Dittmer wrote:
+> Happens with CONFIG_X86_POWERNOW_K6 disabled, ie. you cannot enable 
+> CONFIG_X86_POWERNOW_K7 w/o enabling CONFIG_X86_POWERNOW_K7.
 
-> Hi,
-> 
-> I'm trying to use ALSA with my old sb16 in 2.5.61 and it sounds like
-> hell :) worked fine in 2.5.58.
-> 
-> When trying to use OSS emulation it almost sounds like playing a c64
-> tape at half speed and the mp3player chews through the song in a few
-> seconds and I hardly see any interrupts beeing generated for the sb16 in
-> /proc/interrupts. I see about 1 irq per 2 seconds.
-> 
-> When using native ALSA for playback it sounds almost ok but it's very
-> choppy, sounds like it skips ahead 0.5-1 seconds every 2 seconds or so.
-> Forgot to check the interruptrate when trying this.
+Using your .config, I can't reproduce this link error - I tested it with
+CONFIG_X86_POWERNOW_K7 && CONFIG_X86_POWERNOW_K6
+CONFIG_X86_POWERNOW_K7 && !CONFIG_X86_POWERNOW_K6
+!CONFIG_X86_POWERNOW_K7 && CONFIG_X86_POWERNOW_K6
+!CONFIG_X86_POWERNOW_K7 && !CONFIG_X86_POWERNOW_K6
 
-We know about this problem and it will be fixed in next ALSA update.
+Might it be that you have some other patch added to the kernel, which causes
+a reject for linux/drivers/Makefile?
 
-						Jaroslav
+> Also the indenting in the cpufreq menu seems to be wrong. Shouldn't 
+> 'Intel Speedstep', 'Intel Pentium 4', 'Transmeta LongRun' and 'Cyrix 
+> MediaGX' be childs of CPU Frequency scaling an indented by 2 spaces?
 
------
-Jaroslav Kysela <perex@suse.cz>
-Linux Kernel Sound Maintainer
-ALSA Project, SuSE Labs
+A patch for this by Marc-Christian Petersen will be on the way soon.
 
+	Dominik

@@ -1,73 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261685AbUKTLf4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261703AbUKTLkA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261685AbUKTLf4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Nov 2004 06:35:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261703AbUKTLf4
+	id S261703AbUKTLkA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Nov 2004 06:40:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261837AbUKTLkA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Nov 2004 06:35:56 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:36620 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261685AbUKTLfs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Nov 2004 06:35:48 -0500
-Date: Sat, 20 Nov 2004 12:35:45 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: [patch] 2.6.10-rc2-mm2: OSS ac97_codec.h: #include pci.h
-Message-ID: <20041120113545.GC2754@stusta.de>
-References: <20041118021538.5764d58c.akpm@osdl.org> <20041118124220.GB2268@holomorphy.com>
+	Sat, 20 Nov 2004 06:40:00 -0500
+Received: from wproxy.gmail.com ([64.233.184.205]:38486 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261703AbUKTLjJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Nov 2004 06:39:09 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=i8T65fgB90TucKQppUApbkCFl5uyS9trmU1r4gArOFwr4Jd9YtLdPiRMomgYK+w0l6RHkUT8iUSNadseegxE94aJO6SwVOnG/8NNCrj0NhykUZmGGB5VBbaEfgNoqNrgZRSx+g7Ayey1XP7iJ/XMMaowky2orZ67zTf6psAt0z0=
+Message-ID: <69304d110411200339b29177e@mail.gmail.com>
+Date: Sat, 20 Nov 2004 12:39:08 +0100
+From: Antonio Vargas <windenntw@gmail.com>
+Reply-To: Antonio Vargas <windenntw@gmail.com>
+To: Jagadeesh Bhaskar P <jbhaskar@hclinsys.com>
+Subject: Re: on the concept of COW
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1100947100.4038.41.camel@myLinux>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041118124220.GB2268@holomorphy.com>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <1100947100.4038.41.camel@myLinux>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 18, 2004 at 04:42:20AM -0800, William Lee Irwin III wrote:
-> On Thu, Nov 18, 2004 at 02:15:38AM -0800, Andrew Morton wrote:
-> > +oss-ac97-quirk-facility.patch
-> >  Add and use device quirk lists in this OSS driver
+On Sat, 20 Nov 2004 16:08:21 +0530, Jagadeesh Bhaskar P
+<jbhaskar@hclinsys.com> wrote:
+> Hi,
 > 
-> That patch may not actually be responsible for the warning. It's
-> trivially resolved regardless.
+>  When a process forks, every resource of the parent, including the
+> virtual memory is copied to the child process. The copying of VM uses
+> copy-on-write(COW). I know that COW comes when a write request comes,
+> and then the copy is made. Now my query follows:
 > 
-> This patch adds a forward declaration of struct pci_dev to repair the
-> following warning:
-> 
-> In file included from sound/oss/emu10k1/hwaccess.h:38,
->                  from sound/oss/emu10k1/cardmi.c:36:
-> include/linux/ac97_codec.h:337: warning: `struct pci_dev' declared inside parameter list
-> include/linux/ac97_codec.h:337: warning: its scope is only this definition or declaration, which is probably not what you want
-> 
-> Index: mm2-2.6.10-rc2/include/linux/ac97_codec.h
-> ===================================================================
-> --- mm2-2.6.10-rc2.orig/include/linux/ac97_codec.h	2004-11-18 02:56:31.000000000 -0800
-> +++ mm2-2.6.10-rc2/include/linux/ac97_codec.h	2004-11-18 03:53:05.308878784 -0800
-> @@ -334,6 +334,7 @@
->  	int type;               /* quirk type above */
->  };
->  
-> +struct pci_dev;
->  extern int ac97_tune_hardware(struct pci_dev *pdev, struct ac97_quirk *quirk, int override);
->  
->  #endif /* _AC97_CODEC_H_ */
+> How will the copy be distributed. Whether giving the child process a new
+> copy of VM be permanent or whether they will be merged anywhere? And
 
+Permanent. Re-merging (or rather call it UN-COWING ;) is not
+considered necesary.
 
-Wouldn't it be better to simply #include pci.h?
+> shouldn't the operations/updations by one process be visible to the
+> other which inherited the copy of the same VM?
 
+No, because by default all allocations are marked as private for each
+process. The fact is, the original UNIX did not do COW, but did copy
+the whole process memory and handed this copy to the child process.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> How can this work? Can someone please help me on this regard?
 
---- linux-2.6.10-rc2-mm2-full/include/linux/ac97_codec.h.old	2004-11-20 12:11:31.000000000 +0100
-+++ linux-2.6.10-rc2-mm2-full/include/linux/ac97_codec.h	2004-11-20 12:12:26.000000000 +0100
-@@ -3,6 +3,7 @@
- 
- #include <linux/types.h>
- #include <linux/soundcard.h>
-+#include <linux/pci.h>
- 
- /* AC97 1.0 */
- #define  AC97_RESET               0x0000      //
+If you want to share a mapping, the easiest way is to:
 
+1. Create a temp file on /tmp with the size you need.
+2. mmap the file, which will get the file contents into your
+addressing space. Remeber to ask for shared mapping.
+3. Fork.
+4. Now both processes have an mmaped file with shared mapping.
+Anything written by one is seen by the other, since they use the same
+backing space. The contents are also visible by doing a cat on the
+shared temporary file (this is great for debugging :).
 
+You may not want to keep the file around. You can delete the file just
+after having opened it, so that it's not visible on the filesystem. It
+will just keep using the space until you exit all processes which were
+using the file.
+
+-- 
+Greetz, Antonio Vargas aka winden of network
+
+Las cosas no son lo que parecen, excepto cuando parecen lo que si son.

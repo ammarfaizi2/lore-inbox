@@ -1,44 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262672AbTJGSZn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Oct 2003 14:25:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262680AbTJGSZn
+	id S262647AbTJGSeK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Oct 2003 14:34:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262659AbTJGSeK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Oct 2003 14:25:43 -0400
-Received: from mail.kroah.org ([65.200.24.183]:61571 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262672AbTJGSZi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Oct 2003 14:25:38 -0400
-Date: Tue, 7 Oct 2003 11:08:52 -0700
-From: Greg KH <greg@kroah.com>
-To: Juan Carlos Castro y Castro <jcastro@vialink.com.br>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel doesn't see USB ADSL modem - pegasus?
-Message-ID: <20031007180851.GH1956@kroah.com>
-References: <3F7F7A9E.1060204@vialink.com.br>
+	Tue, 7 Oct 2003 14:34:10 -0400
+Received: from smtp6.wanadoo.fr ([193.252.22.28]:10923 "EHLO
+	mwinf0302.wanadoo.fr") by vger.kernel.org with ESMTP
+	id S262647AbTJGSd6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Oct 2003 14:33:58 -0400
+Subject: [PATCH] kupdated signal handling
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Reply-To: benh@kernel.crashing.org
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Andrea Arcangeli <andrea@suse.de>
+Content-Type: text/plain
+Message-Id: <1065551422.31281.32.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F7F7A9E.1060204@vialink.com.br>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 07 Oct 2003 20:33:29 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 04, 2003 at 10:57:50PM -0300, Juan Carlos Castro y Castro wrote:
-> Well, it didn't work -- I inserted the following line in pegasus.h:
-> 
-> PEGASUS_DEV( "SpeedStream", VENDOR_SIEMENS, 0xe240,
-> DEFAULT_GPIO_RESET | PEGASUS_II )
-> 
-> Because that's what appeared in /proc/bus/usb/devices. But now, modprobe 
-> pegasus hangs (the process, not the machine). Also, any attemp to access 
-> /proc/bus/usb hangs the process. Kudzu hangs too. Now I reached the 
-> limits of my knowledge. :(
+Here's the fix to the problem we have been discussing...
 
-Sorry, this device is probably not supported by that driver :(
+===== fs/buffer.c 1.80 vs edited =====
+--- 1.80/fs/buffer.c	Sat Sep 13 20:09:44 2003
++++ edited/fs/buffer.c	Wed Oct  1 11:27:07 2003
+@@ -3068,13 +3068,13 @@
+ 		remove_wait_queue(&kupdate_wait, &wait);
+ 		/* check for sigstop */
+ 		if (signal_pending(tsk)) {
+-			int stopped = 0;
++			int sig, stopped = 0;
++			struct siginfo info;
++
+ 			spin_lock_irq(&tsk->sigmask_lock);
+-			if (sigismember(&tsk->pending.signal, SIGSTOP)) {
+-				sigdelset(&tsk->pending.signal, SIGSTOP);
++			sig = dequeue_signal(&current->blocked, &info);
++			if (sig == SIGSTOP)
+ 				stopped = 1;
+-			}
+-			recalc_sigpending(tsk);
+ 			spin_unlock_irq(&tsk->sigmask_lock);
+ 			if (stopped) {
+ 				tsk->state = TASK_STOPPED;
 
-Can you return it and get something else?
 
-Good luck,
-
-greg k-h

@@ -1,48 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283272AbRLWDBW>; Sat, 22 Dec 2001 22:01:22 -0500
+	id <S282918AbRLWDWh>; Sat, 22 Dec 2001 22:22:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283287AbRLWDBO>; Sat, 22 Dec 2001 22:01:14 -0500
-Received: from embolism.psychosis.com ([216.242.103.100]:37893 "EHLO
-	embolism.psychosis.com") by vger.kernel.org with ESMTP
-	id <S283272AbRLWDBC>; Sat, 22 Dec 2001 22:01:02 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Dave Cinege <dcinege@psychosis.com>
-Reply-To: dcinege@psychosis.com
-To: Alexander Viro <viro@math.psu.edu>
-Subject: Re: Booting a modular kernel through a multiple streams file
-Date: Sat, 22 Dec 2001 22:00:56 -0500
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.GSO.4.21.0112222109050.21702-100000@weyl.math.psu.edu>
-In-Reply-To: <Pine.GSO.4.21.0112222109050.21702-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16Hysa-0002kc-00@schizo.psychosis.com>
+	id <S283438AbRLWDW1>; Sat, 22 Dec 2001 22:22:27 -0500
+Received: from CPE0002b3140673.cpe.net.cable.rogers.com ([24.156.0.228]:16588
+	"EHLO pyre.virge.net") by vger.kernel.org with ESMTP
+	id <S283288AbRLWDWU>; Sat, 22 Dec 2001 22:22:20 -0500
+Date: Sat, 22 Dec 2001 22:22:13 -0500
+To: linux-kernel@vger.kernel.org
+Subject: [2.4.17] net/network.o(.text.lock+0x1a88): undefined reference to `local symbols...
+Message-ID: <20011223032213.GA20031@pyre.virge.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="qDbXVdCdHGoSgWSk"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.24i
+From: nveber@pyre.virge.net (Norbert Veber)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 22 December 2001 21:10, Alexander Viro wrote:
 
-> > cpio is trivial.  tar is a bit more painful, but not too bad.  gzip is
-> > unacceptable, but should not be required.
->
-> tar is ugly as hell and not going to be supported on the kernel side.
+--qDbXVdCdHGoSgWSk
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Excellent! You've settled on using using an archiver format nobody uses,
-instead of the defacto standard that's already been implemented by
-atleast two people.
-			G-E-N-I-U-S!
+Hi,
 
->IIRC, his objections back then were about linking archive into the kernel
->image.  s/disaster/ugly stuff that was nowhere near top-priority and got 
->fixed since then/ and I agree with that one.
+I read though the archives, and saw another problem with network.o and
+gcc 3.x, however I didnt see anything about this yet.
 
-Ahh good. Maybe you'll wise up to supporting tar as well. Then in
-maybe a year and a half from now standard Linux will finally have
-what I've had in production for 3 years...
+I'm using gcc 2.95.4 and binutils 2.11.92.0.12.3, both from
+debian/unstable.
 
-Dave
+Let me know if you need any more information.
 
--- 
-The time is now 22:54 (Totalitarian)  -  http://www.ccops.org/
+make[1]: Leaving directory `/usr/src/linux/arch/i386/lib'
+ld -m elf_i386 -T /usr/src/linux/arch/i386/vmlinux.lds -e stext arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o init/version.o \
+        --start-group \
+        arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o mm/mm.o fs/fs.o ipc/ipc.o \
+         drivers/acpi/acpi.o drivers/char/char.o drivers/block/block.o drivers/misc/misc.o drivers/net/net.o drivers/media/media.o drivers/char/agp/agp.o drivers/char/drm/drm.o drivers/ide/idedriver.o drivers/cdrom/driver.o drivers/pci/driver.o drivers/pnp/pnp.o drivers/video/video.o \
+        net/network.o \
+        /usr/src/linux/arch/i386/lib/lib.a /usr/src/linux/lib/lib.a /usr/src/linux/arch/i386/lib/lib.a \
+        --end-group \
+        -o vmlinux
+net/network.o(.text.lock+0x1a88): undefined reference to `local symbols in discarded section .text.exit'
+make: *** [vmlinux] Error 1
+
+PS. Please CC me any replies.
+
+Thanks,
+
+Norbert
+
+--qDbXVdCdHGoSgWSk
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE8JU3kohfEw14utbQRAnuFAKC5OXYTM9Ab/xusVP/W7r2uL4KRlACfSfd1
+No11sDzn8OtyCvKoNCyuhko=
+=FZPx
+-----END PGP SIGNATURE-----
+
+--qDbXVdCdHGoSgWSk--

@@ -1,57 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133024AbRD3SPa>; Mon, 30 Apr 2001 14:15:30 -0400
+	id <S130820AbRD3SSi>; Mon, 30 Apr 2001 14:18:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135222AbRD3SPT>; Mon, 30 Apr 2001 14:15:19 -0400
-Received: from web6101.mail.yahoo.com ([128.11.22.95]:28434 "HELO
-	web6101.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S133024AbRD3SPQ>; Mon, 30 Apr 2001 14:15:16 -0400
-Message-ID: <20010430181513.4255.qmail@web6101.mail.yahoo.com>
-Date: Mon, 30 Apr 2001 11:15:13 -0700 (PDT)
-From: Patrick Allaire <xaqc@yahoo.com>
-Subject: I2O behaviour ...
+	id <S132801AbRD3SS0>; Mon, 30 Apr 2001 14:18:26 -0400
+Received: from adsl-63-203-203-138.dsl.snfc21.pacbell.net ([63.203.203.138]:18190
+	"EHLO michael.channeldot.com") by vger.kernel.org with ESMTP
+	id <S135263AbRD3SQ6>; Mon, 30 Apr 2001 14:16:58 -0400
+Date: Mon, 30 Apr 2001 11:29:06 -0700 (PDT)
+From: Michael Shiloh <mshiloh@mediabolic.com>
 To: linux-kernel@vger.kernel.org
-Cc: patrick.allaire@isaacnewtontech.com
+Subject: DMA support in cs5530 IDE driver? (repost)
+Message-ID: <Pine.LNX.4.21.0104301124210.32533-100000@michael.channeldot.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Hi,
 
-This is my first post on this list, I have been reading you all for
-quite a while. But now I have my Module to do...
+My apologies if you've seen this already. I sent this
+out last week but have not seen any replies; perhaps
+no one has any suggestions, but perhaps it didn't go
+out properly for some reason.
 
-I have compiled the kernel (2.2.19) with I2O support, but when I try
-to compile my module, I get an unresolved error with the :
-i2o_pci_scan function. Is there a special way to compile the kernel
-to get those calls ?
+---------- ................. ----------
 
-If I do a : cat /proc/ksyms, I get a bunch of I20 functions but I
-dont have :
-i2o_pci_scan
-i2o_pci_install ... 
-those functions are defined in drivers/i2o/i2o_pci.c
+Can anyone report success or failure with enabling DMA for
+the CS5530 IDE driver? I can get my system to crash or at
+least hang pretty reliably by using hdparm to turn on DMA
+while reading an MPEG-2 movie from my hard disk drive.
 
-Here is a short description of what I need to do. I have a host PC
-and a local PC, both a separated by an INTEL (DEC) 21554. This is a
-non-transparent pci-to-pci bridge. I need to do a module for both
-computer to make them communicate by the mean of the PCI. The 21554
-is supporting I2O. Maybe I am not at all going in the right direction
-... If can someone point me out in this good direction !
+I don't think the movie playing is the relevent part; 
+rather that it is heavily using the disk and driver.
 
-Thank for your time and help.
+The hard disk drive is the only rotating drive on the 
+system.
 
-=====
-________________________________
-Patrick Allaire
-mailto:pallaire@bigfoot.com
+Hardware: GCT Allwell set top box 
+CPU: National Geode 266MHz GXM  
+IDE controller: CS5530 Geode companion chip
+Linux: 2.4.3
+Disk: IBM Deskstar, 46.1 GByte
 
-#define QUESTION ((bb) || !(bb)) 
-    - Shakespeare.
-________________________________
+Any comments or suggestions appreciated
 
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Auctions - buy the things you want at great prices
-http://auctions.yahoo.com/
+Thanks,
+Michael
+

@@ -1,47 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261864AbTIPNUd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Sep 2003 09:20:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261869AbTIPNUd
+	id S261881AbTIPN06 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Sep 2003 09:26:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261882AbTIPN06
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Sep 2003 09:20:33 -0400
-Received: from maverick.eskuel.net ([81.56.212.215]:19619 "EHLO
-	maverick.eskuel.net") by vger.kernel.org with ESMTP id S261864AbTIPNUb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Sep 2003 09:20:31 -0400
-Message-ID: <33183.213.193.3.110.1063718429.squirrel@webmail.eskuel.net>
-In-Reply-To: <20030916121229.GE585@elf.ucw.cz>
-References: <3F660BF7.6060106@eskuel.net> <20030916114822.GB602@elf.ucw.cz> 
-     <1063714222.1302.5.camel@teapot.felipe-alfaro.com> 
-     <20030916121229.GE585@elf.ucw.cz>
-Date: Tue, 16 Sep 2003 15:20:29 +0200 (CEST)
-Subject: Re: Nearly succes with suspend to disk in -test5-mm2
-From: "Mathieu LESNIAK" <maverick@eskuel.net>
-To: "Pavel Machek" <pavel@suse.cz>
-Cc: "Felipe Alfaro Solana" <felipe_alfaro@linuxmail.org>,
-       "LKML " <linux-kernel@vger.kernel.org>, mochel@osdl.org
-User-Agent: SquirrelMail/1.4.0
-MIME-Version: 1.0
-Content-Type: text/plain;charset=iso-8859-1
-X-Priority: 3
-Importance: Normal
+	Tue, 16 Sep 2003 09:26:58 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:45988 "EHLO
+	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261881AbTIPN05 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Sep 2003 09:26:57 -0400
+Subject: Re: Kernel NMI error
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: msrinath <msrinath@bplitl.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <004d01c37c47$0e6ef1e0$1d03000a@srinath>
+References: <004d01c37c47$0e6ef1e0$1d03000a@srinath>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1063718716.10036.10.camel@dhcp23.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 (1.4.4-6) 
+Date: Tue, 16 Sep 2003 14:25:17 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hi!
->
->> > cat you try with echo 4 > /proc/acpi/sleep?
->>
->> It does nothing for me... No messages in the kernel ring, no intention
->> to perform a swsusp.
->
-> That's strange; can you cat /proc/acpi/sleep?
->
-> 								Pavel
+On Maw, 2003-09-16 at 12:38, msrinath wrote:
+> Recently one of our servers running RedHat linux 7.2 with 2.4.7-10 SMP
+> kernel generated the following log and the system rebooted. This system has
+> 2 CPUs.
 
-Hi
+Typically an NMI is a system error. That could be a memory error, it
+could be a freak power glitch if its only ever happened once. 
 
-minimaverick:~# cat /proc/acpi/sleep
-S0 S3 S4 S5
+If you are using a 2.4.7 kernel you really should also update to the
+current errata kernel and other updates.
 
-Mathieu
+

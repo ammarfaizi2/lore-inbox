@@ -1,70 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272236AbTGYRjy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jul 2003 13:39:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272235AbTGYRjx
+	id S272232AbTGYRqh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jul 2003 13:46:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272235AbTGYRqh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jul 2003 13:39:53 -0400
-Received: from mail.kroah.org ([65.200.24.183]:50866 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S272230AbTGYRjv (ORCPT
+	Fri, 25 Jul 2003 13:46:37 -0400
+Received: from fw.osdl.org ([65.172.181.6]:38093 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S272232AbTGYRqa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jul 2003 13:39:51 -0400
-Date: Fri, 25 Jul 2003 13:54:47 -0400
-From: Greg KH <greg@kroah.com>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: davem@redhat.com, arjanv@redhat.com, torvalds@transmeta.com,
+	Fri, 25 Jul 2003 13:46:30 -0400
+Date: Fri, 25 Jul 2003 10:58:18 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Jeff Sipek <jeffpc@optonline.net>
+Cc: vda@port.imtp.ilyichevsk.odessa.ua, ecki-lkm@lina.inka.de,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Remove module reference counting.
-Message-ID: <20030725175447.GB2410@kroah.com>
-References: <20030725173900.D7DE12C2A9@lists.samba.org>
+Subject: Re: Net device byte statistics
+Message-Id: <20030725105818.6bc97653.rddunlap@osdl.org>
+In-Reply-To: <200307251355.22161.jeffpc@optonline.net>
+References: <E19fqMF-0007me-00@calista.inka.de>
+	<200307251223.51849.jeffpc@optonline.net>
+	<20030725102043.724f4a3b.rddunlap@osdl.org>
+	<200307251355.22161.jeffpc@optonline.net>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030725173900.D7DE12C2A9@lists.samba.org>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 25, 2003 at 04:00:18AM +1000, Rusty Russell wrote:
-> Hi all,
-> 
-> 	When the initial module patch was submitted, it made modules
-> start isolated, so they would not be accessible until (if)
-> initialization had succeeded.  This broke partition scanning, and was
-> immediately reverted, leaving us with a module reference count scheme
-> identical to the previous one (just a faster implementation): we still
-> have cases where modules can be access on failed load.
-> 
-> 	Then Dave decided that the work of reference counting network
-> driver modules everywhere is too invasive, so network driver modules
-> now have zero reference counts always.  The idea is that if you don't
-> want the module removed, don't do it.  ie. only remove the module if
-> there's a bug, or you want to replace it.
+On Fri, 25 Jul 2003 13:55:14 -0400 Jeff Sipek <jeffpc@optonline.net> wrote:
 
-Hm, as long as we add a kobject to the module structure, so that users
-of a module can be tracked somehow to know if it is safe to unload the
-module or not.
+| -----BEGIN PGP SIGNED MESSAGE-----
+| Hash: SHA1
+| 
+| On Friday 25 July 2003 13:20, Randy.Dunlap wrote:
+| > Yes, a common solution for this is to use some SNMP agent that does
+| > 64-bit counter accumulation.
+| 
+| Interesting...I haven't thought of SNMP.
+| 
+| > IETF expects that some high-speed interfaces will have 64-bit
+| > counters.  From RFC 2233 (Interfaces Group MIB using SMIv2):
+| >
+| > <quote>
+| > For interfaces that operate at 20,000,000 (20 million) bits per
+| > second or less, 32-bit byte and packet counters MUST be used.
+| > For interfaces that operate faster than 20,000,000 bits/second,
+| > and slower than 650,000,000 bits/second, 32-bit packet counters
+| > MUST be used and 64-bit octet counters MUST be used. For
+| > interfaces that operate at 650,000,000 bits/second or faster,
+| > 64-bit packet counters AND 64-bit octet counters MUST be used.
+| > </quote>
+| 
+| It is just easier to have everything 64-bits.
 
-This is because there is a difference between device reference counts,
-and code reference counts, which is why I added the module owner logic
-to sysfs attributes, to prevent code from being unloaded when the device
-might already be gone.
+I think the counterpoint is that if it were easy & safe, it would
+already be in the kernel.
 
-So can the following situation still work with this proposed patch:
-	- device created
-	- sysfs files created associated with that device
-	- user opens sysfs file
-	- user disconnects sysfs files.
-	- device goes away, driver no longer references device, but
-	  kobject count is still incremented.
-	- driver associated with device is unloaded.
-	- user reads sysfs file previously opened (which calls into
-	  module memory that is now gone.)
+| > However, this is a MIB spec.  It does not require a Linux
+| > (/proc) interface to support 64-bit counters.
+| 
+| Agreed, however if we are going to change some counters, we should do it for 
+| all of them. (Btw, /proc is not the only point where users can get stats.... 
+| there is also /sys and something else...I can't remember now...)
 
-Can we still prevent this from happening now?  I think if we add a
-kobject (or something, we still need a kobject to get module
-parameters so might as well use that), we might be safe.
+Right, I was just saying that the kernel interface doesn't have
+to support 64-bit counters in lots of cases.  That can often be
+done in userspace.
 
-thanks,
-
-greg k-h
+--
+~Randy
+| http://developer.osdl.org/rddunlap/ | http://www.xenotime.net/linux/ |
+For Linux-2.6:
+http://www.codemonkey.org.uk/post-halloween-2.5.txt
+  or http://lwn.net/Articles/39901/
+http://www.kernel.org/pub/linux/kernel/people/rusty/modules/

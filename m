@@ -1,63 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270060AbUJTMxt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269645AbUJSWS5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270060AbUJTMxt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 08:53:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270315AbUJTMw0
+	id S269645AbUJSWS5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 18:18:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268745AbUJSWSW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 08:52:26 -0400
-Received: from clem.clem-digital.net ([68.16.168.10]:1667 "EHLO
-	clem.clem-digital.net") by vger.kernel.org with ESMTP
-	id S270343AbUJTMpo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 08:45:44 -0400
-From: Pete Clements <clem@clem.clem-digital.net>
-Message-Id: <200410201245.i9KCjemA012862@clem.clem-digital.net>
-Subject: 2.6.9-bk3 fails compile (serial/8250.c)
-To: linux-kernel@vger.kernel.org (linux-kernel)
-Date: Wed, 20 Oct 2004 08:45:40 -0400 (EDT)
-X-Mailer: ELM [version 2.5 PL7]
-MIME-Version: 1.0
+	Tue, 19 Oct 2004 18:18:22 -0400
+Received: from gprs214-24.eurotel.cz ([160.218.214.24]:6272 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S269645AbUJSVsf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 17:48:35 -0400
+Date: Tue, 19 Oct 2004 23:48:18 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Kendall Bennett <KendallB@scitechsoft.com>
+Cc: Richard Smith <rsmith@bitworks.com>, linux-kernel@vger.kernel.org,
+       linux-fbdev-devel@lists.sourceforge.net
+Subject: Re: [Linux-fbdev-devel] Generic VESA framebuffer driver and Video card BOOT?
+Message-ID: <20041019214818.GF1142@elf.ucw.cz>
+References: <9e47339104101814166bf4cfe5@mail.gmail.com> <41740384.5783.12A07B14@localhost>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <41740384.5783.12A07B14@localhost>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-fyi:
+Hi!
 
-make -f scripts/Makefile.build obj=drivers/serial
-make[2]: Entering directory `/sda3/usr/src/linux-2.6.9-bk3'
-  gcc -Wp,-MD,drivers/serial/.8250.o.d -nostdinc -iwithprefix include -D__KERNEL__ -Iinclude  -Wall -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -O2 -fomit-frame-pointer  -pipe -msoft-float -mpreferred-stack-boundary=2  -march=i686 -Iinclude/asm-i386/mach-default    -DKBUILD_BASENAME=8250 -DKBUILD_MODNAME=8250 -c -o drivers/serial/8250.o drivers/serial/8250.c
-drivers/serial/8250.c:185: `UART_FCR_R_TRIG_10' undeclared here (not in a function)
-drivers/serial/8250.c:185: initializer element is not constant
-drivers/serial/8250.c:185: (near initialization for `uart_config[4].fcr')
-drivers/serial/8250.c:203: `UART_FCR_R_TRIG_01' undeclared here (not in a function)
-drivers/serial/8250.c:204: `UART_FCR_T_TRIG_00' undeclared here (not in a function)
-drivers/serial/8250.c:204: initializer element is not constant
-drivers/serial/8250.c:204: (near initialization for `uart_config[7].fcr')
-drivers/serial/8250.c:211: `UART_FCR_R_TRIG_10' undeclared here (not in a function)
-drivers/serial/8250.c:212: initializer element is not constant
-drivers/serial/8250.c:212: (near initialization for `uart_config[8].fcr')
-drivers/serial/8250.c:224: `UART_FCR_R_TRIG_10' undeclared here (not in a function)
-drivers/serial/8250.c:224: initializer element is not constant
-drivers/serial/8250.c:224: (near initialization for `uart_config[10].fcr')
-drivers/serial/8250.c:231: `UART_FCR_R_TRIG_01' undeclared here (not in a function)
-drivers/serial/8250.c:232: `UART_FCR_T_TRIG_10' undeclared here (not in a function)
-drivers/serial/8250.c:232: initializer element is not constant
-drivers/serial/8250.c:232: (near initialization for `uart_config[11].fcr')
-drivers/serial/8250.c:239: `UART_FCR_R_TRIG_10' undeclared here (not in a function)
-drivers/serial/8250.c:239: initializer element is not constant
-drivers/serial/8250.c:239: (near initialization for `uart_config[12].fcr')
-drivers/serial/8250.c:246: `UART_FCR_R_TRIG_11' undeclared here (not in a function)
-drivers/serial/8250.c:246: initializer element is not constant
-drivers/serial/8250.c:246: (near initialization for `uart_config[13].fcr')
-drivers/serial/8250.c:253: `UART_FCR_R_TRIG_10' undeclared here (not in a function)
-drivers/serial/8250.c:253: initializer element is not constant
-drivers/serial/8250.c:253: (near initialization for `uart_config[14].fcr')
-drivers/serial/8250.c:260: `UART_FCR_R_TRIG_10' undeclared here (not in a function)
-drivers/serial/8250.c:260: initializer element is not constant
-drivers/serial/8250.c:260: (near initialization for `uart_config[15].fcr')
-make[2]: *** [drivers/serial/8250.o] Error 1
-make[2]: Leaving directory `/sda3/usr/src/linux-2.6.9-bk3'
+> > Its a sad fact though that we are (x86 anyway) dependant on some
+> > amazingly fragile, stupid, usually binary only, legacy bloated, and
+> > quite often buggy, 16-bit realmode video init code that should have
+> > been put to pasture many years ago. 
+> 
+> Actually there is nothing wrong with the x86 BIOS from the perspective of 
+> functionality and useability (or bloat for that matter). It contains all 
+> the functionality we need and armed with something like the x86 emulator 
+> we can use it for what we need on any platform.
+> 
+> Open Firmware may be a 'nicer' solution, but I guarantee that if the 
+> vendors started supporting that it would be just a bug ridden as any 16-
+> bit real mode BIOS code. For the Video BIOS the code always works for 
+> what it is tested for. Some vendors spend more time testing the VBE BIOS 
+> side of things fully (if they are smart they have licensed our VBETest 
+> tools for this purpose). Unfortunatley some vendors do not test this 
+> stuff thoroughly and it has problems. But the same testing issues would 
+> exist whether the firmware was written as a 16-bit x86 blob or as an Open 
+> Firmware blob.
 
-
+Actually that 16-bit x86 blob can access any PC hardware, and that's
+where the stuff gets hard.
+								Pavel
 -- 
-Pete Clements 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

@@ -1,45 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261345AbULSWgE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261346AbULSWlG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261345AbULSWgE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Dec 2004 17:36:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261346AbULSWgE
+	id S261346AbULSWlG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Dec 2004 17:41:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261347AbULSWlG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Dec 2004 17:36:04 -0500
-Received: from mailgate2.uni-paderborn.de ([131.234.22.35]:42981 "EHLO
-	mailgate2.uni-paderborn.de") by vger.kernel.org with ESMTP
-	id S261345AbULSWgB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Dec 2004 17:36:01 -0500
-Date: Sun, 19 Dec 2004 23:37:36 +0100 (CET)
-From: stefanb@upb.de
-X-X-Sender: imp@kater
+	Sun, 19 Dec 2004 17:41:06 -0500
+Received: from pne-smtpout2-sn1.fre.skanova.net ([81.228.11.159]:62107 "EHLO
+	pne-smtpout2-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
+	id S261346AbULSWlA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Dec 2004 17:41:00 -0500
+Message-ID: <14514245.1103496059334.JavaMail.tomcat@pne-ps4-sn2>
+Date: Sun, 19 Dec 2004 23:40:59 +0100 (MET)
+From: Voluspa <lista4@comhem.se>
+Reply-To: lista4@comhem.se
 To: linux-kernel@vger.kernel.org
-Subject: PROBLEM: tun device doesn't report its device name
-Message-ID: <Pine.LNX.4.61.0412192331081.5458@kater>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-X-UNI-PB_FAK-EIM-MailScanner-Information: Please see http://imap.uni-paderborn.de for details
-X-UNI-PB_FAK-EIM-MailScanner: Found to be clean
-X-UNI-PB_FAK-EIM-MailScanner-SpamCheck: not spam, SpamAssassin (score=-4.715,
-	required 4, AUTH_EIM_USER -5.00, NO_REAL_NAME 0.28)
-X-MailScanner-From: stefanb@upb.de
+Subject: Re: 2.6.10-rc3: kswapd eats CPU on start of memory-eating task
+Cc: akpm@osdl.org, nickpiggin@yahoo.com.au, mr@ramendik.ru, kernel@kolivas.org
+Mime-Version: 1.0
+Content-Type: text/plain;charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Mailer: CP Presentation Server
+X-clientstamp: [213.64.150.229]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-I have a problem with the virtual tun/tap device on my sparc64 (kernel 
-2.6.9). I try to do:
 
-struct ifreq ifr;
-ifr.ifr_flags=IFF_TAP | IFF_NO_PI;
-ioctl (dev, TUNSETIFF, &ifr);
+Found the first kernel version with the regression. It's linux-2.6.9-rc1
 
-After doing this I expect to find the name of the new interface in 
-ifr.ifr_name. But it remains unchanged. ioctl's return value does not 
-indicate an error. The device has actually been created (according to 
-ifconfig).
+Perusing lkml from august there was a short thread about the oopses and loss 
+of keyboard in X. Applying that information in a crude hack I was able to 
+test the effected 2.6.9-rc1 and three -bk forward:
 
-The same piece of code works fine on my x86 machine.
+http://marc.theaimsgroup.com/?t=109357291300002&r=1&w=2
 
-Regards,
-Stefan Boettner
+diff -Naur linux-2.6.9-rc1/net/sunrpc/svcauth_unix.c linux-2.6.9-rc1-debug/net/sunrpc/svcauth_unix.c
+--- linux-2.6.9-rc1/net/sunrpc/svcauth_unix.c   2004-12-15 18:39:28.000000000 
++0100
++++ linux-2.6.9-rc1-debug/net/sunrpc/svcauth_unix.c     2004-12-19 19:01:
+53.000000000 +0100
+@@ -104,7 +104,6 @@
+                if (test_bit(CACHE_VALID, &item->flags) &&
+                    !test_bit(CACHE_NEGATIVE, &item->flags))
+                        auth_domain_put(&im->m_client->h);
+-               kfree(im->m_class);
+                kfree(im);
+        }
+ }
+
+I've since tested and retested for several hours on the different kernels. At one 
+point I thought the usage of lapic=lapic made a difference, but it turned 
+out to be a red herring.
+
+2.6.8.1-bk2 is without doubt the last kernel to handle my testcase "properly". There 
+are no freezes whatsoever and the swapping is finished within 1 minute and 
+some seconds.
+
+2.6.9-rc1 and forward all have the freezes. Swapping and readback takes from 
+3 to 6 minutes. I can't find a pattern in the time differences.
+
+What's left now is to find some repository which has the gargantuan 2.6.9-rc1 
+broken out in its pieces (and I guess 2.6.8.1-bk1 and 2 must be subtracted 
+from that). Then reverting patches. A process where I'd need some handholding 
+as to what would be likely candidates.
+
+An innocent one is Ingo's "context-switching overhead in X, ioport()" patch. 
+I added it to 2.6.8.1-bk2 and it didn't break my testcase.
+
+Ah, well. It's that time of the year, so I won't be able to do any testing until 
+the madness is over.
+
+Mvh
+Mats Johannesson
 

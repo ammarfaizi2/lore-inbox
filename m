@@ -1,77 +1,178 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319100AbSIDIgl>; Wed, 4 Sep 2002 04:36:41 -0400
+	id <S319104AbSIDIt5>; Wed, 4 Sep 2002 04:49:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319102AbSIDIgl>; Wed, 4 Sep 2002 04:36:41 -0400
-Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:39410 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S319100AbSIDIgk>; Wed, 4 Sep 2002 04:36:40 -0400
-From: Andreas Dilger <adilger@clusterfs.com>
-Date: Wed, 4 Sep 2002 02:39:16 -0600
-To: Helge Hafting <helgehaf@aitel.hist.no>
-Cc: ptb@it.uc3m.es, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] mount flag "direct" (fwd)
-Message-ID: <20020904083916.GX32468@clusterfs.com>
-Mail-Followup-To: Helge Hafting <helgehaf@aitel.hist.no>, ptb@it.uc3m.es,
-	linux-kernel@vger.kernel.org
-References: <200209032107.g83L71h10758@oboe.it.uc3m.es> <3D75B344.66D4166@aitel.hist.no>
-Mime-Version: 1.0
+	id <S319105AbSIDIt5>; Wed, 4 Sep 2002 04:49:57 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:1042 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S319104AbSIDItz>;
+	Wed, 4 Sep 2002 04:49:55 -0400
+Message-ID: <3D75CD24.AF9B769B@zip.com.au>
+Date: Wed, 04 Sep 2002 02:06:44 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.33 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: lkml <linux-kernel@vger.kernel.org>,
+       "linux-mm@kvack.org" <linux-mm@kvack.org>
+Subject: 2.5.33-mm2
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3D75B344.66D4166@aitel.hist.no>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sep 04, 2002  09:16 +0200, Helge Hafting wrote:
-> Your idea about re-reading stuff over and over isn't going to help 
-> because that sort of thing consumes much more bandwith. Caches help
-> because they _avoid_ data transfers.  So shared writeable data
-> will happen, and it will use some sort of cache coherency,
-> for performance reasons.
+http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.33/2.5.33-mm2/
 
-You assume too much about the applications.  For example, Oracle
-does not want _any_ cacheing to be done by the OS, because it
-manages the cache itself, and would rather allocate the full amount
-of RAM itself instead of the OS duplicating data it is cacheing
-internally.
+- Linus has merged ia32 NUMA discontigmem support
 
-Similarly, there are many "write only" applications that are only
-hindered by OS cache, such as any kind of high-speed data recording
-(video, particle accelerators, scientific computing, etc) which is
-using most of the RAM for internal structures and wants the data it
-writes to go directly to disk at the highest possible speed.
++ Added a little cleanup patch from various folks.
 
-> I claim that making a new fs from scratch for the distributed
-> case is easier than tweaking ext2 and 10-20 other existing fs'es
-> to work in such an environment.  Making a new fs from scratch
-> isn't such a big deal after all.
 
-The problem isn't making a new fs, the problem is making a _good_
-new fs.  It takes at least several years of development, testing,
-tuning, etc to get just a local fs right, if not longer (i.e.
-reiserfs, JFS, XFS, ext3, etc).  Add in the complexity of the
-network side of things and it just gets that much harder to do
-it all well.
+Threw in the kichen sink:
 
-We have taken the approach that local filesystems do a good job
-with the "one node" assumption, so just use them as-is to
-do a job they are good at.  All of the network and locking code
-for Lustre is outside of the filesystem, and the "local" filesystems
-are used for storing either the directory structure + attributes
-(for the metadata server), or file data (for the storage targets).
++writeback-control.patch
 
-Local filesystems can do both of those jobs very well already, so
-no need to re-invent the wheel.
+  Infrastructure for richer communication between the block layer
+  and the VM.
 
-See http://www.lustre.org/docs.html for lots of papers and
-documentation on the design of Lustre.
++queue-congestion.patch
 
-Cheers, Andreas
---
-Andreas Dilger
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-http://sourceforge.net/projects/ext2resize/
+  Infrastructure for non-blocking writeout in the block layer.
 
++nonblocking-pdflush.patch
+
+  Non-blocking background writeback
+
++nonblocking-vm.patch
+
+  Non-blocking page reclaim.
+
+This is all about reducing latency when the machine is performing heavy
+writeback, which has been a significant performance problem for ever.
+The code also happens to provide improved scalability in many-spindle
+pagecache writeback.
+
+The code is stable, but by no means complete.  Under some loads it will
+chew tons of CPU in page reclaim.
+
+But with mem=512m and four instances of `dbench 100' each against a
+different disk the machine was 100% responsive and ran a `make -j6
+bzImage' in three minutes.  Without these patches the kernel took over
+five minutes just to unpack the kernel tarball.
+
+
+
+linus.patch
+  cset-1.575-to-1.600.txt.gz
+
+scsi_hack.patch
+  Fix block-highmem for scsi
+
+ext3-htree.patch
+  Indexed directories for ext3
+
+zone-pages-reporting.patch
+  Fix the boot-time reporting of each zone's available pages
+
+enospc-recovery-fix.patch
+  Fix the __block_write_full_page() error path.
+
+fix-faults.patch
+  Back out the initial work for atomic copy_*_user()
+
+spin-lock-check.patch
+  spinlock/rwlock checking infrastructure
+
+refill-rate.patch
+  refill the inactive list more quickly
+
+copy_user_atomic.patch
+
+kmap_atomic_reads.patch
+  Use kmap_atomic() for generic_file_read()
+
+kmap_atomic_writes.patch
+  Use kmap_atomic() for generic_file_write()
+
+throttling-fix.patch
+  Fix throttling of heavy write()rs.
+
+dirty-state-accounting.patch
+  Make the global dirty memory accounting more accurate
+
+rd-cleanup.patch
+  Cleanup and fix the ramdisk driver (doesn't work right yet)
+
+discontig-cleanup-1.patch
+  i386 discontigmem coding cleanups
+
+discontig-cleanup-2.patch
+  i386 discontigmem cleanups
+
+writeback-thresholds.patch
+  Downward adjustments to the default dirtymemory thresholds
+
+buffer-strip.patch
+  Limit the consumption of ZONE_NORMAL by buffer_heads
+
+rmap-speedup.patch
+  rmap pte_chain space and CPU reductions
+
+wli-highpte.patch
+  Resurrect CONFIG_HIGHPTE - ia32 pagetables in highmem
+
+readv-writev.patch
+  O_DIRECT support for readv/writev
+
+slablru.patch
+  age slab pages on the LRU
+
+slablru-speedup.patch
+  slablru optimisations
+
+llzpr.patch
+  Reduce scheduling latency across zap_page_range
+
+buffermem.patch
+  Resurrect buffermem accounting
+
+config-PAGE_OFFSET.patch
+  Configurable kenrel/user memory split
+
+lpp.patch
+  ia32 huge tlb pages
+
+ext3-sb.patch
+  u.ext3_sb -> generic_sbp
+
+oom-fix.patch
+  Fix an OOM condition on big highmem machines
+
+tlb-cleanup.patch
+  Clean up the tlb gather code
+
+dump-stack.patch
+  arch-neutral dump_stack() function
+
+wli-cleanup.patch
+  random cleanups
+
+madvise-move.patch
+  move mdavise implementation into mm/madvise.c
+
+split-vma.patch
+  VMA splitting patch
+
+buffer-ops-move.patch
+  Move submit_bh() and ll_rw_block() into fs/buffer.c
+
+writeback-control.patch
+  Cleanup and extension of the writeback paths
+
+queue-congestion.patch
+  Infrastructure for communicating request queue congestion to the VM
+
+nonblocking-pdflush.patch
+  non-blocking writeback infrastructure, use it for pdflush
+
+nonblocking-vm.patch
+  Non-blocking page reclaim

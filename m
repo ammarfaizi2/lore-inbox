@@ -1,113 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262422AbUEAWPj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262389AbUEAWPO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262422AbUEAWPj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 May 2004 18:15:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262424AbUEAWPj
+	id S262389AbUEAWPO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 May 2004 18:15:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262422AbUEAWPO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 May 2004 18:15:39 -0400
-Received: from postfix3-2.free.fr ([213.228.0.169]:37855 "EHLO
-	postfix3-2.free.fr") by vger.kernel.org with ESMTP id S262422AbUEAWPc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 May 2004 18:15:32 -0400
-From: Duncan Sands <baldrick@free.fr>
-To: Greg KH <greg@kroah.com>
-Subject: [USBFS PATCH] change extern inline to static inline
-Date: Sun, 2 May 2004 00:15:25 +0200
-User-Agent: KMail/1.5.4
-Cc: linux-usb-devel@lists.sf.net, linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Sat, 1 May 2004 18:15:14 -0400
+Received: from fw.osdl.org ([65.172.181.6]:50919 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262389AbUEAWPK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 May 2004 18:15:10 -0400
+Date: Sat, 1 May 2004 15:14:24 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: eyal@eyal.emu.id.au, linux-dvb-maintainer@linuxtv.org, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.6-rc3: modular DVB tda1004x broken
+Message-Id: <20040501151424.2f22996b.akpm@osdl.org>
+In-Reply-To: <20040501201342.GL2541@fs.tum.de>
+References: <Pine.LNX.4.58.0404271858290.10799@ppc970.osdl.org>
+	<408F9BD8.8000203@eyal.emu.id.au>
+	<20040501201342.GL2541@fs.tum.de>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200405020015.25851.baldrick@free.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-And change __inline__ to inline and get rid of an unused function
-while at it.
+Adrian Bunk <bunk@fs.tum.de> wrote:
+>
+> Please _undo_ the patch below.
+> 
+>  cu
+>  Adrian
+> 
+>  --- a/drivers/media/dvb/frontends/tda1004x.c	Tue Apr 27 18:37:15 2004
+>  +++ b/drivers/media/dvb/frontends/tda1004x.c	Tue Apr 27 18:37:15 2004
+>  @@ -188,7 +190,6 @@
+>   static struct fwinfo tda10046h_fwinfo[] = { {.file_size = 286720,.fw_offset = 0x3c4f9,.fw_size = 24479} };
+>   static int tda10046h_fwinfo_count = sizeof(tda10046h_fwinfo) / sizeof(struct fwinfo);
+>   
+>  -static int errno;
 
- devio.c |   35 +++++------------------------------
- 1 files changed, 5 insertions(+), 30 deletions(-)
+Would be better to export sys_open() and sys_lseek() to GPL modules rather
+than persisting with this cruft.
 
-
-diff -Nru a/drivers/usb/core/devio.c b/drivers/usb/core/devio.c
---- a/drivers/usb/core/devio.c	Fri Apr 30 23:36:25 2004
-+++ b/drivers/usb/core/devio.c	Fri Apr 30 23:36:25 2004
-@@ -165,31 +165,6 @@
- 	return ret;
- }
- 
--extern inline unsigned int ld2(unsigned int x)
--{
--        unsigned int r = 0;
--        
--        if (x >= 0x10000) {
--                x >>= 16;
--                r += 16;
--        }
--        if (x >= 0x100) {
--                x >>= 8;
--                r += 8;
--        }
--        if (x >= 0x10) {
--                x >>= 4;
--                r += 4;
--        }
--        if (x >= 4) {
--                x >>= 2;
--                r += 2;
--        }
--        if (x >= 2)
--                r++;
--        return r;
--}
--
- /*
-  * async list handling
-  */
-@@ -219,7 +194,7 @@
-         kfree(as);
- }
- 
--extern __inline__ void async_newpending(struct async *as)
-+static inline void async_newpending(struct async *as)
- {
-         struct dev_state *ps = as->ps;
-         unsigned long flags;
-@@ -229,7 +204,7 @@
-         spin_unlock_irqrestore(&ps->lock, flags);
- }
- 
--extern __inline__ void async_removepending(struct async *as)
-+static inline void async_removepending(struct async *as)
- {
-         struct dev_state *ps = as->ps;
-         unsigned long flags;
-@@ -239,7 +214,7 @@
-         spin_unlock_irqrestore(&ps->lock, flags);
- }
- 
--extern __inline__ struct async *async_getcompleted(struct dev_state *ps)
-+static inline struct async *async_getcompleted(struct dev_state *ps)
- {
-         unsigned long flags;
-         struct async *as = NULL;
-@@ -253,7 +228,7 @@
-         return as;
- }
- 
--extern __inline__ struct async *async_getpending(struct dev_state *ps, void __user *userurb)
-+static inline struct async *async_getpending(struct dev_state *ps, void __user *userurb)
- {
-         unsigned long flags;
-         struct async *as;
-@@ -321,7 +296,7 @@
- 	destroy_async(ps, &hitlist);
- }
- 
--extern __inline__ void destroy_all_async(struct dev_state *ps)
-+static inline void destroy_all_async(struct dev_state *ps)
- {
- 	        destroy_async(ps, &ps->async_pending);
- }
+This driver was going to be converted to use the firmware loader API?

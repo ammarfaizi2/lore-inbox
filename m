@@ -1,39 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261204AbTINRLA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Sep 2003 13:11:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261206AbTINRLA
+	id S261216AbTINRVO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Sep 2003 13:21:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261218AbTINRVO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Sep 2003 13:11:00 -0400
-Received: from mail1.dac.neu.edu ([129.10.1.75]:38414 "EHLO mail1.dac.neu.edu")
-	by vger.kernel.org with ESMTP id S261204AbTINRK7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Sep 2003 13:10:59 -0400
-Message-ID: <3F64A0CA.6080402@ccs.neu.edu>
-Date: Sun, 14 Sep 2003 13:09:30 -0400
-From: Stan Bubrouski <stan@ccs.neu.edu>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.5b) Gecko/20030827
+	Sun, 14 Sep 2003 13:21:14 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:7400 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261216AbTINRVN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Sep 2003 13:21:13 -0400
+Message-ID: <3F64A37A.1040803@pobox.com>
+Date: Sun, 14 Sep 2003 13:20:58 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Pascal Schmidt <der.eremit@email.de>
-CC: Andre Hedrick <andre@linux-ide.org>, linux-kernel@vger.kernel.org
-Subject: Re: freed_symbols [Re: People, not GPL  [was: Re: Driver Model]]
-References: <vyRY.6te.13@gated-at.bofh.it> <vzkY.7cC.7@gated-at.bofh.it> <E19ySzN-0000Fr-00@neptune.local>
-In-Reply-To: <E19ySzN-0000Fr-00@neptune.local>
+To: Justin Cormack <justin@street-vision.com>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.7 block ramblings (was Re: DMA for ide-scsi?)
+References: <1063484193.1781.48.camel@mulgrave> 	<20030913212723.GA21426@gtf.org> <1063538182.1510.78.camel@lotte.street-vision.com>
+In-Reply-To: <1063538182.1510.78.camel@lotte.street-vision.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-*END THIS THREAD*
+Justin Cormack wrote:
+> LABEL= is so broken that I immediately remove it from all my redhat
+> systems. It is not unique at all. As soon as you plug another system
+> disk into your system at boot time all hell breaks loose.
 
-Guys,
+That's your fault as a sysadmin ;-)
 
-This arguing is not accomplishing anything.  Insults
-accomplish nothing.  Grow up.  Take it to private
-mail, this rubbbish is unnecessary.
+> At least it
+> could have a random number in it or something.
 
--sb
+You can use UUIDs today!  :)
+
+
+> If you need to know your bootdisk (why?) why not just get the bootloader
+> to tell you?
+
+The only time one cares what the boot disk is, is when _installing_ the 
+boot loader...
+
+	Jeff
 
 
 

@@ -1,48 +1,85 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316195AbSE3CSE>; Wed, 29 May 2002 22:18:04 -0400
+	id <S316167AbSE3CYC>; Wed, 29 May 2002 22:24:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316167AbSE3CSD>; Wed, 29 May 2002 22:18:03 -0400
-Received: from dsl-213-023-039-142.arcor-ip.net ([213.23.39.142]:33494 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S316210AbSE3CSB>;
-	Wed, 29 May 2002 22:18:01 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>
+	id <S316204AbSE3CYB>; Wed, 29 May 2002 22:24:01 -0400
+Received: from modemcable084.137-200-24.mtl.mc.videotron.ca ([24.200.137.84]:10652
+	"EHLO xanadu.home") by vger.kernel.org with ESMTP
+	id <S316167AbSE3CYA>; Wed, 29 May 2002 22:24:00 -0400
+Date: Wed, 29 May 2002 22:23:45 -0400 (EDT)
+From: Nicolas Pitre <nico@cam.org>
+X-X-Sender: nico@xanadu.home
+To: Daniel Phillips <phillips@bonn-fries.net>
+cc: Thunder from the hill <thunder@ngforever.de>,
+        Tomas Szepe <szepe@pinerecords.com>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Paul P Komkoff Jr <i@stingr.net>, lkml <linux-kernel@vger.kernel.org>
 Subject: Re: 2.5.19 - What's up with the kernel build?
-Date: Thu, 30 May 2002 04:17:33 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Paul P Komkoff Jr <i@stingr.net>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0205292019090.9971-100000@chaos.physics.uiowa.edu>
+In-Reply-To: <E17DDvk-0006qp-00@starship>
+Message-ID: <Pine.LNX.4.44.0205292139210.23147-100000@xanadu.home>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17DFVQ-0007Zc-00@starship>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 30 May 2002 04:00, Kai Germaschewski wrote:
-> On Wed, 29 May 2002, Jeff Garzik wrote:
-> > Well, I really like Keith's kbuild25 too, but Linus said (at least once) 
-> > he wanted an evolution to a new build system... not an unreasonable 
-> > request to at least consider.  Despite Keith's quality of code (again -- 
-> > I like kbuild25), his 3 patch submissions seemed a lot like ultimatums, 
-> > very "take it or leave it dammit".  Not the best way to win friends and 
-> > influence people.
-> > 
-> > If Keith is indeed leaving it, I'm hoping someone will maintain it, or 
-> > work with Kai to integrate it into 2.5.x.
-> 
-> Oh well, it really wasn't my intention to start the good old kbuild-2.5
-> thread at all.
-> 
-> Anyway, I believe kbuild-2.5 has lots of useful ideas and I'll go pick 
-> pieces - from kbuild-2.5, from dancing-makefiles, from stuff I've done 
-> myself and work on improving the current build system. But I believe in 
-> make, and don't think I'll move away from it.
+On Thu, 30 May 2002, Daniel Phillips wrote:
 
-I wish you would just join the kbuild team and work with them instead of
-against them.  And what makes you think that it doesn't use make?
+> On Thursday 30 May 2002 02:17, Nicolas Pitre wrote:
+> 
+> > Linus himself once said: "Especially as I don't find the existign system so
+> > broken." He's not alone according to the amount (or lack) of public
+> > complains with regards to the current system.
+> 
+> I think a lot of us were not complaining because we thought it was a done
+> deal.
 
--- 
-Daniel
+Well it's obviously not.
+
+> Now what's necessary, do we have to form cheerleading teams and start lobbying
+> to get what we thought was coming anyway?  
+
+Probably.  At least that often was necessary for most large features in the 
+past... especially when those features weren't necessarily _interesting_ to 
+Linus.
+
+> It's really not a pleasant feeling to be put in that position.  Nobody
+> relishes the role of outspoken advocate of this or that, at least I do
+> not.  I'd *much* rather be hacking.
+
+Sure.  But what if only Keith alone publicly praises the virtues of kb25?  
+And if Linus on the other end doesn't care much?  And if nobody else is 
+showing any interest?
+
+> You've got it backwards.  The function of the maintainers you mentioned is
+> to *resist* change, not promote it.  In this case, change comes from the top,
+> and as long as Linus doesn't realize that there really is a lot of demand
+> for this change, nothing is going to happen.
+
+Well that's exactly what I'm saying is happening. Interest seem pretty low 
+unfortunately.  Otherwise more people would stop hacking for a minute and 
+advocate a little for the inclusion of kb25.
+
+> > If people aren't interested enough and/or willing to comply with Linus'
+> > requirements this will be a sad dead end, regardless the amount of effort
+> > Keith put into this.
+> 
+> Now wait, it seems to me that only Keith is being asked to comply with
+> requirements, and they're tough requirements.  The burden is just not
+> being shared equally.
+
+Well given the current lack of interest (or let's say enthusiasm to be more 
+correct) for kb25, why would Linus be bothered?  Since most people are 
+indifferent at this point the burden is likely to remain in Keith's hands.
+
+If that's not the case then let's go people and speak up, advocate for
+patches in secondary trees, send your appreciation to Linus and lkml, but
+don't stay still.  The preemptive kernel patch just to name that example 
+got much more visibility, adoption and promotion than what kb25 had up to 
+now.
+
+Otherwise we'll continue fixing the current build system and forget about
+kbuild25.
+
+
+Nicolas
+

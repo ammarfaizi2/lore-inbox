@@ -1,61 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265368AbUAAKSU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jan 2004 05:18:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265370AbUAAKSU
+	id S265374AbUAAKYG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jan 2004 05:24:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265378AbUAAKYG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jan 2004 05:18:20 -0500
-Received: from dp.samba.org ([66.70.73.150]:34480 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S265368AbUAAKSM (ORCPT
+	Thu, 1 Jan 2004 05:24:06 -0500
+Received: from mail5.bluewin.ch ([195.186.1.207]:5292 "EHLO mail5.bluewin.ch")
+	by vger.kernel.org with ESMTP id S265374AbUAAKYE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jan 2004 05:18:12 -0500
-Date: Thu, 1 Jan 2004 21:15:41 +1100
-From: Anton Blanchard <anton@samba.org>
-To: Joonas Kortesalmi <joneskoo@derbian.org>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: swapper: page allocation failure. order:3, mode:0x20
-Message-ID: <20040101101541.GJ28023@krispykreme>
-References: <20040101093553.GA24788@derbian.org>
+	Thu, 1 Jan 2004 05:24:04 -0500
+Date: Thu, 1 Jan 2004 11:23:54 +0100
+From: Roger Luethi <rl@hellgate.ch>
+To: Thomas Molina <tmolina@cablespeed.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0 performance problems
+Message-ID: <20040101102354.GA4063@k3.hellgate.ch>
+Mail-Followup-To: Thomas Molina <tmolina@cablespeed.com>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20031230012551.GA6226@k3.hellgate.ch> <Pine.LNX.4.58.0312292031450.6227@localhost.localdomain> <20031230132145.B32120@hexapodia.org> <20031230194051.GD22443@holomorphy.com> <20031230222403.GA8412@k3.hellgate.ch> <Pine.LNX.4.58.0312301921510.3193@localhost.localdomain> <20031231101741.GA4378@k3.hellgate.ch> <20031231112119.GB3089@suse.de> <20031231210354.GA9804@k3.hellgate.ch> <Pine.LNX.4.58.0312312014480.3069@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040101093553.GA24788@derbian.org>
+In-Reply-To: <Pine.LNX.4.58.0312312014480.3069@localhost.localdomain>
+X-Operating-System: Linux 2.6.0-test11 on i686
+X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
+X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 31 Dec 2003 20:27:34 -0500, Thomas Molina wrote:
+> 2.5.39 won't compile for me "out of the box".  I thought it might have 
+> been the toolset, but I was running RH8 and it has gcc 3.2.  Was there a 
 
-Hi,
+I used gcc 2.95. 3.2 won't work with older kernels, not sure when
+exactly problems were fixed, though.
 
-> After running 2.6.0 on a server for a few days, I met an interesting and
-> annoying problem. I was playing with NFS over gigabit ethernet (e1000) and
-> it was a bit slow. I tried to find out why by running top and I saw syslog-ng
-> eating almost 10% of the 1,3GHz Duron. Looked at the log and there was a huge
-> flood of these messages:
-> 
-> swapper: page allocation failure. order:3, mode:0x20
-> irssi: page allocation failure. order:3, mode:0x20
-> swapper: page allocation failure. order:3, mode:0x20
-> vim: page allocation failure. order:3, mode:0x20
-> swapper: page allocation failure. order:3, mode:0x20
-
-Its sounds like you are using either a large MTU (9k?) or TSO. TSO
-causes the networking stack to think it has a massive MTU and the e1000
-card busts it up into proper MTU sized packets. The problem is that
-it places much more stress on the allocator by asking for these large
-chunks of memory in interrupt context.
-
-Now e1000 uses TSO (and can regularly ask for 32kB+ kmallocs in
-interrupt context) perhaps we should look moving the rx buffer refill code
-into a context that can sleep. Then again its not like we can tolerate
-much latency in this code path, your rx ring will run out quite quickly :)
-
-BTW We have found increasing /proc/sys/vm/min_free_kbytes can help the
-situation a bit. Bumping the slab limits for the larger kmallocs (via
-echo X Y Z > /proc/slab) might be useful too.
-
-We should probably rate limit that printk. Andrew: I was thinking of
-stealing net_ratelimit and calling it core_ratelimit or whatever. Then
-wrap these non critical things with it. Overkill?
-
-Anton
+Roger

@@ -1,33 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284868AbRLFAA6>; Wed, 5 Dec 2001 19:00:58 -0500
+	id <S284867AbRLFAB6>; Wed, 5 Dec 2001 19:01:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284867AbRLFAAs>; Wed, 5 Dec 2001 19:00:48 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:5896 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S284856AbRLFAAk>; Wed, 5 Dec 2001 19:00:40 -0500
-Subject: Re: SMP/cc Cluster description [was Linux/Pro]
-To: Martin.Bligh@us.ibm.com
-Date: Thu, 6 Dec 2001 00:06:07 +0000 (GMT)
-Cc: lm@bitmover.com (Larry McVoy), riel@conectiva.com.br (Rik van Riel),
-        lars.spam@nocrew.org (Lars Brinkhoff),
-        alan@lxorguk.ukuu.org.uk (Alan Cox), hps@intermeta.de,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <2527982215.1007550329@mbligh.des.sequent.com> from "Martin J. Bligh" at Dec 05, 2001 11:05:29 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16Bm3D-00084Q-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S284870AbRLFABs>; Wed, 5 Dec 2001 19:01:48 -0500
+Received: from mailf.telia.com ([194.22.194.25]:11491 "EHLO mailf.telia.com")
+	by vger.kernel.org with ESMTP id <S284867AbRLFABa>;
+	Wed, 5 Dec 2001 19:01:30 -0500
+Date: Thu, 6 Dec 2001 01:11:50 +0100
+From: =?iso-8859-1?Q?Andr=E9?= Dahlqvist <andre.dahlqvist@telia.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.17-pre4 extra-version
+Message-ID: <20011206001150.GA10592@telia.com>
+Mail-Followup-To: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <3C0EB178.4A599A31@isn.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <3C0EB178.4A599A31@isn.net>
+User-Agent: Mutt/1.3.24i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> If I give you 16 SMP systems, each with 4 processors and a gigabit
-> ethernet card, and connect those ethers through a switch, would that
-> be sufficient hardware?
+On Wed, Dec 05, 2001 at 07:44:56PM -0400, Garst R. Reese wrote:
 
-Take a 16 CPU numa box thats really 4x4 + numa glue and run it as if it
-was the 4 processors, 4 nodes with gige, only allowing for extra operations
-"take access to remote page" "release access to remote page"
+> It really does help to keep extra version uptodate ;)
+> Can someone write a perl script to tie a string around Marcelo's finger?
 
+Huh? From -pre4:
+
+ VERSION = 2
+ PATCHLEVEL = 4
+ -SUBLEVEL = 16
+ -EXTRAVERSION =
+ +SUBLEVEL = 17
+ +EXTRAVERSION = -pre4
+-- 
+
+André Dahlqvist <andre.dahlqvist@telia.com>

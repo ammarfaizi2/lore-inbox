@@ -1,135 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261680AbTCGR1i>; Fri, 7 Mar 2003 12:27:38 -0500
+	id <S261677AbTCGRYL>; Fri, 7 Mar 2003 12:24:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261691AbTCGR1i>; Fri, 7 Mar 2003 12:27:38 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:56491 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S261680AbTCGR1g>;
-	Fri, 7 Mar 2003 12:27:36 -0500
-Date: Fri, 7 Mar 2003 11:14:00 -0600 (CST)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: <mochel@localhost.localdomain>
-To: Pavel Machek <pavel@ucw.cz>
-cc: Nigel Cunningham <ncunningham@clear.net.nz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: SWSUSP Discontiguous pagedir patch
-In-Reply-To: <20030305180222.GA2781@zaurus.ucw.cz>
-Message-ID: <Pine.LNX.4.33.0303070950030.991-100000@localhost.localdomain>
+	id <S261679AbTCGRYL>; Fri, 7 Mar 2003 12:24:11 -0500
+Received: from mx12.arcor-online.net ([151.189.8.88]:37530 "EHLO
+	mx12.arcor-online.net") by vger.kernel.org with ESMTP
+	id <S261677AbTCGRYK>; Fri, 7 Mar 2003 12:24:10 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Alex Tomas <bzzz@tmi.comex.ru>, "Martin J. Bligh" <mbligh@aracnet.com>
+Subject: Re: [Bug 417] New: htree much slower than regular ext3
+Date: Sat, 8 Mar 2003 18:38:50 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       ext2-devel@lists.sourceforge.net, "Theodore Ts'o" <tytso@mit.edu>,
+       Andrew Morton <akpm@digeo.com>, Alex Tomas <bzzz@tmi.comex.ru>
+References: <11490000.1046367063@[10.10.2.4]> <m34r6fyya8.fsf@lexa.home.net>
+In-Reply-To: <m34r6fyya8.fsf@lexa.home.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20030307173425.5C4D3FAAAE@mx12.arcor-online.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri 07 Mar 03 16:46, Alex Tomas wrote:
+> Hi!
+>
+> The problem is that getdents(2) returns inodes out of order and
+> du causes many head seeks. I tried to solve the problem by patch
+> I included in. The idea of the patch is pretty simple: just try
+> to sort dentries by inode number in readdir(). It works because
+> inodes sits at fixed places in ext2/ext3. Please, look at results
+> I just got:
+>
+>                   real        user         sys
+>
+> ext3+htree:  7m22.236s    0m0.292s    0m2.204s
+> ext3-htree:  3m6.539s     0m0.481s    0m2.278s
+> [...]
+> ext3+sd-30:  2m39.658s    0m0.492s    0m2.138s
 
-> > All in all, I think the idea of saving state to swap is dangerous for 
-> > various reasons. However, I like some of the other concepts of the code, 
-> 
-> Can you elaborate? I believe writing
-> to swap is good for user; and it works.
+Nice.  I posted a similar demonstration some time ago (could it *really* be 
+two years?) but I sorted the dirents in user space, which meant it was just a 
+demonstration, not a practical solution.
 
-It does work, but there are uncertainties inherently present when using 
-such a solution. Some of them were just the behavior of the current code, 
-which I fixed, like:
+The problem I see with your approach is that the traversal is no longer in 
+hash order, so a leaf split in the middle of a directory traversal could 
+result in a lot of duplicate dirents.  I'm not sure there's a way around that.
 
-- Only ever using the first swap partition, regardless of space left. 
+Another approach is to have the inode number correspond approximately to the 
+hash value.  That's not as hard as it sounds, it simply means that the goal 
+for ext3_new_inode should be influenced by the hash value.  (But watch out 
+for interaction with the new Orlov allocator.)  It also depends on some
+a priori estimate of the size of a directory so that increasing hash values 
+can be distributed more or less uniformly and monotonically across some 
+corresponding range of inode numbers. This isn't too hard either, just round 
+up the current size of the directory to a power of two and use that as the 
+size estimate.  The size estimate would change from time to time over the 
+life of the directory, but there are only log N different sizes and that's 
+roughly how heavy the load on the inode cache would be during a directory 
+traversal.  Finally, a nice property of this approach is that it stays stable 
+over many creates and deletes.
 
-- Not resetting swap signature if a resume failed. 
+We've apparently got a simpler problem though: inode numbers aren't allocated 
+densely enough in the inode table blocks.  This is the only thing I can think 
+of that could cause the amount of thrashing we're seeing.  Spreading inode 
+number allocations out all over a volume is ok, but sparse allocation within 
+each table block is not ok because it multiplies the pressure on the cache.  
+We want a 30,000 entry directory to touch 1,000 - 2,000 inode table blocks, 
+not the worst-case 30,000.  As above, fixing this comes down to tweaking the 
+ext3_new_inode allocation goal.
 
-- Almost complete lack of a recovery path if anything failed (i.e. trying 
-  to back out of what has happened, instead of calling BUG() or panic()).
+Regards,
 
-- Function names like do_magic() and friends. 
-
-This types of things don't instill any confidence in a user or other
-developer looking at the code. It gives the impression that the code is
-the result of blind guess work in the dark. After looking at the code, it
-was a shock to me that it worked at all.
-
-I understand that getting it to work involves dealing with the 
-uncertainties. However, there is no reason to pass them on to other users. 
-There were no comments as to what the do_magic*() functions did, let alone 
-why they were 'magic', and there were 5 of them. 
-
-
-There are uncertainties still present in the code, like 
-
-- #warning about waiting for data to reach the disk.
-
-- "Waiting for DMAs to settle down" delay on resume. 
-
-I respect the paranoia. Howver, it's things like these that should be
-dealt with before anything else.
-
-
-The general problems that I see with the solution are:
-
-- It simply won't work if you're low on swap or memory. 
-
-- It won't work if you're swap is not persistant across reboots. 
-
-- It won't work if you don't use swap. 
-
-- It's dependent on the same exact kernel being loaded.
-
-It should only be dependent on the binary format of the written metadata.
-
-It also shouldn't be waiting until all the devices are probed and 
-initialized, but that problem is out of your hands.
-
-Another problem I see in the future is initramfs, and when things start 
-executing in there. It's currently unpacked by populate_rootfs() in 
-init/main.c, long before software_resume() is called. Though it doesn't 
-cause any explicit problems ATM, it does introduce more uncertainties. 
-
-
-I don't want to cast the entire project in a negative light, though. It
-does work, and I'm fairly impressed by it. I do not want to take the
-feature away. I see it coexisting and sharing code nicely with any 
-other solutions. 
-
-I've created a registration mechanism for PM 'drivers', and a way for
-users to select which driver they want to use for the different PM states.  
-In the patch, swsusp is just another driver. It can coexist with ACPI or
-APM (theoretically) just fine, without requiring a kernel rebuild or
-reboot.
-
-This also involves a generic framework for doing system-wide power 
-management. In this, I've begun extracting bits from swsusp that are 
-useful for any PM sequence. My goal is to reduce swsusp to just a small 
-layer that writes/reads the saved pages from swap. The rest of the 
-sequence, including memory and device handling, happens in generic code. 
-
-> > and will use them in developing a more palatable mechanism of doing STDs 
-> 
-> What is STD?
-
-Suspend-to-disk.
-
-> > http://ldm.bkbits.net:8080/linux-2.5-power
-> >
-> 
-> Can you post cumulative diff of work-in-progress?
-> I am not permitted to use bk. Also please
-> make sure that you post the diff before
-> you merge it (and please Cc me).
-
-Sure. From the above link, you can view the individual patches. I would 
-hope that you could use wget to snarf them, though I don't know if that's 
-legally ok (nor do I want to know). 
-
-The cumulative patch is here:
-
-http://kernel.org/pub/linux/kernel/people/mochel/power/pm-2.5.64.diff.gz
-
-If I get a chance in the next few days, I'll post incremental diffs. 
-Without them, the gradual changes are not so obvious. 
-
-I understand you may not a rewrite of swsusp (regardless of how much
-cleaner the code is), and I respect that. I'm completely willing to leave
-kernel/suspend.c intact, and let you work in the integration into the
-generic PM model, and/or simply rename the new code something like
-swsusp2, swsusp-XP, or swsusp-pat. ;)
-
-
-	-pat
-
+Daniel

@@ -1,68 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317469AbSHCFG5>; Sat, 3 Aug 2002 01:06:57 -0400
+	id <S317493AbSHCFNo>; Sat, 3 Aug 2002 01:13:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317493AbSHCFG5>; Sat, 3 Aug 2002 01:06:57 -0400
-Received: from webmail10.rediffmail.com ([202.54.124.179]:15253 "HELO
-	webmail10.rediffmail.com") by vger.kernel.org with SMTP
-	id <S317489AbSHCFG4>; Sat, 3 Aug 2002 01:06:56 -0400
-Date: 3 Aug 2002 05:09:51 -0000
-Message-ID: <20020803050951.4782.qmail@webmail10.rediffmail.com>
+	id <S317488AbSHCFNo>; Sat, 3 Aug 2002 01:13:44 -0400
+Received: from mx2.fuse.net ([216.68.1.120]:62351 "EHLO mta02.fuse.net")
+	by vger.kernel.org with ESMTP id <S317495AbSHCFNO>;
+	Sat, 3 Aug 2002 01:13:14 -0400
+Message-ID: <3D4B673D.4050507@fuse.net>
+Date: Sat, 03 Aug 2002 01:16:45 -0400
+From: Nathaniel <wfilardo@fuse.net>
+Organization: BentTroll Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020710
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-From: "Enugala Venkata Ramana" <caps_linux@rediffmail.com>
-Reply-To: "Enugala Venkata Ramana" <caps_linux@rediffmail.com>
-To: "Brad Hards" <bhards@bigpond.net.au>
-Cc: linux-kernel@vger.kernel.org, "Greg KH" <greg@kroah.com>
-Subject: Re: Re: installation of latest kernel on compaq notebook
-Content-type: text/plain;
-	format=flowed
-Content-Disposition: inline
+To: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+       Alan Cox <alan@redhat.com>
+Subject: Re: Linux 2.5.30
+References: <Pine.LNX.4.33.0208021424520.2532-100000@penguin.transmeta.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus Torvalds wrote:
+> On 2 Aug 2002, Alan Cox wrote:
+> 
+>>The PnPBIOS gdt setup changes I did are wrong somewhere.
+> 
+> 
+> Alan, in your PnP patches you seem to have changed the 
+> 
+> 	"set_limit()"
+> 
+> to a 
+> 
+> 	"_set_limit()"
+> 
+> which looks wrong (or at least doesn't look consistent with the notion of 
+> just doing the same code as before, except on all CPU's).
+> 
+> It _looks_ to me like the QX_SET_SET() macros should be have the "_" 
+> removed from the set_limit part. As it is, _set_limit() gets the address 
+> calculations wrong (because you don't cast it to "char *") and also gets 
+> the limit wrong (because you no longer do the page size adjustment).
+> 
+> Does it work with that small change? I have no idea about the pnpbios 
+> code, I'm just looking at Alan's diff.
 
-Hi ,
-Using the make xconfig. i cannot even select it.
-Regards
-Venku.
-On Sat, 03 Aug 2002 Brad Hards wrote :
->On Sat, 3 Aug 2002 14:12, Enugala Venkata Ramana wrote:
-> > Hi Greg,
-> >   I tried to configure my kernel. But when ever i try with 
->kerel
-> > 2.4.xx i always find the catc driver for the usb is not 
->enabled. I
-> > cannot add that into my kernel at all.can u please let me 
->know
-> > what needs to be done in this is situation and what is the 
->kernal
-> > version from which it is been enabled.
->The use of "enabled" is confusing me. You aren't describing
->the problem very well.
->
->Do you mean that you cannot select in when you are doing
->a "make menuconfig" or "make xconfig"?
->
->Or do you mean that you have selected it, but it isn't being
->compiled?
->
->Or do you mean that you have it compiled, but the kernel
->won't boot (or you can't modprobe the module)?
->
->Or do you mean that it boots and the kernel shows
->the catc driver (in /proc/bus/usb/drivers) but the
->device isn't being claimed (as shown in /proc/bus/usb/devices).
->
->Exactly what are you trying to do, and what is happening?
->
->Brad
->
->--
->http://conf.linux.org.au. 22-25Jan2003. Perth, Australia. Birds 
->in Black.
+Applying the following change will make 2.5.30 get past the PNPBIOS load (at least on my box).
 
-__________________________________________________________
-Give your Company an email address like
-ravi @ ravi-exports.com.  Sign up for Rediffmail Pro today!
-Know more. http://www.rediffmailpro.com/signup/
+However, it still doesn't work (I'll post something later).
+
+That said, here:
+
+--- linux-2.5.30/drivers/pnp/pnpbios_core.c.orig        Sat Aug  3 01:13:48 2002
++++ linux-2.5.30/drivers/pnp/pnpbios_core.c     Sat Aug  3 01:13:20 2002
+@@ -126,11 +126,11 @@
+
+  #define Q_SET_SEL(cpu, selname, address, size) \
+  set_base(cpu_gdt_table[cpu][(selname) >> 3], __va((u32)(address))); \
+-_set_limit(&cpu_gdt_table[cpu][(selname) >> 3], size)
++set_limit(cpu_gdt_table[cpu][(selname) >> 3], size)
+
+  #define Q2_SET_SEL(cpu, selname, address, size) \
+  set_base(cpu_gdt_table[cpu][(selname) >> 3], (u32)(address)); \
+-_set_limit((char *)&cpu_gdt_table[cpu][(selname) >> 3], size)
++set_limit(cpu_gdt_table[cpu][(selname) >> 3], size)
+
+  /*
+   * At some point we want to use this stack frame pointer to unwind
+
+
+--Nathan
+
 

@@ -1,60 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287908AbSA0J4r>; Sun, 27 Jan 2002 04:56:47 -0500
+	id <S287924AbSA0KIe>; Sun, 27 Jan 2002 05:08:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287919AbSA0J4f>; Sun, 27 Jan 2002 04:56:35 -0500
-Received: from smtp012.mail.yahoo.com ([216.136.173.32]:18948 "HELO
-	smtp012.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S287908AbSA0J4X>; Sun, 27 Jan 2002 04:56:23 -0500
-Message-ID: <3C53CEC5.1060008@yahoo.com>
-Date: Sun, 27 Jan 2002 03:56:21 -0600
-From: Chris <volthead@yahoo.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.7) Gecko/20011221
-X-Accept-Language: en-us
+	id <S287933AbSA0KIZ>; Sun, 27 Jan 2002 05:08:25 -0500
+Received: from mx3.sac.fedex.com ([199.81.208.11]:49680 "EHLO
+	mx3.sac.fedex.com") by vger.kernel.org with ESMTP
+	id <S287924AbSA0KIR>; Sun, 27 Jan 2002 05:08:17 -0500
+Date: Sun, 27 Jan 2002 18:08:45 +0800 (SGT)
+From: Jeff Chua <jeffchua@silk.corp.fedex.com>
+X-X-Sender: root@boston.corp.fedex.com
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+cc: Jeff Chua <jchua@fedex.com>
+Subject: 2.4.18-pre7 slow ... apm problem
+Message-ID: <Pine.LNX.4.44.0201271804160.907-100000@boston.corp.fedex.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: tulip hangs on 2.4.17
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 01/27/2002
+ 06:08:13 PM,
+	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 01/27/2002
+ 06:08:15 PM,
+	Serialize complete at 01/27/2002 06:08:15 PM
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have recently run into a problem with the tulip driver on my laptop.
 
-It loads fine at first, and I can get connected to a network, etc.  When 
-I reboot the machine, it hangs when it tries to load the tulip module. 
-This only happens with a warm reboot, not a cold boot.  It is quite 
-repeatable.  If I power off completely, there is no problem.  If I 
-comment the tulip driver out of my startup scripts, there is no problem. 
-  If I reboot, it hangs.
+Found the problem.
 
-This does not happen with the 2.4.5 kernel, only the 2.4.17.  These are 
-the only  2 I have tried.
+After disabling CONFIG_APM_CPU_IDLE, the system works fast again.
 
-I have found that if I bring down my ethernet interface and unload the 
-tulip module before the warm reboot, the system will not lock when it 
-comes back up, so I have added the neccessary commands to my shutdown 
-scripts.  However, it seems to me like a kernel bug that should probably 
-be fixed.
+With pre6 or earlier versions, system works fine though even with
+CONFIG_APM_CPU_IDLE enabled.
 
-My specific hardware/software config is:
+System is IBM X22 800MHz notebook, 640MB ram.
 
-HP Pavillion XH555 laptop with:
-1 Ghz Athlon 4
-512 MB RAM
-ESS sound/modem  (sound using Maestro3 driver)
-Accton ethernet   (using tulip driver)
+Thanks,
+Jeff
+[ jchua@fedex.com ]
 
-Software:
-Slackware 8.0, kernel 2.4.17
-using ACPI, tulip, maestro3, ext3, framebuffer, etc.
-
-If there's any more info that would help, please let me know.
-
--Chris
+---------- Forwarded message ----------
+Date: Sun, 27 Jan 2002 14:49:06 +0800 (SGT)
+From: Jeff Chua <jeffchua@silk.corp.fedex.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: 2.4.18-pre7 slow
 
 
-_________________________________________________________
-Do You Yahoo!?
-Get your free @yahoo.com address at http://mail.yahoo.com
+
+1) keyboard rate is a bit slow on 2.4.18-pre7 compared to 2.4.18-pre6.
+
+2) On vmware 3.0, ping localhost is very slow. 2.4.18-pre6 has not such
+problem.
+
+
+Thanks,
+Jeff
+[ jchua@fedex.com ]
+
 

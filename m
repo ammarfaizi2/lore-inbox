@@ -1,59 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318288AbSHPKCJ>; Fri, 16 Aug 2002 06:02:09 -0400
+	id <S318283AbSHPKNZ>; Fri, 16 Aug 2002 06:13:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318281AbSHPKCJ>; Fri, 16 Aug 2002 06:02:09 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:57096 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S318288AbSHPKCI>; Fri, 16 Aug 2002 06:02:08 -0400
-Message-Id: <200208161001.g7GA1mp24413@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Benjamin LaHaise <bcrl@redhat.com>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] reduce stack usage of sanitize_e820_map
-Date: Fri, 16 Aug 2002 12:58:38 -0200
-X-Mailer: KMail [version 1.3.2]
-References: <20020815174825.F29874@redhat.com>
-In-Reply-To: <20020815174825.F29874@redhat.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+	id <S318284AbSHPKNZ>; Fri, 16 Aug 2002 06:13:25 -0400
+Received: from rzcomm5.rz.tu-bs.de ([134.169.9.40]:18437 "EHLO
+	rzcomm5.rz.tu-bs.de") by vger.kernel.org with ESMTP
+	id <S318283AbSHPKNY>; Fri, 16 Aug 2002 06:13:24 -0400
+Date: Fri, 16 Aug 2002 12:17:19 +0200
+From: Torsten Wolf <t.wolf@tu-bs.de>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.18/9 problem with support for via82cxxx
+Message-ID: <20020816121719.A3287@b147.apm.etc.tu-bs.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
+Organization: TU Braunschweig
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 15 August 2002 19:48, Benjamin LaHaise wrote:
-> Hello,
->
-> Currently, sanitize_e820_map uses 0x738 bytes of stack.  The patch below
-> moves the arrays into __initdata, reducing stack usage to 0x34 bytes.
+Hi,
 
-Is that a real problem? sanitize_e820_map will be called just once at init
-time...
+my system runs on an Epox 8KHA+ Via KT266A (VT8366/A + VT8233) with 4
+IDE devices: hda, hdb and hdc are harddrives, hdd is a Teac CD-W512E.
+All devices are at least UDMA2 capable and DMA is turned on via hdparm.
+Writing to a CD works fine with cdrecord and ide-scsi-emulation. But
+whenever I access hdc, cdrecord stops with
 
-> +struct change_member change_point_list[2*E820MAX] __initdata;
-> +struct change_member *change_point[2*E820MAX] __initdata;
-> +struct e820entry *overlap_list[E820MAX] __initdata;
-> +struct e820entry new_bios[E820MAX] __initdata;
+[...]
+Track 01:   0 of 630 MB written.cdrecord: Input/output error. write_g1:
+scsi sendcmd: no error
+CDB:  2A 00 00 00 01 36 00 00 1F 00
+status: 0x2 (CHECK CONDITION)
+Sense Bytes: 70 00 05 00 00 00 00 0A 00 00 00 00 24 00 00 00
+Sense Key: 0x5 Illegal Request, Segment 0
+Sense Code: 0x24 Qual 0x00 (invalid field in cdb) Fru 0x0
+Sense flags: Blk 0 (not valid)
+cmd finished after 0.029s timeout 40s
 
-Does this enlarge on-disk kernel image?
-Shouldn't they be static?
+write track data: error after 634880 bytes
+Sense Bytes: 70 00 00 00 00 00 00 0A 00 00 00 00 00 00 00 00 00 00
 
->  static int __init sanitize_e820_map(struct e820entry * biosmap, char *
-> pnr_map) {
-> -	struct change_member {
-> -		struct e820entry *pbios; /* pointer to original bios entry */
-> -		unsigned long long addr; /* address for this change point */
-> -	};
-> -	struct change_member change_point_list[2*E820MAX];
-> -	struct change_member *change_point[2*E820MAX];
-> -	struct e820entry *overlap_list[E820MAX];
-> -	struct e820entry new_bios[E820MAX];
->  	struct change_member *change_tmp;
->  	unsigned long current_type, last_type;
->  	unsigned long long last_addr;
+and
 
---
-vda
+hdd: status error: status=0x58 { DriveReady SeekComplete DataRequest }
+hdd: drive not ready for command
+hdd: status error: status=0x58 { DriveReady SeekComplete DataRequest }
+hdd: drive not ready for command
+hdd: status error: status=0x58 { DriveReady SeekComplete DataRequest }
+hdd: drive not ready for command
+
+in /var/log/messages. This happens under 2.4.18 and 2.4.19 if
+CONFIG_BLK_DEV_VIA82CXXX is set. Without support for the chipset
+everything works fine and transfer rates of 30MB/s to/from hdc while
+burning with nearly no load are possible. Why does the support for the
+chipset make so much problems?
+
+Regards,
+Torsten

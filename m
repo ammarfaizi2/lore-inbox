@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263853AbTCVT3y>; Sat, 22 Mar 2003 14:29:54 -0500
+	id <S263842AbTCVTgQ>; Sat, 22 Mar 2003 14:36:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263871AbTCVT3x>; Sat, 22 Mar 2003 14:29:53 -0500
-Received: from csl.Stanford.EDU ([171.64.73.43]:42689 "EHLO csl.stanford.edu")
-	by vger.kernel.org with ESMTP id <S263853AbTCVT3p>;
-	Sat, 22 Mar 2003 14:29:45 -0500
+	id <S263846AbTCVTgQ>; Sat, 22 Mar 2003 14:36:16 -0500
+Received: from csl.Stanford.EDU ([171.64.73.43]:43201 "EHLO csl.stanford.edu")
+	by vger.kernel.org with ESMTP id <S263842AbTCVTgO>;
+	Sat, 22 Mar 2003 14:36:14 -0500
 From: Dawson Engler <engler@csl.stanford.edu>
-Message-Id: <200303221940.h2MJeml23812@csl.stanford.edu>
-Subject: [CHECKER] race in 2.5.62/fs/exec.c?
+Message-Id: <200303221947.h2MJlHA24028@csl.stanford.edu>
+Subject: [CHECKER] race in 2.5.62/kernel/ptrace.c?
 To: linux-kernel@vger.kernel.org
-Date: Sat, 22 Mar 2003 11:40:48 -0800 (PST)
+Date: Sat, 22 Mar 2003 11:47:17 -0800 (PST)
 Cc: engler@csl.stanford.edu (Dawson Engler)
 X-Mailer: ELM [version 2.5 PL0pre8]
 MIME-Version: 1.0
@@ -19,36 +19,44 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm not sure if I'm missing something --- is the following a race?
+Is the following unlocked use of recalc_sigpending  a race?
 
-           2.5.62/fs/exec.c:1013:search_binary_handler:
-                        read_unlock(&binfmt_lock);
-                        retval = fn(bprm, regs);
-                        if (retval >= 0) {
-                                put_binfmt(fmt);
+// 2.5.62/kernel/ptrace.c:339:ptrace_notify:
+void ptrace_notify(int exit_code)
+{
+        BUG_ON (!(current->ptrace & PT_PTRACED));
 
-binfmt_lock is released and then put_binfmt is called.  put_binfmt
-seems to need locking:
+        /* Let the debugger run.  */
+        current->exit_code = exit_code;
+        set_current_state(TASK_STOPPED);
+        notify_parent(current, SIGCHLD);
+        schedule();
 
-    fs/exec.c:1022:search_binary_handle
-
-                        read_lock(&binfmt_lock);
-                        put_binfmt(fmt);
-                        if (retval != -ENOEXEC)
-                                break;
-                        if (!bprm->file) {
-                                read_unlock(&binfmt_lock);
-                                return retval;
-                        }
+        /*
+         * Signals sent while we were stopped might set TIF_SIGPENDING.
+         */
+        recalc_sigpending();
+}
 
 
-   2.5.62/fs/exec.c:151:sys_uselib:
+It seems that recalc_sigpending needs to be protected by 
+	&current->sighand->siglock
 
-                     error = fmt->load_shlib(file);
-                        read_lock(&binfmt_lock);
-                        put_binfmt(fmt);
-                        if (error != -ENOEXEC)
-                                break;
-                }
+E.g.,:
 
-Are these other locks redundant?  Or does put_binfmt need protection?
+2.5.62/kernel/signal.c:1656:sigprocmask:
+        recalc_sigpending();
+        spin_unlock_irq(&current->sighand->siglock);
+
+2.5.62/kernel/signal.c:2115:sys_sigprocmas
+
+                spin_lock_irq(&current->sighand->siglock);
+                old_set = current->blocked.sig[0];
+
+		...
+
+                recalc_sigpending();
+                spin_unlock_irq(&current->sighand->siglock);
+
+
+Or does it not need a lock?  (Or am I missing the lock?)

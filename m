@@ -1,96 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263229AbUERNSm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261981AbUERNbV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263229AbUERNSm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 May 2004 09:18:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263370AbUERNSm
+	id S261981AbUERNbV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 May 2004 09:31:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262060AbUERNbV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 May 2004 09:18:42 -0400
-Received: from mail45.messagelabs.com ([140.174.2.179]:1446 "HELO
-	mail45.messagelabs.com") by vger.kernel.org with SMTP
-	id S263301AbUERNSg convert rfc822-to-8bit (ORCPT
+	Tue, 18 May 2004 09:31:21 -0400
+Received: from mail.gmx.net ([213.165.64.20]:58041 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261981AbUERNbS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 May 2004 09:18:36 -0400
-X-VirusChecked: Checked
-X-Env-Sender: justin.piszcz@mitretek.org
-X-Msg-Ref: server-9.tower-45.messagelabs.com!1084886314!3020620
-X-StarScan-Version: 5.2.11; banners=-,-,-
-X-Originating-IP: [141.156.156.57]
-X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
-Content-class: urn:content-classes:message
+	Tue, 18 May 2004 09:31:18 -0400
+X-Authenticated: #8834078
+From: Dominik Karall <dominik.karall@gmx.net>
+To: Daniele Venzano <webvenza@libero.it>
+Subject: Re: [PATCH] Sis900 bug fixes 0/4
+Date: Tue, 18 May 2004 15:39:32 +0200
+User-Agent: KMail/1.6.2
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20040518120237.GC23565@picchio.gall.it>
+In-Reply-To: <20040518120237.GC23565@picchio.gall.it>
 MIME-Version: 1.0
+Content-Disposition: inline
 Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: Linux 2.6.5 emu10k1 module FAILS, built-in OK.
-Date: Tue, 18 May 2004 09:18:13 -0400
-Message-ID: <5D3C2276FD64424297729EB733ED1F7605FAE8F0@email1.mitretek.org>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Linux 2.6.5 emu10k1 module FAILS, built-in OK.
-Thread-Index: AcQ8NAUws34zct1wTDyfkAV0kn5rgwApn95g
-From: "Piszcz, Justin Michael" <justin.piszcz@mitretek.org>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: <jpiszcz@lucidpixels.com>, <linux-kernel@vger.kernel.org>
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200405181539.32595.dominik.karall@gmx.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Do you use an SMP kernel?
-Works for me too when kernel is compiled with UP, not SMP.
-Have you tried w/SMP on an SMP or P4+w/HT box?
+On Tuesday 18 May 2004 14:02, Daniele Venzano wrote:
+> I have prepared 4 patches that fix various issues with the sis900 driver
+> in Linux 2.6.6, two of them had some discussion on lkml. The entire
+> patchset has been tested by me, but patches 2 and 3 require testing from
+> the people who reported the bugs (they are CCed).
+>
+> Patches 2,3,4 are incremental and need to be applied in that order.
+>
+> Patch summary:
+> 1. change of maintainership for the sis900 driver
+> 2. Add new ISA bridge PCI ID
+> 3. Fix PHY transceiver detection code to fall back to known PHY and not
+>    to the last detected.
+> 4. Small cleanup and spelling fixes of sis900.h (much more needed, also
+>    in sis900.c, will go through trivial).
+>
+> Any comment is highly appreciated.
 
------Original Message-----
-From: Randy.Dunlap [mailto:rddunlap@osdl.org] 
-Sent: Monday, May 17, 2004 1:17 PM
-To: Piszcz, Justin Michael
-Cc: jpiszcz@lucidpixels.com; linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.5 emu10k1 module FAILS, built-in OK.
+I applied all 4 patches, but the wrong PHY transceiver is used now again.
+Here is the dmesg output:
 
-On Mon, 17 May 2004 11:23:37 -0400 Piszcz, Justin Michael wrote:
+sis900.c: v1.08.07 11/02/2003
+eth0: Unknown PHY transceiver found at address 0.
+eth0: Realtek RTL8201 PHY transceiver found at address 1.
+eth0: Unknown PHY transceiver found at address 2.
+eth0: Unknown PHY transceiver found at address 3.
+eth0: Unknown PHY transceiver found at address 4.
+eth0: Unknown PHY transceiver found at address 5.
+eth0: Unknown PHY transceiver found at address 6.
+eth0: Unknown PHY transceiver found at address 7.
+eth0: Unknown PHY transceiver found at address 8.
+eth0: Unknown PHY transceiver found at address 9.
+eth0: Unknown PHY transceiver found at address 10.
+eth0: Unknown PHY transceiver found at address 11.
+eth0: Unknown PHY transceiver found at address 12.
+eth0: Unknown PHY transceiver found at address 13.
+eth0: Unknown PHY transceiver found at address 14.
+eth0: Unknown PHY transceiver found at address 15.
+eth0: Unknown PHY transceiver found at address 16.
+eth0: Unknown PHY transceiver found at address 17.
+eth0: Unknown PHY transceiver found at address 18.
+eth0: Unknown PHY transceiver found at address 19.
+eth0: Unknown PHY transceiver found at address 20.
+eth0: Unknown PHY transceiver found at address 21.
+eth0: Unknown PHY transceiver found at address 22.
+eth0: Unknown PHY transceiver found at address 23.
+eth0: Unknown PHY transceiver found at address 24.
+eth0: Unknown PHY transceiver found at address 25.
+eth0: Unknown PHY transceiver found at address 26.
+eth0: Unknown PHY transceiver found at address 27.
+eth0: Unknown PHY transceiver found at address 28.
+eth0: Unknown PHY transceiver found at address 29.
+eth0: Unknown PHY transceiver found at address 30.
+eth0: Unknown PHY transceiver found at address 31.
+eth0: Using transceiver found at address 31 as default
+eth0: SiS 900 PCI Fast Ethernet at 0xdc00, IRQ 19, 00:10:dc:8f:a9:ac.
 
-| Does creative still help maintain this module?
-| Is there an #include <string-something.h> missing in the module (WHEN
-| COMPILED W/SMP support, or?)
-| jpiszcz@slack91:/usr/src/linux/Documentation$ find .|grep -i emu101k
-| jpiszcz@slack91:/usr/src/linux/Documentation$ find .|grep -i emu101
-| jpiszcz@slack91:/usr/src/linux/Documentation$ grep emu101k -r *
-| grep: networking/netif-msg.txt: Permission denied
-| grep: scsi/ChangeLog.megaraid: Permission denied
-| jpiszcz@slack91:/usr/src/linux/Documentation$
-| 
-| (2.6.5 kernel)
-
-WorksForMe, 2.6.5 or 2.6.6.  What .config ?
-
-
-| -----Original Message-----
-| From: linux-kernel-owner@vger.kernel.org
-| [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Justin Piszcz
-| Sent: Saturday, May 15, 2004 6:08 PM
-| To: linux-kernel@vger.kernel.org
-| Subject: Re: Linux 2.6.5 emu10k1 module FAILS, built-in OK.
-| 
-| Let me remind all; this is with _SMP_ kernel only, with a regular
-kernel
-| it makes the module and loads it fine.
-| 
-| Anyone aware of this problem?
-| 
-| On Sat, 15 May 2004, Justin Piszcz wrote:
-| 
-| > Script started on Sat May 15 14:47:08 2004
-| > # modprobe emu10k1
-| > FATAL: Error inserting emu10k1
-| > (/lib/modules/2.6.5/kernel/sound/oss/emu10k1/emu10k1.ko): Unknown
-| symbol
-| > in module, or unknown parameter (see dmesg)
-| > root@war:~# dmesg | tail -n 1
-| >  emu10k1: Unknown symbol strcpy
-| >
-| >
-| -
-
-
---
-~Randy
-
-
+greets,
+dominik

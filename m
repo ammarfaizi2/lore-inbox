@@ -1,40 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261702AbSJNO43>; Mon, 14 Oct 2002 10:56:29 -0400
+	id <S261703AbSJNO6P>; Mon, 14 Oct 2002 10:58:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261703AbSJNO43>; Mon, 14 Oct 2002 10:56:29 -0400
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:41989 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S261702AbSJNO43>;
-	Mon, 14 Oct 2002 10:56:29 -0400
-Date: Mon, 14 Oct 2002 08:02:38 -0700
-From: Greg KH <greg@kroah.com>
-To: James Courtier-Dutton <jcdutton@users.sourceforge.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Add support for Pentax Still Camera to linux kernel.
-Message-ID: <20021014150238.GA6335@kroah.com>
-References: <3DAA6CA2.8090008@users.sourceforge.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3DAA6CA2.8090008@users.sourceforge.net>
-User-Agent: Mutt/1.4i
+	id <S261707AbSJNO6P>; Mon, 14 Oct 2002 10:58:15 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:49835 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S261703AbSJNO6O>;
+	Mon, 14 Oct 2002 10:58:14 -0400
+Date: Mon, 14 Oct 2002 17:15:18 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>,
+       <linux-mm@kvack.org>
+Subject: Re: [patch, feature] nonlinear mappings, prefaulting support,
+ 2.5.42-F8
+In-Reply-To: <Pine.LNX.4.44.0210141642160.3474-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0210141712180.8223-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 14, 2002 at 05:05:06PM +1000, James Courtier-Dutton wrote:
-> This is a very low risk patch.
-> Attached patch to "/usr/src/linux/drivers/usb/storage/unusual_devs.h" to 
-> enable the "PENTAX OPTIO 430" USB Still Camera to appear as a SCSI 
-> /dev/sd* storage device.
-> This patch works for my kernel version 2.4.18, but should work just as 
-> well unchanged for 2.4.19.
-> Patching to 2.5.x has not been tested.
-> 
-> Please include this patch with all future kernels.
 
-Can you please send this to the usb-storage author and maintainer?  He's
-the one that needs to add this.
+> And which hashing comments do you mean? We still hash pagecache pages.
 
-thanks,
+i see, indeed those comments (and other comments in filemap.c) should
+refer to the radix tree, although people do keep think about it as a hash
+:-)
 
-greg k-h
+	Ingo
+

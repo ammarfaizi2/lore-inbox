@@ -1,56 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318211AbSIOTcI>; Sun, 15 Sep 2002 15:32:08 -0400
+	id <S318208AbSIOT3U>; Sun, 15 Sep 2002 15:29:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318215AbSIOTcI>; Sun, 15 Sep 2002 15:32:08 -0400
-Received: from dsl-213-023-020-240.arcor-ip.net ([213.23.20.240]:26496 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S318211AbSIOTcG>;
-	Sun, 15 Sep 2002 15:32:06 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [linux-usb-devel] Re: [BK PATCH] USB changes for 2.5.34
-Date: Sun, 15 Sep 2002 21:35:39 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, David Brownell <david-b@pacbell.net>,
-       Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
-       Greg KH <greg@kroah.com>, <linux-usb-devel@lists.sourceforge.net>,
-       <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0209151220360.1393-100000@home.transmeta.com>
-In-Reply-To: <Pine.LNX.4.44.0209151220360.1393-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17qfBE-00008c-00@starship>
+	id <S318215AbSIOT3U>; Sun, 15 Sep 2002 15:29:20 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:40201 "EHLO
+	www.home.local") by vger.kernel.org with ESMTP id <S318208AbSIOT3T>;
+	Sun, 15 Sep 2002 15:29:19 -0400
+Date: Sun, 15 Sep 2002 21:34:10 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Pozsar Balazs <pozsy@uhulinux.hu>
+Cc: Hans-Peter Jansen <hpj@urpla.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG?] binfmt_script: interpreted interpreter doesn't work
+Message-ID: <20020915193410.GA17662@alpha.home.local>
+References: <200209152055.05322.hpj@urpla.net> <Pine.GSO.4.30.0209152057580.22107-100000@balu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.30.0209152057580.22107-100000@balu>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 15 September 2002 21:26, Linus Torvalds wrote:
-> On Sun, 15 Sep 2002, Daniel Phillips wrote:
-> > 
-> > I use UML all the time.  It's great, but it doesn't work for SMP debugging.
+On Sun, Sep 15, 2002 at 09:13:30PM +0200, Pozsar Balazs wrote:
+ 
+> This is because the kernel cannot execute the "/home/pozsy/b" script, and
+> then bash tries to interpret it itself. (but this in *not* what I want: I
+> want the "b" 'script' interpreted by the "a" script).
+> If you try this:
+>   strace -f /home/pozsy/b
+> You will get this:
+> execve("/home/pozsy/b", ["/home/pozsy/b"], [/* 24 vars */]) = 0
+> strace: exec: Exec format error
 > 
-> That should not be something fundamental, though. It should be perfectly 
-> doable with threading. "SMOP".
+> The root of the problem is still that /home/pozsy/b cannot be execve'd.
+> That is a kernel problem.
 
-Jeff and I occasionally kick this around and it always ends with "yeah,
-not hard at all, when I have more time on my hands than I know what to
-do with maybe I'll do that", or words to that effect.  It's understandable
-why Jeff hasn't gotten around to doing it, given the workload he's had
-just maintaining UML in both the 2.4 and 2.5 kernel series.  Plus Jeff
-does not get paid of any of this.
+the problem is far simpler :
+when you execute /home/pozsy/b, the kernel should have to launch /home/pozsy/a
+with /home/pozsy/b in argv[0]. If it accepted to run it, it would run sh (or
+perl or any other interpreter) with /home/pozsy/a in argv[0], thus loosing
+track of /home/pozsy/b.
 
-Now that it's integrated, nice things like that can happen, and maybe
-we won't have to impose on Jeff to do 100% of the work on UML in the
-future.  (Well, actually I did about 0.00001% of the work on UML, to
-wit, a patch to change the bogus virtual contents of ptes to "physical"
-addresses, bringing UML in line with the other arches in that regard.
-<- part of my new policy of making sure everybody knows about every
-little contribution I make.)
+The simplest solution for you is to write a little C wrapper to start your
+interpreted interpreter with the script in argument. Written with dietlibc or
+anything like it, it would not be more than a few hundred bytes long.
 
-> Yeah, and gdb (not to mention all the grapical nice stuff) sucks in a
-> threaded environment. At least it used to. 
+Cheers,
+Willy
 
-It still does.  That's yet another source of irritation.
-
--- 
-Daniel

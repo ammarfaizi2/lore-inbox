@@ -1,49 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289886AbSAPGae>; Wed, 16 Jan 2002 01:30:34 -0500
+	id <S289885AbSAPGbo>; Wed, 16 Jan 2002 01:31:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290364AbSAPGaZ>; Wed, 16 Jan 2002 01:30:25 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:5385 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S289886AbSAPGaS>; Wed, 16 Jan 2002 01:30:18 -0500
-Date: Wed, 16 Jan 2002 00:29:42 -0600
-To: "Eric S. Raymond" <esr@thyrsus.com>, Rob Landley <landley@trommello.org>,
-        Nicolas Pitre <nico@cam.org>, lkml <linux-kernel@vger.kernel.org>,
-        kbuild-devel@lists.sourceforge.net
-Subject: Re: CML2-2.1.3 is available
-Message-ID: <20020116062942.GC2067@cadcamlab.org>
-In-Reply-To: <Pine.LNX.4.33.0201151538340.5892-100000@xanadu.home> <20020116034137.CRFB26021.femail12.sdc1.sfba.home.com@there> <20020115224821.A4658@thyrsus.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020115224821.A4658@thyrsus.com>
-User-Agent: Mutt/1.3.25i
-From: Peter Samuelson <peter@cadcamlab.org>
+	id <S290364AbSAPGbe>; Wed, 16 Jan 2002 01:31:34 -0500
+Received: from nat.transgeek.com ([66.92.79.28]:30964 "EHLO smtp.transgeek.com")
+	by vger.kernel.org with ESMTP id <S289885AbSAPGbR>;
+	Wed, 16 Jan 2002 01:31:17 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Craig Christophel <merlin@transgeek.com>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Subject: Re: likely/unlikely
+Date: Wed, 16 Jan 2002 01:32:30 -0500
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <20020116032300.AAA27749@shell.webmaster.com@whenever> <3C450C4A.8A8382A6@mandrakesoft.com>
+In-Reply-To: <3C450C4A.8A8382A6@mandrakesoft.com>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020116113143.C99F8B581@smtp.transgeek.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-[esr]
-> The version I just released does exactly that.  Well, not exactly; it
-> actually looks at fstab -- /proc/mounts gives you '/dev/root' rather
-> than a physical device name in the root entry.
+> likely/unlikely set the branch prediction values to 99% or 1%
 
-/etc/fstab is hardly guaranteed to be accurate either.  The kernel
-mounts the root device based on its command line and any pivot_root()
-calls you make, not based on /etc/fstab.
 
-[In practice, I imagine most people don't lie to fstab.  The fsck init
-script would get annoyed.]
+	So all of the BUG() routines in the kernel would benifit greatly from this.
 
-But the horse's mouth, in this case, is /proc/sys/kernel/real-root-dev,
-a 16-bit decimal int which represents a device number in
-MAJOR*256+MINOR format.  There *may* also the 'root=' asciiz string in
-/proc/cmdline, which will be a 4-digit hex number, but that is not
-reliable - because of pivot_root() among other things.
 
-On my system, real-root-dev gives 8453, which means /dev/hde5, which is
-on ide2.  According to /proc/ide/ide2/config, it is a PCI device of
-type 105a:4d30 [Promise Ultra100], so you can derive
-CONFIG_BLK_DEV_PDC202XX as well as CONFIG_BLK_DEV_IDEDISK.
 
-Peter
+Craig.

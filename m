@@ -1,46 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261702AbTDFNV6 (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 09:21:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261910AbTDFNV6 (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 09:21:58 -0400
-Received: from supreme.pcug.org.au ([203.10.76.34]:1711 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id S261702AbTDFNV5 (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Apr 2003 09:21:57 -0400
-Date: Sun, 6 Apr 2003 23:33:19 +1000
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: "Anant Aneja" <anantaneja@rediffmail.com>
+	id S261693AbTDFN2I (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 09:28:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262879AbTDFN2I (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 09:28:08 -0400
+Received: from smtp01.web.de ([217.72.192.180]:1039 "EHLO smtp.web.de")
+	by vger.kernel.org with ESMTP id S261693AbTDFN2H (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Apr 2003 09:28:07 -0400
+From: Michael Buesch <freesoftwaredeveloper@web.de>
+To: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
+Subject: Re: Serial port over TCP/IP
+Date: Sun, 6 Apr 2003 15:39:00 +0200
+User-Agent: KMail/1.5
+References: <200304061447.46393.freesoftwaredeveloper@web.de> <20030406131132.GJ639@gallifrey>
+In-Reply-To: <20030406131132.GJ639@gallifrey>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: poweroff problem
-Message-Id: <20030406233319.042878d3.sfr@canb.auug.org.au>
-In-Reply-To: <20030405060804.31946.qmail@webmail5.rediffmail.com>
-References: <20030405060804.31946.qmail@webmail5.rediffmail.com>
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200304061539.00494.freesoftwaredeveloper@web.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5 Apr 2003 06:08:04 -0000 "Anant Aneja" <anantaneja@rediffmail.com> wrote:
->
-> I've got a problem with my 2.4.2-2 kernel.
-> after reaching the power down stage i get a :
-> 1. complete listing of the cpu registers
-> 2. a message saying sementaion fault with halt -i -p -d
+On Sunday 06 April 2003 15:11, Dr. David Alan Gilbert wrote:
+> I keep thinking that it would be nice to have a mechanism for user space
+> char devices; it would have to have a mechanism to pass all the ioctls
+> to the process that dealt with it.
 
-Has it always done this?
+But wouldn't this make too much overhead, if implemented all in userspace?
+I say this, because nbd is also implemented in user- und kernel-space.
 
-> i contacted the author of the poweroff script but
-> he says that this means it must be a kernel problem
+Regards Michael Buesch. 
 
-More likely a BIOS problem that is weel known.
-
-> also i cant give u the complete listing of the cpu
-> registers since it occurs at the last stage
-> of shutdown and i cant copy it to a file
-> and am too lazy to write it down
-
-Write down the first few lines at least ...
 -- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
+My homepage: http://www.8ung.at/tuxsoft
+fighting for peace is like fu**ing for virginity
+

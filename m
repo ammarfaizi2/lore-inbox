@@ -1,40 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261946AbVCHBRN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261557AbVCGXiX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261946AbVCHBRN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 20:17:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261344AbVCHBRG
+	id S261557AbVCGXiX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 18:38:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261783AbVCGXgB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 20:17:06 -0500
-Received: from orb.pobox.com ([207.8.226.5]:57473 "EHLO orb.pobox.com")
-	by vger.kernel.org with ESMTP id S262000AbVCHBQl (ORCPT
+	Mon, 7 Mar 2005 18:36:01 -0500
+Received: from rproxy.gmail.com ([64.233.170.203]:1767 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261916AbVCGXE3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 20:16:41 -0500
-In-Reply-To: <422CF779.6030508@euroweb.net.mt>
-References: <422CE853.8070603@euroweb.net.mt> <9b84705fe7666dfbbf1782ca85ae2ae0@pobox.com> <422CF779.6030508@euroweb.net.mt>
-Mime-Version: 1.0 (Apple Message framework v619.2)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <3fc8879e89b758404ca32cf68739698b@pobox.com>
+	Mon, 7 Mar 2005 18:04:29 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=mT2rxW67zh7R1MKMq18qPmF8wpK98V4B2vxaD29N4+f6N57Na9VaHaRJfdxLzkjczxRcCz3jGr6ydT+t+tKi7WCv/oMOhVhUd3dfzE1+NKinyvxGTK5BUwByb3SwNNawmAAvuZhSRw6VIBLkSU67kSBcSLW2YOOKmCHhIY1xtYU=
+Message-ID: <9e47339105030715034a8f8ff9@mail.gmail.com>
+Date: Mon, 7 Mar 2005 18:03:57 -0500
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: Adam Belay <abelay@novell.com>
+Subject: Re: [RFC][PATCH] PCI bridge driver rewrite (rev 02)
+Cc: greg@kroah.com, linux-kernel@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz
+In-Reply-To: <1110234742.2456.37.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Cc: linux-kernel@vger.kernel.org
-From: Scott Feldman <sfeldma@pobox.com>
-Subject: Re: Sending IP datagrams
-Date: Mon, 7 Mar 2005 17:15:33 -0800
-To: "Josef E. Galea" <josefeg@euroweb.net.mt>
-X-Mailer: Apple Mail (2.619.2)
+References: <1110234742.2456.37.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+What about a bridge driver for ISA LPC bridges? That would also
+provide a logical place to hang serial ports, floppy, parallel port,
+ps2 port, etc. Things in /sys/bus/platform are really attached to the
+LPC bridge.
 
-On Mar 7, 2005, at 4:53 PM, Josef E. Galea wrote:
-
-> AFAIK that module uses socket buffers (struct sk_buff) to send the 
-> packets. I was asking whether there was another way to send the IP 
-> datagrams.
-
-Well the network device driver wants a sk_buff (hard_start_xmit) so 
-you'd need to modify the network device driver to accept something else 
-if you don't want to use sk_buffs.  What's wrong with sk_buffs for your 
-problem?
-
--scott
-
+-- 
+Jon Smirl
+jonsmirl@gmail.com

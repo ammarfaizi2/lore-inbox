@@ -1,188 +1,109 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264246AbTLYJtR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Dec 2003 04:49:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264254AbTLYJtR
+	id S264241AbTLYJq5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Dec 2003 04:46:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264246AbTLYJq5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Dec 2003 04:49:17 -0500
-Received: from [211.167.76.68] ([211.167.76.68]:52968 "HELO soulinfo.com")
-	by vger.kernel.org with SMTP id S264246AbTLYJtD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Dec 2003 04:49:03 -0500
-Date: Thu, 25 Dec 2003 17:40:33 +0800
-From: Hugang <hugang@soulinfo.com>
-To: Nikita Danilov <Nikita@Namesys.COM>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] laptop-mode for 2.6, version 2
-Message-Id: <20031225174033.1abb5401.hugang@soulinfo.com>
-In-Reply-To: <16362.43831.569086.825899@laputa.namesys.com>
-References: <3FE92517.1000306@samwel.tk>
-	<20031224215120.66b74f66.hugang@soulinfo.com>
-	<16361.41348.444243.919179@laputa.namesys.com>
-	<20031225105916.67e74599.hugang@soulinfo.com>
-	<16362.43831.569086.825899@laputa.namesys.com>
-Organization: Beijing Soul
-X-Mailer: Sylpheed version 0.9.7claws (GTK+ 1.2.10; powerpc-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="Multipart=_Thu__25_Dec_2003_17_40_33_+0800_.NiIFT9Ts.71rMlc"
+	Thu, 25 Dec 2003 04:46:57 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:8432 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S264241AbTLYJqz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Dec 2003 04:46:55 -0500
+Message-ID: <3FEAB1D6.9030209@mvista.com>
+Date: Thu, 25 Dec 2003 01:45:58 -0800
+From: George Anzinger <george@mvista.com>
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Matt Mackall <mpm@selenic.com>
+CC: Andrew Morton <akpm@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
+       dilinger@voxel.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 5/7] more CardServices() removals (drivers/net/wireless)
+References: <1072229780.5300.69.camel@spiral.internal> <20031223182817.0bd3dd3c.akpm@osdl.org> <3FE8FC2E.3080701@pobox.com> <20031223184827.4cfb87e2.akpm@osdl.org> <3FE9022A.7010604@pobox.com> <20031223202305.489c409f.akpm@osdl.org> <20031224043349.GI18208@waste.org>
+In-Reply-To: <20031224043349.GI18208@waste.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+Matt Mackall wrote:
+> On Tue, Dec 23, 2003 at 08:23:05PM -0800, Andrew Morton wrote:
+> 
+>>Jeff Garzik <jgarzik@pobox.com> wrote:
+>>
+>>>Patch:
+>>> http://www.kernel.org/pub/linux/kernel/people/jgarzik/patchkits/2.6/2.6.0-netdrvr-exp1.patch.bz2
+>>
+>>Thanks, I mmified that.  It let me drop a shower of other stuff, which is
+>>always welcome.  Please send in new versions as-and-when needed.
+>>
+>>I dropped all of kgdboe:
+>>
+>>	kgdb-over-ethernet.patch
+>>	kgdb-over-ethernet-fixes.patch
+>>	kgdb-CONFIG_NET_POLL_CONTROLLER.patch
+>>	kgdb-handle-stopped-NICs.patch
+>>	eepro100-poll-controller.patch
+>>	tlan-poll_controller.patch
+>>	tulip-poll_controller.patch
+>>	tg3-poll_controller.patch
+>>	8139too-poll_controller.patch
+>>	kgdb-eth-smp-fix.patch
+>>	kgdb-eth-reattach.patch
+>>	kgdb-skb_reserve-fix.patch
+>>
+>>Matt, would you be able to take a look at resurrecting kgdboe based on the
+>>netpoll infrastructure sometime please?
+> 
+> 
+> Yep, I'm working on it this very moment for my -tiny tree on top of
+> Jeff's latest. Should have another cut soon.
+>  
+> 
+>>George, I'm sorely tempted to fold all of these:
+>>
+>>	kgdb-buff-too-big.patch
+>>	kgdb-warning-fix.patch
+>>	kgdb-build-fix.patch
+>>	kgdb-spinlock-fix.patch
+>>	kgdb-fix-debug-info.patch
+>>	kgdb-cpumask_t.patch
+>>	kgdb-x86_64-fixes.patch
+>>
+>>into the base kgdb patch.   Beware ;)
+> 
+> 
+> I did that here too, and I believe mbligh has as well.
+> 
+I got side tracked by a customer with money :)  The fold is fine with me, but I 
+would like to know what went in.
 
---Multipart=_Thu__25_Dec_2003_17_40_33_+0800_.NiIFT9Ts.71rMlc
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+By the way, in my looking at the network link stuff, I started wondering if it 
+could not be done without modifying the card stuff.  Here is what I see:
 
-On Thu, 25 Dec 2003 12:17:43 +0300
-Nikita Danilov <Nikita@Namesys.COM> wrote:
+The poll routine just calls the interrupt handler.  We only need the address of 
+that routine and a generic poll function to do the indirect call.  That address, 
+once the link is up, can be found in the interrupt tables using the irq.
 
-> >    unsigned long blocks;
-> >    unsigned long mount_options = REISERFS_SB(s)->s_mount_opt;
-> >    unsigned long safe_mask = 0;
-> > +  unsigned int commit_max_age = -1;
-> 
-> Assigning -1 to the unsigned int looks strange. Let's use 0, it is
-> invalid anyway.
-Yes, must change to -1, fixed.
+I haven't looked in detail at where we might find the address earlier, but I 
+suspect it may be possible.
 
-> I think that it would be better to first
-> 
-> SB_JOURNAL_MAX_COMMIT_AGE(p_s_sb) = val
-> 
-> in the parse_options() (after checking for validity), and in
-> journal_init() do something like
-> 
-> if (SB_JOURNAL_MAX_COMMIT_AGE(p_s_sb) == 0) {
->   SB_JOURNAL_MAX_COMMIT_AGE(p_s_sb) = le32_to_cpu (jh->jh_journal.jp_journal_max_commit_age);
-> }
-> 
-> This will also get rid of
-> 
-> +  if(commit_max_age != -1) {
-> +	  SB_JOURNAL_MAX_COMMIT_AGE(s) = commit_max_age;
-> +  }
-> +
-> 
-> piece in reiserfs_remount.
-> 
-> Otherwise patch looks ok. Have you tested it?
-> 
-In the parse_options() can not assigning commit max age to super block, 
-the journal memory not malloc, so I pass a it to journal_init.
+There is an issue around when we can start talking to gdb.  I am not sure when 
+the net cards are initialized, but it is after memory is available from the slab 
+manager.  I am not sure what else needs to be up, need help here.  I keep 
+finding myself wondering about a small memory manager to allow the network card 
+to come up a bit sooner (like first C code).
 
-Yes, It works in my laptop for 1 days. Every thinks is fine.
+We would also need to arrange to have the needed network parameters at that 
+time, but we can do this using the CONFIG stuff, then override with command line 
+if that is desired.
 
-Thanks.
+Thoughts and hints are welcome.
+
+
 -- 
-Hu Gang / Steve
-RLU#          : 204016 [1999] (Registered Linux user)
-GPG Public Key: http://soulinfo.com/~hugang/HuGang.asc
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
 
---Multipart=_Thu__25_Dec_2003_17_40_33_+0800_.NiIFT9Ts.71rMlc
-Content-Type: application/octet-stream;
- name="reiserfs_laptop_mode"
-Content-Disposition: attachment;
- filename="reiserfs_laptop_mode"
-Content-Transfer-Encoding: base64
-
-SW5kZXg6IGxpbnV4LTIuNi4wL2luY2x1ZGUvbGludXgvcmVpc2VyZnNfZnMuaAo9PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-Ci0tLSBsaW51eC0yLjYuMC9pbmNsdWRlL2xpbnV4L3JlaXNlcmZzX2ZzLmgJKHJldmlzaW9uIDk0
-KQorKysgbGludXgtMi42LjAvaW5jbHVkZS9saW51eC9yZWlzZXJmc19mcy5oCSh3b3JraW5nIGNv
-cHkpCkBAIC0xNzE5LDcgKzE3MTksNyBAQAogdm9pZCByZWlzZXJmc19jaGVja19sb2NrX2RlcHRo
-KGNoYXIgKmNhbGxlcikgOwogdm9pZCByZWlzZXJmc19wcmVwYXJlX2Zvcl9qb3VybmFsKHN0cnVj
-dCBzdXBlcl9ibG9jayAqLCBzdHJ1Y3QgYnVmZmVyX2hlYWQgKmJoLCBpbnQgd2FpdCkgOwogdm9p
-ZCByZWlzZXJmc19yZXN0b3JlX3ByZXBhcmVkX2J1ZmZlcihzdHJ1Y3Qgc3VwZXJfYmxvY2sgKiwg
-c3RydWN0IGJ1ZmZlcl9oZWFkICpiaCkgOwotaW50IGpvdXJuYWxfaW5pdChzdHJ1Y3Qgc3VwZXJf
-YmxvY2sgKiwgY29uc3QgY2hhciAqIGpfZGV2X25hbWUsIGludCBvbGRfZm9ybWF0KSA7CitpbnQg
-am91cm5hbF9pbml0KHN0cnVjdCBzdXBlcl9ibG9jayAqLCBjb25zdCBjaGFyICogal9kZXZfbmFt
-ZSwgaW50IG9sZF9mb3JtYXQsIHVuc2lnbmVkIGludCkgOwogaW50IGpvdXJuYWxfcmVsZWFzZShz
-dHJ1Y3QgcmVpc2VyZnNfdHJhbnNhY3Rpb25faGFuZGxlKiwgc3RydWN0IHN1cGVyX2Jsb2NrICop
-IDsKIGludCBqb3VybmFsX3JlbGVhc2VfZXJyb3Ioc3RydWN0IHJlaXNlcmZzX3RyYW5zYWN0aW9u
-X2hhbmRsZSosIHN0cnVjdCBzdXBlcl9ibG9jayAqKSA7CiBpbnQgam91cm5hbF9lbmQoc3RydWN0
-IHJlaXNlcmZzX3RyYW5zYWN0aW9uX2hhbmRsZSAqLCBzdHJ1Y3Qgc3VwZXJfYmxvY2sgKiwgdW5z
-aWduZWQgbG9uZykgOwpJbmRleDogbGludXgtMi42LjAvZnMvcmVpc2VyZnMvc3VwZXIuYwo9PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09Ci0tLSBsaW51eC0yLjYuMC9mcy9yZWlzZXJmcy9zdXBlci5jCShyZXZpc2lvbiA5NCkK
-KysrIGxpbnV4LTIuNi4wL2ZzL3JlaXNlcmZzL3N1cGVyLmMJKHdvcmtpbmcgY29weSkKQEAgLTY0
-NSw3ICs2NDUsOCBAQAogCQkJCSAgICAgIGNvbGxlY3Rpb24gb2YgYml0ZmxhZ3MgZGVmaW5pbmcg
-d2hhdAogCQkJCSAgICAgIG1vdW50IG9wdGlvbnMgd2VyZSBzZWxlY3RlZC4gKi8KIAkJCQkgICB1
-bnNpZ25lZCBsb25nICogYmxvY2tzLCAvKiBzdHJ0b2wtZWQgZnJvbSBOTk4gb2YgcmVzaXplPU5O
-TiAqLwotCQkJCSAgIGNoYXIgKiogamRldl9uYW1lKQorCQkJCSAgIGNoYXIgKiogamRldl9uYW1l
-LCAKKwkJCQkgICB1bnNpZ25lZCBpbnQgKiBjb21taXRfbWF4X2FnZSkKIHsKICAgICBpbnQgYzsK
-ICAgICBjaGFyICogYXJnID0gTlVMTDsKQEAgLTY2Miw2ICs2NjMsNyBAQAogCXsicmVzaXplIiwg
-J3InLCAwLCAwLCAwfSwKIAl7ImpkZXYiLCAnaicsIDAsIDAsIDB9LAogCXsibm9sYXJnZWlvIiwg
-J3cnLCAwLCAwLCAwfSwKKwl7ImNvbW1pdCIsICdjJywgMCwgMCwgMH0sCiAJe05VTEwsIDAsIDAs
-IDAsIDB9CiAgICAgfTsKIAkKQEAgLTY5MCw2ICs2OTIsMTkgQEAKIAkgICAgfQogCX0KIAorCWlm
-ICggYyA9PSAnYycgKSB7CisJCWNoYXIgKnAgPSAwOworCQlpbnQgdmFsID0gc2ltcGxlX3N0cnRv
-dWwgKGFyZywgJnAsIDApOworCisJCWlmICggKnAgIT0gJ1wwJykgeworCQkJcHJpbnRrICgicmVp
-c2VyZnNfcGFyc2Vfb3B0aW9uczogYmFkIHZhbHVlICVzXG4iLCBhcmcpOworCQkJcmV0dXJuIDA7
-CisJCX0KKwkJaWYgKCB2YWwgPiAwICkgeworCQkJKmNvbW1pdF9tYXhfYWdlID0gdmFsOworCQl9
-CisJfQorCiAJaWYgKCBjID09ICd3JyApIHsKIAkJY2hhciAqcD0wOwogCQlpbnQgdmFsID0gc2lt
-cGxlX3N0cnRvdWwgKGFyZywgJnAsIDApOwpAQCAtNzQzLDEwICs3NTgsMTEgQEAKICAgdW5zaWdu
-ZWQgbG9uZyBibG9ja3M7CiAgIHVuc2lnbmVkIGxvbmcgbW91bnRfb3B0aW9ucyA9IFJFSVNFUkZT
-X1NCKHMpLT5zX21vdW50X29wdDsKICAgdW5zaWduZWQgbG9uZyBzYWZlX21hc2sgPSAwOworICB1
-bnNpZ25lZCBpbnQgY29tbWl0X21heF9hZ2UgPSAwOwogCiAgIHJzID0gU0JfRElTS19TVVBFUl9C
-TE9DSyAocyk7CiAKLSAgaWYgKCFyZWlzZXJmc19wYXJzZV9vcHRpb25zKHMsIGFyZywgJm1vdW50
-X29wdGlvbnMsICZibG9ja3MsIE5VTEwpKQorICBpZiAoIXJlaXNlcmZzX3BhcnNlX29wdGlvbnMo
-cywgYXJnLCAmbW91bnRfb3B0aW9ucywgJmJsb2NrcywgTlVMTCwgJmNvbW1pdF9tYXhfYWdlKSkK
-ICAgICByZXR1cm4gLUVJTlZBTDsKICAgCiAgIGhhbmRsZV9hdHRycyhzKTsKQEAgLTc2NCw2ICs3
-ODAsMTAgQEAKICAgICogdGhlIGJpdHMgd2UncmUgbm90IGFsbG93ZWQgdG8gY2hhbmdlIGhlcmUg
-Ki8KICAgUkVJU0VSRlNfU0IocyktPnNfbW91bnRfb3B0ID0gKFJFSVNFUkZTX1NCKHMpLT5zX21v
-dW50X29wdCAmIH5zYWZlX21hc2spIHwgIChtb3VudF9vcHRpb25zICYgc2FmZV9tYXNrKTsKIAor
-ICBpZihjb21taXRfbWF4X2FnZSAhPSAwKSB7CisJICBTQl9KT1VSTkFMX01BWF9DT01NSVRfQUdF
-KHMpID0gY29tbWl0X21heF9hZ2U7CisgIH0KKwogICBpZihibG9ja3MpIHsKICAgICBpbnQgcmMg
-PSByZWlzZXJmc19yZXNpemUocywgYmxvY2tzKTsKICAgICBpZiAocmMgIT0gMCkKQEAgLTEyMTMs
-NiArMTIzMyw3IEBACiAgICAgc3RydWN0IHJlaXNlcmZzX3RyYW5zYWN0aW9uX2hhbmRsZSB0aCA7
-CiAgICAgaW50IG9sZF9mb3JtYXQgPSAwOwogICAgIHVuc2lnbmVkIGxvbmcgYmxvY2tzOworCXVu
-c2lnbmVkIGludCBjb21taXRfbWF4X2FnZSA9IDA7CiAgICAgaW50IGppbml0X2RvbmUgPSAwIDsK
-ICAgICBzdHJ1Y3QgcmVpc2VyZnNfaWdldF9hcmdzIGFyZ3MgOwogICAgIHN0cnVjdCByZWlzZXJm
-c19zdXBlcl9ibG9jayAqIHJzOwpAQCAtMTIzNyw3ICsxMjU4LDcgQEAKICAgICBSRUlTRVJGU19T
-QihzKS0+c19hbGxvY19vcHRpb25zLnByZWFsbG9jc2l6ZSA9IDk7CiAKICAgICBqZGV2X25hbWUg
-PSBOVUxMOwotICAgIGlmIChyZWlzZXJmc19wYXJzZV9vcHRpb25zIChzLCAoY2hhciAqKSBkYXRh
-LCAmKHNiaS0+c19tb3VudF9vcHQpLCAmYmxvY2tzLCAmamRldl9uYW1lKSA9PSAwKSB7CisgICAg
-aWYgKHJlaXNlcmZzX3BhcnNlX29wdGlvbnMgKHMsIChjaGFyICopIGRhdGEsICYoc2JpLT5zX21v
-dW50X29wdCksICZibG9ja3MsICZqZGV2X25hbWUsICZjb21taXRfbWF4X2FnZSkgPT0gMCkgewog
-CWdvdG8gZXJyb3I7CiAgICAgfQogCkBAIC0xMjc5LDcgKzEzMDAsNyBAQAogI2VuZGlmCiAKICAg
-ICAvLyBzZXRfZGV2aWNlX3JvKHMtPnNfZGV2LCAxKSA7Ci0gICAgaWYoIGpvdXJuYWxfaW5pdChz
-LCBqZGV2X25hbWUsIG9sZF9mb3JtYXQpICkgeworICAgIGlmKCBqb3VybmFsX2luaXQocywgamRl
-dl9uYW1lLCBvbGRfZm9ybWF0LCBjb21taXRfbWF4X2FnZSkgKSB7CiAJcHJpbnRrKCJzaC0yMDIy
-OiByZWlzZXJmc19maWxsX3N1cGVyOiB1bmFibGUgdG8gaW5pdGlhbGl6ZSBqb3VybmFsIHNwYWNl
-XG4iKSA7CiAJZ290byBlcnJvciA7CiAgICAgfSBlbHNlIHsKSW5kZXg6IGxpbnV4LTIuNi4wL2Zz
-L3JlaXNlcmZzL2pvdXJuYWwuYwo9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09Ci0tLSBsaW51eC0yLjYuMC9mcy9yZWlzZXJm
-cy9qb3VybmFsLmMJKHJldmlzaW9uIDk0KQorKysgbGludXgtMi42LjAvZnMvcmVpc2VyZnMvam91
-cm5hbC5jCSh3b3JraW5nIGNvcHkpCkBAIC0xOTY3LDcgKzE5NjcsNyBAQAogLyoKICoqIG11c3Qg
-YmUgY2FsbGVkIG9uY2Ugb24gZnMgbW91bnQuICBjYWxscyBqb3VybmFsX3JlYWQgZm9yIHlvdQog
-Ki8KLWludCBqb3VybmFsX2luaXQoc3RydWN0IHN1cGVyX2Jsb2NrICpwX3Nfc2IsIGNvbnN0IGNo
-YXIgKiBqX2Rldl9uYW1lLCBpbnQgb2xkX2Zvcm1hdCkgeworaW50IGpvdXJuYWxfaW5pdChzdHJ1
-Y3Qgc3VwZXJfYmxvY2sgKnBfc19zYiwgY29uc3QgY2hhciAqIGpfZGV2X25hbWUsIGludCBvbGRf
-Zm9ybWF0LCB1bnNpZ25lZCBpbnQgY29tbWl0X21heF9hZ2UpIHsKICAgICBpbnQgbnVtX2Nub2Rl
-cyA9IFNCX09ORElTS19KT1VSTkFMX1NJWkUocF9zX3NiKSAqIDIgOwogICAgIHN0cnVjdCBidWZm
-ZXJfaGVhZCAqYmhqaDsKICAgICBzdHJ1Y3QgcmVpc2VyZnNfc3VwZXJfYmxvY2sgKiByczsKQEAg
-LTIwMzIsNyArMjAzMiwxMSBAQAogICAgICAKICAgU0JfSk9VUk5BTF9UUkFOU19NQVgocF9zX3Ni
-KSAgICAgID0gbGUzMl90b19jcHUgKGpoLT5qaF9qb3VybmFsLmpwX2pvdXJuYWxfdHJhbnNfbWF4
-KTsKICAgU0JfSk9VUk5BTF9NQVhfQkFUQ0gocF9zX3NiKSAgICAgID0gbGUzMl90b19jcHUgKGpo
-LT5qaF9qb3VybmFsLmpwX2pvdXJuYWxfbWF4X2JhdGNoKTsKLSAgU0JfSk9VUk5BTF9NQVhfQ09N
-TUlUX0FHRShwX3Nfc2IpID0gbGUzMl90b19jcHUgKGpoLT5qaF9qb3VybmFsLmpwX2pvdXJuYWxf
-bWF4X2NvbW1pdF9hZ2UpOworICBpZiAoY29tbWl0X21heF9hZ2UgIT0gMCkgeworCSAgU0JfSk9V
-Uk5BTF9NQVhfQ09NTUlUX0FHRShwX3Nfc2IpID0gY29tbWl0X21heF9hZ2U7CisgIH0gZWxzZSB7
-CisJICBTQl9KT1VSTkFMX01BWF9DT01NSVRfQUdFKHBfc19zYikgPSBsZTMyX3RvX2NwdSAoamgt
-PmpoX2pvdXJuYWwuanBfam91cm5hbF9tYXhfY29tbWl0X2FnZSk7CisgIH0KICAgU0JfSk9VUk5B
-TF9NQVhfVFJBTlNfQUdFKHBfc19zYikgID0gSk9VUk5BTF9NQVhfVFJBTlNfQUdFOwogCiAgIGlm
-IChTQl9KT1VSTkFMX1RSQU5TX01BWChwX3Nfc2IpKSB7CkluZGV4OiBsaW51eC0yLjYuMC9mcy9y
-ZWlzZXJmcy9wcm9jZnMuYwo9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09Ci0tLSBsaW51eC0yLjYuMC9mcy9yZWlzZXJmcy9w
-cm9jZnMuYwkocmV2aXNpb24gOTQpCisrKyBsaW51eC0yLjYuMC9mcy9yZWlzZXJmcy9wcm9jZnMu
-Ywkod29ya2luZyBjb3B5KQpAQCAtNDAxLDcgKzQwMSw3IEBACiAgICAgICAgICAgICAgICAgICAg
-ICAgICBESlAoIGpwX2pvdXJuYWxfdHJhbnNfbWF4ICksCiAgICAgICAgICAgICAgICAgICAgICAg
-ICBESlAoIGpwX2pvdXJuYWxfbWFnaWMgKSwKICAgICAgICAgICAgICAgICAgICAgICAgIERKUCgg
-anBfam91cm5hbF9tYXhfYmF0Y2ggKSwKLSAgICAgICAgICAgICAgICAgICAgICAgIERKUCgganBf
-am91cm5hbF9tYXhfY29tbWl0X2FnZSApLAorICAgICAgICAgICAgICAgICAgICAgICAgU0JfSk9V
-Uk5BTF9NQVhfQ09NTUlUX0FHRShzYiksIAogICAgICAgICAgICAgICAgICAgICAgICAgREpQKCBq
-cF9qb3VybmFsX21heF90cmFuc19hZ2UgKSwKIAogCQkJSkYoIGpfMXN0X3Jlc2VydmVkX2Jsb2Nr
-ICksCQkJCg==
-
---Multipart=_Thu__25_Dec_2003_17_40_33_+0800_.NiIFT9Ts.71rMlc--

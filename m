@@ -1,55 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261177AbTCNWQU>; Fri, 14 Mar 2003 17:16:20 -0500
+	id <S261165AbTCNWcK>; Fri, 14 Mar 2003 17:32:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261206AbTCNWQU>; Fri, 14 Mar 2003 17:16:20 -0500
-Received: from packet.digeo.com ([12.110.80.53]:1672 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S261177AbTCNWQT>;
-	Fri, 14 Mar 2003 17:16:19 -0500
-Date: Fri, 14 Mar 2003 14:21:39 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Eli Carter <eli.carter@inet.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.5.64-mm6
-Message-Id: <20030314142139.675c994b.akpm@digeo.com>
-In-Reply-To: <3E725156.5000102@inet.com>
-References: <20030313032615.7ca491d6.akpm@digeo.com>
-	<3E723DBF.6040304@inet.com>
-	<20030314125354.409ca02a.akpm@digeo.com>
-	<3E725156.5000102@inet.com>
-X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S261191AbTCNWcK>; Fri, 14 Mar 2003 17:32:10 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:22732 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S261165AbTCNWcJ>; Fri, 14 Mar 2003 17:32:09 -0500
+Subject: Updated ext3 patch set for 2.4
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: ext3 users list <ext3-users@redhat.com>,
+       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Stephen Tweedie <sct@redhat.com>, Andrew Morton <akpm@digeo.com>,
+       "Theodore Ts'o" <tytso@mit.edu>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 14 Mar 2003 22:27:02.0076 (UTC) FILETIME=[D59F57C0:01C2EA78]
+Organization: 
+Message-Id: <1047681775.2566.664.camel@sisko.scot.redhat.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-3) 
+Date: 14 Mar 2003 22:42:56 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eli Carter <eli.carter@inet.com> wrote:
->
-> If I can feed you changes to kgdb, would you be interested in taking 
-> them?
+Hi all,
 
-Sure.
+I've pushed my current set of ext3 diffs (against Marcelo's current
+tree) to
 
-> What was the last patch you shipped with George's version?
+http://people.redhat.com/sct/patches/ext3-2.4/dev-20030314/
 
-Long time ago.  I'll send you the latest.
+This includes:
 
-> Which do you think would be the right place to start?
+00-merged/			diffs recently merged into 2.4
+10-core-fixes-other/		misc fixes/tweaks from akpm, adilger
+11-core-fixes-sct/		misc fixes/tweaks from sct
+20-tytso-updates/		Ted's recent updates
+21-updates-sct/			recent sct diffs pending upstream merge
+40-iflush-sct/			experimental inode-flush code
+50-debug/			archive of debug patches
+99-deferred/			stuff being kept around for future consideration
 
-George's.  It enters the debugger way earlier in boot and appears to have
-stronger SMP support.  Has more features, etc.
+plus
 
-> "We"... I like that word.  ;)  If you can act as 'upstream' for my 
-> changes and answer quick questions, I'll feed you patches.
+all-patches.tar.gz		tarball of the above
+combo-patch-10to21.patch.gz	combo patch of the 10--21 dirs above
 
-Sure.  The patches are against base 2.5.x, so your work will be separated
-from -mm goings-on.
+The tytso-updates includes all of Ted's recent changes, separated out as
+incrementals against the first htree+orlov changes he posted a while
+back, so that we can keep track of diffs.  It includes his back-port of
+akpm's orlov changes, plus the recent htree and noatime fixes.  Oh, and
+it has the requested "+htree+orlov" ext3 version string added.
 
-> I'm thinking I'll try to wind up with 2 or 3 patches, kgdb.patch, 
-> kgdb-arm.patch, and kgdb-ia32.patch.  Maybe.
+The combo patch should be equivalent to Ted's latest set of htree+orlov
+diffs (except containing a few extra fixes that I'll start pushing
+upstream next week), but broken out in a way that makes it easier to
+track the individual change history.  It has had only minimal testing so
+far.
 
-That sounds appropriate.
-
+Cheers,
+ Stephen
 

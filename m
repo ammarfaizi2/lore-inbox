@@ -1,64 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289789AbSBEVED>; Tue, 5 Feb 2002 16:04:03 -0500
+	id <S289811AbSBEVFX>; Tue, 5 Feb 2002 16:05:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289809AbSBEVDy>; Tue, 5 Feb 2002 16:03:54 -0500
-Received: from ns1.intercarve.net ([216.254.127.221]:20624 "HELO
-	ceramicfrog.intercarve.net") by vger.kernel.org with SMTP
-	id <S289789AbSBEVDo>; Tue, 5 Feb 2002 16:03:44 -0500
-Date: Tue, 5 Feb 2002 16:00:23 -0500 (EST)
-From: "Drew P. Vogel" <dvogel@intercarve.net>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: william fitzgerald <william.fitzgerald2@beer.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: windows is more secure than linux!!
-In-Reply-To: <Pine.LNX.4.33L.0202051621590.12225-100000@duckman.distro.conectiva>
-Message-ID: <Pine.LNX.4.33.0202051556070.22261-100000@northface.intercarve.net>
+	id <S289809AbSBEVFN>; Tue, 5 Feb 2002 16:05:13 -0500
+Received: from mailout10.sul.t-online.com ([194.25.134.21]:51589 "EHLO
+	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S289811AbSBEVFA>; Tue, 5 Feb 2002 16:05:00 -0500
+Message-ID: <00c301c1ae88$c040c4e0$fe78a8c0@bmuberatung.com>
+From: Frank.Heldt@t-online.de (Frank Heldt)
+To: <linux-kernel@vger.kernel.org>
+Subject: Anyone from Brasil listening?
+Date: Tue, 5 Feb 2002 22:04:50 +0100
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-One thing I haven't seen argued is what I find most important. The time
-frame in which I am vulnerable. I'd rather have 10x the number of
-vulnerabilities which last 1/10th the time.
+Hello Linuxers,
 
---Drew Vogel
+i known this is a little bit offtopic, but i also known, that some Linux
+folks from Brasil are reading the LKML, too.
 
-On Tue, 5 Feb 2002, Rik van Riel wrote:
+We are on the way to opening a bureau in Rio de Janeiro, which will have
+some PC's and a Linux Firewall with internet connection (to doVPN to
+Germany). As the people there have absolutly no PC knowledge, we are looking
+for a support partner in Rio. Does anyone have some hints about:
+1. A good internet provider in Brasil/Rio? We need a ISDN (or even better
+DSL) connection.
+2. A firm/person with good Linux knowledge, which can give local support for
+this little net?
 
->On Wed, 6 Feb 2002, william fitzgerald wrote:
->
->> some of you might find this interesting others
->> disheartening
->
->Still others, like me, find it very encouraging
->that Microsoft can't stop talking about Linux.
->They must be enthusiastic about it, or something.
->
->> www.shortnews.com/shownews.cfm?id=16886&u_id=623
->
->Now add the security holes in ISS, Outlook, Exchange,
->Access and all available pieces of Windows software
->into the picture so Linux and Windows are measured on
->an equal ground.
->
->Lies, damn lies & statistics.
->
->regards,
->
->Rik
->--
->DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/
->
->http://www.surriel.com/		http://distro.conectiva.com/
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
+Any help would be really welcome, so thanks in advance.
 
+Bye
+    Frank Heldt
 
+--
+Linux - Less bugs for less bucks!
 

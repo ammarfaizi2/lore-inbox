@@ -1,51 +1,135 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261508AbUKODhP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261511AbUKODhQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261508AbUKODhP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Nov 2004 22:37:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261485AbUKODgg
+	id S261511AbUKODhQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Nov 2004 22:37:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261507AbUKODg3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Nov 2004 22:36:36 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:18439 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261476AbUKOChD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Nov 2004 21:37:03 -0500
-Date: Mon, 15 Nov 2004 03:22:31 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: osst@riede.org
-Cc: osst-users@lists.sourceforge.net, James.Bottomley@SteelEye.com,
-       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] SCSI osst.c: make some code static
-Message-ID: <20041115022231.GV2249@stusta.de>
-Mime-Version: 1.0
+	Sun, 14 Nov 2004 22:36:29 -0500
+Received: from ozlabs.org ([203.10.76.45]:9139 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S261485AbUKOC7G (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Nov 2004 21:59:06 -0500
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16792.7267.321004.667834@cargo.ozlabs.ibm.com>
+Date: Mon, 15 Nov 2004 14:02:59 +1100
+From: Paul Mackerras <paulus@samba.org>
+To: akpm@osdl.org
+Cc: benh@kernel.crashing.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] power_state and __iomem for mediabay.c
+X-Mailer: VM 7.18 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below makes some needlessly global code static.
+This patch does the power_state -> power.power_state conversion for
+drivers/macintosh/mediabay.c and makes it use void __iomem * for
+ioremap cookies.  Once the IDE code is converted to not use unsigned
+long for MMIO register addresses, I will be able to remove a few casts
+from here.
 
+Signed-off-by: Paul Mackerras <paulus@samba.org>
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.10-rc1-mm5-full/drivers/scsi/osst.c.old	2004-11-13 22:44:39.000000000 +0100
-+++ linux-2.6.10-rc1-mm5-full/drivers/scsi/osst.c	2004-11-13 22:44:59.000000000 +0100
-@@ -24,7 +24,7 @@
- */
+diff -urN linux-2.5/drivers/macintosh/mediabay.c test-pmac/drivers/macintosh/mediabay.c
+--- linux-2.5/drivers/macintosh/mediabay.c	2004-08-03 08:07:43.000000000 +1000
++++ test-pmac/drivers/macintosh/mediabay.c	2004-11-15 13:49:10.160443344 +1100
+@@ -45,7 +45,7 @@
+ #endif
  
- static const char * cvsid = "$Id: osst.c,v 1.70 2003/12/23 14:22:12 wriede Exp $";
--const char * osst_version = "0.99.1";
-+static const char * osst_version = "0.99.1";
+ #define MB_FCR32(bay, r)	((bay)->base + ((r) >> 2))
+-#define MB_FCR8(bay, r)		(((volatile u8*)((bay)->base)) + (r))
++#define MB_FCR8(bay, r)		(((volatile __iomem u8*)((bay)->base)) + (r))
  
- /* The "failure to reconnect" firmware bug */
- #define OSST_FW_NEED_POLL_MIN 10601 /*(107A)*/
-@@ -164,7 +164,7 @@
- static int osst_probe(struct device *);
- static int osst_remove(struct device *);
+ #define MB_IN32(bay,r)		(in_le32(MB_FCR32(bay,r)))
+ #define MB_OUT32(bay,r,v)	(out_le32(MB_FCR32(bay,r), (v)))
+@@ -67,7 +67,7 @@
+ };
  
--struct scsi_driver osst_template = {
-+static struct scsi_driver osst_template = {
- 	.owner			= THIS_MODULE,
- 	.gendrv = {
- 		.name		=  "osst",
-
+ struct media_bay_info {
+-	volatile u32*			base;
++	u32 __iomem			*base;
+ 	int				content_id;
+ 	int				state;
+ 	int				last_value;
+@@ -80,7 +80,7 @@
+ 	int				sleeping;
+ 	struct semaphore		lock;
+ #ifdef CONFIG_BLK_DEV_IDE
+-	unsigned long			cd_base;
++	void __iomem			*cd_base;
+ 	int 				cd_index;
+ 	int				cd_irq;
+ 	int				cd_retry;
+@@ -443,7 +443,7 @@
+ 	int	i;
+ 
+ 	for (i=0; i<media_bay_count; i++)
+-		if (media_bays[i].mdev && base == media_bays[i].cd_base) {
++		if (media_bays[i].mdev && base == (unsigned long) media_bays[i].cd_base) {
+ 			if ((what == media_bays[i].content_id) && media_bays[i].state == mb_up)
+ 				return 0;
+ 			media_bays[i].cd_index = -1;
+@@ -468,7 +468,7 @@
+ 			
+ 			down(&bay->lock);
+ 
+- 			bay->cd_base	= base;
++ 			bay->cd_base	= (void __iomem *) base;
+ 			bay->cd_irq	= irq;
+ 
+ 			if ((MB_CD != bay->content_id) || bay->state != mb_up) {
+@@ -553,7 +553,7 @@
+ 	    	break;
+ 	    
+ 	case mb_ide_waiting:
+-		if (bay->cd_base == 0) {
++		if (bay->cd_base == NULL) {
+ 			bay->timer = 0;
+ 			bay->state = mb_up;
+ 			MBDBG("mediabay%d: up before IDE init\n", i);
+@@ -651,7 +651,7 @@
+ static int __devinit media_bay_attach(struct macio_dev *mdev, const struct of_match *match)
+ {
+ 	struct media_bay_info* bay;
+-	volatile u32 *regbase;
++	u32 __iomem *regbase;
+ 	struct device_node *ofnode;
+ 	int i;
+ 
+@@ -664,7 +664,8 @@
+ 	/* Media bay registers are located at the beginning of the
+          * mac-io chip, we get the parent address for now (hrm...)
+          */
+-	regbase = (volatile u32 *)ioremap(ofnode->parent->addrs[0].address, 0x100);
++	regbase = (u32 __iomem *)
++		ioremap(ofnode->parent->addrs[0].address, 0x100);
+ 	if (regbase == NULL) {
+ 		macio_release_resources(mdev);
+ 		return -ENOMEM;
+@@ -713,13 +714,13 @@
+ {
+ 	struct media_bay_info	*bay = macio_get_drvdata(mdev);
+ 
+-	if (state != mdev->ofdev.dev.power_state && state >= 2) {
++	if (state != mdev->ofdev.dev.power.power_state && state == PM_SUSPEND_MEM) {
+ 		down(&bay->lock);
+ 		bay->sleeping = 1;
+ 		set_mb_power(bay, 0);
+ 		up(&bay->lock);
+ 		msleep(MB_POLL_DELAY);
+-		mdev->ofdev.dev.power_state = state;
++		mdev->ofdev.dev.power.power_state = state;
+ 	}
+ 	return 0;
+ }
+@@ -728,8 +729,8 @@
+ {
+ 	struct media_bay_info	*bay = macio_get_drvdata(mdev);
+ 
+-	if (mdev->ofdev.dev.power_state != 0) {
+-		mdev->ofdev.dev.power_state = 0;
++	if (mdev->ofdev.dev.power.power_state != 0) {
++		mdev->ofdev.dev.power.power_state = 0;
+ 
+ 	       	/* We re-enable the bay using it's previous content
+ 	       	   only if it did not change. Note those bozo timings,

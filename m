@@ -1,66 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271861AbRICXxK>; Mon, 3 Sep 2001 19:53:10 -0400
+	id <S271865AbRIDAPH>; Mon, 3 Sep 2001 20:15:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271862AbRICXxB>; Mon, 3 Sep 2001 19:53:01 -0400
-Received: from femail1.sdc1.sfba.home.com ([24.0.95.81]:13200 "EHLO
-	femail1.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S271861AbRICXws> convert rfc822-to-8bit; Mon, 3 Sep 2001 19:52:48 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: machack <machack@sscsonline.org>
-Reply-To: machack@sscsonline.org
-Organization: SSCS
-To: Joel Jaeggli <joelja@darkwing.uoregon.edu>,
-        Thiago Vinhas de Moraes <tvlists@networx.com.br>
-Subject: Re: Sound Blaster Live - OSS or Not?
-Date: Mon, 3 Sep 2001 19:35:25 -0400
-X-Mailer: KMail [version 1.3.1]
-Cc: <linux-kernel@vger.kernel.org>, <seawolf-list@redhat.com>
-In-Reply-To: <Pine.LNX.4.33.0109031555360.24150-100000@twin.uoregon.edu>
-In-Reply-To: <Pine.LNX.4.33.0109031555360.24150-100000@twin.uoregon.edu>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010903235302.BBPQ27977.femail1.sdc1.sfba.home.com@there>
+	id <S271863AbRIDAO6>; Mon, 3 Sep 2001 20:14:58 -0400
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:47073 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S271862AbRIDAOt>; Mon, 3 Sep 2001 20:14:49 -0400
+Date: Mon, 3 Sep 2001 20:14:06 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+Message-Id: <200109040014.f840E6m00316@devserv.devel.redhat.com>
+To: mikpe@csd.uu.se, Floydsmith@aol.com
+Cc: linux-kernel@vger.kernel.org, linux-tape@vger.kernel.org
+Subject: Re: idetape broke in 2.4.x-2.4.9-ac5 (write OK but not read) ide-scsi works in 2.4.4
+In-Reply-To: <mailman.999367801.660.linux-kernel2news@redhat.com>
+In-Reply-To: <mailman.999367801.660.linux-kernel2news@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have been using the sblive kernel drivers for a year and have not had any 
-problems with quake3.  the driver in 2.4.9 works well for me except my mic 
-doesn't' want to work. 
+> >Kernel 2.4.9-ac5 on  i686
+> >then
+> >ide-tape: ht0: I/O error, pc =  8, key =  5, asc = 2c, ascq =  0
+> >tar: /dev/ht0: Cannot read: Input/output error
+> >(writes work OK though)
 
-On Monday 03 September 2001 07:03 pm, Joel Jaeggli wrote:
-> On Mon, 3 Sep 2001, Thiago Vinhas de Moraes wrote:
-> > Hi!
-> >
-> > I have a Sound Blaster Live! PCI that works pretty fine for me.
-> >
-> > I tried to run loki's Quake 3 Arena for Linux, and after several tries, I
-> > started to read the README file, and it said that Sound Blaster Live does
-> > not work as OSS. I found a reference to www.opensound.com, where they
-> > sell OSS drivers for Sound Blaster Live for $35.00 !! That's too much
-> > money for a sound driver! I've downloaded a trial, and it really worked
-> > to play Quake.
-> >
-> > My question is: If the 2.4.9 kernel has support for Sound Blaster Live,
-> > why I have to pay for a damn non-GPL driver? Why it does not work to play
-> > games on linux?
->
-> sound support is hard... The folks at 4-front have the benefit of a
-> liscense from the vendor for their intelectual property property used in
-> the driver... That has two implications, The code is proprietary, and the
-> vendor must be paid... I don't imagine they're getting rich in the
-> business but if you have a card that has a chipset that is supported well
-> by them and poorly by the various other sound initiatives, you have to
-> decide wether it's worth it or not.
->
-> In any case your card is fairly well supported by the alsa-project... so
-> I'd recomend trying the alsa drivers
->
-> > Regards,
-> > Thiago
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-> > in the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
+> - block size: The 2.4 ide-tape driver only works reliably if you
+>   write data with the correct block size. If you don't write full
+>   blocks the last block of data may not be readable.
 
+I fixed that some time ago, it's in current -ac
+if not in Linus's tree. The bug has nothing to do
+with the ASC=2c problem the original poster complained.
+
+> - HP's not-quite ATAPI drives: Don't know about your model, but the
+>   HP 14(?)GB model is believed to deviate from ATAPI standards.
+
+Colorado sucks... I think I have a bug pending about it,
+did not look well yet. IIRC it was giving ASC=24, not 2c.
+I'll look it up.
+
+-- Pete

@@ -1,52 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272782AbRIGROD>; Fri, 7 Sep 2001 13:14:03 -0400
+	id <S272787AbRIGRTN>; Fri, 7 Sep 2001 13:19:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272784AbRIGRNw>; Fri, 7 Sep 2001 13:13:52 -0400
-Received: from ns.ithnet.com ([217.64.64.10]:28171 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S272782AbRIGRNf>;
-	Fri, 7 Sep 2001 13:13:35 -0400
-Date: Fri, 7 Sep 2001 19:13:49 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Bob McElrath <mcelrath@draal.physics.wisc.edu>
+	id <S272786AbRIGRSy>; Fri, 7 Sep 2001 13:18:54 -0400
+Received: from math.uci.edu ([128.200.174.70]:57245 "EHLO math.uci.edu")
+	by vger.kernel.org with ESMTP id <S272785AbRIGRSd>;
+	Fri, 7 Sep 2001 13:18:33 -0400
+From: Eric Olson <ejolson@math.uci.edu>
+Message-Id: <200109071718.KAA03472@math.uci.edu>
+Subject: Some experiences with the Athlon optimisation problem
+To: heinz@auto.tuwien.ac.at
+Date: Fri, 7 Sep 2001 10:18:28 -0700 (PDT)
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: "Cached" grows and grows and grows...
-Message-Id: <20010907191349.457cad95.skraw@ithnet.com>
-In-Reply-To: <20010907110836.B1013@draal.physics.wisc.edu>
-In-Reply-To: <20010907110836.B1013@draal.physics.wisc.edu>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.6.1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Reply-To: ejolson@math.uci.edu
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 7 Sep 2001 11:08:36 -0500 Bob McElrath
-<mcelrath@draal.physics.wisc.edu> wrote:
+Dear Heinz Deinhart,
 
-> This is probably closely related to the vm work going on...and you're
-> probably aware of it, but...
-> 
-> The "Cached" field in /proc/meminfo grows and grows and grows.  (kernel
-> 2.4.7, 2.4.9, 2.4.10pre4aa1)  The kernel seems to be favoring buffer
-> cache for the filesystem over programs.  I recently purchased 256MB more
-> memory for my machine, only to find that Linux is using 200-300MB to
-> cache the filesystem.  Over time it swaps out everything to disk, and
-> "Cached" grows as large as 415MB on a 512MB machine.  Every time I come
-> back to my machine after not using the console for a while, it has to
-> swap everything back into memory in order to be usable.  (Note this
-> machine is basically unloaded except for setiathome while I'm away)
+>The old Athlon reads: 
+>        A1133AMS3C 
+>        AVIA 0115TPAW 
+>        95262550081 
+>
+>The new (non working) one: 
+>        A1200AMS3C 
+>        AXIA 0121RPDW 
+>        95987660990 
 
-To tell you the honest truth: you are not alone in cosmos (with this problem)
-;-)
-To give you that explicit hint for saving money: do not buy mem, it will be
-eaten up by recent kernels without any performance gain or other positive
-impact whatsoever. 
-Try using 2.4.4, if it doesn't succeed, forget 2.4 and use 2.2.19. That works.
-Unfortunately you may have to completely reinstall your system when going back
-to 2.2.
+The first line can be decoded using AMDs documentation at
 
-Regards,
-Stephan
+    http://www.amd.com/products/cpg/athlon/techdocs/index.html
 
+In particular
+
+       A 1133 A M S 3 C
+       |   |  | | | | |
+       |   |  | | | |  \___ FSB (B=200, C=266)
+       |   |  | | |  \_____ Size of L2 Cache (3=256K)
+       |   |  | |  \_______ Case Temperature (S=95C, T=90C)
+       |   |  |  \_________ Operating Voltage (M=1.75V, P=1.7V)
+       |   |   \___________ Package Type (A=PGA)
+       |    \______________ Speed in MHz
+        \__________________ A for Athlon
+
+Anyone know what the second line means?  It is quite mysterious 
+that the word VIA appears on the chip that works with VIA KT133A 
+and not on the other :-)
+
+Have you tried Robert Redelmeier's new program burnMMX2 which has 
+the 3DNow streaming cache bypass load/store instructions that seem 
+to be causing all the trouble?
+
+Does it run indefinitely or terminate with the 1133MHz processor 
+configuration?  What about for the 1200MHz processor with kernel 
+optimization turned off?
+
+--Eric

@@ -1,36 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130112AbQKPNKW>; Thu, 16 Nov 2000 08:10:22 -0500
+	id <S129747AbQKPNKW>; Thu, 16 Nov 2000 08:10:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129251AbQKPNKN>; Thu, 16 Nov 2000 08:10:13 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:55443 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S129747AbQKPNKG>;
-	Thu, 16 Nov 2000 08:10:06 -0500
-Date: Thu, 16 Nov 2000 04:22:36 -0800
-Message-Id: <200011161222.EAA18278@pizda.ninka.net>
-From: "David S. Miller" <davem@redhat.com>
-To: hch@caldera.de
-CC: willy@meta-x.org, linux-kernel@vger.kernel.org, wtarreau@yahoo.fr
-In-Reply-To: <200011161213.NAA27334@ns.caldera.de> (message from Christoph
-	Hellwig on Thu, 16 Nov 2000 13:13:37 +0100)
-Subject: Re: sunhme.c patch for new PCI interface (UNTESTED)
-In-Reply-To: <200011161213.NAA27334@ns.caldera.de>
+	id <S130112AbQKPNKN>; Thu, 16 Nov 2000 08:10:13 -0500
+Received: from [62.172.234.2] ([62.172.234.2]:35748 "EHLO saturn.homenet")
+	by vger.kernel.org with ESMTP id <S129251AbQKPNKH>;
+	Thu, 16 Nov 2000 08:10:07 -0500
+Date: Thu, 16 Nov 2000 12:40:38 +0000 (GMT)
+From: Tigran Aivazian <tigran@veritas.com>
+To: Alexander Viro <viro@math.psu.edu>
+cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] get_empty_inode() cleanup
+In-Reply-To: <Pine.GSO.4.21.0011160723060.11017-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.21.0011161238210.1530-100000@saturn.homenet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   Date: Thu, 16 Nov 2000 13:13:37 +0100
-   From: Christoph Hellwig <hch@caldera.de>
+On Thu, 16 Nov 2000, Alexander Viro wrote:
 
-   Would you accept such a change for 2.5?
+> 	Almost all (== all filesystem and then some) callers of
+> get_empty_inode() follow it with
+> 	inode->i_sb = some_sb;
+> 	inode->i_dev = some_sb->s_dev;
+> Some of them do it twice for no good reason (assign the same value,
+> even though neither ->i_sb nor ->i_dev could change in interval).
+> Some of them duplicate the initializations already done by get_empty_inode()
+> (e.g. ->i_size to 0, ->i_nlink to 1, etc.).
+> 
+> 	Patch below adds an inlined function
+> struct inode *new_inode(struct super_block *sb)
+> {
+> 	struct inode *inode = get_empty_inode();
+> 	if (inode) {
+> 		inode->i_sb = sb;
+> 		inode->i_dev = sb->s_dev;
+> 	}
+> 	return inode;
+> }
 
-Sure, that sounds nice.
+Alexander,
 
-Actually, one of the possible "grand plans" for 2.5 is a unified
-"struct device".  I don't know what will actually happen here.
+IMHO, instead of adding a new function, it is cleaner to just add the 'sb'
+argument to get_empty_inode() and those who do not wish to pass it should
+just pass NULL. Checking if(sb) inside it is easier than making yet
+another function call, maybe.
 
-Later,
-David S. Miller
-davem@redhat.com
+Regards,
+Tigran
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,53 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261245AbTH1RWQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Aug 2003 13:22:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262085AbTH1RWP
+	id S264097AbTH1RbN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Aug 2003 13:31:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263617AbTH1RbN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Aug 2003 13:22:15 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:30729
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id S261245AbTH1RWO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Aug 2003 13:22:14 -0400
-Date: Thu, 28 Aug 2003 10:22:14 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Alex Tomas <bzzz@tmi.comex.ru>
-Cc: linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
-Subject: Re: [Ext2-devel] [RFC] extents support for EXT3
-Message-ID: <20030828172214.GC21352@matchmail.com>
-Mail-Followup-To: Alex Tomas <bzzz@tmi.comex.ru>,
-	linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
-References: <m33cfm19ar.fsf@bzzz.home.net>
-Mime-Version: 1.0
+	Thu, 28 Aug 2003 13:31:13 -0400
+Received: from mauve.demon.co.uk ([158.152.209.66]:43465 "EHLO
+	mauve.demon.co.uk") by vger.kernel.org with ESMTP id S264097AbTH1RbM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Aug 2003 13:31:12 -0400
+From: root@mauve.demon.co.uk
+Message-Id: <200308281726.SAA24033@mauve.demon.co.uk>
+Subject: Re: Lockless file reading
+To: jamie@shareable.org (Jamie Lokier)
+Date: Thu, 28 Aug 2003 18:26:49 +0100 (BST)
+Cc: ragnar@linalco.com (Ragnar Hojland Espinosa),
+       davids@webmaster.com (David Schwartz), tss@iki.fi (Timo Sirainen),
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20030828130326.GF6800@mail.jlokier.co.uk> from "Jamie Lokier" at Aug 28, 2003 02:03:26 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m33cfm19ar.fsf@bzzz.home.net>
-User-Agent: Mutt/1.5.4i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 28, 2003 at 12:22:04PM +0400, Alex Tomas wrote:
 > 
-> this is 2nd version of the patch. changes:
->   - error handling seems completed
->   - lots of cleanups and comments
->   - few minor bug fixed
+> Ragnar Hojland Espinosa wrote:
+> > It can happen.  It happened to me with two gifs.  FWIW.
 > 
-> this version of the patch tries to solve couple
-> of corner cases:
->   - very long truncate
->   - rewrite 
+> Probability on the order of 2^-32 with MD5 any-pairs collision.
+> (It's not usual to have so many GIFs to compare, though :)
+> SHA is better, and both probably have some weakness that increases the
+> probability of collision.
 > 
-> it survived dbench, bonnie++ and fsx tests.
-> 
-> take a look at numbers I've just got, please.
-> 
->                       before      after
-> 5GB file, creation:   2m31.197s   2m21.933s
-> 5GB file, read:       2m25.439s   2m24.833s
-> 5GB file, rewrite:    2m48.434s   2m20.958s
-> 5GB file, removal:    0m8.760s    0m0.858s
+> Do you still have the GIFs?
 
-With extents, what are the worst/best cases for max file size on a 1k block
-filesystem?  AFAICT, worst case is 16GB if it backs out to the second level
-like we have now...
+MD5 is 128 bit output, so that's around 2^64 pairs before you have a birthday.
+There arn't that many GIFs in the world.
+I'd be really surprised if there were that many pictures in the world.

@@ -1,47 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272741AbRILK3r>; Wed, 12 Sep 2001 06:29:47 -0400
+	id <S272745AbRILKoJ>; Wed, 12 Sep 2001 06:44:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272744AbRILK3i>; Wed, 12 Sep 2001 06:29:38 -0400
-Received: from [195.157.147.30] ([195.157.147.30]:25608 "HELO
-	pookie.dev.sportingbet.com") by vger.kernel.org with SMTP
-	id <S272741AbRILK3a>; Wed, 12 Sep 2001 06:29:30 -0400
-Date: Wed, 12 Sep 2001 11:31:26 +0100
-From: Sean Hunter <sean@dev.sportingbet.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: /proc/meminfo swap counter wraparound in 2.2
-Message-ID: <20010912113126.Q6126@dev.sportingbet.com>
-Mail-Followup-To: Sean Hunter <sean@dev.sportingbet.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-In-Reply-To: <20010912105151.L6126@dev.sportingbet.com> <E15h6vz-0004Fb-00@the-village.bc.nu> <20010912111229.P6126@dev.sportingbet.com>
-Mime-Version: 1.0
+	id <S272744AbRILKn7>; Wed, 12 Sep 2001 06:43:59 -0400
+Received: from freerunner-o.cendio.se ([193.180.23.130]:55797 "EHLO
+	mail.cendio.se") by vger.kernel.org with ESMTP id <S272737AbRILKnl>;
+	Wed, 12 Sep 2001 06:43:41 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: nfs is stupid ("getfh failed")
+In-Reply-To: <002b01c136e1$3bb36a80$81d4870a@cartman>
+	<15261.47176.73283.841982@notabene.cse.unsw.edu.au>
+From: Marcus Sundberg <marcus@cendio.se>
+Date: 12 Sep 2001 12:44:01 +0200
+In-Reply-To: <15261.47176.73283.841982@notabene.cse.unsw.edu.au>
+Message-ID: <vebskgpu32.fsf@inigo.sthlm.cendio.se>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010912111229.P6126@dev.sportingbet.com>; from sean@dev.sportingbet.com on Wed, Sep 12, 2001 at 11:12:29AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 12, 2001 at 11:12:29AM +0100, Sean Hunter wrote:
-> On Wed, Sep 12, 2001 at 11:07:55AM +0100, Alan Cox wrote:
-> > > I would be amazed if this bug were not also in the main 2.2.x tree.  Is a fix
-> > > likely or even possible in 2.2 ?
-> > 
-> > No fix is planned for 2.2
-> > 
+neilb@cse.unsw.edu.au (Neil Brown) writes:
+
+> On  September 10, marcus@cendio.se wrote:
+> > cachefs sucks. It doesn't seem to cache stat(2) information.
+> > Doing ls -F in a ~100-entries directory takes several seconds over
+> > a link with 50ms round-trip time.
 > 
-> OK, thanks.  I'm a little reluctant to move this box to 2.4 yet (before Monday
-> we had almost a year's uptime out of it- frequent reboots are frowned upon),
-> but looking at the 2.4 source, the relevant bits of fs/proc/array.c and
-> include/linux/kernel.h look exactly the same, so the problem could be there as
-> well.
-> 
-> Am I being dumb?
+> Well, I said "concept" not "implementation", but I suspect that
+> Solaris cachefs does cache stat information.  Maybe you just need to
+> increase the timeouts for the attribute cache.
 
-Yes, of course I am.  Having now Actually Tried It Instead Of Just Talking
-Bollocks[tm], I can confirm that large amounts of swap space seem to work just
-fine in 2.4.
+Considering that I did several ls'es on the order of milliseconds
+apart I doubt that would help...
 
-Sorry for wasting people's time.
-
-Sean
+//Marcus
+-- 
+---------------------------------+---------------------------------
+         Marcus Sundberg         |      Phone: +46 707 452062
+   Embedded Systems Consultant   |     Email: marcus@cendio.se
+        Cendio Systems AB        |      http://www.cendio.com

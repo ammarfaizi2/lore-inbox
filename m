@@ -1,99 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262492AbVCBWOP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262479AbVCBWJe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262492AbVCBWOP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 17:14:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262499AbVCBWKp
+	id S262479AbVCBWJe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 17:09:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262492AbVCBWH6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 17:10:45 -0500
-Received: from rproxy.gmail.com ([64.233.170.206]:30683 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262500AbVCBWIg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 17:08:36 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=Fc9MV7Z4omerPxDihGMDuBxwwJJb6nJoiUbz0wO9FUNNS35jNRrr2LdmNnb5WcLEx2ILW35oPQe5KwFc2cJRxMeIpagk8n4eCDa/MjFk6deVTq1L0gTxTu/H9mDMcKy+H6s4JGHML69kkV7TLjcn/f19TdfBkRyCkRILYtVKPhw=
-Message-ID: <d120d50005030214086b6d568e@mail.gmail.com>
-Date: Wed, 2 Mar 2005 17:08:35 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Miguelanxo Otero Salgueiro <miguelanxo@telefonica.net>
-Subject: Re: 2.6.11: touchpad unresponsive
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <42260B1D.3070304@telefonica.net>
+	Wed, 2 Mar 2005 17:07:58 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:43785 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262461AbVCBV7F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 16:59:05 -0500
+Date: Wed, 2 Mar 2005 22:59:03 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Jeff Garzik <jgarzik@pobox.com>, jmorris@redhat.com, davem@davemloft.net
+Cc: Andrew Morton <akpm@osdl.org>, netdev@oss.sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6.11-rc4-mm1 patch] fix buggy IEEE80211_CRYPT_* selects
+Message-ID: <20050302215903.GG4608@stusta.de>
+References: <20050223014233.6710fd73.akpm@osdl.org> <20050226113123.GJ3311@stusta.de> <42256078.1040002@pobox.com> <20050302140833.GD4608@stusta.de> <42261004.4000501@pobox.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <3d668208.82083d66@teleline.es>
-	 <d120d50005030209123b8db1ae@mail.gmail.com>
-	 <42260B1D.3070304@telefonica.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42261004.4000501@pobox.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 02 Mar 2005 19:51:09 +0100, Miguelanxo Otero Salgueiro
-<miguelanxo@telefonica.net> wrote:
-> Dmitry Torokhov wrote:
-> 
-> >On Wed, 02 Mar 2005 16:55:59 +0100, MIGUELANXO@telefonica.net
-> ><MIGUELANXO@telefonica.net> wrote:
+On Wed, Mar 02, 2005 at 02:12:04PM -0500, Jeff Garzik wrote:
+> Adrian Bunk wrote:
+> >On Wed, Mar 02, 2005 at 01:43:04AM -0500, Jeff Garzik wrote:
 > >
-> >
-> >>I just compiled 2.6.11 from 2.6.10 config using 'make oldconfig',
-> >>activate new options to default values (i.e. set "main kernel lock
-> >>preemtive" to YES).
+> >>Adrian Bunk wrote:
 > >>
-> >>Booting X in new kernel makes my touchpad very unresponsive. I can't
-> >>click any longer in the touchpad area, and the touchpad doesn't response
-> >>when moving in small increments, so the whole experience is quite bad.
+> >>>+	select CRYPTO
+> >>>	select CRYPTO_AES
+> >>>	---help---
+> >>>	Include software based cipher suites in support of IEEE 802.11i 
+> >>>	(aka TGi, WPA, WPA2, WPA-PSK, etc.) for use with CCMP enabled 
+> >>>	networks.
+> >>>@@ -54,10 +55,11 @@
+> >>>	"ieee80211_crypt_ccmp".
+> >>>
+> >>>config IEEE80211_CRYPT_TKIP
+> >>>	tristate "IEEE 802.11i TKIP encryption"
+> >>>	depends on IEEE80211
+> >>>+	select CRYPTO
+> >>>	select CRYPTO_MICHAEL_MIC
 > >>
 > >>
-> >>
-> >
-> >If it is identified as an ALPS touchpad you can try installing Peter
-> >Osterlund's Synaptics X driver:
-> >
-> >           http://web.telia.com/~u89404340/touchpad/
-> >
-> >Alternatively you can restore 2.6.10 behavior with psmouse.proto=exps
-> >boot option (if psmouse is a module add "options psmouse proto=exps"
-> >to your /etc/modprobe.conf).
+> >>'select CRYPTO_AES' should 'select CRYPTO' automatically, I would hope.
 > >
 > >
-> >
-> Yes, it's an ALPS touchpad.
+> >This would result in a recursive dependency.
 > 
-> Ok, I compiled latest synaptics driver (synaptics-0.14.0) under the
-> following conditions
->    - Enabled CONFIG_MOUSE_PS2 (already enabled)
->    - Enabled CONFIG_INPUT_EVDEV (this one on purpose)
-> 
-> I read README.alps so I tried patching the kernel with alps.patch as
-> suggested. Looks like it didn't work because patch refused to patch
-> already patched files. I gave a look at the patch and the kernel code,
-> and they seem to be incompatible (maybe you need to release a newe patch).
-> 
-> So I proceded without the patched kernel, installing the synaptics
-> driver using INSTALL and README.alps settings.
-> 
-> With plain INSTALL settings (no ALPS), the touchpad seemed responsible,
-> but kind of slow. Simple or double click didn't work.
-> 
-> With README.alps settings, touchpad feels a lot like in 2.6.10, thought
-> the "acceleration" seems to be non-linear.
-> Simple click worked BUT double-click didn't work. Horizontal/Vertical
-> scroll and Click-n-Drag worked too, so I'm almost there.
-> 
+> No, it wouldn't.  CRYPTO_AES depends on CRYPTO, which depends on nothing.
 
-There are more paches done by Peter in the input queue that should
-improve ALPS tapping behaviour. Maybe Peter will add them to his
-driver for time being.
+Exactly.
 
-> 
-> By the way, I'm using a Toshiba laptop (Toshiba Satellite A10), maybe
-> you would like to add that to your supported hardware list.
-> 
+And if CRYPTO_AES would select CRYPTO, you'd have a recursive 
+dependency.
 
-Please let Peter (petero2@telia.com) know as he maintains the driver/site.
+The only possible thing would be to change all dependencies on CRYPTO to 
+selects. This wouldn't be unlogical since the whole crypto subsystem is 
+only a helper for other subsystems.
+
+James, any opinions on this issue?
+
+> 	Jeff
+
+cu
+Adrian
 
 -- 
-Dmitry
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

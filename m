@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262015AbUANGVY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jan 2004 01:21:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262750AbUANGVY
+	id S263639AbUANGfw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jan 2004 01:35:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263679AbUANGfw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jan 2004 01:21:24 -0500
-Received: from ozlabs.org ([203.10.76.45]:15288 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S262015AbUANGVX (ORCPT
+	Wed, 14 Jan 2004 01:35:52 -0500
+Received: from fw.osdl.org ([65.172.181.6]:42422 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263639AbUANGfv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jan 2004 01:21:23 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 14 Jan 2004 01:35:51 -0500
+Date: Tue, 13 Jan 2004 22:36:12 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Horacio de Oro <hgdeoro@yahoo.com>
+Cc: linux-kernel@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [2.6.1-mm2] Badness in futex_wait at kernel/futex.c:509
+Message-Id: <20040113223612.4fe709d9.akpm@osdl.org>
+In-Reply-To: <20040114024234.015eaf21.hgdeoro@yahoo.com>
+References: <20040114024234.015eaf21.hgdeoro@yahoo.com>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-ID: <16388.28153.476037.234076@cargo.ozlabs.ibm.com>
-Date: Wed, 14 Jan 2004 09:15:21 +1100
-From: Paul Mackerras <paulus@samba.org>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org, benh@kernel.crashing.org
-Subject: Re: [2/3]
-In-Reply-To: <20040113173352.D7256@flint.arm.linux.org.uk>
-References: <Pine.LNX.4.44.0401131148070.18661-100000@eloth>
-	<20040113113650.A2975@flint.arm.linux.org.uk>
-	<20040113114948.B2975@flint.arm.linux.org.uk>
-	<20040113171544.B7256@flint.arm.linux.org.uk>
-	<20040113173352.D7256@flint.arm.linux.org.uk>
-X-Mailer: VM 7.18 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King writes:
+Horacio de Oro <hgdeoro@yahoo.com> wrote:
+>
+> Hi!
+> 
+> This happen every time I switch from X to console:
+> 
+> Badness in futex_wait at kernel/futex.c:509
+> Call Trace:
+>  [futex_wait+434/448] futex_wait+0x1b2/0x1c0
+>  [default_wake_function+0/32] default_wake_function+0x0/0x20
+>  [default_wake_function+0/32] default_wake_function+0x0/0x20
+>  [do_futex+112/128] do_futex+0x70/0x80
+>  [sys_futex+292/320] sys_futex+0x124/0x140
+>  [syscall_call+7/11] syscall_call+0x7/0xb
+> 
 
-> Here are patches to drivers in the 2.6 kernel which have not been tested
-> to correct the tiocmset/tiocmget problem.
+	/* A spurious wakeup should never happen. */
+	WARN_ON(!signal_pending(current));
 
-Note that drivers/macintosh/macserial.c is now deprecated, people
-should use drivers/serial/pmac_zilog.c.
+(looks at Rusty)
 
-Ben, is it time to get rid of macserial.c yet?
-
-Paul.

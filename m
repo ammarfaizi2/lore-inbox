@@ -1,52 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311211AbSDCLsi>; Wed, 3 Apr 2002 06:48:38 -0500
+	id <S311635AbSDCLtt>; Wed, 3 Apr 2002 06:49:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311320AbSDCLs3>; Wed, 3 Apr 2002 06:48:29 -0500
-Received: from zork.zork.net ([66.92.188.166]:11538 "EHLO zork.zork.net")
-	by vger.kernel.org with ESMTP id <S311211AbSDCLsU>;
-	Wed, 3 Apr 2002 06:48:20 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: [OT] who's maintaining util-linux?
-In-Reply-To: <200204030938.g339cnX16298@Port.imtp.ilyichevsk.odessa.ua>
-	<20020403113459.GB13429@higherplane.net>
-From: Sean Neakums <sneakums@zork.net>
-X-Worst-Pick-Up-Line-Ever: "Hey baby, wanna peer with my leafnode instance?"
-X-Groin-Mounted-Steering-Wheel: "Arrrr... it's driving me nuts!"
-X-Message-Flag: Message text advisory: PROMOTION OF SELF, IMPROPER
- FORETHOUGHT
-X-Mailer: Norman
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Date: Wed, 03 Apr 2002 12:48:19 +0100
-Message-ID: <6uhemtngu4.fsf@zork.zork.net>
-User-Agent: Gnus/5.090006 (Oort Gnus v0.06) Emacs/21.1
- (i386-debian-linux-gnu)
-MIME-Version: 1.0
+	id <S311642AbSDCLti>; Wed, 3 Apr 2002 06:49:38 -0500
+Received: from johnsl.lnk.telstra.net ([139.130.12.152]:4114 "HELO
+	ns.higherplane.net") by vger.kernel.org with SMTP
+	id <S311320AbSDCLs6>; Wed, 3 Apr 2002 06:48:58 -0500
+Date: Wed, 3 Apr 2002 21:49:59 +1000
+From: john slee <indigoid@higherplane.net>
+To: H?vard Lygre <hklygre@online.no>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux needs new leadership.
+Message-ID: <20020403114959.GC13429@higherplane.net>
+In-Reply-To: <NDBBLFLJADKDMBPPNBALCEOFHPAA.kkrieser@lcisp.com> <871ydxppfd.fsf@frode.valhall.no>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-commence  john slee quotation:
+On Wed, Apr 03, 2002 at 02:59:50AM +0200, H?vard Lygre wrote:
+> Not to mention the fact that he would immediately release patches to
+> every MUA so that they automatically insert the text you type on top
+> of the message you reply to, don't put proper quote-marks on the
+> beginning of each line, and don't strip signatures.
 
-> On Wed, Apr 03, 2002 at 12:38:08PM -0200, Denis Vlasenko wrote:
->> I'm using util-linux and have some problems with them.  The biggest
->> of promlems is that I am unable to contact maintainers of said
->> utils :-( Are they maintained?
->
-> according to debian/testing's /usr/share/doc/util-linux/copyright:
->
-> -----
-> This is the Debian GNU/Linux prepackaged version of util-linux.
->
-> This package was put together by Guy Maor <maor@debian.org> and later
-> maintained by Sean 'Shaleh' Perry <shaleh@debian.org>.
-> Current maintainer is Adrian Bunk <bunk@fs.tum.de>.
-> -----
+i think you have outlook confused with lotus notes.  outlook (and
+outlook express) can _easily_ be configured to do all of those.  i WILL
+send a case of beer to the first person to tell me how to do that in a
+standard notes r5 windows client.  2 cases of beer if you can make it
+integrate gvim as the default editor.
 
-That information refers to the people who assembled and maintain the
-Debian package, not the upstream.
+j.
 
 -- 
- /////////////////  |                  | The spark of a pin
-<sneakums@zork.net> |  (require 'gnu)  | dropping, falling feather-like.
- \\\\\\\\\\\\\\\\\  |                  | There is too much noise.
+R N G G   "Well, there it goes again... And we just sit 
+ I G G G   here without opposable thumbs." -- gary larson

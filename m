@@ -1,72 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262474AbUJ0O6w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262475AbUJ0O7W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262474AbUJ0O6w (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 10:58:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262475AbUJ0O6v
+	id S262475AbUJ0O7W (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 10:59:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262477AbUJ0O7W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 10:58:51 -0400
-Received: from thunk.org ([69.25.196.29]:59838 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S262474AbUJ0O6d (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 10:58:33 -0400
-Date: Wed, 27 Oct 2004 10:57:45 -0400
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: John Richard Moser <nigelenki@comcast.net>
-Cc: William Lee Irwin III <wli@holomorphy.com>,
-       Willy Tarreau <willy@w.ods.org>, Rik van Riel <riel@redhat.com>,
-       "Marcos D. Marado Torres" <marado@student.dei.uc.pt>,
-       Ed Tomlinson <edt@aei.ca>, Massimo Cetra <mcetra@navynet.it>,
-       "'Chuck Ebbert'" <76306.1226@compuserve.com>,
-       "'Bill Davidsen'" <davidsen@tmr.com>,
-       "'linux-kernel'" <linux-kernel@vger.kernel.org>
-Subject: Re: My thoughts on the "new development model"
-Message-ID: <20041027145743.GA16666@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	John Richard Moser <nigelenki@comcast.net>,
-	William Lee Irwin III <wli@holomorphy.com>,
-	Willy Tarreau <willy@w.ods.org>, Rik van Riel <riel@redhat.com>,
-	"Marcos D. Marado Torres" <marado@student.dei.uc.pt>,
-	Ed Tomlinson <edt@aei.ca>, Massimo Cetra <mcetra@navynet.it>,
-	'Chuck Ebbert' <76306.1226@compuserve.com>,
-	'Bill Davidsen' <davidsen@tmr.com>,
-	'linux-kernel' <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.61.0410270402340.20284@student.dei.uc.pt> <Pine.LNX.4.44.0410270027110.21548-100000@chimarrao.boston.redhat.com> <20041027051342.GK19761@alpha.home.local> <20041027052321.GT15367@holomorphy.com> <417FA711.90700@comcast.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <417FA711.90700@comcast.net>
-User-Agent: Mutt/1.5.6+20040907i
+	Wed, 27 Oct 2004 10:59:22 -0400
+Received: from [195.23.16.24] ([195.23.16.24]:62346 "EHLO
+	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
+	id S262475AbUJ0O7M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 10:59:12 -0400
+Message-ID: <417FB7BA.9050005@grupopie.com>
+Date: Wed, 27 Oct 2004 15:59:06 +0100
+From: Paulo Marques <pmarques@grupopie.com>
+Organization: Grupo PIE
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+Cc: Andi Kleen <ak@suse.de>, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Add p4-clockmod driver in x86-64
+References: <88056F38E9E48644A0F562A38C64FB600333A69D@scsmsx403.amr.corp.intel.com>
+In-Reply-To: <88056F38E9E48644A0F562A38C64FB600333A69D@scsmsx403.amr.corp.intel.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.28.0.11; VDF: 6.28.0.39; host: bipbip)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 27, 2004 at 09:48:01AM -0400, John Richard Moser wrote:
-> 
-> I for one don't give a damn.  Bugs and how fast this development model
-> fix them aren't a concern to me; although I'd never slow down the bug
-> fixing process.  My concern is getting a real stable tree for various
-> maintainers to base on, so that various patches for drivers, security
-> enhancements, and other things aren't scattered across versions and
-> impossible to patch together even when they're noninvasive to eachother.
-> 
-> Have you stopped to consider that the features that are critical to me
-> are also holding me back from upgrading to the newer kernels?
-> Ironically, these are security features, and the newer kernels have
-> newer security fixes aside from new schedulers and other toys I could
-> really enjoy having around.
+Pallipadi, Venkatesh wrote:
+>>....
+> Yes. Clock modulation is not as useful compared to enhanced speedstep.
+> But, 
+> I feel, it should be OK to have the driver, though it is not really
+> useful 
+> in common case. It may be useful in some exceptional cases. 
 
-So instead of kvetching, why don't you 
+I think I have one of such cases.
 
-(a) Create your own stable series by snapshotting some 2.6.x tree
-every six months, and then maintain a set of bug-fix only patches
-against that 2.6.x tree?  Then convince the security people to port to
-that particular 2.6.x-jrm tree?
+I am one of the members of the robotic soccer team from the University 
+of Oporto, and a couple of months ago we were looking for new 
+motherboards for our robots, because we are starting to need new 
+hardware (on-board lan, usb2.0, etc.).
 
-(b) Convince the security folks to try to get their patches into the
-mm- tree, for eventual inclusion into 2.6.
+We really don't need excepcional performance, but we really, really need 
+low power consumption, so lowering the clock on a standard mainboard 
+seemed to be the best cost/performance scenario.
 
-(c) Some combination of the two.
+Could this driver be used to keep a standard p4 processor at say 25% 
+clock speed at all times?
 
-Either would probably be more likely to fulfill your needs than just
-whining about it.
+-- 
+Paulo Marques - www.grupopie.com
 
-						- Ted
+All that is necessary for the triumph of evil is that good men do nothing.
+Edmund Burke (1729 - 1797)

@@ -1,74 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261879AbTEHRO3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 May 2003 13:14:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261887AbTEHRO3
+	id S261895AbTEHR07 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 May 2003 13:26:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261899AbTEHR07
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 May 2003 13:14:29 -0400
-Received: from hq.pm.waw.pl ([195.116.170.10]:37536 "EHLO hq.pm.waw.pl")
-	by vger.kernel.org with ESMTP id S261879AbTEHRO1 (ORCPT
+	Thu, 8 May 2003 13:26:59 -0400
+Received: from holomorphy.com ([66.224.33.161]:37017 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S261895AbTEHR06 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 May 2003 13:14:27 -0400
-To: <linux-kernel@vger.kernel.org>
-Cc: Jamie Lokier <jamie@shareable.org>
-Subject: Re: Using GPL'd Linux drivers with non-GPL, binary-only kernel
-References: <20030506164252.GA5125@mail.jlokier.co.uk>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: 08 May 2003 13:11:00 +0200
-In-Reply-To: <20030506164252.GA5125@mail.jlokier.co.uk>
-Message-ID: <m3llxhlmm3.fsf@defiant.pm.waw.pl>
-MIME-Version: 1.0
+	Thu, 8 May 2003 13:26:58 -0400
+Date: Thu, 8 May 2003 10:39:26 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Helge Hafting <helgehaf@aitel.hist.no>
+Cc: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.69-mm2 Kernel panic, possibly network related
+Message-ID: <20030508173926.GO8978@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Helge Hafting <helgehaf@aitel.hist.no>, Jens Axboe <axboe@suse.de>,
+	linux-kernel@vger.kernel.org
+References: <20030507144100.GD8978@holomorphy.com> <20030507.064010.42794250.davem@redhat.com> <20030507215430.GA1109@hh.idb.hist.no> <20030508013854.GW8931@holomorphy.com> <20030508065440.GA1890@hh.idb.hist.no> <20030508080135.GK8978@holomorphy.com> <20030508100717.GN8978@holomorphy.com> <3EBA4529.7050507@aitel.hist.no> <20030508120450.GT823@suse.de> <20030508133908.GA824@hh.idb.hist.no>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030508133908.GA824@hh.idb.hist.no>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jamie Lokier <jamie@shareable.org> writes:
+On Thu, May 08 2003, Helge Hafting wrote:
+>>> 2.5.69-mm3 died in exactly the same way - the oops was identical.
+>>> I'm back to running mm2 without netfilter, to see how
+>>> stable it is.
 
-> I was mulling over a commercial project proposal, and this question
-> came up:
-> 
-> What's the position of kernel developers towards using the GPL'd Linux
-> kernel modules - that is, device drivers, network stack, filesystems
-> etc. - with a binary-only, closed source kernel that is written
-> independently of Linux?
+On Thu, May 08, 2003 at 02:04:50PM +0200, Jens Axboe wrote:
+>> See my mail to rusty, I'm seeing the same thing. Back out the changeset
+>> that wli pasted here too, and it will work.
 
-IANAL, but Linux drivers are usually licensed under the GPL and not LGPL.
-> 
-> I realise that linking the modules directly with the binary kernel is
-> a big no no, but what if they are dynamically loaded?
+On Thu, May 08, 2003 at 03:39:08PM +0200, Helge Hafting wrote:
+> Much fuzz and two rejects.  Seems there is ongoing netfilter
+> work in mm3.
 
-You mean one big file versus many small fragments? I don't think there
-is a difference. LGPL would permit that (in fact, it seems to be the
-difference between GPL and LGPL).
+This is fine for my purposes; we narrowed down the cause to the current
+netfilter issue (and exonerated what I'd otherwise have to fix) so all
+is well.
 
-> There seems to be a broad agreement, and I realise it isn't unanimous,
-> that dynamically loading binary-only modules into the Linux kernel is
-> ok.
+It sounds like the fix for the issue merged in -mm3 was incomplete. It
+should get straightened out soon.
 
-That's different, the modules are not (generally) derivatives of the
-kernel. The (running) kernel is a derivative of both the GPL code and
-binary drivers (all parts are linked at run time) - and while you can't
-distribute such a beast at all, you usually don't want to.
-(which makes me wonder if "distributing" a running machine with binary
-drivers linked to the kernel is legal :-) )
 
->  Furthermore, there are some funny rules about which interfaces a
-> binary-only module may use and which it may not, before it's
-> considered a derivative work of the kernel.
-
-IMHO it's independent problem, not related to the license, but rather
-to source code symbol names (a technical and not legal issue - something
-like copy-protection mechanisms).
-
-> So, as dynamic loading is ok between parts of Linux and binary-only
-> code, that seems to imply we could build a totally different kind of
-> binary-only kernel which was able to make use of all the Linux kernel
-> modules.
-
-Build - sure. However, distributing such a system (with GPLed parts)
-would be illegal, unless the GPLed code is not a part of the system,
-and rather an "independent and separate work" (i.e. the system does not
-"depend" on GPL part).
--- 
-Krzysztof Halasa
-Network Administrator
+-- wli

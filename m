@@ -1,46 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262924AbSKRQap>; Mon, 18 Nov 2002 11:30:45 -0500
+	id <S263137AbSKRQkM>; Mon, 18 Nov 2002 11:40:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262937AbSKRQap>; Mon, 18 Nov 2002 11:30:45 -0500
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:12701 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S262924AbSKRQao>; Mon, 18 Nov 2002 11:30:44 -0500
-Date: Mon, 18 Nov 2002 10:36:20 -0600 (CST)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: Bill Davidsen <davidsen@tmr.com>
-cc: Sam Ravnborg <sam@ravnborg.org>, Nicolas Pitre <nico@cam.org>,
-       Andreas Steinmetz <ast@domdv.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: make distclean and make dep??
-In-Reply-To: <Pine.LNX.3.96.1021117024753.18748B-100000@gatekeeper.tmr.com>
-Message-ID: <Pine.LNX.4.44.0211181034100.24137-100000@chaos.physics.uiowa.edu>
+	id <S263193AbSKRQkM>; Mon, 18 Nov 2002 11:40:12 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:45072 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S263137AbSKRQkL>;
+	Mon, 18 Nov 2002 11:40:11 -0500
+Message-ID: <3DD9198C.60707@pobox.com>
+Date: Mon, 18 Nov 2002 11:47:08 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021018
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andreas Steinmetz <ast@domdv.de>
+CC: Vergoz Michael <mvergoz@sysdoor.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 8139too.c patch for kernel 2.4.19
+References: <028901c28ead$10dfbd20$76405b51@romain> <3DD89813.9050608@pobox.com> <003b01c28edf$9e2b1530$76405b51@romain> <3DD8AD5D.9010803@pobox.com> <3DD8CC44.9060104@domdv.de> <3DD90D88.9020205@pobox.com> <3DD91164.6030007@domdv.de>
+In-Reply-To: <028901c28ead$10dfbd20$76405b51@romain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 17 Nov 2002, Bill Davidsen wrote:
+Andreas Steinmetz wrote:
 
-> On Fri, 15 Nov 2002, Sam Ravnborg wrote:
-> 
-> > Here is first try:
-> > - clean now deletes all generated files except .config + .config.old
-> > - mrproper in addition to clean only deleted .config + .config.old
-> > - distclean in addition ot mrproper deletes backupfiles as usual.
-> 
-> Just what I wanted. If you can be happy doing this it now provides all
-> three useful behaviours in a clear manner.
+> Jeff Garzik wrote:
+>
+> > That's not going to be fixed by Michael's patch...  Any IOAPIC-related
+> > problems cannot be fixed at the driver level, but must be fixed by a
+> > BIOS update (or possibly an IOAPIC code fix).  Sometimes vendors do
+> > not bother do even wire the IOAPIC when it is a uniprocessor board :(
+>
+>
+> I just wanted to point exactly in that (IO-APIC) direction as a common
+> source for trouble.
 
-But when do you need the "clean + rm .config*" behavior? I don't see that 
-to be such a common case.
 
-That's why I think two targets are enough, "clean" to remove the files
-generated during the build and "distclean" to remove all other extra stuff
-to. And just keep mrproper to be an alias for distclean, since that's what
-"mrproper" traditionally was (AFAIK, Linus used it that way).
-
---Kai
-
+Oh agreed.  A very annoying, common source of trouble :)
 

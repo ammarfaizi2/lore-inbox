@@ -1,49 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266694AbUFXRY2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266716AbUFXR1l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266694AbUFXRY2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jun 2004 13:24:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266697AbUFXRY1
+	id S266716AbUFXR1l (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jun 2004 13:27:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266714AbUFXR1l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jun 2004 13:24:27 -0400
-Received: from main.gmane.org ([80.91.224.249]:899 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S266694AbUFXRYP (ORCPT
+	Thu, 24 Jun 2004 13:27:41 -0400
+Received: from havoc.gtf.org ([216.162.42.101]:7057 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S266716AbUFXR0z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jun 2004 13:24:15 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Joshua Kwan <jkwan@rackable.com>
-Subject: [HELP] Tracking down a MD bug
-Date: Thu, 24 Jun 2004 10:24:19 -0700
-Message-ID: <pan.2004.06.24.17.24.17.353731@rackable.com>
+	Thu, 24 Jun 2004 13:26:55 -0400
+Date: Thu, 24 Jun 2004 13:25:41 -0400
+From: David Eger <eger@havoc.gtf.org>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: i8042 driver non-determinantly chokes mac on boot
+Message-ID: <20040624172540.GA16782@havoc.gtf.org>
+References: <20040624083910.GA14068@havoc.gtf.org> <20040624154127.GJ731@ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 64-60-248-66.cust.telepacific.net
-User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table (Debian GNU/Linux))
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040624154127.GJ731@ucw.cz>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Thu, Jun 24, 2004 at 05:41:27PM +0200, Vojtech Pavlik wrote:
+> On Thu, Jun 24, 2004 at 04:39:10AM -0400, David Eger wrote:
+> > Though I'm not sure I even have an i8042 (I'm guessing no, as I run
+> > on a Mac) the detection failure path has gone a little wonky in recent
+> > kernels.  Half the time it times out with the following (as it ought, 
+> > me thinks)
+>  
+> I suppose you should disable it, it really has no bussiness running on a
+> Mac. Does it write anything when it also crashes?
 
-I've been running benchmarks on a ~2TB software RAID array of varying
-configurations using SuSE Linux 9.1's kernel 2.6.4-52-smp. I noticed that
-while resyncing a newly created RAID 5 array the kernel would just hang
-a few seconds after starting.
+Nope, just makes the machine stall out.
 
-I compiled 2.6.7-mm1 just now and the RAID array is busy resyncing, and
-still alive, right now.
-
-Are there any MD code changes that could have caused this so I can point
-SuSE somewhere? (Well, then again, many SuSE folks are on this list anyway...)
-
-This is on the x86_64 architecture, highmem + SMP + SATA RAID adapter
-(although I'm not using it in hardware mode.) I'll provide config/dmesg
-from the old kernel on request.
-
-Thanks,
-
--- 
-Joshua Kwan
-
-
+-dte

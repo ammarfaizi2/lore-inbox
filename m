@@ -1,46 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264912AbTK3OQt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Nov 2003 09:16:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264913AbTK3OQt
+	id S264916AbTK3OfU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Nov 2003 09:35:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264917AbTK3OfT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Nov 2003 09:16:49 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:42157 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264912AbTK3OQs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Nov 2003 09:16:48 -0500
-Date: Sun, 30 Nov 2003 14:16:46 +0000
-From: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
-To: Iain Barker <iainbarker@hotmail.com>, benh@kernel.crashing.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: possible GPL violation by Sigma Designs EM8500 customers
-Message-ID: <20031130141645.GE863@gallifrey>
-References: <Law12-F67OXc3EO2gda0002067e@hotmail.com> <20031130115953.GA5522@ii.uib.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031130115953.GA5522@ii.uib.no>
-X-Chocolate: 70 percent or better cocoa solids preferably
-X-Operating-System: Linux/2.6.0-test9 (i686)
-X-Uptime: 14:16:10 up 1 day,  2:15,  1 user,  load average: 0.09, 0.20, 0.18
-User-Agent: Mutt/1.5.4i
+	Sun, 30 Nov 2003 09:35:19 -0500
+Received: from fep21-0.kolumbus.fi ([193.229.0.48]:43234 "EHLO
+	fep21-app.kolumbus.fi") by vger.kernel.org with ESMTP
+	id S264916AbTK3OfP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Nov 2003 09:35:15 -0500
+Date: Sun, 30 Nov 2003 14:34:23 +0200 (MET DST)
+From: Szakacsits Szabolcs <szaka@sienet.hu>
+X-X-Sender: szaka@ua178d119.elisa.omakaista.fi
+To: Andries Brouwer <aebr@win.tue.nl>
+cc: Andrew Clausen <clausen@gnu.org>, Apurva Mehta <apurva@gmx.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       bug-parted@gnu.org
+Subject: Re: Disk Geometries reported incorrectly on 2.6.0-testX
+In-Reply-To: <20031130132649.GC5738@win.tue.nl>
+Message-ID: <Pine.LNX.4.58.0311301403130.2329@ua178d119.elisa.omakaista.fi>
+References: <20031128045854.GA1353@home.woodlands> <20031128142452.GA4737@win.tue.nl>
+ <20031129022221.GA516@gnu.org> <Pine.LNX.4.58.0311290550190.21441@ua178d119.elisa.omakaista.fi>
+ <20031129123451.GA5372@win.tue.nl> <20031129222722.GA505@gnu.org>
+ <20031130003428.GA5465@win.tue.nl> <Pine.LNX.4.58.0311301210540.2329@ua178d119.elisa.omakaista.fi>
+ <20031130132649.GC5738@win.tue.nl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Jan-Frode Myklebust (janfrode@parallab.uib.no) wrote:
 
-> Looks like KiSS is publishing part of their firmware:
+On Sun, 30 Nov 2003, Andries Brouwer wrote:
+> >
+> > Wrong:
+> > 	http://support.microsoft.com/default.aspx?scid=kb;en-us;282191
 > 
-> 	http://www.kiss-technology.com/?p=hot_news&v=users
-> 	http://www.kiss-technology.com/files/firmware/GPL.zip
-> 
-> No idea how complete it is..
+> "Wrong" - what a pessimism. 
 
-Well that appears to be a busybox and a uCLinux kernel.  The kernel
-does seem to have some KISS and Sigma patches referenced in the config.
+Optimism ends up unbootable systems.
 
-Dave
- -----Open up your eyes, open up your mind, open up your code -------   
-/ Dr. David Alan Gilbert    | Running GNU/Linux on Alpha,68K| Happy  \ 
-\ gro.gilbert @ treblig.org | MIPS,x86,ARM,SPARC,PPC & HPPA | In Hex /
- \ _________________________|_____ http://www.treblig.org   |_______/
+> Windows XP has no such restriction. If you explicitly ask Windows XP
+> to use oldfashioned means, then of course that is your own choice.
+
+It's not like that. People get boxes whatever way they were imaged, etc.  
+Most don't know anything about the internals. And when they want to make it
+dualboot with Linux, they might find they can't boot anymore.
+
+Do you also really believe this oldfashioned means is the only way to end
+up in problems because of partitioning tools change CHS units?
+ 
+> if there is a partition table already and we are able to guess a geometry 
+> from that, use that; otherwise [...]
+
+OK, thanks, the problem is here. Maybe a warning could be added when the
+geometry can't be guessed (if the warning isn't there already)?
+
+	Szaka

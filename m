@@ -1,97 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261309AbSJPRwB>; Wed, 16 Oct 2002 13:52:01 -0400
+	id <S261282AbSJPRst>; Wed, 16 Oct 2002 13:48:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261314AbSJPRwB>; Wed, 16 Oct 2002 13:52:01 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:60738 "EHLO
-	flossy.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S261309AbSJPRv7>; Wed, 16 Oct 2002 13:51:59 -0400
-Date: Wed, 16 Oct 2002 13:57:54 -0400
-From: Doug Ledford <dledford@redhat.com>
-To: Matthew Wilcox <willy@debian.org>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: 2.5.43 oops in adaptec driver
-Message-ID: <20021016175754.GA8112@redhat.com>
-Mail-Followup-To: Matthew Wilcox <willy@debian.org>,
-	linux-kernel@vger.kernel.org,
-	Linus Torvalds <torvalds@transmeta.com>
-References: <20021016184122.J15163@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="ikeVEW9yuYc//A+q"
-Content-Disposition: inline
-In-Reply-To: <20021016184122.J15163@parcelfarce.linux.theplanet.co.uk>
-User-Agent: Mutt/1.4i
+	id <S261295AbSJPRst>; Wed, 16 Oct 2002 13:48:49 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:1408 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S261282AbSJPRss>; Wed, 16 Oct 2002 13:48:48 -0400
+Date: Wed, 16 Oct 2002 13:54:30 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Samuel Flory <sflory@rackable.com>
+cc: Mark Cuss <mcuss@cdlsystems.com>, linux-kernel@vger.kernel.org
+Subject: Re: Kernel reports 4 CPUS instead of 2...
+In-Reply-To: <3DADA831.7010601@rackable.com>
+Message-ID: <Pine.LNX.3.95.1021016135105.150A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 16 Oct 2002, Samuel Flory wrote:
 
---ikeVEW9yuYc//A+q
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-On Wed, Oct 16, 2002 at 06:41:22PM +0100, Matthew Wilcox wrote:
+> >
+> >
+> >On Wed, 16 Oct 2002, Mark Cuss wrote:
+> >
+> >  
+> >
+> >
+> >This is the correct behavior. If you don't like this, you can
+> >swap motherboards with me ;) Otherwise, grin and bear it!
+> >
+> >  
+> >
+>  
+>   Wouldn't it be easier just to turn off the hypertreading or jackson 
+> tech option in the bios ;-)
 > 
-> >>EIP; c021723c <aic7xxx_slave_attach+68/d0>   <=====
-> 
 
-Duh, forgot to add INIT_LIST_HEAD(&p->aic_devs); to aic7xxx_register() so 
-the list_add() is oopsing.  Patch attached.  Let me know if this *doesn't* 
-solve the problem (I'm not at work where I can test this yet).
+Why would you ever want to turn it off?  You paid for a CPU with
+two execution units and you want to disable one?  This makes
+no sense unless you are using Windows/2000/Professional, which
+will trash your disks and all their files if you have two
+or more CPUs (true).
 
--- 
-  Doug Ledford <dledford@redhat.com>     919-754-3700 x44233
-         Red Hat, Inc. 
-         1801 Varsity Dr.
-         Raleigh, NC 27606
-  
 
---ikeVEW9yuYc//A+q
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="aic_oops.patch"
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+The US military has given us many words, FUBAR, SNAFU, now ENRON.
+Yes, top management were graduates of West Point and Annapolis.
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.857   -> 1.858  
-#	drivers/scsi/aic7xxx_old.c	1.29    -> 1.30   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/10/16	dledford@aladin.rdu.redhat.com	1.858
-# aic7xxx_old.c:
-#   Fix mistake with list_head structs
-# --------------------------------------------
-#
-diff -Nru a/drivers/scsi/aic7xxx_old.c b/drivers/scsi/aic7xxx_old.c
---- a/drivers/scsi/aic7xxx_old.c	Wed Oct 16 13:57:12 2002
-+++ b/drivers/scsi/aic7xxx_old.c	Wed Oct 16 13:57:12 2002
-@@ -6723,7 +6723,7 @@
-   struct aic7xxx_host *p = (struct aic7xxx_host *) sdpnt->host->hostdata;
-   struct aic_dev_data *aic_dev;
-   int scbnum;
--  struct list_head *list_ptr, *list_head;
-+  struct list_head *list_ptr;
- 
-   if(!sdpnt->hostdata) {
-     sdpnt->hostdata = kmalloc(sizeof(struct aic_dev_data), GFP_ATOMIC);
-@@ -6742,8 +6742,7 @@
-   aic7xxx_device_queue_depth(p, sdpnt);
- 
-   scbnum = 0;
--  list_head = &p->aic_devs;
--  list_for_each(list_ptr, list_head) {
-+  list_for_each(list_ptr, &p->aic_devs) {
-     aic_dev = list_entry(list_ptr, struct aic_dev_data, list);
-     scbnum += aic_dev->max_q_depth;
-   }
-@@ -7879,6 +7878,7 @@
-   p->completeq.tail = NULL;
-   scbq_init(&p->scb_data->free_scbs);
-   scbq_init(&p->waiting_scbs);
-+  INIT_LIST_HEAD(&p->aic_devs);
- 
-   /*
-    * We currently have no commands of any type
-
---ikeVEW9yuYc//A+q--

@@ -1,58 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262095AbTFXRAL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jun 2003 13:00:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262153AbTFXRAL
+	id S262148AbTFXRF3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jun 2003 13:05:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262153AbTFXRF3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jun 2003 13:00:11 -0400
-Received: from mta07-svc.ntlworld.com ([62.253.162.47]:1764 "EHLO
-	mta07-svc.ntlworld.com") by vger.kernel.org with ESMTP
-	id S262095AbTFXRAH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jun 2003 13:00:07 -0400
-Date: Tue, 24 Jun 2003 18:15:22 +0100
-From: Dave Bentham <dave.bentham@ntlworld.com>
-To: Ralf Hoelzer <ralf@well.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: 2.4.21 crashes hard running cdrecord in X.
-Message-Id: <20030624181522.055b4627.dave@telekon>
-In-Reply-To: <200306241827.55827.ralf@well.com>
-References: <200306241827.55827.ralf@well.com>
-X-Mailer: Sylpheed version 0.9.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Tue, 24 Jun 2003 13:05:29 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:29907 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S262148AbTFXRFY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jun 2003 13:05:24 -0400
+Date: Tue, 24 Jun 2003 19:19:26 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Dave Jones <davej@suse.de>
+Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
+Subject: [2.5 patch] small cleanups for amd-k8-agp.c
+Message-ID: <20030624171926.GP3710@fs.tum.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Dave,
+
+the patch below does the following trivial cleanups to 
+drivers/char/agp/amd-k8-agp.c:
+- postfix three constants with ULL
+- remove a variable that isn't needed
+
+Please apply
+Adrian
 
 
-On Tue, 24 Jun 2003 18:27:55 +0200
-Ralf Hoelzer <ralf@well.com> wrote:
-
-> Roland Mas wrote:
-> > I don't know what this magicdev thing is, but from what you say you
-> > turned off I assume it's something that accesses the CD drive and
-> > polls its status regularly.  So your problem looks remarkably like
-> > mine, which I have already reported here, except I do get a panic. 
-> > My problem occurs when the GNOME 2 CD applet is running, and it
-> > seems to me the culprit is an ioctl() that tries to get the status
-> > of the drive.  Look for my message with "Subject: Still [OOPS]
-> > ide-scsi panic, now in 2.4.21 too" (just reposted it, first time
-> > only went to specific people).
-> 
-> I have a very similar problem. I just installed 2.4.21 and as soon as
-> I mount my CD-RW (which uses ide-scsi emulation) the system dies.
-> I am NOT using magicdev. Everything works fine with 2.4.20.
-> 
-> I will try to capture some useful debugging output.
-> 
-> regards,
-> Ralf
-> -
-
-SNAP!
-
-See my "2.4.21 panic on CDRW Mount" emails of a few days ago with my
-panic output
-
-Dave
+--- linux-2.5.73-not-full/drivers/char/agp/amd-k8-agp.c.old	2003-06-23 22:26:27.000000000 +0200
++++ linux-2.5.73-not-full/drivers/char/agp/amd-k8-agp.c	2003-06-23 22:27:21.000000000 +0200
+@@ -47,7 +47,6 @@
+ static int x86_64_insert_memory(struct agp_memory *mem, off_t pg_start, int type)
+ {
+ 	int i, j, num_entries;
+-	long tmp;
+ 	u32 pte;
+ 	u64 addr;
+ 
+@@ -78,10 +77,9 @@
+ 	for (i = 0, j = pg_start; i < mem->page_count; i++, j++) {
+ 		addr = agp_bridge->driver->mask_memory(mem->memory[i], mem->type);
+ 
+-		tmp = addr;
+-		BUG_ON(tmp & 0xffffff0000000ffc);
+-		pte = (tmp & 0x000000ff00000000) >> 28;
+-		pte |=(tmp & 0x00000000fffff000);
++		BUG_ON(addr & 0xffffff0000000ffcULL);
++		pte = (addr & 0x000000ff00000000ULL) >> 28;
++		pte |=(addr & 0x00000000fffff000ULL);
+ 		pte |= 1<<1|1<<0;
+ 
+ 		agp_bridge->gatt_table[j] = pte;

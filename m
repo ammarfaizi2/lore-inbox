@@ -1,35 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266652AbSKHQPB>; Fri, 8 Nov 2002 11:15:01 -0500
+	id <S266369AbSKHQZe>; Fri, 8 Nov 2002 11:25:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266653AbSKHQPB>; Fri, 8 Nov 2002 11:15:01 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:1032 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S266652AbSKHQPA>;
-	Fri, 8 Nov 2002 11:15:00 -0500
-Date: Fri, 8 Nov 2002 17:21:19 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: "Robert L. Harris" <Robert.L.Harris@rdlg.net>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: installing modules to ($PREFIX)/lib/modules/2.....
-Message-ID: <20021108162119.GA959@mars.ravnborg.org>
-Mail-Followup-To: "Robert L. Harris" <Robert.L.Harris@rdlg.net>,
-	Linux-Kernel <linux-kernel@vger.kernel.org>
-References: <20021108154132.GC1319@rdlg.net> <20021108155537.GA1027@mars.ravnborg.org> <20021108155914.GE1319@rdlg.net>
+	id <S266653AbSKHQZe>; Fri, 8 Nov 2002 11:25:34 -0500
+Received: from [217.167.51.129] ([217.167.51.129]:7132 "EHLO zion.wanadoo.fr")
+	by vger.kernel.org with ESMTP id <S266369AbSKHQZd>;
+	Fri, 8 Nov 2002 11:25:33 -0500
+Subject: Re: Linux 2.4.20-rc1
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2002-Q4@gmx.net>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-fbdev-devel@lists.sourceforge.net
+In-Reply-To: <3DCBAC99.7010909@gmx.net>
+References: <Pine.LNX.4.44L.0211061033410.27268-100000@freak.distro.conectiva>
+	<3DCAAF2D.2040202@gmx.net>  <3DCBAC99.7010909@gmx.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 08 Nov 2002 17:34:18 +0100
+Message-Id: <1036773258.8907.90.camel@zion>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021108155914.GE1319@rdlg.net>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 08, 2002 at 10:59:14AM -0500, Robert L. Harris wrote:
-> 
-> 
-> Didn't work.  Put them in /lib/modules/2.4.18. (Didn't bite me this time
-> because my server is on a different kernel but will in the near future).
-My bad.
-It is INSTALL_MOD_PATH.
-Try that.
+On Fri, 2002-11-08 at 13:22, Carl-Daniel Hailfinger wrote:
 
-	Sam
+> I managed to trim down the offending patch further. Reverting the new 
+> attached patch is enough to fix my problem. Can someone of the framebuffer 
+> experts please comment on this one?
+
+Ok, I'm the one to blame for that patch.
+
+It was intended to fix some problems where the console subsystem
+would call fbcon_blank after the fbdev HW was put to suspend, thus
+crashing the system.
+
+This should really be fixed in the low level fb drivers to ignore
+blanking when they are asleep though. This is a kind of hack as 2.4
+lacks a proper model for ordering power management requests
+
+Marcelo, feel free to delete those 4 lines (but not the whole patch),
+just the 4 lines in fbcon_blank, I'll make sure the various drivers
+are made safe.
+
+Ben.
+

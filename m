@@ -1,90 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261748AbUKCRIm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261786AbUKCRN2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261748AbUKCRIm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 12:08:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261746AbUKCRIm
+	id S261786AbUKCRN2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 12:13:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261727AbUKCRN1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 12:08:42 -0500
-Received: from hcc022087.bai.ne.jp ([210.171.22.87]:24712 "HELO
-	tigger.internet.email.ne.jp") by vger.kernel.org with SMTP
-	id S261785AbUKCRH4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 12:07:56 -0500
-Date: Thu, 04 Nov 2004 02:07:44 +0900 (JST)
-Message-Id: <20041104.020744.730561579.takata@linux-m32r.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, takata@linux-m32r.org
-Subject: [PATCH 2.6.10-rc1] [m32r] Fix arch/m32r/lib/memset.S
-From: Hirokazu Takata <takata@linux-m32r.org>
-X-Mailer: Mew version 3.3 on XEmacs 21.4.15 (Security Through Obscurity)
+	Wed, 3 Nov 2004 12:13:27 -0500
+Received: from canuck.infradead.org ([205.233.218.70]:6154 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S261746AbUKCRJ7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Nov 2004 12:09:59 -0500
+Subject: Re: [patch] remove direct mem_map refs for x86-64
+From: Arjan van de Ven <arjan@infradead.org>
+To: Andi Kleen <ak@suse.de>
+Cc: Matt Tolentino <metolent@snoqualmie.dp.intel.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20041103170208.GB1514@wotan.suse.de>
+References: <200411031647.iA3GlmBm016951@snoqualmie.dp.intel.com>
+	 <1099499567.2813.24.camel@laptop.fenrus.org>
+	 <20041103170208.GB1514@wotan.suse.de>
+Content-Type: text/plain
+Message-Id: <1099501787.2813.29.camel@laptop.fenrus.org>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
+Date: Wed, 03 Nov 2004 18:09:47 +0100
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 2.6 (++)
+X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
+	Content analysis details:   (2.6 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[62.195.31.207 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[62.195.31.207 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, 
+On Wed, 2004-11-03 at 18:02 +0100, Andi Kleen wrote:
+> On Wed, Nov 03, 2004 at 05:32:47PM +0100, Arjan van de Ven wrote:
+> > On Wed, 2004-11-03 at 08:47 -0800, Matt Tolentino wrote:
+> > > -                       page = pgdat->node_mem_map + i;
+> > > -		total++;
+> > > +			page = pfn_to_page(pgdat->node_start_pfn + i);
+> > > +			total++;
+> > 
+> > this can't be correct... pfn_to_page starts to count from address 0
+> > while the original code starts from the start of the node..
+> 
+> That is why he adds node_start_pfn
 
-This patch fixes arch/m32r/lib/memset.S.
-Please apply.
+DOH yes; sorry.
 
-Thanks.
 
-Signed-off-by: Hirokazu Takata <takata@linux-m32r.org>
----
-
- arch/m32r/lib/memset.S |   17 ++++++++++-------
- 1 files changed, 10 insertions(+), 7 deletions(-)
-
-diff -ruNp a/arch/m32r/lib/memset.S b/arch/m32r/lib/memset.S
---- a/arch/m32r/lib/memset.S	2004-10-19 06:55:28.000000000 +0900
-+++ b/arch/m32r/lib/memset.S	2004-11-02 18:39:09.000000000 +0900
-@@ -70,16 +70,18 @@ qword_set_loop:
- 	st	r1, @+r4
- 	bnc	qword_set_loop	    ||  cmpz	r2
- 	jc	r14
--word_set_wrap:
-+set_remainder:
- 	cmpui	r2, #4
--	bc	byte_set
-+	bc	byte_set_wrap1
- 	addi	r2, #-4
- 	bra	word_set_loop
- 
- byte_set_wrap:
- 	addi	r2, #4
--	addi	r4, #4		    ||  cmpz	r2
-+	cmpz	r2
- 	jc	r14
-+byte_set_wrap1:
-+	addi	r4, #4
- #if defined(CONFIG_ISA_M32R2)
- byte_set:
- 	addi	r2, #-1		    ||	stb	r1, @r4+
-@@ -153,18 +155,19 @@ qword_set_loop:
- 	st	r1, @+r4
- 	st	r1, @+r4
- 	bnc	qword_set_loop
--	bnez	r2, word_set_wrap
-+	bnez	r2, set_remainder
- 	jmp	r14
--word_set_wrap:
-+set_remainder:
- 	cmpui	r2, #4
--	bc	byte_set
-+	bc	byte_set_wrap1
- 	addi	r2, #-4
- 	bra	word_set_loop
- 
- byte_set_wrap:
- 	addi	r2, #4
--	addi	r4, #4
- 	beqz	r2, end_memset
-+byte_set_wrap1:
-+	addi	r4, #4
- byte_set:
- 	addi	r2, #-1
- 	stb	r1, @r4
-
---
-Hirokazu Takata <takata@linux-m32r.org>
-Linux/M32R Project:  http://www.linux-m32r.org/

@@ -1,77 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263851AbUDFOxe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 10:53:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263853AbUDFOxe
+	id S263849AbUDFOxV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 10:53:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263851AbUDFOxV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 10:53:34 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:5032 "EHLO e32.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263851AbUDFOx1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 10:53:27 -0400
-Date: Tue, 6 Apr 2004 20:23:48 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: rusty@au1.ibm.com, nickpiggin@yahoo.com.au, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, lhcs-devel@lists.sourceforge.net
-Subject: Re: [Experimental CPU Hotplug PATCH] - Move migrate_all_tasks to CPU_DEAD handling
-Message-ID: <20040406145348.GA8516@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-References: <20040405121824.GA8497@in.ibm.com> <20040406072543.GA21626@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 6 Apr 2004 10:53:21 -0400
+Received: from mail-in-02.arcor-online.net ([151.189.21.42]:33977 "EHLO
+	mail-in-02.arcor-online.net") by vger.kernel.org with ESMTP
+	id S263849AbUDFOxT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Apr 2004 10:53:19 -0400
+From: Jan Killius <jkillius@arcor.de>
+To: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: Oops with cpufreq on 2.6.5-mm1
+Date: Tue, 6 Apr 2004 16:53:14 +0200
+User-Agent: KMail/1.6.1
+References: <20040406101609.GA25248@gate.unimatrix> <20040406135441.GC32405@redhat.com>
+In-Reply-To: <20040406135441.GC32405@redhat.com>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040406072543.GA21626@elte.hu>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200404061653.14606.jkillius@arcor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 06, 2004 at 09:25:43AM +0200, Ingo Molnar wrote:
-> the question is, how much actual latency does the current 'freeze
-> everything' solution cause?   We should prefer simplicity and debuggability 
-> over cleverness of implementation - it's not like we'll have hotplug systems 
-> on everyone's desk in the next year or so.
-> 
-> also, even assuming a hotplug CPU system, CPU replacement events are not
-> that common, so the performance of the CPU-down op should not be a big
-> issue. The function depends on the # of tasks only linearly, and we have
-> tons of other code that is linear on the # of tasks - in fact we just
-> finished removing all the quadratic functions.
-
-Ingo,
-	I obtained some latency measurements of migrate_all_tasks() on 
-a 4-way 1.2 GHz Power4 PPC64 (p630) box. They are as below:
-
-Number of Tasks		Cycles (get_cycles) spent in migrate_all_tasks (ms)
-===========================================================================
-
-     10536 			803244 (5.3 ms)
-     30072  			2587940 (17 ms)
-
-
-	Extending this to 100000 tasks makes the stoppage time to be for
-8 million cycles (~50 ms).
-
-	My main concern of stopping the machine for so much time
-was not performance, rather the effect it may have on functioning of the 
-system.  The fact that we freeze the machine for (possibly) tons of 
-cycles doing nothing but migration made me uncomfortable.  _and_ the fact that 
-it can very well be avoided :)
-
-Can we rule out any side effects because of this stoppage? Watchdog timers, 
-cluster heartbeats, jiffies, ..?  Not sure ..
-
-It just felt much more "safe" and efficient to delegate migration to more 
-safer time in CPU_DEAD notification, when rest of the machine is running.
-Plus this avoids the cpu_is_offline check in the more hotter path 
-(load_balance/try_to_wake_up)!!
-
-
--- 
-
-
-Thanks and Regards,
-Srivatsa Vaddagiri,
-Linux Technology Center,
-IBM Software Labs,
-Bangalore, INDIA - 560017
+Hi,
+the patch don't apply clean to 2.6.5-mm1.
+On Tuesday 06 April 2004 15:54, Dave Jones wrote:
+> On Tue, Apr 06, 2004 at 12:16:09PM +0200, Jan Killius wrote:
+>  > The patch have fixed the problem. thx
+>
+> Can you try out the fully merged patch at
+> http://www.codemonkey.org.uk/projects/bitkeeper/cpufreq
+> too please ?
+>
+> 		Dave

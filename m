@@ -1,96 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271141AbTHCLfR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Aug 2003 07:35:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271158AbTHCLfR
+	id S271158AbTHCLyS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Aug 2003 07:54:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271159AbTHCLyS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Aug 2003 07:35:17 -0400
-Received: from hueytecuilhuitl.mtu.ru ([195.34.32.123]:18448 "EHLO
-	hueymiccailhuitl.mtu.ru") by vger.kernel.org with ESMTP
-	id S271141AbTHCLfI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Aug 2003 07:35:08 -0400
-From: Andrey Borzenkov <arvidjaar@mail.ru>
-To: David Walser <luigiwalser@yahoo.com>
-Subject: [PATCH][2.6.0-test2] fix ata_probe driver autoloading (another module failing to autoload - ide-cd)
-Date: Sun, 3 Aug 2003 15:33:37 +0400
-User-Agent: KMail/1.5
-References: <20030802185054.35243.qmail@web14006.mail.yahoo.com>
-In-Reply-To: <20030802185054.35243.qmail@web14006.mail.yahoo.com>
-Cc: linux-kernel@vger.kernel.org,
-       Olivier Thauvin <olivier.thauvin@aerov.jussieu.fr>
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_RMPL/o00HjtSGA/"
-Message-Id: <200308031533.37745.arvidjaar@mail.ru>
+	Sun, 3 Aug 2003 07:54:18 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:21993 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S271158AbTHCLyQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Aug 2003 07:54:16 -0400
+Date: Sun, 3 Aug 2003 13:54:10 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>, davem@redhat.com,
+       netfilter-devel@lists.netfilter.org
+Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
+Subject: [2.4 patch] add some ipv6 netfilter Configure.help entries
+Message-ID: <20030803115410.GT16426@fs.tum.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The patch below against 2.4.22-pre10 adds some missing ipv6 netfilter 
+entries to Configure.help (texts stolen from 2.6.0-test2).
 
---Boundary-00=_RMPL/o00HjtSGA/
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Please apply
+Adrian
 
-> > On Saturday 02 August 2003 21:54, David Walser
-> >
-> > wrote:
-> > > I think in 2.4 I had ide-cd as a module, but I
-> >
-> > didn't
-> >
-> > > have to do anything special to get it loaded to
-> >
-> > use
-> >
-> > > IDE CD-ROM devices.
-> > >
-> > > I just noticed in 2.6 I have to load it manually.
-> > > What's the best way to handle this?
-> >
-
-Apply this patch :). Apparently drive->driver is never NULL now but defaults 
-to default driver.
-
-thank you
-
--andrey
---Boundary-00=_RMPL/o00HjtSGA/
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="2.6.0-test2-ata_probe.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="2.6.0-test2-ata_probe.patch"
-
---- ../tmp/linux-2.6.0-test2/drivers/ide/ide-probe.c	2003-07-27 22:33:36.000000000 +0400
-+++ linux-2.6.0-test2-smp/drivers/ide/ide-probe.c	2003-08-03 15:17:10.000000000 +0400
-@@ -1134,6 +1134,8 @@ static int ata_lock(dev_t dev, void *dat
- 	return 0;
- }
+--- linux-2.4.22-pre10-full/Documentation/Configure.help.old	2003-08-03 13:46:47.000000000 +0200
++++ linux-2.4.22-pre10-full/Documentation/Configure.help	2003-08-03 13:50:39.000000000 +0200
+@@ -2982,6 +2982,47 @@
+   If you want to compile it as a module, say M here and read
+   <file:Documentation/modules.txt>.  If unsure, say `N'.
  
-+extern ide_driver_t idedefault_driver;
++CONFIG_IP6_NF_MATCH_RT
++  rt matching allows you to match packets based on the routing
++  header of the packet.
 +
- struct kobject *ata_probe(dev_t dev, int *part, void *data)
- {
- 	ide_hwif_t *hwif = data;
-@@ -1141,7 +1143,7 @@ struct kobject *ata_probe(dev_t dev, int
- 	ide_drive_t *drive = &hwif->drives[unit];
- 	if (!drive->present)
- 		return NULL;
--	if (!drive->driver) {
-+	if (drive->driver == &idedefault_driver) {
- 		if (drive->media == ide_disk)
- 			(void) request_module("ide-disk");
- 		if (drive->scsi)
-@@ -1153,7 +1155,7 @@ struct kobject *ata_probe(dev_t dev, int
- 		if (drive->media == ide_floppy)
- 			(void) request_module("ide-floppy");
- 	}
--	if (!drive->driver)
-+	if (drive->driver == &idedefault_driver)
- 		return NULL;
- 	*part &= (1 << PARTN_BITS) - 1;
- 	return get_disk(drive->disk);
-
---Boundary-00=_RMPL/o00HjtSGA/--
-
++  If you want to compile it as a module, say M here and read
++  <file:Documentation/modules.txt>.  If unsure, say `N'.
++
++CONFIG_IP6_NF_MATCH_OPTS
++  This allows one to match packets based on the hop-by-hop
++  and destination options headers of a packet.
++
++  If you want to compile it as a module, say M here and read
++  <file:Documentation/modules.txt>.  If unsure, say `N'.
++
++CONFIG_IP6_NF_MATCH_FRAG
++  frag matching allows you to match packets based on the fragmentation
++  header of the packet.
++
++  If you want to compile it as a module, say M here and read
++  <file:Documentation/modules.txt>.  If unsure, say `N'.
++
++CONFIG_IP6_NF_MATCH_HL
++  HL matching allows you to match packets based on the hop
++  limit of the packet.
++
++  If you want to compile it as a module, say M here and read
++  <file:Documentation/modules.txt>.  If unsure, say `N'.
++
++CONFIG_IP6_NF_MATCH_IPV6HEADER
++  This module allows one to match packets based upon
++  the ipv6 extension headers.
++
++  If you want to compile it as a module, say M here and read
++  <file:Documentation/modules.txt>.  If unsure, say `N'.
++
++CONFIG_IP6_NF_MATCH_AHESP
++  This module allows one to match AH and ESP packets.
++
++  If you want to compile it as a module, say M here and read
++  <file:Documentation/modules.txt>.  If unsure, say `N'.
++
+ length match support
+ CONFIG_IP6_NF_MATCH_LENGTH
+   This option allows you to match the length of a packet against a

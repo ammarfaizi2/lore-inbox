@@ -1,60 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264170AbUDBU1A (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Apr 2004 15:27:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264174AbUDBU1A
+	id S264166AbUDBUhT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Apr 2004 15:37:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264167AbUDBUhT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Apr 2004 15:27:00 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:8100 "EHLO e35.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264170AbUDBU07 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Apr 2004 15:26:59 -0500
-Subject: Re: [Patch 5/23] mask v2 - Add new mask.h file
-From: Matthew Dobson <colpatch@us.ibm.com>
-Reply-To: colpatch@us.ibm.com
-To: Paul Jackson <pj@sgi.com>
-Cc: William Lee Irwin III <wli@holomorphy.com>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040401131129.4329336f.pj@sgi.com>
-References: <20040401122802.23521599.pj@sgi.com>
-	 <20040401131129.4329336f.pj@sgi.com>
-Content-Type: text/plain
-Organization: IBM LTC
-Message-Id: <1080937563.9787.109.camel@arrakis>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Fri, 02 Apr 2004 12:26:04 -0800
-Content-Transfer-Encoding: 7bit
+	Fri, 2 Apr 2004 15:37:19 -0500
+Received: from postfix4-1.free.fr ([213.228.0.62]:45213 "EHLO
+	postfix4-1.free.fr") by vger.kernel.org with ESMTP id S264166AbUDBUhR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Apr 2004 15:37:17 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Drivers *dropped* between releases? (sis5513.c)
+Mail-Copies-To: never
+X-Face: ,MPrV]g0IX5D7rgJol{*%.pQltD?!TFg(`c8(2pkt-F0SLh(g3mIFYU1GYf]C/GuUTbr;cZ5y;3ALK%.OL8A.^.PW14e/,X-B?Nv}2a9\u-j0sSa
+From: Roland Mas <roland.mas@free.fr>
+Date: Fri, 02 Apr 2004 22:37:12 +0200
+Message-ID: <87n05uw1zb.fsf@mirexpress.internal.placard.fr.eu.org>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-04-01 at 13:11, Paul Jackson wrote:
-> Patch_5_of_23 - New mask ADT
-> 	Adds new include/linux/mask.h header file
-> 
-> 	==> See this mask.h header for more extensive mask documentation <==
+Hi,
 
-<snip>
+Just got myself a new El Cheapo PC, motherboard is an "ASRock K7S8X".
+IDE chipset is SiS746FX.  Tried installing Debian (latest beta3 of the
+installer, based on kernel 2.4.25) on it, but I couldn't: the IDE
+detection code would load the sis5513 module, then sort of hand for
+various amounts of time (during which the loggers complained about
+"hda: lost interrupt" and "hdc: lost interrupt").  Eventually, a
+timeout would be reached, but the hard drive (hda) woud still not be
+usable, and the CD-ROM drive (hdc) wouldn't be usable anymore (after
+having been used as a source for loading the modules).
 
-> +/* Use if nbits <= BITS_PER_LONG */
-> +#define MASK_ALL1(nbits)						\
-> +{ {									\
-> +	[BITS_TO_LONGS(nbits)-1] = MASK_LAST_WORD(nbits)		\
-> +} }
-> +
-> +/* Use if nbits > BITS_PER_LONG */
-> +#define MASK_ALL2(nbits)						\
-> +{ {									\
-> +	[0 ... BITS_TO_LONGS(nbits)-2] = ~0UL,				\
-> +	[BITS_TO_LONGS(nbits)-1] = MASK_LAST_WORD(nbits)		\
-> +} }
+  I've looked around a bit, and it seems that sis5513.c has seen a
+change between 2.4.21 and 2.4.22 removing support for the SiS746
+chipset.  Well, removing lines mentionint it, at least, but I'm not
+enough of a guru to see what it should change.
 
-Gotta say, I'm not a bit fan of the names of these macros.  They're
-disappointingly short on descriptiveness.  ;)  Maybe
-MASK_ALL_SINGLE_LONG and MASK_ALL_MULTIPLE_LONG?  Something that more
-explicitly shows the difference between them.  So when we're reading
-code later on, we're not constantly looking up the definition and
-saying, "What's the difference between MASK_ALL1 & MASK_ALL2 again?"
+  So I'm wondering, is this a mistake from my part (which I'll do my
+best to solve), from the debian-installer (in which case I'll report
+it to them), or has this support really been dropped, in which case
+could it please be re-enabled?
 
--Matt
+  Thanks for any hint,
 
+Roland.
+-- 
+Roland Mas
+
+C'est dans la boue la plus nauséeuse que plongent les racines de
+l'étincelante fleur de lotus. -- in Sri Raoul le petit yogi (Gaudelette)

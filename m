@@ -1,76 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263017AbTIRIF5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Sep 2003 04:05:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263019AbTIRIF5
+	id S263011AbTIRIAi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Sep 2003 04:00:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263016AbTIRIAi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Sep 2003 04:05:57 -0400
-Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:60143 "EHLO
-	laptop.fenrus.com") by vger.kernel.org with ESMTP id S263017AbTIRIFz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Sep 2003 04:05:55 -0400
-Subject: Re: fix off-by-one error in ioremap()
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: len.brown@intel.com
-In-Reply-To: <200309172107.h8HL7UBf011628@hera.kernel.org>
-References: <200309172107.h8HL7UBf011628@hera.kernel.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-hUpyw5ccu3FzSej+mtO8"
-Organization: Red Hat, Inc.
-Message-Id: <1063872336.5026.1.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 (1.4.4-4) 
-Date: Thu, 18 Sep 2003 10:05:37 +0200
+	Thu, 18 Sep 2003 04:00:38 -0400
+Received: from deadlock.et.tudelft.nl ([130.161.36.93]:40378 "EHLO
+	deadlock.et.tudelft.nl") by vger.kernel.org with ESMTP
+	id S263011AbTIRIAg convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Sep 2003 04:00:36 -0400
+Date: Thu, 18 Sep 2003 10:00:33 +0200 (CEST)
+From: =?ISO-8859-1?Q?Dani=EBl_Mantione?= <daniel@deadlock.et.tudelft.nl>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
+       James Simmons <jsimmons@infradead.org>
+Subject: Re: Patch: Make iBook1 work again
+In-Reply-To: <Pine.LNX.4.44.0309172325160.8954-100000@deadlock.et.tudelft.nl>
+Message-ID: <Pine.LNX.4.44.0309180940460.17499-100000@deadlock.et.tudelft.nl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 17 Sep 2003, Daniël Mantione wrote:
 
---=-hUpyw5ccu3FzSej+mtO8
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> So, to fix this we can look at the X driver, I must have made an error
+> somewhere.
 
-On Fri, 2003-09-12 at 10:15, Linux Kernel Mailing List wrote:
-> ChangeSet 1.1063.43.5, 2003/09/12 04:15:36-04:00, len.brown@intel.com
->=20
-> 	fix off-by-one error in ioremap()
-> 	fixes kernel crash in acpi mode: http://bugzilla.kernel.org/show_bug.cgi=
-?id=3D1085
+I found a problem, but it would mean that it was already broken before my
+patch.
 
-> diff -Nru a/arch/i386/mm/ioremap.c b/arch/i386/mm/ioremap.c
-> --- a/arch/i386/mm/ioremap.c	Wed Sep 17 14:07:31 2003
-> +++ b/arch/i386/mm/ioremap.c	Wed Sep 17 14:07:31 2003
-> @@ -140,7 +140,7 @@
->  	 */
->  	offset =3D phys_addr & ~PAGE_MASK;
->  	phys_addr &=3D PAGE_MASK;
-> -	size =3D PAGE_ALIGN(last_addr) - phys_addr;
-> +	size =3D PAGE_ALIGN(last_addr+1) - phys_addr;
-> =20
+X does this test to check if a chip has 24 bit or a 32 bit precision display
+fifo settings:
 
+    if (pATI->Chip < ATI_CHIP_264VT4)
+    {
+        pATI->XCLKPageFaultDelay += 2;
+        pATI->XCLKMaxRASDelay += 3;
+        pATI->DisplayFIFODepth = 24;
+    }
 
-A bit higher in that function is:
-                                                                           =
-                            =20
-        /* Don't allow wraparound or zero size */
-        last_addr =3D phys_addr + size - 1;
-        if (!size || last_addr < phys_addr)
-                return NULL;
-                                                                           =
-                            =20
+In atichip.h, ATI_CHIP_264LT is smaller than ATI_CHIP_264VT4, so according
+to the X sources, the Mach64 LT has a fifo depth 24.
 
-so why do you undo the deliberate -1 there ?
+Now my code:
 
---=-hUpyw5ccu3FzSej+mtO8
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+    if (M64_HAS(FIFO_24)) {
+        info->fifo_size = 24;
+        info->xclkpagefaultdelay += 2;
+        info->xclkmaxrasdelay += 3;
+    } else {
+        info->fifo_size = 32;
+    };
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
+That looks ok. But look at the aty_chips table:
 
-iD8DBQA/aWdQxULwo51rQBIRAnsdAJkB2KQ8wulIAjJKrkdj0cmVfz3fowCdH9po
-Ej7WDG3W8Enh2QJmpiQ/tBk=
-=nXqm
------END PGP SIGNATURE-----
+    { 0x4c47, 0x4c47, 0x00, 0x00, m64n_ltg,     230,  63,  63, M64F_GT |
+    M64F_INTEGRATED | M64F_GTB_DSP | M64F_SDRAM_MAGIC_PLL |
+    M64F_EXTRA_BRIGHT | M64F_LT_SLEEP | M64F_G3_PB_1024x768 },
 
---=-hUpyw5ccu3FzSej+mtO8--
+The Mach64 LT does not have the M64F_FIFO_24 flag set! That will result in
+completely different values to be calculated and cause a distorted
+display.
+
+Greetings,
+
+Daniël Mantione
+

@@ -1,72 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262195AbTKTVgo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Nov 2003 16:36:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262458AbTKTVgo
+	id S262153AbTKTVfg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Nov 2003 16:35:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262491AbTKTVfg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Nov 2003 16:36:44 -0500
-Received: from fw.osdl.org ([65.172.181.6]:24200 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262195AbTKTVgm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Nov 2003 16:36:42 -0500
-Subject: [PATCH] dm and bounce buffer panic on 2.6
-From: Mark Haverkamp <markh@osdl.org>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1069364201.22620.62.camel@markh1.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Thu, 20 Nov 2003 13:36:41 -0800
+	Thu, 20 Nov 2003 16:35:36 -0500
+Received: from kinesis.swishmail.com ([209.10.110.86]:64523 "HELO
+	kinesis.swishmail.com") by vger.kernel.org with SMTP
+	id S262153AbTKTVff (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Nov 2003 16:35:35 -0500
+Message-ID: <3FBD328C.1070607@techsource.com>
+Date: Thu, 20 Nov 2003 16:30:52 -0500
+From: Timothy Miller <miller@techsource.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andreas Dilger <adilger@clusterfs.com>
+CC: Justin Cormack <justin@street-vision.com>,
+       Jesse Pollard <jesse@cats-chateau.net>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: OT: why no file copy() libc/syscall ??
+References: <1068512710.722.161.camel@cube> <03111209360001.11900@tabby> <20031120172143.GA7390@deneb.enyo.de> <03112013081700.27566@tabby> <1069357453.26642.93.camel@lotte.street-vision.com> <3FBD27A0.50803@techsource.com> <20031120140739.I20568@schatzie.adilger.int>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-About three weeks ago markw at osdl posted a mail about a panic that he
-was seeing:
-  
-http://marc.theaimsgroup.com/?l=linux-kernel&m=106737176716474&w=2
 
-I believe what is happening, is that the dm __clone_and_map function is
-generating bio structures  with the bi_idx field non-zero. When
-__blk_queue_bounce creates a new bio with bounce pages, it sets the
-bi_idx field to 0 rather than the bi_idx of the original.  This causes
-trouble since bv_page pointers will be dereferenced later that are
-zero.  The following uses the original bio structure's bi_idx in the new
-bio structure and in copy_to_high_bio_irq and bounce_end_io.
 
-This has cleared up the panic when using the volume.
+Andreas Dilger wrote:
+> On Nov 20, 2003  15:44 -0500, Timothy Miller wrote:
+> 
+>>This could be a problem if COW causes you to run out of space when 
+>>writing to the file.
+> 
+> 
+> Not much different than running out of space copying a file.
 
-===== highmem.c 1.46 vs edited =====
---- 1.46/mm/highmem.c	Tue Oct  7 19:53:43 2003
-+++ edited/highmem.c	Thu Nov 20 11:10:19 2003
-@@ -285,7 +285,7 @@
- 	struct bio_vec *tovec, *fromvec;
- 	int i;
- 
--	__bio_for_each_segment(tovec, to, i, 0) {
-+	bio_for_each_segment(tovec, to, i) {
- 		fromvec = from->bi_io_vec + i;
- 
- 		/*
-@@ -314,7 +314,7 @@
- 	/*
- 	 * free up bounce indirect pages used
- 	 */
--	__bio_for_each_segment(bvec, bio, i, 0) {
-+	bio_for_each_segment(bvec, bio, i) {
- 		org_vec = bio_orig->bi_io_vec + i;
- 		if (bvec->bv_page == org_vec->bv_page)
- 			continue;
-@@ -437,7 +437,7 @@
- 	bio->bi_rw = (*bio_orig)->bi_rw;
- 
- 	bio->bi_vcnt = (*bio_orig)->bi_vcnt;
--	bio->bi_idx = 0;
-+	bio->bi_idx = (*bio_orig)->bi_idx;
- 	bio->bi_size = (*bio_orig)->bi_size;
- 
- 	if (pool == page_pool) {
+It is, though.  If you run out of space copying a file, you know it when 
+you're copying.  Applications don't usually expect to get out-of-space 
+errors while overwriting something in the middle of a file.
 
--- 
-Mark Haverkamp <markh@osdl.org>
+In effect, your free space and your used space add up to greater than 
+the capacity of the disk.  An application that checks for free space 
+before doing something would be fooled into thinking there is more free 
+space than there really is.  How can an application find out in advance 
+that a file that it's about to modify (without appending anything to the 
+end) is going to need more disk space?
+
 

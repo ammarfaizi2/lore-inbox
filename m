@@ -1,91 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261643AbVAGWWS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261673AbVAGWR6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261643AbVAGWWS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 17:22:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261660AbVAGWTD
+	id S261673AbVAGWR6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 17:17:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261665AbVAGWOr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 17:19:03 -0500
-Received: from av3-1-sn4.m-sp.skanova.net ([81.228.10.114]:52403 "EHLO
-	av3-1-sn4.m-sp.skanova.net") by vger.kernel.org with ESMTP
-	id S261653AbVAGWRO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 17:17:14 -0500
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: linux-kernel@vger.kernel.org, Dmitry Torokhov <dtor_core@ameritech.net>,
-       Vojtech Pavlik <vojtech@suse.cz>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] ALPS touchpad detection fix
-References: <m3wtuqxzue.fsf@telia.com>
-	<200501071928.32096.vda@port.imtp.ilyichevsk.odessa.ua>
-From: Peter Osterlund <petero2@telia.com>
-Date: 07 Jan 2005 23:17:03 +0100
-In-Reply-To: <200501071928.32096.vda@port.imtp.ilyichevsk.odessa.ua>
-Message-ID: <m3zmzk28bk.fsf@telia.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
+	Fri, 7 Jan 2005 17:14:47 -0500
+Received: from [213.146.154.40] ([213.146.154.40]:28102 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261660AbVAGWLM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jan 2005 17:11:12 -0500
+Date: Fri, 7 Jan 2005 22:10:59 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Lee Revell <rlrevell@joe-job.com>, paul@linuxaudiosystems.com,
+       arjanv@redhat.com, hch@infradead.org, mingo@elte.hu, chrisw@osdl.org,
+       alan@lxorguk.ukuu.org.uk, joq@io.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [request for inclusion] Realtime LSM
+Message-ID: <20050107221059.GA17392@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andrew Morton <akpm@osdl.org>, Lee Revell <rlrevell@joe-job.com>,
+	paul@linuxaudiosystems.com, arjanv@redhat.com, mingo@elte.hu,
+	chrisw@osdl.org, alan@lxorguk.ukuu.org.uk, joq@io.com,
+	linux-kernel@vger.kernel.org
+References: <200501071620.j07GKrIa018718@localhost.localdomain> <1105132348.20278.88.camel@krustophenia.net> <20050107134941.11cecbfc.akpm@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050107134941.11cecbfc.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua> writes:
-
-> On Thursday 06 January 2005 18:54, Peter Osterlund wrote:
-> > My ALPS touchpad is not recognized because the device gets confused by
-> > the Kensington ThinkingMouse probe.  It responds with "00 00 14"
-> > instead of the expected "00 00 64" to the "E6 report".
-> > 
-> > Resetting the device before attempting the ALPS probe fixes the
-> > problem.
-> > 
-...
-> >  /*
-> >   * Try ALPS TouchPad
-> >   */
-> > +	ps2_command(&psmouse->ps2dev, NULL, PSMOUSE_CMD_RESET_DIS);
-> >  	if (max_proto > PSMOUSE_IMEX && alps_detect(psmouse, set_properties) == 0) {
-> >  		if (!set_properties || alps_init(psmouse) == 0)
-> >  			return PSMOUSE_ALPS;
+On Fri, Jan 07, 2005 at 01:49:41PM -0800, Andrew Morton wrote:
+> Chris Wright <chrisw@osdl.org> wrote:
+> >
+> > ...
+> > Last I checked they could be controlled separately in that module.  It
+> > has been suggested (by me and others) that one possible solution would
+> > be to expand it to be generic for all caps.
 > 
-> You do reset even if max_proto <= PSMOUSE_IMEX and therefore
-> alps_detect won't be called. Is it intended?
+> Maybe this is the way?
 
-Not really intended. (It shouldn't harm though because the
-mouse/touchpad is reset anyway before the IntelliMouse probe.)
+It's at least not as bad as the current hack (when properly done in
+the capabilities modules instead of adding one ontop).
 
-Here is an updated patch that only does the reset when alps_detect()
-is going to be called.
+I must say I'm not exactly happy with that idea still.  It ties the
+privilegues we have been separating from a special uid (0) to filesystem
+permissions again.  It's not nessecarily a bad idea per, but it doesn't
+really fit into the model we've been working to.  I'd expect quite a few
+unpleasant devices when a user detects that the distibution had been
+binding various capabilities to uids/gids behinds his back.
 
-Signed-off-by: Peter Osterlund <petero2@telia.com>
----
-
- linux-petero/drivers/input/mouse/psmouse-base.c |   12 +++++++-----
- 1 files changed, 7 insertions(+), 5 deletions(-)
-
-diff -puN drivers/input/mouse/psmouse-base.c~alps-fix drivers/input/mouse/psmouse-base.c
---- linux/drivers/input/mouse/psmouse-base.c~alps-fix	2005-01-06 22:43:28.000000000 +0100
-+++ linux-petero/drivers/input/mouse/psmouse-base.c	2005-01-07 22:51:45.000000000 +0100
-@@ -451,14 +451,16 @@ static int psmouse_extensions(struct psm
- /*
-  * Try ALPS TouchPad
-  */
--	if (max_proto > PSMOUSE_IMEX && alps_detect(psmouse, set_properties) == 0) {
--		if (!set_properties || alps_init(psmouse) == 0)
--			return PSMOUSE_ALPS;
--
-+	if (max_proto > PSMOUSE_IMEX) {
-+		ps2_command(&psmouse->ps2dev, NULL, PSMOUSE_CMD_RESET_DIS);
-+		if (alps_detect(psmouse, set_properties) == 0) {
-+			if (!set_properties || alps_init(psmouse) == 0)
-+				return PSMOUSE_ALPS;
- /*
-  * Init failed, try basic relative protocols
-  */
--		max_proto = PSMOUSE_IMEX;
-+			max_proto = PSMOUSE_IMEX;
-+		}
- 	}
- 
- 	if (max_proto > PSMOUSE_IMEX && genius_detect(psmouse, set_properties) == 0)
-_
-
--- 
-Peter Osterlund - petero2@telia.com
-http://web.telia.com/~u89404340
+So to make forward progress I'd like the audio people to confirm whether
+the mlock bits in 2.6.9+ do help that half of their requirement first
+(and if not find a way to fix it) and then tackle the scheduling part.
+For that one I really wonder whether the combination of the now actually
+working nicelevels (see Mingo's post) and a simple wrapper for the really
+high requirements cases doesn't work.

@@ -1,112 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262452AbTBFBtL>; Wed, 5 Feb 2003 20:49:11 -0500
+	id <S264631AbTBFBy4>; Wed, 5 Feb 2003 20:54:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264943AbTBFBtL>; Wed, 5 Feb 2003 20:49:11 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:55721 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S262452AbTBFBtJ>; Wed, 5 Feb 2003 20:49:09 -0500
-Subject: [PATCH] linux-2.5.59_enable-cyclone_A0
-From: john stultz <johnstul@us.ibm.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@digeo.com>
-In-Reply-To: <1044496432.19553.166.camel@w-jstultz2.beaverton.ibm.com>
-References: <1044496432.19553.166.camel@w-jstultz2.beaverton.ibm.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1044496546.19558.169.camel@w-jstultz2.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 05 Feb 2003 17:55:46 -0800
-Content-Transfer-Encoding: 7bit
+	id <S264756AbTBFBy4>; Wed, 5 Feb 2003 20:54:56 -0500
+Received: from natsmtp00.webmailer.de ([192.67.198.74]:33681 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S264631AbTBFByz>; Wed, 5 Feb 2003 20:54:55 -0500
+Message-Id: <200302060204.DAA24234@post.webmailer.de>
+From: Arnd Bergmann <arnd@bergmann-dalldorf.de>
+Subject: Re: klibc update
+To: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+Date: Thu, 06 Feb 2003 02:45:24 +0100
+References: <20030205053013$7d61@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, All, 
-        This patch simply enables the existing timer_cyclone code for
-Summit/x440 systems. It depends on the previously posted
-cyclone-fixes_A1.
+Greg KH wrote:
 
-Please apply.
+> Any help with trying to debug init/initramfs.c to figure out what is
+> going wrong would be greatly appreciated.
 
-thanks
--john
+I've managed to mount the initramfs with MS_BIND into my root fs and
+found why /sbin/hotplug cannot be run currently. There is some 
+off-by-one bug during file extraction that causes the first byte 
+of the file to get left out. I.e. the file starts with "ELF\001"
+instead of "\577ELF".
 
+This may or may not be related to another off-by-one bug that I'm
+seeing sometime when unpacking initramfs on s390x ("panic: length 
+error").
 
-diff -Nru a/arch/i386/kernel/timers/Makefile b/arch/i386/kernel/timers/Makefile
---- a/arch/i386/kernel/timers/Makefile	Wed Feb  5 17:53:19 2003
-+++ b/arch/i386/kernel/timers/Makefile	Wed Feb  5 17:53:19 2003
-@@ -4,4 +4,4 @@
- 
- obj-y := timer.o timer_none.o timer_tsc.o timer_pit.o
- 
--obj-$(CONFIG_X86_CYCLONE)	+= timer_cyclone.o
-+obj-$(CONFIG_X86_SUMMIT)	+= timer_cyclone.o
-diff -Nru a/arch/i386/kernel/timers/timer.c b/arch/i386/kernel/timers/timer.c
---- a/arch/i386/kernel/timers/timer.c	Wed Feb  5 17:53:19 2003
-+++ b/arch/i386/kernel/timers/timer.c	Wed Feb  5 17:53:19 2003
-@@ -4,9 +4,14 @@
- /* list of externed timers */
- extern struct timer_opts timer_pit;
- extern struct timer_opts timer_tsc;
--
-+#ifdef CONFIG_X86_SUMMIT
-+extern struct timer_opts timer_cyclone;
-+#endif
- /* list of timers, ordered by preference, NULL terminated */
- static struct timer_opts* timers[] = {
-+#ifdef CONFIG_X86_SUMMIT
-+	&timer_cyclone,
-+#endif
- 	&timer_tsc,
- 	&timer_pit,
- 	NULL,
-diff -Nru a/include/asm-i386/fixmap.h b/include/asm-i386/fixmap.h
---- a/include/asm-i386/fixmap.h	Wed Feb  5 17:53:19 2003
-+++ b/include/asm-i386/fixmap.h	Wed Feb  5 17:53:19 2003
-@@ -60,7 +60,7 @@
- #ifdef CONFIG_X86_F00F_BUG
- 	FIX_F00F_IDT,	/* Virtual mapping for IDT */
- #endif
--#ifdef CONFIG_X86_CYCLONE
-+#ifdef CONFIG_X86_SUMMIT
- 	FIX_CYCLONE_TIMER, /*cyclone timer register*/
- #endif 
- #ifdef CONFIG_HIGHMEM
-diff -Nru a/include/asm-i386/mach-summit/mach_mpparse.h b/include/asm-i386/mach-summit/mach_mpparse.h
---- a/include/asm-i386/mach-summit/mach_mpparse.h	Wed Feb  5 17:53:19 2003
-+++ b/include/asm-i386/mach-summit/mach_mpparse.h	Wed Feb  5 17:53:19 2003
-@@ -1,6 +1,8 @@
- #ifndef __ASM_MACH_MPPARSE_H
- #define __ASM_MACH_MPPARSE_H
- 
-+extern int use_cyclone;
-+
- static inline void mpc_oem_bus_info(struct mpc_config_bus *m, char *name, 
- 				struct mpc_config_translation *translation)
+The patch below is how I hacked prepare_namespace() to keep 
+initramfs visible after boot.
+
+        Arnd <><
+
+--- 1.33/init/do_mounts.c       Sun Jan  5 16:28:41 2003
++++ edited/init/do_mounts.c     Thu Feb  6 01:12:29 2003
+@@ -892,6 +892,7 @@
+        mount_root();
+ out:
+        sys_umount("/dev", 0);
++       sys_mount("/", "./initrd", NULL, MS_BIND, NULL);
+        sys_mount(".", "/", NULL, MS_MOVE, NULL);
+        sys_chroot(".");
+        security_sb_post_mountroot();
+--- 1.33/fs/namespace.c Thu Nov 28 00:11:14 2002
++++ edited/fs/namespace.c       Thu Feb  6 01:59:20 2003
+@@ -460,7 +460,7 @@
  {
-@@ -17,14 +19,18 @@
- {
- 	if (!strncmp(oem, "IBM ENSW", 8) && 
- 			(!strncmp(productid, "VIGIL SMP", 9) 
--			 || !strncmp(productid, "RUTHLESS SMP", 12)))
-+			 || !strncmp(productid, "RUTHLESS SMP", 12))){
- 		x86_summit = 1;
-+		use_cyclone = 1; /*enable cyclone-timer*/
-+	}
- }
+        int err;
+        if (mnt->mnt_sb->s_flags & MS_NOUSER)
+-               return -EINVAL;
++               ; // return -EINVAL;
  
- /* Hook from generic ACPI tables.c */
- static inline void acpi_madt_oem_check(char *oem_id, char *oem_table_id)
- {
--	if (!strncmp(oem_id, "IBM", 3) && !strncmp(oem_table_id, "SERVIGIL", 8))
-+	if (!strncmp(oem_id, "IBM", 3) && !strncmp(oem_table_id, "SERVIGIL", 8)){
- 		x86_summit = 1;
-+		use_cyclone = 1; /*enable cyclone-timer*/
-+	}
- }
- #endif /* __ASM_MACH_MPPARSE_H */
-
-
-        
+        if (S_ISDIR(nd->dentry->d_inode->i_mode) !=
+              S_ISDIR(mnt->mnt_root->d_inode->i_mode))
 

@@ -1,38 +1,33 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317221AbSFKSC4>; Tue, 11 Jun 2002 14:02:56 -0400
+	id <S317410AbSFKSJc>; Tue, 11 Jun 2002 14:09:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317464AbSFKSCz>; Tue, 11 Jun 2002 14:02:55 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:4090 "EHLO
+	id <S317414AbSFKSJb>; Tue, 11 Jun 2002 14:09:31 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:37628 "EHLO
 	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S317221AbSFKSCy>; Tue, 11 Jun 2002 14:02:54 -0400
-Subject: Re: [PATCH] 2.5.21 Nonlinear CPU support
+	id <S317410AbSFKSJa>; Tue, 11 Jun 2002 14:09:30 -0400
+Subject: Re: 2.4.18 no timestamp update on modified mmapped files
 From: Robert Love <rml@tech9.net>
-To: vda@port.imtp.ilyichevsk.odessa.ua
-Cc: Anton Altaparmakov <aia21@cantab.net>,
-        Rusty Russell <rusty@rustcorp.com.au>, torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org, k-suganuma@mvj.biglobe.ne.jp,
-        Andrew Morton <akpm@zip.com.au>
-In-Reply-To: <200206111428.g5BES0L15607@Port.imtp.ilyichevsk.odessa.ua>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
+In-Reply-To: <3D05A6A1.328B7FDE@zip.com.au>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 11 Jun 2002 11:01:40 -0700
-Message-Id: <1023818500.21127.240.camel@sinai>
+Date: 11 Jun 2002 11:09:23 -0700
+Message-Id: <1023818963.21127.244.camel@sinai>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-06-11 at 12:29, Denis Vlasenko wrote:
+On Tue, 2002-06-11 at 00:28, Andrew Morton wrote:
 
-> I'm sorry it sounds like NTFS code needs rework, not Rusty's patch.
-> Feel free to enlighten me why I am wrong.
+> That'll be a left-brain/write-brain thing.
 
-Uh no.  We have both static (NR_CPUS) and dynamic (smp_num_cpus) code in
-the kernel... both are legit for different purposes.
+Illegal instruction!
 
-This patch takes Anton's code and swaps a kmalloc based on smp_num_cpus
-to NR_CPUS.  I.e., on my 2-way machine I use 16x more memory.
+I hope everyone else saw this and just refrained from comment.  Thanks
+for making my morning ;-)
 
 	Robert Love
 

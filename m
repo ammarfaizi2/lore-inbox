@@ -1,55 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267171AbUGMW3D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267184AbUGMWbp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267171AbUGMW3D (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jul 2004 18:29:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267173AbUGMW3D
+	id S267184AbUGMWbp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jul 2004 18:31:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267173AbUGMWb3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jul 2004 18:29:03 -0400
-Received: from pimout2-ext.prodigy.net ([207.115.63.101]:36833 "EHLO
-	pimout2-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S267171AbUGMW24 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jul 2004 18:28:56 -0400
-Date: Tue, 13 Jul 2004 15:28:32 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: Waldo Bastian <bastian@kde.org>
-Cc: kde-core-devel@kde.org, Tim Connors <tconnors@astro.swin.edu.au>,
-       linux-kernel@vger.kernel.org
-Subject: Re: kconfig's file handling (was: XFS: how to NOT null files on fsck?)
-Message-ID: <20040713222832.GA7980@taniwha.stupidest.org>
-References: <20040713110520.GB8930@ugly.local> <200407131431.43478.bastian@kde.org>
+	Tue, 13 Jul 2004 18:31:29 -0400
+Received: from outmx003.isp.belgacom.be ([195.238.2.100]:3046 "EHLO
+	outmx003.isp.belgacom.be") by vger.kernel.org with ESMTP
+	id S265814AbUGMWbX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jul 2004 18:31:23 -0400
+Date: Wed, 14 Jul 2004 00:31:36 +0200
+From: Fons Adriaensen <fons.adriaensen@skynet.be>
+To: "The Linux Audio Developers' Mailing List" 
+	<linux-audio-dev@music.columbia.edu>
+Cc: Paul Davis <paul@linuxaudiosystems.com>, florin@sgi.com,
+       linux-kernel@vger.kernel.org, albert@users.sourceforge.net
+Subject: Re: [linux-audio-dev] Re: desktop and multimedia as an afterthought?
+Message-ID: <20040713223136.GB3009@linux>
+References: <200407131455.i6DEtmAo006203@localhost.localdomain> <006401c46929$f3edf390$161b14ac@boromir>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200407131431.43478.bastian@kde.org>
+In-Reply-To: <006401c46929$f3edf390$161b14ac@boromir>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 13, 2004 at 02:31:43PM +0200, Waldo Bastian wrote:
+On Tue, Jul 13, 2004 at 11:37:12PM +0100, Martijn Sipkema wrote:
 
-> There is nothing to fix, we already use a tempfile + rename, it's in
-> KSaveFile since 1999. Or just look with strace if you don't believe
-> me. This Tim Connors guy shouldn't talk about things he obviously
-> knows nothing about.
+> IMHO it is the lack of a mutex implementation with priority ceiling
+> or inheritance and the stories about relying on either being a design
+> problem that have caused the Linux audio community to not use
+> mutexes and declare them non-RT safe while in fact they are
+> required according to POSIX to synchronize memory between
+> cooperating threads.
 
-How about fsync on the tempfile before the rename?  Without getting
-into a religious discussion about whether or not this should be
-necessary, it will certainly help in many cases.
+Does someone have an authoritive answer to the following question:
 
-> This kind of dataloss is the result of that attitude, either go
-> complain with them if it bothers you, or use a filesystem that does
-> it right.
+   Will using try_lock() on a mutex ever block the caller ?
 
-I'm not sure people can just change their fs, some people have no
-options and for some platforms where KDE is used there might not be
-any alternatives.  I really think fsync here would help in most if not
-all of those cases and it shouldn't adversely affect the performance
-(to the best of my knowledge KDE doesn't update dotfiles all that
-often and they are pretty small).  Other applications do this already
-and it seems to be very reliable for them.
+AFAIK it will not. If this is true I don't see the point of a
+lock-free ring buffer at all. You will need some way to wake up the
+non-RT thread anyway, in case it went to sleep when finding and
+empty ring buffer. This same synchronisation method can be used
+to share the state of the buffer between two threads.
 
+For example if you use a counting semaphore (built using a condition
+variable and a mutex), the RT thread would increment the sema for
+every N samples it adds to a circular buffer, and the consumer will
+decrement it for every N samples it reads. Then the state of the sema
+at all times reflects the number of samples in the buffer.
 
+If ever the V operation in the RT thread fails (unlikely, but possible
+since it has to use try_lock()), it will remember this and increment
+by one more the next time.  
 
-  --cw
+The point is that there is no need to use lock-free techniques to
+maintain a shared sample count - it's already provided by the sync
+mechanism which you need anayway. I've been using this method for
+years in critical apps, and never seen it fail.
 
-P.S. I'm a bit confused as to why files get smashed on ENOSPC and when
-     NFS servers croak though.
+-- 
+FA
+

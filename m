@@ -1,35 +1,39 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316594AbSE0Kqr>; Mon, 27 May 2002 06:46:47 -0400
+	id <S316605AbSE0KyX>; Mon, 27 May 2002 06:54:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316595AbSE0Kqq>; Mon, 27 May 2002 06:46:46 -0400
-Received: from tom.hrz.tu-chemnitz.de ([134.109.132.38]:45067 "EHLO
-	tom.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S316594AbSE0Kqp>; Mon, 27 May 2002 06:46:45 -0400
-Date: Mon, 27 May 2002 12:15:39 +0200
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: Emmanuel Michon <emmanuel_michon@realmagic.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: tasklet scheduled after end of rmmod
-Message-ID: <20020527121539.O635@nightmaster.csn.tu-chemnitz.de>
-In-Reply-To: <7wptzlllek.fsf@avalon.france.sdesigns.com>
+	id <S316607AbSE0KyW>; Mon, 27 May 2002 06:54:22 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:61947 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S316605AbSE0KyV>; Mon, 27 May 2002 06:54:21 -0400
+Subject: Re: [patch] Add i8253 spinlocks where needed.
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Manik Raina <manik@cisco.com>, torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20020527121001.B26811@ucw.cz>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 27 May 2002 12:56:20 +0100
+Message-Id: <1022500580.11859.252.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 24, 2002 at 03:34:27PM +0200, Emmanuel Michon wrote:
-> as far as I understand nothing prevents a scheduled tasklet to have
-> Linux jump to its routine, when the routine is in a module being
-> rmmod'd. How should I take care of this?
- 
-tasklet_kill() in your module_exit() code looks like it does the
-job.
+On Mon, 2002-05-27 at 11:10, Vojtech Pavlik wrote:
+> Well, probably yes, but still hd.c is a glacial relict, a driver nobody
+> (almost - it's for non-IDE "two ribbon" AT harddrives) uses. So this
+> driver is probably not enough justification for a global (as in all
+> archs) spinlock being added. 
 
-Regards
+It only uses the timer in the case that HD_DELAY > 0. This code is
+ultimately used for timing functions. A better approach would be to
+remove the use of the timer chip from the file entirely and use the
+perfectly adequate udelay() function instead.
 
-Ingo Oeser
--- 
-Science is what we can tell a computer. Art is everything else. --- D.E.Knuth
+That would also conveniently make it do cpu_relax properly improving the
+performance of your ancient IDE controller when plugged into
+hyperthreading pentium IV 8)
+
+Alan

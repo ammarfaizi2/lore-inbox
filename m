@@ -1,37 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129734AbQLTTEe>; Wed, 20 Dec 2000 14:04:34 -0500
+	id <S130349AbQLTTJe>; Wed, 20 Dec 2000 14:09:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129818AbQLTTEO>; Wed, 20 Dec 2000 14:04:14 -0500
-Received: from mail.valinux.com ([198.186.202.175]:3345 "EHLO mail.valinux.com")
-	by vger.kernel.org with ESMTP id <S129734AbQLTTEH>;
-	Wed, 20 Dec 2000 14:04:07 -0500
-Date: Wed, 20 Dec 2000 04:33:04 -0800
-From: David Hinds <dhinds@valinux.com>
-To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PCMCIA modem (v.90 X2) not working with 2.4.0-test12 PCMCIA services
-Message-ID: <20001220043304.A1549@valinux.com>
-In-Reply-To: <007101c067cc$0500c620$0b31a3ce@g1e7m6> <20001218154033.C11728@valinux.com> <20001219114614.A12948@valinux.com> <20001219154129.A1763@vger.timpanogas.org> <20001219135114.B13184@valinux.com> <20001219170516.A2039@vger.timpanogas.org> <20001220121041.A5183@vger.timpanogas.org>
+	id <S130355AbQLTTJZ>; Wed, 20 Dec 2000 14:09:25 -0500
+Received: from alcove.wittsend.com ([130.205.0.20]:23056 "EHLO
+	alcove.wittsend.com") by vger.kernel.org with ESMTP
+	id <S130349AbQLTTJT>; Wed, 20 Dec 2000 14:09:19 -0500
+Date: Wed, 20 Dec 2000 13:38:45 -0500
+From: "Michael H. Warfield" <mhw@wittsend.com>
+To: Michael Rothwell <rothwell@holly-springs.nc.us>,
+        David Lang <david.lang@digitalinsight.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: iptables: "stateful inspection?"
+Message-ID: <20001220133845.H10408@alcove.wittsend.com>
+Mail-Followup-To: Michael Rothwell <rothwell@holly-springs.nc.us>,
+	David Lang <david.lang@digitalinsight.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <3A40DE97.96228B5E@holly-springs.nc.us> <Pine.LNX.4.31.0012200848430.180-100000@dlang.diginsite.com> <20001220121351.D10408@alcove.wittsend.com> <3A40F1DB.84D53F7F@holly-springs.nc.us> <20001220130807.F10408@alcove.wittsend.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.6i
-In-Reply-To: <20001220121041.A5183@vger.timpanogas.org>; from Jeff V. Merkey on Wed, Dec 20, 2000 at 12:10:41PM -0700
+Content-Disposition: inline
+User-Agent: Mutt/1.3.2i
+In-Reply-To: <20001220130807.F10408@alcove.wittsend.com>; from mhw@wittsend.com on Wed, Dec 20, 2000 at 01:08:07PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 20, 2000 at 12:10:41PM -0700, Jeff V. Merkey wrote:
-> On Tue, Dec 19, 2000 at 05:05:16PM -0700, Jeff V. Merkey wrote:
-> 
-> Do you think there's a solution for this problem.  Sorry for bothering 
-> you again.  I'm available if you need some help retesting and fixes.
+Hello all!
 
-I do not have a solution.  I have a few reports of tx timeout problems
-that I have so far been unable to reproduce.  It is a sufficiently
-nonspecific outcome that I don't have any good ideas for how to track
-down the problem; all my attempts so far have come up blank.
+On Wed, Dec 20, 2000 at 01:08:07PM -0500, Michael H. Warfield wrote:
+> On Wed, Dec 20, 2000 at 12:52:27PM -0500, Michael Rothwell wrote:
+> > "Michael H. Warfield" wrote:
 
--- Dave
+> > >         You can use spf to add some stateful inspection for PORT mode
+> > > ftp.  Personally, I like the masquerading option better, though.
+
+> > Can you give an example of using MASQ selectively? I have real addresses
+> > on both sides of the firewall, but want things like FTP to work
+> > correctly. I think the IPChains HOWTOs are just a little terse. :)
+
+	Michael Rothwell kindly pointed out to me in private mail that
+I SCREWED UP (he didn't say that, I did) the copy-and-past on one of
+the command lines and left out a "little detail"...
+
+> 	modprobe ip_masq_ftp
+> 	ipchains -A forward -p tcp -s {Source Addresses} -d 0/0 21
+
+	This should have been:
+
+	modprobe ip_masq_ftp
+	ipchains -A forward -p tcp -s {Source Addresses} -d 0/0 21 -j MASQ
+
+	DOH!  Sorry!
+
+> 	Seems to work for me (mine includes a "tag" and a policy route
+> rule to send it out my cable modem that I've left off here)...
+
+> 	If you don't load the ip_masq_ftp module, you WILL get illegal
+> port errors on the PORT commands.
+
+> > Thanks!
+
+	Mike
+-- 
+ Michael H. Warfield    |  (770) 985-6132   |  mhw@WittsEnd.com
+  (The Mad Wizard)      |  (678) 463-0932   |  http://www.wittsend.com/mhw/
+  NIC whois:  MHW9      |  An optimist believes we live in the best of all
+ PGP Key: 0xDF1DD471    |  possible worlds.  A pessimist is sure of it!
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

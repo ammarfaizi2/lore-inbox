@@ -1,42 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261857AbUCQAIi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Mar 2004 19:08:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261860AbUCQAIi
+	id S261860AbUCQAK7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Mar 2004 19:10:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261862AbUCQAK6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Mar 2004 19:08:38 -0500
-Received: from mtaw4.prodigy.net ([64.164.98.52]:6064 "EHLO mtaw4.prodigy.net")
-	by vger.kernel.org with ESMTP id S261857AbUCQAIh (ORCPT
+	Tue, 16 Mar 2004 19:10:58 -0500
+Received: from fw.osdl.org ([65.172.181.6]:28057 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261860AbUCQAK4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Mar 2004 19:08:37 -0500
-Message-ID: <405796B0.9070906@matchmail.com>
-Date: Tue, 16 Mar 2004 16:07:12 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040304)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Mike Fedyk <mfedyk@matchmail.com>
-CC: LKML <linux-kernel@vger.kernel.org>, Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: Status HPT374 (HighPoint 1540) Sata in 2.6
-References: <405786EC.5000803@matchmail.com> <40578F31.5090700@matchmail.com>
-In-Reply-To: <40578F31.5090700@matchmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 16 Mar 2004 19:10:56 -0500
+Subject: Re: 2.6.4-mm2
+From: Daniel McNeil <daniel@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: mason@suse.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "linux-aio@kvack.org" <linux-aio@kvack.org>
+In-Reply-To: <20040316153900.1e845ba2.akpm@osdl.org>
+References: <20040314172809.31bd72f7.akpm@osdl.org>
+	 <1079461971.23783.5.camel@ibm-c.pdx.osdl.net>
+	 <1079474312.4186.927.camel@watt.suse.com>
+	 <20040316152106.22053934.akpm@osdl.org>
+	 <20040316152843.667a623d.akpm@osdl.org>
+	 <20040316153900.1e845ba2.akpm@osdl.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1079482254.3100.17.camel@ibm-c.pdx.osdl.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 16 Mar 2004 16:10:54 -0800
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Fedyk wrote:
-> Hmm, it looks like it's "supported by at latest 2.4.21-pre5", but it 
-> doesn't give details, or what SATA features are (or not) supported. 
-> Though, what Jeff said probably overrides this...
+On Tue, 2004-03-16 at 15:39, Andrew Morton wrote:
+> Andrew Morton <akpm@osdl.org> wrote:
+> >
+> > Andrew Morton <akpm@osdl.org> wrote:
+> > >
+> > > I'm thinking that the right thing to do here is to change submit_bh()
+> > > callers and ll_rw_block() to run set_page_writeback(bh->b_page) when they
+> > > start the buffer writeout and to do the run-around-the-buffer_heads thing
+> > > at I/O completion.
+> > 
+> > A page may have a mix of writeback and dirty+non-writeback buffers.  It
+> > appears that the page-level writeback code will handle this correctly.  But
+> > it requires that the page lock be held when we run set_page_writeback(), so
+> > that tears that.  hmm.
+> 
+> I'll work this out yet.
+> 
+> We change the PageWriteback() predicate to go in and see if any of the
+> buffer_heads are under I/O too.  And we change wait_on_page_writeback() to
+> also wait on any buffer_heads.
+> 
+> That means two new silly address_space ops.  Or a new page flag which means
+> "the thing at ->private is buffer_heads".  Probably the latter.
 
-Oh, I remember now...
 
-Jeff said that back in 2003, and that's why I posted in the first place.
+If buffer_heads are in flight and a SYNC_NONE writeback happens,
+will checking the buffer_heads cause to writeback to block?
 
-Jeff, so if you have any details on the status of support for these 
-cards in the 2.6 kernel (or with patches).
+Daniel 
 
-Thanks,
-
-Mike

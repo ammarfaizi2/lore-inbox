@@ -1,84 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261594AbREURM7>; Mon, 21 May 2001 13:12:59 -0400
+	id <S261599AbREURQj>; Mon, 21 May 2001 13:16:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261596AbREURMt>; Mon, 21 May 2001 13:12:49 -0400
-Received: from supelec.supelec.fr ([160.228.120.192]:17415 "EHLO
-	supelec.supelec.fr") by vger.kernel.org with ESMTP
-	id <S261594AbREURMh>; Mon, 21 May 2001 13:12:37 -0400
-Message-ID: <3B094CBF.A1F36F3D@supelec.fr>
-Date: Mon, 21 May 2001 19:13:35 +0200
-From: francois.cami@supelec.fr
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i686)
-X-Accept-Language: fr, en
+	id <S261600AbREURQ3>; Mon, 21 May 2001 13:16:29 -0400
+Received: from 216-21-153-1.ip.van.radiant.net ([216.21.153.1]:16645 "HELO
+	innerfire.net") by vger.kernel.org with SMTP id <S261599AbREURQV>;
+	Mon, 21 May 2001 13:16:21 -0400
+Date: Mon, 21 May 2001 10:17:55 -0700 (PDT)
+From: Gerhard Mack <gmack@innerfire.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
+        Axel Thimm <Axel.Thimm@physik.fu-berlin.de>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Au-Ja <doelf@au-ja.de>, Yiping Chen <YipingChen@via.com.tw>,
+        support@msi.com.tw, info@msi-computer.de, support@via-cyrix.de,
+        John R Lenton <john@grulic.org.ar>
+Subject: Re: VIA's Southbridge bug: Latest (pseudo-)patch
+In-Reply-To: <E151Z3l-0002m3-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.10.10105211016560.1356-100000@innerfire.net>
 MIME-Version: 1.0
-To: Andrew Morton <andrewm@uow.edu.au>, linux-kernel@vger.kernel.org
-Subject: 3C905C and error e401 : problem solved
-In-Reply-To: <20010521090946.D769@ipex.cz> <3B08C15E.264AE074@uow.edu.au>,
-			<3B08C15E.264AE074@uow.edu.au> <20010521140443.C8397@ipex.cz> <3B090645.9D54574F@uow.edu.au>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Its what I would describe as lack of enforcement by trading standards bodies,
+> and I suspect what the US would call 'insufficient class action lawsuits'
 
-Hi Mr Morton and all linux-kernel,
+What we need is a web page for listing crap hardware so less people buy
+it.
 
-I have been experimenting with the 3C905C, trying
-to get rid of the annoying e401 error (too much work
-in interrupt).
+	Gerhard
 
-I've tried using 64 as max_interrupt_work 
-and it solves completely
-the e401 problem on this particular machine :
+--
+Gerhard Mack
 
-- yoda.rez-gif.supelec.fr (dns/proxy for 500 clients,
-  on a 10Mbits/s direct Internet connexion, local
-  network is 100Mbits/s)
-	ASUS P2B-DS
-	dual PII-350
-	512MB RAM (2*128+1*256)
-	3*IBM 18GB 10KT U2W SCSI 
-	3C905C
-	S3 Virge
-Linux Slackware-current, 2.2.19 or 2.4.4 both built for smp
-with APIC. 
+gmack@innerfire.net
 
-Before setting max_interrupt_work at 64, the e401 error
-could occur 20 times a day.
-Now it doesn't occur anymore.
+<>< As a computer I find your faith in technology amusing.
 
-I have waited for a long time to test that on the
-SMP PC because it is critical for our network.
-I have tried to link these e401 messages with another
-activity on the PC, like heavy I/O, to no avail. The
-3C905C does 10 times as many interruptions as the SCSI
-controller does. Lowering the max_interrupt_work creates
-a lot more errors in the logs (all are e401).
-
-
-On that second PC, the message still appears (very rarely though,
-about once in two or three days. I cannot relate those
-occurences to anything). It used to appear very often
-(about 40 times a day).
-I have tried to put the machine under stress (4 heavy FTP
-transfers at once, each 400MB long, with 4 different
-clients, connected in 100 MBits FD). The e401 message
-has not appeared... I'm a bit at a loss here.
-
-- lando.rez-gif.supelec.fr (FTP for the same network)
-	ABIT LX6
-	PII300
-	128MB RAM
-	IBM 8.4GB IDE (1st Master) 
-         + Maxtor 60GB IDE (2nd Master)
-	3C905C
-	S3 Virge
-Linux Slackware-current, 2.4.4, ProFTPD
-
-All our network is 100MBits Full Duplex, switched
-with 3COM switches.
-
-Best regards, thanks for all your work
-
-François Cami

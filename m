@@ -1,61 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265400AbUBCBBz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Feb 2004 20:01:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265587AbUBCBBz
+	id S265631AbUBCBEe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Feb 2004 20:04:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265752AbUBCBCa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Feb 2004 20:01:55 -0500
-Received: from s4.uklinux.net ([80.84.72.14]:51352 "EHLO mail2.uklinux.net")
-	by vger.kernel.org with ESMTP id S265400AbUBCBBw (ORCPT
+	Mon, 2 Feb 2004 20:02:30 -0500
+Received: from dp.samba.org ([66.70.73.150]:44710 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S265631AbUBCBCK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Feb 2004 20:01:52 -0500
-To: Andrew Morton <akpm@osdl.org>
-Cc: Nick Piggin <piggin@cyberone.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.1 slower than 2.4, smp/scsi/sw-raid/reiserfs
-References: <87oesieb75.fsf@codematters.co.uk>
-	<20040201151111.4a6b64c3.akpm@osdl.org>
-	<401D9154.9060903@cyberone.com.au> <87llnm482q.fsf@codematters.co.uk>
-	<401DDCD7.3010902@cyberone.com.au> <401E1131.6030608@cyberone.com.au>
-	<87d68xcoqi.fsf@codematters.co.uk> <401EDEF2.6090802@cyberone.com.au>
-	<20040202154959.283cf60b.akpm@osdl.org>
-From: Philip Martin <philip@codematters.co.uk>
-Date: Tue, 03 Feb 2004 01:01:20 +0000
-In-Reply-To: <20040202154959.283cf60b.akpm@osdl.org> (Andrew Morton's
- message of "Mon, 2 Feb 2004 15:49:59 -0800")
-Message-ID: <87isipvuvz.fsf@codematters.co.uk>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Common Lisp, linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 2 Feb 2004 20:02:10 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Ingo Molnar <mingo@redhat.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
+       Nick Piggin <piggin@cyberone.com.au>, dipankar@in.ibm.com,
+       vatsa@in.ibm.com
+Subject: Re: [PATCH 3/4] 2.6.2-rc2-mm2 CPU Hotplug: The Core 
+In-reply-to: Your message of "Mon, 02 Feb 2004 07:45:32 CDT."
+             <Pine.LNX.4.58.0402020741250.16748@devserv.devel.redhat.com> 
+Date: Tue, 03 Feb 2004 11:34:27 +1100
+Message-Id: <20040203010224.459E32C252@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> writes:
+In message <Pine.LNX.4.58.0402020741250.16748@devserv.devel.redhat.com> you wri
+te:
+> 
+> On Mon, 2 Feb 2004, Rusty Russell wrote:
+> 
+> > Unfortunately the __migrate_task() check won't go away: someone may have
+> > asked to move from CPU 0 to 1, and by the time migration thread on 0
+> > gets to the request, 1 has gone down.  We don't want all the callers to
+> > hold the cpucontrol lock, because now the NUMA scheduler uses migration
+> > as a common case 8(
+> 
+> well, when a CPU goes down it could process the migration request queue as
+> well. (this would be a pretty natural thing to do if CPU-down executes in
+> the migration-thread context.)
 
-> Nick Piggin <piggin@cyberone.com.au> wrote:
->>
->> Andrew, any other ideas?
->
-> There seems to be a lot more writeout happening.
+Wrong migration thread.  The migration thread on CPU 1 has been asked
+to push into CPU 0, which is now going down.
 
-As far as I can see (and hear!) that's true.
+Now I've slept on the "do it atomically" idea, I think it's a good
+one.  I've even worked out how to maintain the "last thread on CPU is
+the idle thread", although I'd need to test in code.
 
-> You could try setting /proc/sys/vm/dirty_ratio to 60 and
-> /proc/sys/vm/dirty_background_ratio to 40.
+> Another question is user-space semantics - if user-space relies on CPU
+> affinity, is the kernel allowed to violate it or should the process be
+> notified. Sending it a signal (SIGTERM or anything similar) if the
+> affinity was non-generic might be a good thing to do.
 
-Not much different:
+We've been there: we used to send SIGPWR with a new si_info field to
+say what CPU it was.  But it turns out not to be useful, so we took it
+out.
 
-2.6.1 (without elevator=deadline)
+In practice, any app which wants to scale with # CPUs needs to know
+when CPUs are coming up, as well as going down.  Ditto memory, etc.
+This means they need to listen for the hotplug event (DBUS anyone?),
+or we introduce a SIGRECONF (default ignored).  But AFAICT,
+introducing a new signal isn't possible (at least on x86) without
+breaking glibc.
 
-dirty_ratio:60 dirty_background_ratio:40
-
-245.58user 121.82system 3:31.79elapsed 173%CPU (0avgtext+0avgdata 0maxresident)k
-0inputs+0outputs (0major+3771340minor)pagefaults 0swaps
-
-dirty_ratio:40 dirty_background_ratio:10  (the defaults)
-
-245.75user 121.33system 3:35.13elapsed 170%CPU (0avgtext+0avgdata 0maxresident)k
-0inputs+0outputs (0major+3770826minor)pagefaults 0swaps
-
-
--- 
-Philip Martin
+Thanks!
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

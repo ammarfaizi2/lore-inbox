@@ -1,66 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276615AbRI2Umw>; Sat, 29 Sep 2001 16:42:52 -0400
+	id <S276616AbRI2UsC>; Sat, 29 Sep 2001 16:48:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276616AbRI2Umn>; Sat, 29 Sep 2001 16:42:43 -0400
-Received: from 65-45-81-178.customer.algx.net ([65.45.81.178]:46350 "EHLO
-	master.aslab.com") by vger.kernel.org with ESMTP id <S276615AbRI2UmZ>;
-	Sat, 29 Sep 2001 16:42:25 -0400
-Date: Sat, 29 Sep 2001 13:26:43 -0700 (PDT)
-From: Andre Hedrick <andre@aslab.com>
-To: Dave Jones <davej@suse.de>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S274964AbRI2Urw>; Sat, 29 Sep 2001 16:47:52 -0400
+Received: from coffee.psychology.McMaster.CA ([130.113.218.59]:14354 "EHLO
+	coffee.psychology.mcmaster.ca") by vger.kernel.org with ESMTP
+	id <S276616AbRI2Urg>; Sat, 29 Sep 2001 16:47:36 -0400
+Date: Sat, 29 Sep 2001 16:48:00 -0400 (EDT)
+From: Mark Hahn <hahn@physics.mcmaster.ca>
+To: Andre Hedrick <andre@aslab.com>
+cc: Christian =?iso-8859-1?q?Borntr=E4ger?= 
+	<linux-kernel@borntraeger.net>,
+        linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
 Subject: Re: RFC (patch below) Re: ide drive problem?
-In-Reply-To: <Pine.LNX.4.30.0109292229380.21394-100000@Appserv.suse.de>
-Message-ID: <Pine.LNX.4.31.0109291325410.7545-100000@postbox.aslab.com>
+In-Reply-To: <Pine.LNX.4.10.10109291309050.28810-100000@master.linux-ide.org>
+Message-ID: <Pine.LNX.4.10.10109291627300.9176-100000@coffee.psychology.mcmaster.ca>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> This is an error that I am considering removing form the user's view.
+> For the very fact/reason you are pointing out; however, it becomse
+> more painful when performing error sorting.
 
-Sorry ABORTED commands are reported ad valid errors.
-The case of SMART errors is that SMART may not be enabled in the device.
+yes, most of the time, the warning scares people unnecessarily.
+but if the machine is seeing lots of CRC failures, there should 
+definitely be some prominent messages.  perhaps something simple
+like producing a warning if more than a few of recent IOs
+have had CRC problems:
 
-Cheers,
+int crcState = 0;
 
-Andre Hedrick
-CTO ASL, Inc.
-Linux ATA Development
------------------------------------------------------------------------------
-ASL, Inc.                                    Tel: (510) 857-0055 x103
-38875 Cherry Street                          Fax: (510) 857-0010
-Newark, CA 94560                             Web: www.aslab.com
+on successful IO: 
+	crcState >>= 1;
 
-On Sat, 29 Sep 2001, Dave Jones wrote:
+on CRC failure: 
+	if (crcState)
+		printk("dang, CRC failed on hda, see http://whatever");
+	crcState = 1 << 10;
 
-> On Sat, 29 Sep 2001, Andre Hedrick wrote:
->
-> > This is an error that I am considering removing form the user's view.
-> > For the very fact/reason you are pointing out; however, it becomse
-> > more painful when performing error sorting.
->
-> Another 'error' you may want to silence some time is the one
-> that appears when you query SMART status of a recent IBM drive.
->
-> hde: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
-> hde: drive_cmd: error=0x04 { DriveStatusError }
->
-> This happens if the drive is SMART capable, but not SMART enabled,
-> and you ask it if it can do SMART.  Once you enable it, subsequent
-> queries work without spitting out the error.
-> (Unless you turn it off again)
->
-> I'm not sure if this a quirk of these drives (I've not seen it happen
-> on any other vendor), or the code.
->
-> regards,
->
-> Dave.
->
-> --
-> | Dave Jones.        http://www.suse.de/~davej
-> | SuSE Labs
->
+so if >10 IOs succeed between CRC failures, there's no warning.
+(uh, I guess that would actually be 9, since presumably the retry
+would succeed...)  keeping a global count of CRC failures would be
+kind of nice, too.
+
+regards, mark hahn.
 

@@ -1,75 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267882AbUHUV2u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267901AbUHUVmm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267882AbUHUV2u (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Aug 2004 17:28:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267895AbUHUV2u
+	id S267901AbUHUVmm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Aug 2004 17:42:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267909AbUHUVmm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Aug 2004 17:28:50 -0400
-Received: from 80-219-192-49.dclient.hispeed.ch ([80.219.192.49]:11780 "EHLO
-	ritz.dnsalias.org") by vger.kernel.org with ESMTP id S267882AbUHUV2m
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Aug 2004 17:28:42 -0400
-From: Daniel Ritz <daniel.ritz@gmx.ch>
-Reply-To: daniel.ritz@gmx.ch
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Subject: [PATCH 2.4] fix EnE Cardbus bridges for HDSP
-Date: Sat, 21 Aug 2004 23:22:31 +0200
-User-Agent: KMail/1.5.4
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
+	Sat, 21 Aug 2004 17:42:42 -0400
+Received: from mail2.ewetel.de ([212.6.122.16]:12974 "EHLO mail2.ewetel.de")
+	by vger.kernel.org with ESMTP id S267901AbUHUVml (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Aug 2004 17:42:41 -0400
+Date: Sat, 21 Aug 2004 23:42:30 +0200 (CEST)
+From: Pascal Schmidt <der.eremit@email.de>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+In-Reply-To: <412770EA.nail9DO11D18Y@burner>
+Message-ID: <Pine.LNX.4.58.0408212336040.20146@neptune.local>
+References: <2ptdY-42Y-55@gated-at.bofh.it> <2uPdM-380-11@gated-at.bofh.it>
+ <2uUwL-6VP-11@gated-at.bofh.it> <2uWfh-8jo-29@gated-at.bofh.it>
+ <2uXl0-Gt-27@gated-at.bofh.it> <2vge2-63k-15@gated-at.bofh.it>
+ <2vgQF-6Ai-39@gated-at.bofh.it> <2vipq-7O8-15@gated-at.bofh.it>
+ <2vj2b-8md-9@gated-at.bofh.it> <2vDtS-bq-19@gated-at.bofh.it>
+ <E1ByXMd-00007M-4A@localhost> <412770EA.nail9DO11D18Y@burner>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200408212322.31099.daniel.ritz@gmx.ch>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-CheckCompat: OK
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi marcelo
+On Sat, 21 Aug 2004, Joerg Schilling wrote:
 
-this has been in 2.6 since may 04. the 2.4 version of it.
-against 2.4-bknow
+> So changing the kernel to require write permissions would be a simple
+> fix that would help without breaking cdrtools as libscg of course opens
+> the devices with O_RDWR.
 
-rgds
--daniel
+I agree, but Linus obviously thought otherwise. Reverting that and
+doing the above fix instead would create three different behaviours
+for different 2.6.x kernel versions, which is also undesirable.
 
--------------
+> I am not against a long term change that would require euid root too,
+> but this should be announced early enough to allow prominent users of
+> the interface to keep track of the interface changes.
 
-this patch clears an almost undocumented EnE specific test register that
-makes sound on RME Hammerfall DSP Carbus work...
+Too late for that now, no matter whether we like it or not... however,
+at least the discussion now has shown that changes to this interface
+need to be considered carefully, so maybe the future will be
+bright. ;)
 
-Signed-off-by: Daniel Ritz <daniel.ritz@gmx.ch>
-
---- 1.7/drivers/pcmcia/ti113x.h	Fri Aug  8 16:07:45 2003
-+++ edited/drivers/pcmcia/ti113x.h	Sat Aug 21 22:46:00 2004
-@@ -134,6 +134,10 @@
- /* ExCA IO offset registers */
- #define TI113X_IO_OFFSET(map)		(0x36+((map)<<1))
- 
-+/* EnE test register */
-+#define ENE_TEST_C9			0xc9	/* 8bit */
-+#define ENE_TEST_C9_TLTENABLE		0x02
-+
- #ifdef CONFIG_CARDBUS
- 
- /*
-@@ -155,6 +159,17 @@
- 	new = reg & ~I365_INTR_ENA;
- 	if (new != reg)
- 		exca_writeb(socket, I365_INTCTL, new);
-+
-+	/*
-+	 * for EnE bridges only: clear testbit TLTEnable. this makes the
-+	 * RME Hammerfall DSP sound card working.
-+	 */
-+	if (socket->dev->vendor == PCI_VENDOR_ID_ENE) {
-+		u8 test_c9 = config_readb(socket, ENE_TEST_C9);
-+		test_c9 &= ~ENE_TEST_C9_TLTENABLE;
-+		config_writeb(socket, ENE_TEST_C9, test_c9);
-+	}
-+
- 	return 0;
- }
- 
-
-
+-- 
+Ciao,
+Pascal

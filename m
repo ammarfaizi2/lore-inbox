@@ -1,73 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265515AbUGCAjv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265681AbUGCA4X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265515AbUGCAjv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jul 2004 20:39:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265520AbUGCAju
+	id S265681AbUGCA4X (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jul 2004 20:56:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265692AbUGCA4X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jul 2004 20:39:50 -0400
-Received: from hiauly1.hia.nrc.ca ([132.246.100.193]:26892 "EHLO
-	hiauly1.hia.nrc.ca") by vger.kernel.org with ESMTP id S265515AbUGCAjs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jul 2004 20:39:48 -0400
-Message-Id: <200407030039.i630dddX016102@hiauly1.hia.nrc.ca>
-Subject: Re: [parisc-linux] Comparing PROT_EXEC-only pages on different CPUs
-To: jamie@shareable.org (Jamie Lokier)
-Date: Fri, 2 Jul 2004 20:39:39 -0400 (EDT)
-From: "John David Anglin" <dave@hiauly1.hia.nrc.ca>
-Cc: linux-kernel@vger.kernel.org, parisc-linux@parisc-linux.org,
-       matthew@wil.cx, grundler@parisc-linux.org
-In-Reply-To: <20040702040752.GB10366@mail.shareable.org> from "Jamie Lokier" at Jul 2, 2004 05:07:52 am
-X-Mailer: ELM [version 2.4 PL25]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 2 Jul 2004 20:56:23 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:54716 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S265681AbUGCA4V (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jul 2004 20:56:21 -0400
+Date: Sat, 3 Jul 2004 02:56:03 +0200
+From: Andries Brouwer <Andries.Brouwer@cwi.nl>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: Szakacsits Szabolcs <szaka@sienet.hu>,
+       "Patrick J. LoPresti" <patl@users.sourceforge.net>,
+       Anton Altaparmakov <aia21@cam.ac.uk>,
+       Andries Brouwer <Andries.Brouwer@cwi.nl>, bug-parted@gnu.org,
+       "K.G." <k_guillaume@libertysurf.fr>,
+       Steffen Winterfeldt <snwint@suse.de>, Thomas Fehr <fehr@suse.de>,
+       linux-kernel@vger.kernel.org, clausen@gnu.org, buytenh@gnu.org,
+       msw@redhat.com
+Subject: Re: [RFC] Restoring HDIO_GETGEO semantics (was: Re: workaround for BIOS / CHS stuff)
+Message-ID: <20040703005555.GA20808@apps.cwi.nl>
+References: <Pine.LNX.4.21.0407030201520.30622-100000@mlf.linux.rulez.org> <200407030242.39075.bzolnier@elka.pw.edu.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200407030242.39075.bzolnier@elka.pw.edu.pl>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> As Richard Henderson points out, the toolchain should be requesting
-> PROT_READ|PROT_EXEC if it generates code which needs data read access.
-> ELF is particularly good for tracking generating those flags, so do
-> HPPA code segments have the read flag set at the moment?  I.e. if it
-> does, then it would be fine to change the kernel to honour
-> PROT_EXEC-only.
+(i) Szaka wrote stuff that I interpreted as stating (a) that parted
+is seriously broken, and (b) that parted is unmaintained.
 
-The default flags for .text and other code sections are "AX" for both
-hppa64-hpux and hppa-linux.  Thus, unless someone explicitly removes
-PROT_READ, there isn't a problem reading the offsets in the jump tables.
+Now that I look, I find parted-1.6.11 with a Changelog with last change,
+Andrew Clausen 2004-04-25. That is not long ago.
 
-Having jump tables containing data in the code sections is relatively
-new on HPPA.  There were problems with the previous implementation in
-which the jump tables contained code.
+Upon looking further, I find that Andrew Clausen answered on the
+parted mailing list on 2004-06-26, not long ago at all.
 
-It would be possible to put the jump tables in .rodata.  The reasons
-why the jump tables ended up in the code sections are:
+So, any suggestions (maybe misunderstood by me) about parted being
+unmaintained, are completely incorrect.
 
-1) The instruction sequence to load the start of the table is about
-   three instructions shorter.
+Concerning the "seriously broken" part, looking at the various available
+sources I find that indeed parted has always been seriously broken,
+but now Andrew has added stuff in an attempt to fix things.
+His added stuff is broken as well, but clearly work is being done,
+so instead of shouting on the kernel list it seems more productive
+to tell Andrew precisely in what ways his stuff is broken.
+I would expect that very soon parted is fine.
 
-2) The tables contain absolute offsets.  In order to put the tables
-   in .rodata, we needed support for 32 and 64-bit pc-relative
-   relocations in binutils.  I added this support to binutils a few
-   months ago.  However, I decided that I didn't want to require
-   an update to a non-released version of binutils in order to build
-   and use GCC.
 
-3) There weren't any problems putting the tables in the code sections
-   under hpux.
+(ii) Various people talk about moving disks between machines.
+Such people have not understood the main fact here:
+the geometry is not a property of the disk but of the BIOS.
+It is futile to hope for a construction that will work across
+different machines with different BIOSes.
 
-> (There's also the question of whether that code needs data read
-> access: do jump table instructions do data reads or do they count as
-> code reads?  I don't know HPPA well enough to know).
 
-The jump table instructions use the standard HPPA load instructions
-(i.e., there is no difference in a read to .text or .data aside from
-the protection flags that have been set for the page).
+(iii) Bartlomiej writes:
 
-The tool chain only controls the setting of SHF_ALLOC, SHF_EXECINSTR,
-SHF_WRITE, ...  There isn't any control over whether a section can be
-read or not as far as I can tell.
+> I now think that Andries should have removed HDIO_GETGEO from
+> IDE driver _completely_ instead of only removing ide-geometry.c.
 
-Dave
--- 
-J. David Anglin                                  dave.anglin@nrc-cnrc.gc.ca
-National Research Council of Canada              (613) 990-0752 (FAX: 952-6602)
+The main reason that it still exists is that it provides some
+information not (easily) available elsewhere, namely the starting
+offset.
+
+But it is true, returning 0 in all other fields would have made
+it more clear that there is no attempt to return the BIOS geometry.
+It might be a good idea to do that.
+
+
+Andries

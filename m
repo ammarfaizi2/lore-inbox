@@ -1,46 +1,32 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314470AbSD1T1q>; Sun, 28 Apr 2002 15:27:46 -0400
+	id <S314469AbSD1T3r>; Sun, 28 Apr 2002 15:29:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314469AbSD1T1p>; Sun, 28 Apr 2002 15:27:45 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:51218 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S314470AbSD1T1p>; Sun, 28 Apr 2002 15:27:45 -0400
-Date: Sun, 28 Apr 2002 12:27:09 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Kiss The Blade <thiagop@stampede.org>
-cc: Richard Gooch <rgooch@ras.ucalgary.ca>,
-        Roman Zippel <zippel@linux-m68k.org>, Larry McVoy <lm@bitmover.com>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        Ian Molton <spyro@armlinux.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: BK, deltas, snapshots and fate of -pre...
-In-Reply-To: <A743C0JEMJRPZWCBONROPOPKYTFC6UT.3ccc4886@kingston>
-Message-ID: <Pine.LNX.4.44.0204281221260.5090-100000@home.transmeta.com>
+	id <S314471AbSD1T3q>; Sun, 28 Apr 2002 15:29:46 -0400
+Received: from mons.uio.no ([129.240.130.14]:61692 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S314469AbSD1T3p>;
+	Sun, 28 Apr 2002 15:29:45 -0400
+To: Dan Yocum <yocum@fnal.gov>
+Cc: linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Poor NFS client performance on 2.4.18?
+In-Reply-To: <3CC86BDC.C8784EA2@fnal.gov> <shsu1pyppnz.fsf@charged.uio.no>
+	<3CC9697C.41473ED9@fnal.gov>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 28 Apr 2002 21:29:40 +0200
+Message-ID: <shsofg3lizf.fsf@charged.uio.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> " " == Dan Yocum <yocum@fnal.gov> writes:
 
+     > Trond, So, would I be correct in assuming that backing out the
+     > linux-2.4.18-ping.dif patch would solve the problem in the
+     > short term?
 
-On Sun, 28 Apr 2002, Kiss The Blade wrote:
-> 28/4/2002 15:47:43, Richard Gooch <rgooch@ras.ucalgary.ca> wrote:
->
-> >It already has, for years. Like it or not, certain questions/issues
-> >*do* get raised. If the FAQ can capture at least some of these, it
-> >saves bandwidth on the list.
->
-> I think Linus actually does not want to endorse the FSF stance about how
-> software must be ethically correct.
+Not ping, but linux-2.4.18-rpc_tweaks.dif...
 
-Right. Besides, as the whole notion of "free software" has very little to
-do with the kernel, please just link to some open source site. One of the
-more neutral ones is "http://www.debian.org/social_contract.html", for
-example.
-
-Remember: we're not the Judean People's Front, we're the People's Front of
-Judea. Or maybe we're the Popular Front for the Liberation of Judea. I get
-confused.
-
-			Linus
-
+Cheers,
+  Trond

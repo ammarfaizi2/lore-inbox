@@ -1,85 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261976AbVCNVyt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262005AbVCNVyN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261976AbVCNVyt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 16:54:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262025AbVCNVys
+	id S262005AbVCNVyN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 16:54:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261983AbVCNVyM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 16:54:48 -0500
-Received: from fire.osdl.org ([65.172.181.4]:48567 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261976AbVCNVvD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 16:51:03 -0500
-Message-ID: <4236073E.6060801@osdl.org>
-Date: Mon, 14 Mar 2005 13:50:54 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-Organization: OSDL
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Sam Ravnborg <sam@ravnborg.org>
-CC: Keith Owens <kaos@ocs.com.au>, lkml <linux-kernel@vger.kernel.org>,
-       akpm <akpm@osdl.org>
-Subject: Re: [PATCH] buildcheck: reduce DEBUG_INFO noise from reference* scripts
-References: <29073.1110832439@ocs3.ocs.com.au> <42360443.8030606@osdl.org> <20050314214038.GE17925@mars.ravnborg.org>
-In-Reply-To: <20050314214038.GE17925@mars.ravnborg.org>
-Content-Type: multipart/mixed;
- boundary="------------040805050203060808090000"
+	Mon, 14 Mar 2005 16:54:12 -0500
+Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:44209
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S261932AbVCNVvq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Mar 2005 16:51:46 -0500
+Date: Mon, 14 Mar 2005 13:50:21 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: akpm@osdl.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/4] sparsemem intro patches
+Message-Id: <20050314135021.639d1533.davem@davemloft.net>
+In-Reply-To: <1110834883.19340.47.camel@localhost>
+References: <1110834883.19340.47.camel@localhost>
+X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040805050203060808090000
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Mon, 14 Mar 2005 13:14:43 -0800
+Dave Hansen <haveblue@us.ibm.com> wrote:
 
-Sam Ravnborg wrote:
-> On Mon, Mar 14, 2005 at 01:38:11PM -0800, Randy.Dunlap wrote:
->  Indeed, it's actually much worse with that patch section added.  :(
-> 
->>I don't know how I got there.
->>
->>Sam, can you drop the very first patch section here, or shall I send
->>a new patch for this?
-> 
-> Incremental patch please. I already have a few patches on top of this in
-> bitkeeper.
-> 
-> 	Sam
+> Three of these are i386-only, but one of them reorganizes the macros
+> used to manage the space in page->flags, and will affect all platforms.
+> There are analogous patches to the i386 ones for ppc64, ia64, and
+> x86_64, but those will be submitted by the normal arch maintainers.
 
-Here you go.... back out those 2 lines.
+Sparc64 uses some of the upper page->flags bits to store D-cache
+flushing state.
 
-Thanks,
--- 
-~Randy
+Specifically, PG_arch_1 is used to set whether the page is scheduled
+for delayed D-cache flushing, and bits 24 and up say which CPU the
+CPU stores occurred on (and thus which CPU will get the cross-CPU
+message to flush it's D-cache should the deferred flush actually
+occur).
 
---------------040805050203060808090000
-Content-Type: text/x-patch;
- name="refer_discard_no_init.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="refer_discard_no_init.patch"
-
-
-I should not have added init.text test here;
-it's more than useless, it actually degrades the output.
-
-Signed-off-by: Randy Dunlap <rddunlap@osdl.org>
-
-diffstat:=
- scripts/reference_discarded.pl |    2 --
- 1 files changed, 2 deletions(-)
-
-diff -Naurp ./scripts/reference_discarded.pl~refer_discard_no_init ./scripts/reference_discarded.pl
---- ./scripts/reference_discarded.pl~refer_discard_no_init	2005-03-14 13:44:54.000000000 -0800
-+++ ./scripts/reference_discarded.pl	2005-03-14 13:46:07.000000000 -0800
-@@ -82,8 +82,6 @@ foreach $object (keys(%object)) {
- 		}
- 		if (($line =~ /\.text\.exit$/ ||
- 		     $line =~ /\.exit\.text$/ ||
--		     $line =~ /\.text\.init$/ ||
--		     $line =~ /\.init\.text$/ ||
- 		     $line =~ /\.data\.exit$/ ||
- 		     $line =~ /\.exit\.data$/ ||
- 		     $line =~ /\.exitcall\.exit$/) &&
-
---------------040805050203060808090000--
+I imagine that since we don't support the domain stuff (yet) on sparc64,
+your patches won't break things, but it is something to be aware of.

@@ -1,60 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129525AbRADPbP>; Thu, 4 Jan 2001 10:31:15 -0500
+	id <S129348AbRADQBd>; Thu, 4 Jan 2001 11:01:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130007AbRADPbH>; Thu, 4 Jan 2001 10:31:07 -0500
-Received: from roc-24-95-203-215.rochester.rr.com ([24.95.203.215]:22547 "EHLO
-	d185fcbd7.rochester.rr.com") by vger.kernel.org with ESMTP
-	id <S129525AbRADPav>; Thu, 4 Jan 2001 10:30:51 -0500
-Date: Thu, 04 Jan 2001 10:30:31 -0500
-From: Chris Mason <mason@suse.com>
-To: Christoph Rohland <cr@sap.com>
-cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Alexander Viro <viro@math.psu.edu>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] filemap_fdatasync & related changes
-Message-ID: <774720000.978622231@tiny>
-In-Reply-To: <m3ae982yq5.fsf@linux.local>
-X-Mailer: Mulberry/2.0.6b1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	id <S129734AbRADQBX>; Thu, 4 Jan 2001 11:01:23 -0500
+Received: from d14144.upc-d.chello.nl ([213.46.14.144]:30896 "EHLO
+	amadeus.home.nl") by vger.kernel.org with ESMTP id <S129348AbRADQBR>;
+	Thu, 4 Jan 2001 11:01:17 -0500
+Message-Id: <m14ECpF-000OXlC@amadeus.home.nl>
+Date: Thu, 4 Jan 2001 17:01:13 +0100 (CET)
+From: arjan@fenrus.demon.nl (Arjan van de Ven)
+To: chris@gidayu.max.uni-duisburg.de (Christian Loth)
+Subject: Re: DHCP Problems with 3com 3c905C Tornado
+cc: linux-kernel@vger.kernel.org
+X-Newsgroups: fenrus.linux.kernel
+In-Reply-To: <20010104123139.A15097@gidayu.max.uni-duisburg.de>
+User-Agent: tin/pre-1.4-981002 ("Phobia") (UNIX) (Linux/2.2.18pre19 (i586))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <20010104123139.A15097@gidayu.max.uni-duisburg.de> you wrote:
+> Hello all,
 
+>   I recently installed a system with the 3c905C
+> NIC on RedHat 6.2. In our network, IP adresses
+> are granted via DHCP, although every host has
+> a fixed IP instead of a dynamic IP pool. The IP
+> is statically coupled with the MAC adresses of
+> our network.
 
-On Thursday, January 04, 2001 10:48:13 AM +0100 Christoph Rohland
-<cr@sap.com> wrote:
+Is this machine by chance an SMP machine ? 
 
-> Chris Mason <mason@suse.com> writes:
->> Just noticed the filemap_fdatasync code doesn't check the return value
->> from writepage.  Linus, would you take a patch that redirtied the page,
->> puts it back onto the dirty list (at the tail), and unlocks the page
->> when writepage returns 1?
->> 
->> That would loop forever if the writepage func kept returning 1 though...I
->> think that's what we want, unless someone like ramfs made a writepage
->> func that always returned 1.
-> 
-> shmem has such a writepage for locked shm segments. It also always
-> return 1 if the swap space is exhausted. So everybody using shared
-> anonymous, SYSV shared or POSIX shared memory can hit this.
-> 
-> I invented the return code 1 exactly to be able to handle this.
-> 
-
-Yes, right now the shmem writepage calls are the only ones returning one at
-all.  But, the question of how to properly fsync/msync these kinds of pages
-still stands.  Returning from an fsync before writing them isn't correct.
-
-Either way, filemap_fdatasync needs fixing, since it drops the dirty bit on
-these pages.  They'll never get written after going through it.
-
--chris
-
+Greetings,
+   Arjan van de Ven
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

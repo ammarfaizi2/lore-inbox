@@ -1,58 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293203AbSCJTtz>; Sun, 10 Mar 2002 14:49:55 -0500
+	id <S293204AbSCJTyZ>; Sun, 10 Mar 2002 14:54:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293204AbSCJTto>; Sun, 10 Mar 2002 14:49:44 -0500
-Received: from mail3.aracnet.com ([216.99.193.38]:17319 "EHLO
-	mail3.aracnet.com") by vger.kernel.org with ESMTP
-	id <S293203AbSCJTt1>; Sun, 10 Mar 2002 14:49:27 -0500
-Date: Sun, 10 Mar 2002 11:51:53 -0800
-From: Hanna V Linder <hannal@us.ibm.com>
-Reply-To: Hanna V Linder <hannal@us.ibm.com>
-To: Paul Menage <pmenage@ensim.com>, viro@math.psu.edu,
-        linux-kernel@vger.kernel.org
-cc: Hanna Linder <hannal@us.ibm.com>
-Subject: Re: [PATCH] 2.5.6 Fast Walk Dcache (improved) 
-Message-ID: <3031260852.1015761112@[10.10.2.2]>
-In-Reply-To: <E16jX4j-0007gz-00@pmenage-dt.ensim.com>
-In-Reply-To: <E16jX4j-0007gz-00@pmenage-dt.ensim.com>
-X-Mailer: Mulberry/2.1.1 (Win32)
+	id <S293205AbSCJTyP>; Sun, 10 Mar 2002 14:54:15 -0500
+Received: from stargazer.compendium-tech.com ([64.156.208.76]:62398 "EHLO
+	stargazer.compendium-tech.com") by vger.kernel.org with ESMTP
+	id <S293204AbSCJTyD>; Sun, 10 Mar 2002 14:54:03 -0500
+Date: Sun, 10 Mar 2002 11:53:54 -0800 (PST)
+From: Kelsey Hudson <khudson@compendium-tech.com>
+To: Jeffrey Siegal <jbs@quiotix.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Recommended dual Xeon motherboard for 2.4?
+In-Reply-To: <3C8AEED1.80104@quiotix.com>
+Message-ID: <Pine.LNX.4.44.0203101147470.20626-100000@sol.compendium-tech.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Does anyone have one of these running reliably?  I've seen a lot of 
+> messages about hard lockups, BIOS bugs, and such.
+> 
+> I'm looking for an off-the-shelf MB that will work reliably with the new 
+> Prestonia CPUs.
 
---On Friday, March 08, 2002 6:59 PM -0800 Paul Menage <pmenage@ensim.com> wrote:
+Off the shelf, I've had relatively few problems with my Supermicro P6DCE+. 
+Aside from not supporting higher than 12 physical IDE devices (6 masters), 
+being mostly ACPI-driven, requiring some odd-ball 24-pin+8-pin+4-pin 
+power supply, and having a terrible board layout, I'm very 
+impressed with this motherboard and its features. I haven't experienced a 
+single lockup with the board, and it's been running in production using 
+2.4.19-pre2-ac2 now for 3 days without a hitch. Hyperthreading is enabled. 
+It's a dual 2.0GHz machine, and easily the fastest PC-based machine I've 
+ever used. It's got its quirks, which you'll see in practice, but aside 
+from them, i'd highly reccommend this motherboard.
 
->> I've reworked the patch somewhat to give the following features:
->>
->
-> Oops - that was a slightly non-functional version of the patch, as
-> exec_permission_lite() had somehow got renamed to exec_permission().
->
-> Here's the correct one.
->
-> diff -daur linux-2.5.6/fs/dcache.c linux-2.5.6.dcache/fs/dcache.c
+hope this helps...
 
-Hi Paul,
-
-	There seems to be a problem while booting with this patch applied
-on an 8-way SMP (.config available). Here is where the boot process stops:
-
-VFS: Mounted root (ext2 filesystem) readonly.
-Freeing unused kernel memory: 232k freed
-INIT: version 2.78 booting
-                        Welcome to Red Hat Linux
-                Press 'I' to enter interactive startup.
-Mounting proc filesystem:  [  OK  ]
-Configuring kernel parameters:  [  OK  ]
-modprobe: modprobe: Can't open dependencies file /lib/modules/2.5.6/modules.dep (No such file or directory)
-Setting clock  (localtime): Sun Mar 10 11:10:27 PST 2002 [  OK  ]
-Loading default keymap (us): [  OK  ]
-
-Hanna
+ Kelsey Hudson                                           khudson@ctica.com 
+ Associate Software Engineer
+ Compendium Technologies, Inc                               (619) 725-0771
+---------------------------------------------------------------------------     
+==== 0100101101001001010000110100101100100000010010010101010000100001 =====
 
 

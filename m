@@ -1,40 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293631AbSCKGtM>; Mon, 11 Mar 2002 01:49:12 -0500
+	id <S293245AbSCKHNj>; Mon, 11 Mar 2002 02:13:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293632AbSCKGtD>; Mon, 11 Mar 2002 01:49:03 -0500
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:25608 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S293631AbSCKGsv>; Mon, 11 Mar 2002 01:48:51 -0500
-Message-Id: <200203110646.g2B6kWq03689@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain; charset=US-ASCII
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: "Martin J. Bligh" <fletch@aracnet.com>, lse-tech@lists.sourceforge.net
-Subject: Re: 23 second kernel compile (aka which patches help scalibility on NUMA)
-Date: Mon, 11 Mar 2002 08:45:44 -0200
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <82825246.1015624024@[10.10.2.3]>
-In-Reply-To: <82825246.1015624024@[10.10.2.3]>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S293632AbSCKHN3>; Mon, 11 Mar 2002 02:13:29 -0500
+Received: from gateway2.ensim.com ([65.164.64.250]:59919 "EHLO
+	nasdaq.ms.ensim.com") by vger.kernel.org with ESMTP
+	id <S293245AbSCKHNR>; Mon, 11 Mar 2002 02:13:17 -0500
+X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0
+From: Paul Menage <pmenage@ensim.com>
+To: Hanna V Linder <hannal@us.ibm.com>
+cc: Paul Menage <pmenage@ensim.com>, viro@math.psu.edu,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.6 Fast Walk Dcache (improved) 
+In-Reply-To: Your message of "Sun, 10 Mar 2002 11:51:53 PST."
+             <3031260852.1015761112@[10.10.2.2]> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sun, 10 Mar 2002 23:13:07 -0800
+Message-Id: <E16kJzX-0005CN-00@pmenage-dt.ensim.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9 March 2002 03:47, Martin J. Bligh wrote:
-> "time make -j32 bzImage" is now down to 23 seconds.
-> (16 way NUMA-Q, 700MHz P3's, 4Gb RAM).
-...
-> Any other suggestions are welcome. I'd also be interested
-> to know if 23s is fast for make bzImage, or if other big
-> iron machines can kick this around the room.
+>
+>	There seems to be a problem while booting with this patch applied
+>on an 8-way SMP (.config available). Here is where the boot process stops:
 
-I'm curious how long "time make -j32 bzImage" takes on your setup
-when:
-1) only one node is enabled,
-2) only one CPU is enabled?
+I tested the SMP kernel (default config), but only on a UP box. Do you
+get that problem on smaller systems, or just the 8-way box?
 
-this will give you a clue how close you are to 'perfect' scalability.
---
-vda
+>Setting clock  (localtime): Sun Mar 10 11:10:27 PST 2002 [  OK  ]
+>Loading default keymap (us): [  OK  ]
+>
+
+I guess that doing swapon is the next step. But you'd think that if it 
+was going to die during swapon, the display would read
+
+Activating swap partitions:
+
+rather than nothing after the keymap line.
+
+Paul
+

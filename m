@@ -1,58 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261436AbUKSPH6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261437AbUKSPdL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261436AbUKSPH6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 10:07:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261437AbUKSPH6
+	id S261437AbUKSPdL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 10:33:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261439AbUKSPdL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 10:07:58 -0500
-Received: from lilah.hetzel.org ([199.250.128.2]:15546 "EHLO lilah.hetzel.org")
-	by vger.kernel.org with ESMTP id S261436AbUKSPHm (ORCPT
+	Fri, 19 Nov 2004 10:33:11 -0500
+Received: from tartu.cyber.ee ([193.40.6.68]:10513 "EHLO tartu.cyber.ee")
+	by vger.kernel.org with ESMTP id S261437AbUKSPdG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 10:07:42 -0500
-Date: Fri, 19 Nov 2004 11:29:20 -0500
-From: Dorn Hetzel <kernel@dorn.hetzel.org>
-To: linux-kernel@vger.kernel.org
-Subject: r8169.c
-Message-ID: <20041119162920.GA26836@lilah.hetzel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	Fri, 19 Nov 2004 10:33:06 -0500
+From: Meelis Roos <mroos@linux.ee>
+To: linux-kernel@vger.kernel.org, matthieu castet <castet.matthieu@free.fr>,
+       Jean Tourrilhes <jt@bougret.hpl.hp.com>, Adam Belay <ambx1@neo.rr.com>
+Subject: Re: [PATCH] smsc-ircc2: Add PnP support.
+In-Reply-To: <419CECFF.2090608@free.fr>
+User-Agent: tin/1.7.6-20040906 ("Baleshare") (UNIX) (Linux/2.6.10-rc2 (i686))
+Message-Id: <E1CVAfT-0002n9-Rn@rhn.tartu-labor>
+Date: Fri, 19 Nov 2004 17:27:23 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+mc> try to do an "echo auto > /sys/bus/pnp/device_number/resources"
+mc> 
+mc> It will reenable the device.
 
-I've been working on building a new system using an Abit AA8 Duramax
-motherboard, which includes a realtek 8169/8110 gigE controller as 
-well as Intel ICH6R AHCI SATA interface.
+I tried this on my Toshiba Satellite 1800-314 and the device gets IO
+resources but is still disabled. echo activate > ... will enable it but
+the smc-ircc2 driver still finds that the device is disabled (in
+2.6.10-rc2+yesterdays BK):
 
-The r8169.c version 1.2 driver in 2.6.9 had issues hanging the ethernet
-on the AA8, so I downloaded version 2.2 from the realtek.com.tw
-website, which fixed that issue.
+nartsiss:~# cat /sys/bus/pnp/devices/00\:0a/options
+Dependent: 01 - Priority acceptable
+   port 0x3f8-0x3f8, align 0x0, size 0x8, 16-bit address decoding
+Dependent: 02 - Priority acceptable
+   port 0x2e8-0x2e8, align 0x0, size 0x8, 16-bit address decoding
+Dependent: 03 - Priority acceptable
+   port 0x2f8-0x2f8, align 0x0, size 0x8, 16-bit address decoding
+Dependent: 04 - Priority acceptable
+   port 0x3e8-0x3e8, align 0x0, size 0x8, 16-bit address decoding
+nartsiss:~# cat /sys/bus/pnp/devices/00\:0a/resources
+state = disabled
+nartsiss:~# echo auto > /sys/bus/pnp/devices/00\:0a/resources
+nartsiss:~# cat /sys/bus/pnp/devices/00\:0a/resources
+state = disabled
+io 0x2e8-0x2ef
+nartsiss:~# echo activate > /sys/bus/pnp/devices/00\:0a/resources
+nartsiss:~# cat /sys/bus/pnp/devices/00\:0a/resources
+state = active
+io 0x2e8-0x2ef
+nartsiss:~# modprobe smsc-ircc2
+FATAL: Error inserting smsc_ircc2
+(/lib/modules/2.6.10-rc2/kernel/drivers/net/irda/smsc-ircc2.ko): No such device
+nartsiss:~# dmesg|tail -5
+pnp: Device 00:0a activated.
+NET: Registered protocol family 23
+found SMC SuperIO Chip (devid=0x5a rev=00 base=0x002e): LPC47N227
+smsc_superio_flat(): IrDA not enabled
+smsc_superio_flat(): fir: 0x00, sir: 0x2e8, dma: 15, irq: 0, mode: 0x02
 
-2.6.9, however, was not making happy noises with the ICH6R/AHCI SATA
-controller, and after reviewing changelogs and finding encouraging
-notes, I gave 2.6.10-rc2 a try and I am happy to report that it
-seems to work very well with the AHCI SATA drives.
 
-2.6.10-rc2 still uses the 1.2 8169 driver, same as 2.6.9...
+Looks like there is also a enable/disable bit in the actual LPC device,
+or maybe it needs also a fir address and/or irq?
 
-However, the r8169 2.2 driver would not build with 2.6.10-rc2,
-due to use of pci_dma_sync_single.
-
-I've made a V2.3 of the 8169 driver which uses 
-pci_dma_sync_single_for_cpu instead, and it seems to work fine.
-
-I was hoping to submit a patch to move the new driver into
-some appropriate release, but the 2.2/2.3 driver is so far
-changed from 1.2 that the diff -u is about the size of the
-original and new file combined :(
-
-Which brings me to my question (my apologies for the roundabout path)...
-
-With such a huge diff, should I send a diff, or the whole new file, or
-do something else entirely?
-
-Thanks in advance for any advice!
-
-Dorn Hetzel
+-- 
+Meelis Roos

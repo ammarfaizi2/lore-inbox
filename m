@@ -1,48 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263123AbTCWRRf>; Sun, 23 Mar 2003 12:17:35 -0500
+	id <S263121AbTCWRRZ>; Sun, 23 Mar 2003 12:17:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263124AbTCWRRf>; Sun, 23 Mar 2003 12:17:35 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:41123
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S263123AbTCWRRe>; Sun, 23 Mar 2003 12:17:34 -0500
-Subject: Re: 2.5.65-ac2 -- hda/ide trouble on ICH4
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Dominik Brodowski <linux@brodo.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       B.Zolnierkiewicz@elka.pw.edu.pl
-In-Reply-To: <20030323145915.GA865@brodo.de>
-References: <20030322140337.GA1193@brodo.de>
-	 <1048350905.9219.1.camel@irongate.swansea.linux.org.uk>
-	 <20030322162502.GA870@brodo.de>
-	 <1048354921.9221.17.camel@irongate.swansea.linux.org.uk>
-	 <20030323010338.GA886@brodo.de>
-	 <1048434472.10729.28.camel@irongate.swansea.linux.org.uk>
-	 <20030323145915.GA865@brodo.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1048444868.10729.54.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 23 Mar 2003 18:41:10 +0000
+	id <S263123AbTCWRRZ>; Sun, 23 Mar 2003 12:17:25 -0500
+Received: from dbl.q-ag.de ([80.146.160.66]:61064 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id <S263121AbTCWRRZ>;
+	Sun, 23 Mar 2003 12:17:25 -0500
+Date: Sun, 23 Mar 2003 18:28:22 +0100 (CET)
+From: Manfred Spraul <manfred@colorfullife.com>
+X-X-Sender: manfred@dbl.q-ag.de
+To: linux-kernel@vger.kernel.org
+Subject: Deadlock between tasklist_lock and dcache_lock
+Message-ID: <Pine.LNX.4.44.0303231818530.3908-100000@dbl.q-ag.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> printk("%4s\n", drive->name) prints out "hdd" all the time. 
-> 
-> hda is an ATA disk drive
-> hdb is empty
-> hdc is an ATAPI CD/DVD-ROM drive
-> hdd is an ATAPI CD-ROM CD-R/RW drive
+__unhash_process acquires the dcache_lock while holding the tasklist_lock 
+for writing. AFAICS this can deadlock:
 
-This gets weirder by the minute, and I still can't get it to happen here
-annoyingly.  
+CPU1:
+	[ in release_task() ]
+	write_lock_irq(&tasklist_lock);
+	__unhash_process()
+	
+CPU2:
+	spin_lock(&dcache_lock);
+	<interrupt>
+	read_lock(&tasklist_lock);, // e.g. for signal delivery
+	** spins, lock held by cpu 1 for writing.
 
-The list thats breaking is a private list. We delete the drive from that
-list, if its present (it may be an empty bay) we then use ata_attach 
-to add it to a device list (or back to ata_unused). 
+CPU1:
+	[ within __unhash_process() ]
+	spin_lock(&dcache_lock);
+	** spins, lock held by CPU2
 
-I find it hard to believe something like this is a compiler bug, but right
-now I don't see how stuff is reappearing on the list.
+Probably the callers of __unhash_process must acquire the dcache_lock 
+before write_lock_irq(&tasklist_lock).
+
+Any other ideas how to fix the deadlock?
+--
+	Manfred
 

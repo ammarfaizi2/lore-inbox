@@ -1,52 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277231AbRJDVEW>; Thu, 4 Oct 2001 17:04:22 -0400
+	id <S277229AbRJDVEm>; Thu, 4 Oct 2001 17:04:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277229AbRJDVEN>; Thu, 4 Oct 2001 17:04:13 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:15052 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S277224AbRJDVD4>;
-	Thu, 4 Oct 2001 17:03:56 -0400
-Date: Thu, 4 Oct 2001 14:04:17 -0700
-From: Mike Kravetz <kravetz@us.ibm.com>
-To: linux-kernel@vger.kernel.org
-Subject: Context switch times
-Message-ID: <20011004140417.C1245@w-mikek2.des.beaverton.ibm.com>
-Mime-Version: 1.0
+	id <S277226AbRJDVEf>; Thu, 4 Oct 2001 17:04:35 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:62223 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S277224AbRJDVEQ>; Thu, 4 Oct 2001 17:04:16 -0400
+Subject: Re: [POT] Which journalised filesystem ?
+To: sct@redhat.com (Stephen C. Tweedie)
+Date: Thu, 4 Oct 2001 22:09:38 +0100 (BST)
+Cc: davej@suse.de (Dave Jones), riel@conectiva.com.br (Rik van Riel),
+        sebastien.cabaniols@laposte.net (sebastien.cabaniols),
+        linux-kernel@vger.kernel.org, sct@redhat.com (Stephen Tweedie)
+In-Reply-To: <20011003183651.D5209@redhat.com> from "Stephen C. Tweedie" at Oct 03, 2001 06:36:51 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15pFkQ-0004Bo-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've been working on a rewrite of our Multi-Queue scheduler
-and am using the lat_ctx program of LMbench as a benchmark.
-I'm lucky enough to have access to an 8-CPU system for use
-during development.  One time, I 'accidently' booted the
-kernel that came with the distribution installed on this
-machine.  That kernel level is '2.2.16-22'.  The results of
-running lat-ctx on this kernel when compared to 2.4.10 really
-surprised me.  Here is an example:
+> Which laptop?  I've seen several reports of disk corruption with
+> recent kernels on certain laptops.
 
-2.4.10 on 8 CPUs:  lat_ctx -s 0 -r 2 results
-"size=0k ovr=2.27
-2 3.86
+20Gbyte IBM 2.5" ones I suspect ? If so then we aren't the only OS
 
-2.2.16-22 on 8 CPUS:  lat_ctx -s 0 -r 2 results
-"size=0k ovr=1.99
-2 1.44
-
-As you can see, the context switch times for 2.4.10 are more
-than double what they were for 2.2.16-22 in this example.  
-
-Comments?
-
-One observation I did make is that this may be related to CPU
-affinity/cache warmth.  If you increase the number of 'TRIPS'
-to a very large number, you can run 'top' and observe per-CPU
-utilization.  On 2.2.16-22, the '2 task' benchmark seemed to
-stay on 3 of the 8 CPUs.  On 2.4.10, these 2 tasks were run
-on all 8 CPUs and utilization was about the same for each CPU.
-
--- 
-Mike Kravetz                                  kravetz@us.ibm.com
-IBM Peace, Love and Linux Technology Center
+Alan

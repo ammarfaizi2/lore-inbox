@@ -1,55 +1,94 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312345AbSCUOps>; Thu, 21 Mar 2002 09:45:48 -0500
+	id <S312280AbSCUOwh>; Thu, 21 Mar 2002 09:52:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312338AbSCUOph>; Thu, 21 Mar 2002 09:45:37 -0500
-Received: from ns.ithnet.com ([217.64.64.10]:5385 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S312346AbSCUOpZ>;
-	Thu, 21 Mar 2002 09:45:25 -0500
-Date: Thu, 21 Mar 2002 15:45:00 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Oleg Drokin <green@namesys.com>
-Cc: sneakums@zork.net, linux-kernel@vger.kernel.org,
-        trond.myklebust@fys.uio.no
-Subject: Re: BUG REPORT: kernel nfs between 2.4.19-pre2 (server) and 2.2.21-pre3 (client)
-Message-Id: <20020321154500.117e8acc.skraw@ithnet.com>
-In-Reply-To: <20020315150536.A2279@namesys.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S312351AbSCUOw2>; Thu, 21 Mar 2002 09:52:28 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:61614 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S312280AbSCUOwU>; Thu, 21 Mar 2002 09:52:20 -0500
+Importance: Normal
+Sensitivity: 
+Subject: Re: Bad Illegal instruction traps on dual-Xeon (p4) Linux Dell box
+To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+Cc: <linux-kernel@vger.kernel.org>
+X-Mailer: Lotus Notes Release 5.0.4  June 8, 2000
+Message-ID: <OFD90E745F.C0FAFDC5-ON88256B83.0050EB0E@boulder.ibm.com>
+From: "James Washer" <washer@us.ibm.com>
+Date: Thu, 21 Mar 2002 06:52:47 -0800
+X-MIMETrack: Serialize by Router on D03NM038/03/M/IBM(Release 5.0.9a |January 7, 2002) at
+ 03/21/2002 07:52:16 AM
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 15 Mar 2002 15:05:36 +0300
-Oleg Drokin <green@namesys.com> wrote:
 
-> Hello!
-> 
-> On Fri, Mar 15, 2002 at 01:03:38PM +0100, Stephan von Krawczynski wrote:
-> 
-> > Sorry, weekend in sight ;-)
-> > admin:/p2/backup on /backup type nfs
-> > (rw,noexec,nosuid,nodev,timeo=20,rsize=8192,wsize=8192,addr=192.168.1.2)
-> > admin:/p3/suse/6.4 on /var/adm/mount type nfs (ro,intr,addr=192.168.1.2)
-> > BTW: another fs mounted from a different server on the same client is not
-> > affected at all from this troubles. Are there any userspace tools with
-> > problems involved? mount ? maybe I should replace something ...
-> 
-> Do not know about the tools, can you run reiserfsck on all exported volumes
-> just in case?
+Yes, I agree that page 104 ( Section  3.11 ) is inconsistent with itself
+wrt
+      "Write to control register CR3 to invalidate all TLB entries."
 
-Hello,
+For the particular problem Tom is seeing however. I've recoded do_trap() to
+do an invlpg to the particular page that is causing the problem.. Just in
+case the G bit was set and the pte was stale.  I suspect he'll be able to
+test this code this morning.
 
-just in case there is still somebody interested:
-the problem stays the same with upgrading the server to 2.4.19-pre4
+ - jim
 
-Trond: can you please tell me in short, what the common case (or your guess) is
-why I see this stale file handles on the client side. I am going to try and
-find out myself what the problem with reiserfs is here, it gets a bit on my
-nerves now. Do you suspect the fs to drop some inodes under the nfs-server?
+Zwane Mwaikambo <zwane@linux.realnet.co.sz>@vger.kernel.org on 03/20/2002
+11:19:41 PM
 
-Regards,
-Stephan
+Sent by:    linux-kernel-owner@vger.kernel.org
+
+
+To:    James Washer/Beaverton/IBM@IBMUS
+cc:    Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
+Subject:    Re: Bad Illegal instruction traps on dual-Xeon (p4) Linux Dell
+       box
+
+
+
+On Wed, 20 Mar 2002, James Washer wrote:
+
+>
+> The iTLB would be flushed when he did the reload of cr3 ( per your
+> suggestion ) UNLESS the G bit was set.
+> I suppose theres some small chance, that at the time this instruction was
+> first cached and its corresponding iTLB entry was loaded, the G bit may
+> have been set.. Seems unlikely. but I'll hack up something to
+> unconditionally flush the iTLB.
+
+I find vol3 somewhat confusing in this regard...
+
+P104 - The only ways to deterministically invalidate global page entries
+are as follows:
+o Clear the PGE flag and then invalidate the TLBs.
+o Execute the INVLPG instruction to invalidate individual page-directory
+  or page-table entries in the TLBs.
+o Write to control register CR3 to invalidate all TLB entries.
+
+Then on page 381.
+
+The following operations invalidate all TLB entries except global entries.
+(A global entry is one for which the G (global) flag is set in its
+corresponding page-directory or page-table entry. The global flag was
+introduced into the IA-32 architecture in the P6 family processors, see
+Section 10.5.,  Cache Control .)
+
+o Writing to control register CR3.
+o A task switch that changes control register CR3.
+
+I would reckon reference 1 (p104) is incorrect, can someone shed some
+light?
+
+Thanks,
+ Zwane
+
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+
 

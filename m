@@ -1,31 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263748AbRFLWt4>; Tue, 12 Jun 2001 18:49:56 -0400
+	id <S263713AbRFLWrG>; Tue, 12 Jun 2001 18:47:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263749AbRFLWtq>; Tue, 12 Jun 2001 18:49:46 -0400
-Received: from ns.suse.de ([213.95.15.193]:60944 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S263748AbRFLWtZ>;
-	Tue, 12 Jun 2001 18:49:25 -0400
-Date: Wed, 13 Jun 2001 00:50:20 +0200 (CEST)
-From: egger@suse.de
-Reply-To: egger@suse.de
-Subject: Re: [PATCH 2.4.5-ac12] New Sony Vaio Motion Eye camera driver
-To: adeucher@UU.NET
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3B26827B.5CF40115@uu.net>
+	id <S263748AbRFLWq4>; Tue, 12 Jun 2001 18:46:56 -0400
+Received: from elin.scali.no ([195.139.250.10]:49681 "EHLO elin.scali.no")
+	by vger.kernel.org with ESMTP id <S263713AbRFLWqo>;
+	Tue, 12 Jun 2001 18:46:44 -0400
+Message-ID: <3B269B5D.35A554A9@scali.no>
+Date: Wed, 13 Jun 2001 00:44:45 +0200
+From: Steffen Persvold <sp@scali.no>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/plain; charset=us-ascii
-Message-Id: <20010613004822.BD3F5A95B@Nicole.muc.suse.de>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Functionality of mmap, nopage and remap_page_range
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12 Jun, Alex Deucher wrote:
+Hi kernel list readers,
 
-> Also there is some work on a new XvMC interface that would allow for
-> extended DVD acceleration.
+I have a question about the functionality of mmap(), vma->vm_ops functions and different
+vma->vm_flags. Is there any documentation that describes these methods and how they should
+work (i.e when should mmap() use remap_page_range and when is the vma->vm_ops->no_page
+function called)
 
- Extended DVD acceleration with Motion-Compensation? How?
-
-Servus,
-       Daniel
-
+Any  help appreciated.
+-- 
+  Steffen Persvold               Systems Engineer
+  Email : mailto:sp@scali.no     Scali AS (http://www.scali.com)
+  Tlf   : (+47) 22 62 89 50      Olaf Helsets vei 6
+  Fax   : (+47) 22 62 89 51      N-0621 Oslo, Norway

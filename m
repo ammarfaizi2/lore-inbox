@@ -1,56 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287616AbSBCTK3>; Sun, 3 Feb 2002 14:10:29 -0500
+	id <S287633AbSBCTWw>; Sun, 3 Feb 2002 14:22:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287633AbSBCTKT>; Sun, 3 Feb 2002 14:10:19 -0500
-Received: from relay1.pair.com ([209.68.1.20]:16 "HELO relay.pair.com")
-	by vger.kernel.org with SMTP id <S287616AbSBCTKF>;
-	Sun, 3 Feb 2002 14:10:05 -0500
-X-pair-Authenticated: 24.126.75.99
-Message-ID: <3C5D8C79.4C0792C5@kegel.com>
-Date: Sun, 03 Feb 2002 11:16:09 -0800
-From: Dan Kegel <dank@kegel.com>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Arjen Wolfs <arjen@euro.net>
-CC: coder-com@undernet.org, feedback@distributopia.com,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [Coder-Com] Re: PROBLEM: high system usage / poor SMPnetwork 
- performance
-In-Reply-To: <3C56E327.69F8B70F@kegel.com>
-	 <001901c1a900$e2bc7420$0201010a@frodo>
-	 <3C58D50B.FD44524F@kegel.com>
-	 <001d01c1aa8e$2e067e60$0201010a@frodo> <5.1.0.14.2.20020203173247.02c946e8@pop.euronet.nl>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S287645AbSBCTWn>; Sun, 3 Feb 2002 14:22:43 -0500
+Received: from PACIFIC-CARRIER-ANNEX.MIT.EDU ([18.7.21.83]:16287 "EHLO
+	pacific-carrier-annex.mit.edu") by vger.kernel.org with ESMTP
+	id <S287633AbSBCTWf>; Sun, 3 Feb 2002 14:22:35 -0500
+Message-Id: <200202031922.OAA17250@multics.mit.edu>
+X-Mailer: exmh version 2.1.1 10/15/1999
+To: Dan Kegel <dank@kegel.com>
+cc: Vincent Sweeney <v.sweeney@barrysworld.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "coder-com@undernet.org" <coder-com@undernet.org>,
+        "Kevin L. Mitchell" <klmitch@MIT.EDU>
+Subject: Re: PROBLEM: high system usage / poor SMP network performance
+In-Reply-To: Your message of "Sun, 03 Feb 2002 00:03:57 PST."
+             <3C5CEEED.E98D35B7@kegel.com> 
+Date: Sun, 03 Feb 2002 14:22:28 -0500
+From: Kev <klmitch@MIT.EDU>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjen Wolfs wrote:
-> The ircu version that supports kqueue and /dev/poll is currently being
-> beta-tested on a few servers on the Undernet. The graph at
-> http://www.break.net/ircu10-to-11.png shows the load average (multiplied by
-> 100) on a on a server with 3000-4000 clients using poll(), and /dev/poll.
-> The difference is obviously quite dramatic, and the same effect is being
-> seen with kqueue. You could also try some of the /dev/poll patches for
-> linux, which migth save you writing a new engine. Note that ircu 2.10.11 is
-> still beta though, and is known to crash in mysterious ways from time to time.
+> Hmm.  Have a look at
+> http://www.mail-archive.com/coder-com@undernet.org/msg00060.html
+> It looks like the mainline Undernet ircd was rewritten around May 2001
+> to support high efficiency techniques like /dev/poll and kqueue.
+> The source you pointed to is way behind Undernet's current sources.
 
-None of the original /dev/poll patches for Linux were much
-good, I seem to recall; they had scaling problems and bugs.
+This code is still in beta testing, by the way.  It's certainly not the
+prettiest way of doing it, though, and I've started working on a new
+implementation of the basic idea in a library, which I will then use in
+a future version of Undernet's ircd.
 
-The /dev/epoll patch is good, but the interface is different enough
-from /dev/poll that ircd would need a new engine_epoll.c anyway.
-(It would look like a cross between engine_devpoll.c and engine_rtsig.c,
-as it would need to be notified by os_linux.c of any EWOULDBLOCK return values.
-Both rtsigs and /dev/epoll only provide 'I just became ready' notification, 
-but no 'I'm not ready anymore' notification.)
+> Undernet's ircd has engine_{select,poll,devpoll,kqueue}.c, 
+> but not yet an engine_rtsig.c, as far as I know.
+> If you want ircd to handle zillions of simultaneous connections
+> on a stock 2.4 Linux kernel, rtsignals are the way to go at the
+> moment.  What's needed is to write ircd's engine_rtsig.c, and 
+> modify ircd's os_linux.c to notice EWOULDBLOCK
+> return values and feed them to engine_rtsig.c (that's the icky
+> part about the way linux currently does this kind of event 
+> notification - signals are used for 'I'm ready now', but return
+> values from I/O functions are where you learn 'I'm no longer ready').
 
-And then there's /dev/yapoll (http://www.distributopia.com), which
-I haven't tried yet (I don't think the author ever published the patch?).
+I haven't examined the usage of the realtime signals stuff, but I did
+originally choose not to bother with it.  It may be possible to set up
+an engine that uses it, and if anyone gets it working, I sure wouldn't
+mind seeing the patches.  Still, I'd say that the best bet is probably
+to either use the /dev/poll patch for linux, or grab the /dev/epoll patch
+and implement a new engine to use it.  (I should note that I haven't tried
+either of these patches, yet, so YMMV.)
 
-Anyway, the new engine wouldn't be too hard to write, and
-would let irc run fast without a patched kernel.
+> So I dunno if I'm going to go ahead and do that myself, but at least I've
+> scoped out the situation.  Before I did any work, I'd measure CPU
+> usage under a simulated load of 2000 clients, just to verify that
+> poll() was indeed a bottleneck (ok, can't imagine it not being a
+> bottleneck, but it's nice to have a baseline to compare the improved
+> version against).
 
-- Dan
+I'm very certain that poll() is a bottle-neck in any piece of software like
+ircd.  I have some preliminary data which suggests that not only does the
+/dev/poll engine reduce the load averages, but that it scales much better:
+Load averages on that beta test server dropped from about 1.30 to about
+0.30 for the same number of clients, and adding more clients increases the
+load much less than under the previous version using poll().  Of course,
+I haven't compared loads under the same server version with two different
+engines--it's possible other changes we made have resulted in much of that
+load difference.
+
+I should probably note that the beta test server I am refering to is running
+Solaris; I have not tried to use the Linux /dev/poll patch as of yet...
+-- 
+Kevin L. Mitchell <klmitch@mit.edu>
+

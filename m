@@ -1,41 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267068AbTALLqd>; Sun, 12 Jan 2003 06:46:33 -0500
+	id <S268265AbTALLrx>; Sun, 12 Jan 2003 06:47:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267370AbTALLqd>; Sun, 12 Jan 2003 06:46:33 -0500
-Received: from fencepost.gnu.org ([199.232.76.164]:20870 "EHLO
+	id <S267423AbTALLrf>; Sun, 12 Jan 2003 06:47:35 -0500
+Received: from fencepost.gnu.org ([199.232.76.164]:39302 "EHLO
 	fencepost.gnu.org") by vger.kernel.org with ESMTP
-	id <S267068AbTALLqb>; Sun, 12 Jan 2003 06:46:31 -0500
+	id <S267370AbTALLr2>; Sun, 12 Jan 2003 06:47:28 -0500
 From: Richard Stallman <rms@gnu.org>
-To: R.E.Wolff@BitWizard.nl
-CC: jalvo@mbay.net, linux-kernel@vger.kernel.org
-In-reply-to: <20030110194145.A16712@bitwizard.nl> (message from Rogier Wolff
-	on Fri, 10 Jan 2003 19:41:45 +0100)
-Subject: Re: Nvidia and its choice to read the GPL "differently"
+To: nils.petter.vaskinn@itsopen.net
+CC: linux-kernel@vger.kernel.org
+In-reply-to: <1042016680.1714.16.camel@station3> (message from Nils Petter
+	Vaskinn on 08 Jan 2003 10:04:39 +0100)
+Subject: Re: OT Naming. was: Re: Why is Nvidia given GPL'd code to use in closed
+	source drivers?
 Reply-to: rms@gnu.org
-References: <E18WB8R-0004k9-00@fencepost.gnu.org> <010101c2b786$794d87a0$0200a8c0@wsl3> <nbdq1vo9enjh9c6gnh68mpg0ebt7n22fhi@4ax.com> <E18WvqM-0000U7-00@fencepost.gnu.org> <20030110194145.A16712@bitwizard.nl>
-Message-Id: <E18Xghu-0004I0-00@fencepost.gnu.org>
-Date: Sun, 12 Jan 2003 06:55:14 -0500
+References: <20030102061430.GA23276@mark.mielke.cc>
+	<E18UIZS-0006Cr-00@fencepost.gnu.org>
+	<20030103040612.GA10651@work.bitmover.com>
+	<20030104220651.GA30907@merlin.emma.line.org>
+	<20030104222330.GA1386@work.bitmover.com>
+	<E18VFaz-0008S0-00@fencepost.gnu.org>
+	<20030105221345.GA31840@mark.mielke.cc>
+	<E18Vao9-0002JZ-00@fencepost.gnu.org>
+	<20030106173949.GA1712@gnuppy.monkey.org>
+	<E18Vtxz-0002cB-00@fencepost.gnu.org>
+	<20030107141758.GA10770@gnuppy.monkey.org> 
+	<E18WB8Q-0004k6-00@fencepost.gnu.org> <1042016680.1714.16.camel@station3>
+Message-Id: <E18Xgio-0004Nt-00@fencepost.gnu.org>
+Date: Sun, 12 Jan 2003 06:56:10 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    > It would be reasonable, if not for the fact that it gives the wrong
-    > idea of who developed the system and--above all--why.
+    linux refers to the kernel plus the GNU software, a complete os
+    linux-kernel refers to the kernel (which is why this is the linux-kernel
+    mailinglist not the linux mailinglist)
 
-    Then -==YOU==- are completely mistaken about why -==I==- contributed
-    to Linux (the kernel & the system). 
+If this convention were general, it would be less confusing (though
+still misleading and still unfair).  In practice, though references to
+"Linux" can mean either one, and you can never tell which it is unless
+you can guess from what is being said.
 
-By now, many people have contributed for many reasons, to Linux and to
-the GNU/Linux system.  I do not claim to speak for you; I am talking
-about why the system exists in the first place.  It is not a haphazard
-collection of components.  In the GNU Project, we systematically wrote
-one component after another.  Our goal was a completely free system,
-and we took step after step to reach it.
-
-Thank you for contributing, whatever your motives were.
-
-    There is a reason why I am not named Mark Mielke-Newman, and our newborn
-    son is not named Ethan Mielke-Herighty-Newman-Marr.
-
-It isn't a good analogy.  Your son wasn't developed by starting with
-you and adding some pieces.

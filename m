@@ -1,35 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130512AbRAWTxw>; Tue, 23 Jan 2001 14:53:52 -0500
+	id <S130362AbRAWUHO>; Tue, 23 Jan 2001 15:07:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130191AbRAWTxm>; Tue, 23 Jan 2001 14:53:42 -0500
-Received: from jalon.able.es ([212.97.163.2]:20877 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S130512AbRAWTx1>;
-	Tue, 23 Jan 2001 14:53:27 -0500
-Date: Tue, 23 Jan 2001 20:53:15 +0100
-From: "J . A . Magallon" <jamagallon@able.es>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: swapfs for 2.4.1-pre
-Message-ID: <20010123205315.A4662@werewolf.able.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 1.1.0
+	id <S131451AbRAWUG5>; Tue, 23 Jan 2001 15:06:57 -0500
+Received: from bakabaka.bignet.net ([64.79.64.12]:12811 "EHLO
+	bakabaka.bignet.net") by vger.kernel.org with ESMTP
+	id <S130362AbRAWUGj>; Tue, 23 Jan 2001 15:06:39 -0500
+Date: Tue, 23 Jan 2001 15:06:21 -0500 (EST)
+From: "Joshua M. Thompson" <om@bignet.net>
+To: William Thompson <wt@electro-mechanical.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: M68K mac 2.2.18 doesn't compile
+In-Reply-To: <20010123125454.A29940@coredump.electro-mechanical.com>
+Message-ID: <Pine.LNX.4.30.0101231504400.19551-100000@maze.eng.bignet.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all...
+On Tue, 23 Jan 2001, William Thompson wrote:
 
-I have seen the patch for 2.4.0-ac9 to use shmfs as tmpfs, change to the new
-name 'swapfs', etc..
+> First few things I noticed were things left out.  I'm not sure about any of
+> these.  The last thing is vmlinux doesn't link.  Tons of missing symbols.
 
-Is there the same patch for 2.4.1-pre10 ?
+None of the mainstream Linux kernels compile out of the box for Mac/68K
+(or even for m68k in general I believe.) Go to www.mac.linux-m68k.org and
+grab a current source tarball or precompiled vmlinux.gz file (we've got
+2.2.18 and 2.4.0 available, although 2.4 is still a bit shakey.)
 
 -- 
-J.A. Magallon                                                      $> cd pub
-mailto:jamagallon@able.es                                          $> more beer
-
-Linux werewolf 2.4.0-ac10 #1 SMP Sat Jan 20 10:43:18 CET 2001 i686
+Head Developer
+Big Net, Inc.
+Raising Entropy for a Cooler Tomorrow
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,149 +1,140 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261700AbVA3NYO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261702AbVA3Nih@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261700AbVA3NYO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jan 2005 08:24:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261702AbVA3NYO
+	id S261702AbVA3Nih (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jan 2005 08:38:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261703AbVA3Nih
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jan 2005 08:24:14 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:53009 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261700AbVA3NYC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jan 2005 08:24:02 -0500
-Date: Sun, 30 Jan 2005 13:23:43 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: "David S. Miller" <davem@davemloft.net>, Robert.Olsson@data.slu.se,
-       akpm@osdl.org, torvalds@osdl.org, alexn@dsv.su.se, kas@fi.muni.cz,
-       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: Memory leak in 2.6.11-rc1?
-Message-ID: <20050130132343.A25000@flint.arm.linux.org.uk>
-Mail-Followup-To: "David S. Miller" <davem@davemloft.net>,
-	Robert.Olsson@data.slu.se, akpm@osdl.org, torvalds@osdl.org,
-	alexn@dsv.su.se, kas@fi.muni.cz, linux-kernel@vger.kernel.org,
-	netdev@oss.sgi.com
-References: <20050124114853.A16971@flint.arm.linux.org.uk> <20050125193207.B30094@flint.arm.linux.org.uk> <20050127082809.A20510@flint.arm.linux.org.uk> <20050127004732.5d8e3f62.akpm@osdl.org> <16888.58622.376497.380197@robur.slu.se> <20050127164918.C3036@flint.arm.linux.org.uk> <20050127123326.2eafab35.davem@davemloft.net> <20050128001701.D22695@flint.arm.linux.org.uk> <20050127163444.1bfb673b.davem@davemloft.net> <20050128085858.B9486@flint.arm.linux.org.uk>
+	Sun, 30 Jan 2005 08:38:37 -0500
+Received: from vds-320151.amen-pro.com ([62.193.204.86]:58831 "EHLO
+	vds-320151.amen-pro.com") by vger.kernel.org with ESMTP
+	id S261702AbVA3Nia (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jan 2005 08:38:30 -0500
+Subject: [ANNOUNCEMENT] vSecurity 0.1-cvs available publicly
+From: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?=
+	 =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: "linux-security-module@wirex.com" <linux-security-module@wirex.com>,
+       "Serge E.Hallyn" <serue@us.ibm.com>, Chris Wright <chrisw@osdl.org>,
+       Stephen Smalley <sds@epoch.ncsc.mil>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-3B4S9+H/ABLnp+1cre5g"
+Date: Sun, 30 Jan 2005 14:37:55 +0100
+Message-Id: <1107092275.3754.39.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050128085858.B9486@flint.arm.linux.org.uk>; from rmk+lkml@arm.linux.org.uk on Fri, Jan 28, 2005 at 08:58:59AM +0000
+X-Mailer: Evolution 2.0.2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 28, 2005 at 08:58:59AM +0000, Russell King wrote:
-> On Thu, Jan 27, 2005 at 04:34:44PM -0800, David S. Miller wrote:
-> > On Fri, 28 Jan 2005 00:17:01 +0000
-> > Russell King <rmk+lkml@arm.linux.org.uk> wrote:
-> > > Yes.  Someone suggested this evening that there may have been a recent
-> > > change to do with some IPv6 refcounting which may have caused this
-> > > problem.  Is that something you can confirm?
-> > 
-> > Yep, it would be this change below.  Try backing it out and see
-> > if that makes your leak go away.
-> 
-> Thanks.  I'll try it, but:
-> 
-> 1. Looking at the date of the change it seems unlikely.  The recent
->    death occurred with 2.6.10-rc2, booted on 29th November and dying
->    on 19th January, which obviously predates this cset.
-> 2. It'll take a couple of days to confirm the behaviour of the dst cache.
 
-I have another question whether ip6_output.c is the problem - the leak
-is with ip_dst_cache (== IPv4).  If the problem were ip6_output, wouldn't
-we see ip6_dst_cache leaking instead?
+--=-3B4S9+H/ABLnp+1cre5g
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-Anyway, I've produced some code which keeps a record of the __refcnt
-increments and decrements, and I think it's produced some interesting
-results.  Essentially, I'm seeing the odd dst entry with a __refcnt of
-14000 or so (which is still in active use, so probably ok), and a number
-with 4, 7, and 13 which haven't had the refcount touched for at least 14
-minutes.
+Hi,
 
-One of these were created via ip_route_input_slow(), the other three via
-ip_route_output_slow().  That isn't significant on its own.
+Yesterday night, the first release of vSecurity was made publicly
+available at tuxedo-es.org cvs, which can be found at:
 
-However, whenever ip_copy_metadata() appears in the refcount log, I see
-half the number of increments due to that still remaining to be
-decremented (see the output below).  0 = "mark", positive numbers =
-increment refcnt this many times, negative numbers = decrement refcnt
-this many times.
+http://cvs.tuxedo-es.org/cgi-bin/viewcvs.cgi/vsecurity/
 
-I don't know if the code is using fragment lists in ip_fragment(), but
-on reading the code a question comes to mind: if we have a list of
-fragments, does each fragment skb have a valid (and refcounted) dst
-pointer before ip_fragment() does it's job?  If yes, then isn't the
-first ip_copy_metadata() in ip_fragment() going to overwrite this
-pointer without dropping the refcount?
+As a short introduction, "vSecurity is a new approach to Linux kernel
+security inspired and partially based on grSecurity, using the Linux
+Security Modules framework, improving and bringing several security
+enhancements in a non-intrusive manner to the Linux kernel sources."
 
-All that said, it's probably far too early to read much into these
-results - once the machine has been running for more than 19 minutes
-and has a significant number of "stuck" dst cache entries, I think
-it'll be far more conclusive.  Nevertheless, it looks like food for
-thought.
+I was working on it since the thread about Linux kernel security ramped
+into a "flame", without giving things so clear for those who only wanted
+to know what was the final decision (and the kernel hackers thoughts) on
+it.
 
-dst pointer: creation time (200Hz jiffies) last reference time (200Hz jiffies)
-c1c66260: ffff6c79 ffff879d:
-	location count	function
-        c01054f4 0      dst_alloc
-        c0114a80 1      ip_route_input_slow
-        c00fa95c -18    __kfree_skb
-        c0115104 13     ip_route_input
-        c011ae1c 8      ip_copy_metadata
-        c01055ac 0      __dst_free
-	untracked counts
-        : 0
-	total
-	= 4
-  next=c1c66b60 refcnt=00000004 use=0000000d dst=24f45cc3 src=0f00a8c0
+During the (around) 3 weeks that it needed to be at least more stable
+and well-documented (regarding the source code comments and not a
+technical paper explaining it, which is going to be finished and
+published ASAP) code, I knew that, in most cases, some of the typical
+security faults that happen to Linux users could be solved without using
+much more than the LSM and a well designed engine using it and adding
+hooks on those places where we can catch up the "exploitation" of the
+security faults.
 
-c1c66b60: ffff20fe ffff5066:
-        c01054f4 0      dst_alloc
-        c01156e8 1      ip_route_output_slow
-        c011b854 6813   ip_append_data
-        c011c7e0 6813   ip_push_pending_frames
-        c00fa95c -6826  __kfree_skb
-        c011c8fc -6813  ip_push_pending_frames
-        c0139dbc -6813  udp_sendmsg
-        c0115a0c 6814   __ip_route_output_key
-        c013764c -2     ip4_datagram_connect
-        c011ae1c 26     ip_copy_metadata
-        c01055ac 0      __dst_free
-        : 0
-	= 13
-  next=c1c57680 refcnt=0000000d use=00001a9e dst=bbe812d4 src=bae812d4
+vSecurity currently protects (in a "Plug & Play" manner) against:
 
-c1c66960: ffff89ac ffffa42d:
-        c01054f4 0      dst_alloc
-        c01156e8 1      ip_route_output_slow
-        c011b854 3028   ip_append_data
-        c0139dbc -3028  udp_sendmsg
-        c011c7e0 3028   ip_push_pending_frames
-        c011ae1c 8      ip_copy_metadata
-        c00fa95c -3032  __kfree_skb
-        c011c8fc -3028  ip_push_pending_frames
-        c0115a0c 3027   __ip_route_output_key
-        c01055ac 0      __dst_free
-        : 0
-	= 4
-  next=c16d1080 refcnt=00000004 use=00000bd3 dst=bbe812d4 src=bae812d4
+ - Execution (mmap()'ing in elf_map()) of binaries in untrusted paths.
+   (and also protection against tricky uses of mprotect() to bypass such
+   protections, which are formerly known as Trusted Path Execution,
+   TPE).
 
-c16d1080: ffff879b ffff89af:
-        c01054f4 0      dst_alloc
-        c01156e8 1      ip_route_output_slow
-        c011b854 240    ip_append_data
-        c011c7e0 240    ip_push_pending_frames
-        c00fa95c -247   __kfree_skb
-        c011c8fc -240   ip_push_pending_frames
-        c0139dbc -240   udp_sendmsg
-        c0115a0c 239    __ip_route_output_key
-        c011ae1c 14     ip_copy_metadata
-        c01055ac 0      __dst_free
-        : 0
-	= 7
-  next=c1c66260 refcnt=00000007 use=000000ef dst=bbe812d4 src=bae812d4
+ - BSD Jails implementation, based on Serge Hallyn's code.
 
+ - Chroot() Jails (even if they are broken by design *sigh*)
+   protections.
+   (Basic anti-escaping: double chroot()'ing, etc, a few capabilities
+   protections, etc.IPC and SHM protections are not yet implemented,
+   also setuid bit protections are not yet implemented too).
+   Anyways, I encourage to use the BSD Jails functionality instead of
+   simple chroot() jails.
+   (An userland support tool for change namespaces, "auto" jailing, is
+   going to be available as soon as Serge and me finish it, that will
+   help on BSD Jails use automation).
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+ - Linking protections: symlinking and hardlinking,FIFOs not yet in
+   0.1-cvs.
+
+ - Socket restrictions: per-socket-type style restrictions: "server" =20
+   sockets, "client" sockets and all-sockets.Supports per-GID and
+   per-UID configuration basis, prepared for kernel-configuration time
+   and if module is compiled outside and separate of the kernel, with
+   module parameters, same as TPE protections).
+   (Using an ACL engine relying on a sysfs subsystem "secfs").
+
+- RAW I/O protections and kernel symbols protections.
+  (No so-called live-patching for a while :) )
+
+- RLIMIT_NPROC enforcing, check also in fork() calls so ulimits will
+  apply and checked each call to know if user can do it or not).
+  Native and enhanced support in BSD Jails (which also have Serge's
+  "network virtualization" engine.
+  Useful against so-called fork() bombs.
+
+- Other enhancements and security improvements.
+
+It's not as mature as I want, but I decided to release it as soon as
+possible to get feedback, bug reporting (sure it has, we all do
+mistakes ;) ), etc.
+
+Please, keep in mind that It's a development release, I wouldn't like to
+receive comments about "how a big crap is this" and such, until a stable
+release gets finished :).
+
+Code is well-documented, but as I commented a few lines above, I will
+make available a paper explaining it further, ASAP.
+
+Also, I would like to thank Seth Arnold from Immunix for helping me with
+my (again) extensive lack of knowledge, Serge Hallyn from IBM for
+helping with BSD Jails code and testing, suggestions, etc, Stephen
+Smalley for his suggestions, comments and help on some protections
+implementation, Brad Spengler for helping when I asked about some
+grSecurity pearls, and David B. Harris from OFTC (and whole OFTC staff)
+for hosting my crap there :).
+
+I hope this would be useful and interesting, and, again, I would
+appreciate any feedback on it.
+
+Thanks in advance, enjoy it.
+--=20
+Lorenzo Hern=E1ndez Garc=EDa-Hierro <lorenzo@gnu.org>=20
+[1024D/6F2B2DEC] & [2048g/9AE91A22][http://tuxedo-es.org]
+
+--=-3B4S9+H/ABLnp+1cre5g
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Esta parte del mensaje =?ISO-8859-1?Q?est=E1?= firmada
+	digitalmente
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBB/OMzDcEopW8rLewRAsM2AKDMBD3fJ5VsDb/CED5IWdBSwlTApgCg1WU7
+umZ/ng88yD7iEEB5GJJSwUs=
+=O5fA
+-----END PGP SIGNATURE-----
+
+--=-3B4S9+H/ABLnp+1cre5g--
+

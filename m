@@ -1,35 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265134AbSKETiw>; Tue, 5 Nov 2002 14:38:52 -0500
+	id <S265144AbSKESkT>; Tue, 5 Nov 2002 13:40:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265165AbSKETiw>; Tue, 5 Nov 2002 14:38:52 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:51349 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S265134AbSKETiu>; Tue, 5 Nov 2002 14:38:50 -0500
-Subject: Re: [PATCH] Re: time() glitch on 2.4.18: solved
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: root@chaos.analogic.com
-Cc: Willy Tarreau <willy@w.ods.org>, Jim Paris <jim@jtan.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.3.95.1021105141917.604A-100000@chaos.analogic.com>
-References: <Pine.LNX.3.95.1021105141917.604A-100000@chaos.analogic.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 05 Nov 2002 20:07:26 +0000
-Message-Id: <1036526846.6750.12.camel@irongate.swansea.linux.org.uk>
+	id <S265150AbSKESkT>; Tue, 5 Nov 2002 13:40:19 -0500
+Received: from mailout01.sul.t-online.com ([194.25.134.80]:21950 "EHLO
+	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S265144AbSKESkS>; Tue, 5 Nov 2002 13:40:18 -0500
+Message-Id: <4.3.2.7.2.20021105193436.00b4dcb0@mail.dns-host.com>
+X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
+Date: Tue, 05 Nov 2002 19:47:02 +0100
+To: linux-kernel@vger.kernel.org
+From: Margit Schubert-While <margit@margit.com>
+Subject: U160 on Adaptec 39160
 Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-11-05 at 19:29, Richard B. Johnson wrote:
-> The only hardware a modern PC needs to use "slow-down_io" on is
-> the RTC CMOS device. Since we need to support older boards, you
-> don't want to remove the _p options indiscriminately, but you do
-> not want them ever between two consecutive writes to the same device-
-> port.
+Hi,
+	Re: Anybody know why I'm not getting 160MB transfers ?
+	It might interest people to know the end story -
+	After much fiddling around with cables/terminators, banning
+	the SCSI-2 devices(DVD + DAT) to their own adapter and updating
+	every piece of BIOS firmware in sight, I was still getting nowhere.
+	So, (deep think) I threw a vanilla 2.4.19 onto the machine and
+	LO and BEHOLD, I'm getting 160MB transfers!
+	Well (hope Dave Jones is listening!,), it seems as though
+	the Suse 8.1 kernel 2.4.19 has (yet another) problem.
 
-I own at least one that needs the _p on the DMA controller and at one
-that needs _p on the PIT
+	Cheers
 
+	Margit Schubert-While
 

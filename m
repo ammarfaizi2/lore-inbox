@@ -1,143 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262131AbSIYWop>; Wed, 25 Sep 2002 18:44:45 -0400
+	id <S262134AbSIYWwU>; Wed, 25 Sep 2002 18:52:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262132AbSIYWop>; Wed, 25 Sep 2002 18:44:45 -0400
-Received: from pD9E23B17.dip.t-dialin.net ([217.226.59.23]:57826 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S262131AbSIYWol>; Wed, 25 Sep 2002 18:44:41 -0400
-From: Lightweight Patch Manager <patch@luckynet.dynu.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Tomas Szepe <szepe@pinerecords.com>, Ingo Molnar <mingo@elte.hu>
-Subject: [PATCH][2.5] Single linked lists for Linux,v2
-X-Mailer: Lightweight Patch Manager
-Message-ID: <20020925225026.96C153@hawkeye.luckynet.adm>
+	id <S262135AbSIYWwT>; Wed, 25 Sep 2002 18:52:19 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:54712 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S262134AbSIYWwS>;
+	Wed, 25 Sep 2002 18:52:18 -0400
+Date: Wed, 25 Sep 2002 15:53:44 -0700
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] NUMA-Q fixes
+Message-ID: <268530000.1032994424@flay>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
 MIME-Version: 1.0
-User-Agent: Lightweight Patch Manager/1.04
-Date: Wed, 25 Sep 2002 22:50:26 +0000
-X-Priority: I really don't care.
-Content-Type: text/plain; charset=US-ASCII
-Organization: Lightweight Networking
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Again single linked lists...
+Below are three tiny fixes that only affect NUMA-Q.
 
---- /dev/null	Wed Dec 31 17:00:00 1969
-+++ slist-2.5/include/linux/slist.h	Wed Sep 25 16:47:26 2002
-@@ -0,0 +1,109 @@
-+#ifdef __KERNEL__
-+#ifndef _LINUX_SLIST_H
-+#define _LINUX_SLIST_H
-+
-+#include <asm/processor.h>
-+
-+/*
-+ * Type-safe single linked list helper-functions.
-+ * (originally taken from list.h)
-+ *
-+ * Thomas 'Dent' Mirlacher, Daniel Phillips,
-+ * Andreas Borgk, Thunder from the hill
-+ */
-+
-+#define INIT_SLIST_HEAD(name)			\
-+	(name->next = name)
-+
-+#define SLIST_HEAD(type,name)			\
-+	typeof(type) name = INIT_SLIST_HEAD(name)
-+
-+/**
-+ * slist_add_front - add a new entry at the first slot, moving the old head
-+ *		     to the second slot
-+ * @new:	new entry to be added
-+ * @head:	head of the single linked list
-+ *
-+ * Insert a new entry before the specified head.
-+ * This is good for implementing stacks.
-+ */
-+
-+#define slist_add_front(_new, _head)		\
-+do {						\
-+	(_new)->next = (_head);			\
-+	(_head) = (_new);			\
-+} while (0)
-+
-+
-+
-+/**
-+ * slist_add - add a new entry
-+ * @new:       new entry to be added
-+ * @head:      head of the single linked list
-+ *
-+ * Insert a new entry before the specified head.
-+ * This is good for implementing stacks.
-+ *
-+ * Careful: if you do this concurrently, _head
-+ * might get into nirvana...
-+ */
-+#define slist_add(_new, _head)			\
-+do {						\
-+	(_new)->next = (_head)->next;		\
-+	(_head)->next = (_new);			\
-+	(_new) = (_head);			\
-+} while (0)
-+
-+/**
-+ * slist_del -	remove an entry from list
-+ * @head:	head to remove it from
-+ * @entry:	entry to be removed
-+ */
-+#define slist_del(_head, _entry)		\
-+do {						\
-+	(_head)->next = (_entry)->next;		\
-+	(_entry)->next = NULL;			\
-+} while (0)
-+
-+/**
-+ * slist_del_single -	untag a list from an entry
-+ * @list:	list entry to be untagged
-+ */
-+#define slist_del_single(_list)			\
-+	((_list)->next = NULL)
-+
-+/**
-+ * slist_pop	-	pop out list entry
-+ * @list:	entry to be popped out
-+ *
-+ * Pop out an entry from a list.
-+ */
-+#define slist_pop(_list) ({			\
-+	typeof(_list) _NODE_ = _list;		\
-+	if (_list) {				\
-+	    (_list) = (_list)->next;		\
-+	    _NODE_->next = NULL;		\
-+	}					\
-+	_NODE_; })
-+
-+/**
-+ * slist_for_each	-	iterate over a list
-+ * @pos:	the pointer to use as a loop counter.
-+ * @head:	the head for your list (this is also the first entry).
-+ */
-+#define slist_for_each(pos, head)				\
-+	for (pos = head; pos && ({ prefetch(pos->next); 1; });	\
-+	    pos = pos->next)
-+
-+/**
-+ * slist_for_each_del	-	iterate over a list, popping off entries
-+ * @pos:       the pointer to use as a loop counter.
-+ * @head:      the head for your list (this is also the first entry).
-+ */
-+#define slist_for_each_del(pos, head)			\
-+	for (pos = slist_pop(head); pos &&		\
-+    	    ({ prefetch(pos->next); 1; });		\
-+	    pos = slist_pop(head))
-+
-+#endif /* _LINUX_SLIST_H */
-+#endif /* __KERNEL__ */
+1. Remove the const that someone incorrectly stuck in there, it type conflicts.
+	Alan has a better plan for fixing this long term, but this fixes the compile
+	warning for now.
 
--- 
-Lightweight Patch Manager, without pine.
-If you have any objections (apart from who I am), tell me
+2. Move the printk of the xquad_portio setup *after* we put something in the variable
+	so it actually prints something useful, not 0 ;-)
+
+3. To derive the size of the xquad_portio area, multiply the number of nodes by the
+	size of each nodes, not the size of two nodes (and remove define). Doh!
+
+Please apply - thanks,
+
+Martin.
+
+diff -urN -X /home/mbligh/.diff.exclude virgin/arch/i386/boot/compressed/misc.c xquad_portio/arch/i386/boot/compressed/misc.c
+--- virgin/arch/i386/boot/compressed/misc.c	Fri Sep 20 08:20:30 2002
++++ xquad_portio/arch/i386/boot/compressed/misc.c	Sat Sep 21 22:20:27 2002
+@@ -121,7 +121,7 @@
+ static int lines, cols;
+ 
+ #ifdef CONFIG_MULTIQUAD
+-static void * const xquad_portio = NULL;
++static void * xquad_portio = NULL;
+ #endif
+ 
+ #include "../../../../lib/inflate.c"
+diff -urN -X /home/mbligh/.diff.exclude virgin/arch/i386/kernel/smpboot.c xquad_portio/arch/i386/kernel/smpboot.c
+--- virgin/arch/i386/kernel/smpboot.c	Fri Sep 20 08:20:26 2002
++++ xquad_portio/arch/i386/kernel/smpboot.c	Sat Sep 21 22:17:03 2002
+@@ -1060,11 +1060,11 @@
+         if (clustered_apic_mode && (numnodes > 1)) {
+                 printk("Remapping cross-quad port I/O for %d quads\n",
+ 			numnodes);
++                xquad_portio = ioremap (XQUAD_PORTIO_BASE, 
++			numnodes * XQUAD_PORTIO_QUAD);
+                 printk("xquad_portio vaddr 0x%08lx, len %08lx\n",
+                         (u_long) xquad_portio, 
+-			(u_long) numnodes * XQUAD_PORTIO_LEN);
+-                xquad_portio = ioremap (XQUAD_PORTIO_BASE, 
+-			numnodes * XQUAD_PORTIO_LEN);
++			(u_long) numnodes * XQUAD_PORTIO_QUAD);
+         }
+ 
+ 	/*
+diff -urN -X /home/mbligh/.diff.exclude virgin/include/asm-i386/io.h xquad_portio/include/asm-i386/io.h
+--- virgin/include/asm-i386/io.h	Fri Sep 20 08:20:25 2002
++++ xquad_portio/include/asm-i386/io.h	Sat Sep 21 22:17:49 2002
+@@ -40,7 +40,6 @@
+ 
+ #define XQUAD_PORTIO_BASE 0xfe400000
+ #define XQUAD_PORTIO_QUAD 0x40000  /* 256k per quad. */
+-#define XQUAD_PORTIO_LEN  0x80000  /* Only remapping first 2 quads */
+ 
+ #ifdef __KERNEL__
+ 
 

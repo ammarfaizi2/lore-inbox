@@ -1,79 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265278AbTLZX4b (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Dec 2003 18:56:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265276AbTLZX4b
+	id S265276AbTLZX6d (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Dec 2003 18:58:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265273AbTLZX6d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Dec 2003 18:56:31 -0500
-Received: from adsl-b3-72-7.telepac.pt ([213.13.72.7]:8837 "EHLO
-	puma-vgertech.no-ip.com") by vger.kernel.org with ESMTP
-	id S265279AbTLZX41 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Dec 2003 18:56:27 -0500
-Message-ID: <3FECCAC2.2030101@vgertech.com>
-Date: Fri, 26 Dec 2003 23:56:50 +0000
-From: Nuno Silva <nuno.silva@vgertech.com>
-Organization: VGER, LDA
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
-X-Accept-Language: en-us, pt
+	Fri, 26 Dec 2003 18:58:33 -0500
+Received: from ms-smtp-01-qfe0.nyroc.rr.com ([24.24.2.55]:48625 "EHLO
+	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S265276AbTLZX5O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Dec 2003 18:57:14 -0500
+Message-ID: <3FECCAF9.7070209@maine.rr.com>
+Date: Fri, 26 Dec 2003 18:57:45 -0500
+From: "David B. Stevens" <dsteven3@maine.rr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Ed Sweetman <ed.sweetman@wmich.edu>
-Cc: Joshua Kwan <joshk@triplehelix.org>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Can't eject a previously mounted CD?
-References: <20031226081535.GB12871@triplehelix.org> <20031226103427.GB11127@ucw.cz> <20031226194457.GC12871@triplehelix.org> <3FEC91FA.1050705@rackable.com> <20031226202700.GD12871@triplehelix.org> <3FECC3C1.5000108@wmich.edu>
-In-Reply-To: <3FECC3C1.5000108@wmich.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Helge Hafting <helgehaf@aitel.hist.no>
+CC: Jos Hulzink <josh@stack.nl>, linux-kernel@vger.kernel.org
+Subject: Re: 2.7 (future kernel) wish
+References: <200312232342.17532.josh@stack.nl> <20031226233855.GA476@hh.idb.hist.no>
+In-Reply-To: <20031226233855.GA476@hh.idb.hist.no>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+While I agree that the kernel should provide decent error handling and 
+reporting I still have to ask questions about what is reasonable.
+
+What does that other OS do when you pull a USB stick out?  What do you 
+think the kernel should do?  Why don't the applications operating on the 
+data take better care of handling error conditions?
+
+I don't have one here to try, but at some point the (ab)user needs to 
+take a bit of the heat for his or her action(s) or lack thereof.
+
+After all you could just reach in your case and rip out the IDE or SCSI 
+cables.  Bet that leads to all kinds of stuff (tm).
+
+Cheers,
+  Dave
 
 
-Ed Sweetman wrote:
-> 
-> I've had 2.6.0-mm1 not able to allow the button on the cdrom eject the 
-> cd. the command  eject   however, does work.  No errors are reported 
-> relating to why the eject button on the cdrom doesn't eject the cd.
+Helge Hafting wrote:
 
+>On Tue, Dec 23, 2003 at 11:42:17PM +0100, Jos Hulzink wrote:
+>  
+>
+>>Hi,
+>>
+>>First of all... Compliments about 2.6.0. It is a superb kernel, with very few 
+>>serious bugs, and for me it runs stable like a rock from the very first 
+>>moment.
+>>
+>>As an end user, Linux doesn't give me a good feeling on one particular item 
+>>yet: Error handling. 
+>>
+>>What do I mean ? Well... for example: Pull out your USB stick with a mounted 
+>>fs on it. 
+>>    
+>>
+>
+>You aren't supposed to do that.  If you want to pull devices like that,
+>with no warning, access them in other ways than mounting.  
+>mtools are nice when you don't want to mount/umount floppies - a
+>similiar approach should work for usb sticks too.
+>
+>
+>
+>Helge Hafting
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>  
+>
 
-This happens to me too, running 2.6.0-mm1. Even a music CD gets stuck 
-and can only be ejected with the "eject" command. eject, after ejecting 
-sucessfully the CD outputs this:
-
-# eject
-eject: unable to eject, last error: Invalid argument
-#
-
-Regards,
-Nuno Silva
-
-> 
-> 
-> Joshua Kwan wrote:
-> 
->> On Fri, Dec 26, 2003 at 11:54:34AM -0800, Samuel Flory wrote:
->>
->>>  What does fuser -kv /mnt/cdrom claim?
->>
->>
->>
->> It's /cdrom here. I tried it on both /cdrom and /dev/cdrom after
->> unmounting it, and the output was blank.
->>
->> While mounted, here was the output:
->>
->>                      USER        PID ACCESS COMMAND
->> /cdrom               root     kernel mount  /cdrom
->> No automatic removal. Please use  umount /cdrom
->>
->> I guess that doesn't say much though...
->>
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
 

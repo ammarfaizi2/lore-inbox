@@ -1,45 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262110AbTEEJBz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 05:01:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262113AbTEEJBz
+	id S262115AbTEEJTt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 05:19:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262116AbTEEJTt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 05:01:55 -0400
-Received: from inpbox.inp.nsk.su ([193.124.167.24]:47324 "EHLO
-	inpbox.inp.nsk.su") by vger.kernel.org with ESMTP id S262110AbTEEJBy
+	Mon, 5 May 2003 05:19:49 -0400
+Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:34543 "EHLO
+	laptop.fenrus.com") by vger.kernel.org with ESMTP id S262115AbTEEJTs
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 05:01:54 -0400
-Date: Mon, 5 May 2003 16:01:25 +0700
-From: "Dmitry A. Fedorov" <D.A.Fedorov@inp.nsk.su>
-Reply-To: D.A.Fedorov@inp.nsk.su
-To: Terje Eggestad <terje.eggestad@scali.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
+	Mon, 5 May 2003 05:19:48 -0400
 Subject: Re: The disappearing sys_call_table export.
-In-Reply-To: <1052122784.2821.4.camel@pc-16.office.scali.no>
-Message-ID: <Pine.SGI.4.10.10305051545480.8168393-100000@Sky.inp.nsk.su>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: D.A.Fedorov@inp.nsk.su
+Cc: Terje Eggestad <terje.eggestad@scali.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.SGI.4.10.10305051545480.8168393-100000@Sky.inp.nsk.su>
+References: <Pine.SGI.4.10.10305051545480.8168393-100000@Sky.inp.nsk.su>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-3lLrwlmDDiGdk5dzBjUP"
+Organization: Red Hat, Inc.
+Message-Id: <1052127131.1459.4.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 (1.2.4-2) 
+Date: 05 May 2003 11:32:11 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5 May 2003, Terje Eggestad wrote:
 
-> Now that it seem that all are in agreement that the sys_call_table
-> symbol shall not be exported to modules, are there any work in progress
+--=-3lLrwlmDDiGdk5dzBjUP
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-No, I disagree.
+On Mon, 2003-05-05 at 11:01, Dmitry A. Fedorov wrote:
 
-> to allow modules to get an event/notification whenever a specific
-> syscall is being called?
+> But why module should not have ability to call any function which is
+> available from user space?
 
-I need this table to _call_ any of system calls that available to the
-process, nothing else. Sys_call_table can be placed in .rodata section
-(there was patch a few days ago) to prevent modification from modules.
-But why module should not have ability to call any function which is
-available from user space?
+that's you you can just call sys_read() and co directly.
 
-Almost all of my third-party drivers are broken by this.
-What is worse, redhat "backported" this "feature" to their 2.4
-patched kernels and now I should distinguish 2.4 and "redhat 2.4"
-in my compatibility headers.
 
+--=-3lLrwlmDDiGdk5dzBjUP
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA+ti+bxULwo51rQBIRAo06AJwKHjWV4FNHFThvXT/yBcCnIbv1VQCgkjT7
+If7j68FPaGZE14O2kVV/FgA=
+=YijF
+-----END PGP SIGNATURE-----
+
+--=-3lLrwlmDDiGdk5dzBjUP--

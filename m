@@ -1,42 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262785AbTDNKvl (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 06:51:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262952AbTDNKvl (for <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Apr 2003 06:51:41 -0400
-Received: from wsip68-15-8-100.sd.sd.cox.net ([68.15.8.100]:9867 "EHLO
-	gnuppy.monkey.org") by vger.kernel.org with ESMTP id S262785AbTDNKvk (for <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Apr 2003 06:51:40 -0400
-Date: Mon, 14 Apr 2003 04:03:26 -0700
-To: Andrew Morton <akpm@digeo.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       "Bill Huey (Hui)" <billh@gnuppy.monkey.org>
-Subject: Re: 2.5.67-mm3
-Message-ID: <20030414110326.GA19003@gnuppy.monkey.org>
-References: <20030414015313.4f6333ad.akpm@digeo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030414015313.4f6333ad.akpm@digeo.com>
-User-Agent: Mutt/1.5.4i
-From: Bill Huey (Hui) <billh@gnuppy.monkey.org>
+	id S262961AbTDNLLz (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 07:11:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262967AbTDNLLz (for <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Apr 2003 07:11:55 -0400
+Received: from public1-brig1-3-cust85.brig.broadband.ntl.com ([80.0.159.85]:59149
+	"EHLO ppg_penguin.kenmoffat.uklinux.net") by vger.kernel.org
+	with ESMTP id S262961AbTDNLLx 
+	(for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 07:11:53 -0400
+Date: Mon, 14 Apr 2003 12:23:37 +0100 (BST)
+From: Ken Moffat <ken@kenmoffat.uklinux.net>
+To: Russell Nash <russ@nixhelp.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: mkdir on ext3 creates regular file instead of directory
+In-Reply-To: <3E9A19D7.6040509@nixhelp.org>
+Message-ID: <Pine.LNX.4.21.0304141212350.4376-100000@ppg_penguin>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 14, 2003 at 01:53:13AM -0700, Andrew Morton wrote:
-> A bunch of new fixes, and a framebuffer update.  This should work a bit
-> better than -mm2.
+On Sun, 13 Apr 2003, Russell Nash wrote:
 
-make -f scripts/Makefile.build obj=arch/i386/boot arch/i386/boot/bzImage
-  ld -m elf_i386  -Ttext 0x0 -s --oformat binary -e begtext
-  arch/i386/boot/setup.o -o arch/i386/boot/setup 
-  arch/i386/boot/setup.o(.text+0x9a4): In function `video':
-  /tmp/ccyhvWWu.s:2925: undefined reference to `store_edid'
-  make[1]: *** [arch/i386/boot/setup] Error 1
-  make: *** [bzImage] Error 2
+> [1.] One line summary of the problem:
+> 
+> when using 'mkdir' to create a directory on an ext3 filesystem, a 
+> regular file is created instead of the directory.
+> 
 
----------------------------------------
+> 
+> Linux version 2.4.20-gentoo-r1 (root@voyager) (gcc version 3.2.2) #2 Sat 
+> Apr 5 20:58:27 EST 2003
+> 
 
-Not sure what's triggering this here.
+> 
+> [6.] A small shell script or example program which triggers the
+>       problem (if possible)
+> 
+> cd
+> rm -rf .variable
+> mkdir .variable
+> cd .variable
+> 
 
-bill
+ Russell, mkdir is working fine here (assorted linuxfromscratch
+boxen), with what look to be similar versions of the main software.  The
+command appears to be part of fileutils (or coreutils), maybe you'll do
+better asking on the gentoo lists.
+
+Ken
+-- 
+ Out of the darkness a voice spake unto me, saying "smile, things could be
+worse". So I smiled, and lo, things became worse.
+
+
+
 

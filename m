@@ -1,40 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129281AbQKLNbH>; Sun, 12 Nov 2000 08:31:07 -0500
+	id <S129723AbQKLN4y>; Sun, 12 Nov 2000 08:56:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129723AbQKLNa5>; Sun, 12 Nov 2000 08:30:57 -0500
-Received: from Cantor.suse.de ([194.112.123.193]:42507 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S129281AbQKLNat>;
-	Sun, 12 Nov 2000 08:30:49 -0500
-Date: Sun, 12 Nov 2000 14:30:47 +0100
-From: Andi Kleen <ak@suse.de>
-To: "David S. Miller" <davem@redhat.com>
-Cc: ecki@lina.inka.de, linux-kernel@vger.kernel.org
-Subject: Re: Missing ACKs with Linux 2.2/2.4?
-Message-ID: <20001112143047.A9227@gruyere.muc.suse.de>
-In-Reply-To: <E13ugIb-0004jA-00@calista.inka.de> <200011112227.OAA02548@pizda.ninka.net>
+	id <S130667AbQKLN4e>; Sun, 12 Nov 2000 08:56:34 -0500
+Received: from gemini.yars.free.net ([193.233.48.66]:60870 "EHLO
+	gemini.yars.free.net") by vger.kernel.org with ESMTP
+	id <S129723AbQKLN40>; Sun, 12 Nov 2000 08:56:26 -0500
+From: "Alexander V. Lukyanov" <lav@long.yar.ru>
+Date: Sun, 12 Nov 2000 16:56:09 +0300
+To: linux-kernel@vger.kernel.org
+Subject: sound problems caused by masking irq for too long
+Message-ID: <20001112165609.A1006@long.yar.ru>
+Reply-To: lav@yars.free.net
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <200011112227.OAA02548@pizda.ninka.net>; from davem@redhat.com on Sat, Nov 11, 2000 at 02:27:13PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 11, 2000 at 02:27:13PM -0800, David S. Miller wrote:
->    From: Bernd Eckenfels <ecki@lina.inka.de>
->    Date: 	Sat, 11 Nov 2000 20:26:49 +0100
-> 
->    Or is timestamp 0 a legal value?
-> 
-> It is legal.
+Hi!
 
-NetBSD ignores 0 timestamps. Although that's a hack it is IMHO a reasonable one and 
-Linux should probably do it too. Even when the 0 is generated legitimately by wrapping
-counters it is probably not a big problem to lose timestamps for such few packets.
+In some cases sound gets interrupted for a moment, this happens in two
+occasions. When unmaskirq flag is off on ide cdrom and it is accessed,
+and when tdfxfb console (800x600) flashes (tput flash, or `set bell-style
+visible' in .inputrc).
 
+It seems the problem is caused by masking irq for too long, and then
+the sound dma buffer underruns. This is fixed by unmasking irq for ide
+cdrom by `hdparm -u1 /dev/cdrom', and by changing spin_(un)lock_irq
+in console.c to spin_(un)lock_bh.
 
--Andi
+This was observed on 2.4.0-pre10, the problem with ide also exists on
+2.2.17, the console.c in 2.2.17 only disables CONSOLE_BH.
+
+The audio card is old awe32 (isa), sound driver is modular.
+
+-- 
+   Alexander.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

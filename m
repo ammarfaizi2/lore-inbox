@@ -1,37 +1,81 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316047AbSEJQC0>; Fri, 10 May 2002 12:02:26 -0400
+	id <S316052AbSEJQHG>; Fri, 10 May 2002 12:07:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316045AbSEJQCZ>; Fri, 10 May 2002 12:02:25 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:63936 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S316052AbSEJQCB>;
-	Fri, 10 May 2002 12:02:01 -0400
-Date: Fri, 10 May 2002 08:49:48 -0700 (PDT)
-Message-Id: <20020510.084948.99859388.davem@redhat.com>
-To: nharring@hostway.net
-Cc: jgarzik@mandrakesoft.com, pmanuel@myrealbox.com, chen_xiangping@emc.com,
-        linux-kernel@vger.kernel.org
+	id <S316054AbSEJQHF>; Fri, 10 May 2002 12:07:05 -0400
+Received: from darkwing.uoregon.edu ([128.223.142.13]:44025 "EHLO
+	darkwing.uoregon.edu") by vger.kernel.org with ESMTP
+	id <S316052AbSEJQHB>; Fri, 10 May 2002 12:07:01 -0400
+Date: Fri, 10 May 2002 09:09:03 -0700 (PDT)
+From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
+X-X-Sender: joelja@twin.uoregon.edu
+To: Nicholas Harring <nharring@hostway.net>
+cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        "Pedro M. Rodrigues" <pmanuel@myrealbox.com>, <chen_xiangping@emc.com>,
+        "David S. Miller" <davem@redhat.com>, <linux-kernel@vger.kernel.org>
 Subject: Re: Tcp/ip offload card driver
-From: "David S. Miller" <davem@redhat.com>
 In-Reply-To: <3CDBEC6A.9020600@hostway.net>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-ID: <Pine.LNX.4.44.0205100906060.4615-100000@twin.uoregon.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Nicholas Harring <nharring@hostway.net>
-   Date: Fri, 10 May 2002 10:51:06 -0500
+One would expect that hyper-transport would make using the cpu more 
+attractive rather than less since it eleminates many of the shared 
+resources that are currently bottlenecks in smp machines.
 
-   And how about when an SMP system isn't enough?
+joelja
 
-Demonstrate this.
+ On Fri, 10 May 
+2002, Nicholas Harring wrote:
 
-Putting the whole implementation on the cards firmware is feasible,
-you don't need SMP.  It's totally doable and Linux needs to see
-none of the details.
+> And how about when an SMP system isn't enough? Should I have to 
+> re-engineer my network storage architecture when hardware exists that'll 
+> increase throughput if a simple device driver gets written? Don't forget 
+> that with 64 bit PCI that the limit of the bus has been raised, and with 
+> impending technologies like Infiniband and Hypertransport that limit 
+> will be raised again. At that point devoting main processor resources to 
+> something better handled by specialty hardware really stops making 
+> sense, if that specialty hardware is low-cost (oughta be) and effective 
+> (still debatable).
+> 
+> Nicholas Harring
+> Hostway Corporation
+> 
+> 
+> Jeff Garzik wrote:
+> > Pedro M. Rodrigues wrote:
+> > 
+> >>   Actually there is. Think iSCSI. Have a look at this article at 
+> >> LinuxJournal - http://linuxjournal.com/article.php?sid=4896 .
+> >>
+> > 
+> > Ug...  why bother?  Just buy an SMP system at that point...
+> > 
+> > 
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-Franks a lot,
-David S. Miller
-davem@redhat.com
+-- 
+-------------------------------------------------------------------------- 
+Joel Jaeggli	      Academic User Services   joelja@darkwing.uoregon.edu    
+--    PGP Key Fingerprint: 1DE9 8FCA 51FB 4195 B42A 9C32 A30D 121E      --
+  In Dr. Johnson's famous dictionary patriotism is defined as the last
+  resort of the scoundrel.  With all due respect to an enlightened but
+  inferior lexicographer I beg to submit that it is the first.
+	   	            -- Ambrose Bierce, "The Devil's Dictionary"
+
+

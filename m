@@ -1,67 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269268AbTGJNgf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 09:36:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269274AbTGJNgf
+	id S269269AbTGJNkS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 09:40:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269273AbTGJNkS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 09:36:35 -0400
-Received: from s161-184-77-200.ab.hsia.telus.net ([161.184.77.200]:52905 "EHLO
-	cafe.hardrock.org") by vger.kernel.org with ESMTP id S269268AbTGJNge
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 09:36:34 -0400
-Date: Thu, 10 Jul 2003 07:51:10 -0600 (MDT)
-From: James Bourne <jbourne@hardrock.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Jeff Chua <jeff89@silk.corp.fedex.com>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.4.22-pre4 ide module fix init_cmd640_vlb
-In-Reply-To: <1057835714.8028.4.camel@dhcp22.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0307100749340.20705-200000@cafe.hardrock.org>
+	Thu, 10 Jul 2003 09:40:18 -0400
+Received: from coderock.org ([193.77.147.115]:41993 "EHLO mail.coderock.org")
+	by vger.kernel.org with ESMTP id S269269AbTGJNkL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jul 2003 09:40:11 -0400
+From: Domen Puncer <root@coderock.org>
+To: linux-kernel@vger.kernel.org
+Subject: [RFC] check_region removal from 3c509.c
+Date: Thu, 10 Jul 2003 15:54:52 +0200
+User-Agent: KMail/1.5
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1197356979-1098354971-1057845070=:20705"
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_sAXD/RQs2J6eKVx"
+Message-Id: <200307101554.52458.root@coderock.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
 
----1197356979-1098354971-1057845070=:20705
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+--Boundary-00=_sAXD/RQs2J6eKVx
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-On 10 Jul 2003, Alan Cox wrote:
+Hi.
 
-> And stops it working for everyone else. The function does exist too. See
-> drivers/ide/pci/cmd640.c
+Replaced check_region() with request_region(), removed 2 #ifdefs.
 
-Isn't this just an issue of doing an export_symbol?
+This is first time i'm posting a patch, so please comment if something could 
+be done better.
 
-Here's a patch that does that exact thing, I haven't tested it though.
 
-Regards
-James
+	Domen
+--Boundary-00=_sAXD/RQs2J6eKVx
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="3c509.c-check_region-2.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="3c509.c-check_region-2.patch"
 
--- 
-James Bourne                  | Email:            jbourne@hardrock.org          
-Unix Systems Administrator    | WWW:           http://www.hardrock.org
-Custom Unix Programming       | Linux:  The choice of a GNU generation
-----------------------------------------------------------------------
- "All you need's an occasional kick in the philosophy." Frank Herbert  
+--- linux-2.5.74/drivers/net/3c509.c-orig	2003-07-10 12:55:08.000000000 +0200
++++ linux-2.5.74/drivers/net/3c509.c	2003-07-10 15:01:41.000000000 +0200
+@@ -370,9 +370,7 @@
+ #if defined(__ISAPNP__) && !defined(CONFIG_X86_PC9800)
+ 	static int pnp_cards;
+ 	struct pnp_dev *idev = NULL;
+-#endif /* __ISAPNP__ */
+ 
+-#if defined(__ISAPNP__) && !defined(CONFIG_X86_PC9800)
+ 	if (nopnp == 1)
+ 		goto no_pnp;
+ 
+@@ -428,12 +426,15 @@
+ #else
+ 	/* Select an open I/O location at 0x1*0 to do contention select. */
+ 	for ( ; id_port < 0x200; id_port += 0x10) {
+-		if (check_region(id_port, 1))
++		if (!request_region(id_port, 1, "3c509"))
+ 			continue;
+ 		outb(0x00, id_port);
+ 		outb(0xff, id_port);
+-		if (inb(id_port) & 0x01)
++		if (inb(id_port) & 0x01){
++			release_region(id_port, 1);
+ 			break;
++		} else
++			release_region(id_port, 1);
+ 	}
+ 	if (id_port >= 0x200) {
+ 		/* Rare -- do we really need a warning? */
+@@ -496,19 +497,17 @@
+ 	{
+ 		unsigned int iobase = id_read_eeprom(8);
+ 		if_port = iobase >> 14;
++		irq = id_read_eeprom(9) >> 12;
+ #ifdef CONFIG_X86_PC9800
+ 		ioaddr = 0x40d0 + ((iobase & 0x1f) << 8);
++		if (irq == 7)
++			irq = 6;
++		else if (irq == 15)
++			irq = 13;
+ #else
+ 		ioaddr = 0x200 + ((iobase & 0x1f) << 4);
+ #endif
+ 	}
+-	irq = id_read_eeprom(9) >> 12;
+-#ifdef CONFIG_X86_PC9800
+-	if (irq == 7)
+-		irq = 6;
+-	else if (irq == 15)
+-		irq = 13;
+-#endif
+ 
+ 	dev = alloc_etherdev(sizeof (struct el3_private));
+ 	if (!dev)
 
----1197356979-1098354971-1057845070=:20705
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="2.4.22-pre4-cmd640.patch"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.44.0307100751100.20705@cafe.hardrock.org>
-Content-Description: 
-Content-Disposition: attachment; filename="2.4.22-pre4-cmd640.patch"
+--Boundary-00=_sAXD/RQs2J6eKVx--
 
-LS0tIGxpbnV4L2RyaXZlcnMvaWRlL3BjaS9jbWQ2NDAuY34JVGh1IEp1bCAx
-MCAwNzo0NTozMCAyMDAzDQorKysgbGludXgvZHJpdmVycy9pZGUvcGNpL2Nt
-ZDY0MC5jCVRodSBKdWwgMTAgMDc6NDU6MzAgMjAwMw0KQEAgLTEyNSw2ICsx
-MjUsMTIgQEANCiBzdGF0aWMgaW50IGNtZDY0MF92bGIgPSAwOw0KIA0KIC8q
-DQorICogZXhwb3J0IGluaXRfY21kNjQwX3ZsYiBmb3IgaWRlLWNvcmUNCisg
-Ki8NCisgDQorRVhQT1JUX1NZTUJPTChpbml0X2NtZDY0MF92bGIpOw0KKw0K
-Ky8qDQogICogQ01ENjQwIHNwZWNpZmljIHJlZ2lzdGVycyBkZWZpbml0aW9u
-Lg0KICAqLw0KIA0K
----1197356979-1098354971-1057845070=:20705--

@@ -1,49 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283320AbRLDTYk>; Tue, 4 Dec 2001 14:24:40 -0500
+	id <S283345AbRLDT1c>; Tue, 4 Dec 2001 14:27:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282910AbRLDTWy>; Tue, 4 Dec 2001 14:22:54 -0500
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:44348 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S283265AbRLDTVf>; Tue, 4 Dec 2001 14:21:35 -0500
-Message-ID: <3C0D223E.3020904@redhat.com>
-Date: Tue, 04 Dec 2001 14:21:34 -0500
-From: Doug Ledford <dledford@redhat.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6+) Gecko/20011129
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Nathan Bryant <nbryant@optonline.net>
-CC: Mario Mikocevic <mozgy@hinet.hr>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: i810 audio patch
-In-Reply-To: <3C0C16E7.70206@optonline.net> <3C0C508C.40407@redhat.com> <3C0C58DE.9020703@optonline.net> <3C0C5CB2.6000602@optonline.net> <3C0C61CC.1060703@redhat.com> <20011204153507.A842@danielle.hinet.hr> <3C0D1DD2.4040609@optonline.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S283295AbRLDTZ4>; Tue, 4 Dec 2001 14:25:56 -0500
+Received: from twilight.cs.hut.fi ([130.233.40.5]:41951 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
+	id <S283360AbRLDTZj>; Tue, 4 Dec 2001 14:25:39 -0500
+Date: Tue, 4 Dec 2001 21:25:25 +0200
+From: Ville Herva <vherva@niksula.hut.fi>
+To: "William N. Zanatta" <william@veritel.com.br>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: HPT370 (KT7A-RAID) *corrupts* data - SAMSUNG SV8004H does it as well
+Message-ID: <20011204212525.N21566@niksula.cs.hut.fi>
+In-Reply-To: <Pine.LNX.4.33.0112032331490.11129-100000@ns1.knerd.com> <20011204145949.H21566@niksula.cs.hut.fi> <3C0D021F.5070800@veritel.com.br>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3C0D021F.5070800@veritel.com.br>; from william@veritel.com.br on Tue, Dec 04, 2001 at 03:04:31PM -0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nathan Bryant wrote:
-
-> Mario Mikocevic wrote:
+On Tue, Dec 04, 2001 at 03:04:31PM -0200, you [William N. Zanatta] claimed:
+> Hello,
 > 
->> modprobe produced an oops (17-pre2), module is left in init state :
->>
-> Yep. In the i810_configure_clocking() function, immediately before the 
-> call to i810_set_dac_rate(), add a line "clocking = 48000;"
+> I don't know how much they care about it, but they have a drivers list 
+> including drivers for SuSE, RH, Caldera and Turbolinux...
 > 
+> http://www.highpoint-tech.com/
+> 
+> William
+> 
+> PS: Also don't know whether they do or not work. No disks to test, sorry!
 
-There is a new version of the driver (0.07) on my web site.  It has this 
-issue and one other issue fixed (hopefully).  The other issue is when 
-using artsd with the 0.06 driver, I had a report that artsd would end up 
-waiting on select forever and never getting woken up.  The 0.07 driver 
-changes wait queue and lvi handling in a few strategic places, so it 
-should work.  However, it's untested.  Reports welcome.
+Yep, I saw those, but 
+- they are binary only
+- the only support old kernels (2.2.16-22, 2.4.2-2, 2.2.14-5.0 (the 1.1
+  driver for Red Hat)
+- nobody seems to have tried them 
+- nobody knows whether they are stolen from Hedrick's ide driver
+  or are a pure Highpoint-tech from scratch implementation
 
-Complete c file: http://people.redhat.com/dledford/i810_audio.c.gz
 
--- 
+-- v --
 
-  Doug Ledford <dledford@redhat.com>  http://people.redhat.com/dledford
-       Please check my web site for aic7xxx updates/answers before
-                       e-mailing me about problems
-
+v@iki.fi

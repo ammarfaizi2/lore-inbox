@@ -1,34 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263107AbUDBCSG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 21:18:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263128AbUDBCSG
+	id S263092AbUDBCVz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 21:21:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263128AbUDBCVz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 21:18:06 -0500
-Received: from ipcop.bitmover.com ([192.132.92.15]:13453 "EHLO
-	work.bitmover.com") by vger.kernel.org with ESMTP id S263107AbUDBCSE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 21:18:04 -0500
-Date: Thu, 1 Apr 2004 18:18:00 -0800
-From: Larry McVoy <lm@bitmover.com>
-Message-Id: <200404020218.i322I0GC017257@work.bitmover.com>
-To: linux-kernel@vger.kernel.org
-Subject: [bkbits] predicted outage
-Cc: dev@work.bitmover.com
+	Thu, 1 Apr 2004 21:21:55 -0500
+Received: from fw.osdl.org ([65.172.181.6]:26282 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263092AbUDBCVb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Apr 2004 21:21:31 -0500
+Date: Thu, 1 Apr 2004 18:21:27 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Chris Wright <chrisw@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, kenneth.w.chen@intel.com
+Subject: Re: disable-cap-mlock
+Message-ID: <20040401182122.Y21045@build.pdx.osdl.net>
+References: <20040401135920.GF18585@dualathlon.random> <20040401170705.Y22989@build.pdx.osdl.net> <20040402011804.GL18585@dualathlon.random> <20040401173014.Z22989@build.pdx.osdl.net> <20040402013547.GM18585@dualathlon.random> <20040401180441.B22989@build.pdx.osdl.net> <20040402021323.GP18585@dualathlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20040402021323.GP18585@dualathlon.random>; from andrea@suse.de on Fri, Apr 02, 2004 at 04:13:23AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We're moving office space in about 10 days.  We expect one of our T1 lines
-to be switched to the new office as of April 9th.  If that works, then we'll
-move all the hardware to the new office and flip the routes to that T1 from
-the old T1.  Sounds simple and since the new ISP is the old ISP it might 
-actually work (Hah.  Like anything goes that smoothly).  On the other hand,
-it might not go great and there might be some time where bkbits.net is not
-off the air but it might be at a different IP address.  And DNS takes a 
-while to time out.
+* Andrea Arcangeli (andrea@suse.de) wrote:
+> that has nothing to do with freeing the page, that's just releasing 1
+> refcount, because you dropped the pte mapping, the page is still there
+> healthy in the pagecache ready for somebody else to shmat. If you were
+> right then a shmdt+shmat would corrupt the SGA.
 
-As we get closer, I will remind you approximately 48 hours and 24 hours 
-before the move so those of you who need to sync can sync and not be
-disturbed.  If you want more status than that, let me know.
+Ah, yes I see what you are saying.  This is the same issue with normal
+pages and SHM_LOCK that I mentioned earlier, I believe.  I don't see the
+best solution, because once you detach w/out any destroy, there could be
+nobody to assign the accounting to.  Do you agree?
 
---lm
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

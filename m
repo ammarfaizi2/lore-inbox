@@ -1,68 +1,147 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262413AbTHZDMI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Aug 2003 23:12:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262499AbTHZDMI
+	id S262515AbTHZDYt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Aug 2003 23:24:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262524AbTHZDYs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Aug 2003 23:12:08 -0400
-Received: from saturn.galaxy.net ([198.144.230.8]:21437 "HELO galaxy.net")
-	by vger.kernel.org with SMTP id S262413AbTHZDMF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Aug 2003 23:12:05 -0400
-Date: Mon, 25 Aug 2003 22:46:11 -0400 (EDT)
-From: "John K. Walton" <walton@mrnutty.com>
-To: bf-committers@blender.org
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [Bf-committers] [RFC] Re: Blender profiling-1 O16.2int
-In-Reply-To: <200308261454.03069.Christopher.Maddock.1@uni.massey.ac.nz>
-Message-ID: <Pine.LNX.4.21.0308252244020.7487-100000@mrnutty.com>
+	Mon, 25 Aug 2003 23:24:48 -0400
+Received: from obsidian.spiritone.com ([216.99.193.137]:26756 "EHLO
+	obsidian.spiritone.com") by vger.kernel.org with ESMTP
+	id S262515AbTHZDYo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Aug 2003 23:24:44 -0400
+Date: Mon, 25 Aug 2003 20:24:11 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Nick Piggin <piggin@cyberone.com.au>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Nick's scheduler policy v7
+Message-ID: <3070000.1061868247@[10.10.2.4]>
+In-Reply-To: <3F49E7D1.4000309@cyberone.com.au>
+References: <3F48B12F.4070001@cyberone.com.au> <29760000.1061744102@[10.10.2.4]> <3F497BB6.90100@cyberone.com.au> <3F49E7D1.4000309@cyberone.com.au>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 26 Aug 2003, Kester Maddock wrote:
+> I didn't miss 5 revisions, I'll just stick to using my internal
+> numbering for releases.
+> 
+> This one has a few changes. Children now get a priority boost
+> on fork, and parents retain more priority after forking a child,
+> however exiting CPU hogs will now penalise parents a bit.
+> 
+> Timeslice scaling was tweaked a bit. Oh and remember raising X's
+> priority should _help_ interactivity with this patch, and IMO is
+> not an unreasonable thing to be doing.
+> 
+> Please test. I'm not getting enough feedback!
 
-> 
-> On Sun, Aug 17, 2003 at 11:36:42PM +1000, Con Kolivas wrote:
-> > Now normally, blender should just sleep and wait till X comes
-> > alive again before it does anything. However here it shows clearly that 
-> > it is spinning madly looking for something from X, and poor X can't do 
-> > anything. This is the busy on wait I've described.
-> 
-> > Second, any applications that exhibit this should be fixed since it is a bug. 
-> 
-> Say if blender is polling the mouse in the view rotate loop?  (If so, you 
-> should be able to just hold down the middle mouse to starve, without moving 
-> the mouse.)
+Well, it's actually a bit faster than either mainline or your previous
+rev whilst running SDET:
 
-yes i've mentioned this in the past. holding the middle mouse or right
-mouse button _without_doing_anything_ eats up cpu time. it is clearly
-a waste of cpu time. nobody responded.
+SDET 128  (see disclaimer)
+                           Throughput    Std. Dev
+              2.6.0-test4       100.0%         0.3%
+         2.6.0-test4-nick       102.9%         0.3%
+       2.6.0-test4-nick7a       105.1%         0.5%
 
-> Is this really a bug in the application?  Blender is interactive while rotating 
-> the view.  More CPU means more frames per second which gives the user a
-> better experience.  The CPU usage will drop down when the user releases the
-> middle mouse button.
-> 
-> (OK, in this specific case blender could update the screen on mouse move 
-> events, but what about the general case eg a 3d game, where the screen
-> is updated by eg monster ai?)
-> 
-> And how do you fix it?  Would sleep(0) in these loops do, or do you need to
-> select(...) on X?
-> 
-> CC me please on replys.
-> 
-> Thanks,
-> 
-> Kester Maddock.
-> ^ sends occaisional patches to blender.
-> 
-> 
-> _______________________________________________
-> Bf-committers mailing list
-> Bf-committers@blender.org
-> http://www.blender.org/mailman/listinfo/bf-committers
-> 
+But kernbench is significantly slower. The increase in sys time has 
+dropped from last time, but user time is up.
+
+Kernbench: (make -j vmlinux, maximal tasks)
+                              Elapsed      System        User         CPU
+              2.6.0-test4       45.87      116.92      571.10     1499.00
+         2.6.0-test4-nick       49.37      131.31      611.15     1500.75
+       2.6.0-test4-nick7a       49.48      125.95      617.71     1502.00
+
+diffprofile {2.6.0-test4,2.6.0-test4-nick7a}/kernbench/0/profile
+
+     13989     8.6% total
+      4402     9.6% default_idle
+      3385    14.4% page_remove_rmap
+      1093    13.8% __d_lookup
+       702     5.0% do_anonymous_page
+       613    11.5% __copy_to_user_ll
+       613    32.9% atomic_dec_and_lock
+       565    40.9% free_hot_cold_page
+       322    18.7% buffered_rmqueue
+       296     9.4% zap_pte_range
+       282    75.6% .text.lock.file_table
+       185    11.4% kmem_cache_free
+       183     9.8% path_lookup
+       164    12.2% link_path_walk
+       154    12.7% release_pages
+       152    43.1% pgd_ctor
+       127    33.0% file_kill
+       126    15.8% pte_alloc_one
+       123    10.4% file_move
+       107    75.4% .text.lock.dcache
+...
+       -59    -9.5% copy_process
+       -94   -22.5% release_task
+      -146    -2.3% page_add_rmap
+      -352   -24.7% schedule
+     -1026   -29.4% __copy_from_user_ll
+
+Not sure why you're beating up on rmap so much more from a scheduler
+change.
+
+diffprofile {2.6.0-test4,2.6.0-test4-nick7a}/sdetbench/128/profile
+       513    19.1% .text.lock.filemap
+       246     2.6% find_get_page
+       150     4.4% copy_mm
+        86    46.0% try_to_wake_up
+        82    24.1% kunmap_high
+        76     0.0% sched_fork
+        74     0.5% copy_page_range
+        67     1.1% do_no_page
+        54    17.3% __pagevec_lru_add_active
+        53    10.2% radix_tree_lookup
+        51     7.4% __wake_up
+...
+      -101    -8.6% __block_prepare_write
+      -105   -65.2% release_blocks
+      -108    -4.7% link_path_walk
+      -112   -15.2% mmgrab
+      -116    -5.5% buffered_rmqueue
+      -118    -5.9% path_release
+      -119    -2.9% do_wp_page
+      -125    -3.9% pte_alloc_one
+      -125   -15.6% proc_pid_status
+      -127    -5.5% free_hot_cold_page
+      -132   -10.2% exit_notify
+      -138   -11.7% __read_lock_failed
+      -146    -9.7% number
+      -154   -28.5% proc_check_root
+      -155   -20.9% proc_root_link
+      -176   -10.3% d_alloc
+      -179   -13.6% task_mem
+      -186    -9.8% .text.lock.dcache
+      -186    -7.6% proc_pid_stat
+      -193   -11.1% ext2_new_inode
+      -230    -4.0% kmem_cache_free
+      -239    -8.2% .text.lock.dec_and_lock
+      -244   -11.5% schedule
+      -250   -38.3% __blk_queue_bounce
+      -257   -15.0% current_kernel_time
+      -307   -17.6% release_task
+      -327    -1.8% zap_pte_range
+      -338    -7.7% clear_page_tables
+      -384   -20.7% lookup_mnt
+      -406   -26.5% __find_get_block
+      -412   -18.5% follow_mount
+      -565    -9.7% path_lookup
+      -729   -11.6% atomic_dec_and_lock
+      -865   -46.1% grab_block
+     -1185   -10.5% __d_lookup
+     -2145    -0.5% default_idle
+     -2786    -7.0% page_add_rmap
+    -12702   -14.2% page_remove_rmap
+    -29467    -3.8% total
+
+Again, rmap and dlookup. Very odd. Some sort of locality thing, I guess.
+
+M.
 

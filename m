@@ -1,49 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262386AbTESLJI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 May 2003 07:09:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262393AbTESLJI
+	id S262400AbTESLS3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 May 2003 07:18:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262402AbTESLS3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 May 2003 07:09:08 -0400
-Received: from holomorphy.com ([66.224.33.161]:26853 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S262386AbTESLJH (ORCPT
+	Mon, 19 May 2003 07:18:29 -0400
+Received: from pat.uio.no ([129.240.130.16]:52364 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S262400AbTESLS3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 May 2003 07:09:07 -0400
-Date: Mon, 19 May 2003 04:21:56 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Martin Schlemmer <azarah@gentoo.org>
-Cc: Christoph Hellwig <hch@infradead.org>, KML <linux-kernel@vger.kernel.org>
-Subject: Re: Recent changes to sysctl.h breaks glibc
-Message-ID: <20030519112156.GF8978@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Martin Schlemmer <azarah@gentoo.org>,
-	Christoph Hellwig <hch@infradead.org>,
-	KML <linux-kernel@vger.kernel.org>
-References: <1053289316.10127.41.camel@nosferatu.lan> <20030518204956.GB8978@holomorphy.com> <1053292339.10127.45.camel@nosferatu.lan> <20030519063813.A30004@infradead.org> <1053341023.9152.64.camel@workshop.saharact.lan> <20030519105152.GD8978@holomorphy.com> <1053342842.9152.90.camel@workshop.saharact.lan>
-Mime-Version: 1.0
+	Mon, 19 May 2003 07:18:29 -0400
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1053342842.9152.90.camel@workshop.saharact.lan>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16072.49055.76725.564306@charged.uio.no>
+Date: Mon, 19 May 2003 13:27:27 +0200
+To: jlnance@unity.ncsu.edu
+Cc: Jim Nance <jlnance@us54.synopsys.com>, linux-kernel@vger.kernel.org,
+       gary.nifong@synopsys.COM, James.Nance@synopsys.COM,
+       david.thomas@synopsys.COM
+Subject: Re: NFS problems with Linux-2.4
+In-Reply-To: <20030519005316.GA20055@ncsu.edu>
+References: <20030513145023.GA10383@ncsu.edu>
+	<16065.3323.449992.207039@charged.uio.no>
+	<20030515112231.A28148@synopsys.com>
+	<shsznlkjo53.fsf@charged.uio.no>
+	<20030519005316.GA20055@ncsu.edu>
+X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+X-MailScanner-Information: Please contact postmaster@uio.no for more information
+X-UiO-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-05-19 at 12:51, William Lee Irwin III wrote:
->> IIRC you're supposed to use some sort of sanitized copy, not the things
->> directly. IMHO the current state of affairs sucks as there is no
->> standard set of ABI headers, but grabbing them right out of the kernel
->> is definitely not the way to go.
+>>>>> " " == jlnance  <jlnance@unity.ncsu.edu> writes:
 
-On Mon, May 19, 2003 at 01:14:02PM +0200, Martin Schlemmer wrote:
-> Ok, anybody know of an effort to get this done ?
-> Also, what about odd things that are more kernel dependant
-> like imon support in fam for example ?  The imon.h will not
-> be in the 'sanitized copy' ....
+     >     Thanks for the info.  Here is a section of the man page for
+     >     open.
+     > Is the information it gives correct wrt using link & stat?
 
-It probably has to be hand-crafted for cases like the above.
+Yes. Attempting to link a file will normally update the cached
+attributes, so stat() will give correct results.
 
-I'm unaware of anyone actually doing anything about this.
-
-
--- wli
+Cheers,
+  Trond

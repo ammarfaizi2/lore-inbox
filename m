@@ -1,58 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267702AbUIXDkA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267783AbUIXD7u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267702AbUIXDkA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 23:40:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267259AbUIXDgt
+	id S267783AbUIXD7u (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 23:59:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266912AbUIXD4I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 23:36:49 -0400
-Received: from baikonur.stro.at ([213.239.196.228]:35803 "EHLO
-	baikonur.stro.at") by vger.kernel.org with ESMTP id S267301AbUIWUda
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 16:33:30 -0400
-Subject: [patch 3/3]  message/device: replace 	schedule_timeout() with ssleep()
-To: akpm@digeo.com
-Cc: linux-kernel@vger.kernel.org, janitor@sternwelten.at, nacc@us.ibm.com
-From: janitor@sternwelten.at
-Date: Thu, 23 Sep 2004 22:33:27 +0200
-Message-ID: <E1CAaHP-0001sJ-Jq@sputnik>
+	Thu, 23 Sep 2004 23:56:08 -0400
+Received: from fujitsu2.fujitsu.com ([192.240.0.2]:14522 "EHLO
+	fujitsu2.fujitsu.com") by vger.kernel.org with ESMTP
+	id S267796AbUIXDwX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Sep 2004 23:52:23 -0400
+Date: Thu, 23 Sep 2004 20:51:58 -0700
+From: Yasunori Goto <ygoto@us.fujitsu.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: [Patch/RFC]Removing zone and node ID from page->flags[0/3]
+Cc: linux-mm <linux-mm@kvack.org>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       Linux Hotplug Memory Support 
+	<lhms-devel@lists.sourceforge.net>
+In-Reply-To: <20040923232713.GJ9106@holomorphy.com>
+References: <20040923135108.D8CC.YGOTO@us.fujitsu.com> <20040923232713.GJ9106@holomorphy.com>
+Message-Id: <20040923203516.0207.YGOTO@us.fujitsu.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Becky! ver. 2.11.02 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Thank you for comment.
+
+> Looks relatively innocuous. I wonder if cosmetically we may want
+> s/struct zone_tbl/struct zone_table/
+
+Do you mean "struct zone_table" is better as its name?
+If so, I'll change it.
+
+> I like the path compression in the 2-level radix tree.
+
+Hmmmm.....
+Current radix tree code uses slab allocator.
+But, zone_table must be initialized before free_all_bootmem()
+and kmem_cache_alloc().
+So, if I use it for zone_table, I think I have to change radix tree
+code to use bootmem or have to write other original code.
+I'm not sure it is better way....
+
+Bye.
+
+-- 
+Yasunori Goto <ygoto at us.fujitsu.com>
 
 
-
-Any comments would be appreciated.
-
-Description: Use ssleep() instead of schedule_timeout()
-to guarantee the task delays as expected.
-
-Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
-
-Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
----
-
- linux-2.6.9-rc2-bk7-max/drivers/message/i2o/device.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
-
-diff -puN drivers/message/i2o/device.c~ssleep-drivers_message_i20_device drivers/message/i2o/device.c
---- linux-2.6.9-rc2-bk7/drivers/message/i2o/device.c~ssleep-drivers_message_i20_device	2004-09-21 21:17:35.000000000 +0200
-+++ linux-2.6.9-rc2-bk7-max/drivers/message/i2o/device.c	2004-09-21 21:17:35.000000000 +0200
-@@ -15,6 +15,7 @@
- 
- #include <linux/module.h>
- #include <linux/i2o.h>
-+#include <linux/delay.h>
- 
- /* Exec OSM functions */
- extern struct bus_type i2o_bus_type;
-@@ -106,8 +107,7 @@ int i2o_device_claim_release(struct i2o_
- 		if (!rc)
- 			break;
- 
--		set_current_state(TASK_UNINTERRUPTIBLE);
--		schedule_timeout(HZ);
-+		ssleep(1);
- 	}
- 
- 	if (!rc)
-_

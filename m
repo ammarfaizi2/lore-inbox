@@ -1,69 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261913AbVASVtN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261920AbVASWIU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261913AbVASVtN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 16:49:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261921AbVASVry
+	id S261920AbVASWIU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 17:08:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261931AbVASWHs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 16:47:54 -0500
-Received: from ozlabs.org ([203.10.76.45]:26337 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S261913AbVASVn3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 16:43:29 -0500
+	Wed, 19 Jan 2005 17:07:48 -0500
+Received: from alog0085.analogic.com ([208.224.220.100]:13440 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261925AbVASWBm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jan 2005 17:01:42 -0500
+Date: Wed, 19 Jan 2005 17:01:23 -0500 (EST)
+From: linux-os <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: Andrew Morton <akpm@osdl.org>
+cc: Badari Pulavarty <pbadari@us.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.10-mm1 hang
+In-Reply-To: <20050119133136.7a1c0454.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.61.0501191658020.11665@chaos.analogic.com>
+References: <1106153215.3577.134.camel@dyn318077bld.beaverton.ibm.com>
+ <20050119133136.7a1c0454.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16878.54402.344079.528038@cargo.ozlabs.ibm.com>
-Date: Thu, 20 Jan 2005 08:43:30 +1100
-From: Paul Mackerras <paulus@samba.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Peter Chubb <peterc@gelato.unsw.edu.au>, Tony Luck <tony.luck@intel.com>,
-       Darren Williams <dsw@gelato.unsw.edu.au>, Andrew Morton <akpm@osdl.org>,
-       Chris Wedgwood <cw@f00f.org>, torvalds@osdl.org,
-       benh@kernel.crashing.org, linux-kernel@vger.kernel.org,
-       Ia64 Linux <linux-ia64@vger.kernel.org>,
-       Christoph Hellwig <hch@infradead.org>
-Subject: Re: Horrible regression with -CURRENT from "Don't busy-lock-loop in preemptable spinlocks" patch
-In-Reply-To: <20050119092013.GA2045@elte.hu>
-References: <20050117055044.GA3514@taniwha.stupidest.org>
-	<20050116230922.7274f9a2.akpm@osdl.org>
-	<20050117143301.GA10341@elte.hu>
-	<20050118014752.GA14709@cse.unsw.EDU.AU>
-	<16877.42598.336096.561224@wombat.chubb.wattle.id.au>
-	<20050119080403.GB29037@elte.hu>
-	<16878.9678.73202.771962@wombat.chubb.wattle.id.au>
-	<20050119092013.GA2045@elte.hu>
-X-Mailer: VM 7.19 under Emacs 21.3.1
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar writes:
+On Wed, 19 Jan 2005, Andrew Morton wrote:
 
-> * Peter Chubb <peterc@gelato.unsw.edu.au> wrote:
-> 
-> > >> Here's a patch that adds the missing read_is_locked() and
-> > >> write_is_locked() macros for IA64.  When combined with Ingo's
-> > >> patch, I can boot an SMP kernel with CONFIG_PREEMPT on.
-> > >> 
-> > >> However, I feel these macros are misnamed: read_is_locked() returns
-> > >> true if the lock is held for writing; write_is_locked() returns
-> > >> true if the lock is held for reading or writing.
-> > 
-> > Ingo> well, 'read_is_locked()' means: "will a read_lock() succeed"
-> > 
-> > Fail, surely?
-> 
-> yeah ... and with that i proved beyond doubt that the naming is indeed
-> unintuitive :-)
+> Badari Pulavarty <pbadari@us.ibm.com> wrote:
+>>
+>> I was playing with kexec+kdump and ran into this on 2.6.10-mm1.
+>>  I have seen similar behaviour on 2.6.10.
+>>
+>>  I am using a 4-way P-III machine. I have a module which tries
+>>  gets same spinlock twice. When I try to "insmod" this module,
+>>  my system hangs. All my windows froze, no more new logins,
+>>  console froze, doesn't respond to sysrq. I wasn't expecting
+>>  a system hang. Why ? Ideas ?
+>>
+>
+> Maybe all the other CPUs are stuck trying to send an IPI to this one?  An
+> NMI watchdog trace would tell.
+>
+>>  #include <linux/init.h>
+>>  #include <asm/uaccess.h>
+>>  #include <linux/spinlock.h>
+>>  spinlock_t mylock = SPIN_LOCK_UNLOCKED;
+>>  static int __init panic_init(void)
+>>  {
+>>          spin_lock_irq(&mylock);
+>>          spin_lock_irq(&mylock);
+>>         return 1;
+>>  }
+> -
 
-Yes.  Intuitively read_is_locked() is true when someone has done a
-read_lock and write_is_locked() is true when someone has done a write
-lock.
+What would you expect this to do? After the first lock is
+obtained, the second MUST fail forever or else the spin-lock
+doesn't work. The code, above, just proves that spin-locks
+work!
 
-I suggest read_poll(), write_poll(), spin_poll(), which are like
-{read,write,spin}_trylock but don't do the atomic op to get the lock,
-that is, they don't change the lock value but return true if the
-trylock would succeed, assuming no other cpu takes the lock in the
-meantime.
 
-Regards,
-Paul.
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.10 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

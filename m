@@ -1,42 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270590AbRHIVAo>; Thu, 9 Aug 2001 17:00:44 -0400
+	id <S270592AbRHIVBy>; Thu, 9 Aug 2001 17:01:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266827AbRHIVAe>; Thu, 9 Aug 2001 17:00:34 -0400
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:43513 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S270596AbRHIVAW>; Thu, 9 Aug 2001 17:00:22 -0400
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200108092058.f79KwIKn024532@webber.adilger.int>
-Subject: Re: [PATCH] LVM snapshot support for reiserfs and others
-In-Reply-To: <440850000.997389251@tiny> "from Chris Mason at Aug 9, 2001 04:34:11
- pm"
-To: Chris Mason <mason@suse.com>
-Date: Thu, 9 Aug 2001 14:58:18 -0600 (MDT)
-CC: Andreas Dilger <adilger@turbolinux.com>, linux-kernel@vger.kernel.org,
-        torvalds@transmeta.com, viro@math.psu.edu, lvm-devel@sistina.com
-X-Mailer: ELM [version 2.4ME+ PL87 (25)]
+	id <S266827AbRHIVBq>; Thu, 9 Aug 2001 17:01:46 -0400
+Received: from ns.cablesurf.de ([195.206.131.193]:61066 "EHLO ns.cablesurf.de")
+	by vger.kernel.org with ESMTP id <S270595AbRHIVBe>;
+	Thu, 9 Aug 2001 17:01:34 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de>
+To: linux-kernel@vger.kernel.org
+Subject: using bug reports on vendor kernels
+Date: Thu, 9 Aug 2001 23:02:02 +0200
+X-Mailer: KMail [version 1.2]
 MIME-Version: 1.0
+Message-Id: <01080923020201.04501@idun>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris, you write:
-> Andreas Dilger <adilger@turbolinux.com> wrote:
-> > On an "add this patch to the kernel, please" note, support for the
-> > write_super_lockfs() VFS method is already in ext3, so it is a good
-> > thing, with the above caveats.
-> 
-> Ok, recoding with these suggestions.  I'll need an ext3 tester, please
-> drop me a line if you are willing ;-)
+Hi,
 
-Consider it tested.  I already have my code changed like I suggested, but
-never heard back the last time I mentioned it.  In the end I don't think
-the changes can have a behaviour impact other than a small CPU savings,
-and a few lines of comments removed.
+is there a site that would allow me to browse a list of patches added to 
+vendor kernels (esp. RedHat). I need this to use an oops supplied by a user.
 
-Cheers, Andreas
--- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
-
+	TIA
+		Oliver

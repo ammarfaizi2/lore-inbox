@@ -1,54 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129781AbQLZO37>; Tue, 26 Dec 2000 09:29:59 -0500
+	id <S130415AbQLZPxe>; Tue, 26 Dec 2000 10:53:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130550AbQLZO3t>; Tue, 26 Dec 2000 09:29:49 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:52471 "EHLO
-	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S129781AbQLZO3m>; Tue, 26 Dec 2000 09:29:42 -0500
-Date: Tue, 26 Dec 2000 11:58:34 -0200 (BRDT)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Felix von Leitner <leitner@convergence.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Abysmal RAID 0 performance on 2.4.0-test10 for IDE?
-In-Reply-To: <20001226004843.A6103@convergence.de>
-Message-ID: <Pine.LNX.4.21.0012261155160.16178-100000@duckman.distro.conectiva>
+	id <S131039AbQLZPxX>; Tue, 26 Dec 2000 10:53:23 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:18443 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S130415AbQLZPxP>; Tue, 26 Dec 2000 10:53:15 -0500
+Subject: Re: About Celeron processor memory barrier problem
+To: torvalds@transmeta.com (Linus Torvalds)
+Date: Mon, 25 Dec 2000 20:40:43 -0500 (EST)
+Cc: timw@splhi.com (Tim Wright), kaih@khms.westfalen.de (Kai Henningsen),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.10.10012241410240.4404-100000@penguin.transmeta.com> from "Linus Torvalds" at Dec 24, 2000 02:25:54 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14Ag3l-0000MY-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 26 Dec 2000, Felix von Leitner wrote:
-> Thus spake Felix von Leitner (leitner@convergence.de):
-> > Here is the result of my test program on the strip set:
-> >   # rb < /dev/md/0
-> >   30.3 meg/sec
-> >   #
+> One thing we _could_ potentially do is to simplify the CPU selection a
+> bit, and make it a two-stage process. Basically have a
 > 
-> One more detail: top says the CPU is 50% system when reading from either
-> one of the disk or raid devices.  That seems awfully high considering
-> that the Promise controller claims to do UDMA.
+> 	bool "Optimize for current CPU" CONFIG_CPU_CURRENT
 > 
-> Any comments?
+> which most people who just want to get the best kernel would use. Less
+> confusion that way.
 
-Your program reads in data at 30MB/second, on a memory bus
-that most likely supports something like 60 to 100MB/second.
-
-Part of this memory bandwidth is needed for the UDMA controller
-to push the data to memory, probably between 30% and 50%.
-
-Every time the UDMA controller has the memory bus for itself the
-CPU will busy-wait on memory, which shows up as CPU busy time.
-
-regards,
-
-Rik
---
-Hollywood goes for world dumbination,
-	Trailer at 11.
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
+If we do that I'd rather see a make autoconfig that does the lot from
+proc/pci etc 8)
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313571AbSDZROj>; Fri, 26 Apr 2002 13:14:39 -0400
+	id <S313715AbSDZRPB>; Fri, 26 Apr 2002 13:15:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313715AbSDZROi>; Fri, 26 Apr 2002 13:14:38 -0400
-Received: from [195.39.17.254] ([195.39.17.254]:37520 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S313571AbSDZROi>;
-	Fri, 26 Apr 2002 13:14:38 -0400
-Date: Fri, 26 Apr 2002 18:15:40 +0200
+	id <S313824AbSDZRPA>; Fri, 26 Apr 2002 13:15:00 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:38544 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S313715AbSDZRO7>;
+	Fri, 26 Apr 2002 13:14:59 -0400
+Date: Fri, 26 Apr 2002 18:09:11 +0200
 From: Pavel Machek <pavel@ucw.cz>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Michael Dreher <dreher@math.tu-freiberg.de>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19-pre7: rootfs mounted twice
-Message-ID: <20020426161540.GF3783@elf.ucw.cz>
-In-Reply-To: <200204261520.g3QFKbQ00938@karpfen.mathe.tu-freiberg.de> <Pine.GSO.4.21.0204260227270.20558-100000@weyl.math.psu.edu>
+To: Martin Dalecki <dalecki@evision-ventures.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.10 IDE 42
+Message-ID: <20020426160911.GE3783@elf.ucw.cz>
+In-Reply-To: <1019549894.1450.41.camel@turbulence.megapathdsl.net> <3CC7E358.8050905@evision-ventures.com> <20020425172508.GK3542@suse.de> <20020425173439.GM3542@suse.de> <aa9qtb$d8a$1@penguin.transmeta.com> <3CC904AA.7020706@evision-ventures.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,33 +23,53 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > dreher@karpfen:~ > df
-> > Filesystem           1k-blocks      Used Available Use% Mounted on
-> > rootfs                 7060308   6276188    425472  94% /
-> 
-> df(1) is wrong.  There is (see /proc/mounts below) rootfs mounted as
-> root (ramfs, actually) and ext3 mounted over it.  df sees two entries
-> in /etc/mtab (on your box - /proc/mounts) with mountpoint "/" and
-> does statfs("/", &buf); for both.  Surprise, surprise, results of
-> two calls of statf2(2) are identical - what with arguments being
-> the same both times - and refer to the filesystem where your "/"
-> lives.  I.e. to ext3.
+> @@ -783,16 +771,23 @@
+>  	if (stat & BUSY_STAT)
+>  		printk("Busy ");
+>  	else {
+> -		if (stat & READY_STAT)	printk("DriveReady ");
+> -		if (stat & WRERR_STAT)	printk("DeviceFault ");
+> -		if (stat & SEEK_STAT)	printk("SeekComplete ");
+> -		if (stat & DRQ_STAT)	printk("DataRequest ");
+> -		if (stat & ECC_STAT)	printk("CorrectedError ");
+> -		if (stat & INDEX_STAT)	printk("Index ");
+> -		if (stat & ERR_STAT)	printk("Error ");
+> +		if (stat & READY_STAT)
+> +			printk("DriveReady ");
+> +		if (stat & WRERR_STAT)
+> +			printk("DeviceFault ");
+> +		if (stat & SEEK_STAT)
+> +			printk("SeekComplete ");
+> +		if (stat & DRQ_STAT)
+> +			printk("DataRequest ");
+> +		if (stat & ECC_STAT)
+> +			printk("CorrectedError ");
+> +		if (stat & INDEX_STAT)
+> +			printk("Index ");
+> +		if (stat & ERR_STAT)
+> +			printk("Error ");
+>  	}
+>  	printk("}");
+> -#endif	/* FANCY_STATUS_DUMPS */
+> +#endif
+>  	printk("\n");
+>  	if ((stat & (BUSY_STAT|ERR_STAT)) == ERR_STAT) {
+>  		err = GET_ERR();
 
-df might be wrong, but lets say that this /proc/mounts become
-interesting. This could not have happened in the past. That means you
-changed kernel interface in stable series, and that's wrong.
+I believe this is actually making it *less* readable.
 
-> > /dev/root              7060308   6276188    425472  94% /
-> > /dev/hda4              3794936   3042316    559840  84% /home
-> > 
-> > dreher@karpfen:~ > cat /proc/mounts
-> > rootfs / rootfs rw 0 0
-> > /dev/root / ext3 rw,noatime,nodiratime 0 0
-> > proc /proc proc rw 0 0
-> > /dev/hda4 /home ext3 rw,noatime,nodiratime 0 0
-> > usbdevfs /proc/bus/usb usbdevfs rw 0 0
-> > devpts /dev/pts devpts rw 0 0
+> @@ -839,7 +834,7 @@
+>  					printk(", sector=%ld", HWGROUP(drive)->rq->sector);
+>  			}
+>  		}
+> -#endif	/* FANCY_STATUS_DUMPS */
+> +#endif
+>  		printk("\n");
+>  	}
+>  	__restore_flags (flags);	/* local CPU only */
 
+Here to. Comment after endif is good thing; you don't have to add it
+but you should certainly not kill it.
 									Pavel
 -- 
 (about SSSCA) "I don't say this lightly.  However, I really think that the U.S.

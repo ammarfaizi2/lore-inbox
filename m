@@ -1,49 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266454AbSKGGAl>; Thu, 7 Nov 2002 01:00:41 -0500
+	id <S266408AbSKGF6f>; Thu, 7 Nov 2002 00:58:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266457AbSKGGAl>; Thu, 7 Nov 2002 01:00:41 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:40260 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S266454AbSKGGAj>; Thu, 7 Nov 2002 01:00:39 -0500
-To: Werner Almesberger <wa@almesberger.net>
-Cc: Alexander Viro <viro@math.psu.edu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [lkcd-devel] Re: What's left over.
-References: <20021105221050.A10679@almesberger.net>
-	<Pine.GSO.4.21.0211052017320.6521-100000@steklov.math.psu.edu>
-	<20021105230505.D10679@almesberger.net>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 06 Nov 2002 23:04:48 -0700
-In-Reply-To: <20021105230505.D10679@almesberger.net>
-Message-ID: <m18z05ewzj.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
+	id <S266410AbSKGF6e>; Thu, 7 Nov 2002 00:58:34 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:61970 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S266408AbSKGF6c>;
+	Thu, 7 Nov 2002 00:58:32 -0500
+Date: Wed, 6 Nov 2002 22:01:02 -0800
+From: Greg KH <greg@kroah.com>
+To: Adam Belay <ambx1@neo.rr.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] pnp.h changes - 2.5.46 (4/6)
+Message-ID: <20021107060102.GB26821@kroah.com>
+References: <20021106210639.GO316@neo.rr.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021106210639.GO316@neo.rr.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Werner Almesberger <wa@almesberger.net> writes:
+On Wed, Nov 06, 2002 at 09:06:39PM +0000, Adam Belay wrote:
+>  
+> +static inline void *pnp_get_drvdata (struct pnp_dev *pdev)
+> +{
+> +	return pdev->dev.driver_data;
+> +}
+> +
+> +static inline void pnp_set_drvdata (struct pnp_dev *pdev, void *data)
+> +{
+> +	pdev->dev.driver_data = data;
+> +}
+> +
+> +static inline void *pnp_get_protodata (struct pnp_dev *pdev)
+> +{
+> +	return pdev->protocol_data;
+> +}
+> +
+> +static inline void pnp_set_protodata (struct pnp_dev *pdev, void *data)
+> +{
+> +	pdev->protocol_data = data;
+> +}
 
-> Alexander Viro wrote:
-> > That's not obvious.  By the same logics, we would need syscalls for
-> > turning off overcommit, etc., etc.
-> 
-> Okay okay, add file system specific ioctls and sysctl to my list
-> of alternative mechanisms :-)
-> 
-> > FWIW, I suspect that
-> > 	open("/proc/image", O_EXCL|O_WRONLY);
-> > 	bunch of lseek()/write()
-> > 	close()
-> 
-> Hmm, interesting. Yes, that should work. One would of course have
-> to retain the current interface for in-kernel use (e.g. MCORE), but
-> that's probably okay. Let's see what Eric thinks about it - it's
-> his code after all.
+Any reason for not just using dev_get_drvdata() and dev_set_drvdata() in
+the drivers?  Or at the least, use them within these functions, that's
+what they are there for :)
 
-For the record my opinion is there is extra code bloat but it is ok
-if it is built as kexecfs.  Any other way of getting a magic file
-to work with seems currently insane.
+thanks,
 
-Eric
+greg k-h

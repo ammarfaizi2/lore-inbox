@@ -1,66 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266200AbTBPK0j>; Sun, 16 Feb 2003 05:26:39 -0500
+	id <S266233AbTBPKfm>; Sun, 16 Feb 2003 05:35:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266228AbTBPK0j>; Sun, 16 Feb 2003 05:26:39 -0500
-Received: from mx.laposte.net ([213.30.181.7]:47054 "EHLO mx.laposte.net")
-	by vger.kernel.org with ESMTP id <S266200AbTBPK0i>;
-	Sun, 16 Feb 2003 05:26:38 -0500
-Subject: RE: openbkweb-0.0
-From: Nicolas Mailhot <Nicolas.Mailhot@laPoste.net>
-To: vlad@geekizoid.com
-Cc: "Lkml (E-mail)" <linux-kernel@vger.kernel.org>
-In-Reply-To: <00dd01c2d532$cb0a0db0$0200a8c0@wsl3>
-References: <00dd01c2d532$cb0a0db0$0200a8c0@wsl3>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-gwuijjQG+6Eo1SzcKPwh"
-Organization: 
-Message-Id: <1045391765.1143.5.camel@rousalka>
+	id <S266243AbTBPKfm>; Sun, 16 Feb 2003 05:35:42 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:33728 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S266233AbTBPKfl>;
+	Sun, 16 Feb 2003 05:35:41 -0500
+Date: Sun, 16 Feb 2003 11:45:03 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Andrew Morton <akpm@digeo.com>
+Cc: kernel@kolivas.org, linux-kernel@vger.kernel.org, piggin@cyberone.com.au
+Subject: Re: [BENCHMARK] 2.5.61-mm1 +/- as or cfq with contest
+Message-ID: <20030216104503.GV26738@suse.de>
+References: <200302162046.42103.kernel@kolivas.org> <20030216095149.GA6521@suse.de> <200302162053.36119.kernel@kolivas.org> <20030216095956.GA6612@suse.de> <20030216024321.7b5a570d.akpm@digeo.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-1) 
-Date: 16 Feb 2003 11:36:05 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030216024321.7b5a570d.akpm@digeo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Feb 16 2003, Andrew Morton wrote:
+> Jens Axboe <axboe@suse.de> wrote:
+> >
+> > On Sun, Feb 16 2003, Con Kolivas wrote:
+> > > On Sun, 16 Feb 2003 08:51 pm, Jens Axboe wrote:
+> > > > On Sun, Feb 16 2003, Con Kolivas wrote:
+> > > > > Here are contest (http://contest.kolivas.org) results with osdl
+> > > > > (http://www.osdl.org) hardware for 2.5.61-mm1 with either the as i/o
+> > > > > scheduler or the cfq scheduler.
+> > > > >
+> > > > > io_load:
+> > > > > Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
+> > > > > 2.5.60-mm1          3   112     67.0    15.7    7.1     1.42
+> > > > > 2.5.61              2   143     52.4    32.9    13.3    1.81
+> > > > > 2.5.61-mm1          2   634     12.5    257.3   24.6    7.83
+> > > > > 2.5.61-mm1cfq       3   397     19.6    123.3   18.1    5.03
+> > > >
+> > > > These loo fishy, could be some other interaction. I'm consistently
+> > > > beating 2.5.60-mm1/2.5.61 on io_load here, but that is 2.5.61 base and
+> > > > not 2.5.61-mm1 base. Could be something odd happening there.
+> > > 
+> > > I dont think they're fishy - taken in the mm1 context -. I have tested cfq3a 
+> > > without mm1 and it does beat the baseline. See a previous email I posted with 
+> > > it.
+> > 
+> > I didn't mean that you have done something fishy, but that there's a
+> > fishy interaction between -mm + CFQ :)
+> > 
+> 
+> It is the CPU scheduler patch.  Con has eariler shown that this patch shoots
+> io_load in the head.  2.5.60-mm1 did not have that patch.
 
---=-gwuijjQG+6Eo1SzcKPwh
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: quoted-printable
+and process_load, and dbench_load :)
 
-Le sam 15/02/2003 =E0 21:42, Vlad@geekizoid.com a =E9crit :
-> The amazing thing to me is that I don't see Larry making any threats.  It=
-'s
-> more like pleading "Please let us continue to do this great thing, and do=
-n't
-> torpedo my company out of some misguided idea that BK should be free just
-> because you don't want to have to pay for it."
+Thanks, makes sense.
 
-Larry is asking for assurances he obviously can't get, else he'll
-regrettably have to do [lots of things generally frown upon in the
-community]
-
-Which is why I advised him to cool down (despite me being in position to
-profit from a free bk clone creation like lots of other people). It's
-painful to see him feed the flamewars after all the good work he's done.
-And i'm sure that being the smart guy he is, he knows it. He just can't
-help himself:(.
-
-Regards,
-
---=20
-Nicolas Mailhot
-
---=-gwuijjQG+6Eo1SzcKPwh
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Ceci est une partie de message
-	=?ISO-8859-1?Q?num=E9riquement?= =?ISO-8859-1?Q?_sign=E9e?=
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA+T2mUI2bVKDsp8g0RAlb4AKDx8fvpAJluCT9QBJ8UzQMf8HcCXwCg1Sxp
-lKe6yYYhYUxxtvV+MROeXR8=
-=JNzf
------END PGP SIGNATURE-----
-
---=-gwuijjQG+6Eo1SzcKPwh--
+-- 
+Jens Axboe
 

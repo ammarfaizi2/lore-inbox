@@ -1,48 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268005AbUHTTsw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268025AbUHTTyU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268005AbUHTTsw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 15:48:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268042AbUHTTsw
+	id S268025AbUHTTyU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 15:54:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268042AbUHTTyU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 15:48:52 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:52881 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S268005AbUHTTsv (ORCPT
+	Fri, 20 Aug 2004 15:54:20 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:48827 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S268025AbUHTTyS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 15:48:51 -0400
-Date: Fri, 20 Aug 2004 12:48:23 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: root@chaos.analogic.com
-Cc: adilger@clusterfs.com, jlcooke@certainkey.com, shemminger@osdl.org,
-       alan@lxorguk.ukuu.org.uk, tytso@mit.edu, netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] enhanced version of net_random()
-Message-Id: <20040820124823.071ac1d9.davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.53.0408201518250.25319@chaos>
-References: <20040812104835.3b179f5a@dell_ss3.pdx.osdl.net>
-	<20040820175952.GI5806@certainkey.com>
-	<20040820185956.GV8967@schnapps.adilger.int>
-	<Pine.LNX.4.53.0408201518250.25319@chaos>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Fri, 20 Aug 2004 15:54:18 -0400
+Date: Fri, 20 Aug 2004 21:55:40 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: linux-kernel@vger.kernel.org
+Cc: Thomas Charbonnel <thomas@undata.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       Lee Revell <rlrevell@joe-job.com>, Mark_H_Johnson@raytheon.com
+Subject: [patch] voluntary-preempt-2.6.8.1-P6
+Message-ID: <20040820195540.GA31798@elte.hu>
+References: <20040816034618.GA13063@elte.hu> <1092628493.810.3.camel@krustophenia.net> <20040816040515.GA13665@elte.hu> <1092654819.5057.18.camel@localhost> <20040816113131.GA30527@elte.hu> <20040816120933.GA4211@elte.hu> <1092716644.876.1.camel@krustophenia.net> <20040817080512.GA1649@elte.hu> <20040819073247.GA1798@elte.hu> <20040820133031.GA13105@elte.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040820133031.GA13105@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 20 Aug 2004 15:22:09 -0400 (EDT)
-"Richard B. Johnson" <root@chaos.analogic.com> wrote:
 
-> The attached code will certainly work on Intel machines. It is
-> in the public domain, having been modified by myself to produce
-> a very long sequence...
+i've uploaded the -P6 patch:
 
-How long a period does it have?  The one we're adding to the
-networking has one which is 2^88.
+  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8.1-P6
 
-> I wouldn't suggest converting it to 'C' because the rotation
-> takes many CPU instructions when one tries to do the test, shift,
-> and OR in 'C',
+i'm releasing another patch today because the mystic 900 usec latency
+seems to be nailed finally, with the help of Mark H Johnson's traces:
+there were two places that set ->preempt_count back to 0 without the
+tracer noticing it: preempt_schedule() and entry.S's return path.
 
-You only need 2 'shifts' and an 'or' to do a rotate in C.
-No tests are needed.
+other changes since -P5:
+
+ - generic kernel fix: do not ignore idle=poll on non-P4 CPUs.
+   (Mark H Johnson)
+
+ - fix the __trace link bug reported by Martin Rumori. All combinations
+   of CONFIG_PREEMPT_TIMING & CONFIG_LATENCY_TRACE should work now.
+
+ - make kernel_preemption=1 the default. Most people use this anyway.
+
+	Ingo

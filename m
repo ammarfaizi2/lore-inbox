@@ -1,67 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266892AbUFYXsW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266897AbUFYXur@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266892AbUFYXsW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jun 2004 19:48:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266894AbUFYXsW
+	id S266897AbUFYXur (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jun 2004 19:50:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266896AbUFYXuq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jun 2004 19:48:22 -0400
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:744 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S266892AbUFYXsU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jun 2004 19:48:20 -0400
-Message-ID: <40DCB9C2.5000605@comcast.net>
-Date: Fri, 25 Jun 2004 19:48:18 -0400
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Mozilla Thunderbird 0.7 (X11/20040623)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: Collapse ext2 and 3 please
-References: <40DB605D.6000409@comcast.net>	<6uhdsz3jud.fsf@zork.zork.net> <20040625150021.3f50350b.akpm@osdl.org>
-In-Reply-To: <20040625150021.3f50350b.akpm@osdl.org>
-X-Enigmail-Version: 0.84.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 25 Jun 2004 19:50:46 -0400
+Received: from europa.pnl.gov ([130.20.248.195]:48073 "EHLO europa.pnl.gov")
+	by vger.kernel.org with ESMTP id S266898AbUFYXug (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jun 2004 19:50:36 -0400
+Date: Fri, 25 Jun 2004 16:50:21 -0700
+From: Kevin Fox <Kevin.Fox@pnl.gov>
+Subject: Re: Elastic Quota File System (EQFS)
+In-reply-to: <40DC8981.7090703@dynextechnologies.com>
+To: "Fao, Sean" <Sean.Fao@dynextechnologies.com>
+Cc: Amit Gud <gud@eth.net>, Alan <alan@clueserver.org>,
+       Pavel Machek <pavel@ucw.cz>, Horst von Brand <vonbrand@inf.utfsm.cl>,
+       linux-kernel@vger.kernel.org
+Message-id: <1088207421.4945.23.camel@nightmare.emsl.pnl.gov>
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2)
+Content-type: text/plain
+Content-transfer-encoding: 7bit
+References: <004e01c45abd$35f8c0b0$b18309ca@home>
+ <200406251444.i5PEiYpq008174@eeyore.valparaiso.cl>
+ <20040625162537.GA6201@elf.ucw.cz>
+ <1088181893.6558.12.camel@zontar.fnordora.org> <40DC625F.3010403@eth.net>
+ <40DC8981.7090703@dynextechnologies.com>
+X-OriginalArrivalTime: 25 Jun 2004 23:50:31.0265 (UTC)
+ FILETIME=[3311AD10:01C45B0F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Not to argue whether its a good idea but, one use for this would be
+undeleting. rm becomes a set EQFS bit. You keep all your old files that
+way until space is really needed and then they get reclaimed. You might
+not want that to count against your quota.
 
-Andrew Morton wrote:
-| Sean Neakums <sneakums@zork.net> wrote:
-|
-|>I seem to remember somebody, I think maybe Andrew Morton, suggesting
-|>that a no-journal mode be added to ext3 so that ext2 could be removed.
-|>I can't find the message in question right now, though.
-|
-|
-| I think it could be done, mainly as a kernel-space-saving exercise.  But
-| the two filesystems are quite different nowadays.
-|
-| ext2 uses per-inode pagecache for directories, ext3 uses blockdev
-| pagecache.  The truncate algorithms are significantly different. Other
-stuff.
-|
-
-So why isn't it feasible to keep truncate algorithms and pagecache code
-separated while collapsing the rest?  Same logic as i said in another reply:
-
-if (journaled)
-~  extfs_journaled_truncate();
-else
-~  extfs_nonjournaled_truncate();
-
-| Much pain, little gain.
-
-I understand this; but all work done is volunteer, so it'll only get
-done if someone wants to do it :)
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFA3LnAhDd4aOud5P8RApugAJ45XGfdVGxVSEYsk/N55S4r5Qd+BACgi1vp
-cgv421B9Yxc3EX/TUv/nm+M=
-=bZBQ
------END PGP SIGNATURE-----
+On Fri, 2004-06-25 at 13:22, Fao, Sean wrote:
+> Amit Gud wrote:
+> 
+> > It cannot be denied that there _are_ applications for such a system 
+> > that we already discussed and theres a class of users who will find 
+> > the system useful.
+> 
+> 
+> I personally see no use whatsoever.  Why not just allocate 100% of the 
+> file system to everybody and ignore quota's, entirely?  Each user will 
+> use whatever he/she requires and when space starts to run out, users 
+> will manually clean up what they don't need.
+> 
+> I am totally against the automatic deletion of files and believe that 
+> all users will _eventually_ walk in on a Monday morning to find out that 
+> the OS took it upon itself to delete a file that was flagged as elastic, 
+> that shouldn't have been.  I also tend to believe that the exact 
+> time/date that the file was removed could conceivably occur six months 
+> prior to that Monday morning, without the users knowledge.  Now the 
+> burden will again be placed on to system administrators.  This time, to 
+> locate and recover the lost file(s) by sorting through months of 
+> archives.  Personally, I prefer setting quota's on an individual bases, 
+> to finding a needle in a haystack
+> 
+> In my mind, you either have a quota or you don't; there's no in between.
+> 
+> Sean
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

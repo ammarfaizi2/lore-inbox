@@ -1,56 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262358AbVAVB0D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262392AbVAVBnK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262358AbVAVB0D (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 20:26:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262394AbVAVB0C
+	id S262392AbVAVBnK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 20:43:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262394AbVAVBnJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 20:26:02 -0500
-Received: from ozlabs.org ([203.10.76.45]:7147 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S262358AbVAVBZ4 (ORCPT
+	Fri, 21 Jan 2005 20:43:09 -0500
+Received: from ozlabs.org ([203.10.76.45]:26347 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S262392AbVAVBnD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 20:25:56 -0500
+	Fri, 21 Jan 2005 20:43:03 -0500
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <16881.43936.632734.780383@cargo.ozlabs.ibm.com>
-Date: Sat, 22 Jan 2005 12:25:52 +1100
+Message-ID: <16881.44964.715531.502428@cargo.ozlabs.ibm.com>
+Date: Sat, 22 Jan 2005 12:43:00 +1100
 From: Paul Mackerras <paulus@samba.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: clameter@sgi.com, davem@davemloft.net, hugh@veritas.com,
-       linux-ia64@vger.kernel.org, torvalds@osdl.org, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Extend clear_page by an order parameter
-In-Reply-To: <20050121164353.6f205fbc.akpm@osdl.org>
-References: <Pine.LNX.4.58.0501041512450.1536@schroedinger.engr.sgi.com>
-	<Pine.LNX.4.44.0501082103120.5207-100000@localhost.localdomain>
-	<20050108135636.6796419a.davem@davemloft.net>
-	<Pine.LNX.4.58.0501211210220.25925@schroedinger.engr.sgi.com>
-	<16881.33367.660452.55933@cargo.ozlabs.ibm.com>
-	<Pine.LNX.4.58.0501211545080.27045@schroedinger.engr.sgi.com>
-	<16881.40893.35593.458777@cargo.ozlabs.ibm.com>
-	<20050121164353.6f205fbc.akpm@osdl.org>
+To: akpm@osdl.org, linux-kernel@vger.kernel.org
+Cc: anton@samba.org, moilanen@austin.ibm.com
+Subject: [PATCH] PPC64 xmon data breakpoints on partitioned systems
 X-Mailer: VM 7.19 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton writes:
+This patch is originally from Jake Moilanen <moilanen@austin.ibm.com>,
+substantially modified by me.
 
-> It is, actually, from the POV of the page allocator.  It's a "higher order
-> page" and is controlled by a struct page*, just like a zero-order page...
+On PPC64 systems with a hypervisor, we can't set the Data Address
+Breakpoint Register (DABR) directly, we have to do it through a
+hypervisor call.
 
-So why is the function that gets me one of these "higher order pages"
-called "get_free_pages" with an "s"? :)
+Signed-off-by: Jake Moilanen <moilanen@austin.ibm.com>
+Signed-off-by: Paul Mackerras <paulus@samba.org>
 
-Christoph's patch is bigger than it needs to be because he has to
-change all the occurrences of clear_page(x) to clear_page(x, 0), and
-then he has to change a lot of architectures' clear_page functions to
-be called _clear_page instead.  If he picked a different name for the
-"clear a higher order page" function it would end up being less
-invasive as well as less confusing.
-
-The argument that clear_page is called that because it clears a higher
-order page won't wash; all the clear_page implementations in his patch
-are perfectly capable of clearing any contiguous set of 2^order pages
-(oops, I mean "zero-order pages"), not just a "higher order page".
-
-Paul.
+diff -urN linux-2.5/arch/ppc64/xmon/xmon.c test/arch/ppc64/xmon/xmon.c
+--- linux-2.5/arch/ppc64/xmon/xmon.c	2005-01-12 18:20:48.000000000 +1100
++++ test/arch/ppc64/xmon/xmon.c	2005-01-22 10:55:46.664345064 +1100
+@@ -624,6 +624,17 @@
+ 	return 0;
+ }
+ 
++/* On systems with a hypervisor, we can't set the DABR
++   (data address breakpoint register) directly. */
++static void set_controlled_dabr(unsigned long val)
++{
++	if (systemcfg->platform == PLATFORM_PSERIES_LPAR) {
++		int rc = plpar_hcall_norets(H_SET_DABR, val);
++		if (rc != H_Success)
++			xmon_printf("Warning: setting DABR failed (%d)\n", rc);
++	} else
++		set_dabr(val);
++}
+ 
+ static struct bpt *at_breakpoint(unsigned long pc)
+ {
+@@ -711,7 +722,7 @@
+ static void insert_cpu_bpts(void)
+ {
+ 	if (dabr.enabled)
+-		set_dabr(dabr.address | (dabr.enabled & 7));
++		set_controlled_dabr(dabr.address | (dabr.enabled & 7));
+ 	if (iabr && (cur_cpu_spec->cpu_features & CPU_FTR_IABR))
+ 		set_iabr(iabr->address
+ 			 | (iabr->enabled & (BP_IABR|BP_IABR_TE)));
+@@ -739,7 +750,7 @@
+ 
+ static void remove_cpu_bpts(void)
+ {
+-	set_dabr(0);
++	set_controlled_dabr(0);
+ 	if ((cur_cpu_spec->cpu_features & CPU_FTR_IABR))
+ 		set_iabr(0);
+ }
+@@ -1049,8 +1060,8 @@
+     "b <addr> [cnt]   set breakpoint at given instr addr\n"
+     "bc               clear all breakpoints\n"
+     "bc <n/addr>      clear breakpoint number n or at addr\n"
+-    "bi <addr> [cnt]  set hardware instr breakpoint (broken?)\n"
+-    "bd <addr> [cnt]  set hardware data breakpoint (broken?)\n"
++    "bi <addr> [cnt]  set hardware instr breakpoint (POWER3/RS64 only)\n"
++    "bd <addr> [cnt]  set hardware data breakpoint\n"
+     "";
+ 
+ static void

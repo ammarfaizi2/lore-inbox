@@ -1,250 +1,715 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266095AbTB0S4R>; Thu, 27 Feb 2003 13:56:17 -0500
+	id <S266233AbTB0S77>; Thu, 27 Feb 2003 13:59:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266114AbTB0S4R>; Thu, 27 Feb 2003 13:56:17 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:50830 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S266095AbTB0S4O>;
-	Thu, 27 Feb 2003 13:56:14 -0500
-Date: Thu, 27 Feb 2003 11:02:00 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: linux-kernel@vger.kernel.org
-Subject: [CFT: 2.5.63] fix a bad stack user (elf_core_dump)
-Message-Id: <20030227110200.296d9a26.rddunlap@osdl.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.8.6 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	id <S266210AbTB0S77>; Thu, 27 Feb 2003 13:59:59 -0500
+Received: from natsmtp01.webmailer.de ([192.67.198.81]:14476 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S266175AbTB0S7q>; Thu, 27 Feb 2003 13:59:46 -0500
+Date: Thu, 27 Feb 2003 20:08:48 +0100
+From: Dominik Brodowski <linux@brodo.de>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH UPDATED] pcmcia: driver_socket as device_class interface
+Message-ID: <20030227190848.GA2016@brodo.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+[depends on the pcmcia: bus_type pcmcia_bus_type, pcmcia-drivers patch
+sent to you a few minutes ago.]
 
-elf_core_dump() uses a stack of > 0x480 bytes (IIRC).
-This patch combines several of the large stack items into
-one kmalloc-ed area (which has a size of 0x3fc on x86).
-Is this a problem?
+ "Driver Servies" will probably become the "bus driver" for PCMCIA 
+(non-CardBus) cards. So register it as an interface to the device class 
+pcmcia_socket_class. Unfortunately, due to a driver model bug the 
+actual interface_add_data call is commented out. This only means that 
+unloading pcmcia sockets won't currently work, loading/enabling pcmcia 
+sockets should work fine (and does so here).
 
-Builds and produces core files on 2.5.63.  :)
-TEST log is in metadata below.
-gdb can read the core files, but needs more testing, please.
-
---
-~Randy
-
-
-patch_name:	binfmtelf_stack_2563.patch
-patch_version:	2003-02-27.10:37:04
-author:		Randy.Dunlap <rddunlap@osdl.org>
-description:	reduce large stack usage in fs/binfmt_elf.c::elf_core_dump();
-product:	Linux
-product_versions: linux-2563
-changelog:	_
-testlog:
-TEST: alloc sizes = 0x34 + 0x90 + 0x7c + 0x6c + 0x200  + 0x50 = 0x3fc
-TEST: ptr list: mem = f6f82400, elf = f6f82400, prstatus = f6f82434, psinfo = f6f824c4
-  fpu = f6f82540, xfpu = f6f825ac, notes = f6f827ac
-URL:		_
-requires:	_
-conflicts:	_
-diffstat:	=
- fs/binfmt_elf.c |  105 ++++++++++++++++++++++++++++++++++++++------------------
- 1 files changed, 73 insertions(+), 32 deletions(-)
-
-
-diff -Naur ./fs/binfmt_elf.c%STK ./fs/binfmt_elf.c
---- ./fs/binfmt_elf.c%STK	Mon Feb 24 11:05:31 2003
-+++ ./fs/binfmt_elf.c	Thu Feb 27 10:36:26 2003
-@@ -10,7 +10,7 @@
-  */
+diff -ru linux-original/drivers/pcmcia/cs.c linux/drivers/pcmcia/cs.c
+--- linux-original/drivers/pcmcia/cs.c	2003-02-27 18:55:16.000000000 +0100
++++ linux/drivers/pcmcia/cs.c	2003-02-27 19:45:23.000000000 +0100
+@@ -345,6 +345,7 @@
  
- #include <linux/module.h>
--
-+#include <linux/kernel.h>
- #include <linux/fs.h>
- #include <linux/stat.h>
- #include <linux/time.h>
-@@ -1175,40 +1175,79 @@
-  */
- static int elf_core_dump(long signr, struct pt_regs * regs, struct file * file)
- {
-+#define	NUM_NOTES	5
- 	int has_dumped = 0;
- 	mm_segment_t fs;
- 	int segs;
- 	size_t size = 0;
- 	int i;
- 	struct vm_area_struct *vma;
--	struct elfhdr elf;
-+	void *mem;	/* aggregation of several large data structures */
-+	///struct elfhdr elf;		///52B
-+	struct elfhdr *elf;
- 	off_t offset = 0, dataoff;
- 	unsigned long limit = current->rlim[RLIMIT_CORE].rlim_cur;
--	int numnote = 5;
--	struct memelfnote notes[5];
--	struct elf_prstatus prstatus;	/* NT_PRSTATUS */
--	struct elf_prpsinfo psinfo;	/* NT_PRPSINFO */
-+	int numnote = NUM_NOTES;
-+	///struct memelfnote notes[5];	///16*5=80B
-+	struct memelfnote *notes[NUM_NOTES];
-+	///struct elf_prstatus prstatus;	/* NT_PRSTATUS */	///80B
-+	struct elf_prstatus *prstatus;	/* NT_PRSTATUS */
-+	///struct elf_prpsinfo psinfo;	/* NT_PRPSINFO */	///128B
-+	struct elf_prpsinfo *psinfo;	/* NT_PRPSINFO */
-  	struct task_struct *g, *p;
-  	LIST_HEAD(thread_list);
-  	struct list_head *t;
--	elf_fpregset_t fpu;
-+	///elf_fpregset_t fpu;	///108B
-+	elf_fpregset_t *fpu;
-+	///elf_fpxregset_t xfpu;	///kmalloc:512B
-+	elf_fpxregset_t *xfpu;
- #ifdef ELF_CORE_COPY_XFPREGS
--	elf_fpxregset_t xfpu;
-+	int xfpu_size = sizeof(*xfpu);
-+#else
-+	int xfpu_size = 0;
+ 		s->ss_entry = cls_d->ops;
+ 		s->sock = i + cls_d->sock_offset;
++		s->s_dev = dev;
+ 
+ 		/* base address = 0, map = 0 */
+ 		s->cis_mem.flags = 0;
+@@ -359,6 +360,7 @@
+ 		socket_table[j] = s;
+ 		if (j == sockets) sockets++;
+ 
++		s->socket_table_entry = j;
+ 		init_socket(s);
+ 		s->ss_entry->inquire_socket(s->sock, &s->cap);
+ #ifdef CONFIG_PROC_FS
+diff -ru linux-original/drivers/pcmcia/cs_internal.h linux/drivers/pcmcia/cs_internal.h
+--- linux-original/drivers/pcmcia/cs_internal.h	2003-02-27 18:55:16.000000000 +0100
++++ linux/drivers/pcmcia/cs_internal.h	2003-02-27 19:45:23.000000000 +0100
+@@ -158,7 +158,11 @@
+ #ifdef CONFIG_PROC_FS
+     struct proc_dir_entry	*proc;
  #endif
- 	int thread_status_size = 0;
--	
--	/* We no longer stop all vm operations
+-    int				use_bus_pm;
++	int			use_bus_pm;
++	struct device		*s_dev;
++	/* TBD: integrate the following contents fully into this struct */
++	void			*ds_info; /* ds_socket_info */
++	int			socket_table_entry;
+ } socket_info_t;
+ 
+ /* Flags in config state */
+diff -ru linux-original/drivers/pcmcia/ds.c linux/drivers/pcmcia/ds.c
+--- linux-original/drivers/pcmcia/ds.c	2003-02-27 19:36:36.000000000 +0100
++++ linux/drivers/pcmcia/ds.c	2003-02-27 19:46:55.000000000 +0100
+@@ -48,6 +48,7 @@
+ #include <linux/proc_fs.h>
+ #include <linux/poll.h>
+ #include <linux/pci.h>
++#include <linux/device.h>
+ 
+ #include <pcmcia/version.h>
+ #include <pcmcia/cs_types.h>
+@@ -55,6 +56,11 @@
+ #include <pcmcia/bulkmem.h>
+ #include <pcmcia/cistpl.h>
+ #include <pcmcia/ds.h>
++#include <pcmcia/cisreg.h>
++#include <pcmcia/bus_ops.h>
++#include <pcmcia/ss.h>
 +
-+	/*
-+	 * We no longer stop all vm operations
- 	 * 
--	 * This because those proceses that could possibly 
--	 * change map_count or the mmap / vma pages are now blocked in do_exit on current finishing
-+	 * This is because those proceses that could possibly change map_count or
-+	 * the mmap / vma pages are now blocked in do_exit on current finishing
- 	 * this core dump.
- 	 *
- 	 * Only ptrace can touch these memory addresses, but it doesn't change
--	 * the map_count or the pages allocated.  So no possibility of crashing exists while dumping
--	 * the mm->vm_next areas to the core file.
--	 *
-+	 * the map_count or the pages allocated.  So no possibility of crashing
-+	 * exists while dumping the mm->vm_next areas to the core file.
- 	 */
--  	
-+  
-+	/* alloc memory for large data structures */
-+	mem = kmalloc(sizeof(*elf)
-+			+ sizeof(*prstatus)+ sizeof(*psinfo)
-+			+ sizeof(*fpu) + xfpu_size
-+			+ ARRAY_SIZE(notes) * sizeof(struct memelfnote),
-+			GFP_KERNEL);
-+	if (!mem)
-+		goto cleanup;
-+
-+	elf = mem;
-+	prstatus = (void *)elf + sizeof(*elf);
-+	psinfo   = (void *)prstatus + sizeof(*prstatus);
-+	fpu      = (void *)psinfo + sizeof(*psinfo);
-+	xfpu     = (void *)fpu + sizeof(*fpu);
-+	for (i = 0; i < NUM_NOTES; i++) {
-+		notes[i] = (void *)xfpu + xfpu_size + i * sizeof(struct memelfnote);
-+	}
-+	/* TEST: printk() these ptrs/sizes and total size of mem; */
-+	printk ("TEST: alloc sizes = 0x%x + 0x%x + 0x%x + 0x%x + 0x%x  + 0x%x = 0x%x\n",
-+			sizeof(*elf), sizeof(*prstatus), sizeof(*psinfo),
-+			sizeof(*fpu), xfpu_size,
-+			NUM_NOTES * sizeof(struct memelfnote),
-+			sizeof(*elf)+ sizeof(*prstatus)+ sizeof(*psinfo)+
-+			sizeof(*fpu)+ xfpu_size+
-+			NUM_NOTES * sizeof(struct memelfnote));
-+	printk ("TEST: ptr list: mem = %p, elf = %p, prstatus = %p, psinfo = %p\n  fpu = %p, xfpu = %p, notes = %p\n",
-+			mem, elf, prstatus, psinfo, fpu, xfpu, notes[0]);
-+
- 	 /* capture the status of all other threads */
- 	if (signr) {
- 		read_lock(&tasklist_lock);
-@@ -1226,14 +1265,14 @@
++#include "cs_internal.h"
+ 
+ /*====================================================================*/
+ 
+@@ -68,11 +74,8 @@
+ 
+ #ifdef PCMCIA_DEBUG
+ INT_MODULE_PARM(pc_debug, PCMCIA_DEBUG);
+-#define DEBUG(n, args...) if (pc_debug>(n)) printk(KERN_DEBUG args)
+ static const char *version =
+ "ds.c 1.112 2001/10/13 00:08:28 (David Hinds)";
+-#else
+-#define DEBUG(n, args...)
+ #endif
+ 
+ /*====================================================================*/
+@@ -97,7 +100,7 @@
+ } user_info_t;
+ 
+ /* Socket state information */
+-typedef struct socket_info_t {
++struct ds_socket_info {
+     client_handle_t	handle;
+     int			state;
+     user_info_t		*user;
+@@ -105,9 +108,11 @@
+     wait_queue_head_t	queue, request;
+     struct timer_list	removal;
+     socket_bind_t	*bind;
+-} socket_info_t;
++};
+ 
+-#define SOCKET_PRESENT		0x01
++#ifndef SOCKET_PRESENT
++#define SOCKET_PRESENT		0x08
++#endif
+ #define SOCKET_BUSY		0x02
+ #define SOCKET_REMOVAL_PENDING	0x10
+ 
+@@ -116,8 +121,7 @@
+ /* Device driver ID passed to Card Services */
+ static dev_info_t dev_info = "Driver Services";
+ 
+-static int sockets = 0, major_dev = -1;
+-static socket_info_t *socket_table = NULL;
++static int major_dev = -1;
+ 
+ extern struct proc_dir_entry *proc_pccard;
+ 
+@@ -159,15 +163,20 @@
+ void pcmcia_unregister_driver(struct pcmcia_driver *driver)
+ {
+ 	socket_bind_t *b;
++	struct ds_socket_info *ds;
+ 	int i;
+ 
+ 	if (driver->use_count > 0) {
+ 		/* Blank out any left-over device instances */
+ 		driver->attach = NULL; driver->detach = NULL;
+-		for (i = 0; i < sockets; i++)
+-			for (b = socket_table[i].bind; b; b = b->next)
++		for (i = 0; i < sockets; i++) {
++			if (!socket_table[i] || !socket_table[i]->ds_info)
++				continue;
++			ds = socket_table[i]->ds_info;
++			for (b = ds->bind; b; b = b->next)
+ 				if (b->driver == driver) 
+ 					b->instance = NULL;
++		}
  	}
- 
- 	/* now collect the dump for the current */
--	memset(&prstatus, 0, sizeof(prstatus));
--	fill_prstatus(&prstatus, current, signr);
--	elf_core_copy_regs(&prstatus.pr_reg, regs);
-+	memset(prstatus, 0, sizeof(*prstatus));
-+	fill_prstatus(prstatus, current, signr);
-+	elf_core_copy_regs(&prstatus->pr_reg, regs);
  	
- 	segs = current->mm->map_count;
- 
- 	/* Set up header */
--	fill_elf_header(&elf, segs+1); /* including notes section*/
-+	fill_elf_header(elf, segs+1);	/* including notes section*/
- 
- 	has_dumped = 1;
- 	current->flags |= PF_DUMPCORE;
-@@ -1243,21 +1282,21 @@
- 	 * with info from their /proc.
- 	 */
- 
--	fill_note(&notes[0], "CORE", NT_PRSTATUS, sizeof(prstatus), &prstatus);
-+	fill_note(notes[0], "CORE", NT_PRSTATUS, sizeof(*prstatus), prstatus);
- 	
--	fill_psinfo(&psinfo, current->group_leader);
--	fill_note(&notes[1], "CORE", NT_PRPSINFO, sizeof(psinfo), &psinfo);
-+	fill_psinfo(psinfo, current->group_leader);
-+	fill_note(notes[1], "CORE", NT_PRPSINFO, sizeof(*psinfo), psinfo);
- 	
--	fill_note(&notes[2], "CORE", NT_TASKSTRUCT, sizeof(*current), current);
-+	fill_note(notes[2], "CORE", NT_TASKSTRUCT, sizeof(*current), current);
-   
-   	/* Try to dump the FPU. */
--	if ((prstatus.pr_fpvalid = elf_core_copy_task_fpregs(current, &fpu)))
--		fill_note(&notes[3], "CORE", NT_PRFPREG, sizeof(fpu), &fpu);
-+	if ((prstatus->pr_fpvalid = elf_core_copy_task_fpregs(current, fpu)))
-+		fill_note(notes[3], "CORE", NT_PRFPREG, sizeof(*fpu), fpu);
- 	else
- 		--numnote;
- #ifdef ELF_CORE_COPY_XFPREGS
--	if (elf_core_copy_task_xfpregs(current, &xfpu))
--		fill_note(&notes[4], "LINUX", NT_PRXFPREG, sizeof(xfpu), &xfpu);
-+	if (elf_core_copy_task_xfpregs(current, xfpu))
-+		fill_note(notes[4], "LINUX", NT_PRXFPREG, sizeof(*xfpu), xfpu);
- 	else
- 		--numnote;
- #else
-@@ -1267,8 +1306,8 @@
- 	fs = get_fs();
- 	set_fs(KERNEL_DS);
- 
--	DUMP_WRITE(&elf, sizeof(elf));
--	offset += sizeof(elf);				/* Elf header */
-+	DUMP_WRITE(elf, sizeof(*elf));
-+	offset += sizeof(*elf);				/* Elf header */
- 	offset += (segs+1) * sizeof(struct elf_phdr);	/* Program headers */
- 
- 	/* Write notes phdr entry */
-@@ -1277,7 +1316,7 @@
- 		int sz = 0;
- 
- 		for(i = 0; i < numnote; i++)
--			sz += notesize(&notes[i]);
-+			sz += notesize(notes[i]);
- 		
- 		sz += thread_status_size;
- 
-@@ -1313,7 +1352,7 @@
- 
-  	/* write out the notes section */
- 	for(i = 0; i < numnote; i++)
--		if (!writenote(&notes[i], file))
-+		if (!writenote(notes[i], file))
- 			goto end_coredump;
- 
- 	/* write out the thread status notes section */
-@@ -1373,7 +1412,9 @@
- 		kfree(list_entry(tmp, struct elf_thread_status, list));
- 	}
- 
-+	kfree(mem);
- 	return has_dumped;
-+#undef	NUM_NOTES
+ 	driver_unregister(&driver->drv);
+@@ -228,7 +237,7 @@
+     user->event[user->event_head] = event;
  }
  
- #endif		/* USE_ELF_CORE_DUMP */
+-static void handle_event(socket_info_t *s, event_t event)
++static void handle_event(struct ds_socket_info *s, event_t event)
+ {
+     user_info_t *user;
+     for (user = s->user; user; user = user->next)
+@@ -236,7 +245,7 @@
+     wake_up_interruptible(&s->queue);
+ }
+ 
+-static int handle_request(socket_info_t *s, event_t event)
++static int handle_request(struct ds_socket_info *s, event_t event)
+ {
+     if (s->req_pending != 0)
+ 	return CS_IN_USE;
+@@ -255,7 +264,9 @@
+ 
+ static void handle_removal(u_long sn)
+ {
+-    socket_info_t *s = &socket_table[sn];
++    struct ds_socket_info *s = socket_table[sn]->ds_info;
++    if (!s)
++	    return;
+     handle_event(s, CS_EVENT_CARD_REMOVAL);
+     s->state &= ~SOCKET_REMOVAL_PENDING;
+ }
+@@ -269,37 +280,39 @@
+ static int ds_event(event_t event, int priority,
+ 		    event_callback_args_t *args)
+ {
+-    socket_info_t *s;
+-    int i;
++	socket_info_t *s;
++	struct ds_socket_info *ds;
+ 
+-    DEBUG(1, "ds: ds_event(0x%06x, %d, 0x%p)\n",
+-	  event, priority, args->client_handle);
+-    s = args->client_data;
+-    i = s - socket_table;
++	DEBUG(1, "ds: ds_event(0x%06x, %d, 0x%p)\n",
++	      event, priority, args->client_handle);
++	s = args->client_data;
++	if (!s || !s->ds_info)
++		return -EINVAL;
++	ds = s->ds_info;
+     
+-    switch (event) {
++	switch (event) {
+ 	
+     case CS_EVENT_CARD_REMOVAL:
+-	s->state &= ~SOCKET_PRESENT;
+-	if (!(s->state & SOCKET_REMOVAL_PENDING)) {
+-	    s->state |= SOCKET_REMOVAL_PENDING;
+-	    init_timer(&s->removal);
+-	    s->removal.expires = jiffies + HZ/10;
+-	    add_timer(&s->removal);
++	ds->state &= ~SOCKET_PRESENT;
++	if (!(ds->state & SOCKET_REMOVAL_PENDING)) {
++	    ds->state |= SOCKET_REMOVAL_PENDING;
++	    init_timer(&ds->removal);
++	    ds->removal.expires = jiffies + HZ/10;
++	    add_timer(&ds->removal);
+ 	}
+ 	break;
+ 	
+     case CS_EVENT_CARD_INSERTION:
+-	s->state |= SOCKET_PRESENT;
+-	handle_event(s, event);
++	ds->state |= SOCKET_PRESENT;
++	handle_event(ds, event);
+ 	break;
+ 
+     case CS_EVENT_EJECTION_REQUEST:
+-	return handle_request(s, event);
++	return handle_request(ds, event);
+ 	break;
+ 	
+     default:
+-	handle_event(s, event);
++	handle_event(ds, event);
+ 	break;
+     }
+ 
+@@ -346,9 +359,12 @@
+     struct pcmcia_driver *driver;
+     socket_bind_t *b;
+     bind_req_t bind_req;
+-    socket_info_t *s = &socket_table[i];
++    struct ds_socket_info *s = socket_table[i]->ds_info;
+     int ret;
+ 
++    if (!s)
++	    return -ENODEV;
++
+     DEBUG(2, "bind_request(%d, '%s')\n", i,
+ 	  (char *)bind_info->dev_info);
+     driver = get_pcmcia_driver(&bind_info->dev_info);
+@@ -412,10 +428,13 @@
+ 
+ static int get_device_info(int i, bind_info_t *bind_info, int first)
+ {
+-    socket_info_t *s = &socket_table[i];
++    struct ds_socket_info *s = socket_table[i]->ds_info;
+     socket_bind_t *b;
+     dev_node_t *node;
+ 
++    if (!s)
++	    return -ENODEV;
++
+ #ifdef CONFIG_CARDBUS
+     /*
+      * Some unbelievably ugly code to associate the PCI cardbus
+@@ -482,7 +501,7 @@
+ 
+ static int unbind_request(int i, bind_info_t *bind_info)
+ {
+-    socket_info_t *s = &socket_table[i];
++    struct ds_socket_info *s = socket_table[i]->ds_info;
+     socket_bind_t **b, *c;
+ 
+     DEBUG(2, "unbind_request(%d, '%s')\n", i,
+@@ -516,13 +535,15 @@
+ static int ds_open(struct inode *inode, struct file *file)
+ {
+     socket_t i = minor(inode->i_rdev);
+-    socket_info_t *s;
++    struct ds_socket_info *s;
+     user_info_t *user;
+ 
+     DEBUG(0, "ds_open(socket %d)\n", i);
+     if ((i >= sockets) || (sockets == 0))
+ 	return -ENODEV;
+-    s = &socket_table[i];
++    s = socket_table[i]->ds_info;
++    if (!s)
++	    return -ENODEV;
+     if ((file->f_flags & O_ACCMODE) != O_RDONLY) {
+ 	if (s->state & SOCKET_BUSY)
+ 	    return -EBUSY;
+@@ -548,13 +569,15 @@
+ static int ds_release(struct inode *inode, struct file *file)
+ {
+     socket_t i = minor(inode->i_rdev);
+-    socket_info_t *s;
++    struct ds_socket_info *s;
+     user_info_t *user, **link;
+ 
+     DEBUG(0, "ds_release(socket %d)\n", i);
+     if ((i >= sockets) || (sockets == 0))
+ 	return 0;
+-    s = &socket_table[i];
++    s = socket_table[i]->ds_info;
++    if (!s)
++	    return -ENODEV;
+     user = file->private_data;
+     if (CHECK_USER(user))
+ 	goto out;
+@@ -580,7 +603,7 @@
+ 		       size_t count, loff_t *ppos)
+ {
+     socket_t i = minor(file->f_dentry->d_inode->i_rdev);
+-    socket_info_t *s;
++    struct ds_socket_info *s;
+     user_info_t *user;
+ 
+     DEBUG(2, "ds_read(socket %d)\n", i);
+@@ -589,7 +612,9 @@
+ 	return -ENODEV;
+     if (count < 4)
+ 	return -EINVAL;
+-    s = &socket_table[i];
++    s = socket_table[i]->ds_info;
++    if (!s)
++	    return -ENODEV;
+     user = file->private_data;
+     if (CHECK_USER(user))
+ 	return -EIO;
+@@ -609,7 +634,7 @@
+ 			size_t count, loff_t *ppos)
+ {
+     socket_t i = minor(file->f_dentry->d_inode->i_rdev);
+-    socket_info_t *s;
++    struct ds_socket_info *s;
+     user_info_t *user;
+ 
+     DEBUG(2, "ds_write(socket %d)\n", i);
+@@ -620,7 +645,9 @@
+ 	return -EINVAL;
+     if ((file->f_flags & O_ACCMODE) == O_RDONLY)
+ 	return -EBADF;
+-    s = &socket_table[i];
++    s = socket_table[i]->ds_info;
++    if (!s)
++	    return -ENODEV;
+     user = file->private_data;
+     if (CHECK_USER(user))
+ 	return -EIO;
+@@ -642,14 +669,16 @@
+ static u_int ds_poll(struct file *file, poll_table *wait)
+ {
+     socket_t i = minor(file->f_dentry->d_inode->i_rdev);
+-    socket_info_t *s;
++    struct ds_socket_info *s;
+     user_info_t *user;
+ 
+     DEBUG(2, "ds_poll(socket %d)\n", i);
+     
+     if ((i >= sockets) || (sockets == 0))
+ 	return POLLERR;
+-    s = &socket_table[i];
++    s = socket_table[i]->ds_info;
++    if (!s)
++	    return -ENODEV;
+     user = file->private_data;
+     if (CHECK_USER(user))
+ 	return POLLERR;
+@@ -665,7 +694,7 @@
+ 		    u_int cmd, u_long arg)
+ {
+     socket_t i = minor(inode->i_rdev);
+-    socket_info_t *s;
++    struct ds_socket_info *s;
+     u_int size;
+     int ret, err;
+     ds_ioctl_arg_t buf;
+@@ -674,7 +703,7 @@
+     
+     if ((i >= sockets) || (sockets == 0))
+ 	return -ENODEV;
+-    s = &socket_table[i];
++    s = socket_table[i]->ds_info;
+     
+     size = (cmd & IOCSIZE_MASK) >> IOCSIZE_SHIFT;
+     if (size > sizeof(ds_ioctl_arg_t)) return -EINVAL;
+@@ -835,6 +864,136 @@
+ 
+ /*====================================================================*/
+ 
++static int ds_pcmcia_socket_add(socket_info_t *socket)
++{
++	struct ds_socket_info *ds;
++	client_reg_t client_reg;
++	bind_req_t bind;
++	int ret;
++    
++	ds = kmalloc(sizeof(struct ds_socket_info), GFP_KERNEL);
++	if (!ds)
++		return -ENOMEM;
++	memset(ds, 0, sizeof(struct ds_socket_info));
++
++	socket->ds_info = ds;
++
++	init_waitqueue_head(&ds->queue);
++	init_waitqueue_head(&ds->request);
++	init_timer(&ds->removal);
++	ds->removal.data = socket->socket_table_entry;
++	ds->removal.function = &handle_removal;
++
++	bind.Socket = socket->socket_table_entry;
++	bind.Function = BIND_FN_ALL;
++	client_reg.dev_info = bind.dev_info = &dev_info;
++
++	ret = pcmcia_bind_device(&bind);
++	if (ret != CS_SUCCESS) {
++		cs_error(NULL, BindDevice, ret);
++		return -EINVAL;
++	}
++
++	/* Set up hotline to Card Services */
++	client_reg.Attributes = INFO_MASTER_CLIENT;
++	client_reg.EventMask =
++		CS_EVENT_CARD_INSERTION | CS_EVENT_CARD_REMOVAL |
++		CS_EVENT_RESET_PHYSICAL | CS_EVENT_CARD_RESET |
++		CS_EVENT_EJECTION_REQUEST | CS_EVENT_INSERTION_REQUEST |
++		CS_EVENT_PM_SUSPEND | CS_EVENT_PM_RESUME;
++	client_reg.event_handler = &ds_event;
++	client_reg.Version = 0x0210;
++
++	client_reg.event_callback_args.client_data = socket;
++	ret = pcmcia_register_client(&ds->handle,
++			   &client_reg);
++	if (ret != CS_SUCCESS) {
++		cs_error(NULL, RegisterClient, ret);
++		return -EINVAL;
++	}
++
++	return 0;
++}
++
++static int ds_pcmcia_socket_remove(socket_info_t *socket)
++{
++	struct ds_socket_info *ds = socket->ds_info;
++	if (ds) {
++		pcmcia_deregister_client(ds->handle);
++		kfree(ds);
++	}
++	return 0;
++}
++
++static struct device_interface ds_interface;
++
++static int ds_pcmcia_s_dev_add(struct device *dev)
++{
++	struct pcmcia_socket_class_data *cls_d = dev->class_data;
++	socket_info_t *s;
++	unsigned int i;
++	unsigned int ret = 0;
++
++	if (!cls_d)
++		return -ENODEV;
++	s = (socket_info_t *) cls_d->s_info;
++	if (!s)
++		return -ENODEV;
++
++        for (i = 0; i < cls_d->nsock; i++) {
++		ds_pcmcia_socket_add(s);
++		s++;
++	}
++	cls_d->ds_intf.dev  = dev;
++	cls_d->ds_intf.intf = &ds_interface;
++	strncpy(cls_d->ds_intf.kobj.name, ds_interface.name, KOBJ_NAME_LEN);
++	cls_d->ds_intf.kobj.parent = &(dev->kobj);
++	cls_d->ds_intf.kobj.kset = &(ds_interface.kset);
++
++        /* add interface */
++        /* currently commented out due to deadlock */
++        //ret = interface_add_data(&(cls_d->ds_intf));
++	if (ret) {
++		s = (socket_info_t *) cls_d->s_info;
++		for (i = 0; i < cls_d->nsock; i++) {
++			ds_pcmcia_socket_remove(s);
++			s++;
++		}		
++	}
++
++	return ret;
++}
++
++static int ds_pcmcia_s_dev_remove(struct intf_data *intf)
++{
++	struct pcmcia_socket_class_data *cls_d = intf->dev->class_data;
++	socket_info_t *s;
++	unsigned int i;
++
++	if (!cls_d)
++		return -ENODEV;
++	s = (socket_info_t *) cls_d->s_info;
++	if (!s)
++		return -ENODEV;
++
++        for (i = 0; i < cls_d->nsock; i++) {
++		ds_pcmcia_socket_remove(s);
++		s++;
++	}
++
++	return 0;
++}
++
++
++static struct device_interface ds_interface = {
++        .name = "pcmcia-bus",
++        .devclass = &pcmcia_socket_class,
++        .add_device = &ds_pcmcia_s_dev_add,
++        .remove_device = &ds_pcmcia_s_dev_remove,
++	.kset = { .subsys = &pcmcia_socket_class.subsys, },
++        .devnum = 0,
++};
++
+ struct bus_type pcmcia_bus_type = {
+ 	.name = "pcmcia",
+ };
+@@ -846,106 +1005,54 @@
+ 	return 0;
+ }
+ 
+-int __init init_pcmcia_ds(void)
++static int __init init_pcmcia_ds(void)
+ {
+-    client_reg_t client_reg;
+-    servinfo_t serv;
+-    bind_req_t bind;
+-    socket_info_t *s;
+-    int i, ret;
++	servinfo_t serv;
++	int i;
+     
+-    DEBUG(0, "%s\n", version);
+- 
+-    /*
+-     * Ugly. But we want to wait for the socket threads to have started up.
+-     * We really should let the drivers themselves drive some of this..
+-     */
+-    current->state = TASK_INTERRUPTIBLE;
+-    schedule_timeout(HZ/4);
++	DEBUG(0, "%s\n", version);
+ 
+-    pcmcia_get_card_services_info(&serv);
+-    if (serv.Revision != CS_RELEASE_CODE) {
+-	printk(KERN_NOTICE "ds: Card Services release does not match!\n");
+-	return -1;
+-    }
+-    if (serv.Count == 0) {
+-	printk(KERN_NOTICE "ds: no socket drivers loaded!\n");
+-	return -1;
+-    }
+-    
+-    sockets = serv.Count;
+-    socket_table = kmalloc(sockets*sizeof(socket_info_t), GFP_KERNEL);
+-    if (!socket_table) return -1;
+-    for (i = 0, s = socket_table; i < sockets; i++, s++) {
+-	s->state = 0;
+-	s->user = NULL;
+-	s->req_pending = 0;
+-	init_waitqueue_head(&s->queue);
+-	init_waitqueue_head(&s->request);
+-	s->handle = NULL;
+-	init_timer(&s->removal);
+-	s->removal.data = i;
+-	s->removal.function = &handle_removal;
+-	s->bind = NULL;
+-    }
+-    
+-    /* Set up hotline to Card Services */
+-    client_reg.dev_info = bind.dev_info = &dev_info;
+-    client_reg.Attributes = INFO_MASTER_CLIENT;
+-    client_reg.EventMask =
+-	CS_EVENT_CARD_INSERTION | CS_EVENT_CARD_REMOVAL |
+-	CS_EVENT_RESET_PHYSICAL | CS_EVENT_CARD_RESET |
+-	CS_EVENT_EJECTION_REQUEST | CS_EVENT_INSERTION_REQUEST |
+-        CS_EVENT_PM_SUSPEND | CS_EVENT_PM_RESUME;
+-    client_reg.event_handler = &ds_event;
+-    client_reg.Version = 0x0210;
+-    for (i = 0; i < sockets; i++) {
+-	bind.Socket = i;
+-	bind.Function = BIND_FN_ALL;
+-	ret = pcmcia_bind_device(&bind);
+-	if (ret != CS_SUCCESS) {
+-	    cs_error(NULL, BindDevice, ret);
+-	    break;
+-	}
+-	client_reg.event_callback_args.client_data = &socket_table[i];
+-	ret = pcmcia_register_client(&socket_table[i].handle,
+-			   &client_reg);
+-	if (ret != CS_SUCCESS) {
+-	    cs_error(NULL, RegisterClient, ret);
+-	    break;
++	/*
++	 * Ugly. But we want to wait for the socket threads to have started up.
++	 * We really should let the drivers themselves drive some of this..
++	 */
++	current->state = TASK_INTERRUPTIBLE;
++	schedule_timeout(HZ/4);
++	
++	pcmcia_get_card_services_info(&serv);
++	if (serv.Revision != CS_RELEASE_CODE) {
++		printk(KERN_NOTICE "ds: Card Services release does not match!\n");
++		return -1;
+ 	}
+-    }
+-    
+-    /* Set up character device for user mode clients */
+-    i = register_chrdev(0, "pcmcia", &ds_fops);
+-    if (i == -EBUSY)
+-	printk(KERN_NOTICE "unable to find a free device # for "
++
++        interface_register(&ds_interface);
++
++	/* Set up character device for user mode clients */
++	i = register_chrdev(0, "pcmcia", &ds_fops);
++	if (i == -EBUSY)
++		printk(KERN_NOTICE "unable to find a free device # for "
+ 	       "Driver Services\n");
+-    else
+-	major_dev = i;
++	else
++		major_dev = i;
+ 
+ #ifdef CONFIG_PROC_FS
+-    if (proc_pccard)
+-	create_proc_read_entry("drivers",0,proc_pccard,proc_read_drivers,NULL);
+-    init_status = 0;
++	if (proc_pccard)
++		create_proc_read_entry("drivers",0,proc_pccard,proc_read_drivers,NULL);
++	init_status = 0;
+ #endif
+-    return 0;
++	return 0;
+ }
+ 
+ static void __exit exit_pcmcia_ds(void)
+ {
+-    int i;
+ #ifdef CONFIG_PROC_FS
+-    if (proc_pccard)
+-	remove_proc_entry("drivers", proc_pccard);
++	if (proc_pccard)
++		remove_proc_entry("drivers", proc_pccard);
+ #endif
+-    if (major_dev != -1)
+-	unregister_chrdev(major_dev, "pcmcia");
+-    for (i = 0; i < sockets; i++)
+-	pcmcia_deregister_client(socket_table[i].handle);
+-    sockets = 0;
+-    kfree(socket_table);
+-    bus_unregister(&pcmcia_bus_type);
++	if (major_dev != -1)
++		unregister_chrdev(major_dev, "pcmcia");
++        interface_unregister(&ds_interface);
++	bus_unregister(&pcmcia_bus_type);
+ }
+ 
+ #ifdef MODULE
+@@ -972,6 +1079,7 @@
+ 			   void (*detach)(dev_link_t *))
+ {
+ 	struct pcmcia_driver *driver;
++	struct ds_socket_info *ds;
+ 	socket_bind_t *b;
+ 	int i;
+ 
+@@ -992,16 +1100,19 @@
+ 		return 0;
+     
+ 	/* Instantiate any already-bound devices */
+-	for (i = 0; i < sockets; i++)
+-		for (b = socket_table[i].bind; b; b = b->next) {
+-			if (b->driver != driver) 
++	for (i = 0; i < sockets; i++) {
++		if (!socket_table[i] || !socket_table[i]->ds_info)
++			continue;
++		ds = socket_table[i]->ds_info;
++		for (b = ds->bind; b; b = b->next) {
++			if (b->driver != driver)
+ 				continue;
+ 			b->instance = driver->attach();
+ 			if (b->instance == NULL)
+ 				printk(KERN_NOTICE "ds: unable to create instance "
+ 				       "of '%s'!\n", driver->drv.name);
+ 		}
+-
++	}
+ 	return 0;
+ } /* register_pccard_driver */
+ EXPORT_SYMBOL(register_pccard_driver);
+diff -ru linux-original/include/pcmcia/ss.h linux/include/pcmcia/ss.h
+--- linux-original/include/pcmcia/ss.h	2003-02-27 18:55:19.000000000 +0100
++++ linux/include/pcmcia/ss.h	2003-02-27 19:45:23.000000000 +0100
+@@ -152,6 +152,7 @@
+ 	struct pccard_operations *ops;		/* see above */
+ 	void *s_info;				/* socket_info_t */
+ 	unsigned int use_bus_pm;
++	struct intf_data ds_intf;		/* intf data for driver services */
+ };
+ 
+ extern struct device_class pcmcia_socket_class;

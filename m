@@ -1,42 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261887AbVCCP7T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261892AbVCCQCA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261887AbVCCP7T (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 10:59:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261755AbVCCP7T
+	id S261892AbVCCQCA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 11:02:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261909AbVCCQCA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 10:59:19 -0500
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:24567 "EHLO
-	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S261887AbVCCP7R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 10:59:17 -0500
-Message-ID: <42273426.7030509@nortel.com>
-Date: Thu, 03 Mar 2005 09:58:30 -0600
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: "David S. Miller" <davem@davemloft.net>, torvalds@osdl.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
+	Thu, 3 Mar 2005 11:02:00 -0500
+Received: from orb.pobox.com ([207.8.226.5]:31197 "EHLO orb.pobox.com")
+	by vger.kernel.org with ESMTP id S261892AbVCCQBk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 11:01:40 -0500
+Date: Thu, 3 Mar 2005 08:01:37 -0800
+From: "Barry K. Nathan" <barryn@pobox.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: RFD: Kernel release numbering
-References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org>	<42264F6C.8030508@pobox.com>	<20050302162312.06e22e70.akpm@osdl.org>	<42265A6F.8030609@pobox.com>	<20050302165830.0a74b85c.davem@davemloft.net>	<422674A4.9080209@pobox.com>	<Pine.LNX.4.58.0503021932530.25732@ppc970.osdl.org>	<42268749.4010504@pobox.com> <20050302200214.3e4f0015.davem@davemloft.net> <42268F93.6060504@pobox.com> <4226969E.5020101@pobox.com>
-In-Reply-To: <4226969E.5020101@pobox.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-ID: <20050303160137.GD9796@ip68-4-98-123.oc.oc.cox.net>
+References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> If Linus/DaveM really don't like -pre/-rc naming, I think 2.6.x.y is 
-> preferable to even/odd.
-> 
-> Just create a 2.6.X repo at each release.  For bug fixes to 2.6.X, 
-> commit to this repo, then pull into linux-2.6.  For everything else, 
-> pull straight into linux-2.6.
+On Wed, Mar 02, 2005 at 02:21:38PM -0800, Linus Torvalds wrote:
+> So the suggestion on the table would be to go back to even/odd, but do it 
+> at the "micro-level" of single releases, rather than make it a two- or 
+> three-year release cycle.
 
-For what it's worth, I'd like to add a vote in support of this.  I like 
-the idea of bugfixes being applied to previous versions (until the next 
-stable one comes out, say).
+[WARNING: At this point I have pulled an all-nighter, for reasons
+unrelated to Linux. I may not be making sense anymore. This will
+probably be my last post in this thread for today, or maybe even
+forever.]
 
-Chris
+Is a 1:1 ratio necessarily the correct one? IOW, maybe alternatives like
+the following should be considered (S = stable, ES = extra-stable, EES =
+extra-extra-stable):
+
+       | odd/even | ES every 5th | S, ES, EES, ...
+---------------------------------------------------
+2.6.11 | S        | S            | S
+2.6.12 | ES       | S            | ES
+2.6.13 | S        | S            | S (align for EES on divisible by 3)
+2.6.14 | ES       | S            | ES
+2.6.15 | S        | ES           | EES
+2.6.16 | ES       | S            | S
+2.6.17 | S        | S            | ES
+2.6.18 | ES       | S            | EES
+2.6.19 | S        | S            | S
+2.6.20 | ES       | ES           | ES
+2.6.21 | S        | S            | EES
+2.6.22 | ES       | S            | S
+...
+
+e.g. if odd/even causes too many long releases or other problems like
+that, then something like the middle column (every Nth release is
+extra-stable, for N >= 3) could be tried.
+
+-Barry K. Nathan <barryn@pobox.com>

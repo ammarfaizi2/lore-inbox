@@ -1,69 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263646AbTLDWql (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Dec 2003 17:46:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263647AbTLDWql
+	id S263622AbTLDWkz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Dec 2003 17:40:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263625AbTLDWkz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Dec 2003 17:46:41 -0500
-Received: from hell.org.pl ([212.244.218.42]:46854 "HELO hell.org.pl")
-	by vger.kernel.org with SMTP id S263646AbTLDWqj (ORCPT
+	Thu, 4 Dec 2003 17:40:55 -0500
+Received: from mail.kroah.org ([65.200.24.183]:60123 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263622AbTLDWkw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Dec 2003 17:46:39 -0500
-Date: Thu, 4 Dec 2003 23:46:44 +0100
-From: Karol Kozimor <sziwan@hell.org.pl>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC/PATCH 1/3] Input: resume support for i8042 (atkbd & psmouse)
-Message-ID: <20031204224643.GA23592@hell.org.pl>
-References: <XQFu.15s.3@gated-at.bofh.it>
+	Thu, 4 Dec 2003 17:40:52 -0500
+Date: Thu, 4 Dec 2003 14:39:23 -0800
+From: Greg KH <greg@kroah.com>
+To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
+Subject: [PATCH] I2C driver updates for 2.6.0-test11
+Message-ID: <20031204223923.GA2600@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <XQFu.15s.3@gated-at.bofh.it>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thus wrote Dmitry Torokhov:
-> Here is an attempt to implement resume for i8042 using serio_reconnect
-> facility that can be found in -mm kernels. It also depends on bunch of 
-> other changes in input subsystem all of which can be found here:
-> http://www.geocities.com/dt_or/input
-> 
-> They should apply cleanly to -test11.
+Hi,
 
-Your patches seem to work fine for my keyboard -- it reconnects and works
-smoothly (the interrupts are fine). My Synaptics touchpad is however not
-present after resume -- no response and no mention of i8042 in
-/proc/interrupts after S3 resume. I attach a dmesg excerpt in hope that
-helps you in any way. Thanks for the good work!
+Here's a patch and a bk tree that contains all of the i2c fixes and
+updates that aren't going to be sent for inclusion in the main kernel
+tree until 2.6.0 comes out.
 
--- 
-Karol 'sziwan' Kozimor
-sziwan@hell.org.pl
+Everything in one patch against 2.6.0-test11 can be found at:
+	kernel.org/pub/linux/kernel/people/gregkh/i2c/2.6/2.6.0-test11/i2c-devel-2.6.0-test11.patch
 
-[...]
-mice: PS/2 mouse device common for all mice
-i8042.c: Detected active multiplexing controller, rev 1.1.
-serio: i8042 AUX0 port at 0x60,0x64 irq 12
-serio: i8042 AUX1 port at 0x60,0x64 irq 12
-serio: i8042 AUX2 port at 0x60,0x64 irq 12
-serio: i8042 AUX3 port at 0x60,0x64 irq 12
-Synaptics Touchpad, model: 1
- Firmware: 4.6
- 180 degree mounted touchpad
- Sensor: 18
- new absolute packet format
- Touchpad has extended capability bits
- -> four buttons
- -> multifinger detection
- -> palm detection
-input: SynPS/2 Synaptics TouchPad on isa0060/serio4
-serio: i8042 KBD port at 0x60,0x64 irq 1
-input: AT Translated Set 2 keyboard on isa0060/serio0
-[...]
- hwsleep-0257 [28] acpi_enter_sleep_state: Entering sleep state [S3]
-[...]
-Restarting tasks...<6>input: AT Translated Set 2 keyboard on isa0060/serio0 (reconnected)
- done
+and a bk tree (if you want to pull the individual patches) can be found
+at:
+	bk://linuxusb.bkbits.net/i2c-devel-2.6
 
+Here's a diffstat of the patch:
+
+ Documentation/i2c/porting-clients |  121 +++++++++++
+ Documentation/i2c/sysfs-interface |   33 ++-
+ Documentation/i2c/writing-clients |   57 -----
+ drivers/i2c/algos/i2c-algo-bit.c  |   96 ++++----
+ drivers/i2c/busses/Kconfig        |    4 
+ drivers/i2c/busses/i2c-piix4.c    |    9 
+ drivers/i2c/busses/i2c-savage4.c  |   12 -
+ drivers/i2c/busses/i2c-viapro.c   |    8 
+ drivers/i2c/chips/Kconfig         |   11 +
+ drivers/i2c/chips/Makefile        |    1 
+ drivers/i2c/chips/it87.c          |   11 -
+ drivers/i2c/chips/lm75.c          |    4 
+ drivers/i2c/chips/lm78.c          |    4 
+ drivers/i2c/chips/lm83.c          |  413 ++++++++++++++++++++++++++++++++++++++
+ drivers/i2c/chips/via686a.c       |   46 ++--
+ drivers/i2c/chips/w83781d.c       |   24 +-
+ include/linux/i2c-id.h            |    1 
+ 17 files changed, 694 insertions(+), 161 deletions(-)
+
+
+And the bitkeeper shortlog output is:
+
+Jean Delvare:
+  o I2C: it87 and via686a alarms
+  o I2C: add KT600 support to i2c-viapro driver
+  o I2C: add Serverworks CSB6 support to i2c-piix4
+  o I2C: fix author of i2c-savage4.c driver
+  o I2C: make I2C chipset drivers use temp_hyst[1-3]
+  o I2C: sysfs interface documentation
+  o I2C: Fix i2c-algo-bit for adapers that cannot read SCL back
+  o I2C: i2c documentation (2 of 2)
+  o I2C: i2c documentation (1 of 2)
+  o I2C: Add lm83 chip driver
+
+
+
+If anyone has sent me any i2c patches and you don't see them here,
+please let me know as I think I've finally caught up with them all.
+
+thanks,
+
+greg k-h

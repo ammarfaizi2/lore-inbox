@@ -1,81 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261270AbTKHXWI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Nov 2003 18:22:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261276AbTKHXWI
+	id S261276AbTKHXgD (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Nov 2003 18:36:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261500AbTKHXgD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Nov 2003 18:22:08 -0500
-Received: from fw.osdl.org ([65.172.181.6]:62676 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261270AbTKHXWE (ORCPT
+	Sat, 8 Nov 2003 18:36:03 -0500
+Received: from galileo.bork.org ([66.11.174.156]:42925 "HELO galileo.bork.org")
+	by vger.kernel.org with SMTP id S261276AbTKHXgA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Nov 2003 18:22:04 -0500
-Date: Sat, 8 Nov 2003 15:25:34 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Mr. Mailing List" <mailinglistaddie@yahoo.com>
+	Sat, 8 Nov 2003 18:36:00 -0500
+Subject: Re: [PATCH 2.6] Number of proc entries based on NR_CPUS ?
+From: Martin Hicks <mort@wildopensource.com>
+To: Anton Blanchard <anton@samba.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: will this bug be addressed before test10?
-Message-Id: <20031108152534.468f9a03.akpm@osdl.org>
-In-Reply-To: <20031108083553.17849.qmail@web60206.mail.yahoo.com>
-References: <20031108083553.17849.qmail@web60206.mail.yahoo.com>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+In-Reply-To: <20031108190310.GG3440@krispykreme>
+References: <1068313378.685.7.camel@socrates>
+	 <20031108190310.GG3440@krispykreme>
+Content-Type: text/plain
+Organization: Wild Open Source Inc.
+Message-Id: <1068334559.2039.11.camel@socrates>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sat, 08 Nov 2003 18:35:59 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Mr. Mailing List" <mailinglistaddie@yahoo.com> wrote:
->
-> http://bugzilla.kernel.org/show_bug.cgi?id=1229
+On Sat, 2003-11-08 at 14:03, Anton Blanchard wrote:
+> Hi Martin,
 > 
->  It's made it this far, and it's still just as horrible
->  a bug:(
+> > Here is a patch that makes the number of /proc entries be based on
+> > NR_CPUS instead of just having a fixed number.  I think it is a good
+> > idea now that big Linux machines are starting to appear.
+> > 
+> > The proper constant and slope of increase are up for argument too.
+> > 
+> > Patch is against the latest linux-2.5 bk tree.
+> 
+> I think I first bumped that to 16k, that was needed on a 32way box.
+> At 128way my gut feeling is its 32k.
+> 
 
-In the report you say that 2.6.0-test2 was OK and 2.6.0-test3 was not?
+Okay, those are useful numbers to have.  This seems to be higher than
+what is required by SGI's sn2.
 
-Over at
+> Linking the number of proc entries to the number of cpus is a bit crude
+> but its better than having it fixed.
 
-	http://www.zip.com.au/~akpm/linux/patches/test3/
+Yeah, I'm not sure what a really good solution is.  I really don't have
+an urge to tear apart the proc code to make it more dynamic than this
+compile time option.
 
-you will find all the changesets between test2 and test3.  Each patch there
-is against test2.  If you have the time, it would be useful to work out
-which of those patches introduced the problem.  The chronological order of
-those patches is
+> 
+> FYI I think some networking people were complaining about this limit
+> when they create gobs of network interfaces (dummy devices?  ipsec?).
+> Each interface creates a bunch of /proc/sys/net entries...
 
-cset-20030727_1716.txt.gz
-cset-20030801_0319.txt.gz
-cset-20030801_0621.txt.gz
-cset-20030801_1815.txt.gz
-cset-20030801_1922.txt.gz
-cset-20030801_2316.txt.gz
-cset-20030802_0314.txt.gz
-cset-20030802_0612.txt.gz
-cset-20030802_1915.txt.gz
-cset-20030803_0116.txt.gz
-cset-20030803_0209.txt.gz
-cset-20030803_2013.txt.gz
-cset-20030804_2010.txt.gz
-cset-20030804_2110.txt.gz
-cset-20030805_0012.txt.gz
-cset-20030805_1908.txt.gz
-cset-20030805_2315.txt.gz
-cset-20030806_0009.txt.gz
-cset-20030806_0510.txt.gz
-cset-20030806_0609.txt.gz
-cset-20030806_0909.txt.gz
-cset-20030807_0211.txt.gz
-cset-20030807_0909.txt.gz
-cset-20030807_1810.txt.gz
-cset-20030807_1914.txt.gz
-cset-20030807_2017.txt.gz
-cset-20030807_2109.txt.gz
-cset-20030807_2311.txt.gz
-cset-20030808_0118.txt.gz
-cset-20030808_0310.txt.gz
-cset-20030808_1816.txt.gz
-cset-20030809_0113.txt.gz
-cset-20030809_0411.txt.gz
+Based on your guidlines above, we need a number of proc entries more
+like:
 
-It should be possible to do this in six compile-n-boot cycles ;)
+8192 + 256*NR_CPUS
 
-Thanks.
+mh
+
+-- 
+Martin Hicks                Wild Open Source Inc.
+mort@wildopensource.com     613-266-2296
+
+

@@ -1,32 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130520AbRCPPYV>; Fri, 16 Mar 2001 10:24:21 -0500
+	id <S130515AbRCPPUk>; Fri, 16 Mar 2001 10:20:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130519AbRCPPYM>; Fri, 16 Mar 2001 10:24:12 -0500
-Received: from colorfullife.com ([216.156.138.34]:54796 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S130516AbRCPPYF>;
-	Fri, 16 Mar 2001 10:24:05 -0500
-Message-ID: <3AB2300E.33268BBC@colorfullife.com>
-Date: Fri, 16 Mar 2001 16:23:58 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-ac17 i686)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: Sampsa Ranta <sampsa@netsonic.fi>
-CC: Werner.Almesberger@epfl.ch, linux-net@vger.kernel.org,
-        kuznet@ms2.inr.ac.ru, linux-kernel@vger.kernel.org
-Subject: Re: Performance is weird (fwd) -> results
-In-Reply-To: <Pine.LNX.4.33.0103160421260.13953-100000@nalle.netsonic.fi>
+	id <S130516AbRCPPUb>; Fri, 16 Mar 2001 10:20:31 -0500
+Received: from buserror.convergence.de ([212.84.236.5]:49159 "EHLO
+	midget.convergence.de") by vger.kernel.org with ESMTP
+	id <S130515AbRCPPU1>; Fri, 16 Mar 2001 10:20:27 -0500
+Date: Fri, 16 Mar 2001 16:19:19 +0100
+From: "J. Michael Kolbe" <wicked@convergence.de>
+To: linux-kernel@vger.kernel.org
+Subject: sysrq.txt
+Message-ID: <20010316161919.A30690@midget.convergence.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sampsa Ranta wrote:
-> 
-> After either of your patches, the result was the same, sorry.
->
-Is apm or acpi running?
+Hello,
 
---
-	Manfred
+I've found that the Sysrq Keys on Apple Computers
+are 'Keypad+-F13-<command key>', maybe it would
+be a good idea to include that in Documentation/sysrq.txt.
+
+The Patch:
+
++++ sysrq.txt   Tue Dec 12 20:46:38 2000
+@@ -29,8 +29,6 @@
+            You send a BREAK, then within 5 seconds a command key. Sending
+            BREAK twice is interpreted as a normal BREAK.
+ 
+-On Mac   - Press 'Keypad+-F13-<command key>'
+-
+ On other - If you know of the key combos for other architectures, please
+            let me know so I can add them to this section.
+
+
+regards,
+jmk

@@ -1,39 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262785AbSITPte>; Fri, 20 Sep 2002 11:49:34 -0400
+	id <S262795AbSITQEk>; Fri, 20 Sep 2002 12:04:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262787AbSITPte>; Fri, 20 Sep 2002 11:49:34 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:9235 "EHLO
+	id <S262802AbSITQEk>; Fri, 20 Sep 2002 12:04:40 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:11283 "EHLO
 	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S262785AbSITPtd>; Fri, 20 Sep 2002 11:49:33 -0400
-Date: Fri, 20 Sep 2002 11:47:22 -0400 (EDT)
+	id <S262795AbSITQEj>; Fri, 20 Sep 2002 12:04:39 -0400
+Date: Fri, 20 Sep 2002 12:01:04 -0400 (EDT)
 From: Bill Davidsen <davidsen@tmr.com>
-To: Ingo Molnar <mingo@elte.hu>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 100,000 threads? [was: [ANNOUNCE] Native POSIX Thread Library 0.1]
-In-Reply-To: <Pine.LNX.4.44.0209200942030.27825-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.3.96.1020920114403.29079B-100000@gatekeeper.tmr.com>
+To: Robert Love <rml@tech9.net>
+cc: Padraig Brady <padraig.brady@corvil.com>,
+       Ulrich Drepper <drepper@redhat.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] Native POSIX Thread Library 0.1
+In-Reply-To: <1032528511.967.510.camel@phantasy>
+Message-ID: <Pine.LNX.3.96.1020920115119.29079C-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 20 Sep 2002, Ingo Molnar wrote:
+On 20 Sep 2002, Robert Love wrote:
 
-
-> the extreme high-end of threading typically uses very controlled
-> applications and very small user level stacks.
+> On Fri, 2002-09-20 at 05:53, Padraig Brady wrote:
 > 
-> as to the question of why so many threads, the answer is because we can :)
-> This, besides demonstrating some of the recent scalability advances, gives
-> us the warm fuzzy feeling that things are right in this area. I mean,
-> there are architectures where Linux could map a petabyte of RAM just fine,
-> even though that might not be something we desperately need today.
+> > Great! Where does this leave NGPT though? I had assumed that
+> > this was going to be the next pthread implementation in glibc.
+> 
+> This was never the intention of the glibc people.
 
-I think testing at these high numbers is a good proof of scalability,
-although response and stability are also important. Before I went to NGPT
-I had a fair bit of problem with learning experiences after threads got
-beyond 200 or so.
+Was there some shortcoming in NGPT? Clearly someone provided a good bit of
+funding for this, so there must have been motivation beyond NIH or funding
+someone's honors thesis.
+
+I also expected NGPT to be the next step, not a library which requires a
+kernel which is unlikely to be stable for 18 months.
 
 -- 
 bill davidsen <davidsen@tmr.com>

@@ -1,46 +1,51 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314074AbSDVHKx>; Mon, 22 Apr 2002 03:10:53 -0400
+	id <S314078AbSDVHXA>; Mon, 22 Apr 2002 03:23:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314078AbSDVHKw>; Mon, 22 Apr 2002 03:10:52 -0400
-Received: from pc3-camc5-0-cust13.cam.cable.ntl.com ([80.4.125.13]:33469 "EHLO
-	fenrus.demon.nl") by vger.kernel.org with ESMTP id <S314074AbSDVHKu>;
-	Mon, 22 Apr 2002 03:10:50 -0400
-Date: Mon, 22 Apr 2002 08:06:47 +0100
-Message-Id: <200204220706.g3M76lm32442@fenrus.demon.nl>
-From: arjan@fenrus.demon.nl
-To: Suparna Bhattacharya <suparna@in.ibm.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Bio pool & scsi scatter gather pool usage
-In-Reply-To: <3CC3B2AA.80217EA0@in.ibm.com>
-X-Newsgroups: fenrus.linux.kernel
-User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.9-31 (i586))
+	id <S314079AbSDVHW7>; Mon, 22 Apr 2002 03:22:59 -0400
+Received: from natpost.webmailer.de ([192.67.198.65]:55429 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S314078AbSDVHW6>; Mon, 22 Apr 2002 03:22:58 -0400
+Date: Mon, 22 Apr 2002 09:21:34 +0200
+From: Kristian Peters <kristian.peters@korseby.net>
+To: "Sean Rima" <fido@tcob1.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 3c509 problem in 2.4.3
+Message-Id: <20020422092134.03de8142.kristian.peters@korseby.net>
+In-Reply-To: <MSGID_2=3a263=2f950_14789c87@fidonet.org>
+X-Mailer: Sylpheed version 0.7.1claws7 (GTK+ 1.2.10; i386-redhat-linux)
+X-Operating-System: i686-redhat-linux 2.4.18-ac3
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3CC3B2AA.80217EA0@in.ibm.com> you wrote:
+"Sean Rima" <fido@tcob1.net> wrote:
+> I use a 3Com 3c509 which I have used okay under 2.2.20. However when I compiled abd installed 2.4.18, the card was no longer available. The card was installed via the 3Com utilty disk, and auto set, 
+> which gave it settings of io 0x210 and IRQ 10. To use under 2.4.18 I have to boot dos, change it to io 0x200 and irq 7.
+> 
+> Okay, this is not major but I have heard of others having problems with the 3c509 driver.
 
-> or maybe have a way pass back an error to retry with smaller size.
-> Maybe 2 limits (one that indicates that anything bigger than this is
-> sure to
-> get split, so always break it up, and another that says that anything
-> smaller
-> than this is sure not to be split, so use this size when you can't
-> afford a
-> split).
+I've never seen problems with the driver. Have you tried to pass some parameters like io=0x200 irq=10 to insmod when loading the module ? The only thing known to all isa cards is autodetection.
 
-Unfortionatly it's not always size that's the issue. For example in my
-code I need to split when a request crosses a certain boundary, and without 
-going into too much detail, that boundary is 62 Kb aligned, not 64
-(for technical reasons ;(). 
+net-modules.txt sais:
 
-Size won't catch this and while a 64Kb Kb block will always be split, that
-you can be sure of, even a 4Kb request, if unlucky, can have the need to
-split up.
+3c509.c:
+	io = 0
+	irq = 0
+	( Module load-time probing Works reliably only on EISA, ISA ID-PROBE
+	  IS NOT RELIABLE!  Compile this driver statically into kernel for
+	  now, if you need it auto-probing on an ISA-bus machine. )
 
+Or put something like that to your modules.conf:
 
--- 
-But when you distribute the same sections as part of a whole which is a work 
-based on the Program, the distribution of the whole must be on the terms of 
-this License, whose permissions for other licensees extend to the entire whole,
-and thus to each and every part regardless of who wrote it. [sect.2 GPL]
+options 3c509 io=0x200 irq=10
+
+*Kristian
+
+  :... [snd.science] ...:
+ ::                             _o)
+ :: http://www.korseby.net      /\\
+ :: http://gsmp.sf.net         _\_V
+  :.........................:

@@ -1,56 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270496AbTGaSBd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 14:01:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274839AbTGaSBd
+	id S270525AbTGaSYn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 14:24:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262499AbTGaSYn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 14:01:33 -0400
-Received: from jive.SoftHome.net ([66.54.152.27]:64389 "HELO jive.SoftHome.net")
-	by vger.kernel.org with SMTP id S270496AbTGaSBc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 14:01:32 -0400
-Message-ID: <3F2959A4.4070605@softhome.net>
-Date: Thu, 31 Jul 2003 20:02:12 +0200
-From: "Ihar \"Philips\" Filipau" <filia@softhome.net>
-Organization: Home Sweet Home
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Tom Rini <trini@kernel.crashing.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel 2.6 size increase
-References: <eLVb.3yF.1@gated-at.bofh.it> <eOJn.5NI.1@gated-at.bofh.it> <f1dJ.GS.21@gated-at.bofh.it> <faTE.2LQ.3@gated-at.bofh.it> <fd56.4Te.9@gated-at.bofh.it> <fdRv.5uB.9@gated-at.bofh.it> <fnHd.54o.19@gated-at.bofh.it> <3F294461.2020902@softhome.net> <20030731164326.GG27214@ip68-0-152-218.tc.ph.cox.net> <3F294C31.6030702@softhome.net> <20030731172046.GH27214@ip68-0-152-218.tc.ph.cox.net>
-In-Reply-To: <20030731172046.GH27214@ip68-0-152-218.tc.ph.cox.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 31 Jul 2003 14:24:43 -0400
+Received: from tandu.perlsupport.com ([66.220.6.226]:29615 "EHLO
+	tandu.perlsupport.com") by vger.kernel.org with ESMTP
+	id S262710AbTGaSYl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Jul 2003 14:24:41 -0400
+Date: Thu, 31 Jul 2003 11:23:32 -0700
+From: Chip Salzenberg <chip@pobox.com>
+To: Steve Dickson <SteveD@redhat.com>
+Cc: "Neil F. Brown" <neilb@cse.unsw.edu.au>, nfs@lists.sourceforge.net,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Kernel 2.4 and 2.6 disagree about NFSEXP_CROSSMNT - upward incompatibility, please fix
+Message-ID: <20030731182332.GH18733@perlsupport.com>
+References: <3F294DE3.9020304@RedHat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3F294DE3.9020304@RedHat.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tom Rini wrote:
->>
->>    You didn't get my point.
->>    My appliances do not need sleep/shutdown at all.
->>    Not every embedded system is a handheld ;-)
-> 
-> 
-> That certainly is true, yes.  They might want to power things down when
-> the user isn't there (or maybe they don't, I don't know what you're
-> making :)).  And I did originally say 'some'.
-> 
+According to Steve Dickson:
+> It seems in nfs-utils-1.05 (actually it happen in 1.0.4)
+> the NFSEXP_CROSSMNT define was changed to 0x4000 ....
 
-   Can you imagine teapot?
-   State of your system - on/off. Power saving as done by user herself: 
-power is consumed only when user want to boil the water ;-)
+This looks like an actual kernel incompatibility 2.4 <-> 2.6, as
+the 2.4 and 2.6 trees disagree about the value of NFSEXP_CROSSMNT.
 
-   Two devices I was working on were little bit more complicated and I 
-had internal UPS to be able to handle power offs/fails gracefuly (like 
-switching off of LCD + save of the mechanics state).
+> So could please add this patch that simply switchs the bits
+> so NFSEXP_CROSSMNT stays the same and the new NFSEXP_NOHIDE define
+> gets the higher bit?
 
-   As for me - I already expressed my point on subject: we should fix 
-compiler and language (C's inline is definitely not ehough to express 
-our intentions to compiler). That's the compiler should be optimized to 
-gain space for performace or gain performance for space.
-
-   And sure kernel should be more configurable too.
-
-
+And 2.6's include/linux/nfsd/export.h needs the same fix.  This needs
+to go in before the 2.6.0 release or nfs-utils is in deep kimchi.
+-- 
+Chip Salzenberg               - a.k.a. -               <chip@pobox.com>
+"I wanted to play hopscotch with the impenetrable mystery of existence,
+    but he stepped in a wormhole and had to go in early."  // MST3K

@@ -1,39 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265052AbRFZRed>; Tue, 26 Jun 2001 13:34:33 -0400
+	id <S265061AbRFZRlX>; Tue, 26 Jun 2001 13:41:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265053AbRFZReW>; Tue, 26 Jun 2001 13:34:22 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:26633 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S265052AbRFZReP>; Tue, 26 Jun 2001 13:34:15 -0400
-Subject: Re: AIC7xxx kernel driver; ATTN Mr. Justin T. Gibbs
-To: myemail@mycompany.com
-Date: Tue, 26 Jun 2001 18:33:58 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3B38C4D2.EB2A8944@mycompany.com> from "myemail@mycompany.com" at Jun 26, 2001 01:22:26 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S265062AbRFZRlN>; Tue, 26 Jun 2001 13:41:13 -0400
+Received: from ams8uucp0.ams.ops.eu.uu.net ([212.153.111.69]:59615 "EHLO
+	ams8uucp0.ams.ops.eu.uu.net") by vger.kernel.org with ESMTP
+	id <S265061AbRFZRlC>; Tue, 26 Jun 2001 13:41:02 -0400
+Date: Tue, 26 Jun 2001 19:28:23 +0200 (CEST)
+From: kees <kees@schoen.nl>
+To: linux-kernel@vger.kernel.org
+Subject: NETDEV WATCHDOG with 2.4.5
+Message-ID: <Pine.LNX.4.21.0106261924220.10865-100000@schoen3.schoen.nl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15Ewis-0003ul-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> kernel 2.4.3.  Kernels below 2.4 doesn't even see it.  In MS Windows 95
-> it works without any problems.  I used 3 variations of SCSI controllers
-> built upon AIC7890, so I don't think all 3 are bad.  One was made for
-> Compaq and two for Dell.  The AIC7890 is around since a while so that's
-> the problem with Linux in corp. computing.  It's great but cannot use
+Hi,
 
-One useful thing to try would be to try the old aic7xx driver (say N to 
-aic7xxx and it will offer you the old one). Clearly if the aic7xxx_old driver
-works then it is rather good information.
-
-Except for an obscure bug under very high memory load I'm not aware of any 
-outstanding bugs in the AIC7xxx driver, certainly not like you describe. There
-is however always a first time for any bug 8)
+I tried 2.4.5 but after a couple of hours I lost all network connectivety.
+The log shows:
 
 
-Alan
+Jun 25 19:34:17 schoen3 kernel: NETDEV WATCHDOG: eth0: transmit timed out
+Jun 25 19:34:17 schoen3 kernel: eth0: Tx timed out, lost
+interrupt? TSR=0x3, ISR=0Jun 25 19:34:19 schoen3 kernel: NETDEV
+WATCHDOG: eth0: transmit timed out
+Jun 25 19:34:19 schoen3 kernel: eth0: Tx timed out, lost
+interrupt? TSR=0x3, ISR=0Jun 25 19:34:21 schoen3 kernel: NETDEV
+WATCHDOG: eth0: transmit timed out
+Jun 25 19:34:21 schoen3 kernel: eth0: Tx timed out, lost
+interrupt? TSR=0x3, ISR=0/tmp/NETDEV
+
+
+O well, back to 2.2.19 again. The network card is 
+
+<6>ne2k-pci.c: v1.02 for Linux 2.2, 10/19/2000, D. Becker/P. Gortmaker,
+http://www<4>ne2k-pci.c: PCI NE2000 clone 'Compex RL2000' at I/O 0xec00,
+IRQ 19.
+<4>eth0: Compex RL2000 found at 0xec00, IRQ 19, 00:80:48:CA:1D:4C.
+
+regards 
+Kees
 

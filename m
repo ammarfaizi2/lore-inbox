@@ -1,45 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264262AbUD0SeS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264274AbUD0SgQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264262AbUD0SeS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 14:34:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264269AbUD0SeS
+	id S264274AbUD0SgQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 14:36:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264286AbUD0SgQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 14:34:18 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:9948 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264262AbUD0SeL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 14:34:11 -0400
-Date: Tue, 27 Apr 2004 19:34:10 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.6-rc2-bk3 (and earlier?) mount problem (?
-Message-ID: <20040427183410.GZ17014@parcelfarce.linux.theplanet.co.uk>
-References: <Pine.LNX.4.58.0404270034110.4469@alpha.polcom.net> <20040426225620.GP17014@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0404270157160.6900@alpha.polcom.net> <20040427002323.GW17014@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0404261758230.19703@ppc970.osdl.org> <20040427010748.GY17014@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0404271106500.22815@alpha.polcom.net> <1083070293.30344.116.camel@watt.suse.com> <Pine.LNX.4.58.0404271500210.27538@alpha.polcom.net> <20040427140533.GI14129@stingr.net>
+	Tue, 27 Apr 2004 14:36:16 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:57240 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S264274AbUD0SgN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Apr 2004 14:36:13 -0400
+Date: Tue, 27 Apr 2004 20:36:07 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Kenneth Johansson <ken@kenjo.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BUG] DVD writing in 2.6.6-rc2
+Message-ID: <20040427183607.GA3011@suse.de>
+References: <1083088772.2679.11.camel@tiger>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040427140533.GI14129@stingr.net>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <1083088772.2679.11.camel@tiger>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 27, 2004 at 06:05:34PM +0400, Paul P Komkoff Jr wrote:
-> Replying to Grzegorz Kulewski:
-> > But it is strange that I need kernel patch even if I have no evms 
-> > or dm volumes in my system. Can not it be solved in mainstream kernels?
-> > Maybe there should be warning in config help temporaily? Maybe even note 
-> > after option name?
+On Tue, Apr 27 2004, Kenneth Johansson wrote:
+> I have a problem when using growisofs version 5.19.
 > 
-> This defect grew up off a disagreement between bdclaim authors and
-> evms authors
+> The problem is that in the very end when gowisofs tries to flush the
+> cache. When stracing the process I can see it sits in a call to poll
+> that never returns. 
+> 
+> I noticed that if I start growisofs and later attach to it with "strace
+> -p" I can make it continue with killing the strace process. just to see
+> it hang in the next poll. But re attaching then killing the strace again
+> a few times and growisofs finally dose a normal exit.
+> 
+> This happens every time. 
 
-Excuse me?  The damn thing had found nothing.  However, it didn't care
-to release the devices it had claimed - hadn't even closed them, as the
-matter of fact.  That's a clear and obvious bug, regardless of any
-disagreements.
+I noted the same thing yesterday with cdrdao, so yours is not an
+isolated incident. I'll debug it tomorrow.
 
-Speaking of the proposed "solutions", how about #4: figure out what,
-when and for how long do they really want to claim and take care to
-release what they don't end up using?
+-- 
+Jens Axboe
 
-WTF is going on there?

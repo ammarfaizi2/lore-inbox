@@ -1,53 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264102AbTEWRQZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 May 2003 13:16:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264104AbTEWRQZ
+	id S264104AbTEWR2h (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 May 2003 13:28:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264105AbTEWR2h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 May 2003 13:16:25 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:36194 "EHLO
-	mtvmime02.veritas.com") by vger.kernel.org with ESMTP
-	id S264102AbTEWRQY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 May 2003 13:16:24 -0400
-Date: Fri, 23 May 2003 18:31:45 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Russell King <rmk@arm.linux.org.uk>
-cc: Andrew Morton <akpm@digeo.com>, Lothar Wassmann <LW@KARO-electronics.de>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] cache flush bug in mm/filemap.c (all kernels >= 2.5.30(at
-    least))
-In-Reply-To: <20030523175413.A4584@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0305231821460.1690-100000@localhost.localdomain>
+	Fri, 23 May 2003 13:28:37 -0400
+Received: from mrw.demon.co.uk ([194.222.96.226]:1408 "EHLO rebecca")
+	by vger.kernel.org with ESMTP id S264104AbTEWR2g convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 May 2003 13:28:36 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Mark Watts <m.watts@mrw.demon.co.uk>
+To: linux-kernel@vger.kernel.org
+Subject: Re: "Latitude with broken BIOS" ?
+Date: Fri, 23 May 2003 18:41:37 +0100
+User-Agent: KMail/1.4.3
+References: <200305231055.14872.brouard@ined.fr>
+In-Reply-To: <200305231055.14872.brouard@ined.fr>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200305231841.41650.m.watts@mrw.demon.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 23 May 2003, Russell King wrote:
-> 
-> No, I think there is a flush missing somewhere in this path.
-> 
-> What I think is happening is that Lothar is using the PXA with the cache
-> in write allocate write back mode (Xscale is the first ARM-arch cpu to
-> have allocate on write caches.)
-> 
-> This means that when IDE copies the data into the buffer using insw or
-> whatever, it ends up in the VIVT cache rather than memory.  Since we
-> don't seem to be calling flush_dcache_page(), we never write this data
-> back to memory for user space to access it via their mapping.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I believe (DaveM will speak with authority) that hitherto it has been
-assumed that I/O (well, Input) brings data actually into memory: we use
-flush_dcache_page if kernel memsets or memcpys data, not if it's read in.
+On Friday 23 May 2003 9:55 am, Brouard Nicolas wrote:
+> I am not well aware of what APIC is but I was running Mandrake 8.2 on my
+> Linux partition of a Dell Pentium III latitude 550 MHz and I don't remember
+> such a dmesg message. But when I upgraded to Mandrake 9.1 here it is. The
+> problem I have is that I can't have any suspend mode any more neither
+> battery indicators and /etc/rc.d/init.d/apm start claims that apm is no
+> more in the kernel. Is it linked to that APIC problem and this BIOS
+> problem, why did it work earlier? Do you think that if I found a new bios
+> from Dell it will help?
+>
+> Any information will be greatly appreciated (I am sorry no to be able to
+> change my laptop so frequently...)
 
-If this mode+architecture departs from that, then we would need another
-macro, which translates to flush_dcache_page (sufficient?) for that,
-and is a nop for everything else.
+On my Latitute C610, I have to boot with ACPI=off under Mandrake 9.1 otherwise 
+nothing power related works. This allows the kernel to revery back to APM and 
+you get battery status things et al.
 
-And where would it be placed?  I think not where the flush_page_to_ram
-used to be in filemap_nopage, but after the ->readpage.  Or... would
-this tie in with Martin's s390 request for a SetPageUptodate hook?
+Mark.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
 
-Hugh
+iD8DBQE+zl1Va0XO123WNagRAuCFAJ49frC2WTjqEPyGUlD0RkUe3gULPQCfd0bY
+caCqMvILiCxP8I3eEcs3pOU=
+=0nu8
+-----END PGP SIGNATURE-----
 

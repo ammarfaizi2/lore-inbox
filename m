@@ -1,68 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261261AbULEKLQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261289AbULEKNO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261261AbULEKLQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Dec 2004 05:11:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261289AbULEKLQ
+	id S261289AbULEKNO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Dec 2004 05:13:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261290AbULEKNO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Dec 2004 05:11:16 -0500
-Received: from gate.ebshome.net ([64.81.67.12]:51162 "EHLO gate.ebshome.net")
-	by vger.kernel.org with ESMTP id S261261AbULEKLL (ORCPT
+	Sun, 5 Dec 2004 05:13:14 -0500
+Received: from gate.ibr.ch ([213.144.140.114]:33038 "EHLO gate.ibr.ch")
+	by vger.kernel.org with ESMTP id S261289AbULEKNE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Dec 2004 05:11:11 -0500
-Date: Sun, 5 Dec 2004 02:11:10 -0800
-From: Eugene Surovegin <ebs@ebshome.net>
-To: Linh Dang <dang.linh@gmail.com>
-Cc: Paul Mackerras <paulus@samba.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][PPC32[NEWBIE] enhancement to virt_to_bus/bus_to_virt (try 2)
-Message-ID: <20041205101110.GC3448@gate.ebshome.net>
-Mail-Followup-To: Linh Dang <dang.linh@gmail.com>,
-	Paul Mackerras <paulus@samba.org>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <3b2b32004120206497a471367@mail.gmail.com> <3b2b320041202082812ee4709@mail.gmail.com> <16815.31634.698591.747661@cargo.ozlabs.ibm.com> <3b2b32004120306463b016029@mail.gmail.com>
+	Sun, 5 Dec 2004 05:13:04 -0500
+Date: Sun, 5 Dec 2004 11:13:01 +0100
+To: linux-kernel@vger.kernel.org
+Subject: kernel 2.6.9: Mouse lost synchronization
+Message-ID: <20041205101301.GA12435@coruba.ibr.ch>
+Mail-Followup-To: uwe@ibr.ch, linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3b2b32004120306463b016029@mail.gmail.com>
-X-ICQ-UIN: 1193073
-X-Operating-System: Linux i686
-X-PGP-Key: http://www.ebshome.net/pubkey.asc
-User-Agent: Mutt/1.5.5.1i
+User-Agent: Mutt/1.5.6+20040722i
+From: Uwe Storbeck <uwe@ibr.ch>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 03, 2004 at 09:46:00AM -0500, Linh Dang wrote:
-> On Fri, 3 Dec 2004 07:31:14 +1100, Paul Mackerras <paulus@samba.org> wrote:
-> > Linh Dang writes:
-> > 
-> > > In 2.6.9 on non-APUS ppc32 platforms, virt_to_bus() will just subtract
-> > > KERNELBASE  from the the virtual address. bus_to_virt() will perform
-> > > the reverse operation.
-> > >
-> > > This patch will make virt_to_bus():
-> > >
-> > >      - perform the current operation if the virtual address is between
-> > >        KERNELBASE and ioremap_bot.
-> > 
-> > Why do you want to do this?  The only code that should be using
-> > virt_to_bus or bus_to_virt is the DMA API code, and it's happy with
-> > them the way they are.
-> 
-> I wrote a DMA engine (to used by other drivers) that (would like to) accept
-> all kind of buffers as input (vmalloced, dual-access shared RAM mapped
-> by BATs, etc). The DMA engine has to decode the virtual address of the
-> input buffer to (possibly multiple) physical  address(es). virt_to_phys()
-> has the right name for the job except it only works for the kernel virtual
-> addresses initially mapped at KERNELBASE
+Hi,
 
-Unfortunately your patch doesn't achieve your goals. vmalloc space on 
-PPC32 will be between KERNEL_BASE and ioremap_bot anyway, so 
-additional check is mostly useless anyway (it will only call iopa() 
-for ioremaps done early during the boot).
+I don't know if this is the right place for reporting kernel bugs,
+but I haven't found a direct e-mail address.
 
-Also, even assuming you got the range right and called iopa() for 
-vmalloced space, tell me how are you gonna deal with non-physically 
-continuous vmalloced buffers in your DMA library?
+With kernel 2.6.9 my mouse is nearly unusable. It's a Logitech
+optical mouse on the PS/2 port.
 
---
-Eugene
+I get lots of syslog messages like this:
+
+Dec  4 03:19:17 c3 kernel: psmouse.c: Explorer Mouse at isa0060/serio1/input0 lost synchronization, throwing 2 bytes away.
+Dec  4 03:19:44 c3 kernel: psmouse.c: Explorer Mouse at isa0060/serio1/input0 lost synchronization, throwing 1 bytes away.
+Dec  4 03:19:45 c3 kernel: psmouse.c: Explorer Mouse at isa0060/serio1/input0 lost synchronization, throwing 2 bytes away.
+Dec  4 03:19:46 c3 kernel: psmouse.c: Explorer Mouse at isa0060/serio1/input0 lost synchronization, throwing 3 bytes away.
+Dec  4 03:19:47 c3 kernel: psmouse.c: Explorer Mouse at isa0060/serio1/input0 lost synchronization, throwing 3 bytes away.
+Dec  4 03:19:53 c3 kernel: psmouse.c: Explorer Mouse at isa0060/serio1/input0 lost synchronization, throwing 2 bytes away.
+
+If I move the mouse it wildly generates button events instead
+of movement events, which completely scambles my desktop.
+
+I've tried multiple variations, with gpm and without it, with
+mouse set to autodetect and fix configured, all without success.
+
+I have replaced the mouse for testing with an old Logitech
+mechanical mouse. This works a bit better, but also often
+loses its synchronization:
+
+Dec  5 09:33:42 c3 kernel: psmouse.c: bad data from KBC - bad parity
+Dec  5 09:33:52 c3 last message repeated 2 times
+Dec  5 09:34:19 c3 kernel: psmouse.c: Mouse at isa0060/serio1/input0 lost synchronization, throwing 1 bytes away.
+
+This makes kernel 2.6 nearly unusable for a desktop system (with X11).
+
+I also get problems with the keyboard if I use my KVM switch with kernel
+2.6.9. After switching keyboard to another machine and switching back to
+the system with kernel 2.6 the keyboard is disconnected. Nothing happens
+if I press a key. After switching KVM back and forth several times and
+pressing arbitrary keys multiple times keyboard comes back on line after
+a while.
+
+All of this hardware is working trouble-free with kernel 2.2.26 and
+2.4.28. For now I'm forced to switch back to the stable kernel.
+
+If you need more information please drop me a CC.
+
+Regards,
+
+Uwe

@@ -1,76 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270677AbTHAU54 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Aug 2003 16:57:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270865AbTHAU54
+	id S270865AbTHAVBG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Aug 2003 17:01:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270875AbTHAVBG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Aug 2003 16:57:56 -0400
-Received: from [217.157.19.70] ([217.157.19.70]:21261 "EHLO jehova.dsm.dk")
-	by vger.kernel.org with ESMTP id S270677AbTHAU5y (ORCPT
+	Fri, 1 Aug 2003 17:01:06 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:6394 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S270865AbTHAVBB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Aug 2003 16:57:54 -0400
-Date: Fri, 1 Aug 2003 22:57:53 +0200 (CEST)
-From: Thomas Horsten <thomas@horsten.com>
-X-X-Sender: thomas@jehova.dsm.dk
-To: linux-kernel@vger.kernel.org
-cc: Arjan van de Ven <arjanv@redhat.com>
-Subject: Re: [PATCH] (2.4.2x) Driver for Medley software RAID (Silicon Image
- 3112 SATARaid, CMD680, etc?) for testing (fwd)
-Message-ID: <Pine.LNX.4.40.0308012253320.29551-100000@jehova.dsm.dk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 1 Aug 2003 17:01:01 -0400
+From: Andries.Brouwer@cwi.nl
+Date: Fri, 1 Aug 2003 23:00:53 +0200 (MEST)
+Message-Id: <UTC200308012100.h71L0ri01916.aeb@smtp.cwi.nl>
+To: Andries.Brouwer@cwi.nl, sluskyb@paranoiacs.org
+Subject: Re: 2.6.0-test2+Util-linux/cryptoapi
+Cc: fvw@var.cx, linux-crypto@nl.linux.org, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 1 Aug 2003, Arjan van de Ven wrote:
+    From: Ben Slusky <sluskyb@paranoiacs.org>
 
-> On Fri, Aug 01, 2003 at 10:24:13PM +0200, Thomas Horsten wrote:
-> > I have written a driver for Medley software RAID as used by Silicon Image
-> > 3112 SATA IDE controller, and also other IDE RAID controllers like CMD680
-> > based ones (and possibly others). Currently it's only for 2.4.2X.
-> >
-> > This driver uses the ATA RAID driver framework and is based on code from
-> > Arjan van de Ven's silraid.c and hptraid.c (it replaces the invalid
-> > silraid.c driver).
->
-> I'm curious. What makes you thnk silraid.c is invalid? And wouldn't it
-> have been easier to just fix whatever you were missing in silraid ??
+    > The patches I got were maximal, too much junk.
+    > So I went for a minimal version instead.
+    > 
+    > It is usable (when the kernel part is stable, which it isn't today)
+    > but mount/losetup may well acquire a few options before it is
+    > conveniently usable.
 
-The superblock has a different format from what is in silraid.c, and it
-does not detect the Medley RAID at all in a normal case (e.g. my array is
-undetected).
+    Can we discuss those options now? I find the latest losetup to be
+    completely unusable, tho' I appreciate the effort that's gone into it
+    so far.
 
-I would have changed silraid.c, but I thought it was more appropriate to
-call it Medley since the RAID BIOS was really developed by CMD for the
-680(A) based RAID controllers (and possibly others who might license it),
-so is not only used for Silicon Image controllers (but it is called Medley
-RAID in any case).
+    Firstly, are the other key size choices (128-bit, 192-bit) gone for
+    good? If so then I'll need to redo this entire hard disk (which currently
+    uses 128-bit AES) before I can test 2.6 on my laptop.
 
-The detection code now follows the specification from CMD/Silicon Image (I
-did have access to some documentation ;-) - and the Silicon Image brand
-continues alongside the CMD stuff so I thought it was more appropriate to
-give the driver a neutral name (it's not like I didn't give you credit in
-the source, of course I appreciate your ataraid framework without which
-writing this driver would have been an order of magnitude harder).
+We need some discussion - there is no hurry.
 
-The superblock is different, although your version had the most important
-fields (however, it would break for Version 1 arrays), but the detection
-was not correct (e.g. it didn't detect my array), also Silicon Image
-doesn't do the cut-off magic like hptraid does, but use the size of the
-smallest drive.
+Consider:
+Crypto users are a small minority. On the other hand, every Linux user
+needs mount. Also in emergency situations. Possibly from a rescue floppy.
 
-The whole detection of the arrays is different, the "make_request"
-obviously isn't that different since the principle remains the same (but
-you will notice it's implemented a bit differently).
+Consider:
+mount is suid root.
 
-I have written at least 2-3 mails to you and the list more than a month
-ago aboout this, and I didn't get any response, that's the reason I
-decided to take things into "my own hands" and research and write this
-driver. Not to piss you off, which I hope I haven't done.
+Both reasons imply that it is undesirable to add a lot of messy code
+to mount, quite apart from maintainability.
 
-Cheers,
-Thomas
+If the messy code is in an external program of which the path name
+is given as a -o option, then the correctness of the external program
+is the invokers responsibility, and it doesnt take space on the rescue
+floppies of non crypto users.
 
-[2 mails sent off-list by mistake, repeated and edited]
+Consider:
+Most people want to invoke losetup from mount. But we just concluded
+that it is desirable to try and prevent bloating mount. Yes, it is
+full of garbage already, but that is no reason to add even more.
 
+You want key size choices. OK. I don't like to add another option
+to mount. Probably all encryption stuff can be part of the -o encryption=
+option. How is stuff coded? Well, everybody can invent some suitable
+syntax. The one I like best wins. Proposals complete with (nice, readable)
+code get bonus points.
 
+    Secondly, there's the issue of passphrase hashing. I agree with the
+    decision to cut it out of losetup, but where do we put it now? Andries
+    has suggested an external program, but this isn't as simple as it sounds.
+    To get this working would require a new way of reading the passphrase,
+    since the hashed passphrase might contain a newline, or a null. Maybe
+    change the semantics of the -p option, so that:
+
+        losetup -e aes /dev/loop/10 /home/sluskyb/testloop
+
+    will work when I give it the passphrase "foobar", but also
+
+        pwhash -h sha1 | losetup -e aes -k 128 -p 0 /dev/loop/0 \
+            /dev/discs/disc0/part3
+
+    will read exactly 16 bytes of (probably) non-printable chars and use
+    that as the key.
+
+Sounds entirely reasonable. This is good for doing things "by hand".
+But people also want to have crypto mounts described in /etc/fstab.
+The option column there should contain all information needed to do
+the losetup and mount.
+
+I would be most happy if people on crypto lists would discuss details.
+I do not think this belongs on linux-kernel.
+
+Andries
+
+[I see that this is cc-ed to linux-crypto@nl.linux.org - maybe that
+is an appropriate list.]

@@ -1,59 +1,135 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264315AbTLVGSK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Dec 2003 01:18:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264318AbTLVGSK
+	id S264337AbTLVGYJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Dec 2003 01:24:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264347AbTLVGX6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Dec 2003 01:18:10 -0500
-Received: from CPEdeadbeef0000-CM000039d4cc6a.cpe.net.cable.rogers.com ([67.60.40.239]:640
-	"HELO coredump.sh0n.net") by vger.kernel.org with SMTP
-	id S264315AbTLVGSH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Dec 2003 01:18:07 -0500
-Date: Mon, 22 Dec 2003 01:18:58 -0500 (EST)
-From: Shawn Starr <spstarr@sh0n.net>
+	Mon, 22 Dec 2003 01:23:58 -0500
+Received: from zero.voxel.net ([209.123.232.253]:18347 "EHLO zero.voxel.net")
+	by vger.kernel.org with ESMTP id S264337AbTLVGWh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Dec 2003 01:22:37 -0500
+Subject: [PATCH 8/10] CardServices() removal from pcmcia net drivers
+From: Andres Salomon <dilinger@voxel.net>
 To: linux-kernel@vger.kernel.org
-Subject: [OOPS][2.6.0][eepro100] mii-diag oops with -F option
-Message-ID: <Pine.LNX.4.44.0312220117100.209-100000@coredump.sh0n.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: dahinds@users.sourceforge.net, akpm@osdl.org
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-HPUqBh1NI4SqMnISqzzV"
+Message-Id: <1072073219.27831.42.camel@spiral.internal>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Mon, 22 Dec 2003 01:19:13 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here is the oops dump below this seems ugly:
 
- Unable to handle kernel paging request at virtual address c046a640
-  printing eip:
- c046a640
- *pde = 00103027
- *pte = 0046a000
- Oops: 0000 [#1]
- CPU:    0
- EIP:    0060:[<c046a640>]    Not tainted
- EFLAGS: 00010286
- EIP is at e100_phy_init+0x0/0x80
- eax: 00000000   ebx: e3593a40   ecx: 00000000   edx: e0402000
- esi: e3593a40   edi: 00000000   ebp: e35937f8   esp: e0403e8c
- ds: 007b   es: 007b   ss: 0068
- Process mii-diag (pid: 165, threadinfo=e0402000 task=e0453960)
- Stack: c0279763 e3593a40 e0403ea0 c0120d4a e35937f8 e35937f8 c027ee63 e3593a40
-        40015035 e0402000 c0238910 e17d1000 00008949 00008949 ffffffed 00008949
-        c033d698 e35937f8 e0403f0c 00008949 c04164a0 e0403f0c 00008949 00000001
- Call Trace:
-  [<c0279763>] e100_hw_init+0x13/0x170
-  [<c0120d4a>] preempt_schedule+0x2a/0x50
-  [<c027ee63>] e100_mii_ioctl+0x1f3/0x320
-  [<c0238910>] write_chan+0x170/0x230
-  [<c033d698>] dev_ifsioc+0x3f8/0x470
-  [<c033da0f>] dev_ioctl+0x2ff/0x3a0
-  [<c0332540>] sock_ioctl+0x0/0x460
-  [<c0389b3c>] inet_ioctl+0x11c/0x130
-  [<c0332767>] sock_ioctl+0x227/0x460
-  [<c01780b2>] vfs_write+0xd2/0x130
-  [<c0192e19>] sys_ioctl+0x219/0x430
-  [<c01781c2>] sys_write+0x42/0x70
-  [<c010a41b>] syscall_call+0x7/0xb
+--=-HPUqBh1NI4SqMnISqzzV
+Content-Type: multipart/mixed; boundary="=-0cmw6AwaPjE0wH59fGSF"
 
- Code:  Bad EIP value.
 
-Shawn.
+--=-0cmw6AwaPjE0wH59fGSF
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+Part 8 of 10.
+
+--=-0cmw6AwaPjE0wH59fGSF
+Content-Disposition: attachment; filename=008-cs_remove.patch
+Content-Type: text/x-patch; name=008-cs_remove.patch; charset=us-ascii
+Content-Transfer-Encoding: base64
+
+UmV2aXNpb246IGxpbnV4LS1tYWlubGluZS0tMi42LS1wYXRjaC0yMQ0KQXJjaGl2ZTogZGlsaW5n
+ZXJAdm94ZWwubmV0LS0yMDAzLXNwaXJhbA0KQ3JlYXRvcjogQW5kcmVzIFNhbG9tb24gPGRpbGlu
+Z2VyQHZveGVsLm5ldD4NCkRhdGU6IFN1biBEZWMgMjEgMjI6MDU6NTggRVNUIDIwMDMNClN0YW5k
+YXJkLWRhdGU6IDIwMDMtMTItMjIgMDM6MDU6NTggR01UDQpNb2RpZmllZC1maWxlczogZHJpdmVy
+cy9uZXQvcGNtY2lhL2NvbTIwMDIwX2NzLmMNCk5ldy1wYXRjaGVzOiBkaWxpbmdlckB2b3hlbC5u
+ZXQtLTIwMDMtc3BpcmFsL2xpbnV4LS1tYWlubGluZS0tMi42LS1wYXRjaC0yMQ0KU3VtbWFyeTog
+Q2FyZFNlcnZpY2VzKCkgcmVtb3ZhbCwgcHQuIDgNCktleXdvcmRzOiANCg0KUmVtb3ZlIGNhbGxz
+IHRvIENhcmRTZXJ2aWNlcygpLCBwYXJ0IDg7IGNvbTIwMDIwX2NzLmMuDQoNCiogYWRkZWQgZmls
+ZXMNCg0KICAgIHthcmNofS9saW51eC9saW51eC0tbWFpbmxpbmUvbGludXgtLW1haW5saW5lLS0y
+LjYvZGlsaW5nZXJAdm94ZWwubmV0LS0yMDAzLXNwaXJhbC9wYXRjaC1sb2cvcGF0Y2gtMjENCg0K
+KiBtb2RpZmllZCBmaWxlcw0KDQotLS0gb3JpZy9kcml2ZXJzL25ldC9wY21jaWEvY29tMjAwMjBf
+Y3MuYw0KKysrIG1vZC9kcml2ZXJzL25ldC9wY21jaWEvY29tMjAwMjBfY3MuYw0KQEAgLTIyNyw3
+ICsyMjcsNyBAQA0KICAgICBjbGllbnRfcmVnLmV2ZW50X2hhbmRsZXIgPSAmY29tMjAwMjBfZXZl
+bnQ7DQogICAgIGNsaWVudF9yZWcuVmVyc2lvbiA9IDB4MDIxMDsNCiAgICAgY2xpZW50X3JlZy5l
+dmVudF9jYWxsYmFja19hcmdzLmNsaWVudF9kYXRhID0gbGluazsNCi0gICAgcmV0ID0gQ2FyZFNl
+cnZpY2VzKFJlZ2lzdGVyQ2xpZW50LCAmbGluay0+aGFuZGxlLCAmY2xpZW50X3JlZyk7DQorICAg
+IHJldCA9IHBjbWNpYV9yZWdpc3Rlcl9jbGllbnQoJmxpbmstPmhhbmRsZSwgJmNsaWVudF9yZWcp
+Ow0KICAgICBpZiAocmV0ICE9IDApIHsNCiAgICAgICAgIGNzX2Vycm9yKGxpbmstPmhhbmRsZSwg
+UmVnaXN0ZXJDbGllbnQsIHJldCk7DQogICAgICAgICBjb20yMDAyMF9kZXRhY2gobGluayk7DQpA
+QCAtMjc3LDcgKzI3Nyw3IEBADQogICAgIH0NCiANCiAgICAgaWYgKGxpbmstPmhhbmRsZSkNCi0g
+ICAgICAgIENhcmRTZXJ2aWNlcyhEZXJlZ2lzdGVyQ2xpZW50LCBsaW5rLT5oYW5kbGUpOw0KKyAg
+ICAgICAgcGNtY2lhX2RlcmVnaXN0ZXJfY2xpZW50KGxpbmstPmhhbmRsZSk7DQogDQogICAgIC8q
+IFVubGluayBkZXZpY2Ugc3RydWN0dXJlLCBmcmVlIGJpdHMgKi8NCiAgICAgREVCVUcoMSwidW5s
+aW5raW5nLi4uXG4iKTsNCkBAIC0zMjUsOCArMzI1LDggQEANCiANCiA9PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09Ki8N
+CiANCi0jZGVmaW5lIENTX0NIRUNLKGZuLCBhcmdzLi4uKSBcDQotd2hpbGUgKChsYXN0X3JldD1D
+YXJkU2VydmljZXMobGFzdF9mbj0oZm4pLCBhcmdzKSkhPTApIGdvdG8gY3NfZmFpbGVkDQorI2Rl
+ZmluZSBDU19DSEVDSyhmbiwgcmV0KSBcDQorZG8geyBsYXN0X2ZuID0gKGZuKTsgaWYgKChsYXN0
+X3JldCA9IChyZXQpKSAhPSAwKSBnb3RvIGNzX2ZhaWxlZDsgfSB3aGlsZSAoMCkNCiANCiBzdGF0
+aWMgdm9pZCBjb20yMDAyMF9jb25maWcoZGV2X2xpbmtfdCAqbGluaykNCiB7DQpAQCAtMzUzLDkg
+KzM1Myw5IEBADQogICAgIHR1cGxlLlR1cGxlRGF0YU1heCA9IDY0Ow0KICAgICB0dXBsZS5UdXBs
+ZU9mZnNldCA9IDA7DQogICAgIHR1cGxlLkRlc2lyZWRUdXBsZSA9IENJU1RQTF9DT05GSUc7DQot
+ICAgIENTX0NIRUNLKEdldEZpcnN0VHVwbGUsIGhhbmRsZSwgJnR1cGxlKTsNCi0gICAgQ1NfQ0hF
+Q0soR2V0VHVwbGVEYXRhLCBoYW5kbGUsICZ0dXBsZSk7DQotICAgIENTX0NIRUNLKFBhcnNlVHVw
+bGUsIGhhbmRsZSwgJnR1cGxlLCAmcGFyc2UpOw0KKyAgICBDU19DSEVDSyhHZXRGaXJzdFR1cGxl
+LCBwY21jaWFfZ2V0X2ZpcnN0X3R1cGxlKGhhbmRsZSwgJnR1cGxlKSk7DQorICAgIENTX0NIRUNL
+KEdldFR1cGxlRGF0YSwgcGNtY2lhX2dldF90dXBsZV9kYXRhKGhhbmRsZSwgJnR1cGxlKSk7DQor
+ICAgIENTX0NIRUNLKFBhcnNlVHVwbGUsIHBjbWNpYV9wYXJzZV90dXBsZShoYW5kbGUsICZ0dXBs
+ZSwgJnBhcnNlKSk7DQogICAgIGxpbmstPmNvbmYuQ29uZmlnQmFzZSA9IHBhcnNlLmNvbmZpZy5i
+YXNlOw0KIA0KICAgICAvKiBDb25maWd1cmUgY2FyZCAqLw0KQEAgLTM2OCwxMyArMzY4LDEzIEBA
+DQogCWZvciAoaW9hZGRyID0gMHgxMDA7IGlvYWRkciA8IDB4NDAwOyBpb2FkZHIgKz0gMHgxMCkN
+CiAJew0KIAkgICAgbGluay0+aW8uQmFzZVBvcnQxID0gaW9hZGRyOw0KLQkgICAgaSA9IENhcmRT
+ZXJ2aWNlcyhSZXF1ZXN0SU8sIGxpbmstPmhhbmRsZSwgJmxpbmstPmlvKTsNCisJICAgIGkgPSBw
+Y21jaWFfcmVxdWVzdF9pbyhsaW5rLT5oYW5kbGUsICZsaW5rLT5pbyk7DQogCSAgICBpZiAoaSA9
+PSBDU19TVUNDRVNTKQ0KIAkJYnJlYWs7DQogCX0NCiAgICAgfQ0KICAgICBlbHNlDQotCWkgPSBD
+YXJkU2VydmljZXMoUmVxdWVzdElPLCBsaW5rLT5oYW5kbGUsICZsaW5rLT5pbyk7DQorCWkgPSBw
+Y21jaWFfcmVxdWVzdF9pbyhsaW5rLT5oYW5kbGUsICZsaW5rLT5pbyk7DQogICAgIA0KICAgICBp
+ZiAoaSAhPSBDU19TVUNDRVNTKQ0KICAgICB7DQpAQCAtMzg4LDcgKzM4OCw3IEBADQogICAgIERF
+QlVHKDEsImFyY25ldDogcmVxdWVzdCBJUlEgJWQgKCVYaC8lWGgpXG4iLA0KIAkgICBsaW5rLT5p
+cnEuQXNzaWduZWRJUlEsDQogCSAgIGxpbmstPmlycS5JUlFJbmZvMSwgbGluay0+aXJxLklSUUlu
+Zm8yKTsNCi0gICAgaSA9IENhcmRTZXJ2aWNlcyhSZXF1ZXN0SVJRLCBsaW5rLT5oYW5kbGUsICZs
+aW5rLT5pcnEpOw0KKyAgICBpID0gcGNtY2lhX3JlcXVlc3RfaXJxKGxpbmstPmhhbmRsZSwgJmxp
+bmstPmlycSk7DQogICAgIGlmIChpICE9IENTX1NVQ0NFU1MpDQogICAgIHsNCiAJREVCVUcoMSwi
+YXJjbmV0OiByZXF1ZXN0SVJRIGZhaWxlZCB0b3RhbGx5IVxuIik7DQpAQCAtMzk3LDcgKzM5Nyw3
+IEBADQogDQogICAgIGRldi0+aXJxID0gbGluay0+aXJxLkFzc2lnbmVkSVJROw0KIA0KLSAgICBD
+U19DSEVDSyhSZXF1ZXN0Q29uZmlndXJhdGlvbiwgbGluay0+aGFuZGxlLCAmbGluay0+Y29uZik7
+DQorICAgIENTX0NIRUNLKFJlcXVlc3RDb25maWd1cmF0aW9uLCBwY21jaWFfcmVxdWVzdF9jb25m
+aWd1cmF0aW9uKGxpbmstPmhhbmRsZSwgJmxpbmstPmNvbmYpKTsNCiANCiAgICAgaWYgKGNvbTIw
+MDIwX2NoZWNrKGRldikpDQogICAgIHsNCkBAIC00NTQsOSArNDU0LDkgQEANCiAgICAgICAgIHJl
+dHVybjsNCiAgICAgfQ0KIA0KLSAgICBDYXJkU2VydmljZXMoUmVsZWFzZUNvbmZpZ3VyYXRpb24s
+IGxpbmstPmhhbmRsZSk7DQotICAgIENhcmRTZXJ2aWNlcyhSZWxlYXNlSU8sIGxpbmstPmhhbmRs
+ZSwgJmxpbmstPmlvKTsNCi0gICAgQ2FyZFNlcnZpY2VzKFJlbGVhc2VJUlEsIGxpbmstPmhhbmRs
+ZSwgJmxpbmstPmlycSk7DQorICAgIHBjbWNpYV9yZWxlYXNlX2NvbmZpZ3VyYXRpb24obGluay0+
+aGFuZGxlKTsNCisgICAgcGNtY2lhX3JlbGVhc2VfaW8obGluay0+aGFuZGxlLCAmbGluay0+aW8p
+Ow0KKyAgICBwY21jaWFfcmVsZWFzZV9pcnEobGluay0+aGFuZGxlLCAmbGluay0+aXJxKTsNCiAN
+CiAgICAgbGluay0+c3RhdGUgJj0gfihERVZfQ09ORklHIHwgREVWX1JFTEVBU0VfUEVORElORyk7
+DQogDQpAQCAtNTAyLDcgKzUwMiw3IEBADQogICAgICAgICAgICAgaWYgKGxpbmstPm9wZW4pIHsN
+CiAgICAgICAgICAgICAgICAgbmV0aWZfZGV2aWNlX2RldGFjaChkZXYpOw0KICAgICAgICAgICAg
+IH0NCi0gICAgICAgICAgICBDYXJkU2VydmljZXMoUmVsZWFzZUNvbmZpZ3VyYXRpb24sIGxpbmst
+PmhhbmRsZSk7DQorICAgICAgICAgICAgcGNtY2lhX3JlbGVhc2VfY29uZmlndXJhdGlvbihsaW5r
+LT5oYW5kbGUpOw0KICAgICAgICAgfQ0KICAgICAgICAgYnJlYWs7DQogICAgIGNhc2UgQ1NfRVZF
+TlRfUE1fUkVTVU1FOg0KQEAgLTUxMCw3ICs1MTAsNyBAQA0KICAgICAgICAgLyogRmFsbCB0aHJv
+dWdoLi4uICovDQogICAgIGNhc2UgQ1NfRVZFTlRfQ0FSRF9SRVNFVDoNCiAgICAgICAgIGlmIChs
+aW5rLT5zdGF0ZSAmIERFVl9DT05GSUcpIHsNCi0gICAgICAgICAgICBDYXJkU2VydmljZXMoUmVx
+dWVzdENvbmZpZ3VyYXRpb24sIGxpbmstPmhhbmRsZSwgJmxpbmstPmNvbmYpOw0KKyAgICAgICAg
+ICAgIHBjbWNpYV9yZXF1ZXN0X2NvbmZpZ3VyYXRpb24obGluay0+aGFuZGxlLCAmbGluay0+Y29u
+Zik7DQogICAgICAgICAgICAgaWYgKGxpbmstPm9wZW4pIHsNCiAJCWludCBpb2FkZHIgPSBkZXYt
+PmJhc2VfYWRkcjsNCiAJCXN0cnVjdCBhcmNuZXRfbG9jYWwgKmxwID0gKHN0cnVjdCBhcmNuZXRf
+bG9jYWwgKilkZXYtPnByaXY7DQoNCg0KDQo=
+
+--=-0cmw6AwaPjE0wH59fGSF--
+
+--=-HPUqBh1NI4SqMnISqzzV
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQA/5ooD78o9R9NraMQRAn6vAKConpkh94lY60e9bDzPESyTyDxEfwCgn7r5
+41zo9Uxu8l5l2zsSwdnkzR0=
+=YKO1
+-----END PGP SIGNATURE-----
+
+--=-HPUqBh1NI4SqMnISqzzV--
 

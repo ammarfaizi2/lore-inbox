@@ -1,69 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261479AbUJaCrh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261482AbUJaCyW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261479AbUJaCrh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Oct 2004 22:47:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261482AbUJaCrh
+	id S261482AbUJaCyW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Oct 2004 22:54:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261483AbUJaCyV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Oct 2004 22:47:37 -0400
-Received: from out007pub.verizon.net ([206.46.170.107]:29346 "EHLO
-	out007.verizon.net") by vger.kernel.org with ESMTP id S261479AbUJaCra
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Oct 2004 22:47:30 -0400
-Message-ID: <41845241.2090104@verizon.net>
-Date: Sat, 30 Oct 2004 22:47:29 -0400
-From: Jim Nelson <james4765@verizon.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Z Smith <plinius@comcast.net>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: code bloat [was Re: Semaphore assembly-code bug]
-References: <417550FB.8020404@drdos.com.suse.lists.linux.kernel>	 <200410310111.07086.vda@port.imtp.ilyichevsk.odessa.ua>	 <20041030222720.GA22753@hockin.org>	 <200410310213.37712.vda@port.imtp.ilyichevsk.odessa.ua> <1099176319.25194.10.camel@localhost.localdomain> <41843E10.1040800@comcast.net>
-In-Reply-To: <41843E10.1040800@comcast.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH at out007.verizon.net from [209.158.211.53] at Sat, 30 Oct 2004 21:47:29 -0500
+	Sat, 30 Oct 2004 22:54:21 -0400
+Received: from cantor.suse.de ([195.135.220.2]:27031 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261482AbUJaCyT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Oct 2004 22:54:19 -0400
+Date: Sun, 31 Oct 2004 03:54:18 +0100
+From: Andi Kleen <ak@suse.de>
+To: Chris Wedgwood <cw@f00f.org>
+Cc: Andi Kleen <ak@suse.de>, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Add panic blinking to 2.6
+Message-ID: <20041031025418.GH19396@wotan.suse.de>
+References: <20041031013649.GF19396@wotan.suse.de> <20041031022537.GB18294@taniwha.stupidest.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041031022537.GB18294@taniwha.stupidest.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Z Smith wrote:
-> Alan Cox wrote:
+On Sat, Oct 30, 2004 at 07:25:37PM -0700, Chris Wedgwood wrote:
+> > +static int blink_frequency = 500;
+> > +module_param_named(panicblink, blink_frequency, int, 0600);
 > 
->> So if the desktop stuff is annoying you join gnome-love or whatever the
->> kde equivalent is 8)
+> does it reall need to be a module? 
+
+It isn't a module.
 > 
+> > +/* Returns how long it waited in ms */
+> > +long (*panic_blink)(long time) = no_blink;
+> > +EXPORT_SYMBOL(panic_blink);
 > 
-> Or join me in my effort to limit bloat. Why use an X server
-> that uses 15-30 megs of RAM when you can use FBUI which is 25 kilobytes
-> of code with very minimal kmallocing?
+> i dont know we can't have this unconditionally with the 500ms period
+> (always present and on)
 > 
-> home.comcast.net/~plinius/fbui.html
-> 
-> Zack Smith
-> Bloat Liberation Front
-> 
+> would that really harm anything?
 
-Because some of us use remote X clients on big iron with an X server on your 
-desktop.  IIRC (been a long time since my CAD classes), a whole bunch of FEA and 
-CAE/CAD applications worked this way.
+Yes, one broken KVM seems to block switching with it in some cases
 
-There is a lot more flexibility inherent in user-space compared to kernel-space. 
-You can use PAM, Kerberos, and a whole host of other security devices that would 
-be difficult to implement efficiently in kernel-space.
-
-Dude, that's a cool hack, but just about everything you did could be done with 
-svgalib and the input core interface.  The advantage to svgalib is that if that 
-interface dies, you can recover the machine pretty easily, whereas kernel panics 
-are a bit more disruptive.
-
-Still - it would be a nifty add-on for POS terminals, etc., just not the kind of 
-thing I'd expect to see in the kernel anytime soon.  Once 2.7 is started, see if 
-people are more receptive.  Take the time to flesh it out, get some more people on 
-board, see if Sourceforge will host the project, and lose the advertising campaign 
-- that's not likely to win any friends or supporters around here.
-
-I don't mean to be harsh, but c'mon - "Bloat Liberation Front" - err... okaaay...
-
-Good luck,
-
-Jim
+-Andi

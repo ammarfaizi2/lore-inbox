@@ -1,28 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263169AbTDHJFu (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 05:05:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263261AbTDHJFu (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 05:05:50 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:61860 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S263169AbTDHJFt (for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Apr 2003 05:05:49 -0400
-From: Andries.Brouwer@cwi.nl
-Date: Tue, 8 Apr 2003 11:17:24 +0200 (MEST)
-Message-Id: <UTC200304080917.h389HOr02523.aeb@smtp.cwi.nl>
-To: torvalds@transmeta.com
-Subject: [PATCH] tty_io.c: make redirect static
-Cc: linux-kernel@vger.kernel.org
+	id S262727AbTDHJM5 (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 05:12:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262866AbTDHJM5 (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 05:12:57 -0400
+Received: from gw1.cosmosbay.com ([62.23.185.226]:33156 "EHLO
+	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S262727AbTDHJM4 (for <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Apr 2003 05:12:56 -0400
+Message-ID: <037e01c2fdb0$a4a5b5b0$5600a8c0@edumazet>
+From: "dada1" <dada1@cosmosbay.com>
+To: "Andrew Morton" <akpm@digeo.com>
+Cc: <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0304071051190.1385-100000@penguin.transmeta.com><035401c2fdac$6e6aa400$5600a8c0@edumazet> <20030408020439.16c8322b.akpm@digeo.com>
+Subject: Re: Kernel BUG linux-2.5.67
+Date: Tue, 8 Apr 2003 11:24:22 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -u --recursive --new-file -X /linux/dontdiff a/drivers/char/tty_io.c b/drivers/char/tty_io.c
---- a/drivers/char/tty_io.c	Tue Apr  8 09:36:37 2003
-+++ b/drivers/char/tty_io.c	Tue Apr  8 09:37:03 2003
-@@ -136,7 +136,7 @@
-  * redirect is the pseudo-tty that console output
-  * is redirected to if asked by TIOCCONS.
-  */
--struct tty_struct * redirect;
-+static struct tty_struct *redirect;
- 
- static void initialize_tty_struct(struct tty_struct *tty);
- 
+Yes... the futex was placed un a hugetlb page...
+
+Thanks Andrew, I will test your patch very soon.
+
+From: "Andrew Morton" <akpm@digeo.com>
+> "dada1" <dada1@cosmosbay.com> wrote:
+> >
+> > Hello
+> > 
+> > I tried linux-2.5.67 this morning...
+> > 
+> > instant oops with a small multi-threaded program using futex()
+> 
+> Was the futex placed inside a hugetlb page?  Please say yes.
+> 
+> There is a stunning bug.
+> 
+> --- 25/include/linux/mm.h~a 2003-04-08 02:03:19.000000000 -0700
+> +++ 25-akpm/include/linux/mm.h 2003-04-08 02:03:24.000000000 -0700
+> @@ -231,8 +231,8 @@ static inline void get_page(struct page 
+>  static inline void put_page(struct page *page)
+>  {
+>   if (PageCompound(page)) {
+> + page = (struct page *)page->lru.next;
+>   if (put_page_testzero(page)) {
+> - page = (struct page *)page->lru.next;
+>   if (page->lru.prev) { /* destructor? */
+>   (*(void (*)(struct page *))page->lru.prev)(page);
+>   } else {
+> 
+> _
+> 

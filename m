@@ -1,47 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275125AbTHRVcH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Aug 2003 17:32:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275126AbTHRVcH
+	id S275102AbTHRVYh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Aug 2003 17:24:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275103AbTHRVYh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Aug 2003 17:32:07 -0400
-Received: from covert.black-ring.iadfw.net ([209.196.123.142]:65284 "EHLO
-	covert.brown-ring.iadfw.net") by vger.kernel.org with ESMTP
-	id S275125AbTHRVcC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Aug 2003 17:32:02 -0400
-Date: Mon, 18 Aug 2003 16:31:56 -0500
-From: Art Haas <ahaas@airmail.net>
-To: linux-kernel@vger.kernel.org
-Cc: Linus Torvalds <torvalds@osdl.org>
-Subject: [PATCH] Trivial C99 patch for watchdog/sc1200wdt.c
-Message-ID: <20030818213156.GC27281@artsapartment.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+	Mon, 18 Aug 2003 17:24:37 -0400
+Received: from fmr06.intel.com ([134.134.136.7]:59124 "EHLO
+	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
+	id S275102AbTHRVYc convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Aug 2003 17:24:32 -0400
+Content-Class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
+Subject: RE: Update MSI Patches
+Date: Mon, 18 Aug 2003 14:24:25 -0700
+Message-ID: <C7AB9DA4D0B1F344BF2489FA165E502401541719@orsmsx404.jf.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Update MSI Patches
+Thread-Index: AcNlxinoaMp12KdQQROkM6fEWt6GwQACDgUg
+From: "Nguyen, Tom L" <tom.l.nguyen@intel.com>
+To: "Zwane Mwaikambo" <zwane@linuxpower.ca>
+Cc: "Greg Kroah-Hartmann" <greg@kroah.com>, "Jeff Garzik" <jgarzik@pobox.com>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>,
+       "Linux Kernel" <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 18 Aug 2003 21:24:26.0651 (UTC) FILETIME=[1A11B6B0:01C365CF]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Mon, 18 Aug 2003, Zwane Mwaikambo wrote:
+>> I make minor modification to the last patch to reduce some duplicate functions,
+>> as shown as below. I think this perhaps looks better. What do you think?
 
-A trivial C99 fixup for this file. Against current BK.
+> The patch looks fine.
 
-Art Haas
+>> +#ifdef CONFIG_PCI_USE_VECTOR
+>> +static unsigned int startup_edge_ioapic_vector(unsigned int vector)
+>> +{
+>> +	int irq = vector_to_irq(vector);
+>> +
+>> +	return (startup_edge_ioapic_irq(irq));
+>> +}
 
-===== drivers/char/watchdog/sc1200wdt.c 1.7 vs edited =====
---- 1.7/drivers/char/watchdog/sc1200wdt.c	Thu Feb 13 05:20:50 2003
-+++ edited/drivers/char/watchdog/sc1200wdt.c	Wed Apr  2 06:54:50 2003
-@@ -292,7 +292,7 @@
- 
- static struct notifier_block sc1200wdt_notifier =
- {
--	notifier_call:	sc1200wdt_notify_sys
-+	.notifier_call	= sc1200wdt_notify_sys
- };
- 
- static struct file_operations sc1200wdt_fops =
--- 
-Man once surrendering his reason, has no remaining guard against absurdities
-the most monstrous, and like a ship without rudder, is the sport of every wind.
+> Tiny nit, Linux coding style is;
 
--Thomas Jefferson to James Smith, 1822
+> return startup_edge_ioapic_irq(irq);
+
+> But you can queue that change for later.
+
+Good! Thank you for your comments. I will roll your comment on Linux coding style 
+for later release.
+
+Thanks,
+Long

@@ -1,42 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265607AbRGCIbw>; Tue, 3 Jul 2001 04:31:52 -0400
+	id <S265623AbRGCIec>; Tue, 3 Jul 2001 04:34:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265605AbRGCIbm>; Tue, 3 Jul 2001 04:31:42 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:15784 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S265607AbRGCIb2>;
-	Tue, 3 Jul 2001 04:31:28 -0400
-Message-ID: <3B4182DD.FCDD8DDE@mandrakesoft.com>
-Date: Tue, 03 Jul 2001 04:31:25 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre8 i686)
-X-Accept-Language: en
+	id <S265621AbRGCIeW>; Tue, 3 Jul 2001 04:34:22 -0400
+Received: from 202-54-39-145.tatainfotech.co.in ([202.54.39.145]:18963 "EHLO
+	brelay.tatainfotech.com") by vger.kernel.org with ESMTP
+	id <S265605AbRGCIeM>; Tue, 3 Jul 2001 04:34:12 -0400
+Date: Tue, 3 Jul 2001 14:22:32 +0530 (IST)
+From: "SATHISH.J" <sathish.j@tatainfotech.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Reg kdb utility
+In-Reply-To: <Pine.LNX.4.10.10107012004510.30427-100000@blrmail>
+Message-ID: <Pine.LNX.4.10.10107031311370.6784-100000@blrmail>
 MIME-Version: 1.0
-To: David Howells <dhowells@redhat.com>
-Cc: Russell King <rmk@arm.linux.org.uk>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        David Woodhouse <dwmw2@infradead.org>, Jes Sorensen <jes@sunsite.dk>,
-        linux-kernel@vger.kernel.org, arjanv@redhat.com
-Subject: Re: [RFC] I/O Access Abstractions
-In-Reply-To: <3963.994148157@warthog.cambridge.redhat.com> <3B4180BB.ED7B45F@mandrakesoft.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I also point out that using ioremap for PIO adds flexibility while
-keeping most drivers relatively unchanged.  Everyone uses a base address
-anyway, so whether its obtained directly (address from PCI BAR) or
-indirectly (via ioremap), you already store it and use it.
+Hi,
 
-Further, code lacking ioremap for PIO (100% of PIO code, at present)
-does not require a flag day.  Drivers can be transitioned as foreign
-arches start supporting ioremap for PIO... if ioremap is no-op on x86,
-drivers continue to work on x86 before and after the update.  Assuming a
-stored not hardcoded base address (common case), the only change to a
-driver is in probe and remove, nowhere else.
+I tried to use kdb on my 2.2.14-12 kernel. I was able to compile the file 
+/usr/src/linux/arch/i386/kdb/modules/kdbm_vm.c and could get the object
+file. When I tried to insert it as a module it givesd the following error
+message:
 
--- 
-Jeff Garzik      | "I respect faith, but doubt is
-Building 1024    |  what gives you an education."
-MandrakeSoft     |           -- Wilson Mizner
+./kdbm_vm.o: kernel-module version mismatch
+        ./kdbm_vm.o was compiled for kernel version .2.14-12
+        while this kernel is version 2.2.14-12.
+
+
+
+Please tell me why this message comes.
+
+Thanks in advance,
+
+Regards,
+satish.j
+
+
+
+
+
+
+
+

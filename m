@@ -1,149 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317398AbSINSOM>; Sat, 14 Sep 2002 14:14:12 -0400
+	id <S317400AbSINSTq>; Sat, 14 Sep 2002 14:19:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317399AbSINSOM>; Sat, 14 Sep 2002 14:14:12 -0400
-Received: from s2.org ([195.197.64.39]:38822 "EHLO kalahari.s2.org")
-	by vger.kernel.org with ESMTP id <S317398AbSINSOK>;
-	Sat, 14 Sep 2002 14:14:10 -0400
-To: Martin Josefsson <gandalf@wlug.westbo.se>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.4.20-pre7] net/ipv4/netfilter/ip_conntrack_ftp and _irc to export objs
-References: <m3vg58qwz1.fsf@kalahari.s2.org> <1032027105.29595.129.camel@tux>
-From: Jarno Paananen <jpaana@s2.org>
-Date: 14 Sep 2002 21:19:03 +0300
-In-Reply-To: <1032027105.29595.129.camel@tux>
-Message-ID: <m3n0qkqvs8.fsf@kalahari.s2.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
+	id <S317402AbSINSTq>; Sat, 14 Sep 2002 14:19:46 -0400
+Received: from 205-158-62-105.outblaze.com ([205.158.62.105]:22665 "HELO
+	ws4-4.us4.outblaze.com") by vger.kernel.org with SMTP
+	id <S317400AbSINSTp>; Sat, 14 Sep 2002 14:19:45 -0400
+Message-ID: <20020914182356.25570.qmail@linuxmail.org>
+Content-Type: text/plain; charset="iso-8859-15"
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org>
+To: <conman@kolivas.net>
+Cc: linux-kernel@vger.kernel.org
+Date: Sun, 15 Sep 2002 02:23:56 +0800
+Subject: Re: System response benchmarks in performance patches
+X-Originating-Ip: 193.76.202.244
+X-Originating-Server: ws4-4.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Josefsson <gandalf@wlug.westbo.se> writes:
+From: Con Kolivas <conman@kolivas.net>
 
-| On Sat, 2002-09-14 at 19:53, Jarno Paananen wrote:
-| > Hi,
-| > 
-| > the two modules mentioned export symbols but are not mentioned in
-| > export-objs in Makefile and thus give errors. Patch attached.
-| > 
-| > // Jarno
-| > 
-| > --- net/ipv4/netfilter/Makefile.bak	2002-09-14 19:50:38.000000000 +0300
-| > +++ net/ipv4/netfilter/Makefile	2002-09-14 19:51:28.000000000 +0300
-| > @@ -9,7 +9,7 @@
-| >  
-| >  O_TARGET := netfilter.o
-| >  
-| > -export-objs = ip_conntrack_standalone.o ip_fw_compat.o ip_nat_standalone.o ip_tables.o arp_tables.o
-| > +export-objs = ip_conntrack_standalone.o ip_fw_compat.o ip_nat_standalone.o ip_tables.o arp_tables.o ip_conntrack_ftp.o ip_conntrack_irc.o
-| >  
-| >  # Multipart objects.
-| >  list-multi		:= ip_conntrack.o iptable_nat.o ipfwadm.o ipchains.o
-| 
-| Did you see this part starting at row 34?
-| 
-| # connection tracking helpers
-| obj-$(CONFIG_IP_NF_FTP) += ip_conntrack_ftp.o
-| ifdef CONFIG_IP_NF_NAT_FTP
-|         export-objs += ip_conntrack_ftp.o
-| endif
-| 
-| obj-$(CONFIG_IP_NF_IRC) += ip_conntrack_irc.o
-| ifdef CONFIG_IP_NF_NAT_IRC
-|         export-objs += ip_conntrack_irc.o
-| endif
-| 
-| but maybe the ifdefs shouldn't use the NAT define...
-| I don't think I've compiled without NAT support...
-|  
-| -- 
-| /Martin
-| 
-| Never argue with an idiot. They drag you down to their level, then beat
-| you with experience.
+> Quoting Paolo Ciarrocchi <ciarrocchi@linuxmail.org>:
+> 
+> > [...]
+> > >http://kernel.kolivas.net under the FAQ. A final >reminder note: it won't
+> > work on
+> > >2.5.x
+> > 
+> > Con, 
+> > I think that only the _memload_ test is not
+> > working with 2.5.*, am I wrong?
+> 
+> Correct. memload determines the amount of memory to allocate based on
+> /proc/meminfo which has changed in 2.5.x
+Rik has a pacth for this (thanks ;-).
+Let me know when you are going to release a new version of the benchmark.
+ 
+[...]
+> P.S. How does 2.4.19-ck7 compare ;-)
+Downloaded, compiled and tested ;-)
+BTW, I tested also the latest compressed cache patch.
 
-Hm, didn't notice those, sorry.
+_NOLOAD_
+Kernel		Time		CPU
+2.4.19		7:37.99		99%
+2.5.34		7:47.68		99%
+2.4.19-0.24pre4	7:38.17		99%
+2.4.19-ck7	7:35.54		99%
 
-It seems the condition for the actual export is different than the
-Makefile. In ip_conntrack_ftp.c for example the export is done:
+_CPULOAD_
+Kernel		Time		CPU
+2.4.19		9:07.80		82%
+2.5.34		8:50.56		87%
+2.4.19-0.24pre4	9:07.61		82%
+2.4.19-ck7	8:38.07		87%
 
-#ifdef CONFIG_IP_NF_NAT_NEEDED
-EXPORT_SYMBOL(ip_ftp_lock);
-#endif
+_IOLOAD_
+Kernel		Time		CPU
+2.4.19		11:23.86		65%
+2.5.34		10:48.24		72%
+2.4.19-0.24pre4	11:51.79		63%
+2.4.19-ck7	10:41.56		71%
 
-and in Makefile:
+_MEMLOAD_
+Kernel		Time		CPU
+2.4.19		10:00.63	78%
+2.5.34		[7:45.80]	[99%] 
+2.4.19-0.24pre4	10:37.85	78%
+2.4.19-ck7	10:46.06	72%
 
-ifdef CONFIG_IP_NF_NAT_FTP
-        export-objs += ip_conntrack_ftp.o
-endif
+Ciao,
+         Paolo
+-- 
+Get your free email from www.linuxmail.org 
 
-For some reason these didn't match with my .config, relevant part attached.
 
-// Jarno
-
-#
-#   IP: Netfilter Configuration
-#
-CONFIG_IP_NF_CONNTRACK=m
-CONFIG_IP_NF_FTP=m
-CONFIG_IP_NF_IRC=m
-# CONFIG_IP_NF_QUEUE is not set
-CONFIG_IP_NF_IPTABLES=m
-CONFIG_IP_NF_MATCH_LIMIT=m
-CONFIG_IP_NF_MATCH_MAC=m
-CONFIG_IP_NF_MATCH_PKTTYPE=m
-CONFIG_IP_NF_MATCH_MARK=m
-CONFIG_IP_NF_MATCH_MULTIPORT=m
-CONFIG_IP_NF_MATCH_TOS=m
-CONFIG_IP_NF_MATCH_ECN=m
-CONFIG_IP_NF_MATCH_DSCP=m
-CONFIG_IP_NF_MATCH_AH_ESP=m
-CONFIG_IP_NF_MATCH_LENGTH=m
-CONFIG_IP_NF_MATCH_TTL=m
-CONFIG_IP_NF_MATCH_TCPMSS=m
-# CONFIG_IP_NF_MATCH_HELPER is not set
-# CONFIG_IP_NF_MATCH_STATE is not set
-# CONFIG_IP_NF_MATCH_CONNTRACK is not set
-CONFIG_IP_NF_MATCH_UNCLEAN=m
-CONFIG_IP_NF_MATCH_OWNER=m
-CONFIG_IP_NF_FILTER=m
-CONFIG_IP_NF_TARGET_REJECT=m
-CONFIG_IP_NF_TARGET_MIRROR=m
-# CONFIG_IP_NF_NAT is not set
-CONFIG_IP_NF_MANGLE=m
-CONFIG_IP_NF_TARGET_TOS=m
-CONFIG_IP_NF_TARGET_ECN=m
-CONFIG_IP_NF_TARGET_DSCP=m
-CONFIG_IP_NF_TARGET_MARK=m
-CONFIG_IP_NF_TARGET_LOG=m
-CONFIG_IP_NF_TARGET_ULOG=m
-CONFIG_IP_NF_TARGET_TCPMSS=m
-CONFIG_IP_NF_ARPTABLES=m
-CONFIG_IP_NF_ARPFILTER=m
-CONFIG_IP_NF_COMPAT_IPCHAINS=m
-CONFIG_IP_NF_NAT_NEEDED=y
-# CONFIG_IP_NF_COMPAT_IPFWADM is not set
-CONFIG_IPV6=m
-
-#
-#   IPv6: Netfilter Configuration
-#
-# CONFIG_IP6_NF_QUEUE is not set
-CONFIG_IP6_NF_IPTABLES=m
-CONFIG_IP6_NF_MATCH_LIMIT=m
-CONFIG_IP6_NF_MATCH_MAC=m
-CONFIG_IP6_NF_MATCH_MULTIPORT=m
-# CONFIG_IP6_NF_MATCH_OWNER is not set
-CONFIG_IP6_NF_MATCH_MARK=m
-CONFIG_IP6_NF_MATCH_LENGTH=m
-# CONFIG_IP6_NF_MATCH_EUI64 is not set
-CONFIG_IP6_NF_FILTER=m
-CONFIG_IP6_NF_TARGET_LOG=m
-CONFIG_IP6_NF_MANGLE=m
-CONFIG_IP6_NF_TARGET_MARK=m
-# CONFIG_KHTTPD is not set
-# CONFIG_ATM is not set
-# CONFIG_VLAN_8021Q is not set
-
+Powered by Outblaze

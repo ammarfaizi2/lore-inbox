@@ -1,84 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261532AbVBHW1L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261589AbVBHWbA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261532AbVBHW1L (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Feb 2005 17:27:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261552AbVBHW1K
+	id S261589AbVBHWbA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Feb 2005 17:31:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261596AbVBHWbA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Feb 2005 17:27:10 -0500
-Received: from grendel.digitalservice.pl ([217.67.200.140]:6855 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S261532AbVBHW1D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Feb 2005 17:27:03 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [RFC][PATCH] swsusp: do not use higher order allocations on resume [update 2]
-Date: Tue, 8 Feb 2005 23:28:00 +0100
-User-Agent: KMail/1.7.1
-Cc: LKML <linux-kernel@vger.kernel.org>,
-       Nigel Cunningham <ncunningham@linuxmail.org>,
-       Hu Gang <hugang@soulinfo.com>
-References: <200501310019.39526.rjw@sisk.pl> <200502081929.19503.rjw@sisk.pl> <20050208191001.GB2544@elf.ucw.cz>
-In-Reply-To: <20050208191001.GB2544@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+	Tue, 8 Feb 2005 17:31:00 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:28639 "EHLO suse.cz")
+	by vger.kernel.org with ESMTP id S261589AbVBHWau (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Feb 2005 17:30:50 -0500
+Date: Mon, 7 Feb 2005 19:51:43 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: dtor_core@ameritech.net
+Cc: David Fries <dfries@mail.win.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Linux joydev joystick disconnect patch 2.6.11-rc2
+Message-ID: <20050207185143.GA2006@ucw.cz>
+References: <20041123212813.GA3196@spacedout.fries.net> <d120d500050201072413193c62@mail.gmail.com> <20050206131241.GA19564@ucw.cz> <200502062021.13726.dtor_core@ameritech.net> <20050207122033.GA16959@ucw.cz> <d120d500050207062257490ae2@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200502082328.00937.rjw@sisk.pl>
+In-Reply-To: <d120d500050207062257490ae2@mail.gmail.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday, 8 of February 2005 20:10, Pavel Machek wrote:
-> Hi!
-> 
-> > > so it is okay, but... 
-> > 
-> > ... I could have done it more elegantly.  You're right, I've now introduced
-> > a function eat_page() that adds a page to the list of unusable pages and
-> > used it instead of the free_page() here.
-> 
-> Thanks.
-> 
-> > > > +		p = pbe;
-> > > > +		pbe += PB_PAGE_SKIP;
-> > > > +		do
-> > > > +			p->next = p + 1;
-> > > > +		while (p++ < pbe);
-> > > 
-> > > I've already seen this code somewhere around in different
-> > > variant... Perhaps you want to make it inline function?
-> > 
-> > I tried to avoid modifying the suspend part, but if it's not a problem,
-> > why don't we go farther and reuse alloc_pagedir() in the resume code?
-> > 
-> > It has the advantage that read_pagedir() is then much simpler, and it
-> > returns an integer.  However, for this purpose, it's better to split
-> > alloc_pagedir() into two functions, one of which allocates memory pages,
-> > and the second puts the list structure on them.
-> 
-> I guess that modifying suspend part is okay. We do not want to have
-> two copies of similar code...
-> 
-> > > > +	if(!(pagedir_nosave = swsusp_pagedir_relocate(p)))
-> > > > +		return -ENOMEM;
-> > > 
-> > > Same here.
-> > 
-> > The value is used in error reporting and the only reason why this function
-> > may fail is the lack of memory (the same applies to alloc_pagedir()).
-> > 
-> > The revised (not as thoroughly tested as the previous one, but hopefully
-> > nicer) patch follows.
-> 
-> I guess I'll wait for "reuse alloc_pagedir" version.
+On Mon, Feb 07, 2005 at 09:22:19AM -0500, Dmitry Torokhov wrote:
 
-It's this one. :-)
+> On Mon, 7 Feb 2005 13:20:33 +0100, Vojtech Pavlik <vojtech@suse.cz> wrote:
+> > On Sun, Feb 06, 2005 at 08:21:13PM -0500, Dmitry Torokhov wrote:
+> > > > > Opening braces should go on the same line as the statement (if (...) {).
+> > > >  
+> > > > How about this patch?
+> > >
+> > > Looks fine now. Hmm, wait a sec... Don't we also need kill_fasync calls in
+> > > disconnect routines as well?
+> > 
+> > This should do it:
+> > 
+> 
+> Not quite...
+> 
+> > +               list_for_each_entry(list, &evdev->list, node)
+> > +                       kill_fasync(&list->fasync, SIGIO, POLLHUP | POLLERR);
+> 
+> Wrong band constants - for SIGIO POLL_HUP and POLL_ERR should be used.
 
-Greets,
-Rafael
+Obviously only one of them, since they're not designed for ORing. I used POLL_HUP then.
 
+> /*
+>  * SIGPOLL si_codes
+>  */
+> #define POLL_IN         (__SI_POLL|1)   /* data input available */
+> #define POLL_OUT        (__SI_POLL|2)   /* output buffers available */
+> #define POLL_MSG        (__SI_POLL|3)   /* input message available */
+> #define POLL_ERR        (__SI_POLL|4)   /* i/o error */
+> #define POLL_PRI        (__SI_POLL|5)   /* high priority input available */
+> #define POLL_HUP        (__SI_POLL|6)   /* device disconnected */
+ 
 
 -- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+Vojtech Pavlik
+SuSE Labs, SuSE CR

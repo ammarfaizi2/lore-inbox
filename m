@@ -1,40 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265481AbUFWPCT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266249AbUFWPFH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265481AbUFWPCT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jun 2004 11:02:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265979AbUFWPCT
+	id S266249AbUFWPFH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jun 2004 11:05:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266562AbUFWPFG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jun 2004 11:02:19 -0400
-Received: from [213.146.154.40] ([213.146.154.40]:64663 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S265481AbUFWPCO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jun 2004 11:02:14 -0400
-Date: Wed, 23 Jun 2004 16:02:10 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Pat Gefre <pfg@sgi.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org, erikj@sgi.com,
-       devices@lanana.org
-Subject: Re: [PATCH 2.6] Altix serial driver
-Message-ID: <20040623150210.GA24133@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Pat Gefre <pfg@sgi.com>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org, erikj@sgi.com, devices@lanana.org
-References: <20040622183621.GA7490@infradead.org> <Pine.SGI.3.96.1040623094018.19458B-100000@fsgi900.americas.sgi.com>
-Mime-Version: 1.0
+	Wed, 23 Jun 2004 11:05:06 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:29895 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S266249AbUFWPEv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jun 2004 11:04:51 -0400
+Date: Wed, 23 Jun 2004 08:04:42 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Phy Prabab <phyprabab@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: slow performance w/patch-2.6.7-mjb1
+Message-ID: <1945190000.1088003081@[10.10.2.4]>
+In-Reply-To: <20040623013419.18165.qmail@web51805.mail.yahoo.com>
+References: <20040623013419.18165.qmail@web51805.mail.yahoo.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.SGI.3.96.1040623094018.19458B-100000@fsgi900.americas.sgi.com>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 23, 2004 at 09:42:17AM -0500, Pat Gefre wrote:
-> Guess I should have said "different" major/minor. We have asked lanana
-> for our own major/minor - but, as yet, no response.... So we picked a
-> different one.
+> So I configed with your patch just the basics and get
+> similar times that I do with 2.6.7 virigin and 2.4.21.
+>  However, as soon as I enable 4G split, the rt
+> increases by ~35s (out of 1m45s compared to 1m10s). 
+> Do you know if this is in line w/expectations?  Is
+> there anyway to reduce this?
 
-Please wait a resonse from LANANA then.  As you already have that support
-just kill the SYSFS_ONLY ifdef (which is grossly misnamed, btw - people have
-used dynamic majors and minnors long before sysfs was invented)
+Syscalls, etc will definitely be slower ... but it's not normally
+that severe ... what's the workload? And how much of hte increase
+is systime vs user time? (use /usr/bin/time, not the shell builtin)
+
+M.
+
+
+

@@ -1,108 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130663AbRAINLA>; Tue, 9 Jan 2001 08:11:00 -0500
+	id <S129990AbRAINSL>; Tue, 9 Jan 2001 08:18:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130846AbRAINKu>; Tue, 9 Jan 2001 08:10:50 -0500
-Received: from hermes.mixx.net ([212.84.196.2]:53513 "HELO hermes.mixx.net")
-	by vger.kernel.org with SMTP id <S130663AbRAINKg>;
-	Tue, 9 Jan 2001 08:10:36 -0500
-Message-ID: <3A5B0D0C.719E69F@innominate.de>
-Date: Tue, 09 Jan 2001 14:07:24 +0100
-From: Daniel Phillips <phillips@innominate.de>
-Organization: innominate
-X-Mailer: Mozilla 4.72 [de] (X11; U; Linux 2.2.16 i586)
-X-Accept-Language: en
+	id <S130748AbRAINSB>; Tue, 9 Jan 2001 08:18:01 -0500
+Received: from slc35.modem.xmission.com ([166.70.9.35]:50186 "EHLO
+	flinx.biederman.org") by vger.kernel.org with ESMTP
+	id <S129990AbRAINR4>; Tue, 9 Jan 2001 08:17:56 -0500
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: zlatko@iskon.hr, Rik van Riel <riel@conectiva.com.br>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Subtle MM bug
+In-Reply-To: <Pine.LNX.4.10.10101082322030.1222-100000@penguin.transmeta.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 09 Jan 2001 04:38:56 -0700
+In-Reply-To: Linus Torvalds's message of "Mon, 8 Jan 2001 23:27:15 -0800 (PST)"
+Message-ID: <m1snmtgdkf.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.5
 MIME-Version: 1.0
-To: "Michael D. Crawford" <crawford@goingware.com>,
-        Stephen Rothwell <sfr@linuxcare.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: FS callback routines
-In-Reply-To: <3A5A4958.CE11C79B@goingware.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Michael D. Crawford" wrote:
-> 
-> Regarding notification when there's a change to the filesystem:
-> 
-> This is one of the most significant things about the BeOS BFS filesystem, and
-> something I'd dearly love to see Linux adopt.  It makes an app very efficient,
-> you just get notified when a directory changes and you never waste time polling.
-> 
-> I think it would require changes to the VFS layer, not just to the filesystems,
-> because this is a concept POSIX filesystems do not presently possess.
-> 
-> The other is indexed filesystem attributes, for example a file can have its
-> mimetype in the filesystem, and any application can add an attribute and have it
-> indexed.
-> 
-> There's a method to do boolean queries on indexed attributes, and you can find
-> files in an entire filesystem that match a query in a blazingly short time, much
-> faster than walking the directory tree.
-> 
-> If you want to try out the BeOS, there's a free-as-in-beer version at
-> http://free.be.com for Pentium PC's.  You can also purchase a version that comes
-> for both PC's and certain PowerPC macs.
-> 
-> There are read-only versions of this for Linux which I believe are under the
-> GPL.  The original author is here:
-> 
-> http://hp.vector.co.jp/authors/VA008030/bfs/
-> 
-> He refers you to here to get a version that works under 2.2.16:
-> 
-> http://milosch.net/beos/
-> 
-> The author's intention was to take it read-write, but it's complex because it is
-> a journaling filesystem.
-> 
-> Daniel Berlin, a BeOS developer modified the Linux BFS driver so it works with
-> 2.4.0-test1.  I don't know if it works with 2.4.0.  The web site where it used
-> to be posted isn't there anymore, and the laptop where I had it is in for
-> repair.  I may have it on a backup, and I'll see if I can track Daniel down.
-> 
-> While Be, Inc.'s implementation is closed-source, the design of the BFS (_not_
-> "befs" as it is sometimes called) is explained in Practical File System Design
-> with the Be File System by Dominic Giampolo, ISBN 1-55860-497-9.  Dominic has
-> since left Be and I understand works at Google now.
+Linus Torvalds <torvalds@transmeta.com> writes:
 
-fs/dnotify.c:
+> On 8 Jan 2001, Eric W. Biederman wrote:
+> 
+> > Zlatko Calusic <zlatko@iskon.hr> writes:> 
+> > > 
+> > > Yes, but a lot more data on the swap also means degraded performance,
+> > > because the disk head has to seek around in the much bigger area. Are
+> > > you sure this is all OK?
+> > 
+> > I don't think we have more data on the swap, just more data has an
+> > allocated home on the swap.
+> 
+> I think Zlatko's point is that because of the extra allocations, we will
+> have worse locality (more seeks etc). 
+> 
+> Clearly we should not actually do any more actual IO. But the sticky
+> allocation _might_ make the IO we do be more spread out.
 
-   /*
-    * Directory notifications for Linux.
-    *
-    * Copyright (C) 2000 Stephen Rothwell
-    ...
+The tradeoff when implemented correctly is that writes will tend to be
+more spread out and reads should be better clustered together. 
 
-The currently defined events are:
+> To offset that, I think the sticky allocation makes us much better able to
+> handle things like clustering etc more intelligently, which is why I think
+> it's very much worth it.  But let's not close our eyes to potential
+> downsides.
 
-	DN_ACCESS	A file in the directory was accessed (read)
-	DN_MODIFY	A file in the directory was modified (write,truncate)
-	DN_CREATE	A file was created in the directory
-	DN_DELETE	A file was unlinked from directory
-	DN_RENAME	A file in the directory was renamed
-	DN_ATTRIB	A file in the directory had its attributes
-			changed (chmod,chown)
+Certainly, keeping ours eyes open is a good a good thing.
 
-It was done last year, quietly and without fanfare, by Stephen Rothwell:
+But it has been apparent for a long time that by doing allocation as
+we were doing it, that when it came to heavy swapping we were taking a
+performance hit.  So I'm relieved that we are now being more aggressive.
 
-  http://www.linuxcare.com/about-us/os-dev/rothwell.epl
+>From the sounds of it what we are currently doing actually sucks worse
+for some heavy loads.  But it still feels like the right direction.
 
-This may be the most significant new feature in 2.4.0, as it allows us
-to take a fundamentally different approach to many different problems. 
-Three that come to mind: mail (get your mail instantly without polling);
-make (don't rely on timestamps to know when rebuilding is needed, don't
-scan huge directory trees on each build); locate (reindex only those
-directories that have changed, keep index database current).  As you
-noticed, there are many others.
+It's been my impression that work loads where we are actively swapping
+are a lot different from work loads where we really don't swap.  To
+the extent that it might make sense to make the actively swapping case
+a config option to get our attention in the code.  It would be nice
+to have a linux kernel for once that handles heavy swapping (below
+the level of thrashing) gracefully. :)
 
-Stephen, it would be very interesting to know more about the development
-process you went through and what motivated you to provide this
-fundamental facility.
-
---
-Daniel
+Eric
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,39 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263418AbTEITOr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 15:14:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263422AbTEITOr
+	id S263397AbTEITMe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 15:12:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263409AbTEITMe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 15:14:47 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:40637 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263418AbTEITOq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 15:14:46 -0400
-Date: Fri, 9 May 2003 12:29:08 -0700
-From: Greg KH <greg@kroah.com>
-To: David Brownell <david-b@pacbell.net>
-Cc: Max Krasnyansky <maxk@qualcomm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: [linux-usb-devel] Re: [Bluetooth] HCI USB driver update.   Support for SCO over HCI USB.
-Message-ID: <20030509192908.GA2233@kroah.com>
-References: <200304290317.h3T3HOdA027579@hera.kernel.org> <200304290317.h3T3HOdA027579@hera.kernel.org> <5.1.0.14.2.20030429131303.10d7f330@unixmail.qualcomm.com> <5.1.0.14.2.20030429145523.10c52e50@unixmail.qualcomm.com> <5.1.0.14.2.20030508123858.01c004f8@unixmail.qualcomm.com> <3EBBFC33.7050702@pacbell.net>
-Mime-Version: 1.0
+	Fri, 9 May 2003 15:12:34 -0400
+Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:37267
+	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
+	id S263397AbTEITMd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 May 2003 15:12:33 -0400
+Message-ID: <3EBC0084.4090809@redhat.com>
+Date: Fri, 09 May 2003 12:24:52 -0700
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4b) Gecko/20030506
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "H. Peter Anvin" <hpa@zytor.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: hammer: MAP_32BIT
+References: <3EBB5A44.7070704@redhat.com> <20030509092026.GA11012@averell> <16059.37067.925423.998433@gargle.gargle.HOWL> <20030509113845.GA4586@averell> <b9gr03$42n$1@cesium.transmeta.com>
+In-Reply-To: <b9gr03$42n$1@cesium.transmeta.com>
+X-Enigmail-Version: 0.75.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3EBBFC33.7050702@pacbell.net>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 09, 2003 at 12:06:27PM -0700, David Brownell wrote:
-> 
-> I'd certainly like the list_head.  Patch attached,
-> in case Greg agrees enough.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I agree, but will only take the patch if a driver is modified to
-actually use this.  I'll take both patches at once :)
+H. Peter Anvin wrote:
 
-thanks,
+> How about this: since the address argument is basically unused anyway
+> unless MAP_FIXED is set, how about a MAP_MAXADDR which interprets the
+> address argument as the highest permissible address (or lowest
+> nonpermissible address)?
 
-greg k-h
+You miss the point of my initial mail: I need a way to say "preferrably
+32bit address, otherwise give me what you have".  MAP_32BIT already
+provides a way to require 32 bit addresses.
+
+- -- 
+- --------------.                        ,-.            444 Castro Street
+Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
+Red Hat         `--' drepper at redhat.com `---------------------------
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+vACE2ijCOnn/RHQRAl3rAKCYgj3LqvIDJ8Ny3pnii8bBvsbwrQCdGkg4
+pnFnBmubkRnnsVfBSjDBBWQ=
+=P8SV
+-----END PGP SIGNATURE-----
+

@@ -1,121 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262702AbTH3DGA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Aug 2003 23:06:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262423AbTH3DGA
+	id S262408AbTH3DCr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Aug 2003 23:02:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262396AbTH3DCr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Aug 2003 23:06:00 -0400
-Received: from fw.osdl.org ([65.172.181.6]:61403 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262421AbTH3DFx (ORCPT
+	Fri, 29 Aug 2003 23:02:47 -0400
+Received: from smtp01.web.de ([217.72.192.180]:27399 "EHLO smtp.web.de")
+	by vger.kernel.org with ESMTP id S262296AbTH3DCo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Aug 2003 23:05:53 -0400
-Date: Fri, 29 Aug 2003 20:09:26 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Mike Fedyk <mfedyk@matchmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: OOps in 2.6.0-test4-mm3-1
-Message-Id: <20030829200926.3e2b7eb6.akpm@osdl.org>
-In-Reply-To: <20030830014309.GA898@matchmail.com>
-References: <20030828235649.61074690.akpm@osdl.org>
-	<20030830014309.GA898@matchmail.com>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Fri, 29 Aug 2003 23:02:44 -0400
+Subject: 2.4/2.6 - ATAPI Zip problem in SCSI mode (DEVFS)
+From: Ali Akcaagac <aliakc@web.de>
+To: linux-kernel@vger.kernel.org
+Cc: linux-scsi@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1062212548.14628.22.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Sat, 30 Aug 2003 05:02:28 +0200
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Fedyk <mfedyk@matchmail.com> wrote:
->
-> It's vanilla mm3-1 with this one patch added from Neil Brown.  I don't think
-> it has anything to do with it (it looks like a driver issue to me).  But it
-> can't hurt to mention it.
-> 
+Hello,
 
-No, it is not an MD thing.
+There is a problem with the ZIP driver that follows me for quite a
+longer time now. I can't exactly tell if it's the ZIP driver or an devfs
+or an scsi emulation problem but I try to describe the problemcase as
+good as possible.
 
-You need two patches.  It's up to the scsi guys to decide if they're the
-right way to go.  I think they are.
+I have an ATAPI Zip drive which I run through the SCSI emulation mode on
+2.4/2.6 for quite some time now and my devs entries are being created
+with devfs and devfsd which I'm running successfully for a couple of
+years now.
 
+Around 1 year or so, something has changed and finally today I found the
+time writing about it.
 
+The problem is that when having Linux booted and placing a Zip disk into
+the drive then mounting doesn't work. It tells me that the device
+doesn't exist. But the drive was found during boot.
 
+So far so good on early 2.4 you simply cd into /dev/scsi.../.../ made an
+'ls' and voila it gave the device a kick and it created the entry for
+the Zip disk you then can mount it (devfs).
 
-Some drivers such as aha1542 and aic7xxx_old will call scsi_register() and
-then, if some succeeding operations fails they will call scsi_unregister(),
-without an intervening scsi_set_host().
+For 2.5 this doesn't work anymore and whenever you want to mount a Zip
+disk you need to boot Linux together with a Disk inside the Drive, so
+during boot it detects the Zip drive + the Disk.
 
-This causes an oops in scsi_put_device(), because kobj->parent is NULL.
+But this behaviour is not correct because this opens the points:
 
-In other words, scsi_register() immediately followed by scsi_unregister()
-is guaranteed to oops.
+a) I run my ATAPI CD-Rom in SCSI mode as well and it doesn't require a
+media loaded during bootup. I can put a CD in whenever I want enter
+mount /cdrom and voila it realizes the CD and mounts it. The CD-Rom is
+being detected on boot nicely.
 
-The patch makes scsi_host_dev_release() more robust against this usage
-pattern.
+b) The same I do expect for Zip. It's being detected during boot but
+somehow doesn't allow to mount if the linux kernel wasn't booted with a
+Zip disk in the drive. But it shouldn't do that. I should be able to
+boot linux normally, the drive get's detected and put a disk in it
+whenever I wish.
 
+I hope you can follow me.
 
- drivers/scsi/hosts.c |    8 +++++++-
- 1 files changed, 7 insertions(+), 1 deletion(-)
-
-diff -puN drivers/scsi/hosts.c~aha1542-oops-fix drivers/scsi/hosts.c
---- 25/drivers/scsi/hosts.c~aha1542-oops-fix	2003-08-29 19:48:37.000000000 -0700
-+++ 25-akpm/drivers/scsi/hosts.c	2003-08-29 20:02:49.000000000 -0700
-@@ -158,7 +158,13 @@ static void scsi_host_dev_release(struct
- 	scsi_proc_hostdir_rm(shost->hostt);
- 	scsi_destroy_command_freelist(shost);
- 
--	put_device(parent);
-+	/*
-+	 * Some drivers (eg aha1542) do scsi_register()/scsi_unregister()
-+	 * during probing without performing a scsi_set_device() in between.
-+	 * In this case dev->parent is NULL.
-+	 */
-+	if (parent)
-+		put_device(parent);
- 	kfree(shost);
- }
- 
-
-_
-
-
-
-and
-
-
-
-
-
-scsi_unregister() unconditionally does list_del(&shost->sht_legacy_list).
-
-But scsi_register() leaves that list_head uninitialised if scsi_host_alloc()
-returned NULL.
-
-In other words: scsi_unregister() is guaranteed to oops if scsi_host_alloc()
-fails.
-
-Fix it by initialising the list_head in scsi_register().
-
-
- drivers/scsi/hosts.c |    6 +++++-
- 1 files changed, 5 insertions(+), 1 deletion(-)
-
-diff -puN drivers/scsi/hosts.c~scsi_unregister-oops-fix drivers/scsi/hosts.c
---- 25/drivers/scsi/hosts.c~scsi_unregister-oops-fix	2003-08-29 20:02:53.000000000 -0700
-+++ 25-akpm/drivers/scsi/hosts.c	2003-08-29 20:02:53.000000000 -0700
-@@ -297,8 +297,12 @@ struct Scsi_Host *scsi_register(struct s
- 		dump_stack();
- 	}
- 
--	if (shost)
-+	if (shost) {
- 		list_add_tail(&shost->sht_legacy_list, &sht->legacy_hosts);
-+	} else {
-+		/* Do this to keep scsi_unregister() happy */
-+		INIT_LIST_HEAD(&shost->sht_legacy_list);
-+	}
- 	return shost;
- }
- 
-
-_
+For further feedback please CC me because I am not subscribed to the
+list.
 

@@ -1,53 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132138AbRALTxW>; Fri, 12 Jan 2001 14:53:22 -0500
+	id <S131879AbRALT6N>; Fri, 12 Jan 2001 14:58:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132591AbRALTxM>; Fri, 12 Jan 2001 14:53:12 -0500
-Received: from e56090.upc-e.chello.nl ([213.93.56.90]:27913 "EHLO unternet.org")
-	by vger.kernel.org with ESMTP id <S132138AbRALTwz>;
-	Fri, 12 Jan 2001 14:52:55 -0500
-Date: Fri, 12 Jan 2001 20:52:45 +0100
-From: Frank de Lange <frank@unternet.org>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: dwmw2@infradead.org, linux-kernel@vger.kernel.org, mingo@elte.hu,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, torvalds@transmeta.com
-Subject: Re: QUESTION: Network hangs with BP6 and 2.4.x kernels, hardware related?
-Message-ID: <20010112205245.A26555@unternet.org>
-In-Reply-To: <3A5F3BF4.7C5567F8@colorfullife.com> <20010112183314.A24174@unternet.org> <3A5F4428.F3249D2@colorfullife.com> <20010112192500.A25057@unternet.org> <3A5F5538.57F3FDC5@colorfullife.com> <20010112202104.C25675@unternet.org> <3A5F5BFB.69134DB9@colorfullife.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3A5F5BFB.69134DB9@colorfullife.com>; from manfred@colorfullife.com on Fri, Jan 12, 2001 at 08:33:15PM +0100
+	id <S132348AbRALT5x>; Fri, 12 Jan 2001 14:57:53 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:34053 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S131879AbRALT5t>; Fri, 12 Jan 2001 14:57:49 -0500
+Date: Fri, 12 Jan 2001 11:57:37 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Vojtech Pavlik <vojtech@suse.cz>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: ide.2.4.1-p3.01112001.patch
+In-Reply-To: <20010112204626.A2740@suse.cz>
+Message-ID: <Pine.LNX.4.10.10101121151560.3010-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 12, 2001 at 08:33:15PM +0100, Manfred Spraul wrote:
-> Frank, the 2.4.0 contains 2 band aids that were added for ne2k smp:
+
+
+On Fri, 12 Jan 2001, Vojtech Pavlik wrote:
 > 
-> * From Ingo: focus cpu disabled, in arch/i386/kernel/apic.c
-> * From myself: TARGET_CPU = cpu_online_mask, was 0xFF.
-> 
-> Could you disable both bandaids? I disabled them, no problems so far.
+> I've got a vt82c586 here (bought it just for testing of this problem),
+> and I wasn't able to create any corruption using that board and the 2.4
+> drivers.
 
-I disabled both (I guess you meant the 'define TARGET_CPUS cpu_online' in
-io_apic.c?), and reverted my own patch, added your patch... Now running with
-the usual heavy network load, no problems so far... Also made USB produce
-interrupts (shares irq with network), no problems...
+The fact that it works on one board doesn't mean that it works on _every_
+board.
 
-Could this really be the solution?
+This is, in fact, why I will _NOT_ accept anything but a simple auto-dma
+disable for this problem for early 2.4.x. I hope that people will continue
+to work on and debug this problem, but it's just been around for too long,
+and it's obvious enough that it doesn't happen with all hardware that I
+doubt there is any other reasonable solution that doesn't require some
+_very_ extensive testing to verify.
 
-Cheers//Frank
--- 
-  WWWWW      _______________________
- ## o o\    /     Frank de Lange     \
- }#   \|   /                          \
-  ##---# _/     <Hacker for Hire>      \
-   ####   \      +31-320-252965        /
-           \    frank@unternet.org    /
-            -------------------------
- [ "Omnis enim res, quae dando non deficit, dum habetur
-    et non datur, nondum habetur, quomodo habenda est."  ]
+I'd love to see people who see these problems and are willing to test out
+patches to fix it. But in parallel with that, I definitely want the 2.2.x
+"disable auto-DMA" thing for the big public. We can enable it later if
+some patch does seem to fix it for good.
+
+			Linus
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,94 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262322AbSJ0JCP>; Sun, 27 Oct 2002 04:02:15 -0500
+	id <S262325AbSJ0JWH>; Sun, 27 Oct 2002 04:22:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262323AbSJ0JCP>; Sun, 27 Oct 2002 04:02:15 -0500
-Received: from h-66-166-207-249.SNVACAID.covad.net ([66.166.207.249]:39843
-	"EHLO freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S262322AbSJ0JCM>; Sun, 27 Oct 2002 04:02:12 -0500
-Date: Sun, 27 Oct 2002 01:08:23 -0800
-From: "Adam J. Richter" <adam@yggdrasil.com>
-To: mj@ucw.cz
-Cc: linux-kernel@vger.kernel.org
-Subject: Patch: linux-2.5.44/include/linux/pci.h - eliminate pci_dev.driver_data
-Message-ID: <20021027010823.A305@baldur.yggdrasil.com>
+	id <S262326AbSJ0JWH>; Sun, 27 Oct 2002 04:22:07 -0500
+Received: from smtp.mailix.net ([216.148.213.132]:39761 "EHLO smtp.mailix.net")
+	by vger.kernel.org with ESMTP id <S262325AbSJ0JWE>;
+	Sun, 27 Oct 2002 04:22:04 -0500
+Date: Sun, 27 Oct 2002 11:28:21 +0100
+From: Alex Riesen <fork0@users.sf.net>
+To: Vladim?r Trebick? <guru@cimice.yo.cz>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Swap doesn't work
+Message-ID: <20021027102821.GA4778@steel>
+Reply-To: Alex Riesen <fork0@users.sf.net>
+References: <20021027092337.GA4507@steel> <000601c27d96$15654540$4500a8c0@cybernet.cz>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="17pEHd4RhPHOinZp"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2i
+In-Reply-To: <000601c27d96$15654540$4500a8c0@cybernet.cz>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Vladim?r Trebick?, Sun, Oct 27, 2002 09:51:17 +0100:
+> > Does your swap partition show up in /proc/swaps? It has to contain
+> > something like this:
+> I have
+> /dev/hda6                       partition       594364  0       -1
 
---17pEHd4RhPHOinZp
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+looks ok.
 
-Hi Martin,
+> > Btw, do you see something swap-related in dmesg? Like:
+> 
+> In dmesg I see only this, but some problem with signanture is in syslog
+> (at the end of this mail)
+> 
+> $ dmesg | grep swap
+> Starting kswapd
+> Adding Swap: 594364k swap-space (priority -1)
+> 
+> > How did you initialized the swap partition? Recent kernels support both
+> > v1 and v2 swaps, which is can be set for mkswap using -v0 (-v1).
+> > Actually i mean did you initialized it at all? 8)
+> 
+> I just created a partition with fdisk /dev/hda6, done "mkswap /dev/hda6" put
 
-	In 2.5.44 (don't know when it first appeared), the generic
-struct device has a "void *driver_data" field.  The following patch
-eliminates pci_dev.driver_data, using pci_dev.dev.driver_data instead.
+May i assume you did swapoff before?
 
-	The immediate benefits are small but pretty clear:
+> the information to /etc/fstab and turned it on with "swapon -a". TOP shows
+> Swap:  594364K av,       0K used,  594364K free
+> 
+> syslog logs these kinds of kernel messages (those I guess are important):
+> 
+> Sep 29 22:04:19 shunka kernel: swap_free: Bad swap offset entry 1b3d0000
+> ...
+> Sep 29 22:04:19 shunka kernel: swap_free: Bad swap offset entry 1b3d0000
+> ...
+> Sep 10 10:03:28 shunka2 kernel: swap_dup: Bad swap file entry 00000022
 
-	1. Shrinks all struct pci_dev's by 4 (or 8) bytes.
-	2. Shrinks include/linux/pci.h by 1 line.
-	3. Avoids potential bugs by programmers getting conufsed between
-	   the two.
-	4. Prevents anyone from writing drivers that use both pointers
-	   separately, which would make it harder to make this change
-	   in the future.  This is a reason to make the change now.
+You change hostname inbetween or this is just a typo?
 
-	Only six driver files in 2.5.44 attempted to reference
-pci_dev.driver_data directly, and I have submitted patches
-to make them use pci_{get,set}_drvdata to their maintainers
-(cc'ed to linux-kernel).
+> Sep  4 21:30:40 shunka kernel: Unable to find swap-space signature        //
+> !!!!!!!!
 
-	I am sending this email from a machine running this patch.
+Wow. Any of the errors above prevents swap partition from being used.
+How did you manage to see anything in /proc/swaps?
+I suggest you do:
+ swapoff /dev/hda6
+ badblocks /dev/hda6
 
-	By the way, there is an additional future benefit that I
-envision.  In the future, I would like to add an optional
-device_driver.devpriv_size field that could eliminate some initial
-memory allocation, error branch and memory deallocation in about a
-hundred drivers (well, at least after allocation of network, SCSI, USB
-interfaces is done by filling in a pointer to a structure rather than
-having a routine that does its own kmalloc).
+Alternatively, you can try
 
--- 
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
+dd if=/dev/zero of=/dev/hda6; mkswap /dev/hda6
 
---17pEHd4RhPHOinZp
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="pci.diff"
+Look for "SWAP-SPACE" (old swap) or "SWAPSPACE2" (the new one).
+Just to make sure you've initialized the partition properly.
+Than turn it on: swapon /dev/hda6; tail /var/log/syslog
 
---- linux-2.5.44/include/linux/pci.h	2002-10-18 21:01:53.000000000 -0700
-+++ linux/include/linux/pci.h	2002-10-27 01:05:49.000000000 -0800
-@@ -344,7 +344,6 @@
- 	u8		rom_base_reg;	/* which config register controls the ROM */
- 
- 	struct pci_driver *driver;	/* which driver has allocated this device */
--	void		*driver_data;	/* data private to the driver */
- 	u64		dma_mask;	/* Mask of the bits of bus address this
- 					   device implements.  Normally this is
- 					   0xffffffff.  You only need to change
-@@ -758,12 +757,12 @@
-  */
- static inline void *pci_get_drvdata (struct pci_dev *pdev)
- {
--	return pdev->driver_data;
-+	return pdev->dev.driver_data;
- }
- 
- static inline void pci_set_drvdata (struct pci_dev *pdev, void *data)
- {
--	pdev->driver_data = data;
-+	pdev->dev.driver_data = data;
- }
- 
- /*
+> Oct 26 19:25:29 shunka kernel:  <1>Unable to handle kernel paging request at
+> virtual address 2064656e
 
---17pEHd4RhPHOinZp--
+Oops, you've sent, is pretty useless without decoding. Read
+Documentation/oops-tracing.txt from the kernel source tree.
+
+-alex

@@ -1,90 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271080AbTGWCYI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jul 2003 22:24:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271089AbTGWCYI
+	id S271073AbTGWCWK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jul 2003 22:22:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271070AbTGWCWK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jul 2003 22:24:08 -0400
-Received: from CPE-65-29-18-15.mn.rr.com ([65.29.18.15]:63660 "EHLO
-	www.enodev.com") by vger.kernel.org with ESMTP id S271080AbTGWCYD
+	Tue, 22 Jul 2003 22:22:10 -0400
+Received: from www.opensource-ca.org ([168.234.203.30]:34263 "EHLO
+	guug.galileo.edu") by vger.kernel.org with ESMTP id S271055AbTGWCWG
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jul 2003 22:24:03 -0400
-Subject: Re: Promise SATA driver GPL'd
-From: Shawn <core@enodev.com>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: Erik Andersen <andersen@codepoet.org>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.10.10307221852030.8687-100000@master.linux-ide.org>
-References: <Pine.LNX.4.10.10307221852030.8687-100000@master.linux-ide.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1058927928.8504.3.camel@localhost>
+	Tue, 22 Jul 2003 22:22:06 -0400
+Date: Tue, 22 Jul 2003 20:32:29 -0600
+To: "David S. Miller" <davem@redhat.com>
+Cc: zaitcev@redhat.com, linux-kernel@vger.kernel.org,
+       sparclinux@vger.kernel.org, debian-sparc@lists.debian.org
+Subject: Re: sparc scsi esp depends on pci & hangs on boot
+Message-ID: <20030723023229.GC30174@guug.org>
+References: <20030722025142.GC25561@guug.org> <20030722080905.A21280@devserv.devel.redhat.com> <20030722182609.GA30174@guug.org> <20030722175400.4fe2aa5d.davem@redhat.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 22 Jul 2003 21:38:48 -0500
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030722175400.4fe2aa5d.davem@redhat.com>
+User-Agent: Mutt/1.5.4i
+From: Otto Solares <solca@guug.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Holy piss Andre, you've got to be one of the funnier kernel guys...
+On Tue, Jul 22, 2003 at 05:54:00PM -0700, David S. Miller wrote:
+> On Tue, 22 Jul 2003 12:26:09 -0600
+> Otto Solares <solca@guug.org> wrote:
+> 
+> > converting the esp scsi driver to sbus without
+> > pci requirement is the right step IMO.  Maybe
+> > the scsi people can comment on this.
+> 
+> No, the problem is that SCSI DMA transfer direction
+> macros are defined in terms of PCI ones.  That's all,
+> it's a minor issue and probably easily solved.
 
-On Tue, 2003-07-22 at 20:59, Andre Hedrick wrote:
-> It is a HUGE POS!
-> 
-> The obfustication (sp) level is so high you wonder why.
-> It may be GPL, but only goes to prove a few points that everyone lost on
-> me in the past.
-> 
-> OEM drivers in ATA suck!  Their CAM blows goat.
-> 
-> Look at the crap in the stack when Marcelo was suckered into taking a
-> "Promise Patch".
-> 
-> I have already cut all ties with Promise so here is the deal.
-> I no longer have to count the number of fingers on my hand between hand
-> shakes.  IE no extras and not shortages.
-> 
-> I wish you well in your adventures in pain.
-> 
-> 
-> Andre Hedrick
-> LAD Storage Consulting Group
-> 
-> On Tue, 22 Jul 2003, Erik Andersen wrote:
-> 
-> > Some folk I've done some consulting work for bought a zillion
-> > Promise SATA cards.  They were able to convince Promise to
-> > release their SATA driver, which was formerly available only as 
-> > a binary only kernel module, under the terms of the GPL.
-> > 
-> > So <drum-roll, trumpets> here it is: the Promise SATA driver for
-> > the PDC20318, PDC20375, PDC20378, and PDC20618.  This driver is
-> > released as-is.  It is useful for the
-> > 
-> > 	Promise SATA150 TX4
-> > 	Promise SATA150 TX2plus
-> > 	Promise SATA 378
-> > 	Promise Ultra 618
-> > 
-> > cards.  As a temporary download location, the GPL'd driver can be
-> > obtained from http://www.busybox.net/pdc-ultra-1.00.0.10.tgz
-> > 
-> > Have fun!  And many thanks to Promise for contributing the driver
-> > for their cards!
-> > 
-> >  -Erik
-> > 
-> > --
-> > Erik B. Andersen             http://codepoet-consulting.com/
-> > --This message was written using 73% post-consumer electrons--
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> > 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+these are the ofending messages:
+
+In file included from include/asm/dma-mapping.h:1,
+                 from include/linux/dma-mapping.h:13,
+                 from include/scsi/scsi_cmnd.h:4,
+                 from drivers/scsi/scsi.h:20,
+                 from drivers/scsi/scsi.c:57:
+include/asm-generic/dma-mapping.h: In function `dma_supported':
+include/asm-generic/dma-mapping.h:19: `pci_bus_type' undeclared (first use in this function)
+include/asm-generic/dma-mapping.h:19: (Each undeclared identifier is reported only once
+include/asm-generic/dma-mapping.h:19: for each function it appears in.)
+include/asm-generic/dma-mapping.h: In function `dma_set_mask':
+include/asm-generic/dma-mapping.h:27: `pci_bus_type' undeclared (first use in this function)
+include/asm-generic/dma-mapping.h: In function `dma_alloc_coherent':
+include/asm-generic/dma-mapping.h:36: `pci_bus_type' undeclared (first use in this function)
+include/asm-generic/dma-mapping.h: In function `dma_free_coherent':
+include/asm-generic/dma-mapping.h:45: `pci_bus_type' undeclared (first use in this function)
+include/asm-generic/dma-mapping.h: In function `dma_map_single':
+include/asm-generic/dma-mapping.h:54: `pci_bus_type' undeclared (first use in this function)
+include/asm-generic/dma-mapping.h: In function `dma_unmap_single':
+include/asm-generic/dma-mapping.h:63: `pci_bus_type' undeclared (first use in this function)
+include/asm-generic/dma-mapping.h: In function `dma_map_page':
+include/asm-generic/dma-mapping.h:73: `pci_bus_type' undeclared (first use in this function)
+include/asm-generic/dma-mapping.h: In function `dma_unmap_page':
+include/asm-generic/dma-mapping.h:82: `pci_bus_type' undeclared (first use in this function)
+include/asm-generic/dma-mapping.h: In function `dma_map_sg':
+include/asm-generic/dma-mapping.h:91: `pci_bus_type' undeclared (first use in this function)
+include/asm-generic/dma-mapping.h: In function `dma_unmap_sg':
+include/asm-generic/dma-mapping.h:100: `pci_bus_type' undeclared (first use in this function)
+include/asm-generic/dma-mapping.h: In function `dma_sync_single':
+include/asm-generic/dma-mapping.h:109: `pci_bus_type' undeclared (first use in this function)
+include/asm-generic/dma-mapping.h: In function `dma_sync_sg':
+include/asm-generic/dma-mapping.h:118: `pci_bus_type' undeclared (first use in this function)
+make[2]: *** [drivers/scsi/scsi.o] Error 1
+make[1]: *** [drivers/scsi] Error 2
+make: *** [drivers] Error 2
+
+-solca
+

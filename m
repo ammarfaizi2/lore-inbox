@@ -1,46 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318291AbSIBMu0>; Mon, 2 Sep 2002 08:50:26 -0400
+	id <S318282AbSIBNB1>; Mon, 2 Sep 2002 09:01:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318292AbSIBMuZ>; Mon, 2 Sep 2002 08:50:25 -0400
-Received: from d12lmsgate-3.de.ibm.com ([195.212.91.201]:23031 "EHLO
-	d12lmsgate-3.de.ibm.com") by vger.kernel.org with ESMTP
-	id <S318291AbSIBMuZ>; Mon, 2 Sep 2002 08:50:25 -0400
-Importance: Normal
-MIME-Version: 1.0
-Sensitivity: 
-To: Daniel Phillips <phillips@arcor.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel BUG at page_alloc.c:91! (2.4.19)
-X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
-Message-ID: <OFB29A6613.5FAAE384-ONC1256C28.00430C8B@de.ibm.com>
-From: "Heiko Carstens" <Heiko.Carstens@de.ibm.com>
-Date: Mon, 2 Sep 2002 14:54:47 +0200
-X-MIMETrack: Serialize by Router on D12ML032/12/M/IBM(Release 5.0.9a |January 7, 2002) at
- 02/09/2002 14:54:48,
-	Serialize complete at 02/09/2002 14:54:48
-Content-Type: text/plain; charset="us-ascii"
+	id <S318292AbSIBNB1>; Mon, 2 Sep 2002 09:01:27 -0400
+Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:56569
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S318282AbSIBNB0>; Mon, 2 Sep 2002 09:01:26 -0400
+Subject: Re: Problem with the O(1) scheduler in 2.4.19
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Tobias Ringstrom <tori@ringstrom.mine.nu>
+Cc: Ingo Molnar <mingo@elte.hu>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0208301822200.2042-100000@boris.prodako.se>
+References: <Pine.LNX.4.44.0208301822200.2042-100000@boris.prodako.se>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
+Date: 02 Sep 2002 14:07:13 +0100
+Message-Id: <1030972033.3490.57.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Daniel,
+On Sun, 2002-09-01 at 22:53, Tobias Ringstrom wrote:
+> While the O(1) scheduler has performed very well for me in most
+> situations, I have one big problem with it.  When running a Counter-Strike
+> game server on Linux 2.4.19 with the sched-2.4.19-rc2-A4 patch applied,
+> the server process is niced from the default value of 15 (interactive) to
+> 25 (background).  This means that every time crond wakes up or a mail
+> arrives the game latency becomes extremely bad and the users experience
+> lag.
+> 
+> The process takes around 70% CPU on these occasions, so I'm surprised that
+> the task is not considered to be interactive.
+> 
+> This does not happen with stock 2.4.19.  Do you have any ideas why this
+> regression is happening?
 
->> Looks to me that this function itself has a bug: after the drop_pte 
-label
->> it is checked if the current page has a mapping. If this is true there 
-is
->> ...
->Chances are, you've run into the subtle double-free race I've been 
-working
->on for the last few days.  Would you like to try this patch as see if it
->makes a difference?
->http://nl.linux.org/~phillips/patches/lru.race-2.4.19
-
-Thanks for the patch but unfortunately it doesn't change the behaviour at
-all. This BUG is still 100% reproducible by just having 1 process which
-allocates memory chunks of 256KB and after each allocation writes to each
-of the pages in order to make them dirty.
-
-regards,
-Heiko
+It isnt a regression, its a bug fix. The nice value is now being
+honoured properly.
 

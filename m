@@ -1,91 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129118AbQKGUw5>; Tue, 7 Nov 2000 15:52:57 -0500
+	id <S129091AbQKGUzR>; Tue, 7 Nov 2000 15:55:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129061AbQKGUwr>; Tue, 7 Nov 2000 15:52:47 -0500
-Received: from web6102.mail.yahoo.com ([128.11.22.96]:59398 "HELO
-	web6102.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S129118AbQKGUwj>; Tue, 7 Nov 2000 15:52:39 -0500
-Message-ID: <20001107205233.13661.qmail@web6102.mail.yahoo.com>
-Date: Tue, 7 Nov 2000 12:52:33 -0800 (PST)
-From: Anil kumar <anils_r@yahoo.com>
-Subject: Installing kernel 2.4
-To: linux-kernel@vger.kernel.org
+	id <S129111AbQKGUzH>; Tue, 7 Nov 2000 15:55:07 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:3968 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S129091AbQKGUyv>; Tue, 7 Nov 2000 15:54:51 -0500
+Date: Tue, 7 Nov 2000 15:54:39 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Failure to boot initrd FIXED <patch>
+Message-ID: <Pine.LNX.3.95.1001107155108.2319A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi ,
-  I installed Red Hat 7.0, I am able to find the
-  linux-2.2.16 in /usr/src
 
-  These are the following steps I did to install
-kernel 2.4:
-
-  cd /usr/src
-  #rm -r linux
-   # rm -rf linux-2.2.16
-   #tar -xvf  linux-2.4.0-test9.tar
-
-  #cd /usr/src
-#ls
- linux 
- redhat
- #mv  linux linux-2.4.0-test9
- #ln -s linux-2.4.0-test9 linux
-
-  #ls
-   linux->linux-2.4.0-test9
-   linux-2.4.0-test9
-   redhat
-  
-  #cd /usr/src/linux
-  #make xconfig
-  I just save & exit without changing the
-configuration.
-  #make dep
-  #make clean
-  #make bzImage
-  #make modules
-  #make modules_install
-
-  I find that System.map is mapped to 2.4.0, ie.. new
-  System-2.4.0-test9.map is created
-
-  #cd /boot
-  #ls
-  #vmlinuz->vmlinuz-2.4.0-test9
-  #cd /usr/src/linux/arch/i386/boot
-  #cp bzImage /boot/vmlinuz
-  
-  #vi /etc/lilo.conf
-  changed image from image = /boot/vmlinuz-2.2.16-22
-to
-  image = /boot/vmlinuz-2.4.0-test9
-
-  #lilo
-   linux
-    dos
-
-  when I boot linux
-
-  The system hangs after messages:
-  loading linux......
-  uncompressing linux, booting linux kernel OK.
-
-  The System hangs here.
-
-  Please let me know where I am wrong
-
-  with regards,
-  Anil
+This is really linux-2.4.0-test9. The patch is obviously-correct.
+Alan, will you put this into some upcoming patch please.
 
 
-__________________________________________________
-Do You Yahoo!?
-Thousands of Stores.  Millions of Products.  All in one Place.
-http://shopping.yahoo.com/
+--- /usr/src/linux-2.4.0/lib/inflate.c.orig	Tue Nov  7 08:52:59 2000
++++ /usr/src/linux-2.4.0/lib/inflate.c	Mon Nov  6 18:01:54 2000
+@@ -147,6 +147,7 @@
+ STATIC int inflate_dynamic OF((void));
+ STATIC int inflate_block OF((int *));
+ STATIC int inflate OF((void));
++STATIC void *memzero OF((char *, size_t));
+ 
+ /* The inflate algorithm uses a sliding 32 K byte window on the uncompressed
+    stream to find repeated byte strings.  This is implemented here as a
+
+
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.0 on an i686 machine (799.54 BogoMips).
+
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

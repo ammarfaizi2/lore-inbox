@@ -1,63 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262879AbVAFPmX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262861AbVAFPrt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262879AbVAFPmX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 10:42:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262881AbVAFPks
+	id S262861AbVAFPrt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 10:47:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262866AbVAFPrs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 10:40:48 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:43686 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S262883AbVAFPjA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 10:39:00 -0500
-Subject: Re: [PATCH] macros to detect existance of unlocked_ioctl and
-	ioctl_compat
-From: Lee Revell <rlrevell@joe-job.com>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Andi Kleen <ak@suse.de>, "Michael S. Tsirkin" <mst@mellanox.co.il>,
-       Andrew Morton <akpm@osdl.org>, Takashi Iwai <tiwai@suse.de>,
-       mingo@elte.hu, linux-kernel@vger.kernel.org, pavel@suse.cz,
-       discuss@x86-64.org, gordon.jin@intel.com, greg@kroah.com,
-       VANDROVE@vc.cvut.cz, Jaroslav Kysela <perex@suse.cz>
-In-Reply-To: <20050106153147.GB19324@infradead.org>
-References: <20041217014345.GA11926@mellanox.co.il>
-	 <20050103011113.6f6c8f44.akpm@osdl.org>
-	 <20050105144043.GB19434@mellanox.co.il> <s5hd5wjybt8.wl@alsa2.suse.de>
-	 <20050105133448.59345b04.akpm@osdl.org>
-	 <20050106140636.GE25629@mellanox.co.il>
-	 <20050106145356.GA18725@infradead.org>
-	 <20050106150941.GE1830@wotan.suse.de>
-	 <20050106151429.GA19155@infradead.org>
-	 <1105024942.13396.4.camel@krustophenia.net>
-	 <20050106153147.GB19324@infradead.org>
-Content-Type: text/plain
-Date: Thu, 06 Jan 2005 10:38:58 -0500
-Message-Id: <1105025938.14990.4.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+	Thu, 6 Jan 2005 10:47:48 -0500
+Received: from dialpool1-19.dial.tijd.com ([62.112.10.19]:13191 "EHLO
+	precious.kicks-ass.org") by vger.kernel.org with ESMTP
+	id S262861AbVAFPrn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jan 2005 10:47:43 -0500
+From: Jan De Luyck <lkml@kcore.org>
+To: linux-kernel@vger.kernel.org
+Subject: ARP routing issue
+Date: Thu, 6 Jan 2005 16:47:44 +0100
+User-Agent: KMail/1.7.2
+Cc: linux-net@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200501061647.45226.lkml@kcore.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-01-06 at 15:31 +0000, Christoph Hellwig wrote:
-> On Thu, Jan 06, 2005 at 10:22:21AM -0500, Lee Revell wrote:
-> > > p.s. droppe alsa-devel from Cc because of the braindead moderation policy.
-> > > 
-> > 
-> > Um, alsa-devel is not moderated, we accept posts from non subscribers.
-> > Where do you think all the spam in our archive comes from?
-> 
-> See the attached mail I got.  Btw, where are the current alsa-devel
-> archives?  I tried to look things up a few times lately, but all archives
-> linked off the websiste are either dead or totally outdated.
-> 
+Hello lists,
 
-OK, right, that's a problem.  There's no reason for that policy.  Perex,
-can you fix it?
+Sorry to bother you with this probably beat-to-death issue, but I can't figure 
+out the solution to the problem.
 
-The only working up to date archive I know of is the sourceforge one,
-not my favorite interface:
+It's perfectly described in this archive thread:
 
-http://sourceforge.net/mailarchive/forum.php?forum_id=1752
+http://www.uwsg.iu.edu/hypermail/linux/net/0308.1/0071.html
 
-Lee
+Basically it comes down to this:
 
+I have an IBM server running RH ES, kernel 2.4.9-e.49. It has two interfaces:
+eth0 10.0.22.xxx 
+eth1 10.0.24.xxx
+
+default gateway is set to 10.0.22.1, on eth0.
+
+Problem is, if I try to ping from another network (10.216.0.xx) to 10.0.24.xx, 
+i see the following ARP request:
+
+arp who-has 10.0.22.1 tell 10.0.24.xx
+
+which, imo, is wrong.
+
+I know it has to do with the default gatway, but I can't devise a way to make 
+it actually _WORK_.
+
+Any pointers?
+
+Thanks.
+
+Jan
+-- 
+No one can feel as helpless as the owner of a sick goldfish.

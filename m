@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264203AbTFUNqn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jun 2003 09:46:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264198AbTFUNiQ
+	id S263837AbTFUNqj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jun 2003 09:46:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264203AbTFUNib
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jun 2003 09:38:16 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:21922 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S262525AbTFUNiB convert rfc822-to-8bit
+	Sat, 21 Jun 2003 09:38:31 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:23202 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id S263837AbTFUNiB convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Sat, 21 Jun 2003 09:38:01 -0400
-Subject: [PATCH 3/11] input: Add locking to serio.c
-In-Reply-To: <10562035172703@twilight.ucw.cz>
+Subject: [PATCH 10/11] input: Fixes for sidewinder.c
+In-Reply-To: <10562035171903@twilight.ucw.cz>
 X-Mailer: gregkh_patchbomb_levon_offspring
 Date: Sat, 21 Jun 2003 15:51:57 +0200
-Message-Id: <10562035173660@twilight.ucw.cz>
+Message-Id: <10562035174020@twilight.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
@@ -27,93 +27,51 @@ You can pull this changeset from:
 
 ===================================================================
 
-ChangeSet@1.1361, 2003-06-21 04:34:11-07:00, vojtech@kernel.bkbits.net
-  input: Add locking to serio.c
+ChangeSet@1.1368, 2003-06-21 04:48:10-07:00, vojtech@kernel.bkbits.net
+  input: Fixes for sidewinder.c: Workaround for
+         misbehaving 3DPro joysticks, don't trust FreestylePro
+         1-bit data packet for data width recognition, invert
+         FreestylePro buttons.
 
 
- serio.c |   13 +++++++++++++
- 1 files changed, 13 insertions(+)
+ sidewinder.c |   11 ++++++-----
+ 1 files changed, 6 insertions(+), 5 deletions(-)
 
 ===================================================================
 
-diff -Nru a/drivers/input/serio/serio.c b/drivers/input/serio/serio.c
---- a/drivers/input/serio/serio.c	Sat Jun 21 15:25:06 2003
-+++ b/drivers/input/serio/serio.c	Sat Jun 21 15:25:06 2003
-@@ -58,6 +58,7 @@
- 	struct list_head node;
- };
+diff -Nru a/drivers/input/joystick/sidewinder.c b/drivers/input/joystick/sidewinder.c
+--- a/drivers/input/joystick/sidewinder.c	Sat Jun 21 15:25:59 2003
++++ b/drivers/input/joystick/sidewinder.c	Sat Jun 21 15:25:59 2003
+@@ -378,10 +378,10 @@
+ 			for (j = 0; j < 6; j++)
+ 				input_report_key(dev, sw_btn[SW_ID_FSP][j], !GB(j+10,1));
  
-+static DECLARE_MUTEX(serio_sem);
- static LIST_HEAD(serio_list);
- static LIST_HEAD(serio_dev_list);
- static LIST_HEAD(serio_event_list);
-@@ -90,9 +91,11 @@
+-			input_report_key(dev, BTN_TR,     GB(26,1));
+-			input_report_key(dev, BTN_START,  GB(27,1));
+-			input_report_key(dev, BTN_MODE,   GB(38,1));
+-			input_report_key(dev, BTN_SELECT, GB(39,1));
++			input_report_key(dev, BTN_TR,     !GB(26,1));
++			input_report_key(dev, BTN_START,  !GB(27,1));
++			input_report_key(dev, BTN_MODE,   !GB(38,1));
++			input_report_key(dev, BTN_SELECT, !GB(39,1));
  
- 		switch (event->type) {
- 			case SERIO_RESCAN :
-+				down(&serio_sem);
- 				if (event->serio->dev && event->serio->dev->disconnect)
- 					event->serio->dev->disconnect(event->serio);
- 				serio_find_dev(event->serio);
-+				up(&serio_sem);
- 				break;
- 			default:
- 				break;
-@@ -153,30 +156,37 @@
+ 			input_sync(dev);
  
- void serio_register_port(struct serio *serio)
- {
-+	down(&serio_sem);
- 	list_add_tail(&serio->node, &serio_list);
- 	serio_find_dev(serio);
-+	up(&serio_sem);
- }
+@@ -602,7 +602,6 @@
+ 		gameport->phys, gameport->io, gameport->speed);
  
- void serio_unregister_port(struct serio *serio)
- {
-+	down(&serio_sem);
- 	list_del_init(&serio->node);
- 	if (serio->dev && serio->dev->disconnect)
- 		serio->dev->disconnect(serio);
-+	up(&serio_sem);
- }
+ 	i = sw_read_packet(gameport, buf, SW_LENGTH, 0);		/* Read normal packet */
+-	m |= sw_guess_mode(buf, i);					/* Data packet (1-bit) can carry mode info [FSP] */
+ 	udelay(SW_TIMEOUT);
+ 	dbg("Init 1: Mode %d. Length %d.", m , i);
  
- void serio_register_device(struct serio_dev *dev)
- {
- 	struct serio *serio;
-+	down(&serio_sem);
- 	list_add_tail(&dev->node, &serio_dev_list);
- 	list_for_each_entry(serio, &serio_list, node)
- 		if (!serio->dev && dev->connect)
- 			dev->connect(serio, dev);
-+	up(&serio_sem);
- }
- 
- void serio_unregister_device(struct serio_dev *dev)
- {
- 	struct serio *serio;
- 
-+	down(&serio_sem);
- 	list_del_init(&dev->node);
- 
- 	list_for_each_entry(serio, &serio_list, node) {
-@@ -184,8 +194,10 @@
- 			dev->disconnect(serio);
- 		serio_find_dev(serio);
- 	}
-+	up(&serio_sem);
- }
- 
-+/* called from serio_dev->connect/disconnect methods under serio_sem */
- int serio_open(struct serio *serio, struct serio_dev *dev)
- {
- 	if (serio->open(serio))
-@@ -194,6 +206,7 @@
- 	return 0;
- }
- 
-+/* called from serio_dev->connect/disconnect methods under serio_sem */
- void serio_close(struct serio *serio)
- {
- 	serio->close(serio);
+@@ -676,6 +675,8 @@
+ 					} else
+ 					sw->type = SW_ID_PP;
+ 					break;
++				case 66:
++					sw->bits = 3;
+ 				case 198:
+ 					sw->length = 22;
+ 				case 64:
 

@@ -1,44 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319250AbSIKRsY>; Wed, 11 Sep 2002 13:48:24 -0400
+	id <S319251AbSIKRup>; Wed, 11 Sep 2002 13:50:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319251AbSIKRsX>; Wed, 11 Sep 2002 13:48:23 -0400
-Received: from angband.namesys.com ([212.16.7.85]:28032 "HELO
-	angband.namesys.com") by vger.kernel.org with SMTP
-	id <S319250AbSIKRsX>; Wed, 11 Sep 2002 13:48:23 -0400
-Date: Wed, 11 Sep 2002 21:53:10 +0400
-From: Oleg Drokin <green@namesys.com>
-To: Dieter N?tzel <Dieter.Nuetzel@hamburg.de>
-Cc: Hans Reiser <reiser@namesys.com>, marcelo@conectiva.com.br,
-       linux-kernel@vger.kernel.org,
-       Reiserfs mail-list <Reiserfs-List@Namesys.COM>
-Subject: Re: [reiserfs-list] [BK] ReiserFS file write bug fix for 2.4
-Message-ID: <20020911215310.A1504@namesys.com>
-References: <3D7F7783.6030804@namesys.com> <200209111934.11373.Dieter.Nuetzel@hamburg.de>
+	id <S319253AbSIKRup>; Wed, 11 Sep 2002 13:50:45 -0400
+Received: from sproxy.gmx.net ([213.165.64.20]:58897 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S319251AbSIKRuo>;
+	Wed, 11 Sep 2002 13:50:44 -0400
+Message-Id: <5.1.0.14.2.20020911192420.00b3ee98@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Wed, 11 Sep 2002 19:52:51 +0200
+To: Shawn <core@enodev.com>
+From: Mike Galbraith <efault@gmx.de>
+Subject: Re: XFS?
+Cc: Shawn <core@enodev.com>, Andi Kleen <ak@suse.de>,
+       Thunder from the hill <thunder@lightweight.ods.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20020911095529.A8346@q.mn.rr.com>
+References: <5.1.0.14.2.20020911065208.00b32b00@pop.gmx.net>
+ <5.1.0.14.2.20020910190828.00b27258@pop.gmx.net>
+ <p73wupuq34l.fsf@oldwotan.suse.de>
+ <20020909193820.GA2007@lnuxlab.ath.cx.suse.lists.linux.kernel>
+ <Pine.LNX.4.44.0209091457590.3793-100000@hawkeye.luckynet.adm.suse.lists.linux.kernel>
+ <p73wupuq34l.fsf@oldwotan.suse.de>
+ <20020909162050.B4781@q.mn.rr.com>
+ <5.1.0.14.2.20020910190828.00b27258@pop.gmx.net>
+ <20020910142347.A5000@q.mn.rr.com>
+ <5.1.0.14.2.20020911065208.00b32b00@pop.gmx.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <200209111934.11373.Dieter.Nuetzel@hamburg.de>
-User-Agent: Mutt/1.3.22.1i
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+At 09:55 AM 9/11/2002 -0500, Shawn wrote:
+>Which is why I pointed out that the issue at hand was not regarding the
+>everything else, but in fact the actual filesystem support.
 
-On Wed, Sep 11, 2002 at 07:34:11PM +0200, Dieter N?tzel wrote:
-> On Wednesday 11 September 2002 19:04, Hans Reiser wrote:
-> > Well, at least getting the new file write code into pre6 found this bug
-> > for us....  please apply.
-> What is the "right" way to get the new block allocation going?
+I was just trying to say that everything _appears_ to be on track from my
+(remote) perspective.  I've noticed no gripes from the XFS team, only
+evidence that development continues.  If there are 6 lines of generic code
+changes left, that means a lot has happened.
 
-use 2.4.19-pre2+ and it is in there ;)
+>As far as why the rest is still pending, I was just offering ideas.
+>
+>A lot of this thread is advocacy as opposed to substantive conversation
+>about the how and/or why/why not of inclusion of XFS into mainline.
 
-> The mount option (-o alloc=prealloc min=4:preallocsize=9) only or better a 
-> "reformat"?
+Advocacy without technical meat sucks.
 
-Those mount options are no longer needed starting from 2.4.20-pre6.
-They are default. Reformat is not needed, but all the blocks allocated by old
-allocator will remain at their old places of course.
+>Fankly, there is no /real/ answer except "Linus has not weighed in on
+>the current question".
 
-Bye,
-    Oleg
+Hey, maybe he's trying to convince (blackmail;) them to port some bandwidth
+guarantee stuff ;)))))  (I hope that's enough smilies)
+
+>I lost my ability to invest emotions in either side of huge kernel
+>debates when the devfs and lvm wars happened.
+
+I love it when the heavyweights square off  (oooo:).  Unfortunately, that often
+leads to a bunch of dipsticks hollering "food fight!" ;-)
+
+         -Mike
+

@@ -1,56 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261165AbSIZNSa>; Thu, 26 Sep 2002 09:18:30 -0400
+	id <S261282AbSIZN1p>; Thu, 26 Sep 2002 09:27:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261177AbSIZNSa>; Thu, 26 Sep 2002 09:18:30 -0400
-Received: from thunk.org ([140.239.227.29]:11168 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id <S261165AbSIZNS3>;
-	Thu, 26 Sep 2002 09:18:29 -0400
-Date: Thu, 26 Sep 2002 09:23:03 -0400
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Ryan Cumming <ryan@completely.kicks-ass.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCH] Add ext3 indexed directory (htree) support
-Message-ID: <20020926132303.GB5612@think.thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Ryan Cumming <ryan@completely.kicks-ass.org>,
-	linux-kernel@vger.kernel.org
-References: <E17uINs-0003bG-00@think.thunk.org> <200209252223.13758.ryan@completely.kicks-ass.org> <20020926055755.GA5612@think.thunk.org> <200209260041.59855.ryan@completely.kicks-ass.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200209260041.59855.ryan@completely.kicks-ass.org>
-User-Agent: Mutt/1.3.28i
+	id <S261276AbSIZN1p>; Thu, 26 Sep 2002 09:27:45 -0400
+Received: from pop.gmx.de ([213.165.64.20]:64059 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S261282AbSIZN1o>;
+	Thu, 26 Sep 2002 09:27:44 -0400
+Message-ID: <3D930C87.20301@gmx.at>
+Date: Thu, 26 Sep 2002 15:32:55 +0200
+From: Wilfried Weissmann <Wilfried.Weissmann@gmx.at>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
+MIME-Version: 1.0
+To: Alan Cox <alan@redhat.com>
+CC: Arjan van de Ven <arjanv@redhat.com>, Petr Slansky <slansky@usa.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: hpt370 raid driver
+References: <200209261048.g8QAmfO15438@devserv.devel.redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 26, 2002 at 12:41:54AM -0700, Ryan Cumming wrote:
+Alan Cox wrote:
+>>The header files are good. They show the structure of the raid signature 
+>>and some info about the event logs. They could be reused by the linux 
+>>module, however I do not know if the copyright is a problem there. Does 
+>>anyone know...?
 > 
-> Using GCC 2.95.4 seems to stabilize dir_index nicely, both before and after 
-> the hdparm -fD run. Only the kernel was recompiled with 2.95.4, I reused the 
-> original GCC 3.2 compiled e2fsprogs.
 > 
+> I dont think it shows anything our hptraid module doesnt alreayd know
 
-Thanks for willing to be a Guienea Pig; now I know what to look for.  
+Oops! You are right. Most of the structures are for internal driver 
+stuff. The only useful thing might be the magic numbers and maybe the 
+ErrorLog struct, but no raid-signature. :(
 
-I didn't have a chance to answer your question last night about how to
-test it without risking your data, but the answer is that that patch
-doesn't change how ext3 works unless the dir_index feature flag is
-set.  So it would have been safe to boot the patched, kernel, and then
-create a test filesystem in a plain file, and the mount it using the
-loop device:
-
-	dd if=/dev/zero of=test.img bs=1024k count=32
-	mke2fs -f -j test.img
-	mount -o loop test.img /mnt
-
-So I'll take a look at things and try to figure out what GCC bug we
-might be triggering.  It's strange; it's not like the code using
-inline instructions, or anything else that might be triggering a GCC
-bug or discrepancy between how GCC 2.95.4 and GCC 3.2 works.  In fact,
-it's all relatively straightforward C code.
-
-Anyway, thanks.
-
-						- Ted
+Greetings,
+Wilfried
+-- 
+Ing. Wilfried Weissmann               mailto: Wilfried.Weissmann@gmx.at
+Benedikt-Schellingergasse 18/19a      Tel.: +43 1 78 64 739
+1150 Wien                             Mobil: +43 676 944 44 65
 

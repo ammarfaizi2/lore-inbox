@@ -1,42 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281812AbRK1GZW>; Wed, 28 Nov 2001 01:25:22 -0500
+	id <S281805AbRK1G0W>; Wed, 28 Nov 2001 01:26:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281805AbRK1GZM>; Wed, 28 Nov 2001 01:25:12 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:30389 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S281777AbRK1GY7>; Wed, 28 Nov 2001 01:24:59 -0500
-Date: Tue, 27 Nov 2001 23:24:34 -0700
-Message-Id: <200111280624.fAS6OYA11381@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: linux-kernel@vger.kernel.org, devfs-announce-list@vindaloo.ras.ucalgary.ca
-Subject: [PATCH] devfs v199 available
+	id <S281777AbRK1G0P>; Wed, 28 Nov 2001 01:26:15 -0500
+Received: from epithumia.math.uh.edu ([129.7.128.2]:60827 "EHLO
+	epithumia.math.uh.edu") by vger.kernel.org with ESMTP
+	id <S281877AbRK1G0D>; Wed, 28 Nov 2001 01:26:03 -0500
+To: "Neulinger, Nathan" <nneul@umr.edu>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: Problems with 3ware 3dm and 2.4.16...
+In-Reply-To: <E8139C9A62384F49A7EBF9CCCD2243C101B88A@umr-mail2.umr.edu>
+From: Jason L Tibbitts III <tibbs@math.uh.edu>
+Date: 28 Nov 2001 00:25:49 -0600
+In-Reply-To: "Neulinger, Nathan"'s message of "Tue, 27 Nov 2001 15:57:03 -0600"
+Message-ID: <ufavgfvtnrm.fsf@epithumia.math.uh.edu>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Cuyahoga Valley)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hi, all. Version 199 of my devfs patch is now available from:
-http://www.atnf.csiro.au/~rgooch/linux/kernel-patches.html
-The devfs FAQ is also available here.
+>>>>> "NN" == Nathan Neulinger <Neulinger> writes:
 
-Patch directly available from:
-ftp://ftp.??.kernel.org/pub/linux/kernel/people/rgooch/v2.4/devfs-patch-current.gz
+NN> When running 2.4.10, everything works fine, as soon as I move to
+NN> 2.4.16 though, the 3ware 3dm process no longer works, it claims to
+NN> get a ioctl error 'no such device or address'. Interesting thing
+NN> is - from the below output, looks like the ioctl worked.
 
-AND:
-ftp://ftp.atnf.csiro.au/pub/people/rgooch/linux/kernel-patches/v2.4/devfs-patch-current.gz
+Which version of 3dm are you running?  Rumour has it (on
+linux-ide-arrays@lists.math.uh.edu) that 3dm version 1.10 will solve
+this problem.  I have not yet upgraded my storage machines, however.
+Perhaps tomorrow.
 
-This is against 2.4.16-pre1. Highlights of this release:
-
-- Removed obsolete usage of DEVFS_FL_NO_PERSISTENCE
-
-- Send DEVFSD_NOTIFY_REGISTERED events in <devfs_mk_dir>
-
-- Fixed locking bug in <devfs_d_revalidate_wait> due to typo
-
-- Do not send CREATE, CHANGE, ASYNC_OPEN or DELETE events from devfsd
-  or children
-
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+ - J<

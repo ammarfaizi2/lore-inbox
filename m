@@ -1,37 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261929AbTLLUYD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Dec 2003 15:24:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261931AbTLLUYD
+	id S261931AbTLLUYg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Dec 2003 15:24:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261947AbTLLUYf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Dec 2003 15:24:03 -0500
-Received: from gprs149-168.eurotel.cz ([160.218.149.168]:9344 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261929AbTLLUYB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Dec 2003 15:24:01 -0500
-Date: Fri, 12 Dec 2003 20:22:52 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Michael Frank <mhf@linuxmail.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: RFC: Can swsusp 2.0 be merged into the 2.4 tree
-Message-ID: <20031212192252.GA465@elf.ucw.cz>
-References: <200312110537.17496.mhf@linuxmail.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200312110537.17496.mhf@linuxmail.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+	Fri, 12 Dec 2003 15:24:35 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:18560 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261931AbTLLUYd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Dec 2003 15:24:33 -0500
+Date: Fri, 12 Dec 2003 15:25:12 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Joshua Schmidlkofer <kernel@pacrimopen.com>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.23 Boot failure
+In-Reply-To: <1071260218.13287.46.camel@bubbles.imr-net.com>
+Message-ID: <Pine.LNX.4.53.0312121523510.1500@chaos>
+References: <1071260218.13287.46.camel@bubbles.imr-net.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Fri, 12 Dec 2003, Joshua Schmidlkofer wrote:
 
-> swsusp is useful feature also for 2.4. Could this please be merged.
+> 2.4.23 Hangs just after the boot loader.
+>
+> This is what I get:
+>
+> Uncompressing Linux... Ok, booting the kernel.
+>
+>
+> Then nothing.   I have never seen this before.  I do not get any errors,
+> it just hangs.
+>
+> I have been trying to upgrade my server from 2.4.20 to 2.4.23.  This
+> server is running the xfs patches from SGI.
 
-2.4 has no driver model => swsusp for 2.4 is a hack. Its nice and
-working, but it is still a hack.
-							Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+This usually means that you selected the wrong CPU type and a bad
+opcode (for your CPU) was executed.
+
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
+
+

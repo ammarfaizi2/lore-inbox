@@ -1,60 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265111AbSJPPmJ>; Wed, 16 Oct 2002 11:42:09 -0400
+	id <S265114AbSJPPnT>; Wed, 16 Oct 2002 11:43:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265113AbSJPPmJ>; Wed, 16 Oct 2002 11:42:09 -0400
-Received: from node-d-1ef6.a2000.nl ([62.195.30.246]:34286 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S265111AbSJPPmI>; Wed, 16 Oct 2002 11:42:08 -0400
-Subject: Re: [patch] mmap-speedup-2.5.42-C3
-From: Arjan van de Ven <arjanv@fenrus.demon.nl>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Ingo Molnar <mingo@elte.hu>,
-       NPT library mailing list <phil-list@redhat.com>,
-       Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-In-Reply-To: <Pine.LNX.4.44.0210160751260.2181-100000@home.transmeta.com>
-References: <Pine.LNX.4.44.0210160751260.2181-100000@home.transmeta.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-g/FcdP7qi83qpTQR7C1Z"
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 16 Oct 2002 17:49:03 +0200
-Message-Id: <1034783351.4287.2.camel@localhost.localdomain>
-Mime-Version: 1.0
+	id <S265117AbSJPPnT>; Wed, 16 Oct 2002 11:43:19 -0400
+Received: from mta06bw.bigpond.com ([139.134.6.96]:58313 "EHLO
+	mta06bw.bigpond.com") by vger.kernel.org with ESMTP
+	id <S265114AbSJPPnR>; Wed, 16 Oct 2002 11:43:17 -0400
+Message-ID: <3DAD8AA7.1030305@snapgear.com>
+Date: Thu, 17 Oct 2002 01:49:59 +1000
+From: Greg Ungerer <gerg@snapgear.com>
+Organization: SnapGear
+User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH]: linux-2.5.42uc1 (MMU-less support)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi All,
 
---=-g/FcdP7qi83qpTQR7C1Z
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+An updated uClinux patch is available at:
 
-On Wed, 2002-10-16 at 16:52, Linus Torvalds wrote:
-\
-> > i think it should be unrelated to the mmap patch. In any case, Andrew
-> > added the mmap-speedup patch to 2.5.43-mm1, so we'll hear about this
-> > pretty soon.
->=20
-> There's at least one Oops-report on linux-kernel on 2.5.43-mm1, where the=
-=20
-> oops traceback was somewhere in munmap().=20
->=20
-> Sounds like there are bugs there.
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.43uc0.patch.gz
 
-could be the shared pagetable stuff just as well ;(
+Changelog:
+
+1. patched against 2.5.43
+2. removed v850 gdb stuff
+3. change CONFIG_NO_MMU_LARGE_ALLOCS to CONFIG_LARGE_ALLOCS
+4. remove unused CONFIG_CONTIGUOUS_PAGE_ALLOC code
+5. reformated config.in files
+6. removed unused MAX_SHARED_LIBS in flat.h
+7. modified vmlinux.ld.S to include appropriate linker scripts
+8. moved set_page_refs() back into page_alloc.c
 
 
---=-g/FcdP7qi83qpTQR7C1Z
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+Smaller specific patches:
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
+. FEC ColdFire 5272 ethernet driver
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.43uc0-fec.patch.gz
 
-iD8DBQA9rYpvxULwo51rQBIRAmf5AJ44o4IYxJ/0f5WdIYigLBfVYRjU9ACeKdlR
-716BgGis7oE5U8atefdMmIg=
-=JiNr
------END PGP SIGNATURE-----
+. m68k/ColdFire/v850 serial drivers
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.43uc0-serial.patch.gz
 
---=-g/FcdP7qi83qpTQR7C1Z--
+. 68328 frame buffer
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.43uc0-fb.patch.gz
+
+. binfmt_flat loader
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.43uc0-binflat.patch.gz
+
+. m68knommu architecture
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.43uc0-m68knommu.patch.gz
+
+. v850 architecture
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.43uc0-v850.patch.gz
+
+. mm (MMU-less) only patch
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.43uc0-mm.patch.gz
+
+Regards
+Greg
+
+
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
+Snapgear Pty Ltd                               PHONE:    +61 7 3279 1822
+825 Stanley St,                                  FAX:    +61 7 3279 1820
+Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
+
+
+
+
 

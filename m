@@ -1,47 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266944AbTAPBCV>; Wed, 15 Jan 2003 20:02:21 -0500
+	id <S266796AbTAPBCD>; Wed, 15 Jan 2003 20:02:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266948AbTAPBCV>; Wed, 15 Jan 2003 20:02:21 -0500
-Received: from FORT-POINT-STATION.MIT.EDU ([18.7.7.76]:43765 "EHLO
-	fort-point-station.mit.edu") by vger.kernel.org with ESMTP
-	id <S266944AbTAPBCU>; Wed, 15 Jan 2003 20:02:20 -0500
-Date: Wed, 15 Jan 2003 20:04:54 -0500
-From: Alex <akhripin@MIT.EDU>
-To: linux-kernel@vger.kernel.org
-Subject: Dynamic memory stack?
-Message-ID: <20030116010454.GB3288@dodecahedron.mit.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S266944AbTAPBCC>; Wed, 15 Jan 2003 20:02:02 -0500
+Received: from fmr05.intel.com ([134.134.136.6]:58587 "EHLO
+	hermes.jf.intel.com") by vger.kernel.org with ESMTP
+	id <S266796AbTAPBCC>; Wed, 15 Jan 2003 20:02:02 -0500
+Date: Wed, 15 Jan 2003 17:11:06 -0800
+Message-Id: <200301160111.h0G1B6ZE020954@penguin.co.intel.com>
+From: Rusty Lynch <rusty@penguin.co.intel.com>
+To: scottm@somanetworks.com
+CC: linux-kernel@vger.kernel.org
+CC: pcihpd-discuss@lists.sourceforge.net
+Subject: [BUG][2.5]deadlock on cpci hot insert
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-A good way to prevent memory leaks and simplify code is to reduce the use of
-kmalloc for a certain class of situations. Specifically, I am referring to
-blocks of code with the following:
+When I hot insert a cpci peripheral board into a ZT5084 chassis
+with a ZT5550 system master board, my ZT5550 locks up.  I managed
+to isolate the problem to a deadlock with list_lock
 
-bar(){
-.
-.
-foo=kmallc
-.
-.
-.
-kfree(foo)
-.
-.
-}
+* hot insert * 
+      ||
+      \/
+cpci_hotplug_core.c:check_slots() which does a spin_lock(&list_lock)
+      ||
+      \/
+* inserted card is found *
+      ||
+      \/
+cpci_hotplug_pci.c:cpci_configure_slot()
+      ||
+      \/
+pci_hotplug_util.c:pci_visit_dev()
+      ||
+      || (fn->visit_pci_dev)
+      \/
+cpci_hotplug_pci.c:configure_visit_pci_dev()
+      ||
+      \/
+cpci_hotplug_core.c:cpci_find_slot() which also does a spin_lock(&list_lock)
+      ||
+      \/
+* deadlock *
 
-This sort of thing is best handled on the stack, but, of course, that has
-critical flaws. A way to deal with this is to create a per-cpu kmalloc'ed
-dynamically extended stack from which memory can be allocated. Then, most
-allocations/deallocations are done in O(1) and memory fragmentation due to
-lots of small allocation is avoided.
-Furthermore, with the help of macros, memory leaks due to mid-function returns
-and such can be completely avoided.
-A survey of kernel code revealed a number of places where this methodology can
-be applied.
--Alex Khripin
+
+I'm not sure which is the correct way to fix this.  Maybe a
+cpci_unlocked_find_slot()? hmm... pci_visit_dev is exported,
+so anybody could call it.
+
+    --rustyl

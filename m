@@ -1,48 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132700AbRDQPBg>; Tue, 17 Apr 2001 11:01:36 -0400
+	id <S132699AbRDQPCq>; Tue, 17 Apr 2001 11:02:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132699AbRDQPB1>; Tue, 17 Apr 2001 11:01:27 -0400
-Received: from ns.suse.de ([213.95.15.193]:9234 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S132696AbRDQPBN>;
-	Tue, 17 Apr 2001 11:01:13 -0400
-Date: Tue, 17 Apr 2001 17:01:10 +0200
-From: Andi Kleen <ak@suse.de>
-To: Martin Josefsson <gandalf@wlug.westbo.se>
-Cc: Andi Kleen <ak@suse.de>, Eric Weigle <ehw@lanl.gov>,
-        Sampsa Ranta <sampsa@netsonic.fi>, linux-net@vger.kernel.org,
-        linux-kernel@vger.kernel.org, zebra@zebra.org
-Subject: Re: ARP responses broken!
-Message-ID: <20010417170110.A10430@gruyere.muc.suse.de>
-In-Reply-To: <20010417161919.A8842@gruyere.muc.suse.de> <Pine.LNX.4.21.0104171652360.9099-100000@tux.rsn.bth.se>
+	id <S132702AbRDQPCh>; Tue, 17 Apr 2001 11:02:37 -0400
+Received: from aragorn.ics.muni.cz ([147.251.4.33]:61638 "EHLO
+	aragorn.ics.muni.cz") by vger.kernel.org with ESMTP
+	id <S132699AbRDQPCU>; Tue, 17 Apr 2001 11:02:20 -0400
+Date: Tue, 17 Apr 2001 17:02:06 +0200
+From: Jan Kasprzak <kas@informatics.muni.cz>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Possible problem with zero-copy TCP and sendfile()
+Message-ID: <20010417170206.C2589096@informatics.muni.cz>
+In-Reply-To: <20010417151007.F916@informatics.muni.cz> <E14pWmr-0002UK-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.21.0104171652360.9099-100000@tux.rsn.bth.se>; from gandalf@wlug.westbo.se on Tue, Apr 17, 2001 at 04:53:01PM +0200
+User-Agent: Mutt/1.2i
+In-Reply-To: <E14pWmr-0002UK-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Tue, Apr 17, 2001 at 03:48:58PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 17, 2001 at 04:53:01PM +0200, Martin Josefsson wrote:
-> On Tue, 17 Apr 2001, Andi Kleen wrote:
-> 
-> > On Mon, Apr 16, 2001 at 03:26:19PM -0600, Eric Weigle wrote:
-> > > Hello-
-> > > 
-> > > This is a known 'feature' of the Linux kernel, and can help with load sharing
-> > > and fault tolerance. However, it can also cause problems (such as when one nic
-> > > in a multi-nic machine fails and you don't know right away).
-> > > 
-> > > There are three 'solutions' I know of:
-> > > 
-> > >   * In recent 2.2 kernels, it was possible to fix this by doing the following as
-> > 
-> > Or use arpfilter in even newer 2.2 kernels; which filters based on the routing
-> > table. "hidden" is quite a sledgehammer which often does more harm than good.
-> 
-> Does arpfilter exist in 2.4 kernels?
+Alan Cox wrote:
+: > 	The long story: My server is Athlon 850 on ASUS A7V, 256M RAM.
+: > Seven IDE discs, one SCSI disc. The controllers and NIC are as follows
+: > (output of lspci):
+: 
+: See the VIA chipset report on www.theregister.co.uk about corruption problems
+: with VIA chipsets. The cases seen on Linux included short and also sometimes
+: stale/corrupted DMA transfers.
+: 
+: Nothing in your report says it is or isnt going to be a VIA chipset problem
+: but once a fixed BIOS is out for your board that would be a good first step.
+: If it still does it then, its worth digging for kernel naughties
+: 
+	I don't think I have 686b southbridge. I have 686 (without "b"):
 
-Not yet, will be merged very soon. I can send you a patch if you need it urgently.
+00:00.0 Host bridge: VIA Technologies, Inc.: Unknown device 0305 (rev 02)
+00:01.0 PCI bridge: VIA Technologies, Inc.: Unknown device 8305
+00:04.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super] (rev 22)
+00:04.1 IDE interface: VIA Technologies, Inc. VT82C586 IDE [Apollo] (rev 10)
+00:04.2 USB Controller: VIA Technologies, Inc. VT82C586B USB (rev 10)
+00:04.3 USB Controller: VIA Technologies, Inc. VT82C586B USB (rev 10)
+00:04.4 Host bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev 30
+[...]
 
+-Yenya
 
--Andi
+-- 
+\ Jan "Yenya" Kasprzak <kas at fi.muni.cz>       http://www.fi.muni.cz/~kas/
+\\ PGP: finger kas at aisa.fi.muni.cz   0D99A7FB206605D7 8B35FCDE05B18A5E //
+\\\             Czech Linux Homepage:  http://www.linux.cz/              ///
+///... in B its 'extrn' not 'extern'.        Alan (yes I programmed in B)\\\
+

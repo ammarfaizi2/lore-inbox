@@ -1,73 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267474AbUJHDQY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267588AbUJHDLy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267474AbUJHDQY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 23:16:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267576AbUJHDPU
+	id S267588AbUJHDLy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 23:11:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267662AbUJHDHH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 23:15:20 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:14551 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S267745AbUJHDK5
+	Thu, 7 Oct 2004 23:07:07 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:8320 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S267730AbUJGSZa
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 23:10:57 -0400
-Date: Thu, 7 Oct 2004 22:08:11 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Marc-Christian Petersen <m.c.p@kernel.linux-systeme.com>
-Cc: "Gabor Z. Papp" <gzp@papp.hu>, Michael Buesch <mbuesch@freenet.de>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [2.4] 0-order allocation failed
-Message-ID: <20041008010811.GC16968@logos.cnet>
-References: <200410071318.21091.mbuesch@freenet.de> <20041007153929.GB14614@logos.cnet> <x67jq2bcy3@gzp> <200410072054.17097@WOLK> <20041008010539.GB16968@logos.cnet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041008010539.GB16968@logos.cnet>
-User-Agent: Mutt/1.5.5.1i
+	Thu, 7 Oct 2004 14:25:30 -0400
+Date: Thu, 7 Oct 2004 14:25:14 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Stephen Hemminger <shemminger@osdl.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Probable module bug in linux-2.6.5-1.358
+In-Reply-To: <1097169934.29576.4.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.61.0410071419300.4263@chaos.analogic.com>
+References: <Pine.LNX.4.61.0410061807030.4586@chaos.analogic.com> 
+ <1097143144.2789.19.camel@laptop.fenrus.com>  <Pine.LNX.4.61.0410070753060.9988@chaos.analogic.com>
+  <20041007121741.GB23612@devserv.devel.redhat.com> 
+ <Pine.LNX.4.61.0410070823300.10118@chaos.analogic.com> 
+ <20041007122815.GC23612@devserv.devel.redhat.com> 
+ <Pine.LNX.4.61.0410070830140.10213@chaos.analogic.com> 
+ <Pine.LNX.4.61.0410070850480.10751@chaos.analogic.com>
+ <1097169934.29576.4.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 07, 2004 at 10:05:39PM -0300, Marcelo Tosatti wrote:
-> On Thu, Oct 07, 2004 at 08:54:16PM +0200, Marc-Christian Petersen wrote:
-> > On Thursday 07 October 2004 20:28, Gabor Z. Papp wrote:
-> > 
-> > Hi all,
-> > 
-> > > | > > Can you check how much swap space is there available when
-> > > | > > the OOM killer trigger? I bet this is the case.
-> > > | > The machine doesn't have swap.
-> > > | Well then you're probably facing true OOM.
-> > > | Add some swap.
-> > 
-> > > There is really no way to run 2.4 without swap?
-> > > I have the same problem with nfsroot and ramdisk based setups after
-> > > 1-2 weeks uptime.
-> > 
-> > stop whining about braindead 2.4 mainline vm. Apply the attached patch and be 
-> > happy :p
-> 
-> As I told you in private, I can't see how badly this patch could affect performance.
-> But then, as you answered, with all anonymous pages added to LRU you see much better
-> behavior (tons less swapping) on several workloads. That must be due to 
-> refill_inactive()/shrink_cache() balancing.
+On Thu, 7 Oct 2004, Stephen Hemminger wrote:
 
-Ah, I dont think this will fix the OOM killer cases with no swap. They look 
-like plain OOM condition to me.
+> Still haven't full source so this is still guess work.
+> But assuming it is a character device, did you forget to add an owner
+> field to the file ops structure?
+>
+> static struct file_operations xxx_fops = {
+> 	.owner	= THIS_MODULE,
+> 	.read	= my_read,
+> ...
+>
+> The owner field is used by the character device layer to maintain module
+> ref counts in 2.6.
+>
 
-Wish I'm wrong.
+No. The owner field is properly filled in and I did provide
+the complete source code and build files for anybody who didn't
+delete the email. Scanner.tar.gz was attached.
 
-> The same patch also fixes kswapd excessive CPU consumption on huge
-> memory box.
-> 
-> Its easy enough to be applied because behaviour is unchanged by default
-> (you need to change a sysctl value for that).
-> 
-> I would like to understand why does it cause so much improved behaviour
-> though.
-> 
-> > Marcelo: Is there something wrong with my VM documentation update patches for 
-> > 2.4? Or do you not care and think: "Hello my friend, let's stick with 2.2 VM 
-> > documentation even if almost all of the documentation is not longer valid"
-> 
-> As I said to you in private, please resend.
-> 
+Further, unregister_chrdev() is called. Its return value is
+checked. Everything is fine. I can manually remove and
+reinstall the module multiple times and the resources are
+always released and re-acquired.
 
-> Thanks!
+The problem is that if you install the module and then
+remove it, if you attempt to open the device-file, the
+kernel will crash because it calls where the properly-
+removed module used to be. It isn't there anymore.
+
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.5-1.358-noreg on an i686 machine (5537.79 BogoMips).
+             Note 96.31% of all statistics are fiction.
+

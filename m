@@ -1,60 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269840AbRHDISa>; Sat, 4 Aug 2001 04:18:30 -0400
+	id <S269839AbRHDJWZ>; Sat, 4 Aug 2001 05:22:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269839AbRHDISQ>; Sat, 4 Aug 2001 04:18:16 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:35398 "EHLO
-	flinx.biederman.org") by vger.kernel.org with ESMTP
-	id <S269836AbRHDIQ6>; Sat, 4 Aug 2001 04:16:58 -0400
-To: Ralf Baechle <ralf@uni-koblenz.de>
-Cc: "chen, xiangping" <chen_xiangping@emc.com>, linux-kernel@vger.kernel.org
-Subject: Re: PCI bus speed
-In-Reply-To: <276737EB1EC5D311AB950090273BEFDD043BC536@elway.lss.emc.com>
-	<20010803153231.A28624@bacchus.dhis.org>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 04 Aug 2001 02:10:28 -0600
-In-Reply-To: <20010803153231.A28624@bacchus.dhis.org>
-Message-ID: <m1lml0w8i3.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
+	id <S269841AbRHDJWP>; Sat, 4 Aug 2001 05:22:15 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:53765 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S269839AbRHDJWI>; Sat, 4 Aug 2001 05:22:08 -0400
+Subject: Re: Linux C2-Style Audit Capability
+To: redph0enix@hotmail.com (Red Phoenix)
+Date: Sat, 4 Aug 2001 10:23:58 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <LAW2-F31DgC81TbdkSm00013be0@hotmail.com> from "Red Phoenix" at Aug 04, 2001 07:03:52 PM
+X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15Sxf5-0004pT-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ralf Baechle <ralf@uni-koblenz.de> writes:
+> System calls are overridden by pointing sys_call_table[system call] to a 
+> replacement function which saves off the data for auditing purposes, then 
+> calls the original system call.
 
-> On Thu, Aug 02, 2001 at 06:47:49PM -0400, chen, xiangping wrote:
+Ugly but that bit probably ties in with all the other folks trying to put
+together a unified security hook set for 2.5
+
+> audit events are turned on (eg: open()), the user-space audit daemon cannot 
+> keep up with the kernel, and therefore my ring buffer fills. As such, we 
+> lose events.
 > 
-> > Is there any easy way to probe the PCI bus speed of an Intel box?
-> 
-> You can find about PCI33 or PCI66 standards but there is no way to find
-> the exact clock rate the PCI bus is actually clocked at.  
+>                 if(!write_io((io_class *)event))
+>                 {
+>                         // Couldnt write it out.
+>                         // No space available in the ring buffer.
+>                         signal=0;
+>                         lost_events++;
+>                 }
 
-There is no portable way to find out the bus speed.  If you really
-have to you can go in and stick an analyizer on the bus and measure it
-but that is no help from  the software point of view.
-
-Additionally there is not requirement that a PCI33 bus even run at
-33Mhz  It can legaly run at 15Mhz to save powe if someone wants to,
-and as of PCI 2.1 I believe it is perfectly legal to clock even a
-PCI66 capable bus with all PCI66 capable cards down to 1Mhz.
-
-As most systems use integrated solutions you can usually do something
-like ask the northbridge of the chipset what frequency it is running
-the PCI bus at.  This is code that needs to be written for every PCI
-host bridge, and probably every PCI<->PCI bridge as well.
-
-With linuxBIOS I might be able to help out a little bit by reporting
-motherboard hardcodes but that is likely the most a BIOS can do.
-Having a driver that understands how your northbridge chip clocks the
-PCI bus goes much farther, to solving this problem.
-
-> Which is a
-> problem with certain non-compliant cards; the IOC3 card and a few others
-> derive internal clocks from the PCI bus clock rate so will not properly
-> work if operated on a bus with different clock rate.
-
-Hmm.  So it looks like we need some kind of interface in linux to
-propogate this information from the northbridge chip :(
-
-Eric
+So why don't you block ? Obviously you must never block logging events
+caused by the logging daemon itself but in the other cases since you are 
+logging before (and maybe after) a syscall rather than logging during the
+syscall where locks may be held I dont see the problem

@@ -1,74 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263244AbTJERmu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Oct 2003 13:42:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263272AbTJERmu
+	id S263227AbTJERls (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Oct 2003 13:41:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263244AbTJERls
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Oct 2003 13:42:50 -0400
-Received: from mailhost.cs.auc.dk ([130.225.194.6]:2045 "EHLO
-	mailhost.cs.auc.dk") by vger.kernel.org with ESMTP id S263244AbTJERmm
+	Sun, 5 Oct 2003 13:41:48 -0400
+Received: from sisko.nodomain.org ([213.208.99.114]:47004 "EHLO
+	mail.nodomain.org") by vger.kernel.org with ESMTP id S263227AbTJERll
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Oct 2003 13:42:42 -0400
-Subject: Re: Floppy disk working constantly [PATCH]
-From: Emmanuel Fleury <fleury@cs.auc.dk>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <1065186072.6517.44.camel@rade7.s.cs.auc.dk>
-References: <1065186072.6517.44.camel@rade7.s.cs.auc.dk>
-Content-Type: text/plain
-Organization: Aalborg University -- Computer Science Dept.
-Message-Id: <1065375728.11878.25.camel@rade7.s.cs.auc.dk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sun, 05 Oct 2003 19:42:08 +0200
+	Sun, 5 Oct 2003 13:41:41 -0400
+Message-ID: <3F8057CA.4040007@nodomain.org>
+Date: Sun, 05 Oct 2003 18:41:30 +0100
+From: Tony Hoyle <tmh@nodomain.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.4) Gecko/20030930 Debian/1.4-5
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: Andi Kleen <ak@colin2.muc.de>, Andi Kleen <ak@muc.de>,
+       linux-kernel@vger.kernel.org, marcelo.tosatti@cyclades.com.br
+Subject: Re: Oops linux 2.4.23-pre6 on amd64
+References: <Pine.LNX.4.44.0310051420110.1408-100000@logos.cnet>
+In-Reply-To: <Pine.LNX.4.44.0310051420110.1408-100000@logos.cnet>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Marcelo Tosatti wrote:
 
-Richard B. Johnson did this patch for 2.4.22. And, I applied it and
-tested it on both 2.4.22 and 2.6.0-test6. It seems to work.
+> 
+> What problem are you seeing Tony? Oopsing right? Where is the oops output?
+> 
+> 
+Random segfaults, internal compiler errors, general instability.  It was 
+impossible to compile a kernel without something breaking...  when 
+oopses happend they usually happened 3 or 4 in a row.
 
-Please apply this patch to both 2.4.22 and 2.6.0-test6.
+It's been steady as a rock since I removed devfs...
 
------------------
---- linux-2.4.22/arch/i386/boot/setup.S.orig    Fri Aug  2 20:39:42 2002
-+++ linux-2.4.22/arch/i386/boot/setup.S Fri Oct  3 11:50:43 2003
-@@ -59,6 +59,8 @@
- #define SIG1   0xAA55
- #define SIG2   0x5A5A
-
-+FDC_MOTOR = 0x3f2
-+FDC_MOTON = 0x10
- INITSEG  = DEF_INITSEG         # 0x9000, we move boot here, out of the
-way
- SYSSEG   = DEF_SYSSEG          # 0x1000, system loaded at 0x10000
-(65536).
- SETUPSEG = DEF_SETUPSEG                # 0x9020, this is the current
-segment
-@@ -776,6 +778,12 @@
-
-        movb    $0xFB, %al                      # mask all irq's but
-irq2 which
-        outb    %al, $0x21                      # is cascaded
-+
-+       movl    $FDC_MOTOR, %edx                # FDC motor control
-+       inb     %dx, %al                        # Get what's there
-+       andb    $~FDC_MOTON, %al                # Reset motor bit
-+       outb    %al, %dx                        # Turn OFF motor
-+
-
- # Well, that certainly wasn't fun :-(. Hopefully it works, and we don't
- # need no steenking BIOS anyway (except for the initial loading :-).
-------------
-
-Regards
--- 
-Emmanuel
-
-`Right,' said Ford, `I'm going to have a look.'
-He glanced round at the others. `Is no one going to say,
-"No you can't possibly, let me go instead"?'
-They all shook their heads. `Oh well.'
-  -- Ford attempting to be heroic (Douglas Adams)
+Tony
 

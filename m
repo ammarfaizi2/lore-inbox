@@ -1,53 +1,107 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263649AbSIQFub>; Tue, 17 Sep 2002 01:50:31 -0400
+	id <S263634AbSIQFtu>; Tue, 17 Sep 2002 01:49:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263658AbSIQFub>; Tue, 17 Sep 2002 01:50:31 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:15 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S263649AbSIQFua>; Tue, 17 Sep 2002 01:50:30 -0400
-Date: Mon, 16 Sep 2002 22:56:11 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Robert Love <rml@tech9.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] BUG(): sched.c: Line 944
-In-Reply-To: <1032220689.1203.85.camel@phantasy>
-Message-ID: <Pine.LNX.4.44.0209162250170.3443-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263649AbSIQFtu>; Tue, 17 Sep 2002 01:49:50 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:59628 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S263634AbSIQFtt>;
+	Tue, 17 Sep 2002 01:49:49 -0400
+Date: Tue, 17 Sep 2002 07:54:40 +0200
+From: Jens Axboe <axboe@suse.de>
+To: "Peter T. Breuer" <ptb@it.uc3m.es>
+Cc: linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: tagged block requests
+Message-ID: <20020917055440.GG3289@suse.de>
+References: <200209162234.g8GMY2825694@oboe.it.uc3m.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200209162234.g8GMY2825694@oboe.it.uc3m.es>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 16 Sep 2002, Robert Love wrote:
+On Tue, Sep 17 2002, Peter T. Breuer wrote:
+> Can someone point me to some documentation or an example
+> or give me a quick rundown on how I should use the new
+> tagged block request structure in 2.5.3x?
 > 
-> I was this -> <- close to celebrating.  Not so fast, smarty.
+> It looks like something I want. I've already tried issuing
+> "special" requests as (re)ordering barriers, and that works 
+> fine. How does the tag request interface fit in with that,
+> if it does?
 
-You forget - I'm not only a smarty, I'm sick and twisted too.
+The request tagging is used for hardware that can have multiple commands
+in flight at any point in time. To do this, we need some sort of cookie
+to differentiate between the different commands. For SCSI and IDE, we
+use integer tags to do so. An example:
 
-> What about release_kernel_lock() ?
-> 
-> It sees task->lock_depth>=0 and calls spin_unlock() on a lock that it
-> does not hold.
+my_request_fn(q)
+{
+	struct request *rq;
 
-We have a simple rule:
- - task->lock_depth = -1 means "no lock held"
- - task->lock_depth >= 0 means "BKL really held"
+next:
+	rq = elv_next_request(q);
+	if (!rq)
+		return;
 
-... but what does "task->lock_depth < -1" mean?
+	/*
+	 * assuming some tags are already in flight, ending those will
+	 * restart queue handling
+	 */
+	if (blk_queue_start_tag(q, rq))
+		return;
 
-Yup: "validly nonpreemptable".
+	/*
+	 * now rq is tagged, rq->tag contains the integer identifier
+	 * for this request
+	 */
+	dma_map_command();
+	send_command_to_hw();
+	goto next;
+}
 
-So then you have:
+So request_fn calls blk_queue_start_tag(), which associates rq with a
+free tag, if available. Then the hardware completes the request:
 
-	#define kernel_locked()	(current->lock_depth >= 0)
+my_isr(..., devid, ...)
+{
+	struct my_dev *dev = devid;
+	struct request *rq;
+	int stat, tag;
 
-	#define in_atomic() (preempt_count() & ~PREEMPT_ACTIVE) != (current->lock_depth != -1))
+	stat = read_device_stat(dev);
 
-and you're all set - just set lock_depth to -2 when you exit to show that
-you don't hold the BKL, but that you are validly not preemtable.
+	/* tag is upper 5 bits */
+	tag = (stat >> 3);
 
-I get the award for having the most disgusting ideas.
+	rq = blk_queue_find_tag(q, tag);
 
-		Linus "but it works and is efficient" Torvalds
+	if (stat & DEVICE_GOOD_STAT) {
+		blk_queue_end_tag(q, rq);
+		complete_request(rq, 1);
+	} else {
+		blk_queue_invalidate_tags(q);
+		lock_queue;
+		my_request_fn(&dev->queue);
+		unlock_queue;
+	}
+}
+
+Tag is either completed normally (blk_queue_end_tag()) for good status,
+and is ended. Or for bad status, we invalidate the entire pending tag
+queue because this particular piece of hardware requires us to do so.
+This makes sure that requests gets moved from the tag queue to the
+dispatch queue for the device again, so request_fn() gets a chance to
+start them over.
+
+That's basically the API. In addition to the above,
+blk_queue_init_tags(q, depth) sets up a queue for tagged operation and
+blk_queue_free_tags(q) tears it down again.
+
+Now how that fits in with whatever you are trying to do (which
+apparently isn't tagging in the ordinary sense), I have no idea. But now
+you should now what the interface does.
+
+-- 
+Jens Axboe
 

@@ -1,73 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267657AbUIMPUH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267923AbUIMP3j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267657AbUIMPUH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Sep 2004 11:20:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268464AbUIMPSI
+	id S267923AbUIMP3j (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Sep 2004 11:29:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268049AbUIMP3C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Sep 2004 11:18:08 -0400
-Received: from [209.88.178.130] ([209.88.178.130]:2804 "EHLO constg.qlusters")
-	by vger.kernel.org with ESMTP id S268255AbUIMPIw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Sep 2004 11:08:52 -0400
-Message-ID: <4145B750.6060900@qlusters.com>
-Date: Mon, 13 Sep 2004 18:05:52 +0300
-From: Constantine Gavrilov <constg@qlusters.com>
-Reply-To: Constantine Gavrilov <constg@qlusters.com>
-Organization: Qlusters
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021130
-X-Accept-Language: en-us, en
+	Mon, 13 Sep 2004 11:29:02 -0400
+Received: from pimout5-ext.prodigy.net ([207.115.63.73]:15068 "EHLO
+	pimout5-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S267923AbUIMPVX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Sep 2004 11:21:23 -0400
+Date: Mon, 13 Sep 2004 11:20:44 -0400 (EDT)
+From: Vladimir Dergachev <volodya@mindspring.com>
+X-X-Sender: volodya@node2.an-vo.com
+Reply-To: Vladimir Dergachev <volodya@mindspring.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Michel =?ISO-8859-1?Q?D=E4nzer?= <michel@daenzer.net>,
+       Dave Airlie <airlied@linux.ie>, Jon Smirl <jonsmirl@gmail.com>,
+       Felix =?ISO-8859-1?Q?K=FChling?= <fxkuehl@gmx.de>,
+       DRI Devel <dri-devel@lists.sourceforge.net>,
+       lkml <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: radeon-pre-2
+In-Reply-To: <1095083862.14587.18.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.61.0409131113240.5077@node2.an-vo.com>
+References: <E3389AF2-0272-11D9-A8D1-000A95F07A7A@fs.ei.tum.de> 
+ <Pine.LNX.4.58.0409100209100.32064@skynet>  <9e47339104090919015b5b5a4d@mail.gmail.com>
+  <20040910153135.4310c13a.felix@trabant>  <9e47339104091008115b821912@mail.gmail.com>
+  <1094829278.17801.18.camel@localhost.localdomain>  <9e4733910409100937126dc0e7@mail.gmail.com>
+  <1094832031.17883.1.camel@localhost.localdomain>  <9e47339104091010221f03ec06@mail.gmail.com>
+  <1094835846.17932.11.camel@localhost.localdomain>  <9e47339104091011402e8341d0@mail.gmail.com>
+  <Pine.LNX.4.58.0409102254250.13921@skynet>  <1094853588.18235.12.camel@localhost.localdomain>
+  <Pine.LNX.4.58.0409110137590.26651@skynet>  <1094912726.21157.52.camel@localhost.localdomain>
+  <Pine.LNX.4.58.0409122319550.20080@skynet>  <1095035276.22112.31.camel@admin.tel.thor.asgaard.local>
+  <Pine.LNX.4.61.0409122042370.9611@node2.an-vo.com> 
+ <1095036743.22137.48.camel@admin.tel.thor.asgaard.local> 
+ <Pine.LNX.4.61.0409131047060.4885@node2.an-vo.com>
+ <1095083862.14587.18.camel@localhost.localdomain>
 MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-CC: bugs@x86-64.org, linux-kernel@vger.kernel.org
-Subject: Re: Calling syscalls from x86-64 kernel results in a crash on Opteron
- machines
-References: <4145A8E1.8010409@qlusters.com> <20040913153803.A27282@infradead.org>
-In-Reply-To: <20040913153803.A27282@infradead.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
 
->On Mon, Sep 13, 2004 at 05:04:17PM +0300, Constantine Gavrilov wrote:
->  
+
+On Mon, 13 Sep 2004, Alan Cox wrote:
+
+> On Llu, 2004-09-13 at 15:52, Vladimir Dergachev wrote:
+>> However, if we want the switch from X to framebuffer to be as fast as
+>> switching between different text consoles (assuming they have the same
+>> resolution) and if we want to be able to run different Xservers on
+>> different consoles or Xserver+framebuffer combinations Jon's proposal
+>> wins.
 >
->>Hello:
->>
->>We have a piece of kernel code that calls some system calls in kernel 
->>context (
->>    
->>
->
->Which you shouldn't do in the first place.
->  
+> It depends how the various components fit together. Clearly for Radeon
+> you want everyone using the DMA command path when DRI is loaded. That
+> doesn't require "one driver".
 >
 
-Function kernel_thread() on i386 is implemented by putting the args to 
-appropriate regs and calling int 0x80, resulting in a system call 
-clone() on i386.
+Alan, do I understand right that you are proposing to have two pieces of 
+code in the framebuffer - one that can program the card in the absence of 
+DRM driver and one that uses CP when it is present ?
 
-I have also found the "syscall" instruction in x86-64 kernel specific 
-code (it does not call _syscall() macros directly, though). So, 
-"shouldn't do" is a bit too strong.
+                  best
 
-What I am writing is an application, and not interface. As such, it is 
-not much different from its requierements from a user-space application. 
-If user-space application may call system calls, why a kernel space 
-application cannot?
-
-And BTW, kernel-space applications have their own place even if the 
-concept seems foreign to you.
-
--- 
-----------------------------------------
-Constantine Gavrilov
-Kernel Developer
-Qlusters Software Ltd
-1 Azrieli Center, Tel-Aviv
-Phone: +972-3-6081977
-Fax:   +972-3-6081841
-----------------------------------------
-
-
+                    Vladimir Dergachev

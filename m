@@ -1,127 +1,142 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264285AbUASEJX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jan 2004 23:09:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264356AbUASEJX
+	id S262128AbUASEgN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jan 2004 23:36:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264356AbUASEgN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jan 2004 23:09:23 -0500
-Received: from red-corpb4-7-68.telnor.net ([200.76.246.68]:51426 "EHLO
-	pubserv01.bajawireless.net") by vger.kernel.org with ESMTP
-	id S264285AbUASEJU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jan 2004 23:09:20 -0500
-Date: Sun, 18 Jan 2004 20:17:44 -0800
-To: David Schwartz <davids@webmaster.com>
-Subject: Re: License question
-References: <MDEHLPKNGKAHNMBLJOLKAEGJJKAA.davids@webmaster.com>
+	Sun, 18 Jan 2004 23:36:13 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:2464 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S262128AbUASEgG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jan 2004 23:36:06 -0500
+From: Andries.Brouwer@cwi.nl
+Date: Mon, 19 Jan 2004 05:35:58 +0100 (MET)
+Message-Id: <UTC200401190435.i0J4Zwp26577.aeb@smtp.cwi.nl>
+To: akpm@osdl.org
+Subject: [PATCH] fix for ide-scsi crash
 Cc: linux-kernel@vger.kernel.org
-From: Misshielle Wong <mwl@bajoo.net>
-Content-Type: text/plain; format=flowed; charset=utf-8
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-ID: <opr1z8vu11q5eh14@localhost>
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKAEGJJKAA.davids@webmaster.com>
-User-Agent: Opera7.23/Linux M2 build 518
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi. Go do your homework. Check the URLs I gave you. The list of 
-GPL-compatible licenses include licenses with the exact same 
-"restrictions", namely the Modified BSD license. The URL is from GNU 
-official page, so it is official that such licenses are accepted.
+A rather reproducible crash with ide-scsi that I reported
+yesterday is fixed by the patch below.
 
-http://www.gnu.org/licenses/license-list.html
+(Most of this is just polishing that emacs did while my eyes
+looked at the code. The only change is not doing
+       ide_do_drive_cmd (drive, rq, ide_end);
+       spin_lock_irq(cmd->device->host->host_lock);
+since cmd may be freed already.)
 
-I quote the text from there. It is a close match to the license in 
-question, and has the same "restrictions" you are disputing.
+Andries
 
+[With this in place I wrote three times 640 MB to floptical and diffed;
+no problems occurred. Without it the system would crash each time.]
 
-Text from www.gnu.org:
-=====
-The modified BSD license. http://www.xfree86.org/3.3.6/COPYRIGHT2.html#5
-(Note: on the preceding link, the modified BSD license is listed in the 
-"General" section.)
-
-This is the original BSD license, modified by removal of the advertising 
-clause. It is a simple,
-permissive non-copyleft free software license, compatible with the GNU GPL.
-
-If you want a simple, permissive non-copyleft free software license, the 
-modified BSD license is a
-reasonable choice. However, it is risky to recommend use of ``the BSD 
-license'', because confusion
-could easily occur and lead to use of the flawed original BSD license. To 
-avoid this risk, you can
-suggest the X11 license instead. The X11 license and the revised BSD 
-license are more or less
-equivalent.
-=====
-
-Text from www.xfree.org:
-=====
-2.2.1. General
-
-Redistribution and use in source and binary forms, with or without 
-modification, are permitted provided that the following conditions are met:
-
-1. Redistributions of source code must retain the above copyright notice, 
-this list of conditions and the following disclaimer.
-2. Redistributions in binary form must reproduce the above copyright 
-notice, this list of conditions and the following disclaimer in the 
-documentation and/or other materials provided with the distribution.
-3. The name of the author may not be used to endorse or promote products 
-derived from this software without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR 
-IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES 
-OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN 
-NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
-SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED 
-TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR 
-PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
-LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
-NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS 
-SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-=====
-
-There. Now stop arguing.
-
-
-On Sun, 18 Jan 2004 19:29:00 -0800, David Schwartz <davids@webmaster.com> 
-wrote:
-
->
-> 	It's really this simple. The GPL allows you to require a copyright 
-> notice, disclaimer of liability, and the GPL itself be included in a 
-> copy. However, this license also requires you to include additional 
-> statements about the requirement to include a copyright notice. Nothing 
-> in the GPL permits you to require other notices or license requirements 
-> to be in the distribution. So this is an additional restriction.
->
-> 	Please, tell me where the GPL says you are permitted to mandate the 
-> inclusion of other license restriction language in the distribution. A 
-> statement that you must include a copyright is not itself a copyright 
-> notice nor is it a disclaimer of liability.
->
-> 	The license we are discussing requires you to include the following 
-> notice:
->
->> >> > - Redistributions of source code must retain the above copyright
->> >> > notice, this list of conditions and the following disclaimers.
->
-> 	This notice is not itself a copyright notice, it's a license term. It's 
-> also not a disclaimer of liability. It's also not the GPL. These are the 
-> only three things the GPL permits you to mandate.
->
-> 	If you can show me a clause in the GPL that permits you to mandate 
-> license requirements other than the text of the GPL itself, please do 
-> so. Otherwise, this is an additional restriction.
->
-> 	DS
->
->
->
-
-
-
--- 
-Using M2, Opera's revolutionary e-mail client: http://www.opera.com/m2/
+diff -u --recursive --new-file -X /linux/dontdiff a/drivers/ide/ide-io.c b/drivers/ide/ide-io.c
+--- a/drivers/ide/ide-io.c	2004-01-11 14:20:49.000000000 +0100
++++ b/drivers/ide/ide-io.c	2004-01-19 05:00:47.000000000 +0100
+@@ -1300,7 +1300,7 @@
+  *	Initialize a request before we fill it in and send it down to
+  *	ide_do_drive_cmd. Commands must be set up by this function. Right
+  *	now it doesn't do a lot, but if that changes abusers will have a
+- *	nasty suprise.
++ *	nasty surprise.
+  */
+ 
+ void ide_init_drive_cmd (struct request *rq)
+diff -u --recursive --new-file -X /linux/dontdiff a/drivers/scsi/ide-scsi.c b/drivers/scsi/ide-scsi.c
+--- a/drivers/scsi/ide-scsi.c	2003-12-18 03:59:05.000000000 +0100
++++ b/drivers/scsi/ide-scsi.c	2004-01-19 05:30:28.000000000 +0100
+@@ -148,7 +148,8 @@
+ 		count = IDE_MIN (pc->sg->length - pc->b_count, bcount);
+ 		buf = page_address(pc->sg->page) + pc->sg->offset;
+ 		atapi_input_bytes (drive, buf + pc->b_count, count);
+-		bcount -= count; pc->b_count += count;
++		bcount -= count;
++		pc->b_count += count;
+ 		if (pc->b_count == pc->sg->length) {
+ 			pc->sg++;
+ 			pc->b_count = 0;
+@@ -191,8 +192,12 @@
+ 		return;
+ 	if (drive->media == ide_cdrom || drive->media == ide_optical) {
+ 		if (c[0] == READ_6 || c[0] == WRITE_6) {
+-			c[8] = c[4];		c[5] = c[3];		c[4] = c[2];
+-			c[3] = c[1] & 0x1f;	c[2] = 0;		c[1] &= 0xe0;
++			c[8] = c[4];
++			c[5] = c[3];
++			c[4] = c[2];
++			c[3] = c[1] & 0x1f;
++			c[2] = 0;
++			c[1] &= 0xe0;
+ 			c[0] += (READ_10 - READ_6);
+ 		}
+ 		if (c[0] == MODE_SENSE || c[0] == MODE_SELECT) {
+@@ -380,7 +385,7 @@
+ static ide_startstop_t idescsi_pc_intr (ide_drive_t *drive)
+ {
+ 	idescsi_scsi_t *scsi = drive_to_idescsi(drive);
+-	idescsi_pc_t *pc=scsi->pc;
++	idescsi_pc_t *pc = scsi->pc;
+ 	struct request *rq = pc->rq;
+ 	atapi_bcount_t bcount;
+ 	atapi_status_t status;
+@@ -664,8 +669,6 @@
+ 	.ioctl		= idescsi_ide_ioctl,
+ };
+ 
+-static int idescsi_attach(ide_drive_t *drive);
+-
+ static int idescsi_slave_configure(Scsi_Device * sdp)
+ {
+ 	/* Configure detected device */
+@@ -794,7 +797,8 @@
+ 	idescsi_pc_t *pc = NULL;
+ 
+ 	if (!drive) {
+-		printk (KERN_ERR "ide-scsi: drive id %d not present\n", cmd->device->id);
++		printk (KERN_ERR "ide-scsi: drive id %d not present\n",
++			cmd->device->id);
+ 		goto abort;
+ 	}
+ 	scsi = drive_to_idescsi(drive);
+@@ -827,25 +831,30 @@
+ 	idescsi_transform_pc1 (drive, pc);
+ 
+ 	if (test_bit(IDESCSI_LOG_CMD, &scsi->log)) {
+-		printk ("ide-scsi: %s: que %lu, cmd = ", drive->name, cmd->serial_number);
++		printk ("ide-scsi: %s: que %lu, cmd = ",
++			drive->name, cmd->serial_number);
+ 		hexdump(cmd->cmnd, cmd->cmd_len);
+ 		if (memcmp(pc->c, cmd->cmnd, cmd->cmd_len)) {
+-			printk ("ide-scsi: %s: que %lu, tsl = ", drive->name, cmd->serial_number);
++			printk("ide-scsi: %s: que %lu, tsl = ",
++			       drive->name, cmd->serial_number);
+ 			hexdump(pc->c, 12);
+ 		}
+ 	}
+ 
+-	ide_init_drive_cmd (rq);
++	ide_init_drive_cmd(rq);
+ 	rq->special = (char *) pc;
+-	rq->bio = idescsi_dma_bio (drive, pc);
++	rq->bio = idescsi_dma_bio(drive, pc);
+ 	rq->flags = REQ_SPECIAL;
+-	spin_unlock_irq(cmd->device->host->host_lock);
+-	(void) ide_do_drive_cmd (drive, rq, ide_end);
+-	spin_lock_irq(cmd->device->host->host_lock);
++	{
++		struct Scsi_Host *host = cmd->device->host;
++		spin_unlock_irq(host->host_lock);
++		(void) ide_do_drive_cmd(drive, rq, ide_end);
++		spin_lock_irq(host->host_lock);
++	}
+ 	return 0;
+ abort:
+-	if (pc) kfree (pc);
+-	if (rq) kfree (rq);
++	kfree (pc);
++	kfree (rq);
+ 	cmd->result = DID_ERROR << 16;
+ 	done(cmd);
+ 	return 1;

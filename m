@@ -1,70 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318602AbSIBXv3>; Mon, 2 Sep 2002 19:51:29 -0400
+	id <S318607AbSICAo1>; Mon, 2 Sep 2002 20:44:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318607AbSIBXv2>; Mon, 2 Sep 2002 19:51:28 -0400
-Received: from nick.dcs.qmul.ac.uk ([138.37.88.61]:11217 "EHLO
-	mail.dcs.qmul.ac.uk") by vger.kernel.org with ESMTP
-	id <S318602AbSIBXv1>; Mon, 2 Sep 2002 19:51:27 -0400
-Date: Tue, 3 Sep 2002 00:55:53 +0100 (BST)
-From: Matt Bernstein <matt@theBachChoir.org.uk>
-X-X-Sender: mb@jester.mews
-To: Matti Aarnio <matti.aarnio@zmailer.org>
-cc: linux-kernel@vger.kernel.org
-Subject: [ot] Re: Stupid anti-spam testings...
-In-Reply-To: <20020902233230.GC5834@mea-ext.zmailer.org>
-Message-ID: <Pine.LNX.4.44.0209030044210.12780-100000@jester.mews>
-X-URL: http://www.theBachChoir.org.uk/
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Auth-User: mb
-X-uvscan-result: clean (17m12x-0003VL-00)
+	id <S318608AbSICAo1>; Mon, 2 Sep 2002 20:44:27 -0400
+Received: from [210.115.9.107] ([210.115.9.107]:33382 "HELO
+	hiscoweb.hisco.co.kr") by vger.kernel.org with SMTP
+	id <S318607AbSICAo1>; Mon, 2 Sep 2002 20:44:27 -0400
+Message-ID: <B0069242541@hiscoweb.hisco.co.kr>
+Date: Mon, 2 Sep 2002 19:50:55 -0500
+From: "Ernesto Quiroz" <offshoresuppliers@offshore-suppliers-directory.com>
+X-Priority: 3
+To: linux-kernel@vger.kernel.org
+Subject: Offshore Suppliers Directory
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 02:32 +0300 Matti Aarnio wrote:
+Offshore Suppliers Directory (OSD) is pleased to announce the launch of its site, http://www.offshore-suppliers-directory.com.
 
->On Mon, Sep 02, 2002 at 04:28:37PM -0600, Andreas Dilger wrote:
->...
->> Do you know if this is one of the default checks from spamassassin?
->
->  No idea.  I have seen these coming from Exim 4.10, Exim-something,
->  some sendmail milter (whatever that is), etc..
->
->  Apparently the idea (which I have thought of long ago, and rejected
->  as incomplete) has caught, and has multiple implementations...
+Offshore Suppliers Directory is the world's first published guide to offshore software development, services, and product suppliers.
 
-I only speak (and even then not officially) for Exim's implementation,
-which is "verify = sender/callout" in Exim 4. I will check to see what
-caches may or may not apply. (I think Exim might not cache this, in which
-case I'll try to get this caching onto the wish list.)
+But Offshore Suppliers Directory is more than a published directory, it's a growing online B2B, buyer / supplier exchange.
 
-Anyway I think this kind of paranoia is just silly. It's trivial to forge 
-a valid sender address, so why bother checking anything other than a 
-syntactically valid domain name?
+We'd like to invite you to join us in this new and exciting opportunity to put your company's information into the hands of today's buyer in a simple, easy to use format.
 
->  - usw-sf-list1.sourceforge.net  use probably their own code
->    usw-sf-fw2.sourceforge.net too...  possibly more systems there..
+We look forward to working with you to grow your business.
 
-These may well be Exim.
+Best Regards,
 
->  - quetz.demon.co.uk tests from  Exim 4.10
->  - somebody.symons.net tests from Exim 3.35
->
->  Right now something like 5-7 different systems are doing it.
->  Try to imagine when all 3500 targets do it...  BRRRRR...
->  (Sure, VGER can handle it, no problem, but it is that much
->   wasted cycles, and network traffic...)
-
-In Exim's case the network traffic will be minimal:
-
-EHLO host.name
-MAIL FROM:<>
-RCPT TO:<sender@for.verify>
-RSET
-
-..is about as much as you'll get. The wasted cycles will be more 
-important.
-
-Sorry for the noise on the list..
-
+Offshore Suppliers Directory

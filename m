@@ -1,34 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285168AbRLRVKn>; Tue, 18 Dec 2001 16:10:43 -0500
+	id <S285170AbRLRVKd>; Tue, 18 Dec 2001 16:10:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285177AbRLRVKe>; Tue, 18 Dec 2001 16:10:34 -0500
-Received: from [217.9.226.246] ([217.9.226.246]:57728 "HELO
-	merlin.xternal.fadata.bg") by vger.kernel.org with SMTP
-	id <S285168AbRLRVKS>; Tue, 18 Dec 2001 16:10:18 -0500
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Copying to loop device hangs up everything
-In-Reply-To: <Pine.LNX.4.21.0112181745240.4473-100000@freak.distro.conectiva>
-From: Momchil Velikov <velco@fadata.bg>
-In-Reply-To: <Pine.LNX.4.21.0112181745240.4473-100000@freak.distro.conectiva>
-Date: 18 Dec 2001 22:54:40 +0200
-Message-ID: <87bsgwi6zz.fsf@fadata.bg>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S285174AbRLRVKW>; Tue, 18 Dec 2001 16:10:22 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:44434 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S285166AbRLRVJz>;
+	Tue, 18 Dec 2001 16:09:55 -0500
+Date: Tue, 18 Dec 2001 13:08:50 -0800 (PST)
+Message-Id: <20011218.130850.26927886.davem@redhat.com>
+To: Mika.Liljeberg@welho.com
+Cc: kuznet@ms2.inr.ac.ru, Mika.Liljeberg@nokia.com,
+        linux-kernel@vger.kernel.org, sarolaht@cs.helsinki.fi,
+        rmk@arm.linux.ORG.UK
+Subject: Re: ARM: Re: TCP LAST-ACK state broken in 2.4.17-pre2 [NEW DATA]
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <3C1FAC8F.699E1287@welho.com>
+In-Reply-To: <200112182029.XAA11287@ms2.inr.ac.ru>
+	<3C1FAC8F.699E1287@welho.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Marcelo" == Marcelo Tosatti <marcelo@conectiva.com.br> writes:
+   From: Mika Liljeberg <Mika.Liljeberg@welho.com>
+   Date: Tue, 18 Dec 2001 22:52:31 +0200
+   
+   Ahh, I see. There's a kernel exception handler that is supposed to fix
+   misaligned access? Hacky.
 
-Marcelo> Momchil, 
-
-Marcelo> Your fix does not look right. We _have_ to sync pages at
-Marcelo> sync_page_buffers(), we cannot "ignore" them.
-
-Sure, we don't ignore them, we just don't _wait_ for them, because
-maybe _we_ are the one to write them.  
-
-Regards,
--velco
+Not hacky, "transparent".  It allows us to fast-path everything.

@@ -1,34 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129523AbQLHOYv>; Fri, 8 Dec 2000 09:24:51 -0500
+	id <S130465AbQLHO2B>; Fri, 8 Dec 2000 09:28:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129595AbQLHOYl>; Fri, 8 Dec 2000 09:24:41 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:19216 "EHLO
+	id <S130553AbQLHO1m>; Fri, 8 Dec 2000 09:27:42 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:21776 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129523AbQLHOY1>; Fri, 8 Dec 2000 09:24:27 -0500
-Subject: Re: [Fwd: NTFS repair tools]
-To: jmerkey@timpanogas.org (Jeff V. Merkey)
-Date: Fri, 8 Dec 2000 13:55:43 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3A30552D.A6BE248C@timpanogas.org> from "Jeff V. Merkey" at Dec 07, 2000 08:27:41 PM
+	id <S130465AbQLHO1k>; Fri, 8 Dec 2000 09:27:40 -0500
+Subject: Re: 2.2.18pre21 oops reading /proc/apm
+To: neale@lowendale.com.au (Neale Banks)
+Date: Fri, 8 Dec 2000 13:57:20 +0000 (GMT)
+Cc: sfr@linuxcare.com (Stephen Rothwell), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.05.10012081420090.15256-300000@marina.lowendale.com.au> from "Neale Banks" at Dec 08, 2000 02:34:31 PM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E144O01-0003v7-00@the-village.bc.nu>
+Message-Id: <E144O1a-0003vF-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> somewhere in the thousands.  Is NTFS write stable enough now in 2.4 to
-> fix these problems, if so, can we DISABLE by REMOVING write code in the
+> I compiled the Debian distribution of 2.2.18pre21 source on and for a
+> AcerNote-950, with APM enabled.
+> 
+> All is fine except that I can reliably "oops" it simply by trying to read
+> from /proc/apm (e.g. cat /proc/apm).
+> 
+> oops output and ksymoops-2.3.4 output is attached.
+> 
+> Is there anything else I can contribute?
 
-It says DANGEROUS in big letters on the configuration option. We are now
-down to the level of people who don't understand 'smoking kills you' in big
-letters on packaging, and people using very old trees that merely warned you
-that it was a very bad idea
+The latitude and longtitude of the bios writers current position, and
+a ballistic missile.
 
-Alan
+Please boot 2.2.18pre24 (not pre25) on the machine and send me its DMI strings
+printed at boot time. I'll add it to the 'stupid morons who cant program and
+wouldnt know QA if it hit them on the head with a mallet' list
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

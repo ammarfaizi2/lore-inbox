@@ -1,52 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319238AbSIKRNa>; Wed, 11 Sep 2002 13:13:30 -0400
+	id <S319308AbSIKRRf>; Wed, 11 Sep 2002 13:17:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319239AbSIKRNa>; Wed, 11 Sep 2002 13:13:30 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:15890 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S319238AbSIKRN2>; Wed, 11 Sep 2002 13:13:28 -0400
-Message-ID: <3D7F7AD3.4000308@namesys.com>
-Date: Wed, 11 Sep 2002 21:18:11 +0400
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Joe Kellner <jdk@kingsmeadefarm.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [OT] Re: XFS?
-References: <p73wupuq34l.fsf@oldwotan.suse.de> <200209101518.31538.nleroy@cs.wisc.edu> <20020911084327.GF6085@pegasys.ws> <200209110820.36925.nleroy@cs.wisc.edu> <3D7F789F.2030103@namesys.com> <1031764404.3d7f79b473f0b@webmail>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S319243AbSIKRRf>; Wed, 11 Sep 2002 13:17:35 -0400
+Received: from h-66-166-207-97.SNVACAID.covad.net ([66.166.207.97]:15810 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S319308AbSIKRRe>; Wed, 11 Sep 2002 13:17:34 -0400
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Wed, 11 Sep 2002 10:22:17 -0700
+Message-Id: <200209111722.KAA03149@adam.yggdrasil.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.34 on Sony PictureBook fails to boot
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joe Kellner wrote:
+	Attempting to boot 2.5.34 compiled with SMP on a Sony
+PictureBook results in the computer being reset before the kernel
+activates the console.  The same kernel runs fine on a desktop PC.
+This seems to occur regardless of whether or not enable
+CONFIG_X86_NUMA{,Q} and CONFIG_MULTIQUAD.  My efforts to track down
+the problem have been with these options off.  CONFIG_DISCONTIGMEM is
+not set.
 
->Quoting Hans Reiser <reiser@namesys.com>:
->
->
->
->  
->
->>I think you'll really like v4, it is a complete rewrite from scratch, 
->>and far better in every way.  :)
->>
->>Hans
->>
->>    
->>
->
->
->But will it un-delete my customers files that they accidently deleted and they
->want me to get back? :)
->
->-------------------------------------------------
->sent via KingsMeade secure webmail http://www.kingsmeadefarm.com
->
->
->  
->
-If you write the appropriate plugin, yes....;-)
+	By adding an infinite loop at various points in the initialization
+process, I have determined that the reset occurs in this call chain:
 
+init/main.c			start_kernel
+arch/i386/kernel/setup.c	setup_arch
+arch/i386/mm/init.c		paging_init
+arch/i386/mm/init.c		zone_sizes_init
+mm/page_alloc.c			free_area_init
+mm/page_alloc.c			free_area_init_core
+mm/bootmem.c			alloc_bootmem_node
+mm/bootmem.c			__alloc_bootmem_core
 
+	2.5.31 booted just fine on this computer, and I see that there
+are some potentially related changes in .34, but I have not yet
+verified that .32 and .33 work on this machine.
+
+	I expect to investigate this problem further tonight if nobody
+beats me to it.
+
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."
+vi

@@ -1,57 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268819AbUJKLrX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268838AbUJKLtG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268819AbUJKLrX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 07:47:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268824AbUJKLrX
+	id S268838AbUJKLtG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 07:49:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268824AbUJKLtE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 07:47:23 -0400
-Received: from cantor.suse.de ([195.135.220.2]:37552 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S268819AbUJKLrU (ORCPT
+	Mon, 11 Oct 2004 07:49:04 -0400
+Received: from lugor.de ([217.160.170.124]:29582 "EHLO solar.linuxob.de")
+	by vger.kernel.org with ESMTP id S268828AbUJKLsu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 07:47:20 -0400
-Date: Mon, 11 Oct 2004 13:42:11 +0200
-From: Andi Kleen <ak@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: "Maciej W. Rozycki" <macro@linux-mips.org>,
-       Len Brown <len.brown@intel.com>, Andrew Morton <akpm@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ACPI Developers <acpi-devel@lists.sourceforge.net>
-Subject: Re: [ACPI] Re: [BKPATCH] LAPIC fix for 2.6
-Message-ID: <20041011114211.GF14615@wotan.suse.de>
-References: <1097429707.30734.21.camel@d845pe> <Pine.LNX.4.58.0410101044200.3897@ppc970.osdl.org> <Pine.LNX.4.58L.0410102000160.4217@blysk.ds.pg.gda.pl> <Pine.LNX.4.58.0410101744110.3897@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0410101744110.3897@ppc970.osdl.org>
+	Mon, 11 Oct 2004 07:48:50 -0400
+From: Christian Hesse <mail@earthworm.de>
+To: linux-kernel@vger.kernel.org
+Subject: Software Suspend with ck
+Date: Mon, 11 Oct 2004 13:48:37 +0200
+User-Agent: KMail/1.7
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart2332779.HFp27JkuSv";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200410111348.45497.mail@earthworm.de>
+X-AntiVirus: checked by AntiVir Milter 1.0.6; AVE 6.27.0.12; VDF 6.27.0.86
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 10, 2004 at 05:47:05PM -0700, Linus Torvalds wrote:
-> 
-> 
-> On Sun, 10 Oct 2004, Maciej W. Rozycki wrote:
-> > 
-> >  Hmm, any particular reason to keep the local APIC disabled by default?  
-> 
-> Yes. It changes interrupt handling, so any SMM stuff tends to break on
-> BIOSes that don't know about APICs. Things like the magic keys etc. It
-> apparently also breaks some ACPI stuff (likely AML code that "knows" that
-> interrupts are done with the legacy controller).
-> 
-> Mostly a laptop issue, I suspect - simply because desktops don't do 
-> anything strange these days.
+--nextPart2332779.HFp27JkuSv
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-It's more than a laptop issue. Especially older desktops still don't
-work with APIC by default, and even a lot of modern ones have problems.  
+Hello!
 
-It works around ACPI bugs. Some common issues I ran into on x86-64:
-nvidia nforce2/3 is still often broken because of the bogus timer override 
-so many BIOS have) 
-Some VIA K8 boards get mysterious IDE DMA errors after some time when the APIC 
-is on.
+Con Kolivas repoted this to work for him, but he also told me he's=20
+clutching at straws since his swsusp knowledge is small and =20
+Pavel Machek explained freeing memory is basically vm code he only
+calls. So I post this here everybody can read it.
 
-[Patch for the Nvidia thing is pending - just always ignore it - but not 
-submitted yet for i386 yet. x86-64 has it fixed in -mm*]
+Trying to suspend an ck-kernel results in the system hanging while freeing=
+=20
+memory. This behavior is caused by Staircase scheduler. Sane 2.6.9-rc{3,4}=
+=20
+works fine.
 
--Andi
+Any chance to get it working? Let me know if you need more inforamtion.=20
 
+=2D-=20
+Christian Hesse
+
+geek by nature
+linux by choice
+
+--nextPart2332779.HFp27JkuSv
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.9.10 (GNU/Linux)
+
+iD8DBQBBanMdlZfG2c8gdSURAqLMAKDwqGq89KFRM7IiNKCgT8oZ0AYgmACdHraQ
+kkEb9XVW2QX++oNV+wwxx88=
+=exnk
+-----END PGP SIGNATURE-----
+
+--nextPart2332779.HFp27JkuSv--

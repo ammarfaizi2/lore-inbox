@@ -1,91 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261820AbVCYVny@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261821AbVCYVqM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261820AbVCYVny (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Mar 2005 16:43:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261821AbVCYVny
+	id S261821AbVCYVqM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Mar 2005 16:46:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261822AbVCYVqM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Mar 2005 16:43:54 -0500
-Received: from wproxy.gmail.com ([64.233.184.202]:61685 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261820AbVCYVnr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Mar 2005 16:43:47 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=DSSikblFaGcG5hp83kkddyDmkQr3tXFNj18P/26aOjSEtkhBo+HamOQg+3bzhG7aDce+BHSGTgfyH/6A5HolUSUAU1Yp9S7X/pjJV0LLg+RSCSqIjMdZfdqRQQveYEFitxQqA/0nSpyPMppRMhogTWiBfg0ua2pNSsndPIZ8h6M=
-Message-ID: <4244860E.5090800@gmail.com>
-Date: Sat, 26 Mar 2005 06:43:42 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Debian Thunderbird 1.0 (X11/20050118)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: Jens Axboe <axboe@suse.de>, SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH scsi-misc-2.6 08/08] scsi: fix hot unplug sequence
-References: <20050323021335.960F95F8@htj.dyndns.org>	 <20050323021335.4682C732@htj.dyndns.org>	 <1111550882.5520.93.camel@mulgrave> <4240F5A9.80205@gmail.com>	 <20050323071920.GJ24105@suse.de> <1111591213.5441.19.camel@mulgrave>	 <20050323152550.GB16149@suse.de> <1111711558.5612.52.camel@mulgrave>	 <20050325031511.GA22114@htj.dyndns.org> <1111726965.5612.62.camel@mulgrave>	 <20050325053842.GA24499@htj.dyndns.org> <1111778388.5692.38.camel@mulgrave>
-In-Reply-To: <1111778388.5692.38.camel@mulgrave>
-Content-Type: text/plain; charset=EUC-KR
+	Fri, 25 Mar 2005 16:46:12 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:11496 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261821AbVCYVpg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Mar 2005 16:45:36 -0500
+Subject: [PATCH] make Documentation/oops-tracing.txt relevant to 2.6 [was
+	Re: OOPS running "ls -l /sys/class/i2c-adapter/*"-- 2.6.12-rc1-mm2]
+From: Lee Revell <rlrevell@joe-job.com>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Andrew Morton <akpm@osdl.org>, Miles Lane <miles.lane@gmail.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20050325210743.E12715@flint.arm.linux.org.uk>
+References: <20050324044114.5aa5b166.akpm@osdl.org>
+	 <a44ae5cd05032420122cd610bd@mail.gmail.com>
+	 <20050324202215.663bd8a9.akpm@osdl.org>
+	 <20050325073846.A18596@flint.arm.linux.org.uk>
+	 <1111784022.23430.1.camel@mindpipe>
+	 <20050325210743.E12715@flint.arm.linux.org.uk>
+Content-Type: text/plain
+Date: Fri, 25 Mar 2005 16:45:32 -0500
+Message-Id: <1111787132.23430.10.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
- Hello, James.
-
-James Bottomley wrote:
-> On Fri, 2005-03-25 at 14:38 +0900, Tejun Heo wrote:
+On Fri, 2005-03-25 at 21:07 +0000, Russell King wrote:
+> On Fri, Mar 25, 2005 at 03:53:42PM -0500, Lee Revell wrote:
+> > On Fri, 2005-03-25 at 07:38 +0000, Russell King wrote:
+> > > Users need to be re-educated _not_ to use ksymoops.
+> > 
+> > How about changing the fscking docs to not tell users to use it?
 > 
->> We have users of scsi_do_req() other than scsi_wait_req() and they
->>use different done() functions to do different things.  I've checked
->>other done functions and none uses contents inside the passed
->>scsi_cmnd, so using a dummy command should be okay with them.  Am I
->>missing something here?
+> Would be useful.  The "fscking" problem is that no one actually owns the
+> documents, so there's no central focus to keep them up to date.
 > 
+
+Are you serious?  So Documentation/sound/alsa/* isn't maintained by the
+ALSA maintainers?
+
+Wow, this would explain why all Linux documentation is at least 2 years
+out of date.
+
+> Maybe we need a docfsck? 8)
 > 
-> Well ... the other users are supposed to be going away.  They're
-> actually all coded wrongly in some way or other ... perhaps I should
-> speed up the process.
-
- Sounds great.  :-)
-
->> Oh, and I would really appreciate if you can fill me in / give a
->>pointer about the scsi_request/scsi_cmnd distinction.
+> I certainly don't have authority to tell x86 people not to use ksymoops.
+> Therefore, I think my suggested change (which up until recently I thought
+> was an ARM only problem) should be done by someone else.
 > 
-> The block layer speaks in terms of requests and the scsi layers in terms
-> of commands.  The scsi_request_fn() actually associates a request with a
-> command.  However, since SCSI uses the block layer for queueing, all the
-> internal scsi command submit paths have to use requests.  This is what a
-> scsi_request is.  The reason for the special casing is that we can't use
-> the normal REQ_CMD or REQ_BLOCK_PC paths because they need ULD
-> initialisation and back end processing.
 
- What I meant was we could just use scsi_cmnd instead of scsi_request
-for commands.  Currently, we do the following for special commands.
+At least from my experience, ksymoops is useless on x86 for 2.6 kernels.
+Here is a patch to finally bring oops-tracing.txt into the 2.6 era.  :-P
 
- 1. Allocate scsi_request and request (two are linked)
- 2. Initialize scsi_request as needed
- 3. queue the request
- 4. the request is dispatched
- 5. scsi_cmnd is initialized from scsi_request
- 6. scsi_cmnd is executed
- 7. result code and sense copied back to scsi_request
- 8. request is completed
+Sugned-Off-By: Lee Revell <rlrevell@joe-job.com>
 
- Instead, we can
+Lee
 
- 1. Allocate scsi_cmnd and request (two are linked)
- 2. Initialize scsi_cmnd as needed
- 3. queue the request
- 4. the request is dispatched
- 5. scsi_cmnd is executed
- 6. request is completed
+--- Documentation/oops-tracing.txt~	2005-03-17 20:34:06.000000000 -0500
++++ Documentation/oops-tracing.txt	2005-03-25 16:41:07.000000000 -0500
+@@ -1,23 +1,22 @@
++NOTE: ksymoops is useless on 2.6.  Please use the Oops in its original format
++(from dmesg, etc).  Ignore any references in this or other docs to "decoding
++the Oops" or "running it through ksymoops".  If you post an Oops fron 2.6 that
++has been run through ksymoops, people will just tell you to repost it.
++
+ Quick Summary
+ -------------
+ 
+-Install ksymoops from
+-ftp://ftp.<country>.kernel.org/pub/linux/utils/kernel/ksymoops
+-Read the ksymoops man page.
+-ksymoops < the_oops.txt
+-
+-and send the output the maintainer of the kernel area that seems to be
+-involved with the problem, not to the ksymoops maintainer. Don't worry
+-too much about getting the wrong person. If you are unsure send it to
+-the person responsible for the code relevant to what you were doing.
+-If it occurs repeatably try and describe how to recreate it. Thats
+-worth even more than the oops
++Find the Oops and send it to the maintainer of the kernel area that seems to be
++involved with the problem.  Don't worry too much about getting the wrong person.
++If you are unsure send it to the person responsible for the code relevant to
++what you were doing.  If it occurs repeatably try and describe how to recreate
++it.  That's worth even more than the oops.
+ 
+ If you are totally stumped as to whom to send the report, send it to 
+ linux-kernel@vger.kernel.org. Thanks for your help in making Linux as
+ stable as humanly possible.
+ 
+-Where is the_oops.txt?
++Where is the Oops?
+ ----------------------
+ 
+ Normally the Oops text is read from the kernel buffers by klogd and
+@@ -43,15 +42,14 @@
+     them yourself.  Search kernel archives for kmsgdump, lkcd and
+     oops+smram.
+ 
+-No matter how you capture the log output, feed the resulting file to
+-ksymoops along with /proc/ksyms and /proc/modules that applied at the
+-time of the crash.  /var/log/ksymoops can be useful to capture the
+-latter, man ksymoops for details.
+-
+ 
+ Full Information
+ ----------------
+ 
++NOTE: the message from Linus below applies to 2.4 kernel.  I have preserved it
++for historical reasons, and because some of the information in it still
++applies.  Especially, please ignore any references to ksymoops. 
++
+ From: Linus Torvalds <torvalds@osdl.org>
+ 
+ How to track down an Oops.. [originally a mail to linux-kernel]
 
- As the latter seemed more straight-forward to me, I was wondering if
-there were reasons that I wasn't aware of.
-
- Thanks.
-
--- 
-tejun
 

@@ -1,38 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263484AbTDSWKK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Apr 2003 18:10:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263487AbTDSWKK
+	id S263481AbTDSWiz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Apr 2003 18:38:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263483AbTDSWiz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Apr 2003 18:10:10 -0400
-Received: from [12.47.58.203] ([12.47.58.203]:40662 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S263484AbTDSWKK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Apr 2003 18:10:10 -0400
-Date: Sat, 19 Apr 2003 15:22:14 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Andries.Brouwer@cwi.nl
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Private namespaces
-Message-Id: <20030419152214.3f237b12.akpm@digeo.com>
-In-Reply-To: <UTC200304192218.h3JMIak17446.aeb@smtp.cwi.nl>
-References: <UTC200304192218.h3JMIak17446.aeb@smtp.cwi.nl>
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 19 Apr 2003 18:38:55 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:56272
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S263481AbTDSWiy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Apr 2003 18:38:54 -0400
+Subject: Re: firmware separation filesystem (fwfs)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: ranty@debian.org
+Cc: David Gibson <david@gibson.dropbear.id.au>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030419204138.GC638@ranty.ddts.net>
+References: <20030416163641.GA2183@ranty.ddts.net>
+	 <1050508028.28586.126.camel@dhcp22.swansea.linux.org.uk>
+	 <20030417012321.GB9219@zax>
+	 <1050585122.31390.25.camel@dhcp22.swansea.linux.org.uk>
+	 <20030419204138.GC638@ranty.ddts.net>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 19 Apr 2003 22:22:04.0713 (UTC) FILETIME=[1B405990:01C306C2]
+Organization: 
+Message-Id: <1050789163.3955.8.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 19 Apr 2003 22:52:44 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries.Brouwer@cwi.nl wrote:
->
-> Concerning style - I don't like
+On Sad, 2003-04-19 at 21:41, Manuel Estrada Sainz wrote:
+> > fwfs is a broken idea because it leaves the data in kernel space. On
+> > a giant IBM monster maybe nobody cares about a few hundred K of cached
+> > firmware in the kernel, but the rest of us happen to run real world
+> > computers.
 > 
-> 	if ((retval = copy_sighand(clone_flags, p)))
-> 
-> very much.
+>  Many drivers currently include this same data in kernel space, in in
+>  headers, what I am trying to do is make it easy for them to support
+>  fwfs (or whatever it becomes in the end). 
 
-Me either.  But in this case there are so darn many of them it seems
-acceptable.
+So what is the value in changing them to this, then changing them again
+to put the firmware in userspace ? Surely you'd be better off writing
+a generally usable request_firmware() hotplug interface ?
 

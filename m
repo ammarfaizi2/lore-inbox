@@ -1,68 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267640AbSKTHVR>; Wed, 20 Nov 2002 02:21:17 -0500
+	id <S267649AbSKTH2P>; Wed, 20 Nov 2002 02:28:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267638AbSKTHUT>; Wed, 20 Nov 2002 02:20:19 -0500
-Received: from dp.samba.org ([66.70.73.150]:57299 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S267639AbSKTHTt>;
+	id <S267648AbSKTHUN>; Wed, 20 Nov 2002 02:20:13 -0500
+Received: from dp.samba.org ([66.70.73.150]:56275 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S267637AbSKTHTt>;
 	Wed, 20 Nov 2002 02:19:49 -0500
 From: Rusty Russell <rusty@rustcorp.com.au>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org, "Adam J. Richter" <adam@yggdrasil.com>
-Subject: [PATCH] module device table restoration 
-Date: Wed, 20 Nov 2002 18:00:19 +1100
-Message-Id: <20021120072654.322C02C087@lists.samba.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel@vger.kernel.org, rusty@rustcorp.com.au
+Subject: Re: [PATCH] mii module broken under new scheme 
+In-reply-to: Your message of "Tue, 19 Nov 2002 12:51:44 CDT."
+             <3DDA7A30.4010403@pobox.com> 
+Date: Wed, 20 Nov 2002 08:38:52 +1100
+Message-Id: <20021120072654.1B6192C07A@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patch from Adam Richter.  I have a nicer solution based on aliases,
-but it requires coordination with USB, PCI and PCMCIA maintainers,
-which is taking time.
+In message <3DDA7A30.4010403@pobox.com> you write:
+> Matt Reppert wrote:
+> 
+> > drivers/net/mii.c doesn't export module init/cleanup functions. That 
+> > means it
+> > can't be loaded under the new module scheme. This patch adds do-nothing
+> > functions for it, which allows it to load. (8139too depends on mii, so
+> > without this I don't have network.)
+> 
+> ahhh!   I was wondering what was up, but since I was busy with other 
+> things I just compiled it into the kernel and continued on my way.
+> 
+> That's a bug in the new module loader.
 
-This restores the old code in the meantime: one week without this is
-too long or people who need it.  8(
+Yes.  But the workaround of calling the module "unknown" isn't nice
+either: just put "no_module_init;" in and be done with it (it's also a
+big hint that the module doesn't do anything itself).
 
-Please apply unless Adam has objections,
+Richard Henderson, Kai and myself are discussing a post-link stage for
+modules, which will allow us to add the .modname section at that time,
+but 99% of the cases are already fixed.
+
+Sorry for any trouble,
 Rusty.
-
---- linux-2.5.48/include/linux/module.h	2002-11-17 20:29:52.000000000 -0800
-+++ linux/include/linux/module.h	2002-11-18 08:05:19.000000000 -0800
-@@ -26,8 +26,6 @@
- #define MODULE_AUTHOR(name)
- #define MODULE_DESCRIPTION(desc)
- #define MODULE_SUPPORTED_DEVICE(name)
--#define MODULE_GENERIC_TABLE(gtype,name)
--#define MODULE_DEVICE_TABLE(type,name)
- #define MODULE_PARM_DESC(var,desc)
- #define print_symbol(format, addr)
- #define print_modules()
-@@ -40,14 +38,28 @@
- };
- 
- #ifdef MODULE
-+
-+#define MODULE_GENERIC_TABLE(gtype,name)	\
-+static const unsigned long __module_##gtype##_size \
-+  __attribute__ ((unused)) = sizeof(struct gtype##_id); \
-+static const struct gtype##_id * __module_##gtype##_table \
-+  __attribute__ ((unused)) = name
-+
- /* This is magically filled in by the linker, but THIS_MODULE must be
-    a constant so it works in initializers. */
- extern struct module __this_module;
- #define THIS_MODULE (&__this_module)
--#else
-+
-+#else  /* !MODULE */
-+
-+#define MODULE_GENERIC_TABLE(gtype,name)
- #define THIS_MODULE ((struct module *)0)
-+
- #endif
- 
-+#define MODULE_DEVICE_TABLE(type,name)		\
-+  MODULE_GENERIC_TABLE(type##_device,name)
-+
- #ifdef CONFIG_MODULES
- /* Get/put a kernel symbol (calls must be symmetric) */
- void *__symbol_get(const char *symbol);
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

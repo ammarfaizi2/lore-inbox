@@ -1,87 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288121AbSACBpy>; Wed, 2 Jan 2002 20:45:54 -0500
+	id <S288116AbSACBsY>; Wed, 2 Jan 2002 20:48:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288119AbSACBpp>; Wed, 2 Jan 2002 20:45:45 -0500
-Received: from topic-gw2.topic.com.au ([203.37.31.2]:3574 "EHLO
-	mailhost.topic.com.au") by vger.kernel.org with ESMTP
-	id <S288115AbSACBpZ>; Wed, 2 Jan 2002 20:45:25 -0500
-Date: Thu, 3 Jan 2002 12:45:07 +1100
-From: Jason Thomas <jason@topic.com.au>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: oops in devfs
-Message-ID: <20020103014507.GB19702@topic.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.24i
+	id <S288117AbSACBsO>; Wed, 2 Jan 2002 20:48:14 -0500
+Received: from CPEdeadbeef0000.cpe.net.cable.rogers.com ([24.100.234.67]:1028
+	"HELO coredump.sh0n.net") by vger.kernel.org with SMTP
+	id <S288116AbSACBsH>; Wed, 2 Jan 2002 20:48:07 -0500
+Date: Wed, 2 Jan 2002 20:48:49 -0500 (EST)
+From: Shawn Starr <spstarr@sh0n.net>
+To: Greg KH <greg@kroah.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Strange USB issues...
+In-Reply-To: <20020103010106.GO3054@kroah.com>
+Message-ID: <Pine.LNX.4.40.0201022042460.161-100000@coredump.sh0n.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please CC me I'm not on the list
 
-Hi, I get the following oops, usually after booting. I've done things
-like run memtest86 and changed the scsi cable.
+Here's the mobo specs (im home now)...
 
-Thanks.
+AcerOpen AP53(AX) Motherboard:
+AP53R3C0
 
-ksymoops 2.4.3 on i686 2.4.17.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.17/ (default)
-     -m /boot/System.map-2.4.17 (default)
+One USB connector for 2 ports
+Dallas DS12887A or DS12B887 RTC/Battery.
 
-Warning: You did not tell me where to find symbol information.  I will
-assume that the log matches the kernel and modules that are running
-right now and I'll use the default options above for symbol resolution.
-If the current kernel and/or modules do not match the log, you can get
-more accurate output by telling me the kernel version and where to find
-map, modules, ksyms etc.  ksymoops -h explains the options.
+Motherboard supports PS/2 mouse
+AT Keyboard
+IrDA - Laptops, PDA, wireless stuff 115Kbs transfer rate at 1 meter.
 
-No modules in ksyms, skipping objects
-Warning (read_lsmod): no symbols in lsmod, is /proc/modules a valid lsmod file?
-cpu: 0, clocks: 1339387, slice: 446462
-cpu: 1, clocks: 1339387, slice: 446462
-kernel BUG at dcache.c:654!
-invalid operand: 0000
-CPU:    0
-EIP:    0010:[<c0144b52>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010286
-eax: 0000001c   ebx: f5f66210   ecx: c028dd20   edx: 00003757
-esi: f5da5280   edi: f5f661e0   ebp: f5f661e0   esp: f7a7df08
-ds: 0018   es: 0018   ss: 0018
-Process devfsd (pid: 24, stackpage=f7a7d000)
-Stack: c02408d3 0000028e f7324b40 f5da5280 f7a869a0 c016a31f f5f661e0 f5da5280 
-       f5f661e0 00000000 f7a7dfa4 f7a87c40 c013be5e f5f661e0 00000000 f7a7df74 
-       c013c6c1 f7a87c40 f7a7df74 00000000 f7a6a000 00000000 f7a7dfa4 00000009 
-Call Trace: [<c016a31f>] [<c013be5e>] [<c013c6c1>] [<c013c94a>] [<c013ce31>] 
-   [<c013984d>] [<c0132824>] [<c0106dbb>] 
-Code: 0f 0b 83 c4 08 f0 fe 0d a0 36 2e c0 0f 88 a3 63 0e 00 85 f6 
+PCI 2.1 Compliant - OFF because some other weirdo issues
+USB Functionality:
 
->>EIP; c0144b52 <d_instantiate+22/58>   <=====
-Trace; c016a31e <devfs_d_revalidate_wait+8a/bc>
-Trace; c013be5e <cached_lookup+2e/54>
-Trace; c013c6c0 <link_path_walk+5e0/850>
-Trace; c013c94a <path_walk+1a/1c>
-Trace; c013ce30 <__user_walk+34/50>
-Trace; c013984c <sys_stat64+18/70>
-Trace; c0132824 <sys_read+bc/c4>
-Trace; c0106dba <system_call+32/38>
-Code;  c0144b52 <d_instantiate+22/58>
-00000000 <_EIP>:
-Code;  c0144b52 <d_instantiate+22/58>   <=====
-   0:   0f 0b                     ud2a      <=====
-Code;  c0144b54 <d_instantiate+24/58>
-   2:   83 c4 08                  add    $0x8,%esp
-Code;  c0144b56 <d_instantiate+26/58>
-   5:   f0 fe 0d a0 36 2e c0      lock decb 0xc02e36a0
-Code;  c0144b5e <d_instantiate+2e/58>
-   c:   0f 88 a3 63 0e 00         js     e63b5 <_EIP+0xe63b5> c022af06 <stext_lo
-ck+2c22/88ee>
-Code;  c0144b64 <d_instantiate+34/58>
-  12:   85 f6                     test   %esi,%esi
+NOTE from booklet: USB Shares INTD with PCI slot 4 therefore if you enable
+USB only PCI cards that do no not require IRQ such as VGA can be installed
+in SLOT 4. The PhP BIOS assigns an IRQ to VGA only if the VGA requests for
+it...hmmmmm
 
+Shawn.
 
-2 warnings issued.  Results may not be reliable.
+On Wed, 2 Jan 2002, Greg KH wrote:
+
+> On Wed, Jan 02, 2002 at 07:32:02PM -0500, Shawn Starr wrote:
+> > I have a Pentium 200Mhz AMD Bios (home machine):
+> >
+> > USB 1.0 - 2 ports
+>
+> Ouch.  Watch out when using a hub.  They generally want 1.1 support.
+>
+> > The bios has 2 options:
+> >
+> > Enable USB controller and enable USB legacy stuff.
+> >
+> > If I turn on USB and boot to a Linux kernel WITH NO USB support compiled
+> > in. I get:
+> >
+> > 1) Slow loading of kernel into memory on bootup
+> > 2) AT keyboard timeout (?) errors and no activity with the keyboard
+> > (shift lock/numlock/scroll lock). I  have to reboot to correct the
+> > problem by disabling USB in the bios.
+>
+> Do you only have a USB keyboard, and no PS2 keyboard attached?
+> Is the "Enable USB legacy" stuff enabled in your bios?
+>
+> Does things work better if you load the usb host controller for your
+> machine?
+>
+> thanks,
+>
+> greg k-h
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
+

@@ -1,43 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262769AbVA1U7O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262744AbVA1U7R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262769AbVA1U7O (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 15:59:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262760AbVA1U5A
+	id S262744AbVA1U7R (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 15:59:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262764AbVA1U5a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 15:57:00 -0500
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:34251
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S262744AbVA1UuH convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 15:50:07 -0500
-Date: Fri, 28 Jan 2005 12:45:17 -0800
-From: "David S. Miller" <davem@davemloft.net>
-To: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_Garc=EDa-Hierro?= 
-	<lorenzo@gnu.org>
-Cc: shemminger@osdl.org, linux-kernel@vger.kernel.org, chrisw@osdl.org,
-       netdev@oss.sgi.com, arjan@infradead.org, hlein@progressive-comp.com
-Subject: Re: [PATCH] OpenBSD Networking-related randomization port
-Message-Id: <20050128124517.36aa5e05.davem@davemloft.net>
-In-Reply-To: <1106944492.3864.30.camel@localhost.localdomain>
-References: <1106932637.3778.92.camel@localhost.localdomain>
-	<20050128100229.5c0e4ea1@dxpl.pdx.osdl.net>
-	<1106937110.3864.5.camel@localhost.localdomain>
-	<20050128105217.1dc5ef42@dxpl.pdx.osdl.net>
-	<1106944492.3864.30.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Fri, 28 Jan 2005 15:57:30 -0500
+Received: from [195.23.16.24] ([195.23.16.24]:23424 "EHLO
+	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
+	id S262755AbVA1Uwj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jan 2005 15:52:39 -0500
+Message-ID: <41FAA5F7.4000202@grupopie.com>
+Date: Fri, 28 Jan 2005 20:52:07 +0000
+From: Paulo Marques <pmarques@grupopie.com>
+Organization: Grupo PIE
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: David Sims <dpsims@virtualdave.com>
+Cc: linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: I need a hardware wizard... I have been beating my head on the
+ wall..
+References: <Pine.LNX.4.21.0501272102280.27754-100000@ernie.virtualdave.com>
+In-Reply-To: <Pine.LNX.4.21.0501272102280.27754-100000@ernie.virtualdave.com>
+Content-Type: multipart/mixed;
+ boundary="------------070508000605050208060506"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 28 Jan 2005 21:34:52 +0100
-Lorenzo Hernández García-Hierro <lorenzo@gnu.org> wrote:
+This is a multi-part message in MIME format.
+--------------070508000605050208060506
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> Attached the new patch following Arjan's recommendations.
+David Sims wrote:
+> On Thu, 27 Jan 2005, Jeff Garzik wrote:
+>>David Sims wrote:
+>>
+>>>[...]
+>>>  You can insert the module in a running kernel and after barking as
+>>>follows (once for each disk attached) it runs just fine.
+>>
+>>Basically nobody has ever had hardware to test sata_vsc with that 
+>>hardware.  We should probably remove the PCI ID until an engineer can 
+>>fix it...
+> 
+> Hi again,
+> 
+>   I am willing to make this hardware available to any engineer that wants
+> to help me solve this problem.... and I will do whatever I can to make it
+> an easy job... Please help me...
 
-No SMP protection on the SBOX, better look into that.
-The locking you'll likely need to add will make this
-routine serialize many networking operations which is
-one thing we've been trying to avoid.
+Well, I don't consider myself a hardware wizard, but at least I'm an 
+engineer, so I decided to give it a go :)
+
+It seems that the driver is not acknowledging the interrupt from the 
+controller. It would be nice to know what kind of interrupt is 
+triggering this.
+
+Could you run the attached patch and show the output from dmesg?
+
+-- 
+Paulo Marques - www.grupopie.com
+
+All that is necessary for the triumph of evil is that good men do nothing.
+Edmund Burke (1729 - 1797)
+
+--------------070508000605050208060506
+Content-Type: text/plain;
+ name="patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch"
+
+--- sata_vsc.c.orig	2005-01-28 12:23:47.000000000 +0000
++++ sata_vsc.c	2005-01-28 20:51:13.993868526 +0000
+@@ -160,12 +160,17 @@ irqreturn_t vsc_sata_interrupt (int irq,
+ 	struct ata_host_set *host_set = dev_instance;
+ 	unsigned int i;
+ 	unsigned int handled = 0;
++        static int int_count = 0;
+ 	u32 int_status;
+ 
+ 	spin_lock(&host_set->lock);
+ 
+ 	int_status = readl(host_set->mmio_base + VSC_SATA_INT_STAT_OFFSET);
+ 
++	int_count++;
++	if (int_count > 1000 && int_count <= 1020)
++		printk("vsc_sata int status: %08x\n", int_status);
++
+ 	for (i = 0; i < host_set->n_ports; i++) {
+ 		if (int_status & ((u32) 0xFF << (8 * i))) {
+ 			struct ata_port *ap;
+
+--------------070508000605050208060506--

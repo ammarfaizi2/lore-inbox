@@ -1,43 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263188AbUEHQUW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263191AbUEHQfN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263188AbUEHQUW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 May 2004 12:20:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263191AbUEHQUW
+	id S263191AbUEHQfN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 May 2004 12:35:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263199AbUEHQfM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 May 2004 12:20:22 -0400
-Received: from grendel.digitalservice.pl ([217.67.200.140]:63406 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S263188AbUEHQUT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 May 2004 12:20:19 -0400
-From: "R. J. Wysocki" <rjwysocki@sisk.pl>
-Organization: SiSK
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.6-rc3-mm2
-Date: Sat, 8 May 2004 18:25:52 +0200
-User-Agent: KMail/1.5
-Cc: rusty@rustcorp.com.au, ak@muc.de, linux-kernel@vger.kernel.org
-References: <20040505013135.7689e38d.akpm@osdl.org> <200405081329.43017.rjwysocki@sisk.pl> <20040508043149.63fd9498.akpm@osdl.org>
-In-Reply-To: <20040508043149.63fd9498.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200405081733.49473.rjwysocki@sisk.pl>
-Content-Type: text/plain;
-  charset="iso-8859-2"
+	Sat, 8 May 2004 12:35:12 -0400
+Received: from peabody.ximian.com ([130.57.169.10]:10637 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S263191AbUEHQfJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 May 2004 12:35:09 -0400
+Subject: Re: Love's book
+From: Robert Love <rml@ximian.com>
+To: Fabiano Ramos <fabramos@bol.com.br>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1083952633.1431.47.camel@slack.domain.invalid>
+References: <1083952633.1431.47.camel@slack.domain.invalid>
+Content-Type: text/plain
+Date: Sat, 08 May 2004 12:35:13 -0400
+Message-Id: <1084034113.6093.2.camel@lucy>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.5.7 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 08 of May 2004 13:31, Andrew Morton wrote:
-> "R. J. Wysocki" <rjwysocki@sisk.pl> wrote:
-> > Sute, it's like that:
-> >
-> >  kernel /boot/vmlinuz-2.6.6-rc3-mm2 root=/dev/sdb3 vga=792 hdc=ide-scsi
-> >  console=ttyS0,115200 console=tty0
->
-> Please try `console=ttyS0'.
+On Fri, 2004-05-07 at 14:57 -0300, Fabiano Ramos wrote:
 
-I have.  It does not help. :-(
+> 	I am about to buy Robert Love's  "Linux Kernel Development" book, but a
+> I am quite unsure about whether this title is based on
+> 2.4 with some 2.6 info or is it a full-blown 2.6 book.
+> 
+> 	Can anyone help me (this include Mr. Love himself!)?
 
-Still, reversing the Move-saved_command_line-to-init-mainc.patch _does_ help, 
-even with the above command line.  I guess it's an x86_64-specific issue.
+It is 100% based on 2.6.
+
+	Robert Love
+
 

@@ -1,509 +1,761 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263313AbSLaQ2D>; Tue, 31 Dec 2002 11:28:03 -0500
+	id <S263362AbSLaQiy>; Tue, 31 Dec 2002 11:38:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263366AbSLaQ2D>; Tue, 31 Dec 2002 11:28:03 -0500
-Received: from host194.steeleye.com ([66.206.164.34]:51215 "EHLO
-	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
-	id <S263313AbSLaQ1t>; Tue, 31 Dec 2002 11:27:49 -0500
-Message-Id: <200212311636.gBVGa8t02091@localhost.localdomain>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-To: David Brownell <david-b@pacbell.net>
-cc: James Bottomley <James.Bottomley@SteelEye.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] generic device DMA (dma_pool update) 
-In-Reply-To: Message from David Brownell <david-b@pacbell.net> 
-   of "Mon, 30 Dec 2002 15:11:19 PST." <3E10D297.1090206@pacbell.net> 
+	id <S263491AbSLaQiy>; Tue, 31 Dec 2002 11:38:54 -0500
+Received: from colossus.systems.pipex.net ([62.241.160.73]:26026 "EHLO
+	colossus.systems.pipex.net") by vger.kernel.org with ESMTP
+	id <S263362AbSLaQii>; Tue, 31 Dec 2002 11:38:38 -0500
+Subject: PROBLEM: X windows crash with kernel oops in syslog (multiple
+	times).
+From: Michael Barker <mbarker@dsl.pipex.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: 
+Message-Id: <1041352828.1594.38.camel@corona>
 Mime-Version: 1.0
-Content-Type: multipart/mixed ;
-	boundary="==_Exmh_-18983497320"
-Date: Tue, 31 Dec 2002 10:36:08 -0600
-From: James Bottomley <James.Bottomley@steeleye.com>
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 31 Dec 2002 16:40:28 +0000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multipart MIME message.
+Hi,
 
---==_Exmh_-18983497320
-Content-Type: text/plain; charset=us-ascii
+(Posting from off list, please CC my E. mail address, thanks).
 
-How about the attached as the basis for a generic coherent memory pool 
-implementation.  It basically leverages pci/pool.c to be more generic, and 
-thus makes use of well tested code.
+I was running several applications on top an X Windows session, I
+noticed the CPU usage at a 100%.  Running top to see what was hogging
+all of the CPU showed X windows running at ~50% and top the other %50. 
+However top was extremely slow to return and rest of the machine started
+crawling to a halt.  X windows then exited killing all of the apps.
 
-Obviously, as a final tidy up, pci/pool.c should probably be moved to 
-base/pool.c with compile options for drivers that want it.
+Apps running:
 
-James
+Gnome2
+Evolution
+Galeon
+ArgoUML (Java based UML program)
+Eclipse
+CD Player
+
+Logging back in I looked at the logs and noticed a number of Oops
+messages (logs and output from ksymoops below).
+
+Opening evolution to send an E. mail the problem occurred again, this
+time the log only seemed to show a partial oops trace and running it
+through ksymoops caused a segmenation fault.
+
+This problem occurred 3 more times before I rebooted, which seemed to
+alleviate the problem.  I did notice that any program that tried to
+access current process information (eg. ps and top) ran extremely slow
+(30 secs to 1 min to return) and would use 100% CPU.
+
+I have had a number of problems with this system from kernel versions
+2.4.8 to 2.4.19.  Faults such as this where X windows or various other
+programs will exit through to hard lockups of the system.  The problem
+most commonly seems to occur when the memory usage is very high (around
+100%) when the system would start to swap.
+
+I have heard that there have been various problems with AMD CPUs on VIA
+chipsets.  I saw a patch available that is intended to improve general
+stability of AMD CPUs however it looked like the patch was only for
+2.5.x kernels.
+
+Any help, suggestions (even if it is buy an different motherboard and/or
+CPU) would be appreciated.
+
+Kind regards,
+Mike.
 
 
---==_Exmh_-18983497320
-Content-Type: text/plain ; name="tmp.diff"; charset=us-ascii
-Content-Description: tmp.diff
-Content-Disposition: attachment; filename="tmp.diff"
+System Info:
 
-diff -Nru a/drivers/base/core.c b/drivers/base/core.c
---- a/drivers/base/core.c	Tue Dec 31 10:33:58 2002
-+++ b/drivers/base/core.c	Tue Dec 31 10:33:58 2002
-@@ -146,6 +146,7 @@
- 	INIT_LIST_HEAD(&dev->bus_list);
- 	INIT_LIST_HEAD(&dev->class_list);
- 	INIT_LIST_HEAD(&dev->intf_list);
-+	INIT_LIST_HEAD(&dev->pools);
- }
- 
- /**
-diff -Nru a/drivers/pci/pool.c b/drivers/pci/pool.c
---- a/drivers/pci/pool.c	Tue Dec 31 10:33:58 2002
-+++ b/drivers/pci/pool.c	Tue Dec 31 10:33:58 2002
-@@ -1,6 +1,8 @@
--#include <linux/pci.h>
- #include <linux/slab.h>
- #include <linux/module.h>
-+#include <linux/types.h>
-+#include <linux/blkdev.h>
-+#include <linux/dma-mapping.h>
- 
- /*
-  * Pool allocator ... wraps the pci_alloc_consistent page allocator, so
-@@ -8,19 +10,19 @@
-  * This should probably be sharing the guts of the slab allocator.
-  */
- 
--struct pci_pool {	/* the pool */
-+struct dma_pool {	/* the pool */
- 	struct list_head	page_list;
- 	spinlock_t		lock;
- 	size_t			blocks_per_page;
- 	size_t			size;
--	struct pci_dev		*dev;
-+	struct device		*dev;
- 	size_t			allocation;
- 	char			name [32];
- 	wait_queue_head_t	waitq;
- 	struct list_head	pools;
- };
- 
--struct pci_page {	/* cacheable header for 'allocation' bytes */
-+struct dma_page {	/* cacheable header for 'allocation' bytes */
- 	struct list_head	page_list;
- 	void			*vaddr;
- 	dma_addr_t		dma;
-@@ -36,7 +38,6 @@
- static ssize_t
- show_pools (struct device *dev, char *buf, size_t count, loff_t off)
- {
--	struct pci_dev		*pdev;
- 	unsigned		temp, size;
- 	char			*next;
- 	struct list_head	*i, *j;
-@@ -44,7 +45,6 @@
- 	if (off != 0)
- 		return 0;
- 
--	pdev = container_of (dev, struct pci_dev, dev);
- 	next = buf;
- 	size = count;
- 
-@@ -53,16 +53,16 @@
- 	next += temp;
- 
- 	down (&pools_lock);
--	list_for_each (i, &pdev->pools) {
--		struct pci_pool	*pool;
-+	list_for_each (i, &dev->pools) {
-+		struct dma_pool	*pool;
- 		unsigned	pages = 0, blocks = 0;
- 
--		pool = list_entry (i, struct pci_pool, pools);
-+		pool = list_entry (i, struct dma_pool, pools);
- 
- 		list_for_each (j, &pool->page_list) {
--			struct pci_page	*page;
-+			struct dma_page	*page;
- 
--			page = list_entry (j, struct pci_page, page_list);
-+			page = list_entry (j, struct dma_page, page_list);
- 			pages++;
- 			blocks += page->in_use;
- 		}
-@@ -82,31 +82,31 @@
- static DEVICE_ATTR (pools, S_IRUGO, show_pools, NULL);
- 
- /**
-- * pci_pool_create - Creates a pool of pci consistent memory blocks, for dma.
-+ * dma_pool_create - Creates a pool of coherent memory blocks, for dma.
-  * @name: name of pool, for diagnostics
-- * @pdev: pci device that will be doing the DMA
-+ * @dev: device that will be doing the DMA
-  * @size: size of the blocks in this pool.
-  * @align: alignment requirement for blocks; must be a power of two
-  * @allocation: returned blocks won't cross this boundary (or zero)
-  * Context: !in_interrupt()
-  *
-- * Returns a pci allocation pool with the requested characteristics, or
-- * null if one can't be created.  Given one of these pools, pci_pool_alloc()
-+ * Returns a dma allocation pool with the requested characteristics, or
-+ * null if one can't be created.  Given one of these pools, dma_pool_alloc()
-  * may be used to allocate memory.  Such memory will all have "consistent"
-  * DMA mappings, accessible by the device and its driver without using
-  * cache flushing primitives.  The actual size of blocks allocated may be
-  * larger than requested because of alignment.
-  *
-- * If allocation is nonzero, objects returned from pci_pool_alloc() won't
-+ * If allocation is nonzero, objects returned from dma_pool_alloc() won't
-  * cross that size boundary.  This is useful for devices which have
-  * addressing restrictions on individual DMA transfers, such as not crossing
-  * boundaries of 4KBytes.
-  */
--struct pci_pool *
--pci_pool_create (const char *name, struct pci_dev *pdev,
-+struct dma_pool *
-+dma_pool_create (const char *name, struct device *dev,
- 	size_t size, size_t align, size_t allocation)
- {
--	struct pci_pool		*retval;
-+	struct dma_pool		*retval;
- 
- 	if (align == 0)
- 		align = 1;
-@@ -134,7 +134,7 @@
- 	strncpy (retval->name, name, sizeof retval->name);
- 	retval->name [sizeof retval->name - 1] = 0;
- 
--	retval->dev = pdev;
-+	retval->dev = dev;
- 
- 	INIT_LIST_HEAD (&retval->page_list);
- 	spin_lock_init (&retval->lock);
-@@ -143,12 +143,12 @@
- 	retval->blocks_per_page = allocation / size;
- 	init_waitqueue_head (&retval->waitq);
- 
--	if (pdev) {
-+	if (dev) {
- 		down (&pools_lock);
--		if (list_empty (&pdev->pools))
--			device_create_file (&pdev->dev, &dev_attr_pools);
-+		if (list_empty (&dev->pools))
-+			device_create_file (dev, &dev_attr_pools);
- 		/* note:  not currently insisting "name" be unique */
--		list_add (&retval->pools, &pdev->pools);
-+		list_add (&retval->pools, &dev->pools);
- 		up (&pools_lock);
- 	} else
- 		INIT_LIST_HEAD (&retval->pools);
-@@ -157,22 +157,22 @@
- }
- 
- 
--static struct pci_page *
--pool_alloc_page (struct pci_pool *pool, int mem_flags)
-+static struct dma_page *
-+pool_alloc_page (struct dma_pool *pool, int mem_flags)
- {
--	struct pci_page	*page;
-+	struct dma_page	*page;
- 	int		mapsize;
- 
- 	mapsize = pool->blocks_per_page;
- 	mapsize = (mapsize + BITS_PER_LONG - 1) / BITS_PER_LONG;
- 	mapsize *= sizeof (long);
- 
--	page = (struct pci_page *) kmalloc (mapsize + sizeof *page, mem_flags);
-+	page = (struct dma_page *) kmalloc (mapsize + sizeof *page, mem_flags);
- 	if (!page)
- 		return 0;
--	page->vaddr = pci_alloc_consistent (pool->dev,
--					    pool->allocation,
--					    &page->dma);
-+	page->vaddr = dma_alloc_coherent (pool->dev,
-+					  pool->allocation,
-+					  &page->dma);
- 	if (page->vaddr) {
- 		memset (page->bitmap, 0xff, mapsize);	// bit set == free
- #ifdef	CONFIG_DEBUG_SLAB
-@@ -200,43 +200,43 @@
- }
- 
- static void
--pool_free_page (struct pci_pool *pool, struct pci_page *page)
-+pool_free_page (struct dma_pool *pool, struct dma_page *page)
- {
- 	dma_addr_t	dma = page->dma;
- 
- #ifdef	CONFIG_DEBUG_SLAB
- 	memset (page->vaddr, POOL_POISON_BYTE, pool->allocation);
- #endif
--	pci_free_consistent (pool->dev, pool->allocation, page->vaddr, dma);
-+	dma_free_coherent (pool->dev, pool->allocation, page->vaddr, dma);
- 	list_del (&page->page_list);
- 	kfree (page);
- }
- 
- 
- /**
-- * pci_pool_destroy - destroys a pool of pci memory blocks.
-- * @pool: pci pool that will be destroyed
-+ * dma_pool_destroy - destroys a pool of dma memory blocks.
-+ * @pool: dma pool that will be destroyed
-  * Context: !in_interrupt()
-  *
-  * Caller guarantees that no more memory from the pool is in use,
-  * and that nothing will try to use the pool after this call.
-  */
- void
--pci_pool_destroy (struct pci_pool *pool)
-+dma_pool_destroy (struct dma_pool *pool)
- {
- 	down (&pools_lock);
- 	list_del (&pool->pools);
- 	if (pool->dev && list_empty (&pool->dev->pools))
--		device_remove_file (&pool->dev->dev, &dev_attr_pools);
-+		device_remove_file (pool->dev, &dev_attr_pools);
- 	up (&pools_lock);
- 
- 	while (!list_empty (&pool->page_list)) {
--		struct pci_page		*page;
-+		struct dma_page		*page;
- 		page = list_entry (pool->page_list.next,
--				struct pci_page, page_list);
-+				struct dma_page, page_list);
- 		if (is_page_busy (pool->blocks_per_page, page->bitmap)) {
--			printk (KERN_ERR "pci_pool_destroy %s/%s, %p busy\n",
--				pool->dev ? pool->dev->slot_name : NULL,
-+			printk (KERN_ERR "dma_pool_destroy %s/%s, %p busy\n",
-+				pool->dev ? pool->dev->name : NULL,
- 				pool->name, page->vaddr);
- 			/* leak the still-in-use consistent memory */
- 			list_del (&page->page_list);
-@@ -250,8 +250,8 @@
- 
- 
- /**
-- * pci_pool_alloc - get a block of consistent memory
-- * @pool: pci pool that will produce the block
-+ * dma_pool_alloc - get a block of consistent memory
-+ * @pool: dma pool that will produce the block
-  * @mem_flags: SLAB_KERNEL or SLAB_ATOMIC
-  * @handle: pointer to dma address of block
-  *
-@@ -260,11 +260,11 @@
-  * If such a memory block can't be allocated, null is returned.
-  */
- void *
--pci_pool_alloc (struct pci_pool *pool, int mem_flags, dma_addr_t *handle)
-+dma_pool_alloc (struct dma_pool *pool, int mem_flags, dma_addr_t *handle)
- {
- 	unsigned long		flags;
- 	struct list_head	*entry;
--	struct pci_page		*page;
-+	struct dma_page		*page;
- 	int			map, block;
- 	size_t			offset;
- 	void			*retval;
-@@ -273,7 +273,7 @@
- 	spin_lock_irqsave (&pool->lock, flags);
- 	list_for_each (entry, &pool->page_list) {
- 		int		i;
--		page = list_entry (entry, struct pci_page, page_list);
-+		page = list_entry (entry, struct dma_page, page_list);
- 		/* only cachable accesses here ... */
- 		for (map = 0, i = 0;
- 				i < pool->blocks_per_page;
-@@ -319,16 +319,16 @@
- }
- 
- 
--static struct pci_page *
--pool_find_page (struct pci_pool *pool, dma_addr_t dma)
-+static struct dma_page *
-+pool_find_page (struct dma_pool *pool, dma_addr_t dma)
- {
- 	unsigned long		flags;
- 	struct list_head	*entry;
--	struct pci_page		*page;
-+	struct dma_page		*page;
- 
- 	spin_lock_irqsave (&pool->lock, flags);
- 	list_for_each (entry, &pool->page_list) {
--		page = list_entry (entry, struct pci_page, page_list);
-+		page = list_entry (entry, struct dma_page, page_list);
- 		if (dma < page->dma)
- 			continue;
- 		if (dma < (page->dma + pool->allocation))
-@@ -342,8 +342,8 @@
- 
- 
- /**
-- * pci_pool_free - put block back into pci pool
-- * @pool: the pci pool holding the block
-+ * dma_pool_free - put block back into dma pool
-+ * @pool: the dma pool holding the block
-  * @vaddr: virtual address of block
-  * @dma: dma address of block
-  *
-@@ -351,15 +351,15 @@
-  * unless it is first re-allocated.
-  */
- void
--pci_pool_free (struct pci_pool *pool, void *vaddr, dma_addr_t dma)
-+dma_pool_free (struct dma_pool *pool, void *vaddr, dma_addr_t dma)
- {
--	struct pci_page		*page;
-+	struct dma_page		*page;
- 	unsigned long		flags;
- 	int			map, block;
- 
- 	if ((page = pool_find_page (pool, dma)) == 0) {
--		printk (KERN_ERR "pci_pool_free %s/%s, %p/%lx (bad dma)\n",
--			pool->dev ? pool->dev->slot_name : NULL,
-+		printk (KERN_ERR "dma_pool_free %s/%s, %p/%lx (bad dma)\n",
-+			pool->dev ? pool->dev->name : NULL,
- 			pool->name, vaddr, (unsigned long) dma);
- 		return;
- 	}
-@@ -371,13 +371,13 @@
- 
- #ifdef	CONFIG_DEBUG_SLAB
- 	if (((dma - page->dma) + (void *)page->vaddr) != vaddr) {
--		printk (KERN_ERR "pci_pool_free %s/%s, %p (bad vaddr)/%Lx\n",
-+		printk (KERN_ERR "dma_pool_free %s/%s, %p (bad vaddr)/%Lx\n",
- 			pool->dev ? pool->dev->slot_name : NULL,
- 			pool->name, vaddr, (unsigned long long) dma);
- 		return;
- 	}
- 	if (page->bitmap [map] & (1UL << block)) {
--		printk (KERN_ERR "pci_pool_free %s/%s, dma %Lx already free\n",
-+		printk (KERN_ERR "dma_pool_free %s/%s, dma %Lx already free\n",
- 			pool->dev ? pool->dev->slot_name : NULL,
- 			pool->name, (unsigned long long)dma);
- 		return;
-@@ -399,7 +399,7 @@
- }
- 
- 
--EXPORT_SYMBOL (pci_pool_create);
--EXPORT_SYMBOL (pci_pool_destroy);
--EXPORT_SYMBOL (pci_pool_alloc);
--EXPORT_SYMBOL (pci_pool_free);
-+EXPORT_SYMBOL (dma_pool_create);
-+EXPORT_SYMBOL (dma_pool_destroy);
-+EXPORT_SYMBOL (dma_pool_alloc);
-+EXPORT_SYMBOL (dma_pool_free);
-diff -Nru a/drivers/pci/probe.c b/drivers/pci/probe.c
---- a/drivers/pci/probe.c	Tue Dec 31 10:33:58 2002
-+++ b/drivers/pci/probe.c	Tue Dec 31 10:33:58 2002
-@@ -353,8 +353,6 @@
- 
- 	sprintf(dev->slot_name, "%02x:%02x.%d", dev->bus->number, PCI_SLOT(dev->devfn), PCI_FUNC(dev->devfn));
- 	sprintf(dev->dev.name, "PCI device %04x:%04x", dev->vendor, dev->device);
--	INIT_LIST_HEAD(&dev->pools);
--	
- 	pci_read_config_dword(dev, PCI_CLASS_REVISION, &class);
- 	class >>= 8;				    /* upper 3 bytes */
- 	dev->class = class;
-diff -Nru a/include/linux/device.h b/include/linux/device.h
---- a/include/linux/device.h	Tue Dec 31 10:33:58 2002
-+++ b/include/linux/device.h	Tue Dec 31 10:33:58 2002
-@@ -256,6 +256,8 @@
- 	struct list_head driver_list;
- 	struct list_head children;
- 	struct list_head intf_list;
-+	struct list_head pools;		/* dma_pools tied to this device */
-+
- 	struct device 	* parent;
- 
- 	struct kobject kobj;
-diff -Nru a/include/linux/dma-mapping.h b/include/linux/dma-mapping.h
---- a/include/linux/dma-mapping.h	Tue Dec 31 10:33:58 2002
-+++ b/include/linux/dma-mapping.h	Tue Dec 31 10:33:58 2002
-@@ -1,6 +1,8 @@
- #ifndef _ASM_LINUX_DMA_MAPPING_H
- #define _ASM_LINUX_DMA_MAPPING_H
- 
-+#include <linux/dma-pool.h>
-+
- /* These definitions mirror those in pci.h, so they can be used
-  * interchangeably with their PCI_ counterparts */
- enum dma_data_direction {
-diff -Nru a/include/linux/dma-pool.h b/include/linux/dma-pool.h
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/include/linux/dma-pool.h	Tue Dec 31 10:33:58 2002
-@@ -0,0 +1,15 @@
-+#ifndef _LINUX_DMA_POOL_H
-+#define _LINUX_DMA_POOL_H
-+
-+#include <linux/device.h>
-+
-+/* dma_pool is an opaque structure pointer */
-+struct dma_pool;
-+
-+struct dma_pool *dma_pool_create(const char *name, struct device *dev,
-+				 size_t size, size_t align, size_t allocation);
-+void dma_pool_destroy(struct dma_pool *pool);
-+void *dma_pool_alloc(struct dma_pool *pool, int flags, dma_addr_t *handle);
-+void dma_pool_free(struct dma_pool *pool, void *vaddr, dma_addr_t addr);
-+
-+#endif
-diff -Nru a/include/linux/pci.h b/include/linux/pci.h
---- a/include/linux/pci.h	Tue Dec 31 10:33:58 2002
-+++ b/include/linux/pci.h	Tue Dec 31 10:33:58 2002
-@@ -388,8 +388,6 @@
- 					   0xffffffff.  You only need to change
- 					   this if your device has broken DMA
- 					   or supports 64-bit transfers.  */
--	struct list_head pools;		/* pci_pools tied to this device */
--
- 	u32             current_state;  /* Current operating state. In ACPI-speak,
- 					   this is D0-D3, D0 being fully functional,
- 					   and D3 being off. */
-@@ -658,14 +656,38 @@
- unsigned int pci_do_scan_bus(struct pci_bus *bus);
- struct pci_bus * pci_add_new_bus(struct pci_bus *parent, struct pci_dev *dev, int busnr);
- int pci_scan_bridge(struct pci_bus *bus, struct pci_dev * dev, int max, int pass);
-+#include <linux/dma-pool.h>
- 
- /* kmem_cache style wrapper around pci_alloc_consistent() */
--struct pci_pool *pci_pool_create (const char *name, struct pci_dev *dev,
--		size_t size, size_t align, size_t allocation);
--void pci_pool_destroy (struct pci_pool *pool);
- 
--void *pci_pool_alloc (struct pci_pool *pool, int flags, dma_addr_t *handle);
--void pci_pool_free (struct pci_pool *pool, void *vaddr, dma_addr_t addr);
-+/* struct pci_pool is an alias for struct dma_pool.  However, its contents
-+ * are never exposed so just declare it here */
-+struct pci_pool;
-+
-+static inline struct pci_pool *
-+pci_pool_create (const char *name, struct pci_dev *dev,
-+		size_t size, size_t align, size_t allocation)
-+{
-+	return (struct pci_pool *)dma_pool_create(name, &dev->dev, size, align, allocation);
-+}
-+
-+static inline void
-+pci_pool_destroy(struct pci_pool *pool)
-+{
-+	dma_pool_destroy((struct dma_pool *)pool);
-+}
-+
-+static inline void *
-+pci_pool_alloc (struct pci_pool *pool, int flags, dma_addr_t *handle)
-+{
-+	return dma_pool_alloc((struct dma_pool *)pool, flags, handle);
-+}
-+
-+static inline void
-+pci_pool_free (struct pci_pool *pool, void *vaddr, dma_addr_t addr)
-+{
-+	dma_pool_free((struct dma_pool *)pool, vaddr, addr);
-+}
- 
- #if defined(CONFIG_ISA) || defined(CONFIG_EISA)
- extern struct pci_dev *isa_bridge;
+CPU:    AMD 1600XP
+Mobo:   Asus A7V333 - VIA KT333 chipset
+Memory: 1292160KB
+OS:     Redhat Linux 8.0
+Kernel: 2.4.19 (compiled from kernel.org source)
 
---==_Exmh_-18983497320--
 
+/proc/version: Linux version 2.4.19 (mike@corona) (gcc version 3.2
+20020903 (Red Hat Linux 8.0
+3.2-7)) #3 Fri Nov 1 11:00:15 GMT 2002
+
+Log messages:
+
+<------
+Dec 31 11:12:24 corona kernel: scsi1 : Adaptec AIC7XXX EISA/VLB/PCI SCSI
+HBA DRIVER, Rev 6.2.8
+Dec 31 11:12:24 corona kernel:         <Adaptec 2902/04/10/15/20/30C
+SCSI adapter>
+Dec 31 11:12:24 corona kernel:         aic7850: Single Channel A, SCSI
+Id=7, 3/253 SCBs
+Dec 31 11:12:24 corona kernel: 
+Dec 31 11:12:40 corona kernel:   Vendor: HP        Model: CD-Writer+
+9600   Rev: 1.0a
+Dec 31 11:12:40 corona kernel:   Type:  
+CD-ROM                             ANSI SCSI revision: 04
+Dec 31 11:12:40 corona kernel: (scsi0:A:4): 10.000MB/s transfers
+(10.000MHz, offset 15)
+Dec 31 11:12:42 corona kernel: Attached scsi CD-ROM sr0 at scsi0,
+channel 0, id 4, lun 0
+Dec 31 11:12:42 corona kernel: sr0: scsi3-mmc drive: 32x/32x writer
+cd/rw xa/form2 cdda tray
+Dec 31 15:29:14 corona kernel: Unable to handle kernel NULL pointer
+dereference at virtual address 0000005c
+Dec 31 15:29:14 corona kernel:  printing eip:
+Dec 31 15:29:14 corona kernel: c0136f80
+Dec 31 15:29:14 corona kernel: *pde = 00000000
+Dec 31 15:29:14 corona kernel: Oops: 0000
+Dec 31 15:29:14 corona kernel: CPU:    0
+Dec 31 15:29:14 corona kernel: EIP:    0010:[<c0136f80>]    Tainted: PF
+Dec 31 15:29:14 corona kernel: EFLAGS: 00010246
+Dec 31 15:29:14 corona kernel: eax: c14ae520   ebx: 00000044   ecx:
+000001d2   edx: 000001d2
+Dec 31 15:29:14 corona kernel: esi: c14ae520   edi: 00000044   ebp:
+c14ae520   esp: f6423d84
+Dec 31 15:29:14 corona kernel: ds: 0018   es: 0018   ss: 0018
+Dec 31 15:29:14 corona kernel: Process multiload-apple (pid: 1536,
+stackpage=f6423000)
+Dec 31 15:29:14 corona kernel: Stack: 00000000 c14ae520 00009a25
+c0244ca0 c012c8ee c14ae520 000001d2 f6422000 
+Dec 31 15:29:14 corona kernel:        00000eb9 000001d2 00000020
+00000020 000001d2 00000020 00000001 c012cab6 
+Dec 31 15:29:15 corona kernel:        00000001 0000006c c0244ca0
+00000001 000001d2 c0244ca0 c0244ca0 c012cb14 
+Dec 31 15:29:15 corona kernel: Call Trace:    [<c012c8ee>] [<c012cab6>]
+[<c012cb14>] [<c012d853>] [<c012daa8>]
+Dec 31 15:29:15 corona kernel:   [<c0124900>] [<c0124c1d>] [<c0113d78>]
+[<c020a516>] [<c020a767>] [<c020a77e>]
+Dec 31 15:29:15 corona kernel:   [<c01c20ca>] [<c0113c38>] [<c0108a28>]
+[<c0209992>] [<c014eaee>] [<c0133614>]
+Dec 31 15:29:15 corona kernel:   [<c0108937>]
+Dec 31 15:29:15 corona kernel: 
+Dec 31 15:29:15 corona kernel: Code: 8b 53 18 83 e2 06 8b 43 10 09 d0 0f
+85 81 00 00 00 8b 5b 28 
+Dec 31 15:29:15 corona kernel:  <1>Unable to handle kernel NULL pointer
+dereference at virtual address 00000000
+Dec 31 15:29:15 corona kernel:  printing eip:
+Dec 31 15:29:15 corona kernel: c012c74f
+Dec 31 15:29:15 corona kernel: *pde = 00000000
+Dec 31 15:29:15 corona kernel: Oops: 0002
+Dec 31 15:29:15 corona kernel: CPU:    0
+Dec 31 15:29:15 corona kernel: EIP:    0010:[<c012c74f>]    Tainted: PF
+Dec 31 15:29:15 corona kernel: EFLAGS: 00013246
+Dec 31 15:29:15 corona kernel: eax: c0244a78   ebx: 00000000   ecx:
+c1427690   edx: 00000000
+Dec 31 15:29:15 corona kernel: esi: c1427674   edi: 000095d5   ebp:
+c0244ca0   esp: d28e9e38
+Dec 31 15:29:15 corona kernel: ds: 0018   es: 0018   ss: 0018
+Dec 31 15:29:15 corona kernel: Process java (pid: 11019,
+stackpage=d28e9000)
+Dec 31 15:29:15 corona kernel: Stack: d28e8000 00000efb 000001d2
+00000020 00000020 000001d2 00000020 00000001 
+Dec 31 15:29:15 corona kernel:        c012cab6 00000001 00000070
+c0244ca0 00000001 000001d2 c0244ca0 c0244ca0 
+Dec 31 15:29:15 corona kernel:        c012cb14 00000020 d28e8000
+00000000 00000000 c012d853 00000000 00000000 
+Dec 31 15:29:15 corona kernel: Call Trace:    [<c012cab6>] [<c012cb14>]
+[<c012d853>] [<c012daa8>] [<c0124900>]
+Dec 31 15:29:15 corona kernel:   [<c0124c1d>] [<c0113d78>] [<c012a1a8>]
+[<c0129af0>] [<c0129bb8>] [<c0129ee2>]
+Dec 31 15:29:15 corona kernel:   [<c0129e35>] [<c0113c38>] [<c0108a28>]
+Dec 31 15:29:15 corona kernel: 
+Dec 31 15:29:15 corona kernel: Code: 89 02 89 50 04 a1 78 4a 24 c0 89 48
+04 89 01 c7 41 04 78 4a 
+Dec 31 15:29:15 corona kernel:  <1>Unable to handle kernel NULL pointer
+dereference at virtual address 00000000
+Dec 31 15:29:15 corona kernel:  printing eip:
+Dec 31 15:29:15 corona kernel: c012c74f
+Dec 31 15:29:15 corona kernel: *pde = 36d56067
+Dec 31 15:29:15 corona kernel: *pte = 00000000
+Dec 31 15:29:15 corona kernel: Oops: 0002
+Dec 31 15:29:15 corona kernel: CPU:    0
+Dec 31 15:29:15 corona kernel: EIP:    0010:[<c012c74f>]    Tainted: PF
+Dec 31 15:29:15 corona kernel: EFLAGS: 00013246
+Dec 31 15:29:15 corona kernel: eax: c0244a78   ebx: 00000000   ecx:
+c1427690   edx: 00000000
+Dec 31 15:29:15 corona kernel: esi: c1427674   edi: 000019c7   ebp:
+c0244bf0   esp: f7fc1f58
+Dec 31 15:29:15 corona kernel: ds: 0018   es: 0018   ss: 0018
+Dec 31 15:29:15 corona kernel: Process kswapd (pid: 5,
+stackpage=f7fc1000)
+Dec 31 15:29:15 corona kernel: Stack: f7fc0000 00000200 000001d0
+00000020 0000001e 000001d0 00000020 00000006 
+Dec 31 15:29:15 corona kernel:        c012cab6 00000006 0000006c
+c0244bf0 00000006 000001d0 c0244bf0 00000000 
+Dec 31 15:29:15 corona kernel:        c012cb14 00000020 c0244bf0
+00000001 f7fc0000 c012cbb2 c0244b40 00000000 
+Dec 31 15:29:15 corona kernel: Call Trace:    [<c012cab6>] [<c012cb14>]
+[<c012cbb2>] [<c012cc06>] [<c012cd11>]
+Dec 31 15:29:15 corona kernel:   [<c0105000>] [<c0106fda>] [<c012cc78>]
+Dec 31 15:29:15 corona kernel: 
+Dec 31 15:29:15 corona kernel: Code: 89 02 89 50 04 a1 78 4a 24 c0 89 48
+04 89 01 c7 41 04 78 4a 
+Dec 31 15:29:23 corona kernel:  <1>Unable to handle kernel NULL pointer
+dereference at virtual address 00000000
+Dec 31 15:29:23 corona kernel:  printing eip:
+Dec 31 15:29:23 corona kernel: c012c74f
+Dec 31 15:29:23 corona kernel: *pde = 00000000
+Dec 31 15:29:23 corona kernel: Oops: 0002
+Dec 31 15:29:23 corona kernel: CPU:    0
+Dec 31 15:29:23 corona kernel: EIP:    0010:[<c012c74f>]    Tainted: PF
+Dec 31 15:29:23 corona kernel: EFLAGS: 00010246
+Dec 31 15:29:23 corona kernel: eax: c0244a78   ebx: 00000000   ecx:
+c1427690   edx: 00000000
+Dec 31 15:29:23 corona kernel: esi: c1427674   edi: 000019a7   ebp:
+c0244ca0   esp: f692de38
+Dec 31 15:29:23 corona kernel: ds: 0018   es: 0018   ss: 0018
+Dec 31 15:29:23 corona kernel: Process gconfd-2 (pid: 1497,
+stackpage=f692d000)
+Dec 31 15:29:23 corona kernel: Stack: f692c000 00000200 000001d2
+00000020 0000001f 000001d2 00000020 00000006 
+Dec 31 15:29:23 corona kernel:        c012cab6 00000006 0000006d
+c0244ca0 00000006 000001d2 c0244ca0 c0244ca0 
+Dec 31 15:29:23 corona kernel:        c012cb14 00000020 f692c000
+00000000 00000000 c012d853 00000000 00000000 
+Dec 31 15:29:23 corona kernel: Call Trace:    [<c012cab6>] [<c012cb14>]
+[<c012d853>] [<c012daa8>] [<c0124900>]
+Dec 31 15:29:24 corona kernel:   [<c0124c1d>] [<c0113d78>] [<c0146263>]
+[<c0125abe>] [<c01258fc>] [<c010d20c>]
+Dec 31 15:29:24 corona kernel:   [<c0113c38>] [<c0108a28>]
+Dec 31 15:29:24 corona kernel: 
+Dec 31 15:29:24 corona kernel: Code: 89 02 89 50 04 a1 78 4a 24 c0 89 48
+04 89 01 c7 41 04 78 4a 
+Dec 31 15:29:43 corona kernel:  <1>Unable to handle kernel NULL pointer
+dereference at virtual address 00000000
+Dec 31 15:29:43 corona kernel:  printing eip:
+Dec 31 15:29:43 corona kernel: c012c74f
+Dec 31 15:29:43 corona kernel: *pde = 36d56067
+Dec 31 15:29:43 corona kernel: *pte = 00000000
+Dec 31 15:29:43 corona kernel: Oops: 0002
+Dec 31 15:29:43 corona kernel: CPU:    0
+Dec 31 15:29:43 corona kernel: EIP:    0010:[<c012c74f>]    Tainted: PF
+Dec 31 15:29:43 corona kernel: EFLAGS: 00013246
+Dec 31 15:29:43 corona kernel: eax: c0244a78   ebx: 00000000   ecx:
+c1427690   edx: 00000000
+Dec 31 15:29:43 corona kernel: esi: c1427674   edi: 000019c4   ebp:
+c0244ca0   esp: f6b69e38
+Dec 31 15:29:43 corona kernel: ds: 0018   es: 0018   ss: 0018
+Dec 31 15:29:43 corona kernel: Process X (pid: 1378, stackpage=f6b69000)
+Dec 31 15:29:43 corona gpm[845]: oops() invoked from gpm.c(164)
+Dec 31 15:29:43 corona kernel: Stack: f6b68000 00000200 000001d2
+00000020 00000020 000001d2 00000020 00000006 
+Dec 31 15:29:43 corona gpm[845]: /dev/tty0: Input/output error
+Dec 31 15:29:43 corona kernel:        c012cab6 00000006 0000006c
+c0244ca0 00000006 000001d2 c0244ca0 c0244ca0 
+Dec 31 15:29:44 corona kernel:        c012cb14 00000020 f6b68000
+00000000 00000000 c012d853 00000000 00000000 
+Dec 31 15:29:44 corona kernel: Call Trace:    [<c012cab6>] [<c012cb14>]
+[<c012d853>] [<c012daa8>] [<c0124900>]
+Dec 31 15:29:44 corona kernel:   [<c0124c1d>] [<c0113d78>] [<c0125abe>]
+[<c011e7f9>] [<c0107304>] [<c0114774>]
+Dec 31 15:29:45 corona kernel:   [<c0113c38>] [<c0108a28>]
+Dec 31 15:29:45 corona kernel: 
+Dec 31 15:29:45 corona gconfd (mike-13600): starting (version 1.2.1),
+pid 13600 user 'mike'
+Dec 31 15:29:45 corona kernel: Code: 89 02 89 50 04 a1 78 4a 24 c0 89 48
+04 89 01 c7 41 04 78 4a 
+Dec 31 15:29:46 corona gconfd (mike-13600): Resolved address
+"xml:readonly:/etc/gconf/gconf.xml.mandatory" to a read-only config
+source at position 0
+Dec 31 15:29:46 corona gconfd (mike-13600): Resolved address
+"xml:readwrite:/home/mike/.gconf" to a writable config source at
+position 1
+Dec 31 15:29:46 corona gconfd (mike-13600): Resolved address
+"xml:readonly:/etc/gconf/gconf.xml.defaults" to a read-only config
+source at position 2
+Dec 31 15:29:46 corona gdm(pam_unix)[1377]: session closed for user mike
+Dec 31 15:29:47 corona gdm[1377]: gdm_slave_xioerror_handler: Fatal X
+error - Restarting :0
+Dec 31 15:29:54 corona gdm(pam_unix)[13603]: session opened for user
+mike by (uid=0)
+Dec 31 15:46:17 corona kernel:  <1>Unable to handle kernel NULL pointer
+dereference at virtual address 00000000
+Dec 31 15:46:17 corona kernel:  printing eip:
+Dec 31 15:46:17 corona kernel: c012c74f
+Dec 31 15:46:17 corona kernel: *pde = 00000000
+Dec 31 15:46:17 corona kernel: Oops: 0002
+Dec 31 15:46:17 corona kernel: CPU:    0
+Dec 31 15:46:17 corona kernel: EIP:    0010:[<c012c74f>]    Tainted: PF
+Dec 31 15:46:17 corona kernel: EFLAGS: 00210246
+Dec 31 15:46:17 corona kernel: eax: c0244a78   ebx: 00000000   ecx:
+c1427690   edx: 00000000
+Dec 31 15:46:17 corona kernel: esi: c1427674   edi: 0000172d   ebp:
+c0244ca0   esp: e5601ea8
+Dec 31 15:46:17 corona kernel: ds: 0018   es: 0018   ss: 0018
+Dec 31 15:46:17 corona kernel: Process evolution-mail (pid: 16697,
+stackpage=e5601000)
+Dec 31 15:46:17 corona kernel: Stack: e5600000 00000200 000001d2
+00000020 00000020 000001d2 00000020 00000006 
+Dec 31 15:46:17 corona kernel:        c012cab6 00000006 0000007a
+c0244ca0 00000006 000001d2 c0244ca0 c0244ca0 
+Dec 31 15:46:17 corona kernel:        c012cb14 00000020 e5600000
+00000000 00000000 c012d853 00000000 00000000 
+Dec 31 15:46:17 corona kernel: Call Trace:    [<c01
+---->
+
+Ksymoops output:
+
+---->
+ksymoops 2.4.5 on i686 2.4.19.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.19/ (default)
+     -m /boot/System.map-2.4.19 (default)
+
+Warning: You did not tell me where to find symbol information.  I will
+assume that the log matches the kernel and modules that are running
+right now and I'll use the default options above for symbol resolution.
+If the current kernel and/or modules do not match the log, you can get
+more accurate output by telling me the kernel version and where to find
+map, modules, ksyms etc.  ksymoops -h explains the options.
+
+Error (expand_objects): cannot stat(/lib/ext3.o) for ext3
+Error (expand_objects): cannot stat(/lib/jbd.o) for jbd
+Warning (map_ksym_to_module): cannot match loaded module ext3 to a
+unique module object.  Trace may not be reliable.
+Dec 31 15:29:14 corona kernel: Unable to handle kernel NULL pointer
+dereference at virtual address 0000005c
+Dec 31 15:29:14 corona kernel: c0136f80
+Dec 31 15:29:14 corona kernel: *pde = 00000000
+Dec 31 15:29:14 corona kernel: Oops: 0000
+Dec 31 15:29:14 corona kernel: CPU:    0
+Dec 31 15:29:14 corona kernel: EIP:    0010:[<c0136f80>]    Tainted: PF
+Using defaults from ksymoops -t elf32-i386 -a i386
+Dec 31 15:29:14 corona kernel: EFLAGS: 00010246
+Dec 31 15:29:14 corona kernel: eax: c14ae520   ebx: 00000044   ecx:
+000001d2   edx: 000001d2
+Dec 31 15:29:14 corona kernel: esi: c14ae520   edi: 00000044   ebp:
+c14ae520   esp: f6423d84
+Dec 31 15:29:14 corona kernel: ds: 0018   es: 0018   ss: 0018
+Dec 31 15:29:14 corona kernel: Process multiload-apple (pid: 1536,
+stackpage=f6423000)
+Dec 31 15:29:14 corona kernel: Stack: 00000000 c14ae520 00009a25
+c0244ca0 c012c8ee c14ae520 000001d2 f6422000 
+Dec 31 15:29:14 corona kernel:        00000eb9 000001d2 00000020
+00000020 000001d2 00000020 00000001 c012cab6 
+Dec 31 15:29:15 corona kernel:        00000001 0000006c c0244ca0
+00000001 000001d2 c0244ca0 c0244ca0 c012cb14 
+Dec 31 15:29:15 corona kernel: Call Trace:    [<c012c8ee>] [<c012cab6>]
+[<c012cb14>] [<c012d853>] [<c012daa8>]
+Dec 31 15:29:15 corona kernel:   [<c0124900>] [<c0124c1d>] [<c0113d78>]
+[<c020a516>] [<c020a767>] [<c020a77e>]
+Dec 31 15:29:15 corona kernel:   [<c01c20ca>] [<c0113c38>] [<c0108a28>]
+[<c0209992>] [<c014eaee>] [<c0133614>]
+Dec 31 15:29:15 corona kernel:   [<c0108937>]
+Dec 31 15:29:15 corona kernel: Code: 8b 53 18 83 e2 06 8b 43 10 09 d0 0f
+85 81 00 00 00 8b 5b 28 
+
+
+>>EIP; c0136f80 <try_to_free_buffers+10/f0>   <=====
+
+>>eax; c14ae520 <_end+11cc7a0/3852b2e0>
+>>esi; c14ae520 <_end+11cc7a0/3852b2e0>
+>>ebp; c14ae520 <_end+11cc7a0/3852b2e0>
+>>esp; f6423d84 <_end+36142004/3852b2e0>
+
+Trace; c012c8ee <shrink_cache+24a/2f4>
+Trace; c012cab6 <shrink_caches+4e/7c>
+Trace; c012cb14 <try_to_free_pages+30/4c>
+Trace; c012d853 <balance_classzone+57/1d4>
+Trace; c012daa8 <__alloc_pages+d8/17c>
+Trace; c0124900 <do_anonymous_page+5c/124>
+Trace; c0124c1d <handle_mm_fault+59/bc>
+Trace; c0113d78 <do_page_fault+140/46c>
+Trace; c020a516 <vsnprintf+1ea/40c>
+Trace; c020a767 <vsprintf+13/18>
+Trace; c020a77e <sprintf+12/18>
+Trace; c01c20ca <sprintf_stats+6a/8c>
+Trace; c0113c38 <do_page_fault+0/46c>
+Trace; c0108a28 <error_code+34/3c>
+Trace; c0209992 <__generic_copy_to_user+4e/5c>
+Trace; c014eaee <proc_file_read+ea/190>
+Trace; c0133614 <sys_read+84/f0>
+Trace; c0108937 <system_call+33/38>
+
+Code;  c0136f80 <try_to_free_buffers+10/f0>
+00000000 <_EIP>:
+Code;  c0136f80 <try_to_free_buffers+10/f0>   <=====
+   0:   8b 53 18                  mov    0x18(%ebx),%edx   <=====
+Code;  c0136f83 <try_to_free_buffers+13/f0>
+   3:   83 e2 06                  and    $0x6,%edx
+Code;  c0136f86 <try_to_free_buffers+16/f0>
+   6:   8b 43 10                  mov    0x10(%ebx),%eax
+Code;  c0136f89 <try_to_free_buffers+19/f0>
+   9:   09 d0                     or     %edx,%eax
+Code;  c0136f8b <try_to_free_buffers+1b/f0>
+   b:   0f 85 81 00 00 00         jne    92 <_EIP+0x92>
+Code;  c0136f91 <try_to_free_buffers+21/f0>
+  11:   8b 5b 28                  mov    0x28(%ebx),%ebx
+
+Dec 31 15:29:15 corona kernel:  <1>Unable to handle kernel NULL pointer
+dereference at virtual address 00000000
+Dec 31 15:29:15 corona kernel: c012c74f
+Dec 31 15:29:15 corona kernel: *pde = 00000000
+Dec 31 15:29:15 corona kernel: Oops: 0002
+Dec 31 15:29:15 corona kernel: CPU:    0
+Dec 31 15:29:15 corona kernel: EIP:    0010:[<c012c74f>]    Tainted: PF
+Dec 31 15:29:15 corona kernel: EFLAGS: 00013246
+Dec 31 15:29:15 corona kernel: eax: c0244a78   ebx: 00000000   ecx:
+c1427690   edx: 00000000
+Dec 31 15:29:15 corona kernel: esi: c1427674   edi: 000095d5   ebp:
+c0244ca0   esp: d28e9e38
+Dec 31 15:29:15 corona kernel: ds: 0018   es: 0018   ss: 0018
+Dec 31 15:29:15 corona kernel: Process java (pid: 11019,
+stackpage=d28e9000)
+Dec 31 15:29:15 corona kernel: Stack: d28e8000 00000efb 000001d2
+00000020 00000020 000001d2 00000020 00000001 
+Dec 31 15:29:15 corona kernel:        c012cab6 00000001 00000070
+c0244ca0 00000001 000001d2 c0244ca0 c0244ca0 
+Dec 31 15:29:15 corona kernel:        c012cb14 00000020 d28e8000
+00000000 00000000 c012d853 00000000 00000000 
+Dec 31 15:29:15 corona kernel: Call Trace:    [<c012cab6>] [<c012cb14>]
+[<c012d853>] [<c012daa8>] [<c0124900>]
+Dec 31 15:29:15 corona kernel:   [<c0124c1d>] [<c0113d78>] [<c012a1a8>]
+[<c0129af0>] [<c0129bb8>] [<c0129ee2>]
+Dec 31 15:29:15 corona kernel:   [<c0129e35>] [<c0113c38>] [<c0108a28>]
+Dec 31 15:29:15 corona kernel: Code: 89 02 89 50 04 a1 78 4a 24 c0 89 48
+04 89 01 c7 41 04 78 4a 
+
+
+>>EIP; c012c74f <shrink_cache+ab/2f4>   <=====
+
+>>eax; c0244a78 <inactive_list+0/8>
+>>ecx; c1427690 <_end+1145910/3852b2e0>
+>>esi; c1427674 <_end+11458f4/3852b2e0>
+>>edi; 000095d5 Before first symbol
+>>ebp; c0244ca0 <contig_page_data+160/340>
+>>esp; d28e9e38 <_end+126080b8/3852b2e0>
+
+Trace; c012cab6 <shrink_caches+4e/7c>
+Trace; c012cb14 <try_to_free_pages+30/4c>
+Trace; c012d853 <balance_classzone+57/1d4>
+Trace; c012daa8 <__alloc_pages+d8/17c>
+Trace; c0124900 <do_anonymous_page+5c/124>
+Trace; c0124c1d <handle_mm_fault+59/bc>
+Trace; c0113d78 <do_page_fault+140/46c>
+Trace; c012a1a8 <mprotect_fixup_middle+110/15c>
+Trace; c0129af0 <change_protection+64/b8>
+Trace; c0129bb8 <mprotect_fixup+74/1e4>
+Trace; c0129ee2 <sys_mprotect+1ba/1d4>
+Trace; c0129e35 <sys_mprotect+10d/1d4>
+Trace; c0113c38 <do_page_fault+0/46c>
+Trace; c0108a28 <error_code+34/3c>
+
+Code;  c012c74f <shrink_cache+ab/2f4>
+00000000 <_EIP>:
+Code;  c012c74f <shrink_cache+ab/2f4>   <=====
+   0:   89 02                     mov    %eax,(%edx)   <=====
+Code;  c012c751 <shrink_cache+ad/2f4>
+   2:   89 50 04                  mov    %edx,0x4(%eax)
+Code;  c012c754 <shrink_cache+b0/2f4>
+   5:   a1 78 4a 24 c0            mov    0xc0244a78,%eax
+Code;  c012c759 <shrink_cache+b5/2f4>
+   a:   89 48 04                  mov    %ecx,0x4(%eax)
+Code;  c012c75c <shrink_cache+b8/2f4>
+   d:   89 01                     mov    %eax,(%ecx)
+Code;  c012c75e <shrink_cache+ba/2f4>
+   f:   c7 41 04 78 4a 00 00      movl   $0x4a78,0x4(%ecx)
+
+Dec 31 15:29:15 corona kernel:  <1>Unable to handle kernel NULL pointer
+dereference at virtual address 00000000
+Dec 31 15:29:15 corona kernel: c012c74f
+Dec 31 15:29:15 corona kernel: *pde = 36d56067
+Dec 31 15:29:15 corona kernel: Oops: 0002
+Dec 31 15:29:15 corona kernel: CPU:    0
+Dec 31 15:29:15 corona kernel: EIP:    0010:[<c012c74f>]    Tainted: PF
+Dec 31 15:29:15 corona kernel: EFLAGS: 00013246
+Dec 31 15:29:15 corona kernel: eax: c0244a78   ebx: 00000000   ecx:
+c1427690   edx: 00000000
+Dec 31 15:29:15 corona kernel: esi: c1427674   edi: 000019c7   ebp:
+c0244bf0   esp: f7fc1f58
+Dec 31 15:29:15 corona kernel: ds: 0018   es: 0018   ss: 0018
+Dec 31 15:29:15 corona kernel: Process kswapd (pid: 5,
+stackpage=f7fc1000)
+Dec 31 15:29:15 corona kernel: Stack: f7fc0000 00000200 000001d0
+00000020 0000001e 000001d0 00000020 00000006 
+Dec 31 15:29:15 corona kernel:        c012cab6 00000006 0000006c
+c0244bf0 00000006 000001d0 c0244bf0 00000000 
+Dec 31 15:29:15 corona kernel:        c012cb14 00000020 c0244bf0
+00000001 f7fc0000 c012cbb2 c0244b40 00000000 
+Dec 31 15:29:15 corona kernel: Call Trace:    [<c012cab6>] [<c012cb14>]
+[<c012cbb2>] [<c012cc06>] [<c012cd11>]
+Dec 31 15:29:15 corona kernel:   [<c0105000>] [<c0106fda>] [<c012cc78>]
+Dec 31 15:29:15 corona kernel: Code: 89 02 89 50 04 a1 78 4a 24 c0 89 48
+04 89 01 c7 41 04 78 4a 
+
+
+>>EIP; c012c74f <shrink_cache+ab/2f4>   <=====
+
+>>eax; c0244a78 <inactive_list+0/8>
+>>ecx; c1427690 <_end+1145910/3852b2e0>
+>>esi; c1427674 <_end+11458f4/3852b2e0>
+>>edi; 000019c7 Before first symbol
+>>ebp; c0244bf0 <contig_page_data+b0/340>
+>>esp; f7fc1f58 <_end+37ce01d8/3852b2e0>
+
+Trace; c012cab6 <shrink_caches+4e/7c>
+Trace; c012cb14 <try_to_free_pages+30/4c>
+Trace; c012cbb2 <kswapd_balance_pgdat+56/98>
+Trace; c012cc06 <kswapd_balance+12/28>
+Trace; c012cd11 <kswapd+99/b4>
+Trace; c0105000 <_stext+0/0>
+Trace; c0106fda <kernel_thread+26/30>
+Trace; c012cc78 <kswapd+0/b4>
+
+Code;  c012c74f <shrink_cache+ab/2f4>
+00000000 <_EIP>:
+Code;  c012c74f <shrink_cache+ab/2f4>   <=====
+   0:   89 02                     mov    %eax,(%edx)   <=====
+Code;  c012c751 <shrink_cache+ad/2f4>
+   2:   89 50 04                  mov    %edx,0x4(%eax)
+Code;  c012c754 <shrink_cache+b0/2f4>
+   5:   a1 78 4a 24 c0            mov    0xc0244a78,%eax
+Code;  c012c759 <shrink_cache+b5/2f4>
+   a:   89 48 04                  mov    %ecx,0x4(%eax)
+Code;  c012c75c <shrink_cache+b8/2f4>
+   d:   89 01                     mov    %eax,(%ecx)
+Code;  c012c75e <shrink_cache+ba/2f4>
+   f:   c7 41 04 78 4a 00 00      movl   $0x4a78,0x4(%ecx)
+
+Dec 31 15:29:23 corona kernel:  <1>Unable to handle kernel NULL pointer
+dereference at virtual address 00000000
+Dec 31 15:29:23 corona kernel: c012c74f
+Dec 31 15:29:23 corona kernel: *pde = 00000000
+Dec 31 15:29:23 corona kernel: Oops: 0002
+Dec 31 15:29:23 corona kernel: CPU:    0
+Dec 31 15:29:23 corona kernel: EIP:    0010:[<c012c74f>]    Tainted: PF
+Dec 31 15:29:23 corona kernel: EFLAGS: 00010246
+Dec 31 15:29:23 corona kernel: eax: c0244a78   ebx: 00000000   ecx:
+c1427690   edx: 00000000
+Dec 31 15:29:23 corona kernel: esi: c1427674   edi: 000019a7   ebp:
+c0244ca0   esp: f692de38
+Dec 31 15:29:23 corona kernel: ds: 0018   es: 0018   ss: 0018
+Dec 31 15:29:23 corona kernel: Process gconfd-2 (pid: 1497,
+stackpage=f692d000)
+Dec 31 15:29:23 corona kernel: Stack: f692c000 00000200 000001d2
+00000020 0000001f 000001d2 00000020 00000006 
+Dec 31 15:29:23 corona kernel:        c012cab6 00000006 0000006d
+c0244ca0 00000006 000001d2 c0244ca0 c0244ca0 
+Dec 31 15:29:23 corona kernel:        c012cb14 00000020 f692c000
+00000000 00000000 c012d853 00000000 00000000 
+Dec 31 15:29:23 corona kernel: Call Trace:    [<c012cab6>] [<c012cb14>]
+[<c012d853>] [<c012daa8>] [<c0124900>]
+Dec 31 15:29:24 corona kernel:   [<c0124c1d>] [<c0113d78>] [<c0146263>]
+[<c0125abe>] [<c01258fc>] [<c010d20c>]
+Dec 31 15:29:24 corona kernel:   [<c0113c38>] [<c0108a28>]
+Dec 31 15:29:24 corona kernel: Code: 89 02 89 50 04 a1 78 4a 24 c0 89 48
+04 89 01 c7 41 04 78 4a 
+
+
+>>EIP; c012c74f <shrink_cache+ab/2f4>   <=====
+
+>>eax; c0244a78 <inactive_list+0/8>
+>>ecx; c1427690 <_end+1145910/3852b2e0>
+>>esi; c1427674 <_end+11458f4/3852b2e0>
+>>edi; 000019a7 Before first symbol
+>>ebp; c0244ca0 <contig_page_data+160/340>
+>>esp; f692de38 <_end+3664c0b8/3852b2e0>
+
+Trace; c012cab6 <shrink_caches+4e/7c>
+Trace; c012cb14 <try_to_free_pages+30/4c>
+Trace; c012d853 <balance_classzone+57/1d4>
+Trace; c012daa8 <__alloc_pages+d8/17c>
+Trace; c0124900 <do_anonymous_page+5c/124>
+Trace; c0124c1d <handle_mm_fault+59/bc>
+Trace; c0113d78 <do_page_fault+140/46c>
+Trace; c0146263 <inode_setattr+6f/d8>
+Trace; c0125abe <get_unmapped_area+be/110>
+Trace; c01258fc <do_mmap_pgoff+428/52c>
+Trace; c010d20c <sys_mmap2+54/78>
+Trace; c0113c38 <do_page_fault+0/46c>
+Trace; c0108a28 <error_code+34/3c>
+
+Code;  c012c74f <shrink_cache+ab/2f4>
+00000000 <_EIP>:
+Code;  c012c74f <shrink_cache+ab/2f4>   <=====
+   0:   89 02                     mov    %eax,(%edx)   <=====
+Code;  c012c751 <shrink_cache+ad/2f4>
+   2:   89 50 04                  mov    %edx,0x4(%eax)
+Code;  c012c754 <shrink_cache+b0/2f4>
+   5:   a1 78 4a 24 c0            mov    0xc0244a78,%eax
+Code;  c012c759 <shrink_cache+b5/2f4>
+   a:   89 48 04                  mov    %ecx,0x4(%eax)
+Code;  c012c75c <shrink_cache+b8/2f4>
+   d:   89 01                     mov    %eax,(%ecx)
+Code;  c012c75e <shrink_cache+ba/2f4>
+   f:   c7 41 04 78 4a 00 00      movl   $0x4a78,0x4(%ecx)
+
+Dec 31 15:29:43 corona kernel:  <1>Unable to handle kernel NULL pointer
+dereference at virtual address 00000000
+Dec 31 15:29:43 corona kernel: c012c74f
+Dec 31 15:29:43 corona kernel: *pde = 36d56067
+Dec 31 15:29:43 corona kernel: Oops: 0002
+Dec 31 15:29:43 corona kernel: CPU:    0
+Dec 31 15:29:43 corona kernel: EIP:    0010:[<c012c74f>]    Tainted: PF
+Dec 31 15:29:43 corona kernel: EFLAGS: 00013246
+Dec 31 15:29:43 corona kernel: eax: c0244a78   ebx: 00000000   ecx:
+c1427690   edx: 00000000
+Dec 31 15:29:43 corona kernel: esi: c1427674   edi: 000019c4   ebp:
+c0244ca0   esp: f6b69e38
+Dec 31 15:29:43 corona kernel: ds: 0018   es: 0018   ss: 0018
+Dec 31 15:29:43 corona kernel: Process X (pid: 1378, stackpage=f6b69000)
+Dec 31 15:29:43 corona kernel: Stack: f6b68000 00000200 000001d2
+00000020 00000020 000001d2 00000020 00000006 
+Dec 31 15:29:43 corona kernel:        c012cab6 00000006 0000006c
+c0244ca0 00000006 000001d2 c0244ca0 c0244ca0 
+Dec 31 15:29:44 corona kernel:        c012cb14 00000020 f6b68000
+00000000 00000000 c012d853 00000000 00000000 
+Dec 31 15:29:44 corona kernel: Call Trace:    [<c012cab6>] [<c012cb14>]
+[<c012d853>] [<c012daa8>] [<c0124900>]
+Dec 31 15:29:44 corona kernel:   [<c0124c1d>] [<c0113d78>] [<c0125abe>]
+[<c011e7f9>] [<c0107304>] [<c0114774>]
+Dec 31 15:29:45 corona kernel:   [<c0113c38>] [<c0108a28>]
+Dec 31 15:29:45 corona kernel: Code: 89 02 89 50 04 a1 78 4a 24 c0 89 48
+04 89 01 c7 41 04 78 4a 
+
+
+>>EIP; c012c74f <shrink_cache+ab/2f4>   <=====
+
+>>eax; c0244a78 <inactive_list+0/8>
+>>ecx; c1427690 <_end+1145910/3852b2e0>
+>>esi; c1427674 <_end+11458f4/3852b2e0>
+>>edi; 000019c4 Before first symbol
+>>ebp; c0244ca0 <contig_page_data+160/340>
+>>esp; f6b69e38 <_end+368880b8/3852b2e0>
+
+Trace; c012cab6 <shrink_caches+4e/7c>
+Trace; c012cb14 <try_to_free_pages+30/4c>
+Trace; c012d853 <balance_classzone+57/1d4>
+Trace; c012daa8 <__alloc_pages+d8/17c>
+Trace; c0124900 <do_anonymous_page+5c/124>
+Trace; c0124c1d <handle_mm_fault+59/bc>
+Trace; c0113d78 <do_page_fault+140/46c>
+Trace; c0125abe <get_unmapped_area+be/110>
+Trace; c011e7f9 <update_process_times+1d/88>
+Trace; c0107304 <__switch_to+84/b8>
+Trace; c0114774 <schedule+1e4/318>
+Trace; c0113c38 <do_page_fault+0/46c>
+Trace; c0108a28 <error_code+34/3c>
+
+Code;  c012c74f <shrink_cache+ab/2f4>
+00000000 <_EIP>:
+Code;  c012c74f <shrink_cache+ab/2f4>   <=====
+   0:   89 02                     mov    %eax,(%edx)   <=====
+Code;  c012c751 <shrink_cache+ad/2f4>
+   2:   89 50 04                  mov    %edx,0x4(%eax)
+Code;  c012c754 <shrink_cache+b0/2f4>
+   5:   a1 78 4a 24 c0            mov    0xc0244a78,%eax
+Code;  c012c759 <shrink_cache+b5/2f4>
+   a:   89 48 04                  mov    %ecx,0x4(%eax)
+Code;  c012c75c <shrink_cache+b8/2f4>
+   d:   89 01                     mov    %eax,(%ecx)
+Code;  c012c75e <shrink_cache+ba/2f4>
+   f:   c7 41 04 78 4a 00 00      movl   $0x4a78,0x4(%ecx)
+
+
+2 warnings and 2 errors issued.  Results may not be reliable.
+<------
+
+
+ver_linux:
+------>
+Linux corona 2.4.19 #3 Fri Nov 1 11:00:15 GMT 2002 i686 athlon i386
+GNU/Linux
+
+Gnu C                  gcc (GCC) 3.2 20020903 (Red Hat Linux 8.0 3.2-7)
+Copyrigh
+t (C) 2002 Free Software Foundation, Inc. This is free software; see the
+source
+for copying conditions. There is NO warranty; not even for
+MERCHANTABILITY or FI
+TNESS FOR A PARTICULAR PURPOSE.
+Gnu make               3.79.1
+util-linux             2.11r
+mount                  2.11r
+modutils               2.4.18
+e2fsprogs              1.27
+pcmcia-cs              3.1.31
+PPP                    2.4.1
+isdn4k-utils           3.1pre4
+Linux C Library        2.2.93
+Dynamic linker (ldd)   2.2.93
+Procps                 2.0.7
+Net-tools              1.60
+Kbd                    1.06
+Sh-utils               2.0.12
+Modules Loaded         aic7xxx sr_mod scsi_mod ide-cd cdrom cmpci
+soundcore w837
+81d i2c-proc i2c-viapro i2c-core vmnet parport_pc parport vmmon autofs
+3c59x ipt
+able_filter ip_tables mousedev keybdev input hid usb-uhci ehci-hcd
+usbcore ext3
+jbd
+<------
+
+/proc/cpuinfo
+
+----->
+processor       : 0
+vendor_id       : AuthenticAMD
+cpu family      : 6
+model           : 6
+model name      : AMD Athlon(TM) XP 1600+
+stepping        : 2
+cpu MHz         : 1401.738
+cache size      : 256 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 1
+wp              : yes
+flags           : fpu vme de tsc msr pae mce cx8 apic sep mtrr pge mca
+cmov pat pse36 mmx fxsr sse syscall mmxext 3dnowext 3dnow
+bogomips        : 2798.38
+<------
+
+
+/proc/modules:
+
+----->
+aic7xxx               123092   0 (autoclean)
+sr_mod                 16280   0 (autoclean)
+scsi_mod              100324   2 (autoclean) [aic7xxx sr_mod]
+ide-cd                 30660   0 (autoclean)
+cdrom                  30208   0 (autoclean) [sr_mod ide-cd]
+cmpci                  33256   0 (autoclean)
+soundcore               5924   4 (autoclean) [cmpci]
+w83781d                21392   0 (unused)
+i2c-proc                8976   0 [w83781d]
+i2c-viapro              4752   0 (unused)
+i2c-core               20452   0 [w83781d i2c-proc i2c-viapro]
+vmnet                  25760   6
+parport_pc             17092   0
+parport                33184   0 [parport_pc]
+vmmon                  24340   0 (unused)
+autofs                 11812   0 (autoclean) (unused)
+3c59x                  28048   1
+iptable_filter          2284   1 (autoclean)
+ip_tables              13592   1 [iptable_filter]
+mousedev                5076   1
+keybdev                 2656   0 (unused)
+input                   5376   0 [mousedev keybdev]
+hid                    10484   0 (unused)
+usb-uhci               23564   0 (unused)
+ehci-hcd               15464   0 (unused)
+usbcore                69632   1 [hid usb-uhci ehci-hcd]
+ext3                   61088   3
+jbd                    46128   3 [ext3]
+<------
+
+
+
+-- 
+Michael Barker <mbarker@dsl.pipex.com>
 

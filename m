@@ -1,94 +1,137 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271828AbRHUTVM>; Tue, 21 Aug 2001 15:21:12 -0400
+	id <S271827AbRHUTVM>; Tue, 21 Aug 2001 15:21:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271827AbRHUTVB>; Tue, 21 Aug 2001 15:21:01 -0400
-Received: from shed.alex.org.uk ([195.224.53.219]:23017 "HELO shed.alex.org.uk")
-	by vger.kernel.org with SMTP id <S271828AbRHUTUm>;
-	Tue, 21 Aug 2001 15:20:42 -0400
-Date: Tue, 21 Aug 2001 20:20:50 +0100
-From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-To: Oliver Xymoron <oxymoron@waste.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Subject: Re: /dev/random in 2.4.6
-Message-ID: <2354423401.998425250@[10.132.112.53]>
-In-Reply-To: <Pine.LNX.4.30.0108211258080.13373-100000@waste.org>
-In-Reply-To: <Pine.LNX.4.30.0108211258080.13373-100000@waste.org>
-X-Mailer: Mulberry/2.1.0b3 (Win32)
+	id <S271180AbRHUTUx>; Tue, 21 Aug 2001 15:20:53 -0400
+Received: from mail.haemimont.bg ([193.178.153.252]:71 "EHLO hsm-ms.hsmt")
+	by vger.kernel.org with ESMTP id <S271827AbRHUTUi>;
+	Tue, 21 Aug 2001 15:20:38 -0400
+Message-ID: <3B82D104.DA604340@haemimont.bg>
+Date: Tue, 21 Aug 2001 21:22:12 +0000
+From: lucho <lucho@haemimont.bg>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.8 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: linux-kernel@vger.kernel.org
+Subject: PROBLEM: The round robin scheduling policy doesn't work
+Content-Type: text/plain; charset=x-user-defined
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-OriginalArrivalTime: 21 Aug 2001 19:21:44.0130 (UTC) FILETIME=[8359EA20:01C12A76]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oliver,
+The round robin scheduling policy does not work.
 
-> Ok, you're going to assume that the 160-bit SHA hash with lots and lots
-> and lots of mixing is more vulnerable than the IDEA or Blowfish or 3DES
-> that you're using for your actual encryption?
+The kernel in question is 2.4.8 (i still haven't downloaded the 2.4.9).
 
-Only because if not, this argument is irrelevant, in that if SHA-1
-is not broken and can never be, then there is no point in the entropy
-measurement and blocking behaviour at all, and in this case, Robert's
-patch does no harm whatsoever.
+Description:
+Suppose there are several processes in RR mode, all with equal
+priorities
+(and all the remaining processes in the system are either SCHED_OTHER or
+realtime but with
+lower priorities) then in theory the scheduler should spin these
+processes
+(in round-robin manner), but in reality this does not hapen. Only one of
+the processes
+(in fact the first created) in question is given the entire CPU time,
+though the others are not sleeping and have the same real-time priority.
 
-> How about simply adding possible entropy from the network but not
-> accounting for it? /dev/urandom then becomes as strong as the proposed
-> /dev/random (up to the load that /dev/random would allow), while
-> /dev/random isn't weakened.
+The only ways for the process-monopolist to relinquish the CPU is to do
+any
+blocking syscall (and thus remove itself from the runqueue). The
+sched_yield()
+syscall does not work because it does not remove the current task from
+the runqueue.
 
-Perhaps I'm missing something, but /dev/urandom is only weaker than
-/dev/random NOW if SHA-1 is cracked (if not, the two are identical
-in 'strength'). And, in the extremely theoretical case that
-SHA-1 is crackable (perhaps with an attack that takes many days),
-then wanting to have gathered entropy before reading is useful.
+The following simple example code should demonstrate this odd behavior
+of the scheduler:
 
-As you point out (above), and as did David, SHA-1 being cracked
-is a remote possibility in the extreme. But this scenario is the
-only one where Robert's patch could make a conceivable difference.
-If SHA-1 is invulnerable, then why argue against Robert's patch
-which merely stops some applications from not working on some machines.
+int main()
+{
+    struct sched_param sp;
 
-But people obviously do have concerns about the reversibility of SHA-1,
-even if only at a very theoretical level, or they wouldn't be
-spending all this time arguing about the importance of metering entropy.
+    sp.sched_priority = 1;
+    sched_setscheduler(0, SCHED_RR, &sp);
 
-Adding entropy from the network and not accounting for it is probably
-better than nothing (as it makes the seeding problem better).
+    if(fork() == 0) {
+        while(1) {
+            printf("child\n");
+            sched_yield();
+        }
+    }
+    else {
+        while(1) {
+            printf("parent\n");
+            sched_yield();
+        }
+    }
 
->> Correct, and it's quite possible it should be contributing less bits
->> than 12 if the option is turned on. However, a better response would
->> be to fix the timers to be more accurate :-)
->
-> We're already using cycle counters - do you propose being more accurate
-> than that?
+    return 0;
+}
 
-I propose not using Jiffies on machines other than some i386's, and
-not exposing /proc/interrupts 644 which reduces the attack space
-hugely.
+I investigated the problem by inserting printk()s at some points in the
+schedule() function
+in kernel/scheduler.c and managet to find out what's wrong. The reason
+for this
+wrong behavior seems to be the following piece of code in schedule():
 
->> I agree with your point that Robert's patch /could/ taint /dev/random,
->> but only if you switch it on!
->
-> As it stands, it does. Assuming a 1GHz processor and hitting the maximum
-> 12 bits of entropy per interrupt, we only need to guess the interrupt
-> timing to within 4us - probably not hard. As I've pointed out, it's not
-> hard to send our own apparently random packets to open up that window.
+    if (prev->state == TASK_RUNNING)
+        goto still_running;
 
-IF you can observe packets, and IF you turn the config option
-on against advice [1] THEN the strength of /dev/random
-will be tainted IF and ONLY IF SHA-1 is breakable (in which
-case, as you point out, all sorts of other things break anyway).
-I consider this an acceptable risk.
+still_running_back:
 
-[1] against the advice of a config option which should read
-'DO NOT SWITCH THIS ON IF YOU BELIEVE THERE IS ANY CHANCE OF
-YOUR NETWORK PACKETS BEING OBSERVABLE AND YOU ARE WORRIED
-ABOUT THE SECURITY OF SHA-1' (but the same applies btw using k/b
-interrupts with wireless keyboards).
+    ........
+    ........
 
---
-Alex Bligh
+still_running:
+    if (!(prev->cpus_allowed & (1UL << this_cpu)))
+        goto still_running_back;
+    c = goodness(prev, this_cpu, prev->active_mm);
+    next = prev;
+    goto still_running_back;
+
+which initializes the `c' variable with the current process goodness
+(1001 in the example)
+and the `next' - with `prev' regardless whether the timeslice of the
+prev has expired
+(current->counter == 0) or not. So the `list_for_each' loop over the
+runqueue never chooses
+any different task (because their goodnesses are never bigger than the
+so initialized `c').
+
+I didn't get why is that `stil_running' code necessary at all (at least
+in uniprocessor system)
+since the `list_for_all' loop will anyway go thru the prev task if it's
+in running state
+because it is certainly in the runqueue, but it rather makes the
+scheduler a bit slower
+because of the unnecessary two calculations of the prev's goodness.
+
+I removed this code and rebuilt the kernel, and actually got the round
+robin working
+(i heavily tested it) i.e. then the scheduler really cycles through all
+the SCHED_RR processes.
+
+But still the yield() wasn't working (it was just like a NOP).
+
+I found out that the erason for this is that the sys_sched_yield()
+function just sets
+current->need_resched which causes the schedule() to be called, but
+schedule() looks at
+the current->counter and when it's nonzero (when current is SCHED_RR
+process),
+it doesn't switch to other process.
+
+So i added the code:
+
+    if (current->policy == SCHED_RR)
+        current->counter = 0;
+
+in the sys_sched_yield() and now it works fine too.
+
+I hope this bug report will be useful.
+My name is Luchezar Belev.
+Best regards.
+
+
+

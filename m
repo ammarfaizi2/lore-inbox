@@ -1,54 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261310AbSJCPqB>; Thu, 3 Oct 2002 11:46:01 -0400
+	id <S261762AbSJCQAw>; Thu, 3 Oct 2002 12:00:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261325AbSJCPqA>; Thu, 3 Oct 2002 11:46:00 -0400
-Received: from pool-151-204-76-45.delv.east.verizon.net ([151.204.76.45]:8975
-	"HELO trianna.2y.net") by vger.kernel.org with SMTP
-	id <S261310AbSJCPp7>; Thu, 3 Oct 2002 11:45:59 -0400
-Date: Thu, 3 Oct 2002 11:52:03 -0400
-From: Malcolm Mallardi <magamo@ranka.2y.net>
-To: linux-kernel@vger.kernel.org
-Subject: [2.4.19] EFS CDROM IDE-SCSI bug
-Message-ID: <20021003155203.GA17245@trianna.upcommand.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S261763AbSJCQAw>; Thu, 3 Oct 2002 12:00:52 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:18852 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S261762AbSJCQAu>;
+	Thu, 3 Oct 2002 12:00:50 -0400
+Importance: Normal
+Sensitivity: 
+Subject: Re: [Evms-devel] Re: EVMS Submission for 2.5
+To: Christoph Hellwig <hch@infradead.org>
+Cc: "Kevin M Corry" <corryk@us.ibm.com>, torvalds@transmeta.com,
+       linux-kernel@vger.kernel.org, evms-devel@lists.sourceforge.net
+X-Mailer: Lotus Notes Release 5.0.4  June 8, 2000
+Message-ID: <OF479E53F5.0433681B-ON85256C47.0057D3AF@pok.ibm.com>
+From: "Steve Pratt" <slpratt@us.ibm.com>
+Date: Thu, 3 Oct 2002 11:09:37 -0500
+X-MIMETrack: Serialize by Router on D01ML072/01/M/IBM(Release 5.0.11  |July 29, 2002) at
+ 10/03/2002 12:05:17 PM
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	I am attempting to mount an EFS filesystem on a CD-ROM in
-/dev/cdrom, aka /dev/scd0 (when under IDE-SCSI emulation) aka /dev/hdc
-when just under the normal IDE-CD driver.  When I mount the CD under
-normal IDE circumstances, it works just fine.  When I try it when the
-CD is SCSI emulated, mount segfaults, and a kernel BUG gets spit into
-my kernel logs:
 
-EFS: 1.0a - http://aeschi.ch.eu.org/efs/
-kernel BUG at buffer.c:2497!
-invalid operand: 0000
-CPU:    0
-EIP:    0010:[<c0135e12>]    Not tainted
-EFLAGS: 00010206
-eax: 000007ff   ebx: 0000000b   ecx: 00000800   edx: c7c814a0
-esi: 00000000   edi: 00000b00   ebp: 00000000   esp: c39b9e44
-ds: 0018   es: 0018   ss: 0018
-Process mount (pid: 17570, stackpage=c39b9000)
-Stack: 00000b00 00000200 00000000 00000000 00001000 c01340a7 00000b00 00000000 
-       00000200 c0222614 c4763a00 c4763acc c0134294 00000b00 00000000 00000200 
-       00000000 c8a35219 00000b00 00000000 00000200 c0222614 c4763a00 c405c220 
-Call Trace:    [<c01340a7>] [<c0134294>] [<c8a35219>] [<c0136fe0>] [<c8a36900>]
-  [<c8a36900>] [<c01457b6>] [<c013719b>] [<c8a36900>] [<c0146699>] [<c0146962>]
-  [<c01467b4>] [<c0146ce4>] [<c010856f>]
+Christoph Hellwig wrote:
 
-Code: 0f 0b c1 09 00 c6 1f c0 8b 44 24 20 05 00 fe ff ff 3d 00 0e 
+>> subdirectories were created: drivers/evms/ for the main source code,
+>> and include/linux/evms/ for the header files.
 
-I would wash that through ksymoops, but I can't get it to compile due
-to a linking error.  Right now, I don't know if this is an issue with
-the EFS filesystem driver, or with IDE-SCSI, but either/or. :)
---
-Malcolm D. Mallardi - Dark Freak At Large
-"Captain, we are receiving two-hundred eighty-five THOUSAND hails."
-AOL: Nuark  UIN: 11084092 Y!: Magamo Jabber: Nuark@jabber.com
-http://ranka.2y.net:8008/~magamo/index.htm
+>What's the reason to not have the headers under drivers/evms.
+
+None, really. Why does md put it's headers in include/linux/raid ???
+We can put them wherever.
+
+> And why don'T you just use drivers-md like all other volume management
+drivers?
+
+Because it is getting crowded.  Why does every filesystem create it's own
+directory in fs?  Maybe drivers/vm/md drivers/vm/dm drivers/vm/evms would
+be better.  Again, we can put it wherever, this just seems like a logical
+place.
+
+Steve
+
+
+
+

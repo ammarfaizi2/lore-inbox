@@ -1,89 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269379AbUJEPus@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269319AbUJEPut@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269379AbUJEPus (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 11:50:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269319AbUJEPqJ
+	id S269319AbUJEPut (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 11:50:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269999AbUJEPuc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 11:46:09 -0400
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:29111 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S269700AbUJEPoX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 11:44:23 -0400
-Message-ID: <4162C156.3030108@namesys.com>
-Date: Tue, 05 Oct 2004 08:44:22 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeffrey Mahoney <jeffm@novell.com>
-CC: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alexander Zarochentcev <zam@namesys.com>
-Subject: Re: [PATCH 0/4] I/O Error Handling for ReiserFS v3
-References: <20041005150819.GA30046@locomotive.unixthugs.org>
-In-Reply-To: <20041005150819.GA30046@locomotive.unixthugs.org>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 5 Oct 2004 11:50:32 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:42247 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S269057AbUJEPsr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 11:48:47 -0400
+Date: Tue, 5 Oct 2004 16:48:42 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Pat Gefre <pfg@sgi.com>
+Cc: tony.luck@intel.com, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org
+Subject: Re: [PATCH] 2.6 SGI Altix I/O code reorganization
+Message-ID: <20041005164842.A19754@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Pat Gefre <pfg@sgi.com>, tony.luck@intel.com,
+	linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+References: <200410042157.i94Lv7UC104750@fsgi900.americas.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200410042157.i94Lv7UC104750@fsgi900.americas.sgi.com>; from pfg@sgi.com on Mon, Oct 04, 2004 at 04:57:06PM -0500
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-These have received design approval from zam (and thus me), but zam, did 
-they receive stress testing by Elena under your guidance?
+On Mon, Oct 04, 2004 at 04:57:06PM -0500, Pat Gefre wrote:
+> 
+> We have redone the I/O layer in the Altix code.
+> 
+> We've broken the patch set down to 2 patches. One to remove the files,
+> the other to add in the new code. Most of the changes from the last
+> posting are in response to review comments.
 
-Hans
+This looks pretty nice already, but a few small but important issues
+need sorting out.
 
-Jeffrey Mahoney wrote:
+ - The interface between pci_dma.c and the lowlevel code is still wrong -
+   and because of the additional 32bit direct translation in this code drop
+   it got even worse because you might be calling into a function just to
+   error out again.
+   Please implement my suggestions from month ago, it's not a lot of work.
+ - various sall baclls take bus_number and devfs but no pci domain, while
+   the normal SAL calls do, I think you should make the kernel code aware
+   of pci domains so the prom can introduce them seamlessly
+ - is doing SAL calls from irq context really safe?  Also why do you need
+   different SAL calls for shub vs ice error?  The prom should be easily
+   able to find out what hub a given nasid corresponds to.
+ - the patch reformats various unrelated or only slightly related files.
+   Please don't do that - in general the new style is better than the old
+   one, but it doesn't belong in this patchA
+ - there's a SNDRV_SHUB_GET_IOCTL_VERSION ioctl define added but never
+   used.  In fact it looks like all SNDRV_SHUB_ values are unused now?
 
->Hey all -
->
->One of the most common complaints I've heard about ReiserFS is how
->graceless it is in handling critical I/O errors.
->
->ext[23] can handle I/O errors anywhere, with the results being up to the
->system admin to determine: continue, go read only, or panic.
->
->ReiserFS doesn't offer the admin any such choice, instead panicking on
->any I/O error in the journal.
->
->The available options are read only or panic, since ReiserFS does not
->currently support operations without the journal.
->
->In the four messages that follow, you'll find:
->* reiserfs-cleanup-buffer-heads.diff
->        - Cleans up handling of buffer head bitfields - uses
->          the kernel supplied FNS_BUFFER macros instead.
->* reiserfs-cleanup-sb-journal.diff
->        - Cleans up accessing of the journal structure, prefering
->          to create a temporary variable in functions that access
->          the journal structure non-trivially. Should make 0 difference
->          at compile time.
->* reiserfs-io-error-handling.diff
->        - Allows ReiserFS to gracefully handle I/O errors in critical
->          code paths. The admin has the option to go read-only or panic.
->          Since ReiserFS has no option to ignore the use of the journal,
->          the "continue" method is not enabled.
->* reiserfs-write-lock.diff
->        - Fixes two missing reiserfs_write_unlock() calls on error paths
->          that are unrelated to reiserfs-io-error-handling.diff
->
->These patches have seen a lot of testing in the SuSE Linux Enterprise
->Server 9 kernel, and are considered ready for mainline.
->
->They've received approval[1] from the ReiserFS maintainers also.
->
->Andrew - Apologies for the previous format; Please apply.
->
->Thanks.
->
->-Jeff
->
->[1] http://marc.theaimsgroup.com/?l=reiserfs&m=109587254714180
->
->--
->Jeff Mahoney
->SuSE Labs
->  
->
 

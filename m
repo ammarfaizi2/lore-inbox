@@ -1,43 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263522AbTJVLFZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Oct 2003 07:05:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263526AbTJVLFY
+	id S263537AbTJVLOg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Oct 2003 07:14:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263538AbTJVLOg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Oct 2003 07:05:24 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:28835 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S263522AbTJVLFV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Oct 2003 07:05:21 -0400
-Date: Wed, 22 Oct 2003 03:59:49 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Martin Diehl <lists@mdiehl.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] pci_dma_sync_to_device
-Message-Id: <20031022035949.6b6e59b0.davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.44.0310211151000.4246-100000@notebook.home.mdiehl.de>
-References: <Pine.LNX.4.44.0310211151000.4246-100000@notebook.home.mdiehl.de>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+	Wed, 22 Oct 2003 07:14:36 -0400
+Received: from 24-216-47-96.charter.com ([24.216.47.96]:50828 "EHLO
+	wally.rdlg.net") by vger.kernel.org with ESMTP id S263537AbTJVLO1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Oct 2003 07:14:27 -0400
+Date: Wed, 22 Oct 2003 07:14:27 -0400
+From: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test8, oops, [__remove_from_page_cache+36/112] __remove_from_page_cache+0x24/0x70
+Message-ID: <20031022111427.GL2617@rdlg.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20031022084413.GA2773@finwe.eu.org> <20031022085611.GA1848@finwe.eu.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="p7S+EREVcBHk3zUG"
+Content-Disposition: inline
+In-Reply-To: <20031022085611.GA1848@finwe.eu.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 Oct 2003 12:37:13 +0200 (CEST)
-Martin Diehl <lists@mdiehl.de> wrote:
 
-> following your suggestion this patch adds the missing 
-> pci_dma_sync_to_device_{single,sg} call to sync streaming write buffers 
-> after cpu modification. Like other pci dma calls it's a pci specific 
-> wrapper plus corresponding generic function in asm-i386/dma-mapping.h. 
-> Other platforms still need their individual implementations.
-> 
-> Patch below is against 2.6.0-test8. Testing was done using a modified 
-> version of the vlsi_ir driver which calls pci_dma_to_device_single instead 
-> of a private implementation.
+--p7S+EREVcBHk3zUG
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Thanks a lot Martin, I promise to make more forward progress
-with this work between now and the end of the weekend.
 
-Thanks again.
+
+This sounds like what mine was doing, the oops looked similar as well
+(with the null pointer part atleast).  Reboot and I bet it'll run fine
+for a while and then start up again.  For me it seemed to start faulting
+when "free" showed over 250 Megs used.
+
+
+Thus spake Jacek Kawa (jfk@zeus.polsl.gliwice.pl):
+
+> Jak podaj? anonimowe ?r?d?a, przepowiedziano, ?e Jacek Kawa napisze:
+>=20
+> > This machine has new RAM, but after about 7 hours of testing,=20
+> > memtest.86 didn't show any errors...=20
+>=20
+> Well, it's RAM anyway... I've just got few segfaults in vim...
+>=20
+> bye
+>=20
+> --=20
+> Jacek Kawa
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+:wq!
+---------------------------------------------------------------------------
+Robert L. Harris                     | GPG Key ID: E344DA3B
+                                         @ x-hkp://pgp.mit.edu
+DISCLAIMER:
+      These are MY OPINIONS ALONE.  I speak for no-one else.
+
+Life is not a destination, it's a journey.
+  Microsoft produces 15 car pileups on the highway.
+    Don't stop traffic to stand and gawk at the tragedy.
+
+--p7S+EREVcBHk3zUG
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQE/lmaT8+1vMONE2jsRAiyMAKCwfCux8EJNeIz6KdvhYIsvmjRh4QCgzw2R
+nFOkKuZbjikzvovIFGhztKE=
+=ywmq
+-----END PGP SIGNATURE-----
+
+--p7S+EREVcBHk3zUG--

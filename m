@@ -1,43 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284010AbRLROzy>; Tue, 18 Dec 2001 09:55:54 -0500
+	id <S284163AbRLRO6E>; Tue, 18 Dec 2001 09:58:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284163AbRLROzl>; Tue, 18 Dec 2001 09:55:41 -0500
-Received: from rwcrmhc51.attbi.com ([204.127.198.38]:16310 "EHLO
-	rwcrmhc51.attbi.com") by vger.kernel.org with ESMTP
-	id <S284010AbRLROy6>; Tue, 18 Dec 2001 09:54:58 -0500
-Message-ID: <3C1F57C6.23DECC61@didntduck.org>
-Date: Tue, 18 Dec 2001 09:50:46 -0500
-From: Brian Gerst <bgerst@didntduck.org>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.5.1-pre2 i686)
-X-Accept-Language: en
+	id <S284195AbRLRO5y>; Tue, 18 Dec 2001 09:57:54 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:14481 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S284163AbRLRO5n>;
+	Tue, 18 Dec 2001 09:57:43 -0500
+Date: Tue, 18 Dec 2001 17:55:14 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Victor Yodaiken <yodaiken@fsmlabs.com>
+Cc: Andrea Arcangeli <andrea@suse.de>, Benjamin LaHaise <bcrl@redhat.com>,
+        Rik van Riel <riel@conectiva.com.br>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: mempool design
+In-Reply-To: <20011217083802.A25219@hq2>
+Message-ID: <Pine.LNX.4.33.0112181753230.3753-100000@localhost.localdomain>
 MIME-Version: 1.0
-To: Holger Lubitz <h.lubitz@internet-factory.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: modify_ldt returning ENOMEM on highmem
-In-Reply-To: <200112171852.fBHIqJR05703@orp.orf.cx> <3C1F5076.3B6A509E@internet-factory.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Holger Lubitz wrote:
-> 
-> Leigh Orf proclaimed:
-> > Do you have an NTFS disk mounted? I had a similar problem which was
-> > "fixed" by not having an NTFS vol mounted. Apparently the ntfs code
-> > makes a lot of calls to vmalloc which leads to badness.
-> 
-> Yes, I have. I'll try not mounting it. Which would be a better
-> workaround than disabling 1/8 of my RAM.
-> The funny thing is just - why does it work fine with up to 896 MB, but
-> gives ENOMEM with _more_ RAM?
 
-Because of the way the kernel uses its 1GB of virtual address space. 
-Physical memory is mapped 1:1 up to 960 MB, with the remaining virtual
-address space (64MB or more) is reserved for virtual mappings like
-vmalloc and ioremap.
+On Mon, 17 Dec 2001, Victor Yodaiken wrote:
 
--- 
+> I agree with all your arguments up to here. But being able to run
+> Linux in 4Meg or even 8M is important to a very large class of
+> applications. [...]
 
-						Brian Gerst
+the amount of reserved RAM should be very low. Especially in embedded
+applications that usually have a very controlled environment, with a low
+number of well-behaving devices, the number of pages needed to be reserved
+is very low. I wouldnt worry about this.
+
+	Ingo
+

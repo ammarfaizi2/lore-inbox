@@ -1,48 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270967AbTGVRqV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jul 2003 13:46:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270968AbTGVRqV
+	id S270969AbTGVRqO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jul 2003 13:46:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270981AbTGVRqO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jul 2003 13:46:21 -0400
-Received: from nouse194035.ris.at ([212.52.194.36]:54744 "EHLO
-	mail.gibraltar.at") by vger.kernel.org with ESMTP id S270967AbTGVRqT
+	Tue, 22 Jul 2003 13:46:14 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:57513 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S270969AbTGVRp6
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jul 2003 13:46:19 -0400
-Message-ID: <3F1D7C80.6020605@gibraltar.at>
-Date: Tue, 22 Jul 2003 20:03:44 +0200
-From: Rene Mayrhofer <rene.mayrhofer@gibraltar.at>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030714 Debian/1.3.1-3 StumbleUpon/1.73
-X-Accept-Language: en
+	Tue, 22 Jul 2003 13:45:58 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Tue, 22 Jul 2003 10:54:02 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mcafeelabs.com
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+cc: Jamie Lokier <jamie@shareable.org>, "Randy.Dunlap" <rddunlap@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: asm (lidt) question
+In-Reply-To: <Pine.LNX.4.53.0307221347400.2199@chaos>
+Message-ID: <Pine.LNX.4.55.0307221052540.1372@bigblue.dev.mcafeelabs.com>
+References: <20030717152819.66cfdbaf.rddunlap@osdl.org>
+ <Pine.LNX.4.55.0307171535020.4845@bigblue.dev.mcafeelabs.com>
+ <Pine.LNX.4.55.0307171615580.4845@bigblue.dev.mcafeelabs.com>
+ <20030722172722.GC3267@mail.jlokier.co.uk> <Pine.LNX.4.55.0307221021130.1372@bigblue.dev.mcafeelabs.com>
+ <Pine.LNX.4.53.0307221347400.2199@chaos>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Jason Baron <jbaron@redhat.com>, vda@port.imtp.ilyichevsk.odessa.ua,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: pivot_root seems to be broken in 2.4.21-ac4
-References: <Pine.LNX.4.44.0307221331090.2754-100000@dhcp64-178.boston.redhat.com> <1058895650.4161.23.camel@dhcp22.swansea.linux.org.uk>
-In-Reply-To: <1058895650.4161.23.camel@dhcp22.swansea.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alan,
+On Tue, 22 Jul 2003, Richard B. Johnson wrote:
 
-Alan Cox wrote:
-> Shouldnt really have changed anything except for security exploits and
-> threaded apps doing weird stuff. In normal situations the files count is
-> one so we should actually be executing nothing more exciting that an
-> atomic_inc/atomic_dec.
-> 
-> I wonder what is going on here.
-If it is not expected behaviour that the kernel processes no longer 
-close their fds open an pivot_root, then I'd like to debug this (is my 
-use of pivot_root correct or am I doing something wrong here ?). I will 
-try with vanilla 2.4.21 now and see how that goes (or should I rather 
-try 2.4.22-pre7 ?).
-However, I'd like to use your tree on that machine because of the 
-support for VIA chipsets (it's a VIA EPIA M-6000).
+> LIDT is "load interrupt descriptor table". SIDT is "store interrupt
+> descriptor table". Only SIDT modifies memory. LIDT reads from memory
+> and puts the result into a special CPU register, therefore doesn't
+> modify memory.
 
-Thanks for the notice that it should not have changed,
-Rene
+Indeed, that why this is not really correct :
+
+__asm__ __volatile__("lidt %0": "=m" (var));
+
+even if it generates the same code of :
+
+__asm__ __volatile__("lidt %0": : "m" (var));
+
+
+
+- Davide
 

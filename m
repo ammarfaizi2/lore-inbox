@@ -1,61 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266570AbUGKLc0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266567AbUGKLur@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266570AbUGKLc0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jul 2004 07:32:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266573AbUGKLcZ
+	id S266567AbUGKLur (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jul 2004 07:50:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266573AbUGKLur
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jul 2004 07:32:25 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:17672 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S266570AbUGKLcX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jul 2004 07:32:23 -0400
-Date: Sun, 11 Jul 2004 12:32:17 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: binutils woes
-Message-ID: <20040711123217.C13616@flint.arm.linux.org.uk>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-References: <20040701175231.B8389@flint.arm.linux.org.uk>
+	Sun, 11 Jul 2004 07:50:47 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:55491 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S266567AbUGKLup (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jul 2004 07:50:45 -0400
+Date: Sun, 11 Jul 2004 13:50:39 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Andi Kleen <ak@muc.de>, aoliva@redhat.com, ncunningham@linuxmail.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: GCC 3.4 and broken inlining.
+Message-ID: <20040711115039.GD4701@fs.tum.de>
+References: <2fG2F-4qK-3@gated-at.bofh.it> <2fG2G-4qK-9@gated-at.bofh.it> <2fPfF-2Dv-21@gated-at.bofh.it> <2fPfF-2Dv-19@gated-at.bofh.it> <m34qohrdel.fsf@averell.firstfloor.org> <orvfgvo8pr.fsf@livre.redhat.lsd.ic.unicamp.br> <20040711055352.GB87770@muc.de> <20040710235536.14718bae.akpm@osdl.org> <20040711082630.GA63148@muc.de> <20040711013218.414941ce.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040701175231.B8389@flint.arm.linux.org.uk>; from rmk+lkml@arm.linux.org.uk on Thu, Jul 01, 2004 at 05:52:31PM +0100
+In-Reply-To: <20040711013218.414941ce.akpm@osdl.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 01, 2004 at 05:52:31PM +0100, Russell King wrote:
-> I think the only way we can ensure kernel correctness is to add a
-> subsequent stage to kbuild such that whenever we generate a final
-> program, we grep the 'nm' output for undefined symbols.
-...
+On Sun, Jul 11, 2004 at 01:32:18AM -0700, Andrew Morton wrote:
+> Andi Kleen <ak@muc.de> wrote:
+>...
+> > > b) If the programmer didn't say "inline" then don't inline it.
+> > > 
+> > > Surely it is not hard to add a new option to gcc to provide these semantics?
+> > 
+> > That option is -O2 -Dinline="__attribute__((always_inline))"
+> > But for some reason it was turned off for 3.4/3.5.
+> > 
+> 
+> Please tell me that was just a bug, and it will be fixed very soon.
 
-BTW, binutils 2.15 on ARM has other issues, which I've reported to
-Nick Clifton/binutils-bug.  The assembler seems to produce extra
-symbolic information in the form of symbols starting with '$', eg:
 
-c0067860 T __fput
-c0067860 t $a
-c0067954 t $d
-c0067958 T fget
-c0067958 t $a
+It's a bug in compiler-gcc3.h, and I already sent the patch below in 
+this thread.
 
-Not only do these symbols interfere with ld's error reporting, but
-they also interfere with kallsyms - the backtrace information from
-such a kernel is not very useful when it reports function names of
-'$a':
+I'm currently sending fixes for compile errors this causes with gcc 3.4 
+(I've forgotten the exact number, but there were compile errors in at 
+about 30 files in a full i386 compile).
 
-drivers/built-in.o(.text+0x6042c): In function `$a':
-: relocation truncated to fit: R_ARM_PC24 .exit.text
 
-Obviously not useful to anyone.
+<--  snip  -->
 
-This seems to only affect binutils 2.15, so I think we should hang
-fire on any work-arounds until the binutils folk have commented.
 
--- 
-Russell King
- ... who dearly wishes that the kernel build was still compatible
-  with the good old stable binutils 2.11 versions.
+[patch] #define inline as __attribute__((always_inline)) also for gcc >= 3.4
+
+Rationale:
+- if gcc 3.4 can't inline a function marked as "inline" that's a
+  strong hint that further investigation is required
+- I strongly prefer a compile error over a potential runtime problem
+
+
+Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
+
+--- linux-2.6.7-mm6-full-gcc3.4/include/linux/compiler-gcc3.h.old	2004-07-08 23:40:27.000000000 +0200
++++ linux-2.6.7-mm6-full-gcc3.4/include/linux/compiler-gcc3.h	2004-07-08 23:40:37.000000000 +0200
+@@ -3,7 +3,7 @@
+ /* These definitions are for GCC v3.x.  */
+ #include <linux/compiler-gcc.h>
+ 
+-#if __GNUC_MINOR__ >= 1  && __GNUC_MINOR__ < 4
++#if __GNUC_MINOR__ >= 1
+ # define inline		__inline__ __attribute__((always_inline))
+ # define __inline__	__inline__ __attribute__((always_inline))
+ # define __inline	__inline__ __attribute__((always_inline))
+

@@ -1,70 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269173AbUINDtr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269155AbUINDu4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269173AbUINDtr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Sep 2004 23:49:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269176AbUINDkv
+	id S269155AbUINDu4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Sep 2004 23:50:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269167AbUINDuU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Sep 2004 23:40:51 -0400
-Received: from out010pub.verizon.net ([206.46.170.133]:2296 "EHLO
-	out010.verizon.net") by vger.kernel.org with ESMTP id S269162AbUINDhs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Sep 2004 23:37:48 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: linux-kernel@vger.kernel.org
-Subject: Re: journal aborted, system read-only
-Date: Mon, 13 Sep 2004 23:37:46 -0400
-User-Agent: KMail/1.7
-Cc: "Stephen C. Tweedie" <sct@redhat.com>
-References: <200409121128.39947.gene.heskett@verizon.net> <1095088378.2765.18.camel@sisko.scot.redhat.com>
-In-Reply-To: <1095088378.2765.18.camel@sisko.scot.redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Mon, 13 Sep 2004 23:50:20 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:4770 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S269147AbUINDqO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Sep 2004 23:46:14 -0400
+Subject: Re: [PATCH] Realtime LSM
+From: Lee Revell <rlrevell@joe-job.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Chris Wright <chrisw@osdl.org>, kronos@kronoz.cjb.net,
+       linux-kernel <linux-kernel@vger.kernel.org>, joq@io.com, torbenh@gmx.de
+In-Reply-To: <20040914030126.GV9106@holomorphy.com>
+References: <20040912155035.GA17972@dreamland.darkstar.lan>
+	 <1095117752.1360.5.camel@krustophenia.net>
+	 <20040913163448.T1973@build.pdx.osdl.net>
+	 <1095128285.1752.4.camel@krustophenia.net>
+	 <20040914030126.GV9106@holomorphy.com>
+Content-Type: text/plain
+Message-Id: <1095133574.1752.9.camel@krustophenia.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 13 Sep 2004 23:46:14 -0400
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200409132337.46922.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out010.verizon.net from [151.205.51.156] at Mon, 13 Sep 2004 22:37:47 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 13 September 2004 11:12, Stephen C. Tweedie wrote:
->Hi,
->
->On Sun, 2004-09-12 at 16:28, Gene Heskett wrote:
->> I just got up, and found advisories on every shell open that the
->> journal had encountered an error and aborted, converting my /
->> partition to read-only.
->
->...
->
->> The kernel is 2.6.9-rc1-mm4.  .config available on request.
->>
->> This is precious little info to go on, but basicly I'm wondering
->> if anyone else has encountered this?
->
->Well, we really need to see _what_ error the journal had encountered
-> to be able to even begin to diagnose it.  But 2.6.9-rc1-mm3 and
-> -mm4 had a bug in the journaling introduced by low-latency work on
-> the checkpoint code; can you try -mm5 or back out
->"journal_clean_checkpoint_list-latency-fix.patch" and try again?
+On Mon, 2004-09-13 at 23:01, William Lee Irwin III wrote:
+> On Mon, 2004-09-13 at 19:34, Chris Wright wrote:
+> >> The mlock() bit is unecessary now.  Use rlimits on the audio users.
+> >> Which leaves realtime bits, plus others.  I had a more generic module
+> >> (per-capability) that would be a superset of this.  Perhaps that's a
+> >> better fit.  I'm travelling this week, so forgive the spotty replies.
+> 
+> On Mon, Sep 13, 2004 at 10:18:06PM -0400, Lee Revell wrote:
+> > I think this would be fine.  All we need is a way to allow users to run
+> > SCHED_FIFO processes and use mlockall() without being root and without
+> > having to patch the kernel.  It's a pretty simple requirement.
+> 
+> Please construct a entitlement/permission checking scheme for this that
+> is not so lax as removing permissions checks altogether conditionally
+> on some sysctl.
 
-Since -mm5 killed my usb2.0 stuffs, (all my printers disappeared) I'm 
-now building -mm4 after reverting this patch.
+This is how it works now.  You would typically do 'modprobe realtime
+gid=29' and add audio users to that group.  How is this any less secure
+than the traditional user/group/other permissions model?
 
-This must be a fairly rare occurance in the real world, it has not 
-recurred.  (yet, gotta keep Murphy happy you know)  :-)
+Lee
 
->Cheers,
-> Stephen
-
--- 
-Cheers & thanks Stephen, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.26% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

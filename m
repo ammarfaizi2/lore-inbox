@@ -1,57 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131384AbRAERvk>; Fri, 5 Jan 2001 12:51:40 -0500
+	id <S132455AbRAERwk>; Fri, 5 Jan 2001 12:52:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132135AbRAERvc>; Fri, 5 Jan 2001 12:51:32 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:19445 "EHLO
-	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S131384AbRAERuy>; Fri, 5 Jan 2001 12:50:54 -0500
-Date: Fri, 5 Jan 2001 15:50:30 -0200 (BRDT)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: MM/VM todo list
-In-Reply-To: <Pine.LNX.4.21.0101051344270.2745-100000@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.21.0101051549340.1295-100000@duckman.distro.conectiva>
+	id <S131389AbRAERwa>; Fri, 5 Jan 2001 12:52:30 -0500
+Received: from hermes.mixx.net ([212.84.196.2]:30736 "HELO hermes.mixx.net")
+	by vger.kernel.org with SMTP id <S129859AbRAERwN>;
+	Fri, 5 Jan 2001 12:52:13 -0500
+Message-ID: <3A56091B.1126A290@innominate.de>
+Date: Fri, 05 Jan 2001 18:49:15 +0100
+From: Daniel Phillips <phillips@innominate.de>
+Organization: innominate
+X-Mailer: Mozilla 4.72 [de] (X11; U; Linux 2.4.0 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] changes to buffer.c (was Test12 ll_rw_block error)
+In-Reply-To: <662960000.978710044@tiny> <Pine.LNX.4.21.0101051318190.2745-100000@freak.distro.conectiva>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 5 Jan 2001, Marcelo Tosatti wrote:
-> On Fri, 5 Jan 2001, Rik van Riel wrote:
+Marcelo Tosatti wrote:
 > 
-> > here is a TODO list for the memory management area of the
-> > Linux kernel, with both trivial things that could be done
-> > for later 2.4 releases and more complex things that really
-> > have to be 2.5 things.
-> > 
-> > Most of these can be found on http://linux24.sourceforge.net/ too
-> > 
-> > Trivial stuff:
-> > * VM: better IO clustering for swap (and filesystem) IO
-> >   * Marcelo's swapin/out clustering code
->     * Swap space preallocation at try_to_swap_out()
+> On Fri, 5 Jan 2001, Chris Mason wrote:
 > 
-> >   * ->writepage() IO clustering support
+> >
+> > Here's the latest version of the patch, against 2.4.0.  The
+> > biggest open issues are what to do with bdflush, since
+> > page_launder could do everything bdflush does.
 > 
-> Hum, IMO this should be in the "2.5" list because 
+> I think we want to remove flush_dirty_buffers() from bdflush.
+> 
+> While we are trying to be smart and do write clustering at the ->writepage
+> operation, flush_dirty_buffers() is "dumb" and will interfere with the
+> write clustering.
 
-The non-trivial part of improved IO clustering should be a
-2.5 thing indeed, but I'm not convinced there aren't any
-trivial things left which can give us a nice improvement
-now (and for the whole 2.4 series).
+Actually, I found it doesn't interfere that much.  Remember, there's
+still an elevator in there.  Even if bdflush and clustered page flushing
+are running at the same time the elevator makes the final decision what
+gets written when.
 
-regards,
-
-Rik
 --
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to loose...
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
-
+Daniel
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

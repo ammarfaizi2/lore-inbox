@@ -1,74 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268331AbUIQEQF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268105AbUIQEhw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268331AbUIQEQF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Sep 2004 00:16:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268345AbUIQENg
+	id S268105AbUIQEhw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Sep 2004 00:37:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268322AbUIQEhw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Sep 2004 00:13:36 -0400
-Received: from [12.177.129.25] ([12.177.129.25]:5828 "EHLO
-	ccure.user-mode-linux.org") by vger.kernel.org with ESMTP
-	id S268351AbUIQEND (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Sep 2004 00:13:03 -0400
-Message-Id: <200409170517.i8H5HY2J005402@ccure.user-mode-linux.org>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.1-RC1
-To: akpm@osdl.org
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] UML - Remove useless ioctls
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 17 Sep 2004 01:17:34 -0400
-From: Jeff Dike <jdike@addtoit.com>
+	Fri, 17 Sep 2004 00:37:52 -0400
+Received: from smtp810.mail.sc5.yahoo.com ([66.163.170.80]:50818 "HELO
+	smtp810.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S268105AbUIQEhs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Sep 2004 00:37:48 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Shawn Starr <shawn.starr@rogers.com>
+Subject: Re: [INPUT] mousedev touchpad functionality additions for inclusion into 2.6.9?
+Date: Thu, 16 Sep 2004 23:37:43 -0500
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org
+References: <200408170349.44626.shawn.starr@rogers.com> <200408170801.00068.dtor_core@ameritech.net> <200409162149.14849.shawn.starr@rogers.com>
+In-Reply-To: <200409162149.14849.shawn.starr@rogers.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200409162337.44524.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The UML block driver had some useless ioctls in it somehow.  This gets rid of
-them.
+On Thursday 16 September 2004 08:49 pm, Shawn Starr wrote:
+> Any change of this going into mainline? I'm using this with 2.6.9-rc2-bk2 with 
+> no issues.
+>
 
-Signed-off-by: Jeff Dike <jdike@addtoit.com>
+It has just been merged.
 
-Index: 2.6.9-rc2/arch/um/drivers/ubd_kern.c
-===================================================================
---- 2.6.9-rc2.orig/arch/um/drivers/ubd_kern.c	2004-09-16 22:59:06.000000000 -0400
-+++ 2.6.9-rc2/arch/um/drivers/ubd_kern.c	2004-09-16 23:39:25.000000000 -0400
-@@ -1064,7 +1064,6 @@
- {
- 	struct hd_geometry *loc = (struct hd_geometry *) arg;
- 	struct ubd *dev = inode->i_bdev->bd_disk->private_data;
--	int err;
- 	struct hd_driveid ubd_id = {
- 		.cyls		= 0,
- 		.heads		= 128,
-@@ -1082,32 +1081,6 @@
- 		g.start = get_start_sect(inode->i_bdev);
- 		return(copy_to_user(loc, &g, sizeof(g)) ? -EFAULT : 0);
- 
--	case HDIO_SET_UNMASKINTR:
--		if(!capable(CAP_SYS_ADMIN)) return(-EACCES);
--		if((arg > 1) || (inode->i_bdev->bd_contains != inode->i_bdev))
--			return(-EINVAL);
--		return(0);
--
--	case HDIO_GET_UNMASKINTR:
--		if(!arg)  return(-EINVAL);
--		err = verify_area(VERIFY_WRITE, (long *) arg, sizeof(long));
--		if(err)
--			return(err);
--		return(0);
--
--	case HDIO_GET_MULTCOUNT:
--		if(!arg)  return(-EINVAL);
--		err = verify_area(VERIFY_WRITE, (long *) arg, sizeof(long));
--		if(err)
--			return(err);
--		return(0);
--
--	case HDIO_SET_MULTCOUNT:
--		if(!capable(CAP_SYS_ADMIN)) return(-EACCES);
--		if(inode->i_bdev->bd_contains != inode->i_bdev)
--			return(-EINVAL);
--		return(0);
--
- 	case HDIO_GET_IDENTITY:
- 		ubd_id.cyls = dev->size / (128 * 32 * 512);
- 		if(copy_to_user((char *) arg, (char *) &ubd_id, 
-
+-- 
+Dmitry

@@ -1,61 +1,46 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316678AbSEVS5C>; Wed, 22 May 2002 14:57:02 -0400
+	id <S316682AbSEVS6T>; Wed, 22 May 2002 14:58:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316679AbSEVS5B>; Wed, 22 May 2002 14:57:01 -0400
-Received: from co239024-a.almel1.ov.nl.home.com ([217.120.226.100]:59526 "EHLO
-	quinten.nl") by vger.kernel.org with ESMTP id <S316678AbSEVS5B>;
-	Wed, 22 May 2002 14:57:01 -0400
-Date: Wed, 22 May 2002 20:56:55 +0200 (CEST)
-From: Aschwin Marsman - aYniK Software Solutions <a.marsman@aYniK.com>
-X-X-Sender: marsman@quinten.nl
-To: linux-kernel@vger.kernel.org
-Subject: Off topic: Solaris 9 announced, a lot of Linux incorporated
-In-Reply-To: <011101c201bd$91ccccc0$320e10ac@irvine.hnc.com>
-Message-ID: <Pine.LNX.4.44.0205222051220.2138-100000@quinten.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316681AbSEVS6S>; Wed, 22 May 2002 14:58:18 -0400
+Received: from [129.46.51.59] ([129.46.51.59]:36844 "EHLO
+	ithilien.qualcomm.com") by vger.kernel.org with ESMTP
+	id <S316682AbSEVS6Q>; Wed, 22 May 2002 14:58:16 -0400
+Message-Id: <5.1.0.14.2.20020522103053.07be5808@mail1.qualcomm.com>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Wed, 22 May 2002 11:57:40 -0700
+To: David Brownell <david-b@pacbell.net>
+From: "Maksim (Max) Krasnyanskiy" <maxk@qualcomm.com>
+Subject: Re: [linux-usb-devel] Re: What to do with all of the USB UHCI
+  drivers in the kernel ?
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+In-Reply-To: <3CEB1F7F.4000000@pacbell.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Today SUN announced the availability of Solaris 9. It has a lot
-Linux compatibility features: ;-)
+At 09:33 PM 5/21/2002 -0700, David Brownell wrote:
+>Maksim (Max) Krasnyanskiy wrote:
+>>One-shot interrupt transfers are broken in *-hcd drivers. core/hcd.c 
+>>returns EINVAL if urb->interval==0.
+><....>
+>Meanwhile, I suppose I can see wanting access to that UHCI-ism.
+>However your patch would do that wrong, since it should only
+>apply to interrupt transfers.
+Yeah, I guess it doesn't make sense to do one-shot iso.
 
->From the announcement:
+>>On a side note. Why are URBs still not SLABified ?
+>
+>Hasn't seemed to be necessary.  kmalloc() is slabified already,
+>so it's not clear that a control/bulk/interrupt URB pool shared
+>between drivers -- size, maybe a handful -- would be better than
+>sharing that same memory with other kernel code.
+Well, kmalloc has slabs of a fixed size and will round requested amount
+to the nearest value. For example on x86 sizeof(struct urb) == 84 which
+will be rounded to 96 by kmalloc ie 12 bytes unused (on Sparc64 it's about 
+20 bytes).
+Also we could use slab constructor to pre-initialize some urb fields.
 
-In today's world of heterogeneous computing, compatibility leads 
-to efficiency. Combining the Linux community with thousands of 
-Solaris software developers and nearly three million Java and XML 
-software developers, Sun provides customers with unified access to 
-the broadest array of innovation in the industry on which to provide 
-services. In the Solaris 9 Operating Environment, more Linux applications, 
-tools, and APIs are made available.
-
-API Compatibility
-
-Common libraries and build environments, such as libxml, glib, and GTK+, 
-are integrated in the Solaris Operating Environment to streamline source 
-code development across Linux and Solaris environments.
-
-Application Compatibility
-
-Common Linux applications, such as Samba, Apache, Linux (GNU) commands, 
-etc., are included in the Solaris 9 Operating Environment. The Solaris 
-Software Companion CD has an even more comprehensive set of free software.
-     
-On my web site I posted a little article about Solaris 9:
-http://www.aynik.com/articles/20020522.1.php
- 
-Kind regards,
- 
-Aschwin Marsman
- 
---
-aYniK Software Solutions         all You need is Knowledge
-Bedrijvenpark Twente 305         NL-7602 KL Almelo - the Netherlands
-P.O. box 134                     NL-7600 AC Almelo - the Netherlands
-telephone: +31 (0)546-581400     fax: +31 (0)546-581401
-a.marsman@aYniK.com              http://www.aYniK.com
-aschwin@marsman.org              http://www.marsman.org
-webmaster@onlinefotoservices.nl  http://wwww.onlinefotoservices.nl
+Max
 

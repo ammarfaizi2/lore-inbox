@@ -1,47 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261402AbVAGNN7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261404AbVAGN0E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261402AbVAGNN7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 08:13:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261406AbVAGNN7
+	id S261404AbVAGN0E (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 08:26:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261406AbVAGN0D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 08:13:59 -0500
-Received: from bernache.ens-lyon.fr ([140.77.167.10]:63392 "EHLO
-	bernache.ens-lyon.fr") by vger.kernel.org with ESMTP
-	id S261402AbVAGNN5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 08:13:57 -0500
-Message-ID: <41DE8AFB.9000305@ens-lyon.fr>
-Date: Fri, 07 Jan 2005 14:13:31 +0100
-From: Brice Goglin <Brice.Goglin@ens-lyon.fr>
-Reply-To: Brice.Goglin@ens-lyon.org
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
-X-Accept-Language: fr, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: Benoit Boissinot <bboissin@gmail.com>, Mike Werner <werner@sgi.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.10-mm2
-References: <20050106002240.00ac4611.akpm@osdl.org> <40f323d005010701395a2f8d00@mail.gmail.com>
-In-Reply-To: <40f323d005010701395a2f8d00@mail.gmail.com>
-X-Enigmail-Version: 0.89.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spam-Report: *  1.1 NO_DNS_FOR_FROM Domain in From header has no MX or A DNS records
+	Fri, 7 Jan 2005 08:26:03 -0500
+Received: from gprs214-191.eurotel.cz ([160.218.214.191]:7040 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261404AbVAGNZ7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jan 2005 08:25:59 -0500
+Date: Fri, 7 Jan 2005 14:25:46 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: hugang@soulinfo.com
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [hugang@soulinfo.com: [PATH]software suspend for ppc.]
+Message-ID: <20050107132546.GA1405@elf.ucw.cz>
+References: <20050103122653.GB8827@hugang.soulinfo.com> <20050103221718.GC25250@elf.ucw.cz> <20050106160306.GA20127@hugang.soulinfo.com> <20050106223132.GD25913@elf.ucw.cz> <20050107014023.GA29740@hugang.soulinfo.com> <20050107095316.GB1300@elf.ucw.cz> <20050107131231.GA5345@hugang.soulinfo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050107131231.GA5345@hugang.soulinfo.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benoit Boissinot a écrit :
-> When i launch neverball (3d games), X get killed and I have the
-> following error in dmesg (3d card 9200SE, xserver : Xorg) :
+Hi!
+
+> > (When it was printing around 900, I switched to another console and
+> > tried swsusp (worked ok), then tried again when it printed 1023).
+> > 
+> > I'm using patched kernel, however, and this patch might be
+> > relevant. Can you try to apply it and see if problem goes away? [This
+> > patch is ugly hack, but if it helps, we'll simply ask akpm to fix
+> > free_some_memory :-)].
 > 
-> [drm:radeon_cp_init] *ERROR* radeon_cp_init called without lock held  
->                                                                  
-> [drm:drm_unlock] *ERROR* Process 10657 using kernel context 0
+> Yes, It works. :) 
+>  36880 * 4096  ~151MB
+> 
+> Stopping tasks: ==========================================|
+> Freeing memory... done (36880 pages freed)
+> Freeing memory... done (5720 pages freed)
+> Freeing memory... done (2816 pages freed)
+> Freeing memory... done (1999 pages freed)
+> Freeing memory... done (1954 pages freed)
 
-Same *ERROR* here on my Compaq Evo N600c (Radeon Mobility M6 LY).
-Xfree 4.3 from debian sarge doesn't crash but it's way too slow.
-Vanilla 2.6.10 works fine.
-
-Regards,
-
-Brice
+Okay, so we have to fix free_some_memory, instead of hacking
+refrigerator. Sorry.
+							Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

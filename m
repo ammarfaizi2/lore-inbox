@@ -1,51 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265940AbUA1NYJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jan 2004 08:24:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265946AbUA1NYI
+	id S265944AbUA1NcA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jan 2004 08:32:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265951AbUA1NcA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jan 2004 08:24:08 -0500
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:23475 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S265940AbUA1NYE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jan 2004 08:24:04 -0500
-Date: Wed, 28 Jan 2004 08:24:00 -0500
-From: Willem Riede <wrlk@riede.org>
-To: Jens Axboe <axboe@suse.de>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: The survival of ide-scsi in 2.6.x
-Message-ID: <20040128132400.GA23308@serve.riede.org>
-Reply-To: wrlk@riede.org
-References: <1072809890.2839.24.camel@mulgrave> <20031230221820.GQ1277@linnie.riede.org> <20040103190857.GY5523@suse.de>
+	Wed, 28 Jan 2004 08:32:00 -0500
+Received: from smtprelay02.ispgateway.de ([62.67.200.157]:4068 "EHLO
+	smtprelay02.ispgateway.de") by vger.kernel.org with ESMTP
+	id S265944AbUA1Nb6 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jan 2004 08:31:58 -0500
+Date: Wed, 28 Jan 2004 14:31:23 +0100
+From: Florian Engelhardt <dot@dot-matrix.de>
+To: linux-kernel@vger.kernel.org
+Subject: rio500 driver broken in linux 2.6.x
+Message-Id: <20040128143123.69b6f281@HAL2000>
+X-Mailer: Sylpheed version 0.9.8claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20040103190857.GY5523@suse.de> (from axboe@suse.de on Sat, Jan 03, 2004 at 14:08:57 -0500)
-X-Mailer: Balsa 2.0.16
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2004.01.03 14:08, Jens Axboe wrote:
-> On Tue, Dec 30 2003, Willem Riede wrote:
-> > On 2003.12.30 13:44, James Bottomley wrote:
-> > >     If people will have me, I am prepared to take on that responsibility.
-> > >     I am just concerned that I may not have enough of a variety of devices
-> > >     to be able to thoroughly test it (unless the DI-30 is the only one :-)).
-> > >     What do people see as the requirements to be able to maintain ide-scsi?
-> > >     
-> > > Well...there's currently not a long line of people wanting to do this,
-> > > so feel free to send in patches (at least cc'd to linux-scsi so I can
-> > > pick them up easily), and we'll see how it goes.
-> > 
-> > OK. You did see the patch that came with the original, right? I just sent
-> > it to linux-kernel because the audience there is broader. 
-> > 
-> > Linus wants Jens to look at it, so I'm waiting for his response.
-> 
-> It's pending review, I'll get to it tomorrow...
+Hello,
 
-I guess it's been a long day :-), but can you let me know what 
-realistically I can expect?
+the rio500 driver seems to be broken, more and more people are talkin
+about it. I allready wrote a mail to the maintainer of this dirver but
+i got no response. The mailinglist which i found in the
+/usr/src/linux/MAINTAINERS file is dead.
+The Bug:
+You con compile the driver without proplems, and when you connect the
+rio500 to the usb bus, the kernel reports that he found it. But you can
+not do any operations on it with the rio500 utils from sourceforge.
+If i try to upload a file, or to create a folder on the rio500 the
+connection to the player freezes and when i´m not killing the process,
+the system hangs.
+Does anyone of you know about this problem?
+The problem depends on the new kernel, couse with the 2.4.x kernel there
+are no problems with the rio utils from sourceforge.
 
-Thanks, Willem Riede.
+Regards
+
+Florian Engelhardt
+
+-- 
+[X] Nail here for a new monitor

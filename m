@@ -1,60 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261834AbVA3X3h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261837AbVA3Xai@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261834AbVA3X3h (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jan 2005 18:29:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261837AbVA3X3h
+	id S261837AbVA3Xai (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jan 2005 18:30:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261838AbVA3Xai
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jan 2005 18:29:37 -0500
-Received: from smtp812.mail.sc5.yahoo.com ([66.163.170.82]:8856 "HELO
-	smtp812.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261834AbVA3X3e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jan 2005 18:29:34 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-Subject: Re: Possible bug in keyboard.c (2.6.10)
-Date: Sun, 30 Jan 2005 18:29:32 -0500
-User-Agent: KMail/1.7.2
-Cc: Vojtech Pavlik <vojtech@suse.cz>, Roman Zippel <zippel@linux-m68k.org>,
-       Andries Brouwer <aebr@win.tue.nl>, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.61.0501270318290.4545@82.117.197.34> <20050130084154.GU8859@parcelfarce.linux.theplanet.co.uk> <200501301821.53924.dtor_core@ameritech.net>
-In-Reply-To: <200501301821.53924.dtor_core@ameritech.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sun, 30 Jan 2005 18:30:38 -0500
+Received: from gprs214-48.eurotel.cz ([160.218.214.48]:5250 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261837AbVA3XaR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jan 2005 18:30:17 -0500
+Date: Mon, 31 Jan 2005 00:30:01 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.10 ACPI on dell inspiron 8100
+Message-ID: <20050130233000.GB2781@elf.ucw.cz>
+References: <20050129003448.GA24375@animx.eu.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200501301829.32452.dtor_core@ameritech.net>
+In-Reply-To: <20050129003448.GA24375@animx.eu.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 30 January 2005 18:21, Dmitry Torokhov wrote:
-> On Sunday 30 January 2005 03:41, Al Viro wrote:
-> > On Sat, Jan 29, 2005 at 12:25:10PM +0100, Vojtech Pavlik wrote:
-> > > I know. As I said, this is a problem I know about, and will be fixed. I
-> > > was mainly interested whether anyone sees further problems in scenarios
-> > > which don't include device addition/removal.
-> > > 
-> > > We already fixed this in serio, and input and gameport are next in the
-> > > list.
-> > 
-> > OK, I'll bite.  What's to guarantee that no events will happen in
-> > the middle of serio_unregister_port(), right after we'd done
-> > serio_remove_pending_events()?
+Hi!
+
+> I noticed something strange with ACPI and the battery:
+> /proc/acpi/battery/BAT1$ cat info 
+> present:                 yes
+> design capacity:         57420 mWh
+> last full capacity:      57420 mWh
+> battery technology:      rechargeable
+> design voltage:          14800 mV
+> design capacity warning: 3000 mWh
+> design capacity low:     1000 mWh
+> capacity granularity 1:  200 mWh
+> capacity granularity 2:  200 mWh
+> model number:            LIP8084DLP
+> serial number:           20495
+> battery type:            LION
+> OEM info:                Sony Corp.
+> /proc/acpi/battery/BAT1$ cat state 
+> present:                 yes
+> capacity state:          ok
+> charging state:          charging
+> present rate:            unknown
+> remaining capacity:      59040 mWh
+> present voltage:         16716 mV
+> /proc/acpi/battery/BAT1$
 > 
-> At this point serio is disconnected from driver and serio_interrupt
-> will only queue rescans only if serio->registered. I guess I will need
-> to protect change to serio->registered and take serio->lock to be
-> completely in clear.
-> 
-> Thanks for pointing this out.
->
+> Is my laptop messed up or is ACPI not seeing proper values?  How can I have
+> 59040 remaining capacity when it the full capacity is 57420?  Also the
+> system didn't display the charging light so I know it's not charging.
 
-Oh, I just realized that this piece is not in main tree yet. You can
-check the version that I am pushing to Vojtech here:
+That actually looks okay. Perhaps battery now stores more energy than
+it did last time. Different temperature or something. I'd not worry
+about this one.
 
-	bk pull bk://dtor.bkbits.net/input
+I have machine where last full capacity is quite a bit bigger than
+design capacity; and that's okay, too.
 
-We still not agreed on need for start/stop methods though...
+Heh, but your battery gives 2V more than design voltage. That is
+slightly "interesting". Perhaps your voltage sensor is wrong and
+that's why remaining capacity is so high... Or perhaps your battery is
+slightly better than it should be.
 
+								Pavel
 -- 
-Dmitry
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

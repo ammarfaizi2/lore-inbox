@@ -1,53 +1,105 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261501AbSJMLxN>; Sun, 13 Oct 2002 07:53:13 -0400
+	id <S261506AbSJMMGa>; Sun, 13 Oct 2002 08:06:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261502AbSJMLxN>; Sun, 13 Oct 2002 07:53:13 -0400
-Received: from cibs9.sns.it ([192.167.206.29]:35338 "EHLO cibs9.sns.it")
-	by vger.kernel.org with ESMTP id <S261501AbSJMLxM>;
-	Sun, 13 Oct 2002 07:53:12 -0400
-Date: Sun, 13 Oct 2002 13:58:58 +0200 (CEST)
-From: venom@sns.it
-To: jw schultz <jw@pegasys.ws>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.5.42
-In-Reply-To: <20021012111140.GA22536@pegasys.ws>
-Message-ID: <Pine.LNX.4.43.0210131354020.9392-100000@cibs9.sns.it>
+	id <S261505AbSJMMG3>; Sun, 13 Oct 2002 08:06:29 -0400
+Received: from dbl.q-ag.de ([80.146.160.66]:21137 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id <S261506AbSJMMGH>;
+	Sun, 13 Oct 2002 08:06:07 -0400
+Message-ID: <3DA962D3.7080906@colorfullife.com>
+Date: Sun, 13 Oct 2002 14:10:59 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/4.0 (compatible; MSIE 5.5; Windows NT 4.0)
+X-Accept-Language: en, de
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: [RFC] remove copy_segments, release_segments, forget_segments
+Content-Type: multipart/mixed;
+ boundary="------------000405030008010900050807"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 12 Oct 2002, jw schultz wrote:
+This is a multi-part message in MIME format.
+--------------000405030008010900050807
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> Date: Sat, 12 Oct 2002 04:11:40 -0700
-> From: jw schultz <jw@pegasys.ws>
-> To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-> Subject: Re: Linux v2.5.42
->
->
-> I'll add my $0.02US which (according to exchange rates) is
-> worth more though almost worthless.
->
-> Hate to say it but in this comparison LVM2 looses.  Primary
-> reason: Backward compatibility.  People are going to need to
-> be able to switch between kernels.
->
-> So far everything indicates that LVM2 is not compatible with
-> LVM.  That LVM2 and LVM(1) can coexist-exist is irrelevant if
-> 2.5 hasn't got a working LVM(1).  And that would leave us
-> with having to do backup+restore around the upgrade.
+forget_segments and copy_segments are already dead, release_segments is
+used right now for i386 and x86_64 to release the ldt structures.
+But the code is asymmetric: creation in init_new_context(), destruction
+in release_segments().
 
-that is I think the real issue for people like me. One day I will have to
-upgrade my servers to kernel 2.6, and all of them are on LVM1. I need to
-be able to upgrade them. with EVMS I can do so, but after I will have
-other problems because of operator, now used to LVM command line (that is
-the same they are using on other Unices), will also have to learn another
-command line. If I am not wrong, the LVM1 like command line is going to
-disappear from EVMS, and that will be a problem for many users.
-EVMS is powerfull but somehow too complex for many.
-So my 2 eurocents are for EVMS with "also" a LVM1 like command line.
+What about the attached patch?
+i386 and x86_64 can use destroy_context, then the _segment functions can
+be removed entirely.
 
-Luigi
+--
+	Manfred
+
+
+--------------000405030008010900050807
+Content-Type: text/plain;
+ name="patch-remove_segments"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch-remove_segments"
+
+// $Header$
+// Kernel Version:
+//  VERSION = 2
+//  PATCHLEVEL = 5
+//  SUBLEVEL = 42
+//  EXTRAVERSION =
+--- 2.5/arch/i386/kernel/ldt.c	Sun Oct 13 14:01:08 2002
++++ build-2.5/arch/i386/kernel/ldt.c	Sun Oct 13 13:44:52 2002
+@@ -104,7 +104,7 @@
+ /*
+  * No need to lock the MM as we are the last user
+  */
+-void release_segments(struct mm_struct *mm)
++void destroy_context(struct mm_struct *mm)
+ {
+ 	if (mm->context.size) {
+ 		if (mm == current->active_mm)
+--- 2.5/include/asm-i386/mmu_context.h	Sun Sep 22 06:24:57 2002
++++ build-2.5/include/asm-i386/mmu_context.h	Sun Oct 13 13:42:50 2002
+@@ -8,10 +8,10 @@
+ #include <asm/tlbflush.h>
+ 
+ /*
+- * possibly do the LDT unload here?
++ * Used for LDT copy/destruction.
+  */
+-#define destroy_context(mm)		do { } while(0)
+ int init_new_context(struct task_struct *tsk, struct mm_struct *mm);
++void destroy_context(struct mm_struct *mm);
+ 
+ #ifdef CONFIG_SMP
+ 
+--- 2.5/include/asm-i386/processor.h	Sun Oct 13 13:56:03 2002
++++ build-2.5/include/asm-i386/processor.h	Sun Oct 13 13:44:02 2002
+@@ -437,9 +437,6 @@
+  */
+ extern int kernel_thread(int (*fn)(void *), void * arg, unsigned long flags);
+ 
+-/* Release all segment info associated with a VM */
+-extern void release_segments(struct mm_struct * mm);
+-
+ extern unsigned long thread_saved_pc(struct task_struct *tsk);
+ 
+ unsigned long get_wchan(struct task_struct *p);
+--- 2.5/mm/mmap.c	Sun Oct 13 13:56:04 2002
++++ build-2.5/mm/mmap.c	Sun Oct 13 13:43:55 2002
+@@ -1278,8 +1278,6 @@
+ 
+ 	profile_exit_mmap(mm);
+  
+-	release_segments(mm);
+- 
+ 	spin_lock(&mm->page_table_lock);
+ 
+ 	flush_cache_mm(mm);
+
+--------------000405030008010900050807--
 
 

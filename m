@@ -1,35 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265123AbSKNRxu>; Thu, 14 Nov 2002 12:53:50 -0500
+	id <S265095AbSKNRoc>; Thu, 14 Nov 2002 12:44:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265081AbSKNRxu>; Thu, 14 Nov 2002 12:53:50 -0500
-Received: from orion.netbank.com.br ([200.203.199.90]:33031 "EHLO
-	orion.netbank.com.br") by vger.kernel.org with ESMTP
-	id <S265058AbSKNRxt>; Thu, 14 Nov 2002 12:53:49 -0500
-Date: Thu, 14 Nov 2002 16:00:22 -0200
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Serge Kuznetsov <sk@deeptown.org>
-Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
-Subject: Re: [NET] Possible bug in netif_receive_skb
-Message-ID: <20021114180022.GF14579@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Serge Kuznetsov <sk@deeptown.org>, linux-kernel@vger.kernel.org,
-	linux-net@vger.kernel.org
-References: <015301c28c00$f6287390$34c096cd@toybox>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <015301c28c00$f6287390$34c096cd@toybox>
-User-Agent: Mutt/1.4i
-X-Url: http://advogato.org/person/acme
+	id <S265111AbSKNRoc>; Thu, 14 Nov 2002 12:44:32 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:14292 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S265095AbSKNRoa>; Thu, 14 Nov 2002 12:44:30 -0500
+Date: Thu, 14 Nov 2002 10:51:10 -0700
+Message-Id: <200211141751.gAEHpAVm021359@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] devfs API
+In-Reply-To: <Pine.GSO.4.21.0211101348350.24061-100000@steklov.math.psu.edu>
+References: <Pine.GSO.4.21.0211101348350.24061-100000@steklov.math.psu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Thu, Nov 14, 2002 at 12:12:07PM -0500, Serge Kuznetsov escreveu:
+Alexander Viro writes:
+> 	During the last couple of weeks I'd done a lot of digging in
+> devfs-related code.  Results are interesting, and not in a good sense.
+> 
+> 	1) a _lot_ of functions exported by devfs are never used.  At
+> all.
+[...]
 
-> PS: BTW, how to check if skb has been freed ? I didn't found any function for
-> it. Is it possible to add the flag, like skb->freed ?
+I don't have time right now do deal with all the points you raised,
+I'll deal with each of the points you raise over the next week or
+so. However, I'll make a couple of quick points:
 
-Enable slab poisoning.
+- I'm leery of changing the API and breaking compatibility between 2.4
+  and 2.5 drivers. I also don't want to break out-of-tree drivers
+  without giving maintainers plenty of warning. There are a number
+  such out there
 
-- Arnaldo
+- I have far more drastic plans for code reduction in devfs. The plan
+  I've mentioned since OLS is to leverage sysfs so that devfsd can be
+  used to populate devfs from user-space. For the root FS device, I
+  figure on writing a mini devfsd for initramfs. From the perspective
+  of user-space, this will provide functional compatibility. From
+  kernel-space it will effectively be an API change, so I don't want
+  to do this twice.
+
+I'd hoped to get the new major version of devfs ready before the
+freeze, but limited time (read: funding) has been available. Oh, well.
+
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

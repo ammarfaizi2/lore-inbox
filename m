@@ -1,63 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270121AbTGUOVh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 10:21:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270122AbTGUOVh
+	id S267852AbTGUORr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 10:17:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269324AbTGUORr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 10:21:37 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:28035 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S270121AbTGUOVe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 10:21:34 -0400
-Date: Mon, 21 Jul 2003 10:38:38 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: "Ihar \"Philips\" Filipau" <ifilipau@giga-stream.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: SVR4 STREAMS (for example LiS)
-In-Reply-To: <3F1BF509.1000608@giga-stream.de>
-Message-ID: <Pine.LNX.4.53.0307211031460.18968@chaos>
-References: <3F1BF509.1000608@giga-stream.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 21 Jul 2003 10:17:47 -0400
+Received: from mail.kroah.org ([65.200.24.183]:12690 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S267852AbTGUORr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jul 2003 10:17:47 -0400
+Date: Mon, 21 Jul 2003 10:28:39 -0400
+From: Greg KH <greg@kroah.com>
+To: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@users.sourceforge.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Compile AX8817x driver
+Message-ID: <20030721142839.GA9401@kroah.com>
+References: <yw1xsmp0f4zh.fsf@zaphod.guide>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <yw1xsmp0f4zh.fsf@zaphod.guide>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Jul 2003, Ihar "Philips" Filipau wrote:
+On Mon, Jul 21, 2003 at 02:18:10PM +0200, Måns Rullgård wrote:
+> 
+> This trivial Makefile patch causes the AX8817x driver to actually be
+> built.  The diff is against 2.6.0-test1.
 
-> Hello All!
->
->     I have little bit theoretical question. As usual ;-)
->
->     From what ever piece of doc I see says that STREAMS are good.
->     They are part of SUS (at least v3 has them).
->     Sun's docs reffering only cases when one may want to use them.
->     This was the first pointer to problems: docs are missing the
->        "dark side" of STREAMS.
->
->     Can anyone give any pointers to information why STREAMS are _not_
->        part of Linux kernel yet?
->     (Besides that no-one needs/merged it in kernel ;-)
->     What kind of problems this implementation of I/O has?
->     (Low performance and high latencies I expect - but what's else?)
->
->     Any sort of RTFM will be very appreciated.
->
->     Thanks in advance.
->
+Thanks, I'll go apply this.  Oh, it's only needed if you do not select
+any other usb network driver, sorry for missing this before.
 
-Streams are an extension of buffered I/O implimented by the 'C'
-runtime library. Streams really have nothing to do with the
-internal workings of kernel I/O. As far as kernel I/O goes,
-one reads() and writes() from user-space.
-
-That said, the kernel provides getpmsg and putpmsg functions
-to support streams. You really can't do much more for streams
-inside the kernel and be efficient.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
+greg k-h

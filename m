@@ -1,67 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266303AbUHMR5t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266366AbUHMSAk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266303AbUHMR5t (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Aug 2004 13:57:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266334AbUHMR5s
+	id S266366AbUHMSAk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Aug 2004 14:00:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266379AbUHMSAk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Aug 2004 13:57:48 -0400
-Received: from gw-oleane.hubxpress.net ([81.80.52.129]:21483 "EHLO
-	yoda.hubxpress.net") by vger.kernel.org with ESMTP id S266303AbUHMRyX
+	Fri, 13 Aug 2004 14:00:40 -0400
+Received: from pfepc.post.tele.dk ([195.41.46.237]:43669 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S266366AbUHMSAS
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Aug 2004 13:54:23 -0400
-From: "Sylvain COUTANT" <sylvain.coutant@illicom.com>
-To: "'Marcelo Tosatti'" <marcelo.tosatti@cyclades.com>
-Cc: <linux-kernel@vger.kernel.org>, <riel@redhat.com>, <andrea@suse.de>
-Subject: RE: High CPU usage (up to server hang) under heavy I/O load
-Date: Fri, 13 Aug 2004 19:53:28 +0200
-Organization: ILLICOM
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
-In-Reply-To: <20040813162018.GB29292@logos.cnet>
-Thread-Index: AcSBXNVfND0QWvTzQzCtcZaoirqOOQAAHK4w
-Message-Id: <20040813175422.0D0162FC2C@illicom.com>
+	Fri, 13 Aug 2004 14:00:18 -0400
+Date: Fri, 13 Aug 2004 20:02:39 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: Sam Ravnborg <sam@ravnborg.org>, torvalds@osdl.org, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]: __crc_* symbols in System.map
+Message-ID: <20040813180239.GA7571@mars.ravnborg.org>
+Mail-Followup-To: "David S. Miller" <davem@redhat.com>,
+	Sam Ravnborg <sam@ravnborg.org>, torvalds@osdl.org, akpm@osdl.org,
+	linux-kernel@vger.kernel.org
+References: <20040811205529.1ff86e9d.davem@redhat.com> <20040812050136.GA7246@mars.ravnborg.org> <20040812000558.220d7e5d.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040812000558.220d7e5d.davem@redhat.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Marcello,
+On Thu, Aug 12, 2004 at 12:05:58AM -0700, David S. Miller wrote:
+> On Thu, 12 Aug 2004 07:01:36 +0200
+> Sam Ravnborg <sam@ravnborg.org> wrote:
+> 
+> > Would it be an option to skip all 'A' symbols?
+> 
+> I doubt it.  Symbols defined via the linker script will
+> end up as " A ".  On sparc64 this happens for swapper_pmd_dir,
+> empty_pg_dir, _etext, _edata, and _end for example.
+Did a:
+nm vmlinux | grep ' A ' | grep -v '__crc_' | wc -l
+32
 
-> v2.6 is much better improved in that area.
+So yep.
 
-Unfortunately, I'm stuck with Debian woody release for now and testing v2.6
-could be a pain for us. I'll check again what I can do for this ...
+Modified your patch to match my tree - patched soon to appear at lkml.
+
+	Sam
+
+In my tree I now have a script to generate System.map - that now looks like this:
+
+#!/bin/sh -x
+# Based on the vmlinux file create the System.map file
+# System.map is used by module-init tools and some debugging
+# tools to retreive the actual addresses of symbols in the kernel.
+#
+# Before creating the System.map file as a sideeffect check for
+# undefined symbols.
+# At least one version of the ARM bin-utils did not error out on
+# undefined symbols, so catch them here instead.
+
+# Usage
+# mksysmap vmlinux System.map
 
 
-> It might be that you are hitting the deadlock which the following patch
-> fixes.
-
-I saw it in a previous thread but was not sure it was related to my problem.
-I was on my way to test it anyway !
-
-
-> You're not able to get sysrq output on the console? It will help if you
-> can
-> plug a serial cable and use try to get sysrq output (SysRQ+T
-> and SysRQ+P). Have you tried the sysrq thing?
-
-When the server was hung, we were not able to get anything, but I'll try
-again (just to check we were using the good keystrokes ;-)
+#####
+# Check for undefined symbols.
+# Undefined symbols with three leading underscores are ignored since
+# they are used by the sparc BTFIXUP logic - and is assumed to be undefined.
 
 
-> I'm willing to help and track it down.
+if [ "`$NM -u $1 | grep -v ' ___'`" != "" ]; then
+	echo "$1: error: undefined symbol(s) found:"
+	$NM -u $1 | grep -v ' ___'
+	exit 1
+fi
 
-Thanks.
+#####
+# Generate System.map (actual filename passed as second argument)
 
-> You want to try this
-> ...[snip]...
+# $NM produces the following output:
+# f0081e80 T alloc_vfsmnt
 
-I'll let you know asap. I don't think I'll be able to reboot the server from
-home this weekend. At least, I'll prepare a new kernel with the patch and
-install it on Monday morning.
+#   The second row specify the type of the symbol:
+#   A = Absolute
+#   B = Uninitialised data (.bss)
+#   C = Comon symbol
+#   D = Initialised data
+#   G = Initialised data for small objects
+#   I = Indirect reference to another symbol
+#   N = Debugging symbol
+#   R = Read only
+#   S = Uninitialised data for small objects
+#   T = Text code symbol
+#   U = Undefined symbol
+#   V = Weak symbol
+#   W = Weak symbol
+#   Corresponding small letters are local symbols
 
-Regards,
-Sylvain.
+# For System.map filter away:
+#   a - local absolute symbols
+#   U - undefined global symbols
+#   w - local weak symbols
 
+# readprofile starts reading symbols when _stext is found, and
+# continue until it finds a symbol which is not either of 'T', 't',
+# 'W' or 'w'. __crc_ are 'A' and placed in the middle
+# so we just ignore them to let readprofile continue to work.
+# (At least sparc64 has __crc_ in the middle).
+
+$NM -n $1 | grep  '\( [aUw] \)\|\(__crc_\)' > $2
+
+
+
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,51 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261903AbTJRWv3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Oct 2003 18:51:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261923AbTJRWv3
+	id S261899AbTJRWmr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Oct 2003 18:42:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261901AbTJRWmr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Oct 2003 18:51:29 -0400
-Received: from smtp.sys.beep.pl ([195.245.198.13]:11783 "EHLO maja.beep.pl")
-	by vger.kernel.org with ESMTP id S261903AbTJRWv2 convert rfc822-to-8bit
+	Sat, 18 Oct 2003 18:42:47 -0400
+Received: from [38.119.218.103] ([38.119.218.103]:42919 "HELO
+	mail.bytehosting.com") by vger.kernel.org with SMTP id S261899AbTJRWmn
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Oct 2003 18:51:28 -0400
-From: Arkadiusz Miskiewicz <arekm@pld-linux.org>
-Organization: SelfOrganizing
-To: viro@parcelfarce.linux.theplanet.co.uk
-Subject: Re: [PATCH] initrd with devfs enabled (Re: initrd and 2.6.0-test8)
-Date: Sun, 19 Oct 2003 00:46:04 +0200
-User-Agent: KMail/1.5.4
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-References: <3F916A0C.10800@comcast.net> <200310182356.04346.arekm@pld-linux.org> <20031018221143.GI7665@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <20031018221143.GI7665@parcelfarce.linux.theplanet.co.uk>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 8BIT
+	Sat, 18 Oct 2003 18:42:43 -0400
+X-Qmail-Scanner-Mail-From: drunk@conwaycorp.net via digital.bytehosting.com
+X-Qmail-Scanner: 1.20rc3 (Clear:RC:1:. Processed in 0.047185 secs)
+Date: Sat, 18 Oct 2003 17:42:40 -0500
+From: Nathan Poznick <kraken@drunkmonkey.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Network module (de4x5) wont load
+Message-ID: <20031018224240.GA11644@wang-fu.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <200310190028.57264.basneder@tdlnx.student.utwente.nl>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="8t9RHnE3ZwKMSgU+"
 Content-Disposition: inline
-Message-Id: <200310190046.04897.arekm@pld-linux.org>
-X-Authenticated-Id: arekm 
+In-Reply-To: <200310190028.57264.basneder@tdlnx.student.utwente.nl>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 19 of October 2003 00:11, viro@parcelfarce.linux.theplanet.co.uk 
-wrote:
 
-> > I've tried to create initramfs image with unpacking initrd image,
-[...]
-> > It doesn't work that way unfortunately (test8 with your patch).
->
-> Yes and no - it *is* unpacked, but currently we have no code that would
-> try to run something from initramfs.  If you want to play with that -
-> add something like run_init_process("/init"); right before the call of
-> prepare_namespace() in init/main.c (and be ready to have /init on
-> initramfs do the rest, obvoiusly).
-I see. So right now external initramfs image seems to be unusable (probably 
-the same when compiling it in the kernel) right now. The quesion arrives - 
-what was the reason to not put run_init_process("/linuxrc") by default there 
-(like it is for initrd) ?
+--8t9RHnE3ZwKMSgU+
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
--- 
-Arkadiusz Mi¶kiewicz    CS at FoE, Wroclaw University of Technology
-arekm.pld-linux.org AM2-6BONE, 1024/3DB19BBD, arekm(at)ircnet, PLD/Linux
+Thus spake Bas Nedermeijer:
+> Hello,
+>=20
+> i tried the kernel-2.6.0-test7 and -test8, but my network driver doesnt s=
+eem=20
+> te load properly, the system hangs after it reports the driver is in "100=
+=20
+> mbit" mode. I'm using the de4x5 module, and i have the=20
+> module-init-tools-0.9.15-pre2 to load my modules. I'm not sure the proble=
+m is=20
+> in the module loading, becausing compiling the module in kernel also hang=
+s=20
+> the system.
 
+This same thing happens on my Alpha (4 x EV45, 512mb RAM).  The system
+will boot fine so long as I never bring up networking... The driver
+scans for and finds the devices, but as soon as the system attempts to
+bring up an interface, it locks up.
+
+On someone's suggestion, I had tried the -test5 version of de4x5.[ch]
+(along with some reverted changes in Space.c), but it had the same
+effects.
+
+--=20
+Nathan Poznick <kraken@drunkmonkey.org>
+
+Nobody can describe a fool to the life, without much patient
+self-inspection. - Frank Moore Colby
+
+
+--8t9RHnE3ZwKMSgU+
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQE/kcHgYOn9JTETs+URAuzHAJ4ufcXjnZbj9iXyy9NzsdYfhv3Q4wCfVLuA
+ii2ewJHeKENiW+il6NPgEN0=
+=8IJf
+-----END PGP SIGNATURE-----
+
+--8t9RHnE3ZwKMSgU+--

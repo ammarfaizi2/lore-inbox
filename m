@@ -1,87 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265170AbUAaXgS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Jan 2004 18:36:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265173AbUAaXgS
+	id S265177AbUBAABI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Jan 2004 19:01:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265178AbUBAABI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Jan 2004 18:36:18 -0500
-Received: from scaup.mail.pas.earthlink.net ([207.217.120.49]:46737 "EHLO
-	scaup.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id S265170AbUAaXgQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Jan 2004 18:36:16 -0500
-Date: Sat, 31 Jan 2004 15:35:51 -0800
-From: Jim McCloskey <mcclosk@ucsc.edu>
-To: Maciej Zenczykowski <maze@cela.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: net-pf-10, 2.6.1
-Message-ID: <20040131233551.GA660@toraigh>
-References: <E1AmU8a-00005E-00@localhost> <Pine.LNX.4.44.0401301532260.9270-100000@gaia.cela.pl>
-Mime-Version: 1.0
+	Sat, 31 Jan 2004 19:01:08 -0500
+Received: from m029-035.nv.iinet.net.au ([203.217.29.35]:34440 "EHLO
+	anu.rimspace.net") by vger.kernel.org with ESMTP id S265177AbUBAABG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 Jan 2004 19:01:06 -0500
+To: Jens Axboe <axboe@suse.de>
+Cc: David Ford <david+challenge-response@blue-labs.org>,
+       linux-kernel@vger.kernel.org, Mans Matulewicz <cybermans@xs4all.nl>
+Subject: Re: ide-cdrom / atapi burning bug - 2.6.1
+In-Reply-To: <20040131184923.GD11683@suse.de> (Jens Axboe's message of "Sat,
+ 31 Jan 2004 19:49:23 +0100")
+References: <1075511134.5412.59.camel@localhost>
+	<20040131093438.GS11683@suse.de> <401BF122.2090709@blue-labs.org>
+	<20040131184923.GD11683@suse.de>
+From: Daniel Pittman <daniel@rimspace.net>
+Date: Sun, 01 Feb 2004 11:00:52 +1100
+Message-ID: <87r7xfy8gb.fsf@enki.rimspace.net>
+User-Agent: Gnus/5.1003 (Gnus v5.10.3) XEmacs/21.5 (celeriac, linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0401301532260.9270-100000@gaia.cela.pl>
-X-Operating-System: Linux/2.4.23-ck1 (i686)
-User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 31 Jan 2004, Jens Axboe wrote:
+> On Sat, Jan 31 2004, David Ford wrote:
+>> I don't have an RW, but when my cdrom fixates, it stalls everything 
+>> while it's fixating.  I have an nForce chipset.  (2.6.x)
+> 
+> Does "everything" mean everything on that ide channel? If so, then
+> that's a hardware limitation.
 
-* Russell King (rmk+lkml@arm.linux.org.uk) wrote:  
+My IBM A31p (Intel 845 chipset) had a similar problem with the CD
+burner. Using the '-immed' flag resolved the issue for me.
 
-  |>  On Fri, Jan 30, 2004 at 12:36:28AM -0800, jim wrote: 
-  |>  > Is there any guidance about this little annoyance yet? Most of
-  |>  > the advice I've seen (on other lists) suggests putting the
-  |>  > following in modprobe.conf:                
-  |>  >                                
-  |>  >    install net-pf-10 /bin/true          
-  |>                                    
-  |>  You want:  
-  |>                         
-  |>    alias net-pf-10 off     
-                             
-* Maciej Zenczykowski <maze@cela.pl> wrote:
-  
-  |> try   
-  |>              
-  |> "alias net-pf-10 off" in /etc/modules.conf 
+        Daniel
 
-* Greg Norris wrote:
-
-  |> Did you run "update-modules" afterward?
-
-Thank you all for helping. I'm sorry I didn't make clear initially
-that this (aliasing net-pf-10 to off) was the first thing I tried. I
-resorted to Google when it didn't work. I've tried it again but the
-error-messages continue.  /lib/modules/modprobe.conf now has:
-
--rw-r--r--    1 root     root         7341 Jan 30 15:26 modprobe.conf
-
-   alias net-pf-1  unix
-   alias net-pf-2  ipv4
-   alias net-pf-3  ax25
-   alias net-pf-4  ipx
-   alias net-pf-5  appletalk
-   alias net-pf-6  netrom
-   alias net-pf-7  bridge
-   alias net-pf-8  atm
-   alias net-pf-9  x25
-   alias net-pf-10 off
-   alias net-pf-11 rose
-   alias net-pf-12 decnet
-
-and contains no other reference to net-pf-10. But still:
-
-Jan 31 14:53:01 ohlone /USR/SBIN/CRON[1092]: (mail) CMD (  if [ -x /usr/lib/exim/exim3 -a -f /etc/exim/exim.conf ]; then /usr/lib/exim/exim3 -q ; fi)
-Jan 31 14:53:01 ohlone kernel: request_module: failed /sbin/modprobe -- net-pf-10. error = 256
-
-for every time exim runs.
-
-Others have reported the same effect, e.g:
-
-http://linuxfromscratch.org/pipermail/lfs-hackers/2004-January/000297.html
-
-This didn't happen in 2.6.0 (or earlier).
-
-This is a very small problem indeed, of course. It's just weird ...
-
-Jim
+-- 
+To-morrow, and to-morrow, and to-morrow,
+Creeps in this petty pace from day to day,
+To the last syllable of recorded time;
+        -- Macbeth; Act V, Scene VI

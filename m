@@ -1,58 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261535AbUKGEtt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261536AbUKGFEp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261535AbUKGEtt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Nov 2004 23:49:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261536AbUKGEtt
+	id S261536AbUKGFEp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Nov 2004 00:04:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261537AbUKGFEp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Nov 2004 23:49:49 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:18298 "EHLO
-	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S261535AbUKGEtr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Nov 2004 23:49:47 -0500
-Date: Sun, 7 Nov 2004 04:49:27 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Chiaki <ishikawa@yk.rim.or.jp>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Configuration system bug? : tmpfs listing in /proc/filesystems
-    when TMPFS was not configured!?
-In-Reply-To: <418D8470.9070907@yk.rim.or.jp>
-Message-ID: <Pine.LNX.4.44.0411070436080.12803-100000@localhost.localdomain>
+	Sun, 7 Nov 2004 00:04:45 -0500
+Received: from siaag1af.compuserve.com ([149.174.40.8]:18560 "EHLO
+	siaag1af.compuserve.com") by vger.kernel.org with ESMTP
+	id S261536AbUKGFEn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Nov 2004 00:04:43 -0500
+Date: Sun, 7 Nov 2004 00:02:06 -0500
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: balance_pgdat(): where is total_scanned ever updated?
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Message-ID: <200411070004_MC3-1-8E11-3F5D@compuserve.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 7 Nov 2004, Chiaki wrote:
-> Should not this line be ifdef'ed out???
-> That is, should we modify the line like this?
-> 
-> #ifdef CONFIG_TMPFS
-> 	error = register_filesystem(&tmpfs_fs_type);
-> #endif
+Andrew Morton wrote:
 
-I'd be more inclined to register under a different
-name than "tmpfs" in the !CONFIG_TMPFS case.
+> I'm leaving this alone until it can be demonstrated that fixing it improves
+> kernel behaviour in some manner.
 
-But as I said in my earlier reply to you (which you should have
-received before you sent this?), it's been like this ever since
-2.4.4 when "tmpfs" and CONFIG_TMPFS came into being, so I don't
-see why we need to change it now.
+How about applying this patch so nobody else will be confused?
 
-The real 2.4.9 error is fixed by the patch below that I sent then:
-does that solve your problems?
 
-Hugh
+diff -ur bk-current/mm/vmscan.c edited/mm/vmscan.c
+--- bk-current/mm/vmscan.c      2004-11-06 23:02:48.691160680 -0500
++++ edited/mm/vmscan.c  2004-11-06 23:13:02.636826752 -0500
+@@ -1071,10 +1071,13 @@
+                        /*
+                         * If we've done a decent amount of scanning and
+                         * the reclaim ratio is low, start doing writepage
+-                        * even in laptop mode
++                        * even in laptop mode.
++                        * NOTE: total_scanned is always zero; this code
++                        *       does nothing.  Reactivating it has not been
++                        *       shown to be helpful at the moment.
+                         */
+                        if (total_scanned > SWAP_CLUSTER_MAX * 2 &&
+-                           total_scanned > total_reclaimed+total_reclaimed/2)
++                           total_scanned > total_reclaimed + total_reclaimed / 2)
+                                sc.may_writepage = 1;
+                }
+                if (nr_pages && to_free > total_reclaimed)
+@@ -1084,6 +1087,7 @@
+                /*
+                 * OK, kswapd is getting into trouble.  Take a nap, then take
+                 * another pass across the zones.
++                * NOTE: total_scanned is always zero.  See above.
+                 */
+                if (total_scanned && priority < DEF_PRIORITY - 2)
+                        blk_congestion_wait(WRITE, HZ/10);
 
---- 2.6.9/mm/shmem.c	2004-10-18 22:56:29.000000000 +0100
-+++ linux/mm/shmem.c	2004-11-06 21:04:41.743173040 +0000
-@@ -1904,6 +1904,8 @@ static int shmem_fill_super(struct super
- 		sbinfo->max_inodes = inodes;
- 		sbinfo->free_inodes = inodes;
- 	}
-+#else
-+	sb->s_flags |= MS_NOUSER;
- #endif
- 
- 	sb->s_maxbytes = SHMEM_MAX_BYTES;
 
+
+--Chuck Ebbert  06-Nov-04  23:35:37

@@ -1,74 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264788AbTFLItE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jun 2003 04:49:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264789AbTFLItE
+	id S264789AbTFLIvE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jun 2003 04:51:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264792AbTFLIvE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jun 2003 04:49:04 -0400
-Received: from [81.80.245.157] ([81.80.245.157]:59063 "EHLO smtp.alcove-fr")
-	by vger.kernel.org with ESMTP id S264788AbTFLItB (ORCPT
+	Thu, 12 Jun 2003 04:51:04 -0400
+Received: from codeblau.walledcity.de ([212.84.209.34]:33797 "EHLO codeblau.de")
+	by vger.kernel.org with ESMTP id S264789AbTFLIu7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jun 2003 04:49:01 -0400
-Date: Thu, 12 Jun 2003 11:02:53 +0200
-From: Stelian Pop <stelian.pop@fr.alcove.com>
-To: acpi-devel@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Export 'acpi_disabled' symbol to modules...
-Message-ID: <20030612090253.GB6337@hottah.alcove-fr>
-Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
-Mail-Followup-To: Stelian Pop <stelian.pop@fr.alcove.com>,
-	acpi-devel@lists.sourceforge.net,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Thu, 12 Jun 2003 04:50:59 -0400
+Date: Thu, 12 Jun 2003 11:05:03 +0200
+From: Felix von Leitner <felix-kernel@fefe.de>
+To: linux-kernel@vger.kernel.org
+Subject: need help with oaknet.c
+Message-ID: <20030612090503.GA24365@codeblau.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi Grant,
 
-The ACPI subsystem can be today (from a driver point of view) in 
-three configurations: not compiled (CONFIG_ACPI=n), compiled and 
-running or compiled and disabled (with acpi=off).
+I'm trying to cross compile a linux 2.5.70 kernel to ppc, and after
+removing a few obstacles I'm now stuck in oaknet.c, which bears your
+email address.
 
-A driver which wants to use some ACPI exported routines (in my
-case it's the sonypi driver which wants to use ec_read/ec_write),
-needs to know exactly what the ACPI state is.
+Here are the compile errors.  I have no idea where I can get an
+asm/board.h and a grep did not find the missing defines.
 
-The only way to do this today (from what I've seen) is to do:
+drivers/net/oaknet.c:24:23: asm/board.h: No such file or directory
+drivers/net/oaknet.c: In function `oaknet_init':
+drivers/net/oaknet.c:102: error: `OAKNET_IO_BASE' undeclared (first use
+in this function)
+drivers/net/oaknet.c:102: error: (Each undeclared identifier is reported
+only once
+drivers/net/oaknet.c:102: error: for each function it appears in.)
+drivers/net/oaknet.c:102: error: `OAKNET_IO_SIZE' undeclared (first use
+in this function)
+drivers/net/oaknet.c:102: warning: initialization makes integer from
+pointer without a cast
+drivers/net/oaknet.c:104: error: cannot convert to a pointer type
+drivers/net/oaknet.c:123: warning: implicit declaration of function
+`ei_ibp'
+drivers/net/oaknet.c:132: warning: implicit declaration of function
+`ei_obp'
+drivers/net/oaknet.c:165: error: `OAKNET_INT' undeclared (first use in
+this function)
+drivers/net/oaknet.c:228: warning: passing arg 1 of `iounmap' makes
+pointer from integer without a cast
+drivers/net/oaknet.c: In function `oaknet_reset_8390':
+drivers/net/oaknet.c:303: error: `E8390_BASE' undeclared (first use in
+this function)
+drivers/net/oaknet.c: In function `oaknet_get_8390_hdr':
+drivers/net/oaknet.c:355: error: `OAKNET_CMD' undeclared (first use in
+this function)
+drivers/net/oaknet.c:364: error: `OAKNET_DATA' undeclared (first use in
+this function)
+drivers/net/oaknet.c: In function `oaknet_block_input':
+drivers/net/oaknet.c:384: error: `OAKNET_BASE' undeclared (first use in
+this function)
+drivers/net/oaknet.c:398: error: `flags' undeclared (first use in this
+function)
+drivers/net/oaknet.c:410: warning: implicit declaration of function
+`ei_isw'
+drivers/net/oaknet.c:410: error: `E8390_DATA' undeclared (first use in
+this function)
+drivers/net/oaknet.c:412: warning: implicit declaration of function
+`ei_ib'
+drivers/net/oaknet.c:414: error: `bytes' undeclared (first use in this
+function)
+drivers/net/oaknet.c:418: warning: implicit declaration of function
+`ei_isb'
+drivers/net/oaknet.c: In function `oaknet_block_output':
+drivers/net/oaknet.c:477: error: `E8390_BASE' undeclared (first use in
+this function)
+drivers/net/oaknet.c:584: warning: implicit declaration of function
+`ei_osw'
+drivers/net/oaknet.c:584: error: `E8390_DATA' undeclared (first use in
+this function)
+drivers/net/oaknet.c:586: warning: implicit declaration of function
+`ei_osb'
+drivers/net/oaknet.c: In function `oaknet_dma_error':
+drivers/net/oaknet.c:661: error: structure has no member named
+`interrupt'
+drivers/net/oaknet.c: In function `oaknet_cleanup_module':
+drivers/net/oaknet.c:687: error: `OAKNET_IO_SIZE' undeclared (first use
+in this function)
+drivers/net/oaknet.c:688: warning: passing arg 1 of `iounmap' makes
+pointer from integer without a cast
+drivers/net/oaknet.c:689: error: `oaknet_dev' undeclared (first use in
+this function)
+make[2]: *** [drivers/net/oaknet.o] Error 1
+make[1]: *** [drivers/net] Error 2
+make: *** [drivers] Error 2
 
-#ifdef CONFIG_ACPI
-	if (!acpi_disabled)
-		return ec_write(addr, value);
-#endif
-	return my_ec_emulated_write(...);
 
-This way on doing things needs however that the 'acpi_disabled' 
-variable be exported to modules.
+Can you help me?
 
-Please apply the attached patch or advise on a better way to know
-if ACPI is enabled or not (patch generated against the today 2.5 BK
-tree).
-
-Thanks,
-
-Stelian.
-
-===== arch/i386/kernel/setup.c 1.84 vs edited =====
---- 1.84/arch/i386/kernel/setup.c	Sun Jun  8 00:17:53 2003
-+++ edited/arch/i386/kernel/setup.c	Tue Jun 10 10:02:00 2003
-@@ -61,7 +61,8 @@
- unsigned long mmu_cr4_features;
- EXPORT_SYMBOL_GPL(mmu_cr4_features);
- 
--int acpi_disabled __initdata = 0;
-+int acpi_disabled;
-+EXPORT_SYMBOL(acpi_disabled);
- 
- int MCA_bus;
- /* for MCA, but anyone else can use it if they want */
-
--- 
-Stelian Pop <stelian.pop@fr.alcove.com>
-Alcove - http://www.alcove.com
+Felix

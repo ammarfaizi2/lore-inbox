@@ -1,40 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269777AbRHXEqe>; Fri, 24 Aug 2001 00:46:34 -0400
+	id <S270942AbRHXE6Q>; Fri, 24 Aug 2001 00:58:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270905AbRHXEqZ>; Fri, 24 Aug 2001 00:46:25 -0400
-Received: from shaker.worfie.net ([203.8.161.33]:22034 "HELO mail.worfie.net")
-	by vger.kernel.org with SMTP id <S269777AbRHXEqO>;
-	Fri, 24 Aug 2001 00:46:14 -0400
-Date: Fri, 24 Aug 2001 12:46:26 +0800 (WST)
-From: "J.Brown (Ender/Amigo)" <ender@enderboi.com>
-X-X-Sender: <ender@shaker.worfie.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: From 2.2.19 to 2.4.8ac8 - serial console no longer works
-Message-ID: <Pine.LNX.4.31.0108241240240.3903-100000@shaker.worfie.net>
+	id <S270947AbRHXE6G>; Fri, 24 Aug 2001 00:58:06 -0400
+Received: from UNASSIGNED.SKYNETWEB.COM ([64.23.55.10]:5914 "HELO
+	mx.webmailstation.com") by vger.kernel.org with SMTP
+	id <S270942AbRHXE57> convert rfc822-to-8bit; Fri, 24 Aug 2001 00:57:59 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Denis Perchine <dyp@perchine.com>
+Organization: AcademSoft
+To: linux-kernel@vger.kernel.org
+Subject: Re: Will 2.6 require Python for any configuration ? (CML2)
+Date: Fri, 24 Aug 2001 11:59:41 +0700
+X-Mailer: KMail [version 1.3.5]
+In-Reply-To: <20010822030807.N120@pervalidus> <d3k7zutw5y.fsf@lxplus051.cern.ch> <20010823124109.S14302@cpe-24-221-152-185.az.sprintbbd.net>
+In-Reply-To: <20010823124109.S14302@cpe-24-221-152-185.az.sprintbbd.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010824020119.42D951FD7D@mx.webmailstation.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey all.
+On Friday 24 August 2001 02:41, Tom Rini wrote:
+> On Thu, Aug 23, 2001 at 09:26:33PM +0200, Jes Sorensen wrote:
+> > >>>>> "Tom" == Tom Rini <trini@kernel.crashing.org> writes:
+> You've said this before. :)  Just how small of an 'embedded' system are
+> you talking about?  I know of people who do compile a kernel now and
+> again on a 'small' system, for fun.  On a larger (cPCI) system, I
+> don't see your point.  If you can somehow transport the 21mb[1] bzip2
+> kernel source to your system, you can transport python.  If you're
+> porting to a brand new arch, there's still good tests before you
+> have shlib support (You've mentioned that before too I think).
 
-Recently I've been PXE booting a lot of Linux boxen from a remote
-location, and accessing them through a Perle CS9000 console server.
+There is another point why having Python installed is a problem. Usually when 
+you install a server you remove everything from it because of space, and 
+security reasons. The main security concern is the less is installed the 
+better security is. I always remove python from any servers I have. As I 
+remove guile, forth, and other useless (in terms of server) languages. Now 
+you tell me that I should have this bloat installed just to configure my 
+kernel. Do not you think that it is too much? Current kernel does not require 
+anything like this.
 
-Under 2.2.19 I've had absolutely no probs, but I upgraded the image to
-2.4.8 last night. It all appeared to work, except that nothing I TYPE
-appears to hit the machine.
+-- 
+Sincerely Yours,
+Denis Perchine
 
-I suspect it's because the CS9000 is operating with no flow control.
-But I've got no idea what's changed between 2.2.19 and 2.4.8 that could
-affect it :)
-
-Anyone have any ideas?
-
-Regards,	| If I must have computer systems with publically
-	 Ender  | available terminals, the maps they display of my complex
-  (James Brown)	| will have a room clearly marked as the Main Control Room.
-		| That room will be the Execution Chamber. The actual main
-		| control room will be marked as Sewage Overflow Containment.
-
+----------------------------------
+E-Mail: dyp@perchine.com
+HomePage: http://www.perchine.com/dyp/
+FidoNet: 2:5000/120.5
+----------------------------------

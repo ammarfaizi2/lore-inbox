@@ -1,55 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266071AbUALHUy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 02:20:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266072AbUALHUy
+	id S266072AbUALHjR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 02:39:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266075AbUALHjR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 02:20:54 -0500
-Received: from out001pub.verizon.net ([206.46.170.140]:951 "EHLO
-	out001.verizon.net") by vger.kernel.org with ESMTP id S266071AbUALHUx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 02:20:53 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.1-mm1: drivers/video/sis/sis_main.c link error
-Date: Mon, 12 Jan 2004 02:20:46 -0500
-User-Agent: KMail/1.5.1
-Cc: Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org
-References: <20040109014003.3d925e54.akpm@osdl.org> <200401120147.36032.gene.heskett@verizon.net> <20040111230526.72780162.akpm@osdl.org>
-In-Reply-To: <20040111230526.72780162.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Mon, 12 Jan 2004 02:39:17 -0500
+Received: from multivac.one-eyed-alien.net ([64.169.228.101]:35769 "EHLO
+	multivac.one-eyed-alien.net") by vger.kernel.org with ESMTP
+	id S266072AbUALHjP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jan 2004 02:39:15 -0500
+Date: Sun, 11 Jan 2004 23:39:05 -0800
+From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
+To: David Brownell <david-b@pacbell.net>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       USB Developers <linux-usb-devel@lists.sourceforge.net>,
+       Greg KH <greg@kroah.com>
+Subject: Re: [linux-usb-devel] Re: USB hangs
+Message-ID: <20040112073905.GA8580@one-eyed-alien.net>
+Mail-Followup-To: David Brownell <david-b@pacbell.net>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	USB Developers <linux-usb-devel@lists.sourceforge.net>,
+	Greg KH <greg@kroah.com>
+References: <1073779636.17720.3.camel@dhcp23.swansea.linux.org.uk> <20040111002304.GE16484@one-eyed-alien.net> <1073788437.17793.0.camel@dhcp23.swansea.linux.org.uk> <4001DB52.7030908@pacbell.net> <20040111233104.GF23039@one-eyed-alien.net> <40021E8E.3010709@pacbell.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="SUOF0GtieIMvvwua"
 Content-Disposition: inline
-Message-Id: <200401120220.46167.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out001.verizon.net from [151.205.56.190] at Mon, 12 Jan 2004 01:20:50 -0600
+In-Reply-To: <40021E8E.3010709@pacbell.net>
+User-Agent: Mutt/1.4.1i
+Organization: One Eyed Alien Networks
+X-Copyright: (C) 2004 Matthew Dharm, all rights reserved.
+X-Message-Flag: Get a real e-mail client.  http://www.mutt.org/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 12 January 2004 02:05, Andrew Morton wrote:
->Gene Heskett <gene.heskett@verizon.net> wrote:
->>  Or maybe not, what do I do when "vmstat 1" prints its column
->> headers and segfaults?:
->
->You probably need a new vmstat.  There were quite a few buggy ones
-> around. Make sure you have a current procps.
 
-And where are they available?  I'm not allergic to ripping out the 
-rpms if need be.  Do you have a list of compatible pairings showing 
-version numbers to get?
+--SUOF0GtieIMvvwua
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Gah, bedtime..
+On Sun, Jan 11, 2004 at 08:11:58PM -0800, David Brownell wrote:
+>=20
+> >>>	 Plus I'd
+> >>>argue PF_MEMALLOC is a better solution anyway.
+> >>
+> >>It certainly seems like a more comprehensive fix for that
+> >>particular class of problems!  :)
+> >
+> >
+> >Is it really more comprehensive?  As I see it, it will only affect code
+> >executed in the context of the usb-storage thread.  But, what about code
+> >which is invoked in tasklets or other contexts?
+>=20
+> Isn't it true that only that thread is allowed to
+> submit usb-storage i/o requests?
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty: soap,
-ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.22% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attornies please note, additions to this message
-by Gene Heskett are:
-Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
+That's very true.
 
+What I'm concerned about is the downstream effects of a usb_submit_urb() or
+the corresponding scatter-gather equivalents.
+
+Matt
+
+--=20
+Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
+net=20
+Maintainer, Linux USB Mass Storage Driver
+
+You should try to see the techs say "three piece suit".
+					-- The Chief
+User Friendly, 11/23/1997
+
+--SUOF0GtieIMvvwua
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQFAAk8ZIjReC7bSPZARAuCqAKDDTBRL/5R6dzZj4r2SvB6SfI2S9wCgicKE
+v8rAAPFP6ZIb58Em9nhUCis=
+=jF5K
+-----END PGP SIGNATURE-----
+
+--SUOF0GtieIMvvwua--

@@ -1,40 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262913AbTKZPBR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Nov 2003 10:01:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263119AbTKZPBR
+	id S264229AbTKZP1j (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Nov 2003 10:27:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264231AbTKZP1j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Nov 2003 10:01:17 -0500
-Received: from pat.uio.no ([129.240.130.16]:54674 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S262913AbTKZPBQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Nov 2003 10:01:16 -0500
-To: Andi Kleen <ak@suse.de>
-Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: Fire Engine??
-References: <BAY1-DAV15JU71pROHD000040e2@hotmail.com.suse.lists.linux.kernel>
-	<20031125183035.1c17185a.davem@redhat.com.suse.lists.linux.kernel>
-	<p73fzgbzca6.fsf@verdi.suse.de>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 26 Nov 2003 10:00:09 -0500
-In-Reply-To: <p73fzgbzca6.fsf@verdi.suse.de>
-Message-ID: <shsllq3yy2u.fsf@charged.uio.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
+	Wed, 26 Nov 2003 10:27:39 -0500
+Received: from clem.clem-digital.net ([68.16.168.10]:2052 "EHLO
+	clem.clem-digital.net") by vger.kernel.org with ESMTP
+	id S264229AbTKZP1h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Nov 2003 10:27:37 -0500
+From: Pete Clements <clem@clem.clem-digital.net>
+Message-Id: <200311261527.KAA00655@clem.clem-digital.net>
+Subject: Re: 2.6.0-test10: Badness in local_bh_enable at kernel/softirq.c:121
+In-Reply-To: <20031126055258.7526a09d.akpm@osdl.org> from Andrew Morton at "Nov 26, 2003  5:52:58 am"
+To: akpm@osdl.org (Andrew Morton)
+Date: Wed, 26 Nov 2003 10:27:22 -0500 (EST)
+Cc: corwin@amber.kn-bremen.de, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com
+X-Mailer: ELM [version 2.4ME+ PL48 (25)]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
-X-UiO-MailScanner: No virus found
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Andi Kleen <ak@suse.de> writes:
+Quoting Andrew Morton
+  > Christian Schlittchen <corwin@amber.kn-bremen.de> wrote:
+  > >
+  > > 
+  > > When trying to establish a ppp/pppoe connection I get the following
+  > > and the connection fails:
+  > > 
+  > > Badness in local_bh_enable at kernel/softirq.c:121
+  > > Call Trace:
+  > > [<c011feac>] local_bh_enable+0x8c/0x90
+  > > [<e096ccae>] ppp_sync_push+0x6e/0x1a0 [ppp_synctty]
+  > > [<c015cdc0>] __lookup_hash+0x70/0xd0
+  > > [<e096c651>] ppp_sync_wakeup+0x31/0x70 [ppp_synctty]
+  > > [<c0207b79>] pty_unthrottle+0x59/0x60
+  > > [<c02043ba>] check_unthrottle+0x3a/0x40
+  > > [<c0204463>] n_tty_flush_buffer+0x13/0x60
+  > > [<c0207f6d>] pty_flush_buffer+0x6d/0x70
+  > > [<c0200c0e>] do_tty_hangup+0x3fe/0x460
+  > 
+  > The warning is a pest, and is due to do_tty_hangup() bogusly disabling
+  > interrupts in the hope that it does something useful.  It needs to be fixed
+  > up.
+  > 
+  > But it is unrelated to the PPP failure.  I'm afraid it is so long since I
+  > used PPP and pppd that I cannot suggest how you should set about gathering
+  > extra info on that.
+  > 
+What network card? Multi-cards? Is the card detected?
 
-     > - If they tested TCP-over-NFS then I'm pretty sure Linux lost
-                        ^^^^^^^^^^^^ That would be inefficient 8-)
-     > badly because the current paths for that are just awfully
-     > inefficient.
+Around 2.5.71 the 3c509 init/detect changed such that the
+second card is not detected.  Will get the badness when attempting
+to bring up ppp/ppoe on a non-existent card.  
 
-...mind elaborating?
-
-Cheers,
-  Trond
+The 3c509 multi card breakage still exists at test10. I replace the
+driver with 2.5.7x version to get my pppoe.
+-- 
+Pete Clements 

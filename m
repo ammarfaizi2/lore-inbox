@@ -1,74 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264664AbUDVUnJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264674AbUDVUsT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264664AbUDVUnJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Apr 2004 16:43:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264669AbUDVUnJ
+	id S264674AbUDVUsT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Apr 2004 16:48:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264672AbUDVUsR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Apr 2004 16:43:09 -0400
-Received: from mail-haw.bigfish.com ([12.129.199.61]:7648 "EHLO
-	mail43-haw-R.bigfish.com") by vger.kernel.org with ESMTP
-	id S264664AbUDVUnD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Apr 2004 16:43:03 -0400
-Message-ID: <40882E49.2040705@lehman.com>
-Date: Thu, 22 Apr 2004 16:42:49 -0400
-From: "Shantanu Goel" <Shantanu.Goel@lehman.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.1)
- Gecko/20031114
-X-Accept-Language: en-us, en
+	Thu, 22 Apr 2004 16:48:17 -0400
+Received: from gherkin.frus.com ([192.158.254.49]:10898 "EHLO gherkin.frus.com")
+	by vger.kernel.org with ESMTP id S264656AbUDVUsJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Apr 2004 16:48:09 -0400
+Subject: Re: [PATCH] sym53c500_cs PCMCIA SCSI driver (new)
+In-Reply-To: <40881F1B.8060909@tmr.com> "from Bill Davidsen at Apr 22, 2004 03:38:03
+ pm"
+To: Bill Davidsen <davidsen@tmr.com>
+Date: Thu, 22 Apr 2004 15:48:07 -0500 (CDT)
+Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL82 (25)]
 MIME-Version: 1.0
-To: "Len Brown" <len.brown@intel.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [ACPI x86_64] 2.6.1-rc{1,2} hang while booting on Sun v20z
- aka Newisys 2100
-References: <A6974D8E5F98D511BB910002A50A6647615F976F@hdsmsx403.hd.intel.com>
- <1082653547.16336.335.camel@dhcppc4> <408820D7.10400@lehman.com>
- <1082666116.16336.391.camel@dhcppc4>
-In-Reply-To: <1082666116.16336.391.camel@dhcppc4>
-X-WSS-ID: 6C96F1C0208552-01-01
-Content-Type: text/plain;
- charset=iso-8859-1;
- format=flowed
 Content-Transfer-Encoding: 7bit
-X-BigFish: v
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <20040422204807.55E0BDBDB@gherkin.frus.com>
+From: rct@gherkin.frus.com (Bob Tracy)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Bill Davidsen wrote:
+> WRT the split of code... if there is some reason why there will never be 
+> another type of card then the split is unnessessary. But otherwise, 
+> you've done the work, and it matches the way other drivers were split, 
+> so why scrap it?
+> 
+> As you guessed I don't feel strongly one way or the other, just thought 
+> you could use a little support for having made the effort to design for 
+> the future.
 
->>Intel MultiProcessor Specification v1.4
->>    Virtual Wire compatibility mode.
->>SMP mptable: bad signature [<3>BIOS bug, MP table errors detected!...
->>... disabling SMP support. (tell your hw vendor)
->>    
->>
->
->Broken BIOS/MPS tables own this failure.
->See if you can disable MPS in the BIOS/SETUP.
->that is, after you verify you've got the latest BIOS...
->  
->
+You give me too much credit :-).  I inherited the split design from the
+original author and simply preserved it.  As far as maintaining the
+split design, the only evidence I've seen of non-PCMCIA cards using the
+Symbios/NCR 53c500 controller is the existence of a driver in the FreeBSD
+tree.  In any event, I don't have the hardware to test anything other
+than the PCMCIA case, and if there's someone out there who needs support
+for the non-PCMCIA case, I expect the Linux driver would have been written
+before now.  Christoph suggested in an earlier posting that the split to
+support other hardware would probably be accomplished differently these
+days anyway, so we (the community) probably haven't lost all that much by
+concentrating on producing a well-written PCMCIA-only driver.
 
-But that still does not explain why RedHat AS3 works on the same machine 
-with the same BIOS settings without specifying any acpi related 
-parameters.  As far as I can tell, AS3 is using an older version of the 
-ACPI code.  It reports "ACPI: Subsystem revision 20030619" when 
-booting.  So barring some hack RedHat has in there,  clearly something 
-has changed along the way to break things on this machine...
+I saved my first attempt at a 2.6 driver (in case someone wants to
+revisit the issue).  Otherwise, although I appreciate your support,
+it's OBE.  I'm waiting to hear back from Christoph on a few design
+issues (questions asked off-line) before submitting a third 2.6 driver.
 
-Thanks,
-Shantanu
+The main issue I'm wrestling with at the moment is support for the
+improbable case of multiple HBAs...  I agree in principle with the
+objective as long as I don't do something stupid that kills performance
+for the normal case of a single HBA.  As I see it, there are essentially
+two approaches:
 
+(1) Calculate all the needed hardware register offsets up front at HBA
+    init time, and carry them as part of the per-instance data.  This
+    approach has a few things going for it -- the in-core memory
+    requirement is essentially identical for the single HBA case, and
+    dereferencing a structure pointer to get a register address is
+    barely worse than accessing the equivalent global variable in the
+    driver.
 
+(2) Calculate a particular register offset each time that register is
+    accessed, using something like shost->io_port + offset, which, it
+    is claimed, is normal Linux driver practice.  Although this
+    approach is extremely attractive from the standpoint of code
+    simplicity, I'm concerned about the arithmetic overhead.  If it
+    turns out most of the hardware register accesses occur during
+    initialization, my concerns are pretty well meaningless.  Obviously
+    I need to look at this more closely.
 
-------------------------------------------------------------------------------
-This message is intended only for the personal and confidential use of the
-designated recipient(s) named above.  If you are not the intended recipient of
-this message you are hereby notified that any review, dissemination,
-distribution or copying of this message is strictly prohibited.  This
-communication is for information purposes only and should not be regarded as
-an offer to sell or as a solicitation of an offer to buy any financial
-product, an official confirmation of any transaction, or as an official
-statement of Lehman Brothers.  Email transmission cannot be guaranteed to be
-secure or error-free.  Therefore, we do not represent that this information is
-complete or accurate and it should not be relied upon as such.  All
-information is subject to change without notice.
+You may safely assume I'm learning more about this than I originally
+anticipated :-).
 
+-- 
+-----------------------------------------------------------------------
+Bob Tracy                   WTO + WIPO = DMCA? http://www.anti-dmca.org
+rct@frus.com
+-----------------------------------------------------------------------

@@ -1,57 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265553AbUBGAdX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 19:33:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265596AbUBGAdX
+	id S265596AbUBGAef (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 19:34:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265619AbUBGAee
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 19:33:23 -0500
-Received: from mail-07.iinet.net.au ([203.59.3.39]:29381 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S265553AbUBGAdV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 19:33:21 -0500
-Message-ID: <402431C5.3030205@cyberone.com.au>
-Date: Sat, 07 Feb 2004 11:31:01 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
-X-Accept-Language: en
+	Fri, 6 Feb 2004 19:34:34 -0500
+Received: from phoenix.infradead.org ([213.86.99.234]:35855 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S265596AbUBGAed (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Feb 2004 19:34:33 -0500
+Date: Sat, 7 Feb 2004 00:34:29 +0000 (GMT)
+From: James Simmons <jsimmons@infradead.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: fbdev sysfs support.
+Message-ID: <Pine.LNX.4.44.0402070032030.19559-100000@phoenix.infradead.org>
 MIME-Version: 1.0
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-CC: Rick Lindsley <ricklind@us.ibm.com>, Anton Blanchard <anton@samba.org>,
-       akpm@osdl.org, linux-kernel@vger.kernel.org, dvhltc@us.ibm.com
-Subject: Re: [PATCH] Load balancing problem in 2.6.2-mm1
-References: <200402062311.i16NBdF14365@owlet.beaverton.ibm.com> <40242152.5030606@cyberone.com.au> <231480000.1076110387@flay> <4024261E.5070702@cyberone.com.au> <232690000.1076111266@flay> <40242D14.6070908@cyberone.com.au> <242810000.1076113505@flay>
-In-Reply-To: <242810000.1076113505@flay>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Linus, please do a
 
-Martin J. Bligh wrote:
+	bk pull http://fbdev.bkbits.net/fbdev-2.6
 
->>>Not sure how true that turns out to be in practice ... probably depends
->>>heavily on both the workload (how heavily it's using the cache) and the
->>>chip (larger caches have proportionately more to lose).
->>>
->>>As we go forward in time, cache warmth gets increasingly important, as
->>>CPUs accelerate speeds quicker than memory. Cache sizes also get larger.
->>>I'd really like us to be conservative here - the unfairness thing is 
->>>really hard to hit anyway - you need a static number of processes that
->>>don't ever block on IO or anything.
->>>
->>Can we keep current behaviour default, and if arches want to
->>override it they can? And if someone one day does testing to
->>show it really isn't a good idea, then we can change the default.
->>
->
->Well, that should be a pretty easy test to do. I'll try it.
->
->
+This will update the following files:
 
-OK, use the revision of Rick's patch I posted, and don't use
-CONFIG_SCHED_SMT because I think there is a problem with it.
+ drivers/video/Makefile  |    2 
+ drivers/video/fbmem.c   |    6 ++
+ drivers/video/fbsysfs.c |  110 ++++++++++++++++++++++++++++++++++++++++++++++++
+ include/linux/fb.h      |   40 ++++++++++-------
+ 4 files changed, 141 insertions(+), 17 deletions(-)
 
-Thanks
-Nick
+through these ChangeSets:
+
+<jsimmons@infradead.org> (04/02/06 1.1549)
+   [FBDEV] Add syfs support.
+
 

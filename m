@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293722AbSD1MN0>; Sun, 28 Apr 2002 08:13:26 -0400
+	id <S293680AbSD1MY1>; Sun, 28 Apr 2002 08:24:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310190AbSD1MNZ>; Sun, 28 Apr 2002 08:13:25 -0400
-Received: from twilight.ucw.cz ([195.39.74.230]:27776 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S293722AbSD1MNY>;
-	Sun, 28 Apr 2002 08:13:24 -0400
-Date: Sun, 28 Apr 2002 14:13:21 +0200
+	id <S310190AbSD1MY0>; Sun, 28 Apr 2002 08:24:26 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:57216 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S293680AbSD1MYZ>;
+	Sun, 28 Apr 2002 08:24:25 -0400
+Date: Sun, 28 Apr 2002 14:24:15 +0200
 From: Vojtech Pavlik <vojtech@suse.cz>
 To: Martin Dalecki <dalecki@evision-ventures.com>,
         linux-kernel@vger.kernel.org
-Subject: [bk+patch] Support for UDMA133 on ICH2, ICH3 and C-ICH
-Message-ID: <20020428141321.A10570@ucw.cz>
+Subject: [bk+patch] Let (WIP) be replaced with (EXPERIMENTAL)
+Message-ID: <20020428142415.A10747@ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -19,84 +19,78 @@ User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet@1.570, 2002-04-28 14:11:19+02:00, vojtech@twilight.ucw.cz
-  This patch adds experimental support for enabling UDMA133 modes even on
-  ICH2, ICH2-M, ICH3, ICH3-M, ICH3-S and C-ICH chips, which can support the 133 MB/sec
-  mode, even though the specs deny it. It's marked experimental, because it's beyond
-  the specs, and also not really tested yet. 
+ChangeSet@1.571, 2002-04-28 14:22:33+02:00, vojtech@twilight.ucw.cz
+  This removes the CONFIG_IDEDMA_PCI_WIP option, replacing it with
+  the more common CONFIG_EXPERIMENTAL. It also adds a depencency
+  on $CONFIG_EXPERIMENTAL where missing.
 
 
- Config.help |    9 +++++++++
- Config.in   |    3 +++
- piix.c      |    9 +++++++--
- 3 files changed, 19 insertions(+), 2 deletions(-)
+ Config.help |    7 -------
+ Config.in   |   13 ++++++-------
+ 2 files changed, 6 insertions(+), 14 deletions(-)
 
 
 diff -Nru a/drivers/ide/Config.help b/drivers/ide/Config.help
---- a/drivers/ide/Config.help	Sun Apr 28 14:11:40 2002
-+++ b/drivers/ide/Config.help	Sun Apr 28 14:11:40 2002
-@@ -431,6 +431,15 @@
-   the kernel to change PIO, DMA and UDMA speeds and to configure
-   the chip to optimum performance.
+--- a/drivers/ide/Config.help	Sun Apr 28 14:22:55 2002
++++ b/drivers/ide/Config.help	Sun Apr 28 14:22:55 2002
+@@ -299,13 +299,6 @@
  
-+CONFIG_BLK_DEV_PIIX_TRY133
-+  The ICH2, ICH2-M, ICH3, ICH3-M, ICH3-S and CICH chips can support
-+  UDMA133 in hardware, even though the specifications of the chips
-+  say otherwise. By enabling this option, you allow the driver to
-+  enable the UDMA133 mode on these chips.
-+
-+  If you want to stay on the safe side, say N here.
-+  If you prefer maximum performance, say Y here.
-+
- CONFIG_BLK_DEV_PDC202XX
-   Promise Ultra33 or PDC20246
-   Promise Ultra66 or PDC20262
+   It is normally safe to answer Y; however, the default is N.
+ 
+-CONFIG_IDEDMA_PCI_WIP
+-  If you enable this you will be able to use and test highly
+-  developmental projects. If you say N, the configurator will
+-  simply skip those options.
+-
+-  It is SAFEST to say N to this question.
+-
+ CONFIG_BLK_DEV_PDC_ADMA
+   Please read the comments at the top of <file:drivers/ide/ide-pci.c>.
+ 
 diff -Nru a/drivers/ide/Config.in b/drivers/ide/Config.in
---- a/drivers/ide/Config.in	Sun Apr 28 14:11:40 2002
-+++ b/drivers/ide/Config.in	Sun Apr 28 14:11:40 2002
-@@ -61,6 +61,9 @@
- 	 dep_mbool '      HPT34X AUTODMA support (WIP)' CONFIG_HPT34X_AUTODMA $CONFIG_BLK_DEV_HPT34X $CONFIG_IDEDMA_PCI_WIP
+--- a/drivers/ide/Config.in	Sun Apr 28 14:22:55 2002
++++ b/drivers/ide/Config.in	Sun Apr 28 14:22:55 2002
+@@ -47,18 +47,17 @@
+ 	 dep_bool '      Use PCI DMA by default when available' CONFIG_IDEDMA_PCI_AUTO $CONFIG_BLK_DEV_IDEDMA_PCI
+          dep_bool '    Enable DMA only for disks ' CONFIG_IDEDMA_ONLYDISK $CONFIG_IDEDMA_PCI_AUTO
+ 	 define_bool CONFIG_BLK_DEV_IDEDMA $CONFIG_BLK_DEV_IDEDMA_PCI
+-	 dep_bool '    ATA Work(s) In Progress (EXPERIMENTAL)' CONFIG_IDEDMA_PCI_WIP $CONFIG_BLK_DEV_IDEDMA_PCI $CONFIG_EXPERIMENTAL
+-	 dep_bool '    Good-Bad DMA Model-Firmware (WIP)' CONFIG_IDEDMA_NEW_DRIVE_LISTINGS $CONFIG_IDEDMA_PCI_WIP
++	 dep_bool '    Drive DMA black/whitelist (EXPERIMENTAL)' CONFIG_IDEDMA_NEW_DRIVE_LISTINGS $CONFIG_EXPERIMENTAL
+ 	 dep_bool '    AEC62XX chipset support' CONFIG_BLK_DEV_AEC62XX $CONFIG_BLK_DEV_IDEDMA_PCI
+ 	 dep_mbool '      AEC62XX Tuning support' CONFIG_AEC62XX_TUNING $CONFIG_BLK_DEV_AEC62XX
+ 	 dep_bool '    ALI M15x3 chipset support' CONFIG_BLK_DEV_ALI15X3 $CONFIG_BLK_DEV_IDEDMA_PCI
+-	 dep_mbool '      ALI M15x3 WDC support (DANGEROUS)' CONFIG_WDC_ALI15X3 $CONFIG_BLK_DEV_ALI15X3
++	 dep_mbool '      ALI M15x3 WDC support (DANGEROUS)' CONFIG_WDC_ALI15X3 $CONFIG_BLK_DEV_ALI15X3 $CONFIG_EXPERIMENTAL
+ 	 dep_bool '    AMD and nVidia chipset support' CONFIG_BLK_DEV_AMD74XX $CONFIG_BLK_DEV_IDEDMA_PCI
+ 	 dep_bool '    CMD64X chipset support' CONFIG_BLK_DEV_CMD64X $CONFIG_BLK_DEV_IDEDMA_PCI
+ 	 dep_bool '    CY82C693 chipset support' CONFIG_BLK_DEV_CY82C693 $CONFIG_BLK_DEV_IDEDMA_PCI
+ 	 dep_bool '    Cyrix CS5530 MediaGX chipset support' CONFIG_BLK_DEV_CS5530 $CONFIG_BLK_DEV_IDEDMA_PCI
+   	 dep_bool '    HPT34X chipset support' CONFIG_BLK_DEV_HPT34X $CONFIG_BLK_DEV_IDEDMA_PCI
+-	 dep_mbool '      HPT34X AUTODMA support (WIP)' CONFIG_HPT34X_AUTODMA $CONFIG_BLK_DEV_HPT34X $CONFIG_IDEDMA_PCI_WIP
++	 dep_mbool '      HPT34X AUTODMA support (EXPERIMENTAL)' CONFIG_HPT34X_AUTODMA $CONFIG_BLK_DEV_HPT34X $CONFIG_EXPERIMENTAL
  	 dep_bool '    HPT366 chipset support' CONFIG_BLK_DEV_HPT366 $CONFIG_BLK_DEV_IDEDMA_PCI
  	 dep_bool '    Intel and Efar (SMsC) chipset support' CONFIG_BLK_DEV_PIIX $CONFIG_BLK_DEV_IDEDMA_PCI
-+	 if [ "$CONFIG_BLK_DEV_PIIX" = "y" ]; then
-+	    dep_bool '      Use UDMA133 even on ICH2, ICH3 and CICH chips (EXPERIMENTAL)' CONFIG_BLK_DEV_PIIX_TRY133 $CONFIG_EXPERIMENTAL
-+	 fi
- 	 if [ "$CONFIG_MIPS_ITE8172" = "y" -o "$CONFIG_MIPS_IVR" = "y" ]; then
+ 	 if [ "$CONFIG_BLK_DEV_PIIX" = "y" ]; then
+@@ -68,15 +67,15 @@
  	    dep_mbool '    IT8172 IDE support' CONFIG_BLK_DEV_IT8172 $CONFIG_BLK_DEV_IDEDMA_PCI
  	    dep_mbool '      IT8172 IDE Tuning support' CONFIG_IT8172_TUNING $CONFIG_BLK_DEV_IT8172 $CONFIG_IDEDMA_PCI_AUTO
-diff -Nru a/drivers/ide/piix.c b/drivers/ide/piix.c
---- a/drivers/ide/piix.c	Sun Apr 28 14:11:40 2002
-+++ b/drivers/ide/piix.c	Sun Apr 28 14:11:40 2002
-@@ -69,6 +69,11 @@
- #define PIIX_CHECK_REV		0x40	/* May be a buggy revision of PIIX */
- #define PIIX_NODMA		0x80	/* Don't do DMA with this chip */
+ 	 fi
+-	 dep_bool '    NS87415 chipset support (EXPERIMENTAL)' CONFIG_BLK_DEV_NS87415 $CONFIG_BLK_DEV_IDEDMA_PCI
++	 dep_bool '    NS87415 chipset support (EXPERIMENTAL)' CONFIG_BLK_DEV_NS87415 $CONFIG_BLK_DEV_IDEDMA_PCI $CONFIG_EXPERIMENTAL
+ 	 dep_bool '    OPTi 82C621 chipset enhanced support (EXPERIMENTAL)' CONFIG_BLK_DEV_OPTI621 $CONFIG_EXPERIMENTAL
+-	 dep_mbool '    Pacific Digital A-DMA support (EXPERIMENTAL)' CONFIG_BLK_DEV_PDC_ADMA $CONFIG_IDEDMA_PCI_WIP
++	 dep_mbool '    Pacific Digital A-DMA support (EXPERIMENTAL)' CONFIG_BLK_DEV_PDC_ADMA $CONFIG_EXPERIMENTAL
+ 	 dep_bool '    PROMISE PDC202{46|62|65|67|68|69|70} support' CONFIG_BLK_DEV_PDC202XX $CONFIG_BLK_DEV_IDEDMA_PCI
+ 	 dep_bool '      Special UDMA Feature' CONFIG_PDC202XX_BURST $CONFIG_BLK_DEV_PDC202XX
+ 	 dep_bool '      Special FastTrak Feature' CONFIG_PDC202XX_FORCE $CONFIG_BLK_DEV_PDC202XX
+ 	 dep_bool '    ServerWorks OSB4/CSB5 chipsets support' CONFIG_BLK_DEV_SVWKS $CONFIG_BLK_DEV_IDEDMA_PCI $CONFIG_X86
+ 	 dep_bool '    SiS5513 chipset support' CONFIG_BLK_DEV_SIS5513 $CONFIG_BLK_DEV_IDEDMA_PCI $CONFIG_X86
+-	 dep_bool '    Tekram TRM290 chipset support (EXPERIMENTAL)' CONFIG_BLK_DEV_TRM290 $CONFIG_BLK_DEV_IDEDMA_PCI
++	 dep_bool '    Tekram TRM290 chipset support (EXPERIMENTAL)' CONFIG_BLK_DEV_TRM290 $CONFIG_BLK_DEV_IDEDMA_PCI $CONFIG_EXPERIMENTAL
+ 	 dep_bool '    VIA chipset support' CONFIG_BLK_DEV_VIA82CXXX $CONFIG_BLK_DEV_IDEDMA_PCI
+       fi
  
-+#ifdef CONFIG_BLK_DEV_PIIX_TRY133	/* I think even the older ICHs should be able to do UDMA133 */
-+#undef PIIX_UDMA_100
-+#define PIIX_UDMA_100 PIIX_UDMA_133
-+#endif
-+
- /*
-  * Intel IDE chips
-  */
-@@ -78,7 +83,7 @@
- 	unsigned char flags;
- } piix_ide_chips[] = {
- 	{ PCI_DEVICE_ID_INTEL_82801DB_9,	PIIX_UDMA_133 | PIIX_PINGPONG },                    /* Intel 82801DB ICH4 */
--	{ PCI_DEVICE_ID_INTEL_82801CA_11,	PIIX_UDMA_100 | PIIX_PINGPONG },                    /* Intel 82801CA ICH3 */
-+	{ PCI_DEVICE_ID_INTEL_82801CA_11,	PIIX_UDMA_100 | PIIX_PINGPONG },                    /* Intel 82801CA ICH3/ICH3-S */
- 	{ PCI_DEVICE_ID_INTEL_82801CA_10,	PIIX_UDMA_100 | PIIX_PINGPONG },                    /* Intel 82801CAM ICH3-M */
- 	{ PCI_DEVICE_ID_INTEL_82801E_9,		PIIX_UDMA_100 | PIIX_PINGPONG },                    /* Intel 82801E C-ICH */
- 	{ PCI_DEVICE_ID_INTEL_82801BA_9,	PIIX_UDMA_100 | PIIX_PINGPONG },                    /* Intel 82801BA ICH2 */
-@@ -87,7 +92,7 @@
- 	{ PCI_DEVICE_ID_INTEL_82801AA_1,	PIIX_UDMA_66  | PIIX_PINGPONG },                    /* Intel 82801AA ICH */
- 	{ PCI_DEVICE_ID_INTEL_82372FB_1,	PIIX_UDMA_66 },	                                    /* Intel 82372FB PIIX5 */
- 	{ PCI_DEVICE_ID_INTEL_82443MX_1,	PIIX_UDMA_33 },                                     /* Intel 82443MX MPIIX4 */
--	{ PCI_DEVICE_ID_INTEL_82371AB,		PIIX_UDMA_33 },                                     /* Intel 82371AB/EB PIIX4/4E */
-+	{ PCI_DEVICE_ID_INTEL_82371AB,		PIIX_UDMA_33 },                                     /* Intel 82371AB/EB PIIX4/PIIX4E */
- 	{ PCI_DEVICE_ID_INTEL_82371SB_1,	PIIX_UDMA_NONE },                                   /* Intel 82371SB PIIX3 */
- 	{ PCI_DEVICE_ID_INTEL_82371FB_1,	PIIX_UDMA_NONE | PIIX_NO_SITRE | PIIX_CHECK_REV },  /* Intel 82371FB PIIX */
- 	{ PCI_DEVICE_ID_EFAR_SLC90E66_1,	PIIX_UDMA_66 | PIIX_VICTORY },                      /* Efar Victory66 */
 
 ===================================================================
 
@@ -106,35 +100,30 @@ This BitKeeper patch contains the following changesets:
 ## Wrapped with gzip_uu ##
 
 
-begin 664 bkpatch10557
-M'XL(`/SFRSP``[57?V_;-A#]V_H4AV1`M]:614G6#P\9FCA>*C1)C30=6JR#
-M04M4Q$46#5&.Z\W[[CM2MN,V<5)GB^+0T.'X[O%X]TCOPP?)RF[C1OQ9L3@S
-M]N&-D%6W4<UXSJ^RRIS&,S/^"^T70J"]G8DQ:R^]VZ/K-D]8RS8[!GH,:!5G
-M<,-*V6T0TUE;JOF$=1L7_9,/IX<7AG%P`+V,%E?L/:O@X,"H1'E#\T2^IE66
-MB\*L2EK(,:NH&8OQ8NVZL"W+QK\.\1VKXRV(9[G^(B8)(=0E++%L-_!<8TGM
-M]3<+^!;'M0-"-([K!F%H'`,Q.[X%EMVVW+8=`'&[A'1)^,JRNY8%6V#AE0,M
-MRSB"_W<1/2.&RXQ+F.@$TB21P+Y,6,G'K*AH#G(ZF8BR@E24P`HZRGEQ!1^.
-MSPZ)X\!8)`S];U@!HD"DJ/?&;NJQ=::_G7I<O;7>`RT2Z+7P!>*,3V039AG'
-MP#$MUJ&JC(%"/SMJ2Q8CK`K3K,-4F9A>9=I%3E@L(6'%''AE0E2]D#"FY35+
-MOEI!$T8LIE/)T`L]1FPNB@1!UQ!-S8GF4D`A*B@9S?,Y5$Q6B#1G"&V\!=<)
-M@M`8W-:3T=KQ,0R+6L8O=:+OW[RDY*JF5:6W>Z)(^969L7RRVDK/LHA/G(45
-M6KZ]H`&C[@C_O9CZ`=E6-P^#JN*T"2'^PNWX@8WT'BZO3;`)YU_,>*/.7(M@
-MG5F.'2Y2+R6QWW&H3XGG6_9WL=L$O"7FA)W`VXG8<I6\N,/-"6UGX9"0NF%,
-M,`AQW)#NDKD5Y@8]UW)#+35;$JV$YYGVW$AHSN)K_IK=<,E%T<(.J:8EDX\C
-MNW;'MAR/!`OBAF&@58FX=T3)?TR4PN<2I<,D`9T^7%(YU?*C.O;RXI.2!C&I
-M<+VF:DQ=M^^@5<[T!QMML&TKGM"SD8O10J/W[OS7Z&1X=/IV>-S_;3B(HH_#
-MFHH!J)_LNY5O+7R;BH<8*T7E!62T3&:TW*)X/.4Q58N7(%)MU7`((>D<!!K*
-M&9?,A*/YK5Y72N'KG#5A+J:H=KF8Z=EUJG`#$4'[,VW>5'C4=F63RU"F\1E]
-MHU0#S6B!@BU`5BIZ4=.D*0Y<:;;B=([[6#+S=LZD9"F&'-,O?#P=`THU[NZ8
-M%O%RPJ?EA,_;V@J3].AI_A\$8>>VNE6%55/9Q/.<NJG\W9OJV4YZU52:<ZJ3
-MJ%IKOKVU:FE[O+5X\93&\AQPC`;P%'Z'O1_N:;`].("]^1[\\;.B5Z`O/@F;
-M#$="Y/`"](-WRG6M+N\AM[WH?-MS/_8_#OH7T5G__/+P]*<7L+VM8<5H<P92
-M2/F=HJR/K=TJ<I>S<^M%\Z&S4]TXW87M=3I$EZ']!&WWH64_6QG>J;C53;`6
-M(7EG5Y>JF5,^1DE#%.V`_`4*B%9$],KG)ARJFURL:4F0^","D*>Z"TI=U/HZ
-M\4!1UYE\2D7[!#K&/D\3ECY068WV2XB4(A?7*X%'A<T35$0L5&2,>I\G>$^%
-M6HP%)&*=C)=M8W]:J``:49F'F`-C'TV\8%];-]_PH-IG1<)35-5CO"T2(])C
-MXV\8]"+%,>KUA]'Q,#J_[)\.`SNP2`_GD6;C:\Q%C3J(SD\&[\Y/X)\FW/.H
-M-185RV$)I+NQO3P(<1''H:4HZ'$K!<<GAT?-Q@8!S,#]\1XBH&':_2--W&WK
->L:](K'\VQAG*O9R.#]+4\EW7'AG_`@7(\2:M#@``
+begin 664 bkpatch10736
+M'XL(`)_IRSP``[56[V_:2!#]C/^*D7I2[]1B]H>-;21.I9A+K1*"@#3YAC;V
+M!N_%]EJV$ZXG__&W-@%2:LK1NX!!8IF=]W;>O+'?P'7.LU[K2?Y9<#_4WL`G
+MF1>]5K$6D5B%A?[HKW7_;[4^DU*M=T(9\\YS=.?NH2,"WB:ZJ:F(*2O\$)YX
+MEO=:6*>[E>)KRGNMV>CB>CR8:5J_#\.0)2L^YP7T^UHALR<6!?D'5H213/0B
+M8TD>\X+IOHS+76A)$"+J;6*+(K-;XBXRK-+'`<;,P#Q`Q+"[AO9,[</!`0[S
+M&,3&!&/LE`:U;4=S`>NFA0&1#C(ZQ`9L]`CI4?H.D1Y"<"0MO"/01MI'^'\/
+M,=1\6(0BAXS'\HGG4(0<AE>3/[R+I>>.W,O!<CKTEC?>%&1:")F\5Y%IQ'R1
+MK$`4L!9%J%)4NV*9<5`<8IEL,XQNIZ.9=SF:+`9C';P"6)1+8$&0`X.`ISSQ
+MU?55)5![?FG8!.N0JZRQR',%J&N?0171,K7I7EBM?>9+TQ!#VN^05BW37,4@
+M$U5S52W7&<KD7JSTD$?IMJ9=A+"%:8D<9)&2V9P9=^K3]9EEXV,"_CAIW26$
+M4%R2KN.8BMZ/=6Y()I(7FAL(*\VI0VA)L<,,Q\<*!%/#8><0W.;<TZ/J%ZJM
+M=>0\E=%>J;1'+7>ZM,J`5FF8EDUJ`V+S.__A4_Y#T+9>Q7^SVGK*0QELO5:Q
+M?P^)!(6PXADDG`<\J/I_TQY7T,[6]:7Z>7I,BI^PAJOT!>N8OB(Y/4;_0V>>
+MH^\WG5FK2PUD;,8KML]7M_M:Z@XCSI+'%.3]9K;N*GDO(EXING'4:45%\C-Z
+MF@B(YID8L-:J1N[R3LH(WH)ZN14&J!$/=VJ@/W36H2AX)/("?GTY@W][>W!#
+MF(QNEN[,^S):CKWYPIM<S!MGM\(V%:I7?V^PXSTXP&#LP24V_Z)PXPXA?TQ3
+MF2EH=S"Y&,VNKN=[7/7_4D5C\Y;ND#Z./R_=T9?OUK]ET*W.[75Q,X-/TP4U
+M;F%PO;BJJK"CT'SZ3?1R&WU(Y#E9,P^KYF$UJ3"9VY:AYI$?BC17SRDG6&SA
+MMML.:>QOVL>HT)H*;2K)5-W7[X4/KEB)@D4P:/^+NFR1IY5*+RMS@.O4N$Y#
+L"1;\(6,Q+&:7Q$'G%N)YU[EUV#TS^B'W'_+'N*\\;"*+<NT?A^+?3ZH*````
 `
 end
+
+-- 
+Vojtech Pavlik
+SuSE Labs

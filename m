@@ -1,42 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265884AbTF3Uwg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jun 2003 16:52:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265889AbTF3Uwg
+	id S265916AbTF3VBL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jun 2003 17:01:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265917AbTF3VBK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jun 2003 16:52:36 -0400
-Received: from lindsey.linux-systeme.com ([80.190.48.67]:25875 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S265884AbTF3Uwf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jun 2003 16:52:35 -0400
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: Working Overloaded Linux Kernel
-To: Andrew Morton <akpm@digeo.com>
-Subject: Re: patch-O1int-0306281420 for 2.5.73 interactivity
-Date: Mon, 30 Jun 2003 23:05:10 +0200
-User-Agent: KMail/1.5.2
-Cc: kernel@kolivas.org, linux-kernel@vger.kernel.org,
-       felipe_alfaro@linuxmail.org, zwane@linuxpower.ca, efault@gmx.de
-References: <200306281516.12975.kernel@kolivas.org> <200306301207.27585.m.c.p@wolk-project.de> <20030630031704.651dc862.akpm@digeo.com>
-In-Reply-To: <20030630031704.651dc862.akpm@digeo.com>
+	Mon, 30 Jun 2003 17:01:10 -0400
+Received: from [66.212.224.118] ([66.212.224.118]:17160 "EHLO
+	hemi.commfireservices.com") by vger.kernel.org with ESMTP
+	id S265916AbTF3VBH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jun 2003 17:01:07 -0400
+Date: Mon, 30 Jun 2003 17:04:20 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Mel Gorman <mel@csn.ul.ie>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG] 2.5.73 Scheduling while atomic with taskfile IO and high
+ memory
+In-Reply-To: <Pine.LNX.4.53.0306302052520.22576@skynet>
+Message-ID: <Pine.LNX.4.53.0306301702150.2299@montezuma.mastecende.com>
+References: <Pine.LNX.4.53.0306302052520.22576@skynet>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200306302305.10538.m.c.p@wolk-project.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 30 June 2003 12:17, Andrew Morton wrote:
+On Mon, 30 Jun 2003, Mel Gorman wrote:
 
-Hi Andrew,
+> # CONFIG_BLK_DEV_AEC62XX is not set
+> # CONFIG_BLK_DEV_ALI15X3 is not set
+> # CONFIG_BLK_DEV_AMD74XX is not set
+> # CONFIG_BLK_DEV_CMD64X is not set
+> # CONFIG_BLK_DEV_TRIFLEX is not set
+> # CONFIG_BLK_DEV_CY82C693 is not set
+> # CONFIG_BLK_DEV_CS5520 is not set
+> # CONFIG_BLK_DEV_HPT34X is not set
+> # CONFIG_BLK_DEV_HPT366 is not set
+> # CONFIG_BLK_DEV_SC1200 is not set
+> # CONFIG_BLK_DEV_PIIX is not set
+> # CONFIG_BLK_DEV_NS87415 is not set
+> # CONFIG_BLK_DEV_OPTI621 is not set
+> # CONFIG_BLK_DEV_PDC202XX_OLD is not set
+> # CONFIG_BLK_DEV_PDC202XX_NEW is not set
+> # CONFIG_BLK_DEV_RZ1000 is not set
+> # CONFIG_BLK_DEV_SVWKS is not set
+> # CONFIG_BLK_DEV_SIIMAGE is not set
+> # CONFIG_BLK_DEV_SIS5513 is not set
+> # CONFIG_BLK_DEV_SLC90E66 is not set
+> # CONFIG_BLK_DEV_TRM290 is not set
+> # CONFIG_BLK_DEV_VIA82CXXX is not set
+> # CONFIG_IDEDMA_IVB is not set
 
-> > Now I've tried your suggestion, "make -j2" with .73-mm2 + the mentioned
-> >  patches. Three skips during the whole compilation (bzImage modules).
-> And what happens without the scheduler patches?
-Not countable XMMS skips (read: too many)
+Could you try selecting your specific IDE chipset (or all), it doesn't 
+look like PIO is getting along famously with various other bits. I also 
+noticed TCQ, do you have any TCQ capable IDE devices?
 
-ciao, Marc
-
+	Zwane
 

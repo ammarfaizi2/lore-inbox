@@ -1,36 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263334AbTIWGmW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Sep 2003 02:42:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263335AbTIWGmV
+	id S263270AbTIWGpy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Sep 2003 02:45:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263314AbTIWGpy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Sep 2003 02:42:21 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:57216 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S263334AbTIWGmV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Sep 2003 02:42:21 -0400
-Date: Tue, 23 Sep 2003 07:42:00 +0100
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200309230642.h8N6g0S9000354@81-2-122-30.bradfords.org.uk>
-To: matti.aarnio@zmailer.org, mpm@selenic.com
-Subject: Re: banned again ?
-Cc: jamagallon@able.es, linux-kernel@vger.kernel.org
+	Tue, 23 Sep 2003 02:45:54 -0400
+Received: from miranda.org ([209.58.150.153]:57096 "HELO miranda.org")
+	by vger.kernel.org with SMTP id S263270AbTIWGpx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Sep 2003 02:45:53 -0400
+Date: Tue, 23 Sep 2003 12:15:45 +0530
+From: Abhijit Menon-Sen <ams@wiw.org>
+To: linux-kernel@vger.kernel.org
+Subject: how is recv(..., MSG_PEEK) racy?
+Message-ID: <20030923121545.D700@lustre.dyn.wiw.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > Am I unsibcribed again ?
-> > 
-> > No.  Nor anything is stuck at VGER towards your domain.
-> > Something else might be wrong in your local system(s).
-> > 
-> > On overall, these questions should go to address:
-> >     postmaster@vger.kernel.org
->
-> Perhaps a web page that shows the length and median wait time of
-> vger's backlog would help answer the usual "did vger drop me or is it
-> just congested?" questions. Sending resubscribe messages to majordomo
-> doesn't tend to help matters in the congestion case.
+(I'm reposting to linux-kernel because I got no response on netdev.)
 
-http://vger.kernel.org/z
+I'm trying to understand a fetchmail problem that causes large downloads
+from IMAP servers to fail randomly. For some reason, fetchmail uses the
+following bizarre code inside a loop to read data from the server:
 
-John.
+    if ((n = recv(sock, bp, len, MSG_PEEK)) <= 0)
+        return (-1);
+
+    if ((newline = memchr(bp, '\n', n)) != NULL)
+        n = newline - bp + 1;
+
+    if ((n = read(sock, bp, n)) == -1)
+        return (-1);
+
+The problem occurs (at an unpredictable time, but very often, and with a
+greater probability with a larger attachment) when the recv() returns 0,
+although tcpdump doesn't show the server closing the connection, or any
+other unusual behaviour.
+
+Are there any circumstances other than the connection being closed where
+recv(..., MSG_PEEK) can return 0? (Stevens/SUSv3 don't mention any.)
+
+I found the following (paraphrased) comment in net/ipv4/tcp.c:
+
+    if ((flags & MSG_PEEK) && peek_seq != tp->copied_seq) {
+        printk(KERN_DEBUG "TCP(%s:%d): Application bug, race in MSG_PEEK.\n",
+               current->comm, current->pid);
+
+While fetchmail doesn't seem to be triggering that printk(), I'm curious
+about what the race condition is. Google found a post by DaveM saying it
+has something to do with URG data, but without any further details. I'd
+appreciate any explanation of the problem(s).
+
+Thank you.
+
+-- ams

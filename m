@@ -1,94 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311723AbSCXHRr>; Sun, 24 Mar 2002 02:17:47 -0500
+	id <S311735AbSCXH1I>; Sun, 24 Mar 2002 02:27:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311731AbSCXHRi>; Sun, 24 Mar 2002 02:17:38 -0500
-Received: from ohiper1-13.apex.net ([209.250.47.28]:21765 "EHLO
-	hapablap.dyn.dhs.org") by vger.kernel.org with ESMTP
-	id <S311723AbSCXHRc>; Sun, 24 Mar 2002 02:17:32 -0500
-Date: Sun, 24 Mar 2002 01:16:04 -0600
-From: Steven Walter <srwalter@yahoo.com>
-To: Andre Pang <ozone@algorithm.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Re: Screen corruption in 2.4.18
-Message-ID: <20020324071604.GA15618@hapablap.dyn.dhs.org>
-Mail-Followup-To: Steven Walter <srwalter@yahoo.com>,
-	Andre Pang <ozone@algorithm.com.au>, linux-kernel@vger.kernel.org
-In-Reply-To: <200203192112.WAA09721@jagor.srce.hr> <200203222204.XAA01121@jagor.srce.hr> <20020322232304.GA19579@hapablap.dyn.dhs.org> <200203231526.QAA09302@jagor.srce.hr> <20020323160647.GA22958@hapablap.dyn.dhs.org> <1016953516.189201.5912.nullmailer@bozar.algorithm.com.au>
-Mime-Version: 1.0
+	id <S311737AbSCXH06>; Sun, 24 Mar 2002 02:26:58 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:51464 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S311735AbSCXH0o>; Sun, 24 Mar 2002 02:26:44 -0500
+Message-ID: <3C9D7F4B.45B1A766@zip.com.au>
+Date: Sat, 23 Mar 2002 23:24:59 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Updated -aa VM patches
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
-X-Uptime: 01:13:49 up 3 days, 11 min,  0 users,  load average: 1.25, 1.05, 1.01
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 24, 2002 at 06:05:16PM +1100, Andre Pang wrote:
-> On Sat, Mar 23, 2002 at 10:06:47AM -0600, Steven Walter wrote:
-> 
-> > > Don't get it wrong. I *do have* an VT8365. VT8365 (ProSavage KM133) is 
-> > > somewhat the same as VT8363 (KT133), except that 8365 has an integrated 
-> > > Savage graphics card (which *I use*).
-> > 
-> > Aha... I see.  And in thinking about it, I realize that my motherboard
-> > also has this integrated graphics card.  Perhaps this is the difference?
-> > Unfortunately, it seems they both report the same PCI id, so I don't
-> > really know of a way to differentiate them.
-> 
-> I can verify Danijel's report -- I have the same setup
-> (VT8363+VT8353, a.k.a. ProSavage KM133), and I experience the
-> same screen corruption.  Clearing only bit 7 of register 55 fixes
-> the problem; clearing bits 5 and 6 causes the video to go all
-> borky.  There's been another thread about it on lkml over the
-> last week or so.
-> 
-> > I looked at that datasheet, and the datasheet for the 8363.  Both said
-> > not to program offset 55, and both said the bits we are clearing are
-> > "reserved."  Perhaps we should contact VIA directly, tell them the
-> > problem we're having with their current fix, tell them our theory, and
-> > ask if we're right.
-> 
-> Heh, a VIA contact who knows what the hell that register does
-> would be nice :).
-> 
-> In the meantime, I'd probably suggest a patch which looks for
-> clears only bit 7 of Rx55 if an 8363 and an 8365 is found.  I'll
-> whip one up later today.
 
-Alright.  Two seperate verifications are enough for me.  I have a patch,
-but had been sitting on it for the time.  But, here it is.  Comments are
-welcome, I'd like to see this included in 2.4.x and 2.5.x
+Slightly reworked, and a lot more testing.  The diffs against
+2.4.19-pre4 are at
 
-Thanks
--- 
--Steven
-In a time of universal deceit, telling the truth is a revolutionary act.
-			-- George Orwell
-He's alive.  He's alive!  Oh, that fellow at RadioShack said I was mad!
-Well, who's mad now?
-			-- Montgomery C. Burns
+	http://www.zip.com.au/~akpm/linux/patches/2.4/2.4.19-pre4/aa3/
 
---- pci-pc.c~	Sat Mar 23 15:01:37 2002
-+++ pci-pc.c	Sat Mar 23 15:03:45 2002
-@@ -1197,16 +1197,19 @@
- {
- 	u8 v;
- 	int where = 0x55;
-+	int mask = 0x7f; /* Don't clear bits 5 and 6 on the KT133!  It
-+			  * causes strange screen corruption... */
- 
- 	if (d->device == PCI_DEVICE_ID_VIA_8367_0) {
- 		where = 0x95; /* the memory write queue timer register is 
- 				 different for the kt266x's: 0x95 not 0x55 */
-+		mask = 0x1f; /* clear bits 5, 6, 7 */
- 	}
- 
- 	pci_read_config_byte(d, where, &v);
- 	if (v & 0xe0) {
--		printk("Disabling VIA memory write queue: [%02x] %02x->%02x\n", where, v, v & 0x1f);
--		v &= 0x1f; /* clear bits 5, 6, 7 */
-+		printk("Disabling VIA memory write queue: [%02x] %02x->%02x\n", where, v, v & mask);
-+		v &= mask;
- 		pci_write_config_byte(d, where, v);
- 	}
- }
+- Removed the double underscores which offended hch.
+- Shuffled the order so that zone_accounting.patch comes
+  immediately before swap_out.patch.  This is the correct
+  ordering and the patch series now works OK at all steps.
+- I added aa-230-free_zone_bhs.patch to the series.
+
+The latter is code which purportedly fixes the "ZONE_NORMAL
+full of buffer_heads" problem.  I wasn't able to reproduce
+this with a 15:1 highmem:normal split.  But the problem is real.
+
+This piece of code is not a thing of beauty, but I can't think of a
+different way of fixing the problem, and nobody else has proposed
+a different way, and the problem which it addresses is a box-killer.
+A killer of $100,000 boxes, indeed.  It has zilch performance
+impact on lesser machines (I instrumented it), it is stable and I
+think it should go in.
+
+I haven't done anything about the nr_dirty-doesn't-do-anything
+issue.  The code as it stands works well.  The management of
+writeback and dirty memory is the best I've ever seen in Linux.
+Sure, maybe we can get some additional benefit from making nr_dirty
+work as originally intended.  But that's a new feature which can
+potentially have subtle effects.  Now is not the time to be
+fiddling with it, somewhat invalidating all the testing which Andrea,
+SuSE, myself and others have performed.
+
+The other outstanding issue is the icache and dcache shrinkage
+ratios.  Again, I believe that tuning these should be a separate
+effort.  It's not causing any obvious problems.
+
+
+Proposed merge timing is:
+
+writeback changes:
+        aa-010-show_stack.patch
+        aa-020-sync_buffers.patch
+        aa-030-writeout_scheduling.patch
+        aa-040-touch_buffer.patch
+
+VM changes:
+        aa-093-vm_tunables.patch
+        aa-095-zone_accounting.patch
+        aa-096-swap_out.patch
+        aa-100-local_pages.patch
+        aa-120-try_to_free_pages_nozone.patch
+
+The rest:
+        aa-140-misc_junk.patch
+        aa-150-read_write_tweaks.patch
+        aa-160-lru_release_check.patch
+        aa-170-drain_cpu_caches.patch
+        aa-180-activate_page_cleanup.patch
+        aa-190-block_flushpage_check.patch
+        aa-200-active_page_swapout.patch
+        aa-230-free_zone_bhs.patch
+
+-

@@ -1,132 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263124AbUCMQL0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Mar 2004 11:11:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263126AbUCMQL0
+	id S263127AbUCMQNw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Mar 2004 11:13:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263129AbUCMQNv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Mar 2004 11:11:26 -0500
-Received: from hera.kernel.org ([63.209.29.2]:14034 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S263124AbUCMQLJ (ORCPT
+	Sat, 13 Mar 2004 11:13:51 -0500
+Received: from fw.osdl.org ([65.172.181.6]:37297 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263127AbUCMQL4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Mar 2004 11:11:09 -0500
-Date: Sat, 13 Mar 2004 13:10:05 -0300 (BRT)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-X-X-Sender: marcelo@dmt.cyclades
-To: linux-kernel@vger.kernel.org
-Subject: Linux 2.4.26-pre3
-Message-ID: <Pine.LNX.4.44.0403131308220.19678-100000@dmt.cyclades>
+	Sat, 13 Mar 2004 11:11:56 -0500
+Date: Sat, 13 Mar 2004 08:18:48 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Rik van Riel <riel@redhat.com>, Andrea Arcangeli <andrea@suse.de>
+cc: William Lee Irwin III <wli@holomorphy.com>,
+       Hugh Dickins <hugh@veritas.com>, Ingo Molnar <mingo@elte.hu>,
+       Andrew Morton <akpm@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: anon_vma RFC2
+In-Reply-To: <Pine.LNX.4.44.0403130942200.15971-100000@chimarrao.boston.redhat.com>
+Message-ID: <Pine.LNX.4.58.0403130759150.1045@ppc970.osdl.org>
+References: <Pine.LNX.4.44.0403130942200.15971-100000@chimarrao.boston.redhat.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi, 
 
-Here goes the third pre release of 2.4.26.
+Ok, guys,
+ how about this anon-page suggestion?
 
-It contains a bunch of NFS client fixes, IA64/32-bit PPC updates, sisfb 
-update, amongst others.
+I'm a bit nervous about the complexity issues in Andrea's current setup, 
+so I've been thinking about Rik's per-mm thing. And I think that there is 
+one very simple approach, which should work fine, and should have minimal 
+impact on the existing setup exactly because it is so simple.
 
-Enjoy
+Basic setup:
+ - each anonymous page is associated with exactly _one_ virtual address, 
+   in a "anon memory group". 
 
+   We put the virtual address (shifted down by PAGE_SHIFT) into 
+   "page->index". We put the "anon memory group" pointer into 
+   "page->mapping". We have a PAGE_ANONYMOUS flag to tell the
+   rest of the world about this.
 
-Summary of changes from v2.4.26-pre2 to v2.4.26-pre3
-============================================
+ - the anon memory group has a list of all mm's that it is associated 
+   with.
 
-<andikies:t-online.de>:
-  o sb16 sample size fix
+ - an "execve()" creates a new "anon memory group" and drops the old one.
 
-<dan:geefour.netx4.com>:
-  o Updates to the bootloader code due to changes from immap to cpm2
-  o Add the RPC/EP 8260 board to the configuration for testing the new cpm2 updates.
+ - a mm copy operation just increments the reference count and adds the 
+   new mm to the mm list for that anon memory group.
 
-<hjm:redhat.com>:
-  o Fix LVM snapshot oversized sector calculation
+So now to do reverse mapping, we can take a page, and do
 
-<jbaron:redhat.com>:
-  o mremap NULL pointer dereference fix
+	if (PageAnonymous(page)) {
+		struct anongroup *mmlist = (struct anongroup *)page->mapping;
+		unsigned long address = page->index << PAGE_SHIFT;
+		struct mm_struct *mm;
 
-<mlord:pobox.com>:
-  o Fix vmalloc() spinlocking issues introduced by the "error handling fixes"
+		for_each_entry(mm, mmlist->anon_mms, anon_mm) {
+			.. look up page in page tables in "mm, address" ..
+			.. most of the time we may not even need to look ..
+			.. up the "vma" at all, just walk the page tables ..
+		}
+	} else {
+		/* Shared page */
+		.. look up page using the inode vma list ..
+	}
 
-Adrian Bunk:
-  o agpgart_be.c: remove duplicate PCI_DEVICE_ID_SI_651
+The above all works 99% of the time.
 
-Andrew Morton:
-  o [CRYPTO]: arc4.c compile fix for older gcc's
+The only problem is mremap() after a fork(), and hell, we know that's a
+special case anyway, and let's just add a few lines to copy_one_pte(),
+which basically does:
 
-Arun Sharma:
-  o ia64: Fix and optimize sys32_rt_sigtimedwait()
+	if (PageAnonymous(page) && page->count > 1) {
+		newpage = alloc_page();
+		copy_page(page, newpage);
+		page = newpage;
+	}
+	/* Move the page to the new address */
+	page->index = address >> PAGE_SHIFT;
 
-Bjorn Helgaas:
-  o ia64: (acpi_hp_csr_space): Export only if CONFIG_ACPI
-  o ia64: Tidy up MCA printk's
-  o ia64: (desc_abi): Check for Linux ABI # (3) instead of SysV4 ABI # (0)
-  o ia64: unwind: Add some UNW_DEBUG stuff and remove KDB bits to follow 2.6
-  o ia64: Use __builtin_trap() in BUG() when available
-  o ia64: Remove obsolete sigcontext comment
+and now we have zero special cases.
 
-David Mosberger:
-  o ia64: Drop copyright notices on header files which are either entirely trivial
-  o ia64: Back-port from libunwind: fix off-by-one error in kernel-unwinder
-  o ia64: Fix bug in ia64_get_scratch_nat_bits()/ia64_put_scratch_nat_bits()
+The above should work very well. In most cases the "anongroup" will be 
+very small, and even when it's large (if somebody does a ton of forks 
+without any execve's), we only have _one_ address to check, and that is 
+pretty fast. A high-performance server would use threads, anyway. (And 
+quite frankly, _any_ algorithm will have this issue. Even rmap will have 
+exactly the same loop, although rmap skips any vm's where the page might 
+have been COW'ed or removed).
 
-David S. Miller:
-  o [TIGON3]: tg3_phy_copper_begin() tweaks
-  o [TIGON3]: Allow MAC address changing even when iface is up
-  o [TIGON3]: Always force PHY reset after major hw config changes
-  o [TIGON3]: Update driver version and reldate
+The extra COW in mremap() seems benign. Again, it should usually not even 
+trigger.
 
-David Stevens:
-  o [IPV4]: Add sysctl for per-socket limit on number of mcast src filters
-  o [IPV4/IPV6]: Add sysctl limits for mcast src filters
+What do you think? To me, this seems to be a really simple approach..
 
-Grant Grundler:
-  o [TIGON3]: Consolidate MMIO write flushing using tg3_f() macro
-
-Keith Owens:
-  o ia64: Avoid deadlock when using printk() for MCA and INIT records
-  o ia64: Delete all MCA/INIT/etc record printing code, moved to salinfo_decode in user space.
-  o ia64: Mark MCA variables and functions static where possible
-  o ia64: Delete dead variables and functions from mca.c
-  o ia64: Reorder mca.c to remove the need for forward declarations and to consolidate related code.
-  o ia64: Synchronize mca.c with 2.6.  White space, comment, #ifdef, etc
-  o ia64: MCA, salinfo: calculate irq_safe once and pass it around
-  o ia64: Correct "did we recover from MCA" test and move up a level
-  o ia64: Periodically check for outstanding MCA or INIT records
-  o ia64: remove include/asm-ia64/offset.hs in "make mrproper"
-  o ia64: Delete redundant ia64_mca_check_errors
-  o ia64: update unwind with 2.6 fixes
-  o ia64: add OEM data decode for SGI MCA handler
-  o ia64: copy SAL records so we don't drop them when events occur fast
-
-Kumar Gala:
-  o [PPC32] imported in CPM 8260_io drivers from linuxppc_2_4_devel tree
-  o [PPC32] Added support ADS 8272 board
-  o [PPC32] Renamed 8260 CPM handling to CPM2.  This is to allow reuse of CPM2 code between PQ2 and PQ3 devices.  8xx is considered CPM1
-  o [PPC32] Renamed 8260 CPM handling to CPM2.  This allows reuse of CPM2 code between PQ2 and PQ3 devices.  8xx is considered CPM1
-
-Marcelo Tosatti:
-  o Ogawa Hirofumi: fix FAT over NFSv2
-  o Change LAN media MAINTAINERS entry to Orphan
-  o Changed EXTRAVERSION to -pre3
-
-Patrick McHardy:
-  o [PKT_SCHED]: Fix ipv6 ECN marking in RED scheduler
-
-Thomas Winischhofer:
-  o sisfb update
-
-Trond Myklebust:
-  o A patch to fix an Oops in the locking code
-  o Slight optimization to the NFS writes
-  o A patch by Greg Banks that increases the supported NLM cookie size. This is needed in order to work correctly with Apple and FreeBSD clients.
-  o A patch by Patrice Dumas that ensures that the server index blocks uniquely by using the client address in addition to the value of the NLM cookie field.
-  o A patch by Greg Banks to help fix the "VFS: Busy inodes after unmount." problem that occurs if autofs expires the mountpoint while an NFS sillydelete is still pending.
-  o I have a feeling the second race case of your test is that you are interrupting the fcntl(F_SETLK) call while it is on the wire. If you do that, then the server may record the lock as taken, but the client will never receive the reply, and so will not know that it must clean up locks...
-
-Wensong Zhang:
-  o [IPVS]: Code tidy up
-
-
+		Linus

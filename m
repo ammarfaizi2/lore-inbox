@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262067AbSKTSrv>; Wed, 20 Nov 2002 13:47:51 -0500
+	id <S262215AbSKTS4H>; Wed, 20 Nov 2002 13:56:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262089AbSKTSrv>; Wed, 20 Nov 2002 13:47:51 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:32648 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S262067AbSKTSrq>;
-	Wed, 20 Nov 2002 13:47:46 -0500
-Date: Wed, 20 Nov 2002 18:53:11 +0000
+	id <S262289AbSKTS4H>; Wed, 20 Nov 2002 13:56:07 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:40584 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S262215AbSKTS4G>;
+	Wed, 20 Nov 2002 13:56:06 -0500
+Date: Wed, 20 Nov 2002 19:01:12 +0000
 From: Dave Jones <davej@codemonkey.org.uk>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [CFT] Athlon testers needed.
-Message-ID: <20021120185311.GB10698@suse.de>
+To: Steffen Persvold <sp@scali.com>
+Cc: Dave Jones <davej@codemonkey.org.uk>,
+       Margit Schubert-While <margit@margit.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.20-rc2 strange L1 cache values
+Message-ID: <20021120190112.GC10698@suse.de>
 Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
+	Steffen Persvold <sp@scali.com>,
+	Margit Schubert-While <margit@margit.com>,
+	linux-kernel@vger.kernel.org
+References: <20021120181359.GA10698@suse.de> <Pine.LNX.4.44.0211201941290.15336-100000@sp-laptop.isdn.scali.no>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0211201941290.15336-100000@sp-laptop.isdn.scali.no>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In some obscure documentation, I found out that recent Athlons
-(model 8 stepping 1 and greater) behave better with certain MSRs
-programmed slightly differently to those of earlier models.
-It's likely a lot of BIOSen out there don't get this right
-(Especially in the BIOS older than CPU case).
+On Wed, Nov 20, 2002 at 07:48:27PM +0100, Steffen Persvold wrote:
 
-x86info[1] will be able to dump these registers (run as root
-and use -m option), and mail me the results so I can confirm
-my suspicions.  I've a patch pending, but I'd rather get some
-test data before unleashing it on unsuspecting victims.
+ > >  > <6>CPU: L1 I cache: 0K, L1 D cache: 8K
+ > Yep that works (I have two Xeon boxes with the same issue) :
+ > But why does this P4 Trace cache report as L1 I cache on 2.4.18 ? 
 
-I'm particularly interested in hearing from folks who have
-been experiencing problems with model 8 and above Athlons,
-earlier models are less interesting for the moment.
+Look again above, and you'll see .18 said it had 0K L1 (which is
+correct, L1 != Trace cache).
+ 
+ > Does this have any implications on the 2.4.18 performance (or the 
+ > 2.4.20-rc2 performance without the descriptors.diff) ?
+
+The SMP weighting should be done with L2 cache size, which
+was correct on .18 too, so it should be ok.
 
 		Dave
-
-[1] http://www.codemonkey.org.uk/x86info/x86info-1.11.tar.gz
-
 
 -- 
 | Dave Jones.        http://www.codemonkey.org.uk

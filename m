@@ -1,42 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289971AbSAKO6m>; Fri, 11 Jan 2002 09:58:42 -0500
+	id <S289975AbSAKPH4>; Fri, 11 Jan 2002 10:07:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289974AbSAKO6c>; Fri, 11 Jan 2002 09:58:32 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:8713 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S289971AbSAKO6S>; Fri, 11 Jan 2002 09:58:18 -0500
-Date: Fri, 11 Jan 2002 14:58:11 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] O(1) scheduler, -H5
-Message-ID: <20020111145811.B31366@flint.arm.linux.org.uk>
-In-Reply-To: <20020111113131.C30756@flint.arm.linux.org.uk> <E16P1Qd-0007aL-00@the-village.bc.nu>
-Mime-Version: 1.0
+	id <S289976AbSAKPHq>; Fri, 11 Jan 2002 10:07:46 -0500
+Received: from pat.uio.no ([129.240.130.16]:13001 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S289975AbSAKPHi>;
+	Fri, 11 Jan 2002 10:07:38 -0500
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E16P1Qd-0007aL-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Jan 11, 2002 at 01:09:03PM +0000
+Content-Transfer-Encoding: 7bit
+Message-ID: <15422.65459.871735.203004@charged.uio.no>
+Date: Fri, 11 Jan 2002 16:07:31 +0100
+To: Hans-Peter Jansen <hpj@urpla.net>
+Cc: trond.myklebust@fys.uio.no, linux-kernel@vger.kernel.org
+Subject: [NFS] some strangeness (at least) with linux-2.4.17-NFS_ALL patch
+In-Reply-To: <20020111131528.44F8613E6@shrek.lisa.de>
+In-Reply-To: <20020111131528.44F8613E6@shrek.lisa.de>
+X-Mailer: VM 6.92 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 11, 2002 at 01:09:03PM +0000, Alan Cox wrote:
-> > The serial driver (old or new) open/close functions are one of the worst
-> > offenders of the global-cli-and-hold-kernel-lock-and-schedule problem.
-> > I'm currently working on fixing this in the new serial driver.
-> 
-> Someone fixed serial.c to use spinlocks a long while ago. Its just not
-> merged
+>>>>> " " == Hans-Peter Jansen <hpj@urpla.net> writes:
 
-Unfortunately it wasn't a simple "replace global irq with spinlocks" - some
-code also got moved around so its not clear that the problem was fixed by
-the spinlocks or the code reordering.  I'd rather know which it was.
+     > The problem is, ls on the client side complains about an I/O
+     > error, when listing the conf/ dir.
 
-In addition, holding a spinlock while calling request_irq is asking for
-trouble.
+What server is this?
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+     > After removing this symlink (within the server), ls is OK
+     > within the client. Trying to copy servers /etc/ou.conf file to
+     > /usr/share/openuniverse within the client, cp complains about
+     > to many levels of symlinks?!? (/usr is shared)
 
+That can happen, yes. The symlink is still in the dcache, and so the
+VFS thinks that we want to open whatever it is that the symlink is
+pointing to (not the symlink itself). For this reason, less strict
+checking is performed, and so the client does not immediately see the
+change.
+
+If, however, you had first done 'ls -l' or something that tries to
+read the symlink itself, more strict revalidation checks are
+performed, and the stale dentry would have been detected.
+
+I can tighten the checks on this sort of thing a bit, but if so, it
+needs to be done carefully. It is important to make sure that
+operations like
+   'ls /usr/lib/*'
+(in which you want the system to repeatedly look up the same path) are
+efficient by caching the '/usr/lib' bit even if that /usr/lib is a
+symlink.
+Of course every time we do open("/usr/lib/libc.so"), we *do* want to
+make sure that we perform strict checks when we do the lookup of the
+last element of the path (on the actual file "libc.so").
+
+Cheers,
+  Trond

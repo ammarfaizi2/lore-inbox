@@ -1,105 +1,181 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263946AbUA0XVZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 18:21:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264919AbUA0XVZ
+	id S265665AbUA0XgV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 18:36:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265675AbUA0XgU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 18:21:25 -0500
-Received: from mail.kroah.org ([65.200.24.183]:24505 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263946AbUA0XVW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 18:21:22 -0500
-Date: Tue, 27 Jan 2004 15:21:07 -0800
-From: Greg KH <greg@kroah.com>
-To: torvalds@osdl.org, akpm@osdl.org
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [BK PATCH] USB update for 2.6.2-rc2
-Message-ID: <20040127232107.GA28680@kroah.com>
+	Tue, 27 Jan 2004 18:36:20 -0500
+Received: from mail.kroah.org ([65.200.24.183]:38847 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265665AbUA0XeT convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jan 2004 18:34:19 -0500
+Subject: [PATCH] i2c driver fixes for 2.6.2-rc2
+In-Reply-To: <20040127233242.GA28891@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Tue, 27 Jan 2004 15:34:13 -0800
+Message-Id: <1075246453680@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+ChangeSet 1.1474.148.1, 2004/01/23 17:14:22-08:00, mhoffman@lightlink.com
 
-Here are some USB patches for 2.6.2-rc2.  Here are the main types of
-changes:
-	- a number of small bugfixes
-	- a usb gadget update including the ability to enable the
-	  drivers to build properly, and a new gadget filesystem driver.
-	- a new ohci host controller driver for the omap platform.
+[PATCH] I2C: i2c-piix4.c bugfix
 
-Please pull from:  bk://kernel.bkbits.net/gregkh/linux/usb-2.6
-
-Patches will be posted to linux-usb-devel as a follow-up thread for
-those who want to see them.
-
-thanks,
-
-greg k-h
-
- drivers/usb/Kconfig                |    2 
- drivers/usb/core/hub.c             |    5 
- drivers/usb/core/message.c         |   37 
- drivers/usb/core/usb.c             |   24 
- drivers/usb/core/usb.h             |    3 
- drivers/usb/gadget/Kconfig         |  207 +
- drivers/usb/gadget/Makefile        |    5 
- drivers/usb/gadget/ether.c         |   98 
- drivers/usb/gadget/file_storage.c  | 4169 +++++++++++++++++++++++++++++++++++++
- drivers/usb/gadget/net2280.c       |  489 ++--
- drivers/usb/gadget/net2280.h       |    6 
- drivers/usb/gadget/serial.c        |   27 
- drivers/usb/gadget/zero.c          |   10 
- drivers/usb/host/ohci-hcd.c        |    6 
- drivers/usb/host/ohci-omap.c       |  673 +++++
- drivers/usb/host/ohci-omap.h       |   57 
- drivers/usb/media/dabusb.c         |   12 
- drivers/usb/misc/Kconfig           |    2 
- drivers/usb/misc/auerswald.c       |    4 
- drivers/usb/misc/tiglusb.c         |   24 
- drivers/usb/serial/kobil_sct.c     |    2 
- drivers/usb/serial/whiteheat.c     |   27 
- drivers/usb/storage/scsiglue.c     |   39 
- drivers/usb/storage/unusual_devs.h |   12 
- include/linux/usb.h                |    1 
- sound/usb/usbaudio.c               |    6 
- 26 files changed, 5574 insertions(+), 373 deletions(-)
------
+This patch fixes a "Trying to release non-existent resource" error that
+occurs during rmmod when the device isn't actually present.  It includes
+some other cleanups too: error paths, whitespace, magic numbers, __devinit.
 
 
-Alan Stern:
-  o USB: Update sound/usb/usbaudio.c
-  o USB: Fix DMA coherence when reading device descriptor
-  o USB: Don't dereference NULL actconfig
-  o USB Storage: unusual_devs update
+ drivers/i2c/busses/i2c-piix4.c |   48 +++++++++++++++++++++++------------------
+ 1 files changed, 27 insertions(+), 21 deletions(-)
 
-Arjan van de Ven:
-  o usb: remove some sleep_on's
 
-Dave Jones:
-  o USB: fix suspicious pointer usage in kobil_sct driver
-
-David Brownell:
-  o USB gadget: serial driver config update
-  o USB gadget: ethernet config updates
-  o USB gadget: zero config updates
-  o USB gadget: config/build updates
-  o USB gadget: add File-backed Storage Gadget (FSG)
-  o USB gadget: net2280 controller updates
-
-Greg Kroah-Hartman:
-  o USB: add ohci support for OMAP controller
-  o USB: fix up whiteheat syntax errors from previous patch
-  o USB: fix up emi drivers Kconfig dependancy
-  o USB storage: remove info sysfs file as it violates the sysfs 1 value per file rule
-
-Herbert Xu:
-  o USB Storage: revert freecom dvd-rw fx-50 usb-ide patch
-
-Oliver Neukum:
-  o USB: fix dma to stack in ti driver
-  o USB: fix whiteheat doing DMA to stack
+diff -Nru a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
+--- a/drivers/i2c/busses/i2c-piix4.c	Tue Jan 27 15:27:30 2004
++++ b/drivers/i2c/busses/i2c-piix4.c	Tue Jan 27 15:27:30 2004
+@@ -68,6 +68,9 @@
+ #define SMBSLVEVT	(0xA + piix4_smba)
+ #define SMBSLVDAT	(0xC + piix4_smba)
+ 
++/* count for request_region */
++#define SMBIOSIZE	8
++
+ /* PCI Address Constants */
+ #define SMBBA		0x090
+ #define SMBHSTCFG	0x0D2
+@@ -112,14 +115,13 @@
+ 
+ static int piix4_transaction(void);
+ 
+-
+ static unsigned short piix4_smba = 0;
+ static struct i2c_adapter piix4_adapter;
+ 
+ /*
+  * Get DMI information.
+  */
+-static int ibm_dmi_probe(void)
++static int __devinit ibm_dmi_probe(void)
+ {
+ #ifdef CONFIG_X86
+ 	extern int is_unsafe_smbus;
+@@ -129,9 +131,9 @@
+ #endif
+ }
+ 
+-static int piix4_setup(struct pci_dev *PIIX4_dev, const struct pci_device_id *id)
++static int __devinit piix4_setup(struct pci_dev *PIIX4_dev,
++				const struct pci_device_id *id)
+ {
+-	int error_return = 0;
+ 	unsigned char temp;
+ 
+ 	/* match up the function */
+@@ -144,8 +146,7 @@
+ 		dev_err(&PIIX4_dev->dev, "IBM Laptop detected; this module "
+ 			"may corrupt your serial eeprom! Refusing to load "
+ 			"module!\n");
+-		error_return = -EPERM;
+-		goto END;
++		return -EPERM;
+ 	}
+ 
+ 	/* Determine the address of the SMBus areas */
+@@ -163,11 +164,10 @@
+ 		}
+ 	}
+ 
+-	if (!request_region(piix4_smba, 8, "piix4-smbus")) {
++	if (!request_region(piix4_smba, SMBIOSIZE, "piix4-smbus")) {
+ 		dev_err(&PIIX4_dev->dev, "SMB region 0x%x already in use!\n",
+ 			piix4_smba);
+-		error_return = -ENODEV;
+-		goto END;
++		return -ENODEV;
+ 	}
+ 
+ 	pci_read_config_byte(PIIX4_dev, SMBHSTCFG, &temp);
+@@ -214,8 +214,9 @@
+ 		} else {
+ 			dev_err(&PIIX4_dev->dev,
+ 				"Host SMBus controller not enabled!\n");
+-			error_return = -ENODEV;
+-			goto END;
++			release_region(piix4_smba, SMBIOSIZE);
++			piix4_smba = 0;
++			return -ENODEV;
+ 		}
+ 	}
+ 
+@@ -231,8 +232,7 @@
+ 	dev_dbg(&PIIX4_dev->dev, "SMBREV = 0x%X\n", temp);
+ 	dev_dbg(&PIIX4_dev->dev, "SMBA = 0x%X\n", piix4_smba);
+ 
+-END:
+-	return error_return;
++	return 0;
+ }
+ 
+ /* Another internally used function */
+@@ -465,7 +465,8 @@
+ 	{ 0, }
+ };
+ 
+-static int __devinit piix4_probe(struct pci_dev *dev, const struct pci_device_id *id)
++static int __devinit piix4_probe(struct pci_dev *dev,
++				const struct pci_device_id *id)
+ {
+ 	int retval;
+ 
+@@ -479,17 +480,24 @@
+ 	snprintf(piix4_adapter.name, I2C_NAME_SIZE,
+ 		"SMBus PIIX4 adapter at %04x", piix4_smba);
+ 
+-	retval = i2c_add_adapter(&piix4_adapter);
++	if ((retval = i2c_add_adapter(&piix4_adapter))) {
++		dev_err(&dev->dev, "Couldn't register adapter!\n");
++		release_region(piix4_smba, SMBIOSIZE);
++		piix4_smba = 0;
++	}
+ 
+ 	return retval;
+ }
+ 
+ static void __devexit piix4_remove(struct pci_dev *dev)
+ {
+-	i2c_del_adapter(&piix4_adapter);
++	if (piix4_smba) {
++		i2c_del_adapter(&piix4_adapter);
++		release_region(piix4_smba, SMBIOSIZE);
++		piix4_smba = 0;
++	}
+ }
+ 
+-
+ static struct pci_driver piix4_driver = {
+ 	.name		= "piix4-smbus",
+ 	.id_table	= piix4_ids,
+@@ -502,15 +510,13 @@
+ 	return pci_module_init(&piix4_driver);
+ }
+ 
+-
+ static void __exit i2c_piix4_exit(void)
+ {
+ 	pci_unregister_driver(&piix4_driver);
+-	release_region(piix4_smba, 8);
+ }
+ 
+-MODULE_AUTHOR
+-    ("Frodo Looijaard <frodol@dds.nl> and Philip Edelbrock <phil@netroedge.com>");
++MODULE_AUTHOR("Frodo Looijaard <frodol@dds.nl> and "
++		"Philip Edelbrock <phil@netroedge.com>");
+ MODULE_DESCRIPTION("PIIX4 SMBus driver");
+ MODULE_LICENSE("GPL");
+ 
 

@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135936AbRDZVQm>; Thu, 26 Apr 2001 17:16:42 -0400
+	id <S135935AbRDZVXR>; Thu, 26 Apr 2001 17:23:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135935AbRDZVQS>; Thu, 26 Apr 2001 17:16:18 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:29514 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S135939AbRDZVQM>; Thu, 26 Apr 2001 17:16:12 -0400
-Date: Thu, 26 Apr 2001 23:16:03 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
+	id <S135939AbRDZVXH>; Thu, 26 Apr 2001 17:23:07 -0400
+Received: from green.mif.pg.gda.pl ([153.19.42.8]:10766 "EHLO
+	green.mif.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S135935AbRDZVWz>; Thu, 26 Apr 2001 17:22:55 -0400
+From: Andrzej Krzysztofowicz <kufel!ankry@green.mif.pg.gda.pl>
+Message-Id: <200104262113.XAA01552@kufel.dom>
 Subject: Re: [PATCH] SMP race in ext2 - metadata corruption.
-Message-ID: <20010426231603.A21873@athlon.random>
-In-Reply-To: <20010426221109.E819@athlon.random> <Pine.LNX.4.31.0104261325220.1118-100000@penguin.transmeta.com>
-Mime-Version: 1.0
+To: kufel!transmeta.com!torvalds@green.mif.pg.gda.pl (Linus Torvalds)
+Date: Thu, 26 Apr 2001 23:13:30 +0200 (CEST)
+Cc: kufel!math.psu.edu!viro@green.mif.pg.gda.pl (Alexander Viro),
+        kufel!suse.de!andrea@green.mif.pg.gda.pl (Andrea Arcangeli),
+        kufel!lxorguk.ukuu.org.uk!alan@green.mif.pg.gda.pl (Alan Cox),
+        kufel!vger.kernel.org!linux-kernel@green.mif.pg.gda.pl
+In-Reply-To: <Pine.LNX.4.31.0104261303030.1118-100000@penguin.transmeta.com> from "Linus Torvalds" at kwi 26, 2001 01:08:25 
+X-Mailer: ELM [version 2.5 PL0pre8]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.31.0104261325220.1118-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Thu, Apr 26, 2001 at 01:26:15PM -0700
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 26, 2001 at 01:26:15PM -0700, Linus Torvalds wrote:
 > 
-> 
-> On Thu, 26 Apr 2001, Andrea Arcangeli wrote:
-> >
-> > What I'm saying above is that even without the wait_on_buffer ext2 can
-> > screwup itself because the splice happens after the buffer are just all
-> > uptodate so any "reader" (I mean any reader through ext2 not through
-> > block_dev) will never try to do a bread on that blocks before they're
-> > just zeroed and uptodate.
-> 
-> I assume you meant "..can _not_ screw up itself..", otherwise the rest of
+> Note that I think all these arguments are fairly bogus.  Doing things like
+> "dump" on a live filesystem is stupid and dangerous (in my opinion it is
+> stupid and dangerous to use "dump" at _all_, but that's a whole 'nother
+> discussion in itself), and there really are no valid uses for opening a
+> block device that is already mounted. More importantly, I don't think
+> anybody actually does.
 
-yes, it was a typo sorry.
+I know a few people that often do:
 
-Andrea
+dd if=/dev/hda1 of=/dev/hdc1
+e2fsck /dev/hdc1
+
+to make an "exact" copy of a currently working system.
+
+Maybe it is stupid, but they do.
+Fortunately, their systems are not SMP...
+
+Andrzej
+

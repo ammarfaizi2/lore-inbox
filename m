@@ -1,32 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130656AbRAHLYr>; Mon, 8 Jan 2001 06:24:47 -0500
+	id <S129387AbRAHL3H>; Mon, 8 Jan 2001 06:29:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131097AbRAHLYh>; Mon, 8 Jan 2001 06:24:37 -0500
-Received: from Prins.externet.hu ([212.40.96.161]:42770 "EHLO
-	prins.externet.hu") by vger.kernel.org with ESMTP
-	id <S130656AbRAHLYX>; Mon, 8 Jan 2001 06:24:23 -0500
-Date: Mon, 8 Jan 2001 12:23:15 +0100 (CET)
-From: Narancs 1 <narancs1@externet.hu>
-To: Nils Philippsen <nils@fht-esslingen.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: postgres/shm problem
-In-Reply-To: <Pine.LNX.4.30.0101081142090.8952-100000@rhlx01.fht-esslingen.de>
-Message-ID: <Pine.LNX.4.02.10101081222211.17427-100000@prins.externet.hu>
+	id <S129561AbRAHL2s>; Mon, 8 Jan 2001 06:28:48 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:18707 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129387AbRAHL2r>; Mon, 8 Jan 2001 06:28:47 -0500
+Subject: Re: [PATCH] 2.4.0-ac4 : fs/qnx4/inode.c
+To: fdavis112@juno.com (Frank Davis)
+Date: Mon, 8 Jan 2001 11:30:46 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+In-Reply-To: <20010108.010347.-134485.3.fdavis112@juno.com> from "Frank Davis" at Jan 08, 2001 01:03:46 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14FaVk-0004LN-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 8 Jan 2001, Nils Philippsen wrote:
+>     While compiling 2.4.0-ac4, I receivied the following..Looks like a
+> typo...Patch is also below.
 
-
-> /proc/sys/kernel/shmall to "0" (that is the maximum number of SHM segments).
-yes, powertweak made it wrong.
-what is the good value for it?
-
-thx
-Narancs v1
+Cut and paste error on a path I didn't check - thanks
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

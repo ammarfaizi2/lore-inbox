@@ -1,51 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261726AbULNWxI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261709AbULNWye@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261726AbULNWxI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Dec 2004 17:53:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261692AbULNWuy
+	id S261709AbULNWye (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Dec 2004 17:54:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261692AbULNWx2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Dec 2004 17:50:54 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:36029 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261709AbULNWuV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Dec 2004 17:50:21 -0500
-Subject: Re: dynamic-hz
-From: Lee Revell <rlrevell@joe-job.com>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: Andrea Arcangeli <andrea@suse.de>, Pavel Machek <pavel@suse.cz>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <cone.1103064011.405603.25531.502@pc.kolivas.org>
-References: <20041211142317.GF16322@dualathlon.random>
-	 <20041212163547.GB6286@elf.ucw.cz>
-	 <20041212222312.GN16322@dualathlon.random> <41BCD5F3.80401@kolivas.org>
-	 <1103063312.14699.54.camel@krustophenia.net>
-	 <cone.1103064011.405603.25531.502@pc.kolivas.org>
-Content-Type: text/plain
-Date: Tue, 14 Dec 2004 17:50:19 -0500
-Message-Id: <1103064619.14699.73.camel@krustophenia.net>
+	Tue, 14 Dec 2004 17:53:28 -0500
+Received: from h142-az.mvista.com ([65.200.49.142]:26053 "HELO
+	xyzzy.farnsworth.org") by vger.kernel.org with SMTP id S261709AbULNWvx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Dec 2004 17:51:53 -0500
+From: "Dale Farnsworth" <dale@farnsworth.org>
+Date: Tue, 14 Dec 2004 15:51:50 -0700
+To: linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>
+Cc: Ralf Baechle <ralf@linux-mips.org>, Russell King <rmk@arm.linux.org.uk>,
+       Manish Lachwani <mlachwani@mvista.com>,
+       Brian Waite <brian@waitefamily.us>,
+       "Steven J. Hill" <sjhill@realitydiluted.com>
+Subject: [PATCH 7/6] mv643xx_eth: Remove use of MV_SET_REG_BITS macro
+Message-ID: <20041214225150.GA21869@xyzzy>
+References: <20041213220949.GA19609@xyzzy>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041213220949.GA19609@xyzzy>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-12-15 at 09:40 +1100, Con Kolivas wrote:
-> Lee Revell writes:
-> 
-> > On Mon, 2004-12-13 at 10:36 +1100, Con Kolivas wrote:
-> >> The performance benefit, if any, is often lost in noise during 
-> >> benchmarks and when there, is less than 1%.
-> > 
-> > I have measured 2.1-2.3% residency for the timer ISR on my 600Mhz VIA
-> > C3.  And this is a desktop - you have many many embedded systems that
-> > are slower.  For these systems the difference is very real.
-> 
-> Could you explain residency and it's relevance to throughput please? I've 
-> not heard this term before.
-> 
+Oops, I missed this in my first set of patches for the mv643xx_eth driver.
 
-It means 2.1-2.3% of wallclock time is spent running the timer interrupt
-handler.  IOW, it runs for 21-23 usecs, 1000x per second.
+This patch removes the need for the MV_SET_REG_BITS macro in the mv643xx_eth
+driver.
 
-Lee 
+Signed-off-by: Dale Farnsworth <dale@farnsworth.org>
 
+Index: linux-2.5-marvell-submit/drivers/net/mv643xx_eth.c
+===================================================================
+--- linux-2.5-marvell-submit.orig/drivers/net/mv643xx_eth.c	2004-12-14 15:07:49.537387217 -0700
++++ linux-2.5-marvell-submit/drivers/net/mv643xx_eth.c	2004-12-14 15:07:53.721135861 -0700
+@@ -1845,8 +1845,9 @@
+ 	MV_WRITE(MV64340_ETH_PORT_SERIAL_CONTROL_REG(eth_port_num),
+ 		 mp->port_serial_control);
+ 
+-	MV_SET_REG_BITS(MV64340_ETH_PORT_SERIAL_CONTROL_REG(eth_port_num),
+-			MV64340_ETH_SERIAL_PORT_ENABLE);
++	MV_WRITE(MV64340_ETH_PORT_SERIAL_CONTROL_REG(eth_port_num),
++		MV_READ(MV64340_ETH_PORT_SERIAL_CONTROL_REG(eth_port_num)) |
++						MV64340_ETH_SERIAL_PORT_ENABLE);
+ 
+ 	/* Assign port SDMA configuration */
+ 	MV_WRITE(MV64340_ETH_SDMA_CONFIG_REG(eth_port_num),

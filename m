@@ -1,55 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264937AbUG3Cqi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265212AbUG3CyB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264937AbUG3Cqi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 22:46:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267526AbUG3Cqg
+	id S265212AbUG3CyB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 22:54:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267563AbUG3CyB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 22:46:36 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:56802 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S267513AbUG3Cq1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 22:46:27 -0400
-Date: Thu, 29 Jul 2004 22:46:15 -0400 (EDT)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@dhcp030.home.surriel.com
-To: Chris Wright <chrisw@osdl.org>
-cc: Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, andrea@suse.de
-Subject: Re: [patch] mlock-as-nonroot revisted
-In-Reply-To: <20040729185215.Q1973@build.pdx.osdl.net>
-Message-ID: <Pine.LNX.4.58.0407292243330.9228@dhcp030.home.surriel.com>
-References: <20040729100307.GA23571@devserv.devel.redhat.com>
- <20040729185215.Q1973@build.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 29 Jul 2004 22:54:01 -0400
+Received: from mail-relay-4.tiscali.it ([213.205.33.44]:43932 "EHLO
+	mail-relay-4.tiscali.it") by vger.kernel.org with ESMTP
+	id S265212AbUG3Cx7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jul 2004 22:53:59 -0400
+Date: Fri, 30 Jul 2004 04:53:49 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [cleanup] do_general_protection doesn't disable irq
+Message-ID: <20040730025349.GE30369@dualathlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 29 Jul 2004, Chris Wright wrote:
+A trap gate shouldn't affect the irq status at all.
 
-> 2) mlock_user isn't ever set, so SHM_LOCK accounting looks broken
-> (trivial to fix).
+This should be a valid cleanup that removes a slightly confusing noop:
 
-Woops, looks like Arjan's patch is missed a little piece of
-the code there when going throug the forward port...
+Index: linux-2.5/arch/i386/kernel/traps.c
+===================================================================
+RCS file: /home/andrea/crypto/cvs/linux-2.5/arch/i386/kernel/traps.c,v
+retrieving revision 1.77
+diff -u -p -r1.77 traps.c
+--- linux-2.5/arch/i386/kernel/traps.c	13 Jul 2004 18:02:33 -0000	1.77
++++ linux-2.5/arch/i386/kernel/traps.c	30 Jul 2004 02:44:23 -0000
+@@ -431,9 +431,6 @@ DO_ERROR_INFO(17, SIGBUS, "alignment che
+ 
+ asmlinkage void do_general_protection(struct pt_regs * regs, long error_code)
+ {
+-	if (regs->eflags & X86_EFLAGS_IF)
+-		local_irq_enable();
+- 
+ 	if (regs->eflags & VM_MASK)
+ 		goto gp_in_vm86;
+ 
 
-> 3) now the RLIMIT_MEMLOCK value represents at best half of what a user
-> can acutally lock.  because half of the accounting (mlock) is done against
-> locked_vm, and the other half against locked_shm.  and as i mentioned
-> above, seems that hugetlb is unaccounted for.
+Thanks to Karsten for noticing a trap gate doesn't actually enable irq
+by default either (offtopic issue with the above patch, but while
+reading the 2.6 code I found the above bit which just confused me more
+since it's a noop, either that or you meant to use set_intr_gate, not
+set_trap_gate on the do_general_protection handler, but it seems not
+needed to use a trap gate since a trap gate shouldn't enable irqs by
+default). Please correct me if wrong.
 
-Well, the RLIMIT_MEMLOCK is a per-process limit anyway so the
-total amount of memory a user can mlock isn't really limited
-by it.  The user_struct itself just gets the same limit as each
-of the user's processes, to account for memory that doesn't
-have the same life time as processes.
-
-> I do agree, however, that storing in user struct allows for quota like
-> accounting that matches the shm_lock and hugetlb use cases.
-
-Ok, cool ;)
-
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+thanks.

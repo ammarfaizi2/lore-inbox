@@ -1,37 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271304AbTGQAwM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 20:52:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271305AbTGQAwM
+	id S271305AbTGQAy4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 20:54:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271308AbTGQAyz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 20:52:12 -0400
-Received: from smtp801.mail.sc5.yahoo.com ([66.163.168.180]:28015 "HELO
-	smtp801.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S271304AbTGQAwJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 20:52:09 -0400
-Message-ID: <3F15F6B7.2050705@sbcglobal.net>
-Date: Wed, 16 Jul 2003 20:07:03 -0500
-From: Wes Janzen <superchkn@sbcglobal.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: en-us, en
+	Wed, 16 Jul 2003 20:54:55 -0400
+Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:32401
+	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
+	id S271305AbTGQAyw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 20:54:52 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Davide Libenzi <davidel@xmailserver.org>
+Subject: Re: [PATCH] O6int for interactivity
+Date: Thu, 17 Jul 2003 11:12:26 +1000
+User-Agent: KMail/1.5.2
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>
+References: <200307170030.25934.kernel@kolivas.org> <1058402012.3f15eedcc06f2@kolivas.org> <Pine.LNX.4.55.0307161732270.4787@bigblue.dev.mcafeelabs.com>
+In-Reply-To: <Pine.LNX.4.55.0307161732270.4787@bigblue.dev.mcafeelabs.com>
 MIME-Version: 1.0
-To: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6 sound drivers?
-References: <20030716225826.GP2412@rdlg.net> <20030716231029.GG1821@matchmail.com> <20030716233045.GR2412@rdlg.net> <3F15E3C9.4030401@blue-labs.org> <20030717000804.GT2412@rdlg.net>
-In-Reply-To: <20030717000804.GT2412@rdlg.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200307171112.26095.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-Robert L. Harris wrote:
-
->No go, it looks like it's playing but nothing to the speakers.
+On Thu, 17 Jul 2003 10:35, Davide Libenzi wrote:
+> On Thu, 17 Jul 2003, Con Kolivas wrote:
+> > > > +			p->sleep_avg = (p->sleep_avg * MAX_BONUS / runtime + 1)
+> >
+> > * runtime /
+> >
+> > > MAX_BONUS;
+> > >
+> > > I don't have the full code so I cannot see what "runtime" is, but if
+> > > "runtime" is the time the task ran, this is :
+> > >
+> > > p->sleep_avg ~= p->sleep_avg + runtime / MAX_BONUS;
+> > >
+> > > (in any case a non-decreasing function of "runtime" )
+> > > Are you sure you want to reward tasks that actually ran more ?
+> >
+> > That was the bug. Runtime was supposed to be limited to MAX_SLEEP_AVG.
+> > Fix will be posted very soon.
 >
->  
+> Con, it is not the limit. You're making sleep_avg a non-decreasing
+> function of "runtime". Basically you are rewarding tasks that did burn
+> more CPU (if runtime is what the name suggests). Are you sure this is what
+> you want ?
+
+It's not cpu runtime; it is time since starting the process.
+
 >
-Have you tried alsamixer?  I'm pretty sure everything's muted by default.
+> > > Con, you cannot follow the XMMS thingy otherwise you'll end up bolting
+> > > in the XMMS sleep->burn pattern and you'll probably break the
+> > > make-j+RealPlay for example. MultiMedia players are really tricky since
+> > > they require strict timings and forces you to create a special
+> > > super-interactive treatment inside the code. Interactivity in my box
+> > > running moderate high loads is very good for my desktop use. Maybe
+> > > audio will skip here (didn't try) but I believe that following the
+> > > fix-XMMS thingy is really bad. I believe we should try to make the
+> > > desktop to feel interactive with human tollerances and not with strict
+> > > timings like MM apps. If the audio skips when dragging like crazy a X
+> > > window using the filled mode on a slow CPU, we shouldn't be much
+> > > worried about it for example. If audio skip when hitting the refresh
+> > > button of Mozilla, then yes it should be fixed. And the more you add
+> > > super interactive patterns, the more the scheduler will be exploitable.
+> > > I recommend you after doing changes to get this :
+> > >
+> > > http://www.xmailserver.org/linux-patches/irman2.c
+> > >
+> > > and run it with different -n (number of tasks) and -b (CPU burn ms
+> > > time). At the same time try to build a kernel for example. Then you
+> > > will realize that interactivity is not the bigger problem that the
+> > > scheduler has right now.
+> >
+> > Please don't assume I'm writing an xmms scheduler. I've done a lot more
+> > testing than xmms.
+>
+> Ok, I'm feeling better already ;)
+
+Me too :)
+
+Con
 

@@ -1,34 +1,27 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261887AbTITNyu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Sep 2003 09:54:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261891AbTITNyu
+	id S261890AbTITNwb (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Sep 2003 09:52:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261891AbTITNwb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Sep 2003 09:54:50 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:57479 "EHLO
-	smtp.bitmover.com") by vger.kernel.org with ESMTP id S261887AbTITNys
+	Sat, 20 Sep 2003 09:52:31 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:11531 "EHLO
+	www.home.local") by vger.kernel.org with ESMTP id S261890AbTITNwa
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Sep 2003 09:54:48 -0400
-Date: Sat, 20 Sep 2003 06:54:30 -0700
-From: Larry McVoy <lm@bitmover.com>
+	Sat, 20 Sep 2003 09:52:30 -0400
+Date: Sat, 20 Sep 2003 15:52:15 +0200
+From: Willy Tarreau <willy@w.ods.org>
 To: Bernd Schmidt <bernds@redhat.com>
 Cc: Larry McVoy <lm@bitmover.com>, Andrea Arcangeli <andrea@suse.de>,
        linux-kernel@vger.kernel.org
 Subject: Re: Fix for wrong OOM killer trigger?
-Message-ID: <20030920135430.GA17559@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Bernd Schmidt <bernds@redhat.com>, Larry McVoy <lm@bitmover.com>,
-	Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
+Message-ID: <20030920135215.GA589@alpha.home.local>
 References: <20030919191613.36750de3.bless@tm.uka.de> <20030919192544.GC1312@velociraptor.random> <20030919203538.D1919@flint.arm.linux.org.uk> <20030919200117.GE1312@velociraptor.random> <20030919205220.GA19830@work.bitmover.com> <20030920033153.GA1452@velociraptor.random> <20030920043026.GA10836@work.bitmover.com> <Pine.LNX.4.55.0309201305430.21919@host140.cambridge.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 In-Reply-To: <Pine.LNX.4.55.0309201305430.21919@host140.cambridge.redhat.com>
 User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
-	required 7, AWL, DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -47,17 +40,19 @@ On Sat, Sep 20, 2003 at 01:22:42PM +0100, Bernd Schmidt wrote:
 > yourself at the mercy of a single vendor, and have to put up with whatever
 > demands and threats he feels like making.
 
-Nonsense.  This isn't closed source issue at all because the issue is the
-CVS gateway.  You don't need source to write that gateway and you could
-have (and recall that Linus said you should have) written the gateway 
-yourself, hosted it yourself, and maintained it yourself.
+Larry didn't show anything related to whether closed source is bad or not,
+he simply tried to explain that someone has to PAY to host all those gateways
+and that since HE actually pays for them, he at least expects not to be the
+subject of permanent complaints, or he will finally stop paying for those. If
+you have the lines, the machine and the time to do this yourself, perhaps you
+could propose Larry to do it yourself then complain about his closed source
+software which you're not forced to use.
 
-There are no closed source issues here, you're just trying to redirect 
-attention there because it meets your agenda.  Nice try but no dice.
+Now please, please... before RMS jumps into the wagon again, stop using every
+mail which contains the two letters B and K as the pretext to start a new war.
 
-Since we are providing something that you want, you asked for, and you
-could have built yourself, you get it under our terms.  Which are "shut
-the heck up already, you got what you wanted."
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+Thanks,
+Willy
+
+PS: replies to this mail will go to /dev/null, so please don't pollute the list.
+

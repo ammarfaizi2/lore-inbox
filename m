@@ -1,53 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268794AbRHBF4W>; Thu, 2 Aug 2001 01:56:22 -0400
+	id <S268809AbRHBGFD>; Thu, 2 Aug 2001 02:05:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268802AbRHBF4M>; Thu, 2 Aug 2001 01:56:12 -0400
-Received: from rj.sgi.com ([204.94.215.100]:33005 "EHLO rj.corp.sgi.com")
-	by vger.kernel.org with ESMTP id <S268794AbRHBFz5>;
-	Thu, 2 Aug 2001 01:55:57 -0400
-Date: Wed, 1 Aug 2001 22:55:00 -0700 (PDT)
-From: jeremy@classic.engr.sgi.com (Jeremy Higdon)
-Message-Id: <10108012254.ZM192062@classic.engr.sgi.com>
-X-Mailer: Z-Mail (3.2.3 08feb96 MediaMail)
-To: linux-kernel@vger.kernel.org
-Subject: changes to kiobuf support in 2.4.(?)4
-Mime-Version: 1.0
+	id <S268810AbRHBGEy>; Thu, 2 Aug 2001 02:04:54 -0400
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:59264 "HELO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S268809AbRHBGEm>; Thu, 2 Aug 2001 02:04:42 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Andreas Dilger <adilger@turbolinux.com>
+Date: Thu, 2 Aug 2001 16:04:37 +1000 (EST)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15208.60789.17642.808680@notabene.cse.unsw.edu.au>
+Cc: Roger Abrahamsson <hyperion@gnyrf.net>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: resizing of raid5?
+In-Reply-To: message from Andreas Dilger on Wednesday August 1
+In-Reply-To: <15207.63232.611617.37794@notabene.cse.unsw.edu.au>
+	<200108011756.f71HuuL2006872@webber.adilger.int>
+X-Mailer: VM 6.72 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm curious about the changes made to kiobuf support, apparently in
-order to improve raw I/O performance.  I was reading through some old
-posts circa early April, where I saw reference to a rawio-bench program.
-Can someone explain what it does?
+On Wednesday August 1, adilger@turbolinux.com wrote:
+> Neil Brown writes:
+> > On Wednesday August 1, hyperion@gnyrf.net wrote:
+> > > Just figured if anyone could give some information about resizing of
+> > > software raid5 systems (2.4.x kernels)? I've been looking all over for
+> > > information about if this is possible or not currently, and if not, how
+> > > this system of raid cluster blocks work in conjunction with ext2.
+> > 
+> > The only way to resize a raid5 array is to back up, rebuild, and
+> > re-load.  Any attempt to re-organise the data, or the linkage, to
+> > avoid this would be more trouble that it is worth.
+> 
+> Hmm, this surprises me.  I would have thought it possible to do
+> "resizing" at least by adding new stripes to the end of the current
+> RAID 5 volume, using N+1 new "disks" to make up a new stripe group.
 
-I have a driver that uses kiobufs to perform I/O.  Prior to these
-changes, the kiobuf allocation and manipulation was very quick and
-efficient.  It is now very slow.
+But would you bother.  just make another RAID5 set and append it to
+the end using RAID-linear or LVM.  Achieve the same effect at a more
+accessible level.  Or am I misunderstanding you?
 
-The kiobuf part of the I/O request is as follows:
+NeilBrown
 
-	alloc_kiovec()
-	map_user_kiobuf()
-	... do I/O, using kiobuf to store mappings ...
-	kiobuf_wait_for_io()
-	free_kiovec()
-
-Now that the kiobuf is several KB in size, and 1024 buffer heads
-are allocated, the alloc_kiovec part goes from a percent or so of
-CPU usage to do 13000 requests per second to around 90% CPU usage
-to do 3000 per second.
-
-It looks as though the raw driver allocates one kiobuf at open time
-(rather than on a per-request basis), but if two or more requests
-are issued to a single raw device, it too devolves into the allocate
-on every request strategy.
-
-Before I go further, I'd appreciate if someone could confirm my
-hypotheses and also explain rawio-bench (and maybe point me to some
-source, if available).
-
-thanks
-
-jeremy

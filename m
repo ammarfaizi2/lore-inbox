@@ -1,71 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315415AbSIHVw7>; Sun, 8 Sep 2002 17:52:59 -0400
+	id <S315278AbSIHV4c>; Sun, 8 Sep 2002 17:56:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315416AbSIHVw7>; Sun, 8 Sep 2002 17:52:59 -0400
-Received: from ns1.ionium.org ([62.27.22.2]:13062 "HELO mail.ionium.org")
-	by vger.kernel.org with SMTP id <S315415AbSIHVw6> convert rfc822-to-8bit;
-	Sun, 8 Sep 2002 17:52:58 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Justin Heesemann <jh@ionium.org>
-Organization: ionium Technologies
-To: linux-kernel@vger.kernel.org
-Subject: Re: P4 with i845E not booting with 2.4.19 / 3.5.31
-Date: Sun, 8 Sep 2002 23:57:26 +0200
-User-Agent: KMail/1.4.2
-References: <200209030153.47433.jh@ionium.org> <1031139394.3017.61.camel@irongate.swansea.linux.org.uk> <200209042135.17630.jh@ionium.org>
-In-Reply-To: <200209042135.17630.jh@ionium.org>
-Cc: Jens Wiesecke <j_wiese@hrzpub.tu-darmstadt.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200209082357.27413.jh@ionium.org>
+	id <S315388AbSIHV4c>; Sun, 8 Sep 2002 17:56:32 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:31109 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S315278AbSIHV4c>;
+	Sun, 8 Sep 2002 17:56:32 -0400
+Date: Sun, 8 Sep 2002 17:00:04 -0500
+From: Amos Waterland <apw@us.ibm.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: pwaechtler@mac.com, golbi@mat.uni.torun.pl, linux-kernel@vger.kernel.org,
+       Jakub Jelinek <jakub@redhat.com>, Ulrich Drepper <drepper@redhat.com>
+Subject: Re: [PATCH] POSIX message queues
+Message-ID: <20020908170004.A3257@kvasir.austin.ibm.com>
+References: <B547AE30-C26B-11D6-87AD-00039387C942@mac.com> <Pine.LNX.4.44.0209071716460.17119-100000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0209071716460.17119-100000@localhost.localdomain>; from mingo@elte.hu on Sat, Sep 07, 2002 at 05:17:35PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 04 September 2002 21:35, Justin Heesemann wrote:
-> On Wednesday 04 September 2002 13:36, Alan Cox wrote:
-> > I don't know. Without a serial console oops dump I don't have time to
-> > figure it out either
+On Sat, Sep 07, 2002 at 05:17:35PM +0200, Ingo Molnar wrote:
+> 
+> On Sat, 7 Sep 2002 pwaechtler@mac.com wrote:
+> 
+> > OTOH I can't see a _big_ problem when a process with sufficient
+> > permissions can trash the message queues - otherwise I wonder why file
+> > permissions are granted "per user" and not "per process".
+> 
+> yes - furthermore, processes from the same user can 'trash' queues anyway,
+> via ptrace() or mmaping /proc.
 
-seems like serial console doesn't dump anything in my case.
+That is correct, but it is not the issue though.  The issue is that
+completely unrelated processes can spoof/destroy each other's messages.
 
->
-> when i used the boot option:
-> mem=exactmap mem=640K@0 mem=510M@1M
-> i was able to boot the kernel.
->
-> however.. when i tried to boot from a 2.4.19 kernel boot cd, it failed
-> with:
->
-> here is the dmesg:
->
-> Linux version 2.4.20-pre5-ac1 (root@lux) (gcc version 2.95.3 20010315
-> (release)) #1 Sun Sep 1 17:26:49 Local time zone must be set--see zic manua
-> BIOS-provided physical RAM map:
->  BIOS-e820: 0000000000000000 - 00000000000a0000 (usable)
->  BIOS-e820: 00000000000a0000 - 000000001fef0000 (reserved)
->  BIOS-e820: 000000001fef0000 - 000000001fef3000 (ACPI NVS)
->  BIOS-e820: 000000001fef3000 - 000000001ff00000 (ACPI data)
-> user-defined physical RAM map:
->  user: 0000000000000000 - 00000000000a0000 (usable)
->  user: 0000000000100000 - 000000001ff00000 (usable)
-> 511MB LOWMEM available.
+If a queue is set up with mq_open(name, O_CREAT|O_RDWR, S_IWOTH, &attr),
+the process which set it up expects that "others" (processes not owned
+by the user or by users in his/her group) will be able to send, and only
+send, messages.  If shared memory is used, "others" must be able to
+update the data structures representing the queue, so they will be able
+to do a lot more than just send.
 
-i tried again with a 2.2 kernel. they don't seem to require _any_ mem=xxx 
-parameters to work so i checked dmesg:
+The fundamental problem is that filesystem permissions do not map
+cleanly to message queue permissions.  Does this make sense?  Thanks.
 
-Linux version 2.2.20-idepci (herbert@gondolin) (gcc version 2.7.2.3) #1 Sat 
-Apr 20 12:45:19 EST 2002
-BIOS-provided physical RAM map:
- BIOS-e820: 0009f000 @ 00000000 (usuable)
- BIOS-e820: 1fdf0000 @ 00100000 (usuable)
-Detected 2019977 kHz processor.
-
-
-This is the same computer, same RAM, same Bios.
-how comes e820 provides these different results ?
-
---
-Best Regards
-Justin
-
+Amos Waterland

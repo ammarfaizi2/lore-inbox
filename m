@@ -1,74 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261425AbRFGPXk>; Thu, 7 Jun 2001 11:23:40 -0400
+	id <S261502AbRFGP1U>; Thu, 7 Jun 2001 11:27:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261490AbRFGPXa>; Thu, 7 Jun 2001 11:23:30 -0400
-Received: from ns.suse.de ([213.95.15.193]:49673 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S261425AbRFGPXW>;
-	Thu, 7 Jun 2001 11:23:22 -0400
-Date: Thu, 7 Jun 2001 17:22:51 +0200
-From: Olaf Hering <olh@suse.de>
-To: Andries.Brouwer@cwi.nl
-Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
-Subject: Re: 2.4.5-ac9 console NULL pointer pointer dereference
-Message-ID: <20010607172251.B29309@suse.de>
-In-Reply-To: <UTC200106071436.QAA224593.aeb@vlet.cwi.nl> <20010607165638.A19959@suse.de>
+	id <S261490AbRFGP1K>; Thu, 7 Jun 2001 11:27:10 -0400
+Received: from firewall.ocs.com.au ([203.34.97.9]:24047 "EHLO ocs4.ocs-net")
+	by vger.kernel.org with ESMTP id <S261502AbRFGP1B>;
+	Thu, 7 Jun 2001 11:27:01 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Russell King <rmk@arm.linux.org.uk>
+cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] sockreg2.4.5-05 inet[6]_create() register/unregister table 
+In-Reply-To: Your message of "Thu, 07 Jun 2001 11:05:07 +0100."
+             <20010607110507.A1765@flint.arm.linux.org.uk> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <20010607165638.A19959@suse.de>; from olh@suse.de on Thu, Jun 07, 2001 at 04:56:38PM +0200
+Date: Fri, 08 Jun 2001 01:27:39 +1000
+Message-ID: <3397.991927659@ocs4.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 07, Olaf Hering wrote:
+On Thu, 7 Jun 2001 11:05:07 +0100, 
+Russell King <rmk@arm.linux.org.uk> wrote:
+>Umm, any commercial company can come along and re-implement any part of
+>the Linux kernel, produce a distribution or supply kernel binary images
+>as long as they make available the source code to the people they
+>supply the kernel binary to, and no more.
 
-> On Thu, Jun 07, Andries.Brouwer@cwi.nl wrote:
-> 
-> >     From: Olaf Hering <olh@suse.de>
-> > 
-> >     this happend with 2.4.5-ac9 with serial console on i386.
-> > 
-> >     Unable to handle kernel NULL pointer dereference0x02f8 (irq = 3) at virtual address 00000004
-> >     Oops: 0000
-> >     >>EIP; c01967c7 <poke_blanked_console+1b/5c>   <=====
-> > 
-> > Sounds like this should help:
-> > 
-> > --- console.c~  Fri Feb  9 20:30:22 2001
-> > +++ console.c   Thu Jun  7 16:28:59 2001
-> > @@ -2684,7 +2684,7 @@
-> >  void poke_blanked_console(void)
-> >  {
-> >         del_timer(&console_timer);      /* Can't use _sync here: called from tasklet */
-> > -       if (vt_cons[fg_console]->vc_mode == KD_GRAPHICS)
-> > +       if (!vt_cons[fg_console] || vt_cons[fg_console]->vc_mode == KD_GRAPHICS)
-> >                 return;
-> >         if (console_blanked) {
-> >                 console_timer.function = unblank_screen_t;
-> 
-> That was ok, but:
-> ....
-> INIT: Id "1" respawning too fast: disabled for 5 minutes
-> INIT: Id "2" respawning too fast: disabled for 5 minutes
-> INIT: Id "3" respawning too fast: disabled for 5 minutes
-> INIT: Id "5" respawning too fast: disabled for 5 minutes
-> INIT: Id "6" respawning too fast: disabled for 5 minutes
-> INIT: Id "4" respawning too fast: disabled for 5 minutes
-> 
-> 
-> Welcome to SuSE Linux 7.2 (i386) - Kernel 2.4.5-ac9 (ttyS0).
-> ....
+GNU General Public License Version 2, June 1991.  Section 3(b) says
+"any third party", not just customers.
 
-Appearently not a .config bug. Any ideas?
-http://www.penguinppc.org/~olaf/bugs/245-ac9/config.gz
+Nothing in the GPL restricts the source being supplied to "the people
+they supply the kernel binary to, and no more".  Even if a company
+refused to supply their source changes to anybody except a customer
+(which would violate the GPL anyway), section 2(b) explictly allows
+those customers to give the source to anybody.  Attempts to restrict
+distribution will void your rights under the GPL, see section 4.
 
-
-
-Gruss Olaf
-
--- 
- $ man clone
-
-BUGS
-       Main feature not yet implemented...

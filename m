@@ -1,53 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131296AbRC0OHX>; Tue, 27 Mar 2001 09:07:23 -0500
+	id <S131300AbRC0OLd>; Tue, 27 Mar 2001 09:11:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131297AbRC0OHN>; Tue, 27 Mar 2001 09:07:13 -0500
-Received: from ppp0.ocs.com.au ([203.34.97.3]:34323 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S131296AbRC0OG7>;
-	Tue, 27 Mar 2001 09:06:59 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-cc: Andrew Morton <andrewm@uow.edu.au>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Compile-time versus run-time 
-In-Reply-To: Your message of "Tue, 27 Mar 2001 08:26:53 EST."
-             <3AC0951D.3C02A5F2@mandrakesoft.com> 
-Mime-Version: 1.0
+	id <S131304AbRC0OLX>; Tue, 27 Mar 2001 09:11:23 -0500
+Received: from [64.64.109.142] ([64.64.109.142]:29705 "EHLO
+	quark.didntduck.org") by vger.kernel.org with ESMTP
+	id <S131300AbRC0OLM>; Tue, 27 Mar 2001 09:11:12 -0500
+Message-ID: <3AC09F14.53D06AC7@didntduck.org>
+Date: Tue, 27 Mar 2001 09:09:24 -0500
+From: Brian Gerst <bgerst@didntduck.org>
+X-Mailer: Mozilla 4.73 [en] (WinNT; U)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: ebuddington@wesleyan.edu
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 386 'ls' gets SIGILL iff /proc is mounted
+In-Reply-To: <20010327012709.I59@sparrow.nad.adelphia.net>
 Content-Type: text/plain; charset=us-ascii
-Date: Wed, 28 Mar 2001 00:06:11 +1000
-Message-ID: <9615.985701971@ocs3.ocs-net>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Mar 2001 08:26:53 -0500, 
-Jeff Garzik <jgarzik@mandrakesoft.com> wrote:
->Making MODULE_PARM work when compiled in will be nice, but I see two
->flaws right off:
+Eric Buddington wrote:
+> 
+> 2.4.2-ac23 nfsroot on a 386SX/20 with 6Mb RAM
 >
->* passing multiple module parms is wasteful, because the module prefix
->must be repeated for each argument.  That strains cmdline limits (80
->chars in boot environments)  IMHO we can do better than that.
+> On boot to single user, 'ls' and 'ls -l' work fine.
+> 
+> After mounting /proc, 'ls' still works, but 'ls -l' fails
+> with SIGILL after reading /etc/timezone (so says strace).
+> 
+> Unmounting /proc fixes the problem. Unmounting /dev doesn't.
+> 
+> I also, just now, had a spate of 'permission denied' errors
+> while trying to ls /dev/ subdirectories, and unexpected stale NFS handles.
+> 
+> The problems are varied enough that I suspect bad hardware, but would
+> flaky RAM cause such similar failures repeatedly? And is there a way
+> to test RAM explicitly?
+> 
+> Any tips appreciated, either to me (ebuddington@wesleyan.edu) or to
+> the list.
 
-Implementation detail.  module.{opt1=value opt2=value} will save some
-space but the module name is still required, multiple objects use
-variable names like io and irq.
+Silly question, but is math emulation enabled?
 
->* There are cases where you do not want MODULE_PARM options appearing as
->__setup, just like there are cases where options passed to __setup do
->not belong as a MODULE_PARM.  You should not unconditionally make
->MODULE_PARM available on the kernel command line, even though that is
->the simple solution.
+--
 
-I'm not convinced that we need a distinction.  If you can specify a
-parameter as a module you can specify it at boot time.  If there are
-any cases where the parameter makes no sense at boot time, the code can
-ignore any value when it is compiled for built in mode.
-
-In any case it must be a gradual conversion.  A lot of code has #ifdef
-MODULE around the parameter identifiers, #ifdef must be removed to use
-both methods, otherwise you get undefined variables.  So only modules
-that are compiled with a new flag will get the feature.  Later in the
-2.5 cycle the common parameter handling will become the default.
-
+				Brian Gerst

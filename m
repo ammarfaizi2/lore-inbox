@@ -1,39 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262236AbTCRJDG>; Tue, 18 Mar 2003 04:03:06 -0500
+	id <S262360AbTCRJOm>; Tue, 18 Mar 2003 04:14:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262258AbTCRJDG>; Tue, 18 Mar 2003 04:03:06 -0500
-Received: from smtp-4.hut.fi ([130.233.228.94]:62605 "EHLO smtp-4.hut.fi")
-	by vger.kernel.org with ESMTP id <S262236AbTCRJDE>;
-	Tue, 18 Mar 2003 04:03:04 -0500
-Date: Tue, 18 Mar 2003 11:13:59 +0200 (EET)
-From: Dmitrii Tisnek <dima@cc.hut.fi>
-To: Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: FB error with trident CyberBlade/i1
-In-Reply-To: <200303181002.18574.roy@karlsbakk.net>
-Message-ID: <Pine.OSF.4.50.0303181106090.54303-100000@kosh.hut.fi>
-References: <200303181002.18574.roy@karlsbakk.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-RAVMilter-Version: 8.4.2(snapshot 20021217) (smtp-4.hut.fi)
+	id <S262364AbTCRJOm>; Tue, 18 Mar 2003 04:14:42 -0500
+Received: from holomorphy.com ([66.224.33.161]:62941 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S262360AbTCRJOl>;
+	Tue, 18 Mar 2003 04:14:41 -0500
+Date: Tue, 18 Mar 2003 01:25:05 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] O(1) proc_pid_readdir
+Message-ID: <20030318092505.GW20188@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Manfred Spraul <manfred@colorfullife.com>,
+	Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+References: <20030316213516.GM20188@holomorphy.com> <Pine.LNX.4.44.0303170719410.15476-100000@localhost.localdomain> <20030317070334.GO20188@holomorphy.com> <3E761124.8060402@colorfullife.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3E761124.8060402@colorfullife.com>
+User-Agent: Mutt/1.3.28i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 18 Mar 2003, Roy Sigurd Karlsbakk wrote:
+William Lee Irwin III wrote:
+>> The NMI oopses are mostly decoded by hand b/c in-kernel (and other)
+>> backtrace decoders can't do it automatically. I might have to generate
+>> some fresh data, with some kind of hack (e.g. hand-coded NMI-based kind
+>> of smp_call_function) to trace the culprit and not just the victim.
+>> The victims were usually stuck in fork() or exit().
 
-> hi all
->
-> I get a corrupted display with my Epox set-top-box if I enable the Trident
-> framebuffer device. See below for lspci -vvv, and further down for .config
+On Mon, Mar 17, 2003 at 07:17:08PM +0100, Manfred Spraul wrote:
+> Could you check if the attached test app triggers the NMI oopser?
 
-I always get corrupted display with the trident framebuffer
-(CyberBlade/DSTN/Ai1 pci 1023:8620, ibm thinkpad laptop),
-no matter what video= option or fbset arguments are used.
+Okay, good news is I take NMI's now, bad news is the watchdog is still
+getting disabled somehow.
 
-I suspect the refresh rate is set wrongly, and tft's are picky
-about that, although I must admit I never tested it with a crt.
 
-it could be a consequence of Trident stealing RAM and linux not
-being prepared for this too.
-
-d.
+-- wli

@@ -1,70 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267838AbUHERul@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267852AbUHERxP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267838AbUHERul (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 13:50:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267832AbUHERts
+	id S267852AbUHERxP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 13:53:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267851AbUHERxN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 13:49:48 -0400
-Received: from nwkea-mail-2.sun.com ([192.18.42.14]:34197 "EHLO
-	nwkea-mail-2.sun.com") by vger.kernel.org with ESMTP
-	id S267846AbUHERsV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 13:48:21 -0400
-Subject: [PATCH] Fix x86_64 build of mmconfig.c
-From: Tom Duffy <tduffy@sun.com>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-ZHUMXLPDnBx2uveWhF9b"
-Organization: Sun Microsystems
-Date: Thu, 05 Aug 2004 10:48:16 -0700
-Message-Id: <1091728096.10131.16.camel@duffman>
-Mime-Version: 1.0
-X-Mailer: Evolution 1.5.91 (1.5.91-1) 
+	Thu, 5 Aug 2004 13:53:13 -0400
+Received: from mail.mplayerhq.hu ([192.190.173.45]:59018 "EHLO
+	mail.mplayerhq.hu") by vger.kernel.org with ESMTP id S267846AbUHERwF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 13:52:05 -0400
+From: Arpi <arpi@thot.banki.hu>
+To: linux-kernel@vger.kernel.org
+Subject: how to read /proc/net/arp properly?
+X-Mailer: GyikSoft Mailer for UNIX v3.99pre2 by Arpi/ESP-team (http://esp-team.scene.hu)
+Message-Id: <20040805175204.EFE2E38BAB@mail.mplayerhq.hu>
+Date: Thu,  5 Aug 2004 19:52:04 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---=-ZHUMXLPDnBx2uveWhF9b
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+I'm developing a daemon to watch new hosts by the new arp entries,
+verify them in a database, and set up various firewall rules based
+on the results. I don't want won't discuss here how good or bad
+stretagy is doing such decisions based on mac address though.
 
-Signed-by: Tom Duffy <tduffy@sun.com>
+The problem, i'm writting here about, is that /proc/net/arp is
+dynamicaly generated, and according to kernelsrc/net/ipv4/arp.c's
+arp_get_info(), it's done by byte offset.
+Ie, when you read the next block of this psuedo-file, the whole
+text file is re-generated in memory, but only the part given by an
+byte file offset & buffer size is returned to the caller.
+If i have huge tables, it sometimes may (and actually does!!!) happen
+that arp cache changes while i'm reading /proc/net/arp.
+It results few byte shifting so some character is disappearing.
+Example:
 
-  gcc -Wp,-MD,arch/x86_64/pci/.mmconfig.o.d -nostdinc -iwithprefix include =
--D__KERNEL__ -Iinclude -Iinclude2 -I/build1/tduffy/openib-work/linux-2.6.8-=
-rc3-openib/include -I/build1/tduffy/openib-work/linux-2.6.8-rc3-openib/arch=
-/x86_64/pci -Iarch/x86_64/pci -Wall -Wstrict-prototypes -Wno-trigraphs -fno=
--strict-aliasing -fno-common -mno-red-zone -mcmodel=3Dkernel -pipe -fno-reo=
-rder-blocks -Wno-sign-compare -fno-asynchronous-unwind-tables -O2 -fomit-fr=
-ame-pointer -Wdeclaration-after-statement -I/build1/tduffy/openib-work/linu=
-x-2.6.8-rc3-openib/ -I arch/i386/pci  -DKBUILD_BASENAME=3Dmmconfig -DKBUILD=
-_MODNAME=3Dmmconfig -c -o arch/x86_64/pci/mmconfig.o /build1/tduffy/openib-=
-work/linux-2.6.8-rc3-openib/arch/x86_64/pci/mmconfig.c
-/build1/tduffy/openib-work/linux-2.6.8-rc3-openib/arch/x86_64/pci/mmconfig.=
-c:10:17: pci.h: No such file or directory
+# while read line ; do echo "$line";sleep 1;done < /proc/net/arp &
+# nmap -sP 193.225.225.0-255 &>/dev/null
 
---- arch/x86_64/pci/Makefile.orig	2004-08-05 09:54:24.932007000 -0700
-+++ arch/x86_64/pci/Makefile	2004-08-05 09:53:53.171006000 -0700
-@@ -3,7 +3,7 @@
- #
- # Reuse the i386 PCI subsystem
- #
--CFLAGS +=3D -I arch/i386/pci
-+CFLAGS +=3D -Iarch/i386/pci
-=20
- obj-y		:=3D i386.o
- obj-$(CONFIG_PCI_DIRECT)+=3D direct.o
+...
+193.225.225.16   0x1         0x0         00:00:00:00:00:00     *        eth1.10
+.10
+193.225.225.126  0x1         0x0         00:00:00:00:00:00     *        eth1.10
+193.225.224.57   0x1         0x0         00:00:00:00:00:00     *        eth1.2
+...
+193.225.224.57   0x1         0x0         00:00:00:00:00:00     *        eth1.2
+192.190.173.43   0x1         0x0         00:00:00:00:00:00     *        eth1.3
+0x1         0x2         00:20:18:58:0A:F2     *        eth1.10
+193.225.225.14   0x1         0x2         00:20:18:58:0A:F2     *        eth1.10
+...
 
 
---=-ZHUMXLPDnBx2uveWhF9b
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+I think it would even work well, if the lines would have same length
+(ie each ethernet interface have same width name, or lines being padded
+by spaces to same length)  but i can still imagine broken data reported,
+due to arp cache shift/change in the middle of reading out a line...
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+Possible solutions:
+- read arp table somehow directly from kernel, in some binary form through
+  ioctls() - i don't know if it's already possible/implemented, and if so, how.
+  anyway i guess it isn't, as the "arp -a" command suffers from the same issue,
+  it also gives broken lines sometimes at heavy arp table changes.
+  So if there is a proper way of reading arp table, the "arp" utility also
+  should be fixed to use that method!
+- fix arp.c to generate the whole arp table in a single pass, and don't
+  destroy that data until the /proc/net/arp "file" is closed.
+  problems: too long arp trables may consume too much memory. also what
+  happens if arp file is opened 10000 times? DoS?
+- ugly hack: pad lines to same width (add some spaces after interface name),
+  and fix arp_get_info() to always stop "generating" blocks at line boundary.
+  it's still possible that some arp entries will be missed, but if your
+  arp table keeps changing so quickly, it can be accepted...
 
-iD8DBQBBEnLgdY502zjzwbwRAm4zAKCRkb+b76H6hxOnRwDK3lxReC18XQCgkLoj
-xb3xJ4gbUUovek1DIrnIBsE=
-=nUDf
------END PGP SIGNATURE-----
+comments? ideas?
 
---=-ZHUMXLPDnBx2uveWhF9b--
+please note, that i'm not subsribed, so please cc: me too. thanks!
+
+
+A'rpi / MPlayer, Astral & ESP-team
+
+--
+MPlayer's new image: happiness & peace & cosmetics & vmiklos

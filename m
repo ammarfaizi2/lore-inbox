@@ -1,53 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261485AbVBNVUI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261499AbVBNVYS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261485AbVBNVUI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Feb 2005 16:20:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261499AbVBNVUI
+	id S261499AbVBNVYS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Feb 2005 16:24:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261501AbVBNVYS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Feb 2005 16:20:08 -0500
-Received: from mx2.palmsource.com ([12.7.175.14]:31901 "EHLO
-	mx2.palmsource.com") by vger.kernel.org with ESMTP id S261485AbVBNVUD convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Feb 2005 16:20:03 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [BK] upgrade will be needed
-Date: Mon, 14 Feb 2005 13:20:01 -0800
-Message-ID: <DE88BDF02F4319469812588C7950A97E258CEF@ussunex1.palmsource.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [BK] upgrade will be needed
-Thread-Index: AcUSxzfZZsOjQjKkROqdLDzo5gdEvwAE24yA
-From: "Martin Fouts" <Martin.Fouts@palmsource.com>
-To: "Larry McVoy" <lm@bitmover.com>
-Cc: <linux-kernel@vger.kernel.org>
+	Mon, 14 Feb 2005 16:24:18 -0500
+Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:19921 "EHLO
+	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S261499AbVBNVYO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Feb 2005 16:24:14 -0500
+Subject: Re: queue_work from interrupt Real time
+	preemption2.6.11-rc2-RT-V0.7.37-03
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Mark Gross <mgross@linux.intel.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <200502141240.14355.mgross@linux.intel.com>
+References: <200502141240.14355.mgross@linux.intel.com>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Mon, 14 Feb 2005 16:24:09 -0500
+Message-Id: <1108416249.8413.54.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-I don't believe a non-compete clause accomplishes your goal, as I've
-recently written.  On the other hand, a "don't reverse engineer and
-don't allow your copy to be used to reverse engineer" clause does.
+On Mon, 2005-02-14 at 12:40 -0800, Mark Gross wrote:
+> I'm working on a tweak to the preepmtive soft IRQ implementation using work 
+> queues and I'm having problems with a BUG assert when trying to queue_work.
+> 
+> Souldn't I be able to call queue_work form ISR context?
 
-The "no reverse" clause is pretty common and difficult to argue against.
-The non-compete clause is probably not enforcable and looks like
-restraint of trade.
+Yes, but not with interrupts disabled.
+> 
+> --mgross 
+> 
+> ---------------------------
+> | preempt count: 00000001 ]
+> | 1-level deep critical section nesting:
+> ----------------------------------------
+> .. [<c0140f5d>] .... print_traces+0x1d/0x60
+> .....[<c01042a3>] ..   ( <= dump_stack+0x23/0x30)
+> 
+> BUG: sleeping function called from invalid context IRQ 20(2039) at kernel/rt.c
+> in_atomic():0 [00000000], irqs_disabled():1
 
-Marty
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Larry McVoy
-Sent: Monday, February 14, 2005 10:56 AM
-To: Matthew Jacob
-Cc: Jeff Sipek; Bartlomiej Zolnierkiewicz; linux-kernel@vger.kernel.org
-Subject: Re: [BK] upgrade will be needed
+Here you have interrupts disabled. Since you are tweaking the softirq I
+don't know your code, but the kernel should not schedule after turning
+off interrupts, and the spinlocks under the PREEMPT kernel, may now
+sleep (unless they are raw_spin_locks).  Here we also see that
+queue_work calls spin_lock_irqsave.  I'm suspecting that you turned off
+interrupts somewhere.
+
+-- Steve
 
 
-If anyone can think of a better way for us to both let you use the tool
-and protect our hard work, I'm listening.  The repeated outrage over the
-restrictions isn't any more fun for me than it is for you.  Any answer,
-however, has to take our issues into consideration as well as yours.

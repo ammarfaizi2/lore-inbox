@@ -1,48 +1,151 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284301AbRLEMXb>; Wed, 5 Dec 2001 07:23:31 -0500
+	id <S284327AbRLEMcz>; Wed, 5 Dec 2001 07:32:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284325AbRLEMXW>; Wed, 5 Dec 2001 07:23:22 -0500
-Received: from mail.lightning.ch ([193.247.134.3]:20746 "HELO
-	mail.lightning.ch") by vger.kernel.org with SMTP id <S284301AbRLEMXH>;
-	Wed, 5 Dec 2001 07:23:07 -0500
-Message-ID: <3C0E11A8.A3057B7D@lightning.ch>
-Date: Wed, 05 Dec 2001 13:23:04 +0100
-From: Daniel Marmier <daniel.marmier@lightning.ch>
-Reply-To: daniel.marmier@lightning.ch
-Organization: LIGHTNING Instrumentation SA
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.17 i686)
-X-Accept-Language: chose, fr, en
-MIME-Version: 1.0
-To: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
-Cc: Jeremy Puhlman <jpuhlman@mvista.com>, "H. Peter Anvin" <hpa@zytor.com>,
-        Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Endianness-aware mkcramfs
-In-Reply-To: <3C0BD8FD.F9F94BE0@mvista.com> <3C0CB59B.EEA251AB@lightning.ch> <9uj5fb$1fm$1@cesium.transmeta.com> <20011205013630.C717@nightmaster.csn.tu-chemnitz.de> <3C0D6CB6.7000905@zytor.com> <20011204164941.A29968@one-eyed-alien.net> <20011204170235.M25671@mvista.com> <20011204173819.C29968@one-eyed-alien.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S284335AbRLEMcp>; Wed, 5 Dec 2001 07:32:45 -0500
+Received: from noose.gt.owl.de ([62.52.19.4]:12558 "HELO noose.gt.owl.de")
+	by vger.kernel.org with SMTP id <S284327AbRLEMcc>;
+	Wed, 5 Dec 2001 07:32:32 -0500
+Date: Wed, 5 Dec 2001 13:32:04 +0100
+From: Florian Lohoff <flo@rfc822.org>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: "ext3-users@redhat.com" <ext3-users@redhat.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: ext3-0.9.16 against linux-2.4.17-pre2
+Message-ID: <20011205133204.C4916@paradigm.rfc822.org>
+In-Reply-To: <3C0B12C5.F8F05016@zip.com.au>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="aT9PWwzfKXlsBJM1"
+Content-Disposition: inline
+In-Reply-To: <3C0B12C5.F8F05016@zip.com.au>
+User-Agent: Mutt/1.3.23i
+Organization: rfc822 - pure communication
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Dharm wrote:
-> 
-> The speed reduction is going to be minimal.  Implement it via macros, like
-> it's done everywhere else.  If the endianness is one way, the macros get
-> optimized away.  If it's the other way, then they convert into an inlined
-> byte swap.
-> 
-> Yes, there can be a small performance hit, but it's absolutely tiny.
-> 
 
-Approved. Byteswapping some metadata fields has a negligible cost.
-I did not post this patch in the hope it would be integrated, but
-because Jeremy needed it.
+--aT9PWwzfKXlsBJM1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-If there is consensus about the "always little-endian cramfs" idea,
-let's go for it and please ignore this patch.
+On Sun, Dec 02, 2001 at 09:51:01PM -0800, Andrew Morton wrote:
+>=20
+> An ext3 update which also applies to linux-2.4.16 is available at
+>=20
 
-Have a nice day,
+It seems something broken between 2.4.15-pre2 and this update - I am
+seeing filesystem corruption:
 
+Procmail moans about "locked" mailboxes - Opening them shows that
+the last mail originates about 4 hours ago although there are coming
+mails every minute.
 
-				Daniel Marmier
+procmail: Extraneous locallockfile ignored
+procmail: Error while writing to "countpl/20011205"
+procmail: Truncated file to former size
+procmail: Error while writing to "archive/received-200112"
+procmail: Truncated file to former size
+=46rom flo@mediaways.net  Wed Dec  5 13:25:37 2001
+ Subject: Cron <nwmgmt@mgr1> /aol/bin/count.pl
+   Folder: /home/flo/Mail/inbox
+
+(flo@ping)~# ls -la Mail/countpl/20011205 Mail/archive/received-200112
+-rw-------    1 flo      flo      51200000 Dec  5 13:25 Mail/archive/receiv=
+ed-200112
+-rw-------    1 flo      flo      51200000 Dec  5 13:25 Mail/countpl/200112=
+05
+
+The last lines of the countpl/20011205 file contain 0 - Cut'n'pasted
+from "most".
+
+0x030D3C20: 3E0A4461 74653A20 5765642C 20203520     >.Date: Wed,  5
+0x030D3C30: 44656320 32303031 2030393A 32303A32     Dec 2001 09:20:2
+0x030D3C40: 32202B30 30303020 28474D54 290A0A45     2 +0000 (GMT)..E
+0x030D3C50: 52522020 31373938 3520322E 72646967     RR  17985 2.rdig
+0x030D3C60: 2E756B20 3A203632 2E35352E 382E3132     .uk : 62.55.8.12
+0x030D3C70: 36206661 696C6564 20776169 74696E67     6 failed waiting
+0x030D3C80: 20666F72 20706167 696E6720 72657175      for paging requ
+0x030D3C90: 65737420 696E206C 32747020 73657373     est in l2tp sess
+0x030D3CA0: 696F6E20 7461626C 650A0A00 00000000     ion table.......
+0x030D3CB0: 00000000 00000000 00000000 00000000     ................
+0x030D3CC0: 00000000 00000000 00000000 00000000     ................
+0x030D3CD0: 00000000 00000000 00000000 00000000     ................
+0x030D3CE0: 00000000 00000000 00000000 00000000     ................
+0x030D3CF0: 00000000 00000000 00000000 00000000     ................
+0x030D3D00: 00000000 00000000 00000000 00000000     ................
+0x030D3D10: 00000000 00000000 00000000 00000000     ................
+0x030D3D20: 00000000 00000000 00000000 00000000     ................
+0x030D3D30: 00000000 00000000 00000000 00000000     ................
+0x030D3D40: 00000000 00000000 00000000 00000000     ................
+0x030D3D50: 00000000 00000000 00000000 00000000     ................
+0x030D3D60: 00000000 00000000 00000000 00000000     ................
+0x030D3D70: 00000000 00000000 00000000 00000000     ................
+0x030D3D80: 00000000 00000000 00000000 00000000     ................
+0x030D3D90: 00000000 00000000 00000000 00000000     ................
+0x030D3DA0: 00000000 00000000 00000000 00000000     ................
+0x030D3DB0: 00000000 00000000 00000000 00000000     ................
+0x030D3DC0: 00000000 00000000 00000000 00000000     ................
+0x030D3DD0: 00000000 00000000 00000000 00000000     ................
+0x030D3DE0: 00000000 00000000 00000000 00000000     ................
+0x030D3DF0: 00000000 00000000 00000000 00000000     ................
+0x030D3E00: 00000000 00000000 00000000 00000000     ................
+0x030D3E10: 00000000 00000000 00000000 00000000     ................
+0x030D3E20: 00000000 00000000 00000000 00000000     ................
+0x030D3E30: 00000000 00000000 00000000 00000000     ................
+0x030D3E40: 00000000 00000000 00000000 00000000     ................
+0x030D3E50: 00000000 00000000 00000000 00000000     ................
+0x030D3E60: 00000000 00000000 00000000 00000000     ................
+0x030D3E70: 00000000 00000000 00000000 00000000     ................
+0x030D3E80: 00000000 00000000 00000000 00000000     ................
+0x030D3E90: 00000000 00000000 00000000 00000000     ................
+0x030D3EA0: 00000000 00000000 00000000 00000000     ................
+0x030D3EB0: 00000000 00000000 00000000 00000000     ................
+0x030D3EC0: 00000000 00000000 00000000 00000000     ................
+0x030D3ED0: 00000000 00000000 00000000 00000000     ................
+0x030D3EE0: 00000000 00000000 00000000 00000000     ................
+0x030D3EF0: 00000000 00000000 00000000 00000000     ................
+0x030D3F00: 00000000 00000000 00000000 00000000     ................
+0x030D3F10: 00000000 00000000 00000000 00000000     ................
+0x030D3F20: 00000000 00000000 00000000 00000000     ................
+0x030D3F30: 00000000 00000000 00000000 00000000     ................
+0x030D3F40: 00000000 00000000 00000000 00000000     ................
+0x030D3F50: 00000000 00000000 00000000 00000000     ................
+0x030D3F60: 00000000 00000000 00000000 00000000     ................
+0x030D3F70: 00000000 00000000 00000000 00000000     ................
+0x030D3F80: 00000000 00000000 00000000 00000000     ................
+0x030D3F90: 00000000 00000000 00000000 00000000     ................
+0x030D3FA0: 00000000 00000000 00000000 00000000     ................
+0x030D3FB0: 00000000 00000000 00000000 00000000     ................
+0x030D3FC0: 00000000 00000000 00000000 00000000     ................
+0x030D3FD0: 00000000 00000000 00000000 00000000     ................
+0x030D3FE0: 00000000 00000000 00000000 00000000     ................
+0x030D3FF0: 00000000 00000000 00000000 00000000     ................
+0x030D4000:
+
+I am backing out the 2417 changes now - I already did a forced fsck
+which (e2fs 1.25) which didnt find anything abnormal.
+
+(flo@ping)~# uname -a
+Linux ping.mediaways.net 2.4.16 #1 Tue Dec 4 19:42:30 CET 2001 i686 unknown
+
+Flo
+--=20
+Florian Lohoff                  flo@rfc822.org             +49-5201-669912
+Nine nineth on september the 9th              Welcome to the new billenium
+
+--aT9PWwzfKXlsBJM1
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE8DhPEUaz2rXW+gJcRAhaJAKDIpd9ThlhTm6WM3TGm7hyj54obWgCgpcOx
+4nOGExW4ataaTlN5Gb5Y06w=
+=Ye9v
+-----END PGP SIGNATURE-----
+
+--aT9PWwzfKXlsBJM1--

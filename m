@@ -1,29 +1,34 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316512AbSFJXUs>; Mon, 10 Jun 2002 19:20:48 -0400
+	id <S316532AbSFJX0S>; Mon, 10 Jun 2002 19:26:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316532AbSFJXUr>; Mon, 10 Jun 2002 19:20:47 -0400
-Received: from gateway2.ensim.com ([65.164.64.250]:1809 "EHLO
-	nasdaq.ms.ensim.com") by vger.kernel.org with ESMTP
-	id <S316512AbSFJXUq>; Mon, 10 Jun 2002 19:20:46 -0400
-X-mailer: xrn 8.03-beta-26
-From: Paul Menage <pmenage@ensim.com>
-Subject: Re: of ethernet names (was [PATCH] Futex Asynchronous
-To: Brad Hards <bhards@bigpond.net.au>
-Cc: linux-kernel@vger.kernel.org, pmenage@ensim.com
-X-Newsgroups: 
-In-Reply-To: <0C01A29FBAE24448A792F5C68F5EA47D29DD32@nasdaq.ms.ensim.com>
-Message-Id: <E17HYSZ-0000CY-00@pmenage-dt.ensim.com>
-Date: Mon, 10 Jun 2002 16:20:27 -0700
+	id <S316533AbSFJX0R>; Mon, 10 Jun 2002 19:26:17 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:33733 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S316532AbSFJX0Q>;
+	Mon, 10 Jun 2002 19:26:16 -0400
+Date: Tue, 11 Jun 2002 01:24:05 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: mingo@elte.hu
+To: Mike Kravetz <kravetz@us.ibm.com>
+Cc: Robert Love <rml@tech9.net>, <linux-kernel@vger.kernel.org>
+Subject: Re: Scheduler Bug (set_cpus_allowed)
+In-Reply-To: <20020610161559.H1565@w-mikek2.des.beaverton.ibm.com>
+Message-ID: <Pine.LNX.4.44.0206110123230.4761-100000@elte.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <0C01A29FBAE24448A792F5C68F5EA47D29DD32@nasdaq.ms.ensim.com>,
-you write:
->Is there any documentation on the netlink API, beyond UTSL(iproute)?
->Reference would be good, but a tutorial would be ideal.
 
-The man pages for netlink(3), netlink(7), rtnetlink(3) and rtnetlink(7)
-give a basic reference.
+On Mon, 10 Jun 2002, Mike Kravetz wrote:
 
-Paul
+> You might also consider adding the optimization/fast path to
+> set_cpus_allowed().  Once again, I don't expect this routine (or this
+> code path) to be used much, but I just hate to see us scheudle a
+> migration task to set the cpu field when it is safe to do it within the
+> routine.
+
+sure, agreed. I've added it to my tree.
+
+	Ingo
+

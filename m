@@ -1,103 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269271AbRGaMJt>; Tue, 31 Jul 2001 08:09:49 -0400
+	id <S269272AbRGaMW7>; Tue, 31 Jul 2001 08:22:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269270AbRGaMJj>; Tue, 31 Jul 2001 08:09:39 -0400
-Received: from mailhost.lineo.fr ([194.250.46.226]:7173 "EHLO
-	mailhost.lineo.fr") by vger.kernel.org with ESMTP
-	id <S269271AbRGaMJX>; Tue, 31 Jul 2001 08:09:23 -0400
-Date: Tue, 31 Jul 2001 14:09:27 +0200
-From: christophe =?iso-8859-1?Q?barb=E9?= <christophe.barbe@lineo.fr>
-To: William Scott Lockwood III <scottlockwood@hotmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Test mail
-Message-ID: <20010731140927.A31267@pc8.lineo.fr>
-In-Reply-To: <3B4B4FC10065D2C3@mta1n.bluewin.ch> <OE54msfGdMNFmWAFsTm00002ea9@hotmail.com> <20010731103413.E28761@pc8.lineo.fr> <OE34vSVMum03yMJiQTy000031e1@hotmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <OE34vSVMum03yMJiQTy000031e1@hotmail.com>; from thatlinuxguy@hotmail.com on mar, jui 31, 2001 at 13:42:20 +0200
-X-Mailer: Balsa 1.1.7-cvs20010726
+	id <S269275AbRGaMWt>; Tue, 31 Jul 2001 08:22:49 -0400
+Received: from foobar.isg.de ([62.96.243.63]:21770 "HELO mail.isg.de")
+	by vger.kernel.org with SMTP id <S269272AbRGaMWq>;
+	Tue, 31 Jul 2001 08:22:46 -0400
+Message-ID: <3B66A318.1E530A35@isg.de>
+Date: Tue, 31 Jul 2001 14:22:48 +0200
+From: Thomas Mischke <thomas.mischke@isg.de>
+Organization: IS Innovative Software AG
+X-Mailer: Mozilla 4.77 [de] (X11; U; Linux 2.4.6-pre8 i686)
+X-Accept-Language: de-DE, de, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Tulip and Interrupt mitigation
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Hi William Scott Lockwood III,
+Hello,
 
-In your mails, you use outlook and hotmail together.
-This is a mistake.
+the tulip driver (as of 2.4.7, maybe earlyer versions too) has code in
+tulip_interrupt to switch to interrupt mitigation on heavy network load.
+The problem is: I have heavy network load, my system (Athlon 900 MHz
+with 1 GB) spends 100% of the time in the interrupt, but it does not
+switch to mitigation.
 
-Outlook is a "not so bad idea" but which comes with a collection of
-security holes. Eudora is definetly a better choice.
+If I force the card to mitigation (by changing the code of tulip driver)
+I don't loose any packets and get 20% idle time. Great!
 
-Hotmail is a http-based mail owned by microsoft. And all contents which go
-in it become potential Microsoft content (there's a kind of implicit
-copyright transfert between you end Microsoft).
-You should read carrefully what you have (implicitly perhaps) signed.
-You should avoid Hotmail. This is not related to M$ against Linux but to
-your rights (to access and only you to your data)  against M$ profits. From
-the Microsoft point of view, Hotmail License is an improvment over the way
-they lock their clients by using proprietary (embraced-and-extanded)
-protocols and standarts.  
-Hotmail was the first site to use Microsoft Passport, which is the a draft
-of .Net. If you accept Hotmail today you will accept the worst of .Net
-tomorrow.
+I don't use CONFIG_NET_HW_FLOWCONTROL because sometimes my network goes
+down for about 5 seconds. This does not happen without
+CONFIG_NET_HW_FLOWCONTROL.
 
-btw You said that Microsoft comes with good solutions.
-This view (linux is not user friendly) is partly wrong because what is said
-to be not user friendly is caused by people not accepting differences.
-M$ users are scared by what we call the unix-way.
+The problem seems to be the following: Mitigation is switched on if we
+receive (or send) a lot of packets during a single interrupt. But this
+never happens. During an interrupt I receive or send about 5 packets, so
+no mitigation is started. But the interrupt is called very quickly after
+leaving again, seeing another 5 packets and so on.
 
-To conclude and I will stop following this thread, I'm against adding IQ
-test in the lkml subscribe process.
+My tulip cards use 21143 chips.
 
-Christophe
+Thanks in advance,
 
-PS: I don't remember the name but there is a unix tool that provide
-everything for MsExchange sharing facilities.
 
-Le mar, 31 jui 2001 13:42:20, William Scott Lockwood III a écrit :
-> Sick?  No.
-> 
-> As much as we dislike M$'s marketing practices, one has to admit that
-> they DO come up with some GOOD solutions to problems, they just bundle
-> them into BAD implementations that are non-free.
-> 
-> As I said earlier, the problem isn't hotmail - the problem is attitudes
-> like yours.
-> 
-> Scott
-> 
-> ----- Original Message -----
-> From: "christophe barbé" <christophe.barbe@lineo.fr>
-> To: <linux-kernel@vger.kernel.org>
-> Sent: Tuesday, July 31, 2001 3:34 AM
-> Subject: Re: Test mail
-> 
-> 
-> 
-> Le lun, 30 jui 2001 22:23:03, William Scott Lockwood III a écrit :
-> > Basically, I use a hotmail and Outlook Express to help me SORT
-> messages
-> > on LKML.  It makes it MUCH easier for me to find the messages I want
-> to
-> > read vs the rest of the noise that I don't understand yet.
-> 
-> Sick ...
-> 
-> And btw you should read the various HotMail agreements you have signed.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-> in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
--- 
-Christophe Barbé
-Software Engineer - christophe.barbe@lineo.fr
-Lineo France - Lineo High Availability Group
-42-46, rue Médéric - 92110 Clichy - France
-phone (33).1.41.40.02.12 - fax (33).1.41.40.02.01
-http://www.lineo.com
+Thomas Mischke

@@ -1,130 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262593AbVBCDaj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262431AbVBCDnV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262593AbVBCDaj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 22:30:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262672AbVBCDaj
+	id S262431AbVBCDnV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 22:43:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262428AbVBCDnV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 22:30:39 -0500
-Received: from 207-105-1-25.zarak.com ([207.105.1.25]:58916 "HELO
-	iceberg.Adtech-Inc.COM") by vger.kernel.org with SMTP
-	id S262795AbVBCDaI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 22:30:08 -0500
-Message-ID: <42019A76.8050404@spirentcom.com>
-Date: Wed, 02 Feb 2005 19:28:54 -0800
-From: "Mark F. Haigh" <Mark.Haigh@spirentcom.com>
-User-Agent: Mozilla Thunderbird  (X11/20041216)
+	Wed, 2 Feb 2005 22:43:21 -0500
+Received: from stinkfoot.org ([65.75.25.34]:46552 "EHLO stinkfoot.org")
+	by vger.kernel.org with ESMTP id S262941AbVBCDm4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Feb 2005 22:42:56 -0500
+Message-ID: <42019E0E.1020205@stinkfoot.org>
+Date: Wed, 02 Feb 2005 22:44:14 -0500
+From: Ethan Weinstein <lists@stinkfoot.org>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: marcelo.tosatti@cyclades.com
-CC: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.4.29] arch/i386/kernel/pci-irq.c - Remove redundant check
-Content-Type: multipart/mixed;
- boundary="------------000707080002090802030609"
-X-OriginalArrivalTime: 03 Feb 2005 03:30:05.0430 (UTC) FILETIME=[A7303960:01C509A0]
+To: linux-kernel@vger.kernel.org
+Subject: e1000, sshd, and the infamous "Corrupted MAC on input"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------000707080002090802030609
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Hey all,
 
-In arch/i386/kernel/pci-irq.c:pcibios_enable_irq(), there is a redundant 
-check:
+I've been having quite a time with the e1000 driver running at gigabit 
+speeds.  Running it at 100Fdx has never been a problem, which I've done 
+done for a long time. Last week I picked up a gigabit switch, and that's 
+when the trouble began.  I find that transferring large amounts of data 
+using scp invariably ends up with sshd spitting out "Disconnecting: 
+Corrupted MAC on input."  After deciding I must have purchased a bum 
+switch, I grabbed another model.. only to get the same error.
+Finally, I used a crossover cable between the two boxes, which resulted 
+in the same error from sshd again.
 
-     if (pin && !pcibios_lookup_irq(dev, 1) && !dev->irq) {
+Both systems are 2.6.10, with 4k stacks, and regparm enabled. system 1 
+has an onboard Intel 82547EI, system 2 has an onboard Intel 82545EM, 
+both have NAPI enabled... Oddly, running the nics at 100Fdx does not 
+generate this error no matter how much pressure I put on them. I've 
+found a lot of scuttlebutt regarding these problems with sshd on the 
+net, but this appears a hardware/driver problem.  There's mention of a 
+specific problem with e1000 here: 
+http://www.psc.edu/networking/projects/hpn-ssh  but no apparent resolution.
 
-	/* ... */
+Any suggestions are greatly appreciated.
 
-         if (pin) {
-
-
-We don't need the second 'if (pin)', as we already know it's nonzero 
-from the first check.  Also note that this fixes the following warning 
-(which happens because gcc's isn't always perfect with determining 
-whether a variable is used uninitialized):
-
-pci-irq.c: In function `pcibios_enable_irq':
-pci-irq.c:1128: warning: 'msg' might be used uninitialized in this function
-
-All the patch does is remove the duplicate check and shift everything 
-else over.
-
-
-Mark F. Haigh
-Mark.Haigh@spirentcom.com
-
---------------000707080002090802030609
-Content-Type: text/plain;
- name="patch-i386-pci-irq"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch-i386-pci-irq"
-
---- arch/i386/kernel/pci-irq.c.orig	2005-02-02 18:33:56.694474944 -0800
-+++ arch/i386/kernel/pci-irq.c	2005-02-02 18:58:18.828196832 -0800
-@@ -1134,36 +1134,34 @@
- 		if (io_apic_assign_pci_irqs) {
- 			int irq;
- 
--			if (pin) {
--				pin--;		/* interrupt pins are numbered starting from 1 */
--				irq = IO_APIC_get_PCI_irq_vector(dev->bus->number, PCI_SLOT(dev->devfn), pin);
--				/*
--				 * Busses behind bridges are typically not listed in the MP-table.
--				 * In this case we have to look up the IRQ based on the parent bus,
--				 * parent slot, and pin number. The SMP code detects such bridged
--				 * busses itself so we should get into this branch reliably.
--				 */
--				temp_dev = dev;
--				while (irq < 0 && dev->bus->parent) { /* go back to the bridge */
--					struct pci_dev * bridge = dev->bus->self;
-+			pin--;		/* interrupt pins are numbered starting from 1 */
-+			irq = IO_APIC_get_PCI_irq_vector(dev->bus->number, PCI_SLOT(dev->devfn), pin);
-+			/*
-+			 * Busses behind bridges are typically not listed in the MP-table.
-+			 * In this case we have to look up the IRQ based on the parent bus,
-+			 * parent slot, and pin number. The SMP code detects such bridged
-+			 * busses itself so we should get into this branch reliably.
-+			 */
-+			temp_dev = dev;
-+			while (irq < 0 && dev->bus->parent) { /* go back to the bridge */
-+				struct pci_dev * bridge = dev->bus->self;
- 
--					pin = (pin + PCI_SLOT(dev->devfn)) % 4;
--					irq = IO_APIC_get_PCI_irq_vector(bridge->bus->number, 
--							PCI_SLOT(bridge->devfn), pin);
--					if (irq >= 0)
--						printk(KERN_WARNING "PCI: using PPB(B%d,I%d,P%d) to get irq %d\n", 
--							bridge->bus->number, PCI_SLOT(bridge->devfn), pin, irq);
--					dev = bridge;
--				}
--				dev = temp_dev;
--				if (irq >= 0) {
--					printk(KERN_INFO "PCI->APIC IRQ transform: (B%d,I%d,P%d) -> %d\n",
--						dev->bus->number, PCI_SLOT(dev->devfn), pin, irq);
--					dev->irq = irq;
--					return;
--				} else
--					msg = " Probably buggy MP table.";
-+				pin = (pin + PCI_SLOT(dev->devfn)) % 4;
-+				irq = IO_APIC_get_PCI_irq_vector(bridge->bus->number, 
-+						PCI_SLOT(bridge->devfn), pin);
-+				if (irq >= 0)
-+					printk(KERN_WARNING "PCI: using PPB(B%d,I%d,P%d) to get irq %d\n", 
-+						bridge->bus->number, PCI_SLOT(bridge->devfn), pin, irq);
-+				dev = bridge;
- 			}
-+			dev = temp_dev;
-+			if (irq >= 0) {
-+				printk(KERN_INFO "PCI->APIC IRQ transform: (B%d,I%d,P%d) -> %d\n",
-+					dev->bus->number, PCI_SLOT(dev->devfn), pin, irq);
-+				dev->irq = irq;
-+				return;
-+			} else
-+				msg = " Probably buggy MP table.";
- 		} else if (pci_probe & PCI_BIOS_IRQ_SCAN)
- 			msg = "";
- 		else
-
---------------000707080002090802030609--
+-E

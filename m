@@ -1,38 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265001AbUGGHXO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264936AbUGGHbE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265001AbUGGHXO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jul 2004 03:23:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265007AbUGGHXO
+	id S264936AbUGGHbE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jul 2004 03:31:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264937AbUGGHbE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jul 2004 03:23:14 -0400
-Received: from quechua.inka.de ([193.197.184.2]:51632 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S265001AbUGGHXK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jul 2004 03:23:10 -0400
-From: Bernd Eckenfels <ecki-news2004-05@lina.inka.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: possible arp table corruption [2.4.18]
-Organization: Deban GNU/Linux Homesite
-In-Reply-To: <13e9886104070615087452e595@mail.gmail.com>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.7.5-20040615 ("Gighay") (UNIX) (Linux/2.6.5 (i686))
-Message-Id: <E1Bi6lo-0001Hp-00@calista.eckenfels.6bone.ka-ip.net>
-Date: Wed, 07 Jul 2004 09:23:08 +0200
+	Wed, 7 Jul 2004 03:31:04 -0400
+Received: from louise.pinerecords.com ([213.168.176.16]:28585 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id S264936AbUGGHbC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jul 2004 03:31:02 -0400
+Date: Wed, 7 Jul 2004 09:30:59 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Ray Lee <ray-lk@madrabbit.org>
+Cc: tomstdenis@yahoo.com, eger@havoc.gtf.org,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 0xdeadbeef vs 0xdeadbeefL
+Message-ID: <20040707073059.GA20079@louise.pinerecords.com>
+References: <1089165901.4373.175.camel@orca.madrabbit.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1089165901.4373.175.camel@orca.madrabbit.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <13e9886104070615087452e595@mail.gmail.com> you wrote:
-> Where is the bug? What should I do to avoid this?
+On Jul-06 2004, Tue, 19:05 -0700
+Ray Lee <ray-lk@madrabbit.org> wrote:
 
-Probably in the line generation code of the /proc file in (your old) kernel,
-and you can (still) avoid it with netlink. Or you need to read multiple
-times through the table.
+> According to K&R, 2nd ed, section A2.5.1 (Integer Constants):
+>
+>         The type of an integer depends on its form, value and suffix.
+>         [...] If it is unsuffixed octal or hexadecimal, it has the first
+>         possible of these types ["in which its value can be represented"
+>         -- from omitted]: int, unsigned int, long int, unsigned long
+>         int.
 
-Another option would be to use a user space arp daemon to catch changes of
-the table.
+Is it safe to assume that C99 compilers append "..., long long int,
+unsigned long long int" to the list?
 
-Greetings
-Bernd
 -- 
-eckes privat - http://www.eckes.org/
-Project Freefire - http://www.freefire.org/
+Tomas Szepe <szepe@pinerecords.com>

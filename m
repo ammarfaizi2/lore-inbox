@@ -1,39 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265581AbSKOC0g>; Thu, 14 Nov 2002 21:26:36 -0500
+	id <S265587AbSKOC1T>; Thu, 14 Nov 2002 21:27:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265587AbSKOC0g>; Thu, 14 Nov 2002 21:26:36 -0500
-Received: from adsl-64-166-241-227.dsl.snfc21.pacbell.net ([64.166.241.227]:33702
-	"EHLO www.hockin.org") by vger.kernel.org with ESMTP
-	id <S265581AbSKOC0f>; Thu, 14 Nov 2002 21:26:35 -0500
-From: Tim Hockin <thockin@hockin.org>
-Message-Id: <200211150233.gAF2XQv15588@www.hockin.org>
-Subject: Re: [BK PATCH 1/2] Remove NGROUPS hardlimit (resend w/o qsort)
-To: akpm@digeo.com (Andrew Morton)
-Date: Thu, 14 Nov 2002 18:33:26 -0800 (PST)
-Cc: thockin@sun.com (Tim Hockin),
-       linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
-In-Reply-To: <3DD44E39.4703C2DA@digeo.com> from "Andrew Morton" at Nov 14, 2002 05:30:33 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S265603AbSKOC1S>; Thu, 14 Nov 2002 21:27:18 -0500
+Received: from mons.uio.no ([129.240.130.14]:44761 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S265587AbSKOC1O>;
+	Thu, 14 Nov 2002 21:27:14 -0500
+To: Juan Gomez <juang@us.ibm.com>
+Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: Non-blocking lock requests during the grace period
+References: <OFCACC2A48.A38B3611-ON87256C71.006D0CEB@us.ibm.com>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 15 Nov 2002 03:33:56 +0100
+In-Reply-To: <OFCACC2A48.A38B3611-ON87256C71.006D0CEB@us.ibm.com>
+Message-ID: <shswunf8stn.fsf@helicity.uio.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 10,000 bits isn't much.  Maybe:
+>>>>> " " == Juan Gomez <juang@us.ibm.com> writes:
 
-That's 10000 USED bits.  Remember groups are non-contiguously allocated.  If
-a task is a member of just groups 32767 and 65535, you'll get one bit per
-page used, and when they call getgroups() you need to pull it apart and
-return an array of gid_t.
+     > I found out that the current Linux client of lockd blocks
+     > non-blocking lock requests while the server is in the grace
+     > period.  I think this is incorrect behavior and I am wondering
+     > if the will exists out there to correct this and return
+     > "resource not available" to the process when a request is for a
+     > *non-blocking* lock while the server is in the grace period.
 
-> - add `char groups[16]' to task_struct
-> 
-> - add `struct page *groups_page' to task_struct
-> 
-> - then
-> 	if (getsetsize <= 256)
-> 		use current->groups[]		/* 256 groups max */
-> 	else
-> 		use current->groups_page;	/* 32768 groups max */
+Would the following fix it?
+
+Cheers,
+  Trond
+
+--- linux-2.5.47/fs/lockd/clntproc.c.orig	2002-09-29 10:15:13.000000000 -0400
++++ linux-2.5.47/fs/lockd/clntproc.c	2002-11-14 21:32:26.000000000 -0500
+@@ -256,10 +256,8 @@
+ 		msg.rpc_cred = NULL;
+ 
+ 	do {
+-		if (host->h_reclaiming && !argp->reclaim) {
+-			interruptible_sleep_on(&host->h_gracewait);
+-			continue;
+-		}
++		if (host->h_reclaiming && !argp->reclaim)
++			goto wait_on_grace;
+ 
+ 		/* If we have no RPC client yet, create one. */
+ 		if ((clnt = nlm_bind_host(host)) == NULL)
+@@ -296,6 +294,9 @@
+ 			dprintk("lockd: server returns status %d\n", resp->status);
+ 			return 0;	/* Okay, call complete */
+ 		}
++wait_on_grace:
++		if (!argp->block)
++			return -EAGAIN;
+ 
+ 		/* Back off a little and try again */
+ 		interruptible_sleep_on_timeout(&host->h_gracewait, 15*HZ);

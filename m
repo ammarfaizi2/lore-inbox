@@ -1,50 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261686AbSJ2LVQ>; Tue, 29 Oct 2002 06:21:16 -0500
+	id <S261678AbSJ2L3b>; Tue, 29 Oct 2002 06:29:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261678AbSJ2LVQ>; Tue, 29 Oct 2002 06:21:16 -0500
-Received: from bjl1.asuk.net.64.29.81.in-addr.arpa ([81.29.64.88]:7593 "EHLO
-	bjl1.asuk.net") by vger.kernel.org with ESMTP id <S261686AbSJ2LVP>;
-	Tue, 29 Oct 2002 06:21:15 -0500
-Date: Tue, 29 Oct 2002 11:20:46 +0000
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       lse-tech@lists.sourceforge.net
-Subject: Re: [PATCH] epoll more scalable than poll
-Message-ID: <20021029112045.GA19970@bjl1.asuk.net>
-References: <20021029015139.GB18727@bjl1.asuk.net> <Pine.LNX.4.44.0210282042170.1002-100000@blue1.dev.mcafeelabs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0210282042170.1002-100000@blue1.dev.mcafeelabs.com>
-User-Agent: Mutt/1.4i
+	id <S261729AbSJ2L3b>; Tue, 29 Oct 2002 06:29:31 -0500
+Received: from ns.suse.de ([213.95.15.193]:40452 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S261678AbSJ2L3a> convert rfc822-to-8bit;
+	Tue, 29 Oct 2002 06:29:30 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Andreas Gruenbacher <agruen@suse.de>
+Organization: SuSE Linux AG
+To: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
+Subject: Re: [PATCH][RFC] 2.5.44 (1/2): Filesystem capabilities kernel patch
+Date: Tue, 29 Oct 2002 12:35:51 +0100
+User-Agent: KMail/1.4.3
+Cc: linux-kernel@vger.kernel.org, Chris Evans <chris@scary.beasts.org>,
+       Ulrich Drepper <drepper@redhat.com>,
+       Pavel Machek <pavel@atrey.karlin.mff.cuni.cz>
+References: <Pine.LNX.4.33.0210282327520.8990-100000@sphinx.mythic-beasts.com> <200210290323.09565.agruen@suse.de> <87n0oxmrhn.fsf@goat.bogus.local>
+In-Reply-To: <87n0oxmrhn.fsf@goat.bogus.local>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200210291235.51299.agruen@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Davide Libenzi wrote:
-> IMHO sys_epoll is going to be a replacement for rt-signals, because it
-> scales better, it collapses events and does not have the overflowing queue
-> problem.
+On Tuesday 29 October 2002 12:09, Olaf Dietsche wrote:
+> Andreas Gruenbacher <agruen@suse.de> writes:
+> > A perhaps unrelated note: We once had Pavel Machek's elfcap
+> > implementation, in which capabilities were stored in ELF. This was a bad
+> > idea because being able to create executables does not imply the user is
+> > capable of CAP_SETFCAP, and users shouldn't be able to freely choose
+> > their capabilities :-] We still want
+>
+> I remember this hack and since I hear this claim every now and then, I
+> downloaded his patch and verified with the source. Pavel's capability
+> patch was about _restricting_ not granting capabilities, so it's more
+> like an inheritable, rather than a permitted, set.
+>
+> At least that was his intention. I didn't verify this with the
+> appropriate kernel sources from 1999.
 
-Scalability is also solved by the signal-per-fd patch, as you know.
-The main advantage of epoll is that it's lighter weight than rt-signals.
+I forgot to CC Pavel the last time. Elfcap probably truly was restrictive 
+only. This is comparable to dropping capabilities very early in the suid root 
+binaries themselves, and thus not a significant improvement.
 
-(IMHO signal-per-fd really ought to be included in 2.6 _anyway_, regardless
-of any better mechanism for reading events.)
+We want to be able to also grant capabilities (not only restrict them), so we 
+may have fewer suid root binaries.
 
-> The sys_epoll interface was coded to use the existing infrastructure w/out
-> adding any legacy code added to suite the implementation. Basically,
-> besides the few lines added to fs/pipe.c to support pipes ( rt-signal did
-> not support them ), the hook lays inside sk_wake_async().
-
-I agree that was the way to do it for 2.4 and earlier - you have to
-work with a range of kernels, and minimum impact.
-
-But now in 2.5 it's appropriate to implement whatever's _right_.
-
-Time for me to take the big plunge and try a 2.5 kernel on my IDE
-laptop, I guess :-)
-
--- Jamie
+--Andreas.
 

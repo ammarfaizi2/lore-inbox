@@ -1,69 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261508AbUBZCi6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Feb 2004 21:38:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262610AbUBZCi6
+	id S261525AbUBZCk4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Feb 2004 21:40:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261529AbUBZCkz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 21:38:58 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:43985 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261508AbUBZCiv
+	Wed, 25 Feb 2004 21:40:55 -0500
+Received: from mail-06.iinet.net.au ([203.59.3.38]:41709 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S261525AbUBZCkx
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 21:38:51 -0500
-Message-ID: <403D5C2C.7000205@pobox.com>
-Date: Wed, 25 Feb 2004 21:38:36 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
+	Wed, 25 Feb 2004 21:40:53 -0500
+Message-ID: <403D5CB1.50409@cyberone.com.au>
+Date: Thu, 26 Feb 2004 13:40:49 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
+X-Accept-Language: en
 MIME-Version: 1.0
-To: "Mukker, Atul" <Atulm@lsil.com>
-CC: "'Matt Domsch'" <Matt_Domsch@dell.com>,
-       "'Christoph Hellwig'" <hch@infradead.org>,
-       "'Arjan van de Ven'" <arjanv@redhat.com>,
-       "'James Bottomley'" <James.Bottomley@SteelEye.com>,
-       "'Paul Wagland'" <paul@wagland.net>, Matthew Wilcox <willy@debian.org>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>
-Subject: Re: [SUBJECT CHANGE]: megaraid unified driver version 2.20.0.0-al
- pha1
-References: <0E3FA95632D6D047BA649F95DAB60E57033BC3EA@exa-atlanta.se.lsil.com>
-In-Reply-To: <0E3FA95632D6D047BA649F95DAB60E57033BC3EA@exa-atlanta.se.lsil.com>
+To: Mike Fedyk <mfedyk@matchmail.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.3-mm3
+References: <20040222172200.1d6bdfae.akpm@osdl.org>	<403BCE9E.7080607@matchmail.com> <20040224143025.36395730.akpm@osdl.org> <403D1347.8090801@matchmail.com> <403D468D.2090901@cyberone.com.au> <403D4CBE.9080805@matchmail.com> <403D5174.6050302@cyberone.com.au> <403D5B4C.3020309@matchmail.com>
+In-Reply-To: <403D5B4C.3020309@matchmail.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mukker, Atul wrote:
-> With multiple adapters, applications would need to open multiple handles.
-> This would somewhat complicate things for them. But keeping in line with
-> general expectations, we would fork the drivers for different class of
-> controllers now.
-
-"opening multiple handles" is preferred.  You want one discrete object 
-per controller or per device, depending on the object in question.
 
 
-> I have not yet gotten strong feelings against a single driver for lk 2.4 and
-> lk 2.6. If this is true, we would like to keep single driver for both
-> kernels - since lk 2.4 still has a big lifecycle.
+Mike Fedyk wrote:
 
-If you are doing multiple drivers in 2.6, it would seem better to match 
-that as closely as possible in 2.4.
+>
+> OK, I'll give that a try.
+>
+> Is the attached patch the latest version of your alternative patch 
+> instead of shrink_slab-for-all-zones.patch?
+>
 
+Yes that looks like it. I am actually starting to like this patch
+again now that lowmem is being properly scanned as a result of
+highmem scanning.
 
-> For lk 2.6, the controllers would be detected PCI ordered and because of
-> existing lk 2.4 setups, driver would re-order the registration based on boot
-> controller.
-
-Look at my libata code -- in both 2.4 and 2.6, it uses the proper PCI 
-API calls.
-
-Controller order is irrelevant -- device order is what you really care 
-about, right?  This can be managed by creating a list during probe, and 
-then executing the list after all controllers have been probed. 
-Obviously, this excludes hotplug controllers added after the initial 
-module_init() function exits.
-
-	Jeff
-
-
+But it should be functionally very similar to just scanning slab
+on highmem pressure like -mm3 does.
 

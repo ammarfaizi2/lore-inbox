@@ -1,83 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286377AbRLJUoA>; Mon, 10 Dec 2001 15:44:00 -0500
+	id <S286379AbRLJUsu>; Mon, 10 Dec 2001 15:48:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286376AbRLJUnu>; Mon, 10 Dec 2001 15:43:50 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:6016 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S286377AbRLJUnj>; Mon, 10 Dec 2001 15:43:39 -0500
-Date: Mon, 10 Dec 2001 15:43:35 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Ben Greear <greearb@candelatech.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: min-write-size for a UDP socket to be POLLOUT cannot be set. (proposed fixes)
-In-Reply-To: <3C1516DC.5010500@candelatech.com>
-Message-ID: <Pine.LNX.3.95.1011210153555.742A-100000@chaos.analogic.com>
+	id <S286380AbRLJUsk>; Mon, 10 Dec 2001 15:48:40 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:58631 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S286379AbRLJUs3>; Mon, 10 Dec 2001 15:48:29 -0500
+Message-ID: <3C151F7B.44125B1@zip.com.au>
+Date: Mon, 10 Dec 2001 12:47:55 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+CC: Andrea Arcangeli <andrea@suse.de>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.16 & OOM killer screw up (fwd)
+In-Reply-To: <Pine.LNX.4.21.0112101705281.25362-100000@freak.distro.conectiva>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 10 Dec 2001, Ben Greear wrote:
-
+Marcelo Tosatti wrote:
 > 
+> Andrea,
 > 
-> Richard B. Johnson wrote:
-> 
-> > On Mon, 10 Dec 2001, Ben Greear wrote:
-> > 
-> > 
-> >>This relates to my earlier question about setting the threshold
-> >>at which select returns that a (UDP) socket is writable.
-> >>
-> >>It appears that UDP sockets are hardwired at 2048 bytes...
-> >>
-> >> From linux/include/net/sock.h:
-> >>
-> > 
-> >     int len = 0x8000;
-> > 
-> >     setsockopt(s, SOL_SOCKET, SO_SNDBUF, &len, sizeof(len));
-> >     setsockopt(s, SOL_SOCKET, SO_RCVBUF, &len, sizeof(len));
-> > 
-> > 
-> > Doesn't this work?
-> 
-> 
-> That sets the queue sizes bigger, but suppose this:
-> 
-> I have 4M queue size.  I have 4M-2k bytes already in the
-> queue (2k free).  I have a 4k UDP buffer to write.  I call
-> select and it says the socket is writable.  However, in this
-> case I cannot actually write to the socket because I have only
-> 2 of the 4k that I need...  Now, I can detect the failure to send
-> and re-transmit, but that basically gets me into a tight loop because
-> select keeps saying I can write, and I keep trying.  The tight loop
-> is doubly bad because the machine is already highly stressed or it's
-> buffers would never be so full....
-> 
-> I want select to only say I can write when I'm at XX (say, 64k) bytes of
-> free buffer-queue space...
-> 
-> Ben
+> Could you please start looking at any 2.4 VM issues which show up ?
 > 
 
-If you have a 4M queue size, it appears as though you are trying to
-use UDP where TCP should have been used. Normally, what you call the
-queue size, is set to contain you largest packet you will ever want to
-send. With this in mind, you don't even know if a fragmented packet
-can be routed if it's more than 64k in length so you would never try
-to send something larger than that under UDP.
+Just fwiw, I did some testing on this yesterday.
 
+Buffers and cache data are sitting on the active list, and shrink_caches()
+is *not* getting them off the active list, and onto the inactive list
+where they can be freed.
 
-Cheers,
-Dick Johnson
+So we end up with enormous amounts of anon memory on the inactive
+list, so this code:
 
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+        /* try to keep the active list 2/3 of the size of the cache */
+        ratio = (unsigned long) nr_pages * nr_active_pages / ((nr_inactive_pages + 1) * 2);
+        refill_inactive(ratio);
 
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
+just calls refill_inactive(0) all the time.  Nothing gets moved
+onto the inactive list - it remains full of unfreeable anon
+allocations.  And with no swap, there's nowhere to go.
 
+I think a little fix is to add
 
+        if (ratio < nr_pages)
+                ratio = nr_pages;
+
+so we at least move *something* onto the inactive list.
+
+Also refill_inactive needs to be changed so that it counts
+the number of pages which it actually moved, rather than
+the number of pages which it inspected.
+
+In my swapless testing, I burnt HUGE amounts of CPU in flush_tlb_others().
+So we're madly trying to swap pages out and finding that there's no swap
+space.  I beleive that when we find there's no swap left we should move
+the page onto the active list so we don't keep rescanning it pointlessly.
+
+A fix may be to just remove the use-once stuff.  It is one of the
+sources of this problem, because it's overpopulating the inactive list.
+
+In my testing last night, I tried to allocate 650 megs on a 768 meg
+swapless box.  Got oom-killed when there was almost 100 megs of freeable
+memory: half buffercache, half filecache.  Presumably, all of it was
+stuck on the active list with no way to get off.
+
+We also need to do something about shrink_[di]cache_memory(),
+which seem to be called in the wrong place.
+
+There's also the report concerning modify_ldt() failure in a
+similar situation.  I'm not sure why this one occurred.  It
+vmallocs 64k of memory and that seems to fail.
+
+I did some similar testing a week or so ago, also tested
+the -aa patches.  They seemed to maybe help a tiny bit,
+but not significantly.
+
+-

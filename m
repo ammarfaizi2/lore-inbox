@@ -1,48 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269233AbUJKUgX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269237AbUJKUk6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269233AbUJKUgX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 16:36:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269237AbUJKUgX
+	id S269237AbUJKUk6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 16:40:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269240AbUJKUk5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 16:36:23 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:37860 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S269233AbUJKUgV (ORCPT
+	Mon, 11 Oct 2004 16:40:57 -0400
+Received: from vsmtp3alice.tin.it ([212.216.176.143]:10449 "EHLO vsmtp3.tin.it")
+	by vger.kernel.org with ESMTP id S269237AbUJKUkm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 16:36:21 -0400
-Subject: Re: 2.6.9-rc4-mm1 HPET compile problems on AMD64
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: ak@suse.de, linux-kernel@vger.kernel.org
-In-Reply-To: <20041011125421.106eff07.akpm@osdl.org>
-References: <1097509362.12861.334.camel@dyn318077bld.beaverton.ibm.com>
-	 <20041011125421.106eff07.akpm@osdl.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1097526413.12861.374.camel@dyn318077bld.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 11 Oct 2004 13:26:53 -0700
+	Mon, 11 Oct 2004 16:40:42 -0400
+From: "andreamrl@tiscali.it" <andreamrl@tiscali.it>
+Reply-To: andreamrl@tiscali.it
+To: dagb@cs.uit.no
+Subject: PATCH: trivial, nsc-ircc dongle_id fix
+Date: Mon, 11 Oct 2004 22:41:02 +0200
+User-Agent: KMail/1.6.1
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200410112241.02734.andreamrl@tiscali.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-10-11 at 12:54, Andrew Morton wrote:
+Hi!
+The following patch add checks for parameter dongle_id in module nsc-ircc.
+In the original version kernel opsed if passed mad dongle_id values, also 
+expliciting forcing dongle_id 0 was not possible.
+This patch proposal trivially fix it.
+altought this is against 2.6.6 kernel (sorry for that), quickly looking the 
+code of 2.6.8.1 seems that the bug still exist (code is mostly unchanged).
+Regards,
+Andrea Merello
 
-> 
-> I assume you have CONFIG_HPET=n and CONFIG_HPET_TIMER=n?
-> 
-> Andi, what's going on here?  Should the hpet functions in
-> arch/x86_64/kernel/time.c be inside CONFIG_HPET_TIMER?
+--- nsc-ircc.c.orig     2004-10-11 16:32:16.000000000 +0200
++++ nsc-ircc.c  2004-10-11 17:13:38.000000000 +0200
+@@ -72,7 +72,7 @@ static char *driver_name = "nsc-ircc";
 
-I haven't enable HPET, but autoconf.h gets 
+ /* Module parameters */
+ static int qos_mtt_bits = 0x07;  /* 1 ms or more */
+-static int dongle_id;
++static int dongle_id=-1;
 
-# grep HPET autoconf.h
-#define CONFIG_HPET_TIMER 1
-#define CONFIG_HPET_EMULATE_RTC 1
+ /* Use BIOS settions by default, but user may supply module parameters */
+ static unsigned int io[]  = { ~0, ~0, ~0, ~0 };
+@@ -349,12 +349,17 @@ static int __init nsc_ircc_open(int i, c
+        MESSAGE("IrDA: Registered device %s\n", dev->name);
 
-# grep HPET .config
-# CONFIG_HPET is not set
+        /* Check if user has supplied the dongle id or not */
+-       if (!dongle_id) {
++       if (dongle_id == -1) {
+                dongle_id = nsc_ircc_read_dongle_id(self->io.fir_base);
+-
+                MESSAGE("%s, Found dongle: %s\n", driver_name,
+                        dongle_types[dongle_id]);
+        } else {
++               if(dongle_id < 0 || dongle_id >= sizeof(dongle_types) / 
+sizeof(char*)){
++                       MESSAGE ("%s, Invalid dongle_id: %d\n",driver_name,
++                       dongle_id);
++                       err=-1;
++                       goto out5;
++               }
+                MESSAGE("%s, Using dongle: %s\n", driver_name,
+                        dongle_types[dongle_id]);
+        }
+@@ -367,6 +372,8 @@ static int __init nsc_ircc_open(int i, c
+                 pmdev->data = self;
 
-Thanks,
-Badari
-
+        return 0;
++ out5:
++       unregister_netdev(dev);
+  out4:
+        kfree(self->tx_buff.head);

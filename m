@@ -1,225 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269496AbUJLGgl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269492AbUJLGpz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269496AbUJLGgl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 02:36:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269497AbUJLGeo
+	id S269492AbUJLGpz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 02:45:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269491AbUJLGpz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 02:34:44 -0400
-Received: from smtp813.mail.sc5.yahoo.com ([66.163.170.83]:43419 "HELO
-	smtp813.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S269492AbUJLGdd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 02:33:33 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Greg KH <greg@kroah.com>
-Subject: [PATCH 3/4] Driver core: add "driver" default attribute
-Date: Tue, 12 Oct 2004 01:32:15 -0500
-User-Agent: KMail/1.6.2
-Cc: LKML <linux-kernel@vger.kernel.org>, Patrick Mochel <mochel@osdl.org>
-References: <200410062354.18885.dtor_core@ameritech.net> <200410120131.05691.dtor_core@ameritech.net> <200410120131.38330.dtor_core@ameritech.net>
-In-Reply-To: <200410120131.38330.dtor_core@ameritech.net>
-MIME-Version: 1.0
+	Tue, 12 Oct 2004 02:45:55 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:35794 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S269494AbUJLGgw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Oct 2004 02:36:52 -0400
+Date: Tue, 12 Oct 2004 08:37:52 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Mark_H_Johnson@Raytheon.com, Andrew Morton <akpm@osdl.org>,
+       Daniel Walker <dwalker@mvista.com>, "K.R. Foley" <kr@cybsft.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Rui Nuno Capela <rncbc@rncbc.org>, thewade@aproximation.org
+Subject: Re: [patch] VP-2.6.9-rc4-mm1-T5
+Message-ID: <20041012063752.GB2947@elte.hu>
+References: <OF29AF5CB7.227D041F-ON86256F2A.0062D210@raytheon.com> <20041011215909.GA20686@elte.hu> <1097542629.1453.117.camel@krustophenia.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200410120132.18217.dtor_core@ameritech.net>
+In-Reply-To: <1097542629.1453.117.camel@krustophenia.net>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-#### AUTHOR dtor_core@ameritech.net
-#### COMMENT START
-### Comments for ChangeSet
-Driver core: add "driver" default device attribute that produces
-             name of the driver currently bound to the device and
-             allows execution of bus-specific actions for device
-             and driver via bus->rebind_helper()
 
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
-### Comments for drivers/base/interface.c
-Add "driver" default device attribute.
-### Comments for include/linux/device.h
-Add rebind_helper method to bus_type structure.
-### Comments for drivers/input/serio/serio.c
-Do not create "driver": attribute as driver core will create it for us;
-install serio_rebind_driver as serio_bus's rebind_helper.
-#### COMMENT END
+* Lee Revell <rlrevell@joe-job.com> wrote:
 
-# This is a BitKeeper generated diff -Nru style patch.
-#
-# ChangeSet
-#   2004/10/11 00:39:53-05:00 dtor_core@ameritech.net 
-#   Driver core: add "driver" default device attribute that produces
-#                name of the driver currently bound to the device and
-#                allows execution of bus-specific actions for device
-#                and driver via bus->rebind_helper()
-#   
-#   Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
-# 
-# include/linux/device.h
-#   2004/10/11 00:39:34-05:00 dtor_core@ameritech.net +2 -1
-#   Add rebind_helper method to bus_type structure.
-# 
-# drivers/input/serio/serio.c
-#   2004/10/11 00:39:34-05:00 dtor_core@ameritech.net +31 -36
-#   Do not create "driver": attribute as driver core will create it for us;
-#   install serio_rebind_driver as serio_bus's rebind_helper.
-# 
-# drivers/base/interface.c
-#   2004/10/11 00:39:33-05:00 dtor_core@ameritech.net +30 -1
-#   Add "driver" default device attribute.
-# 
-diff -Nru a/drivers/base/interface.c b/drivers/base/interface.c
---- a/drivers/base/interface.c	2004-10-12 01:29:06 -05:00
-+++ b/drivers/base/interface.c	2004-10-12 01:29:06 -05:00
-@@ -42,10 +42,39 @@
- 	return n;
- }
- 
--static DEVICE_ATTR(detach_state, 0644, detach_show, detach_store);
-+/**
-+ *	driver - controls device and driver binding.
-+ *
-+ *	Reading from the attribute gives name of driver that is bound to
-+ *	the device or "(none)". Result of writing to the attribute depends
-+ *	on the bus's rebind_helper implementation and can cause device to
-+ *	be disconnected or be rebound to a specific driver.
-+ */
-+
-+static ssize_t driver_show(struct device * dev, char * buf)
-+{
-+	return sprintf(buf, "%s\n", dev->driver ? dev->driver->name : "(none)");
-+}
-+
-+static ssize_t driver_store(struct device * dev, const char * buf, size_t count)
-+{
-+	int retval = -ENOSYS;
-+
-+	if (dev->bus->rebind_helper)
-+		retval = dev->bus->rebind_helper(dev, buf, count);
- 
-+	if (retval < 0)
-+		return retval;
-+
-+	return count;
-+}
-+
-+
-+static DEVICE_ATTR(detach_state, 0644, detach_show, detach_store);
-+static DEVICE_ATTR(driver, 0644, driver_show, driver_store);
- 
- struct attribute * dev_default_attrs[] = {
- 	&dev_attr_detach_state.attr,
-+	&dev_attr_driver.attr,
- 	NULL,
- };
-diff -Nru a/drivers/input/serio/serio.c b/drivers/input/serio/serio.c
---- a/drivers/input/serio/serio.c	2004-10-12 01:29:06 -05:00
-+++ b/drivers/input/serio/serio.c	2004-10-12 01:29:06 -05:00
-@@ -246,41 +246,6 @@
- 	return sprintf(buf, "%s\n", serio->name);
- }
- 
--static ssize_t serio_show_driver(struct device *dev, char *buf)
--{
--	return sprintf(buf, "%s\n", dev->driver ? dev->driver->name : "(none)");
--}
--
--static ssize_t serio_rebind_driver(struct device *dev, const char *buf, size_t count)
--{
--	struct serio *serio = to_serio_port(dev);
--	struct device_driver *drv;
--	int retval;
--
--	retval = down_interruptible(&serio_sem);
--	if (retval)
--		return retval;
--
--	retval = count;
--	if (!strncmp(buf, "none", count)) {
--		serio_disconnect_port(serio);
--	} else if (!strncmp(buf, "reconnect", count)) {
--		serio_reconnect_port(serio);
--	} else if (!strncmp(buf, "rescan", count)) {
--		serio_disconnect_port(serio);
--		serio_connect_port(serio, NULL);
--	} else if ((drv = driver_find(buf, &serio_bus)) != NULL) {
--		serio_disconnect_port(serio);
--		serio_connect_port(serio, to_serio_driver(drv));
--		put_driver(drv);
--	} else {
--		retval = -EINVAL;
--	}
--
--	up(&serio_sem);
--
--	return retval;
--}
- 
- static ssize_t serio_show_bind_mode(struct device *dev, char *buf)
- {
-@@ -307,7 +272,6 @@
- 
- static struct device_attribute serio_device_attrs[] = {
- 	__ATTR(description, S_IRUGO, serio_show_description, NULL),
--	__ATTR(driver, S_IWUSR | S_IRUGO, serio_show_driver, serio_rebind_driver),
- 	__ATTR(bind_mode, S_IWUSR | S_IRUGO, serio_show_bind_mode, serio_set_bind_mode),
- 	__ATTR_NULL
- };
-@@ -596,6 +560,36 @@
- 	up(&serio_sem);
- }
- 
-+static int serio_rebind_driver(struct device *dev, const char *buf, size_t count)
-+{
-+	struct serio *serio = to_serio_port(dev);
-+	struct device_driver *drv;
-+	int retval;
-+
-+	retval = down_interruptible(&serio_sem);
-+	if (retval)
-+		return retval;
-+
-+	if (!strncmp(buf, "none", count)) {
-+		serio_disconnect_port(serio);
-+	} else if (!strncmp(buf, "reconnect", count)) {
-+		serio_reconnect_port(serio);
-+	} else if (!strncmp(buf, "rescan", count)) {
-+		serio_disconnect_port(serio);
-+		serio_connect_port(serio, NULL);
-+	} else if ((drv = driver_find(buf, &serio_bus)) != NULL) {
-+		serio_disconnect_port(serio);
-+		serio_connect_port(serio, to_serio_driver(drv));
-+		put_driver(drv);
-+	} else {
-+		retval = -EINVAL;
-+	}
-+
-+	up(&serio_sem);
-+
-+	return retval;
-+}
-+
- static void serio_set_drv(struct serio *serio, struct serio_driver *drv)
- {
- 	down(&serio->drv_sem);
-@@ -660,6 +654,7 @@
- 
- 	serio_bus.dev_attrs = serio_device_attrs;
- 	serio_bus.drv_attrs = serio_driver_attrs;
-+	serio_bus.rebind_helper = serio_rebind_driver;
- 	bus_register(&serio_bus);
- 
- 	return 0;
-diff -Nru a/include/linux/device.h b/include/linux/device.h
---- a/include/linux/device.h	2004-10-12 01:29:06 -05:00
-+++ b/include/linux/device.h	2004-10-12 01:29:06 -05:00
-@@ -59,7 +59,8 @@
- 	struct driver_attribute	* drv_attrs;
- 
- 	int		(*match)(struct device * dev, struct device_driver * drv);
--	int		(*hotplug) (struct device *dev, char **envp, 
-+	int		(*rebind_helper)(struct device * dev, const char * buf, size_t count);
-+	int		(*hotplug) (struct device *dev, char **envp,
- 				    int num_envp, char *buffer, int buffer_size);
- 	int		(*suspend)(struct device * dev, u32 state);
- 	int		(*resume)(struct device * dev);
+> On Mon, 2004-10-11 at 17:59, Ingo Molnar wrote:
+> > * Mark_H_Johnson@Raytheon.com <Mark_H_Johnson@Raytheon.com> wrote:
+> > 
+> > > I would have to say this is "very rough" at this point. I had the
+> > > following problems in the build:
+> > 
+> > i've uploaded -T5 which should fix most of the build issues:
+> > 
+> >  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc4-mm1-T5
+> > 
+> 
+> Ingo, are any of the VP patches known to work on x64?  Here is
+> thewade's latest report:
+
+i have two x64 boxes which i tested with S* -VP and i also did a quick
+testboot of -T3 on one of them but YMMV. (There's one caveat: latency
+tracing must not be enabled, x64 gcc has a nastiness that makes -pg
+unusable for tracing purposes on x64.)
+
+-T4 and upwards will likely not even compile on x64 - i'll fix it up
+once the rate of PREEMPT_REALTIME changes calms down.
+
+	Ingo

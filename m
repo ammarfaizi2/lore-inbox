@@ -1,72 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262934AbTHZXgf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Aug 2003 19:36:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262978AbTHZXgf
+	id S262812AbTHZX1i (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Aug 2003 19:27:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262962AbTHZX1i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Aug 2003 19:36:35 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:20981 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262934AbTHZXgd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Aug 2003 19:36:33 -0400
-Message-ID: <3F4BEE68.A6C862C2@us.ibm.com>
-Date: Tue, 26 Aug 2003 16:34:00 -0700
-From: Jim Keniston <jkenisto@us.ibm.com>
-X-Mailer: Mozilla 4.75 [en] (WinNT; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: LKML <linux-kernel@vger.kernel.org>, netdev <netdev@oss.sgi.com>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       "Feldman, Scott" <scott.feldman@intel.com>,
-       Larry Kessler <kessler@us.ibm.com>, Randy Dunlap <rddunlap@osdl.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 1/4] Net device error logging, revised
-References: <3F4A8027.6FE3F594@us.ibm.com> <20030826183221.GB3167@kroah.com>
-Content-Type: text/plain; charset=us-ascii
+	Tue, 26 Aug 2003 19:27:38 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:36756 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262812AbTHZX1g (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Aug 2003 19:27:36 -0400
+Subject: Re: [PATCH][2.6][2/5]Support for HPET based timer
+From: john stultz <johnstul@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: venkatesh.pallipadi@intel.com, vojtech@suse.cz, Andi Kleen <ak@suse.de>,
+       Dave H <haveblue@us.ibm.com>, mikpe@csd.uu.se, jun.nakajima@intel.com,
+       suresh.b.siddha@intel.com, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030826115553.7f8b3285.akpm@osdl.org>
+References: <C8C38546F90ABF408A5961FC01FDBF1902C7D1F8@fmsmsx405.fm.intel.com>
+	 <20030826115129.509c4161.akpm@osdl.org>
+	 <20030826115553.7f8b3285.akpm@osdl.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1061940045.21556.123.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 26 Aug 2003 16:20:46 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
+On Tue, 2003-08-26 at 11:55, Andrew Morton wrote:
+> So I suggest you look at the latter option:
 > 
-> On Mon, Aug 25, 2003 at 02:31:19PM -0700, Jim Keniston wrote:
-> > +int __netdev_printk(const char *sevlevel, const struct net_device *netdev,
-> > +     int msglevel, const char *format, ...)
-> > +{
-> > +     if (!netdev || !format) {
-> > +             return -EINVAL;
-> > +     }
-> > +     if (msglevel == NETIF_MSG_ALL || (netdev->msg_enable & msglevel)) {
-> > +             char msg[512];
+> - change time_init() so that it doesn't actually touch the HPET hardware
+>   in the HPET timer case.
+
+Well, the difficult part is deciding in time_init() if we are going to
+use HPET without touching the hardware (to say, check if its actually
+there).
+
+> - add late_time_init() after mem_init().
 > 
-> 512 bytes on the stack?  Any way to prevent this from happening?  With
-> the push to make the stack even smaller in 2.7, people will not like
-> this.
+> - then do calibrate_delay().
 > 
-> thanks,
-> 
-> greg k-h
+> Or whatever.  The bottom line is that init/main.c is fragile, but not
+> inviolable ;)
 
-The following options come to mind:
-1. Keep the msg buffer, but make it smaller.  Around 120 bytes would probably be
-big enough for the vast majority of messages.  (printk() uses a 1024-byte buffer,
-but it's static -- see #2.)
 
-2. Use a big, static buffer, protected by a spinlock.  printk() does this.
+We could pick a simple time source (ie: PIT) that would get us through
+early boot, then choose the real time source in late_time_init(). That
+would also make implementing the ACPI PM time-source much simpler as we
+could wait until after ACPI is up, letting us avoid having to parse the
+tables by hand.
 
-3. Do the whole thing in a macro, as in previous proposals.  The size of the macro
-expansion could be reduced somewhat by doing the encode-prefix step in a function --
-something like:
+However I'm not sure it would be trivial and bug free. ;)
 
-#define netdev_printk(sevlevel, netdev, msglevel, format, arg...)	\
-do {									\
-if (NETIF_MSG_##msglevel == NETIF_MSG_ALL || ((netdev)->msg_enable & NETIF_MSG_##msglevel)) {	\
-	char pfx[40];							\
-	printk(sevlevel "%s: " format , make_netdev_msg_prefix(pfx, netdev) , ## arg);	\
-}} while (0)
+-john
 
-This would make your code bigger, but not that much bigger for the common case where
-the msglevel is omitted (and the 'if(...)' is optimized out).
-
-Jim

@@ -1,34 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261659AbSI0H37>; Fri, 27 Sep 2002 03:29:59 -0400
+	id <S261654AbSI0Hj7>; Fri, 27 Sep 2002 03:39:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261661AbSI0H37>; Fri, 27 Sep 2002 03:29:59 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:17103 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S261659AbSI0H36>; Fri, 27 Sep 2002 03:29:58 -0400
-Date: Fri, 27 Sep 2002 03:35:07 -0400
-From: Arjan van de Ven <arjanv@redhat.com>
-To: "Heater, Daniel (IndSys, GEFanuc, VMIC)" <Daniel.Heater@gefanuc.com>
-Cc: "'Arjan van de Ven'" <arjanv@redhat.com>,
-       "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
-Subject: Re: Distributing drivers independent of the kernel source tree
-Message-ID: <20020927033507.A18387@devserv.devel.redhat.com>
-References: <A9713061F01AD411B0F700D0B746CA6802FC14D7@vacho6misge.cho.ge.com>
+	id <S261652AbSI0Hj7>; Fri, 27 Sep 2002 03:39:59 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:36483 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S261438AbSI0Hj5>;
+	Fri, 27 Sep 2002 03:39:57 -0400
+Date: Fri, 27 Sep 2002 09:45:09 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Matthew Jacob <mjacob@feral.com>
+Cc: "Justin T. Gibbs" <gibbs@scsiguy.com>,
+       "Pedro M. Rodrigues" <pmanuel@myrealbox.com>,
+       Mathieu Chouquet-Stringer <mathieu@newview.com>,
+       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Warning - running *really* short on DMA buffers while doing file transfers
+Message-ID: <20020927074509.GA860@suse.de>
+References: <Pine.BSF.4.21.0209270029280.18144-100000@beppo> <Pine.BSF.4.21.0209270031360.18144-100000@beppo>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <A9713061F01AD411B0F700D0B746CA6802FC14D7@vacho6misge.cho.ge.com>; from Daniel.Heater@gefanuc.com on Thu, Sep 26, 2002 at 05:16:03PM -0400
+In-Reply-To: <Pine.BSF.4.21.0209270031360.18144-100000@beppo>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 26, 2002 at 05:16:03PM -0400, Heater, Daniel (IndSys, GEFanuc, VMIC) wrote:
+On Fri, Sep 27 2002, Matthew Jacob wrote:
 > 
-> That's true for installing modules, but I'm wondering about getting a
-> standalone module compiled. I.e., what is a reliable method for locating the
-> include files for the kernel?
+> The issue here is not whether it's appropriate to oversaturate the
+> 'standard' SCSI drive- it isn't- I never suggested it was.
 
-as I said
+Ok so we agree. I think our oversaturate thresholds are different,
+though.
 
-/lib/modules/`uname -r`/build/include
+> I'd just suggest that it's asinine to criticise an HBA for running up to
+> reasonable limits when it's the non-toy OS that will do sensible I/O
+> scheduling. So point your gums elsewhere.
+
+Well I don't think 253 is a reasonable limit, that was the whole point.
+How can sane io scheduling ever prevent starvation in that case? I can't
+point my gums elsewhere, this is where I'm seeing starvation.
+
+-- 
+Jens Axboe
 

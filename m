@@ -1,61 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269251AbUJWAEF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269266AbUJVXhf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269251AbUJWAEF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 20:04:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269280AbUJWACE
+	id S269266AbUJVXhf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 19:37:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269245AbUJVXf5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 20:02:04 -0400
-Received: from mail.scl.ameslab.gov ([147.155.137.19]:18126 "EHLO
-	mail.scl.ameslab.gov") by vger.kernel.org with ESMTP
-	id S269298AbUJWAAT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 20:00:19 -0400
-Message-ID: <41799EEF.8060902@scl.ameslab.gov>
-Date: Fri, 22 Oct 2004 18:59:43 -0500
-From: Troy Benjegerdes <troy@scl.ameslab.gov>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040918)
-X-Accept-Language: en-us, en
+	Fri, 22 Oct 2004 19:35:57 -0400
+Received: from [211.242.3.209] ([211.242.3.209]:37898 "HELO 12.107.209.244")
+	by vger.kernel.org with SMTP id S269251AbUJVXdC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 19:33:02 -0400
+Message-ID: <DRNUYHVRICJFKGUFIAJOAGZG@m2corp.com>
+From: "Rochelle Gustafson" <nglaziwrnvm@cc.osaka-kyoiku.ac.jp>
+Reply-To: "Rochelle Gustafson" <nglaziwrnvm@cc.osaka-kyoiku.ac.jp>
+To: linux-net@vger.kernel.org
+Subject: dinnertime
+Date: Sat, 23 Oct 2004 09:52:35 -0300
 MIME-Version: 1.0
-To: Roland Dreier <roland@topspin.com>
-CC: Francois Romieu <romieu@fr.zoreil.com>, Greg KH <greg@kroah.com>,
-       linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: Re: [openib-general] InfiniBand incompatible with the Linux kernel?
-References: <20041008202247.GA9653@kroah.com> <528yagn63x.fsf@topspin.com>	<20041009115028.GA14571@electric-eye.fr.zoreil.com> <52oejbliuk.fsf@topspin.com>
-In-Reply-To: <52oejbliuk.fsf@topspin.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+X-MimeOLE: Produced By Microsoft MimeOLE V4.71.2730.1
+Organization: blemish.carbondale
+Content-Type: multipart/mixed; boundary="--750950638568953014"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well, fortunately this has turned out to be a non-issue.
+bellboy  barber  steven  refutation  chomsky 
+philology  americana  consumptive  cognition  controlling 
 
-I just went to www.infinibandta.org and the 1.2 spec is available for 
-download.
+ 
+----750950638568953014
+Content-Type: text/plain;
+Content-Transfer-Encoding: 7Bit
 
-http://www.infinibandta.org/specs/register/publicspec/vol1r1_2.zip
-http://www.infinibandta.org/specs/register/publicspec/vol2r1_2.zip
+**Notice from the Office of the Registrar 
+ 
+You are now qualified to obtain a Degree from an accredited University.
+There are no required tests, classes, books, or interviews.
+BA,LLB,MBA,MSc and PhD designations are available in the field of your choice.
+ 
+Discrete and very inexpensive. We send the degree to all countries (worldwide)
+ 
+You don't want to miss this opportunity as it won't last:
+ 
+http://wuniv.net/?partid=wh6
 
-Roland Dreier wrote:
+Rochelle Gustafson
+Director Of Admissions
+ 
+ 
+ 
+ 
+ 
+ 
+ 
 
->    Roland> it's orthogonal to any IP issues.  Since the Linux kernel
->    Roland> contains a lot of code written to specs available only
->    Roland> under NDA (and even reverse-engineered code where specs
->    Roland> are completely unavailable), I don't think the expense
->    Roland> should be an issue.
->
->    Francois> One can say good bye to peer review.
->
->Yes and no.  Certainly people without specs can't review spec
->compliance, but review for coding style, locking bugs, etc. is if
->anything more valuable.
->
->Thanks,
->  Roland
->_______________________________________________
->openib-general mailing list
->openib-general@openib.org
->http://openib.org/mailman/listinfo/openib-general
->
->To unsubscribe, please visit http://openib.org/mailman/listinfo/openib-general
->  
->
+future contact:
+http://wuniv.net/st.html
+ 28
+
+
+----750950638568953014--
+
 

@@ -1,70 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276558AbRI2RQj>; Sat, 29 Sep 2001 13:16:39 -0400
+	id <S276562AbRI2RXS>; Sat, 29 Sep 2001 13:23:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276559AbRI2RQ3>; Sat, 29 Sep 2001 13:16:29 -0400
-Received: from hastur.andastra.de ([212.172.44.2]:11016 "HELO mail.andastra.de")
-	by vger.kernel.org with SMTP id <S276558AbRI2RQM>;
-	Sat, 29 Sep 2001 13:16:12 -0400
-Date: Sat, 29 Sep 2001 19:16:53 +0200
-From: Sebastian Benoit <ben-lists@andastra.de>
-To: Tobias Ringstrom <tori@ringstrom.mine.nu>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.10 VM, active cache pages, and OOM
-Message-ID: <20010929191653.A1682@smtp.andastra.de>
-In-Reply-To: <Pine.LNX.4.33.0109291645260.16885-100000@boris.prodako.se>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="a8Wt8u1KmwUX3Y2C"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0109291645260.16885-100000@boris.prodako.se>; from tori@ringstrom.mine.nu on Sat, Sep 29, 2001 at 06:19:13PM +0200
-X-Cthulu: HASTUR
+	id <S276563AbRI2RXI>; Sat, 29 Sep 2001 13:23:08 -0400
+Received: from fenrus.demon.co.uk ([158.152.228.152]:20354 "EHLO
+	fenrus.demon.nl") by vger.kernel.org with ESMTP id <S276562AbRI2RW5>;
+	Sat, 29 Sep 2001 13:22:57 -0400
+From: arjan@fenrus.demon.nl
+To: jalvo@mbay.net (John Alvord)
+Subject: Re: kernel changes
+cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.20.0109290937510.18362-100000@otter.mbay.net>
+X-Newsgroups: fenrus.linux.kernel
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.3-6.0.1 (i586))
+Message-Id: <E15nNpb-0002KX-00@fenrus.demon.nl>
+Date: Sat, 29 Sep 2001 18:23:15 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <Pine.LNX.4.20.0109290937510.18362-100000@otter.mbay.net> you wrote:
 
---a8Wt8u1KmwUX3Y2C
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> One aspect that bothers me is the absence of a success criteria.
 
-Tobias Ringstrom(tori@ringstrom.mine.nu)@2001.09.29 18:19:13 +0000:
-> First I'd like to say that the 2.4.10 VM works great for my desktop and
-> home server, much better than previous versions.  I have not tried Alan's
-> kernels.
+I disagree here. Red Hat uses "must pass the cerberus test" as one of the
+criteria for kernels. The are other similar criteria, most are obvious (must
+boot :). All other distributions have similar tests and a few even use the
+cerberus testsuite as well.
 
-[snip]=20
+Maybe your problem is "absence of tests before Linus releases", well 
+even that isn't fully true as distros run these tests on -pre kernels as
+well (or -ac kernels, which are mostly in sync with -pre kernels)...
 
-> What do you think?
+> The current competition for best VM is a good example. The fact is that
+> every operating system will fail with a high enough load. The best you can
+> hope for is a better degradation then the prior release.
 
-Try the vm-tweaks-2 patch, see
+There are a few basic creteria here as well, and 2.4.10 fails on some of
+them so far:
 
- http://uwsg.iu.edu/hypermail/linux/kernel/0109.3/0626.html
+1) Must not kill processes as long as there is plenty of swap
+   or (possibly dirty) cache memory
+2) Must not deadlock (as that is a code-bug)
+3) Must not livelock without any progress
 
-with that I ran 2.4.10 for 2 days w/o problems. best 2.4.x ever ;)=20
+Note that no 2.4 kernel so far really achieves 1) in the presence of
+highmem; the obvious deadlocks are just pushed further by tuning.
 
-Right now i have switched over to 2.4.9-ac17 and i must say it works just as
-well.
+> At the moment both 2.4.10 and 2.4.9-ac16 are better then 2.2.19. But
+> people keep testing under higher and higher loads and (surprise) they both
+> fail... initiating a search for better degradation logic.
 
-/B.
+2.4.10 isn't better than 2.2.19 given the criteria above. 2.4.10aa2 might
+be though... and 2.4.9acX+Rik's patches are solid in testing. 
 
---=20
-Sebastian Benoit <ben-lists@andastra.de>
-OpenPGP-Key ID 0x82AE75E4                            =20
-fingerprint 0BDA 0CB7 9BCA AF77 28EE  D91A 396D 93BC 82AE 75E
+Greetings,
+   Arjan van de Ven
 
---a8Wt8u1KmwUX3Y2C
-Content-Type: application/pgp-signature
-Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
 
-iD8DBQE7tgIEOW2TvIKudeQRApbdAJ43joTb7RRl7xpTUtDxYrEvr0c48QCfRWS5
-CHuCbNFk4B/Bftm2SbKH3J4=
-=sZgq
------END PGP SIGNATURE-----
-
---a8Wt8u1KmwUX3Y2C--

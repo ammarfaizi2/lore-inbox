@@ -1,57 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264538AbUAaLmZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Jan 2004 06:42:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264546AbUAaLmY
+	id S264547AbUAaLsI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Jan 2004 06:48:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264557AbUAaLsH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Jan 2004 06:42:24 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:14976 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S264538AbUAaLmW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Jan 2004 06:42:22 -0500
-Date: Thu, 22 Jan 2004 21:43:48 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Nigel Cunningham <ncunningham@users.sourceforge.net>
-Cc: Pavel Machek <pavel@ucw.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Michael Frank <mhf@linuxmail.org>
-Subject: Re: swusp acpi
-Message-ID: <20040122204348.GA1327@openzaurus.ucw.cz>
-References: <200401211143.51585.tuxakka@yahoo.co.uk> <20040122003212.GC300@elf.ucw.cz> <1074735908.1405.85.camel@laptop-linux> <20040122101555.GA200@elf.ucw.cz> <20040122102254.A17786@flint.arm.linux.org.uk> <20040122102655.GC200@elf.ucw.cz> <1074794904.12773.72.camel@laptop-linux>
+	Sat, 31 Jan 2004 06:48:07 -0500
+Received: from 10fwd.cistron-office.nl ([62.216.29.197]:61850 "EHLO
+	smtp.cistron-office.nl") by vger.kernel.org with ESMTP
+	id S264547AbUAaLrp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 Jan 2004 06:47:45 -0500
+Date: Sat, 31 Jan 2004 12:46:38 +0100
+From: Miquel van Smoorenburg <miquels@cistron.nl>
+To: nathans@sgi.com
+Cc: hch@infradead.org, miquels@cistron.nl, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.2-rc2 nfsd+xfs spins in i_size_read()
+Message-ID: <20040131114638.GA29609@drinkel.cistron.nl>
+References: <bv8qr7$m2v$1@news.cistron.nl> <20040128222521.75a7d74f.akpm@osdl.org> <20040130202155.GM25833@drinkel.cistron.nl> <20040130221353.GO25833@drinkel.cistron.nl> <20040130143459.5eed31f0.akpm@osdl.org> <20040130225353.A26383@infradead.org> <20040130151316.40d70ed3.akpm@osdl.org> <20040131012507.GQ25833@drinkel.cistron.nl> <20040130173851.2cc5938f.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Disposition: inline
-In-Reply-To: <1074794904.12773.72.camel@laptop-linux>
-User-Agent: Mutt/1.3.27i
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20040130173851.2cc5938f.akpm@osdl.org> (from akpm@osdl.org on Sat, Jan 31, 2004 at 02:38:51 +0100)
+X-Mailer: Balsa 2.0.16
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> Michael Frank has done a patch giving 2.4 PM support for serial ports
-> (my serial console now works flawlessly). Perhaps it could be ported to
-> 2.6 and the driver model...
-
-That would certainly be good thing (tm).
-
+On Sat, 31 Jan 2004 02:38:51, Andrew Morton wrote:
+> Miquel van Smoorenburg <miquels@cistron.nl> wrote:
+> > But the XFS problem appears to be vn_revalidate which calls i_size_write()
+> > without holding i_sem:
 > 
-> Nigel
-> 
-> On Thu, 2004-01-22 at 23:26, Pavel Machek wrote:
-> > Hi!
-> > 
-> > > > Not only serial console... Noone wrote serial port support.
-> > > 
-> > > Incorrect.  I never merged the changes because it's rather too hacky.
-> > 
-> > Who wrote them? Do you have that patch somewhere?
-> > 								Pavel
-> -- 
-> My work on Software Suspend is graciously brought to you by
-> LinuxFund.org.
+> There's your bug.
 
+Okay. It seems that XFS uses its own locking with xfs_ilock() etc,
+so I am not sure if this should be fixed by using down(&inode->i_sem)
+or by using xfs_ilock().
 
+Perhaps xfs_ilock() should also get the inode->i_sem semaphore
+in the XFS_ILOCK_EXCL case ?
 
--- 
-64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+Also, there are one or two more places that call i_size_write()
+that should be looked at I guess.
 
+Ofcourse I'll test any patches you send me.
+
+Mike.

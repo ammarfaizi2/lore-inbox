@@ -1,47 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261193AbTK2WoU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Nov 2003 17:44:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261460AbTK2WoT
+	id S261460AbTK2XFc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Nov 2003 18:05:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261500AbTK2XFc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Nov 2003 17:44:19 -0500
-Received: from smtp3.wanadoo.fr ([193.252.22.28]:56690 "EHLO
-	mwinf0301.wanadoo.fr") by vger.kernel.org with ESMTP
-	id S261193AbTK2WoO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Nov 2003 17:44:14 -0500
-Date: Sat, 29 Nov 2003 23:44:11 +0100
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: Sven Luther <sven.luther@wanadoo.fr>, John Bradford <john@grabjohn.com>,
-       Szakacsits Szabolcs <szaka@sienet.hu>, Apurva Mehta <apurva@gmx.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       bug-parted@gnu.org
-Subject: Re: Disk Geometries reported incorrectly on 2.6.0-testX
-Message-ID: <20031129224411.GA9214@iliana>
-References: <20031128045854.GA1353@home.woodlands> <20031128142452.GA4737@win.tue.nl> <20031129022221.GA516@gnu.org> <Pine.LNX.4.58.0311290550190.21441@ua178d119.elisa.omakaista.fi> <20031129123451.GA5372@win.tue.nl> <200311291350.hATDo0CY001142@81-2-122-30.bradfords.org.uk> <20031129170103.GA6092@iliana> <20031129221424.GA5456@win.tue.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <20031129221424.GA5456@win.tue.nl>
-User-Agent: Mutt/1.5.4i
-From: Sven Luther <sven.luther@wanadoo.fr>
+	Sat, 29 Nov 2003 18:05:32 -0500
+Received: from smtp-2.hut.fi ([130.233.228.92]:64461 "EHLO smtp-2.hut.fi")
+	by vger.kernel.org with ESMTP id S261460AbTK2XFb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Nov 2003 18:05:31 -0500
+Date: Sun, 30 Nov 2003 01:05:29 +0200 (EET)
+From: Matti Kleemola <mkleemol@cc.hut.fi>
+To: linux-kernel@vger.kernel.org
+Subject: Is SATA working? (Can I use sw.raid-5 with SATA + ATA drives?)
+Message-ID: <Pine.LNX.4.58.0311300024450.4029@bach.hut.fi>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-RAVMilter-Version: 8.4.3(snapshot 20030212) (smtp-2.hut.fi)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 29, 2003 at 11:14:24PM +0100, Andries Brouwer wrote:
-> On Sat, Nov 29, 2003 at 06:01:03PM +0100, Sven Luther wrote:
-> 
-> > The only problem is that your BIOS will probably not be able
-> > to boot from it
-> 
-> You seem to misunderstand the boot sequence.
-> The BIOS does not generally do any parsing of partition tables.
+I need a new motherboard and I have to decide should I buy
+Epox PE-4PCA3+ (and use 3 ATA drives connected to HPT374) or
+Asus P4C800E-Deluxe (and use 1(2) SATA drive and 2(1) ATA drives).
 
-A, ok. I am more familiar with open firmware, which does contain
-partition table reading code.
+Board from Asus is about 5% faster in every zone (tomshardware.com)
+but can I make it work?
+In Asus there is unfortunately only 3 ATA connectors (one is needed
+for CD-RW) and I'm not going to put 2 drives on the same cable.
 
-That said, i really doubt that a standard BIOS can boot from a not MBR
-containing disk, but i may be wrong.
+I understood that there are some problems with promise 20378 used in
+Asus (in 64 bit mode). Is that something I need to worry about?
 
-Friendly,
+Here are chips used in those boards:
+ Chipset (both boards):
+  Intel 875P + ICH5R
 
-Sven Luther
+ Asus:
+  Promise 20378 raid
+  Intel 82547 lan
+  Soundmax
+
+ Epox:
+  HPT374 raid
+  BCM5705 / 5788 lan
+  cmi9739A (sounds)
+
+If network or soundsystem is not working rightaway it's not a problem
+cause I still have working PCI-cards. If disks are working that's enough
+for a while. I'm sure that sound and networks chips will also work on some
+day.
+
+Asus have also other very interesting board (P4P800-Deluxe) but it uses
+VIA 6410 as a raid controlled and I understood that it's not working (and
+VIA is not going to support opensource.. :( ). With that board I could use
+ATA drives (4 connectors, two of them coming from VIA6410). It would be
+almost as fast as P4C800.
+
+ps. I'm just an ordinary home user and I don't understand any details.
+
+Thanks,
+Matti ..with great (but broken) Abit KT7-RAID

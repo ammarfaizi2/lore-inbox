@@ -1,74 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262041AbTJSSdT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Oct 2003 14:33:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262048AbTJSSdT
+	id S262040AbTJSSxS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Oct 2003 14:53:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262048AbTJSSxS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Oct 2003 14:33:19 -0400
-Received: from pool-162-84-134-188.ny5030.east.verizon.net ([162.84.134.188]:28665
-	"EHLO mail.blazebox.homeip.net") by vger.kernel.org with ESMTP
-	id S262041AbTJSSdN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Oct 2003 14:33:13 -0400
-Subject: Linux-2.6.0-test8, e1000 timeouts.
-From: Paul Blazejowski <paulb@blazebox.homeip.net>
-To: LKML <linux-kernel@vger.kernel.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-XHTjUdsa4+mM6bGNG9TV"
-Message-Id: <1066588403.1232.57.camel@blaze.homeip.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (Slackware Linux)
-Date: Sun, 19 Oct 2003 14:33:23 -0400
-X-AntiVirus: checked by AntiVir MailGate (version: 2.0.2-beta; AVE: 6.22.0.1; VDF: 6.22.0.9; host: blazebox.homeip.net)
+	Sun, 19 Oct 2003 14:53:18 -0400
+Received: from adsl-63-194-133-30.dsl.snfc21.pacbell.net ([63.194.133.30]:7301
+	"EHLO penngrove.fdns.net") by vger.kernel.org with ESMTP
+	id S262040AbTJSSxR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Oct 2003 14:53:17 -0400
+From: John Mock <kd6pag@qsl.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Mounting /dev/md0 as root in 2.6.0-test7 
+Message-Id: <E1ABIg9-0003s2-00@penngrove.fdns.net>
+Date: Sun, 19 Oct 2003 11:53:25 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+    > First, is it possible to mount an md device as root (superblock is
+    > present)?
 
---=-XHTjUdsa4+mM6bGNG9TV
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Yes, software RAID5 works for me on a PPC with 2.6.0-test7 (aside from other
+video problems which make it hard for me to test adequately).  There is a
+HOW-TO which explains how to do this (you want the >= 0.9 version, not the
+0.4 version which is not relevant for modern kernels).
 
-Hello folks,
+    > If so, I can't get it to work :(
+    > I pass root=/dev/md0 to the kernl, but I get the "Kernel panic: VFS:
+    > Unable to mount root fs on md0" error.
 
-I keep getting timeouts before my Intel NIC is offered a lease from DHCP
-server.
+The basic problem here is that the kernel has no idea what disks comprise
+your RAID when you just say "root=/dev/md0", e.g., it has no idea where to
+start.  Here's an extract from my PPC's .config file:
 
-Kernel 2.4.22/2.4.23-pre7 and 2.6.0-test1-7/mm worked fine with the same
-configuration/hardware.
+    CONFIG_CMDLINE="root=/dev/md0 md=0,/dev/sda7,/dev/sdb7,/dev/sdc7"
 
-The NIC is onboard Intel OEM chip on GIGABYTE 7NNXP Nforce2 board.
+Something like that could also be in /etc/lilo.conf if you use LILO (which
+a PowerPC does not).
 
-System is Slackware Linux 9.1
-GCC 3.2.3
-module-init-tools version 0.9.14
-Linux blaze 2.6.0-test8 #1 Sat Oct 18 01:25:35 EDT 2003 i686 unknown
-unknown GNU/Linux
+Thus the kernel has three disk to look at, to find out which partitions
+make up /dev/md0.  Since i want the machine to work no matter which of my
+three disk might fail, i have arranged my disks to have the root partition 
+on the same partition number on each drive (even though they're not the 
+same capacity or even organized in the same way otherwise).  If /dev/sda 
+and /dev/sdb differ too much, then if /dev/sda fails sufficiently badly, 
+then the drives get 'renumbered' (e.g. what was /dev/sdb because /dev/sda, 
+/dev/sdc becomes /dev/sdb, etc.).
 
-Here's a snip from dmesg:
-
-Intel(R) PRO/1000 Network Driver - version 5.2.20-k1
-Copyright (c) 1999-2003 Intel Corporation.
-eth0: Intel(R) PRO/1000 Network Connection
-e1000: eth0 NIC Link is Up 100 Mbps Full Duplex
-NETDEV WATCHDOG: eth0: transmit timed out
-e1000: eth0 NIC Link is Up 100 Mbps Full Duplex
-
-lsmod : e1000                  84032  0
-
-I can provide more info upon request.
-
-Paul B.
-
-
-
---=-XHTjUdsa4+mM6bGNG9TV
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQA/ktjyo0/Ad0tTwzgRAg5hAKC6ICqz2sT5o317NtHuxfcvrRmqbgCfVfOt
-JJNb2OwCPOzkQ9iRD2eElZU=
-=bdag
------END PGP SIGNATURE-----
-
---=-XHTjUdsa4+mM6bGNG9TV--
+Write privately if you want to discuss this further (albeit i am hardly an
+expert on this), as this mailing list is about maintaining the kernel rather
+than about helping people get started with new configurations.  Yes, it can
+work, and if it does with one recent kernel, but not another, then that's a
+good hint that this may be an appropriate place to post (assuming a search 
+of the archives doesn't already contain alot of discussion on your topic).
+Good luck!
+			         -- JM

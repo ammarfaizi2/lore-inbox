@@ -1,48 +1,97 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315531AbSECBjy>; Thu, 2 May 2002 21:39:54 -0400
+	id <S315529AbSECBoa>; Thu, 2 May 2002 21:44:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315529AbSECBjx>; Thu, 2 May 2002 21:39:53 -0400
-Received: from louise.pinerecords.com ([212.71.160.16]:16656 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S315531AbSECBjw>; Thu, 2 May 2002 21:39:52 -0400
-Date: Fri, 3 May 2002 03:39:41 +0200
-From: tomas szepe <kala@pinerecords.com>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel
-Message-ID: <20020503013941.GH10617@louise.pinerecords.com>
-In-Reply-To: <Pine.LNX.4.40.0205022117350.17239-100000@ccs.covici.com> <3319.1020389607@kao2.melbourne.sgi.com>
+	id <S315532AbSECBo3>; Thu, 2 May 2002 21:44:29 -0400
+Received: from gateway2.ensim.com ([65.164.64.250]:11793 "EHLO
+	nasdaq.ms.ensim.com") by vger.kernel.org with ESMTP
+	id <S315529AbSECBo2>; Thu, 2 May 2002 21:44:28 -0400
+X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0
+From: Paul Menage <pmenage@ensim.com>
+To: viro@math.psu.edu, torvalds@transmeta.edu
+cc: pmenage@ensim.com, linux-kernel@vger.kernel.org
+Subject: [PATCH] Replace exec_permission_lite() with inlined vfs_permission()
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-OS: Linux/sparc 2.2.21-rc3-ext3-0.0.7a SMP (up 10 days, 16:19)
+Date: Thu, 02 May 2002 18:44:13 -0700
+Message-Id: <E173S7J-0004EH-00@pmenage-dt.ensim.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >So what should it point to?  I have had more trouble when some Debian
-> >package made it not a symlink and if I tried to compile something
-> >which needed correct headers for the version I am using I get very
-> >strange errors which are hard to diagnose.
-> 
-> Linus has spoken.  /usr/include/{linux,asm} must not be a symlink that
-> points to kernel code that is updated.  glibc must contain the linux
-> and asm files that were used to build glibc and those files must not
-> change until you change glibc.  glibc must take a copy of the kernel
-> headers at glibc build time or (much less desirable) it can symlink to
-> a set of kernel headers that are guaranteed to never change.
-> 
-> Having glibc linking to some random set of kernel headers is a recipe
-> for disaster.  kbuild 2.5 deliberately handles the asm symlink
-> differently from the old kbuild system, to detect and correct broken
-> installations.
 
-Fair enough. I suggest, though, that you put a similar explanation
-into kbuild 2.5 documentation.
+Since exec_permission_lite() is now basically an inlined and
+constant-propagated duplicate of vfs_permission(), this patch drops
+exec_permission_lite() and makes vfs_permission() inlined (but not
+static) and calls it from link_path_walk() if the inode doesn't have an
+i_op->permission() method.
 
-T.
+diff -X /mnt/elbrus/home/pmenage/dontdiff -aur linux-2.5.13/fs/namei.c linux-2.5.13-permission/fs/namei.c
+--- linux-2.5.13/fs/namei.c	Thu May  2 17:22:48 2002
++++ linux-2.5.13-permission/fs/namei.c	Thu May  2 17:48:11 2002
+@@ -153,7 +153,7 @@
+  * for filesystem access without changing the "normal" uids which
+  * are used for other things..
+  */
+-int vfs_permission(struct inode * inode, int mask)
++inline int vfs_permission(struct inode * inode, int mask)
+ {
+ 	umode_t			mode = inode->i_mode;
+ 
+@@ -300,40 +300,6 @@
+ }
+ 
+ /*
+- * Short-cut version of permission(), for calling by
+- * path_walk(), when dcache lock is held.  Combines parts
+- * of permission() and vfs_permission(), and tests ONLY for
+- * MAY_EXEC permission.
+- *
+- * If appropriate, check DAC only.  If not appropriate, or
+- * short-cut DAC fails, then call permission() to do more
+- * complete permission check.
+- */
+-static inline int exec_permission_lite(struct inode *inode)
+-{
+-	umode_t	mode = inode->i_mode;
+-
+-	if ((inode->i_op && inode->i_op->permission))
+-		return -EAGAIN;
+-
+-	if (current->fsuid == inode->i_uid)
+-		mode >>= 6;
+-	else if (in_group_p(inode->i_gid))
+-		mode >>= 3;
+-
+-	if (mode & MAY_EXEC)
+-		return 0;
+-
+-	if ((inode->i_mode & S_IXUGO) && capable(CAP_DAC_OVERRIDE))
+-		return 0;
+-
+-	if (S_ISDIR(inode->i_mode) && capable(CAP_DAC_READ_SEARCH))
+-		return 0;
+-
+-	return -EACCES;
+-}
+-
+-/*
+  * This is called when everything else fails, and we actually have
+  * to go to the low-level filesystem to find out what we should do..
+  *
+@@ -578,11 +544,12 @@
+ 		struct qstr this;
+ 		unsigned int c;
+ 
+-		err = exec_permission_lite(inode);
+-		if (err == -EAGAIN) {
++		if(inode->i_op && inode->i_op->permission) {
+ 			unlock_nd(nd);
+ 			err = permission(inode, MAY_EXEC);
+ 			lock_nd(nd);
++		} else {
++			err = vfs_permission(inode, MAY_EXEC);
+ 		}
+  		if (err)
+ 			break;
 
--- 
-"hello it's not like i read my mail so that you have where to offer to sell me
-a giant turnip or anything else thankyou." -tomas szepe <kala@pinerecords.com>          
+

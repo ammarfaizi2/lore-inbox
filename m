@@ -1,71 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262996AbUDUOV6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263027AbUDUOWm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262996AbUDUOV6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Apr 2004 10:21:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262983AbUDUOV6
+	id S263027AbUDUOWm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Apr 2004 10:22:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263014AbUDUOWm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Apr 2004 10:21:58 -0400
-Received: from atlas.informatik.uni-freiburg.de ([132.230.150.3]:10710 "EHLO
-	atlas.informatik.uni-freiburg.de") by vger.kernel.org with ESMTP
-	id S262974AbUDUOVz convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Apr 2004 10:21:55 -0400
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: arjanv@redhat.com, Andrew Morton <akpm@osdl.org>,
-       Tuukka Toivonen <tuukkat@ee.oulu.fi>, b-gruber@gmx.de,
+	Wed, 21 Apr 2004 10:22:42 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:14268 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262953AbUDUOW3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Apr 2004 10:22:29 -0400
+Date: Wed, 21 Apr 2004 15:22:28 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: Bjorn Helgaas <bjorn.helgaas@hp.com>
+Cc: Matt Domsch <Matt_Domsch@dell.com>, linux-ia64@vger.kernel.org,
+       Matt Tolentino <matthew.e.tolentino@intel.com>,
        linux-kernel@vger.kernel.org
-Subject: Re: /dev/psaux-Interface
-References: <Pine.GSO.4.58.0402271451420.11281@stekt37>
-	<Pine.GSO.4.58.0404191124220.21825@stekt37>
-	<20040419015221.07a214b8.akpm@osdl.org>
-	<xb77jwci86o.fsf@savona.informatik.uni-freiburg.de>
-	<1082372020.4691.9.camel@laptop.fenrus.com>
-	<16518.20890.380763.581386@cse.unsw.edu.au>
-	<xb71xmhfu9j.fsf@savona.informatik.uni-freiburg.de>
-	<16518.27472.760406.691633@cse.unsw.edu.au>
-From: Sau Dan Lee <danlee@informatik.uni-freiburg.de>
-Date: 21 Apr 2004 16:21:53 +0200
-In-Reply-To: <16518.27472.760406.691633@cse.unsw.edu.au>
-Message-ID: <xb7oeple7i6.fsf@savona.informatik.uni-freiburg.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=big5
-Content-Transfer-Encoding: 8BIT
-Organization: Universitaet Freiburg, Institut fuer Informatik
+Subject: Re: [PATCH] add some EFI device smarts
+Message-ID: <20040421142228.GM18329@parcelfarce.linux.theplanet.co.uk>
+References: <200404201600.26207.bjorn.helgaas@hp.com> <20040420235038.GB29850@lists.us.dell.com> <200404210659.22884.bjorn.helgaas@hp.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200404210659.22884.bjorn.helgaas@hp.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Neil" == Neil Brown <neilb@cse.unsw.edu.au> writes:
+On Wed, Apr 21, 2004 at 06:59:22AM -0600, Bjorn Helgaas wrote:
+> > > +		/* Convert Unicode to normal chars */
+> > > +		for (i = 0; i < (name_size/sizeof(name_unicode[0])); i++)
+> > > +			name_utf8[i] = name_unicode[i] & 0xff;
+> > > +		name_utf8[i] = 0;
+> > 
+> > I've never had a clear understanding of this.  It's not really UTF8
+> > (else straight ASCII text could be used), but more like UCS2.
+> 
+> I don't understand Unicode either.  Maybe the attached is a little
+> closer?  The EFI spec (1.10, table 2-2) says strings are stored in
+> UTF-16, and I think that UTF-16 is the same as ASCII for
+> (0 < c <= 0x7f).
 
-    >> BTW, how did you hack the /dev/psaux?
+Ah, I know this one ...
 
-    Neil> It's not suitable for inclusion, but with this patch, I get
-    Neil> two modules, psdev and psmouse.  I load psdev and /dev/psaux
-    Neil> is raw.  I load psmouse and /dev/psaux is normal 2.6
-    Neil> behaviour.
+UTF-16 is like UCS-2 except that it has escapes to let you use past the
+first plane of Unicode.  That is, by and large it's 2-bytes long, but
+sometimes it can be 4 or more bytes long.  How to convert?  Let's see ...
 
-    [patch snipped]
+	for (i = 0, j = 0; i < (name_size/sizeof(name_unicode[0])); i++) {
+		unsigned int rune = name_unicode[i];
+		if (0xD7FF < rune && rune < 0xE000) {
+			rune = (rune & 0x7ff) << 10;
+			rune |= name_unicode[++i] & 0x3ff;
+		}
+		if (rune < 0x80) {
+			name_utf8[j++] = rune;
+		} else if (rune < 0x800) {
+			name_utf8[j++] = 0xc0 | (rune >> 6);
+			name_utf8[j++] = 0x80 | (rune & 0x3f);
+		} else if (rune < 0x10000) {
+			name_utf8[j++] = 0xe0 | (rune >> 12);
+			name_utf8[j++] = 0x80 | ((rune >> 6) & 0x3f);
+			name_utf8[j++] = 0x80 | (rune & 0x3f);
+		} else {
+			name_utf8[j++] = 0xf0 | (rune >> 18);
+			name_utf8[j++] = 0x80 | ((rune >> 12) & 0x3f);
+			name_utf8[j++] = 0x80 | ((rune >> 6) & 0x3f);
+			name_utf8[j++] = 0x80 | (rune & 0x3f);
+		}
+	}
 
+ftp://ftp.rfc-editor.org/in-notes/rfc2279.txt
+ftp://ftp.rfc-editor.org/in-notes/rfc2781.txt
 
-I see.  Basically, we're both (re)inventing the same thing.  :)
-
-Now, it  is clear that there is  a need for direct  psaux port access.
-It's useful for 2 reasons:
-
-1) Compatibility with 2.4, 2.2, 2.0  kernels, so that programs need no
-   modification and work as before.  This provides an easier migration
-   path for those who want to upgrad to 2.6 for whatever reasons.
-
-2) To  enable  using "strange",  not  yet  supported hardwares,  whose
-   *mature* software  drivers are already available for 2.4, 2.2, 2.0,
-   etc.  Not every writer of  those software drivers are interested in
-   rewriting their programs in kernel space.
-
-
+Haven't even tried to compile it ...
 
 -- 
-Sau Dan LEE                     §õ¦u´°(Big5)                    ~{@nJX6X~}(HZ) 
-
-E-mail: danlee@informatik.uni-freiburg.de
-Home page: http://www.informatik.uni-freiburg.de/~danlee
-
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

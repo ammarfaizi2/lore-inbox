@@ -1,59 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129183AbRAEWQK>; Fri, 5 Jan 2001 17:16:10 -0500
+	id <S129183AbRAEWVK>; Fri, 5 Jan 2001 17:21:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129267AbRAEWQB>; Fri, 5 Jan 2001 17:16:01 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:56068 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S129183AbRAEWPt>;
-	Fri, 5 Jan 2001 17:15:49 -0500
-From: Russell King <rmk@arm.linux.org.uk>
-Message-Id: <200101052216.f05MGtJ17781@flint.arm.linux.org.uk>
-Subject: Re: /proc/sys/net/unix
-To: mistral@stev.org (James Stevenson)
-Date: Fri, 5 Jan 2001 22:16:54 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0101052107430.11582-100000@linux.home> from "James Stevenson" at Jan 05, 2001 09:09:24 PM
-X-Location: london.england.earth.mulky-way.universe
-X-Mailer: ELM [version 2.5 PL3]
+	id <S129267AbRAEWVA>; Fri, 5 Jan 2001 17:21:00 -0500
+Received: from foobar.napster.com ([64.124.41.10]:60168 "EHLO
+	foobar.napster.com") by vger.kernel.org with ESMTP
+	id <S129183AbRAEWUn>; Fri, 5 Jan 2001 17:20:43 -0500
+Message-ID: <3A5648A8.864875FF@napster.com>
+Date: Fri, 05 Jan 2001 14:20:24 -0800
+From: Jordan Mendelson <jordy@napster.com>
+Organization: Napster, Inc.
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Greg KH <greg@wirex.com>
+CC: jerdfelt@valinux.com, usb@in.tum.de, linux-kernel@vger.kernel.org
+Subject: Re: USB problems with 2.4.0: USBDEVFS_BULK failed
+In-Reply-To: <3A5544EF.CF41B6A8@napster.com> <20010104210410.A14563@wirex.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Stevenson writes:
-> should there be 2 files in that diretory with the same name ?
-
-No.
-
-> mistral@sx:/proc/sys/net/unix$ ls -la
-> total 0
-> dr-xr-xr-x   2 root     root            0 Jan  5 21:09 ./
-> dr-xr-xr-x   8 root     root            0 Jan  5 21:09 ../
-> -rw-------   1 root     root            0 Jan  5 21:09 max_dgram_qlen
-> -rw-------   1 root     root            0 Jan  5 21:09 max_dgram_qlen
-> mistral@sx:/proc/sys/net/unix$ 
+Greg KH wrote:
 > 
-> thats under 2.4.0
+> On Thu, Jan 04, 2001 at 07:52:15PM -0800, Jordan Mendelson wrote:
+> >
+> > Alright, this is driving me nuts. I have a Canon S20 digital camera
+> > hooked up to a Sony XG series laptop via the USB port and am using s10sh
+> > to access it. s10sh uses libusb 0.1.1, but I've also tried it using
+> > libusb 0.1.2 without any luck. libusb uses usbfs to access to the device
+> > from userspace.
+> >
+> > The last time it worked was around 2.4.0test10, but might have been
+> > test9. test12, prerelease and 2.4.0 final all fail.
+> 
+> Could you try to verify exactly which version things died on?  As you
+> know USB has had a number of changes to the code recently :)
+> 
+> That would help us try to determine what broke.
 
-Both net/sysctl_net.c and net/unix/sysctl_net_unix.c register the
-unix_table[] structure which contains the "max_dgram_qlen" file.
-It should only be registered once.
+I just rebooted a few times... 2.4.0-test10 is the last kernel that it
+worked correctly with. 2.4.0-test11 shows the same signs as
+2.4.0-test12, prerelease and 2.4.0 proper.
 
-Since Unix sockets can be modular, I'm guessing that the one in
-net/sysctl_net.c is wrong.  The easy way to get rid of it is to
-remove the code between #ifdef CONFIG_UNIX and #endif in that file.
 
-However, I leave it up to DaveM to supply the official patch since
-this may not be his preferred method of fixing the problem.
-   _____
-  |_____| ------------------------------------------------- ---+---+-
-  |   |         Russell King        rmk@arm.linux.org.uk      --- ---
-  | | | | http://www.arm.linux.org.uk/personal/aboutme.html   /  /  |
-  | +-+-+                                                     --- -+-
-  /   |               THE developer of ARM Linux              |+| /|\
- /  | | |                                                     ---  |
-    +-+-+ -------------------------------------------------  /\\\  |
+Jordan
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

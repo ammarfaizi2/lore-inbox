@@ -1,110 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261376AbSIZRF2>; Thu, 26 Sep 2002 13:05:28 -0400
+	id <S261418AbSIZRL7>; Thu, 26 Sep 2002 13:11:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261381AbSIZRF2>; Thu, 26 Sep 2002 13:05:28 -0400
-Received: from sopris.net ([216.237.72.68]:19728 "EHLO mail.sopris.net")
-	by vger.kernel.org with ESMTP id <S261376AbSIZRF0>;
-	Thu, 26 Sep 2002 13:05:26 -0400
-Message-ID: <004201c2657f$c1a1bed0$f101010a@nathan>
-From: "Nathan" <etherwolf@sopris.net>
-To: "Marc-Christian Petersen" <m.c.p@wolk-project.de>
-Cc: "Linux Kernel List" <linux-kernel@vger.kernel.org>
-References: <200209261901.17679.m.c.p@wolk-project.de>
-Subject: Re: Updated to kernel 2.4.19 and now ipchains and iptables are broke.
-Date: Thu, 26 Sep 2002 11:11:29 -0600
+	id <S261419AbSIZRL7>; Thu, 26 Sep 2002 13:11:59 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:45752 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S261418AbSIZRL4>; Thu, 26 Sep 2002 13:11:56 -0400
+Date: Thu, 26 Sep 2002 14:16:53 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@duckman.distro.conectiva
+To: Joachim Breuer <jmbreuer@gmx.net>
+Cc: Adam Goldstein <Whitewlf@Whitewlf.net>, <linux-kernel@vger.kernel.org>
+Subject: Re: Very High Load, kernel 2.4.18, apache/mysql
+In-Reply-To: <m3adm465l6.fsf@venus.fo.et.local>
+Message-ID: <Pine.LNX.4.44L.0209261415570.1837-100000@duckman.distro.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I saw the config option for netfilter that said if you use this it won't use
-ipchains, so I said no to that...
+On Thu, 26 Sep 2002, Joachim Breuer wrote:
 
-The section of my .config file from make config (yeah I'm a glutton for
-punishment):
+> In the olden days (at least I learnt that definition for a system
+> based on 3.x BSD), the "load average" is the number of runnable
+> processes (i.e. those that could do work if they got a slice of CPU
+> time) averaged over some period of time (1, 2, 5, 10 minutes).
 
-# Networking options
-#
-CONFIG_PACKET=y
-# CONFIG_PACKET_MMAP is not set
-# CONFIG_NETLINK_DEV is not set
-# CONFIG_NETFILTER is not set
-# CONFIG_FILTER is not set
-CONFIG_UNIX=y
-CONFIG_INET=y
-CONFIG_IP_MULTICAST=y
-CONFIG_IP_ADVANCED_ROUTER=y
-# CONFIG_IP_MULTIPLE_TABLES is not set
-# CONFIG_IP_ROUTE_MULTIPATH is not set
-# CONFIG_IP_ROUTE_TOS is not set
-CONFIG_IP_ROUTE_VERBOSE=y
-# CONFIG_IP_ROUTE_LARGE_TABLES is not set
-# CONFIG_IP_PNP is not set
-# CONFIG_NET_IPIP is not set
-CONFIG_NET_IPGRE=y
-# CONFIG_NET_IPGRE_BROADCAST is not set
-# CONFIG_IP_MROUTE is not set
-# CONFIG_ARPD is not set
-# CONFIG_INET_ECN is not set
-CONFIG_SYN_COOKIES=y
-CONFIG_IPV6=y
-# CONFIG_KHTTPD is not set
-# CONFIG_ATM is not set
-# CONFIG_VLAN_8021Q is not set
+> I don't know the concise definition in Linux's case either.
 
+Extending your definition, the load average in Linux would be:
 
+"the number of processes that could do work if they got a slice
+ of CPU time or had their data in RAM instead of being blocked
+ on disk"
 
------ Original Message -----
-From: "Marc-Christian Petersen" <m.c.p@wolk-project.de>
-To: <linux-kernel@vger.kernel.org>
-Cc: "Nathan" <etherwolf@sopris.net>
-Sent: Thursday, September 26, 2002 11:02 AM
-Subject: Re: Updated to kernel 2.4.19 and now ipchains and iptables are
-broke.
+Rik
+-- 
+A: No.
+Q: Should I include quotations after my reply?
 
-
-Hi Nathan,
-
-> This is surely the greenest of green questions (sorry), but I finally got
-my
-> kernel re-compiled the way I want it using the 2.4.19 sources from
-> kernel.org. It loads, seems to be working fine, except ipchains and
-> iptables... ipchains insists that it is incompatible with my kernel, and
-> iptables isn't sure what's going on but it thinks maybe something (. Well
-> fine. I downloaded the latest versions of ipchains/tables from rpmfind and
-> upgraded, same thing.
-
-"Incompatible with this kernel" for ipchains seems so that you have compiled
-Netfilter stuff into your kernel.
-
-"itself or the kernel needs upgrading" for iptables seems so that you either
-haven't compiled netfilter as module(s) or static into the kernel and forgot
-something in the kernel config.
-
-> I haven't been able to find any actual solutions off google for this... a
-> few people mention the same problem but no fixes. Can someone point this
-> rookie in the right direction to fix my packet filters? :-)
-Check your kernel config. "make menuconfig" or "xconfig" and goto:
-
-Networking options  --->
-  IP: Netfilter Configuration  --->
-
-and look if you did it properly.
-
---
-Kind regards
-        Marc-Christian Petersen
-
-http://sourceforge.net/projects/wolk
-
-PGP/GnuPG Key: 1024D/569DE2E3DB441A16
-Fingerprint: 3469 0CF8 CA7E 0042 7824 080A 569D E2E3 DB44 1A16
-Key available at www.keyserver.net. Encrypted e-mail preferred.
+http://www.surriel.com/		http://distro.conectiva.com/
 

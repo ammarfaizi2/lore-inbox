@@ -1,83 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261490AbVATSJD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261413AbVATSNf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261490AbVATSJD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 13:09:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261392AbVATSFe
+	id S261413AbVATSNf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 13:13:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261392AbVATSKz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 13:05:34 -0500
-Received: from ithilien.qualcomm.com ([129.46.51.59]:35050 "EHLO
-	ithilien.qualcomm.com") by vger.kernel.org with ESMTP
-	id S261380AbVATSEy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 13:04:54 -0500
-Message-ID: <41EFF2BD.7040107@qualcomm.com>
-Date: Thu, 20 Jan 2005 10:04:45 -0800
-From: Max Krasnyansky <maxk@qualcomm.com>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
-X-Accept-Language: en-us, en
+	Thu, 20 Jan 2005 13:10:55 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:14531 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S261484AbVATSI1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jan 2005 13:08:27 -0500
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, fastboot@lists.osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Fastboot] Re: [PATCH 19/29] x86_64-kexec
+References: <x86-64-vmlinux-fix-physical-addrs-11061198972723@ebiederm.dsl.xmission.com>
+	<x86-64-entry64-1106119897218@ebiederm.dsl.xmission.com>
+	<x86-config-kernel-start-1106119897152@ebiederm.dsl.xmission.com>
+	<x86-64-config-kernel-start-11061198972987@ebiederm.dsl.xmission.com>
+	<kexec-kexec-generic-11061198974111@ebiederm.dsl.xmission.com>
+	<x86-machine-shutdown-1106119897775@ebiederm.dsl.xmission.com>
+	<x86-kexec-11061198971773@ebiederm.dsl.xmission.com>
+	<x86-crashkernel-1106119897532@ebiederm.dsl.xmission.com>
+	<x86-64-machine-shutdown-11061198972282@ebiederm.dsl.xmission.com>
+	<x86-64-kexec-11061198973999@ebiederm.dsl.xmission.com>
+	<20050120155054.GD3170@stusta.de>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 20 Jan 2005 11:06:40 -0700
+In-Reply-To: <20050120155054.GD3170@stusta.de>
+Message-ID: <m14qhc561b.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: CD/DVD drive access hangs when media is not inserted
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-PMX-Version: 4.7.0.111621
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Folks,
+Adrian Bunk <bunk@stusta.de> writes:
 
-I've got ASUS DVD-E616P2 drive and it seems that media detection is broken with it.
-Processes that try to access the drive when cd or dvd is not inserted simply
-hang until the machine is rebooted.
+> On Wed, Jan 19, 2005 at 12:31:37AM -0700, Eric W. Biederman wrote:
+> >...
+> > ---
+> linux-2.6.11-rc1-mm1-nokexec-x86_64-machine_shutdown/arch/x86_64/kernel/crash.c
+> Wed Dec 31 17:00:00 1969
+> 
+> > +++ linux-2.6.11-rc1-mm1-nokexec-x86_64-kexec/arch/x86_64/kernel/crash.c Tue
+> Jan 18 23:14:06 2005
+> 
+> >...
+> > +note_buf_t crash_notes[NR_CPUS];
+> >...
+> 
+> After your patches, this global variable stays completely unused
+> on x86_64 (for the i386 version, you added a usage).
+>
+> cu
+> Adrian
+> 
+> BTW: Is external usage for crash_notes planned, or can it become static 
+>      on both architectures?
 
-So for example if I do 'cat /dev/cdrom'. First few attempts fail with 'No medium found'
-error and dmesg shows 'cdrom: open failed'. But then it hangs in ide_do_drive_cmd
+A sharp eye.  That array is a key part of an ongoing conversation.
 
-4435 D+   cat /dev/cdrom   ide_do_drive_cmd
+To analyze why a kernel crashed you need some information, beyond
+simply the contents of memory at the time of the crash.
 
- From then on drive is dead. Inserting cd does not help. Reboot is the only way to bring
-it back to life.
-Everything else works just fine. Actually almost everything. Another annoying problem is
-if I pause DVD playback for too long (let's say 10-15 minutes) and then hit play again dvd
-access hangs just like in 'no medium' case.
+If that information is not static and obtainable at the time of the crash
+machine_crash_shutdown() needs to capture that information.  
 
-Any ideas ?
+For the format of the information that crashed we can either use some
+random structure, that you need to know to read kernel debug information
+to interpret.  Or we can use a standard format, reducing the need
+for magic in the interpretation process.  The introduction of
+crash_notes is the first step is switching to using a standard format,
+for the data to remove unnecessary dependencies between a kernel
+and the tools that analyze it after it has crashed.
 
-I tried a bunch of kernels 2.6.8.1  2.6.9  2.6.10
+crash_notes is designed to be a set of per cpu buffers that hold
+information captured just after a kernel has crashed.  So the usage
+is expected to be very external.  How we communicate the address of
+these per cpu buffers to analysis tools still needs to be addressed.
+/proc/kallsyms?
 
-Here is how the drive is recognized at boot.
+As for internal users those will come when machine_crash_shutdown
+becomes more than a noop on x86_64.
 
-ICH5: IDE controller at PCI slot 0000:00:1f.1
-ACPI: PCI interrupt 0000:00:1f.1[A] -> GSI 18 (level, low) -> IRQ 177
-ICH5: chipset revision 2
-ICH5: not 100% native mode: will probe irqs later
-     ide0: BM-DMA at 0xf000-0xf007, BIOS settings: hda:DMA, hdb:pio
-     ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: hdc:DMA, hdd:pio
-Probing IDE interface ide0...
-hda: SAMSUNG SP1614N, ATA DISK drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-Probing IDE interface ide1...
-hdc: ASUS DVD-E616P2, ATAPI CD/DVD-ROM drive
-ide1 at 0x170-0x177,0x376 on irq 15
-
-And this is what lspci has to say about my system
-
-00:00.0 Host bridge: Intel Corp. 82865G/PE/P DRAM Controller/Host-Hub Interface (rev 02)
-00:01.0 PCI bridge: Intel Corp. 82865G/PE/P PCI to AGP Controller (rev 02)
-00:1d.0 USB Controller: Intel Corp. 82801EB/ER (ICH5/ICH5R) USB UHCI Controller #1 (rev 02)
-00:1d.1 USB Controller: Intel Corp. 82801EB/ER (ICH5/ICH5R) USB UHCI Controller #2 (rev 02)
-00:1d.2 USB Controller: Intel Corp. 82801EB/ER (ICH5/ICH5R) USB UHCI #3 (rev 02)
-00:1d.3 USB Controller: Intel Corp. 82801EB/ER (ICH5/ICH5R) USB UHCI Controller #4 (rev 02)
-00:1d.7 USB Controller: Intel Corp. 82801EB/ER (ICH5/ICH5R) USB2 EHCI Controller (rev 02)
-00:1e.0 PCI bridge: Intel Corp. 82801 PCI Bridge (rev c2)
-00:1f.0 ISA bridge: Intel Corp. 82801EB/ER (ICH5/ICH5R) LPC Interface Bridge (rev 02)
-00:1f.1 IDE interface: Intel Corp. 82801EB/ER (ICH5/ICH5R) IDE Controller (rev 02)
-00:1f.3 SMBus: Intel Corp. 82801EB/ER (ICH5/ICH5R) SMBus Controller (rev 02)
-00:1f.5 Multimedia audio controller: Intel Corp. 82801EB/ER (ICH5/ICH5R) AC'97 Audio Controller
-(rev 02)
-01:00.0 VGA compatible controller: nVidia Corporation NV34 [GeForce FX 5200] (rev a1)
-02:04.0 Multimedia video controller: Brooktree Corporation Bt878 Video Capture (rev 11)
-02:04.1 Multimedia controller: Brooktree Corporation Bt878 Audio Capture (rev 11)
-02:07.0 Ethernet controller: Broadcom Corporation NetXtreme BCM5788 Gigabit Ethernet (rev 03)
-02:0d.0 FireWire (IEEE 1394): Agere Systems (former Lucent Microelectronics) FW323 (rev 61)
-
-Max
+Eric

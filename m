@@ -1,43 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261326AbVCBXeL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261319AbVCBXZn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261326AbVCBXeL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 18:34:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261303AbVCBX1M
+	id S261319AbVCBXZn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 18:25:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261318AbVCBXWK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 18:27:12 -0500
-Received: from mail.portrix.net ([212.202.157.208]:44509 "EHLO
-	zoidberg.portrix.net") by vger.kernel.org with ESMTP
-	id S261356AbVCBXYQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 18:24:16 -0500
-Message-ID: <42264B12.6060601@ppp0.net>
-Date: Thu, 03 Mar 2005 00:24:02 +0100
-From: Jan Dittmer <jdittmer@ppp0.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050116 Thunderbird/1.0 Mnenhy/0.6.0.104
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.11
-References: <Pine.LNX.4.58.0503012356480.25732@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0503012356480.25732@ppc970.osdl.org>
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
+	Wed, 2 Mar 2005 18:22:10 -0500
+Received: from mo01.iij4u.or.jp ([210.130.0.20]:39659 "EHLO mo01.iij4u.or.jp")
+	by vger.kernel.org with ESMTP id S261313AbVCBXUW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 18:20:22 -0500
+Date: Thu, 3 Mar 2005 08:20:13 +0900
+From: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
+To: Andrew Morton <akpm@osdl.org>
+Cc: yuasa@hh.iij4u.or.jp, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2.6.11-rc5-mm1] serial: update vr41xx_siu
+Message-Id: <20050303082013.52d91b3e.yuasa@hh.iij4u.or.jp>
+X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> Ok,
->  there it is. Only small stuff lately  - as promised. Shortlog from -rc5 
-> appended, nothing exciting there, mostly some fixes from various code 
-> checkers (like fixed init sections, and some coverity tool finds).
-> 
-> So it's now _officially_ all bug-free.
+This patch updates serial driver for VR41xx serial unit.
+Some check are added to verify_port.
 
-At least it builds 14 out of 23 arch defconfigs (http://l4x.org/k/),
-which is quite an improvement over 10/22 of 2.6.10.
+Yoichi
 
-Congrats,
+Signed-off-by: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
 
-Jan
+diff -urN -X dontdiff a-orig/drivers/serial/vr41xx_siu.c a/drivers/serial/vr41xx_siu.c
+--- a-orig/drivers/serial/vr41xx_siu.c	Wed Mar  2 01:04:39 2005
++++ a/drivers/serial/vr41xx_siu.c	Wed Mar  2 07:40:25 2005
+@@ -702,15 +702,17 @@
+ static int siu_request_port(struct uart_port *port)
+ {
+ 	unsigned long size;
++	struct resource *res;
+ 
+ 	size = siu_port_size(port);
+-	if (request_mem_region(port->mapbase, size, siu_type_name(port)) == NULL)
++	res = request_mem_region(port->mapbase, size, siu_type_name(port));
++	if (res == NULL)
+ 		return -EBUSY;
+ 
+ 	if (port->flags & UPF_IOREMAP) {
+ 		port->membase = ioremap(port->mapbase, size);
+ 		if (port->membase == NULL) {
+-			release_mem_region(port->mapbase, size);
++			release_resource(res);
+ 			return -ENOMEM;
+ 		}
+ 	}
+@@ -729,6 +731,12 @@
+ static int siu_verify_port(struct uart_port *port, struct serial_struct *serial)
+ {
+ 	if (port->type != PORT_VR41XX_SIU && port->type != PORT_VR41XX_DSIU)
++		return -EINVAL;
++	if (port->irq != serial->irq)
++		return -EINVAL;
++	if (port->iotype != serial->io_type)
++		return -EINVAL;
++	if (port->mapbase != (unsigned long)serial->iomem_base)
+ 		return -EINVAL;
+ 
+ 	return 0;

@@ -1,40 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312418AbSDJKnN>; Wed, 10 Apr 2002 06:43:13 -0400
+	id <S312455AbSDJKuL>; Wed, 10 Apr 2002 06:50:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312427AbSDJKnM>; Wed, 10 Apr 2002 06:43:12 -0400
-Received: from [195.157.147.30] ([195.157.147.30]:51718 "HELO
-	pookie.dev.sportingbet.com") by vger.kernel.org with SMTP
-	id <S312418AbSDJKnL>; Wed, 10 Apr 2002 06:43:11 -0400
-Date: Wed, 10 Apr 2002 11:45:21 +0100
-From: Sean Hunter <sean@dev.sportingbet.com>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: Geoffrey Gallaway <geoffeg@sin.sloth.org>, linux-kernel@vger.kernel.org
-Subject: Re: Ramdisks and tmpfs problems
-Message-ID: <20020410114521.C4493@dev.sportingbet.com>
-Mail-Followup-To: Sean Hunter <sean@dev.sportingbet.com>,
-	Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-	Geoffrey Gallaway <geoffeg@sin.sloth.org>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020409144639.A14678@sin.sloth.org> <20020410084505.A4493@dev.sportingbet.com> <200204101028.g3AAS2X05866@Port.imtp.ilyichevsk.odessa.ua>
+	id <S312574AbSDJKuJ>; Wed, 10 Apr 2002 06:50:09 -0400
+Received: from duteinh.et.tudelft.nl ([130.161.42.1]:43018 "EHLO
+	duteinh.et.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S312455AbSDJKuF>; Wed, 10 Apr 2002 06:50:05 -0400
+Date: Wed, 10 Apr 2002 12:49:56 +0200
+From: Erik Mouw <J.A.K.Mouw@its.tudelft.nl>
+To: Emmanuel Michon <emmanuel_michon@realmagic.fr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: module programming smp-safety howto?
+Message-ID: <20020410104956.GD1465@arthur.ubicom.tudelft.nl>
+In-Reply-To: <7w7knf98gk.fsf@avalon.france.sdesigns.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+User-Agent: Mutt/1.3.28i
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 10, 2002 at 01:31:14PM -0200, Denis Vlasenko wrote:
-> On 10 April 2002 05:45, Sean Hunter wrote:
-> > Wouldn't this be easier?
-> >
-> > mount -t tmpfs none /dev/shm
-> > cp -axf /etc/* !$
-> > mount --bind /dev/shm /etc
+On Wed, Apr 10, 2002 at 12:03:23PM +0200, Emmanuel Michon wrote:
+> I'm responsible for the development of a kernel module for Sigma
+> Designs EM84xx PCI chips (MPEG2 and MPEG4 hardware decoder
+> boards). It's working properly now, irq sharing and multiple board
+> support is ok.
 > 
-> /dev is for devices, why do you use it for mounting filesystems?
+> I would like to make it smp-safe.
+> 
+> For instance, I use at a place cli()/restore to implement something that
+> looks like a critical section (first code path is in a ioctl, second
+> in a irq top half). I guess this approach is wrong with smp.
+> 
+> Is there some documentation or howto about what changes compared
+> to non-smp computers?
 
-Normally yes, but the tmpfs provides posix shared memory semantics and thus
-/dev/shm is the "normal" place to mount it.  Don't blame me.
+Run "make psdocs" in your kernel tree, and you'll find Rusty's
+kernel-locking guide in Documentation/DocBook/ . If you don't have the
+proper tools, you can also download it from
+http://www.kernelnewbies.org/documents/ .
 
-Sean
+> Maybe a specific kernel module can be considered as a good model?
+
+I found the 8139too driver a nice source for good programming practice
+(thanks, Jeff!).
+
+
+Erik
+
+-- 
+J.A.K. (Erik) Mouw, Information and Communication Theory Group, Faculty
+of Information Technology and Systems, Delft University of Technology,
+PO BOX 5031, 2600 GA Delft, The Netherlands  Phone: +31-15-2783635
+Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
+WWW: http://www-ict.its.tudelft.nl/~erik/

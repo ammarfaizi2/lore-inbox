@@ -1,49 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264034AbUFCOw4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265551AbUFCPLB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264034AbUFCOw4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jun 2004 10:52:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265521AbUFCOsO
+	id S265551AbUFCPLB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jun 2004 11:11:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265602AbUFCPK3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 10:48:14 -0400
-Received: from mail-ext.curl.com ([66.228.88.132]:55816 "HELO
-	mail-ext.curl.com") by vger.kernel.org with SMTP id S265517AbUFCOqf
+	Thu, 3 Jun 2004 11:10:29 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:4842 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S264108AbUFCPJY
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 10:46:35 -0400
-From: "Patrick J. LoPresti" <patl@users.sourceforge.net>
-Message-ID: <s5gaczkwvg8.fsf@patl=users.sf.net>
-To: "Frediano Ziglio" <freddyz77@tin.it>
+	Thu, 3 Jun 2004 11:09:24 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Aric Cyr <acyr@alumni.uwaterloo.ca>
+Subject: Re: [PATCH] nForce2 C1halt fixup, again
+Date: Thu, 3 Jun 2004 17:12:51 +0200
+User-Agent: KMail/1.5.3
+References: <20040604112618.A1789%acyr@alumni.uwaterloo.ca>
+In-Reply-To: <20040604112618.A1789%acyr@alumni.uwaterloo.ca>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.x partition breakage and dual booting
-References: <40BA2213.1090209@pobox.com> <20040530183609.GB5927@pclin040.win.tue.nl> <40BA2E5E.6090603@pobox.com> <20040530200300.GA4681@apps.cwi.nl> <s5g8yf9ljb3.fsf@patl=users.sf.net> <20040531180821.GC5257@louise.pinerecords.com> <1086245495.3988.4.camel@freddy> <20040603103907.GV23408@apps.cwi.nl>
-Date: 03 Jun 2004 10:46:33 -0400
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200406031712.51458.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Frediano Ziglio <freddyz77@tin.it> writes:
+On Friday 04 of June 2004 04:26, Aric Cyr wrote:
+> With so many people reporting that 2.6.6 fixed the nForce2 hard lock
+> problem I soon started using it.  However, on my system it would still
+> lock up!  I tried disabling APIC, IO-APIC, ACPI, PREEMPT, etc. to no
+> avail.
+>
+> After looking into the pci_fixup_nforce2() function, I saw that it was
+> expecting one of two cases for the PCI config value: 0x1F0FFF01 or
+> 0x9F0FFF01, then, depending on the PCI revision ID it would set the
+> config value to 0x1F01FF01 or 0x9F01FF01 resp. I looked at the value
+> of my nForce2 board and saw that it was actually 0x8F0FFF01.
+>
+> So the current 2.6.6 fixup was inadvertently flipping the high nibble
+> to 0x9 in my case.  Since the fixup is actually idependent of the PCI
+> revision ID (the 5th nibble is changed from 0xF to 0x1 in either
+> case), I tried explicitly changing only that part of the config value.
+> Sure enough, for the first time in a while my system is finally stable
+> again.
+>
+> My patch is attached.  Comments please!
 
-> Yes and not... HDIO_GETGEO still exists and report inconsistent
-> informations. IMHO should be removed. I know this breaks some
-> existing programs however these programs do not actually works
-> correctly.
+If bit 0x10000000 is not set then C1 Halt Disconnect is disabled.
+I have reports that it is unsupported on some boards.
 
-Existing programs work fine if you do something like this first:
+So what about patch below instead?
 
-    echo bios_head:255 > /proc/ide/hda/settings
 
-I know this works because it is how I convince Parted to prep a blank
-drive for installing Windows.  In fact, it is the only way for me to
-communicate the geometry to Parted, as far as I know.  (Other tools
-usually have command-line switches or "expert" settings to control the
-geometry; Parted does not.)
+[PATCH] apply nForce2 fixup only if C1 Halt Disconnect is enabled
 
-SCSI and RAID devices already return a suitable geometry in
-HDIO_GETGEO on all of the systems that I or my users have tried.
+Some boards don't support C1 Halt Disconnect.
 
-So one approach is to leave HDIO_GETGEO alone, and to have a userspace
-gadget run early to "fix" the kernel's notion of the geometry.  This
-would avoid the need to rewrite every partitioning tool.
+Signed-off-by: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
 
- - Pat
+ linux-2.6.7-rc2-bk2-bzolnier/arch/i386/pci/fixup.c |    7 ++++++-
+ 1 files changed, 6 insertions(+), 1 deletion(-)
+
+diff -puN arch/i386/pci/fixup.c~nForce2_C1Halt_fixup arch/i386/pci/fixup.c
+--- linux-2.6.7-rc2-bk2/arch/i386/pci/fixup.c~nForce2_C1Halt_fixup	2004-06-03 16:52:46.556771744 +0200
++++ linux-2.6.7-rc2-bk2-bzolnier/arch/i386/pci/fixup.c	2004-06-03 16:58:17.275494856 +0200
+@@ -226,7 +226,12 @@ static void __init pci_fixup_nforce2(str
+ 	fixed_val = rev < 0xC1 ? 0x1F01FF01 : 0x9F01FF01;
+ 
+ 	pci_read_config_dword(dev, 0x6c, &val);
+-	if (val != fixed_val) {
++
++	/*
++	 * Apply fixup only if C1 Halt Disconnect is enabled
++	 * (bit28) because it is not supported on some boards.
++	 */
++	if ((val & (1 << 28)) && val != fixed_val) {
+ 		printk(KERN_WARNING "PCI: nForce2 C1 Halt Disconnect fixup\n");
+ 		pci_write_config_dword(dev, 0x6c, fixed_val);
+ 	}
+
+_
+

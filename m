@@ -1,34 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267188AbSK3AJS>; Fri, 29 Nov 2002 19:09:18 -0500
+	id <S267193AbSK3AHm>; Fri, 29 Nov 2002 19:07:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267187AbSK3AJS>; Fri, 29 Nov 2002 19:09:18 -0500
-Received: from server.ehost4u.biz ([209.51.155.18]:38335 "EHLO
-	host.ehost4u.biz") by vger.kernel.org with ESMTP id <S267188AbSK3AJR>;
-	Fri, 29 Nov 2002 19:09:17 -0500
-From: "Billy Rose" <billyrose@billyrose.net>
+	id <S267194AbSK3AHm>; Fri, 29 Nov 2002 19:07:42 -0500
+Received: from mailrelay.tu-graz.ac.at ([129.27.3.7]:7041 "EHLO
+	mailrelay.tugraz.at") by vger.kernel.org with ESMTP
+	id <S267193AbSK3AHl>; Fri, 29 Nov 2002 19:07:41 -0500
+Date: Sat, 30 Nov 2002 01:08:40 +0100 (CET)
+From: Martin Pirker <crf@sbox.tugraz.at>
+X-X-Sender: crf@pluto.tugraz.at
 To: linux-kernel@vger.kernel.org
-CC: cisos@bigpond.net.au
-Reply-To: billyrose@billyrose.net
-Subject: RE: kernel module and user space functions
-X-Mailer: NeoMail 1.25
-X-IPAddress: 65.132.64.26
+Subject: cache size misdetected with 2.4.20 + P3m
+Message-ID: <Pine.LNX.4.44.0211300056180.29587-100000@pluto.tugraz.at>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Message-Id: <E18HvJH-0001v6-00@host.ehost4u.biz>
-Date: Fri, 29 Nov 2002 19:16:39 -0500
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - host.ehost4u.biz
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [32076 2072] / [32076 2072]
-X-AntiAbuse: Sender Address Domain - host.ehost4u.biz
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> How can I get a kernel module to use functions within an executable,
-> please reply with example?
 
-Check out the source code for Tux. There's far too much to explain in 
-an email.
+Hi...
 
-Billy Rose
+just did an update from 2.4.17 to 2.4.20 + cpufreq 2.4.20-rc3-1
+
+2.4.17:
+
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 6
+model           : 11
+model name      : Intel(R) Pentium(R) III Mobile CPU       933MHz
+stepping        : 1
+cpu MHz         : 930.254
+cache size      : 512 KB
+....
+
+2.4.20:
+
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 6
+model           : 11
+model name      : Intel(R) Pentium(R) III Mobile CPU       933MHz
+stepping        : 1
+cpu MHz         : 930.255
+cache size      : 32 KB
+
+
+chipset (if that matters): 830M
+tried with cpufreq enabled and without
+
+Question: Where has the cache gone? Is this just wrong in /proc/cpuinfo
+or are really just 32KB used? (and how to test this?)
+
+Martin
+

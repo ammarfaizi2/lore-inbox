@@ -1,50 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264542AbUEaFf2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264541AbUEaFpm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264542AbUEaFf2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 May 2004 01:35:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264550AbUEaFf2
+	id S264541AbUEaFpm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 May 2004 01:45:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264531AbUEaFpm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 May 2004 01:35:28 -0400
-Received: from wombat.indigo.net.au ([202.0.185.19]:17936 "EHLO
-	wombat.indigo.net.au") by vger.kernel.org with ESMTP
-	id S264542AbUEaFfW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 May 2004 01:35:22 -0400
-Date: Mon, 31 May 2004 13:44:40 +0800 (WST)
-From: Ian Kent <raven@themaw.net>
-X-X-Sender: raven@wombat.indigo.net.au
-To: ndiamond@despammed.com
-cc: linux-kernel@vger.kernel.org
-Subject: Re: How to use floating point in a module?
-In-Reply-To: <200405310250.i4V2ork05673@mailout.despammed.com>
-Message-ID: <Pine.LNX.4.58.0405311340450.4198@wombat.indigo.net.au>
-References: <200405310250.i4V2ork05673@mailout.despammed.com>
+	Mon, 31 May 2004 01:45:42 -0400
+Received: from dns1.vodatel.hr ([217.14.208.29]:2518 "EHLO dns1.vodatel.hr")
+	by vger.kernel.org with ESMTP id S264541AbUEaFpj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 May 2004 01:45:39 -0400
+From: "Tvrtko A. =?iso-8859-2?q?Ur=B9ulin?=" <tvrtko.ursulin@zg.htnet.hr>
+To: linux-kernel@vger.kernel.org
+Subject: Re: dma ripping
+Date: Mon, 31 May 2004 07:19:04 +0200
+User-Agent: KMail/1.6.2
+Cc: Philip Dodd <phil.lists@two-towers.net>, Jens Axboe <axboe@suse.de>,
+       Hugo Mills <hugo-lkml@carfax.org.uk>, Daniele Bernardini <db@sqbc.com>
+References: <1084548566.12022.57.camel@linux.site> <20040520133437.GH1952@suse.de> <40BA1B9B.9070805@two-towers.net>
+In-Reply-To: <40BA1B9B.9070805@two-towers.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-2.5, required 8,
-	EMAIL_ATTRIBUTION, IN_REP_TO, QUOTED_EMAIL_TEXT, REFERENCES,
-	REPLY_WITH_QUOTES, USER_AGENT_PINE)
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200405310719.04841.tvrtko.ursulin@zg.htnet.hr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 30 May 2004 ndiamond@despammed.com wrote:
 
-> 
-> Yes, if we use a real-time Linux and make a daemon cooperate very closely
-> with the driver.
-> 
-> >Maybe you could use lookup tables instead of doing floating point
-> >arithmetic.
-> 
-> You might be right, if the device can only be controlled to position itself
-> in say 1,000 different ways, then we could have lookup tables for 1,000
-> different intervals of (emulations of) floating-point numbers, that yield
-> 1,000 different values of sin.  Another table for cos, another for log10,
-> etc.  But I'd still have to write my own emulations for binary operators
-> such as +, /, etc., since a 1,000*1,000 lookup table would be too big.
+> symptoms as before - ie. certain CDs will cause the "kernel: cdrom:
+> dropping to single frame dma", and all ripping form that point on until
+> reboot will just rip to silence (I have one test case that does it 75%
+> of the way through track 4, as regular as clockwork, but several other
 
-Why not scaled longs (or bigger), scalled to number of significant 
-digits. The Taylor series for the trig functions might be a painfull.
+I have the same problem. Kernel is 2.6.6.
 
-Ian
+May 29 16:35:56 sol kernel: hdc: ATAPI 24X DVD-ROM CD-R/RW drive, 2048kB 
+Cache, UDMA(33)
+
+Error:
+
+May 29 16:13:32 sol kernel: cdrom: dropping to single frame dma
+
+And after that I got some:
+
+May 29 16:35:04 sol kernel: hdc: command error: error=0x54
+May 29 16:35:04 sol kernel: end_request: I/O error, dev hdc, sector 0
+May 29 16:35:04 sol kernel: Buffer I/O error on device hdc, logical block 0
+May 29 16:35:04 sol kernel: hdc: command error: status=0x51 { DriveReady 
+SeekComplete Error }
+
+Temporary solution was:
+
+rmmod ide-cd
+modprobe ide-cd
 

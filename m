@@ -1,19 +1,22 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130469AbQLEEBv>; Mon, 4 Dec 2000 23:01:51 -0500
+	id <S130552AbQLEESG>; Mon, 4 Dec 2000 23:18:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130579AbQLEEBm>; Mon, 4 Dec 2000 23:01:42 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:1714 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S130469AbQLEEB2>;
-	Mon, 4 Dec 2000 23:01:28 -0500
-Date: Mon, 4 Dec 2000 22:31:00 -0500 (EST)
+	id <S130579AbQLEER4>; Mon, 4 Dec 2000 23:17:56 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:33994 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S130552AbQLEERv>;
+	Mon, 4 Dec 2000 23:17:51 -0500
+Date: Mon, 4 Dec 2000 22:42:06 -0500 (EST)
 From: Alexander Viro <viro@math.psu.edu>
 To: Linus Torvalds <torvalds@transmeta.com>
-cc: Andrew Morton <andrewm@uow.edu.au>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] inode dirty blocks
-In-Reply-To: <Pine.LNX.4.10.10012041840240.1904-100000@penguin.transmeta.com>
-Message-ID: <Pine.GSO.4.21.0012042211310.7166-100000@weyl.math.psu.edu>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Alexander Viro <aviro@redhat.com>, Andrew Morton <andrewm@uow.edu.au>,
+        "Stephen C. Tweedie" <sct@redhat.com>, Alan Cox <alan@redhat.com>,
+        Christoph Rohland <cr@sap.com>, Rik van Riel <riel@conectiva.com.br>,
+        MOLNAR Ingo <mingo@chiara.elte.hu>
+Subject: Re: test12-pre5
+In-Reply-To: <Pine.LNX.4.10.10012041906510.2047-100000@penguin.transmeta.com>
+Message-ID: <Pine.GSO.4.21.0012042232220.7166-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -24,37 +27,20 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 On Mon, 4 Dec 2000, Linus Torvalds wrote:
 
 > 
-> 
-> On Tue, 5 Dec 2000, Andrew Morton wrote:
-> > 
-> > 	- test12-pre4
-> > 	- aviro bforget patch 
-> 
-> Is the bforget patch really needed?
-> 
-> If clear_inode() gets rid of dirty buffers, I don't see how new dirty
-> buffers can magically appear. I may have missed part of the discussion on
-> all this.
+> Ok, this contains one of the fixes for the dirty inode buffer list (the
+> other fix is pending, simply because I still want to understand why it
+> would be needed at all). Al?
 
-Well, to start with you don't want random bh's floating around on the
-inode's list. With the current code truncate()+fsync() can send a lot
-of already freed stuff to disk. Even though we can survive that (making
-clear_inode() to get rid of the list will save you from corruption)...
-it doesn't look like a good idea.
+See previous posting. BTW, -pre5 doesn't do the right thing in clear_inode().
 
-BTW, in the current form clear_inode() doesn't get rid of the dirty
-buffers. It misses the pages that became anonymous and it misses the
-metadata that became freed. We can do that, but I'ld rather avoid
-leaving these buffer_heads on the inode's list - stuff that got freed
-has no business to be accessible from in-core inode.
+Scenario: bh of indirect block is busy (whatever reason, flush_dirty_buffers(),
+anything that can bump ->b_count for a while). ext2_truncate() frees the
+thing and does bforget(). bh is left on the inode's list. Woops...
 
-> I think that the second patch from Al (the inode dirty meta-data) is the
-> _real_ fix, and I don't see why the bforget changes should matter.
+The minimal fix would be to make clear_inode() empty the list. IMO it's
+worse than preventing the freed stuff from being on that list...
 
-We can survive without them (modulo patch to clear_inode()), but...
-BTW, there is another reason why we want to have separate function
-for freeing the stuff: we may want to mark them clean. If they are
-already under IO it will do nothing, but if they are merely dirty...
+Comments?
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

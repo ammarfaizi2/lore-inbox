@@ -1,90 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263133AbTI3G72 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 02:59:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263135AbTI3G72
+	id S263155AbTI3HKY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 03:10:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263153AbTI3HKY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 02:59:28 -0400
-Received: from [195.249.40.37] ([195.249.40.37]:29452 "HELO nettonet.dk")
-	by vger.kernel.org with SMTP id S263133AbTI3G70 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 02:59:26 -0400
-From: Simon Ask Ulsnes <simon@ulsnes.dk>
-To: Matt Gibson <gothick@gothick.org.uk>
-Subject: Re: Complaint: Wacom driver in 2.6
-Date: Tue, 30 Sep 2003 08:59:23 +0200
-User-Agent: KMail/1.5.4
-References: <200309291421.45692.simon@ulsnes.dk> <200309291956.27688.gothick@gothick.org.uk>
-In-Reply-To: <200309291956.27688.gothick@gothick.org.uk>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 30 Sep 2003 03:10:24 -0400
+Received: from mail.actcom.co.il ([192.114.47.13]:58272 "EHLO
+	smtp1.actcom.net.il") by vger.kernel.org with ESMTP id S263155AbTI3HKP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Sep 2003 03:10:15 -0400
+Date: Tue, 30 Sep 2003 10:10:05 +0300
+From: Muli Ben-Yehuda <mulix@mulix.org>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Andrew Morton <akpm@osdl.org>, Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] document optimizing macro for translating PROT_ to VM_ bits
+Message-ID: <20030930071005.GY729@actcom.co.il>
+References: <20030929090629.GF29313@actcom.co.il> <20030929153437.GB21798@mail.jlokier.co.uk>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="hEi834+foqWOL7fK"
 Content-Disposition: inline
-Message-Id: <200309300859.23281.simon@ulsnes.dk>
+In-Reply-To: <20030929153437.GB21798@mail.jlokier.co.uk>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for replying.
-You aren't even using the wacom driver!
-Mine works too in that way (I think it is some kind of regular PS/2 mouse 
-emulation or so).
 
-Come to think of it, maybe the problem lies in the XFree86 driver, which I 
-suppose isn't really compatible with the new kernel. Well, whatayaknow... ;-)
+--hEi834+foqWOL7fK
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-- Simon
+On Mon, Sep 29, 2003 at 04:34:37PM +0100, Jamie Lokier wrote:
 
-On Monday 29 September 2003 20:56, you wrote:
-> On Monday 29 Sep 2003 13:21, Simon Ask Ulsnes wrote:
-> > Hello there!
-> > I am the lucky owner of a Wacom Graphire 2 tablet, which works great with
-> > the latest 2.4-kernels. However, the 2.6-drive is unusually and utterly
-> > broken. Frankly, it doesn't work at all.
->
-> If it's any hope for you, I'm using the Wacom driver with an original
-> Graphire, and it's working OK for me.  I'm currently on 2.6.0-test5, and
-> I'm pretty sure I'm using the vanilla wacom.c (it's version 1.30 according
-> to the comments.)
->
-> If you want any info about how I've got things configured, feel free to
-> give me a shout.  In particular, I've got these relevant entries in my
-> XF86Config:
->
-> # Our ordinary PS/2 and Wacom mice; they're both multiplexed into
-> # /dev/mice by the kernel input event handling.
-> Section "InputDevice"
->   Driver       "mouse"
->   Identifier   "Mouse[1]"
->   Option       "ButtonNumber" "5"
->   Option       "Device" "/dev/input/mice"
->   Option       "Name" "Autodetection"
->   Option       "Protocol" "imps/2"
->   Option       "Vendor" "Random"
->   Option       "ZAxisMapping" "4 5"
-> EndSection
->
-> Goodness knows if I need half those options set up; it's a
-> much-hacked-about-with old file that was originally set up by the SuSE SaX2
-> configuration tool, about three years ago!  But I tend to live by "if it
-> ain't broke, don't fix it."  I guess the important thing I did to get it
-> working under 2.6.0 was just to drop all the event interface crap and just
-> run it off /dev/input/mice, which is where the kernel happily feeds all the
-> wacom input through into.
->
-> Section "ServerLayout"
-> 	... other stuff deleted ...
->   InputDevice  "Mouse[1]" "CorePointer"
-> EndSection
->
-> That's all I needed to get the mouse and pen working.  Of course, to go the
-> whole hog and get the pressure sensitive stuff and the pointer vs. eraser
-> functionality etc. you'd need to use the X11 wacom driver, but I've never
-> actually felt the need.
->
-> Cheers,
->
-> Matt
+> I agree with the intent of that comment, but the code in it is
+> unnecessarily complex.  See if you like this, and if you do feel free
+> to submit it as a patch:
+
+Ah, much nicer, thank you. I'll submit it, but first, what do you
+think about this version? it keeps the optimization and enforces the
+"bit1 and bit2 must be single bits only" rule. It could probably be
+improved to be done at  build time, if bit1 and bit2 and compile time
+constants. Against 2.6.0-t6-cvs, compiles and boots for me.=20
+
+--- linux-2.5/include/linux/mman.h	Sun Sep  7 10:05:18 2003
++++ calc-vm-bit-optimizing-macro-2.6.0-t6//include/linux/mman.h	Tue Sep 30 =
+10:02:01 2003
+@@ -28,10 +28,28 @@
+ 	vm_acct_memory(-pages);
+ }
+=20
+-/* Optimisation macro. */
+-#define _calc_vm_trans(x,bit1,bit2) \
+-  ((bit1) <=3D (bit2) ? ((x) & (bit1)) * ((bit2) / (bit1)) \
+-   : ((x) & (bit1)) / ((bit1) / (bit2)))
++/*=20
++ * assert that only a single bit is on in 'bit'=20
++ */=20
++static inline void assert_single_bit(unsigned long bit)
++{
++	BUG_ON(bit & (bit - 1));=20
++}
++/*=20
++ * Optimisation function.  It is equivalent to:=20
++ *      (x & bit1) ? bit2 : 0
++ * but this version is faster. =20
++ * ("bit1" and "bit2" must be single bits).=20
++ */
++static inline unsigned long=20
++_calc_vm_trans(unsigned long x, unsigned long bit1, unsigned long bit2)=20
++{
++	assert_single_bit(bit1);=20
++	assert_single_bit(bit2);=20
++
++	return ((bit1) <=3D (bit2) ? ((x) & (bit1)) * ((bit2) / (bit1))
++		: ((x) & (bit1)) / ((bit1) / (bit2)));=20
++}
+=20
+ /*
+  * Combine the mmap "prot" argument into "vm_flags" used internally.
+
+--=20
+Muli Ben-Yehuda
+http://www.mulix.org
 
 
+--hEi834+foqWOL7fK
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQE/eSxNKRs727/VN8sRAlKEAJsEfT8ClNMJlAATMDJMxThED+noiACeKFjG
+PM4npbA6b4mWKD3tz4xsZ9E=
+=Axi0
+-----END PGP SIGNATURE-----
+
+--hEi834+foqWOL7fK--

@@ -1,95 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263319AbTGKPV0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jul 2003 11:21:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263354AbTGKPV0
+	id S263355AbTGKPXV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jul 2003 11:23:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263398AbTGKPXV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 11:21:26 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:50624 "EHLO
-	smtp.bitmover.com") by vger.kernel.org with ESMTP id S263319AbTGKPVY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 11:21:24 -0400
-Date: Fri, 11 Jul 2003 08:35:57 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Jon Masters <jonathan@jonmasters.org>
-Cc: linux-kernel@vger.kernel.org, jcm@printk.net
-Subject: Re: Stripped binary insertion with the GNU Linker suggestions (fwd)
-Message-ID: <20030711153557.GB30378@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Jon Masters <jonathan@jonmasters.org>, linux-kernel@vger.kernel.org,
-	jcm@printk.net
-References: <Pine.LNX.4.10.10307111619290.25244-100000@router>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.10.10307111619290.25244-100000@router>
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
-	required 7, AWL, DATE_IN_PAST_06_12)
+	Fri, 11 Jul 2003 11:23:21 -0400
+Received: from blackbird.intercode.com.au ([203.32.101.10]:61446 "EHLO
+	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
+	id S263355AbTGKPXP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jul 2003 11:23:15 -0400
+Date: Sat, 12 Jul 2003 01:37:44 +1000 (EST)
+From: James Morris <jmorris@intercode.com.au>
+To: Jim Keniston <jkenisto@us.ibm.com>
+cc: LKML <linux-kernel@vger.kernel.org>, <netdev@oss.sgi.com>,
+       Andrew Morton <akpm@osdl.org>, "David S. Miller" <davem@redhat.com>,
+       Jeff Garzik <jgarzik@pobox.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Randy Dunlap <rddunlap@osdl.org>, <kuznet@ms2.inr.ac.ru>
+Subject: Re: [PATCH - RFC] [1/2] 2.6 must-fix list - kernel error reporting
+In-Reply-To: <3F0DB9A5.23723BE1@us.ibm.com>
+Message-ID: <Mutt.LNX.4.44.0307120135120.21806-100000@excalibur.intercode.com.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 11, 2003 at 04:19:55PM +0100, Jon Masters wrote:
-> I have seen other nasty ways to do this involving converting the image to
-> byte values in very large arrays or inserting literal byte values in to
-> the output file but there just has to be a generic method for inserting
-> an image in to the middle of an output file.
+On Thu, 10 Jul 2003, Jim Keniston wrote:
 
-No, there isn't, at least I haven't found one.  The BK installer does 
-exactly what you want (and you can have the source if you like, BSD 
-license) on the platforms listed below.  We had to play some nasty 
-games to make this work, I believe it was HP-UX which "knew" that your
-array was full of zeros and did not allocate it, it did it at runtime.
-Any sort of predictable pattern it figured out, the following fools it
-for now:
+> James Morris wrote:
+> > 
+> > On Tue, 8 Jul 2003, Jim Keniston wrote:
+> > 
+> > +       kerror_nl = netlink_kernel_create(NETLINK_KERROR, kerror_netlink_rcv);
+> > +       if (kerror_nl == NULL)
+> > +               panic("kerror_init: cannot initialize kerror_nl\n");
+> > 
+> > You can simply use NULL instead of passing the dummy kerror_netlink_rcv
+> > function.
+> 
+> That begs the question: do we trust that nobody but the kernel will send
+> packets to a NETLINK_KERROR socket?  Ordinary users can't, but any root
+> application can.  Without kerror_netlink_rcv(), such packets don't get
+> dequeued.
 
-unsigned char data_data[3866327] = {
-        255,
-        6,
-        1,
-        2,
-        3,
-        4,
-        255,
-        3,
-        9,
-        62,
-        255,
-        10,
-        4,
-        61,
-        255,
-};
+Indeed, the kernel socket buffer fills up.
 
-platforms that this technique works on:
+I think this needs to be addressed in the netlink code, per the patch 
+below.
 
-    alpha-glibc22-linux
-    alpha-osf5.1
-    arm-glibc21-linux
-    hppa-glibc22-linux
-    hppa-hpux
-    ia64-glibc22-linux
-    mips-glibc22-linux
-    mips-irix
-    mipsel-glibc20-linux
-    powerpc-aix
-    powerpc-darwin6.6
-    powerpc-glibc21-linux
-    sparc-glibc21-linux
-    sparc-solaris
-    x86-freebsd2.2.8
-    x86-freebsd3.2
-    x86-freebsd4.1
-    x86-glibc20-linux
-    x86-glibc21-linux
-    x86-glibc22-linux
-    x86-netbsd
-    x86-openbsd
-    x86-sco3.2v5.0.7
-    x86-solaris
+Comments?
 
+
+- James
 -- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+James Morris
+<jmorris@intercode.com.au>
+
+diff -NurX dontdiff linux-2.5.75.orig/net/netlink/af_netlink.c linux-2.5.75.w1/net/netlink/af_netlink.c
+--- linux-2.5.75.orig/net/netlink/af_netlink.c	2003-06-26 12:43:45.000000000 +1000
++++ linux-2.5.75.w1/net/netlink/af_netlink.c	2003-07-12 01:23:49.708254261 +1000
+@@ -430,6 +430,10 @@
+ 		goto no_dst;
+ 	nlk = nlk_sk(sk);
+ 
++	/* Don't bother queuing skb if kernel socket has no input function */
++        if (nlk->pid == 0 && !nlk->data_ready)
++        	goto no_dst;
++
+ #ifdef NL_EMULATE_DEV
+ 	if (nlk->handler) {
+ 		skb_orphan(skb);
+

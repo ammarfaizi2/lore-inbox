@@ -1,93 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262407AbVC3TNN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262414AbVC3TRA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262407AbVC3TNN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 14:13:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262404AbVC3TJz
+	id S262414AbVC3TRA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 14:17:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262383AbVC3TN3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 14:09:55 -0500
-Received: from smtp003.mail.ukl.yahoo.com ([217.12.11.34]:9872 "HELO
-	smtp003.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S262407AbVC3TGS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 14:06:18 -0500
-From: Blaisorblade <blaisorblade@yahoo.it>
-To: user-mode-linux-devel@lists.sourceforge.net
-Subject: Re: [uml-devel] Re: [patch 03/12] uml: export getgid for hostfs
-Date: Wed, 30 Mar 2005 20:05:26 +0200
-User-Agent: KMail/1.7.2
-Cc: Christoph Hellwig <hch@infradead.org>, akpm@osdl.org, jdike@addtoit.com,
-       linux-kernel@vger.kernel.org
-References: <20050322162123.890086BA6F@zion> <200503240302.29153.blaisorblade@yahoo.it> <20050329114529.GA26005@infradead.org>
-In-Reply-To: <20050329114529.GA26005@infradead.org>
+	Wed, 30 Mar 2005 14:13:29 -0500
+Received: from hermes.domdv.de ([193.102.202.1]:49412 "EHLO hermes.domdv.de")
+	by vger.kernel.org with ESMTP id S262411AbVC3TLD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 14:11:03 -0500
+Message-ID: <424AF9C3.4000905@domdv.de>
+Date: Wed, 30 Mar 2005 21:10:59 +0200
+From: Andreas Steinmetz <ast@domdv.de>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050308)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+CC: vojtech@suse.cz, dtor_core@ameritech.net, acpi-devel@lists.sourceforge.net
+Subject: 2.6.11 acpi battery state readout as source of keyboard/touchpad
+ troubles
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-15
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200503302005.26311.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 29 March 2005 13:45, Christoph Hellwig wrote:
-> On Thu, Mar 24, 2005 at 03:02:28AM +0100, Blaisorblade wrote:
-> > In this moment I need to clean up the missing symbol. If anyone wants to
-> > remove the code using this, then he might post a patch explictly removing
-> > it, and getting it refused probably.
-> >
-> > Or at least CC uml-devel when discussing those problems. I'm not
-> > currently able to find on marc.theaimsgroup.com the mail you talk about.
-> > Can you please provide the URL to the discussion? (even on any other
-> > archive you like, obviously).
->
-> My unaswered reply to the first submission is at
->
-> http://groups-beta.google.com/group/linux.kernel/messages/de9504fe5963ccd1,
->0c05294c599b22b1,eab26a4ed3f8ff17?thread_id=16c905c7e28e7498&mode=thread&noh
->eader=1&q=uml-export-getgid-for-hostfs#doc_eab26a4ed3f8ff17
->
-> (sorry, couldn't find it on marc), it's been Cc'ed to the lists you sent
-> the patch to.
-Sorry, I wasn't clear... I read *that* answer, but it says "as mentioned in 
-the discussion about ROOT_DEV", and I couldn't find it.
+In traceing the source of my sporadic synaptics touchpad troubles
 
-Also, I'd like to know whether there's a correct way to implement this (using 
-something different than root_dev, for instance the init[1] root directory 
-mount device). I understand that with the possibility for multiple mounts the 
-"root device" is more difficult to know (and maybe this is the reason for 
-which ROOT_DEV is bogus, is this?), but at least a check on the param 
-"rootfstype=hostfs" could be done.
+psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 1
+psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 1
+psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 1
+psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 1
+psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 1
+psmouse.c: TouchPad at isa0060/serio4/input0 - driver resynched.
 
-> > That said, there are people still using that code, so it should be kept
-> > in.
->
-> But the code is totally bogus, so it should _not_ be kept.
->
-> > Also, you blocked an important patch (the one adding ->release to
-> > hw_interrupt_type) saying that *perhaps* UML should avoid having any hard
-> > irq, a la S390. You forced so the merge of a very ugly patch manually
-> > calling what should have been UML's release method (i.e.
-> > free_irq_by_irq_and_dev) in every place calling free_irq() (and in fact
-> > one was missed at first). Might you reconsider your position on that
-> > issue ? (URL of the discussion below)
-> >
-> > http://marc.theaimsgroup.com/?l=linux-kernel&w=2&r=3&s=uml+irq&q=b
-> >
-> > The patch adding the generic handling is this one:
-> >
-> > http://marc.theaimsgroup.com/?l=linux-kernel&m=109834481320519&w=2
->
-> I still think it's a really bad idea.
-Hmm, you don't seem very talkative, sorry. You can explain why doing that 
-hurts anyhow. You only said very vaguely "there is another way to do 
-this" (still to prove). And actually this caused the merge, in place of that 
-clean patch, of the current hack, described above in the quoted text.
+and keyboard troubles (sporadically lost key up/down events) on an Acer
+Aspire 1520 (x86_64, latest bios v1.09) I did enable the
+report_lost_ticks option which did spit out stuff like the following at
+regular intervals:
 
-> But I'm not the irq code maintainer, 
-> it could very well be Ingo overrides me.
+time.c: Lost 17 timer tick(s)! rip handle_IRQ_event+0x20/0x60)
+time.c: Lost 8 timer tick(s)! rip handle_IRQ_event+0x20/0x60)
+time.c: Lost 19 timer tick(s)! rip handle_IRQ_event+0x20/0x60)
+time.c: Lost 8 timer tick(s)! rip handle_IRQ_event+0x20/0x60)
+time.c: Lost 18 timer tick(s)! rip handle_IRQ_event+0x20/0x60)
+time.c: Lost 8 timer tick(s)! rip handle_IRQ_event+0x20/0x60)
 
-Ok, this is nice. I'll repost the (updated) patch CC'ing Ingo Molnar (unless 
-there's another Ingo).
+This looked suspiciously like it happended when the the kde laptop
+applet polled the battery status. So I did terminate the applet.
+
+The result was no more lost ticks, no lost keyboard events and no more
+lost touchpad sync.
+
+To verify ACPI battery data as the source of trouble i did a simple
+
+cat /proc/acpi/battery/BAT0/state
+
+which instantly resulted in:
+
+time.c: Lost 19 timer tick(s)! rip handle_IRQ_event+0x20/0x60)
+
+So it seems ACPI battery readout does cause some long running interrupt
+disable and that it causes nasty side effects for the 8042 input.
+
+Note that doing
+
+cat /proc/acpi/battery/BAT0/info
+
+doesn't cause any trouble (battery alarm is unsupported).
+
+I can ignore the lost ticks but the keyboard/touchpad problems caused by
+the state readout are definitely nasty.
+
+Any ideas?
 -- 
-Paolo Giarrusso, aka Blaisorblade
-Linux registered user n. 292729
-http://www.user-mode-linux.org/~blaisorblade
-
+Andreas Steinmetz                       SPAMmers use robotrap@domdv.de

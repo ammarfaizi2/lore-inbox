@@ -1,50 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129383AbRAIKsl>; Tue, 9 Jan 2001 05:48:41 -0500
+	id <S129413AbRAIKtL>; Tue, 9 Jan 2001 05:49:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129413AbRAIKsb>; Tue, 9 Jan 2001 05:48:31 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:35968 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S129383AbRAIKsT>;
-	Tue, 9 Jan 2001 05:48:19 -0500
-Date: Tue, 9 Jan 2001 02:31:13 -0800
-Message-Id: <200101091031.CAA01242@pizda.ninka.net>
-From: "David S. Miller" <davem@redhat.com>
-To: hch@caldera.de
-CC: mingo@elte.hu, riel@conectiva.com.br, netdev@oss.sgi.com,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20010109113145.A28758@caldera.de> (message from Christoph
-	Hellwig on Tue, 9 Jan 2001 11:31:45 +0100)
-Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
-In-Reply-To: <Pine.LNX.4.21.0101081603080.21675-100000@duckman.distro.conectiva> <Pine.LNX.4.30.0101091051460.1159-100000@e2> <20010109113145.A28758@caldera.de>
+	id <S129749AbRAIKtH>; Tue, 9 Jan 2001 05:49:07 -0500
+Received: from ezri.xs4all.nl ([194.109.253.9]:10719 "HELO ezri.xs4all.nl")
+	by vger.kernel.org with SMTP id <S129413AbRAIKs4>;
+	Tue, 9 Jan 2001 05:48:56 -0500
+Date: Tue, 9 Jan 2001 11:48:53 +0100 (CET)
+From: Eric Lammerts <eric@lammerts.org>
+To: Stefan Traby <stefan@hello-penguin.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: `rmdir .` doesn't work in 2.4
+In-Reply-To: <20010109090936.A2900@stefan.sime.com>
+Message-ID: <Pine.LNX.4.31.0101091146330.4632-100000@ally.lammerts.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   Date: Tue, 9 Jan 2001 11:31:45 +0100
-   From: Christoph Hellwig <hch@caldera.de>
 
-   Yuck.  A new file_opo just to get a few benchmarks right ...  I
-   hope the writepages stuff will not be merged in Linus tree (but I
-   wish the code behind it!)
+On Tue, 9 Jan 2001, Stefan Traby wrote:
+> "rmdir `pwd`" is required to fail (at least under csh, bash, ksh) if the
+> path component contains a white space and thereof it can't be a valid
+> replacement for Andreas "rmdir ." which was what Al initially suggested.
+>
+> Yes, I'm very pickey about that; but hey, I don't want to force anyone
+> to write GNU/Linux like rms; just valid shell code. :)
 
-It's a "I know how to send a page somewhere via this filedescriptor
-all by myself" operation.  I don't see why people need to take
-painkillers over this for 2.4.x.  I think f_op->write is stupid, such
-a special case file operation just to get a few benchmarks right.
-This is the kind of argument I am hearing.
+Of course you should do rmdir "`pwd`"
+But this is a userspace issue.
 
-Orthogonal to f_op->write being for specifying a low-level
-implementation of sys_write, f_op->writepage is for specifying a
-low-level implementation of sys_sendfile.  Can you grok that?
+Eric
 
-Linus has already seen this.  Originally he had a gripe because in an
-older revision of the code used to allow multiple pages to be passed
-in an array to the writepage(s) operation.  He didn't like that, so I
-made it take only one page as he requested.  He had no other major
-objections to the infrastructure.
-
-Later,
-David S. Miller
-davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

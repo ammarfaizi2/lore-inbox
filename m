@@ -1,181 +1,220 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132369AbRACPfE>; Wed, 3 Jan 2001 10:35:04 -0500
+	id <S132405AbRACPfn>; Wed, 3 Jan 2001 10:35:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132370AbRACPen>; Wed, 3 Jan 2001 10:34:43 -0500
-Received: from mailout04.sul.t-online.com ([194.25.134.18]:31237 "EHLO
-	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S132369AbRACPek>; Wed, 3 Jan 2001 10:34:40 -0500
-Date: Wed, 3 Jan 2001 16:03:59 +0100
-From: Sebastian Wenzler <wenzler@innnet.de>
-To: linux-kernel@vger.kernel.org
-Subject: PROBLEM: kernel oops with Linux 2.2.16 shortly after misc cronjob start
-Message-Id: <20010103160359.03f06eda.wenzler@innnet.de>
-X-Mailer: Sylpheed version 0.4.9 (GTK+ 1.2.8; Linux 2.2.18; i686)
-Organization: InnNet Internet Services GmbH
+	id <S132345AbRACPff>; Wed, 3 Jan 2001 10:35:35 -0500
+Received: from netsrvr.ami.com.au ([203.55.31.38]:21104 "EHLO
+	netsrvr.ami.com.au") by vger.kernel.org with ESMTP
+	id <S132370AbRACPfW>; Wed, 3 Jan 2001 10:35:22 -0500
+Message-Id: <200101031330.f03DU4Q02199@emu.os2.ami.com.au>
+X-Mailer: exmh version 2.1.1 10/15/1999
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Kernel 2.4.0-test12 hang
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 03 Jan 2001 21:30:29 +0800
+From: John Summerfield <summer@OS2.ami.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-1. Kernel oopses after cronjob starts
+This kernel
+VERSION = 2
+PATCHLEVEL = 4
+SUBLEVEL = 0
+EXTRAVERSION = -test12
 
-2. I recently noticed that my maschine crashes exactly on cronjob times.
-It seems to me that it is mainly caused (because it happened 2 times at 4 o clock) by
-the mandrake security scripts i installed (msec-0.9-14mdk) - after some network failure
-(eg router going crazy or ircd crashing) between 1 and 4 o clock the included portscan(I! asume)
-triggers the kernel oops. Perhaps another thing that may urge this is portsentry 1.0 that
-keeps lots of ports open for scandetection.
+Sometimes locks solid (alt-sysrq doesn't work), sometimes less so (alt-sysrq 
+does work) but more often reboots when a user (me with my usual account, me 
+with an alternate little-user account) logs in and starts XFree, or logs in 
+through kdm.
 
-4. Linux version 2.2.16 (root@keule.aii.at) (gcc version egcs-2.91.66 19990314/Linux (egcs-1.1.2 release)) #2 Fri Jun 9 23:08:15 CEST 2000
-The kernel includes the openwall patch.
-IPV6 is enabled but not used(afaik)
+I've reverted to an earlier build (vmlinuz.old) of the same kernel and all is 
+well again.
 
-5.
-OOPS:
----
-Dec 18 01:00:10 keule kernel: Unable to handle kernel paging request at virtual address 050b80c0 
-Dec 18 01:00:10 keule kernel: current->tss.cr3 = 00101000, %%cr3 = 00101000 
-Dec 18 01:00:10 keule kernel: *pde = 00000000 
-Dec 18 01:00:10 keule kernel: Oops: 0000 
-Dec 18 01:00:10 keule kernel: CPU:    0 
-Dec 18 01:00:10 keule kernel: EIP:    0010:[dput+14/328] 
-Dec 18 01:00:10 keule kernel: EFLAGS: 00010286 
-Dec 18 01:00:10 keule kernel: eax: c50b813c   ebx: 050b80c0   ecx: c50b8fc0   edx: c50b81bc 
-Dec 18 01:00:10 keule kernel: esi: 050b80c0   edi: c50b80c0   ebp: 00000001   esp: c09fff5c 
-Dec 18 01:00:10 keule kernel: ds: 0018   es: 0018   ss: 0018 
-Dec 18 01:00:10 keule kernel: Process sh (pid: 23902, process nr: 101, stackpage=c09ff000) 
-Dec 18 01:00:10 keule kernel: Stack: c0123d4a c50b80c0 c6b6aec0 00000000 c50b80c0 c0124df7 c6b6aec0 c6b6aec0  
-Dec 18 01:00:10 keule kernel:        c6b6aec0 c0123da6 c6b6aec0 00200087 00000000 c7395be0 c0116311 c6b6aec0  
-Dec 18 01:00:10 keule kernel:        c7395be0 c09fe000 0021e57c 00000000 bffffde8 00000000 c09fe000 c011646b  
-Dec 18 01:00:10 keule kernel: Call Trace: [__fput+62/72] [fput+23/72] [filp_close+82/92] [do_exit+297/628] [sys_exit+15/16] [system_call+52/56]  
-
----
-Jan  3 04:02:35 keule kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000012 
-Jan  3 04:02:35 keule kernel: current->tss.cr3 = 05e34000, %%cr3 = 05e34000 
-Jan  3 04:02:35 keule kernel: *pde = 077cc067 
-Jan  3 04:02:35 keule kernel: *pte = 00000000 
-Jan  3 04:02:35 keule kernel: Oops: 0002 
-Jan  3 04:02:35 keule kernel: CPU:    0 
-Jan  3 04:02:35 keule kernel: EIP:    0010:[prune_dcache+126/300] 
-Jan  3 04:02:35 keule kernel: EFLAGS: 00010282 
-Jan  3 04:02:35 keule kernel: eax: c3930300   ebx: c2c05248   ecx: 00000012   edx: c2c05260 
-Jan  3 04:02:35 keule kernel: esi: c2c05228   edi: c2c05220   ebp: 000000e0   esp: c67a1e90 
-Jan  3 04:02:35 keule kernel: ds: 0018   es: 0018   ss: 0018 
-Jan  3 04:02:35 keule kernel: Process slocate (pid: 4127, process nr: 58, stackpage=c67a1000) 
-Jan  3 04:02:35 keule kernel: Stack: c01d0124 00001006 c67a1ed0 00000000 00001006 c0130be7 fffff0d9 00001006  
-Jan  3 04:02:35 keule kernel:        00000000 c01eedf8 c01d0124 c01eedf8 c7962800 c5694330 c569437c 00000000  
-Jan  3 04:02:35 keule kernel:        c67a1ed0 c67a1ed0 c0130c4e 00001006 00000000 c01eedf8 c01d0124 c01eedf8  
-Jan  3 04:02:35 keule kernel: Call Trace: [try_to_free_inodes+199/264] [grow_inodes+30/384] [get_new_inode+173/280] [get_new_inode+185/280] [iget+88/96] [ext2_lookup+84/124] [real_lookup+79/160]  
-Jan  3 04:02:35 keule kernel:        [lookup_dentry+296/488] [__namei+40/88] [sys_newlstat+14/96] [system_call+52/56]  
-Jan  3 04:02:35 keule kernel: Code: 89 01 89 56 38 89 56 3c 83 7f 1c 01 0f 94 c0 31 c9 88 c1 89  
----
-Dec 20 19:11:58 keule kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000025 
-Dec 20 19:11:58 keule kernel: current->tss.cr3 = 00c1d000, %%cr3 = 00c1d000 
-Dec 20 19:11:58 keule kernel: *pde = 0204d067 
-Dec 20 19:11:58 keule kernel: *pte = 00000000 
-Dec 20 19:11:58 keule kernel: Oops: 0000 
-Dec 20 19:11:58 keule kernel: CPU:    0 
-Dec 20 19:11:58 keule kernel: EIP:    0010:[max_select_fd+78/188] 
-Dec 20 19:11:58 keule kernel: EFLAGS: 00010a13 
-Dec 20 19:11:58 keule kernel: eax: 00000025   ebx: 00000000   ecx: c41bfee4   edx: 00000000 
-Dec 20 19:11:58 keule kernel: esi: 00000010   edi: 00000005   ebp: 00000001   esp: c41bff08 
-Dec 20 19:11:58 keule kernel: ds: 0018   es: 0018   ss: 0018 
-Dec 20 19:11:58 keule kernel: Process proxyper (pid: 22976, process nr: 58, stackpage=c41bf000) 
-Dec 20 19:11:58 keule kernel:        c012df22 00000005 c41bff70 c41bff6c 00000000 bfffefbc c41bffc0 bfffefa0  
-Dec 20 19:11:58 keule kernel:        c73cf92c c7fec400 00000004 00000001 00000006 c41bff70 00000001 c41be000  
-Dec 20 19:11:58 keule kernel: Call Trace: [sys_select+1014/1360] [old_select+86/104] [system_call+52/56]
-Dec 20 19:11:58 keule kernel: Code: 0b 14 98 89 d0 8b 55 08 0b 04 9a 21 44 24 10 74 50 8b 07 f7 
----
+I don't have the old configuration file (.config) to compare with; the config 
+that fails follows at the end of this description.
 
 
-Dec 16 13:19:34 keule kernel: Unable to handle kernel paging request at virtual address 38c4a693 
-Dec 16 13:19:34 keule kernel: current->tss.cr3 = 04285000, %%cr3 = 04285000 
-Dec 16 13:19:34 keule kernel: *pde = 00000000 
-Dec 16 13:19:34 keule kernel: Oops: 0000 
-Dec 16 13:19:34 keule kernel: CPU:    0 
-Dec 16 13:19:34 keule kernel: EIP:    0010:[iput+24/508] 
-Dec 16 13:19:34 keule kernel: EFLAGS: 00010206 
-Dec 16 13:19:34 keule kernel: eax: 38c4a67b   ebx: 00000000   ecx: c71870b0   edx: c01cd694 
-Dec 16 13:19:34 keule kernel: esi: c4d140e0   edi: c1ee62a0   ebp: bfffe4f0   esp: c542bf50 
-Dec 16 13:19:34 keule kernel: ds: 0018   es: 0018   ss: 0018 
-Dec 16 13:19:34 keule kernel: Process ftps (pid: 30881, process nr: 87, stackpage=c542b000) 
-Dec 16 13:19:34 keule kernel: Stack: c1ee62a0 c0149cf7 c4d140e0 c4d14ee0 c014a0a5 c4d14f7c c32aee60 c0123d2b  
-Dec 16 13:19:34 keule kernel:        c4d14ee0 c32aee60 c32aee60 00000000 c1ee62a0 c0124df7 c32aee60 c32aee60  
-Dec 16 13:19:34 keule kernel:        c32aee60 c0123da6 c32aee60 00000004 c32aee60 fffffff7 c0123e0d c32aee60  
-Dec 16 13:19:34 keule kernel: Call Trace: [sock_release+75/80] [sock_close+53/60] [__fput+31/72] [fput+23/72] [filp_close+82/92] [sys_close+93/104] [system_call+52/56]  
-Dec 16 13:19:34 keule kernel: Code: 8b 40 18 85 c0 74 02 89 c3 85 db 74 0d 8b 43 08 85 c0 74 06  
+What I changed is a few network options; I'm setting up to play with uml and 
+chose options to allow ethertap and TUN. I also turned on the netfilter stuff, 
+and forwarding/masq
+
+My video adaptor is i740-based, the motherboard an ASUS P2L97-S with BIOS 1010 
+beta 3 (I have been thinking of replacing my PII-233 with a Celeron, but 
+haven't done so).
 
 
-7.
-7.1
-Red Hat Linux release 6.1 (Cartman)
-vixie-cron-3.0.1-39
-crontabs-1.7-7
+CONFIG_X86=y
+CONFIG_ISA=y
+CONFIG_UID16=y
+CONFIG_EXPERIMENTAL=y
+CONFIG_MODULES=y
+CONFIG_KMOD=y
+CONFIG_M686=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_X86_L1_CACHE_SHIFT=5
+CONFIG_X86_TSC=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_PGE=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_X86_MSR=y
+CONFIG_NOHIGHMEM=y
+CONFIG_X86_UP_IOAPIC=y
+CONFIG_X86_IO_APIC=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_NET=y
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_NAMES=y
+CONFIG_HOTPLUG=y
+CONFIG_SYSVIPC=y
+CONFIG_BSD_PROCESS_ACCT=y
+CONFIG_SYSCTL=y
+CONFIG_KCORE_ELF=y
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_MISC=y
+CONFIG_PM=y
+CONFIG_ACPI=y
+CONFIG_PARPORT=m
+CONFIG_PARPORT_1284=y
+CONFIG_PNP=y
+CONFIG_BLK_DEV_FD=y
+CONFIG_BLK_DEV_LOOP=m
+CONFIG_PACKET=y
+CONFIG_NETLINK=y
+CONFIG_NETFILTER=y
+CONFIG_NETFILTER_DEBUG=y
+CONFIG_FILTER=y
+CONFIG_UNIX=y
+CONFIG_INET=y
+CONFIG_IP_MULTICAST=y
+CONFIG_IP_NF_CONNTRACK=y
+CONFIG_IP_NF_FTP=y
+CONFIG_IP_NF_IPTABLES=y
+CONFIG_IP_NF_FILTER=m
+CONFIG_IP_NF_TARGET_REJECT=m
+CONFIG_IP_NF_TARGET_MIRROR=m
+CONFIG_IP_NF_NAT=m
+CONFIG_IP_NF_NAT_NEEDED=y
+CONFIG_IP_NF_TARGET_MASQUERADE=m
+CONFIG_IP_NF_TARGET_REDIRECT=m
+CONFIG_IP_NF_MANGLE=m
+CONFIG_IP_NF_TARGET_LOG=m
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_IDEDISK_MULTI_MODE=y
+CONFIG_BLK_DEV_IDECD=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_BLK_DEV_PIIX=y
+CONFIG_PIIX_TUNING=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_IDEDMA_IVB=y
+CONFIG_BLK_DEV_IDE_MODES=y
+CONFIG_SCSI=y
+CONFIG_BLK_DEV_SD=y
+CONFIG_SD_EXTRA_DEVS=40
+CONFIG_BLK_DEV_SR=y
+CONFIG_BLK_DEV_SR_VENDOR=y
+CONFIG_SR_EXTRA_DEVS=2
+CONFIG_CHR_DEV_SG=y
+CONFIG_SCSI_DEBUG_QUEUES=y
+CONFIG_SCSI_MULTI_LUN=y
+CONFIG_SCSI_CONSTANTS=y
+CONFIG_SCSI_LOGGING=y
+CONFIG_SCSI_AIC7XXX=y
+CONFIG_AIC7XXX_TCQ_ON_BY_DEFAULT=y
+CONFIG_AIC7XXX_CMDS_PER_DEVICE=8
+CONFIG_AIC7XXX_PROC_STATS=y
+CONFIG_AIC7XXX_RESET_DELAY=5
+CONFIG_NETDEVICES=y
+CONFIG_DUMMY=m
+CONFIG_TUN=m
+CONFIG_ETHERTAP=m
+CONFIG_NET_ETHERNET=y
+CONFIG_NET_PCI=y
+CONFIG_EPIC100=y
+CONFIG_PPP=m
+CONFIG_PPP_MULTILINK=y
+CONFIG_PPP_ASYNC=m
+CONFIG_PPP_DEFLATE=m
+CONFIG_PPP_BSDCOMP=m
+CONFIG_PPPOE=m
+CONFIG_SLIP=m
+CONFIG_INPUT=y
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+CONFIG_INPUT_EVDEV=y
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_SERIAL=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_UNIX98_PTY_COUNT=256
+CONFIG_PRINTER=m
+CONFIG_MOUSE=y
+CONFIG_PSMOUSE=y
+CONFIG_AGP=m
+CONFIG_AGP_INTEL=y
+CONFIG_DRM=y
+CONFIG_AUTOFS_FS=y
+CONFIG_AUTOFS4_FS=y
+CONFIG_FAT_FS=m
+CONFIG_MSDOS_FS=m
+CONFIG_JFFS_FS_VERBOSE=0
+CONFIG_ISO9660_FS=y
+CONFIG_JOLIET=y
+CONFIG_PROC_FS=y
+CONFIG_DEVPTS_FS=y
+CONFIG_EXT2_FS=y
+CONFIG_NFS_FS=y
+CONFIG_NFSD=y
+CONFIG_SUNRPC=y
+CONFIG_LOCKD=y
+CONFIG_MSDOS_PARTITION=y
+CONFIG_NLS=y
+CONFIG_NLS_DEFAULT="iso8859-1"
+CONFIG_VGA_CONSOLE=y
+CONFIG_VIDEO_SELECT=y
+CONFIG_FB=y
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_FB_VESA=y
+CONFIG_VIDEO_SELECT=y
+CONFIG_FBCON_CFB8=y
+CONFIG_FBCON_CFB16=y
+CONFIG_FBCON_CFB24=y
+CONFIG_FBCON_CFB32=y
+CONFIG_FONT_8x8=y
+CONFIG_FONT_8x16=y
+CONFIG_SOUND=m
+CONFIG_SOUND_ES1371=m
+CONFIG_USB=y
+CONFIG_USB_DEVICEFS=y
+CONFIG_USB_UHCI_ALT=y
+CONFIG_USB_MOUSE=y
+CONFIG_MAGIC_SYSRQ=y
 
-The server uses 3 eth devices - access is limited by firewall
-services are mainly
-ssh,http,ircd,mysql,simap(stunnel),smtp
+-- 
+Cheers
+John Summerfield
+http://www2.ami.com.au/ for OS/2 & linux information.
+Configuration, networking, combined IBM ftpsites index.
+
+Note: mail delivered to me is deemed to be intended for me, for my disposition.
 
 
 
-ls /etc/cron.daily/:
----
-./   logrotate*        rdate.cron*    tmpwatch*
-../  makewhatis.cron*  slocate.cron*  webalizer.cron*
----
-
-/etc/crontab:
----
-SHELL=/bin/bash
-PATH=/sbin:/bin:/usr/sbin:/usr/bin
-MAILTO=root
-HOME=/
-
-# run-parts
-01 * * * * root run-parts /etc/cron.hourly
-02 4 * * * root run-parts /etc/cron.daily
-22 4 * * 0 root run-parts /etc/cron.weekly
-42 4 1 * * root run-parts /etc/cron.monthly
-# Mandrake-Security : if you remove this comment, remove the next line too.
-0 0 * * *    root    /etc/security/msec/cron-sh/security.sh
----
-
-7.2
-processor	: 0
-vendor_id	: GenuineIntel
-cpu family	: 5
-model		: 2
-model name	: Pentium 75 - 200
-stepping	: 12
-cpu MHz		: 166.095
-fdiv_bug	: no
-hlt_bug		: no
-sep_bug		: no
-f00f_bug	: yes
-coma_bug	: no
-fpu		: yes
-fpu_exception	: yes
-cpuid level	: 1
-wp		: yes
-flags		: fpu vme de pse tsc msr mce cx8
-bogomips	: 330.96
-
-7.3
-cat /proc/modules 
-3c509                   5812   1 (autoclean)
-
- 
---
-Sebastian Wenzler
-InnNet GmbH Internet-Services
-http://www.InnNet.de
-Gewerbering 12
-D-83549 Eiselfing
-Tel. 08071/9233-0
-Fax 08071/9233-29
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

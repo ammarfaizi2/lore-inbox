@@ -1,39 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288959AbSAFO1w>; Sun, 6 Jan 2002 09:27:52 -0500
+	id <S288878AbSAFOhX>; Sun, 6 Jan 2002 09:37:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288960AbSAFO1m>; Sun, 6 Jan 2002 09:27:42 -0500
-Received: from jive.SoftHome.net ([66.54.152.27]:6274 "EHLO softhome.net")
-	by vger.kernel.org with ESMTP id <S288959AbSAFO1Z>;
-	Sun, 6 Jan 2002 09:27:25 -0500
-Subject: Kernel 2.4.17 and the ACPI support
-From: Ibrahim El-Shafei <shaffei@softhome.net>
-To: linux_egypt@yahoogroups.com, linux-kernel@vger.kernel.org
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 06 Jan 2002 16:28:51 +0200
-Message-Id: <1010327335.1415.39.camel@test.eth>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	id <S288960AbSAFOhN>; Sun, 6 Jan 2002 09:37:13 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:4883 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S288878AbSAFOhJ>; Sun, 6 Jan 2002 09:37:09 -0500
+Subject: Re: [PATCH]: 2.5.1pre9 change several if (x) BUG to BUG_ON(x)
+To: mumismo@wanadoo.es (Jordi)
+Date: Sun, 6 Jan 2002 14:48:13 +0000 (GMT)
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20020106123453.A27BF801C1@mumismo.wanadoo.es> from "Jordi" at Jan 06, 2002 01:34:53 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E16NEar-0005Ln-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear all,
-My machine is i686 with 128 RAM, 1GHz processor, and the motherboard
-supports ACPI.
+> Yes, only that, even a trained monkey is able to make this patch, but i think
+> is a good way to make people confortable with BUG_ON
 
-When I press the power button the computer goes in sleep mode.
+Your patch looks wrong (ook ook! 8)) - if you build without BUG enabled you
+don't make various function calls with your change. BUG_ON has the C nasty
+assert() does that makes it a horrible horrible idea and its unfortunate
+it got put in.
 
-I compiled the kernel 2.4.17 with ACPI support but when I press the
-power button to make the computer go in sleep mode it doesn't do
-anything, why?
+	BUG_ON(function(x,y))
 
-thank you for your help.
+ends up not causing function to be called when not debugging
 
-Yours,
-Ibrahim El-Shafei
-"HimaTech"
+The classic C mess people get into is similar with things like
 
-Imagination is better than knowledge
-	--Albert Einstein
+	assert(x++ == 4);
 

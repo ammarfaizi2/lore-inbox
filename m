@@ -1,44 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264388AbUEDO1y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264382AbUEDOby@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264388AbUEDO1y (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 May 2004 10:27:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264382AbUEDO1x
+	id S264382AbUEDOby (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 May 2004 10:31:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264389AbUEDOby
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 May 2004 10:27:53 -0400
-Received: from jurand.ds.pg.gda.pl ([153.19.208.2]:61605 "EHLO
-	jurand.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S264379AbUEDO1v
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 May 2004 10:27:51 -0400
-Date: Tue, 4 May 2004 16:27:50 +0200 (CEST)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: Ralf Baechle <ralf@linux-mips.org>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] remove dead drivers/ide/ppc/swarm.c
-In-Reply-To: <200405041510.41731.bzolnier@elka.pw.edu.pl>
-Message-ID: <Pine.LNX.4.55.0405041621370.32082@jurand.ds.pg.gda.pl>
-References: <200405040134.22092.bzolnier@elka.pw.edu.pl>
- <200405041428.50592.bzolnier@elka.pw.edu.pl> <20040504124349.GA15664@linux-mips.org>
- <200405041510.41731.bzolnier@elka.pw.edu.pl>
-Organization: Technical University of Gdansk
+	Tue, 4 May 2004 10:31:54 -0400
+Received: from kluizenaar.xs4all.nl ([213.84.184.247]:20799 "EHLO samwel.tk")
+	by vger.kernel.org with ESMTP id S264382AbUEDObw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 May 2004 10:31:52 -0400
+Message-ID: <4097A94C.8060403@samwel.tk>
+Date: Tue, 04 May 2004 16:31:40 +0200
+From: Bart Samwel <bart@samwel.tk>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: nl, en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Libor Vanek <libor@conet.cz>
+CC: "Richard B. Johnson" <root@chaos.analogic.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Read from file fails
+References: <20040503000004.GA26707@Loki> <Pine.LNX.4.53.0405030852220.10896@chaos> <20040503150606.GB6411@Loki> <Pine.LNX.4.53.0405032020320.12217@chaos> <20040504011957.GA20676@Loki>
+In-Reply-To: <20040504011957.GA20676@Loki>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-SA-Exim-Connect-IP: 127.0.0.1
+X-SA-Exim-Mail-From: bart@samwel.tk
+X-SA-Exim-Scanned: No (on samwel.tk); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 4 May 2004, Bartlomiej Zolnierkiewicz wrote:
+Libor Vanek wrote:
+> I know that kernel threads work. My question was more like: "I'd
+ > like to know, whether writing my module as kernel thread will make
+ > it able to read/write files".
+[...]
+>>> I think there are reasons (speed, speed, speed...)  why some things
+ >>> should be done kernel-space.
 
-> > Simply a result of the way the IDE bus is hooked up to the generic bus of
-> > the Sibyte chip.  I'd have to research details if you're interested ...
-> 
-> The basic question is whether disk used on SiByte can be read i.e. on x86.
-> If not than we may have serious problems with some special commands with
-> current implementation (similar problem as on Atari Q40/Q60).
+Using a kernel thread won't improve speed, because to do anything you 
+will have to context-switch to the thread. For the stuff you want to do 
+you are probably better off having a tiny kernel module to intercept the 
+events that you're interested in, notifying a userspace process to do 
+the real work. Yes, it will be slower than in kernel space, but only 
+slightly. Especially if you use sendfile from the userspace process. And 
+it's also good to remember that Linux is optimized for running user 
+space processes as fast as possible. :)
 
- I can check the GPIO attachment with 2.4 (which should behave the same
-way here).  I don't have a PCI IDE board.
-
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+--Bart

@@ -1,53 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287040AbSABWcP>; Wed, 2 Jan 2002 17:32:15 -0500
+	id <S287051AbSABW3e>; Wed, 2 Jan 2002 17:29:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287069AbSABWb7>; Wed, 2 Jan 2002 17:31:59 -0500
-Received: from tourian.nerim.net ([62.4.16.79]:7690 "HELO tourian.nerim.net")
-	by vger.kernel.org with SMTP id <S287040AbSABW33>;
-	Wed, 2 Jan 2002 17:29:29 -0500
-Message-ID: <3C3389C7.405@free.fr>
-Date: Wed, 02 Jan 2002 23:29:27 +0100
-From: Lionel Bouton <Lionel.Bouton@free.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20020101
-X-Accept-Language: en-us
+	id <S287027AbSABW3Q>; Wed, 2 Jan 2002 17:29:16 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:41230 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S287040AbSABW2i>; Wed, 2 Jan 2002 17:28:38 -0500
+Subject: Re: ISA slot detection on PCI systems?
+To: esr@thyrsus.com
+Date: Wed, 2 Jan 2002 22:39:27 +0000 (GMT)
+Cc: davej@suse.de (Dave Jones), alan@lxorguk.ukuu.org.uk (Alan Cox),
+        linux-kernel@vger.kernel.org (Linux Kernel List)
+In-Reply-To: <20020102170833.A17655@thyrsus.com> from "Eric S. Raymond" at Jan 02, 2002 05:08:33 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: David Golden <david.golden@oceanfree.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: system.map
-In-Reply-To: <20020102191157.49760.qmail@web21204.mail.yahoo.com> <200201022028.04945@xsebbi.de> <3C337AC8.2020900@free.fr> <02010222155300.11915@golden1.goldens.ie>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E16Lu2i-0005nd-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Golden wrote:
+> Yeah, that's my point.  Saying "just make it suid" is not a good answer, 
+> because it ignores the fact that smart sysdamins don't want to run suid
+> programs more than absolutely necessary.  Not to mention screwing people
+> who follow Linus's good advice and configure/build kernels as non-root.
 
-> On Wednesday 02 January 2002 21:25, Lionel Bouton wrote:
-> it and
-> 
->>search it in numerous places : with or without `-uname -r` appended (at
->>least in / /boot /usr/src/linux).
->>
->>
-> 
-> :-( Pity it apparently doesn't search
-> 
-> /boot/`uname -r`/System.map
-> 
-> That way the /boot/kernelver/* scheme (see previous post) would work...
-> 
-> 
+So you want the lowest possible priviledge level. Because if so thats
+setuid app not kernel space. Arguing about the same code in either kernel
+space verus setuid app space is garbage.
 
-
-As these utilities already look in several locations (most `uname -r` 
-dependent), a patch to make them look in /boot/`uname -r` too would 
-probably be trivial.
-
-rgrep -r "/usr/src/linux" utility-src
-vi files_found
-diff -r -u old-src new-src \
-	| mail -s "Small cool patch" utility-maintainer
-
-LB.
-
+Alan

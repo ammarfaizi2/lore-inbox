@@ -1,80 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262095AbTFTAs7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jun 2003 20:48:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262115AbTFTAs7
+	id S262116AbTFTA7Z (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jun 2003 20:59:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262123AbTFTA7Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jun 2003 20:48:59 -0400
-Received: from fmr04.intel.com ([143.183.121.6]:30153 "EHLO
-	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
-	id S262095AbTFTAs6 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jun 2003 20:48:58 -0400
-Message-ID: <A46BBDB345A7D5118EC90002A5072C780E0409F9@orsmsx116.jf.intel.com>
-From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-To: "'Robert Schweikert'" <Robert.Schweikert@abaqus.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Cc: "'Robert Schweikert'" <rjschwei@abaqus.com>
-Subject: RE: process stack question
-Date: Thu, 19 Jun 2003 18:02:48 -0700
+	Thu, 19 Jun 2003 20:59:25 -0400
+Received: from 12-222-225-127.client.insightBB.com ([12.222.225.127]:21405
+	"EHLO dirac.s-z.org") by vger.kernel.org with ESMTP id S262116AbTFTA7Y
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jun 2003 20:59:24 -0400
+From: Neil Moore <neil@s-z.org>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16114.24500.590079.152861@dirac.s-z.org>
+Date: Thu, 19 Jun 2003 21:13:24 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: Unix code in Linux
+In-Reply-To: <bctg2u$75s$1@news.cistron.nl>
+References: <E19T87m-000367-SF@dirac.s-z.org>
+	<bctg2u$75s$1@news.cistron.nl>
+X-Mailer: VM 7.07 under 21.4 (patch 12) "Portable Code" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> From: Robert Schweikert [mailto:Robert.Schweikert@abaqus.com]
+Miquel van Smoorenburg writes:
+> The source being online is possible because the V1 - V7 source was
+> put under a BSD-like license by Caldera in 2002. A copy of the license
+> is still at ftp://minnie.tuhs.org/UnixArchive/Caldera-license.pdf
 > 
-> My thinking is that I should be able to get a hold of the process call
-> stack and using the top of the stack I should have the name of the
-> function/method I am in.
+> (there's much more at ftp://minnie.tuhs.org/UnixArchive/, including
+> V6, V7 and 2.11BSD source).
+> 
+> So, in this particular case this doesn't seem to be a problem.
 
-What about something like getting the value of the EIP at
-that point (will require some assembly-fu, most probably) and 
-calling the equivalent of:
+The license to which you referred says, in part:
 
-$ addr2line -f -e my-program ADDR
+Copyright(C) Caldera International Inc. 2001-2002. All rights
+reserved.
 
-#define _GNU_SOURCE
-#include <stdio.h>
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
 
-const char *program_name;
+[. . .] Redistributions of source code and documentation must retain the above
+copyright notice, this list of conditions and the following
+disclaimer. [. . .]
 
-void some_function (void)
-{
-  int cnt = 0;
-  unsigned long my_eip;
-  char *command;
-  
-  for (cnt = 0; cnt < 10; cnt++) {
-    printf ("%d ", cnt);
-    fflush (stdout);
-  }
-  printf ("\n");
-  asm volatile (
-    "    call 2f               \n"
-    "2:                        \n"
-    "    pop %0                \n"
-    : "=r" (my_eip));
-  printf ("I am at 0x%lx\n", my_eip);
-  asprintf (&command, "addr2line -f -e \"%s\" 0x%lx\n",
-	    program_name, my_eip);
-  system (command);
-}
 
-int main (int argc, char **argv) 
-{
-  program_name = argv[0];
-  some_function();
-  return 0;
-}
+The file in question in the Kernel does not include any Caldera
+copyright notice, and in fact claims that the copyright belongs to
+SGI.  Isn't that a violation of Caldera's copyright?  
 
-Not the most elegant solution, but gives an idea. Surely you
-can call the equivalent of addr2line by linking into libbfd.
-YMMV.
+Of course, if SGI has an unlimited right to relicense Unix code as its
+own, it's not an issue.
 
-Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own
-(and my fault)
+-- 
+Neil Moore: neil@s-z.org, http://s-z.org/~neil/

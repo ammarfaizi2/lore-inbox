@@ -1,47 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261782AbULBWcS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261793AbULBWc5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261782AbULBWcS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Dec 2004 17:32:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261786AbULBWcS
+	id S261793AbULBWc5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Dec 2004 17:32:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261790AbULBWcz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Dec 2004 17:32:18 -0500
-Received: from shinjuku.zaphods.net ([194.97.108.52]:49314 "EHLO
-	shinjuku.zaphods.net") by vger.kernel.org with ESMTP
-	id S261782AbULBWcP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Dec 2004 17:32:15 -0500
-Date: Thu, 2 Dec 2004 23:31:46 +0100
-From: Stefan Schmidt <zaphodb@zaphods.net>
-To: Lukas Hejtmanek <xhejtman@mail.muni.cz>
-Cc: Andrew Morton <akpm@osdl.org>, marcelo.tosatti@cyclades.com,
-       piggin@cyberone.com.au, linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.6.9 Multiple Page Allocation Failures
-Message-ID: <20041202223146.GA31508@zaphods.net>
-References: <20041111214435.GB29112@mail.muni.cz> <4194A7F9.5080503@cyberone.com.au> <20041113144743.GL20754@zaphods.net> <20041116093311.GD11482@logos.cnet> <20041116170527.GA3525@mail.muni.cz> <20041121014350.GJ4999@zaphods.net> <20041121024226.GK4999@zaphods.net> <20041202195422.GA20771@mail.muni.cz> <20041202122546.59ff814f.akpm@osdl.org> <20041202210348.GD20771@mail.muni.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 2 Dec 2004 17:32:55 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:14573
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S261787AbULBWcl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Dec 2004 17:32:41 -0500
+From: Rob Landley <rob@landley.net>
+Organization: Boundaries Unlimited
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: Suspend 2 merge: 49/51: Checksumming
+Date: Thu, 2 Dec 2004 16:31:15 -0500
+User-Agent: KMail/1.6.2
+Cc: ncunningham@linuxmail.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <1101292194.5805.180.camel@desktop.cunninghams> <200411290455.10318.rob@landley.net> <20041130130227.GA4670@openzaurus.ucw.cz>
+In-Reply-To: <20041130130227.GA4670@openzaurus.ucw.cz>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20041202210348.GD20771@mail.muni.cz>
-User-Agent: Mutt/1.5.6+20040907i
-X-SA-Exim-Connect-IP: 194.97.1.3
-X-SA-Exim-Mail-From: zaphodb@boombox.zaphods.net
-X-SA-Exim-Scanned: No (on shinjuku.zaphods.net); SAEximRunCond expanded to false
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200412021631.15731.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 02, 2004 at 10:03:48PM +0100, Lukas Hejtmanek wrote:
-> > > I found out that 2.6.6-bk4 kernel is OK. 
-> > That kernel didn't have the TSO thing.  Pretty much all of these reports
-> > have been against e1000_alloc_rx_buffers() since the TSO changes went in.
-> > Did you try disabling TSO, btw?
-> I did it. Allocation failure is still there :(
-I had no luck with/without TSO either but on tg3.
-I disabled the on-disk-caching component of the application and it now runs
-without page allocation errors. Currently it is running smoothly at ~500mbit/s
-and ~80kpps in each direction at ~44k interrupts/s, so the problematic
-combination seems to be many open files, high i/o transaction rate or
-troughput and heavy networking load. (tso currently on)
-Caching on ext2-fs in general seemed to generate less page allocation errors
-than on xfs and none of the traces i looked over so far showed involvement
-of the filesystem i.e. were all triggered by alloc_skb.
+On Tuesday 30 November 2004 08:02 am, Pavel Machek wrote:
 
-	Stefan
+> > A while back I suggested checking the last mount time of the mounted
+> > local filesystems as a quick and dirty sanity check between loading the
+> > image and unfreezing all the processes.  (Since a read-only mount
+> > shouldn't touch this, triggering swsusp resume from userspace after
+> > prodding various hardware shouldn't cause a major problem either...) 
+> > Does that sound like a good idea?
+>
+> Yes, it would be good sanity check. ext3 replays journals even on
+> read-only mount so your / will need to be ext2...
+
+Or initramfs.
+
+> 				Pavel
+
+Rob

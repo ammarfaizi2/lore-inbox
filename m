@@ -1,43 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271104AbTGPVb2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 17:31:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271120AbTGPVb2
+	id S271122AbTGPVkY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 17:40:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271125AbTGPVkY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 17:31:28 -0400
-Received: from fw.osdl.org ([65.172.181.6]:19088 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S271104AbTGPVb1 (ORCPT
+	Wed, 16 Jul 2003 17:40:24 -0400
+Received: from fw.osdl.org ([65.172.181.6]:52629 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S271122AbTGPVkR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 17:31:27 -0400
-Date: Wed, 16 Jul 2003 14:39:02 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: greg@kroah.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] print_dev_t for 2.6.0-test1-mm
-Message-Id: <20030716143902.4b26be70.akpm@osdl.org>
-In-Reply-To: <20030716213451.GA1964@win.tue.nl>
-References: <20030716184609.GA1913@kroah.com>
-	<20030716130915.035a13ca.akpm@osdl.org>
-	<20030716210253.GD2279@kroah.com>
-	<20030716141320.5bd2a8b3.akpm@osdl.org>
-	<20030716213451.GA1964@win.tue.nl>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 16 Jul 2003 17:40:17 -0400
+Date: Wed, 16 Jul 2003 14:55:08 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Tom Zanussi <zanussi@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, karim@opersys.com, bob@watson.ibm.com
+Subject: [PATCH] relayfs
+Message-Id: <20030716145508.1742d722.shemminger@osdl.org>
+In-Reply-To: <16148.6807.578262.720332@gargle.gargle.HOWL>
+References: <16148.6807.578262.720332@gargle.gargle.HOWL>
+Organization: Open Source Development Lab
+X-Mailer: Sylpheed version 0.9.3 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
+ /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries Brouwer <aebr@win.tue.nl> wrote:
->
-> On Wed, Jul 16, 2003 at 02:13:20PM -0700, Andrew Morton wrote:
-> 
-> > The new dev_t encoding is a bit weird because we of course continue to
-> > support the old 8:8 encoding.  I think the rule is: "if the top 32-bits are
-> > zero, it is 8:8, otherwise 32:32".  We can express this nicely with
-> > "%u:%u".
-> 
-> 16-bit only: 8:8, otherwise 32-bit only: 16:16, otherwise 32:32.
-> 
+Shouldn't relayfs be in the "Pseudo filesystems" part of Kconfig.
+Also don't need the .ko suffix.
 
-Why do we need the 16:16 option?
+diff -Nru a/fs/Kconfig b/fs/Kconfig
+--- a/fs/Kconfig	Wed Jul 16 14:49:58 2003
++++ b/fs/Kconfig	Wed Jul 16 14:49:58 2003
+@@ -881,6 +881,26 @@
+ 	  say M here and read <file:Documentation/modules.txt>.  The module
+ 	  will be called ramfs.
+ 
++config RELAYFS_FS
++	tristate "Relayfs file system support"
++	---help---
++	  Relayfs is a high-speed data relay filesystem designed to provide
++	  an efficient mechanism for tools and facilities to relay large
++	  amounts of data from kernel space to user space.  It's not useful
++	  on its own, and should only be enabled if other facilities that
++	  need it are enabled, such as for example dynamic printk or the
++	  Linux Trace Toolkit.
++
++	  See <file:Documentation/filesystems/relayfs.txt> for further
++	  information.
++
++	  This file system is also available as a module ( = code which can be
++	  inserted in and removed from the running kernel whenever you want).
++	  The module is called relayfs.  If you want to compile it as a
++	  module, say M here and read <file:Documentation/modules.txt>.
++
++	  If unsure, say N.
++
+ endmenu
+ 
+ menu "Miscellaneous filesystems"
+@@ -1220,26 +1240,6 @@
+ 	  will be called sysv.
+ 
+ 	  If you haven't heard about all of this before, it's safe to say N.
+-
+-config RELAYFS_FS
+-	tristate "Relayfs file system support"
+-	---help---
+-	  Relayfs is a high-speed data relay filesystem designed to provide
+-	  an efficient mechanism for tools and facilities to relay large
+-	  amounts of data from kernel space to user space.  It's not useful
+-	  on its own, and should only be enabled if other facilities that
+-	  need it are enabled, such as for example dynamic printk or the
+-	  Linux Trace Toolkit.
+-
+-	  See <file:Documentation/filesystems/relayfs.txt> for further
+-	  information.
+-
+-	  This file system is also available as a module ( = code which can be
+-	  inserted in and removed from the running kernel whenever you want).
+-	  The module is called relayfs.ko.  If you want to compile it as a
+-	  module, say M here and read <file:Documentation/modules.txt>.
+-
+-	  If unsure, say N.
+ 
+ config UFS_FS
+ 	tristate "UFS file system support (read only)"

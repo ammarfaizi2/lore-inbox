@@ -1,64 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272910AbTG3ORZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 10:17:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272894AbTG3ORY
+	id S272908AbTG3OO2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 10:14:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272906AbTG3OOQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 10:17:24 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:34756 "EHLO
-	smtp.bitmover.com") by vger.kernel.org with ESMTP id S272910AbTG3ORF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 10:17:05 -0400
-Date: Wed, 30 Jul 2003 07:16:47 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: M?ns Rullg?rd <mru@users.sourceforge.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: BK2CVS up to date
-Message-ID: <20030730141647.GA21513@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	M?ns Rullg?rd <mru@users.sourceforge.net>,
-	linux-kernel@vger.kernel.org
-References: <20030730124515.GA19748@work.bitmover.com> <yw1xispknohi.fsf@users.sourceforge.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <yw1xispknohi.fsf@users.sourceforge.net>
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
-	required 7, AWL, DATE_IN_PAST_06_12)
+	Wed, 30 Jul 2003 10:14:16 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:22250 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S272888AbTG3OMd convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 10:12:33 -0400
+Date: Wed, 30 Jul 2003 11:08:24 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@freak.distro.conectiva
+To: Herbert =?iso-8859-1?Q?P=F6tzl?= <herbert@13thfloor.at>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: ROOT NFS fixes ...
+In-Reply-To: <20030730140739.GA24587@www.13thfloor.at>
+Message-ID: <Pine.LNX.4.55L.0307301107080.29393@freak.distro.conectiva>
+References: <20030729211521.GA19594@www.13thfloor.at>
+ <Pine.LNX.4.55L.0307301057030.29278@freak.distro.conectiva>
+ <20030730140739.GA24587@www.13thfloor.at>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 30, 2003 at 03:16:57PM +0200, M?ns Rullg?rd wrote:
-> Larry McVoy <lm@bitmover.com> writes:
-> 
-> > There was a pause in the updating of the 2.5 CVS tree exported from the
-> > 2.5 BK tree; it was related to the move to the new colo.  The trees are
-> > up to date now and I suspect that Ben's BK2SVN mirror will be updated
-> > soon as well.
-> 
-> That reminds me that (last time I checked (last week)) the CVS tag for
-> 2.4.21 was missing.  There's only a tag for 2.4.21-pre8, which is
-> equal to 2.4.21, but, IMHO, the final version should have a tag.
 
-$ rlog ChangeSet,v | more
+On Wed, 30 Jul 2003, Herbert Pötzl wrote:
 
-RCS file: ChangeSet,v
-Working file: ChangeSet
-head: 1.3660
-branch:
-locks: strict
-access list:
-symbolic names:
-        v2_4_22-pre8: 1.3645
-        v2_4_22-pre7: 1.3621
-        v2_4_22-pre6: 1.3577
-        v2_4_22-pre5: 1.3538
-        v2_4_22-pre1: 1.3211
-        v2_4_21: 1.3190
-...
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+> On Wed, Jul 30, 2003 at 10:57:52AM -0300, Marcelo Tosatti wrote:
+> >
+> >
+> > On Tue, 29 Jul 2003, Herbert Pötzl wrote:
+> >
+> > >
+> > > Hi Marcelo!
+> > >
+> > > just verified that the NFS root bug-fix was not
+> > > included in 2.4.22-pre9, unfortunately I have
+> > > to ask you again, why you do not want to fix
+> > > this issue in 2.4.22 ...
+> > >
+> > > I do not understand why Trond obviously is
+> > > ignoring my mails, regarding this particular
+> > > issue, maybe he is just too busy to look at
+> > > four twoline changes, and more, I do not
+> > > understand why this isn't accepted into the
+> > > marcelo kernel tree, as it obviously fixes a
+> > > misbehaviour?
+> > >
+> > > please explain!
+> > >
+> > > It is okay for me, if your argumentation goes
+> > > like "I don't like you, that's reason enough
+> > > for me to not include your patches ...", but I
+> > > would like to know ...
+> >
+> > I do not consider the patch critical enough.
+> >
+> > Get it in 2.5 first, then come back :)
+>
+> I hope this is a joke, and you are still reading
+> your mail ...
+
+No, this is not a joke, at all.
+
+Let me repeat: I (and Trond) do not consider this patch critical.
+

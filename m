@@ -1,70 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273881AbRKDTYX>; Sun, 4 Nov 2001 14:24:23 -0500
+	id <S274681AbRKDTZD>; Sun, 4 Nov 2001 14:25:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274299AbRKDTYO>; Sun, 4 Nov 2001 14:24:14 -0500
-Received: from unthought.net ([212.97.129.24]:56024 "HELO mail.unthought.net")
-	by vger.kernel.org with SMTP id <S273881AbRKDTYI>;
-	Sun, 4 Nov 2001 14:24:08 -0500
-Date: Sun, 4 Nov 2001 20:24:06 +0100
-From: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
-To: Tim Jansen <tim@tjansen.de>
-Cc: linux-kernel@vger.kernel.org
+	id <S274299AbRKDTYy>; Sun, 4 Nov 2001 14:24:54 -0500
+Received: from shed.alex.org.uk ([195.224.53.219]:44707 "HELO shed.alex.org.uk")
+	by vger.kernel.org with SMTP id <S274681AbRKDTYl> convert rfc822-to-8bit;
+	Sun, 4 Nov 2001 14:24:41 -0500
+Date: Sun, 04 Nov 2001 19:24:36 -0000
+From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+To: =?ISO-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
+        Alexander Viro <viro@math.psu.edu>
+Cc: John Levon <moz@compsoc.man.ac.uk>, linux-kernel@vger.kernel.org,
+        Daniel Phillips <phillips@bonn-fries.net>, Tim Jansen <tim@tjansen.de>,
+        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
 Subject: Re: PROPOSAL: dot-proc interface [was: /proc stuff]
-Message-ID: <20011104202406.N14001@unthought.net>
-Mail-Followup-To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
-	Tim Jansen <tim@tjansen.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <E15zF9H-0000NL-00@wagner> <160S2o-1JXpD6C@fmrl05.sul.t-online.com> <20011104195955.K14001@unthought.net> <160Skz-1rDDSyC@fmrl05.sul.t-online.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Message-ID: <620744650.1004901876@[195.224.237.69]>
+In-Reply-To: <20011104200452.L14001@unthought.net>
+In-Reply-To: <20011104200452.L14001@unthought.net>
+X-Mailer: Mulberry/2.1.0 (Win32)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2i
-In-Reply-To: <160Skz-1rDDSyC@fmrl05.sul.t-online.com>; from tim@tjansen.de on Sun, Nov 04, 2001 at 08:19:39PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 04, 2001 at 08:19:39PM +0100, Tim Jansen wrote:
-> On Sunday 04 November 2001 19:59, you wrote:
-> > The idea is that if the userland application does it's parsing wrong, it
-> > should either not compile at all, or abort loudly at run-time, instead of
-> > getting bad values "sometimes".
-> 
-> All the XML parser interfaces that I have seen so far allow you to do things 
-> that will cause the code to fail when you do stupid things or are not 
-> prepared that there may appear unknown elements. Or you use a DTD, and then 
-> your code is guaranteed to fail after a change, which may be even worse.
 
-XML is pretty far from light-weight.  And it's only human readable in theory.
 
-I like the *idea*, but XML is the wrong implementation of that idea.  Other than
-that I think we could agree   ;)
+--On Sunday, 04 November, 2001 8:04 PM +0100 Jakob Østergaard 
+<jakob@unthought.net> wrote:
 
-> 
-> One-value-files are a noticable exception, you must be VERY stupid if your 
-> code breaks because of an additional file.
+> I'm a little scared when our VFS guy claims he never heard of excellent
+> programmers using scanf in a way that led to parse errors.
 
-hehe, agreed.   The problem then is type information.
+I'd be far more scared if Al claimed he'd never heard of excellent
+programmers reading binary formats, compatible between multiple
+code revisions both forward and backwards, endian-ness etc., which
+had never lead to parse errors of the binary structure.
 
-Consider:
--------------
-int mf = open("/proc/meminfo/totalmem",O_RDONLY);
-int32 mem;
-read(mf, &mem, sizeof(mem));
--------------
+If you feel it's too hard to write use scanf(), use sh, awk, perl
+etc. which all have their own implementations that appear to have
+served UNIX quite well for a long while.
 
-Does this work ?   Yes of course.  But what if I ported my program to
-a 64 bit arch...  The program still compiles.  It also runs.  But the
-values are no longer correct.   Now *that* is hell.
+Constructive suggestions:
 
-Same story with ASCII.
+1. use a textual format, make minimal
+   changes from current (duplicate new stuff where necessary),
+   but ensure each /proc interface has something which spits
+   out a format line (header line or whatever, perhaps an
+   interface version number). This at least
+   means that userspace tools can check this against known
+   previous formats, and don't have to be clairvoyant to
+   tell what future kernels have the same /proc interfaces.
 
-I want type information.
+2. Flag those entries which are sysctl mirrors as such
+   (perhaps in each /proc directory /proc/foo/bar/, a
+   /proc/foo/bar/ctl with them all in). Duplicate for the
+   time being rather than move. Make reading them (at
+   least those in the ctl directory) have a comment line
+   starting with a '#' at the top describing the format
+   (integer, boolean, string, whatever), what it does.
+   Ignore comment lines on write.
 
--- 
-................................................................
-:   jakob@unthought.net   : And I see the elder races,         :
-:.........................: putrid forms of man                :
-:   Jakob Østergaard      : See him rise and claim the earth,  :
-:        OZ9ABN           : his downfall is at hand.           :
-:.........................:............{Konkhra}...............:
+3. Try and rearrange all the /proc entries this way, which
+   means sysctl can be implemented by a straight ASCII
+   write - nice and easy to parse files. Accept that some
+   /proc reads (especially) are going to be hard.
+
+--
+Alex Bligh

@@ -1,99 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268771AbUIGXrP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268775AbUIGXye@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268771AbUIGXrP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 19:47:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268775AbUIGXrP
+	id S268775AbUIGXye (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 19:54:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268776AbUIGXye
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 19:47:15 -0400
-Received: from mx02.qsc.de ([213.148.130.14]:51623 "EHLO mx02.qsc.de")
-	by vger.kernel.org with ESMTP id S268771AbUIGXrF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 19:47:05 -0400
-Date: Wed, 08 Sep 2004 01:45:58 +0200
-From: Gunnar Ritter <Gunnar.Ritter@pluto.uni-freiburg.de>
-Organization: Privat.
-To: Christer Weinigel <christer@weinigel.se>
-Cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
-       <viro@parcelfarce.linux.theplanet.co.uk>,
-       Linus Torvalds <torvalds@osdl.org>, Tonnerre <tonnerre@thundrix.ch>,
-       Spam <spam@tnonline.net>, ReiserFS List <reiserfs-list@namesys.com>,
-       Hans Reiser <reiser@namesys.com>, Pavel Machek <pavel@ucw.cz>,
-       David Masover <ninja@slaphack.com>, <linux-kernel@vger.kernel.org>,
-       <linux-fsdevel@vger.kernel.org>, Jamie Lokier <jamie@shareable.org>,
-       Christoph Hellwig <hch@lst.de>,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       Chris Wedgwood <cw@f00f.org>, Christer Weinigel <christer@weinigel.se>
-Subject: Re: silent semantic changes with reiser4
-Message-ID: <413E4836.nailFFM11WGWE@pluto.uni-freiburg.de>
-References: <200409070206.i8726vrG006493@localhost.localdomain>
- <413D4C18.6090501@slaphack.com> <m3d60yjnt7.fsf@zoo.weinigel.se>
- <1183150024.20040907143346@tnonline.net>
- <413DD5B4.nailC801GI4E2@pluto.uni-freiburg.de>
- <m34qm9kbcl.fsf@zoo.weinigel.se>
- <413E3280.nailEK92X8CU7@pluto.uni-freiburg.de>
- <m3n001its8.fsf@zoo.weinigel.se>
-In-Reply-To: <m3n001its8.fsf@zoo.weinigel.se>
-User-Agent: nail 11.7pre 9/8/04
+	Tue, 7 Sep 2004 19:54:34 -0400
+Received: from mailout1.vmware.com ([65.113.40.130]:33811 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP id S268775AbUIGXy2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Sep 2004 19:54:28 -0400
+Message-ID: <413E498D.4020807@vmware.com>
+Date: Tue, 07 Sep 2004 16:51:41 -0700
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+To: linux-kernel@vger.kernel.org, davej@codemonkey.org.uk, hpa@zytor.com,
+       bgerst@didntduck.org, Riley@Williams.Name
+Subject: PROBLEM: x86 alignment check bug
+Content-Type: multipart/mixed;
+ boundary="------------020300040700030500010005"
+X-OriginalArrivalTime: 07 Sep 2004 23:51:41.0845 (UTC) FILETIME=[9FB4D450:01C49535]
+X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.27.0.6; VDF: 6.27.0.50; host: mailhost1.vmware.com)
+X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.27.0.6; VDF: 6.27.0.50; host: mailout1.vmware.com)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christer Weinigel <christer@weinigel.se> wrote:
+This is a multi-part message in MIME format.
+--------------020300040700030500010005
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> Gunnar Ritter <Gunnar.Ritter@pluto.uni-freiburg.de> writes:
-> > Excuse me, but there's really nothing broken here with POSIX and cp.
-> > You're just making an insulting talk about a part of the specification
-> > which currently serves GNU/Linux and other Unix-like environments very
-> > well, and has done so for about twelve years now.
-> "Broken" in the sense "POSIX mandates something that users wouldn't
-> expect".
+Exception reporting for alignment check violations on x86 is broken 
+(unfortunately, rather badly, and rather hard to fix).  Look at the trap 
+function which fills in the si_addr field during an unaligned memory 
+access, 2.6.8.1-mm4+, arch/i386/kernel/traps.c, Line 522:
 
-Only if one breaks it by making extensions in an inappropriate way.
-This is not a fault of POSIX. POSIX usually allows a lot of sane ways
-to introduce extensions. There are usually valid interoperability
-arguments for behavior prescribed by POSIX. It is really not one of
-those standards where you want to ignore every second word because
-it is obviously nothing but committee nonsense.
+DO_ERROR_INFO(17, SIGBUS, "alignment check", alignment_check, 
+BUS_ADRALN, get_cr2())
 
-> > > or the environment variale POSIXLY_CORRECT is set.
-> > Cool, data loss depending upon an environment variable which is even
-> > currently used by many programs unaware of such results. This really
-> > sounds like good engineering to me.
-> How would you consider cp to cause "data loss" if it _besides_ copying
-> the normal stream _also_ copied any named streams or xattrs belonging
-> to the stream?
+The hardware does not fill in %cr2 with the faulting address on 
+alignment check exceptions (at least on all processors I have tested); 
+this assumed behavior is also not documented in either the Intel or AMD 
+processor manuals, so at least in my understanding, it does not exist.  
+What happens instead is that the last occuring page fault address is 
+passed to the user via the siginfo struct.  This address may be 
+completely random and have nothing at all to do with the alignment check 
+exception.  If any memory debuggers use #AC and are relying on SIGBUS to 
+provide a correct address, they may get very confused.
 
-You are reversing the argument. If additional streams are introduced
-inappropriately by extending the semantics of S_IFREG files, POSIX
-requires cp to lose the data. Your proposal would then make this loss
-of additional stream data dependent on an environment variable that
-is already in wide use. If it was set by accident, the data would be
-lost.
+I've attached a sample C program demonstrating the problem.
 
-Besides, copying xattrs is usually permitted (POSIX.1-2004, XCU cp):
+zach-dev:zach $ ./a.out
+Read only write address = 40016000
+fault address = 40016000
+Unaligned write address = 40018001
+fault address = 400a2b70
 
-# If the implementation provides additional or alternate access control
-# mechanisms (see the Base Definitions volume of IEEE Std 1003.1-2001,
-# Section 4.4, File Access Permissions), their effect on copies of files
-# is implementation-defined.
+Clearly, this is not correct.  Considering how difficult the fix is (the 
+kernel must disassemble the faulting instruction and use register 
+information to determine the faulting address), perhaps it is best to 
+simply remove the extra error info from the siginfo struct - the single 
+UNIX spec does not actually say that SIGBUS must provide and address 
+information.  If the si_addr info is left, it should be clearly 
+documented that it does not work properly.
 
-It is also permitted to add other S_IFXXX types and then let cp act
-in an implementation-defined manner on them (cf. my earlier message
-<413E40D1.nailFBI11XFML@pluto.uni-freiburg.de>).
+Keywords: signal,i386
+Kernel version: apparently, all
 
-The 'standardized' data loss would only occur if the standardized type
-of regular file, S_IFREG, was abused. This would really not be a fault
-of POSIX.
+Doing a historical search, apparently this was discovered before:
+http://seclists.org/lists/linux-kernel/2001/May/0309.html
 
-> Lots of GNU utilities already differ from POSIX mandated behaviour
-> because the authors of those utilities belive that the POSIX mandated
-> behaviour is confusing.
+Zachary Amsden (zach@vmware.com)
 
-Sure, but it is not the preferred method of adding features. In
-addition, most of the existing POSIXLY_CORRECT influences are
-nothing but cosmetical details in comparison to copying/not
-copying stream data.
+--------------020300040700030500010005
+Content-Type: text/plain;
+ name="foo.c"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="foo.c"
 
-	Gunnar
+#include <stdio.h>
+#include <stdlib.h>
+#include <signal.h>
+#include <setjmp.h>
+#include <sys/mman.h>
+
+void *faultAddress = 0;
+jmp_buf env;
+
+
+void getFaultAddress(int signo, struct siginfo *info, void *data)
+{
+	faultAddress = info->si_addr;
+	longjmp(env, 1);
+}
+
+int main()
+{
+	long *l;
+	struct sigaction sa;
+	sa.sa_sigaction = getFaultAddress;
+	sa.sa_flags = SA_SIGINFO | SA_ONESHOT;
+	l = (long *)mmap(0,4096, PROT_READ, MAP_ANONYMOUS|MAP_PRIVATE, -1, 0);
+	printf("Read only write address = %08x\n", l);
+	sigaction(SIGSEGV, &sa, NULL);
+	if (!setjmp(env))
+		l[0] = 1;
+	else 
+		printf("fault address = %08x\n", faultAddress);
+	l = (long *)mmap(0,8192, PROT_READ|PROT_WRITE, MAP_ANONYMOUS|MAP_PRIVATE, -1, 0);
+	l[0] = 2;
+	l[1024] = 3;
+	l = (long *)(((char *)l)+1);
+	printf("Unaligned write address = %08x\n", l);
+	sigaction(SIGBUS, &sa, NULL);
+	__asm__ __volatile__("pushfl\n\t"
+			     "orl $0x40000,(%esp)\n\t"
+			     "popfl");
+	if (!setjmp(env)) 
+		l[0] = 4;
+	else
+		printf("fault address = %08x\n", faultAddress);
+}
+
+--------------020300040700030500010005--

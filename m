@@ -1,56 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261923AbTITSGO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Sep 2003 14:06:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261925AbTITSGO
+	id S261930AbTITS0z (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Sep 2003 14:26:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261931AbTITS0z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Sep 2003 14:06:14 -0400
-Received: from pop.gmx.net ([213.165.64.20]:21643 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261923AbTITSGN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Sep 2003 14:06:13 -0400
-X-Authenticated: #934491
-Subject: Re: 2.6.0-test5-mm3 VFAT File system problem
-From: Benjamin Weber <shawk@gmx.net>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1064081224.6093.5.camel@athxp.bwlinux.de>
+	Sat, 20 Sep 2003 14:26:55 -0400
+Received: from dhcp065-024-038-074.columbus.rr.com ([65.24.38.74]:15787 "EHLO
+	nineveh.rivenstone.net") by vger.kernel.org with ESMTP
+	id S261930AbTITS0x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Sep 2003 14:26:53 -0400
+Date: Sat, 20 Sep 2003 14:28:52 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ftape new web address
+Message-ID: <20030920182852.GA16742@rivenstone.net>
+Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	linux-kernel@vger.kernel.org
+References: <20030920100331.GO9599@kiwi.hjbaader.home> <1064067139.21728.0.camel@dhcp23.swansea.linux.org.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 20 Sep 2003 20:07:04 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="6TrnltStXW4iwmi0"
+Content-Disposition: inline
+In-Reply-To: <1064067139.21728.0.camel@dhcp23.swansea.linux.org.uk>
+User-Agent: Mutt/1.5.4i
+From: <jhf@rivenstone.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I can confirm this behavior. 
 
-I checked my fstab entry. Was saying:
+--6TrnltStXW4iwmi0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-/dev/hda5               /mnt/windows/D  vfat            rw,user,umask=0
-0 0
+On Sat, Sep 20, 2003 at 03:12:27PM +0100, Alan Cox wrote:
+> On Sad, 2003-09-20 at 11:03, Hans-Joachim Baader wrote:
+> > Hi,
+> >=20
+> > the attached patch for 2.4.22 fixes the web address of the ftape driver.
+> > Why does the kernel still contain version 3.0.4 when 4.0.4a is the
+> > current one?
+>=20
+> It never got merged for 2.4. Long history. For 2.6 if you want to pick
+> up the updates and merge them go for it although floppy tape is kind of
+> dead technology now
 
-After changing it to
-/dev/hda5               /mnt/windows/D  vfat           
-rw,user,uid=1001,gid=100 0 0
+   I still use it, and I'm interested if anyone gets it working for
+2.6.
 
-I got it working again half of the time. Its strange. Sometimes I get
-the message that only root can unmount it, even when I mounted it as
-user. 
+--=20
+Joseph Fannin
+jhf@rivenstone.net
 
-Something is a little whacky there.
+"Anyone who quotes me in their sig is an idiot." -- Rusty Russell.
 
---
-Benjamin
+--6TrnltStXW4iwmi0
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
-> Upon moving from -mm2 to -mm3, my vfat filesystems did not
-> automatically bount at bootup as per the fstab and could not be
-> accessed by applications in Gnome ie. my mount point showed no
-> subdirectories or files.
-> 
-> I could manually mount (not by mount /mnt/win_c but by the full mount
-> -t vfat /dev/hda1 /mnt/win_c) and I could explore using ls in
-> terminals but programs in Gnome could not open the filesystem.
-> 
-> Upon rebooting into -mm2 everything was fine again.
+iD8DBQE/bJxkWv4KsgKfSVgRAgGeAJ9PN5vFTsLDYcWnPLwcZ4B1ub6tEwCbBaLh
+fQr0W4jtqcSvqByd8SQqlkY=
+=hQYp
+-----END PGP SIGNATURE-----
 
+--6TrnltStXW4iwmi0--

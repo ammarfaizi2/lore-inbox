@@ -1,43 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317999AbSGWId2>; Tue, 23 Jul 2002 04:33:28 -0400
+	id <S318083AbSGWIsJ>; Tue, 23 Jul 2002 04:48:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318000AbSGWId1>; Tue, 23 Jul 2002 04:33:27 -0400
-Received: from [196.26.86.1] ([196.26.86.1]:33686 "HELO
-	infosat-gw.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S317999AbSGWId1>; Tue, 23 Jul 2002 04:33:27 -0400
-Date: Tue, 23 Jul 2002 10:54:24 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@linux-box.realnet.co.sz
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: odd memory corruption in 2.5.27?
-In-Reply-To: <200207230957.19812.trond.myklebust@fys.uio.no>
-Message-ID: <Pine.LNX.4.44.0207231053190.32636-100000@linux-box.realnet.co.sz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318084AbSGWIsJ>; Tue, 23 Jul 2002 04:48:09 -0400
+Received: from lech.pse.pl ([194.92.3.7]:11136 "EHLO lech.pse.pl")
+	by vger.kernel.org with ESMTP id <S318083AbSGWIsI>;
+	Tue, 23 Jul 2002 04:48:08 -0400
+Date: Tue, 23 Jul 2002 10:51:13 +0200
+From: Lech Szychowski <lech.szychowski@pse.pl>
+To: James Cleverdon <jamesclv@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Summit patch for 2.4.19-rc3-ac2
+Message-ID: <20020723085113.GA839@lech.pse.pl>
+Reply-To: Lech Szychowski <lech.szychowski@pse.pl>
+Mail-Followup-To: James Cleverdon <jamesclv@us.ibm.com>,
+	linux-kernel@vger.kernel.org
+References: <200207222121.04788.jamesclv@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200207222121.04788.jamesclv@us.ibm.com>
+Organization: Polskie Sieci Elektroenergetyczne S.A.
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 23 Jul 2002, Trond Myklebust wrote:
+> This fixes the APIC receive accept errors on the two machines we have that 
+> were subject to it.  Let me know if it doesn't work for you.
 
-> Just means that some RPC message reply from the server was crap. We should 
-> deal fine with that sort of thing...
-> 
-> AFAICS The Oops itself happened deep down in the socket layer in the part 
-> which has to do with reassembling fragments into packets. The garbage 
-> collector tried to release a fragment that had timed out and Oopsed.
-> 
-> Suggests either memory corruption or else that the networking driver is doing 
-> something odd ('cos at that point in the socket layer *only* the driver + the 
-> fragment handler should have touched the skb).
-
-Thanks, that helps quite a bit, i'll see if i can pinpoint it and send it 
-to the relevant people.
-
-Thanks,
-	Zwane
+This patch works for my Asus P2B-DS with 2xPII(Deschutes)-400.
 
 -- 
-function.linuxpower.ca
+	Leszek.
 
+-- lech7@pse.pl 2:480/33.7          -- REAL programmers use INTEGERS --
+-- speaking just for myself...

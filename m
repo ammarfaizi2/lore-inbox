@@ -1,32 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264058AbRFERZH>; Tue, 5 Jun 2001 13:25:07 -0400
+	id <S264054AbRFER05>; Tue, 5 Jun 2001 13:26:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264057AbRFERY5>; Tue, 5 Jun 2001 13:24:57 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:38916 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S264054AbRFERYk>; Tue, 5 Jun 2001 13:24:40 -0400
-Subject: Re: IRQ conflicts
-To: user753@yahoo.com (753 user)
-Date: Tue, 5 Jun 2001 18:22:59 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010605125244.32650.qmail@web14706.mail.yahoo.com> from "753 user" at Jun 05, 2001 05:52:44 AM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S264057AbRFER0r>; Tue, 5 Jun 2001 13:26:47 -0400
+Received: from apegate.roma1.infn.it ([141.108.7.31]:27120 "EHLO sensei.ape")
+	by vger.kernel.org with ESMTP id <S264054AbRFER02>;
+	Tue, 5 Jun 2001 13:26:28 -0400
+Date: Tue, 5 Jun 2001 19:26:23 +0200 (CEST)
+From: "davide.rossetti" <rossetti@roma1.infn.it>
+Reply-To: <davide.rossetti@roma1.infn.it>
+To: Mihai Moise <mmoise@giref.ulaval.ca>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: semaphores and noatomic flag
+In-Reply-To: <3B1BC6BF.8098111A@giref.ulaval.ca>
+Message-ID: <Pine.LNX.4.33.0106051923560.1901-100000@sensei.ape>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E157KXj-000780-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >With 2.4.5 I *often* get kernel Oopses with IRQ
-> >routing error messages. This never happend before
-> >and the only one change was a a second network
-> >card inserted into the mobo and changed kernel
-> >from 2.4.3 to 2.4.5.
-> 
-> As as wrote... Here is one of them, getting every 3
-> hours...
+whould it be possible to use pthread semaphore/mutex/cond_var on
+shared-via-mmap() chunks of memory instead ?
 
-See REPORTING-BUGS and include the call trace details and ksymoops data
+regards
+
+-- 
++------------------------------------------------------------------+
+|Rossetti Davide   INFN - Sezione Roma I - gruppo V, prog. APEmille|
+|                  web    : http://apegate.roma1.infn.it/~rossetti |
+|    """""         E-mail : davide.rossetti@roma1.infn.it          |
+|    |o o|         phone  : (+39)-06-49914412                      |
+|--o00O-O00o--     fax    : (+39)-06-49914423   (+39)-06-4957697   |
+|                  address: Dipartimento di Fisica (V.E.)          |
+|                           Universita' di Roma "La Sapienza"      |
+|                           P.le Aldo Moro,5 I - 00185 Roma - Italy|
+|  gnupg pub. key: http://apegate.roma1.infn.it/~rossetti/gnupg.txt|
+|								   |
+|"Outside of a dog,a book is a man's best friend. Inside of a dog, |
+| it's too dark to read." - Groucho Marx                           |
++------------------------------------------------------------------+
+

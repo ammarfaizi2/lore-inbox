@@ -1,50 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262971AbTJJPx0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Oct 2003 11:53:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262973AbTJJPx0
+	id S262973AbTJJPzO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Oct 2003 11:55:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262979AbTJJPzO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Oct 2003 11:53:26 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:54155 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S262971AbTJJPxY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Oct 2003 11:53:24 -0400
-Date: Fri, 10 Oct 2003 16:53:22 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Misc NFSv4 (was Re: statfs() / statvfs() syscall ballsup...)
-Message-ID: <20031010155322.GH28795@mail.shareable.org>
-References: <Pine.LNX.4.44.0310091525200.20936-100000@home.osdl.org> <3F85ED01.8020207@redhat.com> <20031010002248.GE7665@parcelfarce.linux.theplanet.co.uk> <20031010044909.GB26379@mail.shareable.org> <16262.17185.757790.524584@charged.uio.no> <20031010123732.GA28224@mail.shareable.org> <16262.47147.943477.24070@charged.uio.no> <20031010143553.GA28795@mail.shareable.org> <16262.53512.249701.158271@charged.uio.no>
+	Fri, 10 Oct 2003 11:55:14 -0400
+Received: from orion.netbank.com.br ([200.203.199.90]:40978 "EHLO
+	orion.netbank.com.br") by vger.kernel.org with ESMTP
+	id S262973AbTJJPzD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Oct 2003 11:55:03 -0400
+Date: Fri, 10 Oct 2003 13:03:09 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: "Noah J. Misch" <noah@caltech.edu>
+Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
+       linux-net@vger.kernel.org
+Subject: Re: [PATCH] Make net/ipx/ipx_proc.c compile w/o CONFIG_PROC_FS
+Message-ID: <20031010160309.GB11366@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	"Noah J. Misch" <noah@caltech.edu>,
+	"David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
+	linux-net@vger.kernel.org
+References: <Pine.GSO.4.58.0310092214280.25392@sue>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <16262.53512.249701.158271@charged.uio.no>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <Pine.GSO.4.58.0310092214280.25392@sue>
+X-Url: http://advogato.org/person/acme
+Organization: Conectiva S.A.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust wrote:
-> I can't tell as of yet whether or not the model chosen will include
-> all the features of dnotify (for instance recall in case the
-> attributes change on a subfile is a subject of hot debate), but
-> certainly some of us are pushing for something like this.
+Em Thu, Oct 09, 2003 at 10:58:57PM -0700, Noah J. Misch escreveu:
+> Hello Arnaldo,
+> 
+> This is a trivial patch against ipx_proc.c that allows it to compile with
+> CONFIG_PROC_FS unset.  The patch simply makes ipx_proc.c include init.h
+> unconditionally, which ensures that __init and __exit are always defined.
+> 
+> This patch depends upon the patch "Make linux/init.h include linux/compiler.h",
+> which I have CC-ed to all recipients of this patch.  Should Linus decline that
+> patch, I can make the trivial changes necessary to make this patch work on its
+> own, if you wish.
+> 
+> Thanks,
+> Noah
 
-Different types of delegation, depending on what the client asked for,
-could be offered:
+I don't have any problem with this patch, Dave, could you please apply it?
 
-Cacheing readdir() and stat() on the directory requires delegation
-without subfile recall; if there's a dnotify on the client, it
-requires delegation with recall.
+- Arnaldo
+ 
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.1342  -> 1.1343
+#	  net/ipx/ipx_proc.c	1.9     -> 1.10
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 03/10/10	noah@caltech.edu	1.1343
+# This file needs the __init macro in all cases, so include init.h
+# regardless of CONFIG_PROC_FS.  This fixes a compilation error in
+# the absence of CONFIG_PROC_FS.
+# --------------------------------------------
+#
+diff -Nru a/net/ipx/ipx_proc.c b/net/ipx/ipx_proc.c
+--- a/net/ipx/ipx_proc.c	Fri Oct 10 01:05:06 2003
++++ b/net/ipx/ipx_proc.c	Fri Oct 10 01:05:06 2003
+@@ -5,8 +5,8 @@
+  */
 
-An uber-cool capability would be notification of sub-files to any
-depth.  You can't imagine how tedious it has been watching a makefile
-take 5 minutes _just_ to run the "find" command on a source tree to
-find newer files than the last successful make.  (It was a big tree).
-That was the optimised makefile.  Without the "find" command, make's
-own dependency logic took 20 minutes to do the same thing.
-
-With any depth notifications, that would be eliminated to roughly zero
-time, and just running the few compile commands that are needed.
-
--- Jamie
+ #include <linux/config.h>
+-#ifdef CONFIG_PROC_FS
+ #include <linux/init.h>
++#ifdef CONFIG_PROC_FS
+ #include <linux/proc_fs.h>
+ #include <linux/spinlock.h>
+ #include <linux/seq_file.h>

@@ -1,43 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266849AbTGGHAd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jul 2003 03:00:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266853AbTGGHAc
+	id S266853AbTGGHq3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jul 2003 03:46:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266841AbTGGHqX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jul 2003 03:00:32 -0400
-Received: from carisma.slowglass.com ([195.224.96.167]:265 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S266849AbTGGHAb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jul 2003 03:00:31 -0400
-Date: Mon, 7 Jul 2003 08:14:58 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: James Morris <jmorris@intercode.com.au>
-Cc: Arnd Bergmann <arnd@arndb.de>, Thomas Spatzier <TSPAT@de.ibm.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: crypto API and IBM z990 hardware support
-Message-ID: <20030707081458.C1848@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	James Morris <jmorris@intercode.com.au>,
-	Arnd Bergmann <arnd@arndb.de>, Thomas Spatzier <TSPAT@de.ibm.com>,
-	linux-kernel@vger.kernel.org
-References: <200307022206.h62M6aFB025817@post.webmailer.de> <Mutt.LNX.4.44.0307062353420.548-100000@excalibur.intercode.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Mutt.LNX.4.44.0307062353420.548-100000@excalibur.intercode.com.au>; from jmorris@intercode.com.au on Mon, Jul 07, 2003 at 12:08:37AM +1000
+	Mon, 7 Jul 2003 03:46:23 -0400
+Received: from dp.samba.org ([66.70.73.150]:27827 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S266832AbTGGHqR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jul 2003 03:46:17 -0400
+From: Rusty Trivial Russell <rusty@rustcorp.com.au>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [TRIVIAL] __cat and __unique_id in stringify.h
+Date: Mon, 07 Jul 2003 17:57:03 +1000
+Message-Id: <20030707080051.E23832C35F@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 07, 2003 at 12:08:37AM +1000, James Morris wrote:
-> I'm not enthusiastic about adding infrastructure which is really just a
-> hack for some quaint hardware, and probably does not work towards
-> addressing more common hardware requirements.
+From:  Rusty Russell <rusty@rustcorp.com.au>
 
-The z990 isn't really crypto hw in the traditional sense, it has special
-instructions in the CPU so from Linux POV it's more an extremly optimized
-SW implementation..
+  __cat() to paste tokens could be used in a few places, and
+  __unique_id() is useful for module.h.
+  
+  Linus, please apply,
+  Rusty.
+  --
+    Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+  
+  Name: Centralize token pasting and generation of unique IDs
+  Author: Rusty Russell
+  Status: Tested on 2.5.70-bk13
+  
+  D: Add __cat(a,b) to implement token pasting to stringify.h.  To
+  D: generate unique names, __unique_id(stem) is implemented (it'd be
+  D: nice to have a gcc extension to give a unique identifier).  Change
+  D: module.h to use them.
+  
 
-And we have to solve this anyway even iof support for external crypto
-hw is delayed.  Think of integrating Jari's x86 assembly aes implementation
-or similar things.
+--- trivial-2.5.74-bk4/include/linux/module.h.orig	2003-07-07 17:36:52.000000000 +1000
++++ trivial-2.5.74-bk4/include/linux/module.h	2003-07-07 17:36:52.000000000 +1000
+@@ -55,10 +55,8 @@
+ 	       unsigned long value);
+ 
+ #ifdef MODULE
+-#define ___module_cat(a,b) __mod_ ## a ## b
+-#define __module_cat(a,b) ___module_cat(a,b)
+ #define __MODULE_INFO(tag, name, info)					  \
+-static const char __module_cat(name,__LINE__)[]				  \
++static const char __unique_id(name)[]					  \
+   __attribute__((section(".modinfo"),unused)) = __stringify(tag) "=" info
+ 
+ #define MODULE_GENERIC_TABLE(gtype,name)			\
+--- trivial-2.5.74-bk4/include/linux/stringify.h.orig	2003-07-07 17:36:52.000000000 +1000
++++ trivial-2.5.74-bk4/include/linux/stringify.h	2003-07-07 17:36:52.000000000 +1000
+@@ -9,4 +9,11 @@
+ #define __stringify_1(x)	#x
+ #define __stringify(x)		__stringify_1(x)
+ 
++/* Paste two tokens together. */
++#define ___cat(a,b) a ## b
++#define __cat(a,b) ___cat(a,b)
++
++/* Try to give a unique identifier: this comes close, iff used as static. */
++#define __unique_id(stem) \
++	__cat(__cat(__uniq,stem),__cat(__LINE__,KBUILD_BASENAME))
+ #endif	/* !__LINUX_STRINGIFY_H */
+-- 
+  What is this? http://www.kernel.org/pub/linux/kernel/people/rusty/trivial/
+  Don't blame me: the Monkey is driving
+  File: Rusty Russell <rusty@rustcorp.com.au>: [PATCH] __cat and __unique_id in stringify.h

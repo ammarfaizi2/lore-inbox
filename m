@@ -1,60 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269738AbUJMQLk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269742AbUJMQMi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269738AbUJMQLk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Oct 2004 12:11:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269742AbUJMQLk
+	id S269742AbUJMQMi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Oct 2004 12:12:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269744AbUJMQMi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Oct 2004 12:11:40 -0400
-Received: from rproxy.gmail.com ([64.233.170.195]:8481 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S269745AbUJMQLU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Oct 2004 12:11:20 -0400
-Message-ID: <265e388f0410130911fe6df0d@mail.gmail.com>
-Date: Wed, 13 Oct 2004 11:11:19 -0500
-From: Vx Glenn <VxGlenn@gmail.com>
-Reply-To: Vx Glenn <VxGlenn@gmail.com>
-To: linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: select, jiffies, and SIGALRM
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 13 Oct 2004 12:12:38 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:21387 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S269742AbUJMQMc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Oct 2004 12:12:32 -0400
+Message-ID: <416D0007.1000108@comcast.net>
+Date: Wed, 13 Oct 2004 10:14:31 +0000
+From: "D. Stimits" <stimits@comcast.net>
+Reply-To: stimits@comcast.net
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: OOPS 2.6.8 SMP
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+I have a crash OOPS that was non-fatal, and resulted in respawn of X. 
+440 BX chipset, dual cpu. I am not on this list if possible someone 
+might be able to CC me. This kernel has all debug information compiled in.
 
-I am seeing an issue relating to the jiffies counter wrapping around
-at 0x7FFFFFFF.
+D. Stimits, stimits AT comcast DOT net
 
-This is a legacy application, and when it runs on 32-bit Unix-Like
-OS's, the application silently dies without leaving core after 248
-days.
-
-I was able to manipulate the jiffies counter and run the application.
-I was able to reproduce the problem. I captured an strace log, and I
-see that SIGALRM (alarm clock) is raised after select times out
-(because of no data).
-
-I can add a signal handler to intercept the SIGALRM. But my question
-is, why should the signal be raised?
-
----[ strace.log ]---
-select(1024, [3 4 5 6], NULL, NULL, {0, 320000}) = 0 (Timeout)
-getitimer(ITIMER_REAL, {it_interval={2147157, 520}, it_value={0, 684895}}) = 0
-adjtimex({modes=32769, offset=0, freq=0, maxerror=16384000,
-esterror=16384000, status=64, constant=2, precision=1,
-tolerance=33554432, time={1097551596, 43475}}) = 5
-getitimer(ITIMER_REAL, {it_interval={2147157, 520}, it_value={0, 684895}}) = 0
-select(1024, [3 4 5 6], NULL, NULL, {1, 0}) = ? ERESTARTNOHAND (To be restarted)
---- SIGALRM (Alarm clock) @ 0 (0) ---
-Process 4881 detached
----[ eof strace.log ]---
-
-
-Anyone have any ideas?
-
-
--- 
-You're not your Job; 
-You're not the contents of your wallet.
-You're the all singing all dancing crap of the world
+Oct 13 09:44:14 localhost kernel: Unable to handle kernel NULL pointer 
+dereference at virtual address 00000134
+Oct 13 09:44:14 localhost kernel:  printing eip:
+Oct 13 09:44:14 localhost kernel: c01066db
+Oct 13 09:44:14 localhost kernel: *pde = 00000000
+Oct 13 09:44:14 localhost kernel: Oops: 0000 [#1]
+Oct 13 09:44:14 localhost kernel: SMP DEBUG_PAGEALLOC
+Oct 13 09:44:14 localhost kernel: Modules linked in: snd_pcm_oss snd_pcm 
+snd_page_alloc snd_timer snd_mixer_oss snd soundcore md5 ipv6 parport_pc 
+lp parport sunrpc tulip crc32 e100 mii ipt_REJECT ipt_LOG iptable_filter 
+ip_tables sg microcode dm_mod uhci_hcd ext3 jbd aic7xxx
+Oct 13 09:44:14 localhost kernel: CPU:    0
+Oct 13 09:44:14 localhost kernel: EIP:    0060:[<c01066db>]    Not tainted
+Oct 13 09:44:14 localhost kernel: EFLAGS: 00013206   (2.6.8-2smp-dbg)
+Oct 13 09:44:14 localhost kernel: EIP is at setup_sigcontext+0x1b/0x130
+Oct 13 09:44:14 localhost kernel: eax: bffff048   ebx: bffff040   ecx: 
+00000114   edx: 00000000
+Oct 13 09:44:14 localhost kernel: esi: 00000000   edi: bffff048   ebp: 
+c6e2fed0   esp: c6e2fec0
+Oct 13 09:44:14 localhost kernel: ds: 007b   es: 007b   ss: 0068
+Oct 13 09:44:15 localhost kernel: Process X (pid: 2988, 
+threadinfo=c6e2e000 task=c6f4c8c0)
+Oct 13 09:44:15 localhost kernel: Stack: bffff0a0 bffff040 c6e2ffc4 
+c6ed8b88 c6e2fef0 c01068c6 00000000 c6f4cdf4
+Oct 13 09:44:15 localhost gdm[2979]: gdm_slave_xioerror_handler: Fatal X 
+error - Restarting :0
+Oct 13 09:44:15 localhost kernel:        0000000e c6ed8b88 c6e2ffc4 
+c6e2ff24 c6e2ff14 c0106dab c6e2ffc4 0000000e
+Oct 13 09:44:15 localhost gdm(pam_unix)[2979]: session closed for user 
+stimits
+Oct 13 09:44:15 localhost kernel:        00000000 00400000 c6e2ffc4 
+c6f4cdf4 c6e2e000 c6e2ffb0 c0106e73 c6e2ffc4
+Oct 13 09:44:15 localhost kernel: Call Trace:
+Oct 13 09:44:15 localhost kernel:  [<c01085b5>] show_stack+0x75/0x90
+Oct 13 09:44:15 localhost kernel:  [<c0108713>] show_registers+0x123/0x180
+Oct 13 09:44:15 localhost kernel:  [<c0108895>] die+0x95/0x140
+Oct 13 09:44:15 localhost kernel:  [<c0117f63>] do_page_fault+0x283/0x58c
+Oct 13 09:44:15 localhost kernel:  [<c010821d>] error_code+0x2d/0x40
+Oct 13 09:44:15 localhost kernel:  [<c01068c6>] setup_frame+0xd6/0x1d0
+Oct 13 09:44:15 localhost kernel:  [<c0106dab>] handle_signal+0x15b/0x1a0
+Oct 13 09:44:15 localhost kernel:  [<c0106e73>] do_signal+0x83/0x100
+Oct 13 09:44:15 localhost kernel:  [<c0106f2d>] do_notify_resume+0x3d/0x3f
+Oct 13 09:44:15 localhost kernel:  [<c010715e>] work_notifysig+0x13/0x15
+Oct 13 09:44:15 localhost kernel: Code: 8b 51 20 09 c6 31 c0 89 57 08 8b 
+51 1c 09 c6 31 c0 89 57 0c

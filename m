@@ -1,58 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262009AbVAHKVV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261836AbVAHJaC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262009AbVAHKVV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jan 2005 05:21:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262011AbVAHKUF
+	id S261836AbVAHJaC (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jan 2005 04:30:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261905AbVAHJVr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jan 2005 05:20:05 -0500
-Received: from smtp-106-saturday.noc.nerim.net ([62.4.17.106]:27656 "EHLO
-	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
-	id S262003AbVAHKNS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jan 2005 05:13:18 -0500
-Date: Sat, 8 Jan 2005 11:15:28 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: "Mark M. Hoffman" <mhoffman@lightlink.com>
-Cc: Jonas Munsin <jmunsin@iki.fi>, Linus Torvalds <torvalds@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>,
-       LM Sensors <sensors@stimpy.netroedge.com>
-Subject: Re: [PATCH] I2C patches for 2.6.10
-Message-Id: <20050108111528.177dc794.khali@linux-fr.org>
-In-Reply-To: <20050108062251.GA5006@jupiter.solarsys.private>
-References: <11051627762989@kroah.com>
-	<11051627762271@kroah.com>
-	<20050108062251.GA5006@jupiter.solarsys.private>
-Reply-To: LM Sensors <sensors@stimpy.netroedge.com>,
-       LKML <linux-kernel@vger.kernel.org>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sat, 8 Jan 2005 04:21:47 -0500
+Received: from mail.kroah.org ([69.55.234.183]:33669 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261836AbVAHFsJ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jan 2005 00:48:09 -0500
+Subject: Re: [PATCH] USB and Driver Core patches for 2.6.10
+In-Reply-To: <11051632662317@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Fri, 7 Jan 2005 21:47:46 -0800
+Message-Id: <11051632662253@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+To: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Mark,
+ChangeSet 1.1938.446.27, 2004/12/15 16:38:01-08:00, david-b@pacbell.net
 
-> * Greg KH <greg@kroah.com> [2005-01-07 21:39:36 -0800]:
-> > ChangeSet 1.1938.445.11, 2004/12/21 11:09:49-08:00, jmunsin@iki.fi
-> > 
-> > [PATCH] I2C: it87.c update
-> > 
-> >  - adds manual PWM
-> >  - removes buggy "reset" module parameter
-> >  - fixes some whitespaces
-> > 
-> > Signed-off-by: Jonas Munsin <jmunsin@iki.fi>
-> > Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
-> 
-> You might hold off on this one patch... see this:
-> 
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=110514540928517&w=3
+[PATCH] USB: better messages for "no-IRQ" cases (15/15)
 
-I second Mark on that. Please do not merge this one until Jonas and I
-have analyzed the problem and found an acceptable solution. Stopping
-fans on module load isn't exactly a good driver behavior :(
+This changes the usbcore message about HCD IRQ problems so it makes
+sense on systems without ACPI or an APIC.  It also updates the comments;
+the issue doesn't appiear only with PCI, and with the recent enumeration
+changes it doesn't happen just with set_address either.
 
-Thanks,
--- 
-Jean Delvare
-http://khali.linux-fr.org/
+Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
+Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
+
+
+ drivers/usb/core/hcd.c |    7 ++++---
+ 1 files changed, 4 insertions(+), 3 deletions(-)
+
+
+diff -Nru a/drivers/usb/core/hcd.c b/drivers/usb/core/hcd.c
+--- a/drivers/usb/core/hcd.c	2005-01-07 15:47:52 -08:00
++++ b/drivers/usb/core/hcd.c	2005-01-07 15:47:52 -08:00
+@@ -1251,13 +1251,14 @@
+ 		goto done;
+ 	}
+ 
+-	/* PCI IRQ setup can easily be broken so that USB controllers
++	/* IRQ setup can easily be broken so that USB controllers
+ 	 * never get completion IRQs ... maybe even the ones we need to
+-	 * finish unlinking the initial failed usb_set_address().
++	 * finish unlinking the initial failed usb_set_address()
++	 * or device descriptor fetch.
+ 	 */
+ 	if (!hcd->saw_irq && hcd->self.root_hub != urb->dev) {
+ 		dev_warn (hcd->self.controller, "Unlink after no-IRQ?  "
+-			"Different ACPI or APIC settings may help."
++			"Controller is probably using the wrong IRQ."
+ 			"\n");
+ 		hcd->saw_irq = 1;
+ 	}
+

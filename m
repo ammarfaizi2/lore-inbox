@@ -1,41 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129953AbQL0Sk5>; Wed, 27 Dec 2000 13:40:57 -0500
+	id <S129669AbQL0S4Y>; Wed, 27 Dec 2000 13:56:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130151AbQL0Skr>; Wed, 27 Dec 2000 13:40:47 -0500
-Received: from acct2.voicenet.com ([207.103.26.205]:9358 "HELO voicenet.com")
-	by vger.kernel.org with SMTP id <S129953AbQL0Skh>;
-	Wed, 27 Dec 2000 13:40:37 -0500
-Message-ID: <3A4A3082.A6975F7C@voicenet.com>
-Date: Wed, 27 Dec 2000 13:10:10 -0500
-From: safemode <safemode@voicenet.com>
-Organization: none
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test10-pre3-scsi-ide i686)
-X-Accept-Language: en
+	id <S129812AbQL0S4N>; Wed, 27 Dec 2000 13:56:13 -0500
+Received: from smtp10.atl.mindspring.net ([207.69.200.246]:50748 "EHLO
+	smtp10.atl.mindspring.net") by vger.kernel.org with ESMTP
+	id <S129669AbQL0S4D>; Wed, 27 Dec 2000 13:56:03 -0500
+Message-ID: <3A4A34CD.D753664B@atlanta.com>
+Date: Wed, 27 Dec 2000 13:28:29 -0500
+From: Raymond Carney <rayc@atlanta.com>
+X-Mailer: Mozilla 4.75 [en] (Win98; U)
+X-Accept-Language: en,pdf
 MIME-Version: 1.0
-To: Ruth Ivimey-Cook <Ruth.Ivimey-Cook@arm.com>
-CC: Felix von Leitner <leitner@convergence.de>, linux-kernel@vger.kernel.org
-Subject: Re: Abysmal RAID 0 performance on 2.4.0-test10 for IDE?
-In-Reply-To: <4.3.2.7.2.20001227105214.00beaf00@cam-pop.cambridge.arm.com>
+To: linux-kernel@vger.kernel.org
+Subject: New possibilities for HPT370 RAID support?
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ruth Ivimey-Cook wrote:
+I've read everything that I can find regarding support of the Highpoint
+controllers RAID functionality under Linux, and I understand what the issues
+have been. The one promising bit of information that I dug up in this process is
+that the 'pseudo' RAID functionality of the Highpoint and Promise IDE RAID
+controllers is now supported in FreeBSD (4.2-RELEASE and 5.0-CURRENT). My
+question is, can the new BSD code be leveraged to add support for these
+controllers to the Linux kernel, and could we reasonably expect to see such
+support in the near future?
 
->
-> On IDE, you don't. IDE never supports hot-swap, RAID or no. If you want
-> that, use SCSI.
-
-That's not necessarily true.  There is work in linux to support Tri-stating
-the ide devices with the help of a custom card that will allow one to cut
-power to a specific ide device. Tri-stating allows Hot Swapping of ide
-devices now.  I even had a picture of the device the person is using to hot
-swap.  I'm sorry that I have forgotten this kernel hackers name as i have
-lost the original email Along with said picture. I'm pretty sure the person
-who gave it to me was 2.4.x's IDE guy but I cant be sure right now.
-
+Please CC: me directly on any replies, and Thanks very much in advance.
+-- 
+    ______________________________________________________________________ 
+/***   ________________________________________________________________   ***\
+ Raymond Carney       <> Discovery consists of seeing what everybody 
+ rayc@atlanta.com     <> has seen and thinking what nobody has thought. 
+ 860.774.1939         <>                     - Albert Von Szent-Gyorgyi 
+       ________________________________________________________________ 
+\***______________________________________________________________________***/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

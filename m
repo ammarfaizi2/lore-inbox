@@ -1,36 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291148AbSAaQph>; Thu, 31 Jan 2002 11:45:37 -0500
+	id <S291151AbSAaQp5>; Thu, 31 Jan 2002 11:45:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291150AbSAaQpa>; Thu, 31 Jan 2002 11:45:30 -0500
-Received: from postal2.lbl.gov ([131.243.248.26]:9871 "EHLO postal2.lbl.gov")
-	by vger.kernel.org with ESMTP id <S291147AbSAaQpR>;
-	Thu, 31 Jan 2002 11:45:17 -0500
-Message-ID: <3C59749C.B4855316@lbl.gov>
-Date: Thu, 31 Jan 2002 08:45:16 -0800
-From: Thomas Davis <tadavis@lbl.gov>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.17 i686)
-X-Accept-Language: en
+	id <S291149AbSAaQps>; Thu, 31 Jan 2002 11:45:48 -0500
+Received: from air-1.osdl.org ([65.201.151.5]:44959 "EHLO segfault.osdlab.org")
+	by vger.kernel.org with ESMTP id <S291147AbSAaQph>;
+	Thu, 31 Jan 2002 11:45:37 -0500
+Date: Thu, 31 Jan 2002 08:46:36 -0800 (PST)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: <mochel@segfault.osdlab.org>
+To: Luigi Genoni <kernel@Expansa.sns.it>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.3 does not compile on sparc64
+In-Reply-To: <Pine.LNX.4.44.0201311108550.16240-100000@Expansa.sns.it>
+Message-ID: <Pine.LNX.4.33.0201310845320.800-100000@segfault.osdlab.org>
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Who is the Linux telephone subsystem maintainer?
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I've been working on a driver the Creative VOIPBlaster.
-(http://sourceforge.net/projects/voip-blaster)
+Hi there.
 
-It's based on the Linux telephony API.
+> Of course I had to correct dome
+> #include <malloc.h>
+> in
+> #include <slab.h> (this is the case).
 
-Who is the maintainer for this subsection?
+That's right. I've sent a patch to Linus, but here it is for everyone else 
+while waiting for 2.5.4-pre1.
 
-Thanks!
+	-pat
 
--- 
-------------------------+--------------------------------------------------
-Thomas Davis		| ASG Cluster guy
-tadavis@lbl.gov		| 
-(510) 486-4524		| "80 nodes and chugging Captain!"
+--- linux-2.5.3/drivers/base/core.c.1	Wed Jan 30 14:20:25 2002
++++ linux-2.5.3/drivers/base/core.c	Wed Jan 30 14:20:33 2002
+@@ -7,7 +7,7 @@
+ 
+ #include <linux/device.h>
+ #include <linux/module.h>
+-#include <linux/malloc.h>
++#include <linux/slab.h>
+ 
+ #undef DEBUG
+ 
+--- linux-2.5.3/drivers/base/fs.c.0	Wed Jan 30 14:20:44 2002
++++ linux-2.5.3/drivers/base/fs.c	Wed Jan 30 14:20:52 2002
+@@ -8,7 +8,7 @@
+ #include <linux/device.h>
+ #include <linux/module.h>
+ #include <linux/string.h>
+-#include <linux/malloc.h>
++#include <linux/slab.h>
+ 
+ extern struct driver_file_entry * device_default_files[];
+ 
+

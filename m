@@ -1,54 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263358AbUCNNYS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Mar 2004 08:24:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263360AbUCNNYS
+	id S263361AbUCNNZC (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Mar 2004 08:25:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263362AbUCNNZC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Mar 2004 08:24:18 -0500
-Received: from mill.mtholyoke.edu ([138.110.30.76]:54150 "EHLO
-	mill.mtholyoke.edu") by vger.kernel.org with ESMTP id S263358AbUCNNYQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Mar 2004 08:24:16 -0500
-From: Ron Peterson <rpeterso@mtholyoke.edu>
-Date: Sun, 14 Mar 2004 08:23:40 -0500
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: network/performance problem
-Message-ID: <20040314132339.GA27540@mtholyoke.edu>
-References: <20040311152728.GA11472@mtholyoke.edu> <20040311151559.72706624.akpm@osdl.org> <20040311233525.GA14065@mtholyoke.edu> <20040312164704.GA17969@mtholyoke.edu> <20040312225606.GA19722@mtholyoke.edu> <20040313223349.3dcbfb61.davem@redhat.com>
+	Sun, 14 Mar 2004 08:25:02 -0500
+Received: from lech.pse.pl ([194.92.3.7]:52145 "EHLO lech.pse.pl")
+	by vger.kernel.org with ESMTP id S263361AbUCNNY6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Mar 2004 08:24:58 -0500
+Date: Sun, 14 Mar 2004 14:24:56 +0100
+From: Lech Szychowski <lech.szychowski@pse.pl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: bcm5700  driver at 100Mbit? tg3 doesn't do 100Mbit - 2.6.4-mm1
+Message-ID: <20040314132456.GA14249@lech.pse.pl>
+Reply-To: Lech Szychowski <lech.szychowski@pse.pl>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <4053F511.1070607@blueyonder.co.uk> <20040314123014.GA8839@merlin.emma.line.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040313223349.3dcbfb61.davem@redhat.com>
-User-Agent: Mutt/1.3.28i
-Organization: Mount Holyoke College
-X-Operating-System: Debian GNU/Linux
+In-Reply-To: <20040314123014.GA8839@merlin.emma.line.org>
+Organization: Polskie Sieci Elektroenergetyczne S.A.
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 13, 2004 at 10:33:49PM -0800, David S. Miller wrote:
-> On Fri, 12 Mar 2004 17:56:06 -0500
-> Ron Peterson <rpeterso@mtholyoke.edu> wrote:
-> 
-> > ...just in case ...since my sense of humor is suspect ...that was a
-> > joke.  Same problem persists after reboot.  I haven't installed a
-> > different kernel or otherwise changed anything on 'sam' yet.  Not sure
-> > what would be good to try next.
-> 
-> FInd out what's adding all of the netfilter rules like crazy.
-> 
-> It is obvious this is happening, from your profiles.  I know you
-> say that you have no idea what might be doing it, but your description
-> matches every other one that was reported in the past of gradual
-> networking slowdown, and in each of those cases it was something
-> poking netfilter in some way, and your profiles basically
-> confirm that this is what is happening somehow on your box.
+> > tg3.ko loads, network starts up. Can't connect to 100Mbit network 
+> > switch. The bcm5700 driver in ths SuSE kraxel 2.6.3 kernel works. The 
+> > tg3  is supposed to be a replacement for bcm5700 I believe.
 
-Don't think so.  If I revert to 2.4.20 from 2.4.21, and change nothing
-else, this problem goes away.
+Works for me (Dell Latitude D600), both for "NIC to switch"...
+
+===
+Mar 12 16:20:37 y kernel: Linux version 2.6.4-mm1 (lech7@y) (gcc version 3.3.3) #1 Thu Mar 11 14:16:54 CET 2004
+[...]
+Mar 12 16:20:37 y kernel: eth0: Tigon3 [partno(BCM95702A20) rev 1002 PHY(5703)] (PCI:33MHz:32-bit) 10/100/1000BaseT Ethernet 00:0d:56:7b:d8:9d
+[...]
+Mar 12 16:20:39 y kernel: tg3: eth0: Link is up at 100 Mbps, half duplex.
+Mar 12 16:20:39 y kernel: tg3: eth0: Flow control is off for TX and off for RX.
+===
+
+...and "NIC to NIC" mode:
+
+===
+Mar 14 03:43:08 y kernel: Linux version 2.6.4-mm1 (lech7@y) (gcc version 3.3.3) #1 Thu Mar 11 14:16:54 CET 2004
+[...]
+Mar 14 03:43:08 y kernel: eth0: Tigon3 [partno(BCM95702A20) rev 1002 PHY(5703)] (PCI:33MHz:32-bit) 10/100/1000BaseT Ethernet 00:0d:56:7b:d8:9d
+[...]
+Mar 14 03:43:10 y kernel: tg3: eth0: Link is up at 100 Mbps, full duplex.
+Mar 14 03:43:10 y kernel: tg3: eth0: Flow control is off for TX and off for RX.
+===
 
 -- 
-Ron Peterson
-Network & Systems Manager
-Mount Holyoke College
-http://www.mtholyoke.edu/~rpeterso
+	Leszek.
+
+-- lech7@pse.pl 2:480/33.7          -- REAL programmers use INTEGERS --
+-- speaking just for myself...

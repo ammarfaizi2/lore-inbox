@@ -1,36 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279663AbRJ0BOV>; Fri, 26 Oct 2001 21:14:21 -0400
+	id <S279667AbRJ0BmU>; Fri, 26 Oct 2001 21:42:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279665AbRJ0BOL>; Fri, 26 Oct 2001 21:14:11 -0400
-Received: from mailsrv.rollanet.org ([192.55.114.7]:41242 "HELO
-	mx.rollanet.org") by vger.kernel.org with SMTP id <S279663AbRJ0BOF>;
-	Fri, 26 Oct 2001 21:14:05 -0400
-Message-ID: <3BDA0A80.25B6554D@umr.edu>
-Date: Fri, 26 Oct 2001 20:14:40 -0500
-From: Nathan Neulinger <nneul@umr.edu>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.10 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S279669AbRJ0BmK>; Fri, 26 Oct 2001 21:42:10 -0400
+Received: from firebird.planetinternet.be ([195.95.34.5]:58128 "EHLO
+	firebird.planetinternet.be") by vger.kernel.org with ESMTP
+	id <S279667AbRJ0Blz>; Fri, 26 Oct 2001 21:41:55 -0400
+Date: Sat, 27 Oct 2001 03:42:21 +0200
+From: Kurt Roeckx <Q@ping.be>
 To: linux-kernel@vger.kernel.org
-Subject: Getting idle linux parport to look like idle Win32 parallel port
+Subject: Deathlock with 2.4.13
+Message-ID: <20011027034221.A165@ping.be>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've got a device hooked up to the parallel port that seems to behave
-differently when hooked up to an idle windows parallel port compared to
-an idle linux parallel port.
+I just had a freeze with 2.4.13 + ext3-0.9.13.  I was unable to
+switch vc, but they keyboard still responded.
 
-What is the difference between the two? And is there any way to convince
-parport to get the port to look the same? My guess is that some pin is
-being held high/low by parport and that isn't being done by windows, or
-vice versa.
+I pressed alt-scroll lock a few times, and the only 4 address I
+got where:
+c0133aa68
+c0133aa6f
+c0133aae8
+c0133aaef
 
--- Nathan
+This is inside d_lookup.  ksymoops translates the first too
+d_lookup+5c/f4.
 
-------------------------------------------------------------
-Nathan Neulinger                       EMail:  nneul@umr.edu
-University of Missouri - Rolla         Phone: (573) 341-4841
-Computing Services                       Fax: (573) 341-4216
+Can I do anything else to help debug this?
+
+
+Kurt
+

@@ -1,46 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261510AbTIKUgP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Sep 2003 16:36:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261511AbTIKUgP
+	id S261530AbTIKUnp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Sep 2003 16:43:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261518AbTIKUmQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Sep 2003 16:36:15 -0400
-Received: from home.linuxhacker.ru ([194.67.236.68]:20618 "EHLO linuxhacker.ru")
-	by vger.kernel.org with ESMTP id S261510AbTIKUgM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Sep 2003 16:36:12 -0400
-Date: Fri, 12 Sep 2003 00:31:46 +0400
-From: Oleg Drokin <green@linuxhacker.ru>
-To: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
-Subject: [PATCH] [2.4] Rocketport driver compile fix
-Message-ID: <20030911203146.GA28291@linuxhacker.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 11 Sep 2003 16:42:16 -0400
+Received: from lidskialf.net ([62.3.233.115]:17127 "EHLO beyond.lidskialf.net")
+	by vger.kernel.org with ESMTP id S261530AbTIKUln convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Sep 2003 16:41:43 -0400
+From: Andrew de Quincey <adq_dvb@lidskialf.net>
+To: jbarnes@sgi.com (Jesse Barnes)
+Subject: Re: [PATCH] deal with lack of acpi prt entries gracefully
+Date: Thu, 11 Sep 2003 21:40:08 +0100
+User-Agent: KMail/1.5.3
+Cc: andrew.grover@intel.com, linux-kernel@vger.kernel.org
+References: <20030909201310.GB6949@sgi.com> <200309102230.29794.adq_dvb@lidskialf.net> <20030910213821.GA17356@sgi.com>
+In-Reply-To: <20030910213821.GA17356@sgi.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Message-Id: <200309112140.08967.adq_dvb@lidskialf.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Wednesday 10 Sep 2003 10:38 pm, Jesse Barnes wrote:
+> On Wed, Sep 10, 2003 at 10:30:29PM +0100, Andrew de Quincey wrote:
+> > So, exactly as your patch did, you just want it to drop back if there
+> > were no PCI routing entries found by ACPI... sounds sensible enough.
+> >
+> > Can you confirm I have this right?
+>
+> Yep, that's it.  The code should do that, but we get there before the
+> list has been initialized, so we just hang.
 
-   Rocketport driver does not compile in latest 2.4 bk, it seems to assume
-   that tty->count is of atomic type which is no longer true.
+I'm not sure if this is automatically fixed or not yet.
 
-   Seems that this patch is needed now.
+With the new patch:
 
+1) If ACPI fails to parse a table, it disables ACPI, and so disables any 
+attempt to use ACPI for PRT routing.
 
-===== drivers/char/rocket.c 1.9 vs edited =====
---- 1.9/drivers/char/rocket.c	Wed Aug 13 17:22:04 2003
-+++ edited/drivers/char/rocket.c	Thu Sep 11 15:22:06 2003
-@@ -1052,7 +1052,7 @@
- 		restore_flags(flags);
- 		return;
- 	}
--	if ((atomic_read(&tty->count) == 1) && (info->count != 1)) {
-+	if ((tty->count == 1) && (info->count != 1)) {
- 		/*
- 		 * Uh, oh.  tty->count is 1, which means that the tty
- 		 * structure will be freed.  Info->count should always
+2) If ACPI is enabled, and enters the function you patched, code further in 
+checks if the routing tables have any entries. If not, it rejects the 
+attempt.
 
-Bye,
-    Oleg
+>From your patch, I get the impression (1) is what you were patching for.. am I 
+right? In that case, there shouldn't be a problem.
+

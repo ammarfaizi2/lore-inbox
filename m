@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264920AbTAJM3G>; Fri, 10 Jan 2003 07:29:06 -0500
+	id <S264972AbTAJMaf>; Fri, 10 Jan 2003 07:30:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264943AbTAJM3G>; Fri, 10 Jan 2003 07:29:06 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:61841
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S264920AbTAJM3F>; Fri, 10 Jan 2003 07:29:05 -0500
-Subject: Re: spin_locks without smp.
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: Maciej Soltysiak <solt@dns.toxicfilms.tv>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030110114546.GN23814@holomorphy.com>
-References: <Pine.LNX.4.51.0301101238560.6124@dns.toxicfilms.tv>
-	 <20030110114546.GN23814@holomorphy.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1042205036.28469.78.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
-Date: 10 Jan 2003 13:23:56 +0000
+	id <S264983AbTAJMaf>; Fri, 10 Jan 2003 07:30:35 -0500
+Received: from mail2.sonytel.be ([195.0.45.172]:33751 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S264972AbTAJMae>;
+	Fri, 10 Jan 2003 07:30:34 -0500
+Date: Fri, 10 Jan 2003 13:38:34 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Rusty Russell <rusty@rustcorp.com.au>
+cc: Russell King <rmk@arm.linux.org.uk>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: __gpl_ksymtab 
+In-Reply-To: <20030110091014.231C82C4C2@lists.samba.org>
+Message-ID: <Pine.GSO.4.21.0301101338110.9440-100000@vervain.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-01-10 at 11:45, William Lee Irwin III wrote:
-> On Fri, Jan 10, 2003 at 12:42:34PM +0100, Maciej Soltysiak wrote:
-> > while browsing through the network drivers about the etherleak issue i
-> > found that some drivers have:
-> > #ifdef CONFIG_SMP
-> > 	spin_lock_irqsave(...)
-> > #endif
-> > and some just:
-> > 	spin_lock_irqsave(...)
-> > or similar.
-> > Which version should be practiced? i thought spinlocks are irrelevant
-> > without SMP so we should use #ifdef to shorten the execution path.
-> 
-> Buggy on preempt. Remove the #ifdef
+On Fri, 10 Jan 2003, Rusty Russell wrote:
+> diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.55/arch/m68k/vmlinux-std.lds working-2.5.55-gpl_ksymtab/arch/m68k/vmlinux-std.lds
+> --- linux-2.5.55/arch/m68k/vmlinux-std.lds	2003-01-02 14:47:57.000000000 +1100
+> +++ working-2.5.55-gpl_ksymtab/arch/m68k/vmlinux-std.lds	2003-01-10 19:43:03.000000000 +1100
+> @@ -24,6 +24,10 @@ SECTIONS
+>    __ksymtab : { *(__ksymtab) }
+>    __stop___ksymtab = .;
+>  
+> +  __start___ksymtab = .;	/* Kernel symbol table */
+> +  __ksymtab : { *(__ksymtab) }
+> +  __stop___ksymtab = .;
 
-And render the driver unusable. Very clever. How about understanding *why*
-something was done first 8)
+Woops, where's the `gpl'?
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

@@ -1,53 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262365AbVAJRi0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262375AbVAKEfd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262365AbVAJRi0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 12:38:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262347AbVAJRhi
+	id S262375AbVAKEfd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 23:35:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262384AbVAKEes
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 12:37:38 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.130]:16007 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S262334AbVAJRU7 convert rfc822-to-8bit
+	Mon, 10 Jan 2005 23:34:48 -0500
+Received: from pacific.moreton.com.au ([203.143.235.130]:23824 "EHLO
+	bne.snapgear.com") by vger.kernel.org with ESMTP id S262391AbVAKEd0
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 12:20:59 -0500
-X-Fake: the user-agent is fake
-Subject: [PATCH] PCI patches for 2.6.10
-User-Agent: Mutt/1.5.6i
-In-Reply-To: <20050110171827.GA30296@kroah.com>
-Date: Mon, 10 Jan 2005 09:20:55 -0800
-Message-Id: <11053776551683@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <greg@kroah.com>
+	Mon, 10 Jan 2005 23:33:26 -0500
+Message-ID: <41E35706.3040700@snapgear.com>
+Date: Tue, 11 Jan 2005 14:33:10 +1000
+From: Greg Ungerer <gerg@snapgear.com>
+Organization: SnapGear
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       uClinux list <uclinux-dev@uclinux.org>
+Subject: Re: [PATCH] m68knommu: cache init code for ColdFire CPU's
+References: <200501101711.j0AHB8H5005532@hera.kernel.org> <Pine.GSO.4.61.0501102244070.1908@waterleaf.sonytel.be>
+In-Reply-To: <Pine.GSO.4.61.0501102244070.1908@waterleaf.sonytel.be>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1938.439.44, 2005/01/07 10:32:39-08:00, domen@coderock.org
+Hi Geert,
 
-[PATCH] hotplug/acpiphp_ibm: module_param fix
+Thanks :-)
+I submit these corrections :-)
 
-File permissins should be octal number.
-
-
-Signed-off-by: Domen Puncer <domen@coderock.org>
-Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
+Regards
+Greg
 
 
- drivers/pci/hotplug/acpiphp_ibm.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
 
 
-diff -Nru a/drivers/pci/hotplug/acpiphp_ibm.c b/drivers/pci/hotplug/acpiphp_ibm.c
---- a/drivers/pci/hotplug/acpiphp_ibm.c	2005-01-10 08:59:18 -08:00
-+++ b/drivers/pci/hotplug/acpiphp_ibm.c	2005-01-10 08:59:18 -08:00
-@@ -47,7 +47,7 @@
- MODULE_DESCRIPTION(DRIVER_DESC);
- MODULE_LICENSE("GPL");
- MODULE_VERSION(DRIVER_VERSION);
--module_param(debug, bool, 644);
-+module_param(debug, bool, 0644);
- MODULE_PARM_DESC(debug, " Debugging mode enabled or not");
- #define MY_NAME "acpiphp_ibm"
- 
+Geert Uytterhoeven wrote:
+> On Mon, 10 Jan 2005, Linux Kernel Mailing List wrote:
+>>diff -Nru a/include/asm-m68knommu/mcfcache.h b/include/asm-m68knommu/mcfcache.h
+>>--- /dev/null	Wed Dec 31 16:00:00 196900
+>>+++ b/include/asm-m68knommu/mcfcache.h	2005-01-10 09:11:23 -08:00
+> 
+> 
+>>+ *	Everything from a small linstruction only cache, to configurable
+> 
+>                                 ^^^^^^^^^^^^
+> 				instruction
+> 
+> 
+>>+ *	Simple verion 2 core cache. These have instruction cache only,
+> 
+>                ^^^^^^
+> 	       version
+> 
+> 
+>>+ *	Version 4 cores have a true hardvard style separate instruction
+> 
+>                                     ^^^^^^^^
+> 				    harvard
+> 
+> Gr{oetje,eeting}s,
+> 
+> 						Geert
+> 
+> --
+> Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+> 
+> In personal conversations with technical people, I call myself a hacker. But
+> when I'm talking to journalists I just say "programmer" or something like that.
+> 							    -- Linus Torvalds
+> 
 
+-- 
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Dude       EMAIL:     gerg@snapgear.com
+SnapGear -- a CyberGuard Company            PHONE:       +61 7 3435 2888
+825 Stanley St,                             FAX:         +61 7 3891 3630
+Woolloongabba, QLD, 4102, Australia         WEB: http://www.SnapGear.com

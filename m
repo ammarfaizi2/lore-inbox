@@ -1,89 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261518AbUCKR6S (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 12:58:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261501AbUCKR6S
+	id S261501AbUCKSAH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 13:00:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261564AbUCKSAH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 12:58:18 -0500
-Received: from imf18aec.mail.bellsouth.net ([205.152.59.66]:23449 "EHLO
-	imf18aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
-	id S261518AbUCKR6P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 12:58:15 -0500
-Date: Thu, 11 Mar 2004 12:56:00 -0500 (EST)
-From: Richard A Nelson <cowboy@vnet.ibm.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.4-mm1 boot 
-In-Reply-To: <20040310233140.3ce99610.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.58.0403111244510.1855@onpx40.onqynaqf.bet>
-References: <20040310233140.3ce99610.akpm@osdl.org>
-X-No-Markup: yes
-x-No-ProductLinks: yes
-x-No-Archive: yes
+	Thu, 11 Mar 2004 13:00:07 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:31416 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261501AbUCKSAB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Mar 2004 13:00:01 -0500
+Message-ID: <4050A913.50809@pobox.com>
+Date: Thu, 11 Mar 2004 12:59:47 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+CC: Jens Axboe <axboe@suse.de>,
+       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.4-rc-bk3: hdparm -X locks up IDE
+References: <200403111614.08778.vda@port.imtp.ilyichevsk.odessa.ua> <200403111552.26315.bzolnier@elka.pw.edu.pl> <20040311144812.GC6955@suse.de> <200403111607.39235.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <200403111607.39235.bzolnier@elka.pw.edu.pl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Bartlomiej Zolnierkiewicz wrote:
+> On Thursday 11 of March 2004 15:48, Jens Axboe wrote:
+> 
+>>On Thu, Mar 11 2004, Bartlomiej Zolnierkiewicz wrote:
+>>
+>>>On Thursday 11 of March 2004 15:14, Denis Vlasenko wrote:
+>>>
+>>>>I discovered that hdparm -X <mode> /dev/hda can lock up IDE
+>>>>interface if there is some activity.
+>>>
+>>>Known bug and is on TODO but fixing it ain't easy.
+>>>Thanks for a report anyway.
+>>
+>>Wouldn't it be possible to do the stuff that needs serializing from the
+>>end_request() part and get automatic synchronization with normal
+>>requests?
+> 
+> 
+> That's the way to do it (REQ_SPECIAL) but unfortunately on some chipsets
+> we need to synchronize both channels (whereas we don't need to serialize
+> normal operations).
 
-IBM Thinkpad T30, current bios
+blk_stop_queue() on all queues attached to the hardware?
 
-On a clean boot (not resume - I've not gotten that working):
-resuming from /dev/hda8
-Resuming from device hda8
-bad: scheduling while atomic!
-Call Trace:   (abbreviated - doing this by hand on nearby PC)
-	schedule+0x5d5
-	mempool_alloc+0x64
-	generic_unplug_device+0x55
-	blk_run_queues+0x79
-	io_schedule+0x3
-	__wait_on_buffer+0xca
-	autoremove_wake_function+0x0
-	autoremove_wake_function+0x0  (no, not a typo)
-	__bread_slow+0x43
-	__bread+0x1b
-	bdev_read_page+0x24
-	read_suspend_image+0x131
-	printk+0x127
-	release_console_sem+0xd7
-	software_resume+0x7a
-	do_initcalls+0x2b
-	idedisk_init+0x0
-	init+0x0
-	init+0x38
-	kernel_thread_helper+0x5
+You need to synchronize anyway for the rare hardware that reports itself 
+as "simplex" -- one DMA engine for both channels.
 
-Resume Machine: This is normal swap space
--------------- [ cut here ] ------------------
-kernel BUG at kernel/printk.c:568!
-invalid operand: 0000 [#1]
-PREEMPT
-CPU:	0
-EIP:	0060:[<c0122d14>]       Not tainted VLI
-EFLAGS: 00010206    (2.6.4-mm1)
-EIP is at acquire_console_sem+0x14/0x60
-eax: dff4f00   ebx: c03f3b88   ecx: c13fb760   edx: c0350578
-esi: 0000001   edi: 00000000   ebp: dff4ffa4   esp: dff4ffa0
-ds:  007b   es: 007b  ss: 0068
-Process swapper (pid: 1, threadinfo=dff4f000 task=c141d680)
-...
-Call Trace:
-	pm_restore_console+0x12
-	software_resume+0x83
-	do_initcalls+0x2b
-	idedisk_init+0x0
-	init+0x0
-	init+0x38
-	kernel_thread_helper+0x5
-
-Kernel panic: Fatal exception in interrupt
-In interrupt handler - not syncing
+	Jeff
 
 
 
--- 
-Rick Nelson
-After watching my newly-retired dad spend two weeks learning how to make a new
-folder, it became obvious that "intuitive" mostly means "what the writer or
-speaker of intuitive likes".
-	-- Bruce Ediger, bediger@teal.csn.org, on X the intuitiveness of a Mac interface
+

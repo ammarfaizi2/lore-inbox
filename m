@@ -1,31 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266101AbSL3DOY>; Sun, 29 Dec 2002 22:14:24 -0500
+	id <S266186AbSL3DZE>; Sun, 29 Dec 2002 22:25:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266108AbSL3DOY>; Sun, 29 Dec 2002 22:14:24 -0500
-Received: from eriador.apana.org.au ([203.14.152.116]:48144 "EHLO
-	eriador.apana.org.au") by vger.kernel.org with ESMTP
-	id <S266101AbSL3DOX>; Sun, 29 Dec 2002 22:14:23 -0500
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: jwbaker@acm.org (Jeffrey Baker), linux-kernel@vger.kernel.org
-Subject: Re: 2.4.20 oops mounting iso9660 fs as hfs
-In-Reply-To: <20021230005457.GA15680@noodles>
-X-Newsgroups: apana.lists.os.linux.kernel
-User-Agent: tin/1.5.14-20020917 ("Chop Suey!") (UNIX) (Linux/2.4.20-686-smp (i686))
-Message-Id: <E18SqVf-0005xV-00@gondolin.me.apana.org.au>
-Date: Mon, 30 Dec 2002 14:22:35 +1100
+	id <S266643AbSL3DZE>; Sun, 29 Dec 2002 22:25:04 -0500
+Received: from windlord.Stanford.EDU ([171.64.13.23]:64439 "HELO
+	windlord.stanford.edu") by vger.kernel.org with SMTP
+	id <S266186AbSL3DZD>; Sun, 29 Dec 2002 22:25:03 -0500
+To: Felix Domke <tmbinc@elitedvb.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Indention - why spaces?
+References: <fa.f9m4suv.e6ubgf@ifi.uio.no>
+In-Reply-To: <fa.f9m4suv.e6ubgf@ifi.uio.no> (Felix Domke's message of "Mon,
+ 30 Dec 2002 02:27:25 GMT")
+From: Russ Allbery <rra@stanford.edu>
+Organization: The Eyrie
+Date: Sun, 29 Dec 2002 19:33:20 -0800
+Message-ID: <ylfzsgi3jz.fsf@windlord.stanford.edu>
+User-Agent: Gnus/5.090008 (Oort Gnus v0.08) XEmacs/21.4 (Honest Recruiter,
+ sparc-sun-solaris2.6)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeffrey Baker <jwbaker@acm.org> wrote:
-> Using kernel 2.4.20 on ix86 and an HP IEEE1394 DVD+RW drive, I
-> encountered this BUG/oops when attempting to mount a CD-ROM.  I at
-> first could not mount the disc, so I attempted to mount it as HFS:
+Felix Domke <tmbinc@elitedvb.net> writes:
 
-HFS wants 512 blocks while sr sets hardsect size to 2048.  You can
-work around it by reading it via loopback (losetup or mount -o loop).
+> i don't want to change anything, i just like to know WHY people use
+> spaces. are they somehow unportable? (i don't think so)
+
+<http://www.jwz.org/doc/tabs-vs-spaces.html>
+
 -- 
-Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
-Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Russ Allbery (rra@stanford.edu)             <http://www.eyrie.org/~eagle/>

@@ -1,42 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310160AbSCAXIj>; Fri, 1 Mar 2002 18:08:39 -0500
+	id <S310157AbSCAXJ3>; Fri, 1 Mar 2002 18:09:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310157AbSCAXId>; Fri, 1 Mar 2002 18:08:33 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:42393 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S310216AbSCAXH6>; Fri, 1 Mar 2002 18:07:58 -0500
-Date: Fri, 1 Mar 2002 16:22:02 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: queue_nr_requests needs to be selective
-Message-ID: <20020301162202.B12413@vger.timpanogas.org>
-In-Reply-To: <3C7FE7DD.98121E87@zip.com.au> <E16guBW-00051l-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E16guBW-00051l-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Mar 01, 2002 at 09:03:22PM +0000
+	id <S310162AbSCAXJ0>; Fri, 1 Mar 2002 18:09:26 -0500
+Received: from h24-71-223-13.cg.shawcable.net ([24.71.223.13]:30910 "EHLO
+	pd5mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id <S310157AbSCAXIq>; Fri, 1 Mar 2002 18:08:46 -0500
+Date: Fri, 01 Mar 2002 15:17:46 -0800
+From: Shaun Jackman <sjackman@shaw.ca>
+Subject: Re: swsusp list
+In-Reply-To: <20020228094035.GB4760@atrey.karlin.mff.cuni.cz>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: linux-kernel@vger.kernel.org
+Message-id: <E16gwHa-0000B7-00@quince.jackman>
+MIME-version: 1.0
+X-Mailer: KMail [version 1.3.2]
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 7BIT
+In-Reply-To: <E16gLkD-0000KR-00@quince.jackman>
+ <20020228094035.GB4760@atrey.karlin.mff.cuni.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 01, 2002 at 09:03:22PM +0000, Alan Cox wrote:
-> > I don't immediately see why increasing the queue length should
-> > increase bandwidth in this manner.  One possibility is that
-> 
-> Latency on the controllers ?  With caches on the controller and disks you
-> can have a lot of requests actually in flight
+> You have to have just one swap partition. Disable one of them.
+Ok, I did that. Now I'm getting an error there's not enough swap space 
+(logical enough I think).
 
+/critical section: Counting pages to copy[nosave] (pages needed
+:18062+152=18574 free 14689)
+Couldn't get enough free pages, on 3885 pages short.
+Kernel panic: Not enough free pages
 
-Since 3ware uses a switched architecture, there are a lot of requests
-in flight.  Can we get the default value increased or alternately, allow 
-RAID drivers to submit a local queue_nr_request value per adapter 
-so for those cards with 8 drives that make themselves look like
-a single drive to Linux, sufficient buffers are available to prevent
-threads feeding the device from going to sleep all the time?
+If both swap partitions is disallowed, and one swap partition isn't enough 
+space, is there anything I can do now to make this work? I'd really like to 
+get suspend working.
+I know at one point 128MB was the limit on a swap partition. Is this limit 
+gone now?
+How technically difficult is it to make swsusp work with multiple swap 
+partitions?
 
-:-)
+Cheers,
+Shaun
 
-Jeff
-
+[entire thread follows for the linux-kernel mailing list]
+On Thu February 28, 2002 01h40, you wrote:
+> Hi!
+>
+> > I've been trying to reach the swsusp mail list, but the webpage seems to
+> > be down (I cannot access it).
+> > http://lister.fornax.hu/mailman/listinfo/swsusp
+> >
+> > Is this site/list active? Where should I send technical questions?
+>
+> Well, don't know, probably linux-kernel@vger.kernel.org.
+>
+> > In any case, here's my Q. I patched my 2.4.17 kernel with the 2.5.1 patch
+> > available on the web site. There were only minor rejects that I fixed
+> > manually. I compiled and installed the kernel. Then I tried a SysRq-d and
+> > got the following output (this was recorded by hand, so it may not be
+> > perfect, but it should be close).
+> >
+> > Stopping Processes
+> > Waiting... ok
+> > Freeing...
+> > Syncing disks before copy
+> > /critical section: Counting pages to copy[nosave]
+> >   (pages needed: 13251+512=13763 free:19500)
+> > Alloc pagedir
+> > [nosave] critical section/: done (13251 pages copied)
+> > writing data to swap (13251 pages):... done
+> > Writing pagedir (52 pages):...,header,signature<0>
+> > Kernel panic: Need just one swapfile
+> >
+> > Pentium III 450 w/ 128 MB ram
+> > 128 MB swap partition on each ide disk (256 MB total)
+>
+> You have to have just one swap partition. Disable one of them.
+>
+> 							Pavel

@@ -1,34 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316069AbSENV1p>; Tue, 14 May 2002 17:27:45 -0400
+	id <S316072AbSENV22>; Tue, 14 May 2002 17:28:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316071AbSENV1n>; Tue, 14 May 2002 17:27:43 -0400
-Received: from ns.crrstv.net ([209.128.25.4]:24455 "EHLO mail.crrstv.net")
-	by vger.kernel.org with ESMTP id <S316069AbSENV1E>;
-	Tue, 14 May 2002 17:27:04 -0400
-Date: Tue, 14 May 2002 18:27:06 -0300
-From: "skidley" <skidley@crrstv.net>
-To: linux-kernel@vger.kernel.org
+	id <S316073AbSENV20>; Tue, 14 May 2002 17:28:26 -0400
+Received: from mailhost.terra.es ([195.235.113.151]:4123 "EHLO tsmtp4.mail.isp")
+	by vger.kernel.org with ESMTP id <S316072AbSENV1x>;
+	Tue, 14 May 2002 17:27:53 -0400
+Date: Tue, 14 May 2002 23:28:02 +0200
+From: Diego Calleja <DiegoCG@teleline.es>
+To: Alan Cox <alan@redhat.com>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: Linux 2.4.19pre8-ac3
-Message-ID: <20020514212706.GB2157@crrstv.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <200205141244.g4ECi6P29886@devserv.devel.redhat.com> <20020514131125.GA3568@louise.pinerecords.com>
+Message-Id: <20020514232803.237eda1f.DiegoCG@teleline.es>
+In-Reply-To: <200205141244.g4ECi6P29886@devserv.devel.redhat.com>
+X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i386-debian-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 14, 2002 at 03:11:25PM +0200, Tomas Szepe wrote:
-> > Linux 2.4.19pre8-ac3
+On Tue, 14 May 2002 08:44:06 -0400 (EDT)
+Alan Cox <alan@redhat.com> escribió:
+
+> The usual IDE merge comments apply. Please treat this tree with care.
+> It should have knocked out more of the weirdnesses as well as providing the
+> basis for upcoming restructuring of stuff for mmio etc.
 > 
-> Hmmm, looks like you forgot 'ide-2.4.19-p8-ac1.all.convert.10.patch'
-> in linux/. 720K. :)
+> 
+> [+ indicates stuff that went to Marcelo, o stuff that has not,
+>  * indicates stuff that is merged in mainstream now, X stuff that proved
+>    bad and was dropped out]
+> 
+> Linux 2.4.19pre8-ac3
+> o	Kbuild fixes					(Keith Owens)
+> o	Fix eepro100 bug/typo				(Michael Rozhavsky)
+> o	Intel 845G GART support				(Graeme Fisher)
+> o	Fix tasklet disable/kill in pppoatm		(Luca Barbier)
+> o	Add another PCI ident to the acenic driver	(Eric Smith)
+> o	Major IDE updates				(Andre Hedrick)
 
-That patch ends up in the kernel tree, does it get applied? or should i
-apply it manually?
-
--- 
-Chad Young
-Linux User #195191 
+There's a very strange file in the top of the tree.....

@@ -1,88 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275451AbTHJCDi (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Aug 2003 22:03:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275457AbTHJCDi
+	id S275463AbTHJCHi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Aug 2003 22:07:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275465AbTHJCHi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Aug 2003 22:03:38 -0400
-Received: from maile.telia.com ([194.22.190.16]:28891 "EHLO maile.telia.com")
-	by vger.kernel.org with ESMTP id S275451AbTHJCD1 convert rfc822-to-8bit
+	Sat, 9 Aug 2003 22:07:38 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:37615 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP id S275463AbTHJCHh
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Aug 2003 22:03:27 -0400
-X-Original-Recipient: <linux-kernel@vger.kernel.org>
-From: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [patch] SCHED_SOFTRR starve-free linux scheduling policy  ...
-Date: Sun, 10 Aug 2003 04:05:52 +0200
-User-Agent: KMail/1.5.9
-References: <Pine.LNX.4.55.0307131442470.15022@bigblue.dev.mcafeelabs.com> <5.2.1.1.2.20030809183021.0197ae00@pop.gmx.net>
-In-Reply-To: <5.2.1.1.2.20030809183021.0197ae00@pop.gmx.net>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200308100405.52858.roger.larsson@skelleftea.mail.telia.com>
+	Sat, 9 Aug 2003 22:07:37 -0400
+Subject: Re: [RFC][PATCH] Make cryptoapi non-optional?
+From: Robert Love <rml@tech9.net>
+To: Matt Mackall <mpm@selenic.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       jmorris@intercode.com.au, davem@redhat.com
+In-Reply-To: <20030809143314.GT31810@waste.org>
+References: <20030809074459.GQ31810@waste.org>
+	 <20030809143314.GT31810@waste.org>
+Content-Type: text/plain
+Message-Id: <1060481247.31499.62.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 (1.4.4-3) 
+Date: Sat, 09 Aug 2003 19:07:27 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 09 August 2003 19.47, Mike Galbraith wrote:
-> At 03:05 PM 8/9/2003 +0100, Daniel Phillips wrote:
-> >Hi Davide,
-> >
-> >On Sunday 13 July 2003 22:51, Davide Libenzi wrote:
-> > > This should (hopefully) avoid other tasks starvation exploits :
-> > >
-> > > http://www.xmailserver.org/linux-patches/softrr.html
-> >
-> >    "We will define a new scheduler policy SCHED_SOFTRR that will make the
-> >    target task to run with realtime priority while, at the same time, we
-> > will enforce a bound for the CPU time the process itself will consume."
-> >
-> >This needs to be a global bound, not per-task, otherwise realtime tasks
-> > can starve the system, as others have noted.
-> >
-> >But the patch has a much bigger problem: there is no way a SOFTRR task can
-> > be realtime as long as higher priority non-realtime tasks can preempt it.
-> >  The new dynamic priority adjustment makes it certain that we will
-> > regularly see normal tasks with priority elevated above so-called
-> > realtime tasks.  Even without dynamic priority adjustment, any higher
-> > priority system task can unwttingly make a mockery of realtime schedules.
->
-> Not so.  Dynamic priority adjustment will not put a SCHED_OTHER task above
-> SCHED_RR, SCHED_FIFO or SCHED_SOFTRR, so they won't preempt.  Try
-> this.  Make a SCHED_FIFO task loop, then try to change vt's.  You won't
-> ever get there from here unless you have made 'events' a higher priority
-> realtime task than your SCHED_FIFO cpu hog.  (not equal, must be higher
-> because SCHED_FIFO can't be requeued via timeslice expiration... since it
-> doesn't have one)
->
-> I do see ~problems with this idea though...
->
-> 1.  SCHED_SOFTRR tasks can disturb (root) SCHED_RR/SCHED_FIFO tasks as is.
-> SCHED_SOFTRR should probably be a separate band, above SCHED_OTHER, but
-> below realtime queues.
->
+On Sat, 2003-08-09 at 07:33, Matt Mackall wrote:
 
-I would prefere to have it as a sub range "min real RT" <SOFT_RR range < mean 
-real RT. Using SOFTRR time slice that is inverse proportional with the level 
-might also be beneficial.
+> - the random number generator is non-optional because it's used
+>   various things from filesystems to networking
 
-> 2.   It's not useful for video (I see no difference between realtime
-> component of video vs audio), and if the cpu restriction were opened up
-> enough to become useful, you'd end up with ~pure SCHED_RR, which you can no
-> way allow Joe User access to.  As a SCHED_LOWLATENCY, it seems like it
-> might be useful, but I wonder how useful.
+What if you kept crypto API optional, made random.c a config option, and
+make that depend on the crypto API. Then -- and this is the non-obvious
+part -- implement a super lame replacement for get_random_bytes() [what
+I assume the various parts of the kernel are using] for when
+!CONFIG_RANDOM is not set?
 
-Why shouldn't it be useful with video, is a frame processing burst longer than 
-a time slice? The rule for when to and how to revert a SCHED_SOFTRR can be 
-changed.
+You can do a simple PRNG in <10 lines of C. Have the kernel seed it on
+boot with xtime or something else lame.
 
-*	SCHED_FIFO requests from non root should also be treated as SCHED_SOFTRR
+	Robert Love
 
-/Rogerl
 
--- 
-Roger Larsson
-Skellefteå
-Sweden

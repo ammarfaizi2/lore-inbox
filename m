@@ -1,36 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289790AbSBEUs3>; Tue, 5 Feb 2002 15:48:29 -0500
+	id <S289789AbSBEVED>; Tue, 5 Feb 2002 16:04:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289789AbSBEUsT>; Tue, 5 Feb 2002 15:48:19 -0500
-Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:57092 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S289790AbSBEUsE>; Tue, 5 Feb 2002 15:48:04 -0500
-Date: Tue, 5 Feb 2002 20:47:51 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Patrick Mochel <mochel@osdl.org>
-Cc: Pavel Machek <pavel@suse.cz>, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: driverfs support for motherboard devices
-Message-ID: <20020205204751.G27706@flint.arm.linux.org.uk>
-In-Reply-To: <20020205173912.GA165@elf.ucw.cz> <Pine.LNX.4.33.0202050959020.25114-100000@segfault.osdlab.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0202050959020.25114-100000@segfault.osdlab.org>; from mochel@osdl.org on Tue, Feb 05, 2002 at 10:43:14AM -0800
+	id <S289809AbSBEVDy>; Tue, 5 Feb 2002 16:03:54 -0500
+Received: from ns1.intercarve.net ([216.254.127.221]:20624 "HELO
+	ceramicfrog.intercarve.net") by vger.kernel.org with SMTP
+	id <S289789AbSBEVDo>; Tue, 5 Feb 2002 16:03:44 -0500
+Date: Tue, 5 Feb 2002 16:00:23 -0500 (EST)
+From: "Drew P. Vogel" <dvogel@intercarve.net>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: william fitzgerald <william.fitzgerald2@beer.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: windows is more secure than linux!!
+In-Reply-To: <Pine.LNX.4.33L.0202051621590.12225-100000@duckman.distro.conectiva>
+Message-ID: <Pine.LNX.4.33.0202051556070.22261-100000@northface.intercarve.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 05, 2002 at 10:43:14AM -0800, Patrick Mochel wrote:
-> I think that ide should get its own bus, as a child of the ide controller. 
-> I haven't looked at ide yet at all. But, on most modern systems, the ide 
-> controller is a function of the southbridge, so ide devices should go 
-> under that. Like what the usb stuff does now...
+One thing I haven't seen argued is what I find most important. The time
+frame in which I am vulnerable. I'd rather have 10x the number of
+vulnerabilities which last 1/10th the time.
 
-What about, say, a Promise PCI IDE card?  You really need to reference
-the parent PCI device when the is one.
+--Drew Vogel
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+On Tue, 5 Feb 2002, Rik van Riel wrote:
+
+>On Wed, 6 Feb 2002, william fitzgerald wrote:
+>
+>> some of you might find this interesting others
+>> disheartening
+>
+>Still others, like me, find it very encouraging
+>that Microsoft can't stop talking about Linux.
+>They must be enthusiastic about it, or something.
+>
+>> www.shortnews.com/shownews.cfm?id=16886&u_id=623
+>
+>Now add the security holes in ISS, Outlook, Exchange,
+>Access and all available pieces of Windows software
+>into the picture so Linux and Windows are measured on
+>an equal ground.
+>
+>Lies, damn lies & statistics.
+>
+>regards,
+>
+>Rik
+>--
+>DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/
+>
+>http://www.surriel.com/		http://distro.conectiva.com/
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+
+
 

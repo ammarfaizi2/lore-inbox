@@ -1,50 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261343AbVCLKmF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261408AbVCLKtS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261343AbVCLKmF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Mar 2005 05:42:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261408AbVCLKmF
+	id S261408AbVCLKtS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Mar 2005 05:49:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261566AbVCLKtR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Mar 2005 05:42:05 -0500
-Received: from fire.osdl.org ([65.172.181.4]:20969 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261343AbVCLKmC (ORCPT
+	Sat, 12 Mar 2005 05:49:17 -0500
+Received: from rproxy.gmail.com ([64.233.170.206]:23448 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261408AbVCLKtK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Mar 2005 05:42:02 -0500
-Date: Sat, 12 Mar 2005 02:41:14 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Junfeng Yang <yjf@stanford.edu>
-Cc: chaffee@bmrc.berkeley.edu, mc@cs.Stanford.EDU,
-       linux-kernel@vger.kernel.org,
-       OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Subject: Re: [CHECKER] crash + fsck cause file systems to contain loops
- (msdos and vfat, 2.6.11)
-Message-Id: <20050312024114.173114fb.akpm@osdl.org>
-In-Reply-To: <Pine.GSO.4.44.0503120220190.10643-100000@elaine24.Stanford.EDU>
-References: <Pine.GSO.4.44.0503120220190.10643-100000@elaine24.Stanford.EDU>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sat, 12 Mar 2005 05:49:10 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=heIMWnd8jpkeCVvBA9ZMRl7FMEbPS645iaAD8sdgFHv1P5fXy04gTnOSrki3CIldHz8czMYLVGyojOF7PHGSj1jdkIBHAlt9nTMkRHMgnsGR3fZV2hApU+35or3J/DP7IL425TB2mRa9O8Upbid2RUCI9rR12h4mUV5SC7m6YUA=
+Message-ID: <c0a09e5c0503120249598c57a0@mail.gmail.com>
+Date: Sat, 12 Mar 2005 02:49:10 -0800
+From: Andrew Grover <andy.grover@gmail.com>
+Reply-To: Andrew Grover <andy.grover@gmail.com>
+To: Peter Chubb <peterc@gelato.unsw.edu.au>
+Subject: Re: User mode drivers: part 2: PCI device handling (patch 1/2 for 2.6.11)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <16945.4717.402555.893411@berry.gelato.unsw.EDU.AU>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <16945.4717.402555.893411@berry.gelato.unsw.EDU.AU>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Junfeng Yang <yjf@stanford.edu> wrote:
->
-> We are from the Stanford Checker team and are currently developing a file
->  system checker call FiSC.  FiSC mainly focuses on finding crash-recovery
->  errors.  We applied it to FiSC and found a serious error where crash then
->  recovery cause the file system to contain loops.
-> 
->  To reproduce the warning, download and run our test cases at
-> 
->  http://fisc.stanford.edu/bug7/crash.c (for msdos)
->  http://fisc.stanford.edu/bug10/crash.c (for vfat)
-> 
->  you can also find the crashed disk images in the corresponding
->  directories.
-> 
->  We are not sure if these are bugs or not.  Your
->  confirmations/clarifications on this are well appreciated.
+On Fri, 11 Mar 2005 14:37:17 +1100, Peter Chubb
+<peterc@gelato.unsw.edu.au> wrote:
 
-Linus's current tree includes support for `mount -o sync' on the msdos and
-vfat filesystems.
+> +       npages = get_user_pages(current,
+> +                               current->mm,
+> +                               (unsigned long)m.virtaddr,
+> +                               maxpages,
+> +                               write,
+> +                               0,
+> +                               imp->pages,
+> +                               NULL);
 
+Can't comment on usermode drivers overall, so just some code comments.
+
+do you need a down_read(current->mm->mmap_sem) here? I'm not sure but
+that seems to be what most other users of this function are doing.
+
+> +       /*
+> +        * Build scatterlist, one entry per page.
+> +        * Allow for partial pages at start and end.
+> +        */
+> +       i = 1;
+> +       imp->sg[0].page = imp->pages[0];
+> +       imp->sg[0].offset = ((unsigned long)m.virtaddr) & (PAGE_SIZE - 1);
+> +       imp->sg[0].length = PAGE_SIZE - imp->sg[0].offset;
+> +       if (imp->sg[0].length >= m.size) {
+> +               imp->sg[0].length = m.size;
+> +       } else {
+> +               unsigned long len = m.size - imp->sg[0].length;
+> +               for (;len >= PAGE_SIZE && i < npages ; i++) {
+> +                       imp->sg[i].page = imp->pages[i];
+> +                       imp->sg[i].offset = 0;
+> +                       imp->sg[i].length = PAGE_SIZE;
+> +                       len -= PAGE_SIZE;
+> +               }
+> +               if (len) {
+> +                       BUG_ON(i >= npages);
+> +                       BUG_ON(len >= PAGE_SIZE);
+> +                       imp->sg[i].page = imp->pages[i];
+> +                       imp->sg[i].offset = 0;
+> +                       imp->sg[i].length = len;
+> +                       i++;
+> +               }
+> +       }
+
+size_t len = m.size;
+int offset = (unsigned long) m.virtaddr & ~PAGE_MASK;
+for (i = 0; i < npages; i++)
+{
+  imp->sg[i].page = imp->pages[i];
+  imp->sg[i].offset = offset;
+  imp->sg[i].length = min(len, PAGE_SIZE - offset);
+
+  offset = 0;
+  len -= imp->sg[i].length;
+}
+
+instead possibly?
+
+Regards -- Andy

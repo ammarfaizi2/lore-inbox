@@ -1,73 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263189AbTJONcm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Oct 2003 09:32:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263196AbTJONcm
+	id S263154AbTJONZU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Oct 2003 09:25:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263158AbTJONZT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Oct 2003 09:32:42 -0400
-Received: from faui3es.informatik.uni-erlangen.de ([131.188.33.16]:7084 "EHLO
-	faui3es.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id S263189AbTJONck (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Oct 2003 09:32:40 -0400
-Date: Wed, 15 Oct 2003 15:32:31 +0200
-From: Martin Waitz <tali@admingilde.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Anton Blanchard <anton@samba.org>, wli@holomorphy.com,
-       linux-kernel@vger.kernel.org
+	Wed, 15 Oct 2003 09:25:19 -0400
+Received: from holomorphy.com ([66.224.33.161]:22165 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S263154AbTJONZR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Oct 2003 09:25:17 -0400
+Date: Wed, 15 Oct 2003 06:28:24 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
 Subject: Re: mem=16MB laptop testing
-Message-ID: <20031015133231.GK9850@admingilde.org>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	Anton Blanchard <anton@samba.org>, wli@holomorphy.com,
+Message-ID: <20031015132824.GS16158@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
 	linux-kernel@vger.kernel.org
-References: <20031014105514.GH765@holomorphy.com> <20031014045614.22ea9c4b.akpm@osdl.org> <20031014121753.GA610@krispykreme> <20031014053154.469255e5.akpm@osdl.org> <20031014124457.GB610@krispykreme> <20031014164004.5f698467.akpm@osdl.org>
+References: <20031014105514.GH765@holomorphy.com> <20031014045614.22ea9c4b.akpm@osdl.org> <20031015121208.GA692@elf.ucw.cz> <20031015125109.GQ16158@holomorphy.com> <20031015132054.GA840@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="/hqscKNKvKAHUg2m"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031014164004.5f698467.akpm@osdl.org>
-User-Agent: Mutt/1.3.28i
-X-PGP-Fingerprint: B21B 5755 9684 5489 7577  001A 8FF1 1AC5 DFE8 0FB2
+In-Reply-To: <20031015132054.GA840@elf.ucw.cz>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Oct 15, 2003 at 03:20:54PM +0200, Pavel Machek wrote:
+> Do you want to say that calculation is different, already? We should
+> probably make 2.5 version match 2.4 version, that's what users
+> expect. Who changed it and why?
 
---/hqscKNKvKAHUg2m
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+No idea when it changed, but I was at least duly disturbed by the tiny
+384KB ZONE_NORMAL materializing out of thin air when I booted mem=16m.
 
-hi :)
 
-On Tue, Oct 14, 2003 at 04:40:04PM -0700, Andrew Morton wrote:
-> + *	min_free_kbytes =3D lowmem_kbytes / sqrt(lowmem_kbytes)
-
-you do have a strange sqrt here ;)
-
-if you do a 'x*=3D2' at the start of your int_sqrt, your results
-are closer to a real sqrt.
-
-then, to get similar min_free_kbytes results, you could do
-	min_free_kbytes =3D int_sqrt(2*lowmem_kbytes);
-
-which is easier to understand, me thinks ;)
-
---=20
-CU,		  / Friedrich-Alexander University Erlangen, Germany
-Martin Waitz	//  Department of Computer Science 3       _________
-______________/// - - - - - - - - - - - - - - - - - - - - ///
-dies ist eine manuell generierte mail, sie beinhaltet    //
-tippfehler und ist auch ohne grossbuchstaben gueltig.   /
-
---/hqscKNKvKAHUg2m
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE/jUxuj/Eaxd/oD7IRAhNZAKCCpu7gK9n7zVNcx1K5/5Eqo3KDwQCcDoSn
-icY8rTfKWp4LoOiMqbnZjEM=
-=lSzs
------END PGP SIGNATURE-----
-
---/hqscKNKvKAHUg2m--
+-- wli

@@ -1,60 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S143524AbRA1Qua>; Sun, 28 Jan 2001 11:50:30 -0500
+	id <S143596AbRA1QwU>; Sun, 28 Jan 2001 11:52:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S143532AbRA1QuV>; Sun, 28 Jan 2001 11:50:21 -0500
-Received: from mserv1a.vianw.co.uk ([195.102.240.34]:33698 "EHLO
-	mserv1a.vianw.co.uk") by vger.kernel.org with ESMTP
-	id <S143524AbRA1QuF>; Sun, 28 Jan 2001 11:50:05 -0500
-From: Alan Chandler <alan@chandlerfamily.org.uk>
-To: linux-kernel@vger.kernel.org
-Subject: compile error in 2.4.0
-Date: Sun, 28 Jan 2001 16:49:45 +0000
-Organization: [private individual]
-Message-ID: <36j87tctr3nfujoqkes8360061284rtg9b@4ax.com>
-X-Mailer: Forte Agent 1.8/32.548
-MIME-Version: 1.0
+	id <S143532AbRA1QwK>; Sun, 28 Jan 2001 11:52:10 -0500
+Received: from pcep-jamie.cern.ch ([137.138.38.126]:59653 "EHLO
+	pcep-jamie.cern.ch") by vger.kernel.org with ESMTP
+	id <S143597AbRA1QwC>; Sun, 28 Jan 2001 11:52:02 -0500
+Date: Sun, 28 Jan 2001 17:51:53 +0100
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Dax Kelson <dax@gurulabs.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: hotmail not dealing with ECN
+Message-ID: <20010128175153.B9106@pcep-jamie.cern.ch>
+In-Reply-To: <20010126160342.B7096@pcep-jamie.cern.ch> <Pine.SOL.4.30.0101271857190.19930-100000@ultra1.inconnect.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.SOL.4.30.0101271857190.19930-100000@ultra1.inconnect.com>; from dax@gurulabs.com on Sat, Jan 27, 2001 at 06:59:46PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm probably doing something silly, but I have just tried to rebuild
-the 2.4.0 kernel.  I changed a few config things and did
+Dax Kelson wrote:
+> Jamie Lokier said once upon a time (Fri, 26 Jan 2001):
+> 
+> > Does ECN provide perceived benefits to the node using it?
+> 
+> Why are you even making suggestions when you haven't even read the RFC?
+> 
+> It seems that knowing what ECN is would be prerequisite to engaging in
+> discussion about it.
 
-make dep clean bzlilo modules modules_install
+I do know what ECN is thanks.  Whether it provides _actual_ perceived
+benefits depends on how widely deployed ECN routers and servers are.
 
-and the following appeared.  I did a brief look around for the
-declaration of skb_datarefp but couldn't find it. 
+-- Jamie
 
-
-make[3]: Entering directory `/usr/src/linux/net/core'
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes
--O2 -fomit-frame-pointer -
-fno-strict-aliasing -pipe -mpreferred-stack-boundary=2 -march=i686
--malign-functions=4     -c
--o sock.o sock.c
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes
--O2 -fomit-frame-pointer -
-fno-strict-aliasing -pipe -mpreferred-stack-boundary=2 -march=i686
--malign-functions=4     -c
--o skbuff.o skbuff.c
-skbuff.c: In function `alloc_skb':
-skbuff.c:208: warning: implicit declaration of function `skb_datarefp'
-skbuff.c:208: invalid type argument of `->'
-skbuff.c: In function `kfree_skbmem':
-skbuff.c:257: warning: passing arg 1 of `atomic_dec_and_test' makes
-pointer from integer witho
-ut a cast
-skbuff.c: In function `skb_clone':
-skbuff.c:321: warning: passing arg 1 of `atomic_inc' makes pointer
-from integer without a cast
-make[3]: *** [skbuff.o] Error 1
-make[3]: Leaving directory `/usr/src/linux/net/core'
-Alan
-
-alan@chandlerfamily.org.uk
-http://www.chandler.u-net.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

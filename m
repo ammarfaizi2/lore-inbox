@@ -1,51 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262176AbSJNVAR>; Mon, 14 Oct 2002 17:00:17 -0400
+	id <S262210AbSJNVH0>; Mon, 14 Oct 2002 17:07:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262162AbSJNVAR>; Mon, 14 Oct 2002 17:00:17 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:13777 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S262176AbSJNU6l> convert rfc822-to-8bit; Mon, 14 Oct 2002 16:58:41 -0400
-Date: Mon, 14 Oct 2002 18:26:53 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: DervishD <raul@pleyades.net>
-Cc: Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] mmap.c (do_mmap_pgoff), against 2.4.19 and 2.4.20-pre10
-In-Reply-To: <20021014093622.GA96@DervishD>
-Message-ID: <Pine.LNX.4.44L.0210141825410.32616-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S262230AbSJNVH0>; Mon, 14 Oct 2002 17:07:26 -0400
+Received: from mailout.zma.compaq.com ([161.114.64.105]:14604 "EHLO
+	zmamail05.zma.compaq.com") by vger.kernel.org with ESMTP
+	id <S262210AbSJNVHN>; Mon, 14 Oct 2002 17:07:13 -0400
+Date: Mon, 14 Oct 2002 15:09:23 -0600
+From: Stephen Cameron <steve.cameron@hp.com>
+To: linux-kernel@vger.kernel.org
+Cc: axboe@suse.de
+Subject: [PATCH] 2.5.42, cciss, kill bogus cciss_scsi code (3 of 7)
+Message-ID: <20021014150923.C1257@zuul.cca.cpqcorp.net>
+Reply-To: steve.cameron@hp.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+patch 3 of 7
+kill some bogus code in cciss_scsi.c that doesn't do anything useful.
+Applies to 2.5.42
 
-Since I do not consider this to be critical, I _will_ apply it on
-2.4.21-pre.
-
-At that time, resend me without the addition of the comment.
-
-Thanks and sorry for being so unresponsive
-
-On Mon, 14 Oct 2002, DervishD wrote:
-
->     Hi all, specially Marcelo :)
->
->     This is the fourth and last time I submit this patch to Marcelo.
-> This little tiny bug is fixed in all trees except the official one. I
-> think this patch is trivial enough to be accepted, but...
->
->     Well, the attachments included (unified diff format), is the patch
-> against both 2.4.19 and 2.4.20-pre10 (I've changed the kernel name
-> directory part to '/usr/src/linux/' so it's applicable to both
-> versions.
->
->     Marcelo, if you don't want to include this patch at least let me
-> know, please, so I won't need to see each new prerelease for seeing
-> if the patch has been already included ;))) Don't take it bad.
->
->     Raúl
->
-
+diff -urN linux-2.5.42-c/drivers/block/cciss.c linux-2.5.42-d/drivers/block/cciss.c
+--- linux-2.5.42-c/drivers/block/cciss.c	Mon Oct 14 10:19:07 2002
++++ linux-2.5.42-d/drivers/block/cciss.c	Mon Oct 14 10:28:19 2002
+@@ -2455,9 +2455,6 @@
+ 		set_capacity(disk, drv->nr_blocks);
+ 		add_disk(disk);
+ 	}
+-
+-	cciss_register_scsi(i, 1);  /* hook ourself into SCSI subsystem */
+-
+ 	return(1);
+ }
+ 
+diff -urN linux-2.5.42-c/drivers/block/cciss_scsi.c linux-2.5.42-d/drivers/block/cciss_scsi.c
+--- linux-2.5.42-c/drivers/block/cciss_scsi.c	Mon Oct 14 10:18:56 2002
++++ linux-2.5.42-d/drivers/block/cciss_scsi.c	Mon Oct 14 10:28:19 2002
+@@ -89,8 +89,10 @@
+    working even with the SCSI system.  It's so 
+    scsi_unregister_host will differentiate the controllers. 
+    When register_scsi_module is called, each host template is 
+-   customized (name change) in cciss_register_scsi() 
+-   (that's called from cciss.c:cciss_init_one()) */
++   customized (name change) in cciss_register_scsi() (that's
++   called from cciss_engage_scsi, called from
++   cciss.c:cciss_proc_write(), on "engage scsi" being received
++   from user space.) */
+ 
+ static 
+ Scsi_Host_Template driver_template[MAX_CTLR] =
+@@ -1549,7 +1551,7 @@
+ }
+ 
+ static int 
+-cciss_register_scsi(int ctlr, int this_is_init_time)
++cciss_register_scsi(int ctlr)
+ {
+ 	unsigned long flags;
+ 
+@@ -1559,15 +1561,10 @@
+ 	driver_template[ctlr].module = THIS_MODULE;;
+ 
+ 	/* Since this is really a block driver, the SCSI core may not be 
+-	   initialized yet, in which case, calling scsi_register_host
+-	   would hang.  instead, we will do it later, via /proc filesystem 
++	   initialized at init time, in which case, calling scsi_register_host
++	   would hang.  Instead, we do it later, via /proc filesystem
+ 	   and rc scripts, when we know SCSI core is good to go. */
+ 
+-	if (this_is_init_time) {
+-		CPQ_TAPE_UNLOCK(ctlr, flags);
+-		return 0;
+-	}
+-
+ 	/* Only register if SCSI devices are detected. */
+ 	if (ccissscsi[ctlr].ndevices != 0) {
+ 		((struct cciss_scsi_adapter_data_t *) 
+@@ -1601,7 +1598,7 @@
+ 	}
+ 	spin_unlock_irqrestore(CCISS_LOCK(ctlr), flags);
+ 	cciss_update_non_disk_devices(ctlr, -1);
+-	cciss_register_scsi(ctlr, 0);
++	cciss_register_scsi(ctlr);
+ 	return 0;
+ }
+ 
+@@ -1627,7 +1624,7 @@
+ 
+ #define cciss_find_non_disk_devices(cntl_num)
+ #define cciss_unregister_scsi(ctlr)
+-#define cciss_register_scsi(ctlr, this_is_init_time)
++#define cciss_register_scsi(ctlr)
+ #define cciss_proc_tape_report(ctlr, buffer, pos, len)
+ 
+ #endif /* CONFIG_CISS_SCSI_TAPE */

@@ -1,33 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278842AbRJVOuj>; Mon, 22 Oct 2001 10:50:39 -0400
+	id <S271667AbRJVPER>; Mon, 22 Oct 2001 11:04:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278843AbRJVOua>; Mon, 22 Oct 2001 10:50:30 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:51984 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S278842AbRJVOuO>;
-	Mon, 22 Oct 2001 10:50:14 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: WHarms@bfs.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: possible bug in 2.4.x pc_keyb.c 
-In-Reply-To: Your message of "Mon, 22 Oct 2001 16:36:25 +0100."
-             <vines.sxdD+tn1pvA@SZKOM.BFS.DE> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 23 Oct 2001 00:50:34 +1000
-Message-ID: <27271.1003762234@ocs3.intra.ocs.com.au>
+	id <S272244AbRJVPEH>; Mon, 22 Oct 2001 11:04:07 -0400
+Received: from atlas.inria.fr ([138.96.66.22]:20998 "EHLO atlas.inria.fr")
+	by vger.kernel.org with ESMTP id <S271667AbRJVPDz>;
+	Mon, 22 Oct 2001 11:03:55 -0400
+Message-Id: <200110221504.f9MF4L420800@atlas.inria.fr>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Nicolas Turro <Nicolas.Turro@sophia.inria.fr>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.2.20pre10
+Date: Mon, 22 Oct 2001 17:04:21 +0200
+X-Mailer: KMail [version 1.3]
+In-Reply-To: <E15gwc5-0003VR-00@the-village.bc.nu>
+In-Reply-To: <E15gwc5-0003VR-00@the-village.bc.nu>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 22 Oct 2001 16:36:25 +0100, 
-<WHarms@bfs.de> wrote:
->keyboard disappears with 2.4.x kernel on notebook (compaq amarda)
->
->After some time the keyboard from my amarda notebook does not respond to anything. The only hint is that 
->"keyboard: Timeout - AT keyboard not present?" appears
->quit often in the syslog before the kbd stops working.
+Le Mercredi 12 Septembre 2001 01:06, Alan Cox a écrit :
+> If you know any reason this should not be 2.2.20 final now is a very very
+> good time to say. I intend to call this patch 2.2.20 in a week or so
+> barring any last minute problems. Please save anything but actual bugfixes
+> for 2.2.21.
 
-Which Armada?  I have been running 2.4.10-pre8-xfs-kdb on a 1598DT
-since September 12 with no problems.
+Is 2.2.20 final coming anytime soon (october) or should i use 2.2.20pre10 ?
 
+N. Turro 

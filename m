@@ -1,54 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130815AbQKGDVM>; Mon, 6 Nov 2000 22:21:12 -0500
+	id <S130638AbQKGDZM>; Mon, 6 Nov 2000 22:25:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130638AbQKGDVC>; Mon, 6 Nov 2000 22:21:02 -0500
-Received: from c837140-a.vncvr1.wa.home.com ([65.0.81.146]:29444 "EHLO
-	cyclonehq.dnsalias.net") by vger.kernel.org with ESMTP
-	id <S130815AbQKGDUr>; Mon, 6 Nov 2000 22:20:47 -0500
-Date: Mon, 6 Nov 2000 19:20:51 -0800 (PST)
-From: Dan Browning <danb@cyclonehq.dnsalias.net>
-To: Dan Browning <danb@cyclonecomputers.com>
-cc: linux-kernel@vger.kernel.org, frankt@promise.com, andre@linux-ide.org,
-        bkz@linux-ide.org
-Subject: Re: [HARDLOCK] 2.2.17 locks up hard on Ultra66/PDC20262 in DMA mode
- when using ide + raid-A0 + eepro100 patches
-In-Reply-To: <Pine.LNX.4.21.0011061403270.11315-100000@cyclonehq.dnsalias.net>
-Message-ID: <Pine.LNX.4.21.0011061858580.11597-100000@cyclonehq.dnsalias.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130767AbQKGDZD>; Mon, 6 Nov 2000 22:25:03 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:20234 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S130638AbQKGDYw>;
+	Mon, 6 Nov 2000 22:24:52 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Tomasz Motylewski <motyl@stan.chemie.unibas.ch>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: ide-probe.c:400: `rtc_lock' undeclared and /lib/modules/..../build 
+In-Reply-To: Your message of "Tue, 07 Nov 2000 01:20:36 BST."
+             <Pine.LNX.4.21.0011070059120.24007-100000@crds.chemie.unibas.ch> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 07 Nov 2000 14:24:45 +1100
+Message-ID: <9769.973567485@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-UPDATE:
+On Tue, 7 Nov 2000 01:20:36 +0100 (CET), 
+Tomasz Motylewski <motyl@stan.chemie.unibas.ch> wrote:
+>2.2.18pre19:
+>And , whose idea was that "make modules_install" should create
+>/lib/modules/..../build symlink to the kernel sources?
+>It really breakes depmod -a (modutils 2.3.11)(*)
+>
+>(*) I could find a workaround, but if it hits me, it will hit lots of other
+>people not reading linux-kernel regularly. In my opinion upgrading stable
+>kernels should work without any modifications to the existing system.
 
-Now I have upgraded to 2.2.18pre19 + ide-2.2.18pre18 + raid-2.2.18-A2 +
-patched eepro100.
-
-Unfortunately, I still get:
-
-hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hde: dma_intr: error=0x10 { SectorIdNotFound }, LBAsect=15347359,
-sector=15347328
-hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hde: dma_intr: error=0x10 { SectorIdNotFound }, LBAsect=15347359,
-sector=15347328
-hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hde: dma_intr: error=0x10 { SectorIdNotFound }, LBAsect=15347359,
-sector=15347328
-hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hde: dma_intr: error=0x10 { SectorIdNotFound }, LBAsect=15347359,
-sector=15347328
-
-
-after a few minutes/hours of uptime (60-180 minutes).  I even tried some
-SysRq keys and those wouldn't work.  (hard lockup).  So what do I try from
-here?  I d'nt think there is any way to disable DMA in the hardware (on
-the Promise anyway).  Should I pull out hde and throw in another seagate?
-
-thanks for any ideas.
-
--dan
+Agreed, I was unhappy that the build symlink was added to 2.2 kernels.
+Now you need modutils >= 2.3.14 for 2.2 kernels :(.  But nobody asks
+me, I'm just the kernel module.[ch] and modutils maintainer.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

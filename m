@@ -1,78 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263866AbRFNSWr>; Thu, 14 Jun 2001 14:22:47 -0400
+	id <S263607AbRFNSY5>; Thu, 14 Jun 2001 14:24:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263854AbRFNSWh>; Thu, 14 Jun 2001 14:22:37 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:51216 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S263887AbRFNSW2>; Thu, 14 Jun 2001 14:22:28 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: John Stoffel <stoffel@casc.com>
-Subject: Re: 2.4.6-pre2, pre3 VM Behavior
-Date: Thu, 14 Jun 2001 20:25:09 +0200
-X-Mailer: KMail [version 1.2]
-Cc: Rik van Riel <riel@conectiva.com.br>, Tom Sightler <ttsig@tuxyturvy.com>,
-        Linux-Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.21.0106140013000.14934-100000@imladris.rielhome.conectiva> <01061410474103.00879@starship> <15144.54236.903016.433760@gargle.gargle.HOWL>
-In-Reply-To: <15144.54236.903016.433760@gargle.gargle.HOWL>
-MIME-Version: 1.0
-Message-Id: <01061420250909.00879@starship>
-Content-Transfer-Encoding: 7BIT
+	id <S263669AbRFNSYr>; Thu, 14 Jun 2001 14:24:47 -0400
+Received: from mail.missioncriticallinux.com ([208.51.139.18]:28424 "EHLO
+	missioncriticallinux.com") by vger.kernel.org with ESMTP
+	id <S263607AbRFNSYe>; Thu, 14 Jun 2001 14:24:34 -0400
+Date: Thu, 14 Jun 2001 14:24:27 -0400
+From: "Pat O'Rourke" <orourke@missioncriticallinux.com>
+Message-Id: <200106141824.OAA21231@missioncriticallinux.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Let modules register for panics, kernel 2.4.6-pre3
+Cc: torvalds@transmeta.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 14 June 2001 17:10, John Stoffel wrote:
-> >> The file _could_ be a temporary file, which gets removed before
-> >> we'd get around to writing it to disk. Sure, the chances of this
-> >> happening with a single file are close to zero, but having 100MB
-> >> from 200 different temp files on a shell server isn't unreasonable
-> >> to expect.
->
-> Daniel> This still doesn't make sense if the disk bandwidth isn't
-> Daniel> being used.
->
-> And can't you tell that a certain percentage of buffers are owned by a
-> single file/process?  It would seem that a simple metric of
->
->        if ##% of the buffer/cache is used by 1 process/file, start
->        writing the file out to disk, even if there is no pressure.
->
-> might do the trick to handle this case.
+The patch below permits a loadable module / driver to add itself to
+the panic_notifier_list.  Previously only code compiled directly into
+the kernel was able to register for panic notification.
 
-Buffers and file pages are owned by the vfs, not processes pre se, so it 
-makes accounting harder.  In this case you don't care: it's a file, so in the 
-absence of memory pressure and with disk bandwidth available it's better to 
-get the data onto disk sooner rather than later.  (This glosses over the 
-question of mmap's, by the way.)  It's pretty hard to see why there is any 
-benefit at all in delaying, but it's clear there's a benefit in terms of data 
-safety and a further benefit in terms of doing what the user expects.
+Thanks,
 
-> >> Maybe we should just see if anything in the first few MB of
-> >> inactive pages was freeable, limiting the first scan to something
-> >> like 1 or maybe even 5 MB maximum (freepages.min?  freepages.high?)
-> >> and flushing as soon as we find more unfreeable pages than that ?
->
-> Daniel> For file-backed pages what we want is pretty simple: when 1)
-> Daniel> disk bandwidth is less than xx% used 2) memory pressure is
-> Daniel> moderate, just submit whatever's dirty.  As pressure increases
-> Daniel> and bandwidth gets loaded up (including read traffic) leave
-> Daniel> things on the inactive list longer to allow more chances for
-> Daniel> combining and better clustering decisions.
->
-> Would it also be good to say that pressure should increase as the
-> buffer.free percentage goes down?
-
-Maybe - right now getblk waits until it runs completely out of buffers of a 
-given size before trying to allocate more, which means that sometimes an io 
-will be delayed by the time it takes to complete a page_launder cycle.  Two 
-reasons why it may not be worth doing anything about this: 1) we will move 
-most of the buffer users into the page cache in due course 2) the frequency 
-of this kind of io delay is *probably* pretty low.
-
-> It won't stop you from filling the
-> buffer, but it should at least start pushing out pages to disk
-> earlier.
+Pat
 
 --
-Daniel
+Patrick O'Rourke
+orourke@missioncriticallinux.com
+
+diff -u --new-file --recursive linux-2.4.6-pre3-orig/include/linux/kernel.h linux-2.4.6-pre3/include/linux/kernel.h
+--- linux-2.4.6-pre3-orig/include/linux/kernel.h	Thu Jun 14 11:38:25 2001
++++ linux-2.4.6-pre3/include/linux/kernel.h	Thu Jun 14 11:50:21 2001
+@@ -48,6 +48,8 @@
+ struct semaphore;
+ 
+ extern struct notifier_block *panic_notifier_list;
++extern int register_panic_notifier(struct notifier_block *);
++extern int unregister_panic_notifier(struct notifier_block *);
+ NORET_TYPE void panic(const char * fmt, ...)
+ 	__attribute__ ((NORET_AND format (printf, 1, 2)));
+ NORET_TYPE void do_exit(long error_code)
+diff -u --new-file --recursive linux-2.4.6-pre3-orig/kernel/ksyms.c linux-2.4.6-pre3/kernel/ksyms.c
+--- linux-2.4.6-pre3-orig/kernel/ksyms.c	Thu Jun 14 11:38:26 2001
++++ linux-2.4.6-pre3/kernel/ksyms.c	Thu Jun 14 11:41:18 2001
+@@ -468,6 +468,8 @@
+ EXPORT_SYMBOL(cap_bset);
+ EXPORT_SYMBOL(daemonize);
+ EXPORT_SYMBOL(csum_partial); /* for networking and md */
++EXPORT_SYMBOL(register_panic_notifier);
++EXPORT_SYMBOL(unregister_panic_notifier);
+ 
+ /* Program loader interfaces */
+ EXPORT_SYMBOL(setup_arg_pages);
+diff -u --new-file --recursive linux-2.4.6-pre3-orig/kernel/panic.c linux-2.4.6-pre3/kernel/panic.c
+--- linux-2.4.6-pre3-orig/kernel/panic.c	Mon Oct 16 15:58:51 2000
++++ linux-2.4.6-pre3/kernel/panic.c	Thu Jun 14 13:05:00 2001
+@@ -101,3 +101,33 @@
+ 		CHECK_EMERGENCY_SYNC
+ 	}
+ }
++
++/**
++ *	register_panic_notifier - Register a function to be called on panic
++ *	@nb: Info about notifier function to be called
++ *
++ *	Registers a function with the list of functions to be called at
++ *	the time of a system panic.
++ *
++ *	Currently always returns zero, as notifier_chain_register
++ *	always returns zero.
++ */
++
++int register_panic_notifier(struct notifier_block *nb)
++{
++	return notifier_chain_register(&panic_notifier_list, nb);
++}
++
++/**
++ *	unregister_panic_notifier - Unregister a panic notifier
++ *	@nb:	Hook to be unregistered
++ *
++ *	Unregisters a previously registered panic notifier function.
++ *
++ *	Returns zero on success, or %-ENOENT on failure.
++ */
++
++int unregister_panic_notifier(struct notifier_block *nb)
++{
++	return notifier_chain_unregister(&panic_notifier_list, nb);
++}

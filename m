@@ -1,86 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268902AbUH3TzA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268883AbUH3Ty7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268902AbUH3TzA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 15:55:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268904AbUH3TyK
+	id S268883AbUH3Ty7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 15:54:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268902AbUH3TyR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 15:54:10 -0400
-Received: from ppp-62-11-78-150.dialup.tiscali.it ([62.11.78.150]:8066 "EHLO
-	zion.localdomain") by vger.kernel.org with ESMTP id S268902AbUH3Twl
+	Mon, 30 Aug 2004 15:54:17 -0400
+Received: from ppp-62-11-78-150.dialup.tiscali.it ([62.11.78.150]:7554 "EHLO
+	zion.localdomain") by vger.kernel.org with ESMTP id S268896AbUH3Twl
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 30 Aug 2004 15:52:41 -0400
-Subject: [patch 1/2] kbuild - Single_Linking_Step-uml-hook
+Subject: [patch 3/3] uml-remove-LDFLAGS_BLOB
 To: akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org, blaisorblade_spam@yahoo.it
 From: blaisorblade_spam@yahoo.it
-Date: Mon, 30 Aug 2004 21:48:35 +0200
-Message-Id: <20040830194835.DB80E7D85@zion.localdomain>
+Date: Mon, 30 Aug 2004 21:44:34 +0200
+Message-Id: <20040830194434.DFD9E7D67@zion.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Please note that this patch, even if UML-related, should be immediately
-discussed for merging in mainline, if possible.
-
-Patch purpose:
-This patch adds the kbuild hooks needed to avoid the linking kludge which leaves
-kbuild link vmlinux and then link it with libc inside linux. This kludge has the
-big problem of making kallsyms break, since the kallsyms pass is done on a
-completely different binary than the running one.
+LDFLAGS_BLOB is now unused, so remove it from UML.
 
 Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade_spam@yahoo.it>
 ---
 
- uml-linux-2.6.8.1-paolo/Makefile |   25 ++++++++++++++++++-------
- 1 files changed, 18 insertions(+), 7 deletions(-)
+ uml-linux-2.6.8.1-paolo/arch/um/Makefile-i386 |    1 -
+ 1 files changed, 1 deletion(-)
 
-diff -puN Makefile~Single_Linking_Step-uml-hook Makefile
---- uml-linux-2.6.8.1/Makefile~Single_Linking_Step-uml-hook	2004-08-30 16:39:08.919429000 +0200
-+++ uml-linux-2.6.8.1-paolo/Makefile	2004-08-30 16:39:08.922428544 +0200
-@@ -507,20 +507,30 @@ libs-y		:= $(libs-y1) $(libs-y2)
- #       we cannot yet know if we will need to relink vmlinux.
- #	So we descend into init/ inside the rule for vmlinux again.
- head-y += $(HEAD)
--vmlinux-objs := $(head-y) $(init-y) $(core-y) $(libs-y) $(drivers-y) $(net-y)
-+# If an arch (like UML) uses its own linking command for vmlinux, supply
-+# it everything to avoid it forgetting some objects.
-+vmlinux-init-objs := $(head-y) $(init-y)
-+vmlinux-main-objs := $(core-y) $(libs-y) $(drivers-y) $(net-y)
-+vmlinux-special-objs = $(filter .tmp_kallsyms%,$^)
-+# List of dependencies for vmlinux
-+vmlinux-objs := $(vmlinux-init-objs) $(vmlinux-main-objs)
+diff -puN arch/um/Makefile-i386~uml-remove-LDFLAGS_BLOB arch/um/Makefile-i386
+--- uml-linux-2.6.8.1/arch/um/Makefile-i386~uml-remove-LDFLAGS_BLOB	2004-08-29 14:40:58.781275664 +0200
++++ uml-linux-2.6.8.1-paolo/arch/um/Makefile-i386	2004-08-29 14:40:58.783275360 +0200
+@@ -20,7 +20,6 @@ ELF_ARCH = $(SUBARCH)
+ ELF_FORMAT = elf32-$(SUBARCH)
  
- quiet_cmd_vmlinux__ = LD      $@
-+#Allow UML to use gcc to link vmlinux.
-+#The command below is parametrized enough that you will never change it;
-+#but if you still want to change it, update every arch accordingly
-+#(at least UML, maybe other ones will use it, too).
-+ifeq ($(cmd_vmlinux__),)
- define cmd_vmlinux__
--	$(LD) $(LDFLAGS) $(LDFLAGS_vmlinux) $(head-y) $(init-y) \
-+	$(LD) $(LDFLAGS) $(LDFLAGS_vmlinux) \
-+	$(vmlinux-init-objs) \
- 	--start-group \
--	$(core-y) \
--	$(libs-y) \
--	$(drivers-y) \
--	$(net-y) \
-+	$(vmlinux-main-objs) \
- 	--end-group \
--	$(filter .tmp_kallsyms%,$^) \
-+	$(vmlinux-special-objs) \
- 	-o $@
- endef
-+endif
+ OBJCOPYFLAGS  := -O binary -R .note -R .comment -S
+-LDFLAGS_BLOB	:= --format binary --oformat elf32-i386
  
- #	set -e makes the rule exit immediately on error
- 
-@@ -541,6 +551,7 @@ endef
- do_system_map = $(NM) $(1) | grep -v '\(compiled\)\|\(\.o$$\)\|\( [aUw] \)\|\(\.\.ng$$\)\|\(LASH[RL]DI\)' | sort > $(2)
- 
- LDFLAGS_vmlinux += -T arch/$(ARCH)/kernel/vmlinux.lds.s
-+CFLAGS_vmlinux += -Wl,-T,arch/$(ARCH)/kernel/vmlinux.lds.s
- 
- #	Generate section listing all symbols and add it into vmlinux
- #	It's a three stage process:
+ SYS_DIR		:= $(ARCH_DIR)/include/sysdep-i386
+ SYS_UTIL_DIR	:= $(ARCH_DIR)/sys-i386/util
 _

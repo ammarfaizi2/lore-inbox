@@ -1,52 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266167AbUBQNXq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 08:23:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266169AbUBQNXq
+	id S266169AbUBQNY1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 08:24:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266171AbUBQNY1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 08:23:46 -0500
-Received: from intolerance.mr.itd.umich.edu ([141.211.14.78]:32947 "EHLO
-	intolerance.mr.itd.umich.edu") by vger.kernel.org with ESMTP
-	id S266167AbUBQNXp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 08:23:45 -0500
-Date: Tue, 17 Feb 2004 08:23:34 -0500 (EST)
-From: Rajesh Venkatasubramanian <vrajesh@umich.edu>
-X-X-Sender: vrajesh@azure.engin.umich.edu
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Andrew Morton <akpm@osdl.org>, <linux-kernel@vger.kernel.org>,
-       <Linux-MM@kvack.org>
-Subject: Re: [PATCH] mremap NULL pointer dereference fix
-In-Reply-To: <Pine.LNX.4.58.0402162203230.2154@home.osdl.org>
-Message-ID: <Pine.SOL.4.44.0402170821070.13429-100000@azure.engin.umich.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 17 Feb 2004 08:24:27 -0500
+Received: from ns.schottelius.org ([213.146.113.242]:62110 "HELO
+	ns.schottelius.org") by vger.kernel.org with SMTP id S266169AbUBQNYZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Feb 2004 08:24:25 -0500
+Date: Tue, 17 Feb 2004 14:24:30 +0100
+From: Nico Schottelius <nico-kernel@schottelius.org>
+To: Nico Schottelius <nico-kernel@schottelius.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: usb issue in 2.6 or notebook defect?
+Message-ID: <20040217132430.GZ1881@schottelius.org>
+References: <20040217110840.GR1881@schottelius.org> <20040217110928.GS1881@schottelius.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040217110928.GS1881@schottelius.org>
+X-Linux-Info: http://linux.schottelius.org/
+X-Operating-System: Linux bruehe 2.6.1
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Still on it...
 
+I asked some other people who all could confirmed that after copying
+much data (>=1-2GB) to/from a usb disk, the copy/tar/ whatever will
+freeze and then you'll have to reconnect the device to use it again
+(in my case with devfs the old entries still exist and the second time
+it become sdb)
 
-> To trigger the bug you have to have _just_ the right memory usage, I
-> suspect. You literally have to have the destination page directory
-> allocation unmap the _exact_ source page (which has to be clean) for the
-> bug to hit.
->
+Is it really still a problem to use mass storage under Linux?
 
-To trigger the bug, I have to run my test program in a "while true;"
-loop for an hour or so.
+Greetings,
 
-> So I suspect the oops only triggers on the machine that the trigger
-> program was written for.
->
-> Your version of the patch saves a goto in the source, but results in an
-> extra goto in the generated assembly unless the compiler is clever enough
-> to notice the double test for NULL.
->
-> Never mind, that's a micro-optimization, and your version is cleaner.
-> Let's go with it if Rajesh can verify that it fixes the problem for him.
-
-I will test the patch and report.
-
-Thanks,
-Rajesh
-
-
+Nico

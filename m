@@ -1,31 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289010AbSAZDoh>; Fri, 25 Jan 2002 22:44:37 -0500
+	id <S289018AbSAZDtz>; Fri, 25 Jan 2002 22:49:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289011AbSAZDo2>; Fri, 25 Jan 2002 22:44:28 -0500
-Received: from [200.181.68.89] ([200.181.68.89]:30647 "EHLO www4.mailbr.com.br")
-	by vger.kernel.org with ESMTP id <S289010AbSAZDoR>;
-	Fri, 25 Jan 2002 22:44:17 -0500
-Message-Id: <200201260343.g0Q3hup19024@www4.mailbr.com.br>
-Content-Type: text/plain
-Content-Disposition: inline
-To: linux-kernel@vger.kernel.org
-From: buzz@linuxbr.com.br
-X-Originating-Ip: 200.226.154.97
+	id <S290519AbSAZDtk>; Fri, 25 Jan 2002 22:49:40 -0500
+Received: from pc-62-31-92-140-az.blueyonder.co.uk ([62.31.92.140]:43650 "EHLO
+	kushida.apsleyroad.org") by vger.kernel.org with ESMTP
+	id <S289012AbSAZDtg>; Fri, 25 Jan 2002 22:49:36 -0500
+Date: Sat, 26 Jan 2002 03:45:59 +0000
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Dan Maas <dmaas@dcine.com>
+Cc: Andreas Schwab <schwab@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [ACPI] ACPI mentioned on lwn.net/kernel
+Message-ID: <20020126034559.G5730@kushida.apsleyroad.org>
+In-Reply-To: <fa.juevf8v.1u7ubb8@ifi.uio.no> <fa.h3u09pv.1v2k3bm@ifi.uio.no> <037801c1a60e$d897e230$1d01a8c0@allyourbase>
 Mime-Version: 1.0
-Reply-To: buzz@linuxbr.com.br
-Date: Sab, 26 Jan 2002 0:43:56
-X-Mailer: EMUmail 3.1_XX
-Subject: devfs error on soundcore module
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <037801c1a60e$d897e230$1d01a8c0@allyourbase>; from dmaas@dcine.com on Fri, Jan 25, 2002 at 09:12:03PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-try to start the modules: sb, soundcore, sb_lib, etc.... with the devfs 
-(and with automount at boot) option activated on the kernel-2.4.17
-it returns unresolved symbols...
-please fix this
- 
+Dan Maas wrote:
+> This may be true for environments where people mostly run a handful of
+> monolithic applications (*ahem* windows) but look at typical Linuxy things
+> like:
+> 
+> make (compiler, assembler, linker processes...)
+> forking servers (Apache 1.x...)
+> *./configure scripts* (a big one!!!)
+> etc...
+> 
+> Startup cost is likely to be a big factor here...
 
-Descubra os desejos de mais de 400 mil pessoas e realize também os seus!
-Central de Desejos - O portal de presentes da Internet.
-http://www.centraldedesejos.com/?cod_parceiroP200018
+Btw, a little story about startup times and Linux.
+
+I once wrote a Perl script that needed to know the current directory.
+It did:
+
+   use POSIX 'getcwd'
+   getcwd(...)
+
+After a few months, I was annoyed by the slowness of this script
+(compared with other scripts) and decided to try speeding it up.  It
+turns out that the above two lines took about 0.25 of a second, and that
+was the dominant running time of the script.
+
+I replaced getcwd() with `/bin/pwd`.  Lo!  It took about 0.0075 second.
+
+Says very good things about Linux' fork, exec and mmap times, and about
+Glibc's dynamic loading time, I think.
+
+-- Jamie

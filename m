@@ -1,38 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281062AbRKTVsQ>; Tue, 20 Nov 2001 16:48:16 -0500
+	id <S281075AbRKTVuG>; Tue, 20 Nov 2001 16:50:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281068AbRKTVsH>; Tue, 20 Nov 2001 16:48:07 -0500
-Received: from se1.cogenit.fr ([195.68.53.173]:45499 "EHLO cogenit.fr")
-	by vger.kernel.org with ESMTP id <S281062AbRKTVrz>;
-	Tue, 20 Nov 2001 16:47:55 -0500
-Date: Tue, 20 Nov 2001 22:47:53 +0100
-From: Francois Romieu <romieu@cogenit.fr>
-To: linux-kernel@vger.kernel.org
-Subject: Re: VM tuning for Linux routers
-Message-ID: <20011120224753.A29777@se1.cogenit.fr>
-In-Reply-To: <20011118145400.A23181@se1.cogenit.fr> <E166HcS-0001lw-00@calista.inka.de>
+	id <S281288AbRKTVt5>; Tue, 20 Nov 2001 16:49:57 -0500
+Received: from t2.redhat.com ([199.183.24.243]:36855 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S281075AbRKTVtw>; Tue, 20 Nov 2001 16:49:52 -0500
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <20011120212055.A22590@vnl.com> 
+In-Reply-To: <20011120212055.A22590@vnl.com>  <20011120190316.H19738@vnl.com> <Pine.LNX.3.95.1011120144925.14138A-100000@chaos.analogic.com> 
+To: Dale Amon <amon@vnl.com>
+Cc: "Richard B. Johnson" <root@chaos.analogic.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: A return to PCI ordering problems... 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E166HcS-0001lw-00@calista.inka.de>; from ecki@lina.inka.de on Tue, Nov 20, 2001 at 09:35:48PM +0100
-X-Organisation: Marie's fan club - II
+Date: Tue, 20 Nov 2001 21:49:01 +0000
+Message-ID: <2722.1006292941@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bernd Eckenfels <ecki@lina.inka.de> :
-> In article <20011118145400.A23181@se1.cogenit.fr> you wrote:
-> > Think about forwarding between GigaE and FastE. Think about overflow and
-> > bad irq latency. I wouldn't cut buffering at l2 as it averages the peaks. 
-> > Different trade-offs make sense of course.
-> 
-> I think in that case increasing the buffers is important:
-> 
-> net.core.rmem_max=262144
-> net.core.wmem_max=262144
 
-Aren't these only useful to userspace apps ?
+amon@vnl.com said:
+>  I haven't really much choice. I can't use modules for security
+> reasons; I have to assign the motherboard MAC to eth0 because a
+> commercial package we are installing licenses on the MAC address of
+> eth0.  
 
--- 
-Ueimor
+insmod dummy
+ip link set dummy0 name eth0
+ip link set eth0 address 01:02:03:04:05:06
+
+Of course, if you're not in the Free World you may end up in prison for 
+doing that.
+
+--
+dwmw2
+
+

@@ -1,52 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261303AbTCYAdn>; Mon, 24 Mar 2003 19:33:43 -0500
+	id <S261305AbTCYAps>; Mon, 24 Mar 2003 19:45:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261304AbTCYAdn>; Mon, 24 Mar 2003 19:33:43 -0500
-Received: from rth.ninka.net ([216.101.162.244]:54446 "EHLO rth.ninka.net")
-	by vger.kernel.org with ESMTP id <S261303AbTCYAdm>;
-	Mon, 24 Mar 2003 19:33:42 -0500
-Subject: Re: [CHECKER] potential dereference of user pointer errors
-From: "David S. Miller" <davem@redhat.com>
-To: Raja R Harinath <harinath@cs.umn.edu>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <d9llz4v1qh.fsf@bose.cs.umn.edu>
-References: <200303041112.h24BCRW22235@csl.stanford.edu>
-	 <Pine.GSO.4.44.0303202226230.24869-100000@elaine24.Stanford.EDU>
-	 <d9llz4v1qh.fsf@bose.cs.umn.edu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1048553088.7097.2.camel@rth.ninka.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 24 Mar 2003 16:44:48 -0800
+	id <S261306AbTCYAps>; Mon, 24 Mar 2003 19:45:48 -0500
+Received: from [209.104.139.7] ([209.104.139.7]:25022 "EHLO
+	mail.baldwinlib.org") by vger.kernel.org with ESMTP
+	id <S261305AbTCYApr>; Mon, 24 Mar 2003 19:45:47 -0500
+Message-ID: <4818.68.40.176.184.1048553816.squirrel@mail.baldwinmail.org>
+Date: Mon, 24 Mar 2003 19:56:56 -0500 (EST)
+Subject: Re: 2.5.65: *huge* interactivity problems
+From: "George Glover" <zed@baldwinmail.org>
+To: <akpm@digeo.com>
+In-Reply-To: <20030324171936.680f98e2.akpm@digeo.com>
+References: <20030323231306.GA4704@elf.ucw.cz>
+        <20030324171936.680f98e2.akpm@digeo.com>
+X-Priority: 3
+Importance: Normal
+Cc: <pavel@ucw.cz>, <linux-kernel@vger.kernel.org>
+Reply-To: zed@baldwinmail.org
+X-Mailer: SquirrelMail (version 1.2.10)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-03-24 at 14:28, Raja R Harinath wrote:
-> Something like
-> 
->   /* struct user_space should never be defined.  */
->   typedef struct user_space user_space;
-> 
->   int copy_to_user (user_space *to, char *from, size_t len);
->   int copy_from_user (char *to, user_space *from, size_t len);
->   /* ... */
-> 
->   #define TREAT_AS_USER_SPACE_POINTER(p) \
->             ({                                  \
->               BUG_ON(get_fs() != get_gs());     \
->               (user_space *)p;                  \
->             })
+I also have a similar problem, when running setiathome with priority 1.
 
-A great idea, we'd need to use this struct user_space at every
-system call, and it doesn't work to well when pointers are
-embedded inside of a structure.
+All _running_ applications remain interactive, anything requring disk
+access, in particular starting a new program, causes things to block.
 
-This is why a GCC attribute of some sort would be more useful.
-But I don't see the GCC folks offering a user-definable attribute
-+ checking system any time soon.
+I've so far only been in X when this happens, mouse still moves, remote
+applications update their windows fine, no lost keystrokes, it's when I
+run something locally requiring disk IO.
 
--- 
-David S. Miller <davem@redhat.com>
+Renicing setiathome to -19 causes the problem to vanish.
+
+Dragging an xterm around seems to help it recover from a hang too.
+
+> - How much memory does the machine have?
+
+256
+
+> - UP/SMP/preempt?
+
+preempt
+
+>
+> - What do vmstat and top say?
+
+3  1   2216  21008  27464  69920    0    0     0     0 1024   241 100  0  0 0
+3  1   2216  20176  27464  69920    0    0     0     0 1024   249 100  0  0 0
+3  1   2216  20176  27464  69920    0    0     0     0 1024   252  99  1  0 0
+3  1   2216  21060  27464  69920    0    0     0     0 1025   236 100  0  0 0
+
+> - Did it happen in 2.5.64?  2.5.63?  2.4.20?
+
+2.5.64
+
+> - Does it get better if you renice stuff?
+
+Yes
+
+> - What steps should others take to reproduce it?
+
+Running setiathome with priority one seems to do it for me.
+
+George
+
+

@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261796AbSJIPvH>; Wed, 9 Oct 2002 11:51:07 -0400
+	id <S261824AbSJIPyz>; Wed, 9 Oct 2002 11:54:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261798AbSJIPvG>; Wed, 9 Oct 2002 11:51:06 -0400
-Received: from 213-187-164-2.dd.nextgentel.com ([213.187.164.2]:35975 "EHLO
-	mail.pronto.tv") by vger.kernel.org with ESMTP id <S261796AbSJIPvF> convert rfc822-to-8bit;
-	Wed, 9 Oct 2002 11:51:05 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Organization: ProntoTV AS
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: softdog doesn't work on 2.4.20-pre10?
-Date: Wed, 9 Oct 2002 17:58:05 +0200
-User-Agent: KMail/1.4.1
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200210091607.32769.roy@karlsbakk.net> <200210091727.00406.roy@karlsbakk.net> <1034178374.2066.60.camel@irongate.swansea.linux.org.uk>
-In-Reply-To: <1034178374.2066.60.camel@irongate.swansea.linux.org.uk>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200210091758.05793.roy@karlsbakk.net>
+	id <S261818AbSJIPyz>; Wed, 9 Oct 2002 11:54:55 -0400
+Received: from edinburgh.cisco.com ([144.254.112.76]:39299 "EHLO cisco.com")
+	by vger.kernel.org with ESMTP id <S261824AbSJIPyx>;
+	Wed, 9 Oct 2002 11:54:53 -0400
+Date: Wed, 9 Oct 2002 17:00:18 +0100
+From: Derek Fawcus <dfawcus@cisco.com>
+To: "YOSHIFUJI Hideaki / ?$B5HF#1QL@?(B" <yoshfuji@linux-ipv6.org>
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com, usagi@linux-ipv6.org
+Subject: Re: [PATCH] IPv6: Fix Prefix Length of Link-local Addresses
+Message-ID: <20021009170018.H29133@edinburgh.cisco.com>
+References: <20021008.000559.17528416.yoshfuji@linux-ipv6.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20021008.000559.17528416.yoshfuji@linux-ipv6.org>; from yoshfuji@linux-ipv6.org on Tue, Oct 08, 2002 at 12:05:59AM +0900
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 09 October 2002 17:46, Alan Cox wrote:
-> On Wed, 2002-10-09 at 16:27, Roy Sigurd Karlsbakk wrote:
-> > it doesn't tell if the softdog supports the send-'V'-before-close-file
-> > command to shut it down
->
-> That is a shutdown in no way out mode. In default mode when you close
-> the watchdog it stops
+On Tue, Oct 08, 2002 at 12:05:59AM +0900, YOSHIFUJI Hideaki / ?$B5HF#1QL@?(B wrote:
+> Hi,
+> 
+> Prefix length for link-local address should be 64, not 10.
+> This patch fixes prefix length of link-local address.
+> 
+> Following patch is against 2.4.19.
 
-ok. so 'no way out' really means 'one way out'?
+Huh?
 
--- 
-Roy Sigurd Karlsbakk, Datavaktmester
-ProntoTV AS - http://www.pronto.tv/
-Tel: +47 9801 3356
+Without reading the kernel routing table code a bit more,  I'm not certain
+what that change does,  but it looks as if it might be changing the
+connected route for a link local from fe80::/10 to fe80::/64.
 
-Computers are like air conditioners.
-They stop working when you open Windows.
+I'd actually say that is wrong.
 
+All link local's are currently supposed to have those top bits
+('tween 10 and 64) zero'd,  however any address within the link local
+prefix _is_ on link / connected and should go to the interface.
+
+i.e. it's perfectly valid for me to assign a link local of fe80:1910::10
+     to an interface and expect it to be work,  likewise for a packet
+     destined to any link local address to trigger ND.
+
+DF

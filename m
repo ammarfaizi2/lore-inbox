@@ -1,63 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262827AbRE3WCt>; Wed, 30 May 2001 18:02:49 -0400
+	id <S262843AbRE3WGJ>; Wed, 30 May 2001 18:06:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262843AbRE3WCj>; Wed, 30 May 2001 18:02:39 -0400
-Received: from dryline-fw.yyz.somanetworks.com ([216.126.67.45]:15896 "EHLO
-	dryline-fw.wireless-sys.com") by vger.kernel.org with ESMTP
-	id <S262838AbRE3WCd>; Wed, 30 May 2001 18:02:33 -0400
-Date: Wed, 30 May 2001 18:02:32 -0400
-From: Mark Frazer <mark@somanetworks.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Makefile patch for cscope and saner Ctags
-Message-ID: <20010530180232.A4546@somanetworks.com>
-Mail-Followup-To: Linux Kernel <linux-kernel@vger.kernel.org>
+	id <S262845AbRE3WF7>; Wed, 30 May 2001 18:05:59 -0400
+Received: from ns.caldera.de ([212.34.180.1]:52717 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S262843AbRE3WFs>;
+	Wed, 30 May 2001 18:05:48 -0400
+Date: Thu, 31 May 2001 00:05:05 +0200
+From: Marcus Meissner <Marcus.Meissner@caldera.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Marcus Meissner <Marcus.Meissner@caldera.de>,
+        Marcus Meissner <mm@ns.caldera.de>, linux-kernel@vger.kernel.org
+Subject: Re: ln -s broken on 2.4.5
+Message-ID: <20010531000505.A30497@caldera.de>
+In-Reply-To: <20010530233005.A27497@caldera.de> <E155DqA-0006g7-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-Organization: Detectable, well, not really
+In-Reply-To: <E155DqA-0006g7-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Wed, May 30, 2001 at 10:49:18PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following patch generates saner Ctags and will build cscope
-output.  It's against 2.4.5
+On Wed, May 30, 2001 at 10:49:18PM +0100, Alan Cox wrote:
+> > The problem is only there if you specify a directory for the linked to
+> > component.
+> > 
+> > [marcus@wine /tmp]$ strace -f ln -s fupp/berk xxx
+> > execve("/bin/ln", ["ln", "-s", "fupp/berk", "xxx"], [/* 39 vars */]) = 0
+> > ... ld stuff ... locale stuff ... 
+> 
+> bash-2.04$ ln -s foo/frob eep
+> bash-2.04$ ls -l eep
+> lrwxrwxrwx    1 alan     users           8 May 30 22:19 eep -> foo/frob
 
+*sigh*
 
---- Makefile.old	Mon May 28 22:44:01 2001
-+++ Makefile	Wed May 30 17:50:01 2001
-@@ -334,11 +334,32 @@
- 
- # Exuberant ctags works better with -I
- tags: dummy
--	CTAGSF=`ctags --version | grep -i exuberant >/dev/null && echo "-I __initdata,__exitdata,EXPORT_SYMBOL,EXPORT_SYMBOL_NOVERS"`; \
-+	CTAGSF=`ctags --version | grep -i exuberant >/dev/null && echo "--sort=no -I __initdata,__exitdata,EXPORT_SYMBOL,EXPORT_SYMBOL_NOVERS"`; \
- 	ctags $$CTAGSF `find include/asm-$(ARCH) -name '*.h'` && \
--	find include -type d \( -name "asm-*" -o -name config \) -prune -o -name '*.h' -print | xargs ctags $$CTAGSF -a && \
-+	find include -type f -name '*.h' -mindepth 2 -maxdepth 2 \
-+	    | grep -v include/asm- | grep -v include/config \
-+	    | xargs -r ctags $$CTAGSF -a && \
-+	find include -type f -name '*.h' -mindepth 3 -maxdepth 3 \
-+	    | grep -v include/asm- | grep -v include/config \
-+	    | xargs -r ctags $$CTAGSF -a && \
-+	find include -type f -name '*.h' -mindepth 4 -maxdepth 4 \
-+	    | grep -v include/asm- | grep -v include/config \
-+	    | xargs -r ctags $$CTAGSF -a && \
-+	find include -type f -name '*.h' -mindepth 5 -maxdepth 5 \
-+	    | grep -v include/asm- | grep -v include/config \
-+	    | xargs -r ctags $$CTAGSF -a && \
- 	find $(SUBDIRS) init -name '*.c' | xargs ctags $$CTAGSF -a
-+	mv tags tags.unsorted
-+	LC_ALL=C sort -k 1,1 -s tags.unsorted > tags
-+	rm tags.unsorted
- 
-+cscope: dummy
-+	find include/asm-$(ARCH) -name '*.h' >cscope.files
-+	find include $(SUBDIRS) init -type f -name '*.[ch]' \
-+	    | grep -v include/asm- | grep -v include/config >> cscope.files
-+	cscope -b -I include
-+
-+	
- ifdef CONFIG_MODULES
- ifdef CONFIG_MODVERSIONS
- MODFLAGS += -DMODVERSIONS -include $(HPATH)/linux/modversions.h
+I just rebooted and it is no longer reproducable.
+
+Sorry for the confusion caused.
+
+Ciao, Marcus

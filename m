@@ -1,16 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264874AbRGSDtA>; Wed, 18 Jul 2001 23:49:00 -0400
+	id <S264932AbRGSEBl>; Thu, 19 Jul 2001 00:01:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264932AbRGSDsu>; Wed, 18 Jul 2001 23:48:50 -0400
-Received: from [216.6.80.34] ([216.6.80.34]:65040 "EHLO
+	id <S264942AbRGSEBc>; Thu, 19 Jul 2001 00:01:32 -0400
+Received: from [216.6.80.34] ([216.6.80.34]:51983 "EHLO
 	dcmtechdom.dcmtech.co.in") by vger.kernel.org with ESMTP
-	id <S264874AbRGSDsn>; Wed, 18 Jul 2001 23:48:43 -0400
-Message-ID: <7FADCB99FC82D41199F9000629A85D1A01C65069@dcmtechdom.dcmtech.co.in>
+	id <S264932AbRGSEB0>; Thu, 19 Jul 2001 00:01:26 -0400
+Message-ID: <7FADCB99FC82D41199F9000629A85D1A01C6506A@dcmtechdom.dcmtech.co.in>
 From: Nitin Dhingra <nitin.dhingra@dcmtech.co.in>
-To: "'Rajeev Bector'" <rajeev_bector@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: RE: vmalloc and kiobuf questions ?
-Date: Thu, 19 Jul 2001 09:19:26 +0530
+To: "'Florin Andrei'" <florin@sgi.com>, linux-xfs@oss.sgi.com,
+        seawolf-list@redhat.com, dledford@redhat.com,
+        linux-kernel@vger.kernel.org
+Subject: RE: noapic strikes back
+Date: Thu, 19 Jul 2001 09:30:54 +0530
 MIME-Version: 1.0
 X-Mailer: Internet Mail Service (5.5.2653.19)
 Content-Type: text/plain;
@@ -18,59 +20,48 @@ Content-Type: text/plain;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-1) Yeah, vmalloc can allocate memory till the
-last available ram present in your machine.
-
-2 & 3) You can use kiobuf for locking user memory
-area. They are a part of kernel 2.4.x and also if 
-you have previous 2.2.x find a patch. If you have
-kernel 2.4.4 +, there is a file in source 
-arch/cris/drivers/examples/kiobuftest.c that is doing 
-exactly what you want. You can check it out. If you 
-don't have it, I also made a module for locking user 
-buffers using kiobuf, if you want I can mail you the src.
-
+I guess the problem is mostly of the scsi driver. 
+Get the latest version scsi driver of that particular 
+card and then try again. 
 
 Regards,
 Nitin
 
 
 -----Original Message-----
-From: Rajeev Bector [mailto:rajeev_bector@yahoo.com]
-Sent: Wednesday, July 18, 2001 11:16 PM
-To: linux-kernel@vger.kernel.org
-Subject: vmalloc and kiobuf questions ?
+From: Florin Andrei [mailto:florin@sgi.com]
+Sent: Thursday, July 19, 2001 1:05 AM
+To: linux-xfs@oss.sgi.com; seawolf-list@redhat.com; dledford@redhat.com;
+linux-kernel@vger.kernel.org
+Subject: noapic strikes back
 
 
-MM Gurus, 
-  In trying to understand how to map driver
-memory into user space memory, I have the following
-questions:
+I have a SGI 1200 (L440GX+ motherboard, dual PIII) and i'm trying to
+install at least one version of Red Hat 7.1 on it.
+The problem is, while booting up the installer, when it comes to loading
+up the SCSI driver (AIC7xxx) the system is frozen.
 
-1) Is there a limit to how much memory
-   I can allocate using vmalloc() ?
-   (This is regular RAM)
-2) I want to map the vmalloc'ed memory
-   to user space via mmap(). I've read
-   that remap_page_range() will not do it
-   and I have to do it using nopage
-   handlers ? Is that true ? Is there
-   a simple answer to why is that the case ?
+I tried the following boot disks:
+- stock Red Hat 7.1
+- Doug Ledford's updates from people.redhat.com
+- SGI XFS 1.0.1
 
-3) I've also read the kiobufs will simplify
-   all this. Is there a documentation on 
-   kiobufs - what they can and cannot do ?
-   Are kiobufs part of the standard kernel
-   now ?
-Thanks in advance for your answers !
+I tried to boot the installer with and without "noapic" option.
 
-Rajeev
+I tried to enable and disable the APIC option in BIOS ("PCI IRQs to
+IO-APIC Mapping").
 
+I tried all the combinations of these. No luck. :-(
 
-__________________________________________________
-Do You Yahoo!?
-Get personalized email addresses from Yahoo! Mail
-http://personal.mail.yahoo.com/
+Please, is there anything to do about this problem? I *have* to install
+something newer than RH7.0 on that system.
+
+Guys, i will try whatever boot disks you will send to me. I'm willing to
+be you guinea pig. :-) Just let's kill the APIC problem for good!
+
+-- 
+Florin Andrei
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

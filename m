@@ -1,18 +1,21 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312294AbSC2XNc>; Fri, 29 Mar 2002 18:13:32 -0500
+	id <S312302AbSC2XPD>; Fri, 29 Mar 2002 18:15:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312295AbSC2XNW>; Fri, 29 Mar 2002 18:13:22 -0500
+	id <S312304AbSC2XOy>; Fri, 29 Mar 2002 18:14:54 -0500
 Received: from [195.39.17.254] ([195.39.17.254]:53639 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S312294AbSC2XNK>;
-	Fri, 29 Mar 2002 18:13:10 -0500
-Date: Sat, 30 Mar 2002 00:11:00 +0100
+	by vger.kernel.org with ESMTP id <S312302AbSC2XOq>;
+	Fri, 29 Mar 2002 18:14:46 -0500
+Date: Sat, 30 Mar 2002 00:07:47 +0100
 From: Pavel Machek <pavel@suse.cz>
-To: Jos Hulzink <josh@stack.nl>
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [Q] FAT driver enhancement
-Message-ID: <20020329231100.GE9974@elf.ucw.cz>
-In-Reply-To: <20020328135555.U6796-100000@snail.stack.nl>
+To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Zwane Mwaikambo <zwane@linux.realnet.co.sz>,
+        Dave Jones <davej@suse.de>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][RFC] P4/Xeon Thermal LVT support
+Message-ID: <20020329230745.GD9974@elf.ucw.cz>
+In-Reply-To: <E16qHy4-0005l7-00@the-village.bc.nu> <Pine.GSO.3.96.1020328133623.11187A-100000@delta.ds2.pg.gda.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,43 +26,40 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> A while ago I initiated a thread about mounting a NTFS partition as FAT
-> partition. The problem is that FAT partitions do not have a real
-> fingerprint, so the FAT driver mounts almost anything.
+> > >  How can't it be critical?  Your system is overheating.  It is about to
+> > > fail -- depending on the configuration, it'll either crash or be shut down
+> > 
+> > Neither. It will drop to a much lower clock speed. You can set it to overheat
+> > and blow up but thats a mostly undocumented mtrr 8) The default behaviour is
+> > to throttle back hard
 > 
-> The current 2.5 driver only tests if some values in the bootsector are
-> non-zero. IMHO, this is not strict enough. For example, the number of FATs
-> is always 1 or 2 (anyone ever seen more ?). Besides, when there are two
-> FATs, all entries in those FATs should be equal. If they are not, we deal
-> with a non-FAT or broken FAT partition, and we should not mount.
-> 
-> It's not a real fingerprint, but what are the chances all sectors of what
-> we think is the FAT are equal on non-FAT filesystems ? Yes, when you just
-> did a
-> 
-> dd if=/dev/zero of=/dev/partition; mkfs.somefs /dev/partition
-> 
-> there is a chance, but that's an empty filesystem. Data corruption isn't
-> that bad on an empty disk. We know that a FAT is at the beginning of a
-> partition and I assume that any other filesystem will fill up those first
-> sectors very soon.
-> 
-> Questions:
-> 
-> 1) How do you think about the checking of the FAT tables ? It definitely
->    will slow down the mount.
+>  Depending on the reason of an overheat condition this may circumvent the
+> problem or not.  As I already stated you may have fire in the room (and
+> not all computer rooms seem to have automatic extinguishing systems). 
+> Hardware failures are not to be treated lightly. 
 
-Reading FATs is very fast, and they are probably going to be needed,
-anyway. I guess its okay.
+Overheat is not neccessarily hardware failure.
 
-> 2) If I implement it, where shoud it go ? At the moment, I hacked
->    fat_read_super, for there the FAT fs is validated, but I got the
->    feeling this is not the place to be.
-> 3) Anyone seen more than two FATs on a filesystem ? Can I assume there is
->    a limit ?
+You see, I have a notebook. I put pen in it to stop the fan. Hardware
+is pretty much okay, but, well, pen does not allow fan to spin.
 
-No. I think you can only have two.
+What's the best behaviour? Throttle is okay.
 
+I take the same notebook, let it compile kernel, put it into my bed,
+and cover it. What should happen? Throttle is okay. I'll get warm bed
+and compiled kernel.
+
+Is there something better you propose notebook to do.
+
+And now, you have fire at server room. All cpus throtle, then are
+burn. Does it matter if they throttled? No.
+
+And now, you have your must-be-running server at university. Its fan
+fails. What do you want it to do? Throttle is the best thing. (It
+might deliver mail slightly slower, but it can probably handle load
+during the night so I can get there).
+
+So it seems to me throttle is always right answer.
 									Pavel
 -- 
 (about SSSCA) "I don't say this lightly.  However, I really think that the U.S.

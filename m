@@ -1,67 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264695AbTFWP47 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jun 2003 11:56:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264730AbTFWP47
+	id S264678AbTFWPxf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jun 2003 11:53:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264695AbTFWPxe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jun 2003 11:56:59 -0400
-Received: from mail.hometree.net ([212.34.181.120]:44184 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP id S264695AbTFWP44
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jun 2003 11:56:56 -0400
+	Mon, 23 Jun 2003 11:53:34 -0400
+Received: from main.gmane.org ([80.91.224.249]:11947 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S264449AbTFWPxS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jun 2003 11:53:18 -0400
+X-Injected-Via-Gmane: http://gmane.org/
 To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Newsgroups: hometree.linux.kernel
-Subject: Re: [OT] Re: Troll Tech [was Re: Sco vs. IBM]
-Date: Mon, 23 Jun 2003 16:11:02 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <bd78qm$7is$1@tangens.hometree.net>
-References: <20030620001217.G6248@almesberger.net> <20030620120910.3f2cb001.skraw@ithnet.com> <20030620142436.GB14404@work.bitmover.com> <20030620143012.GC14404@work.bitmover.com> <20030620163349.GG17563@work.bitmover.com> <20030621142048.2ae63afa.skraw@ithnet.com> <20030621133831.GA10089@work.bitmover.com> <1056358467.29264.41.camel@passion.cambridge.redhat.com> <20030623132231.GC6715@work.bitmover.com> <3EF70EF8.3050107@coyotegulch.com> <20030623150616.GA20103@work.bitmover.com>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1056384662 7772 212.34.181.4 (23 Jun 2003 16:11:02 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Mon, 23 Jun 2003 16:11:02 +0000 (UTC)
-X-Copyright: (C) 1996-2003 Henning Schmiedehausen
-X-No-Archive: yes
-User-Agent: nn/6.6.5
+From: Orion Poplawski <orion@cora.nwra.com>
+Subject: Cannot apply sched-threading-2.4.21-E1 to 2.4.21 kernel
+Date: Mon, 23 Jun 2003 10:06:41 -0600
+Message-ID: <bd78i4$iom$1@main.gmane.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@main.gmane.org
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030312
+X-Accept-Language: en-us, en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry McVoy <lm@bitmover.com> writes:
+I assumed that the scheduler patch sched-threading-2.4.21-E1 at 
+http://people.redhat.com/mingo/O(1)-scheduler/ is designed to be applied 
+to the 2.4.21 kernel?  I'm not having any luck:
 
->On Mon, Jun 23, 2003 at 10:30:16AM -0400, Scott Robert Ladd wrote:
+[root@earth linux-2.4.21]# patch -p1 < ../sched-threading-2.4.21-E1.patch
+patching file fs/proc/array.c
+Hunk #4 FAILED at 343.
+Hunk #5 FAILED at 392.
+2 out of 5 hunks FAILED -- saving rejects to file fs/proc/array.c.rej
+patching file fs/proc/base.c
+patching file fs/proc/inode.c
+patching file fs/proc/proc_misc.c
+Hunk #1 FAILED at 376.
+1 out of 1 hunk FAILED -- saving rejects to file fs/proc/proc_misc.c.rej
+patching file fs/smbfs/sock.c
+patching file fs/ncpfs/sock.c
+patching file fs/autofs/waitq.c
+patching file fs/lockd/clntlock.c
+patching file fs/lockd/clntproc.c
+patching file fs/lockd/svc.c
+patching file fs/nfsd/export.c
+patching file fs/nfsd/nfssvc.c
+patching file fs/jffs/intrep.c
+patching file fs/autofs4/waitq.c
+patching file fs/reiserfs/journal.c
+patching file fs/jffs2/background.c
+Hunk #1 succeeded at 110 with fuzz 1 (offset 3 lines).
+Hunk #3 succeeded at 161 (offset 3 lines).
+patching file fs/jfs/jfs_logmgr.c
+patching file fs/jfs/jfs_txnmgr.c
+patching file fs/jbd/journal.c
+patching file fs/binfmt_aout.c
+patching file fs/binfmt_elf.c
+Hunk #4 succeeded at 602 (offset 3 lines).
+Hunk #5 succeeded at 956 (offset -1 lines).
+Hunk #6 succeeded at 986 (offset 3 lines).
+Hunk #7 succeeded at 1004 (offset -1 lines).
+Hunk #8 succeeded at 1175 (offset 3 lines).
+Hunk #9 FAILED at 1222.
+Hunk #10 succeeded at 1321 (offset -1 lines).
+Hunk #11 succeeded at 1358 (offset 3 lines).
+Hunk #12 succeeded at 1408 (offset -1 lines).
+Hunk #13 succeeded at 1450 (offset 3 lines).
+1 out of 13 hunks FAILED -- saving rejects to file fs/binfmt_elf.c.rej
+patching file fs/buffer.c
+Hunk #1 succeeded at 2920 (offset -41 lines).
+Hunk #3 succeeded at 2995 (offset -41 lines).
+patching file fs/exec.c
+Hunk #2 succeeded at 465 (offset -7 lines).
+Hunk #4 succeeded at 716 (offset -7 lines).
+Hunk #6 succeeded at 839 (offset -7 lines).
+Hunk #8 FAILED at 1247.
+Hunk #9 succeeded at 1273 with fuzz 2 (offset -12 lines).
+1 out of 9 hunks FAILED -- saving rejects to file fs/exec.c.rej
 
-[...]
+....and so on.
 
->> A case in point: My Java Indexed Serialization Package (JISP) provides a 
->> very basic tool; about half my business comes from people who like the 
->> Jisp concept, and need a custom version that is tightly coupled to their 
->> requirements. I don't sell Jisp; I sell *what I can do* with Jisp.
+Was this a mistaken assumption?
 
->I think I'm going to give up soon (much to relief of the list) because I
->keep getting the same sorts of answers which make sense from a small
->custom shop point of view but are simply broken from a company point of
->view.
 
-SAP is doing exactly what Scott is doing on a little larger base. They
-have a product with a bazillion of levers and controls and they sell
-you services to adapt their product on your needs. Things you could do
-yourself if you have five years' time to read all the manuals.
-
-So your argument simply doesn't hold. SAP is not exactly a "small
-custom shop".
-
-	Regards
-		Henning
-
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen          INTERMETA GmbH
-hps@intermeta.de        +49 9131 50 654 0   http://www.intermeta.de/
-
-Java, perl, Solaris, Linux, xSP Consulting, Web Services 
-freelance consultant -- Jakarta Turbine Development  -- hero for hire
-
---- Quote of the week: "It is pointless to tell people anything when
-you know that they won't process the message." --- Jonathan Revusky

@@ -1,82 +1,284 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266289AbUIEKkA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266386AbUIEKlt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266289AbUIEKkA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Sep 2004 06:40:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266319AbUIEKkA
+	id S266386AbUIEKlt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Sep 2004 06:41:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266362AbUIEKlq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Sep 2004 06:40:00 -0400
-Received: from smtp-out.hotpop.com ([38.113.3.71]:57241 "EHLO
-	smtp-out.hotpop.com") by vger.kernel.org with ESMTP id S266289AbUIEKj5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Sep 2004 06:39:57 -0400
-From: "Antonino A. Daplas" <adaplas@hotpop.com>
-Reply-To: adaplas@pol.net
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [Linux-fbdev-devel] [PATCH 4/5][RFC] fbdev: Clean up framebuffer initialization
-Date: Sun, 5 Sep 2004 18:40:10 +0800
-User-Agent: KMail/1.5.4
-Cc: Linux Frame Buffer Device Development 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Thomas Winischhofer <thomas@winischhofer.net>
-References: <200409041108.40276.adaplas@hotpop.com> <200409051750.47987.adaplas@hotpop.com> <Pine.GSO.4.58.0409051206180.28961@waterleaf.sonytel.be>
-In-Reply-To: <Pine.GSO.4.58.0409051206180.28961@waterleaf.sonytel.be>
+	Sun, 5 Sep 2004 06:41:46 -0400
+Received: from amsfep17-int.chello.nl ([213.46.243.15]:7473 "EHLO
+	amsfep17-int.chello.nl") by vger.kernel.org with ESMTP
+	id S266319AbUIEKlQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Sep 2004 06:41:16 -0400
+Date: Sun, 5 Sep 2004 12:41:08 +0200 (CEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Dan Kegel <dank@kegel.com>
+cc: Roman Zippel <zippel@linux-m68k.org>,
+       Matthias Urlichs <smurf@smurf.noris.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux/m68k <linux-m68k@lists.linux-m68k.org>
+Subject: Re: Getting kernel.org kernel to build for m68k?
+In-Reply-To: <Pine.GSO.4.58.0409011029390.15681@waterleaf.sonytel.be>
+Message-ID: <Pine.LNX.4.58.0409051224020.30282@anakin>
+References: <41355F88.2080801@kegel.com> <Pine.GSO.4.58.0409011029390.15681@waterleaf.sonytel.be>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200409051840.10202.adaplas@hotpop.com>
-X-HotPOP: -----------------------------------------------
-                   Sent By HotPOP.com FREE Email
-             Get your FREE POP email at www.HotPOP.com
-          -----------------------------------------------
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 05 September 2004 18:13, Geert Uytterhoeven wrote:
-> On Sun, 5 Sep 2004, Antonino A. Daplas wrote:
-> > On Sunday 05 September 2004 17:16, Geert Uytterhoeven wrote:
-> > > On Sat, 4 Sep 2004, Antonino A. Daplas wrote:
-> > > > Currently, the framebuffer system is initialized in a roundabout
-> > > > manner. First, drivers/char/mem.c calls fbmem_init().  fbmem_init()
-> > > > will then iterate over an array of individual drivers' xxxfb_init(),
-> > > > then each driver registers its presence back to fbmem.  During
-> > > > console_init(), drivers/char/vt.c will call fb_console_init(). fbcon
-> > > > will check for registered drivers, and if any are present, will call
-> > > > take_over_console() in drivers/char/vt.c.
-> > > >
-> > > > This patch changes the initialization sequence so it proceeds in this
-> > > > manner: Each driver has its own module_init(). Each driver calls
-> > > > register_framebuffer() in fbmem.c. fbmem.c will then notify fbcon of
-> > > > the driver registration.  Upon notification, fbcon calls
-> > > > take_over_console() in vt.c.
-> > >
-> > > My main concern with this change is that it will be no longer possible
-> > > to change initialization order (and hence choose the primary display
-> > > for systems with multiple graphics adapters) by specifying
-> > > `video=xxxfb' on the kernel command line.
+On Wed, 1 Sep 2004, Geert Uytterhoeven wrote:
+> On Tue, 31 Aug 2004, Dan Kegel wrote:
+> > I noticed today that Linus's m68k kernel can't be built (at least with gcc-3.4.1).
 > >
-> > I see your point.  But, can we use "fbcon=" setup options to choose which
-> > fb gets mapped to what console? We already have fbcon=map:<option> so we
-> > can choose which becomes the primary display. Granted the "fbcon=" setup
-> > is currently broken, but if fixed, will that be a fair compromise?
+> > The first problem I ran into,
+> >    CC      arch/m68k/kernel/asm-offsets.s
+> >    In file included from include/linux/spinlock.h:12,
+> >                   from include/linux/capability.h:45,
+> >                   from include/linux/sched.h:7,
+> >                   from arch/m68k/kernel/asm-offsets.c:12:
+> >    include/linux/thread_info.h:30: error: parse error before '{' token
+> > is solved already in the m68k tree.
+> > (In particular,
+> > the #ifndef __HAVE_THREAD_FUNCTIONS ... #endif in
+> > http://linux-m68k-cvs.apia.dhs.org/c/cvsweb/linux/include/linux/thread_info.h?rev=1.5;content-type=text%2Fplain
+> > probably solves it.)
+> > There are other problems after that.
 >
-> Yes, sounds fine.
-
-Thanks.
-
+> Roman Zippel changed the threading stuff on m68k. Since it would affect other
+> architectures, I never submitted it on my own.
 >
-> Just thinking of something else: right now it's possible to disable a fbdev
-> by saying `video=xxxfb:off'. This can be useful if the fbdev driver doesn't
-> work with your hardware. After you change, individual fbdev drivers will
-> have to reimplement this theirselves in their __setup() functions.
+> In short, we never really compile this code, since the m68k tree doesn't use it
+> anymore. And yes, it even fails with older compiler versions, like 2.95.2.
 
-Yes.  I hope this doesn't bite too deep.  If it does, I think we can let
-fb_get_options() return an error  when the "off" option is present.  But I'm
-not going to implement it unless we get a lot of complaints.
+The second part doesn't seem to be true: the code is used. And it does compile
+after applying the fixes below, even with gcc 3.4.1.
 
-Tony 
+> > Any chance you could spend a bit of time sending Linus enough
+> > patches for his kernel to build for m68k, if not run?
+>
+> I'll make sure a plain kernel.org kernel can build an m68k kernel.
+
+The patch below makes the plain kernel.org 2.6.8.1 compile for m68k,
+using gcc 2.95.2 or 3.3.3 (3.4.1 needs a few more changes in random
+places). The resulting kernel (I booted the gcc 2.95.2 case) works fine on my
+Amiga.
+
+It's more or less the patch created by Matthias Urlichs last year, so
+the credits are his:
+
+| This change implements a reasonable compromise between the task_info->flags
+| variable in other ports, which is too much work in the syscall path on m68k,
+| and moving the whole structure to thread_struct, which is way too intrusive
+| on other ports.
+
+The patch does affect generic code a bit, but the collateral damage is
+kept to a minimum.
+
+We can still keep Roman's thread info abstractions[*] in Linux/m68k CVS, but
+I'd really like the plain kernel.org kernel to be in a working state as well.
+That way more people may do cross-compile tests for m68k.
+
+Hence if no one objects, I'll submit the patch to Andrew and Linus.
+
+All comments are welcome!
+
+--- linux-2.6.8.1/arch/m68k/kernel/asm-offsets.c	2004-04-28 15:48:59.000000000 +0200
++++ linux-m68k-2.6.8.1/arch/m68k/kernel/asm-offsets.c	2004-09-05 12:04:00.000000000 +0200
+@@ -31,6 +31,7 @@ int main(void)
+ 	DEFINE(TASK_SIGPENDING, offsetof(struct task_struct, thread.work.sigpending));
+ 	DEFINE(TASK_NOTIFY_RESUME, offsetof(struct task_struct, thread.work.notify_resume));
+ 	DEFINE(TASK_THREAD, offsetof(struct task_struct, thread));
++	DEFINE(TASK_TINFO, offsetof(struct task_struct, thread_info));
+ 	DEFINE(TASK_MM, offsetof(struct task_struct, mm));
+ 	DEFINE(TASK_ACTIVE_MM, offsetof(struct task_struct, active_mm));
+
+@@ -45,6 +46,9 @@ int main(void)
+ 	DEFINE(THREAD_FPCNTL, offsetof(struct thread_struct, fpcntl));
+ 	DEFINE(THREAD_FPSTATE, offsetof(struct thread_struct, fpstate));
+
++	/* offsets into the thread_info struct */
++	DEFINE(TINFO_PREEMPT, offsetof(struct thread_info, preempt_count));
++
+ 	/* offsets into the pt_regs */
+ 	DEFINE(PT_D0, offsetof(struct pt_regs, d0));
+ 	DEFINE(PT_ORIG_D0, offsetof(struct pt_regs, orig_d0));
+--- linux-2.6.8.1/arch/m68k/kernel/entry.S	2004-05-24 11:13:22.000000000 +0200
++++ linux-m68k-2.6.8.1/arch/m68k/kernel/entry.S	2004-09-02 20:13:12.000000000 +0200
+@@ -134,13 +134,13 @@ ENTRY(system_call)
+
+ syscall_exit_work:
+ 	btst	#5,%sp@(PT_SR)		| check if returning to kernel
+-	bnes	1b			| if so, skip resched, signals
++	bnes	1b			| if so, skip everything
+ 	tstw	%d0
+-	jeq	do_signal_return
++	jeq	do_signal_return | jump if only sig_pending or notify_resume
+ 	tstb	%d0
+-	jne	do_delayed_trace
++	jne	do_delayed_trace | jump if delayed_trace
+
+-	pea	resume_userspace
++	pea	resume_userspace | need_resched is set
+ 	jmp	schedule
+
+ ret_from_exception:
+@@ -223,10 +223,14 @@ ENTRY(nmi_handler)
+ */
+ inthandler:
+ 	SAVE_ALL_INT
+-	GET_CURRENT(%d0)
+-	addqb	#1,%curptr@(TASK_INFO+TINFO_PREEMPT+2)
+-					|  put exception # in d0
+-	bfextu %sp@(PT_VECTOR){#4,#10},%d0
++	/* GET_CURRENT(%d0) */
++	movel	%sp,%d0
++	andw	#-THREAD_SIZE,%d0
++	movel	%d0,%a1
++	addqb	#1,%a1@(TINFO_PREEMPT+2)
++	movel	%a1@,%curptr
++
++	bfextu	%sp@(PT_VECTOR){#4,#10},%d0 |  put exception # in d0
+
+ 	movel	%sp,%sp@-
+ 	movel	%d0,%sp@-		|  put vector # on stack
+@@ -243,7 +247,8 @@ inthandler:
+ 3:	addql	#8,%sp			|  pop parameters off stack
+
+ ret_from_interrupt:
+-	subqb	#1,%curptr@(TASK_INFO+TINFO_PREEMPT+2)
++	movel	%curptr@(TASK_TINFO),%a1
++	subqb	#1,%a1@(TINFO_PREEMPT+2)
+ 	jeq	1f
+ 2:
+ 	RESTORE_ALL
+--- linux-2.6.8.1/include/asm-m68k/processor.h	2004-04-28 15:49:03.000000000 +0200
++++ linux-m68k-2.6.8.1/include/asm-m68k/processor.h	2004-09-02 20:29:32.000000000 +0200
+@@ -84,7 +84,6 @@ struct thread_struct {
+ 	ksp:	sizeof(init_stack) + (unsigned long) init_stack,	\
+ 	sr:	PS_S,							\
+ 	fs:	__KERNEL_DS,						\
+-	info:	INIT_THREAD_INFO(init_task)				\
+ }
+
+ /*
+--- linux-2.6.8.1/include/asm-m68k/thread_info.h	2004-05-24 11:13:53.000000000 +0200
++++ linux-m68k-2.6.8.1/include/asm-m68k/thread_info.h	2004-09-05 12:19:47.000000000 +0200
+@@ -6,7 +6,7 @@
+ #include <asm/page.h>
+
+ struct thread_info {
+-	struct task_struct	*task;		/* main task structure */
++	struct task_struct	*task;		/* main task structure, must be first! */
+ 	struct exec_domain	*exec_domain;	/* execution domain */
+ 	__s32			preempt_count; /* 0 => preemptable, <0 => BUG */
+ 	__u32 cpu; /* should always be 0 on m68k */
+@@ -21,7 +21,8 @@ struct thread_info {
+ {						\
+ 	.task		= &tsk,			\
+ 	.exec_domain	= &default_exec_domain,	\
+-	.restart_block = {			\
++	.preempt_count	= 1,			\
++	.restart_block	= {			\
+ 		.fn = do_no_restart_syscall,	\
+ 	},					\
+ }
+@@ -35,10 +36,11 @@ struct thread_info {
+ #define free_thread_info(ti)  free_pages((unsigned long)(ti),1)
+ #endif /* PAGE_SHIFT == 13 */
+
+-//#define init_thread_info	(init_task.thread.info)
++#define init_thread_info	(init_thread_union.thread_info)
+ #define init_stack		(init_thread_union.stack)
+
+-#define current_thread_info()	(current->thread_info)
++register __u32 current_thread_info_reg asm("sp");
++#define current_thread_info()	((struct thread_info *)(current_thread_info_reg & ~0x1fff))
 
 
+ #define __HAVE_THREAD_FUNCTIONS
+@@ -91,8 +93,12 @@ extern int thread_flag_fixme(void);
+ })
+
+ #define __get_set_tsk_thread_flag(tsk, flag, val) ({	\
+-	int __res = __get_tsk_thread_flag(tsk, flag);	\
++	int __res;					\
++	unsigned long __flags; \
++	local_irq_save(__flags);  \
++	__res = __get_tsk_thread_flag(tsk, flag);	\
+ 	__set_tsk_thread_flag(tsk, flag, val);		\
++	local_irq_restore(__flags);  \
+ 	__res;						\
+ })
+
+@@ -105,7 +111,4 @@ extern int thread_flag_fixme(void);
+ #define clear_thread_flag(flag) clear_tsk_thread_flag(current, flag)
+ #define test_thread_flag(flag) test_tsk_thread_flag(current, flag)
+
+-#define set_need_resched() set_thread_flag(TIF_NEED_RESCHED)
+-#define clear_need_resched() clear_thread_flag(TIF_NEED_RESCHED)
+-
+ #endif	/* _ASM_M68K_THREAD_INFO_H */
+--- linux-2.6.8.1/include/linux/sched.h	2004-08-04 12:14:38.000000000 +0200
++++ linux-m68k-2.6.8.1/include/linux/sched.h	2004-09-04 21:18:59.000000000 +0200
+@@ -977,6 +977,7 @@ static inline struct mm_struct * get_tas
+ 	return mm;
+ }
+
++#ifndef __HAVE_THREAD_FUNCTIONS
+
+ /* set thread flags in other task's structures
+  * - see asm/thread_info.h for TIF_xxxx flags available
+@@ -1006,6 +1007,8 @@ static inline int test_tsk_thread_flag(s
+ 	return test_ti_thread_flag(tsk->thread_info,flag);
+ }
+
++#endif	/* __HAVE_THREAD_FUNCTIONS */
++
+ static inline void set_tsk_need_resched(struct task_struct *tsk)
+ {
+ 	set_tsk_thread_flag(tsk,TIF_NEED_RESCHED);
+--- linux-2.6.8.1/include/linux/thread_info.h	2004-04-27 20:42:22.000000000 +0200
++++ linux-m68k-2.6.8.1/include/linux/thread_info.h	2004-09-04 21:24:36.000000000 +0200
+@@ -21,6 +21,7 @@ extern long do_no_restart_syscall(struct
+ #include <asm/thread_info.h>
+
+ #ifdef __KERNEL__
++#ifndef __HAVE_THREAD_FUNCTIONS
+
+ /*
+  * flag set/clear/test wrappers
+@@ -77,16 +78,11 @@ static inline int test_ti_thread_flag(st
+ 	return test_bit(flag,&ti->flags);
+ }
+
+-static inline void set_need_resched(void)
+-{
+-	set_thread_flag(TIF_NEED_RESCHED);
+-}
++#endif	/* __HAVE_THREAD_FUNCTIONS */
+
+-static inline void clear_need_resched(void)
+-{
+-	clear_thread_flag(TIF_NEED_RESCHED);
+-}
++#define set_need_resched() set_thread_flag(TIF_NEED_RESCHED)
++#define clear_need_resched(void) clear_thread_flag(TIF_NEED_RESCHED)
+
+-#endif
++#endif	/* __KERNEL__ */
+
+ #endif /* _LINUX_THREAD_INFO_H */
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+[*] For reference:
+
+    http://linux-m68k-cvs.ubb.ca/~geert/linux-m68k-2.6.x-merging/POSTPONED/156-thread_info.diff
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

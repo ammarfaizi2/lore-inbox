@@ -1,33 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269041AbRHWQSf>; Thu, 23 Aug 2001 12:18:35 -0400
+	id <S268856AbRHWQaQ>; Thu, 23 Aug 2001 12:30:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269119AbRHWQS0>; Thu, 23 Aug 2001 12:18:26 -0400
-Received: from ns1.hicom.net ([208.245.180.8]:51210 "EHLO ns1.hicom.net")
-	by vger.kernel.org with ESMTP id <S269067AbRHWQSU>;
-	Thu, 23 Aug 2001 12:18:20 -0400
-From: "Stephen von Voros" <stevon@hicom.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: SvV re: diald 0.99.4 and RH
-Date: Thu, 23 Aug 2001 12:32:53 -0400
-Message-ID: <MLEPIMPCNOKIBHIBMPMFIEJFCAAA.stevon@hicom.net>
+	id <S268908AbRHWQaA>; Thu, 23 Aug 2001 12:30:00 -0400
+Received: from minus.inr.ac.ru ([193.233.7.97]:33031 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S268900AbRHWQ3u>;
+	Thu, 23 Aug 2001 12:29:50 -0400
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200108231629.UAA06901@ms2.inr.ac.ru>
+Subject: Re: Problems with kernel-2.2.19-6.2.7 from RH update for 6.2
+To: dyp@perchine.com (Denis Perchine)
+Date: Thu, 23 Aug 2001 20:29:50 +0400 (MSK DST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010823014559.38E6D1FD74@mx.webmailstation.com> from "Denis Perchine" at Aug 23, 1 11:32:47 am
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cannot install diald 0.99.4 in RedHat 7.1/ 2.4.3-12. I want to use
-my Linux Server as a gateway/firewall to the Internet for my other
-PC'S using a dial on demand 56k modem (ppp0)that hangs up after
-timeout of no use. How do I install the diald daemon into the 2.4.3
-kernel? is there a better way to do this gateway using a modem?
-Any advice would be appreciated.
+Hello!
 
-please personally CC the answers/comments to stevon@hicom.net
+> > Where? httpd does not connect().
+> 
+> For read/write. Although it is incorrect to compare as thttpd is serving =
+> more=20
+> than one connect.
+
+It is even worse. Useless operation in data path. read/write will return
+the error, if connection died in any case.
+
+
+> > I see. If tuning is goal, it is right way. Amount of syscalls is the sa=
+> me
+> > as with alarm, but logic is cleaner.
+> 
+> Logic with alarms will not work in multithreaded case.
+
+I meaned _your_ logic is cleaner . :-)
+
+
+> I assume that using SO_RCVTIME/SO_SNDTIME would be better in terms of=20
+> performance. 
+
+Not very much. But code becomes simpler.
+
+Select() is better sometimes, f.e. when program uses signals
+(and glibc uses signals _internally_ when multithreaded, breaking lots
+ of things, do you know this? :-)). In this case you need to raclulate
+remaining time to restart poll/read/write, linux select returns it.
+
+> layer to use sync IP... 
+
+What is "sync"?
+
+
+> be (approximately)? if we assume that I have lots of connects which trans=
+> fers=20
+> small amount of data in each (1-2K).
+
+It depends. The advantage of read/write with SO_*TIMEO is that
+in all 100% of cases data arrive in time or you send immeadiately
+and appear in right place and do not waste cache and cycles to exit from
+select and to enter to read/write. Also, select() is pretty
+suboptimal.
+
+Alexey

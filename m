@@ -1,53 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274779AbRIUSpi>; Fri, 21 Sep 2001 14:45:38 -0400
+	id <S274778AbRIUSqs>; Fri, 21 Sep 2001 14:46:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274778AbRIUSp2>; Fri, 21 Sep 2001 14:45:28 -0400
-Received: from hermes.toad.net ([162.33.130.251]:42722 "EHLO hermes.toad.net")
-	by vger.kernel.org with ESMTP id <S274779AbRIUSpR>;
-	Fri, 21 Sep 2001 14:45:17 -0400
-Message-ID: <3BAB8AB2.C6DB27B0@yahoo.co.uk>
-Date: Fri, 21 Sep 2001 14:45:06 -0400
-From: Thomas Hood <jdthoodREMOVETHIS@yahoo.co.uk>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9-ac10 i686)
+	id <S274780AbRIUSqj>; Fri, 21 Sep 2001 14:46:39 -0400
+Received: from mail.scs.ch ([212.254.229.5]:31506 "EHLO mail.scs.ch")
+	by vger.kernel.org with ESMTP id <S274778AbRIUSqX>;
+	Fri, 21 Sep 2001 14:46:23 -0400
+Message-ID: <3BAB8B11.7ED581DB@scs.ch>
+Date: Fri, 21 Sep 2001 20:46:41 +0200
+From: Thomas Sailer <sailer@scs.ch>
+Reply-To: t.sailer@alumni.ethz.ch
+Organization: SCS
+X-Mailer: Mozilla 4.77 [de] (X11; U; Linux 2.4.3-13jnx i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] parport_pc.c PnP BIOS sanity check
-In-Reply-To: <Pine.LNX.4.33.0109210209520.21008-100000@terbidium.openservices.net>
+To: Jussi Laako <jussi.laako@kolumbus.fi>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Preemption Latency Measurement Tool
+In-Reply-To: <E15kEjB-0006n9-00@the-village.bc.nu> <3BAB69CF.A3F9D217@kolumbus.fi>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for the replies.
-
-I'd like to underline Alan Cox's reply that DMA0 _is_ usable.
-In fact, my sound chip is configured to use DMA0.
-
-If (and only if) parport _cannot_ use DMA0 for some reason
-then the sanity check is justified.  In that case I'd just ask
-that a short comment be added to the code that gives the reason.
-
-Cheers
-Thomas
-
-Ignacio Vazquez-Abrams wrote:
-> DMA0 is reserved for memory refresh. It _can't_ be used for anything else,
-> therefore a value of 0 is representative of no value whatsoever.
-
-Alan Cox wrote:
-> This has been unsafe since about 1995, when DMA 0 became available as PC's
-> stopped using the ISA DMA engine for memory refresh (a very neat original PC
-> hack)
-
-Gunther Mayer wrote:
-> 1)
->   I think I saw some BIOS report DMA0 for "none" (could even have
->   been ACPI which is returning PNP formatted legacy resource data).
-> 2)
->   I have never seen DMA0 for parport configured by a BIOS.
-> 3)
->   Try "lssuperio" if you want the real hardware thing.
+Jussi Laako schrieb:
 > 
-> This qualifies the code as it is as a sanity check.
+> Alan Cox wrote:
+> >
+> > Sound cards have a lot of buffering, we are talking 64-128Kbytes + on
+> > card buffers. Thats 0.25-0.5 seconds at 48Khz 16bit stereo
+> 
+> Only "soundcards", that cheap crap like SoundBlaster. Professional
+> lowlatency soundcards usually have something like 128-512 samples per
+> channel for 24-bit (32-bit data) 96 kHz 8 channels...
+
+This doesn't make sense. Even professional soundcards provide hundreds
+of kBytes of buffer space. And even with most cheap PCI cards you
+need not wait until the whole buffer is full before start reading
+samples. Even with those soundcards the latency is mostly caused
+by the digital filters in the codec.
+
+Tom

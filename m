@@ -1,37 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284163AbRLRO6E>; Tue, 18 Dec 2001 09:58:04 -0500
+	id <S281772AbRLRPFE>; Tue, 18 Dec 2001 10:05:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284195AbRLRO5y>; Tue, 18 Dec 2001 09:57:54 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:14481 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S284163AbRLRO5n>;
-	Tue, 18 Dec 2001 09:57:43 -0500
-Date: Tue, 18 Dec 2001 17:55:14 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Victor Yodaiken <yodaiken@fsmlabs.com>
-Cc: Andrea Arcangeli <andrea@suse.de>, Benjamin LaHaise <bcrl@redhat.com>,
-        Rik van Riel <riel@conectiva.com.br>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: mempool design
-In-Reply-To: <20011217083802.A25219@hq2>
-Message-ID: <Pine.LNX.4.33.0112181753230.3753-100000@localhost.localdomain>
+	id <S281773AbRLRPEy>; Tue, 18 Dec 2001 10:04:54 -0500
+Received: from ns.suse.de ([213.95.15.193]:55567 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S281772AbRLRPEu>;
+	Tue, 18 Dec 2001 10:04:50 -0500
+Date: Tue, 18 Dec 2001 16:04:44 +0100 (CET)
+From: Dave Jones <davej@suse.de>
+To: _PepeR_ <peper@wsisiz.edu.pl>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.1 crashed during sending processes TERM signal
+In-Reply-To: <Pine.LNX.4.42.0112181226460.20596-100000@oceanic.wsisiz.edu.pl>
+Message-ID: <Pine.LNX.4.33.0112181604000.29077-100000@Appserv.suse.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 18 Dec 2001, _PepeR_ wrote:
 
-On Mon, 17 Dec 2001, Victor Yodaiken wrote:
+> At shutdown the system stops at the message "Sending all precesses TERM
+> signal...". The isn't any messages of possible failure in logs.
+> I'm using 2.5.1 kernel. If it's matter my system is an Athlon 1GHz on ECS
+> K7S5A mainboard. If you need some detailed information please contact me
+> on my e-mail 'coz I'm not subscribed to lkml.
 
-> I agree with all your arguments up to here. But being able to run
-> Linux in 4Meg or even 8M is important to a very large class of
-> applications. [...]
+Known problem, backed out in next kernel Linus puts out.
+If you're going to be playing with 2.5's, you really should consider
+at least subscribing to the digests.
 
-the amount of reserved RAM should be very low. Especially in embedded
-applications that usually have a very controlled environment, with a low
-number of well-behaving devices, the number of pages needed to be reserved
-is very low. I wouldnt worry about this.
+Dave.
 
-	Ingo
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs
 

@@ -1,70 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262076AbTKGWd2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Nov 2003 17:33:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262074AbTKGW1Z
+	id S262061AbTKGWmZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Nov 2003 17:42:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261801AbTKGW0T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Nov 2003 17:27:25 -0500
+	Fri, 7 Nov 2003 17:26:19 -0500
 Received: from zeus.kernel.org ([204.152.189.113]:15062 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S264477AbTKGV7i (ORCPT
+	by vger.kernel.org with ESMTP id S264644AbTKGV7d (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Nov 2003 16:59:38 -0500
-Date: Fri, 7 Nov 2003 22:22:51 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Nicolas Mailhot <Nicolas.Mailhot@laPoste.net>
-Cc: Alan Stern <stern@rowland.harvard.edu>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Bug 1412] Copy from USB1 CF/SM reader stalls, no actual content is read (only directory structure)
-Message-ID: <20031107212251.GC14728@suse.de>
-References: <20031105084002.GX1477@suse.de> <Pine.LNX.4.44L0.0311051013190.828-100000@ida.rowland.org> <20031107082439.GB504@suse.de> <1068195038.21576.1.camel@ulysse.olympe.o2t> <20031107090924.GB616@suse.de> <1068197144.21576.32.camel@ulysse.olympe.o2t> <1068238928.4088.2.camel@m70.net81-64-235.noos.fr>
+	Fri, 7 Nov 2003 16:59:33 -0500
+Subject: [ANNOUNCE] STP Driver Model Regression Test
+From: Leann Ogasawara <ogasawara@osdl.org>
+To: lkml <linux-kernel@vger.kernel.org>, stp-devel@lists.sourceforge.net
+Content-Type: text/plain
+Message-Id: <1068241367.2675.154.camel@ibm-d.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1068238928.4088.2.camel@m70.net81-64-235.noos.fr>
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Fri, 07 Nov 2003 13:42:48 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 07 2003, Nicolas Mailhot wrote:
-> Le ven 07/11/2003 à 10:25, Nicolas Mailhot a écrit :
-> > Le ven 07/11/2003 à 10:09, Jens Axboe a écrit :
-> 
-> > > Try with this debug patch then, does it work now?
-> > > 
-> > > ===== drivers/scsi/scsi_lib.c 1.77 vs edited =====
-> > > --- 1.77/drivers/scsi/scsi_lib.c	Tue Oct 14 09:28:06 2003
-> > > +++ edited/drivers/scsi/scsi_lib.c	Fri Nov  7 10:08:52 2003
-> > > @@ -1215,6 +1215,7 @@
-> > >  
-> > >  u64 scsi_calculate_bounce_limit(struct Scsi_Host *shost)
-> > >  {
-> > > +#if 0
-> > >  	struct device *host_dev;
-> > >  
-> > >  	if (shost->unchecked_isa_dma)
-> > > @@ -1229,6 +1230,9 @@
-> > >  	 * hardware have no practical limit.
-> > >  	 */
-> > >  	return BLK_BOUNCE_ANY;
-> > > +#else
-> > > +	return BLK_BOUNCE_HIGH;
-> > > +#endif
-> > >  }
-> > >  
-> > >  struct request_queue *scsi_alloc_queue(struct scsi_device *sdev)
-> > 
-> > Will try this evening when I have physical access to the system. (It's
-> > difficult to plug a USB device via ssh;)
-> 
-> Well, it does work now (couldn't believe my eyes, tried three times in a
-> row just to be sure). Is this supposed to be a definitive fix that will
-> be in the next bk snapshots or should I wait for something else ?
+Hi All,
 
-No it's not a definitive fix. It was just a test - if it works with the
-patch applied, it confirms the theory that usb storage is broken wrt
-highmem.
+Just want to announce that a Driver Model Regression test has been added
+to OSDL's Scalable Test Platform.
 
--- 
-Jens Axboe
+http://www.osdl.org/lab_activities/kernel_testing/stp/
+
+The test is a series of scripts and modules built outside of the kernel
+to help stress test the driver model.  An extensible amount of busses,
+drivers, classes, class devices, and devices are loaded and unloaded in
+parallel in an attempt to push the driver model to its limits.  The
+execution time is measured and given as output upon a successful test
+completion.  It is the goal of this test to detect any performance
+regressions (or improvements) on previous or newly released kernels. 
+Thanks so much,
+
+Leann  
 

@@ -1,62 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261882AbTJAOlk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 10:41:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261974AbTJAOlk
+	id S262306AbTJAOaS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 10:30:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262307AbTJAOaS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 10:41:40 -0400
-Received: from meryl.it.uu.se ([130.238.12.42]:10966 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id S261882AbTJAOli (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 10:41:38 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 1 Oct 2003 10:30:18 -0400
+Received: from h80ad24ae.async.vt.edu ([128.173.36.174]:14994 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S262306AbTJAOaM (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Oct 2003 10:30:12 -0400
+Message-Id: <200310011429.h91ETtcG009923@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Dave Jones <davej@redhat.com>
+Cc: Matthew Wilcox <willy@debian.org>, Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] CONFIG_* In Comments Considered Harmful 
+In-Reply-To: Your message of "Wed, 01 Oct 2003 15:19:52 BST."
+             <20031001141950.GA13115@redhat.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <20031001132619.GL24824@parcelfarce.linux.theplanet.co.uk>
+            <20031001141950.GA13115@redhat.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1485680385P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
-Message-ID: <16250.59296.349391.866901@gargle.gargle.HOWL>
-Date: Wed, 1 Oct 2003 16:41:36 +0200
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: viro@parcelfarce.linux.theplanet.co.uk
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6: why no EXPORT_SYMBOL of get_sb_pseudo()?
-In-Reply-To: <16250.48302.182915.846180@gargle.gargle.HOWL>
-References: <16250.39070.555465.86772@gargle.gargle.HOWL>
-	<20031001110303.GQ7665@parcelfarce.linux.theplanet.co.uk>
-	<16250.48302.182915.846180@gargle.gargle.HOWL>
-X-Mailer: VM 6.90 under Emacs 20.7.1
+Date: Wed, 01 Oct 2003 10:29:55 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mikael Pettersson writes:
- > viro@parcelfarce.linux.theplanet.co.uk writes:
- >  > On Wed, Oct 01, 2003 at 11:04:30AM +0200, Mikael Pettersson wrote:
- >  > > fs/libfs.c:get_sb_pseudo() isn't exported to modules,
- >  > > but a lot of the other stuff in fs/libfs.c is.
- >  > > 
- >  > > Is there a particular reason for this or just an oversight?
- >  > > 
- >  > > Making a private copy of get_sb_pseudo()'s definition works
- >  > > in a module, but that's not exactly productive use of
- >  > > programmer time or source and object code space.
- >  > 
- >  > Are you really sure that get_sb_pseudo() is what you need?  It might be
- >  > possible, but I suspect that simple_fill_super() would be the right thing
- >  > to use.  Care to give details?
- > 
- > I have a pseudo fs to support special files constructed and
- > returned as the result of certain operations in the module.
- > 
- > This is very very similar to what e.g. pipefs does, so the
- > fs implementation is closely modelled after fs/pipe.c. And
- > since pipefs, futexes, and a number of other pseudo fs:s in
- > the kernel all use get_sb_pseudo() in their ->get_sb method,
- > I figured I should do the same.
+--==_Exmh_1485680385P
+Content-Type: text/plain; charset="us-ascii"
+Content-Id: <9912.1065018595.1@turing-police.cc.vt.edu>
 
-I've now checked what simple_fill_super() does, and it doesn't
-seem like a valid replacement for get_sb_pseudo(), especially
-since it allocates a root directory inode and populates it.
-This is clearly not needed for a pseudo fs that won't be mounted.
+On Wed, 01 Oct 2003 15:19:52 BST, Dave Jones said:
 
-I can submit a trivial patch to export get_sb_pseudo(), but it
-may fare better with Linus if Al ACKs it first.
+> Maybe it should be taught to parse comments? There are zillions of
+> #endif /* CONFIG_FOO */
+> braces in the tree. Why is this one special ?
 
-/Mikael
+I think it's because it looked like:
+
+#ifdef CONFIG_FOO
+....
+#endif /* CONFIG_FOO or CONFIG_BAR */
+
+and it concluded there was a dependency on BAR.
+
+--==_Exmh_1485680385P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE/euTjcC3lWbTT17ARAsW4AJ437enC5P+kvnWC8jbH8lApEBC9eQCgoREO
+KAUzPU6bTyiRlGktQJplYG0=
+=Jl+J
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1485680385P--

@@ -1,65 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263241AbTJBFH7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Oct 2003 01:07:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263242AbTJBFH7
+	id S263248AbTJBFdJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Oct 2003 01:33:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263251AbTJBFdJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Oct 2003 01:07:59 -0400
-Received: from fw.osdl.org ([65.172.181.6]:737 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263241AbTJBFH6 (ORCPT
+	Thu, 2 Oct 2003 01:33:09 -0400
+Received: from dp.samba.org ([66.70.73.150]:34212 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S263248AbTJBFdH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Oct 2003 01:07:58 -0400
-Date: Wed, 1 Oct 2003 22:09:14 -0700
-From: Andrew Morton <akpm@osdl.org>
+	Thu, 2 Oct 2003 01:33:07 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
 To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] export [__]set_special_pids()
-Message-Id: <20031001220914.7664d6e3.akpm@osdl.org>
-In-Reply-To: <20031001214132.5070b6b5.rddunlap@osdl.org>
-References: <20031001214132.5070b6b5.rddunlap@osdl.org>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Cc: shinemohamed_j@naturesoft.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Initializedd the module parameters in drivers/net/wireless/arlan-main.c 
+In-reply-to: Your message of "Wed, 01 Oct 2003 20:52:28 MST."
+             <20031001205228.3bee8c69.rddunlap@osdl.org> 
+Date: Thu, 02 Oct 2003 15:18:08 +1000
+Message-Id: <20031002053307.640D92C14D@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Randy.Dunlap" <rddunlap@osdl.org> wrote:
->
-> EXPORT [__]set_special_pids(); Ingo added these
->  		in include/linux/sched.h but didn't export them;
->  		jffs uses set_special_pids();
+In message <20031001205228.3bee8c69.rddunlap@osdl.org> you write:
+> On Wed, 01 Oct 2003 19:01:04 +1000 Rusty Russell <rusty@rustcorp.com.au> wrote:
+> | This is clearly wrong: it's declared below.
+> 
+> Hello.  Anybody there?
+> 
+> This is what you get with 2.6.0-test6 plain vanilla:
+> drivers/net/wireless/arlan-main.c:1923: `probe' undeclared (first use in this function)
+> drivers/net/wireless/arlan-main.c:1923: (Each undeclared identifier is reported only once
+> drivers/net/wireless/arlan-main.c:1923: for each function it appears in.)
 
-jffs seems to be trying to do daemonize()-by-hand.  It would be better for
-it to get its act together and just call daemonize().
+See line 1885:
 
-Is anyone actively testing and using jffs in 2.6?  How does one get it
-going with blkmtd??
+	#ifdef  MODULE
 
-diff -puN fs/jffs/intrep.c~jffs-use-daemonize fs/jffs/intrep.c
---- 25/fs/jffs/intrep.c~jffs-use-daemonize	2003-10-01 22:01:21.000000000 -0700
-+++ 25-akpm/fs/jffs/intrep.c	2003-10-01 22:02:26.000000000 -0700
-@@ -3337,18 +3337,16 @@ jffs_garbage_collect_thread(void *ptr)
- 	int result = 0;
- 	D1(int i = 1);
- 
-+	daemonize("jffs_gcd");
-+
- 	c->gc_task = current;
- 
- 	lock_kernel();
--	exit_mm(c->gc_task);
--
--	set_special_pids(1, 1);
- 	init_completion(&c->gc_thread_comp); /* barrier */ 
- 	spin_lock_irq(&current->sighand->siglock);
- 	siginitsetinv (&current->blocked, sigmask(SIGHUP) | sigmask(SIGKILL) | sigmask(SIGSTOP) | sigmask(SIGCONT));
- 	recalc_sigpending();
- 	spin_unlock_irq(&current->sighand->siglock);
--	strcpy(current->comm, "jffs_gcd");
- 
- 	D1(printk (KERN_NOTICE "jffs_garbage_collect_thread(): Starting infinite loop.\n"));
- 
+	static int probe = probeUNKNOWN;
 
-_
+	static int __init arlan_find_devices(void)
 
+Hope that helps,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,56 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261428AbTFOAIM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Jun 2003 20:08:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261444AbTFOAIL
+	id S261444AbTFOAPf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Jun 2003 20:15:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261450AbTFOAPf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Jun 2003 20:08:11 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:46536 "EHLO
-	smtp.bitmover.com") by vger.kernel.org with ESMTP id S261428AbTFOAIL
+	Sat, 14 Jun 2003 20:15:35 -0400
+Received: from lsanca2-ar27-4-46-141-054.lsanca2.dsl-verizon.net ([4.46.141.54]:26243
+	"EHLO BL4ST") by vger.kernel.org with ESMTP id S261444AbTFOAPe
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Jun 2003 20:08:11 -0400
-Date: Sat, 14 Jun 2003 17:21:53 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.5.71
-Message-ID: <20030615002153.GA20896@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	linux-kernel@vger.kernel.org
+	Sat, 14 Jun 2003 20:15:34 -0400
+Date: Sat, 14 Jun 2003 17:29:33 -0700
+From: Eric Wong <normalperson@yhbt.net>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: linux-kernel@vger.kernel.org, linus@transmeta.com
+Subject: Re: [PATCH] Logitech PS/2++ updates
+Message-ID: <20030615002933.GB17706@BL4ST>
+References: <20030326025538.GB12549@BL4ST> <20030615005947.E27599@ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.3,
-	required 7, AWL)
+In-Reply-To: <20030615005947.E27599@ucw.cz>
+Organization: Tire Smokers Anonymous
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus said:
-> I think I'll call this kernel the "sticky turtle", in honor of that 
-> historic "greased weasel" kernel, and as a comment on how sadly dependent 
-> I've become on the daily BK snapshots. It's been too long since 2.5.70.
+Vojtech Pavlik <vojtech@suse.cz> wrote:
+> On Tue, Mar 25, 2003 at 06:55:38PM -0800, Eric Wong wrote:
+> >  /*
+> >   * The PS2++ protocol is a little bit complex
+> >   */
+> > +	if (psmouse->type == PSMOUSE_PS2PP) { 
+> > +
+> > +		if ((packet[0] & 0x48) == 0x48 && (packet[1] & 0x02) == 0x02 ) {
+> >  
+> 
+> Hmm, is this change needed? This
+> 
+> if ((packet[0] & 0x40) == 0x40 && abs((int)packet[1] - (((int)packet[0] & 0x10) << 4)) > 191 ) {
+> 
+> condition is from Logitech docs and should work with any PS2PP device.
+> It doesn't with yours?
 
-I think more releases are good but for the snapshot people...
+The updated PS2PP uses 6 bits to determine packet-type instead of 4 as
+used previously, so compatibility with the touchpad protocol was broken
+if I recall correctly.
 
-There are multiple options:
+NEW (6 t bits):
+       bit7 bit6 bit5 bit4 bit3 bit2 bit1 bit0
+packet0   E    1   t5   t4    1    M    R    L   
+packet1  t3   t2   t1   t0   d2   d1    1    0  
+packet2  d8   d7   d6   d5   d4   d3   d2   d1 
 
-	bk pull bk://linux.bkbits.net/linux-2.5
-	cvs -d:pserver:anonymous@kernel.bkbits.net:/home/cvs co linux-2.5
+OLD (4 t bits)
+       bit7 bit6 bit5 bit4 bit3 bit2 bit1 bit0
+packet0   E    1   t3   t2    1    M    R    L   
+packet1   ?    ?   t1   t0   d2   d1    1    0  
+packet2  d8   d7   d6   d5   d4   d3   d2   d1 
 
-and Ben Collins is working on a bkSVN gateway (it's actually a
-BK->CVS->SVN but whatever) so that will be an option soon as well.  Huh,
-while I'm thinking about it since we're hosting the CVS tree there is no
-good reason not to host the SVN tree as well, I have to believe that SVN
-uses less bandwidth than CVS (please, say it's so).  Ben, send me or Davem
-an ssh2 key and we'll set you up with an account on kernel.bkbits.net.
-This isn't some advertising ploy so feel free to make some DNS entry which
-points there, like svn.kernel.org, and then there is no BK in the picture.
-HPA can help you with that.  In fact, hpa, weren't we going to make a 
-cvs.kernel.org?  If so, how about pointing that at kernel.bkbits.net for
-the time being and then if someone steps forward to host that you can
-just change the DNS entry?
+E is set if it's an external device
+
 -- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+Eric Wong

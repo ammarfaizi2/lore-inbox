@@ -1,61 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271053AbTGPSqr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 14:46:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271033AbTGPSqp
+	id S271036AbTGPStN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 14:49:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271079AbTGPStN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 14:46:45 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:21651 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S271053AbTGPSp3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 14:45:29 -0400
-Date: Wed, 16 Jul 2003 21:00:18 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Dave Jones <davej@codemonkey.org.uk>, Jens Axboe <axboe@suse.de>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, vojtech@suse.cz,
+	Wed, 16 Jul 2003 14:49:13 -0400
+Received: from enterprise.bidmc.harvard.edu ([134.174.118.50]:12817 "EHLO
+	enterprise.bidmc.harvard.edu") by vger.kernel.org with ESMTP
+	id S271036AbTGPStB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 14:49:01 -0400
+Message-ID: <3F15A187.3090802@enterprise.bidmc.harvard.edu>
+Date: Wed, 16 Jul 2003 15:03:35 -0400
+From: "Kristofer T. Karas" <ktk@enterprise.bidmc.harvard.edu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030313
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jens Axboe <axboe@suse.de>
+CC: Dave Jones <davej@codemonkey.org.uk>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: PS2 mouse going nuts during cdparanoia session.
-Message-ID: <20030716190018.GE20241@ucw.cz>
-References: <20030716165701.GA21896@suse.de> <20030716170352.GJ833@suse.de> <1058375425.6600.42.camel@dhcp22.swansea.linux.org.uk> <20030716171607.GM833@suse.de> <20030716172331.GD21896@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030716172331.GD21896@suse.de>
-User-Agent: Mutt/1.5.4i
+References: <20030716165701.GA21896@suse.de> <20030716170352.GJ833@suse.de> <1058375425.6600.42.camel@dhcp22.swansea.linux.org.uk> <20030716171607.GM833@suse.de> <20030716172331.GD21896@suse.de> <20030716172531.GP833@suse.de> <20030716172823.GE21896@suse.de> <20030716173122.GQ833@suse.de>
+In-Reply-To: <20030716173122.GQ833@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 16, 2003 at 06:23:31PM +0100, Dave Jones wrote:
-> On Wed, Jul 16, 2003 at 07:16:07PM +0200, Jens Axboe wrote:
-> 
->  > > > SG_IO, that way you can use dma (and zero copy) for the rips. That will
->  > > > be lots more smooth.
->  > > So why isnt this occuring on 2.4 .. thats the important question here is
->  > > this a logging thing, a new input layer bug, an ide bug or what ?
->  > Dave, have you tried 2.4 newest?
-> 
-> I've not booted a 2.4 kernel since 2.4.20..
-> 
->  > Some of the newer IDE stuff kept
->  > interrupts off for ages, maybe it's on 2.4 also.
-> 
-> I can try sometime if you want to know.. (I've got plenty more
-> CDs that need encoding, so I'll have plenty of opportunity to
-> see this bug if its there 8-)
+Jens Axboe wrote:
 
-Dave, can you please enable the DEBUG in i8042.c so that I can see
-whether the bytes really get lost or if the unsync check is just
-triggering by mistake?
+>On Wed, Jul 16 2003, Dave Jones wrote:
+>  
+>
+>>Lost sync here. Mouse dancing. vmstat output stopped for a few seconds.
+>>    
+>>
+>Doesn't look really bogged down by interrupt load, still half idle. So
+>that looks like a PS2 bug. Unless the irq latencies are really bad,
+>
 
->  > Also Dave, can you try
->  > and do a vmstat 1 while ripping and PS2 dropping out?
-> 
-> Ok, I just fired that up in another window.
-> When it happens next, I'll mail off a snapshot..
-> 
-> 		Dave
-> 
+FWIW, this also affects PPP over an async serial line (in my case to a 
+56Kb modem).  During cdparanoia runs, the modem Tx/Rx lights all but 
+stop as the missed packets drop retransmissions into the minute+ 
+timeframe.  (Oddly, I don't recall seeing framing errors from ifconfig; 
+must be the lower level ppp substrate or some such...)
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+I can confirm this with 2.4.20, am mostly certain it affects 2.4.21 
+(will have to retest to be sure).  Similarly to Dave, I'm using an 
+IDE/ATAPI burner with both DMA and UNMASKIRQ enabled.
+
+Kris
+
+

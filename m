@@ -1,141 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268528AbUH3PwA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268511AbUH3QCN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268528AbUH3PwA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 11:52:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268520AbUH3Pu5
+	id S268511AbUH3QCN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 12:02:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268520AbUH3QCN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 11:50:57 -0400
-Received: from ylpvm01-ext.prodigy.net ([207.115.57.32]:44225 "EHLO
-	ylpvm01.prodigy.net") by vger.kernel.org with ESMTP id S268511AbUH3Pte
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 11:49:34 -0400
-Date: Mon, 30 Aug 2004 09:40:36 -0500
-From: Michael Halcrow <mike@halcrow.us>
-To: chrisw@osdl.org
-Cc: linux-kernel@vger.kernel.org, mike@halcrow.us
-Subject: [PATCH] BSD Secure Levels LSM (3/3)
-Message-ID: <20040830144036.GC9980@halcrow.us>
-Reply-To: Michael Halcrow <mahalcro@us.ibm.com>
-References: <20040830143547.GA9980@halcrow.us> <20040830143823.GB9980@halcrow.us>
+	Mon, 30 Aug 2004 12:02:13 -0400
+Received: from MAIL.13thfloor.at ([212.16.62.51]:15323 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S268511AbUH3QCG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Aug 2004 12:02:06 -0400
+Date: Mon, 30 Aug 2004 18:02:05 +0200
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: Hans Reiser <reiser@namesys.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@lst.de>,
+       flx@msu.ru, Christophe Saout <christophe@saout.de>,
+       Andrew Morton <akpm@osdl.org>, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, flx@namesys.com,
+       reiserfs-list@namesys.com
+Subject: Re: reiser4 plugins
+Message-ID: <20040830160205.GA7718@MAIL.13thfloor.at>
+Mail-Followup-To: Hans Reiser <reiser@namesys.com>,
+	Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@lst.de>,
+	flx@msu.ru, Christophe Saout <christophe@saout.de>,
+	Andrew Morton <akpm@osdl.org>, linux-fsdevel@vger.kernel.org,
+	linux-kernel@vger.kernel.org, flx@namesys.com,
+	reiserfs-list@namesys.com
+References: <20040826124929.GA542@lst.de> <1093525234.9004.55.camel@leto.cs.pocnet.net> <20040826130718.GB820@lst.de> <1093526273.11694.8.camel@leto.cs.pocnet.net> <20040826132439.GA1188@lst.de> <20040828105929.GB6746@alias> <Pine.LNX.4.58.0408281011280.2295@ppc970.osdl.org> <20040828190350.GA14152@alias> <20040828190901.GA18083@lst.de> <4130FBF8.8070005@namesys.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="jy6Sn24JjFx/iggw"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040830143823.GB9980@halcrow.us>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <4130FBF8.8070005@namesys.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Aug 28, 2004 at 02:41:12PM -0700, Hans Reiser wrote:
+> I think it is reasonable to make the -nopseudos (turns off the metafiles 
+> ) mount option mandatory, until the bugs are resolved.
+> 
+> Our testing did not find these metafile/VFS bugs because of the reason 
+> for all our bugs, we screwed up. 
+> 
+> There is a distinct difference between some persons and I, which is that 
+> some think all of reiser4 should be excluded until metafiles are 
+> implemented by VFS some long time from now, and I, in that I merely 
+> think buggy optional features should be turned off until they are 
+> fixed.  I, being renowned for my paranoia and asininity as I am, think 
+> these persons find it convenient as an excuse to keep us from competing, 
+> and I think that if we were slower there would be less hassle every time 
+> we try to get into the kernel. 
+> 
+> While reiser4 has some significant roughnesses remaining in its 
+> performance, I think the average user would find it performs better than 
+> other filesystems, and is stable enough for, say, a laptop, and I 
+> predict that by the time we have it stable enough for mission critical 
+> servers, all the roughness in various important corner cases will be 
+> gone.  
+> 
+> Persons benchmarking it with tarballs, please be sure to use tarballs 
+> created on reiser4, not ext2 tarballs, readdir order matters a lot for 
+> sorted directory filesystems.
 
---jy6Sn24JjFx/iggw
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+hmm, so probably we have to wait until all
+tar packagers moved to reiser4, so that the
+available tar files are 'sorted properly' ...
 
-BSD Secure Levels LSM.  This is documentation for the module.
+best,
+Herbert
 
-Signed-off-by: Michael A. Halcrow <mike@halcrow.us>
---jy6Sn24JjFx/iggw
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="seclvl_doc_2.6.8-rc3.diff"
-
---- linux-2.6.8-rc3/Documentation/seclvl.txt	1969-12-31 18:00:00.000000000 -0600
-+++ linux-2.6.8-rc3_seclvl/Documentation/seclvl.txt	2004-08-10 09:53:55.000000000 -0500
-@@ -0,0 +1,97 @@
-+BSD Secure Levels Linux Security Module
-+Michael A. Halcrow <mike@halcrow.us>
-+
-+
-+Introduction
-+
-+Under the BSD Secure Levels security model, sets of policies are
-+associated with levels. Levels range from -1 to 2, with -1 being the
-+weakest and 2 being the strongest. These security policies are
-+enforced at the kernel level, so not even the superuser is able to
-+disable or circumvent them. This hardens the machine against attackers
-+who gain root access to the system.
-+
-+
-+Levels and Policies
-+
-+Level -1 (Permanently Insecure):
-+ - Cannot increase the secure level
-+
-+Level 0 (Insecure):
-+ - Cannot ptrace the init process
-+
-+Level 1 (Default):
-+ - /dev/mem and /dev/kmem are read-only
-+ - IMMUTABLE and APPEND extended attributes, if set, may not be unset
-+ - Cannot load or unload kernel modules
-+ - Cannot write directly to a mounted block device
-+ - Cannot perform raw I/O operations
-+ - Cannot perform network administrative tasks
-+ - Cannot setuid any file
-+
-+Level 2 (Secure):
-+ - Cannot decrement the system time
-+ - Cannot write to any block device, whether mounted or not
-+ - Cannot unmount any mounted filesystems
-+
-+
-+Compilation
-+
-+To compile the BSD Secure Levels LSM, seclvl.ko, enable the
-+SECURITY_SECLVL configuration option.  This is found under Security
-+options -> BSD Secure Levels in the kernel configuration menu.
-+
-+
-+Basic Usage
-+
-+Once the machine is in a running state, with all the necessary modules
-+loaded and all the filesystems mounted, you can load the seclvl.ko
-+module:
-+
-+# insmod seclvl.ko
-+
-+The module defaults to secure level 1, except when compiled directly
-+into the kernel, in which case it defaults to secure level 0. To raise
-+the secure level to 2, the administrator writes ``2'' to the
-+seclvl/seclvl file under the sysfs mount point (assumed to be /sys in
-+these examples):
-+
-+# echo -n "2" > /sys/seclvl/seclvl
-+
-+Alternatively, you can initialize the module at secure level 2 with
-+the initlvl module parameter:
-+
-+# insmod seclvl.ko initlvl=2
-+
-+At this point, it is impossible to remove the module or reduce the
-+secure level.  If the administrator wishes to have the option of doing
-+so, he must provide a module parameter, sha1_passwd, that specifies
-+the SHA1 hash of the password that can be used to reduce the secure
-+level to 0.
-+
-+To generate this SHA1 hash, the administrator can use OpenSSL:
-+
-+# echo -n "boogabooga" | openssl sha1
-+abeda4e0f33defa51741217592bf595efb8d289c
-+
-+In order to use password-instigated secure level reduction, the SHA1
-+crypto module must be loaded or compiled into the kernel:
-+
-+# insmod sha1.ko
-+
-+The administrator can then insmod the seclvl module, including the
-+SHA1 hash of the password:
-+
-+# insmod seclvl.ko
-+         sha1_passwd=abeda4e0f33defa51741217592bf595efb8d289c
-+
-+To reduce the secure level, write the password to seclvl/passwd under
-+your sysfs mount point:
-+
-+# echo -n "boogabooga" > /sys/seclvl/passwd
-+
-+The September 2004 edition of Sys Admin Magazine has an article about
-+the BSD Secure Levels LSM.  I encourage you to refer to that article
-+for a more in-depth treatment of this security module:
-+
-+http://www.samag.com/documents/s=9304/sam0409a/0409a.htm
-
---jy6Sn24JjFx/iggw--
+> Hans
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-fsdevel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,40 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317102AbSIILao>; Mon, 9 Sep 2002 07:30:44 -0400
+	id <S317101AbSIIL3G>; Mon, 9 Sep 2002 07:29:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317112AbSIILao>; Mon, 9 Sep 2002 07:30:44 -0400
-Received: from kiruna.synopsys.com ([204.176.20.18]:41118 "HELO
-	kiruna.synopsys.com") by vger.kernel.org with SMTP
-	id <S317102AbSIIL3u>; Mon, 9 Sep 2002 07:29:50 -0400
-Date: Mon, 9 Sep 2002 13:34:14 +0200
-From: Alex Riesen <Alexander.Riesen@synopsys.com>
-To: Claus Rosenberger <Claus.Rosenberger@rocnet.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: file locking looks strange
-Message-ID: <20020909113414.GH16092@riesen-pc.gr05.synopsys.com>
-Reply-To: Alexander.Riesen@synopsys.com
-Mail-Followup-To: Claus Rosenberger <Claus.Rosenberger@rocnet.de>,
-	linux-kernel@vger.kernel.org
-References: <44499.213.68.24.98.1031409116.rocnet@deathstar.of.rocnet.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44499.213.68.24.98.1031409116.rocnet@deathstar.of.rocnet.de>
-User-Agent: Mutt/1.4i
+	id <S317102AbSIIL3F>; Mon, 9 Sep 2002 07:29:05 -0400
+Received: from mail2.sonytel.be ([195.0.45.172]:15071 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S317101AbSIIL10>;
+	Mon, 9 Sep 2002 07:27:26 -0400
+Date: Mon, 9 Sep 2002 13:32:04 +0200 (MEST)
+Message-Id: <200209091132.g89BW4R25876@vervain.sonytel.be>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: linux-kernel@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH] 16550 serial fix
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 07, 2002 at 04:31:56PM +0200, Claus Rosenberger wrote:
-> How i can informations about file locking for applications.
-> 
-> if i open a document with one application on the terminalserver and try to
-> open the same document  in another session i can write on the second
-> session. this happens for example with openoffice. how i can really lock
-> the file if one application open this doc for reading and writing ?
+Make rs_read_proc() static, since it's not used outside serial.c
 
-read Documentation/locks.txt and Documentation/mandatory.txt.
-You can also use advisory locking (man 2 fcntl, lockf), if it's
-your own code.
+--- linux-2.4.20-pre5/drivers/char/serial.c	Thu Aug 29 08:23:40 2002
++++ linux-m68k-2.4.20-pre5/drivers/char/serial.c	Tue Aug 13 09:16:43 2002
+@@ -3326,8 +3326,8 @@
+ 	return ret;
+ }
+ 
+-int rs_read_proc(char *page, char **start, off_t off, int count,
+-		 int *eof, void *data)
++static int rs_read_proc(char *page, char **start, off_t off, int count,
++			int *eof, void *data)
+ {
+ 	int i, len = 0, l;
+ 	off_t	begin = 0;
 
--alex
+Gr{oetje,eeting}s,
 
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

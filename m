@@ -1,42 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274875AbRJPKLj>; Tue, 16 Oct 2001 06:11:39 -0400
+	id <S275861AbRJPKQj>; Tue, 16 Oct 2001 06:16:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275861AbRJPKLa>; Tue, 16 Oct 2001 06:11:30 -0400
-Received: from ns.etm.at ([212.88.180.5]:36875 "EHLO etm.at")
-	by vger.kernel.org with ESMTP id <S274875AbRJPKLW>;
-	Tue, 16 Oct 2001 06:11:22 -0400
-Message-Id: <01Oct16.121213cest.117125@fwetm.etm.at>
-From: "Stanislav Meduna" <stano@meduna.org>
-To: "Kevin Krieser" <kkrieser_list@footballmail.com>,
-        <linux-kernel@vger.kernel.org>
-In-Reply-To: <NDBBLFLJADKDMBPPNBALAEHFGAAA.kkrieser_list@footballmail.com>
-Subject: Re: USB stability - possibly printer related
-Date: Tue, 16 Oct 2001 12:11:38 +0200
-Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-Msmail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-Mimeole: Produced By Microsoft MimeOLE V5.50.4807.1700
+	id <S275963AbRJPKQ3>; Tue, 16 Oct 2001 06:16:29 -0400
+Received: from ppp65-065.verat.net ([217.26.65.65]:30336 "EHLO
+	spnew.snpe.co.yu") by vger.kernel.org with ESMTP id <S275861AbRJPKQK>;
+	Tue, 16 Oct 2001 06:16:10 -0400
+Message-Id: <200110161123.f9GBNXw01262@spnew.snpe.co.yu>
+Content-Type: text/plain; charset=US-ASCII
+From: snpe <snpe@snpe.co.yu>
+To: Mike Fedyk <mfedyk@matchmail.com>
+Subject: Re: How many versions of VM are there?
+Date: Tue, 16 Oct 2001 13:23:32 +0200
+X-Mailer: KMail [version 1.3.1]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0110151105400.22170-100000@shell1.aracnet.com> <E15tEoY-0000dt-00@beermail.no-ip.com> <20011015141520.A4482@mikef-linux.matchmail.com>
+In-Reply-To: <20011015141520.A4482@mikef-linux.matchmail.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Monday 15 October 2001 11:15 pm, Mike Fedyk wrote:
 
-> One thing I have noticed is that, with the 2.4 kernels, my
-> system doesn't like sharing IRQs as well as the 2.2 kernels.
-> So you may want to see what devices share interrupts with
-> your USB controller, and move the cards if necessary.
+> http://www.surriel.com/patches/
+>
 
-For the record: in my setup the USB controller has its own interrupt.
+Is there this link ?
 
-ide2 shares one with the ISDN card (Elsa Quickstep PCI) - I had
-no problems with this in several months I am using this setup.
-
-Regards
--- 
-                                                Stano
-
-
+regards ,
+peco

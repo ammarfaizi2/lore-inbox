@@ -1,44 +1,105 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284731AbRLPRoC>; Sun, 16 Dec 2001 12:44:02 -0500
+	id <S284736AbRLPRkb>; Sun, 16 Dec 2001 12:40:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284737AbRLPRnw>; Sun, 16 Dec 2001 12:43:52 -0500
-Received: from aramis.rutgers.edu ([128.6.4.2]:58752 "EHLO aramis.rutgers.edu")
-	by vger.kernel.org with ESMTP id <S284731AbRLPRnm>;
-	Sun, 16 Dec 2001 12:43:42 -0500
-Date: Sun, 16 Dec 2001 12:43:33 -0500 (EST)
-From: Suresh Gopalakrishnan <gsuresh@cs.rutgers.edu>
-To: Terje Eggestad <terje.eggestad@scali.no>
-cc: Andrew Morton <akpm@zip.com.au>, GOTO Masanori <gotom@debian.org>,
-        linux-kernel@vger.kernel.org, Andrea Arcangeli <andrea@suse.de>
-Subject: Re: O_DIRECT wierd behavior..
-In-Reply-To: <Pine.LNX.4.30.0112161454160.26995-100000@elin.scali.no>
-Message-ID: <Pine.GSO.4.02A.10112161208160.25791-100000@aramis.rutgers.edu>
+	id <S284737AbRLPRkW>; Sun, 16 Dec 2001 12:40:22 -0500
+Received: from dsl081-242-114.sfo1.dsl.speakeasy.net ([64.81.242.114]:130 "EHLO
+	drscience.sciencething.org") by vger.kernel.org with ESMTP
+	id <S284736AbRLPRkP>; Sun, 16 Dec 2001 12:40:15 -0500
+From: "Britt Park" <britt@drscience.sciencething.org>
+To: <linux-kernel@vger.kernel.org>
+Subject: Correct rmdir behavior
+Date: Sun, 16 Dec 2001 09:41:53 -0800
+Message-ID: <NFBBJPODOLDHKMANGFPGAECNCAAA.britt@sciencething.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2615.200
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I'm in the process of revivifying a user space filesystem I wrote for
+2.0 kernels several years ago.  I have a simple pass through
+filesystem basically working.  However, if I run a busy loop such as
 
-On Sun, 16 Dec 2001, Terje Eggestad wrote:
-> The problem is that the kernel that don't support O_DIRECT has
-> erronous handling of the O_DIRECT flag. Meaning they happily accept
-> it. In order to figure out ifthe running kernel support O_DIRECT you
-> MUST attempt an unaligned read/write, if it succed the kernel DON'T
-> support O_DIRECT. TJ
+while true
+do
+    ls -l >/dev/null
+done
 
-You are right! It went through on 2.4.2 even with an unaligned buffer.
+in a directory within the filesystem and then do a rmdir on that
+directory, strange behavior follows.  The directory is indeed removed.
+I can then create a new directory with the same name as the deleted
+directory, but if I then try to create any files or directories within
+the new directory I fail.  VFS traffic shows that lookups are made for
+the files or directories I try to create but no create or mkdir calls.
+It appears that some artifacts are left either in the inode cache or
+the dentry cache.  I'm not sure, but I believe that the problem lies in
+my inode_operations::rmdir function which I list below.  If I insert a
 
-So direct i/o has to be multiple of page size blocks, from page aligned
-buffer, and apparently into page aligned offset in the file! Is this the
-expected behavior?
+if (!d_unhashed(entry))
+{
+    return -EBUSY;
+}
 
---suresh
+into the code, as coda does, I am forbidden from deleting a directory
+in which processes are active.  Any clues as to how to handle rmdir so
+that I get ext2 behavior?  TIA for any help.
 
-> > Thanks for the patches. There seems to be one more fix required: the test
-> > program below works in 2.4.16 only if the write size is a multiple of 4K.
-> > (Why) are all writes expected to be page size, in addition to being page
-> > aligned? (It works fine on 2.4.2 for all sizes). Any quick fixes? :)
-> > --suresh
+Britt
 
+int uvfs_rmdir(struct inode* dir, struct dentry* entry)
+{
+    int i;
+    int slot;
+    int error = 0;
+    uvfs_rmdir_req_s* request;
+    uvfs_rmdir_rep_s* reply;
+    
+    spin_lock(&Uvfs_lock);
+    /* Grabs a communications slot. */
+    slot = uvfs_find_accepting_slot();
+    if (slot < 0)
+    {
+        spin_unlock(&Uvfs_lock);
+        return slot;
+    }
+    
+    request = &Uvfs_slots[slot].request.rmdir;
+    request->type = UVFS_RMDIR;
+    request->slot = slot;
+    request->size = sizeof(*request);
+    request->dir_inode = dir->i_ino;
+    memcpy(request->name, entry->d_name.name, entry->d_name.len);
+    request->namelen = entry->d_name.len;
+    
+    wake_up_interruptible(&Uvfs_slots[slot].driver_queue);
+    /* This is just an unrolled version of interruptible_sleep_on */
+    safe_sleep_on(&Uvfs_slots[slot].fs_queue, &Uvfs_lock);
+    
+    if (signal_pending(current))
+    {
+        error = -ERESTARTSYS;
+        goto out;
+    }
+
+    reply = &Uvfs_slots[slot].reply.rmdir;
+    error = reply->error;
+    if (error == 0)
+    {
+        entry->d_inode->i_nlink = 0;
+        d_drop(entry);
+    }
+out:
+    /* Releases communication slot */
+    uvfs_empty_slot(slot);
+    spin_unlock(&Uvfs_lock);
+    dprintk("<1>Exited uvfs_rmdir. %d\n", error);
+    return error;
+}
 

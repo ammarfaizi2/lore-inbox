@@ -1,49 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264246AbUJRHvU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264396AbUJRIDa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264246AbUJRHvU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Oct 2004 03:51:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264377AbUJRHvU
+	id S264396AbUJRIDa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Oct 2004 04:03:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264503AbUJRIDa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Oct 2004 03:51:20 -0400
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:63692 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S264246AbUJRHvT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Oct 2004 03:51:19 -0400
-Subject: Re: [BUG] JVM crashes with 2.6.9-rc2
-From: Pekka Enberg <penberg@cs.helsinki.fi>
-To: Andrew Morton <akpm@osdl.org>
-Cc: roland@redhat.com, torvalds@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <1097968058.8033.8.camel@localhost>
-References: <1097928466.13431.8.camel@localhost>
-	 <20041016124519.627456de.akpm@osdl.org> <1097968058.8033.8.camel@localhost>
-Date: Mon, 18 Oct 2004 10:51:34 +0300
-Message-Id: <1098085894.13099.17.camel@localhost>
+	Mon, 18 Oct 2004 04:03:30 -0400
+Received: from cantor.suse.de ([195.135.220.2]:35019 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S264396AbUJRID0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Oct 2004 04:03:26 -0400
+Date: Mon, 18 Oct 2004 09:54:33 +0200
+From: Olaf Hering <olh@suse.de>
+To: Paul Mackerras <paulus@samba.org>
+Cc: linuxppc64-dev@ozlabs.org, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] allow kernel compile with native ppc64 compiler
+Message-ID: <20041018075433.GA24927@suse.de>
+References: <20041017185557.GA9619@suse.de> <16754.59442.992185.715900@cargo.ozlabs.ibm.com> <20041018045603.GA8500@suse.de> <16755.23272.754150.209624@cargo.ozlabs.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution 2.0.0 
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <16755.23272.754150.209624@cargo.ozlabs.ibm.com>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+ On Mon, Oct 18, Paul Mackerras wrote:
 
-On Sat, 2004-10-16 at 12:45 -0700, Andrew Morton wrote:
-> > That's peculiar.  Are you sure about that?
+> Olaf Hering writes:
+> 
+> > > ... and breaks the compile on older toolchains that don't understand
+> > > -m32.  We need to make the -m32 conditional on HAS_BIARCH as defined
+> > > in arch/ppc64/Makefile.
+> > 
+> > how old?
+> 
+> The gcc that comes with debian sid doesn't understand -m32.  That's a
+> 32-bit gcc, which means that I set CROSS_COMPILE when doing a ppc64
+> kernel compile.  With your patch I have to set CROSS32_COMPILE as
+> well, which seems silly when I'm compiling on a ppc32 box already.
 
-On Sun, 2004-10-17 at 02:07 +0300, Pekka Enberg wrote:
-> I tested again and I now get the crash with _all_ of the above kernels
-> so it's definitely not the patch.  Sorry about that.  I'll run memtest86
-> tomorrow to see if my hardware is broken.
+Makes sense, I confused a native powerpc64-linux gcc from last century
+with a native/cross powerpc-linux gcc from last century.
 
-Sorry, this is probably not a kernel bug.
+> Ben H suggested making the default BOOTCC be $(CC) -m32, which makes
+> sense to me.
 
-My test case was slightly different for the first and second run which
-is why I got varying results.  I can reproduce the crash now with _all_
-recent 2.6 kernels so the bug is likely somewhere else.  The JVM crashes
-at different locations depending on the kernel version which is why I
-thought the problem was in the kernel in the first place.
+That may break cross compile. I will provide a new patch.
 
-Thanks a lot for the help and sorry for the noise.
+-- 
+USB is for mice, FireWire is for men!
 
-		Pekka
-
+sUse lINUX ag, nÜRNBERG

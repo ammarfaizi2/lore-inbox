@@ -1,55 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280524AbRKXXdA>; Sat, 24 Nov 2001 18:33:00 -0500
+	id <S280494AbRKXXdU>; Sat, 24 Nov 2001 18:33:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280510AbRKXXcu>; Sat, 24 Nov 2001 18:32:50 -0500
-Received: from mail1.home.nl ([213.51.129.225]:19335 "EHLO mail1.home.nl")
-	by vger.kernel.org with ESMTP id <S280494AbRKXXcf>;
-	Sat, 24 Nov 2001 18:32:35 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: "F.H. Bulthuis" <bulthuis@home.nl>
-Reply-To: bulthuis@home.nl
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: Linux 2.4.16-pre1
-Date: Sun, 25 Nov 2001 00:32:35 +0100
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <Pine.LNX.4.21.0111241636200.12066-100000@freak.distro.conectiva>
-In-Reply-To: <Pine.LNX.4.21.0111241636200.12066-100000@freak.distro.conectiva>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20011124233234.PTJT16304.mail1.home.nl@there>
+	id <S280510AbRKXXdK>; Sat, 24 Nov 2001 18:33:10 -0500
+Received: from mnh-1-12.mv.com ([207.22.10.44]:14596 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S280494AbRKXXcz>;
+	Sat, 24 Nov 2001 18:32:55 -0500
+Message-Id: <200111250050.TAA06745@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: Pavel Machek <pavel@suse.cz>
+Cc: Adam Feuer <adamf@pobox.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Swsusp mailing list <swsusp@lister.fornax.hu>,
+        ACPI mailing list <acpi@phobos.fachschaften.tu-muenchen.de>,
+        kernel list <linux-kernel@vger.kernel.org>,
+        Gabor Kuti <seasons@falcon.sch.bme.hu>
+Subject: Re: [swsusp] Re: swsusp for 2.4.14 
+In-Reply-To: Your message of "Fri, 23 Nov 2001 13:46:40 GMT."
+             <20011123134639.A55@toy.ucw.cz> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sat, 24 Nov 2001 19:50:42 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 24 November 2001 19:39, Marcelo Tosatti wrote:
-> Hi,
->
-> So here it goes 2.4.16-pre1. Obviously the most important fix is the
-> iput() one, which probably fixes the filesystem corruption problem people
-> have been seeing.
->
-> Please, people who have been experiencing the fs corruption problems test
-> this and tell me its now working so I can release a final 2.4.16 ASAP.
->
->
-> - Correctly sync inodes in iput()			(Alexander Viro)
-> - Make pagecache readahead size tunable via /proc	(was in -ac tree)
-> - Fix PPC kernel compilation problems			(Paul Mackerras)
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+pavel@suse.cz said:
+>  Yep, its doable, but way harder than other ports where you only have
+> to restore CPU registers. And yes it would be cool. 
 
-Hi,
-After compiling and installing the new 2.4.16-pre1 uname -a reports here 
-version 2.4.15-greased-turkey, not 2.4.16-pre1. 
-bash-2.05$ uname -a
-Linux nert 2.4.15-greased-turkey #1 Sat Nov 24 23:48:07 CET 2001 i686 unknown
+Yeah, Linux has a lot more "processor state" than the typical physical CPU.
 
-Cheers,
+And I agree it would be very cool.
 
-Fred Bulthuis
-n00b to this list :)
+				Jeff
+

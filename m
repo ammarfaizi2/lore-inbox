@@ -1,46 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272415AbRI3DG3>; Sat, 29 Sep 2001 23:06:29 -0400
+	id <S272345AbRI3Czt>; Sat, 29 Sep 2001 22:55:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272407AbRI3DGJ>; Sat, 29 Sep 2001 23:06:09 -0400
-Received: from web10404.mail.yahoo.com ([216.136.130.96]:21768 "HELO
-	web10404.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S272404AbRI3DGD>; Sat, 29 Sep 2001 23:06:03 -0400
-Message-ID: <20010930030630.25912.qmail@web10404.mail.yahoo.com>
-Date: Sun, 30 Sep 2001 13:06:30 +1000 (EST)
-From: =?iso-8859-1?q?Steve=20Kieu?= <haiquy@yahoo.com>
-Subject: Funny top display :-)
-To: kernel <linux-kernel@vger.kernel.org>
+	id <S272369AbRI3Czj>; Sat, 29 Sep 2001 22:55:39 -0400
+Received: from sushi.toad.net ([162.33.130.105]:41427 "EHLO sushi.toad.net")
+	by vger.kernel.org with ESMTP id <S272345AbRI3CzY>;
+	Sat, 29 Sep 2001 22:55:24 -0400
+Subject: [PATCH] Mwave MODULE_LICENSE etc.
+To: linux-kernel@vger.kernel.org
+Date: Sat, 29 Sep 2001 22:55:17 -0400 (EDT)
+X-Mailer: ELM [version 2.4ME+ PL73 (25)]
 MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Message-Id: <20010930025517.CA0696E2@thanatos.toad.net>
+From: jdthood@home.dhs.org (Thomas Hood)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-I just switch back to 2.4.9-ac17 with preempt patch as
-the 2.4.10 Vm break yesterday (see my last post ) ; it
-runs fine ; I am typing this ; the system is almost
-perfect, BUT see the top display here
-
-  3:08pm  up  1:48,  2 users,  load average: 0.00,
-0.03, 0.16
-79 processes: 78 sleeping, 1 running, 0 zombie, 0
-stopped
-CPU states:  1.1% user, 19.2% system,  0.0% nice,
-79.5% idle
-Mem:   126140K av,  123124K used,    3016K free,
-4294962488K shrd,     604K buf
-Swap:   72288K av,   71692K used,     596K free       
-           4294962516K20916K cached
-
-wow how come do I have too much shared memory?
+(Sorry if this is a repeat mail.  MTA probs.)
+Here's a patch to add the MODULE_ stuff to the 
+Mwave driver.                 // Thomas
 
 
-
-=====
-S.KIEU
-
-http://travel.yahoo.com.au - Yahoo! Travel
-- Got Itchy feet? Get inspired!
+--- linux-2.4.9-ac16/drivers/char/mwave/mwavedd.c	Fri Sep 28 22:24:14 2001
++++ linux-2.4.9-ac16-fix/drivers/char/mwave/mwavedd.c	Sat Sep 29 21:49:28 2001
+@@ -71,6 +71,10 @@
+ #define __exit
+ #endif
+ 
++MODULE_DESCRIPTION("3780i Advanced Communications Processor (Mwave) driver");
++MODULE_AUTHOR("Mike Sullivan and Paul Schroeder");
++MODULE_LICENSE("GPL");
++
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,0)
+ static int mwave_get_info(char *buf, char **start, off_t offset, int len);
+ #else

@@ -1,41 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268351AbRGXRBW>; Tue, 24 Jul 2001 13:01:22 -0400
+	id <S268289AbRGXRCm>; Tue, 24 Jul 2001 13:02:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268289AbRGXRBM>; Tue, 24 Jul 2001 13:01:12 -0400
-Received: from charybda.fi.muni.cz ([147.251.48.214]:2573 "HELO
-	charybda.fi.muni.cz") by vger.kernel.org with SMTP
-	id <S268340AbRGXRBA>; Tue, 24 Jul 2001 13:01:00 -0400
-From: Jan Kasprzak <kas@informatics.muni.cz>
-Date: Tue, 24 Jul 2001 19:01:03 +0200
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.7 cyclades-Y crash
-Message-ID: <20010724190103.J1033@informatics.muni.cz>
-Mime-Version: 1.0
+	id <S268360AbRGXRCc>; Tue, 24 Jul 2001 13:02:32 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:29705 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S268289AbRGXRCV>; Tue, 24 Jul 2001 13:02:21 -0400
+Subject: Re: MO-Drive under 2.4.7 usinf vfat
+To: axboe@suse.de (Jens Axboe)
+Date: Tue, 24 Jul 2001 18:00:50 +0100 (BST)
+Cc: dougg@torque.net (Douglas Gilbert),
+        hirofumi@mail.parknet.co.jp (OGAWA Hirofumi),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20010724103310.L4221@suse.de> from "Jens Axboe" at Jul 24, 2001 10:33:10 AM
+X-Mailer: ELM [version 2.5 PL5]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15P5YA-0000NI-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-	Hello,
+> FAT oopses, right?
+> 
+> It will not be fixed (Logical sector size smaller than device sector
+> size) directly, there needs to be support for this type of thing. For
+> now folks should just use loop on top of DVD-RAM, for instance.
 
-	I've tried to move my serial console & modem server to the 2.4 kernel.
-It has two Cyclades-Y cards - one ISA Cyclom 8Yo, and another Cyclom YeP (PCI,
-connected to 16-port box). The 2.4.7 kernel crashes when initializing the
-cyclades driver (either as a module or a built-in driver). I've tried
-the stock kernel from Red Hat 7.1, and the cyclades.o module causes the
-system to lock up when loaded.
+Oopses are bad. It means any random user can trick you into crashing your
+box just by swapping media around or you crash it in error
 
-	Has anybody the cyclades.o driver working with 2.4?
-
-	Thanks,
-
--Yenya
-
--- 
-\ Jan "Yenya" Kasprzak <kas at fi.muni.cz>       http://www.fi.muni.cz/~kas/
-\\ PGP: finger kas at aisa.fi.muni.cz   0D99A7FB206605D7 8B35FCDE05B18A5E //
-\\\             Czech Linux Homepage:  http://www.linux.cz/              ///
---Just returned after being 10 days off-line. Sorry for the delayed reply.--
+I/O error by all means - but oops is a bug

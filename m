@@ -1,54 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130810AbQLPXw2>; Sat, 16 Dec 2000 18:52:28 -0500
+	id <S130984AbQLPX43>; Sat, 16 Dec 2000 18:56:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129733AbQLPXwS>; Sat, 16 Dec 2000 18:52:18 -0500
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:4192 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S130984AbQLPXwB>; Sat, 16 Dec 2000 18:52:01 -0500
-Date: Sat, 16 Dec 2000 23:21:13 +0000
-From: Tim Waugh <twaugh@redhat.com>
-To: Lukasz Trabinski <lukasz@lt.wsisiz.edu.pl>
-Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk, tytso@valinux.com
-Subject: Re: [patch] 2.2.18 PCI_DEVICE_ID_OXSEMI_16PCI954
-Message-ID: <20001216232113.B12112@redhat.com>
-In-Reply-To: <Pine.LNX.4.30.0012152140350.3740-100000@lt.wsisiz.edu.pl>
+	id <S131061AbQLPX4T>; Sat, 16 Dec 2000 18:56:19 -0500
+Received: from wire.cadcamlab.org ([156.26.20.181]:14862 "EHLO
+	wire.cadcamlab.org") by vger.kernel.org with ESMTP
+	id <S130984AbQLPX4D>; Sat, 16 Dec 2000 18:56:03 -0500
+Date: Sat, 16 Dec 2000 17:25:18 -0600
+To: infernix <infernix@infernix.nl>
+Cc: Niels Kristian Bech Jensen <nkbj@image.dk>,
+        "Linux kernel developer's mailing list" 
+	<linux-kernel@vger.kernel.org>
+Subject: Re: Unable to boot 2.4.0-test12 (0224 AX:0212 BX:BC00 CX:5101 DX:000.)
+Message-ID: <20001216172518.M3199@cadcamlab.org>
+In-Reply-To: <Pine.LNX.4.30.0012160521580.2805-100000@hafnium.nkbj.dk> <Pine.LNX.4.21.0012161651390.5677-100000@server.ggmc.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.30.0012152140350.3740-100000@lt.wsisiz.edu.pl>; from lukasz@lt.wsisiz.edu.pl on Fri, Dec 15, 2000 at 09:57:42PM +0100
+In-Reply-To: <Pine.LNX.4.21.0012161651390.5677-100000@server.ggmc.nl>; from infernix@infernix.nl on Sat, Dec 16, 2000 at 04:56:07PM +0100
+From: Peter Samuelson <peter@cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 15, 2000 at 09:57:42PM +0100, Lukasz Trabinski wrote:
 
-> In serial dirver from Theodore Ts'o we have:
-> 
->         {       PCI_VENDOR_ID_SPECIALIX, PCI_DEVICE_ID_OXSEMI_16PCI954,
+[infernix]
+> I found the cause. I read somewhere in a debian bugreport that
+> bootsect.S can't handle really big (b)vmlinuz images (over 500kb
+> orso). However, I am wondering why 'make bzdisk' doesn't give me an
+> error or a warning.
 
-This is for a serial port device.
+As someone (Jeff Garzik?) was saying a week or two ago, can we please
+kill the x86 boot sector already?  With today's kernels, 'over 500k or
+so' is probably the common case.  Is there *anything* the builtin code
+can do better than syslinux?
 
-> (IMHO that is correct), but in kernel 2.2.18 we have:
-> (include/kernel/pci.h)
-> #define PCI_DEVICE_ID_OXSEMI_16PCI954PP        0x9513
->                                      ^^
-
-This is for a parallel port device.  They are two logically different
-things, have two distinct PCI bus entries, and so have two distinct
-PCI device IDs and consequently different names.
-
-> -#define PCI_DEVICE_ID_OXSEMI_16PCI954PP        0x9513
-> +#define PCI_DEVICE_ID_OXSEMI_16PCI954  0x9513
-
-Alan, do not apply, this will break the parport code.
-
-If the OXSEMI_16PCI954 is _missing_, it probably ought to be _added_,
-but it does not have 0x9513 as its ID and so the existing name should
-not be changed.
-
-Tim.
-*/
+Peter
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

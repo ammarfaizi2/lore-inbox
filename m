@@ -1,41 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264305AbUEDKVl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264308AbUEDKXh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264305AbUEDKVl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 May 2004 06:21:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264302AbUEDKVk
+	id S264308AbUEDKXh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 May 2004 06:23:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264307AbUEDKXh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 May 2004 06:21:40 -0400
-Received: from hirsch.in-berlin.de ([192.109.42.6]:54425 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S264305AbUEDKVG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 May 2004 06:21:06 -0400
-X-Envelope-From: kraxel@bytesex.org
-Date: Tue, 4 May 2004 19:13:06 +0200
-From: Gerd Knorr <kraxel@bytesex.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andreas Schwab <schwab@suse.de>, Adrian Bunk <bunk@fs.tum.de>,
-       Eyal Lebedinsky <eyal@eyal.emu.id.au>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.6-rc3: gcc 2.95: cx88 __ucmpdi2 error
-Message-ID: <20040504171306.GD18008@bytesex.org>
-References: <Pine.LNX.4.58.0404271858290.10799@ppc970.osdl.org> <408F9BD8.8000203@eyal.emu.id.au> <20040501112432.GE2541@fs.tum.de> <Pine.LNX.4.58.0405011025410.18014@ppc970.osdl.org> <jey8oc6lig.fsf@sykes.suse.de> <Pine.LNX.4.58.0405011145570.18014@ppc970.osdl.org>
-Mime-Version: 1.0
+	Tue, 4 May 2004 06:23:37 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:11573 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S264308AbUEDKWj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 May 2004 06:22:39 -0400
+Message-ID: <40976EA1.928BAB65@melbourne.sgi.com>
+Date: Tue, 04 May 2004 20:21:21 +1000
+From: Greg Banks <gnb@melbourne.sgi.com>
+Organization: SGI Australian Software Group
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.18-6mdk i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Dipankar Sarma <dipankar@in.ibm.com>
+CC: viro@parcelfarce.linux.theplanet.co.uk, Neil Brown <neilb@cse.unsw.edu.au>,
+       Nikita Danilov <Nikita@Namesys.COM>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       trond myklebust <trondmy@trondhjem.org>
+Subject: Re: d_splice_alias() problem.
+References: <16521.5104.489490.617269@laputa.namesys.com> <16529.56343.764629.37296@cse.unsw.edu.au> <409634B9.8D9484DA@melbourne.sgi.com> <16534.54704.792101.617408@cse.unsw.edu.au> <40973F7F.A9FA4F1@melbourne.sgi.com> <20040504094642.GL17014@parcelfarce.linux.theplanet.co.uk>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0405011145570.18014@ppc970.osdl.org>
-User-Agent: Mutt/1.5.3i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > dev->tvnorm->id is __u64.
-> > linux/videodev2.h:typedef __u64 v4l2_std_id;
+G'day Dipankar,
+
+I don't know if you've been following this thread on lkml, but Al Viro
+wants an RCU expert's opinion on the following dcache patch.
+
+Greg Banks wrote:
 > 
-> Ahh. And maybe this only happens for the "switch()" statement, which would 
-> explain why gcc-2.95 doesn't have problem with a lot of other 64-bit uses 
-> in the kernel.
+> > > *   Dentry_stat.nr_unused can be be spuriously decremented when dput()
+> > >     races with __dget_unlocked().  Eventual result is nr_unused<0
+> > >     and kswapd loops.  This is the problem I mentioned earlier.  Note
+> > >     that this is not an NFS-specific problem.  Fix is:
+> > > [...first attempt elided...]
+> Ok, how about this...it's portable, and not racy, but may perturb the
+> logic slightly by also taking dentries off the unused list in the case
+> where they already had d_count>=1.  I'm not sure how significant that is.
+> In any case this also passes my tests.
+> 
+> --- linux.orig/fs/dcache.c      Mon May  3 21:46:30 2004
+> +++ linux/fs/dcache.c   Tue May  4 14:34:44 2004
+> @@ -256,7 +256,7 @@
+>  static inline struct dentry * __dget_locked(struct dentry *dentry)
+>  {
+>         atomic_inc(&dentry->d_count);
+> -       if (atomic_read(&dentry->d_count) == 1) {
+> +       if (!list_empty(&dentry->d_lru)) {
+>                 dentry_stat.nr_unused--;
+>                 list_del_init(&dentry->d_lru);
+>         }
+> @@ -663,6 +663,7 @@
+>                 if (gfp_mask & __GFP_FS)
+>                         prune_dcache(nr);
+>         }
+> +       BUG_ON(dentry_stat.nr_unused < 0);
+>         return dentry_stat.nr_unused;
+>  }
+> 
 
-Yup, seems to be the switch() statement.  gcc-3.3.3 does that as well on
-some architectures btw (seen on ppc).  I'll fix it.
+viro@parcelfarce.linux.theplanet.co.uk wrote:
+> 
+> a) ask RCU folks to review - the current logics in dcache.c is extremely
+> brittle as it is.
 
-  Gerd
-
+Greg.
+-- 
+Greg Banks, R&D Software Engineer, SGI Australian Software Group.
+I don't speak for SGI.

@@ -1,49 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264368AbTCXRN3>; Mon, 24 Mar 2003 12:13:29 -0500
+	id <S264283AbTCXREh>; Mon, 24 Mar 2003 12:04:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264377AbTCXRNJ>; Mon, 24 Mar 2003 12:13:09 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:16860 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S264368AbTCXRLS>; Mon, 24 Mar 2003 12:11:18 -0500
-Date: Mon, 24 Mar 2003 09:22:24 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-Reply-To: LKML <linux-kernel@vger.kernel.org>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 493] New: Support for Sony DSP-P72 not available 
-Message-ID: <91700000.1048526544@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	id <S264288AbTCXQtk>; Mon, 24 Mar 2003 11:49:40 -0500
+Received: from deviant.impure.org.uk ([195.82.120.238]:50666 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id <S264287AbTCXQa7>; Mon, 24 Mar 2003 11:30:59 -0500
+Message-Id: <200303241642.h2OGg935008320@deviant.impure.org.uk>
+Date: Mon, 24 Mar 2003 16:41:57 +0000
+To: torvalds@transmeta.com
+From: davej@codemonkey.org.uk
+Cc: linux-kernel@vger.kernel.org
+Subject: fix asm constraints in ffs
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Another brought forward from 2.4.
 
-http://bugme.osdl.org/show_bug.cgi?id=493
-
-           Summary: Support for Sony DSP-P72 not available
-    Kernel Version: 2.4.20, 2.5.6x
-            Status: NEW
-          Severity: normal
-             Owner: greg@kroah.com
-         Submitter: milan@cmm.ki.si
-
-
-Distribution:debian, gentoo
-Hardware Environment:x86
-Software Environment:GNU
-Problem Description:There is no support for DSC-P72 digital camera in
-drivers/usb/storage/unusual_devs.h for DSC-P72
-
-Steps to reproduce:
-add the following after similar DSC-S30 block to support also this camera:
-
-UNUSUAL_DEV(  0x054c, 0x0010, 0x0106, 0x0450, 
-		"Sony",
-		"DSC-P72", 
-		US_SC_SCSI, US_PR_CB, NULL,
-		US_FL_SINGLE_LUN | US_FL_START_STOP | US_FL_MODE_XLATE ),
-
-
+diff -urpN --exclude-from=/home/davej/.exclude bk-linus/include/asm-i386/bitops.h linux-2.5/include/asm-i386/bitops.h
+--- bk-linus/include/asm-i386/bitops.h	2003-03-08 09:57:46.000000000 +0000
++++ linux-2.5/include/asm-i386/bitops.h	2003-03-17 23:42:49.000000000 +0000
+@@ -458,7 +458,7 @@ static __inline__ int ffs(int x)
+ 	__asm__("bsfl %1,%0\n\t"
+ 		"jnz 1f\n\t"
+ 		"movl $-1,%0\n"
+-		"1:" : "=r" (r) : "g" (x));
++		"1:" : "=r" (r) : "rm" (x));
+ 	return r+1;
+ }
+ 

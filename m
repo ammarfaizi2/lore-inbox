@@ -1,40 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265487AbUHHVem@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263736AbUHHVkK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265487AbUHHVem (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Aug 2004 17:34:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265706AbUHHVem
+	id S263736AbUHHVkK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Aug 2004 17:40:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264704AbUHHVkK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Aug 2004 17:34:42 -0400
-Received: from delta.ds3.agh.edu.pl ([149.156.124.3]:58123 "EHLO
-	pluto.ds14.agh.edu.pl") by vger.kernel.org with ESMTP
-	id S265487AbUHHVel (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Aug 2004 17:34:41 -0400
-From: =?utf-8?q?Pawe=C5=82_Sikora?= <pluto@pld-linux.org>
-To: Stefan Schweizer <sschweizer@gmail.com>
-Subject: Re: [PATCH] omnibook / CONFIG_ACPI is not set / missing -Exxxx defs.
-Date: Sun, 8 Aug 2004 23:34:28 +0200
-User-Agent: KMail/1.6.2
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <200408071828.18174.pluto@pld-linux.org> <20040808132922.2c924bca.akpm@osdl.org> <e796392204080814043dc6ea49@mail.gmail.com>
-In-Reply-To: <e796392204080814043dc6ea49@mail.gmail.com>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sun, 8 Aug 2004 17:40:10 -0400
+Received: from imap.gmx.net ([213.165.64.20]:24470 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S263736AbUHHVkC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Aug 2004 17:40:02 -0400
+X-Authenticated: #1725425
+Date: Sun, 8 Aug 2004 23:43:45 +0200
+From: Marc Ballarin <Ballarin.Marc@gmx.de>
+To: Greg KH <greg@kroah.com>
+Cc: albert@users.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: dynamic /dev security hole?
+Message-Id: <20040808234345.7460a8ca.Ballarin.Marc@gmx.de>
+In-Reply-To: <20040808162115.GA7597@kroah.com>
+References: <1091969260.5759.125.camel@cube>
+	<20040808175834.59758fc0.Ballarin.Marc@gmx.de>
+	<20040808162115.GA7597@kroah.com>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200408082334.28331.pluto@pld-linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 08 of August 2004 23:04, Stefan Schweizer wrote:
-> Andrew,
-> I think he refers to the omnibook driver, that can be found at
-> http://sourceforge.net/projects/omke/
+On Sun, 8 Aug 2004 09:21:15 -0700
+Greg KH <greg@kroah.com> wrote:
 
-yes, we use the http://149.156.124.14/~pluto/tmp/2.6.1-all-in-1.patch
-in the pld-kernel.
+> Patches to the udev HOWTO and FAQ are always welcome.
+> 
 
--- 
-/* Copyright (C) 2003, SCO, Inc. This is valuable Intellectual Property. */
+How about this? The first part is a spelling fix.
 
-                           #define say(x) lie(x)
+--- udev-FAQ.orig	2004-08-08 18:42:03.639348944 +0200
++++ udev-FAQ	2004-08-08 23:14:07.895684768 +0200
+@@ -23,7 +23,7 @@
+ 	- the former had stayed around for many months with maintainer
+ 	  claiming that everything works fine
+ 	- the latter had stayed, period.
+-	- the devfs maintainer/author disappeared and stoped maintaining
++	- the devfs maintainer/author disappeared and stopped maintaining
+ 	  the code.
+ 
+ Q: But udev will not automatically load a driver if a /dev node is opened
+@@ -98,6 +98,19 @@
+    And don't have to be root but will get full permissions on /pendrive.
+    This works even without udev if /udev/pendrive is replaced by
+/dev/sda1
+ 
++Q: Are there any security issues that I should be aware of?
++A: When using dynamic device numbers, a given pair of major/minor numbers
+may
++   point to different hardware over time. If a user has permission to
+access a
++   specific device node directly and is able to create hard links to this
+node,
++   he or she can do so to create a copy of the device node. When the
+device is
++   unplugged and udev removes the device node, the user's hard link
+remains.
++   If the device node is later recreated with different permissions the
+hard 
++   link can still be used to access the device using the old permissions.
++   (The same problem exists when using PAM to change permissions on
+login.)
++    
++   The simplest solution is to prevent the creation of hard links by
+putting
++   /dev in a separate filesystem (tmpfs, ramfs, ...).
++    
+ Q: I have other questions about udev, where do I ask them?
+ A: The linux-hotplug-devel mailing list is the proper place for it.  The
+    address for it is linux-hotplug-devel@lists.sourceforge.net

@@ -1,55 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261969AbVASXVm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261972AbVASXXl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261969AbVASXVm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 18:21:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261975AbVASXSe
+	id S261972AbVASXXl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 18:23:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261975AbVASXXl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 18:18:34 -0500
-Received: from ylpvm29-ext.prodigy.net ([207.115.57.60]:9693 "EHLO
-	ylpvm29.prodigy.net") by vger.kernel.org with ESMTP id S261968AbVASXRe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 18:17:34 -0500
-Date: Wed, 19 Jan 2005 15:17:03 -0800
-From: Tony Lindgren <tony@atomide.com>
-To: George Anzinger <george@mvista.com>
-Cc: Andrea Arcangeli <andrea@suse.de>, Pavel Machek <pavel@suse.cz>,
-       john stultz <johnstul@us.ibm.com>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Con Kolivas <kernel@kolivas.org>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] dynamic tick patch
-Message-ID: <20050119231702.GJ14545@atomide.com>
-References: <20050119000556.GB14749@atomide.com> <20050119094342.GB25623@elf.ucw.cz> <20050119171323.GB14545@atomide.com> <20050119174858.GB12647@dualathlon.random> <41EEE648.2010309@mvista.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41EEE648.2010309@mvista.com>
-User-Agent: Mutt/1.5.6i
+	Wed, 19 Jan 2005 18:23:41 -0500
+Received: from smtp.dei.uc.pt ([193.137.203.228]:37826 "EHLO smtp.dei.uc.pt")
+	by vger.kernel.org with ESMTP id S261972AbVASXWm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jan 2005 18:22:42 -0500
+Date: Wed, 19 Jan 2005 23:06:10 +0000 (WET)
+From: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
+To: "Barry K. Nathan" <barryn@pobox.com>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11-rc1-mm1
+In-Reply-To: <20050114150714.GA4501@ip68-4-98-123.oc.oc.cox.net>
+Message-ID: <Pine.LNX.4.61.0501192301370.8199@student.dei.uc.pt>
+References: <20050114002352.5a038710.akpm@osdl.org>
+ <20050114150714.GA4501@ip68-4-98-123.oc.oc.cox.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+X-UC-FCT-DEI-MailScanner-Information: Please contact helpdesk@dei.uc.pt for more information
+X-UC-FCT-DEI-MailScanner: Found to be clean
+X-MailScanner-From: marado@student.dei.uc.pt
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* George Anzinger <george@mvista.com> [050119 15:00]:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+On Fri, 14 Jan 2005, Barry K. Nathan wrote:
+
+> This isn't new to 2.6.11-rc1-mm1, but it has the infamous (to Fedora
+> users) "ACPI shutdown bug" -- poweroff hangs instead of actually turning
+> the computer off, on some computers. Here's the RH Bugzilla report where
+> most of the discussion took place:
 >
-> I don't think you will ever get good time if you EVER reprogramm the PIT.  
-> That is why the VST patch on sourceforge does NOT touch the PIT, it only 
-> turns off the interrupt by interrupting the interrupt path (not changing 
-> the PIT).  This allows the PIT to be the "gold standard" in time that it is 
-> designed to be.  The wake up interrupt, then needs to come from an 
-> independent timer.  My patch requires a local APIC for this.  Patch is 
-> available at http://sourceforge.net/projects/high-res-timers/
+> https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=132761
 
-Well on my test systems I have pretty good accurate time. But I agree,
-PIT is not the best option for interrupt. It should be possible to use
-other interrupt sources as well.
+This is the same bug I've talked here:
+http://lkml.org/lkml/2005/1/11/88
 
-It should not matter where the timer interrupt comes from, as long as 
-it comes when programmed. Updating time should be separate from timer
-interrupts. Currently we have a problem where time is tied to the
-timer interrupt.
+This only happens with -mm and not with vanilla sources.
 
-I'll take a look at your patch again, and check out the APIC part.
+I'm reporting about this issue in an ASUS M3N laptop with Debian.
 
-Regards,
+Best regards,
+Mind Booster Noori
 
-Tony
+> In the Fedora kernels it turned out to be due to kexec. I'll see if I
+> can narrow it down further.
+>
+> -Barry K. Nathan <barryn@pobox.com>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+
+- -- 
+/* *************************************************************** */
+    Marcos Daniel Marado Torres	     AKA	Mind Booster Noori
+    http://student.dei.uc.pt/~marado   -	  marado@student.dei.uc.pt
+    () Join the ASCII ribbon campaign against html email, Microsoft
+    /\ attachments and Software patents.   They endanger the World.
+    Sign a petition against patents:  http://petition.eurolinux.org
+/* *************************************************************** */
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Made with pgp4pine 1.76
+
+iD8DBQFB7ufzmNlq8m+oD34RAmsIAKDM55tzy957YqEXtNkz9l2O3O7V1ACeKXQB
+v2LuSPMWch9A7NQApq6Bm8c=
+=F7on
+-----END PGP SIGNATURE-----
+

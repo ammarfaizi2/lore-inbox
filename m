@@ -1,91 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267406AbUG2B56@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267411AbUG2B7c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267406AbUG2B56 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 21:57:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267410AbUG2B56
+	id S267411AbUG2B7c (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 21:59:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267413AbUG2B7b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 21:57:58 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:6073 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S267406AbUG2B5q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 21:57:46 -0400
-To: Andrew Morton <akpm@osdl.org>
-Cc: suparna@in.ibm.com, fastboot@osdl.org, mbligh@aracnet.com,
-       jbarnes@engr.sgi.com, alan@lxorguk.ukuu.org.uk,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Fastboot] Re: Announce: dumpfs v0.01 - common RAS output API
-References: <16734.1090513167@ocs3.ocs.com.au>
-	<20040725235705.57b804cc.akpm@osdl.org>
-	<m1r7qw7v9e.fsf@ebiederm.dsl.xmission.com>
-	<200407280903.37860.jbarnes@engr.sgi.com> <25870000.1091042619@flay>
-	<m14qnr7u7b.fsf@ebiederm.dsl.xmission.com>
-	<20040728133337.06eb0fca.akpm@osdl.org>
-	<1091044742.31698.3.camel@localhost.localdomain>
-	<m1llh367s4.fsf@ebiederm.dsl.xmission.com>
-	<20040728164457.732c2f1d.akpm@osdl.org>
-	<m1d62f6351.fsf@ebiederm.dsl.xmission.com>
-	<20040728180954.1f2baed9.akpm@osdl.org>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 28 Jul 2004 19:56:47 -0600
-In-Reply-To: <20040728180954.1f2baed9.akpm@osdl.org>
-Message-ID: <m1u0vr4luo.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+	Wed, 28 Jul 2004 21:59:31 -0400
+Received: from out007pub.verizon.net ([206.46.170.107]:39407 "EHLO
+	out007.verizon.net") by vger.kernel.org with ESMTP id S267408AbUG2B7O
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jul 2004 21:59:14 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.8-rc2 crash(s)?
+Date: Wed, 28 Jul 2004 21:59:10 -0400
+User-Agent: KMail/1.6.82
+References: <200407242156.40726.gene.heskett@verizon.net> <200407282059.03524.gene.heskett@verizon.net> <20040729010311.GM2334@holomorphy.com>
+In-Reply-To: <20040729010311.GM2334@holomorphy.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200407282159.10684.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out007.verizon.net from [141.153.76.185] at Wed, 28 Jul 2004 20:59:11 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> writes:
+On Wednesday 28 July 2004 21:03, William Lee Irwin III wrote:
+>On Wed, Jul 28, 2004 at 08:59:03PM -0400, Gene Heskett wrote:
+>> This message is now a bit old, William.
+>> I was watching the psu voltages via gkrellm, and was seeing the 5
+>> volt line go from 4.89, down to 4.73 in consecutive readings.  The
+>> new 420 watt Antec, seems to be steadier at 4.87 +- 0.03 or so.
+>> I suspect the tap point for the xx83627 chips input may not be
+>> right at the psu connector on the mobo cause I suspect the supply
+>> itself is probably doing 5.05 or so, although I haven't dropped my
+>> DVM on the line to test, its rather buried behind the drive cage. 
+>> But lemme go hit a drive power connector since there are spares on
+>> this psu, brb. Yeah, at a drive cables middle connector, with a
+>> small load on the end, its sitting at 5.00 volts, solid as a rock.
+>>  This supply has seperate regulators for the 5 volt, and 3.3 volt
+>> lines where the older one regulated everything against the 5 volt
+>> by turns ratios on the transformer, and was only a 300 watter,
+>> with 2 hd's, 2 floppy's and a dvd writer in addition to the
+>> motherboard load.
+>> Anything else a C.E.T. can get for you?
+>
+>The question is really whether all this is actually causing
+> observable kernel/cpu/device failures.
+>
+Well, at this point, I've 'shotgunned' just about everything.  Mobo, 
+cpu, memory and psu now.    And a fresh ATI (Xtacy made) 9200SE video 
+card, the old nvidia failed and apparently compromised something on 
+the old Biostar M7VIB mobo as it was going.  Its now a Biostar 
+M7NCD-Pro, with a 2800XP athlon replaceing the 1400XP on the old 
+board.   The new memory, 2 sticks of 512Mb, is DDR400 rated.  And I 
+just built, and am booted to, 2.6.7.  I'll see how long it stays up.
 
-> ebiederm@xmission.com (Eric W. Biederman) wrote:
-> >
-> > Andrew Morton <akpm@osdl.org> writes:
-> 
-> OK.  But some (most) of them will sleep, too.  And we shouldn't sleep in a
-> dead kernel.
+And despite all this trouble, I'm once again slowly climbing in the 
+seti@home ranks :-)
 
-Probably not.  And that is legitimate...
+>-- wli
 
-> > I agree.  However the gymnastics for doing that have not been worked out.
-> > The drivers cannot clean up stuff yet, nor do we have a good way to run
-> > in memory where DMA transfers on not ongoing.
-> 
-> Don't we?  The 16M of memory was allocated up-front at kexec load time[*],
-> so nobody will be pointing DMA hardware at it.  And the dump kernel won't
-> be pointing DMA hardware at the crashed kernel's pages.
-
-No but we will be running in the first 16M of memory.  The 16M that
-is allocated is currently used to hold a copy of the low 16M.
- 
-> > So for a first pass I think calling the shutdown methods make sense.
-> 
-> Well.  There aren't any.
-
-Which makes them both safe and worthless.  On the normal kexec path
-they we will need to get them written though.
-
-> > But the first pass is worth it (at least in the kexec tree) to sort out all
-> > of the interface issues and catch the low hanging fruit.
-> 
-> A significant proportion of kernel crashes happen from [soft]irq context,
-> from which we cannot call shutdown methods.  So we need to be able to bring
-> up the dump kernel without having run driver shutdown functions anwyay..
-
-Well if calling shutdown is not really usable, then I we had better
-transition quickly beyond using it...
- 
-> [*] At least, I _assume_ the 16MB will be prereserved,
->     physically-contiguous and wholly within ZONE_NORMAL.  Is this wrong?
-
-The problem is that we really won't be using it for running code out
-of because of i386 kernel limitations.  Unless someone can tell
-my why 0 -16MB won't have DMA traffic in them.  Or how to run a kernel
-at an address other than 1MB.
-
-I suspect we can play with the initial page tables and how virtual
-addresses map to physical addresses and fairly simply generate a
-relocatable kernel.  I have not had a chance to investigate that
-though.  Once we have that it will be trivial to run out of the
-reserved 16M and many of the practical problems melt away.
-
-Eric
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.24% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

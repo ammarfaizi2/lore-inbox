@@ -1,57 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266874AbUG1Lff@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266885AbUG1Lhx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266874AbUG1Lff (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 07:35:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266881AbUG1Lff
+	id S266885AbUG1Lhx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 07:37:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266884AbUG1Lhx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 07:35:35 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:23249 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266874AbUG1Lfd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 07:35:33 -0400
-Subject: Re: [PATCH] fix zlib debug in ppc boot header
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Olaf Hering <olh@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, Tom Rini <trini@kernel.crashing.org>,
-       linux-kernel@vger.kernel.org, linuxppc-dev@lists.linuxppc.org
-In-Reply-To: <20040728112222.GA7670@suse.de>
-References: <20040728112222.GA7670@suse.de>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-qAhk6h5oOqmu39tyaqJ8"
-Organization: Red Hat UK
-Message-Id: <1091014495.2795.25.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 28 Jul 2004 13:34:55 +0200
+	Wed, 28 Jul 2004 07:37:53 -0400
+Received: from hellhawk.shadowen.org ([212.13.208.175]:47622 "EHLO
+	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
+	id S266882AbUG1Lhq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jul 2004 07:37:46 -0400
+Date: Wed, 28 Jul 2004 12:38:47 +0100
+From: Andy Whitcroft <apw@shadowen.org>
+To: gene.heskett@verizon.net, viro@parcelfarce.linux.theplanet.co.uk
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.8-rc2 crashes
+Message-ID: <10D3E6305A14470B62191D9B@sig-9-145-17-80.uk.ibm.com>
+In-Reply-To: <200407280720.21518.gene.heskett@verizon.net>
+References: <200407271233.04205.gene.heskett@verizon.net>
+ <200407271315.22075.gene.heskett@verizon.net>
+ <20040727192615.GG12308@parcelfarce.linux.theplanet.co.uk>
+ <200407280720.21518.gene.heskett@verizon.net>
+X-Mailer: Mulberry/3.1.5 (Win32)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> I just had another crash/lockup, running 2.6.8-rc2-bk3
+> At the instant, I was looking thru the menu's of the new
+> kde3.3-beta2, in the window decoration, themes etc menu,
+> where it got 14% loaded in a 60 megabyte file and it went
+> away.
 
---=-qAhk6h5oOqmu39tyaqJ8
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Confused.  Previously (below) you were running 2.6.8-rc2 so the problem was
+in that version but not in -rc1 if I read you correctly.  So I would expect
+you to be testing 2.6.8-rc1-bkN snapshots to see where your breakage was
+introduced.
 
-On Wed, 2004-07-28 at 13:22, Olaf Hering wrote:
-> The ppc bootloader code will not compile with zlib debug enabled.
-> printf was not defined. Tested with vmlinux.coff
-> This patch was sent out earlier. Appearently it is not possible
-> to use the generic zlib copy in linux/lib
+> I have now had 4 crashes while running 2.6.8-rc2, the last one
+> requiring a full powerdown before the intel-8x0 could
+> re-establish control over the sound.
+[...]
+> I'd revert to rc1, but I'd have to figure out a way to use this .config
 
-actually it should be possible. Ok so it needs to be compiled as 32 bit,
-but surely just #include-ing the /linux/lib version, or even better, a
-few Makefile tricks should allow that, right ?
+As viro put it:
 
---=-qAhk6h5oOqmu39tyaqJ8
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+>It goes like that:
+>2.6.7
+>2.6.7 + 7-bk<n>
+>2.6.7 + 8-rc1
+>2.6.7 + 8-rc1 + 8-rc1-bk<n>
+>2.6.7 + 8-rc2
+>2.6.7 + 8-rc2 + 8-rc2-bk<n>
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBBB49fxULwo51rQBIRAjBtAJ0Umc6R3r+B+tvx8arx3+Z8E+PtaACffBYb
-/CbT/UMc4ArTsWgjlkCR7rk=
-=9Q1X
------END PGP SIGNATURE-----
-
---=-qAhk6h5oOqmu39tyaqJ8--
-
+-apw

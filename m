@@ -1,43 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310586AbSCGXFb>; Thu, 7 Mar 2002 18:05:31 -0500
+	id <S292892AbSCGXIk>; Thu, 7 Mar 2002 18:08:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310585AbSCGXFJ>; Thu, 7 Mar 2002 18:05:09 -0500
-Received: from mail.cert.uni-stuttgart.de ([129.69.16.17]:16077 "HELO
-	Mail.CERT.Uni-Stuttgart.DE") by vger.kernel.org with SMTP
-	id <S310586AbSCGXFG>; Thu, 7 Mar 2002 18:05:06 -0500
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [opensource] Re: Petition Against Official Endorsement of
-In-Reply-To: <E16j6zb-00045d-00@the-village.bc.nu>
-From: Florian Weimer <Weimer@CERT.Uni-Stuttgart.DE>
-Date: Fri, 08 Mar 2002 00:04:29 +0100
-In-Reply-To: <E16j6zb-00045d-00@the-village.bc.nu> (Alan Cox's message of
- "Thu, 7 Mar 2002 23:08:11 +0000 (GMT)")
-Message-ID: <871yewou82.fsf@CERT.Uni-Stuttgart.DE>
-User-Agent: Gnus/5.090005 (Oort Gnus v0.05) Emacs/21.1 (i686-pc-linux-gnu)
+	id <S293507AbSCGXIa>; Thu, 7 Mar 2002 18:08:30 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:29446 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S292892AbSCGXIT>; Thu, 7 Mar 2002 18:08:19 -0500
+Subject: Re: [opensource] Re: Petition Against Official Endorsement of BitKeeper by Linux Maintainers
+To: bernstein.46@osu.edu (michael bernstein)
+Date: Thu, 7 Mar 2002 23:21:14 +0000 (GMT)
+Cc: akpm@zip.com.au (Andrew Morton), hozer@drgw.net (Troy Benjegerdes),
+        pavel@ucw.cz (Pavel Machek), kentborg@borg.org (Kent Borg),
+        opensource-admin@cis.ohio-state.edu (The Open Source Club at The Ohio
+	State University),
+        linux-kernel@vger.kernel.org, opensource@cis.ohio-state.edu,
+        lm@bitmover.com (Larry McVoy)
+In-Reply-To: <10B32CBD-320F-11D6-BAF0-003065C60BC2@osu.edu> from "michael bernstein" at Mar 07, 2002 04:05:33 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16j7CE-00048k-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+> programs coming out.  The Gimp, for one, was written by students at 
+> Berkeley.  Last time I checked, no one was making money off of 
+> enlightenment, and they are all still poor.  Stop fucking whining about 
 
->> Using BitKeeper might break the way security issues are currently
->> handled by distributors of the GNU/Linux system, due to the open
->> logging feature.
->
-> It simply means security updates have to be kept seperate from the bitkeeper
-> maintained tree. We can handle that ok. It might mean the first Linus and
-> Marcelo push into their tree is when the vendor updates go out but thats
-> not a big problem to arrange
+Thats their planning. Some of them made poor business decisions, some of
+them joined the wrong companies. If you think that being poor and suffering
+are good for the soul there are a wide collection of religious orders to
+choose from most of whom are full of people doing a lot more useful things
+that whining on a mailing list
 
-Keeping changes outside the CMS seems completely unnatural to me. ;-)
+> it and stop compromising your ideals for money.  Also, before you can 
 
-But maybe security-related changes are so much an exception that this
-isn't a problem.
+I have a better idea - its called keeping your ideals and making some
+money 8) I've done that in the open source world both before and as part
+of Red Hat. 
 
--- 
-Florian Weimer 	                  Weimer@CERT.Uni-Stuttgart.DE
-University of Stuttgart           http://CERT.Uni-Stuttgart.DE/people/fw/
-RUS-CERT                          +49-711-685-5973/fax +49-711-685-5898
+I've also had long talks with Larry and I agree with him about the BK stuff.
+There are certain places where open source does not work well for business
+models - Bitkeeper is IMHO -not-  commodity [Yet...]
+
+Alan

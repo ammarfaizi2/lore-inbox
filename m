@@ -1,60 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265574AbUFTPm0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264975AbUFTPtI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265574AbUFTPm0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jun 2004 11:42:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265590AbUFTPm0
+	id S264975AbUFTPtI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jun 2004 11:49:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265644AbUFTPtI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jun 2004 11:42:26 -0400
-Received: from ultra12.almamedia.fi ([193.209.83.38]:35021 "EHLO
-	ultra12.almamedia.fi") by vger.kernel.org with ESMTP
-	id S265574AbUFTPmU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jun 2004 11:42:20 -0400
-Message-ID: <40D5B0B7.CA20C30A@users.sourceforge.net>
-Date: Sun, 20 Jun 2004 18:43:51 +0300
-From: Jari Ruusu <jariruusu@users.sourceforge.net>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.22aa1r7 i686)
-X-Accept-Language: en
+	Sun, 20 Jun 2004 11:49:08 -0400
+Received: from guanin.uni-konstanz.de ([134.34.240.60]:12724 "EHLO
+	guanin.uni-konstanz.de") by vger.kernel.org with ESMTP
+	id S264975AbUFTPtD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jun 2004 11:49:03 -0400
+From: Michael Dreher <michael.dreher@uni-konstanz.de>
+To: linux-kernel@vger.kernel.org
+Subject: oops eject cardbus 2.6.7
+Date: Sun, 20 Jun 2004 17:49:00 +0200
+User-Agent: KMail/1.6
 MIME-Version: 1.0
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Sam Ravnborg <sam@ravnborg.org>, 4Front Technologies <dev@opensound.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: Stop the Linux kernel madness
-References: <40D232AD.4020708@opensound.com> <3217460000.1087518092@flay>
-		 <40D23701.1030302@opensound.com> <20040618204655.GA4441@mars.ravnborg.org>
-		 <40D46B97.B82A439E@users.sourceforge.net> <Pine.LNX.4.58.0406191952520.10292@scrub.local>
-Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200406201749.00739.michael.dreher@uni-konstanz.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roman Zippel wrote:
-> On Sat, 19 Jun 2004, Jari Ruusu wrote:
-> > SUSE folks made a silly mistake and broke stuff. It was even more silly for
-> > them to try to submit that breakage to mainline.
-> 
-> Letting the symlink point to the build directory is the only sane option.
+Hello,
 
-No. That breaks stuff. Only sane solution IMO is to leave the
-/lib/modules/`uname -r`/build symlink alone, and add another
-/lib/modules/`uname -r`/object symlink that points to the object tree.
+when ejecting a cardbus card, I got the following oops.
+The box is a vaio C1 picturebook, the card is part of a 
+CD-ROM drive. Kernel is 2.6.7.
 
-> What's missing is that the native kernel tree itself should generate a
-> small Makefile in the build directory.
-> SuSE did the right thing, it now just needs proper integration.
+Just ask if you need more information.
 
-Separate source and object tree feature has been in mainline for at least
-half a year. Linus has released 8 stable kernels in the 2.6 line of kernels.
-Distros have released uncounted number of kernels based on those 2.6
-kernels. All of those kernels, except latest SUSE damaged ones, have the
-/lib/modules/`uname -r`/build symlink pointing to source tree if they are
-compiled to use separate object tree.
 
-My point is that this separate source and object trees thingy is not
-anything new, even though some SUSE people seem to think so. If SUSE people
-choose to break their kernels, it is their problem and their customers'
-problem. I don't see any reason why mainline should be broken just because
-SUSE people chose break their kernels.
+Unable to handle kernel paging request at virtual address 6b6b6b83
+ printing eip:
+c011f697
+*pde = 00000000
+Oops: 0000 [#1]
+PREEMPT
+Modules linked in: nls_iso8859_1 hci_vhci hci_uart hci_usb i2c_dev i2c_ali1535 
+i2c_ali15x3 i2c_core 8250 serial_core
+CPU:    0
+EIP:    0060:[<c011f697>]    Not tainted
+EFLAGS: 00010212   (2.6.7)
+EIP is at __release_resource+0x17/0x40
+eax: c1339468   ebx: cec8a000   ecx: 6b6b6b83   edx: 00000188
+esi: 00000001   edi: 00000180   ebp: cec8bedc   esp: cec8bed8
+ds: 007b   es: 007b   ss: 0068
+Process pccardd (pid: 147, threadinfo=cec8a000 task=ceccab70)
+Stack: cec8a000 cec8beec c011f75c cec6d574 00000001 cec8bf04 c02d4b71 00000008
+       00000002 ced44cb0 cec6d574 cec8bf18 c02d5ab4 ced44c98 ced44c98 ced44d10
+       cec8bf30 c02bca1b ced44d10 ced44d64 00000008 00000001 cec8bf38 c02bcb31
+Call Trace:
+ [<c0105c66>] show_stack+0xa6/0xb0
+ [<c0105dda>] show_registers+0x14a/0x1b0
+ [<c0105f7d>] die+0x8d/0x100
+ [<c01167c1>] do_page_fault+0x3e1/0x567
+ [<c01058d5>] error_code+0x2d/0x38
+ [<c011f75c>] release_resource+0x1c/0x40
+ [<c02d4b71>] release_io_space+0x71/0x90
+ [<c02d5ab4>] pcmcia_release_io+0xa4/0xd0
+ [<c02bca1b>] ide_release+0x3b/0xa0
+ [<c02bcb31>] ide_event+0xb1/0xd0
+ [<c02d3f81>] send_event+0x41/0x60
+ [<c02d3fb5>] socket_remove_drivers+0x15/0x40
+ [<c02d3feb>] socket_shutdown+0xb/0x60
+ [<c02d455b>] socket_remove+0xb/0x60
+ [<c02d461f>] socket_detect_change+0x6f/0x80
+ [<c02d47f8>] pccardd+0x1c8/0x1f0
+ [<c01032a5>] kernel_thread_helper+0x5/0x10
 
--- 
-Jari Ruusu  1024R/3A220F51 5B 4B F9 BB D3 3F 52 E9  DB 1D EB E3 24 0E A9 DD
+Code: 8b 11 bb ea ff ff ff 85 d2 75 ee eb 0e 8b 42 14 31 db 89 01
+ <6>note: pccardd[147] exited with preempt_count 1
+
+
+ 

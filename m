@@ -1,41 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130101AbRB1IDR>; Wed, 28 Feb 2001 03:03:17 -0500
+	id <S130096AbRB1IWj>; Wed, 28 Feb 2001 03:22:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130096AbRB1IC5>; Wed, 28 Feb 2001 03:02:57 -0500
-Received: from [213.255.45.210] ([213.255.45.210]:64262 "HELO
-	web.g_stazioni.it") by vger.kernel.org with SMTP id <S130082AbRB1ICq>;
-	Wed, 28 Feb 2001 03:02:46 -0500
-Message-ID: <DF71F1B1D60BD5118D2C0004AC538C650D08C9@DB_SRV>
-From: "Lombardo, Federico" <FLombardo@grandistazioni.it>
-To: "'mec@shout.net'" <mec@shout.net>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: making menuconfig on a 2.4.2-ac6 kernel :-)
-Date: Wed, 28 Feb 2001 09:02:22 +0100
+	id <S130102AbRB1IW2>; Wed, 28 Feb 2001 03:22:28 -0500
+Received: from www.wen-online.de ([212.223.88.39]:54290 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S130096AbRB1IWV>;
+	Wed, 28 Feb 2001 03:22:21 -0500
+Date: Wed, 28 Feb 2001 06:25:51 +0100 (CET)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: Shawn Starr <spstarr@sh0n.net>
+cc: <shawn@rhua.org>, Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        lkm <linux-kernel@vger.kernel.org>
+Subject: Re: [ANOMALIES]: 2.4.2 - __alloc_pages: failed - Causes more then
+ just  msgs
+In-Reply-To: <Pine.LNX.4.30.0102271651290.7968-100000@coredump.sh0n.net>
+Message-ID: <Pine.LNX.4.33.0102280619030.1028-100000@mikeg.weiden.de>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please report alan :-)
+On Tue, 27 Feb 2001, Shawn Starr wrote:
 
+> When added with BUG(); it will hang /dev/dsp.
 
+If the device is opened and we oops before closing it, subsequent
+open attempts will fail (busy).  If it hangs after a failed high
+order allocation attempt without the BUG() insertion, that could
+be called a driver bug.
 
-Menuconfig has encountered a possible error in one of the kernel's
-configuration files and is unable to continue.  Here is the error
-report:
-
- Q> scripts/Menuconfig: MCmenu0: command not found
-
-Please report this to the maintainer <mec@shout.net>.  You may also
-send a problem report to <linux-kernel@vger.kernel.org>.
-
-Please indicate the kernel version you are trying to configure and
-which menu you were trying to enter when this error occurred.
-
-make: *** [menuconfig] Error 1
-root@WEBSRV:/usr/src/linux#
-
+	-Mike
 

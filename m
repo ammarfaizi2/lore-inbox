@@ -1,55 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262041AbUCDRXQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Mar 2004 12:23:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262045AbUCDRXQ
+	id S262051AbUCDRcE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Mar 2004 12:32:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262040AbUCDRbo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Mar 2004 12:23:16 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:1778 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262041AbUCDRWS (ORCPT
+	Thu, 4 Mar 2004 12:31:44 -0500
+Received: from fw.osdl.org ([65.172.181.6]:28568 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262038AbUCDRbl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Mar 2004 12:22:18 -0500
-Subject: Re: [ANNOUNCE] kpatchup 0.02 kernel patching script
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Matt Mackall <mpm@selenic.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040303022444.GA3883@waste.org>
-References: <20040303022444.GA3883@waste.org>
-Content-Type: text/plain
-Message-Id: <1078420922.19701.1362.camel@nighthawk>
+	Thu, 4 Mar 2004 12:31:41 -0500
+Date: Thu, 4 Mar 2004 09:31:53 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Dave Kleikamp <shaggy@austin.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Race in nobh_prepare_write
+Message-Id: <20040304093153.2c9b4be4.akpm@osdl.org>
+In-Reply-To: <1078413178.9164.24.camel@shaggy.austin.ibm.com>
+References: <1078413178.9164.24.camel@shaggy.austin.ibm.com>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 04 Mar 2004 09:22:02 -0800
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-03-02 at 18:24, Matt Mackall wrote:
-> This is an alpha release for people to experiment with. Feedback and
-> patches encouraged. Grab your copy today at:
+Dave Kleikamp <shaggy@austin.ibm.com> wrote:
+>
+> Andrew,
+> I discovered a race betwen nobh_prepare_write and end_buffer_read_sync. 
+> end_buffer_read_sync calls unlock_buffer, waking the nobh_prepare_write
+> thread, which immediately frees the buffer_head.  end_buffer_read_sync
+> then calls put_bh which decrements b_count for the already freed
+> structure.  The SLAB_DEBUG code detects the slab corruption.
 
-First of all, very nice script.
+Indeed.
 
-But, it doesn't look like it properly handles empty directories.  I
-tried this command, this morning, and it blew up.  I think it's because
-this directory http://www.kernel.org/pub/linux/kernel/v2.6/snapshots/ is
-empty because of last night's 2.6.4-rc2 release.  I don't grok python
-very well but is the "return p[-1]" there just to cause a fault like
-this?  Would it be better if it just returned a "no version of that
-patch right now" message and exited nicely?
+> I was able to fix it with the following patch.  I reversed the order of
+> unlock_buffer and put_bh in end_buffer_read_sync.  I also set b_count to
+> 1 and later called brelse in nobh_prepare_write, since unlock_buffer may
+> expect b_count to be non-zero.  I didn't change the other end_io
+> functions, as I'm not sure what effect this may have on other callers.
+> 
+> Is my fix correct?  Is it complete?
 
-[dave@nighthawk linux-2.6]$ kpatchup-0.02 2.6-bk
-"Traceback (most recent call last):
-  File "/home/dave/bin/kpatchup-0.02", line 283, in ?
-    b = find_ver(args[0])
-  File "/home/dave/bin/kpatchup-0.02", line 240, in find_ver
-    return v[0](os.path.dirname(v[1]), v[2])
-  File "/home/dave/bin/kpatchup-0.02", line 147, in latest_dir
-    return p[-1]
-IndexError: list index out of range
+There's still a race, but it is benign.
 
-I think your script, combined with Rusty's latest-kernel-version could
-make me a very happy person.  
+See unlock_buffer():
 
--- dave
+	clear_buffer_locked(bh);
+	smp_mb__after_clear_bit();
+	wake_up_buffer(bh);
 
+versus:
+
+> @@ -2413,6 +2413,7 @@ int nobh_prepare_write(struct page *page
+>  			wait_on_buffer(read_bh[i]);
+>  			if (!buffer_uptodate(read_bh[i]))
+>  				ret = -EIO;
+> +			brelse(read_bh[i]);
+>  			free_buffer_head(read_bh[i]);
+>  			read_bh[i] = NULL;
+
+That free_buffer_head() could get in there before unlock_buffer() runs
+wake_up_buffer().
+
+But wake_up_buffer() purely uses the bh address as a hash key, so nothing
+bad happens.
+
+It's a bit grubby, but this would be hard to fix otherwise.  I'll slap a big
+comment on it.
+
+Thanks.

@@ -1,70 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130821AbRBNTBn>; Wed, 14 Feb 2001 14:01:43 -0500
+	id <S129078AbRBNTHj>; Wed, 14 Feb 2001 14:07:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130950AbRBNTB3>; Wed, 14 Feb 2001 14:01:29 -0500
-Received: from tomts7.bellnexxia.net ([209.226.175.40]:51924 "EHLO
-	tomts7-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S130821AbRBNTBS>; Wed, 14 Feb 2001 14:01:18 -0500
-Message-ID: <3A8AD550.87898BB0@sympatico.ca>
-Date: Wed, 14 Feb 2001 13:58:24 -0500
-From: Jeremy Jackson <jeremy.jackson@sympatico.ca>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Mark Vojkovich <mvojkovich@nvidia.com>
-CC: xpert@xfree86.org, linux-kernel@vger.kernel.org
-Subject: Re: [Xpert]Video drivers and the kernel
-In-Reply-To: <Pine.LNX.4.21.0102131937590.1564-100000@mvojkovich1.nvidia.com>
+	id <S129144AbRBNTHc>; Wed, 14 Feb 2001 14:07:32 -0500
+Received: from Guard.PolyNet.Lviv.UA ([217.9.2.1]:55309 "HELO
+	guard.polynet.lviv.ua") by vger.kernel.org with SMTP
+	id <S129078AbRBNTHX>; Wed, 14 Feb 2001 14:07:23 -0500
+Date: 14 Feb 2001 21:03:08 +0200
+Message-ID: <15273990267.20010214210308@polynet.lviv.ua>
+From: "Andriy Korud" <akorud@polynet.lviv.ua>
+Reply-To: "Andriy Korud" <akorud@polynet.lviv.ua>
+To: linux-kernel@vger.kernel.org
+X-Mailer: The Bat! (v1.49)
+X-Priority: 3 (Normal)
+Subject: Re: Linux 2.2.19pre12
+In-Reply-To: <E14T4sK-0005O1-00@the-village.bc.nu>
+In-Reply-To: <E14T4sK-0005O1-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please CC me if sending to xpert list.
+Hello Alan,
 
-This is a big topic.  I think I can contribute a whole two cents worth
-though...
-Interesting to note that NT's windowing system moved from being originally
-in userland to inside the kernel between V3.? and 4.0.  Remember mom saying
-"If your friends all jump off a bridge..."
+Wednesday, February 14, 2001, 6:33:49 PM, you wrote:
 
-The issue I understand is that context switching kernel<>user slows things
-down.
-And then there's trying to make an api...  XFree just maps mmio/framebuffer
-and ioports
-into it's own address space and bangs the hardware, so it's fast and can do
-anything.
-DRI extends this to client 3D code in a sense.
 
-Bottom line for me, I don't care; as long as I still can use remote X apps,
-and Quake3 uses
-my 3D hardware, I'm happy to have people spend their time improving X how
-they see fit,
-and they're done an incredible job so far.
+Alan> 2.2.19pre12
+Alan> o       Update the DAC960 driver                        (Leonard Zubkoff)
+Alan> o       Small PPC fixes                                 (Benjamin Herrenschmidt)
+Alan> o       Document irda options config                    (Steven Cole)
+Alan> o       Small isdn fixes/obsolete code removal          (Kai Germaschewski)
+Alan> o       Fix alpha kernel builds                         (Michal Jaegermann)
+Alan> o       Update ver_linux to match the 2.4 one           (Steven Cole)
+Alan> o       AVM isdn driver updates                         (Carsten Paeth)
+Alan> o       ISDN capi/ppp fixes                             (Kai Germaschewski)
 
-My only complaint is when there's a problem with X:  It's cool that I can
-just restart it
-rather than reboot like windows.  (so you can play from console of a server
-right? :)
-This is a benefit of it being in userspace.  But it would be nice
-if I didn't have to do it via telnet; sometimes I don't have a box on a
-network.
-(Aside, is this because X uses keyboard in raw mode?  would be nice to still
-be able to ctrl-alt-del to rebood from console)  Anyone know about
-using alt-sysrq to restore console?
+When trying to compile:
 
-So, if the kernel had a card specific module that just knew enough
-to put the card back into text mode, or if it used the card's bios
-to do it like the int10.a module in XFree 4.0, we would lack for nothing.
-(hmm vesafb could be extended?)
+rm -f scsi_n_syms.o
+ld -m elf_i386  -r -o scsi_n_syms.o scsi.o
+cc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -O2 -fomit-fr
+ame-pointer -fno-strict-aliasing -pipe -fno-strength-reduce -m486 -malign-loops=
+2 -malign-jumps=2 -malign-functions=2 -DCPU=686   -c -o hosts.o hosts.c
+hosts.c:139: aic7xxx.h: No such file or directory
+hosts.c:500: `AIC7XXX' undeclared here (not in a function)
+hosts.c:500: initializer element for `builtin_scsi_hosts[0]' is not constant
+make[3]: *** [hosts.o] Error 1
+make[3]: Leaving directory `/usr/src/linux/drivers/scsi'
+make[2]: *** [first_rule] Error 2
+make[2]: Leaving directory `/usr/src/linux/drivers/scsi'
+make[1]: *** [_subdir_scsi] Error 2
+make[1]: Leaving directory `/usr/src/linux/drivers'
+make: *** [_dir_drivers] Error 2
 
-> On Tue, 13 Feb 2001, Louis Garcia wrote:
->
-> > I was wondering why video drivers are not part of the kernel like every
-> > other piece of hardware. I would think if video drivers were part of the
-> > kernel and had a nice API for X or any other windowing system, would not
-> > only improve performance but would allow competing windowing systems
-> > without having to develop drivers for each. Has anyone thought or
-> > rejected this idea.
+
+-- 
+Best regards,
+ Andriy                            mailto:akorud@polynet.lviv.ua
+
 

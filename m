@@ -1,50 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263995AbUGAFjl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263979AbUGAFxZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263995AbUGAFjl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jul 2004 01:39:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264034AbUGAFjl
+	id S263979AbUGAFxZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jul 2004 01:53:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264044AbUGAFxZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jul 2004 01:39:41 -0400
-Received: from mail3.speakeasy.net ([216.254.0.203]:28322 "EHLO
-	mail3.speakeasy.net") by vger.kernel.org with ESMTP id S263995AbUGAFjj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jul 2004 01:39:39 -0400
-Date: Wed, 30 Jun 2004 22:39:34 -0700
-Message-Id: <200407010539.i615dYke017137@magilla.sf.frob.com>
+	Thu, 1 Jul 2004 01:53:25 -0400
+Received: from smtp105.mail.sc5.yahoo.com ([66.163.169.225]:33371 "HELO
+	smtp105.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S263979AbUGAFxY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jul 2004 01:53:24 -0400
+Message-ID: <40E3A6D1.8070300@yahoo.com.au>
+Date: Thu, 01 Jul 2004 15:53:21 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Frieder Buerzele <stamm@flashmail.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.7-np2
+References: <40E00EA4.8060205@yahoo.com.au> <40E345BC.2070008@flashmail.com>
+In-Reply-To: <40E345BC.2070008@flashmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-From: Roland McGrath <roland@redhat.com>
-To: Andrea Arcangeli <andrea@suse.de>
-X-Fcc: ~/Mail/linus
-Cc: Andreas Schwab <schwab@suse.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: zombie with CLONE_THREAD
-In-Reply-To: Andrea Arcangeli's message of  Thursday, 1 July 2004 06:08:34 +0200 <20040701040834.GC15086@dualathlon.random>
-Emacs: ed  ::  20-megaton hydrogen bomb : firecracker
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> this looks much less obvious than my fix. Instead of fixing
-> TASK_DEAD like I did, you're actually working around the fact the child
-> didn't go away when exit_notify was called on it. 
+Frieder Buerzele wrote:
+> must I still renice X to get your patch run without responsive-lose 
+> during I/O e.g with cdparanoia?
 
-No, I am preserving the feature that the child doesn't go away in this case.
-ptraced threads always become zombies and let the ptracer see their exit
-notification and status value.  That is the way we want it to stay.
+It would help if X were reniced, yes. Try it and see though.
 
-Linus makes the same point:
-> To let the tracer look at the exit code?
+> thx
 > 
-> How would you otherwise see what exit code the child exited with?
+> I had to edit fs/hfsplus/inode.c to get it compile properly
+> 
 
-In fact, the exit code is usually completely uninteresting for a
-CLONE_THREAD thread (after all, ptrace is the *only* way to see that value,
-so the _exit call didn't expect to pass useful information that way).
-However, the reliable notification of the fact that the thread died is very
-useful for anything tracing/debugging it.
-
-
-Thanks,
-Roland
-
+Thanks.

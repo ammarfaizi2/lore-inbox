@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285099AbSAGTEj>; Mon, 7 Jan 2002 14:04:39 -0500
+	id <S284831AbSAGTI7>; Mon, 7 Jan 2002 14:08:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285229AbSAGTE3>; Mon, 7 Jan 2002 14:04:29 -0500
-Received: from quark.didntduck.org ([216.43.55.190]:3856 "EHLO
-	quark.didntduck.org") by vger.kernel.org with ESMTP
-	id <S285099AbSAGTEO>; Mon, 7 Jan 2002 14:04:14 -0500
-Message-ID: <3C39F11F.35C88B2D@didntduck.org>
-Date: Mon, 07 Jan 2002 14:03:59 -0500
-From: Brian Gerst <bgerst@didntduck.org>
-X-Mailer: Mozilla 4.76 [en] (WinNT; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: mingo@elte.hu
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [patch] O(1) scheduler, -D1, 2.5.2-pre9, 2.4.17
-In-Reply-To: <Pine.LNX.4.33.0201072122290.14092-100000@localhost.localdomain>
+	id <S285186AbSAGTIt>; Mon, 7 Jan 2002 14:08:49 -0500
+Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:12555 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S284831AbSAGTIk>;
+	Mon, 7 Jan 2002 14:08:40 -0500
+Date: Mon, 7 Jan 2002 11:06:43 -0800
+From: Greg KH <greg@kroah.com>
+To: Dave Jones <davej@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Hardware Inventory [was: Re: ISA slot detection on PCI systems?]
+Message-ID: <20020107190643.GA8413@kroah.com>
+In-Reply-To: <20020107185001.GK7378@kroah.com> <Pine.LNX.4.33.0201071956410.16327-100000@Appserv.suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0201071956410.16327-100000@Appserv.suse.de>
+User-Agent: Mutt/1.3.25i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Mon, 10 Dec 2001 16:58:17 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> 
-> -D1 is a quick update over -D0:
-> 
->         http://redhat.com/~mingo/O(1)-scheduler/sched-O1-2.5.2-D1.patch
->         http://redhat.com/~mingo/O(1)-scheduler/sched-O1-2.4.17-D1.patch
-> 
-> this should fix the child-inherits-parent-priority-boost issue that causes
-> interactivity problems during compilation.
-> 
->         Ingo
+On Mon, Jan 07, 2002 at 07:58:49PM +0100, Dave Jones wrote:
+> which reminds me of another initramfs issue. I noticed you included
+> dietlibc in the diethotplug (hence the name I guess), but has any
+> decision been made yet as to what's going to be chosen as an
+> initlibc/klibc ?
 
-I noticed in this patch that you removed the rest_init() function.  The
-reason it was split from start_kernel() is that there was a race where
-init memory could be freed before the call to cpu_idle().  Note that
-start_kernel() is marked __init and rest_init() is not.
+I don't know.  I asked the dietLibc people if they would be willing to
+create a stripped down version of it and help port it to the remaining
+archs that Linux supports, but dietLibc doesn't, and didn't hear
+anything back.
 
---
+It doesn't look like much work to do the stripping (I did a bunch of it
+for the latest version of dietHotplug) but the porting, I have no idea
+of what is needed there.
 
-				Brian Gerst
+Anyone want to start up a klibc project? :)
+
+greg k-h

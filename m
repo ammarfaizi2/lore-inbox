@@ -1,69 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261706AbVADQI7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261712AbVADQJl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261706AbVADQI7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 11:08:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261717AbVADQI5
+	id S261712AbVADQJl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 11:09:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261717AbVADQJk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 11:08:57 -0500
-Received: from ms005msg.fastwebnet.it ([213.140.2.50]:47596 "EHLO
-	ms005msg.fastwebnet.it") by vger.kernel.org with ESMTP
-	id S261713AbVADQHx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 11:07:53 -0500
-Date: Tue, 4 Jan 2005 17:10:43 +0100
-From: Paolo Ornati <ornati@fastwebnet.it>
-To: Lethalman <lethalman@fyrebird.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Let me know EIP address
-Message-Id: <20050104171043.21c7c4ef@tux.homenet>
-In-Reply-To: <41DAB3AA.4010207@fyrebird.net>
-References: <41DAB3AA.4010207@fyrebird.net>
-X-Mailer: Sylpheed version 0.9.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8bit
+	Tue, 4 Jan 2005 11:09:40 -0500
+Received: from smtp.uninet.ee ([194.204.0.4]:11017 "EHLO smtp.uninet.ee")
+	by vger.kernel.org with ESMTP id S261712AbVADQHw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jan 2005 11:07:52 -0500
+Message-ID: <41DABF37.30207@tuleriit.ee>
+Date: Tue, 04 Jan 2005 18:07:19 +0200
+From: Indrek Kruusa <indrek.kruusa@tuleriit.ee>
+Reply-To: indrek.kruusa@tuleriit.ee
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040923)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Cc: viro@parcelfarce.linux.theplanet.co.uk
+Subject: Re: starting with 2.7
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 04 Jan 2005 16:18:02 +0100
-Lethalman <lethalman@fyrebird.net> wrote:
+On 4 Jan 2005, at 07:36, Al Viro wrote:
+ > On Tue, Jan 04, 2005 at 06:46:49AM +0100, Willy Tarreau wrote:
+ > > On Mon, Jan 03, 2005 at 10:14:42PM +0000, Christoph Hellwig wrote:
+ > > > > Gosh! I bought an ATI video card, I bought a VMware license, 
+etc.... I
+ > > > > want to keep using them. Changing a "stable" kernel will 
+continuously
+ > > > > annoy users and vendors.
+ > > >
+ > > > So buy some Operating System that supports the propritary software of
+ > > > your choice but stop annoying us.
+ > >
+ > > That's what he did. But it was not written in the notice that it 
+could stop
+ > > working at any time :-)
+ >
+ >
+ >     Do you want a long list of message-IDs going way, way back? Ones 
+of Linus'
+ >     postings saying that there never had been any promise whatsoever 
+of in-kernel
+ >     interfaces staying unchanged...
 
-> I'm trying to get the EIP value from a simple program in C but i don't
-> how to do it. I need it to know the current address position on the
-> code segment.
-> 
-> main() {
->    long *eip;
->    asm("mov %%eip,%0" : "=g"(eip));
->    printf("%p\n", eip);
-> }
-> 
-> Unfortunately EIP is not that kind of register :P
-> Does anyone know how to get EIP?
+
+Eh? "you should avoid Linux - experimental project indeed!". Sad, but 
+this is almost true already: can you name the stable version of the 
+kernel which is in main public use? When I take a look from distros then:
+
+Mandrake 10.2 snapshot (Cooker): kernel-2.6.8.1.20mdk-1-1mdk.i586.rpm
+
+SuSe (SRPM for new 9.2): kernel-source-2.6.8-24.src.rpm
+
+Fedora (update for FC3): kernel-2.6.9-1.724_FC3.i686.rpm
 
 
-IA-32 Intel® Architecture
-    Software Developer's
-                    Manual
-                    Volume 1:
-            Basic Architecture
+And inside proper .src.rpm-s are lot of stuff. So how those fixes inside 
+2.6.10 will reach the end-user? 2.6.[x < 10] + patch+patch+patch...
 
+It means that for end user (me) the stable kernel 2.6.10 is not just 
+usable. And of course I will not test any vanilla kernel because my MIDI 
+programs-devices/USB gadgets/connect+point+and+click will usually stop 
+working by reasons which are not bug but implementation related. So what 
+I should report to my distro provider? Please recode this program 
+because i am keen to test newest kernel? But how then should I provide 
+my help with kernel testing?
 
-3.5. INSTRUCTION POINTER
+Maybe you need to set up a pool of patches with full detailed information:
+- bug fixes
+- security related fixes
+- feature changes
+- status flag: test/stable
+- dependencies :)
 
-[...]
+This is what is needed - how and when a 2.6.x stable kernel will have 
+released (strategy of kernel development) is not a question at all. 
+Vanilla kernel will never reach end-users anyway.
+OK, don't take it too seriously :)
 
-The EIP register cannot be accessed directly by software; it is
-controlled implicitly by control- transfer instructions (such as JMP,
-Jcc, CALL, and RET), interrupts, and exceptions. The only way to read
-the EIP register is to execute a CALL instruction and then read the
-value of the return instruction pointer from the procedure stack. The
-EIP register can be loaded indirectly by modifying the value of a return
-instruction pointer on the procedure stack and executing a return
-instruction (RET or IRET). See Section 6.2.4.2., "Return Instruction
-Pointer".
+regards,
+Indrek
 
-[...]
-
--- 
-	Paolo Ornati
-	Gentoo Linux (kernel 2.6.10-cko2)

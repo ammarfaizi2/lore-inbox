@@ -1,44 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135206AbRD3Tmm>; Mon, 30 Apr 2001 15:42:42 -0400
+	id <S135853AbRD3Toc>; Mon, 30 Apr 2001 15:44:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135853AbRD3Tmd>; Mon, 30 Apr 2001 15:42:33 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:3085 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S135206AbRD3TmP>; Mon, 30 Apr 2001 15:42:15 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: make bzlilo seems to ignore non-standard kernel path in lilo.conf (/boot)
-Date: 30 Apr 2001 12:42:02 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9ckf6a$4en$1@cesium.transmeta.com>
-In-Reply-To: <01043012162401.00851@Seaborg> <12019.988632023@ocs3.ocs-net>
+	id <S135886AbRD3ToX>; Mon, 30 Apr 2001 15:44:23 -0400
+Received: from 216-21-153-1.ip.van.radiant.net ([216.21.153.1]:35850 "HELO
+	innerfire.net") by vger.kernel.org with SMTP id <S135853AbRD3ToD>;
+	Mon, 30 Apr 2001 15:44:03 -0400
+Date: Mon, 30 Apr 2001 12:44:57 -0700 (PDT)
+From: Gerhard Mack <gmack@innerfire.net>
+To: "Eric S. Raymond" <esr@thyrsus.com>
+cc: nick@snowman.net, Alexander Viro <viro@math.psu.edu>,
+        volodya@mindspring.com, Anton Altaparmakov <aia21@cam.ac.uk>,
+        John Stoffel <stoffel@casc.com>, CML2 <linux-kernel@vger.kernel.org>,
+        kbuild-devel@lists.sourceforge.net
+Subject: Re: [kbuild-devel] Re: CML2 1.3.1, aka "I stick my neck out a mile..."
+In-Reply-To: <20010430131208.A28781@thyrsus.com>
+Message-ID: <Pine.LNX.4.10.10104301242130.9787-100000@innerfire.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <12019.988632023@ocs3.ocs-net>
-By author:    Keith Owens <kaos@ocs.com.au>
-In newsgroup: linux.dev.kernel
->
-> On Mon, 30 Apr 2001 12:16:24 +0200, 
-> Olaf Stetzer <ostetzer@mail.uni-mainz.de> wrote:
-> >when I tried to get rid of the problem I wrote about two days ago in 
-> >this list I compiled the kernel several times but unfortunately it was
-> >not installed correctly by the make target bzlilo.
-> 
-> make INSTALL_PATH=/boot bzlilo
-> 
+On Mon, 30 Apr 2001, Eric S. Raymond wrote:
 
-Or better yet, set up /sbin/installkernel for your system and do "make
-install".
+> nick@snowman.net <nick@snowman.net>:
+> > I think ppl are recommending you BZ2 all your sigs......
+> 
+> Yes, I got that.  Except for the people saying they like them as-is.
+> 
+> In the absence of a clear consensus on the matter, I'm going to do
+> as I please.  Especially since I have a strong suspicion that neither
+> camp would change their evaluation of my sigs if I did compress them.
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+Put them all on one long line and you can piss off a third camp.
+
+	Gerhard
+
+PS I have a long rant on the topics your sigs cover but I would hate to
+see the resulting flamewar.
+
+
+--
+Gerhard Mack
+
+gmack@innerfire.net
+
+<>< As a computer I find your faith in technology amusing.
+

@@ -1,58 +1,106 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317972AbSGPRr6>; Tue, 16 Jul 2002 13:47:58 -0400
+	id <S317918AbSGPR6Z>; Tue, 16 Jul 2002 13:58:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317973AbSGPRr5>; Tue, 16 Jul 2002 13:47:57 -0400
-Received: from mailhub.fokus.gmd.de ([193.174.154.14]:22436 "EHLO
-	mailhub.fokus.gmd.de") by vger.kernel.org with ESMTP
-	id <S317972AbSGPRr4>; Tue, 16 Jul 2002 13:47:56 -0400
-Date: Tue, 16 Jul 2002 19:49:11 +0200 (CEST)
-From: Joerg Schilling <schilling@fokus.gmd.de>
-Message-Id: <200207161749.g6GHnBZ2027359@burner.fokus.gmd.de>
-To: jauderho@carumba.com, schilling@fokus.gmd.de
-Cc: James.Bottomley@steeleye.com, linux-kernel@vger.kernel.org,
-       vojtech@suse.cz
-Subject: Re: IDE/ATAPI in 2.5
+	id <S317913AbSGPR6O>; Tue, 16 Jul 2002 13:58:14 -0400
+Received: from pat.uio.no ([129.240.130.16]:8432 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S317930AbSGPR5E>;
+	Tue, 16 Jul 2002 13:57:04 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15668.24345.723792.226636@charged.uio.no>
+Date: Tue, 16 Jul 2002 19:59:53 +0200
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       NFS maillist <nfs@lists.sourceforge.net>
+Subject: [PATCH] RPC over UDP congestion control updates [6/8]
+X-Mailer: VM 7.00 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From: Jauder Ho <jauderho@carumba.com>
 
->And path_to_inst does not always do the RightThing(tm). [1] [2] Two
->systems identically configured has the potential of having path_to_inst
->look different. Especially if you have previously installed a device or
->moved stuff around. And if the expectation is that a group of devices will
->come up in a certain sequence (think shared tape devices for instance) and
->it changes, it quickly becomes a nightmare. Not a fun proposition by any
->means.
+Eliminate the arbitrary timeouts in xprt_adjust_cwnd(). Strict
+enforcement of the congestion avoidance algorithm as detailed in Van
+Jacobson's 1998 paper http://www-nrg.ee.lbl.gov/nrg-papers.html
+Congestion Avoidance and Control.
 
-The Solaris /etc/path_to_inst method works 99.9% as expected. And important,
-it is very stable in special for novice users. If you really have the problems 
-as described, you could alwas edit /etc/path_to_inst manually and reboot.
-Please note: If you install two systems with te same hardware configuration the 
-same way _and_ in the same _order_, the will have an identical 
-/etc/path_to_inst.
+Cheers,
+  Trond
 
-If I have to decide between a mostly rock solid system and a system that always 
-behaves in a way that is not predictable, I would take the first one.
-
-
->[1] eg http://www.myri.com/scs/documentation/mug/installation/solaris.html
-
-The author of this driver lacks the needed experience in writing DLPI drivers.
-Although this lack of knowledge seems to be not uncommon (the FORE ATM driver 
-is broken too), it is possible to do it right. The ATM DLPI driver I did write 
-in 1995 did work correctly after I did educate me about the correct interface.
-You simply need to be able to deal with the fact that instance #0 os a driver 
-is not present while one or more instances with instance # > 0 _are_ present.
-
->[2] http://www.magma.com/support/sun.htm
-
-Looks like a similar problem as above.
-
-Jörg
-
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
-       schilling@fokus.gmd.de		(work) chars I am J"org Schilling
- URL:  http://www.fokus.gmd.de/usr/schilling   ftp://ftp.fokus.gmd.de/pub/unix
+diff -u --recursive --new-file linux-2.5.25-rpc_cong1/include/linux/sunrpc/xprt.h linux-2.5.25-rpc_cong2/include/linux/sunrpc/xprt.h
+--- linux-2.5.25-rpc_cong1/include/linux/sunrpc/xprt.h	Tue Jul 16 15:32:03 2002
++++ linux-2.5.25-rpc_cong2/include/linux/sunrpc/xprt.h	Tue Jul 16 15:32:36 2002
+@@ -33,11 +33,11 @@
+  * MAXREQS value: At 32 outstanding reqs with 8 megs of RAM, fragment
+  * reassembly will frequently run out of memory.
+  */
+-#define RPC_MAXCONG		16
+-#define RPC_MAXREQS		(RPC_MAXCONG + 1)
+-#define RPC_CWNDSCALE		256
++#define RPC_MAXCONG		(16)
++#define RPC_MAXREQS		RPC_MAXCONG
++#define RPC_CWNDSCALE		(256)
+ #define RPC_MAXCWND		(RPC_MAXCONG * RPC_CWNDSCALE)
+-#define RPC_INITCWND		RPC_CWNDSCALE
++#define RPC_INITCWND		(RPC_MAXCWND >> 1)
+ #define RPCXPRT_CONGESTED(xprt) ((xprt)->cong >= (xprt)->cwnd)
+ 
+ /* Default timeout values */
+@@ -121,7 +121,6 @@
+ 
+ 	unsigned long		cong;		/* current congestion */
+ 	unsigned long		cwnd;		/* congestion window */
+-	unsigned long		congtime;	/* hold cwnd until then */
+ 
+ 	struct rpc_wait_queue	sending;	/* requests waiting to send */
+ 	struct rpc_wait_queue	pending;	/* requests in flight */
+diff -u --recursive --new-file linux-2.5.25-rpc_cong1/net/sunrpc/xprt.c linux-2.5.25-rpc_cong2/net/sunrpc/xprt.c
+--- linux-2.5.25-rpc_cong1/net/sunrpc/xprt.c	Tue Jul 16 15:32:03 2002
++++ linux-2.5.25-rpc_cong2/net/sunrpc/xprt.c	Tue Jul 16 15:46:36 2002
+@@ -304,30 +304,20 @@
+ 	 */
+ 	spin_lock(&xprt->xprt_lock);
+ 	cwnd = xprt->cwnd;
+-	if (result >= 0) {
+-		if (xprt->cong < cwnd || time_before(jiffies, xprt->congtime))
+-			goto out;
++	if (result >= 0 && xprt->cong <= cwnd) {
+ 		/* The (cwnd >> 1) term makes sure
+ 		 * the result gets rounded properly. */
+ 		cwnd += (RPC_CWNDSCALE * RPC_CWNDSCALE + (cwnd >> 1)) / cwnd;
+ 		if (cwnd > RPC_MAXCWND)
+ 			cwnd = RPC_MAXCWND;
+-		else
+-			pprintk("RPC: %lu %ld cwnd\n", jiffies, cwnd);
+-		xprt->congtime = jiffies + ((cwnd * HZ) << 2) / RPC_CWNDSCALE;
+-		dprintk("RPC:      cong %08lx, cwnd was %08lx, now %08lx, "
+-			"time %ld ms\n", xprt->cong, xprt->cwnd, cwnd,
+-			(xprt->congtime-jiffies)*1000/HZ);
++		__xprt_lock_write_next(xprt);
+ 	} else if (result == -ETIMEDOUT) {
+-		if ((cwnd >>= 1) < RPC_CWNDSCALE)
++		cwnd >>= 1;
++		if (cwnd < RPC_CWNDSCALE)
+ 			cwnd = RPC_CWNDSCALE;
+-		xprt->congtime = jiffies + ((cwnd * HZ) << 3) / RPC_CWNDSCALE;
+-		dprintk("RPC:      cong %ld, cwnd was %ld, now %ld, "
+-			"time %ld ms\n", xprt->cong, xprt->cwnd, cwnd,
+-			(xprt->congtime-jiffies)*1000/HZ);
+-		pprintk("RPC: %lu %ld cwnd\n", jiffies, cwnd);
+ 	}
+-
++	dprintk("RPC:      cong %ld, cwnd was %ld, now %ld\n",
++			xprt->cong, xprt->cwnd, cwnd);
+ 	xprt->cwnd = cwnd;
+  out:
+ 	spin_unlock(&xprt->xprt_lock);
+@@ -1344,7 +1334,6 @@
+ 		xprt->nocong = 1;
+ 	} else
+ 		xprt->cwnd = RPC_INITCWND;
+-	xprt->congtime = jiffies;
+ 	spin_lock_init(&xprt->sock_lock);
+ 	spin_lock_init(&xprt->xprt_lock);
+ 	init_waitqueue_head(&xprt->cong_wait);

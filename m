@@ -1,90 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318796AbSHLS3y>; Mon, 12 Aug 2002 14:29:54 -0400
+	id <S318784AbSHLSiS>; Mon, 12 Aug 2002 14:38:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318797AbSHLS3y>; Mon, 12 Aug 2002 14:29:54 -0400
-Received: from donkeykong.gpcc.itd.umich.edu ([141.211.2.163]:36057 "EHLO
-	donkeykong.gpcc.itd.umich.edu") by vger.kernel.org with ESMTP
-	id <S318796AbSHLS3x>; Mon, 12 Aug 2002 14:29:53 -0400
-Date: Mon, 12 Aug 2002 14:33:12 -0400 (EDT)
-From: "Kendrick M. Smith" <kmsmith@umich.edu>
-X-X-Sender: kmsmith@rastan.gpcc.itd.umich.edu
-To: linux-kernel@vger.kernel.org
-Subject: question about BSD license vs. GPL
-Message-ID: <Pine.SOL.4.44.0208121417090.3089-100000@rastan.gpcc.itd.umich.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318785AbSHLSiS>; Mon, 12 Aug 2002 14:38:18 -0400
+Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:16655 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S318784AbSHLSiR>;
+	Mon, 12 Aug 2002 14:38:17 -0400
+Date: Mon, 12 Aug 2002 11:38:20 -0700
+From: Greg KH <greg@kroah.com>
+To: David Fries <dfries@mail.win.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: via vp3 udma corruption
+Message-ID: <20020812183820.GN15975@kroah.com>
+References: <20020811210826.GA684@spacedout.fries.net> <20020812170232.GC15249@kroah.com> <20020812182558.GB677@spacedout.fries.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020812182558.GB677@spacedout.fries.net>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.2.21 (i586)
+Reply-By: Mon, 15 Jul 2002 17:22:07 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Aug 12, 2002 at 01:25:58PM -0500, David Fries wrote:
+> I ran oldconfig, but I probably just said, 'USB I have all the drivers
+> I need, NO', but thanks, I figured out that option when I read the USB
+> mailing list.
+> 
+> Are there alternate ways of getting data to the /dev/usb/mice type
+> devices CONFIG_INPUT_MOUSEDEV?  (Major 13, Minor 63), or shouldn't an
+> open to that device fail with no device if CONFIG_USB_HIDINPUT isn't
+> enabled?
 
-Hi all,
+I think any input mouse driver will send data to that device.  If you
+have that config option enabled, an open will always succeed.  Talk to
+the input core authors for more information.
 
-I'm one of the NFSv4 developers at the University of Michigan.
-I'm about to post patches against 2.5.31 which import basic NFSv4
-functionality, but have run into a last-minute snag regarding licensing.
-We currently use a BSD-style license with the "advertising clause"
-removed.  It is my understanding that this license is compatible with
-the GPL, and therefore OK as far as Linux is concerned (even though
-the standard BSD license is not).  Can anyone confirm this?  Changing
-the license might be a time-consuming process involving squads of
-University lawyers (ugh!)
+Hope this helps,
 
-For completeness, I've included the full text of the license here.
-Ours reads:
-
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- * 3. Neither the name of the University nor the names of its
- *    contributors may be used to endorse or promote products derived
- *    from this software without specific prior written permission.
- *
- *  THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESS OR IMPLIED
- *  WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- *  DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
- *  FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- *  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- *  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
- *  BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
- *  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-By comparison, the standard BSD license reads:
-
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- * 3. All advertising materials mentioning features or use of this software
- *    must display the following acknowledgement:
- *      This product includes software developed by Kendrick Smith.
- * 4. The name of the author may not be used to endorse or promote products
- *    derived from this software without specific prior written permission.
- *
- *  THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESS OR IMPLIED
- *  WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- *  DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
- *  FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- *  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- *  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
- *  BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
- *  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- *  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-Thanks!
- Kendrick Smith
-
+gregk -h

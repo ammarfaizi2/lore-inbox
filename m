@@ -1,36 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261844AbULUSll@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261850AbULUSnZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261844AbULUSll (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Dec 2004 13:41:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261850AbULUSll
+	id S261850AbULUSnZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Dec 2004 13:43:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261868AbULUSnY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Dec 2004 13:41:41 -0500
-Received: from mail.kroah.org ([69.55.234.183]:701 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261844AbULUSlk (ORCPT
+	Tue, 21 Dec 2004 13:43:24 -0500
+Received: from anor.ics.muni.cz ([147.251.4.35]:10468 "EHLO anor.ics.muni.cz")
+	by vger.kernel.org with ESMTP id S261865AbULUSnL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Dec 2004 13:41:40 -0500
-Date: Tue, 21 Dec 2004 10:37:38 -0800
-From: Greg KH <greg@kroah.com>
-To: Tejun Heo <tj@home-tj.org>
-Cc: rusty@rustcorp.com.au, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH REPOST 2.6.10-rc3 0/4] module sysfs: module sysfs related cleanups
-Message-ID: <20041221183738.GB8490@kroah.com>
-References: <20041220014728.GA16197@home-tj.org>
+	Tue, 21 Dec 2004 13:43:11 -0500
+Date: Tue, 21 Dec 2004 19:43:04 +0100
+From: Jan Kasprzak <kas@fi.muni.cz>
+To: Christoph Hellwig <hch@infradead.org>,
+       Jakob Oestergaard <jakob@unthought.net>, linux-kernel@vger.kernel.org,
+       kruty@fi.muni.cz
+Subject: Re: XFS: inode with st_mode == 0
+Message-ID: <20041221184304.GF16913@fi.muni.cz>
+References: <20041209125918.GO9994@fi.muni.cz> <20041209135322.GK347@unthought.net> <20041209215414.GA21503@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041220014728.GA16197@home-tj.org>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20041209215414.GA21503@infradead.org>
+User-Agent: Mutt/1.4.1i
+X-Muni-Spam-TestIP: 147.251.48.42
+X-Muni-Virus-Test: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 20, 2004 at 10:47:28AM +0900, Tejun Heo wrote:
->  Hello, Greg.
-> 
->  Here are the regenerated patches with the fix.
+Christoph Hellwig wrote:
+: > On Thu, Dec 09, 2004 at 01:59:18PM +0100, Jan Kasprzak wrote:
+: > > I have seen the strange problem on our NFS server: yesterday I have
+: > > found an empty file owned by UID 0/GID 0 and st_mode == 0 in my home
+: > > directory (ls -l said "?--------- 1 root root 0 <date> <filename>").
+[...]
+: If it's really st_mode I suspect it's a different problem.  Can you retry
+: with current oss.sgi.com CVS (or the patch below).  Note that this patch
+: breaks xfsdump unfortunately, we're looking into a fix.
+: 
+: > > Maybe some data is flushed in an incorrect order?
+: > 
+: > Maybe  :)
+: 
+: No, the problem I've fixed was related to XFS getting the inode version
+: number wrong - or at least different than NFSD expects.
+: 
+	We have applied these two patches to 2.6.10-rc2, but this
+does not help. A few minutes ago I've got the "?----------" file
+again from my test script. This time it took >4 hours (it was
+about an hour or so without this patch).
 
-Thanks, I've applied all 4 patches to my trees, and they will show up in
-the next -mm release.
+-Yenya
 
-greg k-h
-
+-- 
+| Jan "Yenya" Kasprzak  <kas at {fi.muni.cz - work | yenya.net - private}> |
+| GPG: ID 1024/D3498839      Fingerprint 0D99A7FB206605D7 8B35FCDE05B18A5E |
+| http://www.fi.muni.cz/~kas/   Czech Linux Homepage: http://www.linux.cz/ |
+> Whatever the Java applications and desktop dances may lead to, Unix will <
+> still be pushing the packets around for a quite a while.      --Rob Pike <

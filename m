@@ -1,76 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262418AbUEKInd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261606AbUEKIq6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262418AbUEKInd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 04:43:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262422AbUEKInd
+	id S261606AbUEKIq6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 04:46:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262422AbUEKIq5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 04:43:33 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:16644 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP id S262418AbUEKIn3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 04:43:29 -0400
-Message-ID: <40A0929A.7040609@aitel.hist.no>
-Date: Tue, 11 May 2004 10:45:14 +0200
-From: Helge Hafting <helgehaf@aitel.hist.no>
-User-Agent: Mozilla Thunderbird 0.6 (X11/20040509)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Bill Davidsen <davidsen@tmr.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.6-rc3-mm2 (4KSTACK)
-References: <200405061518.i46FIAY2016476@turing-police.cc.vt.edu> <1083858033.3844.6.camel@laptop.fenrus.com> <c7om3o$akd$1@gatekeeper.tmr.com>
-In-Reply-To: <c7om3o$akd$1@gatekeeper.tmr.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 11 May 2004 04:46:57 -0400
+Received: from fw.osdl.org ([65.172.181.6]:7554 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261606AbUEKIqn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 May 2004 04:46:43 -0400
+Date: Tue, 11 May 2004 01:46:39 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org, torvalds@osdl.org, marcelo.tosatti@cyclades.com
+Subject: [PATCH 2/11] add sigpending field to user_struct
+Message-ID: <20040511014639.A21045@build.pdx.osdl.net>
+References: <20040511014232.Y21045@build.pdx.osdl.net> <20040511014524.Z21045@build.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20040511014524.Z21045@build.pdx.osdl.net>; from chrisw@osdl.org on Tue, May 11, 2004 at 01:45:24AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Davidsen wrote:
+Add sigpending field to user_struct, and make sure it's properly
+initialized.
 
-> Arjan van de Ven wrote:
->
->>> It's probably a Bad Idea to push this to Linus before the vendors 
->>> that have
->>> significant market-impact issues (again - anybody other than NVidia 
->>> here?)
->>> have gotten their stuff cleaned up...
->>
->>
->>
->> Ok I don't want to start a flamewar but... Do we want to hold linux back
->> until all binary only module vendors have caught up ??
->
->
-> My questions is, hold it back from what? Having the 4k option is fine, 
-> it's just eliminating the current default which I think is 
-> undesirable. I tried 4k stack, I couldn't measure any improvement in 
-> anything (as in no visible speedup or saving in memory). 
-
-The memory saving is usually modest: 4k per thread. It might make a 
-difference for
-those with many thousands of threads.   I believe this is unswappable 
-memory,
-which is much more valuable than ordinary process memory.
-
-More interesting is that it removes one way for fork() to fail. With 8k 
-stacks,
-the new process needs to allocate two consecutive pages for those 8k.  That
-might be impossible due to fragmentation, even if there are megabytes of 
-free
-memory. Such a problem usually only shows up after a long time.  Now we 
-only need to
-allocate a single page, which always works as long as there is any free 
-memory at all.
-
-> For an embedded system, where space is tight and the code paths well 
-> known, sure, but I haven't been able to find or generate any objective 
-> improvement, other than some posts saying smaller is always better. 
-> Nothing slows a system down like a crash, even if it isn't followed by 
-> a restore from backup.
-
-Consider the case when your server (web/mail/other) fails to fork, and then
-you can't login because that requires fork() too.  4k stacks remove this 
-scenario,
-and is a stability improvement.
-
-Helge Hafting
+===== include/linux/sched.h 1.210 vs edited =====
+--- 1.210/include/linux/sched.h	Mon May 10 04:25:34 2004
++++ edited/include/linux/sched.h	Mon May 10 18:22:10 2004
+@@ -314,6 +314,7 @@
+ 	atomic_t __count;	/* reference count */
+ 	atomic_t processes;	/* How many processes does this user have? */
+ 	atomic_t files;		/* How many open files does this user have? */
++	atomic_t sigpending;	/* How many pending signals does this user have? */
+ 
+ 	/* Hash table maintenance information */
+ 	struct list_head uidhash_list;
+===== kernel/user.c 1.9 vs edited =====
+--- 1.9/kernel/user.c	Mon May 10 04:25:43 2004
++++ edited/kernel/user.c	Mon May 10 18:22:10 2004
+@@ -30,7 +30,8 @@
+ struct user_struct root_user = {
+ 	.__count	= ATOMIC_INIT(1),
+ 	.processes	= ATOMIC_INIT(1),
+-	.files		= ATOMIC_INIT(0)
++	.files		= ATOMIC_INIT(0),
++	.sigpending	= ATOMIC_INIT(0),
+ };
+ 
+ /*
+@@ -108,6 +109,7 @@
+ 		atomic_set(&new->__count, 1);
+ 		atomic_set(&new->processes, 0);
+ 		atomic_set(&new->files, 0);
++		atomic_set(&new->sigpending, 0);
+ 
+ 		/*
+ 		 * Before adding this, check whether we raced

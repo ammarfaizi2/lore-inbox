@@ -1,50 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131038AbQKVMSx>; Wed, 22 Nov 2000 07:18:53 -0500
+	id <S130177AbQKVMbH>; Wed, 22 Nov 2000 07:31:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130900AbQKVMSo>; Wed, 22 Nov 2000 07:18:44 -0500
-Received: from cerebus-ext.cygnus.co.uk ([194.130.39.252]:44283 "EHLO
-	passion.cygnus") by vger.kernel.org with ESMTP id <S131468AbQKVMSZ>;
-	Wed, 22 Nov 2000 07:18:25 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <3A1BAF5F.4649594B@uow.edu.au> 
-In-Reply-To: <3A1BAF5F.4649594B@uow.edu.au>  <3A1BAC59.B0F124AF@uow.edu.au>, <3A1BAC59.B0F124AF@uow.edu.au> <20001121142616.L7764@sventech.com>, <20001121142616.L7764@sventech.com> <20001121095626.F3431@valinux.com> <Pine.LNX.4.30.0011211912490.22252-100000@imladris.demon.co.uk> <4627.974890115@redhat.com> <9719.974892360@redhat.com> 
-To: Andrew Morton <andrewm@uow.edu.au>
-Cc: Johannes Erdfelt <johannes@erdfelt.com>,
-        Oleg Drokin <green@ixcelerator.com>, linux-kernel@vger.kernel.org
-Subject: Re: hardcoded HZ in hub.c 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 8bit
-Date: Wed, 22 Nov 2000 11:47:38 +0000
-Message-ID: <11991.974893658@redhat.com>
+	id <S130069AbQKVMa6>; Wed, 22 Nov 2000 07:30:58 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:54112 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129851AbQKVMaw>; Wed, 22 Nov 2000 07:30:52 -0500
+Subject: Re: ECN causing problems
+To: mrwizard@psu.edu (Joseph Gooch)
+Date: Wed, 22 Nov 2000 12:00:45 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <006301c05433$feb8c0c0$0200020a@wizws> from "Joseph Gooch" at Nov 21, 2000 10:26:24 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E13yYZz-0005sd-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> My RaptorNT 6.5 firewall rejects all connections from my linux box when ECN
+> is enabled.  The error is attached.  Perhaps this feature should be disabled
+> by default?  Or is there already an option of the sort that i'm missing?  I
+> only got the idea to disable it after a search of linux-kernel.
 
-andrewm@uow.edu.au said:
->  Ah.  No, I don't think it would be polite to cause TTY hangup
-> processing to be deferred for this long.  I'd suggest that the policy
-> be "scheduled tasks can't sleep".  I guess kmalloc(GFP_KERNEL) is
-> acceptable because the system is already running like a dog if this
-> sleeps.
+Your raptorNT 6.5 firewall is faulty, its as simple as that. Check if they have
+an upgrade to fix their error.
 
-Oi! I specifically added that so I could queue tasks which can sleep.
-
-Put a time limit on it if you must, but not one which prohibits the 
-existing usage by the PCMCIA socket drivers.
-
-I'm beginning to think that I should have argued with Linus¹ when he told 
-me to make it a generic thing rather than calling it pcmcia_queue_task()
-
-
-¹ "Blasphemy! He said it again!"
-
---
-dwmw2
-
+Alan
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

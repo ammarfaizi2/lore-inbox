@@ -1,44 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318215AbSHSJdr>; Mon, 19 Aug 2002 05:33:47 -0400
+	id <S318219AbSHSJnL>; Mon, 19 Aug 2002 05:43:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318217AbSHSJdr>; Mon, 19 Aug 2002 05:33:47 -0400
-Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:28428 "EHLO
-	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S318215AbSHSJdr>; Mon, 19 Aug 2002 05:33:47 -0400
-Date: Mon, 19 Aug 2002 11:37:43 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCH] devfs cleanups for 2.5.29
-In-Reply-To: <200208190048.g7J0mGW12548@vindaloo.ras.ucalgary.ca>
-Message-ID: <Pine.LNX.4.44.0208191121530.28515-100000@serv>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318218AbSHSJnL>; Mon, 19 Aug 2002 05:43:11 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:2067 "EHLO www.home.local")
+	by vger.kernel.org with ESMTP id <S318217AbSHSJnK>;
+	Mon, 19 Aug 2002 05:43:10 -0400
+Date: Mon, 19 Aug 2002 11:47:08 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Christian Robert <christian.robert@polymtl.ca>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Re: make allyesconfig?
+Message-ID: <20020819094708.GA3685@alpha.home.local>
+References: <3D607D85.2B134A41@polymtl.ca>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3D607D85.2B134A41@polymtl.ca>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, Aug 19, 2002 at 01:09:25AM -0400, Christian Robert wrote:
+> 
+> http://sourceforge.net/projects/showfiles.php?group_id=18813
+> 
+> The above link give: Invalid Project error message.
 
-On Sun, 18 Aug 2002, Richard Gooch wrote:
+Sorry, I was careful about copying the URL, but added a silly 's' to
+project :-(
 
-> > > > In the "devfs=only" case, where is the module count incremented, when a
-> > > > block device is opened?
->
-> I've already told you about fops_get(). And for a block device, it's
-> def_blk_fops.open().
+here is the good one (with cut'n'paste this time) :
 
-Which basically calls block_dev.c:do_open() and the module count there is
-only incremented if get_blkfops() is successfull, which is a dummy in this
-case. So where again is the module count incremented?
+http://sourceforge.net/project/showfiles.php?group_id=18813
 
-> I've fixed that in my tree,
-> by using devfs_get_ops(), which safely handles this. I've also added
-> some comments, to make it clearer.
-
-You never answered my question, why you insist on managing the ops
-pointer. The far easier fix would be to simply remove this nonsense.
-
-bye, Roman
+Willy
 

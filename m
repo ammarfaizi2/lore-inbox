@@ -1,48 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263523AbUAOVci (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jan 2004 16:32:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263702AbUAOVci
+	id S261735AbUAOVrD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jan 2004 16:47:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262048AbUAOVrD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jan 2004 16:32:38 -0500
-Received: from mail.kroah.org ([65.200.24.183]:55275 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263523AbUAOVch (ORCPT
+	Thu, 15 Jan 2004 16:47:03 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:47633 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S261735AbUAOVrB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jan 2004 16:32:37 -0500
-Date: Thu, 15 Jan 2004 13:32:07 -0800
-From: Greg KH <greg@kroah.com>
-To: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-hotplug-devel@lists.sourceforge.net
-Subject: Re: [PATCH] add sysfs class support for OSS sound devices [07/10]
-Message-ID: <20040115213207.GG22433@kroah.com>
-References: <20040115204048.GA22199@kroah.com> <20040115204111.GB22199@kroah.com> <20040115204125.GC22199@kroah.com> <20040115204138.GD22199@kroah.com> <20040115204153.GE22199@kroah.com> <20040115204209.GF22199@kroah.com> <20040115204241.GG22199@kroah.com> <20040115204259.GH22199@kroah.com> <400704C5.2080309@gmx.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <400704C5.2080309@gmx.de>
-User-Agent: Mutt/1.4.1i
+	Thu, 15 Jan 2004 16:47:01 -0500
+Date: Thu, 15 Jan 2004 22:46:48 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Romain Lievin <romain@rlievin.dyndns.org>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Ozan Eren Bilgen <oebilgen@uekae.tubitak.gov.tr>
+Subject: Re: True story: "gconfig" removed root folder...
+In-Reply-To: <20040115212304.GA25296@rlievin.dyndns.org>
+Message-ID: <Pine.LNX.4.58.0401152245030.27223@serv>
+References: <1074177405.3131.10.camel@oebilgen> <Pine.LNX.4.58.0401151558590.27223@serv>
+ <20040115212304.GA25296@rlievin.dyndns.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 15, 2004 at 10:23:17PM +0100, Prakash K. Cheemplavam wrote:
-> Greg KH wrote:
-> >This patch adds support for all OSS sound devices.
-> 
-> Please excuse my ignorance, but shouldn't these patches be sent to alsa? 
+Hi,
 
-Heh, you want me to send the OSS patch to the ALSA group?
+On Thu, 15 Jan 2004, Romain Lievin wrote:
 
-> I mean unless they are in their cvs, updateing alsa drivers will become 
-> a hard task.
+> I have managed to reproduce bug: make gconfig, go to the '/' directory,
+> type 'root' as file and ... you get a 'root' file. The 'root' directory is
+> destroyed !
 
-They can handle merging these patches properly, and have told me this in
-the past.  As the ALSA patches require the class_simple patch, it
-wouldn't do me any good to send it to them yet, as it wouldn't even
-build for them.
+What do you mean with "destroyed"? All I can reproduce here is that it's
+simply moved away, but it's still there!
 
-In short, don't worry about it :)
-
-thanks,
-
-greg k-h
+bye, Roman

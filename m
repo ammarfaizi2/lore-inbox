@@ -1,49 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262438AbUDHVX5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Apr 2004 17:23:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262648AbUDHVX5
+	id S262648AbUDHV0V (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Apr 2004 17:26:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262730AbUDHV0V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Apr 2004 17:23:57 -0400
-Received: from mail1.mail.iol.ie ([193.120.142.151]:21638 "EHLO
-	mail1.mail.iol.ie") by vger.kernel.org with ESMTP id S262438AbUDHVXz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Apr 2004 17:23:55 -0400
-Date: Thu, 8 Apr 2004 22:23:50 +0100
-From: Kenn Humborg <kenn@linux.ie>
-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-Cc: Jan-Benedict Glaw <jbglaw@lug-owl.de>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Ralf Baechle <ralf@linux-mips.org>
-Subject: Re: drivers/char/dz.[ch]: reason for keeping?
-Message-ID: <20040408212350.GA30123@excalibur.research.wombat.ie>
-References: <20040404101241.A10158@flint.arm.linux.org.uk> <20040404111712.GE27362@lug-owl.de> <20040404122958.A14991@flint.arm.linux.org.uk> <20040404120051.GF27362@lug-owl.de> <Pine.LNX.4.55.0404071304170.5705@jurand.ds.pg.gda.pl>
-Mime-Version: 1.0
+	Thu, 8 Apr 2004 17:26:21 -0400
+Received: from 7ka-campus-gw.mipt.ru ([194.85.83.97]:17309 "EHLO
+	7ka-campus-gw.mipt.ru") by vger.kernel.org with ESMTP
+	id S262648AbUDHV0S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Apr 2004 17:26:18 -0400
+Date: Fri, 9 Apr 2004 01:27:11 +0400
+From: Kirill Korotaev <kirillx@7ka.mipt.ru>
+Reply-To: Kirill Korotaev <kirillx@7ka.mipt.ru>
+Organization: SWsoft
+X-Priority: 3 (Normal)
+Message-ID: <791543157.20040409012711@7ka.mipt.ru>
+To: linux-kernel@vger.kernel.org
+Subject: Errors in load_elf_binary()?
+In-Reply-To: <40753919.2070202@sw.ru>
+References: <40753919.2070202@sw.ru>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.55.0404071304170.5705@jurand.ds.pg.gda.pl>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 07, 2004 at 01:16:48PM +0200, Maciej W. Rozycki wrote:
-> On Sun, 4 Apr 2004, Jan-Benedict Glaw wrote:
-> > Old ./drivers/char/dz.c + VAX changes + SERIO changes, that is :)  I
-> > guess best practice is that VAX people first merge up with MIPS folks,
-> > then we snatch the old driver together and have a beer...
-> 
->  It sounds like a plan. :-)
+File: fs/binfmt_elf.c
 
-Sorry for coming in late on this.
+1.
 
-There is no problem with dropping drivers/char/dz.[ch] from the official
-tree.  Us Linux/VAX guys work off our own CVS tree on SourceForge, so we
-can continue to carry the drivers/char/dz.[ch] until we've got the
-new driver working.
+load_elf_binary()
 
-So, Jan-Benedict, there is no major panic to get the new driver working
-for us before Rusty/Linus remove the old one.
+2002/02/05 torvalds   | retval = kernel_read(bprm->file, elf_ex.e_phoff, (char *) elf_phdata, size);
+2002/02/05 torvalds   | if (retval < 0)
+2002/02/05 torvalds   |       goto out_free_ph;
+2003/06/29 alan       |
+2003/06/29 alan       | files = current->files;           /* Refcounted so ok */
+2003/06/29 alan       | if(unshare_files() < 0)
+2003/06/29 alan       |       goto out_free_ph;
+<<<< retval is not set >>>>
+should be something like:
+retval = unshare_files()
+if (retval < 0)
+   goto ....;
+2003/08/09 agruen     | if (files == current->files) {
+2003/08/09 agruen     |       put_files_struct(files);
+2003/08/09 agruen     |       files = NULL;
+2003/08/09 agruen     | }
 
-Later,
-Kenn (another Linux/VAX guy)
+........
+
+2.
+
+load_elf_binary()
+
+2002/02/05 torvalds   | out_free_dentry:
+2002/02/05 torvalds   |       allow_write_access(interpreter);
+2002/02/05 torvalds   |       fput(interpreter);
+<<<< interpreter can be NULL >>>>
+e.g. we got oopses here when flush_old_exec()
+returns error
+should be something like:
+if (interpreter)
+   fput(interpreter);
+2002/02/05 torvalds   | out_free_interp:
+
+3.
+
+load_elf_binary()
+
+Why there is no steal_locks() call in exit path (after label 
+"out_free_fh")? Shouldn't were steal locks back when undoing our changes?
+
+Kirill
+
 

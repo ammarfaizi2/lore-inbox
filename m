@@ -1,34 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272576AbTG1AmG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jul 2003 20:42:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272575AbTG1AEc
+	id S272573AbTG1AmI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jul 2003 20:42:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272572AbTG1AEU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jul 2003 20:04:32 -0400
+	Sun, 27 Jul 2003 20:04:20 -0400
 Received: from zeus.kernel.org ([204.152.189.113]:28659 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S272726AbTG0W6U (ORCPT
+	by vger.kernel.org with ESMTP id S272724AbTG0W6T (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jul 2003 18:58:20 -0400
-Date: Sun, 27 Jul 2003 21:16:15 +0100
+	Sun, 27 Jul 2003 18:58:19 -0400
+Subject: Re: 2.6.0-test2 OSS emu10k1
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Message-Id: <200307272016.h6RKGF7v029731@hraefn.swansea.linux.org.uk>
-To: linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: PATCH: vga text console if x86 and not embedded
+To: Balram Adlakha <b_adlakha@softhome.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030727190257.GA2840@localhost.localdomain>
+References: <20030727190257.GA2840@localhost.localdomain>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1059338379.13871.0.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 27 Jul 2003 21:39:39 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(Andi Kleen)
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.6.0-test2/drivers/video/console/Kconfig linux-2.6.0-test2-ac1/drivers/video/console/Kconfig
---- linux-2.6.0-test2/drivers/video/console/Kconfig	2003-07-10 21:06:08.000000000 +0100
-+++ linux-2.6.0-test2-ac1/drivers/video/console/Kconfig	2003-07-16 18:39:32.000000000 +0100
-@@ -5,8 +5,9 @@
- menu "Console display driver support"
- 
- config VGA_CONSOLE
--	bool "VGA text console"
-+	bool "VGA text console" if (EMBEDDED && X86) || (!X86)
- 	depends on !ARCH_ACORN && !ARCH_EBSA110 || !4xx && !8xx
-+	default y
- 	help
- 	  Saying Y here will allow you to use Linux in text mode through a
- 	  display that complies with the generic VGA standard. Virtually
+On Sul, 2003-07-27 at 20:02, Balram Adlakha wrote:
+> I cannot compile the emu10k1 module:
+> 
+> sound/oss/emu10k1/hwaccess.c:182: redefinition of `emu10k1_writefn0_2'
+> sound/oss/emu10k1/hwaccess.c:164: `emu10k1_writefn0_2' previously defined here
+
+Looks like bad patching 182 is unrelated in my tree
+

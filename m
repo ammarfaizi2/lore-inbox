@@ -1,44 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262543AbTCMVLh>; Thu, 13 Mar 2003 16:11:37 -0500
+	id <S262553AbTCMVWS>; Thu, 13 Mar 2003 16:22:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262547AbTCMVLh>; Thu, 13 Mar 2003 16:11:37 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:42758 "EHLO
-	www.home.local") by vger.kernel.org with ESMTP id <S262543AbTCMVLg>;
-	Thu, 13 Mar 2003 16:11:36 -0500
-Date: Thu, 13 Mar 2003 22:21:46 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: Rusty Lynch <rusty@linux.co.intel.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Watchdog-Drivers
-Message-ID: <20030313212146.GC679@alpha.home.local>
-References: <1046796116.1351.4.camel@vmhack> <20030313232437.A24873@medelec.uia.ac.be>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030313232437.A24873@medelec.uia.ac.be>
-User-Agent: Mutt/1.4i
+	id <S262554AbTCMVWS>; Thu, 13 Mar 2003 16:22:18 -0500
+Received: from 12-249-212-150.client.attbi.com ([12.249.212.150]:32943 "EHLO
+	rekl.yi.org") by vger.kernel.org with ESMTP id <S262553AbTCMVWR>;
+	Thu, 13 Mar 2003 16:22:17 -0500
+Date: Thu, 13 Mar 2003 15:32:58 -0600 (CST)
+From: Rob Ekl <lkhelp@rekl.yi.org>
+To: linux-kernel@vger.kernel.org
+Subject: Sendfile, loopback, and TCP header checksum
+Message-ID: <Pine.LNX.4.53.0303131510060.10653@rekl.yi.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello !
+Hi.  I'm working on a program that uses sendfile() to copy a file to a TCP
+socket.  I did some testing where the server and client processes were on
+the same machine.  While watching ethereal's packet dumps, I noticed the
+packets that sendfile() creates are reported to have incorrect checksums.  
+Other packets from the same program (ie created by write() or writev() )
+have the correct checksum.
 
-On Thu, Mar 13, 2003 at 11:24:37PM +0100, Wim Van Sebroeck wrote:
- 
-> I personnaly think we should go for multiple watchdog_driver devices on the same system.
-> (Reason why: suppose you have a multi-processor system where each processor-board would have it's own CPU it's own external cache and it's own watchdog, in this case you would need multiple watchdog devices on the same system).
+I tried another program that doesn't use sendfile(), but write() from a 
+mmap()'ed file.  The checksums are reported to be correct for that 
+program's packets.
 
-I have another use for this : for remote management, I'd like to have a
-short-time watchdog and a long-time watchdog. The short time watchdog would
-avoid remote users to be annoyed by a system hang which takes too long a time
-to reboot, while the long one would allow me to recover from a wrong
-manipulation in a time shorter than what it takes to get on the remote site :
-when I do something risky (network restart, fw...), I simply kill the long
-watchdog daemon so that I do my work while the counter still runs. If I shoot
-myself in the foot, it will end in a spontaneous reboot. But I don't want the
-system to always run on such a slow timer, reason for the second watchdog.
+I also tried executing my program across a LAN with only an ethernet
+switch between the two machines.  The checksums were reported correct for 
+this situation as well.
 
-Cheers,
-Willy
+This leads me to the conclusion that using sendfile() on a loopback
+interface over a TCP connection generates packets with incorrect checksums
+in the TCP headers.
+
+I do not know if ethereal is falsely reporting that the checksums are 
+incorrect, but it's a very limited scope of the source of packets with 
+incorrect checksums (only sendfile-generated to loopback).
+
+Is this something that even needs to be addressed, since the receiver
+would discard the packet if the checksum is incorrect, but since it's over
+loopback, there's no chance of receiving data corrupted by the transport
+medium and loopback ignores the checksum?
+
+System information:  2.4.20 on both machines, ia32 CPUs, ethereal 0.9.10 
+with libpcap 0.7.
+
+Please reply directly, as I am not subscribed to the list.  Thanks.
 

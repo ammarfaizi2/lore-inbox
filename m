@@ -1,63 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265709AbUADP75 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jan 2004 10:59:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265714AbUADP75
+	id S265748AbUADQKf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jan 2004 11:10:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265753AbUADQKc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jan 2004 10:59:57 -0500
-Received: from smtp-out4.blueyonder.co.uk ([195.188.213.7]:58872 "EHLO
-	smtp-out4.blueyonder.co.uk") by vger.kernel.org with ESMTP
-	id S265709AbUADP74 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jan 2004 10:59:56 -0500
-Date: Sun, 4 Jan 2004 15:59:40 +0000
-From: Ciaran McCreesh <ciaranm@gentoo.org>
-To: Tomas Szepe <szepe@pinerecords.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: Pentium M config option for 2.6
-Message-Id: <20040104155940.476448f2@snowdrop.home>
-In-Reply-To: <20040104144350.GD24913@louise.pinerecords.com>
-References: <200401041410.i04EA61e007769@harpo.it.uu.se>
-	<20040104144350.GD24913@louise.pinerecords.com>
-X-Mailer: Sylpheed version 0.9.8claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sun, 4 Jan 2004 11:10:32 -0500
+Received: from hauptpostamt.charite.de ([193.175.66.220]:55481 "EHLO
+	hauptpostamt.charite.de") by vger.kernel.org with ESMTP
+	id S265748AbUADQJ5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jan 2004 11:09:57 -0500
+Date: Sun, 4 Jan 2004 17:09:54 +0100
+From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
+To: linux-kernel@vger.kernel.org
+Subject: ALSA error?
+Message-ID: <20040104160954.GE27197@charite.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1";
- boundary="Signature=_Sun__4_Jan_2004_15_59_41_+0000_.cWKGb=mK4TKqteu"
-X-OriginalArrivalTime: 04 Jan 2004 16:00:11.0290 (UTC) FILETIME=[D53077A0:01C3D2DB]
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Sun__4_Jan_2004_15_59_41_+0000_.cWKGb=mK4TKqteu
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+>From my log:
 
-On Sun, 4 Jan 2004 15:43:50 +0100 Tomas Szepe <szepe@pinerecords.com>
-wrote:
-| +config MPENTIUMM
-| +	bool "Pentium M (Banias/Centrino)"
-| +	help
-| +	  Select this for Intel Pentium M chips.  This option enables
-| +	  compile flags optimized for the chip, uses the correct cache
-| +	  shift, and applies any applicable Pentium III/IV
+Jan  4 16:20:11 hummus kernel: ALSA sound/core/pcm_lib.c:155: Unexpected hw_pointer value (stream = 0, delta: -4095, max jitter = 8192): wrong interrupt acknowledge?
 
-That should probably read "Pentium III/4".
+This is 2.6.1-rc1-bk4 with a :
+ALSA sound/isa/cs423x/cs4231_lib.c:1056: cs4231: port = 0x534, id = 0xa
+pnp: the driver 'opl3sa2' has been registered
+
+Should I worry?
 
 -- 
-Ciaran McCreesh
-Mail:    ciaranm at gentoo.org
-Web:     http://dev.gentoo.org/~ciaranm
-
-
---Signature=_Sun__4_Jan_2004_15_59_41_+0000_.cWKGb=mK4TKqteu
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQE/+Dh396zL6DUtXhERAnAeAJ9sF2hG1DDXr+wDUm3Tg4oZYEH2MQCfemTD
-PrlS+9B83yCA5wVLmfTi4jU=
-=X9PQ
------END PGP SIGNATURE-----
-
---Signature=_Sun__4_Jan_2004_15_59_41_+0000_.cWKGb=mK4TKqteu--
+Ralf Hildebrandt (Im Auftrag des Referat V a)   Ralf.Hildebrandt@charite.de
+Charite - Universitätsmedizin Berlin            Tel.  +49 (0)30-450 570-155
+Gemeinsame Einrichtung von FU- und HU-Berlin    Fax.  +49 (0)30-450 570-916
+Referat V a - Kommunikationsnetze -             AIM.  ralfpostfix

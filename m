@@ -1,47 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265137AbUFRNh5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265140AbUFRNn5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265137AbUFRNh5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 09:37:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265139AbUFRNh5
+	id S265140AbUFRNn5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 09:43:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265141AbUFRNn5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 09:37:57 -0400
-Received: from lgsx13.lg.ehu.es ([158.227.2.28]:57040 "EHLO lgsx13.lg.ehu.es")
-	by vger.kernel.org with ESMTP id S265137AbUFRNh4 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 09:37:56 -0400
-From: Luis Miguel =?iso-8859-1?q?Garc=EDa_Mancebo?= <ktech@wanadoo.es>
-To: kraxel@bytesex.org
-Subject: About bttv and cards support
-Date: Fri, 18 Jun 2004 15:37:38 +0200
-User-Agent: KMail/1.6.82
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	Fri, 18 Jun 2004 09:43:57 -0400
+Received: from mail.fh-wedel.de ([213.39.232.194]:4823 "EHLO mail.fh-wedel.de")
+	by vger.kernel.org with ESMTP id S265140AbUFRNnz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 09:43:55 -0400
+Date: Fri, 18 Jun 2004 15:43:13 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Finn Thain <ft01@webmastery.com.au>,
+       Linux/m68k <linux-m68k@lists.linux-m68k.org>,
+       Matt Mackall <mpm@selenic.com>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: Subject: Re: make checkstack on m68k
+Message-ID: <20040618134313.GG18258@wohnheim.fh-wedel.de>
+References: <200406161930.VAA16618@pfultra.phil.uni-sb.de> <Pine.LNX.4.58.0406171812440.8197@bonkers.disegno.com.au> <20040617183616.GC29029@wohnheim.fh-wedel.de> <Pine.GSO.4.58.0406172127150.1495@waterleaf.sonytel.be> <20040618121813.GB18258@wohnheim.fh-wedel.de> <Pine.GSO.4.58.0406181537210.11779@waterleaf.sonytel.be>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200406181537.38788.ktech@wanadoo.es>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.GSO.4.58.0406181537210.11779@waterleaf.sonytel.be>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Gerd and other,
+On Fri, 18 June 2004 15:39:38 +0200, Geert Uytterhoeven wrote:
+> On Fri, 18 Jun 2004, [iso-8859-1] Jörn Engel wrote:
+> > On Thu, 17 June 2004 21:27:35 +0200, Geert Uytterhoeven wrote:
+> > > On Thu, 17 Jun 2004, [iso-8859-1] Jörn Engel wrote:
+> > > >
+> > > > It's not as ugly as my hack.  Can I get a success report from m68k?
+> > > > Thanks!
+> >
+> > Good.  Finn, can you resend to me with a signed-off-by: comment?  If
+> > you grow bored, you could seperate the i386 regexes (sub..., add...)
+> > as well.
+> 
+> If you insist...
+> 
+> Add m68k support to checkstack.pl
+> 
+> Regular expression combination by Andres Schwab
 
-do you think it would be too much difficult to make a few "knobs" in some 
-place in order to change gpio and the like in bttv driver?
+Ah, no.  I really wanted Finn's version with two seperate regexes,
+it's much cleaner.  An array of regexes might be the best, but in a
+perfect world, we would have compiler support instead, so I don't mind
+a little ugliness.
 
-I say that because I have an unsupported 878 card and I'm trying to make it 
-work. That feature will be very good in order to support new cards because we 
-can even make an application that starts trying to test different values in 
-order to find the correct one.
+Jörn
 
-By the way, I sent a new card config a few weeks ago but got no reply. I don't 
-know if the problem was it was not supporting some features or something like 
-that. Anyways, my config stoped working (no sound) with newer kernels. This 
-is for what I'm asking that knobs or adjusts from userspace.
-
-Thanks a lot for the reply.
 -- 
-Luis Miguel García Mancebo
-Universidad de Deusto / Deusto University
-Spain
-
+Courage is not the absence of fear, but rather the judgement that
+something else is more important than fear.
+-- Ambrose Redmoon

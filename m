@@ -1,49 +1,171 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264572AbUEDStG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264577AbUEDSun@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264572AbUEDStG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 May 2004 14:49:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264573AbUEDStG
+	id S264577AbUEDSun (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 May 2004 14:50:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264573AbUEDSum
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 May 2004 14:49:06 -0400
-Received: from [195.23.16.24] ([195.23.16.24]:13215 "EHLO
-	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
-	id S264572AbUEDStE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 May 2004 14:49:04 -0400
-Message-ID: <4097E4DD.6090904@grupopie.com>
-Date: Tue, 04 May 2004 19:45:49 +0100
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: GrupoPIE
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4.1) Gecko/20020508 Netscape6/6.2.3
-X-Accept-Language: en-us
+	Tue, 4 May 2004 14:50:42 -0400
+Received: from fmr01.intel.com ([192.55.52.18]:60605 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id S264577AbUEDSug (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 May 2004 14:50:36 -0400
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Libor Vanek <libor@conet.cz>
-Cc: "Richard B. Johnson" <root@chaos.analogic.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Read from file fails
-References: <20040503000004.GA26707@Loki> <Pine.LNX.4.53.0405030852220.10896@chaos> <20040503150606.GB6411@Loki> <Pine.LNX.4.53.0405032020320.12217@chaos> <20040504011957.GA20676@Loki>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.25.0.3; VDF: 6.25.0.47; host: bipbip)
+Content-Type: multipart/mixed;
+	boundary="----_=_NextPart_001_01C43208.A833A2E0"
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Subject: [PATCH] mxcsr patch for i386 & x86-64
+Date: Tue, 4 May 2004 11:50:23 -0700
+Message-ID: <E305A4AFB7947540BC487567B5449BA802CA7BEC@scsmsx402.sc.intel.com>
+X-MS-Has-Attach: yes
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] mxcsr patch for i386 & x86-64
+Thread-Index: AcQyCKfgCAxz+HRpSA29zCn+N6kVJQ==
+From: "Kamble, Nitin A" <nitin.a.kamble@intel.com>
+To: "Andrew Morton" <akpm@osdl.org>, "Linus Torvalds" <torvalds@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>, "Nakajima, Jun" <jun.nakajima@intel.com>,
+       "Mallick, Asit K" <asit.k.mallick@intel.com>,
+       "Saxena, Sunil" <sunil.saxena@intel.com>
+X-OriginalArrivalTime: 04 May 2004 18:50:24.0235 (UTC) FILETIME=[A88FF3B0:01C43208]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Libor Vanek wrote:
+This is a multi-part message in MIME format.
 
-> Using kernel module:
-> - user space process wants to change some file which is in "snapshoted" dir
-> - my module catches this request, holds it, creates copy of original file and allows original request to proceed
+------_=_NextPart_001_01C43208.A833A2E0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
+Hi Andrew, Linus,
+     Attached is the patch to enable proper mxcsr register masking in
+the Linux Kernel.=20
 
-Did you take a look at LVM snapshots?
+Please refer to IA32 Software Developer's Manual, Volume 1, Section
+11.6.6 for more details.
 
-http://tldp.org/HOWTO/LVM-HOWTO/snapshotintro.html
+Thanks & Regards,
+Nitin
+------------------------------------------------------------------------
+-
 
-Maybe your problem is already solved...
+------_=_NextPart_001_01C43208.A833A2E0
+Content-Type: application/octet-stream;
+	name="mxcsr_i386_x86-64_2.6.6-rc3.patch"
+Content-Transfer-Encoding: base64
+Content-Description: mxcsr_i386_x86-64_2.6.6-rc3.patch
+Content-Disposition: attachment;
+	filename="mxcsr_i386_x86-64_2.6.6-rc3.patch"
 
-Anyway, you really shouldn't worry about the time it takes to make a context 
-switch when you want to copy a file on modify ;)
+LS0tIDIuNi42LXJjMy9hcmNoL2kzODYva2VybmVsL2NwdS9jb21tb24uYy5vcmlnCTIwMDQtMDUt
+MDMgMTg6MDA6MDMuMDAwMDAwMDAwIC0wNzAwCisrKyAyLjYuNi1yYzMvYXJjaC9pMzg2L2tlcm5l
+bC9jcHUvY29tbW9uLmMJMjAwNC0wNS0wNCAxMTo0NTowNy4wMDAwMDAwMDAgLTA3MDAKQEAgLTUz
+Niw1ICs1MzYsNyBAQAogCSAqLwogCWN1cnJlbnRfdGhyZWFkX2luZm8oKS0+c3RhdHVzID0gMDsK
+IAljdXJyZW50LT51c2VkX21hdGggPSAwOworCWNsdHMoKTsKKwlteGNzcl9tYXNrX2luaXQoKTsK
+IAlzdHRzKCk7CiB9Ci0tLSAyLjYuNi1yYzMvYXJjaC9pMzg2L2tlcm5lbC9pMzg3LmMub3JpZwky
+MDA0LTA1LTAzIDE4OjAyOjE2LjAwMDAwMDAwMCAtMDcwMAorKysgMi42LjYtcmMzL2FyY2gvaTM4
+Ni9rZXJuZWwvaTM4Ny5jCTIwMDQtMDUtMDQgMTE6Mjc6NDkuMDAwMDAwMDAwIC0wNzAwCkBAIC0x
+MCw2ICsxMCw3IEBACiAKICNpbmNsdWRlIDxsaW51eC9jb25maWcuaD4KICNpbmNsdWRlIDxsaW51
+eC9zY2hlZC5oPgorI2luY2x1ZGUgPGxpbnV4L2luaXQuaD4KICNpbmNsdWRlIDxhc20vcHJvY2Vz
+c29yLmg+CiAjaW5jbHVkZSA8YXNtL2kzODcuaD4KICNpbmNsdWRlIDxhc20vbWF0aF9lbXUuaD4K
+QEAgLTI0LDYgKzI1LDIyIEBACiAjZGVmaW5lIEhBVkVfSFdGUCAxCiAjZW5kaWYKIAorc3RhdGlj
+IHVuc2lnbmVkIGxvbmcgY29tbW9uX214Y3NyX21hc2sgPSAweGZmZmZmZmZmOworCit2b2lkIG14
+Y3NyX21hc2tfaW5pdCh2b2lkKQoreworCXVuc2lnbmVkIGxvbmcgbWFzazsKKwlpZiAoIWNwdV9o
+YXNfZnhzcikKKwkJbWFzayA9IDB4MDsKKwllbHNlIHsKKwkJbWVtc2V0KCZjdXJyZW50LT50aHJl
+YWQuaTM4Ny5meHNhdmUsIDAsIHNpemVvZihzdHJ1Y3QgaTM4N19meHNhdmVfc3RydWN0KSk7CisJ
+CWFzbSB2b2xhdGlsZSgiZnhzYXZlICUwIiA6IDogIm0iIChjdXJyZW50LT50aHJlYWQuaTM4Ny5m
+eHNhdmUpKTsgCisJCW1hc2sgPSBjdXJyZW50LT50aHJlYWQuaTM4Ny5meHNhdmUubXhjc3JfbWFz
+azsKKwkJaWYgKG1hc2sgPT0gMFVMKSBtYXNrID0gMHgwMDAwZmZiZjsKKwl9IAorCWNvbW1vbl9t
+eGNzcl9tYXNrICY9IG1hc2s7Cit9CisKIC8qCiAgKiBUaGUgX2N1cnJlbnRfIHRhc2sgaXMgdXNp
+bmcgdGhlIEZQVSBmb3IgdGhlIGZpcnN0IHRpbWUKICAqIHNvIGluaXRpYWxpemUgaXQgYW5kIHNl
+dCB0aGUgbXhjc3IgdG8gaXRzIGRlZmF1bHQKQEAgLTIwNyw3ICsyMjQsNyBAQAogdm9pZCBzZXRf
+ZnB1X214Y3NyKCBzdHJ1Y3QgdGFza19zdHJ1Y3QgKnRzaywgdW5zaWduZWQgc2hvcnQgbXhjc3Ig
+KQogewogCWlmICggY3B1X2hhc194bW0gKSB7Ci0JCXRzay0+dGhyZWFkLmkzODcuZnhzYXZlLm14
+Y3NyID0gKG14Y3NyICYgMHhmZmJmKTsKKwkJdHNrLT50aHJlYWQuaTM4Ny5meHNhdmUubXhjc3Ig
+PSAobXhjc3IgJiBjb21tb25fbXhjc3JfbWFzayk7CiAJfQogfQogCkBAIC0zNTUsOCArMzcyLDcg
+QEAKIAljbGVhcl9mcHUoIHRzayApOwogCWVyciA9IF9fY29weV9mcm9tX3VzZXIoICZ0c2stPnRo
+cmVhZC5pMzg3LmZ4c2F2ZSwgJmJ1Zi0+X2Z4c3JfZW52WzBdLAogCQkJCXNpemVvZihzdHJ1Y3Qg
+aTM4N19meHNhdmVfc3RydWN0KSApOwotCS8qIG14Y3NyIGJpdCA2IGFuZCAzMS0xNiBtdXN0IGJl
+IHplcm8gZm9yIHNlY3VyaXR5IHJlYXNvbnMgKi8KLQl0c2stPnRocmVhZC5pMzg3LmZ4c2F2ZS5t
+eGNzciAmPSAweGZmYmY7CisJc2V0X2ZwdV9teGNzcih0c2ssIHRzay0+dGhyZWFkLmkzODcuZnhz
+YXZlLm14Y3NyKTsKIAlyZXR1cm4gZXJyID8gMSA6IGNvbnZlcnRfZnhzcl9mcm9tX3VzZXIoICZ0
+c2stPnRocmVhZC5pMzg3LmZ4c2F2ZSwgYnVmICk7CiB9CiAKQEAgLTQ1Nyw4ICs0NzMsNyBAQAog
+CQlpZiAoX19jb3B5X2Zyb21fdXNlciggJnRzay0+dGhyZWFkLmkzODcuZnhzYXZlLCBidWYsCiAJ
+CQkJICBzaXplb2Yoc3RydWN0IHVzZXJfZnhzcl9zdHJ1Y3QpICkpCiAJCQlyZXQgPSAtRUZBVUxU
+OwotCQkvKiBteGNzciBiaXQgNiBhbmQgMzEtMTYgbXVzdCBiZSB6ZXJvIGZvciBzZWN1cml0eSBy
+ZWFzb25zICovCi0JCXRzay0+dGhyZWFkLmkzODcuZnhzYXZlLm14Y3NyICY9IDB4ZmZiZjsKKwkJ
+c2V0X2ZwdV9teGNzcih0c2ssIHRzay0+dGhyZWFkLmkzODcuZnhzYXZlLm14Y3NyKTsKIAl9IGVs
+c2UgewogCQlyZXQgPSAtRUlPOwogCX0KLS0tIDIuNi42LXJjMy9hcmNoL3g4Nl82NC9rZXJuZWwv
+aTM4Ny5jLm9yaWcJMjAwNC0wNS0wMyAxODowMDozMS4wMDAwMDAwMDAgLTA3MDAKKysrIDIuNi42
+LXJjMy9hcmNoL3g4Nl82NC9rZXJuZWwvaTM4Ny5jCTIwMDQtMDUtMDQgMTE6Mjc6MjkuMDAwMDAw
+MDAwIC0wNzAwCkBAIC0yNCw2ICsyNCwyMyBAQAogI2luY2x1ZGUgPGFzbS9wdHJhY2UuaD4KICNp
+bmNsdWRlIDxhc20vdWFjY2Vzcy5oPgogCitzdGF0aWMgdW5zaWduZWQgbG9uZyBjb21tb25fbXhj
+c3JfbWFzayA9IDB4ZmZmZmZmZmY7CisKK3ZvaWQgc2V0X2ZwdV9teGNzcihzdHJ1Y3QgdGFza19z
+dHJ1Y3QgKnRzaywgdW5zaWduZWQgc2hvcnQgbXhjc3IpCit7CisJdHNrLT50aHJlYWQuaTM4Ny5m
+eHNhdmUubXhjc3IgPSAobXhjc3IgJiBjb21tb25fbXhjc3JfbWFzayk7Cit9CisKK3ZvaWQgbXhj
+c3JfbWFza19pbml0KHZvaWQpCit7CisJdW5zaWduZWQgbG9uZyBtYXNrOworCW1lbXNldCgmY3Vy
+cmVudC0+dGhyZWFkLmkzODcuZnhzYXZlLCAwLCBzaXplb2Yoc3RydWN0IGkzODdfZnhzYXZlX3N0
+cnVjdCkpOworCWFzbSB2b2xhdGlsZSgiZnhzYXZlICUwIiA6IDogIm0iIChjdXJyZW50LT50aHJl
+YWQuaTM4Ny5meHNhdmUpKTsKKwltYXNrID0gY3VycmVudC0+dGhyZWFkLmkzODcuZnhzYXZlLm14
+Y3NyX21hc2s7CisJaWYgKG1hc2sgPT0gMFVMKSBtYXNrID0gMHgwMDAwZmZiZjsKKwljb21tb25f
+bXhjc3JfbWFzayAmPSBtYXNrOworfQorCiAvKgogICogQ2FsbGVkIGF0IGJvb3R1cCB0byBzZXQg
+dXAgdGhlIGluaXRpYWwgRlBVIHN0YXRlIHRoYXQgaXMgbGF0ZXIgY2xvbmVkCiAgKiBpbnRvIGFs
+bCBwcm9jZXNzZXMuCkBAIC00MCw2ICs1Nyw4IEBACiAKIAl3cml0ZV9jcjAob2xkY3IwICYgfigo
+MVVMPDwzKXwoMVVMPDwyKSkpOyAvKiBjbGVhciBUUyBhbmQgRU0gKi8KIAorCWNsdHMoKTsKKwlt
+eGNzcl9tYXNrX2luaXQoKTsKIAkvKiBjbGVhbiBzdGF0ZSBpbiBpbml0ICovCiAJc3R0cygpOwog
+CWN1cnJlbnRfdGhyZWFkX2luZm8oKS0+c3RhdHVzID0gMDsKLS0tIDIuNi42LXJjMy9hcmNoL3g4
+Nl82NC9pYTMyL2ZwdTMyLmMub3JpZwkyMDA0LTA1LTAzIDE4OjAwOjAyLjAwMDAwMDAwMCAtMDcw
+MAorKysgMi42LjYtcmMzL2FyY2gveDg2XzY0L2lhMzIvZnB1MzIuYwkyMDA0LTA1LTAzIDE4OjA1
+OjEwLjAwMDAwMDAwMCAtMDcwMApAQCAtMTU1LDcgKzE1NSw3IEBACiAJCQkJICAgICAmYnVmLT5f
+Znhzcl9lbnZbMF0sCiAJCQkJICAgICBzaXplb2Yoc3RydWN0IGkzODdfZnhzYXZlX3N0cnVjdCkp
+KQogCQkJcmV0dXJuIC0xOwotCXRzay0+dGhyZWFkLmkzODcuZnhzYXZlLm14Y3NyICY9IDB4ZmZi
+ZjsKKwkJc2V0X2ZwdV9teGNzcih0c2ssIHRzay0+dGhyZWFkLmkzODcuZnhzYXZlLm14Y3NyKTsK
+IAkJdHNrLT51c2VkX21hdGggPSAxOwogCX0gCiAJcmV0dXJuIGNvbnZlcnRfZnhzcl9mcm9tX3Vz
+ZXIoJnRzay0+dGhyZWFkLmkzODcuZnhzYXZlLCBidWYpOwotLS0gMi42LjYtcmMzL2FyY2gveDg2
+XzY0L2lhMzIvcHRyYWNlMzIuYy5vcmlnCTIwMDQtMDUtMDMgMTg6MDA6MzEuMDAwMDAwMDAwIC0w
+NzAwCisrKyAyLjYuNi1yYzMvYXJjaC94ODZfNjQvaWEzMi9wdHJhY2UzMi5jCTIwMDQtMDUtMDMg
+MTg6MDU6MTAuMDAwMDAwMDAwIC0wNzAwCkBAIC0zNTcsNyArMzU3LDcgQEAKIAkJLyogbm8gY2hl
+Y2tpbmcgdG8gYmUgYnVnLXRvLWJ1ZyBjb21wYXRpYmxlIHdpdGggaTM4NiAqLwogCQlfX2NvcHlf
+ZnJvbV91c2VyKCZjaGlsZC0+dGhyZWFkLmkzODcuZnhzYXZlLCB1LCBzaXplb2YoKnUpKTsKIAkJ
+Y2hpbGQtPnVzZWRfbWF0aCA9IDE7Ci0JICAgICAgICBjaGlsZC0+dGhyZWFkLmkzODcuZnhzYXZl
+Lm14Y3NyICY9IDB4ZmZiZjsKKwkJc2V0X2ZwdV9teGNzcihjaGlsZCwgY2hpbGQtPnRocmVhZC5p
+Mzg3LmZ4c2F2ZS5teGNzcik7CiAJCXJldCA9IDA7IAogCQkJYnJlYWs7CiAJCX0KLS0tIDIuNi42
+LXJjMy9pbmNsdWRlL2FzbS14ODZfNjQvaTM4Ny5oLm9yaWcJMjAwNC0wNS0wMyAxODowMTowMi4w
+MDAwMDAwMDAgLTA3MDAKKysrIDIuNi42LXJjMy9pbmNsdWRlL2FzbS14ODZfNjQvaTM4Ny5oCTIw
+MDQtMDUtMDQgMTE6NDU6NTguMDAwMDAwMDAwIC0wNzAwCkBAIC01Miw4ICs1Miw4IEBACiAJfQkJ
+CQkJCQlcCiB9IHdoaWxlICgwKQogCi0jZGVmaW5lIGxvYWRfbXhjc3IodmFsKSBkbyB7IFwKLQkJ
+dW5zaWduZWQgbG9uZyBfX214Y3NyID0gKCh1bnNpZ25lZCBsb25nKSh2YWwpICYgMHhmZmJmKTsg
+XAorI2RlZmluZSBsb2FkX214Y3NyKHZhbCwgbWFzaykgZG8geyBcCisJCXVuc2lnbmVkIGxvbmcg
+X19teGNzciA9ICgodW5zaWduZWQgbG9uZykodmFsKSAmIChtYXNrKSk7IFwKIAkJYXNtIHZvbGF0
+aWxlKCJsZG14Y3NyICUwIiA6IDogIm0iIChfX214Y3NyKSk7IFwKIH0gd2hpbGUgKDApCiAKQEAg
+LTc1LDcgKzc1LDcgQEAKICNkZWZpbmUgc2V0X2ZwdV9jd2QodCx2YWwpICgodCktPnRocmVhZC5p
+Mzg3LmZ4c2F2ZS5jd2QgPSAodmFsKSkKICNkZWZpbmUgc2V0X2ZwdV9zd2QodCx2YWwpICgodCkt
+PnRocmVhZC5pMzg3LmZ4c2F2ZS5zd2QgPSAodmFsKSkKICNkZWZpbmUgc2V0X2ZwdV9meHNyX3R3
+ZCh0LHZhbCkgKCh0KS0+dGhyZWFkLmkzODcuZnhzYXZlLnR3ZCA9ICh2YWwpKQotI2RlZmluZSBz
+ZXRfZnB1X214Y3NyKHQsdmFsKSAoKHQpLT50aHJlYWQuaTM4Ny5meHNhdmUubXhjc3IgPSAodmFs
+KSYweGZmYmYpCitleHRlcm4gdm9pZCBzZXRfZnB1X214Y3NyKHN0cnVjdCB0YXNrX3N0cnVjdCAq
+dHNrLCB1bnNpZ25lZCBzaG9ydCBteGNzcik7CiAKIHN0YXRpYyBpbmxpbmUgaW50IHJlc3RvcmVf
+ZnB1X2NoZWNraW5nKHN0cnVjdCBpMzg3X2Z4c2F2ZV9zdHJ1Y3QgKmZ4KSAKIHsgCi0tLSAyLjYu
+Ni1yYzMvaW5jbHVkZS9hc20taTM4Ni9pMzg3Lmgub3JpZwkyMDA0LTA1LTAzIDE4OjAxOjMxLjAw
+MDAwMDAwMCAtMDcwMAorKysgMi42LjYtcmMzL2luY2x1ZGUvYXNtLWkzODYvaTM4Ny5oCTIwMDQt
+MDUtMDQgMTE6NDI6MDUuMDAwMDAwMDAwIC0wNzAwCkBAIC0xNiw2ICsxNiw3IEBACiAjaW5jbHVk
+ZSA8YXNtL3NpZ2NvbnRleHQuaD4KICNpbmNsdWRlIDxhc20vdXNlci5oPgogCitleHRlcm4gdm9p
+ZCBteGNzcl9tYXNrX2luaXQodm9pZCk7CiBleHRlcm4gdm9pZCBpbml0X2ZwdShzdHJ1Y3QgdGFz
+a19zdHJ1Y3QgKik7CiAvKgogICogRlBVIGxhenkgc3RhdGUgc2F2ZSBoYW5kbGluZy4uLgpAQCAt
+OTEsOCArOTIsOCBAQAogZXh0ZXJuIHZvaWQgc2V0X2ZwdV90d2QoIHN0cnVjdCB0YXNrX3N0cnVj
+dCAqdHNrLCB1bnNpZ25lZCBzaG9ydCB0d2QgKTsKIGV4dGVybiB2b2lkIHNldF9mcHVfbXhjc3Io
+IHN0cnVjdCB0YXNrX3N0cnVjdCAqdHNrLCB1bnNpZ25lZCBzaG9ydCBteGNzciApOwogCi0jZGVm
+aW5lIGxvYWRfbXhjc3IoIHZhbCApIGRvIHsgXAotCXVuc2lnbmVkIGxvbmcgX19teGNzciA9ICgo
+dW5zaWduZWQgbG9uZykodmFsKSAmIDB4ZmZiZik7IFwKKyNkZWZpbmUgbG9hZF9teGNzcih2YWws
+IG1hc2spIGRvIHsgXAorCXVuc2lnbmVkIGxvbmcgX19teGNzciA9ICgodW5zaWduZWQgbG9uZyko
+dmFsKSAmIChtYXNrKSk7IFwKIAlhc20gdm9sYXRpbGUoICJsZG14Y3NyICUwIiA6IDogIm0iIChf
+X214Y3NyKSApOyBcCiB9IHdoaWxlICgwKQogCi0tLSAyLjYuNi1yYzMvaW5jbHVkZS9hc20taTM4
+Ni9wcm9jZXNzb3IuaC5vcmlnCTIwMDQtMDUtMDMgMTg6MDA6MDMuMDAwMDAwMDAwIC0wNzAwCisr
+KyAyLjYuNi1yYzMvaW5jbHVkZS9hc20taTM4Ni9wcm9jZXNzb3IuaAkyMDA0LTA1LTAzIDE4OjA1
+OjEwLjAwMDAwMDAwMCAtMDcwMApAQCAtMzMyLDcgKzMzMiw3IEBACiAJbG9uZwlmb287CiAJbG9u
+Zwlmb3M7CiAJbG9uZwlteGNzcjsKLQlsb25nCXJlc2VydmVkOworCWxvbmcJbXhjc3JfbWFzazsK
+IAlsb25nCXN0X3NwYWNlWzMyXTsJLyogOCoxNiBieXRlcyBmb3IgZWFjaCBGUC1yZWcgPSAxMjgg
+Ynl0ZXMgKi8KIAlsb25nCXhtbV9zcGFjZVszMl07CS8qIDgqMTYgYnl0ZXMgZm9yIGVhY2ggWE1N
+LXJlZyA9IDEyOCBieXRlcyAqLwogCWxvbmcJcGFkZGluZ1s1Nl07Cg==
 
--- 
-Paulo Marques - www.grupopie.com
-"In a world without walls and fences who needs windows and gates?"
-
+------_=_NextPart_001_01C43208.A833A2E0--

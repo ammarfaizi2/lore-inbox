@@ -1,38 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261158AbSJHNNj>; Tue, 8 Oct 2002 09:13:39 -0400
+	id <S262678AbSJHNRI>; Tue, 8 Oct 2002 09:17:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262435AbSJHNNj>; Tue, 8 Oct 2002 09:13:39 -0400
-Received: from 62-190-201-48.pdu.pipex.net ([62.190.201.48]:11524 "EHLO
-	darkstar.example.net") by vger.kernel.org with ESMTP
-	id <S261158AbSJHNNh>; Tue, 8 Oct 2002 09:13:37 -0400
-From: jbradford@dial.pipex.com
-Message-Id: <200210081327.g98DRatM000391@darkstar.example.net>
-Subject: Re: Re: The reason to call it 3.0 is the desktop (was Re: [OT] 2.6 not 3.0 -  (NUMA))
-To: Hell.Surfers@cwctv.net
-Date: Tue, 8 Oct 2002 14:27:36 +0100 (BST)
-Cc: jlnance@intrex.net, linux-kernel@vger.kernel.org
-In-Reply-To: <00e3723041308a2DTVMAIL7@smtp.cwctv.net> from "Hell.Surfers@cwctv.net" at Oct 08, 2002 02:06:02 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S262760AbSJHNRI>; Tue, 8 Oct 2002 09:17:08 -0400
+Received: from ip68-13-110-204.om.om.cox.net ([68.13.110.204]:50304 "EHLO
+	dad.molina") by vger.kernel.org with ESMTP id <S262678AbSJHNRH>;
+	Tue, 8 Oct 2002 09:17:07 -0400
+Date: Tue, 8 Oct 2002 08:22:17 -0500 (CDT)
+From: Thomas Molina <tmolina@cox.net>
+X-X-Sender: tmolina@dad.molina
+To: Rob Landley <landley@trommello.org>
+cc: Gigi Duru <giduru@yahoo.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: The end of embedded Linux?
+In-Reply-To: <20021008004426.0361D622@merlin.webofficenow.com>
+Message-ID: <Pine.LNX.4.44.0210080817420.1787-100000@dad.molina>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >     Do you think it would be better to make the defragmentation part of
-> > the normal operation of the FS rather than a seperate application.  For
-> > example, if you did a fragmentation check/fix on the last close of a file
-> > you would know that coherency issues were not going to be important.  It
-> > might also give you some way to determine which files were important to
-> > keep close together.
+On Mon, 7 Oct 2002, Rob Landley wrote:
 
-> sounds good, could a space wiper be made for secret
-> agencies/buisness throwing away old hdds?
+> On Monday 07 October 2002 05:56 pm, Gigi Duru wrote:
+> > --- Rob Landley <landley@trommello.org> wrote:
+> > > 8000 controls you have to individually tweak to do
+> > > anything is not
+> > > necessarily an improvement over a single "do what I
+> > > want" button.  (User
+> > > Interface Design 101.)
+> > >
+> > > The doorknob is a wonderful user interface...
+> >
+> > try driving your car using a doorknob ;)
+> 
+> The steering wheel is fundamentally different?  (It's certainly BIGGER...)
 
-They can just do:
+Actually, I believe the wheel, and the rest of the user interface for an 
+auto (gas pedal, brake) are a fine metaphor for this discussion.  The user 
+interface for a car hasn't changed in how many years?  That is despite 
+quite a number of technological devleopments under the hood.  Having a 
+simple user interface for the "novice" doesn't prevent all kinds of weird 
+shifting, throttle control, etc. additions for the "expert".  Having a 
+single doorknob which controls, in a gross way, the action of a large 
+number of "sub-knobs" is good.  Giving access to the "sub-knobs" for the 
+expert is even better.
 
-dd if=/dev/urandom of=/dev/hda
-dd if=/dev/zero of=/dev/hda
-
-John.

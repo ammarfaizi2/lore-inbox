@@ -1,74 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265786AbUFWTrV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266632AbUFWTuS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265786AbUFWTrV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jun 2004 15:47:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266618AbUFWTrV
+	id S266632AbUFWTuS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jun 2004 15:50:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266631AbUFWTuS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jun 2004 15:47:21 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:44251 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265786AbUFWTqt
+	Wed, 23 Jun 2004 15:50:18 -0400
+Received: from dh132.citi.umich.edu ([141.211.133.132]:12681 "EHLO
+	lade.trondhjem.org") by vger.kernel.org with ESMTP id S266630AbUFWTuL convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jun 2004 15:46:49 -0400
-Message-ID: <40D9DE1C.8020005@pobox.com>
-Date: Wed, 23 Jun 2004 15:46:36 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Dean Nelson <dcn@sgi.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] replace assorted ASSERT()s by something officially  sanctioned
-References: <40D9D09D.mailx49E1J10NF@aqua.americas.sgi.com>
-In-Reply-To: <40D9D09D.mailx49E1J10NF@aqua.americas.sgi.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 23 Jun 2004 15:50:11 -0400
+Subject: Re: [PATCH] Make POSIX locks compatible with the NPTL thread model
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Chris Wright <chrisw@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20040623122930.K22989@build.pdx.osdl.net>
+References: <1088010468.5806.52.camel@lade.trondhjem.org>
+	 <20040623122930.K22989@build.pdx.osdl.net>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+Message-Id: <1088020210.5806.95.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 23 Jun 2004 15:50:10 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dean Nelson wrote:
-> It doesn't appear that an officially 'sanctioned' version of ASSERT() or
-> an ASSERT()-like macro exists.
-> 
-> And by the proliferation of its use in the linux 2.6 kernel (I saw over
-> 3000 references to it), it would seem that BUG_ON() does not satisfy all
-> of the requirements of the community.
-> 
-> One problem with BUG_ON() is that it is always enabled. And even though
-> the compiler does a good job of minimizing the impact of the conditional
-> expression, there are times when the conditional check requires the
-> accessing of a cacheline that would not get accessed had the BUG_ON() not
-> been enabled. And if that cacheline were one that is hotly contended for,
-> one's performance can be adversely affected.
-> 
-> For debugging purposes it would be nice to have a version of BUG_ON() that
-> was only enabled if DEBUG was set. This is what appears to be behind the use
-> of the ASSERT()-like macros.
-> 
-> As an example of what I have in mind, I've included the following quilt
-> patch.
-> 
-> Thanks,
-> Dean
-> 
-> 
-> Index: linux/include/asm-i386/bug.h
-> ===================================================================
-> --- linux.orig/include/asm-i386/bug.h
-> +++ linux/include/asm-i386/bug.h
-> @@ -21,6 +21,12 @@
->  
->  #define BUG_ON(condition) do { if (unlikely((condition)!=0)) BUG(); } while(0)
->  
-> +#ifdef DEBUG
-> +#define DBUG_ON(condition)	BUG_ON(condition)
-> +#else
-> +#define DBUG_ON(condition)
-> +#endif
+På on , 23/06/2004 klokka 15:29, skreiv Chris Wright:
+> Just ran some quick tests to verify this patch still works fine with
+> execve() after plain CLONE_FILES as well as full CLONE_THREAD.  Passed
+> my tests.  Nice to see the steal_locks bit go.  However, without this
+> patch (only the prior one, I'm getting an oops).
 
-This won't work as it often needs to be driver-granular.  Also, 
-WARN_ON() is often the closer implementation of assert(), than BUG_ON()
+Can you show us the Oops? I'm surprised that should be occurring...
 
-	Jeff
+Note that with both patches, we still have some problems in the locking
+downcall interface to the filesystem. Currently there exists an
+atomicity problem: after the call to ->lock() there is a window during
+which the filesystem believes that a lock may have been taken/released
+but the VFS has not yet registered this fact. In 2.4.x, this window did
+not exist because the VFS held the BKL from beginning to end.
 
+As far as NFS is concerned, this makes use of the VFS in order to
+recover from server reboots (which is in fact the only reason why we
+bother to have the VFS track the locking) buggy...
 
+IMHO, NFS/CIFS/... should just call posix_lock_file() directly from
+their ->lock() method. That way they will also be able to full take
+responsibility for protecting the call.
 
+Cheers,
+  Trond

@@ -1,55 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318439AbSGSHdC>; Fri, 19 Jul 2002 03:33:02 -0400
+	id <S318489AbSGSHne>; Fri, 19 Jul 2002 03:43:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318458AbSGSHdC>; Fri, 19 Jul 2002 03:33:02 -0400
-Received: from Qui-Gon.aplushosting.com ([216.65.98.179]:9 "HELO
-	qui-gon.asdf456.com") by vger.kernel.org with SMTP
-	id <S318439AbSGSHdC>; Fri, 19 Jul 2002 03:33:02 -0400
-Subject: Coffee Break...
-From: Robert Cole <robert@support4linux.com>
+	id <S318542AbSGSHne>; Fri, 19 Jul 2002 03:43:34 -0400
+Received: from twilight.cs.hut.fi ([130.233.40.5]:30997 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
+	id <S318489AbSGSHnd>; Fri, 19 Jul 2002 03:43:33 -0400
+Date: Fri, 19 Jul 2002 10:46:30 +0300
+From: Ville Herva <vherva@niksula.hut.fi>
 To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 19 Jul 2002 00:35:32 -0700
-Message-Id: <1027064133.24165.7.camel@ws2.support4linux.com>
+Subject: Re: more thoughts on a new jail() system call
+Message-ID: <20020719074629.GD1548@niksula.cs.hut.fi>
+Mail-Followup-To: Ville Herva <vherva@niksula.cs.hut.fi>,
+	linux-kernel@vger.kernel.org
+References: <1026959170.14737.102.camel@zaphod> <ah7m2r$3cr$1@abraham.cs.berkeley.edu>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ah7m2r$3cr$1@abraham.cs.berkeley.edu>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here's a coffee break for all you coders out there. I use to run a BBS
-system back before the web and this was sent to all on my BBS system by
-Tim Saari. Don't know if he wrote it or not though... :)
+On Fri, Jul 19, 2002 at 12:21:47AM +0000, you [David Wagner] wrote:
+> Shaya Potter  wrote:
+> >sys_mknod) J - Need FIFO ability, everything else not.
+> 
+> Beware the ability to pass file descriptors across Unix
+> domain sockets.  This should probably be restricted somehow.
+> Along similar lines, you didn't mention sendmsg() and
+> recvmsg(), but the fd-passing parts should probably be
+> restricted.
 
-(Sung to the tune of "Let it be")
+I gather FreeBSD allow passing fd's, but not in or out the jail. Just inside
+it.
+ 
+> >sys_setuid16) ^J - since jail is secure, can setuid all you want.
+> 
+> I'd look very carefully at whether root can bypass any
+> of the access controls you're relying on.  For instance,
+> with root, one can bind to ports below 1024.
 
-When I find my code in tones of trouble,
-Friends and colleges come to me,
-Speaking words of wisdom: "Write in C".
-As the deadline fast approaches,
-Somewhere, someone whispers: "Write in C".
-Write in C, Write in C, Write in C, oh, White in C.
-Logo's dead on buried, "Write in C".
-I use to write a lot in fortran,
-For science it crashed constantly.
-Try using it for graphics, "Write in C".
-If you've spent nearly 30 hours
-soon you'll be glad to "Write in C"
-Write in C, Write in C, Write in C, Write in C, yeah, Write in C.
-Only wimps use BASIC. "Write in C".
-Write in C, Write in C, Write in C,oh, Write in C.
-Pascal won't quite cut it, "Write in C".
-Write in C, Write in C, Write in C, Write in C, yeah, Write in C.
-Don't even mention Cobol, "Write in C".
+In FreeBSD jail, jailed root is supposed to be safe. So if something is
+jailed - and has the necessary privileges - it can bind to the jail ip (each
+jail has its own ip). But it can't bind to any other ip's of the box. 
 
-The date on the message is 1/21/92 5:42pm on my BBS system that was
-called The Programmers Dungeon running on Wildcat BBS software running 3
-lines. :)
+http://docs.freebsd.org/44doc/papers/jail/jail-6.html#section10
+ 
+> >sys_socketcall) J - Bind seems to be the only problem. jail() includes
+> >an ip address, and a jailed process can only bind to that address. so
+> >do we force the addr to be this address, or does one allow INADDR_ANY
+> >and translate that to the jail'd ip address?
 
-Oh the days... :) I miss em :) Hardly any spam in those days... :)
+In FreeBSD, INADDR_ANY is explicitly translated to jail's IP. Many daemons
+use INADDR_ANY routinely, so I think it makes sense.
 
-Robert Cole
+> >sys_syslog) NOT SURE (probably jailed away)
+> 
+> sys_syslog touches a global shared resource, hence
+> should probably be denied to jailed processes.
+
+Ummh, most logical way would be to create an own syslog for each jail.
+That's also the most laborous alternative, though...
+ 
 
 
+-- v --
 
+v@iki.fi

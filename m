@@ -1,55 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317282AbSGDA1e>; Wed, 3 Jul 2002 20:27:34 -0400
+	id <S317293AbSGDAaH>; Wed, 3 Jul 2002 20:30:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317293AbSGDA1d>; Wed, 3 Jul 2002 20:27:33 -0400
-Received: from gateway2.ensim.com ([65.164.64.250]:44037 "EHLO
-	nasdaq.ms.ensim.com") by vger.kernel.org with ESMTP
-	id <S317282AbSGDA1d>; Wed, 3 Jul 2002 20:27:33 -0400
-X-mailer: xrn 8.03-beta-26
-From: pmenage@ensim.com
-Subject: Re: simple handling of module removals Re: [OKS] Module removal
-To: Daniel Phillips <phillips@arcor.de>
-Cc: linux-kernel@vger.kernel.org
-X-Newsgroups: 
-In-reply-to: <0C01A29FBAE24448A792F5C68F5EA47D2B0A8A@nasdaq.ms.ensim.com>
-Message-Id: <E17PuV9-0006iy-00@pmenage-dt.ensim.com>
-Date: Wed, 03 Jul 2002 17:29:39 -0700
+	id <S317298AbSGDAaG>; Wed, 3 Jul 2002 20:30:06 -0400
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:57788 "HELO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S317293AbSGDAaF>; Wed, 3 Jul 2002 20:30:05 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Helge Hafting <helgehaf@aitel.hist.no>
+Date: Thu, 4 Jul 2002 10:34:29 +1000 (EST)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15651.38933.361225.748326@notabene.cse.unsw.edu.au>
+cc: linux-kernel@vger.kernel.org, davej@suse.de
+Subject: Re: 2.5.24-dj1,smp,ext2,raid0: I got random zero blocks in my files.
+In-Reply-To: message from Helge Hafting on Monday July 1
+References: <3D200BF6.3A6D9B59@aitel.hist.no>
+X-Mailer: VM 6.72 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <0C01A29FBAE24448A792F5C68F5EA47D2B0A8A@nasdaq.ms.ensim.com>,
-you write:
->
->Is it just the mod_dec_use_count; return/unload race we're worried about? 
->>I'm not clear on why this is hard.  I'd think it would be sufficient just
->to 
->walk all runnable processes to ensure none has an execution address inside
->the
->module.  For smp, an ipi would pick up the current process on each cpu.
->
->At this point the use count must be zero and the module deregistered, so
->all 
->we're interested in is that every process that dec'ed the module's use
->count 
->has succeeded in executing its way out of the module.  If not, we try
->again 
->later, or if we're impatient, also bump any processes still inside the
->module 
->to the front of the run queue.
->
->I'm sure I must have missed something.
->
+On Monday July 1, helgehaf@aitel.hist.no wrote:
+> 2.5.24-dj1 gave me files with zeroed blocks inside.
+> What I did:  I untarred the source for lyx 1.2.0
+> and tried to compile it, several times.
+> 
+> gcc and make choked on occational blocks of zeroes
+> inside files, different places each time.
+> Going back to 2.5.18 fixed it.
+> 
+> This isn't all that surprising considering that
+> the raid driver logs complaints about requests
+> bigger than 32k, which is the stripe size.
+> I believed this worked by retrying with much smaller
+> requests, perhaps I am wrong?
 
-Identifying the valid execution address in a stack traceback isn't
-possible on many architectures (in particular, i386 without debugging
-support enabled) so this wouldn't work if one of the functions had
-called into a function outside the module.
+You are wrong. It doesn't re-try.  It just fails.
+raid0 does not work in 2.5 yet.  Don't even both trying.
 
-On the other hand, if it was made a rule that any code in a module that
-might theoretically be running without reference counts wasn't allowed
-to call out of the module (or maybe was allowed to call out to a very
-specific small set of library functions that were known to the module
-system), then something like this might work.
-
-Paul
+NeilBrown

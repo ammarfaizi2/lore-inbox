@@ -1,41 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262784AbUAWP5H (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jan 2004 10:57:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266571AbUAWP5H
+	id S266598AbUAWQK6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jan 2004 11:10:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266599AbUAWQK6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jan 2004 10:57:07 -0500
-Received: from main.gmane.org ([80.91.224.249]:47244 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S262784AbUAWP5F (ORCPT
+	Fri, 23 Jan 2004 11:10:58 -0500
+Received: from gate.crashing.org ([63.228.1.57]:31963 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S266598AbUAWQK4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jan 2004 10:57:05 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Andres Salomon <dilinger@voxel.net>
-Subject: rtl8180 status update
-Date: Fri, 23 Jan 2004 10:57:00 -0500
-Message-ID: <pan.2004.01.23.15.56.56.470549@voxel.net>
+	Fri, 23 Jan 2004 11:10:56 -0500
+Subject: Re: swsusp vs  pgdir
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Patrick Mochel <mochel@digitalimplant.org>
+Cc: Pavel Machek <pavel@ucw.cz>,
+       Nigel Cunningham <ncunningham@users.sourceforge.net>,
+       Patrick Mochel <mochel@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.50.0401230759180.11276-100000@monsoon.he.net>
+References: <1074833921.975.197.camel@gaston>
+	 <20040123073426.GA211@elf.ucw.cz> <1074843781.878.1.camel@gaston>
+	 <20040123075451.GB211@elf.ucw.cz>
+	 <Pine.LNX.4.50.0401230759180.11276-100000@monsoon.he.net>
+Content-Type: text/plain
+Message-Id: <1074874219.835.32.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: Pan/0.14.2 (This is not a psychotic episode. It's a cleansing moment of clarity. (Debian GNU/Linux))
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sat, 24 Jan 2004 03:10:20 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Since I'm getting a lot of queries about the status of my rtl8180 driver,
-I figured I'd post an update.  It's not currently in a usable state; I'm
-working on 802.11 manage frames, to make the card able to
-associate w/ an AP.  I haven't been able to figure out if the hardware has
-any sort of support for wrapping frames (management or otherwise) with
-PLCP and MAC headers, and/or whether there's a special tx register/ring
-for sending out management frames.  As there's no common code for
-constructing management frames (each wireless driver seems to implement
-it), I'm currently working on constructing a probe packet (w/ PLCP and
-MAC headers added), sending it out through the normal tx ring, and hoping
-my AP is kind enough to respond.  If that works, I'll at least know that
-my rx/tx handling code is correct; right now, I don't think I can test it
-w/out associating.
+On Sat, 2004-01-24 at 03:03, Patrick Mochel wrote:
+> > > swapper_pgdir is left intact. This is the case ? (I also suppose you
+> > > mean the entire linear mapping, not just the kernel, is mapped with
+> > > 4M pages)
+> >
+> > Yes.
+> 
+> Not necessarily. Just kernel text and data. I don't have the code in front
+> of me ATM, but there are simple checks you can do to determine the
+> type/size of page.
+> 
+> We don't have to care about userspace, though, once all processes are
+> frozen, so we don't have to deal with the 4k pages.
+> 
+> And the thing is, the only reason we require PSE and 4 MB pages is because
+> it provides a 2-level page table instead of a 3-level, which by
+> definition is easier to manage. :)
 
+Wait... wait... If the whole linear mapping isn't mapped by this flat
+pgdir, then we have a problem, since the MMU will have to go down the
+kernel pagetables to actually access the pages data when copying them
+around... but at this point, we are overriding the boot kernel page
+tables with the loader ones, so ...
 
+Ben.
+ 
 

@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316976AbSFKOEn>; Tue, 11 Jun 2002 10:04:43 -0400
+	id <S317056AbSFKOMP>; Tue, 11 Jun 2002 10:12:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317054AbSFKOEn>; Tue, 11 Jun 2002 10:04:43 -0400
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:40948 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S316976AbSFKOEl>; Tue, 11 Jun 2002 10:04:41 -0400
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <52y9dn86k5.fsf@topspin.com> 
-To: Roland Dreier <roland@topspin.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PCI DMA to small buffers on cache-incoherent arch 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 11 Jun 2002 15:04:26 +0100
-Message-ID: <28713.1023804266@redhat.com>
+	id <S317058AbSFKOMO>; Tue, 11 Jun 2002 10:12:14 -0400
+Received: from eventhorizon.antefacto.net ([193.120.245.3]:63675 "EHLO
+	eventhorizon.antefacto.net") by vger.kernel.org with ESMTP
+	id <S317056AbSFKOMN>; Tue, 11 Jun 2002 10:12:13 -0400
+Message-ID: <3D06051C.3030305@antefacto.com>
+Date: Tue, 11 Jun 2002 15:11:40 +0100
+From: Padraig Brady <padraig@antefacto.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020605
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: remedy@mirotel.net
+CC: linux-kernel@vger.kernel.org
+Subject: net sysctls questions
+In-Reply-To: <02061117004401.01217@fortress.mirotel.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The net.ipv4.icmp_default_ttl patch
+reminds me, about wierd stuff I've
+seen in the net sysctls:
 
-roland@topspin.com said:
-> Replying to myself....  Anyway, I realized that even my idea above is
-> wrong.  I don't see _any_ safe way to share a cache line between a DMA
-> buffer and other data.  Access to the cache line might pull the cache
-> line back in and write it back at any time, which could corrupt the
-> DMA'ed data.  I don't see a way to hide the existence of cache lines
-> etc. from the driver.
+/proc/sys/net/unix/max_dgram_qlen is only
+readable by root. Why?
 
-Access to a cache line can't be shared safely. Disable the cache for that
-page while its ownership is in doubt and you can happily share the RAM
-though. If we find another CPU which fetches cache lines preemptively, we 
-may have to do that anyway.
+Documentation/networking/ip-sysctl.txt
+refers to tcp_keepalive_interval when it should
+refer to tcp_keepalive_intvl
 
---
-dwmw2
+/proc/sys/net/ipv4/conf/../{arp_filter,tag}
+are not documented.
 
+/proc/sys/net/ipv4/icmp_rate_limit is jiffies.
+Shouldn't this be HZ, i.e. jiffies shouldn't
+be exported to userspace as it's non portable?
+
+Any comments before I do a patch?
+
+Padraig.
 

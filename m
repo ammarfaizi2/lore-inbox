@@ -1,47 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269313AbUJEPlI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269578AbUJEPpN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269313AbUJEPlI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 11:41:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269301AbUJEPlE
+	id S269578AbUJEPpN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 11:45:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269657AbUJEPpM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 11:41:04 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:40199 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S269150AbUJEPhe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 11:37:34 -0400
-Date: Tue, 5 Oct 2004 16:37:30 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Jens Axboe <axboe@suse.de>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Subject: Re: [PATCH] ide-dma blacklist behaviour broken
-Message-ID: <20041005163730.A19554@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Jens Axboe <axboe@suse.de>,
-	Linux Kernel <linux-kernel@vger.kernel.org>,
-	Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-References: <20041005142001.GR2433@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 5 Oct 2004 11:45:12 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:24772 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S269570AbUJEPnx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 11:43:53 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: "Luck, Tony" <tony.luck@intel.com>
+Subject: Re: [PATCH] 2.6 SGI Altix I/O code reorganization
+Date: Tue, 5 Oct 2004 08:43:44 -0700
+User-Agent: KMail/1.7
+Cc: "Pat Gefre" <pfg@sgi.com>, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org
+References: <B8E391BBE9FE384DAA4C5C003888BE6F0221C647@scsmsx401.amr.corp.intel.com>
+In-Reply-To: <B8E391BBE9FE384DAA4C5C003888BE6F0221C647@scsmsx401.amr.corp.intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20041005142001.GR2433@suse.de>; from axboe@suse.de on Tue, Oct 05, 2004 at 04:20:01PM +0200
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+Message-Id: <200410050843.44265.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 05, 2004 at 04:20:01PM +0200, Jens Axboe wrote:
-> Hi,
-> 
-> The blacklist stuff is broken. When set_using_dma() calls into
-> ide_dma_check(), it returns ide_dma_off() for a blacklisted drive. This
-> of course succeeds, returning success to the caller of ide_dma_check().
-> Not so good... It then uncondtionally calls ide_dma_on(), which turns on
-> dma for the drive.
-> 
-> This moves the check to ide_dma_on() so we also catch the buggy
-> ->ide_dma_check() defined by various chipset drivers.
+On Monday, October 4, 2004 10:13 pm, Luck, Tony wrote:
+> I'm ok with the delete/add of most of the SGI
+> specific files (maybe it still isn't perfect yet,
+> but it may be close enough to take it, and then
+> clean up with some small patches).
+>
+> But you seem to be touching some files outside of pure SGI
+> stuff.  These two are a bit of a concern:
+>
+>   include/asm-ia64/io.h
 
-Is this a bug introduced in the 2.6.9ish IDE changes or has it been there
-for a longer time? 
+Not sure about these changes...
+
+>   arch/ia64/pci/pci.c
+
+It looks like the only non-codingstyle change here is to make pci_root_ops 
+non-static (and btw, some of the CodingStyle fixups look wrong).  If it needs 
+to be non-static, it should be declared in a header file so we don't have to 
+extern it in sn_pci_fixup_bus.
+
+Jesse

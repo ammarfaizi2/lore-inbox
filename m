@@ -1,93 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268077AbUIKQ3x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268191AbUIKQe5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268077AbUIKQ3x (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Sep 2004 12:29:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268191AbUIKQ3x
+	id S268191AbUIKQe5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Sep 2004 12:34:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268199AbUIKQe5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Sep 2004 12:29:53 -0400
-Received: from fed1rmmtao10.cox.net ([68.230.241.29]:5087 "EHLO
-	fed1rmmtao10.cox.net") by vger.kernel.org with ESMTP
-	id S268077AbUIKQ3u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Sep 2004 12:29:50 -0400
-Date: Sat, 11 Sep 2004 09:29:46 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.6.9-rc1-bk16] ppc32: Use $(addprefix ...) on arch/ppc/boot/lib/
-Message-ID: <20040911162946.GB11438@smtp.west.cox.net>
-References: <20040909153031.GA2945@smtp.west.cox.net> <20040909163705.GA7830@mars.ravnborg.org>
+	Sat, 11 Sep 2004 12:34:57 -0400
+Received: from rproxy.gmail.com ([64.233.170.192]:13959 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S268191AbUIKQex (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Sep 2004 12:34:53 -0400
+Message-ID: <9e473391040911093432781819@mail.gmail.com>
+Date: Sat, 11 Sep 2004 12:34:52 -0400
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: adaplas@pol.net
+Subject: Re: radeon-pre-2
+Cc: Dave Airlie <airlied@linux.ie>,
+       =?ISO-8859-1?Q?Michel_D=E4nzer?= <michel@daenzer.net>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       =?ISO-8859-1?Q?Felix_K=FChling?= <fxkuehl@gmx.de>,
+       DRI Devel <dri-devel@lists.sourceforge.net>,
+       lkml <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>
+In-Reply-To: <200409111720.38477.adaplas@hotpop.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040909163705.GA7830@mars.ravnborg.org>
-User-Agent: Mutt/1.5.6+20040818i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <E3389AF2-0272-11D9-A8D1-000A95F07A7A@fs.ei.tum.de>
+	 <1094873412.4838.49.camel@admin.tel.thor.asgaard.local>
+	 <Pine.LNX.4.58.0409110600120.26651@skynet>
+	 <200409111720.38477.adaplas@hotpop.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[ Resubmitting as this is still missing and thus zImage/et al fail when
-MODVERSIONS=y ]
-On Thu, Sep 09, 2004 at 06:37:05PM +0200, Sam Ravnborg wrote:
-> On Thu, Sep 09, 2004 at 08:30:31AM -0700, Tom Rini wrote:
-> > The following makes arch/ppc/boot/lib/Makefile use $(addprefix ...) to
-> > get lib/zlib_inflate/ source code.  Previously we were manually setting
-> > the dependancy and invoking cc_o_c.  Worse, we were invoking the cmd
-> > version, not the rule version and thus when MODVERSIONS=y, we wouldn't
-> > do the .tmp_foo.o -> foo.o rename, and thus the compile would break.
-> > Using $(addprefix ...) gets us using the standard rules again (and is
-> > shorter to boot).
+On Sat, 11 Sep 2004 17:20:38 +0800, Antonino A. Daplas
+<adaplas@hotpop.com> wrote:
+> On Saturday 11 September 2004 13:19, Dave Airlie wrote:
+> > The other thing I think some people are confusing is 2.4 fbdev and 2.6...
+> > there is no console support in 2.6 fbdev drivers, it is all in the fbcon
+> > stuff, so the fbdev drivers are only doing 2d mode setting and monitor
+> > detection, some points I've considered are:
 > 
-> Your patch was pending my comments - sorry.
+> Correct.  fbdev is almost completely separate from fbcon. And you can
+> actually rip out fbdev and place it anywhere you want. As long as fbcon has
+> access to a pointer to framebuffer memory, and the characteristics of the
+> display such as depth, pitch, etc, then the framebuffer console will work.
+> Throw in a few functions, such as for buffer flipping, and fbcon will be happy.
+
+The intention of the DRM work is to reuse fbcon without change if
+possible or minimize the changes needed.
+
+> Hardware acceleration is entirely optional, and most drivers except for a few
+> (such as vga16fb or amiga) can use the cfb_* drawing functions.
+
+No code has been written for this, but part of the plan is to split
+the console function into two pieces: boot and user. The boot console
+would be non-accelerated and use fbcon for drawing. It's goal is to be
+as reliable as possible and to work in all environments including
+interrupt time. Booting in single user mode would use boot console. So
+would OOPs and initial boot.
+
+Another major console use is for normal users doing things like
+editing and command line stuff. This console would be implemented in
+user space. User space console can call into DRM and achieve full
+acceleration. This would also allow consoles in Asian and Indic
+languages.
+
+> There's also a recent change in the latest bk tree that changes the
+> intialization order of the framebuffer system. Previously, fbcon triggers
+> fbmem, then fbmem triggers each individual drivers.  This method requires
+> that a working fbdev is present, otherwise fbcon will fail (although you can
+> do a con2fbmap later, or modprobe a driver). With the change, the
+> order is reversed, driver->fbmem->fbcon.  This change is probably
+> significant because fbcon can wait until an active framebuffer activates.
+> 
+> In theory, one can have a process (kernel or userland) change the video
+> mode, then provide the in-kernel driver with the necessary information
+> about the layout of the framebuffer.  When this in-kernel driver gets the
+> necessary information, it can trigger fbcon. This in-kernel driver need not
+> know anything about the hardware (unless 2D acceleration is needed).
+
+The plan for mode setting is to move as much as possible of it to user
+space via a hotplug event. The driver would then be informed of the
+information it needs like framebuffer location, dimensions, mode
+register values, etc.
+
+> 
+> Tony
 > 
 > 
-> Why not:
-> 
-> lib-y := $(addprefix lib/zlib_inflate/,infblock.o infcodes.o inffast.o \
->                                        inflate.o inftrees.o infutil.o)
-> lib-y += div64.o
-> lib-$(CONFIG_VGA_CONSOLE) += vreset.o kbd.o
-> 
-> No need to use that ugly relative path.
 
-If that works, OK.  The example Al Viro pointed me at was
-arch/arm/boot/compressed/Makefile.
 
-> I do not like this way of selectng .o files. It will so
-> obviously break the build with make -j if there is no synchronisation
-> point. vmlinux provide this synchronisation point in this case.
-> But in this particular case I see no better alternative.
-
-How hard would it be make some sort of synchronisation point?  I know
-SuSE folks who always build with -j5.
-
-Switch arch/ppc/boot/lib/Makefile to $(addprefix ...) for zlib_inflate
-
-Signed-off-by: Tom Rini <trini@kernel.crashing.org>
-
---- 1.7/arch/ppc/boot/lib/Makefile	2004-09-07 23:33:06 -07:00
-+++ edited/arch/ppc/boot/lib/Makefile	2004-09-09 10:05:34 -07:00
-@@ -4,18 +4,7 @@
- 
- CFLAGS_kbd.o	+= -Idrivers/char
- 
--$(obj)/infblock.o: lib/zlib_inflate/infblock.c
--	$(call cmd,cc_o_c)
--$(obj)/infcodes.o: lib/zlib_inflate/infcodes.c
--	$(call cmd,cc_o_c)
--$(obj)/inffast.o: lib/zlib_inflate/inffast.c
--	$(call cmd,cc_o_c)
--$(obj)/inflate.o: lib/zlib_inflate/inflate.c
--	$(call cmd,cc_o_c)
--$(obj)/inftrees.o: lib/zlib_inflate/inftrees.c
--	$(call cmd,cc_o_c)
--$(obj)/infutil.o: lib/zlib_inflate/infutil.c
--	$(call cmd,cc_o_c)
--
--lib-y := infblock.o infcodes.o inffast.o inflate.o inftrees.o infutil.o div64.o
-+lib-y := $(addprefix lib/zlib_inflate/,infblock.o infcodes.o inffast.o \
-+				       inflate.o inftrees.o infutil.o)
-+lib-y += div64.o
- lib-$(CONFIG_VGA_CONSOLE) += vreset.o kbd.o
 
 -- 
-Tom Rini
-http://gate.crashing.org/~trini/
+Jon Smirl
+jonsmirl@gmail.com

@@ -1,64 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129435AbRBLI1P>; Mon, 12 Feb 2001 03:27:15 -0500
+	id <S129114AbRBLIuD>; Mon, 12 Feb 2001 03:50:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129568AbRBLI04>; Mon, 12 Feb 2001 03:26:56 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:10508 "EHLO
-	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129435AbRBLI0x>;
-	Mon, 12 Feb 2001 03:26:53 -0500
-Message-ID: <3A879E35.B1BDF098@mandrakesoft.com>
-Date: Mon, 12 Feb 2001 03:26:29 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-pre3 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Tobias Ringstrom <tori@tellus.mine.nu>
-CC: James Brents <James@nistix.com>, Andrew Morton <andrewm@uow.edu.au>,
-        Mark Hahn <hahn@coffee.psychology.mcmaster.ca>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: WOL failure after shutdown
-In-Reply-To: <Pine.LNX.4.30.0102120903460.9447-100000@svea.tellus>
+	id <S129234AbRBLIty>; Mon, 12 Feb 2001 03:49:54 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:4873 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S129114AbRBLItn>;
+	Mon, 12 Feb 2001 03:49:43 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: "Ph. Marek" <marek@mail.bmlv.gv.at>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.[01] and duron - unresolved symbol _mmx_memcpy 
+In-Reply-To: Your message of "Mon, 12 Feb 2001 08:04:59 BST."
+             <3.0.6.32.20010212080459.0090ce80@pop3.bmlv.gv.at> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Mon, 12 Feb 2001 19:49:36 +1100
+Message-ID: <22453.981967776@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tobias Ringstrom wrote:
-> 
-> On Sun, 11 Feb 2001, James Brents wrote:
-> 
-> > Sorry, I wrote that in a hurry. Its a 3Com PCI 3c905C Tornado. I can
-> > successfully use wakeonlan if I power off the machine immeadiatly after
-> > turning it on. Using the shutdown command, which it will when I need it
-> > to power back up, it will not work.
-> > Im using a wakeonlan cable to my motherboard as well, not using wake
-> > through PCI bus.
-> > Kernel is 2.4.1
-> > I appologize for not providing all required the specs in the original
-> > message.
-> 
-> Try this patch.  It is against the zero-copy version of the driver, but
-> I'm sure you can apply it, at least manually, to any 2.4 version.
-> 
-> Andrew, when can we expect to have WOL working in 2.4?
-> 
-> +/* Change from D3 (sleep) to D0 (active).
-> +   Problem: The Cyclone forgets all PCI config info during the transition! */
-> +static void acpi_wake(struct pci_dev *pdev)
-[...]
+On Mon, 12 Feb 2001 08:04:59 +0100, 
+"Ph. Marek" <marek@mail.bmlv.gv.at> wrote:
+>Some time ago I tried 2.4.0 compiled with option for duron-processors,
+>yesterday I tried 2.4.1; both give problems on insmod/modprobe with some
+>modules, eg. tulip.
+>
+>The offending function is _mmx_memcpy
 
-Compare this code with pci_set_power_state() function in
-drivers/pci/pci.c.
+I need the output from these commands on a running 2.4.x kernel
+compiled for duron.
 
-	Jeff
+grep _mmx_memcpy /proc/ksyms
+strings -a `/sbin/modprobe -l '*tulip*'` | grep _mmx_memcpy
 
-
-
--- 
-Jeff Garzik       | "You see, in this world there's two kinds of
-Building 1024     |  people, my friend: Those with loaded guns
-MandrakeSoft      |  and those who dig. You dig."  --Blondie
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

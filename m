@@ -1,61 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262784AbVBYWbx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262783AbVBYWc3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262784AbVBYWbx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Feb 2005 17:31:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262783AbVBYWbw
+	id S262783AbVBYWc3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Feb 2005 17:32:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262785AbVBYWc3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Feb 2005 17:31:52 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:46090 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262785AbVBYW3t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Feb 2005 17:29:49 -0500
-Date: Fri, 25 Feb 2005 23:29:39 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Chris Friesen <cfriesen@nortel.com>
-Cc: jmorris@redhat.com, davem@davemloft.net, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] better CRYPTO_AES <-> CRYPTO_AES_586 dependencies
-Message-ID: <20050225222938.GG3311@stusta.de>
-References: <20050225214613.GF3311@stusta.de> <421FA1C7.2080201@nortel.com>
+	Fri, 25 Feb 2005 17:32:29 -0500
+Received: from fire.osdl.org ([65.172.181.4]:10153 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262783AbVBYWcU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Feb 2005 17:32:20 -0500
+Date: Fri, 25 Feb 2005 14:37:12 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Ian Pratt" <m+Ian.Pratt@cl.cam.ac.uk>
+Cc: ak@suse.de, riel@redhat.com, linux-kernel@vger.kernel.org,
+       Ian.Pratt@cl.cam.ac.uk, Steven.Hand@cl.cam.ac.uk,
+       Christian.Limpach@cl.cam.ac.uk, Keir.Fraser@cl.cam.ac.uk,
+       ian.pratt@cl.cam.ac.uk
+Subject: Re: arch/xen is a bad idea
+Message-Id: <20050225143712.3dd97429.akpm@osdl.org>
+In-Reply-To: <A95E2296287EAD4EB592B5DEEFCE0E9D1E3291@liverpoolst.ad.cl.cam.ac.uk>
+References: <A95E2296287EAD4EB592B5DEEFCE0E9D1E3291@liverpoolst.ad.cl.cam.ac.uk>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <421FA1C7.2080201@nortel.com>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 25, 2005 at 04:08:07PM -0600, Chris Friesen wrote:
-> Adrian Bunk wrote:
+"Ian Pratt" <m+Ian.Pratt@cl.cam.ac.uk> wrote:
+>
+>  
+> > The Xen team still believe that it's best to keep arch/xen, 
+> > arch/xen/i386,
+> > arch/xen/x86_64, etc.  And I believe that Andi (who is the 
+> > world expert on
+> > maintaining an i386 derivative) thinks that this is will be a 
+> > long-term
+> > maintenance problem.
 > 
-> >--- linux-2.6.11-rc4-mm1-full/crypto/Kconfig.old	2005-02-25 
-> >22:26:20.000000000 +0100
-> >+++ linux-2.6.11-rc4-mm1-full/crypto/Kconfig	2005-02-25 
-> >22:28:44.000000000 +0100
-> >@@ -133,7 +133,9 @@
-> > 
-> > config CRYPTO_AES
-> > 	tristate "AES cipher algorithms"
-> >-	depends on CRYPTO && !(X86 && !X86_64)
-> >+	depends on CRYPTO
-> >+	select CRYPTO_AES_GENERIC if !(X86 && !X86_64)
-> >+	select CRYPTO_AES_586 if (X86 && !X86_64)
+> I think there's an interim compromise position that everyone might go
+> for:
 > 
-> Wouldn't the 586 one also work on x86_64?
+> Phase 1 is for us to submit a load of patches that squeeze out the low
+> hanging fruit in unifying xen/i386 and i386. Most of these will be
+> strict cleanups to i386, and the result will be to almost halve the
+> number of files that we need to modify.
 
-I'd assume yes.
+OK.  It would be good to have a phase 0: any refactoring, abstracting, etc
+to the core kernel and to i386 which is a preparatory step, prior to
+introducing any Xen code.  After phase 0 everything should still compile
+and run.  The subsequent Xen patches should merely add stuff and not move
+existing code around.
 
-But the CRYPTO_AES_586 were already this way, and since I don't know the 
-history of these dependencies this isn't changed by my patch.
+> The next phase is that we re-organise the current arch/xen as follows:
+> 
+> We move the remaining (reduced) contents of arch/xen/i386 to
+> arch/i386/xen (ditto for x86_64). We then move the xen-specific files
+> that are shared between all the different xen architectures to
+> drivers/xen/core. I know this last step is a bit odd, but it's the best
+> location that Rusty Russel and I could come up with.
+> 
+> At this point, I'd hope that we could get xen into the main-line tree.
 
-> Chris
+What would you propose doing with the i386 header files?  Such as the
+pagetable handling?
 
-cu
-Adrian
+> The final phase is to see if we can further unify more native and xen
+> files. This is going to require some significant i386 code refactoring,
+> and I think its going to be much easier to do if all the code is in the
+> main-line tree so that people can see the motivation for what's going
+> on.
+> 
+> What do you think?
 
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+It sounds decent.  The main objective is to minimise code duplication.  The
+question of where in the tree all the resulting code actually lands is
+secondary from a maintainability POV.
 

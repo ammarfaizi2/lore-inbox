@@ -1,66 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261820AbTFXKY1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jun 2003 06:24:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261843AbTFXKY0
+	id S261843AbTFXKej (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jun 2003 06:34:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261845AbTFXKej
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jun 2003 06:24:26 -0400
-Received: from mail.webmaster.com ([216.152.64.131]:10733 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP id S261820AbTFXKYZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jun 2003 06:24:25 -0400
-From: "David Schwartz" <davids@webmaster.com>
-To: <vanstadentenbrink@ahcfaust.nl>, <linux-kernel@vger.kernel.org>
-Subject: RE: GPL violations by wireless manufacturers
-Date: Tue, 24 Jun 2003 03:38:32 -0700
-Message-ID: <MDEHLPKNGKAHNMBLJOLKKEEDDOAA.davids@webmaster.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <3EF83FAF.24578.38A16F@localhost>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Importance: Normal
+	Tue, 24 Jun 2003 06:34:39 -0400
+Received: from mail010.syd.optusnet.com.au ([210.49.20.138]:15005 "EHLO
+	mail010.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261843AbTFXKei (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jun 2003 06:34:38 -0400
+Date: Tue, 24 Jun 2003 20:47:27 +1000
+To: Hans Reiser <reiser@namesys.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [OT] Re: Troll Tech [was Re: Sco vs. IBM] (sorry)
+Message-ID: <20030624104727.GA8052@cancer>
+References: <200306231945.34245.gallir@uib.es> <3EF7E9A1.4020801@namesys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3EF7E9A1.4020801@namesys.com>
+User-Agent: Mutt/1.5.4i
+From: Stewart Smith <stewart@linux.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Jun 24, 2003 at 10:03:13AM +0400, Hans Reiser wrote:
+> Umh, I would not mind something coming along to help me make it past 
+> October when my cash runs out.  Being able to afford a house is too much 
+> to ask but making payroll would be nice....  Government money has done a 
+> lot to keep me from going bankrupt.
 
-> Your product includes a kernel driver module that is  inserted into
-> the GPL licensed Linux kernel when the  product is turned on. There
-> is no possible way for the user  to prevent the insertion of this
-> module into the kernel. It is  also impossible for the user to remove
-> the kernel module  from the running kernel. The operation of the
-> included  software on your product depends on the operation of the
-> kernel module. For these reasons the kernel driver module  is not
-> offered as a separate work as described in Section II  of the GPL and
-> must therefore be distributed under the  terms and conditions of the
-> GPL.
+May I suggest whacking an icon up with "Donate to ReiserFS" up there?
 
-	Perhaps it's not a separate work from the programs that access it, but it's
-certainly a separate work from the kernel. The kernel can operate just fine
-without the module. The module extends the kernel through a well-defined
-boundary.
+Samba and GNOME are two projects which do this and at least get a bit
+of funding for it. Check out the samba one, tridge says it does okay
+with the updating list of who's donated money - makes it into a bit
+of a fun game for donators :)
 
-	The GPL says:
+You've probably already got the credit card processing infrastructure
+around, so it could be minimal effort - with only possible gain.
 
-"These requirements apply to the modified work as a whole.  If
-identifiable sections of that work are not derived from the Program,
-and can be reasonably considered independent and separate works in
-themselves, then this License, and its terms, do not apply to those
-sections when you distribute them as separate works.  But when you
-distribute the same sections as part of a whole which is a work based
-on the Program, the distribution of the whole must be on the terms of
-this License, whose permissions for other licensees extend to the
-entire whole, and thus to each and every part regardless of who wrote it."
+I'm sure happy reiser users would be willing to chuck a couple of
+bucks your way to ensure further development.
 
-	So is a Linux distribution "a whole which is a work based on the" Linux
-kernel? Would you argue that RedHat can't include proprietary software on
-the same CD as the Linux kernel? All the software on the CD, assuming it's
-Linux software, likewise extends the kernel through a well-defined boundary.
-
-	DS
-
-
+----
+Stewart Smith
+Vice President, Linux Australia
+http://www.linux.org.au (personal: http://www.flamingspork.com)

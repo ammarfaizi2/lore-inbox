@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265205AbRGEOg5>; Thu, 5 Jul 2001 10:36:57 -0400
+	id <S265215AbRGEOj5>; Thu, 5 Jul 2001 10:39:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265189AbRGEOgr>; Thu, 5 Jul 2001 10:36:47 -0400
-Received: from t2.redhat.com ([199.183.24.243]:33268 "HELO
-	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
-	id <S265205AbRGEOgd>; Thu, 5 Jul 2001 10:36:33 -0400
-Message-ID: <3B447B6D.C83E5FB9@redhat.com>
-Date: Thu, 05 Jul 2001 15:36:29 +0100
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-Organization: Red Hat, Inc
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-11.3smp i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: [2.4.6] kernel BUG at softirq.c:206!
-In-Reply-To: <20010704232816.B590@marvin.mahowi.de> <20010705162035.Q17051@athlon.random>
+	id <S265249AbRGEOjh>; Thu, 5 Jul 2001 10:39:37 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:21520 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S265247AbRGEOjf>; Thu, 5 Jul 2001 10:39:35 -0400
+Date: Thu, 5 Jul 2001 16:37:16 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Andrew Morton <andrewm@uow.edu.au>
+Cc: Dan Kegel <dank@kegel.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: O_DIRECT please; Sybase 12.5
+Message-ID: <20010705163716.R17051@athlon.random>
+In-Reply-To: <3B3C4CB4.6B3D2B2F@kegel.com>, <3B3C4CB4.6B3D2B2F@kegel.com>; <20010705155350.O17051@athlon.random> <3B44797F.DD9EAC99@uow.edu.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <3B44797F.DD9EAC99@uow.edu.au>; from andrewm@uow.edu.au on Fri, Jul 06, 2001 at 12:28:15AM +1000
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli wrote:
-> 
-> On Wed, Jul 04, 2001 at 11:28:17PM +0200, Manfred H. Winter wrote:
-> > Hi!
-> >
-> > I tried to install kernel 2.4.6 with same configuration as 2.4.5, but
-> > booting failed with:
-> >
-> > kernel BUG at softirq.c:206!
-> 
-> do you have any problem with those patches applied?
-> 
->         ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.6pre5aa1/00_ksoftirqd-7
->         ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.6pre5aa1/00_softirq-fixes-4
-> 
+On Fri, Jul 06, 2001 at 12:28:15AM +1000, Andrew Morton wrote:
+> ext3 journals data.  That's unique and it breaks things (or rather,
+> things break it).   It'd be trivial to support O_DIRECT in ext3's
+> writeback mode (metadata-only), but nobody uses that.
 
-Is there anything in here that fixes a Via/Cyrix specific bug ?
+I thought everybody uses metadata-only to avoid killing data-write
+performance. So I thought it was ok to at first support O_DIRECT only
+for metadata journaling, doing that should be a three liner as you said
+and that is what I expected.
+
+> >From a quick look it seems that we'll need fs-private implementations
+> of generic_direct_IO() and brw_kiovec() at least.
+
+brw_kiovec is called by generic_direct_IO, so yes, all you need is a
+private generic_direct_IO implementation to deal with the journaled data
+writes.
+
+> I'll take a closer look.
+
+OK, thanks!
+
+Andrea

@@ -1,101 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287488AbSAHAW3>; Mon, 7 Jan 2002 19:22:29 -0500
+	id <S287500AbSAHAZM>; Mon, 7 Jan 2002 19:25:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287478AbSAHAW0>; Mon, 7 Jan 2002 19:22:26 -0500
-Received: from samba.sourceforge.net ([198.186.203.85]:64269 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S287488AbSAHAVp>;
-	Mon, 7 Jan 2002 19:21:45 -0500
-From: Paul Mackerras <paulus@samba.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15418.15099.922688.165706@argo.ozlabs.ibm.com>
-Date: Tue, 8 Jan 2002 11:19:07 +1100 (EST)
-To: mike stump <mrs@windriver.com>
-Cc: gdr@codesourcery.com, dewar@gnat.com, gcc@gcc.gnu.org,
+	id <S287513AbSAHAXp>; Mon, 7 Jan 2002 19:23:45 -0500
+Received: from jalon.able.es ([212.97.163.2]:14264 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S287499AbSAHAX0>;
+	Mon, 7 Jan 2002 19:23:26 -0500
+Date: Tue, 8 Jan 2002 01:27:34 +0100
+From: "J.A. Magallon" <jamagallon@able.es>
+To: jtv <jtv@xs4all.nl>
+Cc: Tim Hollebeek <tim@hollebeek.com>,
+        Bernard Dautrevaux <Dautrevaux@microprocess.com>,
+        "'dewar@gnat.com'" <dewar@gnat.com>, paulus@samba.org, gcc@gcc.gnu.org,
         linux-kernel@vger.kernel.org, trini@kernel.crashing.org,
         velco@fadata.bg
 Subject: Re: [PATCH] C undefined behavior fix
-In-Reply-To: <200201071936.LAA12038@kankakee.wrs.com>
-In-Reply-To: <200201071936.LAA12038@kankakee.wrs.com>
-X-Mailer: VM 6.75 under Emacs 20.7.2
-Reply-To: paulus@samba.org
+Message-ID: <20020108012734.E23665@werewolf.able.es>
+In-Reply-To: <17B78BDF120BD411B70100500422FC6309E402@IIS000> <20020107224907.D8157@xs4all.nl> <20020107172832.A1728@cj44686-b.reston1.va.home.com> <20020107231620.H8157@xs4all.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20020107231620.H8157@xs4all.nl>; from jtv@xs4all.nl on Mon, Jan 07, 2002 at 23:16:20 +0100
+X-Mailer: Balsa 1.3.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mike stump writes:
 
-> #define hide(x) ({ void *vp = x; asm ("" : "+r" (vp)); vp; })
-> 
-> main() {
->   strcpy(buf, hide("eeeeeeeeeeeeeeeeeeeeeeeeeeeeeelksdlkjasdlkjasdlkjasdaaaaaaaaaa"+20));
-> }
-> 
-> Perfectly clear, simple, doesn't burn regs and so on.  In fact, even
-> the assembly file doesn't have any extraneous output, cool.
-
-Clear to you, I had to look up the gcc info pages to find out what the
-"+" constraint does. :)
-
-Is the "r" constraint available (and reasonable) on all architectures
-that GCC targets?
-
-> > My main problem with this is that it doesn't actually solve the
-> > problem AFAICS.
-> 
-> It does for now.  It will for the next 10 years, my guess.  volatile
-> will solve it longer, at some performance penalty, if you prefer.
+On 20020107 jtv wrote:
 >
-> > Dereferencing x is still undefined according to the rules in the gcc
-> > manual.
-> 
-> ?  So what?  Pragmatically, for now, it does what the user wants.  By
-> the time we break it, we'll probably have enough intelligence in the
-> compiler to figure out what they were doing and still not break it.
+>Let's say we have this simplified version of the problem:
+>
+>	int a = 3;
+>	{
+>		volatile int b = 10;
 
-I guess I am reacting to the criticism expressed in this thread
-against people who write code which happens to work with a particular
-compiler version but for which there is nothing in the standard or
-documentation which says that it should work or will continue to work.
-It seems to me that the asm is in that category.  If the gcc
-maintainers were willing to document that side effect that would make
-me more comfortable with it.  But it still seems like using an ax as a
-screwdriver to me.
+    >>>>>>>>> here b changes
 
-> Then move the bits to the right address before you execute the C code
-> and code the thing that moves the bits in assembly.
+>		a += b;
+>	}
+>
+>Is there really language in the Standard preventing the compiler from
+>constant-folding this code to "int a = 13;"?
+>
 
-Yes, I'm using -mrelocatable on the relevant files now instead of the
-RELOC macro.  But there are still a couple of places where I need to
-take a pointer value which is valid when running at the initial
-address and adjust it so it will be valid later when running at the
-final address.
-
-The broader issue is one of how the kernel can construct pointers from
-addresses in general and be sure that gcc won't assume it knows what
-the pointer points to.  The kernel needs to be able to do this.
-
-> > - it is a statement, which makes it less convenient to use than an
-> >   expression
-> 
-> ? In my example, it is an expression.
-
-Well, it's a statement expression. :)  Aren't those deprecated these
-days?
-
-> > - it requires an extra dummy variable declaration.
-> 
-> Mine doesn't.
-
-<nitpicking> What's the "void *vp;" then? </nitpicking>
-
-> > But my main objection is that I don't have any assurance that it
-> > actually solves the problem in a lasting way.
-> 
-> The code only in that subset of C that is well defined and only use
-> semantics that have mandated behavior.
-
-That gives me no way to turn an address into a pointer.
-
-Paul.
+-- 
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Mandrake Linux release 8.2 (Cooker) for i586
+Linux werewolf 2.4.18-pre1-beo #1 SMP Fri Jan 4 02:25:59 CET 2002 i686

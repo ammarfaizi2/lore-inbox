@@ -1,76 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261484AbUJZVar@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261489AbUJZVco@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261484AbUJZVar (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 17:30:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261483AbUJZVar
+	id S261489AbUJZVco (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 17:32:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261483AbUJZVcm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 17:30:47 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:24725 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261486AbUJZVaN
+	Tue, 26 Oct 2004 17:32:42 -0400
+Received: from fmr03.intel.com ([143.183.121.5]:13778 "EHLO
+	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S261489AbUJZVb3
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 17:30:13 -0400
-Message-ID: <417EC260.1010401@tmr.com>
-Date: Tue, 26 Oct 2004 17:32:16 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Nick Piggin <nickpiggin@yahoo.com.au>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: The naming wars continue...
-References: <417D7089.3070208@tmr.com><Pine.LNX.4.58.0410221821030.2101@ppc970.osdl.org> <Pine.LNX.4.58.0410251458080.427@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0410251458080.427@ppc970.osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 26 Oct 2004 17:31:29 -0400
+Date: Tue, 26 Oct 2004 14:28:26 -0700
+From: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
+To: akpm@osdl.org
+Cc: ak@suse.de, linux-kernel@vger.kernel.org
+Subject: [PATCH] Add p4-clockmod driver in x86-64
+Message-ID: <20041026142826.A24417@unix-os.sc.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> On Mon, 25 Oct 2004, Bill Davidsen wrote:
-> 
->>I do agree that the pre and rc names gave a strong hint that (-pre) new 
->>features would be considered or (-rc) it's worth doing more serious 
->>testing.
-> 
-> 
-> Well, I actually do try to _explain_ in the kernel mailing list 
-> annoucements what it going on.
-> 
-> One of the reasons I don't like "-rcX" vs "-preX" is that they are so 
-> meaningless. In contrast, when I actually do the write-up on a patch, I 
-> tend to explain what I expect to have changed, and if I feel we're getting 
-> ready for a release, I'll say something like
-> 
-> 	..
-> 
-> 	Ok,
-> 	 trying to make ready for the real 2.6.9 in a week or so, so please give
-> 	this a beating, and if you have pending patches, please hold on to them
-> 	for a bit longer, until after the 2.6.9 release. It would be good to have
-> 	a 2.6.9 that doesn't need a dot-release immediately ;)
-> 
-> 	....
-> 
-> which is a hell of a lot more descriptive, in my opinion.
-> 
-> Which is just another reason why the name itself is not that meaningful. 
-> It can never carry the kind of information that people seem to _expect_ it 
-> to carry. 
 
-I wasn't going to reply to this since it's your call and I've had my 
-say, but since several others have, let me throw out one more idea on 
-the off chance you like it:
+Add links for p4-clockmod driver in x86-64 cpufreq. 
 
-Stop doing the pre's on the next version! After 2.6.10 comes 2.6.10.1 
-etc, which everyone can see are incremental changes to 2.6.10, and when 
-you really mean it, then put out 2.6.11-rc1.
-
-Did that strike a nerve?
-
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+Signed-off-by:: "Venkatesh Pallipadi" <venkatesh.pallipadi@intel.com>
+ 
+--- linux-2.6.9/arch/x86_64/kernel/cpufreq/Makefile.org	2004-10-25 16:00:03.000000000 -0700
++++ linux-2.6.9/arch/x86_64/kernel/cpufreq/Makefile	2004-10-25 16:10:30.000000000 -0700
+@@ -7,7 +7,11 @@ SRCDIR := ../../../i386/kernel/cpu/cpufr
+ obj-$(CONFIG_X86_POWERNOW_K8) += powernow-k8.o
+ obj-$(CONFIG_X86_SPEEDSTEP_CENTRINO) += speedstep-centrino.o
+ obj-$(CONFIG_X86_ACPI_CPUFREQ) += acpi.o
++obj-$(CONFIG_X86_P4_CLOCKMOD) += p4-clockmod.o
++obj-$(CONFIG_X86_SPEEDSTEP_LIB) += speedstep-lib.o
+ 
+ powernow-k8-objs := ${SRCDIR}/powernow-k8.o
+ speedstep-centrino-objs := ${SRCDIR}/speedstep-centrino.o
+ acpi-objs := ${SRCDIR}/acpi.o
++p4-clockmod-objs := ${SRCDIR}/p4-clockmod.o
++speedstep-lib-objs := ${SRCDIR}/speedstep-lib.o
+--- linux-2.6.9/arch/x86_64/kernel/cpufreq/Kconfig.org	2004-10-25 16:00:08.000000000 -0700
++++ linux-2.6.9/arch/x86_64/kernel/cpufreq/Kconfig	2004-10-25 16:09:29.000000000 -0700
+@@ -94,5 +94,23 @@ config X86_ACPI_CPUFREQ_PROC_INTF
+ 
+ 	  If in doubt, say N.
+ 
++config X86_P4_CLOCKMOD
++	tristate "Intel Pentium 4 clock modulation"
++	depends on CPU_FREQ_TABLE
++	help
++	  This adds the CPUFreq driver for Intel Pentium 4 / XEON
++	  processors.
++
++	  For details, take a look at <file:Documentation/cpu-freq/>.
++
++	  If in doubt, say N.
++
++
++config X86_SPEEDSTEP_LIB
++        tristate
++        depends on (X86_P4_CLOCKMOD)
++        default (X86_P4_CLOCKMOD)
++
++
+ endmenu
+ 

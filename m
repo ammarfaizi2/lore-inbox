@@ -1,35 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130460AbQL1DEt>; Wed, 27 Dec 2000 22:04:49 -0500
+	id <S131021AbQL1DFj>; Wed, 27 Dec 2000 22:05:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131021AbQL1DEk>; Wed, 27 Dec 2000 22:04:40 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:22544 "EHLO
+	id <S132260AbQL1DF3>; Wed, 27 Dec 2000 22:05:29 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:23056 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130460AbQL1DEV>; Wed, 27 Dec 2000 22:04:21 -0500
-Subject: Re: 2.2.18 dies on my 486..
-To: mharris@opensourceadvocate.org (Mike A. Harris)
-Date: Thu, 28 Dec 2000 02:35:47 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org (Linux Kernel mailing list)
-In-Reply-To: <Pine.LNX.4.31.0012220359540.666-100000@asdf.capslock.lan> from "Mike A. Harris" at Dec 27, 2000 08:05:25 PM
+	id <S131021AbQL1DFY>; Wed, 27 Dec 2000 22:05:24 -0500
+Subject: Re: Linux 2.2.19pre3
+To: matthias.andree@stud.uni-dortmund.de (Matthias Andree)
+Date: Thu, 28 Dec 2000 02:37:19 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20001228021859.A4661@emma1.emma.line.org> from "Matthias Andree" at Dec 28, 2000 02:18:59 AM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14BSuz-00038b-00@the-village.bc.nu>
+Message-Id: <E14BSwU-00038p-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I just upgraded my 486 firewall's kernel to pure 2.2.18 from
-> 2.2.17, with no other changes, and now it dies with all sorts
-> of hard disk failures.
+> > o	VIA686a timer reset to 18Hz background		(Vojtech Pavlik)
 > 
-> I get:
-> 
-> hdb: lost interrupt
-> And stuff about DRQ lost...
+> I patched my 2.2.18-ma2 with that patch to see if that helps me off my
+> sys time slowness, but it does unfortunately not help.
 
-What hardware config, what hdparm tuning options ?
+Thats unrelated
+
+> I have my system clock drift roughly -1 s/min, though my CMOS clock is
+> fine unless tampered with.
+
+Unless its a driver holding off irqs for a long time your only option is
+probably to replace the crystals on the board with ones that are more
+accurate.
+
+adjtimex will let you tell Linux the clock on the board is crap too
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

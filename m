@@ -1,39 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130468AbQLOSxU>; Fri, 15 Dec 2000 13:53:20 -0500
+	id <S130461AbQLOSxk>; Fri, 15 Dec 2000 13:53:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130393AbQLOSxK>; Fri, 15 Dec 2000 13:53:10 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:39069 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S129585AbQLOSxC>;
-	Fri, 15 Dec 2000 13:53:02 -0500
-Date: Fri, 15 Dec 2000 13:22:35 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Tom Rini <trini@kernel.crashing.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: test13-pre1 changelog
-In-Reply-To: <Pine.LNX.4.10.10012151005330.2255-100000@penguin.transmeta.com>
-Message-ID: <Pine.GSO.4.21.0012151318020.13037-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130848AbQLOSxV>; Fri, 15 Dec 2000 13:53:21 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:16195 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S129585AbQLOSxO>; Fri, 15 Dec 2000 13:53:14 -0500
+Date: Fri, 15 Dec 2000 19:22:07 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: J Sloan <jjs@toyota.com>, Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [lkml]Re: VM problems still in 2.2.18
+Message-ID: <20001215192207.E17781@inspiron.random>
+In-Reply-To: <20001215152908.M11505@inspiron.random> <E146z6f-0001ZD-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E146z6f-0001ZD-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Dec 15, 2000 at 05:57:18PM +0000
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Dec 15, 2000 at 05:57:18PM +0000, Alan Cox wrote:
+> How hard is it to seperate losing kpiod (optimisation) from the MAP_SHARED 
+> changes ? I am assuming they are two seperate issues, possibly wrongly
 
+Losing kpiod isn't an optimization ;(. Losing kpiod is the MAP_SHARED bugfix.
 
-On Fri, 15 Dec 2000, Linus Torvalds wrote:
+The problem was:
 
-> I really dropped it because I was getting too many patches, and I don't
-> realistically think it's a 2.4.0 issue (neither do you, I bet), so I
-> decided that it's not worth it.
+o	swap_out
+o	wants to flush a MAP_SHARED dirty page to disk
+o	so allocate kpiod-struct
+o	sumbit the page-flush request to kpiod
+o	don't wait I/O completion to avoid deadlocking on the i_sem
+o	swap_out returns 1 and memory balancing code so thinks we did progress
+	in freeing memory and goes to allocate memory from the freelist
+	without waiting I/O completion
+o	repeat N times the above
 
-Umm... Linus, how about a bunch of fixes I've sent to you several times
-during test12-pre?  I can resend them, but I would really, really like to
-hear explicit OK for such resend - if you already have a full mailbox
-with 2-3 copies of that set sitting there... ;-/
-							Cheers,
-								Al
+o	in the meantime kpiod has a big queue but it's blocked slowly writing
+	those pages to disk
+o	while it writes a few pages swap_out floods again the queue
+	without waiting and it empties the freelist (task killed)
 
+The problem was the lack of write throttling due the kpiod async-only nature.
+
+> Providing no inode semaphore is upped from a different task , which seems
+> currently quite a valid legal thing to do (ditto doing the up on completion of
+> something in bh or irq context)
+
+Yes, the same `current' context must run the down/up pair of calls and as you
+said it is legal to rely on it on all the places it's used.
+
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

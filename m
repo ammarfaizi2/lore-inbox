@@ -1,100 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268056AbUIGNwu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268057AbUIGNzI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268056AbUIGNwu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 09:52:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268067AbUIGNwu
+	id S268057AbUIGNzI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 09:55:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268067AbUIGNzI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 09:52:50 -0400
-Received: from c002781a.fit.bostream.se ([217.215.235.8]:53641 "EHLO
-	mail.tnonline.net") by vger.kernel.org with ESMTP id S268056AbUIGNwn
+	Tue, 7 Sep 2004 09:55:08 -0400
+Received: from asus.discosmash.com ([213.193.225.10]:33416 "EHLO
+	asus.discosmash.com") by vger.kernel.org with ESMTP id S268057AbUIGNzC
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 09:52:43 -0400
-Date: Tue, 7 Sep 2004 15:52:25 +0200
-From: Spam <spam@tnonline.net>
-Reply-To: Spam <spam@tnonline.net>
-X-Priority: 3 (Normal)
-Message-ID: <16310505631.20040907155225@tnonline.net>
-To: Christer Weinigel <christer@weinigel.se>
-CC: David Masover <ninja@slaphack.com>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Tonnerre <tonnerre@thundrix.ch>, Linus Torvalds <torvalds@osdl.org>,
-       Pavel Machek <pavel@ucw.cz>, Jamie Lokier <jamie@shareable.org>,
-       Chris Wedgwood <cw@f00f.org>, <viro@parcelfarce.linux.theplanet.co.uk>,
-       Christoph Hellwig <hch@lst.de>, Hans Reiser <reiser@namesys.com>,
-       <linux-fsdevel@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: silent semantic changes with reiser4
-In-Reply-To: <m38ybmjiyz.fsf@zoo.weinigel.se>
-References: <200409070206.i8726vrG006493@localhost.localdomain>
- <413D4C18.6090501@slaphack.com> <m3d60yjnt7.fsf@zoo.weinigel.se>
- <1183150024.20040907143346@tnonline.net> <m38ybmjiyz.fsf@zoo.weinigel.se>
+	Tue, 7 Sep 2004 09:55:02 -0400
+Date: Tue, 7 Sep 2004 15:55:01 +0200 (CEST)
+From: Joris Neujens <joris@discosmash.com>
+To: linux-kernel@vger.kernel.org
+Subject: Possible network issue in 2.6.8.1
+Message-ID: <Pine.LNX.4.58.0409071544570.6867@asus.discosmash.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
-  
+We've got a weird problem at our university network.  Since we upgraded to
+kernel 2.6.8 our download rate never gets higher than 10kB/sec.  Upload
+remains at original rate.  This problem does not occur with previous
+kernels (works fine again after downgrading to 2.6.7, without changing
+anything at the kernel config).
 
-> Spam <spam@tnonline.net> writes:
+There are no speed issues when transfering on the LAN, only when
+downloading something from the internet
 
->> > Additionally, files-as-directores does not solve the problem of 
->> > "cp a b" losing named streams.  There is curently no copyfile syscall
->> > in the Linux kernel, "cp a b" essentially does "cat a >b".  So unless
->> > cp is modified we don't gain anything.  If cp is modified to know
->> > about named streams, it really does not matter if named streams are
->> > accessed as file-as-directories, via openat(3) or via a shared library
->> > with some other interface.
->> 
->>   One suggestion is missed. It is to provide system calls for copy.
->>   That would also solve the problem. Named streams and metas would
->>   then be handled correctly. It also allows further changes to
->>   filesystems without having to patch applications yet again.
+We have ruled out the following:
+Network source is slow (we were testing with the same FTP server all the
+time, from which we normally download at 10MB/sec)
+We tested with 3 different systems and network cards, and they all have
+the same problem, and only with kernel 2.6.8
 
-> But this still solves only part of the problem.  A backup application
-> won't have any use for a copyfile syscall, it will need to be taught
-> about streams.
+any thoughts?
 
-  Yes, but backup programs always needed to be taught about new
-  features. Be it new type of files, attributes or meta-data. I think
-  that teaching backup applications is far better than teaching every
-  application.
+Regards,
 
->>   A copy system call would also be large beneficial for networked
->>   filesystems (NFS, Samba, etc) as data wouldn't have to be
->>   transferred over the network and back.
-
-> Definitely.  
-
->>   Can we make a plugin infrastructure that will let user-space plugins
->>   to be loaded for certain directories or files? If we can, then it
->>   would present a much cleaner and easier way for the user to access
->>   data he wants. In this particular example it was a tar file.
-
-> In that case I'd argue that:
-
->     mount -t userfs -o driver=tarfs foo /tmp/foo
-
-> is a rather good kernel interface for plugins.  userfs (or something
-> based on userfs) is the plugin API and tarfs is a plugin. :-)
-
-> To make this efficient, well have to allow non-root users to perform
-> the mount syscall (with the limitation that they can only mount on top
-> of directories they own and that the mounts have the nosuid and nodev
-> flags set).
-
-  Yes, this seem to be one solution. It isn't very dynamic in usage
-  though. You can't use this directly from applications wihout
-  manually doing the mount.
-
-  This is only a solution to browsing contents of files. It doesn't
-  provide a solution for using meta-data streams or other things like
-  this.
-
-  ~S
-
->   /Christer
-
-
+Joris Neujens
+Lennart Yseboodt
+Michael De Nil

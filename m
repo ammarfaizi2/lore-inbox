@@ -1,41 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271754AbRH0PDY>; Mon, 27 Aug 2001 11:03:24 -0400
+	id <S271706AbRH0PPh>; Mon, 27 Aug 2001 11:15:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271753AbRH0PDO>; Mon, 27 Aug 2001 11:03:14 -0400
-Received: from yoda.planetinternet.be ([195.95.30.146]:32018 "EHLO
-	yoda.planetinternet.be") by vger.kernel.org with ESMTP
-	id <S271758AbRH0PDF>; Mon, 27 Aug 2001 11:03:05 -0400
-Date: Mon, 27 Aug 2001 17:03:04 +0200
-From: Kurt Roeckx <Q@ping.be>
-To: Liakakis Kostas <kostas@skiathos.physics.auth.gr>
-Cc: Jan Niehusmann <jan@gondor.com>,
-        "Grover, Andrew" <andrew.grover@intel.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: VCool - cool your Athlon/Duron during idle
-Message-ID: <20010827170304.A226@ping.be>
-In-Reply-To: <20010827115357.A1335@gondor.com> <Pine.GSO.4.21.0108271443170.6958-100000@skiathos.physics.auth.gr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre2i
-In-Reply-To: <Pine.GSO.4.21.0108271443170.6958-100000@skiathos.physics.auth.gr>
+	id <S271753AbRH0PP1>; Mon, 27 Aug 2001 11:15:27 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:13837 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S271706AbRH0PPK>;
+	Mon, 27 Aug 2001 11:15:10 -0400
+Date: Mon, 27 Aug 2001 12:14:43 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.rielhome.conectiva>
+To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Cc: Daniel Phillips <phillips@bonn-fries.net>,
+        Helge Hafting <helgehaf@idb.hist.no>, <linux-kernel@vger.kernel.org>
+Subject: Re: [resent PATCH] Re: very slow parallel read performance
+In-Reply-To: <499114355.998926919@[169.254.198.40]>
+Message-ID: <Pine.LNX.4.33L.0108271213370.5646-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 27, 2001 at 02:48:24PM +0300, Liakakis Kostas wrote:
-> On Mon, 27 Aug 2001, Jan Niehusmann wrote:
-> 
-> > (asus writes that one of the problems that can happen with this power
-> > saving mode are the huge changes in power dissipation, from 60W to 5W
-> > and back - therefore I assume the power saving mode can save up to 55W)
-> 
-> The problem they are describing is not the change in power dissipation,
-> but the change in current draw from the regulated 1.75V (difference of
-> about 30A or more).
+On Mon, 27 Aug 2001, Alex Bligh - linux-kernel wrote:
 
-And what do you think power is?
-Maybe it's the voltage times the current?
+> A nit: I think it's a MRU list you want.
 
+Absolutely, however ...
 
-Kurt
+> If you are reading
+> ahead (let's have caps for a page that has been used for reading,
+> as well as read from the disk, and lowercase for read-ahead that
+> has not been used):
+> 	ABCDefghijklmnopq
+>              |            |
+>             read         disk
+> 	   ptr          head
+> and you want to reclaim memory, you want to drop (say) 'pq'
+> to get
+> 	ABCDefghijklmno
+> for two reasons: firstly because 'efg' etc. are most likely
+> to be used NEXT, and secondly because the diskhead is nearer
+> 'pq' when you (inevitably) have to read it again.
+
+This is NOT MRU, since p and q have not been used yet.
+In this example you really want to drop D and C instead.
+
+regards,
+
+Rik
+-- 
+IA64: a worthy successor to i860.
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
 

@@ -1,48 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266507AbUGPGzP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266494AbUGPHDA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266507AbUGPGzP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jul 2004 02:55:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266508AbUGPGzF
+	id S266494AbUGPHDA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jul 2004 03:03:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266495AbUGPHDA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jul 2004 02:55:05 -0400
-Received: from dirac.phys.uwm.edu ([129.89.57.19]:4503 "EHLO
-	dirac.phys.uwm.edu") by vger.kernel.org with ESMTP id S266495AbUGPGy5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jul 2004 02:54:57 -0400
-Date: Fri, 16 Jul 2004 01:54:55 -0500 (CDT)
-From: Bruce Allen <ballen@gravity.phys.uwm.edu>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-cc: Peter Maas <fedora@rooker.dyndns.org>,
-       Jurgen Kramer <gtm.kramer@inter.nl.net>,
-       Claudio Martins <ctpm@ist.utl.pt>
-Subject: RE: 3ware 9500S Drivers (mm kernel)
-In-Reply-To: <Pine.GSO.4.21.0407091720210.18072-100000@dirac.phys.uwm.edu>
-Message-ID: <Pine.GSO.4.21.0407160151170.22617-100000@dirac.phys.uwm.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 16 Jul 2004 03:03:00 -0400
+Received: from santee.icann.org ([192.0.35.122]:7114 "EHLO santee.icann.org")
+	by vger.kernel.org with ESMTP id S266494AbUGPHC6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jul 2004 03:02:58 -0400
+Date: Fri, 16 Jul 2004 00:02:57 -0700
+Message-Id: <200407160702.i6G72vD30378@santee.icann.org>
+From: iana@iana.org
+To: linux-kernel@vger.kernel.org
+Subject: ConfirmSystem: iana@icann.org [[795d041155f2929f0a9b8622236f67d5]]
+X-Loop: confirm-system
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > I am also working with Bruce Allen (smartmontools developer) to make
-> > > the 3w-9xxx driver work with smartmontools.  This shouldn't require
-> > > any driver changes.
+Thank you for your message.
 
-<SNIP>
+The iana@iana.org address collects a tremendous amount of spam, and we
+have been forced to implement protective measures.  In order to process
+your message we need to confirm that it came from a real email address. 
+To confirm your message, you can either:
 
-> I've now checked code into CVS for this, so smartmontools now can be used
-> with 3ware/AMCC 9000 series controllers (3w-9xxx driver). Many thanks to
-> Adam Radford for his help with this.
+  1) Reply to this message, without altering the subject line 
+    The "Re: " added by many mail clients is OK, but please note
+    that this method is *not* foolproof.  
 
-<SNIP>
+or
 
-> If you don't have the /dev/twa? devices on your system, please run the
-> tw_cli or 3dmd tools once: this will automatically create the /dev/twa?
-> nodes.
+  2) Visit the URL
+        <http://confirm.icann.org/?s=795d041155f2929f0a9b8622236f67d5&l=iana@icann.org>
 
-Minor update: for smartmontools to use the 3ware character device
-interface it is no longer necessary to create /dev/tw[ae]? nodes 'by
-hand'.  Smartmontools now does this dynamically, if needed.  Thanks again
-to Adam Radford.
+If you want to be very sure that your message gets through, do both steps
+above -- it does no harm to confirm more than once.
 
-Bruce
+For your reference, the subject of the message you sent was:
+
+  "Re: Delivery Protection"
+       
+and it arrived at IANA approximately at Fri Jul 16 00:02:57 2004.
+
+---------------------------------------------------------------
+ConfirmSystem: iana@icann.org [[795d041155f2929f0a9b8622236f67d5]]
+1
+
 

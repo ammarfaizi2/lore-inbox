@@ -1,44 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262648AbTI1SMX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Sep 2003 14:12:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262649AbTI1SMX
+	id S262652AbTI1SWH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Sep 2003 14:22:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262666AbTI1SWH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Sep 2003 14:12:23 -0400
-Received: from MAIL.13thfloor.at ([212.16.62.51]:1721 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S262648AbTI1SMW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Sep 2003 14:12:22 -0400
-Date: Sun, 28 Sep 2003 20:12:21 +0200
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: linux-kernel@vger.kernel.org
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Multimode IDE in Linux ...
-Message-ID: <20030928181221.GA11981@DUK2.13thfloor.at>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	Sun, 28 Sep 2003 14:22:07 -0400
+Received: from amsfep16-int.chello.nl ([213.46.243.26]:54873 "EHLO
+	amsfep16-int.chello.nl") by vger.kernel.org with ESMTP
+	id S262652AbTI1SWF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Sep 2003 14:22:05 -0400
+Date: Sun, 28 Sep 2003 14:55:30 +0200
+Message-Id: <200309281255.h8SCtUlF005588@callisto.of.borg>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH 319] MVME166/7 CD2401 serial is broken
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+MVME166/7 CD2401 serial is broken (needs taskqueue updates)
 
-Hi All!
+--- linux-2.6.0-test6/arch/m68k/Kconfig	Tue Sep  9 10:12:16 2003
++++ linux-m68k-2.6.0-test6/arch/m68k/Kconfig	Fri Sep 19 14:11:50 2003
+@@ -993,7 +993,7 @@
+ 
+ config SERIAL167
+ 	bool "CD2401 support for MVME166/7 serial ports"
+-	depends on MVME16x
++	depends on MVME16x && BROKEN
+ 	help
+ 	  This is the driver for the serial ports on the Motorola MVME166,
+ 	  167, and 172 boards.  Everyone using one of these boards should say
 
-maybe somebody can explain the following:
+Gr{oetje,eeting}s,
 
-using the QEMU emulator, I discovered (by looking at
-error messages ;) that the 2.6.0-test6 (and probably
-earlier kernels too) issue a SETMULTI (multimode)
-command regardless of the CONFIG_IDEDISK_MULTI_MODE
-setting. this isn't the case in 2.4.23-pre5 ...
+						Geert
 
-I had a look at the command issued, and found that
-it tries to set 256 sectors multimode, so I assume
-this is some multimode magic, I do not understand.
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-TIA,
-Herbert
-
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

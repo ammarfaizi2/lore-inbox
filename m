@@ -1,33 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310295AbSDDFm6>; Thu, 4 Apr 2002 00:42:58 -0500
+	id <S310654AbSDDGDL>; Thu, 4 Apr 2002 01:03:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310441AbSDDFms>; Thu, 4 Apr 2002 00:42:48 -0500
-Received: from ns.crrstv.net ([209.128.25.4]:53705 "EHLO mail.crrstv.net")
-	by vger.kernel.org with ESMTP id <S310295AbSDDFml>;
-	Thu, 4 Apr 2002 00:42:41 -0500
-Date: Thu, 4 Apr 2002 01:43:15 -0400
-From: skidley <skidley@crrstv.net>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.19-pre4-ac4
-Message-ID: <20020404054314.GA1675@crrstv.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+	id <S310666AbSDDGDB>; Thu, 4 Apr 2002 01:03:01 -0500
+Received: from server3.suhplains1.com ([12.152.193.124]:27403 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S310654AbSDDGCu>; Thu, 4 Apr 2002 01:02:50 -0500
+Subject: Re: Request for 2.4.20 to be a non-trivial-bugfixes-only version
+From: "Daniel E. Shipton" <dshipton@vrac.iastate.edu>
+To: Erik =?ISO-8859-1?Q?Ljungstr=F6m?= <insight@metalab.unc.edu>
+Cc: Rene Rebe <rene.rebe@gmx.net>, pabloa@laotraesquina.com.ar,
+        mtopper@xarch.tu-graz.ac.at, Ruth.Ivimey-Cook@ivimey.org,
+        hahn@physics.mcmaster.ca, linux-kernel@vger.kernel.org
+In-Reply-To: <20020402205918.36a94648.insight@metalab.unc.edu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 
+Date: 04 Apr 2002 00:02:53 -0600
+Message-Id: <1017900173.18439.10.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anyone had problems with identd not working properly in 2.4.19-pre4-ac4?
-It works fine in 2.4.19-pre5 and ther otehr pre4-ac stuff. The ~ is added to my hotsmask when connecting to undernet irc servers while running 2.4.19-pre4-ac4.
-All the other pre4-ac and the -pre5 are compiled using same .config. How
-could i debug to find out why? or is it known already?
--- 
-"Never underestimate the bandwidth of a station wagon full of tapes
-hurtling down the highway."  -- Andrew S. Tanenbaum
+> What's wrong with the 2.4.17 kernel? I have'n had a better one since the 2.2.19 :)
+I'm with you on that....i put it on one machine and threw away the
+redhat rpm to find that i needed it a week later for another machine and
+redhat had released their 2.4.18. So had to make it by hand for a
+change. 2.4.17 does well at everything while not giving oopses.
+also alan's 2.4.13 was really good too.
 
-Chad Young - Registered Linux User #195191 @ http://counter.li.org
------------------------------------------------------------------------
-Linux localhost 2.4.19-pre5 #1 Fri Mar 29 20:00:12 AST 2002 i686 GenuineIntel
-  1:35am  up   0:13,  6 users,  load average: 0.00, 0.01, 0.00
+daniel.e.shipton

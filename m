@@ -1,67 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131618AbRCSUSn>; Mon, 19 Mar 2001 15:18:43 -0500
+	id <S131573AbRCSURD>; Mon, 19 Mar 2001 15:17:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131619AbRCSUSe>; Mon, 19 Mar 2001 15:18:34 -0500
-Received: from dfw-smtpout3.email.verio.net ([129.250.36.43]:33762 "EHLO
-	dfw-smtpout3.email.verio.net") by vger.kernel.org with ESMTP
-	id <S131618AbRCSUSX>; Mon, 19 Mar 2001 15:18:23 -0500
-Message-ID: <3AB66962.2345BFB7@bigfoot.com>
-Date: Mon, 19 Mar 2001 12:17:38 -0800
-From: Tim Moore <timothymoore@bigfoot.com>
-Organization: Yoyodyne Propulsion Systems, Inc.
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.19pre17 i686)
-X-Accept-Language: en
+	id <S131586AbRCSUQy>; Mon, 19 Mar 2001 15:16:54 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:45186 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S131577AbRCSUQq>; Mon, 19 Mar 2001 15:16:46 -0500
+Date: Mon, 19 Mar 2001 15:15:16 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Otto Wyss <otto.wyss@bluewin.ch>
+cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Linux should better cope with power failure
+In-Reply-To: <3AB66233.B85881C7@bluewin.ch>
+Message-ID: <Pine.LNX.3.95.1010319150027.9639A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: UDMA 100 / PIIX4 question
-In-Reply-To: <20010318165246Z131240-406+1417@vger.kernel.org> <3AB65C51.3DF150E5@bigfoot.com> <3AB65F14.26628BEF@coplanar.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeremy Jackson wrote:
+On Mon, 19 Mar 2001, Otto Wyss wrote:
+
+> Lately I had an USB failure, leaving me without any access to my system
+> since I only use an USB-keyboard/-mouse. All I could do in that
+> situation was switching power off and on after a few minutes of
+> inactivity. From the impression I got during the following startup, I
+> assume Linux (2.4.2, EXT2-filesystem) is not very suited to any power
+> failiure or manually switching it off. Not even if there wasn't any
+> activity going on. 
 > 
-> Tim Moore wrote:
-> > 15MB/s for hdparm is about right.
+> Shouldn't a good system allways try to be on the save side? Shouldn't
+> Linux try to be more fail save? There is currently much work done in
+> getting high performance during high activity but it seems there is no
+> work done at all in getting a save system during low/no activity. I
+> think this is a major drawback and should be addressed as fast as
+> possible. Bringing a system to save state should allway have a high priority.
 > 
-> Yes, since hdparm -t measures *SUSTAINED* transfers... the actual "head rate" of data reads from
-> disk surface.  Only if you read *only* data that is alread in harddrive's cache will you get a speed
-> close to the UDMA mode of the drive/controller.  The cache is around 1Mbyte, so for a split-second
-> re-read of some data....
+> How could this be accomplished:
+> 1. Flush any dirty cache pages as soon as possible. There may not be any
+> dirty cache after a certain amount of idle time.
+> 2. Keep open files in a state where it doesn't matter if they where
+> improperly closed (if possible).
+> 3. Swap may not contain anything which can't be discarded. Otherwise
+> swap has to be treated as ordinary disk space.
+> 
+> These actions are not filesystem dependant. It might be that certain
+> filesystem cope better with power failiure than others but still it's
+> much better not to have errors instead to fix them. 
+> 
+> Don't we tell children never go close to any abyss or doesn't have
+> alpinist a saying "never go to the limits"? So why is this simple rule
+> always broken with computers?
+> 
 
-Apologies for the too brief answer.  Sustained real world transfer rates for the PIIX4 under ideal
-setup conditions and a quiet bus are 14-18MB/s.  Faster disk architecture and forcing ide driver
-parameters will not change this.
+Unix and other such variants have what's called a Virtual File System
+(VFS).  The idea behind this is to keep as much recently-used file stuff
+in memory so that the system can be as fast as if you used a RAM disk
+instead of real physical (slow) hard disks. If you can't cope with this,
+use DOS. Even Windows tries to emulate Unix as far as VFS is concerned.
+However Windows never reports any errors. By design, Windows keeps
+trashing along until you must reinstall it because there is nothing left
+of the file-system.
 
-Here's what you might expect from this disk family with an ATA-66 capable chipset:
+If you want file-system trashing errors hidden, use Windows. Unix and
+its variants provide enough information in their file-systems to recover
+the file-system, although not necessaily a particular file, upon startup,
+if you have just switched the system off. It uses `fsck` for this.
 
-[tim@abit tim]# hdparm -i /dev/hda; hdparm -tT /dev/hda
+If as you say; "bringing the system to a save state should always
+have a high priority...", then mount the disks `sync`. 
 
-/dev/hda:
 
- Model=IBM-DTLA-307020, FwRev=TX3OA50C, SerialNo=YH0YHF45553
- Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
- RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=40
- BuffType=DualPortCache, BuffSize=1916kB, MaxMultSect=16, MultSect=off
- CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=40188960
- IORDY=on/off, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
- PIO modes: pio0 pio1 pio2 pio3 pio4 
- DMA modes: mdma0 mdma1 mdma2 udma0 udma1 udma2 udma3 *udma4 udma5 
+Cheers,
+Dick Johnson
 
-/dev/hda:
- Timing buffer-cache reads:   128 MB in  0.81 seconds =158.02 MB/sec
- Timing buffered disk reads:  64 MB in  1.85 seconds = 34.59 MB/sec
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
 
-Larger sustained transfers are about 75% of the burst/cache influenced hdparm timings.
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
 
-[tim@abit tim]# time dd if=/dev/hda of=/dev/null bs=1k count=500k
-512000+0 records in
-512000+0 records out
-0.340u 6.780s 0:19.68 36.1%     0+0k 0+0io 115pf+0w
-[tim@abit tim]# echo "512000/19.68" | bc -q
-26016
 
--- 
-  |  650.390.9613  |  6502247437@messaging.cellone-sf.com

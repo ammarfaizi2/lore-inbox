@@ -1,54 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266250AbUG0EU3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266242AbUG0ETk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266250AbUG0EU3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 00:20:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266249AbUG0EU3
+	id S266242AbUG0ETk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 00:19:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266246AbUG0ETk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 00:20:29 -0400
-Received: from smtp105.mail.sc5.yahoo.com ([66.163.169.225]:51087 "HELO
-	smtp105.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S266250AbUG0ET7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 00:19:59 -0400
-Message-ID: <4105D7ED.5040206@yahoo.com.au>
-Date: Tue, 27 Jul 2004 14:19:57 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Ed Sweetman <safemode@comcast.net>
-CC: Jan-Frode Myklebust <janfrode@parallab.uib.no>,
-       linux-kernel@vger.kernel.org
-Subject: Re: OOM-killer going crazy.
-References: <20040725094605.GA18324@zombie.inka.de> <41045EBE.8080708@comcast.net> <20040726091004.GA32403@ii.uib.no> <410500FD.8070206@comcast.net>
-In-Reply-To: <410500FD.8070206@comcast.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 27 Jul 2004 00:19:40 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:5587 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S266242AbUG0ETh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jul 2004 00:19:37 -0400
+Subject: Re: [PATCH] fix readahead breakage for sequential after random
+	reads
+From: Ram Pai <linuxram@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: miklos@szeredi.hu, linux-kernel@vger.kernel.org
+In-Reply-To: <20040726170843.3fe5615c.akpm@osdl.org>
+References: <E1BmKAd-0001hz-00@dorka.pomaz.szeredi.hu>
+	 <20040726162950.7f4a3cf4.akpm@osdl.org>
+	 <1090886218.8416.3.camel@dyn319181.beaverton.ibm.com>
+	 <20040726170843.3fe5615c.akpm@osdl.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1090901926.8416.13.camel@dyn319181.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 26 Jul 2004 21:18:47 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ed Sweetman wrote:
+On Mon, 2004-07-26 at 17:08, Andrew Morton wrote:
+> Ram Pai <linuxram@us.ibm.com> wrote:
+> >
+> > Andrew,
+> > 	Yes the patch fixes a valid bug.
+> > 
+> 
+> Please don't top-post :(
+> > RP
+> > 
+> > On Mon, 2004-07-26 at 16:29, Andrew Morton wrote:
+> > > Miklos Szeredi <miklos@szeredi.hu> wrote:
+> > > >
+> > > > Current readahead logic is broken when a random read pattern is
+> > > >  followed by a long sequential read.  The cause is that on a window
+> > > >  miss ra->next_size is set to ra->average, but ra->average is only
+> > > >  updated at the end of a sequence, so window size will remain 1 until
+> > > >  the end of the sequential read.
+> > > > 
+> > > >  This patch fixes this by taking the current sequence length into
+> > > >  account (code taken from towards end of page_cache_readahead()), and
+> > > >  also setting ra->average to a decent value in handle_ra_miss() when
+> > > >  sequential access is detected.
+> > > 
+> > > Thanks.   Do you have any performance testing results from this patch?
+> > > 
+> > Ram Pai <linuxram@us.ibm.com> wrote:
+> >
+> > Andrew,
+> > 	Yes the patch fixes a valid bug.
+> 
+> Fine, but the readahead code is performance-sensitive, and it takes quite
+> some time for any regressions to be discovered.  So I'm going to need to
+> either sit on this patch for a very long time, or extensively test it
+> myself, or await convincing test results from someone else.
+> 
+> Can you help with that?
 
-> This is not the same problem as I and other are describing.  There is 
-> no free memory when the OOM killer activates in our situation.  The 
-> kernel has allocated all available ram and as such, the OOM killer 
-> can't kill the memory hog because it's the kernel, itself.  So the OOM 
-> killer kills all the big apps running ...but it's to no use because 
-> the kernel just keeps trying to use more until the cd is completed.   
-> After which the memory is still never released.
-> Your thread has nothing to do with mine.
->
+yes I will run all my standard testsuites before we take this patch.
+(DSS workload, iozone, sysbench). I will get back with some results
+sooon. Probably by the end of this week.
 
-I believe it could be the same problem. Jan-Frode's system has all 
-ZONE_NORMAL
-memory used up. The free memory would be highmem which would be unsuable for
-those allocations that are causing OOM.
+Also I think the bug that Miklos, found is really hard to reproduce. Did
+he find this bug by code inspection? Its really really hard to get into
+a state where the current window is of size 1 page with zero pages in
+the readahead window, and then the sequential read pattern to just right
+then. 
 
-The vfs_cache_pressure change could possibly be responsible for the 
-problem...
-I don't have the code in front of me, but I think it divides by 100 
-first, then
-multiplies by vfs_cache_pressure. I wouldn't have thought this would 
-have such
-a large impact though.
+RP
 
+> 
 

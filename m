@@ -1,60 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293385AbSBZUhH>; Tue, 26 Feb 2002 15:37:07 -0500
+	id <S293225AbSBZUkz>; Tue, 26 Feb 2002 15:40:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293388AbSBZUgq>; Tue, 26 Feb 2002 15:36:46 -0500
-Received: from cdserv.meridian-data.com ([206.79.177.152]:2067 "EHLO
-	nasexs1.meridian-data.com") by vger.kernel.org with ESMTP
-	id <S293380AbSBZUgY>; Tue, 26 Feb 2002 15:36:24 -0500
-Message-ID: <2D0AFEFEE711D611923E009027D39F2B153AD4@cdserv.meridian-data.com>
-From: "Dennis, Jim" <jdennis@snapserver.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Congrats Marcelo,
-Date: Tue, 26 Feb 2002 12:38:55 -0800
+	id <S293380AbSBZUkp>; Tue, 26 Feb 2002 15:40:45 -0500
+Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:63371 "EHLO
+	zcars0m9.ca.nortel.com") by vger.kernel.org with ESMTP
+	id <S293225AbSBZUkc>; Tue, 26 Feb 2002 15:40:32 -0500
+Message-ID: <3C7BF4AA.6C31212F@nortelnetworks.com>
+Date: Tue, 26 Feb 2002 15:48:42 -0500
+X-Sybari-Space: 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Simon Turvey <turveysp@ntlworld.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: IDE error on 2.4.17
+In-Reply-To: <E16fmJt-0001Xi-00@the-village.bc.nu> <006e01c1bef6$6dd78e40$030ba8c0@mistral> <20020226110134.B11982@greenhydrant.com> <009301c1bef9$84dee9a0$030ba8c0@mistral>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Simon Turvey wrote:
+> 
+> It's a dev box anyway - just for tinkering.  Even so, it's annoying.
+> 
+> Someone asked what the drive model was:  IBM-DTLA-305030.
+
+That's your problem right there.  I've had two of the DTLA drives die, a 15GB
+and a 45GB.  They're notorious.  They sent me back a new 120GXP-series 60GB one
+to replace the 45 gigger.  Hopefully it'll last a bit longer...
 
 
-Marcelo,
-
- Contratulations on your first "official" kernel release.  It seems to have
-gone
- well (except for some complaints on slashdot about -rc4 SPARC patches
-missing from
- the patch, but apparently in the full tarball).
-
- Now I need to know about the status of several unofficial patches:
-
-	XFS
-	LVM
-	i2c
-	Crypto
-	FreeS/WAN KLIPS
-	LIDS
-	rmap
-
-
- Shawn was very helpful regarding the XFS+rmap patches --- though I've been
-having 
- some trouble with compiling kernels out of that in some configurations
-(I'll try to 
- isolate those and submit a coherent bug report, if I can.  Shawn, are you
-going to 
- update your set of XFS+rmap patches soon?
-
- Marcelo, there were some i2c updates included in the lmsensors package,
-have they
- submitted those to you for integration into 2.4.19?
-
-(As for the patch-int, that seems to apply with only a couple minor rejects,
-to the
- top level Makefile, and Documentation/Configure.help; so that's not a
-problem --- 
- beside I want KLIPS, LIDS and patch-int for home, not for work.)
-
- 
+-- 
+Chris Friesen                    | MailStop: 043/33/F10  
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com

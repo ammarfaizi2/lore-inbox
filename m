@@ -1,62 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262114AbUFNIYX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262175AbUFNIYZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262114AbUFNIYX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jun 2004 04:24:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262208AbUFNIXs
+	id S262175AbUFNIYZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jun 2004 04:24:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262062AbUFNIXX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jun 2004 04:23:48 -0400
-Received: from mail.dif.dk ([193.138.115.101]:27778 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S262114AbUFNIVF (ORCPT
+	Mon, 14 Jun 2004 04:23:23 -0400
+Received: from holomorphy.com ([207.189.100.168]:63902 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S262213AbUFNIWk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jun 2004 04:21:05 -0400
-Date: Mon, 14 Jun 2004 10:20:12 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux-kernel@vger.kernel.org, Ryan Underwood <nemesis-lists@icequake.net>,
-       Willy Tarreau <willy@w.ods.org>, twaugh@redhat.com
-Subject: Re: Request: Netmos support in parport_serial for 2.4.27
-In-Reply-To: <20040613220727.GB4771@logos.cnet>
-Message-ID: <Pine.LNX.4.56.0406141013020.7333@jjulnx.backbone.dif.dk>
-References: <20040613111949.GB6564@dbz.icequake.net> <20040613123950.GA3332@logos.cnet>
- <Pine.LNX.4.56.0406132225020.5930@jjulnx.backbone.dif.dk>
- <20040613220727.GB4771@logos.cnet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 14 Jun 2004 04:22:40 -0400
+Date: Mon, 14 Jun 2004 01:22:34 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: [1/12] don't dereference netdev->name before register_netdev()
+Message-ID: <20040614082234.GH1444@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
+References: <20040614003148.GO1444@holomorphy.com> <20040614003331.GP1444@holomorphy.com> <20040614081056.GA7162@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040614081056.GA7162@infradead.org>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 13 Jun 2004, Marcelo Tosatti wrote:
+On Sun, Jun 13, 2004 at 05:33:31PM -0700, William Lee Irwin III wrote:
+>>  * Removed dev->name lookups before register_netdev
+>> This fixes Debian BTS #234817.
+>> http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=234817
 
->
-> Jesper,
->
-> Two more things.
->
-> It seems v2.6 also lacks support for this boards:
->
-> grep PCI_DEVICE_ID_NETMOS_ *
-> pci_ids.h:#define PCI_DEVICE_ID_NETMOS_9735     0x9735
-> pci_ids.h:#define PCI_DEVICE_ID_NETMOS_9835     0x9835
-> [marcelo@localhost linux]$
->
-> Care to prepare a v2.6 version?
->
+On Mon, Jun 14, 2004 at 09:10:56AM +0100, Christoph Hellwig wrote:
+> Herbert has worked with Jeff on this issue already.  And -netdev would
+> be the right list for it.
 
-I don't mind giving it a try, but as I said in my original reply I'm way
-out of my league here. First of all I'm not the author of the original
-patch, all I did was to try and update it to apply cleanly against
-2.4.27-pre5. Secondly I don't have the hardware, so the only testing I can
-do is check that it compiles cleanly and then test boot a kernel to see if
-it blows up.
-But sure, I'll see if I can get it worked into 2.6, that'll be a nice
-challenge, but I'll probably be needing some help along the way.
+Good stuff. Looks like I can drop a few more patches, then.
 
 
-> And two, do we really need to move parport_serial.c to drivers/char in v2.4 ?
->
-To be honest, I have no idea.
-
-
---
-Jesper Juhl <juhl-lkml@dif.dk>
-
+-- wli

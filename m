@@ -1,70 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263457AbUCTQOp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Mar 2004 11:14:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263459AbUCTQOo
+	id S263460AbUCTQSR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Mar 2004 11:18:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263462AbUCTQSR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Mar 2004 11:14:44 -0500
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:17297 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S263457AbUCTQOn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Mar 2004 11:14:43 -0500
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Jens Axboe <axboe@suse.de>
-Subject: Re: [PATCH] barrier patch set
-Date: Sat, 20 Mar 2004 17:23:11 +0100
-User-Agent: KMail/1.5.3
-Cc: Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Chris Mason <mason@suse.com>
-References: <20040319153554.GC2933@suse.de> <200403200059.22234.bzolnier@elka.pw.edu.pl> <20040320095341.GA2711@suse.de>
-In-Reply-To: <20040320095341.GA2711@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sat, 20 Mar 2004 11:18:17 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:50901
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S263460AbUCTQSO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Mar 2004 11:18:14 -0500
+Date: Sat, 20 Mar 2004 17:19:05 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] anobjrmap 1/6 objrmap
+Message-ID: <20040320161905.GT9009@dualathlon.random>
+References: <Pine.LNX.4.44.0403190642450.17899-100000@localhost.localdomain> <2663710000.1079716282@[10.10.2.4]> <20040320123009.GC9009@dualathlon.random> <2696050000.1079798196@[10.10.2.4]>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200403201723.11906.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <2696050000.1079798196@[10.10.2.4]>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 20 of March 2004 10:53, Jens Axboe wrote:
-> On Sat, Mar 20 2004, Bartlomiej Zolnierkiewicz wrote:
-> > - do not use hwgroup->wrq (die!) and do not add drive->special_buf,
-> >   just do what PM code does and other special commands do - use taskfile
-> >   (yes, dirty stack allocation)
->
-> Doesn't work for split flush, ie issue a bunch of flushes to devices,
-> then wait for them. I agree using ->wrq and special_buf is ugly as hell,
-> though.
+On Sat, Mar 20, 2004 at 07:56:37AM -0800, Martin J. Bligh wrote:
+> > I'm working on my code yes, I think my code is finished, I prefer my
+> > design for the various reasons explained in the other emails (you don't
+> > swap so you can't appreciate the benefits, you only have to check that
+> > performs as well as Hugh's code).
+> > 
+> > Hugh's and your code is unstable in objrmap, you can find the details in
+> > the email I sent to Hugh, mine is stable (running such simulation for a
+> > few days just fine on 4-way xeon, without my objrmap fixes it live locks
+> > as soon as it hits swap).
+> > 
+> > You find my anon_vma in 2.6.5-rc1aa2, it's rock solid, just apply the
+> > whole patch and compare it with your other below results. thanks.
+> 
+> Mmmm, if you have a broken out patch, it'd be preferable. If I were to 
+> apply the whole of -mjb, I'll get a damned sight better results than 
+> any of them, but that's not really a fair comparison ;-) I'll can at 
+> least check it's stable for me that way though. 
+> 
+> I did find your broken-out anon-vma patch, but it's against something
+> else, maybe half-way up your tree or something, and I didn't bother
+> trying to fix it ;-)
 
-I can't see why it doesn't work, please explain.
+this one is against mainline, but you must use my objrmap patch too
+which is fixed so it doesn't crash in 2.6.5-rc1.
 
-> > - ide_get_error_location() is cool but clean other places doing same
-> > thing as you are duplicating existing code
-> >   (please use u64 not sector_t - you are getting raw info from the disk)
->
-> Ok
+	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.6/2.6.5-rc1-aa2/00100_objrmap-core-1.gz
+	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.6/2.6.5-rc1-aa2/00101_anon_vma-2.gz
 
-Cool.
-
-> > - why does blkdev_issue_flush() add REQ_BLOCK_PC to rq->flags?
->
-> Ehm, because it _is_ a REQ_BLOCK_PC? ;-)
-
-Ok, it is PC till SCSI->IDE transform, then it is no longer PC. :)
-
-> > - why are we doing pre-flush?
->
-> To ensure previously written data is on platter first.
-
-I know this, I want to know what for you are doing this?
-
-Previously written data is already acknowledgment to the upper layers so you
-can't do much even if you hit error on flush cache.  IMO if error happens we
-should just check if failed sector is of our ordered write if not well report
-it and continue.  It's cleaner and can give some (small?) performance gain.
-
-Regards,
-Bartlomiej
-
+just backout your objrmap and apply the above two, it should apply
+pretty well.

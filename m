@@ -1,80 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317560AbSGORrM>; Mon, 15 Jul 2002 13:47:12 -0400
+	id <S317567AbSGOSHQ>; Mon, 15 Jul 2002 14:07:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317561AbSGORrL>; Mon, 15 Jul 2002 13:47:11 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:4001 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S317560AbSGORrF>;
-	Mon, 15 Jul 2002 13:47:05 -0400
-Message-ID: <3D330AEF.3070105@us.ibm.com>
-Date: Mon, 15 Jul 2002 10:48:31 -0700
-From: Matthew Dobson <colpatch@us.ibm.com>
-Reply-To: colpatch@us.ibm.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
-X-Accept-Language: en-us, en
+	id <S317568AbSGOSHN>; Mon, 15 Jul 2002 14:07:13 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:50449 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317567AbSGOSHM>;
+	Mon, 15 Jul 2002 14:07:12 -0400
+Message-ID: <3D330F89.35299DC7@zip.com.au>
+Date: Mon, 15 Jul 2002 11:08:09 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre8 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org,
-       Michael Hohnbaum <hohnbaum@us.ibm.com>,
-       Martin Bligh <mjbligh@us.ibm.com>,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [patch[ Simple Topology API
-References: <3D2F75D7.3060105@us.ibm.com.suse.lists.linux.kernel> <3D2F9521.96D7080B@zip.com.au.suse.lists.linux.kernel> <p73ofdbv1a4.fsf@oldwotan.suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Andrea Arcangeli <andrea@suse.de>
+CC: Lincoln Dale <ltd@cisco.com>, Benjamin LaHaise <bcrl@redhat.com>,
+       "Stephen C. Tweedie" <sct@redhat.com>,
+       Linus Torvalds <torvalds@transmeta.com>, Steve Lord <lord@sgi.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: ext2 performance in 2.5.25 versus 2.4.19pre8aa2
+References: <3D2CFF48.9EFF9C59@zip.com.au> <5.1.0.14.2.20020714202539.022c4270@mira-sjcm-3.cisco.com> <5.1.0.14.2.20020715160245.02ad0978@mira-sjcm-3.cisco.com> <20020715094915.GD34@dualathlon.random>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> Andrew Morton <akpm@zip.com.au> writes:
->>AFAIK, the interested parties with this and the memory binding API are
->>ia32-NUMA, ia64, PPC, some MIPS and x86-64-soon.  It would be helpful
->>if the owners of those platforms could review this work and say "yes,
->>this is something we can use and build upon".  Have they done that?
+Andrea Arcangeli wrote:
 > 
-> Comment from the x86-64 side: 
+> On Mon, Jul 15, 2002 at 04:06:21PM +1000, Lincoln Dale wrote:
+> > At 10:30 PM 14/07/2002 -0700, Andrew Morton wrote:
+> > >Funny thing about your results is the presence of sched_yield(),
+> > >especially in the copy-from-pagecache-only load.  That test should
+> > >peg the CPU at 100% and definitely shouldn't be spending time in
+> > >default_idle.  So who is calling sched_yield()?  I think it has to be
+> > >your test app?
+> > >
+> > >Be aware that the sched_yield() behaviour in 2.5 has changed a lot
+> > >wrt 2.4.  It has made StarOffice 5.2 completely unusable on a non-idle
+> > >system, for a start.  (This is a SO problem and not a kernel problem,
+> > >but it's a lesson).
+> >
+> > my test app uses pthreads (one thread per disk-worker) and
+> > pthread_cond_wait in the master task to wait for all workers to finish.
+> > i'll switch the app to use clone() and sys_futex instead.
 > 
-> Current x86-64 NUMA essentially has no 'nodes', just each CPU has
-> local memory that is slightly faster than remote memory. This means
-> the node number would be always identical to the CPU number. As long
-> as the API provides it's ok for me. Just the node concept will not be
-> very useful on that platform. memblk will also be identity mapped to
-> node/cpu.
-> 
-> Some way to tell user space about memory affinity seems to be useful,
-> but...
-That shouldn't be a problem at all.  Since each architecture is responsible for 
-defining the 5 main topology functions, you could do this:
+> unless you call pthread routines during the workload, pthreads cannot be
+> the reason for a slowdown.
 
-#define _cpu_to_node(cpu)	(cpu)
-#define _memblk_to_node(memblk)	(memblk)
-#define _node_to_node(node)	(node)
-#define _node_to_cpu(node)	(node)
-#define _node_to_memblk(node)	(node)
+I didn't see the machine spending any time idle when I ran Lincoln's
+test so I'm not sure what's going on there.  But the pthread thing
+is surely the reason why the profiles are showing time in sched_yield().
 
-> General comment:
-> 
-> I don't see what the application should do with the memblk concept
-> currently. Just knowing about it doesn't seem too useful. 
-> Surely it needs some way to allocate memory in a specific memblk to be useful?
-> Also doesn't it need to know how much memory is available in each memblk?
-> (otherwise I don't see how it could do any useful partitioning)
-For that, you need to look at the Memory Binding API that I sent out moments 
-after this patch...  It builds on top of this infrastructure to allow binding 
-processes to individual memory blocks or groups of memory blocks.
+What I *did* see was 2.5 spending too much time doing pointless work
+in readahead (it's in cache already, stop doing that!).  And also
+generic_file_llseek() bouncing i_sem around like a ping-pong ball.
+Fixing those things up bought 10%.
 
-Cheers!
+> Also I would suggest Andrew to benchmark 2.4.19rc1aa2 against 2.5
+> instead of plain rc1 just to be sure to compare apples to apples.
+> (rc1aa2 should also be faster than pre8aa2)
 
--Matt
+Yes sorry, but I find testing -aa is a bit of a pain.  It's such a
+big patch, I'd really need to start a new branch for it.
 
-> 
-> -Andi
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
-
+-

@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318194AbSIBBFz>; Sun, 1 Sep 2002 21:05:55 -0400
+	id <S318190AbSIBBEr>; Sun, 1 Sep 2002 21:04:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318196AbSIBBFy>; Sun, 1 Sep 2002 21:05:54 -0400
-Received: from c16598.thoms1.vic.optusnet.com.au ([210.49.243.217]:40380 "HELO
-	pc.kolivas.net") by vger.kernel.org with SMTP id <S318194AbSIBBFy>;
-	Sun, 1 Sep 2002 21:05:54 -0400
-Message-ID: <1030929021.3d72ba7dadbe7@kolivas.net>
-Date: Mon,  2 Sep 2002 11:10:21 +1000
-From: Con Kolivas <conman@kolivas.net>
-To: linux-kernel@vger.kernel.org
-Subject: Benchmarks for performance patches (-ck) for 2.4.19
+	id <S318194AbSIBBEq>; Sun, 1 Sep 2002 21:04:46 -0400
+Received: from 2-210.ctame701-1.telepar.net.br ([200.193.160.210]:9105 "EHLO
+	2-210.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S318190AbSIBBEq>; Sun, 1 Sep 2002 21:04:46 -0400
+Date: Sun, 1 Sep 2002 22:08:48 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Daniel Phillips <phillips@arcor.de>
+cc: Andrew Morton <akpm@zip.com.au>,
+       Christian Ehrhardt <ehrhardt@mathematik.uni-ulm.de>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] [PATCH] Include LRU in page count
+In-Reply-To: <E17leDK-0004dA-00@starship>
+Message-ID: <Pine.LNX.4.44L.0209012208350.1857-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2 Sep 2002, Daniel Phillips wrote:
 
-My merged patchset (http://kernel.kolivas.net) was designed to improve system
-responsiveness. I have yet to find a good benchmark that measures such a thing.
-However, in response to criticism about not providing benchmarks I have made
-available some standard benchmarks at the excellent resources of the open source
-development laboratory scalable test platform. They are available here:
+> Are we looking at the same thing?  The cpu load there is dominated by
+> cpu_idle, 89%.  Anyway, if your point is that it makes sense to run
+> shrink_cache or refill_inactive in parallel, I don't see it because
+> they'll serialize on the lru lock anyway.  What would make sense is to
+> make shink_cache nonblocking.
 
-http://www.osdl.org/stp
+Working on it ;)
 
-my patchsets are the following:
--ck5 patch is patch #781
--ck5-rmap is #782
--ck5-ll is #783
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
 
-I have conducted some basic tests on #781 and the numbers show it is at least
-equivalent to stock 2.4.19 (#747), although as I said none of these benchmarks
-are designed to test desktop system responsiveness.
+http://www.surriel.com/		http://distro.conectiva.com/
 
-Please feel free to conduct any tests you like on these patches. I would be
-interested to hear if anyone can suggest the most suitable benchmark. Please cc
-me to ensure I receive any comments.
-
-Con Kolivas

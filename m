@@ -1,57 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272971AbTHEXOs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 19:14:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272974AbTHEXOs
+	id S272945AbTHEXdL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 19:33:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272947AbTHEXdL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 19:14:48 -0400
-Received: from www.13thfloor.at ([212.16.59.250]:65179 "EHLO www.13thfloor.at")
-	by vger.kernel.org with ESMTP id S272971AbTHEXOk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 19:14:40 -0400
-Date: Wed, 6 Aug 2003 01:14:49 +0200
-From: Herbert =?iso-8859-1?Q?P=F6tzl?= <herbert@13thfloor.at>
-To: viro@parcelfarce.linux.theplanet.co.uk
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: RO --bind mount implementation ...
-Message-ID: <20030805231449.GD2594@www.13thfloor.at>
-Reply-To: herbert@13thfloor.at
-Mail-Followup-To: viro@parcelfarce.linux.theplanet.co.uk,
-	linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-References: <20030804221615.GA18521@www.13thfloor.at> <20030805165924.GF12757@parcelfarce.linux.theplanet.co.uk> <20030805225149.GC2594@www.13thfloor.at>
+	Tue, 5 Aug 2003 19:33:11 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:777
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id S272945AbTHEXdJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Aug 2003 19:33:09 -0400
+Date: Tue, 5 Aug 2003 16:33:08 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Euro-English
+Message-ID: <20030805233308.GD928@matchmail.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030805225149.GC2594@www.13thfloor.at>
-User-Agent: Mutt/1.3.28i
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 06, 2003 at 12:51:49AM +0200, Herbert Pötzl wrote:
-> On Tue, Aug 05, 2003 at 05:59:24PM +0100, viro@parcelfarce.linux.theplanet.co.uk wrote:
-> > On Tue, Aug 05, 2003 at 12:16:15AM +0200, Herbert Pötzl wrote:
-> >  
-> > > anyway, I discussed this with some friends, and
-> > > they pointed out that this would be useful ...
-> > > so here is the first try ...
-> > 
-> > Umm...  You know, the most obvious system call that should care about
-> > read-only is open(pathname, O_RDWR) ;-)  IOW, taking care of directory
-> > modifications is not enough - you need to deal with
-> > 	* opening file for write
-> > 	* truncation (both from *truncate() and from open() with O_TRUNC)
-> > 	* metadata changes (timestamps, ownership, permissions)
-> 
-> well, the open case, IMHO is handled by the
-> lookup_create() modifications, truncate is something
 
-more descriptive would have been:
-- I guess this is handled in open_namei() by
+The European Commission has just announced an
+agreement whereby English will be the official
+language of the European nation rather than German,
+which was the other possibility.
 
-     error = -EROFS;
-     if ((flag & 2) && (IS_RDONLY(inode) || MNT_IS_RDONLY(nd->mnt)))
-            goto exit;
+As part of the negotiations, Her Majesty's Government
+conceded that English spelling had some room for
+improvement and has accepted a 5-year phase-in plan
+that would become known as "Euro-English".
 
-> best,
-> Herbert
+In the first year, "s" will replace the soft "c".
+Sertainly, this will make the sivil servants jump with
+joy. The hard "c" will be dropped in favour of the
+"k". This should klear up konfusion, and keyboards kan
+have one less letter.
+
+There will be growing publik enthusiasm in the sekond
+year when the troublesome "ph" will be replaced with
+the "f". This will make words like fotograf 20%
+shorter.
+
+In the 3rd year, publik akseptanse of the new spelling
+kan be expekted to reach the stage where more
+komplikated changes are possible.
+
+Governments will enkourage the removal of double
+letters which have always ben a deterent to akurate
+speling. Also, al wil agre that the horibl mes of the
+silent "e" in the languag is disgrasful and it should
+go away.
+
+By the 4th yer peopl wil be reseptiv to steps such as
+replasing "th" with "z" and "w" with "v".
+
+During ze fifz yer, ze unesesary "o" kan be dropd from
+vords kontaining "ou" and after ziz fifz yer, ve vil
+hav a reil sensibl riten styl.
+
+Zer vil be no mor trubl or difikultis and evrivun vil
+find it ezi tu understand ech oza. Ze drem of a united
+urop vil finali kum tru.
+
+
+If zis mad yu smil, pleas pas it on to oza pepl. 
+
+
+
+
+
+
+
+----- End forwarded message -----

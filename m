@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263414AbTDSQdX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Apr 2003 12:33:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263415AbTDSQdX
+	id S263411AbTDSQa0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Apr 2003 12:30:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263413AbTDSQaZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Apr 2003 12:33:23 -0400
-Received: from khms.westfalen.de ([62.153.201.243]:64158 "EHLO
-	khms.westfalen.de") by vger.kernel.org with ESMTP id S263414AbTDSQdW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Apr 2003 12:33:22 -0400
-Date: 19 Apr 2003 13:45:00 +0200
-From: kaih@khms.westfalen.de (Kai Henningsen)
-To: linux-kernel@vger.kernel.org
-Message-ID: <8kAuh4Wmw-B@khms.westfalen.de>
-In-Reply-To: <Pine.LNX.4.53.0304181512220.22901@chaos>
-Subject: Re: [TRIVIAL] kstrdup
-X-Mailer: CrossPoint v3.12d.kh10 R/C435
+	Sat, 19 Apr 2003 12:30:25 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:18560 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S263411AbTDSQaZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Apr 2003 12:30:25 -0400
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200304191645.h3JGj331000483@81-2-122-30.bradfords.org.uk>
+Subject: Re: Are linux-fs's drive-fault-tolerant by concept?
+To: rmk@arm.linux.org.uk (Russell King)
+Date: Sat, 19 Apr 2003 17:45:03 +0100 (BST)
+Cc: john@grabjohn.com (John Bradford),
+       skraw@ithnet.com (Stephan von Krawczynski),
+       linux-kernel@vger.kernel.org (linux-kernel)
+In-Reply-To: <20030419173602.E4082@flint.arm.linux.org.uk> from "Russell King" at Apr 19, 2003 05:36:02 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Organization: Organisation? Me?! Are you kidding?
-References: <Pine.LNX.4.44.0304180919380.2950-100000@home.transmeta.com> <Pine.LNX.4.53.0304181323400.22493@chaos> <3EA0469D.7090602@pobox.com> <3EA0469D.7090602@pobox.com> <Pine.LNX.4.53.0304181512220.22901@chaos>
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
-X-Fix-Your-Modem: +++ATS2=255&WO1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-root@chaos.analogic.com (Richard B. Johnson)  wrote on 18.04.03 in <Pine.LNX.4.53.0304181512220.22901@chaos>:
+> > A RAID-0 array and regular backups are the best way to protect your
+> > data.
+> 
+> Correction.  RAID-0 is the best way to loose your data.  If any device
+> containing any part of the array goes down, you loose at least some of
+> your data.
+> 
+> RAID-1 is the redundant raid level, where each device in the set
+> contains a duplicate of the other device(s).
 
-> The test for every byte transferred is, quite obviously, correct.
-> It is also, quite obviously, non optimum.
+Yes, sorry about that, I was being stupid again :-).
 
-Actually, that is very much not obvious.
+I meant a mirrored array.
 
-Especially if you're familiar with architectures where every move has an  
-implicit test (typically for zero and sign), and so checking for the zero  
-byte during the move is quite obviously the only sane thing to do - the  
-version with a count is slower, because the inner loop does more. (Those  
-architectures typically don't have a REP-style prefix.)
-
-MfG Kai
+John.

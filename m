@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264838AbSJ3TvQ>; Wed, 30 Oct 2002 14:51:16 -0500
+	id <S264879AbSJ3Tuz>; Wed, 30 Oct 2002 14:50:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264881AbSJ3TvI>; Wed, 30 Oct 2002 14:51:08 -0500
-Received: from smtp2.us.dell.com ([143.166.85.133]:22760 "EHLO
-	smtp2.us.dell.com") by vger.kernel.org with ESMTP
-	id <S264838AbSJ3TuJ>; Wed, 30 Oct 2002 14:50:09 -0500
-Date: Wed, 30 Oct 2002 13:56:33 -0600 (CST)
+	id <S264881AbSJ3Tuz>; Wed, 30 Oct 2002 14:50:55 -0500
+Received: from smtp4.us.dell.com ([143.166.148.135]:47264 "EHLO
+	smtp4.us.dell.com") by vger.kernel.org with ESMTP
+	id <S264879AbSJ3Tup>; Wed, 30 Oct 2002 14:50:45 -0500
+Date: Wed, 30 Oct 2002 13:57:09 -0600 (CST)
 From: Matt Domsch <Matt_Domsch@Dell.com>
 X-X-Sender: mdomsch@humbolt.us.dell.com
 Reply-To: Matt Domsch <Matt_Domsch@Dell.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCH 2.5.44] EDD updates 3/4
+Subject: Re: [BK PATCH 2.5.44] EDD updates 4/4
 In-Reply-To: <20BF5713E14D5B48AA289F72BD372D68BC03E6@AUSXMPC122.aus.amer.dell.com>
-Message-ID: <Pine.LNX.4.44.0210301356050.27031-100000@humbolt.us.dell.com>
+Message-ID: <Pine.LNX.4.44.0210301356400.27031-100000@humbolt.us.dell.com>
 X-GPG-Fingerprint: 17A4 17D0 81F5 4B5F DB1C  AEF8 21AB EEF7 92F0 FC09
 X-GPG-Key: http://domsch.com/mdomsch_pub.asc
 MIME-Version: 1.0

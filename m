@@ -1,56 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267445AbTALTys>; Sun, 12 Jan 2003 14:54:48 -0500
+	id <S267449AbTALT6j>; Sun, 12 Jan 2003 14:58:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267446AbTALTys>; Sun, 12 Jan 2003 14:54:48 -0500
-Received: from mta11.srv.hcvlny.cv.net ([167.206.5.46]:21396 "EHLO
+	id <S267451AbTALT6i>; Sun, 12 Jan 2003 14:58:38 -0500
+Received: from mta11.srv.hcvlny.cv.net ([167.206.5.46]:21916 "EHLO
 	mta11.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id <S267445AbTALTyr>; Sun, 12 Jan 2003 14:54:47 -0500
-Date: Sun, 12 Jan 2003 14:59:57 -0500
+	id <S267449AbTALT6h>; Sun, 12 Jan 2003 14:58:37 -0500
+Date: Sun, 12 Jan 2003 15:03:37 -0500
 From: Rob Wilkens <robw@optonline.net>
 Subject: Re: any chance of 2.6.0-test*?
-In-reply-to: <Pine.LNX.4.44.0301121134340.14031-100000@home.transmeta.com>
-To: Linus Torvalds <torvalds@transmeta.com>
+In-reply-to: <20030112195347.GJ3515@louise.pinerecords.com>
+To: Tomas Szepe <szepe@pinerecords.com>
 Cc: Christoph Hellwig <hch@infradead.org>, Greg KH <greg@kroah.com>,
        Alan Cox <alan@lxorguk.ukuu.org.uk>,
        William Lee Irwin III <wli@holomorphy.com>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Reply-to: robw@optonline.net
-Message-id: <1042401596.1209.51.camel@RobsPC.RobertWilkens.com>
+Message-id: <1042401817.1209.54.camel@RobsPC.RobertWilkens.com>
 Organization: Robert Wilkens
 MIME-version: 1.0
 X-Mailer: Ximian Evolution 1.2.1
 Content-type: text/plain
 Content-transfer-encoding: 7BIT
-References: <Pine.LNX.4.44.0301121134340.14031-100000@home.transmeta.com>
+References: <Pine.LNX.4.44.0301121100380.14031-100000@home.transmeta.com>
+ <1042400094.1208.26.camel@RobsPC.RobertWilkens.com>
+ <1042400219.1208.29.camel@RobsPC.RobertWilkens.com>
+ <20030112195347.GJ3515@louise.pinerecords.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-01-12 at 14:38, Linus Torvalds wrote:
-> I think goto's are fine
+On Sun, 2003-01-12 at 14:53, Tomas Szepe wrote:
+> > [robw@optonline.net]
+> >
+> > Am I wrong that the above would do the same thing without generating the
+> > sphagetti code that a goto would give you.  Gotos are BAD, very very
+> > bad.
+> 
+> Whom do I pay to have this annoying clueless asshole shot?
+> OH MY GOD, I really can't take any more.
 
-You're a relatively succesful guy, so I guess I shouldn't argue with
-your style.
+Mail filters are a wonderful thing, use them on me and you want have to
+have me shot.  We'll both be happier in the end.
 
-However, I have always been taught, and have always believed that
-"goto"s are inherently evil.  They are the creators of spaghetti code
-(you start reading through the code to understand it (months or years
-after its written), and suddenly you jump to somewhere totally
-unrelated, and then jump somewhere else backwards, and it all gets ugly
-quickly).  This makes later debugging of code total hell.  
-
-Would it be so terrible for you to change the code you had there to
-_not_ use a goto and instead use something similar to what I suggested? 
-Never mind the philosophical arguments, I'm just talking good coding
-style for a relatively small piece of code.
-
-If you want, but comments in your code to meaningfully describe what's
-happening instead of goto labels.
-
-In general, if you can structure your code properly, you should never
-need a goto, and if you don't need a goto you shouldn't use it.  It's
-just "common sense" as I've always been taught.  Unless you're
-intentionally trying to write code that's harder for others to read.
+What exactly is it that you can't take?  I made a minor suggestion in
+the above message, very minor, and only a suggestion -- one that was
+free to be ignorred.  There are over 300 messages a day on this list,
+why do the few ones from _me_ bother you.
 
 -Rob
 

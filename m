@@ -1,124 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261906AbTELFFO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 01:05:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261907AbTELFFN
+	id S261917AbTELFIU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 01:08:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261918AbTELFIU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 01:05:13 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:64474 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP id S261906AbTELFFL
+	Mon, 12 May 2003 01:08:20 -0400
+Received: from [195.95.38.160] ([195.95.38.160]:33526 "HELO mail.vt4.net")
+	by vger.kernel.org with SMTP id S261917AbTELFIS convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 01:05:11 -0400
-Date: Sun, 11 May 2003 20:03:33 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 703] New: Security vulnerability in "ioperm" system call
-Message-ID: <17400000.1052708613@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Mon, 12 May 2003 01:08:18 -0400
+From: DevilKin <devilkin-lkml@blindguardian.org>
+To: Con Kolivas <kernel@kolivas.org>, linux-kernel@vger.kernel.org
+Subject: Re: [2.420] Unexplained repeatable Oops
+Date: Mon, 12 May 2003 07:21:37 +0200
+User-Agent: KMail/1.5.1
+References: <200305112052.51938.devilkin-lkml@blindguardian.org> <200305120739.30154.kernel@kolivas.org>
+In-Reply-To: <200305120739.30154.kernel@kolivas.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
 Content-Disposition: inline
+Message-Id: <200305120721.43384.devilkin-lkml@blindguardian.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=703
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-           Summary: Security vulnerability in "ioperm" system call
-    Kernel Version: 2.5.69
-            Status: NEW
-          Severity: low
-             Owner: mbligh@aracnet.com
-         Submitter: dave_matthew@yahoo.com
+On Sunday 11 May 2003 23:39, Con Kolivas wrote:
+> On Mon, 12 May 2003 04:52, DevilKin-LKML wrote:
+> > On my main machine at home I have encountered since this morning an Oops
+> > that never happened before. It happened when I was playing a game of
+> > Diablo II through Winex (yes, with the Nvidia modules loaded and stuff
+> > loaded from VMWare). This oops I didn't bother to capture, since I know
+> > that oops'es from a tainted kernel are not accepted.
+> > 00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South]
+> > (rev 40) Subsystem: ABIT Computer Corp.: Unknown device a702
+> >         Flags: bus master, stepping, medium devsel, latency 0
+> >         Capabilities: [c0] Power Management version 2
+>
+> Good old VIA chipset. I solved a similar problem by underclocking a cpu on
+> a similar chipset :-(
+>
+> Try the mprime client stress test to ensure your hardware is ok.
+> www.mersenne.org
 
+Ah.
+Strange thing is that it has worked perfectly for atleast a year, problems 
+only started yesterday morning while I was doing what I've done a zillion 
+times before...
 
-Distribution:
-Debian 3.0
+I will check anyhow.
 
-Hardware Environment:
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 6
-model           : 7
-model name      : Pentium III (Katmai)
-stepping        : 2
-cpu MHz         : 498.866
-cache size      : 512 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov pat
-pse36 mmx fxsr sse
-bogomips        : 992.87
+Jan
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
 
-Software Environment:
-Gnu C                  2.95.4
-Gnu make               3.79.1
-util-linux             2.11n
-mount                  2.11n
-modutils               2.4.15
-e2fsprogs              1.27
-Linux C Library        2.2.5
-Dynamic linker (ldd)   2.2.5
-Procps                 2.0.7
-Net-tools              1.60
-Console-tools          0.2.3
-Sh-utils               2.0.11
-
-Problem Description:
-The "ioperm" system call allows an unprivileged user to gain read and write
-access to I/O ports on the system.  When used by a privileged process, the
-"ioperm" system call also fails to properly restrict privileges.
-
-Steps to reproduce:
-Example One -- The following program when run as an unprivileged user will
-allow him or her to read from or write to I/O ports with addresses which are
-below 0x3ff (1023).
-
-# include <stdio.h>
-# include <sys/io.h>
-# include <stdlib.h>
-
-int main(int argc, char **argv)
-{
-        if (argc < 2) {
-                (void) fprintf(stderr, "Usage: %s PORT [VALUE]\n", argv[0]);
-                return (2);
-        }
-
-        if (ioperm(1023, 1, 0) == -1) {
-                perror("ioperm");
-                return (1);
-        }
-
-        if (argc < 3) {
-                (void) printf("0x%02x\n", inb(atoi(argv[1])));
-        } else {
-                outb(atoi(argv[2]), atoi(argv[1]));
-        }
-
-        return (0);
-}
-
-Example Two -- This next program when run as a privileged user demonstrates
-how "ioperm" fails to properly restrict privileges.
-
-# include <sys/io.h>
-# include <stdio.h>
-
-int main(void)
-{
-        if (ioperm(888, 1, 1) == -1) {
-                perror("ioperm");
-                return (1);
-        }
-
-        (void) printf("0x%02x\n", inb(889));
-        return (0);
-}
+iD8DBQE+vy9kpuyeqyCEh60RAolSAJ9Kc/WY2W86XS8NNPaP0I624SnptQCfT5GM
+wQD1XDMcGLv2mAs2pwQHliw=
+=uGeS
+-----END PGP SIGNATURE-----
 

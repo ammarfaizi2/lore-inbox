@@ -1,30 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130020AbRCAWYB>; Thu, 1 Mar 2001 17:24:01 -0500
+	id <S129991AbRCAWZb>; Thu, 1 Mar 2001 17:25:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129991AbRCAWXv>; Thu, 1 Mar 2001 17:23:51 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:17424 "EHLO
+	id <S130053AbRCAWZM>; Thu, 1 Mar 2001 17:25:12 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:18704 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130053AbRCAWXk>; Thu, 1 Mar 2001 17:23:40 -0500
-Subject: Re: The IO problem on multiple PCI busses
-To: davem@redhat.com (David S. Miller)
-Date: Thu, 1 Mar 2001 22:26:14 +0000 (GMT)
-Cc: benh@kernel.crashing.org (Benjamin Herrenschmidt),
-        linux-kernel@vger.kernel.org, linuxppc-dev@lists.linuxppc.org
-In-Reply-To: <15006.44863.375642.847562@pizda.ninka.net> from "David S. Miller" at Mar 01, 2001 12:21:19 PM
+	id <S129991AbRCAWZC>; Thu, 1 Mar 2001 17:25:02 -0500
+Subject: Re: [patch][rfc][rft] vm throughput 2.4.2-ac4
+To: mikeg@wen-online.de (Mike Galbraith)
+Date: Thu, 1 Mar 2001 22:28:03 +0000 (GMT)
+Cc: riel@conectiva.com.br (Rik van Riel),
+        marcelo@conectiva.com.br (Marcelo Tosatti),
+        linux-kernel@vger.kernel.org (linux-kernel),
+        alan@lxorguk.ukuu.org.uk (Alan Cox)
+In-Reply-To: <Pine.LNX.4.33.0103012021470.1542-100000@mikeg.weiden.de> from "Mike Galbraith" at Mar 01, 2001 09:33:59 PM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14YbWc-0000Fx-00@the-village.bc.nu>
+Message-Id: <E14YbYL-0000G9-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> There is no 'fake' ISA bus number you need.  There is a 'real' one,
-> the one on which the PCI-->ISA bridge lives, why not use that one
-> :-)
+> There is no mechanysm in place that ensures that dirty pages can't
+> get out of control, and they do in fact get out of control, and it
+> is exaserbated (mho) by attempting to define 'too much I/O' without
+> any information to base this definition upon.
 
-IFF the ISA bus hangs off the PCI bridge. Similarly not all machines have
-PCI as the primary I/O bus. On hppa PCI busses hang off the gsc bus
+I think this is a good point. If you do 'too much I/O' then the I/O gets
+throttled by submit_bh(). The block I/O layer knows about 'too much I/O'.
 

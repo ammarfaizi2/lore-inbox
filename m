@@ -1,61 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261168AbVCAA6P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261192AbVCABDC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261168AbVCAA6P (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Feb 2005 19:58:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261157AbVCAA4p
+	id S261192AbVCABDC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Feb 2005 20:03:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261184AbVCABBK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Feb 2005 19:56:45 -0500
-Received: from sccrmhc13.comcast.net ([204.127.202.64]:2257 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S261168AbVCAAzy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Feb 2005 19:55:54 -0500
-From: kernel-stuff@comcast.net (Parag Warudkar)
-To: Bill Davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 2.6.11-rc4] oom_kill.c: Kill obvious processes first
-Date: Tue, 01 Mar 2005 00:55:52 +0000
-Message-Id: <030120050055.16865.4223BD980005FDFD000041E1220700320100009A9B9CD3040A029D0A05@comcast.net>
-X-Mailer: AT&T Message Center Version 1 (Dec 17 2004)
-X-Authenticated-Sender: a2VybmVsLXN0dWZmQGNvbWNhc3QubmV0
+	Mon, 28 Feb 2005 20:01:10 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:6114 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261176AbVCABA2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Feb 2005 20:00:28 -0500
+Date: Mon, 28 Feb 2005 17:00:16 -0800
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: <brugolsky@telemetry-investments.com>
+Cc: zaitcev@redhat.com, SteveD@redhat.com, linux-kernel@vger.kernel.org,
+       <torvalds@osdl.org>
+Subject: Re: [PATCH] nfs client O_DIRECT oops
+Message-ID: <20050228170016.0c26a109@localhost.localdomain>
+In-Reply-To: <42236AC6.6000609@RedHat.com>
+References: <42236AC6.6000609@RedHat.com>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed-Claws 0.9.12cvs126.2 (GTK+ 2.4.14; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-One person pointed out (rightly so) that this patch might end up killing a Oracle process for example since it occupies more than 60% memory - which is not good. While that may be case for a server, I think for a desktop this patch is right - it allows the user to gain control on the machine which has gone OOM.
+On Mon, 28 Feb 2005 14:02:30 -0500, Steve Dickson <SteveD@redhat.com> wrote:
 
-> Thank you for the patch, I'm in agreement with the idea, and I'll give 
-> it a try after I look at the code a bit. The current code frequently 
-> seems bit... non-deterministic.
-> 
-> -- 
->     -bill davidsen (davidsen@tmr.com)
-> "The secret to procrastination is to put things off until the
->   last possible moment - but no longer"  -me
+> Discovered using AKPM's ext3-tools: odwrite -ko 0 16385 foo
 
-I think oom_kill.c needs more intelligence and customizability. It should evaluate the per process rate of memory allocation for example. With that, it can determine if a process has had a steady VM size and give it less badness since there is a good possibility that some other process(es) might have gone bad  doing fork bombs or leaking memory. In short less badness for processes behaving well for a long time and not taking all the memory and not asking for more.
+> Signed-off-by: Bill Rugolsky <brugolsky@telemetry-investments.com>
+> Signed-off-by: Linus Torvalds <torvalds@osdl.org>
 
-OTOH we need more configurability - Desktop settings might depict A)Dont kill X B) Don't kill KDE for example. Then OOM killer then can spare those processes to see if killing other processes is going to benefit. (If X / KDE went bad and gobbled up memory, may be it might still kill it - again rate of allocation matters.) Server admins might specify no killing of a database process until unless it is occupying all memory etc..
+The root cause of the bug is that the code violates the principle of the
+least surprise, which in this case is: if a function fails, you do not have
+to clean up for that function. Therefore, Bill's fix papers over instead
+of fixing.
 
+This is how I think it should have been fixed:
 
-Parag
+--- linux-2.6.9-5.EL/fs/nfs/direct.c	2004-10-18 14:55:07.000000000 -0700
++++ linux-2.6.9-5.EL-nfs/fs/nfs/direct.c	2005-02-28 16:48:54.000000000 -0800
+@@ -86,6 +86,8 @@
+ 					page_count, (rw == READ), 0,
+ 					*pages, NULL);
+ 		up_read(&current->mm->mmap_sem);
++		if (result < 0)
++			kfree(*pages);
+ 	}
+ 	return result;
+ }
+@@ -211,7 +213,6 @@
+ 
+                 page_count = nfs_get_user_pages(READ, user_addr, size, &pages);
+                 if (page_count < 0) {
+-                        nfs_free_user_pages(pages, 0, 0);
+ 			if (tot_bytes > 0)
+ 				break;
+                         return page_count;
+@@ -377,7 +378,6 @@
+ 
+                 page_count = nfs_get_user_pages(WRITE, user_addr, size, &pages);
+                 if (page_count < 0) {
+-                        nfs_free_user_pages(pages, 0, 0);
+ 			if (tot_bytes > 0)
+ 				break;
+                         return page_count;
 
-
-> Parag Warudkar wrote:
-> > oom_kill.c misses very obvious targets - For example, a process occupying > 
-> > 80% memory, not superuser and not having hardware access gets ignored by it. 
-> > Logically, such a process, if killed , is going to make things return to 
-> > normal thereby eliminating the need for oom killer to further scan for more 
-> > processes.
-> > 
-> > This patch calculates the approximate integer percentage of memory occupied by 
-> > the process by looking at num_physpages and p->mm->total_vm. If this process 
-> > is not super user and doesn't have hardware access, and the percentage of 
-> > occupied memory is more than 60%, it immediately selects this process for 
-> > killing by returning unusually high points from badness().
-> > 
-> > Without this patch, when KDevelop running as non root user gobbles up 90% 
-> > memory, the OOM killer kills many other irrelevant processes but not KDevelop 
-> > And machine never recovers.. (Pls see LKML for my previous message with 
-> > subject "2.6.11-rc4 OOM Killer - Kill the Innocent".) 
-> > 
-> > With this patch OOM killer immediately kills kdevelop and machine recovers.
-> 
+Best wishes,
+-- Pete

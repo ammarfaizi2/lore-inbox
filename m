@@ -1,36 +1,55 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314375AbSESMLx>; Sun, 19 May 2002 08:11:53 -0400
+	id <S314339AbSESMQq>; Sun, 19 May 2002 08:16:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314351AbSESMLw>; Sun, 19 May 2002 08:11:52 -0400
-Received: from supreme.pcug.org.au ([203.10.76.34]:21216 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id <S314339AbSESMLw>;
-	Sun, 19 May 2002 08:11:52 -0400
-Date: Sun, 19 May 2002 22:10:36 +1000
-From: Stephen Rothwell <sfr@canb.auug.org.au>
+	id <S314351AbSESMQp>; Sun, 19 May 2002 08:16:45 -0400
+Received: from mail.libertysurf.net ([213.36.80.91]:43815 "EHLO
+	mail.libertysurf.net") by vger.kernel.org with ESMTP
+	id <S314339AbSESMQo>; Sun, 19 May 2002 08:16:44 -0400
+Date: Sun, 19 May 2002 14:15:30 +0200 (CEST)
+From: Rui Sousa <rui.sousa@laposte.net>
+X-X-Sender: rsousa@localhost.localdomain
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: rusty@rustcorp.com.au, linux-kernel@vger.kernel.org,
-        kernel-janitor-discuss@lists.sourceforge.net
+cc: Rusty Russell <rusty@rustcorp.com.au>, <linux-kernel@vger.kernel.org>,
+        <kernel-janitor-discuss@lists.sourceforge.net>
 Subject: Re: AUDIT of 2.5.15 copy_to/from_user
-Message-Id: <20020519221036.1289987a.sfr@canb.auug.org.au>
 In-Reply-To: <E179P70-0003dg-00@the-village.bc.nu>
-X-Mailer: Sylpheed version 0.7.6 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Message-ID: <Pine.LNX.4.44.0205191405120.18395-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 19 May 2002 12:44:30 +0100 (BST) Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
->
-> > arch/ia64/kernel/signal.c:147:		return __copy_to_user(to, from, sizeof(siginfo_t));
+On Sun, 19 May 2002, Alan Cox wrote:
+
+> Looking at 2.4.1x which has the same signal code
+> 
+> > arch/i386/kernel/signal.c:37:		return __copy_to_user(to, from, sizeof(siginfo_t));
+> 
+> not a bug
+> > arch/sparc/kernel/signal.c:101:		return __copy_to_user(to, from, sizeof(siginfo_t));
 > 
 > Not a bug
+> 
+> > arch/alpha/kernel/signal.c:44:		return __copy_to_user(to, from, sizeof(siginfo_t));
+> 
+> Not a bug
+> 
 
-Actually a bug as sys_ptrace on ia64 assumes that copy_siginfo_to_user
-returns 0 or -Esomething.
+Hi,
 
--- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
+Halfway this thread I got I bit confused...
+
+copy_to/from_user() --> will return the number of bytes that were _not_ 
+copied. If one does not care about partially successes just use:
+
+if (copy_to/from_user())
+	return -EFAULT;
+
+__copy_to/from_user() --> the same as above, but can they actually return 
+anything other than 0? My assembler is no good and I'm not able to see if
+the macros __constant_copy_user(), __copy_user(), __constant_copy_user_zeroing(),
+modify the size argument.
+
+Rui Sousa
+

@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266584AbTABVbC>; Thu, 2 Jan 2003 16:31:02 -0500
+	id <S266637AbTABVbA>; Thu, 2 Jan 2003 16:31:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267149AbTABVaN>; Thu, 2 Jan 2003 16:30:13 -0500
-Received: from louise.pinerecords.com ([213.168.176.16]:63684 "EHLO
+	id <S267128AbTABVae>; Thu, 2 Jan 2003 16:30:34 -0500
+Received: from louise.pinerecords.com ([213.168.176.16]:60356 "EHLO
 	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S266584AbTABV3d>; Thu, 2 Jan 2003 16:29:33 -0500
+	id <S266637AbTABV2s>; Thu, 2 Jan 2003 16:28:48 -0500
 From: Tomas Szepe <kala@pinerecords.com>
-Date: Thu, 02 Jan 2003 22:37:59 +0100
+Date: Thu, 02 Jan 2003 22:37:14 +0100
 To: torvalds@transmeta.com
 Cc: linux-kernel@vger.kernel.org
-Subject: [unify netdev config 16/22] arch-x86
-Message-ID: <3E14B137.mailLUS11LTJ1@louise.pinerecords.com>
+Subject: [unify netdev config 13/22] arch-sparc64
+Message-ID: <3E14B10A.mailLTY1RPTU2@louise.pinerecords.com>
 User-Agent: nail 10.3 11/29/02
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -19,10 +19,10 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -urN a/arch/i386/Kconfig b/arch/i386/Kconfig
---- a/arch/i386/Kconfig	2003-01-01 13:54:08.000000000 +0100
-+++ b/arch/i386/Kconfig	2003-01-01 19:46:24.000000000 +0100
-@@ -1436,47 +1436,6 @@
+diff -urN a/arch/sparc64/Kconfig b/arch/sparc64/Kconfig
+--- a/arch/sparc64/Kconfig	2002-12-16 07:01:46.000000000 +0100
++++ b/arch/sparc64/Kconfig	2003-01-01 19:50:38.000000000 +0100
+@@ -1404,47 +1404,6 @@
  
  source "net/Kconfig"
  
@@ -69,4 +69,4 @@ diff -urN a/arch/i386/Kconfig b/arch/i386/Kconfig
 -
  source "net/ax25/Kconfig"
  
- source "net/irda/Kconfig"
+ # This one must be before the filesystem configs. -DaveM

@@ -1,78 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263014AbTKKKlQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Nov 2003 05:41:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263015AbTKKKlQ
+	id S263244AbTKKK5o (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Nov 2003 05:57:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263356AbTKKK5o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Nov 2003 05:41:16 -0500
-Received: from vladimir.pegasys.ws ([64.220.160.58]:10765 "EHLO
-	vladimir.pegasys.ws") by vger.kernel.org with ESMTP id S263014AbTKKKlO
+	Tue, 11 Nov 2003 05:57:44 -0500
+Received: from intra.cyclades.com ([64.186.161.6]:4825 "EHLO
+	intra.cyclades.com") by vger.kernel.org with ESMTP id S263244AbTKKK5n
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Nov 2003 05:41:14 -0500
-Date: Tue, 11 Nov 2003 02:41:10 -0800
-From: jw schultz <jw@pegasys.ws>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: OT: why no file copy() libc/syscall ??
-Message-ID: <20031111104110.GD17240@pegasys.ws>
-Mail-Followup-To: jw schultz <jw@pegasys.ws>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Qvw7.5Qf.9@gated-at.bofh.it> <QxRl.17Y.9@gated-at.bofh.it> <Qy0W.1sk.9@gated-at.bofh.it> <QyaB.1GK.17@gated-at.bofh.it> <QzSZ.4x1.1@gated-at.bofh.it> <QCHh.X6.3@gated-at.bofh.it> <3FB0B10E.9060907@softhome.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3FB0B10E.9060907@softhome.net>
-User-Agent: Mutt/1.3.27i
-X-Message-Flag: This message is may contain confidential information.  Unauthorised disclosure will be prosecuted to the fullest extent of the law.
+	Tue, 11 Nov 2003 05:57:43 -0500
+Date: Tue, 11 Nov 2003 08:46:53 -0200 (BRST)
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+X-X-Sender: marcelo@logos.cnet
+To: Shane Wegner <shane-dated-1071003928.b2036e@cm.nu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.23 crash on Intel SDS2
+In-Reply-To: <20031109210527.GA1936@cm.nu>
+Message-ID: <Pine.LNX.4.44.0311110846100.14144-100000@logos.cnet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 11, 2003 at 10:51:10AM +0100, Ihar 'Philips' Filipau wrote:
-> Florian Weimer wrote:
-> >Andreas Dilger wrote:
-> >
-> >
-> >>>This is fast turning into a creeping horror of aggregation.  I defy 
-> >>>anybody
-> >>>to create an API to cover all the options mentioned so far and *not* 
-> >>>have it
-> >>>look like the process_clone horror we so roundly derided a few weeks ago.
-> >>
-> >>	int sys_copy(int fd_src, int fd_dst)
-> >
-> >
-> >Doesn't work.  You have to set the security attributes while you open
-> >fd_dst.
+
+
+On Sun, 9 Nov 2003, Shane Wegner wrote:
+
+> Hi,
 > 
->   int new_fd = sys_copy( int src_fd );  /* cloned copy, out of any fs */
->   fchmod( new_fd, XXX_WHAT_EVER );      /* do the job. */
->   ...
->   flink(new_fd, "/some/path/some/file/name"); /* commit to fs */
-
-The associate open file descriptor with a new path system
-call (flink here) has already been rejected for solid
-security reasons.
-
->   close(new_fd);  /* bye-bye */
+> I posted some weeks ago regarding a crash I was
+> experiencing with 2.4.23-pre4.  I am just writing to
+> confirm that 2.4.23-pre9 is still unable to run relyably on
+> this machine.  In my earlier post, I thought acpi might be
+> the culprit as I had it enabled due to a bios bug.  Intel
+> since fixed that so I was able to boot 2.4.23-pre9 with
+> acpi totally disabled in make config.
 > 
->   I beleive this can be more useful. Not only in naive tries to replace 
-> cp(1) with kernel ;-)
+> The problem is that after some time, usually between 30
+> seconds and 15 minutes in, the system locks up.  Nothing
+> gets printed into the kernel logs or onto the console. 
+> After 60 seconds, the IPMI watchdog kicks in and reboots
+> the system.  I run Linux 2.4.22 over here with no problems
+> with and without acpi.
+> 
+> It's an Intel server board model SDS2 with a dual Pentium
+> III tualatin 1.13ghz.  I am attaching the dmesg output from
+> the kernel in case it is helpful but as there is no panics
+> or oops being printed, I am not sure how best I can help
+> track this down.  If there is anything further I can do or
+> any other information needed, let me know.
 
-Eliminating the flink and using file descriptors you wind up
-with something like:
+Shane, 
 
-	in_fd = open(oldpath, O_RDONLY);
-	fstat(in_fd, statbuf);
-	out_fd = open(newpath, O_WRONLY|flags, statbuf->st_mode);
-	sendfile(out_fd, in_fd, 0, statbuf->st_size);
-	close(out_fd);
-	close(in_fd);
+Can you please find out in which -pre these strange lockups started happening?
 
-So if you can do it with open file descriptors why do you
-need a new system call?
+Thank you
 
--- 
-________________________________________________________________
-	J.W. Schultz            Pegasystems Technologies
-	email address:		jw@pegasys.ws
-
-		Remember Cernan and Schmitt

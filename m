@@ -1,40 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261849AbULJWz7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261856AbULJW7Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261849AbULJWz7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Dec 2004 17:55:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261856AbULJWz7
+	id S261856AbULJW7Q (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Dec 2004 17:59:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261862AbULJW7P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Dec 2004 17:55:59 -0500
-Received: from fw.osdl.org ([65.172.181.6]:5252 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261849AbULJWz5 (ORCPT
+	Fri, 10 Dec 2004 17:59:15 -0500
+Received: from fw.osdl.org ([65.172.181.6]:24452 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261856AbULJW7K (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Dec 2004 17:55:57 -0500
-Date: Fri, 10 Dec 2004 14:55:39 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Pavel Pisa <pisa@cmp.felk.cvut.cz>, Ingo Molnar <mingo@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       trivial@rustcorp.com.au
-Subject: Re: VM86 interrupt emulation breakage and FIXes for 2.6.x kernel
- series
-In-Reply-To: <1102712732.3264.73.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.58.0412101454510.31040@ppc970.osdl.org>
-References: <200412091459.51583.pisa@cmp.felk.cvut.cz>
- <1102712732.3264.73.camel@localhost.localdomain>
+	Fri, 10 Dec 2004 17:59:10 -0500
+Message-ID: <41BA2948.4030906@osdl.org>
+Date: Fri, 10 Dec 2004 14:55:04 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jens Axboe <axboe@suse.de>
+CC: James Bottomley <James.Bottomley@SteelEye.com>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [BK PATCH] SCSI -rc fixes for 2.6.10-rc3
+References: <1102650988.3814.13.camel@mulgrave> <20041210201115.GD12581@suse.de>
+In-Reply-To: <20041210201115.GD12581@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Fri, 10 Dec 2004, Alan Cox wrote:
+Jens Axboe wrote:
+> On Thu, Dec 09 2004, James Bottomley wrote:
 > 
-> You can't disable_irq and return to user space - the IRQ may be shared
-> by a device needed to make user space progress. 
+>>This one is another set of small driver fixes
+>>
+>>It is available from:
+> 
+> 
+> Here is one more. Currently imm uses page_address() which can crash on
+> highmem. It's not directly doable to map the pages properly, at least
+> not without changing some code. In lack of a ->bounce_highio member in
+> the scsi host template, just set ->unchecked_isa_dma which will just
+> bounce everything for us. imm isn't performance critical by any stretch
+> of the imagination, so...
+> 
+> Usually I'd not encourage such a silly hack, but in lack of hardware for
+> testing (who has it??), this should suffice as it is obviously correct.
 
-The vm86 interrupt does not allow sharing. And it really _has_ to be 
-disabled until user mode has cleared the irq source, or you'll have a very 
-dead machine.
+I have a drive, but I'm not near a highmem machine atm.
+I can test it next week if no one else does so.
 
-		Linus
+-- 
+~Randy

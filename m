@@ -1,47 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262574AbUC2CrO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Mar 2004 21:47:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262579AbUC2CrO
+	id S262579AbUC2DOb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Mar 2004 22:14:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262580AbUC2DOb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Mar 2004 21:47:14 -0500
-Received: from cobra.mywebworx.net ([69.61.24.4]:36544 "EHLO
-	cobra.mywebworx.net") by vger.kernel.org with ESMTP id S262574AbUC2CrN
+	Sun, 28 Mar 2004 22:14:31 -0500
+Received: from x35.xmailserver.org ([69.30.125.51]:20106 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S262579AbUC2DOa
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Mar 2004 21:47:13 -0500
-Message-ID: <1080528430.40678e2e9eb3a@www.beonline.com.au>
-Date: Mon, 29 Mar 2004 12:47:10 +1000
-From: lml@beonline.com.au
-To: linux-kernel@vger.kernel.org
-Subject: Kernel / Userspace Data Transfer
+	Sun, 28 Mar 2004 22:14:30 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Sun, 28 Mar 2004 19:14:31 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mdolabs.com
+To: Ulrich Drepper <drepper@redhat.com>
+cc: "linux-kern >> Linux Kernel" <linux-kernel@vger.kernel.org>
+Subject: Re: For the almost 4-year anniversary: O_CLOEXEC again
+In-Reply-To: <40677D1B.9060801@redhat.com>
+Message-ID: <Pine.LNX.4.44.0403281902190.12828-100000@bigblue.dev.mdolabs.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.2
-X-Originating-IP: 203.103.132.2
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - cobra.mywebworx.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [32001 32001] / [47 12]
-X-AntiAbuse: Sender Address Domain - beonline.com.au
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Sun, 28 Mar 2004, Ulrich Drepper wrote:
 
-I have a set of counters in a Kernel module that i want to export to a
-userspace application. I originally decided to use a /proc entry and parse
-the output whenever the userspace application needed this data, however,
-i need more than the 4096 that is allowed in /proc and i'm not too keen
-on parsing large chunks of text anyway.
+> The proposed solution is simple and already implemented on some systems
+> (QNX, BeOS, maybe more).  Beside the definition of O_CLOEXEC the
+> untested patch below should be all that's needed.
 
-What i would like to do is copy these slabs of text from the kernel to my
-userspace application (whenever the application requests it). I've seen the
-'copy_to_user' function and it looks usefull, but have no idea where to start
-or how to use it :-/
+What does prevent a fork() to hit you right before set_close_on_exec()?
+Shouldn't we have an install-and-set?
 
-Can someone provide and example or point me in the right direction? Or is there
-a better place to ask this question?
+(Personally I manually handle the fork child's code in my MT apps, when 
+I'm going to exec untrusted apps. Manually here mean close all open fds > 2)
 
-Regards
--J
+
+
+- Davide
+
+
+
+

@@ -1,62 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262650AbVAPX4a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262652AbVAPX4x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262650AbVAPX4a (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jan 2005 18:56:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262652AbVAPX4a
+	id S262652AbVAPX4x (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jan 2005 18:56:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262653AbVAPX4w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jan 2005 18:56:30 -0500
-Received: from mail.joq.us ([67.65.12.105]:57477 "EHLO sulphur.joq.us")
-	by vger.kernel.org with ESMTP id S262650AbVAPX40 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jan 2005 18:56:26 -0500
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Chris Wright <chrisw@osdl.org>, Matt Mackall <mpm@selenic.com>,
-       Paul Davis <paul@linuxaudiosystems.com>,
-       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Lee Revell <rlrevell@joe-job.com>, arjanv@redhat.com,
-       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [request for inclusion] Realtime LSM
-References: <200501111305.j0BD58U2000483@localhost.localdomain>
-	<20050111191701.GT2940@waste.org>
-	<20050111125008.K10567@build.pdx.osdl.net>
-	<20050111205809.GB21308@elte.hu>
-	<20050111131400.L10567@build.pdx.osdl.net>
-	<20050111212719.GA23477@elte.hu> <87fz15j325.fsf@sulphur.joq.us>
-	<20050115134922.GA10114@elte.hu> <874qhiwb1q.fsf@sulphur.joq.us>
-	<871xcmuuu4.fsf@sulphur.joq.us> <20050116231307.GC24610@elte.hu>
-From: "Jack O'Quin" <joq@io.com>
-Date: Sun, 16 Jan 2005 17:57:23 -0600
-In-Reply-To: <20050116231307.GC24610@elte.hu> (Ingo Molnar's message of
- "Mon, 17 Jan 2005 00:13:07 +0100")
-Message-ID: <87vf9xdj18.fsf@sulphur.joq.us>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 16 Jan 2005 18:56:52 -0500
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:44754 "EHLO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
+	id S262652AbVAPX4r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Jan 2005 18:56:47 -0500
+From: Ian Wienand <ianw@gelato.unsw.edu.au>
+To: mingo@elte.hu, linux-kernel@vger.kernel.org
+Date: Mon, 17 Jan 2005 10:56:37 +1100
+Subject: Typo in BUILD_LOCK_OPS in spinlock.c causes preempt build failure
+Message-ID: <20050116235637.GD20009@cse.unsw.EDU.AU>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="AbQceqfdZEv+FvjW"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> * Jack O'Quin <joq@io.com> wrote:
->> According to the manpage, nice(2) is per-process not per-thread.  That
->> does not give the granularity we need. 
+--AbQceqfdZEv+FvjW
+Content-Type: multipart/mixed; boundary="B4IIlcmfBL/1gGOG"
+Content-Disposition: inline
 
-Ingo Molnar <mingo@elte.hu> writes:
-> the manpage is incorrect - sys_nice() is per-thread. (Btw., you could
-> use setpriority() too.)
 
-OK.  Where is this stuff documented?
+--B4IIlcmfBL/1gGOG
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-BTW, I think this violates POSIX, which states...
+Hi,
 
-  The nice value set with nice() shall be applied to the process. If
-  the process is multi-threaded, the nice value shall affect all
-  system scope threads in the process.
+Our auto kernel build (http://www.gelato.unsw.edu.au/kerncomp/) was
+dying with preempt turned on with latest BK; BUILD_LOCK_OPS is using a
+spinlock function for a rwlock.
 
-(It does not affect SCHED_FIFO or SCHED_RR threads, however.)
+Thanks,
 
-Is it possible to call sched_setscheduler() with a thread ID instead
-of a pid?  That's what I really need.  JACK sets and resets the thread
-priorities from a different thread.
--- 
-  joq
+-i
+ianw@gelato.unsw.edu.au
+http://www.gelato.unsw.edu.au
+
+--B4IIlcmfBL/1gGOG
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="spinlock.c.diff"
+
+===== kernel/spinlock.c 1.4 vs edited =====
+--- 1.4/kernel/spinlock.c	2005-01-15 11:00:00 +11:00
++++ edited/kernel/spinlock.c	2005-01-17 10:43:44 +11:00
+@@ -248,7 +248,7 @@
+  */
+ BUILD_LOCK_OPS(spin, spinlock_t, spin_is_locked);
+ BUILD_LOCK_OPS(read, rwlock_t, rwlock_is_locked);
+-BUILD_LOCK_OPS(write, rwlock_t, spin_is_locked);
++BUILD_LOCK_OPS(write, rwlock_t, rwlock_is_locked);
+ 
+ #endif /* CONFIG_PREEMPT */
+ 
+
+--B4IIlcmfBL/1gGOG--
+
+--AbQceqfdZEv+FvjW
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFB6v81WDlSU/gp6ecRAjQDAKDnEVOPwADYb9pqRpZeRYo7uCah5ACfaVAh
+YW3uZ41zmVeIzZUTyV2+tFY=
+=sNc4
+-----END PGP SIGNATURE-----
+
+--AbQceqfdZEv+FvjW--

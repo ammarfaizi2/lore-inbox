@@ -1,63 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313549AbSDHETU>; Mon, 8 Apr 2002 00:19:20 -0400
+	id <S313550AbSDHE2D>; Mon, 8 Apr 2002 00:28:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313550AbSDHETT>; Mon, 8 Apr 2002 00:19:19 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:9 "EHLO
-	master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S313549AbSDHETS>; Mon, 8 Apr 2002 00:19:18 -0400
-Date: Sun, 7 Apr 2002 21:17:17 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Andrew Morton <akpm@zip.com.au>
-cc: Richard Gooch <rgooch@ras.ucalgary.ca>, nahshon@actcom.co.il,
-        Pavel Machek <pavel@suse.cz>, Benjamin LaHaise <bcrl@redhat.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, joeja@mindspring.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: faster boots?
-In-Reply-To: <3CB0EF0B.14D48619@zip.com.au>
-Message-ID: <Pine.LNX.4.10.10204072115460.19432-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S313551AbSDHE2C>; Mon, 8 Apr 2002 00:28:02 -0400
+Received: from aslan.scsiguy.com ([63.229.232.106]:6664 "EHLO
+	aslan.scsiguy.com") by vger.kernel.org with ESMTP
+	id <S313550AbSDHE2B>; Mon, 8 Apr 2002 00:28:01 -0400
+Message-Id: <200204080427.g384Re999479@aslan.scsiguy.com>
+To: Keith Owens <kaos@ocs.com.au>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] 2.4.19-pre6 standardize {aic7xxx,aicasm}/Makefile 
+In-Reply-To: Your message of "Mon, 08 Apr 2002 13:54:02 +1000."
+             <32231.1018238042@kao2.melbourne.sgi.com> 
+Date: Sun, 07 Apr 2002 22:27:40 -0600
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>That is a deliberate design decision, the installed module under
+>/lib/modules has the same name and relative path as the object that is
+>built in the kernel tree.  Keeping them the same makes it much easier
+>to debug kernel problems, a module called aic7xxx_experimental.o could
+>come from anywhere.
 
-Well they are there if they were not deleted by the 2.5 maintainer.
-If they were, then feel free to copy and credit the work from 2.4 once I
-complete the infrastructure.
+That's a pretty weak argument coming from an OS that doesn't ship
+with a kernel debugger <grumble> by default.   After all, modules
+can still come from anywhere (say a floppy).  I still think
+this is a silly policy, but as you can see by the recent renaming
+of the driver files, I've come to accept it. 8-)
 
-Cheers,
+>Having multiple conglomerates gets messy, especially if you allow a
+>mixture of built in and modular selection and if it is possible for
+>everything to be a module with no built in stubs.  The generic case
+>looks like this
 
-Andre Hedrick
-LAD Storage Consulting Group
+Since this is the case, and the Makefile will return to this format
+as soon as the U320 driver is released, can we come up with an
+interrim Makefile that assumes the new driver will show up shortly?
 
-On Sun, 7 Apr 2002, Andrew Morton wrote:
+>Because the above processing for multiple conglomerates is so messy, a
+>lot of developers use multiple directories, each containing one
+>conglomerate.  Then you can fall back on the default Rules.make
+>processing in each directory.
 
-> Richard Gooch wrote:
-> > 
-> > But I *want* to write while the drive is spun down. And leave it spun
-> > down until the system is RAM starved (or some threshold is reached).
-> > 
-> 
-> Yes.  The desirable behaviour for laptops is to defer writes
-> for a very long time, or until the user says "sync".
-> 
-> Mechanisms need to be put in place so that if there are pending
-> writes and the disk happens to be spun up for a read, we take
-> advantage of that spinup to push out the pending writes at
-> the same time.
-> 
-> This behaviour should be all be enabled by a special "laptop mode"
-> switch.
-> 
-> There's nothing particularly hard in all this...  I'll do a 2.5
-> version at some stage.
-> 
-> -
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Both drivers use the same assembler.  Otherwise I would have split
+the second out into its own directory.
 
+--
+Justin

@@ -1,47 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262664AbSKROIZ>; Mon, 18 Nov 2002 09:08:25 -0500
+	id <S262662AbSKROUi>; Mon, 18 Nov 2002 09:20:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262662AbSKROIZ>; Mon, 18 Nov 2002 09:08:25 -0500
-Received: from mailout.mbnet.fi ([194.100.161.24]:45574 "EHLO posti.mbnet.fi")
-	by vger.kernel.org with ESMTP id <S262664AbSKROIX> convert rfc822-to-8bit;
-	Mon, 18 Nov 2002 09:08:23 -0500
-Message-ID: <000701c28f10$3dca1de0$5ea564c2@windows>
-From: "Matti Annala" <gval@mbnet.fi>
-To: "Kernel Mailinglist" <linux-kernel@vger.kernel.org>,
-       "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-References: <001b01c28d51$fd9a2400$5ca464c2@windows> <1037491709.24769.22.camel@irongate.swansea.linux.org.uk>
-Subject: Re: [PATCH] ide.h cleanup, 2.5.47
-Date: Mon, 18 Nov 2002 16:39:01 +0200
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2919.6600
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6600
-X-OriginalArrivalTime: 18 Nov 2002 14:14:17.0025 (UTC) FILETIME=[C78F9310:01C28F0C]
+	id <S262712AbSKROUi>; Mon, 18 Nov 2002 09:20:38 -0500
+Received: from h-64-105-34-70.SNVACAID.covad.net ([64.105.34.70]:55237 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S262662AbSKROUh>; Mon, 18 Nov 2002 09:20:37 -0500
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Mon, 18 Nov 2002 06:27:27 -0800
+Message-Id: <200211181427.GAA01519@baldur.yggdrasil.com>
+To: linux-kernel@vger.kernel.org
+Subject: Patch(2.5.48)?: initial ramdisk broken
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+	linux-2.5.48 adds some kind of pseudo-filesytem in
+init/do_mounts.c.  The expanded code cannot find the initial ramdisk
+if you use devfs, due to a problem either with its interpretation of
+results from sys_getdents64, or the corresponding implementation in
+devfs.  do_read_dir attempts to fill a 512 byte buffer.  getdents
+returns 400+ bytes the first time.  Then do_read_dir calls getdents
+again, asking it to read the remaining bytes, which I guess is not
+enough space to hold an additional entry, to which getdents return
+-EINVAL.  I'm not sure who is wrong: getdents or the new do_mounts.c
+code that interprets its return values.
 
------ Original Message ----- 
-From: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-To: "Matti Annala" <gval@mbnet.fi>
-Cc: "Kernel Mailinglist" <linux-kernel@vger.kernel.org>; "Dave Jones" <davej@suse.de>
-Sent: Sunday, November 17, 2002 2:08 AM
-Subject: Re: [PATCH] ide.h cleanup, 2.5.47
+	Here is a possible patch, on the assumption that getdents is
+right and the new code in do_mounts.c is wrong.  I am not sure of its
+correctness, although it works.
 
+	By the way, I'd be interested in knowing the benefits of the
+new code in init/do_mounts.c.  A compressed romfs initial ramdisk
+has worked fine for me up to this point.
 
-> On Sat, 2002-11-16 at 09:24, Matti Annala wrote:
-> > The patch below performs minor cleanups on the include/linux/ide.h header. It
-> > simplifies the use of endianness #ifdefs and removes a chunk of duplicated
-> > code.
-> > 
-> > Comments?
-> 
-> Why are you deleting chunks of comments ?
-> 
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."
 
-The comments and the #define statement that the patch is deleting are duplicated in the header as you may see by checking the header file.
-
+--- linux-2.5.48/init/do_mounts.c	2002-11-17 20:29:31.000000000 -0800
++++ linux/init/do_mounts.c	2002-11-18 04:21:27.000000000 -0800
+@@ -355,17 +355,17 @@
+ 			break;
+ 		n = do_read_dir(fd, p, size);
+ 		if (n > 0) {
+ 			close(fd);
+ 			*len = n;
+ 			return p;
+ 		}
+ 		kfree(p);
+-		if (n < 0)
++		if (n < 0 && n != -EINVAL)
+ 			break;
+ 	}
+ 	close(fd);
+ 	return NULL;
+ }
+ #endif
+ 
+ struct linux_dirent64 {

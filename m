@@ -1,153 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268961AbUHZPC1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269024AbUHZPEw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268961AbUHZPC1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 11:02:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269006AbUHZPC1
+	id S269024AbUHZPEw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 11:04:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269019AbUHZPEw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 11:02:27 -0400
-Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:40064 "EHLO
-	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP id S268961AbUHZPCH
+	Thu, 26 Aug 2004 11:04:52 -0400
+Received: from mail.shareable.org ([81.29.64.88]:16582 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S268976AbUHZPDK
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 11:02:07 -0400
-Date: Thu, 26 Aug 2004 08:53:19 -0500
-From: Michael Halcrow <lkml@halcrow.us>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Christoph Hellwig <hch@lst.de>, Hans Reiser <reiser@namesys.com>,
+	Thu, 26 Aug 2004 11:03:10 -0400
+Date: Thu, 26 Aug 2004 16:02:02 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: Hans Reiser <reiser@namesys.com>, viro@parcelfarce.linux.theplanet.co.uk,
+       Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@lst.de>,
        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
        Alexander Lyamin aka FLX <flx@namesys.com>,
        ReiserFS List <reiserfs-list@namesys.com>
 Subject: Re: silent semantic changes with reiser4
-Message-ID: <20040826135319.GA28811@halcrow.us>
-Reply-To: Michael Halcrow <mahalcro@us.ibm.com>
-References: <20040824202521.GA26705@lst.de> <412CEE38.1080707@namesys.com> <20040825200859.GA16345@lst.de> <Pine.LNX.4.58.0408251314260.17766@ppc970.osdl.org>
+Message-ID: <20040826150202.GE5733@mail.shareable.org>
+References: <20040825200859.GA16345@lst.de> <Pine.LNX.4.58.0408251314260.17766@ppc970.osdl.org> <20040825204240.GI21964@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0408251348240.17766@ppc970.osdl.org> <20040825212518.GK21964@parcelfarce.linux.theplanet.co.uk> <20040826001152.GB23423@mail.shareable.org> <20040826003055.GO21964@parcelfarce.linux.theplanet.co.uk> <20040826010049.GA24731@mail.shareable.org> <412DA40B.5040806@namesys.com> <20040826140500.GA29965@fs.tum.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="CE+1k2dSO48ffgeK"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0408251314260.17766@ppc970.osdl.org>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20040826140500.GA29965@fs.tum.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Adrian Bunk wrote:
+> What is the technical reason why a tar plugin should be reiser4 
+> specific, instead of a generic VFS or userspace solution that would 
+> allow the same also on other fs like e.g. iso9660?
 
---CE+1k2dSO48ffgeK
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+It should be a generic VFS plugin, not reiser4 or userspace.  The VFS
+plugin should call out to userspace for most actions (except handling
+cached data), and it should take advantage of special reiser4 features
+for storage and performance optimisations.  But it should still work
+over a standard filesystem, when those special features aren't
+available.  I guess FUSE and many earlier projects are heading in this
+direction.
 
-If I may chime in here...
+A generic userspace solution doesn't let you "cd" into a tar file from
+all programs like you can inside Midnight Commander.
 
-On Wed, Aug 25, 2004 at 01:22:55PM -0700, Linus Torvalds wrote:
-> On Wed, 25 Aug 2004, Christoph Hellwig wrote:
-> >=20
-> > For one thing _I_ didn't decide about xattrs anyway.  And I still
-> > haven't seen a design from you on -fsdevel how you try to solve
-> > the problems with files as directories.
->=20
-> Hey, files-as-directories are one of my pet things, so I have to
-> side with Hans on this one. I think it just makes sense. A hell of a
-> lot more sense than xattrs, anyway, since it allows scripts etc
-> standard tools to touch the attributes.
->=20
-> It's the UNIX way.
+Gnome and KDE take the approach that every userspace system call
+should be intercepted and filtered, to create the illusion of virtual
+data.  As a result, different programs see different virtual data: you
+can't just cut and paste a path from Gnome or KDE into any other
+program.  It's not just a "social problem of libraries" thing:
+sometimes I have programs which don't link to libc.  Sometimes I have
+programs which mustn't link with anything that calls malloc().  It'd
+be silly for them to have a different view of the filesystem just
+because they can't link with some userspace library.
 
-This is an issue that directly affects work I am doing in extended
-cryptfs:
+The Gnome/KDE/Midnight Commander pure userspace solution is silly: if
+_every_ program in the system should get the same view, it makes much
+more sense for the kernel to filter the system calls and redirect the
+virtual accesses to a userspace daemon, while keeping the real
+accesses at full speed.
 
-http://www.linuxsymposium.org/2004/view_abstract.php?content_key=3D55
-http://halcrow.us/~mhalcrow/ols2004.pdf
-http://halcrow.us/~mhalcrow/ols_cryptfs.sxi
+Furthermore is makes much more sense for the kernel's page cache to
+hold those uncompressed pages, than for every userspace application to
+try and cooperatively manage a cache of uncompressed fragments in the
+most inefficient way.
 
-The basic idea is that the cryptographic context for every file is
-correlated with the individual file via xattr's.  A file is a unit of
-data that should, as it stands, contain all the information requisite
-for the encrypting filesystem layer to transparently decrypt (and
-encrypt, when the file is written to).  This allows for a key->file
-granularity, as opposed to a key->block device (dm-crypt) or a
-key->mount point (CFS) granularity.
+There's another problem with the Midnight Commander approach.  If I
+"cd" into a tar file, and then a program writes to the tar file, I
+don't always see the changes straight away. The two views aren't
+coherent.  This isn't an easy problem to solve, but it should be
+solved.
 
-My grand vision is to have a policy that determines whether or not the
-encrypted version of the file or the decrypted version of the file is
-read, dependent on whether or not the file is leaving the security
-domain (the storage device under the control of the currently running
-kernel).  For example, if the ``cp'' command is copying a file from a
-filesystem mounted from /dev/hda1 to a filesystem mounted from
-/dev/fd0, then the policy would indicate that (unless otherwise noted
-in the .cryptfsrc file in the root of the filesystem mounted from
-/dev/fd0, which might also contain the default security context for
-that filesystem or directory - like whose public keys should be used
-to encrypt the symmetric key for data) the file is leaving the
-security domain, and the encrypted contents of the file should be
-given to cp.  Same with mutt reading an email attachment (as opposed
-to, say, .muttrc, where, more likely than not, the unencrypted version
-is wanted).
+When a simple "cd" into .tar.gz or .iso is implemented properly, it
+will have _no_ performance penalty after you have first looked in the
+file, so long as it remains in the on-disk cache.  And, the filesystem
+will manage that cache intelligently.
 
-The goal is to enable an ``encrypted by default'' policy, in which
-files on the storage devices are independent encrypted units that
-remain encrypted until an application that actually needs to see the
-decrypted contents opens them.  Then the encryption and decryption is
-done transparently by the fs layer, as long as the user has the right
-keys.  Extended attributes seem like a natural way to store this
-context.
+Imagine: for looking at source files and such, you probably won't
+bother untarring in future, and you won't bother keeping untarred
+source trees in your home directory for easy access to things you look
+at often.  Why waste the space?  You could install whole applications
+as a .tar and run them from within it, with no performance penalty.
 
-Once you consider that you can have a crypto context for each file,
-you can start doing other neat tricks, like keyed hashes over extents
-within the file, to allow for dynamic integrity verification during
-the read.  If an offset of 1.5 gigabytes into a 2-gigabyte has been
-tampered with, then that tampering will be caught when that portion of
-the file is read; you don't have to verify the hash of the entire
-2-gigabyte file at the time of the open.  Of course, this would very
-rapidly overrun the available xattr storage size.  And so to
-realistically implement something like this, some new underlying file
-format is in order.
+Similarly, the filesystem will be able to archive directories
+automatically that haven't been touched in a long time, with no
+visible change except increased storage space.  "grep" will be a bit
+slower, but you'll have a useful search tool by then (using coherent
+indexes) which will be more useful than grep, and much faster.
 
-In any case, the issue of userspace applications supporting extended
-attributes is key to the viability of this approach.  If cp, uuencode,
-tar, or what not do not preserve the extended attributes, then the
-crypto context is lost, and the file is unreadable.  So the $64,000
-question is, just how committed is the community to this whole concept
-of extended attributes?  From this point, should I assume that good
-xattr support is forthcoming, or should I abandon the idea of using
-xattr's for this altogether?
-
-One solution I've been kicking around is to make cryptfs
-GnuPG-compatible.  Not only would this eliminate the need to store
-some of the crypto context in the xattr set, but it would also
-preserve the crypto context with apps that don't know about xattr's,
-and it would be possible for users who are not running cryptfs to read
-the files with gpg.  Keyed hashes over extents would be doable if
-GnuPG allowed for opaque data blobs in the file that gpg would just
-ignore when decrypting the file (gnupg-dev list had technical issues
-last time I tried to post these ideas to it - any gpg guys around that
-can comment on this?).
-
-> I never liked the xattr stuff. It makes little sense, and is totally=20
-> useless for 99.9999% of everything. I still don't see the point of it,=20
-> except for samba. Ugly.
-
-If xattr's wind up getting supported by a certain critical mass of
-applications, then they are somewhat useful for me, although, as
-currently implemented, are insufficient for what I really need (keyed
-hashes over extents require too much space).
-
-BTW, early this week I migrated cryptfs over to use David Howell's new
-keyring, which is working out nicely.
-
-Mike
-=2E___________________________________________________________________.
-                         Michael A. Halcrow                         =20
-       Security Software Engineer, IBM Linux Technology Center      =20
-GnuPG Fingerprint: 05B5 08A8 713A 64C1 D35D  2371 2D3C FDDA 3EB6 601D
---CE+1k2dSO48ffgeK
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFBLetPLTz92j62YB0RApJWAJ9fIDHyq+uIGxgaILDVX3PLyAqwuACbBceQ
-jjtQHPpi0eqQfqPqiOGlKD8=
-=lbro
------END PGP SIGNATURE-----
-
---CE+1k2dSO48ffgeK--
+-- Jamie

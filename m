@@ -1,56 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267871AbUHFW3H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268319AbUHFWa0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267871AbUHFW3H (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Aug 2004 18:29:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268204AbUHFW3H
+	id S268319AbUHFWa0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Aug 2004 18:30:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268318AbUHFWa0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Aug 2004 18:29:07 -0400
-Received: from gate.crashing.org ([63.228.1.57]:52412 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S267871AbUHFW3E (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Aug 2004 18:29:04 -0400
-Subject: Re: Solving suspend-level confusion
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: ncunningham@linuxmail.org, David Brownell <david-b@pacbell.net>,
-       Oliver Neukum <oliver@neukum.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Patrick Mochel <mochel@digitalimplant.org>
-In-Reply-To: <20040806212909.GI30518@elf.ucw.cz>
-References: <20040730164413.GB4672@elf.ucw.cz>
-	 <200408020938.17593.david-b@pacbell.net> <1091493486.7396.92.camel@gaston>
-	 <200408031928.08475.david-b@pacbell.net>
-	 <1091586381.3189.14.camel@laptop.cunninghams>
-	 <1091587985.5226.74.camel@gaston>
-	 <1091587929.3303.38.camel@laptop.cunninghams>
-	 <1091592870.5226.80.camel@gaston>  <20040806212909.GI30518@elf.ucw.cz>
-Content-Type: text/plain
-Message-Id: <1091831227.9271.254.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sat, 07 Aug 2004 08:27:08 +1000
+	Fri, 6 Aug 2004 18:30:26 -0400
+Received: from 209-128-98-078.BAYAREA.NET ([209.128.98.78]:15265 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S268316AbUHFWaN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Aug 2004 18:30:13 -0400
+Message-ID: <41140643.70704@zytor.com>
+Date: Fri, 06 Aug 2004 15:29:23 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Tim Bird <tim.bird@am.sony.com>
+CC: linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Is extern inline -> static inline OK?
+References: <4112D32B.4060900@am.sony.com> <ceul43$sbv$1@terminus.zytor.com> <41140654.3060609@am.sony.com>
+In-Reply-To: <41140654.3060609@am.sony.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> > Very easy... with the current code, just use state 4 for the round
-> > of suspend callbacks, ide-disk will then avoid spinning down.
+Tim Bird wrote:
 > 
-> There are some network drivers that test for "4" and fails suspend
-> with something like "invalid suspend state" :-(.
+> Thanks!
+> 
+>  From what I have read, for either 'extern inline' or 'static inline'
+> the compiler is free to not inline the code. Is this wrong?
+> 
+> It is my understanding that...
+> In the 'static inline' case the compiler may create a function in the
+> local compilation unit. But in the 'extern inline' case an extern
+> non-inline function must exist. If the compiler decides not to inline
+> the function, and a non-inline function does not exist, you get a linker
+> error.  Are you saying that, therefore, 'extern inline' functions are
+> used (without definition of extern non-inline functions to back them)
+> in order to guarantee that NO non-inline version of the function exists?
+> 
 
-Easily fixed. Again, i'm not afraid of fixing driver, few enough of
-them care at all at this point. I'll send some patches this week-end
-to patrick for his bk tree adding the basic ppc support and renumbering
-the PM callbacks, I havne't changed the type yet though, that's a more
-tedious work and I'm a lazy guy ;)
+Yes; the final link will fail with an undefined symbol if "extern inline" 
+fails to inline.
 
-I have taken care of various fbdev's too, though for some like atyfb,
-I'm blocked until the new rewritten version gets upstream. I'm trying
-to get it to -mm at least, news soon on this front.
-
-I'll do other drivers asap.
-
-Ben.
-
+	-=hpa

@@ -1,61 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266680AbUHFJOQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265544AbUHFJgS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266680AbUHFJOQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Aug 2004 05:14:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268050AbUHFJOQ
+	id S265544AbUHFJgS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Aug 2004 05:36:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268107AbUHFJgS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Aug 2004 05:14:16 -0400
-Received: from [213.146.154.40] ([213.146.154.40]:62108 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S266680AbUHFJOO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Aug 2004 05:14:14 -0400
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-From: David Woodhouse <dwmw2@infradead.org>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: axboe@suse.de, kernel@wildsau.enemy.org, linux-kernel@vger.kernel.org
-In-Reply-To: <200408060833.i768X6Z6005223@burner.fokus.fraunhofer.de>
-References: <200408060833.i768X6Z6005223@burner.fokus.fraunhofer.de>
-Content-Type: text/plain; charset=UTF-8
-Message-Id: <1091783648.4383.4742.camel@hades.cambridge.redhat.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
-Date: Fri, 06 Aug 2004 10:14:08 +0100
-Content-Transfer-Encoding: 8bit
-X-Spam-Score: 0.0 (/)
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Fri, 6 Aug 2004 05:36:18 -0400
+Received: from [145.253.187.130] ([145.253.187.130]:35081 "EHLO
+	proxy.baslerweb.com") by vger.kernel.org with ESMTP id S265544AbUHFJgP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Aug 2004 05:36:15 -0400
+From: Thomas Koeller <thomas.koeller@baslerweb.com>
+Organization: Basler AG
+To: Greg KH <greg@kroah.com>
+Subject: Re: [PATCH] Device class reference counting
+Date: Fri, 6 Aug 2004 11:37:46 +0200
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org
+References: <200407301803.00269.thomas.koeller@baslerweb.com> <20040805224656.GA22545@kroah.com>
+In-Reply-To: <20040805224656.GA22545@kroah.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200408061137.47099.thomas.koeller@baslerweb.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-08-06 at 10:33 +0200, Joerg Schilling wrote:
-> It creates bad impressions if people from LKML are a source of unrelated rants.
+On Friday 06 August 2004 00:46, Greg KH wrote:
+> On Fri, Jul 30, 2004 at 06:03:00PM +0200, Thomas Koeller wrote:
+> > Hi,
+> >
+> > I found a little issue with reference counting for
+> > device classes in 2.6.8-rc2. Patch attached.
+> >
+> > --- linux-mips/drivers/base/class.c	2004-07-14 16:21:33.000000000 +0200
+> > +++ linux-mips-work/drivers/base/class.c	2004-07-30 17:51:09.477331128
+> > +0200 @@ -353,8 +353,8 @@
+> >  	struct class_interface * class_intf;
+> >  	int error;
+> >
+> > -	class_dev = class_device_get(class_dev);
+> > -	if (!class_dev || !strlen(class_dev->class_id))
+> > +	if (!strlen(class_dev->class_id)
+> > +		|| !(class_dev = class_device_get(class_dev)))
+> >  		return -EINVAL;
+>
+> I don't understand what you are trying to fix here.  In fact, if
+> class_dev is NULL, you will now oops.
+>
+> Hm, I guess if class_dev->class_id is null, we will exit with an extra
+> reference grabbed on the class_dev.  Is that what you are trying to fix
+> here?
+>
+> If so, please rework the patch.
+>
+> thanks,
+>
+> greg k-h
 
-That line is more than 78 characters long, in violation of another
-'RECOMMENDED' in §3.5 of RFC2822. You didn't present any justification
-for violating §3.6.4 -- do you have any justification for this one?
+You guessed it - pretty obvious, isn't it? Well, I assumed the case
+where class_dev is NULL didn't matter, as this could only happen if
+there is a bug in some other place - seems I was wrong. So how's
+about this patch:
 
-> Please stop this if you don't like to conribute to the subject.
 
-It's not an unrelated rant. If you want to participate in a public
-forum, you are expected to show a little bit of respect for netiquette.
+--- linux-mips/drivers/base/class.c     2004-07-14 16:21:33.000000000 +0200
++++ linux-mips-work/drivers/base/class.c        2004-08-06 11:06:10.983688216 +0200
+@@ -349,14 +349,19 @@
 
-I don't have anything to contribute to the thread -- it's not my area of
-expertise. Hence I want to ignore the thread -- but that's not easy
-since your broken MUA keeps creating _new_ threads.
+ int class_device_add(struct class_device *class_dev)
+ {
+-       struct class * parent;
++       struct class * parent = NULL;
+        struct class_interface * class_intf;
+        int error;
 
-> BTW: I am using 'mailx' which is _the_ official mail reader from the POSIX 
-> standard......
+        class_dev = class_device_get(class_dev);
+-       if (!class_dev || !strlen(class_dev->class_id))
++       if (!class_dev)
+                return -EINVAL;
 
-I care not what it is; it's broken. Please stop using it in public fora.
++       if (!strlen(class_dev->class_id)) {
++               error = -EINVAL;
++               goto register_done;
++       }
++
+        parent = class_get(class_dev->class);
 
-I note that it also includes 8-bit data without Content-Type: or
-Content-Transfer-Encoding: headers. According to §§5.2 and 6.1 of
-RFC2045, the default values to be assumed in the absence of those
-headers are 'text/plain; charset=us-ascii' and '7BIT' respectively. It
-is therefore erroneous to use the octet 0xf6 where presumably you
-intended the character 'ö', because that is not a valid US-ASCII
-character, and because the octet 0xf6 is not permitted in '7bit' data.
+        pr_debug("CLASS: registering class device: ID = '%s'\n",
+
+
 
 -- 
-dwmw2
+--------------------------------------------------
 
+Thomas Koeller, Software Development
+Basler Vision Technologies
+
+thomas dot koeller at baslerweb dot com
+http://www.baslerweb.com
+
+==============================

@@ -1,68 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317508AbSIIQh6>; Mon, 9 Sep 2002 12:37:58 -0400
+	id <S317512AbSIIQs2>; Mon, 9 Sep 2002 12:48:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317512AbSIIQh6>; Mon, 9 Sep 2002 12:37:58 -0400
-Received: from ns.ithnet.com ([217.64.64.10]:11023 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S317508AbSIIQh5>;
-	Mon, 9 Sep 2002 12:37:57 -0400
-Date: Mon, 9 Sep 2002 18:42:30 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: "Ryan S. Upton" <rupton@pobox.com>
-Cc: greearb@candelatech.com, linux-kernel@vger.kernel.org
-Subject: Re: DFE-580TX problems you posted on 05-24-02
-Message-Id: <20020909184230.0f3d35a1.skraw@ithnet.com>
-In-Reply-To: <20020905213555.GB31524@pobox.com>
-References: <20020723203037.GA29459@pobox.com>
-	<3D3DCD2C.1050004@candelatech.com>
-	<20020905213555.GB31524@pobox.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.8.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id <S317521AbSIIQs2>; Mon, 9 Sep 2002 12:48:28 -0400
+Received: from waste.org ([209.173.204.2]:38355 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S317512AbSIIQs1>;
+	Mon, 9 Sep 2002 12:48:27 -0400
+Date: Mon, 9 Sep 2002 11:53:03 -0500
+From: Oliver Xymoron <oxymoron@waste.org>
+To: David Wagner <daw@mozart.cs.berkeley.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] (0/4) Entropy accounting fixes
+Message-ID: <20020909165303.GA31597@waste.org>
+References: <1029760150.19376.14.camel@irongate.swansea.linux.org.uk> <Pine.LNX.4.44.0209072328240.21724-100000@redshift.mimosa.com> <alg3ct$pru$1@abraham.cs.berkeley.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <alg3ct$pru$1@abraham.cs.berkeley.edu>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 5 Sep 2002 14:35:55 -0700
-"Ryan S. Upton" <rupton@pobox.com> wrote:
+On Sun, Sep 08, 2002 at 06:03:09PM +0000, David Wagner wrote:
+> D. Hugh Redelmeier wrote:
+> >The Intel (and, I assume, the AMD) hardware random generator cannot be
+> >audited.
 
-Hello all,
+...
 
-regarding DFE-580TX I have some additions:
-1) the 2.4.20-pre5 included sundance.c does not work at all with a recent
-Dlink-card, the interface statistics show complete garbage and there is no
-link possible.
-2) The dlink driver Ryan points to does not handle mixed 10- and 100-MBit
-configuration. 100 MBit wins, 10 Mbit gives no link.
-3) Donalds' drivers (www.scyld.com) cannot be statically linked with the
-kernel, there are dups in pci-scan.c and the current 2.4 kernel.
+> Rather, to audit the Intel RNG, the first thing to do is to run
+> statistical tests on the input to SHA-1.  Ideally, you'd like to do
+> this before the von Neumann stage, but since the von Neumann compensator
+> is in hardware, that's not possible.  Fortunately, you can do the
+> auditing on the output of the von Neumann stage, and this is almost
+> as good.  Because the von Neumann filter does only very light conditioning,
+> any flaws in the input to the von Neumann stage are likely to be apparent
+> after the output stage as well, if you have a large number of samples.
 
-=>
+This argument assumes you have knowledge of the inner workings of this
+step. To the best of my knowledge no one outside of Intel has cracked
+open this chip and actually tested that this black box _does what it
+says its doing_. This is what is meant by auditing.
 
-1) In fact I wouldn't buy DFE-580TX today if I had a real chance of finding a 4
-port tulip-driven card...
-2) For 2.4-kernel something should be done, because currently the situation is
-a mess.
+Randomness tests like DIEHARD are absolutely useless for anything
+other than telling you the spectral uniformity of a source, which is
+no indication as to whether it's deterministic or not.
 
-Regards,
-Stephan
+> Both of these tests have been performed.  Paul Kocher has looked
+> carefully at the Intel RNG, and given it high scores.  See
+>   http://www.cryptography.com/resources/whitepapers/IntelRNG.pdf
 
+What right-thinking paranoid would place any faith in an analysis with
+an Intel copyright? This is practically marketing fluff anyway.
 
+> Of course, there are no guarantees.  But let's look at the alternatives.
+> If you pick software-based noise sources, there's always the risk that
+> they may fail to produce useful entropy.  (For instance, you sample the
+> soundcard, but 5% of machines have no soundcard and hence give no
+> entropy, or 5% of the time you get back stuff highly correlated to
+> 60Hz AC.)  The risk that a software-based noise source fails seems much
+> higher than the risk that the Intel RNG has a backdoor.
 
-> Thanks, and hopefully this too will lighten your load. I was able to find a
-> driver that does work for the DFE-580TX. It appears to be a derrivitive of
-> DB's sundance 1.03a. It is being distributed from a dlink site and the
-> license "MODULE_LICENSE" tag has been modified (removed) so this may taint
-> GPL-Free-LGPL pristine machines, but the GPL still remains at the top... (?)
-> IANAL. 
-> 
-> Thanks to whoever modified this to work with the DFE-580TX (MIND THE LICENSE
-> THOUGH!) and to everyone who posted allowing me to find this. Here's the
-> link. 
-> 
-> http://tsd.dlink.com.tw/info.nsf/80d023dbef05f90048256adf002a91be/6dbbd6ab52943b1348256bd6002a4b4e?OpenDocument
-> 
-> -R
-> Ryan S. Upton
-> ryanu@pobox.com
+But we can actually audit the former and decided whether to trust it.
+For the Intel part, we only have faith. If you're one of the numerous
+governments that's bought crypto solutions from respectable
+corporations for your diplomatic communications that later turned out
+to be backdoored, that faith doesn't have much currency. See Lotus
+Notes and Crypto AG for two of the more notorious cases.
+
+-- 
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.." 

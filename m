@@ -1,27 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280679AbRKBNGW>; Fri, 2 Nov 2001 08:06:22 -0500
+	id <S280683AbRKBNPb>; Fri, 2 Nov 2001 08:15:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280680AbRKBNGM>; Fri, 2 Nov 2001 08:06:12 -0500
-Received: from aloha.egartech.com ([62.118.81.133]:40463 "HELO
-	mx02.egartech.com") by vger.kernel.org with SMTP id <S280679AbRKBNGH>;
-	Fri, 2 Nov 2001 08:06:07 -0500
-Message-ID: <3BE29AC3.DEB4B31A@egartech.com>
-Date: Fri, 02 Nov 2001 16:08:19 +0300
-From: Kirill Ratkin <kratkin@egartech.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.13 i686)
-X-Accept-Language: en
+	id <S280684AbRKBNPV>; Fri, 2 Nov 2001 08:15:21 -0500
+Received: from mustard.heime.net ([194.234.65.222]:10428 "EHLO
+	mustard.heime.net") by vger.kernel.org with ESMTP
+	id <S280683AbRKBNPP>; Fri, 2 Nov 2001 08:15:15 -0500
+Date: Fri, 2 Nov 2001 14:15:13 +0100 (CET)
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: RSVP setup
+Message-ID: <Pine.LNX.4.30.0111021413350.5468-100000@mustard.heime.net>
 MIME-Version: 1.0
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: PCMCIA->USB
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 02 Nov 2001 13:05:58.0438 (UTC) FILETIME=[1D3A1460:01C1639F]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey!
-Do somebody make driver for subject device now!?
+Hi all
 
-Regards,
-Niktar.
+I can see RSVP classifiers are somehow implemented in 2.4.
+Do anyone know how to get RSVP up and running as to separate different
+streams on a media server on Linux?
+
+roy
+
+---
+Computers are like air conditioners.
+They stop working when you open Windows.
+

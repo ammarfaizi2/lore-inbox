@@ -1,68 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289589AbSA2Mar>; Tue, 29 Jan 2002 07:30:47 -0500
+	id <S289677AbSA2Mar>; Tue, 29 Jan 2002 07:30:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289564AbSA2M3a>; Tue, 29 Jan 2002 07:29:30 -0500
-Received: from eventhorizon.antefacto.net ([193.120.245.3]:10374 "EHLO
-	eventhorizon.antefacto.net") by vger.kernel.org with ESMTP
-	id <S289647AbSA2M2n>; Tue, 29 Jan 2002 07:28:43 -0500
-Message-ID: <3C56943E.60405@antefacto.com>
-Date: Tue, 29 Jan 2002 12:23:26 +0000
-From: Padraig Brady <padraig@antefacto.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011226
-X-Accept-Language: en-us
+	id <S289589AbSA2M3f>; Tue, 29 Jan 2002 07:29:35 -0500
+Received: from dsl-213-023-043-145.arcor-ip.net ([213.23.43.145]:47235 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S289653AbSA2M3C>;
+	Tue, 29 Jan 2002 07:29:02 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Helge Hafting <helgehaf@aitel.hist.no>, Momchil Velikov <velco@fadata.bg>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Note describing poor dcache utilization under high memory pressure
+Date: Tue, 29 Jan 2002 13:33:57 +0100
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <Pine.LNX.4.44.0201281918050.18405-100000@waste.org> <87g04pfr8y.fsf@fadata.bg> <3C568D6D.ACDEA36C@aitel.hist.no>
+In-Reply-To: <3C568D6D.ACDEA36C@aitel.hist.no>
 MIME-Version: 1.0
-To: Francesco Munda <syylk@libero.it>
-CC: Rob Landley <landley@trommello.org>, linux-kernel@vger.kernel.org
-Subject: Re: A modest proposal -- We need a patch penguin
-In-Reply-To: <200201282213.g0SMDcU25653@snark.thyrsus.com> <200201290137.g0T1bwB24120@karis.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16VXSX-0000AD-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Francesco Munda wrote:
-
-> On Mon, 28 Jan 2002 09:10:56 -0500
-> Rob Landley <landley@trommello.org> wrote:
+On January 29, 2002 12:54 pm, Helge Hafting wrote:
+> Momchil Velikov wrote:
+> > 
+> > >>>>> "Daniel" == Daniel Phillips <phillips@bonn-fries.net> writes:
+> [...]
+> > Daniel> It's only touching the ptes on tables that are actually used, so if a parent
+> > Daniel> with a massive amount of mapped memory forks a child that only instantiates
+> > Daniel> a small portion of it (common situation) then the saving is pretty big.
+> > 
+> > Umm, all the ptes af the parent ought to be made COW, no ?
 > 
-> 
->>Patch Penguin Proposal.
->>
->>[...]
->>
-> 
-> You mean some sort of proxy/two-tier development? A "commit/rollback"
-> transaction model on the kernel itself?
+> Sure. But quite a few of them may be COW already, if the parent 
+> itself is a result of some earlier fork.
 
+Right, or if the parent has already forked at least one child.
 
-Dave Jones described the current model very succinctly in:
-
-http://marc.theaimsgroup.com/?l=linux-kernel&m=100966905916285&w=2
-
-He also mentioned a big problem. People not honouring/realising
-there position in the tree, (trying to get in the ChangeLog?).
-True, the only way to scale it is add another level at the current
-bottleneck, but this must be more than 1 person or it won't help,
-as it'll just move the bottelneck back a little.
-
-Personally I think automated tools (like bitkeeper) would help
-more than another level in the hierarchy.
-
-Currently the way I see it [should be] currently is:
-
-random hackers
-| | | | | | |
-| maintainers
-| | | |
-combiners
-| |
-Linus
-
-I.E. Linus just gets input from the combiners which
-test logic from the maintainers in combination. Also
-random hackers should input to the combiners and not Linus
-if there isn't an appropriate maintainer for their code.
-
-Padraig.
-
+-- 
+Daniel

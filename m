@@ -1,52 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261404AbTCJTBk>; Mon, 10 Mar 2003 14:01:40 -0500
+	id <S261405AbTCJTCH>; Mon, 10 Mar 2003 14:02:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261405AbTCJTBk>; Mon, 10 Mar 2003 14:01:40 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:59917 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S261404AbTCJTBj>; Mon, 10 Mar 2003 14:01:39 -0500
-Date: Mon, 10 Mar 2003 20:12:17 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Patrick Mochel <mochel@osdl.org>
-Cc: Nigel Cunningham <ncunningham@clear.net.nz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: SWSUSP Discontiguous pagedir patch
-Message-ID: <20030310191216.GB11310@atrey.karlin.mff.cuni.cz>
-References: <20030307203650.GB2447@elf.ucw.cz> <Pine.LNX.4.33.0303101049290.1002-100000@localhost.localdomain>
+	id <S261406AbTCJTCH>; Mon, 10 Mar 2003 14:02:07 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:33033 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id <S261405AbTCJTCF>;
+	Mon, 10 Mar 2003 14:02:05 -0500
+Date: Mon, 10 Mar 2003 20:12:45 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] kconfig update
+Message-ID: <20030310191244.GA1715@mars.ravnborg.org>
+Mail-Followup-To: Roman Zippel <zippel@linux-m68k.org>,
+	Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0303090432200.32518-100000@serv> <20030309190103.GA1170@mars.ravnborg.org> <Pine.LNX.4.44.0303092028020.32518-100000@serv> <20030309193439.GA15837@mars.ravnborg.org> <Pine.LNX.4.44.0303092115310.32518-100000@serv> <20030309211518.GA18087@mars.ravnborg.org> <Pine.LNX.4.44.0303101046590.5042-100000@serv>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0303101049290.1002-100000@localhost.localdomain>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <Pine.LNX.4.44.0303101046590.5042-100000@serv>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Mon, Mar 10, 2003 at 11:00:02AM +0100, Roman Zippel wrote:
 
-> > > The cumulative patch is here:
-> > > 
-> > > http://kernel.org/pub/linux/kernel/people/mochel/power/pm-2.5.64.diff.gz
-> > 
-> > Hmm, I am not sure if drivers/power is the right place for stuff like
-> > fridge.c. That might be usefull for other stuff, too.
-> 
-> That's fine. If it proves useful for other things, we can move it. 
+> verbose mode. If you skip the oldconfig step, the config tool is called 
+> anyway and checks the configuration and only asks as necessary. The same 
+> mode could be used for oldconfig, but I didn't want to change the 
+> behaviour needlessly.
 
-Actually, I'd like driver model to specify that things are
-refrigerated when device_suspend() and friends are being run. That
-should make drivers a lot simpler. [And as non-bitkeeper-capable user
-I fear moves ;-)]
+The reason to respond is that all the output from conf looks useless.
+What is the usage of conf being so verbose?
+If it is required then keep it. But making conf that verbose only
+because configure was that verbose . There is no point in that.
 
-> > I do not think placing swsusp.h in drivers/power/swsusp is right. It
-> > should be in include/linux or include/linux/power.
-> 
-> That header is only for the shared functions between 
-> drivers/power/swsusp/*.c. There's no need to export it to everyone. 
+Not a needlessly change, but more in the area - it was about time..
 
-Well, last time acpi introduced its private include/ directory, it was
-a disaster.
-								Pavel
--- 
-Horseback riding is like software...
-...vgf orggre jura vgf serr.
+	Sam

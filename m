@@ -1,36 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290837AbSBLTlc>; Tue, 12 Feb 2002 14:41:32 -0500
+	id <S290958AbSBLTrc>; Tue, 12 Feb 2002 14:47:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290968AbSBLTlW>; Tue, 12 Feb 2002 14:41:22 -0500
-Received: from fep03-mail.bloor.is.net.cable.rogers.com ([66.185.86.73]:14674
-	"EHLO fep03-mail.bloor.is.net.cable.rogers.com") by vger.kernel.org
-	with ESMTP id <S290837AbSBLTlJ>; Tue, 12 Feb 2002 14:41:09 -0500
-Message-ID: <3C696FC5.E2DD43D7@splentec.com>
-Date: Tue, 12 Feb 2002 14:40:53 -0500
-From: Luben Tuikov <luben@splentec.com>
-Organization: Splentec Ltd.
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S290968AbSBLTrM>; Tue, 12 Feb 2002 14:47:12 -0500
+Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:46606 "HELO
+	artax.karlin.mff.cuni.cz") by vger.kernel.org with SMTP
+	id <S290958AbSBLTrJ>; Tue, 12 Feb 2002 14:47:09 -0500
+Date: Tue, 12 Feb 2002 20:47:10 +0100
+From: Jan Hudec <bulb@ucw.cz>
 To: linux-kernel@vger.kernel.org
-Subject: reschedule twice from wake_up()?
+Cc: Matt Gauthier <elleron@yahoo.com>
+Subject: Re: secure erasure of files?
+Message-ID: <20020212204710.A7416@artax.karlin.mff.cuni.cz>
+Mail-Followup-To: Jan Hudec <bulb@ucw.cz>, linux-kernel@vger.kernel.org,
+	Matt Gauthier <elleron@yahoo.com>
+In-Reply-To: <Pine.LNX.4.30.0202121409150.18597-100000@mustard.heime.net> <Pine.LNX.4.33.0202121438560.7616-100000@unicef.org.yu> <20020212165504.A5915@devcon.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at fep03-mail.bloor.is.net.cable.rogers.com from [24.43.0.72] using ID <tluben@rogers.com> at Tue, 12 Feb 2002 14:41:04 -0500
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020212165504.A5915@devcon.net>; from aferber@techfak.uni-bielefeld.de on Tue, Feb 12, 2002 at 04:55:04PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Scenario:
+> I don't know if any filesystem currently relocates blocks if you
+> overwrite a file, but it's certainly possible and allowed (everything
+> else except the filesystem itself simply must not care where the data
+> actually ends up on the disk).
 
-atomic_t start, end;
-current is the only task in wq;
-consumer does: wait_even_interruptible(wq, start != end)
-producer does: end++; wakeup_interruptible(wq)
+AFAIK, ext2 tries to defragment files when possible. Thus if the file was
+fragmented and the blocks after some fragment are free, it will use these
+instead of the original ones somewhere far apart.
 
-Is it possible that the task in wq will be scheduled twice,
-once since end >= start (mod something) and again since,
-wakeup_interruptible was called?
-
--- 
-Luben
+--------------------------------------------------------------------------------
+                  				- Jan Hudec `Bulb' <bulb@ucw.cz>

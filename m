@@ -1,50 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315202AbSGINEt>; Tue, 9 Jul 2002 09:04:49 -0400
+	id <S315207AbSGINGg>; Tue, 9 Jul 2002 09:06:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315207AbSGINEs>; Tue, 9 Jul 2002 09:04:48 -0400
-Received: from gw-fxb-in.genebee.msu.ru ([195.208.219.253]:61445 "EHLO
-	libro.genebee.msu.su") by vger.kernel.org with ESMTP
-	id <S315202AbSGINEr>; Tue, 9 Jul 2002 09:04:47 -0400
-Date: Tue, 9 Jul 2002 17:09:18 +0400 (MSD)
-From: Tim Alexeevsky <realtim@mail.ru>
-X-X-Sender: <tim@zhuchka>
-Reply-To: <realtim@mail.ru>
-To: Alex Riesen <Alexander.Riesen@synopsys.com>
-cc: Tim Alexeevsky <realtim@mail.ru>, <linux-kernel@vger.kernel.org>
-Subject: Re: PROBLEM: File accessing.
-In-Reply-To: <20020709114749.GB32293@riesen-pc.gr05.synopsys.com>
-Message-ID: <Pine.LNX.4.33.0207091657110.1450-100000@zhuchka>
+	id <S315214AbSGINGg>; Tue, 9 Jul 2002 09:06:36 -0400
+Received: from [199.128.236.1] ([199.128.236.1]:43534 "EHLO
+	intranet.reeusda.gov") by vger.kernel.org with ESMTP
+	id <S315207AbSGINGe>; Tue, 9 Jul 2002 09:06:34 -0400
+Message-ID: <630DA58AD01AD311B13A00C00D00E9BC05D20216@CSREESSERVER>
+From: "Martinez, Michael - CSREES/ISTM" <MMARTINEZ@intranet.reeusda.gov>
+To: "'Thunder from the hill'" <thunder@ngforever.de>,
+       "Martinez, Michael - CSREES/ISTM" <MMARTINEZ@intranet.reeusda.gov>
+Cc: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: RE: list of compiled in support
+Date: Tue, 9 Jul 2002 09:09:52 -0400 
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Today Alex Riesen wrote:
+No, no. Just simply find out whether my kernel supports ipx. And if it does
+support it, then to disable it, without recompiling the kernel, perhaps by
+removing ipx entries from /etc/services.
 
-AR>On Tue, Jul 09, 2002 at 01:47:41PM +0400, Tim Alexeevsky wrote:
-AR>>    But if this is the reason for this subproblem, there are some others
-AR>> and they all seem to appear simultaneously. They all are the problems with
-AR>> accessing files. And as long as I got the first problem I will have a
-AR>> lots of them on different filesystems until I reboot the system (AFAIK).
-AR>>    Maybe the reason is some damage in global filesystem handling. (Is that
-AR>> VFS?)
-AR>that's not the reason 8-) That are consequences.
-   You mean that mistake in reiserfs lead to global filesystem error?
-   I think it did not, because I didn't mount reiserfs before all those things
-have started. And mounted it only later to find out some info on that
-partition.
+Michael Martinez
+System Administrator (Contractor)
+Information Systems and Technology Management
+CSREES - United States Department of Agriculture
+(202) 720-6223
 
-AR>Maybe upgrade the kernel as well? 2.4.19-rc1 seems to be quiet stable
-AR>for me and there was some changes to reiserfs since 2.4.17.
-   I think I would. As soon as I will get to the place where the
-connection speed is more than 9600 and connection itself is stable... :-/
 
-Good luck,
+-----Original Message-----
+From: Thunder from the hill [mailto:thunder@ngforever.de]
+Sent: Tuesday, July 09, 2002 8:53 AM
+To: Martinez, Michael - CSREES/ISTM
+Cc: 'Alan Cox'; linux-kernel@vger.kernel.org
+Subject: RE: list of compiled in support
 
-                                                         Tim
 
-,-----------------------------------------------------------------------------.
-|                Wakko of Borg: Heeeeeeellllllllo Collective!                 |
-`-----------------------------------------------------------------------------'
+Hi,
 
+On Tue, 9 Jul 2002, Martinez, Michael - CSREES/ISTM wrote:
+> Okay. this would require a little C code right? is there a shell command
+> line tool I could use instead?
+
+What exactly is your intention? IPX networking from a shell script?
+
+							Regards,
+							Thunder
+-- 
+(Use http://www.ebb.org/ungeek if you can't decode)
+------BEGIN GEEK CODE BLOCK------
+Version: 3.12
+GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
+N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
+e++++ h* r--- y- 
+------END GEEK CODE BLOCK------

@@ -1,42 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266632AbUBQX46 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 18:56:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266696AbUBQX46
+	id S266811AbUBRAFo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 19:05:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266721AbUBRAFn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 18:56:58 -0500
-Received: from delerium.kernelslacker.org ([81.187.208.145]:53403 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S266632AbUBQX45 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 18:56:57 -0500
-Date: Tue, 17 Feb 2004 23:54:31 +0000
-From: Dave Jones <davej@redhat.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: Marc Zyngier <maz@wild-wind.fr.eu.org>
-Subject: EISA & sysfs.
-Message-ID: <20040217235431.GF6242@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>,
-	Marc Zyngier <maz@wild-wind.fr.eu.org>
+	Tue, 17 Feb 2004 19:05:43 -0500
+Received: from fed1mtao01.cox.net ([68.6.19.244]:61916 "EHLO
+	fed1mtao01.cox.net") by vger.kernel.org with ESMTP id S266811AbUBRADR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Feb 2004 19:03:17 -0500
+Date: Tue, 17 Feb 2004 17:03:15 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][1/6] A different KGDB stub
+Message-ID: <20040218000315.GN16881@smtp.west.cox.net>
+References: <20040217220249.GB16881@smtp.west.cox.net> <20040217155036.33e37c67.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20040217155036.33e37c67.akpm@osdl.org>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm somewhat puzzled about the case where we have a driver
-that can work on EISA bus, as well as others, when modprobe'd on
-a system that doesn't have an EISA bus.
+On Tue, Feb 17, 2004 at 03:50:36PM -0800, Andrew Morton wrote:
 
-It seems we do a probe really early on to see if we actually
-have an eisa bus, but if a driver later calls eisa_driver_register()
-we still do lots of hoop jumping through sysfs/kobjects
-before deciding that we don't have the device.
+> Tom Rini <trini@kernel.crashing.org> wrote:
+> >
+> > The following is the core bits to this KGDB stub.
+> 
+> This still contains the kern_do_schedule() gunk.  Andi raised this issue
+> last week.  He identified several other significant issues as well, but
+> there was no followup.  Could you please dig out his email and address the
+> points which he raised?  (I can't find the email - perhaps Andi could
+> re-review this patch?)
 
-Wouldn't it make sense to have eisa_driver_register() check that the
-root EISA bus actually got registered, and if not, -ENODEV
-immediately ?
+By my read of Andi's email, the kern_do_schedule() gunk is "I really
+don't like this change. It is completely useless because you can get the
+pt_regs as well from the stack.  Please don't add it. George's stub also
+didn't need it."
 
-		Dave
+But I don't see how it does.  But I'll look again tomorrow.
 
+The next issue was about adding debuggerinfo to thread_struct.  By my
+read of the code, it's because of the thread handling bits that Amit's
+version does that George's does not.  So I'm not sure how it's not
+needed (unless all of the relevant code goes.  If that's too heavy, I
+can remove all of that).
+
+Next was that KGDB should use the notify_die hooks that are there, and
+I've done that.
+
+Finally, the save_context_frame stuff can go (x86_64-specific stuffs)
+but as I don't have x86_64 hw (I'll try and whip up a toolchain
+tomorrow, but I leave for FOSDEM Thursday) so I didn't touch that, in
+hopes that someone who could test it would.
+
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

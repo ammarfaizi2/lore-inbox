@@ -1,89 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264932AbRGWXbF>; Mon, 23 Jul 2001 19:31:05 -0400
+	id <S264942AbRGWXep>; Mon, 23 Jul 2001 19:34:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264874AbRGWXaz>; Mon, 23 Jul 2001 19:30:55 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:6156 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S264877AbRGWXar>; Mon, 23 Jul 2001 19:30:47 -0400
-Date: Mon, 23 Jul 2001 20:30:48 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Jerome de Vivie <jerome.de-vivie@wanadoo.fr>
-Cc: Larry McVoy <lm@bitmover.com>, <linux-kernel@vger.kernel.org>,
-        <linux-fsdev@vger.kernel.org>, <martizab@libertsurf.fr>,
-        <rusty@rustcorp.com.au>
-Subject: Re: Yet another linux filesytem: with version control
-In-Reply-To: <3B5CADD7.7C7C8337@wanadoo.fr>
-Message-ID: <Pine.LNX.4.33L.0107232027120.20326-100000@duckman.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S264933AbRGWXef>; Mon, 23 Jul 2001 19:34:35 -0400
+Received: from flodhest.stud.ntnu.no ([129.241.56.24]:35231 "EHLO
+	flodhest.stud.ntnu.no") by vger.kernel.org with ESMTP
+	id <S264958AbRGWXeZ>; Mon, 23 Jul 2001 19:34:25 -0400
+Date: Tue, 24 Jul 2001 01:34:30 +0200
+From: =?iso-8859-1?Q?Thomas_Lang=E5s?= <tlan@stud.ntnu.no>
+To: linux-kernel@vger.kernel.org
+Subject: Oops when trying to reboot
+Message-ID: <20010724013430.A29741@flodhest.stud.ntnu.no>
+Reply-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Tue, 24 Jul 2001, Jerome de Vivie wrote:
-> Rik van Riel a écrit :
+Hi!
 
-> > Hmmmm, so it's not completely transparent. Good.
->
-> You only set a global variable to select on which configuration
-> you want to work. You can't do it simplier Rik: everything else
-> is transparent: read, write, ... !
+I've compiled a 2.4.6 kernel (with aacraid-patches, and hidden-patch for
+lvs), and everytime I try to reboot a box with the kernel, it does an oops
+on me. I need to go and reset the damn box by hand afterwards.
 
-*nod*
+This is the oops through ksymoops:
 
-Sounds like a great idea indeed.
+ksymoops 2.4.0 on i686 2.4.6.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.6/ (default)
+     -m /boot/System.map-2.4.6 (default)
 
-> > Now if you want to make this kernel-accessible, why
-> > not make a userland NFS daemon which uses something
-> > like bitkeeper or PRCS as its backend ?
-> >
-> > The system would then look like this:
-> >
-> >  _____    _______    _____    _____
-> > |     |  |       |  |     |  |     |
-> > | SCM |--| UNFSD |--| NET |--| NFS |
-> > |_____|  |_______|  |_____|  |_____|
->
-> Your architecture is too complex for me.
+Warning: You did not tell me where to find symbol information.  I will
+assume that the log matches the kernel and modules that are running
+right now and I'll use the default options above for symbol resolution.
+If the current kernel and/or modules do not match the log, you can get
+more accurate output by telling me the kernel version and where to find
+map, modules, ksyms etc.  ksymoops -h explains the options.
 
-But you only have to implement 10% of it, the rest already
-exists.
+Warning (compare_maps): ksyms_base symbol
+__VERSIONED_SYMBOL(shmem_file_setup) not found in System.map.  Ignoring ksyms_base entry
+83c88804
+*pde = 00000000
+Oops: 0000
+CPU:     1
+EIP:     0010:[<83c88804>]
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS:  00010282
+eax: 000000000  ebx: f883eaa4  ecx: 000e1898  edx: 00000000
+esi: 000000000  edi: 00000001  ebp: bffffcb8  esp: f6be3e8c
+ds: 0018  es: 0018  ss: 0018
+Process reboot (pid: 1245, stackpage=f6be3000)
+Stack: c011d375 f883eaa4 00000001 00000000 f6be2000 f6be2000 fee1dead c011d701
+       c0307d44 00000001 00000000 f6dbf760 400f4ef0 00000000 f6c903d0 f6be3f3d
+       f6be3f2c f6be2000 c023daa9 00000292 f6e2b7e0 00000020 30687465 00000000
+Call trace: [<c011d375>] [<c011d701>] [<c023daa9>] [<c01f9357>] [<c0238f43>]
+[<c0148100>] [<c0146e3c>]
+       [<c0134257>] [<c0133114>] [<c013317b>] [<c0106ffb>]
+Code: Bad EIP value.
 
-You already have:
-1) Source Control Management system (SCM)
-2) Userland NFS daemon (UNFSD)
-3) network layer
-4) NFS filesystem support (for every OS!)
-
-All you need is a backend for the NFS server daemon to
-get its files from a version control system (the SCM)
-instead of from disk.
-
-> > And there, you have a transparent SCM filesystem
-> > that works over the network ... without ever having
-> > to modify the kernel or implement SCM.
->
-> I can't do it outside the kernel.
-
-So chose the appropriate "magic directories" for the
-NFS daemon ... maybe even "magic mount paths" ?
-
-You're looking at reimplementing the 90% which is
-already there (the versioning and the filesystem code)
-while leaving the other 10% (the management code) for
-a later date ;)
-
-regards,
-
-Rik
---
-Executive summary of a recent Microsoft press release:
-   "we are concerned about the GNU General Public License (GPL)"
+>>EIP; 83c88804 Before first symbol   <=====
+Trace; c011d375 <notifier_call_chain+25/50>
+Trace; c011d701 <sys_reboot+f1/290>
+Trace; c023daa9 <vsprintf+349/380>
+Trace; c01f9357 <sk_free+37/40>
+Trace; c0238f43 <unx_marshal+83/140>
+Trace; c0148100 <destroy_inode+30/40>
+Trace; c0146e3c <dput+1c/160>
+Trace; c0134257 <fput+77/e0>
+Trace; c0133114 <filp_close+a4/b0>
+Trace; c013317b <sys_close+5b/70>
+Trace; c0106ffb <system_call+33/38>
 
 
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
+2 warnings issued.  Results may not be reliable.
 
+
+Any ideas what's wrong?
+
+-- 
+Thomas

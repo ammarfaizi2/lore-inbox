@@ -1,59 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264401AbUFGKi5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264404AbUFGKnj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264401AbUFGKi5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jun 2004 06:38:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264402AbUFGKi5
+	id S264404AbUFGKnj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jun 2004 06:43:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264411AbUFGKni
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jun 2004 06:38:57 -0400
-Received: from postoffice9.mail.cornell.edu ([132.236.56.39]:62926 "EHLO
-	postoffice9.mail.cornell.edu") by vger.kernel.org with ESMTP
-	id S264401AbUFGKi4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jun 2004 06:38:56 -0400
-Message-ID: <40C445D8.80804@cornell.edu>
-Date: Mon, 07 Jun 2004 04:39:20 -0600
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-User-Agent: Mozilla Thunderbird 0.6 (X11/20040519)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Nathan Scott <nathans@sgi.com>
-CC: Linux-Kernel <linux-kernel@vger.kernel.org>, linux-xfs@oss.sgi.com
-Subject: Re: xfs corruption or not
-References: <40BFDB13.7000901@cornell.edu> <20040604052953.GE13756@frodo>
-In-Reply-To: <20040604052953.GE13756@frodo>
-X-Enigmail-Version: 0.84.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-PMX-Version: 4.5.0.90627, Antispam-Core: 4.0.4.92622, Antispam-Data: 2004.6.6.102728
+	Mon, 7 Jun 2004 06:43:38 -0400
+Received: from arnor.apana.org.au ([203.14.152.115]:51212 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S264404AbUFGKnf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jun 2004 06:43:35 -0400
+Date: Mon, 7 Jun 2004 20:43:18 +1000
+To: David Woodhouse <dwmw2@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [MTD] Tone down overly noisy JEDEC probing
+Message-ID: <20040607104318.GA18030@gondor.apana.org.au>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="Nq2Wo0NMKNjxTN9z"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> Do you know if the kernel was low on memory at the time?  (any
-> signs of allocation failures in your system log?)
-> 
-> This looks like a memory allocation failure which hasn't been
-> gracefully handled (or approriately retried) in XFS - there's
-> a few patches being worked on to improve this, but they aren't
-> ready to be merged in just yet.
+--Nq2Wo0NMKNjxTN9z
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
+Hi:
 
----
-Well, now that you mention it, there's another trace right in front of
-the oops. Don't know why I missed it - probably thought it was the same
-thing. It says allocation failure. I am running FC2 with 128MB SDRAM.
-----
+If you have a look at
 
-(Trace in previous message in thread)
+http://bugs.debian.org/cgi-bin/bugreport.cgi/dmesg.dump?bug=250093&msg=3&att=2
 
-I think this is caused by working with a 385 MB LKML archive file when 
-low on memory (basically all the time..) I can't ls -l that particular 
-folder after t-bird locks up, since ls locks up too and becomes unkillable.
+you'll see that JEDEC probing is way too noisy.  Since that module
+is now being loaded automatically by hotplug, it should probably
+be toned down.
 
+The following patch turns the printk's into DEBUG calls.  Please let
+me know if you've got any problems with that.
 
+Thanks,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
 
+--Nq2Wo0NMKNjxTN9z
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=p
 
+===== drivers/mtd/chips/gen_probe.c 1.4 vs edited =====
+--- 1.4/drivers/mtd/chips/gen_probe.c	2003-09-30 10:25:16 +10:00
++++ edited/drivers/mtd/chips/gen_probe.c	2004-06-07 20:30:46 +10:00
+@@ -65,8 +65,9 @@
+ 	   interleave and device type, etc. */
+ 	if (!genprobe_new_chip(map, cp, &cfi)) {
+ 		/* The probe didn't like it */
+-		printk(KERN_WARNING "%s: Found no %s device at location zero\n",
+-		       cp->name, map->name);
++		DEBUG(MTD_DEBUG_LEVEL3,
++		      "MTD %s(): %s: Found no %s device at location zero\n",
++		      __func__, cp->name, map->name);
+ 		return NULL;
+ 	}		
+ 
+===== drivers/mtd/chips/jedec_probe.c 1.11 vs edited =====
+--- 1.11/drivers/mtd/chips/jedec_probe.c	2004-06-05 18:14:08 +10:00
++++ edited/drivers/mtd/chips/jedec_probe.c	2004-06-07 20:42:08 +10:00
+@@ -1668,8 +1668,10 @@
+ 		
+ 		cfi->mfr = jedec_read_mfr(map, base, cfi);
+ 		cfi->id = jedec_read_id(map, base, cfi);
+-		printk(KERN_INFO "Search for id:(%02x %02x) interleave(%d) type(%d)\n", 
+-			cfi->mfr, cfi->id, cfi->interleave, cfi->device_type);
++		DEBUG(MTD_DEBUG_LEVEL3,
++		      "MTD %s(): Search for id:(%02x %02x) interleave(%d) type(%d)\n", 
++		      __func__, cfi->mfr, cfi->id, cfi->interleave,
++		      cfi->device_type);
+ 		for (i=0; i<sizeof(jedec_table)/sizeof(jedec_table[0]); i++) {
+ 			if ( jedec_match( base, map, cfi, &jedec_table[i] ) ) {
+ 				DEBUG( MTD_DEBUG_LEVEL3,
 
-
-
-
+--Nq2Wo0NMKNjxTN9z--

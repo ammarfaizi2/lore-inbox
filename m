@@ -1,65 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262733AbTDNEGC (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 00:06:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262739AbTDNEGC (for <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Apr 2003 00:06:02 -0400
-Received: from c3p0.cc.swin.edu.au ([136.186.1.10]:49680 "EHLO
-	net.cc.swin.edu.au") by vger.kernel.org with ESMTP id S262733AbTDNEGB (for <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Apr 2003 00:06:01 -0400
-From: Tim Connors <tconnors@astro.swin.edu.au>
-Message-Id: <200304140417.h3E4Hkh27135@tellurium.ssi.swin.edu.au>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.67: ppa driver & preempt == oops
-In-Reply-To: <20030413201011$5dde@gated-at.bofh.it>
-References: <20030413201011$1026@gated-at.bofh.it> <20030413201011$250d@gated-at.bofh.it> <20030413201011$5dde@gated-at.bofh.it>
-Date: Mon, 14 Apr 2003 14:17:46 +1000
+	id S262739AbTDNESu (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 00:18:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262740AbTDNESu (for <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Apr 2003 00:18:50 -0400
+Received: from dialup-10.157.221.203.acc50-nort-cbr.comindico.com.au ([203.221.157.10]:65028
+	"EHLO chimp.local.net") by vger.kernel.org with ESMTP
+	id S262739AbTDNESt (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 00:18:49 -0400
+Message-ID: <3E9A31FF.6030506@cyberone.com.au>
+Date: Mon, 14 Apr 2003 13:58:55 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030327 Debian/1.3-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Chuck Ebbert <76306.1226@compuserve.com>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Benefits from computing physical IDE disk geometry?
+References: <200304131407_MC3-1-3441-57C7@compuserve.com> <1050272156.24559.4.camel@dhcp22.swansea.linux.org.uk>
+In-Reply-To: <1050272156.24559.4.camel@dhcp22.swansea.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In linux.kernel, you wrote:
-> Andrew Morton wrote:
->> Gert Vervoort <gert.vervoort@hccnet.nl> wrote:
->> 
->>>ppa: Version 2.07 (for Linux 2.4.x)
->>>ppa: Found device at ID 6, Attempting to use EPP 16 bit
->>>ppa: Communication established with ID 6 using EPP 16 bit
->>>scsi0 : Iomega VPI0 (ppa) interface
->>>bad: scheduling while atomic!
->> 
->> 
->> This patch should make the warnings go away.
->> 
->> I've been sitting on it for a while, waiting for someone to tell me if the
->> ppa driver actually works.  Perhaps that person is you?
-> 
-> I've responded to your questions more than once but evidently you
-> haven't seen or been able to parse my responses.
-> 
-> To recap:  I see a non-fatal kernel-oops and modprobe segfaults after
-> successfully loading the ppa module.  Once the ppa module is loaded the
-> ppa driver actually does work with 2.5.x for at least x>50 (I haven't 
-> tried x<50).
-> 
-> I am using preemptable kernel and devfs and I do NOT see any of the
-> warnings that Geert is seeing.  The only problems I see with Linus's
-> 2.5.x kernels is the segfault by modprobe, not with the function of
-> ppa itself.
-
-I'm using both devfs and preempt. The first time I booted (I think it
-was actually 2.5.66), I tried to mount /zip, and it hung, with 100%
-cpu usage after that (I can't rememebr what process), and several
-traces in syslog (lsmod showed the modules as loaded, I think one or
-two of them "unsafe"). Next time I booted (2.5.67+V4L patches), I
-modprobed ppa manually, this time, it segfaulted (with traces in
-syslog), but the modules were listed in lsmod correcly. I then
-mounted, and it was fine.
-
-Sorry I don't have the logs with me, one of the drawbacks of being too
-cheap to afford a home innernet connection :(
 
 
--- 
-TimC -- http://astronomy.swin.edu.au/staff/tconnors/
+Alan Cox wrote:
 
-Press any key to continue, any other key to abort
-           -- thrillbert's code
+>On Sul, 2003-04-13 at 19:03, Chuck Ebbert wrote:
+>
+>>  OTOH you can come up with scenarios like, say, a DBMS doing 16K page
+>>aligned IO to raw devices where you might see big gains from making sure
+>>those 16K chunks didn't cross a physical cylinder boundary.
+>>
+>
+>You couldn't even tell where such boundaries exist, or what the real
+>block size of the underlying media is. Cyliners are all different sizes.
+>
+Yes this is getting very difficult as Alan said. Its also something
+that we can't do in kernel - the block io scheduler can only choose
+from what it is given. I wouldn't be surprised if big databases did
+try using some sorts of disk mapping systems to help optimise
+their IO however.
+

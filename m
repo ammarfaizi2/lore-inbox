@@ -1,60 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264531AbTDWTOK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 15:14:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264532AbTDWTOK
+	id S264610AbTDWTRY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 15:17:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264621AbTDWTRY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 15:14:10 -0400
-Received: from carisma.slowglass.com ([195.224.96.167]:38924 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S264531AbTDWTOI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 15:14:08 -0400
-Date: Wed, 23 Apr 2003 20:26:15 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Stephen Smalley <sds@epoch.ncsc.mil>
-Cc: Linus Torvalds <torvalds@transmeta.com>, "Ted Ts'o" <tytso@mit.edu>,
-       Andreas Gruenbacher <a.gruenbacher@computer.org>,
-       Stephen Tweedie <sct@redhat.com>, lkml <linux-kernel@vger.kernel.org>,
-       lsm <linux-security-module@wirex.com>
-Subject: Re: [PATCH] Extended Attributes for Security Modules against 2.5.68
-Message-ID: <20030423202614.A5890@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Stephen Smalley <sds@epoch.ncsc.mil>,
-	Linus Torvalds <torvalds@transmeta.com>, Ted Ts'o <tytso@mit.edu>,
-	Andreas Gruenbacher <a.gruenbacher@computer.org>,
-	Stephen Tweedie <sct@redhat.com>,
-	lkml <linux-kernel@vger.kernel.org>,
-	lsm <linux-security-module@wirex.com>
-References: <1051120322.14761.95.camel@moss-huskers.epoch.ncsc.mil> <20030423191749.A4244@infradead.org> <20030423112548.B15094@figure1.int.wirex.com> <20030423194501.B5295@infradead.org> <1051125476.14761.146.camel@moss-huskers.epoch.ncsc.mil>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1051125476.14761.146.camel@moss-huskers.epoch.ncsc.mil>; from sds@epoch.ncsc.mil on Wed, Apr 23, 2003 at 03:17:57PM -0400
+	Wed, 23 Apr 2003 15:17:24 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:40419 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S264610AbTDWTRP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Apr 2003 15:17:15 -0400
+Date: Wed, 23 Apr 2003 16:27:50 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@freak.distro.conectiva
+To: Ben Collins <bcollins@debian.org>
+Cc: Stelian Pop <stelian.pop@fr.alcove.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: IEEE-1394 problem on init [ was Re: Linux 2.4.21-rc1 ]
+In-Reply-To: <20030423190545.GY354@phunnypharm.org>
+Message-ID: <Pine.LNX.4.53L.0304231626510.7085@freak.distro.conectiva>
+References: <20030423132227.GI820@hottah.alcove-fr> <20030423133256.GG354@phunnypharm.org>
+ <20030423135814.GJ820@hottah.alcove-fr> <20030423135448.GI354@phunnypharm.org>
+ <20030423142131.GK820@hottah.alcove-fr> <20030423142353.GL354@phunnypharm.org>
+ <20030423145122.GL820@hottah.alcove-fr> <20030423144857.GN354@phunnypharm.org>
+ <20030423152914.GM820@hottah.alcove-fr> <Pine.LNX.4.53L.0304231609230.5536@freak.distro.conectiva>
+ <20030423190545.GY354@phunnypharm.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 23, 2003 at 03:17:57PM -0400, Stephen Smalley wrote:
-> On Wed, 2003-04-23 at 14:45, Christoph Hellwig wrote:
-> > Randomly userland shouldn't deal with these xattrs.  Remember you are
-> > talking about the ondisk represenation of your labelling - nothing
-> > but the labelling tools should ever touch it.
-> 
-> Not true.  ls should be able to display the security label.  find should
-> be able to locate files that have specific security labels.  cp should
-> be able to preserve the security label on copies.  logrotate should be
-> able to preserve the security label when rotating logs.  crond should be
-> able to check the security label on a crontab spool file to verify
-> consistency with the user's credentials with which the cron job will
-> run.  login/sshd need to set the security label on the user's terminal
-> device.  You'll find plenty of examples of patched userland in SELinux,
-> but none of these patches are specific to a particular set of security
-> attributes.  They just handle them as strings.
+a
 
-And all these should _not_ happen in the actual tools but in a
-pluggable security module (something like pam).  Encoding any security
-policy and especially a xattr name in those utils is bad.
+On Wed, 23 Apr 2003, Ben Collins wrote:
 
-And see, you start to contradict what you said before - with your
-suggestion cron has to know what the label means, so your selinux
-cron would do stupid things with say may Posix 1003.1e MAC filesystem.
+> > > > The problem you see with the irq disabling around kernel_thread() may
+> > > > not be there in -pre7, but that's only because the shared data with the
+> > > > thread was not protected from a race condition that causes an oops in
+> > > > some not-so-rare cases.
+> > >
+> > > I confirm that your patch at least solves the initialisation issues.
+> > > I'll test later with some ieee devices and I'll report back if I found
+> > > other issues.
+> >
+> > Any news on that, Stelian ?
+> >
+> > I guess Ben's mega patch (and yes, I also consider it a megapatch for
+> > -rc) has to be applied. I just mailed him asking about the possibility
+> > of getting only fixes in and not the cleanups, but I guess that might be a
+> > bit hard to do _today_. Right Ben ?
+>
+> Yeah, it's pretty hard. I didn't do all these changes with the intent of
+> it being a 2.4.21 thing, but it definitely dragged on to the point where
+> I had no choice, and pulling the fixes out of the major work became too
+> much work.
+>
+> > And about the sweet complaints about -pre timing, I will release -pre's
+> > each damn week for .22.
+>
+> If you could just commit patches to the bk repo as you get them, instead
+> of holding them for a month and dumping them all in at once, it would be
+> easier to follow things. Instead, we got several huge lumps late in
+> 2.4.21-pre's.
+>
+> Wasn't my intent to bash you, but I will admit that 2.4.21 has been a
+> pain in my ass because of the cycle :)
+
+I also agree that 2.4.21 was a _too_ long cycle. Very bad thing indeed.
+
+Well, the megapatch is in bk already (together with some other stuff).
+
+-rc2 should be out today.

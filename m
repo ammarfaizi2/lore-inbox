@@ -1,40 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262230AbVAOHSa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262234AbVAOHY2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262230AbVAOHSa (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jan 2005 02:18:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262234AbVAOHSa
+	id S262234AbVAOHY2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jan 2005 02:24:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262233AbVAOHY2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jan 2005 02:18:30 -0500
-Received: from cantor.suse.de ([195.135.220.2]:41453 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262230AbVAOHS0 (ORCPT
+	Sat, 15 Jan 2005 02:24:28 -0500
+Received: from mx.freeshell.org ([192.94.73.21]:56518 "EHLO sdf.lonestar.org")
+	by vger.kernel.org with ESMTP id S262234AbVAOHYF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jan 2005 02:18:26 -0500
-Date: Sat, 15 Jan 2005 08:18:25 +0100
-From: Andi Kleen <ak@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Andi Kleen <ak@suse.de>, rusty@rustcorp.com.au, manpreet@fabric7.com,
-       linux-kernel@vger.kernel.org, discuss@x86-64.org
-Subject: Re: [PATCH] i386/x86-64: Fix timer SMP bootup race
-Message-ID: <20050115071825.GA1576@wotan.suse.de>
-References: <20050115040951.GC13525@wotan.suse.de> <20050114222841.5edf7812.akpm@osdl.org> <20050115064315.GF22863@wotan.suse.de> <20050114225457.611cea19.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050114225457.611cea19.akpm@osdl.org>
+	Sat, 15 Jan 2005 02:24:05 -0500
+Date: Sat, 15 Jan 2005 07:23:38 +0000 (UTC)
+From: Roey Katz <roey@sdf.lonestar.org>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9 & 2.6.10 unresponsive to keyboard upon bootup
+In-Reply-To: <200501122242.51686.dtor_core@ameritech.net>
+Message-ID: <Pine.NEB.4.61.0501150720190.11993@sdf.lonestar.org>
+References: <Pine.NEB.4.61.0501010814490.26191@sdf.lonestar.org>
+ <200501110239.33260.dtor_core@ameritech.net> <Pine.NEB.4.61.0501130315500.11711@sdf.lonestar.org>
+ <200501122242.51686.dtor_core@ameritech.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I don't get it.  By the time the secondaries enter the idle loop, they've
-> already run init_timers_cpu() anyway.  You patch doesn't address a
+Having disabled ALL mouse functionality (including 'mousedev'), I 
+compiled 2.6.9-rc2-bk2.  On bootup, keyboard input worked great.
+So many it's a conflict with the mouse driver then.
+BTW, I haven an MSI NEO K8T FIS2R motherboard with an athlon64/3200+,
+for what it's worth.
+I will follow up with logs shortly.
 
 
-The notifier uns only after smp_prepare_cpus and then all the synchronization
-is long done. 
+Roey
 
-> secondary taking a timer interrupt prior to the BP having run
-> init_timers(), does it?
 
-It initializes the timer of a CPU before it is even touched. 
+On Wed, 12 Jan 2005, Dmitry Torokhov wrote:
 
--Andi
-
+[snip]
+> And what if you do not compile PS/2 mouse support in? Is keyboard still
+> dead?
+>
+[snip]

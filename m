@@ -1,50 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267515AbRG2CvP>; Sat, 28 Jul 2001 22:51:15 -0400
+	id <S267517AbRG2CxQ>; Sat, 28 Jul 2001 22:53:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267517AbRG2CvF>; Sat, 28 Jul 2001 22:51:05 -0400
-Received: from cx570538-a.elcjn1.sdca.home.com ([24.5.14.144]:45701 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S267515AbRG2Cuz>; Sat, 28 Jul 2001 22:50:55 -0400
-Message-ID: <3B637963.232CA4EA@randomlogic.com>
-Date: Sat, 28 Jul 2001 19:48:03 -0700
-From: "Paul G. Allen" <pgallen@randomlogic.com>
-Organization: Akamai Technologies, Inc.
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-CC: "Linux kernel developer's mailing list" 
-	<linux-kernel@vger.kernel.org>
-Subject: Re: TYan K7 Thunder: AMD-760 MP support
-In-Reply-To: <E15QWpq-0007qG-00@the-village.bc.nu>
+	id <S267520AbRG2CxG>; Sat, 28 Jul 2001 22:53:06 -0400
+Received: from barbados.bluemug.com ([63.195.182.101]:48656 "EHLO
+	barbados.bluemug.com") by vger.kernel.org with ESMTP
+	id <S267517AbRG2Cw6>; Sat, 28 Jul 2001 22:52:58 -0400
+Date: Sat, 28 Jul 2001 19:53:05 -0700
+To: linux-kernel@vger.kernel.org
+Subject: Re: make rpm
+Message-ID: <20010728195305.N30957@bluemug.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <E15QeJf-0008O8-00@the-village.bc.nu> <87g0bg7ded.fsf@pfaffben.user.msu.edu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
+Content-Disposition: inline
+In-Reply-To: <87g0bg7ded.fsf@pfaffben.user.msu.edu>
+X-PGP-ID: 5C09BB33
+X-PGP-Fingerprint: C518 67A5 F5C5 C784 A196  B480 5C97 3BBD 5C09 BB33
+From: Mike Touloumtzis <miket@bluemug.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-I guess it's time to upgrade then and go from there.
-
-That means the Kernel docs. and metrics on my server will be going down
-while I do it. (I notice it's been getting a lot of use).
-
-PGA
-
-Alan Cox wrote:
+On Sat, Jul 28, 2001 at 09:05:46PM -0400, Ben Pfaff wrote:
 > 
-> > Grr.  I lied.  There is code on linux-ide.org that contains a native ide
-> > driver.  I thought I saw it in 2.4.7 but I was seeing things.
-> 
-> 2.4.7ac should be up to date on it
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> Debian has had a package that does this for years now.  It's
+> called `kernel-package' and works through a program called
+> `make-kpkg' that does all sorts of nice things.  Using
+> kernel-package, you could implement `make dpkg' as a single
+> command: `make-kpkg kernel_image'.
 
--- 
-Paul G. Allen
-UNIX Admin II/Network Security
-Akamai Technologies, Inc.
-www.akamai.com
+I suggest '$(FAKEROOT) make-kpkg kernel_image'
+
+miket

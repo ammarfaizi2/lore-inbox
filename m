@@ -1,46 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268476AbTANB1M>; Mon, 13 Jan 2003 20:27:12 -0500
+	id <S268491AbTANBlP>; Mon, 13 Jan 2003 20:41:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268477AbTANB1L>; Mon, 13 Jan 2003 20:27:11 -0500
-Received: from zok.SGI.COM ([204.94.215.101]:3753 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S268476AbTANB1K>;
-	Mon, 13 Jan 2003 20:27:10 -0500
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@sgi.com>
-To: linux-xfs@oss.sgi.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Announce: XFS split patches for 2.4.20 - respin
-Date: Tue, 14 Jan 2003 12:34:35 +1100
-Message-ID: <11444.1042508075@kao2.melbourne.sgi.com>
+	id <S268488AbTANBlP>; Mon, 13 Jan 2003 20:41:15 -0500
+Received: from fmr01.intel.com ([192.55.52.18]:32496 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id <S268491AbTANBlO>;
+	Mon, 13 Jan 2003 20:41:14 -0500
+Subject: Re: concerns about sysfs_ops
+From: Louis Zhuang <louis.zhuang@linux.co.intel.com>
+To: Patrick Mochel <mochel@osdl.org>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0301130907340.1136-100000@localhost.localdomain>
+References: <Pine.LNX.4.33.0301130907340.1136-100000@localhost.localdomain>
+Content-Type: text/plain
+Organization: Intel Crop.
+Message-Id: <1042504991.10860.16.camel@hawk.sh.intel.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
+Date: 14 Jan 2003 08:43:12 +0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-Content-Type: text/plain; charset=us-ascii
-
-ftp://oss.sgi.com/projects/xfs/download/patches/2.4.20.  
-
-The xfs patches for 2.4.20 have been respun as of 2003-01-14 00:43 UTC.
-
-For some time the XFS group have been producing split patches for XFS,
-separating the core XFS changes from additional patches such as kdb,
-xattr, acl, dmapi.  The split patches are released to the world with
-the hope that developers and distributors will find them useful.
-
-Read the README in each directory very carefully, the split patch
-format has changed over a few kernel releases.  Any questions that are
-covered by the README will be ignored.  There is even a 2.4.21/README
-for the terminally impatient :).
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: Exmh version 2.1.1 10/15/1999
-
-iD8DBQE+I2kpi4UHNye0ZOoRAsK3AJ4meW2ZYuWbkqp2SYSLA0PMTVAyrwCfQ9bQ
-7YeCH8NEeJ58WUEbQliF8Xg=
-=JF0Z
------END PGP SIGNATURE-----
+> I agree, and Linus pointed out that obvious flaw in the interface when I
+> sent it to him on Friday. I'll fixing that, and should up in his tree
+> later today..
+> 
+> 	-pat
+And more, could you possibly export 'kset_find_obj'? I thinks it is
+useful for module too.
+Yours truly,
+Louis Zhuang
+---------------
+Fault Injection Test Harness Project
+BK tree: http://fault-injection.bkbits.net/linux-2.5
+Home Page: http://sf.net/projects/fault-injection
 

@@ -1,47 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129983AbRBWI5R>; Fri, 23 Feb 2001 03:57:17 -0500
+	id <S129562AbRBWJK2>; Fri, 23 Feb 2001 04:10:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129882AbRBWI5A>; Fri, 23 Feb 2001 03:57:00 -0500
-Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:4100 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S129315AbRBWI4x>;
-	Fri, 23 Feb 2001 03:56:53 -0500
-Date: Sat, 1 Jan 2000 00:43:02 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Yuri Niyazov <yuricake@yahoo.com>
+	id <S129608AbRBWJKS>; Fri, 23 Feb 2001 04:10:18 -0500
+Received: from jalon.able.es ([212.97.163.2]:64242 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S129562AbRBWJJ7>;
+	Fri, 23 Feb 2001 04:09:59 -0500
+Date: Fri, 23 Feb 2001 10:09:47 +0100
+From: "J . A . Magallon" <jamagallon@able.es>
+To: k.hindenburg@gte.net
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: What does the linux kernel need?
-Message-ID: <20000101004302.A45@(none)>
-In-Reply-To: <20010215171245.21445.qmail@web2301.mail.yahoo.com>
+Subject: Re: PROBLEM: __buggy_fxsr_alignment error 2.4.1 and 2.4.2
+Message-ID: <20010223100947.A4593@werewolf.able.es>
+In-Reply-To: <20010222224322.A15511@amdk7.gte.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20010215171245.21445.qmail@web2301.mail.yahoo.com>; from yuricake@yahoo.com on Thu, Feb 15, 2001 at 09:12:45AM -0800
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20010222224322.A15511@amdk7.gte.net>; from k.hindenburg@gte.net on Fri, Feb 23, 2001 at 04:43:22 +0100
+X-Mailer: Balsa 1.1.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
+On 02.23 Kurt V. Hindenburg wrote:
+> asm-i386:
+> init/main.o(.text.init+0x63): undefined reference to `__buggy_fxsr_alignment'
+> 
+> I don't recall this error in 2.4.0, but it is present in 2.4.1 and was not
+> fixed in 2.4.2.
+> 
+>  >sh scripts/ver_linux 
+> -- Versions installed: (if some fields are empty or look
+> -- unusual then possibly you have very old versions)
+> Linux amdk7 2.4.1 #3 Sat Feb 3 18:50:44 EST 2001 i686 unknown
+> Kernel modules         2.4.1
+> Gnu C                  pgcc-2.95.2.1
 
-> Hello, respected Linux kernel developers,
->     I am currently a university student taking a "Advanced design of 
-> Operating Systems" class at
-> New York University. We are reviewing some basic and studying a few 
-> advanced issues with regards
-> to kernel design, mostly multithreading, scalability, performance 
-> improvement - its webpage is http://www.scs.cs.nyu.edu/G22.3033-010/
-> take a look if you please. The requirement of the class is a final 
-> project proposal and
-> implementation of a student's own choosing - I would really like to do 
-> something useful for the
-> linux kernel, but I do not know what kinds of issues are most imminent 
-> at the linux kernel and
-> have to be worked on. I would greatly appreciate it if people would 
-> send me ideas of what is
+That is not a bug. That is there intentionally to catch broken compilers
+like yours.
 
-Creating network character device (similar to nbd) would make some people
-happy.								Pavel 
 -- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+J.A. Magallon                                                      $> cd pub
+mailto:jamagallon@able.es                                          $> more beer
+
+Linux werewolf 2.4.2-ac1 #2 SMP Fri Feb 23 02:34:42 CET 2001 i686
 

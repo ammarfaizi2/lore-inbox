@@ -1,35 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267393AbTBULnb>; Fri, 21 Feb 2003 06:43:31 -0500
+	id <S267392AbTBULsA>; Fri, 21 Feb 2003 06:48:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267394AbTBULnb>; Fri, 21 Feb 2003 06:43:31 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:53615 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S267393AbTBULna>; Fri, 21 Feb 2003 06:43:30 -0500
-From: Alan Cox <alan@redhat.com>
-Message-Id: <200302211153.h1LBrYR12271@devserv.devel.redhat.com>
-Subject: Re: Linux 2.5.62-ac1
-To: tomita@cinet.co.jp (Osamu Tomita)
-Date: Fri, 21 Feb 2003 06:53:34 -0500 (EST)
-Cc: linux-kernel@vger.kernel.org ('linux-kernel@vger.kernel.org '),
-       alan@redhat.com ('Alan Cox ')
-In-Reply-To: <E6D19EE98F00AB4DB465A44FCF3FA46903A340@ns.cinet.co.jp> from "Osamu Tomita" at Feb 21, 2003 02:37:37 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S267394AbTBULsA>; Fri, 21 Feb 2003 06:48:00 -0500
+Received: from ns.suse.de ([213.95.15.193]:51215 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S267392AbTBULr7>;
+	Fri, 21 Feb 2003 06:47:59 -0500
+Date: Fri, 21 Feb 2003 12:58:05 +0100
+From: Andi Kleen <ak@suse.de>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Jeff Garzik <jgarzik@pobox.com>,
+       kernel list <linux-kernel@vger.kernel.org>, torvalds@transmeta.com,
+       ak@suse.de, davem@redhat.com
+Subject: Re: ioctl32 consolidation
+Message-ID: <20030221115805.GA6445@wotan.suse.de>
+References: <20030220223119.GA18545@elf.ucw.cz> <20030220224433.GV9800@gtf.org> <20030221113428.GF24049@atrey.karlin.mff.cuni.cz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20030221113428.GF24049@atrey.karlin.mff.cuni.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Linux 2.5.62-ac1
-> > o	PC-9800 update			(Osamu Tomita)
-> Thanks!
+On Fri, Feb 21, 2003 at 12:34:29PM +0100, Pavel Machek wrote:
+> Hi!
 > 
-> > o	Toshiba keyboard workaround		(Pavel Machek)
-> This change conflict with PC98 keyboard. Always shows message
-> 'Keyboard glitch detected, ignoring keypress' every keypress.
-> Other machine has no problem?
+> 
+> > > Currently, 32-bit emulation in kernel has *5* copies, and its >1000
+> > > lines each.
+> > 
+> > Yes :/  Consolidating all these copies into a single layer has been a
+> > "project to be" for quite some time.
+> > 
+> > I do not know if it is too late in 2.5.x to begin this work, however.
+> > We _are_ in a feature freeze...  I suppose it is up to the consensus of
+> > arch maintainers, because it [obviously] does not affect ia32.
+> 
+> Actually Andi asked me to do the work. Dave, is it okay with you? What
+> about other maintainers?
 
-I've had no other reports of it triggering wrongly. Thats easy to
-deal with. Pavel can you send me the dmidecode data for the afflicted
-laptop ?
+One issue you need to be careful about is that long long has different
+alignment between 32bit and 64bit on ia64 and x86-64. On sparc64/mips64/ppc64
+etc. that isn't the case. The x86-64 handlers convert sometimes more than
+the later ones because of that.
+
+Also some ioctl handlers are endian dependent, at least in x86-64 (I think
+I commented them all). Not sure if Dave did the same.
+
+First step probably is to just get register_ioctl32_translation into
+a common header and implementation file.
+
+-Andi

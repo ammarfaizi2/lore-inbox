@@ -1,49 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262725AbTCTW0B>; Thu, 20 Mar 2003 17:26:01 -0500
+	id <S262724AbTCTW0C>; Thu, 20 Mar 2003 17:26:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262689AbTCTWZk>; Thu, 20 Mar 2003 17:25:40 -0500
-Received: from wohnheim.fh-wedel.de ([195.37.86.122]:50561 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id <S262684AbTCTWWb>; Thu, 20 Mar 2003 17:22:31 -0500
-Date: Thu, 20 Mar 2003 23:33:29 +0100
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: linux-kernel@vger.kernel.org
-Cc: netdev@oss.sgi.com, acme@conectiva.com.br
-Subject: [PATCH] clean up net/802/Makefile (small version)
-Message-ID: <20030320223329.GB13641@wohnheim.fh-wedel.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.28i
+	id <S262708AbTCTWZQ>; Thu, 20 Mar 2003 17:25:16 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:42501 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S262705AbTCTWVk>;
+	Thu, 20 Mar 2003 17:21:40 -0500
+Subject: Re: [PATCH] i2c driver changes for 2.5.65
+In-reply-to: <1048199573873@kroah.com>
+Content-Transfer-Encoding: 7BIT
+To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
+From: Greg KH <greg@kroah.com>
+Content-Type: text/plain; charset=US-ASCII
+Mime-version: 1.0
+Date: Thu, 20 Mar 2003 14:32 -0800
+Message-id: <1048199573405@kroah.com>
+X-mailer: gregkh_patchbomb
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch simply removes a couple of lines with duplicated
-functionality. Patch is against 2.4.20.
+ChangeSet 1.1143.1.13, 2003/03/20 11:16:19-08:00, greg@kroah.com
 
-Arnaldo, are you the correct maintainer for this?
+[PATCH] i2c i2c-amd8111.c: change a few printk() to dev_warn()
 
-Jörn
 
--- 
-Victory in war is not repetitious.
--- Sun Tzu
+ drivers/i2c/busses/i2c-amd8111.c |    8 ++++----
+ 1 files changed, 4 insertions(+), 4 deletions(-)
 
---- linux-2.4.20/net/802/Makefile	Sat Aug  3 02:39:46 2002
-+++ linux-2.4.20/net/802/Makefile.1	Thu Mar 20 23:20:05 2003
-@@ -15,13 +15,9 @@
+
+diff -Nru a/drivers/i2c/busses/i2c-amd8111.c b/drivers/i2c/busses/i2c-amd8111.c
+--- a/drivers/i2c/busses/i2c-amd8111.c	Thu Mar 20 12:53:50 2003
++++ b/drivers/i2c/busses/i2c-amd8111.c	Thu Mar 20 12:53:50 2003
+@@ -74,7 +74,7 @@
+ 		udelay(1);
  
- obj-$(CONFIG_SYSCTL) += sysctl_net_802.o
- obj-$(CONFIG_LLC) += llc_sendpdu.o llc_utility.o cl2llc.o llc_macinit.o
--ifeq ($(CONFIG_SYSCTL),y)
--obj-y += sysctl_net_802.o
--endif
+ 	if (!timeout) {
+-		printk(KERN_WARNING "i2c-amd8111.c: Timeout while waiting for IBF to clear\n");
++		dev_warn(&smbus->dev->dev, "Timeout while waiting for IBF to clear\n");
+ 		return -1;
+ 	}
  
- ifeq ($(CONFIG_LLC),y)
- subdir-y += transit
--obj-y += llc_sendpdu.o llc_utility.o cl2llc.o llc_macinit.o
- SNAP = y
- endif
+@@ -89,7 +89,7 @@
+ 		udelay(1);
  
+ 	if (!timeout) {
+-		printk(KERN_WARNING "i2c-amd8111.c: Timeout while waiting for OBF to set\n");
++		dev_warn(&smbus->dev->dev, "Timeout while waiting for OBF to set\n");
+ 		return -1;
+ 	}
+ 
+@@ -256,11 +256,11 @@
+ 		case I2C_SMBUS_BLOCK_DATA_PEC:
+ 		case I2C_SMBUS_PROC_CALL_PEC:
+ 		case I2C_SMBUS_BLOCK_PROC_CALL_PEC:
+-			printk(KERN_WARNING "i2c-amd8111.c: Unexpected software PEC transaction %d\n.", size);
++			dev_warn(&adap->dev, "Unexpected software PEC transaction %d\n.", size);
+ 			return -1;
+ 
+ 		default:
+-			printk(KERN_WARNING "i2c-amd8111.c: Unsupported transaction %d\n", size);
++			dev_warn(&adap->dev, "Unsupported transaction %d\n", size);
+ 			return -1;
+ 	}
+ 
+

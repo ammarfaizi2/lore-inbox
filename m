@@ -1,69 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262828AbSJDVyq>; Fri, 4 Oct 2002 17:54:46 -0400
+	id <S262381AbSJDVvR>; Fri, 4 Oct 2002 17:51:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262827AbSJDVyq>; Fri, 4 Oct 2002 17:54:46 -0400
-Received: from cynaptic.com ([128.121.116.181]:63250 "EHLO cynaptic.com")
-	by vger.kernel.org with ESMTP id <S262819AbSJDVyn>;
-	Fri, 4 Oct 2002 17:54:43 -0400
-From: "Effrem Norwood" <enorwood@effrem.com>
-To: "Alvin Oga" <aoga@Maggie.Linux-Consulting.com>,
-       "Kanoalani Withington" <kanoa@cfht.hawaii.edu>
-Cc: "Illtud Daniel" <illtud.daniel@llgc.org.uk>,
-       "Roy Sigurd Karlsbakk" <roy@karlsbakk.net>, <jbradford@dial.pipex.com>,
-       <jakob@unthought.net>, <linux-kernel@vger.kernel.org>,
-       <linux-raid@vger.kernel.org>
-Subject: RE: RAID backup - mtx w/ tcl
-Date: Fri, 4 Oct 2002 14:59:46 -0700
-Message-ID: <CFEAJJEGMGECBCJFLGDBKEPECEAA.enorwood@effrem.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <Pine.LNX.3.96.1021004144923.10481C-100000@Maggie.Linux-Consulting.com>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+	id <S262385AbSJDVvR>; Fri, 4 Oct 2002 17:51:17 -0400
+Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:49935 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S262381AbSJDVvQ>;
+	Fri, 4 Oct 2002 17:51:16 -0400
+Date: Fri, 4 Oct 2002 14:53:51 -0700
+From: Greg KH <greg@kroah.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCH] pcibios_* removals for 2.5.40
+Message-ID: <20021004215350.GB8843@kroah.com>
+References: <20021003224011.GA2289@kroah.com> <Pine.LNX.4.44.0210040930581.1723-100000@home.transmeta.com> <20021004165955.GC6978@kroah.com> <20021004205121.GA8346@kroah.com> <20021004205222.GB8346@kroah.com> <3D9E0AB7.8090905@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3D9E0AB7.8090905@pobox.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was going to ask the same thing. That would be great.
+On Fri, Oct 04, 2002 at 05:40:07PM -0400, Jeff Garzik wrote:
+> >diff -Nru a/drivers/char/rocket.c b/drivers/char/rocket.c
+> >--- a/drivers/char/rocket.c	Fri Oct  4 13:47:29 2002
+> >+++ b/drivers/char/rocket.c	Fri Oct  4 13:47:29 2002
+> >@@ -1993,7 +1993,7 @@
+> > 			isa_boards_found++;
+> > 	}
+> > #ifdef CONFIG_PCI
+> >-	if (pcibios_present()) {
+> >+	if (pci_present()) {
+> > 		if(isa_boards_found < NUM_BOARDS)
+> > 			pci_boards_found = init_PCI(isa_boards_found);
+> > 	} else {
+> 
+> can be greatly simplified -- just simply all the code in the ifdef to 
+> "if (isa_boards_found...) ...init_PCI..."
 
-Thanks,
+Heh, again, this driver needs some major work in regards to PCI
+cleanups, it's quite old.  It can probably be converted over to use the
+drivers/serial core too.
 
-Eff Norwood
+thanks,
 
-> hi ya kanoalani
->
-> are ya willing to release that mtx code ??
-> ( well more like where can i find it )
->
-> i'd like to add it to the collection
-> 	http://www.Linux-Backup.net/app.gwif.html
->
-> thanx
-> alvin
->
-> On Fri, 4 Oct 2002, Kanoalani Withington wrote:
->
-> >
-> ...
->
-> > I agree it's a total racket. I've spent an appalling amount of money on
-> > this stuff over the years considering how simple it is. Last year I
-> > finally built mtx, the open source tape library driver, and
-> wrote my own
-> > software in tcl scripts for a new archiving system. It really is that
-> > simple, I don't know how they can charge so much for thier software,
-> > especially when some it is junk to begin with.
-> >
-> > -Kanoa
-> >
-> > >
->
->
->
-
-
+greg k-h

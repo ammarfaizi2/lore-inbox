@@ -1,103 +1,1385 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261200AbUKSAA7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262917AbUKRXu7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261200AbUKSAA7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 19:00:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261172AbUKRX7C
+	id S262917AbUKRXu7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 18:50:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263005AbUKRXsU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 18:59:02 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:8659 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261202AbUKRXz6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 18:55:58 -0500
-Date: Thu, 18 Nov 2004 15:55:42 -0800
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Fabio Coatti <cova@ferrara.linux.it>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net, zaitcev@redhat.com,
-       linux-scsi@vger.kernel.org
-Subject: Re: 2.6.10-rc2-mm2 usb storage still oopses
-Message-ID: <20041118155542.324f56c7@lembas.zaitcev.lan>
-In-Reply-To: <200411190042.41199.cova@ferrara.linux.it>
-References: <200411182203.02176.cova@ferrara.linux.it>
-	<20041118133557.72f3b369.akpm@osdl.org>
-	<20041118135809.3314ce41@lembas.zaitcev.lan>
-	<200411190042.41199.cova@ferrara.linux.it>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed-Claws 0.9.12cvs126.2 (GTK+ 2.4.13; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 18 Nov 2004 18:48:20 -0500
+Received: from amsfep15-int.chello.nl ([213.46.243.28]:35650 "EHLO
+	amsfep15-int.chello.nl") by vger.kernel.org with ESMTP
+	id S262916AbUKRUtd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Nov 2004 15:49:33 -0500
+Date: Thu, 18 Nov 2004 21:49:27 +0100
+Message-Id: <200411182049.iAIKnRn6007052@anakin.of.borg>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH 521] M68k: Update defconfigs for 2.6.10-rc1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 19 Nov 2004 00:42:40 +0100, Fabio Coatti <cova@ferrara.linux.it> wrote:
+M68k: Update defconfigs for 2.6.10-rc1
 
-> Nov 18 20:33:05 kefk kernel: sdb: assuming drive cache: write through
-> Nov 18 20:33:05 kefk kernel:  sdb: sdb1
-> Nov 18 20:33:05 kefk kernel:  sdb: sdb1
-> Nov 18 20:33:05 kefk kernel: kobject_register failed for sdb1 (-17)
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 
-This looks as if SCSI falls victim of the general problem which ub addresses
-with the following fragment:
-
---- linux-2.6.10-rc1/drivers/block/ub.c	2004-10-28 09:46:38.000000000 -0700
-+++ linux-2.6.10-rc1-ub/drivers/block/ub.c	2004-11-06 23:59:20.000000000 -0800
-@@ -267,6 +263,7 @@ struct ub_dev {
- 	int changed;			/* Media was changed */
- 	int removable;
- 	int readonly;
-+	int first_open;			/* Kludge. See ub_bd_open. */
- 	char name[8];
- 	struct usb_device *dev;
- 	struct usb_interface *intf;
-@@ -1428,6 +1420,26 @@ static int ub_bd_open(struct inode *inod
- 	sc->openc++;
- 	spin_unlock_irqrestore(&ub_lock, flags);
+--- linux-2.6.10-rc1/arch/m68k/configs/amiga_defconfig	2004-10-30 16:15:01.000000000 +0200
++++ linux-m68k-2.6.10-rc1/arch/m68k/configs/amiga_defconfig	2004-10-30 16:14:25.000000000 +0200
+@@ -1,7 +1,7 @@
+ #
+ # Automatically generated make config: don't edit
+-# Linux kernel version: 2.6.9-m68k
+-# Thu Oct 28 21:22:56 2004
++# Linux kernel version: 2.6.10-rc1-m68k
++# Sat Oct 30 15:26:08 2004
+ #
+ CONFIG_M68K=y
+ CONFIG_MMU=y
+@@ -28,6 +28,7 @@ CONFIG_SYSCTL=y
+ CONFIG_AUDIT=y
+ CONFIG_LOG_BUF_SHIFT=16
+ # CONFIG_HOTPLUG is not set
++CONFIG_KOBJECT_UEVENT=y
+ # CONFIG_IKCONFIG is not set
+ # CONFIG_EMBEDDED is not set
+ CONFIG_KALLSYMS=y
+@@ -35,10 +36,6 @@ CONFIG_KALLSYMS=y
+ # CONFIG_KALLSYMS_EXTRA_PASS is not set
+ CONFIG_FUTEX=y
+ CONFIG_EPOLL=y
+-CONFIG_IOSCHED_NOOP=y
+-CONFIG_IOSCHED_AS=y
+-CONFIG_IOSCHED_DEADLINE=y
+-CONFIG_IOSCHED_CFQ=y
+ # CONFIG_CC_OPTIMIZE_FOR_SIZE is not set
+ CONFIG_SHMEM=y
+ # CONFIG_TINY_SHMEM is not set
+@@ -51,6 +48,7 @@ CONFIG_MODULE_UNLOAD=y
+ # CONFIG_MODULE_FORCE_UNLOAD is not set
+ CONFIG_OBSOLETE_MODPARM=y
+ # CONFIG_MODVERSIONS is not set
++# CONFIG_MODULE_SRCVERSION_ALL is not set
+ CONFIG_KMOD=y
  
-+	/*
-+	 * This is a workaround for a specific problem in our block layer.
-+	 * In 2.6.9, register_disk duplicates the code from rescan_partitions.
-+	 * However, if we do add_disk with a device which persistently reports
-+	 * a changed media, add_disk calls register_disk, which does do_open,
-+	 * which will call rescan_paritions for changed media. After that,
-+	 * register_disk attempts to do it all again and causes double kobject
-+	 * registration and a eventually an oops on module removal.
-+	 *
-+	 * The bottom line is, Al Viro says that we should not allow
-+	 * bdev->bd_invalidated to be set when doing add_disk no matter what.
-+	 */
-+	if (sc->first_open) {
-+		if (sc->changed) {
-+			sc->first_open = 0;
-+			rc = -ENOMEDIUM;
-+			goto err_open;
-+		}
-+	}
+ #
+@@ -137,6 +135,18 @@ CONFIG_BLK_DEV_NBD=m
+ CONFIG_BLK_DEV_RAM=y
+ CONFIG_BLK_DEV_RAM_SIZE=4096
+ CONFIG_BLK_DEV_INITRD=y
++CONFIG_INITRAMFS_SOURCE=""
++CONFIG_CDROM_PKTCDVD=m
++CONFIG_CDROM_PKTCDVD_BUFFERS=8
++# CONFIG_CDROM_PKTCDVD_WCACHE is not set
 +
- 	if (sc->removable || sc->readonly)
- 		check_disk_change(inode->i_bdev);
++#
++# IO Schedulers
++#
++CONFIG_IOSCHED_NOOP=y
++CONFIG_IOSCHED_AS=y
++CONFIG_IOSCHED_DEADLINE=y
++CONFIG_IOSCHED_CFQ=y
  
-@@ -1467,6 +1479,8 @@ static int ub_bd_release(struct inode *i
+ #
+ # ATA/ATAPI/MFM/RLL support
+@@ -155,7 +165,6 @@ CONFIG_BLK_DEV_IDETAPE=m
+ CONFIG_BLK_DEV_IDEFLOPPY=m
+ # CONFIG_BLK_DEV_IDESCSI is not set
+ # CONFIG_IDE_TASK_IOCTL is not set
+-# CONFIG_IDE_TASKFILE_IO is not set
  
- 	spin_lock_irqsave(&ub_lock, flags);
- 	--sc->openc;
-+	if (sc->openc == 0)
-+		sc->first_open = 0;
- 	if (sc->openc == 0 && atomic_read(&sc->poison))
- 		ub_cleanup(sc);
- 	spin_unlock_irqrestore(&ub_lock, flags);
-@@ -1919,6 +1932,8 @@ static int ub_probe(struct usb_interface
- 	}
+ #
+ # IDE chipset support/bugfixes
+@@ -318,6 +327,7 @@ CONFIG_NETFILTER=y
+ #
+ CONFIG_IP_NF_CONNTRACK=m
+ # CONFIG_IP_NF_CT_ACCT is not set
++CONFIG_IP_NF_CONNTRACK_MARK=y
+ # CONFIG_IP_NF_CT_PROTO_SCTP is not set
+ CONFIG_IP_NF_FTP=m
+ CONFIG_IP_NF_IRC=m
+@@ -347,6 +357,8 @@ CONFIG_IP_NF_MATCH_ADDRTYPE=m
+ CONFIG_IP_NF_MATCH_REALM=m
+ # CONFIG_IP_NF_MATCH_SCTP is not set
+ # CONFIG_IP_NF_MATCH_COMMENT is not set
++CONFIG_IP_NF_MATCH_CONNMARK=m
++CONFIG_IP_NF_MATCH_HASHLIMIT=m
+ CONFIG_IP_NF_FILTER=m
+ CONFIG_IP_NF_TARGET_REJECT=m
+ CONFIG_IP_NF_TARGET_LOG=m
+@@ -370,6 +382,8 @@ CONFIG_IP_NF_TARGET_ECN=m
+ CONFIG_IP_NF_TARGET_DSCP=m
+ CONFIG_IP_NF_TARGET_MARK=m
+ CONFIG_IP_NF_TARGET_CLASSIFY=m
++CONFIG_IP_NF_TARGET_CONNMARK=m
++# CONFIG_IP_NF_TARGET_CLUSTERIP is not set
+ CONFIG_IP_NF_RAW=m
+ CONFIG_IP_NF_TARGET_NOTRACK=m
+ CONFIG_IP_NF_ARPTABLES=m
+@@ -663,6 +677,7 @@ CONFIG_GEN_RTC_X=y
+ #
+ CONFIG_FB=y
+ CONFIG_FB_MODE_HELPERS=y
++# CONFIG_FB_TILEBLITTING is not set
+ CONFIG_FB_CIRRUS=m
+ CONFIG_FB_AMIGA=y
+ CONFIG_FB_AMIGA_OCS=y
+@@ -774,6 +789,7 @@ CONFIG_SYSFS=y
+ # CONFIG_DEVFS_FS is not set
+ # CONFIG_DEVPTS_FS_XATTR is not set
+ CONFIG_TMPFS=y
++# CONFIG_TMPFS_XATTR is not set
+ # CONFIG_HUGETLB_PAGE is not set
+ CONFIG_RAMFS=y
  
- 	sc->removable = 1;		/* XXX Query this from the device */
-+	sc->changed = 1;		/* ub_revalidate clears only */
-+	sc->first_open = 1;
+@@ -885,6 +901,7 @@ CONFIG_NLS_UTF8=m
+ #
+ CONFIG_DEBUG_KERNEL=y
+ CONFIG_MAGIC_SYSRQ=y
++# CONFIG_SCHEDSTATS is not set
+ # CONFIG_DEBUG_SLAB is not set
+ # CONFIG_DEBUG_BUGVERBOSE is not set
+ # CONFIG_DEBUG_INFO is not set
+@@ -892,6 +909,7 @@ CONFIG_MAGIC_SYSRQ=y
+ #
+ # Security options
+ #
++# CONFIG_KEYS is not set
+ # CONFIG_SECURITY is not set
  
- 	ub_revalidate(sc);
- 	/* This is pretty much a long term P3 */
+ #
+--- linux-2.6.10-rc1/arch/m68k/configs/apollo_defconfig	2004-10-30 16:14:59.000000000 +0200
++++ linux-m68k-2.6.10-rc1/arch/m68k/configs/apollo_defconfig	2004-10-30 15:58:22.000000000 +0200
+@@ -1,7 +1,7 @@
+ #
+ # Automatically generated make config: don't edit
+-# Linux kernel version: 2.6.9-m68k
+-# Thu Oct 28 21:22:58 2004
++# Linux kernel version: 2.6.10-rc1-m68k
++# Sat Oct 30 15:26:10 2004
+ #
+ CONFIG_M68K=y
+ CONFIG_MMU=y
+@@ -28,6 +28,7 @@ CONFIG_SYSCTL=y
+ CONFIG_AUDIT=y
+ CONFIG_LOG_BUF_SHIFT=16
+ # CONFIG_HOTPLUG is not set
++CONFIG_KOBJECT_UEVENT=y
+ # CONFIG_IKCONFIG is not set
+ # CONFIG_EMBEDDED is not set
+ CONFIG_KALLSYMS=y
+@@ -35,10 +36,6 @@ CONFIG_KALLSYMS=y
+ # CONFIG_KALLSYMS_EXTRA_PASS is not set
+ CONFIG_FUTEX=y
+ CONFIG_EPOLL=y
+-CONFIG_IOSCHED_NOOP=y
+-CONFIG_IOSCHED_AS=y
+-CONFIG_IOSCHED_DEADLINE=y
+-CONFIG_IOSCHED_CFQ=y
+ # CONFIG_CC_OPTIMIZE_FOR_SIZE is not set
+ CONFIG_SHMEM=y
+ # CONFIG_TINY_SHMEM is not set
+@@ -51,6 +48,7 @@ CONFIG_MODULE_UNLOAD=y
+ # CONFIG_MODULE_FORCE_UNLOAD is not set
+ CONFIG_OBSOLETE_MODPARM=y
+ # CONFIG_MODVERSIONS is not set
++# CONFIG_MODULE_SRCVERSION_ALL is not set
+ CONFIG_KMOD=y
+ 
+ #
+@@ -122,6 +120,18 @@ CONFIG_BLK_DEV_NBD=m
+ CONFIG_BLK_DEV_RAM=y
+ CONFIG_BLK_DEV_RAM_SIZE=4096
+ CONFIG_BLK_DEV_INITRD=y
++CONFIG_INITRAMFS_SOURCE=""
++CONFIG_CDROM_PKTCDVD=m
++CONFIG_CDROM_PKTCDVD_BUFFERS=8
++# CONFIG_CDROM_PKTCDVD_WCACHE is not set
++
++#
++# IO Schedulers
++#
++CONFIG_IOSCHED_NOOP=y
++CONFIG_IOSCHED_AS=y
++CONFIG_IOSCHED_DEADLINE=y
++CONFIG_IOSCHED_CFQ=y
+ 
+ #
+ # ATA/ATAPI/MFM/RLL support
+@@ -241,6 +251,7 @@ CONFIG_NETFILTER=y
+ #
+ CONFIG_IP_NF_CONNTRACK=m
+ # CONFIG_IP_NF_CT_ACCT is not set
++CONFIG_IP_NF_CONNTRACK_MARK=y
+ # CONFIG_IP_NF_CT_PROTO_SCTP is not set
+ CONFIG_IP_NF_FTP=m
+ CONFIG_IP_NF_IRC=m
+@@ -270,6 +281,8 @@ CONFIG_IP_NF_MATCH_ADDRTYPE=m
+ CONFIG_IP_NF_MATCH_REALM=m
+ # CONFIG_IP_NF_MATCH_SCTP is not set
+ # CONFIG_IP_NF_MATCH_COMMENT is not set
++CONFIG_IP_NF_MATCH_CONNMARK=m
++CONFIG_IP_NF_MATCH_HASHLIMIT=m
+ CONFIG_IP_NF_FILTER=m
+ CONFIG_IP_NF_TARGET_REJECT=m
+ CONFIG_IP_NF_TARGET_LOG=m
+@@ -293,6 +306,8 @@ CONFIG_IP_NF_TARGET_ECN=m
+ CONFIG_IP_NF_TARGET_DSCP=m
+ CONFIG_IP_NF_TARGET_MARK=m
+ CONFIG_IP_NF_TARGET_CLASSIFY=m
++CONFIG_IP_NF_TARGET_CONNMARK=m
++# CONFIG_IP_NF_TARGET_CLUSTERIP is not set
+ CONFIG_IP_NF_RAW=m
+ CONFIG_IP_NF_TARGET_NOTRACK=m
+ CONFIG_IP_NF_ARPTABLES=m
+@@ -629,6 +644,7 @@ CONFIG_SYSFS=y
+ # CONFIG_DEVFS_FS is not set
+ # CONFIG_DEVPTS_FS_XATTR is not set
+ CONFIG_TMPFS=y
++# CONFIG_TMPFS_XATTR is not set
+ # CONFIG_HUGETLB_PAGE is not set
+ CONFIG_RAMFS=y
+ 
+@@ -741,6 +757,7 @@ CONFIG_NLS_UTF8=m
+ #
+ CONFIG_DEBUG_KERNEL=y
+ CONFIG_MAGIC_SYSRQ=y
++# CONFIG_SCHEDSTATS is not set
+ # CONFIG_DEBUG_SLAB is not set
+ # CONFIG_DEBUG_BUGVERBOSE is not set
+ # CONFIG_DEBUG_INFO is not set
+@@ -748,6 +765,7 @@ CONFIG_MAGIC_SYSRQ=y
+ #
+ # Security options
+ #
++# CONFIG_KEYS is not set
+ # CONFIG_SECURITY is not set
+ 
+ #
+--- linux-2.6.10-rc1/arch/m68k/configs/atari_defconfig	2004-10-30 16:14:59.000000000 +0200
++++ linux-m68k-2.6.10-rc1/arch/m68k/configs/atari_defconfig	2004-10-30 15:58:22.000000000 +0200
+@@ -1,7 +1,7 @@
+ #
+ # Automatically generated make config: don't edit
+-# Linux kernel version: 2.6.9-m68k
+-# Thu Oct 28 21:23:00 2004
++# Linux kernel version: 2.6.10-rc1-m68k
++# Sat Oct 30 15:26:13 2004
+ #
+ CONFIG_M68K=y
+ CONFIG_MMU=y
+@@ -28,6 +28,7 @@ CONFIG_SYSCTL=y
+ CONFIG_AUDIT=y
+ CONFIG_LOG_BUF_SHIFT=16
+ # CONFIG_HOTPLUG is not set
++CONFIG_KOBJECT_UEVENT=y
+ # CONFIG_IKCONFIG is not set
+ # CONFIG_EMBEDDED is not set
+ CONFIG_KALLSYMS=y
+@@ -35,10 +36,6 @@ CONFIG_KALLSYMS=y
+ # CONFIG_KALLSYMS_EXTRA_PASS is not set
+ CONFIG_FUTEX=y
+ CONFIG_EPOLL=y
+-CONFIG_IOSCHED_NOOP=y
+-CONFIG_IOSCHED_AS=y
+-CONFIG_IOSCHED_DEADLINE=y
+-CONFIG_IOSCHED_CFQ=y
+ # CONFIG_CC_OPTIMIZE_FOR_SIZE is not set
+ CONFIG_SHMEM=y
+ # CONFIG_TINY_SHMEM is not set
+@@ -51,6 +48,7 @@ CONFIG_MODULE_UNLOAD=y
+ # CONFIG_MODULE_FORCE_UNLOAD is not set
+ CONFIG_OBSOLETE_MODPARM=y
+ # CONFIG_MODVERSIONS is not set
++# CONFIG_MODULE_SRCVERSION_ALL is not set
+ CONFIG_KMOD=y
+ 
+ #
+@@ -129,6 +127,18 @@ CONFIG_BLK_DEV_NBD=m
+ CONFIG_BLK_DEV_RAM=y
+ CONFIG_BLK_DEV_RAM_SIZE=4096
+ CONFIG_BLK_DEV_INITRD=y
++CONFIG_INITRAMFS_SOURCE=""
++CONFIG_CDROM_PKTCDVD=m
++CONFIG_CDROM_PKTCDVD_BUFFERS=8
++# CONFIG_CDROM_PKTCDVD_WCACHE is not set
++
++#
++# IO Schedulers
++#
++CONFIG_IOSCHED_NOOP=y
++CONFIG_IOSCHED_AS=y
++CONFIG_IOSCHED_DEADLINE=y
++CONFIG_IOSCHED_CFQ=y
+ 
+ #
+ # ATA/ATAPI/MFM/RLL support
+@@ -147,7 +157,6 @@ CONFIG_BLK_DEV_IDETAPE=m
+ CONFIG_BLK_DEV_IDEFLOPPY=m
+ # CONFIG_BLK_DEV_IDESCSI is not set
+ # CONFIG_IDE_TASK_IOCTL is not set
+-# CONFIG_IDE_TASKFILE_IO is not set
+ 
+ #
+ # IDE chipset support/bugfixes
+@@ -271,6 +280,7 @@ CONFIG_NETFILTER=y
+ #
+ CONFIG_IP_NF_CONNTRACK=m
+ # CONFIG_IP_NF_CT_ACCT is not set
++CONFIG_IP_NF_CONNTRACK_MARK=y
+ # CONFIG_IP_NF_CT_PROTO_SCTP is not set
+ CONFIG_IP_NF_FTP=m
+ CONFIG_IP_NF_IRC=m
+@@ -300,6 +310,8 @@ CONFIG_IP_NF_MATCH_ADDRTYPE=m
+ CONFIG_IP_NF_MATCH_REALM=m
+ # CONFIG_IP_NF_MATCH_SCTP is not set
+ # CONFIG_IP_NF_MATCH_COMMENT is not set
++CONFIG_IP_NF_MATCH_CONNMARK=m
++CONFIG_IP_NF_MATCH_HASHLIMIT=m
+ CONFIG_IP_NF_FILTER=m
+ CONFIG_IP_NF_TARGET_REJECT=m
+ CONFIG_IP_NF_TARGET_LOG=m
+@@ -323,6 +335,8 @@ CONFIG_IP_NF_TARGET_ECN=m
+ CONFIG_IP_NF_TARGET_DSCP=m
+ CONFIG_IP_NF_TARGET_MARK=m
+ CONFIG_IP_NF_TARGET_CLASSIFY=m
++CONFIG_IP_NF_TARGET_CONNMARK=m
++# CONFIG_IP_NF_TARGET_CLUSTERIP is not set
+ CONFIG_IP_NF_RAW=m
+ CONFIG_IP_NF_TARGET_NOTRACK=m
+ CONFIG_IP_NF_ARPTABLES=m
+@@ -581,6 +595,7 @@ CONFIG_GEN_RTC_X=y
+ #
+ CONFIG_FB=y
+ CONFIG_FB_MODE_HELPERS=y
++# CONFIG_FB_TILEBLITTING is not set
+ # CONFIG_FB_ATY is not set
+ # CONFIG_FB_VIRTUAL is not set
+ 
+@@ -684,6 +699,7 @@ CONFIG_SYSFS=y
+ # CONFIG_DEVFS_FS is not set
+ # CONFIG_DEVPTS_FS_XATTR is not set
+ CONFIG_TMPFS=y
++# CONFIG_TMPFS_XATTR is not set
+ # CONFIG_HUGETLB_PAGE is not set
+ CONFIG_RAMFS=y
+ 
+@@ -794,6 +810,7 @@ CONFIG_NLS_UTF8=m
+ #
+ CONFIG_DEBUG_KERNEL=y
+ CONFIG_MAGIC_SYSRQ=y
++# CONFIG_SCHEDSTATS is not set
+ # CONFIG_DEBUG_SLAB is not set
+ # CONFIG_DEBUG_BUGVERBOSE is not set
+ # CONFIG_DEBUG_INFO is not set
+@@ -801,6 +818,7 @@ CONFIG_MAGIC_SYSRQ=y
+ #
+ # Security options
+ #
++# CONFIG_KEYS is not set
+ # CONFIG_SECURITY is not set
+ 
+ #
+--- linux-2.6.10-rc1/arch/m68k/configs/bvme6000_defconfig	2004-10-30 16:15:01.000000000 +0200
++++ linux-m68k-2.6.10-rc1/arch/m68k/configs/bvme6000_defconfig	2004-10-30 15:58:22.000000000 +0200
+@@ -1,7 +1,7 @@
+ #
+ # Automatically generated make config: don't edit
+-# Linux kernel version: 2.6.9-m68k
+-# Thu Oct 28 21:23:01 2004
++# Linux kernel version: 2.6.10-rc1-m68k
++# Sat Oct 30 15:26:16 2004
+ #
+ CONFIG_M68K=y
+ CONFIG_MMU=y
+@@ -28,6 +28,7 @@ CONFIG_SYSCTL=y
+ CONFIG_AUDIT=y
+ CONFIG_LOG_BUF_SHIFT=16
+ # CONFIG_HOTPLUG is not set
++CONFIG_KOBJECT_UEVENT=y
+ # CONFIG_IKCONFIG is not set
+ # CONFIG_EMBEDDED is not set
+ CONFIG_KALLSYMS=y
+@@ -35,10 +36,6 @@ CONFIG_KALLSYMS=y
+ # CONFIG_KALLSYMS_EXTRA_PASS is not set
+ CONFIG_FUTEX=y
+ CONFIG_EPOLL=y
+-CONFIG_IOSCHED_NOOP=y
+-CONFIG_IOSCHED_AS=y
+-CONFIG_IOSCHED_DEADLINE=y
+-CONFIG_IOSCHED_CFQ=y
+ # CONFIG_CC_OPTIMIZE_FOR_SIZE is not set
+ CONFIG_SHMEM=y
+ # CONFIG_TINY_SHMEM is not set
+@@ -51,6 +48,7 @@ CONFIG_MODULE_UNLOAD=y
+ # CONFIG_MODULE_FORCE_UNLOAD is not set
+ CONFIG_OBSOLETE_MODPARM=y
+ # CONFIG_MODVERSIONS is not set
++# CONFIG_MODULE_SRCVERSION_ALL is not set
+ CONFIG_KMOD=y
+ 
+ #
+@@ -122,6 +120,18 @@ CONFIG_BLK_DEV_NBD=m
+ CONFIG_BLK_DEV_RAM=y
+ CONFIG_BLK_DEV_RAM_SIZE=4096
+ CONFIG_BLK_DEV_INITRD=y
++CONFIG_INITRAMFS_SOURCE=""
++CONFIG_CDROM_PKTCDVD=m
++CONFIG_CDROM_PKTCDVD_BUFFERS=8
++# CONFIG_CDROM_PKTCDVD_WCACHE is not set
++
++#
++# IO Schedulers
++#
++CONFIG_IOSCHED_NOOP=y
++CONFIG_IOSCHED_AS=y
++CONFIG_IOSCHED_DEADLINE=y
++CONFIG_IOSCHED_CFQ=y
+ 
+ #
+ # ATA/ATAPI/MFM/RLL support
+@@ -243,6 +253,7 @@ CONFIG_NETFILTER=y
+ #
+ CONFIG_IP_NF_CONNTRACK=m
+ # CONFIG_IP_NF_CT_ACCT is not set
++CONFIG_IP_NF_CONNTRACK_MARK=y
+ # CONFIG_IP_NF_CT_PROTO_SCTP is not set
+ CONFIG_IP_NF_FTP=m
+ CONFIG_IP_NF_IRC=m
+@@ -272,6 +283,8 @@ CONFIG_IP_NF_MATCH_ADDRTYPE=m
+ CONFIG_IP_NF_MATCH_REALM=m
+ # CONFIG_IP_NF_MATCH_SCTP is not set
+ # CONFIG_IP_NF_MATCH_COMMENT is not set
++CONFIG_IP_NF_MATCH_CONNMARK=m
++CONFIG_IP_NF_MATCH_HASHLIMIT=m
+ CONFIG_IP_NF_FILTER=m
+ CONFIG_IP_NF_TARGET_REJECT=m
+ CONFIG_IP_NF_TARGET_LOG=m
+@@ -295,6 +308,8 @@ CONFIG_IP_NF_TARGET_ECN=m
+ CONFIG_IP_NF_TARGET_DSCP=m
+ CONFIG_IP_NF_TARGET_MARK=m
+ CONFIG_IP_NF_TARGET_CLASSIFY=m
++CONFIG_IP_NF_TARGET_CONNMARK=m
++# CONFIG_IP_NF_TARGET_CLUSTERIP is not set
+ CONFIG_IP_NF_RAW=m
+ CONFIG_IP_NF_TARGET_NOTRACK=m
+ CONFIG_IP_NF_ARPTABLES=m
+@@ -630,6 +645,7 @@ CONFIG_SYSFS=y
+ # CONFIG_DEVFS_FS is not set
+ # CONFIG_DEVPTS_FS_XATTR is not set
+ CONFIG_TMPFS=y
++# CONFIG_TMPFS_XATTR is not set
+ # CONFIG_HUGETLB_PAGE is not set
+ CONFIG_RAMFS=y
+ 
+@@ -742,6 +758,7 @@ CONFIG_NLS_UTF8=m
+ #
+ CONFIG_DEBUG_KERNEL=y
+ CONFIG_MAGIC_SYSRQ=y
++# CONFIG_SCHEDSTATS is not set
+ # CONFIG_DEBUG_SLAB is not set
+ # CONFIG_DEBUG_BUGVERBOSE is not set
+ # CONFIG_DEBUG_INFO is not set
+@@ -749,6 +766,7 @@ CONFIG_MAGIC_SYSRQ=y
+ #
+ # Security options
+ #
++# CONFIG_KEYS is not set
+ # CONFIG_SECURITY is not set
+ 
+ #
+--- linux-2.6.10-rc1/arch/m68k/configs/hp300_defconfig	2004-10-30 16:14:59.000000000 +0200
++++ linux-m68k-2.6.10-rc1/arch/m68k/configs/hp300_defconfig	2004-10-30 15:58:22.000000000 +0200
+@@ -1,7 +1,7 @@
+ #
+ # Automatically generated make config: don't edit
+-# Linux kernel version: 2.6.9-m68k
+-# Thu Oct 28 21:23:04 2004
++# Linux kernel version: 2.6.10-rc1-m68k
++# Sat Oct 30 15:26:20 2004
+ #
+ CONFIG_M68K=y
+ CONFIG_MMU=y
+@@ -28,6 +28,7 @@ CONFIG_SYSCTL=y
+ CONFIG_AUDIT=y
+ CONFIG_LOG_BUF_SHIFT=16
+ # CONFIG_HOTPLUG is not set
++CONFIG_KOBJECT_UEVENT=y
+ # CONFIG_IKCONFIG is not set
+ # CONFIG_EMBEDDED is not set
+ CONFIG_KALLSYMS=y
+@@ -35,10 +36,6 @@ CONFIG_KALLSYMS=y
+ # CONFIG_KALLSYMS_EXTRA_PASS is not set
+ CONFIG_FUTEX=y
+ CONFIG_EPOLL=y
+-CONFIG_IOSCHED_NOOP=y
+-CONFIG_IOSCHED_AS=y
+-CONFIG_IOSCHED_DEADLINE=y
+-CONFIG_IOSCHED_CFQ=y
+ # CONFIG_CC_OPTIMIZE_FOR_SIZE is not set
+ CONFIG_SHMEM=y
+ # CONFIG_TINY_SHMEM is not set
+@@ -51,6 +48,7 @@ CONFIG_MODULE_UNLOAD=y
+ # CONFIG_MODULE_FORCE_UNLOAD is not set
+ CONFIG_OBSOLETE_MODPARM=y
+ # CONFIG_MODVERSIONS is not set
++# CONFIG_MODULE_SRCVERSION_ALL is not set
+ CONFIG_KMOD=y
+ 
+ #
+@@ -123,6 +121,18 @@ CONFIG_BLK_DEV_NBD=m
+ CONFIG_BLK_DEV_RAM=y
+ CONFIG_BLK_DEV_RAM_SIZE=4096
+ CONFIG_BLK_DEV_INITRD=y
++CONFIG_INITRAMFS_SOURCE=""
++CONFIG_CDROM_PKTCDVD=m
++CONFIG_CDROM_PKTCDVD_BUFFERS=8
++# CONFIG_CDROM_PKTCDVD_WCACHE is not set
++
++#
++# IO Schedulers
++#
++CONFIG_IOSCHED_NOOP=y
++CONFIG_IOSCHED_AS=y
++CONFIG_IOSCHED_DEADLINE=y
++CONFIG_IOSCHED_CFQ=y
+ 
+ #
+ # ATA/ATAPI/MFM/RLL support
+@@ -242,6 +252,7 @@ CONFIG_NETFILTER=y
+ #
+ CONFIG_IP_NF_CONNTRACK=m
+ # CONFIG_IP_NF_CT_ACCT is not set
++CONFIG_IP_NF_CONNTRACK_MARK=y
+ # CONFIG_IP_NF_CT_PROTO_SCTP is not set
+ CONFIG_IP_NF_FTP=m
+ CONFIG_IP_NF_IRC=m
+@@ -271,6 +282,8 @@ CONFIG_IP_NF_MATCH_ADDRTYPE=m
+ CONFIG_IP_NF_MATCH_REALM=m
+ # CONFIG_IP_NF_MATCH_SCTP is not set
+ # CONFIG_IP_NF_MATCH_COMMENT is not set
++CONFIG_IP_NF_MATCH_CONNMARK=m
++CONFIG_IP_NF_MATCH_HASHLIMIT=m
+ CONFIG_IP_NF_FILTER=m
+ CONFIG_IP_NF_TARGET_REJECT=m
+ CONFIG_IP_NF_TARGET_LOG=m
+@@ -294,6 +307,8 @@ CONFIG_IP_NF_TARGET_ECN=m
+ CONFIG_IP_NF_TARGET_DSCP=m
+ CONFIG_IP_NF_TARGET_MARK=m
+ CONFIG_IP_NF_TARGET_CLASSIFY=m
++CONFIG_IP_NF_TARGET_CONNMARK=m
++# CONFIG_IP_NF_TARGET_CLUSTERIP is not set
+ CONFIG_IP_NF_RAW=m
+ CONFIG_IP_NF_TARGET_NOTRACK=m
+ CONFIG_IP_NF_ARPTABLES=m
+@@ -628,6 +643,7 @@ CONFIG_SYSFS=y
+ # CONFIG_DEVFS_FS is not set
+ # CONFIG_DEVPTS_FS_XATTR is not set
+ CONFIG_TMPFS=y
++# CONFIG_TMPFS_XATTR is not set
+ # CONFIG_HUGETLB_PAGE is not set
+ CONFIG_RAMFS=y
+ 
+@@ -740,6 +756,7 @@ CONFIG_NLS_UTF8=m
+ #
+ CONFIG_DEBUG_KERNEL=y
+ CONFIG_MAGIC_SYSRQ=y
++# CONFIG_SCHEDSTATS is not set
+ # CONFIG_DEBUG_SLAB is not set
+ # CONFIG_DEBUG_BUGVERBOSE is not set
+ # CONFIG_DEBUG_INFO is not set
+@@ -747,6 +764,7 @@ CONFIG_MAGIC_SYSRQ=y
+ #
+ # Security options
+ #
++# CONFIG_KEYS is not set
+ # CONFIG_SECURITY is not set
+ 
+ #
+--- linux-2.6.10-rc1/arch/m68k/configs/mac_defconfig	2004-10-30 16:14:59.000000000 +0200
++++ linux-m68k-2.6.10-rc1/arch/m68k/configs/mac_defconfig	2004-10-30 15:58:22.000000000 +0200
+@@ -1,7 +1,7 @@
+ #
+ # Automatically generated make config: don't edit
+-# Linux kernel version: 2.6.9-m68k
+-# Thu Oct 28 21:23:06 2004
++# Linux kernel version: 2.6.10-rc1-m68k
++# Sat Oct 30 15:26:22 2004
+ #
+ CONFIG_M68K=y
+ CONFIG_MMU=y
+@@ -28,6 +28,7 @@ CONFIG_SYSCTL=y
+ CONFIG_AUDIT=y
+ CONFIG_LOG_BUF_SHIFT=16
+ # CONFIG_HOTPLUG is not set
++CONFIG_KOBJECT_UEVENT=y
+ # CONFIG_IKCONFIG is not set
+ # CONFIG_EMBEDDED is not set
+ CONFIG_KALLSYMS=y
+@@ -35,10 +36,6 @@ CONFIG_KALLSYMS=y
+ # CONFIG_KALLSYMS_EXTRA_PASS is not set
+ CONFIG_FUTEX=y
+ CONFIG_EPOLL=y
+-CONFIG_IOSCHED_NOOP=y
+-CONFIG_IOSCHED_AS=y
+-CONFIG_IOSCHED_DEADLINE=y
+-CONFIG_IOSCHED_CFQ=y
+ # CONFIG_CC_OPTIMIZE_FOR_SIZE is not set
+ CONFIG_SHMEM=y
+ # CONFIG_TINY_SHMEM is not set
+@@ -51,6 +48,7 @@ CONFIG_MODULE_UNLOAD=y
+ # CONFIG_MODULE_FORCE_UNLOAD is not set
+ CONFIG_OBSOLETE_MODPARM=y
+ # CONFIG_MODVERSIONS is not set
++# CONFIG_MODULE_SRCVERSION_ALL is not set
+ CONFIG_KMOD=y
+ 
+ #
+@@ -124,6 +122,18 @@ CONFIG_BLK_DEV_NBD=m
+ CONFIG_BLK_DEV_RAM=y
+ CONFIG_BLK_DEV_RAM_SIZE=4096
+ CONFIG_BLK_DEV_INITRD=y
++CONFIG_INITRAMFS_SOURCE=""
++CONFIG_CDROM_PKTCDVD=m
++CONFIG_CDROM_PKTCDVD_BUFFERS=8
++# CONFIG_CDROM_PKTCDVD_WCACHE is not set
++
++#
++# IO Schedulers
++#
++CONFIG_IOSCHED_NOOP=y
++CONFIG_IOSCHED_AS=y
++CONFIG_IOSCHED_DEADLINE=y
++CONFIG_IOSCHED_CFQ=y
+ 
+ #
+ # ATA/ATAPI/MFM/RLL support
+@@ -142,7 +152,6 @@ CONFIG_BLK_DEV_IDETAPE=m
+ CONFIG_BLK_DEV_IDEFLOPPY=m
+ # CONFIG_BLK_DEV_IDESCSI is not set
+ # CONFIG_IDE_TASK_IOCTL is not set
+-# CONFIG_IDE_TASKFILE_IO is not set
+ 
+ #
+ # IDE chipset support/bugfixes
+@@ -278,6 +287,7 @@ CONFIG_NETFILTER=y
+ #
+ CONFIG_IP_NF_CONNTRACK=m
+ # CONFIG_IP_NF_CT_ACCT is not set
++CONFIG_IP_NF_CONNTRACK_MARK=y
+ # CONFIG_IP_NF_CT_PROTO_SCTP is not set
+ CONFIG_IP_NF_FTP=m
+ CONFIG_IP_NF_IRC=m
+@@ -307,6 +317,8 @@ CONFIG_IP_NF_MATCH_ADDRTYPE=m
+ CONFIG_IP_NF_MATCH_REALM=m
+ # CONFIG_IP_NF_MATCH_SCTP is not set
+ # CONFIG_IP_NF_MATCH_COMMENT is not set
++CONFIG_IP_NF_MATCH_CONNMARK=m
++CONFIG_IP_NF_MATCH_HASHLIMIT=m
+ CONFIG_IP_NF_FILTER=m
+ CONFIG_IP_NF_TARGET_REJECT=m
+ CONFIG_IP_NF_TARGET_LOG=m
+@@ -330,6 +342,8 @@ CONFIG_IP_NF_TARGET_ECN=m
+ CONFIG_IP_NF_TARGET_DSCP=m
+ CONFIG_IP_NF_TARGET_MARK=m
+ CONFIG_IP_NF_TARGET_CLASSIFY=m
++CONFIG_IP_NF_TARGET_CONNMARK=m
++# CONFIG_IP_NF_TARGET_CLUSTERIP is not set
+ CONFIG_IP_NF_RAW=m
+ CONFIG_IP_NF_TARGET_NOTRACK=m
+ CONFIG_IP_NF_ARPTABLES=m
+@@ -587,6 +601,7 @@ CONFIG_GEN_RTC_X=y
+ #
+ CONFIG_FB=y
+ CONFIG_FB_MODE_HELPERS=y
++# CONFIG_FB_TILEBLITTING is not set
+ CONFIG_FB_VALKYRIE=y
+ CONFIG_FB_MAC=y
+ # CONFIG_FB_VIRTUAL is not set
+@@ -693,6 +708,7 @@ CONFIG_SYSFS=y
+ # CONFIG_DEVFS_FS is not set
+ # CONFIG_DEVPTS_FS_XATTR is not set
+ CONFIG_TMPFS=y
++# CONFIG_TMPFS_XATTR is not set
+ # CONFIG_HUGETLB_PAGE is not set
+ CONFIG_RAMFS=y
+ 
+@@ -819,6 +835,7 @@ CONFIG_NLS_UTF8=m
+ #
+ CONFIG_DEBUG_KERNEL=y
+ CONFIG_MAGIC_SYSRQ=y
++# CONFIG_SCHEDSTATS is not set
+ # CONFIG_DEBUG_SLAB is not set
+ # CONFIG_DEBUG_BUGVERBOSE is not set
+ # CONFIG_DEBUG_INFO is not set
+@@ -826,6 +843,7 @@ CONFIG_MAGIC_SYSRQ=y
+ #
+ # Security options
+ #
++# CONFIG_KEYS is not set
+ # CONFIG_SECURITY is not set
+ 
+ #
+--- linux-2.6.10-rc1/arch/m68k/configs/mvme147_defconfig	2004-10-30 16:14:59.000000000 +0200
++++ linux-m68k-2.6.10-rc1/arch/m68k/configs/mvme147_defconfig	2004-10-30 15:58:22.000000000 +0200
+@@ -1,7 +1,7 @@
+ #
+ # Automatically generated make config: don't edit
+-# Linux kernel version: 2.6.9-m68k
+-# Thu Oct 28 21:23:08 2004
++# Linux kernel version: 2.6.10-rc1-m68k
++# Sat Oct 30 15:26:25 2004
+ #
+ CONFIG_M68K=y
+ CONFIG_MMU=y
+@@ -28,6 +28,7 @@ CONFIG_SYSCTL=y
+ CONFIG_AUDIT=y
+ CONFIG_LOG_BUF_SHIFT=16
+ # CONFIG_HOTPLUG is not set
++CONFIG_KOBJECT_UEVENT=y
+ # CONFIG_IKCONFIG is not set
+ # CONFIG_EMBEDDED is not set
+ CONFIG_KALLSYMS=y
+@@ -35,10 +36,6 @@ CONFIG_KALLSYMS=y
+ # CONFIG_KALLSYMS_EXTRA_PASS is not set
+ CONFIG_FUTEX=y
+ CONFIG_EPOLL=y
+-CONFIG_IOSCHED_NOOP=y
+-CONFIG_IOSCHED_AS=y
+-CONFIG_IOSCHED_DEADLINE=y
+-CONFIG_IOSCHED_CFQ=y
+ # CONFIG_CC_OPTIMIZE_FOR_SIZE is not set
+ CONFIG_SHMEM=y
+ # CONFIG_TINY_SHMEM is not set
+@@ -51,6 +48,7 @@ CONFIG_MODULE_UNLOAD=y
+ # CONFIG_MODULE_FORCE_UNLOAD is not set
+ CONFIG_OBSOLETE_MODPARM=y
+ # CONFIG_MODVERSIONS is not set
++# CONFIG_MODULE_SRCVERSION_ALL is not set
+ CONFIG_KMOD=y
+ 
+ #
+@@ -122,6 +120,18 @@ CONFIG_BLK_DEV_NBD=m
+ CONFIG_BLK_DEV_RAM=y
+ CONFIG_BLK_DEV_RAM_SIZE=4096
+ CONFIG_BLK_DEV_INITRD=y
++CONFIG_INITRAMFS_SOURCE=""
++CONFIG_CDROM_PKTCDVD=m
++CONFIG_CDROM_PKTCDVD_BUFFERS=8
++# CONFIG_CDROM_PKTCDVD_WCACHE is not set
++
++#
++# IO Schedulers
++#
++CONFIG_IOSCHED_NOOP=y
++CONFIG_IOSCHED_AS=y
++CONFIG_IOSCHED_DEADLINE=y
++CONFIG_IOSCHED_CFQ=y
+ 
+ #
+ # ATA/ATAPI/MFM/RLL support
+@@ -242,6 +252,7 @@ CONFIG_NETFILTER=y
+ #
+ CONFIG_IP_NF_CONNTRACK=m
+ # CONFIG_IP_NF_CT_ACCT is not set
++CONFIG_IP_NF_CONNTRACK_MARK=y
+ # CONFIG_IP_NF_CT_PROTO_SCTP is not set
+ CONFIG_IP_NF_FTP=m
+ CONFIG_IP_NF_IRC=m
+@@ -271,6 +282,8 @@ CONFIG_IP_NF_MATCH_ADDRTYPE=m
+ CONFIG_IP_NF_MATCH_REALM=m
+ # CONFIG_IP_NF_MATCH_SCTP is not set
+ # CONFIG_IP_NF_MATCH_COMMENT is not set
++CONFIG_IP_NF_MATCH_CONNMARK=m
++CONFIG_IP_NF_MATCH_HASHLIMIT=m
+ CONFIG_IP_NF_FILTER=m
+ CONFIG_IP_NF_TARGET_REJECT=m
+ CONFIG_IP_NF_TARGET_LOG=m
+@@ -294,6 +307,8 @@ CONFIG_IP_NF_TARGET_ECN=m
+ CONFIG_IP_NF_TARGET_DSCP=m
+ CONFIG_IP_NF_TARGET_MARK=m
+ CONFIG_IP_NF_TARGET_CLASSIFY=m
++CONFIG_IP_NF_TARGET_CONNMARK=m
++# CONFIG_IP_NF_TARGET_CLUSTERIP is not set
+ CONFIG_IP_NF_RAW=m
+ CONFIG_IP_NF_TARGET_NOTRACK=m
+ CONFIG_IP_NF_ARPTABLES=m
+@@ -544,6 +559,7 @@ CONFIG_GEN_RTC_X=y
+ #
+ CONFIG_FB=y
+ CONFIG_FB_MODE_HELPERS=y
++# CONFIG_FB_TILEBLITTING is not set
+ # CONFIG_FB_VIRTUAL is not set
+ 
+ #
+@@ -646,6 +662,7 @@ CONFIG_DEVFS_FS=y
+ # CONFIG_DEVFS_DEBUG is not set
+ # CONFIG_DEVPTS_FS_XATTR is not set
+ CONFIG_TMPFS=y
++# CONFIG_TMPFS_XATTR is not set
+ # CONFIG_HUGETLB_PAGE is not set
+ CONFIG_RAMFS=y
+ 
+@@ -758,6 +775,7 @@ CONFIG_NLS_UTF8=m
+ #
+ CONFIG_DEBUG_KERNEL=y
+ CONFIG_MAGIC_SYSRQ=y
++# CONFIG_SCHEDSTATS is not set
+ # CONFIG_DEBUG_SLAB is not set
+ # CONFIG_DEBUG_BUGVERBOSE is not set
+ # CONFIG_DEBUG_INFO is not set
+@@ -765,6 +783,7 @@ CONFIG_MAGIC_SYSRQ=y
+ #
+ # Security options
+ #
++# CONFIG_KEYS is not set
+ # CONFIG_SECURITY is not set
+ 
+ #
+--- linux-2.6.10-rc1/arch/m68k/configs/mvme16x_defconfig	2004-10-30 16:15:01.000000000 +0200
++++ linux-m68k-2.6.10-rc1/arch/m68k/configs/mvme16x_defconfig	2004-10-30 15:58:22.000000000 +0200
+@@ -1,7 +1,7 @@
+ #
+ # Automatically generated make config: don't edit
+-# Linux kernel version: 2.6.9-m68k
+-# Thu Oct 28 21:23:09 2004
++# Linux kernel version: 2.6.10-rc1-m68k
++# Sat Oct 30 15:26:27 2004
+ #
+ CONFIG_M68K=y
+ CONFIG_MMU=y
+@@ -28,6 +28,7 @@ CONFIG_SYSCTL=y
+ CONFIG_AUDIT=y
+ CONFIG_LOG_BUF_SHIFT=16
+ # CONFIG_HOTPLUG is not set
++CONFIG_KOBJECT_UEVENT=y
+ # CONFIG_IKCONFIG is not set
+ # CONFIG_EMBEDDED is not set
+ CONFIG_KALLSYMS=y
+@@ -35,10 +36,6 @@ CONFIG_KALLSYMS=y
+ # CONFIG_KALLSYMS_EXTRA_PASS is not set
+ CONFIG_FUTEX=y
+ CONFIG_EPOLL=y
+-CONFIG_IOSCHED_NOOP=y
+-CONFIG_IOSCHED_AS=y
+-CONFIG_IOSCHED_DEADLINE=y
+-CONFIG_IOSCHED_CFQ=y
+ # CONFIG_CC_OPTIMIZE_FOR_SIZE is not set
+ CONFIG_SHMEM=y
+ # CONFIG_TINY_SHMEM is not set
+@@ -51,6 +48,7 @@ CONFIG_MODULE_UNLOAD=y
+ # CONFIG_MODULE_FORCE_UNLOAD is not set
+ CONFIG_OBSOLETE_MODPARM=y
+ # CONFIG_MODVERSIONS is not set
++# CONFIG_MODULE_SRCVERSION_ALL is not set
+ CONFIG_KMOD=y
+ 
+ #
+@@ -122,6 +120,18 @@ CONFIG_BLK_DEV_NBD=m
+ CONFIG_BLK_DEV_RAM=y
+ CONFIG_BLK_DEV_RAM_SIZE=4096
+ CONFIG_BLK_DEV_INITRD=y
++CONFIG_INITRAMFS_SOURCE=""
++CONFIG_CDROM_PKTCDVD=m
++CONFIG_CDROM_PKTCDVD_BUFFERS=8
++# CONFIG_CDROM_PKTCDVD_WCACHE is not set
++
++#
++# IO Schedulers
++#
++CONFIG_IOSCHED_NOOP=y
++CONFIG_IOSCHED_AS=y
++CONFIG_IOSCHED_DEADLINE=y
++CONFIG_IOSCHED_CFQ=y
+ 
+ #
+ # ATA/ATAPI/MFM/RLL support
+@@ -243,6 +253,7 @@ CONFIG_NETFILTER=y
+ #
+ CONFIG_IP_NF_CONNTRACK=m
+ # CONFIG_IP_NF_CT_ACCT is not set
++CONFIG_IP_NF_CONNTRACK_MARK=y
+ # CONFIG_IP_NF_CT_PROTO_SCTP is not set
+ CONFIG_IP_NF_FTP=m
+ CONFIG_IP_NF_IRC=m
+@@ -272,6 +283,8 @@ CONFIG_IP_NF_MATCH_ADDRTYPE=m
+ CONFIG_IP_NF_MATCH_REALM=m
+ # CONFIG_IP_NF_MATCH_SCTP is not set
+ # CONFIG_IP_NF_MATCH_COMMENT is not set
++CONFIG_IP_NF_MATCH_CONNMARK=m
++CONFIG_IP_NF_MATCH_HASHLIMIT=m
+ CONFIG_IP_NF_FILTER=m
+ CONFIG_IP_NF_TARGET_REJECT=m
+ CONFIG_IP_NF_TARGET_LOG=m
+@@ -295,6 +308,8 @@ CONFIG_IP_NF_TARGET_ECN=m
+ CONFIG_IP_NF_TARGET_DSCP=m
+ CONFIG_IP_NF_TARGET_MARK=m
+ CONFIG_IP_NF_TARGET_CLASSIFY=m
++CONFIG_IP_NF_TARGET_CONNMARK=m
++# CONFIG_IP_NF_TARGET_CLUSTERIP is not set
+ CONFIG_IP_NF_RAW=m
+ CONFIG_IP_NF_TARGET_NOTRACK=m
+ CONFIG_IP_NF_ARPTABLES=m
+@@ -545,6 +560,7 @@ CONFIG_GEN_RTC_X=y
+ #
+ CONFIG_FB=y
+ CONFIG_FB_MODE_HELPERS=y
++# CONFIG_FB_TILEBLITTING is not set
+ # CONFIG_FB_VIRTUAL is not set
+ 
+ #
+@@ -647,6 +663,7 @@ CONFIG_DEVFS_FS=y
+ # CONFIG_DEVFS_DEBUG is not set
+ # CONFIG_DEVPTS_FS_XATTR is not set
+ CONFIG_TMPFS=y
++# CONFIG_TMPFS_XATTR is not set
+ # CONFIG_HUGETLB_PAGE is not set
+ CONFIG_RAMFS=y
+ 
+@@ -759,6 +776,7 @@ CONFIG_NLS_UTF8=m
+ #
+ CONFIG_DEBUG_KERNEL=y
+ CONFIG_MAGIC_SYSRQ=y
++# CONFIG_SCHEDSTATS is not set
+ # CONFIG_DEBUG_SLAB is not set
+ # CONFIG_DEBUG_BUGVERBOSE is not set
+ # CONFIG_DEBUG_INFO is not set
+@@ -766,6 +784,7 @@ CONFIG_MAGIC_SYSRQ=y
+ #
+ # Security options
+ #
++# CONFIG_KEYS is not set
+ # CONFIG_SECURITY is not set
+ 
+ #
+--- linux-2.6.10-rc1/arch/m68k/configs/q40_defconfig	2004-10-30 16:14:59.000000000 +0200
++++ linux-m68k-2.6.10-rc1/arch/m68k/configs/q40_defconfig	2004-10-30 15:58:22.000000000 +0200
+@@ -1,7 +1,7 @@
+ #
+ # Automatically generated make config: don't edit
+-# Linux kernel version: 2.6.9-m68k
+-# Thu Oct 28 21:23:11 2004
++# Linux kernel version: 2.6.10-rc1-m68k
++# Sat Oct 30 15:26:29 2004
+ #
+ CONFIG_M68K=y
+ CONFIG_MMU=y
+@@ -28,6 +28,7 @@ CONFIG_SYSCTL=y
+ CONFIG_AUDIT=y
+ CONFIG_LOG_BUF_SHIFT=16
+ # CONFIG_HOTPLUG is not set
++CONFIG_KOBJECT_UEVENT=y
+ # CONFIG_IKCONFIG is not set
+ # CONFIG_EMBEDDED is not set
+ CONFIG_KALLSYMS=y
+@@ -35,10 +36,6 @@ CONFIG_KALLSYMS=y
+ # CONFIG_KALLSYMS_EXTRA_PASS is not set
+ CONFIG_FUTEX=y
+ CONFIG_EPOLL=y
+-CONFIG_IOSCHED_NOOP=y
+-CONFIG_IOSCHED_AS=y
+-CONFIG_IOSCHED_DEADLINE=y
+-CONFIG_IOSCHED_CFQ=y
+ # CONFIG_CC_OPTIMIZE_FOR_SIZE is not set
+ CONFIG_SHMEM=y
+ # CONFIG_TINY_SHMEM is not set
+@@ -51,6 +48,7 @@ CONFIG_MODULE_UNLOAD=y
+ # CONFIG_MODULE_FORCE_UNLOAD is not set
+ CONFIG_OBSOLETE_MODPARM=y
+ # CONFIG_MODVERSIONS is not set
++# CONFIG_MODULE_SRCVERSION_ALL is not set
+ CONFIG_KMOD=y
+ 
+ #
+@@ -127,6 +125,18 @@ CONFIG_BLK_DEV_NBD=m
+ CONFIG_BLK_DEV_RAM=y
+ CONFIG_BLK_DEV_RAM_SIZE=4096
+ CONFIG_BLK_DEV_INITRD=y
++CONFIG_INITRAMFS_SOURCE=""
++CONFIG_CDROM_PKTCDVD=m
++CONFIG_CDROM_PKTCDVD_BUFFERS=8
++# CONFIG_CDROM_PKTCDVD_WCACHE is not set
++
++#
++# IO Schedulers
++#
++CONFIG_IOSCHED_NOOP=y
++CONFIG_IOSCHED_AS=y
++CONFIG_IOSCHED_DEADLINE=y
++CONFIG_IOSCHED_CFQ=y
+ 
+ #
+ # ATA/ATAPI/MFM/RLL support
+@@ -145,7 +155,6 @@ CONFIG_BLK_DEV_IDETAPE=m
+ CONFIG_BLK_DEV_IDEFLOPPY=m
+ # CONFIG_BLK_DEV_IDESCSI is not set
+ # CONFIG_IDE_TASK_IOCTL is not set
+-# CONFIG_IDE_TASKFILE_IO is not set
+ 
+ #
+ # IDE chipset support/bugfixes
+@@ -296,6 +305,7 @@ CONFIG_NETFILTER=y
+ #
+ CONFIG_IP_NF_CONNTRACK=m
+ # CONFIG_IP_NF_CT_ACCT is not set
++CONFIG_IP_NF_CONNTRACK_MARK=y
+ # CONFIG_IP_NF_CT_PROTO_SCTP is not set
+ CONFIG_IP_NF_FTP=m
+ CONFIG_IP_NF_IRC=m
+@@ -325,6 +335,8 @@ CONFIG_IP_NF_MATCH_ADDRTYPE=m
+ CONFIG_IP_NF_MATCH_REALM=m
+ # CONFIG_IP_NF_MATCH_SCTP is not set
+ # CONFIG_IP_NF_MATCH_COMMENT is not set
++CONFIG_IP_NF_MATCH_CONNMARK=m
++CONFIG_IP_NF_MATCH_HASHLIMIT=m
+ CONFIG_IP_NF_FILTER=m
+ CONFIG_IP_NF_TARGET_REJECT=m
+ CONFIG_IP_NF_TARGET_LOG=m
+@@ -348,6 +360,8 @@ CONFIG_IP_NF_TARGET_ECN=m
+ CONFIG_IP_NF_TARGET_DSCP=m
+ CONFIG_IP_NF_TARGET_MARK=m
+ CONFIG_IP_NF_TARGET_CLASSIFY=m
++CONFIG_IP_NF_TARGET_CONNMARK=m
++# CONFIG_IP_NF_TARGET_CLUSTERIP is not set
+ CONFIG_IP_NF_RAW=m
+ CONFIG_IP_NF_TARGET_NOTRACK=m
+ CONFIG_IP_NF_ARPTABLES=m
+@@ -619,6 +633,7 @@ CONFIG_GEN_RTC_X=y
+ #
+ CONFIG_FB=y
+ CONFIG_FB_MODE_HELPERS=y
++# CONFIG_FB_TILEBLITTING is not set
+ CONFIG_FB_Q40=y
+ # CONFIG_FB_VIRTUAL is not set
+ 
+@@ -720,6 +735,7 @@ CONFIG_SYSFS=y
+ # CONFIG_DEVFS_FS is not set
+ # CONFIG_DEVPTS_FS_XATTR is not set
+ CONFIG_TMPFS=y
++# CONFIG_TMPFS_XATTR is not set
+ # CONFIG_HUGETLB_PAGE is not set
+ CONFIG_RAMFS=y
+ 
+@@ -832,6 +848,7 @@ CONFIG_NLS_UTF8=m
+ #
+ CONFIG_DEBUG_KERNEL=y
+ CONFIG_MAGIC_SYSRQ=y
++# CONFIG_SCHEDSTATS is not set
+ # CONFIG_DEBUG_SLAB is not set
+ # CONFIG_DEBUG_BUGVERBOSE is not set
+ # CONFIG_DEBUG_INFO is not set
+@@ -839,6 +856,7 @@ CONFIG_MAGIC_SYSRQ=y
+ #
+ # Security options
+ #
++# CONFIG_KEYS is not set
+ # CONFIG_SECURITY is not set
+ 
+ #
+--- linux-2.6.10-rc1/arch/m68k/configs/sun3_defconfig	2004-10-30 16:14:59.000000000 +0200
++++ linux-m68k-2.6.10-rc1/arch/m68k/configs/sun3_defconfig	2004-10-30 15:58:22.000000000 +0200
+@@ -1,7 +1,7 @@
+ #
+ # Automatically generated make config: don't edit
+-# Linux kernel version: 2.6.9-m68k
+-# Thu Oct 28 21:23:13 2004
++# Linux kernel version: 2.6.10-rc1-m68k
++# Sat Oct 30 15:26:31 2004
+ #
+ CONFIG_M68K=y
+ CONFIG_MMU=y
+@@ -28,6 +28,7 @@ CONFIG_SYSCTL=y
+ CONFIG_AUDIT=y
+ CONFIG_LOG_BUF_SHIFT=16
+ # CONFIG_HOTPLUG is not set
++CONFIG_KOBJECT_UEVENT=y
+ # CONFIG_IKCONFIG is not set
+ # CONFIG_EMBEDDED is not set
+ CONFIG_KALLSYMS=y
+@@ -35,10 +36,6 @@ CONFIG_KALLSYMS=y
+ # CONFIG_KALLSYMS_EXTRA_PASS is not set
+ CONFIG_FUTEX=y
+ CONFIG_EPOLL=y
+-CONFIG_IOSCHED_NOOP=y
+-CONFIG_IOSCHED_AS=y
+-CONFIG_IOSCHED_DEADLINE=y
+-CONFIG_IOSCHED_CFQ=y
+ # CONFIG_CC_OPTIMIZE_FOR_SIZE is not set
+ CONFIG_SHMEM=y
+ # CONFIG_TINY_SHMEM is not set
+@@ -51,6 +48,7 @@ CONFIG_MODULE_UNLOAD=y
+ # CONFIG_MODULE_FORCE_UNLOAD is not set
+ CONFIG_OBSOLETE_MODPARM=y
+ # CONFIG_MODVERSIONS is not set
++# CONFIG_MODULE_SRCVERSION_ALL is not set
+ CONFIG_KMOD=y
+ 
+ #
+@@ -110,6 +108,18 @@ CONFIG_BLK_DEV_NBD=m
+ CONFIG_BLK_DEV_RAM=y
+ CONFIG_BLK_DEV_RAM_SIZE=4096
+ CONFIG_BLK_DEV_INITRD=y
++CONFIG_INITRAMFS_SOURCE=""
++CONFIG_CDROM_PKTCDVD=m
++CONFIG_CDROM_PKTCDVD_BUFFERS=8
++# CONFIG_CDROM_PKTCDVD_WCACHE is not set
++
++#
++# IO Schedulers
++#
++CONFIG_IOSCHED_NOOP=y
++CONFIG_IOSCHED_AS=y
++CONFIG_IOSCHED_DEADLINE=y
++CONFIG_IOSCHED_CFQ=y
+ 
+ #
+ # ATA/ATAPI/MFM/RLL support
+@@ -230,6 +240,7 @@ CONFIG_NETFILTER=y
+ #
+ CONFIG_IP_NF_CONNTRACK=m
+ # CONFIG_IP_NF_CT_ACCT is not set
++CONFIG_IP_NF_CONNTRACK_MARK=y
+ # CONFIG_IP_NF_CT_PROTO_SCTP is not set
+ CONFIG_IP_NF_FTP=m
+ CONFIG_IP_NF_IRC=m
+@@ -259,6 +270,8 @@ CONFIG_IP_NF_MATCH_ADDRTYPE=m
+ CONFIG_IP_NF_MATCH_REALM=m
+ # CONFIG_IP_NF_MATCH_SCTP is not set
+ # CONFIG_IP_NF_MATCH_COMMENT is not set
++CONFIG_IP_NF_MATCH_CONNMARK=m
++CONFIG_IP_NF_MATCH_HASHLIMIT=m
+ CONFIG_IP_NF_FILTER=m
+ CONFIG_IP_NF_TARGET_REJECT=m
+ CONFIG_IP_NF_TARGET_LOG=m
+@@ -282,6 +295,8 @@ CONFIG_IP_NF_TARGET_ECN=m
+ CONFIG_IP_NF_TARGET_DSCP=m
+ CONFIG_IP_NF_TARGET_MARK=m
+ CONFIG_IP_NF_TARGET_CLASSIFY=m
++CONFIG_IP_NF_TARGET_CONNMARK=m
++# CONFIG_IP_NF_TARGET_CLUSTERIP is not set
+ CONFIG_IP_NF_RAW=m
+ CONFIG_IP_NF_TARGET_NOTRACK=m
+ CONFIG_IP_NF_ARPTABLES=m
+@@ -533,6 +548,7 @@ CONFIG_GEN_RTC_X=y
+ #
+ CONFIG_FB=y
+ CONFIG_FB_MODE_HELPERS=y
++# CONFIG_FB_TILEBLITTING is not set
+ # CONFIG_FB_VIRTUAL is not set
+ 
+ #
+@@ -633,6 +649,7 @@ CONFIG_DEVFS_MOUNT=y
+ # CONFIG_DEVFS_DEBUG is not set
+ # CONFIG_DEVPTS_FS_XATTR is not set
+ CONFIG_TMPFS=y
++# CONFIG_TMPFS_XATTR is not set
+ # CONFIG_HUGETLB_PAGE is not set
+ CONFIG_RAMFS=y
+ 
+@@ -745,6 +762,7 @@ CONFIG_NLS_UTF8=m
+ #
+ CONFIG_DEBUG_KERNEL=y
+ CONFIG_MAGIC_SYSRQ=y
++# CONFIG_SCHEDSTATS is not set
+ # CONFIG_DEBUG_SLAB is not set
+ # CONFIG_DEBUG_BUGVERBOSE is not set
+ # CONFIG_DEBUG_INFO is not set
+@@ -752,6 +770,7 @@ CONFIG_MAGIC_SYSRQ=y
+ #
+ # Security options
+ #
++# CONFIG_KEYS is not set
+ # CONFIG_SECURITY is not set
+ 
+ #
+--- linux-2.6.10-rc1/arch/m68k/configs/sun3x_defconfig	2004-10-30 16:14:59.000000000 +0200
++++ linux-m68k-2.6.10-rc1/arch/m68k/configs/sun3x_defconfig	2004-10-30 15:58:22.000000000 +0200
+@@ -1,7 +1,7 @@
+ #
+ # Automatically generated make config: don't edit
+-# Linux kernel version: 2.6.9-m68k
+-# Thu Oct 28 21:23:15 2004
++# Linux kernel version: 2.6.10-rc1-m68k
++# Sat Oct 30 15:26:34 2004
+ #
+ CONFIG_M68K=y
+ CONFIG_MMU=y
+@@ -28,6 +28,7 @@ CONFIG_SYSCTL=y
+ CONFIG_AUDIT=y
+ CONFIG_LOG_BUF_SHIFT=16
+ # CONFIG_HOTPLUG is not set
++CONFIG_KOBJECT_UEVENT=y
+ # CONFIG_IKCONFIG is not set
+ # CONFIG_EMBEDDED is not set
+ CONFIG_KALLSYMS=y
+@@ -35,10 +36,6 @@ CONFIG_KALLSYMS=y
+ # CONFIG_KALLSYMS_EXTRA_PASS is not set
+ CONFIG_FUTEX=y
+ CONFIG_EPOLL=y
+-CONFIG_IOSCHED_NOOP=y
+-CONFIG_IOSCHED_AS=y
+-CONFIG_IOSCHED_DEADLINE=y
+-CONFIG_IOSCHED_CFQ=y
+ # CONFIG_CC_OPTIMIZE_FOR_SIZE is not set
+ CONFIG_SHMEM=y
+ # CONFIG_TINY_SHMEM is not set
+@@ -51,6 +48,7 @@ CONFIG_MODULE_UNLOAD=y
+ # CONFIG_MODULE_FORCE_UNLOAD is not set
+ CONFIG_OBSOLETE_MODPARM=y
+ # CONFIG_MODVERSIONS is not set
++# CONFIG_MODULE_SRCVERSION_ALL is not set
+ CONFIG_KMOD=y
+ 
+ #
+@@ -121,6 +119,18 @@ CONFIG_BLK_DEV_NBD=m
+ CONFIG_BLK_DEV_RAM=y
+ CONFIG_BLK_DEV_RAM_SIZE=4096
+ CONFIG_BLK_DEV_INITRD=y
++CONFIG_INITRAMFS_SOURCE=""
++CONFIG_CDROM_PKTCDVD=m
++CONFIG_CDROM_PKTCDVD_BUFFERS=8
++# CONFIG_CDROM_PKTCDVD_WCACHE is not set
++
++#
++# IO Schedulers
++#
++CONFIG_IOSCHED_NOOP=y
++CONFIG_IOSCHED_AS=y
++CONFIG_IOSCHED_DEADLINE=y
++CONFIG_IOSCHED_CFQ=y
+ 
+ #
+ # ATA/ATAPI/MFM/RLL support
+@@ -241,6 +251,7 @@ CONFIG_NETFILTER=y
+ #
+ CONFIG_IP_NF_CONNTRACK=m
+ # CONFIG_IP_NF_CT_ACCT is not set
++CONFIG_IP_NF_CONNTRACK_MARK=y
+ # CONFIG_IP_NF_CT_PROTO_SCTP is not set
+ CONFIG_IP_NF_FTP=m
+ CONFIG_IP_NF_IRC=m
+@@ -270,6 +281,8 @@ CONFIG_IP_NF_MATCH_ADDRTYPE=m
+ CONFIG_IP_NF_MATCH_REALM=m
+ # CONFIG_IP_NF_MATCH_SCTP is not set
+ # CONFIG_IP_NF_MATCH_COMMENT is not set
++CONFIG_IP_NF_MATCH_CONNMARK=m
++CONFIG_IP_NF_MATCH_HASHLIMIT=m
+ CONFIG_IP_NF_FILTER=m
+ CONFIG_IP_NF_TARGET_REJECT=m
+ CONFIG_IP_NF_TARGET_LOG=m
+@@ -293,6 +306,8 @@ CONFIG_IP_NF_TARGET_ECN=m
+ CONFIG_IP_NF_TARGET_DSCP=m
+ CONFIG_IP_NF_TARGET_MARK=m
+ CONFIG_IP_NF_TARGET_CLASSIFY=m
++CONFIG_IP_NF_TARGET_CONNMARK=m
++# CONFIG_IP_NF_TARGET_CLUSTERIP is not set
+ CONFIG_IP_NF_RAW=m
+ CONFIG_IP_NF_TARGET_NOTRACK=m
+ CONFIG_IP_NF_ARPTABLES=m
+@@ -543,6 +558,7 @@ CONFIG_GEN_RTC_X=y
+ #
+ CONFIG_FB=y
+ CONFIG_FB_MODE_HELPERS=y
++# CONFIG_FB_TILEBLITTING is not set
+ # CONFIG_FB_VIRTUAL is not set
+ 
+ #
+@@ -643,6 +659,7 @@ CONFIG_DEVFS_MOUNT=y
+ # CONFIG_DEVFS_DEBUG is not set
+ # CONFIG_DEVPTS_FS_XATTR is not set
+ CONFIG_TMPFS=y
++# CONFIG_TMPFS_XATTR is not set
+ # CONFIG_HUGETLB_PAGE is not set
+ CONFIG_RAMFS=y
+ 
+@@ -755,6 +772,7 @@ CONFIG_NLS_UTF8=m
+ #
+ CONFIG_DEBUG_KERNEL=y
+ CONFIG_MAGIC_SYSRQ=y
++# CONFIG_SCHEDSTATS is not set
+ # CONFIG_DEBUG_SLAB is not set
+ # CONFIG_DEBUG_BUGVERBOSE is not set
+ # CONFIG_DEBUG_INFO is not set
+@@ -762,6 +780,7 @@ CONFIG_MAGIC_SYSRQ=y
+ #
+ # Security options
+ #
++# CONFIG_KEYS is not set
+ # CONFIG_SECURITY is not set
+ 
+ #
+--- linux-2.6.10-rc1/arch/m68k/defconfig	2004-10-30 16:15:01.000000000 +0200
++++ linux-m68k-2.6.10-rc1/arch/m68k/defconfig	2004-10-30 15:58:22.000000000 +0200
+@@ -1,7 +1,7 @@
+ #
+ # Automatically generated make config: don't edit
+-# Linux kernel version: 2.6.9-m68k
+-# Thu Oct 28 21:23:03 2004
++# Linux kernel version: 2.6.10-rc1-m68k
++# Sat Oct 30 15:26:18 2004
+ #
+ CONFIG_M68K=y
+ CONFIG_MMU=y
+@@ -27,16 +27,13 @@ CONFIG_SYSCTL=y
+ # CONFIG_AUDIT is not set
+ CONFIG_LOG_BUF_SHIFT=14
+ # CONFIG_HOTPLUG is not set
++CONFIG_KOBJECT_UEVENT=y
+ # CONFIG_IKCONFIG is not set
+ # CONFIG_EMBEDDED is not set
+ CONFIG_KALLSYMS=y
+ # CONFIG_KALLSYMS_EXTRA_PASS is not set
+ CONFIG_FUTEX=y
+ CONFIG_EPOLL=y
+-CONFIG_IOSCHED_NOOP=y
+-CONFIG_IOSCHED_AS=y
+-CONFIG_IOSCHED_DEADLINE=y
+-CONFIG_IOSCHED_CFQ=y
+ # CONFIG_CC_OPTIMIZE_FOR_SIZE is not set
+ CONFIG_SHMEM=y
+ # CONFIG_TINY_SHMEM is not set
+@@ -116,6 +113,18 @@ CONFIG_AMIGA_FLOPPY=y
+ CONFIG_BLK_DEV_RAM=y
+ CONFIG_BLK_DEV_RAM_SIZE=4096
+ CONFIG_BLK_DEV_INITRD=y
++CONFIG_INITRAMFS_SOURCE=""
++CONFIG_CDROM_PKTCDVD=y
++CONFIG_CDROM_PKTCDVD_BUFFERS=8
++# CONFIG_CDROM_PKTCDVD_WCACHE is not set
++
++#
++# IO Schedulers
++#
++CONFIG_IOSCHED_NOOP=y
++CONFIG_IOSCHED_AS=y
++CONFIG_IOSCHED_DEADLINE=y
++CONFIG_IOSCHED_CFQ=y
+ 
+ #
+ # ATA/ATAPI/MFM/RLL support
+@@ -408,6 +417,7 @@ CONFIG_LEGACY_PTY_COUNT=256
+ #
+ CONFIG_FB=y
+ CONFIG_FB_MODE_HELPERS=y
++# CONFIG_FB_TILEBLITTING is not set
+ # CONFIG_FB_CIRRUS is not set
+ CONFIG_FB_AMIGA=y
+ CONFIG_FB_AMIGA_OCS=y
+@@ -586,6 +596,7 @@ CONFIG_NLS_CODEPAGE_437=y
+ #
+ # Security options
+ #
++# CONFIG_KEYS is not set
+ # CONFIG_SECURITY is not set
+ 
+ #
 
-This feels kludgy, but my excuse is "James and Viro made me do it".
-I have an IRC log to prove it laying somewhere...
+Gr{oetje,eeting}s,
 
-I'm adding the linux-scsi to cc: in case any comments are forthcoming.
+						Geert
 
--- Pete
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

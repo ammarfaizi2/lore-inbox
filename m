@@ -1,68 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265844AbSKOGXZ>; Fri, 15 Nov 2002 01:23:25 -0500
+	id <S265880AbSKOGpd>; Fri, 15 Nov 2002 01:45:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265854AbSKOGXZ>; Fri, 15 Nov 2002 01:23:25 -0500
-Received: from valen.gwi.net ([207.5.128.33]:57545 "EHLO valen.gwi.net")
-	by vger.kernel.org with ESMTP id <S265844AbSKOGXY>;
-	Fri, 15 Nov 2002 01:23:24 -0500
-Message-ID: <3DD49526.60108@goingware.com>
-Date: Fri, 15 Nov 2002 01:33:10 -0500
-From: "Michael D. Crawford" <crawford@goingware.com>
-Organization: GoingWare Inc. - Expert Software Development and Consulting
-User-Agent: Mozilla/5.0 (X11; U; Linux ppc; en-US; rv:1.0.0) Gecko/20020622 Debian/1.0.0-0.woody.1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Bugzilla bug tracking database for 2.5 now available
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S265885AbSKOGpd>; Fri, 15 Nov 2002 01:45:33 -0500
+Received: from meg.hrz.tu-chemnitz.de ([134.109.132.57]:42640 "EHLO
+	meg.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S265880AbSKOGpc>; Fri, 15 Nov 2002 01:45:32 -0500
+Date: Thu, 14 Nov 2002 21:44:57 +0100
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: Matthew Wilcox <willy@debian.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>, Jeff Garzik <jgarzik@pobox.com>,
+       linux-kernel@vger.kernel.org, mochel@osdl.org
+Subject: Re: [PATCH] eliminate pci_dev name
+Message-ID: <20021114214457.I628@nightmaster.csn.tu-chemnitz.de>
+References: <3DD3EB3D.8050606@pobox.com> <Pine.LNX.4.44.0211141031500.3323-100000@home.transmeta.com> <20021114184431.E30392@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <20021114184431.E30392@parcelfarce.linux.theplanet.co.uk>; from willy@debian.org on Thu, Nov 14, 2002 at 06:44:31PM +0000
+X-Spam-Score: -3.3 (---)
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *18CaL4-0005bW-00*UQFaFs4mWbk*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is much of what I hoped to do with the Linux Quality Database:
+Hi Matthew,
 
-http://linuxquality.sunsite.dk/
+On Thu, Nov 14, 2002 at 06:44:31PM +0000, Matthew Wilcox wrote:
+> Sure, I can do that.  That leads me to think that maybe we should
+> delete name from struct device and just use the one in struct kobject
+> (which is already a mere 16 bytes).  But if we're going to go as far
+> down as the kobject... that has a dentry.  And dentrys have names.
+> So how about eliminating that too and just creating a dentry with the
+> almost infinitely long name?
+> 
+> Maybe that's too much at this stage of the game.
 
-alas, the dot-com crash happened, and I've been struggling so hard to keep my 
-little business afloat that I never had enough time to devote to it.  It's good 
-to see that someone has set up a bug tracking system that will be a little more 
-accessible to the public than a high-traffic mailing list.
+Using the dentry the PERFECT cleanup, because it removes ALL the
+redundacy and provides infinite length (which is sometimes
+needed) as well as an optimization for small
+(DNAME_INLINE_LEN_MIN) names.
 
-I have some suggestions about how you could improve upon bugzilla to make the 
-database more useful for kernel developers.  I mention them on the page above 
-and in my comment in the slashdot discussion about the new bugbase:
+So it's the perfect string container, if needed anyway.
 
-http://slashdot.org/comments.pl?sid=45108&cid=4675035
+Regards
 
-I didn't consider using bugzilla at first because it didn't have the 
-capabilities of storing configuration info the way I wanted.  No bugbase I have 
-ever used has done that, although I would consider it to be a very basic 
-feature for a bug database for kernel bug tracking.  I'd meant to write a 
-database app from scratch to do that, which was really more than I could 
-handle.  More recently I'd been contemplating modifying bugzilla to do what I 
-want, but these last few months have been really hectic.
-
-Some have pointed out their desire for a vendor-neutral location for the bug 
-database.  When I asked around about who could host it, some commercial 
-companies offerred to, but I went with http://sunsite.dk/ in large part because 
-they were not part of any company.
-
-The one thing I _have_ been able to do is write some articles on kernel quality 
-in particular and software quality in general.  You'll find them here:
-
-http://linuxquality.sunsite.dk/articles/
-
-The OSDL has been kind enough to mirror the kernel testing articles as well as 
-translate them into Japanese.  I encourage others to mirror or translate my 
-articles - they are all published under the GNU Free Documentation License.
-
-Regards,
-
-Michael D. Crawford
-GoingWare Inc. - Expert Software Development and Consulting
-http://www.goingware.com/
-crawford@goingware.com
-
-     Tilting at Windmills for a Better Tomorrow.
-
+Ingo Oeser
+-- 
+Science is what we can tell a computer. Art is everything else. --- D.E.Knuth

@@ -1,43 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131409AbQK2SZu>; Wed, 29 Nov 2000 13:25:50 -0500
+        id <S131845AbQK2ScK>; Wed, 29 Nov 2000 13:32:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131127AbQK2SZk>; Wed, 29 Nov 2000 13:25:40 -0500
-Received: from 213-123-77-235.btconnect.com ([213.123.77.235]:1543 "EHLO
-        penguin.homenet") by vger.kernel.org with ESMTP id <S130304AbQK2SZg>;
-        Wed, 29 Nov 2000 13:25:36 -0500
-Date: Wed, 29 Nov 2000 17:57:04 +0000 (GMT)
-From: Tigran Aivazian <tigran@veritas.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
-Subject: Re: corruption
-In-Reply-To: <Pine.LNX.4.10.10011290940070.11951-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.21.0011291753100.1306-100000@penguin.homenet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+        id <S131830AbQK2ScA>; Wed, 29 Nov 2000 13:32:00 -0500
+Received: from c1075343-a.spngfld1.il.home.com ([24.14.189.192]:47621 "EHLO
+        bastion.yi.org") by vger.kernel.org with ESMTP id <S131127AbQK2Sbv>;
+        Wed, 29 Nov 2000 13:31:51 -0500
+Message-ID: <20001129130616.A4879@bastion.sprileet.net>
+Date: Wed, 29 Nov 2000 13:06:16 -0600
+From: --Damacus Porteng-- <kernel@bastion.yi.org>
+To: LinuxKernel <linux-kernel@vger.kernel.org>
+Subject: IDE-SCSI/HPT366 Problem
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 29 Nov 2000, Linus Torvalds wrote:
-> That still leaves the SCSI corruption, which could not have been due to
-> the request issue. What's the pattern there for people?
+LK Prodigies:
 
-Linus, I confess that at the time (when I reproduced this problem on my
-SCSI-only 4way/6G machine) I did not realize the importance of observing
-the pattern or even just saving the log. No, I was _not_ just being stupid
-but rather it was _so_ easy to panic Linux at the time (for various
-reasons) that this one looked like just "yet another panic" somewhere.
+This problem is current on the Linux-2.4.0-test11 kernel.  Please tell me if
+this has already been resolved - I am new to the list.
 
-Now, I am trying hard (lots of kernel compiles, bonnies, diff -urN between
-linux trees, cp -a linuxA linuxB etc etc) to reproduce it and I can't.
+Here is my setup:
+	Motherboard: Soyo 6BA+IV (built-in PIIX4 and HPT366 IDE controllers)
+	CDRWs: Yamaha 4416S (SCSI) & Yamaha 8424E (EIDE)
+	
+	Kernel: 2.4.0test11 -- I must use 2.3.X or 2.4.X since my main drives
+	are on the HPT366 channels.
+	
+	IDE: Using both HPT and PIIX chipsets.  Base system drives are on
+	HPT366 channels.  / == /dev/hde.  Works fine.
 
-All I remember from memory was those messages about "freeing stuff not in
-datazone" etc. They were the same messages as I had on an IDE system and
-the same as Mohammad and others reported on the list recently.
+	Software: cdrecord 1.8.1, cdrecord 1.9
 
-Regards,
-Tigran
+Problem:
+	The problem lies with using my EIDE CDRW - I set it up properly using
+	IDE-SCSI.  I can use my mp3tocdda shell script to encode mp3s to CD
+	(uses cdrecord as well) on the fly using either drive, however, when I
+	use cdrecord to write a data CD, the system hard-locks, no kernel
+	panic messages, and no Magic SysRQ keystroke works.  
 
+	Quite odd that I could do the cdrecord for audio tracks, but not
+	data..
+
+	Anyhow, I moved the CDRW to the PIIX4 channels (and changed my lilo
+	append line to make hda=scsi, instead of hdg=scsi) and now both the
+	mp3tocdda script and cdrecord for data images works fine.  
+
+	I'm thinking it's a problem with HPT366, since IDE-SCSI/PIIX4 worked
+	fine with the setup, and cdrecord has always been a working package
+	for me.
+
+	Also, the HPT366 setup screen (VERY simple) shows the CDRW using MW
+	DMA 2 and is unchangable thru the HPT366 BIOS.  Is there something
+	I should be doing with hdparm on the CD device?
+
+
+Thanks in advance,
+
+Damacus Porteng
+
+--
+Damnit, Linus, I'm a network admin, not a kernel hacker!
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

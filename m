@@ -1,76 +1,141 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316161AbSGWXm0>; Tue, 23 Jul 2002 19:42:26 -0400
+	id <S315783AbSGWXvO>; Tue, 23 Jul 2002 19:51:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318259AbSGWXm0>; Tue, 23 Jul 2002 19:42:26 -0400
-Received: from purple.csi.cam.ac.uk ([131.111.8.4]:60866 "EHLO
-	purple.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S316161AbSGWXmZ>; Tue, 23 Jul 2002 19:42:25 -0400
-Message-Id: <5.1.0.14.2.20020724000719.00af2ec0@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Wed, 24 Jul 2002 00:45:45 +0100
-To: aragorn@vime.prv.pl
-From: Anton Altaparmakov <aia21@cantab.net>
-Subject: Re: Linux Device Driver Development Tool Kit
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020723165510.GA2673@mocosa>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S316199AbSGWXvO>; Tue, 23 Jul 2002 19:51:14 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:20208 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S315783AbSGWXvL>;
+	Tue, 23 Jul 2002 19:51:11 -0400
+Message-ID: <3D3DEC8D.E2BD71CB@mvista.com>
+Date: Tue, 23 Jul 2002 16:53:49 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: Zwane Mwaikambo <zwane@linuxpower.ca>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] irqlock patch -G3. [was Re: odd memory corruption in 
+ 2.5.27?]
+References: <Pine.LNX.4.44.0207240100150.2732-100000@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 17:55 23/07/02, Marcin Stepnicki wrote:
->I'd like to ask about http://www.jungo.com/linux.html. Do you consider
->this tool  "acceptable"? Do you think it is worth mentioning to
->companies releasing new hardware if they don't want to make their
->drivers not only open-source, but simply available (as long as Linux is
->concerned)?
->
->Please cc: me as I'm not subscribed.
+Ingo Molnar wrote:
+> 
+> On Tue, 23 Jul 2002, george anzinger wrote:
+> 
+> > I just spent a month tracking down this issue.  It comes
+> > down to the slab allocater using per cpu data structures and
+> > protecting them with a combination of interrupt disables and
+> > spin_locks.  Preemption is allowed (incorrectly) if
+> > interrupts are off and preempt_count goes to zero on the
+> > spin_unlock. [...]
+> 
+> > The proposed fix is to catch the attempted preemption in
+> > preempt_schedule() and just return if the interrupt system
+> > is off. [...]
+> 
+> this is most definitely not the correct fix ...
+> 
+> i'm quite convinced that the fix is to avoid illegal preemption, not to
+> work it around.
 
-I didn't go as far as downloading their trial version but a few points:
+I like this.  The only change I would make is to enable
+interrupts in exit.c and entry.S where they are only enabled
+under the debug condition now, (mostly I try to avoid
+Heisenberg).  I really do like the ability to track down
+this problem by just turing on the debug option.
+> 
+> i've written debugging code that caught and reported this slab.c bug
+> within minutes. 
 
-1) It doesn't produce native drivers. This is a Bad Thing(TM). Having a 
-kernel driver exist in user space is not good for stability. Neither for 
-speed for that matter.
+Yeah, its easy when you know what to look for :)
 
-2) From their own docs: "CAUTION: Since /dev/windrvr gives direct hardware 
-access to user programs, it may compromise kernel stability on multi-user 
-Linux systems. Please restrict access to the DriverWizard and the device 
-file /dev/windrvr to trusted users." This is an ugly hack if I ever saw one.
-
-3) The driver will be x86 only. Native drivers can be cross platform.
-
-4) Such a driver will never be able to become part of the kernel, so the 
-hardware will never be supported by default in Linux.
-
-5) There would be no community support for the driver. The power of Linux 
-is exactly the large community helping with open source drivers. This gets 
-bugs fixed in a jiffie. In comparison to binary drivers or weird stuff like 
-this one...
-
-6) Did you see the prices they charge?!?
-
-Having said all that, their hardware debugger features look quite nice. A 
-gui to allow you to peek around the hardware. That can be very useful.
-
-My conclusion would be that, no, I would not recommend people to use this 
-to write Linux drivers unless they are particularly desperate... But their 
-tools can be valuable to understand and test the hardware which can be an 
-essential part of driver development, after all you can't write the code 
-unless you understand the hardware...
-
-Just my 2p.
-
-Best regards,
-
-         Anton
-
+> The code detects the irqs-off condition in schedule(). You
+> can find it my latest irqlock patchset, at:
+> 
+>    http://redhat.com/~mingo/remove-irqlock-patches/remove-irqlock-2.5.27-G3
+> 
+> it fixes this and other related bugs as well.
+> 
+> Changes in -G3:
+> 
+>  - slab.c needs to spin_unlock_no_resched(), instead of spin_unlock(). (It
+>    also has to check for preemption in the right spot.) This should fix
+>    the memory corruption.
+> 
+>  - irq_exit() needs to run softirqs if interrupts not active - in the
+>    previous patch it ran them when preempt_count() was 0, which is
+>    incorrect.
+> 
+>  - spinlock macros are updated to enable preemption after enabling
+>    interrupts. Besides avoiding false positive warnings, this also
+> 
+>  - fork.c has to call scheduler_tick() with preemption disabled -
+>    otherwise scheduler_tick()'s spin_unlock can preempt!
+> 
+>  - irqs_disabled() macro introduced.
+> 
+>  - [ all other local_irq_enable() or sti instances conditional on
+>      CONFIG_DEBUG_IRQ_SCHEDULE are to fix false positive warnings. ]
+> 
+> Changes in -G0:
+> 
+>  - fix buggy in_softirq(). Fortunately the bug made the test broader,
+>    which didnt result in algorithmical breakage, just suboptimal
+>    performance.
+> 
+>  - move do_softirq() processing into irq_exit() => this also fixes the
+>    softirq processing bugs present in apic.c IRQ handlers that did not
+>    test for softirqs after irq_exit().
+> 
+>  - simplify local_bh_enable().
+> 
+> Changes in -F9:
+> 
+>  - replace all instances of:
+> 
+>         local_save_flags(flags);
+>         local_irq_disable();
+> 
+>    with the shorter form of:
+> 
+>         local_irq_save(flags);
+> 
+>   about 30 files are affected by this change.
+> 
+> Changes in -F8:
+> 
+>  - preempt/hardirq/softirq count separation, cleanups.
+> 
+>  - skbuff.c fix.
+> 
+>  - use irq_count() in scheduler_tick()
+> 
+> Changes in -F3:
+> 
+>  - the entry.S cleanups/speedups by Oleg Nesterov.
+> 
+>  - a rather critical synchronize_irq() bugfix: if a driver frees an
+>    interrupt that is still being probed then synchronize_irq() locks up.
+>    This bug has caused a spurious boot-lockup on one of my testsystems,
+>    ifconfig would lock up trying to close eth0.
+> 
+>  - remove duplicate definitions from asm-i386/system.h, this fixes
+>    compiler warnings.
+> 
+>         Ingo
 
 -- 
-   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
--- 
-Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
-Linux NTFS Maintainer / IRC: #ntfs on irc.openprojects.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
-
+George Anzinger   george@mvista.com
+High-res-timers: 
+http://sourceforge.net/projects/high-res-timers/
+Real time sched:  http://sourceforge.net/projects/rtsched/
+Preemption patch:
+http://www.kernel.org/pub/linux/kernel/people/rml

@@ -1,40 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314463AbSD0Uao>; Sat, 27 Apr 2002 16:30:44 -0400
+	id <S314512AbSD0Ueh>; Sat, 27 Apr 2002 16:34:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314505AbSD0Uan>; Sat, 27 Apr 2002 16:30:43 -0400
-Received: from holomorphy.com ([66.224.33.161]:30915 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S314463AbSD0Uan>;
-	Sat, 27 Apr 2002 16:30:43 -0400
-Date: Sat, 27 Apr 2002 13:29:35 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Teodor Iacob <Teodor.Iacob@astral.kappa.ro>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [OOPS] linux-2.4.19-pre7-rmap13
-Message-ID: <20020427202935.GQ21206@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Teodor Iacob <Teodor.Iacob@astral.kappa.ro>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020427085425.GA5573@linux.kappa.ro> <20020427150643.GP21206@holomorphy.com> <20020427191431.GA15010@linux.kappa.ro>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S314547AbSD0Ueg>; Sat, 27 Apr 2002 16:34:36 -0400
+Received: from [194.234.65.222] ([194.234.65.222]:61314 "EHLO
+	mustard.heime.net") by vger.kernel.org with ESMTP
+	id <S314512AbSD0Uef>; Sat, 27 Apr 2002 16:34:35 -0400
+Date: Sat, 27 Apr 2002 22:34:27 +0200 (CEST)
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+X-X-Sender: roy@mustard.heime.net
+To: Tigran Aivazian <tigran@veritas.com>
+cc: Matthew M <matthew.macleod@btinternet.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Microcode update driver
+In-Reply-To: <Pine.LNX.4.33.0204272114560.1792-100000@einstein.homenet>
+Message-ID: <Pine.LNX.4.44.0204272232290.2833-100000@mustard.heime.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 27, 2002 at 10:14:31PM +0300, Teodor Iacob wrote:
-> I discovered the oops and the bug message by typing dmesg,
-> and the system was running well, I just saw the messages
-> in the logs, and the order was the BUG and then the oops.
-> I attached the .config used .. hope it helps
+> > > where can i find it? Do I need it?
+> >
+> > microcode_ctl is the userland utility which actually soed the uploading of
+> > microcode. You will need to get the appropriate package, and this will come
+> 
+> if he is running latest Red Hat beta then it is part of kernel-utils
+> package:
 
-Okay, nothing stands out there, could you by chance strace hlds to
-see what kind of socketcall it's doing, and maybe send some of the
-strace output to me in a private reply?
+ok. so what the kernel is telling me during boottime (IA-32 Microcode 
+Update Driver: v1.09 <tigran@veritas.com>), is simply having the driver to 
+enable such uploads? It'd be great to have this documented openly 
+somewhere.
 
+Thanks guys
 
-Thanks,
-Bill
+roy
+
+-- 
+Roy Sigurd Karlsbakk, Datavaktmester
+
+Computers are like air conditioners.
+They stop working when you open Windows.
+

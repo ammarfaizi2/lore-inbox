@@ -1,61 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261998AbTFOHtR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jun 2003 03:49:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262000AbTFOHtR
+	id S262000AbTFOHxP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jun 2003 03:53:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262011AbTFOHxP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jun 2003 03:49:17 -0400
-Received: from mailc.telia.com ([194.22.190.4]:10472 "EHLO mailc.telia.com")
-	by vger.kernel.org with ESMTP id S261998AbTFOHtQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jun 2003 03:49:16 -0400
-X-Original-Recipient: <linux-kernel@vger.kernel.org>
-Message-ID: <3EEC2811.2040500@telia.com>
-Date: Sun, 15 Jun 2003 10:02:25 +0200
-From: Peter Lundkvist <p.lundkvist@telia.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030527 Debian/1.3.1-2
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Cardbus devices added twice since 2.5.69-bk10
-X-Enigmail-Version: 0.74.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
+	Sun, 15 Jun 2003 03:53:15 -0400
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:42762 "EHLO
+	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S262000AbTFOHxN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jun 2003 03:53:13 -0400
+Subject: Re: 2.5 and module loading
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Joshua Kwan <joshk@triplehelix.org>
+Cc: Per Bergqvist <per@synap.se>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030615070648.GA8576@triplehelix.org>
+References: <200306150653.h5F6r3007462@tessla.levonline.com>
+	 <20030615070648.GA8576@triplehelix.org>
+Content-Type: text/plain
+Message-Id: <1055664420.631.7.camel@teapot.felipe-alfaro.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.0 
+Date: 15 Jun 2003 10:07:01 +0200
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, 2003-06-15 at 09:06, Joshua Kwan wrote:
+> On Sun, Jun 15, 2003 at 08:53:03AM +0300, Per Bergqvist wrote:
+> > Can somebody please explain what is needed to get module loading
+> > working with the 2.5.xx kernels ?
+> 
+> ftp://ftp.kernel.org/pub/linux/kernel/people/rusty/modules/
 
-I can't get any cardbus (network) devices to work since 2.5.69-bk10.
-I have tested this with 2.5.70 and 2.5.71 with same result. Output
-of lspci lists the cardbus device twice with same device number.
-Also tried with acpi=off, but same result.
+For RedHat users, there's another pitfall in "/etc/rc.sysinit". During
+startup, the script sets up the binary used to dynamically load modules
+stored at "/proc/sys/kernel/modprobe". The initscript looks for
+"/proc/ksyms" (if my memory servers me well), but since it doesn't exist
+in 2.5 kernels, the binary used is "/sbin/true" instead.
 
+This, eventually, will keep modules from working. RedHat users will have
+to patch the "/etc/rc.sysinit" script to set "/proc/sys/kernel/modprobe"
+to "/sbin/modprobe", even when "/proc/ksyms" doesn't exist.
 
-Peter
-
---
-lspci:
-00:00.0 Host bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX Host bridge (rev 03)
-00:01.0 PCI bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX AGP bridge (rev 03)
-00:03.0 CardBus bridge: Texas Instruments PCI1420
-00:03.1 CardBus bridge: Texas Instruments PCI1420
-00:07.0 Bridge: Intel Corp. 82371AB/EB/MB PIIX4 ISA (rev 02)
-00:07.1 IDE interface: Intel Corp. 82371AB/EB/MB PIIX4 IDE (rev 01)
-00:07.2 USB Controller: Intel Corp. 82371AB/EB/MB PIIX4 USB (rev 01)
-00:07.3 Bridge: Intel Corp. 82371AB/EB/MB PIIX4 ACPI (rev 03)
-00:08.0 Multimedia audio controller: ESS Technology ES1983S Maestro-3i PCI Audio Accelerator (rev 10)
-00:10.0 Communication controller: Lucent Microelectronics WinModem 56k (rev 01)
-01:00.0 VGA compatible controller: ATI Technologies Inc Rage Mobility M3 AGP 2x (rev 02)
-06:00.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139/8139C/8139C+ (rev 10)
-06:00.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139/8139C/8139C+ (rev 10)
-
-cardctl status:
-Socket 0:
-  no card
-Socket 1:
-  3.3V CardBus card
-  function 0: [ready]
-
+I can't attach a patch. All my RH9 boxes are manually patched and can't
+get access to the original "/etc/rc.sysinit" script :-(
 

@@ -1,71 +1,119 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263800AbTLEGz4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 01:55:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263732AbTLEGz4
+	id S263605AbTLEHBv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 02:01:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263902AbTLEHBv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 01:55:56 -0500
-Received: from thunk.org ([140.239.227.29]:56990 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S263269AbTLEGzx (ORCPT
+	Fri, 5 Dec 2003 02:01:51 -0500
+Received: from legolas.restena.lu ([158.64.1.34]:52170 "EHLO smtp.restena.lu")
+	by vger.kernel.org with ESMTP id S263605AbTLEHBr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 01:55:53 -0500
-Date: Fri, 5 Dec 2003 01:55:22 -0500
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Simon Kirby <sim@netnation.com>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux-raid maillist <linux-raid@vger.kernel.org>,
-       Jens Axboe <axboe@suse.de>, Neil Brown <neilb@cse.unsw.edu.au>,
-       "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>,
-       LKML <linux-kernel@vger.kernel.org>, linux-lvm@sistina.com
-Subject: Re: Reproducable OOPS with MD RAID-5 on 2.6.0-test11
-Message-ID: <20031205065522.GA28825@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Simon Kirby <sim@netnation.com>, Linus Torvalds <torvalds@osdl.org>,
-	Linux-raid maillist <linux-raid@vger.kernel.org>,
-	Jens Axboe <axboe@suse.de>, Neil Brown <neilb@cse.unsw.edu.au>,
-	"Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>,
-	LKML <linux-kernel@vger.kernel.org>, linux-lvm@sistina.com
-References: <3FCB4AFB.3090700@backtobasicsmgmt.com> <20031201141144.GD12211@suse.de> <3FCB4CFA.4020302@backtobasicsmgmt.com> <20031201155143.GF12211@suse.de> <3FCC0EE0.9010207@backtobasicsmgmt.com> <20031202082713.GN12211@suse.de> <Pine.LNX.4.58.0312021009070.1519@home.osdl.org> <20031204011236.GA5622@simulated.ca> <Pine.LNX.4.58.0312031721210.2055@home.osdl.org> <20031204043106.GA19017@netnation.com>
+	Fri, 5 Dec 2003 02:01:47 -0500
+Subject: Re: NForce2 pseudoscience stability testing (2.6.0-test11) - IRQ
+	flood related ?
+From: Craig Bradney <cbradney@zip.com.au>
+To: Bob <recbo@nishanet.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <3FD01BE0.5030807@nishanet.com>
+References: <3FCF25F2.6060008@netzentry.com>
+	 <1070551149.4063.8.camel@athlonxp.bradney.info>
+	 <20031204163243.GA10471@forming>
+	 <frodoid.frodo.87vfow33zm.fsf@usenet.frodoid.org>
+	 <20031204175548.GB10471@forming> <20031204200208.GA4167@localnet>
+	 <20031204230528.GA189@tesore.local>  <3FCFBFC3.5070403@gmx.de>
+	 <1070580108.4100.8.camel@athlonxp.bradney.info>
+	 <3FD01BE0.5030807@nishanet.com>
+Content-Type: text/plain
+Message-Id: <1070607704.4100.11.camel@athlonxp.bradney.info>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031204043106.GA19017@netnation.com>
-User-Agent: Mutt/1.5.4i
-X-Habeas-SWE-1: winter into spring
-X-Habeas-SWE-2: brightly anticipated
-X-Habeas-SWE-3: like Habeas SWE (tm)
-X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
-X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
-X-Habeas-SWE-6: email in exchange for a license for this Habeas
-X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
-X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
-X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 05 Dec 2003 08:01:44 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 03, 2003 at 08:31:06PM -0800, Simon Kirby wrote:
+nforce net is off. 3com is on. (in bios)
+
+Craig
+
+On Fri, 2003-12-05 at 06:47, Bob wrote:
+> Do you have onboard ethernet enabled with nforce2
+> mboard? I am fine with pre-emptive kernel but have
+> to disable onboard ethernet in cmos setup or I see
+> "Disabling IRQ7" and problems develop.
 > 
-> Without the patches, the box gets as far as assembling the array and
-> activating it, but dies on "mke2fs".  Running mke2fs through strace shows
-> that it stops during the early stages, before it even tries to write
-> anything.  mke2fs appears to seek through the whole device and do a bunch
-> of small reads at various points, and as soon as it tries to read from an
-> offset > 2 TB, it hangs.
+> -Bob
+> 
+> Craig Bradney wrote:
+> 
+> >Prakash,
+> >
+> >try it without preempt.. just to see. As soon as I removed it today the
+> >crashes went away (for 5 hours).. PC is now up for 2.5 hours and I'm
+> >waiting to see if it will be 5 hrs or 5 days this time around :)
+> >
+> >Craig
+> >
+> >On Fri, 2003-12-05 at 00:14, Prakash K. Cheemplavam wrote:
+> >  
+> >
+> >>Jesse Allen wrote:
+> >>    
+> >>
+> >>>On Thu, Dec 04, 2003 at 09:02:08PM +0100, cheuche+lkml@free.fr wrote:
+> >>>
+> >>>      
+> >>>
+> >>>>Hello,
+> >>>>
+> >>>>Along with the lockups already described here, I've noticed an
+> >>>>unidentified source of interrupts on IRQ7.
+> >>>>        
+> >>>>
+> >>>...
+> >>>
+> >>>      
+> >>>
+> >>>>I wonder if people experiencing lockup problems also have these
+> >>>>noise interrupts,
+> >>>>        
+> >>>>
+> >>>I just took a look at this, by setting up parport_pc, and yes I get noise.
+> >>>
+> >>>This was my first sample with a kernel with APIC:
+> >>>  7:      29230    IO-APIC-edge  parport0
+> >>>      
+> >>>
+> >>I just did an experminent with a very light kernel, nearly nothing 
+> >>compiled inside, except apic acpi, preempt and needed stuff plus 
+> >>scsi+libata and no ide. IRQ 7 was not present and every device had its 
+> >>own irq. Nevertheless system locked up at second hdparm run...
+> >>
+> >>Prakash
+> >>
+> >>-
+> >>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> >>the body of a message to majordomo@vger.kernel.org
+> >>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> >>Please read the FAQ at  http://www.tux.org/lkml/
+> >>
+> >>    
+> >>
+> >
+> >-
+> >To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> >the body of a message to majordomo@vger.kernel.org
+> >More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> >Please read the FAQ at  http://www.tux.org/lkml/
+> >
+> >  
+> >
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-It sounds like mke2fs tried using BLKGETSIZE ioctl, but given that
-this returns the number of 512 byte sectors in a device in a 4 byte
-word, the BLKGETSIZE ioctl quite rightly threw up its hands and said,
-"sorry, I can't tell you the correct size."
-
-The mke2fs fell back to its backup algorithm, which uses a modified
-binary search to find the size of the device.  It started to see if
-the device was at least 1k, and checks to see if the device is at
-least 2k, 4k, 8k, 16k, 32k, 64k, 128k, etc.  So it sounds like it's
-dieing when it tries to seek past 2TB using llseek(). 
-
-It would probably be worthwhile to write a little test program which
-opens the disk, llseeks to 2TB+1, and then tries reading a byte.  If
-that fiailes, then there's definitely a bug somewhere in the device
-driver....
-
-						- Ted

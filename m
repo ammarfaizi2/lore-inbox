@@ -1,75 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266125AbSLSVVL>; Thu, 19 Dec 2002 16:21:11 -0500
+	id <S266179AbSLSV3g>; Thu, 19 Dec 2002 16:29:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266179AbSLSVVL>; Thu, 19 Dec 2002 16:21:11 -0500
-Received: from [81.2.122.30] ([81.2.122.30]:54793 "EHLO darkstar.example.net")
-	by vger.kernel.org with ESMTP id <S266125AbSLSVVK>;
-	Thu, 19 Dec 2002 16:21:10 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200212192140.gBJLexVt003143@darkstar.example.net>
-Subject: Re: Dedicated kernel bug database
-To: linux-kernel@vger.kernel.org
-Date: Thu, 19 Dec 2002 21:40:59 +0000 (GMT)
-In-Reply-To: <3E023602.8080007@verizon.net> from "Stephen Wille Padnos" at Dec 19, 2002 04:11:30 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S266218AbSLSV3g>; Thu, 19 Dec 2002 16:29:36 -0500
+Received: from palrel12.hp.com ([156.153.255.237]:430 "HELO palrel12.hp.com")
+	by vger.kernel.org with SMTP id <S266179AbSLSV3f>;
+	Thu, 19 Dec 2002 16:29:35 -0500
+To: mj@ucw.cz
+Subject: PATCH 2.5.x disable BAR when sizing
+Cc: linux-kernel@vger.kernel.org, turukawa@icc.melco.co.jp
+Message-Id: <20021219213712.0518B12CB2@debian.cup.hp.com>
+Date: Thu, 19 Dec 2002 13:37:12 -0800 (PST)
+From: grundler@cup.hp.com (Grant Grundler)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >Interesting - so the first stage in reporting a bug would be to select
-> >the latest 2.4 and 2.5 kernels that you've noticed it in, and get a
-> >list of known bugs fixed in those versions.  Also, if you'd selected
-> >the maintainer, (from an automatically generated list from the
-> >MAINTAINERS file), it could just search *their* changes in the changelog.
-> >
-> It's often difficult to pick a maintainer for a bug - it may not be the 
-> fault of a single subsystem.
 
-Yes, that's true.
+Martin,
+In April 2002, turukawa@icc.melco.co.jp sent a 2.4.x patch to disable
+BARs while the BARs were being sized.  I've "forward ported" this patch
+to 2.5.x (appended).  turukawa's excellent problem description and
+original posting are here:
+	https://lists.linuxia64.org/archives//linux-ia64/2002-April/003302.html
 
-> As an example, I recently had a problem getting USB and network to
-> function (on kernels 2.5.5x).
-> I noticed that toggling Local APIC would also toggle which of the
-> two devices worked.
-> Disabling ACPI allows both deviecs to function regardless of local APIC.
-> 
-> So, where is the problem?
-> 1) Network driver?  It doesn't work with ACPI and both Local APIC and 
-> IO-APIC.
-> 2) USB driver?  It doesn't work with ACPI and no UP APIC.
-> 3) APIC?  Causes weird problems with various drivers when ACPI is turned on.
-> 4) ACPI?  Causes weird problems with various drivers when APIC is toggled.
+David Mosberger agrees this is an "obvious fix".
+We've been using this in the ia64 2.4 code stream since about August.
 
-The way I imagine it working would be that you could assign it to
-multiple maintainers, (perhaps with a maximum to discourage the
-sending of all bugs to everybody, or alternatively, you could lower
-the priority of a bug sent to multiple people, on the basis that it
-was more likely to get solved anyway, so you are, in effect, balancing
-out the attention it gets).
+thanks,
+grant
 
-In the case you point out, as it's primarily networking and USB, the
-bug would get assigned to Andrew Morton, Jeff Garzik, and Greg
-Kroah-Hartman, who would all be relevant people to contact.
 
-> (this exact bug was in Bugzilla, though I hadn't checked there before 
-> mailing lkml ;)
-> 
-> I'm not exactly a neophyte to the kernel, and I would have to do a lot 
-> more digging to find the right maintainer to send this to.  Also, the 
-> person(s) to whom the bug is reported will depend on how much debugging 
-> work I do, and in what order I do it.
-
-Good point.
-
-> I'm not trying to discourage you - just raising a potential gotcha.
-
-Overall, though, would you rather be presented with a list of
-categories, or a list of people and what parts of the code they
-maintain.  Personally, I think that a list of people is more
-intuitive, rather than an abstract list of categories, but I could be
-wrong.
-
-John.
+Index: drivers/pci/probe.c
+===================================================================
+RCS file: /var/cvs/linux-2.5/drivers/pci/probe.c,v
+retrieving revision 1.2
+diff -u -p -r1.2 probe.c
+--- drivers/pci/probe.c	9 Oct 2002 20:42:57 -0000	1.2
++++ drivers/pci/probe.c	17 Dec 2002 21:53:14 -0000
+@@ -48,6 +48,12 @@ static void pci_read_bases(struct pci_de
+ 	unsigned int pos, reg, next;
+ 	u32 l, sz;
+ 	struct resource *res;
++	u16 cmd;
++
++	/* Disable I/O & memory decoding while we size the BARs. */
++	pci_read_config_word(dev, PCI_COMMAND, &cmd);
++	pci_write_config_word(dev, PCI_COMMAND,
++		cmd & ~(PCI_COMMAND_IO | PCI_COMMAND_MEMORY));
+ 
+ 	for(pos=0; pos<howmany; pos = next) {
+ 		next = pos+1;
+@@ -114,6 +120,8 @@ static void pci_read_bases(struct pci_de
+ 		}
+ 		res->name = dev->name;
+ 	}
++
++	pci_write_config_word(dev, PCI_COMMAND, cmd);
+ }
+ 
+ void __devinit pci_read_bridge_bases(struct pci_bus *child)

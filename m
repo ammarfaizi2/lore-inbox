@@ -1,73 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264763AbUFGPJA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264756AbUFGPLE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264763AbUFGPJA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jun 2004 11:09:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264756AbUFGPJA
+	id S264756AbUFGPLE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jun 2004 11:11:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264766AbUFGPLC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jun 2004 11:09:00 -0400
-Received: from mail.timesys.com ([65.117.135.102]:27339 "EHLO
-	exchange.timesys.com") by vger.kernel.org with ESMTP
-	id S264766AbUFGPIp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jun 2004 11:08:45 -0400
-Message-ID: <40C484F9.20504@timesys.com>
-Date: Mon, 07 Jun 2004 11:08:41 -0400
-From: Greg Weeks <greg.weeks@timesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-arm-kernel@lists.arm.linux.org.uk
-CC: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.4] jffs2 aligment problems
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 07 Jun 2004 14:56:17.0734 (UTC) FILETIME=[963D7E60:01C44C9F]
+	Mon, 7 Jun 2004 11:11:02 -0400
+Received: from fed1rmmtao01.cox.net ([68.230.241.38]:9193 "EHLO
+	fed1rmmtao01.cox.net") by vger.kernel.org with ESMTP
+	id S264756AbUFGPJW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jun 2004 11:09:22 -0400
+Date: Mon, 7 Jun 2004 08:09:21 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Pantelis Antoniou <panto@intracom.gr>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] (urgent) ppc32: Fix CPUs with soft loaded TLB
+Message-ID: <20040607150921.GV15195@smtp.west.cox.net>
+References: <1086556255.1859.14.camel@gaston> <Pine.LNX.4.58.0406061418450.1730@ppc970.osdl.org> <1086558161.10538.24.camel@gaston> <40C4186C.8000700@intracom.gr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40C4186C.8000700@intracom.gr>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This fixed some jffs2 alignment problems we saw on an IXP425 based 
-XScale board. I just got pinged that I was supposed to post this patch 
-in case anyone else finds it usefull. This was against a modified 2.4.19 
-kernel.
+On Mon, Jun 07, 2004 at 10:25:32AM +0300, Pantelis Antoniou wrote:
 
-Greg Weeks
+> Benjamin Herrenschmidt wrote:
+> 
+> >On Sun, 2004-06-06 at 16:20, Linus Torvalds wrote:
+> >
+> >>On Sun, 6 Jun 2004, Benjamin Herrenschmidt wrote:
+> >>
+> >>>The recent introduction of ptep_set_access_flags() with the optimisation
+> >>>of not flushing the TLB unfortunately broke ppc32 CPUs with no hash 
+> >>>table.
+> >>>
+> >>Makes sense, applied.
+> >>
+> >
+> >ARGH. Missed one file. Here is an additional patch (missed tlbflush.h 
+> >patch)
+> >
+> >Sorry.
+> >
+> >This adds the definiction of flush_tlb_page_nohash() that was missing
+> >from the previous patch fixing SW-TLB loaded PPCs
+> >
+> >Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+[snip]
+> Hi
+> 
+> Unfortunately this is not enough for me on 8xx.
+[snip]
+> In order to fix this I now have to remove update_mmu_cache  by defining 
+> it empty.
+> 
+> Please see the following patch.
 
-Signed-off-by: Greg Weeks <greg.weeks@timesys.com> under TS0067
+But this now matches the way things are on 2.4, so is it really a
+problem?
 
-
---- kernel/drivers/mtd/chips/cfi_cmdset_0001.c-orig
-+++ kernel/drivers/mtd/chips/cfi_cmdset_0001.c
-
-@@ -933,7 +933,7 @@
-        cfi_word status, status_OK;
-        unsigned long cmd_adr, timeo;
-        DECLARE_WAITQUEUE(wait, current);
--       int wbufsize, z, suspended=0, ret=0;
-+       int wbufsize, z, y, suspended=0, ret=0;
-
-        wbufsize = CFIDEV_INTERLEAVE << cfi->cfiq->MaxBufWriteSize;
-        adr += chip->start;
-@@ -1064,12 +1064,18 @@
-
-        /* Write data */
-        for (z = 0; z < len; z += CFIDEV_BUSWIDTH) {
-+               cfi_word aligned_val;
-+               u_char *align_ptr = (u_char *) &aligned_val;
-+
-+               for (y = 0; y < CFIDEV_BUSWIDTH; y++)
-+                       align_ptr[y] = *(buf++);
-+
-                if (cfi_buswidth_is_1()) {
--                       map->write8 (map, *((__u8*)buf)++, adr+z);
-+                       map->write8 (map, *((__u8 *) &aligned_val), adr+z);
-                } else if (cfi_buswidth_is_2()) {
--                       map->write16 (map, *((__u16*)buf)++, adr+z);
-+                       map->write16 (map, *((__u16 *) &aligned_val), 
-adr+z);
-                } else if (cfi_buswidth_is_4()) {
--                       map->write32 (map, *((__u32*)buf)++, adr+z);
-+                       map->write32 (map, *((__u32 *) &aligned_val), 
-adr+z);
-                } else {
-                        DISABLE_VPP(map);
-                        ret = -EINVAL;
-
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

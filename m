@@ -1,112 +1,180 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261999AbUCJKyx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 05:54:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262027AbUCJKyx
+	id S262209AbUCJK6y (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 05:58:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262147AbUCJK6y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 05:54:53 -0500
-Received: from mail.daysofwonder.com ([209.61.173.130]:65222 "EHLO
-	mail.daysofwonder.com") by vger.kernel.org with ESMTP
-	id S261999AbUCJKyN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 05:54:13 -0500
-Subject: PROBLEM: task->tty->driver problem/oops in proc_pid_stat (was Re:
-	[2.6.4-rc2] Unable to handle kernel paging request at virtual address
-	02000064)
-From: Brice Figureau <brice@daysofwonder.com>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <1078823808.23748.88.camel@localhost.localdomain>
-References: <1078823808.23748.88.camel@localhost.localdomain>
-Content-Type: text/plain
-Organization: Days of Wonder
-Message-Id: <1078916045.2157.195.camel@localhost.localdomain>
+	Wed, 10 Mar 2004 05:58:54 -0500
+Received: from TYO201.gate.nec.co.jp ([202.32.8.214]:53918 "EHLO
+	TYO201.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id S262209AbUCJK51 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Mar 2004 05:57:27 -0500
+Date: Wed, 10 Mar 2004 19:57:07 +0900 (JST)
+Message-Id: <20040310.195707.521627048.nomura@linux.bs1.fc.nec.co.jp>
+To: linux-kernel@vger.kernel.org, marcelo.tosatti@cyclades.com
+Cc: j-nomura@ce.jp.nec.com
+Subject: Re: [2.4] heavy-load under swap space shortage
+From: j-nomura@ce.jp.nec.com
+In-Reply-To: <Pine.LNX.4.44.0402051834070.1396-100000@localhost.localdomain>
+References: <20040204.204058.1025214600.nomura@linux.bs1.fc.nec.co.jp>
+	<Pine.LNX.4.44.0402051834070.1396-100000@localhost.localdomain>
+X-Mailer: Mew version 3.3 on XEmacs 21.4.15 (Security Through Obscurity)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4-8mdk 
-Date: Wed, 10 Mar 2004 11:54:06 +0100
+Content-Type: Multipart/Mixed;
+ boundary="--Next_Part(Wed_Mar_10_19_57_07_2004_752)--"
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi List,
+----Next_Part(Wed_Mar_10_19_57_07_2004_752)--
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-I've digged a little deeper into the following oops that occurs every
-night on my servers (see my previous mail):
+After discussion with Hugh and recommendation from Andrea,
+it turns out that Andrea's 05_vm_22_vm-anon-lru-3 in 2.4.23aa2 solves
+the problem.
+ftp://ftp.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.23aa2/05_vm_22_vm-anon-lru-3
 
-On Tue, 2004-03-09 at 10:16, Brice Figureau wrote:
-> Mar  9 02:00:06 server2 kernel: Unable to handle kernel paging request at virtual address 02000064
-> Mar  9 02:00:06 server2 kernel:  printing eip:
-> Mar  9 02:00:06 server2 kernel: c01915bc
-> Mar  9 02:00:06 server2 kernel: *pde = 00000000
-> Mar  9 02:00:06 server2 kernel: Oops: 0000 [#1]
-> Mar  9 02:00:06 server2 kernel: PREEMPT SMP
-> Mar  9 02:00:06 server2 kernel: CPU:    2
-> Mar  9 02:00:06 server2 kernel: EIP:    0060:[proc_pid_stat+160/1280]    Not tainted
-> Mar  9 02:00:06 server2 kernel: EFLAGS: 00010286
-> Mar  9 02:00:06 server2 kernel: EIP is at proc_pid_stat+0xa0/0x500
-> Mar  9 02:00:06 server2 kernel: eax: 02000000   ebx: f597a000   ecx: c182d548 edx: 00000000
-> Mar  9 02:00:06 server2 kernel: esi: f71d77c0   edi: c269ed00   ebp: f46b9f44 esp: f46b9e30
-> Mar  9 02:00:06 server2 kernel: ds: 007b   es: 007b   ss: 0068
-> Mar  9 02:00:06 server2 kernel: Process ps (pid: 17291, threadinfo=f46b8000 task=c26ac830)
-> Mar  9 02:00:06 server2 kernel: Stack: c269ed00 404d1716 0cf254ae c0402bb0 f4f1bc90 c03e6442 f46b9e78 c018f400
-> Mar  9 02:00:06 server2 kernel:        f45e4980 f4f1bc90 0000001d c03e643e 00000004 f71d77c0 ffffffea fffffff4
-> Mar  9 02:00:06 server2 kernel:        f59f30fc f59f3090 f46b9e9c c016a7b4 f59f3090 f45e4980 c0402b60 f45e4980
-> Mar  9 02:00:06 server2 kernel: Call Trace:
-> Mar  9 02:00:06 server2 kernel:  [proc_pident_lookup+246/588] proc_pident_lookup +0xf6/0x24c
-> Mar  9 02:00:06 server2 kernel:  [real_lookup+199/238] real_lookup+0xc7/0xee
-> Mar  9 02:00:06 server2 kernel:  [in_group_p+67/118] in_group_p+0x43/0x76
-> Mar  9 02:00:06 server2 kernel:  [buffered_rmqueue+237/404] buffered_rmqueue+0xe d/0x194
-> Mar  9 02:00:06 server2 kernel:  [__alloc_pages+151/804] __alloc_pages+0x97/0x32 4
-> Mar  9 02:00:06 server2 kernel:  [proc_info_read+83/305] proc_info_read+0x53/0x1 31
-> Mar  9 02:00:06 server2 kernel:  [filp_open+93/95] filp_open+0x5d/0x5f
-> Mar  9 02:00:06 server2 kernel:  [vfs_read+161/268] vfs_read+0xa1/0x10c
-> Mar  9 02:00:06 server2 kernel:  [sys_read+63/93] sys_read+0x3f/0x5d
-> Mar  9 02:00:06 server2 kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
-> Mar  9 02:00:06 server2 kernel:
-> Mar  9 02:00:06 server2 kernel: Code: 8b 48 64 c1 e1 14 0b 48 68 03 4b 08 89 c8 0f b6 d1 81 e1 00
-> Mar  9 02:00:06 server2 kernel:  <6>note: ps[17291] exited with preempt_count 1
+The patch adds a sysctl which accelerate the performance on
+huge memory machine. It doesn't affect anything if turned off.
 
-I found that the problem occurs there:
-fs/proc/array.c (proc_pid_stat):
+Marcelo, could you apply this to 2.4.26-pre?
+(I attached the slightly modified patch in which the feature is turned
+off by default and which is cleanly applied to bk tree.)
 
-	if (task->tty) {
-		tty_pgrp = task->tty->pgrp;
--->		tty_nr = new_encode_dev(tty_devnum(task->tty));
-	}
 
-The oops occured on:
-	mov    0x64(%eax),%ecx	
+My test case was:
+  - there is a process with large anonymous mapping
+  - there are large amount of page caches and active I/O processes
+  - there are not much of file mappings
 
-eax value was 02000000.
-This code is part of the tty_devnum() inline:
-static inline dev_t tty_devnum(struct tty_struct *tty)
-{
-  return MKDEV(tty->driver->major, tty->driver->minor_start) + tty->index;
-}
+So the problem happens in this way:
+  - shrink_cache tries scanning inactive list in which most of pages
+    are anonymous mapped
+  - it soon fall into swap_out because of too many anonymous pages
+  - when no free swap space, it hardly frees anything
+  - it retries again but soon calls swap_out again and again
 
-The faulty instruction is the deferencing of task->tty->driver.
+Without the patch, snapshot of readprofile looks like:
+   3590781 total
+   3289271 swap_out
+    212029 smp_call_function
+     22598 shrink_cache
+     21833 lru_cache_add
+      7787 get_user_pages
 
-As a side effect, the oops occurs while holding a task_lock, that's why
-my further ps mauxgww were stuck at some point.
+Most of the time was spent in swap_out. (contention on pagetable_lock)
 
-Something interesting: the oops occurs always in a thread (either mysql
-or java), not in a principal process (verified by finding the only task
-that is locked by doing some cat in /proc/<pid>/task/).
+After applying the patch, the snapshot is like:
+    17420 total
+     3929 copy_page
+     3677 statm_pgd_range
+     1317 try_to_free_buffers
+     1312 __copy_user
+      593 scsi_make_request
 
-Then I tried to reproduce it exactly and found the following:
-1) log in with ssh on the server (this allocates a tty: /dev/pts/0)
-2) launch a java application using some threads, the application in
-question uses /dev/pts/0 as tty
-3) log-out, this releases /dev/pts/0
-4) log in again (this session uses /dev/pts/1)
-5) run chkrootkit or a 'ps mauxgww' -> the previous oops is reported.
-
-It seems that task->tty for the threads are not properly zeroed when the
-corresponding tty is unregistered (parent process is OK, though).
-
-I'll let real kernel hackers find exactly where the problem is (and
-possibly a fix)...
-
-I'm not subscribed to the list, so please CC: me on answers.
-
+Best regards.
 --
-Brice Figureau
+NOMURA, Jun'ichi <j-nomura@ce.jp.nec.com>
 
+----Next_Part(Wed_Mar_10_19_57_07_2004_752)--
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline; filename="05_vm_22_vm-anon-lru-3_2.4.25.diff"
+
+--- linux/include/linux/swap.h	2004/02/19 04:12:39	1.1.1.26
++++ linux/include/linux/swap.h	2004/03/10 10:09:11
+@@ -116,7 +116,7 @@ extern void swap_setup(void);
+ extern wait_queue_head_t kswapd_wait;
+ extern int FASTCALL(try_to_free_pages_zone(zone_t *, unsigned int));
+ extern int FASTCALL(try_to_free_pages(unsigned int));
+-extern int vm_vfs_scan_ratio, vm_cache_scan_ratio, vm_lru_balance_ratio, vm_passes, vm_gfp_debug, vm_mapped_ratio;
++extern int vm_vfs_scan_ratio, vm_cache_scan_ratio, vm_lru_balance_ratio, vm_passes, vm_gfp_debug, vm_mapped_ratio, vm_anon_lru;
+ 
+ /* linux/mm/page_io.c */
+ extern void rw_swap_page(int, struct page *);
+--- linux/include/linux/sysctl.h	2004/02/19 04:12:39	1.1.1.23
++++ linux/include/linux/sysctl.h	2004/03/10 10:09:11
+@@ -156,6 +156,7 @@ enum
+ 	VM_MAPPED_RATIO=20,     /* amount of unfreeable pages that triggers swapout */
+ 	VM_LAPTOP_MODE=21,	/* kernel in laptop flush mode */
+ 	VM_BLOCK_DUMP=22,	/* dump fs activity to log */
++	VM_ANON_LRU=23,		/* immediatly insert anon pages in the vm page lru */
+ };
+ 
+ 
+--- linux/kernel/sysctl.c	2003/12/02 04:48:47	1.1.1.22
++++ linux/kernel/sysctl.c	2004/03/10 10:09:12
+@@ -287,6 +287,8 @@ static ctl_table vm_table[] = {
+ 	 &vm_cache_scan_ratio, sizeof(int), 0644, NULL, &proc_dointvec},
+ 	{VM_MAPPED_RATIO, "vm_mapped_ratio", 
+ 	 &vm_mapped_ratio, sizeof(int), 0644, NULL, &proc_dointvec},
++	{VM_ANON_LRU, "vm_anon_lru", 
++	 &vm_anon_lru, sizeof(int), 0644, NULL, &proc_dointvec},
+ 	{VM_LRU_BALANCE_RATIO, "vm_lru_balance_ratio", 
+ 	 &vm_lru_balance_ratio, sizeof(int), 0644, NULL, &proc_dointvec},
+ 	{VM_PASSES, "vm_passes", 
+--- linux/mm/memory.c	2003/12/02 04:48:47	1.1.1.31
++++ linux/mm/memory.c	2004/03/10 10:09:12
+@@ -984,7 +984,8 @@ static int do_wp_page(struct mm_struct *
+ 		if (PageReserved(old_page))
+ 			++mm->rss;
+ 		break_cow(vma, new_page, address, page_table);
+-		lru_cache_add(new_page);
++		if (vm_anon_lru)
++			lru_cache_add(new_page);
+ 
+ 		/* Free the old page.. */
+ 		new_page = old_page;
+@@ -1215,7 +1216,8 @@ static int do_anonymous_page(struct mm_s
+ 		mm->rss++;
+ 		flush_page_to_ram(page);
+ 		entry = pte_mkwrite(pte_mkdirty(mk_pte(page, vma->vm_page_prot)));
+-		lru_cache_add(page);
++		if (vm_anon_lru)
++			lru_cache_add(page);
+ 		mark_page_accessed(page);
+ 	}
+ 
+@@ -1270,7 +1272,8 @@ static int do_no_page(struct mm_struct *
+ 		}
+ 		copy_user_highpage(page, new_page, address);
+ 		page_cache_release(new_page);
+-		lru_cache_add(page);
++		if (vm_anon_lru)
++			lru_cache_add(page);
+ 		new_page = page;
+ 	}
+ 
+--- linux/mm/vmscan.c	2004/02/19 04:12:33	1.1.1.32
++++ linux/mm/vmscan.c	2004/03/10 10:09:13
+@@ -65,6 +65,27 @@ int vm_lru_balance_ratio = 2;
+ int vm_vfs_scan_ratio = 6;
+ 
+ /*
++ * "vm_anon_lru" select if to immdiatly insert anon pages in the
++ * lru. Immediatly means as soon as they're allocated during the
++ * page faults.
++ *
++ * If this is set to 0, they're inserted only after the first
++ * swapout.
++ *
++ * Having anon pages immediatly inserted in the lru allows the
++ * VM to know better when it's worthwhile to start swapping
++ * anonymous ram, it will start to swap earlier and it should
++ * swap smoother and faster, but it will decrease scalability
++ * on the >16-ways of an order of magnitude. Big SMP/NUMA
++ * definitely can't take an hit on a global spinlock at
++ * every anon page allocation. So this is off by default.
++ *
++ * Low ram machines that swaps all the time want to turn
++ * this on (i.e. set to 1).
++ */
++int vm_anon_lru = 1;
++
++/*
+  * The swap-out function returns 1 if it successfully
+  * scanned all the pages it was asked to (`count').
+  * It returns zero if it couldn't do anything,
+
+----Next_Part(Wed_Mar_10_19_57_07_2004_752)----

@@ -1,73 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288780AbSAVRig>; Tue, 22 Jan 2002 12:38:36 -0500
+	id <S289161AbSAVRph>; Tue, 22 Jan 2002 12:45:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289161AbSAVRi0>; Tue, 22 Jan 2002 12:38:26 -0500
-Received: from tabaluga.ipe.uni-stuttgart.de ([129.69.22.180]:30607 "EHLO
-	tabaluga.ipe.uni-stuttgart.de") by vger.kernel.org with ESMTP
-	id <S288780AbSAVRiR>; Tue, 22 Jan 2002 12:38:17 -0500
-From: Nils Rennebarth <nils@ipe.uni-stuttgart.de>
-Date: Tue, 22 Jan 2002 18:38:15 +0100
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.17: Hang after IDE detection
-Message-ID: <20020122173815.GH900@ipe.uni-stuttgart.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0201221421050.20914-100000@aither.zcu.cz> <Pine.GSO.4.21.0201221547420.18952-100000@skiathos.physics.auth.gr>
+	id <S289175AbSAVRp2>; Tue, 22 Jan 2002 12:45:28 -0500
+Received: from nat-pool-meridian.redhat.com ([12.107.208.200]:32015 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S289161AbSAVRpU>; Tue, 22 Jan 2002 12:45:20 -0500
+Date: Tue, 22 Jan 2002 12:45:18 -0500
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Rainer Krienke <krienke@uni-koblenz.de>
+Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org,
+        nfs@lists.sourceforge.net
+Subject: Re: 2.4.17:Increase number of anonymous filesystems beyond 256?
+Message-ID: <20020122124518.B27968@devserv.devel.redhat.com>
+In-Reply-To: <mailman.1011275640.16596.linux-kernel2news@redhat.com> <200201221308.g0MD8EY16176@bliss.uni-koblenz.de> <E16T0ye-0002K6-00@charged.uio.no> <200201221523.g0MFNst03011@bliss.uni-koblenz.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Uu2n37VG4rOBDVuR"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.21.0201221547420.18952-100000@skiathos.physics.auth.gr>
-User-Agent: Mutt/1.3.25i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200201221523.g0MFNst03011@bliss.uni-koblenz.de>; from krienke@uni-koblenz.de on Tue, Jan 22, 2002 at 04:23:54PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> From: Rainer Krienke <krienke@uni-koblenz.de>
+> Date: Tue, 22 Jan 2002 16:23:54 +0100
 
---Uu2n37VG4rOBDVuR
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> Thanks for the hint. I fixed pmap_create() according to your proposal and now 
+> nfsd works again. 
 
-On Tue, Jan 22, 2002 at 05:18:27PM +0200, Liakakis Kostas wrote:
-> I recently got an older k6-2/333 with a SiS chipset and tried to install
-> linux on it.
->=20
-> Every recent distro I tryed with a 2.4.x kernel would hang after detecting
-> the SiS5513 controller.
+Care to share the patch?
 
-> SIS5513: chipset revision 208
-> SIS5513: not 100% native mode: will probe irqs later
-> SIS5597
->     ide0: BM-DMA at 0x4000-0x4007, BIOS settings hda:pio, hdb:pio
->     ide1: BM-DMA at 0x4008-0x400f, BIOS settings hdc:pio, hdb:pio
-for me the hang happens here. Other symptoms are about the same.
+> Raising the count of elements of 
+> unnamed_dev_in_use in fs/super.c to eg 4096 resulted in the opportunity to 
+> mount as many NFS directories.
 
-> hda: ST34321A, ATA DISK drive
-> hdc: CD-540E, ATAPI CD/DVD-DROM drive
-> ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-> ide1 at 0x170-0x177,0x376 on ira 15
-> <hang>
-all recent (>=3D16) and a 2.4.6 pre7 kernel hang. 2.2.19 is no problem.
+You did not send your patch (yet again), so there is no way
+to tell precisely what you have accomplished. I suspect that it may
+create pages with same device number that belong to different
+mounts. I do not pretend to understand how VFS and page cache
+use device numbers. If device numbers are used for any indexing,
+pages may be mixed up with resulting data corruption.
+I cannot say if this scenario is likely without looking
+at the VFS code. Perhaps we ought to ask Stephen, Al, or Trond
+about it.
 
-Nils
+> Why did you 
+> Pete base your patch on 4 new major device numbers whereas Andis patch did 
+> not need them?
 
---
-                                     ______
-                                    (Muuuhh)
-Global Village Sau  =3D=3D>        ^..^ |/=AF=AF=AF=AF=AF
-(Kann Fremdsprache) =3D=3D>        (oo)
+He probably never tested his patch. I asked him and we'll know
+soon if it was so.
 
---Uu2n37VG4rOBDVuR
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE8TaOHqgAZ+sZlgs4RAixeAJ4opIQgxNp+PQOA60EwT9wNKPQ2cACbBEey
-9NvbtjRFHX9GJa3LcmmV+nI=
-=CXi8
------END PGP SIGNATURE-----
-
---Uu2n37VG4rOBDVuR--
+-- Pete

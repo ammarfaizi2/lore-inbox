@@ -1,80 +1,133 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266466AbSKOQVp>; Fri, 15 Nov 2002 11:21:45 -0500
+	id <S266431AbSKOQ0S>; Fri, 15 Nov 2002 11:26:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266473AbSKOQVp>; Fri, 15 Nov 2002 11:21:45 -0500
-Received: from pc3-stoc3-4-cust114.midd.cable.ntl.com ([80.6.255.114]:61962
-	"EHLO buzz.ichilton.co.uk") by vger.kernel.org with ESMTP
-	id <S266466AbSKOQVn>; Fri, 15 Nov 2002 11:21:43 -0500
-Date: Fri, 15 Nov 2002 16:28:33 +0000
-From: Ian Chilton <mailinglist@ichilton.co.uk>
-To: Leopold Gouverneur <lgouv@pi.be>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Anyone use HPT366 + UDMA in Linux?
-Message-ID: <20021115162833.GA3717@buzz.ichilton.co.uk>
-Reply-To: Ian Chilton <ian@ichilton.co.uk>
-References: <20021115123541.GA1889@buzz.ichilton.co.uk> <20021115162704.GA1059@gouv>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021115162704.GA1059@gouv>
-User-Agent: Mutt/1.3.28i
+	id <S266434AbSKOQ0S>; Fri, 15 Nov 2002 11:26:18 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:49066 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S266431AbSKOQ0N>;
+	Fri, 15 Nov 2002 11:26:13 -0500
+Subject: Re: Non-blocking lock requests during the grace period
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net
+X-Mailer: Lotus Notes Release 5.0.2a (Intl) 23 November 1999
+Message-ID: <OF92154664.1C5EF07E-ON87256C72.005A0481@us.ibm.com>
+From: Juan Gomez <juang@us.ibm.com>
+Date: Fri, 15 Nov 2002 08:31:28 -0800
+X-MIMETrack: Serialize by Router on D03NM694/03/M/IBM(Release 6.0 [IBM]|November 8, 2002) at
+ 11/15/2002 09:32:33
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-
-> I am using an IBM-DTLA-307030 with HPT366
-
-I am also using an IBM disk (can't rember the model number of hand but
-it's a 45GB) with an Abit BP6.
+                                                                                                               
+                                                                                                               
+                                                                                                               
 
 
-> transfer rate to udma3 (44MB/s) in the HPT bios. You can also do it with
-> hdparm if your boot disk is not on that controler. Trying udma4 resulted
-> in _massive_ corruption (never tried recently).
+Trond,
 
-It seemed to work for a while but then things went screwy and I kept
-getting I/O errors all the time which needed a hard reset - could't even
-shut down.
+I think this would fix it but the patch I have tested locally is a bit
+different.
 
-I also noticed things like this in the log:
+1).-Instead of
 
-Nov 14 23:26:40 buzz kernel: hda: status error:
-status=0x58 { DriveReady SeekComplete DataRequest }
-Nov 14 23:26:40 buzz kernel: hda: drive not ready for command
-Nov 14 23:28:47 buzz kernel: hda: status error:
-status=0x58 { DriveReady SeekComplete DataRequest }
-Nov 14 23:28:47 buzz kernel: hda: drive not ready for command
-Nov 14 23:29:00 buzz kernel: APIC error on CPU0: 02(02)
++wait_on_grace:
++                        if (!argp->block)
++                                    return -EAGAIN;
 
-Is this anything like you got?
+I have
 
-I'll try to drop it in the bios tonight (it is my boot drive). Are you
-using hdparm commands at all or just setting the bios to udma3?
++wait_on_grace:
++                        if ((proc == NLMPROC_LOCK) && !argp->block)
++                                    return -EAGAIN;
+
+2.-I also have this part enclosed in the if(resp->status ==
+NLM_LCK_DENIED_GRACE_PERIOD) as follows:
+
+if(resp->status == NLM_LCK_DENIED_GRACE_PERIOD) {
+
+      blah blah...
+
+wait_on_grace:
+                         if ((proc == NLMPROC_LOCK) && !argp->block)
+                                     return -EAGAIN
+} else {
+
+      ....
+}
+
+This with the intention to be very specific as to when we want the return
+-EAGAIN to be called.
+
+Juan
 
 
-> HPT366 support in kernel configuration.
 
-I am not sure I did this but I'll check. Maybe it's just working as a
-normal ide interface or something?
+|---------+---------------------------->
+|         |           Trond Myklebust  |
+|         |           <trond.myklebust@|
+|         |           fys.uio.no>      |
+|         |                            |
+|         |           11/14/02 06:33 PM|
+|         |                            |
+|---------+---------------------------->
+  >-------------------------------------------------------------------------------------------------------------------------|
+  |                                                                                                                         |
+  |       To:       Juan Gomez/Almaden/IBM@IBMUS                                                                            |
+  |       cc:       nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org                                                 |
+  |       Subject:  Re: Non-blocking lock requests during the grace period                                                  |
+  |                                                                                                                         |
+  |                                                                                                                         |
+  >-------------------------------------------------------------------------------------------------------------------------|
 
 
-Thanks!
+
+>>>>> " " == Juan Gomez <juang@us.ibm.com> writes:
+
+     > I found out that the current Linux client of lockd blocks
+     > non-blocking lock requests while the server is in the grace
+     > period.  I think this is incorrect behavior and I am wondering
+     > if the will exists out there to correct this and return
+     > "resource not available" to the process when a request is for a
+     > *non-blocking* lock while the server is in the grace period.
+
+Would the following fix it?
+
+Cheers,
+  Trond
+
+--- linux-2.5.47/fs/lockd/clntproc.c.orig        2002-09-29
+10:15:13.000000000 -0400
++++ linux-2.5.47/fs/lockd/clntproc.c             2002-11-14
+21:32:26.000000000 -0500
+@@ -256,10 +256,8 @@
+                         msg.rpc_cred = NULL;
+
+             do {
+-                        if (host->h_reclaiming && !argp->reclaim) {
+-
+interruptible_sleep_on(&host->h_gracewait);
+-                                    continue;
+-                        }
++                        if (host->h_reclaiming && !argp->reclaim)
++                                    goto wait_on_grace;
+
+                         /* If we have no RPC client yet, create one. */
+                         if ((clnt = nlm_bind_host(host)) == NULL)
+@@ -296,6 +294,9 @@
+                                     dprintk("lockd: server returns status
+%d\n", resp->status);
+                                     return 0;         /* Okay, call
+complete */
+                         }
++wait_on_grace:
++                        if (!argp->block)
++                                    return -EAGAIN;
+
+                         /* Back off a little and try again */
+                         interruptible_sleep_on_timeout(&host->h_gracewait,
+15*HZ);
 
 
-Bye for Now,
-
-Ian
-
-
-                                \|||/ 
-                                (o o)
- /---------------------------ooO-(_)-Ooo---------------------------\
- |  Ian Chilton                  Web: http://www.ichilton.co.uk    |
- |  E-Mail: ian@ichilton.co.uk   Backup: ian@linuxfromscratch.org  | 
- |-----------------------------------------------------------------|
- |            There are 10 types of people in the world:           |
- |        Those who understand binary, and those who don't.        |
- \-----------------------------------------------------------------/
 

@@ -1,50 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131507AbRCWXJG>; Fri, 23 Mar 2001 18:09:06 -0500
+	id <S131503AbRCWXJg>; Fri, 23 Mar 2001 18:09:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131506AbRCWXIq>; Fri, 23 Mar 2001 18:08:46 -0500
-Received: from inet-smtp4.oracle.com ([209.246.15.58]:40697 "EHLO
-	inet-smtp4.oracle.com") by vger.kernel.org with ESMTP
-	id <S131503AbRCWXIn>; Fri, 23 Mar 2001 18:08:43 -0500
-Message-ID: <3ABBD639.12BE1035@oracle.com>
-Date: Sat, 24 Mar 2001 00:03:21 +0100
-From: Alessandro Suardi <alessandro.suardi@oracle.com>
-Organization: Oracle Support Services
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-pre4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Tom Sightler <ttsig@tuxyturvy.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Can't get serial.c to work with Xircom Cardbus Ethernet+Modem
-In-Reply-To: <012301c0b357$3d29cc50$1601a8c0@zeusinc.com>
+	id <S131506AbRCWXJ0>; Fri, 23 Mar 2001 18:09:26 -0500
+Received: from fenrus.demon.co.uk ([158.152.228.152]:62079 "EHLO
+	amadeus.home.nl") by vger.kernel.org with ESMTP id <S131503AbRCWXJJ>;
+	Fri, 23 Mar 2001 18:09:09 -0500
+Date: Fri, 23 Mar 2001 22:56:51 +0000
+From: Arjan van de Ven <arjan@fenrus.demon.nl>
+To: Andrew Morton <morton@nortelnetworks.com>
+Cc: Lawrence Walton <lawrence@the-penguin.otak.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.2-ac21
+Message-ID: <20010323225651.A20586@fenrus.demon.nl>
+In-Reply-To: <20010322162802.A909@the-penguin.otak.com> <3ABAA2E6.9D40B7B6@asiapacificm01.nt.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3ABAA2E6.9D40B7B6@asiapacificm01.nt.com>; from morton@nortelnetworks.com on Fri, Mar 23, 2001 at 01:12:06AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tom Sightler wrote:
+On Fri, Mar 23, 2001 at 01:12:06AM +0000, Andrew Morton wrote:
+> Lawrence Walton wrote:
+> > 
+> > Hello all
+> > 2.4.2-ac21 seems to have a couple problems.
+> > ...
+> > 
+> > Mar 22 15:15:55 the-penguin kernel: NETDEV WATCHDOG: eth0: transmit timed out
+> > ...
+> > 00:01.0 PCI bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133 AGP] (prog-if 00 [Normal decode])
 > 
-> Hi all,
+> People have recently been changing VIA PCI bridge settings
+> to try to fix the file corruption thing.  There has been one
+> report that this change causes a 3c905C to go silly.
 > 
-> I saw a discussion on this list about this problem earlier, but could not
-> find that it had actually been resolved.
+> This looks like the same problem to me.
 
-That was me :) and no, it doesn't work. Jeff Garzik asked me to enable
- a couple debug #defines in serial.c, apply patches to serial.c and
- finally disable i82365 support but as of now it doesn't work.
+Could very well be. The problem is that your VIA chipset (or rather the
+chipset as used on at least some of the boards out there) will corrupt your
+data if this setting is not done.....
 
-It looks like we have the same card with modem @ 0x1880.
-
-[snip]
-
-> Any ideas?  I may look at it more tomorrow.  For now I'm back to using
-> serial_cb which still works fine (even though that apparently suprises many
-> people).
-
-:) this is -pre4 with serial_cb which works fine, and always has...
-
---alessandro      <alessandro.suardi@oracle.com> <asuardi@uninetcom.it>
-
-Linux:  kernel 2.2.19p17/2.4.3p6 glibc-2.2 gcc-2.96-69 binutils-2.11.90.0.1
-Oracle: Oracle8i 8.1.7.0.1 Enterprise Edition for Linux
-motto:  Tell the truth, there's less to remember.
+Greetings,
+   Arjan van de Ven

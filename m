@@ -1,57 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267268AbTAVB5C>; Tue, 21 Jan 2003 20:57:02 -0500
+	id <S267282AbTAVC2Q>; Tue, 21 Jan 2003 21:28:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267275AbTAVB5C>; Tue, 21 Jan 2003 20:57:02 -0500
-Received: from pacific.moreton.com.au ([203.143.238.4]:8204 "EHLO
-	dorfl.internal.moreton.com.au") by vger.kernel.org with ESMTP
-	id <S267268AbTAVB5B>; Tue, 21 Jan 2003 20:57:01 -0500
-Message-ID: <3E2DFC78.1040402@snapgear.com>
-Date: Wed, 22 Jan 2003 12:05:44 +1000
-From: Greg Ungerer <gerg@snapgear.com>
-Organization: SnapGear
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021126
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: common RODATA in vmlinux.lds.h (2.5.59)
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S267284AbTAVC2Q>; Tue, 21 Jan 2003 21:28:16 -0500
+Received: from cerebus.wirex.com ([65.102.14.138]:28408 "EHLO
+	figure1.int.wirex.com") by vger.kernel.org with ESMTP
+	id <S267282AbTAVC2P>; Tue, 21 Jan 2003 21:28:15 -0500
+Date: Tue, 21 Jan 2003 18:37:11 -0800
+From: Chris Wright <chris@wirex.com>
+To: linux-security-module@wirex.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE] 2.5.59-lsm1
+Message-ID: <20030121183711.A9601@figure1.int.wirex.com>
+Mail-Followup-To: linux-security-module@wirex.com,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+The Linux Security Modules project provides a lightweight, general
+purpose framework for access control.  The LSM interface enables
+security policies to be developed as loadable kernel modules.
+See http://lsm.immunix.org for more information.
 
-The new common definition of RODATA for linker scripts
-(in include/asm-generic/vmlinux.lds.h) is causing me some
-amount of pain, at least on the m68knommu architecture.
+2.5.59-lsm1 patch released.  This is a rebase up to 2.5.59 as well as
+some minor interface and module updates.  Out of tree projects will want
+to resync with interface changes.
 
-The problem is that on the m68knommu arch linker script
-it fundamentaly groups everything into 2 memory regions,
-one for flash and one for ram. Each section is then
-directed to the appropriate memory region, eg:
+Full lsm-2.5 patch (LSM + all modules) is available at:
+	http://lsm.immunix.org/patches/2.5/2.5.59/patch-2.5.59-lsm1.gz
 
-         .text : {
-             *(.text)
-         } > flash
+The whole ChangeLog for this release is at:
+	http://lsm.immunix.org/patches/2.5/2.5.59/ChangeLog-2.5.59-lsm1
 
-With the way the RODATA define is setup I cannot do this.
-It contains definitions for a number of complete sections.
+The LSM 2.5 BK tree can be pulled from:
+        bk://lsm.bkbits.net/lsm-2.5
 
-Anyone got any ideas on the best way to fix this?
+2.5.59-lsm1
+ - merge with 2.5.53-59					(GregKH and me)
+ - remove inode_post_lookup hook, add d_instantiate hook (Stephen Smalley)
+ - email addr updates					(Stephen Smalley)
+ - merge with mainline ipc updates			(me)
+ - Fix ipc merge whitespace diffs			(Stephen Smalley)
+ - DTE: fix compilation errors				(Stephen Smalley)
+ - SELinux: restore sem_semop				(Stephen Smalley)
 
-Regards
-Greg
-
-
-
-------------------------------------------------------------------------
-Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
-Snapgear Pty Ltd                               PHONE:    +61 7 3279 1822
-825 Stanley St,                                  FAX:    +61 7 3279 1820
-Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
-
-
-
-
-
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

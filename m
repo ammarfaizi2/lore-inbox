@@ -1,142 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267595AbUG3EXf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267604AbUG3Eq3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267595AbUG3EXf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jul 2004 00:23:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267584AbUG3EXf
+	id S267604AbUG3Eq3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jul 2004 00:46:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267601AbUG3Eq2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jul 2004 00:23:35 -0400
-Received: from gate.crashing.org ([63.228.1.57]:10989 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S267595AbUG3EXG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jul 2004 00:23:06 -0400
-Subject: [PATCH] ppc64: fix memcpy_to/from_io
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1091161338.2083.30.camel@gaston>
+	Fri, 30 Jul 2004 00:46:28 -0400
+Received: from mail-relay-2.tiscali.it ([213.205.33.42]:33988 "EHLO
+	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
+	id S267605AbUG3EqJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jul 2004 00:46:09 -0400
+Date: Fri, 30 Jul 2004 06:45:47 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Brian Gerst <bgerst@quark.didntduck.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Andi Kleen <ak@suse.de>
+Subject: Re: [cleanup] do_general_protection doesn't disable irq
+Message-ID: <20040730044547.GF30369@dualathlon.random>
+References: <20040730025349.GE30369@dualathlon.random> <4109CCED.5020808@quark.didntduck.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 30 Jul 2004 14:22:19 +1000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4109CCED.5020808@quark.didntduck.org>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
+On Fri, Jul 30, 2004 at 12:22:05AM -0400, Brian Gerst wrote:
+> Andrea Arcangeli wrote:
+> >A trap gate shouldn't affect the irq status at all.
+> >
+> >This should be a valid cleanup that removes a slightly confusing noop:
+> >
+> >Index: linux-2.5/arch/i386/kernel/traps.c
+> >===================================================================
+> >RCS file: /home/andrea/crypto/cvs/linux-2.5/arch/i386/kernel/traps.c,v
+> >retrieving revision 1.77
+> >diff -u -p -r1.77 traps.c
+> >--- linux-2.5/arch/i386/kernel/traps.c	13 Jul 2004 18:02:33 -0000 
+> >1.77
+> >+++ linux-2.5/arch/i386/kernel/traps.c	30 Jul 2004 02:44:23 -0000
+> >@@ -431,9 +431,6 @@ DO_ERROR_INFO(17, SIGBUS, "alignment che
+> > 
+> > asmlinkage void do_general_protection(struct pt_regs * regs, long 
+> > error_code)
+> > {
+> >-	if (regs->eflags & X86_EFLAGS_IF)
+> >-		local_irq_enable();
+> >- 
+> > 	if (regs->eflags & VM_MASK)
+> > 		goto gp_in_vm86;
+> > 
+> >
+> >Thanks to Karsten for noticing a trap gate doesn't actually enable irq
+> >by default either (offtopic issue with the above patch, but while
+> >reading the 2.6 code I found the above bit which just confused me more
+> >since it's a noop, either that or you meant to use set_intr_gate, not
+> >set_trap_gate on the do_general_protection handler, but it seems not
+> >needed to use a trap gate since a trap gate shouldn't enable irqs by
+> >default). Please correct me if wrong.
+> 
+> This is there for vm86 mode.  See http://tinyurl.com/3m5nr
 
-The ppc64 implementation of memcpy_to/from_io was bogus (used memcpy
-which uses cache hints and thus is broken on non cacheable IO space).
+and the one for vm86 mode is still there, this was the only needed bit
+from the tinyurl you quoted:
 
-This re-implements them with some simple/gross C code doing 32 bits
-accesses when aligned and bytes accesses when not.
+ gp_in_vm86:
++       local_irq_enable();
 
-Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-
-===== include/asm-ppc64/eeh.h 1.12 vs ? (writable without lock!)  =====
---- 1.12/include/asm-ppc64/eeh.h	2004-07-02 15:23:45 +10:00
-+++ ?/include/asm-ppc64/eeh.h	2004-07-30 14:19:48 +10:00
-@@ -180,26 +180,95 @@
- 	out_be64(vaddr, val);
- }
- 
-+#define EEH_CHECK_ALIGN(v,a) \
-+	((((unsigned long)(v)) & ((a) - 1)) == 0)
-+
- static inline void eeh_memset_io(void *addr, int c, unsigned long n) {
- 	void *vaddr = (void *)IO_TOKEN_TO_ADDR(addr);
--	memset(vaddr, c, n);
-+	u32 lc = c;
-+	lc |= lc << 8;
-+	lc |= lc << 16;
-+
-+	while(n && !EEH_CHECK_ALIGN(vaddr, 4)) {
-+		*((volatile u8 *)vaddr) = c;
-+		vaddr = (void *)((unsigned long)vaddr + 1);
-+		n--;
-+	}
-+	while(n >= 4) {
-+		*((volatile u32 *)vaddr) = lc;
-+		vaddr = (void *)((unsigned long)vaddr + 4);
-+		n -= 4;
-+	}
-+	while(n) {
-+		*((volatile u8 *)vaddr) = c;
-+		vaddr = (void *)((unsigned long)vaddr + 1);
-+		n--;
-+	}
-+	__asm__ __volatile__ ("sync" : : : "memory");
- }
- static inline void eeh_memcpy_fromio(void *dest, void *src, unsigned long n) {
- 	void *vsrc = (void *)IO_TOKEN_TO_ADDR(src);
--	memcpy(dest, vsrc, n);
-+	void *vsrcsave = vsrc, *destsave = dest, *srcsave = src;
-+	unsigned long nsave = n;
-+
-+	while(n && (!EEH_CHECK_ALIGN(vsrc, 4) || !EEH_CHECK_ALIGN(dest, 4))) {
-+		*((u8 *)dest) = *((volatile u8 *)vsrc);
-+		__asm__ __volatile__ ("eieio" : : : "memory");
-+		vsrc = (void *)((unsigned long)vsrc + 1);
-+		dest = (void *)((unsigned long)dest + 1);			
-+		n--;
-+	}
-+	while(n > 4) {
-+		*((u32 *)dest) = *((volatile u32 *)vsrc);
-+		__asm__ __volatile__ ("eieio" : : : "memory");
-+		vsrc = (void *)((unsigned long)vsrc + 4);
-+		dest = (void *)((unsigned long)dest + 4);			
-+		n -= 4;
-+	}
-+	while(n) {
-+		*((u8 *)dest) = *((volatile u8 *)vsrc);
-+		__asm__ __volatile__ ("eieio" : : : "memory");
-+		vsrc = (void *)((unsigned long)vsrc + 1);
-+		dest = (void *)((unsigned long)dest + 1);			
-+		n--;
-+	}
-+	__asm__ __volatile__ ("sync" : : : "memory");
-+
- 	/* Look for ffff's here at dest[n].  Assume that at least 4 bytes
- 	 * were copied. Check all four bytes.
- 	 */
--	if ((n >= 4) &&
--		(EEH_POSSIBLE_ERROR(src, vsrc, (*((u32 *) dest+n-4)), u32))) {
--		eeh_check_failure(src, (*((u32 *) dest+n-4)));
-+	if ((nsave >= 4) &&
-+		(EEH_POSSIBLE_ERROR(srcsave, vsrcsave, (*((u32 *) destsave+nsave-4)),
-+				    u32))) {
-+		eeh_check_failure(srcsave, (*((u32 *) destsave+nsave-4)));
- 	}
- }
- 
- static inline void eeh_memcpy_toio(void *dest, void *src, unsigned long n) {
- 	void *vdest = (void *)IO_TOKEN_TO_ADDR(dest);
--	memcpy(vdest, src, n);
-+
-+	while(n && (!EEH_CHECK_ALIGN(vdest, 4) || !EEH_CHECK_ALIGN(src, 4))) {
-+		*((volatile u8 *)vdest) = *((u8 *)src);
-+		src = (void *)((unsigned long)src + 1);
-+		vdest = (void *)((unsigned long)vdest + 1);			
-+		n--;
-+	}
-+	while(n > 4) {
-+		*((volatile u32 *)vdest) = *((volatile u32 *)src);
-+		src = (void *)((unsigned long)src + 4);
-+		vdest = (void *)((unsigned long)vdest + 4);			
-+		n-=4;
-+	}
-+	while(n) {
-+		*((volatile u8 *)vdest) = *((u8 *)src);
-+		src = (void *)((unsigned long)src + 1);
-+		vdest = (void *)((unsigned long)vdest + 1);			
-+		n--;
-+	}
-+	__asm__ __volatile__ ("sync" : : : "memory");
- }
-+
-+#undef EEH_CHECK_ALIGN
- 
- #define MAX_ISA_PORT 0x10000
- extern unsigned long io_page_mask;
-
-
+the regs->eflags & X86_EFLAGS_IF I removed is still a noop and in turn
+it cannot help vm86 as far as I can tell.

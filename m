@@ -1,45 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283179AbRLDPc5>; Tue, 4 Dec 2001 10:32:57 -0500
+	id <S283209AbRLDP05>; Tue, 4 Dec 2001 10:26:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283093AbRLDPbX>; Tue, 4 Dec 2001 10:31:23 -0500
-Received: from mail3.aracnet.com ([216.99.193.38]:12818 "EHLO
-	mail3.aracnet.com") by vger.kernel.org with ESMTP
-	id <S283077AbRLDPaa>; Tue, 4 Dec 2001 10:30:30 -0500
-From: "M. Edward Borasky" <znmeb@aracnet.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Over 4-way systems considered harmful :-)
-Date: Tue, 4 Dec 2001 07:30:45 -0800
-Message-ID: <HBEHIIBBKKNOBLMPKCBBCEOJECAA.znmeb@aracnet.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <9ui5fo$3oe$1@forge.intermeta.de>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Importance: Normal
+	id <S284413AbRLDOmO>; Tue, 4 Dec 2001 09:42:14 -0500
+Received: from ns.caldera.de ([212.34.180.1]:60863 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S283054AbRLDMMc>;
+	Tue, 4 Dec 2001 07:12:32 -0500
+Date: Tue, 4 Dec 2001 13:11:36 +0100
+From: Christoph Hellwig <hch@caldera.de>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+        torvalds@transmeta.com
+Subject: Re: [kbuild-devel] Converting the 2.5 kernel to kbuild 2.5
+Message-ID: <20011204131136.B6051@caldera.de>
+Mail-Followup-To: Christoph Hellwig <hch@caldera.de>,
+	Keith Owens <kaos@ocs.com.au>, kbuild-devel@lists.sourceforge.net,
+	linux-kernel@vger.kernel.org, torvalds@transmeta.com
+In-Reply-To: <1861.1007341572@kao2.melbourne.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1861.1007341572@kao2.melbourne.sgi.com>; from kaos@ocs.com.au on Mon, Dec 03, 2001 at 12:06:12PM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm going to weigh in here in favor of limiting effort on SMP development by
-the core Linux team to systems with 4 processors and under. And not just
-because I'd like to see those developers freed up to work on my M-Audio
-Delta 66 :-). The economics of massively parallel MIMD machines just aren't
-there. Sure, the military guys would *love* to have a petaflop engine, but
-they're gonna build 'em anyway and quite probably not bother to contribute
-their kernel source on this mailing list. *Commercial* applications for
-supercomputers of this level are few and far between. I'm happy with my
-GFlop-level UP Athlon Thunderbird. And if Moore's Law (or the AMD equivalent
-:-) still holds, in 12 months I'll have something twice as fast (I've had it
-for six months already :-).
---
-Take Your Trading to the Next Level!
-M. Edward Borasky, Meta-Trading Coach
+On Mon, Dec 03, 2001 at 12:06:12PM +1100, Keith Owens wrote:
+> The CML1 to CML2 conversion comes later, either in 2.5.3 or 2.5.4.
 
-znmeb@borasky-research.net
-http://www.meta-trading-coach.com
-http://groups.yahoo.com/group/meta-trading-coach
+Is the CML2 merge actually agreed on?
+I still strongly object to it and I know lots of kernel hackers are
+the same opinion.
 
+	Christoph
+
+-- 
+Of course it doesn't work. We've performed a software upgrade.

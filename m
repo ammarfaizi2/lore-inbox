@@ -1,59 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290085AbSAKUJj>; Fri, 11 Jan 2002 15:09:39 -0500
+	id <S290088AbSAKUL3>; Fri, 11 Jan 2002 15:11:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290086AbSAKUJW>; Fri, 11 Jan 2002 15:09:22 -0500
-Received: from lila.inti.gov.ar ([200.10.161.32]:10471 "EHLO lila.inti.gov.ar")
-	by vger.kernel.org with ESMTP id <S290085AbSAKUJB>;
-	Fri, 11 Jan 2002 15:09:01 -0500
-Message-ID: <3C3F46D5.3DFF5B57@inti.gov.ar>
-Date: Fri, 11 Jan 2002 17:11:01 -0300
-From: salvador <salvador@inti.gov.ar>
-Reply-To: salvador@inti.gov.ar
-Organization: INTI
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.19 i686)
-X-Accept-Language: es-AR, en, es
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, raul@dif.um.es,
-        linux-kernel@vger.kernel.org
-Subject: Re: compaq presario 706 EA via 686a sound card
-In-Reply-To: <E16P7kZ-0000A0-00@the-village.bc.nu> <3C3F4387.E8330684@inti.gov.ar>
+	id <S290087AbSAKULT>; Fri, 11 Jan 2002 15:11:19 -0500
+Received: from mail.pha.ha-vel.cz ([195.39.72.3]:31243 "HELO
+	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
+	id <S290086AbSAKULK>; Fri, 11 Jan 2002 15:11:10 -0500
+Date: Fri, 11 Jan 2002 21:11:03 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Krzysztof Oledzki <ole@ans.pl>
+Cc: linux-kernel@vger.kernel.org, andre@linux-ide.org,
+        alan@lxorguk.ukuu.org.uk
+Subject: Re: ide.2.2.21.05042001-Ole.patch.gz
+Message-ID: <20020111211103.H16200@suse.cz>
+In-Reply-To: <Pine.LNX.4.33.0201112043340.14442-100000@dark.pcgames.pl>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0201112043340.14442-100000@dark.pcgames.pl>; from ole@ans.pl on Fri, Jan 11, 2002 at 08:58:43PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-salvador wrote:
+On Fri, Jan 11, 2002 at 08:58:43PM +0100, Krzysztof Oledzki wrote:
+> Hello,
+> 
+> I have just modified Andre Hedrick's ide.2.2.19.05042001 patch. You can
+> find it at "http://www.ans.pl/ide/ide.2.2.21.05042001-Ole.patch.gz". It
+> should patch 2.2.21pre2 kernel without any warnings/errors. I also
+> bacported new VIA driver from 2.4.x kernel - this one uses correct IO port
+> as via_base so values displayed in /proc/ide/via file are now properly
+> calculated. Check the "BM-DMA base" value :)
+> 
+> Hopefully, devices which work in DMA mode, have DMA/UDMA value instead of
+> PIO in "Transfer Mode" now. It also should works better with some new
+> chipsets. If I found time I can also try to backport new Intel, Promise
+> and HPT drivers if no no one else is working on it. I believe I have
+> required hardware to test it.
+> 
+> I also have one question about IDE support in 2.4.x kernel. Why, with VIA
+> MVP3 chipset on my FIC 503+ board, with UDMA33/66/100 HDDs using 2.4.x
+> kernels I have only 13 MB/sec (tested with hdparm -t). With 2.2.x kernels
+> hdparm shows 17 MB/sec but with IDE support bacported from 2.4.x kernels
+> (2.2.19/2.2.20+original Andre Hedrick's patch) it is also 13 MB/sec.
 
-> Alan Cox wrote:
->
-> > Its common for laptops to have some kind of amplifier control (to powersave
-> > better). Firstly does the problem show up with ACPI not compiled into the
-> > system ?
-> >
-> > If it still shows up then I guess you want to try flipping the EAPD bit
-> > on the AC97 codec and hoping that the amp was wired conventionally
->
-> I agree:
-> I just read the mail of other user with this problem. As I pointed in that
-> mail the codec seems to be AD1885 or newer (AD1885 is 0x60 and this machine
-> seems to have 0x61, maybe a revision, didn't have time to look for data
-> sheets).
+If you can send me 'lspci -vvxxx' for both the cases, perhaps I'll be
+able to find out why it is so. Is this with all the IDE patches or just
+the VIA driver changed?
 
-Replying to myself ;-), it seems to be AD1886 chip, can't get the datasheet but
-1885 is 0x60 and 1887 datasheet says 0x62, I can bet 0x61 is 1886 and the user
-should try adding it to the ac97_module.c list using the same options that 1885
-use.
-
-SET
-
---
-Salvador Eduardo Tropea (SET). (Electronics Engineer)
-Visit my home page: http://welcome.to/SetSoft or
-http://www.geocities.com/SiliconValley/Vista/6552/
-Alternative e-mail: set@computer.org set@ieee.org
-Address: Curapaligue 2124, Caseros, 3 de Febrero
-Buenos Aires, (1678), ARGENTINA Phone: +(5411) 4759 0013
-
-
-
+-- 
+Vojtech Pavlik
+SuSE Labs

@@ -1,103 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262323AbVBBS6k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262248AbVBBTJB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262323AbVBBS6k (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 13:58:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262327AbVBBSz1
+	id S262248AbVBBTJB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 14:09:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262548AbVBBTEz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 13:55:27 -0500
-Received: from scl-ims.phoenix.com ([216.148.212.222]:28856 "EHLO
-	scl-ims.phoenix.com") by vger.kernel.org with ESMTP id S262751AbVBBSs5 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 13:48:57 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: Linux hangs during IDE initialization at boot for 30 sec
-Date: Wed, 2 Feb 2005 10:48:45 -0800
-Message-ID: <5F106036E3D97448B673ED7AA8B2B6B301ACE7F7@scl-exch2k.phoenix.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Linux hangs during IDE initialization at boot for 30 sec
-Thread-Index: AcUIVeTWldzlZY7gSRGqCb1aAi8JNQBATYUA
-From: "Aleksey Gorelov" <Aleksey_Gorelov@Phoenix.com>
-To: "Michael Brade" <brade@informatik.uni-muenchen.de>,
-       <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 02 Feb 2005 18:48:57.0127 (UTC) FILETIME=[D9D3D370:01C50957]
+	Wed, 2 Feb 2005 14:04:55 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:17310 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S262568AbVBBS7f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Feb 2005 13:59:35 -0500
+Subject: Re: [patch, 2.6.11-rc2] sched: RLIMIT_RT_CPU_RATIO feature
+From: Lee Revell <rlrevell@joe-job.com>
+To: "Jack O'Quin" <joq@io.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Paul Davis <paul@linuxaudiosystems.com>,
+       Con Kolivas <kernel@kolivas.org>, linux <linux-kernel@vger.kernel.org>,
+       CK Kernel <ck@vds.kolivas.org>, utz <utz@s2y4n2c.de>,
+       Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se,
+       Rui Nuno Capela <rncbc@rncbc.org>, Chris Wright <chrisw@osdl.org>,
+       Arjan van de Ven <arjanv@redhat.com>
+In-Reply-To: <873bwfo8br.fsf@sulphur.joq.us>
+References: <20050124085902.GA8059@elte.hu> <20050124125814.GA31471@elte.hu>
+	 <20050125135613.GA18650@elte.hu> <87sm4opxto.fsf@sulphur.joq.us>
+	 <20050126070404.GA27280@elte.hu> <87fz0neshg.fsf@sulphur.joq.us>
+	 <1106782165.5158.15.camel@npiggin-nld.site> <874qh3bo1u.fsf@sulphur.joq.us>
+	 <1106796360.5158.39.camel@npiggin-nld.site> <87pszr1mi1.fsf@sulphur.joq.us>
+	 <20050127113530.GA30422@elte.hu>  <873bwfo8br.fsf@sulphur.joq.us>
+Content-Type: text/plain
+Date: Wed, 02 Feb 2005 13:59:30 -0500
+Message-Id: <1107370770.3104.136.camel@krustophenia.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
- 
->-----Original Message-----
->From: linux-kernel-owner@vger.kernel.org 
->[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Michael Brade
->Sent: Tuesday, February 01, 2005 3:58 AM
->To: linux-kernel@vger.kernel.org
->Subject: Linux hangs during IDE initialization at boot for 30 sec
->
-[snip]
->
->I found additional lines in the log just before the line above:
->
->Probing IDE interface ide2...
->Probing IDE interface ide3...
->Probing IDE interface ide4...
->Probing IDE interface ide5...
->
->But I only have ide0 and ide1. This problem persists even with 
->2.6.11-rc2. For 
->the last test I removed every option from the kernel that is 
->not needed, but 
->the problem stays. So I'm sure it's not because of ACPI or PNP 
->or the like.
->
->With 2.6.11-rc2 I get in my syslog:
->
->Feb  1 11:30:02 newton kernel: ICH3M: chipset revision 2
->Feb  1 11:30:02 newton kernel: ICH3M: not 100%% native mode: 
->will probe irqs 
->later
->Feb  1 11:30:02 newton kernel:     ide0: BM-DMA at 0xcfa0-0xcfa7, BIOS 
->settings: hda:DMA, hdb:pio
->Feb  1 11:30:02 newton kernel:     ide1: BM-DMA at 0xcfa8-0xcfaf, BIOS 
->settings: hdc:DMA, hdd:pio
->Feb  1 11:30:02 newton kernel: Probing IDE interface ide0...
->Feb  1 11:30:02 newton kernel: hda: HITACHI_DK23DA-30, ATA DISK drive
->Feb  1 11:30:02 newton kernel: DEV: registering device: ID = 'ide0'
->Feb  1 11:30:02 newton kernel: PM: Adding info for No Bus:ide0
->Feb  1 11:30:02 newton kernel: ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
->Feb  1 11:30:02 newton kernel: DEV: registering device: ID = '0.0'
->Feb  1 11:30:02 newton kernel: PM: Adding info for ide:0.0
->Feb  1 11:30:02 newton kernel: bus ide: add device 0.0
->Feb  1 11:30:02 newton kernel: Probing IDE interface ide1...
->Feb  1 11:30:02 newton kernel: hdc: TOSHIBA DVD-ROM SD-R2212, 
->ATAPI CD/DVD-ROM 
->drive
->Feb  1 11:30:02 newton kernel: DEV: registering device: ID = 'ide1'
->Feb  1 11:30:02 newton kernel: PM: Adding info for No Bus:ide1
->Feb  1 11:30:02 newton kernel: ide1 at 0x170-0x177,0x376 on irq 15
->Feb  1 11:30:02 newton kernel: DEV: registering device: ID = '1.0'
->Feb  1 11:30:02 newton kernel: PM: Adding info for ide:1.0
->Feb  1 11:30:02 newton kernel: bus ide: add device 1.0
->Feb  1 11:30:02 newton kernel: bus pci: add driver PIIX_IDE
->Feb  1 11:30:02 newton kernel: bound device '0000:00:1f.1' to driver 
->'PIIX_IDE'
->Feb  1 11:30:02 newton kernel: bus pci: add driver PCI_IDE
->Feb  1 11:30:02 newton kernel: Probing IDE interface ide2...
->Feb  1 11:30:02 newton kernel: Probing IDE interface ide3...
->Feb  1 11:30:02 newton kernel: Probing IDE interface ide4...
->Feb  1 11:30:02 newton kernel: ide4: Wait for ready failed 
->before probe !
->---> I guess the line above is the reason for the wait <---
->Feb  1 11:30:02 newton kernel: Probing IDE interface ide5...
->Feb  1 11:30:02 newton kernel: hda: max request size: 128KiB
->
+On Tue, 2005-02-01 at 23:10 -0600, Jack O'Quin wrote:
+> > So in the Linux core code we have zero tolerance on crap. We are
+> > doing this for the long-term fun of it.
+> 
+> So, we should never do anything boring, even though people actually
+> need it?  
+> 
+> The fact that a large group of frustrated Linux audio developers could
+> find no better outlet than to develop this solution is a rather strong
+> indictment of the kernel requirements-gathering process.
+> 
+> > and if nobody ends up writing the 'proper' solution then there probably
+> > wasnt enough demand to begin with ... We'll rather live on with one less
+> > feature for another year than with a crappy feature that is twice as
+> > hard to get rid of!
+> 
+> Is nobody responsible for figuring out what users need?  I didn't
+> realize kernel development had become so disconnected.
+> 
 
-Since you don't care about anything except ide0 & ide1, try to add
-the following to the kernel's command line:
-ide2=noprobe ide3=noprobe ide4=noprobe ide5=noprobe
+Interesting point.  The kernel development process has been written
+about at length, but you don't hear much about the requirements
+gathering process.
 
-Aleks.
+It seems like aside from the internal forces of kernel developers
+wanting to improve the system, the big distros, do a lot of the
+requirements gathering.  Makes sense, as the distros are in a very good
+position to know what users want, and can commit developer resources to
+get it done.  For example there has been a big push from the distros to
+make Linux competitive with MS on the desktop, and it shows in the
+direction of Linux development.  These days you can throw in a cd of a
+modern distro and the installer will get you to a working desktop easier
+than Windows (well, almost, your sound might not work ;-).
+
+Really, if the Linux audio community wants to get its requirements
+heard, then all the AGNULA and Planet CCRMA users should start to demand
+that Fedora and Debian be usable OOTB for low latency audio.  If you
+want to run JACK in realtime mode on RH or Debian you have to be root
+for crying out loud.  There's no reason Linux audio users should have to
+patch the kernel or install a bunch of specialized packages any more
+than people who want to use it as a web server.  File bug reports,
+complain on your distro's user mailing lists, whatever.
+
+I do appreciate the progress that has been made, and that the Linux
+kernel developers really stepped up to address the latency issues.  But,
+most of the push has come from outside the kernel development community,
+from individual Linux audio users and developers.  If we had waited for
+the big distros to demand that low latency audio work OOTB, we would be
+exactly where we were in 2001 (or this time last year) still using 2.4
++ll+preempt and struggling to get that old kernel to work on our new
+hardware.
+
+IMHO the requirements gathering process usually works well.  When
+someone with a redhat.com (for example) address posts a patch there's an
+implicit assumption that it addresses the needs of their gadzillions of
+users.  Still, RH hires professional kernel developers, people who
+produce known good code will always have an easier time getting patches
+merged.  If Linus & co. don't know you from Adam and you show up with a
+patch that claims to solve a big problem, then I would expect them to be
+a bit skeptical.  Especially if the problem is either low priority or
+not well understood by the major distros.
+
+Lee
+

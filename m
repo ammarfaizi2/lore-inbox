@@ -1,39 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129848AbQJaXlz>; Tue, 31 Oct 2000 18:41:55 -0500
+	id <S129110AbQJaXpq>; Tue, 31 Oct 2000 18:45:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129923AbQJaXlp>; Tue, 31 Oct 2000 18:41:45 -0500
-Received: from ppp-97-143-an04u-dada6.iunet.it ([151.35.97.143]:10761 "HELO
-	home.bogus") by vger.kernel.org with SMTP id <S129848AbQJaXlm>;
-	Tue, 31 Oct 2000 18:41:42 -0500
-From: Davide Libenzi <davidel@xmail.virusscreen.com>
-To: "Jeff V. Merkey" <jmerkey@timpanogas.org>
+	id <S129168AbQJaXpg>; Tue, 31 Oct 2000 18:45:36 -0500
+Received: from chiara.elte.hu ([157.181.150.200]:53767 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S129110AbQJaXp0>;
+	Tue, 31 Oct 2000 18:45:26 -0500
+Date: Wed, 1 Nov 2000 01:55:23 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: mingo@elte.hu
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: Andi Kleen <ak@suse.de>, Pavel Machek <pavel@suse.cz>,
+        linux-kernel@vger.kernel.org
 Subject: Re: 2.2.18Pre Lan Performance Rocks!
-Date: Wed, 1 Nov 2000 01:56:17 +0100
-X-Mailer: KMail [version 1.0.28]
-Content-Type: text/plain; charset=US-ASCII
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0011010122160.18143-100000@elte.hu> <39FF5332.7C862223@timpanogas.org>
-In-Reply-To: <39FF5332.7C862223@timpanogas.org>
+In-Reply-To: <Pine.LNX.3.95.1001031174047.165A-100000@chaos.analogic.com>
+Message-ID: <Pine.LNX.4.21.0011010151000.18581-100000@elte.hu>
 MIME-Version: 1.0
-Message-Id: <00110101575902.02672@linux1.home.bogus>
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 01 Nov 2000, Jeff V. Merkey wrote:
-> 
-> mov    eax, addr
-> mov    [addr], ebx
-> 
 
-Probably You mean this :
+On Tue, 31 Oct 2000, Richard B. Johnson wrote:
 
-mov	r/imm, %eax
-mov	(%eax), %ebx
+> However, these techniques are not useful with a kernel that has an
+> unknown number of tasks that execute 'programs' that are not known to
+> the kernel at compile-time, such as a desk-top operating system.
 
+yep, exactly. It simply optimizes the wrong thing and restricts
+architectural flexibility. It is very easy to optimize by making
+a system more specific. (this is fact is a more or less automatic
+engineering work) The real optimizations are the ones that do not
+take away from the generic nature of the system.
 
-- Davide
+	Ingo
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

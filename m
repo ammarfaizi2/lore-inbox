@@ -1,309 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261914AbUFPPGX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264045AbUFPPHY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261914AbUFPPGX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jun 2004 11:06:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264048AbUFPPGX
+	id S264045AbUFPPHY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jun 2004 11:07:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263174AbUFPPHY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jun 2004 11:06:23 -0400
-Received: from h-68-165-86-241.dllatx37.covad.net ([68.165.86.241]:42057 "EHLO
-	sol.microgate.com") by vger.kernel.org with ESMTP id S261914AbUFPPGB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jun 2004 11:06:01 -0400
-Subject: [PATCH] 2.6.7 ppp_synctty.c receive/write_wakeup fix
-From: Paul Fulghum <paulkf@microgate.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Paul Mackerras <paulus@samba.org>, Andrew Morton <akpm@osdl.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1087398358.2830.7.camel@deimos.microgate.com>
+	Wed, 16 Jun 2004 11:07:24 -0400
+Received: from [213.13.117.218] ([213.13.117.218]:46027 "EHLO
+	mail.paradigma.co.pt") by vger.kernel.org with ESMTP
+	id S264048AbUFPPHH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jun 2004 11:07:07 -0400
+Date: Wed, 16 Jun 2004 16:07:03 +0100
+From: Nuno Monteiro <nuno@itsari.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Mikael Pettersson <mikpe@csd.uu.se>, David Howells <dhowells@redhat.com>,
+       linux-kernel@vger.kernel.org, marcelo.tosatti@cyclades.com
+Subject: Re: [2.4] build error with latest BK [fixed patch]
+Message-ID: <20040616150703.GC2969@hobbes.itsari.int>
+References: <40CFB2A1.8070104@yahoo.com.au> <20040615164848.GA8276@hobbes.itsari.int> <3473.1087374022@redhat.com> <40D00828.8020303@yahoo.com.au> <16592.3188.448186.438659@alkaid.it.uu.se> <40D00D1F.8070109@yahoo.com.au>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 16 Jun 2004 10:05:59 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <40D00D1F.8070109@yahoo.com.au> (from nickpiggin@yahoo.com.au on Wed, Jun 16, 2004 at 10:04:31 +0100)
+X-Mailer: Balsa 2.0.15
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Changes:
+On 2004.06.16 10:04, Nick Piggin wrote:
+> Just simply replace put_task_struct with free_task_struct.
 
-Allow receive and write_wakeup callbacks to be
-called at hard interrupt context and/or with
-interrupts disabled (removes softirq warning).
+Sorry, only sent half of the patch the first time around. Here it is, 
+with the second hunk touching rwsem-spinlock.c.
 
-This mirrors changes by Paul Mackerras to ppp_async.c
-for the same purpose. Patch has been previously posted
-for comments and has been tested with success by
-multiple persons.
+This applies on top of what's currently in BK, and fixes the problems for 
+me -- it is compiled and boot tested, running for the last 20 minutes. 
+Also, linux/mm.h is needed because of free_pages().
 
-Please apply.
+I don't have any arch around here that actually needs rwsem-spinlock.c so 
+that part is untested, although it should be ok.
 
--- 
-Paul Fulghum
-paulkf@microgate.com
+Marcelo, please apply.
 
 
---- linux-2.6.7/drivers/net/ppp_synctty.c	2004-06-16 08:27:46.000000000 -0500
-+++ linux-2.6.7-mg1/drivers/net/ppp_synctty.c	2004-06-16 08:33:16.000000000 -0500
-@@ -29,7 +29,7 @@
-  * PPP driver, written by Michael Callahan and Al Longyear, and
-  * subsequently hacked by Paul Mackerras.
-  *
-- * ==FILEVERSION 20020125==
-+ * ==FILEVERSION 20040616==
+
+--- linux-2.4-BK/lib/rwsem.c~fix-rwsem-race-fix	2004-06-16 14:14:02.000000000 +0100
++++ linux-2.4-BK/lib/rwsem.c	2004-06-16 14:14:28.000000000 +0100
+@@ -5,6 +5,7 @@
   */
- 
+ #include <linux/rwsem.h>
+ #include <linux/sched.h>
++#include <linux/mm.h>
  #include <linux/module.h>
-@@ -65,7 +65,9 @@
- 	struct sk_buff	*tpkt;
- 	unsigned long	last_xmit;
  
--	struct sk_buff	*rpkt;
-+	struct sk_buff_head rqueue;
-+
-+	struct tasklet_struct tsk;
+ struct rwsem_waiter {
+@@ -64,7 +65,7 @@ static inline struct rw_semaphore *__rws
+ 	mb();
+ 	waiter->task = NULL;
+ 	wake_up_process(tsk);
+-	put_task_struct(tsk);
++	free_task_struct(tsk);
+ 	goto out;
  
- 	atomic_t	refcnt;
- 	struct semaphore dead_sem;
-@@ -88,6 +90,7 @@
- static int ppp_sync_send(struct ppp_channel *chan, struct sk_buff *skb);
- static int ppp_sync_ioctl(struct ppp_channel *chan, unsigned int cmd,
- 			  unsigned long arg);
-+static void ppp_sync_process(unsigned long arg);
- static int ppp_sync_push(struct syncppp *ap);
- static void ppp_sync_flush_output(struct syncppp *ap);
- static void ppp_sync_input(struct syncppp *ap, const unsigned char *buf,
-@@ -217,6 +220,9 @@
- 	ap->xaccm[3] = 0x60000000U;
- 	ap->raccm = ~0U;
- 
-+	skb_queue_head_init(&ap->rqueue);
-+	tasklet_init(&ap->tsk, ppp_sync_process, (unsigned long) ap);
-+
- 	atomic_set(&ap->refcnt, 1);
- 	init_MUTEX_LOCKED(&ap->dead_sem);
- 
-@@ -267,10 +273,10 @@
- 	 */
- 	if (!atomic_dec_and_test(&ap->refcnt))
- 		down(&ap->dead_sem);
-+	tasklet_kill(&ap->tsk);
- 
- 	ppp_unregister_channel(&ap->chan);
--	if (ap->rpkt != 0)
--		kfree_skb(ap->rpkt);
-+	skb_queue_purge(&ap->rqueue);
- 	if (ap->tpkt != 0)
- 		kfree_skb(ap->tpkt);
- 	kfree(ap);
-@@ -369,17 +375,24 @@
- 	return 65535;
- }
- 
-+/*
-+ * This can now be called from hard interrupt level as well
-+ * as soft interrupt level or mainline.
-+ */
- static void
- ppp_sync_receive(struct tty_struct *tty, const unsigned char *buf,
--		  char *flags, int count)
-+		  char *cflags, int count)
- {
- 	struct syncppp *ap = sp_get(tty);
-+	unsigned long flags;
- 
- 	if (ap == 0)
- 		return;
--	spin_lock_bh(&ap->recv_lock);
--	ppp_sync_input(ap, buf, flags, count);
--	spin_unlock_bh(&ap->recv_lock);
-+	spin_lock_irqsave(&ap->recv_lock, flags);
-+	ppp_sync_input(ap, buf, cflags, count);
-+	spin_unlock_irqrestore(&ap->recv_lock, flags);
-+	if (skb_queue_len(&ap->rqueue))
-+		tasklet_schedule(&ap->tsk);
- 	sp_put(ap);
- 	if (test_and_clear_bit(TTY_THROTTLED, &tty->flags)
- 	    && tty->driver->unthrottle)
-@@ -394,8 +407,8 @@
- 	clear_bit(TTY_DO_WRITE_WAKEUP, &tty->flags);
- 	if (ap == 0)
- 		return;
--	if (ppp_sync_push(ap))
--		ppp_output_wakeup(&ap->chan);
-+	set_bit(XMIT_WAKEUP, &ap->xmit_flags);
-+	tasklet_schedule(&ap->tsk);
- 	sp_put(ap);
- }
- 
-@@ -449,9 +462,9 @@
- 		if (get_user(val, (int *) arg))
- 			break;
- 		ap->flags = val & ~SC_RCV_BITS;
--		spin_lock_bh(&ap->recv_lock);
-+		spin_lock_irq(&ap->recv_lock);
- 		ap->rbits = val & SC_RCV_BITS;
--		spin_unlock_bh(&ap->recv_lock);
-+		spin_unlock_irq(&ap->recv_lock);
- 		err = 0;
- 		break;
- 
-@@ -512,6 +525,32 @@
- }
- 
- /*
-+ * This is called at softirq level to deliver received packets
-+ * to the ppp_generic code, and to tell the ppp_generic code
-+ * if we can accept more output now.
-+ */
-+static void ppp_sync_process(unsigned long arg)
-+{
-+	struct syncppp *ap = (struct syncppp *) arg;
-+	struct sk_buff *skb;
-+
-+	/* process received packets */
-+	while ((skb = skb_dequeue(&ap->rqueue)) != NULL) {
-+		if (skb->len == 0) {
-+			/* zero length buffers indicate error */
-+			ppp_input_error(&ap->chan, 0);
-+			kfree_skb(skb);
-+		}
-+		else
-+			ppp_input(&ap->chan, skb);
-+	}
-+
-+	/* try to push more stuff out */
-+	if (test_bit(XMIT_WAKEUP, &ap->xmit_flags) && ppp_sync_push(ap))
-+		ppp_output_wakeup(&ap->chan);
-+}
-+
-+/*
-  * Procedures for encapsulation and framing.
-  */
- 
-@@ -600,7 +639,6 @@
- 	struct tty_struct *tty = ap->tty;
- 	int tty_stuffed = 0;
- 
--	set_bit(XMIT_WAKEUP, &ap->xmit_flags);
- 	if (!spin_trylock_bh(&ap->xmit_lock))
- 		return 0;
- 	for (;;) {
-@@ -667,15 +705,44 @@
-  * Receive-side routines.
-  */
- 
--static inline void
--process_input_packet(struct syncppp *ap)
-+/* called when the tty driver has data for us. 
-+ *
-+ * Data is frame oriented: each call to ppp_sync_input is considered
-+ * a whole frame. If the 1st flag byte is non-zero then the whole
-+ * frame is considered to be in error and is tossed.
-+ */
-+static void
-+ppp_sync_input(struct syncppp *ap, const unsigned char *buf,
-+		char *flags, int count)
- {
- 	struct sk_buff *skb;
- 	unsigned char *p;
--	int code = 0;
- 
--	skb = ap->rpkt;
--	ap->rpkt = 0;
-+	if (count == 0)
-+		return;
-+
-+	if (ap->flags & SC_LOG_INPKT)
-+		ppp_print_buffer ("receive buffer", buf, count);
-+
-+	/* stuff the chars in the skb */
-+	if ((skb = dev_alloc_skb(ap->mru + PPP_HDRLEN + 2)) == 0) {
-+		printk(KERN_ERR "PPPsync: no memory (input pkt)\n");
-+		goto err;
-+	}
-+	/* Try to get the payload 4-byte aligned */
-+	if (buf[0] != PPP_ALLSTATIONS)
-+		skb_reserve(skb, 2 + (buf[0] & 1));
-+
-+	if (flags != 0 && *flags) {
-+		/* error flag set, ignore frame */
-+		goto err;
-+	} else if (count > skb_tailroom(skb)) {
-+		/* packet overflowed MRU */
-+		goto err;
-+	}
-+
-+	p = skb_put(skb, count);
-+	memcpy(p, buf, count);
- 
- 	/* strip address/control field if present */
- 	p = skb->data;
-@@ -693,59 +760,15 @@
- 	} else if (skb->len < 2)
- 		goto err;
- 
--	/* pass to generic layer */
--	ppp_input(&ap->chan, skb);
-+	/* queue the frame to be processed */
-+	skb_queue_tail(&ap->rqueue, skb);
- 	return;
- 
-- err:
--	kfree_skb(skb);
--	ppp_input_error(&ap->chan, code);
--}
--
--/* called when the tty driver has data for us. 
-- *
-- * Data is frame oriented: each call to ppp_sync_input is considered
-- * a whole frame. If the 1st flag byte is non-zero then the whole
-- * frame is considered to be in error and is tossed.
-- */
--static void
--ppp_sync_input(struct syncppp *ap, const unsigned char *buf,
--		char *flags, int count)
--{
--	struct sk_buff *skb;
--	unsigned char *sp;
--
--	if (count == 0)
--		return;
--
--	/* if flag set, then error, ignore frame */
--	if (flags != 0 && *flags) {
--		ppp_input_error(&ap->chan, *flags);
--		return;
--	}
--
--	if (ap->flags & SC_LOG_INPKT)
--		ppp_print_buffer ("receive buffer", buf, count);
--
--	/* stuff the chars in the skb */
--	if ((skb = ap->rpkt) == 0) {
--		if ((skb = dev_alloc_skb(ap->mru + PPP_HDRLEN + 2)) == 0) {
--			printk(KERN_ERR "PPPsync: no memory (input pkt)\n");
--			ppp_input_error(&ap->chan, 0);
--			return;
--		}
--		/* Try to get the payload 4-byte aligned */
--		if (buf[0] != PPP_ALLSTATIONS)
--			skb_reserve(skb, 2 + (buf[0] & 1));
--		ap->rpkt = skb;
--	}
--	if (count > skb_tailroom(skb)) {
--		/* packet overflowed MRU */
--		ppp_input_error(&ap->chan, 1);
--	} else {
--		sp = skb_put(skb, count);
--		memcpy(sp, buf, count);
--		process_input_packet(ap);
-+err:
-+	/* queue zero length packet as error indication */
-+	if (skb || (skb = dev_alloc_skb(0))) {
-+		skb_trim(skb, 0);
-+		skb_queue_tail(&ap->rqueue, skb);
+ 	/* grant an infinite number of read locks to the readers at the front of the queue
+@@ -96,7 +97,7 @@ static inline struct rw_semaphore *__rws
+ 		mb();
+ 		waiter->task = NULL;
+ 		wake_up_process(tsk);
+-		put_task_struct(tsk);
++		free_task_struct(tsk);
  	}
+ 
+ 	sem->wait_list.next = next;
+--- linux-2.4-BK/lib/rwsem-spinlock.c~fix-rwsem-race-fix	2004-06-16 15:47:26.982774224 +0100
++++ linux-2.4-BK/lib/rwsem-spinlock.c	2004-06-16 15:51:17.522726824 +0100
+@@ -9,6 +9,7 @@
+  */
+ #include <linux/rwsem.h>
+ #include <linux/sched.h>
++#include <linux/mm.h>
+ #include <linux/module.h>
+ 
+ struct rwsem_waiter {
+@@ -69,7 +70,7 @@ static inline struct rw_semaphore *__rws
+ 		mb();
+ 		waiter->task = NULL;
+ 		wake_up_process(tsk);
+-		put_task_struct(tsk);
++		free_task_struct(tsk);
+ 		goto out;
+ 	}
+ 
+@@ -81,7 +82,7 @@ static inline struct rw_semaphore *__rws
+ 		mb();
+ 		waiter->task = NULL;
+ 		wake_up_process(tsk);
+-		put_task_struct(tsk);
++		free_task_struct(tsk);
+ 		woken++;
+ 		if (list_empty(&sem->wait_list))
+ 			break;
+@@ -111,7 +112,7 @@ static inline struct rw_semaphore *__rws
+ 	mb();
+ 	waiter->task = NULL;
+ 	wake_up_process(tsk);
+-	put_task_struct(tsk);
++	free_task_struct(tsk);
+ 	return sem;
  }
  
-
 
 

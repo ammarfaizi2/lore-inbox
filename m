@@ -1,50 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286692AbSAFB3E>; Sat, 5 Jan 2002 20:29:04 -0500
+	id <S286712AbSAFBfG>; Sat, 5 Jan 2002 20:35:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286699AbSAFB2o>; Sat, 5 Jan 2002 20:28:44 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:45321 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S286692AbSAFB2m>; Sat, 5 Jan 2002 20:28:42 -0500
-Date: Sat, 5 Jan 2002 17:27:33 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Davide Libenzi <davidel@xmailserver.org>,
-        lkml <linux-kernel@vger.kernel.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [announce] [patch] ultra-scalable O(1) SMP and UP scheduler
-In-Reply-To: <Pine.LNX.4.33.0201060349380.3424-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.33.0201051722540.24370-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S286744AbSAFBez>; Sat, 5 Jan 2002 20:34:55 -0500
+Received: from 12-234-33-29.client.attbi.com ([12.234.33.29]:12352 "HELO
+	top.worldcontrol.com") by vger.kernel.org with SMTP
+	id <S286712AbSAFBep>; Sat, 5 Jan 2002 20:34:45 -0500
+From: brian@worldcontrol.com
+Date: Sat, 5 Jan 2002 17:33:04 -0800
+To: Willy Tarreau <wtarreau@free.fr>
+Cc: reddog83@chartermi.net, linux-kernel@vger.kernel.org
+Subject: Re: The plethora of kernel versions
+Message-ID: <20020105173304.B3160@top.worldcontrol.com>
+Mail-Followup-To: Brian Litzinger <brian@litzinger.com>,
+	Willy Tarreau <wtarreau@free.fr>, reddog83@chartermi.net,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <200201051052.g05AqLb01141@ns.home.local>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200201051052.g05AqLb01141@ns.home.local>
+User-Agent: Mutt/1.3.19i
+X-No-Archive: yes
+X-Noarchive: yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Jan 05, 2002 at 11:52:21AM +0100, Willy Tarreau wrote:
+> Hi Nathan,
+> 
+> Please don't take it bad, I don't want to flame you nor anybody, but I
+> think that if everyone publicly announces his own tree with his own set
+> of changes against the main kernel, many users will be lost quickly.
 
-On Sun, 6 Jan 2002, Ingo Molnar wrote:
->
-> (if Davide's post gave you the impression that my patch doesnt do per-CPU
-> queues then i'd like to point out that it does so. Per-CPU runqueues are a
-> must for good performance on 8-way boxes and bigger. It's just the actual
-> implementation of the 'per CPU queue' that is O(1).)
+My worry is that l-k will now house discussions of 2.0, 2.2, 2.4,
+2.5, aa, dnj, et al...
 
-Ahh, ok. No worries then.
+I care very little for discussion of all the kernel varients other
+than those that I am interested in.
 
-At that point I don't think O(1) matters all that much, but it certainly
-won't hurt. UNLESS it causes bad choices to be made. Which we can only
-guess at right now.
+In fact, I really could care less about any dicussion other than
+2.2 and 2.4.   However, I have to wade through all the discussion
+of the other versions to get to what I want.  Often there is nothing
+in emails that idenfity what versions the other is talking about.
 
-Just out of interest, where have the bugs crept up? I think we could just
-try out the thing and see what's up, but I know that at least some
-versions of bash are buggy and _will_ show problems due to the "run child
-first" behaviour. Remember:  we actually tried that for a while in 2.4.x.
+And now with the flood of new kernel trees, the info I am
+particularly interested in is going to be even further buried.
 
-[ In 2.5.x it's fine to break broken programs, though, so this isn't that
-  much of an issue any more. From the reports I've seen the thing has
-  shown more bugs than that, though. I'd happily test a buggy scheduler,
-  but I don't want to mix bio problems _and_ scheduler problems, so I'm
-  not ready to switch over until either the scheduler patch looks stable,
-  or the bio stuff has finalized more. ]
+Since the powers that be are utterly against breaking l-k into
+topical subgroups, how about the various "versions" including something
+that I can use to identify and toss those messages I am not
+interested in.
 
-		Linus
+I'm primarily a 2.4 user, why do I care about all this 2.5 discussion?
 
+
+-- 
+Brian Litzinger <brian@worldcontrol.com>
+
+    Copyright (c) 2002 By Brian Litzinger, All Rights Reserved

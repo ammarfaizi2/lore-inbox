@@ -1,44 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266587AbUBDUwO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Feb 2004 15:52:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266536AbUBDUt6
+	id S266594AbUBDUtM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Feb 2004 15:49:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266536AbUBDUYX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Feb 2004 15:49:58 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.130]:27374 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S266589AbUBDUrw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Feb 2004 15:47:52 -0500
-Date: Wed, 4 Feb 2004 12:48:11 -0800
-From: Greg KH <greg@kroah.com>
-To: John Rose <johnrose@austin.ibm.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [Bug 2013] New: Oops from create_dir (sysfs)
-Message-ID: <20040204204811.GA3992@us.ibm.com>
-References: <1075926442.3026.37.camel@verve>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1075926442.3026.37.camel@verve>
-User-Agent: Mutt/1.4.1i
-X-Operating-System: Linux 2.6.2 (i686)
+	Wed, 4 Feb 2004 15:24:23 -0500
+Received: from mail.ddc-ny.com ([12.35.229.4]:26629 "EHLO ddcnyntd.ddc-ny.com")
+	by vger.kernel.org with ESMTP id S266515AbUBDUXH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Feb 2004 15:23:07 -0500
+Message-ID: <89760D3F308BD41183B000508BAFAC4104B16F39@DDCNYNTD>
+From: "Randazzo, Michael" <RANDAZZO@ddc-web.com>
+To: "'Valdis.Kletnieks@vt.edu'" <Valdis.Kletnieks@vt.edu>,
+       "Randazzo, Michael" <RANDAZZO@ddc-web.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RE: Kernel 2.x POSIX Compliance/Conformance... 
+Date: Wed, 4 Feb 2004 15:22:53 -0500 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2656.59)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 04, 2004 at 02:27:22PM -0600, John Rose wrote:
-> In the last couple of weeks, I've come across this crash a few times. 
-> In each case, my code was kobject_add()'ing a kobject to a kset that
-> already contained a kobject of the same name.
+ok...I think I get it....
+
+I can't use any of the posix functions in 
+device drivers (modules).....is this correct?
+
+M.
+
+-----Original Message-----
+From: Valdis.Kletnieks@vt.edu [mailto:Valdis.Kletnieks@vt.edu]
+Sent: Wednesday, February 04, 2004 3:21 PM
+To: Randazzo, Michael
+Cc: 'linux-kernel@vger.kernel.org'
+Subject: Re: Kernel 2.x POSIX Compliance/Conformance... 
+
+
+On Wed, 04 Feb 2004 15:18:17 EST, "Randazzo, Michael" said:
+> Where are the kernel calls defined for locks and semaphores?
 > 
-> Granted that these additions reflected faulty logic on the part of my
-> code, but I was suprised that kobject_add didn't have a more intelligent
-> response than crashing while creating the redundant sysfs dir.
-> 
-> Thoughts?
+> How come the kernel headers don't define Posix.4 
+> semaphores (_POSIX_SEMAPHROES) or Posix itself
+> (_POSIX_VERSION is undefined)
 
-The kobject code quickly pointed out the flaw in your code.  Sounds like
-the proper response to me :)
+Posix.4 and _POSIX_VERSION are for *userspace*
 
-thanks,
+The kernel isn't userspace.
+ 
+"This message may contain company proprietary information. If you are not
+the intended recipient, any disclosure, copying, distribution or reliance on
+the contents of this message is prohibited. If you received this message in
+error, please delete and notify me."
 
-greg k-h

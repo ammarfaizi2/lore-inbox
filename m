@@ -1,69 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283467AbRLTKMa>; Thu, 20 Dec 2001 05:12:30 -0500
+	id <S283770AbRLTKXB>; Thu, 20 Dec 2001 05:23:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283718AbRLTKMV>; Thu, 20 Dec 2001 05:12:21 -0500
-Received: from [195.66.192.167] ([195.66.192.167]:32019 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S283694AbRLTKMN>; Thu, 20 Dec 2001 05:12:13 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: vda <vda@port.imtp.ilyichevsk.odessa.ua>
-To: linux-kernel@vger.kernel.org
-Subject: [BUG] cramfs+initrd: BOOM! (Re: ramdisk corruption problems)
-Date: Thu, 20 Dec 2001 12:11:05 -0200
-X-Mailer: KMail [version 1.2]
-Cc: Alexander Viro <viro@math.psu.edu>,
-        Torrey Hoffman <torrey.hoffman@myrio.com>, <andersen@codepoet.org>
-MIME-Version: 1.0
-Message-Id: <01122012110506.01835@manta>
-Content-Transfer-Encoding: 8bit
+	id <S283718AbRLTKWw>; Thu, 20 Dec 2001 05:22:52 -0500
+Received: from khan.acc.umu.se ([130.239.18.139]:50351 "EHLO khan.acc.umu.se")
+	by vger.kernel.org with ESMTP id <S283770AbRLTKWj>;
+	Thu, 20 Dec 2001 05:22:39 -0500
+Date: Thu, 20 Dec 2001 11:22:18 +0100
+From: David Weinehall <tao@acc.umu.se>
+To: Stevie O <stevie@qrpff.net>
+Cc: "David S. Miller" <davem@redhat.com>, Mika.Liljeberg@welho.com,
+        kuznet@ms2.inr.ac.ru, Mika.Liljeberg@nokia.com,
+        linux-kernel@vger.kernel.org, sarolaht@cs.helsinki.fi
+Subject: Re: TCP LAST-ACK state broken in 2.4.17-pre2 [NEW DATA]
+Message-ID: <20011220112218.X5235@khan.acc.umu.se>
+In-Reply-To: <3C1FA558.E889A00D@welho.com> <200112181837.VAA10394@ms2.inr.ac.ru> <3C1FA558.E889A00D@welho.com> <20011218.122813.63057831.davem@redhat.com> <5.1.0.14.2.20011220022218.01dc2258@whisper.qrpff.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <5.1.0.14.2.20011220022218.01dc2258@whisper.qrpff.net>; from stevie@qrpff.net on Thu, Dec 20, 2001 at 02:31:44AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[fifth (!) attempt, previous mails did not show up on lkml]
-[This msg definitely does not want to make it into the list :-)]
+On Thu, Dec 20, 2001 at 02:31:44AM -0500, Stevie O wrote:
+> At 12:28 PM 12/18/2001 -0800, David S. Miller wrote:
+> >Unaligned kernel loads and stores must be properly handled by the
+> >platform code, and on ARM chips where that is possible it is.
+> 
+> I don't know what arch you're using, but I work with ARM7TDMI, which
+> has a behavior I believe can be found documented in some obscure .pdf
+> from arm.com:
 
-At last I have found one definite bug (maybe there are others).
-I was unable to load a minix initrd on any 2.4.12+ kernel. 2.4.10 is fine.
-Thanks to Mike Galbraith <mikeg@wen-online.de> who said that he can load 
-minix initrds and sent me both .config and initrd. I found out that with his 
-.config I indeed can load my initrd. After many recompilations and reboots 
-(binary search :-) it turned out that compiled-in support for cramfs caused
-initrds to be corrupted.
+Last time I checked, the ARM7tdmi was a mmu-less cpu -> ucLinux.
 
-[update since 3rd attempt to reach lkml]
-I did some debugging in fs/cramfs/inode.c:cramfs_read_super()
-If I plant immediate "return 0;" there initrd loads.
-If I place "return 0;" after "set_blocksize(sb->s_dev, PAGE_CACHE_SIZE);"
-- BOOM! Kernel panic. Restoring blocksize to 1024 prior to return does NOT 
-help.
-[end update]
 
-This is the diff between 'good' and 'bad' .config:
-
---- .config.good         Tue Dec 18 22:21:20 2001
-+++ .config.bad  Tue Dec 18 22:21:10 2001
-@@ -716,7 +716,7 @@
- CONFIG_EFS_FS=m
- # CONFIG_JFFS_FS is not set
- # CONFIG_JFFS2_FS is not set
--# CONFIG_CRAMFS is not set
-+CONFIG_CRAMFS=y
- CONFIG_TMPFS=y
- CONFIG_RAMFS=y
- CONFIG_ISO9660_FS=y
-@@ -767,7 +767,7 @@
- # CONFIG_NCPFS_NLS is not set
- # CONFIG_NCPFS_EXTRAS is not set
- # CONFIG_ZISOFS_FS is not set
--# CONFIG_ZLIB_FS_INFLATE is not set
-+CONFIG_ZLIB_FS_INFLATE=y
-
- #
- # Partition Types
-
-See?
-Hope this info is useful.
---
-vda
+/David
+  _                                                                 _
+ // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
+//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
+\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </

@@ -1,83 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266669AbUHCP2h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266631AbUHCPik@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266669AbUHCP2h (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 11:28:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266655AbUHCP2g
+	id S266631AbUHCPik (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 11:38:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266670AbUHCPik
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 11:28:36 -0400
-Received: from pixpat.austin.ibm.com ([192.35.232.241]:17311 "EHLO
-	falcon10.austin.ibm.com") by vger.kernel.org with ESMTP
-	id S266607AbUHCP2c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 11:28:32 -0400
-Message-Id: <200408031528.i73FSPrB021051@falcon10.austin.ibm.com>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.1
-In-reply-to: <1091490870.1649.23.camel@localhost.localdomain>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Jens Axboe <axboe@suse.de>, Zinx Verituse <zinx@epicsol.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: ide-cd problems
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 03 Aug 2004 10:28:25 -0500
-From: Doug Maxey <dwm@austin.ibm.com>
+	Tue, 3 Aug 2004 11:38:40 -0400
+Received: from out008pub.verizon.net ([206.46.170.108]:48568 "EHLO
+	out008.verizon.net") by vger.kernel.org with ESMTP id S266631AbUHCPii
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Aug 2004 11:38:38 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: linux-kernel@vger.kernel.org
+Subject: Re: kde problem... Or kernel?
+Date: Tue, 3 Aug 2004 11:38:36 -0400
+User-Agent: KMail/1.6.82
+References: <200408031057.14453.gene.heskett@verizon.net> <2a4f155d040803082332962c1a@mail.gmail.com>
+In-Reply-To: <2a4f155d040803082332962c1a@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
+Message-Id: <200408031138.37001.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out008.verizon.net from [141.153.75.218] at Tue, 3 Aug 2004 10:38:37 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Tue, 03 Aug 2004 00:54:31 BST, Alan Cox wrote:
->On Sad, 2004-07-31 at 21:00, Jens Axboe wrote:
->> If you want it to work that way, you have the have a pass-through filter
->> in the kernel knowing what commands are out there (including vendor
->> specific ones). That's just too ugly and not really doable or
->> maintainable, sorry.
+On Tuesday 03 August 2004 11:23, ismail dönmez wrote:
+>On Tue, 3 Aug 2004 10:57:14 -0400, Gene Heskett
 >
->I disagree providing you turn it the other way around. The majority of
->scsi commands have to be protected because you can destroy the drive
->with some of them or bypass the I/O layers. (Eg using SG_IO to do writes
->to raw disk to bypass auditing layers)
+><gene.heskett@verizon.net> wrote:
+>> Greetings;
+>>
+>> kernel 2.6.8-rc2-mm2, kde3.3-beta2.
+>>
+>> Now that it appears I'm stable again, I am asking if the memory
+>> data that kpm and ksysguard use has been moved recently?
+>>
+>> Both utils are now showing long strings of 8888888888 in the
+>> bottom lines of their windows now, for everything thats normally
+>> there.
 >
-
-  Where would the case of firmware download fit?  For x86 ATA/ATAPI
-  devices, the vendor usually supplies a dos disk to accomplish this.
-  However, that method is absolutely broken a PPC system.  We have to
-  use a proprietary driver that was written using vendor specific
-  commands.  I assume that all vendors have their own set of
-  proprietary commands, specific to the device to be updated.
-
-  Usually one does not need to do firmware updates, but when
-  necessary, it is generally a requirement to do it on the system with
-  the device, not to remove the device and carry it to a system where
-  it can be done.
-
-  If there was an interface to allow wide open operations, including a
-  non-interrupt (polling) mode of operation, this would cover a large
-  portion of devices.
-
->So you need CAP_SYS_RAWIO for most commands. You can easily build a list
->of sane commands for a given media type that are harmless and it fits
->the kernel role of a gatekeeper to do that.
-
+>Same on -mm1 too. KDE latest cvs head.
 >
->Providing the 'allowed' function is driver level and we also honour
->read/write properly for that case (so it doesnt bypass block I/O
->restrictions and fail the least suprise test) then it seems quite
->doable.
->
->For such I/O you'd then do
->
->	if(capable(CAP_SYS_RAWIO) || driver->allowed(driver, blah, cmdblock))
->
->If the allowed function filters positively "unknown is not allowed" and
->the default allowed function is simply "no" it works.
->
->We'd end up with a list of allowed commands for all sorts of operations
->that don't threaten the machine while blocking vendor specific wonders
->and also cases where users can do stuff like firmware erase.
+>Cheers,
+>ismail
 
-  Allowed commands are really on a device specfic basis.  And a RAS
-  requirement, for at least those of use that have funny endianess
-  hardware.  :)
+Yup, kde bug according to Waldo B. It was the same on 2.6.7 too.
 
-++doug
-
-
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.24% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

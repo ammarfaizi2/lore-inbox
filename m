@@ -1,42 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267336AbSLKW0l>; Wed, 11 Dec 2002 17:26:41 -0500
+	id <S267342AbSLKWcC>; Wed, 11 Dec 2002 17:32:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267337AbSLKW0l>; Wed, 11 Dec 2002 17:26:41 -0500
-Received: from pc2-cwma1-4-cust129.swan.cable.ntl.com ([213.105.254.129]:30148
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267336AbSLKW0k>; Wed, 11 Dec 2002 17:26:40 -0500
-Subject: Re: NFS mounted rootfs possible via PCMCIA NIC ?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andreas Schaufler <andreas.schaufler@gmx.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200212112253.57325.andreas.schaufler@gmx.de>
-References: <200212112253.57325.andreas.schaufler@gmx.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 11 Dec 2002 23:12:00 +0000
-Message-Id: <1039648320.18467.49.camel@irongate.swansea.linux.org.uk>
+	id <S267344AbSLKWcC>; Wed, 11 Dec 2002 17:32:02 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:6916 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S267342AbSLKWcA>;
+	Wed, 11 Dec 2002 17:32:00 -0500
+Date: Tue, 10 Dec 2002 22:57:57 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Rusty trivial patch monkey Russell <trivial@rustcorp.com.au>,
+       kernel list <linux-kernel@vger.kernel.org>, jgarzik@pobox.com
+Subject: hp100: make it compile with debugging
+Message-ID: <20021210215757.GA527@elf.ucw.cz>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-12-11 at 21:53, Andreas Schaufler wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> Hello list,
-> 
-> I am trying to configure a notebook with a PCMCIA NIC to boot over network. 
-> (kernel 2.4.20)
-> In order to accomplish this I passed over the neccessary configuration 
-> paramters through the boot loader (ip, root, nfsroot)
-> 
-> The problem is: When the kernel is booting it is trying to configure the 
-> Network interface, before it has been activated.
+Hi!
 
-PCMCIA relies in part on user space. You can do this, it involves
-building a large initrd with a dhcp client on it that sets up pcmcia,
-then nfs mounts stuff, then pivot_root()'s into it. Its not exactly
-trivial
+This is neccessary if you want hp100 to compile with debugging, please
+apply.
 
+								Pavel
+
+--- clean/drivers/net/hp100.c	2002-11-23 19:55:22.000000000 +0100
++++ linux-swsusp/drivers/net/hp100.c	2002-12-09 21:19:48.000000000 +0100
+@@ -2096,6 +2094,7 @@
+ 	struct hp100_private *lp = (struct hp100_private *) dev->priv;
+ 
+ #ifdef HP100_DEBUG_B
++	int ioaddr = dev->base_addr;
+ 	hp100_outw(0x4216, TRACE);
+ 	printk("hp100: %s: misc_interrupt\n", dev->name);
+ #endif
+
+-- 
+Worst form of spam? Adding advertisment signatures ala sourceforge.net.
+What goes next? Inserting advertisment *into* email?

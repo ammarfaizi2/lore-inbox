@@ -1,63 +1,145 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265067AbTIIXIO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 19:08:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265069AbTIIXIO
+	id S265034AbTIIXEl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 19:04:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265054AbTIIXEl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 19:08:14 -0400
-Received: from gprs149-34.eurotel.cz ([160.218.149.34]:5504 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S265067AbTIIXIK (ORCPT
+	Tue, 9 Sep 2003 19:04:41 -0400
+Received: from fw.osdl.org ([65.172.181.6]:47782 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265034AbTIIXDM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 19:08:10 -0400
-Date: Wed, 10 Sep 2003 01:07:55 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Patrick Mochel <mochel@osdl.org>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Jens Axboe <axboe@suse.de>, Linus Torvalds <torvalds@osdl.org>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PM] Passing suspend level down to drivers
-Message-ID: <20030909230755.GG211@elf.ucw.cz>
-References: <20030909225410.GD211@elf.ucw.cz> <Pine.LNX.4.44.0309091604070.695-100000@cherise>
+	Tue, 9 Sep 2003 19:03:12 -0400
+Date: Tue, 9 Sep 2003 16:02:45 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Gerd Knorr <kraxel@bytesex.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] video/hexium_orion warning removal
+Message-Id: <20030909160245.49e8bddd.shemminger@osdl.org>
+Organization: Open Source Development Lab
+X-Mailer: Sylpheed version 0.9.4claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
+ /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0309091604070.695-100000@cherise>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+The hexium_orion driver in 2.6.0-test5 gets a warning because it defines
+setup data that is never used.
 
-> > I do think this is a bit complicated. I believe passing level, along
-> > with type of the suspend (aka swsusp vs. S4bios) should be enough.
-> 
-> What about suspend-to-ram, APM, and runtime states?
+Builds fine if it is deleted; don't have real hardware.
 
-I'd not worry about runtime states for now. [If user wants to sleep
-one device, we probably can allow that, but I do not think it is
-reasonable to do much more for 2.6.X]. That leaves us with:
-
-APM suspend-to-ram
-APM suspend-to-disk
-ACPI standby (S1)
-ACPI suspend-to-ram (S3)
-ACPI suspend-to-disk (S4bios)
-swsusp
-
-Do we want to support ACPI S2? I don't think so. That list is not
-*that* bad.
-
-> That actually makes it quite a bit more complicated, globally. By forcing 
-> the policy down to the drivers, you force each one to interpret the value 
-> themselves and make the decision. By doing it centrally, the only thing 
-> the low-level drivers have to worry about is going into the state. 
-
-Yes, but you'll have to have central database saying "nvidia VGA needs
-to be in D1 during S3". I don't think that's good idea. Better put it
-into the driver... Hopefully not many drivers will need such hacks.
+diff -Nru a/drivers/media/video/hexium_orion.h b/drivers/media/video/hexium_orion.h
+--- a/drivers/media/video/hexium_orion.h	Tue Sep  9 15:56:54 2003
++++ b/drivers/media/video/hexium_orion.h	Tue Sep  9 15:56:54 2003
+@@ -30,109 +30,4 @@
+ /*30*/ 0x44,0x75,0x01,0x8C,0x03
+ };
  
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+-static struct {
+-	struct hexium_data data[8];	
+-} hexium_input_select[] = {
+-{
+-	{ /* input 0 */
+-		{ 0x06, 0x00 },
+-		{ 0x20, 0xD9 },
+-		{ 0x21, 0x17 }, // 0x16,
+-		{ 0x22, 0x40 },
+-		{ 0x2C, 0x03 },
+-		{ 0x30, 0x44 },
+-		{ 0x31, 0x75 }, // ??
+-		{ 0x21, 0x16 }, // 0x03,
+-	}
+-}, {
+-	{ /* input 1 */
+-		{ 0x06, 0x00 },
+-		{ 0x20, 0xD8 },
+-		{ 0x21, 0x17 }, // 0x16,
+-		{ 0x22, 0x40 },
+-		{ 0x2C, 0x03 },
+-		{ 0x30, 0x44 },
+-		{ 0x31, 0x75 }, // ??
+-		{ 0x21, 0x16 }, // 0x03,
+-	}
+-}, {
+-	{ /* input 2 */
+-		{ 0x06, 0x00 },
+-		{ 0x20, 0xBA },
+-		{ 0x21, 0x07 }, // 0x05,
+-		{ 0x22, 0x91 },
+-		{ 0x2C, 0x03 },
+-		{ 0x30, 0x60 },
+-		{ 0x31, 0xB5 }, // ??
+-		{ 0x21, 0x05 }, // 0x03,
+-	}
+-}, {
+-	{ /* input 3 */
+-		{ 0x06, 0x00 },
+-		{ 0x20, 0xB8 },
+-		{ 0x21, 0x07 }, // 0x05,
+-		{ 0x22, 0x91 },
+-		{ 0x2C, 0x03 },
+-		{ 0x30, 0x60 },
+-		{ 0x31, 0xB5 }, // ??
+-		{ 0x21, 0x05 }, // 0x03,
+-	}
+-}, {
+-	{ /* input 4 */
+-		{ 0x06, 0x00 },
+-		{ 0x20, 0x7C },
+-		{ 0x21, 0x07 }, // 0x03
+-		{ 0x22, 0xD2 },
+-		{ 0x2C, 0x83 },
+-		{ 0x30, 0x60 },
+-		{ 0x31, 0xB5 }, // ??
+-		{ 0x21, 0x03 },
+-	} 
+-}, {
+-	{ /* input 5 */
+-		{ 0x06, 0x00 },
+-		{ 0x20, 0x78 },
+-		{ 0x21, 0x07 }, // 0x03,
+-		{ 0x22, 0xD2 },
+-		{ 0x2C, 0x83 },
+-		{ 0x30, 0x60 },
+-		{ 0x31, 0xB5 }, // ?
+-		{ 0x21, 0x03 },
+-	}
+-}, {
+-	{ /* input 6 */
+-		{ 0x06, 0x80 },
+-		{ 0x20, 0x59 },
+-		{ 0x21, 0x17 },
+-		{ 0x22, 0x42 },
+-		{ 0x2C, 0xA3 },
+-		{ 0x30, 0x44 },
+-		{ 0x31, 0x75 },
+-		{ 0x21, 0x12 },
+-	}
+-}, {
+-	{ /* input 7 */
+-		{ 0x06, 0x80 },
+-		{ 0x20, 0x9A },
+-		{ 0x21, 0x17 },
+-		{ 0x22, 0xB1 },
+-		{ 0x2C, 0x13 },
+-		{ 0x30, 0x60 },
+-		{ 0x31, 0xB5 },
+-		{ 0x21, 0x14 },
+-	}
+-}, {
+-	{ /* input 8 */
+-		{ 0x06, 0x80 },
+-		{ 0x20, 0x3C },
+-		{ 0x21, 0x27 },
+-		{ 0x22, 0xC1 },
+-		{ 0x2C, 0x23 },
+-		{ 0x30, 0x44 },
+-		{ 0x31, 0x75 },
+-		{ 0x21, 0x21 },
+-	}
+-}	
+-};
+-
+ #endif

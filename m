@@ -1,194 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261879AbSJDTeN>; Fri, 4 Oct 2002 15:34:13 -0400
+	id <S262038AbSJDSlV>; Fri, 4 Oct 2002 14:41:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261872AbSJDTeN>; Fri, 4 Oct 2002 15:34:13 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:49537 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S261794AbSJDTeG>; Fri, 4 Oct 2002 15:34:06 -0400
-Date: Fri, 4 Oct 2002 12:40:43 -0700
-From: Mike Anderson <andmike@us.ibm.com>
-To: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] scsi_debug new scan fix
-Message-ID: <20021004194043.GB9544@beaverton.ibm.com>
-Mail-Followup-To: linux-scsi@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.0.32 on an i486
+	id <S262035AbSJDSlU>; Fri, 4 Oct 2002 14:41:20 -0400
+Received: from s142-179-222-244.ab.hsia.telus.net ([142.179.222.244]:5629 "EHLO
+	bluetooth.WNI.AD") by vger.kernel.org with ESMTP id <S262013AbSJDSlQ>;
+	Fri, 4 Oct 2002 14:41:16 -0400
+Message-ID: <3D9DE325.8070504@WirelessNetworksInc.com>
+Date: Fri, 04 Oct 2002 12:51:17 -0600
+From: Herman Oosthuysen <Herman@WirelessNetworksInc.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-raid@vger.kernel.org
+Subject: Re: RAID backup
+References: <Pine.LNX.3.96.1021004041421.5688A-100000@Maggie.Linux-Consulting.com> <1033735943.31839.12.camel@irongate.swansea.linux.org.uk> <20021004132419.GF710@gallifrey> <3D9DA67A.8050608@comedia.it> <3D9DB44E.4090609@WirelessNetworksInc.com> <20021004171116.C31015@flint.arm.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 04 Oct 2002 18:46:50.0146 (UTC) FILETIME=[66311020:01C26BD6]
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a resend of a previous patch.
+Yep, a constant lowish temperature will also help a little, but I 
+honestly think that in storage, a disk drive bearing will seize due to 
+corrosion and lack of movement, before the electronics will fail.  You 
+can prevent bearing (and capacitor) problems by starting the drive up 
+every 6 months for a while though.
 
-If you use scsi_debug the patch below fixes a problem that has existed
-since the updated scan code was merged in. scsi_debug previously assumed
-that the scsi_device used to probe and the device permanently added to the
-host_queue would be the same. This caused scsi_debug to allocate some
-internal data and key it off the scsi_device pointer for later use.  This
-resulted in scsi_debug failing all IO post scanning. This patch corrects
-this problem.
+The effects of long term storage is experienced with military equipment, 
+which frequently have to stay in storage for 40 or 50 years without ever 
+really being used.  The stuff in storage has to be cycled through the 
+workshops to keep them operational, which is part of the high cost of peace.
 
-Note:
-	Douglas Gilbert is the maintainer of this driver.
-	dougg@gear.torque.net
-	http://www.torque.net/sg/
+If disk drives are used for backup purposes, then I would suggest that 
+they are rotated, so that they all remain in occational use, which 
+should help to keep them alive.  Of course, the first thing to fail, 
+would be the connector of the removable drive bay and there is nothing 
+you can do about that, except to make sure that the connectors are gold 
+plated to begin with.
 
-	During Douglas Gilbert's time-off he connects when he can so it
-	maybe a bit until he can address this.
+I don't think that people have to worry too much about transportation 
+vibration and shock to/from an off-site storage facility.  These things 
+are quite rugged when not spinning, so if you transport them in 
+styrofoam boxes and don't drop them on the floor, they should be OK.
 
-	In the interim this patch makes scsi_debug functional.
+BTW, putting a drive in storage for 40 or 50 years is not recommended 
+for another reason: Obsolecense.  In 40 or 50 years, you probably won't 
+have a computer that can use these drives anymore!  So, the only way to 
+keep data long term, is to rotate the media continuously and upgrade as 
+new technology is introduced.
 
+Cheers,
 
-The full patch is available at:
-http://www-124.ibm.com/storageio/patches/2.5/scsi-debug
+Herman
+http://www.AerospaceSoftware.com
 
--andmike
---
-Michael Anderson
-andmike@us.ibm.com
+Russell King wrote:
+> On Fri, Oct 04, 2002 at 09:31:26AM -0600, Herman Oosthuysen wrote:
+> 
+>>Self demagnetization used to be a problem of magnetic media and some 
+>>components such as capacitors used to deteriorate with age, but I think 
+>>that those problems have been solved decades ago, so equipment in clean 
+>>and dry storage should last almost forever.
+> 
+> 
+> You missed "stable temperature" as well.  Some capacitors still
+> "dry out" with age and heat, even with todays technology.
+> 
 
- scsi_debug.c |   59 +++++++++++++++++++++++++++++++----------------------------
- 1 files changed, 31 insertions(+), 28 deletions(-)
+-- 
 
------
+------------------------------------------------------------------------
+Herman Oosthuysen
+B.Eng.(E), Member of IEEE
+Wireless Networks Inc.
+http://www.WirelessNetworksInc.com
+E-mail: Herman@WirelessNetworksInc.com
+Phone: 1.403.569-5687, Fax: 1.403.235-3964
+------------------------------------------------------------------------
 
-diff -Nru a/drivers/scsi/scsi_debug.c b/drivers/scsi/scsi_debug.c
---- a/drivers/scsi/scsi_debug.c	Fri Oct  4 07:53:21 2002
-+++ b/drivers/scsi/scsi_debug.c	Fri Oct  4 07:53:21 2002
-@@ -108,9 +108,13 @@
- #define SDEBUG_SENSE_LEN 32
- 
- struct sdebug_dev_info {
--	Scsi_Device * sdp;
- 	unsigned char sense_buff[SDEBUG_SENSE_LEN];	/* weak nexus */
-+	unsigned int channel;
-+	unsigned int target;
-+	unsigned int lun;
-+	struct Scsi_Host *host;
- 	char reset;
-+	char used;
- };
- static struct sdebug_dev_info * devInfop;
- 
-@@ -154,7 +158,7 @@
- static int resp_report_luns(unsigned char * cmd, unsigned char * buff,
- 			    int bufflen, struct sdebug_dev_info * devip);
- static void timer_intr_handler(unsigned long);
--static struct sdebug_dev_info * devInfoReg(Scsi_Device * sdp);
-+static struct sdebug_dev_info * devInfoReg(Scsi_Cmnd *scmd);
- static void mk_sense_buffer(struct sdebug_dev_info * devip, int key, 
- 			    int asc, int asq, int inbandLen);
- static int check_reset(Scsi_Cmnd * SCpnt, struct sdebug_dev_info * devip);
-@@ -222,7 +226,7 @@
- 		return schedule_resp(SCpnt, NULL, done, 0, 0);
-         }
- 
--	if ((target > driver_template.this_id) || (SCpnt->lun != 0))
-+	if (SCpnt->lun != 0)
- 		return schedule_resp(SCpnt, NULL, done, 
- 				     DID_NO_CONNECT << 16, 0);
- #if 0
-@@ -230,14 +234,10 @@
- 	       (int)SCpnt->device->host->host_no, (int)SCpnt->device->id,
- 	       SCpnt->device, (int)*cmd);
- #endif
--	if (NULL == SCpnt->device->hostdata) {
--		devip = devInfoReg(SCpnt->device);
--		if (NULL == devip)
--			return schedule_resp(SCpnt, NULL, done, 
--					     DID_NO_CONNECT << 16, 0);
--		SCpnt->device->hostdata = devip;
--	}
--	devip = SCpnt->device->hostdata;
-+	devip = devInfoReg(SCpnt);
-+	if (NULL == devip)
-+		return schedule_resp(SCpnt, NULL, done, 
-+				     DID_NO_CONNECT << 16, 0);
- 
-         if ((SCSI_DEBUG_OPT_EVERY_NTH & scsi_debug_opts) &&
-             (scsi_debug_every_nth > 0) &&
-@@ -474,8 +474,8 @@
- 		int dev_id_num, len;
- 		char dev_id_str[6];
- 		
--		dev_id_num = ((devip->sdp->host->host_no + 1) * 1000) + 
--			      devip->sdp->id;
-+		dev_id_num = ((devip->host->host_no + 1) * 1000) + 
-+			      devip->target;
- 		len = snprintf(dev_id_str, 6, "%d", dev_id_num);
- 		len = (len > 6) ? 6 : len;
- 		if (0 == cmd[2]) { /* supported vital product data pages */
-@@ -870,21 +870,28 @@
- 	return 0;
- }
- 
--static struct sdebug_dev_info * devInfoReg(Scsi_Device * sdp)
-+static struct sdebug_dev_info * devInfoReg(Scsi_Cmnd *scmd)
- {
- 	int k;
- 	struct sdebug_dev_info * devip;
- 
- 	for (k = 0; k < scsi_debug_num_devs; ++k) {
- 		devip = &devInfop[k];
--		if (devip->sdp == sdp)
-+		if ((devip->channel == scmd->channel) &&
-+		    (devip->target == scmd->target) &&
-+		    (devip->lun == scmd->lun) &&
-+		    (devip->host == scmd->host))
- 			return devip;
- 	}
- 	for (k = 0; k < scsi_debug_num_devs; ++k) {
- 		devip = &devInfop[k];
--		if (NULL == devip->sdp) {
--			devip->sdp = sdp;
-+		if (!devip->used) {
-+			devip->channel = scmd->channel;
-+			devip->target = scmd->target;
-+			devip->lun = scmd->lun;
-+			devip->host = scmd->host;
- 			devip->reset = 1;
-+			devip->used = 1;
- 			memset(devip->sense_buff, 0, SDEBUG_SENSE_LEN);
- 			devip->sense_buff[0] = 0x70;
- 			return devip;
-@@ -934,19 +941,15 @@
- 
- static int scsi_debug_device_reset(Scsi_Cmnd * SCpnt)
- {
--	Scsi_Device * sdp;
--	int k;
-+	struct sdebug_dev_info * devip;
- 
- 	if (SCSI_DEBUG_OPT_NOISE & scsi_debug_opts)
- 		printk(KERN_INFO "scsi_debug: device_reset\n");
- 	++num_dev_resets;
--	if (SCpnt && ((sdp = SCpnt->device))) {
--		for (k = 0; k < scsi_debug_num_devs; ++k) {
--			if (sdp->hostdata == (devInfop + k))
--				break;
--		}
--		if (k < scsi_debug_num_devs)
--			devInfop[k].reset = 1;
-+	if (SCpnt) {
-+		devip = devInfoReg(SCpnt);
-+		if (devip)
-+			devip->reset = 1;
- 	}
- 	return SUCCESS;
- }
-@@ -960,9 +963,9 @@
- 	if (SCSI_DEBUG_OPT_NOISE & scsi_debug_opts)
- 		printk(KERN_INFO "scsi_debug: bus_reset\n");
- 	++num_bus_resets;
--	if (SCpnt && ((sdp = SCpnt->device)) && ((hp = sdp->host))) {
-+	if (SCpnt && ((sdp = SCpnt->device)) && ((hp = SCpnt->host))) {
- 		for (k = 0; k < scsi_debug_num_devs; ++k) {
--			if (hp == devInfop[k].sdp->host)
-+			if (hp == devInfop[k].host)
- 				devInfop[k].reset = 1;
- 		}
- 	}
 

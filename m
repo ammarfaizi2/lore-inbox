@@ -1,38 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265369AbSKVXLu>; Fri, 22 Nov 2002 18:11:50 -0500
+	id <S265373AbSKVXML>; Fri, 22 Nov 2002 18:12:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265373AbSKVXLt>; Fri, 22 Nov 2002 18:11:49 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:36225 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S265369AbSKVXLt>;
-	Fri, 22 Nov 2002 18:11:49 -0500
-Date: Fri, 22 Nov 2002 15:17:21 -0800 (PST)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: Dax Kelson <dax@gurulabs.com>
-cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.29 DAC960 compile failure "I am a non-portable driver"
-In-Reply-To: <1038006834.1623.1.camel@mentor>
-Message-ID: <Pine.LNX.4.33L2.0211221515420.6580-100000@dragon.pdx.osdl.net>
+	id <S265380AbSKVXML>; Fri, 22 Nov 2002 18:12:11 -0500
+Received: from viefep12-int.chello.at ([213.46.255.25]:18962 "EHLO
+	viefep12-int.chello.at") by vger.kernel.org with ESMTP
+	id <S265373AbSKVXMK>; Fri, 22 Nov 2002 18:12:10 -0500
+Date: Sat, 23 Nov 2002 00:18:52 +0100 (CET)
+From: =?ISO-8859-2?Q?=C9rsek_L=E1szl=F3?= <erseklaszlo@chello.hu>
+To: linux-kernel@vger.kernel.org
+Subject: rbtree
+Message-ID: <Pine.LNX.4.44.0211230003140.443-100000@lacos>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 22 Nov 2002, Dax Kelson wrote:
+Dear developers and mighty hackers,
 
-|   gcc -E
-| -Wp,-MD,/usr/src/linux-2.5.29/include/linux/modules/drivers/block/.DAC960.ver.d -D__KERNEL__ -I/usr/src/linux-2.5.29/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -nostdinc -iwithprefix include -DMODULE   -DKBUILD_BASENAME=DAC960 -D__GENKSYMS__  DAC960.c | /sbin/genksyms  -k 2.5.29 > /usr/src/linux-2.5.29/include/linux/modules/drivers/block/DAC960.ver.tmp
-| In file included from DAC960.c:49:
-| DAC960.h:2575:2: #error I am a non-portable driver, please convert me to
-| use the Documentation/DMA-mapping.txt interfaces
+please take a look at linux-2.4.19/lib/rbtree.c, lines
 
-2.5.29 ?  really?
+	I.  148-151, 159-160, 163,
+	II. 188-191, 199-200, 203,
 
-There are DAC960 patches for recent 2.5.x kernels at
-  http://www.osdl.org/archive/dmo/
-Please try one of them after moving to a more recent kernel.
+and consider
 
--- 
-~Randy
+	http://gcc.gnu.org/ml/libstdc++/2002-11/msg00244.html
+
+According to
+
+	http://www.lkml.org/faq/#s3-3
+
+please notify me personally; or ignore me, whichever is adequate.
+
+
+I already mailed Andrea Arcangeli <andrea@suse.de>; he didn't react yet.
+
+
+Thank you
+
+Laszlo Ersek
 

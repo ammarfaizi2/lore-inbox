@@ -1,70 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135605AbRAGCsH>; Sat, 6 Jan 2001 21:48:07 -0500
+	id <S135644AbRAGCsj>; Sat, 6 Jan 2001 21:48:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135644AbRAGCr7>; Sat, 6 Jan 2001 21:47:59 -0500
-Received: from isis.its.uow.edu.au ([130.130.68.21]:5573 "EHLO
-	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S135605AbRAGCrr>; Sat, 6 Jan 2001 21:47:47 -0500
-Message-ID: <3A57DA3E.6AB70887@uow.edu.au>
-Date: Sun, 07 Jan 2001 13:53:50 +1100
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0-test8 i586)
+	id <S135659AbRAGCsU>; Sat, 6 Jan 2001 21:48:20 -0500
+Received: from 209.102.21.2 ([209.102.21.2]:21509 "EHLO dragnet.seagull.net")
+	by vger.kernel.org with ESMTP id <S135644AbRAGCsJ>;
+	Sat, 6 Jan 2001 21:48:09 -0500
+Message-ID: <3A57A87B.BA60FF9B@goingware.com>
+Date: Sat, 06 Jan 2001 23:21:31 +0000
+From: "Michael D. Crawford" <crawford@goingware.com>
+Organization: GoingWare Inc. - Expert Software Development and Consulting
+X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.4.0 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>,
-        lad <linux-audio-dev@ginette.musique.umontreal.ca>
-Subject: low-latency scheduling patch for 2.4.0
+To: linux-kernel@vger.kernel.org
+Subject: What test suites can you tell me about?
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Can you tell me about any ready-to-use test suites, for any software package
+that should run under Linux, that I can build and run to test the new kernel?
 
-A patch against kernel 2.4.0 final which provides low-latency
-scheduling is at
+Besides running all these tests myself on my machine, I'm going to document them
+in an article at:
 
-	http://www.uow.edu.au/~andrewm/linux/schedlat.html#downloads
+http://linuxquality.sunsite.dk/articles/
 
-Some notes:
+(there are no articles there yet but I'm composing a couple that will be posted
+soon)
 
-- Worst-case scheduling latency with *very* intense workloads is now
-  0.8 milliseconds on a 500MHz uniprocessor.
+For example, if you build Python (http://www.python.org) and say "make check",
+it will run a bunch of python programs that test the correctness of the
+programming language.
 
-  For normal workloads you can expect to achieve better than 0.5
-  milliseconds for ever.  For example, worst-case latency between entry
-  to an interrupt routine and activation of a usermode process during a
-  `make clean && make bzImage' is 0.35 milliseconds.  This is one to
-  three orders of magnitude better than BeOS, MacOS and the Windowses.
+This is of interest in part because lots of the Python tests make system calls,
+but also because it tests that the compilers generate correct code under the new
+kernel (another test I do is, after I boot off a new kernel, I do "make clean",
+build it again and boot off _that_).
 
-- Low latency is enabled from the `Processor type and features'
-  kernel configuration menu for all architectures.  It would be nice to
-  hear from non-x86 users.
+"make exec" under the Mesa 3.4 library builds a bunch of graphics demos, a few
+of which are kind of whizzy but most of which exercise a few basic functions in
+OpenGL.  So one can watch that they don't crash, that the images look correctly
+drawn and so on.  This enabled me to realize that DRI wasn't working under 2.4.0
+but it was under 2.4.0-prerelease-ac5, which I've detailed in a separate
+message.
 
-- The SMP problem hasn't been addressed.  Enabling low-latency for
-  SMP works well under normal workloads but comes unstuck under very
-  heavy workloads.  I'll be taking a further look at this.
+Another test suite I know about comes with Kaffe (http://www.kaffe.org) and
+verifies that Kaffe's implementation of Java is running correctly on your
+system.
 
-- The supporting tools `rtc_debug' and `amlat' have been updated. 
-  These are quite useful tools for providing accurate measurement of
-  latencies.  They may also be used to identify the causes of poor
-  latency in the kernel.
+One I read about somewhere but have no clue where to get it is this memory
+stress-testing tool that does lots of DMA and stuff off of the disks.
 
-- Remaining problem areas (the Don't Do That list) is pretty small:
+There must be a lot of these tools available, if only we had them listed all in
+one place.
 
-  - Scrolling the fb console.
-  - Running hdparm.
-  - Using LILO
-  - Starting the X server
+If you maintain such a test tool, it would be helpful if you provided the option
+to run the whole suite completely unattended.  Mesa provides a good test for
+lots of functions of the kernel, but one problem is that one has to quit the
+tests after each one runs, usually by pressing the ESC key.  Unattended testing
+also allows one to run lots of tests simultaneously to test a heavily loaded
+system. 
 
-- Low latency will probably only be achieved when using the ext2 and
-  NFS filesystems.
+In some cases, the tests really do need to have some user input, like navigating
+around a 3D world or turning various rendering options on and off, but it's
+possible the tests could be extended to allow this input from a script (Python
+provides a nice way to bolt a script interpreter to any application).
 
-- If you care about latency, be *very* cautious about upgrading to
-  XFree86 4.x.  I'll cover this issue in a separate email, copied
-  to the XFree team.
+Mike
+-- 
+Michael D. Crawford
+GoingWare Inc. - Expert Software Development and Consulting
+http://www.goingware.com/
+crawford@goingware.com
 
--
+   Tilting at Windmills for a Better Tomorrow.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

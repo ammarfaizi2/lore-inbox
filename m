@@ -1,75 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261840AbTITLht (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Sep 2003 07:37:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261842AbTITLht
+	id S261850AbTITLiW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Sep 2003 07:38:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261853AbTITLiW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Sep 2003 07:37:49 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:36279 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261840AbTITLhr (ORCPT
+	Sat, 20 Sep 2003 07:38:22 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:959 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id S261850AbTITLiP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Sep 2003 07:37:47 -0400
-Date: Sat, 20 Sep 2003 13:37:37 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Andrew Zabolotny <zap@homelink.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: __make_request() bug and a fix variant
-Message-ID: <20030920113737.GQ21870@suse.de>
-References: <20030919231732.7f7874e6.zap@homelink.ru>
+	Sat, 20 Sep 2003 07:38:15 -0400
+Date: Sat, 20 Sep 2003 13:38:03 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Dmitri Katchalov <dmitrik@users.sourceforge.net>
+Cc: linux-kernel@vger.kernel.org, Andries Brouwer <aebr@win.tue.nl>
+Subject: Re: 2.6.0-test5 atkbd.c: Unknown key (100% reproduceable)
+Message-ID: <20030920113803.GA8779@ucw.cz>
+References: <1063443074.3f62da82a7e24@webmail.netregistry.net> <20030913220743.B3295@pclin040.win.tue.nl> <1063527169.3f642301c00e7@webmail.netregistry.net> <20030914185142.F3371@pclin040.win.tue.nl> <003c01c37b8f$9e09fba0$0a01a8c0@internal.dimasoftware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030919231732.7f7874e6.zap@homelink.ru>
+In-Reply-To: <003c01c37b8f$9e09fba0$0a01a8c0@internal.dimasoftware.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 19 2003, Andrew Zabolotny wrote:
-> Hello!
+On Mon, Sep 15, 2003 at 11:45:25PM +1000, Dmitri Katchalov wrote:
+> > On Sun, Sep 14, 2003 at 06:12:49PM +1000, Dmitri Katchalov wrote:
+> > > Quoting Andries Brouwer <aebr@win.tue.nl>:
+> >
+> > > > On Sat, Sep 13, 2003 at 06:51:14PM +1000, Dmitri Katchalov wrote:
+> > > >
+> > > > > I'm consistently getting this error:
+> > > > >
+> > > > > atkbd.c: Unknown key (set 2, scancode 0xab, on isa0060/serio0)
+> pressed.
+> > > > > This happens whenever I type 'f' in "<F7>usbdevfs".
+> >
+> > It seems most likely that this keyboard is broken.
+> > Instead of 0xa1 (f release) you get 0xab (\ release).
+> > By some coincidence 0xab is f release in untranslated scancode set 2.
+> > (But you are in translated scancode set 2, otherwise the other letters
+> > would also have produced different codes.)
+> >
+> > Could you try to run "showkey -s" on the console under 2.4.*?
+> > Hit and release the f a few times. Type <F7>usbdevfs.
+> >
+> > Just a broken key is something I have seen lots of times.
+> > Since for most operating systems make codes are important
+> > while break codes (other than those for Shift, Ctrl, Alt)
+> > are not, a key with broken release code is usually harmless.
+> >
+> > This case seems interesting because, if I understand you correctly,
+> > the f in itself is not always broken, but this error occurs after
+> > a particular sequence of keystrokes.
 > 
-> While developing a driver I found something that I think is a bug in
-> kernel (I'm using 2.4.20, I just hope it is already fixed in 2.6.x
-> series). It manifests itself by bread() randomly crashing (in different
-> places) if called for, say, reading 1024 bytes from block 0 of device
-> 0300 from a driver's module_init() (at least in my very stripped debug
-> environment, this could differ from system to system).
-> 
-> Here's a somewhat long description of the problem roots:
-> 
-> bread() in the first place calls getblk(), which first tries to find the
-> requested buffer in hash tables, and if it is not there, it calls
-> grow_buffers(), the later calls grow_dev_page() and finally that calls
-> create_buffers(). The later gets a set of free buffer_head's from the
-> pool, and puts them in a chain attached to a page. Many fields are left
-> in a indefinite state since they are initialized before usage. The
-> b_reqnext field is left in a indefinite state as well, and it happens
-> to be filled with garbage in my case (actually it's a leftover from
-> previous usage of the buffer_head).
-> 
-> Now when bread() gets this buffer, it is passed to ll_rw_block() which
-> is passing it to generic_make_request(), and, in turn (for many block
-> devices including IDE) to __make_request.
-> 
-> And finally, if elevator returns ELEVATOR_NO_MERGE, the b_reqnext field
-> of the buffer_head structure is left uninitialized! So when b_end_io
-> (and in turn end_that_request_first) is called, it looks at b_reqnext
-> and sees there's another bufhead waiting for processing. What happens
-> next is limited just by your imagination :-)
-> 
-> Also I observed the ELEVATOR_BACK_MERGE case also has the same problem
-> (bh->b_reqnext is left in a indefinite state). So maybe __make_request
-> always assumes that b_reqnext is initially NULL? In this case the bug is
-> in create_buffers which should NULLify this field. In any case, I'm
-> leaving the final solution up to kernel wizards.
+> I've just run showkey. This is WEIRD! I've never seen anything
+> like it (almost)! It is definitely a bug in my keyboard.
+> Whenever 'f' occurs in the stream exactly 12 scancodes
+> after <F7> it reports wrong release code. It even has a "queue"
+> so that multiple instances of the bug can be pipelined :)
 
-I dunno if you were the one posting this issue here some months ago?
+Interesting. Can you check if it goes away with a different keyboard?
+How about when you disable ACPI?
 
-Show me a regular kernel path that passes invalid b_reqnext to
-__make_request? That would be a bug, indeed, but I've never heard of
-such a bug. Most likely it's a bug in your driver, not initialising
-b_reqnext. You can see the initialisor for buffer_heads is
-init_buffer_head, which memsets the entire buffer_head. When a
-buffer_head is detached from the request list, b_reqnext is cleared too.
+> Interestingly the bug has no ill effects on 2.4.18 at all. It just works.
+> In 2.6.0-test5 I'm getting a message right across the screen followed
+> by zillions of 'f's.
+> 
+> Andries, thanks for your time and for the hints you gave me. I'll put a
+> workaround in my kernel. I don't think it will be useful to anyone else
+> though:)
+
+Next available 2.6 should have that worked around.
 
 -- 
-Jens Axboe
-
+Vojtech Pavlik
+SuSE Labs, SuSE CR

@@ -1,72 +1,96 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285273AbSACKMf>; Thu, 3 Jan 2002 05:12:35 -0500
+	id <S285269AbSACKOP>; Thu, 3 Jan 2002 05:14:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285269AbSACKM0>; Thu, 3 Jan 2002 05:12:26 -0500
-Received: from samba.sourceforge.net ([198.186.203.85]:3338 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S285273AbSACKMN>;
-	Thu, 3 Jan 2002 05:12:13 -0500
-From: Paul Mackerras <paulus@samba.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15412.11822.811712.207946@argo.ozlabs.ibm.com>
-Date: Thu, 3 Jan 2002 21:10:54 +1100 (EST)
-To: Richard Henderson <rth@redhat.com>
-Cc: Tom Rini <trini@kernel.crashing.org>, jtv <jtv@xs4all.nl>,
-        Momchil Velikov <velco@fadata.bg>, linux-kernel@vger.kernel.org,
-        gcc@gcc.gnu.org, linuxppc-dev@lists.linuxppc.org,
+	id <S285316AbSACKOG>; Thu, 3 Jan 2002 05:14:06 -0500
+Received: from [194.206.157.151] ([194.206.157.151]:42662 "EHLO
+	iis000.microdata.fr") by vger.kernel.org with ESMTP
+	id <S285269AbSACKNr>; Thu, 3 Jan 2002 05:13:47 -0500
+Message-ID: <17B78BDF120BD411B70100500422FC6309E3F8@IIS000>
+From: Bernard Dautrevaux <Dautrevaux@microprocess.com>
+To: "'Tom Rini'" <trini@kernel.crashing.org>, jtv <jtv@xs4all.nl>
+Cc: Richard Henderson <rth@redhat.com>, Momchil Velikov <velco@fadata.bg>,
+        linux-kernel@vger.kernel.org, gcc@gcc.gnu.org,
+        linuxppc-dev@lists.linuxppc.org,
         Franz Sirl <Franz.Sirl-kernel@lauterbach.com>,
+        Paul Mackerras <paulus@samba.org>,
         Benjamin Herrenschmidt <benh@kernel.crashing.org>,
         Corey Minyard <minyard@acm.org>
-Subject: Re: [PATCH] C undefined behavior fix
-In-Reply-To: <20020103003240.A10838@redhat.com>
-In-Reply-To: <87g05py8qq.fsf@fadata.bg>
-	<20020102190910.GG1803@cpe-24-221-152-185.az.sprintbbd.net>
-	<20020102133632.C10362@redhat.com>
-	<20020102220548.GL1803@cpe-24-221-152-185.az.sprintbbd.net>
-	<20020102232320.A19933@xs4all.nl>
-	<20020102231243.GO1803@cpe-24-221-152-185.az.sprintbbd.net>
-	<20020103004514.B19933@xs4all.nl>
-	<20020103000118.GR1803@cpe-24-221-152-185.az.sprintbbd.net>
-	<20020102160739.A10659@redhat.com>
-	<15411.49911.958835.299377@argo.ozlabs.ibm.com>
-	<20020103003240.A10838@redhat.com>
-X-Mailer: VM 6.75 under Emacs 20.7.2
-Reply-To: paulus@samba.org
+Subject: RE: [PATCH] C undefined behavior fix
+Date: Thu, 3 Jan 2002 11:05:06 +0100 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard Henderson writes:
-
-> On Thu, Jan 03, 2002 at 01:33:27PM +1100, Paul Mackerras wrote:
-> > I look forward to seeing your patch to remove all uses of
-> > virt_to_phys, phys_to_virt, __pa, __va, etc. from arch/alpha... :)
+> -----Original Message-----
+> From: Tom Rini [mailto:trini@kernel.crashing.org]
+> Sent: Thursday, January 03, 2002 12:13 AM
+> To: jtv
+> Cc: Richard Henderson; Momchil Velikov; linux-kernel@vger.kernel.org;
+> gcc@gcc.gnu.org; linuxppc-dev@lists.linuxppc.org; Franz Sirl; Paul
+> Mackerras; Benjamin Herrenschmidt; Corey Minyard
+> Subject: Re: [PATCH] C undefined behavior fix
 > 
-> I don't dereference them either, do I?
-
-Does that matter?  To quote your earlier message:
-
-> No.  You still have the problem of using pointer arithmetic past
-> one past the end of the object.
 > 
-> C99 6.5.6/8:
+> On Wed, Jan 02, 2002 at 11:23:21PM +0100, jtv wrote:
+> > On Wed, Jan 02, 2002 at 03:05:48PM -0700, Tom Rini wrote:
+> > > 
+> > > Well, the problem is that we aren't running where the 
+> compiler thinks we
+> > > are yet.  So what would the right fix be for this?
+> > 
+> > Obviously -ffreestanding isn't, because this problem could 
+> crop up pretty
+> > much anywhere.  The involvement of standard library 
+> functions is almost
+> > coincidence and so -ffreestanding would only fix the 
+> current symptom.
 > 
->    If both the pointer operand and the result point to elements of the
->    same array object, or one past the last element of the array object,
->    the evaluation shall not produce an overflow; otherwise, the behavior
->    is undefined.
+> After thinking about this a bit more, why wouldn't this be 
+> the fix?  The
+> problem is that gcc is assuming that this is a 'normal' program (or in
+> this case, part of a program) and that it, and that the standard rules
+> apply, so it optimizes the strcpy into a memcpy.  But in this 
+> small bit
+> of the kernel, it's not.  It's not even using the 'standard library
+> functions', but what the kernel provides.  This problem can 
+> only crop up
+> in the time before we finish moving ourself around.
 
-I don't have a copy of the C standard handy, but that sounds to me
-like the result of (unsigned long)(&x) - KERNELBASE is undefined.
+OH... are you saying that the Linux kernel is not writtent in ANSI C? AFAICR
+the standard *requires* that the standard library functions have their
+standard meaning. So if the Linux kernel expects them to have some special
+meaning it is *non-conforming* and then you need a *special* compiler,
+understanding this.
 
-Also, what does the standard say about casting pointers to integral
-types?  IIRC you aren't entitled to assume that a pointer will fit in
-any integral type, or anything about the bit patterns that you get.
+OTOH if you only says that the Linux kernel is built with versions of
+strcpy/memcpy that have the exact meaning required by the standard but are
+not found in th ecompiler's library, then the program is still OK, but the
+compiler is *allowed* to use the optimisations it wants to, regarding the
+semantics of strcpy/memcpy. And anyway, in this case the "-ffreestanding"
+option is *required* as this is what warn the compiler to use an
+strcpy/memcpy/... implementation that *the program" provides instead of the
+one that the compiler choose to provide (either by inlining or linking
+against the library).
 
-My point is that the kernel makes some assumptions about how pointers
-are represented, which are eminently reasonable assumptions, but which
-"portable" C programs are not entitled to make according to the C
-standard.
+But tho whoel point here is that the RELOC macro has an undefined behaviour;
+even if -ffreestanding solves the *current* problem, it's unsafe to build
+*any* program on undefined behaviour (and particularly such for the kernel
+itself...).
 
-Paul.
+	Bernard
+
+--------------------------------------------
+Bernard Dautrevaux
+Microprocess Ingenierie
+97 bis, rue de Colombes
+92400 COURBEVOIE
+FRANCE
+Tel:	+33 (0) 1 47 68 80 80
+Fax:	+33 (0) 1 47 88 97 85
+e-mail:	dautrevaux@microprocess.com
+		b.dautrevaux@usa.net
+-------------------------------------------- 

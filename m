@@ -1,37 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276285AbRJBShu>; Tue, 2 Oct 2001 14:37:50 -0400
+	id <S276449AbRJBSgU>; Tue, 2 Oct 2001 14:36:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276529AbRJBShn>; Tue, 2 Oct 2001 14:37:43 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:54281 "EHLO
+	id <S276318AbRJBSgL>; Tue, 2 Oct 2001 14:36:11 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:52233 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S276512AbRJBShS>; Tue, 2 Oct 2001 14:37:18 -0400
-Subject: Re: partition table read incorrectly
-To: wichert@cistron.nl (Wichert Akkerman)
-Date: Tue, 2 Oct 2001 19:42:13 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org, linux-lvm@sistina.com
-In-Reply-To: <20011002202934.G14582@wiggy.net> from "Wichert Akkerman" at Oct 02, 2001 08:29:34 PM
+	id <S276406AbRJBSfy>; Tue, 2 Oct 2001 14:35:54 -0400
+Subject: Re: Which is currently the most stable 2.4 kernel?
+To: rankincj@yahoo.com (Chris Rankin)
+Date: Tue, 2 Oct 2001 19:41:24 +0100 (BST)
+Cc: mason@suse.com (Chris Mason), linux-kernel@vger.kernel.org
+In-Reply-To: <20011002182715.25244.qmail@web13104.mail.yahoo.com> from "Chris Rankin" at Oct 02, 2001 11:27:15 AM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15oUUf-0005Xw-00@the-village.bc.nu>
+Message-Id: <E15oUTs-0005Xh-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I seem to run into a weird problem. LVM refused to work properly,
-> after a "vgscan" command "vgchange -a y" would still complain
-> that things weren't consistent and I got a messages about an
-> I/O error on 08:11.
+> instance, I subsequently read a posting from Alan Cox
+> saying that 2.4.10 didn't survive overnight for him,
+> implying that he occasionally roasts penguins in some
+> kind of server-dungeon...
 
-Does it complain about wrong block sizes ?
+I run brutal load test sets on the boxes. Not all -ac kernels survive them
+either .  Thats more useful as "it contains bugs" not "it will break under
+normal load".
 
-> Interestingly my sdb does not have any partitions since it's one
-> big PV, and fdisk agrees with me on that. However the kernel
-> seems to thing I do have a partition there and as a result LVM
-> seems to get somewhat confused.
-
-The partition code will look for tables. That bit is fine
-
-The exact error would be good too
+Alan

@@ -1,50 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129391AbQLPVsV>; Sat, 16 Dec 2000 16:48:21 -0500
+	id <S129477AbQLPWC1>; Sat, 16 Dec 2000 17:02:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129413AbQLPVsK>; Sat, 16 Dec 2000 16:48:10 -0500
-Received: from BAdial25.eurotel.sk ([194.154.226.88]:8708 "EHLO
-	trillian.eunet.sk") by vger.kernel.org with ESMTP
-	id <S129391AbQLPVsA>; Sat, 16 Dec 2000 16:48:00 -0500
-From: Stanislav Meduna <stano@trillian.eunet.sk>
-Message-Id: <200012162116.WAA02749@trillian.eunet.sk>
-Subject: ntfs trivial patch
-To: linux-kernel@vger.kernel.org
-Date: Sat, 16 Dec 2000 22:16:02 +0100 (CET)
-Cc: torvalds@transmeta.com, aia21@cus.cam.ac.uk
-X-Mailer: ELM [version 2.5 PL3]
+	id <S129718AbQLPWCH>; Sat, 16 Dec 2000 17:02:07 -0500
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:52745
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S129477AbQLPWB4>; Sat, 16 Dec 2000 17:01:56 -0500
+Date: Sat, 16 Dec 2000 13:31:20 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: safemode <safemode@voicenet.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: IDE bugs for intel 440LX chipset in Test12?
+In-Reply-To: <3A380613.22D085CC@voicenet.com>
+Message-ID: <Pine.LNX.4.10.10012161329400.17989-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-it is impossible to load a ntfs module in 2.4.0-test{11,12} -
-the symbol ntdebug is not defined. The symbol is only defined
-when building with DEBUG, but it is always declared as module
-parameter. Following trivial patch fixes it.
 
-Sorry if this was already posted - I don't read the whole
-l-k, grep for ntfs|ntdebug in subjects returned nothing
-and http://www.atnf.csiro.au/~rgooch/linux/docs/kernel-newsflash.html
-seems to be a bit behind the actual kernels.
+Anyone with a PIIX4,PIIX4AB,PIIX4EB has a hardware bug.
+If many of the chipset makers followed and reverse engineered their stuff
+against that bug then ths explains all of the timeout issues.
 
-diff -uN fs/ntfs/fs.c.orig fs/ntfs/fs.c
---- fs/ntfs/fs.c.orig   Sat Dec 16 16:12:26 2000
-+++ fs/ntfs/fs.c        Sat Dec 16 22:02:56 2000
-@@ -963,8 +963,10 @@
- EXPORT_NO_SYMBOLS;
- MODULE_AUTHOR("Martin von Löwis");
- MODULE_DESCRIPTION("NTFS driver");
-+#ifdef DEBUG
- MODULE_PARM(ntdebug, "i");
- MODULE_PARM_DESC(ntdebug, "Debug level");
-+#endif
- 
- module_init(init_ntfs_fs)
- module_exit(exit_ntfs_fs)
+I am working on a fix, but do not have one yet.
+
+Cheers,
+
+On Wed, 13 Dec 2000, safemode wrote:
+
+> All I can say right now is that enabling DMA on a 440LX chipset with
+> 2.4.0-test12  or any other kernel I can remember has caused DMA timeout
+> and ide-reset problems.  Disabling dma on the harddrives doesn't help
+> that much either, I still get ide resets.   What I'm looking for right
+> now is some information on how to log what the kernel recieves from the
+> harddrive and possibly what it sends so I can give rik some better
+> information on what's going on in this chipset.  Thanks.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
+> 
+
+Andre Hedrick
+CTO Timpanogas Research Group
+EVP Linux Development, TRG
+Linux ATA Development
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

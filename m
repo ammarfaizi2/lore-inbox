@@ -1,87 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277833AbRJRR0M>; Thu, 18 Oct 2001 13:26:12 -0400
+	id <S277834AbRJRReC>; Thu, 18 Oct 2001 13:34:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277842AbRJRR0C>; Thu, 18 Oct 2001 13:26:02 -0400
-Received: from femail8.sdc1.sfba.home.com ([24.0.95.88]:12768 "EHLO
-	femail8.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S277833AbRJRRZu>; Thu, 18 Oct 2001 13:25:50 -0400
-Date: Thu, 18 Oct 2001 12:26:18 -0500
+	id <S277836AbRJRRdx>; Thu, 18 Oct 2001 13:33:53 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:45832 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S277834AbRJRRdm>; Thu, 18 Oct 2001 13:33:42 -0400
 To: linux-kernel@vger.kernel.org
-Cc: forming@home.com
-Subject: Re: Fwd: VM testing with mtest, 2.4.12-ac3, 2.4.12-ac3+riel's patches, and 2.4.13aa1
-Message-ID: <20011018122618.A17682@cy599856-a.home.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org, forming@home.com
-In-Reply-To: <20011018015112.A3763@cy599856-a.home.com> <20011018090646.B1144@turbolinux.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011018090646.B1144@turbolinux.com>
-User-Agent: Mutt/1.3.23i
-X-Editor: GNU Emacs 20.7.2
-X-Operating-System: Debian GNU/Linux 2.4.13-pre3 i586 K6-3+
-X-Uptime: 12:16:06 up 12:24,  2 users,  load average: 0.00, 0.00, 0.00
-From: Josh McKinney <forming@home.com>
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: libz, libbz2, ramfs and cramfs
+Date: 18 Oct 2001 10:33:36 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9qn3pg$73i$1@cesium.transmeta.com>
+In-Reply-To: <19978.1003206943@kao2.melbourne.sgi.com> <3BCE4BB5.8060603@zytor.com> <15310.33191.397106.8530@cargo.ozlabs.ibm.com> <15310.51180.802846.33348@cargo.ozlabs.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On approximately Thu, Oct 18, 2001 at 09:06:46AM -0600, Andreas Dilger wrote:
-> On Oct 18, 2001  01:51 -0500, Josh McKinney wrote:
-> > This is a report of the mtest01 scripts posted by rwhron@earthlink.net
-> > a day orso ago.
-> > 
-> > The numbers are rather interesting.  While the latency of the ac kernels is
-> > definitely better, the song only dropped out for a second or two in the
-> > begining but that was it.  The aa kernel drops out more frequently throughout
-> > the test, but the amount of memory allocated is almost twice as much as with
-> > the ac kernels.
+Followup to:  <15310.51180.802846.33348@cargo.ozlabs.ibm.com>
+By author:    Paul Mackerras <paulus@samba.org>
+In newsgroup: linux.dev.kernel
 > 
-> -ac kernel:
-> > Averages for 10 mtest01 runs
-> > bytes allocated:                    134427443.2
-> > User time (seconds):                2.546
-> > System time (seconds):              1.370
-> > Elapsed (wall clock) time:          4.798
-> > Percent of CPU this job got:        89.1%
-> > Major (requiring I/O) page faults:  103.8
-> > Minor (reclaiming a frame) faults:  32702
+> ppp_deflate doesn't use next_out = NULL in this case, but it does use
+> next_out = NULL when we are compressing a packet and the compressed
+> packet turns out to be larger than the uncompressed.  With deflate
+> there is a limit on how much larger the compressed packet would be, so
+> it would be possible to give it a small extra buffer on the stack
+> instead of using next_out = NULL.
 > 
-> -ac kernel + Rik's patches:
-> > Averages for 10 mtest01 runs
-> > bytes allocated:                    124885401.6
-> > User time (seconds):                2.380
-> > System time (seconds):              1.253
-> > Elapsed (wall clock) time:          4.401
-> > Percent of CPU this job got:        89.1%
-> > Major (requiring I/O) page faults:  100.2
-> > Minor (reclaiming a frame) faults:  30363.3
-> 
-> Linus kernel:
-> > Averages for 10 mtest01 runs
-> > bytes allocated:                    288148684.8
-> > User time (seconds):                5.496
-> > System time (seconds):              3.003
-> > Elapsed (wall clock) time:          12.250
-> > Percent of CPU this job got:        68.9%
-> > Major (requiring I/O) page faults:  103.5
-> > Minor (reclaiming a frame) faults:  70380.6
-> 
-> Note that the Linus kernel has allocated twice as much memory.  What does that
-> mean exactly?  The user/system/wall time is also twice as high.  Somehow I
-> don't think you are having an equal test.
-> 
-> Cheers, Andreas
 
-I thought that was strange myself, which is why I metioned it in the begining.
-Also when I seen the results I reran the tests, all in single user mode,
-freshreboot, put linux single on the CL, voila, sh mtest01.sh & mpg123 some.mp3,
-and there is my test.  I know the numbers are crazy and I also know the
-importance of having all other variables the same.
+Discarding data is an important operation -- in zisofs that can happen
+on a page lock conflict; I just use a dummy page for that.
 
-Josh
+> If we were going to standardize on a newer zlib in the kernel, I could
+> change ppp_deflate to cope with that without too much pain, I think.
+> The main thing I would want to add is a way to check what state the
+> decompressor is in at the end of each packet - we want
+> strm->state->blocks->mode == LENS at that point, which is not
+> something that can be checked using the existing zlib interface.
+
+The big issue is memory management.  I *think* the memory policy I
+implemented in inflate_fs would work for PPP (you have to provide a
+memory area of sufficient size, about 40K, at the time you open a
+stream.  In the case of PPP this could probably just be vmalloc()'d at
+the time the interface is created.  In the fs case, this is not
+acceptable; rather, the filesystem in question has to maintain a
+preallocation of memory and mutex it properly.)
+
+	-hpa
 -- 
-Linux, the choice                | Animals can be driven crazy by putting too 
-of a GNU generation       -o)    | many in too small a pen. Homo sapiens is
-Kernel 2.4.13-pre3         /\    | the only animal that voluntarily does this 
-on a i586                 _\_v   | to himself.   -- Lazarus Long 
-                                 | 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

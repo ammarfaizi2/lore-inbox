@@ -1,51 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261817AbVCHGjV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261828AbVCHGiy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261817AbVCHGjV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 01:39:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261822AbVCHGjU
+	id S261828AbVCHGiy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 01:38:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261817AbVCHGgD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 01:39:20 -0500
-Received: from adsl-110-19.38-151.net24.it ([151.38.19.110]:39637 "HELO
-	develer.com") by vger.kernel.org with SMTP id S261821AbVCHGiK (ORCPT
+	Tue, 8 Mar 2005 01:36:03 -0500
+Received: from waste.org ([216.27.176.166]:51630 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S261796AbVCHGfT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 01:38:10 -0500
-Message-ID: <422D485F.5060709@develer.com>
-Date: Tue, 08 Mar 2005 07:38:23 +0100
-From: Bernardo Innocenti <bernie@develer.com>
-User-Agent: Mozilla Thunderbird  (X11/20041216)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-CC: lkml <linux-kernel@vger.kernel.org>,
-       Neil Conway <nconway_kernel@yahoo.co.uk>, nfs@lists.sourceforge.net
-Subject: Re: NFS client bug in 2.6.8-2.6.11
-References: <422D2FDE.2090104@develer.com> <1110259831.11712.1.camel@lade.trondhjem.org>
-In-Reply-To: <1110259831.11712.1.camel@lade.trondhjem.org>
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 8 Mar 2005 01:35:19 -0500
+Date: Mon, 7 Mar 2005 22:35:04 -0800
+From: Matt Mackall <mpm@selenic.com>
+To: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, viro@parcelfarce.linux.theplanet.co.uk
+Subject: Re: [PATCH] unified device list allocator
+Message-ID: <20050308063504.GN3120@waste.org>
+References: <20050308051818.GI3120@waste.org> <20050307213302.560de053.akpm@osdl.org> <20050308054325.GA1262@infradead.org> <20050307215035.345c3f63.akpm@osdl.org> <20050308055627.GA1515@infradead.org> <20050308061155.GK3120@waste.org> <20050308063127.GA2475@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050308063127.GA2475@infradead.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust wrote:
-> ty den 08.03.2005 Klokka 05:53 (+0100) skreiv Bernardo Innocenti:
+On Tue, Mar 08, 2005 at 06:31:27AM +0000, Christoph Hellwig wrote:
+> On Mon, Mar 07, 2005 at 10:11:55PM -0800, Matt Mackall wrote:
+> > >  - when called with the major argument as 0 it returns an unused major number
+> > >    from the top of the old 255 entries major list.  This should be replaced
+> > >    by a real dynamic dev_t allocator, similar to alloc_chrdev_region.
+> > 
+> > Umm, this replaces alloc_chrdev_region too. If instead you mean "let's
+> > migrate all the users to a sensible interface", I agree. And that
+> > means killing alloc_chrdev_region too. (baseminor makes no sense for
+> > dynamic allocation - you either know your prefered major and minor or
+> > you know neither.)
 > 
->>Appears to be a client bug.
-> 
-> Why?
+> The thing is this blkdev_register useage should be replace by an API
+> like alloc_chrdev_region.  I don't particularly care about the actual
+> implementation.
 
-Two clients started showing the problem after
-being upgraded from FC2 to FC3, while the server
-remained unchanged.
-
-I also can't reproduce the problem on an older
-client running 2.4.21.
-
-I'll test with 2.6.7 as soon as I can reboot the
-client I'm using right now.
+Ok, I can work on a follow-up that does that.
 
 -- 
-  // Bernardo Innocenti - Develer S.r.l., R&D dept.
-\X/  http://www.develer.com/
-
+Mathematics is the supreme nostalgia of our time.

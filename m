@@ -1,51 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263553AbRFKTFS>; Mon, 11 Jun 2001 15:05:18 -0400
+	id <S263606AbRFKTJi>; Mon, 11 Jun 2001 15:09:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263606AbRFKTFI>; Mon, 11 Jun 2001 15:05:08 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:55058 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S263553AbRFKTE5>; Mon, 11 Jun 2001 15:04:57 -0400
-Date: Mon, 11 Jun 2001 16:04:45 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Maciej Zenczykowski <maze@druid.if.uj.edu.pl>
-Cc: Pavel Machek <pavel@suse.cz>, Bernd Jendrissek <berndj@prism.co.za>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Break 2.4 VM in five easy steps
-In-Reply-To: <Pine.LNX.4.33.0106111401270.6622-100000@druid.if.uj.edu.pl>
-Message-ID: <Pine.LNX.4.33.0106111603390.1742-100000@duckman.distro.conectiva>
+	id <S263607AbRFKTJ2>; Mon, 11 Jun 2001 15:09:28 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:35082 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S263606AbRFKTJZ>; Mon, 11 Jun 2001 15:09:25 -0400
+Date: Mon, 11 Jun 2001 12:09:03 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Ingo Molnar <mingo@elte.hu>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: softirq bugs in pre2
+In-Reply-To: <20010611193703.S5468@athlon.random>
+Message-ID: <Pine.LNX.4.31.0106111207350.4452-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 11 Jun 2001, Maciej Zenczykowski wrote:
-> On Fri, 8 Jun 2001, Pavel Machek wrote:
+
+
+On Mon, 11 Jun 2001, Andrea Arcangeli wrote:
 >
-> > That modulo is likely slower than dereference.
-> >
-> > > +               if (count % 256 == 0) {
->
-> You are forgetting that this case should be converted to and 255
-> or a plain byte reference by any optimizing compiler
+> Since I mentioned the copy-user latency fixes (even if offtopic with the
+> above) this is the URL for trivial merging:
 
-Not relevant.
+The copy-user latency fixes only make sense for out-of-line copies. If
+we're going to have a conditional function call to "schedule()", we do not
+want to inline the dang thing any more - we've just destroyed our register
+set etc anyway.
 
-What matters is that this thing calls schedule() unconditionally
-every 256th time.  Checking current->need_resched will only call
-schedule if it is needed ... not only that, but it will also
-call schedule FASTER if it is needed.
-
-regards,
-
-Rik
---
-Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
-
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
+		Linus
 

@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284837AbRLEXl6>; Wed, 5 Dec 2001 18:41:58 -0500
+	id <S284836AbRLEXmi>; Wed, 5 Dec 2001 18:42:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284838AbRLEXls>; Wed, 5 Dec 2001 18:41:48 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:61959 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S284837AbRLEXlg>; Wed, 5 Dec 2001 18:41:36 -0500
-Subject: Re: Linux/Pro  -- clusters
-To: torvalds@transmeta.com (Linus Torvalds)
-Date: Wed, 5 Dec 2001 23:49:43 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <9um58i$9no$1@penguin.transmeta.com> from "Linus Torvalds" at Dec 05, 2001 09:57:38 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S284841AbRLEXm3>; Wed, 5 Dec 2001 18:42:29 -0500
+Received: from zero.tech9.net ([209.61.188.187]:55044 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S284838AbRLEXmU>;
+	Wed, 5 Dec 2001 18:42:20 -0500
+Subject: Re: ext3-0.9.16 against linux-2.4.17-pre2
+From: Robert Love <rml@tech9.net>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: "ext3-users@redhat.com" <ext3-users@redhat.com>,
+        lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <3C0B12C5.F8F05016@zip.com.au>
+In-Reply-To: <3C0B12C5.F8F05016@zip.com.au>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16BlnL-00080m-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 05 Dec 2001 18:42:19 -0500
+Message-Id: <1007595740.818.2.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> by the better generic block layer code.  I personally hope that a year
-> from now, if somebody wants to do a new SCSI driver, he won't even
-> _think_ about using the SCSI code, the driver will just take the
-> (generic SCSI) requests directly off the block queue. 
+On Mon, 2001-12-03 at 00:51, Andrew Morton wrote:
+> An ext3 update which also applies to linux-2.4.16 is available at
+> 
+> 	http://www.zip.com.au/~akpm/linux/ext3/
+> 
+> Quite a lot of miscellany here.  It would be appreciated if interested
+> parties could please test it in preparation for sending upstream.  Thanks.
 
-You still need the scsi code. There are a whole sequence of common, quite
-complex and generic functions that the scsi layer handles (in paticular
-error handling).
+Running 2.4.17-pre4 + preempt-kernel + ext3-0.9.16.
 
-Turning it the right way I up definitely agree with. It should be the driver
-calling the scsi code to do bio->scsi request, and to do scsi error
-recovery, not vice versa.
+System survived a preliminary stress test, involving I/O and VM
+pressure, with no problems.  Seems solid here.
 
-There are also some tricky relationships
-	queues are per logical unit number
-	locking is mostly per controller
-	resources are often per controller
+Also, subjectively the combination of 2.4.17-pre2+ and this ext3 patch
+yields better performance under load.  Can't comment which provide the
+benefit without testing, but hey, it's the user experience that counts.
 
-Alan
+	Robert Love
 
-	

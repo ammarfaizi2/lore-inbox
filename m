@@ -1,71 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284584AbRLUOtS>; Fri, 21 Dec 2001 09:49:18 -0500
+	id <S284613AbRLUPR5>; Fri, 21 Dec 2001 10:17:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284596AbRLUOtI>; Fri, 21 Dec 2001 09:49:08 -0500
-Received: from mout01.kundenserver.de ([195.20.224.132]:62521 "EHLO
-	mout01.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S284573AbRLUOsz>; Fri, 21 Dec 2001 09:48:55 -0500
-User-Agent: Microsoft-Outlook-Express-Macintosh-Edition/5.02.2106
-Date: Fri, 21 Dec 2001 15:48:29 +0100
-Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB in
-	Configure.help.
-From: Rene Engelhard <mail@rene-engelhard.de>
-To: <linux-kernel@vger.kernel.org>
-Message-ID: <B8490A4D.4093%mail@rene-engelhard.de>
-In-Reply-To: <1008945627.6599.5.camel@localhost.localdomain>
-Mime-version: 1.0
-Content-type: text/plain; charset="US-ASCII"
-Content-transfer-encoding: 7bit
+	id <S284619AbRLUPRs>; Fri, 21 Dec 2001 10:17:48 -0500
+Received: from k7g317-2.kam.afb.lu.se ([130.235.57.218]:50703 "EHLO
+	cheetah.psv.nu") by vger.kernel.org with ESMTP id <S284613AbRLUPRi>;
+	Fri, 21 Dec 2001 10:17:38 -0500
+Date: Fri, 21 Dec 2001 16:17:30 +0100 (CET)
+From: Peter Svensson <petersv@psv.nu>
+To: Davidovac Zoran <zdavid@unicef.org.yu>
+cc: Iain McClatchie <iain@TrueCircuits.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Promise Ultra ATA 133 TX2 support for the 2.2 kernel series
+In-Reply-To: <Pine.LNX.4.33.0112211440530.10437-100000@unicef.org.yu>
+Message-ID: <Pine.LNX.4.33.0112211616360.1086-100000@cheetah.psv.nu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Reid Hekman wrote:
+On Fri, 21 Dec 2001, Davidovac Zoran wrote:
 
-> On Fri, 2001-12-21 at 06:50, Rene Engelhard wrote:
->>>> Why? For instance a millibyte/s might be a hearbeat across a LAN every
->>>> hour or so or it might be a control traffic requirement for a deep space
->>>> probe. You might not have an immediate use for the term but it has a
->>>> specific meaning - and certainly isn't "absurd" (see definition on
->>>> http://www.dict.org).
->>> 
->>> So, is it 1/1024 or 1/1000 bytes ?  :-)
->> 
->> 1/1024. Because we are talking about byte.
+> If your Promise ATA100 card is PDC20265/PDC20267 then it should work
 > 
-> What does bytes have to do with anything? Is it
-> 1/(2^3 * 10^7) or 1/(2^3 * 2^7)? We're talking about expressing a number
-> of "bytes"; terms of the base number system don't have any bearing --
-> and that's the problem. RAM and addressing are restricted to expressions
+> in patch ide.2.2.19.05042001.patch you can read
 
-Right.
+Are you sure about the lba48 command support? I can see no mention of it 
+in the patch.
 
-8 Bit = 1 Byte
-1024 Byte = 1 KB
-1024 KB = 1 MB
-1024 MB ...
+Peter
 
-So we are talking about that, beacuse the X-Byte is defined as 1024 and not
-as 1000 of the previous step.
+[snip]
 
-> in terms of binary numbers, as in 2^10, 2^20, etc. Hard drive
-> manufacturers feel it's neccessary to express storage in terms of base
-> 10 numbers of bytes, even though a sector is 2^9 bytes. In networking,
-> absolute numbers of bits on the wire are whats important. Though for
-> some reason telecom engineers have pinned megabit as 1,024,000 bits.
-> Experienced CS people can glean the proper definition from context, but
-> the terms should really lend themselves to accurate definition all the
-> time. If I just say off the cuff that I'm going to send you a megabyte
-> of data, do I mean 1,000,000 bytes, 1,048,576 bytes, or 1,024,000 bytes?
+> > Does this patch support lba48 commands? For which ide adapters? (I read an
+> > announcement from Intel that with a patch and a new driver their i8xx
+> > chipsets could use lba48.
+> >
+> > Specifically, I am interested in the Promise ATA100 cards since I own one.
+> >
+> > Peter
+> > --
+> > Peter Svensson      ! Pgp key available by finger, fingerprint:
+> > <petersv@psv.nu>    ! 8A E9 20 98 C1 FF 43 E3  07 FD B9 0A 80 72 70 AF
+> > ------------------------------------------------------------------------
+> > Remember, Luke, your source will be with you... always...
+> >
+> >
+> 
 
-What _you_ mean can not be determied from me.
-But *I* would mean 1.048.574, otherwise I would say the 9xxx number or say
-nearly 1 MB.
+Peter
+--
+Peter Svensson      ! Pgp key available by finger, fingerprint:
+<petersv@psv.nu>    ! 8A E9 20 98 C1 FF 43 E3  07 FD B9 0A 80 72 70 AF
+------------------------------------------------------------------------
+Remember, Luke, your source will be with you... always...
 
-> With the new measures those would be a megabyte, a mebibyte, and 1,024
-> kilobytes respectively.
-
-That's the sense of them.
- 
-Rene
 

@@ -1,80 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265970AbRF1OWr>; Thu, 28 Jun 2001 10:22:47 -0400
+	id <S265974AbRF1O0q>; Thu, 28 Jun 2001 10:26:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265969AbRF1OWi>; Thu, 28 Jun 2001 10:22:38 -0400
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:3776 "EHLO e21.nc.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S265959AbRF1OWU>;
-	Thu, 28 Jun 2001 10:22:20 -0400
-Subject: Announcing Journaled File System (JFS)  release 1.0.0 available
-To: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
-Message-ID: <OF2156091A.838536E6-ON85256A79.004E872E@raleigh.ibm.com>
-From: "Steve Best" <sbest@us.ibm.com>
-Date: Thu, 28 Jun 2001 09:22:13 -0500
-X-MIMETrack: Serialize by Router on D04NM201/04/M/IBM(Release 5.0.6 |December 14, 2000) at
- 06/28/2001 10:22:14 AM
+	id <S265972AbRF1O0i>; Thu, 28 Jun 2001 10:26:38 -0400
+Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:17669
+	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
+	with ESMTP id <S265967AbRF1O01>; Thu, 28 Jun 2001 10:26:27 -0400
+Date: Thu, 28 Jun 2001 10:25:17 -0400
+From: Chris Mason <mason@suse.com>
+To: Andrew Morton <andrewm@uow.edu.au>
+cc: Rik van Riel <riel@conectiva.com.br>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Xuan Baldauf <xuan--lkml@baldauf.org>, linux-kernel@vger.kernel.org,
+        andrea@suse.de,
+        "reiserfs-list@namesys.com" <reiserfs-list@namesys.com>
+Subject: Re: VM deadlock
+Message-ID: <1075290000.993738317@tiny>
+In-Reply-To: <3B3B3A65.844C3880@uow.edu.au>
+X-Mailer: Mulberry/2.0.8 (Linux/x86)
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-June 28, 2001:
 
-IBM is pleased to announce the v 1.0.0 release of the open source
-Journaled File System (JFS), a high-performance, and scalable file
-system for Linux.
+On Friday, June 29, 2001 12:08:37 AM +1000 Andrew Morton
+<andrewm@uow.edu.au> wrote:
 
-http://oss.software.ibm.com/jfs
+> The reason ->write_inode() can be a no-op is that __sync_one()
+> marks the inode clean, then calls ->write_inode().  We *know*
+> that we took a copy of the inode in mark_inode_dirty(), so
+> we don't need to do anything.
 
-JFS is widely recognized as an industry-leading high-performance file
-system, providing rapid recovery from a system power outage or crash
-and the ability to support extremely large disk configurations. The
-open source JFS is based on proven journaled file system technology
-that is available in a variety of operating systems such as AIX and
-OS/2.
+Yes, the only exception is that write_inode needs to honor the sync flag,
+at least when not called under PF_MEMALLOC.  The biggest reason I can find
+so far is knfsd, who calls write_inode_now and expects the inode to be
+securely on disk.  It doesn't call mark_inode_dirty directly, it calls some
+FS func (link, create, whatever) and then uses write_inode_now to commit.
 
-JFS was open sourced under the GNU General Public License with release
-v 0.0.1 on February 2. 2000 and has matured with help and support of the
-open source community and its "Enterprise ready" release today is due
-to joint work between the JFS team and the community. Following the
-development style of "Release Early, Release Often" the JFS open source
-project has seen 37 interim releases as part of the process.
+> 
+> Of course this absolutely requires all inode dirtiers to
+> call mark_inode_dirty() after doing the dirty, which is a risk.
+> But we face that risk with the PF_MEMALLOC case anyway.  No
+> problems have appeared in testing.
 
-The open source JFS for Linux v 1.0.0 is released for the Linux 2.4.x
-kernel and offers the following advanced features:
+I haven't seen any problems caused by it yet, but that might be because
+reiserfs does all the important inode writes on its own.  I believe
+generic_commit_write is the only place outside the FS that calls
+mark_inode_dirty with something other than an atime update.
 
-* Fast recovery after a system crash or power outage
-
-* Journaling for file system integrity
-
-* Journaling of meta-data only
-
-* Extent-based allocation
-
-* Excellent overall performance
-
-* 64 bit file system
-
-* Built to scale. In memory and on-disk data structures are designed to
-  scale beyond practical limit
-
-* Designed to operate on SMP hardware and also a great file system for
-  your workstation
-
-* Completely free of prerequisite kernel changes (easy integration path
-  into the kernel source tree)
-
-* Detailed Howto for creating a system with JFS as the /boot and /root
-  file system using lilo
-
-* Complete set of file system utilities
-
-* On-disk compatibility with OS/2 JFS file systems
-
-The JFS Team (Barry Arndt, Steve Best, Dave Kleikamp)
-
-
-
-
+-chris
 

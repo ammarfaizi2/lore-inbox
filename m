@@ -1,57 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267337AbTBPTR4>; Sun, 16 Feb 2003 14:17:56 -0500
+	id <S267339AbTBPTWe>; Sun, 16 Feb 2003 14:22:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267339AbTBPTR4>; Sun, 16 Feb 2003 14:17:56 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:35088 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S267337AbTBPTR4>; Sun, 16 Feb 2003 14:17:56 -0500
-Date: Sun, 16 Feb 2003 11:24:38 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-cc: Anton Blanchard <anton@samba.org>, Andrew Morton <akpm@digeo.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Zwane Mwaikambo <zwane@holomorphy.com>,
-       Manfred Spraul <manfred@colorfullife.com>
-Subject: Re: more signal locking bugs?
-In-Reply-To: <27100000.1045423143@[10.10.2.4]>
-Message-ID: <Pine.LNX.4.44.0302161119020.2952-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267348AbTBPTWe>; Sun, 16 Feb 2003 14:22:34 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:7439 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id <S267339AbTBPTWd>;
+	Sun, 16 Feb 2003 14:22:33 -0500
+Date: Sun, 16 Feb 2003 20:32:29 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>, linux-kernel@vger.kernel.org,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: [PATCH] aic7xxx/aicasm makefile - fix make clean
+Message-ID: <20030216193229.GA22723@mars.ravnborg.org>
+Mail-Followup-To: "Justin T. Gibbs" <gibbs@scsiguy.com>,
+	linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The latest change to aic7xxx/aicasm/makefile broke make clean.
+The following patch re-enable "make-clean" and keep the clean: target.
 
-On Sun, 16 Feb 2003, Martin J. Bligh wrote:
->
-> task_lock nests *inside* tasklist_lock but ... :
+	Sam
 
-Yeah, this is a problem with any signal, not just SAK.
-
-In fact, in general it is always _wrong_ to nest a non-interrupt-safe 
-lock inside an interrupt-safe spinlock, because then you can never take 
-the non-interrupt-safe one on its own (because an interrupt may come in 
-and take the interrupt-safe lock, at which point that CPU has now 
-violated ordering). 
-
-And if you always nest the interrupt-unsafee one inside the interrupt- 
-safe one, you might as well not have the interrupt-unsafe one in the first 
-place, since the outer lock _always_ protects the code in question anyway.
-
-Which implies that either
- - the task lock should be _outside_ the tasklist_lock
-or
- - the task lock should be made interrupt-safe.
-
-If we make the tasklock one interrupt-safe, that should fix the signal
-issue, and we can use the tasklock to protect "task->signal" and 
-"task->sighand". 
-
-In short, everything really seems to be pointing that way: the current
-task lock simply _is_ broken, and has apparently always been broken (but
-the ABBA deadlock is just extremely rare in practice, since you have to
-get an interrupt at just the right point on one CPU, while you have the AB
-case on another).
-
-		Linus
-
+===== drivers/scsi/aic7xxx/aicasm/Makefile 1.8 vs edited =====
+--- 1.8/drivers/scsi/aic7xxx/aicasm/Makefile	Tue Dec 10 20:02:52 2002
++++ edited/drivers/scsi/aic7xxx/aicasm/Makefile	Sun Feb 16 20:29:45 2003
+@@ -45,8 +45,9 @@
+ 		echo "*** Install db development libraries";	\
+ 	 fi
+ 
++clean-files := $(CLEANFILES) $(PROG)
+ clean:
+-	rm -f $(CLEANFILES) $(PROG)
++	rm -f $(clean-files)
+ 
+ aicasm_gram.c aicasm_gram.h: aicasm_gram.y
+ 	$(YACC) $(YFLAGS) -b $(<:.y=) $<

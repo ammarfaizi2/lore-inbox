@@ -1,79 +1,129 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315424AbSFYAhE>; Mon, 24 Jun 2002 20:37:04 -0400
+	id <S315427AbSFYAhf>; Mon, 24 Jun 2002 20:37:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315427AbSFYAhE>; Mon, 24 Jun 2002 20:37:04 -0400
-Received: from node-c-3d3f.a2000.nl ([62.194.61.63]:43531 "HELO
-	vger.kernel.org") by vger.kernel.org with SMTP id <S315424AbSFYAhD>;
-	Mon, 24 Jun 2002 20:37:03 -0400
-From: "joseph edward" <jossy01@spinfinder.com>
-Date: Tue, 25 Jun 2002 02:37:10
-To: linux-kernel@vger.kernel.org
-Subject: urgent response is needed
+	id <S315429AbSFYAhe>; Mon, 24 Jun 2002 20:37:34 -0400
+Received: from tomts19-srv.bellnexxia.net ([209.226.175.73]:25308 "EHLO
+	tomts19-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S315427AbSFYAhc>; Mon, 24 Jun 2002 20:37:32 -0400
+Message-ID: <3D17BB4B.F5E2571F@sympatico.ca>
+Date: Mon, 24 Jun 2002 20:37:31 -0400
+From: Christian Robert <xtian-test@sympatico.ca>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18 i686)
+X-Accept-Language: en, fr-CA
 MIME-Version: 1.0
-Content-Type: text/plain;charset="iso-8859-1"
+To: linux-kernel@vger.kernel.org
+Subject: Re: gettimeofday problem
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <20020625003703Z315424-22020+10192@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-STRICTLY CONFIDENTIAL & URGENT.
+For your eyes,
 
-I am Mr, Joseph Edward a native of Cape Town in
-South Africa and I am an Executive Accountant with
-the South Africa  DEPARTMENT OF MINERAL RESOURCES AND ENERGY 
+while reading this thread I wrote a sample program to test if the clock
+sometimes goes backward/forward.
 
-First and foremost, I apologized using this medium to
-reach you for a transaction/business of this
-magnitude, but this is due to
-Confidentiality and prompt access reposed on this
-medium. 
+I started my program while continuing reading threads on the linux-kernel
+archive. After about 90 minutes of continuous running I went back to the window
+running the program and surprise I saw this:
 
-I have decided to seek a confidential
-co-operation with you in the execution of the deal
-described Hereunder for the benefit of all parties
-and hope you will keep it as a top secret because of the nature of this transaction.
-
-Within the Department of Mining & Natural Resources
-where I work as an Executive Accountant and with the
-cooperation of four other top officials, we have in
-our possession as overdue payment bills totaling
-Twenty - One Million, Five Hundred Thousand U. S.
-Dollars ($21,500,000.) which we want to transfer
-abroad with the assistance and cooperation of a
-foreign company/individual to receive the said fund
-on
-our behalf or a reliable foreign non-company account
-to receive such funds. More so, we are handicapped in
-the circumstances, as the South Africa Civil Service
-Code of Conduct does not allow us to operate offshore
-account hence your importance in the whole
-transaction.
-This amount $21.5m represents the balance of the
-total contract value executed on behalf of my Department by a foreign contracting firm, which we the officials over-invoiced deliberately. Though the actual
-contract cost have been paid to the original contractor,leaving the balance in the Tune of the said amount which we have in principles gotten approval to remit by Key tested Telegraphic Transfer (K.T.T) to any
-foreign bank account you will provide by filing in an
-application through the Justice Ministry here in
-South Africa for the transfer of rights and privileges of the former contractor to you.
-
-I have the authority of my partners involved to
-propose that should you be willing to assist us in
-the transaction, your share of the sum will be 25% of the $21.5 million, 70% for us and 5% for taxation and
-miscellaneous expenses. The business itself is 100%
-safe, on your part provided you treat it with utmost
-secrecy and confidentiality. Also your area of
-specialization is not a hindrance to the successful
-execution of this transaction. I have reposed my
-confidence in you and hope that you will not
-disappoint me. Endeavor to contact me immediately my
-e-mail address  whether or not you are
-interested in this deal. If you are not, it will enable me scout for another foreign partner to carry out this deal I want to assure you that my partners and myself are in a position to make the payment of this claim possible provided you can give us a very strong Assurance and guarantee that our share will be secured and please remember to treat this matter as very confidential matter, because we will not comprehend with any form of exposure as we are still in active Government Service and remember once again that time is of the essence in this business.
-I wait in anticipation of your fullest co-operation.
-
-Yours faithfully,
+$ ./tloop 
+Bump negative -4294967295
+^C
+Summary:
+-------
+ Min = 0
+ Max = 257845
+ Avg = 1 (6009092476/5521919279)
 
 
-JOSEPH EDWARD
+So it looks like the time changed somewhere of a value +/- 4,295 seconds.
 
+kernel 2.4.18
 
-NOTE:YOUR RESPONSE TO THIS MAIL SHOULD BE SENT TO  jossy02@spinfinder.com
+$ cat /proc/cpuinfo
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 6
+model           : 8
+model name      : Pentium III (Coppermine)
+stepping        : 1
+cpu MHz         : 602.566
+cache size      : 256 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov pat pse36 mmx fxsr sse
+bogomips        : 1202.58
+
+--------------------- program tloop.c -------------------------
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+
+#include <sys/time.h>
+#include <signal.h>
+
+typedef long long LL;
+
+LL GetTime (void)
+{
+  struct timeval tv;
+  LL     retval;
+
+  gettimeofday (&tv, NULL);
+  retval = (tv.tv_sec * 1000000) + (tv.tv_usec);
+  return retval;
+}
+
+volatile int Break = 0;
+
+void Trap (int sig)
+{
+  Break = 1;
+}
+
+int main (void)
+{
+  LL Now, Old;
+  LL Dt,  Min=9999999, Max=0, Num=0, Tot=0;
+
+  Old = Now = GetTime ();
+
+  signal (SIGINT,  Trap);
+  signal (SIGQUIT, Trap);
+
+  for ( ; Break==0 ; )
+  {
+    Now = GetTime();
+
+    if (Now < Old)
+    {
+      printf ("Bump negative %lld\n", (Now-Old));
+    }
+    else
+    {
+      Dt  = Now-Old;
+
+      Min = (Dt < Min) ? Dt : Min;
+      Max = (Dt > Max) ? Dt : Max;
+
+      Tot += Dt;
+      Num += 1;
+    }
+
+    Old = Now;
+  }
+
+  printf ("Summary:\n-------\n Min = %lld\n Max = %lld\n "
+          "Avg = %lld (%lld/%lld)\n", Min, Max, Tot/Num, Tot, Num);
+
+  return 0;
+}

@@ -1,74 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262493AbUKDXji@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262495AbUKDXkA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262493AbUKDXji (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 18:39:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262497AbUKDXje
+	id S262495AbUKDXkA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 18:40:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262497AbUKDXkA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 18:39:34 -0500
-Received: from brown.brainfood.com ([146.82.138.61]:28296 "EHLO
-	gradall.private.brainfood.com") by vger.kernel.org with ESMTP
-	id S262493AbUKDXjc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 18:39:32 -0500
-Date: Thu, 4 Nov 2004 17:39:08 -0600 (CST)
-From: Adam Heath <doogie@debian.org>
-X-X-Sender: adam@gradall.private.brainfood.com
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Chris Wedgwood <cw@f00f.org>, Christoph Hellwig <hch@infradead.org>,
-       Timothy Miller <miller@techsource.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: support of older compilers
-In-Reply-To: <Pine.LNX.4.58.0411041353360.2187@ppc970.osdl.org>
-Message-ID: <Pine.LNX.4.58.0411041734100.1229@gradall.private.brainfood.com>
-References: <41894779.10706@techsource.com> <20041103211353.GA24084@infradead.org>
- <Pine.LNX.4.58.0411031706350.1229@gradall.private.brainfood.com>
- <20041103233029.GA16982@taniwha.stupidest.org>
- <Pine.LNX.4.58.0411041050040.1229@gradall.private.brainfood.com>
- <Pine.LNX.4.58.0411041133210.2187@ppc970.osdl.org>
- <Pine.LNX.4.58.0411041546160.1229@gradall.private.brainfood.com>
- <Pine.LNX.4.58.0411041353360.2187@ppc970.osdl.org>
+	Thu, 4 Nov 2004 18:40:00 -0500
+Received: from mail.dif.dk ([193.138.115.101]:21683 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S262495AbUKDXju (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 18:39:50 -0500
+Date: Fri, 5 Nov 2004 00:48:34 +0100 (CET)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Ingo Molnar <mingo@redhat.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH][Trivial] Tidy up APIC mode output, remove double spaces.
+Message-ID: <Pine.LNX.4.61.0411050037320.3402@dragon.hygekrogen.localhost>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Nov 2004, Linus Torvalds wrote:
 
->
->
-> On Thu, 4 Nov 2004, Adam Heath wrote:
-> > >
-> > > First off, for some people that is literally where _most_ of the CPU
-> > > cycles go.
-> >
-> > So find a fast machine.  As I have already said, you don't need to compile a
-> > kernel for a slow machine/arch *on* a slow machine/arch.
->
-> I _have_ a fast machine. Others don't. And quite frankly, even I tend to
-> prioritize things like "nice and quiet" over absolute speed.
->
-> > I don't doubt these are issues.  That's not what I am discussing.
->
-> Sure it is. You're complaining that developers use old versions of gcc.
-> They do so for a reason. Old versions of gcc are sometimes better. They
-> are better in many ways.
+Hi Ingo,
 
-Using an old version of gcc because it is faster at compiling is a
-non-argument.  If people don't bother using newer compilers, complaining
-about their inefficiencies, then the issues will never be resolved.
+Being listed as "INTEL APIC/IOAPIC, LOWLEVEL X86 SMP SUPPORT" maintainer 
+wins you this patch.
 
-I have no problem with older gccs if they produce more correct code.
+Small, trivial, patch that removes a few double spaces when printing the 
+APIC mode used. No functional changes, I simply found that output like 
+this looked a bit goofy :
+Enabling APIC mode:  Flat.  Using 3 I/O APICs
+and that removing the double spaces and adding a period at the end would 
+make it look nicer, so I made a patch to accomplish that.
 
-> Your "use new versions of gcc even if it is slower" argument doesn't make
-> any _sense_. If the new versions aren't any better, why would you want to
-> use them?
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
 
-That's not my argument.  Never has been.  I am against people who say not to
-use newer gccs only on the grounds that they are slower.
+diff -urp linux-2.6.10-rc1-bk14-orig/include/asm-i386/mach-bigsmp/mach_apic.h linux-2.6.10-rc1-bk14/include/asm-i386/mach-bigsmp/mach_apic.h
+--- linux-2.6.10-rc1-bk14-orig/include/asm-i386/mach-bigsmp/mach_apic.h	2004-10-18 23:55:24.000000000 +0200
++++ linux-2.6.10-rc1-bk14/include/asm-i386/mach-bigsmp/mach_apic.h	2004-11-05 00:32:39.000000000 +0100
+@@ -78,7 +78,7 @@ static inline void init_apic_ldr(void)
+ 
+ static inline void clustered_apic_check(void)
+ {
+-	printk("Enabling APIC mode:  %s.  Using %d I/O APICs\n",
++	printk("Enabling APIC mode: %s. Using %d I/O APICs.\n",
+ 		"Cluster", nr_ioapics);
+ }
+ 
+diff -urp linux-2.6.10-rc1-bk14-orig/include/asm-i386/mach-default/mach_apic.h linux-2.6.10-rc1-bk14/include/asm-i386/mach-default/mach_apic.h
+--- linux-2.6.10-rc1-bk14-orig/include/asm-i386/mach-default/mach_apic.h	2004-10-18 23:55:35.000000000 +0200
++++ linux-2.6.10-rc1-bk14/include/asm-i386/mach-default/mach_apic.h	2004-11-05 00:32:59.000000000 +0100
+@@ -58,8 +58,8 @@ static inline physid_mask_t ioapic_phys_
+ 
+ static inline void clustered_apic_check(void)
+ {
+-	printk("Enabling APIC mode:  %s.  Using %d I/O APICs\n",
+-					"Flat", nr_ioapics);
++	printk("Enabling APIC mode: %s. Using %d I/O APICs.\n",
++		"Flat", nr_ioapics);
+ }
+ 
+ static inline int multi_timer_check(int apic, int irq)
+diff -urp linux-2.6.10-rc1-bk14-orig/include/asm-i386/mach-es7000/mach_apic.h linux-2.6.10-rc1-bk14/include/asm-i386/mach-es7000/mach_apic.h
+--- linux-2.6.10-rc1-bk14-orig/include/asm-i386/mach-es7000/mach_apic.h	2004-10-18 23:55:36.000000000 +0200
++++ linux-2.6.10-rc1-bk14/include/asm-i386/mach-es7000/mach_apic.h	2004-11-05 00:33:58.000000000 +0100
+@@ -86,7 +86,7 @@ extern int apic_version [MAX_APICS];
+ static inline void clustered_apic_check(void)
+ {
+ 	int apic = bios_cpu_apicid[smp_processor_id()];
+-	printk("Enabling APIC mode:  %s.  Using %d I/O APICs, target cpus %lx\n",
++	printk("Enabling APIC mode: %s. Using %d I/O APICs, target cpus %lx.\n",
+ 		(apic_version[apic] == 0x14) ? 
+ 		"Physical Cluster" : "Logical Cluster", nr_ioapics, cpus_addr(TARGET_CPUS)[0]);
+ }
+diff -urp linux-2.6.10-rc1-bk14-orig/include/asm-i386/mach-numaq/mach_apic.h linux-2.6.10-rc1-bk14/include/asm-i386/mach-numaq/mach_apic.h
+--- linux-2.6.10-rc1-bk14-orig/include/asm-i386/mach-numaq/mach_apic.h	2004-10-18 23:53:51.000000000 +0200
++++ linux-2.6.10-rc1-bk14/include/asm-i386/mach-numaq/mach_apic.h	2004-11-05 00:34:24.000000000 +0100
+@@ -37,7 +37,7 @@ static inline void init_apic_ldr(void)
+ 
+ static inline void clustered_apic_check(void)
+ {
+-	printk("Enabling APIC mode:  %s.  Using %d I/O APICs\n",
++	printk("Enabling APIC mode: %s. Using %d I/O APICs.\n",
+ 		"NUMA-Q", nr_ioapics);
+ }
+ 
+diff -urp linux-2.6.10-rc1-bk14-orig/include/asm-i386/mach-summit/mach_apic.h linux-2.6.10-rc1-bk14/include/asm-i386/mach-summit/mach_apic.h
+--- linux-2.6.10-rc1-bk14-orig/include/asm-i386/mach-summit/mach_apic.h	2004-10-18 23:54:37.000000000 +0200
++++ linux-2.6.10-rc1-bk14/include/asm-i386/mach-summit/mach_apic.h	2004-11-05 00:35:43.000000000 +0100
+@@ -82,8 +82,8 @@ static inline int apic_id_registered(voi
+ 
+ static inline void clustered_apic_check(void)
+ {
+-	printk("Enabling APIC mode:  Summit.  Using %d I/O APICs\n",
+-						nr_ioapics);
++	printk("Enabling APIC mode: Summit. Using %d I/O APICs.\n",
++		nr_ioapics);
+ }
+ 
+ static inline int apicid_to_node(int logical_apicid)
 
-If they produce bad code, then that's a valid reason.
-If they produce larger code, that is a valid reason.
 
-But slowness doesn't mean wrong, just by being slow.
-
-ps: it seldom makes sense to use a single metric as a measure of the quality
-    of some specific item in some specific situation.

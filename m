@@ -1,82 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261448AbVAIO3W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261449AbVAIPBl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261448AbVAIO3W (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jan 2005 09:29:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261449AbVAIO3W
+	id S261449AbVAIPBl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jan 2005 10:01:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261477AbVAIPBl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jan 2005 09:29:22 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:36762 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261448AbVAIO3S
+	Sun, 9 Jan 2005 10:01:41 -0500
+Received: from ns9.hostinglmi.net ([213.194.149.146]:16298 "EHLO
+	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S261449AbVAIPBj
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jan 2005 09:29:18 -0500
-Date: Sun, 9 Jan 2005 09:35:51 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Nikita Danilov <nikita@clusterfs.com>, pmarques@grupopie.com,
-       linux-mm@kvack.org, linux-kernel@vger.kernel.org, hch@infradead.org
-Subject: Re: [RFC] per thread page reservation patch
-Message-ID: <20050109113551.GB9144@logos.cnet>
-References: <1105019521.7074.79.camel@tribesman.namesys.com> <20050107144644.GA9606@infradead.org> <1105118217.3616.171.camel@tribesman.namesys.com> <41DEDF87.8080809@grupopie.com> <m1llb5q7qs.fsf@clusterfs.com> <20050107132459.033adc9f.akpm@osdl.org> <m1d5wgrir7.fsf@clusterfs.com> <20050107150315.3c1714a4.akpm@osdl.org> <m18y74rfqs.fsf@clusterfs.com> <20050107154305.790b8a51.akpm@osdl.org>
+	Sun, 9 Jan 2005 10:01:39 -0500
+Date: Sun, 9 Jan 2005 16:02:08 +0100
+From: DervishD <lkml@dervishd.net>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Michal Feix <michal@feix.cz>, linux-kernel@vger.kernel.org
+Subject: Re: Conflicts in kernel 2.6 headers and {glibc,Xorg}
+Message-ID: <20050109150208.GA543@DervishD>
+Mail-Followup-To: Arjan van de Ven <arjan@infradead.org>,
+	Michal Feix <michal@feix.cz>, linux-kernel@vger.kernel.org
+References: <41E0F76D.7080805@feix.cz> <20050109110805.GA8688@irc.pl> <41E1170D.6090405@feix.cz> <20050109115554.GA9183@irc.pl> <20050109122557.GA221@DervishD> <1105273893.4173.12.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20050107154305.790b8a51.akpm@osdl.org>
-User-Agent: Mutt/1.5.5.1i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1105273893.4173.12.camel@laptopd505.fenrus.org>
+User-Agent: Mutt/1.4.2.1i
+Organization: DervishD
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - dervishd.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 07, 2005 at 03:43:05PM -0800, Andrew Morton wrote:
-> Nikita Danilov <nikita@clusterfs.com> wrote:
-> >
-> > >
-> > > Why does the filesystem risk going oom during the rebalance anyway?  Is it
-> > > doing atomic allocations?
-> > 
-> > No, just __alloc_pages(GFP_KERNEL, 0, ...) returns NULL. When this
-> > happens, the only thing balancing can do is to panic.
-> 
-> __alloc_pages(GFP_KERNEL, ...) doesn't return NULL.  It'll either succeed
-> or never return ;) That behaviour may change at any time of course, but it
-> does make me wonder why we're bothering with this at all.  Maybe it's
-> because of the possibility of a GFP_IO failure under your feet or
-> something?
-> 
-> What happens if reiser4 simply doesn't use this code?
-> 
-> 
-> If we introduce this mechanism, people will end up using it all over the
-> place.  Probably we could remove radix_tree_preload(), which is the only
-> similar code I can I can immediately think of.
-> 
-> Page reservation is not a bad thing per-se, but it does need serious
-> thought.
+    Hi Arjan :)
 
-Whenever scheme comes up I dont think the current check in __alloc_pages() is 
-any good:
+ * Arjan van de Ven <arjan@infradead.org> dixit:
+> >     But the set of sanitized kernel headers, if you build your own
+> > software and you're not using a distro, is only available for 2.6.x
+> > kernels, not for 2.4.x kernels. 
+> The headers RH ships work for both...
 
-        if (order == 0) {
-                page = perthread_pages_alloc();
-                if (page != NULL)
-                        return page;
-        }
+    Did not know...
 
-Two things:
+> > What should be done for 2.4 kernels?
+> > I currently use a set of headers from the 2.4 kernel I used to build
+> > my libc, not the headers from the current kernel I'm running, but I
+> > would like to know anyway.
+> .... and you can use 2.6 headers to build a glibc that works excellent
+> for 2.4 kernels too. The kernel API/ABI *does not change on this level*
+> between kernel versions. Things may get added, but they do not change.
 
-- all instances of an allocator from the current thread will eat from the perthread
-  reserves, you probably want only a few special allocations to eat from the reserves?
-  Thing is its not really a reservation intended for emergency situations,
-  rather a "generic per-thread pool" the way things are now.
+    That's perfect then :))) No problem about the headers then. When
+I recompile my glibc I'll pick the latest libc-kernel-headers
+available. Thanks a lot for the information, Arjan :))
 
-- its a real fast path, we're adding quite some instructions there which are only
-  used by reiserfs now.
+    Raúl Núñez de Arenas Coronado
 
-I think in a "final" implementation emergency allocations should be explicitly stated 
-as such by the callers ?
-
-> How does reiser4 end up deciding how many pages to reserve?  Gross
-> overkill?
-> --
-> To unsubscribe, send a message with 'unsubscribe linux-mm' in
-> the body to majordomo@kvack.org.  For more info on Linux MM,
-> see: http://www.linux-mm.org/ .
-> Don't email: <a href=mailto:"aart@kvack.org"> aart@kvack.org </a>
+-- 
+Linux Registered User 88736
+http://www.dervishd.net & http://www.pleyades.net/
+It's my PC and I'll cry if I want to...

@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129773AbRAIOHr>; Tue, 9 Jan 2001 09:07:47 -0500
+	id <S130875AbRAIOMQ>; Tue, 9 Jan 2001 09:12:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130308AbRAIOHe>; Tue, 9 Jan 2001 09:07:34 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:24781 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S130460AbRAIOHL>;
-	Tue, 9 Jan 2001 09:07:11 -0500
-Date: Tue, 9 Jan 2001 14:05:04 +0000
+	id <S130769AbRAIOMG>; Tue, 9 Jan 2001 09:12:06 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:28622 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S130875AbRAIOLv>;
+	Tue, 9 Jan 2001 09:11:51 -0500
+Date: Tue, 9 Jan 2001 14:09:32 +0000
 From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Venkatesh Ramamurthy <Venkateshr@ami.com>
-Cc: "'Pavel Machek'" <pavel@suse.cz>, adefacc@tin.it,
-        linux-kernel@vger.kernel.org, Stephen Tweedie <sct@redhat.com>
-Subject: Re: Confirmation request about new 2.4.x. kernel limits
-Message-ID: <20010109140504.D4284@redhat.com>
-In-Reply-To: <1355693A51C0D211B55A00105ACCFE64E95137@ATL_MS1>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        "Sergey E. Volkov" <sve@raiden.bancorp.ru>,
+        linux-kernel@vger.kernel.org, Christoph Rohland <cr@sap.com>,
+        Stephen Tweedie <sct@redhat.com>
+Subject: Re: VM subsystem bug in 2.4.0 ?
+Message-ID: <20010109140932.E4284@redhat.com>
+In-Reply-To: <Pine.LNX.4.10.10101081003410.3750-100000@penguin.transmeta.com> <Pine.LNX.4.21.0101081621590.21675-100000@duckman.distro.conectiva>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <1355693A51C0D211B55A00105ACCFE64E95137@ATL_MS1>; from Venkateshr@ami.com on Mon, Jan 08, 2001 at 11:11:05PM -0500
+In-Reply-To: <Pine.LNX.4.21.0101081621590.21675-100000@duckman.distro.conectiva>; from riel@conectiva.com.br on Mon, Jan 08, 2001 at 04:30:10PM -0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-On Mon, Jan 08, 2001 at 11:11:05PM -0500, Venkatesh Ramamurthy wrote:
+On Mon, Jan 08, 2001 at 04:30:10PM -0200, Rik van Riel wrote:
+> On Mon, 8 Jan 2001, Linus Torvalds wrote:
+> > 
+> > The only solution I see is something like a "active_immobile"
+> > list, and add entries to that list whenever "writepage()"
+> > returns 1 - instead of just moving them to the active list.
 > 
-> 	> Max. RAM size:			64 GB	(any slowness
-> accessing RAM over 4 GB
-> *	with 32 bit machines ?)
-> 	Imore than 4GB in RAM is bounce buffered, so there is performance
-> penalty as the data have to be copied into the 4GB RAM area
+> Just marking them with a special "do not deactivate me"
+> bit seems to work fine enough. When this special bit is
+> set, we simply move the page to the back of the active
+> list instead of deactivating.
 
-Any memory over 1GB is bounce-buffered, but we don't use that memory
-for anything other than process data pages or file cache, so only
-swapping and disk IO to regular files gets the extra copy.  In
-particular, things like network buffers are still all kept in the low
-1GB so never need to be buffered.
+But again, how do you clear the bit?  Locking is a per-vma property,
+not per-page.  I can mmap a file twice and mlock just one of the
+mappings.  If you get a munlock(), how are you to know how many other
+locked mappings still exist?
 
 --Stephen
 -

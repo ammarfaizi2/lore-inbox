@@ -1,52 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292308AbSBPBYW>; Fri, 15 Feb 2002 20:24:22 -0500
+	id <S292309AbSBPBoD>; Fri, 15 Feb 2002 20:44:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292310AbSBPBYL>; Fri, 15 Feb 2002 20:24:11 -0500
-Received: from air-2.osdl.org ([65.201.151.6]:17170 "EHLO osdlab.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S292308AbSBPBYC>;
-	Fri, 15 Feb 2002 20:24:02 -0500
-Date: Fri, 15 Feb 2002 17:18:54 -0800 (PST)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: Alexander Viro <viro@math.psu.edu>
-cc: <linux-fsdevel@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] new VFS documentation
-In-Reply-To: <Pine.GSO.4.21.0202142246020.23441-100000@weyl.math.psu.edu>
-Message-ID: <Pine.LNX.4.33L2.0202151712220.11494-100000@dragon.pdx.osdl.net>
+	id <S292312AbSBPBnx>; Fri, 15 Feb 2002 20:43:53 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:36365
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S292309AbSBPBnh>; Fri, 15 Feb 2002 20:43:37 -0500
+Date: Fri, 15 Feb 2002 17:32:32 -0800 (PST)
+From: Andre Hedrick <andre@linuxdiskcert.org>
+To: Andries.Brouwer@cwi.nl
+cc: john@mwk.co.nz, linux-kernel@vger.kernel.org, hugo@firstlinux.net
+Subject: Re: Need to force IDE geometry
+In-Reply-To: <UTC200202152126.VAA28287.aeb@cwi.nl>
+Message-ID: <Pine.LNX.4.10.10202151729460.10501-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 14 Feb 2002, Alexander Viro wrote:
+On Fri, 15 Feb 2002 Andries.Brouwer@cwi.nl wrote:
 
-| 	First of all, since 2.5.5-pre1 there is an up-to-date guide for
-| porting filesystems from 2.4 to 2.5.<latest>.  Location:
-|
-| 	Documentation/filesystems/porting
-|
-| It WILL be kept up-to-date.  IOW, submit an API change that may require
-| filesystem changes without a corresponding patch to that file and I will
-| hunt you down and hurt you.  Badly.
-|
-| New locking scheme is described in Documentation/filesystems/directory-locking.
-| In details and with proof of correctness.
-|
-| Documentation/filesystems/Locking is slowly getting up-to-date.  Descriptions
-| of several superblock methods are still missing and I would really appreciate
-| it if folks who had introduced them would document them.
+> > I have a problem with the way the kernel handles geometry.
+> 
+> Your question is based on your assumptions about geometry
+> and LBA. But your assumptions are incorrect, and therefore
+> your questions do not make sense. Please tell what you do
+> and what error messages you get.
+> 
+> Andries
+> 
+> 
+> > Else it will be in CHS mode. (ungood)
+> 
+> False.
 
-Way to go, Al!
+It is simple, the raid cards force LBA in the BIOS but Linux choose to
+NUKE it and thus the offsets for finding the reserved sectors is all
+wrong.  Again we (you) have forced drives to run in CHS by default and it
+is wrong.  We can debate but if the drive supports LBA we must force LBA
+in the kernel.
 
-Anyone:
-Are there any linux-filesystem-like web pages, sorta like what
-Rik has for MM/VM?
+Now I am out of this argument.
 
-Here's a beginning, if someone would like to use it or add to it:
+Cheers,
 
-  http://www.osdl.org/archive/rddunlap/linux-fs.html
 
--- 
-~Randy
+Andre Hedrick
+Linux Disk Certification Project                Linux ATA Development
 

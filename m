@@ -1,63 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287858AbSBMRCL>; Wed, 13 Feb 2002 12:02:11 -0500
+	id <S287841AbSBMRFt>; Wed, 13 Feb 2002 12:05:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287862AbSBMRCA>; Wed, 13 Feb 2002 12:02:00 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:47628 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S287764AbSBMRBu>;
-	Wed, 13 Feb 2002 12:01:50 -0500
-Message-ID: <3C6A9BFA.739020F9@mandrakesoft.com>
-Date: Wed, 13 Feb 2002 12:01:46 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-pre8 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S287764AbSBMRFj>; Wed, 13 Feb 2002 12:05:39 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:48396 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S287862AbSBMRF2>; Wed, 13 Feb 2002 12:05:28 -0500
+Date: Wed, 13 Feb 2002 10:50:34 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
 To: "David S. Miller" <davem@redhat.com>
-CC: torvalds@transmeta.com, dalecki@evision-ventures.com,
-        linux-kernel@vger.kernel.org
+cc: <jgarzik@mandrakesoft.com>, <dalecki@evision-ventures.com>,
+        <linux-kernel@vger.kernel.org>
 Subject: Re: PATCH 2.5.4 i810_audio, bttv, working at all.
-In-Reply-To: <3C6A5D79.33C31910@mandrakesoft.com>
-		<Pine.LNX.4.33.0202131028130.13632-100000@home.transmeta.com> <20020213.084952.68037450.davem@redhat.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20020213.084952.68037450.davem@redhat.com>
+Message-ID: <Pine.LNX.4.33.0202131043230.13632-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-In the specific case mentioned in $subject, i810_audio has already been
-fixed by Pete Zaitcev "the right way", and IIRC Gerd or somebody posted
-a better patch for bttv, too.  So $subject is actually taken care of...
-
-
-"David S. Miller" wrote:
-> And if nobody else ends up doing it, you are right it will be people
-> like Jeff and myself doing it.
-
-and have been doing it in the past :)
-
-
-> So what we are asking is to allow a few weeks for that and not crap up
-> the tree meanwhile.  This is so that the cases that need to be
-> converted are harder to find.
-
-Yes, please..
-
-
+On Wed, 13 Feb 2002, David S. Miller wrote:
+>
 > Actually, you're only half right in one regard.  Most people I've
 > pointed to Documentation/DMA-mapping.txt have responded "Oh, never saw
 > that before, that looks easy to do.  Thanks I'll fix it up properly
 > for you."
 
-I still get plenty of the "but virt_to_phys works fine for me" crowd too
-:)
+Fair enough. Educating driver writers is always good, and the good ones
+will try to do their best even when it doesn't matter for them. I just
+wanted to make sure that we don't make driver writers have to chew off too
+big a piece.
 
-	Jeff
+(One example of this: look at how the big changes in the ll_rw_block
+infrastructure were done - the whole locking thing was basically set up to
+avoid having to change legacy drivers in anything but trivial ways, while
+still sanely getting rid of io_request_lock. Similarly, while the BIO
+stuff was a big change on a mid level layer, there was considerable effort
+to make it easy to port drivers that didn't try to be clever to it).
 
+Some drivers are written by people who are really passionate about kernel
+internals, and that's good.
 
+But many of them are barely working, written by people who don't care
+about the rest of the kernel (or even about the driver itself, they just
+wanted to have a working machine and forget about it), and if we make
+those kinds of drivers do extra work, it's just not going to work.
 
--- 
-Jeff Garzik      | "I went through my candy like hot oatmeal
-Building 1024    |  through an internally-buttered weasel."
-MandrakeSoft     |             - goats.com
+		Linus
+

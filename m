@@ -1,75 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274277AbRIYA1O>; Mon, 24 Sep 2001 20:27:14 -0400
+	id <S274272AbRIYA0o>; Mon, 24 Sep 2001 20:26:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274283AbRIYA1K>; Mon, 24 Sep 2001 20:27:10 -0400
-Received: from zima.ucf.ics.uci.edu ([128.195.23.150]:38622 "HELO
-	zima.ucf.ics.uci.edu") by vger.kernel.org with SMTP
-	id <S274277AbRIYA04>; Mon, 24 Sep 2001 20:26:56 -0400
-Date: Mon, 24 Sep 2001 17:27:21 -0700 (PDT)
-From: Edmund Lau <edlau@ucf.ics.uci.edu>
-To: linux-kernel@vger.kernel.org
-Subject: VmRSS bug on 2.4.10?
-Message-ID: <Pine.GSO.4.40.0109241715210.19607-100000@keg.ucf.ics.uci.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S274277AbRIYA0k>; Mon, 24 Sep 2001 20:26:40 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:19850 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S274272AbRIYAZq>;
+	Mon, 24 Sep 2001 20:25:46 -0400
+Date: Mon, 24 Sep 2001 17:26:08 -0700 (PDT)
+Message-Id: <20010924.172608.105430357.davem@redhat.com>
+To: kash@stanford.edu
+Cc: linux-kernel@vger.kernel.org, mc@cs.Stanford.EDU
+Subject: Re: [CHECKER] two probable security holes
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.GSO.4.31.0109181355560.15933-100000@saga18.Stanford.EDU>
+In-Reply-To: <Pine.GSO.4.31.0109181355560.15933-100000@saga18.Stanford.EDU>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+   From: Ken Ashcraft <kash@stanford.edu>
+   Date: Tue, 18 Sep 2001 14:29:57 -0700 (PDT)
 
-I was doing a "ps aux" on my K6-3 machine running 2.4.10.  I haven't seen
-this posted on the newsflash page yet so I'll post it here.  I noticed
-that my X server was reporting something funny:
+   Watch ifr.ifr_name.
+   
+Hi Ken, I believe there is some bug in your new checker algorithms for
+this case.
 
-root       328  0.0  0.0  1004    4 tty4     S    Sep23   0:00 /sbin/getty
-38400 tty4
-root       330  0.2 99.9 24376 4294967072 ?  S    Sep23   3:56
-/usr/local/pkg/X11R6-4.1.0/bin/X -auth /usr/local/pkg/X11R6-4.1.0/lib/X11/xdm/authdir/authfiles/A:0-fTtaTO
-nobody   25244  0.0  2.4  5884 3064 ?        S    06:51   0:14
-/usr/local/pkg/apache-1.3.20/bin/httpd
+                   struct ifreq ifr;
+                   int err;
+   Start--->
+                   if (copy_from_user(&ifr, (void *)arg, sizeof(ifr)))
+                           return -EFAULT;
+                   ifr.ifr_name[IFNAMSIZ-1] = '\0';
 
-What in the world? 99.9% MEM?  At first I thought it was because I haven't
-updated my ps tools and such, but they've been working just fine w/ all
-the other 2.4.x kernels I've been running.
+ifreq copied safely to kernel space, ifr.ifr_name[] is inside the
+struct and NOT a user pointer.
 
-Next thing: cat /proc/330/status shows:
+                   err = tun_set_iff(file, &ifr);
 
-VmSize:    24376 kB
-VmLck:         0 kB
-VmRSS:  4294967072 kB
-VmData:     5192 kB
-VmStk:        68 kB
-VmExe:      1328 kB
-VmLib:      1092 kB
+Pass address of kernel ifreq.
 
-Wow!  Wish I had that much memory!  I thought I only put in a single
-128meg PC-100 DIMM...  I don't think it's impacting normal functions, but
-I'm not on the console to check if X (X11R6-4.1.0) is still working.
+                   if (*ifr->ifr_name)
+                           name = ifr->ifr_name;
+   
+                   if ((err = dev_alloc_name(&tun->dev, name)) < 0)
+                           goto failed;
 
-/proc/meminfo currently reports:
-        total:    used:    free:  shared: buffers:  cached:
-Mem:  129900544 117645312 12255232        0  2711552 39165952
-Swap: 205557760  1236992 204320768
-MemTotal:       126856 kB
-MemFree:         11968 kB
-MemShared:           0 kB
-Buffers:          2648 kB
-Cached:          37476 kB
-SwapCached:        772 kB
-Active:          20240 kB
-Inactive:        20656 kB
-HighTotal:           0 kB
-HighFree:            0 kB
-LowTotal:       126856 kB
-LowFree:         11968 kB
-SwapTotal:      200740 kB
-SwapFree:       199532 kB
+Perfectly fine still, name always points to kernel memory.
+   
+   int dev_alloc_name(struct net_device *dev, const char *name)
+   {
+ ...
 
-Anything I can do to help you guys figure it out?  It's a production
-machine so I probably can't help with full blown debugging, but I'll
-produce reports as long as someone tells me what to type in :) I'll leave
-the X server alone for a week or so.  Please CC me as I'm not on the list.
+           for (i = 0; i < 100; i++) {
+   Error--->
+   	       sprintf(buf,name,i);
 
--Ed
+Still fine, as stated "name" is pointing to kernel memory.
 
+Perhaps your code is being confused by "ifreq->if_name" being
+an array.
+
+Franks a lot,
+David S. Miller
+davem@redhat.com

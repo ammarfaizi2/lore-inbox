@@ -1,45 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315260AbSHIR6N>; Fri, 9 Aug 2002 13:58:13 -0400
+	id <S315437AbSHIR5z>; Fri, 9 Aug 2002 13:57:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315279AbSHIR6M>; Fri, 9 Aug 2002 13:58:12 -0400
-Received: from B52d0.pppool.de ([213.7.82.208]:37014 "EHLO
-	nicole.de.interearth.com") by vger.kernel.org with ESMTP
-	id <S315260AbSHIR6L>; Fri, 9 Aug 2002 13:58:11 -0400
-Subject: mmapping large files hits swap in 2.4?
-From: Daniel Egger <degger@fhm.edu>
-To: linux-kernel@vger.kernel.org
+	id <S315481AbSHIR5y>; Fri, 9 Aug 2002 13:57:54 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:6851 "EHLO e31.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S315437AbSHIR5y>;
+	Fri, 9 Aug 2002 13:57:54 -0400
+Subject: Re: [PATCH] tsc-disable_B9
+From: john stultz <johnstul@us.ibm.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       lkml <linux-kernel@vger.kernel.org>, Leah Cunningham <leahc@us.ibm.com>,
+       wilhelm.nuesser@sap.com, paramjit@us.ibm.com, msw@redhat.com
+In-Reply-To: <1028884665.28882.173.camel@irongate.swansea.linux.org.uk>
+References: <1028771615.22918.188.camel@cog> 
+	<1028812663.28883.32.camel@irongate.swansea.linux.org.uk> 
+	<1028860246.1117.34.camel@cog> 
+	<1028884665.28882.173.camel@irongate.swansea.linux.org.uk>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.7 
-Date: 09 Aug 2002 19:26:14 +0200
-Message-Id: <1028913975.3832.14.camel@sonja.de.interearth.com>
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 09 Aug 2002 10:46:53 -0700
+Message-Id: <1028915214.1117.46.camel@cog>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hija,
+On Fri, 2002-08-09 at 02:17, Alan Cox wrote:
+> On Fri, 2002-08-09 at 03:30, john stultz wrote:
+> > Not sure I followed that, do you mean per-cpu TSC management for
+> > gettimeofday? 
+> 
+> We have some x86 setups where people plug say a 300MHhz and a 450MHz
+> celeron into the same board. This works because they are same FSB,
+> different multiplier (works and intel certify being two different
+> things)
 
-I'm currently looking into optimizing GIMPs own swapping algorithm
-by replacing naive file operations by mmap-based ones. Unfortunately
-my test machine (PPC, 256MB) gets hit really hard by mmapping files over
-100MB into memory: The swap utilization grows up to the file size
-and the machine is completely unresponsive for several seconds up to
-a few minutes. Seemingly the writes to the mmaped area first hit the
-swap and then are read from there again to fit the designated file.
+Oh yes, with the old NUMAQ hardware here, one can mix nodes of different
+speed cpus. Once I get a chance, I'm going to begin working on this
+issue for 2.5. My plan right now is to keep per-cpu last_tsc_low and 
+fast_gettimeoffset_quotient values, then round robin the timer
+interrupt. 
 
-I'm doing something along the lines of:
-area = mmap (0, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+ 
+> Needless to say tsc does not work well on such boxes. Thats why I don't
+> trust the tsc at all in such cases. Since you'll have the nice cyclone
+> timer for the Summit it seems best not to trust it, and on the summit to
+> use the cyclone for udelay as well ?
+> 
+> I agree dodgy_tsc needs to change name. Perhaps we actually want
+> 
+> 	int tsc = select_tsc();
+> 
+> 	switch(tsc)
+> 	{
+> 		case TSC_CYCLONE:
+> 		case TSC_PROCESSOR:
+> 		case TSC_NONE:
+> 		..
+> 	}
 
-I also tried MAP_PRIVATE and MAP_LOCKED both with a private and a
-shared mapping, but to no avail.
+Sounds good. I'll re-work my patch and resubmit. 
 
-This is kernel version 2.4.19-rc3 (in the benh-variant).
-
-Is there anything I can do to improve the situation or is it just 
-the kernel or the architecture?
-
--- 
-Servus,
-       Daniel
+thanks!
+-john
 

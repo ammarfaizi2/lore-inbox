@@ -1,57 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129775AbRAIMWW>; Tue, 9 Jan 2001 07:22:22 -0500
+	id <S130105AbRAIM31>; Tue, 9 Jan 2001 07:29:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130105AbRAIMWM>; Tue, 9 Jan 2001 07:22:12 -0500
-Received: from mail.zmailer.org ([194.252.70.162]:34064 "EHLO zmailer.org")
-	by vger.kernel.org with ESMTP id <S129775AbRAIMWK>;
-	Tue, 9 Jan 2001 07:22:10 -0500
-Date: Tue, 9 Jan 2001 14:21:56 +0200
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Venkatesh Ramamurthy <Venkateshr@ami.com>
-Cc: "'Pavel Machek'" <pavel@suse.cz>, adefacc@tin.it,
-        linux-kernel@vger.kernel.org
-Subject: Re: Confirmation request about new 2.4.x. kernel limits
-Message-ID: <20010109142156.L25659@mea-ext.zmailer.org>
-In-Reply-To: <1355693A51C0D211B55A00105ACCFE64E95137@ATL_MS1>
-Mime-Version: 1.0
+	id <S130138AbRAIM3R>; Tue, 9 Jan 2001 07:29:17 -0500
+Received: from magla.iskon.hr ([213.191.128.32]:33797 "EHLO magla.iskon.hr")
+	by vger.kernel.org with ESMTP id <S130105AbRAIM3H>;
+	Tue, 9 Jan 2001 07:29:07 -0500
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+        Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
+Subject: Re: Subtle MM bug
+In-Reply-To: <Pine.LNX.4.10.10101082322030.1222-100000@penguin.transmeta.com>
+Reply-To: zlatko@iskon.hr
+X-Face: s71Vs\G4I3mB$X2=P4h[aszUL\%"`1!YRYl[JGlC57kU-`kxADX}T/Bq)Q9.$fGh7lFNb.s
+ i&L3xVb:q_Pr}>Eo(@kU,c:3:64cR]m@27>1tGl1):#(bs*Ip0c}N{:JGcgOXd9H'Nwm:}jLr\FZtZ
+ pri/C@\,4lW<|jrq^<):Nk%Hp@G&F"r+n1@BoH
+From: Zlatko Calusic <zlatko@iskon.hr>
+Date: 09 Jan 2001 13:29:00 +0100
+In-Reply-To: Linus Torvalds's message of "Mon, 8 Jan 2001 23:27:15 -0800 (PST)"
+Message-ID: <dnbstgewoj.fsf@magla.iskon.hr>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.2 (Notus)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1355693A51C0D211B55A00105ACCFE64E95137@ATL_MS1>; from Venkateshr@ami.com on Mon, Jan 08, 2001 at 11:11:05PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 08, 2001 at 11:11:05PM -0500, Venkatesh Ramamurthy wrote:
+Linus Torvalds <torvalds@transmeta.com> writes:
+
+> On 8 Jan 2001, Eric W. Biederman wrote:
 > 
-> > Max. RAM size:	64 GB	(any slowness accessing RAM over 4 GB
-> >				 with 32 bit machines ?)
-> 	more than 4GB in RAM is bounce buffered, so there is performance
-> 	penalty as the data have to be copied into the 4GB RAM area
+> > Zlatko Calusic <zlatko@iskon.hr> writes:> 
+> > > 
+> > > Yes, but a lot more data on the swap also means degraded performance,
+> > > because the disk head has to seek around in the much bigger area. Are
+> > > you sure this is all OK?
+> > 
+> > I don't think we have more data on the swap, just more data has an
+> > allocated home on the swap.
+> 
+> I think Zlatko's point is that because of the extra allocations, we will
+> have worse locality (more seeks etc).
 
-  Actual memory limit is lower, your run-of-the-mill Pentium-PAE36 capable
-  system has PCI bus(es) for IO, and address space for that/those need to
-  stay in area below 4G for bootup to access any devices, thus very likely 
-  your system doesn't have more than, say, 3 GB of RAM below 4G.
+Yes that was my concern.
 
-  Pick your processors.  You need XEONs to have L1/L2 cacheing on memory
-  above the 4 GB address (PAE36 mapped physical addresses.)
+But in the end I'm not sure. I made two simple tests and haven't found
+any problems with 2.4.0 mm logic (opposed to 2.2.17). In fact, the new
+kernel was faster in the more interesting (make -j32) test.
 
-  For IO on usual systems you have 32 bit address space PCI busmasters,
-  so those can access only the lowest 4GB of address space, and to have
-  a block of data in upper area, it needs to be "bounced", that is, CPU
-  must copy it.  Linux 2.4.0 system doesn't support 64-bit PCI addresses
-  at 32-bit systems (not at 64-bit Alpha either, I recall.)
-  On the other hand, Alpha systems and SPARC systems have IOMMU hardware,
-  and we do support that (to some extent), but 32-bit intel world doesn't
-  have similar things.
+Also I have found that new kernel allocates 4 times more swap space
+under some circumstances. That may or may not be alarming, it remains
+to be seen.
 
-  For userspace, if parts of userspace are physically mapped above 4G,
-  it might not be very harmfull at all -- presuming you have XEONs which
-  cache the memory accesses there also.  The libc and similar multiply
-  shared objects might as well reside in high memory.   Userspace process
-  doesn't see, after all, where each page resides physically.
-
-/Matti Aarnio
+-- 
+Zlatko
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

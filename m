@@ -1,50 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264085AbUISVLI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264098AbUISVMK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264085AbUISVLI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Sep 2004 17:11:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264098AbUISVLI
+	id S264098AbUISVMK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Sep 2004 17:12:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264113AbUISVMK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Sep 2004 17:11:08 -0400
-Received: from smtp002.mail.ukl.yahoo.com ([217.12.11.33]:9338 "HELO
-	smtp002.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S264085AbUISVLD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Sep 2004 17:11:03 -0400
-From: Karsten Wiese <annabellesgarden@yahoo.de>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc2-mm1-S1
-Date: Sun, 19 Sep 2004 23:11:37 +0200
-User-Agent: KMail/1.6.2
-Cc: linux-kernel@vger.kernel.org
-References: <200409192232.20139.annabellesgarden@yahoo.de> <20040919204841.GA7004@elte.hu>
-In-Reply-To: <20040919204841.GA7004@elte.hu>
-MIME-Version: 1.0
+	Sun, 19 Sep 2004 17:12:10 -0400
+Received: from hauptpostamt.charite.de ([193.175.66.220]:50377 "EHLO
+	hauptpostamt.charite.de") by vger.kernel.org with ESMTP
+	id S264098AbUISVLW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Sep 2004 17:11:22 -0400
+Date: Sun, 19 Sep 2004 23:11:21 +0200
+From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
+To: linux-kernel@vger.kernel.org
+Subject: vesafb with special resolution?
+Message-ID: <20040919211121.GF17777@charite.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200409192311.37639.annabellesgarden@yahoo.de>
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Sonntag 19 September 2004 22:48 schrieb Ingo Molnar:
->
-> The point is to let gettimeofday(0,1) start tracing and
-> gettimeofday(0,0) stop tracing - a system-call-controlled tracing
-> facility (if trace_enabled=2). This was used to trace weird latencies
-> before, but it's not the normal mode of operation.
->
-Ok. The other point is a page_fault being generated later on in 
-sys_gettimeofday() if tz is not reset:
->>>>
-	if (unlikely(tz != NULL)) {
-                     ^^
-		if (copy_to_user(tz, &sys_tz, sizeof(sys_tz)))
-			return -EFAULT;
-	}
-<<<<
+I have a 16:10 screen on my laptop (1280x768). vesafb runs OK with a
+1024x768 resolution, but is 1280x768 also possible?
 
-What do you think about including the swapspace-layout-improvements in the 
-voluntary-preempt patches?
+$ dmesg|grep vesa
+Kernel command line: BOOT_IMAGE=LinuxOLD ro root=303 noapic video=vesafb:ywrap,mtrr
+vesafb: framebuffer at 0xf8000000, mapped to 0xe0880000, size 6144k
+vesafb: mode is 1024x768x32, linelength=4096, pages=1
+vesafb: protected mode interface info at c000:e9b0
+vesafb: pmi: set display start = c00ce9e6, set palette = c00cea50
+vesafb: pmi: ports = 3b4 3b5 3ba 3c0 3c1 3c4 3c5 3c6 3c7 3c8 3c9 3cc 3ce 3cf 3d0 3d1 3d2 3d3 3d4 3d5 3da 
+vesafb: scrolling: ywrap using protected mode interface, yres_virtual=1536
+vesafb: Truecolor: size=8:8:8:8, shift=24:16:8:0
 
-best regards,
-Karsten
+-- 
+Ralf Hildebrandt (i.A. des IT-Zentrum)          Ralf.Hildebrandt@charite.de
+Charite - Universitätsmedizin Berlin            Tel.  +49 (0)30-450 570-155
+Gemeinsame Einrichtung von FU- und HU-Berlin    Fax.  +49 (0)30-450 570-916
+IT-Zentrum Standort CBF                                   AIM.  ralfpostfix

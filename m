@@ -1,75 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263359AbTJKSqx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Oct 2003 14:46:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263361AbTJKSqx
+	id S263355AbTJKSqi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Oct 2003 14:46:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263359AbTJKSqh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Oct 2003 14:46:53 -0400
-Received: from h80ad24a2.async.vt.edu ([128.173.36.162]:21137 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S263359AbTJKSqu (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Oct 2003 14:46:50 -0400
-Message-Id: <200310111846.h9BIke6s030007@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: asdfd esadd <retu834@yahoo.com>
-Cc: Kenn Humborg <kenn@linux.ie>, linux-kernel@vger.kernel.org
-Subject: Re: 2.7 thoughts: common well-architected object model 
-In-Reply-To: Your message of "Sat, 11 Oct 2003 11:34:05 PDT."
-             <20031011183405.38980.qmail@web13007.mail.yahoo.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <20031011183405.38980.qmail@web13007.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-351464294P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Sat, 11 Oct 2003 14:46:37 -0400
+Received: from mtaw4.prodigy.net ([64.164.98.52]:7397 "EHLO mtaw4.prodigy.net")
+	by vger.kernel.org with ESMTP id S263355AbTJKSqh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Oct 2003 14:46:37 -0400
+Message-ID: <3F8851A7.3000105@pacbell.net>
+Date: Sat, 11 Oct 2003 11:53:27 -0700
+From: David Brownell <david-b@pacbell.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en, fr
+MIME-Version: 1.0
+To: Peter Matthias <espi@epost.de>, linux-kernel@vger.kernel.org
+CC: linux-usb-devel@lists.sourceforge.net
+Subject: Re: ACM USB modem on Kernel 2.6.0-test
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Sat, 11 Oct 2003 14:46:39 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-351464294P
-Content-Type: text/plain; charset=us-ascii
+> usb 3-3: configuration #1 chosen from 2 choices
+> drivers/usb/class/cdc-acm.c: need inactive config #2
+> drivers/usb/class/cdc-acm.c: need inactive config #2
 
-On Sat, 11 Oct 2003 11:34:05 PDT, asdfd esadd said:
+Until we get more intelligence somewhere, do this:
 
-> pid_t fork(void); vs. 
-> 
-> the next step in the evolution CreateProcess
-> 
-> BOOL CreateProcess(
->   LPCTSTR lpApplicationName,
->   LPTSTR lpCommandLine,
->   LPSECURITY_ATTRIBUTES lpProcessAttributes,
->   LPSECURITY_ATTRIBUTES lpThreadAttributes,
->   BOOL bInheritHandles,
->   DWORD dwCreationFlags,
->   LPVOID lpEnvironment,
->   LPCTSTR lpCurrentDirectory,
->   LPSTARTUPINFO lpStartupInfo,
->   LPPROCESS_INFORMATION lpProcessInformation
-> 
-> evolved to .Net Process Class
-> 
-> System.Object
->    System.MarshalByRefObject
->       System.ComponentModel.Component
->          System.Diagnostics.Process
-> [C#]
-> public class Process : Component
-> [C++]
-> public __gc class Process : public Component
+    # cd /sys/bus/usb/devices/3-3
+    # echo '2' > bConfigurationValue
+    #
 
-Thanks for the example of why it's a bad idea.
+That makes the device use vendor-neutral protocols
+to talk to the host, not MSFT-proprietary ones.  (It's
+important to use the numbers from those messages; they
+will change if you use different USB ports.)
 
---==_Exmh_-351464294P
-Content-Type: application/pgp-signature
+Hmm ... maybe usbcore would be better off with a less
+naive algorithm for choosing defaults.  Like, preferring
+configurations without proprietary device protocols.
+That'd solve every cdc-acm case, and likely others.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+- Dave
 
-iD8DBQE/iFAPcC3lWbTT17ARAmssAKDvDanPOjSZ0NwBQsQsYlIuWt4UZwCgyV+P
-nxIJoQEKg59cWf2ByvPtyiU=
-=EEmR
------END PGP SIGNATURE-----
 
---==_Exmh_-351464294P--

@@ -1,62 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262475AbUKWKmf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262273AbUKWKoI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262475AbUKWKmf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 05:42:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262448AbUKWKmf
+	id S262273AbUKWKoI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 05:44:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262464AbUKWKoH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 05:42:35 -0500
-Received: from mail.shareable.org ([81.29.64.88]:59015 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S262442AbUKWKma
+	Tue, 23 Nov 2004 05:44:07 -0500
+Received: from out004pub.verizon.net ([206.46.170.142]:28601 "EHLO
+	out004.verizon.net") by vger.kernel.org with ESMTP id S262273AbUKWKn4
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 05:42:30 -0500
-Date: Tue, 23 Nov 2004 10:42:15 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: Jesper Juhl <juhl-lkml@dif.dk>
-Cc: Matthew Wilcox <matthew@wil.cx>, Linus Torvalds <torvalds@osdl.org>,
-       linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Remove pointless <0 comparison for unsigned variable in fs/fcntl.c
-Message-ID: <20041123104215.GE27064@mail.shareable.org>
-References: <Pine.LNX.4.61.0411212351210.3423@dragon.hygekrogen.localhost> <20041122010253.GE25636@parcelfarce.linux.theplanet.co.uk> <41A30612.2040700@dif.dk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41A30612.2040700@dif.dk>
-User-Agent: Mutt/1.4.1i
+	Tue, 23 Nov 2004 05:43:56 -0500
+Message-ID: <41A3147F.5030409@verizon.net>
+Date: Tue, 23 Nov 2004 05:44:15 -0500
+From: Jim Nelson <james4765@verizon.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Lee Revell <rlrevell@joe-job.com>
+CC: Adrian Bunk <bunk@stusta.de>, rusty@rustcorp.com.au,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] MODULE_PARM_: remove the __deprecated
+References: <20041122155619.GG19419@stusta.de> <1101188636.4245.2.camel@krustophenia.net>
+In-Reply-To: <1101188636.4245.2.camel@krustophenia.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH at out004.verizon.net from [209.158.220.243] at Tue, 23 Nov 2004 04:43:53 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesper Juhl wrote:
-> >>	case F_SETSIG:
-> >>		/* arg == 0 restores default behaviour. */
-> >>-		if (arg < 0 || arg > _NSIG) {
-> >>+		if (arg > _NSIG) {
-> >>			break;
-> >
-> Let's find out.
+Lee Revell wrote:
+> On Mon, 2004-11-22 at 16:56 +0100, Adrian Bunk wrote:
+> 
+>>MODULE_PARM_ might be deprecated.
+>>But there are still over 2000 places in the kernel where it's used.
+> 
+> 
+> Changing MODULE_PARM to module_param is not exactly rocket science.  You
+> could probably fix them all with a perl script.
+> 
+> Lee
+> 
 
-The unusual thing about this function is that "arg" is really
-polymorphic, but given type "unsigned long" in the kernel.  It is
-really a way to hold arbitrary values of any type.
+Not really.  The permissions for the sysfs files, if nothing else, have to be done 
+manually.  Plus, check out:
 
-Just look at the way it becomes "unsigned int" (dupfd) or "struct
-flock" (lock) or "long" (leases) or "int" (setown).
+http://lists.osdl.org/pipermail/kernel-janitors/2004-November/002559.html
 
-F_SETOWN is interesting because you really can pass a negative int
-argument and get a meaningful result, even though it's passed around
-as unsigned long for a little while.
+and
 
-Signal numbers are usually "int".  The intended behaviour of fcntl(fd,
-F_SETSIG, sig) from userspace is that a negative sig returns EINVAL.
+http://lists.osdl.org/pipermail/kernel-janitors/2004-November/002592.html
 
-I.e. writing fcntl(fd, F_SETSIG, -1) in userspace will compile without
-any warnings.  The intended behaviour is that a negative sig returns
-EINVAL.  The kernel code illustrates that intention.
+for two examples of the kinds of problems that a script would run into.  Not 
+rocket science, but it can be tricky.
 
-It isn't obvious that arg is unsigned long in this function, when
-reading the code.  I had to scroll to the top of the function to check
-that this patch doesn't change its behaviour.  For that reason I think
-the "< 0" test is useful, as it illustrates the intended behaviour and
-causes no harm.
-
--- Jamie
+Jim

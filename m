@@ -1,60 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131563AbRDSRdj>; Thu, 19 Apr 2001 13:33:39 -0400
+	id <S131508AbRDSRdt>; Thu, 19 Apr 2001 13:33:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131562AbRDSRd3>; Thu, 19 Apr 2001 13:33:29 -0400
-Received: from snark.tuxedo.org ([207.106.50.26]:41994 "EHLO snark.thyrsus.com")
-	by vger.kernel.org with ESMTP id <S131508AbRDSRdX>;
-	Thu, 19 Apr 2001 13:33:23 -0400
-Date: Thu, 19 Apr 2001 13:33:47 -0400
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Andreas Dilger <adilger@turbolinux.com>
-Cc: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-Subject: Re: Cross-referencing frenzy
-Message-ID: <20010419133347.A3515@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Andreas Dilger <adilger@turbolinux.com>,
-	linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-In-Reply-To: <20010418233445.A28628@thyrsus.com> <200104190449.f3J4n2LF032522@webber.adilger.int>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200104190449.f3J4n2LF032522@webber.adilger.int>; from adilger@turbolinux.com on Wed, Apr 18, 2001 at 10:49:01PM -0600
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+	id <S131562AbRDSRdk>; Thu, 19 Apr 2001 13:33:40 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:36524 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S131508AbRDSRdg>;
+	Thu, 19 Apr 2001 13:33:36 -0400
+Date: Thu, 19 Apr 2001 13:33:02 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Abramo Bagnara <abramo@alsa-project.org>, Alon Ziv <alonz@nolaviz.org>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Mike Kravetz <mkravetz@sequent.com>,
+        Ulrich Drepper <drepper@cygnus.com>
+Subject: Re: light weight user level semaphores
+In-Reply-To: <Pine.LNX.4.31.0104190937400.3842-100000@penguin.transmeta.com>
+Message-ID: <Pine.GSO.4.21.0104191249200.16930-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Dilger <adilger@turbolinux.com>:
-> Could you make a list that splits the symbols up by each of the above
-> failure conditions?  It would make the task of deciding how to fix the
-> "problem" more apparent.
 
-There are 32 possible categories.  I need to eyeball them and decide which
-ones are significant.
- 
-> Also, it appears that some of the symbols you are matching are only in
-> documentation (which isn't necessarily a bad thing).  I would start with:
+
+On Thu, 19 Apr 2001, Linus Torvalds wrote:
+
 > 
-> *.[chS] Config.in Makefile Configure.help
+> 
+> On Thu, 19 Apr 2001, Alexander Viro wrote:
+> >
+> > I certainly agree that introducing ioctl() in _any_ API is a shootable
+> > offense. However, I wonder whether we really need any kernel changes
+> > at all.
+> 
+> I'd certainly be interested in seeing the pipe-based approach. Especially
+> if you make the pipe allocation lazy. That isn'tr trivial (it needs to be
+> done right with both up_failed() and down_failed() trying to allocate the
+> pipe on contention and using an atomic cmpxchg-style setting if none
+> existed before). It has the BIG advantage of working on old kernels, so
+> that you don't need to have backwards compatibility cruft in the
+> libraries.
 
-There should be few enough of these to fit on one screen.  Over 700 dead
-symbols indicates a larger problem.
- 
-> However, I'm not sure that your reasoning for removing these is correct.
-> For example, one symbol that I saw was CONFIG_EXT2_CHECK, which is code
-> that used to be enabled in the kernel, but is currently #ifdef'd out with
-> the above symbol.  When Ted changed this, he wasn't sure whether we would
-> need the code again in the future.  I enable it sometimes when I'm doing
-> ext2 development, but it may not be worthy of a separate config option
-> that 99.9% of people will just be confused about.
+Ehh... Non-lazy variant is just read() and write() as down_failed() and
+up_wakeup() Lazy... How about
 
-I think things like that don't belong in the CONFIG_ namespace to begin
-with.
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+	if (Lock <= 1)
+		goto must_open;
+opened:
+	/* as in non-lazy case */
 
-"To disarm the people... was the best and most effectual way to enslave them."
-        -- George Mason, speech of June 14, 1788
+
+must_open:
+	pipe(fd);
+	lock decl Lock
+	jg lost_it	/* Already seriously positive - clean up and go */
+	jl spin_and_lose
+	/* Lock went from 1 to 0 - go ahead */
+	reader = fd[0];
+	writer = fd[1];
+	Lock = MAX_INT;
+	goto opened;
+spin_and_lose:
+	/* Won't take long - another guy got to do 3 memory writes */
+	while (Lock <= 0)
+		;
+lost_it:
+	lock incl Lock
+	close(fd[0]);
+	close(fd[1]);
+	goto opened;
+
+								Al
+

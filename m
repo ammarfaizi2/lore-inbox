@@ -1,52 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263935AbUDQAEK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Apr 2004 20:04:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263950AbUDQAEK
+	id S263989AbUDQAJ6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Apr 2004 20:09:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263990AbUDQAJ6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Apr 2004 20:04:10 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:47241 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263935AbUDQAEH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Apr 2004 20:04:07 -0400
-Message-ID: <40807466.1020701@pobox.com>
-Date: Fri, 16 Apr 2004 20:03:50 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: viro@parcelfarce.linux.theplanet.co.uk
-CC: Greg KH <greg@kroah.com>, Maneesh Soni <maneesh@in.ibm.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] fix sysfs symlinks
-References: <20040413124037.GA21637@in.ibm.com> <20040413133615.GZ31500@parcelfarce.linux.theplanet.co.uk> <20040415220232.GC23039@kroah.com> <20040416152448.GF24997@parcelfarce.linux.theplanet.co.uk> <20040416223732.GC21701@kroah.com> <20040416234601.GL24997@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <20040416234601.GL24997@parcelfarce.linux.theplanet.co.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 16 Apr 2004 20:09:58 -0400
+Received: from pentafluge.infradead.org ([213.86.99.235]:62127 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S263989AbUDQAJ4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Apr 2004 20:09:56 -0400
+Subject: Re: [PATCH 2.6.5] Add class support to drivers/mtd/mtdchar.c
+From: David Woodhouse <dwmw2@infradead.org>
+To: Hanna Linder <hannal@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, greg@kroah.com
+In-Reply-To: <221630000.1082154920@w-hlinder.beaverton.ibm.com>
+References: <207270000.1082063407@w-hlinder.beaverton.ibm.com>
+	 <1082063698.2949.6.camel@localhost.localdomain>
+	 <221630000.1082154920@w-hlinder.beaverton.ibm.com>
+Content-Type: text/plain
+Message-Id: <1082160598.3083.54.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-1.dwmw2.1) 
+Date: Fri, 16 Apr 2004 20:09:58 -0400
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-viro@parcelfarce.linux.theplanet.co.uk wrote:
-> On Fri, Apr 16, 2004 at 03:37:32PM -0700, Greg KH wrote:
-> 
-> 
->>Since when did we ever assume that renaming a kobject would rename the
->>symlinks that might point to it?  Renaming kobjects are a hack that way,
->>if you use them, you need to be aware of this limitation.
-> 
-> 
-> Since we assume that these symlinks actually reflect some relationship
-> between the objects and are really needed for something.  If they are
-> not - why the hell do we keep them at all?
+On Fri, 2004-04-16 at 15:35 -0700, Hanna Linder wrote:
+> Thanks David. I tried the MTDRAM and it showed up in the class tree but
+> no dev file was made. I suspect it needs a device attached. Anyway, I found
+> a small bug by code inspection so here is the new patch.
 
+MTDRAM is a fake MTD device, using backing store provided by vmalloc().
+There is no hardware. If you have mtdram.ko and mtdchar.ko both loaded,
+you should have been able to access /dev/mtd0 and you should have seen
+it in /proc/mtd
 
-I was wondering the same thing :)
-
-Ideally one would think that userland can deduce relationships by 
-looking at the attribute information sysfs already provides -- and if 
-not, it's just one more bit of info to export via sysfs.
-
-	Jeff
-
-
+-- 
+dwmw2
 

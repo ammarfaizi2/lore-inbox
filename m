@@ -1,37 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265772AbUBFTLl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 14:11:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265763AbUBFTLL
+	id S265640AbUBFTEL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 14:04:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265644AbUBFTEL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 14:11:11 -0500
-Received: from disk.smurf.noris.de ([192.109.102.53]:55980 "EHLO
-	server.smurf.noris.de") by vger.kernel.org with ESMTP
-	id S265772AbUBFTK6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 14:10:58 -0500
-From: "Matthias Urlichs" <smurf@smurf.noris.de>
-Date: Fri, 6 Feb 2004 19:47:51 +0100
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: VFS locking: f_pos thread-safe ?
-Message-ID: <20040206184751.GC5581@kiste>
-References: <402359E1.6000007@ntlworld.com> <20040206011630.42ed5de1.akpm@osdl.org> <40235DCC.2060606@ntlworld.com> <20040206013523.394d89f1.akpm@osdl.org> <pan.2004.02.06.10.19.57.885433@smurf.noris.de> <20040206101941.4cd9c882.shemminger@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040206101941.4cd9c882.shemminger@osdl.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Fri, 6 Feb 2004 14:04:11 -0500
+Received: from host-64-65-253-246.alb.choiceone.net ([64.65.253.246]:60855
+	"EHLO gaimboi.tmr.com") by vger.kernel.org with ESMTP
+	id S265640AbUBFTEG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Feb 2004 14:04:06 -0500
+Message-ID: <4023E5AB.7070502@tmr.com>
+Date: Fri, 06 Feb 2004 14:06:19 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: gene.heskett@verizon.net
+CC: linux-kernel@vger.kernel.org
+Subject: Re: cdwriter /dev/hdc question
+References: <200402050825.58623.gene.heskett@verizon.net>
+In-Reply-To: <200402050825.58623.gene.heskett@verizon.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-Stephen Hemminger:
+Gene Heskett wrote:
+> Greetings;
 > 
-> Ever hear of pread/pwrite?
+> Running 2.6.2 atm, but for quite a while in the 2.6.x series I've had 
+> a line in /var/log/messages immediately after the dmesg dump 
+> indicating that dma was being disabled for /dev/hdc.
 
-Sure I have, but the general idea had been to leave the work entirely to
-the file system...
+I think this is bogus, in that it is silently enabled again. Ask hdparm!
+
+I thought that message was either going to go away or be paired with a 
+similar "I didn't mean it" message if the drive is reenabled, but I 
+can't quickly find the discussion.
 
 -- 
-Matthias Urlichs     |     noris network AG     |     http://smurf.noris.de/
+bill davidsen <davidsen@tmr.com>
+   CTO TMR Associates, Inc
+   Doing interesting things with small computers since 1979

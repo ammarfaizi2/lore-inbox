@@ -1,33 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267467AbTBNWpF>; Fri, 14 Feb 2003 17:45:05 -0500
+	id <S267458AbTBNWkY>; Fri, 14 Feb 2003 17:40:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267472AbTBNWpE>; Fri, 14 Feb 2003 17:45:04 -0500
-Received: from fmr01.intel.com ([192.55.52.18]:54737 "EHLO hermes.fm.intel.com")
-	by vger.kernel.org with ESMTP id <S267467AbTBNWpE> convert rfc822-to-8bit;
-	Fri, 14 Feb 2003 17:45:04 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6334.0
-content-class: urn:content-classes:message
-Subject: WBEM and WMI
-Date: Fri, 14 Feb 2003 14:54:57 -0800
-Message-ID: <B34A7DC9C1CDAB4D9A4BC2C0F15A06E83ACA99@fmsmsx401.fm.intel.com>
+	id <S267467AbTBNWkY>; Fri, 14 Feb 2003 17:40:24 -0500
+Received: from hermes.domdv.de ([193.102.202.1]:58636 "EHLO zeus.domdv.de")
+	by vger.kernel.org with ESMTP id <S267458AbTBNWkX>;
+	Fri, 14 Feb 2003 17:40:23 -0500
+Message-ID: <3E4D7297.8060200@domdv.de>
+Date: Fri, 14 Feb 2003 23:49:59 +0100
+From: Andreas Steinmetz <ast@domdv.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021203
+X-Accept-Language: en-us, en, de-de, de
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: WBEM and WMI
-Thread-Index: AcLUfBh6vhU/zOC4SVCFERVd+qCvBg==
-From: "Simoneaux, Jill" <jill.simoneaux@intel.com>
-To: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 14 Feb 2003 22:54:57.0563 (UTC) FILETIME=[18B95EB0:01C2D47C]
+To: John Bradford <john@grabjohn.com>
+CC: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: Sparc IDE in 2.4.20
+References: <200302142131.h1ELVX4U004986@darkstar.example.net>
+In-Reply-To: <200302142131.h1ELVX4U004986@darkstar.example.net>
+X-Enigmail-Version: 0.71.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Are there any plans for incorporating WBEM into the kernel??
+John Bradford wrote:
+>>>Is IDE known to be broken on Sparc in 2.4.20?  I just got this compile
+>>>failiure:
+>>>sparc-linux-ld -T arch/sparc/vmlinux.lds arch/sparc/kernel/head.o
+>>>arch/sparc/kernel
+>>>drivers/ide/idedriver.o: In function `ide_end_drive_cmd':
+>>>drivers/ide/idedriver.o(.text+0x11d4): undefined reference to `inw_p'
+>>
+>>I tested it in 2.4.7 for the last time. It probably bitrotted.
+>>Why do you care? I posess the only IDE capable sparc on this planet.
+>>Just configure it out, and be happy.
+> 
+> 
+> I'm thinking of building a machine based around Sun's Netra AX-1105
+> motherboard, which I thought had a supported IDE controller built in,
+> but I could be wrong.
+> 
 
-J. Jill Simoneaux
-Integration Systems Engineering
-(916) 356-4628
-I don't speak for Intel
+Got a nifty little SunBlade 100 on my desk at work, though it is running 
+Solaris. This system has IDE disks so there must be more than one IDE 
+capable Sparc on this planet :-)
+-- 
+Andreas Steinmetz
 

@@ -1,57 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282195AbRKWRmN>; Fri, 23 Nov 2001 12:42:13 -0500
+	id <S282181AbRKWRqC>; Fri, 23 Nov 2001 12:46:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282194AbRKWRmD>; Fri, 23 Nov 2001 12:42:03 -0500
-Received: from a212-113-174-249.netcabo.pt ([212.113.174.249]:50723 "EHLO
-	smtp.netcabo.pt") by vger.kernel.org with ESMTP id <S282181AbRKWRlt>;
-	Fri, 23 Nov 2001 12:41:49 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Miguel Maria Godinho de Matos <Astinus@netcabo.pt>
-To: linux-kernel@vger.kernel.org
-Subject: Can't patch my 2.4.14 KERNEL!
-Date: Fri, 23 Nov 2001 17:42:38 +0000
-X-Mailer: KMail [version 1.3.1]
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-ID: <EXCH01SMTP01tFT0D7G00000f88@smtp.netcabo.pt>
-X-OriginalArrivalTime: 23 Nov 2001 17:41:20.0948 (UTC) FILETIME=[1015C740:01C17446]
+	id <S282196AbRKWRpw>; Fri, 23 Nov 2001 12:45:52 -0500
+Received: from [213.37.2.159] ([213.37.2.159]:30636 "EHLO alcorcon.madritel.es")
+	by vger.kernel.org with ESMTP id <S282181AbRKWRpj>;
+	Fri, 23 Nov 2001 12:45:39 -0500
+To: linux-kernel@vger.kernel.org, roy@karlsbakk.net
+Subject: Re: Which gcc version?
+Message-Id: <E167Jsj-00002C-00@DervishD>
+Date: Fri, 23 Nov 2001 18:12:53 +0100
+From: =?ISO-8859-1?Q?Ra=FAl?= =?ISO-8859-1?Q?N=FA=F1ez?= de Arenas
+	 Coronado <dervishd@jazzfree.com>
+Reply-To: =?ISO-8859-1?Q?Ra=FAl?= =?ISO-8859-1?Q?N=FA=F1ez?= de Arenas
+	   Coronado <dervishd@jazzfree.com>
+X-Mailer: DervishD TWiSTiNG Mailer
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi guys, i was following your advice about patching the 2.4.14 kernel to 
-obtain the ext3 support though i am not being able to do so!!!!
+    Hi Roy :)))
 
-i have the 2.4.14 kernel tree i downloaded from www.kernel.org site in my 
-/usr/src/kernel-2.4.14
+>Which one should I use to compile the kernel?
 
-and i have the  patch-2.4.15-pre9.gz patch in the /usr/src  ( as it is 
-recomended in the kernel how to.
+    Dunno about RH, but I compile the kernel using gcc-3.0.1 and
+works fine. Well, take into account that this is NOT the recommended
+choice, since gcc 3.x series is not considered stable for the kernel.
 
-i have done the following command:
+    Anyway, I'm tired to having a compiler for binaries, another
+compiler for the kernel, another one for libraries, etc... and I
+compile all using gcc 3.0.1.
 
-#zcat  patch-2.4.15-pre9.gz | patch -p0 ( as the example of the how to 
-displays!!!! )
+    Sooner or later the kernel will need to be ported to gcc 3.x
+series, so, the sooner it gets tested with this compiler, the better.
 
-and was then presented with the following error:
-"
-Perhaps you used the wrong -p or --strip option?
-The text leading up to this was:
---------------------------
-|diff -u --recursive --new-file v2.4.14/linux/CREDITS linux/CREDITS
-|--- v2.4.14/linux/CREDITS      Mon Nov  5 15:55:25 2001
-|+++ linux/CREDITS      Sun Nov 11 10:09:32 2001
---------------------------
-File to patch: /usr/src/linux-2.4.14
-patch: **** File /usr/src/linux-2.4.14 is not a regular file -- can't patch"
+    Anyway, if you have gcc 2.95.x installed onto your distro, use
+that for the kernel for maximum stability.
 
+    My compiled kernel works with gcc 3.x but it's a kernel with no
+so many drivers. I don't know what kind of weird things can happen
+with a heluvalota drivers kernel.
 
-i would lioke to know ho to apply the pacth!!!! so i can then compile  a 
-kernel which supports ext3.
-
-By the way when is the linux kernel 2.4.15 comming out???
-
-Can u guys recomend me some good books about linux programing and stuff??
-
-well, that's all for now. tks, AStinus
+    Raúl

@@ -1,46 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312466AbSDJGX7>; Wed, 10 Apr 2002 02:23:59 -0400
+	id <S312465AbSDJGTU>; Wed, 10 Apr 2002 02:19:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312480AbSDJGX6>; Wed, 10 Apr 2002 02:23:58 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:24845 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S312466AbSDJGX6>; Wed, 10 Apr 2002 02:23:58 -0400
-Message-Id: <200204100620.g3A6KnX04868@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain; charset=US-ASCII
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Brian Beattie <alchemy@us.ibm.com>,
-        Michel Dagenais <michel.dagenais@polymtl.ca>
-Subject: Re: Event logging vs enhancing printk
-Date: Wed, 10 Apr 2002 09:24:02 -0200
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org, Martin@m3.polymtl.ca,
-        "Martin.Bligh@us.ibm.com" <J.Bligh@m3.polymtl.ca>,
-        Tony.P.Lee@nokia.com, kessler@us.ibm.com, karym@opersys.com,
-        lmcmpou@lmc.ericsson.se, lmcleve@lmc.ericsson.se
-In-Reply-To: <m2it71uf4u.fsf@m3.polymtl.ca> <1018385394.7923.26.camel@w-beattie1>
+	id <S312466AbSDJGTT>; Wed, 10 Apr 2002 02:19:19 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:28166 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S312465AbSDJGTT>; Wed, 10 Apr 2002 02:19:19 -0400
+Date: Wed, 10 Apr 2002 02:16:45 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: David Ford <david+cert@blue-labs.org>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: The latest -ac patch to the stable Linux kernels
+In-Reply-To: <3CB3C6F5.4020706@blue-labs.org>
+Message-ID: <Pine.LNX.3.96.1020410020211.29775A-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9 April 2002 18:49, Brian Beattie wrote:
-> I would prefer to see effort expended on fixing printk/klogd...off the
-> top of my head:
->
-> - make printk a macro that prepends file/function/line to the message.
-> - fix printk calls: messages with consistent format, calls in the right
-> places, with the "correct" information.
-> - postprocessing tools for analysing the logs.
->
-> I would say that this is probably less work than implementing evlog,
-> much less work to maintain, and provide generally better performance.
+On Wed, 10 Apr 2002, David Ford wrote:
 
-Sounds ok for me.
+> Well, shortly put, the -ac tree is much more -pre than the -pre patches 
+> are.  Using -ac patches is jumping ahead of the -pre patches normally.
 
-It will be difficult to push it into mainline kernel.
-I tried to fix loglevels in some printks. Patches were _trivial_
-but nevertheless they weren't taken.
---
-vda
+  At one point Alan posted "I actually run my kernels" and I think that's
+important. In some cases they contain perfectly stable features which are
+not in the mainline for... I don't want to say "political reasons," but
+reasons of policy rather than technical issues. I have run production on
+rmap and O(1) for a while, but they seem destined to stay in 2.5 near
+term.
+
+  The -ac has the new ServerRAID driver from IBM. Since I have systems
+using the hardware which are timezones away, anything which tends to
+stability is good in my use. New firmware means new drivers (often) and
+the IBM update CD has a binary module only. I'll try the pre5-ac3 instead.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

@@ -1,42 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261567AbUAFJBp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jan 2004 04:01:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261660AbUAFJBp
+	id S261575AbUAFJG6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jan 2004 04:06:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261681AbUAFJG6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jan 2004 04:01:45 -0500
-Received: from oceanic.wsisiz.edu.pl ([213.135.44.33]:11375 "EHLO
-	oceanic.wsisiz.edu.pl") by vger.kernel.org with ESMTP
-	id S261567AbUAFJBo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jan 2004 04:01:44 -0500
-Date: Tue, 6 Jan 2004 10:01:41 +0100 (CET)
-From: Lukasz Trabinski <lukasz@wsisiz.edu.pl>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.24-rc1
-In-Reply-To: <Pine.LNX.4.58L.0401052105460.5618@logos.cnet>
-Message-ID: <Pine.LNX.4.58LT.0401060955270.27546@oceanic.wsisiz.edu.pl>
-References: <Pine.LNX.4.58L.0401051130250.1188@logos.cnet>
- <200401051744.i05HiJI1005152@lt.wsisiz.edu.pl> <20040105182117.GZ1882@matchmail.com>
- <Pine.LNX.4.58LT.0401052156570.1448@lt.wsisiz.edu.pl>
- <Pine.LNX.4.58L.0401052105460.5618@logos.cnet>
+	Tue, 6 Jan 2004 04:06:58 -0500
+Received: from notes.hallinto.turkuamk.fi ([195.148.215.149]:12808 "EHLO
+	notes.hallinto.turkuamk.fi") by vger.kernel.org with ESMTP
+	id S261575AbUAFJGz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jan 2004 04:06:55 -0500
+Message-ID: <3FFA7BB9.1030803@kolumbus.fi>
+Date: Tue, 06 Jan 2004 11:11:21 +0200
+From: =?ISO-8859-1?Q?Mika_Penttil=E4?= <mika.penttila@kolumbus.fi>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-2
-Content-Transfer-Encoding: 8BIT
+To: Andi Kleen <ak@colin2.muc.de>
+CC: Linus Torvalds <torvalds@osdl.org>, Andi Kleen <ak@muc.de>,
+       David Hinds <dhinds@sonic.net>, linux-kernel@vger.kernel.org
+Subject: Re: PCI memory allocation bug with CONFIG_HIGHMEM
+References: <1aJdi-7TH-25@gated-at.bofh.it> <m37k054uqu.fsf@averell.firstfloor.org> <Pine.LNX.4.58.0401051937510.2653@home.osdl.org> <20040106040546.GA77287@colin2.muc.de> <Pine.LNX.4.58.0401052100380.2653@home.osdl.org> <20040106081203.GA44540@colin2.muc.de>
+In-Reply-To: <20040106081203.GA44540@colin2.muc.de>
+X-MIMETrack: Itemize by SMTP Server on marconi.hallinto.turkuamk.fi/TAMK(Release 5.0.8 |June
+ 18, 2001) at 06.01.2004 11:09:00,
+	Serialize by Router on notes.hallinto.turkuamk.fi/TAMK(Release 5.0.10 |March
+ 22, 2002) at 06.01.2004 11:08:09,
+	Serialize complete at 06.01.2004 11:08:09
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 5 Jan 2004, Marcelo Tosatti wrote:
-> Hi Lukasz,
-> 
-> Which kernels work on this box?
-> 
-> Have you tried any other 2.4.x or 2.6.x ?
-
-Yes, most of 2.4.X Most of them works well, except (2.4.20?-22 was problem 
-with aplication like slocate or amanda backup  running on big ext3 area).
 
 
--- 
-*[ £ukasz Tr±biñski ]*
-SysAdmin @wsisiz.edu.pl
+Andi Kleen wrote:
+
+>>If you ahve a proper e820 map, then it should work correctly, with 
+>>anything that is RAM being marked as such (or being marked as "reserved").
+>>    
+>>
+>
+>Every e820 map i've seen did not have the AGP aperture marked reserved.
+>
+Why should it? It's not ram, and the aperture is marked as reserved 
+while doing PCI resource assignment/reservation.
+
+>It is just an undescribed hole.  In fact when you mark the aperture in the
+>e820 map the Linux AGP driver stops working, it relies on it being
+>in an undescribed hole.
+>
+>  
+>
+
+

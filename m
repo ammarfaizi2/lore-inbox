@@ -1,104 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269269AbTGJNkS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 09:40:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269273AbTGJNkS
+	id S269276AbTGJNn1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 09:43:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269278AbTGJNn1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 09:40:18 -0400
-Received: from coderock.org ([193.77.147.115]:41993 "EHLO mail.coderock.org")
-	by vger.kernel.org with ESMTP id S269269AbTGJNkL (ORCPT
+	Thu, 10 Jul 2003 09:43:27 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:20953 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S269276AbTGJNn0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 09:40:11 -0400
-From: Domen Puncer <root@coderock.org>
-To: linux-kernel@vger.kernel.org
-Subject: [RFC] check_region removal from 3c509.c
-Date: Thu, 10 Jul 2003 15:54:52 +0200
-User-Agent: KMail/1.5
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_sAXD/RQs2J6eKVx"
-Message-Id: <200307101554.52458.root@coderock.org>
+	Thu, 10 Jul 2003 09:43:26 -0400
+Date: Thu, 10 Jul 2003 15:57:47 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: lkml <linux-kernel@vger.kernel.org>, "Stephen C. Tweedie" <sct@redhat.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Jeff Garzik <jgarzik@pobox.com>,
+       Andrew Morton <akpm@digeo.com>, Andrea Arcangeli <andrea@suse.de>,
+       Chris Mason <mason@suse.com>, Alexander Viro <viro@math.psu.edu>
+Subject: Re: RFC on io-stalls patch
+Message-ID: <20030710135747.GT825@suse.de>
+References: <Pine.LNX.4.55L.0307081651390.21817@freak.distro.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.55L.0307081651390.21817@freak.distro.conectiva>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Jul 08 2003, Marcelo Tosatti wrote:
+> 
+> Hello people,
+> 
+> To get better IO interactivity and to fix potential SMP IO hangs (due to
+> missed wakeups) we, (Chris Mason integrated Andrea's work) added
+> "io-stalls-10" patch in 2.4.22-pre3.
+> 
+> The "low-latency" patch (which is part of io-stalls-10) seemed to be a
+> good approach to increase IO fairness. Some people (Alan, AFAIK) are a bit
+> concerned about that, though.
+> 
+> Could you guys, Stephen, Andrew and maybe Viro (if interested :)) which
+> havent been part of the discussions around the IO stalls issue take a look
+> at the patch, please?
+> 
+> It seems safe and a good approach to me, but might not be. Or have small
+> "glitches".
 
---Boundary-00=_sAXD/RQs2J6eKVx
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Well, I have one naive question. What prevents writes from eating the
+entire request pool now? In the 2.2 and earlier days, we reserved the
+last 3rd of the requests to writes. 2.4.1 and later used a split request
+list to make that same guarentee.
 
-Hi.
+I only did a quick read of the patch so maybe I'm missing the new
+mechanism for this. Are we simply relying on fair (FIFO) request
+allocation and oversized queue to do its job alone?
 
-Replaced check_region() with request_region(), removed 2 #ifdefs.
-
-This is first time i'm posting a patch, so please comment if something could 
-be done better.
-
-
-	Domen
---Boundary-00=_sAXD/RQs2J6eKVx
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="3c509.c-check_region-2.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="3c509.c-check_region-2.patch"
-
---- linux-2.5.74/drivers/net/3c509.c-orig	2003-07-10 12:55:08.000000000 +0200
-+++ linux-2.5.74/drivers/net/3c509.c	2003-07-10 15:01:41.000000000 +0200
-@@ -370,9 +370,7 @@
- #if defined(__ISAPNP__) && !defined(CONFIG_X86_PC9800)
- 	static int pnp_cards;
- 	struct pnp_dev *idev = NULL;
--#endif /* __ISAPNP__ */
- 
--#if defined(__ISAPNP__) && !defined(CONFIG_X86_PC9800)
- 	if (nopnp == 1)
- 		goto no_pnp;
- 
-@@ -428,12 +426,15 @@
- #else
- 	/* Select an open I/O location at 0x1*0 to do contention select. */
- 	for ( ; id_port < 0x200; id_port += 0x10) {
--		if (check_region(id_port, 1))
-+		if (!request_region(id_port, 1, "3c509"))
- 			continue;
- 		outb(0x00, id_port);
- 		outb(0xff, id_port);
--		if (inb(id_port) & 0x01)
-+		if (inb(id_port) & 0x01){
-+			release_region(id_port, 1);
- 			break;
-+		} else
-+			release_region(id_port, 1);
- 	}
- 	if (id_port >= 0x200) {
- 		/* Rare -- do we really need a warning? */
-@@ -496,19 +497,17 @@
- 	{
- 		unsigned int iobase = id_read_eeprom(8);
- 		if_port = iobase >> 14;
-+		irq = id_read_eeprom(9) >> 12;
- #ifdef CONFIG_X86_PC9800
- 		ioaddr = 0x40d0 + ((iobase & 0x1f) << 8);
-+		if (irq == 7)
-+			irq = 6;
-+		else if (irq == 15)
-+			irq = 13;
- #else
- 		ioaddr = 0x200 + ((iobase & 0x1f) << 4);
- #endif
- 	}
--	irq = id_read_eeprom(9) >> 12;
--#ifdef CONFIG_X86_PC9800
--	if (irq == 7)
--		irq = 6;
--	else if (irq == 15)
--		irq = 13;
--#endif
- 
- 	dev = alloc_etherdev(sizeof (struct el3_private));
- 	if (!dev)
-
---Boundary-00=_sAXD/RQs2J6eKVx--
+-- 
+Jens Axboe
 

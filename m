@@ -1,30 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129854AbRC0Alf>; Mon, 26 Mar 2001 19:41:35 -0500
+	id <S130038AbRC0Asz>; Mon, 26 Mar 2001 19:48:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129855AbRC0Al0>; Mon, 26 Mar 2001 19:41:26 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:53769 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S129854AbRC0AlL>; Mon, 26 Mar 2001 19:41:11 -0500
-Message-ID: <3ABFE145.F2C3FA28@uow.edu.au>
-Date: Tue, 27 Mar 2001 00:39:33 +0000
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.61 [en] (X11; I; Linux 2.4.2-ac19 i686)
+	id <S130065AbRC0Asp>; Mon, 26 Mar 2001 19:48:45 -0500
+Received: from die-macht.oph.RWTH-Aachen.DE ([137.226.147.190]:30856 "EHLO
+	die-macht") by vger.kernel.org with ESMTP id <S130038AbRC0Asb>;
+	Mon, 26 Mar 2001 19:48:31 -0500
+Message-ID: <3ABFE328.A6A0FE70@die-macht.oph.rwth-aachen.de>
+Date: Tue, 27 Mar 2001 02:47:36 +0200
+From: Stefan Becker <stefan@die-macht.oph.rwth-aachen.de>
+Reply-To: stefan@oph.rwth-aachen.de
+Organization: OPH
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-pre4 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: "Zephaniah E. Hull" <warp@whitestar.soark.net>
-CC: Andre Hedrick <andre@linux-ide.org>, linux-kernel@vger.kernel.org
-Subject: Re: Lovely crash with 2.4.2-ac24.
-In-Reply-To: <20010326132833.B3920@whitestar.soark.net> <Pine.LNX.4.10.10103261030570.14541-100000@master.linux-ide.org> <20010326140349.D3920@whitestar.soark.net>
+To: Juha Saarinen <juha@saarinen.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: ASSISTANCE
+In-Reply-To: <LNBBIBDBFFCDPLBLLLHFAEKOJIAA.juha@saarinen.org>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Zephaniah E. Hull" wrote:
-> 
-> [-ac24 crash]
-
-Guys, this is related to the tty hangup code calling the
-console code in interrupt context.  Fixed in -ac25.  The
-IDE connection is just stack fluff.
+Juha Saarinen wrote:
+> This is a variant on the Nigerian Scam... avoid at all cost.
+This is very funny.

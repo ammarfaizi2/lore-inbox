@@ -1,37 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291729AbSBTK3F>; Wed, 20 Feb 2002 05:29:05 -0500
+	id <S291720AbSBTKdf>; Wed, 20 Feb 2002 05:33:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291727AbSBTK2z>; Wed, 20 Feb 2002 05:28:55 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:47110 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S291720AbSBTK2o>; Wed, 20 Feb 2002 05:28:44 -0500
-Message-ID: <3C737A2C.2060305@evision-ventures.com>
-Date: Wed, 20 Feb 2002 11:27:56 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
-X-Accept-Language: en-us, pl
+	id <S291732AbSBTKd0>; Wed, 20 Feb 2002 05:33:26 -0500
+Received: from [203.94.130.164] ([203.94.130.164]:11012 "EHLO bad-sports.com")
+	by vger.kernel.org with ESMTP id <S291720AbSBTKdL>;
+	Wed, 20 Feb 2002 05:33:11 -0500
+Date: Wed, 20 Feb 2002 22:00:37 +1100 (EST)
+From: Brett <brett@bad-sports.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.5 scsi changes : qlogicfas.c fixed
+Message-ID: <Pine.LNX.4.44.0202202155190.2600-200000@bad-sports.com>
 MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-CC: trivial@rustcorp.com.au, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Tiny IDE cleanup
-In-Reply-To: <20020219194155.GA5468@elf.ucw.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: MULTIPART/MIXED; BOUNDARY="1590404226-2114864498-1014202837=:2600"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> Hi!
-> 
-> What about this tiny cleanup? Its against 2.4., but applicable to 2.5,
-> too.
-> 
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-That's file.
+--1590404226-2114864498-1014202837=:2600
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-If you dare to have a look at the LOCAL_END_REQUEST macro
-as well? It's only used by IDE and NBD code.
-I think that from IDE it can be just deleted. But I didn't
-look at NBD.
 
+Hey,
+
+Once again, thanks to people messing with the scsi layer, I'm forced to 
+attempt to fix this driver, which it seems I'm the only one using :)
+
+Like last time, I cannot confirm that this _works_ as my card is dodgy, 
+but I can confirm that it compiles, and performs exactly as is did before 
+the changes.
+
+The changes seems simple enough.
+
+thanks,
+
+	/ Brett
+
+--1590404226-2114864498-1014202837=:2600
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="bp-qlogicscsifix.patch"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.44.0202202200370.2600@bad-sports.com>
+Content-Description: 
+Content-Disposition: attachment; filename="bp-qlogicscsifix.patch"
+
+LS0tIGRyaXZlcnMvc2NzaS9xbG9naWNmYXMuYy5iYWsJV2VkIEZlYiAyMCAy
+MToyMzoxMSAyMDAyDQorKysgZHJpdmVycy9zY3NpL3Fsb2dpY2Zhcy5jCVdl
+ZCBGZWIgMjAgMjE6MTg6MzcgMjAwMg0KQEAgLTM0NCw2ICszNDQsNyBAQA0K
+IHVuc2lnbmVkIGludAlyZXFsZW47IAkJLyogdG90YWwgbGVuZ3RoIG9mIHRy
+YW5zZmVyICovDQogc3RydWN0IHNjYXR0ZXJsaXN0CSpzZ2xpc3Q7CS8qIHNj
+YXR0ZXItZ2F0aGVyIGxpc3QgcG9pbnRlciAqLw0KIHVuc2lnbmVkIGludAlz
+Z2NvdW50OwkJLyogc2cgY291bnRlciAqLw0KK2NoYXIgKmJ1ZjsNCiANCiBy
+dHJjKDEpDQogCWogPSBpbmIocWJhc2UgKyA2KTsNCkBAIC0zOTEsNyArMzky
+LDggQEANCiAJCQkJCVJFRzA7DQogCQkJCQlyZXR1cm4gKChxYWJvcnQgPT0g
+MSA/IERJRF9BQk9SVCA6IERJRF9SRVNFVCkgPDwgMTYpOw0KIAkJCQl9DQot
+CQkJCWlmIChxbF9wZG1hKHBoYXNlLCBzZ2xpc3QtPmFkZHJlc3MsIHNnbGlz
+dC0+bGVuZ3RoKSkNCisJCQkJYnVmID0gcGFnZV9hZGRyZXNzKHNnbGlzdC0+
+cGFnZSkgKyBzZ2xpc3QtPm9mZnNldDsNCisJCQkJaWYgKHFsX3BkbWEocGhh
+c2UsIGJ1Ziwgc2dsaXN0LT5sZW5ndGgpKQ0KIAkJCQkJYnJlYWs7DQogCQkJ
+CXNnbGlzdCsrOw0KIAkJCX0NCg==
+--1590404226-2114864498-1014202837=:2600--

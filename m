@@ -1,46 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269324AbUJKW7r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269319AbUJKW7j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269324AbUJKW7r (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 18:59:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269320AbUJKW7q
+	id S269319AbUJKW7j (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 18:59:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269325AbUJKW7E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 18:59:46 -0400
-Received: from imap.gmx.net ([213.165.64.20]:19596 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S269328AbUJKW7W (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 18:59:22 -0400
-X-Authenticated: #4399952
-Date: Tue, 12 Oct 2004 01:14:47 +0200
-From: Florian Schmidt <mista.tapas@gmx.net>
-To: Florian Schmidt <mista.tapas@gmx.net>
-Cc: Ingo Molnar <mingo@elte.hu>, Mark_H_Johnson@Raytheon.com,
-       Andrew Morton <akpm@osdl.org>, Daniel Walker <dwalker@mvista.com>,
-       "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>
-Subject: Re: [patch] VP-2.6.9-rc4-mm1-T5
-Message-ID: <20041012011447.3e7669f8@mango.fruits.de>
-In-Reply-To: <20041012005754.1d49a074@mango.fruits.de>
-References: <OF29AF5CB7.227D041F-ON86256F2A.0062D210@raytheon.com>
-	<20041011215909.GA20686@elte.hu>
-	<20041012005754.1d49a074@mango.fruits.de>
-X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 11 Oct 2004 18:59:04 -0400
+Received: from smtp813.mail.sc5.yahoo.com ([66.163.170.83]:40303 "HELO
+	smtp813.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S269319AbUJKW6w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Oct 2004 18:58:52 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Totally broken PCI PM calls
+Date: Mon, 11 Oct 2004 17:58:48 -0500
+User-Agent: KMail/1.6.2
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       David Brownell <david-b@pacbell.net>, Paul Mackerras <paulus@samba.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Pavel Machek <pavel@ucw.cz>
+References: <1097455528.25489.9.camel@gaston> <200410110947.38730.david-b@pacbell.net> <1097533687.13642.30.camel@gaston>
+In-Reply-To: <1097533687.13642.30.camel@gaston>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200410111758.48441.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 12 Oct 2004 00:57:54 +0200
-Florian Schmidt <mista.tapas@gmx.net> wrote:
-
-> hi,
+On Monday 11 October 2004 05:28 pm, Benjamin Herrenschmidt wrote:
+> > A "hang" sounds like the pmcore bug I reported about a year ago...
+> > 
+> > It's rather foolish of the PM core to use the same semaphore to
+> > protect system-wide suspend/resume operations that it uses to
+> > for mutual exclusion on the device add/remove (which suspend
+> > and resume callbacks did happily in 2.4) ... since it's routine to
+> > unplug peripherals on suspended systems!
 > 
-> i still can't build it. Fist i reverse applied T4, then applied T5 and tried
-> a make bzImage. I'll try from scratch though to make sure, cause these
-> errors look identical to the T4 ones.
+> Definitely. One thing is: how to do it instead ? I've been thinking
+> about it for a while and am still wondering... do we want a list
+> mecanism with add/remove notifiers so the PM walk can keep in sync
+> with devices added/removed ? or should addition/removal be simply
+> postponed until the end of the sleep/wakeup process (I tend to vote
+> for that).
 > 
 
-same errors.. Both with the preemptible real time thingy and without..
+Yes, I think that devices that failed to resume (and all their children)
+have to be moved by the core resume function into a separate list and
+then destroyed (again by the driver core). For that we might need to add
+bus_type->remove_device() handler as it seems that all buses do alot
+of work outside of driver->remove handlers. The remove_device should
+accept additional argument - something like dead_device that would
+suggest that driver should not be alarmed by any errors during unbind/
+removal process as the device (or rather usually its parent) is simply
+not there anynore.
 
-flo
+Just my $.02
+
+-- 
+Dmitry

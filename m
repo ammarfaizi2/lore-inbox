@@ -1,68 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262788AbSJ1AUq>; Sun, 27 Oct 2002 19:20:46 -0500
+	id <S262789AbSJ1AVE>; Sun, 27 Oct 2002 19:21:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262789AbSJ1AUq>; Sun, 27 Oct 2002 19:20:46 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:45575 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S262788AbSJ1AUp>;
-	Sun, 27 Oct 2002 19:20:45 -0500
-Message-ID: <3DBC8440.4030603@pobox.com>
-Date: Sun, 27 Oct 2002 19:26:40 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+	id <S262790AbSJ1AVE>; Sun, 27 Oct 2002 19:21:04 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:60938 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S262789AbSJ1AVC>; Sun, 27 Oct 2002 19:21:02 -0500
+Message-ID: <3DBC8463.7040909@namesys.com>
+Date: Mon, 28 Oct 2002 03:27:15 +0300
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2a) Gecko/20020910
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "H. J. Lu" <hjl@lucon.org>
-CC: Greg KH <greg@kroah.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH: Support PCI device sorting (Re: PCI device order problem)
-References: <3DBB1150.2030800@pobox.com> <20021026152043.A13850@lucon.org> <3DBB1743.6060309@pobox.com> <20021026155342.A14378@lucon.org> <3DBB1E29.5020402@pobox.com> <20021026165315.A15269@lucon.org> <3DBB2BE7.70208@pobox.com> <3DBB2DB9.3000803@pobox.com> <20021026172526.A15641@lucon.org> <20021027174249.GA12811@kroah.com> <20021027124248.A8019@lucon.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: landley@trommello.org
+CC: linux-kernel@vger.kernel.org,
+       Reiserfs developers mail-list <Reiserfs-Dev@namesys.com>,
+       reiserfs mailing list <reiserfs-list@namesys.com>,
+       "Gryaznova E." <grev@namesys.botik.ru>
+Subject: Re: The return of the return of crunch time (2.5 merge candidate
+ list 1.6)
+References: <200210251557.55202.landley@trommello.org> <3DBA0110.9020206@namesys.com> <200210270911.55926.landley@trommello.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H. J. Lu wrote:
 
->On Sun, Oct 27, 2002 at 09:42:49AM -0800, Greg KH wrote:
+
+Rob Landley wrote:
+
+>
 >  
 >
->>On Sat, Oct 26, 2002 at 05:25:26PM -0700, H. J. Lu wrote:
->>    
->>
->>>On Sat, Oct 26, 2002 at 08:05:13PM -0400, Jeff Garzik wrote:
->>>      
->>>
->>>>Jeff Garzik wrote:
->>>>
->>>>        
->>>>
->>>>>s/__devinit/__init/ and the implementation looks ok to me
->>>>>          
->>>>>
->>>>
->>>>...except if your patch can be called in hotplug paths...
->>>>        
->>>>
->>>There are plenty of __devini in arch/i386/kernel/pci-pc.c. I will leave
->>>mine alone.
->>>      
->>>
->>That is because those functions can be called in PCI hotplug paths,
->>since yours is only called during init, it should be marked as such.
->>
+>>Oh, and it has features too, not just performance....
 >>    
 >>
 >
->Are you telling me that pcibios_sort will be called by PCI hotplug?
+>I'm all for it.  I just can't put a patch on the list that doesn't exist yet.  
+>(I suppose the entry could say "go bug Hans for a patch"... :)
+>
+>I'll think of something...
+>
+>  
+>
+>>Hans
+>>    
+>>
+>
+>Rob
+>
 >  
 >
 
-no, he's saying __init is correct, as Alan and I said.
+Thanks.  The guys will hopefully put a very beta patch (for developers 
+only) on our download page sometime today (I am getting on an airplane 
+to the USA, and leaving this to them), and a release appropriate for 
+acceptance as an experimental filesystem will ship Halloween day.  
 
-    Jeff
+We want to make one last disk format change before it goes into the 
+kernel.;-)  Yes, I know, plugins make disk format changes easy, but I 
+still don't want there to be plugins that were only used for one week if 
+I can avoid it, and our holding a final comprehensive disk format review 
+on Friday found something better changed.
 
+Read performance got worse, and write performance got better.  We'll 
+have updated benchmarks on our website by the end of the day.
 
-
+Hans
 
 

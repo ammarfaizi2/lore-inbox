@@ -1,60 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266768AbUHIRIU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266749AbUHIRMh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266768AbUHIRIU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 13:08:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266764AbUHIRIU
+	id S266749AbUHIRMh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 13:12:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266753AbUHIRMh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 13:08:20 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:26859 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S266749AbUHIRF7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 13:05:59 -0400
-Subject: Re: [patch] voluntary-preempt-2.6.8-rc3-O4
-From: Lee Revell <rlrevell@joe-job.com>
-To: Florian Schmidt <mista.tapas@gmx.net>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-In-Reply-To: <20040809190201.64dab6ea@mango.fruits.de>
-References: <1090795742.719.4.camel@mindpipe>
-	 <20040726082330.GA22764@elte.hu> <1090830574.6936.96.camel@mindpipe>
-	 <20040726083537.GA24948@elte.hu> <1090832436.6936.105.camel@mindpipe>
-	 <20040726124059.GA14005@elte.hu> <20040726204720.GA26561@elte.hu>
-	 <20040729222657.GA10449@elte.hu> <20040801193043.GA20277@elte.hu>
-	 <20040809104649.GA13299@elte.hu> <20040809130558.GA17725@elte.hu>
-	 <20040809190201.64dab6ea@mango.fruits.de>
-Content-Type: text/plain
-Message-Id: <1092071169.13668.23.camel@mindpipe>
+	Mon, 9 Aug 2004 13:12:37 -0400
+Received: from mail.zmailer.org ([62.78.96.67]:34188 "EHLO mail.zmailer.org")
+	by vger.kernel.org with ESMTP id S266749AbUHIRMf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 13:12:35 -0400
+Date: Mon, 9 Aug 2004 20:12:31 +0300
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Bob Deblier <bob.deblier@telenet.be>
+Cc: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
+Subject: Re: AES assembler optimizations
+Message-ID: <20040809171231.GG2716@mea-ext.zmailer.org>
+References: <2riR3-7U5-3@gated-at.bofh.it> <m3d620v11e.fsf@averell.firstfloor.org> <1092067328.4332.40.camel@orion>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 09 Aug 2004 13:06:09 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1092067328.4332.40.camel@orion>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-08-09 at 13:02, Florian Schmidt wrote:
+On Mon, Aug 09, 2004 at 06:02:08PM +0200, Bob Deblier wrote:
+...
+> BeeCrypt contains benchmarks in the 'tests' subdirectory. Running of
+> 'make bench' will execute them. Benchmarks results below for repeatedly
+> looping over the same 16K block, produced by 'benchbc', without any
+> tweaks (YMMV):
 
-> I don't use APIC, since it never worked good for me.. But i wanted to
-> report that the mlockall latency still seems to be there.. I can easily
-> trigger it with mlockall'ing > ~10000kb. Need to recompile with the
-> preempt-timing patch, but here's an xrun trace that happened when
-> mlockall'ing 20000kb:
+Usage of MMX inside the Linux kernel is like the usage of FP inside
+the Linux kernel:  Can be done after jumping complex hoops, BUT NOT
+RECOMMENDED... (MMX in intertwined with FP hardware, after all.)
+
+You have to do lots of the MMXes in order to win after amortizing those
+necessary hoops...  RAID-5 code does XOR via MMX code, under some 
+conditions.  ... where that happens to become a win.
+
+> P4 2400, with MMX:
+> ECB encrypted 738304 KB in 10.00 seconds = 73823.02 KB/s
+> CBC encrypted 659456 KB in 10.00 seconds = 65925.82 KB/s
+> ECB decrypted 765952 KB in 10.00 seconds = 76564.57 KB/s
+> CBC decrypted 616448 KB in 10.02 seconds = 61546.33 KB/s
 > 
+> P4 2400, plain i386:
+> ECB encrypted 584704 KB in 10.01 seconds = 58435.34 KB/s
+> CBC encrypted 570368 KB in 10.01 seconds = 56979.82 KB/s
+> ECB decrypted 444416 KB in 10.02 seconds = 44357.32 KB/s
+> CBC decrypted 423936 KB in 10.02 seconds = 42304.76 KB/s
+...
+> Sincerely,
+> 
+> Bob Deblier
 
-Ingo, do you plan to maintain the voluntary preempt patch against the
--mm series?  From looking at Andrew's announcement yesterday it looks
-like many latency issues fixed in the voluntary preemption patches are
-also fixed in -mm, so it seems like the patch would be much smaller. 
-One thing that might be useful is breaking out the irq threading code as
-a patch against -mm.  Judging from all the -mm latency fixes it seems
-like this would work as well as the vanilla kernel+voluntary preempt.
-
-This would also make it easier to identify which are the important
-latency fixes from -mm enabling them to be pushed into mainline sooner. 
-On some of my tests I got 10-20% better results using vol-preempt+mm vs
-vol-preempt+vanilla, it would be nice to identify what changes are
-responsible.
-
-Lee
-
-
-
+/Matti Aarnio

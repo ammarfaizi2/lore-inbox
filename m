@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272467AbRIOSJa>; Sat, 15 Sep 2001 14:09:30 -0400
+	id <S272473AbRIOSPV>; Sat, 15 Sep 2001 14:15:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272462AbRIOSJU>; Sat, 15 Sep 2001 14:09:20 -0400
-Received: from w146.z064001233.sjc-ca.dsl.cnc.net ([64.1.233.146]:40402 "EHLO
+	id <S272483AbRIOSPK>; Sat, 15 Sep 2001 14:15:10 -0400
+Received: from w146.z064001233.sjc-ca.dsl.cnc.net ([64.1.233.146]:7892 "EHLO
 	windmill.gghcwest.com") by vger.kernel.org with ESMTP
-	id <S272485AbRIOSJR>; Sat, 15 Sep 2001 14:09:17 -0400
-Date: Sat, 15 Sep 2001 11:09:24 -0700 (PDT)
+	id <S272473AbRIOSOy>; Sat, 15 Sep 2001 14:14:54 -0400
+Date: Sat, 15 Sep 2001 11:15:04 -0700 (PDT)
 From: "Jeffrey W. Baker" <jwbaker@acm.org>
 X-X-Sender: <jwb@windmill.gghcwest.com>
-To: Steven Spence <kwijibo@zianet.com>
-cc: <DevilKin@gmx.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: AGP Bridge support for AMD 761
-In-Reply-To: <3BA2B1DA.8050208@zianet.com>
-Message-ID: <Pine.LNX.4.33.0109151108510.26946-100000@windmill.gghcwest.com>
+To: Robert Love <rml@tech9.net>
+cc: <linux-kernel@vger.kernel.org>, <DevilKin@gmx.net>
+Subject: Re: [PATCH] AGP GART for AMD 761
+In-Reply-To: <1000577021.32706.29.camel@phantasy>
+Message-ID: <Pine.LNX.4.33.0109151114200.26946-100000@windmill.gghcwest.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -21,29 +21,27 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Fri, 14 Sep 2001, Steven Spence wrote:
+On 15 Sep 2001, Robert Love wrote:
 
-> DevilKin wrote:
+> The following patch provides AGP support from the AMD AGP driver for the
+> AMD 761.  I don't have an AMD 761 and I had to look the PCI ID up, so I
+> need some confirmation this works.  Despite this, it should.
 >
-> >Hello all...
-> >
-> >I've recently bought a new mobo, the Abit KG7-Raid, and I've run into some trouble trying to get the agpgart to work correctly. Everytime I load it
-> >on kernel 2.4.9 (nonpatched, straigt from the tarball) I get messages like 'Unsupported chipset; try try_unsupported' (or smthing, not entirely
-> >sure about the msg anymore since I'm not on that PC right now). I've tried what it advices, but still it keeps on giving that error.
-> >
-> >Anyone got a clue?
-> >
-> >Thanks,
-> >
-> >Devil
-> >
-> Well, do what its telling you.  Either append 'agp_try_unsupported' to
-> lilo or use it as an option on modules.
->
-> Ex: modprobe agpgart agp_try_unsupported=1
+> Please test and let me know so I can forward it off.  Against
+> 2.4.10-pre9, but should apply to Alan's tree and 2.4.9.
 
-I've found, with 2.4.9(-ac9), that the lilo append line doesn't work at
-all.  agpgart *must* be a modules, or it won't work with 761.
+> @@ -2922,7 +2928,6 @@
+>  		"Intel",
+>  		"440GX",
+>  		intel_generic_setup },
+> -	/* could we add support for PCI_DEVICE_ID_INTEL_815_1 too ? */
+>  	{ PCI_DEVICE_ID_INTEL_815_0,
+>  		PCI_VENDOR_ID_INTEL,
+>  		INTEL_I815,
+
+What's the story with that chunk?  It looks like you removed a comment
+without changing the code, and it is totally unrelated to the AMD 761
+problems that you are trying to fix.
 
 -jwb
 

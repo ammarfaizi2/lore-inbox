@@ -1,43 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263384AbSJFLxL>; Sun, 6 Oct 2002 07:53:11 -0400
+	id <S263386AbSJFLyK>; Sun, 6 Oct 2002 07:54:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263385AbSJFLxL>; Sun, 6 Oct 2002 07:53:11 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:29069 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S263384AbSJFLxK>;
-	Sun, 6 Oct 2002 07:53:10 -0400
-Date: Sun, 06 Oct 2002 04:52:01 -0700 (PDT)
-Message-Id: <20021006.045201.26534685.davem@redhat.com>
-To: mingo@elte.hu
-Cc: alan@lxorguk.ukuu.org.uk, lm@bitmover.com, drepper@redhat.com,
-       bcollins@debian.org, torvalds@transmeta.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: BK MetaData License Problem?
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.44.0210061324500.4303-100000@localhost.localdomain>
-References: <20021006.035934.106436540.davem@redhat.com>
-	<Pine.LNX.4.44.0210061324500.4303-100000@localhost.localdomain>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S263387AbSJFLyK>; Sun, 6 Oct 2002 07:54:10 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:50107 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S263386AbSJFLyJ>;
+	Sun, 6 Oct 2002 07:54:09 -0400
+Date: Sun, 6 Oct 2002 14:10:46 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: "David S. Miller" <davem@redhat.com>
+Cc: alan@lxorguk.ukuu.org.uk, <lm@bitmover.com>, <drepper@redhat.com>,
+       <bcollins@debian.org>, <torvalds@transmeta.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: New BK License Problem?
+In-Reply-To: <20021006.035934.106436540.davem@redhat.com>
+Message-ID: <Pine.LNX.4.44.0210061405200.4303-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Ingo Molnar <mingo@elte.hu>
-   Date: Sun, 6 Oct 2002 14:04:42 +0200 (CEST)
-   
-   It's not a big problem today because if you ask me then i'll tell you that
-   it's GPL-ed - but what will be the situation be in years? Couldnt
-   'BitMover or any other operator of an Open Logging server' argue that the
-   MetaData is owned by whoever created them, and is not covered by the GPL -
-   and only 'BitMover or any other operator of an Open Logging server' has
-   'permission to republish the Metadata'.
-   
-Anything you write is automatically copyrighted by you, even if you
-don't specifically state it as such.
 
-That is my basic understanding of copyright law.
+On Sun, 6 Oct 2002, David S. Miller wrote:
 
-BitMover et al. can't take your copyright powers away from you.
+> Larry has stated many times over that he doesn't own our bits.
+
+yes, but does Larry realize that BK creates a situation in where 'our
+bits' are separated into 'data' and 'metadata', in which currently only
+"BitMover, or any other operator of an Open Logging server" has a default
+permission to "republish the Metadata sent by the BitKeeper Software to
+the Open Logging server".
+
+i'd be happy if data and metadata could be considered one work, which is
+covered by the GPL as a whole - is it?
+
+	Ingo
+

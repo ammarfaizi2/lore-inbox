@@ -1,60 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264853AbSLBS4w>; Mon, 2 Dec 2002 13:56:52 -0500
+	id <S264857AbSLBSzQ>; Mon, 2 Dec 2002 13:55:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264854AbSLBS4w>; Mon, 2 Dec 2002 13:56:52 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:28435 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S264853AbSLBS4u>; Mon, 2 Dec 2002 13:56:50 -0500
-Date: Mon, 2 Dec 2002 14:02:53 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-cc: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG]2.5.49-ac1 - more info on make error
-In-Reply-To: <Pine.LNX.4.33L2.0212020904210.27194-100000@dragon.pdx.osdl.net>
-Message-ID: <Pine.LNX.3.96.1021202134845.433G-100000@gatekeeper.tmr.com>
+	id <S264863AbSLBSzQ>; Mon, 2 Dec 2002 13:55:16 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:5065 "EHLO e34.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S264857AbSLBSzO>;
+	Mon, 2 Dec 2002 13:55:14 -0500
+Message-ID: <3DEBACEE.200EF7A9@us.ibm.com>
+Date: Mon, 02 Dec 2002 10:56:47 -0800
+From: Nivedita Singhvi <niv@us.ibm.com>
+X-Mailer: Mozilla 4.72 [en] (Windows NT 5.0; U)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: trog@wincom.net
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [MAY-BE-OT] Slow FTP Transfers between 2.4 machines
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2 Dec 2002, Randy.Dunlap wrote:
+> This _might_ be OT... certainly I'm not entirely ready to lay this at the feet
+> of the kernel just yet. Any pointers to troubleshooting documents would be _greatly_
+> appreciated.
 
-> On Wed, 27 Nov 2002, Bill Davidsen wrote:
+linux-net@vger.kernel.org would be a more appropriate mailing list..
+
+> FTP from either box to a decent server via the cable modem may go as high as
+> 250-ish k/sec. FTP transfers from box to box start out at ~ 100k/sec and very
+> quickly (3sec) drop to a stable 42 k/sec which persists for the rest of the
+> transfer, independant of which box is server or client.
 > 
-> | Knowing that modules are still broken, I changed all modules to be
-> | built-in and dropped all support for modules and retried the compile. I
-> | have disabled all but the features I really want to test on the new
-> | kernel, so I will not be reducing the features any more.
+> Both boxes are using vsftpd behind xinetd, vsftpd manual was RTFMed and I'm
+> pretty sure this isn't a userspace-daemon-throttling thing (although some form
+> of verification that this is the case would be nice)
+
+what are your sysctl settings, especially your buffer sizes? Increasing 
+your default tcp buffer size is the single most useful thing you can do
+to improve performance if your app doesnt set buffer sizes using 
+setsockopt (and I dont believe it does). does it use TCP_NODELAY?  are
+you using ipsec?
+
+are you sure you have path mtu turned on? is fragmentation occuring?
+netstat -s would show you the snmp and tcp extended stats - that would
+be the first place to look for problems..
+
+> ifconfig/proc reports show no collisions or other errors to speak of. CPU remains
+> near-idle on both boxes during transfers. The TX/RX lights on the hub are "leisurely"
+> - the transfers don't look like a constrant stream, but rather more like regular
+> bursts of activity. 
 > 
-> I haven't seen any replies or fixes for this.  Have you?
-
-No. I have pretty much assumed that there is no interest in having this
-work. The modules are broken to the point where either the author or
-someone who has documentation on how they should work will have to fix
-them. Clearly the policy of "if you want your change in the kernel you
-have to fix what it breaks" is dead.
-
-> drivers/built-in.o(.data+0x31e14): undefined reference to `local symbols
-> in discarded section .exit.text'
+> I can find no evidence of errors or of anything wrong anywhere, aside from the
+> transfers being slow, and that telnet sessions from one box to the other get
+> choppy and laggy during large transfers. Once the transfer is completed, responsiveness
+> returns to normal.
 > 
-> Please visit http://www.kernelnewbies.org/scripts/ and download
-> the 'reference-discarded.pl' script, run it, and let us know where the
-> problem is.
+> Pointers to trobleshooting documents would be greatly appreciated. I have had
+> little luck finding anything on my own.
 
-I posted that to the list, if it didn't make it for any reason I can't
-easily recreate it, the machine has been converted to BSD, the 2.5 work is
-on a removable drive which is removed, since we can't make any progress
-with it for the moment.
+a tcpdump trace would be the next thing to look at - that should tell you
+whats happening (although perhaps not why :))
 
-It was the old tulip driver which had the problem, de21{something}x.c as I
-recall. Without a doc on what causes that I gave up trying to fix it by
-comparing to other modules.
-
-Thanks for asking.
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+thanks,
+Nivedita

@@ -1,42 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263231AbUEaKmH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263295AbUEaKr3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263231AbUEaKmH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 May 2004 06:42:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263295AbUEaKmH
+	id S263295AbUEaKr3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 May 2004 06:47:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263309AbUEaKr3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 May 2004 06:42:07 -0400
-Received: from smtp104.mail.sc5.yahoo.com ([66.163.169.223]:11648 "HELO
-	smtp104.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S263231AbUEaKmF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 May 2004 06:42:05 -0400
-Message-ID: <40BB0BF8.4040108@yahoo.com.au>
-Date: Mon, 31 May 2004 20:42:00 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
-X-Accept-Language: en
+	Mon, 31 May 2004 06:47:29 -0400
+Received: from smtprelay04.ispgateway.de ([62.67.200.165]:18572 "EHLO
+	smtprelay04.ispgateway.de") by vger.kernel.org with ESMTP
+	id S263295AbUEaKr1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 May 2004 06:47:27 -0400
+From: Ingo Oeser <ioe-lkml@rameria.de>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: [patch - please comment] Support for UTF dead keys in 2.6
+Date: Mon, 31 May 2004 11:23:02 +0200
+User-Agent: KMail/1.6.2
+References: <20040529143421.GA15127@ucw.cz> <200405310809.49059.ioe-lkml@rameria.de> <20040531063149.GD268@ucw.cz>
+In-Reply-To: <20040531063149.GD268@ucw.cz>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Pavel Machek <pavel@suse.cz>, ncunningham@linuxmail.org,
-       cef-lkml@optusnet.com.au, linux-kernel@vger.kernel.org, rob@landley.net,
-       seife@suse.de
-Subject: Re: swappiness=0 makes software suspend fail.
-References: <200405280000.56742.rob@landley.net>	<20040528215642.GA927@elf.ucw.cz>	<200405291905.20925.cef-lkml@optusnet.com.au>	<40B85024.2040505@linuxmail.org>	<20040529222308.GA1535@elf.ucw.cz> <20040531030914.0e20d2e0.akpm@osdl.org>
-In-Reply-To: <20040531030914.0e20d2e0.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Message-Id: <200405311123.07203.ioe-lkml@rameria.de>
+Cc: linux-kernel@vger.kernel.org
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Pavel Machek <pavel@suse.cz> wrote:
-> 
->>Right solution is to make sure that shrink_all_memory() works, no
->> matter how swappiness is set.
-> 
-> 
-> off-by-one in balance_pgdat() was the main problem.
-> 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I think it might be intentional, because 1/2 + 1/4 + ... + 1/4096 ~ 1.
+Hi Vojtech,
 
-If so, it instead needs fixing in try_to_free_pages, and a comment.
+On Monday 31 May 2004 08:31, you wrote:
+> > > ChangeSet@1.1610, 2004-05-03 12:38:37+02:00, vojtech@suse.cz
+> > >   input: Make accent tables able to generate unicode characters. This
+> > >          is needed for UTF8 console with multi-keystroke characters.
+>
+> Did you want to say anything?
+
+Yes,
+	1. My external editor setup was broken (kvim + kmail). Sorry
+	   for this.
+
+	2. Does your patch also support 2 diacritics per character?
+	   This is a requirement for proper Vietnamese support.
+
+Thanks and Regards
+
+Ingo Oeser
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAuvl2U56oYWuOrkARAsxrAJ9hFGUojPeXG4CZ2w33x4rPzBMYfwCg4krL
+uYNmM2L6iOIRy+0J4aYv8MI=
+=nPtI
+-----END PGP SIGNATURE-----

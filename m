@@ -1,54 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262991AbTJEHUz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Oct 2003 03:20:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262994AbTJEHUz
+	id S263004AbTJEHjU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Oct 2003 03:39:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263005AbTJEHjU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Oct 2003 03:20:55 -0400
-Received: from dp.samba.org ([66.70.73.150]:57027 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S262991AbTJEHUw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Oct 2003 03:20:52 -0400
-From: Rusty Trivial Russell <trivial@rustcorp.com.au>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [TRIVIAL] [2.6 PATCH] hlist constification
-Date: Sun, 05 Oct 2003 16:55:19 +1000
-Message-Id: <20031005072052.3102C2CC42@lists.samba.org>
+	Sun, 5 Oct 2003 03:39:20 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:28299 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263004AbTJEHjS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Oct 2003 03:39:18 -0400
+Date: Sun, 5 Oct 2003 08:39:17 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: Rob Landley <rob@landley.net>,
+       "Henning P. Schmiedehausen" <hps@intermeta.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: freed_symbols [Re: People, not GPL [was: Re: Driver Model]]
+Message-ID: <20031005073917.GK7665@parcelfarce.linux.theplanet.co.uk>
+References: <200310041952.09186.rob@landley.net> <Pine.LNX.4.10.10310042320170.21746-100000@master.linux-ide.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.10.10310042320170.21746-100000@master.linux-ide.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From:  Mitchell Blank Jr <mitch@sfgoth.com>
+On Sat, Oct 04, 2003 at 11:40:22PM -0700, Andre Hedrick wrote:
+> 
+> Tell me I can not publish a GPL w/ source code project which returns the
+> original API's to their normal place in history, and I will show you that
+> I can still draw the string on a bow.
 
-  I posted a patch to consify 3 inline functions in <linux/list.h> to lkml
-  on 9/1 but it looks like it slipped through the cracks.  Looking at your
-  trivial tree it seems that Inaky Perez-Gonzalez already submitted a patch
-  to constify list_empty().  Here is a patch to do the other two.  Should
-  be non-controversial.
-  
-  Patch is versus your current 2.6.0-test5-bk2 trivial tree.
-  
-  -Mitch
-  
+_What_ original API?  I agree that silent adding _GPL to existing symbol
+is obnoxious and warrants a patch that would revert the change.
 
---- trivial-2.6.0-test6-bk6/include/linux/list.h.orig	2003-10-05 16:50:48.000000000 +1000
-+++ trivial-2.6.0-test6-bk6/include/linux/list.h	2003-10-05 16:50:48.000000000 +1000
-@@ -421,12 +421,12 @@
- #define INIT_HLIST_HEAD(ptr) ((ptr)->first = NULL) 
- #define INIT_HLIST_NODE(ptr) ((ptr)->next = NULL, (ptr)->pprev = NULL)
- 
--static __inline__ int hlist_unhashed(struct hlist_node *h) 
-+static __inline__ int hlist_unhashed(const struct hlist_node *h) 
- { 
- 	return !h->pprev;
- } 
- 
--static __inline__ int hlist_empty(struct hlist_head *h) 
-+static __inline__ int hlist_empty(const struct hlist_head *h) 
- { 
- 	return !h->first;
- } 
--- 
-  What is this? http://www.kernel.org/pub/linux/kernel/people/rusty/trivial/
-  Don't blame me: the Monkey is driving
-  File: Mitchell Blank Jr <mitch@sfgoth.com>: [2.6 PATCH] hlist constification
+However, if tomorrow the exported function disappears completely - tough
+luck.  Nobody had ever promised to keep this "API" unchanged.  It's not
+that it had been changed just for kicks (after all, you get to do changes
+in a bunch of in-tree drivers are such change), but such changes had happened
+and will happen.  And there's nothing you can do about that.
+
+And folks, let's be honest.  Sturgeon was an optimist.  Way more than 90%
+of code is crap.  The only way around that is to have a bunch of creatively
+sadistic bastards go through said code and rip the authors a new one for
+every hole they find (and yes, that includes ripping new ones to each other).
+
+Judging by the vendor drivers that doesn't happen.  I don't care why that
+doesn't happen - be it "they'll buy it anyway" or "we have no resources"
+or "it's rude to the people who had done the original work" or "what do
+you mean, review?".  Whatever.  Unless I have very good reasons to believe
+that particular piece of code had been done right, crap it is.  Plain and
+simple statistics.
+
+Code from unknown programmers presumably written to unknown specifications
+that had presumably passed unknown QA by unknown reviewers and testers with
+unknown results and then had been shipped with unknown amount of pressure
+exerted by sales?  Geez...  What a wonderful reason to assume that it would
+be better than average...

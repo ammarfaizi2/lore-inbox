@@ -1,44 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275790AbRI1CNR>; Thu, 27 Sep 2001 22:13:17 -0400
+	id <S275789AbRI1CMh>; Thu, 27 Sep 2001 22:12:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275791AbRI1CNI>; Thu, 27 Sep 2001 22:13:08 -0400
-Received: from as4-1-7.has.s.bonet.se ([217.215.31.238]:44174 "EHLO
-	k-7.stesmi.com") by vger.kernel.org with ESMTP id <S275790AbRI1CNA>;
-	Thu, 27 Sep 2001 22:13:00 -0400
-Message-ID: <3BB3DC79.1030502@stesmi.com>
-Date: Fri, 28 Sep 2001 04:12:09 +0200
-From: Stefan Smietanowski <stesmi@stesmi.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.4) Gecko/20010913
-X-Accept-Language: en-us
+	id <S275790AbRI1CM1>; Thu, 27 Sep 2001 22:12:27 -0400
+Received: from smtp6.us.dell.com ([143.166.83.101]:517 "EHLO smtp6.us.dell.com")
+	by vger.kernel.org with ESMTP id <S275789AbRI1CMT>;
+	Thu, 27 Sep 2001 22:12:19 -0400
+Date: Thu, 27 Sep 2001 21:12:25 -0500 (CDT)
+From: Robert Macaulay <robert_macaulay@dell.com>
+X-X-Sender: <robert@ping.us.dell.com>
+Reply-To: Robert Macaulay <robert_macaulay@dell.com>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        Rik van Riel <riel@conectiva.com.br>,
+        Craig Kulesa <ckulesa@as.arizona.edu>, <linux-kernel@vger.kernel.org>,
+        Bob Matthews <bmatthews@redhat.com>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: highmem deadlock fix [was Re: VM in 2.4.10(+tweaks) vs.
+ 2.4.9-ac14/15(+stuff)]
+In-Reply-To: <20010928014720.Z14277@athlon.random>
+Message-ID: <Pine.LNX.4.33.0109272108400.29056-100000@ping.us.dell.com>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: CPU frequency shifting "problems"
-In-Reply-To: <E15mlwM-0005g5-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey.
+On Thu, 27 Sep 2001, Andrea Arcangeli wrote:
 
->>For example, the Intel "SpeedStep" CPU's are completely broken under
->>Linux, and real-time will advance at different speeds in DC and AC modes,
->>because Intel actually changes the frequency of the TSC _and_ they don't
->>document how to figure out that it changed.
 > 
-> The change is APM or ACPI initiated. Intel won't tell anyone anything
-> useful but Microsoft have published some of the required intel confidential
-> information which helps a bit
+> Moving clear_bit just above submit_bh will fix it (please Robert make
+> this change before testing it), because if we block in submit_bh in the
+> bounce, then we won't deadlock on ourself because of the pagehighmem
+> check, and all previous non-pending bh are ok too, (only the next are
+> problematic, and they're still marked pending_IO so we can't deadlock on
+> them).
+> 
+It worked. The box did not freeze.
 
-Did you just say that Microsoft actually went and did something right 
-for a change? As in publishing specs I mean.
+We can try Linus' patch as well if needed. I had actually applied 
+it and rebooted before the warning, and as predicted, it froze very 
+early in the boot process.
 
-*Stands in awe*
-
-:)
-
-// Stefan
-
+Thanks Andrea. I'll see if we can repeat the 0-page alloc again.
+Robert
 

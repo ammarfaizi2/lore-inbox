@@ -1,54 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279341AbRJWKAp>; Tue, 23 Oct 2001 06:00:45 -0400
+	id <S279343AbRJWKCf>; Tue, 23 Oct 2001 06:02:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279345AbRJWKAg>; Tue, 23 Oct 2001 06:00:36 -0400
-Received: from Morgoth.esiway.net ([193.194.16.157]:43528 "EHLO
-	Morgoth.esiway.net") by vger.kernel.org with ESMTP
-	id <S279341AbRJWKAV>; Tue, 23 Oct 2001 06:00:21 -0400
-Date: Tue, 23 Oct 2001 12:00:53 +0200 (CEST)
-From: Marco Colombo <marco@esi.it>
-To: Luigi Genoni <kernel@Expansa.sns.it>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.2.20pre10
-In-Reply-To: <Pine.LNX.4.33.0110230203320.31211-100000@Expansa.sns.it>
-Message-ID: <Pine.LNX.4.33.0110231158310.9786-100000@Megathlon.ESI>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S279346AbRJWKCZ>; Tue, 23 Oct 2001 06:02:25 -0400
+Received: from fe100.worldonline.dk ([212.54.64.211]:23568 "HELO
+	fe100.worldonline.dk") by vger.kernel.org with SMTP
+	id <S279343AbRJWKCO>; Tue, 23 Oct 2001 06:02:14 -0400
+Date: Tue, 23 Oct 2001 12:02:40 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Martin Frey <frey@scs.ch>
+Cc: "'Shailabh Nagar'" <nagar@us.ibm.com>, "'Reto Baettig'" <baettig@scs.ch>,
+        lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [Lse-tech] Re: Preliminary results of using multiblock raw I/O
+Message-ID: <20011023120240.N638@suse.de>
+In-Reply-To: <20011023084238.C638@suse.de> <000b01c15ba9$58ba4e90$e6c02f10@SCHLEPPDOWN>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <000b01c15ba9$58ba4e90$e6c02f10@SCHLEPPDOWN>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 23 Oct 2001, Luigi Genoni wrote:
+On Tue, Oct 23 2001, Martin Frey wrote:
+> >I haven't seen the SGI rawio patch, but I'm assuming it used kiobufs to
+> >pass a single unit of 1 meg down at the time. Yes currently we do incur
+> >significant overhead compared to that approach.
+> >
+> Yes, it used kiobufs to get a gatherlist, setup a gather DMA out
+> of that list and submitted it to the SCSI layer. Depending on
+> the controller 1 MB could be transfered with 0 memcopies, 1 DMA,
+> 1 interrupt. 200 MB/s with 10% CPU load was really impressive.
 
->
-> Ohh, our prime minister declared USA the main defensor of liberty.
-> Of course he was thinking also to this law. You know he has three
-> television, a couple of newspapers and so on...
-> His natural attitude brings him to agree in every case with USA
-> government. He is a good vendor. Apart of this. In Italy we are making a
-> lot of pressure against a stupid law about copyrights, but
-> when the prime minister is the owner of the biggest television and most
-> important newspapers, and when the statal television and newspaper are
-> a little assentive with the government (oh... just a little),
-> we are under censure. And anyway we publish articles and public mails
-> about that, we open web sites. We try to inform, and belive me, italians
-> are not so interested is a soccer team is not involved.
->
-> USA citizens should have less dificoulties to do something similar,
-> but I am not informed of a real effort from them.
->
-> Luigi
->
-> p.s.
-> of course, please, tell me I am wrong
+Let me repeat that the only difference between the kiobuf and the
+current approach is the overhead incurred on multiple __make_request
+calls. Given the current short queues, this isn't as bad as it used to
+be. Of course it isn't free, though.
 
-Of course you are: move this to soc.*, please.
+It's still 0 mem copies, and can be completed with 1 interrupts and DMA
+operation.
 
-.TM.
 -- 
-      ____/  ____/   /
-     /      /       /			Marco Colombo
-    ___/  ___  /   /		      Technical Manager
-   /          /   /			 ESI s.r.l.
- _____/ _____/  _/		       Colombo@ESI.it
+Jens Axboe
 

@@ -1,67 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266345AbRGBC6y>; Sun, 1 Jul 2001 22:58:54 -0400
+	id <S266347AbRGBDAY>; Sun, 1 Jul 2001 23:00:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266348AbRGBC6o>; Sun, 1 Jul 2001 22:58:44 -0400
-Received: from 513.holly-springs.nc.us ([216.27.31.173]:34374 "EHLO
-	513.holly-springs.nc.us") by vger.kernel.org with ESMTP
-	id <S266345AbRGBC6i>; Sun, 1 Jul 2001 22:58:38 -0400
-Subject: Re: Soft updates for 2.5?
-From: Michael Rothwell <rothwell@holly-springs.nc.us>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Alex Khripin <akhripin@morgoth.mit.edu>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33L.0107012331360.19985-100000@imladris.rielhome.conectiva>
-In-Reply-To: <Pine.LNX.4.33L.0107012331360.19985-100000@imladris.rielhome.conectiva>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.10.99 (Preview Release)
-Date: 01 Jul 2001 22:58:04 -0400
-Message-Id: <994042685.12022.5.camel@localhost.localdomain>
-Mime-Version: 1.0
+	id <S266352AbRGBDAO>; Sun, 1 Jul 2001 23:00:14 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:25355 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S266347AbRGBC75>; Sun, 1 Jul 2001 22:59:57 -0400
+Date: Sun, 1 Jul 2001 23:59:52 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        lkml <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
+Subject: Re: Removal of PG_marker scheme from 2.4.6-pre
+In-Reply-To: <Pine.LNX.4.33.0107011943240.7587-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.33L.0107012358460.9312-100000@duckman.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-While on the topic of reslilent, high-performance filesystems, what ever
-became of "Tux", Daniel Philip's mythical WAFL-type filesystem?
+On Sun, 1 Jul 2001, Linus Torvalds wrote:
+> On Sun, 1 Jul 2001, Rik van Riel wrote:
+> > > "me: undo page_launder() LRU changes, they have nasty side effects"
+> > >
+> > > Can you be more verbose about this ?
+> >
+> > I think this was fixed by the GFP_BUFFER vs. GFP_CAN_FS + GFP_CAN_IO
+> > thing and Linus accidentally backed out the wrong code ;)
+>
+> You wish.
+>
+> Except it wasn't so.
+>
+> Follow the list, and read the emails that were cc'd to you.
 
-On 01 Jul 2001 23:33:52 -0300, Rik van Riel wrote:
-> On Sat, 30 Jun 2001, Alex Khripin wrote:
-> 
-> > There was a discussion in October, 2000, about the Granger and
-> > McKusick paper on soft updates for the BSD FFS. Reading the thread,
-> > nothing conclusive seemed to come out of it.
-> 
-> What you want is ext3.
-> 
-> It is a journaling version of ext2, which basically
-> means you get all the advantages of soft updates and
-> a bit more (due to the atomicity that journaled
-> transactions can give you).
-> 
-> It should be superior to softupdates in both the
-> consistency area and the performance area (due to
-> the fact that stuff is in the journal, you have
-> more freedom to reorder the writes to the "main"
-> part of the filesystem).
-> 
-> regards,
-> 
-> Rik
-> --
-> Virtual memory is like a game you can't win;
-> However, without VM there's truly nothing to lose...
-> 
-> http://www.surriel.com/		http://distro.conectiva.com/
-> 
-> Send all your spam to aardvark@nl.linux.org (spam digging piggy)
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+I'll try to find them, but at the moment I'm on a slow
+link (was at USENIX and am still a continent away from
+where my email is) and I'm afraid I won't have too much
+time for kernel stuff the next 3 weeks ;(
+
+Rik
 --
-Michael Rothwell
-rothwell@holly-springs.nc.us
+Executive summary of a recent Microsoft press release:
+   "we are concerned about the GNU General Public License (GPL)"
 
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
 

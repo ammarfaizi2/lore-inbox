@@ -1,634 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265990AbUAFAqA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 19:46:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266049AbUAFAow
+	id S266035AbUAFAtN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 19:49:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266056AbUAFAqs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 19:44:52 -0500
-Received: from [66.62.77.7] ([66.62.77.7]:28893 "EHLO mail.gurulabs.com")
-	by vger.kernel.org with ESMTP id S265990AbUAFAjL (ORCPT
+	Mon, 5 Jan 2004 19:46:48 -0500
+Received: from mail.kroah.org ([65.200.24.183]:46262 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S266035AbUAFAn7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 19:39:11 -0500
-Subject: ACPI battery issue - Dell Inspiron 4150 - 2.6.1-rc1-mm2
-From: Dax Kelson <dax@gurulabs.com>
-To: linux-kernel@vger.kernel.org
-Cc: acpi-devel@lists.sourceforge.net, len.brown@intel.com
-Content-Type: multipart/mixed; boundary="=-HaMZ/RW2boXlLEHFucdP"
-Message-Id: <1073350293.2802.36.camel@mentor.gurulabs.com>
+	Mon, 5 Jan 2004 19:43:59 -0500
+Date: Mon, 5 Jan 2004 16:43:43 -0800
+From: Greg KH <greg@kroah.com>
+To: Shawn <core@enodev.com>
+Cc: Mark Mielke <mark@mark.mielke.cc>, Linus Torvalds <torvalds@osdl.org>,
+       Andries Brouwer <aebr@win.tue.nl>, Daniel Jacobowitz <dan@debian.org>,
+       Rob Love <rml@ximian.com>, rob@landley.net,
+       Pascal Schmidt <der.eremit@email.de>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: udev and devfs - The final word
+Message-ID: <20040106004343.GB1043@kroah.com>
+References: <Pine.LNX.4.58.0401041847370.2162@home.osdl.org> <20040105030737.GA29964@nevyn.them.org> <Pine.LNX.4.58.0401041918260.2162@home.osdl.org> <20040105132756.A975@pclin040.win.tue.nl> <Pine.LNX.4.58.0401050749490.21265@home.osdl.org> <20040105205228.A1092@pclin040.win.tue.nl> <Pine.LNX.4.58.0401051224480.2153@home.osdl.org> <1073341077.21797.17.camel@localhost> <20040105222559.GA3513@mark.mielke.cc> <1073343916.21797.21.camel@www.enodev.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Mon, 05 Jan 2004 17:51:33 -0700
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1073343916.21797.21.camel@www.enodev.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Jan 05, 2004 at 05:05:16PM -0600, Shawn wrote:
+> On Mon, 2004-01-05 at 16:25, Mark Mielke wrote:
+> > On Mon, Jan 05, 2004 at 04:17:57PM -0600, Shawn wrote:
+> > > ...
+> > > As an admin, would I at least theoretically have /some/ consistency if
+> > > merely for my own sanity when dealing with block devices by hand (I do
+> > > need to setup LVM stuff from time to time)??
+> > 
+> > If all you care about is that /dev names remain consistent, you need
+> > not fear. udev and devfs are two different ways of providing this
+> > consistency. They abstract the device numbers from the /dev names,
+> > meaning that you don't have to care if the numbers change. The names
+> > don't.
+> I'm obviously confused if this is true, as then I do not know how the
+> great and powerful udev derives the names if not from the numbers, or
+> some other sysfs info.
 
---=-HaMZ/RW2boXlLEHFucdP
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+udev can derive the names for the /dev entries from just about anything
+you can think of:
+	- sysfs files
+	- bus topology
+	- bus ids
+	- any script/program that you might want to run
+	- the kernel name
 
-Found at boot: 
-ACPI: Battery Slot [BAT0] (battery present)
-ACPI: Battery Slot [BAT1] (battery present)
+It will default back to the "kernel name" that shows up in sysfs, and is
+what we currently use, if it can not match up any other name to it.  The
+method of creating these rules that udev uses, are contained in the
+udev.rules file.  See the udev man page for the syntax and some example
+rules.  Also see the example udev.rules and udev.rules.devfs files for
+lots more example rules that you might want to come up with.
 
-But no run-time information:
+The strength in this is that udev can poke around and try to find a
+unique "tag" that a specific device exports (be it UUID, or a CDDB
+entry) and use that to match up a name to.  That enables your cdrom to
+always be called /dev/cdrom no matter where in the scsi chain it happens
+to be.
 
-$ cat /proc/acpi/battery/BAT0/info
-present:                 yes
-design capacity:         0 mWh
-last full capacity:      0 mWh
-battery technology:      non-rechargeable
-design voltage:          0 mV
-design capacity warning: 0 mWh
-design capacity low:     0 mWh
-capacity granularity 1:  0 mWh
-capacity granularity 2:  0 mWh
-model number:
-serial number:
-battery type:
-OEM info:
+In summary, udev doesn't care squat about the major/minor that the
+kernel has used for a device.  It merely uses those numbers and creates
+a /dev entry with them, assigned to a name that it comes up with.
 
-$ cat /proc/acpi/battery/BAT0/state
-present:                 yes
-capacity state:          ok
-charging state:          unknown
-present rate:            0 mA
-remaining capacity:      0 mAh
-present voltage:         0 mV
+Does that help out?  The udev OLS paper might also help explain some of
+this.
 
-Attached dmidecode ouput (which shows the battery info)
+thanks,
 
-
---=-HaMZ/RW2boXlLEHFucdP
-Content-Disposition: attachment; filename=dell-inspiron-4150.txt
-Content-Type: text/plain; name=dell-inspiron-4150.txt; charset=
-Content-Transfer-Encoding: 7bit
-
-# dmidecode 2.2
-SMBIOS 2.3 present.
-61 structures occupying 2353 bytes.
-Table at 0x000F76A0.
-Handle 0xDA00
-	DMI type 218, 203 bytes.
-	OEM-specific Type
-		Header And Data:
-			DA CB 00 DA B2 00 0D 1F 0F 17 40 6F 00 00 00 01
-			00 70 00 00 00 00 00 71 00 02 00 01 00 72 00 02
-			00 00 00 7B 00 04 00 00 00 7C 00 06 00 00 00 79
-			00 08 00 00 00 7D 00 0A 00 00 00 7E 00 0C 00 00
-			00 78 00 0E 00 01 00 77 00 0E 00 00 00 73 00 10
-			00 01 00 74 00 10 00 00 00 7A 00 11 00 00 00 7F
-			00 12 00 00 00 40 00 13 00 01 00 41 00 13 00 00
-			00 1E 00 14 00 00 00 1F 00 14 00 01 00 20 00 14
-			00 02 00 21 00 14 00 03 00 75 00 15 00 01 00 76
-			00 15 00 00 00 00 80 00 80 00 00 00 A0 00 A0 01
-			00 05 80 05 80 01 00 01 F0 01 F0 00 00 02 F0 02
-			F0 00 00 03 F0 03 F0 00 00 04 F0 04 F0 00 00 05
-			F0 05 F0 00 00 FF FF 00 00 00 00
-Handle 0x0000
-	DMI type 0, 20 bytes.
-	BIOS Information
-		Vendor: Dell Computer Corporation
-		Version: A06
-		Release Date: 05/15/2003
-		Address: 0xF0000
-		Runtime Size: 64 kB
-		ROM Size: 512 kB
-		Characteristics:
-			PCI is supported
-			PC Card (PCMCIA) is supported
-			PNP is supported
-			APM is supported
-			BIOS is upgradeable
-			BIOS shadowing is allowed
-			Boot from CD is supported
-			Selectable boot is supported
-			Boot from PC Card (PCMCIA) is supported
-			3.5"/720 KB floppy services are supported (int 13h)
-			Print screen service is supported (int 5h)
-			8042 keyboard services are supported (int 9h)
-			Serial services are supported (int 14h)
-			Printer services are supported (int 17h)
-			CGA/mono video services are supported (int 10h)
-			ACPI is supported
-			USB legacy is supported
-			AGP is supported
-			LS-120 boot is supported
-			ATAPI Zip drive boot is supported
-			Smart battery is supported
-			BIOS boot specification is supported
-Handle 0x0100
-	DMI type 1, 25 bytes.
-	System Information
-		Manufacturer: Dell Computer Corporation
-		Product Name: Inspiron 4150                   
-		Version: Not Specified
-		Serial Number: 5R0GP11
-		UUID: 44454C4C-5200-1030-8047-B5C04F503131
-		Wake-up Type: Power Switch
-Handle 0x0200
-	DMI type 2, 9 bytes.
-	Base Board Information
-		Manufacturer: Dell Computer Corporation
-		Product Name:       
-		Version:    
-		Serial Number: .5R0GP11.              .
-Handle 0x0300
-	DMI type 3, 13 bytes.
-	Chassis Information
-		Manufacturer: Dell Computer Corporation
-		Type: Portable
-		Lock: Not Present
-		Version: Not Specified
-		Serial Number: 5R0GP11
-		Asset Tag: Not Specified
-		Boot-up State: Safe
-		Power Supply State: Safe
-		Thermal State: Safe
-		Security Status: None
-Handle 0x0301
-	DMI type 126, 13 bytes.
-	Inactive
-Handle 0x0400
-	DMI type 4, 32 bytes.
-	Processor Information
-		Socket Designation: Microprocessor
-		Type: Central Processor
-		Family: Pentium 4
-		Manufacturer: Intel
-		ID: 24 0F 00 00 FF F9 EB 3F
-		Signature: Type 0, Family F, Model 2, Stepping 4
-		Flags:
-			FPU (Floating-point unit on-chip)
-			VME (Virtual mode extension)
-			DE (Debugging extension)
-			PSE (Page size extension)
-			TSC (Time stamp counter)
-			MSR (Model specific registers)
-			PAE (Physical address extension)
-			MCE (Machine check exception)
-			CX8 (CMPXCHG8 instruction supported)
-			SEP (Fast system call)
-			MTRR (Memory type range registers)
-			PGE (Page global enable)
-			MCA (Machine check architecture)
-			CMOV (Conditional move instruction supported)
-			PAT (Page attribute table)
-			PSE-36 (36-bit page size extension)
-			CLFSH (CLFLUSH instruction supported)
-			DS (Debug store)
-			ACPI (ACPI supported)
-			MMX (MMX technology supported)
-			FXSR (Fast floating-point save and restore)
-			SSE (Streaming SIMD extensions)
-			SSE2 (Streaming SIMD extensions 2)
-			SS (Self-snoop)
-			HTT (Hyper-threading technology)
-			TM (Thermal monitor supported)
-		Version: Not Specified
-		Voltage: 3.3 V
-		External Clock: 133 MHz
-		Max Speed: 2400 MHz
-		Current Speed: 1900 MHz
-		Status: Populated, Enabled
-		Upgrade: None
-		L1 Cache Handle: 0x0700
-		L2 Cache Handle: 0x0701
-		L3 Cache Handle: Not Provided
-Handle 0x0700
-	DMI type 7, 19 bytes.
-	Cache Information
-		Socket Designation: Not Specified
-		Configuration: Enabled, Not Socketed, Level 1
-		Operational Mode: Write Back
-		Location: Internal
-		Installed Size: 8 KB
-		Maximum Size: 8 KB
-		Supported SRAM Types:
-			Unknown
-		Installed SRAM Type: Unknown
-		Speed: Unknown
-		Error Correction Type: None
-		System Type: Data
-		Associativity: 4-way Set-associative
-Handle 0x0701
-	DMI type 7, 19 bytes.
-	Cache Information
-		Socket Designation: Not Specified
-		Configuration: Enabled, Not Socketed, Level 2
-		Operational Mode: Varies With Memory Address
-		Location: Internal
-		Installed Size: 512 KB
-		Maximum Size: 512 KB
-		Supported SRAM Types:
-			Pipeline Burst
-		Installed SRAM Type: Pipeline Burst
-		Speed: 15 ns
-		Error Correction Type: None
-		System Type: Unified
-		Associativity: Other
-Handle 0x0800
-	DMI type 8, 9 bytes.
-	Port Connector Information
-		Internal Reference Designator: PARALLEL
-		Internal Connector Type: None
-		External Reference Designator: Not Specified
-		External Connector Type: DB-25 female
-		Port Type: Parallel Port PS/2
-Handle 0x0801
-	DMI type 8, 9 bytes.
-	Port Connector Information
-		Internal Reference Designator: SERIAL1
-		Internal Connector Type: None
-		External Reference Designator: Not Specified
-		External Connector Type: DB-9 male
-		Port Type: Serial Port 16550A Compatible
-Handle 0x0802
-	DMI type 8, 9 bytes.
-	Port Connector Information
-		Internal Reference Designator: PS/2
-		Internal Connector Type: None
-		External Reference Designator: Not Specified
-		External Connector Type: Mini DIN
-		Port Type: Mouse Port
-Handle 0x0803
-	DMI type 126, 9 bytes.
-	Inactive
-Handle 0x0804
-	DMI type 8, 9 bytes.
-	Port Connector Information
-		Internal Reference Designator: USB
-		Internal Connector Type: None
-		External Reference Designator: Not Specified
-		External Connector Type: Access Bus (USB)
-		Port Type: USB
-Handle 0x0805
-	DMI type 126, 9 bytes.
-	Inactive
-Handle 0x0806
-	DMI type 8, 9 bytes.
-	Port Connector Information
-		Internal Reference Designator: MONITOR
-		Internal Connector Type: None
-		External Reference Designator: Not Specified
-		External Connector Type: DB-15 female
-		Port Type: Video Port
-Handle 0x0807
-	DMI type 126, 9 bytes.
-	Inactive
-Handle 0x0808
-	DMI type 126, 9 bytes.
-	Inactive
-Handle 0x0809
-	DMI type 8, 9 bytes.
-	Port Connector Information
-		Internal Reference Designator: IrDA
-		Internal Connector Type: None
-		External Reference Designator: Not Specified
-		External Connector Type: Infrared
-		Port Type: Other
-Handle 0x080A
-	DMI type 8, 9 bytes.
-	Port Connector Information
-		Internal Reference Designator: S-Video
-		Internal Connector Type: None
-		External Reference Designator: Not Specified
-		External Connector Type: Mini DIN
-		Port Type: Video Port
-Handle 0x080C
-	DMI type 8, 9 bytes.
-	Port Connector Information
-		Internal Reference Designator: Modem
-		Internal Connector Type: None
-		External Reference Designator: Not Specified
-		External Connector Type: RJ-11
-		Port Type: Modem Port
-Handle 0x080D
-	DMI type 8, 9 bytes.
-	Port Connector Information
-		Internal Reference Designator: Ethernet
-		Internal Connector Type: None
-		External Reference Designator: Not Specified
-		External Connector Type: RJ-45
-		Port Type: Network Port
-Handle 0x0900
-	DMI type 9, 13 bytes.
-	System Slot Information
-		Designation: PCMCIA 0
-		Type: 32-bit PC Card (PCMCIA)
-		Current Usage: Available
-		Length: Other
-		ID: Adapter 0, Socket 0
-		Characteristics:
-			5.0 V is provided
-			3.3 V is provided
-			PC Card-16 is supported
-			Cardbus is supported
-			Zoom Video is supported
-			Modem ring resume is supported
-Handle 0x0901
-	DMI type 9, 13 bytes.
-	System Slot Information
-		Designation: PCMCIA 1
-		Type: 32-bit PC Card (PCMCIA)
-		Current Usage: Available
-		Length: Other
-		ID: Adapter 10, Socket 0
-		Characteristics:
-			5.0 V is provided
-			3.3 V is provided
-			PC Card-16 is supported
-			Cardbus is supported
-			Modem ring resume is supported
-Handle 0x0902
-	DMI type 126, 13 bytes.
-	Inactive
-Handle 0x0903
-	DMI type 126, 13 bytes.
-	Inactive
-Handle 0x0904
-	DMI type 9, 13 bytes.
-	System Slot Information
-		Designation: MiniPCI
-		Type: 32-bit Other
-		Current Usage: Available
-		Length: Other
-		Characteristics:
-			5.0 V is provided
-			3.3 V is provided
-			PME signal is supported
-Handle 0x0A00
-	DMI type 10, 6 bytes.
-	On Board Device Information
-		Type: Video
-		Status: Enabled
-		Description: ATI Mobility M7
-Handle 0x0A01
-	DMI type 10, 6 bytes.
-	On Board Device Information
-		Type: Sound
-		Status: Enabled
-		Description: Crystal 4205
-Handle 0x0A02
-	DMI type 126, 6 bytes.
-	Inactive
-Handle 0x0A03
-	DMI type 126, 6 bytes.
-	Inactive
-Handle 0x0B00
-	DMI type 11, 5 bytes.
-	OEM Strings
-		String 1: Dell System
-		String 2: 5[0025]
-Handle 0x0D00
-	DMI type 13, 22 bytes.
-	BIOS Language Information
-		Installable Languages: 1
-			en|US|iso8859-1
-		Currently Installed Language: en|US|iso8859-1
-Handle 0x1000
-	DMI type 16, 15 bytes.
-	Physical Memory Array
-		Location: System Board Or Motherboard
-		Use: System Memory
-		Error Correction Type: None
-		Maximum Capacity: 1 GB
-		Error Information Handle: Not Provided
-		Number Of Devices: 2
-Handle 0x1100
-	DMI type 17, 27 bytes.
-	Memory Device
-		Array Handle: 0x1000
-		Error Information Handle: Not Provided
-		Total Width: 64 bits
-		Data Width: 64 bits
-		Size: 512 MB
-		Form Factor: DIMM
-		Set: None
-		Locator: DIMM_A
-		Bank Locator: Not Specified
-		Type: DDR
-		Type Detail: Synchronous
-		Speed: 266 MHz (3.8 ns)
-		Manufacturer: Not Specified
-		Serial Number: Not Specified
-		Asset Tag: Not Specified
-		Part Number:                 
-Handle 0x1101
-	DMI type 17, 27 bytes.
-	Memory Device
-		Array Handle: 0x1000
-		Error Information Handle: Not Provided
-		Total Width: 64 bits
-		Data Width: 64 bits
-		Size: 512 MB
-		Form Factor: DIMM
-		Set: None
-		Locator: DIMM_B
-		Bank Locator: Not Specified
-		Type: DDR
-		Type Detail: Synchronous
-		Speed: 266 MHz (3.8 ns)
-		Manufacturer: Not Specified
-		Serial Number: Not Specified
-		Asset Tag: Not Specified
-		Part Number:                 
-Handle 0x1300
-	DMI type 19, 15 bytes.
-	Memory Array Mapped Address
-		Starting Address: 0x00000000000
-		Ending Address: 0x0000009FFFF
-		Range Size: 640 kB
-		Physical Array Handle: 0x1000
-		Partition Width: 0
-Handle 0x1301
-	DMI type 19, 15 bytes.
-	Memory Array Mapped Address
-		Starting Address: 0x00000100000
-		Ending Address: 0x0003FFFFFFF
-		Range Size: 1023 MB
-		Physical Array Handle: 0x1000
-		Partition Width: 0
-Handle 0x1400
-	DMI type 20, 19 bytes.
-	Memory Device Mapped Address
-		Starting Address: 0x00000000000
-		Ending Address: 0x0000009FFFF
-		Range Size: 640 kB
-		Physical Device Handle: 0x1100
-		Memory Array Mapped Address Handle: 0x1300
-		Partition Row Position: 1
-Handle 0x1401
-	DMI type 20, 19 bytes.
-	Memory Device Mapped Address
-		Starting Address: 0x00000100000
-		Ending Address: 0x0001FFFFFFF
-		Range Size: 511 MB
-		Physical Device Handle: 0x1100
-		Memory Array Mapped Address Handle: 0x1301
-		Partition Row Position: 1
-Handle 0x1402
-	DMI type 20, 19 bytes.
-	Memory Device Mapped Address
-		Starting Address: 0x00020000000
-		Ending Address: 0x0003FFFFFFF
-		Range Size: 512 MB
-		Physical Device Handle: 0x1101
-		Memory Array Mapped Address Handle: 0x1301
-		Partition Row Position: 1
-Handle 0x1500
-	DMI type 21, 7 bytes.
-	Built-in Pointing Device
-		Type: Touch Pad
-		Interface: Bus Mouse
-		Buttons: 2
-Handle 0x1600
-	DMI type 22, 26 bytes.
-	Portable Battery
-		Location: Left Module Bay 
-		Manufacturer: SANYO           
-		Name: 0004M778        
-		Design Capacity: 66000 mWh
-		Design Voltage: 14800 mV
-		SBDS Version: 1.0
-		Maximum Error: 4%
-		SBDS Serial Number: 03C0
-		SBDS Manufacture Date: 2002-07-22
-		SBDS Chemistry: LION            
-		OEM-specific Information: 0x00000001
-Handle 0x1601
-	DMI type 22, 26 bytes.
-	Portable Battery
-		Location: Right Module Bay
-		Manufacturer: Sony Corp.      
-		Name: LIP8120DLP      
-		Design Capacity: 65120 mWh
-		Design Voltage: 14800 mV
-		SBDS Version: 1.0
-		Maximum Error: 4%
-		SBDS Serial Number: 1402
-		SBDS Manufacture Date: 2002-06-24
-		SBDS Chemistry: LION            
-		OEM-specific Information: 0x00000001
-Handle 0x1B00
-	DMI type 27, 12 bytes.
-	Cooling Device
-		Type: Fan
-		Status: OK
-		OEM-specific Information: 0x0000DD00
-Handle 0x1C00
-	DMI type 28, 20 bytes.
-	Temperature Probe
-		Description: CPU Internal Temperature
-		Location: Processor
-		Status: OK
-		Maximum Value: 127.0 deg C
-		Minimum Value 0.0 deg C
-		Resolution: 1.000 deg C
-		Tolerance: 0.5 deg C
-		Accuracy: Unknown
-		OEM-specific Information: 0x0000DC00
-Handle 0x2000
-	DMI type 32, 11 bytes.
-	System Boot Information
-		Status: No errors detected
-Handle 0xD000
-	DMI type 208, 10 bytes.
-	OEM-specific Type
-		Header And Data:
-			D0 0A 00 D0 01 04 FE 00 2B 01
-Handle 0xD100
-	DMI type 209, 12 bytes.
-	OEM-specific Type
-		Header And Data:
-			D1 0C 00 D1 00 00 00 03 04 07 80 05
-Handle 0xD200
-	DMI type 210, 12 bytes.
-	OEM-specific Type
-		Header And Data:
-			D2 0C 00 D2 F8 03 04 03 06 80 04 05
-Handle 0xD300
-	DMI type 211, 13 bytes.
-	OEM-specific Type
-		Header And Data:
-			D3 0D 00 D3 01 04 02 01 00 00 00 00 02
-		Strings:
-			Back of System
-			        
-			        
-Handle 0xD800
-	DMI type 216, 9 bytes.
-	OEM-specific Type
-		Header And Data:
-			D8 09 00 D8 01 03 01 F0 03
-		Strings:
-			ATI Technologies Inc.
-			 
-			.0 VR006.006.006.00
-			 
-Handle 0xD900
-	DMI type 217, 8 bytes.
-	OEM-specific Type
-		Header And Data:
-			D9 08 00 D9 01 02 01 03
-		Strings:
-			US-101
-			Proprietary
-Handle 0xDB00
-	DMI type 219, 8 bytes.
-	OEM-specific Type
-		Header And Data:
-			DB 08 00 DB 03 01 02 03
-		Strings:
-			System Device Bay
-			Floppy, Battery, CD-ROM, CD-RW, Hard Disk, LS-120, DVD, ZIP
-			Battery   
-Handle 0xDB01
-	DMI type 126, 8 bytes.
-	Inactive
-Handle 0xDC00
-	DMI type 220, 22 bytes.
-	OEM-specific Type
-		Header And Data:
-			DC 16 00 DC 01 F0 00 00 02 F0 00 00 00 00 03 F0
-			04 F0 00 00 00 00
-Handle 0xDD00
-	DMI type 221, 19 bytes.
-	OEM-specific Type
-		Header And Data:
-			DD 13 00 DD 00 00 00 00 00 05 F0 00 00 00 00 00
-			00 00 00
-Handle 0xD400
-	DMI type 212, 207 bytes.
-	OEM-specific Type
-		Header And Data:
-			D4 CF 00 D4 70 00 71 00 00 10 2D 2E 5C 00 78 BF
-			40 5D 00 78 BF 00 5E 00 23 FE 01 5F 00 23 FE 00
-			60 00 1D EF 10 61 00 1D EF 00 62 00 25 E7 00 63
-			00 25 E7 08 64 00 25 E7 10 65 00 21 F7 00 66 00
-			21 F7 08 67 00 25 DF 20 68 00 25 DF 00 1D 00 21
-			FE 00 1C 00 21 FE 01 0F 00 26 F8 00 11 00 26 F8
-			01 05 00 26 F8 02 12 00 26 F8 03 06 00 26 F8 04
-			31 00 26 8F 00 32 00 26 8F 10 33 00 26 8F 20 34
-			00 26 8F 30 35 00 26 8F 40 07 00 25 F8 00 0B 00
-			25 F8 01 0C 00 25 F8 02 0D 00 25 F8 04 28 00 23
-			F3 00 29 00 23 F3 04 2A 00 23 F3 08 2B 00 58 00
-			00 2C 00 59 00 00 88 00 23 FD 02 89 00 23 FD 00
-			08 00 1D DF 00 03 00 1D DF 00 FF FF 00 00 00
-Handle 0xD401
-	DMI type 212, 37 bytes.
-	OEM-specific Type
-		Header And Data:
-			D4 25 01 D4 70 00 71 00 03 40 49 4A 42 00 48 7F
-			80 43 00 48 7F 00 55 00 47 BF 00 6D 00 47 BF 40
-			FF FF 00 00 00
-Handle 0xDE00
-	DMI type 222, 13 bytes.
-	OEM-specific Type
-		Header And Data:
-			DE 0D 00 DE 01 02 FF FF 00 00 00 00 00
-Handle 0x7F00
-	DMI type 127, 4 bytes.
-	End Of Table
-
---=-HaMZ/RW2boXlLEHFucdP--
-
+greg k-h

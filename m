@@ -1,85 +1,181 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261372AbVA1P7o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261260AbVA1P7i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261372AbVA1P7o (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 10:59:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261454AbVA1P7o
+	id S261260AbVA1P7i (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 10:59:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261454AbVA1P7i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 10:59:44 -0500
-Received: from holomorphy.com ([66.93.40.71]:37357 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S261372AbVA1P7h (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 10:59:37 -0500
-Date: Fri, 28 Jan 2005 07:55:49 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Esben Nielsen <simlo@phys.au.dk>, Rui Nuno Capela <rncbc@rncbc.org>,
-       "K.R. Foley" <kr@cybsft.com>,
-       Fernando Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       mark_h_johnson@raytheon.com, Amit Shah <amit.shah@codito.com>,
-       Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, emann@mrv.com,
-       Gunther Persoons <gunther_persoons@spymac.com>,
-       linux-kernel@vger.kernel.org, Florian Schmidt <mista.tapas@gmx.net>,
-       Lee Revell <rlrevell@joe-job.com>, Shane Shrybman <shrybman@aei.ca>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-Subject: Re: Real-time rw-locks (Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.32-15)
-Message-ID: <20050128155549.GR10843@holomorphy.com>
-References: <20041214113519.GA21790@elte.hu> <Pine.OSF.4.05.10412271404440.25730-100000@da410.ifa.au.dk> <20050128073856.GA2186@elte.hu> <20050128115640.GP10843@holomorphy.com> <20050128152802.GA15508@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050128152802.GA15508@elte.hu>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040907i
+	Fri, 28 Jan 2005 10:59:38 -0500
+Received: from smtp2.rz.tu-harburg.de ([134.28.205.13]:13940 "EHLO
+	smtp2.rz.tu-harburg.de") by vger.kernel.org with ESMTP
+	id S261260AbVA1P7X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jan 2005 10:59:23 -0500
+Message-ID: <41FA6136.20407@tu-harburg.de>
+Date: Fri, 28 Jan 2005 16:58:46 +0100
+From: Jan Blunck <j.blunck@tu-harburg.de>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: Andrew Morton <akpm@osdl.org>,
+       Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       raven@themaw.net, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: [PATCH] d_drop should use per dentry lock
+X-Enigmail-Version: 0.89.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/mixed;
+ boundary="------------020508060801050800010101"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* William Lee Irwin III <wli@holomorphy.com> wrote:
->> I wouldn't be so sure about that. SGI is already implicitly relying on
->> the parallel holding of rwsems for the lockless pagefaulting, and
->> Oracle has been pushing on mapping->tree_lock becoming an rwlock for a
->> while, both for large performance gains.
+This is a multi-part message in MIME format.
+--------------020508060801050800010101
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Fri, Jan 28, 2005 at 04:28:02PM +0100, Ingo Molnar wrote:
-> i dont really buy it. Any rwlock-type of locking causes global cacheline
-> bounces. It can make a positive scalability difference only if the
-> read-lock hold time is large, at which point RCU could likely have
-> significantly higher performance. There _may_ be an intermediate locking
-> pattern that is both long-held but has a higher mix of write-locking
-> where rwlocks/rwsems may have a performance advantage over RCU or
-> spinlocks.
+d_drop() must use the dentry->d_lock spinlock. In some cases __d_drop() 
+was used without holding the dentry->d_lock spinlock, too. This could 
+end in a race with __d_lookup().
 
-The performance relative to mutual exclusion is quantifiable and very
-reproducible. These results have people using arguments similar to what
-you made above baffled. Systems as small as 4 logical cpus feel these
-effects strongly, and it appears to scale almost linearly with the
-number of cpus. It may be worth consulting an x86 processor architect
-or similar to get an idea of why the counterargument fails. I'm rather
-interested in hearing why as well, as I believed the cacheline bounce
-argument until presented with incontrovertible evidence to the contrary.
-
-As far as performance relative to RCU goes, I suspect cases where
-write-side latency is important will arise for these. Other lockless
-methods are probably more appropriate, and are more likely to dominate
-rwlocks as expected. For instance, a reimplementation of the radix
-trees for lockless insertion and traversal (c.f. lockless pagetable
-patches for examples of how that's carried out) is plausible, where RCU
-memory overhead in struct page is not.
+Regards,
+Jan
 
 
-On Fri, Jan 28, 2005 at 04:28:02PM +0100, Ingo Molnar wrote:
-> Also this is about PREEMPT_RT, mainly aimed towards embedded systems,
-> and at most aimed towards small (dual-CPU) SMP systems, not the really
-> big systems.
-> But, the main argument wrt. PREEMPT_RT stands and is independent of any
-> scalability properties: rwlocks/rwsems have so bad deterministic
-> behavior that they are almost impossible to implement in a sane way.
+--------------020508060801050800010101
+Content-Type: text/x-patch;
+ name="d_drop-locking.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="d_drop-locking.diff"
 
-I suppose if it's not headed toward mainline the counterexamples don't
-really matter. I don't have much to say about the RT-related issues,
-though I'm aware of priority inheritance's infeasibility for the
-rwlock/rwsem case.
+Signed-off-by: Jan Blunck <j.blunck@tu-harburg.de>
 
+ fs/autofs4/root.c      |    2 ++
+ fs/dcache.c            |    3 +++
+ fs/namei.c             |   14 +++++---------
+ fs/proc/base.c         |    6 +++++-
+ fs/sysfs/inode.c       |    6 +++++-
+ include/linux/dcache.h |    2 ++
+ 6 files changed, 22 insertions(+), 11 deletions(-)
 
--- wli
+Index: testing-um/include/linux/dcache.h
+===================================================================
+--- testing-um.orig/include/linux/dcache.h	2005-01-28 15:06:27.000000000 +0100
++++ testing-um/include/linux/dcache.h	2005-01-28 15:58:15.000000000 +0100
+@@ -186,7 +186,9 @@
+ static inline void d_drop(struct dentry *dentry)
+ {
+ 	spin_lock(&dcache_lock);
++	spin_lock(&dentry->d_lock);
+  	__d_drop(dentry);
++	spin_unlock(&dentry->d_lock);
+ 	spin_unlock(&dcache_lock);
+ }
+ 
+Index: testing-um/fs/namei.c
+===================================================================
+--- testing-um.orig/fs/namei.c	2005-01-28 15:58:15.000000000 +0100
++++ testing-um/fs/namei.c	2005-01-28 15:58:15.000000000 +0100
+@@ -1684,17 +1684,13 @@
+ void dentry_unhash(struct dentry *dentry)
+ {
+ 	dget(dentry);
+-	spin_lock(&dcache_lock);
+-	switch (atomic_read(&dentry->d_count)) {
+-	default:
+-		spin_unlock(&dcache_lock);
++	if (atomic_read(&dentry->d_count))
+ 		shrink_dcache_parent(dentry);
+-		spin_lock(&dcache_lock);
+-		if (atomic_read(&dentry->d_count) != 2)
+-			break;
+-	case 2:
++	spin_lock(&dcache_lock);
++	spin_lock(&dentry->d_lock);
++	if (atomic_read(&dentry->d_count) == 2)
+ 		__d_drop(dentry);
+-	}
++	spin_unlock(&dentry->d_lock);
+ 	spin_unlock(&dcache_lock);
+ }
+ 
+Index: testing-um/fs/sysfs/inode.c
+===================================================================
+--- testing-um.orig/fs/sysfs/inode.c	2005-01-28 15:06:24.000000000 +0100
++++ testing-um/fs/sysfs/inode.c	2005-01-28 15:58:15.000000000 +0100
+@@ -129,13 +129,17 @@
+ 
+ 	if (dentry) {
+ 		spin_lock(&dcache_lock);
++		spin_lock(&dentry->d_lock);
+ 		if (!(d_unhashed(dentry) && dentry->d_inode)) {
+ 			dget_locked(dentry);
+ 			__d_drop(dentry);
++			spin_unlock(&dentry->d_lock);
+ 			spin_unlock(&dcache_lock);
+ 			simple_unlink(parent->d_inode, dentry);
+-		} else
++		} else {
++			spin_unlock(&dentry->d_lock);
+ 			spin_unlock(&dcache_lock);
++		}
+ 	}
+ }
+ 
+Index: testing-um/fs/dcache.c
+===================================================================
+--- testing-um.orig/fs/dcache.c	2005-01-28 15:53:19.000000000 +0100
++++ testing-um/fs/dcache.c	2005-01-28 16:52:49.609883016 +0100
+@@ -340,13 +340,16 @@
+ 	tmp = head;
+ 	while ((tmp = tmp->next) != head) {
+ 		struct dentry *dentry = list_entry(tmp, struct dentry, d_alias);
++		spin_lock(&dentry->d_lock);
+ 		if (!atomic_read(&dentry->d_count)) {
+ 			__dget_locked(dentry);
+ 			__d_drop(dentry);
++			spin_unlock(&dentry->d_lock);
+ 			spin_unlock(&dcache_lock);
+ 			dput(dentry);
+ 			goto restart;
+ 		}
++		spin_unlock(&dentry->d_lock);
+ 	}
+ 	spin_unlock(&dcache_lock);
+ }
+Index: testing-um/fs/autofs4/root.c
+===================================================================
+--- testing-um.orig/fs/autofs4/root.c	2005-01-28 15:53:22.000000000 +0100
++++ testing-um/fs/autofs4/root.c	2005-01-28 16:04:35.000000000 +0100
+@@ -605,7 +605,9 @@
+ 		spin_unlock(&dcache_lock);
+ 		return -ENOTEMPTY;
+ 	}
++	spin_lock(&dentry->d_lock);
+ 	__d_drop(dentry);
++	spin_unlock(&dentry->d_lock);
+ 	spin_unlock(&dcache_lock);
+ 
+ 	dput(ino->dentry);
+Index: testing-um/fs/proc/base.c
+===================================================================
+--- testing-um.orig/fs/proc/base.c	2005-01-28 15:53:38.000000000 +0100
++++ testing-um/fs/proc/base.c	2005-01-28 16:29:14.000000000 +0100
+@@ -1468,11 +1468,15 @@
+ 	if (proc_dentry != NULL) {
+ 
+ 		spin_lock(&dcache_lock);
++		spin_lock(&proc_dentry->d_lock);
+ 		if (!d_unhashed(proc_dentry)) {
+ 			dget_locked(proc_dentry);
+ 			__d_drop(proc_dentry);
+-		} else
++			spin_unlock(&proc_dentry->d_lock);
++		} else {
++			spin_unlock(&proc_dentry->d_lock);
+ 			proc_dentry = NULL;
++		}
+ 		spin_unlock(&dcache_lock);
+ 	}
+ 	return proc_dentry;
+
+--------------020508060801050800010101--

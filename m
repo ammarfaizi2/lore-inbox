@@ -1,44 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312269AbSDJKDY>; Wed, 10 Apr 2002 06:03:24 -0400
+	id <S312354AbSDJKGx>; Wed, 10 Apr 2002 06:06:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312314AbSDJKDX>; Wed, 10 Apr 2002 06:03:23 -0400
-Received: from c2ce9fba.adsl.oleane.fr ([194.206.159.186]:19845 "EHLO
-	avalon.france.sdesigns.com") by vger.kernel.org with ESMTP
-	id <S312269AbSDJKDX>; Wed, 10 Apr 2002 06:03:23 -0400
-To: linux-kernel@vger.kernel.org
-Subject: module programming smp-safety howto?
-From: Emmanuel Michon <emmanuel_michon@realmagic.fr>
-Date: 10 Apr 2002 12:03:23 +0200
-Message-ID: <7w7knf98gk.fsf@avalon.france.sdesigns.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
+	id <S312370AbSDJKGw>; Wed, 10 Apr 2002 06:06:52 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:48145 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S312354AbSDJKGv>; Wed, 10 Apr 2002 06:06:51 -0400
+Message-ID: <3CB40036.7010504@evision-ventures.com>
+Date: Wed, 10 Apr 2002 11:04:54 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Jens Axboe <axboe@suse.de>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][CFT] IDE TCQ #2
+In-Reply-To: <20020409124417.GK25984@suse.de> <3CB3FDF7.6010505@evision-ventures.com> <20020410095829.GG2485@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Jens Axboe wrote:
+> On Wed, Apr 10 2002, Martin Dalecki wrote:
+> 
+>>Jens Axboe wrote:
+>>
+>>>Hi,
+>>>
+>>>Version 2 is ready. Changes since last time:
+>>
+>>Hi,
+>>
+>>OK I have managed to merge this with the 2.5.8-pre2 + ide-29b at home.
+>>However since we have now apparently already a -pre3 I will have
+>>to at least redo the patches against it. If this takes more
+>>then the time needed for a cup of coffe I will have unfortuntely to
+>>do it today afternoon.
+> 
+> 
+> I'm already running 2.5.8-pre3 (which appears to include ide-29b,
+> right?) + ide-tcq here, so you should probably not waste any effort on
+> that :-)
 
-I'm responsible for the development of a kernel module for Sigma
-Designs EM84xx PCI chips (MPEG2 and MPEG4 hardware decoder
-boards). It's working properly now, irq sharing and multiple board
-support is ok.
+Well than I will have to basically redo all the
+stuff I did in between... like for example nuking the
+number of parameters to ata_taskfile()... :-(.
 
-I would like to make it smp-safe.
+> I'll post an updated patch later today.
 
-For instance, I use at a place cli()/restore to implement something that
-looks like a critical section (first code path is in a ioctl, second
-in a irq top half). I guess this approach is wrong with smp.
+Fine.
 
-Is there some documentation or howto about what changes compared
-to non-smp computers?
 
-Maybe a specific kernel module can be considered as a good model?
-
-Sincerely yours,
-
--- 
-Emmanuel Michon
-Chef de projet
-REALmagic France SAS
-Mobile: 0614372733 GPGkeyID: D2997E42  

@@ -1,42 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263491AbTAVVGn>; Wed, 22 Jan 2003 16:06:43 -0500
+	id <S263276AbTAVVRX>; Wed, 22 Jan 2003 16:17:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263544AbTAVVGm>; Wed, 22 Jan 2003 16:06:42 -0500
-Received: from holomorphy.com ([66.224.33.161]:9364 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S263491AbTAVVGl>;
-	Wed, 22 Jan 2003 16:06:41 -0500
-Date: Wed, 22 Jan 2003 13:15:48 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: remove EXT2_MAX_BLOCK_SIZE
-Message-ID: <20030122211548.GS780@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	linux-kernel@vger.kernel.org
-References: <20030122202851.GR780@holomorphy.com> <20030122141242.K1594@schatzie.adilger.int>
+	id <S263291AbTAVVRX>; Wed, 22 Jan 2003 16:17:23 -0500
+Received: from h55p111.delphi.afb.lu.se ([130.235.187.184]:50343 "EHLO
+	gagarin.0x63.nu") by vger.kernel.org with ESMTP id <S263276AbTAVVRX>;
+	Wed, 22 Jan 2003 16:17:23 -0500
+Date: Wed, 22 Jan 2003 22:25:09 +0100
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Dave Jones <davej@codemonkey.org.uk>, Alan <alan@lxorguk.ukuu.org.uk>,
+       "Matthew D. Pitts" <mpitts@suite224.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: NForce Chipset support in which kernels?
+Message-ID: <20030122212509.GO7434@h55p111.delphi.afb.lu.se>
+References: <3E287188.9030909@hanaden.com> <1043052878.12182.26.camel@dhcp22.swansea.linux.org.uk> <001d01c2c161$90449f40$0100a8c0@pcs686> <1043189251.1384.9.camel@dhcp22.swansea.linux.org.uk> <20030122013130.GA1652@codemonkey.org.uk> <20030122221237.A7122@ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030122141242.K1594@schatzie.adilger.int>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+In-Reply-To: <20030122221237.A7122@ucw.cz>
+User-Agent: Mutt/1.5.3i
+From: Anders Gustafsson <andersg@0x63.nu>
+X-Scanner: exiscan *18bSMv-00065T-00*fepfEZCKjbo* (0x63.nu)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 22, 2003 at 02:12:42PM -0700, Andreas Dilger wrote:
-> Actually, the correct fix is to check in ext2_read_super() whether the
-> blocksize is larger than EXT2_MAX_BLOCK_SIZE like ext3 does, and maybe
-> even fix up the code drift between that part of ext2_read_super() and
-> ext3_read_super()...
-> Both ext2 and ext3 will in theory support a blocksize up to PAGE_SIZE,
-> but nobody with access to a > 4kB PAGE_SIZE system has bothered to test
-> whether it works, so EXT[23]_MAX_BLOCK_SIZE has not been increased.
-> Any e2fsprogs from the last year or so will support larger blocksizes,
-> but it has never been tested AFAIK.
+On Wed, Jan 22, 2003 at 10:12:37PM +0100, Vojtech Pavlik wrote:
+> 
+> Well, the IDE part in nForce certainly is a clone of another IDE, so
+> it's likely the NIC is as well. An idea comes to mind which one it could
+> be ...
 
-Block sizes > 4K should be trivially testable on IA64. ISTR bcrl having
-patches to increase PAGE_CACHE_SIZE independently of PAGE_SIZE and
-repair ext2's assumptions, so they should also be testable that way.
+For more nvidia nforce speculations have a look at:
+http://sourceforge.net/mailarchive/message.php?msg_id=2947226
 
 
--- wli
+-- 
+Anders Gustafsson - andersg@0x63.nu - http://0x63.nu/

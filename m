@@ -1,38 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130476AbQLHSDj>; Fri, 8 Dec 2000 13:03:39 -0500
+	id <S129639AbQLHSHU>; Fri, 8 Dec 2000 13:07:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131696AbQLHSD3>; Fri, 8 Dec 2000 13:03:29 -0500
-Received: from vena.lwn.net ([206.168.112.25]:265 "HELO eklektix.com")
-	by vger.kernel.org with SMTP id <S130476AbQLHSDU>;
-	Fri, 8 Dec 2000 13:03:20 -0500
-Message-ID: <20001208173246.25203.qmail@eklektix.com>
-To: linux-kernel@vger.kernel.org
-Subject: On running user mode helpers
-From: Jonathan Corbet <corbet-lk@lwn.net>
-Date: Fri, 08 Dec 2000 10:32:46 -0700
+	id <S131696AbQLHSHK>; Fri, 8 Dec 2000 13:07:10 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:32007 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S129639AbQLHSGy>; Fri, 8 Dec 2000 13:06:54 -0500
+Date: Fri, 8 Dec 2000 11:31:58 -0700
+From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "Jeff V. Merkey" <jmerkey@timpanogas.org>, linux-kernel@vger.kernel.org
+Subject: Re: [Fwd: NTFS repair tools]
+Message-ID: <20001208113158.A4730@vger.timpanogas.org>
+In-Reply-To: <3A30552D.A6BE248C@timpanogas.org> <E144O01-0003v7-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <E144O01-0003v7-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Dec 08, 2000 at 01:55:43PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I see we have a new "call_usermodehelper" routine now.  It looks like the
-end result is similer to exec_usermodehelper, except that you no longer
-need to mess with creating kernel threads yourself.
+On Fri, Dec 08, 2000 at 01:55:43PM +0000, Alan Cox wrote:
+> > somewhere in the thousands.  Is NTFS write stable enough now in 2.4 to
+> > fix these problems, if so, can we DISABLE by REMOVING write code in the
+> 
+> It says DANGEROUS in big letters on the configuration option. We are now
+> down to the level of people who don't understand 'smoking kills you' in big
+> letters on packaging, and people using very old trees that merely warned you
+> that it was a very bad idea
 
-Is call_usermodehelper now the officially blessed way for kernel code to
-run something in user space?  Perhaps exec_usermodehelper should become
-private to kmod.c?
+I agree that if you give a mentally unbalanced person a firearm, they might 
+shoot themselves with it.  I am suggesting we take away their firearm.  Write
+support for NTFS is useful for migrating from Linux to NT, R/O support is 
+useful for migrating NT to Linux.  We won't be giving anything up.  I think
+just putting in a nastier warning message would suffice.
 
-I also see that call_usermodehelper will call do_exit() if the exec fails,
-while the path taken in request_module does not do that.  Can both be
-right? 
+Jeff
 
-Thanks,
 
-jon
-
-Jonathan Corbet
-Executive editor, LWN.net
-corbet@lwn.net
+> 
+> Alan
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

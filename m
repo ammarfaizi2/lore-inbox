@@ -1,69 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273303AbRI3K5u>; Sun, 30 Sep 2001 06:57:50 -0400
+	id <S273302AbRI3K63>; Sun, 30 Sep 2001 06:58:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273265AbRI3K5a>; Sun, 30 Sep 2001 06:57:30 -0400
-Received: from mta3-svc.virgin.net ([62.253.164.43]:33437 "EHLO
-	mta3-svc.virgin.net") by vger.kernel.org with ESMTP
-	id <S273261AbRI3K5U>; Sun, 30 Sep 2001 06:57:20 -0400
-From: Glynn Clements <glynn.clements@virgin.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15286.63630.291982.555919@cerise.nosuchdomain.co.uk>
-Date: Sun, 30 Sep 2001 11:48:46 +0100
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: <linux-kernel@vger.kernel.org>, <linux-net@vger.kernel.org>,
-        <netdev@oss.sgi.com>
-Subject: Re: [patch] netconsole-2.4.10-B1
-In-Reply-To: <Pine.LNX.4.33L.0109300448210.19147-100000@imladris.rielhome.conectiva>
-In-Reply-To: <3BB693AC.6E2DB9F4@canit.se>
-	<Pine.LNX.4.33L.0109300448210.19147-100000@imladris.rielhome.conectiva>
-X-Mailer: VM 6.94 under 21.4 (patch 4) "Artificial Intelligence (candidate #1)" XEmacs Lucid
+	id <S273305AbRI3K6T>; Sun, 30 Sep 2001 06:58:19 -0400
+Received: from mailgate.FH-Aachen.DE ([149.201.10.254]:18118 "EHLO
+	mailgate.fh-aachen.de") by vger.kernel.org with ESMTP
+	id <S273265AbRI3K6J>; Sun, 30 Sep 2001 06:58:09 -0400
+Posted-Date: Sun, 30 Sep 2001 12:51:53 +0100 (WEST)
+Date: Sun, 30 Sep 2001 13:02:21 +0200
+From: f5ibh <f5ibh@db0bm.ampr.org>
+Message-Id: <200109301102.NAA00919@db0bm.ampr.org>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.9-ac18, many warnings __cpu_raise_softirq
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Rik van Riel wrote:
+Hi,
+While compiling 2.4.9-ac18, I get many warnings like :
 
-> > > sorry :-) definitions of netconsole-terms:
-> > >
-> > > 'server': the host that is the source of the messages. Ie. the box that
-> > >           runs the netconsole.o module. It serves log messages to the
-> > >           client.
-> > >
-> > > 'client': the host that receives the messages. This box is running the
-> > >           netconsole-client.c program.
-> >
-> > Servers is usually the thing waiting for something to be sent to it,
-> > the client is the sending part(initiator). this works for web servers
-> > , X servers, log servers but strangley not for netconsole where
-> > everything is backwards.
-> 
-> Owww crap.  The majority of web traffic is _from_ the
-> server _to_ the client. Same for ftp, realaudio, etc...
+In file included from /usr/src/kernel-sources-2.4.9-ac18/include/linux/netdevice.h:424,
+                 from ip_sockglue.c:27:
+ /usr/src/kernel-sources-2.4.9-ac18/include/linux/interrupt.h:77: 
+ 		warning: `__cpu_raise_softirq' redefined
+ /usr/src/kernel-sources-2.4.9-ac18/include/asm/softirq.h:53:
+		 warning: this is the location of the previous definition
 
-... whereas with SMTP, syslog, printer (lpd) etc, it's the other way
-around. Some servers are primarily "sources", while others are
-primarily "sinks". Sources are more common, and most users are
-probably more familiar with sources than sinks.
-
-> In fact, usually the server is the _remote_ machine and
-> the client is the _local_ machine.
-
-But not for for X, NAS, ident ...
-
-Local is a relative term. Presumably you meant local relative to a
-user.
-
-There are all kinds of generalisations one could make about individual
-protocols, none of which are ultimately relevant to the client/server
-distinction.
-
-As Ingo points out, although it could have been more clear, the actual
-distinction between client and server is that the client initiates the
-communication, while the server responds (cf "originate" and "answer"
-in telephone terminology).
-
--- 
-Glynn Clements <glynn.clements@virgin.net>
+---
+Regards
+		Jean-Luc

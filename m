@@ -1,75 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262301AbUK3UqU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262337AbUK3UsK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262301AbUK3UqU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 15:46:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262306AbUK3UqU
+	id S262337AbUK3UsK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 15:48:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262334AbUK3UsJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 15:46:20 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:39842 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S262301AbUK3UqP (ORCPT
+	Tue, 30 Nov 2004 15:48:09 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:31163 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262309AbUK3Urk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 15:46:15 -0500
-Date: Tue, 30 Nov 2004 21:46:11 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: linux-os@analogic.com
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Walking all the physical memory in an x86 system
-In-Reply-To: <Pine.LNX.4.61.0411301519130.4393@chaos.analogic.com>
-Message-ID: <Pine.LNX.4.53.0411302141080.31175@yvahk01.tjqt.qr>
-References: <C863B68032DED14E8EBA9F71EB8FE4C2057CA977@azsmsx406> 
- <Pine.LNX.4.53.0411301711140.25731@yvahk01.tjqt.qr>  <41ACADD3.2030206@draigBrady.com>
-  <Pine.LNX.4.53.0411301832510.11795@yvahk01.tjqt.qr>
- <1101840619.25609.107.camel@localhost.localdomain>
- <Pine.LNX.4.61.0411301519130.4393@chaos.analogic.com>
+	Tue, 30 Nov 2004 15:47:40 -0500
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: David Howells <dhowells@redhat.com>, Paul Mackerras <paulus@samba.org>,
+       Greg KH <greg@kroah.com>, David Woodhouse <dwmw2@infradead.org>,
+       Matthew Wilcox <matthew@wil.cx>, hch@infradead.org,
+       linux-kernel@vger.kernel.org, libc-hacker@sources.redhat.com
+Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
+References: <Pine.LNX.4.58.0411290926160.22796@ppc970.osdl.org>
+	<19865.1101395592@redhat.com>
+	<20041125165433.GA2849@parcelfarce.linux.theplanet.co.uk>
+	<1101406661.8191.9390.camel@hades.cambridge.redhat.com>
+	<20041127032403.GB10536@kroah.com>
+	<16810.24893.747522.656073@cargo.ozlabs.ibm.com>
+	<Pine.LNX.4.58.0411281710490.22796@ppc970.osdl.org>
+	<ord5xwvay2.fsf@livre.redhat.lsd.ic.unicamp.br>
+	<8219.1101828816@redhat.com>
+	<Pine.LNX.4.58.0411300744120.22796@ppc970.osdl.org>
+From: Alexandre Oliva <aoliva@redhat.com>
+Organization: Red Hat Global Engineering Services Compiler Team
+Date: 30 Nov 2004 18:47:17 -0200
+In-Reply-To: <Pine.LNX.4.58.0411300744120.22796@ppc970.osdl.org>
+Message-ID: <ormzwzrrmy.fsf@livre.redhat.lsd.ic.unicamp.br>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>> 	unsigned short p;
->>> 	fd = open("/dev/mem", O_RDONLY | O_BINARY);
->>> 	lseek(fd, 0x400, SEEK_SET);
->>> 	read(fd, &p, 2);
->>
->> You want ports for that not mem, has always been the case since back
->> before Linux existed.
+On Nov 30, 2004, Linus Torvalds <torvalds@osdl.org> wrote:
 
-I want(ed) to find out which I/O port to use for inb() and stuff, and using the
-BIOS's provided data. If you are referring to "ports", I could not find a
-device node, but "port" maybe:
+> I object sternuously to your "the header files". If you can't even say 
+> _which_ header file, I'm not interested.
 
-$ tailhex /dev/port
-[...]
-0x00000400 | ffff ffff ffff ffff ffff ffff ffff ffff |
-[...]
+How about this formulation then:
 
-Oh, look what /dev/mem found! (I retried haha)
+- move anything that is not protected by #ifdef __KERNEL__ to the
+ukabi header tree, adding an include in the beginning of the original
+header that includes the ukabi header.  Since ukabi stuff can't depend on
+kernel-internal stuff, having this include as the first thing in the
+existing header should work.
 
-$ tailhex /dev/mem
-...
-0x00000400 | f803 0000 0000 0000 7803 0000 0000 c09f |
-...
+- figure out what should have been protected by #ifdef __KERNEL__ but
+wasn't, and move it back
 
-0x3F8 and 0x378... we know those ones :)
-BTW: What the BIOS does not seem to recognize is that PCI card that provides
-more LPT ports (LPT2 and LPT3) (I literally fried the LPT1)
+- wait for bug reports from the world and deal with them
 
-So, /dev/mem points to "physical" mem in a sense like DOS has. (Where, the
-BIOS, is blend into, as you can see)
-
->At offset 0 in the BIOS segment of 0x40, real address 0x400, are
->the addresses of up to 4 ports for the serial communications
->devices, followed by up to 4 port addresses of any parallel
->communications devices found by the BIOS upon startup. This
->is likely what he meant. The code shown will return the address
->of the first RS-232 device (usually a 8250 UART) found.
-
-Yes, (parallel / serial, I don't care, it's just something to show), or
-in DOS-style:
-	*(unsigned short far *)0x400
+- repeat until you feel you got it right
 
 
-Jan Engelhardt
+> See what I'm saying? Whole-sale "move things around because we want to" 
+> I'm not interested in. Specific problems, yes.
+
+The specific problem we're trying to address is the creation of header
+files that define the ABI between userland and kernel, that both
+kernel and userland can use.
+
+>> Personally, I'd prefer us to move to using standard C99 types in lieu of u32
+>> and co at least for the interface to userspace because they are just that:
+>> standard.
+
+> No. I told you why it cannot and MUST NOT be done. Repeat after me:
+
+> 	WE MUST NOT POLLUTE THE NAMESPACE!
+
+David, Linus is right.  Using standard types is not an option because
+they're not built in type names; you have to include a header to bring
+them in, and ideally you shouldn't gratuitously get the names defined
+just because you include some unrelated header, although the C
+Standard grants standard headers freedom to include other headers or
+something along these lines; I don't recall the exact passage of the
+Standard that says so, but we should strive to not pollute the user
+namespace anyway.
+
 -- 
-ENOSPC
+Alexandre Oliva             http://www.ic.unicamp.br/~oliva/
+Red Hat Compiler Engineer   aoliva@{redhat.com, gcc.gnu.org}
+Free Software Evangelist  oliva@{lsd.ic.unicamp.br, gnu.org}

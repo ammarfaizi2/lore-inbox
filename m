@@ -1,148 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265076AbUELAPR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265091AbUELAPO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265076AbUELAPR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 20:15:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265089AbUELANH
+	id S265091AbUELAPO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 20:15:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265088AbUELANW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 20:13:07 -0400
-Received: from fw.osdl.org ([65.172.181.6]:10933 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265087AbUELAH7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 20:07:59 -0400
-Date: Tue, 11 May 2004 17:10:32 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Yoshinori Sato <ysato@users.sourceforge.jp>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH} H8/300 update (2/9) ldscripts fix
-Message-Id: <20040511171032.12c2f024.akpm@osdl.org>
-In-Reply-To: <m2zn8erkdv.wl%ysato@users.sourceforge.jp>
-References: <m2zn8erkdv.wl%ysato@users.sourceforge.jp>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Tue, 11 May 2004 20:13:22 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:23276 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S263173AbUELAFW (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Tue, 11 May 2004 20:05:22 -0400
+Message-Id: <200405120005.i4C05HE8004375@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.6-rc3-mm2 (4KSTACK) 
+In-Reply-To: Your message of "Tue, 11 May 2004 16:50:13 PDT."
+             <20040511165013.08ef86cd.akpm@osdl.org> 
+From: Valdis.Kletnieks@vt.edu
+References: <Pine.LNX.3.96.1040511121328.16430C-100000@gatekeeper.tmr.com> <200405120127.33391.bzolnier@elka.pw.edu.pl>
+            <20040511165013.08ef86cd.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: multipart/signed; boundary="==_Exmh_-468697820P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Tue, 11 May 2004 20:05:17 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yoshinori Sato <ysato@users.sourceforge.jp> wrote:
->
-> - symbol prefix (use h8300 and v850) support
-> - include headers
+--==_Exmh_-468697820P
+Content-Type: text/plain; charset=us-ascii
 
-This generates a reject agaisnt Linus's current
-include/asm-generic/vmlinux.lds.h due to post-2.6.6 changes.
+On Tue, 11 May 2004 16:50:13 PDT, Andrew Morton said:
 
-I fixed it up as below.
+> And RHL is shipping now with 4k stacks, so presumably any disasters
+> are relatively uncommon...
 
-But I am wondering about this:
+I think currently, it's only the people running the -test or -devel Fedora
+trees that can get bit - Fedora Core 1 didn't have it, as it was still a
+2.4 kernel, and Fedora Core 2 just kicked over from FC 1.92 last night..
 
-  #define SECURITY_INIT							\
-  	.security_initcall.init : {					\
-+ 		SYMBOL(__security_initcall_start) = .;			\
-  		*(.security_initcall.init) 				\
-  		__security_initcall_end = .;				\
-  	}
+And then they'd have to have NVidia cards, and use the NVIdia drivers..
 
-Shouldn't __security_initcall_end also have a SYMBOL() wrapper?
+and I suspect that most of the people who are in that group visit either
+one of the NVidia forums or www.minion.de, both of which have lots
+of tags saying that patch needs reverting...
 
+So right now it's probably NOT biting too many, as only the clueful are
+getting into a situation where it's a problem.
 
+Wait a week or two, when .ISO's of FC2 hit the streets. :)
 
+--==_Exmh_-468697820P
+Content-Type: application/pgp-signature
 
-From: Yoshinori Sato <ysato@users.sourceforge.jp>
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-- symbol prefix (use h8300 and v850) support
-- include headers
+iD8DBQFAoWo8cC3lWbTT17ARAuUKAJ4iaCuhwmXjvXLztldrG//F3sdm/gCfXMR7
+p9+A/RmFogMgNDpovHolK00=
+=N6Ke
+-----END PGP SIGNATURE-----
 
-
----
-
- 25-akpm/arch/h8300/kernel/vmlinux.lds.S   |    2 ++
- 25-akpm/include/asm-generic/vmlinux.lds.h |   30 +++++++++++++++++++-----------
- 2 files changed, 21 insertions(+), 11 deletions(-)
-
-diff -puN arch/h8300/kernel/vmlinux.lds.S~h8-300-update-2-9-ldscripts-fix arch/h8300/kernel/vmlinux.lds.S
---- 25/arch/h8300/kernel/vmlinux.lds.S~h8-300-update-2-9-ldscripts-fix	Tue May 11 17:06:30 2004
-+++ 25-akpm/arch/h8300/kernel/vmlinux.lds.S	Tue May 11 17:06:30 2004
-@@ -1,3 +1,5 @@
-+#include <asm-generic/vmlinux.lds.h>
-+#include <asm/thread_info.h>
- #include <linux/config.h>
- 
- #ifdef CONFIG_H8300H_GENERIC
-diff -puN include/asm-generic/vmlinux.lds.h~h8-300-update-2-9-ldscripts-fix include/asm-generic/vmlinux.lds.h
---- 25/include/asm-generic/vmlinux.lds.h~h8-300-update-2-9-ldscripts-fix	Tue May 11 17:06:30 2004
-+++ 25-akpm/include/asm-generic/vmlinux.lds.h	Tue May 11 17:08:18 2004
-@@ -1,7 +1,15 @@
-+#include <linux/config.h>
-+
- #ifndef LOAD_OFFSET
- #define LOAD_OFFSET 0
- #endif
- 
-+#if defined(CONFIG_H8300) || defined(CONFIG_V850)
-+#define SYMBOL(_sym_) _##_sym_
-+#else
-+#define SYMBOL(_sym_) _sym_
-+#endif
-+
- #define RODATA								\
- 	.rodata           : AT(ADDR(.rodata) - LOAD_OFFSET) {		\
- 		*(.rodata) *(.rodata.*)					\
-@@ -14,30 +22,30 @@
- 									\
- 	/* Kernel symbol table: Normal symbols */			\
- 	__ksymtab         : AT(ADDR(__ksymtab) - LOAD_OFFSET) {		\
--		__start___ksymtab = .;					\
-+		SYMBOL(__start___ksymtab) = .;				\
- 		*(__ksymtab)						\
--		__stop___ksymtab = .;					\
-+		SYMBOL(__stop___ksymtab) = .;				\
- 	}								\
- 									\
- 	/* Kernel symbol table: GPL-only symbols */			\
- 	__ksymtab_gpl     : AT(ADDR(__ksymtab_gpl) - LOAD_OFFSET) {	\
--		__start___ksymtab_gpl = .;				\
-+		SYMBOL(__start___ksymtab_gpl) = .;			\
- 		*(__ksymtab_gpl)					\
--		__stop___ksymtab_gpl = .;				\
-+		SYMBOL(__stop___ksymtab_gpl) = .;			\
- 	}								\
- 									\
- 	/* Kernel symbol table: Normal symbols */			\
- 	__kcrctab         : AT(ADDR(__kcrctab) - LOAD_OFFSET) {		\
--		__start___kcrctab = .;					\
-+		SYMBOL(__start___kcrctab) = .;				\
- 		*(__kcrctab)						\
--		__stop___kcrctab = .;					\
-+		SYMBOL(__stop___kcrctab) = .;				\
- 	}								\
- 									\
- 	/* Kernel symbol table: GPL-only symbols */			\
- 	__kcrctab_gpl     : AT(ADDR(__kcrctab_gpl) - LOAD_OFFSET) {	\
--		__start___kcrctab_gpl = .;				\
-+		SYMBOL(__start___kcrctab_gpl) = .;			\
- 		*(__kcrctab_gpl)					\
--		__stop___kcrctab_gpl = .;				\
-+		SYMBOL(__stop___kcrctab_gpl) = .;			\
- 	}								\
- 									\
- 	/* Kernel symbol table: strings */				\
-@@ -47,12 +55,12 @@
- 
- #define SECURITY_INIT							\
- 	.security_initcall.init : {					\
--		__security_initcall_start = .;				\
-+		SYMBOL(__security_initcall_start) = .;			\
- 		*(.security_initcall.init) 				\
- 		__security_initcall_end = .;				\
- 	}
- 
- #define SCHED_TEXT							\
--		__sched_text_start = .;					\
-+		SYMBOL(__sched_text_start) = .;				\
- 		*(.sched.text)						\
--		__sched_text_end = .;
-+		SYMBOL(__sched_text_end) = .;
-
-_
-
+--==_Exmh_-468697820P--

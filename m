@@ -1,125 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291797AbSBNR0j>; Thu, 14 Feb 2002 12:26:39 -0500
+	id <S291762AbSBNR23>; Thu, 14 Feb 2002 12:28:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291798AbSBNR0d>; Thu, 14 Feb 2002 12:26:33 -0500
-Received: from Expansa.sns.it ([192.167.206.189]:26889 "EHLO Expansa.sns.it")
-	by vger.kernel.org with ESMTP id <S291797AbSBNR0T>;
-	Thu, 14 Feb 2002 12:26:19 -0500
-Date: Thu, 14 Feb 2002 18:26:28 +0100 (CET)
-From: Luigi Genoni <kernel@Expansa.sns.it>
-To: linux-kernel@vger.kernel.org
-Subject: cleanup for i810 chipset for 2.5.5-pre1. Second...
-Message-ID: <Pine.LNX.4.44.0202141819080.30210-100000@Expansa.sns.it>
+	id <S291798AbSBNR2U>; Thu, 14 Feb 2002 12:28:20 -0500
+Received: from mail.scs.ch ([212.254.229.5]:43955 "EHLO mail.scs.ch")
+	by vger.kernel.org with ESMTP id <S291762AbSBNR2E>;
+	Thu, 14 Feb 2002 12:28:04 -0500
+Message-ID: <3C6BF39B.FFF2C8BF@scs.ch>
+Date: Thu, 14 Feb 2002 18:27:55 +0100
+From: Thomas Sailer <sailer@scs.ch>
+Reply-To: t.sailer@alumni.ethz.ch
+Organization: SCS
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-21jnx i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Gerd Knorr <kraxel@bytesex.org>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+        Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] es1370 fix
+In-Reply-To: <20020214161730.A8112@bytesex.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well, my mailer did some bad things with tabs, spaces and so on...
-What can I say, I hate when it happens, I hope this time is the good one.
+Gerd Knorr wrote:
+> 
+>   Hi,
+> 
+> This patch fixes the es1370 driver (the virt_to_bus thing).
 
-Luigi (definitelly should find a better mailer)
+Bugbuf could be shared among all cards in the system...
+Otherwise looks correct
 
---- linux/sound/oss/i810_audio.c.old    Thu Feb 14 10:33:12 2002
-+++ linux/sound/oss/i810_audio.c        Thu Feb 14 12:29:15 2002
-@@ -939,7 +939,7 @@
-
-                for(i=0;i<dmabuf->numfrag;i++)
-                {
--			sg->busaddr=virt_to_bus(dmabuf->rawbuf+dmabuf->fragsize*i);
-+ 			sg->busaddr=virt_to_phys(dmabuf->rawbuf+dmabuf->fragsize*i);
-                        // the card will always be doing 16bit stereo
-                        sg->control=dmabuf->fragsamples;
-                        if(state->card->pci_id == PCI_DEVICE_ID_SI_7012)
-@@ -954,7 +954,7 @@
-                }
-                spin_lock_irqsave(&state->card->lock, flags);
-                outb(2, state->card->iobase+c->port+OFF_CR);   /* reset DMA machine */
--               outl(virt_to_bus(&c->sg[0]), state->card->iobase+c->port+OFF_BDBAR);
-+               outl(virt_to_phys(&c->sg[0]), state->card->iobase+c->port+OFF_BDBAR);
-                outb(0, state->card->iobase+c->port+OFF_CIV);
-                outb(0, state->card->iobase+c->port+OFF_LVI);
-
-@@ -1669,7 +1669,7 @@
-        if (size > (PAGE_SIZE << dmabuf->buforder))
-                goto out;
-        ret = -EAGAIN;
--       if (remap_page_range(vma->vm_start, virt_to_phys(dmabuf->rawbuf),
-+       if (remap_page_range(vma, vma->vm_start,
-                             size, vma->vm_page_prot))
-                goto out;
-        dmabuf->mapped = 1;
-@@ -1722,7 +1722,7 @@
-                }
-                if (c != NULL) {
-                        outb(2, state->card->iobase+c->port+OFF_CR);   /* reset DMA machine */
--                       outl(virt_to_bus(&c->sg[0]), state->card->iobase+c->port+OFF_BDBAR);
-+                       outl(virt_to_phys(&c->sg[0]), state->card->iobase+c->port+OFF_BDBAR);
-                        outb(0, state->card->iobase+c->port+OFF_CIV);
-                        outb(0, state->card->iobase+c->port+OFF_LVI);
-                }
---- linux/sound/oss/dmabuf.c.old        Thu Feb 14 12:34:45 2002
-+++ linux/sound/oss/dmabuf.c    Thu Feb 14 12:35:00 2002
-@@ -113,7 +113,7 @@
-                }
-        }
-        dmap->raw_buf = start_addr;
--       dmap->raw_buf_phys = virt_to_bus(start_addr);
-+       dmap->raw_buf_phys = virt_to_phys(start_addr);
-
-        for (page = virt_to_page(start_addr); page <= virt_to_page(end_addr); page++)
-                mem_map_reserve(page);
---- linux/drivers/char/drm/i810_dma.c.old       Thu Feb 14 12:36:36 2002
-+++ linux/drivers/char/drm/i810_dma.c   Thu Feb 14 12:36:53 2002
-@@ -491,7 +491,7 @@
-        memset((void *) dev_priv->hw_status_page, 0, PAGE_SIZE);
-        DRM_DEBUG("hw status page @ %lx\n", dev_priv->hw_status_page);
-
--       I810_WRITE(0x02080, virt_to_bus((void *)dev_priv->hw_status_page));
-+       I810_WRITE(0x02080, virt_to_phys((void *)dev_priv->hw_status_page));
-        DRM_DEBUG("Enabled hardware status page\n");
-
-        /* Now we need to init our freelist */
---- linux/sound/oss/i810_audio.c.old    Thu Feb 14 10:33:12 2002
-+++ linux/sound/oss/i810_audio.c        Thu Feb 14 12:29:15 2002
-@@ -939,7 +939,7 @@
-
-                for(i=0;i<dmabuf->numfrag;i++)
-                {
--			sg->busaddr=virt_to_bus(dmabuf->rawbuf+dmabuf->fragsize*i);
-+			sg->busaddr=virt_to_phys(dmabuf->rawbuf+dmabuf->fragsize*i);
-                        // the card will always be doing 16bit stereo
-                        sg->control=dmabuf->fragsamples;
-                        if(state->card->pci_id == PCI_DEVICE_ID_SI_7012)
-@@ -954,7 +954,7 @@
-                }
-                spin_lock_irqsave(&state->card->lock, flags);
-                outb(2, state->card->iobase+c->port+OFF_CR);   /* reset DMA machine */
--               outl(virt_to_bus(&c->sg[0]), state->card->iobase+c->port+OFF_BDBAR);
-+               outl(virt_to_phys(&c->sg[0]), state->card->iobase+c->port+OFF_BDBAR);
-                outb(0, state->card->iobase+c->port+OFF_CIV);
-                outb(0, state->card->iobase+c->port+OFF_LVI);
-
-@@ -1669,7 +1669,7 @@
-        if (size > (PAGE_SIZE << dmabuf->buforder))
-                goto out;
-        ret = -EAGAIN;
--       if (remap_page_range(vma->vm_start, virt_to_phys(dmabuf->rawbuf),
-+       if (remap_page_range(vma, vma->vm_start, virt_to_phys(dmabuf->rawbuf),
-                             size, vma->vm_page_prot))
-                goto out;
-        dmabuf->mapped = 1;
-@@ -1722,7 +1722,7 @@
-                }
-                if (c != NULL) {
-                        outb(2, state->card->iobase+c->port+OFF_CR);   /* reset DMA machine */
--                       outl(virt_to_bus(&c->sg[0]), state->card->iobase+c->port+OFF_BDBAR);
-+                       outl(virt_to_phys(&c->sg[0]), state->card->iobase+c->port+OFF_BDBAR);
-                        outb(0, state->card->iobase+c->port+OFF_CIV);
-                        outb(0, state->card->iobase+c->port+OFF_LVI);
-                }
-
-
-
-
+Tom

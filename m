@@ -1,57 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268206AbUIGQJd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268170AbUIGQQq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268206AbUIGQJd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 12:09:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268191AbUIGQI5
+	id S268170AbUIGQQq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 12:16:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268200AbUIGQOg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 12:08:57 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:6625 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S268279AbUIGPCo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 11:02:44 -0400
-Date: Tue, 7 Sep 2004 17:04:06 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Alexander Nyberg <alexn@dsv.su.se>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, linux-kernel@vger.kernel.org,
-       Andi Kleen <ak@suse.de>
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk12-R8
-Message-ID: <20040907150406.GA29468@elte.hu>
-References: <20040903120957.00665413@mango.fruits.de> <20040905140249.GA23502@elte.hu> <20040906110626.GA32320@elte.hu> <200409061348.41324.rjw@sisk.pl> <1094473527.13114.4.camel@boxen> <20040906122954.GA7720@elte.hu> <20040907092659.GA17677@elte.hu> <20040907115722.GA10373@elte.hu> <1094568658.670.11.camel@boxen>
+	Tue, 7 Sep 2004 12:14:36 -0400
+Received: from ztxmail03.ztx.compaq.com ([161.114.1.207]:28178 "EHLO
+	ztxmail03.ztx.compaq.com") by vger.kernel.org with ESMTP
+	id S268111AbUIGQNa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Sep 2004 12:13:30 -0400
+Date: Tue, 7 Sep 2004 11:12:54 -0500
+From: mikem <mikem@beardog.cca.cpqcorp.net>
+To: linux-kernel@vger.kernel.org
+Cc: linux-scsi@vger.kernel.org, axboe@suse.de
+Subject: clustering and 2.6
+Message-ID: <20040907161254.GA23325@beardog.cca.cpqcorp.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1094568658.670.11.camel@boxen>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+All,
+I'm having some issues when trying to use some clustering software when
+running any 2.6.x kernel.
+Basically, there are 2 nodes connected to 1 storage storage enclosure.
+When node 1 comes up it reserves the volume(s) in the enclosure. When
+node 2 comes up the read capacity fails as expected because of the 
+SCSI reservation. However, if node 1 fails node 2 breaks the reservation,
+but cannot register the disk. At this time we're assuming it's because the read
+capacity failed and the size of the disk is zero blocks.
 
-* Alexander Nyberg <alexn@dsv.su.se> wrote:
+The SCSI mid-layer sets a bogus size on a device when read capacity fails.
+Is this the preferred way to get around this issue? Seems like there
+should be a better way.
 
-> Looks fine over here on 2-CPU, debian 64-bit user-space with both
-> preempt & voluntary preempt turned on. Init seems to explode (gets
-> killed over and over, not sure how this happens) on
-> CONFIG_LATENCY_TRACE, I'll take a look at that later today unless you
-> have any offender you're aware of.
+Any input is greatly appreciated.
 
-> +#ifdef CONFIG_LATENCY_TRACE
-> +EXPORT_SYMBOL(mcount);
-> +#endif
-
-thanks, i've added this to latency.c. You can find my current snapshot
-at:
-
-  http://redhat.com/~mingo/private/voluntary-preempt-2.6.9-rc1-bk12-R9-A6
-
-there are alot of changes - perhaps one of them fixes your LATENCY_TRACE
-problem - but the likelyhood is low, for me LATENCY_TRACE worked fine on
-amd64 even with -R8.
-
-	Ingo
+Thanks,
+mikem

@@ -1,54 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261670AbTEUHzZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 May 2003 03:55:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261678AbTEUHmq
+	id S261589AbTEUH7G (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 May 2003 03:59:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261785AbTEUH4K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 May 2003 03:42:46 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:58838 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S261561AbTEUHln (ORCPT
+	Wed, 21 May 2003 03:56:10 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:37591 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S261747AbTEUHnM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 May 2003 03:41:43 -0400
-Date: Wed, 21 May 2003 07:31:12 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Martin Schlemmer <azarah@gentoo.org>
-Cc: Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@elte.hu>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       Ulrich Drepper <drepper@redhat.com>,
-       Linus Torvalds <torvalds@transmeta.com>,
+	Wed, 21 May 2003 03:43:12 -0400
+Subject: Re: Recent changes to sysctl.h breaks glibc
+From: Martin Schlemmer <azarah@gentoo.org>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Chris Friesen <cfriesen@nortelnetworks.com>,
+       Riley Williams <Riley@Williams.Name>,
+       David Woodhouse <dwmw2@infradead.org>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
        KML <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] futex patches, futex-2.5.69-A2
-Message-ID: <20030521073112.A1316@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Martin Schlemmer <azarah@gentoo.org>, Ingo Molnar <mingo@elte.hu>,
-	Rusty Russell <rusty@rustcorp.com.au>,
-	Ulrich Drepper <drepper@redhat.com>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	KML <linux-kernel@vger.kernel.org>
-References: <20030520150826.A18282@infradead.org> <Pine.LNX.4.44.0305201748020.14480-100000@localhost.localdomain> <20030520205512.A5889@infradead.org> <1053493564.9142.1504.camel@workshop.saharact.lan>
+In-Reply-To: <3ECA60B0.6040402@zytor.com>
+References: <BKEGKPICNAKILKJKMHCAGECEDBAA.Riley@Williams.Name>
+	 <3ECA3535.7090608@nortelnetworks.com>  <3ECA60B0.6040402@zytor.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1053491987.9142.1474.camel@workshop.saharact.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1053493564.9142.1504.camel@workshop.saharact.lan>; from azarah@gentoo.org on Wed, May 21, 2003 at 07:06:57AM +0200
+X-Mailer: Ximian Evolution 1.2.3- 
+Date: 21 May 2003 06:39:47 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 21, 2003 at 07:06:57AM +0200, Martin Schlemmer wrote:
-> On Tue, 2003-05-20 at 21:55, Christoph Hellwig wrote:
-> > On Tue, May 20, 2003 at 06:02:07PM +0200, Ingo Molnar wrote:
-> > > you havent ever used Ulrich's nptl-enabled glibc, have you? It will boot
-> > > on any 2.4.1+ kernel, with and without nptl/tls support. It switches the
-> > > threading implementation depending on the kernel features it detects.
-> > 
-> > I have built a nptl-enabled glibc and no, it's doesn't work on 2.4 at all.
+On Tue, 2003-05-20 at 19:06, H. Peter Anvin wrote:
+
+> > What if the include/linux files themselves make use of the asm files?
 > > 
 > 
-> It is because you only compiled it with nptl support.
+> No, not acceptable.
+> 
+> The thing is, trying to redefine the old namespaces is hopeless at this 
+> point.  Hence the proposed new namespace <linux/abi/*.h> ... 
+> <linux/abi/arch/*.h> would be my preference for an arch-specific 
+> subnamespace.
+> 
+> Thus the rule is:
+> 
+> a) <linux/abi/*> files MUST NOT include files outside <linux/abi/*>
+> 
+> b) <linux/*.h> and <asm/*.h> are legacy namespaces.  They should be 
+> considered to be completely different in kernel and userspace -- in 
+> effect, glibc will eventually ship with its own set of these headers.
+> 
+> c) <linux/abi/*> files should be clean for inclusion from either kernel 
+> or userspace.
+> 
 
-I know.  I didn't ever claim you can install multiple glibc version.
+The only issue that we might have, is that <linux/abi/*> will once
+again break many things.  Sure, if we have to fix them once to get
+this fixed for good, why not.
 
-> In recent (nptl enabled) Redhat glibc's glibc is build two times.
+On the other hand, why not leave it at <linux/*.h> and <asm/*.h>
+as the location of the ABI, and then move all kernel only
+related stuff to <kernel/*.h> (or whatever, just the concept which
+count ...) which can then include whatever it needs form the other
+places (linux/asm)?
 
-For x86 it's even built three times..
+
+Regards,
+
+-- 
+Martin Schlemmer
+
 

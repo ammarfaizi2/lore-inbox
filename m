@@ -1,42 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264256AbTKTHsd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Nov 2003 02:48:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264274AbTKTHsd
+	id S264033AbTKTIDA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Nov 2003 03:03:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264045AbTKTIDA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Nov 2003 02:48:33 -0500
-Received: from fw.osdl.org ([65.172.181.6]:28891 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264256AbTKTHsc (ORCPT
+	Thu, 20 Nov 2003 03:03:00 -0500
+Received: from [202.81.18.30] ([202.81.18.30]:39623 "EHLO gaston")
+	by vger.kernel.org with ESMTP id S264033AbTKTIC7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Nov 2003 02:48:32 -0500
-Date: Wed, 19 Nov 2003 23:53:59 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Matt Mackall <mpm@selenic.com>
-Cc: torvalds@osdl.org, zwane@arm.linux.org.uk, mingo@elte.hu,
-       mbligh@aracnet.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       hugh@veritas.com
-Subject: Re: [PATCH][2.6-mm] Fix 4G/4G X11/vm86 oops
-Message-Id: <20031119235359.37133797.akpm@osdl.org>
-In-Reply-To: <20031120074405.GG22139@waste.org>
-References: <Pine.LNX.4.53.0311181113150.11537@montezuma.fsmlabs.com>
-	<Pine.LNX.4.44.0311180830050.18739-100000@home.osdl.org>
-	<20031119203210.GC22139@waste.org>
-	<20031119230928.GE22139@waste.org>
-	<20031120074405.GG22139@waste.org>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 20 Nov 2003 03:02:59 -0500
+Subject: Re: setcontext syscall
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Reply-To: benh@kernel.crashing.org
+To: gfa@sensaco.com
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <3FBC6728.7030504@sensaco.com>
+References: <3FBC6728.7030504@sensaco.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1069315322.31665.197.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 20 Nov 2003 19:02:03 +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt Mackall <mpm@selenic.com> wrote:
->
->  -	load_esp0(tss, &tsk->thread);
->  +	load_virtual_esp0(tss, tsk);
+On Thu, 2003-11-20 at 18:03, George Fankhauser wrote:
+> Hi there!
+> 
+> I wonder why linux i386 does not implement setcontext as a syscall. 
+> Instead it's in in glibc in userspace.
 
-Thanks guys.
+On ppc32, we have started doing just that, a syscall called
+sys_swapcontext that does all the variations of get/set_context.
+We'll do as well on ppc64 soon.
 
-Now I'll have to put something else in there to keep you amused ;)
+It also helps perfs because on ppc, the kernel actually knows if
+things like the FPU or the Altivec unit were ever used by the
+process, and so if it's worth saving/restoring those registers
+as part of the context.
 
+Ben.
 

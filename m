@@ -1,50 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317232AbSIIMVV>; Mon, 9 Sep 2002 08:21:21 -0400
+	id <S317189AbSIIMQI>; Mon, 9 Sep 2002 08:16:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317261AbSIIMVV>; Mon, 9 Sep 2002 08:21:21 -0400
-Received: from web20803.mail.yahoo.com ([216.136.226.192]:47520 "HELO
-	web20803.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S317232AbSIIMVU>; Mon, 9 Sep 2002 08:21:20 -0400
-Message-ID: <20020909122604.10354.qmail@web20803.mail.yahoo.com>
-Date: Mon, 9 Sep 2002 05:26:04 -0700 (PDT)
-From: Atish Datta Chowdhury <adattachowdhury@yahoo.com>
-Subject: question about machne checksum errors
-To: linux-kernel@vger.kernel.org
-Cc: adattachowdhury@yahoo.com
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S317194AbSIIMQH>; Mon, 9 Sep 2002 08:16:07 -0400
+Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:31990
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S317189AbSIIMQH>; Mon, 9 Sep 2002 08:16:07 -0400
+Subject: Re: [RFC] Multi-path IO in 2.5/2.6 ?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Lars Marowsky-Bree <lmb@suse.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020909104944.GH27887@marowsky-bree.de>
+References: <20020909104944.GH27887@marowsky-bree.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
+Date: 09 Sep 2002 13:23:28 +0100
+Message-Id: <1031574208.29718.3.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-                Thanks in advance for any
-clarifications.
+On Mon, 2002-09-09 at 11:49, Lars Marowsky-Bree wrote:
+> Or can the LVM2 device-mapper be used to do that more cleanly?
+> 
+> I wonder whether anyone has given this some thought already.
 
-                I was trying to analyze a few machine 
-checksum errors,  and obtained a lot of valuable
-information in the archive,  including a 
-referrence to Dave Jones' tool,  parsemce. Thanks !
+The md layer code can already do the job fine - but it does need to get
+to the point that the block layer provides better error information
+upstream so it can make better decisions.
 
-              The servers that we get these occasional
-errors on, are mostly dual AMD boxes (MP 1800s, 
-typically) running 2.4.18.  Are the decoding rules, 
-present in Intel's IA-32 MCA documentation, applicable
+LVM2 is a nice clean remapper, so it should sit on top of the md or
+other failover mappers easily enough. You can probably do failover by
+updating map tables too.
 
-on these servers ? As detailed in Intel's 
-Software Developer's Manual, looks like  it is not 
-mandatory for an IA-32 compliant system to follow the 
-decoding rules on all the fields in the machine status
+Its nice clean code unlike EVMS, and doesnt duplicate half the kernel 
+so its easier to hack on
 
-registers (e.g the ones that indicate Uncorrectable 
-ECC errors)..
-
-             Appreciate any help regarding this.
-
--thanks,
-Atish
-
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Finance - Get real-time stock quotes
-http://finance.yahoo.com

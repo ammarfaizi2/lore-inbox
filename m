@@ -1,45 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315919AbSGPL4f>; Tue, 16 Jul 2002 07:56:35 -0400
+	id <S315870AbSGPLyf>; Tue, 16 Jul 2002 07:54:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317550AbSGPL4e>; Tue, 16 Jul 2002 07:56:34 -0400
-Received: from twilight.ucw.cz ([195.39.74.230]:64393 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S315919AbSGPL4d>;
-	Tue, 16 Jul 2002 07:56:33 -0400
-Date: Tue, 16 Jul 2002 13:59:20 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Joerg Schilling <schilling@fokus.gmd.de>
-Cc: James.Bottomley@steeleye.com, linux-kernel@vger.kernel.org
-Subject: Re: IDE/ATAPI in 2.5
-Message-ID: <20020716135920.B7352@ucw.cz>
-References: <200207161128.g6GBSJPE021316@burner.fokus.gmd.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200207161128.g6GBSJPE021316@burner.fokus.gmd.de>; from schilling@fokus.gmd.de on Tue, Jul 16, 2002 at 01:28:19PM +0200
+	id <S315919AbSGPLye>; Tue, 16 Jul 2002 07:54:34 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:54144 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S315870AbSGPLyd>; Tue, 16 Jul 2002 07:54:33 -0400
+Date: Tue, 16 Jul 2002 07:58:46 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: SCoTT SMeDLeY <ss@aaoepp.aao.gov.au>
+cc: linux-kernel@vger.kernel.org, ss@aao.gov.au
+Subject: Re: Tyan s2466 stability
+In-Reply-To: <20020716212336.A393@aaopcss.aao.gov.au>
+Message-ID: <Pine.LNX.3.95.1020716073755.7363A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 16, 2002 at 01:28:19PM +0200, Joerg Schilling wrote:
+On Tue, 16 Jul 2002, SCoTT SMeDLeY wrote:
 
-> It would help, if somebody would correct the current SCSI addressng scheme used 
-> in Linux. Linux currently uses something called BUS/channel/target/lun.
-> This does not reflect reality.
+> Hi all,
 > 
-> What Linux calls a SCSI bus is definitely not a SCSI bus but a SCSI HBA card.
-> What Linux calls a channel really is one of possibly more SCSI busses going
-> off one of the SCSI HBA cards. It makes sense to just count SCSI busses.
+> I'm considering investing in a dual-AMD system using Tyan's s2466
+> motherboard. I'm interested in hearing how others have found the
+> stability of this board using recent 2.4.x kernels.
+> 
+> I've scanned the archives & there doesn't appear to be any reports
+> on problems with this board, so I guess I'm hoping to hear some
+> positive reports ...
+> 
+> I'm also interested in hearing reports about how the board performs
+> with with non-ECC (non-registered) RAM as the board has been
+> documented to work with such an arrangement. I'm happy to fork
+> out for ECC RAM, but is it worth it?
+> 
+> Please reply to: ss@aao.gov.au
+> 
 
-Well, no. It doesn't. Because the numbers will change if you add a card
-(even at runtime - hotplugging USB SCSI is something real happening
-today. And that'd be a very bad thing.
+We got one here about two weeks ago. It had 2 AMD processors plus
+2 'sticks' of RAM (Don't know how much). It was originally tested
+on an IDE drive booting Windows/2000. It worked, but a CPU had to
+be removed because W$ trashes drives when using two CPUs.
 
-The way it'll be done is that you'll get the device physical path (see
-driverfs) to the device, the device serial number and other identifiers
-and then a hotplug/system configuration agent will choose a nice name
-for it (completely configurable).
+I got to play with it for an hour. I put one of my BusLogic SCSI
+controllers in one of the 33MHz slots and booted Linux off an existing
+SCSI drive. It did not run long before crashing (I booted a SMP
+kernel). Again, I booted it with only one CPU and it did not crash.
 
--- 
-Vojtech Pavlik
-SuSE Labs
+I don't know if it's an AMD problem or a Motherboard problem. Perhaps
+AMD processors don't work well in SMP, I've always used Intel with
+success.
+
+Nevertheless, I was entirely unimpressed with this "MPX" board. It
+didn't have built-in SCSI like older Tyan boards that I currently use
+and it didn't work very well. My AGP graphics card (G-Force) didn't
+work either (in graphics) although I'm told that 'newer' ones do.
+
+It is also kinda expensive (over US$200).
+
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+
+                 Windows-2000/Professional isn't.
+

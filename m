@@ -1,61 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265766AbTL3Lbo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Dec 2003 06:31:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265767AbTL3Lbo
+	id S265769AbTL3Lnf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Dec 2003 06:43:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265772AbTL3Lnf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Dec 2003 06:31:44 -0500
-Received: from mail03.mail.esat.net ([193.95.141.48]:60874 "EHLO
-	mail03.mail.esat.net") by vger.kernel.org with ESMTP
-	id S265766AbTL3Lbm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Dec 2003 06:31:42 -0500
-Message-ID: <00b001c3cec8$7d354510$6e69690a@RIMAS>
-From: "Remus" <rmocius@auste.elnet.lt>
-To: <linux-kernel@vger.kernel.org>
-References: <20031217114125.GA20057@malvern.uk.w2k.superh.com> <3FE08470.5040801@pacbell.net> <20031218143236.GB20057@malvern.uk.w2k.superh.com> <0d6401c3c576$c6889b00$6e69690a@RIMAS>
-Subject: Re: iproute2 and 2.6.0 kernel
-Date: Tue, 30 Dec 2003 11:31:07 -0000
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+	Tue, 30 Dec 2003 06:43:35 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:10252 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S265769AbTL3Ln3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Dec 2003 06:43:29 -0500
+Date: Tue, 30 Dec 2003 11:43:24 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@redhat.com>
+Subject: Re: 2.6.0-test6: APM unable to suspend (the 2.6.0-test2 saga continues)
+Message-ID: <20031230114324.A1632@flint.arm.linux.org.uk>
+Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>,
+	Ingo Molnar <mingo@redhat.com>
+References: <20031005171055.A21478@flint.arm.linux.org.uk> <20031228174622.A20278@flint.arm.linux.org.uk> <20031228182545.B20278@flint.arm.linux.org.uk> <Pine.LNX.4.58.0312281248190.11299@home.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.58.0312281248190.11299@home.osdl.org>; from torvalds@osdl.org on Sun, Dec 28, 2003 at 12:49:21PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, Dec 28, 2003 at 12:49:21PM -0800, Linus Torvalds wrote:
+> On Sun, 28 Dec 2003, Russell King wrote:
+> > 
+> > Would it be possible to switch LDT/GDT to whatever the APM BIOS expects
+> > just before calling the APM BIOS to suspend/hibernate, and restore them
+> > to whatever Linux requires after the APM BIOS returns from resume?
+> 
+> Possible, yes. But it would help a lot to know what's wrong with the 
+> current segments - we did leave most of them with exactly the same layout 
+> as before, and I thought we explicitly left the ones that APM cares about 
+> that way..
 
-Specialy a problem is with "ip" command.
+With thanks to Arjan, I think we've proven that this is not the change
+which is causing the problem by testing various Red Hat and Fedora 2.4
+kernels on the machine (which have various 2.6 NPTL backports.)
 
-Any ideas guys?
+I'm now back to being completely out of my depth on this issue; a 2.4
+kernel booted through to init=/bin/bash suspends, but a 2.6 kernel
+with the same hardware support booted to the same point refuses to
+suspend via APM.
 
-Thanks
+I think I'm going to have to resort to a binary search of the 2.5
+kernel series to find out exactly what broke and when.
 
-Remus
-
-
-> Hi folks,
->
-> I have a linux box with three NICs (two for external ISP, and one local).
-> Today I tried to use 2.6.0 kernel and something is wrong, because iproute2
-> does not work corretly.
-> No routed packets go via second ISP NIC which I use with iproute rules.
-With
-> 2.4.22 kernel I have no problems at all with packet routing.
->
-> I compiled 2.6.0 kernel myself, maybe I missed something in .config file?
->
-> Thanks
->
-> Remus
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

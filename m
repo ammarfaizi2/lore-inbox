@@ -1,50 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263823AbTL2RbY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Dec 2003 12:31:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263834AbTL2RbY
+	id S263810AbTL2Ra2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Dec 2003 12:30:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263823AbTL2Ra2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Dec 2003 12:31:24 -0500
-Received: from cimice4.lam.cz ([212.71.168.94]:25472 "EHLO beton.cybernet.src")
-	by vger.kernel.org with ESMTP id S263823AbTL2RbT (ORCPT
+	Mon, 29 Dec 2003 12:30:28 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:30682 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S263810AbTL2RaU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Dec 2003 12:31:19 -0500
-Date: Mon, 29 Dec 2003 18:31:18 +0100
-From: =?iso-8859-2?Q?Karel_Kulhav=FD?= <clock@twibright.com>
-To: Tomas Szepe <szepe@pinerecords.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Can't mount USB partition as root
-Message-ID: <20031229183118.A32137@beton.cybernet.src>
-References: <20031229173853.A32038@beton.cybernet.src> <20031229164539.GD30794@louise.pinerecords.com>
+	Mon, 29 Dec 2003 12:30:20 -0500
+Date: Mon, 29 Dec 2003 18:30:12 +0100
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Nicklas Bondesson <nicke@nicke.nu>
+Cc: "'Christophe Saout'" <christophe@saout.de>, linux-kernel@vger.kernel.org
+Subject: Re: ataraid in 2.6.?
+Message-ID: <20031229173012.GB21479@devserv.devel.redhat.com>
+References: <1072717701.5152.123.camel@leto.cs.pocnet.net> <200312291727.hBTHRDA13745@mx1.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="5/uDoXvLw7AC5HRs"
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20031229164539.GD30794@louise.pinerecords.com>; from szepe@pinerecords.com on Mon, Dec 29, 2003 at 05:45:39PM +0100
-X-Orientation: Gay
+In-Reply-To: <200312291727.hBTHRDA13745@mx1.redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 29, 2003 at 05:45:39PM +0100, Tomas Szepe wrote:
-> On Dec-29 2003, Mon, 17:38 +0100
-> Karel Kulhavý <clock@twibright.com> wrote:
-> 
-> > Is it possible to boot kernel with root from /dev/sda1 (USB)?
-> > partition table: whole /dev/sda is one partition (sda1), type 83 (Linux).
-> > Tried also switching on and off hotplugging in kernel and it didn't help.
-> 
-> Well, is the device detected and the partition table scanned before the
-> root mount is attempted?
 
-The messages jump around fast and there is no possibility to scroll
-back once the kernel stops, but I am convinced that nothing is said about
-detecting the device.
+--5/uDoXvLw7AC5HRs
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-However, if booting the kernel "normally", the device gets detected (later).
+On Mon, Dec 29, 2003 at 06:27:08PM +0100, Nicklas Bondesson wrote:
+> How do you set this (device mapping) up using the 2.6 kernel. I like the
+> ease of using ataraid in 2.4.x. Why not have both alternatives as options
+> (both ataraid and devicemapper)?
 
-How do I use the console? Is it something like nullmodem cable console in
-Windows NT?  I have given away my nullmodem cable to a friend for purpose of
-debugging NT kernel so what possibilities remain?
+because ataraid is nothing more than a devicemapper....
+duplicating that is rather silly...=20
+The outcome is to be a /sbin/ataraid binary or some such that will do all
+the magic to detect the raid and tell the kernel device mapper to set it all
+up.
 
-Cl<
+> Also have anyone of you looked at the patch
+> from Walt H that he sent in yesterday? I have to use this after replacing=
+ my
+> old hard drives (Maxtor 30GB) with WDC 80GB. The patch is attached.=20
+
+I sent it to Marcelo for applying last week, and he applied it today
+
+--5/uDoXvLw7AC5HRs
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE/8GSjxULwo51rQBIRAsD6AJ99OWdMUxG1zcGAVn6wS1G27qeJCgCgmxFL
+AcoJ0I/hSD7eWpAoRoOhFDQ=
+=gdFE
+-----END PGP SIGNATURE-----
+
+--5/uDoXvLw7AC5HRs--

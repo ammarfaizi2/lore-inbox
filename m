@@ -1,57 +1,258 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263440AbTECV7L (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 May 2003 17:59:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263447AbTECV7L
+	id S263438AbTECV7D (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 May 2003 17:59:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263440AbTECV7D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 May 2003 17:59:11 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:44560 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S263440AbTECV7J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 May 2003 17:59:09 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: LSE conference call
-Date: 3 May 2003 15:11:17 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <b91eq5$j2s$1@cesium.transmeta.com>
-References: <200304251826.h3PIQMNg001890@81-2-122-30.bradfords.org.uk> <3EB28FC2.6070305@coyotegulch.com> <m1ade4cdxl.fsf@frodo.biederman.org>
+	Sat, 3 May 2003 17:59:03 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:28615 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S263438AbTECV66
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 May 2003 17:58:58 -0400
+Message-ID: <3EB43E8C.10506@namesys.com>
+Date: Sun, 04 May 2003 02:11:24 +0400
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021212
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [BK] [2.4] reiserfs: fix one more directio vs tails problem]
+Content-Type: multipart/mixed;
+ boundary="------------090904080009010200060707"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <m1ade4cdxl.fsf@frodo.biederman.org>
-By author:    ebiederm@xmission.com (Eric W. Biederman)
-In newsgroup: linux.dev.kernel
->
-> Scott Robert Ladd <coyote@coyotegulch.com> writes:
-> 
-> > John Bradford wrote:
-> > > Ah, but assuming that you had a compass to calculate the local time
-> > > offset, (ignoring DST), anyway, you could have used that to calculate
-> > > the _local_ time without looking at your watch at all ;-).  However,
-> > > you wouldn't be able to calculate the timezone you were in.
-> > 
-> > Ah, but if you had a GPS system available, and a database of time zone
-> > boundaries, you could adjust on-the-fly for different jurisdictions. I've dones
-> > somethign of the sort recently for a client; the main problem lies in the
-> > accuracy (and size) of the database. Indiana, for example, presents unique
-> > challenges, with its patchwork implementation of DST...
-> 
-> Indiana doesn't do DST.  But it is true that people on the edges of the state
-> like to know what time it is for their neighbors across the border.  
-> 
+This is a multi-part message in MIME format.
+--------------090904080009010200060707
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Part of Indiana does DST, part of it doesn't.  In particular, the
-parts of Indiana is in the CT timezone (Gary area) *does* do DST.
-
-	-hpa
+Please apply, Oleg wants this in before the next real release, as it 
+looks like their bug fix turned off tail packing by mistake.
 
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64
+Hans
+
+
+--------------090904080009010200060707
+Content-Type: message/rfc822;
+ name="[2.4] reiserfs: fix one more directio vs tails problem"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="[2.4] reiserfs: fix one more directio vs tails problem"
+
+Return-Path: <green@angband.namesys.com>
+Delivered-To: reiser@namesys.com
+Received: (qmail 24678 invoked from network); 3 May 2003 12:53:16 -0000
+Received: from angband.namesys.com (postfix@212.16.7.85)
+  by thebsh.namesys.com with SMTP; 3 May 2003 12:53:16 -0000
+Received: by angband.namesys.com (Postfix, from userid 521)
+	id 7946156AA3C; Sat,  3 May 2003 16:53:16 +0400 (MSD)
+Date: Sat, 3 May 2003 16:53:16 +0400
+From: Oleg Drokin <green@namesys.com>
+To: reiser@namesys.com
+Subject: [2.4] reiserfs: fix one more directio vs tails problem
+Message-ID: <20030503125316.GA21371@namesys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+
+Hello!
+ 
+    This changeset fixes another set problems related to directio vs packed tails.
+    Thanks to Mingming Cao <mcao@us.ibm.com> for bringing the issue to our attention.
+    Most of the patch was made by Chris Mason.
+
+    Please pull from bk://namesys.com/bk/reiser3-linux-2.4-directiofix2
+
+Diffstat:
+ fs/reiserfs/inode.c           |   12 ++++++-
+ fs/reiserfs/journal.c         |   66 +++++++++++++++++++++++++++---------------
+ fs/reiserfs/tail_conversion.c |    1
+ include/linux/reiserfs_fs.h   |    2 +
+ include/linux/reiserfs_fs_i.h |    7 ++++
+ 5 files changed, 63 insertions(+), 25 deletions(-)
+
+Plain text patch:
+
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.1158  -> 1.1159 
+#	include/linux/reiserfs_fs_i.h	1.8     -> 1.9    
+#	 fs/reiserfs/inode.c	1.42    -> 1.43   
+#	fs/reiserfs/tail_conversion.c	1.16    -> 1.17   
+#	fs/reiserfs/journal.c	1.28    -> 1.29   
+#	include/linux/reiserfs_fs.h	1.26    -> 1.27   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 03/05/03	green@angband.namesys.com	1.1159
+# reiserfs: Fix another O_DIRECT vs tails problem. Mostly by Chris Mason.
+# Thanks to Mingming Cao <mcao@us.ibm.com> for bringing the issue to our attention.
+# --------------------------------------------
+#
+diff -Nru a/fs/reiserfs/inode.c b/fs/reiserfs/inode.c
+--- a/fs/reiserfs/inode.c	Sat May  3 16:00:14 2003
++++ b/fs/reiserfs/inode.c	Sat May  3 16:00:14 2003
+@@ -469,7 +469,7 @@
+     tail_end = (tail_start | (bh_result->b_size - 1)) + 1 ;
+ 
+     index = tail_offset >> PAGE_CACHE_SHIFT ;
+-    if (index != hole_page->index) {
++    if ( !hole_page || index != hole_page->index) {
+ 	tail_page = grab_cache_page(inode->i_mapping, index) ;
+ 	retval = -ENOMEM;
+ 	if (!tail_page) {
+@@ -1810,7 +1810,12 @@
+ 	    flush_dcache_page(page) ;
+ 	    kunmap(page) ;
+ 	    if (buffer_mapped(bh) && bh->b_blocknr != 0) {
+-	        mark_buffer_dirty(bh) ;
++	        if (!atomic_set_buffer_dirty(bh)) {
++			set_buffer_flushtime(bh);
++			refile_buffer(bh);
++			buffer_insert_inode_data_queue(bh, p_s_inode);
++			balance_dirty();
++		}
+ 	    }
+ 	}
+ 	UnlockPage(page) ;
+@@ -2158,6 +2163,9 @@
+                               struct kiobuf *iobuf, unsigned long blocknr,
+ 			      int blocksize) 
+ {
++    lock_kernel();
++    reiserfs_commit_for_tail(inode);
++    unlock_kernel();
+     return generic_direct_IO(rw, inode, iobuf, blocknr, blocksize,
+                              reiserfs_get_block_direct_io) ;
+ }
+diff -Nru a/fs/reiserfs/journal.c b/fs/reiserfs/journal.c
+--- a/fs/reiserfs/journal.c	Sat May  3 16:00:14 2003
++++ b/fs/reiserfs/journal.c	Sat May  3 16:00:15 2003
+@@ -2655,32 +2655,52 @@
+   inode->u.reiserfs_i.i_trans_id = SB_JOURNAL(inode->i_sb)->j_trans_id ;
+ }
+ 
+-static int reiserfs_inode_in_this_transaction(struct inode *inode) {
+-  if (inode->u.reiserfs_i.i_trans_id == SB_JOURNAL(inode->i_sb)->j_trans_id || 
+-      inode->u.reiserfs_i.i_trans_id == 0) {
+-    return 1; 
+-  } 
+-  return 0 ;
++void reiserfs_update_tail_transaction(struct inode *inode) {
++  
++  inode->u.reiserfs_i.i_tail_trans_index = SB_JOURNAL_LIST_INDEX(inode->i_sb);
++
++  inode->u.reiserfs_i.i_tail_trans_id = SB_JOURNAL(inode->i_sb)->j_trans_id ;
++}
++
++static void __commit_trans_index(struct inode *inode, unsigned long id,
++                                 unsigned long index) 
++{
++    struct reiserfs_journal_list *jl ;
++    struct reiserfs_transaction_handle th ;
++    struct super_block *sb = inode->i_sb ;
++
++    jl = SB_JOURNAL_LIST(sb) + index;
++
++    /* is it from the current transaction, or from an unknown transaction? */
++    if (id == SB_JOURNAL(sb)->j_trans_id) {
++	journal_join(&th, sb, 1) ;
++	journal_end_sync(&th, sb, 1) ;
++    } else if (jl->j_trans_id == id) {
++	flush_commit_list(sb, jl, 1) ;
++    }
++    /* if the transaction id does not match, this list is long since flushed
++    ** and we don't have to do anything here
++    */
+ }
++void reiserfs_commit_for_tail(struct inode *inode) {
++    unsigned long id = inode->u.reiserfs_i.i_tail_trans_id;
++    unsigned long index = inode->u.reiserfs_i.i_tail_trans_index;
+ 
++    /* for tails, if this info is unset there's nothing to commit */
++    if (id && index)
++	__commit_trans_index(inode, id, index);
++}
+ void reiserfs_commit_for_inode(struct inode *inode) {
+-  struct reiserfs_journal_list *jl ;
+-  struct reiserfs_transaction_handle th ;
+-  struct super_block *sb = inode->i_sb ;
+-
+-  jl = SB_JOURNAL_LIST(sb) + inode->u.reiserfs_i.i_trans_index ;
+-
+-  /* is it from the current transaction, or from an unknown transaction? */
+-  if (reiserfs_inode_in_this_transaction(inode)) {
+-    journal_join(&th, sb, 1) ;
+-    reiserfs_update_inode_transaction(inode) ;
+-    journal_end_sync(&th, sb, 1) ;
+-  } else if (jl->j_trans_id == inode->u.reiserfs_i.i_trans_id) {
+-    flush_commit_list(sb, jl, 1) ;
+-  }
+-  /* if the transaction id does not match, this list is long since flushed
+-  ** and we don't have to do anything here
+-  */
++    unsigned long id = inode->u.reiserfs_i.i_trans_id;
++    unsigned long index = inode->u.reiserfs_i.i_trans_index;
++
++    /* for the whole inode, assume unset id or index means it was
++     * changed in the current transaction.  More conservative
++     */
++    if (!id || !index)
++	reiserfs_update_inode_transaction(inode) ;
++
++    __commit_trans_index(inode, id, index);
+ }
+ 
+ void reiserfs_restore_prepared_buffer(struct super_block *p_s_sb, 
+diff -Nru a/fs/reiserfs/tail_conversion.c b/fs/reiserfs/tail_conversion.c
+--- a/fs/reiserfs/tail_conversion.c	Sat May  3 16:00:14 2003
++++ b/fs/reiserfs/tail_conversion.c	Sat May  3 16:00:14 2003
+@@ -133,6 +133,7 @@
+ 
+     inode->u.reiserfs_i.i_first_direct_byte = U32_MAX;
+ 
++    reiserfs_update_tail_transaction(inode);
+     return 0;
+ }
+ 
+diff -Nru a/include/linux/reiserfs_fs.h b/include/linux/reiserfs_fs.h
+--- a/include/linux/reiserfs_fs.h	Sat May  3 16:00:15 2003
++++ b/include/linux/reiserfs_fs.h	Sat May  3 16:00:15 2003
+@@ -1558,7 +1558,9 @@
+ #define JOURNAL_BUFFER(j,n) ((j)->j_ap_blocks[((j)->j_start + (n)) % JOURNAL_BLOCK_COUNT])
+ 
+ void reiserfs_commit_for_inode(struct inode *) ;
++void reiserfs_commit_for_tail(struct inode *) ;
+ void reiserfs_update_inode_transaction(struct inode *) ;
++void reiserfs_update_tail_transaction(struct inode *) ;
+ void reiserfs_wait_on_write_block(struct super_block *s) ;
+ void reiserfs_block_writes(struct reiserfs_transaction_handle *th) ;
+ void reiserfs_allow_writes(struct super_block *s) ;
+diff -Nru a/include/linux/reiserfs_fs_i.h b/include/linux/reiserfs_fs_i.h
+--- a/include/linux/reiserfs_fs_i.h	Sat May  3 16:00:14 2003
++++ b/include/linux/reiserfs_fs_i.h	Sat May  3 16:00:14 2003
+@@ -53,6 +53,13 @@
+     ** flushed */
+     unsigned long i_trans_id ;
+     unsigned long i_trans_index ;
++
++    /* direct io needs to make sure the tail is on disk to avoid
++     * buffer alias problems.  This records the transaction last
++     * involved in a direct->indirect conversion for this file
++     */
++    unsigned long i_tail_trans_id;
++    unsigned long i_tail_trans_index;
+ };
+ 
+ #endif
+
+
+
+--------------090904080009010200060707--
+

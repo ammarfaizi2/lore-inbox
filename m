@@ -1,57 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265378AbTLRWzp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Dec 2003 17:55:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265382AbTLRWzp
+	id S265375AbTLRWx4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Dec 2003 17:53:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265376AbTLRWx2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Dec 2003 17:55:45 -0500
-Received: from mail4.bluewin.ch ([195.186.4.74]:26817 "EHLO mail4.bluewin.ch")
-	by vger.kernel.org with ESMTP id S265378AbTLRWyl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Dec 2003 17:54:41 -0500
-Date: Thu, 18 Dec 2003 23:53:25 +0100
-From: Roger Luethi <rl@hellgate.ch>
-To: Rik van Riel <riel@redhat.com>
-Cc: Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>,
-       wli@holomorphy.com, kernel@kolivas.org, chris@cvine.freeserve.co.uk,
-       linux-kernel@vger.kernel.org, mbligh@aracnet.com
-Subject: Re: 2.6.0-test9 - poor swap performance on low end machines
-Message-ID: <20031218225324.GA24850@k3.hellgate.ch>
-Mail-Followup-To: Rik van Riel <riel@redhat.com>,
-	Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>,
-	wli@holomorphy.com, kernel@kolivas.org, chris@cvine.freeserve.co.uk,
-	linux-kernel@vger.kernel.org, mbligh@aracnet.com
-References: <20031217214107.GA3650@k3.hellgate.ch> <Pine.LNX.4.44.0312171921180.12531-100000@chimarrao.boston.redhat.com>
+	Thu, 18 Dec 2003 17:53:28 -0500
+Received: from dyn-81-166-56-168.ppp.tiscali.fr ([81.166.56.168]:58116 "EHLO
+	nsbm.kicks-ass.org") by vger.kernel.org with ESMTP id S265375AbTLRWxV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Dec 2003 17:53:21 -0500
+Date: Thu, 18 Dec 2003 23:52:43 +0100
+From: Witukind <witukind@nsbm.kicks-ass.org>
+To: linux-kernel@vger.kernel.org
+Subject: Oops when trying to mount a CIFS filesystem with 2.6.0.
+Message-Id: <20031218235243.77907bb8.witukind@nsbm.kicks-ass.org>
+X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0312171921180.12531-100000@chimarrao.boston.redhat.com>
-X-Operating-System: Linux 2.6.0-test11 on i686
-X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
-X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 17 Dec 2003 19:21:52 -0500, Rik van Riel wrote:
-> > For efax, a benchmark run with mem=32M, the difference in run time
-> > between values 256 and 1024 for /proc/sys/vm/min_free_kbytes is noise
-> > (< 1%).
-> 
-> OK, so I guess you're not as close to the knee
-> of the curve as this kind of tests tend to be ;)
+I was trying to get CIFS working and I found two of those in my syslog file:
 
-Depends on the axis in your graph. The benchmarks I am using are not
-balancing on the verge of going bad, if that's what you mean. They
-cut deep (30 to 100 MB) into swap through most of their run time,
-and there's quite a bit of swap turnover with compiling stuff.
+--- begin oops ---
 
-I also completed a best effort attempt at determining the impact of
-any differences between mem= and actual RAM removal. I had to adapt
-the kbuild benchmark somewhat to the available hardware. I benchmarked
-with 48 MB RAM at mem=16M and again after removing 32MB of RAM. If there
-was a difference in performance, it was very small for both 2.4.23 and
-2.6.0-test11, with the latter taking over 2.5 times as long to complete
-the benchmark.
+Unable to handle kernel NULL pointer dereference at virtual address 00000021
+printing eip:
+c0181b94
+*pde = 00000000
+Oops: 0000 [#2]
+CPU:    0
+EIP:    0060:[<c0181b94>]    Not tainted
+EFLAGS: 00010206
+EIP is at unload_nls+0x4/0x30
+eax: 00000009   ebx: c2fc05a0   ecx: 00000000   edx: ffffffea
+esi: 00000000   edi: ffffffea   ebp: c36e1000   esp: c153feb8
+ds: 007b   es: 007b   ss: 0068
+Process mount (pid: 11723, threadinfo=c153e000 task=c2438700)
+Stack: c4842077 00000009 c1d66400 00000000 c36e1000 c36e1000 c48423c6 c1d66400
+       c3cff000 c36e1000 00000000 fffffff4 c3ff47e0 c4867680 c0146413 c4867680
+       00000000 c36e1000 c3cff000 c1673000 c153ff54 c1673004 00000000 c0158628
+Call Trace:
+  [<c4842077>] cifs_read_super+0x77/0x130 [cifs]
+  [<c48423c6>] cifs_get_sb+0x56/0xb0 [cifs]
+  [<c0146413>] do_kern_mount+0x43/0xd0
+  [<c0158628>] do_add_mount+0x58/0x130
+  [<c015891c>] do_mount+0x13c/0x190
+  [<c0158772>] copy_mount_options+0x72/0xe0
+  [<c0158c5a>] sys_mount+0x8a/0xc0
+  [<c0108d87>] syscall_call+0x7/0xb
+Code: 8b 40 18 85 c0 74 0b ff 88 a0 00 00 00 83 38 02 74 01 c3 8b
 
-Roger
+--- end oops ---
+
+If more info is needed I'll be glad to provide it just tell me what is needed.
+Anyone got any luck getting CIFS to work?
+
+-- 
+Jabber: heimdal@jabber.org

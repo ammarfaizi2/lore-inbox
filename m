@@ -1,100 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314128AbSDLUsg>; Fri, 12 Apr 2002 16:48:36 -0400
+	id <S314141AbSDLUtJ>; Fri, 12 Apr 2002 16:49:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314141AbSDLUsf>; Fri, 12 Apr 2002 16:48:35 -0400
-Received: from etpmod.phys.tue.nl ([131.155.111.35]:50024 "EHLO
-	etpmod.phys.tue.nl") by vger.kernel.org with ESMTP
-	id <S314128AbSDLUse>; Fri, 12 Apr 2002 16:48:34 -0400
-Date: Fri, 12 Apr 2002 22:48:32 +0200
-From: Kurt Garloff <kurt@garloff.de>
-To: David Brownell <dbrownell@users.sourceforge.net>
-Cc: Linux kernel list <linux-kernel@vger.kernel.org>
-Subject: usbnet: prolific fails reset
-Message-ID: <20020412224832.D1832@nbkurt.etpnet.phys.tue.nl>
-Mail-Followup-To: Kurt Garloff <kurt@garloff.de>,
-	David Brownell <dbrownell@users.sourceforge.net>,
-	Linux kernel list <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ey/N+yb7u/X9mFhi"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
-X-Operating-System: Linux 2.4.16-schedJ2 i686
-X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
-X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
-Organization: TU/e(NL), SuSE(DE)
+	id <S314143AbSDLUtH>; Fri, 12 Apr 2002 16:49:07 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:43533 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S314141AbSDLUtG>; Fri, 12 Apr 2002 16:49:06 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [Q] Looking for an emulation for CMOV* instructions.
+Date: 12 Apr 2002 13:48:53 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <a97h7l$5jp$1@cesium.transmeta.com>
+In-Reply-To: <m26669olcu.fsf@goliath.csn.tu-chemnitz.de> <E16Oocq-0005tX-00@the-village.bc.nu> <20020112062735.D511@toy.ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Followup to:  <20020112062735.D511@toy.ucw.cz>
+By author:    Pavel Machek <pavel@suse.cz>
+In newsgroup: linux.dev.kernel
+>
+> HI!
+> 
+> > > is it possible to include an emulation for the CMOV* (and possible other
+> > > i686 instructions) for processors that dont have these (k6, pentium
+> > > etc.)? I think this should work like the fpu emulation. Even if its slow
+> > 
+> > The kernel isnt there to fix up the fact authors can't read. Its also very
+> > hard to get emulations right. I grant that this wasn't helped by the fact
+> > the gcc x86 folks also couldnt read the pentium pro manual correctly.
+> 
+> How long does it take until netscape binaries contain CMOV? We already do
+> FPU emulation (you can do soft-float, so you do NOT need FP emulation!), so
+> I guess this would begood freature.
+> 
 
---ey/N+yb7u/X9mFhi
-Content-Type: multipart/mixed; boundary="vni90+aGYgRvsTuO"
-Content-Disposition: inline
+The difference is that the overhead of doing FP emulation is
+acceptable when compared to softfloat; this is not the case for CMOV
+unless you can somehow patch the binary on the fly.
 
+At some point it might make sense to run "the one program" that you
+otherwise can't live without, but I don't think it's gotten to that
+stage yet.  Which is, in some ways, unfortunate.
 
---vni90+aGYgRvsTuO
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-Hi David,
-
-got a USB network cable and was happy to see that it's supported by usbnet.
-Good job, thanks!
-usb0: register usbnet 001/004, Prolific PL-2301/PL-2302
-
-However:
-Upon ifconfig,
-usb-uhci.c: interrupt, status 3, frame# 922
-usb0: open reset fail (-32) usbnet 001/004, Prolific PL-2301/PL-2302
-
-The ifconfig fails to up the interface, consequently.
-
-Attached patch prevents the driver from returning the reset failure.
-Guess what: The networking worked just fine then.
-Probably the real solution is different ...
-
-Patch is against 2.4.16.
-
-Regards,
---=20
-Kurt Garloff                   <kurt@garloff.de>         [Eindhoven, NL]
-Physics: Plasma simulations  <K.Garloff@Phys.TUE.NL>  [TU Eindhoven, NL]
-Linux: SCSI, Security          <garloff@suse.de>    [SuSE Nuernberg, DE]
- (See mail header or public key servers for PGP2 and GPG public keys.)
-
---vni90+aGYgRvsTuO
-Content-Type: text/plain; charset=us-ascii
-Content-Description: usbnet-ignore-failed-reset-2416.diff
-Content-Disposition: attachment; filename="usbnet-ignore-failed-reset-2418.diff"
-Content-Transfer-Encoding: quoted-printable
-
---- linux/drivers/usb/usbnet.c~	Tue Dec 18 12:45:53 2001
-+++ linux/drivers/usb/usbnet.c	Thu Apr 11 20:02:51 2002
-@@ -1487,7 +1487,7 @@
- 			retval,
- 			dev->udev->bus->busnum, dev->udev->devnum,
- 			info->description);
--		goto done;
-+		//goto done;
- 	}
-=20
- 	// insist peer be connected
-
---vni90+aGYgRvsTuO--
-
---ey/N+yb7u/X9mFhi
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE8t0ggxmLh6hyYd04RAkczAKCxt+60hulW57NECk6L7VtW32oTEACfUv6X
-tLSYkwaghRIMkRX6ptU4NkA=
-=Bu2I
------END PGP SIGNATURE-----
-
---ey/N+yb7u/X9mFhi--
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

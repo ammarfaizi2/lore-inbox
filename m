@@ -1,45 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265454AbVBDUEW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261238AbVBDU3l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265454AbVBDUEW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 15:04:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266114AbVBDUCq
+	id S261238AbVBDU3l (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 15:29:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264762AbVBDUMd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 15:02:46 -0500
-Received: from www.ssc.unict.it ([151.97.230.9]:16900 "HELO ssc.unict.it")
-	by vger.kernel.org with SMTP id S265543AbVBDUAe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 15:00:34 -0500
-Subject: [patch 5/8] uml: fix jiffies initialization [before 2.6.11]
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, jdike@addtoit.com,
-       user-mode-linux-devel@lists.sourceforge.net, blaisorblade@yahoo.it
-From: blaisorblade@yahoo.it
-Date: Fri, 04 Feb 2005 19:35:50 +0100
-Message-Id: <20050204183551.1AFB0310BF@zion>
+	Fri, 4 Feb 2005 15:12:33 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:54027 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S264925AbVBDULm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Feb 2005 15:11:42 -0500
+Date: Fri, 4 Feb 2005 21:11:35 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, "Rafael J. Wysocki" <rjw@sisk.pl>,
+       Pavel Machek <pavel@suse.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: [patch] 2.6.11-rc3-mm1: fix swsusp with gcc 3.4
+Message-ID: <20050204201135.GD19408@stusta.de>
+References: <20050204103350.241a907a.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050204103350.241a907a.akpm@osdl.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Feb 04, 2005 at 10:33:50AM -0800, Andrew Morton wrote:
+>...
+> Changes since 2.6.11-rc2-mm2:
+>...
+> +swsusp-do-not-use-higher-order-memory-allocations-on-suspend.patch
+> 
+>  swsusp fix
+>...
 
-From: Jeff Dike <jdike@addtoit.com>, Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+This broke compilation with gcc 3.4:
 
-Initialize jiffies_64 to INITIAL_JIFFIES.
+<--  snip  -->
 
-Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+...
+  CC      kernel/power/swsusp.o
+kernel/power/swsusp.c: In function `alloc_pagedir':
+kernel/power/swsusp.c:608: sorry, unimplemented: inlining failed in call 
+to 'free_pagedir': function body not available
+kernel/power/swsusp.c:646: sorry, unimplemented: called from here
+make[2]: *** [kernel/power/swsusp.o] Error 1
+
+<--  snip  -->
+
+
+The fix is simple:
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
 ---
 
- linux-2.6.11-paolo/arch/um/kernel/time_kern.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+ kernel/power/swsusp.c |   30 ++++++++++++++----------------
+ 1 files changed, 14 insertions(+), 16 deletions(-)
 
-diff -puN arch/um/kernel/time_kern.c~uml-jiffies arch/um/kernel/time_kern.c
---- linux-2.6.11/arch/um/kernel/time_kern.c~uml-jiffies	2005-02-04 06:20:13.592089248 +0100
-+++ linux-2.6.11-paolo/arch/um/kernel/time_kern.c	2005-02-04 06:20:13.595088792 +0100
-@@ -22,7 +22,7 @@
- #include "mode.h"
- #include "os.h"
+--- linux-2.6.11-rc3-mm1-full/kernel/power/swsusp.c.old	2005-02-04 20:50:16.000000000 +0100
++++ linux-2.6.11-rc3-mm1-full/kernel/power/swsusp.c	2005-02-04 20:51:18.000000000 +0100
+@@ -605,7 +605,20 @@
+ 	return nr_copy;
+ }
  
--u64 jiffies_64;
-+u64 jiffies_64 = INITIAL_JIFFIES;
+-static inline void free_pagedir(struct pbe *pblist);
++/**
++ *	free_pagedir - free pages allocated with alloc_pagedir()
++ */
++
++static inline void free_pagedir(struct pbe *pblist)
++{
++	struct pbe *pbe;
++
++	while (pblist) {
++		pbe = pblist + PB_PAGE_SKIP;
++		pblist = pbe->next;
++		free_page((unsigned long)pblist);
++	}
++}
  
- EXPORT_SYMBOL(jiffies_64);
+ /**
+  *	alloc_pagedir - Allocate the page directory.
+@@ -651,21 +664,6 @@
+ }
  
-_
+ /**
+- *	free_pagedir - free pages allocated with alloc_pagedir()
+- */
+-
+-static inline void free_pagedir(struct pbe *pblist)
+-{
+-	struct pbe *pbe;
+-
+-	while (pblist) {
+-		pbe = pblist + PB_PAGE_SKIP;
+-		pblist = pbe->next;
+-		free_page((unsigned long)pblist);
+-	}
+-}
+-
+-/**
+  *	free_image_pages - Free pages allocated for snapshot
+  */
+ 
+

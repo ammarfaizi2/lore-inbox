@@ -1,170 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262121AbUCLO1U (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Mar 2004 09:27:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262133AbUCLO1U
+	id S262139AbUCLOa1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Mar 2004 09:30:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262157AbUCLOa0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 09:27:20 -0500
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:61662 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S262121AbUCLO1P
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 09:27:15 -0500
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: [PATCH] hdparm_X.patch (was: Re: 2.6.4-rc-bk3: hdparm -X locks up IDE)
-Date: Fri, 12 Mar 2004 15:34:39 +0100
-User-Agent: KMail/1.5.3
-Cc: Jens Axboe <axboe@suse.de>, linux-kernel <linux-kernel@vger.kernel.org>
-References: <200403111614.08778.vda@port.imtp.ilyichevsk.odessa.ua> <200403120924.03431.vda@port.imtp.ilyichevsk.odessa.ua> <200403121139.41402.vda@port.imtp.ilyichevsk.odessa.ua>
-In-Reply-To: <200403121139.41402.vda@port.imtp.ilyichevsk.odessa.ua>
+	Fri, 12 Mar 2004 09:30:26 -0500
+Received: from smtp.irisa.fr ([131.254.130.26]:15760 "EHLO smtp.irisa.fr")
+	by vger.kernel.org with ESMTP id S262139AbUCLOaP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Mar 2004 09:30:15 -0500
+Message-ID: <4051C976.3060808@irisa.fr>
+Date: Fri, 12 Mar 2004 15:30:14 +0100
+From: David Fort <david.fort@irisa.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7a) Gecko/20040216
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200403121534.39465.bzolnier@elka.pw.edu.pl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Unkillable Zombie process under 2.6.3 and 2.6.4
+References: <40508D65.9000601@irisa.fr> <20040311151729.57e3d936.akpm@osdl.org> <4051C126.5080902@irisa.fr> <200403121506.18236.kernel@borntraeger.net>
+In-Reply-To: <200403121506.18236.kernel@borntraeger.net>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 8bit
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 12 of March 2004 10:39, Denis Vlasenko wrote:
-> > I forgot to remove now-extraneous if() from ide.c:
-> >
-> > static int set_xfer_rate (ide_drive_t *drive, int arg)
-> > {
-> >         int err = ide_wait_cmd(drive,
-> >                         WIN_SETFEATURES, (u8) arg,
-> >                         SETFEATURES_XFER, 0, NULL);
-> >
-> >         if (!err && arg) {
-> >                 ide_set_xfer_rate(drive, (u8) arg);
-> >                 ide_driveid_update(drive);
-> >         }
-> >         return err;
-> > }
-> >
-> > And second, in ide_do_drive_cmd(), mdelay(2000)
-> > after WIN_SETFEATURES is a bit rude.
+Christian Borntraeger wrote:
+
+>David Fort wrote:
+>  
 >
-> ...and wrongly placed. I just realized that ide_driveid_update(drive)
-> actually talks with the drive!
+>>I'm trying to build a test app that can trigger the case where GDBed
+>>process become unkillable zombies
+>>    
+>>
 >
-> New patch is attached.
+>Does it help to send a SIGCONT to all processes in T state?
+>
+>  
+>
+No it doesn't, gdb loose its context when doing this(this triggers an 
+internal gdb error):
 
-diff -urN linux-2.6.4.orig/drivers/ide/ide-io.c linux-2.6.4/drivers/ide/ide-io.c
---- linux-2.6.4.orig/drivers/ide/ide-io.c	Fri Mar 12 11:15:00 2004
-+++ linux-2.6.4/drivers/ide/ide-io.c	Fri Mar 12 11:33:30 2004
-@@ -1387,10 +1387,25 @@
+lin-lwp.c:653: internal-error: stop_wait_callback: Assertion `pid == 
+GET_LWP (lp->ptid)' failed.
+A problem internal to GDB has been detected,
+further debugging may prove unreliable.
 
- 	err = 0;
- 	if (must_wait) {
-+		int xfer_rate = -1;
-+		/* Are we going to do hdparm -X n ? */
 
-HDIO_DRIVE_CMD is an ordinary ioctl, not some hdparm specific thing.
+Cheers
 
-+		if(rq->buffer
-+		&& rq->buffer[0] == (char)WIN_SETFEATURES
-+		&& rq->buffer[2] == (char)SETFEATURES_XFER
-+		) {
-+			xfer_rate = rq->buffer[1]; /* -X n */
-+		}
-+
- 		wait_for_completion(&wait);
- 		if (rq->errors)
- 			err = -EIO;
+-- 
+Fort David, Projet IDsA
+IRISA-INRIA, Campus de Beaulieu, 35042 Rennes cedex, France
+Tél: +33 (0) 2 99 84 71 33
 
-+		if(!err && xfer_rate != -1) {
-+			ide_delay_50ms(); /* be gentle */
-
-Why?
-
-+			/* ask chipset to change DMA/PIO timings */
-+			ide_set_xfer_rate(drive, xfer_rate);
-+			ide_driveid_update(drive);
-+		}
- 		blk_put_request(rq);
- 	}
-
-diff -urN linux-2.6.4.orig/drivers/ide/ide-iops.c linux-2.6.4/drivers/ide/ide-iops.c
---- linux-2.6.4.orig/drivers/ide/ide-iops.c	Fri Mar 12 11:07:07 2004
-+++ linux-2.6.4/drivers/ide/ide-iops.c	Fri Mar 12 11:26:55 2004
-@@ -660,52 +660,34 @@
-
- EXPORT_SYMBOL(eighty_ninty_three);
-
--int ide_ata66_check (ide_drive_t *drive, ide_task_t *args)
-+/*
-+ * Is drive/channel capable of handling this?
-+ * Currently checks only for ioctl(HDIO_DRIVE_CMD, SETFEATURES_XFER)
-+ * (hdparm -X n)
-+ */
-+int unsupported_by_drive (ide_drive_t *drive, ide_task_t *args)
- {
--	if ((args->tfRegister[IDE_COMMAND_OFFSET] == WIN_SETFEATURES) &&
--	    (args->tfRegister[IDE_SECTOR_OFFSET] > XFER_UDMA_2) &&
--	    (args->tfRegister[IDE_FEATURE_OFFSET] == SETFEATURES_XFER)) {
-+	if (args->tfRegister[IDE_COMMAND_OFFSET] != WIN_SETFEATURES) return 0;
-+	if (args->tfRegister[IDE_FEATURE_OFFSET] != SETFEATURES_XFER) return 0;
-+	if (args->tfRegister[IDE_SECTOR_OFFSET] <= XFER_UDMA_2) return 0;
-+
- #ifndef CONFIG_IDEDMA_IVB
--		if ((drive->id->hw_config & 0x6000) == 0) {
-+	if ( (drive->id->hw_config & 0x6000) == 0) {
- #else /* !CONFIG_IDEDMA_IVB */
--		if (((drive->id->hw_config & 0x2000) == 0) ||
--		    ((drive->id->hw_config & 0x4000) == 0)) {
-+	if ( ((drive->id->hw_config & 0x2000) == 0) ||
-+	     ((drive->id->hw_config & 0x4000) == 0) ) {
- #endif /* CONFIG_IDEDMA_IVB */
--			printk("%s: Speed warnings UDMA 3/4/5 is not "
--				"functional.\n", drive->name);
--			return 1;
--		}
--		if (!HWIF(drive)->udma_four) {
--			printk("%s: Speed warnings UDMA 3/4/5 is not "
--				"functional.\n",
--				HWIF(drive)->name);
--			return 1;
--		}
-+		printk("%s is not capable of UDMA 3/4/5\n", drive->name);
-+		return 1;
- 	}
--	return 0;
--}
--
--EXPORT_SYMBOL(ide_ata66_check);
-
--/*
-- * Backside of HDIO_DRIVE_CMD call of SETFEATURES_XFER.
-- * 1 : Safe to update drive->id DMA registers.
-- * 0 : OOPs not allowed.
-- */
--int set_transfer (ide_drive_t *drive, ide_task_t *args)
--{
--	if ((args->tfRegister[IDE_COMMAND_OFFSET] == WIN_SETFEATURES) &&
--	    (args->tfRegister[IDE_SECTOR_OFFSET] >= XFER_SW_DMA_0) &&
--	    (args->tfRegister[IDE_FEATURE_OFFSET] == SETFEATURES_XFER) &&
--	    (drive->id->dma_ultra ||
--	     drive->id->dma_mword ||
--	     drive->id->dma_1word))
-+	if (!HWIF(drive)->udma_four) {
-+		printk("%s is not capable of UDMA 3/4/5\n", HWIF(drive)->name);
- 		return 1;
--
-+	}
- 	return 0;
- }
-
--EXPORT_SYMBOL(set_transfer);
-+EXPORT_SYMBOL(unsupported_by_drive);
-
-This ide_ata66_check() -> unsupported_by_driver()
-change is totally unnecessary.
-
-Please also leave set_transfer() in place,
-"no PIO" issue can be addressed later.
-
-Regards,
-Bartlomiej
 

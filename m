@@ -1,65 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261232AbVCKR7s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261222AbVCKSDb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261232AbVCKR7s (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 12:59:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261222AbVCKR7s
+	id S261222AbVCKSDb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 13:03:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261237AbVCKSDb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 12:59:48 -0500
-Received: from atlrel6.hp.com ([156.153.255.205]:54201 "EHLO atlrel6.hp.com")
-	by vger.kernel.org with ESMTP id S261232AbVCKR7p (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 12:59:45 -0500
-Subject: Re: AGP bogosities
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Paul Mackerras <paulus@samba.org>, werner@sgi.com,
-       Linus Torvalds <torvalds@osdl.org>, davej@redhat.com,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <200503110839.15995.jbarnes@engr.sgi.com>
-References: <16944.62310.967444.786526@cargo.ozlabs.ibm.com>
-	 <200503102002.47645.jbarnes@engr.sgi.com>
-	 <1110515459.32556.346.camel@gaston>
-	 <200503110839.15995.jbarnes@engr.sgi.com>
-Content-Type: text/plain
-Date: Fri, 11 Mar 2005 10:59:25 -0700
-Message-Id: <1110563965.4822.22.camel@eeyore>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+	Fri, 11 Mar 2005 13:03:31 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:34521 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261222AbVCKSD1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Mar 2005 13:03:27 -0500
+Date: Fri, 11 Mar 2005 18:03:20 +0000 (GMT)
+From: James Simmons <jsimmons@www.infradead.org>
+X-X-Sender: jsimmons@pentafluge.infradead.org
+To: Linux Frame Buffer Device Development 
+	<linux-fbdev-devel@lists.sourceforge.net>
+cc: Geert Uytterhoeven <geert@linux-m68k.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       James Simmons <jsimmons@pentafluge.infradead.org>,
+       Michal Januszewski <spock@gentoo.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       "Antonino A. Daplas" <adaplas@hotpop.com>
+Subject: Re: [Linux-fbdev-devel] [announce 0/7] fbsplash - The Framebuffer
+ Splash
+In-Reply-To: <20050310145419.GD632@openzaurus.ucw.cz>
+Message-ID: <Pine.LNX.4.56.0503111801550.10827@pentafluge.infradead.org>
+References: <20050308015731.GA26249@spock.one.pl> <200503091301.15832.adaplas@hotpop.com>
+ <9e473391050308220218cc26a3@mail.gmail.com> <Pine.LNX.4.62.0503091033400.22598@numbat.sonytel.be>
+ <1110392212.3116.215.camel@localhost.localdomain>
+ <Pine.LNX.4.56.0503092043380.7510@pentafluge.infradead.org>
+ <1110408049.9942.275.camel@localhost.localdomain>
+ <Pine.LNX.4.62.0503101009240.9227@numbat.sonytel.be> <20050310145419.GD632@openzaurus.ucw.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-03-11 at 08:39 -0800, Jesse Barnes wrote:
-> On Thursday, March 10, 2005 8:30 pm, Benjamin Herrenschmidt wrote:
-> > On Thu, 2005-03-10 at 20:02 -0800, Jesse Barnes wrote:
-> > > On Thursday, March 10, 2005 6:38 pm, Benjamin Herrenschmidt wrote:
-> > > > That one is even worse... from what I see in your lspci output, you
-> > > > have no bridge with AGP capability at all, and the various AGP devices
-> > > > are all siblings...
-> > >
-> > > Both of the video cards are sitting on agp busses in agp slots hooked up
-> > > to host to agp bridges.
-> > >
-> > > > Are you sure there is any real AGP slot in there ?
-> > >
-> > > Yes :)
-> >
-> > Well, according to your lspci, none of the bridges exposes a device with
-> > AGP capabilities...
+
+> > > Thats why moving the eye candy console into user space is such a good
+> > > idea. You don't have to run it 8) It also means that the console
+> > > development is accessible to all the crazy rasterman types.
+> > 
+> > Yep. The basic console we already have. Everyone who wants eye candy can switch
+> > from basic console to user space console in early userspace.
+> > 
 > 
-> There are no bridges listed in my lspci output, that's probably why. :)
-
-HP ia64 and parisc boxes are similar.  The host bridges do not appear
-as PCI devices.  We discover them via ACPI on ia64 and PDC on parisc.
-
-> > It looks like you aren't exposing the host "self" 
-> > device on the bus. Do you have an AGP driver ? If yes, it certainly
-> > can't use any of the generic code anyway ...
+> Heh, I'm afraid it does not work like that. Anyone who wants eye-candy
+> simply applies broken patch to their kernel... unless their distribution applied one
+> already.
 > 
-> Right, it's a special agp driver, sgi-agp.c.
+> Situation where we have one working eye-candy patch would certainly
+> be an improvement.
 
-Where's sgi-agp.c?  The HP (ia64-only at the moment) code is hp-agp.c.
-It does make a fake PCI dev for the bridge because DRM still seemed to
-want that.
+Why do we need patches in the kernel. Just set you config to 
+CONFIG_DUMMY_CONSOLE, CONFIG_FB, CONFIG_INPUT and don't set fbcon or 
+vgacon. Then have a userspace app using /dev/fb and /dev/input create a 
+userland console. There is no need to do special hacks in the kernel.
 

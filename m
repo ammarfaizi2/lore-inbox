@@ -1,50 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261361AbSI3Uen>; Mon, 30 Sep 2002 16:34:43 -0400
+	id <S261363AbSI3Uer>; Mon, 30 Sep 2002 16:34:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261363AbSI3Uen>; Mon, 30 Sep 2002 16:34:43 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:25780 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S261361AbSI3Uem>;
-	Mon, 30 Sep 2002 16:34:42 -0400
-Date: Mon, 30 Sep 2002 13:33:01 -0700 (PDT)
-Message-Id: <20020930.133301.83692002.davem@redhat.com>
-To: alan@lxorguk.ukuu.org.uk
-Cc: perex@suse.cz, jgarzik@pobox.com, linux-kernel@vger.kernel.org,
-       alan@redhat.com
-Subject: Re: [PATCH] ALSA update [6/10] - 2002/07/20
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <1033390451.16337.33.camel@irongate.swansea.linux.org.uk>
-References: <Pine.LNX.4.33.0209292230500.591-100000@pnote.perex-int.cz>
-	<20020929.175311.97852433.davem@redhat.com>
-	<1033390451.16337.33.camel@irongate.swansea.linux.org.uk>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S261364AbSI3Uer>; Mon, 30 Sep 2002 16:34:47 -0400
+Received: from natwar.webmailer.de ([192.67.198.70]:51935 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S261363AbSI3Ueq>; Mon, 30 Sep 2002 16:34:46 -0400
+Date: Mon, 30 Sep 2002 22:37:33 +0200
+From: Dominik Brodowski <linux@brodo.de>
+To: torvalds@transmeta.com, alan@lxorguk.ukuu.org.uk
+Cc: linux-kernel@vger.kernel.org, cpufreq@www.linux.org.uk,
+       m.c.p@wolk-project.de
+Subject: [PATCH][vandrove@vc.cvut.cz: Re: 2.5.39-bk crashes here when P4 clock modulation enabled]
+Message-ID: <20020930223733.A1003@brodo.de>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.16i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-   Date: 30 Sep 2002 13:54:11 +0100
+Hi Linus, Alan,
 
-   On Mon, 2002-09-30 at 01:53, David S. Miller wrote:
-   > EISA/ISA DMA is defined as using a hwdev of NULL or requiring
-   > <16MB address, he is preserving GFP_DMA in those cases.
-   
-   Firstly the DMA mask on x86 can't be below 24bits, we don't support
-   allocation from a smaller zone.
+In two drivers a wrong size of memory was allocated for cpufreq_driver: as
+it must include NR_CPUS times a struct cpufreq_policy (and not struct
+cpufreq_freqs). Thanks to Petr Vandrovec for this patch.
 
-Understood.
+	Dominik
 
-   Secondly what about PCI for 25-31bits -
-   there we do need to force gfp_dma to have any chance of getting the
-   right pages
-   
-Look at what his code does after the GFP_DMA setting, it goes
-a non-GFP_DMA setting, and if the 25-31 bits case is not satisfied
-it backs down to GFP_DMA.
+diff -urdN linux/arch/i386/kernel/cpu/cpufreq/p4-clockmod.c linux/arch/i386/kernel/cpu/cpufreq/p4-clockmod.c
+--- linux/arch/i386/kernel/cpu/cpufreq/p4-clockmod.c	2002-09-30 11:47:34.000000000 +0000
++++ linux/arch/i386/kernel/cpu/cpufreq/p4-clockmod.c	2002-09-30 19:52:33.000000000 +0000
+@@ -221,7 +221,7 @@
+ 
+ 	printk(KERN_INFO PFX "P4/Xeon(TM) CPU On-Demand Clock Modulation available\n");
+ 	driver = kmalloc(sizeof(struct cpufreq_driver) +
+-			 NR_CPUS * sizeof(struct cpufreq_freqs), GFP_KERNEL);
++			 NR_CPUS * sizeof(struct cpufreq_policy), GFP_KERNEL);
+ 	if (!driver)
+ 		return -ENOMEM;
+ 
+diff -urdN linux/arch/i386/kernel/cpu/cpufreq/powernow-k6.c linux/arch/i386/kernel/cpu/cpufreq/powernow-k6.c
+--- linux/arch/i386/kernel/cpu/cpufreq/powernow-k6.c	2002-09-30 11:47:18.000000000 +0000
++++ linux/arch/i386/kernel/cpu/cpufreq/powernow-k6.c	2002-09-30 19:53:01.000000000 +0000
+@@ -234,7 +234,7 @@
+ 
+ 	/* initialization of main "cpufreq" code*/
+ 	driver = kmalloc(sizeof(struct cpufreq_driver) +
+-			 NR_CPUS * sizeof(struct cpufreq_freqs), GFP_KERNEL);
++			 NR_CPUS * sizeof(struct cpufreq_policy), GFP_KERNEL);
+ 	if (!driver) {
+ 		release_region (POWERNOW_IOPORT, 16);
+ 		return -ENOMEM;
 
-   Giving the page allocator a mask argument does sound a lot nicer
-   
-It's pretty simple to implement too since we do have page_to_phys.

@@ -1,89 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280944AbRKGTiH>; Wed, 7 Nov 2001 14:38:07 -0500
+	id <S280945AbRKGTk5>; Wed, 7 Nov 2001 14:40:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280936AbRKGThr>; Wed, 7 Nov 2001 14:37:47 -0500
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:32763 "EHLO
-	lynx.adilger.int") by vger.kernel.org with ESMTP id <S280935AbRKGThj>;
-	Wed, 7 Nov 2001 14:37:39 -0500
-Date: Wed, 7 Nov 2001 12:34:30 -0700
-From: Andreas Dilger <adilger@turbolabs.com>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Stephen Tweedie <sct@redhat.com>, ext2-devel@lists.sourceforge.net,
-        m@mo.optusnet.com.au, Andrew Morton <akpm@zip.com.au>,
-        "Albert D. Cahalan" <acahalan@cs.uml.edu>,
-        Mike Fedyk <mfedyk@matchmail.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [Ext2-devel] ext2/ialloc.c cleanup
-Message-ID: <20011107123430.D5922@lynx.no>
-Mail-Followup-To: Alexander Viro <viro@math.psu.edu>,
-	Stephen Tweedie <sct@redhat.com>, ext2-devel@lists.sourceforge.net,
-	m@mo.optusnet.com.au, Andrew Morton <akpm@zip.com.au>,
-	"Albert D. Cahalan" <acahalan@cs.uml.edu>,
-	Mike Fedyk <mfedyk@matchmail.com>,
-	lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20011106214821.N4137@redhat.com> <Pine.GSO.4.21.0111061808440.29465-100000@weyl.math.psu.edu>
+	id <S280939AbRKGTkr>; Wed, 7 Nov 2001 14:40:47 -0500
+Received: from green.csi.cam.ac.uk ([131.111.8.57]:63229 "EHLO
+	green.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S280941AbRKGTkj>; Wed, 7 Nov 2001 14:40:39 -0500
+Message-Id: <5.1.0.14.2.20011107193045.02b07f78@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Wed, 07 Nov 2001 19:40:27 +0000
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: ext3 vs resiserfs vs xfs
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        roy@karlsbakk.net (Roy Sigurd Karlsbakk), linux-kernel@vger.kernel.org
+In-Reply-To: <E161Y87-00052r-00@the-village.bc.nu>
+In-Reply-To: <5.1.0.14.2.20011107183639.0285a7e0@pop.cus.cam.ac.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <Pine.GSO.4.21.0111061808440.29465-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Tue, Nov 06, 2001 at 06:17:09PM -0500
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Nov 06, 2001  18:17 -0500, Alexander Viro wrote:
-> 	Folks, promised cleanup of ialloc.c is on
-> ftp.math.psu.edu:pub/viro/ialloc.c,v
-> 
-> And yes, it's in RCS.  The thing is split into _really_ small
-> steps (commented in the log).  Each is a trivial transformation
-> and it should be very easy to verify correctness of any of
-> them.
-> 
-> Please, review.  IMO it's cut fine enough to make the gradual merge
-> possible for 2.4 - look and you'll see.
+At 19:12 07/11/2001, Alan Cox wrote:
+> > when coming back up it fscked (I didn't touch anything - didn't even 
+> notice
+> > any 5 second thing but I wasn't looking at this screen) and it found two
+> > lost inodes (I got two entries in lost and found). So it still needs to
+> > fsck by the looks of it?
+>
+>That sounds like you used your own kernel with it and had ext2 mounting
+>the root fs (remember its back compatible)
 
-Minor nits, from my changes to this same function:
-1) please replace use of "i" for best block group in find_cg_*, to
-   something better like "group", just for clarity.
-2) in find_cg_*, when you fail the quadratic search, the linear search
-   should skip groups that were previously checked in the quadratic search,
-   with slight changes to both loops:
+Yes, that makes a lot of sense. After the reset I went into my own kernel 
+with both ext2 and ext3 compiled into it. However, before the reboot, I was 
+still in the RH kernel (99% sure it was so, but my memory might be 
+deceiving me).
 
-	start = dir->u.ext2_i.i_block_group;
+Is there any Right Way(TM) to fix this situation considering I want to have 
+both ext2 and ext3 in my kernels (apart from the obvious of changing the 
+order fs are called during root mount in the kernel)?
 
-	/* Use quadratic hash to find group with a free inode */
-	for (j = 1; j < count; j <<= 1) {
-		group = start + j;
-		if (group >= count)
-			group -= count;
-		cg = ext2_get_group_desc(sb, group, &bh);
-		if (cg && le16_to_cpu(cg->bg_free_inodes_count))
-			goto found;
-	}
+Thanks,
 
-	/* That failed: try linear search for a free inode
-	 * skipping groups we checked in the previous loop.
-	 */
-	for (j = 3; j < count; j++) {
-		if ((j & (j - 1)) == 0)
-			continue;
-		group = start + j;
-		if (group > count)
-			group -= count;
-		cg = ext2_get_group_desc(sb, group, &bh);
-		if (cg && le16_to_cpu(cg->bg_free_inodes_count))
-			goto found;
-	}
-3) I know that "cylinder groups" were used in old FFS/whatever implementation,
-   but all of the ext2 code/documentation refers to these as block groups.
-   Can you stick with that for ext2 (e.g. gdp, not cg; bg_foo, not cg_foo)?
-4) sbi can be gotten by "EXT2_SB(sb)".
+         Anton
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+
+-- 
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
 

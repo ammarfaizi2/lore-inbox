@@ -1,35 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135242AbRDRSL3>; Wed, 18 Apr 2001 14:11:29 -0400
+	id <S135243AbRDRSN3>; Wed, 18 Apr 2001 14:13:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135243AbRDRSLU>; Wed, 18 Apr 2001 14:11:20 -0400
-Received: from msp-65-29-30-175.mn.rr.com ([65.29.30.175]:42381 "HELO
-	msp-65-29-30-175.mn.rr.com") by vger.kernel.org with SMTP
-	id <S135242AbRDRSLL>; Wed, 18 Apr 2001 14:11:11 -0400
-Date: Wed, 18 Apr 2001 13:11:03 -0500
-From: Shawn <z3rk@ahkbarr.dynip.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: Coping with removal of skb_dataref
-Message-ID: <20010418131103.A12107@msp-65-29-30-175.mn.rr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
+	id <S135245AbRDRSNT>; Wed, 18 Apr 2001 14:13:19 -0400
+Received: from quechua.inka.de ([212.227.14.2]:7707 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id <S135243AbRDRSNI>;
+	Wed, 18 Apr 2001 14:13:08 -0400
+From: Bernd Eckenfels <W1012@lina.inka.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: light weight user level semaphores
+In-Reply-To: <Pine.LNX.4.31.0104171200220.933-100000@penguin.transmeta.com>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.0.36 (i686))
+Message-Id: <E14pwRv-0002bz-00@sites.inka.de>
+Date: Wed, 18 Apr 2001 20:13:07 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ever since the changes to skb_dataref happened,
-The following snippit needs to be changed.
+In article <Pine.LNX.4.31.0104171200220.933-100000@penguin.transmeta.com> you wrote:
+>   So FS_create() starts out by allocating the backing store for the
+>   semaphore. This can basically be done in user space, although the
+>   kernel does need to get involved for the second part of it, which
+>   is to (a) allocate a kernel "backing store" thing that contains the
+>   waiters and the wait-queues for other processes and (b) fill in the
+>   opaque 128-bit area with the initial count AND the magic to make it
+>   fly. More on the magic later.
 
-#  define SKB_IS_CLONE_OF(clone, skb)   ( \
-      skb_dataref(clone) == skb_dataref(skb) \
-   )
+>   So the second part of FS_create needs a new system call.
 
-Can someone with a clue help me change this so it works?
+How will the clean up of the kernelstore work?
 
--Shawn
+> - The user must _not_ be able to fool the kernel into using a completely
+>   non-existing semaphore.
 
- Your eyes are weary from staring at the CRT.  You feel sleepy.  Notice how
- restful it is to watch the cursor blink.  Close your eyes.  The opinions
- stated above are yours.  You cannot imagine why you ever felt otherwise.
+In that case the access to kernel level is protected by a very secure
+combination of secure hash and magic number checking. But anyway there is a
+small chance to get to some kernel memory unauthorized. Do you know if this is
+the first (known) interface which has a more practical approach to kernel data
+structure security?
 
+If we want to be a bit more strict, we can have a pre-allocated pool of
+semaphores and the kernel pointer check can add the kernelk address of the
+semaphore region into account. It's faster than the checksum probably and more
+secure in protecting the rest of the kernel memory. Spoofing access to other
+semaphores would be still possible (but can be protected by a smaller hash).
+
+Greetings
+Bernd

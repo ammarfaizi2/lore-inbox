@@ -1,40 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262943AbTDFM0t (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 08:26:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262945AbTDFM0t (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 08:26:49 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:41857 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S262943AbTDFM0s (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Apr 2003 08:26:48 -0400
-Date: Sun, 6 Apr 2003 13:37:53 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Andrew Morton <akpm@digeo.com>
-Cc: Andrea Arcangeli <andrea@suse.de>, mbligh@aracnet.com, mingo@elte.hu,
-       hugh@veritas.com, dmccr@us.ibm.com, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: objrmap and vmtruncate
-Message-ID: <20030406123753.GA23536@mail.jlokier.co.uk>
-References: <20030404163154.77f19d9e.akpm@digeo.com> <12880000.1049508832@flay> <20030405024414.GP16293@dualathlon.random> <20030404192401.03292293.akpm@digeo.com> <20030405040614.66511e1e.akpm@digeo.com> <20030405163003.GD1326@dualathlon.random> <20030405132406.437b27d7.akpm@digeo.com> <20030405220621.GG1326@dualathlon.random> <20030405143138.27003289.akpm@digeo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030405143138.27003289.akpm@digeo.com>
-User-Agent: Mutt/1.4.1i
+	id S262949AbTDFM2P (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 08:28:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262948AbTDFM2P (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 08:28:15 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:6366 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S262946AbTDFM2M (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Apr 2003 08:28:12 -0400
+From: Andries.Brouwer@cwi.nl
+Date: Sun, 6 Apr 2003 14:39:38 +0200 (MEST)
+Message-Id: <UTC200304061239.h36Cdcw23647.aeb@smtp.cwi.nl>
+To: abehn@gmx.net, linux-scsi@vger.kernel.org
+Subject: [PATCH] Re: 2.4.21-pre7, disk size, display wrong or serious bug?
+Cc: linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> And treating the nonlinear mappings as being mlocked is a great
-> simplification - I'd be interested in Ingo's views on that.
+	From: Andreas Behnert <abehn@gmx.net>
 
-More generally, how about automatically discarding VMAs and rmap
-chains when pages become mlocked, and not creating those structures in
-the first place when mapping with MAP_LOCKED?
+	Yesterday I installed an external RAID system, machine
+	was running kernel 2.2.20 and everything worked ok:
+	~snip~
+	  SCSI device sdb: hdwr sector= 512 bytes. Sectors=1278558208
+	  [624296 MB] [624.3 GB]
+	~snip~
 
-The idea is that adjacent locked regions would be mergable into a
-single VMA, looking a lot like the present non-linear mapping, and
-with no need for rmap chains.
+	Then I compiled 2.4.21-pre7:
+	~snip~
+	  SCSI device sdb: 1278558208 512-byte hdwr sectors (-444889 MB)
+	~snip~
 
-Because mlock is reversible, you'd need the capability to reconsitute
-individual VMAs from ptes when unlocking a region.
+	The system *seems* to work ok but I don't know if it really
+	*does* - I didn't want to experiment very much because the
+	RAID array contains sensitive data
 
--- Jamie
+Yes, this is a frequent complaint.
+Nothing is wrong, only the message.
+It is fixed by the patch below.
+
+Andries
+
+diff -u --recursive --new-file -X /linux/dontdiff a/drivers/scsi/sd.c b/drivers/scsi/sd.c
+--- a/drivers/scsi/sd.c	Sat Apr  5 10:19:53 2003
++++ b/drivers/scsi/sd.c	Sun Apr  6 14:22:35 2003
+@@ -1003,7 +1003,7 @@
+ 			 */
+ 			int m;
+ 			int hard_sector = sector_size;
+-			int sz = rscsi_disks[i].capacity * (hard_sector/256);
++			unsigned int sz = (rscsi_disks[i].capacity/2) * (hard_sector/256);
+ 
+ 			/* There are 16 minors allocated for each major device */
+ 			for (m = i << 4; m < ((i + 1) << 4); m++) {
+@@ -1011,9 +1011,9 @@
+ 			}
+ 
+ 			printk("SCSI device %s: "
+-			       "%d %d-byte hdwr sectors (%d MB)\n",
++			       "%u %d-byte hdwr sectors (%u MB)\n",
+ 			       nbuff, rscsi_disks[i].capacity,
+-			       hard_sector, (sz/2 - sz/1250 + 974)/1950);
++			       hard_sector, (sz - sz/625 + 974)/1950);
+ 		}
+ 
+ 		/* Rescale capacity to 512-byte units */

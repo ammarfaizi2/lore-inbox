@@ -1,48 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130708AbRBQTDL>; Sat, 17 Feb 2001 14:03:11 -0500
+	id <S130805AbRBQTDl>; Sat, 17 Feb 2001 14:03:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130805AbRBQTDB>; Sat, 17 Feb 2001 14:03:01 -0500
-Received: from [212.150.53.130] ([212.150.53.130]:2830 "EHLO
-	marcellos.corky.net") by vger.kernel.org with ESMTP
-	id <S130708AbRBQTCv>; Sat, 17 Feb 2001 14:02:51 -0500
-Date: Sat, 17 Feb 2001 21:02:46 +0200
-From: Marc Esipovich <marc@corky.net>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] APMD on Linux 2.2.18 and include/linux/mc146818rtc.h
-Message-ID: <20010217210245.A16130@marcellos.corky.net>
-Mime-Version: 1.0
+	id <S130877AbRBQTDd>; Sat, 17 Feb 2001 14:03:33 -0500
+Received: from colorfullife.com ([216.156.138.34]:52241 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S130805AbRBQTDS>;
+	Sat, 17 Feb 2001 14:03:18 -0500
+Message-ID: <3A8ECB1B.776D0372@colorfullife.com>
+Date: Sat, 17 Feb 2001 20:03:55 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.1-ac15 i686)
+X-Accept-Language: en, de
+MIME-Version: 1.0
+To: Mark Swanson <swansma@yahoo.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: System V msg queue bugs in latest kernels
+In-Reply-To: <20010217184242.1070.qmail@web1302.mail.yahoo.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	I've noticed this when attempting to build APMD, mc146818rtc.h has
-a reference to a spinlock_t while asm/spinlock.h is not included.
+Mark Swanson wrote:
+> 
+> Hello,
+> 
+> ipcs (msg) gives incorrect results if used-bytes is above 65536. It
+> stays at 65536 even though messages are being read and removed from the
+> msg queue.
+>
+I'm testing it.
 
-	Patch follows:
+Could you check /proc/sysvipc/msg?
 
---- linux-2.2.18.orig/include/linux/mc146818rtc.h    Fri Jan 12 19:15:00 2001
-+++ linux-2.2.18/include/linux/mc146818rtc.h   Tue Feb 20 01:17:09 2001
-@@ -11,6 +11,7 @@
- #ifndef _MC146818RTC_H
- #define _MC146818RTC_H
- #include <asm/io.h>
-+#include <asm/spinlock.h>
-
- #ifndef RTC_PORT
- #define RTC_PORT(x)    (0x70 + (x))
-
-
-	bye,
-		Marc.
+I know that several API's have 16-bit numbers, perhaps wrong values are
+returned to user space.
 
 --
-marc @ corky.net
-
-fingerprint = D1F0 5689 967F B87A 98EB  C64D 256A D6BF 80DE 6D3C
-
-          /"\
-          \ /     ASCII Ribbon Campaign
-           X      Against HTML Mail
-          / \
+	Manfred

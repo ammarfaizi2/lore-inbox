@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262294AbTEFDD0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 23:03:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262300AbTEFDDJ
+	id S262335AbTEFDML (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 23:12:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262336AbTEFDMK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 23:03:09 -0400
-Received: from www1.mail.lycos.com ([209.202.220.140]:13781 "HELO lycos.com")
-	by vger.kernel.org with SMTP id S262294AbTEFDCg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 23:02:36 -0400
-To: linux-kernel@vger.kernel.org
-Date: Mon, 05 May 2003 23:14:46 -0400
-From: "Sumit Narayan" <sumit_uconn@lycos.com>
-Message-ID: <FCLJBBJOHCHPBDAA@mailcity.com>
+	Mon, 5 May 2003 23:12:10 -0400
+Received: from nessie.weebeastie.net ([61.8.7.205]:17280 "EHLO
+	nessie.weebeastie.net") by vger.kernel.org with ESMTP
+	id S262335AbTEFDMH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 May 2003 23:12:07 -0400
+Date: Tue, 6 May 2003 13:26:28 +1000
+From: CaT <cat@zip.com.au>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.68-bk7: Where oh where have my sensors gone? (i2c)
+Message-ID: <20030506032627.GA524@zip.com.au>
+References: <20030427115644.GA492@zip.com.au> <20030428205522.GA26160@kroah.com> <20030505083458.GA621@zip.com.au> <20030505165848.GA1249@kroah.com> <3EB6AA01.30601@wmich.edu> <20030505182648.GA1826@kroah.com>
 Mime-Version: 1.0
-X-Sent-Mail: off
-Reply-To: sumit_uconn@lycos.com
-X-Mailer: MailCity Service
-X-Priority: 3
-Subject: Write file in EXT2
-X-Sender-Ip: 137.99.1.12
-Organization: Lycos Mail  (http://www.mail.lycos.com:80)
 Content-Type: text/plain; charset=us-ascii
-Content-Language: en
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20030505182648.GA1826@kroah.com>
+User-Agent: Mutt/1.3.28i
+Organisation: Furball Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, May 05, 2003 at 11:26:48AM -0700, Greg KH wrote:
+> Which is what should be showing up on CaT's machine (of the lm75 device
+> is on his hardware.)
 
-I would like to create a log file containing the reads and writes made on a disk, by adding a function in the kernel. And once this log table reaches a limit, say 10,000 records, I would like it to be written on hard disk automatically. I am unable to do this, since I dont know how to write to a file, while in the kernel. I tried System Calls, but they dont seem to work. Could someone tell me what is the list of functions that I need to use to do this job. I think I have to play with super-blocks and inodes. But I dont know how to do that. :) Please help me.
-Thanks.
-Sumit
+Yes. And ofcourse it isn't so I feel like a right boob. Now, compiling
+the right sensor (adm) gets it registered and promptly crashes the
+kernel. Once this happened whilst in the kernel, either mid scroll of
+the fb or mid write of a new line on screen and another time this
+happened mid-fsck (no partitions needed fscking). Witht he wrong/no
+sensors module in the kernel runs just fine.
 
-p.s. I am using Kernel 2.4.20 and want this in EXT2 FS
+My experience with the sensors code is evolving. :)
 
-
-____________________________________________________________
-Get advanced SPAM filtering on Webmail or POP Mail ... Get Lycos Mail!
-http://login.mail.lycos.com/r/referral?aid=27005
+-- 
+Martin's distress was in contrast to the bitter satisfaction of some
+of his fellow marines as they surveyed the scene. "The Iraqis are sick
+people and we are the chemotherapy," said Corporal Ryan Dupre. "I am
+starting to hate this country. Wait till I get hold of a friggin' Iraqi.
+No, I won't get hold of one. I'll just kill him."
+	- http://www.informationclearinghouse.info/article2479.htm

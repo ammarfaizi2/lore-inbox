@@ -1,58 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267543AbTBFXkb>; Thu, 6 Feb 2003 18:40:31 -0500
+	id <S267542AbTBFXj2>; Thu, 6 Feb 2003 18:39:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267554AbTBFXkb>; Thu, 6 Feb 2003 18:40:31 -0500
-Received: from h-64-105-35-85.SNVACAID.covad.net ([64.105.35.85]:13723 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S267543AbTBFXk2>; Thu, 6 Feb 2003 18:40:28 -0500
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Thu, 6 Feb 2003 15:49:48 -0800
-Message-Id: <200302062349.PAA21867@adam.yggdrasil.com>
-To: greg@kroah.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Restore module support.
-Cc: zippel@linux-m68k.org
+	id <S267543AbTBFXj2>; Thu, 6 Feb 2003 18:39:28 -0500
+Received: from dhcp024-209-039-102.neo.rr.com ([24.209.39.102]:50314 "EHLO
+	neo.rr.com") by vger.kernel.org with ESMTP id <S267542AbTBFXj1>;
+	Thu, 6 Feb 2003 18:39:27 -0500
+Date: Thu, 6 Feb 2003 18:49:16 +0000
+From: Adam Belay <ambx1@neo.rr.com>
+To: "Grover, Andrew" <andrew.grover@intel.com>
+Cc: John Bradford <john@grabjohn.com>, perex@perex.cz,
+       linux-kernel@vger.kernel.org, greg@kroah.com, alan@lxorguk.ukuu.org.uk
+Subject: Re: PnP model
+Message-ID: <20030206184916.GC10021@neo.rr.com>
+Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
+	"Grover, Andrew" <andrew.grover@intel.com>,
+	John Bradford <john@grabjohn.com>, perex@perex.cz,
+	linux-kernel@vger.kernel.org, greg@kroah.com,
+	alan@lxorguk.ukuu.org.uk
+References: <F760B14C9561B941B89469F59BA3A84725A154@orsmsx401.jf.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <F760B14C9561B941B89469F59BA3A84725A154@orsmsx401.jf.intel.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2003-02-06, Greg KH wrote:
->On Fri, Feb 07, 2003 at 12:09:27AM +0100, Roman Zippel wrote:
->> Hi,
->> 
->> On Tue, 4 Feb 2003, Rusty Russell wrote:
->> 
->> > I'm going to stop here, since I don't think you understand what I am
->> > proposing, nor how the current system works: this makes is extremely
->> > difficult to describe changes, and time consuming.
->> 
->> Rusty, if you continue to ignore criticism, I have only one answer left:
->> 
->> http://www.xs4all.nl/~zippel/restore-modules-2.5.59.diff
+On Tue, Feb 04, 2003 at 11:53:40AM -0800, Grover, Andrew wrote:
+> > From: John Bradford [mailto:john@grabjohn.com] 
+> > > I think the people who want to manually configure their device's
+> > > resources need to step up and justify why this is really necessary.
+> > 
+> > Prototyping an embedded system, maybe, where you have devices in the
+> > test box that won't be in the production machine.  You would want them
+> > to use resources other than those that you want the hardware which
+> > will be present to use.
 >
->But what are the modutils numbers? :)
->
->Come on, what Rusty did was the "right thing to do" and has made life
->easier for all of the arch maintainers (or so says the ones that I've
->talked to), and has made my life easier with regards to
->MODULE_DEVICE_TABLE() logic, which will enable the /sbin/hotplug
->scripts/binary to shrink a _lot_.
+> Ok fair enough. But I think the drivers should always think things are
+> handled in a PnP manner, even if they really aren't. ;-) For example,
+> between the stages where PnP enumerates the devices and the stage where
+> drivers get device_add notifications as a result of that, we will be
+> assigning the system resources to each device, but we could also
+> implement a way at this stage for people to manually alter things. I
+> think this is the right place to do this, as opposed to having all the
+> drivers implement code to probe for themselves.
+> 
+> Thoughts?
 
-	I'd be interested in some elaboration on these two points.
+I agree.  Actually the isapnp specifications (see Figure 2. Plug and Play ISA 
+Configuration Flow for Plug and Play BIOS located in Plug and Play ISA
+Specification Version 1.0a) recommend that the operating system configures
+and activates all devices before drivers are loaded.  For the most part
+linux plug and play follows this standard with the exception of manual
+configuration support which is included in my latest patches.
 
-	I'd like to understand what problems were solved for other
-architectures by putting the module loader into the kernel, so I could
-compare what would be involved to delivering the same benefit with a
-user-level module loader.
-
-	I think the MODULE_DEVICE_TABLE stuff is largely independent
-of whether the module loading is done inside the kernel or from user
-level, but if this is due to some misunderstanding on my part, please
-set me straight.
-
-	Although I write this in response to a message by Greg KH, I
-would welcome answers from anyone.
-
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
+Regards,
+Adam

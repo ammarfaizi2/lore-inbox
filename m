@@ -1,53 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265106AbUD3QCt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264746AbUD3QAE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265106AbUD3QCt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Apr 2004 12:02:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265097AbUD3QA0
+	id S264746AbUD3QAE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Apr 2004 12:00:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265096AbUD3QAD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Apr 2004 12:00:26 -0400
-Received: from fw.osdl.org ([65.172.181.6]:60328 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265076AbUD3P75 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Apr 2004 11:59:57 -0400
-Date: Fri, 30 Apr 2004 08:59:54 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Rik van Riel <riel@redhat.com>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Erik Jacobson <erikj@subway.americas.sgi.com>,
-       Paul Jackson <pj@sgi.com>, chrisw@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Process Aggregates (PAGG) support for the 2.6 kernel
-Message-ID: <20040430085954.U21045@build.pdx.osdl.net>
-References: <20040430071750.A8515@infradead.org> <Pine.LNX.4.44.0404300853230.6976-100000@chimarrao.boston.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.44.0404300853230.6976-100000@chimarrao.boston.redhat.com>; from riel@redhat.com on Fri, Apr 30, 2004 at 08:54:08AM -0400
+	Fri, 30 Apr 2004 12:00:03 -0400
+Received: from [195.23.16.24] ([195.23.16.24]:11992 "EHLO
+	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
+	id S264746AbUD3P7l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Apr 2004 11:59:41 -0400
+Message-ID: <40927769.3020100@grupopie.com>
+Date: Fri, 30 Apr 2004 16:57:29 +0100
+From: Paulo Marques <pmarques@grupopie.com>
+Organization: GrupoPIE
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4.1) Gecko/20020508 Netscape6/6.2.3
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Marc Boucher <marc@linuxant.com>
+Cc: Rik van Riel <riel@redhat.com>, Timothy Miller <miller@techsource.com>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       David Gibson <david@gibson.dropbear.id.au>
+Subject: Re: [PATCH] Blacklist binary-only modules lying about their license
+References: <Pine.LNX.4.44.0404281958310.19633-100000@chimarrao.boston.redhat.com> <4150E18A-9985-11D8-85DF-000A95BCAC26@linuxant.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.25.0.3; VDF: 6.25.0.40; host: bipbip)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Rik van Riel (riel@redhat.com) wrote:
-> On Fri, 30 Apr 2004, Christoph Hellwig wrote:
-> 
-> > Still doesn't make a lot of sense.  CKRM is a huge cludgy beast poking
-> > everywhere while PAGG is a really small layer to allow kernel modules
-> > keeping per-process state.  If CKRM gets merged at all (and the current
-> > looks far to horrible and the gains are rather unclear) it should layer
-> > ontop of something like PAGG for the functionality covered by it.
-> 
-> What was the last time you looked at the CKRM source?
-> 
-> Sure it's a bit bigger than PAGG, but that's also because
-> it includes the functionality to change the group a process
-> belongs to and other things that don't seem to be included
-> in the PAGG patch.
+Marc Boucher wrote:
 
-I looked briefly at one of the PAGG modules called job.  It contains the
-grouping functionalities.  I suspect that this is something that would
-be a common need for all users of a resource grouping mechanism.
+> 
+> Hi Rik,
+> 
+> Your new proposed message sounds much clearer to the ordinary mortal and 
+> would imho be a significant improvement. Perhaps printing repetitive 
+> warnings for identical $MODULE_VENDOR strings could also be avoided, 
+> taking care of the redundancy/volume problem as well..
 
-thanks,
--chris
+I'm one of the first persons who posted to this thread, and I'm starting to 
+regret that I did.
+
+I believe Marc did the GPL\0 trick just to avoid the warnings. It was wrong to 
+do it and he already apologised.
+
+IMHO writing a more descriptive message and not issuing the tainting warning 
+more than once *at all*, seems pretty harmless and would solve problems for 
+everyone and we could just move on with our lifes (this thread has almost 150 
+posts now!)
+
+The only problem with reporting only once would be to have remove one module at 
+a time and rebooting until untainting. In my opinion, if your system is so out 
+of control that you don't know what modules are tainting it, you deserve to have 
+make 3 reboots to remove 3 modules :)
+
+Some people feel that Linuxant isn't helping the comunnity because hardware 
+manufacturers won't feel obligated to release open source drivers if thay have a 
+closed source alternative.
+
+IMHO what makes manufacturers care about Linux is market share. Until we have a 
+fair market share, manufacturers won't bother developing for Linux, because 
+their return on this effort will be minimal.
+
+Linuxant is in fact helping Linux geting a bigger market share.
+
+Anyway, as everyone on this list I strongly prefer open-source drivers. Users 
+prefer open-source drivers, specially if they already come with their 
+distribution and just work out-of-the-box.
+
+So if the hardware manufacturers start caring about linux (because of the 
+increased market share), they will release open source drivers. Just look at the 
+manufacturers that produce hardware for high-end servers (where the Linux market 
+share is already very high). Network cards, RAID controllers, etc., already have 
+open source drivers, because of this.
+
+Linux is taking over, it is just a matter of time now :)
+
 -- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+Paulo Marques - www.grupopie.com
+"In a world without walls and fences who needs windows and gates?"
+
+

@@ -1,41 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266417AbRHKCrK>; Fri, 10 Aug 2001 22:47:10 -0400
+	id <S270702AbRHKDAN>; Fri, 10 Aug 2001 23:00:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269793AbRHKCrA>; Fri, 10 Aug 2001 22:47:00 -0400
-Received: from razor.hemmet.chalmers.se ([193.11.251.99]:9344 "EHLO
-	razor.hemmet.chalmers.se") by vger.kernel.org with ESMTP
-	id <S266417AbRHKCqp>; Fri, 10 Aug 2001 22:46:45 -0400
-Message-ID: <3B734B25.30704@kjellander.com>
-Date: Fri, 10 Aug 2001 04:47:01 +0200
-From: Carl-Johan Kjellander <carljohan@kjellander.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010801
-X-Accept-Language: en-us
-MIME-Version: 1.0
+	id <S270703AbRHKDAC>; Fri, 10 Aug 2001 23:00:02 -0400
+Received: from neon-gw.transmeta.com ([63.209.4.196]:3078 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S270702AbRHKC7o>; Fri, 10 Aug 2001 22:59:44 -0400
 To: linux-kernel@vger.kernel.org
-Subject: Re: 386 boot problems with 2.4.7 and 2.4.7-ac9
-In-Reply-To: <3B706C11.7010100@kjellander.com> <3B7419B5.1C029DF4@osdlab.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: VM nuisance
+Date: 10 Aug 2001 19:59:26 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9l272e$7eo$1@cesium.transmeta.com>
+In-Reply-To: <3B748AA8.4010105@blue-labs.org> <Pine.LNX.4.33L.0108102347050.3530-100000@imladris.rielhome.conectiva>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy.Dunlap wrote:
-> Carl-Johan Kjellander wrote:
+Followup to:  <Pine.LNX.4.33L.0108102347050.3530-100000@imladris.rielhome.conectiva>
+By author:    Rik van Riel <riel@conectiva.com.br>
+In newsgroup: linux.dev.kernel
+>
+> I haven't got the faintest idea how to come up with an OOM
+> killer which does the right thing for everybody.
 > 
->>Then I tried 2.4.7-ac9, same configuration, but that kernel panics.
->>
-> 
-> Hi-
-> 
-> There's a patch for this in 2.4.7-ac11.
 
-I just tried 2.4.7-ac11 and it worked beautifully! Thanks Alan.
+Basically because there is no such thing?
 
-/Carl-Johan Kjellander
+	-hpa
 -- 
-begin 644 carljohan_at_kjellander_dot_com.gif
-Y1TE&.#=A(0`F`(```````/___RP`````(0`F```"@XR/!\N<#U.;+MI`<[U(>\!UGQ9BGT%>'D2I
-Y*=NX,2@OUF2&<827ILW;^822C>\7!!Z1,!K'B5(6H<SH-"E*TJ3%*/>QI6:7"A>Y?):D2^*U@NCV
-R<MOQ=]V(B6>LZYD-_T1U<@3W]A4(^$-W4]A#V")W6#.R"$;IR'@).46BN7$9>5D``#L`
-
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

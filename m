@@ -1,101 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268525AbUHaNyb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268577AbUHaN5j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268525AbUHaNyb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 09:54:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268527AbUHaNyb
+	id S268577AbUHaN5j (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 09:57:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268582AbUHaN5j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 09:54:31 -0400
-Received: from cantor.suse.de ([195.135.220.2]:21929 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S268525AbUHaNyV (ORCPT
+	Tue, 31 Aug 2004 09:57:39 -0400
+Received: from nevyn.them.org ([66.93.172.17]:51153 "EHLO nevyn.them.org")
+	by vger.kernel.org with ESMTP id S268577AbUHaN5Y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 09:54:21 -0400
-Date: Tue, 31 Aug 2004 15:54:20 +0200
-From: Andi Kleen <ak@suse.de>
-To: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-Cc: davem@redhat.com, netdev@oss.sgi.com, linux-kernel@vger.kernel.org,
-       Dipankar <dipankar@in.ibm.com>, paulmck@us.ibm.com
-Subject: Re: [RFC] Use RCU for tcp_ehash lookup
-Message-ID: <20040831135419.GA17642@wotan.suse.de>
-References: <20040831125941.GA5534@in.ibm.com>
+	Tue, 31 Aug 2004 09:57:24 -0400
+Date: Tue, 31 Aug 2004 09:56:54 -0400
+From: Daniel Jacobowitz <dan@debian.org>
+To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Cc: Linus Torvalds <torvalds@osdl.org>, Roland McGrath <roland@redhat.com>,
+       Andrew Morton <akpm@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] cleanup ptrace stops and remove notify_parent
+Message-ID: <20040831135654.GA22337@nevyn.them.org>
+Mail-Followup-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Roland McGrath <roland@redhat.com>, Andrew Morton <akpm@osdl.org>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200408310411.i7V4B8Vs027772@magilla.sf.frob.com> <Pine.LNX.4.58.0408302119110.2295@ppc970.osdl.org> <87k6vfqwc7.fsf@devron.myhome.or.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040831125941.GA5534@in.ibm.com>
+In-Reply-To: <87k6vfqwc7.fsf@devron.myhome.or.jp>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 31, 2004 at 06:29:41PM +0530, Srivatsa Vaddagiri wrote:
+On Tue, Aug 31, 2004 at 10:19:04PM +0900, OGAWA Hirofumi wrote:
+> Linus Torvalds <torvalds@osdl.org> writes:
 > 
->   I would be interested to know if anyone has seen high-rate of lock contention
->   for hash bucket lock. Such workloads would benefit from the lock-free lookup.
-
-I would suspect something that does IO from multiple threads over 
-a single connection. However there is also the socket lock, which
-may prevent too much parallelism.
+> > Ok, I definitely agree with the approach
 > 
->   In the absence of any workload which resulted in lock contention, I resorted
->   to disabling NAPI and irq balance (noirqbalance) to study the effect of cache
->   bouncing on the lookup routine. The result was that CPU usage of the stack
->   was halved in lock-free case, which IMHO, is a strong enough reason for us
->   to consider this seriously.
+> I agree with that approach.
+> 
+> > Looks pretty clean as an implementation. The question is whether we should 
+> > aim for 2.6.9 or 2.6.10 - if the first, then I should probably take it 
+> > now, otherwise it should go into -mm first and be merged early after 2.6.9 
+> > has been released, for the first -rc.
+> > 
+> > I _looks_ pretty safe, and it's hopefully much less likely to have subtle
+> > bugs and races than our old approach had, but I have a hard time judging. 
+> 
+> Ptrace has several ugly things. And I'm thinking those needs
+> user-visible change more or less to improve, like this.
+> (->parent/wait4/child_list, PTRACE_SYSCALL/PTRACE_SINGLESTEP ...)
+> 
+> Should we also clean up and improve those with user-visible change?
+> Those should be thought as separate issue?
+> 
+> I think we should be improved with new interface... (after it, we
+> can deprecate ptrace)
 
-Yes, sounds very nice.
+I recommend the same thing I recommend every time this comes up: make
+sure to take a look at how Solaris does this through /proc.  It seems
+to be much nicer.
 
-I bet also when you just do rdtsc timing for the TCP receive
-path the cycle numbers will be way down (excluding the copy).
-
-And it should also fix the performance problems with
-cat /proc/net/tcp on ppc64/ia64 for large hash tables because the rw locks 
-are gone.
-
->   
-> - I presume that one of the reasons for keeping the hash table so big is to
->   keep lock contention low (& to reduce the size of hash chains). If the lookup
->   is made lock-free, then could the size of the hash table be reduced (without
->   adversely impacting performance)?
-
-Definitely worth trying IMHO. The current hash tables are far
-too big. I would do that as followon patches though.
-
-I haven't studied it in detail (yet), just two minor style 
-comments: 
-
-
-> -		sk_free(sk);
-> +sp_loop:
-> +	if (atomic_dec_and_test(&sk->sk_refcnt)) {
-> +		/* Restore ref count and schedule callback.
-> +		 * If we don't restore ref count, then the callback can be
-> +		 * scheduled by more than one CPU.
-> +		 */
-> +		atomic_inc(&sk->sk_refcnt);
-> +
-> +		if (atomic_read(&sk->sk_refcnt) == 1)
-> +			call_rcu(&sk->sk_rcu, sk_free_rcu);
-> +		else
-> +			goto sp_loop;
-> +	}
-
-Can you rewrite that without goto? 
-> +tput_loop:
->  	if (atomic_dec_and_test(&tw->tw_refcnt)) {
-> -#ifdef INET_REFCNT_DEBUG
-> -		printk(KERN_DEBUG "tw_bucket %p released\n", tw);
-> -#endif
-> -		kmem_cache_free(tcp_timewait_cachep, tw);
-> +		/* Restore ref count and schedule callback.
-> +		 * If we don't restore ref count, then the callback can be
-> +		 * scheduled by more than one CPU.
-> +		 */
-> +
-> +		atomic_inc(&tw->tw_refcnt);
-> +
-> +		if (atomic_read(&tw->tw_refcnt) == 1)
-> +			call_rcu(&tw->tw_rcu, tcp_tw_free);
-> +		else
-> +			goto tput_loop;
-
-And that too.
-
-
--Andi
+-- 
+Daniel Jacobowitz

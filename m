@@ -1,52 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262109AbTIQQUG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Sep 2003 12:20:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262099AbTIQQUG
+	id S262099AbTIQQXq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Sep 2003 12:23:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262110AbTIQQXp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Sep 2003 12:20:06 -0400
-Received: from nebula.skynet.be ([195.238.2.112]:25778 "EHLO nebula.skynet.be")
-	by vger.kernel.org with ESMTP id S262109AbTIQQUC (ORCPT
+	Wed, 17 Sep 2003 12:23:45 -0400
+Received: from mail.broadpark.no ([217.13.4.2]:36748 "EHLO mail.broadpark.no")
+	by vger.kernel.org with ESMTP id S262099AbTIQQXo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Sep 2003 12:20:02 -0400
-Date: Tue, 23 Oct 2001 15:34:00 +0200 (CEST)
-From: jarausch@belgacom.net
-Reply-To: jarausch@belgacom.net
-Subject: Thanks - Nvidia modules with 2.4.13-pre6
-To: rob <rob@dsvr.net>
-Cc: Josh McKinney <forming@home.com>, linux-kernel@vger.kernel.org
+	Wed, 17 Sep 2003 12:23:44 -0400
+Subject: Changes in siimage driver?
+To: linux-kernel@vger.kernel.org
+Message-ID: <oprvnjyf2oq1sf88@mail.broadpark.no>
+From: Arve Knudsen <aknuds-1@broadpark.no>
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=us-ascii
-Message-Id: <20030917161952.47915BC016@numa.skynet.be>
+Content-Transfer-Encoding: 7BIT
+Date: Wed, 17 Sep 2003 18:26:29 +0200
+User-Agent: Opera7.20/Linux M2 build 463
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 23 Oct, rob wrote:
-...
-> Have you changed C compiler since your last kernel upgrade ?
-...
-On 22 Oct, Josh McKinney wrote:
-> I have seen this same problem here before.  I am *pretty sure* that
-> the problem was I was building the kernel with gcc-3.0 and to build
-> the nvidia modules I was using gcc-2.95.4.  You may want to check what
-> the sim-link in /usr/bin/cc points to.  The nvidia kernel modules use
-> cc, so make sure cc is a symlink to the same compiler that you used to
-> build your currently running kernel.
+Hello
 
-That's exactly what happend.
-Under /usr/local/bin/gcc I have gcc-3.0.2 (cvs) and I recently
-made a symlink /usr/local/bin/cc to it.
+I've noticed that the siimage driver has changed since a few revisions 
+back, I ran into some problems probably related to the driver when 
+updating to 2.6.0-test5-mm1 however. First of all, I noticed hdparm 
+reported really bad performance numbers for my Maxtor DiamondMax9 120GB. 
+About 16MB/sec is reported for a buffered disk reads. The older version of 
+the driver doesnt turn on DMA, but after enabling certain options (-d1, 
+X66 etc.) with hdparm, I get ~50MB/S. It's not an ideal solution since now 
+and then I get a bunch of "disabling irq #18" messages after running 
+hdparm (I think, its part of the startup scripts), and I have to restart.
 
-While I put /usr/bin (where gcc-2.95.3 is installed) first in my path
-when compiling the kernel, I didn't do so, when (re)making the
-kernel modules from Nvidia. This worked fine since the only  cc
-was /usr/bin/cc which pointed to /usr/bin/gcc .
+The second issue is more serious; after rebooting I noticed 3 files I had 
+been working on, and a couple of directories I had downloaded were 
+corrupted. The single files were filled with zeros, while the directories 
+were impossible to access (I/O error). I couldn't even rm (-r) the 
+directories. Am I the only one who's run into any sort of issues with the 
+updated driver? From what I can see it hasn't been modified in the last 
+revision (test5-bk4), hopefully noone is losing important data because of 
+this (fortunately I had some recent backups). Anyway, I'd like some 
+feedback on this from those in the know (the performance drop should be 
+fairly easy to verify, unless hdparm is playing tricks on me).
 
-I have (re)made Nvidia's module with gcc-2.95.3 and it runs fine
-now with 2.4.13-pre6 .
+Thanks in advance
 
-Sorry for the noise.
-
-Helmut.
-
-
+Arve Knudsen

@@ -1,64 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262128AbUBXBHx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Feb 2004 20:07:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262132AbUBXBG2
+	id S262130AbUBXBIv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Feb 2004 20:08:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262132AbUBXBH6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 20:06:28 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:15123 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S262128AbUBXBGI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 20:06:08 -0500
-Date: Tue, 24 Feb 2004 01:06:05 +0000 (GMT)
-From: James Simmons <jsimmons@infradead.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: small n_tty patch.
-Message-ID: <Pine.LNX.4.44.0402240104500.17027-100000@phoenix.infradead.org>
+	Mon, 23 Feb 2004 20:07:58 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:36032 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262136AbUBXBGx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Feb 2004 20:06:53 -0500
+Message-ID: <403AA3A1.5050206@pobox.com>
+Date: Mon, 23 Feb 2004 20:06:41 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Boszormenyi Zoltan <zboszor@freemail.hu>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Promise TX2plus PATA port?
+References: <4039B8AF.9060002@freemail.hu>
+In-Reply-To: <4039B8AF.9060002@freemail.hu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Boszormenyi Zoltan wrote:
+> how can I make it work? The BIOS recognizes the drive
+> (jumpered as master) but 2.6.3-mm2 does not. Device id is 0x3373.
+> pdc202xx_new, pdc202xx_old and sata_promise drivers
+> are compiled in. Motherboard is an MSI K8T Neo FIS2R.
+> The 120GB Samsung and the Sony CRX300E DVD/CDRW combo
+> are recognized by both the BIOS and the kernel.
 
-Remove kd.h. We don't need this header. Use the inline functions to set 
-the current process state.
 
---- n_tty.c	2004-02-23 00:06:05.000000000 -0800
-+++ /usr/src/ruby-2.6/drivers/char/n_tty.c	2004-02-23 00:10:20.000000000 -0800
-@@ -40,7 +40,6 @@
- #include <linux/tty.h>
- #include <linux/timer.h>
- #include <linux/ctype.h>
--#include <linux/kd.h>
- #include <linux/mm.h>
- #include <linux/string.h>
- #include <linux/slab.h>
-@@ -1091,7 +1090,7 @@
- 			set_bit(TTY_DONT_FLIP, &tty->flags);
- 			continue;
- 		}
--		current->state = TASK_RUNNING;
-+		set_current_state(TASK_RUNNING);
- 
- 		/* Deal with packet mode. */
- 		if (tty->packet && b == buf) {
-@@ -1170,7 +1169,7 @@
- 	if (!waitqueue_active(&tty->read_wait))
- 		tty->minimum_to_wake = minimum;
- 
--	current->state = TASK_RUNNING;
-+	set_current_state(TASK_RUNNING);
- 	size = b - buf;
- 	if (size) {
- 		retval = size;
-@@ -1246,7 +1245,7 @@
- 		schedule();
- 	}
- break_out:
--	current->state = TASK_RUNNING;
-+	set_current_state(TASK_RUNNING);
- 	remove_wait_queue(&tty->write_wait, &wait);
- 	return (b - buf) ? b - buf : retval;
- }
+I (or somebody) needs to add PATA support for that device. 
+Unfortunately they put both PATA and SATA on the same PCI device.
+
+	Jeff
+
+
 

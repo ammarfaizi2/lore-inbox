@@ -1,54 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264534AbTIJFJI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 01:09:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264549AbTIJFJI
+	id S264532AbTIJFH7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 01:07:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264534AbTIJFH6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 01:09:08 -0400
-Received: from www.mail15.com ([194.186.131.96]:43274 "EHLO www.mail15.com")
-	by vger.kernel.org with ESMTP id S264534AbTIJFJC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 01:09:02 -0400
-Date: Wed, 10 Sep 2003 09:09:01 +0400 (MSD)
-Message-Id: <200309100509.h8A591O4087507@www.mail15.com>
-From: Muthukumar <kmuthukumar@mail15.com>
-To: linux-kernel@vger.kernel.org
+	Wed, 10 Sep 2003 01:07:58 -0400
+Received: from dyn-ctb-203-221-72-196.webone.com.au ([203.221.72.196]:15630
+	"EHLO chimp.local.net") by vger.kernel.org with ESMTP
+	id S264532AbTIJFHq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Sep 2003 01:07:46 -0400
+Message-ID: <3F5EB194.2020102@cyberone.com.au>
+Date: Wed, 10 Sep 2003 15:07:32 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Mailer: 
-X-Proxy-IP: [203.129.254.138]
-X-Originating-IP: [172.16.1.46]
-Subject: Problem on linux-kernel-2.6.0-test3
+To: Tony Jones <sir_tez@softhome.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test4-mm5 and Warcraft III - WineX
+References: <1063169563.21739.1.camel@thelight.sir-tez.org>
+In-Reply-To: <1063169563.21739.1.camel@thelight.sir-tez.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all ,
 
-I am muthukumar working in squid development ,for the developmet in 
-epoll,i have tried to compile the kernel-2.6 with IA64 support on 
-IA64 platform.
 
-But in the compilation i am getting the error as 
+Tony Jones wrote:
 
-HOSTCC  scripts/lxdialog/checklist.o
-In file included from scripts/lxdialog/checklist.c:24:
-scripts/lxdialog/dialog.h:29:20: curses.h: No such file or 
-directory
-In file included from scripts/lxdialog/checklist.c:24:
-scripts/lxdialog/dialog.h:127: error: parse error before 
-"use_colors"
+>In my testing of recent kernels 2.6.0-test5 and 2.6.0-test4-mm4 (mm6
+>wouldn't cooperate with X for some reason and I didn't do much
+>investigation) I've experied an easily replicable and highly annoying
+>problem with Warcraft III and WineX 3.1 (prebuilt).
+>
+>After playing 1 or 2 games, or leaving the game idle in the chat room,
+>the sound will eventually start to stutter and chop badly.  In the
+>presence of this incredibly bad sound, the mouse and game respond just
+>fine (kudos to the scheduler on that point).  Considering the game is
+>played in "real-time" and is full of audio cues I hate to imagine that
+>Con's scheduler will be the "official" scheduler of 2.6 without having
+>this issue addressed.
+>
+>The kernels I use are tainted with nvidia's video drivers, 1.0.4496.  
+>
+>Nick's scheduler in 2.6.0-test4-mm5 seems to be the only thing capable
+>of correcting this problem.  In general operation, mm5's scheduler
+>seems better at handling about everything I threw at it, with a rare
+>xmms skip once in a week of use.
+>
+>I'm not a developer but I'd love some feedback and or questions to
+>help figure out why this happens with Con's scheduler patches in mm4
+>and test5 to help improve 2.6.0 altogether.
+>
 
-And so many lines because there is no file as 
-include CURSES_LOC
-as in scripts/lxdialog/dialog.h
-
-So please give soem instructions about this to me.
-
-Then weather feature versions are having this problems..
-
-So please if u know then reply to me.
+Actually, I'd love some feedback from you.
+Use this: http://www.kerneltrap.org/~npiggin/v14/sched-rollup-v14.gz
+It will apply against 2.6.0-test4 or test5 (not mm). See how you go.
 
 Thanks
-Mvthv
+
 

@@ -1,49 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263317AbTJBJQO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Oct 2003 05:16:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263315AbTJBJQO
+	id S263264AbTJBJPx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Oct 2003 05:15:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263317AbTJBJPx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Oct 2003 05:16:14 -0400
-Received: from [62.67.222.139] ([62.67.222.139]:8617 "EHLO mail.ku-gbr.de")
-	by vger.kernel.org with ESMTP id S263317AbTJBJQL (ORCPT
+	Thu, 2 Oct 2003 05:15:53 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:40852 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S263264AbTJBJPw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Oct 2003 05:16:11 -0400
-Date: Thu, 2 Oct 2003 11:16:38 +0200
-From: Konstantin Kletschke <konsti@ludenkalle.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Date/UnixTime of SysRq state dump
-Message-ID: <20031002091638.GA15471@synertronixx3>
-Reply-To: konsti@ludenkalle.de
-References: <20031001182859.GA4081%konsti@ludenkalle.de> <20031001162141.278442d7.akpm@osdl.org>
+	Thu, 2 Oct 2003 05:15:52 -0400
+Date: Thu, 2 Oct 2003 02:10:37 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: torvalds@osdl.org, zaitcev@redhat.com, braam@clusterfs.com,
+       thockin@hockin.org, linux-kernel@vger.kernel.org,
+       schwidefsky@de.ibm.com, davidm@hpl.hp.com
+Subject: Re: [PATCH] Many groups patch.
+Message-Id: <20031002021037.3e6706c4.davem@redhat.com>
+In-Reply-To: <20031002022545.6FB7A2C0EA@lists.samba.org>
+References: <Pine.LNX.4.44.0310011216530.24564-100000@home.osdl.org>
+	<20031002022545.6FB7A2C0EA@lists.samba.org>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031001162141.278442d7.akpm@osdl.org>
-X-PGP-Key: http://www.ludenkalle.de/konsti/pubkey.asc
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 01, 2003 at 04:21:41PM -0700, Andrew Morton wrote:
+On Thu, 02 Oct 2003 12:09:19 +1000
+Rusty Russell <rusty@rustcorp.com.au> wrote:
 
-> > http://ludenkalle.de/capture-2003-09-30-linux-2.6.0-test5-mm4.log
-> 
-> mpd           R current  17897  17786 17898               (NOTLB)
-> 
-> it might be coincidence, it might not be.  Please gather another sysrq
-> trace next time it happens, just like that one.
+> Sure.  First step is to put this function in kernel/compat.c where it
+> belongs.  The identical function is already in kernel/uid16.c, but
+> defining CONFIG_UID16 does not work for these platforms (which only
+> want 16-bit uids for the 32-bit syscalls).
 
-OK, I will keep an eye on it. Poorly I upgraded Kernel and mpd after
-that. But if it happens again I will get another sysrq and after that
-try that with same versions but untainted, lets see :)
-
-Regards, Konsti
-
--- 
-2.6.0-test1-mm2
-Konstantin Kletschke <konsti@ludenkalle.de>, <konsti@ku-gbr.de>
-GPG KeyID EF62FCEF
-Fingerprint: 13C9 B16B 9844 EC15 CC2E  A080 1E69 3FDA EF62 FCEF
-keulator.homelinux.org up 3 days, 2
+This is correct.  To be more precise, we also need it for the compat
+ABI binary format handlers too (elf32, etc.)

@@ -1,38 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130282AbQLWBmV>; Fri, 22 Dec 2000 20:42:21 -0500
+	id <S130214AbQLWBuf>; Fri, 22 Dec 2000 20:50:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130356AbQLWBmL>; Fri, 22 Dec 2000 20:42:11 -0500
-Received: from smtp.primusdsl.net ([209.225.164.93]:39179 "EHLO
-	mailhost.digitalselect.net") by vger.kernel.org with ESMTP
-	id <S130282AbQLWBl5>; Fri, 22 Dec 2000 20:41:57 -0500
-Date: Fri, 22 Dec 2000 20:13:06 -0500
-From: James Lewis Nance <jlnance@intrex.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: The NSA's Security-Enhanced Linux (fwd)
-Message-ID: <20001222201306.A19951@bessie.dyndns.org>
-In-Reply-To: <3A439833.C64D493A@storm.ca> <E149X6e-000525-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <E149X6e-000525-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Dec 22, 2000 at 06:39:49PM +0000
+	id <S130292AbQLWBu0>; Fri, 22 Dec 2000 20:50:26 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:5134 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S130214AbQLWBuT>; Fri, 22 Dec 2000 20:50:19 -0500
+Date: Fri, 22 Dec 2000 21:26:33 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Chris Mason <mason@suse.com>
+cc: Andreas Dilger <adilger@turbolinux.com>,
+        "Stephen C. Tweedie" <sct@redhat.com>,
+        Alexander Viro <viro@math.psu.edu>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Russell Cattelan <cattelan@thebarn.com>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] changes to buffer.c (was Test12 ll_rw_block error)
+In-Reply-To: <84320000.977527131@coffee>
+Message-ID: <Pine.LNX.4.21.0012221933050.3382-100000@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 22, 2000 at 06:39:49PM +0000, Alan Cox wrote:
-> 
-> I think this is a good point. Its actually a nice testimonial for free 
-> software that its finally got the NSA contributing code in a way that everyone
-> benefits from and which may help cut down computer crime beyond government.
-> (and which of course actually is part of the NSA's real job)
 
-I often wonder how many people know that a whole bunch of the Linux
-networking code is Copyrighted by the NSA.  I'm always waiting to
-hear someone come up with a conspiracy theory about it on slashdot,
-but I have never heard anyone mention it.
+On Fri, 22 Dec 2000, Chris Mason wrote:
 
-Jim
+> It is enough to leave buffer heads we don't flush on the dirty list (and
+> redirty the page), they'll get written by a future loop through
+> flush_dirty_pages, or by page_launder.  We could use ll_rw_block instead,
+> even though anon pages do have a writepage with this patch (just check if
+> page->mapping == &anon_space_mapping).
+
+If we use ll_rw_block directly on buffers of anonymous pages
+(page->mapping == &anon_space_mapping) instead using
+dirty_list_writepage() (which will end up calling block_write_anon_page)
+we can fix the buffer flushtime issue.
+
+> There are lots of things we could try here, including some logic inside
+> block_write_anon_page to check the current memory pressure/dirty levels to
+> see how much work should be done.
+
+At writepage() context we do not know if we should care about the
+flushtime.
+
+> I'll play with this a bit, but more ideas would be appreciated.
+>
+> BTW, recent change to my local code was to remove the ll_rw_block call from
+> sync_page_buffers.  It seemed cleaner than making try_to_free_buffers
+> understand that sometimes writepage will be called, and sometimes the page
+> will end up unlocked because of it....comments?
+
+Could you please send me your latest patch ?
+
+Thanks
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

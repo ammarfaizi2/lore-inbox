@@ -1,40 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270720AbTHFMLC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 08:11:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272527AbTHFMLC
+	id S274859AbTHFMT1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 08:19:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274997AbTHFMT0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 08:11:02 -0400
-Received: from [66.212.224.118] ([66.212.224.118]:25357 "EHLO
-	hemi.commfireservices.com") by vger.kernel.org with ESMTP
-	id S270720AbTHFMLA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 08:11:00 -0400
-Date: Wed, 6 Aug 2003 07:59:15 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Eugene Teo <eugene.teo@eugeneteo.net>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Memory-related problem leads to laptop freeze
-In-Reply-To: <20030803091115.GA781@eugeneteo.net>
-Message-ID: <Pine.LNX.4.53.0308060757250.7244@montezuma.mastecende.com>
-References: <20030803091115.GA781@eugeneteo.net>
+	Wed, 6 Aug 2003 08:19:26 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:10689 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S274859AbTHFMT0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Aug 2003 08:19:26 -0400
+Message-ID: <3F30F237.5070502@pobox.com>
+Date: Wed, 06 Aug 2003 08:19:03 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andries.Brouwer@cwi.nl
+CC: B.Zolnierkiewicz@elka.pw.edu.pl, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org
+Subject: Re: Add identify decoding 4/4
+References: <UTC200308060723.h767N2T02315.aeb@smtp.cwi.nl>
+In-Reply-To: <UTC200308060723.h767N2T02315.aeb@smtp.cwi.nl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 3 Aug 2003, Eugene Teo wrote:
+Andries.Brouwer@cwi.nl wrote:
+> Here a somewhat uneven commented ide_identify.h.
+> This is part of a larger patch, but suffices for now.
 
-> Hi everyone,
-> 
-> I was using kernel 2.6.0-test2-mm3. As usual, I anticipated that
-> I will have a random freeze, and true enough, I have one after a
-> few hours.
-> 
-> I have attached the log. Please take a look, and advise.
 
-What exactly is that thing that you attached? I had trouble viewing it in 
-a text editor.
+Do you really want to stick that long function in a header?
 
--- 
-function.linuxpower.ca
+Stick it in ide-lib.c, that's a better place for it, IMO...
+
+	Jeff
+
+
+

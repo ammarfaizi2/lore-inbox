@@ -1,52 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268091AbTAJBJg>; Thu, 9 Jan 2003 20:09:36 -0500
+	id <S268094AbTAJBPu>; Thu, 9 Jan 2003 20:15:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268093AbTAJBJg>; Thu, 9 Jan 2003 20:09:36 -0500
-Received: from ns.indranet.co.nz ([210.54.239.210]:40420 "EHLO
-	mail.acheron.indranet.co.nz") by vger.kernel.org with ESMTP
-	id <S268091AbTAJBJf>; Thu, 9 Jan 2003 20:09:35 -0500
-Date: Fri, 10 Jan 2003 14:17:52 +1300
-From: Andrew McGregor <andrew@indranet.co.nz>
-To: Wichert Akkerman <wichert@wiggy.net>, netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: ipv6 stack seems to forget to send ACKs
-Message-ID: <1291230000.1042161472@localhost.localdomain>
-In-Reply-To: <20030109155214.GX22951@wiggy.net>
-References: <20030108130850.GQ22951@wiggy.net>
- <20030109123857.A15625@bitwizard.nl> <20030109155214.GX22951@wiggy.net>
-X-Mailer: Mulberry/3.0.0b10 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S268096AbTAJBPu>; Thu, 9 Jan 2003 20:15:50 -0500
+Received: from fly.hiwaay.net ([216.180.54.1]:58377 "EHLO mail.hiwaay.net")
+	by vger.kernel.org with ESMTP id <S268094AbTAJBPt>;
+	Thu, 9 Jan 2003 20:15:49 -0500
+Date: Thu, 9 Jan 2003 19:24:32 -0600
+From: Chris Adams <cmadams@hiwaay.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: "Mother" == "computer-illiterate"
+Message-ID: <20030109192432.A485131@hiwaay.net>
+References: <fa.eembe5o.i4osri@ifi.uio.no>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1042153890.28469.21.camel@irongate.swansea.linux.org.uk>
+Organization: HiWAAY Internet Services
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Once upon a time, Alan Cox  <alan@lxorguk.ukuu.org.uk> said:
+>and of course Sally Floyd, and even Hedy Lamarr (bonus points for those
+>who know what her networking related patent is on)
 
-
---On Thursday, January 09, 2003 16:52:14 +0100 Wichert Akkerman 
-<wichert@wiggy.net> wrote:
-
-> Previously Rogier Wolff wrote:
->> Can you check the stats counters, to see if they are indeed dropped?
->
-> It seems no packets are dropped:
->
-
-...
-
-> Tcp:
->     666 active connections openings
->     0 passive connection openings
->     0 failed connection attempts
->     0 connection resets received
->     2 connections established
->     58949 segments received
->     65043 segments send out
->     0 segments retransmited
->     18 bad segments received.
-
-Is this it?  My counters show zero, in vastly more packets.
-
-Andrew
+That's HEDLEY!  Oh, but he doesn't have any patents.
+-- 
+Chris Adams <cmadams@hiwaay.net>
+Systems and Network Administrator - HiWAAY Internet Services
+I don't speak for anybody but myself - that's enough trouble.

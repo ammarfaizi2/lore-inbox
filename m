@@ -1,64 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262034AbVBPOyb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262036AbVBPPCk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262034AbVBPOyb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Feb 2005 09:54:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262038AbVBPOyb
+	id S262036AbVBPPCk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Feb 2005 10:02:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262030AbVBPPCk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Feb 2005 09:54:31 -0500
-Received: from mail.gmx.de ([213.165.64.20]:42968 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262034AbVBPOwz (ORCPT
+	Wed, 16 Feb 2005 10:02:40 -0500
+Received: from rproxy.gmail.com ([64.233.170.203]:21448 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262036AbVBPPCg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Feb 2005 09:52:55 -0500
-X-Authenticated: #26200865
-Message-ID: <42135EAE.8030407@gmx.net>
-Date: Wed, 16 Feb 2005 15:54:38 +0100
-From: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.7.2) Gecko/20040906
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: romano@dea.icai.upco.es
-CC: Norbert Preining <preining@logic.at>, Pavel Machek <pavel@suse.cz>,
-       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
-       kernel list <linux-kernel@vger.kernel.org>, seife@suse.de, rjw@sisk.pl
-Subject: Re: [ACPI] Call for help: list of machines with working S3
-References: <20050214211105.GA12808@elf.ucw.cz> <20050215125555.GD16394@gamma.logic.tuwien.ac.at> <42121EC5.8000004@gmx.net> <20050215170837.GA6336@gamma.logic.tuwien.ac.at> <20050216093454.GC22816@pern.dea.icai.upco.es>
-In-Reply-To: <20050216093454.GC22816@pern.dea.icai.upco.es>
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
+	Wed, 16 Feb 2005 10:02:36 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=QptnKxG0DHy6fjKI5iS+PN2bi1wvkzAW1p7Dhfd5BXAcaVGHQzDf+Zpo9JR3JPukZgHOijnNscahxK9Rpu39NN4g6YkWkGE1nsbAMm+HDyNY0qXlunGjoOrXgUR21ZQEGeZqa7uysaNAViAq8H6yd9L9nwJ9PPzsugtHpNdR4h0=
+Message-ID: <3f250c7105021607022362013c@mail.gmail.com>
+Date: Wed, 16 Feb 2005 11:02:35 -0400
+From: Mauricio Lin <mauriciolin@gmail.com>
+Reply-To: Mauricio Lin <mauriciolin@gmail.com>
+To: Hugh Dickins <hugh@veritas.com>
+Subject: Re: /proc/*/statm, exactly what does "shared" mean?
+Cc: "Richard F. Rebel" <rrebel@whenu.com>, linux-kernel@vger.kernel.org,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+In-Reply-To: <Pine.LNX.4.61.0502161142240.17264@goblin.wat.veritas.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+References: <1108161173.32711.41.camel@rebel.corp.whenu.com>
+	 <Pine.LNX.4.61.0502121158190.18829@goblin.wat.veritas.com>
+	 <1108219160.12693.184.camel@blue.obulous.org>
+	 <Pine.LNX.4.61.0502121509170.19562@goblin.wat.veritas.com>
+	 <3f250c710502160241222dce47@mail.gmail.com>
+	 <Pine.LNX.4.61.0502161142240.17264@goblin.wat.veritas.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Romano Giannetti schrieb:
-> On Tue, Feb 15, 2005 at 06:08:37PM +0100, Norbert Preining wrote:
+Hi Hugh,
+
+Thanks by your suggestion. I did not know that kernel 2.4.29 has
+changed the statm implementation. As I can see the statm
+implementation is different between 2.4 and 2.6.
+
+Let me see if I can use the 2.4.29 statm idea to improve the smaps for
+kernel 2.6.11-rc.
+
+BR,
+
+Mauricio Lin.
+
+On Wed, 16 Feb 2005 12:00:55 +0000 (GMT), Hugh Dickins <hugh@veritas.com> wrote:
+> On Wed, 16 Feb 2005, Mauricio Lin wrote:
+> > Well, for each vma it is checked how many pages are mapped to rss. So
+> > I have to check per page if it is allocated in physical memory. I know
+> > that this is a heavy function, but do you have any suggestion to
+> > improve this?  What do you mean "needs refactoring into pgd_range,
+> > pud_range, pmd_range, pte_range levels like 2.4's statm"? Could you
+> > give more details, please?
 > 
->>On Die, 15 Feb 2005, Carl-Daniel Hailfinger wrote:
->>
->>>To suspend and resume properly, call the following script as root:
->>
->>Success. 
+> Just look at, say, linux-2.4.29/fs/proc/array.c proc_pid_statm:
+> which calls statm_pgd_range which calls statm_pmd_range which
+> calls statm_pte_range which scans along the array of ptes doing
+> the pte examination you're doing.  There are plenty of examples
+> in 2.6.11-rc mm/memory.c of how to do it with pud level too.
 > 
-> I tried with my Sony Vaio FX701. No luck. It goes S3 ok, but it will never
-> come back (blank screen, HDD led fixed on). 
+> Whereas your way starts at the top and descends the tree each time
+> for every leaf, repeatedly mapping and unmapping the page table if
+> that pagetable is in highmem.  You took follow_page as your starting
+> point, which is good for a single pte, but inefficient for many.
 > 
-> I am wishing to help, imply tell me what I have to do.
-
-Please tell us about your graphics chipset, your .config, your
-dmesg and the modules loaded. Then we my be able to help.
-
-
-Regards,
-Carl-Daniel
-
-P.S. If anyone of you is running SUSE 9.2, try their latest
-kernels from ftp.suse.com/pub/projects/kernel/kotd/i386/HEAD/
-Additionally, you may have to upgrade mkinitrd and udev with
-packages from ftp.suse.com/pub/projects and
-ftp.suse.com/pub/people (try searching around a bit and you'll
-surely find them).
-I'm running a kernel from there right now and can still use
-S3 without problems on my Samsung P35.
--- 
-http://www.hailfinger.org/
+> Your function(s) will still be heavyweight, but somewhat faster.
+> 
+> Hugh
+>

@@ -1,74 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266526AbTGEW2f (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Jul 2003 18:28:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266527AbTGEW2f
+	id S266524AbTGEW22 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Jul 2003 18:28:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266527AbTGEW22
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Jul 2003 18:28:35 -0400
-Received: from maile.telia.com ([194.22.190.16]:39877 "EHLO maile.telia.com")
-	by vger.kernel.org with ESMTP id S266526AbTGEW2b (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Jul 2003 18:28:31 -0400
-X-Original-Recipient: linux-kernel@vger.kernel.org
-To: Mike Keehan <mike_keehan@yahoo.com>
-Cc: linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: Synaptics driver on HP6100 and 2.5.73
-References: <20030626220016.27332.qmail@web12304.mail.yahoo.com>
-	<m2brwb9rzi.fsf@telia.com>
-From: Peter Osterlund <petero2@telia.com>
-Date: 06 Jul 2003 00:41:05 +0200
-In-Reply-To: <m2brwb9rzi.fsf@telia.com>
-Message-ID: <m2fzlkbnr2.fsf@telia.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
+	Sat, 5 Jul 2003 18:28:28 -0400
+Received: from poup.poupinou.org ([195.101.94.96]:19485 "EHLO
+	poup.poupinou.org") by vger.kernel.org with ESMTP id S266524AbTGEW20
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Jul 2003 18:28:26 -0400
+Date: Sun, 6 Jul 2003 00:42:51 +0200
+To: Daniel Cavanagh <nofsk@vtown.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: bsd disklabel and swap
+Message-ID: <20030705224251.GA8991@poupinou.org>
+References: <3F04FFD0.2060404@vtown.com.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3F04FFD0.2060404@vtown.com.au>
+User-Agent: Mutt/1.5.4i
+From: Ducrot Bruno <poup@poupinou.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Osterlund <petero2@telia.com> writes:
-
-> Mike Keehan <mike_keehan@yahoo.com> writes:
+On Fri, Jul 04, 2003 at 02:17:20PM +1000, Daniel Cavanagh wrote:
+> hi
 > 
-> > The touchpad is recognised OK when the kernel boots,
-> > and my usb
-> > connected mouse works fine.  But I get the following
-> > message in
-> > the syslog when I try to use the mousepad or any of
-> > the buttons :-
-> > 
-> >     ... kernel: Synaptics driver lost sync at 1st byte
-> > 
-> > Relevant /var/log/dmesg content:-
-> > 
-> >  drivers/usb/core/usb.c: registered new driver hid
-> >  drivers/usb/input/hid-core.c: v2.0:USB HID core
-> > driver
-> >  mice: PS/2 mouse device common for all mice
-> >  synaptics reset failed
-> >  synaptics reset failed
-> >  synaptics reset failed
+> i'm having a problem with a bsd disklabel and swap.
+> my /dev/hda disk look like this
 > 
-> The logs from your other mail show that the touchpad is still in
-> relative mode (using 3 byte packets) instead of absolute mode (using 6
-> byte packets.) I don't know why this happens, but ...
+> partition 1: fat
+> partition 2: ext2
+> partition 3: openbsd
+> 
+> it is a standard bsd disklabel with a as root and b as swap. this means 
+> that /dev/hda6 should be the swap partition. but "swapon /dev/hda6" 
+> prints "swapon: /dev/hda6: Invalid argument". it also prints that for 
+> any other valid partition. if i put this in /etc/fstab, on boot the 
+> kernel will print "Unable to find swap-space signature" before swapon 
+> prints the above message. but if i use /dev/hda3 instead, swapon will 
+> accept it and add a 512Mb swap, which is the correct size. but it 
+> appears that rather than writing at the start of the swap it starts 
+> writing at the start of the openbsd partition so my root partition is 
+> being corrupted. have i screwed or have you guys screwed up?
+> 
+> im running slackware 9 (2.4.20) with a recompiled kernel. my .config is 
+> attached if you need it.
+> 
+> thanks, daniel
+> 
 
-OK, the problem is that the touchpad needs a lot of time to wake up
-after a reset command. As we found out in private conversation, 3
-seconds is barely enough, so I suggest the following patch to fix the
-problem:
-
---- linux/drivers/input/mouse.resume/psmouse-base.c	Sat Jul  5 23:39:14 2003
-+++ linux/drivers/input/mouse/psmouse-base.c	Sun Jul  6 00:23:17 2003
-@@ -201,7 +201,7 @@
- 	psmouse->cmdcnt = receive;
- 
- 	if (command == PSMOUSE_CMD_RESET_BAT)
--                timeout = 2000000; /* 2 sec */
-+                timeout = 4000000; /* 4 sec */
- 
- 	if (command & 0xff)
- 		if (psmouse_sendbyte(psmouse, command & 0xff))
+By compiling with CONFIG_BSD_DISKLABEL, you actually have
+changed the /dev/hdaXX numbering scheme so that /dev/hda6 may be
+now one of your OpenBSD partition.
 
 -- 
-Peter Osterlund - petero2@telia.com
-http://w1.894.telia.com/~u89404340
+Ducrot Bruno
+
+--  Which is worse:  ignorance or apathy?
+--  Don't know.  Don't care.

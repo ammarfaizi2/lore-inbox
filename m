@@ -1,66 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264989AbUELGJa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264991AbUELGML@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264989AbUELGJa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 02:09:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264991AbUELGJa
+	id S264991AbUELGML (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 02:12:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264993AbUELGML
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 02:09:30 -0400
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:6876 "EHLO
-	pd3mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S264989AbUELGJ2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 02:09:28 -0400
-Date: Wed, 12 May 2004 00:09:32 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: Linux 2.6.6 "IDE cache-flush at shutdown fixes"
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <008201c437e7$b1a35160$6601a8c0@northbrook>
-MIME-version: 1.0
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
-X-Mailer: Microsoft Outlook Express 6.00.2800.1409
-Content-type: text/plain; charset=iso-8859-1
-Content-transfer-encoding: 7BIT
-X-Priority: 3
-X-MSMail-priority: Normal
-References: <fa.jr282gn.1ni2t37@ifi.uio.no> <fa.cmd38j8.1tgg9ro@ifi.uio.no>
+	Wed, 12 May 2004 02:12:11 -0400
+Received: from host213-123-250-229.in-addr.btopenworld.com ([213.123.250.229]:51502
+	"EHLO 2003SERVER.sbs2003.local") by vger.kernel.org with ESMTP
+	id S264991AbUELGMI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 May 2004 02:12:08 -0400
+thread-index: AcQ36H3Sk9+cQm9FQmu9h5iCd+6BGw==
+X-Sieve: Server Sieve 2.2
+Date: Wed, 12 May 2004 07:15:15 +0100
+From: "Christoph Hellwig" <hch@infradead.org>
+To: <Administrator@vger.kernel.org>
+Cc: <akpm@osdl.org>, <benh@kernel.crashing.org>,
+       <linux-kernel@vger.kernel.org>, <linuxppc-dev@lists.linuxppc.org>
+Message-ID: <000001c437e8$7de0a070$d100000a@sbs2003.local>
+Subject: Re: [PATCH 1/2] PPC32: New OCP core support
+Content-Transfer-Encoding: 7bit
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,Matt Porter <mporter@kernel.crashing.org>, akpm@osdl.org,benh@kernel.crashing.org, linux-kernel@vger.kernel.org,linuxppc-dev@lists.linuxppc.org
+References: <20040511170150.A4743@home.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+X-Mailer: Microsoft CDO for Exchange 2000
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040511170150.A4743@home.com>; from mporter@kernel.crashing.org on Tue, May 11, 2004 at 05:01:50PM -0700
+X-Mailing-List: <linuxppc-dev@lists.linuxppc.org>
+X-Loop: linuxppc-dev@lists.linuxppc.org
+Envelope-to: paul@sumlocktest.fsnet.co.uk
+X-me-spamlevel: not-spam
+Content-Class: urn:content-classes:message
+Importance: normal
+X-me-spamrating: 3.125262
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.132
+X-OriginalArrivalTime: 12 May 2004 06:15:15.0921 (UTC) FILETIME=[7E01E410:01C437E8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If this is indeed the case, that those drives don't support the "flush write
-cache" command, I'd like to see Maxtor's excuse as to why.. I believe that
-Windows always powers down IDE drives before shutdown, maybe this is because
-of non-universal support for the "flush write cache" command?
+
+On Tue, May 11, 2004 at 05:01:50PM -0700, Matt Porter wrote:
+> New OCP infrastructure ported from 2.4 along with several
+> enhancements. Please apply.
+
+The old-style PM callback (using struct pm_dev) is bogus, please kill
+that part.
 
 
------ Original Message ----- 
-From: "Rene Herman" <rene.herman@keyaccess.nl>
-Newsgroups: fa.linux.kernel
-To: <gene.heskett@verizon.net>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: Monday, May 10, 2004 6:08 AM
-Subject: Re: Linux 2.6.6 "IDE cache-flush at shutdown fixes"
+** Sent via the linuxppc-dev mail list. See http://lists.linuxppc.org/
 
-
-> Gene Heskett wrote:
->
-> >> hda: Maxtor 6Y120P0, ATA DISK drive
->
-> > I note the drive is the same model here too, Rene.
-> >
-> > The question remains however, is our data in danger?
->
-> There's a fair change that we'll be told, yes, very much so, since these
-> drives don't seem to correctly support this life saving feature. The
-> real answer though will be more easily deducted by calculating the ratio
-> of unexplained file system corruptions you've had and reboots you've
-> managed (0, that is).
->
-> Rene.
->
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
 

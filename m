@@ -1,50 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135619AbREBQOb>; Wed, 2 May 2001 12:14:31 -0400
+	id <S135612AbREBQNl>; Wed, 2 May 2001 12:13:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135404AbREBQOR>; Wed, 2 May 2001 12:14:17 -0400
-Received: from mail.iwr.uni-heidelberg.de ([129.206.104.30]:63937 "EHLO
-	mail.iwr.uni-heidelberg.de") by vger.kernel.org with ESMTP
-	id <S135617AbREBQNt>; Wed, 2 May 2001 12:13:49 -0400
-Date: Wed, 2 May 2001 18:13:43 +0200 (CEST)
-From: Bogdan Costescu <bogdan.costescu@iwr.uni-heidelberg.de>
-To: "Cabaniols, Sebastien" <Sebastien.Cabaniols@compaq.com>
-cc: "'andrewm@uow.edu.au'" <andrewm@uow.edu.au>,
-        "'netdev@oss.sgi.com'" <netdev@oss.sgi.com>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: [3com905b freeze Alpha SMP 2.4.2] FullDuplex issue ?
-In-Reply-To: <1FF17ADDAC64D0119A6E0000F830C9EA04B3CDCA@aeoexc1.aeo.cpqcorp.net>
-Message-ID: <Pine.LNX.4.30.0105021801190.26143-100000@kenzo.iwr.uni-heidelberg.de>
+	id <S135617AbREBQNc>; Wed, 2 May 2001 12:13:32 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:18443 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S135612AbREBQNW>; Wed, 2 May 2001 12:13:22 -0400
+From: "H. Peter Anvin" <hpa@transmeta.com>
+Message-ID: <3AF03213.5613E21A@transmeta.com>
+Date: Wed, 02 May 2001 09:13:07 -0700
+Organization: Transmeta Corporation
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.4 i686)
+X-Accept-Language: en, sv, no, da, es, fr, ja
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+CC: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: Maximum files per Directory
+In-Reply-To: <272800000.988750082@hades> <E14uhI2-0002NH-00@the-village.bc.nu> <9cnbs0$uk3$1@cesium.transmeta.com> <20010502122250.J3305@nightmaster.csn.tu-chemnitz.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2 May 2001, Cabaniols, Sebastien wrote:
+Ingo Oeser wrote:
+> 
+> On Tue, May 01, 2001 at 03:03:44PM -0700, H. Peter Anvin wrote:
+> > > Bit of both. You exceeded the max link count, and your
+> > > performance would have been abominable too. cyrus should be
+> > > using heirarchies of directories for very large amounts of
+> > > stuff.
+> Right.
+> 
+> > But also showing, once again, that this particular scalability problem
+> > really is a headache for some people.
+> 
+> If you do ls on that directory as an admin, you'll see, what the
+> REAL cause of this headache is:
+> 
+>             The application doing such stupid thing!
+> 
+> People (writing applications) building up such large directories
+> should be forced to read every entry of it aloud.
+> 
+> Then they'll learn[1] and the problem is solved.
+> 
 
-> I insert the 3c59x module with debug=7.
+"Violence is the last refuge of the incompetent."
 
-Why ? debug=7 is the highest debug level and produces _lots_ of debug data
-for high network activity. Do you have problems when insmod-ing without
-any option and use a higher debug level just to see what's going on?
+Seriously, I don't buy this "the application is doing something stupid." 
+The application is using the VFS the way it is advertised to work.  If
+you think doing ls on an extrememly large directory is painful, you have
+never seen the droppings of an application which tries to do
+load-balancing between directories by doing real hashing.  THAT is
+painful!  At least in the first case you can use grep.
 
-> The first of the above machines launching the get freezes.
+The only ones we fool by repeating the mantra "stupid admin, stupid
+application" is ourselves.
 
-Why do you believe that the card/driver is responsible for the freeze ?
-The outputs that you provided show no problems to me.
+	-hpa
 
-A duplex mismatch would not freeze a computer. You would get crappy
-transfer rates, usually some error messages from the driver, but
-everything should otherwise work. To verify the media settings, you might
-want to use mii-diag (from ftp.scyld.com).
-
-Sincerely,
-
-Bogdan Costescu
-
-IWR - Interdisziplinaeres Zentrum fuer Wissenschaftliches Rechnen
-Universitaet Heidelberg, INF 368, D-69120 Heidelberg, GERMANY
-Telephone: +49 6221 54 8869, Telefax: +49 6221 54 8868
-E-mail: Bogdan.Costescu@IWR.Uni-Heidelberg.De
-
-
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt

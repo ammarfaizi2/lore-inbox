@@ -1,44 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277310AbRJEEiG>; Fri, 5 Oct 2001 00:38:06 -0400
+	id <S277309AbRJEEh0>; Fri, 5 Oct 2001 00:37:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277311AbRJEEh4>; Fri, 5 Oct 2001 00:37:56 -0400
-Received: from paloma13.e0k.nbg-hannover.de ([62.159.219.13]:38082 "HELO
-	paloma13.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
-	id <S277310AbRJEEhn>; Fri, 5 Oct 2001 00:37:43 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-Organization: DN
-To: Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: Linux 2.4.11-pre4
-Date: Fri, 5 Oct 2001 06:38:11 +0200
-X-Mailer: KMail [version 1.3.1]
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20011005043751Z277310-761+15781@vger.kernel.org>
+	id <S277310AbRJEEhR>; Fri, 5 Oct 2001 00:37:17 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:60354 "EHLO
+	e32.bld.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S277309AbRJEEg7>; Fri, 5 Oct 2001 00:36:59 -0400
+Date: Thu, 4 Oct 2001 21:35:07 -0700
+From: Mike Kravetz <kravetz@us.ibm.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: Context switch times
+Message-ID: <20011004213507.B1032@w-mikek2.sequent.com>
+In-Reply-To: <E15pFor-0004sC-00@fenrus.demon.nl> <200110042139.f94Ld5r09675@vindaloo.ras.ucalgary.ca> <20011004.145239.62666846.davem@redhat.com> <20011004175526.C18528@redhat.com> <9piokt$8v9$1@penguin.transmeta.com> <20011004164102.E1245@w-mikek2.des.beaverton.ibm.com> <20011005024526.E724@athlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011005024526.E724@athlon.random>; from andrea@suse.de on Fri, Oct 05, 2001 at 02:45:26AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Linus,
+On Fri, Oct 05, 2001 at 02:45:26AM +0200, Andrea Arcangeli wrote:
+> doesn't lmbench wakeup only via pipes? Linux uses the sync-wakeup that
+> avoids reschedule_idle in such case, to serialize the pipe load in the
+> same cpu.
 
-the new and very cool Multiquad NUMA stuff break something...
+That's what I thought too.  However, kernel profile data of a
+lmbench run on 2.4.10 reveals that the pipe routines only call
+the non-synchronous form of wake_up.  I believe I reached the
+same conclusion in the 2.4.7 time frame by instrumenting this
+code.
 
-gcc -D__KERNEL__ -I/usr/src/linux-2.4.11-pre4-preempt/include -Wall 
--Wstrict-prototypes -Wno-trigraphs -O -fomit-frame-pointer 
--fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -mcpu=k6 
--mpreferred-stack-boundary=2 -malign-functions=4 -fschedule-insns2 
--fexpensive-optimizations     -c -o mpparse.o mpparse.c
-mpparse.c: In function `MP_processor_info':
-mpparse.c:195: `clustered_apic_mode' undeclared (first use in this function)
-mpparse.c:195: (Each undeclared identifier is reported only once
-mpparse.c:195: for each function it appears in.)
-mpparse.c: In function `smp_read_mpc':
-mpparse.c:386: `clustered_apic_mode' undeclared (first use in this function)
-make[1]: *** [mpparse.o] Error 1
-make[1]: Leaving directory 
-`/usr/src/linux-2.4.11-pre4-preempt/arch/i386/kernel'
-make: *** [_dir_arch/i386/kernel] Error 2
-269.520u 29.200s 5:45.26 86.5%  0+0k 0+0io 1007275pf+0w
-
--Dieter
+-- 
+Mike

@@ -1,49 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262165AbTHaPlN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Aug 2003 11:41:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262263AbTHaPlN
+	id S262358AbTHaPqM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Aug 2003 11:46:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262378AbTHaPqM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Aug 2003 11:41:13 -0400
-Received: from pentafluge.infradead.org ([213.86.99.235]:6027 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262165AbTHaPlJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Aug 2003 11:41:09 -0400
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Petr Baudis <pasky@ucw.cz>
-Cc: linux-fbdev-users@lists.sourceforge.net,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030831140553.GC5106@pasky.ji.cz>
-References: <20030831140553.GC5106@pasky.ji.cz>
-Message-Id: <1062344399.32736.51.camel@gaston>
+	Sun, 31 Aug 2003 11:46:12 -0400
+Received: from PACIFIC-CARRIER-ANNEX.MIT.EDU ([18.7.21.83]:57228 "EHLO
+	pacific-carrier-annex.mit.edu") by vger.kernel.org with ESMTP
+	id S262358AbTHaPps (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Aug 2003 11:45:48 -0400
+X-Sieve: CMU Sieve 2.2
+Date: Sat, 30 Aug 2003 13:02:47 -0400
+From: Arvind Sankar <arvinds@MIT.EDU>
+To: linux-fbdev-devel@lists.sourceforge.net
+Cc: arvinds@MIT.EDU
+Subject: questions about fb_pan_display ioctl
+Message-ID: <20030830170247.GA17072@scrubbing-bubbles.mit.edu>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Sun, 31 Aug 2003 17:40:00 +0200
-X-SA-Exim-Mail-From: benh@kernel.crashing.org
-Subject: Re: Total radeonfb failure on both 2.6.0-test4 and 2.6.0-test4-mm4
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-SA-Exim-Version: 3.0+cvs (built Mon Aug 18 15:53:30 BST 2003)
-X-SA-Exim-Scanned: Yes
-X-Pentafluge-Mail-From: <benh@kernel.crashing.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
+X-Spam-Score: -5.9
+X-Spam-Flag: NO
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I was looking through the source, and am mightily confused as to how this
+works.
 
->   It appears that the 2.6 driver is essentially the old one, without Ben's
-> patch (which fixed framebuffer for me on 2.4). Is there a version of this
-> updated driver for 2.6 as well? Is there any reason why it is not integrated
-> yet?
+1. The FBIOPAN_DISPLAY ioctl does not error-check var.
+2. fb_pan_display uses info->var to bounds-check var->?offset.
+3. fb_pan_display modifies info->var, but var is what is returned by the ioctl.
+4. The function pointer info->fbops->fb_pan_display takes its args in the opposite
+   order to fb_pan_display! Who came up with this?
+5. vesafb_pan_display uses var to bounds-check var->?offset, which is
+   (a) pointless, since fb_pan_display has bounds-checked it already.
+   (b) buggy, since var has never been error-checked, so var->yres could be anything.
+6. How does wrapping work, when fb_pan_display has already made sure that yoffset
+   cannot cause display to go beyond yres_virtual? The checks in vesafb_pan_display
+   do this only when ywrap is disabled, but fb_pan_display always does it.
+7. vesafb never uses more than 16mb of video ram, so wrapping can _never_ happen on
+   boards with more than 16mb of ram, no?
 
-I'm working on a new driver for 2.6 that include my 2.4 updates, a
-slightly reworked version of Kronos and Jon i2c DDC code and some
-more source cleanup (split the driver in separate files actually).
+All these comments refer to 2.6.0-test4. Point 6 should apply to all the fb devices,
+not just vesafb.
 
-It's not finished yet though. I'm not yet sure I'll add support for
-dual head in the first version neither, all of this pretty much depends
-on how much time I'll be able to dedicate to it during the upcoming
-week.
+In 2.4.22, there is no fb_pan_display, but vesafb_pan_display is the same, so it
+turns out that wrapping is allowed, but subject to the issues in 5(b) and 7. The issue
+in 7 is actually worse, because unless the vram option is passed, the video size is
+computed from the mode resolution, so it has nothing to do with the actual amount of
+accessible video memory.
 
-Ben.
-
-
+-- arvind

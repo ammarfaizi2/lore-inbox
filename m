@@ -1,39 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261748AbVCSUHg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261287AbVCSUTX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261748AbVCSUHg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Mar 2005 15:07:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261750AbVCSUHd
+	id S261287AbVCSUTX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Mar 2005 15:19:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261750AbVCSUTX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Mar 2005 15:07:33 -0500
-Received: from coyote.holtmann.net ([217.160.111.169]:54659 "EHLO
-	mail.holtmann.net") by vger.kernel.org with ESMTP id S261748AbVCSUHa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Mar 2005 15:07:30 -0500
-Subject: Re: [2.6 patch] net/bluetooth/rfcomm/core.: make a variable static
-From: Marcel Holtmann <marcel@holtmann.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Max Krasnyansky <maxk@qualcomm.com>, bluez-devel@lists.sf.net,
-       Network Development Mailing List <netdev@oss.sgi.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050315143903.GK3189@stusta.de>
-References: <20050315143903.GK3189@stusta.de>
-Content-Type: text/plain
-Date: Sat, 19 Mar 2005 21:06:57 +0100
-Message-Id: <1111262817.9203.0.camel@pegasus>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+	Sat, 19 Mar 2005 15:19:23 -0500
+Received: from smtp813.mail.sc5.yahoo.com ([66.163.170.83]:40614 "HELO
+	smtp813.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261287AbVCSUTU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Mar 2005 15:19:20 -0500
+From: Russell Miller <rmiller@duskglow.com>
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: Suspend-to-disk woes
+Date: Sat, 19 Mar 2005 12:20:35 -0800
+User-Agent: KMail/1.7
+Cc: erik.andren@gmail.com, linux-kernel@vger.kernel.org
+References: <423B01A3.8090501@gmail.com> <20050319132612.GA1504@openzaurus.ucw.cz>
+In-Reply-To: <20050319132612.GA1504@openzaurus.ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200503191220.35207.rmiller@duskglow.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Adrian,
+On Saturday 19 March 2005 05:26, Pavel Machek wrote:
 
-> This patch makes a needlessly global variable static.
+> Checking that would be hard, but you might want to provide patch to check
+> last-mounted dates of filesystems and panic if they changed.
+> 				Pavel
 
-the patch is in my tree now. Thanks.
+Then how would you fix it?  There'd also have to be a way to reset it, 
+otherwise the kernel will never boot again.  Perhaps an argument to the 
+kernel that allows for resetting of the mechanism?
 
-Regards
+--Russell
 
-Marcel
+-- 
 
-
+Russell Miller - rmiller@duskglow.com - Agoura, CA

@@ -1,55 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264857AbUFXTH2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265256AbUFXTLW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264857AbUFXTH2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jun 2004 15:07:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264808AbUFXTH2
+	id S265256AbUFXTLW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jun 2004 15:11:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264819AbUFXTIH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jun 2004 15:07:28 -0400
-Received: from fw.osdl.org ([65.172.181.6]:57560 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264788AbUFXTD2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jun 2004 15:03:28 -0400
-Date: Thu, 24 Jun 2004 12:02:29 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.7-mm2 oopses and badness
-Message-Id: <20040624120229.7995f5f4.akpm@osdl.org>
-In-Reply-To: <1968860000.1088089370@[10.10.2.4]>
-References: <1968860000.1088089370@[10.10.2.4]>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 24 Jun 2004 15:08:07 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:7063 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264627AbUFXTHc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jun 2004 15:07:32 -0400
+Date: Thu, 24 Jun 2004 15:34:39 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>, Andrew Morton <akpm@osdl.org>,
+       Netdev <netdev@oss.sgi.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, prism54-devel@prism54.org,
+       Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: [PATCH 2.4.26] prism54: add prism54 1.2
+Message-ID: <20040624183439.GA21798@logos.cnet>
+References: <20040623054348.GV6253@ruslug.rutgers.edu> <40D96E10.1060203@pobox.com> <20040623164134.GT6253@ruslug.rutgers.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040623164134.GT6253@ruslug.rutgers.edu>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Martin J. Bligh" <mbligh@aracnet.com> wrote:
->
-> During bootup, shortly after CPU init (mm1 was fine):
+On Wed, Jun 23, 2004 at 12:41:34PM -0400, Luis R. Rodriguez wrote:
+> On Wed, Jun 23, 2004 at 07:48:32AM -0400, Jeff Garzik wrote:
+> > mcgrof@ruslug.rutgers.edu wrote:
+> > >Andrew,
+> > >
+> > >2.6.7-bk5 and 2.6.7-mm1 are both in perfect sync with prism54 
+> > >cvs tree now. This completes our 1.2 release. As promised, 
+> > >the attached patch adds prism54 1.2 to 2.4 kernel tree.
+> > 
+> > Andrew is a 2.6-only guy.
+> > 
+> > This is totally up to Marcelo whether to merge this new wireless stuff 
+> > or not...
 > 
->  Only candidate I can see is 
->  +reduce-tlb-flushing-during-process-migration-2.patch
->  Will try backing that out unless you want something else ...
+> Marcelo, 
+> 
+> what do you say?
 
-yes, that is the culprit.
-
-
- Only candidate I can see is 
- +reduce-tlb-flushing-during-process-migration-2.patch
- Will try backing that out unless you want something else ...
-
-
-diff -puN include/asm-generic/tlb.h~reduce-tlb-flushing-during-process-migration-2-fix include/asm-generic/tlb.h
---- 25/include/asm-generic/tlb.h~reduce-tlb-flushing-during-process-migration-2-fix	2004-06-24 12:01:14.127142208 -0700
-+++ 25-akpm/include/asm-generic/tlb.h	2004-06-24 12:01:27.815061328 -0700
-@@ -147,6 +147,6 @@ static inline void tlb_remove_page(struc
- 		__pmd_free_tlb(tlb, pmdp);			\
- 	} while (0)
- 
--#define tlb_migrate_finish(mm) flush_tlb_mm(mm)
-+#define tlb_migrate_finish(mm) do { } while (0)
- 
- #endif /* _ASM_GENERIC__TLB_H */
-_
-
+OK for 2.4.28-pre.

@@ -1,49 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261840AbVAERJm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261839AbVAERKy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261840AbVAERJm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jan 2005 12:09:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261839AbVAERJl
+	id S261839AbVAERKy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jan 2005 12:10:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261864AbVAERKy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jan 2005 12:09:41 -0500
-Received: from dialin-145-254-057-142.arcor-ip.net ([145.254.57.142]:53509
-	"EHLO spit.home") by vger.kernel.org with ESMTP id S261848AbVAERJa
+	Wed, 5 Jan 2005 12:10:54 -0500
+Received: from dialin-145-254-057-142.arcor-ip.net ([145.254.57.142]:56837
+	"EHLO spit.home") by vger.kernel.org with ESMTP id S261839AbVAERKu
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jan 2005 12:09:30 -0500
+	Wed, 5 Jan 2005 12:10:50 -0500
 From: Roman Zippel <zippel@linux-m68k.org>
-To: Jesper Juhl <juhl-lkml@dif.dk>
-Subject: Re: [patch] pedantic correctness cleanup for conf.c in scripts/kconfig/ .
-Date: Wed, 5 Jan 2005 13:26:55 +0100
+To: Sam Ravnborg <sam@ravnborg.org>
+Subject: Re: kconfig: avoid temporary file
+Date: Wed, 5 Jan 2005 13:40:31 +0100
 User-Agent: KMail/1.7.1
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.61.0501040031460.3529@dragon.hygekrogen.localhost>
-In-Reply-To: <Pine.LNX.4.61.0501040031460.3529@dragon.hygekrogen.localhost>
+Cc: linux-kernel@vger.kernel.org
+References: <20041230235146.GA9450@mars.ravnborg.org> <200501030155.05203.zippel@linux-m68k.org> <20050103051002.GB8113@mars.ravnborg.org>
+In-Reply-To: <20050103051002.GB8113@mars.ravnborg.org>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200501051326.56959.zippel@linux-m68k.org>
+Message-Id: <200501051340.31794.zippel@linux-m68k.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-On Tuesday 04 January 2005 00:35, Jesper Juhl wrote:
+On Monday 03 January 2005 06:10, Sam Ravnborg wrote:
 
-> @@ -305,8 +305,8 @@ static int conf_choice(struct menu *menu
->    printf("%*s%s\n", indent - 1, "", menu_get_prompt(menu));
->    def_sym = sym_get_choice_value(sym);
->    cnt = def = 0;
-> -  line[0] = '0';
-> -  line[1] = 0;
-> +  line[0] = '\0';
-> +  line[1] = '\0';
->    for (child = menu->list; child; child = child->next) {
->     if (!menu_is_visible(child))
->      continue;
+> Next step is to integrate Petr Baudis patch to link lxdialog with mconf.
 
-This would make a difference and even the other change is not an improvement, 
-0 is special string marker and not a character.
+I had two major problems with his patch:
+- it didn't resize when the terminal changed.
+- window layering, old windows are not removed and just drawn over (this was 
+especially a problem with help texts).
 
-bye, Roman
-
+The current approach solves this rather nicely by just reinitialising 
+everything.

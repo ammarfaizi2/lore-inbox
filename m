@@ -1,102 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265823AbUAKKFU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jan 2004 05:05:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265828AbUAKKFU
+	id S265821AbUAKK24 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jan 2004 05:28:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265826AbUAKK2x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jan 2004 05:05:20 -0500
-Received: from coruscant.franken.de ([193.174.159.226]:22661 "EHLO
-	coruscant.gnumonks.org") by vger.kernel.org with ESMTP
-	id S265823AbUAKKFK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jan 2004 05:05:10 -0500
-Date: Sun, 11 Jan 2004 11:01:37 +0100
-From: Harald Welte <laforge@netfilter.org>
-To: Kurt Garloff <garloff@suse.de>,
-       Linux kernel list <linux-kernel@vger.kernel.org>,
-       netfilter-devel@lists.netfilter.org
-Subject: Re: [PATCH] Unaligend accesses nulldevname
-Message-ID: <20040111100137.GH20706@sunbeam.de.gnumonks.org>
-Mail-Followup-To: Harald Welte <laforge@netfilter.org>,
-	Kurt Garloff <garloff@suse.de>,
-	Linux kernel list <linux-kernel@vger.kernel.org>,
-	netfilter-devel@lists.netfilter.org
-References: <20040107230011.GG23133@tpkurt.garloff.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="k+G3HLlWI7eRTl+h"
-Content-Disposition: inline
-In-Reply-To: <20040107230011.GG23133@tpkurt.garloff.de>
-User-Agent: Mutt/1.5.4i
-X-Spam-Score: 0.0 (/)
+	Sun, 11 Jan 2004 05:28:53 -0500
+Received: from indianer.linux-kernel.at ([212.24.125.53]:14490 "EHLO
+	indianer.linux-kernel.at") by vger.kernel.org with ESMTP
+	id S265821AbUAKK2t convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jan 2004 05:28:49 -0500
+From: "Oliver Pitzeier" <oliver@linux-kernel.at>
+To: "'Thomas Steudten'" <alpha@steudten.com>
+Cc: "'Ivan Kokshaysky'" <ink@jurassic.park.msu.ru>,
+       "'Falk Hueffner'" <falk.hueffner@student.uni-tuebingen.de>,
+       "'Richard Henderson'" <rth@twiddle.net>, <linux-kernel@vger.kernel.org>,
+       <linux-scsi@vger.kernel.org>, <linux-alpha@vger.kernel.org>,
+       <akpm@osdl.org>
+Subject: RE: Kernel Panic: kernel-2.6.1 for alpha in scsi context ll_rw_blk.c
+Date: Sun, 11 Jan 2004 11:26:23 +0100
+Organization: linux-kernel.at
+Message-ID: <023d01c3d82d$5d7013e0$020b10ac@pitzeier.priv.at>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.4510
+In-Reply-To: <40002F69.9020302@steudten.com>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+X-MailScanner-Information-linux-kernel.at: Please contact your Internet E-Mail Service Provider for more information
+X-MailScanner-linux-kernel.at: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> I test the new 2.6.1 kernel and run in the same problem as 
+> before. The reason is, that the patch from Ivan isn´t there 
+> in the kernel source tree.
+> 
+> Please add the patch to the mainline.
 
---k+G3HLlWI7eRTl+h
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+For me it works without patching anything. I still use my Digital Alpha AS
+1000A for testing new kernels. I currently have no Compaq DS10 available,
+else I would try this as well :-(
 
-On Thu, Jan 08, 2004 at 12:00:11AM +0100, Kurt Garloff wrote:
-> Hi,
->=20
-> I found an excessive amount of unaligned accesses on my AXP workstation
-> and tracked it down to ip_packet_match() in the ip_tables module.
-> indev and outdev are not properly aligned if set to nulldevname in
-> ipt_do_table().
-> This destroys the benefits of comparing names in units of (long) and
-> on architectures with expensive unaligned accesses (such as ia64 or
-> alpha), it even hurts a lot.
+Best regards,
+ Oliver
 
-Thanks for submitting your patch, this is the same bug report as
-https://bugzilla.netfilter.org/cgi-bin/bugzilla/show_bug.cgi?id=3D84
-
-> Find attached a patch against 2.6.0. A similar patch is needed for 2.4,
-> also attached.
-
-the fix is already in our patch-o-matic CVS tree, and I'm going to
-submit this to davem together with some other fixes I have pending.
-
-> Looking at ip_packet_match(), I have two more thoughts:
-> * It should not be inlined. It's too large to benefit from inlining,
->   IMHO. (OTOH, it's only called from one place, so it does not
->   really matter.)
-
-That is the idea.  It's just split in two functions to make it more
-readable.  It's never intended to be called from somewhere else.
-
-> * There's a comment about the compiler being able to unroll the 2/4
->   (64/32bit) iter loop which is not completely appropriate: We don't
->   pass -funroll-loops, so gcc does not do it :-(
->   It would be beneficial though.
-
-I'm not a compiler geek.  Thanks for pointing this out, I will do some
-testing and look at the compiler output to see what is happening.
-
-> Regards,
-> --=20
-> Kurt Garloff  <garloff@suse.de>                            Cologne, DE=20
---=20
-- Harald Welte <laforge@netfilter.org>             http://www.netfilter.org/
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D
-  "Fragmentation is like classful addressing -- an interesting early
-   architectural error that shows how much experimentation was going
-   on while IP was being designed."                    -- Paul Vixie
-
---k+G3HLlWI7eRTl+h
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQFAAR8BXaXGVTD0i/8RAnAuAJ9qhRHsnQQI8azLx5p+I1S3vBKw0wCeKoio
-v2pIw8coqEg5TomqGflYo70=
-=D2yY
------END PGP SIGNATURE-----
-
---k+G3HLlWI7eRTl+h--

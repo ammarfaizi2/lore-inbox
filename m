@@ -1,50 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129267AbRAIH2N>; Tue, 9 Jan 2001 02:28:13 -0500
+	id <S129383AbRAIHad>; Tue, 9 Jan 2001 02:30:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129383AbRAIH2E>; Tue, 9 Jan 2001 02:28:04 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:14094 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129267AbRAIH1p>; Tue, 9 Jan 2001 02:27:45 -0500
-Date: Mon, 8 Jan 2001 23:27:15 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-cc: zlatko@iskon.hr, Rik van Riel <riel@conectiva.com.br>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Subtle MM bug
-In-Reply-To: <m1wvc5gsad.fsf@frodo.biederman.org>
-Message-ID: <Pine.LNX.4.10.10101082322030.1222-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130392AbRAIHaX>; Tue, 9 Jan 2001 02:30:23 -0500
+Received: from nathan.polyware.nl ([193.67.144.241]:12304 "EHLO
+	nathan.polyware.nl") by vger.kernel.org with ESMTP
+	id <S130356AbRAIHaR>; Tue, 9 Jan 2001 02:30:17 -0500
+Date: Tue, 9 Jan 2001 08:30:07 +0100
+From: Pauline Middelink <middelink@polyware.nl>
+To: linux-kernel@vger.kernel.org
+Cc: Arnaldo Carvalho de Melo <acme@conectiva.com.br>, linux@advansys.com,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] advansys.c: include missing restore_flags, etc
+Message-ID: <20010109083007.A24914@polyware.nl>
+Mail-Followup-To: Pauline Middelink <middelin@polyware.nl>,
+	linux-kernel@vger.kernel.org,
+	Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	linux@advansys.com, Alan Cox <alan@lxorguk.ukuu.org.uk>
+In-Reply-To: <20010108201103.E17087@conectiva.com.br> <20010108202533.F17087@conectiva.com.br> <20010108203002.H17087@conectiva.com.br> <20010109001443.A20786@conectiva.com.br>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <20010109001443.A20786@conectiva.com.br>; from acme@conectiva.com.br on Tue, Jan 09, 2001 at 12:14:43AM -0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On 8 Jan 2001, Eric W. Biederman wrote:
-
-> Zlatko Calusic <zlatko@iskon.hr> writes:> 
-> > 
-> > Yes, but a lot more data on the swap also means degraded performance,
-> > because the disk head has to seek around in the much bigger area. Are
-> > you sure this is all OK?
+On Tue, 09 Jan 2001 around 00:14:43 -0200, Arnaldo Carvalho de Melo wrote:
+> Hi,
 > 
-> I don't think we have more data on the swap, just more data has an
-> allocated home on the swap.
+> 	Please consider applying, comments in the patch.
+> 
+> - Arnaldo
+> 
+> 
+> --- linux-2.4.0-ac4/drivers/scsi/advansys.c	Mon Jan  8 20:39:28 2001
+> +++ linux-2.4.0-ac4.acme/drivers/scsi/advansys.c	Tue Jan  9 00:12:03 2001
 
-I think Zlatko's point is that because of the extra allocations, we will
-have worse locality (more seeks etc). 
+> -STATIC int
+> +STATIC unsigned long
+>  DvcEnterCritical(void)
+>  {
+> -    int    flags;
+> +    unsigned long flags;
+>  
+>      save_flags(flags);
+>      cli();
+> @@ -9965,7 +9972,7 @@
+>  }
 
-Clearly we should not actually do any more actual IO. But the sticky
-allocation _might_ make the IO we do be more spread out.
+Err, according tho wise ppl on this list, this does not work on
+MIPSes. The flags thing must stay in the same stackframe.
 
-To offset that, I think the sticky allocation makes us much better able to
-handle things like clustering etc more intelligently, which is why I think
-it's very much worth it.  But let's not close our eyes to potential
-downsides.
+(I know, not your fault, but since you are patching the driver...)
 
-		Linus
+>  STATIC void
+> -DvcLeaveCritical(int flags)
+> +DvcLeaveCritical(unsigned long flags)
+>  {
+>      restore_flags(flags);
+>  }
 
+Item.
+
+    Met vriendelijke groet,
+        Pauline Middelink
+-- 
+GPG Key fingerprint = 2D5B 87A7 DDA6 0378 5DEA  BD3B 9A50 B416 E2D0 C3C2
+For more details look at my website http://www.polyware.nl/~middelink
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

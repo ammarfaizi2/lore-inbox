@@ -1,60 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263174AbSJFCLm>; Sat, 5 Oct 2002 22:11:42 -0400
+	id <S263120AbSJFCNK>; Sat, 5 Oct 2002 22:13:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263189AbSJFCLm>; Sat, 5 Oct 2002 22:11:42 -0400
-Received: from opt-out.cdt.org ([206.112.85.61]:21435 "EHLO mail.cdt.org")
-	by vger.kernel.org with ESMTP id <S263174AbSJFCLj>;
-	Sat, 5 Oct 2002 22:11:39 -0400
-Date: Sat, 5 Oct 2002 22:17:10 -0400 (EDT)
-From: Daniel Berlin <dberlin@dberlin.org>
-To: Rob Landley <landley@trommello.org>
-Cc: tom_gall@mac.com, Larry McVoy <lm@bitmover.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: New BK License Problem?
-In-Reply-To: <200210060128.g961S11J485516@pimout4-ext.prodigy.net>
-Message-ID: <Pine.LNX.4.44.0210052208130.19932-100000@dberlin.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263192AbSJFCNF>; Sat, 5 Oct 2002 22:13:05 -0400
+Received: from vladimir.pegasys.ws ([64.220.160.58]:19210 "HELO
+	vladimir.pegasys.ws") by vger.kernel.org with SMTP
+	id <S263189AbSJFCMc>; Sat, 5 Oct 2002 22:12:32 -0400
+Date: Sat, 5 Oct 2002 19:18:02 -0700
+From: jw schultz <jw@pegasys.ws>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Unable to kill processes in D-state
+Message-ID: <20021006021802.GA31878@pegasys.ws>
+Mail-Followup-To: jw schultz <jw@pegasys.ws>,
+	linux-kernel@vger.kernel.org
+References: <20021005090705.GA18475@stud.ntnu.no> <1033841462.1247.3716.camel@phantasy> <20021005182740.GC16200@vagabond> <20021005235614.GC25827@stud.ntnu.no>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20021005235614.GC25827@stud.ntnu.no>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Fri, 4 Oct 2002, Rob Landley wrote:
-
-> On Friday 04 October 2002 05:33 pm, tom_gall@mac.com wrote:
+On Sun, Oct 06, 2002 at 01:56:14AM +0200, Thomas Langås wrote:
+> Jan Hudec:
+> > On the other hand it's a bug if a process stays in D-state for time of
+> > order of seconds or more. Unfortunately it's impossible to avoid this
+> > in networking filesystems with current state of VFS (in 2.4). Even there
+> > though, it's a bug if it's indefinite.
 > 
-> > Yeah I understand what your intent is and I'm not flaming you. I have a
-> > problem with the wording in that claus.  Unfortunately you're not a
-> > lawyer so your stated intent means little, it's the language in the
-> > license that has meaning.
+> Well, it's NFS-related (we use autofs to mount our nfs-shares), and the
+> processes are staying forever when they have gotten to the D-state.
 > 
->  Actually, his stated intent means an awful lot, if you can get it in 
->  writing. 
-Not in the case of this license.
-
->  Which, thanks to the archived nature of this list, you have.  (Remember, the 
-> legal basis for contract law is just informed consent and the recording 
-> thereof.  The license itself is merely a formal and carefully worded version 
-> of "what he said".)
+> > These problems were already discussed on LKML, you might want to search
+> > the archive. IIRC this is a known problem of OpenAFS (not in standart
+> > kernel). It was reported with various drivers for some 2.4.x kernels
+> > too.
 > 
-> A verbal contract may only be worth the paper it's printed on, but it IS 
-> legally binding if you can prove it.
+> As you see, we've got this problem with NFS as the filesystem, and 
+> the processes won't die or return, they just hang there setting
+> the load-number up in the roof.
 
-Do a google search on "fully integrated agreement" and "parol evidence 
-rule".
+They shouldn't be affecting the load average because they
+aren't on the runqueue.
 
->  And even relatively casual statements, 
-> if recorded, can show up to haunt you in court later on.
+It sounds like you have a problem with your NFS server.  Be
+sure you set the automounter's mount options to include 'intr'
+That will allow you to interrupt your processes if the server goes
+offline.
 
-Only if you haven't got a fully integrated agreement. If you do, they'd 
-never appear in court. If you look at the license, you'll note it has a 
-merger clause ("This License represents the complete agreement between You and BitMover 
-regarding the BitKeeper Software covered by this License.").
-I'm sure it's there specifically so the parol evidence rule applies 
-completely.
+-- 
+________________________________________________________________
+	J.W. Schultz            Pegasystems Technologies
+	email address:		jw@pegasys.ws
 
---Dan
-
-
+		Remember Cernan and Schmitt

@@ -1,61 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262942AbTF3X1N (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jun 2003 19:27:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263258AbTF3X1N
+	id S263011AbTF3Xer (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jun 2003 19:34:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263258AbTF3Xer
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jun 2003 19:27:13 -0400
-Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:26349 "EHLO
-	mail.kolivas.org") by vger.kernel.org with ESMTP id S262942AbTF3X1F
+	Mon, 30 Jun 2003 19:34:47 -0400
+Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:32237 "EHLO
+	mail.kolivas.org") by vger.kernel.org with ESMTP id S263011AbTF3Xen
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jun 2003 19:27:05 -0400
+	Mon, 30 Jun 2003 19:34:43 -0400
 From: Con Kolivas <kernel@kolivas.org>
 To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [PATCH] O1int 0307010922 for 2.5.73 interactivity 
-Date: Tue, 1 Jul 2003 09:44:46 +1000
+Subject: Re: [PATCH] O1int 0307010922 for 2.5.73 interactivity
+Date: Tue, 1 Jul 2003 09:52:26 +1000
 User-Agent: KMail/1.5.2
 Cc: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
        Mike Galbraith <efault@gmx.de>,
        Zwane Mwaikambo <zwane@arm.linux.org.uk>,
        Marc-Christian Petersen <m.c.p@wolk-project.de>
+References: <200307010944.46971.kernel@kolivas.org>
+In-Reply-To: <200307010944.46971.kernel@kolivas.org>
 MIME-Version: 1.0
 Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_utMA/SUwSstQGcA"
-Message-Id: <200307010944.46971.kernel@kolivas.org>
+  boundary="Boundary-00=_60MA/rzA70w6D0z"
+Message-Id: <200307010952.26595.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---Boundary-00=_utMA/SUwSstQGcA
+--Boundary-00=_60MA/rzA70w6D0z
 Content-Type: text/plain;
-  charset="us-ascii"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 
-Here is an evolution of the O1int design to minimise audio skips/smooth X. 
-I've been forced to work with even less sleep than usual because of this but 
-I'm getting quite happy with it now.
+On Tue, 1 Jul 2003 09:44, Con Kolivas wrote:
+> Here is an evolution of the O1int design to minimise audio skips/smooth X.
+> I've been forced to work with even less sleep than usual because of this
+> but I'm getting quite happy with it now.
+>
+> Changes:
+> Reintroduction of the child penalty set at 95, but normalised to work for a
+> 2 second average to work with the new system.
+> Long sleepers classified as idle again like previous incarnations instead
+> of being reset, but over a 2 second average.
+>
+> This should impact on a lot of the corner cases.
+>
+> More thrashing please. I know these had been coming out frequently but I
+> needed to assess every small increment. I hope not to need to do too much
+> from here.
 
-Changes:
-Reintroduction of the child penalty set at 95, but normalised to work for a 2 
-second average to work with the new system.
-Long sleepers classified as idle again like previous incarnations instead of 
-being reset, but over a 2 second average.
+The sleep thing is definitely affecting me.
 
-This should impact on a lot of the corner cases.
+Here is a small bugfix.
 
-More thrashing please. I know these had been coming out frequently but I 
-needed to assess every small increment. I hope not to need to do too much 
-from here.
-
-Con
-
---Boundary-00=_utMA/SUwSstQGcA
+--Boundary-00=_60MA/rzA70w6D0z
 Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="patch-O1int-0307010922"
+  charset="iso-8859-1";
+  name="patch-O1int-0307010949"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="patch-O1int-0307010922"
+Content-Disposition: attachment; filename="patch-O1int-0307010949"
 
 --- linux-2.5.73/include/linux/sched.h	2003-06-30 10:06:40.000000000 +1000
 +++ linux-2.5.73-test/include/linux/sched.h	2003-07-01 08:51:26.000000000 +1000
@@ -172,12 +177,12 @@ Content-Disposition: attachment; filename="patch-O1int-0307010922"
  	current->sleep_avg = current->sleep_avg * PARENT_PENALTY / 100;
  	p->sleep_avg = p->sleep_avg * CHILD_PENALTY / 100;
 +	p->avg_start = current->avg_start;
-+	if (p->avg_start > MAX_SLEEP_AVG)
-+		p->avg_start = MAX_SLEEP_AVG;
++	if (p->sleep_avg > MAX_SLEEP_AVG)
++		p->sleep_avg = MAX_SLEEP_AVG;
 +	normalise_sleep(p);
  	p->prio = effective_prio(p);
  	set_task_cpu(p, smp_processor_id());
  
 
---Boundary-00=_utMA/SUwSstQGcA--
+--Boundary-00=_60MA/rzA70w6D0z--
 

@@ -1,51 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318707AbSG0HcA>; Sat, 27 Jul 2002 03:32:00 -0400
+	id <S318708AbSG0Hoz>; Sat, 27 Jul 2002 03:44:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318708AbSG0HcA>; Sat, 27 Jul 2002 03:32:00 -0400
-Received: from adsl-66-136-196-103.dsl.austtx.swbell.net ([66.136.196.103]:64641
-	"HELO digitalroadkill.net") by vger.kernel.org with SMTP
-	id <S318707AbSG0Hb7>; Sat, 27 Jul 2002 03:31:59 -0400
-Subject: Re: 2.4.19-rc3-aa1 and FB Console
-From: Austin Gonyou <austin@digitalroadkill.net>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <1027755034.2571.34.camel@UberGeek.digitalroadkill.net>
-References: <1027630426.30406.1.camel@UberGeek>
-	 <1027755034.2571.34.camel@UberGeek.digitalroadkill.net>
+	id <S318710AbSG0Hoz>; Sat, 27 Jul 2002 03:44:55 -0400
+Received: from dns1.arrancar.com ([209.92.187.33]:183 "EHLO core.arrancar.com")
+	by vger.kernel.org with ESMTP id <S318708AbSG0Hoy>;
+	Sat, 27 Jul 2002 03:44:54 -0400
+Subject: Re: Funding GPL projects or funding the GPL?
+From: Federico Ferreres <fferreres@ojf.com>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.GSO.4.21.0207270214570.23484-100000@weyl.math.psu.edu>
+References: <Pine.GSO.4.21.0207270214570.23484-100000@weyl.math.psu.edu>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1027755214.2571.39.camel@UberGeek.digitalroadkill.net>
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 27 Jul 2002 04:44:23 -0300
+Message-Id: <1027755867.2525.70.camel@fede>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.1.0.99 (Preview Release)
-Date: 27 Jul 2002 02:33:35 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Woops. I figured it out. I'm just dumb. I have to select experimental to
-see the selections I'm looking for. Sorry for the bandwidth. I didn't
-notice this being the case in RC1 and RC2. 
+On Sat, 2002-07-27 at 03:29, Alexander Viro wrote:
+> Sigh...  That stops working at the same point where pyramid does - when
+> number of recepients becomes a sufficiently large fraction of all potential
+> participants.  It is not sustainable.
 
-On Sat, 2002-07-27 at 02:30, Austin Gonyou wrote:
-> Let me clarify a bit further. When creating the kernel tree in the
-> following manner:
-> 
-> 1. untar 2.4.18
-> 2. apply 2.4.19-rc3 patch
-> 3. apply 2.4.19-rc3-aa(1|2) patch
-> 4. make menuconfig | xconfig
-> 
-> I only have the following available under "Console Drivers":
->   <> VGA text console
->   <> Video mode selection support
-> 
-> It used to be when selecting "Video mode selection support" that many
-> more items were then available, like the support for resolutions, font
-> types, etc. I don't see that in rc3, but did in rc2. 
-> 
-> Please advise, I really wanna try rc3, but can't get past this one thing
-> TIA.
-> 
+I forgot to answer that one. It doesn't matter how many people want to
+join a project. It's up to the copyright owners to decide how much stuff
+they need, who to "work with", "how much folks are needed" and how is
+the line of comand structured. At some point, contributors will have to
+send free patches as they are doing now. That may or may not earn them
+into the "core team".
 
--- 
-Austin Gonyou <austin@digitalroadkill.net>
+Users will decide how much money to put in such projects. If not enough
+funds are pointed in your direction (based on how much the developer
+requested), you'll just have to do with less (which is better than
+nothing). And the asked funds will probably make sense, because if they
+don't there will be an incentive to branchthe project (except for the
+core apps as already pointed out).
+
+In the Debian scheme, people can't choose where the money goes, and
+there's no strict limit to the number of developers, and it's not a big
+enough user base (though big). As you point out, the ships sinks, as
+it's a classical example of the Fishermen dylema: the more you capture,
+the better of you are off, but you can't prevents others from doing the
+same. After some time there's so much fishermen that nobody capture
+enough to make a living from it. 
+
+And that's why fGPL should allow people to choose their funded projects
+(except the core systems) and why lead developers should be able to
+manage the funds as they see fit.
+
+Federico
+

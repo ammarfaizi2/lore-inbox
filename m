@@ -1,50 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131413AbRCUNlB>; Wed, 21 Mar 2001 08:41:01 -0500
+	id <S131400AbRCUNal>; Wed, 21 Mar 2001 08:30:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131426AbRCUNkl>; Wed, 21 Mar 2001 08:40:41 -0500
-Received: from ns.suse.de ([213.95.15.193]:19983 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S131413AbRCUNkc>;
-	Wed, 21 Mar 2001 08:40:32 -0500
-Date: Wed, 21 Mar 2001 14:48:35 +0100 (CET)
-From: egger@suse.de
-Reply-To: egger@suse.de
-Subject: Re: Only 10 MB/sec with via 82c686b chipset?
-To: soda@xirr.com
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200103210348.VAA24013@xirr.com>
+	id <S131402AbRCUNab>; Wed, 21 Mar 2001 08:30:31 -0500
+Received: from c3po.klbg.n.redcross.or.at ([195.202.144.145]:23812 "EHLO
+	c3po.klbg.n.redcross.or.at") by vger.kernel.org with ESMTP
+	id <S131400AbRCUNaP>; Wed, 21 Mar 2001 08:30:15 -0500
+Date: Wed, 21 Mar 2001 14:29:32 +0100 (CET)
+From: Markus Gaugusch <markus@gaugusch.dhs.org>
+X-X-Sender: <markus@phoenix.kerstin.at>
+To: <linux-kernel@vger.kernel.org>
+Subject: No power down with MVP3 chipset (VIA 82c586B)
+Message-ID: <Pine.LNX.4.33.0103211423440.1149-100000@phoenix.kerstin.at>
 MIME-Version: 1.0
-Content-Type: TEXT/plain; charset=us-ascii
-Message-Id: <20010321143956.917977A94@Nicole.muc.suse.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 20 Mar, SodaPop wrote:
+[First posting, please don't eat me :-)]
 
-> I have an IWill KK-266R motherboard with an athlon-c 1200
-> processor in it, and for the life of me I can't get more than
-> 10 MB/sec through the on-board ide controller.  Yes, all the
-> appropriate support is turned on in the kernel to enable dma
-> and specific chipset support, and yes, I think I have all
-> relevant patches and a reasonable kernel.
+I'm using kernel 2.4.2 and have never been able to shutdown my machine by
+software. Neither 2.2.x nor 2.4.x, with and without Real Mode power off.
+Bios is broken, no acpi tables can be found:
+    ACPI-0191: *** Warning: Invalid table signature found
+    ACPI-0073: *** Error: Acpi_load_tables: Could not load RSDT: AE_BAD_SIGNATURE
+    ACPI-0101: *** Error: Acpi_load_tables: Could not load tables: AE_BAD_SIGNAT
+ACPI: System description table load failed
 
- Yes, actually I'm seeing the same on a KT133 board from Elitegroup.
- Although here I get a bit more: 15 MB/s
+I tried with ACPI only, APM only and using both.
+Real Mode power down reboots the machine and "normal" power down just
+crashes (register dump ...).
+I read about patches, which fake ACPI tables, and some others which power
+down in real mode in a different way(?), but couldn't apply them because
+of different kernel versions.
 
-> I noted a number of other interesting things;  one, that -X33,
-> -X34, and -X64 through -X69 all have the same 10 MB/sec transfer
-> rate, and two, that the 10 MB/sec transfer rate can be linearly
-> increased to 12 MB/sec by raising the system bus from 100 mhz to
-> 120 mhz (all components are safely rated at 133, no overclocking
-> involved.)
+Thank you for any information
 
- Duh, before making such a claim you should consider the fact that
- this is overclocking your PCI/AGP bus and I have yet to see any
- graphic cards/IDE controllers/other devices which are rated for
- 37MHz PCI bus speed.
+Markus Gaugusch
 
 -- 
-
-Servus,
-       Daniel
+_____________________________     /"\
+Markus Gaugusch  ICQ 11374583     \ /    ASCII Ribbon Campaign
+markus@gaugusch.dhs.org            X     Against HTML Mail
+                                  / \
 

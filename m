@@ -1,44 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264049AbUDQUXw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Apr 2004 16:23:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264056AbUDQUXw
+	id S264042AbUDQU2x (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Apr 2004 16:28:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264043AbUDQU2w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Apr 2004 16:23:52 -0400
-Received: from hera.kernel.org ([63.209.29.2]:17825 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S264049AbUDQUXj (ORCPT
+	Sat, 17 Apr 2004 16:28:52 -0400
+Received: from aun.it.uu.se ([130.238.12.36]:45745 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S264042AbUDQU2v (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Apr 2004 16:23:39 -0400
-To: linux-kernel@vger.kernel.org
-From: hpa@zytor.com (H. Peter Anvin)
-Subject: Re: msync() needed before munmap() when writing to shared mapping?
-Date: Sat, 17 Apr 2004 20:23:21 +0000 (UTC)
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <c5s3np$6ct$1@terminus.zytor.com>
-References: <20040416220223.GA27084@mail.shareable.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: terminus.zytor.com 1082233401 6558 63.209.29.3 (17 Apr 2004 20:23:21 GMT)
-X-Complaints-To: news@terminus.zytor.com
-NNTP-Posting-Date: Sat, 17 Apr 2004 20:23:21 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+	Sat, 17 Apr 2004 16:28:51 -0400
+Date: Sat, 17 Apr 2004 22:28:42 +0200 (MEST)
+Message-Id: <200404172028.i3HKSgYP004574@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: ak@muc.de, andihartmann@01019freenet.de
+Subject: Re: SATA support merge in 2.4.27
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20040416220223.GA27084@mail.shareable.org>
-By author:    Jamie Lokier <jamie@shareable.org>
-In newsgroup: linux.dev.kernel
-> 
-> > munmap() and fsync() or msync() will flush it to disk; there is no
-> > reason munmap() should unless perhaps the file was opened O_SYNC.
-> 
-> That was talking about flushing data all the way to disk.  The
-> implication of hpa's response is that munmap() does propagate the
-> dirty bits from the page table to the file.  That is the obvious
-> behaviour, and what I've always assumed.
-> 
+On Sat, 17 Apr 2004 13:36:11 +0200, Andi Kleen wrote:
+>Andreas Hartmann <andihartmann@01019freenet.de> writes:
+>
+>> Marcelo Tosatti wrote:
+>>> On Fri, Apr 16, 2004 at 10:51:02AM -0300, Marcelo Tosatti wrote:
+>>> And again, unfortunately not everyone is running v2.6 on their production
+>>> environment, yet.
+>>
+>> That's right! I certainly won't run it before 2.6.20 or even higher on
+>> desktops. For example, 2.6 vanilla is much to slow (about 9%), even on
+>> desktops - tested with compiling. It must be fixed.
+>
+>This most likely comes from the 1ms timer tick vs 10ms previously.  I
+>doubt this will change in mainline, but you can change it yourself
+>with an easy tweak. Just change the HZ parameter back to 100
 
-Obvious behaviour, and required by POSIX.
+I have a patch which adds CONFIG_HZ for the i386 and ppc architectures,
+allowing you to choose HZ==1000, HZ==100, or HZ=512. I originally wrote
+it because my oldest test box (a 486) loses lots of timer interrupts
+during heavy disk I/O otherwise, but I also use it on less handicapped
+boxes because I find HZ==1000 to be wasteful and of little value for me.
 
-	-hpa
+http://www.csd.uu.se/~mikpe/linux/patches/2.6/patch-config-hz-2.6.6-rc1
+
+/Mikael

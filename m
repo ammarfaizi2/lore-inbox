@@ -1,164 +1,204 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261518AbUBYSRm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Feb 2004 13:17:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261530AbUBYSQt
+	id S261513AbUBYS0f (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Feb 2004 13:26:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261516AbUBYS0f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 13:16:49 -0500
-Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:11982 "EHLO
-	mail.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
-	id S261522AbUBYSPt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 13:15:49 -0500
-Date: Wed, 25 Feb 2004 19:15:40 +0100
-From: Christophe Saout <christophe@saout.de>
-To: Jean-Luc Cooke <jlcooke@certainkey.com>
-Cc: Andrew Morton <akpm@osdl.org>, jmorris@intercode.com.au,
-       linux-kernel@vger.kernel.org
-Subject: Re: cryptoapi highmem bug
-Message-ID: <20040225181540.GB8983@leto.cs.pocnet.net>
-References: <1077655754.14858.0.camel@leto.cs.pocnet.net> <20040224223425.GA32286@certainkey.com> <1077663682.6493.1.camel@leto.cs.pocnet.net> <20040225043209.GA1179@certainkey.com> <20040224220030.13160197.akpm@osdl.org> <20040225153126.GA7395@leto.cs.pocnet.net> <20040225155121.GA7148@leto.cs.pocnet.net> <20040225154453.GB4218@certainkey.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040225154453.GB4218@certainkey.com>
-User-Agent: Mutt/1.5.6i
+	Wed, 25 Feb 2004 13:26:35 -0500
+Received: from intra.cyclades.com ([64.186.161.6]:57233 "EHLO
+	intra.cyclades.com") by vger.kernel.org with ESMTP id S261513AbUBYSZp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Feb 2004 13:25:45 -0500
+Date: Wed, 25 Feb 2004 16:09:20 -0300 (BRT)
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+X-X-Sender: marcelo@logos.cnet
+To: linux-kernel@vger.kernel.org
+Subject: Linux 2.4.26-pre1
+Message-ID: <Pine.LNX.4.58L.0402251605360.5003@logos.cnet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Cyclades-MailScanner-Information: Please contact the ISP for more information
+X-Cyclades-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 25, 2004 at 10:44:53AM -0500, Jean-Luc Cooke wrote:
 
-> Not to be annoying...
-> 
-> Could you make this change against my patch at:
->   http://jlcooke.ca/lkml/crypto_28feb2004.patch
+Hi,
 
-Ok, here it is. Still working (when not using omac or hmac) after
-fixing the compile problems (see other mail).
+Here goes -pre1.
 
-If this is ok someone should split out the scatterwalk_* move from
-your patch and submit it and this one to Andrew so that dm-crypt
-doesn't go boom on highmem machines.
+It contains a big SCTP merge (to match 2.6 API), networking updates,
+network driver updates (including the addition of nVidia Force driver).
 
+Also includes ACPI upstream merge, amongst others.
 
-diff -Nur linux.orig/crypto/cipher.c linux/crypto/cipher.c
---- linux.orig/crypto/cipher.c	2004-02-25 18:59:30.970261968 +0100
-+++ linux/crypto/cipher.c	2004-02-25 19:00:08.673530200 +0100
-@@ -72,21 +72,21 @@
- 	for(;;) {
- 		u8 *src_p, *dst_p;
- 
--		scatterwalk_map(&walk_in, 0);
--		scatterwalk_map(&walk_out, 1);
-+		scatterwalk_map(&walk_in, NULL, 0);
-+		scatterwalk_map(&walk_out, &walk_in, 1);
- 		src_p = scatterwalk_whichbuf(&walk_in, bsize, tmp_src);
- 		dst_p = scatterwalk_whichbuf(&walk_out, bsize, tmp_dst);
- 
- 		nbytes -= bsize;
- 
--		scatterwalk_copychunks(src_p, &walk_in, bsize, 0);
-+		scatterwalk_copychunks(src_p, &walk_in, &walk_out, bsize, 0);
- 
- 		prfn(tfm, dst_p, src_p, crfn, enc, info);
- 
--		scatterwalk_done(&walk_in, 0, nbytes);
-+		scatterwalk_done(&walk_in, &walk_out, 0, nbytes);
- 
--		scatterwalk_copychunks(dst_p, &walk_out, bsize, 1);
--		scatterwalk_done(&walk_out, 1, nbytes);
-+		scatterwalk_copychunks(dst_p, &walk_out, NULL, bsize, 1);
-+		scatterwalk_done(&walk_out, NULL, 1, nbytes);
- 
- 		if (!nbytes)
- 			return 0;
-diff -Nur linux.orig/crypto/scatterwalk.c linux/crypto/scatterwalk.c
---- linux.orig/crypto/scatterwalk.c	2004-02-25 18:58:22.956601000 +0100
-+++ linux/crypto/scatterwalk.c	2004-02-25 18:54:32.567626064 +0100
-@@ -63,13 +63,27 @@
- 	walk->offset = sg->offset;
- }
- 
--void scatterwalk_map(struct scatter_walk *walk, int out)
-+void scatterwalk_map(struct scatter_walk *walk, struct scatter_walk *other,
-+		     int out)
- {
--	walk->data = crypto_kmap(walk->page, out) + walk->offset;
-+	if (other && other->page == walk->page) {
-+		walk->data = (other->data - other->offset) + walk->offset;
-+		walk->slot = other->slot;
-+	} else {
-+		walk->data = crypto_kmap(walk->page, out) + walk->offset;
-+		walk->slot = out;
-+	}
-+}
-+
-+static void scatterwalk_unmap(struct scatter_walk *walk,
-+			      struct scatter_walk *other)
-+{
-+	if (!other || other->page != walk->page)
-+		crypto_kunmap(walk->data, walk->slot);
- }
- 
- static void scatterwalk_pagedone(struct scatter_walk *walk, int out,
--			      unsigned int more)
-+				 unsigned int more)
- {
- 	/* walk->data may be pointing the first byte of the next page;
- 	   however, we know we transfered at least one byte.  So,
-@@ -92,9 +106,10 @@
- 	}
- }
- 
--void scatterwalk_done(struct scatter_walk *walk, int out, int more)
-+void scatterwalk_done(struct scatter_walk *walk, struct scatter_walk *reuse,
-+		      int out, int more)
- {
--	crypto_kunmap(walk->data, out);
-+	scatterwalk_unmap(walk, reuse);
- 	if (walk->len_this_page == 0 || !more)
- 		scatterwalk_pagedone(walk, out, more);
- }
-@@ -104,7 +119,7 @@
-  * has been verified as multiple of the block size.
-  */
- int scatterwalk_copychunks(void *buf, struct scatter_walk *walk,
--			size_t nbytes, int out)
-+			   struct scatter_walk *reuse, size_t nbytes, int out)
- {
- 	if (buf != walk->data) {
- 		while (nbytes > walk->len_this_page) {
-@@ -112,9 +127,9 @@
- 			buf += walk->len_this_page;
- 			nbytes -= walk->len_this_page;
- 
--			crypto_kunmap(walk->data, out);
-+			scatterwalk_unmap(walk, reuse);
- 			scatterwalk_pagedone(walk, out, 1);
--			scatterwalk_map(walk, out);
-+			scatterwalk_map(walk, reuse, out);
- 		}
- 
- 		memcpy_dir(buf, walk->data, nbytes, out);
-diff -Nur linux.orig/crypto/scatterwalk.h linux/crypto/scatterwalk.h
---- linux.orig/crypto/scatterwalk.h	2004-02-25 18:58:22.956601000 +0100
-+++ linux/crypto/scatterwalk.h	2004-02-25 18:54:32.573625152 +0100
-@@ -26,6 +26,7 @@
- 	struct scatterlist	*sg;
- 	struct page		*page;
- 	void			*data;
-+	int			slot;
- 	unsigned int		len_this_page;
- 	unsigned int		len_this_segment;
- 	unsigned int		offset;
-@@ -40,8 +41,8 @@
- 
- void *scatterwalk_whichbuf(struct scatter_walk *walk, unsigned int nbytes, void *scratch);
- void scatterwalk_start(struct scatter_walk *walk, struct scatterlist *sg);
--int scatterwalk_copychunks(void *buf, struct scatter_walk *walk, size_t nbytes, int out);
--void scatterwalk_map(struct scatter_walk *walk, int out);
--void scatterwalk_done(struct scatter_walk *walk, int out, int more);
-+int scatterwalk_copychunks(void *buf, struct scatter_walk *walk, struct scatter_walk *reuse, size_t nbytes, int out);
-+void scatterwalk_map(struct scatter_walk *walk, struct scatter_walk *reuse, int out);
-+void scatterwalk_done(struct scatter_walk *walk, struct scatter_walk *reuse, int out, int more);
- 
- #endif  /* _CRYPTO_SCATTERWALK_H */
+Enjoy
+
+Summary of changes from v2.4.25 to v2.4.26-pre1
+============================================
+
+<amir.noam:intel.com>:
+  o bonding cleanup 2.4 - Re-org struct bonding members
+  o bonding cleanup 2.4 - Consolidate conditions & statements
+  o bonding cleanup 2.4 - Consolidate error handling in all xmit functions
+  o bonding cleanup 2.4 - Whitespace cleanup
+  o bonding cleanup 2.4 - empty lines cleanup
+  o bonding cleanup 2.4 - fix indentations
+  o bonding cleanup 2.4 - Code re-org
+  o bonding cleanup 2.4 - Fix rejects from previous patches
+  o [netdrvr bonding] Cannot remove and re-enslave the original active slave
+  o [netdrvr bonding] Releasing the original active slave causes mac address duplication
+  o [netdrvr bonding] Add support for slaves that use ethtool_ops
+  o [netdrvr bonding] fix build breakage
+  o [bonding 2.4] Fix compilation warning in bond_alb.c
+  o [bonding 2.4] Use the per-bond value of the bond_mode parameter
+  o [bonding 2.4] Save parameters in a per-bond data structure
+  o [bonding 2.4] Use the per-bond values of all remaining parameters
+
+<bengen:hilluzination.de>:
+  o HiSax I-Talk/I-Surf doesn't work together with kernel isapnp
+
+<buffer:antifork.org>:
+  o [TCP]: Add Westwood+ support, off by default
+
+<c-d.hailfinger.kernel.2004:gmx.net>:
+  o [2.4] forcedeth network driver
+
+<davem:nuts.davemloft.net>:
+  o [TCP]: Put tcp_ prefix on global westwood symbols
+  o [TCP]: Coding style fixes to westwood code
+  o [TCP]: Kill westwood specific lock, unneeded
+  o [TCP]: Kill bogus reference to CONFIG_TCP_WESTWOOD
+  o [IPV4]: Pass new forwarding setting to inet_forward_change()
+  o [TG3]: Two more PHY bug workaround, plus fix DMA test on big-endian
+  o [TG3]: Fix early chip programming in tg3_setup_copper_phy()
+  o [TG3]: Bump driver version and reldate
+  o [IPVS]: Use '%Z' for size_t types
+  o [IPV6]: Fix data type range warning in ndisc.c
+  o [TIGON3]: Comment out card RAM validation in tg3_test_dma() for now
+  o [TIGON3]: Bump version and reldate
+
+<giuseppe.furlan:systeam.it>:
+  o Add Hitachi 9960 storage to SCSI dev list as SPARSELUN|LARGELUN
+
+<grundler:parisc-linux.org>:
+  o [TG3]: Reset GRC, if necessary, before DMA test
+  o [TG3]: Abstract out mailbox workarounds into tw32_{rx,tw}_mbox()
+  o [TG3]: Define MBOX_WRITE_REORDER flag to zero on non-x86
+
+<ja:ssi.bg>:
+  o [IPV4]: Add configurable restriction of local IP announcements in ARP requests
+  o [IPV4]: Add sophistacated ARP reply control via arp_ignore sysctl
+
+<jhf:rivenstone.net>:
+  o [netdrvr sis900] fix multicast
+
+<ken:miriam.com>:
+  o [TIGON3]: Add Apple tigon3 PCI device id
+
+<khali:linux-fr.org>:
+  o Incorrect SCx200 dependency
+
+<leachbj:bouncycastle.org>:
+  o hfsplus alignment fix
+
+<len.brown:intel.com>:
+  o [ACPI] CONFIG_ACPI_NUMA depends on CONFIG_IA64
+  o [ACPI] revert previous AML param patch for ACPICA update
+  o [ACPI] ACPICA 20040211 udpate from Bob Moore
+
+<marcelo:logos.cnet>:
+  o Update i386 defconfig
+  o Changed EXTRAVERSION to -pre1
+
+<mporter:kernel.crashing.org>:
+  o 2.4 ibm_emac driver fixes
+
+<phil.el:wanadoo.fr>:
+  o export smp_num_siblings cpu_sibling_map
+
+<tigran:veritas.com>:
+  o microcode: fix devfs breakage caused by last updated
+
+<wang:ai.mit.edu>:
+  o [wireless] add atmel driver
+
+<wensong:linux-vs.org>:
+  o [IPVS]: Remove the superfluous call of waitpid in sync code
+  o [IPVS]: Fix to retry to fork kernel_thread when memory is temporarily exhausted
+  o [IPVS] tidy up the header files to include
+
+Adrian Bunk:
+  o fix two IDE warnings
+  o typo: HOSTCCFLAGS instead of HOSTCFLAGS in lib/Makefile
+
+Bartlomiej Zolnierkiewicz:
+  o kill recreate_proc_ide_device(),
+
+Ben Collins:
+  o IEEE1394/Video1394(r1152): Init d->link list head so failurs are handled properly
+  o IEEE1394(r1153): Use vmalloc to allocate sglist array for larger cases
+
+Benjamin Herrenschmidt:
+  o [SUNGEM]: Be careful about memory ordering
+
+David Dillow:
+  o Support the new 3CR990B cards that require authentication of the runtime firmware image.
+
+Geert Uytterhoeven:
+  o Amifb modedb bug
+
+Jeff Garzik:
+  o [wireless airo] backport 2.6.x cleanups/minor fixes
+  o [wireless airo] fix build breakage
+  o [netdrvr sk98lin 1/2] Remove CVS substitution keywords/spam
+  o [netdrvr sk98lin 2/2] Remove CVS substitution keywords/spam
+
+Keith Owens:
+  o Remove generated files
+
+Manfred Spraul:
+  o shrink address space reserved for kmap
+
+Marcel Holtmann:
+  o Fix for I4L over CAPI and CMTP
+
+Matt Domsch:
+  o fix lib/crc32.c copyright notice
+
+Scott Feldman:
+  o e1000 stable sync with 2.6
+
+Shmulik Hen:
+  o bonding cleanup 2.4 - Simplify ifenslave
+  o bonding cleanup 2.4 - Consolidate prints
+  o bonding cleanup 2.4 - death of typedefs
+  o bonding cleanup 2.4 - remove dead code
+  o bonding cleanup 2.4 - Consolidate timer handling
+  o bonding cleanup 2.4 - Fix handling of bond->primary
+  o bonding cleanup 2.4 - Remove multicast_mode module param
+  o bonding cleanup 2.4 - Fix slave list iteration
+  o bonding cleanup 2.4 - Consolidate function declarations
+  o bonding cleanup 2.4 - consolidate param names of function params and variables
+  o bonding cleanup 2.4 - consolidate return values of functions
+  o [netdrvr bonding] trivial - Update comment blocks and version field
+  o [IPV4]: Split arp_send into arp_create and arp_xmit
+  o [VLAN]: Export VLAN tag get/set functionality
+  o [VLAN]: Use VLAN tag set functionality in 8021q module
+
+Sridhar Samudrala:
+  o [SCTP] Sync with 2.6.2 SCTP
+  o [SCTP] Use __get_free_pages() to allocate ssnmap
+  o [SCTP] Fix SCTP_INITMSG set socket option so that a parameter with 0 value will not change its current value.
+  o [SCTP] Fix sctp_getladdrs()/sctp_getpaddrs() API so that the port value in the returned addresses is in network byte order.
+  o [SCTP] Revert back to use kmalloc() for ssnmap allocs of sizes < 128K
+  o Cset exclude: sri@us.ibm.com|ChangeSet|20040216054112|09098
+  o Cset include: sri@us.ibm.com|ChangeSet|20040216054112|09098 Cset include: sri@us.ibm.com|ChangeSet|20040213195328|09088 Cset include: sri@us.ibm.com|ChangeSet|20040213011231|09074 Cset include: sri@us.ibm.com|ChangeSet|20040213005510|09081 Cset include: sri@us.ibm.com|ChangeSet|20040213003759|09793
+  o [SCTP] Fix syntax errors in net/sctp Config.in
+
+Stelian Pop:
+  o Fix meye compilation when HIGHMEM64G is set
+
+Willy Tarreau:
+  o fix ACPI poweroff
+

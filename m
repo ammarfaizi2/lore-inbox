@@ -1,56 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129747AbRB0Sna>; Tue, 27 Feb 2001 13:43:30 -0500
+	id <S129758AbRB0Svk>; Tue, 27 Feb 2001 13:51:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129754AbRB0SnU>; Tue, 27 Feb 2001 13:43:20 -0500
-Received: from www.topmail.de ([212.255.16.226]:61653 "HELO www.topmail.de")
-	by vger.kernel.org with SMTP id <S129747AbRB0SnG> convert rfc822-to-8bit;
-	Tue, 27 Feb 2001 13:43:06 -0500
-Message-ID: <000001c0a0ed$1ea188d0$742c9c3e@tp.net>
-From: "Thorsten Glaser Geuer" <eccesys@topmail.de>
-To: "LKML" <linux-kernel@vger.kernel.org>,
-        "Mack Stevenson" <mackstevenson@hotmail.com>
-In-Reply-To: <F281raFC8XymNMDdckH00012e6f@hotmail.com>
-Subject: Re: ISO-8859-1 completeness of kernel fonts?
-Date: Tue, 27 Feb 2001 16:26:21 -0000
+	id <S129766AbRB0Svb>; Tue, 27 Feb 2001 13:51:31 -0500
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:4843 "EHLO e21.nc.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S129758AbRB0SvL>;
+	Tue, 27 Feb 2001 13:51:11 -0500
+Date: Tue, 27 Feb 2001 13:50:10 -0500 (EST)
+From: Richard A Nelson <cowboy@vnet.ibm.com>
+X-X-Sender: <cowboy@badlands.lexington.ibm.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: <linux-kernel@vger.kernel.org>
+Subject: olympic (tokenring) & IPv6 (was Re: Linux 2.4.1ac20)
+In-Reply-To: <Pine.LNX.4.33.0102231005220.2402-100000@badlands.lexington.ibm.com>
+Message-ID: <Pine.LNX.4.33.0102271345460.2280-100000@badlands.lexington.ibm.com>
+X-No-Markup: yes
+x-No-ProductLinks: yes
+x-No-Archive: yes
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hello,
-> 
-> The 8x16 and Sun 12x22 kernel fonts I tried seem to lack some standard 
-> glyphs necessary to represent the entire ISO-8859-1 charmap; I am talking 
-> about all accented capital vowels except for 'I'.
-> 
-> This seems to happen in both 2.2.16 as well as in 2.2.18.
-> 
-> Is this intentional? If so, why?
-> 
-> How can I override this behaviour?
-> 
-> Thank you.
-> 
-> Cheers,
-> 
-> Mack Stevenson
+Problem recap:
+  * modprobe oopses with null pointer right after loading olympic module
+  * problem still occurs upto 2.4.2ac5
 
-I have converted my fonts by hand (with a GW-BASIC proggy) from bitmap
-to .c, though not the SUN fonts for ISO but the PC fonts for cp437.
-I did this because I do not like e.g. the glyph "0" in standard font
-and included the "Euro" sign. (I use the same for DOS and Linux now,
-and even Windoze recently got it as Terminal font!)
+I've not been able to capture the oops due to other hardware problems,
+but have narrowed the problem down:
 
-My second suggestion: code it as .psfu and load it by setfont, including
-the appropiate console-map. AFAIK all the kernel default fonts are cp437
-(linux/drivers/char/cp437.uni; consolemap.*)
+ 1) modprobe ipv6
+    modprobe olympic
+    ---> Oops & reboot
 
--mirabilos
+ 2) modprobe olympic
+    modprobe ipv6
+    ---> still running (ok, so its only been 20 minutes, but hey that
+         is *significantly* better than Oops on bootup)
 
+> On Wed, 21 Feb 2001, Richard A Nelson wrote:
+>
+> > On Wed, 21 Feb 2001, Alan Cox wrote:
+> >
+> > >
+> > > Can you stick an if(dev!=NULL) in front of that and let me know if that
+> > > fixes it - just to verify thats the problem spot
+> >
+> > Compiling now, will reboot in the am (if it aint done soon) -
+> > don't want it rebooting all night if this isn't it ;-}
+>
+> Sigh, it appears that the problem is actually neither of the above
+> lines.
+>
+> I even tried 2.4.2 and had the same problem, then I noticed that 2.4.2
+> also contains the same update ;-}
+>
+> I put an if(dev == NULL)printk...else in both spots and rebooted.
+>
+> Then (I gotta start drinking more coffee, or increase Copenhagen
+> intake), I noticed that the actual oops is from modprobe!!!!
+>
+> I've not been able to get a oops trace because the error either causes
+> a reboot, or hang (either case, e2fsck is run at reboot).
+>
+> Heres some system info that might be useful:
+> Kernel modules         2.4.2
+> Gnu C                  2.95.3
+> Gnu Make               3.79.1
+> Binutils               2.10.91.0.2
+> Linux C Library        2.2.2
+> Dynamic linker         ldd (GNU libc) 2.2.2
+> Procps                 2.0.7
+> Mount                  2.10s
+> Net-tools              2.05
+> Console-tools          0.2.3
+> Sh-utils               2.0.11
+>
+> I'll be happy to reboot and capture the oops, if someone can help me
+> make sure it gets logged (serial console not a possibility, the other
+> box is currently in pieces).
+>
+>
+
+-- 
+Rick Nelson
+Life'll kill ya                         -- Warren Zevon
+Then you'll be dead                     -- Life'll kill ya
 

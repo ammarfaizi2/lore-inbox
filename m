@@ -1,31 +1,139 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269369AbUJFTSa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269377AbUJFTUo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269369AbUJFTSa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 15:18:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269373AbUJFTS3
+	id S269377AbUJFTUo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 15:20:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269373AbUJFTSq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 15:18:29 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:27575 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S269369AbUJFTRL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 15:17:11 -0400
-Message-ID: <41644492.1000400@pobox.com>
-Date: Wed, 06 Oct 2004 15:16:34 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-       Corey Thomas <corey@world.std.com>, netdev@oss.sgi.com,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Raylink/WebGear testing - ray_cs.c iomem bug?
-References: <Pine.LNX.4.58.0410061032410.8290@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0410061032410.8290@ppc970.osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 6 Oct 2004 15:18:46 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:22722 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S269367AbUJFTSJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Oct 2004 15:18:09 -0400
+Subject: Re: [patch 3/3] lsm: add bsdjail documentation
+From: Serge Hallyn <serue@us.ibm.com>
+To: akpm@osdl.org
+Cc: Chris Wright <chrisw@osdl.org>, linux-kernel@vger.kernel.org,
+       serue@us.ibm.com
+In-Reply-To: <1097094103.6939.5.camel@serge.austin.ibm.com>
+References: <1097094103.6939.5.camel@serge.austin.ibm.com>
+Content-Type: text/plain
+Message-Id: <1097094358.6939.13.camel@serge.austin.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 06 Oct 2004 15:25:58 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm not aware of anyone with ray_cs hardware, alas...
+
+Attached is a patch carrying the documentation for the bsdjail LSM.
+
+Please apply.
+
+Signed-off-by: Serge E. Hallyn <serue@us.ibm.com>
+
+diff -Nrup linux-2.6.9-rc3-bk6/Documentation/bsdjail.txt linux-2.6.9-rc3-bk6-jail/Documentation/bsdjail.txt
+--- linux-2.6.9-rc3-bk6/Documentation/bsdjail.txt	1969-12-31 18:00:00.000000000 -0600
++++ linux-2.6.9-rc3-bk6-jail/Documentation/bsdjail.txt	2004-10-06 10:51:46.000000000 -0500
+@@ -0,0 +1,99 @@
++BSD Jail Linux Security Module
++Serge E. Hallyn <serue@us.ibm.com>
++
++Description:
++
++Implements a subset of the BSD Jail functionality as a Linux LSM.
++What is currently implemented:
++
++  If a proces is in a jail, it:
++
++    1. Is locked under a chroot (as are all children) which is not
++         vulnerable to the well-known chdir(..)(etc)chroot(.) escape.
++    2. Cannot mount or umount
++    3. Cannot send signals outside of jail
++    4. Cannot ptrace processes outside of jail
++    5. Cannot create devices
++    6. Cannot renice processes
++    7. Cannot load or unload modules
++    8. Cannot change network settings
++    9. May be assigned a specific ip address which will be used
++         for all it's socket binds.
++   10. Cannot see contents of /proc/<pid> entries of processes not in the
++         same jail.  (We hide their existence for convenience's sake, but
++         their existance can still be detected using, for instance, statfs)
++   11. Has no CAP_SYS_RAWIO capability (no ioperm/iopl)
++   12. May not share IPC resources with processes outside its own jail.
++   13. May find it's valid network address (if restricted) under
++       /proc/$$/attr/current.
++
++WARNINGS:
++The security of this module is very much dependent on the security
++of the rest of the system.  You must carefully think through your
++use of the system.
++
++Some examples:
++	1. If you leave /dev/hda1 in the jail, processes in the
++	jail can access that filesystem (i.e. /sbin/debugfs).
++	2. If you provide root access within a jail, this can of
++	course be used to setuid binaries in the jail.  Combined
++	with an unjailed regular user account, this gives jailed
++	users unjailed root access.  (thanks to Brad Spender for
++	pointing this out).  To protect against this, use jails
++	in private namespaces, with the jail filesystems mounted
++	ONLY within the jail namespaces.  For instance:
++
++$ # (Make sure /dev/hdc5 is not mounted anywhere)
++$ new_namespace_shell /bin/bash
++$ mount /dev/hdc5 /opt
++$ mount -t proc proc /opt/proc
++$ echo -n "root /opt" > /proc/$$/attr/exec
++$ echo -n "ip 9.53.94.111" > /proc/$$/attr/exec
++$ exec /bin/sh
++$ sshd
++$ apachectl start
++$ exit
++
++How to use:
++    1. modprobe bsdjail
++    [ 1.5 /sbin/ifconfig eth0:0 2.2.2.2;
++      1.6 /sbin/route add -host 2.2.2.2 dev eth0:0
++      (optional) ]
++    2. Make sure the root filesystem (ie /dev/hdc5) is not mounted
++       anywhere else.
++    3. exec_private_namespace /bin/sh
++    4. mount /dev/hdc5 /opt
++    5. mount -t proc proc /opt/proc
++    6. echo -n "root /opt" > /proc/$$/attr/exec
++       echo -n "ip 2.2.2.2" > /proc/$$/attr/exec (optional)
++    7. exec /bin/sh
++    8. sshd
++    9. exit
++
++The new shell will now run in a private jail on the filesystem on
++/dev/hdc5. If proc has been mounted under /dev/hdc5, then a "ps -auxw"
++under the jailed shell will show only entries for processes started under
++that jail.
++
++If a private IP was specified for the jail, then 
++		cat /proc/$$/attr/current
++will show the address for the private network device.  Other network
++devices will be visible through /sbin/ifconfig -a, but not usable.
++
++If the reading process is not in a jail, then
++		cat /proc/$$/attr/current
++returns information about the root and ip * for the target process,
++or "Not Jailed" if the target process is not jailed.
++
++Cat /proc/$$/attr/exec gives a list of the valid keywords to cat into
++/proc/$$/attr/exec when starting a jail.
++
++Current valid keywords for creating a jail are:
++
++     root: Root of jail's fs
++     ip: Ip addr for this jail
++     nrtask: Number of tasks in this jail
++     nice: The nice level for this jail.  (maybe should be min/max?)
++     slice: Max timeslice per process
++     data: Max size of DATA segment per process
++     memlock: Max size of memory which can be locked per process
+
 

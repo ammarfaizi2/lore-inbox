@@ -1,80 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261371AbUK1AVF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261378AbUK1AXF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261371AbUK1AVF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Nov 2004 19:21:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261378AbUK1AVF
+	id S261378AbUK1AXF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Nov 2004 19:23:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261380AbUK1AXF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Nov 2004 19:21:05 -0500
-Received: from basillia.speedxs.net ([83.98.255.13]:64978 "EHLO
-	basillia.speedxs.net") by vger.kernel.org with ESMTP
-	id S261371AbUK1AVA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Nov 2004 19:21:00 -0500
-Subject: kernel BUG in reiser4 tail_conversion.c:32 (2.6.10-rc1-mm5)
-From: Tom Wirschell <lkml@wirschell.nl>
-To: linux-kernel@vger.kernel.org
+	Sat, 27 Nov 2004 19:23:05 -0500
+Received: from www.uekae.tubitak.gov.tr ([212.174.195.226]:16382 "EHLO
+	uekae.uekae.gov.tr") by vger.kernel.org with ESMTP id S261378AbUK1AW7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Nov 2004 19:22:59 -0500
+Subject: Problem with ioctl command TCGETS
+From: Ozan Eren Bilgen <oebilgen@uekae.tubitak.gov.tr>
+To: Linux Kernel Maillist <linux-kernel@vger.kernel.org>
 Content-Type: text/plain
-Date: Sun, 28 Nov 2004 01:20:51 +0100
-Message-Id: <1101601252.4558.228.camel@LEV8>
+Organization: TUBITAK - Ulusal Elektronik ve Kriptoloji Arastirma Enstitusu
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+Date: Sun, 28 Nov 2004 02:22:51 +0200
 Content-Transfer-Encoding: 7bit
+X-AntiVirus: checked by Vexira MailArmor (version: 2.0.2-5; VAE: 6.28.0.18; VDF: 6.28.0.93; host: uekae)
+Message-Id: <20041128002044.CE13839877@uekae.uekae.gov.tr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-apt-get segfaulted for no apparent reason. Attempts to restart apt-get
-failed (basically hung when accessing the harddisk) and eventually it
-became impossible to log in. Inspection at the actual machine reveiled
-the following dumped onto the console:
+--- Please CC me your responses ---
 
-kernel BUG at fs/reiser4/plugin/file/tail_conversion.c:32!
-invalid operand: 0000 [#1]
-Modules linked in: ipt_multiport ipt_MASQUERADE ipt_LOG ipt_state
-iptable_nat ip_conntrack iptable_filter ip_tables
-CPU:    0
-EIP:    0060:[<c01b874e>]    Not tainted VLI
-EFLAGS: 00010282   (2.6.10-rc1-mm5)
-EIP is at get_exclusive_access+0x2e/0x40
-eax: c784fa40   ebx: 00000001   ecx: c5596dd8   edx: 00000000
-esi: 00000000   edi: c5596dd8   ebp: c5596e30   esp: c42d1e18
-ds: 007b   es: 007b   ss: 0068
-Process apt-get (pid: 9964, threadinfo=c42d0000 task=c9df9040)
-Stack: c01b7a05 00000001 c42d1e4c c42d1e20 c42d0000 c4171120 00000001 00000001
-       005650e9 00000000 00000000 b7137000 c921d600 00008000 005650e9 c1054a40
-       c10f4120 c1072780 c112eec0 c1036340 c1105600 c10a67c0 c115a220 00000000
-Call Trace:
- [<c01b7a05>] write_unix_file+0x1a5/0x3c0
- [<c01912a1>] reiser4_write+0x61/0xa0
- [<c0145ea8>] sys_fchmod+0x98/0xc0
- [<c0191240>] reiser4_write+0x0/0xa0
- [<c0146eb4>] vfs_write+0xa4/0x130
- [<c0147007>] sys_write+0x47/0x80
- [<c0103aef>] syscall_call+0x7/0xb
-Code: 00 e0 ff ff 21 e0 8b 00 8b 80 b8 04 00 00 8b 40 3c 8b 40 08 85 c0 75 13 ba 
-01 00 ff ff 89 c8 0f c1 10 85 d2 0f 85 8b 0f 00 00 c3 <0f> 0b 20 00 e0 b7 2a c0
-eb e3 90 8d b4 26 00 00 00 00 ba ff ff
 
-All the above has been copied over onto a handheld by hand, and from
-that same handheld onto this machine in much the same way. I
-double-checked the values, but it's possible I got something wrong.
-The BUG unfortunately never made it to any logfile.
+Hi,
 
-This problem closely resembles this report:
-http://www.mail-archive.com/reiserfs-list@namesys.com/msg16236.html
-Unfortunately I'm unable to figure out if they've actually found and
-fixed the bug during that discussion...
+While tracking KPPP and modem interaction, I experienced a problem with
+TCGETS ioctl command, which is defined as constant number 0x5401 in
+"include/asm/ioctls.h".  If you decode TCGETS, you will obtain:
 
-The machine is a Celeron 900 on an MSI board, with a 200 GB Western
-Digital (JB) IDE harddisk.
-The MSI board is old enough to not be able to figure out what the
-correct size of the harddisk is (reports it as 137.4 GB), forcing me to
-boot from a different, smaller harddisk. Linux then detects the big
-harddisk correctly and is able to take it from there.
+	type: 'T'
+ 	direction: _IOC_NONE
+	number: 1
+	size: 0
 
-If you need additional info, feel free to ask.
+but applications (like KPPP) cause indirectly that the modem descriptor
+is ioctl'd by passing a string, as the example in
+http://www.ussg.iu.edu/hypermail/linux/kernel/9904.0/0371.html shows: 
 
-Please CC me in your replies as I'm not on the list.
+	fd = open("/dev/ttyS1", O_RDWR|O_NONBLOCK)
+	fcntl(fd, F_GETFD)
+	fcntl(fd, F_SETFD, FD_CLOEXEC)
+	fcntl(fd, F_GETFL)
+	ioctl(fd, TCGETS, {B9600 opost isig icanon echo ...}) = 0
+	
+CMIIW, TCGETS ioctl command should not interest with its argp, but
+drivers/char/tty_ioctl.c does.
 
-Kind regards,
+	case TCGETS:
+		if (kernel_termios_to_user_termios((struct termios __user *)arg,
+real_tty->termios))
+			return -EFAULT;
+		return 0;
 
-Tom Wirschell
+I have a few questions:
+
+1. Is it nice to break _IO macros?
+2. If it has a historical reason, shall I forget to trust to the
+informations that I decoded using _IO* macros?
+3. Is there a list of such amazing commands?
+
+
+
+Thanks in advance,
+Ozan Eren BILGEN
+
 

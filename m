@@ -1,38 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131388AbQJ1Uih>; Sat, 28 Oct 2000 16:38:37 -0400
+	id <S129068AbQJ1Uih>; Sat, 28 Oct 2000 16:38:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131337AbQJ1Ui0>; Sat, 28 Oct 2000 16:38:26 -0400
-Received: from chac.inf.utfsm.cl ([200.1.19.54]:6660 "EHLO chac.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id <S131333AbQJ1UiS>;
-	Sat, 28 Oct 2000 16:38:18 -0400
-Message-Id: <200010281456.e9SEue007566@sleipnir.valparaiso.cl>
-To: Jens Maurer <jmaurer@cck.uni-kl.de>
+	id <S131333AbQJ1Ui1>; Sat, 28 Oct 2000 16:38:27 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:6152 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S129068AbQJ1UiX>;
+	Sat, 28 Oct 2000 16:38:23 -0400
+Date: Sat, 28 Oct 2000 13:40:56 -0700
+From: Jens Axboe <axboe@suse.de>
+To: Hisaaki Shibata <shibata@luky.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: linux-2.4.0-test10-pre6: Trigraphs in drivers/pci/devlist.h
-X-Mailer: MH [Version 6.8.4]
-Date: Sat, 28 Oct 2000 11:56:40 -0300
-From: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
+Subject: Re: patch: atapi dvd-ram support
+Message-ID: <20001028134056.J3919@suse.de>
+In-Reply-To: <20001024162112.A520@suse.de> <20001028141056T.shibata@luky.org> <20001028000448.D3919@suse.de> <20001028232703S.shibata@luky.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I understand you are in charge of this per MAINTAINERS, it not, I
-apologize for bothering you.
+On Sat, Oct 28 2000, Hisaaki Shibata wrote:
+> > > But I could not mkudf nor mkext2fs to my ATAPI 9.4GB new DVD-RAM drive.
+> > 
+> > What do you mean? What happened? strace of mke2fs of mkudf would
+> > be nice to have.
+> 
+> My system said it is not permited because it is read only.
 
-Red Hat 7, i686, gcc-20001027 (from CVS) complains about '??)' trigraphs at
-lines 1278 and 6367. Should that be just '(?)', or perhaps 'xx'? (egcs-1.1.2
-keeps quiet).
+[snip]
 
-[Yes, trigraphs are bletcherous. Perhaps disable the warning for good in
- Makefile:
+Ok, does /proc/sys/dev/cdrom/info list DVD-RAM as a capability?
 
- HOSTCFLAGS      = -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
-]
-Thanks!
+> And  /proc/ide/hdc/media says "cdrom". Is it OK?
+
+Yes, that is fine.
+
 -- 
-Horst von Brand                             vonbrand@sleipnir.valparaiso.cl
-Casilla 9G, Vin~a del Mar, Chile                              +56 32 672616
-
+* Jens Axboe <axboe@suse.de>
+* SuSE Labs
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

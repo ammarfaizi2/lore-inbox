@@ -1,39 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283765AbRLEFTT>; Wed, 5 Dec 2001 00:19:19 -0500
+	id <S283775AbRLEFVJ>; Wed, 5 Dec 2001 00:21:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283775AbRLEFTJ>; Wed, 5 Dec 2001 00:19:09 -0500
-Received: from 200227170204-dial-user-BOL.acessonet.com.br ([200.227.170.204]:18570
-	"EHLO pervalidus.dyndns.org") by vger.kernel.org with ESMTP
-	id <S283773AbRLEFTH>; Wed, 5 Dec 2001 00:19:07 -0500
-Date: Wed, 5 Dec 2001 03:19:20 -0200
-From: =?iso-8859-1?B?RnLpZOlyaWMgTC4gVy4=?= Meunier <0@pervalidus.net>
+	id <S283768AbRLEFVA>; Wed, 5 Dec 2001 00:21:00 -0500
+Received: from smtpsrv1.isis.unc.edu ([152.2.1.138]:2193 "EHLO
+	smtpsrv1.isis.unc.edu") by vger.kernel.org with ESMTP
+	id <S283767AbRLEFUy>; Wed, 5 Dec 2001 00:20:54 -0500
+Date: Wed, 5 Dec 2001 00:20:51 -0500 (EST)
+From: "Daniel T. Chen" <crimsun@email.unc.edu>
 To: Josh McKinney <forming@home.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+cc: linux-kernel@vger.kernel.org
 Subject: Re: Fwd: binutils in debian unstable is broken.
-Message-ID: <20011205051920.GL191@pervalidus>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.23.1i
-X-Mailer: Mutt/1.3.23.1i - Linux 2.4.14
+In-Reply-To: <20011205050513.GD1442@cy599856-a.home.com>
+Message-ID: <Pine.A41.4.21L1.0112050018290.34322-100000@login3.isis.unc.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Josh McKinney wrote:
+Yep, but this seems to be a real PIA to catch. Different .configs trigger
+it differently and sometimes not at all. We're testing a couple patches at
+the moment.
 
-> This seems to be a kernel bug which is shown with the new
-> version of ld.  Thought I would forward this along so maybe
-> it can get fixed.
+Earlier I stated incorrectly that it is a binutils bug; sorry for  
+misleading information. Instead it seems Debian sid's latest binutils
+package is much more strict.
 
-http://ftp.kernel.org/pub/linux/devel/binutils/release.binutils-2.11.92.0.12.3
+---
+Dan Chen                 crimsun@email.unc.edu
+GPG key: www.cs.unc.edu/~chenda/pubkey.gpg.asc
 
-Changes from binutils 2.11.92.0.10:
-...
-3.
+On Wed, 5 Dec 2001, Josh McKinney wrote:
 
-At the end there's a patch.
+> This seems to be a kernel bug which is shown with the new version of ld.  Thought I would
+> forward this along so maybe it can get fixed.
 
--- 
-0@pervalidus.{net, {dyndns.}org} Tel: 55-21-2717-2399 (Niterói-RJ BR)

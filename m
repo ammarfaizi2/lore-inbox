@@ -1,48 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263544AbTBESu6>; Wed, 5 Feb 2003 13:50:58 -0500
+	id <S264001AbTBESpB>; Wed, 5 Feb 2003 13:45:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263977AbTBESu6>; Wed, 5 Feb 2003 13:50:58 -0500
-Received: from modemcable166.48-200-24.mtl.mc.videotron.ca ([24.200.48.166]:40171
-	"EHLO xanadu.home") by vger.kernel.org with ESMTP
-	id <S263544AbTBESu5>; Wed, 5 Feb 2003 13:50:57 -0500
-Date: Wed, 5 Feb 2003 14:00:24 -0500 (EST)
-From: Nicolas Pitre <nico@cam.org>
-X-X-Sender: nico@xanadu.home
-To: Christoph Hellwig <hch@infradead.org>
-cc: andrea.glorioso@binary-only.com, lkml <linux-kernel@vger.kernel.org>
+	id <S264610AbTBESpB>; Wed, 5 Feb 2003 13:45:01 -0500
+Received: from sprocket.loran.com ([209.167.240.9]:13556 "EHLO
+	ottonexc1.peregrine.com") by vger.kernel.org with ESMTP
+	id <S264001AbTBESpA>; Wed, 5 Feb 2003 13:45:00 -0500
 Subject: Re: Monta Vista software license terms
-In-Reply-To: <20030205184239.A24774@infradead.org>
-Message-ID: <Pine.LNX.4.44.0302051351220.8496-100000@xanadu.home>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Dana Lacoste <dana.lacoste@peregrine.com>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030205181512.A24002@infradead.org>
+References: <87d6m6fx4c.fsf@topo.binary-only.priv>
+	<Pine.LNX.4.44.0302051247280.8496-100000@xanadu.home> 
+	<20030205181512.A24002@infradead.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 05 Feb 2003 13:54:36 -0500
+Message-Id: <1044471276.6464.306.camel@dlacoste.ottawa.loran.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 5 Feb 2003, Christoph Hellwig wrote:
+On Wed, 2003-02-05 at 13:15, Christoph Hellwig wrote:
 
-> On Wed, Feb 05, 2003 at 01:41:04PM -0500, Nicolas Pitre wrote:
-> > And you really think that those without that technical knowledge who are
-> > happy to pay for that "shit" today will continue to do so if they just could
-> > run away with it for free?
-> 
-> surprisingly people still buy RHAS or UL even if they can download the source
-> for free.  
+> Blah.  Why can't mvista put up the source to their products on some ftp
+> server like suse/redhat/caldera/mandrake/etc??  That's the whole point of
+> this discussion.  mvista doesn't do anything illegal, but they certainly
+> don't play nice.
 
-Those distros are targetting a much wider customer base so it's less 
-critical if not everybody buy them.  An again look at the financial 
-situation of many companies following the same model.
+The source code is available to those with the binaries,
+just as the GPL requires.  AFAIK everyone's said so far
+that they not only meet the GPL requirements they feed
+the changes they do make back to the community as well
+as to their customers.
 
-Again, if you want MontaVista work for free you just need to look at public
-repositories, or search for public patch announcements on the appropriate
-mailing lists.  Hint: MontaVista deals with more than just x86.
+SO WHAT THE FUCK IS YOUR PROBLEM?
 
-> Or buy gcc support contracts at Cygnus/RedHat even if they get the
-> source for free.
+Why do you need access to a source tree
+if you're not even using the product????????
 
-Oh but that's not the same.  It's called consulting and MontaVista offers
-that too.
+It's nazi fascist BS like this that makes companies shy away from Linux.
 
+--
 
-Nicolas
+Dana "hoping that the word 'nazi' kills this stupid thread off" Lacoste
+Ottawa, Canada
 

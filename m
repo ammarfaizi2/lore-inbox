@@ -1,31 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129093AbQKDUnr>; Sat, 4 Nov 2000 15:43:47 -0500
+	id <S129057AbQKDUtu>; Sat, 4 Nov 2000 15:49:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129601AbQKDUni>; Sat, 4 Nov 2000 15:43:38 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:17192 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129093AbQKDUnF>; Sat, 4 Nov 2000 15:43:05 -0500
-Subject: Re: [PATCH] Re: Negative scalability by removal of  lock_kernel()?(Was:Strange
-To: dean-list-linux-kernel@arctic.org (dean gaudet)
-Date: Sat, 4 Nov 2000 20:43:41 +0000 (GMT)
-Cc: andrewm@uow.edu.au (Andrew Morton), kumon@flab.fujitsu.co.jp,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0011041203300.22526-100000@twinlark.arctic.org> from "dean gaudet" at Nov 04, 2000 12:11:11 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S129215AbQKDUtj>; Sat, 4 Nov 2000 15:49:39 -0500
+Received: from spock.linux.it ([151.99.137.27]:49400 "HELO spock.linux.it")
+	by vger.kernel.org with SMTP id <S129057AbQKDUtg>;
+	Sat, 4 Nov 2000 15:49:36 -0500
+Date: Sat, 4 Nov 2000 19:49:37 +0100
+From: "Marco d'Itri" <md@Linux.IT>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-fsdevel@vger.kernel.org
+Subject: Re: Linux-2.4.0-test10
+Message-ID: <20001104194937.E3423@wonderland.linux.it>
+In-Reply-To: <E13qiR9-0008FT-00@the-village.bc.nu> <20001102171717.L1876@redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E13sAAB-0004nz-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20001102171717.L1876@redhat.com>; from sct@redhat.com on Thu, Nov 02, 2000 at 05:17:17PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> sysv semaphores have a very unfortunate negative feature -- if the admin
-> kill -9's the server (impatient admins do this all the time) then you end
-> up leaving a semaphore lying around.  sysvsem don't have the usual unix
+On Nov 02, "Stephen C. Tweedie" <sct@redhat.com> wrote:
 
-Umm they have SEM_UNDO. Its a case of deeper magic
+ >2.2 O_SYNC is actually broken too --- it doesn't sync all metadata (in
+ >particular, it doesn't update the inode), but I'd rather fix that for
+ >2.4 rather than change 2.2, as the main users of O_SYNC, databases,
+ >are writing to preallocated files anyway.
+What about fsync(2)? Will it update metadata too?
+
+-- 
+ciao,
+Marco
 
 
 -

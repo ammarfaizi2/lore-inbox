@@ -1,52 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263161AbUDPNSN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Apr 2004 09:18:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263163AbUDPNSN
+	id S263163AbUDPNTi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Apr 2004 09:19:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263165AbUDPNTi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Apr 2004 09:18:13 -0400
-Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:63131 "EHLO
-	zcars0m9.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S263161AbUDPNSM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Apr 2004 09:18:12 -0400
-Message-ID: <407FDD0A.1050904@nortelnetworks.com>
-Date: Fri, 16 Apr 2004 09:18:02 -0400
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: abhinav singh <abhinav_is_in@yahoo.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: How-to write soft real-time programs Kernel-2.6.x
-References: <20040416082057.93380.qmail@web40304.mail.yahoo.com>
-In-Reply-To: <20040416082057.93380.qmail@web40304.mail.yahoo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 16 Apr 2004 09:19:38 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:41869 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S263163AbUDPNTg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Apr 2004 09:19:36 -0400
+Date: Fri, 16 Apr 2004 15:19:35 +0200
+From: Karel Kulhavy <clock@atrey.karlin.mff.cuni.cz>
+To: linux-kernel@vger.kernel.org
+Subject: /dev/parport0 99,0 raw parport access
+Message-ID: <20040416131935.GC6879@atrey.karlin.mff.cuni.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-abhinav singh wrote:
+Hello
 
-> So how-to write a simple program(may be a Hello world
-> program) which has real-time capabilities.
+How do I cause linux to show 99,0 device (/dev/parport0, having devfs)?
 
+I tried to display help for
+make menuconfig -> Device Drivers -> Character devices -> Parallel
+printer support
+and
+make menuconfig -> Device Drivers -> Character devices -> Support for
+user-space parallel port device drivers
 
-Something like the following will put you into one of the "realtime" 
-scheduling classes, and you will take priority over the normally 
-scheduled tasks.
+and the < Help > is not working.
 
+I have enabled my parport in BIOS, enabled
+make menuconfig -> Device Drivers -> Parallel port support -> Parallel
+port support
+and
+make menuconfig -> Device Drivers -> Parallel port support -> PC-style
+hardware
+and my dmesg says:
+parport0: PC-style at 0x378 [PCSPP(,...)]
 
-struct sched_param p;
-p.sched_priority=50;
-if (sched_setscheduler(getpid(), SCHED_RR, &p) < 0) {
-	perror("error while setting scheduler class");
-	printf("continuing anyways, but results may not be as good\n");
-}
+However no /dev/parport0 is present.
 
+I also consulted /usr/src/linux/Documentation/devices.txt which says
+99 char        Raw parallel ports
+                 0 = /dev/parport0     First parallel port
+                 1 = /dev/parport1     Second parallel port
+However this says nothing about what line should be ticked up in make
+menuconfig to make these "raw parallel ports" work.
 
-The whole issue of soft-realtime is a complicated one, and there are 
-many other things that should be done to maximise predictability.
+Cl<
 
-
-Chris

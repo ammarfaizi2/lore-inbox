@@ -1,36 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312527AbSCZWgQ>; Tue, 26 Mar 2002 17:36:16 -0500
+	id <S312773AbSCZWpJ>; Tue, 26 Mar 2002 17:45:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312724AbSCZWgH>; Tue, 26 Mar 2002 17:36:07 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:64133 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S312527AbSCZWf6>;
-	Tue, 26 Mar 2002 17:35:58 -0500
-Date: Tue, 26 Mar 2002 14:26:24 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Marc-Christian Petersen <mcp@linux-systeme.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Kernel 2.4.18-WOLK3.1
-Message-ID: <20020326142624.E37@toy.ucw.cz>
-In-Reply-To: <200203251821.g2PIL7oA005522@codeman.linux-systeme.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
+	id <S312783AbSCZWpA>; Tue, 26 Mar 2002 17:45:00 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:18703 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S312773AbSCZWoq>; Tue, 26 Mar 2002 17:44:46 -0500
+Date: Tue, 26 Mar 2002 17:42:28 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: tomas szepe <kala@pinerecords.com>
+cc: davem@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.18 SPARC SMP oops
+In-Reply-To: <Pine.LNX.4.44.0203262128370.417-100000@louise.pinerecords.com>
+Message-ID: <Pine.LNX.3.96.1020326173956.9836A-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Tue, 26 Mar 2002, tomas szepe wrote:
 
-> You are missing a patch? Patches will be added by request.
-> You think one or more of the patches are fully useless? Tell me why.
-> You have minor, major or heavy mega problems, let me know. I will try to fix.
-> You think this is great? Let me know too :-)
+> Hi David and everybody else on lkml,
 > 
-> You want YOUR patch to be included in WOLK? Let me know :)
+> 
+> The following oops is more-or-less-deterministically reproducible
+> on my dual-processor SPARCstation 10 with 160MB RAM. It tends to send
+> the system down under heavy load caused by either sendmail/procmail
+> or apache. I first came across the bug at around 2.4.17, though it's
+> probably been lurking in the kernel much longer. I've gone through
+> quite a bit of trouble attempting to get the oops barf at me in 2.2.x
+> in case it's my hw config that's behind the whole problem, but I haven't
+> run into any breakdowns, 2.2.21-rc2 included.
 
-Yep. Would you take swsusp? [Support for suspend-to-disk]
-								Pavel
+Assuming that you can handle your load, at least briefly, with a single
+CPU, have you tried booting with 'nosmp' on this machine? A serious test
+would build without SMP to get the whole locking stuff to go away, but
+this is quick and dirty.
+
+I'm convinced that there are evils still lurking in SMP after all these
+years.
+
 -- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

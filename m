@@ -1,114 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265052AbSJaAlO>; Wed, 30 Oct 2002 19:41:14 -0500
+	id <S265051AbSJaAiJ>; Wed, 30 Oct 2002 19:38:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265055AbSJaAlO>; Wed, 30 Oct 2002 19:41:14 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:14552 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S265052AbSJaAlI>;
-	Wed, 30 Oct 2002 19:41:08 -0500
-Date: Thu, 31 Oct 2002 00:47:11 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: post-halloween 0.2
-Message-ID: <20021031004710.GB10329@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20021030171149.GA15007@suse.de> <1036006381.5297.108.camel@irongate.swansea.linux.org.uk>
+	id <S265052AbSJaAiJ>; Wed, 30 Oct 2002 19:38:09 -0500
+Received: from host194.steeleye.com ([66.206.164.34]:58633 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S265051AbSJaAiG>; Wed, 30 Oct 2002 19:38:06 -0500
+Message-Id: <200210310044.g9V0iRs03324@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Subject: Re: [PATCH] 2.5 current bk fix setting scsi queue depths 
+In-Reply-To: Message from Patrick Mansfield <patmans@us.ibm.com> 
+   of "Wed, 30 Oct 2002 10:05:34 PST." <20021030100534.A12400@eng2.beaverton.ibm.com> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1036006381.5297.108.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.4i
+Date: Wed, 30 Oct 2002 19:44:27 -0500
+From: James Bottomley <James.Bottomley@steeleye.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 30, 2002 at 07:33:01PM +0000, Alan Cox wrote:
+> Yes, the problem is that in scsi_register_host() if there are no upper
+> level drivers - the standard case if building no modules - we call
+> scsi_release_commandblocks even though we are NOT getting rid of the
+> scsi_device. So, with current code, new_queue_depth and
+> current_queue_depth are zero.
 
- > > (Things not expected to work just yet)
- > > - The hptraid/promise RAID drivers are currently non functional.
- > [These hopefully can be converted to use device mapper..]
+But slave_attach isn't called here (even though it should be for attached 
+devices).  I assume it's getting added by the scan between register_host & 
+register_device.
 
-Thats a fairly large 'mandatory' requirement for existing users
-of hptraid and friends.
+> When we register upper level drivers in scsi_register_device(), we
+> call scsi_build_commandblocks (again), and get a queue depth of 1,
+> since we've cleared new_queue_depth. 
 
- > > - Various SCSI drivers still need work, and don't even compile.
- > Many older network drivers ditto
- > Much of the ISDN layer ditto
+OK, we have a slight mess up here.  Perhaps the rule for slave_attach should 
+be that we only call it if we actually have an upper level device attached (if 
+we haven't, there's little point asking the HBA to allocate space for queueing 
+for a device we're not currently using).  Then, we should do slave_attach when 
+something actually decides to attach to the device.
 
-I held off on this to see if Kai would get things in order in time.
-Looking at current BK, it looks like he's done quite a bit.
-Kai, any changes from a user point of view wrt tools ?
+if we follow this approach, slave_attach wouldn't be called until 
+register_device in your problem scenario, and then everything would work as 
+expected.
 
- > > - software suspend is still in development, and in need of more work.
- > >   It is unlikely to work as expected currently.
- > > - Some filesystems still need work (Coda, Intermezzo).
- > 		UFS, HFS HPFS,...
+> Removing the scsi_release_commandblocks() in scsi_register_host()
+> would also fix the problem, and in most cases, would not waste any
+> space. In the worst case AFAICT it would waste one scsi_cmnd (about
+> 300 or so bytes?). 
 
-Hadn't realised they were still broken. Added to the list.
+Well, if there's no device attached, there's no need for a queue.  This would 
+waste 1 SCSI command per unattached device (and SCSI commands are DMA'able 
+memory which is precious on some systems).  Right now, that's OK for small 
+systems.  When we move to a lazy attachment model because we have an array 
+with 65535 LUNs and we're only interested in one of them, it won't be.
 
- > Add "Most older SCSI controllers are *NOT* doing error handling. Be
- > careful."
+> I see no good reason to zero new_queue_depth in scsi_release_commandblo
+> cks, as new_queue_depth is the desired queue depth, and should remain
+> so until scsi_adjust_queue_depth is called. Setting new_queue_depth to
+> zero means we have to call slave_attach again to set it right, and
+> depending on what else an adapter slave_attach does could be very
+> wrong. 
 
-Added. Was covered by the 'most drivers wont compile' though now that
-current BK has nuked the abort: and reset: members.
+Well, to my way of thinking, build and release commandblocks are like 
+constructor and destructor for the device queue.  On general design 
+principles, I don't like the idea of queue specific information persisting 
+past its destruction.
 
- > Add "Simplex IDE devices (eg Ali15x3) are missing DMA sometimes"
- > Add "Serverworks OSB4 may panic on bad blocks or other non fatal errors"
- > Add "PCMCIA IDE hangs on eject"
- > Add "Most PCMCIA devices have unload races and may oops on eject"
- > Add "Modular IDE does not yet work, modular IDE PCI modules sometimes
- > oops on loading"
- 
-Added.
-
- > LVM1 is no longer supported, upgrade to LVM2. This supports the LVM1
- > disk format.
-
-Was covered in the devicemapper section.
-Reworded to make the 'backwards compatability' thing a bit more obvious.
-
- > > (Note that the OSS drivers are also still functional, and
- > >  still present)
- > Kind of work in some cases, they are deprecated and may vanish before
- > 2.6 or may vanish the release after.
-
-I'd agree that it would make sense to at least remove some of the
-lesser maintained drivers. Linus didnt seem to keen on the idea
-last time I proposed it.
-
- > > Additional work on the ATA code is happening in 2.4-ac, and pending
- > > merging to 2.5
- > Actually its happening in 2.5 back merging to 2.4-ac now.
-
-Oops, my bad. Hard to keep up with the crazy world of IDE these days..
-
- > > IDE TCQ
- > > ~~~~~~~
- > > Tagged command queueing for IDE devices has been included.
- > > Not all devices may like this, so handle with care.
- > > If you didn't choose the "TCQ on by default" option,
- > > you can enable it by using the command
- > > 
- > > echo "using_tcq:32" > /proc/ide/hdX/settings
- > > (replacing 32 with 0 disables TCQ again).
- > > Report success/failure stories to Jens Axboe <axboe@suse.de> with
- > > inclusion of hdparm -i /dev/hdX
- > 
- > ** Don't use IDE TCQ on any data you value.
-
-Ok, I'll make that a little bolder. (In fact, I'll just
-cut-n-paste your text 8-)
+James
 
 
-Thanks for the feedback. I've merged the rest of your
-comments, and will put an updated version up after
-merging everyone elses feedback too 8-)
-
-BTW: How's i2o shaping up in 2.5 ?
-
-		Dave
-
--- 
-| Dave Jones.        http://www.codemonkey.org.uk

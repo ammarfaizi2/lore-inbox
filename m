@@ -1,50 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264945AbSLBFtr>; Mon, 2 Dec 2002 00:49:47 -0500
+	id <S265154AbSLBGMk>; Mon, 2 Dec 2002 01:12:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264954AbSLBFtr>; Mon, 2 Dec 2002 00:49:47 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:27910 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S264945AbSLBFtp>;
-	Mon, 2 Dec 2002 00:49:45 -0500
-Date: Sun, 1 Dec 2002 22:57:37 -0800
-From: Greg KH <greg@kroah.com>
-To: James Morris <jmorris@intercode.com.au>
-Cc: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>,
-       linux-security-module@wirex.com, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] LSM fix for stupid "empty" functions
-Message-ID: <20021202065736.GA11477@kroah.com>
-References: <20021201192532.GA9278@kroah.com> <Mutt.LNX.4.44.0212021248290.20929-100000@blackbird.intercode.com.au>
+	id <S265169AbSLBGMk>; Mon, 2 Dec 2002 01:12:40 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:24767 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S265154AbSLBGMj>;
+	Mon, 2 Dec 2002 01:12:39 -0500
+Date: Sun, 01 Dec 2002 22:17:39 -0800 (PST)
+Message-Id: <20021201.221739.22504898.davem@redhat.com>
+To: sfr@canb.auug.org.au
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org, anton@samba.org,
+       ak@muc.de, davidm@hpl.hp.com, schwidefsky@de.ibm.com, ralf@gnu.org,
+       willy@debian.org
+Subject: Re: [PATCH] Start of compat32.h (again)
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20021202155729.55949b10.sfr@canb.auug.org.au>
+References: <Pine.LNX.4.44.0212011047440.12964-100000@home.transmeta.com>
+	<1038804400.4411.4.camel@rth.ninka.net>
+	<20021202155729.55949b10.sfr@canb.auug.org.au>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Mutt.LNX.4.44.0212021248290.20929-100000@blackbird.intercode.com.au>
-User-Agent: Mutt/1.4i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 02, 2002 at 01:00:27PM +1100, James Morris wrote:
-> On Sun, 1 Dec 2002, Greg KH wrote:
-> 
-> > > I think we still want to make sure that the module author has explicitly
-> > > accounted for all of the hooks, in case new hooks are added.
-> > 
-> > But with this patch, if the module author hasn't specified a hook, they
-> > get the "dummy" ones.  So the structure should always be full of
-> > pointers, making the VERIFY_STRUCT macro pointless.
-> 
-> Yes, but defaulting unspecified hooks to dummy operations could be
-> dangerous.  A module might appear to compile and run perfectly well, but 
-> be missing some important new hook.
+   From: Stephen Rothwell <sfr@canb.auug.org.au>
+   Date: Mon, 2 Dec 2002 15:57:29 +1100
+   
+   On 01 Dec 2002 20:46:40 -0800 "David S. Miller" <davem@redhat.com> wrote:
+   >
+   > On Sun, 2002-12-01 at 10:54, Linus Torvalds wrote:
+   > > But if the file is in kernel/xxxx, it 
+   > > will be noticed - at least as well as it would be if it was uglifying 
+   > > regular files with #ifdef's.
+   > 
+   > Ok, this I accept.
+   
+   So, does this mean you are happy if I produce patches with kernel/compat.c
+   in them rather than code #ifdef'ed into the mainline? This, of course,
+   begs the question of whether it should all go into kernel/compat.c or
+   should there be an fs/compat.c, mm/compat.c ...
 
-One could argue that a "important new hook" would provide a sane dummy
-operation, or that if the module doesn't need it, why would it want to
-provide it?  :)
+Yes, I'm fine with it.
 
-Anyway, there's no way to resolve both this percieved problem, and the
-"smaller and easier" patch that I proposed, right?  Unless we want to
-export all dummy operation functions for all modules to use?  I could do
-that, but it's pretty messy...
+My personal take on the next issue is that I do believe we should
+have fs/compat.c et al.
 
-thanks,
-
-greg k-h
+But for you initial patch, just put it into kernel/compat.c

@@ -1,67 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284210AbRLASO5>; Sat, 1 Dec 2001 13:14:57 -0500
+	id <S284191AbRLASPS>; Sat, 1 Dec 2001 13:15:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284196AbRLASOr>; Sat, 1 Dec 2001 13:14:47 -0500
-Received: from yellow.csi.cam.ac.uk ([131.111.8.67]:52477 "EHLO
-	yellow.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S284203AbRLASO3>; Sat, 1 Dec 2001 13:14:29 -0500
-Message-Id: <5.1.0.14.2.20011201181316.00b0a400@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Sat, 01 Dec 2001 18:14:16 +0000
-To: "H. Peter Anvin" <hpa@zytor.com>
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: Incremental prepatches
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3C089BDB.4020801@zytor.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S284189AbRLASPI>; Sat, 1 Dec 2001 13:15:08 -0500
+Received: from cs6669235-16.austin.rr.com ([66.69.235.16]:33664 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S284188AbRLASO6>; Sat, 1 Dec 2001 13:14:58 -0500
+Date: Sat, 1 Dec 2001 12:14:47 -0600 (CST)
+From: Erik Elmore <lk@bigsexymo.com>
+X-X-Sender: <lk@localhost.localdomain>
+To: Mike Fedyk <mfedyk@matchmail.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: EXT3 - freeze ups during disk writes
+In-Reply-To: <20011130235414.E489@mikef-linux.matchmail.com>
+Message-ID: <Pine.LNX.4.33.0112011209190.3893-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 08:59 01/12/01, H. Peter Anvin wrote:
->I have created a robot on kernel.org which makes incremental prepatches 
->available.
+ahhhh... woops... every official kernel since ext3 made it into the 
+official tree, 2.4.14 if memory serves.  I'm using gcc 2.95.3.  And to 
+clarify the bug, say on a large disk write, the pause isn't constant, 
+it just pauses for a second every few seconds during the write.  For 
+smaller writes, it will pause only once, I assume while performing the 
+actual write to disk.
 
-Fantastic! Thanks! Finally I can stop doing the diffs myself. (-:
+Erik
 
-Best regards,
 
-         Anton
+On Fri, 30 Nov 2001, Mike Fedyk wrote:
 
->It looks for standard-named prepatches in the 
->/pub/linux/kernel/v*.*/testing directories, and creates incrementals in 
->the corresponding /pub/linux/kernel/v*.*/testing/incr directory.
->
->For example:
->
->hera 86 % cd /pub/linux/kernel/v2.5/testing/incr/
->hera 87 % ls -l *.gz
->-rw-rw-r--    1 kdist    kernel     177158 Nov 27 10:17 
->patch-2.5.1-pre1-pre2.gz
->-rw-rw-r--    1 kdist    kernel     102202 Nov 28 15:35 
->patch-2.5.1-pre2-pre3.gz
->-rw-rw-r--    1 kdist    kernel      52955 Nov 29 15:29 
->patch-2.5.1-pre3-pre4.gz
->-rw-rw-r--    1 kdist    kernel      53616 Nov 30 17:04 
->patch-2.5.1-pre4-pre5.gz
->
->The naming and function of the patches should be obvious.
->
->.bz2 and .sign files are available too, of course.
->
->         -hpa
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
-
--- 
-   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+> On Sat, Dec 01, 2001 at 12:47:19AM -0600, Erik Elmore wrote:
+> > Ever since I started using ext3fs, whenever there is a disk write, the 
+> > kernel sucks up all of the CPU thereby preempting everything and causing 
+> > the PC to freeze momentarily.  Could this possibly be caused by the 
+> > journaling code in ext3?
+> > 
+> 
+> You really need to give kernel version, gcc version and what things were
+> happening at the time.
+> 
+> I can think of five different things that this general description has
+> brought up.
+> 
+> mf
+> 
 

@@ -1,46 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277333AbRJJR0P>; Wed, 10 Oct 2001 13:26:15 -0400
+	id <S277330AbRJJR06>; Wed, 10 Oct 2001 13:26:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277331AbRJJR0F>; Wed, 10 Oct 2001 13:26:05 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:22803 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S277330AbRJJRZv>; Wed, 10 Oct 2001 13:25:51 -0400
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: [Lse-tech] Re: RFC: patch to allow lock-free traversal of lists with insertion
-Date: Wed, 10 Oct 2001 17:25:22 +0000 (UTC)
-Organization: Transmeta Corporation
-Message-ID: <9q20a2$2cg$1@penguin.transmeta.com>
-In-Reply-To: <OF206EE8AA.7A83A16B-ON88256AE1.005467E3@boulder.ibm.com> <20011010185848.D726@athlon.random>
-X-Trace: palladium.transmeta.com 1002734779 8510 127.0.0.1 (10 Oct 2001 17:26:19 GMT)
-X-Complaints-To: news@transmeta.com
-NNTP-Posting-Date: 10 Oct 2001 17:26:19 GMT
-Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
-X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
+	id <S277331AbRJJR0p>; Wed, 10 Oct 2001 13:26:45 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:31240 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S277330AbRJJR0c>; Wed, 10 Oct 2001 13:26:32 -0400
+Subject: Re: Tainted Modules Help Notices
+To: viro@math.psu.edu (Alexander Viro)
+Date: Wed, 10 Oct 2001 18:30:46 +0100 (BST)
+Cc: kaos@ocs.com.au (Keith Owens), dwmw2@infradead.org (David Woodhouse),
+        sirmorcant@morcant.org (Morgan Collins [Ax0n]),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.GSO.4.21.0110100956420.17790-100000@weyl.math.psu.edu> from "Alexander Viro" at Oct 10, 2001 09:59:01 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15rNBu-0008To-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20011010185848.D726@athlon.random>,
-Andrea Arcangeli  <andrea@suse.de> wrote:
->
->However the more I think about it the more I suspect we'd better use
->rmb() in all readers in the common code
+> What the hell?  BSD without advertisement clause had always been
+> GPL-compatible.
 
-Absolutely.  It's not that expensive an operation on sane hardware.  And
-it's definitely conceptually the only right thing to do - we're saying
-that we're doing a read that depends on a previous read having seen
-previous memory.  Ergo, "rmb()". 
+Subject to patent holdings. If you hold a patent on the BSD code you can't
+GPL it nor is it GPL compatible. 
 
-Of course, right now Linux only exports a subset of the potential memory
-barriers, and maybe we should export a fuller set - allowing CPU's that
-have stricter ordering to possibly make it a no-op.  But thinking about
-even something like x86, I don't see where Intel would guarantee that
-two reads (data-dependent or not) would have some implicit memory
-ordering. 
+The problem we have is that "BSD without advertisment" can be claimed by
+almost any binary only module whose author doesnt include source or let
+it out fo their company ever
 
-Re-ordering reads with data dependencies is hard, but it happens quite
-naturally in a CPU that does address speculation. I don't know of
-anybody who does that, but I bet _somebody_ will. Maybe even the P4?
-
-			Linus

@@ -1,45 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272002AbRHVNop>; Wed, 22 Aug 2001 09:44:45 -0400
+	id <S271641AbRHVNlE>; Wed, 22 Aug 2001 09:41:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272009AbRHVNof>; Wed, 22 Aug 2001 09:44:35 -0400
-Received: from borg.org ([208.218.135.231]:8722 "HELO borg.org")
-	by vger.kernel.org with SMTP id <S272002AbRHVNo0>;
-	Wed, 22 Aug 2001 09:44:26 -0400
-Date: Wed, 22 Aug 2001 09:44:40 -0400
-From: Kent Borg <kentborg@borg.org>
-To: linux-kernel@vger.kernel.org
-Subject: State of PPC in kernel.org Sources?
-Message-ID: <20010822094440.B11350@borg.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S272002AbRHVNky>; Wed, 22 Aug 2001 09:40:54 -0400
+Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:50701 "EHLO
+	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
+	id <S271641AbRHVNkt>; Wed, 22 Aug 2001 09:40:49 -0400
+Date: Wed, 22 Aug 2001 08:41:00 -0500 (CDT)
+From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Message-Id: <200108221341.IAA35277@tomcat.admin.navo.hpc.mil>
+To: VDA@port.imtp.ilyichevsk.odessa.ua, linux-kernel@vger.kernel.org
+Subject: Re: Could NFS daemons be started via inetd?
+X-Mailer: [XMailTool v3.1.2b]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-What is the state of Power PC support in Linus' kernels?  What about
-in -ac kernels?  
+VDA <VDA@port.imtp.ilyichevsk.odessa.ua>:
+> Hi,
+> 
+> I am setting up NFS on my Linux box.
+> When I start server daemons from init scripts or by hand,
+> everything is working fine.
+> 
+> I tried to arrange these daemons to be run by inetd
+> but after I issue an NFS mount command inetd starts spawning
+> tons on rpc.mountd daemons. Log is filled with:
+> rpc.mountd[179]: connect from 127.0.0.1
+> rpc.mountd[180]: connect from 127.0.0.1
+> ...
+> and load average goes up (went up to 40)
+> I repeatedly killall'ed rpc.mountd and eventually inetd
+> noticed failing service and disabled it.
+> 
+> Does anybody tried this? If you do, I am very interested in your
+> inetd.conf and/or NFS part of startup script. Mine is:
+....
 
-I have noticed some recent PPC work in summaries of recent -ac kernels
-and wonder how intact it is.  Are they merges to keep PPC forks from
-drifting too far?  Are they merges to make furture back-ports from
-kernel.org to PPC forks easier?  Are they actually complete in and of
-themselves but lagging PPC forks?  (What about 405 support?  I think I
-see evidence of recent 405 activity in 2.4.8-ac4...)
+Simple answer - no.
 
-I would love a short descreiption of the shape of this stuff.  What
-work happens where and how and when it moves elsewhere would be great
-to understand.  
+The reason it can't is in two parts:
 
-Thanks a bunch,
+1. these daemons create their own socket rather than recieving one
+   from inetd.
+2. The daemons must connect to rpcbind or portmap. Usually this daemon
+   is not running at the time inetd is started.
 
+The nfs daemon actually starts multiple daemons (it forks up to n servers
+for "optimum" client support). Each server daemon may be servicing a
+different client (or even the same client, different request). I have
+seen performance improvements (NOT on a Linux server...) of one server
+for each mount on each client (up to 18-25 servers).
 
--kb, the new-at-this Kent who is working on a 405GP right now, but who
-will possibly be moving to a different architecture soon and doesn't
-want to be in a PPC-specific ghetto.
+These daemons must run all the time or performance will be REALLY bad. Each
+connection may request ~ 8K bytes of data. 
 
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
 
-P.S.  A terse "Use kernel blah-blah." isn't very useful.  We have a
-working kernel already.  I am trying to understand what comes from
-where, where it goes, how often, how completely, etc.
+Any opinions expressed are solely my own.

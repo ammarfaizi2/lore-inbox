@@ -1,156 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291520AbSBHKDV>; Fri, 8 Feb 2002 05:03:21 -0500
+	id <S291522AbSBHKDb>; Fri, 8 Feb 2002 05:03:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291525AbSBHKDN>; Fri, 8 Feb 2002 05:03:13 -0500
-Received: from coruscant.franken.de ([193.174.159.226]:10122 "EHLO
-	coruscant.gnumonks.org") by vger.kernel.org with ESMTP
-	id <S291520AbSBHKDB>; Fri, 8 Feb 2002 05:03:01 -0500
-Date: Fri, 8 Feb 2002 10:55:48 +0100
-From: Harald Welte <laforge@gnumonks.org>
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org, netfilter-devel@lists.samba.org,
-        stelian.pop@fr.alcove.com, hpa@zytor.com
-Subject: [SOLUTION] Re: Fw: 2.4.18-pre9: iptables screwed?
-Message-ID: <20020208105548.P26676@sunbeam.de.gnumonks.org>
-Mail-Followup-To: Harald Welte <laforge@gnumonks.org>,
-	"David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
-	netfilter-devel@lists.samba.org, stelian.pop@fr.alcove.com,
-	hpa@zytor.com
-In-Reply-To: <20020208.010839.112626203.davem@redhat.com>
+	id <S291525AbSBHKDW>; Fri, 8 Feb 2002 05:03:22 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:6966 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S291522AbSBHKDO>; Fri, 8 Feb 2002 05:03:14 -0500
+Date: Fri, 8 Feb 2002 11:04:22 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: linux-kernel@vger.kernel.org
+Subject: 2.2.21pre2aa1
+Message-ID: <20020208110422.E10496@athlon.random>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <20020208.010839.112626203.davem@redhat.com>; from davem@redhat.com on Fri, Feb 08, 2002 at 01:08:39AM -0800
-X-Operating-System: Linux sunbeam.de.gnumonks.org 2.4.17
-X-Date: Today is Pungenday, the 28th day of Chaos in the YOLD 3168
+User-Agent: Mutt/1.3.22.1i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 08, 2002 at 01:08:39AM -0800, David Miller wrote:
+URL:
 
-> Stelian has analyzed the bug already.
+	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.2/2.2.21pre2aa1.gz
+	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.2/2.2.21pre2aa1/
 
-This is strange.
+Only in 2.2.20aa1: 00_PIII-11.bz2
+Only in 2.2.21pre2aa1: 00_PIII-12.gz
 
-> From: Stelian Pop <stelian.pop@fr.alcove.com>
-> To: "H. Peter Anvin" <hpa@zytor.com>
-> Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-> Subject: Re: 2.4.18-pre9: iptables screwed?
-> Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
-> In-Reply-To: <a3vjts$r7l$1@cesium.transmeta.com>
-> 
-> On Thu, Feb 07, 2002 at 08:24:28PM -0800, H. Peter Anvin wrote:
-> 
-> > I get the following error with iptables on 2.4.18-pre9:
-> > 
-> > sudo iptables-restore < /etc/sysconfig/iptables
-> > iptables-restore: libiptc/libip4tc.c:384: do_check: Assertion
-> > `h->info.valid_hooks == (1 << 0 | 1 << 3)' failed.
-> > Abort (core dumped)
+	Dediffed due rejects.
 
-The code you are quoting is only defined if debugging is compiled into 
-the iptables package. The default distribution of the iptables package
-does _not_ ship with debugging enabled.
+Only in 2.2.20aa1: 00_SIGIO-reason-2.bz2
+Only in 2.2.21pre2aa1: 00_SIGIO-reason-2.gz
+Only in 2.2.20aa1: 00_SMP-scheduler-2.2.18pre21-H.bz2
+Only in 2.2.21pre2aa1: 00_SMP-scheduler-2.2.18pre21-H.gz
+Only in 2.2.20aa1: 10_bigmem-2.2.20pre10aa1-22.bz2
+Only in 2.2.21pre2aa1: 10_bigmem-2.2.20pre10aa1-22.gz
+Only in 2.2.20aa1: 13_rawio-2.2.19aa2-9.bz2
+Only in 2.2.21pre2aa1: 13_rawio-2.2.19aa2-9.gz
+Only in 2.2.20aa1: 15_lvm-0.9.1_beta4-2.2.19pre13aa1-6.bz2
+Only in 2.2.21pre2aa1: 15_lvm-0.9.1_beta4-2.2.19pre13aa1-6.gz
+Only in 2.2.20aa1: 40_lfs-2.2.20pre10aa1-28.bz2
+Only in 2.2.21pre2aa1: 40_lfs-2.2.20pre10aa1-28.gz
+Only in 2.2.20aa1: 93_raid-2.2.18-A2_2.2.20pre2aa1-8.bz2
+Only in 2.2.21pre2aa1: 93_raid-2.2.18-A2_2.2.20pre2aa1-8.gz
+Only in 2.2.20aa1: 94_raidrebalance-2.2.18-A2_2.2.19pre3aa1-Mika-Kuoppala-1.bz2
+Only in 2.2.21pre2aa1: 94_raidrebalance-2.2.18-A2_2.2.19pre3aa1-Mika-Kuoppala-1.gz
+Only in 2.2.20aa1: 95_GFS-11_hard_panic.patch-1.bz2
+Only in 2.2.21pre2aa1: 95_GFS-11_hard_panic.patch-1.gz
+Only in 2.2.20aa1: 95_GFS-12_opaque-inode-2.bz2
+Only in 2.2.21pre2aa1: 95_GFS-12_opaque-inode-2.gz
 
-The Makefile of all iptables versions between 1.1.1 (released way before
-the linux 2.4.0 kernel came out!) and 1.2.5 (current) have the following
-line in the Makefile:
+	s/bz2/gz/
 
-COPT_FLAGS:=-O2 -DNDEBUG
+Only in 2.2.20aa1: 00_alpha-pci-compile-1
+Only in 2.2.21pre2aa1: 00_alpha-pci-compile-2
 
-reads: define no debug
+	Rediffed due rejects.
 
-> > However, if I apply the rules manually (using iptables), I have no
-> > problem; only if I'm using iptables-save or iptables-restore do I get
-> > a dump...
-> 
-> I have this since the netfilter update from pre6 or pre7...
-> 
-> It seems to be caused by a change in the logic for the mangle table:
-> the userspace tools check only for PREROUTING and OUTPUT chains
-> (the 1 << 0 | 1 << 3 check), but the kernel code was recently updated
-> to support more chains in this table (POSTROUTING etc).
+Only in 2.2.20aa1: 00_local-freelist-race-1
 
-This is true.  We introduced this change after some testing since it 
-is needed for complex policy routing scenarios. It's the so-called
-mangle5hooks.patch
+	Merged in mainline.
 
-> So it would seem that we need to have a more recent version of 
-> the userspace tools (CVS maybe, since the latest released version
-> has the same bug), or the netfilter people should check the
-> userspace tools version before introducing this kind of 
-> incompatible change.
+Only in 2.2.21pre2aa1: 00_st_blocks-1
 
-I'm running the same iptables-1.2.2 binary (compiled at a 2.4.x kernel in July
-2001) with a mangle5hooks-patch'ed linux kernel.
+	Fix for postfix on pipes from Andi.
 
-just re-checked it again:
-======================================================================
-sunbeam# rpm -qi iptables
-Name        : iptables                     Relocations: (not relocateable)
-Version     : 1.2.2                             Vendor: Conectiva
-Release     : 2cl                           Build Date: Sun 17 Jun 2001 08:17:20 PM CEST
-Install date: Thu 08 Nov 2001 01:42:57 PM CET      Build Host: mapi2.distro.conectiva
-Group       : Networking                    Source RPM: iptables-1.2.2-2cl.src.rpm
-Size        : 439232                           License: GPL
-URL         : http://netfilter.samba.org
-Summary     : Packet filtering tool for kernel-2.4.x
-Description :
-This is the packet filtering tool for kernel-2.4.x. It is much more
-advanced than ipchains and can take full advantage of the new
-features within the 2.4.x packet filtering code. It allows you to
-set up masquerading, full NAT, stateful inspection rules, etc.
-sunbeam# rpm -V iptables
-sunbeam# cat foo
-# Generated by iptables-save v1.2.2 on Fri Feb  8 10:35:05 2002
-*mangle
-:PREROUTING ACCEPT [36557505:30073123582]
-:INPUT ACCEPT [31280258:26426457730]
-:FORWARD ACCEPT [5276687:3646630572]
-:OUTPUT ACCEPT [28690202:18841029987]
-:POSTROUTING ACCEPT [34105840:22505172519]
-:knf - [0:0]
--A PREROUTING -p tcp -m tcp --dport 25 -j knf 
--A PREROUTING -p tcp -m tcp --dport 6667 -j knf 
--A POSTROUTING -p tcp -m tcp --tcp-flags SYN,RST,ACK SYN -j TCPMSS --clamp-mss-to-pmtu 
--A knf -j MARK --set-mark 0xa 
-COMMIT
-sunbeam# iptables-restore < foo
-sunbeam# iptables -t nat -L -n
-Chain PREROUTING (policy ACCEPT)
-target     prot opt source               destination         
+Only in 2.2.21pre2aa1: 98_page-coloring-1
 
-Chain POSTROUTING (policy ACCEPT)
-target     prot opt source               destination         
-MASQUERADE  all  --  192.168.100.0/24     0.0.0.0/0          
-MASQUERADE  all  --  192.168.101.0/24     0.0.0.0/0          
+	Perfect static page coloring implementation. I extracted the O(1)
+	engine implemented within the page allocator from a patch
+	written by Jason Papadopoulos, that was a very nice piece of code.
+	Such patch was implementing a per-process dynamic page coloring, this
+	instead is static page coloring, it colors anonymous ram, shm (during
+	page faults), pagecache in function of the virtual address in ->nopage,
+	and pagecache in function of the file offset/index when the pagecache
+	is allocated by read/write. It does static page coloring similarly to
+	another patch from Sebastien Cabaniols. It's a configuration option (currently
+	it must be used as a module, furthmore the module is mixed with the
+	chardevices, I didn't claned up such module thing because it doesn't matter
+	at runtime, it's all slow-path code, it's only needed to enable the
+	page-coloring code linked into the kernel, but for a 2.[45] version
+	such part needs to be cleaned up). Tested only on alpha so far but
+	it should be completly arch indipendent (btw, the L2 cache size
+	must be passed as paramter to the module, if no parameter is passed you
+	can see the selected defaults in the sourcecode, there's no
+	auto-detection of the size of the l2 cache).
 
-Chain OUTPUT (policy ACCEPT)
-target     prot opt source               destination         
-======================================================================
-
-Because it was working on several systems, we have decided to forward
-this patch to the mainstream kerel. 
-
-We always want to make sure that nobody needs to update the iptables
-package during the 2.4.x stable kernel series. Because of this (sane)
-policy, we are keeping back a whole bunch of changes.  We can't just
-silently abandon backwards compatibility.
-
-> (BTW, the quick and dirty fix for me was to hand edit 
-> /etc/sysconfig/iptables and remove all references to the mangle table,
-> since I don't use it).
-
-this is of coruse no possible 'solution'.
-
-> Stelian Pop <stelian.pop@fr.alcove.com>
-
-
--- 
-Live long and prosper
-- Harald Welte / laforge@gnumonks.org               http://www.gnumonks.org/
-============================================================================
-GCS/E/IT d- s-: a-- C+++ UL++++$ P+++ L++++$ E--- W- N++ o? K- w--- O- M+ 
-V-- PS++ PE-- Y++ PGP++ t+ 5-- !X !R tv-- b+++ !DI !D G+ e* h--- r++ y+(*)
+Andrea

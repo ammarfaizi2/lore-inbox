@@ -1,70 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265528AbUAKAmM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jan 2004 19:42:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265628AbUAKAmM
+	id S265540AbUAKAuG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jan 2004 19:50:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265628AbUAKAuG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jan 2004 19:42:12 -0500
-Received: from dire.bris.ac.uk ([137.222.10.60]:37300 "EHLO dire.bris.ac.uk")
-	by vger.kernel.org with ESMTP id S265528AbUAKAmK (ORCPT
+	Sat, 10 Jan 2004 19:50:06 -0500
+Received: from mail1.kontent.de ([81.88.34.36]:62438 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S265540AbUAKAuC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jan 2004 19:42:10 -0500
-Date: Sun, 11 Jan 2004 00:39:59 +0000 (GMT)
-From: Bart Oldeman <bartoldeman@users.sf.net>
-X-X-Sender: enbeo@enm-bo-lt.enm.bris.ac.uk
-To: linux-kernel@vger.kernel.org
-cc: akpm@osdl.org, torvalds <torvalds@osdl.org>
-Subject: [PATCH] 2.6.1 (not 2.4.24!) mremap fixes broke shm alias mappings
-Message-ID: <Pine.LNX.4.44.0401110020260.25252-100000@enm-bo-lt.enm.bris.ac.uk>
+	Sat, 10 Jan 2004 19:50:02 -0500
+From: Oliver Neukum <oliver@neukum.org>
+To: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [linux-usb-devel] Re: USB hangs
+Date: Sun, 11 Jan 2004 01:49:34 +0100
+User-Agent: KMail/1.5.1
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       USB Developers <linux-usb-devel@lists.sourceforge.net>,
+       Greg KH <greg@kroah.com>
+References: <1073779636.17720.3.camel@dhcp23.swansea.linux.org.uk> <20040111002304.GE16484@one-eyed-alien.net>
+In-Reply-To: <20040111002304.GE16484@one-eyed-alien.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200401110149.34654.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
+Am Sonntag, 11. Januar 2004 01:23 schrieb Matthew Dharm:
+> Where is USB kmalloc'ing with GFP_KERNEL?  I thought we tracked all those
+> down and eliminated them.
+> 
 
-DOSEMU needs to alias memory, for instance to emulate the HMA. A long time
-ago this was done using mmaps of /proc/self/mem. This was replaced by
-mremap combined with IPC SHM during 2.1 development.
+static int ohci_mem_init (struct ohci *ohci)
+{
+	ohci->td_cache = pci_pool_create ("ohci_td", ohci->ohci_dev,
+		sizeof (struct td),
+		32 /* byte alignment */,
+		0 /* no page-crossing issues */,
+		GFP_KERNEL | OHCI_MEM_FLAGS);
+	if (!ohci->td_cache)
+		return -ENOMEM;
+	ohci->dev_cache = pci_pool_create ("ohci_dev", ohci->ohci_dev,
+		sizeof (struct ohci_device),
+		16 /* byte alignment */,
+		0 /* no page-crossing issues */,
+		GFP_KERNEL | OHCI_MEM_FLAGS);
+	if (!ohci->dev_cache)
+		return -ENOMEM;
+	return 0;
+}
 
-According to DOSEMUs changelog you agreed to allow old_len==0:
-            - using _one_ big IPC shm segment and mremap(addr, 0 ...)
-              (Linus agreed on keeping shmat()+mremap(,0,..) functionality)
-so you agreed on something you have removed after all now!
+This one here looks dangerous.
 
-(comment in DOSEMU source)
-  /* The trick is to set old_len = 0,
-   * this won't unmap at the old address, but with
-   * shared mem the 'nopage' vm_op will map in the right
-   * pages.
-   */
-
-An example usage is as follows:
-shmget(IPC_PRIVATE, 31498240, 0x1c0|0600) = 11337732
-shmat(11337732, 0, 0)                   = 0x40299000
-shmctl(11337732, IPC_RMID, 0)           = 0
-mremap(0x402a9000, 0, 65536, MREMAP_MAYMOVE|MREMAP_FIXED, 0) = 0
-mremap(0x402a9000, 0, 65536, MREMAP_MAYMOVE|MREMAP_FIXED, 0x100000) = 0x100000
-
-The security problems only affect the case new_len==0 so I don't see any
-reason for not applying this patch.
-
-Bart
-
---- mm/mremap.c~	Sat Jan 10 19:22:39 2004
-+++ mm/mremap.c	Sun Jan 11 00:19:13 2004
-@@ -315,8 +315,11 @@
- 	old_len = PAGE_ALIGN(old_len);
- 	new_len = PAGE_ALIGN(new_len);
-
--	/* Don't allow the degenerate cases */
--	if (!old_len || !new_len)
-+	/* Don't allow the degenerate cases
-+	 * however, old_len == 0 can be used in combination with shmat()
-+	 * to create alias mappings.
-+	 */
-+	if (!new_len)
- 		goto out;
-
- 	/* new_addr is only valid if MREMAP_FIXED is specified */
+	Regards
+		Oliver
 

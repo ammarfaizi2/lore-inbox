@@ -1,68 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264704AbUGSGHI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264717AbUGSGbX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264704AbUGSGHI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jul 2004 02:07:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264717AbUGSGHI
+	id S264717AbUGSGbX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jul 2004 02:31:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264723AbUGSGbX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jul 2004 02:07:08 -0400
-Received: from fmr06.intel.com ([134.134.136.7]:25750 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S264704AbUGSGHB convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jul 2004 02:07:01 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Mon, 19 Jul 2004 02:31:23 -0400
+Received: from 24-193-79-141.nyc.rr.com ([24.193.79.141]:5893 "EHLO linux.site")
+	by vger.kernel.org with ESMTP id S264717AbUGSGbT convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jul 2004 02:31:19 -0400
+From: David Lazanja <lazanja@plasma.ap.columbia.edu>
+Organization: Columbia University
+To: "linux-kernel" <linux-kernel@vger.kernel.org>
+Subject: firewire drive / sbp2 module
+Date: Mon, 19 Jul 2004 02:31:19 -0400
+User-Agent: KMail/1.6.2
 MIME-Version: 1.0
+Content-Disposition: inline
 Content-Type: text/plain;
-	charset="us-ascii"
+  charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
-Subject: RE: Preempt Violation
-Date: Mon, 19 Jul 2004 14:06:45 +0800
-Message-ID: <3ACA40606221794F80A5670F0AF15F8403BD5605@pdsmsx403>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Preempt Violation
-Thread-Index: AcRrmFEr85aAfQoUTIG1P/mrPl07ZQBvbjaw
-From: "Zhu, Yi" <yi.zhu@intel.com>
-To: "Lee Revell" <rlrevell@joe-job.com>,
-       "Gabriel Devenyi" <devenyga@mcmaster.ca>
-Cc: <ck@vds.kolivas.org>, "linux-kernel" <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 19 Jul 2004 06:06:46.0606 (UTC) FILETIME=[928596E0:01C46D56]
+Message-Id: <200407190231.19269.lazanja@plasma.ap.columbia.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-kernel-owner@vger.kernel.org wrote:
-> On Fri, 2004-07-16 at 20:06, Gabriel Devenyi wrote:
->> This one looks particularly nasty.
->> 
->> 20ms non-preemptible critical section violated 4 ms preempt
->> threshold starting a
-> 
->> t sys_ioctl+0x42/0x260 and ending at sys_ioctl+0xbd/0x260
->> [<c015881d>] sys_ioctl+0xbd/0x260  [<c0116510>]
->> dec_preempt_count+0x110/0x120  [<c015881d>] sys_ioctl+0xbd/0x260
->> [<c0103e95>] sysenter_past_esp+0x52/0x71
-> 
-> Yes, it looks like there are serious issues with ioctl.
-> 
-> Are you using either of the recent patches to fully daemonize
-> softirqs? This should help a lot.  I am using this one:
-> 
-> http://lkml.org/lkml/2004/7/13/125
-> 
-> It applied against 2.6.8-mm1, with only one PPC-specific reject, I
-> use i386 so it doesn't matter. 
-> 
-> Here is another:
-> 
-> http://lkml.org/lkml/2004/7/13/152
-> 
-> Have not tested yet.
-> 
-> Lee
+Hello there,
 
-ioctl is called with the BKL held, which will disable preempt.
-I don't think the patch helps.
+I've been trying to use a firewire external hard drive under kernel 2.6, but 
+I'm not having much success.  I'm using a firewire pcmcia card by Belkin
+which seems to be working properly.  The drive worked with this firewire card 
+under kernel 2.4.twenty_something.
 
-Thanks,
--yi
+I compiled 2.6.7 using the configuration from suse's 2.6.5-7.95-default kernel 
+but still have no success.  All of the correct modules are loading.
+
+>From the kernel messages (below), it seems that sbp2 is failing.  I was 
+looking around on the list and found some others are also having problems
+with sbp2.  I'm trying to find out if this is a known general problem under 
+2.6 or if it's specific to the drive that I'm using (Buslink 80GB usb2 / 
+firewire combo).
+
+I'm using SuSE 9.1 and found on the mailing list there that some claim to have 
+success with firewire drives.  I don't know??
+
+One other thing.  I noticed that it takes maybe 20 or 40 seconds sbp2 module
+to load.  Once it loads the errors are reported but I can see the attached 
+scsi device under /proc/scsi/scsi:
+
+---
+Attached devices:
+Host: scsi4 Channel: 00 Id: 00 Lun: 00
+  Vendor: SAMSUNG  Model: SP0802N          Rev:
+  Type:   Direct-Access                    ANSI SCSI revision: 06
+---
+
+Below are the kernel messages.
+
+Any information will be greatly appreciated.
+Thanks in advance.
+
+--------------------------------
+Kernel Messages from syslog:
+--------------------------------
+
+Jul 18 23:08:50 linux kernel: sbp2: $Rev: 1219 $ Ben Collins 
+<bcollins@debian.org>
+Jul 18 23:08:50 linux kernel: scsi0 : SCSI emulation for IEEE-1394 SBP-2 
+Devices
+Jul 18 23:08:51 linux kernel: ieee1394: sbp2: Logged into SBP-2 device
+Jul 18 23:08:51 linux kernel: ieee1394: Node 0-00:1023: Max speed [S400] - Max 
+payload [2048]
+Jul 18 23:08:51 linux kernel:   Vendor: SAMSUNG   Model: SP0802N           
+Rev:
+Jul 18 23:08:51 linux kernel:   Type:   Direct-Access                      
+ANSI SCSI revision: 06
+Jul 18 23:08:51 linux kernel: SCSI device sda: 156368016 512-byte hdwr sectors 
+(80060 MB)
+Jul 18 23:08:51 linux kernel: sda: asking for cache data failed
+Jul 18 23:08:51 linux kernel: sda: assuming drive cache: write through
+Jul 18 23:09:21 linux kernel:  sda:<3>ieee1394: sbp2: aborting sbp2 command
+Jul 18 23:09:21 linux kernel: Read (10) 00 00 00 00 00 00 00 08 00
+Jul 18 23:09:31 linux kernel: ieee1394: sbp2: aborting sbp2 command
+Jul 18 23:09:31 linux kernel: Test Unit Ready 00 00 00 00 00
+Jul 18 23:09:31 linux kernel: ieee1394: sbp2: reset requested
+Jul 18 23:09:31 linux kernel: ieee1394: sbp2: Generating sbp2 fetch agent 
+reset
+Jul 18 23:09:41 linux kernel: ieee1394: sbp2: aborting sbp2 command
+Jul 18 23:09:41 linux kernel: Test Unit Ready 00 00 00 00 00
+Jul 18 23:09:41 linux kernel: ieee1394: sbp2: reset requested
+Jul 18 23:09:41 linux kernel: ieee1394: sbp2: Generating sbp2 fetch agent 
+reset
+Jul 18 23:10:01 linux kernel: ieee1394: sbp2: aborting sbp2 command
+Jul 18 23:10:01 linux kernel: Test Unit Ready 00 00 00 00 00
+Jul 18 23:10:01 linux kernel: ieee1394: sbp2: reset requested
+Jul 18 23:10:01 linux kernel: ieee1394: sbp2: Generating sbp2 fetch agent 
+reset
+Jul 18 23:10:21 linux kernel: ieee1394: sbp2: aborting sbp2 command
+Jul 18 23:10:21 linux kernel: Test Unit Ready 00 00 00 00 00
+Jul 18 23:10:21 linux kernel: scsi: Device offlined - not ready after error 
+recovery: host 0 channel 0 id 0 lun 0
+Jul 18 23:10:21 linux kernel: SCSI error : <0 0 0 0> return code = 0x50000
+Jul 18 23:10:21 linux kernel: end_request: I/O error, dev sda, sector 0
+Jul 18 23:10:21 linux kernel: Buffer I/O error on device sda, logical block 0
+Jul 18 23:10:21 linux kernel: scsi0 (0:0): rejecting I/O to offline device
+Jul 18 23:10:21 linux kernel: Buffer I/O error on device sda, logical block 0
+Jul 18 23:10:21 linux kernel: scsi0 (0:0): rejecting I/O to offline device
+Jul 18 23:10:21 linux kernel: Buffer I/O error on device sda, logical block 
+19546001
+Jul 18 23:10:21 linux kernel: scsi0 (0:0): rejecting I/O to offline device
+Jul 18 23:10:21 linux kernel: Buffer I/O error on device sda, logical block 
+19546001
+Jul 18 23:10:21 linux kernel: scsi0 (0:0): rejecting I/O to offline device
+Jul 18 23:10:21 linux kernel: Buffer I/O error on device sda, logical block 0
+Jul 18 23:10:21 linux kernel: ldm_validate_partition_table(): Disk read 
+failed.
+Jul 18 23:10:21 linux kernel:  unsupported disk (sda)
+Jul 18 23:10:21 linux kernel: scsi0 (0:0): rejecting I/O to offline device
+Jul 18 23:10:21 linux kernel: Buffer I/O error on device sda, logical block 0
+Jul 18 23:10:21 linux kernel:  unable to read partition table
+Jul 18 23:10:21 linux kernel: Attached scsi disk sda at scsi0, channel 0, id 
+0, lun 0
+Jul 18 23:10:21 linux kernel: Attached scsi generic sg0 at scsi0, channel 0, 
+id 0, lun 0,  type 0
+
+-- 
+# Department of Applied Physics and Applied Mathematics
+# Columbia University

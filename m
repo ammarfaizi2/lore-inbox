@@ -1,95 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267431AbUIOUvv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266511AbUIOUsX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267431AbUIOUvv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 16:51:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267476AbUIOUuO
+	id S266511AbUIOUsX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 16:48:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267409AbUIOUpN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 16:50:14 -0400
-Received: from fep19-0.kolumbus.fi ([193.229.0.45]:6845 "EHLO
-	fep19-app.kolumbus.fi") by vger.kernel.org with ESMTP
-	id S267429AbUIOUt1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 16:49:27 -0400
-Date: Wed, 15 Sep 2004 23:49:21 +0300 (EEST)
-From: Kai Makisara <Kai.Makisara@kolumbus.fi>
-X-X-Sender: makisara@kai.makisara.local
-To: Peter Jones <pjones@redhat.com>
-cc: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] allow root to modify raw scsi command permissions list
-In-Reply-To: <1095277740.20046.23.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.58.0409152306160.1972@kai.makisara.local>
-References: <1095173470.5728.3.camel@localhost.localdomain> 
- <Pine.LNX.4.58.0409152151190.1972@kai.makisara.local>
- <1095277740.20046.23.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 15 Sep 2004 16:45:13 -0400
+Received: from [69.25.196.29] ([69.25.196.29]:7105 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S266511AbUIOUom (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 16:44:42 -0400
+Date: Wed, 15 Sep 2004 16:41:07 -0400
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Ryan Arnold <rsa@us.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] hvc_console fix to protect hvc_write against ldisc write after hvc_close
+Message-ID: <20040915204107.GA26776@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Ryan Arnold <rsa@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <1095273835.3294.278.camel@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1095273835.3294.278.camel@localhost>
+User-Agent: Mutt/1.5.6+20040818i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 Sep 2004, Peter Jones wrote:
-
-> On Wed, 2004-09-15 at 22:14 +0300, Kai Makisara wrote:
-...
-> My patch leaves the defaults as what are currently in the kernel.  
+On Wed, Sep 15, 2004 at 01:43:55PM -0500, Ryan Arnold wrote:
+> Andrew,
 > 
-Yes but what I wanted to say the filter currently in the kernel is not 
-safe for all devices.
-
-> > I have already commented on MODE SELECT. I still think it is dangerous. 
+> Due to the tty ldisc code not stopping write operations against a driver
+> even after a tty has been closed I added a mechanism to hvc_console in
+> my previous patch to prevent this by nulling out the tty->driver_data in
+> hvc_close() but I forgot to check tty->driver_data in hvc_write(). 
+> Anton Blanchard got several oops'es from hvc_write() accessing NULL as
+> if it were a pointer to an hvc_struct usually stored in
+> tty->driver_data.
 > 
-> It's only marked as being allowed if you have write access; /dev/hda
-> usually isn't a+w, last I checked.
-> 
-I am thinking about other devices than disks. Tapes are what I know best 
-but there are also other device types (all that support SG_IO).
+> So this patch checks tty->driver_data in hvc_write() before it is used. 
+> Hopefully once Alan Cox's patch is checked in ldisc writes won't
+> continue to happen after tty closes.
 
-For tapes it is fairly common to allow users read/write permissions for 
-reading/writing tapes. MODE SELECT allows a user to mess up the drive 
-parameters so that the next user thinks it is broken. This is not the 
-purpose of giving read/write permissions in this case.
+The current (I can't speak to what Alan Cox is going to change) rules
+with tty drivers is that tty drivers are supposed to close the line
+discpline in their close routines.  That's the much safer and cleaner
+way of fixing this problem, and it is in line with what most of the
+other tty drivers are doing.
 
-> I'd actually say that this isn't suitable for CD drives.  To do CDDA
-> reads in many cases you need MODE_SELECT.  As such, CD drives should
-> have MODE_SELECT in the list of things allowed to read.  But the point
-> is that this gives control of the policy to the userland, where it
-> belongs.
-> 
-This is why I like your approach.
-
-...
-> My intent with the patch isn't really to take any stance on which
-> commands should and shouldn't be allowed.  In fact, it's quite the
-> opposite -- this allows initscripts/hotplug to install an appropriate
-> list of commands for each device.
-> 
-If you are not taking a stance, then the default list should be empty.
-The starting point must be safe and it can be relaxed. I am just trying to 
-have a safe enough starting point.
-
-In an ideal world the initscripts/hotplug scripts would be updated 
-instantaneously and the empty default would not be a problem. In the real 
-world this does not happen and we have decide how far we want to relax the 
-default security. I think this is why Linus added the filter: he wanted 
-to allow users to burn CDs without special permissions. This is why I 
-suggested that the default filter should allow the current default for 
-CDs. It is a compromise.
-
-...
-> > This could also be done in your approach. One possibility would be to 
-> > start with empty filter and call from CD/DVD registering a function that 
-> > sets the filter you currently have as default. This would be both flexible 
-> > and safe.
-> 
-> I don't want to do an empty filter, because that'll mean existing users
-> of SG_IO and such break for no real reason.  The approach my patch takes
-> is not to change *any* of the existing policy, but to enable distros to
-> change it to their hearts' content.  It's *dead* simple to make
-> initscripts and hotplug pick "correct" lists for each device.
-> 
-I don't know any other SG_IO users than CD/DVD software that try to use 
-passthrough without CAP_RAWIO. This is probably politically incorrect, but 
-no sane software developer expects to be able to send raw commands without 
-proper permissions. If this kind of security hole is present, it will be 
-plugged sooner or later.
-
--- 
-Kai
+					- Ted

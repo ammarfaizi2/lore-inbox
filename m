@@ -1,49 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131199AbQKGLOL>; Tue, 7 Nov 2000 06:14:11 -0500
+	id <S130900AbQKGLUV>; Tue, 7 Nov 2000 06:20:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131216AbQKGLOC>; Tue, 7 Nov 2000 06:14:02 -0500
-Received: from madjfppp.jazztel.es ([212.106.228.133]:20096 "EHLO looping.es")
-	by vger.kernel.org with ESMTP id <S131199AbQKGLNn>;
-	Tue, 7 Nov 2000 06:13:43 -0500
-Date: Tue, 7 Nov 2000 11:22:37 +0100
-From: Ragnar Hojland Espinosa <ragnar_hojland@eresmas.com>
-To: warp@whitestar.soark.net
-Cc: Ragnar Hojland Espinosa <ragnar@jazzfree.com>,
-        linux-kernel@vger.kernel.org, "M.H.VanLeeuwen" <vanl@megsinet.net>,
-        "CRADOCK, Christopher" <cradockc@oup.co.uk>
-Subject: Re: Linux-2.4.0-test10
-Message-ID: <20001107112237.A876@macula.net>
-In-Reply-To: <A528EB7F25A2D111838100A0C9A6E5EF068A1DBC@exc01.oup.co.uk> <3A00B8E9.D5FD12B0@megsinet.net> <20001102185706.A984@macula.net> <20001102193856.A1204@macula.net> <20001103012510.A22193@whitestar.soark.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Mailer: Mutt 0.95.6i
-In-Reply-To: <20001103012510.A22193@whitestar.soark.net>; from kernel@whitestar.soark.net on Fri, Nov 03, 2000 at 01:25:10AM -0500
-Organization: Mediocrity Naysayers Ltd
-X-Homepage: http://maculaisdeadsoimmovingit/lightside
+	id <S131219AbQKGLUM>; Tue, 7 Nov 2000 06:20:12 -0500
+Received: from ha1.rdc2.nsw.optushome.com.au ([203.164.2.50]:55994 "EHLO
+	mss.rdc2.nsw.optushome.com.au") by vger.kernel.org with ESMTP
+	id <S130900AbQKGLUF>; Tue, 7 Nov 2000 06:20:05 -0500
+Message-ID: <3A07E600.FC1E089B@optushome.com.au>
+Date: Tue, 07 Nov 2000 22:22:40 +1100
+From: Joel Beach <joelbeach@optushome.com.au>
+X-Mailer: Mozilla 4.74 [en] (X11; U; Linux 2.4.0-test10 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Slow screen redraw in 2.4.x
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 03, 2000 at 01:25:10AM -0500, kernel@whitestar.soark.net wrote:
-> > Just happened with test10, same circumstances .. font map got corrupted, and
-> > noise on the screen.  Switching back and forth from X to a vc fixed it, tho. 
-> > 
-> > Sort of amusing that it (apparently) only happens with ppp + wget ..
-> 
-> You have a voodoo3 or voodoo5 with X4, and the DRI X4 module loaded.
-> 
-> Or am I wrong?
+I've noticed noticeably slower screen refresh in 2.4.x than under the
+2.2 kernel series. It's most noticeable when running xscreensaver with
+fast scrolling patterns, or when doing opague moves of large windows.
+I'm using Xfree 4.01 and the XFree driver for the Nvidia card (not the
+Nvidia binary package).
 
-v3.. bingo :)
+This has been happening to me since the earliest 2.3.99 kernels, but it
+isn't really a very scientific observation, so I thought I'd wait and
+see if performance improved. It hasn't, so I thought I'd post it here to
+hear other people's thoughts on it.
 
--- 
-____/|  Ragnar Højland     Freedom - Linux - OpenGL      Fingerprint  94C4B
-\ o.O|                                                   2F0D27DE025BE2302C
- =(_)=  "Thou shalt not follow the NULL pointer for      104B78C56 B72F0822
-   U     chaos and madness await thee at its end."       hkp://keys.pgp.com
+Would it have anything to do with shm performance under 2.4. I read that
+Rik said that it wasn't really as good as it could be. Does that mean
+that it should be slower than under 2.2 though?
 
-Handle via comment channels only.
+Sorry for my cluelessness. Tell me to get lost if this doesn't belong
+here, or let me know what tests I should run which would give a number
+to these observations.
+
+Thanks
+
+Joel
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

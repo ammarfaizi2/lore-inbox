@@ -1,36 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262556AbSJBTte>; Wed, 2 Oct 2002 15:49:34 -0400
+	id <S262542AbSJBTr6>; Wed, 2 Oct 2002 15:47:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262558AbSJBTte>; Wed, 2 Oct 2002 15:49:34 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:42743 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S262556AbSJBTtd>;
-	Wed, 2 Oct 2002 15:49:33 -0400
-Importance: Normal
-Sensitivity: 
-Subject: 
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
-Message-ID: <OF527144DA.FA032B8F-ON85256C46.0065456B@pok.ibm.com>
-From: "Mark Peloquin" <peloquin@us.ibm.com>
-Date: Wed, 2 Oct 2002 14:58:25 -0500
-X-MIMETrack: Serialize by Router on D01ML072/01/M/IBM(Release 5.0.11  |July 29, 2002) at
- 10/02/2002 03:54:18 PM
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	id <S262556AbSJBTr6>; Wed, 2 Oct 2002 15:47:58 -0400
+Received: from smtp-out-4.wanadoo.fr ([193.252.19.23]:24517 "EHLO
+	mel-rto4.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S262542AbSJBTr6>; Wed, 2 Oct 2002 15:47:58 -0400
+Message-Id: <5.1.0.14.0.20021002134528.00b0ac50@mail.cantor.fr>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Wed, 02 Oct 2002 21:53:51 +0200
+To: linux-kernel@vger.kernel.org
+From: Philippe Finkel <pfinkel@cantor.fr>
+Subject: VIA chipsets support ?
+Mime-Version: 1.0
+Content-Type: multipart/mixed; x-avg-checked=avg-ok-19B24BEB; boundary="=======778B77F6======="
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-10-02 at 17:09, Alan Cox wrote:
-> Look at history - if such a mess got in, it would never get sorted.
+--=======778B77F6=======
+Content-Type: text/plain; x-avg-checked=avg-ok-19B24BEB; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 8bit
 
-Instead of throwing around vague statements with little
-context like "compost heap" and "such a mess", why don't
-you spell out the specific design points of EVMS that you
-disagree with. The advantages and disadvantages of
-each point can then be discussed.
+hi,
 
-Mark
+with the VIA EPIA-mini-ITX motherboards (with VIA 8601A north bridge and 
+VT8231 south bridge), when booting, the
+following message is displayed :
+	Jun 23 21:21:30 look1 kernel: Unknown bridge resource 0: assuming transparent
+	Jun 23 21:21:30 look1 kernel: Unknown bridge resource 2: assuming transparent
+	Jun 23 21:21:30 look1 kernel: PCI: Using IRQ router default [1106/0601] at 
+00:00.0
+and the local APIC is then disabled.
 
+is a VIA chipset missing in pci-irq.c 8601A (1106/0601) missing in 
+pirq_routers table in arch/i386/kernel/pci-irq.c (arch/i386pci/pci-irq.c 
+for 2.5.x)  ?
+
+I'm new to this ML and tried to give just the necessary info. if needed, I 
+can give more details ...
+
+
+Philippe Finkel
+
+--=======778B77F6=======--
 

@@ -1,124 +1,181 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288914AbSAESH0>; Sat, 5 Jan 2002 13:07:26 -0500
+	id <S288917AbSAES1O>; Sat, 5 Jan 2002 13:27:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288915AbSAESHN>; Sat, 5 Jan 2002 13:07:13 -0500
-Received: from mustard.heime.net ([194.234.65.222]:33252 "EHLO
-	mustard.heime.net") by vger.kernel.org with ESMTP
-	id <S288914AbSAESHD>; Sat, 5 Jan 2002 13:07:03 -0500
-Date: Sat, 5 Jan 2002 19:06:58 +0100 (CET)
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-To: "Leech, Christopher" <christopher.leech@intel.com>
-cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: Error loading e1000.o - symbol not found
-In-Reply-To: <BD9B60A108C4D511AAA10002A50708F22C13CF@orsmsx118.jf.intel.com>
-Message-ID: <Pine.LNX.4.30.0201051831500.10133-100000@mustard.heime.net>
+	id <S288918AbSAES1F>; Sat, 5 Jan 2002 13:27:05 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:40593 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S288917AbSAES0s>;
+	Sat, 5 Jan 2002 13:26:48 -0500
+Date: Sat, 5 Jan 2002 21:24:08 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [announce] [patch] ultra-scalable O(1) SMP and UP scheduler
+In-Reply-To: <Pine.LNX.4.40.0201041857490.937-100000@blue1.dev.mcafeelabs.com>
+Message-ID: <Pine.LNX.4.33.0201051232020.2542-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
 
-First checked for symbols, and it all looked fine.
-Then make distclean, copy back the .config file, make menuconfig, make
-dep bzImage etc.
+On Fri, 4 Jan 2002, Davide Libenzi wrote:
 
-Then it finds the card, detects speed (it's linked up with a crossed TP
-cable to a FreeBSD computer).
+> [...] but do you remember 4 years ago when i posted the priority queue
+> patch what you did say ? You said, just in case you do not remember,
+> that the load average over a single CPU even for high loaded servers
+> is typically lower than 5.
 
-Well... It can't connect to the network, neither the Gbps network between
-the two, or on lower speed. Not even the normal network.
+yep, this might have been the case 4 years ago :) But i'd not be ashamed
+to change my opinion even if i had said it just a few months ago.
 
-Is this a know error?
+Today we have things like the slashdot effect that will break down
+otherwise healthy and well-sized systems. People have started working
+around things by designing servers that run only a limited number of
+processes, but the fact is, why should we restrict application maker's
+choice of design, especially if they are often interested in robustness
+more than in the last bit of performance. There are a fair number of
+real-world application servers that start to suffer under Linux if put
+under realistic load.
 
-Btw: The latest patch, patch_v3681, is an image file. Is this right? :-)
+> Yes, 70% of the cost of a context switch is switch-mm, and this
+> measured with a cycle counter. [...]
 
-$ file patch_v3681
-patch_v3681: PC bitmap data, Windows 3.x format, 61 x 47 x 8
+two-process context switch times under the O(1) scheduler did not get
+slower.
 
+> Take a look at this if you do not believe :
 
-roy
+In fact it's the cr3 switch (movl %0, %%cr3) that accounts for about 30%
+of the context switch cost. On x86. On other architectures it's often
+much, much cheaper.
 
-# grep _mmx_memcpy /proc/ksyms
-c0288ee0 _mmx_memcpy_R__ver__mmx_memcpy
+> More, you removed the MM affinity test that, i agree that is not
+> always successful, but even if it's able to correctly predict 50% of
+> the reschedules, [...]
 
-# grep _mmx_memcpy /usr/src/linux/include/linux/modules/i386_ksyms.ver
-#define __ver__mmx_memcpy       15670e2d
-#define _mmx_memcpy     _set_ver(_mmx_memcpy)
+you must be living on a different planet if you say that the p->mm test in
+goodness() matters in 50% of the reschedules. In my traces it was more
+like 1% of the cases or less, so i removed it as insignificant factor
+causing significant complexity. Please quote the specific workload/test i
+should try, where you think the mm test matters.
 
-# objdump -r /usr/src/e1000-3.6.8/src/e1000.o | grep _mmx_memcpy
-000012f5 R_386_PC32        _mmx_memcpy
-0000132c R_386_PC32        _mmx_memcpy
-00002d4b R_386_PC32        _mmx_memcpy
-00002d85 R_386_PC32        _mmx_memcpy
+> Lets come at the code. Have you ever tried to measure the context
+> switch times for standard tasks when there's an RT tasks running ?
 
+the current RT scheduling scheme was a conscious choice. *If* a RT task is
+running (which just doesnt happen in 99.999% of the time) then scalability
+becomes much less important, and scheduling latency is the only and
+commanding factor.
 
-On Fri, 4 Jan 2002, Leech, Christopher wrote:
+> You basically broadcast IPIs with all other CPUs falling down to get
+> the whole lock set. [...]
 
-> Based on there being only one symbol mismatch, I think the correct headers
-> are being used.  If you're worried about that, you can pass in the location
-> of the kernel source when building e1000 with a KSRC variable (make
-> KSRC=/usr/src/linux or wherever the kernel tree is).
+oh yes. *If* a RT task becomes runnable then i *want* all other CPUs drop
+all the work they have as soon as possible and go try to run that
+over-important RT task. It doesnt matter whether it's SMP-affine, and it
+doesnt matter whether it's scalable. RT is about latency of action,
+nothing else. RT is about a robot arm having to stop in 100 msecs or the
+product gets physically damaged.
+
+this method of 'global RT tasks' has the following practical advantage: it
+reduces the statistical scheduling latency of RT tasks better than any
+other solution, because the scheduler *cannot* know in advance which CPU
+will be able to get the RT task first. Think about it, what if the CPU,
+that appears to be the least busy for the scheduler, happens to be
+spinning within some critical section? The best method is to let every CPU
+go into the scheduler as fast as possible, and let the fastest one win.
+
+George Anzinger @ Montavista has suggested the following extension to this
+concept: besides having such global RT tasks, for some RT usages it makes
+sense to have per-CPU 'affine' RT tasks. I think that makes alot of sense
+as well, because if you care more about scalability than latencies, then
+you can still flag your process to be 'CPU affine RT task', which wont be
+included in the global queue, and thus you wont see the global locking
+overhead and 'CPUs racing to run RT tasks'. I have reserved some priority
+bitspace for such purposes.
+
+> static inline void update_sleep_avg_deactivate(task_t *p)
+> {
+>     unsigned int idx;
+>     unsigned long j = jiffies, last_sample = p->run_timestamp / HZ,
+>         curr_sample = j / HZ, delta = curr_sample - last_sample;
 >
-> Is it possible that some stale symbol version information was left from a
-> previous kernel build, maybe from before a patch was applied?  In order to
-> fully clean out the symbol versions I would try saving a copy of your
-> .config, then do a "make mrproper" instead of "make clean", then move the
-> .config back and run the normal make dep bzImage modules.
->
-> It should be easy enough to see if this is the problem, just check the
-> symbol version string for _mmx_memcpy in the kernel, the e1000 module, and
-> in the kernel source tree.
->
->   running kernel : grep _mmx_memcpy /proc/ksyms
->   kernel source  : grep _mmx_memcpy include/linux/modules/i386_ksyms.ver
->   e1000 module   : objdump -r e1000.o | grep _mmx_memcpy
->
-> All three should match ... but I'm guessing that in your case they don't.
-> If your kernel and the i386_ksyms.ver file don't agree on the symbol
-> version, the "make mrproper" idea should help.  If e1000 is the odd man out,
-> we'll have to keep looking for something else.
->
-> I was able to build a kernel with your configuration, then build e1000
-> against it and run depmod using System.map.  However, I didn't actually try
-> running the kernel as I don't have any AMD systems.
->
-> - Chris Leech <christopher.leech@intel.com>
->
->
-> Roy Sigurd Karlsbakk wrote:
->
-> > I know this might be the wrong place, as the e1000 driver is custom made
-> > by Intel, but I hope there's an easy way to fix it.
-> >
-> > After building a new 2.4.17 kernel with mjc1 and tux patches, I compile
-> > the intel e1000 driver (downloaded from
-> >
-> http://downloadfinder.intel.com//scripts-df/Detail_Desc.asp?ProductID=749&Dw
-> nldID=2897 \
-> > ).
-> >
-> > When trying to insmod the driver, I get the following errors:
-> >
-> > /lib/modules/2.4.17-srv3/kernel/drivers/net/e1000.o: unresolved symbol
-> _mmx_memcpy
-> > /lib/modules/2.4.17-srv3/kernel/drivers/net/e1000.o: insmod \
-> > /lib/modules/2.4.17-srv3/kernel/drivers/net/e1000.o failed \
-> > /lib/modules/2.4.17-srv3/kernel/drivers/net/e1000.o: insmod e1000 failed
-> >
-> > What's this? Is _mmx_memcpy only valid on Intel architecture? Does Athlon
-> > have any equivalent system call?
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+>     if (delta) {
+[...]
 
---
-Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
+> If you scale down to seconds with /HZ, delta will be 99.99% of cases
+> zero. How much do you think a task will run 1-3 seconds ?!?
 
-Computers are like air conditioners.
-They stop working when you open Windows.
+i have to say that you apparently do not understand the code. Please check
+it out again, it does not do what you think it does. The code measures the
+portion of time the task spends in the runqueue. Eg. a fully CPU-bound
+task spends 100% of its time on the runqueue. A task that is sleeping
+spends 0% of its time on the runqueue. A task that does some real work and
+goes on and off the runqueue will have a 'runqueue percentage value'
+somewhere between the two. The load estimator in the O(1) scheduler
+measures this value based on a 4-entry, 4 seconds 'runqueue history'. The
+scheduler uses this percentage value to decide whether a task is
+'interactive' or a 'CPU hog'. But you do not have to take my word for it,
+check out the code and prove me wrong.
+
+> You basically shortened the schedule() path by adding more code on the
+> wakeup() path. This :
+
+would you mind proving this claim with hard numbers? I *have* put up hard
+numbers, but i dont see measurements in your post. I was very careful
+about not making wakeup() more expensive at the expense of schedule(). The
+load estimator was written and tuned carefully, and eg. on UP, switching
+just 2 tasks (lat_ctx -s 0 2), the O(1) scheduler is as fast as the
+2.5.2-pre6/pre7 scheduler. It also brings additional benefits of improved
+interactiveness detection, which i'd be willing to pay the price for even
+if it made scheduling slightly more expensive. (which it doesnt.)
+
+> with a runqueue balance done at every timer tick.
+
+please prove that this has any measurable performance impact. Right now
+the load-balancer is a bit over-eager trying to balance work - in the -A2
+patch i've relaxed this a bit.
+
+if you check out the code then you'll see that the load-balancer has been
+designed to be scalable and SMP-friendly as well: ie. it does not lock
+other runqueues while it checks the statistics, so it does not create
+interlocking traffic. It only goes and locks other runqueues *if* it finds
+an imbalance. Ie., under this design, it's perfectly OK to run the load
+balancer 100 times a second, because there wont be much overhead unless
+there is heavy runqueue activity.
+
+(in my current codebase i've changed the load-balancer to be called with a
+maximum frequency of 100 - eg. if HZ is set to 1000 then we still call the
+load balancer only 100 times a second.)
+
+> Another thing that i'd like to let you note is that with the current
+> 2.5.2-preX scheduler the recalculation loop is no more a problem
+> because it's done only for running tasks and the lock switch between
+> task_list and runqueue has been removed. [...]
+
+all the comparisons i did and descriptions i made were based on the
+current 2.5.2-pre6/pre7 scheduler. The benchmarks i did were against
+2.5.2-pre6 that has the latest code. But to make the comparison more fair,
+i'd like to ask you to compare your multiqueue scheduler patch against the
+O(1) scheduler, and post your results here.
+
+and yes, the goodness() loop does matter very much. I have fixed this, and
+unless you can point out practical disadvantages i dont understand your
+point.
+
+fact is, scheduler design does matter when things are turning for the
+worse, when your website gets a sudden spike of hits and you still want to
+use the system's resources to handle (and thus decrease) the load and not
+waste it on things like goodness loops which will only make the situation
+worse. There is no system that cannot be overloaded, but there is a big
+difference between handling overloads gracefully and trying to cope with
+load spikes or falling flat on our face spending 90% of our time in the
+scheduler. This is why i think it's a good idea to have an O(1)
+scheduler.
+
+	Ingo
 

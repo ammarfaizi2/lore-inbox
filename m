@@ -1,52 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265768AbUFSDtY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265785AbUFSDuY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265768AbUFSDtY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 23:49:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265785AbUFSDtY
+	id S265785AbUFSDuY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 23:50:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265809AbUFSDuY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 23:49:24 -0400
-Received: from mail022.syd.optusnet.com.au ([211.29.132.100]:19886 "EHLO
-	mail022.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S265768AbUFSDtX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 23:49:23 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Subject: Re: 2.6.7-ck1
-Date: Sat, 19 Jun 2004 13:48:57 +1000
-User-Agent: KMail/1.6.1
-Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-References: <200406162122.51430.kernel@kolivas.org> <1087576093.2057.1.camel@teapot.felipe-alfaro.com>
-In-Reply-To: <1087576093.2057.1.camel@teapot.felipe-alfaro.com>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Fri, 18 Jun 2004 23:50:24 -0400
+Received: from stat1.steeleye.com ([65.114.3.130]:58283 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S265785AbUFSDuK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 23:50:10 -0400
+Subject: Re: DMA API issues
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: Ian Molton <spyro@f2s.com>
+Cc: david-b@pacbell.net, Linux Kernel <linux-kernel@vger.kernel.org>,
+       greg@kroah.com, tony@atomide.com, jamey.hicks@hp.com,
+       joshua@joshuawise.com
+In-Reply-To: <20040619011416.64d16c4e.spyro@f2s.com>
+References: <1087582845.1752.107.camel@mulgrave>
+	<20040618193544.48b88771.spyro@f2s.com>
+	<1087584769.2134.119.camel@mulgrave>
+	<20040618195721.0cf43ec2.spyro@f2s.com> <40D34078.5060909@pacbell.net>
+	<20040618204438.35278560.spyro@f2s.com>
+	<1087588627.2134.155.camel@mulgrave>
+	<20040619002522.0c0d8e51.spyro@f2s.com>
+	<1087601363.2078.208.camel@mulgrave>
+	<20040619005106.15b8c393.spyro@f2s.com>
+	<1087603453.2135.224.camel@mulgrave> 
+	<20040619011416.64d16c4e.spyro@f2s.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <200406191348.57383.kernel@kolivas.org>
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 18 Jun 2004 22:49:49 -0500
+Message-Id: <1087616990.2078.240.camel@mulgrave>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 19 Jun 2004 02:28, Felipe Alfaro Solana wrote:
-> On Wed, 2004-06-16 at 21:22 +1000, Con Kolivas wrote:
-> > -----BEGIN PGP SIGNED MESSAGE-----
-> > Hash: SHA1
-> >
-> > Patchset update. The focus of this patchset is on system responsiveness
-> > with emphasis on desktops, but the scope of scheduler changes now makes
-> > this patch suitable to servers as well.
->
-> I've found some interaction problems between, what I think it's, the
-> staircase scheduler and swsusp. With vanilla 2.6.7, swsusp is able to
-> save ~9000 pages to disk in less than 5 seconds, where as 2.6.7-ck1
-> takes more than 1 minute to save the same amount of pages when
-> suspending to disk.
+On Fri, 2004-06-18 at 19:14, Ian Molton wrote:
+> On 18 Jun 2004 19:04:11 -0500
+> James Bottomley <James.Bottomley@SteelEye.com> wrote:
+> 
+> > Because the piece of memory you wish to access is bus remote. 
+> 
+> No, its *not*
+> 
+> my CPU can write there directly.
+> 
+> no strings attached.
+> 
+> the DMA API just only understands how to map from RAM, not anything
+> else.
 
-If you're using -ck1 it may even be the autoswappiness. Try disabling that and 
-setting a static value for swappiness. If it still exhibits the problem then 
-it's probably a bug somewhere in staircase. While the overall design is 
-finished (it doesn't really lend itself to tuning), surely there are bugs I 
-haven't sorted out even though there are no serious bugs or stability issues 
-that have come up. I'm auditing the code as we speak.
+I think you'll actually find that it is.  OHCI is a device (representing
+a USB hub), it's attached to the system by some interface that
+constitutes a bus (the bus interface transforming the CPU access cycles
+to device access cycles, translating interrupts etc.).
 
-Thanks.
-Con
+But even if you've somehow managed to glue an OHCI directly on to the
+system memory controller, from the point of view of the DMA API, the
+memory the device contains is still bus remote.  To be useful, the API
+has to deal with bus remote memory in all its forms.
+
+James
+
+

@@ -1,75 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129790AbRAKPW5>; Thu, 11 Jan 2001 10:22:57 -0500
+	id <S129790AbRAKP2T>; Thu, 11 Jan 2001 10:28:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129927AbRAKPWq>; Thu, 11 Jan 2001 10:22:46 -0500
-Received: from e56090.upc-e.chello.nl ([213.93.56.90]:44295 "EHLO unternet.org")
-	by vger.kernel.org with ESMTP id <S129790AbRAKPW1>;
-	Thu, 11 Jan 2001 10:22:27 -0500
-Date: Thu, 11 Jan 2001 16:22:00 +0100
-From: Frank de Lange <frank@unternet.org>
-To: Andrew Morton <andrewm@uow.edu.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: QUESTION: Network hangs with BP6 and 2.4.x kernels, hardware related?
-Message-ID: <20010111162200.J20535@unternet.org>
-In-Reply-To: <20010110223015.B18085@unternet.org> <3A5D9D87.8A868F6A@uow.edu.au>
-Mime-Version: 1.0
+	id <S131142AbRAKP17>; Thu, 11 Jan 2001 10:27:59 -0500
+Received: from smtp1.mail.yahoo.com ([128.11.69.60]:45328 "HELO
+	smtp1.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S129790AbRAKP14>; Thu, 11 Jan 2001 10:27:56 -0500
+X-Apparently-From: <p?gortmaker@yahoo.com>
+Message-ID: <3A5C8DB2.48A4A48@yahoo.com>
+Date: Wed, 10 Jan 2001 11:28:34 -0500
+From: Paul Gortmaker <p_gortmaker@yahoo.com>
+X-Mailer: Mozilla 3.04 (X11; I; Linux 2.4.0 i486)
+MIME-Version: 1.0
+To: rob@sysgo.de
+CC: Brian Gerst <bgerst@didntduck.org>, linux-kernel@vger.kernel.org
+Subject: Re: Anybody got 2.4.0 running on a 386 ?
+In-Reply-To: <01010922090000.02630@rob> <01010923324500.02850@rob> <3A5B98AB.9B6FABC6@didntduck.org> <01011000082300.03050@rob>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3A5D9D87.8A868F6A@uow.edu.au>; from andrewm@uow.edu.au on Thu, Jan 11, 2001 at 10:48:23PM +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 11, 2001 at 10:48:23PM +1100, Andrew Morton wrote:
-> Losing both NICs at the same time could be the elusive "APIC
-> stops generating interrupts" problem.
+Robert Kaiser wrote:
+> 
+> The one I'm currently using is an old Olivetti 386SX with 5 MB, I also
+> tried two more boards, one 386SX, one 386DX, both with 8MB. All showed 
+> the same behavior.
 
-Yup, that's what I thought... But the real question is, is this a
-software/configuration problem or a hardware problem which can only be fixed by
-physically changing something on the board?... As it is, as you call it,
-'elusive', it is a b*tch to pinpoint the source of these problems...
+I tested 2.4.0 on probably the exact same box - an Olivetti M300-05 
+386sx with 5MB and it came up ok, except that memory detection is off
+by a MB. (to be fixed in 2.4.1 or boot with mem= argument in 2.4.0)
 
-> Do you get any transmit timeout messages in the logs?  If
-> so, send them.
+What might be important here is your gcc & binutils (as/gas) version,
+combined with a miscompile in something like __verify_write that
+doesn't get used on anything but 386 (and hence went undetected).
 
-Here they are (marked with ***):
+Only thing strange on my box is that the kernel is compiled with 
+gcc-2.7.2 which is officially unsupported but can be managed if you 
+know what the gcc bugs are.  
 
-grep -B2 -A2 transmit /var/log/messages:
-    Jan 10 22:24:47 behemoth kernel: usb_control/bulk_msg: timeout 
-    Jan 10 22:24:50 behemoth kernel: usb_control/bulk_msg: timeout 
-*** Jan 10 22:56:51 behemoth kernel: NETDEV WATCHDOG: eth0: transmit timed out 
-    Jan 10 22:57:03 behemoth last message repeated 7 times
-    Jan 10 22:57:03 behemoth kernel: SysRq: Emergency Sync 
-    --
-    Jan 10 22:57:09 behemoth kernel: Syncing device 16:07 ... OK 
-    Jan 10 22:57:09 behemoth kernel: Done. 
-*** Jan 10 22:57:09 behemoth kernel: NETDEV WATCHDOG: eth0: transmit timed out 
-    Jan 10 22:57:09 behemoth kernel: SysRq: Emergency Sync 
-    Jan 10 22:57:09 behemoth kernel: Syncing device 03:01 ... OK 
+Paul.
 
-> Does it happen with a uniprocessor build?
 
-Not tried yet, since I wanna use both CPU's :-).
 
-> Are you able to boot with the `noapic' LILO option?
+_________________________________________________________
+Do You Yahoo!?
+Get your free @yahoo.com address at http://mail.yahoo.com
 
-I am, and did it a while ago. As far as I remember, it did not make it stop...
-I'll try again (even though it is not a real solution, since that APIC is there
-for a reason...)
-
-Cheers//Frank
-
--- 
-  WWWWW      _______________________
- ## o o\    /     Frank de Lange     \
- }#   \|   /                          \
-  ##---# _/     <Hacker for Hire>      \
-   ####   \      +31-320-252965        /
-           \    frank@unternet.org    /
-            -------------------------
- [ "Omnis enim res, quae dando non deficit, dum habetur
-    et non datur, nondum habetur, quomodo habenda est."  ]
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

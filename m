@@ -1,57 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267594AbTBKLGr>; Tue, 11 Feb 2003 06:06:47 -0500
+	id <S267769AbTBKLEa>; Tue, 11 Feb 2003 06:04:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267566AbTBKLGb>; Tue, 11 Feb 2003 06:06:31 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:2055 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S267594AbTBKLGS>; Tue, 11 Feb 2003 06:06:18 -0500
-Date: Tue, 11 Feb 2003 12:16:01 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: kernel list <linux-kernel@vger.kernel.org>,
-       Rusty trivial patch monkey Russell 
-	<trivial@rustcorp.com.au>
-Subject: Re: Fix random memory corruption during suspend-to-RAM resume
-Message-ID: <20030211111601.GA11817@atrey.karlin.mff.cuni.cz>
-References: <20030209203141.GA2223@elf.ucw.cz> <Pine.LNX.4.44.0302100934240.7698-100000@home.transmeta.com>
+	id <S267791AbTBKLEE>; Tue, 11 Feb 2003 06:04:04 -0500
+Received: from probity.mcc.ac.uk ([130.88.200.94]:2820 "EHLO probity.mcc.ac.uk")
+	by vger.kernel.org with ESMTP id <S267769AbTBKLCo>;
+	Tue, 11 Feb 2003 06:02:44 -0500
+Date: Tue, 11 Feb 2003 11:12:31 +0000
+From: John Levon <levon@movementarian.org>
+To: linux-kernel@vger.kernel.org
+Cc: pavel@suse.cz
+Subject: Re: Switch APIC (+nmi, +oprofile) to driver model
+Message-ID: <20030211111231.GG53481@compsoc.man.ac.uk>
+References: <200302091407.PAA14076@kim.it.uu.se> <20030210110108.GE2838@atrey.karlin.mff.cuni.cz> <20030210115034.GF22600@compsoc.man.ac.uk> <20030210200606.GE154@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0302100934240.7698-100000@home.transmeta.com>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20030210200606.GE154@elf.ucw.cz>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Mr. Scruff - Trouser Jazz
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *18iYL1-000BAE-00*2KI77ETOf5Y*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Mon, Feb 10, 2003 at 09:06:06PM +0100, Pavel Machek wrote:
 
-> > We really want to use wakeup_stack as stack, not as pointer to
-> > stack... Please apply,
+> > > Yes, whole oprofile/nmi interaction is ugly like hell. This way it is
+> > > at least explicit, so people *know* its ugly.
+> > 
+> > That's no reason not do something like Mikael or I suggested.
 > 
-> Hmm.. The stack grows downwards, are you sure you don't really mean
+> makes what happens there pretty explicit. Whole thing can be
+> controlled by single variable...
 > 
-> 	mov $(wakeup_end-wakeup_code),%sp
-> 
-> (because wakeup_end is the end of the wakeup_stack area..)
+> Here's new version of diff...
 
-Yes, I'm sure:
+Are you going to continue ignoring me when I point out the bugs in your
+patch ? You're still not exporting nmi_watchdog,setup/disable_watchdog
+to modules.
 
-        .long 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-        .long 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-        .long 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-        .long 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-wakeup_stack:
-        .long 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-        .long 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-        .long 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-        .long 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Of course, exporting three things when you only need two is ugly, but
+since you refuse to do it like that ...
 
-Okay, I might want to kill the second set of longs ;-).
-
-I need to substract wakeup_code because code is being relocated in
-quite a strange way.
-
-							Pavel
--- 
-Casualities in World Trade Center: ~3k dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.
+john

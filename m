@@ -1,40 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266879AbUHCVct@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266871AbUHCVds@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266879AbUHCVct (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 17:32:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266880AbUHCVb0
+	id S266871AbUHCVds (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 17:33:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266883AbUHCVdA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 17:31:26 -0400
-Received: from albireo.ucw.cz ([81.27.203.89]:6020 "EHLO albireo.ucw.cz")
-	by vger.kernel.org with ESMTP id S266870AbUHCVbU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 17:31:20 -0400
-Date: Tue, 3 Aug 2004 23:31:21 +0200
-From: Martin Mares <mj@ucw.cz>
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-Cc: linux-pci@atrey.karlin.mff.cuni.cz, Jon Smirl <jonsmirl@yahoo.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Greg KH <greg@kroah.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] add PCI ROMs to sysfs
-Message-ID: <20040803213121.GA4410@ucw.cz>
-References: <20040803211948.59456.qmail@web14921.mail.yahoo.com> <200408031428.25853.jbarnes@engr.sgi.com>
+	Tue, 3 Aug 2004 17:33:00 -0400
+Received: from email-out1.iomega.com ([147.178.1.82]:24794 "EHLO
+	email.iomega.com") by vger.kernel.org with ESMTP id S266882AbUHCVcD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Aug 2004 17:32:03 -0400
+Subject: Re: 2.4.27rc2, DVD-RW support broke DVD-RAM writes
+From: Pat LaVarre <p.lavarre@ieee.org>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <BBD076AD-E588-11D8-9102-00039398BB5E@ieee.org>
+References: <40926261-E3D3-11D8-B01E-00039398BB5E@ieee.org><1091397374.6458 
+	.9.camel@patibmrh9> <20040802121712.GD15884@logos.cnet><06F0F452-E491-11D8-
+	94F5-00039398BB5E@ieee.org><BBD076AD-E588-11D8-9102-00039398BB5E@ieee.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1091568689.3644.34.camel@patibmrh9>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200408031428.25853.jbarnes@engr.sgi.com>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 03 Aug 2004 15:31:29 -0600
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 03 Aug 2004 21:32:02.0452 (UTC) FILETIME=[50BDAD40:01
+	C479A1]
+X-imss-version: 2.0
+X-imss-result: Passed
+X-imss-scores: Clean:12.33344 C:20 M:1 S:5 R:5
+X-imss-settings: Baseline:1 C:1 M:1 S:1 R:1 (0.0000 0.0000)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Yeah, it doesn't look like they've been properly assigned addresses.  But then 
-> I've also seen lspci lie, you can check /sys/devices/.../config for the 
-> actual resource values.  If they're sane then things are more likely to work.
+> > > let Pat fix it. Pat?
+> ...
+> must have an asymmetry in 2.4 drivers/ide/ide-cd.c vs. 
+> drivers/scsi/sr.c.
 
-... or try `lspci -b', it will dump the actual registers, not the kernel's
-view.
+A two-line workaround is the patch of my post:
 
-				Have a nice fortnight
--- 
-Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
-Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
-A jury consists of 12 persons chosen to decide who has the better lawyer.
+Subject: [PATCH] DVD-RAM rewritable again
+http://marc.theaimsgroup.com/?l=linux-scsi&m=109156820507518
+
+That takes our 2.4 closer back to the bogus status quo ante for
+CDROM_CAN(CDC_DVD_RAM) drives i.e. pass writes thru to all discs
+inserted into such drives.
+
+Pat LaVarre
+http://linux-pel.blog-city.com/read/754579.htm
+
+

@@ -1,58 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263365AbTJVCiF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Oct 2003 22:38:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263368AbTJVCiF
+	id S263339AbTJVCcv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Oct 2003 22:32:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263365AbTJVCcv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Oct 2003 22:38:05 -0400
-Received: from vladimir.pegasys.ws ([64.220.160.58]:16140 "EHLO
-	vladimir.pegasys.ws") by vger.kernel.org with ESMTP id S263365AbTJVCiD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Oct 2003 22:38:03 -0400
-Date: Tue, 21 Oct 2003 19:37:58 -0700
-From: jw schultz <jw@pegasys.ws>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Software RAID5 with 2.6.0-test
-Message-ID: <20031022023758.GG17713@pegasys.ws>
-Mail-Followup-To: jw schultz <jw@pegasys.ws>,
-	linux-kernel@vger.kernel.org
-References: <20031018115049.GB760@gallifrey> <bn49pv$jbn$1@gatekeeper.tmr.com>
+	Tue, 21 Oct 2003 22:32:51 -0400
+Received: from h80ad256b.async.vt.edu ([128.173.37.107]:63872 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S263339AbTJVCcu (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Oct 2003 22:32:50 -0400
+Message-Id: <200310220232.h9M2WY08007068@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: "Theodore Ts'o" <tytso@mit.edu>
+Cc: root@chaos.analogic.com, linux-kernel@vger.kernel.org
+Subject: Re: Blockbusting news, results are in 
+In-Reply-To: Your message of "Tue, 21 Oct 2003 17:53:46 EDT."
+             <20031021215346.GA15109@thunk.org> 
+From: Valdis.Kletnieks@vt.edu
+References: <175701c397e6$b36e5310$24ee4ca5@DIAMONDLX60> <20031021193128.GA18618@helium.inexs.com> <Pine.LNX.4.53.0310211558500.19942@chaos> <200310212021.h9LKLQK3009397@turing-police.cc.vt.edu>
+            <20031021215346.GA15109@thunk.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <bn49pv$jbn$1@gatekeeper.tmr.com>
-User-Agent: Mutt/1.3.27i
-X-Message-Flag: Vulnerable email reader detected!
+Content-Type: multipart/signed; boundary="==_Exmh_1292895902P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Tue, 21 Oct 2003 22:32:34 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 21, 2003 at 09:51:59PM +0000, bill davidsen wrote:
-> In article <20031018115049.GB760@gallifrey>,
-> Dr. David Alan Gilbert <gilbertd@treblig.org> wrote:
-> 
-> |   I'd love to see some real benchmarks to prove me wrong however!
-> 
-> Okay, I'm scheduled to build a system next month, give me the name of a
-> good controller which will do four drives and which can be used as a
-> dumb controller as well, and I'll grab six drives for the build and run
-> a test (baring a change in schedule, obviously).
+--==_Exmh_1292895902P
+Content-Type: text/plain; charset=us-ascii
 
-I'd try the 3ware.  AC and others have reported good
-throughput and, at least compared to SCSI, they aren't that
-expensive and claim to support JBOD.  I just checked on
-pricewatch and the 7506-4 can be had for about $250US and
-the eight port for about $375.  Older models can be had for
-less.  When the economy picks back up enough to improve my
-bank ballance i'm planning to buy a few.
+On Tue, 21 Oct 2003 17:53:46 EDT, "Theodore Ts'o" said:
 
-> I'll run as many RAID configs as make sense, whatever the hardware
-> supports. And also four way RAID-1 for a heavy read application, to see
-> if the software RAID does better than the controller, if it can do that
-> at all.
+> Read the e2fsck man page, and pay attention to the -c, -l, and -L
+> options....
 
--- 
-________________________________________________________________
-	J.W. Schultz            Pegasystems Technologies
-	email address:		jw@pegasys.ws
+Yes, I knew this was doable if the filesystem was unmounted - the fun is of
+course that if you get a bad block in /usr or someplace similar, it would
+REALLY be nice to be able to do something about it without taking it offline..
 
-		Remember Cernan and Schmitt
+The cynic in me says that if I have to take it down to flag a bad block, I'm
+going to use the downtime to just replace the *bleep*ing thing with something
+more acquainted with the concept of block relocation - if it didn't relocate
+it, either the relocation sectors are used up or the drive has pessimal
+microcode, both of which are bad news.
+
+I admit I haven't cooked up a test filesystem and actually checked what happens
+if you feed the -l flag a block that's already in a file (presumably it
+deallocates it from the inode and leaves a sparse hole) or a block that
+contains inodes or a superblock copy...
+
+
+--==_Exmh_1292895902P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE/lexCcC3lWbTT17ARAvQsAJ93RjELxda7xicV75qeM9tp29blcwCg+5kL
+zqAKd2nfnCfxnyKkHvCYPOk=
+=5vvq
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1292895902P--

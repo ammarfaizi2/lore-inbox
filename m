@@ -1,47 +1,106 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129226AbQLRENK>; Sun, 17 Dec 2000 23:13:10 -0500
+	id <S129260AbQLRESo>; Sun, 17 Dec 2000 23:18:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129524AbQLRENA>; Sun, 17 Dec 2000 23:13:00 -0500
-Received: from smtp03.mrf.mail.rcn.net ([207.172.4.62]:30142 "EHLO
-	smtp03.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
-	id <S129226AbQLREMx>; Sun, 17 Dec 2000 23:12:53 -0500
-Message-ID: <3A3D87A0.1E3585E7@haque.net>
-Date: Sun, 17 Dec 2000 22:42:24 -0500
-From: "Mohammad A. Haque" <mhaque@haque.net>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test11 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: rmlynch@best.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: test12 final, test13-pre3 freezing system
-In-Reply-To: <3A3D85FC.FF1708C4@best.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S129524AbQLRESe>; Sun, 17 Dec 2000 23:18:34 -0500
+Received: from [216.120.107.189] ([216.120.107.189]:53262 "EHLO
+	ziggy.one-eyed-alien.net") by vger.kernel.org with ESMTP
+	id <S129260AbQLRESS>; Sun, 17 Dec 2000 23:18:18 -0500
+Date: Sun, 17 Dec 2000 19:47:37 -0800
+From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
+To: Andries.Brouwer@cwi.nl
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: set_rtc_mmss: can't update from 0 to 59
+Message-ID: <20001217194737.C11947@one-eyed-alien.net>
+Mail-Followup-To: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
+In-Reply-To: <UTC200012172054.VAA173604.aeb@aak.cwi.nl>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="MIdTMoZhcV1D07fI"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <UTC200012172054.VAA173604.aeb@aak.cwi.nl>; from Andries.Brouwer@cwi.nl on Sun, Dec 17, 2000 at 09:54:18PM +0100
+Organization: One Eyed Alien Networks
+X-Copyright: (C) 2000 Matthew Dharm, all rights reserved.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-known problem with netfilter. I think someone is working on it.
 
-Robert Lynch wrote:
-> 
-> I find that running these kernels (because of a netfilter modules
-> compile error, didn't try test13-pre1 or 2) in X my entire system
-> freezes, requiring a hard reboot.  With test12 final, suddenly
-> the screen streaked, then froze.
-> 
-> No oops, just the freeze.
+--MIdTMoZhcV1D07fI
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
--- 
+On Sun, Dec 17, 2000 at 09:54:18PM +0100, Andries.Brouwer@cwi.nl wrote:
+> What architecture?
 
-=====================================================================
-Mohammad A. Haque                              http://www.haque.net/ 
-                                               mhaque@haque.net
+i386
 
-  "Alcohol and calculus don't mix.             Project Lead
-   Don't drink and derive." --Unknown          http://wm.themes.org/
-                                               batmanppc@themes.org
-=====================================================================
+> What kernel version?
+
+2.4.0-test13-pre2, but this has been happening for a while.
+
+> Are you in fact running xntpd?
+
+Yes.
+
+> > According to the notes in the code, this should work if my RTC
+> > is less than 15 minutes off... which I can guarantee it is.
+>=20
+> Well, since you looked at the source:
+> For some randomly chosen kernel version and architecture it does
+>=20
+>         if (abs(real_minutes - cmos_minutes) < 30) {
+> 		update_cmos()
+> 	} else {
+> 		printk("set_rtc_mmss: can't update from %d to %d\n",
+> 		       cmos_minutes, real_minutes);
+> 	}
+>=20
+> so if your cmos time is 0.001 sec ahead of your system time
+> then around the hour you'll see
+> 	set_rtc_mmss: can't update from 0 to 59
+
+Ahh... I think I see.  While the math says "if the diference between the
+real time and the cmos time is less than 30 min", it doesn't recognize that
+the time difference between 2:59 and 3:00 is only 1 min.
+
+Hrm.. the logic to get this right is always the type of thing that gets
+me... that's why I usually calculate things the UNIX way -- seconds since
+an epoch.
+
+> Of course, messing with the cmos clock at all was a rather bad idea,
+> but that is a different discussion.
+
+True enough...  but, the question is, how do we fix this?  Make the logic
+more buff?  Or change the algorithm to use something like minutes since the
+epoch?
+
+Matt
+
+--=20
+Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
+net=20
+Maintainer, Linux USB Mass Storage Driver
+
+We can customize our colonels.
+					-- Tux
+User Friendly, 12/1/1998
+
+--MIdTMoZhcV1D07fI
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE6PYjZz64nssGU+ykRAucWAJwPkI/8E9mSc08GII01eUWJY7aRuwCg0PRk
+wMlRlwg/Lfq760phO7SwCaw=
+=vKF4
+-----END PGP SIGNATURE-----
+
+--MIdTMoZhcV1D07fI--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

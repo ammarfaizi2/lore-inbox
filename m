@@ -1,58 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264590AbRFPHiK>; Sat, 16 Jun 2001 03:38:10 -0400
+	id <S264591AbRFPIO5>; Sat, 16 Jun 2001 04:14:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264591AbRFPHh7>; Sat, 16 Jun 2001 03:37:59 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:50818 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S264590AbRFPHho>;
-	Sat, 16 Jun 2001 03:37:44 -0400
-Date: Sat, 16 Jun 2001 03:37:15 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Andi Kleen <ak@suse.de>, "David S. Miller" <davem@redhat.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.5-ac14
-In-Reply-To: <oupzob9q84y.fsf@pigdrop.muc.suse.de>
-Message-ID: <Pine.GSO.4.21.0106160322510.10605-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264592AbRFPIOs>; Sat, 16 Jun 2001 04:14:48 -0400
+Received: from odin.sinectis.com.ar ([216.244.192.158]:33284 "EHLO
+	mail.sinectis.com.ar") by vger.kernel.org with ESMTP
+	id <S264591AbRFPIOa>; Sat, 16 Jun 2001 04:14:30 -0400
+Date: Sat, 16 Jun 2001 05:14:56 -0300
+From: John R Lenton <john@grulic.org.ar>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Few thoughts about CML2 and kernel configuration
+Message-ID: <20010616051456.B562@grulic.org.ar>
+Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.21.0106160026320.7462-100000@presario>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="0ntfKIWw70PvrIHh"
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.21.0106160026320.7462-100000@presario>
+User-Agent: Mutt/1.3.18i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--0ntfKIWw70PvrIHh
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On 16 Jun 2001, Andi Kleen wrote:
+On Sat, Jun 16, 2001 at 11:22:27AM +0600, Anuradha Ratnaweera wrote:
+> - The feeling is much similar to that of using lynx (especially using
+>   left-arrow). It would be very nice if pressing right-arrow gives the
+>   same effect as pressing enter.
 
-> "David S. Miller" <davem@redhat.com> writes:
-> 
-> > Alan Cox writes:
-> >  > Because right now I dont consider the 2.4.6 page cache ext2 stuff safe
-> >  > enough to merge. I'm letting someone else be the sucide squad.. so far it
-> >  > looks like it is indeed fine but I want to wait and see more yet
-> > 
-> > If it means anything it has already withstanded a few
-> > cerebus-->fsck_check-->cerebus rounds on machines here
-> > in my lab.
-> 
-> ... it also seems to make ppc not boot anymore.
+that's what the help says it *should* do. Try this:
 
-OK, after looking at the bug report things smell very strange:
+----
+--- cmlconfigure.py~    Sun Jun 10 13:05:58 2001
++++ cmlconfigure.py     Sat Jun 16 05:10:32 2001
+@@ -1478,7 +1478,7 @@
+                     cmd =3D self.help_popup("EXITCONFIRM", (lang["REALLY"]=
+,), beep=3D0)
+                     if cmd =3D=3D ord('q'):
+                         break
+-                elif cmd in (curses.KEY_ENTER,ord(' '),ord('\r'),ord('\n')=
+) :
++                elif cmd in (curses.KEY_ENTER,curses.KEY_RIGHT,ord(' '),or=
+d('\r'),ord('\n')) :
+                     # Operate on the current object
+                     if sel_symbol.type =3D=3D "message":
+                         curses.beep()
+----
 
-	* kernel had barfed on lookup for /dev/console.
-	* kernel had found /dev - right inode number, etc.
-	* read_cache_page(inode->i_mapping, n, ext2_readpage) on it
-gave all-zeroes for each page within first 32Kb (size of /dev on box in
-question).
-	* filesystem is not corrupted.
-	* all that stuff had happened with cold caches.
-	* kernel was 2.4.6-pre3 + some unspecified modifications.
+--=20
+John Lenton (john@grulic.org.ar) -- Random fortune:
+This wasn't just plain terrible, this was fancy terrible.  This was terrible
+with raisins in it.
+		-- Dorothy Parker
 
-Very odd. Could somebody try vanilla 2.4.6-pre1 on a PPC box? I _really_
-doubt that it might be an architecture-specific problem in directory
-code - it would simply fail the lookup for  /dev in that case.
+--0ntfKIWw70PvrIHh
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-I'll try to find a PPC nearby, but it may be tricky on weekend. So if
-somebody wants to help... Notice that problem was on read-only mount,
-so it can be tested without risking fs corruption - just try to boot
-with init=/bin/sh and do ls -lR, etc.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
+iD8DBQE7KxWAgPqu395ykGsRAn7dAJoCWoqieySrmpsfHzwjtGiZjb3D4ACeJlse
+0MbBex92qXBOFoDbOf52EdQ=
+=mkDt
+-----END PGP SIGNATURE-----
+
+--0ntfKIWw70PvrIHh--

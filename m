@@ -1,55 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129485AbQKWAcY>; Wed, 22 Nov 2000 19:32:24 -0500
+        id <S129682AbQKWAef>; Wed, 22 Nov 2000 19:34:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129682AbQKWAcD>; Wed, 22 Nov 2000 19:32:03 -0500
-Received: from jalon.able.es ([212.97.163.2]:34704 "EHLO jalon.able.es")
-        by vger.kernel.org with ESMTP id <S129485AbQKWAb5>;
-        Wed, 22 Nov 2000 19:31:57 -0500
-Date: Thu, 23 Nov 2000 01:01:45 +0100
-From: "J . A . Magallon" <jamagallon@able.es>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: uname
-Message-ID: <20001123010145.A744@werewolf.able.es>
-Reply-To: jamagallon@able.es
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 1.0.0
+        id <S131762AbQKWAeZ>; Wed, 22 Nov 2000 19:34:25 -0500
+Received: from nrg.org ([216.101.165.106]:20018 "EHLO nrg.org")
+        by vger.kernel.org with ESMTP id <S129682AbQKWAeJ>;
+        Wed, 22 Nov 2000 19:34:09 -0500
+Date: Wed, 22 Nov 2000 16:04:05 -0800 (PST)
+From: Nigel Gamble <nigel@nrg.org>
+Reply-To: nigel@nrg.org
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Latest preemptible kernel (low latency) patch available 
+Message-ID: <Pine.LNX.4.05.10011221551330.19078-100000@cosmic.nrg.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everyone.
+MontaVista Software's latest preemptible kernel patch,
+preempt-2.4.0-test11-1.patch.bz2, is now available in
+ftp://ftp.mvista.com/pub/Area51/preemptible_kernel/
+Here is an extract from the README file:
 
-Little question about 'uname'. Does it read data from kernel, /proc or
-get its data from other source ?
+The patches in this directory, when applied to the corresponding
+kernel source, will define a new configure option, 'Preemptable Kernel',
+under the 'Processor type and features' section.  When enabled, and the
+kernel is rebuilt it will be fully preemptable, subject to SMP lock
+areas (i.e. it uses SMP locking on a UP to control preemptability).
 
-uname info page:
-$ uname -a
-Linux hayley 1.0.4 #3 Thu May 12 18:06:34 1994 i486
+The patch can only be enabled for ix86 uniprocessor platforms.
+(Stay tuned for other platforms and SMP support.)
 
-my system:
+Notes for preempt-2.4.0-test11-1.patch
+--------------------------------------
 
-uname -a
-Linux werewolf 2.2.18-pre23-vm #3 SMP Wed Nov 22 22:33:53 CET 2000 i686 unknown
+ - Updated to kernel 2.4.0-test11
 
-uname -m (machine)
-i686
+Notes for preempt-2.4.0-test10-1.patch
+--------------------------------------
 
-uname -p (processor)
-unknown
+The main changes between this and previous patches are:
 
-Seems like swapping machine-processor.
-Perhaps it can be changed to uname -m give the info in get_cpu_vendor(),
-and uname -p give the ix86.
-Or if some utility relays on uname -m being ix86, make uname -p give cpu_vendor+
-cpu_model.
+ - Updated to kernel 2.4.0-test10
+ - Long held spinlocks changed into mutex locks, currently implemented
+   using semaphores.  (We are working on a fast, priority inheriting,
+   binary semaphore implementation of these locks.)
 
---
-Juan Antonio Magallon Lacarta                                 #> cd /pub
-mailto:jamagallon@able.es                                     #> more beer
+The patch gives good results on Benno's Audio-Latency test
+http://www.gardena.net/benno/linux/audio/, with maximum
+latencies less than a couple of milliseconds recorded
+using a 750MHz PIII machine.  However, there are still
+some >10ms non-preemptible paths that are not exercised
+by this test.
 
-Linux 2.2.18-pre23-vm #3 SMP Wed Nov 22 22:33:53 CET 2000 i686 unknown
+The worst non-preemtible paths are now dominated by the big
+kernel lock, which we hope can be completely eliminated in 2.5
+by finer grained locks.
+
+(I will be at the Linux Real-Time Workshop in Orlando next week, and
+may not be able to access my work email address (nigel@mvista.com),
+which is why I'm posting this from my personal address.)
+
+Nigel Gamble                                    nigel@nrg.org
+Mountain View, CA, USA.                         http://www.nrg.org/
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,34 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316178AbSETSMR>; Mon, 20 May 2002 14:12:17 -0400
+	id <S316187AbSETSYg>; Mon, 20 May 2002 14:24:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316182AbSETSMQ>; Mon, 20 May 2002 14:12:16 -0400
-Received: from twinlark.arctic.org ([208.44.199.239]:45707 "EHLO
-	twinlark.arctic.org") by vger.kernel.org with ESMTP
-	id <S316178AbSETSMP>; Mon, 20 May 2002 14:12:15 -0400
-Date: Mon, 20 May 2002 11:12:15 -0700 (PDT)
-From: dean gaudet <dean-list-linux-kernel@arctic.org>
-To: Michael Hoennig <michael@hostsharing.net>
-cc: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: suid bit on directories
-In-Reply-To: <20020520165312.3fb29ba2.michael@hostsharing.net>
-Message-ID: <Pine.LNX.4.44.0205201102500.2227-100000@twinlark.arctic.org>
-X-comment: visit http://arctic.org/~dean/legal for information regarding copyright and disclaimer.
+	id <S316189AbSETSYf>; Mon, 20 May 2002 14:24:35 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:65030 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S316187AbSETSYf>; Mon, 20 May 2002 14:24:35 -0400
+Date: Mon, 20 May 2002 14:19:48 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Miquel van Smoorenburg <miquels@cistron.nl>, linux-kernel@vger.kernel.org
+Subject: Re: IO stats in /proc/partitions
+In-Reply-To: <E17899v-0003Cl-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.3.96.1020520141820.29156A-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 20 May 2002, Michael Hoennig wrote:
+On Thu, 16 May 2002, Alan Cox wrote:
 
-> Why do you ignore my example? In my example the use who runs the webserver
-> owns all the files, that is wrong. With the suid bit on directories, this
-> could be fixed.
+> > Perhaps, but I had the opposite experience. I noticed by accident
+> > that iostat (as included in Debian) suddenly had working extended
+> > statistics. So there are *certainly* tools that get fixed by
+> > 2.4.19-pre7. I was pleasantly surprised.
+> 
+> Pretty much every vendor shipped the /proc/partitions changes and
+> has tools that will look for them. Its annoying to change stuff but
+> long term /proc/partitions is the wrong place for disk stats
 
-CAP_FCHOWN would appear to accomplish what you need (with the bonus of
-already existing in modern linux kernels)... the webserver should be able
-to chown away a file if it's given this capability.
+  Changes belong in 2.5, /proc/partitions is the wrong place, but it's
+also the place the tools expect. I hope that's not going to change in the
+stable kernel.
 
--dean
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

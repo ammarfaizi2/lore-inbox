@@ -1,61 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S143421AbRAHMZU>; Mon, 8 Jan 2001 07:25:20 -0500
+	id <S135702AbRAHMiz>; Mon, 8 Jan 2001 07:38:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S137106AbRAHMZK>; Mon, 8 Jan 2001 07:25:10 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:15108 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S143421AbRAHMZD>; Mon, 8 Jan 2001 07:25:03 -0500
-Subject: Re: ramfs problem... (unlink of sparse file in "D" state)
-To: viro@math.psu.edu (Alexander Viro)
-Date: Mon, 8 Jan 2001 12:26:17 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        stefan@hello-penguin.com (Stefan Traby), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.GSO.4.21.0101080711470.4061-100000@weyl.math.psu.edu> from "Alexander Viro" at Jan 08, 2001 07:16:25 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S137106AbRAHMiq>; Mon, 8 Jan 2001 07:38:46 -0500
+Received: from [139.102.15.43] ([139.102.15.43]:54719 "EHLO
+	online.indstate.edu") by vger.kernel.org with ESMTP
+	id <S135702AbRAHMie>; Mon, 8 Jan 2001 07:38:34 -0500
+From: "Rich Baum" <baumr1@coral.indstate.edu>
+To: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
+Date: Mon, 8 Jan 2001 07:38:10 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14FbNU-0004SI-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: [PATCH] Fix compile warnings in 2.4.0 
+Reply-to: richbaum@acm.org
+CC: linux-kernel@vger.kernel.org
+Message-ID: <3A596E62.7415.1048C8@localhost>
+In-Reply-To: Your message of "Sun, 07 Jan 2001 16:19:50 CDT."             <3A589726.5449.291B75@localhost> 
+In-Reply-To: <9097.978915147@ocs3.ocs-net>
+X-mailer: Pegasus Mail for Win32 (v3.12c)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Umm... Details, please? Are you talking about 2^32 or about fs layout limits?
-> The former may very well belong to VFS - no arguments here. The latter...
-> And yes, fs layout limits are visible - for ext2 they can be as low as 2^24
-> blocks.
+On 8 Jan 2001, at 11:52, Keith Owens wrote:
 
-The SuS rules require write checks
-
-resource limit
-	if that stops all of the write
-			SIGXFZ
-			EFBIG
-	else short write
-
-!O_LARGEFILE and > off_t limit
-	if that stops all of the write
-			SIGXFZ
-			EFBIG
-	else short write
-
-over fs limit
-	if that stops all the write
-			SIGXFZ
-			EFBIG
-	else short write
-
-truncate has to honour the resource and fs limit. ftruncate also checks
-the O_LARGEFILE limit.
-
-Finally some OS's actually let you F_SETFL O_LARGEFILE.
-
-I can put all that in the VFS so I did (right now the ext2 size calculator is
-wrong but thats proof of concept detail). Just need to shift if over from
-ext2/file.c
-
-Alan
+> On Sun, 7 Jan 2001 16:19:50 -0500, 
+> "Rich Baum" <baumr1@coral.indstate.edu> wrote:
+> >This patch should fix the rest of the warnings about #endif 
+> >statements when using the 20001225 gcc snapshot.  Thanks to 
+> >Keith Owens for providing a script to automate this process.  It got 
+> >the job done sooner and found warnings to fix for non x86 platforms.
+> 
+> As reported by Neil Booth, your patch contains errors which do not
+> appear in my patched system using my script.  You probably skipped the
+> leading '^' in the regexp.  It also turns out that there are a couple
+> of m68k assembler lines which have a trailing '#' which starts a
+> comment on that assembler.  So treat '#' as a comment marker as well.
+> 
+> Whatever you used, it was not my script.  It should be (with '#' added)
+> 
+>   find -type f -name '*.[chS]' | \
+>     xargs perl -lpi -e 's:^(\s*#\s*endif)\s+([^/\s#].*)$:\1\t/* \2 */:;'
+> 
+> BTW, until the patch is correct do not bother sending it to Alan Cox or
+> Linus, just to linux-kernel..
+> 
+You're right I left off the first ^.  From know on I'll just go back to my 
+method of checking my compile logs for errors and manually fixing 
+them.  I'll let other people handle non x86 platforms.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

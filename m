@@ -1,51 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132395AbRDFUbr>; Fri, 6 Apr 2001 16:31:47 -0400
+	id <S132406AbRDFVFJ>; Fri, 6 Apr 2001 17:05:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132399AbRDFUbh>; Fri, 6 Apr 2001 16:31:37 -0400
-Received: from front2.grolier.fr ([194.158.96.52]:28402 "EHLO
-	front2.grolier.fr") by vger.kernel.org with ESMTP
-	id <S132395AbRDFUbb> convert rfc822-to-8bit; Fri, 6 Apr 2001 16:31:31 -0400
-Date: Fri, 6 Apr 2001 19:20:09 +0200 (CEST)
-From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@club-internet.fr>
-To: Stefano Coluccini <s.coluccini@caen.it>
-cc: Geert Uytterhoeven <geert@linux-m68k.org>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Linux Kernel Development <linux-kernel@vger.kernel.org>,
-        Linux/PPC Development <linuxppc-dev@lists.linuxppc.org>
-Subject: RE: st corruption with 2.4.3-pre4
-In-Reply-To: <Pine.LNX.4.10.10104061609330.996-100000@linux.local>
-Message-ID: <Pine.LNX.4.10.10104061914210.8640-100000@linux.local>
+	id <S132407AbRDFVE7>; Fri, 6 Apr 2001 17:04:59 -0400
+Received: from imchub1.cosinecom.com ([63.88.104.18]:26374 "EHLO
+	imchub1.cosinecom.com") by vger.kernel.org with ESMTP
+	id <S132406AbRDFVEw>; Fri, 6 Apr 2001 17:04:52 -0400
+Message-ID: <5E686636124A2042B4E5EE1F15191F270D40A6@exchsrv3>
+From: John Van Horne <JohnVan.Horne@cosinecom.com>
+To: "'ddugger@willie.n0ano.com'" <ddugger@willie.n0ano.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Core dumps for threads
+Date: Fri, 6 Apr 2001 14:03:26 -0700 
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Don,
 
+I've searched the linux-kernel mail archives about this patch, and the most
+recent 
+thing I can find is that it was waiting for verification.
 
-On Fri, 6 Apr 2001, Gérard Roudier wrote:
+http://www.uwsg.indiana.edu/hypermail/linux/kernel/0102.3/0553.html
 
-> Here is a patch that removes the offending PPC PCI hacky area from the
-> driver (sym53c8xx_defs.h):
-> 
-> --- sym53c8xx_defs.h	Fri Apr  6 16:23:48 2001
-> +++ sym53c8xx_defs.h.orig	Sun Mar  4 13:54:11 2001
-> @@ -175,6 +175,9 @@
->  #define	SCSI_NCR_IOMAPPED
->  #elif defined(__alpha__)
->  #define	SCSI_NCR_IOMAPPED
-> +#elif defined(__powerpc__)
-> +#define	SCSI_NCR_IOMAPPED
-> +#define SCSI_NCR_PCI_MEM_NOT_SUPPORTED
->  #elif defined(__sparc__)
->  #undef SCSI_NCR_IOMAPPED
->  #endif
-> -------------------- Cut Here ------------------
+Is there anything more recent?  Has it been accepted?
 
-The patch is obviously reversed. You just have to remove the 3 lines that
-apply to powerpc using you preferred editor.
-Btw, using the one you dislike the most will also fit. :-)
+Also, if I apply this patch to the kernel I am running (2.4.2), will I need
+to patch gdb to be able
+to read core dumps made by threads?  Or should I ask the gdb maintainers
+this question?
 
-  Gérard.
+Please include my mail address in your response, as I do not subscribe to
+linux-kernel.
+
+Thanks,
+-John
+
+----------------------------------------------------------------------------
+--------------------------------------------
+John Van Horne				voice: 650-628-4148
+Software Tools Engineer			fax:      650-637-2411
+CoSine Communications, Inc.			cell:     650-346-0401
+<http://www.cosinecom.com>			email:
+jvhorne@cosinecom.com
+----------------------------------------------------------------------------
+--------------------------------------------
+
 

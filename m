@@ -1,37 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317855AbSHZCzK>; Sun, 25 Aug 2002 22:55:10 -0400
+	id <S317862AbSHZDA4>; Sun, 25 Aug 2002 23:00:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317858AbSHZCzK>; Sun, 25 Aug 2002 22:55:10 -0400
-Received: from dsl-65-188-232-225.telocity.com ([65.188.232.225]:4495 "EHLO
-	area51.underboost.net") by vger.kernel.org with ESMTP
-	id <S317855AbSHZCzK>; Sun, 25 Aug 2002 22:55:10 -0400
-Subject: Re: swap memory
-From: Ron Henry <dijital1@underboost.net>
-To: net reel <netreel@linuxmail.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020826024955.9286.qmail@linuxmail.org>
-References: <20020826024955.9286.qmail@linuxmail.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 25 Aug 2002 18:17:02 -0400
-Message-Id: <1030313822.395.17.camel@illuminati>
+	id <S317864AbSHZDA4>; Sun, 25 Aug 2002 23:00:56 -0400
+Received: from host179.debill.org ([64.245.56.179]:61375 "EHLO mail.debill.org")
+	by vger.kernel.org with ESMTP id <S317862AbSHZDA4>;
+	Sun, 25 Aug 2002 23:00:56 -0400
+Date: Sun, 25 Aug 2002 22:05:12 -0500
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Thunder from the hill <thunder@lightweight.ods.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: kernel losing time
+Message-ID: <20020826030512.GA3264@debill.org>
+References: <20020825105500.GE11740@paradise.net.nz> <Pine.LNX.4.44.0208250459500.3234-100000@hawkeye.luckynet.adm> <20020825215515.GA2965@debill.org> <1030320314.16766.25.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1030320314.16766.25.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.3.28i
+From: erik@debill.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-08-25 at 22:49, net reel wrote:
-> Hi, I have a very newbie question but I couldnt get an answer in anywhere so please, could someone explain me how swap is initialized? Is it initalized when the kernel is decompressed or when the init scripts are called? 
+On Mon, Aug 26, 2002 at 01:05:14AM +0100, Alan Cox wrote:
+> On Sun, 2002-08-25 at 22:55, erik@debill.org wrote:
+> > Would this explain my computer losing 2-3 minutes of time while
+> > ripping a cd?  Normally it's dead on (w/ ntpd running to guarantee
+> > that) but while ripping or burning it loses so badly ntpd can't keep
+> > up.
 > 
-Swap is initialized when one of the init scripts runs swapon which makes
-a call to sys_swapon defined in mm/swapfile.c
+> Could be - does hdparm -u1 on that device fix it ?
+
+nope.  I still lost a minute or so ripping a single disc.  This is
+using 2.4.19-rc3, though I've not seen a kernel where it /didn't/
+happen.
 
 
-dijital1
-
-"Unix is simple and coherent, but it takes a genius (or a programmer at
-any rate) to understand and appreciate it's simplicity" - Dennis Ritchie
-
+Erik
 
 

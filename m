@@ -1,45 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261903AbTDESWx (for <rfc822;willy@w.ods.org>); Sat, 5 Apr 2003 13:22:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261966AbTDESWx (for <rfc822;linux-kernel-outgoing>); Sat, 5 Apr 2003 13:22:53 -0500
-Received: from smtp02.web.de ([217.72.192.151]:46105 "EHLO smtp.web.de")
-	by vger.kernel.org with ESMTP id S261903AbTDESWw (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Apr 2003 13:22:52 -0500
-From: Michael Buesch <freesoftwaredeveloper@web.de>
-To: Anant Aneja <anantaneja@rediffmail.com>
-Subject: Re: poweroff problem
-Date: Sat, 5 Apr 2003 20:31:52 +0200
-User-Agent: KMail/1.5
-References: <20030405060804.31946.qmail@webmail5.rediffmail.com> <1049561277.25758.10.camel@dhcp22.swansea.linux.org.uk>
-In-Reply-To: <1049561277.25758.10.camel@dhcp22.swansea.linux.org.uk>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	id S261805AbTDESWs (for <rfc822;willy@w.ods.org>); Sat, 5 Apr 2003 13:22:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261903AbTDESWs (for <rfc822;linux-kernel-outgoing>); Sat, 5 Apr 2003 13:22:48 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:36613 "EHLO
+	www.home.local") by vger.kernel.org with ESMTP id S261805AbTDESWr (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Apr 2003 13:22:47 -0500
+Date: Sat, 5 Apr 2003 20:34:18 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Route cache performance under stress
+Message-ID: <20030405183418.GA554@alpha.home.local>
+References: <8765pshpd4.fsf@deneb.enyo.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200304052031.52289.freesoftwaredeveloper@web.de>
+In-Reply-To: <8765pshpd4.fsf@deneb.enyo.de>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Sad, 2003-04-05 at 07:08, Anant Aneja wrote:
-> > also i cant give u the complete listing of the cpu
-> > registers since it occurs at the last stage
-> > of shutdown and i cant copy it to a file
-> > and am too lazy to write it down
+Hello !
 
-Documentation/serial-console.txt
-... but if you're too lazy to read... :)
+On Sat, Apr 05, 2003 at 06:37:43PM +0200, Florian Weimer wrote:
+> Please read the following paper:
+> 
+> <http://www.cs.rice.edu/~scrosby/tr/HashAttack.pdf>
 
-On Saturday 05 April 2003 18:47, Alan Cox wrote:
-> We are too lazy to help you.
-> Goodbye
-:) *grin*
+very interesting article.
 
-Regards
-Michael Buesch.
+> Then look at the 2.4 route cache implementation.
 
--- 
-My homepage: http://www.8ung.at/tuxsoft
-fighting for peace is like fu**ing for virginity
+Since we need commutative source/dest addresses in many places, the use of a
+XOR is a common practice. In fact, while working on hash tables a while ago, I
+found that I could get very good results with something such as :
+
+   RND1 = random_generated_at_start_time() ;
+   RND2 = random_generated_at_start_time() ;
+   /* RND2 may be 0 or equal to RND1, all cases seem OK */
+   x = (RND1 - saddr) ^ (RND1 - daddr) ^ (RND2 + saddr + daddr);
+   reduce(x) ...
+
+With this method, I found no way to guess a predictable (saddr, daddr) couple
+which gives a same result, and saddr/daddr are still commutative. It resists
+common cases where saddr=daddr, saddr=~daddr, saddr=-daddr. And *I think* tha
+the random makes other cases difficult to predict. I'm not specialized in
+crypto or whatever, so I cannot tell how to generate the best RND1/2, and it's
+obvious to me that stupid values like 0 or -1 may not help a lot, but this is
+still better than a trivial saddr ^ daddr, at a very low cost.
+For example, the x86 encoding of the simple XOR hash would result in :
+  mov saddr, %eax
+  xor daddr, %eax
+ => 2 cycles with result in %eax
+
+The new calculation will look like :
+  mov saddr, %ebx
+  mov daddr, %ecx
+
+  lea (%ebx,%ecx,1), %eax
+  neg %ecx
+
+  add RND2, %eax		// can be omitted if zero
+  add RND1, %ecx
+
+  neg %ebx
+  xor %ecx, %eax
+
+  add RND1, %ebx
+  xor %ebx, %eax
+  
+=> 5 cycles on dual-pipelines CPUs, result in eax, but uses 2 more regs.
+
+Any comments ?
+
+Regards,
+Willy
 

@@ -1,39 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263673AbTDYTZb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Apr 2003 15:25:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263772AbTDYTZb
+	id S263778AbTDYT1T (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Apr 2003 15:27:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263851AbTDYT1T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Apr 2003 15:25:31 -0400
-Received: from [12.47.58.68] ([12.47.58.68]:30442 "EHLO pao-ex01.pao.digeo.com")
-	by vger.kernel.org with ESMTP id S263673AbTDYTZa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Apr 2003 15:25:30 -0400
-Date: Fri, 25 Apr 2003 12:38:51 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: jjs <jjs@tmsusa.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.68-mm2+e100=trouble
-Message-Id: <20030425123851.4604053f.akpm@digeo.com>
-In-Reply-To: <3EA97735.8070005@tmsusa.com>
-References: <3EA97735.8070005@tmsusa.com>
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
+	Fri, 25 Apr 2003 15:27:19 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:46852 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S263778AbTDYT1Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Apr 2003 15:27:16 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: versioned filesystems in linux (was Re: kernel support for
+Date: 25 Apr 2003 12:38:57 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <b8c2sh$tp0$1@cesium.transmeta.com>
+References: <200304251618.h3PGINWP001520@81-2-122-30.bradfords.org.uk> <Pine.LNX.4.53.0304251259300.6839@chaos> <200304251748.h3PHmjQd012895@turing-police.cc.vt.edu>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 25 Apr 2003 19:37:37.0039 (UTC) FILETIME=[202349F0:01C30B62]
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jjs <jjs@tmsusa.com> wrote:
->
-> Hello -
+Followup to:  <200304251748.h3PHmjQd012895@turing-police.cc.vt.edu>
+By author:    Valdis.Kletnieks@vt.edu
+In newsgroup: linux.dev.kernel
 > 
-> This may be of interest...
-> ...
+> Of bigger concern is that the inter-block gap is only 0.5 (or maybe 0.75
+> inches, the memories are dim ;) - and you need to be able to stop and then get
+> back up to speed in that distance (or decelerate, rewind, and get a running
+> start).
 > 
-> EIP is at apply_alternatives+0x0/0xf0
-> ...
 
-You need to delete the __init from the definition of apply_alternatives().
+No, you don't.  You just need to make sure you don't have the head
+active while you overshoot.  Performance will *definitely* suffer if
+you don't, though, since you'd have to rewind.
 
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64

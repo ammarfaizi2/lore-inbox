@@ -1,104 +1,131 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271695AbTGXPeM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jul 2003 11:34:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271699AbTGXPeM
+	id S271694AbTGXPcf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jul 2003 11:32:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271695AbTGXPce
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jul 2003 11:34:12 -0400
-Received: from ns1.sim.com.tr ([212.175.216.1]:55175 "HELO ns1.sim.com.tr")
-	by vger.kernel.org with SMTP id S271695AbTGXPeD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jul 2003 11:34:03 -0400
-From: Sancar Saran <saran@sim.com.tr>
-Organization: Sim Itletisim
-To: Larry McVoy <lm@bitmover.com>
-Subject: Re: SCO offers UnixWare licenses for Linux
-Date: Thu, 24 Jul 2003 18:49:07 +0300
-User-Agent: KMail/1.5.2
-References: <1058807414.513.4.camel@sunshine> <1059058329.957.11.camel@teapot.felipe-alfaro.com> <20030724150841.GA12647@work.bitmover.com>
-In-Reply-To: <20030724150841.GA12647@work.bitmover.com>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 24 Jul 2003 11:32:34 -0400
+Received: from 24-216-225-11.charter.com ([24.216.225.11]:4004 "EHLO
+	wally.rdlg.net") by vger.kernel.org with ESMTP id S271694AbTGXPcb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jul 2003 11:32:31 -0400
+Date: Thu, 24 Jul 2003 11:47:32 -0400
+From: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
+To: Steven Cole <elenstev@mesatop.com>
+Cc: bill davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org,
+       Tomas Szepe <szepe@pinerecords.com>
+Subject: Re: Posting format
+Message-ID: <20030724154732.GJ32585@rdlg.net>
+Mail-Followup-To: Steven Cole <elenstev@mesatop.com>,
+	bill davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org,
+	Tomas Szepe <szepe@pinerecords.com>
+References: <20030723201801.GB32585@rdlg.net> <20030723212224.A527@infradead.org> <20030723220037.GC32585@rdlg.net> <20030723225333.GC16244@louise.pinerecords.com> <bfn5v6$m20$1@gatekeeper.tmr.com> <1059059667.1672.202.camel@spc9.esa.lanl.gov>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="VkqCAaSJIySsbD6j"
 Content-Disposition: inline
-Message-Id: <200307241849.07827.saran@sim.com.tr>
+In-Reply-To: <1059059667.1672.202.camel@spc9.esa.lanl.gov>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Thursday 24 July 2003 18:08, Larry McVoy wrote:
-> On Thu, Jul 24, 2003 at 04:52:09PM +0200, Felipe Alfaro Solana wrote:
-> > On Mon, 2003-07-21 at 20:59, Diego Calleja Garc?a wrote:
-> > > El Mon, 21 Jul 2003 13:52:21 -0400 Michael Bernstein 
-<michael@seven-angels.net> escribi?:
-> > > > To put it simply, just because they "may,"  - and I say may here
-> > > > simply because we have no evidence to prove their claims but cannot
-> > > > flatly deny them - own the rights to Sys V, does NOT mean they own
-> > > > the right
-> > >
-> > > So they want to sell us something that still hasn't proved....cool.
-> >
-> > And can be rewritten from scratch if necessary... They're crazy!
->
-> There seems to be a prevailing opinion that if there is stolen code in
-> Linux that came from SCO owned code that all that needs to be done is
-> to remove it and everything is fine.  I don't think it works that way.
-> If code was stolen and the fact that it is in Linux helped destroy
-> SCO's business then SCO has the right to try and get damages.  I.e.,
-> Linux damaged SCO by using the code.
->
-> It's also not a simple case of rewriting.  _Assuming_ that there was
-> something significant in Linux which came from SCO, i.e., they can make
-> the case that the Linux community wouldn't have thought of it on their
-> own, then you don't get to rewrite it because now you know how whatever
-> "it" is works and you didn't before.
->
-> The business world takes their IP seriously.  If, and it is a big if,
-> there is code in Linux from SCO, that's going to be a nasty mess to
-> clean up and we had better all pray that IBM just buys them and puts
-> Unix into the public domain.  Otherwise I think SCO could force Linux
-> backwards to whereever it was before the tainted code came in.  If that
-> happens, I (and I suspect a lot of you) will work to make sure that
-> things which couldn't possibly be tainted (like drivers) do make it
-> forward.
->
-> If SCO prevails it won't be the end of the world.  A lot of that
-> scalability stuff is just a waste of time, IMO.  32 processor systems are
-> dinosaurs that are going away and I'm not the only one who thinks so, Dell
-> and IDC agree:
->
-> 	http://news.com.com/2100-1010_3-1027556.html
->
-> Don't get me wrong, there are some cool things in 2.5 that we all want but
-> if SCO puts a dent in the works Linux will recover and maybe be better.
-
-I wish to know are we have backup plan any backup plan. Most of Linux users 
-are gonna worry. 
-
-Today I get a e mail from our local mailing lists. Says SCO sued Red Hat for 
-this. another one asks Can M$ send BSA to check their systems and request 
-licence money (because of buying SCO Unixware Licences). 
-
-Rumors everywhere, people can't track of all sources about SCO vs IBM(Linux) 
-case and each Rumor hurt us too badly. Every news people are gonna make worst 
-case scenario and this is preventing people to buy expensive linux server 
-systems (like rhas etc).
-
-Of course Linux will live. I haven't got any question about it. But I fear 
-this case between SCO and IBM may hit Red Hat, Suse and others. I believe non 
-of these distros are disposable (uh oh expect Caldera/SCO).
-
-Is there any way for backup plan?
-
-I believe the backup plan will shut up SCO and burn those plans forever. 
-
-Waiting for IBM is not good idea. 
-
-Ps: I home my enlish enough to tell what I mean.. :)
-
-Sancar "Delifisek" Saran
+--VkqCAaSJIySsbD6j
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
 
+
+
+Thus spake Steven Cole (elenstev@mesatop.com):
+
+> On Wed, 2003-07-23 at 17:32, bill davidsen wrote:
+> > A one or two line summary at the top of an article often saves the
+> > reader from reading the entire thing.
+> >=20
+> > In article <20030723225333.GC16244@louise.pinerecords.com>,
+> > Tomas Szepe  <szepe@pinerecords.com> wrote:
+> [snipped]
+> > |=20
+> > | Would you people please stop replying above the original messages?
+> > |=20
+> > | One could say this evil (pioneered by certain silly mail clients btw)
+> > | has been spreading like plague around here lately.
+> > |=20
+> > | Quoting the lkml FAQ ->
+> > | (REG) And please reply after the quoted text, not before it (as per R=
+FC
+> > | 1855).  It's very confusing to see a reply before the quoted context.
+> >=20
+> [snipped]
+> >=20
+> > |                                                                   And
+> > | it's embarrassing: it makes you look like a newbie.  Change your mail=
+er if
+> > | necessary, if the one you have makes it hard to do reply-after-quotin=
+g.
+> > | I know some people like to quote the entire message they are replying=
+ to,
+> > | so they put their reply right at the top so people won't give up afte=
+r the
+> > | first page of quoted material.  Don't do it.  It's annoying.  Just le=
+arn to
+> > | stop quoting everything.  No-one wants to see it all anyway (list arc=
+hives
+> > | allow people to see everything if they missed it).  You're not helping
+> > | yourself anyway, as you're more likely to be ignored if you
+> > | reply-before-quoting.
+> >=20
+> > Seriously, you have a point, but his two liner did not require the
+> > context of the bulk of the post. There have been some far worse choices
+> > of top posting, and the main reason for not top posting is because it's
+> > hard to read *when context is needed*.
+> >=20
+> > Your point is good, I think you could have picked a number of better
+> > examples to make it.
+>=20
+> More exposition regarding top vs bottom posting: Replying at the bottom
+> results in an easily parseable tree. Consider the following conversation
+> where everyone replies at the bottom.
+
+
+On the other hand if everyone posted at the top it would be considerably
+easier reading for those who have been following the conversation
+without having to scroll down and figure out where comments and the
+conversation is at.  You could read just the top post and go from there.
+For those new to the conversation they can just start at the bottom and
+scroll up.  When the next post comes in they just read the top post
+again instead of scrolling down to the bottom or middle somewhere to
+figure out what/when/where.
+
+Using VI and Mutt, the cursor starts at the top not the bottom or
+anywhere in the middle so there's and ease of use for CLI mail readers
+as well instead of the GUI oriented.
+
+
+:wq!
+---------------------------------------------------------------------------
+Robert L. Harris                     | GPG Key ID: E344DA3B
+                                         @ x-hkp://pgp.mit.edu=20
+DISCLAIMER:
+      These are MY OPINIONS ALONE.  I speak for no-one else.
+
+Diagnosis: witzelsucht  =09
+
+IPv6 =3D robert@ipv6.rdlg.net	http://ipv6.rdlg.net
+IPv4 =3D robert@mail.rdlg.net	http://www.rdlg.net
+
+--VkqCAaSJIySsbD6j
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE/H/+U8+1vMONE2jsRAkVtAJ9CuXhH9QJUiVLyDG1vLuO10x69gwCfaXHx
+5LG3mXzwFOIvpVX95wbAPH0=
+=QKst
+-----END PGP SIGNATURE-----
+
+--VkqCAaSJIySsbD6j--

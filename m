@@ -1,65 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135174AbREAAXX>; Mon, 30 Apr 2001 20:23:23 -0400
+	id <S130900AbREAAhz>; Mon, 30 Apr 2001 20:37:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132556AbREAAXN>; Mon, 30 Apr 2001 20:23:13 -0400
-Received: from juicer24.bigpond.com ([139.134.6.34]:5319 "EHLO
-	mailin3.email.bigpond.com") by vger.kernel.org with ESMTP
-	id <S129245AbREAAXA>; Mon, 30 Apr 2001 20:23:00 -0400
-Date: Tue, 1 May 2001 00:23:14 +1000
-From: Brett <brett@macfeegles.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: CML2 doesn't like my .config
-Message-ID: <Pine.LNX.4.21.0105010018440.16099-100000@tae-bo.generica.dyndns.org>
+	id <S133053AbREAAhp>; Mon, 30 Apr 2001 20:37:45 -0400
+Received: from tunnel-44-207.vpn.uib.no ([129.177.44.207]:19716 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S130900AbREAAha>; Mon, 30 Apr 2001 20:37:30 -0400
+Message-ID: <3AEE05AE.1090101@fi.uib.no>
+Date: Tue, 01 May 2001 02:39:10 +0200
+From: Igor Bukanov <boukanov@fi.uib.no>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.4 i686; en-US; 0.8.1) Gecko/20010326
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Can eject mounted zip disk after suspend/resume (2.4.4)
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hey,
+If I hit an eject button on internal IDE IOMEGA zip drive after 
+resume/suspend to memory on my Dell Inspiron 7500 notebook, then the 
+disk will be ejected even if it is mounted. This behavior happens ONLY 
+if I suspend my system with the mounted zip. Could I fix this somehow?
 
-Just gave CLM2 (1.3.3) a go with linux-2.4.3-ac14
+I tried to use both ide-floppy and ide-scsi drivers to access the disk 
+with no difference.
 
-Results:
+My settings for 2.4.4 kernel APM options are
+CONFIG_APM=y
+# CONFIG_APM_IGNORE_USER_SUSPEND is not set
+# CONFIG_APM_DO_ENABLE is not set
+# CONFIG_APM_CPU_IDLE is not set
+# CONFIG_APM_DISPLAY_BLANK is not set
+CONFIG_APM_RTC_IS_GMT=y
+# CONFIG_APM_ALLOW_INTS is not set
+# CONFIG_APM_REAL_MODE_POWER_OFF is not set
 
-ISA=y (deduced from X86)
-This configuration violates the following constraints:
-'((NET_PCMCIA <= PCMCIA) and (NET_PCMCIA <= NET_ETHERNET))'
-
-erm... OK.
-Relevant bits of .config
-
-# egrep CONFIG_PCMCIA\|NET_PCMCIA\|NET_ETHERNET .config
-CONFIG_PCMCIA=y
-# CONFIG_NET_ETHERNET is not set
-CONFIG_NET_PCMCIA=y
-# CONFIG_PCMCIA_3C589 is not set
-# CONFIG_PCMCIA_3C574 is not set
-# CONFIG_PCMCIA_FMVJ18X is not set
-# CONFIG_PCMCIA_PCNET is not set
-# CONFIG_PCMCIA_NMCLAN is not set
-# CONFIG_PCMCIA_SMC91C92 is not set
-CONFIG_PCMCIA_XIRC2PS=m
-# CONFIG_PCMCIA_IBMTR is not set
-# CONFIG_NET_PCMCIA_RADIO is not set
-# CONFIG_PCMCIA_SERIAL_CS is not set
-
-Is this really a problem ???
-I gather its saying "you have support for a pcmcia network card, but not
-for pcmcia" (which i do) ... and "you have support for a pcmcia network
-card, but not for ethernet (quite true).
-
-This .config has worked fine for me for countless kernels.  Do i _really_
-need to manually put in ethernet support ... I just assumed that didn't
-cover pcmcia, as it has its own section in the network device screen.
-
-More .config available on request.
-
-Machine is a Toshiba 100CS lappy.  No PCI bus, and a xircom ceIIps pcmcia
-10baseT card.
-
-thanks,
-
-	/ Brett
+Regards, Igor
 

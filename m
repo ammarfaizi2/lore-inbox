@@ -1,45 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267599AbUHYPHG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267594AbUHYPJv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267599AbUHYPHG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 11:07:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267827AbUHYPHF
+	id S267594AbUHYPJv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 11:09:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267669AbUHYPJv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 11:07:05 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:50953 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S267599AbUHYPHD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 11:07:03 -0400
-Date: Wed, 25 Aug 2004 16:06:40 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Bjorn Helgaas <bjorn.helgaas@hp.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Ralf Baechle <ralf@linux-mips.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] ioc3-eth.c: add missing pci_enable_device()
-Message-ID: <20040825160640.A8840@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Bjorn Helgaas <bjorn.helgaas@hp.com>,
-	Jeff Garzik <jgarzik@pobox.com>, Ralf Baechle <ralf@linux-mips.org>,
-	Andrew Morton <akpm@osdl.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200408242225.i7OMPGLQ029847@hera.kernel.org> <412BE006.8040606@pobox.com> <200408250903.28133.bjorn.helgaas@hp.com>
+	Wed, 25 Aug 2004 11:09:51 -0400
+Received: from fire.osdl.org ([65.172.181.4]:19672 "EHLO fire-1.osdl.org")
+	by vger.kernel.org with ESMTP id S267594AbUHYPJr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Aug 2004 11:09:47 -0400
+Subject: 6 new compile/sparse warnings (daily build)
+From: John Cherry <cherry@osdl.org>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1093446333.19925.4.camel@cherrybomb.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200408250903.28133.bjorn.helgaas@hp.com>; from bjorn.helgaas@hp.com on Wed, Aug 25, 2004 at 09:03:27AM -0600
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Wed, 25 Aug 2004 08:05:33 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 25, 2004 at 09:03:27AM -0600, Bjorn Helgaas wrote:
-> OK, I don't know anything about ioc3, other than the fact that it
-> appeared to use pci_dev->irq without doing pci_enable_device().
-> All ACPI-based PCI interrupt routing is now done in pci_enable_device()
-> (in -mm, not yet in mainline), so if ioc3 were used in an ACPI-based
-> system, it would likely be broken.
 
-The ioc3 is only used on mips-based systems (and some very early IA64-based
-prototypes from SGI), and neither of them supports ACPI.
+Compiler: gcc version 3.2.2 20030222 (Red Hat Linux 3.2.2-5)
+Arch: i386
+
+
+Summary:
+   New warnings = 6
+   Fixed warnings = 2
+
+New warnings:
+-------------
+drivers/usb/gadget/inode.c:693:17: warning: incorrect type in assignment
+(different type sizes)
+drivers/usb/gadget/inode.c:693:17:    expected int [usertype] (
+*[addressable] [toplevel] ki_retry )( ... )
+drivers/usb/gadget/inode.c:693:17:    got long ( static [addressable]
+[toplevel] *<noident> )( ... )
+drivers/usb/gadget/inode.c:693: warning: assignment from incompatible
+pointer type
+
+drivers/usb/gadget/inode.c:693:17: warning: incorrect type in assignment
+(different type sizes)
+drivers/usb/gadget/inode.c:693:17:    expected int [usertype] (
+*[addressable] [toplevel] ki_retry )( ... )
+drivers/usb/gadget/inode.c:693:17:    got long ( static [addressable]
+[toplevel] *<noident> )( ... )
+
+fs/aio.c:1322:39: warning: incorrect type in argument 2 (different
+address spaces)
+fs/aio.c:1322:39:    expected char [noderef] *<noident><asn:1>
+fs/aio.c:1322:39:    got char *[addressable] [toplevel] ki_buf
+
+fs/aio.c:1359:40: warning: incorrect type in argument 2 (different
+address spaces)
+fs/aio.c:1359:40:    expected char const [noderef] *<noident><asn:1>
+fs/aio.c:1359:40:    got char *[addressable] [toplevel] ki_buf
+
+fs/aio.c:1413:7: warning: incorrect type in argument 1 (different
+address spaces)
+fs/aio.c:1413:7:    expected void [noderef] *<noident><asn:1>
+fs/aio.c:1413:7:    got char *[addressable] [toplevel] ki_buf
+
+fs/aio.c:1425:7: warning: incorrect type in argument 1 (different
+address spaces)
+fs/aio.c:1425:7:    expected void [noderef] *<noident><asn:1>
+fs/aio.c:1425:7:    got char *[addressable] [toplevel] ki_buf
+
+
+Fixed warnings:
+---------------
+security/selinux/hooks.c:2825: warning: `ret' might be used
+uninitialized in this function
+
+security/selinux/hooks.c:2886: warning: `ret' might be used
+uninitialized in this function
+
+
 

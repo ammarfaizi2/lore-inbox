@@ -1,33 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276097AbRJ2QOB>; Mon, 29 Oct 2001 11:14:01 -0500
+	id <S276118AbRJ2QMV>; Mon, 29 Oct 2001 11:12:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276099AbRJ2QNv>; Mon, 29 Oct 2001 11:13:51 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:37638 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S276097AbRJ2QNm>; Mon, 29 Oct 2001 11:13:42 -0500
-Subject: Re: Linux 2.4.13-ac4
-To: macro@ds2.pg.gda.pl (Maciej W. Rozycki)
-Date: Mon, 29 Oct 2001 16:19:25 +0000 (GMT)
-Cc: laughing@shared-source.org (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.GSO.3.96.1011029170323.3407F-100000@delta.ds2.pg.gda.pl> from "Maciej W. Rozycki" at Oct 29, 2001 05:07:51 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S276097AbRJ2QML>; Mon, 29 Oct 2001 11:12:11 -0500
+Received: from mail.nep.net ([12.23.44.24]:47370 "HELO nep.net")
+	by vger.kernel.org with SMTP id <S276099AbRJ2QMH>;
+	Mon, 29 Oct 2001 11:12:07 -0500
+Message-ID: <19AB8F9FA07FB0409732402B4817D75A038BF2@FILESERVER.SRF.srfarms.com>
+From: "Ryan C. Bonham" <Ryan@srfarms.com>
+To: "Linux Kernel List (E-mail)" <linux-kernel@vger.kernel.org>
+Subject: Build RPM
+Date: Mon, 29 Oct 2001 11:14:06 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15yF8I-00039G-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Sun, 28 Oct 2001, Alan Cox wrote:
-> 
-> > o	Handle chipsets that dont get 8254 latches	(Roberto Biancardi)
-> > 	right and trigger the VIA warning in error
-> 
->  Hmm, has anyone tried using the "read back" 8254 command for latching,
-> instead?  Chances are it's less buggy... 
+Hi,
 
-Possibly. The first problem that has been pointed out however needs more
-work first. That is the "so where is the 8254 locking" question
+Sorry I know this is a bit OT, but I was wondering if someone could point me
+towards some documentation on how to build a RPM for a Kernel. I am using AC
+Kernels, I know there is a 'make rpm' command, I just don't know when to run
+it and what else I have to do.. 
 
+
+Thanks,
+
+Ryan 

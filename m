@@ -1,218 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265278AbUFAWya@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265294AbUFAWwe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265278AbUFAWya (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jun 2004 18:54:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265277AbUFAWya
+	id S265294AbUFAWwe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jun 2004 18:52:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265267AbUFAWv3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jun 2004 18:54:30 -0400
-Received: from eliassen.atmos.colostate.edu ([129.82.48.152]:22449 "EHLO
-	eliassen.atmos.colostate.edu") by vger.kernel.org with ESMTP
-	id S265323AbUFAWtS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jun 2004 18:49:18 -0400
-Date: Tue, 1 Jun 2004 16:52:23 -0600 (MDT)
-From: Saurabh Barve <sa@atmos.colostate.edu>
-To: Arthur Perry <kernel@linuxfarms.com>
-cc: linux-kernel@vger.kernel.org,
-       Red Hat AMD64 Mailing List <amd64-list@redhat.com>
-Subject: Re: GART Error 11
-In-Reply-To: <Pine.LNX.4.58.0406011753300.9355@tiamat.perryconsulting.net>
-Message-ID: <Pine.LNX.4.44.0406011648350.4341-100000@eliassen.atmos.colostate.edu>
+	Tue, 1 Jun 2004 18:51:29 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:46502 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S265296AbUFAWiN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jun 2004 18:38:13 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: "Tvrtko A. =?utf-8?q?Ur=C5=A1ulin?=" <tvrtko.ursulin@zg.htnet.hr>
+Subject: Re: Question about IDE disk shutdown
+Date: Wed, 2 Jun 2004 00:41:22 +0200
+User-Agent: KMail/1.5.3
+References: <200406011713.59904.tvrtko.ursulin@zg.htnet.hr>
+In-Reply-To: <200406011713.59904.tvrtko.ursulin@zg.htnet.hr>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200406020041.22420.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arthur,
+On Tuesday 01 of June 2004 17:13, Tvrtko A. Uršulin wrote:
+> Hello all,
+>
+> Probably a trivial question for ones who know it - what IDE commands does
+> kernel issue when shutting down (which results in automatic power-off if
+> ACPI is enabled)?
+>
+> According to my hard disk manual, it is absolutely recommended to put the
+> drive in STANDBY or SLEEP mode before power cut-off because in that way
+> heads are nicely parked. In that way it is guaranteed to have 300000 head
+> load/unload cycles minimum, while in other case it is just 20000 cycles.
+>
+> It also explicitely states that FLUSH CACHE is not to be used for drive
+> power-off because it does not park the heads.
+>
+> Looking at the source I see in ide-disk.c:
+>
+> 	.gen_driver = {
+> 		.shutdown	= ide_device_shutdown,
+> 	},
+>
+> Following that I see that ide_device_shutdown flushes the cache, and then
+> calls dev->bus->suspend(dev, PM_SUSPEND_STANDBY); which is in fact
+> generic_ide_suspend, right? There, something called REQ_PM_SUSPEND is
+> issued to the drive. As SUSPEND != STANDBY or SLEEP, I am left uncertain.
+>
+> Is there a place to be worried or I am missing something?
 
-I list all the information I have right off the bat:
+You are missing PM code in ide-disk.c.  :-)
 
-AMD Opteron Model 246, 1 MB L2 Cache 64-bit processor
-Model : AMD Opteron Model 246
-Core : Hammer
-Operating Frequency : 2 GHz
-Cache : L1/128K, L2/1024K
-Socekt: Socket 940
+See idedisk_start_power_step() and idedisk_complete_power_step(),
+also read comment in <linux/ide.h> about ide_pm_state_*.
 
-Is that info enough? 
-
-I just remembered looking at /var/log/dmesg again. There was a line that 
-said that IOMMU was not enabled in my BIOS, and that I should enable it. 
-However, I can't see any option in my BIOS for enabling/disabling IOMMU.
-
-Thanks,
-Saurabh.
- 
-On Tue, 1 Jun 2004, Arthur Perry wrote:
-
-> Hi Saurabh,
-> 
-> I almost forgot.
-> Can you also tell me which AMD CPUs you are using?
-> Preferrably by number if you know (starts with OSA I believe), or at least
-> the CPU speed.
-> Thanks!
-> 
-> Arthur Perry
-> Lead Linux Developer / Linux Systems Architect
-> Validation, CSU Celestica
-> Sair/Linux Gnu Certified Professional
-> Providing professional Linux solutions for 7+ years
-> 
-> On Tue, 1 Jun 2004, Arthur Perry wrote:
-> 
-> > Hi Saurabh,
-> >
-> > I am working on this issue as we speak.
-> > It is interesting that your machine crashes entirely with iommu disabled.
-> >
-> > I am starting to think there is more to this than just the kernel
-> > misreporting other hardware errors (being improperly decoded as GART
-> > errors).
-> > On my machine, I am actaully getting Gart erros on 3 out of 4 CPUS when I
-> > use RedHat's 2.4.21-9EL kernel. This same kernel when rebuilt from source,
-> > however, will not produce GART errors when built without AGP support.
-> >
-> > Here is my Extended error code (bits 19-16 on 0:[18,19,1b]:3 at offset 0x44:
-> > 0101 = GART error
-> >
-> > So, this is not a translation issue on my side.
-> >
-> > Can you do this for me?
-> >
-> > pcitweak -r 0:18:3 0x44
-> > and
-> > pcitweak -r 0:19:3 0x44
-> >
-> >
-> > Thanks!
-> >
-> >
-> > Arthur Perry
-> > Lead Linux Developer / Linux Systems Architect
-> > Validation, CSU Celestica
-> > Sair/Linux Gnu Certified Professional
-> > Providing professional Linux solutions for 7+ years
-> >
-> > On Tue, 1 Jun 2004, Saurabh Barve wrote:
-> >
-> > > Hi,
-> > >
-> > > I know this has been posted before on this list, but the solution
-> > > suggested does not seem to work for me.
-> > >
-> > > I have a dual opteron system with 8 GB of RAM. I am running RHEL 3.0 AS on
-> > > it. The kernel version is 2.4.21-4.ELsmp. The motherboard I am using is
-> > > the Tyan Thunder K8S Pro - 2882 motherboard.
-> > >
-> > > I am getting the following error every two minutes or so:
-> > >
-> > > GART error 11
-> > > Lost an northbridge error
-> > > NB error address some-hex-number
-> > > Error uncorrected
-> > >
-> > > I checked the various postings on the list, and someone suggested that
-> > > passing iommu=off option to the kernel solved the problem for him.
-> > > However, when I tried that, it got the kernel to panic. I read somewhere
-> > > that a newer kernel would fix these 'bugs' in the default RHEL kernel.
-> > > However, I am using the onboard SATA controller for my hard disks. This
-> > > requires binary drivers from Tyan. I already downloaded a newer kernel,
-> > > however, it breaks the drivers, so I can't boot into the new kernel.
-> > >
-> > > Here is my output from lspci:
-> > >
-> > > 00:06.0 PCI bridge: Advanced Micro Devices [AMD] AMD-8111 PCI (rev 07)
-> > > 00:07.0 ISA bridge: Advanced Micro Devices [AMD] AMD-8111 LPC (rev 05)
-> > > 00:07.1 IDE interface: Advanced Micro Devices [AMD] AMD-8111 IDE (rev 03)
-> > > 00:07.2 SMBus: Advanced Micro Devices [AMD] AMD-8111 SMBus 2.0 (rev 02)
-> > > 00:07.3 Bridge: Advanced Micro Devices [AMD] AMD-8111 ACPI (rev 05)
-> > > 00:0a.0 PCI bridge: Advanced Micro Devices [AMD] AMD-8131 PCI-X Bridge
-> > > (rev 12)
-> > > 00:0a.1 PIC: Advanced Micro Devices [AMD] AMD-8131 PCI-X APIC (rev 01)
-> > > 00:0b.0 PCI bridge: Advanced Micro Devices [AMD] AMD-8131 PCI-X Bridge
-> > > (rev 12)
-> > > 00:0b.1 PIC: Advanced Micro Devices [AMD] AMD-8131 PCI-X APIC (rev 01)
-> > > 00:18.0 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-> > > 00:18.1 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-> > > 00:18.2 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-> > > 00:18.3 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-> > > 00:19.0 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-> > > 00:19.1 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-> > > 00:19.2 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-> > > 00:19.3 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-> > > 02:09.0 Ethernet controller: Broadcom Corporation NetXtreme BCM5704
-> > > Gigabit Ethernet (rev 03)
-> > > 02:09.1 Ethernet controller: Broadcom Corporation NetXtreme BCM5704
-> > > Gigabit Ethernet (rev 03)
-> > > 03:00.0 USB Controller: Advanced Micro Devices [AMD] AMD-8111 USB (rev 0b)
-> > > 03:00.1 USB Controller: Advanced Micro Devices [AMD] AMD-8111 USB (rev 0b)
-> > > 03:05.0 Unknown mass storage controller: Silicon Image, Inc. (formerly CMD
-> > > Technology Inc) Silicon Image SiI 3114 SATARaid Controller (rev 02)
-> > > 03:06.0 VGA compatible controller: ATI Technologies Inc Rage XL (rev 27)
-> > > 03:08.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] (rev
-> > > 10)
-> > >
-> > > The dmesg output was too large to include inline, so I am attaching it as
-> > > a text file.
-> > >
-> > > I tried passing the following options to the kernel:
-> > >
-> > > iommu=noagp
-> > > iommu=noforce
-> > > iommu=off (results in kernel-panic)
-> > > mce=off
-> > > mce=0
-> > >
-> > > I tried all the above in various combinations, but none of them worked.
-> > > The machine doesn't crash, and everything else seems to work fine, but I'd
-> > > like to get rid of these errors.
-> > >
-> > > There are some snippets from the dmesg output that I found to be of
-> > > interest:
-> > >
-> > > ------------------------------------------------------------
-> > > Linux agpgart interface v0.99 (c) Jeff Hartmann
-> > > agpgart: Maximum main memory to use for agp memory: 7956M
-> > > agpgart: no supported devices found.
-> > > PCI-DMA: Disabling AGP.
-> > > PCI-DMA: aperture base @ 10000000 size 65536 KB
-> > > PCI-DMA: Reserving 64MB of IOMMU area in the AGP aperture
-> > > -----------------------------------------------------------
-> > >
-> > > -----------------------------------------------------------
-> > >
-> > > GART error 11
-> > > Lost an northbridge error
-> > > NB error address 00000000fbfe4398
-> > > Error uncorrected
-> > > Northbridge status a40000000005001b
-> > >
-> > > ----------------------------------------------------------
-> > >
-> > >
-> > > Any suggestions?
-> > >
-> > > Thanks,
-> > > Saurabh.
-> > >
-> >
-> >
-> > --
-> > amd64-list mailing list
-> > amd64-list@redhat.com
-> > https://www.redhat.com/mailman/listinfo/amd64-list
-> >
-> 
-
--- 
-===============================================================================                                                                                
-Saurabh Barve                                        Phone:
-System Administrator/Data Specialist                 970-491-7714 (voice)
-Montgomery Research Group,                           970-491-8449 (Fax)
-Atmospheric Sciences Department,
-Fort Collins, Colorado                             
-Colorado State University                         
-
-Mail : sa@atmos.colostate.edu
-Web  : http://fjortoft.atmos.colostate.edu/~sa 
+Bartlomiej
 

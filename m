@@ -1,56 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262139AbTJNGyq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Oct 2003 02:54:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262188AbTJNGyq
+	id S262237AbTJNHMy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Oct 2003 03:12:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262240AbTJNHMx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Oct 2003 02:54:46 -0400
-Received: from users.linvision.com ([62.58.92.114]:57748 "HELO bitwizard.nl")
-	by vger.kernel.org with SMTP id S262139AbTJNGyo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Oct 2003 02:54:44 -0400
-Date: Tue, 14 Oct 2003 08:54:42 +0200
-From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-To: Norman Diamond <ndiamond@wta.att.ne.jp>
-Cc: John Bradford <john@grabjohn.com>, linux-kernel@vger.kernel.org
-Subject: Re: Why are bad disk sectors numbered strangely, and what happens to them?
-Message-ID: <20031014065442.GB12342@bitwizard.nl>
-References: <32a101c3916c$e282e330$5cee4ca5@DIAMONDLX60> <200310131014.h9DAEwY3000241@81-2-122-30.bradfords.org.uk> <33a201c39174$2b936660$5cee4ca5@DIAMONDLX60> <200310131033.h9DAXkHu000365@81-2-122-30.bradfords.org.uk> <33d201c3917d$668c8310$5cee4ca5@DIAMONDLX60>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <33d201c3917d$668c8310$5cee4ca5@DIAMONDLX60>
-User-Agent: Mutt/1.3.28i
-Organization: BitWizard.nl
+	Tue, 14 Oct 2003 03:12:53 -0400
+Received: from a0.complang.tuwien.ac.at ([128.130.173.25]:50703 "EHLO
+	a0.complang.tuwien.ac.at") by vger.kernel.org with ESMTP
+	id S262237AbTJNHMw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Oct 2003 03:12:52 -0400
+X-mailer: xrn 9.03-beta-14
+From: anton@mips.complang.tuwien.ac.at (Anton Ertl)
+Subject: Re: ReiserFS patch for updating ctimes of renamed files
+To: linux-kernel@vger.kernel.org
+X-Newsgroups: linux.kernel
+In-reply-to: <Gr0H.1ol.5@gated-at.bofh.it>
+Date: Tue, 14 Oct 2003 06:57:17 GMT
+Message-ID: <2003Oct14.085717@a0.complang.tuwien.ac.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 13, 2003 at 08:30:19PM +0900, Norman Diamond wrote:
-> > How are you going to make sure you write it in the same location as it was
-> > before?
-> 
-> Mostly it doesn't matter.  The primary purpose of this bit of it is to
-> recreate the file to contain good data, which is why I would try to recreate
-> it from a source of good data.  The secondary purpose is:
+Hans Reiser:
+>Andrew Morton wrote:
+>>Yes, John has a point but we're not going to go and change all the other
+>>filesystems (are we?).
+>>
+>why not?  It is correct therefor....
 
-Note that I strongly recommend not putting any important data on
-a drive that has shown to have defective sectors(*). You never know when
-the next sector is going to go. 
+Many years ago we had the same problem with ext2: it did not change
+ctime on rename, so GNU tar did not pick up the renamed files on
+incremental backup.  Fortunately a few kernel versions later ext2
+changed to the current behaviour (unfortunately I don't remember the
+kernel version).
 
-We're replacing a drive that has remapped 13 sectors or something like
-that, and it's now given us the first IO errors, so it's going towards
-the bin. 
+IIRC our sysadmin submitted a bug report for GNU tar at the time, and
+got the answer that GNU tar would not change.
 
-		Roger. 
-
-(*) If you're sure that something external which can be prevented in the
-future caused the bad sectors, then fine. But if a drive is developing
-bad sectors all by itself, the future might bring remapped sectors until
-the slack remap space runs out, or one day a sector containing important
-data goes bad.... 
-
-
+- anton
 -- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-**** "Linux is like a wigwam -  no windows, no gates, apache inside!" ****
+M. Anton Ertl                    Some things have to be seen to be believed
+anton@mips.complang.tuwien.ac.at Most things have to be believed to be seen
+http://www.complang.tuwien.ac.at/anton/home.html

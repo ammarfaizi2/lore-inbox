@@ -1,39 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267693AbTBGEyQ>; Thu, 6 Feb 2003 23:54:16 -0500
+	id <S267714AbTBGEzs>; Thu, 6 Feb 2003 23:55:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267714AbTBGEyQ>; Thu, 6 Feb 2003 23:54:16 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:20499 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S267693AbTBGEyQ>;
-	Thu, 6 Feb 2003 23:54:16 -0500
-Date: Thu, 6 Feb 2003 20:59:19 -0800
+	id <S267717AbTBGEzs>; Thu, 6 Feb 2003 23:55:48 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:21779 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S267714AbTBGEzr>;
+	Thu, 6 Feb 2003 23:55:47 -0500
+Date: Thu, 6 Feb 2003 21:00:47 -0800
 From: Greg KH <greg@kroah.com>
-To: linux-kernel@vger.kernel.org
-Cc: Jeff Garzik <jgarzik@pobox.com>, hpa@zytor.com,
-       Russell King <rmk@arm.linux.org.uk>
-Subject: [RFC] klibc for 2.5.59 bk
-Message-ID: <20030207045919.GA30526@kroah.com>
+To: arnd@bergmann-dalldorf.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: klibc update
+Message-ID: <20030207050047.GB30526@kroah.com>
+References: <200302061307.33944.arndb@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <200302061307.33944.arndb@de.ibm.com>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Thu, Feb 06, 2003 at 01:07:33PM +0100, Arnd Bergmann wrote:
+> I found what kept initramfs from working here: While creating
+> of initramfs_data.cpio.gz, the padding between a file header
+> and the file contents was wrong, which can be verified by
+> unpacking the archive by hand.
+> 
+> The trivial patch below fixed this for me.
 
-Thanks to Arnd Bergmann, it looks like the klibc and initramfs code is
-now working.  I've created a patch against Linus's latest bk tree and
-put it at:
-	http://www.kroah.com/linux/klibc/klibc-2.5.59-2.patch.gz
-(I can't get to kernel.org right now, sorry)
-and there's a bk tree at:
-	bk://kernel.bkbits.net/gregkh/linux/klibc-2.5
+Thanks a lot for the patch, I've added it to my tree, and verified that
+the uncompressed archive works properly.
 
-I'd really like to send this to Linus now, but I'm going to be away
-from email for about a week, so I'll wait will I get back.  If anyone
-has any issues with this patch, please let me know.
-
-thanks,
+thanks again,
 
 greg k-h

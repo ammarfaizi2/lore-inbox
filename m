@@ -1,32 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293081AbSCABCD>; Thu, 28 Feb 2002 20:02:03 -0500
+	id <S310159AbSCAB0p>; Thu, 28 Feb 2002 20:26:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293629AbSCAA55>; Thu, 28 Feb 2002 19:57:57 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:46864 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S310200AbSCAAyU>; Thu, 28 Feb 2002 19:54:20 -0500
-Subject: Re: Dual P4 Xeon i860 system - lockups in 2.4 & no boot in 2.2
-To: texas@ludd.luth.se (texas)
-Date: Fri, 1 Mar 2002 01:09:13 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.GSU.4.33.0202281949410.27596-100000@father.ludd.luth.se> from "texas" at Feb 28, 2002 07:53:30 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16gbXt-0001s7-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S293447AbSCABYH>; Thu, 28 Feb 2002 20:24:07 -0500
+Received: from h24-71-223-10.cg.shawcable.net ([24.71.223.10]:48007 "EHLO
+	pd4mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id <S310291AbSCABU1>; Thu, 28 Feb 2002 20:20:27 -0500
+Date: Thu, 28 Feb 2002 17:20:58 -0800 (PST)
+From: Daniel Bertrand <d.bertrand@ieee.org>
+Subject: Re: [Emu10k1-devel] Re: Emu10k1 SPDIF passthru doesn't work if
+In-Reply-To: <20020228.170317.70477069.davem@redhat.com>
+X-X-Sender: d_bertra@kilrogg
+To: "David S. Miller" <davem@redhat.com>
+Cc: alan@lxorguk.ukuu.org.uk, Rui Sousa <rui.p.m.sousa@clix.pt>,
+        german@piraos.com, jcm@netcabo.pt, linux-kernel@vger.kernel.org,
+        emu10k1-devel <emu10k1-devel@lists.sourceforge.net>,
+        steve@math.upatras.gr, d.bertrand@ieee.org, dledford@redhat.com
+Message-id: <Pine.LNX.4.44.0202281710290.3717-100000@kilrogg>
+MIME-version: 1.0
+Content-type: TEXT/PLAIN; charset=US-ASCII
+Content-transfer-encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Tried 2.2 again thinking it might work now with the fixed BIOS settings
-> but no, still getting the "Keyboard: Timeout - AT keyboard not present?"
-> and "hda: lost interrupt" messages. So I can't even boot 2.2 and I have no
+Hi,
 
-I guess that box is always assuming PnP or ACPI setup in which case 2.2
-will never work on it.
+Looks like the bug is from pushing the 64bit dma_handle on a 32bit va_arg 
+list. Its fixed in CVS, and at least one person has reported success.
 
-Cold boot in the sense that reset buttons don't work or cold in the sense
-ctrl-alt-del doesn't work. If the reset button isn't working thats a real
-"hardware died" alarm bell
+
+On Thu, 28 Feb 2002, David S. Miller wrote:
+
+>    From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+>    Date: Fri, 1 Mar 2002 01:07:27 +0000 (GMT)
+>    
+>    The cast befor ethe cpu_to_ is safe if its 32bit I/O only. Maybe we should
+>    have cpu_to_le_dma_addr_t 8)
+> 
+> Actually, the cast to 32-bit is safe if you've set your DMA mask
+> properly :-)
+> 
+
+-- 
+Daniel Bertrand
+

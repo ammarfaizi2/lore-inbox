@@ -1,31 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272539AbRH3XLE>; Thu, 30 Aug 2001 19:11:04 -0400
+	id <S272551AbRH3XNO>; Thu, 30 Aug 2001 19:13:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272548AbRH3XKy>; Thu, 30 Aug 2001 19:10:54 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:47621 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S272539AbRH3XKq>; Thu, 30 Aug 2001 19:10:46 -0400
-Subject: Re: [UPDATE] 2.4.10-pre2 PCI64, API changes README
-To: davem@redhat.com (David S. Miller)
-Date: Fri, 31 Aug 2001 00:14:22 +0100 (BST)
-Cc: kraxel@bytesex.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20010830.160651.75218604.davem@redhat.com> from "David S. Miller" at Aug 30, 2001 04:06:51 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15cb0w-00025m-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S272549AbRH3XNF>; Thu, 30 Aug 2001 19:13:05 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:40576 "EHLO
+	e34.bld.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S272548AbRH3XM6> convert rfc822-to-8bit; Thu, 30 Aug 2001 19:12:58 -0400
+Date: Thu, 30 Aug 2001 16:07:08 -0700
+From: Jonathan Lahr <lahr@us.ibm.com>
+To: Eric Youngdale <eric@andante.org>
+Cc: =?iso-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>,
+        linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: io_request_lock/queue_lock patch
+Message-ID: <20010830160708.G23680@us.ibm.com>
+In-Reply-To: <20010830232228.C2120-100000@gerard> <008801c1319d$57f16970$4d0310ac@fairfax.mkssoftware.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <008801c1319d$57f16970$4d0310ac@fairfax.mkssoftware.com>; from eric@andante.org on Thu, Aug 30, 2001 at 05:47:19PM -0400
+X-Operating-System: Linux 2.0.32 on an i486
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> When such an API would be created, it would take two PCI_DEV structs,
-> and it would possibly fail.  On sparc64 for example, it is not
-> possible to PCI peer-to-peer DMA between two PCI devices behind
-> different PCI controllers, it simply doesn't work.
 
-Thats an API video overlay really really needs of course - because DMA from
-the capture card into the video memory is precisely how its done.
+Is there an estimate on when the 2.5 i/o subsystem will be released?
 
-Alan
+Jonathan
+
+Eric Youngdale [eric@andante.org] wrote:
+>     I am afraid I would have to agree with Gérard.  We were planning on
+> cleaning this mess up in the 2.5 kernel, and my inclination would be to
+> leave this alone until then.
+> 
+> -Eric
+> 
+> ----- Original Message -----
+> From: "Gérard Roudier" <groudier@free.fr>
+> To: "Jonathan Lahr" <lahr@us.ibm.com>
+> Cc: <linux-kernel@vger.kernel.org>; <linux-scsi@vger.kernel.org>
+> Sent: Thursday, August 30, 2001 5:32 PM
+> Subject: Re: io_request_lock/queue_lock patch
+> 
+> 
+> >
+> > Here are my welcome comments. :)
+> >
+> > In my opinion, it would well be a miracle if your patch does not introduce
+> > new race conditions, at least for drivers that still use the old scsi done
+> > method.
+> >
+> >   Gérard.

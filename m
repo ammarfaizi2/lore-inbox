@@ -1,82 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261823AbVCGVaD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261781AbVCGVaD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261823AbVCGVaD (ORCPT <rfc822;willy@w.ods.org>);
+	id S261781AbVCGVaD (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 7 Mar 2005 16:30:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261781AbVCGV3I
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261782AbVCGV2x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 16:29:08 -0500
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:34744 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S261767AbVCGVYZ (ORCPT
+	Mon, 7 Mar 2005 16:28:53 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:56973 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261781AbVCGVRw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 16:24:25 -0500
-Date: Tue, 8 Mar 2005 00:49:44 +0300
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Fruhwirth Clemens <clemens@endorphin.org>
-Cc: Andrew Morton <akpm@osdl.org>, James Morris <jmorris@redhat.com>,
-       Herbert Xu <herbert@gondor.apana.org.au>, linux-kernel@vger.kernel.org,
-       cryptoapi@lists.logix.cz, David Miller <davem@davemloft.net>
-Subject: Re: [0/many] Acrypto - asynchronous crypto layer for linux kernel
- 2.6
-Message-ID: <20050308004944.60fedb51@zanzibar.2ka.mipt.ru>
-In-Reply-To: <1110229998.13172.48.camel@ghanima>
-References: <11102278521318@2ka.mipt.ru>
-	<1110229998.13172.48.camel@ghanima>
-Reply-To: johnpol@2ka.mipt.ru
-Organization: MIPT
-X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [194.85.82.65]); Tue, 08 Mar 2005 00:23:42 +0300 (MSK)
+	Mon, 7 Mar 2005 16:17:52 -0500
+Subject: [ANNOUNCE] March Release of LTP now available
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       ltp-list@lists.sf.net
+Cc: ltp-announce@lists.sf.net
+X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
+Message-ID: <OFAC579230.20711D81-ON85256FBD.0074E0C1-86256FBD.0074FF60@us.ibm.com>
+From: Marty Ridgeway <mridge@us.ibm.com>
+Date: Mon, 7 Mar 2005 15:17:40 -0600
+X-MIMETrack: Serialize by Router on D01ML072/01/M/IBM(Release 6.53IBM1 HF8|January 11, 2005) at
+ 03/07/2005 16:17:48
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 07 Mar 2005 22:13:18 +0100
-Fruhwirth Clemens <clemens@endorphin.org> wrote:
-
-> On Mon, 2005-03-07 at 23:37 +0300, Evgeniy Polyakov wrote:
-> 
-> > I'm pleased to announce asynchronous crypto layer for Linux kernel 2.6.
-> 
-> Thanks Evgeniy for your work! Even though, it's great what's inside, I'm
-> afraid it will be judged by the form of its presentation. A patch should
-> be something integral, testable on its own. I think it's not necessary
-> to package it that fine grained, as it becomes very hard to apply with a
-> regular mail reader (Saving/Exporting 50 mails is really a bit of a
-> work).
-> 
-> So, the form is a bit suboptimal. Don't hesitate to put all "acrypto*"
-> and "arch*" patches in one-large acrypto patch set, and an other for
-> "bd*". I'd be glad to say something different, but I think acrypto has
-> not been considered by the maintainers to be merged soon, so patch
-> splitting doesn't make sense anyway at the moment.
-
-Unfortunately acrypto patch is more than 200kb, so neither mail list 
-will accept it, so I've sent it in such form :)
-
-Actually the most interesting is the first e-mail with subject line
-"[0/many] Acrypto - asynchronous crypto layer for linux kernel 2.6" which 
-has description of the acrypto layer and it's features.
-Acrypto patches itself live in patches with prefix "acrypto" 
-[it is from 1 to 21].
-bd lives in the last five patches.
-Several first e-mails without first number ([??/many]...) are 
-various descriptions.
-
-E-mail with subject line 
-"[??/many] list of files to be sent in a next couple of e-mails with small description"
-contains small one line description of each e-mail.
-
-Sorry for such form, but it is really big set of information pieces, 
-so I combined it in a such way.
-
-> Best Regards,
-> -- 
-> Fruhwirth Clemens - http://clemens.endorphin.org 
-> for robots: sp4mtrap@endorphin.org
-> 
 
 
-	Evgeniy Polyakov
 
-Only failure makes us experts. -- Theo de Raadt
+
+LTP-20050307
+- Added -v option to LTP, fixed -s option
+- Removed fcntl16 until testcase can be fixed/changed.
+- Fix for defect 14136, growfiles expanding a file past the 2G limit on
+ext2
+- Applied patch from Marcus Meissner for SF bug #1114114
+- Applied patch from David Miller for sigaction problems
+- Applied a patch from Suzuki Kp to resolve some race/signal handling
+conditions
+- In adapting specific LTP tests to uClinux running on Analog Devices'
+  Blackfin processor, we found a problem in mount01 where malloc was not
+  reserving space for the trailing null byte and strncpy was being called
+  without enough bytes to account for the trailing null byte.  The
+  following patch fixes the problem
+- Increased USER_PRECISION to 2200 to take into account the processes
+switching time nanosleep02
+- The attached patch fixes a swapon cross compile build error I ran into
+  recently. I verified that RH9 self hosted and cross compile builds now
+- Removed the include of <asm/atomic.h> back out.  Most distros and kernels
+  can build and execute the test without it now.
+- Change for defect 13778, when the /var/log/messages file is first moved,
+the first write fails
+- The SIGINT sighandler will set the "intinitr" flag to 1 for the children.
+But if the
+  "runtime" is small( a command line argument passed, the testcases were
+running
+  for 5 secs here), it may happen that the SIGINT may be recieved before
+the
+  child initialize the flag to 0, and which may lead to a hang
+- Change to exclude lib6 directory from default build since it breaks
+earlier Distros
+- Added code to handle cases where certain distros don't define AI_V4MAPPED
+in /usr/include/netdb.h
+
+
+Linux Test Project
+Linux Technology Center
+IBM Corporation
+
+
+Internet E-Mail : mridge@us.ibm.com
+IBM, 11501 Burnet Rd, Austin, TX  78758
+Phone (512) 838-1356 - T/L 678-1356 - Bldg. 908/1C005
+Austin, TX.
+

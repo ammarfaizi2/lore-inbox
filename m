@@ -1,96 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285433AbRLNR6H>; Fri, 14 Dec 2001 12:58:07 -0500
+	id <S285449AbRLNSKs>; Fri, 14 Dec 2001 13:10:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285435AbRLNR55>; Fri, 14 Dec 2001 12:57:57 -0500
-Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:12698
-	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
-	with ESMTP id <S285433AbRLNR5j>; Fri, 14 Dec 2001 12:57:39 -0500
-Date: Fri, 14 Dec 2001 12:53:00 -0500
-From: Chris Mason <mason@suse.com>
-To: Andrew Morton <akpm@zip.com.au>
-cc: Johan Ekenberg <johan@ekenberg.se>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        jack@suse.cz, linux-kernel@vger.kernel.org
-Subject: Re: Lockups with 2.4.14 and 2.4.16
-Message-ID: <3845670000.1008352380@tiny>
-In-Reply-To: <3C1A3652.52B989E4@zip.com.au>
-In-Reply-To: <000a01c1829f$75daf7a0$050010ac@FUTURE>
- ,	<000a01c1829f$75daf7a0$050010ac@FUTURE> <3825380000.1008348567@tiny>
- <3C1A3652.52B989E4@zip.com.au>
-X-Mailer: Mulberry/2.1.0 (Linux/x86)
+	id <S285448AbRLNSK3>; Fri, 14 Dec 2001 13:10:29 -0500
+Received: from adsl-216-102-214-42.dsl.snfc21.pacbell.net ([216.102.214.42]:28420
+	"HELO marcus.pants.nu") by vger.kernel.org with SMTP
+	id <S285440AbRLNSK1>; Fri, 14 Dec 2001 13:10:27 -0500
+Subject: Re: reiser4 (was Re: [PATCH] Revised extended attributes  interface)
+To: reiser@namesys.com (Hans Reiser)
+Date: Fri, 14 Dec 2001 10:27:14 -0800 (PST)
+Cc: andrew@pimlott.ne.mediaone.net (Andrew Pimlott),
+        aia21@cam.ac.uk (Anton Altaparmakov), nathans@sgi.com (Nathan Scott),
+        ag@bestbits.at (Andreas Gruenbacher), linux-kernel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, linux-xfs@oss.sgi.com
+In-Reply-To: <3C19DE41.6000507@namesys.com> from "Hans Reiser" at Dec 14, 2001 02:10:57 PM
+X-Mailer: ELM [version 2.5 PL0pre8]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Message-Id: <20011214182715.08C352B54A@marcus.pants.nu>
+From: flar@pants.nu (Brad Boyer)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Friday, December 14, 2001 09:26:42 AM -0800 Andrew Morton
-<akpm@zip.com.au> wrote:
-
-> Chris Mason wrote:
->> 
->> Ok, Johan sent along stack traces, and the deadlock works a little like
->> this:
->> 
->> linux-2.4.16 + reiserfs + quota v2
->> 
->> kswapd ->
->> prune_icache->dispose_list->dquot_drop->commit_dquot->generic_file_write->
->> mark_inode_dirty->journal_begin-> wait for trans to end
+Hans Reiser wrote:
+> Brad Boyer wrote:
+> >Yes, these things can be survived, but speaking as someone who currently
+> >has a job involving multiple NetApp boxes, I can say that the .snapshot
+> >directory has some seriously annoying properties that break tar and
+> >other programs that expect things to look normal. The snapshots have
+> >saved my ass a few times, but they're still a pain to work with due
+> >to a few little quirks. In particular, the files in the snapshot keep
+> >the same inode number as the actual file. Just remember that clever
+> >solutions that almost fit the traditional model can have strange
+> >results over time.
 > 
-> uh-huh.
+> Can you detail the problem?
 > 
->> Some process in the transaction is waiting on kswapd to free ram.
-> 
-> This is unfamiliar.  Where does a process block on kswapd in this
-> manner?  Not __alloc_pages I think.
 
-It kinda blocks on kswapd by default when the process in the transaction
-needs to read a block, or allocate one for the commit.  Since kswapd is stuck
-waiting on the log, eventually a process holding the transaction will try to
-allocate something when there are no pages freeable with GFP_NOFS.
+The problem with the NetApp snapshots is that tar and cp and a few other
+programs that check inode numbers get confused and think everything in
+the snapshot is a hard link. So you can't copy a snapshot of a file back
+over the original without copying it somewhere else first, and it's
+painful to make an archive of the snapshots. We have data files on our
+filers that get updated frequently, and any time I need to analyze the
+same file over time, or restore an old file, it causes problems. I was
+throwing it out more as an example of what sort of unexpected things
+happen when you slightly change the way the filesystem works.
 
-It was much worse when we just had GFP_BUFFER before, but the deadlock is
-still there.
-
->  
->> So, this will hit any journaled FS that uses quotas and logs inodes under
->> during a write.  ext3 doesn't seem to do special things for quota anymore,
->> so it should be affected too.
-> 
-> mm.. most of the ext3 damage-avoidance hacks are around writepage().
-
-sct talked about how the ext3 data logging code allowed quotas to be
-consistent after a crash.  Perhaps this was just in 2.2.x...
-
-> 
->> The only fix I see is to make sure kswapd doesn't run shrink_icache, and to
->> have it done via a dedicated daemon instead.  Does anyone have a better
->> idea?
-> 
-> Well, we already need to do something like that to prevent the
-> abuse of keventd in there.  It appears that somebody had a
-> problem with deadlocks doing the inode writeout in kswapd but
-> missed the quota problem.
-> 
-> Is it possible for the quota code to just bale out if PF_MEMALLOC
-> is set?  To leave the dquot dirty?
-
-We could change prune_icache to skip inodes with dirty quota fields.  It
-already skips dirty inodes, so this isn't a huge change.
-
-I'll try this, and also add kinoded so we can avoid using keventd.  I'm wary
-of the affects on the VM if kinoded can't keep up though, so I'd like to keep
-the shrink_icache call in kswapd if possible.
-
-Johan, expect this to take at least a week before I suggest installing on
-production machines.  Things are very intertwined here, and these changes
-will probably have side effects that need dealing with.
-
-Turning quotas off will solve the problem in the short term.
-
--chris
+	Brad Boyer
+	flar@allandria.com
 

@@ -1,61 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268382AbUHLAN2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268434AbUHLATo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268382AbUHLAN2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 20:13:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268389AbUHLANG
+	id S268434AbUHLATo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 20:19:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268441AbUHLAOw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 20:13:06 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:62147 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S268382AbUHKXj0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 19:39:26 -0400
-Date: Wed, 11 Aug 2004 19:39:04 -0400 (EDT)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@dhcp83-76.boston.redhat.com
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-cc: linux-kernel@vger.kernel.org, Arjan van de Ven <arjanv@redhat.com>
-Subject: Re: [PATCH] aes-i586-asm.S optimization
-In-Reply-To: <200408120056.03939.vda@port.imtp.ilyichevsk.odessa.ua>
-Message-ID: <Xine.LNX.4.44.0408111933510.15190-100000@dhcp83-76.boston.redhat.com>
+	Wed, 11 Aug 2004 20:14:52 -0400
+Received: from omx1-ext.SGI.COM ([192.48.179.11]:41192 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S268323AbUHKXdD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 19:33:03 -0400
+From: Pat Gefre <pfg@sgi.com>
+Message-Id: <200408112331.i7BNVsWk140739@fsgi900.americas.sgi.com>
+Subject: Re: Altix I/O code reorganization - 11 of 21
+To: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
+       hch@infradead.org
+Date: Wed, 11 Aug 2004 18:31:54 -0500 (CDT)
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 12 Aug 2004, Denis Vlasenko wrote:
 
-> formatting.patch:
-> renames macro parameters to more understandable ones
-> fixes wrong comment (code does not use MMX)
-
-This looks good, thanks.
-
-> 
-> opt.patch:
-> convert fwd_rnd into pair of fwd_rnd1,fwd_rnd2 which use
-> r0,r2 in mirror-image fashion, thus eliminating the need
-> to do "mov r0,r2". After testing, same can be done
-> to inv_rnd.
-
-This bumped performance on a P4 Xeon by about 5%, which is pretty good.  
-How much more would you expect again with inv_rnd?
-
-> Both patches are only compile tested. First one produces bit-identical
-> object file. Second one, understandably, not.
-> 
-> PS: why aes-i586-asm.S? it is valid _386_ code (no Pentium ops used AFAICS).
-
-My understanding is that the code is generally optimized for Pentium, 
-although that could be wrong.  I'll check with the original author.
-
-> PPS: your code is very easy to understand. It was a joy hacking on it :)
-
-It's Brian Gladman's code (converted to gas format by Linus).
-
-
-- James
--- 
-James Morris
-<jmorris@redhat.com>
-
-
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2004/08/11 16:26:33-05:00 pfg@sgi.com 
+#   New klconfig Makefile
+# 
+# arch/ia64/sn/ioif/klconfig/Makefile
+#   2004/08/11 16:24:39-05:00 pfg@sgi.com +10 -0
+# 
+# arch/ia64/sn/ioif/klconfig/Makefile
+#   2004/08/11 16:24:39-05:00 pfg@sgi.com +0 -0
+#   BitKeeper file /work.attica2/pfg/Linux/2.5-BK/to-base-2.6/arch/ia64/sn/ioif/klconfig/Makefile
+# 
+diff -Nru a/arch/ia64/sn/ioif/klconfig/Makefile b/arch/ia64/sn/ioif/klconfig/Makefile
+--- /dev/null	Wed Dec 31 16:00:00 196900
++++ b/arch/ia64/sn/ioif/klconfig/Makefile	2004-08-11 16:27:03 -05:00
+@@ -0,0 +1,10 @@
++#
++# This file is subject to the terms and conditions of the GNU General Public
++# License.  See the file "COPYING" in the main directory of this archive
++# for more details.
++#
++# Copyright (C) 2002-2003 Silicon Graphics, Inc.  All Rights Reserved.
++#
++# Makefile for the sn2 io routines.
++
++obj-y				:=  klconflib.o

@@ -1,37 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293515AbSBZEnY>; Mon, 25 Feb 2002 23:43:24 -0500
+	id <S293516AbSBZEpe>; Mon, 25 Feb 2002 23:45:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293512AbSBZEnP>; Mon, 25 Feb 2002 23:43:15 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:57764 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S293511AbSBZEm7>;
-	Mon, 25 Feb 2002 23:42:59 -0500
-Date: Mon, 25 Feb 2002 20:40:22 -0800 (PST)
-Message-Id: <20020225.204022.62649663.davem@redhat.com>
-To: nick@snowman.net
-Cc: linux-kernel@vger.kernel.org, jgarzik@mandrakesoft.com,
-        linux-net@vger.kernel.org
-Subject: Re: [BETA] First test release of Tigon3 driver
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.21.0202252243360.18586-100000@ns>
-In-Reply-To: <20020225.165914.123908101.davem@redhat.com>
-	<Pine.LNX.4.21.0202252243360.18586-100000@ns>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S293513AbSBZEpZ>; Mon, 25 Feb 2002 23:45:25 -0500
+Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:32517 "EHLO
+	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
+	id <S293511AbSBZEpS>; Mon, 25 Feb 2002 23:45:18 -0500
+Message-ID: <3C7B12DD.264A7AE4@delusion.de>
+Date: Tue, 26 Feb 2002 05:45:17 +0100
+From: "Udo A. Steinberg" <reality@delusion.de>
+Organization: Disorganized
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.5 i686)
+X-Accept-Language: en, de
+MIME-Version: 1.0
+To: Linux Kernel <linux-kernel@vger.kernel.org>,
+        linux-net <linux-net@vger.kernel.org>
+Subject: Re: mmapped packet socket queueing tcp packets twice?
+In-Reply-To: <3C7B06ED.8EC55523@delusion.de>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: nick@snowman.net
-   Date: Mon, 25 Feb 2002 22:43:53 -0500 (EST)
+"Udo A. Steinberg" wrote:
+> 
+> Feb 26 04:41:56 Kerberos ipacctd: [Slot 4] Incoming TCP - Len:  136 Sum: 72b7 [1014694916.161277]
+> Feb 26 04:41:56 Kerberos ipacctd: [Slot 5] Incoming TCP - Len:  136 Sum: 72b7 [1014694916.161592]
 
-   Can you list what cards/systems use this driver?  I at least am totally
-   unsure.
+I think I've figured out what is happening. The first copy of the packet is of type 4 (outgoing)
+and the second copy is of type 3 (otherhost). We are using an fddi ring here, so what seems to
+happen is this:
 
-I can't tell you much more than the list of PCI device IDs and those
-are contained in the driver sources.
+The station running the program with a packet socket sends out a network packet to some other
+host and the packet socket gets a copy of the packet with type "outgoing".
+This is what I'd expect.
 
-The first two cards I have for testing are 3COM copper gigabit cards
-but I have no idea what the official model numbers are for these as
-they came with no packaging.
+However, once the packet has been around the fddi ring, the originating host receives it again,
+and then passes it back to the packet socket as "otherhost", which is of course not wrong,
+because the destination is indeed another host, but the source host is the station itself,
+and it seems quite awkward that the packet socket regards this packet as "otherhost"
+and sees it twice. Shouldn't it look at the source address too?
+
+Comments?
+
+-Udo.

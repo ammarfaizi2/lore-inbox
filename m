@@ -1,35 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262337AbTHYUzo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Aug 2003 16:55:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262335AbTHYUyN
+	id S262180AbTHYVA2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Aug 2003 17:00:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262216AbTHYVA2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Aug 2003 16:54:13 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:62419 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262328AbTHYUyH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Aug 2003 16:54:07 -0400
-Date: Mon, 25 Aug 2003 21:54:04 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Fix ide unregister vs. driver model
-Message-ID: <20030825205403.GL454@parcelfarce.linux.theplanet.co.uk>
-References: <1061730317.31688.10.camel@gaston> <200308250023.39596.bzolnier@elka.pw.edu.pl> <1061793253.779.27.camel@gaston> <200308251317.37333.bzolnier@elka.pw.edu.pl>
+	Mon, 25 Aug 2003 17:00:28 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:34782 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S262180AbTHYVAZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Aug 2003 17:00:25 -0400
+Date: Mon, 25 Aug 2003 23:00:12 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: kmliu@sis.com, Jeff Garzik <jgarzik@pobox.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [patch] 2.6.0-test4: sis190 doesn't compile with gcc 2.95
+Message-ID: <20030825210011.GU7038@fs.tum.de>
+References: <Pine.LNX.4.44.0308221732170.4677-100000@home.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200308251317.37333.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <Pine.LNX.4.44.0308221732170.4677-100000@home.osdl.org>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 25, 2003 at 10:50:27PM +0200, Bartlomiej Zolnierkiewicz wrote:
- 
-> Nope, I don't think struct device can be used by sysfs after execution
-> of device_unregister() (I've checked driver model and sysfs code).
+On Fri, Aug 22, 2003 at 05:48:56PM -0700, Linus Torvalds wrote:
+>...
+> Summary of changes from v2.6.0-test3 to v2.6.0-test4
+> ============================================
+>...
+> Jeff Garzik:
+>...
+>   o [netdrvr] add sis190 gigabit ethernet driver (note: needs work)
+>...
 
-Yes, it can.  Have the sucker held by open file on sysfs.  Keep it open
-past the device_unregister().  Now close it and watch the struct device
-being modified.
+The following is needed to fix the compilation of sis190 with gcc 2.95:
+
+--- linux-2.6.0-test4-mm1/drivers/net/sis190.c.old	2003-08-25 20:03:04.000000000 +0200
++++ linux-2.6.0-test4-mm1/drivers/net/sis190.c	2003-08-25 20:03:45.000000000 +0200
+@@ -536,6 +536,7 @@
+ 	static int printed_version = 0;
+ 	int i, rc;
+ 	u16 reg31;
++	int val;
+ 
+ 	assert(pdev != NULL);
+ 	assert(ent != NULL);
+@@ -620,7 +621,7 @@
+ 	       dev->dev_addr[2], dev->dev_addr[3],
+ 	       dev->dev_addr[4], dev->dev_addr[5], dev->irq);
+ 
+-	int val = smdio_read(ioaddr, PHY_AUTO_NEGO_REG);
++	val = smdio_read(ioaddr, PHY_AUTO_NEGO_REG);
+ 
+ 	printk(KERN_INFO "%s: Auto-negotiation Enabled.\n", dev->name);
+ 
+
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

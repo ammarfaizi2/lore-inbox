@@ -1,114 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269610AbUI3XVU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269611AbUI3X0S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269610AbUI3XVU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Sep 2004 19:21:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269612AbUI3XVU
+	id S269611AbUI3X0S (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Sep 2004 19:26:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269612AbUI3X0R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Sep 2004 19:21:20 -0400
-Received: from fw.osdl.org ([65.172.181.6]:52113 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S269610AbUI3XVO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Sep 2004 19:21:14 -0400
-Date: Thu, 30 Sep 2004 16:21:10 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: CaT <cat@zip.com.au>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Greg KH <greg@kroah.com>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       "Li, Shaohua" <shaohua.li@intel.com>
-Subject: Re: promise controller resource alloc problems with ~2.6.8
-In-Reply-To: <20040927084550.GA1134@zip.com.au>
-Message-ID: <Pine.LNX.4.58.0409301615110.2403@ppc970.osdl.org>
-References: <20040927084550.GA1134@zip.com.au>
+	Thu, 30 Sep 2004 19:26:17 -0400
+Received: from smtp09.auna.com ([62.81.186.19]:56769 "EHLO smtp09.retemail.es")
+	by vger.kernel.org with ESMTP id S269611AbUI3X0P convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Sep 2004 19:26:15 -0400
+Date: Thu, 30 Sep 2004 23:26:14 +0000
+From: "J.A. Magallon" <jamagallon@able.es>
+Subject: Re: 2.6.9-rc2-mm4
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+References: <20040926181021.2e1b3fe4.akpm@osdl.org>
+In-Reply-To: <20040926181021.2e1b3fe4.akpm@osdl.org> (from akpm@osdl.org on
+	Mon Sep 27 03:10:21 2004)
+X-Mailer: Balsa 2.2.4
+Message-Id: <1096586774l.5206l.1l@werewolf.able.es>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII;
+	Format=Flowed
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-
-On Mon, 27 Sep 2004, CaT wrote:
->
-> I have a Promise PDC20267 card in my desktop and whilst it works
-> in 2.6.8-rc2, it no longer functions beginning with at least 2.6.9-rc2.
-> Latest kernel I ran is 2.6.9-rc2-bk8 and it was still not available.
+On 2004.09.27, Andrew Morton wrote:
 > 
-> dmesg does mention it though as:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc2/2.6.9-rc2-mm4/
 > 
-> PDC20267: IDE controller at PCI slot 0000:00:0d.0
-> PCI: Found IRQ 11 for device 0000:00:0d.0
-> PCI: Unable to reserve I/O region #5:40@1080 for device 0000:00:0d.0
+> - ppc64 builds are busted due to breakage in bk-pci.patch
+> 
+> - sparc64 builds are busted too.  Also due to pci problems.
+> 
+> - Various updates to various things.  In particular, a kswapd artifact which
+>   could cause too much swapout was fixed.
+> 
+> - I shall be offline for most of this week.
+> 
 
-Please send along /proc/ioports for both the working and the non-working 
-version (that's assuming that you can boot far enough in the nw version 
-to get it, of course, but the nw version is actually the more interesting 
-one, so please try ;).
+I have a 'little' problem. PS2 mouse is jerky as hell, an when you mismatch
+the protocol in X. Both in console and X.
+I'm lucky I have an usb mouse.
 
-Also, does the attached patch (written by Shaohua Li based on suggestions 
-by me) solve the problem? My suspicion is that ACPI tables do bad things, 
-and that this might fix it..
+One other question. Isn't /dev/input/mice supposed to be a multiplexor
+for mice ? I think I remember some time when I could have both a PS2 and
+a USB mouse connected and X pointer followed both. Now if I boot with the
+USB mouse plugged, the PS2 one does not work. If I boot with usb unplugged
+and plug it after boot, both work; usb mouse works fine, and PS2 just
+jumps half screen each time I move it, and with big delays.
 
-		Linus
+Something is broken in PS2 handling ?
 
------
-===== drivers/acpi/motherboard.c 1.2 vs edited =====
---- 1.2/drivers/acpi/motherboard.c	2004-08-04 11:12:54 +08:00
-+++ edited/drivers/acpi/motherboard.c	2004-08-31 11:28:27 +08:00
-@@ -170,4 +170,8 @@ static int __init acpi_motherboard_init(
- 	return 0;
- }
- 
--subsys_initcall(acpi_motherboard_init);
-+/**
-+ * Reserve motherboard resources after PCI claim BARs,
-+ * but before PCI assign resources for uninitialized PCI devices
-+ */
-+fs_initcall(acpi_motherboard_init);
-===== drivers/pnp/system.c 1.10 vs edited =====
---- 1.10/drivers/pnp/system.c	2004-03-21 00:38:56 +08:00
-+++ edited/drivers/pnp/system.c	2004-08-31 11:29:35 +08:00
-@@ -104,4 +104,8 @@ static int __init pnp_system_init(void)
- 	return pnp_register_driver(&system_pnp_driver);
- }
- 
--subsys_initcall(pnp_system_init);
-+/**
-+ * Reserve motherboard resources after PCI claim BARs,
-+ * but before PCI assign resources for uninitialized PCI devices
-+ */
-+fs_initcall(pnp_system_init);
-===== arch/i386/pci/i386.c 1.17 vs edited =====
---- 1.17/arch/i386/pci/i386.c	2004-08-25 14:35:30 +08:00
-+++ edited/arch/i386/pci/i386.c	2004-08-31 11:34:29 +08:00
-@@ -164,7 +164,7 @@ static void __init pcibios_allocate_reso
- 	}
- }
- 
--static void __init pcibios_assign_resources(void)
-+static int __init pcibios_assign_resources(void)
- {
- 	struct pci_dev *dev = NULL;
- 	int idx;
-@@ -204,6 +204,7 @@ static void __init pcibios_assign_resour
- 				pci_assign_resource(dev, PCI_ROM_RESOURCE);
- 		}
- 	}
-+	return 0;
- }
- 
- void __init pcibios_resource_survey(void)
-@@ -212,8 +213,13 @@ void __init pcibios_resource_survey(void
- 	pcibios_allocate_bus_resources(&pci_root_buses);
- 	pcibios_allocate_resources(0);
- 	pcibios_allocate_resources(1);
--	pcibios_assign_resources();
- }
-+
-+/**
-+ * called in fs_initcall (one below subsys_initcall),
-+ * give a chance for motherboard reserve resources
-+ */
-+fs_initcall(pcibios_assign_resources);
- 
- int pcibios_enable_resources(struct pci_dev *dev, int mask)
- {
+NOTE: they are not really standard protocol mice, but trackballs; PS2 one is
+a Logitech TrackMan Marble FX, and the other a Cordless Trackman FX, usb.
+
+TIA
+
+--
+J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
+werewolf!able!es                         \         It's better when it's free
+Mandrakelinux release 10.1 (Community) for i586
+Linux 2.6.9-rc2-mm4 (gcc 3.4.1 (Mandrakelinux (Alpha 3.4.1-3mdk)) #1
+
+

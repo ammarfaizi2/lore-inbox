@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131626AbRDYUNR>; Wed, 25 Apr 2001 16:13:17 -0400
+	id <S131644AbRDYUX1>; Wed, 25 Apr 2001 16:23:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131638AbRDYUNH>; Wed, 25 Apr 2001 16:13:07 -0400
-Received: from sirius-giga.rz.uni-ulm.de ([134.60.246.36]:7072 "EHLO
-	mail.rz.uni-ulm.de") by vger.kernel.org with ESMTP
-	id <S131626AbRDYUM6> convert rfc822-to-8bit; Wed, 25 Apr 2001 16:12:58 -0400
-Date: Wed, 25 Apr 2001 22:12:56 +0200 (MEST)
-From: Markus Schaber <markus.schaber@student.uni-ulm.de>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Single user linux
-In-Reply-To: <200104251834.OAA04501@smarty.smart.net>
-Message-ID: <Pine.SOL.4.33.0104252211380.27266-100000@lyra.rz.uni-ulm.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S131665AbRDYUXI>; Wed, 25 Apr 2001 16:23:08 -0400
+Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:10756 "EHLO
+	bug.ucw.cz") by vger.kernel.org with ESMTP id <S131644AbRDYUXA>;
+	Wed, 25 Apr 2001 16:23:00 -0400
+Message-ID: <20010425222227.B1540@bug.ucw.cz>
+Date: Wed, 25 Apr 2001 22:22:27 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: "Grover, Andrew" <andrew.grover@intel.com>,
+        kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Lid support for ACPI
+In-Reply-To: <4148FEAAD879D311AC5700A0C969E89006CDDDC9@orsmsx35.jf.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93i
+In-Reply-To: <4148FEAAD879D311AC5700A0C969E89006CDDDC9@orsmsx35.jf.intel.com>; from Grover, Andrew on Wed, Apr 25, 2001 at 10:23:12AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 25 Apr 2001, Rick Hohensee wrote:
+Hi!
 
-> imel96@trustix.co.id wrote:
-> > for those who didn't read that patch, i #define capable(),
-> > suser(), and fsuser() to 1. the implication is all users
-> > will have root capabilities.
->
-> How is that not single user?
+> We already have lid support in the latest ACPI versions (not in the official
+> kernel yet.) You can download this code from
+> http://developer.intel.com/technology/iapc/acpi/downloads.htm .
 
-Every user still has it's own account, means profile etc.
+This site is as ugly as hell but does the trick. (And btw link to
+"kernel howto" points to list of howtos [after really ugly
+disclaimer], not to kernel howto directly; and size of patch with
+"debug version" on page is wrong).
 
+> It'd be great if you could focus your testing and patches on this code base
+> -- I think it's a lot better but it's still a work in progress.
 
-Gruß,
-Markus
+Are you planning to merge to 2.4.4?
+
+> PS I'm not quite sure why you copied the acpi list *and* lkml.. ;-)
+
+Is acpi list some kind of lkml subset? [I wanted people to know that
+I'm playing with acpi. I probably should stop mailing to acpi list
+that I do not read...]
+								Pavel
 -- 
-| Gluecklich ist, wer vergisst, was nicht aus ihm geworden ist.
-+---------------------------------------.     ,---------------->
-http://www.uni-ulm.de/~s_mschab/         \   /
-mailto:markus.schaber@student.uni-ulm.de  \_/
-
-
+I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
+Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org

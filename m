@@ -1,59 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264343AbTLEUPB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 15:15:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264354AbTLEUPB
+	id S264478AbTLEUeu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 15:34:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264485AbTLEUeu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 15:15:01 -0500
-Received: from fw.osdl.org ([65.172.181.6]:25558 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264343AbTLEUO7 (ORCPT
+	Fri, 5 Dec 2003 15:34:50 -0500
+Received: from pop.gmx.net ([213.165.64.20]:57740 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S264478AbTLEUet (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 15:14:59 -0500
-Date: Fri, 5 Dec 2003 12:14:53 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: David Schwartz <davids@webmaster.com>
-cc: Ryan Anderson <ryan@michonline.com>, linux-kernel@vger.kernel.org
-Subject: RE: Linux GPL and binary module exception clause?
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKIEMGIHAA.davids@webmaster.com>
-Message-ID: <Pine.LNX.4.58.0312051210260.9125@home.osdl.org>
-References: <MDEHLPKNGKAHNMBLJOLKIEMGIHAA.davids@webmaster.com>
+	Fri, 5 Dec 2003 15:34:49 -0500
+X-Authenticated: #4512188
+Message-ID: <3FD0EBE6.9080003@gmx.de>
+Date: Fri, 05 Dec 2003 21:34:46 +0100
+From: "Prakash K. Cheemplavam" <prakashpublic@gmx.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031116
+X-Accept-Language: de-de, de, en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: cheuche+lkml@free.fr
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Catching NForce2 lockup with NMI watchdog
+References: <DCB9B7AA2CAB7F418919D7B59EE45BAF49F877@mail-sc-6.nvidia.com> <20031205201812.GA10538@localnet>
+In-Reply-To: <20031205201812.GA10538@localnet>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> through easily. I first thought the box freezed but I realized the
+> software cursor was blinking *very* slowly. In fact 1 second for the
+> kernel took about 12 seconds. Stopping the IO load on ide and
+> everything seems back to normal.
+
+Hmm, interesting observation. This makes me remeber something: When my 
+machine freezes doing hdparm, the cursor still blinks, but I can't do 
+anything anymore. Maybe a connection to your observation? I haven't 
+treid to run the NMI watchdog, as you guys haven't had success with it yet.
+
+Prakash
 
 
-On Fri, 5 Dec 2003, David Schwartz wrote:
->
-> >But what they do NOT have the right to do is to create derivative works of
-> >the kernel, and distribute them to others.
->
-> 	Yes, they do. Since they have the right to create the derived work and have
-> not agreed to the GPL, the only thing that could restrict their distribution
-> is the law, not the GPL. Please show me the law that permits a copyright
-> holder to restrict the distribution of derived works.
-
-I'm not going to argue with you any more. I am not a lawyer, and clearly
-you aren't one either (or you're a really really bad one).
-
-The "show me the law" is USC 17. It's called "US Copyright Law". As a
-copyright holder in the Linux kernel, I _do_ have the right to restrict
-the distribution of derived works. That's what copyright law is all about.
-
-Your arguments are just vacuous and stupid.
-
-I _very_ much have the right to restrict the distribution of derived
-works, and that is what a license is all about. Without a license to
-distribute, you have NO RIGHT AT ALL to distribute a derived work. What's
-so hard to understand about that? And the only rights you have are rights
-granted to you in some license.
-
-And that license in this case is the GPL. Which does NOT grant you rights
-to redistribute derived works without the source being available under the
-same license.
-
-End of discussion. You can whine all you like, but whining has never
-changed reality.
-
-		Linus

@@ -1,97 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261931AbVATUcF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261900AbVATUcF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261931AbVATUcF (ORCPT <rfc822;willy@w.ods.org>);
+	id S261900AbVATUcF (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 20 Jan 2005 15:32:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261924AbVATUaP
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261836AbVATU3x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 15:30:15 -0500
-Received: from mail24.syd.optusnet.com.au ([211.29.133.165]:4814 "EHLO
-	mail24.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261931AbVATU1u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 15:27:50 -0500
-Message-ID: <41F01415.2010904@kolivas.org>
-Date: Fri, 21 Jan 2005 07:27:01 +1100
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alexander Nyberg <alexn@dsv.su.se>
-Cc: utz lehmann <lkml@s2y4n2c.de>, LKML <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>, rlrevell@joe-job.com,
-       paul@linuxaudiosystems.com, joq@io.com, CK Kernel <ck@vds.kolivas.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH]sched: Isochronous class v2 for unprivileged soft rt	scheduling
-References: <41EEE1B1.9080909@kolivas.org>	 <1106180177.4036.27.camel@segv.aura.of.mankind> <1106243698.719.6.camel@boxen>
-In-Reply-To: <1106243698.719.6.camel@boxen>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig8834E8ECBF5546F8AC472483"
+	Thu, 20 Jan 2005 15:29:53 -0500
+Received: from ra.tuxdriver.com ([24.172.12.4]:52236 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S261928AbVATU1f (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jan 2005 15:27:35 -0500
+Date: Thu, 20 Jan 2005 15:26:00 -0500
+From: "John W. Linville" <linville@tuxdriver.com>
+To: linux-kernel@vger.kernel.org
+Cc: tv@lio96.de, herbert@gondor.apana.org.au, jgarzik@pobox.com, akpm@osdl.org
+Subject: [patch 2.6.11-rc1] i810_audio: offset LVI from CIV to avoid stalled start
+Message-ID: <20050120202600.GB7687@tuxdriver.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org, tv@lio96.de,
+	herbert@gondor.apana.org.au, jgarzik@pobox.com, akpm@osdl.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig8834E8ECBF5546F8AC472483
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Offset LVI past CIV when starting DAC/ADC in order to prevent
+stalled start.
 
-Alexander Nyberg wrote:
->>My simple yield DoS don't work anymore. But i found another way.
->>Running this as SCHED_ISO:
-> 
-> 
-> Yep, bad accounting in queue_iso() which relied on p->array == rq->active
-> This fixes it:
-> 
-> 
-> Index: vanilla/kernel/sched.c
-> ===================================================================
-> --- vanilla.orig/kernel/sched.c	2005-01-20 18:05:59.000000000 +0100
-> +++ vanilla/kernel/sched.c	2005-01-20 18:41:26.000000000 +0100
-> @@ -2621,15 +2621,19 @@
->  static task_t* queue_iso(runqueue_t *rq, prio_array_t *array)
->  {
->  	task_t *p = list_entry(rq->iso_queue.next, task_t, iso_list);
-> -	if (p->prio == MAX_RT_PRIO)
-> -		goto out;
-> +	prio_array_t *old_array = p->array;
-> +	
-> +	old_array->nr_active--;
->  	list_del(&p->run_list);
-> -	if (list_empty(array->queue + p->prio))
-> -		__clear_bit(p->prio, array->bitmap);
-> +	if (list_empty(old_array->queue + p->prio))
-> +		__clear_bit(p->prio, old_array->bitmap);
-> +	
->  	p->prio = MAX_RT_PRIO;
->  	list_add_tail(&p->run_list, array->queue + p->prio);
->  	__set_bit(p->prio, array->bitmap);
-> -out:
-> +	array->nr_active++;
-> +	p->array = array;
-> +	
->  	return p;
->  }
->  
-> 
+Acked-by: Herbert Xu <herbert@gondor.apana.org.au>
+Acked-by: Thomas Voegtle <tv@lio96.de>
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
+---
+This fixes a "no sound" problem with Wolfenstein Enemy Territory and
+(apparently) other games using the Quake3 engine.  It probably affects
+some other OSS applications as well.
 
-Excellent pickup, thanks!
+This recreates some code that had been removed from the i810_audio
+driver around 5/2004.  (This is the 2.6-based version of this patch.)
 
-Acked-by: Con Kolivas <kernel@kolivas.org>
+ sound/oss/i810_audio.c |   10 ++++++++++
+ 1 files changed, 10 insertions(+)
 
---------------enig8834E8ECBF5546F8AC472483
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFB8BQVZUg7+tp6mRURAgnuAJ4lHv4l18buDNWrMMhxtdeldkGR5ACfUJob
-d7KOIcv4709RGVIFruaEED4=
-=9ji/
------END PGP SIGNATURE-----
-
---------------enig8834E8ECBF5546F8AC472483--
+--- i810_audio-2.6/sound/oss/i810_audio.c.orig	2005-01-20 14:39:53.108927161 -0500
++++ i810_audio-2.6/sound/oss/i810_audio.c	2005-01-20 14:39:53.146921952 -0500
+@@ -1196,10 +1196,20 @@
+ 	if (count < fragsize)
+ 		return;
+ 
++	/* if we are currently stopped, then our CIV is actually set to our
++	 * *last* sg segment and we are ready to wrap to the next.  However,
++	 * if we set our LVI to the last sg segment, then it won't wrap to
++	 * the next sg segment, it won't even get a start.  So, instead, when
++	 * we are stopped, we set both the LVI value and also we increment
++	 * the CIV value to the next sg segment to be played so that when
++	 * we call start, things will operate properly
++	 */
+ 	if (!dmabuf->enable && dmabuf->ready) {
+ 		if (!(dmabuf->trigger & trigger))
+ 			return;
+ 
++		CIV_TO_LVI(state->card, port, 1);
++
+ 		start(state);
+ 		while (!(I810_IOREADB(state->card, port + OFF_CR) & ((1<<4) | (1<<2))))
+ 			;
+-- 
+John W. Linville
+linville@tuxdriver.com

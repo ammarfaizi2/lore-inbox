@@ -1,41 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261804AbTDHVp1 (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 17:45:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261866AbTDHVp1 (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 17:45:27 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:2066 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S261804AbTDHVp0 (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 8 Apr 2003 17:45:26 -0400
-Date: Tue, 8 Apr 2003 23:57:03 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Pavel Machek <pavel@ucw.cz>, Jes Sorensen <jes@wildopensource.com>,
-       Martin Hicks <mort@bork.org>, linux-kernel@vger.kernel.org,
+	id S261866AbTDHVtP (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 17:49:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261868AbTDHVtP (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 17:49:15 -0400
+Received: from trained-monkey.org ([209.217.122.11]:62724 "EHLO
+	trained-monkey.org") by vger.kernel.org with ESMTP id S261866AbTDHVtO (for <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Apr 2003 17:49:14 -0400
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Martin Hicks <mort@bork.org>, linux-kernel@vger.kernel.org, hpa@zytor.com,
        wildos@sgi.com
 Subject: Re: [patch] printk subsystems
-Message-ID: <20030408215703.GA1538@atrey.karlin.mff.cuni.cz>
-References: <20030407201337.GE28468@bork.org> <20030408184109.GA226@elf.ucw.cz> <m3k7e4ycys.fsf@trained-monkey.org> <20030408210251.GA30588@atrey.karlin.mff.cuni.cz> <3E933AB2.8020306@zytor.com>
-Mime-Version: 1.0
+References: <20030407201337.GE28468@bork.org>
+	<20030408184109.GA226@elf.ucw.cz> <m3k7e4ycys.fsf@trained-monkey.org>
+	<20030408210251.GA30588@atrey.karlin.mff.cuni.cz>
+From: Jes Sorensen <jes@wildopensource.com>
+Date: 08 Apr 2003 18:00:49 -0400
+In-Reply-To: <20030408210251.GA30588@atrey.karlin.mff.cuni.cz>
+Message-ID: <m3fzosy7hq.fsf@trained-monkey.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3E933AB2.8020306@zytor.com>
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+>>>>> "Pavel" == Pavel Machek <pavel@ucw.cz> writes:
 
-> > Well, I think we should first kill all crappy messages -- that
-> > benefits everyone. I believe that if we kill all unneccessary
-> > (carrying no information  except perhaps copyright or advertising)
-> > will help current problem a lot.
-> > 
-> 
-> That may sometimes be true, but a few things may be useful to be able to
-> turn back on.
+Pavel> Hi!
+>> Killing the printk's means they are not around if you have an end
+>> user who is running into problems at boot time. Having a feature
+>> like this means they can default to 'off' then if a problem arises,
+>> whoever is doing the support can ask the user to try and enable
+>> printk's for say SCSI and get the input, without haven to rebuild
+>> the kernel from scratch.
 
-Well, #define DEBUG in the driver seems like the way to go. I do not
-like "subsystem ID" idea, because subsystems are not really well
-defined etc.
--- 
-Horseback riding is like software...
-...vgf orggre jura vgf serr.
+Pavel> Well, I think we should first kill all crappy messages -- that
+Pavel> benefits everyone. I believe that if we kill all unneccessary
+Pavel> (carrying no information except perhaps copyright or
+Pavel> advertising) will help current problem a lot.
+
+I agree that some messages can be eliminated, but not all of
+them. Even some of the ones you suggested might be valuable to keep,
+like the CPU flags. Generally this isn't a problem on a small box with
+2 CPUs and 2 disks, but if you have 32 CPUs and 64 SCSI disks, the
+amount of data being printed becomes quite substantial.
+
+So while I agree that it wouldn't hurt for us to eliminate some
+unncessary printk's, then I still think Martin's patch has a lot of
+merit.
+
+Cheers,
+Jes

@@ -1,270 +1,203 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S143640AbRAHPsF>; Mon, 8 Jan 2001 10:48:05 -0500
+	id <S144034AbRAHPxG>; Mon, 8 Jan 2001 10:53:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S143676AbRAHPrz>; Mon, 8 Jan 2001 10:47:55 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:11192 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S143640AbRAHPrn>;
-	Mon, 8 Jan 2001 10:47:43 -0500
-Date: Mon, 8 Jan 2001 10:47:41 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Chris Mason <mason@suse.com>
-cc: Alan Cox <alan@redhat.com>, Stefan Traby <stefan@hello-penguin.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: ramfs problem... (unlink of sparse file in "D" state)
-In-Reply-To: <52950000.978968258@tiny>
-Message-ID: <Pine.GSO.4.21.0101081042490.4061-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S143977AbRAHPw4>; Mon, 8 Jan 2001 10:52:56 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:12549 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S143676AbRAHPwj>;
+	Mon, 8 Jan 2001 10:52:39 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: linux-kernel@vger.kernel.org
+Cc: linux-hotplug-devel@lists.sourceforge.net,
+        linux-usb-devel@lists.sourceforge.net
+Subject: Announce: modutils 2.4.1 is available 
+Date: Tue, 09 Jan 2001 02:52:28 +1100
+Message-ID: <4094.978969148@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
+Content-Type: text/plain; charset=us-ascii
 
-On Mon, 8 Jan 2001, Chris Mason wrote:
+In the absence of any screams of pain from the usb list, modutils 2.4.1
+is released for your enjoyment.
 
-> 
-> 
-> On Monday, January 08, 2001 09:02:46 AM -0500 Alexander Viro
-> <viro@math.psu.edu> wrote:
-> 
-> > Alan, consider applying the patch below.
-> > Contents:
-> [snip]
-> > +	do {
-> > +		if (buffer_mapped(bh)) {
-> > +			bh->b_end_io = end_buffer_io_async;
-> > +			atomic_inc(&bh->b_count);
-> > +			set_bit(BH_Uptodate, &bh->b_state);
-> > +			set_bit(BH_Dirty, &bh->b_state);
-> > +			submit_bh(WRITE, bh);
-> > +		}
-> > +		bh = bh->b_this_page;
-> > +	}
->           ^^^^^^^^^^^^^
+ftp://ftp.<country>.kernel.org/pub/linux/utils/kernel/modutils/v2.4
 
-> This doesn't look right...
+modutils-2.4.1.tar.gz           Source tarball, includes RPM spec file
+modutils-2.4.1-1.src.rpm        As above, in SRPM format
+modutils-2.4.1-1.i386.rpm       Compiled with egcs-2.91.66, glibc 2.1.2
+modutils-2.4.1-1.sparc.rpm      Compiled for combined sparc 32/64
+patch-modutils-2.4.1.gz		Patch from modutils 2.4.0 to 2.4.1.
 
-No, it doesn't. s/$/while(bh != head);/, indeed. Sorry about that -
-cut-and-waste when I did rediff to 2.4.0. Corrected patch follows:
+Related kernel patches.
 
-diff -urN S0-AC4/fs/buffer.c S0-AC4-fixes/fs/buffer.c
---- S0-AC4/fs/buffer.c	Mon Jan  8 08:46:17 2001
-+++ S0-AC4-fixes/fs/buffer.c	Mon Jan  8 08:28:55 2001
-@@ -1493,6 +1493,7 @@
- 	int err, i;
- 	unsigned long block;
- 	struct buffer_head *bh, *head;
-+	int need_unlock = 1;
+patch-2.4.0-hotplug.gz          Correctly handle USB modules in kernel 2.4.0.
+				The fix adds a version number to tables read by
+				depmod, this affects all kernel hotplug tables,
+				not just USB.  Required for USB on 2.4.0.
+
+patch-2.4.0-persistent.gz	Adds persistent data and generic string
+				support to kernel 2.4.0.  Optional.
+
+Changelog extract
+
+	* Cast 2*sizeof to int in printf, new gcc warns about this.
+	* Add an optional version number to kernel tables.
+	* Handle version 1 and 2 usb device tables.
+	* man lsmod documents use count -1.
+
+NOTE:
+
+  Handling the change of format for the USB tables highlighted the need
+for the kernel to include a version number against each table to tell
+depmod which format table it is processing.  Checking for a change in
+table size was not enough.  You _must_ apply patch-2.4.0-hotplug to
+2.4.0 kernels in order to pick up the new USB table format. You will
+also need a new set of USB utilities that understand match_flags.
+
+  patch-2.4.0-hotplug hits all hotplug tables, not just USB.  The
+kernel and modutils changes are forward and backward compatible; old
+kernels will run with new modutils and vice versa.  The only
+combination not supported is USB hotplugging in an unpatched kernel
+2.4.0, there is no way for any version of modutils to detect which
+format USB table is being used in unpatched 2.4.0 kernels.
+
+patch-2.4.0-hotplug follows for reference, it is also in the URL at the
+top of this mail.  With any luck this patch will be included in kernel
+2.4.1.
+
+Index: 0.1/include/linux/usb.h
+- --- 0.1/include/linux/usb.h Fri, 05 Jan 2001 13:42:29 +1100 kaos (linux-2.4/Z/38_usb.h 1.1 644)
++++ 0.1(w)/include/linux/usb.h Sun, 07 Jan 2001 22:36:31 +1100 kaos (linux-2.4/Z/38_usb.h 1.1 644)
+@@ -344,12 +344,18 @@ struct usb_device;
+ #define USB_INTERFACE_INFO(cl,sc,pr) \
+ 	match_flags: USB_DEVICE_ID_MATCH_INT_INFO, bInterfaceClass: (cl), bInterfaceSubClass: (sc), bInterfaceProtocol: (pr)
  
- 	if (!PageLocked(page))
- 		BUG();
-@@ -1549,7 +1550,28 @@
- 
- out:
- 	ClearPageUptodate(page);
--	UnlockPage(page);
-+	bh = head;
-+	need_unlock = 1;
-+	/* Recovery: lock and submit the mapped buffers */
-+	do {
-+		if (buffer_mapped(bh)) {
-+			lock_buffer(bh);
-+			need_unlock = 0;
-+		}
-+		bh = bh->b_this_page;
-+	} while (bh != head);
-+	do {
-+		if (buffer_mapped(bh)) {
-+			bh->b_end_io = end_buffer_io_async;
-+			atomic_inc(&bh->b_count);
-+			set_bit(BH_Uptodate, &bh->b_state);
-+			set_bit(BH_Dirty, &bh->b_state);
-+			submit_bh(WRITE, bh);
-+		}
-+		bh = bh->b_this_page;
-+	} while (bh != head);
-+	if (need_unlock)
-+		UnlockPage(page);
- 	return err;
- }
- 
-@@ -1620,6 +1642,15 @@
- 	}
- 	return 0;
- out:
-+	bh = head;
-+	do {
-+		if (buffer_new(bh) && !buffer_uptodate(bh)) {
-+			memset(bh->b_data, 0, bh->b_size);
-+			set_bit(BH_Uptodate, &bh->b_state);
-+			mark_buffer_dirty(bh);
-+		}
-+		bh = bh->b_this_page;
-+	} while (bh != head);
- 	return err;
- }
- 
-diff -urN S0-AC4/fs/ext2/file.c S0-AC4-fixes/fs/ext2/file.c
---- S0-AC4/fs/ext2/file.c	Mon Jan  8 08:46:18 2001
-+++ S0-AC4-fixes/fs/ext2/file.c	Mon Jan  8 08:34:04 2001
-@@ -22,51 +22,6 @@
- #include <linux/ext2_fs.h>
- #include <linux/sched.h>
- 
--static loff_t ext2_file_lseek(struct file *, loff_t, int);
--static int ext2_open_file (struct inode *, struct file *);
--
--#define EXT2_MAX_SIZE(bits)							\
--	(((EXT2_NDIR_BLOCKS + (1LL << (bits - 2)) + 				\
--	   (1LL << (bits - 2)) * (1LL << (bits - 2)) + 				\
--	   (1LL << (bits - 2)) * (1LL << (bits - 2)) * (1LL << (bits - 2))) * 	\
--	  (1LL << bits)) - 1)
--
--static long long ext2_max_sizes[] = {
--0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
--EXT2_MAX_SIZE(10), EXT2_MAX_SIZE(11), EXT2_MAX_SIZE(12), EXT2_MAX_SIZE(13)
--};
--
--/*
-- * Make sure the offset never goes beyond the 32-bit mark..
-- */
--static loff_t ext2_file_lseek(
--	struct file *file,
--	loff_t offset,
--	int origin)
--{
--	struct inode *inode = file->f_dentry->d_inode;
--
--	switch (origin) {
--		case 2:
--			offset += inode->i_size;
--			break;
--		case 1:
--			offset += file->f_pos;
--	}
--	if (offset<0)
--		return -EINVAL;
--	if (((unsigned long long) offset >> 32) != 0) {
--		if (offset > ext2_max_sizes[EXT2_BLOCK_SIZE_BITS(inode->i_sb)])
--			return -EINVAL;
--	} 
--	if (offset != file->f_pos) {
--		file->f_pos = offset;
--		file->f_reada = 0;
--		file->f_version = ++event;
--	}
--	return offset;
--}
--
- /*
-  * Called when an inode is released. Note that this is different
-  * from ext2_file_open: open gets called at every open, but release
-@@ -84,7 +39,6 @@
-  * the ext2 filesystem.
-  */
- struct file_operations ext2_file_operations = {
--	llseek:		ext2_file_lseek,
- 	read:		generic_file_read,
- 	write:		generic_file_write,
- 	ioctl:		ext2_ioctl,
-diff -urN S0-AC4/fs/ext2/super.c S0-AC4-fixes/fs/ext2/super.c
---- S0-AC4/fs/ext2/super.c	Mon Jan  8 08:46:18 2001
-+++ S0-AC4-fixes/fs/ext2/super.c	Mon Jan  8 08:35:16 2001
-@@ -380,6 +380,20 @@
- }
- 
- #define log2(n) ffz(~(n))
-+ 
-+/*
-+ * maximal file size.
+- -struct usb_device_id {
+- -	/* This bitmask is used to determine which of the following fields
+- -	 * are to be used for matching.
+- -	 */
+- -	__u16		match_flags;
++/* match_flags added in 2.4.0 but at the start which messed up depmod.
++ * match_flags moved to before driver_info in 2.4.1 by KAO, you also need
++ * modutils 2.4.1.  USB modules cannot be supported in kernel 2.4.0,
++ * insufficient data to detect which table format is being used.
++ *
++ * Do NOT change this table format without checking with the modutils
++ * maintainer.  This is an ABI visible structure.
 + */
-+static loff_t ext2_max_size(int bits)
-+{
-+	loff_t res = EXT2_NDIR_BLOCKS;
-+	res += 1LL << (bits-2);
-+	res += 1LL << (2*(bits-2));
-+	res += 1LL << (3*(bits-2));
-+	if (res > 1LL << 32)
-+		res = 1LL << 32;
-+	return res << bits;
-+}
++
++#define usb_device_id_ver	2	/* Version 2 table */
  
- struct super_block * ext2_read_super (struct super_block * sb, void * data,
- 				      int silent)
-@@ -476,8 +490,7 @@
- 		le32_to_cpu(EXT2_SB(sb)->s_es->s_log_block_size) + 10;
- 	sb->s_blocksize = 1 << sb->s_blocksize_bits;
- 	
--	/* We allow 2^32 blocks - not pages */
--	sb->s_maxbytes = (1ULL<<(sb->s_blocksize_bits+32))-1;
-+	sb->s_maxbytes = ext2_max_size(sb->s_blocksize_bits) - 1;
- 	
- 	if (sb->s_blocksize != BLOCK_SIZE &&
- 	    (sb->s_blocksize == 1024 || sb->s_blocksize == 2048 ||
-diff -urN S0-AC4/fs/read_write.c S0-AC4-fixes/fs/read_write.c
---- S0-AC4/fs/read_write.c	Fri Sep 22 17:21:19 2000
-+++ S0-AC4-fixes/fs/read_write.c	Mon Jan  8 08:32:27 2001
-@@ -36,7 +36,7 @@
- 			offset += file->f_pos;
- 	}
- 	retval = -EINVAL;
--	if (offset >= 0) {
-+	if (offset>=0 && offset<=file->f_dentry->d_inode->i_sb->s_maxbytes) {
- 		if (offset != file->f_pos) {
- 			file->f_pos = offset;
- 			file->f_reada = 0;
-diff -urN S0-AC4/mm/filemap.c S0-AC4-fixes/mm/filemap.c
---- S0-AC4/mm/filemap.c	Mon Jan  8 08:46:34 2001
-+++ S0-AC4-fixes/mm/filemap.c	Mon Jan  8 08:26:21 2001
-@@ -2452,6 +2452,7 @@
- 	unsigned long	written;
- 	long		status;
- 	int		err;
-+	unsigned	bytes;
++struct usb_device_id {
+ 	/*
+ 	 * vendor/product codes are checked, if vendor is nonzero
+ 	 * Range is for device revision (bcdDevice), inclusive;
+@@ -374,6 +380,11 @@ struct usb_device_id {
+ 	__u8		bInterfaceClass;
+ 	__u8		bInterfaceSubClass;
+ 	__u8		bInterfaceProtocol;
++
++	/* This bitmask is used to determine which of the preceding fields
++	 * are to be used for matching.
++	 */
++	__u16		match_flags;	/* New in version 2 */
  
- 	cached_page = NULL;
+ 	/*
+ 	 * for driver's use; not involved in driver matching.
+Index: 0.1/include/linux/isapnp.h
+- --- 0.1/include/linux/isapnp.h Fri, 05 Jan 2001 13:42:29 +1100 kaos (linux-2.4/b/b/11_isapnp.h 1.1 644)
++++ 0.1(w)/include/linux/isapnp.h Sun, 07 Jan 2001 22:36:40 +1100 kaos (linux-2.4/b/b/11_isapnp.h 1.1 644)
+@@ -142,6 +142,16 @@ struct isapnp_resources {
+ #define ISAPNP_CARD_TABLE(name) \
+ 		MODULE_GENERIC_TABLE(isapnp_card, name)
  
-@@ -2537,7 +2538,7 @@
- 	mark_inode_dirty_sync(inode);
++/* Do NOT change the format of struct isapnp_card_id, struct isapnp_device_id or
++ * the value of ISAPNP_CARD_DEVS without checking with the modutils maintainer.
++ * These are ABI visible structures and defines.
++ *
++ * isapnp_device_id_ver is a single version number for the combination of
++ * struct isapnp_card_id and struct isapnp_device_id.
++ */
++
++#define isapnp_device_id_ver	1	/* Version 1 tables */
++
+ struct isapnp_card_id {
+ 	unsigned long driver_data;	/* data private to the driver */
+ 	unsigned short card_vendor, card_device;
+Index: 0.1/include/linux/module.h
+- --- 0.1/include/linux/module.h Fri, 05 Jan 2001 13:42:29 +1100 kaos (linux-2.4/c/b/46_module.h 1.1 644)
++++ 0.1(w)/include/linux/module.h Sun, 07 Jan 2001 22:07:49 +1100 kaos (linux-2.4/c/b/46_module.h 1.1 644)
+@@ -242,19 +242,17 @@ __attribute__((section(".modinfo"))) =		
+  * isapnp - struct isapnp_device_id - List of ISA PnP ids supported by this module
+  * usb - struct usb_device_id - List of USB ids supported by this module
+  */
+- -#define MODULE_GENERIC_TABLE(gtype,name)	\
+- -static const unsigned long __module_##gtype##_size \
+- -  __attribute__ ((unused)) = sizeof(struct gtype##_id); \
+- -static const struct gtype##_id * __module_##gtype##_table \
+- -  __attribute__ ((unused)) = name
+- -#define MODULE_DEVICE_TABLE(type,name)		\
+- -  MODULE_GENERIC_TABLE(type##_device,name)
+- -/* not put to .modinfo section to avoid section type conflicts */
  
- 	while (count) {
--		unsigned long bytes, index, offset;
-+		unsigned long index, offset;
- 		char *kaddr;
- 		int deactivate = 1;
+- -/* The attributes of a section are set the first time the section is
+- -   seen; we want .modinfo to not be allocated.  */
++#define MODULE_GENERIC_TABLE(gtype,name)			\
++static const unsigned long __module_##gtype##_size		\
++  __attribute__ ((unused)) = sizeof(struct gtype##_id);		\
++static const unsigned long __module_##gtype##_ver		\
++  __attribute__ ((unused)) = gtype##_id_ver;			\
++static const struct gtype##_id * __module_##gtype##_table	\
++  __attribute__ ((unused)) = name
  
-@@ -2577,7 +2578,7 @@
+- -__asm__(".section .modinfo\n\t.previous");
++#define MODULE_DEVICE_TABLE(type,name)				\
++  MODULE_GENERIC_TABLE(type##_device,name)
  
- 		status = mapping->a_ops->prepare_write(file, page, offset, offset+bytes);
- 		if (status)
--			goto unlock;
-+			goto sync_failure;
- 		kaddr = page_address(page);
- 		status = copy_from_user(kaddr+offset, buf, bytes);
- 		flush_dcache_page(page);
-@@ -2603,6 +2604,7 @@
- 		if (status < 0)
- 			break;
- 	}
-+done:
- 	*ppos = pos;
+ /* Define the module variable, and usage macros.  */
+ extern struct module __this_module;
+Index: 0.1/include/linux/pci.h
+- --- 0.1/include/linux/pci.h Fri, 05 Jan 2001 13:42:29 +1100 kaos (linux-2.4/f/b/12_pci.h 1.1 644)
++++ 0.1(w)/include/linux/pci.h Sun, 07 Jan 2001 22:36:09 +1100 kaos (linux-2.4/f/b/12_pci.h 1.1 644)
+@@ -439,6 +439,12 @@ struct pbus_set_ranges_data
+ 	unsigned long mem_start, mem_end;
+ };
  
- 	if (cached_page)
-@@ -2627,6 +2629,13 @@
- 	ClearPageUptodate(page);
- 	kunmap(page);
- 	goto unlock;
-+sync_failure:
-+	UnlockPage(page);
-+	deactivate_page(page);
-+	page_cache_release(page);
-+	if (pos + bytes > inode->i_size)
-+		vmtruncate(inode, inode->i_size);
-+	goto done;
- }
- 
- void __init page_cache_init(unsigned long mempages)
++/* Do NOT change this table format without checking with the modutils
++ * maintainer.  This is an ABI visible structure.
++ */
++
++#define pci_device_id_ver	1	/* Version 1 table */
++
+ struct pci_device_id {
+ 	unsigned int vendor, device;		/* Vendor and device ID or PCI_ANY_ID */
+ 	unsigned int subvendor, subdevice;	/* Subsystem ID's or PCI_ANY_ID */
+Index: 0.1/Documentation/Changes
+- --- 0.1/Documentation/Changes Fri, 05 Jan 2001 13:42:29 +1100 kaos (linux-2.4/Z/c/26_Changes 1.1 644)
++++ 0.4(w)/Documentation/Changes Tue, 09 Jan 2001 02:43:44 +1100 kaos (linux-2.4/Z/c/26_Changes 1.1 644)
+@@ -52,7 +52,7 @@ o  Gnu C                  2.91.66       
+ o  Gnu make               3.77                    # make --version
+ o  binutils               2.9.1.0.25              # ld -v
+ o  util-linux             2.10o                   # fdformat --version
+- -o  modutils               2.4.0                   # insmod -V
++o  modutils               2.4.1                   # insmod -V
+ o  e2fsprogs              1.19                    # tune2fs --version
+ o  pcmcia-cs              3.1.21                  # cardmgr -V
+ o  PPP                    2.4.0                   # pppd --version
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.3 (GNU/Linux)
+Comment: Exmh version 2.1.1 10/15/1999
+
+iD8DBQE6WeI7i4UHNye0ZOoRAiN8AKCjJUdySf2E/+ATzXlLIUFSG98z3gCfe90s
+7OfOOWmVFrfeQ2/5VWXTgPQ=
+=0gRg
+-----END PGP SIGNATURE-----
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

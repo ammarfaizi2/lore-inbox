@@ -1,37 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261683AbTKHKM0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Nov 2003 05:12:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261685AbTKHKM0
+	id S261685AbTKHKcX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Nov 2003 05:32:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261692AbTKHKcX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Nov 2003 05:12:26 -0500
-Received: from wsip-68-14-236-254.ph.ph.cox.net ([68.14.236.254]:28343 "EHLO
-	office.labsysgrp.com") by vger.kernel.org with ESMTP
-	id S261683AbTKHKMZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Nov 2003 05:12:25 -0500
-Message-ID: <3FACC17C.7070901@backtobasicsmgmt.com>
-Date: Sat, 08 Nov 2003 03:12:12 -0700
-From: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>
-Organization: Back to Basics Network Management
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5) Gecko/20030925
-X-Accept-Language: en-us, en
+	Sat, 8 Nov 2003 05:32:23 -0500
+Received: from cap175-219-202.pixi.net ([207.175.219.202]:2457 "EHLO
+	beaucox.com") by vger.kernel.org with ESMTP id S261685AbTKHKcW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Nov 2003 05:32:22 -0500
+From: "Beau E. Cox" <beau@beaucox.com>
+Organization: BeauCox.com
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Subject: Re: PROBLEM: 2.4.23-pre7,pre8,pre9 hang on starting squid
+Date: Sat, 8 Nov 2003 00:31:28 -1000
+User-Agent: KMail/1.5.4
+Cc: marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0311061204510.8534-100000@logos.cnet> <200311070600.02069.beau@beaucox.com> <20031107155147.05671d94.rddunlap@osdl.org>
+In-Reply-To: <20031107155147.05671d94.rddunlap@osdl.org>
 MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>, Jeff Garzik <jgarzik@redhat.com>
-Subject: libata testing on new machine with ICH5 and PDC20318
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200311080031.28457.beau@beaucox.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm building a new server to go into a colo facility in about six weeks; 
-the machine will have an Intel motherboard with an ICH5R (although I 
-won't use the RAID features) and a Promise SATA150 TX4 (no RAID 
-support). All six SATA ports will have Seagate 160GB Barracuda drives 
-attached, and I plan on using software RAID-5 and LVM2 on top of the array.
+On Friday 07 November 2003 01:51 pm, Randy.Dunlap wrote:
+> On Fri, 7 Nov 2003 06:00:01 -1000 "Beau E. Cox" <beau@beaucox.com> wrote:
+> | On Thursday 06 November 2003 04:06 am, Marcelo Tosatti wrote:
+> | > On Mon, 3 Nov 2003, Beau E. Cox wrote:
+> | > > [1.] summary:
+> | > >
+> | > > 2.4.23-pre7,pre8,pre9 hang depending on when 'squid' is started.
+> | > >
+> | > > [snipped]
+> | >
+> | > Strange.
+> | >
+> | > Can you find out in which -pre the problem starts?
+> |
+> | Hi - I want to track down the 'pre' where my problem started (I would
+> | need 2.4.23-pre1 thru pre6), but I can't find them anywhere on the
+> | kernel archaive site (mirros too). Where can I get these pre patches?
+>
+> They are in this directory:
+>   http://www.kernel.org/pub/linux/kernel/v2.4/testing/
+>
+> --
+> ~Randy
+> MOTD:  Always include version info.
 
-I will be building the system using 2.6.0-test9, so will be using libata 
-to drive the disks. If there's anything I can help with 
-debugging/testing the ICH and/or Promise SATA drivers let me know... I 
-see that recently Jeff posted a small patch for some SATA reset issues 
-against -test9, so I'll certainly start out with that included.
+Thanks Randy -
+
+I don't know how I missed them...
+I'll start from pre1 and test. This will take several days to a week.
+
+Aloha => Beau;
 

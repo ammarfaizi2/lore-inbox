@@ -1,55 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130599AbRBPQGd>; Fri, 16 Feb 2001 11:06:33 -0500
+	id <S130199AbRBPQMd>; Fri, 16 Feb 2001 11:12:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130575AbRBPQGX>; Fri, 16 Feb 2001 11:06:23 -0500
-Received: from alto.i-cable.com ([210.80.60.4]:25573 "EHLO alto.i-cable.com")
-	by vger.kernel.org with ESMTP id <S130498AbRBPQGL>;
-	Fri, 16 Feb 2001 11:06:11 -0500
-Message-ID: <3A8D4FFF.320E7A16@hkicable.com>
-Date: Sat, 17 Feb 2001 00:06:23 +0800
-From: Thomas Lau <lkthomas@hkicable.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17-reiserfs i586)
-X-Accept-Language: en
+	id <S130489AbRBPQMX>; Fri, 16 Feb 2001 11:12:23 -0500
+Received: from [216.102.244.21] ([216.102.244.21]:41999 "EHLO mail1.BZZNET.NET")
+	by vger.kernel.org with ESMTP id <S130199AbRBPQMM>;
+	Fri, 16 Feb 2001 11:12:12 -0500
+Message-ID: <FF2E85D46133D3119868006008AC264808D0FBDC@MAIL1>
+From: fsnchzjr <fsnchzjr@zxmail.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Little question of mine....
+Date: Fri, 16 Feb 2001 08:10:44 -0800
 MIME-Version: 1.0
-To: Jocelyn Mayer <jocelyn.mayer@netgem.com>, linux-kernel@vger.kernel.org
-Subject: Re: finding Tekram SCSI dc395U linux patch driver:
-In-Reply-To: <3A8D2763.9080102@netgem.com>
-Content-Type: text/plain; charset=big5
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jocelyn Mayer wrote:
+Please excuse my newbie question...
+I've been fooling around with module programing on 2.4.0, and I've made this
+little module for a char device that printk's (darn, my kernel log's growing
+real huge now!!!) anything I redirect into /dev/charmod (Hurray! I made my
+first module).... I have not yet implemented any read facilities, yet....
+and here's my question: What's IOCTL? What do I need it for?
 
-> >
-> >
-> > Well, I think it should add to normal kernel and do not need to patch,
-> > Thanks
-> >
-> > also, why this driver still stick in ac3?
-> > and where can I find the new version of this patch?
-> > I think mandrake was improved that driver, Thanks
-> >
-> I'm not so sure...
-> I've been using this driver for a long time,
-> and there still are kernel Ooops and hangs
-> with the 1.32 driver...
-> Actually, it's quite stable, but only with 5 M
-> speed. It's a pity when your card can drive
-> a SCSI bus up to 40 M/s....
-> But, even with that speed, I got problems
-> from time to time....
->
-> So, you should take a good care of what you do...
-> But, maybe it shold be integrated into the kernel
-> so a lot of people could test and (maybe) debut it...
->
-> Jocelyn Mayer.
->
-> >
+Oh BTW, I have this dumb little idea (please flame me if it's stupid...)...
+Here goes: I want to create a small database system (possibly using
+ANSI-SQL92??) that's integrated into the kernel... I think I'd make a module
+for a char device, which would be used for comm' with the database and a
+module for a filesystem (which I'd have to come up with) that would hold the
+database... Do any of you think such a database would be faster than other
+database systems? 
+Please tell me what you people think about this...
 
-that's what I want to do, if not included in kernel = not a lot of people
-know what is this, so no one will help to improve this driver!
-I hope alan can help to add this driver into kernel hacks, Thanks
-
+PS. a big thanks to Mr. Wolff for starting me up on file_operations...

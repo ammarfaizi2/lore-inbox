@@ -1,70 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311577AbSDQSZ6>; Wed, 17 Apr 2002 14:25:58 -0400
+	id <S312410AbSDQSee>; Wed, 17 Apr 2002 14:34:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312410AbSDQSZ5>; Wed, 17 Apr 2002 14:25:57 -0400
-Received: from zero.tech9.net ([209.61.188.187]:12304 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S311577AbSDQSZ4>;
-	Wed, 17 Apr 2002 14:25:56 -0400
-Subject: Re: 2.5.8: preemption + SMP broken ?
-From: Robert Love <rml@tech9.net>
-To: dipankar@in.ibm.com
+	id <S312846AbSDQSed>; Wed, 17 Apr 2002 14:34:33 -0400
+Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:22011 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S312410AbSDQSed>; Wed, 17 Apr 2002 14:34:33 -0400
+Date: Wed, 17 Apr 2002 12:33:01 -0600
+From: Andreas Dilger <adilger@clusterfs.com>
+To: Marc-Christian Petersen <m.c.p@gmx.net>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020417232253.A629@in.ibm.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 
-Date: 17 Apr 2002 14:25:57 -0400
-Message-Id: <1019067957.1669.46.camel@phantasy>
+Subject: Re: [PATCH] Possible EXT2 File System Corruption in Kernel 2.4
+Message-ID: <20020417183301.GP20464@turbolinux.com>
+Mail-Followup-To: Marc-Christian Petersen <m.c.p@gmx.net>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020417170758.8070026884@smtp.clusterfs.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-04-17 at 13:52, Dipankar Sarma wrote:
-> My machine (4cpu x86) hangs while booting a kernel with SMP
-> and preemption enabled. It hangs while executing one of
-> the initcalls, probably BIO since that is where the
-> next boot message comes from during a successful boot with SMP
-> (or preemption) disabled.
+On Apr 17, 2002  19:31 +0200, Marc-Christian Petersen wrote:
+> your patch does not work:
 > 
-> Has anyone tried out preemption with SMP ?
+> gcc -D__KERNEL__ -I/usr/src/linux-2.4.18/include  -Wall -Wstrict-prototypes 
+> -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe 
+> -mpreferred-stack-boundary=2 -march=i686   -DKBUILD_BASENAME=balloc  -c -o 
+> balloc.o balloc.c
+> balloc.c: In function `ext2_new_block':
+> balloc.c:524: warning: long unsigned int format, unsigned int arg (arg 4)
 
-Sure, all my testing is on SMP.  The problem manifested itself in
-2.5.8-pre when some changes where made to the migration code.  The race
-is in the migration code - I am not sure it is preempts fault, per se,
-but the attached patch should fix it.  It is pending with Linus for the
-next release.
+OK, minor error there - "tmp" is an int in ext2_new_block, while "block"
+is a long in ext2_free_blocks (I had changed it to a long in my tree and
+didn't see the warning when it compiled).  I should probably submit a
+patch at some point, but for now 32 bits is enough.
 
-	Robert Love
+> balloc.c:397: label `io_error' used but not defined
+> balloc.c:383: label `out' used but not defined
 
-diff -urN linux-2.5.8/kernel/sched.c linux/kernel/sched.c
---- linux-2.5.8/kernel/sched.c	Sun Apr 14 15:18:47 2002
-+++ linux/kernel/sched.c	Mon Apr 15 14:47:18 2002
-@@ -1649,6 +1649,7 @@
- 	if (!new_mask)
- 		BUG();
- 
-+	preempt_disable();
- 	rq = task_rq_lock(p, &flags);
- 	p->cpus_allowed = new_mask;
- 	/*
-@@ -1657,7 +1658,7 @@
- 	 */
- 	if (new_mask & (1UL << p->thread_info->cpu)) {
- 		task_rq_unlock(rq, &flags);
--		return;
-+		goto out;
- 	}
- 
- 	init_MUTEX_LOCKED(&req.sem);
-@@ -1667,6 +1668,8 @@
- 	wake_up_process(rq->migration_thread);
- 
- 	down(&req.sem);
-+out:
-+	preempt_enable();
- }
- 
- static volatile unsigned long migration_mask;
+??? My patch doesn't touch nor use these labels.
 
+> gcc: Internal compiler error: program cc1 got fatal signal 11
+
+??? This is pretty bad - usually signal 11 from GCC means RAM problems.
+
+Cheers, Andreas
+--
+Andreas Dilger
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+http://sourceforge.net/projects/ext2resize/
 

@@ -1,73 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129410AbQLDPIY>; Mon, 4 Dec 2000 10:08:24 -0500
+	id <S129437AbQLDPKY>; Mon, 4 Dec 2000 10:10:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129437AbQLDPIO>; Mon, 4 Dec 2000 10:08:14 -0500
-Received: from windsormachine.com ([206.48.122.28]:63236 "EHLO
-	router.windsormachine.com") by vger.kernel.org with ESMTP
-	id <S129410AbQLDPII>; Mon, 4 Dec 2000 10:08:08 -0500
-Message-ID: <3A2BABC7.98725631@windsormachine.com>
-Date: Mon, 04 Dec 2000 09:35:51 -0500
-From: Mike Dresser <mdresser@windsormachine.com>
-Organization: Windsor Machine & Stamping
-X-Mailer: Mozilla 4.75 [en] (Win98; U)
-X-Accept-Language: en
+	id <S129775AbQLDPKO>; Mon, 4 Dec 2000 10:10:14 -0500
+Received: from smtp02.mrf.mail.rcn.net ([207.172.4.61]:65468 "EHLO
+	smtp02.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
+	id <S129437AbQLDPKH>; Mon, 4 Dec 2000 10:10:07 -0500
+Date: Mon, 4 Dec 2000 09:39:32 -0500 (EST)
+From: "Mohammad A. Haque" <mhaque@haque.net>
+To: Jeff Garzik <jgarzik@mandrakesoft.mandrakesoft.com>
+cc: "Garst R. Reese" <reese@isn.net>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: test12-pre4 drivers/net/dummy
+In-Reply-To: <Pine.LNX.3.96.1001204020417.19309C-100000@mandrakesoft.mandrakesoft.com>
+Message-ID: <Pine.LNX.4.30.0012040937470.14256-200000@viper.haque.net>
 MIME-Version: 1.0
-To: Guennadi Liakhovetski <gvlyakh@mail.ru>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: DMA !NOT ONLY! for triton again...
-In-Reply-To: <E142Wt2-00031c-00@f5.mail.ru>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: MULTIPART/MIXED; BOUNDARY="-1463811839-1104939946-975940772=:14256"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Now, the question is, can we trust a hard drive manufacturer support tech to know what they're talking about, with evidence to the contrary? :)
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-Somewhat like the 6 days i spent with a Cisco 802 and an 804, trying to get a link up.  Set it to National ISDN-1, dial 9 before dialing outbound number.  Connection comes up, but receive light is on, almost solid.  I figure I got the wrong switch type, so i give AT&T a call.  Bell tech comes out, finds out the line wasn't physically punched down into the block properly.
+---1463811839-1104939946-975940772=:14256
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-AT&T tells me it's a Northern DMS-100, and don't dial 9.  I set it up, can't get the connection to come up.  Invalid bear-caps.  I put the 9 back in, AT&T gives me a call, tells me to stop dialing 9.
+Ok, so here's the proper patch for those who dont want to wait for t5 =)
+Ignore previous.
 
-Bell gets a call.  Turns out, it IS a National ISDN-1, and you're supposed to dial 9.  Seems that if you don't dial 9, it goes through AT&T's VOICE system.  For an ISDN call.  As you can tell, this doens't work.  :P  So after 6 days of learning more about cisco than I really wanted to, I get the link up.
+On Mon, 4 Dec 2000, Jeff Garzik wrote:
 
-Moral of the story?
+> the fix is in module.h which needs extra parens in the def of
+> set_module_owner...
+>
+> 	Jeff
 
-Never trust a manufacturer. :)  That, and don't listen to your boss, when he keeps saying my Cisco Config must be bad, or the router is DOA.  Trust your instincts.
+-- 
 
-Guennadi Liakhovetski wrote:
+=====================================================================
+Mohammad A. Haque                              http://www.haque.net/
+                                               mhaque@haque.net
 
-> -----Original Message-----An interesting addition:
-> I've just got a reply from WD - they say my disk only supports PIO4 and not DMA...
-> > I'm taking the case off the machine right now, i can guarantee you its not UDMA compatible, simply because this thing was made in early1997. :)
-> >
-> > Here we go:
-> >
-> > MDL WDAC21600-00H
-> > P/N 99-004199-000
-> > CCC F3 20 FEB 97
-> > DCM: BHBBKLP
-> >
-> > I've got various of these hard drives in service, for the last 4 years.  Many run in windows pc's, and DMA mode in osr2 and newer, works, and is noticeablely faster.
-> >
-> > Guennadi Liakhovetski wrote:
-> >
-> > > Glad all this discussion helped at least one of us:-))
-> > >
-> > > As for me, as I already mentioned in my last posting - I don't know why BIOS makes the difference (as in your case) if ide.txt says it shouldn't?! Ok, chipset, perhaps, is fine. But what about the hard drive? You told you had WDC AC21600H. Can you PLEASE check waht CCC is marked on its label? PLEASE! I am trying to get an answer from WD on this, but not yet alas...
-> > >
-> > > And - COME ON, GUYS! - somebody MUST know the answer - how to spot the guilty one - kernel configuration / BIOS / chipset / disk???
-> > >
-> > > Guennadi
-> > >
-> > > > back in, started playing in the bios.  Finally fixed it.  I was getting > the same operation not permitted, that you
-> > > > were,until i got that bios setting. But it's making me
-> > > > wonder if it's something similar in your bios!
-> > > > I know it wasn't the actual UDMA setting in the bios, i'm
-> > > > wondering what it was though.  I'll put a keyboard on it,
-> > > > and poke around tonight or this weekend.
-> >
-> >
+  "Alcohol and calculus don't mix.             Project Lead
+   Don't drink and derive." --Unknown          http://wm.themes.org/
+                                               batmanppc@themes.org
+=====================================================================
 
+---1463811839-1104939946-975940772=:14256
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="module.h-t12p4.diff"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.30.0012040939320.14256@viper.haque.net>
+Content-Description: 
+Content-Disposition: attachment; filename="module.h-t12p4.diff"
+
+LS0tIGxpbnV4L2luY2x1ZGUvbGludXgvbW9kdWxlLmgub3JpZwlNb24gRGVj
+ICA0IDA5OjE1OjM4IDIwMDANCisrKyBsaW51eC9pbmNsdWRlL2xpbnV4L21v
+ZHVsZS5oCU1vbiBEZWMgIDQgMDk6MzU6MjUgMjAwMA0KQEAgLTM0NSw3ICsz
+NDUsNyBAQA0KICNlbmRpZiAvKiBNT0RVTEUgKi8NCiANCiAjaWZkZWYgQ09O
+RklHX01PRFVMRVMNCi0jZGVmaW5lIFNFVF9NT0RVTEVfT1dORVIoc29tZV9z
+dHJ1Y3QpIGRvIHsgc29tZV9zdHJ1Y3QtPm93bmVyID0gVEhJU19NT0RVTEU7
+IH0gd2hpbGUgKDApDQorI2RlZmluZSBTRVRfTU9EVUxFX09XTkVSKHNvbWVf
+c3RydWN0KSBkbyB7IChzb21lX3N0cnVjdCktPm93bmVyID0gVEhJU19NT0RV
+TEU7IH0gd2hpbGUgKDApDQogI2Vsc2UNCiAjZGVmaW5lIFNFVF9NT0RVTEVf
+T1dORVIoc29tZV9zdHJ1Y3QpIGRvIHsgfSB3aGlsZSAoMCkNCiAjZW5kaWYN
+Cg==
+---1463811839-1104939946-975940772=:14256--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

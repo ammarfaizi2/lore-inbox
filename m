@@ -1,59 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319666AbSH3V1A>; Fri, 30 Aug 2002 17:27:00 -0400
+	id <S319665AbSH3VZj>; Fri, 30 Aug 2002 17:25:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319667AbSH3V1A>; Fri, 30 Aug 2002 17:27:00 -0400
-Received: from maile.telia.com ([194.22.190.16]:44787 "EHLO maile.telia.com")
-	by vger.kernel.org with ESMTP id <S319666AbSH3V07>;
-	Fri, 30 Aug 2002 17:26:59 -0400
-X-Original-Recipient: <linux-kernel@vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Sync arch/alpha/kernel/entry.S with asm/unistd.h
-From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Date: 30 Aug 2002 23:22:35 +0200
-Message-ID: <yw1x8z2oca90.fsf@zaphod.guide>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S319666AbSH3VZj>; Fri, 30 Aug 2002 17:25:39 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:24078 "HELO
+	garrincha.netbank.com.br") by vger.kernel.org with SMTP
+	id <S319665AbSH3VZi>; Fri, 30 Aug 2002 17:25:38 -0400
+Date: Fri, 30 Aug 2002 18:22:08 -0300
+From: Sergio Bruder <sergio@bruder.net>
+To: Markus Plail <plail@web.de>
+Cc: Anssi Saari <as@sci.fi>, Andre Hedrick <andre@linux-ide.org>,
+       vojtech@ucw.cz, linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: CD burning at 12x uses excessive CPU, although DMA is enabled
+Message-ID: <20020830212208.GA6065@bruder.net>
+Reply-To: sergio@bruder.net
+Mail-Followup-To: Sergio Bruder <sergio@bruder.net>,
+	Markus Plail <plail@web.de>, Anssi Saari <as@sci.fi>,
+	Andre Hedrick <andre@linux-ide.org>, vojtech@ucw.cz,
+	linux-kernel@vger.kernel.org
+References: <200204092206.02376.roger.larsson@norran.net> <Pine.LNX.4.10.10204091320450.25275-100000@master.linux-ide.org> <20020414123935.GA6441@sci.fi> <20020830043346.GA5793@bruder.net> <87d6s0g9eq.fsf@plailis.homelinux.net> <20020830065142.GA10582@sci.fi> <874rdcg62f.fsf@plailis.homelinux.net> <20020830154225.GA6114@sci.fi> <873cswuvvi.fsf@plailis.homelinux.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <873cswuvvi.fsf@plailis.homelinux.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This adds some (non-implemented) syscalls to entry.S with the same
-numbers as in asm/unistd.h
+On Fri, Aug 30, 2002 at 06:58:09PM +0200, Markus Plail wrote:
+> Hi Anssi!
+> 
+> * Anssi Saari writes:
+> >On Fri, Aug 30, 2002 at 09:27:04AM +0200, Markus Plail wrote:
+> >>* Anssi Saari writes:
+> >>>I also don't have your DAO vs. TAO problem.
+> >>
+> >>Hmm.. you wrote that cdrdao gives the problem, but cdrecord doesn't.
+> >
+> >I doubt that. Even if I did, it's wrong.
+> 
+> Yes, sorry, it was Sergio.
+> 
+> (...)
+>
+> If you write CDs in RAW modes, then there's the problem with the high
+> loads. Examples:
+> - cdrecord -raw96r/p (2448 bytes/sector)
+> - cdrecord -raw16    (2368 bytes/sector)
+> - cdrdao --driver generic-mmc-raw (2368 bytes/sector)
+> 
+> So for Sergio: Try using the generic-mmc without raw driver in cdrdao.
+>
 
---- arch/alpha/kernel/entry.S	30 Aug 2002 20:13:07 -0000	1.1.1.1
-+++ arch/alpha/kernel/entry.S	30 Aug 2002 21:11:07 -0000
-@@ -10,7 +10,7 @@
- 
- #define SIGCHLD 20
- 
--#define NR_SYSCALLS 382
-+#define NR_SYSCALLS 394
- 
- /*
-  * These offsets must match with alpha_mv in <asm/machvec.h>.
-@@ -1154,6 +1154,18 @@
- 	.quad sys_readahead
- 	.quad sys_ni_syscall			/* 380, sys_security */
- 	.quad sys_tkill
-+	.quad sys_ni_syscall			/* setxattr */
-+	.quad sys_ni_syscall			/* lsetxattr */
-+	.quad sys_ni_syscall			/* fsetxattr */
-+	.quad sys_ni_syscall			/* 385 getxattr */
-+	.quad sys_ni_syscall			/* lgetxattr */
-+	.quad sys_ni_syscall			/* fgetxattr */
-+	.quad sys_ni_syscall			/* listxattr */
-+	.quad sys_ni_syscall			/* llistxattr */
-+	.quad sys_ni_syscall			/* 390 flistxattr */
-+	.quad sys_ni_syscall			/* removexattr */
-+	.quad sys_ni_syscall			/* lremovexattr */
-+	.quad sys_ni_syscall			/* fremovexattr */
- 
- /* Remember to update everything, kids.  */
- .ifne (. - sys_call_table) - (NR_SYSCALLS * 8)
+I was using exactly generic-mmc, never tried the raw version.
+
+I only said that with ISO images the problem dont show up, as Anssi.
+
+> 
+> And audio CDs or (S)VCDs are written in mode2 (2352 bytes/sector) and
+> also cause the high loads, this time independent from the writing mode.
+> AFAIK this behaviour should be the same on any Linux system.
 
 
-
--- 
-Måns Rullgård
-mru@users.sf.net
+Sergio Bruder
+--
+http://pontobr.org
+pub  1024D/0C7D9F49 2000-05-26 Sergio Devojno Bruder <sergio@bruder.net>
+     Key fingerprint = 983F DBDF FB53 FE55 87DF  71CA 6B01 5E44 0C7D 9F49
+sub  1024g/138DF93D 2000-05-26

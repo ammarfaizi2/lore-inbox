@@ -1,102 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266381AbRGKUwp>; Wed, 11 Jul 2001 16:52:45 -0400
+	id <S266781AbRGKVGV>; Wed, 11 Jul 2001 17:06:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266773AbRGKUwf>; Wed, 11 Jul 2001 16:52:35 -0400
-Received: from h24-65-193-28.cg.shawcable.net ([24.65.193.28]:28407 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S266381AbRGKUwX>; Wed, 11 Jul 2001 16:52:23 -0400
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200107112051.f6BKplqg009583@webber.adilger.int>
-Subject: [PATCH] ext2 root dir sanity checking
-To: torvalds@transmeta.com
-Date: Wed, 11 Jul 2001 14:51:46 -0600 (MDT)
-CC: Linux kernel development list <linux-kernel@vger.kernel.org>
-X-Mailer: ELM [version 2.4ME+ PL87 (25)]
-MIME-Version: 1.0
+	id <S266777AbRGKVGL>; Wed, 11 Jul 2001 17:06:11 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:42737 "EHLO
+	e32.bld.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S266780AbRGKVGG>; Wed, 11 Jul 2001 17:06:06 -0400
+Date: Wed, 11 Jul 2001 14:05:54 -0700
+From: Mike Anderson <mike.anderson@us.ibm.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: Dipankar Sarma <dipankar@sequent.com>, linux-kernel@vger.kernel.org
+Subject: Re: io_request_lock patch?
+Message-ID: <20010711140554.A27815@us.ibm.com>
+In-Reply-To: <20010710172545.A8185@in.ibm.com> <20010710160512.A25632@us.ibm.com> <20010711142311.B9220@in.ibm.com> <20010711090257.B27097@us.ibm.com> <20010711212022.H712@suse.de> <20010712014328.A14094@in.ibm.com> <20010711221719.P712@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <20010711221719.P712@suse.de>; from axboe@suse.de on Wed, Jul 11, 2001 at 10:17:19PM +0200
+X-Operating-System: Linux 2.0.32 on an i486
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds a couple of extra tests for the root inode to avoid mounting
-a filesystem with an obviously corrupt root inode.  This patch was prompted
-a few months ago when someone was able to mount an ext2 filesystem which had
-the inode table wiped out, but the superblock was still intact (they wanted
-to see what was on an unused partition, so they tried mounting it).
+Jens Axboe [axboe@suse.de] wrote:
+> On Thu, Jul 12 2001, Dipankar Sarma wrote:
+> > On Wed, Jul 11, 2001 at 09:20:22PM +0200, Jens Axboe wrote:
+> > > True. In theory it would be possible to do request slot stealing from
+> > > idle queues, in fact it's doable without adding any additional overhead
+> > > to struct request. I did discuss this with [someone, forgot who] last
+> > > year, when the per-queue slots where introduced.
+> > > 
+> > > I'm not sure I want to do this though. If you have lots of disks, then
+> > > yes there will be some wastage if they are idle. IMO that's ok. What's
+> > > not ok and what I do want to fix is that slower devices get just as many
+> > > slots as a 15K disk for instance. For, say, floppy or CDROM devices we
+> > > really don't need to waste that much RAM. This will change for 2.5, not
+> > > before.
+> > 
+> > Unless there is some serious evidence substantiating the need for
+> > stealing request slots from other devices to avoid starvation, it
+> > makes sense to avoid it and go for a simpler scheme. I suspect that device
+> > type based slot allocation should just suffice.
+> 
+> My point exactly. And typically, if you have lots of queues you have
+> lots of RAM. A standard 128meg desktop machine does not waste a whole
+> lot.
 
-The patch has been in the -ac kernels for a while now.  It also does a bit
-of consolidation of error path cleanup code.
+I would vote for the simpler approach of slots. :-).
 
-Cheers, Andreas
-==========================================================================
-diff -ru linux-2.4.6.orig/fs/ext2/super.c linux-2.4.6-aed/fs/ext2/super.c
---- linux-2.4.6.orig/fs/ext2/super.c	Tue May 29 13:13:19 2001
-+++ linux-2.4.6-aed/fs/ext2/super.c	Thu Jun 28 15:04:34 2001
-@@ -454,12 +469,9 @@
- 	sb->s_magic = le16_to_cpu(es->s_magic);
- 	if (sb->s_magic != EXT2_SUPER_MAGIC) {
- 		if (!silent)
--			printk ("VFS: Can't find an ext2 filesystem on dev "
--				"%s.\n", bdevname(dev));
--	failed_mount:
--		if (bh)
--			brelse(bh);
--		return NULL;
-+			printk ("VFS: Can't find ext2 filesystem on dev %s.\n",
-+				bdevname(dev));
-+		goto failed_mount;
- 	}
- 	if (le32_to_cpu(es->s_rev_level) == EXT2_GOOD_OLD_REV &&
- 	    (EXT2_HAS_COMPAT_FEATURE(sb, ~0U) ||
-@@ -622,11 +617,9 @@
- 		}
- 	}
- 	if (!ext2_check_descriptors (sb)) {
--		for (j = 0; j < db_count; j++)
--			brelse (sb->u.ext2_sb.s_group_desc[j]);
--		kfree(sb->u.ext2_sb.s_group_desc);
--		printk ("EXT2-fs: group descriptors corrupted !\n");
--		goto failed_mount;
-+		printk ("EXT2-fs: group descriptors corrupted!\n");
-+		db_count = i;
-+		goto failed_mount2;
- 	}
- 	for (i = 0; i < EXT2_MAX_GROUP_LOADED; i++) {
- 		sb->u.ext2_sb.s_inode_bitmap_number[i] = 0;
-@@ -642,17 +635,25 @@
- 	 */
- 	sb->s_op = &ext2_sops;
- 	sb->s_root = d_alloc_root(iget(sb, EXT2_ROOT_INO));
--	if (!sb->s_root) {
--		for (i = 0; i < db_count; i++)
--			if (sb->u.ext2_sb.s_group_desc[i])
--				brelse (sb->u.ext2_sb.s_group_desc[i]);
--		kfree(sb->u.ext2_sb.s_group_desc);
--		brelse (bh);
--		printk ("EXT2-fs: get root inode failed\n");
--		return NULL;
-+	if (!sb->s_root || !S_ISDIR(sb->s_root->d_inode->i_mode) ||
-+	    !sb->s_root->d_inode->i_blocks || !sb->s_root->d_inode->i_size) {
-+		if (sb->s_root) {
-+			dput(sb->s_root);
-+			sb->s_root = NULL;
-+			printk ("EXT2-fs: corrupt root inode, run e2fsck\n");
-+		} else
-+			printk ("EXT2-fs: get root inode failed\n");
-+		goto failed_mount2;
- 	}
- 	ext2_setup_super (sb, es, sb->s_flags & MS_RDONLY);
- 	return sb;
-+failed_mount2:
-+	for (i = 0; i < db_count; i++)
-+		brelse(sb->u.ext2_sb.s_group_desc[i]);
-+	kfree(sb->u.ext2_sb.s_group_desc);
-+failed_mount:
-+	brelse(bh);
-+	return NULL;
- }
- 
- static void ext2_commit_super (struct super_block * sb,
+> 
+> -- 
+> Jens Axboe
+
 -- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+Michael Anderson
+mike.anderson@us.ibm.com
+

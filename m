@@ -1,39 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268002AbTAIT7l>; Thu, 9 Jan 2003 14:59:41 -0500
+	id <S267774AbTAIT4V>; Thu, 9 Jan 2003 14:56:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268003AbTAIT7k>; Thu, 9 Jan 2003 14:59:40 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:35200 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S268002AbTAIT7j>; Thu, 9 Jan 2003 14:59:39 -0500
-Date: Thu, 9 Jan 2003 15:09:45 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Luca Barbieri <ldb@ldb.ods.org>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-       Linux-Kernel ML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Use %ebp rather than %ebx for thread_info pointer
-In-Reply-To: <20030109194935.GA2098@ldb>
-Message-ID: <Pine.LNX.3.95.1030109150728.27501A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267888AbTAIT4U>; Thu, 9 Jan 2003 14:56:20 -0500
+Received: from h55p111.delphi.afb.lu.se ([130.235.187.184]:56962 "EHLO
+	gagarin.0x63.nu") by vger.kernel.org with ESMTP id <S267774AbTAIT4U>;
+	Thu, 9 Jan 2003 14:56:20 -0500
+Date: Thu, 9 Jan 2003 21:04:29 +0100
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Joshua Kwan <joshk@ludicrus.ath.cx>, linux-kernel@vger.kernel.org
+Subject: Re: [2.5.54-dj1-bk] Some interesting experiences...
+Message-ID: <20030109200428.GB3345@gagarin>
+References: <20030107172147.3c53efa8.joshk@ludicrus.ath.cx> <20030108015107.GA2170@gagarin> <20030108095253.B23278@ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030108095253.B23278@ucw.cz>
+User-Agent: Mutt/1.4i
+From: Anders Gustafsson <andersg@0x63.nu>
+X-Scanner: exiscan *18Wiuj-0002GN-00*t3k6zA9lkmA* (0x63.nu)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 9 Jan 2003, Luca Barbieri wrote:
-
-> This patch changes assembly code that accesses thread_info to use %ebp
-> rather than %ebx. 
+On Wed, Jan 08, 2003 at 09:52:53AM +0100, Vojtech Pavlik wrote:
 > 
-> This allows me to take advantage of the fact that %ebp is restored by
-> user mode in the sysenter register pop removal patch.
+> That I'd like to know, too. In the worst case, we can make the timeout
+> be half a second, or more - it'd just mean that for a resync you would
+> have to not touch the mouse this long if really a byte is lost.
 
-If you use EBP as an index register, i.e., "movl (%ebp), %eax", it
-will be relative to the SS, not ES or DS. Is this what you want?
+Still havn't misbehaved here with the extended timeout. So it seems that it
+really helped.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
-
-
+-- 
+Anders Gustafsson - andersg@0x63.nu - http://0x63.nu/

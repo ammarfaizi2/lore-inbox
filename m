@@ -1,99 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265088AbTFCQic (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jun 2003 12:38:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265090AbTFCQic
+	id S265090AbTFCQk2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 12:40:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265092AbTFCQk2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jun 2003 12:38:32 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:65208 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S265088AbTFCQia
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jun 2003 12:38:30 -0400
-Message-ID: <3EDCD20A.1070407@us.ibm.com>
-Date: Tue, 03 Jun 2003 09:51:22 -0700
-From: Mingming Cao <cmm@us.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020830
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@digeo.com>
-CC: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.5.70-mm3
-References: <20030531013716.07d90773.akpm@digeo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 3 Jun 2003 12:40:28 -0400
+Received: from mailgate.rz.uni-karlsruhe.de ([129.13.64.97]:16657 "EHLO
+	mailgate.rz.uni-karlsruhe.de") by vger.kernel.org with ESMTP
+	id S265090AbTFCQk0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jun 2003 12:40:26 -0400
+Date: Tue, 3 Jun 2003 18:53:15 +0200
+From: Matthias Mueller <matthias.mueller@rz.uni-karlsruhe.de>
+To: Michael Frank <mflt1@micrologica.com.hk>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, Marc Wilson <msw@cox.net>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.21-rc6
+Message-ID: <20030603165315.GC1975@rz.uni-karlsruhe.de>
+Mail-Followup-To: Michael Frank <mflt1@micrologica.com.hk>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>,
+	Marc Wilson <msw@cox.net>, lkml <linux-kernel@vger.kernel.org>
+References: <20030529052425.GA1566@moonkingdom.net> <20030529055735.GB1566@moonkingdom.net> <Pine.LNX.4.55L.0306031302310.3892@freak.distro.conectiva> <200306040030.27640.mflt1@micrologica.com.hk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200306040030.27640.mflt1@micrologica.com.hk>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.70/2.5.70-mm3/
+On Wed, Jun 04, 2003 at 12:30:27AM +0800, Michael Frank wrote:
+> On Wednesday 04 June 2003 00:02, Marcelo Tosatti wrote:
+> -rc6 is better - comparable to 2.4.18 in what I have seen with my script.  
 > 
-Re run 50 fsx tests overnight again on mm3.  The tests are all 
-unresponsetive after running a while.  There are lots of disk errors and 
-one call back trace:
+> After the long obscure problems since 2.4.19x, -rc6 could use serious 
+> stress-testing. 
+> 
+> User level testing is not sufficient here - it's just like playing roulette.
+> 
+> By serious stress-testing I mean:
+> 
+> Everone testing comes up with  one dedicated "tough test" 
+> which _must_ be reproducible (program, script) along his line of 
+> expertise/application.
+> 
+> Two or more of these independent tests are run in combination.
 
-Any idea?
+Agreed and I'm willing to run test-scripts on my system, that has these
+hangs (long ones with 2.4.19-pre1 to 2.4.21-rc5 and only short ones with
+2.4.21-rc6). But at the moment I have neither time nor enough knowledge to
+write a test to reproduce it.
 
+So if someone comes up with a suitable test skript, I'm happy to try it
+and use it on different kernel versions.
 
-SCSI disk error : <2 0 4 0> return code = 0x6000000
-end_request: I/O error, dev sdf, sector 14030152
-SCSI disk error : <2 0 0 0> return code = 0x6000000
-end_request: I/O error, dev sdb, sector 10526936
-SCSI disk error : <2 0 0 0> return code = 0x6000000
-end_request: I/O error, dev sdb, sector 10533048
-SCSI disk error : <2 0 0 0> return code = 0x6000000
-end_request: I/O error, dev sdb, sector 10536376
-SCSI disk error : <2 0 0 0> return code = 0x6000000
-end_request: I/O error, dev sdb, sector 10538544
-SCSI disk error : <2 0 0 0> return code = 0x6000000
-end_request: I/O error, dev sdb, sector 10538688
-SCSI disk error : <2 0 5 0> return code = 0x6000000
-end_request: I/O error, dev sdg, sector 10533024
-SCSI disk error : <2 0 5 0> return code = 0x6000000
-end_request: I/O error, dev sdg, sector 10533088
-SCSI disk error : <2 0 2 0> return code = 0x6000000
-end_request: I/O error, dev sdd, sector 10540928
-SCSI disk error : <2 0 4 0> return code = 0x6000000
-end_request: I/O error, dev sdf, sector 10526936
-SCSI disk error : <2 0 1 0> return code = 0x6000000
-end_request: I/O error, dev sdc, sector 88488
-SCSI disk error : <2 0 1 0> return code = 0x6000000
-end_request: I/O error, dev sdc, sector 89176
-SCSI disk error : <2 0 5 0> return code = 0x6000000
-end_request: I/O error, dev sdg, sector 10533776
-SCSI disk error : <2 0 6 0> return code = 0x6000000
-end_request: I/O error, dev sdh, sector 3566984
-SCSI disk error : <2 0 5 0> return code = 0x6000000
-end_request: I/O error, dev sdg, sector 10533808
-SCSI disk error : <2 0 5 0> return code = 0x6000000
-end_request: I/O error, dev sdg, sector 10533936
-SCSI disk error : <2 0 5 0> return code = 0x6000000
-end_request: I/O error, dev sdg, sector 14005320
-SCSI disk error : <2 0 5 0> return code = 0x6000000
-end_request: I/O error, dev sdg, sector 14022904
-SCSI disk error : <2 0 4 0> return code = 0x6000000
-end_request: I/O error, dev sdf, sector 10537240
-SCSI disk error : <2 0 5 0> return code = 0x6000000
-end_request: I/O error, dev sdg, sector 14023128
-SCSI disk error : <2 0 4 0> return code = 0x6000000
-buffer layer error at fs/buffer.c:2835
-Call Trace:
-  [<c015a760>] drop_buffers+0xc0/0xd0
-  [<c015a7bb>] try_to_free_buffers+0x4b/0xb0
-  [<c01a22ef>] journal_invalidatepage+0xdf/0x130
-  [<c0193123>] ext3_invalidatepage+0x43/0x50
-  [<c0141bb7>] do_invalidatepage+0x27/0x30
-  [<c0141c4e>] truncate_complete_page+0x8e/0x90
-  [<c0141dd4>] truncate_inode_pages+0xd4/0x2f0
-  [<c01468fb>] vmtruncate+0x6b/0x100
-  [<c01712f4>] inode_setattr+0x134/0x150
-  [<c0194d5a>] ext3_setattr+0x7a/0x1a0
-  [<c01603be>] cp_new_stat64+0xfe/0x110
-  [<c01714e0>] notify_change+0x160/0x19d
-  [<c015339a>] do_truncate+0x6a/0x90
-  [<c0160487>] sys_fstat64+0x37/0x40
-  [<c0153688>] sys_ftruncate+0x118/0x1b0
-  [<c0154d50>] generic_file_llseek+0x0/0xf0
-  [<c0155089>] sys_lseek+0x69/0xb0
-  [<c010943f>] syscall_call+0x7/0xb
-
-
+Bye,
+Matthias
+-- 
+Matthias.Mueller@rz.uni-karlsruhe.de
+Rechenzentrum Universitaet Karlsruhe
+Abteilung Netze

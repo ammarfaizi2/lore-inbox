@@ -1,39 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281429AbRKEXld>; Mon, 5 Nov 2001 18:41:33 -0500
+	id <S281434AbRKEXln>; Mon, 5 Nov 2001 18:41:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281435AbRKEXlX>; Mon, 5 Nov 2001 18:41:23 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:29867 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S281429AbRKEXlI>;
-	Mon, 5 Nov 2001 18:41:08 -0500
-Date: Mon, 5 Nov 2001 18:41:07 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Tim Jansen <tim@tjansen.de>
-cc: andersen@codepoet.org, Ben Greear <greearb@candelatech.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: PROPOSAL: dot-proc interface [was: /proc stuff]
-In-Reply-To: <160tEV-20u3KSC@fmrl04.sul.t-online.com>
-Message-ID: <Pine.GSO.4.21.0111051836490.27086-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S281435AbRKEXle>; Mon, 5 Nov 2001 18:41:34 -0500
+Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:12043 "HELO
+	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with SMTP
+	id <S281434AbRKEXlW>; Mon, 5 Nov 2001 18:41:22 -0500
+Date: Tue, 6 Nov 2001 00:41:18 +0100
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: disk throughput
+Message-ID: <20011106004118.C25602@emma1.emma.line.org>
+Mail-Followup-To: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <3BE5F5BF.7A249BDF@zip.com.au>, <3BE5F5BF.7A249BDF@zip.com.au> <20011105132346.B5805@emma1.emma.line.org> <3BE71529.F781EF2A@zip.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <3BE71529.F781EF2A@zip.com.au>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 05 Nov 2001, Andrew Morton wrote:
 
+> write-behind is enabled.  I'm not religious about write-behind.
+> Yes, there's a small chance that the disk will decide to write a
+> commit block in front of the data (which is at lower LBAs).  But
 
-On Tue, 6 Nov 2001, Tim Jansen wrote:
-
-> But how can the user know this without looking into the kernel? Compare it to 
-> /proc/mounts. Proc mounts escapes spaces and other special characters in 
-> strings with an octal encoding (so spaces are replaced by '\040'). 
-
-Ah, yes - the horrible /proc/mounts.  Check that code in 2.4.13-ac8, will
-you?
-
-Yes, current procfs sucks.  We got a decent infrastructure that allows
-to write that code easily.  Again, see -ac8 and watch fs/namespace.c
-code dealing with /proc/mounts.
-
-No need to play silly buggers with "one value per file" (and invite the
-Elder Ones with applications trying to use getdents()).  Sigh...
-
+Well, you're talking about performance here. In my simple tests, the
+write cache has a major impact (twofold) on linear writes (just dd to
+a partition), so your milage may vary a lot depending on the cache
+configuration.

@@ -1,47 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132045AbRDJOov>; Tue, 10 Apr 2001 10:44:51 -0400
+	id <S132152AbRDJOqb>; Tue, 10 Apr 2001 10:46:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132121AbRDJOos>; Tue, 10 Apr 2001 10:44:48 -0400
-Received: from d12lmsgate-3.de.ibm.com ([195.212.91.201]:52394 "EHLO
-	d12lmsgate-3.de.ibm.com") by vger.kernel.org with ESMTP
-	id <S132045AbRDJOog> convert rfc822-to-8bit; Tue, 10 Apr 2001 10:44:36 -0400
-From: schwidefsky@de.ibm.com
-X-Lotus-FromDomain: IBMDE
-To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-cc: David Schleef <ds@schleef.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Mark Salisbury <mbs@mc.com>, Jeff Dike <jdike@karaya.com>,
-        linux-kernel@vger.kernel.org
-Message-ID: <C1256A2A.0050C6A0.00@d12mta07.de.ibm.com>
-Date: Tue, 10 Apr 2001 16:42:35 +0200
-Subject: Re: No 100 HZ timer !
-Mime-Version: 1.0
-Content-type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-transfer-encoding: 8BIT
+	id <S132121AbRDJOqY>; Tue, 10 Apr 2001 10:46:24 -0400
+Received: from cr502987-a.rchrd1.on.wave.home.com ([24.42.47.5]:13843 "EHLO
+	the.jukie.net") by vger.kernel.org with ESMTP id <S132127AbRDJOqO>;
+	Tue, 10 Apr 2001 10:46:14 -0400
+Date: Tue, 10 Apr 2001 10:46:05 -0400 (EDT)
+From: Bart Trojanowski <bart@jukie.net>
+To: Ofer Fryman <ofer@shunra.co.il>
+cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+        "'linux-net@vger.kernel.org'" <linux-net@vger.kernel.org>
+Subject: RE: network cards (drivers) performance.
+In-Reply-To: <F1629832DE36D411858F00C04F24847A11DF8C@SALVADOR>
+Message-ID: <Pine.LNX.4.30.0104101044460.28062-100000@localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+I used 1024 byte IP packet size (+12 bytes of Ethernet header) under 1500
+MTU.
 
->BTW. Why we need to redesign timers at all? The cost of timer interrupt
->each 1/100 second is nearly zero (1000 instances on S/390 VM is not common
->case - it is not reasonable to degradate performance of timers because of
->this).
-The cost of the timer interrupts on a single image system is neglectable,
-true. As I already pointed out in the original proposal we are looking
-for a solution that will allow us to minimize the costs of the timer
-interrupts when we run many images. For us this case is not unusual and
-it is reasonable to degrade performance of a running system by a very
-small amount to get rid of the HZ timer. This proposal was never meant
-to be the perfect solution for every platform, that is why it is
-configuratable with the CONFIG_NO_HZ_TIMER option.
+On Tue, 10 Apr 2001, Ofer Fryman wrote:
 
-blue skies,
-   Martin
+> At what frame size?.
+>
+> Thanks
+> Ofer
+>
+> -----Original Message-----
+> From: Bart Trojanowski [mailto:bart@jukie.net]
+> Sent: Tuesday, April 10, 2001 4:30 PM
+> To: Ofer Fryman
+> Cc: 'linux-kernel@vger.kernel.org'; 'linux-net@vger.kernel.org'
+> Subject: Re: network cards (drivers) performance.
+>
+>
+> On Tue, 10 Apr 2001, Ofer Fryman wrote:
+>
+> > Has any one tested the performance of the Tulip or AMD cards (or any other
+> > network card) on any Linux version, with any CPU and any chip-set?
+>
+> Wow... that's a pretty broad question!
+>
+> Yes I have had very good performance with the 'recent' tulip cards:
+>
+> # lspci | grep DECchip
+> 04:08.0 Ethernet controller: Digital Equipment Corporation DECchip 21142/43
+> (rev 41)
+> 04:09.0 Ethernet controller: Digital Equipment Corporation DECchip 21142/43
+> (rev 41)
+>
+> I have been able to tunnel about 186 Mbits/s on a P3Xeon/866 on any
+> 2.4.{1,3}
+> kernel with two of the above cards (tulip driver).  Note that this means
+> full duplex was on and the box was forwarding a total of 186 MBits of data
+> fron one NIC to another; actually it was 93 in each direction.  Fast
+> routing (a la CONFIG_NET_FASTROUTE) was _not_ compiled into the kernel.
+>
+> B.
+>
+>
 
-Linux/390 Design & Development, IBM Deutschland Entwicklung GmbH
-Schönaicherstr. 220, D-71032 Böblingen, Telefon: 49 - (0)7031 - 16-2247
-E-Mail: schwidefsky@de.ibm.com
+-- 
+	WebSig: http://www.jukie.net/~bart/sig/
 
 

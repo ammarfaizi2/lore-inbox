@@ -1,51 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261486AbTBJEQg>; Sun, 9 Feb 2003 23:16:36 -0500
+	id <S261640AbTBJET4>; Sun, 9 Feb 2003 23:19:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261495AbTBJEQg>; Sun, 9 Feb 2003 23:16:36 -0500
-Received: from h80ad26eb.async.vt.edu ([128.173.38.235]:22156 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id <S261486AbTBJEQf>; Sun, 9 Feb 2003 23:16:35 -0500
-Message-Id: <200302100426.h1A4Q8Of022645@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4+dev
-To: Edward Kuns <ekuns@kilroy.chi.il.us>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Larger circular printk log message buffer for kernel? 
-In-Reply-To: Your message of "Sun, 09 Feb 2003 22:20:03 CST."
-             <1044850803.14790.18.camel@kilroy.chi.il.us> 
-From: Valdis.Kletnieks@vt.edu
-References: <1044850803.14790.18.camel@kilroy.chi.il.us>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_480515072P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Sun, 09 Feb 2003 23:26:08 -0500
+	id <S261615AbTBJET4>; Sun, 9 Feb 2003 23:19:56 -0500
+Received: from 3-157.ctame701-1.telepar.net.br ([200.193.161.157]:17038 "EHLO
+	3-157.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S261640AbTBJET4>; Sun, 9 Feb 2003 23:19:56 -0500
+Date: Mon, 10 Feb 2003 02:29:20 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: David Lang <david.lang@digitalinsight.com>
+cc: Andrea Arcangeli <andrea@suse.de>, Con Kolivas <ckolivas@yahoo.com.au>,
+       lkml <linux-kernel@vger.kernel.org>, Jens Axboe <axboe@suse.de>
+Subject: Re: stochastic fair queueing in the elevator [Re: [BENCHMARK]
+ 2.4.20-ck3 / aa / rmap with contest]
+In-Reply-To: <Pine.LNX.4.44.0302092018180.15944-100000@dlang.diginsite.com>
+Message-ID: <Pine.LNX.4.50L.0302100228140.12742-100000@imladris.surriel.com>
+References: <Pine.LNX.4.44.0302092018180.15944-100000@dlang.diginsite.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_480515072P
-Content-Type: text/plain; charset=us-ascii
+On Sun, 9 Feb 2003, David Lang wrote:
 
-On Sun, 09 Feb 2003 22:20:03 CST, you said:
-> Please CC me for responses.
-> 
-> I'm willing to make a patch if it is likely to be accepted into the
-> kernel.  Since we have so many subsystems that spit out kilobytes of
-> messages, by the time my system has booted up I have already lost some
-> of the most important boot messages!  (APIC, for example)
+> note that issuing a fsync should change all pending writes to 'syncronous'
+> as should writes to any partition mounted with the sync option, or writes
+> to a directory with the S flag set.
 
-There's a version of this already in the 2.5 tree.
+Exactly.  This is nasty with our current data structures;
+probably not something to do during the current code slush.
 
---==_Exmh_480515072P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE+RyngcC3lWbTT17ARAtJ5AKDMHi216rOq+15ZjE1LnHpQ8KlW3QCeOpjA
-kjegE9T9YhWcylo9tdmJICM=
-=btcM
------END PGP SIGNATURE-----
-
---==_Exmh_480515072P--
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+http://www.surriel.com/		http://guru.conectiva.com/
+Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>

@@ -1,51 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261603AbUCaOIH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Mar 2004 09:08:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261979AbUCaOIH
+	id S261979AbUCaOZp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Mar 2004 09:25:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261982AbUCaOZp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Mar 2004 09:08:07 -0500
-Received: from xizor.is.scarlet.be ([193.74.71.21]:28895 "EHLO
-	xizor.is.scarlet.be") by vger.kernel.org with ESMTP id S261603AbUCaOIE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Mar 2004 09:08:04 -0500
-Date: Wed, 31 Mar 2004 16:11:15 +0200
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [linux-usb-devel] speedtouch and/or USB problem (2.6.4-WOLK2.3)
-Message-ID: <20040331141115.GA9792@gouv>
-References: <Pine.LNX.4.58.0403272228360.2662@alpha.polcom.net> <Pine.LNX.4.44L0.0403271851040.2209-100000@ida.rowland.org>
+	Wed, 31 Mar 2004 09:25:45 -0500
+Received: from ns.suse.de ([195.135.220.2]:7853 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261979AbUCaOZn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Mar 2004 09:25:43 -0500
+Subject: Re: [PATCH] barrier patch set
+From: Chris Mason <mason@suse.com>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Jens Axboe <axboe@suse.de>, Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1080741817.1991.34.camel@sisko.scot.redhat.com>
+References: <20040319153554.GC2933@suse.de>
+	 <200403201723.11906.bzolnier@elka.pw.edu.pl>
+	 <1079800362.11062.280.camel@watt.suse.com>
+	 <200403201805.26211.bzolnier@elka.pw.edu.pl>
+	 <1080662685.1978.25.camel@sisko.scot.redhat.com>
+	 <1080674384.3548.36.camel@watt.suse.com>
+	 <1080683417.1978.53.camel@sisko.scot.redhat.com>
+	 <1080684797.3546.85.camel@watt.suse.com>
+	 <1080741817.1991.34.camel@sisko.scot.redhat.com>
+Content-Type: text/plain
+Message-Id: <1080743276.3547.146.camel@watt.suse.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.0403271851040.2209-100000@ida.rowland.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-From: Leopold Gouverneur <gvlp@pi.be>
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 31 Mar 2004 09:27:57 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 27, 2004 at 06:51:36PM -0500, Alan Stern wrote:
-> On Sat, 27 Mar 2004, Grzegorz Kulewski wrote:
+On Wed, 2004-03-31 at 09:03, Stephen C. Tweedie wrote:
+> Hi,
 > 
-> > Hi,
-> > 
-> > When running modem_run on 2.6.4-WOLK2.3 it locks in D state on one of USB 
-> > ioctls. It works at least on 2.6.2-rc2. I have no idea what causes this 
-> > bug so I sent it to all lists.
-> > 
-> > Please help if you can.
-> > 
-> > Grzegorz Kulewski
+> On Tue, 2004-03-30 at 23:13, Chris Mason wrote:
 > 
-> Try applying this patch:
+> > Most database benchmarks are done on scsi, and the blkdev_flush should
+> > be a noop there.  For IDE based database and mail server benchmarks, the
+> > results won't be pretty.  
 > 
-> http://marc.theaimsgroup.com/?l=linux-usb-devel&m=108016447231291&q=raw
+> Yep.  I'm really not too worried about big database benchmarks -- those
+> are very much special cases, using rather specialised storage setup
+> (SCSI or FC, striped over lots of small disks rather than fewer large
+> ones.)  I'm much more concerned about your average LAMP user's mysql
+> database, and how to keep performance sane on that.
 > 
-> Alan Stern
+In some cases, it's going to be so much slower that it will look like
+the old code wasn't writing the data at all.  I don't think there's much
+we can do about that.
+
+> > The reiserfs fsync code tries hard to only flush once, so if a commit is
+> > done then blkdev_flush isn't called.  We might have to do a few other
+> > tricks to queue up multiple synchronous ios and only flush once.
 > 
-This patch seems to be included in 2.6.5-rc2 bk-curent but it don't
-solve the same problem with xsane (or scanimage) which hangs in
-ioctl(n, USBDEVFS_SETCONFIGURATION) when accessing my Epson USB Sc
-anner.Not the first time I run it but each time after that.
-The process remains in D state for many hours before returning for no
-evident reason.Was working fine in 2.6.3.
+> Batching is really helpful when you've got lots of threads that can be
+> coalesced, yes.  ext3 does that for things like mail servers.  I'm not
+> sure whether the same tricks will apply to the various databases out
+> there, though.
+
+We can do better in general when there's more then one process doing an
+fsync.  reiserfs and ext3 both try to be smart about batching log
+commits, but I think we could do more to streamline the data writes.
+
+I'm playing with a few ideas, I'll post more when I've got real code to
+back things up.
+
+If there's only one process doing fsyncs, there's not much the kernel
+can do except provide an aio fsync call.
+
+-chris
+
+
+
+

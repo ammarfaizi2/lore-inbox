@@ -1,63 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266903AbUGMVvL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266902AbUGMVwN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266903AbUGMVvL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jul 2004 17:51:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266898AbUGMVvK
+	id S266902AbUGMVwN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jul 2004 17:52:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266478AbUGMVwN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jul 2004 17:51:10 -0400
-Received: from web51106.mail.yahoo.com ([206.190.38.148]:55455 "HELO
-	web51106.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S266902AbUGMVuu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jul 2004 17:50:50 -0400
-Message-ID: <20040713215046.39251.qmail@web51106.mail.yahoo.com>
-Date: Wed, 14 Jul 2004 07:50:46 +1000 (EST)
-From: =?iso-8859-1?q?Steve=20Kieu?= <haiquy@yahoo.com>
-Subject: Re: 2.4.27-rc3 __alloc_pages: 3-order allocation failed (gfp=0x20/0)
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040713191445.GB9655@logos.cnet>
-MIME-Version: 1.0
+	Tue, 13 Jul 2004 17:52:13 -0400
+Received: from fw.osdl.org ([65.172.181.6]:21933 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266898AbUGMVwB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jul 2004 17:52:01 -0400
+Date: Tue, 13 Jul 2004 14:54:24 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: paul@linuxaudiosystems.com, rlrevell@joe-job.com,
+       linux-audio-dev@music.columbia.edu, mingo@elte.hu, arjanv@redhat.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [linux-audio-dev] Re: [announce] [patch] Voluntary Kernel
+ Preemption Patch
+Message-Id: <20040713145424.1217b67f.akpm@osdl.org>
+In-Reply-To: <20040713213847.GH974@dualathlon.random>
+References: <20040712163141.31ef1ad6.akpm@osdl.org>
+	<200407130001.i6D01pkJ003489@localhost.localdomain>
+	<20040712170844.6bd01712.akpm@osdl.org>
+	<20040713162539.GD974@dualathlon.random>
+	<20040713114829.705b9607.akpm@osdl.org>
+	<20040713213847.GH974@dualathlon.random>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Thank you for the reply.
-
-> The "3-order allocation failures" should not be a
-> problem - its just 
-> the ide-scsi driver trying to allocate a big
-> scatter-gather list of 8 pages,
-> it fails then tries to allocate "smaller pieces" (4
-> pages then if that fails 
-> 1 page of memory). 
+Andrea Arcangeli <andrea@suse.de> wrote:
+>
+> On Tue, Jul 13, 2004 at 11:48:29AM -0700, Andrew Morton wrote:
+> > sys_sched_yield() also calls schedule() with local interrupts disabled. 
+> > It's a bit grubby, but saves a few cycles.  Nick and Ingo prefer it that way.
 > 
-> Now the problem is the ide-scsi timeout's -- I
-> really have not much of 
-> an idea what could be going wrong there.
-> 
->  
-I just found that if using cdda2wav but use it
-cooked_ctl interface (not the scsi one so I dont use
-ide-scsi any more) it works ; still until the last
-audio track it still report some error and hang , need
-to do Ctrl+C to stop it. However the last sound track
-is normal when play it. Use cdparanoia for both
-(ide-scsi or ide-cd) it works as normal.
+> we can remove the irqs_disabled() check in might_sleep then, I'd like to
+> call might_sleep from cond_resched.
 
-I suspect bug in cdda2wav, or ide-scsi combination
-when readding cd text and info (I think cdparanoia
-does not read cd text). it may even be that my audio
-disc has some damage.
-I will test with other audio cd today to see what
-happened.
+Confused.  Where do we call cond_resched() with local interrupts disabled?
 
-Regards,
-
-
-=====
-S.KIEU
-
-Find local movie times and trailers on Yahoo! Movies.
-http://au.movies.yahoo.com
+Sleeping with local interrupts disabled is usually a bug, so we should prefer
+to keep that check in might_sleep().

@@ -1,53 +1,166 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275568AbRJQKii>; Wed, 17 Oct 2001 06:38:38 -0400
+	id <S275671AbRJQKmj>; Wed, 17 Oct 2001 06:42:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275671AbRJQKi3>; Wed, 17 Oct 2001 06:38:29 -0400
-Received: from [194.51.220.145] ([194.51.220.145]:52989 "EHLO
-	mafalda.tuxfinder.com") by vger.kernel.org with ESMTP
-	id <S275568AbRJQKiS>; Wed, 17 Oct 2001 06:38:18 -0400
-Date: Wed, 17 Oct 2001 12:38:41 +0200
-From: Stephane Jourdois <stephane@tuxfinder.org>
-To: Barry Wu <wqb123@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Can linux kernel boot from parallel port device?
-Message-ID: <20011017123841.A19305@mafalda.duke-interactive.com>
-Reply-To: stephane@tuxfinder.org
-In-Reply-To: <20011017002040.48151.qmail@web13907.mail.yahoo.com>
+	id <S275680AbRJQKm3>; Wed, 17 Oct 2001 06:42:29 -0400
+Received: from app79.hitnet.RWTH-Aachen.DE ([137.226.181.79]:18692 "EHLO
+	moria.gondor.com") by vger.kernel.org with ESMTP id <S275671AbRJQKmR>;
+	Wed, 17 Oct 2001 06:42:17 -0400
+Date: Wed, 17 Oct 2001 12:42:49 +0200
+From: Jan Niehusmann <jan@gondor.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Oops in usb-storage.c
+Message-ID: <20011017124249.A1505@gondor.com>
+In-Reply-To: <20011017005822.A2161@gondor.com> <20011016175640.A18541@one-eyed-alien.net> <20011017031113.A3072@gondor.com> <20011016183243.B18541@one-eyed-alien.net> <20011017034410.A3722@gondor.com> <20011016232452.A22978@one-eyed-alien.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20011017002040.48151.qmail@web13907.mail.yahoo.com>
+In-Reply-To: <20011016232452.A22978@one-eyed-alien.net>
 User-Agent: Mutt/1.3.23i
-X-Operating-System: Linux 2.4.12-ac2-evintage
-X-Send-From: mafalda.tuxfinder.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 16, 2001 at 05:20:40PM -0700, Barry Wu wrote:
-> Hi, all, I want to boot linux  kernel  directly from mainboard rom or flash,
-> but the rom on mainboard is small  and  it  contains BIOS in it. Therefore I
-> want to boot kernel from parallel port.  I  can put linux kernel on parallel
-> storage. Is it possible to boot linux kernel  from parallel port? If so, how
-> to modify the kernel? If someone knows, please help me.
+On Tue, Oct 16, 2001 at 11:24:52PM -0700, Matthew Dharm wrote:
+> Technically, as long as the system believes that the target exists (i.e.
+> you haven't unloaded your SCSI driver module), the target is required to
+> respond to an INQUIRY command.  So, if you boot with the scanner on, and
+> then turn it off, you've got a problem.
 
-IMHO if you don't have an option in your BIOS to boot on a parallel
-device, that won't be possible. The problem is not the kernel or any OS
-itself, but your BIOS that won't be able to jump to runnable code.
-Usually, your BIOS looks for a MBR on the selected device. If that
-device isn't recognised by the BIOS itself, of course it won't find any
-Operating System.
+Ok. I looked at the SCSI-2 standard and found a possibly sensible answer
+for such an INQUIRY to a disconnected device.
+First, there is a special peripheral qualifier for disconnected
+physical devices:
 
-Perhaps there is another solution, but much difficult :
-If grub or any loader is able to recognize your parallel device, it will
-be able to boot on it. But that requires a hard disk or at least a
-floppy drive, and a modified version of grub or any loader.
+001b	The target is capable of supporting the specified peripheral
+	device type on this logical unit;  however, the physical device 
+	is not currently connected to this logical unit.   
 
-Bye,
+Second, the devices is not required to give a complete answer:
 
---
-Stephane Jourdois - Ingénieur développement  /"\
-  6, av. de la Belle Image                   \ /  ASCII RIBBON CAMPAIGN
-  94440 Marolles en Brie   - FRANCE           X     AGAINST HTML MAIL
-     +33 6 8643 3085                         / \
+  NOTES
+  65 The INQUIRY command is typically used by the initiator after a reset
+  or power-up condition to determine the device types for system
+  configuration. To minimize delays after a reset or power-up condition,
+  the standard INQUIRY data should be available without incurring any
+  media access delays. If the target does store some of the INQUIRY data
+  on the device, it may return zeros or ASCII spaces (20h) in those fields
+  until the data is available from the device.
+
+While this permission to set some fields to zero is included in the
+standard for other purposes, it makes clear that you must expect to
+get incomplete answers from an INQUIRY command.
+
+So, what about the following patch?
+
+Jan
+
+
+	
+--- linux-2.4.12-ac3/drivers/usb/storage/usb.c.orig	Mon Oct  1 12:15:29 2001
++++ linux-2.4.12-ac3/drivers/usb/storage/usb.c	Wed Oct 17 12:33:40 2001
+@@ -262,16 +262,28 @@
+ 	if (data_len<36) // You lose.
+ 		return;
+ 
+-	memcpy(data+8, us->unusual_dev->vendorName, 
+-		strlen(us->unusual_dev->vendorName) > 8 ? 8 :
+-		strlen(us->unusual_dev->vendorName));
+-	memcpy(data+16, us->unusual_dev->productName, 
+-		strlen(us->unusual_dev->productName) > 16 ? 16 :
+-		strlen(us->unusual_dev->productName));
+-	data[32] = 0x30 + ((us->pusb_dev->descriptor.bcdDevice>>12) & 0x0F);
+-	data[33] = 0x30 + ((us->pusb_dev->descriptor.bcdDevice>>8) & 0x0F);
+-	data[34] = 0x30 + ((us->pusb_dev->descriptor.bcdDevice>>4) & 0x0F);
+-	data[35] = 0x30 + ((us->pusb_dev->descriptor.bcdDevice) & 0x0F);
++	if(data[0]&0x20) { /* USB device currently not connected. Return
++			      peripheral qualifier 001b ("...however, the
++			      physical device is not currently connected
++			      to this logical unit") and leave vendor and
++			      product identification empty. ("If the target
++			      does store some of the INQUIRY data on the
++			      device, it may return zeros or ASCII spaces 
++			      (20h) in those fields until the data is
++			      available from the device."). */
++		memset(data+8,0,28);
++	} else {
++		memcpy(data+8, us->unusual_dev->vendorName, 
++			strlen(us->unusual_dev->vendorName) > 8 ? 8 :
++			strlen(us->unusual_dev->vendorName));
++		memcpy(data+16, us->unusual_dev->productName, 
++			strlen(us->unusual_dev->productName) > 16 ? 16 :
++			strlen(us->unusual_dev->productName));
++		data[32] = 0x30 + ((us->pusb_dev->descriptor.bcdDevice>>12) & 0x0F);
++		data[33] = 0x30 + ((us->pusb_dev->descriptor.bcdDevice>>8) & 0x0F);
++		data[34] = 0x30 + ((us->pusb_dev->descriptor.bcdDevice>>4) & 0x0F);
++		data[35] = 0x30 + ((us->pusb_dev->descriptor.bcdDevice) & 0x0F);
++	}
+ 
+ 	if (us->srb->use_sg) {
+ 		sg = (struct scatterlist *)us->srb->request_buffer;
+@@ -389,24 +401,6 @@
+ 				break;
+ 			}
+ 
+-			/* Handle those devices which need us to fake their
+-			 * inquiry data */
+-			if ((us->srb->cmnd[0] == INQUIRY) &&
+-			    (us->flags & US_FL_FIX_INQUIRY)) {
+-			    	unsigned char data_ptr[36] = {
+-				    0x00, 0x80, 0x02, 0x02,
+-				    0x1F, 0x00, 0x00, 0x00};
+-
+-			    	US_DEBUGP("Faking INQUIRY command\n");
+-				fill_inquiry_response(us, data_ptr, 36);
+-				us->srb->result = GOOD << 1;
+-
+-				set_current_state(TASK_INTERRUPTIBLE);
+-				us->srb->scsi_done(us->srb);
+-				us->srb = NULL;
+-				break;
+-			}
+-
+ 			/* lock the device pointers */
+ 			down(&(us->dev_semaphore));
+ 
+@@ -422,16 +416,38 @@
+ 					       usb_stor_sense_notready, 
+ 					       sizeof(usb_stor_sense_notready));
+ 					us->srb->result = GOOD << 1;
++				} else if(us->srb->cmnd[0] == INQUIRY) {
++					unsigned char data_ptr[36] = {
++					    0x20, 0x80, 0x02, 0x02,
++					    0x1F, 0x00, 0x00, 0x00};
++					US_DEBUGP("Faking INQUIRY command for disconnected device\n");
++					fill_inquiry_response(us, data_ptr, 36);
++					us->srb->result = GOOD << 1;
+ 				} else {
++					memset(us->srb->request_buffer, 0, us->srb->request_bufflen);
+ 					memcpy(us->srb->sense_buffer, 
+ 					       usb_stor_sense_notready, 
+ 					       sizeof(usb_stor_sense_notready));
+ 					us->srb->result = CHECK_CONDITION << 1;
+ 				}
+ 			} else { /* !us->pusb_dev */
+-				/* we've got a command, let's do it! */
+-				US_DEBUG(usb_stor_show_command(us->srb));
+-				us->proto_handler(us->srb, us);
++
++				/* Handle those devices which need us to fake 
++				 * their inquiry data */
++				if ((us->srb->cmnd[0] == INQUIRY) &&
++				    (us->flags & US_FL_FIX_INQUIRY)) {
++					unsigned char data_ptr[36] = {
++					    0x00, 0x80, 0x02, 0x02,
++					    0x1F, 0x00, 0x00, 0x00};
++
++					US_DEBUGP("Faking INQUIRY command\n");
++					fill_inquiry_response(us, data_ptr, 36);
++					us->srb->result = GOOD << 1;
++				} else {
++					/* we've got a command, let's do it! */
++					US_DEBUG(usb_stor_show_command(us->srb));
++					us->proto_handler(us->srb, us);
++				}
+ 			}
+ 
+ 			/* unlock the device pointers */

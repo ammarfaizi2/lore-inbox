@@ -1,52 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312790AbSDKTAF>; Thu, 11 Apr 2002 15:00:05 -0400
+	id <S312797AbSDKTAQ>; Thu, 11 Apr 2002 15:00:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312797AbSDKTAE>; Thu, 11 Apr 2002 15:00:04 -0400
-Received: from zero.tech9.net ([209.61.188.187]:6666 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S312790AbSDKTAE>;
-	Thu, 11 Apr 2002 15:00:04 -0400
-Subject: Re: [PATCH] 2.5: task cpu affinity syscalls
-From: Robert Love <rml@tech9.net>
-To: "Aneesh Kumar K.V" <aneesh.kumar@digital.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1018535032.19511.75.camel@satan.xko.dec.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 
-Date: 11 Apr 2002 15:00:03 -0400
-Message-Id: <1018551604.6524.215.camel@phantasy>
-Mime-Version: 1.0
+	id <S312798AbSDKTAP>; Thu, 11 Apr 2002 15:00:15 -0400
+Received: from smtp-out-4.wanadoo.fr ([193.252.19.23]:27853 "EHLO
+	mel-rto4.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S312797AbSDKTAO>; Thu, 11 Apr 2002 15:00:14 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Duncan Sands <duncan.sands@math.u-psud.fr>
+To: Andrew Morton <akpm@zip.com.au>
+Subject: Re: 2.5.8-pre3 & ext3: cannot chown
+Date: Thu, 11 Apr 2002 20:53:50 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org, Alexander Viro <viro@math.psu.edu>
+In-Reply-To: <E16vYXu-0000HV-00@baldrick> <3CB538FE.B97F200E@zip.com.au>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16vjhf-0000ad-00@baldrick>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-04-11 at 10:23, Aneesh Kumar K.V wrote:
+On Thursday 11 April 2002 9:19 am, Andrew Morton wrote:
+> Duncan Sands wrote:
+> > The subject just about says it all.  After 12 hours
+> > of uptime running 2.5.8-pre3 on an ext3 partition,
+> > I noticed that changing the owner of a file had no
+> > effect.  Rebooting with 2.4.18, there was no problem
+> > in using chown.
+>
+> How does this look?
 
->  Now that we have API that allow a process to say I would like to go to
-> these  CPU, Are there any API's available that will allow a CPU to say I
-> will take only these process. ( Resource Affinity domains ? )
+It looks good: with this patch I can now chown and chgrp
+as usual.
 
-First, the Linux scheduler is not really designed to do this.  It's cpu
-affinity works on a per-process basis and in fact needs to explicitly
-move CPUs from each CPU.  Second, we could probably do this in userspace
-using the exported sched_setaffinity syscall (just loop over all tasks,
-setting the affinity as-needed).
+Thanks for fixing this,
 
-There is a problem, though.  In 2.5 with the O(1) scheduler, if the
-process is not currently running on an allowed CPU when it is affined,
-it must be forced off to a legal CPU via the migration threads.  This is
-expensive and complex and _not_ something we want to do to every process
-on the system.
+Duncan.
 
-For this reason, and because I honestly favor the simple interfaces I
-wrote, I think we should stick with just the exported interfaces we
-currently have.
-
-This isn't to say we could not do this in userspace - it would not be
-hard (but still gross to move mass processes around).  We could also
-have a version of init that affines itself on boot, thereby having every
-other process likewise affined.  Then explicitly move away those
-processes we want elsewhere.  This is cheap and easy.
-
-	Robert Love
-
+> --- linux-2.5.8-pre3/fs/open.c	Tue Apr  9 18:16:40 2002
+> +++ 25/fs/open.c	Thu Apr 11 00:15:09 2002
+> @@ -524,11 +524,11 @@ static int chown_common(struct dentry *
+>  		goto out;
+>  	newattrs.ia_valid =  ATTR_CTIME;
+>  	if (user != (uid_t) -1) {
+> -		newattrs.ia_valid =  ATTR_UID;
+> +		newattrs.ia_valid |= ATTR_UID;
+>  		newattrs.ia_uid = user;
+>  	}
+>  	if (group != (gid_t) -1) {
+> -		newattrs.ia_valid =  ATTR_GID;
+> +		newattrs.ia_valid |= ATTR_GID;
+>  		newattrs.ia_gid = group;
+>  	}
+>  	if (!S_ISDIR(inode->i_mode))
+>
+> -

@@ -1,48 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270373AbTG2DUw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jul 2003 23:20:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270416AbTG2DUw
+	id S263990AbTG2DPV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jul 2003 23:15:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270373AbTG2DPV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jul 2003 23:20:52 -0400
-Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:8873
-	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
-	id S270373AbTG2DUv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jul 2003 23:20:51 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: gaxt <gaxt@rogers.com>
-Subject: Re: WINE + Galciv + Con Kolivar's 09 patch to  2.6.0-test1-mm2
-Date: Tue, 29 Jul 2003 13:25:09 +1000
-User-Agent: KMail/1.5.2
-Cc: linux-kernel@vger.kernel.org
-References: <3F22F75D.8090607@rogers.com> <200307290739.04993.kernel@kolivas.org> <3F25DC33.8080908@rogers.com>
-In-Reply-To: <3F25DC33.8080908@rogers.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 28 Jul 2003 23:15:21 -0400
+Received: from fw.osdl.org ([65.172.181.6]:47499 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263990AbTG2DPP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jul 2003 23:15:15 -0400
+Date: Mon, 28 Jul 2003 20:14:59 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Albert Cahalan <albert@users.sourceforge.net>
+Cc: zwane@arm.linux.org.uk, albert@users.sourceforge.net,
+       linux-yoann@ifrance.com, linux-kernel@vger.kernel.org, akpm@digeo.com,
+       vortex@scyld.com, jgarzik@pobox.com
+Subject: Re: another must-fix: major PS/2 mouse problem
+Message-Id: <20030728201459.78c8c7c6.akpm@osdl.org>
+In-Reply-To: <1059447325.3862.86.camel@cube>
+References: <1054431962.22103.744.camel@cube>
+	<3EDCF47A.1060605@ifrance.com>
+	<1054681254.22103.3750.camel@cube>
+	<3EDD8850.9060808@ifrance.com>
+	<1058921044.943.12.camel@cube>
+	<20030724103047.31e91a96.akpm@osdl.org>
+	<1059097601.1220.75.camel@cube>
+	<20030725201914.644b020c.akpm@osdl.org>
+	<Pine.LNX.4.53.0307261112590.12159@montezuma.mastecende.com>
+	<1059447325.3862.86.camel@cube>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200307291325.09096.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 29 Jul 2003 12:30, gaxt wrote:
-> Con Kolivas wrote:
-> > File I/O ? Try booting with elevator=deadline
+Albert Cahalan <albert@users.sourceforge.net> wrote:
 >
-> Setting elevator=deadline results in wine+galciv loading without the
-> horrible long pauses but there is still chugging and while the AVIs
-> play, the rest of Gnome is unresponsive (ie can't switch windows by
-> clicking etc) though I can switch to Alt-F1 virtual terminal. Still not
-> as good as 260-test-2-vanilla
+> OK, I did this. Now, in microseconds, I get:
+> 
+> ------------------------
+> IRQ use      min     max
+> --- -------- --- -------   
+>   0 timer     40  103968
+>   1 i8042     14    1138 (was 389773)
+>   2 cascade    -       -
+>   3 -          -       -
+>   4 serial    29      56
+>   5 uhci-hcd   -       -
+>   6 -        690     690
+>   7 -         40      40
+>   8 -          -       -
+>   9 -          -       -
+>  10 -          -       -
+>  11 eth0      73   31332 (was 1535331)
+>  12 i8042     18     215 (was 102895)
+>  13 -          -       -
+>  14 ide0       7   43846
+>  15 ide1       7      12 
+> ------------------------
+>    
+> boomerang_interrupt itself takes 4 to 59 microseconds.
 
-Well that is weird, but no doubt IO is playing some part here. Can you please 
-try the preview O11 patch (incremental against 2.6.0-test2-mm1 but should 
-patch against an O10 patched vanilla) in 
+So this looks OK, yes?  (Is that instrumentation patch productisable? 
+Looks handly, albeit a subset of microstate accounting)
 
-http://kernel.kolivas.org/2.5/experimental
+> Then I switched to 2.6.0-test2. Testing more, I get the
+> problem with or without SMP and with or without
+> preemption. Here's a chunk of my log file:
+> 
+> Loosing too many ticks!
+> TSC cannot be used as a timesource. (Are you running with SpeedStep?)
+> Falling back to a sane timesource.
+> psmouse.c: Lost synchronization, throwing 3 bytes away.
+> psmouse.c: Lost synchronization, throwing 1 bytes away.
+> 
+> Arrrrgh! The TSC is my only good time source!
 
-While not specifically addressing this problem, it may help.
+Arrrgh!  More PS/2 problems!
 
-Con
+I think the lost synchronisation is the problem, would you agree?
+
+The person who fixes this gets a Nobel prize.
+
+> Remember that this is a pretty normal system. I have
+> a Red Hat 8 install w/ required upgrades, ext3, IDE,
+> a 1-GHz Pentium III, a boring VIA chipset, etc.
+> 
+> To reproduce, I do some PS/2 mouse movement while
+> doing one of:
+> 
+> a. Lots of concurrent write() and sync() activity to ext3.
+> b. Lots of NFSv3 traffic.
+
+ie: lots of interrupt traffic causes the PS2 driver to go whacky?
 

@@ -1,52 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261698AbTIOJZp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 05:25:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261704AbTIOJZp
+	id S261686AbTIOJXQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 05:23:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261697AbTIOJXP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 05:25:45 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:63872 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S261698AbTIOJZn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 05:25:43 -0400
-Date: Mon, 15 Sep 2003 10:39:01 +0100
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200309150939.h8F9d13D000943@81-2-122-30.bradfords.org.uk>
-To: john@grabjohn.com, piggin@cyberone.com.au
-Subject: Re: [PATCH] 2.6 workaround for Athlon/Opteron prefetch errata
-Cc: alan@lxorguk.ukuu.org.uk, davidsen@tmr.com, linux-kernel@vger.kernel.org,
-       zwane@linuxpower.ca
+	Mon, 15 Sep 2003 05:23:15 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:52496 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261686AbTIOJXO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Sep 2003 05:23:14 -0400
+Date: Mon, 15 Sep 2003 10:23:06 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Jamie Lokier <jamie@shareable.org>,
+       Felipe W Damasio <felipewd@terra.com.br>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] kernel/futex.c: Uneeded memory barrier
+Message-ID: <20030915102306.A22451@flint.arm.linux.org.uk>
+Mail-Followup-To: Rusty Russell <rusty@rustcorp.com.au>,
+	Jamie Lokier <jamie@shareable.org>,
+	Felipe W Damasio <felipewd@terra.com.br>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20030914140839.GC16525@mail.jlokier.co.uk> <20030915054300.947EB2C290@lists.samba.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030915054300.947EB2C290@lists.samba.org>; from rusty@rustcorp.com.au on Mon, Sep 15, 2003 at 01:41:30PM +1000
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >>>That's a non-issue.  300 bytes matters a lot on some systems.  The
-> >>>fact that there are drivers that are bloated is nothing to do with
-> >>>it.
-> >>>
-> >>Its kind of irrelevant when by saying "Athlon" you've added 128 byte
-> >>alignment to all the cache friendly structure padding.
-> >>
-> >
-> >My intention is that we won't have done 128 byte alignments just by
-> >'supporting' Athlons, only if we want to run fast on Athlons.  A
-> >distribution kernel that is intended to boot on all CPUs needs
-> >workarounds for Athlon bugs, but it doesn't need 128 byte alignment.
-> >
-> >Obviously using such a kernel for anything other than getting a system
-> >up and running to compile a better kernel is a Bad Thing, but the
-> >distributions could supply separate Athlon, PIV, and 386 _optimised_
-> >kernels.
-> >
->
-> Why bother with that complexity? Just use 128 byte lines. This allows
-> a decent generic kernel. The people who have space requirements would
-> only compile what they need anyway.
+On Mon, Sep 15, 2003 at 01:41:30PM +1000, Rusty Russell wrote:
+> ....hiding the subtlety in wrapper functions is the wrong approach.  We
+> have excellent wait_event, wait_event_interruptible and
+> wait_event_interruptible_timeout macros in wait.h which these drivers
+> should be using, which would make them simpler, less buggy and
+> smaller.
 
-So, basically, if you compile a kernel for a 386, but think that maybe
-one day you might need to run it on an Athlon for debugging purposes,
-you use 128 byte padding, because it's not too bad on the 386?  Seems
-pretty wasteful to me when the obvious, simple, elegant solution is to
-allow independent selection of workaround inclusion and optimisation.
-Especially since half of the work has already been done.
+"smaller and simpler" hmm.  And _more_ buggy.  Let's take this case:
 
-John.
+	add_wait_queue(&wq, &wait);
+	for (;;) {
+		set_current_state(TASK_INTERRUPTIBLE);
+		if (condition)
+			break;
+		if (file->f_flags & O_NONBLOCK) {
+			ret = -EAGAIN;
+			break;
+		}
+		if (signal_pending(current)) {
+			ret = -ERESTARTSYS;
+			break;
+		}
+		schedule();
+	}
+	__set_current_state(TASK_RUNNING);
+	remove_wait_queue(&wq, &wait);
+
+There are cases like the above which make the wait_event*() macros
+inappropriate:
+
+- needing to test for extra conditions to set "ret" accordingly (eg,
+  non-blocking IO)
+- needing to atomically dequeue some data
+
+I've yet to see anyone using wait_event*() in these circumstances -
+they're great for your simple "did something happen" case which the
+majority of drivers use, but there are use cases where wait_event*()
+is not appropriate.
+
+-- 
+Russell King (rmk@arm.linux.org.uk)	http://www.arm.linux.org.uk/personal/
+Linux kernel maintainer of:
+  2.6 ARM Linux   - http://www.arm.linux.org.uk/
+  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+  2.6 Serial core

@@ -1,76 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264386AbUIVLJl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264500AbUIVLLR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264386AbUIVLJl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Sep 2004 07:09:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264500AbUIVLJl
+	id S264500AbUIVLLR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Sep 2004 07:11:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264571AbUIVLLQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Sep 2004 07:09:41 -0400
-Received: from dialin-212-144-166-182.arcor-ip.net ([212.144.166.182]:14730
-	"EHLO karin.de.interearth.com") by vger.kernel.org with ESMTP
-	id S264386AbUIVLJi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Sep 2004 07:09:38 -0400
-In-Reply-To: <03c501c4a077$9530c410$0901a8c0@test>
-References: <03c501c4a077$9530c410$0901a8c0@test>
-Mime-Version: 1.0 (Apple Message framework v619)
-Content-Type: multipart/signed; protocol="application/pgp-signature"; micalg=pgp-sha1; boundary="Apple-Mail-7--571886197"
-Message-Id: <8019AE27-0C7D-11D9-BFE5-000A958E35DC@fhm.edu>
-Content-Transfer-Encoding: 7bit
-Cc: <linux-kernel@vger.kernel.org>
-From: Daniel Egger <degger@fhm.edu>
-Subject: Re: WRT54G
-Date: Wed, 22 Sep 2004 11:55:14 +0200
-To: "www.sveasoft.com" <james.ewing@sveasoft.com>
-X-Pgp-Agent: GPGMail 1.0.2
-X-Mailer: Apple Mail (2.619)
+	Wed, 22 Sep 2004 07:11:16 -0400
+Received: from open.hands.com ([195.224.53.39]:38810 "EHLO open.hands.com")
+	by vger.kernel.org with ESMTP id S264500AbUIVLK4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Sep 2004 07:10:56 -0400
+Date: Wed, 22 Sep 2004 12:21:59 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: FUSE fusexmp proxy example solves umount problem!
+Message-ID: <20040922112159.GD20688@lkcl.net>
+References: <20040922004941.GC14303@lkcl.net> <1095845610.2613.4.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1095845610.2613.4.camel@laptop.fenrus.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-hands-com-MailScanner: Found to be clean
+X-hands-com-MailScanner-SpamScore: s
+X-MailScanner-From: lkcl@lkcl.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Sep 22, 2004 at 11:33:30AM +0200, Arjan van de Ven wrote:
+> On Wed, 2004-09-22 at 02:49, Luke Kenneth Casson Leighton wrote:
+> > what do people think about a filesystem proxy kernel module?
+> > has anyone heard of such a beast already?
+> > (which can also do xattrs)
+> > 
+> > fusexmp.c (in file system in userspace package) does stateless
+> > filesystem proxy redirection.
+> > 
+> > this is a PERFECT solution to the problem of users removing media
+> > from drives without warning. 
+> 
+> eh and the 2.6 kernel doesn't deal with it? It really is supposed to
+> deal with it nicely already...
 
---Apple-Mail-7--571886197
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII; format=flowed
+okay.
 
-On 22.09.2004, at 09:41, www.sveasoft.com wrote:
+the reason that fusexmp works is because it doesn't actually touch the
+filesystem except on an operation: there's no state information stored,
+no file handles kept open, no directory handles kept open.
 
-> What folks are mirroring and arguing about are our unstable, 
-> development
-> releases including code developed entirely by Sveasoft and not 
-> licensed for
-> general release. Stable releases are free (beer) with full source code 
-> and
-> are available from many different sites. Mirroring unstable dev 
-> releases is
-> not 'helping your neighbor' plus they contain applications developed
-> entirely by us not licensed for general release.
+an implementation of this same functionality (a filesystem proxy)
+in the linux kernel would involve:
 
-That part about this I don't understand is why you're disclosing
-your propietary non-free software in unstable at all. Simply
-remove it from the tarball and you don't have to worry about
-illegal copies making the round; after all you still have to
-provide the GPLed part of the code at least to the buyers of the
-unstable version which themselves have the right to spread it.
+- creating proxy inodes
 
-Servus,
-       Daniel
+- reconstructing the full path name
 
---Apple-Mail-7--571886197
-content-type: application/pgp-signature; x-mac-type=70674453;
-	name=PGP.sig
-content-description: This is a digitally signed message part
-content-disposition: inline; filename=PGP.sig
-content-transfer-encoding: 7bit
+  d_path(dentry, mnt, full_path, sizeof(full_path));
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (Darwin)
+  then prefixing that with the mount point and then issuing a
+  proxy command.
 
-iQEVAwUBQVFMAjBkNMiD99JrAQJ6Iwf+Pqyq+PrBYeoR+ObdcuJbKlR+gNzqpaOy
-9IhVaQTO5EGIyQFhwjE6ffQfPu4IWOA/xeenY39SZ+bGlny54dQO4S/xoshW6YDx
-qZNVOm75BpYpOWQ9JxqFVir0KN5O7szPbHWCmO4Rm6aTOg3fgpinlxjJVbZD61NM
-lX7+kOlRcEnToLhNVU9cM6/i7N827baLjNKjHjf0rR8Cu3nna1IUebuO3apoUN0H
-SrHqE+OvqQLxDdTpTUVVdDWLpM4H50uOZfnvT/ia6E49yXEkL68oOYxaY454W2jU
-Tt6w39eX4FAqt1cZjcfZvihdVZHyMdkQxfbYLT2n29hBppB9u5SG9g==
-=JOAW
------END PGP SIGNATURE-----
 
---Apple-Mail-7--571886197--
+now, if the solution to this problem in the linux kernel is broken
+because someone forgot to deal with opendir() then _great_.
+
+in the meantime...
+
+l.
+
+-- 
+--
+Truth, honesty and respect are rare commodities that all spring from
+the same well: Love.  If you love yourself and everyone and everything
+around you, funnily and coincidentally enough, life gets a lot better.
+--
+<a href="http://lkcl.net">      lkcl.net      </a> <br />
+<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
 

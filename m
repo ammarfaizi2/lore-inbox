@@ -1,70 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263964AbTCWWQ2>; Sun, 23 Mar 2003 17:16:28 -0500
+	id <S262811AbTCWWSy>; Sun, 23 Mar 2003 17:18:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263968AbTCWWQ2>; Sun, 23 Mar 2003 17:16:28 -0500
-Received: from [212.91.234.4] ([212.91.234.4]:16138 "EHLO mail.taytron.net")
-	by vger.kernel.org with ESMTP id <S263964AbTCWWQ1> convert rfc822-to-8bit;
-	Sun, 23 Mar 2003 17:16:27 -0500
-From: "Florian Schirmer" <jolt@tuxbox.org>
-To: <linux-kernel@vger.kernel.org>
-Subject: 2.5.65: devfs+initrd oops
-Date: Sun, 23 Mar 2003 23:27:34 +0100
-Message-ID: <002301c2f18b$674330c0$0201a8c0@space.taytron.net>
+	id <S263954AbTCWWSy>; Sun, 23 Mar 2003 17:18:54 -0500
+Received: from brynhild.mtroyal.ab.ca ([142.109.10.24]:59056 "EHLO
+	brynhild.mtroyal.ab.ca") by vger.kernel.org with ESMTP
+	id <S262811AbTCWWSw>; Sun, 23 Mar 2003 17:18:52 -0500
+Date: Sun, 23 Mar 2003 15:29:45 -0700 (MST)
+From: James Bourne <jbourne@mtroyal.ab.ca>
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: "Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org,
+       Robert Love <rml@tech9.net>, Martin Mares <mj@ucw.cz>,
+       Alan Cox <alan@redhat.com>, Stephan von Krawczynski <skraw@ithnet.com>,
+       szepe@pinerecords.com, arjanv@redhat.com, Pavel Machek <pavel@ucw.cz>
+Subject: Re: Ptrace hole / Linux 2.2.25
+In-Reply-To: <3E7E335C.2050509@pobox.com>
+Message-ID: <Pine.LNX.4.51.0303231522150.17155@skuld.mtroyal.ab.ca>
+References: <20030323193457.GA14750@atrey.karlin.mff.cuni.cz><200303231938.h2NJcAq14927@devserv.devel.redhat.com><20030323194423.GC14750@atrey.karlin.mff.cuni.cz>
+ <1048448838.1486.12.camel@phantasy.awol.org><20030323195606.GA15904@atrey.karlin.mff.cuni.cz>
+ <1048450211.1486.19.camel@phantasy.awol.org><402760000.1048451441@[10.10.2.4]>
+ <20030323203628.GA16025@atrey.karlin.mff.cuni.cz>
+ <Pine.LNX.4.51.0303231410250.17155@skuld.mtroyal.ab.ca> <920000.1048456387@[10.10.2.4]>
+ <3E7E335C.2050509@pobox.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.4510
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-scanner: scanned by Inflex 1.0.12.2 - (http://pldaniels.com/inflex/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, 23 Mar 2003, Jeff Garzik wrote:
 
-i get the following oops while booting 2.5.65 (vanilla and -ac3). More infos
-availible on request.
+> Martin J. Bligh wrote:
+> > I think this would be valuable .. the other thing that really needs to
+> > be present is a "common vendor" kernel where changes that are common
+> > to most distros are merged (eg O(1) scheduler, etc). Personally, I think 
+> > that's what mainline should be doing ... but if other people disagree,
+> > then I, at least, would see value in a separate tree to do this.
+> 
+> akpm has suggested something like this in the past.  I respectfully 
+> disagree.
 
-Thanks,
-   Florian
+I also disagree.  Although it would be nice, it's not practical.  What
+people want is strictly fixes and security related patches, and that
+is ALL I propose to want to include.  Perhaps if the vendors
+want a "common vendor" patch they could maintain it? ;)
 
-RAMDISK: Compressed image found at block 0
-Unable to handle kernel NULL pointer dereference at virtual address 00000000
- printing eip:
-c010975d
-*pde = 00000000
-Oops: 0002 [#1]
-CPU:    0
-EIP:    0060:[<c010975d>]    Not tainted
-EFLAGS: 00000002
-EIP is at __down+0x5d/0x100
-eax: c02fc7c0   ebx: c02fc7b4   ecx: c114fe60   edx: 00000000
-esi: c02fc7b4   edi: 00000286   ebp: c7ece040   esp: c114fe54
-ds: 007b   es: 007b   ss: 0068
-Process swapper (pid: 1, threadinfo=c114e000 task=c7ece040)
-Stack: 00000001 c7ece040 c0118fb0 c02fc7c0 00000000 63736964 69642f73
-00306373
-       c02fc7b4 c02fc7a0
-Call Trace:
- [<c0118fb0>] default_wake_function+0x0/0x20
- [<c0109978>] __down_failed+0x8/0xc
- [<c01a1ce1>] .text.lock.util+0x55/0x64
- [<c016ff4a>] devfs_remove_partitions+0x7a/0x80
- [<c01704aa>] del_gendisk+0x8a/0xd0
- [<c0225fa9>] initrd_release+0x49/0x80
- [<c01454c5>] __fput+0x35/0xe0
- [<c010a86f>] syscall_call+0x7/0xb
- [<c0143f18>] filp_close+0x98/0xb0
- [<c0143f89>] sys_close+0x59/0x80
- [<c010a86f>] syscall_call+0x7/0xb
- [<c010509d>] init+0x3d/0x1a0
- [<c0105060>] init+0x0/0x1a0
- [<c0108ae1>] kernel_thread_helper+0x5/0x14
+So, to that end, I have made available:
+(URL is http://www.hardrock.org/kernel/current-updates/)
 
-Code: 89 0a 8b 46 04 8d 50 01 89 56 04 eb 3c 8d b6 00 00 00 00 c7
- <0>Kernel panic: Attempted to kill init!
+linux-2.4.20-updates.patch: Contains all three patches below.  For the 
+        primary fixes needed in the current release kernel.
 
+Individual patches:
+linux-2.4.20-ext3.patch: Fixes for ext3 data=journal umount patch, sync-fix
+        patch, and use-after-free patch from Andrew Morton <akpm@digeo.com>.
+
+linux-2.4.20-ptrace.patch: Alan Cox relased a patch against 2.4.20 which
+        did not apply cleanly (perhaps it was his -ac tree).  This will
+        apply cleanly and compile under i386 to the clean 2.4.20 source
+        tree.
+
+linux-2.4.20-tg3.patch: Jeff Garzik and David S. Millers tg3 1.4c
+        driver for 2.4.20.
+
+Enjoy!
+
+Regards
+James Bourne
+
+
+> 	Jeff
+
+-- 
+James Bourne, Supervisor Data Centre Operations
+Mount Royal College, Calgary, AB, CA
+www.mtroyal.ab.ca
+
+******************************************************************************
+This communication is intended for the use of the recipient to which it is
+addressed, and may contain confidential, personal, and or privileged
+information. Please contact the sender immediately if you are not the
+intended recipient of this communication, and do not copy, distribute, or
+take action relying on it. Any communication received in error, or
+subsequent reply, should be deleted or destroyed.
+******************************************************************************
+
+
+"There are only 10 types of people in this world: those who
+understand binary and those who don't."
 

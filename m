@@ -1,96 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262176AbUCIThY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Mar 2004 14:37:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262180AbUCITeY
+	id S262107AbUCITwo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Mar 2004 14:52:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262110AbUCITwn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Mar 2004 14:34:24 -0500
-Received: from smtp004.mail.ukl.yahoo.com ([217.12.11.35]:51805 "HELO
-	smtp004.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S262154AbUCITa6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Mar 2004 14:30:58 -0500
-From: BlaisorBlade <blaisorblade_spam@yahoo.it>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: [PATCH] Missing return value check on do_write_mem
-Date: Mon, 8 Mar 2004 12:46:33 +0100
-User-Agent: KMail/1.5
+	Tue, 9 Mar 2004 14:52:43 -0500
+Received: from pop.gmx.net ([213.165.64.20]:52893 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262107AbUCITwc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Mar 2004 14:52:32 -0500
+X-Authenticated: #13243522
+Message-ID: <404E206A.266ABD1C@gmx.de>
+Date: Tue, 09 Mar 2004 20:52:10 +0100
+From: Michael Schierl <schierlm@gmx.de>
+X-Mailer: Mozilla 4.75 [de]C-CCK-MCD QXW0324v  (Win95; U)
+X-Accept-Language: de,en
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_Z0FTA4EPrGvYb3I"
-Message-Id: <200403081246.33897.blaisorblade_spam@yahoo.it>
+To: Antony Dovgal <tony2001@phpclub.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: APM & device_power_up/down
+References: <1uQOH-4Z1-9@gated-at.bofh.it>
+		<S261722AbUCFWoa/20040306224430Z+905@vger.kernel.org> <20040309101110.50b55786.tony2001@phpclub.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Antony Dovgal schrieb:
+> 
+> On Sat, 06 Mar 2004 23:44:08 +0100
+> Michael Schierl <schierlm-usenet@gmx.de> wrote:
+> 
+> > Hmm. Can you try unapplying it and applying the one in
+> > http://marc.theaimsgroup.com/?l=linux-kernel&m=107506063605497&w=2
+> > instead? Does it work for you as well as with no patch?
+> 
+> Yes, it works ok for me with this patch.
 
---Boundary-00=_Z0FTA4EPrGvYb3I
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Are you using any modules or patches that are not in the main line
+kernel?
+Does your problem also occur when you build a "minimal" kernel (i.e.
+remove all things from it you don't really need for booting up, e.g.
+local apic, pcmcia, network support, framebuffer, mouse)?
 
-In drivers/char/mem.c do_write_mem can return -EFAULT but write_kmem forgets 
-this and goes blindly.
+can you boot with init=/bin/bash (or another shell) and then do 
 
-Note: /dev/kmem can be written to only by root, so this *cannot* have security 
-implications.
+mount /proc
+apm -s
 
-Also, do_write_mem takes two unused params and is static - so I've removed 
-those. I actually double-checked this - however please test compilation on 
-Sparc/m68k, since there are some #ifdef.
+does suspending work there? (this all against a "vanilla" kernel).
 
-CC me on replies as I'm not subscribed. Thanks.
--- 
-Paolo Giarrusso, aka Blaisorblade
-Linux registered user n. 292729
+The thing above was just a guess, the only difference between the 2
+patches i know is that the patch which is in kernel also informs all
+device drivers. So i guess there must be a "broken" device driver that
+makes your supend come to a halt.
 
---Boundary-00=_Z0FTA4EPrGvYb3I
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="Fix-kmem-return.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="Fix-kmem-return.patch"
-
---- ./drivers/char/mem.c.fix	2004-02-20 16:27:21.000000000 +0100
-+++ ./drivers/char/mem.c	2004-03-08 12:17:23.000000000 +0100
-@@ -96,13 +96,14 @@
- }
- #endif
- 
--static ssize_t do_write_mem(struct file * file, void *p, unsigned long realp,
--			    const char * buf, size_t count, loff_t *ppos)
-+static ssize_t do_write_mem(void *p, const char * buf, size_t count,
-+			    loff_t *ppos)
- {
--	ssize_t written;
-+	ssize_t written = 0;
- 
--	written = 0;
- #if defined(__sparc__) || (defined(__mc68000__) && defined(CONFIG_MMU))
-+	unsigned long realp = *ppos;
-+
- 	/* we don't have page 0 mapped on sparc and m68k.. */
- 	if (realp < PAGE_SIZE) {
- 		unsigned long sz = PAGE_SIZE-realp;
-@@ -165,7 +166,7 @@
- 
- 	if (!valid_phys_addr_range(p, &count))
- 		return -EFAULT;
--	return do_write_mem(file, __va(p), p, buf, count, ppos);
-+	return do_write_mem(__va(p), buf, count, ppos);
- }
- 
- static int mmap_mem(struct file * file, struct vm_area_struct * vma)
-@@ -276,7 +277,9 @@
- 		if (count > (unsigned long) high_memory - p)
- 			wrote = (unsigned long) high_memory - p;
- 
--		wrote = do_write_mem(file, (void*)p, p, buf, wrote, ppos);
-+		wrote = do_write_mem((void*)p, buf, wrote, ppos);
-+		if (wrote < 0)
-+			return wrote;
- 
- 		p += wrote;
- 		buf += wrote;
-
---Boundary-00=_Z0FTA4EPrGvYb3I--
-
+Michael

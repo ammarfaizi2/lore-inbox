@@ -1,44 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132230AbRAAS6j>; Mon, 1 Jan 2001 13:58:39 -0500
+	id <S132251AbRAATCk>; Mon, 1 Jan 2001 14:02:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132251AbRAAS6U>; Mon, 1 Jan 2001 13:58:20 -0500
-Received: from dns1.rz.fh-heilbronn.de ([141.7.1.18]:52687 "EHLO
-	dns1.rz.fh-heilbronn.de") by vger.kernel.org with ESMTP
-	id <S132230AbRAAS6O>; Mon, 1 Jan 2001 13:58:14 -0500
-Date: Mon, 1 Jan 2001 19:27:45 +0100 (CET)
-From: Oliver Paukstadt <pstadt@stud.fh-heilbronn.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Linux-Kernel <linux-kernel@vger.kernel.org>
+	id <S132310AbRAATCa>; Mon, 1 Jan 2001 14:02:30 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:23823 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S132251AbRAATCK>; Mon, 1 Jan 2001 14:02:10 -0500
 Subject: Re: NFS-Root on AIX
-In-Reply-To: <E14D9QE-00018E-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.05.10101011917520.23540-100000@lara.stud.fh-heilbronn.de>
+To: pstadt@stud.fh-heilbronn.de (Oliver Paukstadt)
+Date: Mon, 1 Jan 2001 18:33:25 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        linux-kernel@vger.kernel.org (Linux-Kernel)
+In-Reply-To: <Pine.LNX.4.05.10101011917520.23540-100000@lara.stud.fh-heilbronn.de> from "Oliver Paukstadt" at Jan 01, 2001 07:27:45 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14D9lv-00019l-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 1 Jan 2001, Alan Cox wrote:
+> > NFS doesnt handle this elegantly for NFSv2 - are you using v2 or v3 ?
+> That's the question! What does the RedHat 7 support? ;-)
 
-> > Last we had to use an AIX-Server as NFS-Server for NFSRoot-Boot.
-> > 
-> > It did not work, because the all Major-Device-Numbers in /dev/ are all
-> > set to 0. The minor numbers are transported correctly. 
-> 
-> NFS doesnt handle this elegantly for NFSv2 - are you using v2 or v3 ?
-That's the question! What does the RedHat 7 support? ;-)
+2.2.16-* will be NFSv2
 
-Where is the switching for v2 or v3 as nfs-client done?
-Kernel-Config CONFIG_NFS_V3 or mount-option nfsvers?
-
-Which version does the nfsroot-boot use?
-
-BYtE Oli
-
-+++LINUX++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-+++Manchmal stehe ich sogar nachts auf und installiere mir eins....+++++++
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
- 
+This means the dev_t is passed uninterpreted between server and client. You may
+find you need to NFS mount the directory on a Linux box, mknod the device
+files over NFS and then let the diskless client use them
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

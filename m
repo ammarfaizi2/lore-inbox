@@ -1,78 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265022AbTFRG7U (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jun 2003 02:59:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265025AbTFRG7U
+	id S265026AbTFRHNE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jun 2003 03:13:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265054AbTFRHND
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jun 2003 02:59:20 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:16577 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S265022AbTFRG7T
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jun 2003 02:59:19 -0400
-Subject: Re: 2.5.70-mm9
-From: Mingming Cao <cmm@us.ibm.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-In-Reply-To: <20030614232049.6610120d.akpm@digeo.com>
-References: <20030613013337.1a6789d9.akpm@digeo.com>
-	<3EEAD41B.2090709@us.ibm.com> <20030614010139.2f0f1348.akpm@digeo.com>
-	<1055637690.1396.15.camel@w-ming2.beaverton.ibm.com> 
-	<20030614232049.6610120d.akpm@digeo.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 18 Jun 2003 00:13:00 -0700
-Message-Id: <1055920382.1374.11.camel@w-ming2.beaverton.ibm.com>
-Mime-Version: 1.0
+	Wed, 18 Jun 2003 03:13:03 -0400
+Received: from [203.145.179.66] ([203.145.179.66]:61739 "EHLO
+	blr005istex01.symphonysv.com") by vger.kernel.org with ESMTP
+	id S265026AbTFRHNC convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jun 2003 03:13:02 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: new groups 
+Date: Wed, 18 Jun 2003 13:00:42 +0530
+Message-ID: <02AB8F82CFB9AF47A537171AFF3A97E26B946D@blr005istex01.symphonysv.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: new groups 
+Thread-Index: AcM1a4YVl8x4rXHuToanVEfnGhYgDw==
+From: "Sachin Prasad" <Sachin.Prasad@symphonysv.com>
+To: "Linux (E-mail)" <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-06-14 at 23:20, Andrew Morton wrote:
-> Mingming Cao <cmm@us.ibm.com> wrote:
-> >
-> > On Sat, 2003-06-14 at 01:01, Andrew Morton wrote:
-> > 
-> > > Was elevator=deadline observed to fail in earlier kernels?  If not then it
-> > > may be an anticipatory scheduler bug.  It certainly had all the appearances
-> > > of that.
-> > Yes, with elevator=deadline the many fsx tests failed on 2.5.70-mm5.
-> >  
-> > > So once you're really sure that elevator=deadline isn't going to fail,
-> > > could you please test elevator=as?
-> > > 
-> > Ok, the deadline test was run for 10 hours then I stopped it (for the
-> > elevator=as test).  
-> > 
-> > But the test on elevator=as (2.5.70-mm9 kernel) still failed, same
-> > problem.  Some fsx tests are sleeping on io_schedule().  
-> > 
-> > Next I think I will re-run test on elevator=deadline for 24 hours, to
-> > make sure the problem is really gone there.  After that maybe try a
-> > different Qlogic Driver, currently I am using the driver from Qlogic
-> > company(QLA2XXX V8).
-> 
-> Martin has just observed what appears to be the same failure on
-> 2.5.71-mjb1, which is the deadline scheduler, using qlogicisp.
-> 
-> Again, some IO appears to have been submitted but it never came back.
-> 
-> It could be a bug in the requests queueing code somewhere, or in the device
-> driver.
-> 
-> So a good thing to do now would be to find the workload+IO
-> scheduler+filesystem which triggers it most easily, and run that with a
-> different device driver.  The feral driver (drivers/scsi/isp/ in -mm)
-> should be suitable for that test.
-> 
-> 
-I re-run the many fsx tests with feral driver on 2.5.70mm9, ext3
-fileystems, on deadline scheduler and as scheduler respectively.  Both
-tests passed.  They were running for more than 24 hours without any
-problems. So it could be a bug in the device driver that I used
-before(QLA2xxx V8).  Before the fsx tests failed on ext3 on either
-deadline scheduler or as scheduler.
 
-Thanks for your time and help on tracing down this problem. :)
 
-Mingming
+Hi all,
 
+Where can i find some good books on kernel development for a new OS and some groups that are into that,Also will i be benifited by this group as i guess linux kernel is the best thing to start the journey
+
+
+thanks 
+
+sachin  

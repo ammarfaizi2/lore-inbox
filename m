@@ -1,56 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261931AbTKHAAe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Nov 2003 19:00:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261639AbTKGX6P
+	id S261684AbTKHASm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Nov 2003 19:18:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261670AbTKGWH4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Nov 2003 18:58:15 -0500
-Received: from fw.osdl.org ([65.172.181.6]:63926 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261776AbTKGXzi (ORCPT
+	Fri, 7 Nov 2003 17:07:56 -0500
+Received: from b107150.adsl.hansenet.de ([62.109.107.150]:40323 "EHLO ds666")
+	by vger.kernel.org with ESMTP id S264108AbTKGMOd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Nov 2003 18:55:38 -0500
-Date: Fri, 7 Nov 2003 15:51:47 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: "Beau E. Cox" <beau@beaucox.com>
-Cc: marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: 2.4.23-pre7,pre8,pre9 hang on starting squid
-Message-Id: <20031107155147.05671d94.rddunlap@osdl.org>
-In-Reply-To: <200311070600.02069.beau@beaucox.com>
-References: <Pine.LNX.4.44.0311061204510.8534-100000@logos.cnet>
-	<200311070600.02069.beau@beaucox.com>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 7 Nov 2003 07:14:33 -0500
+Message-ID: <3FAB8CA1.7040105@portrix.net>
+Date: Fri, 07 Nov 2003 13:14:25 +0100
+From: Jan Dittmer <j.dittmer@portrix.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031013 Thunderbird/0.3
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Pavel Machek <pavel@ucw.cz>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: test9: suspend no go
+References: <3F9BCF7A.7000403@portrix.net> <20031107100609.GA5088@elf.ucw.cz>
+In-Reply-To: <20031107100609.GA5088@elf.ucw.cz>
+X-Enigmail-Version: 0.81.7.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 7 Nov 2003 06:00:01 -1000 "Beau E. Cox" <beau@beaucox.com> wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-| On Thursday 06 November 2003 04:06 am, Marcelo Tosatti wrote:
-| > On Mon, 3 Nov 2003, Beau E. Cox wrote:
-| > > [1.] summary:
-| > >
-| > > 2.4.23-pre7,pre8,pre9 hang depending on when 'squid' is started.
-| > >
-| > > [snipped]
-| >
-| > Strange.
-| >
-| > Can you find out in which -pre the problem starts?
-| >
-| 
-| Hi - I want to track down the 'pre' where my problem started (I would
-| need 2.4.23-pre1 thru pre6), but I can't find them anywhere on the
-| kernel archaive site (mirros too). Where can I get these pre patches?
+Pavel Machek wrote:
+| Hi!
+|
+|
+|
+|>A little contribution to the ongoing suspend saga. This is a Sony Vaio
+|>SRX51P Laptop (P3 Mobile CPU, i820 chipset).
+|
+|
+|
+| Few tips:
+|
+| If you want to trick swsusp/S3 into working, you might want to try:
+|
+| * go with minimal config, turn off drivers like USB you don't really
+| need
+|
 
+Tried it with minimal config. Base problem is, that after suspending,
+I've no way to wake up the laptop again, but power cycling.
+That means:
+~  "mem": after power cycling it is doing a 'normal' reboot. (okay memory
+contents is lost, so this is somewhat expected)
+~  "disk": hey, after power cycling it indeed resumes to the previous
+state. so I tried to compile in some more stuff. What breaks it is AGP
+support :-(. Are there any patches around which may fix this?
 
-They are in this directory:
-  http://www.kernel.org/pub/linux/kernel/v2.4/testing/
+Any idea, why the laptop is not powering on again after suspend? I can
+hold down the power switch as long as I want to, but the laptop doesn't
+do a thing.
 
---
-~Randy
-MOTD:  Always include version info.
+Thanks,
+
+Jan
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQE/q4yhLqMJRclVKIYRAhh4AJwNu4a2oTInCYYdCc2NaTBn95hD5ACdE1Yy
+Tk9bBATbxBs2+NE7eLvNTmg=
+=nih5
+-----END PGP SIGNATURE-----
+

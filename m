@@ -1,44 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267228AbTBIMxT>; Sun, 9 Feb 2003 07:53:19 -0500
+	id <S267243AbTBIM43>; Sun, 9 Feb 2003 07:56:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267229AbTBIMxT>; Sun, 9 Feb 2003 07:53:19 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:13577 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S267228AbTBIMxS>;
-	Sun, 9 Feb 2003 07:53:18 -0500
-Date: Sun, 9 Feb 2003 04:57:59 -0800
-From: Greg KH <greg@kroah.com>
-To: Alex Riesen <alexander.riesen@synopsys.COM>
-Cc: linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>,
-       hpa@zytor.com, Russell King <rmk@arm.linux.org.uk>
-Subject: Re: [RFC] klibc for 2.5.59 bk
-Message-ID: <20030209125759.GA14981@kroah.com>
-References: <20030207045919.GA30526@kroah.com> <20030207150038.GM5239@riesen-pc.gr05.synopsys.com>
-Mime-Version: 1.0
+	id <S267247AbTBIM43>; Sun, 9 Feb 2003 07:56:29 -0500
+Received: from [81.2.122.30] ([81.2.122.30]:64004 "EHLO darkstar.example.net")
+	by vger.kernel.org with ESMTP id <S267243AbTBIM42>;
+	Sun, 9 Feb 2003 07:56:28 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200302091307.h19D76wV000674@darkstar.example.net>
+Subject: Re: Some Doubts About bootsect.S & Setup.S
+To: borasah@netone.com.tr (=?iso-8859-9?B?Qm9yYSDeYWhpbg==?=)
+Date: Sun, 9 Feb 2003 13:07:06 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <010f01c2d038$0dbe0c60$0100a8c0@bora> from "=?iso-8859-9?B?Qm9yYSDeYWhpbg==?=" at Feb 09, 2003 02:23:02 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030207150038.GM5239@riesen-pc.gr05.synopsys.com>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 07, 2003 at 04:00:38PM +0100, Alex Riesen wrote:
-> Greg KH, Fri, Feb 07, 2003 05:59:19 +0100:
-> > Hi all,
-> > 
-> > Thanks to Arnd Bergmann, it looks like the klibc and initramfs code is
-> > now working.  I've created a patch against Linus's latest bk tree and
-> > put it at:
-> > 	http://www.kroah.com/linux/klibc/klibc-2.5.59-2.patch.gz
+> 1)
+> sread:  .word 0             # sectors read of current track
+> head:   .word 0             # current head
+> track:  .word 0             # current track
 > 
-> was the following part of the patch intended? (hello_world?)
+> Since a diskette can have at most 2 heads, 80 tracks and 36 sectors per
+> track, why are these not bytes instead of words especially since space is at
+> such a tight premium in this code?
 
-Yes it was.  It shows how to add a binary file to the initramfs image,
-and have it executed by the kernel during the early boot process.
+See:
 
-The fact that the program didn't really do anything significant isn't
-important here.
+http://marc.theaimsgroup.com/?l=linux-kernel&m=104250711526623&w=2
 
-thanks,
+> Someone(H. Peter Anvin) tell me that these codes was old and broken, and was
+> getting nuked in 2.5.
 
-greg k-h
+The in-kernel bootloader will almost certainly not be in 2.6.
+
+Personally, I think it would be good to replace it with some kind of
+monitor, but I don't think anybody else would agree with me :-)
+
+John.

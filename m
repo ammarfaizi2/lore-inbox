@@ -1,152 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263000AbSJBIRS>; Wed, 2 Oct 2002 04:17:18 -0400
+	id <S262999AbSJBIQw>; Wed, 2 Oct 2002 04:16:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263001AbSJBIRS>; Wed, 2 Oct 2002 04:17:18 -0400
-Received: from angband.namesys.com ([212.16.7.85]:6330 "HELO
-	angband.namesys.com") by vger.kernel.org with SMTP
-	id <S263000AbSJBIRO>; Wed, 2 Oct 2002 04:17:14 -0400
-Date: Wed, 2 Oct 2002 12:22:39 +0400
-From: Oleg Drokin <green@namesys.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net, jdike@karaya.com
-Subject: Re: [patch] Workqueue Abstraction, 2.5.40-H7
-Message-ID: <20021002122239.A25514@namesys.com>
-References: <Pine.LNX.4.44.0210011653370.28821-102000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0210011653370.28821-102000@localhost.localdomain>
-User-Agent: Mutt/1.3.22.1i
+	id <S263000AbSJBIQw>; Wed, 2 Oct 2002 04:16:52 -0400
+Received: from [210.19.28.13] ([210.19.28.13]:39637 "HELO gateway.vault-id.com")
+	by vger.kernel.org with SMTP id <S262999AbSJBIQv>;
+	Wed, 2 Oct 2002 04:16:51 -0400
+Message-ID: <33721.10.2.16.178.1033546953.squirrel@mail.Vault-ID.com>
+Date: Wed, 2 Oct 2002 16:22:33 +0800 (MYT)
+Subject: Re: 2.5.40 compile error (missing imm.o)
+From: "Corporal Pisang" <Corporal_Pisang@Counter-Strike.com.my>
+To: <linux-kernel@vger.kernel.org>
+X-XheaderVersion: 1.1
+X-UserAgent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20020923 Phoenix/0.1
+In-Reply-To: <E17wdvf-0005YV-00@laibach.mweb.co.za>
+References: <E17wdvf-0005YV-00@laibach.mweb.co.za>
+X-Priority: 3
+Importance: Normal
+Reply-To: Corporal_Pisang@Counter-Strike.com.my
+X-Mailer: SquirrelMail (version 1.2.8)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+>
+> Try this patch I think it should fix it (not tested though)
 
-On Tue, Oct 01, 2002 at 06:24:50PM +0200, Ingo Molnar wrote:
+your patch makes the compilation start again, and no problem till the end
+at make modules_install
 
-> The pach converts roughly 80% of all tqueue-using code to workqueues - and
-> all the places that are not converted to workqueues yet are places that do
-> not compile in vanilla 2.5.40 anyway, due to unrelated changes. I've
-> converted a fair number of drivers that do not compile in 2.5.40, and i
-> think i've managed to convert every driver that compiles under 2.5.40.
+make modules_install produce this error:
 
-Here are corresponding changes to UML code (that were not done by Ingo just
-because this code cannot be compiled due to Makefile bug).
 
-This patch is required to make UML compilable again in bk-current (after you
-fix the Makefile, of course).
-I tested the patch and UML works fine for me.
+if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.5.40; fi
+depmod: *** Unresolved symbols in /lib/modules/2.5.40/kernel/fs/xfs/xfs.o
+depmod:         run_task_queue
+depmod:         TQ_ACTIVE
+depmod:         queue_task
+depmod: *** Unresolved symbols in
+/lib/modules/2.5.40/kernel/net/ipv4/netfilter/ipt_owner.o
+depmod:         next_thread
+depmod:         find_task_by_pid
+depmod: *** Unresolved symbols in
+/lib/modules/2.5.40/kernel/net/ipv6/netfilter/ip6t_owner.o
+depmod:         next_thread
+depmod:         find_task_by_pid
 
-Bye,
-    Oleg
 
-===== arch/um/drivers/chan_kern.c 1.2 vs edited =====
---- 1.2/arch/um/drivers/chan_kern.c	Mon Sep 30 11:59:19 2002
-+++ edited/arch/um/drivers/chan_kern.c	Wed Oct  2 12:08:57 2002
-@@ -395,7 +395,7 @@
- 	return(-1);
- }
- 
--void chan_interrupt(struct list_head *chans, struct tq_struct *task,
-+void chan_interrupt(struct list_head *chans, struct work_struct *task,
- 		    struct tty_struct *tty, int irq, void *dev)
- {
- 	struct list_head *ele, *next;
-@@ -409,7 +409,7 @@
- 		do {
- 			if((tty != NULL) && 
- 			   (tty->flip.count >= TTY_FLIPBUF_SIZE)){
--				schedule_task(task);
-+				schedule_work(task);
- 				goto out;
- 			}
- 			err = chan->ops->read(chan->fd, &c, chan->data);
-===== arch/um/drivers/line.c 1.1 vs edited =====
---- 1.1/arch/um/drivers/line.c	Fri Sep  6 21:29:28 2002
-+++ edited/arch/um/drivers/line.c	Wed Oct  2 12:02:14 2002
-@@ -215,7 +215,7 @@
- 			if(err) goto out;
- 		}
- 		enable_chan(&line->chan_list, line);
--		INIT_TQUEUE(&line->task, line_timer_cb, line);
-+		INIT_WORK(&line->task, line_timer_cb, line);
- 	}
- 
- 	if(!line->sigio){
-===== arch/um/drivers/mconsole_kern.c 1.1 vs edited =====
---- 1.1/arch/um/drivers/mconsole_kern.c	Fri Sep  6 21:29:28 2002
-+++ edited/arch/um/drivers/mconsole_kern.c	Wed Oct  2 12:06:54 2002
-@@ -13,7 +13,7 @@
- #include "linux/ctype.h"
- #include "linux/interrupt.h"
- #include "linux/sysrq.h"
--#include "linux/tqueue.h"
-+#include "linux/workqueue.h"
- #include "linux/module.h"
- #include "linux/proc_fs.h"
- #include "asm/irq.h"
-@@ -42,7 +42,7 @@
- 
- LIST_HEAD(mc_requests);
- 
--void mc_task_proc(void *unused)
-+void mc_work_proc(void *unused)
- {
- 	struct mconsole_entry *req;
- 	unsigned long flags;
-@@ -60,10 +60,7 @@
- 	} while(!done);
- }
- 
--struct tq_struct mconsole_task = {
--	routine:	mc_task_proc,
--	data: 		NULL
--};
-+DECLARE_WORK(mconsole_work, mc_work_proc, NULL);
- 
- void mconsole_interrupt(int irq, void *dev_id, struct pt_regs *regs)
- {
-@@ -84,7 +81,7 @@
- 			}
- 		}
- 	}
--	if(!list_empty(&mc_requests)) schedule_task(&mconsole_task);
-+	if(!list_empty(&mc_requests)) schedule_work(&mconsole_work);
- 	reactivate_fd(fd, MCONSOLE_IRQ);
- }
- 
-===== arch/um/include/chan_kern.h 1.1 vs edited =====
---- 1.1/arch/um/include/chan_kern.h	Fri Sep  6 21:29:28 2002
-+++ edited/arch/um/include/chan_kern.h	Wed Oct  2 12:07:57 2002
-@@ -22,7 +22,7 @@
- 	void *data;
- };
- 
--extern void chan_interrupt(struct list_head *chans, struct tq_struct *task,
-+extern void chan_interrupt(struct list_head *chans, struct work_struct *task,
- 			   struct tty_struct *tty, int irq, void *dev);
- extern int parse_chan_pair(char *str, struct list_head *chans, int pri, 
- 			   int device, struct chan_opts *opts);
-===== arch/um/include/line.h 1.1 vs edited =====
---- 1.1/arch/um/include/line.h	Fri Sep  6 21:29:28 2002
-+++ edited/arch/um/include/line.h	Wed Oct  2 12:01:27 2002
-@@ -7,7 +7,7 @@
- #define __LINE_H__
- 
- #include "linux/list.h"
--#include "linux/tqueue.h"
-+#include "linux/workqueue.h"
- #include "linux/tty.h"
- #include "asm/semaphore.h"
- #include "chan_user.h"
-@@ -39,7 +39,7 @@
- 	char *head;
- 	char *tail;
- 	int sigio;
--	struct tq_struct task;
-+	struct work_struct task;
- 	struct line_driver *driver;
- 	int have_irq;
- };
+Regards
+
+-Ubaida-
+
+
+

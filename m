@@ -1,38 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261893AbTKTPDC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Nov 2003 10:03:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261898AbTKTPDC
+	id S261901AbTKTPLi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Nov 2003 10:11:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261903AbTKTPLi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Nov 2003 10:03:02 -0500
-Received: from ns.suse.de ([195.135.220.2]:59075 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261893AbTKTPDA (ORCPT
+	Thu, 20 Nov 2003 10:11:38 -0500
+Received: from fw.osdl.org ([65.172.181.6]:44957 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261901AbTKTPLg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Nov 2003 10:03:00 -0500
-To: jak@rudolph.ccur.com (Joe Korty)
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH resend] Opteron support for mqueues-4.00 +bug fixes
-References: <200311201432.OAA05361@rudolph.ccur.com.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 20 Nov 2003 16:02:57 +0100
-In-Reply-To: <200311201432.OAA05361@rudolph.ccur.com.suse.lists.linux.kernel>
-Message-ID: <p73fzgjozfi.fsf@oldwotan.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 20 Nov 2003 10:11:36 -0500
+Date: Thu, 20 Nov 2003 07:17:09 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: maneesh@in.ibm.com
+Cc: viro@parcelfarce.linux.theplanet.co.uk, linux-kernel@vger.kernel.org,
+       mochel@osdl.org, dipankar@in.ibm.com
+Subject: Re: [PATCH] sysfs_remove_dir Vs dcache_readdir race fix
+Message-Id: <20031120071709.0acf35aa.akpm@osdl.org>
+In-Reply-To: <20031120102525.GD1367@in.ibm.com>
+References: <20031120054707.GA1724@in.ibm.com>
+	<20031120054957.GD24159@parcelfarce.linux.theplanet.co.uk>
+	<20031120055655.GB1724@in.ibm.com>
+	<20031120102525.GD1367@in.ibm.com>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jak@rudolph.ccur.com (Joe Korty) writes:
+Maneesh Soni <maneesh@in.ibm.com> wrote:
+>
+> Actually race is not directly between dcache_readdir and sysfs_remove_dir but
+>  it is like this
+> 
+>  cpu 0						cpu 1
+>  dcache_dir_open()
+>  --> adds the cursor dentry
+> 
+>  					sysfs_remove_dir()
+>  					--> list_del_init cursor dentry
+> 
+>  dcache_readdir()
+>  --> loops forever on inititalized cursor dentry.
+> 
+> 
+>  Though all these operations happen under parent's i_sem, but it is dropped 
+>  between ->open() and ->readdir() as both are different calls. 
+> 
+>  I think people will also agree that there is no need for sysfs_remove_dir() 
+>  to modify d_subdirs list.
 
->  __SYSCALL(__NR_vserver, sys_ni_syscall)
-> +#define __NR_mq_open			274
-> +__SYSCALL(__NR_mq_open, sys_mq_open)
+Seems to me that the libfs code is fragile.
 
-The patch is buggy. You cannot add any unmapped holes into the x86-64 
-system call table, it adds an oopsable hole to the entry.
+What happens if the dentry at filp->f_private_data gets moved to a
+different directory after someone did dcache_dir_open()?  Does the loop
+in dcache_readdir() go infinite again?
 
-In general you cannot add any system calls without coordinating with
-Linus and the architecture maintainers first. And the list is not sparse.
-
--Andi

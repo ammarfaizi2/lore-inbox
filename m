@@ -1,66 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129253AbRBIArs>; Thu, 8 Feb 2001 19:47:48 -0500
+	id <S129068AbRBIBFN>; Thu, 8 Feb 2001 20:05:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129505AbRBIAri>; Thu, 8 Feb 2001 19:47:38 -0500
-Received: from cs.columbia.edu ([128.59.16.20]:59525 "EHLO cs.columbia.edu")
-	by vger.kernel.org with ESMTP id <S129253AbRBIAr0>;
-	Thu, 8 Feb 2001 19:47:26 -0500
-Date: Thu, 8 Feb 2001 16:47:17 -0800 (PST)
-From: Ion Badulescu <ionut@cs.columbia.edu>
-To: Donald Becker <becker@scyld.com>
-cc: Jeff Garzik <jgarzik@mandrakesoft.com>, Alan Cox <alan@redhat.com>,
-        <linux-kernel@vger.kernel.org>, <jes@linuxcare.com>
-Subject: Re: [PATCH] starfire reads irq before pci_enable_device.
-In-Reply-To: <Pine.LNX.4.10.10102081924330.7141-100000@vaio.greennet>
-Message-ID: <Pine.LNX.4.30.0102081640550.31024-100000@age.cs.columbia.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129505AbRBIBFD>; Thu, 8 Feb 2001 20:05:03 -0500
+Received: from lsb-catv-1-p021.vtxnet.ch ([212.147.5.21]:45066 "EHLO
+	almesberger.net") by vger.kernel.org with ESMTP id <S129068AbRBIBE4>;
+	Thu, 8 Feb 2001 20:04:56 -0500
+Date: Fri, 9 Feb 2001 02:04:53 +0100
+From: Werner Almesberger <Werner.Almesberger@epfl.ch>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] cosmetic: missing includes (net/sched)
+Message-ID: <20010209020453.Q13984@almesberger.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 8 Feb 2001, Donald Becker wrote:
+This patch for 2.4.2-pre1 adds a few includes I forgot in sch_atm.c and
+sch_dsmark.c
 
-> > Or we can just tell people, "hey, don't use this 64-bit PCI card on a real 
-> > 64-bit system, it's broken by design"? I don't think that's a good 
-> > solution either.
-> 
-> This is not a 64 bit PCI issue.  
+Their absence didn't cause any kernel compilation problems, but it may
+well in the future (or when compiling things in a different context,
+that's why I, ehm ... finally, noticed the problem).
 
-I know. It was just an ironic comment: we have a card with a 64-bit PCI 
-bus, we have a 64-bit system which very likely has some 64-bit PCI slots 
-on its motherboard, perfect match, right? Well, au contraire, the 
-performance is going to suck big-time, at least for Rx.
+- Werner
 
-> It is an issue with the protocol
-> stack.  The IP protocol handling code must expect that the header words
-> will be misaligned in some circumstances.
+------------------------------------ patch ------------------------------------
 
-I won't get into this...
-
-> It's amusing that a full receive copy is added without any concern, in
-> the same discussion where zero-copy transmit is treated as a holy grail!
-
-Amusing? Maybe. Zerocopy will still help with Tx, and with Rx we're just 
-trying to contain the damage, *with the existent stack*.
-
-> This might be a transceiver preamble issue with the specific
-> transceivers on the recent cards.  Debugging this type of problem
-> sometimes requires a D-Oscope on the MII data pins.
-> 
-> Normally I would suspect a timing problem with a very fast machine, but
-> the Starfire hardware generates its own preamble and clock signals, not
-> the driver code.
-
-See my previous mail. It turned out to be just a confused chipset.
-
-Thanks,
-Ion
+--- linux.orig/net/sched/sch_atm.c	Wed Mar 22 08:38:27 2000
++++ linux/net/sched/sch_atm.c	Fri Feb  9 01:56:07 2001
+@@ -5,6 +5,8 @@
+ 
+ #include <linux/config.h>
+ #include <linux/module.h>
++#include <linux/string.h>
++#include <linux/errno.h>
+ #include <linux/skbuff.h>
+ #include <linux/interrupt.h>
+ #include <linux/atmdev.h>
+--- linux.orig/net/sched/sch_dsmark.c	Mon Jan 22 22:30:21 2001
++++ linux/net/sched/sch_dsmark.c	Fri Feb  9 01:56:58 2001
+@@ -6,6 +6,8 @@
+ #include <linux/config.h>
+ #include <linux/module.h>
+ #include <linux/types.h>
++#include <linux/string.h>
++#include <linux/errno.h>
+ #include <linux/skbuff.h>
+ #include <linux/netdevice.h> /* for pkt_sched */
+ #include <linux/rtnetlink.h>
 
 -- 
-  It is better to keep your mouth shut and be thought a fool,
-            than to open it and remove all doubt.
-
+  _________________________________________________________________________
+ / Werner Almesberger, ICA, EPFL, CH           Werner.Almesberger@epfl.ch /
+/_IN_N_032__Tel_+41_21_693_6621__Fax_+41_21_693_6610_____________________/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261168AbTIFTik (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Sep 2003 15:38:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261352AbTIFTik
+	id S261352AbTIFToR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Sep 2003 15:44:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261504AbTIFToQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Sep 2003 15:38:40 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:55289 "HELO
+	Sat, 6 Sep 2003 15:44:16 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:41721 "HELO
 	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S261168AbTIFTij (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Sep 2003 15:38:39 -0400
-Date: Sat, 6 Sep 2003 21:38:30 +0200
+	id S261352AbTIFToN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Sep 2003 15:44:13 -0400
+Date: Sat, 6 Sep 2003 21:44:04 +0200
 From: Adrian Bunk <bunk@fs.tum.de>
-To: Gordon Stanton <coder101@linuxmail.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] must fix generic_serial .c
-Message-ID: <20030906193830.GD14436@fs.tum.de>
-References: <20030901062643.14448.qmail@linuxmail.org>
+To: Andrew Morton <akpm@osdl.org>, "Randy.Dunlap" <rddunlap@osdl.org>,
+       Domen Puncer <domen@coderock.org>
+Cc: linux-kernel@vger.kernel.org, B.Zolnierkiewicz@elka.pw.edu.pl
+Subject: [-mm patch] fix IDE pdc4030.c compile
+Message-ID: <20030906194404.GG14436@fs.tum.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030901062643.14448.qmail@linuxmail.org>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 01, 2003 at 02:26:43PM +0800, Gordon Stanton wrote:
+init-exit-cleanups.patch in 2.6.0-test4-mm6 made ide_probe_for_pdc4030 
+in drivers/ide/legacy/pdc4030.c static although it's referenced from 
+drivers/ide/ide.c resulting in a link error.
 
-> Hi,
+The following patch fixes it:
 
-Hi Gordon,
+--- linux-2.6.0-test4-mm6/drivers/ide/legacy/pdc4030.c.old	2003-09-06 21:28:20.000000000 +0200
++++ linux-2.6.0-test4-mm6/drivers/ide/legacy/pdc4030.c	2003-09-06 21:28:40.000000000 +0200
+@@ -297,7 +297,7 @@
+ }
+ 
+ 
+-static int __init ide_probe_for_pdc4030(void)
++int __init ide_probe_for_pdc4030(void)
+ {
+ 	unsigned int	index;
+ 	ide_hwif_t	*hwif;
 
->   While trying to get most drivers in the kernel to compile, I had to skip a lot of the older ones that use cli() and sti() since deep knowledge is needed to fix those. Because of this I am asking that someone would please fix generic_serial.c in drivers/char and document in a HOWTO on the steps they took and the reasons behind it. This would help more people to be able to understand and fix a lot of the other drivers with the cli/sti problem. Even if the it wasn't generic_serial.c but one of the other serial drivers with the same problem, it still would be very instructive and help other to improve the kernel quicker. 
 
-it's a known problem that generic_serial doesn't compile in SMP kernels 
-due to cli/sti problems.
-
-Documentation/cli-sti-removal.txt already documents how to fix such 
-drivers (although it's usually non-trivial).
-
-> Gordon
 
 cu
 Adrian

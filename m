@@ -1,58 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271375AbTHHPFp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Aug 2003 11:05:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271378AbTHHPFp
+	id S271400AbTHHPKe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Aug 2003 11:10:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271401AbTHHPKe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Aug 2003 11:05:45 -0400
-Received: from mail3.ithnet.com ([217.64.64.7]:20137 "HELO
-	heather-ng.ithnet.com") by vger.kernel.org with SMTP
-	id S271375AbTHHPFi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Aug 2003 11:05:38 -0400
-X-Sender-Authentification: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
-Date: Fri, 8 Aug 2003 17:05:36 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: akpm@osdl.org, andrea@suse.de, alan@lxorguk.ukuu.org.uk,
+	Fri, 8 Aug 2003 11:10:34 -0400
+Received: from adsl-110-19.38-151.net24.it ([151.38.19.110]:44175 "HELO
+	develer.com") by vger.kernel.org with SMTP id S271400AbTHHPK1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Aug 2003 11:10:27 -0400
+Message-ID: <3F33BD57.8090904@develer.com>
+Date: Fri, 08 Aug 2003 17:10:15 +0200
+From: Bernardo Innocenti <bernie@develer.com>
+Organization: Develer S.r.l.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en, en-us
+MIME-Version: 1.0
+To: Ville Herva <vherva@niksula.hut.fi>
+CC: Aaron Lehmann <aaronl@vitelus.com>, gcc@gcc.gnu.org,
        linux-kernel@vger.kernel.org
-Subject: Re: 2.4.22-pre lockups (now decoded oops for pre10)
-Message-Id: <20030808170536.23118033.skraw@ithnet.com>
-In-Reply-To: <Pine.LNX.4.44.0308081151330.8204-100000@logos.cnet>
-References: <20030808002918.723abb08.skraw@ithnet.com>
-	<Pine.LNX.4.44.0308081151330.8204-100000@logos.cnet>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Subject: Re: Big kernel size increase with gcc 3.4
+References: <3F330D46.8020508@develer.com> <20030808024909.GT2712@vitelus.com> <20030808053327.GZ150921@niksula.cs.hut.fi>
+In-Reply-To: <20030808053327.GZ150921@niksula.cs.hut.fi>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 8 Aug 2003 11:54:39 -0300 (BRT)
-Marcelo Tosatti <marcelo@conectiva.com.br> wrote:
+Ville Herva wrote:
 
-> > I can give you this additional info:
-> > I tried about everything back to 2.4.21 release, and even this crashes on
-> > the box. BUT it is _not_ the only box I can crash 2.4.21. I have another
-> > hardware(also SMP) based not on Serverworks but on VIA chipset and with no
-> > 64 bit pci and it crashes with 2.4.21 around every 10 - 20 days. It
-> > definitely does not with 2.4.19. 
+>>You should try -Os if you want to optimize for size.
 > 
-> Do you have any traces of the other box crash? 
-
-Not at hand, but can prepare for the next crash during the weekend.
-
-> > The only requirement for my usual test-box is a working tg3 driver for the
-> > GBit ethernet link.
+> I was about to suggest that, too.
 > 
-> > Ah yes, and from the long series of tests I can tell that the box won't
-> > crash with UP kernel. I can re-check that with rc1 if this is useful.
-> 
-> Okey. Thats useful information. How hard would it be for you to try ext3 
-> as the filesystem (as Andrew suggested) ? 
+> It could be that while optimizing for speed, gcc 3.4 simply inlines way more
+> by default (whether or not that actually makes the code faster is a
+> different question). I think -Os could be a better comparison.
 
-Well, if that provides further info I will do. I will try to achieve over the
-weekend, I need some spare volumes for conversion (by copy) :-)
+You were both right. With -Os, GCC 3.3.1 and 3.4 perform
+similarly, with a slight advantage for 3.4 :-)
 
-Regards,
-Stephan
+   text    data     bss     dec     hex filename
+ 833352   47200   78884  959436   ea3cc vmlinux_gcc331
+ 807140   48036   78884  934060   e40ac vmlinux_gcc331_Os
+ 796264   50560   78884  925708   e200c vmlinux_gcc34_Os
+
+-- 
+  // Bernardo Innocenti - Develer S.r.l., R&D dept.
+\X/  http://www.develer.com/
+
+Please don't send Word attachments - http://www.gnu.org/philosophy/no-word-attachments.html
+
+
+

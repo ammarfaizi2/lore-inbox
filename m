@@ -1,60 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261682AbUEAL6x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261728AbUEAMII@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261682AbUEAL6x (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 May 2004 07:58:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261685AbUEAL6x
+	id S261728AbUEAMII (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 May 2004 08:08:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261766AbUEAMII
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 May 2004 07:58:53 -0400
-Received: from pop.gmx.net ([213.165.64.20]:37609 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261682AbUEAL6w (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 May 2004 07:58:52 -0400
-X-Authenticated: #4512188
-Message-ID: <409390F8.2010007@gmx.de>
-Date: Sat, 01 May 2004 13:58:48 +0200
-From: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040413)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Sat, 1 May 2004 08:08:08 -0400
+Received: from wombat.indigo.net.au ([202.0.185.19]:25615 "EHLO
+	wombat.indigo.net.au") by vger.kernel.org with ESMTP
+	id S261728AbUEAMIE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 May 2004 08:08:04 -0400
+Date: Sat, 1 May 2004 20:10:01 +0800 (WST)
+From: raven@themaw.net
 To: Andrew Morton <akpm@osdl.org>
-CC: CaT <cat@zip.com.au>, B.Zolnierkiewicz@elka.pw.edu.pl,
-       linux-kernel@vger.kernel.org, jgarzik@pobox.com
-Subject: Re: libata + siI3112 + 2.6.5-rc3 hang
-References: <20040429234258.GA6145@zip.com.au>	<200404300208.32830.bzolnier@elka.pw.edu.pl>	<20040430093919.GA2109@zip.com.au>	<200404301800.08763.bzolnier@elka.pw.edu.pl>	<20040501030828.GE2109@zip.com.au> <20040430222157.17f5db82.akpm@osdl.org>
-In-Reply-To: <20040430222157.17f5db82.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.6-rc3-mm1
+In-Reply-To: <Pine.LNX.4.58.0405011413010.5547@raven.themaw.net>
+Message-ID: <Pine.LNX.4.58.0405012001560.3168@donald.themaw.net>
+References: <20040430014658.112a6181.akpm@osdl.org>
+ <Pine.LNX.4.58.0405011413010.5547@raven.themaw.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-2.2, required 8,
+	EMAIL_ATTRIBUTION, IN_REP_TO, NO_REAL_NAME, PATCH_UNIFIED_DIFF,
+	QUOTED_EMAIL_TEXT, REFERENCES, REPLY_WITH_QUOTES, USER_AGENT_PINE)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> CaT <cat@zip.com.au> wrote:
-> 
->>Here's the patch that Joe sent me. It doesn't apply cleanly mainly due
->> to formatting errors in the patch but a bit of manual fixerupping made
->> it all apply.
->>
->> --- 8< ---
->> --- linux-2.6.4-orig/arch/i386/pci/fixup.c      2004-03-11 
->> 03:55:36.000000000 +0100
->> +++ linux-2.6.4/arch/i386/pci/fixup.c   2004-03-16 13:12:25.706569480 +0100
->> @@ -187,6 +187,22 @@
->>                dev->transparent = 1;
->> }
->>
->> +/*
->> + * Halt Disconnect and Stop Grant Disconnect (bit 4 at offset 0x6F)
->> + * must be disabled when APIC is used (or lockups will happen).
->> + */
-> 
-> 
-> I had this in -mm for a while.  Ended up dropping it because it made some
-> people's CPUs run warmer and because it "wasn't the right fix".
-> 
-> Does anyone know what the right fix is?  If not, it seems that a warm CPU
-> is better than a non-functional box.  Maybe enable it via a boot option?
+On Sat, 1 May 2004, Ian Kent wrote:
 
-Ross' C1halt idle patch is the right thing to take. No fix, but stable 
-work-around.
+> On Fri, 30 Apr 2004, Andrew Morton wrote:
+> 
+> > 
+> > - The autofs4 patch series may be ready to go.  This is an invitation to
+> >   interested parties to submit their final review comments...
+> 
+> Jeff Moyer has pointed out a couple of things that need to be 
+> checked.
+> 
+> Hopefully I'll be able to post the result today.
+> 
 
-Prakash
+Jeff noticed something else that was missing from the 2.4 -> 2.6 
+conversion (see below).
+
+To all,
+
+Looking at the code in fs/autofs4/waitq.c again, due to Jeff Moyers' 
+comments, I really think I've got the locking wrong.
+
+Can someone review this considering the case where two process do an ls of 
+the same directory, that is a potential autofs4 mount (ie. an empty 
+directory not yet a mountpoint), at the same time.
+
+--- linux-2.6.6-rc2-mm2/fs/autofs4/root.c.orig	2004-05-01 19:35:08.000000000 +0800
++++ linux-2.6.6-rc2-mm2/fs/autofs4/root.c	2004-05-01 19:38:31.000000000 +0800
+@@ -93,6 +93,7 @@
+ {
+ 	struct dentry *top = dentry->d_sb->s_root;
+ 
++	spin_lock(&dcache_lock);
+ 	for(; dentry != top; dentry = dentry->d_parent) {
+ 		struct autofs_info *ino = autofs4_dentry_ino(dentry);
+ 
+@@ -101,6 +102,7 @@
+ 			ino->last_used = jiffies;
+ 		}
+ 	}
++	spin_unlock(&dcache_lock);
+ }
+ 
+ /*

@@ -1,71 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261473AbVARXPe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261474AbVARXRw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261473AbVARXPe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jan 2005 18:15:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261471AbVARXPe
+	id S261474AbVARXRw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jan 2005 18:17:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261475AbVARXRh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jan 2005 18:15:34 -0500
-Received: from one.firstfloor.org ([213.235.205.2]:45513 "EHLO
-	one.firstfloor.org") by vger.kernel.org with ESMTP id S261473AbVARXPS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jan 2005 18:15:18 -0500
-To: Keith Owens <kaos@sgi.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, Jan Hubicka <jh@suse.cz>,
-       Jack F Vogel <jfv@bluesong.net>, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [discuss] booting a kernel compiled with -mregparm=0
-References: <Pine.LNX.4.61.0501170909040.4593@ezer.homenet>
-	<7152.1106080706@kao2.melbourne.sgi.com>
-From: Andi Kleen <ak@muc.de>
-Date: Wed, 19 Jan 2005 00:15:15 +0100
-In-Reply-To: <7152.1106080706@kao2.melbourne.sgi.com> (Keith Owens's message
- of "Wed, 19 Jan 2005 07:38:26 +1100")
-Message-ID: <m1acr649do.fsf@muc.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 18 Jan 2005 18:17:37 -0500
+Received: from vds-320151.amen-pro.com ([62.193.204.86]:48870 "EHLO
+	vds-320151.amen-pro.com") by vger.kernel.org with ESMTP
+	id S261471AbVARXRS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jan 2005 18:17:18 -0500
+Subject: Re: [ANNOUNCEMENT] Collision regression test suite released
+From: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?=
+	 =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>
+To: Chris Wright <chrisw@osdl.org>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       "linux-security-module@wirex.com" <linux-security-module@wirex.com>
+In-Reply-To: <20050118150445.D24171@build.pdx.osdl.net>
+References: <1106088908.3832.56.camel@localhost.localdomain>
+	 <20050118150445.D24171@build.pdx.osdl.net>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-IQqfqRIql5EH0FjdVqNk"
+Date: Wed, 19 Jan 2005 00:16:44 +0100
+Message-Id: <1106090204.3832.62.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Owens <kaos@sgi.com> writes:
 
-> Nobody has been concerned enough about the backtraces on i386 and
-> x86_64 to add the required unwind data to the kernel for those
-> platforms.  If you want to extract the dwarf data from a kernel
-> compiled with -g, include the dwarf data in the running kernel and add
-> a dwarf unwinder to the kernel then I will happily accept patches to
-> kdb.  Don't forget about support for adding and removing unwind data as
+--=-IQqfqRIql5EH0FjdVqNk
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-It would be pretty easy to do.
+El mar, 18-01-2005 a las 15:04 -0800, Chris Wright escribi=F3:
+> * Lorenzo Hern=E1ndez Garc=EDa-Hierro (lorenzo@gnu.org) wrote:
+> > Past days I wrote about a regression test suite which i used to explain
+> > why a grsecurity-like security improvement could be good for mainline
+> > inclusion, and also, that at least the 50% of the faults it shows on
+> > Vanilla sources could be solved without major blocking issues (aka big
+> > deals, whatever else).
+>=20
+> Thanks, I'll take a look.  Do you categorize the faults in any way?
 
-The x86-64 ABI actually includes unwind data (without other dwarf
-data) by default in all executables. However it wasn't needed in the
-kernel so far so I turned it off to save some disk space:
+There are separators to make sections of similar tests, but still not a
+nifty "per-type" sections organization.
+I would like to improve it and use percents and such instead of simple
+"Vulnerable" and "Not vulnerable" results, so, you can have a global
+idea of the current security status.
+Patches are welcome, as I don't have a lot of time now (school "normal"
+rhythm started this week).
 
-If you want it without -g just remove the 
+Cheers,
+--=20
+Lorenzo Hern=E1ndez Garc=EDa-Hierro <lorenzo@gnu.org> [1024D/6F2B2DEC]
+[2048g/9AE91A22] Hardened Debian head developer & project manager
 
-ifneq ($(CONFIG_DEBUG_INFO),y)
-CFLAGS += -fno-asynchronous-unwind-tables
-endif
+--=-IQqfqRIql5EH0FjdVqNk
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Esta parte del mensaje =?ISO-8859-1?Q?est=E1?= firmada
+	digitalmente
 
-in arch/x86_64/Makefile. Then to actually use it in the running kernel
-you would need to change the unwind segment in the vmlinux.lds.S
-to be loaded instead of discarded at link time (one liner change too)
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-And something to map it for modules (i haven't looked at that, but 
-I suppose if ia64 has the infrastructure it shouldn't be hard to port)
+iD8DBQBB7ZjcDcEopW8rLewRAtZIAKDFJc7mpTIQP//BVtB734+gE2W6SwCeIWZ0
+dnQnJ83mWDPLsd9WJEYzMlA=
+=roUx
+-----END PGP SIGNATURE-----
 
-I wouldn't be opposed to a new CONFIG_RUNTIME_UNWIND that does all
-this. However without an working unwinder in kernel it's not very useful.
+--=-IQqfqRIql5EH0FjdVqNk--
 
->
-> BTW, even on IA64 which has unwind data, we still get problems because
-> the unwind data only says what parameters are passed in registers, it
-> says nothing about register reuse.  gcc can reuse a parameter register
-> if the parameter value is no longer required, for example :-
-
-This is no different from stack based parameters where the stack slot
-of the parameter can be overwritten by the callee too.
-You just will have to live with that.
-
--Andi

@@ -1,122 +1,104 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130107AbRATPzG>; Sat, 20 Jan 2001 10:55:06 -0500
+	id <S129982AbRATP60>; Sat, 20 Jan 2001 10:58:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129982AbRATPy4>; Sat, 20 Jan 2001 10:54:56 -0500
-Received: from g6dzj.demon.co.uk ([158.152.227.28]:51751 "EHLO
-	statler.ether-net") by vger.kernel.org with ESMTP
-	id <S130022AbRATPys>; Sat, 20 Jan 2001 10:54:48 -0500
-From: Stephen Kitchener <stephen@g6dzj.demon.co.uk>
-Reply-To: stephen@g6dzj.demon.co.uk
-Organization: none
-Date: Sat, 20 Jan 2001 15:54:22 +0000
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain;
-  charset="us-ascii"
-Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-To: Bob Frey <bfrey@turbolinux.com.cn>
-In-Reply-To: <01011823245400.01549@statler.ether-net> <20010119094130.A7816@bfrey.dev.cn.tlan>
-In-Reply-To: <20010119094130.A7816@bfrey.dev.cn.tlan>
-Subject: Re: Scanning problems - machine lockups
-MIME-Version: 1.0
-Message-Id: <01012015542200.01503@statler.ether-net>
-Content-Transfer-Encoding: 8bit
+	id <S130067AbRATP6Q>; Sat, 20 Jan 2001 10:58:16 -0500
+Received: from ns.caldera.de ([212.34.180.1]:22534 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S129982AbRATP6L>;
+	Sat, 20 Jan 2001 10:58:11 -0500
+Date: Sat, 20 Jan 2001 16:57:58 +0100
+Message-Id: <200101201557.QAA14088@ns.caldera.de>
+From: Christoph Hellwig <hch@caldera.de>
+To: marcelo@conectiva.com.br (Marcelo Tosatti)
+Cc: Rajagopal Ananthanarayanan <ananth@sgi.com>,
+        Rik van Riel <riel@conectiva.com.br>,
+        "Stephen C. Tweedie" <sct@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] generic IO write clustering
+X-Newsgroups: caldera.lists.linux.kernel
+In-Reply-To: <Pine.LNX.4.21.0101192142060.6167-100000@freak.distro.conectiva>
+User-Agent: tin/1.4.1-19991201 ("Polish") (UNIX) (Linux/2.2.14 (i686))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 19 January 2001 01:41, Bob Frey wrote:
-> On Thu, Jan 18, 2001 at 11:24:54PM +0000, Stephen Kitchener wrote:
-> > The only thing that might be odd is that the scanner's scsi card and the
-> > display card are using the same IRQ, but I thought that IRQ sharing was
-> > ok in the new kernels. The display card is an AGP type and the scsi card
-> > is pci.
-> >
-> > As you might have guessed, I am at a loss as to what to do next. Any help
-> > appriciated, even suggestions as to how I can track down what I haven't
-> > done (yet!)
->
-> Sharing interrupts could be the problem. Interrupt sharing is supported
-> in the kernel as far as two different drivers being able to register a
-> handler for the same interrupt, but not much beyond that. From studying
-> the code I don't find any handling of unclaimed or spurious interrupts.
->
-> Some drivers (like video cards) do not register a handler for their card's
-> interrupt. So when another driver (like the advansys driver) shares an
-> interrupt with this card's "unregistered" interrupt there is no one left
-> to handle the interrupt. The system will loop taking an interrupt from
-> the card. I've observed this using the frame buffer driver. Note: this
-> problem is unnoticed if the (video) card does not share an interrupt with
-> another driver, because (at least on x86) Linux does not enable the
-> PIC IRQ bit for IRQs that do not have registered interrupted handlers.
->
-> For Linux I think the right way to handle this is to have each (SA_SHIRQ)
-> sharing capable interrupt handler return a TRUE or FALSE value indicating
-> whether the interrupt belongs to the driver. In
-> kernel/irq.c:handle_IRQ_event() check the return value. If after one pass
-> through all of the interrupt (action) handlers no one has claimed the
-> inerrupt then log a warning message (spurious interrupt) and clear the
-> interrupt. The difficult/painstaking problem is that all SA_SHIRQ drivers
-> need to be changed to return a return value to make this work.
->
-> Anyway the simplest solution for you is probably if you can is to put
-> assign the video card its own interrupt. Putting the two advansys cards
-> on the same interrupt is fine. I have used interrupt sharing between
-> multiple advansys cards and and ethernet cards without a problem.
+In article <Pine.LNX.4.21.0101192142060.6167-100000@freak.distro.conectiva> you wrote:
+> The write clustering issue has already been discussed (mainly at Miami)
+> and the agreement, AFAIK, was to implement the write clustering at the
+> per-address-space writepage() operation.
 
-Hi Bob and the list,
+> IMO there are some problems if we implement the write clustering in this
+> level:
 
-I eventually succeeded in putting the grahics card onto a different IRQ from 
-ether of the SCSI cards. Not without some problems though. The AGP card would 
-follow what ever IRQ I assigned the PCI slot nearest it. The mobo is an ASUS 
-P2BD btw. The only way I could make the change was to swap the ethernet card 
-with the scsi card. The Ethernet card now has the same IRQ as the Graphics 
-card.
+>   - The filesystem does not have information (and should not have) about
+>     limiting cluster size depending on memory shortage.
 
-I would try a PCI graphics card, but I haven't one. Just in case the AGP card 
-is getting in the way.
+Agreed.
 
-Any, I thought that it had cured the problem, but after a few scans, 
-admittedly more than before, the scan head didn't return on the last scan 
-that was successfully started.
+>   - By doing the write clustering at a higher level, we avoid a ton of
+>     filesystems duplicating the code.
 
-Trying to scan again, hoping that it would reset the scanner and carry on, 
-... nothing, no response from scanner.
+Most filesystems share their writepage-implementation, and most
+others have special requirements on write clustering anyway.
 
-So.. could it be the scsi driver (Advansys 3940uw, in the kernel), or a 
-broken scanner itself?. Is there a way I can test this, run tests, switch on 
-debug etc ? 
+For example extent-based filesystems (xfs, jfs) usually want to write out
+more pages even if the VM doesn't see a need, just for effiecy reasons.
 
-Scsi device is set up as follows...
+Network-based filesystems also need special care vs. writeclustering,
+because the network behaves different from a typical disk...
 
-Device Information for AdvanSys SCSI Host 0:
-Target IDs Detected: 1, 7, (7=Host Adapter)
-Host: scsi0 Channel: 00 Id: 01 Lun: 00
-  Vendor: UMAX     Model: Astra 2400S      Rev: V1.1
-  Type:   Scanner                          ANSI SCSI revision: 02
- 
-EEPROM Settings for AdvanSys SCSI Host 0:
- Serial Number: AA48A919D387
- Host SCSI ID: 7, Host Queue Size: 253, Device Queue Size: 63
- termination: 0 (Automatic), bios_ctrl: ffe7
- Target ID:            0 1 2 3 4 5 6 7 8 9 A B C D E F
- Disconnects:          Y N Y Y Y Y Y Y Y Y Y Y Y Y Y Y
- Command Queuing:      Y Y Y Y Y Y Y Y Y Y Y Y Y Y Y Y
- Start Motor:          Y N Y Y Y N Y Y Y Y Y Y Y Y Y Y
- Synchronous Transfer: Y N Y Y Y Y Y Y Y Y Y Y Y Y Y Y
- Ultra Transfer:       Y N Y Y Y Y Y Y Y Y Y Y Y Y Y Y
- Wide Transfer:        Y N Y Y Y Y Y Y Y Y Y Y Y Y Y Y
+> So what I suggest is to add a "cluster" operation to struct address_space
+> which can be used by the VM code to know the optimal IO transfer unit in
+> the storage device. Something like this (maybe we need an async flag but
+> thats a minor detail now):
 
->
-> --
-> Bob Frey
-> bfrey@turbolinux.com.cn
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
+>         int (*cluster)(struct page *, unsigned long *boffset, 
+> 		unsigned long *poffset);
+
+> "page" is from where the filesystem code should start its search for
+> contiguous pages. boffset and poffset are passed by the VM code to know
+> the logical "backwards offset" (number of contiguous pages going backwards
+> from "page") and "forward offset" (cont pages going forward from
+> "page") in the inode.
+
+I think there is a big disadvantage of this appropeach:
+To find out which pages are clusterable, we need do do bmap/get_block,
+that means we have to go through the block-allocation functions, which
+is rather expensive, and then we have to do it again in writepage, for
+the pages that are actually clustered bt the VM.
+
+Another thing I dislike is that the flushing gets more complicated with
+yout VM-level clustering.  Now (and with my appropeach I'll describe
+below) flushing is write it out now and do whatever you else want,
+with you design it is 'find out pages beside this page in write out
+a bunch of them' - much more complicated.  I'd like it abstracted out.
+
+> The idea is to work with delayed allocated pages, too. A filesystem which
+> has this feature can, at its "cluster" operation, allocate delayed pages
+> contiguously on disk, and then return to the VM code which now can
+> potentially write a bunch of dirty pages in a few big IO operations.
+
+That does also work nicely together with ->writepage level IO clustering.
+
+> I'm sure that a bit of tuning to know the optimal cluster size will be
+> needed. Also some fs locking problems will appear.
+
+Sure, but again that's an issue for every kind of IO clustering...
+
+No my proposal.  I prefer doing it in writepage, as stated above.
+Writepage loops over the MAX_CLUSTERED_PAGES/2 dirty pages before and
+behind the initial page, it first uses test wether the page should be
+clustered (a callback from vm, highly 'balanceable'...), then does
+a bmap/get_block to check wether it is contingous.
+
+Finally the IO is submitted using a submit_bh loop, or when using a
+kiobuf-based IO path all clustered pages are passed down to ll_rw_kio
+in one piece.
+As you see the easy integration with the new bulk-IO mechanisms is also
+an advantage of this proposal, without the need a new multi-page a_op.
+
+	Christoph
 
 -- 
-Stephen Kitchener
+Whip me.  Beat me.  Make me maintain AIX.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

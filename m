@@ -1,71 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267394AbSLSG4h>; Thu, 19 Dec 2002 01:56:37 -0500
+	id <S267509AbSLSHCx>; Thu, 19 Dec 2002 02:02:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267509AbSLSG4h>; Thu, 19 Dec 2002 01:56:37 -0500
-Received: from math.ut.ee ([193.40.5.125]:37520 "EHLO math.ut.ee")
-	by vger.kernel.org with ESMTP id <S267394AbSLSG4g>;
-	Thu, 19 Dec 2002 01:56:36 -0500
-Date: Thu, 19 Dec 2002 09:04:36 +0200 (EET)
-From: Meelis Roos <mroos@linux.ee>
-To: linux-kernel@vger.kernel.org
-Subject: PPC: compile failure in 2.4.21-pre1 ide
-Message-ID: <Pine.GSO.4.44.0212190858050.14294-100000@math.ut.ee>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267543AbSLSHCw>; Thu, 19 Dec 2002 02:02:52 -0500
+Received: from pby.osdl.jp ([202.221.206.21]:50305 "EHLO localhost.localdomain")
+	by vger.kernel.org with ESMTP id <S267509AbSLSHCv>;
+	Thu, 19 Dec 2002 02:02:51 -0500
+Subject: Re: Freezing.. (was Re: Intel P6 vs P7 system call performance)
+From: "Timothy D. Witham" <wookie@osdl.org>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <747650000.1040281526@titus>
+References: <200212181908.gBIJ82M03155@devserv.devel.redhat.com>
+	 <1040276082.1476.30.camel@localhost.localdomain>
+	 <747650000.1040281526@titus>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: Open Source Development Lab, Inc.
+Message-Id: <1040278110.1478.37.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 18 Dec 2002 22:08:30 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Perhaps this is known, but here it is anyway.
+  Sorry, they changed it last week and my fingers still
+have the old firmware. 
 
-First, tens of these warnings:
+  www.osdl.org/cgi-bin/plm
 
-In file included from /home/mroos/compile/linux-2.4/include/linux/modversions.h:127,
-                 from /home/mroos/compile/linux-2.4/include/linux/module.h:21,
-                 from printk.c:26:
-/home/mroos/compile/linux-2.4/include/linux/modules/ide-iops.ver:37: warning: `__ver_eighty_ninty_three' redefined
-/home/mroos/compile/linux-2.4/include/linux/modules/ide-features.ver:9: warning: this is the location of the previous definition
-/home/mroos/compile/linux-2.4/include/linux/modules/ide-iops.ver:39: warning: `__ver_ide_ata66_check' redefined
-/home/mroos/compile/linux-2.4/include/linux/modules/ide-features.ver:5: warning: this is the location of the previous definition
-/home/mroos/compile/linux-2.4/include/linux/modules/ide-iops.ver:41: warning: `__ver_set_transfer' redefined
-/home/mroos/compile/linux-2.4/include/linux/modules/ide-features.ver:7: warning: this is the location of the previous definition
-/home/mroos/compile/linux-2.4/include/linux/modules/ide-iops.ver:43: warning: `__ver_ide_auto_reduce_xfer' redefined
-/home/mroos/compile/linux-2.4/include/linux/modules/ide-features.ver:1: warning: this is the location of the previous definition
-/home/mroos/compile/linux-2.4/include/linux/modules/ide-iops.ver:45: warning: `__ver_ide_driveid_update' redefined
-/home/mroos/compile/linux-2.4/include/linux/modules/ide-features.ver:3: warning: this is the location of the previous definition
-/home/mroos/compile/linux-2.4/include/linux/modules/ide-iops.ver:47: warning: `__ver_ide_config_drive_speed' redefined
-/home/mroos/compile/linux-2.4/include/linux/modules/ide-features.ver:11: warning: this is the location of the previous definition
+TIm
 
-Then this:
-
-ide-iops.c: In function `ide_mm_insw':
-ide-iops.c:113: warning: implicit declaration of function `__ide_mm_insw'
-ide-iops.c: In function `ide_mm_insl':
-ide-iops.c:123: warning: implicit declaration of function `__ide_mm_insl'
-ide-iops.c: In function `ide_mm_outsw':
-ide-iops.c:138: warning: implicit declaration of function `__ide_mm_outsw'
-ide-iops.c: In function `ide_mm_outsl':
-ide-iops.c:148: warning: implicit declaration of function `__ide_mm_outsl'
-
-And finally this:
-
-drivers/ide/idedriver.o(.text+0x21a8): In function `ide_mm_insw':
-: undefined reference to `__ide_mm_insw'
-drivers/ide/idedriver.o(.text+0x21a8): In function `ide_mm_insw':
-: relocation truncated to fit: R_PPC_REL24 __ide_mm_insw
-drivers/ide/idedriver.o(.text+0x21d4): In function `ide_mm_insl':
-: undefined reference to `__ide_mm_insl'
-drivers/ide/idedriver.o(.text+0x21d4): In function `ide_mm_insl':
-: relocation truncated to fit: R_PPC_REL24 __ide_mm_insl
-drivers/ide/idedriver.o(.text+0x220c): In function `ide_mm_outsw':
-: undefined reference to `__ide_mm_outsw'
-drivers/ide/idedriver.o(.text+0x220c): In function `ide_mm_outsw':
-: relocation truncated to fit: R_PPC_REL24 __ide_mm_outsw
-drivers/ide/idedriver.o(.text+0x2238): In function `ide_mm_outsl':
-: undefined reference to `__ide_mm_outsl'
-drivers/ide/idedriver.o(.text+0x2238): In function `ide_mm_outsl':
-: relocation truncated to fit: R_PPC_REL24 __ide_mm_outsl
-
+On Wed, 2002-12-18 at 23:05, Martin J. Bligh wrote:
+> > Related thought:
+> >
+> >   One of the things that we are trying to do is to automate
+> > patch testing.
+> >
+> >   The PLM (www.osdl.org/plm) takes every patch that it gets
+> > and does a quick "Does it compile test".  Right now there
+> > are only 4 kernel configuration files that we try but we are
+> > going to be adding more.  We could expand this to 100's
+> > if needed as it would just be a matter of adding additional
+> > hardware to make the compiles go faster in parallel.
+> 
+> URL doesn't seem to work. But would be cool if you had one SMP
+> config, one UP with IO/APIC, and one without IO/APIC. I seem
+> to break the middle one whenever I write a patch ;-(
+> 
+> M.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 -- 
-Meelis Roos (mroos@linux.ee)
+Timothy D. Witham - Lab Director - wookie@osdlab.org
+Open Source Development Lab Inc - A non-profit corporation
+15275 SW Koll Parkway - Suite H - Beaverton OR, 97006
+(503)-626-2455 x11 (office)    (503)-702-2871     (cell)
+(503)-626-2436     (fax)
 

@@ -1,42 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129453AbRBXIfY>; Sat, 24 Feb 2001 03:35:24 -0500
+	id <S129501AbRBXIl0>; Sat, 24 Feb 2001 03:41:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129448AbRBXIfO>; Sat, 24 Feb 2001 03:35:14 -0500
-Received: from ns1.uklinux.net ([212.1.130.11]:8196 "EHLO s1.uklinux.net")
-	by vger.kernel.org with ESMTP id <S129454AbRBXIfB>;
-	Sat, 24 Feb 2001 03:35:01 -0500
-Envelope-To: linux-kernel@vger.kernel.org
-From: Mark Hindley <mark@hindley.uklinux.net>
+	id <S129508AbRBXIlQ>; Sat, 24 Feb 2001 03:41:16 -0500
+Received: from in.flite.net ([207.203.36.254]:58631 "EHLO in.flite.net")
+	by vger.kernel.org with ESMTP id <S129501AbRBXIlE>;
+	Sat, 24 Feb 2001 03:41:04 -0500
+From: "John E. Adams" <johna@onevista.com>
+Reply-To: johna@onevista.com
+Organization: One Vista Associates
+To: linux-kernel%vger.kernel.org@mail.us-it.net
+Subject: Re: reiserfs: still problems with tail conversion
+Date: Sat, 24 Feb 2001 03:40:51 -0500
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain;
+  charset="us-ascii"
+In-Reply-To: <20010223221856.A24959@arthur.ubicom.tudelft.nl> <01022318321302.01755@flash>
+In-Reply-To: <01022318321302.01755@flash>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14999.28850.816613.522909@home.hindley.uklinux.net>
-Date: Sat, 24 Feb 2001 08:28:34 +0000 (GMT)
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: jjs@toyota.com (J Sloan), sjthorne@ozemail.com.au (Steve),
-        linux-kernel@vger.kernel.org (Linux kernel)
-Subject: Re: 3c509 + sb16 bug
-In-Reply-To: <E14WNYd-0006tS-00@the-village.bc.nu>
-In-Reply-To: <3A96B395.5124FFC1@toyota.com>
-	<E14WNYd-0006tS-00@the-village.bc.nu>
-X-Mailer: VM 6.72 under 21.1 (patch 10) "Capitol Reef" XEmacs Lucid
+Message-Id: <01022403405100.00992@flash.onevista.com>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox writes:
+On Friday 23 February 2001 16:18, Erik Mouw wrote:
+> Hi all,
+>
+> I am running linux-2.4.2-pre4 with Chris Mason's tailconversion bug fix
+> applied, but I still have problems with null bytes in files. I wrote a
+> little test program that clearly shows the problem:
 
- > I think the problem here thought isnt the 3c509 and SB card, its the kernel
- > plug and play code. You might want to try building kernels with no PnP support
- > at all and see how they behave
- 
-I agree. I have been having problems with isapnp reliably finding my
-ALS100 since 2.4.1 (I think). I have just modularised isapnp which
-means you can at least reload it when it fails to id the card.
+I tried the test pgm.
+First run didn't even hit the disk, so I added O_SYNC to the opens.
+No errors were detected.  Then i split out the checking code from the
+building code after noticing the checks were run against the buffer cache.
+Still no errors.
 
-Since doing that, I've noticed that the use count for isapnp in lsmod
-continues rising eachtime the sb driver is removed. I am hoping to get
-some more time this weekend to look at it.
+This is a SuSE 7.0 machine w/512M memory, plenty of disk space and no swap,
+running 2.4.2
 
+ johna@onevistacom
 
-Mark

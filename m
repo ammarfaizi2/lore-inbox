@@ -1,47 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264582AbTLGVzI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Dec 2003 16:55:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264584AbTLGVzI
+	id S264569AbTLGVxH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Dec 2003 16:53:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264570AbTLGVxG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Dec 2003 16:55:08 -0500
-Received: from hq.pm.waw.pl ([195.116.170.10]:7593 "EHLO hq.pm.waw.pl")
-	by vger.kernel.org with ESMTP id S264582AbTLGVzD (ORCPT
+	Sun, 7 Dec 2003 16:53:06 -0500
+Received: from kiuru.kpnet.fi ([193.184.122.21]:13293 "EHLO kiuru.kpnet.fi")
+	by vger.kernel.org with ESMTP id S264569AbTLGVxB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Dec 2003 16:55:03 -0500
-To: John Bradford <john@grabjohn.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Additional clauses to GPL in network drivers
-References: <200312071515.hB7FFkQH000866@81-2-122-30.bradfords.org.uk>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Sun, 07 Dec 2003 17:15:30 +0100
-In-Reply-To: <200312071515.hB7FFkQH000866@81-2-122-30.bradfords.org.uk> (John
- Bradford's message of "Sun, 7 Dec 2003 15:15:46 GMT")
-Message-ID: <m3brqkioyl.fsf@defiant.pm.waw.pl>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 7 Dec 2003 16:53:01 -0500
+Subject: Re: Nick's scheduler v19a
+From: Markus =?ISO-8859-1?Q?H=E4stbacka?= <midian@ihme.org>
+To: Nick Piggin <piggin@cyberone.com.au>
+Cc: Kernel Mailinglist <linux-kernel@vger.kernel.org>
+In-Reply-To: <3FCE6073.7040503@cyberone.com.au>
+References: <3FB62608.4010708@cyberone.com.au>
+	 <1069361130.13479.12.camel@midux>  <3FBD4F6E.3030906@cyberone.com.au>
+	 <1069395102.16807.11.camel@midux>  <3FBDAE99.9050902@cyberone.com.au>
+	 <1069405566.18362.5.camel@midux>  <3FBDD790.5060401@cyberone.com.au>
+	 <1070468086.17208.4.camel@midux>  <3FCE6073.7040503@cyberone.com.au>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-yTt+vvyyzabPmF51ONBx"
+Message-Id: <1070833955.3572.2.camel@midux>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sun, 07 Dec 2003 23:52:35 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Bradford <john@grabjohn.com> writes:
 
-> "This file is not a complete program and may only be used when the
-> entire operating system is licensed under the GPL".
->
-> as
-> grep -C 1 "only be used when"
->
-> in drivers/net will confirm.
->
-> *Please*, can we resist the temptation to 'play' with licenses in this
-> way?  I suspect this extra clause was added just to clarify what the
-> GPL already says,
+--=-yTt+vvyyzabPmF51ONBx
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: quoted-printable
 
-I don't think so - GPL doesn't restrict the _use_, only the distribution.
+Hi again Nick, I ported the patch forward to -bk1>, the problem was
+here:
+<snip>
+-                       if (sync)
+<snip>
 
-I.e. I'd be breaking law by merely _using_ the epic100 driver, as the
-operating system (my experimental Linux-based system) isn't licensed
-under GPL - in fact, it isn't licensed under any license, as I don't
-distribute it at all.
--- 
-Krzysztof Halasa, B*FH
+That should be:
+<snip>
+-                       if (sync && (task_cpu(p) =3D=3D smp_processor_id())=
+)
+<snip>
+when patchin kernel/sched.c
+Is this right?
+Regards,
+Markus
+On Thu, 2003-12-04 at 00:15, Nick Piggin wrote:
+> Markus H=E4stbacka wrote:
+>=20
+> >Hi Nick,
+> >I noticed that v19a patch wont apply to 2.6.0-test11-bk1
+> >
+>=20
+> Hi Markus,
+> OK, thanks for the notice, I'll bring it up to date when I get time
+--=20
+"Software is like sex, it's better when it's free."
+Markus H=E4stbacka <midian at ihme dot org>
+
+--=-yTt+vvyyzabPmF51ONBx
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQA/06Ei3+NhIWS1JHARAuC8AJ9AdsssOWRxxGIvPnBSmnxMB7kkXQCgmmq5
+Pd1L5LPDDSm8zjpInNzqVew=
+=gVAj
+-----END PGP SIGNATURE-----
+
+--=-yTt+vvyyzabPmF51ONBx--
+

@@ -1,62 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262769AbVCPTfZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262767AbVCPTqA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262769AbVCPTfZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 14:35:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262766AbVCPTep
+	id S262767AbVCPTqA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 14:46:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262766AbVCPTp7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 14:34:45 -0500
-Received: from [205.233.219.253] ([205.233.219.253]:28812 "EHLO
-	conifer.conscoop.ottawa.on.ca") by vger.kernel.org with ESMTP
-	id S262767AbVCPTbT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 14:31:19 -0500
-Date: Wed, 16 Mar 2005 14:28:59 -0500
-From: Jody McIntyre <scjody@modernduck.com>
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       willy@debian.org, nathans@sgi.com
-Subject: Re: [PATCH, RFC 3/4] Use sem_getcount in XFS
-Message-ID: <20050316192859.GB1111@conscoop.ottawa.on.ca>
-References: <20050311000646.GJ1111@conscoop.ottawa.on.ca> <20050310205503.6151ab83.akpm@osdl.org> <20050311053144.GP1111@conscoop.ottawa.on.ca> <20050310215652.76c47856.akpm@osdl.org> <20050311122747.GL21986@parcelfarce.linux.theplanet.co.uk> <20050311170449.GS1111@conscoop.ottawa.on.ca> <20050316192709.GZ1111@conscoop.ottawa.on.ca>
+	Wed, 16 Mar 2005 14:45:59 -0500
+Received: from [81.2.110.250] ([81.2.110.250]:3253 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S262767AbVCPTps (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Mar 2005 14:45:48 -0500
+Subject: Linux 2.6.11-ac4
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1111002230.1213.9.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050316192709.GZ1111@conscoop.ottawa.on.ca>
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 16 Mar 2005 19:43:53 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Convert XFS to use sem_getcount instead of nasty hack.  Fixes warning
-with XFS debugging on parisc (untested since I can't find an obvious way
-to enable XFS debugging) as well as the valusema macro, used in two places
-in XFS.
+2.6.11-ac4
+o	Merge with 2.6.11.4
 
-Tested on i386, ia64, parisc.
+2.6.11-ac3
+o	Make SATA AHCI error recovery work		(Brett Russ)
+o	Watchdog link order				(Dave Jones)
+o	Ressurect the epca driver			(Alan Cox)
+o	Merge with 2.6.11.3
 
-Signed-off-by: Jody McIntyre <scjody@modernduck.com>
+2.6.11-ac2
+o	Merge 2.6.11.2					(Greg Kroah-Hartmann)
+	including epoll error handling			(Georgi Guninski)
+	| Theoretically security
+o	Fix a couple of pwc warnings			(Alan Cox)
+o	Ressurect esp driver				(Alan Cox)
 
-Index: 1394-dev/fs/xfs/linux-2.6/xfs_buf.c
-===================================================================
---- 1394-dev.orig/fs/xfs/linux-2.6/xfs_buf.c	2005-03-15 17:45:47.000000000 -0500
-+++ 1394-dev/fs/xfs/linux-2.6/xfs_buf.c	2005-03-15 17:52:39.000000000 -0500
-@@ -976,7 +976,7 @@ int
- pagebuf_lock_value(
- 	xfs_buf_t		*pb)
- {
--	return(atomic_read(&pb->pb_sema.count));
-+	return(sem_getcount(&pb->pb_sema));
- }
- #endif
- 
-Index: 1394-dev/fs/xfs/linux-2.6/sema.h
-===================================================================
---- 1394-dev.orig/fs/xfs/linux-2.6/sema.h	2005-03-15 17:59:50.000000000 -0500
-+++ 1394-dev/fs/xfs/linux-2.6/sema.h	2005-03-15 18:16:00.000000000 -0500
-@@ -48,7 +48,7 @@ typedef struct semaphore sema_t;
- #define initnsema(sp, val, name)	sema_init(sp, val)
- #define psema(sp, b)			down(sp)
- #define vsema(sp)			up(sp)
--#define valusema(sp)			(atomic_read(&(sp)->count))
-+#define valusema(sp)			(sem_getcount(sp))
- #define freesema(sema)
- 
- /*
+2.6.11-ac1
+o	Fix jbd race in ext3				(Stephen Tweedie)
+
+Carried over from 2.6.10-ac
+
+Security
+o	AF_ROSE security hole fix - still missing from base
+o	Bridge failure to check kmalloc argument overflow
+
+Functionality
+o	PWC USB camera driver
+o	Working ULI526X support (added to base in .11 but broken)
+o	ATP88x support
+o	Intelligent misrouted IRQ handlers
+o	Fix PCI boxes that take minutes IDE probing
+o	Remove bogus confusing XFree86 keyboard message
+o	Support fibre AMD pcnet32
+o	Runtime configurable clock
+	| So you can run laptops usefully. Set 100Hz to fix
+	| the power drain, clock sliding and other problems
+	| 1000Hz causes
+o	Fix token ring locking so token ring can be used again
+o	x86_64/32 cross build fixes
+o	NetROM locking fixes (so NetROM actually works!)
+o	SUID dumpable support
+o	Don't log pointless CD messages
+o	Minimal stallion driver functionality
+o	IDE from 2.6-ac
+
+
+

@@ -1,101 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263685AbUD2I3b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263713AbUD2IbP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263685AbUD2I3b (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 04:29:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263714AbUD2I3b
+	id S263713AbUD2IbP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 04:31:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263714AbUD2IbP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 04:29:31 -0400
-Received: from mtagate3.uk.ibm.com ([195.212.29.136]:23937 "EHLO
-	mtagate3.uk.ibm.com") by vger.kernel.org with ESMTP id S263685AbUD2IZO
+	Thu, 29 Apr 2004 04:31:15 -0400
+Received: from mtagate3.uk.ibm.com ([195.212.29.136]:25985 "EHLO
+	mtagate3.uk.ibm.com") by vger.kernel.org with ESMTP id S263713AbUD2IZQ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 04:25:14 -0400
-Message-ID: <4090BBDE.9020201@watson.ibm.com>
-Date: Thu, 29 Apr 2004 04:25:02 -0400
+	Thu, 29 Apr 2004 04:25:16 -0400
+Message-ID: <4090BBE1.4080106@watson.ibm.com>
+Date: Thu, 29 Apr 2004 04:25:05 -0400
 From: Shailabh Nagar <nagar@watson.ibm.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: linux-kernel <linux-kernel@vger.kernel.org>,
        ckrm-tech <ckrm-tech@lists.sourceforge.net>
-Subject: [PATCH 5/6] CKRM socket_class classtype
+Subject: [PATCH 4/6] CKRM numtasks resource controller
 Content-Type: multipart/mixed;
- boundary="------------030104050409020801060509"
+ boundary="------------090909030202010004090107"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------030104050409020801060509
+--------------090909030202010004090107
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
 
---------------030104050409020801060509
+--------------090909030202010004090107
 Content-Type: text/plain;
- name="04-socketclass.ckrm-E12.patch"
+ name="03-numtasks.ckrm-E12.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="04-socketclass.ckrm-E12.patch"
+ filename="03-numtasks.ckrm-E12.patch"
 
-diff -Nru a/include/linux/ckrm_net.h b/include/linux/ckrm_net.h
+diff -Nru a/include/linux/ckrm_tsk.h b/include/linux/ckrm_tsk.h
 --- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/include/linux/ckrm_net.h	Wed Apr 28 22:41:05 2004
++++ b/include/linux/ckrm_tsk.h	Wed Apr 28 22:41:05 2004
 @@ -0,0 +1,41 @@
-+/* ckrm_rc.h - Header file to be used by Resource controllers of CKRM
++/* ckrm_tsk.h - No. of tasks resource controller for CKRM
 + *
-+ * Copyright (C) Vivek Kashyap , IBM Corp. 2004
++ * Copyright (C) Chandra Seetharaman, IBM Corp. 2003
 + * 
-+ * Provides data structures, macros and kernel API of CKRM for 
-+ * resource controllers.
-+ *
-+ * Latest version, more details at http://ckrm.sf.net
-+ * 
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ */
-+
-+#ifndef _LINUX_CKRM_NET_H
-+#define _LINUX_CKRM_NET_H
-+
-+struct ckrm_sock_class;
-+
-+struct ckrm_net_struct {
-+	int 		 ns_type;                    // type of net class
-+	struct sock     *ns_sk;         // pointer to socket
-+	pid_t            ns_tgid;       // real process id
-+	pid_t            ns_pid;        // calling thread's pid
-+	int              ns_family;     // IPPROTO_IPV4 || IPPROTO_IPV6
-+					// Currently only IPV4 is supported
-+	union {
-+		__u32   ns_dipv4;       // V4 listener's address
-+	} ns_daddr;
-+	__u16 		ns_dport;       // listener's port
-+	__u16 ns_sport;                 // sender's port
-+	atomic_t ns_refcnt;
-+	struct ckrm_sock_class 	*core;		
-+	struct list_head       ckrm_link;
-+};
-+
-+#define ns_daddrv4     ns_daddr.ns_dipv4
-+
-+#endif
-diff -Nru a/kernel/ckrm/ckrm_sockc.c b/kernel/ckrm/ckrm_sockc.c
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/kernel/ckrm/ckrm_sockc.c	Wed Apr 28 22:41:05 2004
-@@ -0,0 +1,554 @@
-+/* ckrm_sock.c - Class-based Kernel Resource Management (CKRM)
-+ *
-+ * Copyright (C) Hubertus Franke, IBM Corp. 2003,2004
-+ *           (C) Shailabh Nagar,  IBM Corp. 2003
-+ *           (C) Chandra Seetharaman,  IBM Corp. 2003
-+ *	     (C) Vivek Kashyap,	IBM Corp. 2004
-+ * 
-+ * 
-+ * Provides kernel API of CKRM for in-kernel,per-resource controllers 
-+ * (one each for cpu, memory, io, network) and callbacks for 
-+ * classification modules.
++ * Provides No. of tasks resource controller for CKRM
 + *
 + * Latest version, more details at http://ckrm.sf.net
 + * 
@@ -108,878 +57,542 @@ diff -Nru a/kernel/ckrm/ckrm_sockc.c b/kernel/ckrm/ckrm_sockc.c
 +
 +/* Changes
 + *
-+ * 28 Aug 2003
-+ *        Created.
-+ * 06 Nov 2003
-+ *        Made modifications to suit the new RBCE module.
-+ * 10 Nov 2003
-+ *        Fixed a bug in fork and exit callbacks. Added callbacks_active and
-+ *        surrounding logic. Added task paramter for all CE callbacks.
-+ * 23 Mar 2004
-+ *        moved to referenced counted class objects and correct locking
-+ * 12 Apr 2004
-+ *        introduced adopted to emerging classtype interface
++ * 31 Mar 2004
++ *    Created.
 + */
 +
-+#include <linux/config.h>
++#ifndef _LINUX_CKRM_TSK_H
++#define _LINUX_CKRM_TSK_H
++
++#include <linux/ckrm_rc.h>
++
++#ifdef CONFIG_CKRM_RES_NUMTASKS
++
++extern int numtasks_get_ref(void *, int);
++extern int numtasks_get_ref_resid(void *, int, int);
++extern void numtasks_put_ref(void *);
++
++#else
++
++#define numtasks_get_ref(a, b)		1
++#define numtasks_get_ref_resid(a, b, c)		1
++#define numtasks_put_ref(a)
++
++#endif
++
++#endif // _LINUX_CKRM_RES_H
+diff -Nru a/kernel/ckrm/ckrm_tasks.c b/kernel/ckrm/ckrm_tasks.c
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/kernel/ckrm/ckrm_tasks.c	Wed Apr 28 22:41:05 2004
+@@ -0,0 +1,509 @@
++/* ckrm_numtasks.c - "Number of tasks" resource controller for CKRM
++ *
++ * Copyright (C) Chandra Seetharaman,  IBM Corp. 2003
++ * 
++ * Latest version, more details at http://ckrm.sf.net
++ * 
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ */
++
++/* Changes
++ * 
++ * 31 Mar 2004: Created
++ * 
++ */
++
++/*
++ * Code Description: TBD
++ */
++
++#include <linux/module.h>
 +#include <linux/init.h>
-+#include <linux/linkage.h>
-+#include <linux/kernel.h>
-+#include <linux/errno.h>
-+#include <asm/uaccess.h>
-+#include <linux/mm.h>
++#include <linux/slab.h>
 +#include <asm/errno.h>
-+#include <linux/string.h>
 +#include <linux/list.h>
 +#include <linux/spinlock.h>
-+#include <linux/module.h>
++#include <linux/ckrm.h>
 +#include <linux/ckrm_rc.h>
-+#include <linux/parser.h>
-+#include <net/tcp.h>
++#include <linux/ckrm_tc.h>
 +
-+#include <linux/ckrm_net.h>
++#define TOTAL_NUM_TASKS (131072) // 128 K
++#define NUMTASKS_DEBUG
++#define NUMTASKS_NAME "numtasks"
 +
-+struct ckrm_sock_class {
-+	struct ckrm_core_class core;
-+};
++typedef struct ckrm_numtasks {
++	struct ckrm_core_class *core; // the core i am part of...
++	struct ckrm_core_class *parent; // parent of the core above.
++	struct ckrm_shares shares;
++	spinlock_t cnt_lock; // always grab parent's lock first and then child's
++	int cnt_guarantee; // num_tasks guarantee in local units
++	int cnt_unused; // has to borrow if more than this is needed
++	int cnt_limit; // no tasks over this limit.
++	atomic_t cnt_cur_alloc; // current alloc from self
++	atomic_t cnt_borrowed; // borrowed from the parent
 +
-+static struct ckrm_sock_class  sockclass_dflt_class = {
-+};
++	int over_guarantee; //turn on/off when cur_alloc goes over/under guarantee
 +
-+#define SOCKET_CLASS_TYPE_NAME  "socket_class"
++	// internally maintained statictics to compare with max numbers
++	int limit_failures; // no. of failures 'cause the request was over the limit
++	int borrow_sucesses; // no. of successful borrows
++	int borrow_failures; // no. of borrow faileures
 +
-+const char *dflt_sockclass_name = SOCKET_CLASS_TYPE_NAME;
++	// Maximum the specific statictics has reached.
++	int max_limit_failures;
++	int max_borrow_sucesses;
++	int max_borrow_failures;
 +
-+static struct ckrm_core_class *sock_alloc_class(struct ckrm_core_class *parent, const char *name);
-+static int  sock_free_class(struct ckrm_core_class *core);
++	// Total number of specific statistics
++	int tot_limit_failures;
++	int tot_borrow_sucesses;
++	int tot_borrow_failures;
++} ckrm_numtasks_t;
 +
-+static int  sock_forced_reclassify(ckrm_core_class_t *target, const char *resname);
-+static int  sock_show_members(struct ckrm_core_class *core, struct seq_file *seq);
-+static void sock_add_resctrl(struct ckrm_core_class *core, int resid);
-+static void sock_reclassify_class(struct ckrm_sock_class *cls);
++struct ckrm_res_ctlr numtasks_rcbs;
 +
-+struct ckrm_classtype CT_sockclass = {
-+	.mfidx          = 1,
-+	.name           = SOCKET_CLASS_TYPE_NAME,
-+	.typeID         = CKRM_CLASSTYPE_SOCKET_CLASS, 
-+	.maxdepth       = 3,                           
-+	.resid_reserved = 0,                           
-+	.max_res_ctlrs  = CKRM_MAX_RES_CTLRS,        
-+	.max_resid      = 0,
-+	.bit_res_ctlrs  = 0L,
-+	.res_ctlrs_lock = SPIN_LOCK_UNLOCKED,
-+	.classes        = LIST_HEAD_INIT(CT_sockclass.classes),
-+
-+	.default_class  = &sockclass_dflt_class.core,
-+	
-+	// private version of functions 
-+	.alloc          = &sock_alloc_class,
-+	.free           = &sock_free_class,
-+	.show_members   = &sock_show_members,
-+	.forced_reclassify = &sock_forced_reclassify,
-+
-+	// use of default functions 
-+	.show_shares    = &ckrm_class_show_shares,
-+	.show_stats     = &ckrm_class_show_stats,
-+	.show_config    = &ckrm_class_show_config,
-+	.set_config     = &ckrm_class_set_config,
-+	.set_shares     = &ckrm_class_set_shares,
-+	.reset_stats    = &ckrm_class_reset_stats,
-+
-+	// mandatory private version .. no dflt available
-+	.add_resctrl    = &sock_add_resctrl,	
-+};
-+
-+/* helper functions */
-+
-+void
-+ckrm_ns_hold(struct ckrm_net_struct *ns)
-+{
-+        atomic_inc(&ns->ns_refcnt);
-+        return;
-+}
-+
-+void
-+ckrm_ns_put(struct ckrm_net_struct *ns)
-+{
-+        if (atomic_dec_and_test(&ns->ns_refcnt))
-+                kfree(ns);
-+
-+        return;
-+}
-+/*
-+ * Change the class of a netstruct 
-+ *
-+ * Change the task's task class  to "newcls" if the task's current 
-+ * class (task->taskclass) is same as given "oldcls", if it is non-NULL.
-+ *
++/* Initialize rescls values
++ * May be called on each rcfs unmount or as part of error recovery
++ * to make share values sane.
++ * Does not traverse hierarchy reinitializing children.
 + */
-+
 +static void
-+sock_set_class(struct ckrm_net_struct *ns, struct ckrm_sock_class *newcls,
-+	      struct ckrm_sock_class *oldcls, enum ckrm_event event)
++numtasks_res_initcls_one(ckrm_numtasks_t *res)
 +{
-+	int i;
-+	struct ckrm_res_ctlr *rcbs;
-+	struct ckrm_classtype *clstype;
-+	void  *old_res_class, *new_res_class;
++	res->shares.my_guarantee     = CKRM_SHARE_DONTCARE;
++	res->shares.my_limit         = CKRM_SHARE_DONTCARE;
++	res->shares.total_guarantee  = CKRM_SHARE_DFLT_TOTAL_GUARANTEE;
++	res->shares.max_limit        = CKRM_SHARE_DFLT_MAX_LIMIT;
++	res->shares.unused_guarantee = CKRM_SHARE_DFLT_TOTAL_GUARANTEE;
++	res->shares.cur_max_limit    = 0;
 +
-+	if ((newcls == oldcls) || (newcls == NULL)) {
-+		ns->core = (void *)oldcls;
-+		return;
-+	}
++	res->cnt_guarantee           = CKRM_SHARE_DONTCARE;
++	res->cnt_unused              = CKRM_SHARE_DONTCARE;
++	res->cnt_limit               = CKRM_SHARE_DONTCARE;
 +
-+	class_lock(class_core(newcls));
-+	ns->core = newcls;
-+	list_add(&ns->ckrm_link, &class_core(newcls)->objlist);
-+	class_unlock(class_core(newcls));
++	res->over_guarantee          = 0;
 +
-+	clstype = class_isa(newcls);                 
-+	for (i = 0; i < clstype->max_resid; i++) {
-+		atomic_inc(&clstype->nr_resusers[i]);
-+		old_res_class = oldcls ? class_core(oldcls)->res_class[i] : NULL;
-+		new_res_class = newcls ? class_core(newcls)->res_class[i] : NULL;
-+		rcbs = clstype->res_ctlrs[i];
-+		if (rcbs && rcbs->change_resclass && (old_res_class != new_res_class)) 
-+			(*rcbs->change_resclass)(ns, old_res_class, new_res_class);
-+		atomic_dec(&clstype->nr_resusers[i]);
-+	}
++	res->limit_failures          = 0;
++	res->borrow_sucesses         = 0;
++	res->borrow_failures         = 0;
++
++	res->max_limit_failures      = 0;
++	res->max_borrow_sucesses     = 0;
++	res->max_borrow_failures     = 0;
++
++	res->tot_limit_failures      = 0;
++	res->tot_borrow_sucesses     = 0;
++	res->tot_borrow_failures     = 0;
++
++	atomic_set(&res->cnt_cur_alloc, 0);
++	atomic_set(&res->cnt_borrowed, 0);
 +	return;
 +}
 +
++#if 0	
 +static void
-+sock_add_resctrl(struct ckrm_core_class *core, int resid)
++numtasks_res_initcls(void *my_res)
 +{
-+	struct ckrm_net_struct *ns;
-+	struct ckrm_res_ctlr *rcbs;
++	ckrm_numtasks_t *res = my_res;
 +
-+	if ((resid < 0) || (resid >= CKRM_MAX_RES_CTLRS) || ((rcbs = core->classtype->res_ctlrs[resid]) == NULL)) 
-+		return;
-+
-+	spin_lock(&core->ckrm_lock);
-+	list_for_each_entry(ns, &core->objlist, ckrm_link) {
-+		if (rcbs->change_resclass)
-+			(*rcbs->change_resclass)(ns, NULL, core->res_class[resid]);
-+	}
-+	spin_unlock(&core->ckrm_lock);
-+}
-+
-+
-+/**************************************************************************
-+ *                   Functions called from classification points          *
-+ **************************************************************************/
-+
-+static void
-+cb_sockclass_listen_start(struct sock *sk)
-+{
-+	struct ckrm_net_struct *ns = NULL;
-+	struct ckrm_sock_class *newcls = NULL;
-+	struct ckrm_res_ctlr *rcbs;
-+	struct ckrm_classtype *clstype;
-+	int i = 0;
-+
-+	// XXX - TBD ipv6
-+	if (sk->sk_family == IPPROTO_IPV6)
-+		return;
-+
-+	// to store the socket address
-+	ns = (struct ckrm_net_struct *)
-+		kmalloc(sizeof(struct ckrm_net_struct), GFP_ATOMIC);
-+	if (!ns)
-+		return;
-+
-+	memset(ns,0, sizeof(ns));
-+	INIT_LIST_HEAD(&ns->ckrm_link);
-+
-+	ns->ns_family = sk->sk_family;
-+	if (ns->ns_family == IPPROTO_IPV6)	// IPv6 not supported yet.
-+		return;
-+
-+	ns->ns_daddrv4 = inet_sk(sk)->rcv_saddr;
-+	ns->ns_dport = inet_sk(sk)->num;
-+		
-+	ns->ns_pid = current->pid;
-+	ns->ns_tgid = current->tgid;
-+
-+	ce_protect(&CT_sockclass);
-+	CE_CLASSIFY_RET(newcls,&CT_sockclass,CKRM_EVENT_LISTEN_START,ns,current);
-+	ce_release(&CT_sockclass);
-+
-+	if (newcls == NULL)  {
-+		newcls = &sockclass_dflt_class;
-+		ckrm_core_grab(class_core(newcls));
-+	}
-+
-+	class_lock(class_core(newcls));
-+	list_add(&ns->ckrm_link, &class_core(newcls)->objlist);
-+	ckrm_ns_put(ns);
-+	ns->core = newcls;
-+	class_unlock(class_core(newcls));
++	/* Write a version which propagates values all the way down 
++	   and replace rcbs callback with that version */
 +	
-+
-+	// the socket is already locked
-+	// take a reference on socket on our behalf
-+	sock_hold(sk);
-+	sk->sk_ns = (void *)ns;
-+	ns->ns_sk = sk;
-+
-+	// modify its shares
-+	clstype = class_isa(newcls);
-+	for (i = 0; i < clstype->max_resid; i++) {
-+		atomic_inc(&clstype->nr_resusers[i]);
-+		rcbs = clstype->res_ctlrs[i];
-+		if (rcbs && rcbs->change_resclass) {
-+			(*rcbs->change_resclass)((void *)ns, 
-+					 NULL,class_core(newcls)->res_class[i]);
-+		}
-+		atomic_dec(&clstype->nr_resusers[i]);
-+	}
-+	return;
 +}
-+
-+static void
-+cb_sockclass_listen_stop(struct sock *sk)
-+{
-+	struct ckrm_net_struct *ns = NULL;
-+	struct ckrm_sock_class *newcls = NULL;
-+
-+	// XXX - TBD ipv6
-+	if (sk->sk_family == IPPROTO_IPV6)
-+		return;
-+
-+	ns =  (struct ckrm_net_struct *)sk->sk_ns;
-+	if (!ns) // listen_start called before socket_aq was loaded
-+		return;
-+
-+	newcls = ns->core;
-+	if (newcls) {
-+		class_lock(class_core(newcls));
-+		list_del(&ns->ckrm_link);
-+		INIT_LIST_HEAD(&ns->ckrm_link);
-+		ckrm_core_drop(class_core(newcls));
-+		class_unlock(class_core(newcls));
-+	}
-+
-+	// the socket is already locked
-+	sk->sk_ns = NULL;
-+	sock_put(sk);
-+
-+	// Should be the last count and free it
-+	ckrm_ns_put(ns);
-+	return;
-+}
-+
-+static struct ckrm_event_spec sock_events_callbacks[] = {
-+	CKRM_EVENT_SPEC( LISTEN_START, cb_sockclass_listen_start  ),
-+	CKRM_EVENT_SPEC( LISTEN_STOP,  cb_sockclass_listen_stop  ),
-+	{ -1 }
-+};
-+
-+/**************************************************************************
-+ *                  Class Object Creation / Destruction
-+ **************************************************************************/
-+
-+static struct ckrm_core_class *
-+sock_alloc_class(struct ckrm_core_class *parent, const char *name)
-+{
-+	struct ckrm_sock_class *sockcls;
-+	sockcls = kmalloc(sizeof(struct ckrm_sock_class), GFP_KERNEL);
-+	if (sockcls == NULL) 
-+		return NULL;
-+
-+	ckrm_init_core_class(&CT_sockclass,class_core(sockcls),parent,name);
-+
-+	ce_protect(&CT_sockclass);
-+	if (CT_sockclass.ce_cb_active && CT_sockclass.ce_callbacks.class_add)
-+		(*CT_sockclass.ce_callbacks.class_add)(name,sockcls);
-+	ce_release(&CT_sockclass);
-+
-+	return class_core(sockcls);
-+}
-+
-+static int
-+sock_free_class(struct ckrm_core_class *core)
-+{
-+	struct ckrm_sock_class *sockcls;
-+
-+	if (!ckrm_is_core_valid(core)) {
-+		// Invalid core
-+		return (-EINVAL);
-+	}
-+	if (core == core->classtype->default_class) {
-+		// reset the name tag
-+		core->name = dflt_sockclass_name;
-+ 		return 0;
-+	}
-+
-+	sockcls = class_type(struct ckrm_sock_class, core);
-+
-+	ce_protect(&CT_sockclass);
-+
-+	if (CT_sockclass.ce_cb_active && CT_sockclass.ce_callbacks.class_delete)
-+		(*CT_sockclass.ce_callbacks.class_delete)(core->name,sockcls);
-+
-+	sock_reclassify_class ( sockcls );
-+
-+	ce_release(&CT_sockclass);
-+
-+	ckrm_release_core_class(core);  // Hubertus .... could just drop the class .. error message
-+	return 0;
-+}
-+
-+
-+static int                      
-+sock_show_members(struct ckrm_core_class *core, struct seq_file *seq) 
-+{
-+	struct list_head *lh;
-+	struct ckrm_net_struct *ns = NULL;
-+
-+	class_lock(core);
-+	list_for_each(lh, &core->objlist) {
-+		ns = container_of(lh, struct ckrm_net_struct,ckrm_link);
-+		seq_printf(seq, "%d.%d.%d.%d\\%d\n", 
-+			   NIPQUAD(ns->ns_daddrv4),ns->ns_dport);
-+	}
-+	class_unlock(core);
-+
-+	return 0;
-+}
-+
-+static int
-+sock_forced_reclassify_ns(struct ckrm_net_struct *tns, struct ckrm_core_class *core)
-+{
-+	struct ckrm_net_struct *ns = NULL;
-+	struct sock *sk = NULL;
-+	struct ckrm_sock_class *oldcls, *newcls;
-+	int rc = -EINVAL;
-+
-+	if (!ckrm_is_core_valid(core)) {
-+		return rc;
-+	}
-+
-+	newcls = class_type(struct ckrm_sock_class, core);
-+	// lookup the listening sockets
-+	// returns with a reference count set on socket
-+	sk = tcp_v4_lookup_listener(tns->ns_daddrv4,tns->ns_dport,0);
-+	if (!sk) {
-+		printk(KERN_INFO "No such listener 0x%x:%d\n",
-+				tns->ns_daddrv4, tns->ns_dport);
-+		return rc;
-+	}
-+	lock_sock(sk);
-+	if (!sk->sk_ns) {
-+		goto out;
-+	}
-+	ns = sk->sk_ns;
-+	ckrm_ns_hold(ns);
-+	oldcls = ns->core;
-+	if ((oldcls == NULL) || (oldcls == newcls)) {
-+		ckrm_ns_put(ns);
-+		goto out;
-+	}
-+
-+	// remove the net_struct from the current class
-+	class_lock(class_core(oldcls));
-+	list_del(&ns->ckrm_link);
-+	INIT_LIST_HEAD(&ns->ckrm_link);
-+	ns->core = NULL;
-+	class_unlock(class_core(oldcls));
-+
-+	sock_set_class(ns, newcls, oldcls, CKRM_EVENT_MANUAL);
-+	ckrm_ns_put(ns);
-+	rc = 0;
-+out:
-+	release_sock(sk);
-+	sock_put(sk);
-+
-+	return rc;
-+
-+} 
-+
-+enum sock_target_token_t {
-+        IPV4, IPV6, SOCKC_TARGET_ERR
-+};
-+
-+static match_table_t sock_target_tokens = {
-+	{IPV4, "ipv4=%s"},
-+	{IPV6, "ipv6=%s"},
-+        {SOCKC_TARGET_ERR, NULL},
-+};
-+
-+char *
-+v4toi(char *s, char c, __u32 *v)
-+{
-+	unsigned int  k = 0, n = 0;
-+
-+	while(*s && (*s != c)) {
-+		if (*s == '.') {
-+			n <<= 8;
-+			n |= k;
-+			k = 0;
-+		}
-+		else 
-+			k = k *10 + *s - '0';
-+		s++;
-+	}
-+
-+	n <<= 8;
-+	*v = n | k;
-+
-+	return s;
-+}
-+
-+static int
-+sock_forced_reclassify(struct ckrm_core_class *target,const char *options)
-+{	
-+	char *p,*p2;
-+	struct ckrm_net_struct ns;
-+	__u32 v4addr, tmp;
-+
-+	if (!options)
-+		return 1;
-+	
-+	while ((p = strsep((char**)&options, ",")) != NULL) {
-+		substring_t args[MAX_OPT_ARGS];
-+		int token;
-+		
-+		if (!*p)
-+			continue;
-+		token = match_token(p, sock_target_tokens, args);
-+		switch (token) {
-+
-+		case IPV4:
-+
-+			p2 = p;
-+			while(*p2 && (*p2 != '='))
-+				++p2;
-+			p2++;
-+			p2 = v4toi(p2, '\\',&(v4addr));
-+			ns.ns_daddrv4 = htonl(v4addr);
-+			ns.ns_family = 4; //IPPROTO_IPV4
-+			p2 = v4toi(++p2, ':',&tmp); ns.ns_dport = (__u16)tmp;
-+			p2 = v4toi(++p2,'\0',&ns.ns_pid);
-+			
-+			sock_forced_reclassify_ns(&ns,target);
-+			break;
-+
-+		case IPV6:
-+			printk(KERN_INFO "rcfs: IPV6 not supported yet\n");
-+			return 0;	
-+		default:
-+			return 0;
-+		}
-+	}
-+	return 1;
-+}	
-+
-+/*
-+ * Listen_aq reclassification.
-+ */
-+static void
-+sock_reclassify_class(struct ckrm_sock_class *cls)
-+{
-+	struct ckrm_net_struct *ns, *tns;
-+	struct ckrm_core_class *core = class_core(cls);
-+	LIST_HEAD(local_list);
-+
-+	if (!cls)
-+		return;
-+
-+	if (!ckrm_validate_and_grab_core(core))
-+		return;
-+
-+	class_lock(core);
-+	// we have the core refcnt
-+	if (list_empty(&core->objlist)) {
-+		class_unlock(core);
-+		ckrm_core_drop(core);
-+		return;
-+	}
-+
-+	INIT_LIST_HEAD(&local_list);
-+	list_splice_init(&core->objlist, &local_list);
-+	class_unlock(core);
-+	ckrm_core_drop(core);
-+	
-+	list_for_each_entry_safe(ns, tns, &local_list, ckrm_link) {
-+		ckrm_ns_hold(ns);
-+		list_del(&ns->ckrm_link);
-+		if (ns->ns_sk) {
-+			lock_sock(ns->ns_sk);
-+			sock_set_class(ns, &sockclass_dflt_class, NULL, CKRM_EVENT_MANUAL);
-+			release_sock(ns->ns_sk);
-+		}
-+		ckrm_ns_put(ns);
-+	}
-+	return ;
-+}
-+
-+void __init
-+ckrm_meta_init_sockclass(void)
-+{
-+	printk("...... Initializing ClassType<%s> ........\n",CT_sockclass.name);
-+	// intialize the default class
-+	ckrm_init_core_class(&CT_sockclass, class_core(&sockclass_dflt_class),
-+			     NULL,dflt_sockclass_name);
-+
-+	// register classtype and initialize default task class
-+	ckrm_register_classtype(&CT_sockclass);
-+	ckrm_register_event_set(sock_events_callbacks);
-+
-+	// note registeration of all resource controllers will be done later dynamically 
-+	// as these are specified as modules
-+}
-+
-+
-+
-+#if 1
-+
-+/***************************************************************************************
-+ * Debugging Network Classes:  Utility functions
-+ **************************************************************************************/
-+
-+#endif
-diff -Nru a/fs/rcfs/socket_fs.c b/fs/rcfs/socket_fs.c
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/fs/rcfs/socket_fs.c	Wed Apr 28 22:41:05 2004
-@@ -0,0 +1,338 @@
-+/* ckrm_socketaq.c 
-+ *
-+ * Copyright (C) Vivek Kashyap,      IBM Corp. 2004
-+ * 
-+ * Latest version, more details at http://ckrm.sf.net
-+ * 
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ */
-+
-+/* Changes
-+ * Initial version
-+ */
-+
-+/*******************************************************************************
-+ *  Socket class type
-+ *   
-+ * Defines the root structure for socket based classes. Currently only inbound
-+ * connection control is supported based on prioritized accept queues. 
-+ ******************************************************************************/
-+
-+
-+#include <linux/rcfs.h>
-+#include <net/tcp.h>
-+
-+extern int rcfs_create(struct inode *,struct dentry *, int, struct nameidata *);
-+extern int rcfs_unlink(struct inode *, struct dentry *);
-+extern int  rcfs_symlink(struct inode *, struct dentry *, const char *);
-+extern int rcfs_mknod(struct inode *, struct dentry *, int mode, dev_t);
-+extern int rcfs_mkdir(struct inode *, struct dentry *, int);
-+extern int rcfs_rmdir(struct inode *, struct dentry *);
-+extern int rcfs_rename(struct inode *, struct dentry *, struct inode *, 
-+		struct dentry *);
-+
-+extern int rcfs_create_coredir(struct inode *, struct dentry *);
-+int sock_mkdir(struct inode *, struct dentry *, int mode);
-+int sock_rmdir(struct inode *, struct dentry *);
-+
-+
-+int sock_create_noperm(struct inode *, struct dentry *,int, struct nameidata *);
-+int sock_unlink_noperm(struct inode *,struct dentry *);
-+int sock_mkdir_noperm(struct inode *,struct dentry *,int);
-+int sock_rmdir_noperm(struct inode *,struct dentry *);
-+int sock_mknod_noperm(struct inode *,struct dentry *,int, dev_t);
-+
-+void sock_set_directory(void);
-+
-+extern struct file_operations config_fileops,
-+			members_fileops,
-+			shares_fileops,
-+			stats_fileops,
-+			target_fileops;
-+
-+
-+struct inode_operations my_iops = {
-+	        .create         = rcfs_create,
-+		.lookup         = simple_lookup,
-+		.link           = simple_link,
-+		.unlink         = rcfs_unlink,
-+		.symlink        = rcfs_symlink,
-+		.mkdir          = sock_mkdir,
-+		.rmdir          = sock_rmdir,
-+		.mknod          = rcfs_mknod,
-+		.rename         = rcfs_rename,
-+};
-+
-+struct inode_operations class_iops = {
-+	        .create         = sock_create_noperm,
-+		.lookup         = simple_lookup,
-+		.link           = simple_link,
-+		.unlink         = sock_unlink_noperm,
-+		.symlink        = rcfs_symlink,
-+		.mkdir          = sock_mkdir_noperm,
-+		.rmdir          = sock_rmdir_noperm,
-+		.mknod          = sock_mknod_noperm,
-+		.rename         = rcfs_rename,
-+};
-+
-+struct inode_operations sub_iops = {
-+	        .create         = sock_create_noperm,
-+		.lookup         = simple_lookup,
-+		.link           = simple_link,
-+		.unlink         = sock_unlink_noperm,
-+		.symlink        = rcfs_symlink,
-+		.mkdir          = sock_mkdir_noperm,
-+		.rmdir          = sock_rmdir_noperm,
-+		.mknod          = sock_mknod_noperm,
-+		.rename         = rcfs_rename,
-+};
-+
-+struct rcfs_magf def_magf = {
-+	.mode = RCFS_DEFAULT_DIR_MODE,
-+	.i_op = &sub_iops,
-+	.i_fop = NULL,
-+};
-+
-+struct rcfs_magf sock_rootdesc[] = {
-+	{
-+	//	.name = should not be set, copy from classtype name,
-+		.mode = RCFS_DEFAULT_DIR_MODE,
-+		.i_op = &my_iops,
-+		//.i_fop   = &simple_dir_operations,
-+		.i_fop = NULL,
-+	},
-+	{
-+		.name = "members",
-+		.mode = RCFS_DEFAULT_FILE_MODE,
-+		.i_op = &my_iops,
-+		.i_fop = &members_fileops,
-+	},
-+	{
-+		.name = "target",
-+		.mode = RCFS_DEFAULT_FILE_MODE,
-+		.i_op = &my_iops,
-+		.i_fop = &target_fileops,
-+	},
-+};
-+
-+struct rcfs_magf sock_magf[] = {
-+	{
-+		.name = "config",
-+		.mode = RCFS_DEFAULT_FILE_MODE,
-+		.i_op = &my_iops,
-+		.i_fop = &config_fileops,
-+	},
-+	{
-+		.name = "members",
-+		.mode = RCFS_DEFAULT_FILE_MODE,
-+		.i_op = &my_iops,
-+		.i_fop =&members_fileops,
-+	},
-+	{
-+		.name = "shares",
-+		.mode = RCFS_DEFAULT_FILE_MODE,
-+		.i_op = &my_iops,
-+		.i_fop = &shares_fileops,
-+	},
-+	{
-+		.name = "stats",
-+		.mode = RCFS_DEFAULT_FILE_MODE,
-+		.i_op = &my_iops,
-+		.i_fop = &stats_fileops,
-+	},
-+	{
-+		.name = "target",
-+		.mode = RCFS_DEFAULT_FILE_MODE,
-+		.i_op = &my_iops,
-+		.i_fop = &target_fileops,
-+	},
-+};
-+
-+struct rcfs_magf sub_magf[] = {
-+	{
-+		.name = "config",
-+		.mode = RCFS_DEFAULT_FILE_MODE,
-+		.i_op = &my_iops,
-+		.i_fop = &config_fileops,
-+	},
-+	{
-+		.name = "shares",
-+		.mode = RCFS_DEFAULT_FILE_MODE,
-+		.i_op = &my_iops,
-+		.i_fop = &shares_fileops,
-+	},
-+	{
-+		.name = "stats",
-+		.mode = RCFS_DEFAULT_FILE_MODE,
-+		.i_op = &my_iops,
-+		.i_fop = &stats_fileops,
-+	},
-+};
-+
-+struct rcfs_mfdesc sock_mfdesc = {
-+	.rootmf		= sock_rootdesc,
-+	.rootmflen 	= (sizeof(sock_rootdesc)/sizeof(struct rcfs_magf)),
-+};
-+
-+
-+#define SOCK_MAX_MAGF (sizeof(sock_magf)/sizeof(struct rcfs_magf))
-+#define LAQ_MAX_SUBMAGF (sizeof(sub_magf)/sizeof(struct rcfs_magf))
-+
-+int 
-+sock_rmdir(struct inode *p, struct dentry *me)
-+{
-+	struct dentry *mftmp, *mfdentry ;
-+
-+	// delete all magic sub directories
-+	list_for_each_entry_safe(mfdentry, mftmp, &me->d_subdirs, d_child) {
-+		if (S_ISDIR(mfdentry->d_inode->i_mode))
-+			rcfs_rmdir(me->d_inode, mfdentry);
-+	}
-+	// delete ourselves
-+	rcfs_rmdir(p,me);
-+
-+	return 0;
-+}
-+
-+#ifdef NUM_ACCEPT_QUEUES
-+#define LAQ_NUM_ACCEPT_QUEUES NUM_ACCEPT_QUEUES
-+#else
-+#define LAQ_NUM_ACCEPT_QUEUES 0
 +#endif
 +
 +int
-+sock_mkdir(struct inode *dir, struct dentry *dentry, int mode)
++numtasks_get_ref(void *arg, int force)
 +{
-+	int retval = 0;
-+	int i,j;
-+	struct dentry *pentry, *mfdentry;
++	int rc, resid = numtasks_rcbs.resid;
++	ckrm_numtasks_t *res;
++	ckrm_core_class_t *core = arg;
 +
-+	if (_rcfs_mknod(dir, dentry, mode | S_IFDIR, 0)) {
-+		printk(KERN_ERR "rcfs_mkdir: error reaching parent\n");
-+		return retval;
-+	}
-+	
-+	// Needed if only _rcfs_mknod is used instead of i_op->mkdir
-+	dir->i_nlink++;
++	if ((resid < 0) || (core == NULL))
++		return 1;
 +
-+	retval = rcfs_create_coredir(dir, dentry);
-+	if (retval) 
-+		goto mkdir_err;
++	res = ckrm_get_res_class(core, resid, ckrm_numtasks_t);
++	if (res == NULL) 
++		return 1;
 +
-+	/* create the default set of magic files */
-+	for (i =0; i < SOCK_MAX_MAGF; i++) {
-+		mfdentry = rcfs_create_internal(dentry, &sock_magf[i],0);
-+		mfdentry->d_fsdata = &RCFS_IS_MAGIC;
-+		RCFS_I(mfdentry->d_inode)->core = 
-+				RCFS_I(dentry->d_inode)->core;
-+		if (sock_magf[i].i_fop)
-+			mfdentry->d_inode->i_fop = sock_magf[i].i_fop;
-+		if (sock_magf[i].i_op)
-+			mfdentry->d_inode->i_op = sock_magf[i].i_op;
-+	}
-+	
-+	for (i=1; i < LAQ_NUM_ACCEPT_QUEUES; i++) {
-+		j = sprintf(def_magf.name, "%d",i);
-+		def_magf.name[j] = '\0';
++	atomic_inc(&res->cnt_cur_alloc);
 +
-+		pentry = rcfs_create_internal(dentry, &def_magf,0);
-+		retval = rcfs_create_coredir(dentry->d_inode, pentry);
-+		if (retval)
-+			goto mkdir_err;
-+		for (j=0; j < LAQ_MAX_SUBMAGF; j++) {
-+			mfdentry = rcfs_create_internal(pentry, &sub_magf[j],0);
-+			mfdentry->d_fsdata = &RCFS_IS_MAGIC;
-+			RCFS_I(mfdentry->d_inode)->core = 
-+					RCFS_I(pentry->d_inode)->core;
-+			if (sub_magf[j].i_fop)
-+				mfdentry->d_inode->i_fop = sub_magf[j].i_fop;
-+			if (sub_magf[j].i_op)
-+				mfdentry->d_inode->i_op = sub_magf[j].i_op;
++	rc = 1;
++	if (((res->parent) && (res->cnt_unused == CKRM_SHARE_DONTCARE)) ||
++			(atomic_read(&res->cnt_cur_alloc) > res->cnt_unused)) {
++
++		rc = 0;
++		if (!force && (res->cnt_limit != CKRM_SHARE_DONTCARE) && 
++				(atomic_read(&res->cnt_cur_alloc) > res->cnt_limit)) {
++			res->limit_failures++;
++			res->tot_limit_failures++;
++		} else if (res->parent != NULL) {
++			if ((rc = numtasks_get_ref(res->parent, force)) == 1) {
++				atomic_inc(&res->cnt_borrowed);
++				res->borrow_sucesses++;
++				res->tot_borrow_sucesses++;
++				res->over_guarantee = 1;
++			} else {
++				res->borrow_failures++;
++				res->tot_borrow_failures++;
++			}
++		} else {
++			rc = force;
 +		}
-+		pentry->d_inode->i_op = &sub_iops;
++	} else if (res->over_guarantee) {
++		res->over_guarantee = 0;
++
++		if (res->max_limit_failures < res->limit_failures) {
++			res->max_limit_failures = res->limit_failures;
++		}
++		if (res->max_borrow_sucesses < res->borrow_sucesses) {
++			res->max_borrow_sucesses = res->borrow_sucesses;
++		}
++		if (res->max_borrow_failures < res->borrow_failures) {
++			res->max_borrow_failures = res->borrow_failures;
++		}
++		res->limit_failures = 0;
++		res->borrow_sucesses = 0;
++		res->borrow_failures = 0;
 +	}
-+	dentry->d_inode->i_op = &class_iops;
-+	return 0;
 +
-+mkdir_err:
-+	// Needed
-+	dir->i_nlink--;
-+	return retval;
-+}
-+#ifndef NUM_ACCEPT_QUEUES
-+#define NUM_ACCEPT_QUEUES 0
-+#endif
-+
-+char *
-+sock_get_name(struct ckrm_core_class *c)
-+{
-+	char *p = (char *)c->name;
-+	
-+	while(*p)
-+		p++;
-+	while( *p != '/' && p != c->name)
-+		p--;
-+
-+	return ++p;
++	if (!rc) {
++		atomic_dec(&res->cnt_cur_alloc);
++	}
++	return rc;
 +}
 +
-+int 
-+sock_create_noperm(struct inode *dir,struct dentry *dentry,int mode, struct nameidata *nd)
-+{
-+	return -EPERM;
-+}
-+
-+int 
-+sock_unlink_noperm(struct inode *dir,struct dentry *dentry)
-+{
-+	return -EPERM;
-+}
-+
-+int 
-+sock_mkdir_noperm(struct inode *dir,struct dentry *dentry, int mode)
-+{
-+	return -EPERM;
-+}
-+
-+int 
-+sock_rmdir_noperm(struct inode *dir,struct dentry *dentry)
-+{
-+	return -EPERM;
-+}
-+
-+int 
-+sock_mknod_noperm(struct inode *dir,struct dentry *dentry,int mode, dev_t dev)
-+{
-+	return -EPERM;
-+}
-+
-+#if 0
 +void
-+sock_set_directory()
++numtasks_put_ref(void *arg)
 +{
-+	struct dentry *pentry, *dentry;
++	int resid = numtasks_rcbs.resid;
++	ckrm_numtasks_t *res;
++	ckrm_core_class_t *core = arg;
 +
-+	pentry = rcfs_set_magf_byname("listen_aq", (void *)&my_dir_magf[0]);
-+	if (pentry) {
-+		dentry = rcfs_create_internal(pentry, &my_dir_magf[1],0);
-+		if (my_dir_magf[1].i_fop)
-+			dentry->d_inode->i_fop = my_dir_magf[1].i_fop;
-+		RCFS_I(dentry->d_inode)->core = 
-+				RCFS_I(pentry->d_inode)->core;
-+		dentry = rcfs_create_internal(pentry, &my_dir_magf[2],0);
-+		if (my_dir_magf[2].i_fop)
-+			dentry->d_inode->i_fop = my_dir_magf[2].i_fop;
-+		RCFS_I(dentry->d_inode)->core = 
-+				RCFS_I(pentry->d_inode)->core;
++	if ((resid == -1) || (core == NULL)) {
++		return;
 +	}
-+	else  {
-+		printk(KERN_ERR "Could not create /rcfs/listen_aq\n"
-+				"Perhaps /rcfs needs to be mounted\n");
++
++	res = ckrm_get_res_class(core, resid, ckrm_numtasks_t);
++	if (res == NULL) 
++		return;
++	atomic_dec(&res->cnt_cur_alloc);
++	if (atomic_read(&res->cnt_borrowed) > 0) {
++		atomic_dec(&res->cnt_borrowed);
++		numtasks_put_ref(res->parent);
++	}
++	return;
++}
++
++static void *
++numtasks_res_alloc(struct ckrm_core_class *core, struct ckrm_core_class *parent)
++{
++	ckrm_numtasks_t *res;
++	
++	res = kmalloc(sizeof(ckrm_numtasks_t), GFP_ATOMIC);
++	
++	if (res) {
++		res->core = core;
++		res->parent = parent;
++		numtasks_res_initcls_one(res);
++		res->cnt_lock = SPIN_LOCK_UNLOCKED;
++		if (parent == NULL) {
++			// I am part of root class. so set the max tasks to available
++			// default
++			res->cnt_guarantee = TOTAL_NUM_TASKS;
++			res->cnt_unused =  TOTAL_NUM_TASKS;
++			res->cnt_limit = TOTAL_NUM_TASKS;
++		}
++	} else {
++		printk(KERN_ERR "numtasks_res_alloc: failed GFP_ATOMIC alloc\n");
++	}
++	return res;
++}
++
++/*
++ * No locking of this resource class object necessary as we are not
++ * supposed to be assigned (or used) when/after this function is called.
++ */
++static void
++numtasks_res_free(void *my_res)
++{
++	ckrm_numtasks_t *res = my_res, *parres, *childres;
++	ckrm_core_class_t *child = NULL;
++	int i, borrowed, maxlimit, resid = numtasks_rcbs.resid;
++
++	if (!res) 
++		return;
++
++	// Assuming there will be no children when this function is called
++	
++	parres = ckrm_get_res_class(res->parent, resid, ckrm_numtasks_t);
++
++	if (unlikely(atomic_read(&res->cnt_cur_alloc) != 0 ||
++				atomic_read(&res->cnt_borrowed))) {
++		printk(KERN_ERR "numtasks_res_free: resource still alloc'd %p\n", res);
++		if ((borrowed = atomic_read(&res->cnt_borrowed)) > 0) {
++			for (i = 0; i < borrowed; i++) {
++				numtasks_put_ref(parres->core);
++			}
++		}
++	}
++
++	// return child's limit/guarantee to parent node
++	spin_lock(&parres->cnt_lock);
++	child_guarantee_changed(&parres->shares, res->shares.my_guarantee, 0);
++
++	// run thru parent's children and get the new max_limit of the parent
++	ckrm_lock_hier(parres->core);
++	maxlimit = 0;
++	while ((child = ckrm_get_next_child(parres->core, child)) != NULL) {
++		childres = ckrm_get_res_class(child, resid, ckrm_numtasks_t);
++		if (maxlimit < childres->shares.my_limit) {
++			maxlimit = childres->shares.my_limit;
++		}
++	}
++	ckrm_unlock_hier(parres->core);
++	if (parres->shares.cur_max_limit < maxlimit) {
++		parres->shares.cur_max_limit = maxlimit;
++	}
++
++	spin_unlock(&parres->cnt_lock);
++	kfree(res);
++	return;
++}
++/*
++ * Recalculate the guarantee and limit in real units... and propagate the
++ * same to children.
++ * Caller is responsible for protecting res and for the integrity of parres
++ */
++static void
++recalc_and_propagate(ckrm_numtasks_t *res, ckrm_numtasks_t *parres)
++{
++	ckrm_core_class_t *child = NULL;
++	ckrm_numtasks_t *childres;
++	int resid = numtasks_rcbs.resid;
++
++	if (parres) {
++		struct ckrm_shares *par = &parres->shares;
++		struct ckrm_shares *self = &res->shares;
++
++		// calculate cnt_guarantee and cnt_limit
++		//
++		if (parres->cnt_guarantee == CKRM_SHARE_DONTCARE) {
++			res->cnt_guarantee = CKRM_SHARE_DONTCARE;
++		} else {
++			res->cnt_guarantee = (self->my_guarantee * parres->cnt_guarantee) 
++					/ par->total_guarantee;
++		}
++		if (parres->cnt_limit == CKRM_SHARE_DONTCARE) {
++			res->cnt_limit = CKRM_SHARE_DONTCARE;
++		} else {
++			res->cnt_limit = (self->my_limit * parres->cnt_limit)
++					/ par->max_limit;
++		}
++
++		// Calculate unused units
++		if (res->cnt_guarantee == CKRM_SHARE_DONTCARE) {
++			res->cnt_unused = CKRM_SHARE_DONTCARE;
++		} else {
++			res->cnt_unused = (self->unused_guarantee *
++					res->cnt_guarantee) / self->total_guarantee;
++		}
++	}
++
++	// propagate to children
++	ckrm_lock_hier(res->core);
++	while ((child = ckrm_get_next_child(res->core, child)) != NULL) {
++		childres = ckrm_get_res_class(child, resid, ckrm_numtasks_t);
++
++		spin_lock(&childres->cnt_lock);
++		recalc_and_propagate(childres, res);
++		spin_unlock(&childres->cnt_lock);
++	}
++	ckrm_unlock_hier(res->core);
++	return;
++}
++
++static int
++numtasks_set_share_values(void *my_res, struct ckrm_shares *new)
++{
++	ckrm_numtasks_t *parres, *res = my_res;
++	struct ckrm_shares *cur = &res->shares, *par;
++	int rc = -EINVAL, resid = numtasks_rcbs.resid;
++
++	if (!res) 
++		return rc;
++
++	if (res->parent) {
++		parres = ckrm_get_res_class(res->parent, resid, ckrm_numtasks_t);
++		spin_lock(&parres->cnt_lock);
++		spin_lock(&res->cnt_lock);
++		par = &parres->shares;
++	} else {
++		spin_lock(&res->cnt_lock);
++		par = NULL;
++		parres = NULL;
++	}
++
++	rc = set_shares(new, cur, par);
++
++	if ((rc == 0) && parres) {
++		// Calculate parent's unused units
++		if (parres->cnt_guarantee == CKRM_SHARE_DONTCARE) {
++			parres->cnt_unused = CKRM_SHARE_DONTCARE;
++		} else {
++			parres->cnt_unused = (par->unused_guarantee *
++					parres->cnt_guarantee) / par->total_guarantee;
++		}
++
++		recalc_and_propagate(res, parres);
++	}
++	spin_unlock(&res->cnt_lock);
++	if (res->parent) {
++		spin_unlock(&parres->cnt_lock);
++	}
++	return rc;
++}
++
++
++static int
++numtasks_get_share_values(void *my_res, struct ckrm_shares *shares)
++{
++	ckrm_numtasks_t *res = my_res;
++
++	if (!res) 
++		return -EINVAL;
++	*shares = res->shares;
++	return 0;
++}
++
++static int  
++numtasks_get_stats(void *my_res, struct seq_file *sfile)
++{
++	ckrm_numtasks_t *res = my_res;
++
++	if (!res) 
++		return -EINVAL;
++
++	seq_printf(sfile, "Number of tasks resource:\n");
++	seq_printf(sfile, "Total Over limit failures: %d\n",
++			res->tot_limit_failures);
++	seq_printf(sfile, "Total Over guarantee sucesses: %d\n",
++			res->tot_borrow_sucesses);
++	seq_printf(sfile, "Total Over guarantee failures: %d\n",
++			res->tot_borrow_failures);
++
++	seq_printf(sfile, "Maximum Over limit failures: %d\n",
++			res->max_limit_failures);
++	seq_printf(sfile, "Maximum Over guarantee sucesses: %d\n",
++			res->max_borrow_sucesses);
++	seq_printf(sfile, "Maximum Over guarantee failures: %d\n",
++			res->max_borrow_failures);
++#ifdef NUMTASKS_DEBUG
++	seq_printf(sfile, "cur_alloc %d; borrowed %d; cnt_guar %d; cnt_limit %d "
++			"unused_guarantee %d, cur_max_limit %d\n",
++			atomic_read(&res->cnt_cur_alloc),
++			atomic_read(&res->cnt_borrowed),
++			res->cnt_guarantee,
++			res->cnt_limit,
++			res->shares.unused_guarantee,
++			res->shares.cur_max_limit);
++#endif
++
++	return 0;
++}
++
++static int  
++numtasks_show_config(void *my_res, struct seq_file *sfile)
++{
++	ckrm_numtasks_t *res = my_res;
++
++	if (!res) 
++		return -EINVAL;
++
++	seq_printf(sfile, "res=%s,parameter=somevalue\n",NUMTASKS_NAME);
++	return 0;
++}
++
++static int  
++numtasks_set_config(void *my_res, const char *cfgstr)
++{
++	ckrm_numtasks_t *res = my_res;
++
++	if (!res) 
++		return -EINVAL;
++	printk("numtasks config='%s'\n",cfgstr);
++	return 0;
++}
++
++static void
++numtasks_change_resclass(void *task, void *old, void *new)
++{
++	ckrm_numtasks_t *oldres = old;
++	ckrm_numtasks_t *newres = new;
++
++	if (oldres != (void *) -1) {
++		struct task_struct *tsk = task;
++		if (!oldres) {
++			struct ckrm_core_class *old_core = &(tsk->parent->taskclass->core);
++			oldres = ckrm_get_res_class(old_core, numtasks_rcbs.resid,
++					ckrm_numtasks_t);
++		}
++		numtasks_put_ref(oldres->core);
++	}
++	if (newres) {
++		(void) numtasks_get_ref(newres->core, 1);
 +	}
 +}
-+#endif
++
++struct ckrm_res_ctlr numtasks_rcbs = {
++	.res_name          = NUMTASKS_NAME,
++	.res_hdepth        = 1,
++	.resid             = -1,
++	.res_alloc         = numtasks_res_alloc,
++	.res_free          = numtasks_res_free,
++	.set_share_values  = numtasks_set_share_values,
++	.get_share_values  = numtasks_get_share_values,
++	.get_stats         = numtasks_get_stats,
++	.show_config       = numtasks_show_config,
++	.set_config        = numtasks_set_config,
++	.change_resclass   = numtasks_change_resclass,
++};
++
++int __init
++init_ckrm_numtasks_res(void)
++{
++	struct ckrm_classtype *clstype;
++	int resid = numtasks_rcbs.resid;
++
++	clstype = ckrm_find_classtype_by_name("taskclass");
++	if (clstype == NULL) {
++		printk(KERN_INFO " Unknown ckrm classtype<taskclass>");
++		return -ENOENT;
++	}
++
++	if (resid == -1) {
++		resid = ckrm_register_res_ctlr(clstype,&numtasks_rcbs);
++		printk("........init_ckrm_numtasks_res -> %d\n",resid);
++	}
++	return 0;
++}	
++
++void __exit
++exit_ckrm_numtasks_res(void)
++{
++	ckrm_unregister_res_ctlr(&numtasks_rcbs);
++	numtasks_rcbs.resid = -1;
++}
++
++module_init(init_ckrm_numtasks_res)
++module_exit(exit_ckrm_numtasks_res)
++
++EXPORT_SYMBOL(numtasks_get_ref);
++EXPORT_SYMBOL(numtasks_put_ref);
++
++MODULE_LICENSE("GPL");
 +
 
---------------030104050409020801060509--
+--------------090909030202010004090107--

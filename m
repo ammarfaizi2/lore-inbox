@@ -1,54 +1,121 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273961AbRIXPrq>; Mon, 24 Sep 2001 11:47:46 -0400
+	id <S273963AbRIXPyQ>; Mon, 24 Sep 2001 11:54:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273963AbRIXPr0>; Mon, 24 Sep 2001 11:47:26 -0400
-Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:10757 "HELO
-	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with SMTP
-	id <S273961AbRIXPrV>; Mon, 24 Sep 2001 11:47:21 -0400
-Date: Mon, 24 Sep 2001 17:47:45 +0200
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-To: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
-Subject: Re: [PATCH] 2.4.10 improved reiserfs a lot, but could still be better
-Message-ID: <20010924174745.A8230@emma1.emma.line.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	reiserfs-list@namesys.com
-In-Reply-To: <20010924173210.A7630@emma1.emma.line.org> <E15lXup-0002uj-00@the-village.bc.nu>
+	id <S273964AbRIXPyJ>; Mon, 24 Sep 2001 11:54:09 -0400
+Received: from ns.suse.de ([213.95.15.193]:5636 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S273963AbRIXPxy>;
+	Mon, 24 Sep 2001 11:53:54 -0400
+Date: Mon, 24 Sep 2001 17:54:19 +0200
+From: Olaf Hering <olh@suse.de>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: __alloc_pages: 0-order allocation failed
+Message-ID: <20010924175419.A30742@suse.de>
+In-Reply-To: <20010924040208.A624@localhost.localdomain> <Pine.LNX.4.21.0109240810300.1593-100000@freak.distro.conectiva>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <E15lXup-0002uj-00@the-village.bc.nu>
-User-Agent: Mutt/1.3.22.1i
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.16i
+In-Reply-To: <Pine.LNX.4.21.0109240810300.1593-100000@freak.distro.conectiva>; from marcelo@conectiva.com.br on Mon, Sep 24, 2001 at 08:12:20AM -0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 24 Sep 2001, Alan Cox wrote:
+On Mon, Sep 24, Marcelo Tosatti wrote:
 
-> > > better. Decent write caching on IDE devices (like the 2meg buffer on the IBM) 
-> > > can completely hide this issue.
+> 
+> 
+> On Mon, 24 Sep 2001, Jacek [iso-8859-2] Pop³awski wrote:
+> 
+> > I just installed 2.4.10, and...
 > > 
-> > Decent write caching on IDE devices can eat your whole file system.
+> > __alloc_pages: 0-order allocation failed (gfp=0x1d2/0) from c0126c2e
+> > __alloc_pages: 0-order allocation failed (gfp=0x1d2/0) from c0126c2e
+> > __alloc_pages: 0-order allocation failed (gfp=0x1d2/0) from c0126c2e
+> > VM: killing process donkey_s
+> > __alloc_pages: 0-order allocation failed (gfp=0x1f0/0) from c0126c2e
+> > __alloc_pages: 0-order allocation failed (gfp=0x1d2/0) from c0126c2e
+> > VM: killing process screen
+> > __alloc_pages: 0-order allocation failed (gfp=0x1d2/0) from c0126c2e
+> > VM: killing process bash
+> > (...)
+> > 
+> > I am changing kernels often, but never seen that kind of message. Last kernel I
+> > had before 2.4.10 was 2.4.10-pre4.
+> > 
+> > PS. donkey_s is application which eats a lot of memory, but I have 384MB RAM
+> > and 100MB swap.
 > 
-> YM bad write caching 8)
-
-Well, drives do reorder their cache flushes, otherwise, they don't need
-the cache.
-
-> > Turn it off (I have no idea of internals, but I presume it'll still be a
-> > write-through cache, so reading back will still be served from the
-> > buffer). Do hdparm -W0 /dev/hd[a-h].
+> Jacek, 
 > 
-> You can't turn it off and on many drives you can't flush the cache either
-> the operation is not implemented.
+> You had available swap when the VM started to kill processes ? 
 
-Those drives should be blacklisted and rejected as soon as someone tries
-to mount those pieces rw. Either the drive can make guarantees when a
-write to permanent storage has COMPLETED (either by switching off the
-cache or by a flush operation) or it belongs ripped out of the boxes and
-stuffed down the throat of the idiot who built it.
+I see that too with 2.4.10aa1 on a 4way 2gig ppc power3 box without
+swap:
+
+mandarine:~ # w
+bash: fork: Cannot allocate memory
+mandarine:~ # w
+bash: /usr/bin/w: Cannot allocate memory
+mandarine:~ # w
+  5:50pm  up 13 min,  3 users,  load average: 6.27, 3.30, 1.67
+USER     TTY      FROM              LOGIN@   IDLE   JCPU   PCPU  WHAT
+root     ttyS0    -                 5:39pm  3.00s  3.19s  1.51s  w 
+olaf     pts/0    nectarine.suse.d  5:39pm  9:45  43.90s  0.06s  sh
+do_all 
+olh      pts/1    nectarine.suse.d  5:48pm  7.00s  0.79s  0.79s  -bash 
+mandarine:~ # free
+bash: fork: Cannot allocate memory
+mandarine:~ # dmesg | tail
+__alloc_pages: 0-order allocation failed (gfp=0x1f0/0)
+__alloc_pages: 0-order allocation failed (gfp=0x1f0/0)
+__alloc_pages: 0-order allocation failed (gfp=0x70/0)
+__alloc_pages: 0-order allocation failed (gfp=0x70/0)
+__alloc_pages: 0-order allocation failed (gfp=0x70/0)
+__alloc_pages: 0-order allocation failed (gfp=0x70/0)
+__alloc_pages: 0-order allocation failed (gfp=0x70/0)
+__alloc_pages: 0-order allocation failed (gfp=0x70/0)
+__alloc_pages: 0-order allocation failed (gfp=0x1f0/0)
+VM: killing process cc1
+mandarine:~ # free
+             total       used       free     shared    buffers
+cached
+Mem:       2057304    2052932       4372          0      53480
+1792468
+-/+ buffers/cache:     206984    1850320
+Swap:            0          0          0
+mandarine:~ # free
+bash: fork: Cannot allocate memory
+mandarine:~ # vmstat
+bash: fork: Cannot allocate memory
+mandarine:~ # vmstat
+bash: fork: Cannot allocate memory
+mandarine:~ # vmstat
+bash: fork: Cannot allocate memory
+mandarine:~ # vmstat
+bash: fork: Cannot allocate memory
+mandarine:~ # vmstat
+bash: fork: Cannot allocate memory
+mandarine:~ # vmstat
+   procs                      memory    swap          io     system
+cpu
+ r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us
+sy  id
+ 3  0  1      0   2744  53944 1794968   0   0   440   343   75   300  14
+28  58
+mandarine:~ # free
+Killed
+
+
+That did not happen with pre10aa1, at least the OOM kills.
+I happend with a bk pull, a build in the background. I seems that it
+doesnt release some memory...
+
+Gruss Olaf
 
 -- 
-Matthias Andree
+ $ man clone
 
-"Those who give up essential liberties for temporary safety deserve
-neither liberty nor safety." - Benjamin Franklin
+BUGS
+       Main feature not yet implemented...

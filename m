@@ -1,49 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270675AbTGNPmm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 11:42:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270676AbTGNPmm
+	id S270685AbTGNPpO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 11:45:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270686AbTGNPpO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 11:42:42 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:22555 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S270675AbTGNPml (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 11:42:41 -0400
-Date: Mon, 14 Jul 2003 11:57:29 -0400
-From: Jakub Jelinek <jakub@redhat.com>
-To: davidm@hpl.hp.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: sizeof (siginfo_t) problem
-Message-ID: <20030714115729.K15481@devserv.devel.redhat.com>
-Reply-To: Jakub Jelinek <jakub@redhat.com>
-References: <20030714084000.J15481@devserv.devel.redhat.com> <16146.53424.388683.213654@napali.hpl.hp.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <16146.53424.388683.213654@napali.hpl.hp.com>; from davidm@napali.hpl.hp.com on Mon, Jul 14, 2003 at 08:48:00AM -0700
+	Mon, 14 Jul 2003 11:45:14 -0400
+Received: from ns0.eris.qinetiq.com ([128.98.1.1]:57136 "HELO
+	ns0.eris.dera.gov.uk") by vger.kernel.org with SMTP id S270685AbTGNPpI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 11:45:08 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Mark Watts <m.watts@eris.qinetiq.com>
+Organization: QinetiQ
+To: linux-kernel@vger.kernel.org
+Subject: requirements for installing a 2.6.0-test kernel....
+Date: Mon, 14 Jul 2003 16:59:05 +0100
+User-Agent: KMail/1.4.3
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <200307141659.05451.m.watts@eris.qinetiq.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 14, 2003 at 08:48:00AM -0700, David Mosberger wrote:
->   Jakub> The kernel unfortunately does this right on sparc64 and alpha
->   Jakub> from 64-bit arches only; ia64, s390x, ppc64 etc. got it
->   Jakub> wrong.
-> 
-> The ia64 kernel defines in asm-ia64/siginfo.h:
-> 
-> #define SI_PAD_SIZE	((SI_MAX_SIZE/sizeof(int)) - 4)
-> 
-> typedef struct siginfo {
-> 	int si_signo;
-> 	int si_errno;
-> 	int si_code;
-> 	int __pad0;
-> 
-> What's wrong with that?
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Oops, sorry, you're right, dunno where I was looking.
-So, the bug seems to exist on s390x, amd64, maybe parisc64 if such thing
-exists.
 
-	Jakub
+Now that 2.6.0-test is out, can someone point me at the definative 
+instrictions for compiling and booting a 2.6.x kernel?
+
+I understand that the compile process has changed since 2.4.x, and I may also 
+need some updated module related things.
+
+This doesnt have to be a handholding guide, just a quick rundown/qhecklist 
+will do.
+
+Cheers,
+
+Mark.
+
+- -- 
+Mark Watts
+Senior Systems Engineer
+QinetiQ TIM
+St Andrews Road, Malvern
+GPG Public Key ID: 455420ED
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE/EtNJBn4EFUVUIO0RAlVAAKDHII8tPN8V+jLE3QdvSEuezZoGxQCgkrma
+s5q3zr9g6DUhlQWIvb7wAiI=
+=LXCi
+-----END PGP SIGNATURE-----
+

@@ -1,70 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265213AbUAYT5Q (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jan 2004 14:57:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265236AbUAYT5Q
+	id S265256AbUAYUGd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jan 2004 15:06:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265273AbUAYUGd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jan 2004 14:57:16 -0500
-Received: from opersys.com ([64.40.108.71]:1296 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S265213AbUAYT5L (ORCPT
+	Sun, 25 Jan 2004 15:06:33 -0500
+Received: from mail.broadpark.no ([217.13.4.2]:9961 "EHLO mail.broadpark.no")
+	by vger.kernel.org with ESMTP id S265256AbUAYUGc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jan 2004 14:57:11 -0500
-Message-ID: <4014209E.2040908@opersys.com>
-Date: Sun, 25 Jan 2004 15:01:34 -0500
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+	Sun, 25 Jan 2004 15:06:32 -0500
+Message-ID: <001b01c3e37e$b9d3b630$1e00000a@black>
+From: "Daniel Andersen" <kernel-list@majorstua.net>
+To: "Mike Keehan" <mike_keehan@yahoo.com>
+Cc: <linux-kernel@vger.kernel.org>
+References: <20040125194329.59773.qmail@web12304.mail.yahoo.com>
+Subject: Re: 2.6.2-rc1-bk3 patch fails
+Date: Sun, 25 Jan 2004 21:06:31 +0100
 MIME-Version: 1.0
-To: Dan Aloni <da-x@gmx.net>
-CC: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] Cooperative Linux
-References: <20040125193518.GA32013@callisto.yi.org>
-In-Reply-To: <20040125193518.GA32013@callisto.yi.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Dan Aloni wrote:
-> The bottom line is that it allows us to run Linux on an unmodified
-> Windows 2000/XP system in a practical way (the user just launches 
-> an app), and it may eventually bring Linux to a large sector of desktop 
-> computer users who wouldn't even care about trying to install a 
-> dual boot system or boot a Linux live CD (like Knoppix).
+> Applying the above patch to 2.6.1 gets failure in:-
 > 
-> Screen-shots and further details at:
+> . Makefile
+> . arch/i386/kernel/cpu/mcheck/non-fatal.c
+> . drivers/cdrom/cdrom.c
+> . drivers/input/joydev.c
+> . drivers/input/keyboard/atkbd.c
+> . drivers/md/Kconfig
+> . drivers/md/raid6.h  (doesn't exist)
 > 
->     http://www.colinux.org
+> I control C'd out of the rest.  The BK snapshots on 
+> kernel.org aren't meant to be applied cumulatively, 
+> are they?
 
-Cool!
+You must apply the 2.6.2-rc1 patch first. Then you can patch with -bk3.
 
-> Our motto is:
-> 
->     "If Linux runs on every architecture, why should another 
->      operating system be in its way?"
-
-Indeed.
-
-> coLinux is similar to plex86 in a way that it implements a Linux-specific 
-> lightweight VM with I/O virtualization. However, it is designed to be 
-> mostly host-OS independent, so that with minimal porting efforts it 
-> would be possible to run it under Solaris, Linux itself, or any operating 
-> system that supports loading kernel drivers, under any architecture that 
-> uses an MMU. Unlike other virtualization methods, it doesn't base its 
-> implementation on exceptions that are caused by instructions. 
-
-Right, that's the way to go with an OS for which the source is available.
-Have you looked at the work that's been going on with the Adeos nanokernel:
-http://www.opersys.com/adeos/index.html
-Some of the infrastructure required by all these virtualization solutions
-is fairly similar.
-
-Karim
--- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546
-
+Daniel Andersen

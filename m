@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263228AbTK3Vh3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Nov 2003 16:37:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263262AbTK3Vh3
+	id S264347AbTK3Vke (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Nov 2003 16:40:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263262AbTK3Vke
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Nov 2003 16:37:29 -0500
-Received: from delerium.codemonkey.org.uk ([81.187.208.145]:22705 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S263228AbTK3Vh1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Nov 2003 16:37:27 -0500
-Date: Sun, 30 Nov 2003 21:30:52 +0000
-From: Dave Jones <davej@redhat.com>
-To: Brad House <brad_mssw@gentoo.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.0-test11] agpgart [amd64] fix (off by one)
-Message-ID: <20031130213052.GA10414@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Brad House <brad_mssw@gentoo.org>, linux-kernel@vger.kernel.org
-References: <35356.68.105.173.45.1070219694.squirrel@mail.mainstreetsoftworks.com>
+	Sun, 30 Nov 2003 16:40:34 -0500
+Received: from hell.sks3.muni.cz ([147.251.210.31]:6071 "EHLO
+	hell.sks3.muni.cz") by vger.kernel.org with ESMTP id S264347AbTK3Vkb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Nov 2003 16:40:31 -0500
+Date: Sun, 30 Nov 2003 22:40:25 +0100
+From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.0-test11, 2.6.0-test9 and gdb 6.0
+Message-ID: <20031130214025.GO2935@mail.muni.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-2
 Content-Disposition: inline
-In-Reply-To: <35356.68.105.173.45.1070219694.squirrel@mail.mainstreetsoftworks.com>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 8bit
+X-Muni: zakazka, vydelek, firma, komerce, vyplata
+X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, Mossad, Iraq, Pentagon, WTC, president, assassination, A-bomb, kua, vic joudu uz neznam
+X-policie-CR: Neserte mi nebo ukradnu, vyloupim, vybouchnu, znasilnim, zabiju, podpalim, umucim, podriznu, zapichnu a vubec vsechno
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 30, 2003 at 02:14:54PM -0500, Brad House wrote:
- > AGPGart would report "Too many northbridges" without this
- > patch. The problem was that 'i' was incremented before being
- > checked against the MAX GARTS, just making the check > instead
- > of == fixes the problems.  Patch here:
+Hello,
 
-Already fixed slightly differently in agpgart bitkeeper tree.
-I've been trying to get Linus to take this and a few other
-similar bits for a while, but they just haven't been 
-important enough I guess, so its probably post 2.6.0 material.
+is there any issue about using gdb with pthreads under 2.6.0-test9+ kernels?
 
-		Dave
+With 2.6.0-test11 I got message while du next over a function that creates some
+threads:
 
+Program received signal SIG32, Real-time event 32.
+__pthread_sigsuspend (set=0xbffff6d0)
+   at ../linuxthreads/sysdeps/unix/sysv/linux/pt-sigsuspend.c:5656	
+   ../linuxthreads/sysdeps/unix/sysv/linux/pt-sigsuspend.c: No such file or directory.
+   in ../linuxthreads/sysdeps/unix/sysv/linux/pt-sigsuspend.c
+(gdb)
+
+With 2.6.0-test9 I got a message about gdb cannot read thread registers.
+
+With 2.4.x series it is ok. Is it a bug in ptrace in kernel or a bug in gdb?
+
+-- 
+Luká¹ Hejtmánek

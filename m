@@ -1,76 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263905AbTE3RZn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 May 2003 13:25:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263909AbTE3RZn
+	id S263824AbTE3R0y (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 May 2003 13:26:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263845AbTE3R0y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 May 2003 13:25:43 -0400
-Received: from webhaste.com ([64.62.134.242]:61201 "HELO vortex.webhaste.com")
-	by vger.kernel.org with SMTP id S263905AbTE3RZk (ORCPT
+	Fri, 30 May 2003 13:26:54 -0400
+Received: from mailout09.sul.t-online.com ([194.25.134.84]:54241 "EHLO
+	mailout09.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S263824AbTE3R0v convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 May 2003 13:25:40 -0400
-Message-ID: <33268.65.122.196.250.1054315605.squirrel@mail.webhaste.com>
-Date: Fri, 30 May 2003 10:26:45 -0700 (PDT)
-Subject: usb problems with wireless device..
-From: <esp@pyroshells.com>
-To: <linux-kernel@vger.kernel.org>
-X-Priority: 3
-Importance: Normal
-X-Mailer: SquirrelMail (version 1.2.9)
+	Fri, 30 May 2003 13:26:51 -0400
+Date: Fri, 30 May 2003 19:10:09 +0200 (CEST)
+From: eduard.epi@t-online.de (Peter Bornemann)
+To: linux-kernel@vger.kernel.org
+Subject: Login funny in 2.5.70
+Message-ID: <Pine.LNX.4.44.0305301841360.1387-100000@eduard.epiphanien>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
+X-Seen: false
+X-ID: r2Muu0Z6oeME6-PY1vfLXX5gvLLoeI9Mltc6W2fFD+IAvFYWlU0cot@t-dialin.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-argh.. lets try this again..
+Hi
 
-I've got a wusb v2.1 wireless connection device, which I'm trying to use
-with linux 2.4.20-4GB (standard suse linux 8.2), and have been getting the
-following errors inside of dmesg:
+When logging as normal user to my system, I get all the usual messages
+and then when /etc/profile tries to read /proc/$$/exe to determine the
+running shell I get (most of the time):
 
-----
-hub.c: new USB device 00:02.0-2, assigned address 3
-usbdfu.c: USB Device Fimware Uploader (DFU) v0.8
-usb.c: registered new driver usbdfu
-at76c503.c: Atmel at76c503 Wireless LAN Driver v0.8
-usbdfu.c: get_op_mode() failed: -32
-usbdfu.c: downloading firmware
-usbdfu.c: remap
-usb.c: registered new driver at76c503
-at76c503.c: driver registered
-usbdevfs: USBDEVFS_CONTROL failed dev 3 rqt 128 rq 6 len 18 ret -110
-<repeats about 1000 times>
-usbdevfs: USBDEVFS_CONTROL failed dev 3 rqt 128 rq 6 len 18 ret -110
-usbdfu.c: resetting device
-usbdfu.c: scanning unclaimed devices
-usbdfu.c: op_mode = 4
-usbdfu.c: firmware already loaded
-at76c503.c: downloading external firmware
-at76c503.c: firmware version 0.100.2 #16
-at76c503.c: using MAC 00:06:25:0d:55:bd
-at76c503.c: using net device eth0
-at76c503.c: using BSSID 02:00:ce:1c:07:00
-eth0: no IPv6 routers present
----
+/bin/ls: cannot read symbolic link /proc/###/exe: Permission denied
 
-It looks like eth0 exists with the right MAC address, but when I
-try running dhcpcd on eth0 it basically hangs the dhcpcd call, and when I
-try to plug in the linksys unit into the usb slot with KDE
-running, KDE hangs..
+When I start "bash -l", everything works as expected, but no idea why
+it does work this time and not when starting from the login: prompt.
+Permissions of the link /proc/$$/exe are always 777, so I cannot see
+any problem.
 
-This is very annoying. I'm not sure what's causing the get_op_mode call to
-fail, nor what's causing the usbdevfs call to fail.
+All this does not appear all the time and never to root. It seems to be a
+matter of timing or something like that, but I do not have any idea as to
+what is happening in kernel. 2.5.69 is working, 2.5.70 is funny. When
+the first read did fail, it will fail always afterwards and vice versa.
 
-Any help would be appreciated - let me know what diagnostic info people
-would need in order to file a fixable bug report, too..
+This is on Debian testing, bash version is 2.05b.0, gcc is 3.3
+(Debian), arch is i386/Athlon 700.
 
-Thanks,
+Every help will be greatly appreciated.
 
-Ed
+Peter B
 
-Thanks much,
 
-Ed
-
+          .         .
+          |\_-^^^-_/|
+          / (|)_(|) \
+         ( === X === )
+          \  ._|_.  /
+           ^-_   _-^
+              °°°
 

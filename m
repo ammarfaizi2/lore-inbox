@@ -1,107 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262826AbRE3WAT>; Wed, 30 May 2001 18:00:19 -0400
+	id <S262835AbRE3WBK>; Wed, 30 May 2001 18:01:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262832AbRE3WAM>; Wed, 30 May 2001 18:00:12 -0400
-Received: from cx595243-c.okc1.ok.home.com ([24.6.27.53]:8325 "EHLO
-	quark.localdomain") by vger.kernel.org with ESMTP
-	id <S262826AbRE3V7w>; Wed, 30 May 2001 17:59:52 -0400
-From: Vincent Stemen <linuxkernel@AdvancedResearch.org>
-MIME-Version: 1.0
+	id <S262834AbRE3WBA>; Wed, 30 May 2001 18:01:00 -0400
+Received: from coruscant.franken.de ([193.174.159.226]:39441 "EHLO
+	coruscant.gnumonks.org") by vger.kernel.org with ESMTP
+	id <S262832AbRE3WAv>; Wed, 30 May 2001 18:00:51 -0400
+Date: Wed, 30 May 2001 18:55:42 -0300
+From: Harald Welte <laforge@gnumonks.org>
+To: "Eric S. Raymond" <esr@thyrsus.com>, CML2 <linux-kernel@vger.kernel.org>,
+        kbuild-devel@lists.sourceforge.net
+Subject: Re: Remaining undocumented Configure.help symbols
+Message-ID: <20010530185542.R14293@corellia.laforge.distro.conectiva>
+In-Reply-To: <20010529145940.A11498@thyrsus.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15125.27981.363139.686900@quark.localdomain>
-Date: Wed, 30 May 2001 16:59:41 -0500 (CDT)
-To: Ronald Bultje <rbultje@ronald.bitfreak.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Plain 2.4.5 VM... (and 2.4.5-ac3)
-In-Reply-To: <991254700.786.0.camel@tux.bitfreak.net>
-In-Reply-To: <Pine.LNX.4.33.0105300719130.567-100000@mikeg.weiden.de>
-	<01053014585700.01976@quark>
-	<991254700.786.0.camel@tux.bitfreak.net>
-X-Mailer: VM 6.72 under 21.1 (patch 9) "Canyonlands" XEmacs Lucid
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <20010529145940.A11498@thyrsus.com>; from esr@thyrsus.com on Tue, May 29, 2001 at 02:59:40PM -0400
+X-Operating-System: Linux corellia.laforge.distro.conectiva 2.4.3
+X-Date: Today is Pungenday, the 2nd day of Confusion in the YOLD 3167
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ronald Bultje writes:
- > On 30 May 2001 14:58:57 -0500, Vincent Stemen wrote:
- > > There was a new 8139too driver added to the the 2.4.5 (I think) kernel
- > > which Alan Cox took back out and reverted to the old one in his
- > > 2.4.5-ac? versions because it is apparently causing lockups.
- > > Shouldn't this new driver have been released in a 2.5.x development
- > > kernel and proven there before replacing the one in the production
- > > kernel?  I haven't even seen a 2.5.x kernel released yet.
- > 
- > If every driver has to go thorugh the complete development cycle (of 2+
- > years), I'm sure very little driver writers will be as motivated as they
- > are now - it takes ages before they see their efforts "rewarded" with a
- > place in the kernel.
- > The ideal case is that odd-numbered kernels are "for testing" and
- > even-numbered kernels are stable. However, this is only theory. In
- > practice, you can't rule out all bugs. And you can't test all things for
- > all cases and every test case, the linux community doesn't have the
- > manpower for that. And to prevent a complete driver development cycle
- > taking 2+ years, you have to compromise.
- > 
- > If you would take 2+ years for a single driver development cycle, nobody
- > would be interested in linux since the new devices would only be
- > supported by a stable kernel two years after their release. See the
- > point? To prevent that, you need to compromise. and thus, sometimes, you
- > have some crashes.
+On Tue, May 29, 2001 at 02:59:40PM -0400, Eric S. Raymond wrote:
 
-I agree with everything you say up till this point, but you are
-arguing against a point I never made.  First of all, bugs like the
-8139too lockup was found within the first day or two of release in the
-2.4.3 kernel.  Also, most show stopper bugs such as the VM problems
-are found fairly quickly.  Even if it takes a long time to figure out
-how to fix them, I do not think they should be pushed on through into
-production kernels until they are until they are fixed.  I already
-said that I do not expect minor bugs not to slip through.  However, if
-they are minor, they can usually be fixed quickly once they are
-discovered and it is no big deal if they make it into a production
-kernel.
+> CONFIG_NET_CLS_TCINDEX
 
- > That's why there's still 2.2.x - that's purely stable
- > and won't crash as fast as 2.4.x, but misses the "newest
- > cutting-edge-technology device support" and "newest technology" (like
- > new SMP handling , ReiserFS, etc... But it *is* stable.
- > 
+  If you say Y here, you will be able to classify outgoing packets 
+  according to the tc_index field of the skb. You will want this 
+  feature if you want to implement Differentiates Services useing
+  sch_dsmark. If unsure, say Y.
 
-The reason I suggested more frequent major production releases is so
-that you don't have to go back to a 2 or 3 year old kernel and loose
-out on years worth of new features to have any stability.  One show
-stopper bug like the VM problems would not be as much of a problem if
-there was a stable production kernel that we could run that was only 4
-or 6 months old.
+  This code is also available as a module called cls_tcindex.o ( = code
+  which can be inserted in and removed from the running kernel
+  whenever you want). If you want to compile it as a module, say MM
+  here and read Documentation/modules.txt
 
- > > Based on Linus's original very good plan for even/odd numbers, there
- > > should not have been 2.4.0-test? kernels either.  This was another
- > > example of the rush to increment to 2.4 long before it was ready.
- > > There was a long stretch of test kernels and and now we are all the
- > > way to 2.4.5 and it is still not stable.  We are repeating the 2.2.x
- > > process all over again.
- > 
- > Wrong again.
- > 2.3.x is for development, adding new things, testing, adding, testing,
- > changing, testing, etc.
+> CONFIG_NET_SCH_INGRESS
 
-Which is the same point I made.
+  If you say Y here, you will be able to police incoming bandwidth
+  and drop packets when this bandwidth exceeds your desired rate.
+  If unsure, say Y.
 
- > 2.4-test is for testing only, it's some sort of feature freeze.
+  This code is also available as a module called cls_tcindex.o ( = code
+  which can be inserted in and removed from the running kernel
+  whenever you want). If you want to compile it as a module, say MM
+  here and read Documentation/modules.txt
 
-Agreed.  My only point here was that it suggests that there are only
-minor bugs left to be solved before the production release by setting
-the version to 2.4-test.  That is one of the reasons I made the
-suggestion to keep it in the 2.3 range, since there were actually
-serious VM problems still upon the production 2.4 release.
+> As before, if you know enough about any of these configuration options to
+> write a help entry, please send it to me.
 
- > 2.4.x is for final/stable 2.4.
- > It's a standard *nix development cycle. That's how everyone does it.
-
-My point exactly.
-
- > 
- > Regards,
- > 
- > Ronald Bultje
-
+-- 
+Live long and prosper
+- Harald Welte / laforge@gnumonks.org               http://www.gnumonks.org/
+============================================================================
+GCS/E/IT d- s-: a-- C+++ UL++++$ P+++ L++++$ E--- W- N++ o? K- w--- O- M- 
+V-- PS+ PE-- Y+ PGP++ t++ 5-- !X !R tv-- b+++ DI? !D G+ e* h+ r% y+(*)

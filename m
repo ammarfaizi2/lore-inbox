@@ -1,83 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290240AbSAOSiH>; Tue, 15 Jan 2002 13:38:07 -0500
+	id <S290235AbSAOSiS>; Tue, 15 Jan 2002 13:38:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290241AbSAOSh6>; Tue, 15 Jan 2002 13:37:58 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:59818 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S290235AbSAOShp>;
-	Tue, 15 Jan 2002 13:37:45 -0500
-Date: Tue, 15 Jan 2002 21:35:10 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: [patch] O(1) scheduler, -I1
-In-Reply-To: <Pine.LNX.4.40.0201150915590.1460-100000@blue1.dev.mcafeelabs.com>
-Message-ID: <Pine.LNX.4.33.0201152022590.14517-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S290241AbSAOSiI>; Tue, 15 Jan 2002 13:38:08 -0500
+Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:14863 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S290235AbSAOSh7>;
+	Tue, 15 Jan 2002 13:37:59 -0500
+Date: Tue, 15 Jan 2002 10:34:32 -0800
+From: Greg KH <greg@kroah.com>
+To: Giacomo Catenazzi <cate@debian.org>
+Cc: Russell King <rmk@arm.linux.org.uk>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        "Eric S. Raymond" <esr@thyrsus.com>
+Subject: Re: Autoconfiguration: Original design scenario
+Message-ID: <20020115183432.GC27059@kroah.com>
+In-Reply-To: <3C4401CD.3040408@debian.org> <20020115105733.B994@flint.arm.linux.org.uk> <3C442395.8010500@debian.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3C442395.8010500@debian.org>
+User-Agent: Mutt/1.3.25i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Tue, 18 Dec 2001 14:45:22 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Jan 15, 2002 at 01:41:57PM +0100, Giacomo Catenazzi wrote:
+> 
+> Russell King wrote:
+> 
+> 
+> >I really don't see why hisax couldn't say "oh, you have an ISDN card with
+> >IDs xxxx:xxxx, that's hisax type nn" and be done with it, rather than
+> >needing to be told "pci id xxxx:xxxx type nn".  Have a look at
+> >drivers/isdn/hisax/config.c and wonder how the hell you take some random
+> >vendors PCI ISDN card and work out how to drive it under Linux.
+> >
+> >(For the record, the card was:
+> >   1397:2bd0       - Cologne Chip Designs GmbH - HFC-PCI 2BD0 ISDN
+> > and the driver requirements were:  hisax type 35 proto 2)
+> >
+> >Realistically, I don't think any autoconfigurator will solve such cases
+> >until these areas can be fixed up reasonably.
+> 
+> 
+> Autoconfigure cannnot solve this.
+> The card is not in my database.
+> To help user, you should tell the driver maintainer to add our card
+> in the know pci devices. In this manner autoconfigure, hotplug and
+> modutils can take easy use your card.
 
-On Tue, 15 Jan 2002, Davide Libenzi wrote:
+The hisax driver already has a MODULE_DEVICE_TABLE entry for it's pci
+devices, and this data shows up in the modules.pcimap table in the
+modules directory.
 
-> >  - RT scheduling is broken.
->
-> Why ?
+Russell, when /sbin/hotplug is part of the initramfs in 2.5, the driver
+will automatically be loaded for your new card, IF you have all the
+different modules already built.  You will not need autoconfigure, just
+a good vendor kernel :)
 
-RR tasks were queued to the expired array.
+Giacomo, please, please, please, just use the info in the
+MODULE_DEVICE_TABLE entries for your autoconfigure program.  Don't try
+to keep all of this data up to date by hand, just use the info that is
+already in the kernel.  It is a battle you will always loose.  Automate
+this process (David Brownell has made a proposal that will work for
+you), and you will never have to generate those PCI and USB tables by
+hand again.
 
-> [...] Ingo, IMHO is not correct to give time slices depending on
-> priority and we should return to the old TS(nice) behavior.
+One other autoconfigure problem that I don't think anyone has mentioned,
+USB devices that only show up when they want to transfer data to/from
+the host.  Like all of the Palm based devices.  They don't stay
+connected long enough for a "probe all the busses" tool like
+you are currently developing to detect.
 
-i agree - but your new patch is broken still, you have the timeslice range
-inverted(!) :-)
+thanks,
 
-but never mind, i've fixed this and added the code to -I1, check it out
-at:
-
-    http://redhat.com/~mingo/O(1)-scheduler/sched-O1-2.5.2-final-I1.patch
-
-(for the record, i've tested -I1 on SMP and UP as well.)
-
--I1 also includes a fix from Dave Jones: mmu_context.h was still included
-in arch/i386/kernel/process.c.
-
-> [...] IMVHO is not correct to have new tasks to fully inherit parent
-> priority because :
-
-i fully agree - in -I0 i have kept the 'child gets 10% less priority than
-parent' rule. This works really well in fork-bomb situations, i've tested
-this with -I0. (and -I1 as well.) It also works well with interactive
-shells, which want to start processes which will inherit *some* of their
-parent's priority, but not all of it.
-
-> 2) if an interactive task is born we do not need an immediate priority
-> boost
-
-Think about starting a simple 'ls' under X if under some high load. This
-works just fine under 2.5.2-vanilla and 2.5.2-I0 as well. We should give
-the task a chance to finish within ... 500 or 1000 msecs (or so), most
-shell commands that fork do so.
-
-> 3) if a cpu bound task born from an interactive task ( very very common )
-> 	it'll make a long run on the cpu before falling in the hell of cpu
-> 	bound tasks
->
-> I've also decreased the minimum time slice to 10ms and increased the
-> max to 160ms and this should cast back niced tasks to low cpu usages.
-
-(i've done this already in -I0, based on earlier comments of yours.)
-
-> I'm using it in my desk and just to have fun i keep running make -j20
-> in background:-)
-
-please re-test this with -I1. (i've tested it and it works just fine, but
-more testing cannot hurt.)
-
-are there any other items in your patch that are not yet in -I1?
-
-	Ingo
-
+greg k-h

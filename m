@@ -1,55 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269761AbRHIKug>; Thu, 9 Aug 2001 06:50:36 -0400
+	id <S269756AbRHIKt0>; Thu, 9 Aug 2001 06:49:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269760AbRHIKu0>; Thu, 9 Aug 2001 06:50:26 -0400
-Received: from asterix.hrz.tu-chemnitz.de ([134.109.132.84]:50624 "EHLO
-	asterix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S269757AbRHIKuX>; Thu, 9 Aug 2001 06:50:23 -0400
-Date: Thu, 9 Aug 2001 12:50:33 +0200
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+	id <S269757AbRHIKtQ>; Thu, 9 Aug 2001 06:49:16 -0400
+Received: from vti01.vertis.nl ([145.66.4.26]:2067 "EHLO vti01.vertis.nl")
+	by vger.kernel.org with ESMTP id <S269756AbRHIKs5>;
+	Thu, 9 Aug 2001 06:48:57 -0400
+Date: Thu, 9 Aug 2001 12:48:30 +0200
+Message-Id: <200108091048.MAA04335@linux06.vertis.nl>
+From: Rolf Fokkens <FokkensR@vertis.nl>
 To: linux-kernel@vger.kernel.org
-Cc: linux-mm@kvack.org
-Subject: Re: Swapping for diskless nodes
-Message-ID: <20010809125033.E1200@nightmaster.csn.tu-chemnitz.de>
-In-Reply-To: <no.id> <E15Ulnx-0006zZ-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <E15Ulnx-0006zZ-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Thu, Aug 09, 2001 at 10:08:37AM +0100
+Subject: [BUG] Total freeze of 2.4 kernel
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 09, 2001 at 10:08:37AM +0100, Alan Cox wrote:
-> > what is the best/recommended way to do remote swapping via the network
-> > for diskless workstations or compute nodes in clusters in Linux 2.4?=20
-> > Last time i checked was linux 2.2, and there were some races related=20
-> > to network swapping back then. Has this been fixed for 2.4?
-> 
-> The best answer probably is "don't". Networks are high latency things for
-> paging and paging is latency sensitive. If performance is not an issue then
-> the nbd driver ought to work. You may need to check it uses the right
-> GFP_ levels to avoid deadlocks and you might need to up the amount of atomic
-> pool memory. Hopefully other hacks arent needed
+This is not a detailed bug report, but it may nevertheless be interesting
+for others that have the same problem. I have the impression that my first
+report got lost somewhere, so this is the second attempt to post it.
 
-While we are on it: I have an old machine with 64MB of RAM and a
-new, fast machine with 1GB of RAM. 
+We installed a 2.4.7 kernel on a Compaq Proliant server and it makes the
+machine freeze totally at various moments. We've been running 2.4 on several
+other non-server machines for a while without any problem at all, so we
+tried to figure out what may be causing the problem. Here is a list of what
+we know so far:
 
-Sometimes I need more RAM on the old one and asked myself,
-whether I could first swap over network to the other one, into
-its tmpfs, before digging into real swap on a hard disk.
+INITIAL SYMPTOMS
 
-I have only three machines attached to this small internal
-100Mbit LAN.
+At totally unpredictable moments the sever hangs. Nothing on the display, no
+keyboard led response, no disk activity, no ping response on the net.
 
-Both machines use Kernel 2.4.x.
+2.2.19 KERNEL
 
-Are there any races I have to consider?
+The machine ran a 2.2.19 kernel prior to the 2.4.7 kernel without any
+problems at all. Only kernel upgrades forced us to do reboots.
 
-Thanks & Regards
+CPQHEALTH
 
-Ingo Oeser
--- 
-In der Wunschphantasie vieler Mann-Typen [ist die Frau] unsigned und
-operatorvertraeglich. --- Dietz Proepper in dasr
+There were Compaq cpqhealth modules in the kernel. Those are binary modules
+from Compaq that help to gather health information about the machine. The
+modules didn't load in a 2.4.7 kernel (cpqhealth 2.1 even created kernel
+stack dumps when loaded in a 2.4.7 kernel on another machine) so we removed
+the cpqhealth software. It didn't help.
+
+CPQARRAY
+
+This is the first machine with a Compaq SMART 3200 raid controller we tried
+with 2.4.7. I don't believe this is causing the problem, but it's worth
+mentioning I think.
+
+MONITOR/MOUSE/KEYBOARD SWITCH
+
+This also is the first machine with an electronic MONITOR/MOUSE/KEYBOARD
+SWITCH. Last weekend the machine ran w/o any problems at all, but today
+(monday) it had a hangup. We can be sure that nobody touched the switch
+during the weekend and today at was used most certainly, so there may be a
+relation between the switch and the hanging.
+
+Of course we'll go on investigating this, but because the machine has a
+semi-production status we have to do this with care. However suggestions are
+wellcome.
+
+Rolf

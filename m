@@ -1,49 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262253AbTJ3IRm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Oct 2003 03:17:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262280AbTJ3IRm
+	id S262291AbTJ3I2r (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Oct 2003 03:28:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262297AbTJ3I2r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Oct 2003 03:17:42 -0500
-Received: from home.wiggy.net ([213.84.101.140]:30364 "EHLO mx1.wiggy.net")
-	by vger.kernel.org with ESMTP id S262253AbTJ3IRl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Oct 2003 03:17:41 -0500
-Date: Thu, 30 Oct 2003 09:17:39 +0100
-From: Wichert Akkerman <wichert@wiggy.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Things that Longhorn seems to be doing right
-Message-ID: <20031030081739.GB1399@wiggy.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <3F9F7F66.9060008@namesys.com> <20031029224230.GA32463@codepoet.org> <20031030015212.GD8689@thunk.org> <3FA0C631.6030905@namesys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3FA0C631.6030905@namesys.com>
-User-Agent: Mutt/1.5.4i
+	Thu, 30 Oct 2003 03:28:47 -0500
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:7040 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S262291AbTJ3I2p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Oct 2003 03:28:45 -0500
+Date: Thu, 30 Oct 2003 08:30:37 GMT
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200310300830.h9U8UbR7000423@81-2-122-30.bradfords.org.uk>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Hans Reiser <reiser@namesys.com>,
+       "Mudama, Eric" <eric_mudama@Maxtor.com>,
+       "'Norman Diamond'" <ndiamond@wta.att.ne.jp>,
+       "'Wes Janzen '" <superchkn@sbcglobal.net>,
+       "'Rogier Wolff '" <R.E.Wolff@BitWizard.nl>,
+       linux-kernel@vger.kernel.org, nikita@namesys.com,
+       "'Pavel Machek '" <pavel@ucw.cz>,
+       "'Justin Cormack '" <justin@street-vision.com>,
+       "'Vitaly Fertman '" <vitaly@namesys.com>,
+       "'Krzysztof Halasa '" <khc@pm.waw.pl>
+In-Reply-To: <20031029200141.GA1941@elf.ucw.cz>
+References: <785F348679A4D5119A0C009027DE33C105CDB3B0@mcoexc04.mlm.maxtor.com>
+ <3F9D6891.5040300@namesys.com>
+ <3F9D7666.6010504@pobox.com>
+ <200310272003.h9RK32B2001618@81-2-122-30.bradfords.org.uk>
+ <20031029200141.GA1941@elf.ucw.cz>
+Subject: Re: Blockbusting news, results get worse
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Previously Hans Reiser wrote:
-> It is true that there are many features, such as an automatic text 
-> indexer, that belong in user space, but the basic indexes (aka 
-> directories) and index traversal code belong in the kernel.
+Quote from Pavel Machek <pavel@ucw.cz>:
+> Hi!
+> 
+> > > >> or put it under heavy write workload and remove
+> > > >> power.
+> > > >>
+> > > > Can you tell us more about what really happens to disk drives when the 
+> > > > power is cut while a block is being written?  We engage in a lot of 
+> > > > uninformed speculation, and it would be nice if someone who really knows 
+> > > > told us....
+> > > > 
+> > > > Do drives have enough capacitance under normal conditions to finish 
+> > > > writing the block?  Does ECC on the drive detect that the block was bad 
+> > > > and so we don't need to detect it in the FS?
+> > > 
+> > > 
+> > > Does it really matter to speculate about this?
+> > > 
+> > > If you don't FLUSH CACHE, you have no guarantees your data is on the 
+> > > platter.
+> > 
+> > I think that the idea that is floating around is to deliberately ruin
+> > the formatting on part of the drive in order to simulate a bad block.
+> > 
+> > Operation of disk drives immediately after a power failiure has been
+> > discussed before, by the way:
+> > 
+> > http://marc.theaimsgroup.com/?l=linux-kernel&m=100665153518652&w=2
+> 
+> Well, that looks like pure speculation.
+> 
+> BTW I *do* believe that powerfail can make the sector bad. Imagine you
+> bump into bad sector during write, and need to reallocate...
 
-Sure, but if you have a kernel which supports arbitraty extended
-attributes for files you don't need much more kernel support. You
-can implement things like metadata for files and query languages on
-top of that in userspace. If you modify applications to (also) put some
-metadata (meta tags from html pages, document properties from office
-documents, etc.) in those extended attributes you might already be where
-microsoft is going.
+See the rest of the thread.
 
-You only would need some kernel interaction if you want to keep an
-updated index of file contents (dnotify for a while filesystem and
-reindexing whole files instead of blocks doesn't sound very attractive).
+I think the point is that if that happened, it would be outside the
+scope of the solution being suggested, and something more elaborate
+such as a battery backed cache is needed if you want to guard against
+that situation.
 
-Wichert.
+Unfortunately, I think that the re-writing due to a bad sector
+requirement is going to occur often enough to make any solution which
+doesn't handle it a bit pointless :-(
 
--- 
-Wichert Akkerman <wichert@wiggy.net>    It is simple to make things.
-http://www.wiggy.net/                   It is hard to make things simple.
-
+John.

@@ -1,60 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270663AbTHJUcW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Aug 2003 16:32:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270673AbTHJUcV
+	id S270680AbTHJUih (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Aug 2003 16:38:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270682AbTHJUih
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Aug 2003 16:32:21 -0400
-Received: from AMarseille-201-1-6-8.w80-11.abo.wanadoo.fr ([80.11.137.8]:8487
-	"EHLO gaston") by vger.kernel.org with ESMTP id S270663AbTHJUcR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Aug 2003 16:32:17 -0400
-Subject: Re: [PATCH] IDE (& PowerMac): Let an hwif have a real parent
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.SOL.4.30.0308101630280.1330-100000@mion.elka.pw.edu.pl>
-References: <Pine.SOL.4.30.0308101630280.1330-100000@mion.elka.pw.edu.pl>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1060547504.1405.30.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 10 Aug 2003 22:31:45 +0200
+	Sun, 10 Aug 2003 16:38:37 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:31495
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id S270680AbTHJUie (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Aug 2003 16:38:34 -0400
+Date: Sun, 10 Aug 2003 13:27:17 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Erik Andersen <andersen@codepoet.org>
+cc: Georg Schwarz <geos@epost.de>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.21/2.4.22-rc1: IDE error message on startup
+In-Reply-To: <20030808224210.GA26877@codepoet.org>
+Message-ID: <Pine.LNX.4.10.10308101318450.12816-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> Looks good.
-> 
-> > Please apply,
-> > Ben.
-> 
-> Can you fix intendation, or I should do it?
+Given the early nature of the test, its design was to catch devices which
+fail to issue an abort for unsupported command sets.  This was to be a
+means to flag the device as possible non-compliant.  It is okay to remove
+or delete all, as clearly early warnings about standard command sets not
+being supported was a silly design on my part.
 
-Hrm... I don't know how I fucked it up, probably when merging
-between my trees. Here's the fixed version:
+Making all error messages hide by far is superior than exposing a
+potential problem with hardware.  Maybe exposing the facts of media
+forensics would clarify the issues; however, it is not that important.
 
-diff -urN linux-2.5/drivers/ide/ide-probe.c linux-2.5-benh-merge/drivers/ide/ide-probe.c
---- linux-2.5/drivers/ide/ide-probe.c	2003-08-09 11:05:27.000000000 +0200
-+++ linux-2.5-benh-merge/drivers/ide/ide-probe.c	2003-08-10 22:30:14.000000000 +0200
-@@ -650,10 +650,13 @@
- 	strlcpy(hwif->gendev.bus_id,hwif->name,BUS_ID_SIZE);
- 	snprintf(hwif->gendev.name,DEVICE_NAME_SIZE,"IDE Controller");
- 	hwif->gendev.driver_data = hwif;
--	if (hwif->pci_dev)
--		hwif->gendev.parent = &hwif->pci_dev->dev;
--	else
--		hwif->gendev.parent = NULL; /* Would like to do = &device_legacy */
-+	if (hwif->gendev.parent == NULL) {
-+		if (hwif->pci_dev)
-+			hwif->gendev.parent = &hwif->pci_dev->dev;
-+		else
-+			/* Would like to do = &device_legacy */
-+			hwif->gendev.parent = NULL;
-+	}
- 	device_register(&hwif->gendev);
- }
- 
+Regards,
+
+--a
+
+On Fri, 8 Aug 2003, Erik Andersen wrote:
+
+> On Fri Aug 08, 2003 at 10:05:08PM +0200, Georg Schwarz wrote:
+> > Dear Linux kernel maintainers,
+> > 
+> > the following problem (aka bug?) appeared in 2.4.21 and still exists in
+> > 2.4.22-rc1 (kernels prior to 2.4.21 work fine):
+> > 
+> > SETUP:
+> > various mostly older PCs (486, Pentium I) and various smaller IDE drives
+> > (can would be happy to more details if needed)
+> > 
+> > PROBLEM:
+> > With Linux 2.4.21 or 2.4.22-rc1 (not with prior versions using the same
+> > .config however) on startup I get the following error messages for any
+> > connected IDE disk (but not ATAPI CR-ROM):
+> > 
+> > hda: attached ide-disk driver.
+> > hda: task_no_data_intr: status=0x51 { DriveReady SeekComplete Error }
+> > hda: task_no_data_intr: error=0x04 { DriveStatusError }
+> 
+> A change was made to ide-disk.c where it _always_ attempts to do
+> a READ_NATIVE_MAX call regardless of whether the drive supports
+> the host protected area feature set in the
+> init_idedisk_capacity() function.  I submitted a patch to address
+> this, which is currently being reworked a bit in the 2.6 kernel 
+> tree and will then be backported again to 2.4.
+> 
+>  -Erik
+> 
+> --
+> Erik B. Andersen             http://codepoet-consulting.com/
+> --This message was written using 73% post-consumer electrons--
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

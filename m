@@ -1,54 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264524AbTIJEWb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 00:22:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264525AbTIJEWb
+	id S264525AbTIJEYT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 00:24:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264526AbTIJEYT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 00:22:31 -0400
-Received: from www.mail15.com ([194.186.131.96]:57355 "EHLO www.mail15.com")
-	by vger.kernel.org with ESMTP id S264524AbTIJEW2 (ORCPT
+	Wed, 10 Sep 2003 00:24:19 -0400
+Received: from mail.kroah.org ([65.200.24.183]:27068 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S264525AbTIJEYQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 00:22:28 -0400
-Date: Wed, 10 Sep 2003 08:22:27 +0400 (MSD)
-Message-Id: <200309100422.h8A4MRc5084257@www.mail15.com>
-From: Muthukumar <kmuthukumar@mail15.com>
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Mailer: 
-X-Proxy-IP: [203.129.254.138]
-X-Originating-IP: [172.16.1.46]
-Subject: Introduction
+	Wed, 10 Sep 2003 00:24:16 -0400
+Date: Tue, 9 Sep 2003 21:24:28 -0700
+From: Greg KH <greg@kroah.com>
+To: Matt Domsch <Matt_Domsch@Dell.com>
+Cc: rmk@arm.linux.org.uk, Dave Jones <davej@redhat.com>,
+       Anatoly Pugachev <mator@gsib.ru>, linux-kernel@vger.kernel.org
+Subject: Re: Buggy PCI drivers - do not mark pci_device_id as discardable data
+Message-ID: <20030910042428.GA10134@kroah.com>
+References: <20030910033524.GD9760@kroah.com> <Pine.LNX.4.44.0309091752320.17200-100000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.44.0309091752320.17200-100000@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all ,
+On Tue, Sep 09, 2003 at 06:12:48PM -0500, Matt Domsch wrote:
+> > > agp_serverworks_probe() is marked __init.  Thus the static lookup
+> > Ah, Russell just got a patch for this into the tree today.
+> 
+> Thanks Russell.  However, I believe your patch only fixes the
+> pci_device_id tables marked __initdata, not the probe functions (or
+> anything they call) being marked __init, which is what Anatoly tripped up.  
+> 
+> At least these have probe functions marked __init in -test5.
 
-I am working in squid developments oriented works.Then at presently 
-i  want to upgrade my kernel to 2.6 for epoll support testing on 
-Squid.
+These either need to be marked __devinit and make "new_id" dependant on
+CONFIG_HOTPLUG, or we need to remove the __init marker on these
+functions.
 
+Any throughts about which?
 
-For that i have upgrade my gcc and i have tried to  compiled the 
-kernel ,but i am getting some errors on kernel-2.6.0-test3 on IA64 
-with ia64 linux patch.
+thanks,
 
-
-The problem is as 
-HOSTCC  scripts/lxdialog/checklist.o
-In file included from scripts/lxdialog/checklist.c:24:
-scripts/lxdialog/dialog.h:29:20: curses.h: No such file or 
-directory
-In file included from scripts/lxdialog/checklist.c:24:
-scripts/lxdialog/dialog.h:127: error: parse error before 
-"use_colors"
-And so many error and warning so what is the problem in this.
-
-I have browsed for this problem but i didn't get the answers for 
-that.
-
-SO pls inform about this/.
-
-Thanks
-Mvthv
+greg k-h

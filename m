@@ -1,72 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264520AbTLCJDF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Dec 2003 04:03:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264518AbTLCJCr
+	id S264516AbTLCJaL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Dec 2003 04:30:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264526AbTLCJaL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Dec 2003 04:02:47 -0500
-Received: from faui3es.informatik.uni-erlangen.de ([131.188.33.16]:9939 "EHLO
-	faui3es.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id S264526AbTLCIuy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Dec 2003 03:50:54 -0500
-Date: Wed, 3 Dec 2003 09:50:00 +0100
-From: Martin Waitz <tali@admingilde.org>
-To: Ben Collins <bcollins@debian.org>
-Cc: linux1394-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix use-after-free in sbp2.c
-Message-ID: <20031203085000.GC1117@admingilde.org>
-Mail-Followup-To: Ben Collins <bcollins@debian.org>,
-	linux1394-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-References: <20031201210212.GA2184@admingilde.org> <20031202233125.GP19051@phunnypharm.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="H8ygTp4AXg6deix2"
-Content-Disposition: inline
-In-Reply-To: <20031202233125.GP19051@phunnypharm.org>
-User-Agent: Mutt/1.3.28i
-X-PGP-Fingerprint: B21B 5755 9684 5489 7577  001A 8FF1 1AC5 DFE8 0FB2
+	Wed, 3 Dec 2003 04:30:11 -0500
+Received: from smtp-send.myrealbox.com ([192.108.102.143]:44400 "EHLO
+	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
+	id S264516AbTLCJaI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Dec 2003 04:30:08 -0500
+Message-ID: <3FCDAD1D.5080001@myrealbox.com>
+Date: Wed, 03 Dec 2003 10:30:05 +0100
+From: Jonathan Fors <etnoy@myrealbox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031124
+X-Accept-Language: sv, en-us, en
+MIME-Version: 1.0
+To: Jin Suh <jinssuh@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: [2.6.0-test11]: It doesn't boot with a bootcd
+References: <20031202213548.80808.qmail@web41211.mail.yahoo.com>
+In-Reply-To: <20031202213548.80808.qmail@web41211.mail.yahoo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Are you booting with Lilo? Then you could try to pass the vga=normal 
+parameter to the bootloader in lilo.conf . I'm not sure with Grub, but I 
+bet somebody else here is.
 
---H8ygTp4AXg6deix2
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+If you let the booting progress continue blind-headed, can you login or 
+wait for X to start? It's possible that the system actually boots, just 
+that you don't see it.
 
-hi :)
+Jonathan
 
-On Tue, Dec 02, 2003 at 06:31:25PM -0500, Ben Collins wrote:
-> Could you test what's in our repo first?
-will do next time ;)
+Jin Suh wrote:
 
-> We've already fixed this, but it was done in a way different way than
-> you did (we got rid of the semaphore).
-well thats even better
+>With framebuffer option on, it went to out ot range on my monitor shortly after
+>I see Loading Linux.... and about 10 lines of boot messages (couldn't read the
+>messages).
+>Without framebuffer option, my monitor goes to a messed-up color right after I
+>see Loading Linux... and few other lines. 
+>
+>Thanks,
+>Jin
+>
+>  
+>
 
-your code is much cleaner,
-i just wanted to make it work with minimal changes as
-i didn't knew it was already fixed.
-
-thanks for the great 1394 work! :)
-
---=20
-CU,		  / Friedrich-Alexander University Erlangen, Germany
-Martin Waitz	//  Department of Computer Science 3       _________
-______________/// - - - - - - - - - - - - - - - - - - - - ///
-dies ist eine manuell generierte mail, sie beinhaltet    //
-tippfehler und ist auch ohne grossbuchstaben gueltig.   /
-
---H8ygTp4AXg6deix2
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE/zaO3j/Eaxd/oD7IRAhmNAJ0WYny1SiJl/Vo+lhMxObChrF+PJACfZeTU
-4qJDkLXkT8YRnKGTQKOLCds=
-=meSe
------END PGP SIGNATURE-----
-
---H8ygTp4AXg6deix2--

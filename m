@@ -1,215 +1,219 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266018AbTLaBb2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Dec 2003 20:31:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266049AbTLaBb1
+	id S266089AbTLaBqA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Dec 2003 20:46:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265886AbTLaBp7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Dec 2003 20:31:27 -0500
-Received: from dp.samba.org ([66.70.73.150]:35270 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S266018AbTLaBat (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Dec 2003 20:30:49 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: akpm@osdl.org
-Cc: Paul Jackson <pj@sgi.com>
-Cc: linux-kernel@vger.kernel.org, ioe-lkml@rameria.de,
-       William Lee Irwin III <wli@holomorphy.com>
-Subject: [PATCH 2/2] Use for_each_cpu() Where It's Meant To Be
-Date: Wed, 31 Dec 2003 12:28:51 +1100
-Message-Id: <20031231013046.864102C291@lists.samba.org>
+	Tue, 30 Dec 2003 20:45:59 -0500
+Received: from smtp808.mail.sc5.yahoo.com ([66.163.168.187]:9644 "HELO
+	smtp808.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S266089AbTLaBps (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Dec 2003 20:45:48 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Vojtech Pavlik <vojtech@suse.cz>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0-test6: APM unable to suspend (the 2.6.0-test2 saga continues)
+Date: Tue, 30 Dec 2003 20:45:35 -0500
+User-Agent: KMail/1.5.4
+References: <20031005171055.A21478@flint.arm.linux.org.uk> <20031230195303.F13556@flint.arm.linux.org.uk> <20031230230028.GA778@ucw.cz>
+In-Reply-To: <20031230230028.GA778@ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200312302045.38501.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please apply.
+On Tuesday 30 December 2003 06:00 pm, Vojtech Pavlik wrote:
+> On Tue, Dec 30, 2003 at 07:53:03PM +0000, Russell King wrote:
+> > So it looks like i8042 could do with hooking some power management
+> > to disable this timer before suspend and resume it afterwards.
+> >
+> > Vojtech?
+>
+> Agreed. There should already be some in -mm kernels, and I'll make sure
+> the timer is deleted before suspend. Thanks for finding this.
 
-Some places use cpu_online() where they should be using cpu_possible,
-most commonly for tallying statistics.  This makes no difference without
-hotplug CPU.
+What about something like the patch below? (Now, I don't suspend my notebook
+so it has not been tested, just compiled.)
 
-Use the for_each_cpu() macro in those places, providing good
-examples (and making the external hotplug CPU patch smaller).
+Dmitry
 
-Name: Use for_each_cpu() where cpu_online() is incorrectly used.
-Author: Rusty Russell
-Status: Booted on 2.6.0
-Depends: Hotcpu/cpu_iterator.patch.gz
+===================================================================
 
-D: Some places use cpu_online() where they should be using cpu_possible,
-D: most commonly for tallying statistics.  This makes no difference without
-D: hotplug CPU.
-D: 
-D: Use the for_each_cpu() macro in those places, providing good
-D: examples (and making the external hotplug CPU patch smaller).
 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .908-linux-2.6.0-test7-bk3/fs/buffer.c .908-linux-2.6.0-test7-bk3.updated/fs/buffer.c
---- .908-linux-2.6.0-test7-bk3/fs/buffer.c	2003-10-09 18:02:57.000000000 +1000
-+++ .908-linux-2.6.0-test7-bk3.updated/fs/buffer.c	2003-10-13 08:45:09.000000000 +1000
-@@ -2944,10 +2944,8 @@ static void recalc_bh_state(void)
- 	if (__get_cpu_var(bh_accounting).ratelimit++ < 4096)
- 		return;
- 	__get_cpu_var(bh_accounting).ratelimit = 0;
--	for (i = 0; i < NR_CPUS; i++) {
--		if (cpu_online(i))
--			tot += per_cpu(bh_accounting, i).nr;
--	}
-+	for_each_cpu(i)
-+		tot += per_cpu(bh_accounting, i).nr;
- 	buffer_heads_over_limit = (tot > max_buffer_heads);
- }
- 	
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .908-linux-2.6.0-test7-bk3/fs/proc/proc_misc.c .908-linux-2.6.0-test7-bk3.updated/fs/proc/proc_misc.c
---- .908-linux-2.6.0-test7-bk3/fs/proc/proc_misc.c	2003-09-29 10:25:53.000000000 +1000
-+++ .908-linux-2.6.0-test7-bk3.updated/fs/proc/proc_misc.c	2003-10-13 08:45:09.000000000 +1000
-@@ -378,10 +378,9 @@ int show_stat(struct seq_file *p, void *
- 	jif = ((u64)now.tv_sec * HZ) + (now.tv_usec/(1000000/HZ)) - jif;
- 	do_div(jif, HZ);
+ChangeSet@1.1518, 2003-12-30 20:37:33-05:00, dtor_core@ameritech.net
+  Input: Add suspend methods to restore original controller state
+         on suspend as  some BIOS don't like the state we leave
+         it in
+         Also do not require extra i8042. prefix on module parameters
+         if i8042 is compiled into the kernel
+
+
+ i8042.c |   82 ++++++++++++++++++++++++++++++++++++++++++++++------------------
+ 1 files changed, 60 insertions(+), 22 deletions(-)
+
+
+===================================================================
+
+
+
+diff -Nru a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
+--- a/drivers/input/serio/i8042.c	Tue Dec 30 20:41:57 2003
++++ b/drivers/input/serio/i8042.c	Tue Dec 30 20:41:57 2003
+@@ -28,6 +28,12 @@
+ MODULE_DESCRIPTION("i8042 keyboard and mouse controller driver");
+ MODULE_LICENSE("GPL");
  
--	for (i = 0; i < NR_CPUS; i++) {
-+	for_each_cpu(i) {
- 		int j;
- 
--		if (!cpu_online(i)) continue;
- 		user += kstat_cpu(i).cpustat.user;
- 		nice += kstat_cpu(i).cpustat.nice;
- 		system += kstat_cpu(i).cpustat.system;
-@@ -401,8 +400,7 @@ int show_stat(struct seq_file *p, void *
- 		jiffies_to_clock_t(iowait),
- 		jiffies_to_clock_t(irq),
- 		jiffies_to_clock_t(softirq));
--	for (i = 0; i < NR_CPUS; i++){
--		if (!cpu_online(i)) continue;
-+	for_each_online_cpu(i) {
- 		seq_printf(p, "cpu%d %u %u %u %u %u %u %u\n",
- 			i,
- 			jiffies_to_clock_t(kstat_cpu(i).cpustat.user),
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .908-linux-2.6.0-test7-bk3/kernel/fork.c .908-linux-2.6.0-test7-bk3.updated/kernel/fork.c
---- .908-linux-2.6.0-test7-bk3/kernel/fork.c	2003-10-12 11:04:17.000000000 +1000
-+++ .908-linux-2.6.0-test7-bk3.updated/kernel/fork.c	2003-10-13 08:45:09.000000000 +1000
-@@ -60,10 +60,9 @@ int nr_processes(void)
- 	int cpu;
- 	int total = 0;
- 
--	for (cpu = 0; cpu < NR_CPUS; cpu++) {
--		if (cpu_online(cpu))
--			total += per_cpu(process_counts, cpu);
--	}
-+	for_each_cpu(cpu)
-+		total += per_cpu(process_counts, cpu);
++/*
++ * Do not add extra 'i8042.' prefix to all parameters if compiled into the kernel
++ */
++#undef MODULE_PARAM_PREFIX
++#define MODULE_PARAM_PREFIX /* empty */
 +
- 	return total;
- }
+ static unsigned int i8042_noaux;
+ module_param(i8042_noaux, bool, 0);
  
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .908-linux-2.6.0-test7-bk3/kernel/sched.c .908-linux-2.6.0-test7-bk3.updated/kernel/sched.c
---- .908-linux-2.6.0-test7-bk3/kernel/sched.c	2003-10-09 18:03:02.000000000 +1000
-+++ .908-linux-2.6.0-test7-bk3.updated/kernel/sched.c	2003-10-13 08:45:09.000000000 +1000
-@@ -829,11 +829,9 @@ unsigned long nr_uninterruptible(void)
- {
- 	unsigned long i, sum = 0;
+@@ -746,6 +752,29 @@
  
--	for (i = 0; i < NR_CPUS; i++) {
--		if (!cpu_online(i))
--			continue;
-+	for_each_cpu(i)
- 		sum += cpu_rq(i)->nr_uninterruptible;
--	}
+ 
+ /*
++ * Reset the controller.
++ */
++void i8042_controller_reset(void)
++{
++	if (i8042_reset) {
++		unsigned char param;
 +
- 	return sum;
- }
- 
-@@ -841,11 +839,9 @@ unsigned long nr_context_switches(void)
- {
- 	unsigned long i, sum = 0;
- 
--	for (i = 0; i < NR_CPUS; i++) {
--		if (!cpu_online(i))
--			continue;
-+	for_each_cpu(i)
- 		sum += cpu_rq(i)->nr_switches;
--	}
++		if (i8042_command(&param, I8042_CMD_CTL_TEST))
++			printk(KERN_ERR "i8042.c: i8042 controller reset timeout.\n");
++	}
 +
- 	return sum;
- }
- 
-@@ -853,11 +849,9 @@ unsigned long nr_iowait(void)
- {
- 	unsigned long i, sum = 0;
- 
--	for (i = 0; i < NR_CPUS; ++i) {
--		if (!cpu_online(i))
--			continue;
-+	for_each_cpu(i)
- 		sum += atomic_read(&cpu_rq(i)->nr_iowait);
--	}
++/*
++ * Restore the original control register setting.
++ */
 +
- 	return sum;
++	i8042_ctr = i8042_initial_ctr;
++
++	if (i8042_command(&i8042_ctr, I8042_CMD_CTL_WCTR))
++		printk(KERN_WARNING "i8042.c: Can't restore CTR.\n");
++}
++
++
++/*
+  * Here we try to reset everything back to a state in which the BIOS will be
+  * able to talk to the hardware when rebooting.
+  */
+@@ -770,26 +799,20 @@
+ 		if (i8042_mux_values[i].exists)
+ 			serio_cleanup(i8042_mux_port + i);
+ 
+-/*
+- * Reset the controller.
+- */
+-
+-	if (i8042_reset) {
+-		unsigned char param;
++	i8042_controller_reset();
++}
+ 
+-		if (i8042_command(&param, I8042_CMD_CTL_TEST))
+-			printk(KERN_ERR "i8042.c: i8042 controller reset timeout.\n");
+-	}
+ 
+ /*
+- * Restore the original control register setting.
++ * Here we try to restore to the original BIOS settings
+  */
+ 
+-	i8042_ctr = i8042_initial_ctr;
+-
+-	if (i8042_command(&i8042_ctr, I8042_CMD_CTL_WCTR))
+-		printk(KERN_WARNING "i8042.c: Can't restore CTR.\n");
++static int i8042_controller_suspend(void)
++{
++	del_timer_sync(&i8042_timer);
++	i8042_controller_reset();
+ 
++	return 0;
  }
  
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .908-linux-2.6.0-test7-bk3/kernel/workqueue.c .908-linux-2.6.0-test7-bk3.updated/kernel/workqueue.c
---- .908-linux-2.6.0-test7-bk3/kernel/workqueue.c	2003-09-22 10:27:38.000000000 +1000
-+++ .908-linux-2.6.0-test7-bk3.updated/kernel/workqueue.c	2003-10-13 08:45:09.000000000 +1000
-@@ -366,9 +366,7 @@ int current_is_keventd(void)
  
- 	BUG_ON(!keventd_wq);
- 
--	for (cpu = 0; cpu < NR_CPUS; cpu++) {
--		if (!cpu_online(cpu))
--			continue;
-+	for_each_cpu(cpu) {
- 		cwq = keventd_wq->cpu_wq + cpu;
- 		if (current == cwq->thread)
- 			return 1;
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .908-linux-2.6.0-test7-bk3/mm/page_alloc.c .908-linux-2.6.0-test7-bk3.updated/mm/page_alloc.c
---- .908-linux-2.6.0-test7-bk3/mm/page_alloc.c	2003-10-09 18:03:02.000000000 +1000
-+++ .908-linux-2.6.0-test7-bk3.updated/mm/page_alloc.c	2003-10-13 08:49:27.000000000 +1000
-@@ -867,14 +867,14 @@ void __get_page_state(struct page_state 
- 	while (cpu < NR_CPUS) {
- 		unsigned long *in, *out, off;
- 
--		if (!cpu_online(cpu)) {
-+		if (!cpu_possible(cpu)) {
- 			cpu++;
- 			continue;
+@@ -809,7 +832,7 @@
+ 	if (i8042_mux_present)
+ 		if (i8042_enable_mux_mode(&i8042_aux_values, NULL) ||
+ 		    i8042_enable_mux_ports(&i8042_aux_values)) {
+-			printk(KERN_WARNING "i8042: failed to resume active multiplexor, mouse won't wotk.\n");
++			printk(KERN_WARNING "i8042: failed to resume active multiplexor, mouse won't work.\n");
  		}
  
- 		in = (unsigned long *)&per_cpu(page_states, cpu);
- 		cpu++;
--		if (cpu < NR_CPUS && cpu_online(cpu))
-+		if (cpu < NR_CPUS && cpu_possible(cpu))
- 			prefetch(&per_cpu(page_states, cpu));
- 		out = (unsigned long *)ret;
- 		for (off = 0; off < nr; off++)
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .908-linux-2.6.0-test7-bk3/net/ipv4/route.c .908-linux-2.6.0-test7-bk3.updated/net/ipv4/route.c
---- .908-linux-2.6.0-test7-bk3/net/ipv4/route.c	2003-10-09 18:03:03.000000000 +1000
-+++ .908-linux-2.6.0-test7-bk3.updated/net/ipv4/route.c	2003-10-13 08:45:09.000000000 +1000
-@@ -2703,12 +2703,9 @@ static int ip_rt_acct_read(char *buffer,
- 		memcpy(dst, src, length);
+ /*
+@@ -825,6 +848,10 @@
+ 	for (i = 0; i < 4; i++)
+ 		if (i8042_mux_values[i].exists && i8042_activate_port(i8042_mux_port + i) == 0)
+ 			serio_reconnect(i8042_mux_port + i);
++/*
++ * Restart timer (for autorepeats)
++ */ 
++	mod_timer(&i8042_timer, jiffies + I8042_POLL_PERIOD);
  
- 		/* Add the other cpus in, one int at a time */
--		for (i = 1; i < NR_CPUS; i++) {
-+		for_each_cpu(i) {
- 			unsigned int j;
+ 	return 0;
+ }
+@@ -851,16 +878,22 @@
+ };
  
--			if (!cpu_online(i))
--				continue;
--
- 			src = ((u32 *) IP_RT_ACCT_CPU(i)) + offset;
+ /*
+- * Resume handler for the new PM scheme (driver model)
++ * Suspend/resume handlers for the new PM scheme (driver model)
+  */
++static int i8042_suspend(struct sys_device *dev, u32 state)
++{
++	return i8042_controller_suspend();
++}
++
+ static int i8042_resume(struct sys_device *dev)
+ {
+ 	return i8042_controller_resume();
+ }
  
- 			for (j = 0; j < length/4; j++)
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .3441-2.6.0-test9-hotcpu-i386.pre/kernel/timer.c .3441-2.6.0-test9-hotcpu-i386/kernel/timer.c
---- .3441-2.6.0-test9-hotcpu-i386.pre/kernel/timer.c	2003-10-27 13:26:01.000000000 +1100
-+++ .3441-2.6.0-test9-hotcpu-i386/kernel/timer.c	2003-10-27 13:26:02.000000000 +1100
-@@ -332,10 +332,7 @@ int del_timer_sync(struct timer_list *ti
- del_again:
- 	ret += del_timer(timer);
+ static struct sysdev_class kbc_sysclass = {
+-       set_kset_name("i8042"),
+-       .resume = i8042_resume,
++	set_kset_name("i8042"),
++	.suspend = i8042_suspend,
++	.resume = i8042_resume,
+ };
  
--	for (i = 0; i < NR_CPUS; i++) {
--		if (!cpu_online(i))
--			continue;
--
-+	for_each_cpu(i) {
- 		base = &per_cpu(tvec_bases, i);
- 		if (base->running_timer == timer) {
- 			while (base->running_timer == timer) {
-
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+ static struct sys_device device_i8042 = {
+@@ -869,12 +902,17 @@
+ };
+ 
+ /*
+- * Resume handler for the old PM scheme (APM)
++ * Suspend/resume handler for the old PM scheme (APM)
+  */
+ static int i8042_pm_callback(struct pm_dev *dev, pm_request_t request, void *dummy)
+ {
+-	if (request == PM_RESUME)
+-		return i8042_controller_resume();
++	switch (request) {
++		case PM_SUSPEND:
++			return i8042_controller_suspend();
++
++		case PM_RESUME:
++			return i8042_controller_resume();
++	}
+ 
+ 	return 0;
+ }
+@@ -955,7 +993,7 @@
+ 		sysdev_class_unregister(&kbc_sysclass);
+ 	}
+ 
+-	del_timer(&i8042_timer);
++	del_timer_sync(&i8042_timer);
+ 
+ 	i8042_controller_cleanup();
+ 	

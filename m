@@ -1,44 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267411AbUIOUnK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267454AbUIOU6I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267411AbUIOUnK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 16:43:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267360AbUIOUlL
+	id S267454AbUIOU6I (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 16:58:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267429AbUIOU4m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 16:41:11 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:65478 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S267415AbUIOUkq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 16:40:46 -0400
-Date: Wed, 15 Sep 2004 16:40:28 -0400
-From: Alan Cox <alan@redhat.com>
-To: Paul Fulghum <paulkf@microgate.com>
-Cc: Alan Cox <alan@redhat.com>, linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: PATCH: tty locking for 2.6.9rc2
-Message-ID: <20040915204028.GA25740@devserv.devel.redhat.com>
-References: <20040914163426.GA29253@devserv.devel.redhat.com> <1095265595.2924.27.camel@deimos.microgate.com> <20040915163051.GA9096@devserv.devel.redhat.com> <1095274482.2686.16.camel@deimos.microgate.com> <20040915200856.GA8000@devserv.devel.redhat.com> <1095279799.2958.11.camel@deimos.microgate.com>
+	Wed, 15 Sep 2004 16:56:42 -0400
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:54714
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S267433AbUIOUzl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 16:55:41 -0400
+Date: Wed, 15 Sep 2004 13:53:08 -0700
+From: "David S. Miller" <davem@davemloft.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: paul@clubi.ie, netdev@oss.sgi.com, leonid.grossman@s2io.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: The ultimate TOE design
+Message-Id: <20040915135308.78bf74f0.davem@davemloft.net>
+In-Reply-To: <1095275660.20569.0.camel@localhost.localdomain>
+References: <4148991B.9050200@pobox.com>
+	<Pine.LNX.4.61.0409152102050.23011@fogarty.jakma.org>
+	<1095275660.20569.0.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1095279799.2958.11.camel@deimos.microgate.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 15, 2004 at 03:23:19PM -0500, Paul Fulghum wrote:
-> Here is a patch against your last patch that clears
-> up both the per tty refcount initialization and
-> the remove_dev() global refcount leak.
+On Wed, 15 Sep 2004 20:14:22 +0100
+Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
 
-Thanks
+> On Mer, 2004-09-15 at 21:04, Paul Jakma wrote:
+> > The intel IXP's are like the above, XScale+extra-bits host-on-a-PCI 
+> > card running Linux. Or is that what you were referring to with 
+> > "<cards exist> but they are all fairly expensive."?
+> 
+> Last time I checked 2Ghz accelerators for intel and AMD were quite cheap
+> and also had the advantage they ran user mode code when idle from
+> network processing.
 
->  	/* Now set up the new line discipline. */
->  	tty->ldisc = *ld;
-> +	tty->ldisc.refcount = 0;
+ROFL, and this is my position on this topic as well.
 
-What do you think about
+There are absolutely no justified economics in these
+TOE engines.  By the time you deploy them, the cpus
+and memory catch up and what's more those are general
+purpose and not just for networking as David Stevens
+and others have said.
 
-	tty_ldisc_get(tty, ldisc_num)
-
-That seems to remove the whole mess ?
-
+TOE is just junk, and we'll reject any attempt to put
+that garbage into the kernel.

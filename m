@@ -1,49 +1,97 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266688AbRHaPcC>; Fri, 31 Aug 2001 11:32:02 -0400
+	id <S266448AbRHaP3C>; Fri, 31 Aug 2001 11:29:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266797AbRHaPbw>; Fri, 31 Aug 2001 11:31:52 -0400
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:36603 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S266688AbRHaPbi>; Fri, 31 Aug 2001 11:31:38 -0400
-From: Andreas Dilger <adilger@turbolabs.com>
-Date: Fri, 31 Aug 2001 09:31:09 -0600
-To: "Kevin P. Fleming" <kevin@labsysgrp.com>
-Cc: Doug Ledford <dledford@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.9-ac1 RAID-5 resync causes PPP connection to be unusable
-Message-ID: <20010831093109.R541@turbolinux.com>
-Mail-Followup-To: "Kevin P. Fleming" <kevin@labsysgrp.com>,
-	Doug Ledford <dledford@redhat.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <05c501c13178$43e19ba0$6caaa8c0@kevin> <3B8E7F0D.3000503@redhat.com> <000d01c131d4$a8449820$6caaa8c0@kevin>
-Mime-Version: 1.0
+	id <S266688AbRHaP2m>; Fri, 31 Aug 2001 11:28:42 -0400
+Received: from fire.osdlab.org ([65.201.151.4]:5773 "EHLO fire.osdlab.org")
+	by vger.kernel.org with ESMTP id <S266448AbRHaP2a>;
+	Fri, 31 Aug 2001 11:28:30 -0400
+Message-ID: <3B8FABA7.D06F4ACF@osdlab.org>
+Date: Fri, 31 Aug 2001 08:22:15 -0700
+From: "Randy.Dunlap" <rddunlap@osdlab.org>
+Organization: OSDL
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-20mdk i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Adam McKenna <adam-dated-999656018.ee55e0@flounder.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Strange kernel messages
+In-Reply-To: <20010830191338.D19430@flounder.net>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <000d01c131d4$a8449820$6caaa8c0@kevin>
-User-Agent: Mutt/1.3.20i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Aug 30, 2001  21:23 -0700, Kevin P. Fleming wrote:
-> OK, I see that now... and it looks like the risks associated with setting
-> the unmaskirq flags on my drives (none of the four drives have it set now)
-> are too great to be worth playing with it. I'll just not use my PPP
-> connection during these particularly heavy disk activity moments. Thanks for
-> the quick response.
+Adam McKenna wrote:
+> 
+> Can someone please explain what these error messages mean?
+> 
+> Aug 30 12:23:17 ren kernel: expected (0x3af6c03f/0x24d6e80), got
+> (0x3af6c03f/0x24d4ba0)
+> Aug 30 12:23:17 ren kernel: expected (0x3af6c03f/0x24d4ba0), got
+> (0x3af6c03f/0x24d6e80)
+> Aug 30 12:35:02 ren kernel: expected (0x3af6c03f/0x24d6e80), got
+> (0x3af6c03f/0x24d4ba0)
+> Aug 30 12:35:02 ren kernel: expected (0x3af6c03f/0x24d4ba0), got
+> (0x3af6c03f/0x24d6e80)
+> Aug 30 13:49:36 ren kernel: expected (0x3af6c03f/0x2c05e81), got
+> (0x3af6c03f/0x2c05ea0)
+> Aug 30 13:49:36 ren kernel: expected (0x3af6c03f/0x2c05ea0), got
+> (0x3af6c03f/0x2c05e81)
+> Aug 30 13:54:38 ren kernel: expected (0x3af6c03f/0x2c05e81), got
+> (0x3af6c03f/0x2c05ea0)
+> Aug 30 13:54:38 ren kernel: expected (0x3af6c03f/0x2c05ea0), got
+> (0x3af6c03f/0x2c05e81)
+> Aug 30 13:59:40 ren kernel: expected (0x3af6c03f/0x2c05e81), got
+> (0x3af6c03f/0x2c05ea0)
+> Aug 30 13:59:40 ren kernel: expected (0x3af6c03f/0x2c05ea0), got
+> (0x3af6c03f/0x2c05e81)
+> Aug 30 14:04:41 ren kernel: expected (0x3af6c03f/0x2c05e81), got
+> (0x3af6c03f/0x2c05ea0)
+> Aug 30 14:04:41 ren kernel: expected (0x3af6c03f/0x2c05ea0), got
+> (0x3af6c03f/0x2c05e81)
+> Aug 30 14:09:43 ren kernel: expected (0x3af6c03f/0x2c05e81), got
+> (0x3af6c03f/0x2c05ea0)
+> Aug 30 14:09:43 ren kernel: expected (0x3af6c03f/0x2c05ea0), got
+> (0x3af6c03f/0x2c05e81)
+> Aug 30 14:10:19 ren kernel: expected (0x3af6c03f/0x2c05e81), got
+> (0x3af6c03f/0x2c05ea0)
+> Aug 30 14:10:19 ren kernel: expected (0x3af6c03f/0x2c05ea0), got
+> (0x3af6c03f/0x2c05e81)
+> Aug 30 14:15:17 ren kernel: expected (0x3af6c03f/0x2c05e81), got
+> (0x3af6c03f/0x2c05ea0)
+> Aug 30 14:15:17 ren kernel: expected (0x3af6c03f/0x2c05ea0), got
+> (0x3af6c03f/0x2c05e81)
+> Aug 30 14:20:19 ren kernel: expected (0x3af6c03f/0x2c05e81), got
+> (0x3af6c03f/0x2c05ea0)
+> Aug 30 14:20:19 ren kernel: expected (0x3af6c03f/0x2c05ea0), got
+> (0x3af6c03f/0x2c05e81)
+> Aug 30 14:25:21 ren kernel: expected (0x3af6c03f/0x2c05e81), got
+> (0x3af6c03f/0x2c05ea0)
+> Aug 30 14:25:21 ren kernel: expected (0x3af6c03f/0x2c05ea0), got
+> (0x3af6c03f/0x2c05e81)
+> Aug 30 14:30:23 ren kernel: expected (0x3af6c03f/0x2c05e81), got
+> (0x3af6c03f/0x2c05ea0)
+> Aug 30 14:30:23 ren kernel: expected (0x3af6c03f/0x2c05ea0), got
+> (0x3af6c03f/0x2c05e81)
+> Aug 30 14:35:27 ren kernel: expected (0x3af6c03f/0x2c05e81), got
+> (0x3af6c03f/0x2c05ea0)
+> Aug 30 14:35:27 ren kernel: expected (0x3af6c03f/0x2c05ea0), got
+> (0x3af6c03f/0x2c05e81)
+> 
+> This is on stock Linux 2.4.5, SMP enabled.
 
-There was a kernel patch (or possibly a user-space tool) which allowed
-one to change the "priority" of IRQs and their handlers.  This was back
-in the 1.2 or 2.0 days, when _any_ disk or other interrupt activity might
-be enough to cause problems for serial connections (especially if you
-only had a 16450 UART (1 byte buffer) instead of a 16550 (16 byte buffer).
-You could make your serial interrupt (handler) take priority over disk
-interrupts.
+Couple of observations:
 
-Maybe Ted Ts'o or other long-time Linux folks will know what was actually
-called, and whether it is still applicable to modern hardware/kernel.
+a.  Not knowing this message, I grepped thru the kernel source tree
+and found it easily (hint).  It comes from linux/fs/nfs/inode.c,
+when the NFS inode is being updated but doesn't match what is
+expected (it seems, from reading the code and comments).
 
-Cheers, Andreas
--- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+b.  Some kernel message context would usually be helpful.
+This message should have been preceded by the message:
+  nfs_refresh_inode: inode number mismatch
 
+I expect that some FS/NFS people can give you even better info.
+
+~Randy

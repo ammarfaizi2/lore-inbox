@@ -1,73 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261628AbUKCPKV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261625AbUKCPNx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261628AbUKCPKV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 10:10:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261630AbUKCPKU
+	id S261625AbUKCPNx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 10:13:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261630AbUKCPNx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 10:10:20 -0500
-Received: from unthought.net ([212.97.129.88]:46762 "EHLO unthought.net")
-	by vger.kernel.org with ESMTP id S261628AbUKCPKN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 10:10:13 -0500
-Date: Wed, 3 Nov 2004 16:10:11 +0100
-From: Jakob Oestergaard <jakob@unthought.net>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Brad Campbell <brad@wasp.net.au>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: nfs stale filehandle issues with 2.6.10-rc1 in-kernel server
-Message-ID: <20041103151011.GC12752@unthought.net>
-Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
-	Trond Myklebust <trond.myklebust@fys.uio.no>,
-	Brad Campbell <brad@wasp.net.au>, lkml <linux-kernel@vger.kernel.org>
-References: <41877751.502@wasp.net.au> <1099413424.7582.5.camel@lade.trondhjem.org>
+	Wed, 3 Nov 2004 10:13:53 -0500
+Received: from phoenix.infradead.org ([81.187.226.98]:42503 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S261625AbUKCPNt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Nov 2004 10:13:49 -0500
+Date: Wed, 3 Nov 2004 15:13:41 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: David Howells <dhowells@redhat.com>
+Cc: torvalds@osdl.org, akpm@osdl.org, davidm@snapgear.com,
+       linux-kernel@vger.kernel.org, uclinux-dev@uclinux.org
+Subject: Re: [PATCH 9/14] FRV: CONFIG_MMU fixes
+Message-ID: <20041103151341.GA20481@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	David Howells <dhowells@redhat.com>, torvalds@osdl.org,
+	akpm@osdl.org, davidm@snapgear.com, linux-kernel@vger.kernel.org,
+	uclinux-dev@uclinux.org
+References: <20041102094336.GC5841@infradead.org> <76b4a884-2c3c-11d9-91a1-0002b3163499@redhat.com> <200411011930.iA1JULvA023219@warthog.cambridge.redhat.com> <19027.1099494404@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1099413424.7582.5.camel@lade.trondhjem.org>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <19027.1099494404@redhat.com>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 02, 2004 at 08:37:04AM -0800, Trond Myklebust wrote:
-> ty den 02.11.2004 Klokka 16:02 (+0400) skreiv Brad Campbell:
+On Wed, Nov 03, 2004 at 03:06:44PM +0000, David Howells wrote:
 > 
-> > /raid 192.168.2.81(rw,async,no_root_squash)
-> > /raid 192.168.3.80(rw,async,no_root_squash)
-> > /raid0 192.168.2.81(rw,async,no_root_squash)
-> > /raid0/tmp 192.168.2.81(rw,async,no_root_squash)
-> > /raid2 192.168.2.81(rw,async,no_root_squash)
-> > /raid2 192.168.3.80(rw,async,no_root_squash)
-> > /nfsroot 192.168.2.81(rw,async,no_root_squash)
+> > > +++ linux-2.6.10-rc1-bk10-frv/fs/proc/kcore.c	2004-11-01 11:47:04.872656796 +0000
+> > > @@ -344,6 +344,7 @@
+> > >  		if (m == NULL) {
+> > >  			if (clear_user(buffer, tsz))
+> > >  				return -EFAULT;
+> > > +#ifdef CONFIG_MMU
+> >  		} else if ((start >= VMALLOC_START) && (start < VMALLOC_END)) {
+> > ...
+> > > +#endif
+> > 
+> > move this into a helper function that can be compiled away for the !MMU case
 > 
-> You should only have 1 line per directory.
+> That won't work. The else-if clause has to be within the context of the parent
+> function in which it now resides.
 
-But exportfs won't complain about this.
+but you can still have the body of the if clause a noop for !MMU
 
-Additionally, it seems to be allowed to use NIS netgroups in the exports
-file, except, well, it "sort of doesn't quite entirely always work".
-The best part of course being the errors you get: None on the server -
-but mounts might misbehave randomly at some point in the future on some
-client machines.
+> It might actually be better to make /proc/kcore conditional on CONFIG_MMU.
 
-I just edited an exports file (according to your recommendations -
-because my server occationally gave stale file handles on some client
-machines), and found that the netmask 255.255.254.0 doesn't work either
-- you need to specify two nets with 255.255.255.0 instead.   My point
-being, that even though I administer a network that I would describe as
-"small", even I run into major problems with the lack of proper parsing
-and error reporting of /etc/exports.
+Yupp.  In fact I'm pretty sure it can't be selected for m68knommu currently.
 
-Generally, it seems exportfs would accept virtually any input, export it
-one way or another to the kernel, with unpredictable results and
-spurious errors at random times in the future.
+> > > +#ifdef CONFIG_MMU
+> > >  static struct vmalloc_info get_vmalloc_info(void)
+> > ...
+> > > +#endif
+> > 
+> > move the whole function to a CONFIG_MMU-only file
+> 
+> No. The compiler can, if it wishes, inline this function as it is now. Putting
+> it in a separate file removes that option.
 
-What I would like was for exportfs to either say "No! Fix your file
-stupid" or "Good! This setup will work reliably for all eternity then".
+Who cares?  This is absolutley not a fastpath.
 
-Is anyone considering fixing this?   And; is the problem mainly in
-exportfs, in the kernel, or both?  (relevant for me to know if I want to
-go fix it myself)    Thanks!
+> > add a small helper for this.  In fact it's the only caller of
+> > get_vmalloc_info, so that could be merged into the helper, ala:
+> 
+> No. The compiler, if it inlines get_vmalloc_info() can avoid allocating a
+> whole struct vmalloc_info if it wishes in the current scheme of things, and
+> can generate better code by inserting the constants when it needs them.
 
--- 
+Dito.
 
- / jakob
+> > I's day just move this out of line into a MMU-only file.
+> > ...
+> > or at least keep a single MMU ifdef block per file
+> 
+> I think, perhaps, some of linux/mm.h should perhaps be split out into separate
+> MMU and !MMU header files, which then get included as appropriate by
+> linux/mm.h.
+
+Probably makes sense.
+
+> > provide stubs please.  pgtable_cache_init is a per-arch things anyway.
+> 
+> *sigh*. I'm trying to keep the time things take to boot and the amount of
+> space the kernel image occupies down, and you're trying to push both back
+> up. All these empty stubs consume time and space.
+
+Since when does a noop macro or inline take up space in the kernel image.
+
+> > just move the whole systctl registration into a MMU-only file
+> 
+> How's that going to help? A few of the VM options may still apply to !MMU.
+
+I meant the registration of the sysctls not relevant for MMU-less systems.
 

@@ -1,64 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265069AbTFYVAP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jun 2003 17:00:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265080AbTFYVAP
+	id S265065AbTFYVGc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jun 2003 17:06:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265063AbTFYVGc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jun 2003 17:00:15 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:63742 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S265069AbTFYVAJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jun 2003 17:00:09 -0400
-Subject: [PATCH] linux_2.4.22-pre2_clear-smi-fix_A0
-From: john stultz <johnstul@us.ibm.com>
-To: marcelo <marcelo@conectiva.com.br>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, lkml <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1056575114.27508.13.camel@w-jstultz2.beaverton.ibm.com>
+	Wed, 25 Jun 2003 17:06:32 -0400
+Received: from ajax.cs.uga.edu ([128.192.251.3]:29645 "EHLO ajax.cs.uga.edu")
+	by vger.kernel.org with ESMTP id S265065AbTFYVG3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jun 2003 17:06:29 -0400
+Date: Wed, 25 Jun 2003 17:26:32 -0400
+From: Ed L Cashin <ecashin@uga.edu>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: kj <kernel-janitor-discuss@lists.sourceforge.net>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [announce] 2.5.73-kj1
+Message-ID: <20030625172632.A10121@atlas.cs.uga.edu>
+References: <20030625134424.611c6f96.rddunlap@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 25 Jun 2003 14:05:14 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20030625134424.611c6f96.rddunlap@osdl.org>; from rddunlap@osdl.org on Wed, Jun 25, 2003 at 01:44:24PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo, all,
+On Wed, Jun 25, 2003 at 01:44:24PM -0700, Randy.Dunlap wrote:
+>
+> patch is at:  http://www.osdl.org/rddunlap/kj-patches/2.5.73/patch-2.5.73-kj1
 
-	This is a backported fix from 2.5. Some of our more recent hardware
-requires that SMIs are routed through the IOAPIC, thus when we
-clear_IO_APIC() at boot time, we clear the BIOS initialized SMI pin.
-This basically clobbers the SMI so we can then never make the transition
-into ACPI mode. Additionally various other SMI functions cease to work. 
-This patch simply reads the apic entry in clear_IO_APIC to make sure the
-delivery_mode isn't dest_SMI. If it is, we leave the apic entry alone
-and return.
+The URL, 
 
-With this patch, the box boots and SMIs function properly.
+http://developer.osdl.org/rddunlap/kj-patches/2.5.73/patch-2.5.73-kj1
 
-Please consider for inclusion.
-
-thanks
--john
-
-diff -Nru a/arch/i386/kernel/io_apic.c b/arch/i386/kernel/io_apic.c
---- a/arch/i386/kernel/io_apic.c	Wed Jun 25 13:27:07 2003
-+++ b/arch/i386/kernel/io_apic.c	Wed Jun 25 13:27:07 2003
-@@ -169,6 +169,14 @@
- {
- 	struct IO_APIC_route_entry entry;
- 	unsigned long flags;
-+	
-+	/* Check delivery_mode to be sure we're not clearing an SMI pin */
-+	spin_lock_irqsave(&ioapic_lock, flags);
-+	*(((int*)&entry) + 0) = io_apic_read(apic, 0x10 + 2 * pin);
-+	*(((int*)&entry) + 1) = io_apic_read(apic, 0x11 + 2 * pin);
-+	spin_unlock_irqrestore(&ioapic_lock, flags);
-+	if (entry.delivery_mode == dest_SMI)
-+		return;
- 
- 	/*
- 	 * Disable it in the IO-APIC irq-routing table:
-
-
-
+... works for me.  Not www, though.
+                         
+--
+--Ed L Cashin            |   PGP public key:
+  ecashin@uga.edu        |   http://noserose.net/e/pgp/

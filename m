@@ -1,50 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130811AbRBQBav>; Fri, 16 Feb 2001 20:30:51 -0500
+	id <S130356AbRBQBfl>; Fri, 16 Feb 2001 20:35:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130356AbRBQBac>; Fri, 16 Feb 2001 20:30:32 -0500
-Received: from jalon.able.es ([212.97.163.2]:22211 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S131385AbRBQBaV>;
-	Fri, 16 Feb 2001 20:30:21 -0500
-Date: Sat, 17 Feb 2001 02:30:14 +0100
-From: "J . A . Magallon" <jamagallon@able.es>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: gcc-2.96 and kernel
-Message-ID: <20010217023014.C968@werewolf.able.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 1.1.1
+	id <S131473AbRBQBfb>; Fri, 16 Feb 2001 20:35:31 -0500
+Received: from ferret.lmh.ox.ac.uk ([163.1.18.131]:19979 "HELO
+	ferret.lmh.ox.ac.uk") by vger.kernel.org with SMTP
+	id <S130356AbRBQBfS>; Fri, 16 Feb 2001 20:35:18 -0500
+Date: Sat, 17 Feb 2001 01:35:15 +0000 (GMT)
+From: Chris Evans <chris@scary.beasts.org>
+To: <linux-kernel@vger.kernel.org>
+cc: <kuznet@ms2.inr.ac.ru>, <davem@redhat.com>
+Subject: SO_SNDTIMEO: 2.4 kernel bugs
+Message-ID: <Pine.LNX.4.30.0102170126130.21158-100000@ferret.lmh.ox.ac.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+
 Hi,
 
-(I suppose people track this info, but a remark never hurts...)
+I was glad to see Linux gain SO_SNDTIMEO in kernel 2.4. It is a very use
+feature which can avoid complexity and pain in userspace programs.
 
-Just updated Mandrake gcc to gcc-2.96-0.37mdk. Interesting point:
-* Thu Feb 15 2001 David BAUDENS <baudens@mandrakesoft.com> 2.96-0.37mdk
+Unfortunately, it seems to be very buggy. Here are two buggy scenarios.
 
-- Fix build on PPC :)
+1)
+Create a socketpair(), PF_UNIX, SOCK_STREAM.
+Set a 5 second SO_SNDTIMEO on the socket.
+write() 100k down the socket in one write(), i.e. enough to cause the
+write to have to block.
+--> BUG!!! The call blocks indefinitely instead of returning after 5
+seconds
 
-* Thu Feb 15 2001 Chmouel Boudjnah <chmouel@mandrakesoft.com> 2.96-0.36mdk
+(Note that the same test but with SO_RCVTIMEO and a read() works as
+expected - I get EAGAIN after 5 seconds).
 
-- Break build on PPC ;).
-- Red Hat patches, Jakub Jelinek (rel74) 5 new patches :
-  - fix last cpp patch so that no whitespace is inserted at start of line
-    if last macro expansion resulted in no tokens (Neil Booth)
-  - fix ICE during printing warning about overloading decisions (#23584)
-  - honor no implicit extern "C" on linux in cpp
-  - fix layout of __attribute((packed)) enums in bitfields (showing up
-    in Linux DAC960 driver)
-    ^^^^^^^^^^^^^^^^^^^^^^^
-..
 
-The last thing remaining to recommend 2.96 ? Who knows...
+2)
+Create a localhost listening socket - AF_INET, SOCK_STREAM.
+Connect to the listening port
+Set a 5 second SO_SNDTIMEO on the socket.
+write() 1Mb down the socket in one write(), i.e. enough to cause it to
+have to block
+-> The write() will return after 5 seconds with a partial write count.
+GOOD!
+Repeat the write() - send another 1Mb.
+--> BUG!! The call blocks indefinitely instead of returning with EAGAIN
+after 5s.
 
--- 
-J.A. Magallon                                                      $> cd pub
-mailto:jamagallon@able.es                                          $> more beer
 
-Linux werewolf 2.4.1-ac14 #1 SMP Thu Feb 15 16:05:52 CET 2001 i686
+I hope this is detailled enough. I'm trying to gain access to a FreeBSD
+box to compare results..
+
+Cheers
+Chris
+
 

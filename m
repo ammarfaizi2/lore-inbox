@@ -1,49 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262221AbTIWSGa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Sep 2003 14:06:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262223AbTIWSGa
+	id S262139AbTIWSBj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Sep 2003 14:01:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262161AbTIWSBj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Sep 2003 14:06:30 -0400
-Received: from verein.lst.de ([212.34.189.10]:56758 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S262221AbTIWSG2 (ORCPT
+	Tue, 23 Sep 2003 14:01:39 -0400
+Received: from usea-naimss2.unisys.com ([192.61.61.104]:54284 "EHLO
+	usea-naimss2.unisys.com") by vger.kernel.org with ESMTP
+	id S262139AbTIWSBf convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Sep 2003 14:06:28 -0400
-Date: Tue, 23 Sep 2003 20:06:21 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: "David S. Miller" <davem@redhat.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] softirq_pending()
-Message-ID: <20030923180621.GA18794@lst.de>
-Mail-Followup-To: Christoph Hellwig <hch@lst.de>,
-	"David S. Miller" <davem@redhat.com>, akpm@osdl.org,
-	linux-kernel@vger.kernel.org
-References: <20030923144847.GA16139@lst.de> <20030923105841.27809d11.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030923105841.27809d11.davem@redhat.com>
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -5 () EMAIL_ATTRIBUTION,IN_REP_TO,QUOTED_EMAIL_TEXT,REFERENCES,REPLY_WITH_QUOTES,USER_AGENT_MUTT
+	Tue, 23 Sep 2003 14:01:35 -0400
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
+Subject: RE: NS83820 2.6.0-test5 driver seems unstable on IA64
+Date: Tue, 23 Sep 2003 12:58:59 -0500
+Message-ID: <BFF315B8E1D7F845B8FC1C28778693D70AFEC6@usslc-exch1.na.uis.unisys.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: NS83820 2.6.0-test5 driver seems unstable on IA64
+Thread-Index: AcOB+4f+A/scTi+0S7STcJN0vkPsdAAABdwA
+From: "Van Maren, Kevin" <kevin.vanmaren@unisys.com>
+To: "David S. Miller" <davem@redhat.com>, <davidm@hpl.hp.com>
+Cc: <davidm@napali.hpl.hp.com>, <peter@chubb.wattle.id.au>, <bcrl@kvack.org>,
+       <ak@suse.de>, <iod00d@hp.com>, <peterc@gelato.unsw.edu.au>,
+       <linux-ns83820@kvack.org>, <linux-ia64@vger.kernel.org>,
+       <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 23 Sep 2003 17:59:10.0512 (UTC) FILETIME=[63F30B00:01C381FC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 23, 2003 at 10:58:41AM -0700, David S. Miller wrote:
-> The problem is that, on some of the platforms that don't ignore
-> the argument, the code generation is much better.
+> > The printk() is rate-controlled and doesn't happen for every unaligned
+> > access.  It's average cost can be made as low as we want to, by adjusting
+> > the rate.
 > 
-> GCC doesn't consider smp_processor_id() like some const local
-> variable, so multiple invocations are assumed to return different
-> values because in many cases 'current_thread_info()' is obscured.
-> 
-> Your patch is going to make a lot of new code get generated on
-> x86 for example, so I don't think it should be applied even though
-> my own platforms are not effected by this issue.
+> But if the event is normal, you shouldn't be logging it as if
+> it weren't.
 
-Okay, thanks forthe explanation.  I don't think it matters in this
-case because there's exactly one case where we pass an variable into
-softirq_pending() instead of a direct, uncached smp_processor_id() -
-and that is in arch/cris/ which is UP only.
+That's my view on the fpswa printk's (handle_fpu_swa): they are normal,
+expected, and there is absolutely nothing that can be done about them --
+so why print a "warning" about them (even if it is only 5 per second)?
+If nothing else, toggle the meaning for IA64_THREAD_FPEMU_NOPRINT: turn it
+ON for special apps.
 
-I'll try to remember the hint so I know what do to this pops up
-the next time, though :)
+Rate-limited unaligned loads in user space make a lot more sense, since
+they _may_ point out issues in the code.
+
+Kevin

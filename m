@@ -1,63 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131723AbRAKQPV>; Thu, 11 Jan 2001 11:15:21 -0500
+	id <S131434AbRAKQTL>; Thu, 11 Jan 2001 11:19:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132356AbRAKQPM>; Thu, 11 Jan 2001 11:15:12 -0500
-Received: from hermes.mixx.net ([212.84.196.2]:13316 "HELO hermes.mixx.net")
-	by vger.kernel.org with SMTP id <S131723AbRAKQPA>;
-	Thu, 11 Jan 2001 11:15:00 -0500
-Message-ID: <3A5DDB4D.8BDAA281@innominate.de>
-Date: Thu, 11 Jan 2001 17:11:57 +0100
-From: Daniel Phillips <phillips@innominate.de>
-Organization: innominate
-X-Mailer: Mozilla 4.72 [de] (X11; U; Linux 2.4.0-test10 i586)
+	id <S131819AbRAKQTB>; Thu, 11 Jan 2001 11:19:01 -0500
+Received: from colorfullife.com ([216.156.138.34]:1299 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S131434AbRAKQSq>;
+	Thu, 11 Jan 2001 11:18:46 -0500
+Message-ID: <3A5DDD09.C8C70D36@colorfullife.com>
+Date: Thu, 11 Jan 2001 17:19:21 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16-22 i586)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>, linux-kernel@vger.kernel.org
-Subject: Re: FS callback routines
-In-Reply-To: <3A5A4958.CE11C79B@goingware.com> <3A5B0D0C.719E69F@innominate.de> <20010110115632.E30055@pcep-jamie.cern.ch> <3A5DC376.D9E5103F@innominate.de> <20010111163703.A3000@pcep-jamie.cern.ch>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+CC: Andrea Arcangeli <andrea@suse.de>, Russell King <rmk@arm.linux.org.uk>,
+        Hubert Mantel <mantel@suse.de>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Compatibility issue with 2.2.19pre7
+In-Reply-To: <20010110013755.D13955@suse.de> <200101100654.f0A6sjJ02453@flint.arm.linux.org.uk> <20010110163158.F19503@athlon.random> <shszogy2jmr.fsf@charged.uio.no>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jamie Lokier wrote:
+Trond Myklebust wrote:
 > 
-> Daniel Phillips wrote:
-> >         DN_OPEN       A file in the directory was opened
-> >
-> > You open the top level directory and register for events.  When somebody
-> > opens a subdirectory of the top level directory, you receive
-> > notification and register for events on the subdirectory, and so on,
-> > down to the file that is actually modified.
 > 
-> If it worked, and I'm not sure the timing would be reliable enough, the
-> daemon would only have to have open every directory being accessed by
-> every program in the system.  Hmm.  Seems like overkill when you're only
-> interested in files that are being modified.
+> As for the issue of casting 'fh->data' as a 'struct knfsd' then that
+> is a perfectly valid operation.
+>
+No it isn't.
 
-It gets to close some too.  Normally just the directories in the path to
-the file(s) being modified would be open.
+fh->data is an array of characters, thus without any alignment
+restrictions.
+'struct knfsd' begins with a pointer, thus it must be 4 or 8 byte
+aligned.
 
-Good point about the timing.  A directory should not disappear before an
-in-flight notification has been serviced.  I doubt the current scheme
-enforces this.  There is no more room for 'works most of the time' in
-this than there is in our memory page handling.
+The portable 'struct nfs_fh' structure would be
 
-> It would be much, much more reliable to do a walk over d_parent in
-> dnotify.c.  Your idea is a nice way to flag kernel dentries such that
-> you don't do d_parent walks unnecessarily.
+#define NFS_HANDLESIZE	64
+struct nfs_fh
+{
+	unsigned short len;
+	void* data[NFS_HANDLESIZE/sizeof(void*)];
+};
 
-It's bottom-up vs top-down.  It's worth analyzing the top-down approach
-a little more, it does solve a lot of problems (and creates some as you
-pointed out, or at least makes some existing problems more obvious). 
-For make it's really quite nice.  The make daemon only needs to register
-in the top level directory of the source tree.  I think this solves the
-hard link problem too, because each path that's interested in
-notification will receive it.
+But now its too late for such a change - it breaks at least i386,
+probably all platforms.
+
+Does knfsd actually need all 64 bytes in the nfs_fh?
+What about aligning the 'struct knfsd' manually?
+
+-	struct knfsd* ptr = fh->data;
++	struct knfsd* ptr = (fh->data+15)&(~15);
+
+That would be kernel only, no ABI problems.
 
 --
-Daniel
+	Manfred
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

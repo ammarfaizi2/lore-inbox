@@ -1,42 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268224AbTCFSSG>; Thu, 6 Mar 2003 13:18:06 -0500
+	id <S268277AbTCFSWM>; Thu, 6 Mar 2003 13:22:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268256AbTCFSSG>; Thu, 6 Mar 2003 13:18:06 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:9996 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S268224AbTCFSSF>; Thu, 6 Mar 2003 13:18:05 -0500
-Date: Thu, 6 Mar 2003 10:26:06 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-cc: Ingo Molnar <mingo@elte.hu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@digeo.com>,
-       <rml@tech9.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S268290AbTCFSWM>; Thu, 6 Mar 2003 13:22:12 -0500
+Received: from fep02-mail.bloor.is.net.cable.rogers.com ([66.185.86.72]:10634
+	"EHLO fep02-mail.bloor.is.net.cable.rogers.com") by vger.kernel.org
+	with ESMTP id <S268277AbTCFSWL>; Thu, 6 Mar 2003 13:22:11 -0500
+Date: Thu, 6 Mar 2003 13:06:59 -0500 (EST)
+From: "Dimitrie O. Paun" <dimi@intelliware.ca>
+X-X-Sender: dimi@dimi.dssd.ca
+To: Ingo Molnar <mingo@elte.hu>
+cc: Jeff Garzik <jgarzik@pobox.com>, Linus Torvalds <torvalds@transmeta.com>,
+       Andrew Morton <akpm@digeo.com>, Robert Love <rml@tech9.net>,
+       <linux-kernel@vger.kernel.org>
 Subject: Re: [patch] "HT scheduler", sched-2.5.63-B3
-In-Reply-To: <9420000.1046974427@flay>
-Message-ID: <Pine.LNX.4.44.0303061024050.7720-100000@home.transmeta.com>
+In-Reply-To: <Pine.LNX.4.44.0303061814080.14035-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0303061304230.23356-100000@dimi.dssd.ca>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Authentication-Info: Submitted using SMTP AUTH LOGIN at fep02-mail.bloor.is.net.cable.rogers.com from [24.103.156.204] using ID <dpaun@rogers.com> at Thu, 6 Mar 2003 13:32:19 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 6 Mar 2003, Ingo Molnar wrote:
 
-On Thu, 6 Mar 2003, Martin J. Bligh wrote:
-> 
-> It would be nice if we had a "batch-job-able" simulation of this situation,
-> to do more accurate testing with ... can anyone think of an easy way to
-> do such a thing? "waggle a few windows around on X and see if it feels 
-> better to you or not" is kind of hard to do accurate testing with.
-> Of course, the simulation has to be accurate too, or it gets stupid ;-)
+> yes, an ELF flag might work, or my suggestion to allow applications to
+> increase their priority (up until a certain degree).
 
-It should be possible to use the same approach that the other latency
-testers use (ie contest&co), by just generating some specific background
-load (say, different mixtures of X clients and plain compute-bound things 
-like kernel compiles).
+An ELF flag might be better, as it's declarative -- it allows the kernel
+to implement 'interactivity' in various ways, so we can keep tweeking it.
+Priority might prove to be a bit different than interactivity, so we
+better not overload the two just yet.
 
-Ie measure directly exactly what we're interested in: the latency of some
-general X request, under different loads.
-
-		Linus
+-- 
+Dimi.
 

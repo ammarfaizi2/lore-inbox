@@ -1,98 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265431AbUGNEMQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265500AbUGNESm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265431AbUGNEMQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jul 2004 00:12:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265500AbUGNEMP
+	id S265500AbUGNESm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jul 2004 00:18:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266905AbUGNESm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jul 2004 00:12:15 -0400
-Received: from web13708.mail.yahoo.com ([216.136.175.141]:51294 "HELO
-	web13708.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S265431AbUGNELv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jul 2004 00:11:51 -0400
-Message-ID: <20040714041147.87993.qmail@web13708.mail.yahoo.com>
-Date: Tue, 13 Jul 2004 21:11:47 -0700 (PDT)
-From: Martins Krikis <mkrikis@yahoo.com>
-Subject: [RFC][PATCH] ataraid_end_request hides errors (all? 2.4 kernels)
-To: linux-kernel@vger.kernel.org
-Cc: mkrikis@yahoo.com
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="0-733489887-1089778307=:22468"
+	Wed, 14 Jul 2004 00:18:42 -0400
+Received: from fw.osdl.org ([65.172.181.6]:52914 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265500AbUGNESk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jul 2004 00:18:40 -0400
+Date: Tue, 13 Jul 2004 21:17:21 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Peter Zaitsev <peter@mysql.com>
+Cc: andrea@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: VM Problems in 2.6.7 (Too active OOM Killer)
+Message-Id: <20040713211721.05781fb7.akpm@osdl.org>
+In-Reply-To: <1089776640.15336.2557.camel@abyss.home>
+References: <1089771823.15336.2461.camel@abyss.home>
+	<20040714031701.GT974@dualathlon.random>
+	<1089776640.15336.2557.camel@abyss.home>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---0-733489887-1089778307=:22468
-Content-Type: text/plain; charset=us-ascii
-Content-Id: 
-Content-Disposition: inline
+Peter Zaitsev <peter@mysql.com> wrote:
+>
+> The reason for me to disable swap both in 2.4 and 2.6 is - it really
+>  hurts performance. In some cases performance can be 2-3 times slower
+>  with swap file enabled.   Using O_DIRECT and mlock() for buffers helps 
+>  but not completely.
 
-I know that interest in 2.4 kernels and ataraid at this point
-is probably minimal, and I myself don't use ataraid_end_request.
+It's strange that swap should harm performance in this manner.  Is that
+also the case on 2.6?
 
-However, I would appreciate if somebody could tell me whether a
-patch like the one attached is acceptable or whether the use of
-the BH_PrivateStart flag (style issues aside) can introduce any
-new problems. In particular, I've noticed that ext3 and xfs also
-use this flag.
+wrt this OOM problem: it's possible that your ZONE_NORMAL got filled with
+anonymous memory which the VM is unable to do anything about.  If you're
+going to run a highmem box swapless then you should tune the kernel so that
+it doesn't use so much ZONE_NORMAL memory for anonymous pages.
 
-The bug that the patch attempts to solve is the following.
-Ataraid_end_request() uses the success/failure of the last
-one of component I/Os as the success/failure of the complete
-I/O (to a RAID volume). Thus, even if all the first components
-fail, as long as the last one succeeds, it will report the
-complete I/O as a success, and the user will not even get
-an indication of any errors. The code is used by all ataraid
-subdrivers except iswraid, as far as I know.
+Try
 
-If using the BH_PrivateStart is not appropriate in this module,
-a different free bit from b_state can be chosen. Protection
-against component-I/O failure can also be achieved by introducing
-a new field in ataraid_bh_private. Ideally the subdrivers would
-also clear the flag/field, although for a truly unused flag
-in b_state this can be skipped, so a flag-based solution can
-be both quicker and need no extra space, I think.
+	echo 500 > /proc/sys/vm/lower_zone_protection
 
-Anyway, I'm very interested to hear whether anybody cares
-and whether it is OK to use BH_PrivateStart in block device
-drivers.
+then do:
 
-Thanks,
+	echo m > /proc/sysrq-trigger; dmesg -c
 
-  Martins Krikis
+You'll get output like this:
 
 
+Normal free:407192kB min:936kB low:1872kB high:2808kB active:1572kB inactive:410348kB present:901120kB
+protections[]: 0 468 128724
 
-		
-__________________________________
-Do you Yahoo!?
-Take Yahoo! Mail with you! Get it on your mobile phone.
-http://mobile.yahoo.com/maildemo 
---0-733489887-1089778307=:22468
-Content-Type: application/octet-stream; name="ataraid.patch"
-Content-Transfer-Encoding: base64
-Content-Description: ataraid.patch
-Content-Disposition: attachment; filename="ataraid.patch"
+                     ^^^^^^
 
-LS0tIGxpbnV4L2RyaXZlcnMvaWRlL3JhaWQvYXRhcmFpZC5jLm9yaWcJMjAw
-NC0wNy0xMyAyMzo0NToyMS4wMDAwMDAwMDAgLTA0MDAKKysrIGxpbnV4L2Ry
-aXZlcnMvaWRlL3JhaWQvYXRhcmFpZC5jCTIwMDQtMDctMTMgMjM6NDU6MzIu
-MDAwMDAwMDAwIC0wNDAwCkBAIC0xNTMsNyArMTUzLDE0IEBAIHZvaWQgYXRh
-cmFpZF9lbmRfcmVxdWVzdChzdHJ1Y3QgYnVmZmVyX2gKIAlpZiAocHJpdmF0
-ZT09TlVMTCkKIAkJQlVHKCk7CiAKKwlpZiAoIXVwdG9kYXRlKSAvKiByZWNv
-cmQgZmFpbHVyZXMgb2YgY29tcG9uZW50cyBvZiB0aGUgb3JpZ2luYWwgSS9P
-ICovCisJCXNldF9iaXQoQkhfUHJpdmF0ZVN0YXJ0LCAmcHJpdmF0ZS0+cGFy
-ZW50LT5iX3N0YXRlKTsKKwkKIAlpZiAoYXRvbWljX2RlY19hbmRfdGVzdCgm
-cHJpdmF0ZS0+Y291bnQpKSB7CisJCWlmICh0ZXN0X2JpdChCSF9Qcml2YXRl
-U3RhcnQsICZwcml2YXRlLT5wYXJlbnQtPmJfc3RhdGUpKSB7CisJCQl1cHRv
-ZGF0ZSA9IDA7IC8qIGZhaWwgdGhlIGNvbXBsZXRlZCBvcmlnaW5hbCBJL08g
-Ki8KKwkJCWNsZWFyX2JpdChCSF9Qcml2YXRlU3RhcnQsICZwcml2YXRlLT5w
-YXJlbnQtPmJfc3RhdGUpOworCQl9CiAJCXByaXZhdGUtPnBhcmVudC0+Yl9l
-bmRfaW8ocHJpdmF0ZS0+cGFyZW50LHVwdG9kYXRlKTsKIAkJcHJpdmF0ZS0+
-cGFyZW50ID0gTlVMTDsKIAkJa2ZyZWUocHJpdmF0ZSk7CkBAIC0xOTQsNiAr
-MjAxLDggQEAgc3RhdGljIHZvaWQgYXRhcmFpZF9zcGxpdF9yZXF1ZXN0KHJl
-cXVlcwogCiAJYmgyLT5iX2RhdGEgKz0gIGJoLT5iX3NpemUvMjsKIAorCWNs
-ZWFyX2JpdChCSF9Qcml2YXRlU3RhcnQsICZiaC0+Yl9zdGF0ZSk7IC8qIHRo
-aXMgYml0IHRyYWNrcyBzdWNjZXNzICovCisKIAlnZW5lcmljX21ha2VfcmVx
-dWVzdChydyxiaDEpOwogCWdlbmVyaWNfbWFrZV9yZXF1ZXN0KHJ3LGJoMik7
-CiB9Cg==
-
---0-733489887-1089778307=:22468--
+This number here means that the VM will make 128724 pages (500MB) of the
+normal zone ineligible for anonymous memory and pagecache allocations. 
+That is probably an appropriate setting for your application.  If you set
+lower_zone_protection too low you'll still get OOMs.  If you set it too
+high the file caching efficiency may suffer a little.

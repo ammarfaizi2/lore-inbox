@@ -1,125 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132898AbRD2X3a>; Sun, 29 Apr 2001 19:29:30 -0400
+	id <S132991AbRD2XXS>; Sun, 29 Apr 2001 19:23:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132895AbRD2X3U>; Sun, 29 Apr 2001 19:29:20 -0400
-Received: from dutidad.twi.tudelft.nl ([130.161.158.199]:17548 "EHLO dutidad")
-	by vger.kernel.org with ESMTP id <S132881AbRD2X3R>;
-	Sun, 29 Apr 2001 19:29:17 -0400
-Date: Mon, 30 Apr 2001 01:29:15 +0200
-From: "Charl P. Botha" <c.p.botha@its.tudelft.nl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.4 Sound corruption
-Message-ID: <20010430012915.A7885@dutidad.twi.tudelft.nl>
-Reply-To: "Charl P. Botha" <c.p.botha@its.tudelft.nl>
-In-Reply-To: <20010429165501.A7545@dutidad.twi.tudelft.nl>
-Mime-Version: 1.0
+	id <S132898AbRD2XXI>; Sun, 29 Apr 2001 19:23:08 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:31889 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S132881AbRD2XXA>;
+	Sun, 29 Apr 2001 19:23:00 -0400
+From: "David S. Miller" <davem@redhat.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010429165501.A7545@dutidad.twi.tudelft.nl>; from c.p.botha@its.tudelft.nl on Sun, Apr 29, 2001 at 04:55:01PM +0200
+Content-Transfer-Encoding: 7bit
+Message-ID: <15084.41552.252094.184611@pizda.ninka.net>
+Date: Sun, 29 Apr 2001 16:22:56 -0700 (PDT)
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: best zero-copy example?
+In-Reply-To: <200104291638.f3TGcNs464321@saturn.cs.uml.edu>
+In-Reply-To: <200104291638.f3TGcNs464321@saturn.cs.uml.edu>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-FWIW, I have established that my sound broke between 2.4.4-pre5 and
-2.4.4-pre6.  I.e. in pre5 it works and in pre6 it doesn't, same .config.  If
-anyone has any clues, I'd be glad to know.
 
-On Sun, Apr 29, 2001 at 04:55:01PM +0200, Charl P. Botha wrote:
-> 2.4.4 has broken sound here in a very strange way.  I have a debian testing
-> system, Abit KT7 (thus VIA KT133 chipset) and SB PC128 (es1371-based) sound
-> card.
-> 
-> Up until 2.4.3 everything was fine.  Now, however, when I send _anything_ to
-> /dev/dsp, I get continuous high-pitched beeping (nothing remotely resembling
-> what the sound card should be doing).  
-> 
-> The strange thing is that when I cause hard disk activity (find / -name "*")
-> the correct sound is produced in time with hard disc accesses (I have tried
-> this with DMA enabled and disabled on the drive, same results).  Also, when I
-> switch desktops (icewm, XFree86 4.0.2, Nvidia 0.9.767 drivers) the correct
-> sound is (very) momentarily produced (almost non-detectibly).  After these
-> periods of lucidity, the sound card returns to its high-pitched cacophony.
-> 
-> I have attached copies of both /proc/interrupts and /proc/pci.  If anyone
-> requires more information, please say the word.  I am not subscribed to this
-> list.
-> 
-> Best regards,
-> 
-> -- 
-> charl p. botha      | computer graphics and cad/cam 
-> http://cpbotha.net/ | http://www.cg.its.tudelft.nl/
+Albert D. Cahalan writes:
+ > 
+ > What would be the cleanest driver that does everything right?
 
->            CPU0       
->   0:     320161          XT-PIC  timer
->   1:      19658          XT-PIC  keyboard
->   2:          0          XT-PIC  cascade
->   8:          1          XT-PIC  rtc
->   9:          0          XT-PIC  usb-uhci, usb-uhci
->  10:     272660          XT-PIC  nvidia
->  11:      93973          XT-PIC  eth0, es1371
->  12:      42760          XT-PIC  PS/2 Mouse
->  14:      39388          XT-PIC  ide0
->  15:          5          XT-PIC  ide1
-> NMI:          0 
-> ERR:          0
+All of 3c59x, acenic, sunhme, sungem do all of ipv4 right.
 
-> PCI devices found:
->   Bus  0, device   0, function  0:
->     Host bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133] (rev 3).
->       Prefetchable 32 bit memory at 0xd8000000 [0xdbffffff].
->   Bus  0, device   1, function  0:
->     PCI bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133 AGP] (rev 0).
->       Master Capable.  No bursts.  Min Gnt=12.
->   Bus  0, device   7, function  0:
->     ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South] (rev 34).
->   Bus  0, device   7, function  1:
->     IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 16).
->       Master Capable.  Latency=32.  
->       I/O at 0xd000 [0xd00f].
->   Bus  0, device   7, function  2:
->     USB Controller: VIA Technologies, Inc. UHCI USB (rev 16).
->       IRQ 9.
->       Master Capable.  Latency=32.  
->       I/O at 0xd400 [0xd41f].
->   Bus  0, device   7, function  3:
->     USB Controller: VIA Technologies, Inc. UHCI USB (#2) (rev 16).
->       IRQ 9.
->       Master Capable.  Latency=32.  
->       I/O at 0xd800 [0xd81f].
->   Bus  0, device   7, function  4:
->     Host bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev 48).
->       IRQ 11.
->   Bus  0, device   8, function  0:
->     Multimedia video controller: Brooktree Corporation Bt878 (rev 17).
->       IRQ 9.
->       Master Capable.  Latency=32.  Min Gnt=16.Max Lat=40.
->       Prefetchable 32 bit memory at 0xde000000 [0xde000fff].
->   Bus  0, device   8, function  1:
->     Multimedia controller: Brooktree Corporation Bt878 (rev 17).
->       IRQ 9.
->       Master Capable.  Latency=32.  Min Gnt=4.Max Lat=255.
->       Prefetchable 32 bit memory at 0xde001000 [0xde001fff].
->   Bus  0, device   9, function  0:
->     Ethernet controller: Accton Technology Corporation SMC2-1211TX (rev 16).
->       IRQ 11.
->       Master Capable.  Latency=32.  Min Gnt=32.Max Lat=64.
->       I/O at 0xdc00 [0xdcff].
->       Non-prefetchable 32 bit memory at 0xde002000 [0xde0020ff].
->   Bus  0, device  13, function  0:
->     Multimedia audio controller: Ensoniq ES1371 [AudioPCI-97] (rev 8).
->       IRQ 11.
->       Master Capable.  Latency=32.  Min Gnt=12.Max Lat=128.
->       I/O at 0xe000 [0xe03f].
->   Bus  1, device   0, function  0:
->     VGA compatible controller: nVidia Corporation NV11 (rev 161).
->       IRQ 10.
->       Master Capable.  Latency=248.  Min Gnt=5.Max Lat=1.
->       Non-prefetchable 32 bit memory at 0xdc000000 [0xdcffffff].
->       Prefetchable 32 bit memory at 0xd0000000 [0xd7ffffff].
+sunhme and sungem get ipv6 right as well because they just treat the
+checksummed area as an opaque buffer, whereas the other chips really
+do checksummming in an ipv4 specific way.
 
+You can check for this "ipv4 only checksumming" feature attribute
+being set in the driver, via NETIF_F_IP_CSUM.
 
--- 
-charl p. botha      | computer graphics and cad/cam 
-http://cpbotha.net/ | http://www.cg.its.tudelft.nl/
+The smarter chips which checksum in a protocol independant way will
+use NETIF_F_HW_CSUM.
+
+Later,
+David S. Miller
+davem@redhat.com

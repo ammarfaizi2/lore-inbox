@@ -1,33 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313779AbSDPRja>; Tue, 16 Apr 2002 13:39:30 -0400
+	id <S313781AbSDPRnS>; Tue, 16 Apr 2002 13:43:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313780AbSDPRj3>; Tue, 16 Apr 2002 13:39:29 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:59142 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S313779AbSDPRj3>; Tue, 16 Apr 2002 13:39:29 -0400
-Subject: Re: OK, who broke the serial driver in 2.4.19-pre7?
-To: rgooch@ras.ucalgary.ca (Richard Gooch)
-Date: Tue, 16 Apr 2002 18:57:18 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org, marcelo@conectiva.com.br (Marcelo Tosatti),
-        khalid_aziz@hp.com
-In-Reply-To: <200204161712.g3GHCw513349@vindaloo.ras.ucalgary.ca> from "Richard Gooch" at Apr 16, 2002 11:12:58 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S313784AbSDPRnR>; Tue, 16 Apr 2002 13:43:17 -0400
+Received: from smtp-out-1.wanadoo.fr ([193.252.19.188]:44247 "EHLO
+	mel-rti20.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S313781AbSDPRnQ>; Tue, 16 Apr 2002 13:43:16 -0400
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: "David S. Miller" <davem@redhat.com>, <david.lang@digitalinsight.com>
+Cc: <vojtech@suse.cz>, <dalecki@evision-ventures.com>,
+        <rgooch@ras.ucalgary.ca>, <torvalds@transmeta.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.8 IDE 36
+Date: Tue, 16 Apr 2002 18:40:22 +0100
+Message-Id: <20020416174022.25545@smtp.wanadoo.fr>
+In-Reply-To: <20020416.100610.115916272.davem@redhat.com>
+X-Mailer: CTM PowerMail 3.1.2 F <http://www.ctmdev.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16xXCg-0000T7-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->   Hi, all. 2.4.19-pre7 has broken the serial driver. With 2.4.19-pre6
-> and before, my first serial port was ttyS0 (4, 64), and I got these
-> kernel messages:
-> Was this broken by the HCDP serial ports changes?
+>   I could be wrong, it's a 2.1.x kernel that they started with. I thought
+>   that was around the time the fix went in.
+>   
+>Again, I did the fix 6 years ago, thats pre-2.0.x days
+>
+>EXT2 has been little-endian only with proper byte-swapping support
+>across all architectures, since that time.
 
-Yes. Someone put the HCDP below not above the basic x86 ports. Tweak
-include/asm-i386/serial.h and that should be well. 
+My understanding it that Tivo behaves like some Amiga's here
+and has broken swapping of the IDE bus itself, not the ext2
+filesystem.
 
-Alan
+On PPC, we still have some historical horrible macros redefinitions
+in asm/ide.h to let APUS (PPC Amiga) deal with these.
+
+Now, the problem of dealing with DMA along with the swapping is
+something scary. I beleive the sanest solution that won't please
+affected people is to _not_ support DMA on these broken HW ;)
+
+Another way would be, for such broken controllers, to break the
+request into 1 page max requests and let them all go through a
+bounce buffer.
+
+Ben.
+
 

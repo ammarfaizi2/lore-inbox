@@ -1,37 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290752AbSBOT7u>; Fri, 15 Feb 2002 14:59:50 -0500
+	id <S290753AbSBOUDi>; Fri, 15 Feb 2002 15:03:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290749AbSBOT7i>; Fri, 15 Feb 2002 14:59:38 -0500
-Received: from pc1-camc5-0-cust78.cam.cable.ntl.com ([80.4.0.78]:17344 "EHLO
-	pc1-camc5-0-cust78.cam.cable.ntl.com") by vger.kernel.org with ESMTP
-	id <S290748AbSBOT71>; Fri, 15 Feb 2002 14:59:27 -0500
-Date: Fri, 15 Feb 2002 19:58:18 +0000
-From: Arjan van de Ven <arjan@pc1-camc5-0-cust78.cam.cable.ntl.com>
-To: "Eric S. Raymond" <esr@thyrsus.com>
+	id <S290754AbSBOUD2>; Fri, 15 Feb 2002 15:03:28 -0500
+Received: from ns.suse.de ([213.95.15.193]:13584 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S290753AbSBOUDP>;
+	Fri, 15 Feb 2002 15:03:15 -0500
+Date: Fri, 15 Feb 2002 21:03:13 +0100
+From: Dave Jones <davej@suse.de>
+To: Wayne Whitney <whitney@math.berkeley.edu>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Disgusted with kbuild developers
-Message-ID: <20020215195818.A3534@pc1-camc5-0-cust78.cam.cable.ntl.com>
-In-Reply-To: <20020215135557.B10961@thyrsus.com> <200202151929.g1FJTaU03362@pc1-camc5-0-cust78.cam.cable.ntl.com> <20020215141433.B11369@thyrsus.com>
+Subject: Re: Linux 2.5.4-dj2
+Message-ID: <20020215210313.G27880@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Wayne Whitney <whitney@math.berkeley.edu>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020215172431.A32369@suse.de> <200202151957.g1FJvTL02935@adsl-209-76-109-63.dsl.snfc21.pacbell.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020215141433.B11369@thyrsus.com>; from esr@thyrsus.com on Fri, Feb 15, 2002 at 02:14:33PM -0500
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200202151957.g1FJvTL02935@adsl-209-76-109-63.dsl.snfc21.pacbell.net>; from whitney@math.berkeley.edu on Fri, Feb 15, 2002 at 11:57:29AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 15, 2002 at 02:14:33PM -0500, Eric S. Raymond wrote:
-> Arjan, I would dearly love to get useful feedback on why things like my 
-> Configure.help patches weren't applied.  It would be a delight like 
-> water in the desert to *hear* some reasons!
-> 
-> But I think you know very well that the usual flow looks like this:
-> 
-> 1. You throw a patch over the wall to Linus.
-> 
-> 2. Either it shows up in the next release...
-> 
-> 3. ...or you hear a vast and echoing silence.
+On Fri, Feb 15, 2002 at 11:57:29AM -0800, Wayne Whitney wrote:
+ > patch-2.5.4-dj2 is missing the file include/sound/version.h, which is
+ > present in patch-2.5.5-pre1.  The ALSA drivers won't compile without
+ > it.  Even though that file says:
 
-You're telling me Linus never mailed you about splitting up Configure.help ?
+ This baffled me for a minute, as the file is here locally,
+ then it hit me.
+
+ version.h is in my diff exclusion list.
+
+ Thanks for spotting that.
+
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

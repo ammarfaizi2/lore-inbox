@@ -1,38 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261297AbSJ1PHa>; Mon, 28 Oct 2002 10:07:30 -0500
+	id <S261296AbSJ1PGV>; Mon, 28 Oct 2002 10:06:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261298AbSJ1PHa>; Mon, 28 Oct 2002 10:07:30 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:41697 "EHLO
-	flossy.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S261297AbSJ1PHK>; Mon, 28 Oct 2002 10:07:10 -0500
-Date: Mon, 28 Oct 2002 10:15:18 -0500
-From: Doug Ledford <dledford@redhat.com>
-To: Alan Cox <alan@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.5.44-ac3
-Message-ID: <20021028151517.GA18875@redhat.com>
-Mail-Followup-To: Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
-References: <200210251019.g9PAJ8V14406@devserv.devel.redhat.com>
+	id <S261297AbSJ1PGV>; Mon, 28 Oct 2002 10:06:21 -0500
+Received: from poup.poupinou.org ([195.101.94.96]:31539 "EHLO
+	poup.poupinou.org") by vger.kernel.org with ESMTP
+	id <S261296AbSJ1PGT>; Mon, 28 Oct 2002 10:06:19 -0500
+Date: Mon, 28 Oct 2002 16:12:38 +0100
+To: Marc Giger <gigerstyle@gmx.ch>
+Cc: Dominik Brodowski <linux@brodo.de>, linux-kernel@vger.kernel.org,
+       ducrot@poupinou.org
+Subject: Re: cpufreq: Intel(R) SpeedStep(TM) for this processor not (yet) available
+Message-ID: <20021028151238.GB19467@poup.poupinou.org>
+References: <20021026105611.3d6a540c.gigerstyle@gmx.ch> <12722.1035652076@www50.gmx.net> <20021028162932.B888@brodo.de> <20021028160410.1d0f9a78.gigerstyle@gmx.ch>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200210251019.g9PAJ8V14406@devserv.devel.redhat.com>
-User-Agent: Mutt/1.4i
+In-Reply-To: <20021028160410.1d0f9a78.gigerstyle@gmx.ch>
+User-Agent: Mutt/1.3.28i
+From: Ducrot Bruno <ducrot@poupinou.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 25, 2002 at 06:19:08AM -0400, Alan Cox wrote:
->    Doug's scsi changes broke mptfusion. I've not looked into that yet
->    also u14f/u34f.
+On Mon, Oct 28, 2002 at 04:04:10PM +0100, Marc Giger wrote:
+> Hi Dominik, Hi Bruno!
+> 
+> Thank you for the information!
+> 
+> > Intel continues to withhold information on how to use SpeedStep on
+> > 440BX/MX chipsets (and even removes documentation which had been > publicly available ontheir servers)
+> 
+> I thought Intel is interessted in Linux and want to support it????
+> 
+> I'm willing to help you with tests if you want, so that the 440BX chipset will be supported.
+> 
 
-Fixed in linux-scsi.bkbits.net/scsi-misc-2.5  Well, the mptfusion is, not 
-sure about u14f/u34f.  I think I have that turned off in my builds because 
-it was still broken in regards to the PCI DMA mapping API last I knew.
+I don't know why Intel do not want to release informations on their
+speedstep technology.  I think that this is more likely a 'marketing'
+issue, or something like that.  I don't think that their techs
+want to withhold the specs for a proper support on SpeedStep
+under linux, or other free OS, also, and hope that one day
+Intel will release proper docs.  Well, we can dream...
 
 -- 
-  Doug Ledford <dledford@redhat.com>     919-754-3700 x44233
-         Red Hat, Inc. 
-         1801 Varsity Dr.
-         Raleigh, NC 27606
-  
+Ducrot Bruno
+http://www.poupinou.org        Page profaissionelle
+http://toto.tu-me-saoules.com  Haume page

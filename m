@@ -1,55 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267683AbUHRUmI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267447AbUHRUnS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267683AbUHRUmI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Aug 2004 16:42:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267646AbUHRUjh
+	id S267447AbUHRUnS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Aug 2004 16:43:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267650AbUHRUm6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Aug 2004 16:39:37 -0400
-Received: from rproxy.gmail.com ([64.233.170.198]:7780 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S267447AbUHRUjA (ORCPT
+	Wed, 18 Aug 2004 16:42:58 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:27556 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S267447AbUHRUmY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Aug 2004 16:39:00 -0400
-Message-ID: <45ae90370408181338680f71bd@mail.gmail.com>
-Date: Wed, 18 Aug 2004 16:38:51 -0400
-From: Jeff Macdonald <macfisherman@gmail.com>
-Reply-To: Jeff Macdonald <macfisherman@gmail.com>
-To: Discussion of clustering software components including
-	 GFS <linux-cluster@redhat.com>
-Subject: Re: [Linux-cluster] Re: [ANNOUNCE] OpenSSI 1.0.0 released!!
-Cc: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>,
-       opengfs-devel@lists.sourceforge.net,
-       Daniel Phillips <phillips@istop.com>,
-       opengfs-users@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       opendlm-devel@lists.sourceforge.net
-In-Reply-To: <20040816192602.GA467@openzaurus.ucw.cz>
+	Wed, 18 Aug 2004 16:42:24 -0400
+Date: Wed, 18 Aug 2004 16:42:13 -0400
+From: Bill Nottingham <notting@redhat.com>
+To: linux-kernel@vger.kernel.org
+Subject: random ioctls - are they supposed to be like this?
+Message-ID: <20040818204213.GA19909@nostromo.devel.redhat.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <3689AF909D816446BA505D21F1461AE4C750E6@cacexc04.americas.cpqcorp.net>
-	<200408011330.01848.phillips@istop.com>
-	<410D2949.20503@backtobasicsmgmt.com> <20040816192602.GA467@openzaurus.ucw.cz>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 Aug 2004 21:26:02 +0200, Pavel Machek <pavel@ucw.cz> wrote:
-<snip>
+include/linux/random.h has:
 
-> Remote character devices seem extremely usefull to me...
-> 
-> mpg456 --device /dev/kitchen/dsp
-> 
-> cat /dev/roof/dsp > /dev/laptop/dsp
-> 
-> cat picture-to-scare-pigeons.raw > /dev/roof/fb0
-> 
-> X --device=/dev/livingroom/fb0
-> 
-> ..... Okay, it will probably take a while until SSI cluster is the
-> right tool to network your home :-).
+#define RNDADDENTROPY   _IOW( 'R', 0x03, int [2] )
+#define RNDGETPOOL      _IOR( 'R', 0x02, int [2] )
 
-Isn't that what Inferno is suppose to be able to do?
+However, these seem to be used differently in practice.
+For example, the one user of RNDADDENTROPY I find does:
 
--- 
-Jeff Macdonald
-Ayer, MA
+struct {
+	int ent_count;
+	int size;
+	unsigned char data[size];
+} entropy;
+
+if (ioctl(fd, RNDADDENTROPY, &entropy) != 0) {
+...
+
+And, looking at the random driver, it does appear to expect
+this format.
+
+Now, RNDGETPOOL in the kernel does:
+
+if (get_user(size, p) ||
+    put_user(random_state->poolinfo.poolwords, p++))
+	return -EFAULT;
+...
+if (!copy_to_user(p, tmp, size * sizeof(__u32))) {
+...
+if(put_user(ent_count, p++))
+	return -EFAULT;
+
+Which obviously isn't going to work right if you
+just pass in a two-int structure.
+
+Am I reading this wrong, or are callers just supposed
+to know to use the other interface?
+
+Bill

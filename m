@@ -1,49 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131094AbRAQTR7>; Wed, 17 Jan 2001 14:17:59 -0500
+	id <S135311AbRAQTWu>; Wed, 17 Jan 2001 14:22:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131406AbRAQTRk>; Wed, 17 Jan 2001 14:17:40 -0500
-Received: from inje.iskon.hr ([213.191.128.16]:56334 "EHLO inje.iskon.hr")
-	by vger.kernel.org with ESMTP id <S131094AbRAQTRc>;
-	Wed, 17 Jan 2001 14:17:32 -0500
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
-Subject: Re: Subtle MM bug
-In-Reply-To: <Pine.LNX.4.31.0101171546130.5464-100000@localhost.localdomain>
-Reply-To: zlatko@iskon.hr
-X-Face: s71Vs\G4I3mB$X2=P4h[aszUL\%"`1!YRYl[JGlC57kU-`kxADX}T/Bq)Q9.$fGh7lFNb.s
- i&L3xVb:q_Pr}>Eo(@kU,c:3:64cR]m@27>1tGl1):#(bs*Ip0c}N{:JGcgOXd9H'Nwm:}jLr\FZtZ
- pri/C@\,4lW<|jrq^<):Nk%Hp@G&F"r+n1@BoH
-From: Zlatko Calusic <zlatko@iskon.hr>
-Date: 17 Jan 2001 19:53:31 +0100
-In-Reply-To: Rik van Riel's message of "Wed, 17 Jan 2001 15:48:39 +1100 (EST)"
-Message-ID: <87wvburowk.fsf@atlas.iskon.hr>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.2 (Peisino,Ak(B)
-MIME-Version: 1.0
+	id <S135217AbRAQTWk>; Wed, 17 Jan 2001 14:22:40 -0500
+Received: from lsb-catv-1-p021.vtxnet.ch ([212.147.5.21]:55057 "EHLO
+	almesberger.net") by vger.kernel.org with ESMTP id <S131406AbRAQTWc>;
+	Wed, 17 Jan 2001 14:22:32 -0500
+Date: Wed, 17 Jan 2001 20:22:22 +0100
+From: Werner Almesberger <Werner.Almesberger@epfl.ch>
+To: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>
+Cc: "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: Linux not adhering to BIOS Drive boot order?
+Message-ID: <20010117202222.B4979@almesberger.net>
+In-Reply-To: <1355693A51C0D211B55A00105ACCFE64E95191@ATL_MS1> <Pine.LNX.4.21.0101161154580.17397-100000@sol.compendium-tech.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.21.0101161154580.17397-100000@sol.compendium-tech.com>; from kernel@blackhole.compendium-tech.com on Tue, Jan 16, 2001 at 12:01:12PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel <riel@conectiva.com.br> writes:
+[ Ccs trimmed ]
 
-> > Second test: kernel compile make -j32 (empirically this puts the
-> > VM under load, but not excessively!)
-> >
-> > 2.2.17 -> make -j32  392.49s user 47.87s system 168% cpu 4:21.13 total
-> > 2.4.0  -> make -j32  389.59s user 31.29s system 182% cpu 3:50.24 total
-> >
-> > Now, is this great news or what, 2.4.0 is definitely faster.
-> 
-> One problem is that these tasks may be waiting on kswapd when
-> kswapd might not get scheduled in on time. On the one hand this
-> will mean lower load and less thrashing, on the other hand it
-> means more IO wait.
-> 
+Dr. Kelsey Hudson wrote:
+> *single* scsi adapter in their systems? do we need to bloat the kernel
+> with automatic things like this? no... i think it is handled fine the way
 
-Hm, if all tasks are waiting for memory, what is stopping kswapd to
-run? :)
+"no", because you don't have to do it in the kernel. You can mount by
+uuid or label. For the root FS, you do this from an initrd. Problem
+solved.
+
+The only cases when you really need to know the name of a disk is when
+ - doing disk-level management, e.g. partitioning or creating file
+   systems (*)
+ - adding a swap partition (sigh)
+ - telling your boot loader where to put its boot sector
+
+(* in principle, you could even avoid this, if you have some means of
+   identifying a disk (e.g. via the uuid of a file system). However,
+   I would consider such a solution to be overly fragile.)
+
+- Werner
+
 -- 
-Zlatko
+  _________________________________________________________________________
+ / Werner Almesberger, ICA, EPFL, CH           Werner.Almesberger@epfl.ch /
+/_IN_N_032__Tel_+41_21_693_6621__Fax_+41_21_693_6610_____________________/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

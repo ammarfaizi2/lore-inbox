@@ -1,58 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261212AbVCMOYj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261282AbVCMOqc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261212AbVCMOYj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Mar 2005 09:24:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261270AbVCMOYj
+	id S261282AbVCMOqc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Mar 2005 09:46:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261307AbVCMOqc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Mar 2005 09:24:39 -0500
-Received: from smtp05.web.de ([217.72.192.209]:52615 "EHLO smtp05.web.de")
-	by vger.kernel.org with ESMTP id S261212AbVCMOYg (ORCPT
+	Sun, 13 Mar 2005 09:46:32 -0500
+Received: from hacksaw.org ([66.92.70.107]:63386 "EHLO hacksaw.org")
+	by vger.kernel.org with ESMTP id S261282AbVCMOqa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Mar 2005 09:24:36 -0500
-Message-ID: <42344D0F.8050900@web.de>
-Date: Sun, 13 Mar 2005 15:24:15 +0100
-From: Torben Viets <Viets@web.de>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050116)
-X-Accept-Language: de-DE, de, en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: XFS dm_crypt BUG?
-References: <422214D6.2000206@web.de> <422220C7.8090001@xfs.org> <20050228092215.F2644066@wobbly.melbourne.sgi.com> <422B6885.7090908@web.de> <20050307080929.B2751595@wobbly.melbourne.sgi.com>
-In-Reply-To: <20050307080929.B2751595@wobbly.melbourne.sgi.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 13 Mar 2005 09:46:30 -0500
+Message-Id: <200503131446.j2DEkEOY010870@hacksaw.org>
+X-Mailer: exmh version 2.7.0 06/18/2004 with nmh-1.0.4
+To: Mikael Pettersson <mikpe@csd.uu.se>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: indirect lcall without `*' 
+In-reply-to: Your message of "Sun, 13 Mar 2005 12:56:51 +0100."
+             <200503131156.j2DBup8X015801@harpo.it.uu.se> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sun, 13 Mar 2005 09:46:14 -0500
+From: Hacksaw <hacksaw@hacksaw.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Ahh, okay. I'm just jumpy because this is a production server.
 
-it works with Kernel 2.6.11, probably the problem was that I had used 4 
-kb stacks and now I use the 8kb, but I'm not sure whether this was the 
-problem.
+Thanks for the answer. :-)
+-- 
+Nothing can plugh you now
+http://www.hacksaw.org -- http://www.privatecircus.com -- KB1FVD
 
-greetings
-Torben Viets
-
-Nathan Scott schrieb:
-
->On Sun, Mar 06, 2005 at 09:31:01PM +0100, Torben Viets wrote:
->  
->
->>hello,
->>
->>I tried to reproduced the bug with the newest kernel and but it works 
->>perfectly :D
->>
->>thnk you for fixing it.
->>    
->>
->
->No problem, thanks for checking - could you send a note to the
->list(s) saying its resolved for you with that kernel version, in
->case others have also been seeing the problem.
->
->cheers.
->
->  
->
 

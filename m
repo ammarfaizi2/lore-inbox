@@ -1,43 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290377AbSBKU6l>; Mon, 11 Feb 2002 15:58:41 -0500
+	id <S290461AbSBKVBL>; Mon, 11 Feb 2002 16:01:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290421AbSBKU6b>; Mon, 11 Feb 2002 15:58:31 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:59398 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S290377AbSBKU60>; Mon, 11 Feb 2002 15:58:26 -0500
-Date: Mon, 11 Feb 2002 15:57:22 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Francois Romieu <romieu@cogenit.fr>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Problem with mke2fs on huge RAID-partition
-In-Reply-To: <20020211195710.A12859@fafner.intra.cogenit.fr>
-Message-ID: <Pine.LNX.3.96.1020211155518.1149A-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S290454AbSBKVBC>; Mon, 11 Feb 2002 16:01:02 -0500
+Received: from [209.205.26.42] ([209.205.26.42]:32774 "HELO
+	gateway.fpelectronics.com") by vger.kernel.org with SMTP
+	id <S290423AbSBKVAs> convert rfc822-to-8bit; Mon, 11 Feb 2002 16:00:48 -0500
+Message-ID: <200202111559320446.2581AD39@notes.fpelectronics.com>
+X-Mailer: Calypso Version 3.30.00.00 (4)
+Date: Mon, 11 Feb 2002 15:59:32 -0500
+From: "Al Moote" <amoote@ivhs.com>
+To: linux-kernel@vger.kernel.org
+Subject: "All of your loopback devices are in use!" reported by
+  mkinitrd
+Mime-Version: 1.0
+X-MIMETrack: Itemize by SMTP Server on notes/MarkIV(Release 5.0.9 |November 16, 2001) at
+ 02/11/2002 03:55:58 PM,
+	Serialize by Router on notes/MarkIV(Release 5.0.9 |November 16, 2001) at 02/11/2002
+ 03:55:58 PM,
+	Serialize complete at 02/11/2002 03:55:58 PM
+Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 11 Feb 2002, Francois Romieu wrote:
+Hey all.  I am not-so new to Linux, but I haven't had to recompile my kernel before.  We are taking the leap into Samba Fileserving an thus, I need to add ACL functionality to my kernel.  I have opted to go with 2.4.17 and have had some success so far.  I am, however, stuck at one point.
 
-> Bill Davidsen <davidsen@tmr.com> :
-> [hdparm]
-> > NOTE: wrong options will hose your data! WHich is why I don't tell you
-> > what to use, just look at -m -c (I use 3), -d and -X34. Again, it may bite
-> > you, have backups.
-> 
-> The kernel did itself the job through the "autotune" option of ide.
-> /proc/ide/{hda/hdg}/settings differ only in:
+I am trying to make my .img file to support my RAID devices.  When I run:
 
-> It can be fast: it does during raid rebuild.
-> May be the machine simply dislikes me.
+/sbin/mkinitrd /boot/initrd-2.4.17-021102.img 2.4.17-021102
 
-What's your stripe size? I have that "this works for me" feeling, although
-I'd like to know why the drives didn't autotune just the same way, and
-that might tell someone what's up.
+I get the message:
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+All of your loopback devices are in use!
+
+I don't really understand why this is preventing me from creatingthe .img file.  But then again, I have little experience in this area.  I was hoping somebody on this list could len a hand.  Thanks alot guys (and the occasional gal).
+
+Al Moote
 

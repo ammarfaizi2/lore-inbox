@@ -1,38 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131465AbQLJR1R>; Sun, 10 Dec 2000 12:27:17 -0500
+	id <S130876AbQLJRc2>; Sun, 10 Dec 2000 12:32:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131536AbQLJR1I>; Sun, 10 Dec 2000 12:27:08 -0500
-Received: from mx01.stusoftdatasystems.ltd.uk ([62.49.252.2]:39353 "EHLO
-	juliet.localnet") by vger.kernel.org with ESMTP id <S131465AbQLJR0w>;
-	Sun, 10 Dec 2000 12:26:52 -0500
-Message-ID: <002901c062c9$f183d030$fdfea8c0@localnet>
-Reply-To: "Andrew Stubbs" <andrews@stusoft.com>
-From: "Andrew Stubbs" <andrews@stusoft.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Enviromental Monitoring
-Date: Sun, 10 Dec 2000 16:55:02 -0000
-Organization: Stusoft Data Systems
+	id <S131134AbQLJRcR>; Sun, 10 Dec 2000 12:32:17 -0500
+Received: from imladris.demon.co.uk ([193.237.130.41]:50695 "EHLO
+	imladris.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S130876AbQLJRcB>; Sun, 10 Dec 2000 12:32:01 -0500
+Date: Sun, 10 Dec 2000 17:01:21 +0000 (GMT)
+From: David Woodhouse <dwmw2@infradead.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Andrew Morton <andrewm@uow.edu.au>, lkml <linux-kernel@vger.kernel.org>,
+        <linux-usb-devel@lists.sourceforge.net>
+Subject: Re: [patch] hotplug fixes
+In-Reply-To: <Pine.LNX.4.10.10012100846170.2635-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.30.0012101657330.25294-100000@imladris.demon.co.uk>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This probably is not the right lpace, but can't think of where else to ask
+On Sun, 10 Dec 2000, Linus Torvalds wrote:
 
-Has anyone implemented a /proc device or user program to interrogate the
-enviromental attirbutes (temp, voltage etc) that many motherboards provide
-via their bios's ?
+> All user-mode-helpers are async as of this patch.
+>
+> The reason for the serialization is that we need to wait until the exec()
+> has taken place - so that the arguments that the caller set up haven't
+> disappeared from the caller stack. The actual execution is asynchronous
+> anyway.
 
-Please point me in the right direction
+OK, I see what's happening. But is it strictly necessary to special-case
+it? If we can't use schedule_task() in all situations and hence have to
+have code for doing it ourself - why not just do it ourself all the time,
+keeping the code simpler?
 
-Andrew
+--
+dwmw2
+
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

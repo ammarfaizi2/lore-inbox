@@ -1,35 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132145AbRACGYB>; Wed, 3 Jan 2001 01:24:01 -0500
+	id <S129859AbRACHft>; Wed, 3 Jan 2001 02:35:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132223AbRACGXw>; Wed, 3 Jan 2001 01:23:52 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:6924 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S132145AbRACGXe>; Wed, 3 Jan 2001 01:23:34 -0500
-Date: Tue, 2 Jan 2001 21:52:41 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Mike Galbraith <mikeg@wen-online.de>
-cc: Anton Blanchard <anton@linuxcare.com.au>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        Andrew Morton <andrewm@uow.edu.au>
-Subject: Re: scheduling problem?
-In-Reply-To: <Pine.Linu.4.10.10101030546500.1057-100000@mikeg.weiden.de>
-Message-ID: <Pine.LNX.4.10.10101022151430.24870-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130316AbRACHfk>; Wed, 3 Jan 2001 02:35:40 -0500
+Received: from pneumatic-tube.sgi.com ([204.94.214.22]:12665 "EHLO
+	pneumatic-tube.sgi.com") by vger.kernel.org with ESMTP
+	id <S129859AbRACHf3>; Wed, 3 Jan 2001 02:35:29 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Announce: modutils 2.3.24 is available 
+In-Reply-To: Your message of "Tue, 02 Jan 2001 19:12:49 BST."
+             <20010102191249.A4299@emma1.emma.line.org> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 03 Jan 2001 18:04:55 +1100
+Message-ID: <9779.978505495@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2 Jan 2001 19:12:49 +0100, 
+Matthias Andree <matthias.andree@stud.uni-dortmund.de> wrote:
+>There's a problem. depmod should not try to do anything besides giving
+>its version when --version is used, should it?
 
-
-On Wed, 3 Jan 2001, Mike Galbraith wrote:
-> 
-> No difference (except more context switching as expected)
-
-What about the current prerelese patch in testing? It doesn't switch to
-bdflush at all, but instead does the buffer cleaning by hand.
-
-		Linus
+Historical accident.  I want to clean that up but it breaks existing
+behaviour; somewhere, somebody is bound to rely on depmod -V updating
+modules.dep at the same time.  modutils 2.5 will clean up a lot of
+backwards compatibility crud, including this one.  But you will not see
+modutils 2.5 until Linus rolls kernel 2.5 and we start the next
+development cycle.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,57 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261433AbVAQJAm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262728AbVAQJCe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261433AbVAQJAm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jan 2005 04:00:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262728AbVAQJAm
+	id S262728AbVAQJCe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jan 2005 04:02:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262729AbVAQJCd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jan 2005 04:00:42 -0500
-Received: from witte.sonytel.be ([80.88.33.193]:18656 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S261433AbVAQJAg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jan 2005 04:00:36 -0500
-Date: Mon, 17 Jan 2005 10:00:30 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Sam Ravnborg <sam@ravnborg.org>
-cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Cross-compilation broken (was: Re: Linux 2.6.11-rc1)
-In-Reply-To: <20050116160948.GA3090@mars.ravnborg.org>
-Message-ID: <Pine.GSO.4.61.0501170959110.3947@waterleaf.sonytel.be>
-References: <Pine.LNX.4.58.0501112100250.2373@ppc970.osdl.org>
- <Pine.GSO.4.61.0501161016240.25137@waterleaf.sonytel.be>
- <20050116160948.GA3090@mars.ravnborg.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 17 Jan 2005 04:02:33 -0500
+Received: from [213.146.154.40] ([213.146.154.40]:50899 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262728AbVAQJC2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jan 2005 04:02:28 -0500
+Date: Mon, 17 Jan 2005 09:02:27 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Sujeet Kumar <sujeet.kumar@patni.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ioctl flow change in kernel 2.6
+Message-ID: <20050117090227.GA3965@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Sujeet Kumar <sujeet.kumar@patni.com>, linux-kernel@vger.kernel.org
+References: <007701c4fc71$ce040350$7861a8c0@pcp40702>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <007701c4fc71$ce040350$7861a8c0@pcp40702>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 16 Jan 2005, Sam Ravnborg wrote:
-> On Sun, Jan 16, 2005 at 10:22:43AM +0100, Geert Uytterhoeven wrote:
-> > Changing
-> > 
-> > | NOSTDINC_FLAGS := -nostdinc -isystem $(shell $(CC) -print-file-name=include)
-> > 
-> > to
-> > 
-> > | NOSTDINC_FLAGS = -nostdinc -isystem $(shell $(CC) -print-file-name=include)
-> > 
-> > fixed it. I guess it picked up the definition for $(CC) before it became
-> > $(CROSS_COMPILE)gcc.
-> 
-> Main culprint here is m68k fiddelign with definition of CROSS_COMPILE in
-> arch/m68k/Makefile.
-> If I find no better fix I will take your version.
+> This e-mail message may contain proprietary, confidential or legally
+> privileged information for the sole use of the person or entity to
+> whom this message was originally addressed. Any review, e-transmission
+> dissemination or other use of or taking of any action in reliance upon
+> this information by persons or entities other than the intended
+> recipient is prohibited.
 
-M68k isn't the only one. Other archs with builtin automatic support for
-cross-compilation do it as well: mips, hppa, hppa64, h8300.
+Unfortunately we can't help you legally.
 
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds

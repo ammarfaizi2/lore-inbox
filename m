@@ -1,55 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269723AbRHIIG5>; Thu, 9 Aug 2001 04:06:57 -0400
+	id <S269731AbRHIIPS>; Thu, 9 Aug 2001 04:15:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269728AbRHIIGs>; Thu, 9 Aug 2001 04:06:48 -0400
-Received: from 216-60-128-137.ati.utexas.edu ([216.60.128.137]:65260 "HELO
-	tsunami.webofficenow.com") by vger.kernel.org with SMTP
-	id <S269723AbRHIIGh>; Thu, 9 Aug 2001 04:06:37 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@webofficenow.com>
-Reply-To: landley@webofficenow.com
-To: Dan Hollis <goemon@anime.net>, David Ford <david@blue-labs.org>
-Subject: Re: RP_FILTER runs too late
-Date: Thu, 9 Aug 2001 04:05:57 -0400
-X-Mailer: KMail [version 1.2]
-Cc: <landley@webofficenow.com>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.30.0108071206190.3304-100000@anime.net>
-In-Reply-To: <Pine.LNX.4.30.0108071206190.3304-100000@anime.net>
+	id <S269732AbRHIIPI>; Thu, 9 Aug 2001 04:15:08 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:47368 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S269731AbRHIIOz>; Thu, 9 Aug 2001 04:14:55 -0400
+Date: Thu, 9 Aug 2001 03:45:47 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@zip.com.au>, Zach Brown <zab@osdlab.org>,
+        linux-mm@kvack.org
+Subject: vmstats patch against 2.4.8pre7 and new userlevel hack  
+Message-ID: <Pine.LNX.4.21.0108090326470.14424-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-Message-Id: <01080904055701.15175@localhost.localdomain>
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 07 August 2001 15:07, Dan Hollis wrote:
-> On Tue, 7 Aug 2001, David Ford wrote:
-> > I'd rather see SNAT available in pre-routing and have rp_filter run
-> > against the packet before it hits the netfilter code.
 
-I believe the reason they put SNAT at the end is that when we're about to 
-send out we no longer care what the source address is, but before that we do, 
-and changing it early would overwrite fields the rest of the network stack is 
-still using.  (Same reason dnat happens first thing.  If we redirect it, we 
-want it the rest of the network stack to use the NEW destination, and among 
-other things send it out the right interface...)
+Hi, 
 
-Principle of "least amount of new code".  (Laziness IS one of Larry Wall's 
-Seven Deadly Virtues in programmers...)
+I've updated the vmstats patch to use Andrew Morton's statcount facilities
+(which is in initial development state). I've also removed/added some
+statistics due to VM changes.
 
-> There is one other problem with rp_filter.... rp_filter violations are
-> S I L E N T. You never know when traffic is dropped because of it. Packets
-> just disappear.
->
-> If it generated printk's it would make it a lot easier to track down
-> filtering problems.
+On the userlevel side, I got zab's cpustat nice tool and transformed it
+into an ugly hack which allows me to easily add/remove statistic
+counters.
 
-There is a logging option, but it needs a lot of extra knobs if you ask me.  
-(Logging to a file would be nice.  I suspect there's a way to do that but I 
-couldn't find it circa 2.4.3, which is the last time I gave it much thought.  
-Also "log if last rule triggered".  Haven't been bothered enough to break 
-open the source other than for debugging purposes, though...)
+Adding a new statistic counter just needs (on the kernel side): 
 
-> -Dan
+VMSTAT(stat_name); (for global stats)
 
-Rob
+or 
+
+VMSTAT_ZONE(zone, stat_name); (for perzone stats) 
+
+On userlevel side, one line with corresponding stat_name, plus the field
+name to be reported in the userlevel tool output for the given stat. 
+
+Easy. 
+
+The patch including the statcounts facilities
+http://bazar.conectiva.com.br/~marcelo/patches/v2.4/2.4.8pre7/vmstats.patch
+
+The userlevel tool
+http://bazar.conectiva.com.br/~marcelo/nvmstat-0.1/nvmstat-0.1.tar.gz
+

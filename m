@@ -1,49 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267337AbSLEPpB>; Thu, 5 Dec 2002 10:45:01 -0500
+	id <S267340AbSLEPsO>; Thu, 5 Dec 2002 10:48:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267339AbSLEPpA>; Thu, 5 Dec 2002 10:45:00 -0500
-Received: from earth.colorado-research.com ([65.171.192.8]:63154 "EHLO
-	earth.colorado-research.com") by vger.kernel.org with ESMTP
-	id <S267337AbSLEPpA>; Thu, 5 Dec 2002 10:45:00 -0500
-Message-ID: <3DEF763E.1050302@cora.nwra.com>
-Date: Thu, 05 Dec 2002 08:52:30 -0700
-From: Orion Poplawski <orion@cora.nwra.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
+	id <S267341AbSLEPsO>; Thu, 5 Dec 2002 10:48:14 -0500
+Received: from herrmann.cherheim.etc.tu-bs.de ([134.169.163.222]:20229 "EHLO
+	herrmann.priv.cher.sinus.tu-bs.de") by vger.kernel.org with ESMTP
+	id <S267340AbSLEPsN>; Thu, 5 Dec 2002 10:48:13 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Felix Maibaum <f.maibaum@tu-bs.de>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.20 locks up after ide init on tyan s2460
+Date: Thu, 5 Dec 2002 16:55:43 +0100
+User-Agent: KMail/1.4.3
 MIME-Version: 1.0
-To: "Barry K. Nathan" <barryn@pobox.com>
-CC: Samuel Flory <sflory@rackable.com>, linux-kernel@vger.kernel.org
-Subject: Re: NFS - IRIX client issues
-References: <3DEE85D3.6070009@cora.nwra.com> <3DEE8EC2.2040305@rackable.com> <3DEE9425.40204@cora.nwra.com> <20021205051507.GA17498@ip68-4-86-174.oc.oc.cox.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+Message-Id: <200212051655.43554.f.maibaum@tu-bs.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Barry K. Nathan wrote:
+Hi!
 
->I'm having the same problem, with Solaris 8 on SPARC for the NFS server
->(as opposed to Linux), on one of my machines. For some reason it only
->happens when it's plugged into a 100MBps Netgear non-switching (i.e, "old
->fashioned" in a sense -- half-duplex) hub. If I plug it straight into
->the wall at work (this is connected directly to a 10MBps (I know),
->full-duplex (I think) port on some kind of switch whose other details I
->have no idea about), the problem instantly disappears.
->
->At least, I think it's the same problem. When your connection collapses,
->does IRIX complain about timeouts trying to contact the NFS server,
->almost as if the NFS server fell off the face of the planet?
->  
->
-Actually, I get exactly zero in the logs and aparently zero NFS traffic 
-arriving at the server, so we may have different problems.
+fine-print first: I am sorry if this is a stupid question, I know you're all 
+very busy, but I have no other explanation for this than a kernel bug, so 
+here it goes:
 
-Thanks for the support links, but unfortunately I'm basically in the 
-same situation - support cancelled in the belief we will eventually move 
-completely to linux (though for now the SGI is our only large memory 
-64-bit platform).
+I compiled 2.4.20 on my Tyan s2460 with 2 AMD XP1700+,
+and after the ide init of the promise Ultra66 contoller I get the following 
+message:
 
-- Orion
+blk: queue c032d16c, I/O limit 4095Mb (mask 0xffffffff)
 
+and the system locks up (no NumLock, no magic sysreq.).
+This happened with the vanilla kernel as well as with the sources from debian.
+To avoid an attachment I put my kernel config up at:
+
+http://www.tu-bs.de/~y0013531/kernel_config_2.4.20
+
+other hardware in the system is:
+512M of main memory, 80G maxtor on hde, 30 and 45G IBM on hdg and hdh, this is 
+the promise ultra66.
+on the onboard controller there is a toshiba DVD, a plextor 12X CD/RW and a 
+Pioneer DVD-R/RW,
+NVIDIA Geforce2pro,
+3com Boomerang 10/100 Ethernet
+creative SBLive 1024
+
+Since I don't subscribe to the list for traffic reasons, please cc me or 
+answer directly. If more data is needed I'll be glad to provide it.
+
+Thanks
+
+Felix
 

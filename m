@@ -1,56 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262503AbUFBM5c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262606AbUFBM7q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262503AbUFBM5c (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 08:57:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262459AbUFBM5c
+	id S262606AbUFBM7q (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 08:59:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262585AbUFBM7p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 08:57:32 -0400
-Received: from tag.witbe.net ([81.88.96.48]:57770 "EHLO tag.witbe.net")
-	by vger.kernel.org with ESMTP id S262503AbUFBM5Q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 08:57:16 -0400
-Message-Id: <200406021257.i52CvEX31840@tag.witbe.net>
-Reply-To: <rol@as2917.net>
-From: "Paul Rolland" <rol@as2917.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: TCP retransmission : how to detect from an application ?
-Date: Wed, 2 Jun 2004 14:57:11 +0200
-Organization: AS2917
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-Thread-Index: AcRIoR6je/XkQ3h9TO+dPHUfs7QeBQ==
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+	Wed, 2 Jun 2004 08:59:45 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:60326 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S262488AbUFBM7b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jun 2004 08:59:31 -0400
+Date: Wed, 2 Jun 2004 14:59:28 +0200
+From: Jan Kara <jack@ucw.cz>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Fix for old quota format
+Message-ID: <20040602125928.GB2028@atrey.karlin.mff.cuni.cz>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="GID0FwUMdk1T2AWN"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-I've an application that is establishing TCP connection, and exchanges some
-data.
-However, from time to time, I suspect there are some packet loss, which are
-corrected by the kernel (hell, TCP is reliable, isn't it :-), but I'd like
-to know if an application can detect this (well, I don't want to be notified
-of a packet loss once detected, but I'd like to get some stats before
-closing
-the connection).
+--GID0FwUMdk1T2AWN
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Is there something possible ? Some ioctl ? Some /proc/magic-interface ?
+  Hello!
 
-Regards,
-Paul
+  Attached two-liner fixes a problem in the old quota format when we tried
+to read quota information after the end of quota file (that is correct as
+it might a user with sufficiently large UID which has no limits or usage).
+Please apply.
 
-Paul Rolland, rol(at)as2917.net
-ex-AS2917 Network administrator and Peering Coordinator
+								Honza
 
---
+--GID0FwUMdk1T2AWN
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="quota-2.6.7-rc2-6-v1emptyfix"
 
-Please no HTML, I'm not a browser - Pas d'HTML, je ne suis pas un navigateur
-
-"Some people dream of success... while others wake up and work hard at it" 
-
+diff -ruX /home/jack/.kerndiffexclude linux-2.6.7-rc2-5-credfix/fs/quota_v1.c linux-2.6.7-rc2-6-v1emptyfix/fs/quota_v1.c
+--- linux-2.6.7-rc2-5-credfix/fs/quota_v1.c	2004-05-13 21:00:27.000000000 +0200
++++ linux-2.6.7-rc2-6-v1emptyfix/fs/quota_v1.c	2004-05-31 19:15:34.000000000 +0200
+@@ -52,6 +52,8 @@
  
+ 	/* Now we are sure filp is valid */
+ 	offset = v1_dqoff(dquot->dq_id);
++	/* Set structure to 0s in case read fails/is after end of file */
++	memset(&dqblk, 0, sizeof(struct v1_disk_dqblk));
+ 	fs = get_fs();
+ 	set_fs(KERNEL_DS);
+ 	filp->f_op->read(filp, (char *)&dqblk, sizeof(struct v1_disk_dqblk), &offset);
 
-
+--GID0FwUMdk1T2AWN--

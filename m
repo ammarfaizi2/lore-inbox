@@ -1,44 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129172AbRBVLyT>; Thu, 22 Feb 2001 06:54:19 -0500
+	id <S129143AbRBVMPH>; Thu, 22 Feb 2001 07:15:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129185AbRBVLyI>; Thu, 22 Feb 2001 06:54:08 -0500
-Received: from ns.caldera.de ([212.34.180.1]:41224 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S129172AbRBVLxv>;
-	Thu, 22 Feb 2001 06:53:51 -0500
-Date: Thu, 22 Feb 2001 12:53:15 +0100
-From: Christoph Hellwig <hch@caldera.de>
-To: Peter Samuelson <peter@cadcamlab.org>
-Cc: lvm-devel@sistina.com, linux-kernel@vger.kernel.org
-Subject: Re: [lvm-devel] *** ANNOUNCEMENT *** LVM 0.9.1 beta5 available at www.sistina.com
-Message-ID: <20010222125315.A17011@caldera.de>
-Mail-Followup-To: Peter Samuelson <peter@cadcamlab.org>,
-	lvm-devel@sistina.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20010221180035.N25927@athlon.random> <200102211718.SAA25997@ns.caldera.de> <20010221221225.B21010@cadcamlab.org> <20010222104603.A1992@caldera.de> <14996.61315.647325.114938@wire.cadcamlab.org>
+	id <S129183AbRBVMOr>; Thu, 22 Feb 2001 07:14:47 -0500
+Received: from lsb-catv-1-p021.vtxnet.ch ([212.147.5.21]:64265 "EHLO
+	almesberger.net") by vger.kernel.org with ESMTP id <S129143AbRBVMOf>;
+	Thu, 22 Feb 2001 07:14:35 -0500
+Date: Thu, 22 Feb 2001 13:14:07 +0100
+From: Werner Almesberger <Werner.Almesberger@epfl.ch>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux-2.4.2
+Message-ID: <20010222131407.A19635@almesberger.net>
+In-Reply-To: <20010221211330.A21010@cadcamlab.org> <E14Vt3p-0003rp-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0i
-In-Reply-To: <14996.61315.647325.114938@wire.cadcamlab.org>; from peter@cadcamlab.org on Thu, Feb 22, 2001 at 04:52:51AM -0600
+Content-Disposition: inline
+In-Reply-To: <E14Vt3p-0003rp-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Thu, Feb 22, 2001 at 10:33:19AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 22, 2001 at 04:52:51AM -0600, Peter Samuelson wrote:
-> 
->   [Peter Samuelson]
-> > > How often do you run MAKEDEV or vgscan?
-> 
-> [Christoph Hellwig]
-> > On every bootup, _before_ doing mount -a
-> 
-> A mere 'vgchange -ay' works fine for *my* boot processes.  Is there a
-> particular reason to do 'vgscan' every time?  (I'm not arguing -- just
-> wondering.)
+Alan Cox wrote:
+> I think the key word is actually probably 'predictability'. The Linus tree
+> is conservative. (IMHO too conservative and probably in his not conservative
+> enough 8))
 
-It is that what is suggested by the LVM crew.  I have also tried to use
-it without vgscan - it work then and whenn, but not 100% percent reliable.
+Hmm, given that there are several patches in your tree that never seem
+to make it to Linus' tree, would it make sense to flag patches that
+should go into 2.4 as "Not for Alan; Linus _please_ pick it up" (and to
+keep on pushing until Linus does) ?
 
-	Christoph
+- Werner
 
 -- 
-Of course it doesn't work. We've performed a software upgrade.
-Whip me.  Beat me.  Make me maintain AIX.
+  _________________________________________________________________________
+ / Werner Almesberger, ICA, EPFL, CH           Werner.Almesberger@epfl.ch /
+/_IN_N_032__Tel_+41_21_693_6621__Fax_+41_21_693_6610_____________________/

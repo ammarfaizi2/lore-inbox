@@ -1,50 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129764AbQKGQjr>; Tue, 7 Nov 2000 11:39:47 -0500
+	id <S130193AbQKGQkh>; Tue, 7 Nov 2000 11:40:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130193AbQKGQjh>; Tue, 7 Nov 2000 11:39:37 -0500
-Received: from dsl-dt-208-38-4-i185-cgy.nucleus.com ([208.38.4.185]:20999 "EHLO
-	skaro.l-w.net") by vger.kernel.org with ESMTP id <S129764AbQKGQjY>;
-	Tue, 7 Nov 2000 11:39:24 -0500
-Date: Tue, 7 Nov 2000 09:38:47 -0700 (MST)
-From: lost@l-w.net
-To: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-cc: davids@webmaster.com, RAJESH BALAN <atmproj@yahoo.com>,
-        linux-kernel@vger.kernel.org
-Subject: RE: malloc(1/0) ??
-In-Reply-To: <200011071612.KAA318749@tomcat.admin.navo.hpc.mil>
-Message-ID: <Pine.LNX.4.21.0011070934060.314-100000@skaro.l-w.net>
+	id <S130442AbQKGQk1>; Tue, 7 Nov 2000 11:40:27 -0500
+Received: from office.mandrakesoft.com ([195.68.114.34]:49904 "EHLO
+	toy.mandrakesoft.com") by vger.kernel.org with ESMTP
+	id <S130193AbQKGQkX>; Tue, 7 Nov 2000 11:40:23 -0500
+Date: Tue, 7 Nov 2000 17:47:10 +0100 (CET)
+From: Francis Galiegue <fg@mandrakesoft.com>
+To: Abel Muñoz Alcaraz <abel@trymedia.com>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: A question about memory fragmentation
+In-Reply-To: <CAEBJLAGJIDLDINHENLOOENBCGAA.abel@trymedia.com>
+Message-ID: <Pine.LNX.4.21.0011071736250.18699-100000@toy.mandrakesoft.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > main()
-> > > {
-> > >    char *s;
-> > >    s = (char*)malloc(0);
-> > >    strcpy(s,"fffff");
-> > >    printf("%s\n",s);
-> > > }
+On Tue, 7 Nov 2000, Abel Muñoz Alcaraz wrote:
 
-I rather suspect that the strcpy() scribbled over malloc()s record keeping
-data. However, that memory was in the processes allowed address space so
-it didn't SIGSEGV. Now, when you call printf(), there is a very good
-chance that printf() tried to allocate some sort of buffer space since it
-is the first call to printf() in the program. Now, since malloc()s heap is
-messed up from the strcpy(), it crashes. (Probably because
-malloc() followed a pointer off into never-never land.) Hence, the crash
-appears in printf() instead of strcpy() or malloc(). I won't repeat the
-discussion about why malloc(0) succeeded.
+> 
+> 	my question is about memory fragmentation when I allocate and free a lot of
+> small memory pieces in a kernel module.
+> 	Can it do a memory fragmentation problem?
+> 	Can I solve it using 'linux/list.h' API?
 
-William Astle
-finger lost@l-w.net for further information
+Fragmentation is not really an issue there. Linux maintains a pool of pages of
+different sizes, and you will be allocated a page with the next size superior
+to what you ask for. Sizes are all powers of two, so the worst case would be
+that you ask 2^n+1 bytes and get a 2^(n+1) size page. When you free such a
+page, it is merged if needed with a coalescent page and put back in the "upper
+size" pool (not sure about this, though). So, no fragmentation is to be feared.
 
------BEGIN GEEK CODE BLOCK-----
-Version: 3.12
-GCS/M/S d- s+:+ !a C++ UL++++$ P++ L+++ !E W++ !N w--- !O !M PS PE V-- Y+
-PGP t+@ 5++ X !R tv+@ b+++@ !DI D? G e++ h+ y?
-------END GEEK CODE BLOCK------
+As to whether you use list.h or not, it really doesn't have any influence,
+except that the list.h implementation is the preferred and standard way to make
+doubly linked lists under Linux.
+
+So, no, there's no need to allocate one big pool and manage it yourself. Also
+remember that you can only kmalloc() up to 128k - if you want to allocate
+bigger amounts of memory, use vmalloc().
+
+Another solution: create your own slab cache for your objects.
+
+-- 
+Francis Galiegue, fg@mandrakesoft.com
+"Programming is a race between programmers, who try and make more and more
+idiot-proof software, and universe, which produces more and more remarkable
+idiots. Until now, universe leads the race"  -- R. Cook
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

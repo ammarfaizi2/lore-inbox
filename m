@@ -1,195 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262298AbSJQXoo>; Thu, 17 Oct 2002 19:44:44 -0400
+	id <S262528AbSJQX54>; Thu, 17 Oct 2002 19:57:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262322AbSJQXoo>; Thu, 17 Oct 2002 19:44:44 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:10537 "EHLO
-	mtvmime03.VERITAS.COM") by vger.kernel.org with ESMTP
-	id <S262298AbSJQXog>; Thu, 17 Oct 2002 19:44:36 -0400
-Date: Fri, 18 Oct 2002 00:51:27 +0100 (BST)
+	id <S262797AbSJQX54>; Thu, 17 Oct 2002 19:57:56 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:5556 "EHLO
+	mtvmime02.veritas.com") by vger.kernel.org with ESMTP
+	id <S262528AbSJQX5y>; Thu, 17 Oct 2002 19:57:54 -0400
+Date: Fri, 18 Oct 2002 01:04:45 +0100 (BST)
 From: Hugh Dickins <hugh@veritas.com>
 X-X-Sender: hugh@localhost.localdomain
 To: Andrew Morton <akpm@digeo.com>
-cc: Christoph Rohland <cr@sap.com>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH] tmpfs 3/9 shmem_getpage reading holes
+cc: Christoph Rohland <cr@sap.com>, Ingo Molnar <mingo@elte.hu>,
+       <linux-kernel@vger.kernel.org>
+Subject: [PATCH] tmpfs 9/9 Ingo's shmem_populate
 In-Reply-To: <Pine.LNX.4.44.0210180042480.7220-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0210180050090.7220-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0210180102050.7220-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here I intended a patch to remove the unsatisfactory shmem_recalc_inode
-(which tries to work out when vmscan has freed undirtied hole pages,
-to relax its blocks-in-use limit; but can only do so per-inode when it
-needs to be per-super).  I had hoped to use the releasepage method, but
-it looks like it can't quite be bent to this task, the page might still
-be rebusied after release.  2.4-ac uses a removepage method dedicated to
-this, but I'm reluctant to ask for such a minor address_space_operation.
+Instate Ingo's shmem_populate on top of the previous patches, now using
+shmem_getpage(,,,SGP_QUICK) for the nonblocking case (its find_lock_page
+may block, but rarely for long).  Note install_page will need redefining
+if PAGE_CACHE_SIZE departs from PAGE_SIZE; note pgoff to populate must
+be in terms of PAGE_SIZE; note page_cache_release if install_page fails.
 
-So, leave shmem_recalc_inode as is, but avoid the issue as much as
-possible, by letting shmem_getpage use the empty_zero_page instead of
-allocating when a hole is read (but this cannot be done when it's being
-mapped, nowadays the nopage doesn't know if page will be copied or not).
-Whereupon shmem_getpage(,,,SGP_READ) can do partial trunc's holdpage.
+filemap_populate similarly needs page_cache_release when install_page
+fails, but filemap.c not included in this patch since we started out
+from 2.5.43 rather than 2.5.43-mm2: whereas patches 1-8 could go
+directly to 2.5.43, this 9/9 belongs with Ingo's population work.
 
---- tmpfs2/mm/shmem.c	Thu Oct 17 22:00:59 2002
-+++ tmpfs3/mm/shmem.c	Thu Oct 17 22:01:09 2002
-@@ -51,12 +51,16 @@
- /* Keep swapped page count in private field of indirect struct page */
- #define nr_swapped		private
+--- tmpfs8/mm/shmem.c	Thu Oct 17 22:01:59 2002
++++ tmpfs9/mm/shmem.c	Thu Oct 17 22:02:09 2002
+@@ -53,6 +53,7 @@
  
--/* Flag end-of-file treatment to shmem_getpage and shmem_swp_alloc */
-+/* Flag allocation requirements to shmem_getpage and shmem_swp_alloc */
+ /* Flag allocation requirements to shmem_getpage and shmem_swp_alloc */
  enum sgp_type {
--	SGP_READ,	/* don't exceed i_size */
--	SGP_WRITE,	/* may exceed i_size */
-+	SGP_READ,	/* don't exceed i_size, don't allocate page */
-+	SGP_CACHE,	/* don't exceed i_size, may allocate page */
-+	SGP_WRITE,	/* may exceed i_size, may allocate page */
- };
++	SGP_QUICK,	/* don't try more than file page cache lookup */
+ 	SGP_READ,	/* don't exceed i_size, don't allocate page */
+ 	SGP_CACHE,	/* don't exceed i_size, may allocate page */
+ 	SGP_WRITE,	/* may exceed i_size, may allocate page */
+@@ -757,6 +758,8 @@
+ 	if (filepage && PageUptodate(filepage))
+ 		goto done;
+ 	error = 0;
++	if (sgp == SGP_QUICK)
++		goto failed;
  
-+static int shmem_getpage(struct inode *inode, unsigned long idx,
-+			 struct page **pagep, enum sgp_type sgp);
-+
- static inline struct page *shmem_dir_alloc(unsigned int gfp_mask)
- {
- 	/*
-@@ -138,8 +142,7 @@
-  * @inode: inode to recalc
-  *
-  * We have to calculate the free blocks since the mm can drop
-- * undirtied hole pages behind our back.  Later we should be
-- * able to use the releasepage method to handle this better.
-+ * undirtied hole pages behind our back.
-  *
-  * But normally   info->alloced == inode->i_mapping->nrpages + info->swapped
-  * So mm freed is info->alloced - (inode->i_mapping->nrpages + info->swapped)
-@@ -278,7 +281,7 @@
-  *
-  * @info:	info structure for the inode
-  * @index:	index of the page to find
-- * @sgp:	check and recheck i_size?
-+ * @sgp:	check and recheck i_size? skip allocation?
-  */
- static swp_entry_t *shmem_swp_alloc(struct shmem_inode_info *info, unsigned long index, enum sgp_type sgp)
- {
-@@ -286,12 +289,15 @@
- 	struct shmem_sb_info *sbinfo = SHMEM_SB(inode->i_sb);
- 	struct page *page = NULL;
- 	swp_entry_t *entry;
-+	static const swp_entry_t unswapped = {0};
- 
- 	if (sgp != SGP_WRITE &&
- 	    ((loff_t) index << PAGE_CACHE_SHIFT) >= inode->i_size)
- 		return ERR_PTR(-EINVAL);
- 
- 	while (!(entry = shmem_swp_entry(info, index, &page))) {
-+		if (sgp == SGP_READ)
-+			return (swp_entry_t *) &unswapped;
- 		/*
- 		 * Test free_blocks against 1 not 0, since we have 1 data
- 		 * page (and perhaps indirect index pages) yet to allocate:
-@@ -483,7 +489,6 @@
- 
- static int shmem_notify_change(struct dentry *dentry, struct iattr *attr)
- {
--	static struct page *shmem_holdpage(struct inode *, unsigned long);
- 	struct inode *inode = dentry->d_inode;
- 	struct page *page = NULL;
- 	long change = 0;
-@@ -508,8 +513,9 @@
- 			 * it assigned to swap.
- 			 */
- 			if (attr->ia_size & (PAGE_CACHE_SIZE-1)) {
--				page = shmem_holdpage(inode,
--					attr->ia_size >> PAGE_CACHE_SHIFT);
-+				(void) shmem_getpage(inode,
-+					attr->ia_size>>PAGE_CACHE_SHIFT,
-+						&page, SGP_READ);
- 			}
- 		}
- 	}
-@@ -812,6 +818,16 @@
- 		shmem_swp_unmap(entry);
- 		spin_unlock(&info->lock);
- 		swap_free(swap);
-+	} else if (sgp == SGP_READ) {
-+		shmem_swp_unmap(entry);
-+		page = find_get_page(mapping, idx);
-+		if (page && TestSetPageLocked(page)) {
-+			spin_unlock(&info->lock);
-+			wait_on_page_locked(page);
-+			page_cache_release(page);
-+			goto repeat;
-+		}
-+		spin_unlock(&info->lock);
- 	} else {
- 		shmem_swp_unmap(entry);
- 		spin_unlock(&info->lock);
-@@ -854,40 +870,14 @@
- 		SetPageUptodate(page);
- 	}
- 
--	/* We have the page */
--	unlock_page(page);
--	*pagep = page;
-+	if (page) {
-+		unlock_page(page);
-+		*pagep = page;
-+	} else
-+		*pagep = ZERO_PAGE(0);
- 	return 0;
+ 	spin_lock(&info->lock);
+ 	shmem_recalc_inode(inode);
+@@ -949,6 +952,42 @@
+ 	return page;
  }
  
--static struct page *shmem_holdpage(struct inode *inode, unsigned long idx)
--{
--	struct shmem_inode_info *info = SHMEM_I(inode);
--	struct page *page;
--	swp_entry_t *entry;
--	swp_entry_t swap = {0};
--
--	/*
--	 * Somehow, it feels wrong for truncation down to cause any
--	 * allocation: so instead of a blind shmem_getpage, check that
--	 * the page has actually been instantiated before holding it.
--	 */
--	spin_lock(&info->lock);
--	page = find_get_page(inode->i_mapping, idx);
--	if (!page) {
--		entry = shmem_swp_entry(info, idx, NULL);
--		if (entry) {
--			swap = *entry;
--			shmem_swp_unmap(entry);
--		}
--	}
--	spin_unlock(&info->lock);
--	if (swap.val) {
--		(void) shmem_getpage(inode, idx, &page, SGP_READ);
--	}
--	return page;
--}
--
- struct page *shmem_nopage(struct vm_area_struct *vma, unsigned long address, int unused)
++static int shmem_populate(struct vm_area_struct *vma,
++	unsigned long addr, unsigned long len,
++	unsigned long prot, unsigned long pgoff, int nonblock)
++{
++	struct inode *inode = vma->vm_file->f_dentry->d_inode;
++	struct mm_struct *mm = vma->vm_mm;
++	enum sgp_type sgp = nonblock? SGP_QUICK: SGP_CACHE;
++	unsigned long size;
++
++	size = (inode->i_size + PAGE_SIZE - 1) >> PAGE_SHIFT;
++	if (pgoff >= size || pgoff + (len >> PAGE_SHIFT) > size)
++		return -EINVAL;
++	
++	while ((long) len > 0) {
++		struct page *page = NULL;
++		int err;
++		/*
++		 * Will need changing if PAGE_CACHE_SIZE != PAGE_SIZE
++		 */
++		err = shmem_getpage(inode, pgoff, &page, sgp);
++		if (err)
++			return err;
++		if (page) {
++			err = install_page(mm, vma, addr, page, prot);
++			if (err) {
++				page_cache_release(page);
++				return err;
++			}
++		}
++		len -= PAGE_SIZE;
++		addr += PAGE_SIZE;
++		pgoff++;
++	}
++	return 0;
++}
++
+ void shmem_lock(struct file *file, int lock)
  {
- 	struct inode *inode = vma->vm_file->f_dentry->d_inode;
-@@ -899,7 +889,7 @@
- 	idx += vma->vm_pgoff;
- 	idx >>= PAGE_CACHE_SHIFT - PAGE_SHIFT;
+ 	struct inode *inode = file->f_dentry->d_inode;
+@@ -1829,6 +1868,7 @@
  
--	error = shmem_getpage(inode, idx, &page, SGP_READ);
-+	error = shmem_getpage(inode, idx, &page, SGP_CACHE);
- 	if (error)
- 		return (error == -ENOMEM)? NOPAGE_OOM: NOPAGE_SIGBUS;
+ static struct vm_operations_struct shmem_vm_ops = {
+ 	.nopage		= shmem_nopage,
++	.populate	= shmem_populate,
+ };
  
-@@ -1191,7 +1181,8 @@
- 		}
- 		nr -= offset;
- 
--		if (!list_empty(&mapping->i_mmap_shared))
-+		if (!list_empty(&mapping->i_mmap_shared) &&
-+		    page != ZERO_PAGE(0))
- 			flush_dcache_page(page);
- 
- 		/*
+ static struct super_block *shmem_get_sb(struct file_system_type *fs_type,
 

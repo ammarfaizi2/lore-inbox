@@ -1,60 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265603AbUATRIu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jan 2004 12:08:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265605AbUATRIu
+	id S265607AbUATRTf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jan 2004 12:19:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265608AbUATRTf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jan 2004 12:08:50 -0500
-Received: from mail0-96.ewetel.de ([212.6.122.96]:35495 "EHLO mail0.ewetel.de")
-	by vger.kernel.org with ESMTP id S265603AbUATRIr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jan 2004 12:08:47 -0500
-Date: Tue, 20 Jan 2004 18:08:44 +0100 (CET)
-From: Pascal Schmidt <der.eremit@email.de>
-To: Jens Axboe <axboe@suse.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix for ide-scsi crash
-Message-ID: <Pine.LNX.4.44.0401201801190.1508-100000@neptune.local>
+	Tue, 20 Jan 2004 12:19:35 -0500
+Received: from mail.webmaster.com ([216.152.64.131]:6552 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP id S265607AbUATRTc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jan 2004 12:19:32 -0500
+From: "David Schwartz" <davids@webmaster.com>
+To: "Giuliano Pochini" <pochini@denise.shiny.it>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: License question
+Date: Tue, 20 Jan 2004 09:19:21 -0800
+Message-ID: <MDEHLPKNGKAHNMBLJOLKGEDLJLAA.davids@webmaster.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-CheckCompat: OK
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <Pine.LNX.4.58.0401201015250.30196@denise.shiny.it>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2055
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
->> Agree, it's a bug. Pascal, care to take a stab at fixing it? You're the
->> most avid ide-cd non-2kb block size user at the moment :)
+> On Mon, 19 Jan 2004, David Schwartz wrote:
 
-> There's a lot of macros related to sector sizes in ide-cd.h. I suppose
-> all that would need to be changed to depend on the real hardware sector
-> size?
+> > > Since their code is C++ I already rewote everything in C, but it
+> > > also contains the binary firmwares which I can't rewrite. That's
+> > > why I asked you about the license.
 
-I've actually looked at the code now and it seems that it might be
-quite easy to fix this, after all.
+> > 	Then you have another problem. You can't place something
+> > under the GPL if
+> > you don't have the source code to it.
 
-I have a question about cdrom_start_read_continuation:
+> This issue was raised on the list a few months ago. Someone's opinion was
+> that the firmware is not executed by the same processor that runs Linux,
+> thus it's data, not code.
 
-Variables called nframes and frames are computed but never used. Only
-nskip actually gets factored into the request:
+	The GPL makes no distinctions about what processor runs things, nor does it
+make distinctions between data and code.
 
-	rq->current_nr_sectors += nskip;
+> Uploading a firmware is like printing an image
+> on the screen.
 
-The others are local vars and never get assigned to anything more
-global. So I conclude they are meaningless? I ask because this
-is one of the places that uses SECTORS_PER_FRAME and it doesn't make
-sense to me.
+	So what difference is that supposed to make? Quoting the GPL:
 
-Unrelated question:
+The source code for a work means the preferred form of the work for
+making modifications to it.  For an executable work, complete source
+code means all the source code for all modules it contains, plus any
+associated interface definition files, plus the scripts used to
+control compilation and installation of the executable.
 
-Later on, the code decides to use DMA only for requests aligned
-on a SECTORS_PER_FRAME boundary. Where does this limitation come from?
-Does it come from the drive, so that alignment to 512 byte would be
-enough on a drive with 512 byte sectors?
+	Notice it doesn't say that source code only exists for executables. It
+simply clarifies what it means by "source code" by explaining what it means
+with respect to executables. If you release a package under the GPL that
+includes, for example, a JPG image, you would have to give the "preferred
+from of [that] work for making modification to it" to any user who requested
+it (or otherwise comply with the GPL requirements).
 
-I've actually ordered some 512 byte sector MO discs today and will try
-to get them working with ide-cd once they arrive here.
+> Anyway I can upload the firmware from userspace. On most
+> (but not all) cards I only need the firmware at startup, so I also save
+> memory. Some cards also have an ASIC which must be loaded. That data is
+> not code because it's not executed.
 
--- 
-Ciao,
-Pascal
+	Why does it matter whether it's data or code? The GPL doesn't care whether
+a work is data or code, it just requires that you provide to a suitably
+qualified requester the "preferred form of the work for making modifications
+to it". Even data has a "preferred form". Raw versus processed is analogous
+to source versus object.
+
+	I think the firmware loader can be a license boundary. Just don't put any
+GPL notices in the files that contain the firmware as data. While this isn't
+'mere aggregation', the integration is across an API that should be
+acceptable as a license boundary.
+
+	DS
+
 

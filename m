@@ -1,37 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131299AbRCHIp5>; Thu, 8 Mar 2001 03:45:57 -0500
+	id <S131315AbRCHIwR>; Thu, 8 Mar 2001 03:52:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131298AbRCHIpr>; Thu, 8 Mar 2001 03:45:47 -0500
-Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:2564 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S131295AbRCHIpd>;
-	Thu, 8 Mar 2001 03:45:33 -0500
-Date: Wed, 7 Mar 2001 18:17:23 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Alexander Viro <viro@math.psu.edu>, Jeremy Elson <jelson@circlemud.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Mapping a piece of one process' addrspace to another?
-Message-ID: <20010307181722.E55@(none)>
-In-Reply-To: <Pine.GSO.4.21.0103070051060.2127-100000@weyl.math.psu.edu> <Pine.LNX.4.21.0103070301310.1548-100000@freak.distro.conectiva>
+	id <S131313AbRCHIwH>; Thu, 8 Mar 2001 03:52:07 -0500
+Received: from mx0.gmx.net ([213.165.64.100]:57486 "HELO mx0.gmx.net")
+	by vger.kernel.org with SMTP id <S131311AbRCHIwB>;
+	Thu, 8 Mar 2001 03:52:01 -0500
+Date: Thu, 8 Mar 2001 09:51:43 +0100 (MET)
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: linux-kernel@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: IDE bug in 2.4.2-ac12?
+From: Konrad Stopsack <konrad_lkml@gmx.de>
+In-Reply-To: <20010308093605.A904@suse.cz>
+Message-ID: <2083.984041503@www29.gmx.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.LNX.4.21.0103070301310.1548-100000@freak.distro.conectiva>; from marcelo@conectiva.com.br on Wed, Mar 07, 2001 at 03:02:14AM -0300
+X-Priority: 3 (Normal)
+X-Authenticated-Sender: #0009979400@gmx.net
+X-Mailer: WWW-Mail 1.5 (Global Message Exchange)
+X-Authenticated-IP: [141.76.11.162]
+X-Flags: 0001
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > You are reinventing the wheel.
-> > man ptrace (see PTRACE_{PEEK,POKE}{TEXT,DATA} and PTRACE_{ATTACH,CONT,DETACH})
+Vojtech Pavlik wrote:
+> On Thu, Mar 08, 2001 at 09:01:15AM +0100, Konrad Stopsack wrote:
 > 
-> With ptrace data will be copied twice. As far as I understood, Jeremy
-> wants to avoid that. 
+> > Do you mean the Power Supply Unit? Or the Program Storage Unit? ;-)
+> 
+> Power Supply Unit, yes.
+> 
+> > To answer to your questions:
+> >  - I haven't tried to remove the CD-ROM because both devices shall 
+work 
+> > together
+> >  - the ZIP doesn't cause problems when just the power cable is 
+connected
+> > 
+> > Although my PC has only got an old Baby AT 200W power supply I don't
+> think 
+> > that's the point.
+> 
+> I don't see any other way how the ZIP could have impact on the IDE HDD
+> on a different IDE interface.
+The 82c586b can be a chip with locked-together IDE controllers, can't it?
 
-mmap /proc/pid/memory?
-								Pavel
+> 
+> If you wonder why /proc/ide/via reports slower DMA rates for the HDD
+> when the ZIP is connected is because the auto slowdown code kicks in and
+> lowers the transfer rate when too many CRC errors happen.
+
+Well, and what should I do now? I really need the ZIP drive. 
+Try without CD-ROM? Buy new ATX case with 300W power supply? And new 
+motherboard? And new processor? And ... and ... and?
+Isn't there a chance to unlock the IDE channels (if they are locked)? 
+Remember, I've heard about a Windows patch to do this.
+
+Paul, what did you find out?
+
+cu Konrad
+
 -- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+Konrad Stopsack - konrad@stopsack.de
 
+Sent through GMX FreeMail - http://www.gmx.net

@@ -1,114 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262408AbSI2H3u>; Sun, 29 Sep 2002 03:29:50 -0400
+	id <S262409AbSI2HoB>; Sun, 29 Sep 2002 03:44:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262409AbSI2H3u>; Sun, 29 Sep 2002 03:29:50 -0400
-Received: from babyruth.hotpop.com ([204.57.55.14]:33494 "EHLO
-	babyruth.hotpop.com") by vger.kernel.org with ESMTP
-	id <S262408AbSI2H3s>; Sun, 29 Sep 2002 03:29:48 -0400
-From: Andreas Loong <reflect@phreaker.net>
-To: linux-kernel@vger.kernel.org
-Date: Sun, 29 Sep 2002 09:30:30 +0500
-Message-ID: <yam9037.1502.149170808@smtp.phreaker.net>
-X-Mailer: YAM 2.3 [040] AmigaOS E-Mail Client (c) 1995-2000 by Marcel Beck  http://www.yam.ch/
-Subject: sparc32 2.4.19: cpu race with modprobe qlogicpti.o
-MIME-Version: 1.0
+	id <S262410AbSI2HoB>; Sun, 29 Sep 2002 03:44:01 -0400
+Received: from starcraft.mweb.co.za ([196.2.45.78]:17546 "EHLO
+	starcraft.mweb.co.za") by vger.kernel.org with ESMTP
+	id <S262409AbSI2HoA>; Sun, 29 Sep 2002 03:44:00 -0400
+Subject: Re: Kernel Panic 2.5.39
+From: Bongani <bonganilinux@mweb.co.za>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1033247487.1742.19.camel@localhost.localdomain>
+References: <1033247487.1742.19.camel@localhost.localdomain>
 Content-Type: text/plain
-X-HotPOP: -----------------------------------------------
-                   Sent By HotPOP.com FREE Email
-             Get your FREE POP email at www.HotPOP.com
-          -----------------------------------------------
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8-3mdk 
+Date: 29 Sep 2002 09:52:15 +0200
+Message-Id: <1033285941.1729.8.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi
 
-[1.] brief statement
-SPARC hangs when doing modprobe
-
-[2.] full description.
-when doing modprobe -a qlogicpti a cpu race condition occurs and the machine
-goes down to prom-level. unfortunately, none of the messages made it into
-any logfiles.
-this message is printed to the console:
-Warning: loading /lib/modules/2.4.19/kernel/drivers/scsi/qlogicpti.o will
-taint the kernel: no license
-
-[3.] keywords.
-qlogic cpu race modprobe
-
-[4.] full kernel version. 
-Linux version 2.4.19 (root@calamari) (gcc version 2.95.4 20011002
-(Debian prerelease)) #5 SMP Wed Sep 25 14:16:58 CEST 2002
-
-[7.1.] Gnu C                  2.95.4
-Gnu make               3.79.1
-util-linux             2.11n
-mount                  2.11n
-modutils               2.4.15
-e2fsprogs              1.27
-Linux C Library        2.2.5
-Dynamic linker (ldd)   2.2.5
-Procps                 2.0.7
-Net-tools              1.60
-Console-tools          0.2.3
-Sh-utils               2.0.11
-Modules Loaded         openprom slip slhc sg autofs
-
-[7.2.] 
-cpu             : ROSS HyperSparc RT625 or RT626
-fpu             : ROSS HyperSparc combined IU/FPU
-promlib         : Version 3 Revision 2
-prom            : 2.25
-type            : sun4m
-ncpus probed    : 4
-ncpus active    : 4
-Cpu0Bogo        : 99.73
-Cpu1Bogo        : 99.94
-Cpu2Bogo        : 99.94
-Cpu3Bogo        : 99.94
-MMU type        : ROSS HyperSparc
-contexts        : 4096
-nocache total   : 1048576
-nocache used    : 398336
-CPU0            : online
-CPU1            : online
-CPU2            : online
-CPU3            : online
-
-[7.3.] Module information (from /proc/modules):
-slip                   11764   0 (unused)
-slhc                    4752   0 [slip]
-sg                     30780   0
-autofs                 10772   0 (unused)
-
-[7.4.] Loaded driver and hardware information (/proc/ioports, /proc/iomem)
-nothing at all
-
-[7.5.] PCI information ('lspci -vvv' as root)
-is there an equivalent command for sparc/sbus?
-
-[7.6.] SCSI information (from /proc/scsi/scsi)
-Attached devices: 
-Host: scsi0 Channel: 00 Id: 01 Lun: 00
-  Vendor: SEAGATE  Model: ST34371W SUN4.2G Rev: 7462
-  Type:   Direct-Access                    ANSI SCSI revision: 02
-Host: scsi0 Channel: 00 Id: 03 Lun: 00
-  Vendor: SEAGATE  Model: ST39173W SUN9.0G Rev: 2815
-  Type:   Direct-Access                    ANSI SCSI revision: 02
-Host: scsi0 Channel: 00 Id: 06 Lun: 00
-  Vendor: TOSHIBA  Model: XM-4101TASUNSLCD Rev: 1084
-  Type:   CD-ROM                           ANSI SCSI revision: 02
-
-[X.] Other notes, patches, fixes, workarounds:
-I've been trying to reproduce the problem, but I can't do it in the exact
-same way as the first time. However, if it does not go down while loading,
-a simple matter of unloading the module brings the machine down hard.
-I'm fairly new to linux, but if there's anything I can do to get you the
-info needed to fix the problem, I'll do it. All I need is a bit of
-guidance.
+I have capture most of the oops (by hand) and ran it through ksymoops
+and here is the output. I hope this is helpful.
+ 
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0060:[<c0255da2>]  Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010296
+eax: 00000000   ebx: c1399c00     ecx: 00000400       edx: 00003b13
+esi: 00000000   edi: fffffff6     ebp: c039ff04       esp: c039fee8
+ds: 0068        es: 0068       ss: 0068
+Stack:  c039e000 c039e000 c039e000 c039e000 c03fc180 c1399c00 00000000
+c039ff1c
+        c025150b c1399c00 c0121596 00000001 c03fc198 c039ff38 c01213c5
+c03fc198
+        00000046 c039e000 c039e000 00000000 c039ff60 c010b789 00000000
+c039ff68
+Call Trace:     [<c025150b>]scsi_softirq+0x4b/0xf0
+               [<c0121596>]tasklet_hi_action+0x46/0x70
+               [<c01213c5>]do_softirq+0xb5/0xc0
+               [<c010b789>]do_IRQ+0x109/0x130
+               [<c010a000>]common_interrupt+0x18/0x20
+               [<c01ef10d>]acpi_processor_idle+0x17d/0x240
+               [<c01eefdc>]acpi_processor_idle+0x4c/0x240
+               [<c01eef90>]acpi_processor_idle+0x0/0x240
+               [<c01072e0>]default_idle+0x0/0x40
+               [<c0107399>]cpu_idle+0x3a/0x50
+               [<c0105000>]stext+0x0/0x30
+Code: f6 81 24 01 00 00 01 74 35 0f b6 83 32 01 00 00 8b 93 30 01
 
 
-Wbr
-Andreas Loong
+>>EIP; c0255da2 <scsi_decide_disposition+12/160>   <=====
+
+>>ebx; c1399c00 <_end+e991c1/10321621>
+>>edx; 00003b13 Before first symbol
+>>edi; fffffff6 <END_OF_CODE+2f773497/????>
+>>ebp; c039ff04 <init_thread_union+1f04/2000>
+>>esp; c039fee8 <init_thread_union+1ee8/2000>
+
+Trace; c025150b <scsi_softirq+4b/f0>
+Trace; c0121596 <tasklet_hi_action+46/70>
+Trace; c01213c5 <do_softirq+b5/c0>
+Trace; c010b789 <do_IRQ+109/130>
+Trace; c010a000 <common_interrupt+18/20>
+Trace; c01ef10d <acpi_processor_idle+17d/240>
+Trace; c01eefdc <acpi_processor_idle+4c/240>
+Trace; c01eef90 <acpi_processor_idle+0/240>
+Trace; c01072e0 <default_idle+0/40>
+Trace; c0107399 <cpu_idle+39/50>
+Trace; c0105000 <_stext+0/0>
+
+Code;  c0255da2 <scsi_decide_disposition+12/160>
+00000000 <_EIP>:
+Code;  c0255da2 <scsi_decide_disposition+12/160>   <=====
+   0:   f6 81 24 01 00 00 01      testb  $0x1,0x124(%ecx)   <=====
+Code;  c0255da9 <scsi_decide_disposition+19/160>
+   7:   74 35                     je     3e <_EIP+0x3e> c0255de0
+<scsi_decide_disposition+50/160>
+Code;  c0255dab <scsi_decide_disposition+1b/160>
+   9:   0f b6 83 32 01 00 00      movzbl 0x132(%ebx),%eax
+Code;  c0255db2 <scsi_decide_disposition+22/160>
+  10:   8b 93 30 01 00 00         mov    0x130(%ebx),%edx
+
+ <0>Kernel painc: Aiee, killing interrupt handler!
+
 
 

@@ -1,87 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264793AbUDWNCs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264804AbUDWNaX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264793AbUDWNCs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Apr 2004 09:02:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264802AbUDWNCs
+	id S264804AbUDWNaX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Apr 2004 09:30:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264807AbUDWNaX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Apr 2004 09:02:48 -0400
-Received: from smtp809.mail.sc5.yahoo.com ([66.163.168.188]:1960 "HELO
-	smtp809.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S264793AbUDWNCp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Apr 2004 09:02:45 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Marcel Holtmann <marcel@holtmann.org>
-Subject: Re: [OOPS/HACK] atmel_cs and the latest changes in sysfs/symlink.c
-Date: Fri, 23 Apr 2004 08:02:40 -0500
-User-Agent: KMail/1.6.1
-Cc: Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
-       linux-kernel@vger.kernel.org, Simon Kelley <simon@thekelleys.org.uk>
-References: <200404230142.46792.dtor_core@ameritech.net> <1082723147.1843.14.camel@merlin>
-In-Reply-To: <1082723147.1843.14.camel@merlin>
+	Fri, 23 Apr 2004 09:30:23 -0400
+Received: from wombat.indigo.net.au ([202.0.185.19]:5135 "EHLO
+	wombat.indigo.net.au") by vger.kernel.org with ESMTP
+	id S264804AbUDWNaS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Apr 2004 09:30:18 -0400
+Date: Fri, 23 Apr 2004 21:33:10 +0800 (WST)
+From: raven@themaw.net
+To: Christoph Hellwig <hch@infradead.org>
+cc: Andrew Morton <akpm@osdl.org>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.6-rc2-mm1
+In-Reply-To: <20040423131149.B1218@infradead.org>
+Message-ID: <Pine.LNX.4.58.0404232125420.5889@donald.themaw.net>
+References: <20040421014544.37942eb4.akpm@osdl.org>
+ <Pine.LNX.4.58.0404222321310.6767@donald.themaw.net> <20040423131149.B1218@infradead.org>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200404230802.42293.dtor_core@ameritech.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-1.7, required 8,
+	EMAIL_ATTRIBUTION, IN_REP_TO, NO_REAL_NAME, QUOTED_EMAIL_TEXT,
+	REFERENCES, REPLY_WITH_QUOTES, USER_AGENT_PINE)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 23 April 2004 07:25 am, Marcel Holtmann wrote:
-> Hi Dmitry,
+On Fri, 23 Apr 2004, Christoph Hellwig wrote:
+
+> On Thu, Apr 22, 2004 at 11:32:39PM +0800, raven@themaw.net wrote:
+> > +static int __may_umount_tree(struct vfsmount *mnt, int root_mnt_only)
+> > +{
+> > +	struct list_head *next;
+> > +	struct vfsmount *this_parent = mnt;
+> > +	int actual_refs;
+> > +	int minimum_refs;
+> > +
+> > +	spin_lock(&vfsmount_lock);
+> > +	actual_refs = atomic_read(&mnt->mnt_count);
+> > +	minimum_refs = 2;
+> > +
+> > +	if (root_mnt_only) {
+> > + 		spin_unlock(&vfsmount_lock);
+> > +		if (actual_refs > minimum_refs)
+> > +			return -EBUSY;
+> > +		return 0;
 > 
-> > The latest change in sysfs/symlink (conversion to use kobject_name instead
-> > of name fiedld directly) broke atmel_cs driver:
-> > 
-> > Apr 23 00:30:10 core kernel: Oops: 0000 [#1]
-> > Apr 23 00:30:10 core kernel: PREEMPT
-> > Apr 23 00:30:10 core kernel: CPU:    0
-> > Apr 23 00:30:10 core kernel: EIP:    0060:[<c0182ef9>]    Not tainted
-> > Apr 23 00:30:10 core kernel: EFLAGS: 00010246   (2.6.6-rc2)
-> > Apr 23 00:30:10 core kernel: EIP is at object_path_length+0x19/0x30
-<skip>
-> > Apr 23 00:30:10 core kernel: Call Trace:
-> > Apr 23 00:30:10 core kernel:  [<c0182f99>] sysfs_create_link+0x29/0x140
-> > Apr 23 00:30:10 core kernel:  [<c01ac578>] kobject_hotplug+0x58/0x60
-> > Apr 23 00:30:10 core kernel:  [<c0211490>] class_device_dev_link+0x30/0x40
-<skip>
-> > 
-> > Below is the "fix" that helps avoid oopsing, and should be removed when
-> > atmel_cs driver properly registers atmel_device.
+> Sorry for changing my opionin, but I somehow thought autofs3 could make
+> more use of this function.  it it's really just a single atomic_read that's
+> shared it doesn't really make a lot of sense, does it?
 > 
-> I haven't tested it yet, but the same problem should apply to the
-> bt3c_cs driver for the 3Com Bluetooth card. Are there any patches
-> available that integrates the PCMCIA subsystem into the driver model, so
-> we don't have to hack around it if a firmware download is needed?
-> 
-I do not know. But the problem seems to be somewhat widespread - I just got
-oops with the following trace:
 
- [<c0182f99>] sysfs_create_link+0x29/0x140
- [<c01ac578>] kobject_hotplug+0x58/0x60
- [<c0211490>] class_device_dev_link+0x30/0x40
- [<c02117ad>] class_device_add+0xed/0x130
- [<e185ffab>] usb_register_dev+0x12b/0x170 [usbcore]
- [<e1b2bf2a>] hiddev_connect+0x7a/0x120 [usbhid]
+That's right.
 
-I think we should not oops, just complain loudly, when we come across a
-kobject which has never beek kobject_add()ed, like in patch below.
+autofs3 requires it to behave as per the little description I put in.
 
--- 
-Dmitry
+So is the first version what we want?
+Should I do a patch which reverts it or should I do a new patch that 
+adds the prototype I originally missed?
 
-===== include/linux/kobject.h 1.26 vs edited =====
---- 1.26/include/linux/kobject.h	Thu Mar 11 08:20:22 2004
-+++ edited/include/linux/kobject.h	Fri Apr 23 07:58:52 2004
-@@ -39,6 +39,11 @@
- 
- static inline char * kobject_name(struct kobject * kobj)
- {
-+	if (unlikely(!kobj->k_name)) {
-+		printk("kobject_name(): not registered kobject\n");
-+		dump_stack();
-+		return kobj->name;
-+	}
- 	return kobj->k_name;
- }
- 
+Be good to clear up what I need to do before I spend more time on it.
+
+Ian
+

@@ -1,51 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268858AbUHaUAo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268890AbUHaUAx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268858AbUHaUAo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 16:00:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269064AbUHaUAj
+	id S268890AbUHaUAx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 16:00:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267324AbUHaT5d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 16:00:39 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:3577 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S268965AbUHaUAE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 16:00:04 -0400
-Date: Tue, 31 Aug 2004 21:59:52 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Christoph Hellwig <hch@lst.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-rc1-mm2: why is DIGIEPCA marked BROKEN?
-Message-ID: <20040831195951.GO3466@fs.tum.de>
-References: <20040830235426.441f5b51.akpm@osdl.org> <20040831174719.GG3466@fs.tum.de> <20040831195753.GA12499@lst.de>
+	Tue, 31 Aug 2004 15:57:33 -0400
+Received: from rav-az.mvista.com ([65.200.49.157]:27788 "EHLO
+	zipcode.az.mvista.com") by vger.kernel.org with ESMTP
+	id S268983AbUHaTv3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 15:51:29 -0400
+Subject: New virtual synchrony API for the kernel: was Re: [Openais] New
+	API in openais
+From: Steven Dake <sdake@mvista.com>
+Reply-To: sdake@mvista.com
+To: John Cherry <cherry@osdl.org>
+Cc: openais@lists.osdl.org, linux-ha-dev@lists.linux-ha.org,
+       linux-cluster@redhat.com, linux-kernel@vger.kernel.org
+In-Reply-To: <1093973757.5933.56.camel@cherrybomb.pdx.osdl.net>
+References: <1093941076.3613.14.camel@persist.az.mvista.com>
+	 <1093973757.5933.56.camel@cherrybomb.pdx.osdl.net>
+Content-Type: text/plain
+Organization: MontaVista Software, Inc.
+Message-Id: <1093981842.3613.42.camel@persist.az.mvista.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040831195753.GA12499@lst.de>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 31 Aug 2004 12:50:43 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 31, 2004 at 09:57:53PM +0200, Christoph Hellwig wrote:
-> On Tue, Aug 31, 2004 at 07:47:19PM +0200, Adrian Bunk wrote:
-> > If I revert mark-pcxx-as-broken.patch, the driver compiles UP for me 
-> > with exactly zero errors or warnings.
-> > 
-> > @Christoph:
-> > Could you post the errors you observed?
+John,
+As it appears the redhat clusters project is interested in a kernel
+implementation of cluster messaging, this interface would have to be
+available to both the kernel and user applications.  It possible to
+provide EVS services to both kernel and user space applications.  There
+currently is no kernel implementation of group messaging, though only a
+user space interface.  TIPC could probably export this sort of
+interface, or openais's gmi could be ported to the kernel.  Then
+openais, redhat's cluster technologies, linux ha, or other group
+messaging applications (and there are quite a few) could use that
+technology and standardize on the EVS API.
+
+It would be useful for linux cluster developers for a common low level
+group communication API to be agreed upon by relevant clusters
+projects.  Without this approach, we may end up with several systems all
+using different cluster communication & membership mechanisms that are
+incompatible. 
+
+Thanks
+-steve
+
+On Tue, 2004-08-31 at 10:35, John Cherry wrote:
+> Steve,
 > 
-> Umm, sorry.   As the patch name says it should have marked the pcxx
-> driver (CONFIG_DIGI) as broken.
->...
-
-Too late, my patch to fix the compile errors in DIGI was already sent.
-;-)
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+> This sounds like a low level cluster communication service which would
+> be potentially leveraged by other services, such as the event service or
+> a group messaging service.  Are you envisioning this to be a public
+> interface for applications?
+> 
+> We discussed a low level cluster communication interface at the cluster
+> summit.  The rhat/sistina interface would be used by the cluster manager
+> (CMAN) and the lock manager (GDLM), but there was no real momentum to
+> make this a public application interface.  It would be great if we could
+> derive a common cluster communication interface with the rhat/sistina
+> project as well as the TIPC project.  What do you think?
+> 
+> John
+> 
+> 
+> On Tue, 2004-08-31 at 01:31, Steven Dake wrote:
+> > Folks
+> > 
+> > Its with alot of pleasure that I announce a new API that I implemented
+> > over the weekend.
+> > 
+> > The api is called the "EVS" API and is provided by a seperate library
+> > libevs.so/.a.  The standard openais executive is used.  There are two
+> > test programs testevs and evsbench which demonstrate the API.  evsbench
+> > will benchmark throughput rates.  I get about 9MB/sec on my hardware,
+> > however, flow control in the group messaging protocol is slowing this
+> > down.  I've gotten 10MB/sec with tweaking the algorithm some.
+> > 
+> > The API name EVS means "Extended Virtual Syncrhony".  This API provides
+> > EVS semantics for those that require the guarantees provided in the face
+> > of partitions and merges.
+> > 
+> > The API provides the following
+> > multiple instances may exist at one time
+> > group keys of 32 bytes
+> > an instance may join one or more groups at one time
+> > an instance may leave one or more groups at one time
+> > an instance may multicast to the currently joined groups
+> > an instance may multicast to unjoined groups
+> > any message for a joined group will be delivered via callback
+> > configuration changes are delivered via callback
+> > 
+> > Your comments welcome
+> > 
+> > Thanks
+> > -steve
+> > 
+> > 
+> > ______________________________________________________________________
+> > _______________________________________________
+> > Openais mailing list
+> > Openais@lists.osdl.org
+> > http://lists.osdl.org/mailman/listinfo/openais
+> 
 

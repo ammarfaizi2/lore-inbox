@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130353AbRCBI3b>; Fri, 2 Mar 2001 03:29:31 -0500
+	id <S130352AbRCBI3B>; Fri, 2 Mar 2001 03:29:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130355AbRCBI3V>; Fri, 2 Mar 2001 03:29:21 -0500
-Received: from sgi.SGI.COM ([192.48.153.1]:54565 "EHLO sgi.com")
-	by vger.kernel.org with ESMTP id <S130353AbRCBI3R>;
-	Fri, 2 Mar 2001 03:29:17 -0500
-From: Kanoj Sarcar <kanoj@google.engr.sgi.com>
-Message-Id: <200103020828.AAA36344@google.engr.sgi.com>
-Subject: Linux/mips64 on 64 node, 128p, 64G machine
+	id <S130353AbRCBI2w>; Fri, 2 Mar 2001 03:28:52 -0500
+Received: from office.globe.cz ([212.27.204.26]:15886 "HELO gw.office.globe.cz")
+	by vger.kernel.org with SMTP id <S130352AbRCBI2m>;
+	Fri, 2 Mar 2001 03:28:42 -0500
 To: linux-kernel@vger.kernel.org
-Date: Fri, 2 Mar 2001 00:28:16 -0800 (PST)
-X-Mailer: ELM [version 2.5 PL2]
+Subject: Night freezes of computer (2.4.2)
+From: Ondrej Sury <sury.ondrej@globe.cz>
+Date: 02 Mar 2001 09:28:34 +0100
+Message-ID: <874rxcbmml.fsf@druid.office.globe.cz>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.0.98
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-2
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-Just a quick note to mention that I was successful in booting up a
-64 node, 128p, 64G mips64 machine on a 2.4.1 based kernel. To be able
-to handle the amount of io devices connected, I had to make some 
-fixes in the arch/mips64 code. And a few to handle 128 cpus.
+I have Duron on Via chipset.  Kernel is 2.4.2.  When I leave my computer in
+work on during night, it freezes hard.  I have X running, so there are no
+messages on console.  I suspect that maybe ACPI is doing that, so I am
+going to disable it and try it again.  I will also shutdown Xserver before
+I will be going home today, so I can see some kernel messages (if any) on
+console.  I think that it is some 2.4.2 issue, because I don't remember
+similar behaviour on earlier kernels.
 
-A couple of generic patches needed to be made on top of 2.4.1 
-(obviously, the prime one was that NR_CPUS had to be bumped to 128).
-I will clean the patches up and send them in to Linus.
+/var/log/messages:
 
-For some output, visit
+Mar  2 01:24:28 druid -- MARK --
+Mar  2 01:44:28 druid -- MARK --
+Mar  2 09:10:56 druid syslogd 1.3-3#33.1: restart.
 
-    http://oss.sgi.com/projects/LinuxScalability/download/mips128.out
-
-I ommitted the bootup messages, since they are similar (just a lot
-longer!) to the 32p bootup messages at
-
-    http://oss.sgi.com/projects/LinuxScalability/download/mips64.out
-
-Kanoj
-
+-- 
+Ondøej Surý <ondrej@globe.cz>         Globe Internet s.r.o. http://globe.cz/
+Tel: +420235365000   Fax: +420235365009         Plánièkova 1, 162 00 Praha 6
+Mob: +420605204544   ICQ: 24944126             Mapa: http://globe.namape.cz/
+GPG fingerprint:          CC91 8F02 8CDE 911A 933F  AE52 F4E6 6A7C C20D F273

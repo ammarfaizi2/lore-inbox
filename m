@@ -1,65 +1,56 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317313AbSFGSHO>; Fri, 7 Jun 2002 14:07:14 -0400
+	id <S317315AbSFGSLw>; Fri, 7 Jun 2002 14:11:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317314AbSFGSHN>; Fri, 7 Jun 2002 14:07:13 -0400
-Received: from p50886B5E.dip.t-dialin.net ([80.136.107.94]:59020 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S317313AbSFGSHN>; Fri, 7 Jun 2002 14:07:13 -0400
-Date: Fri, 7 Jun 2002 12:06:58 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-cc: Lightweight patch manager <patch@luckynet.dynu.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Mikael Pettersson <mikpe@csd.uu.se>
-Subject: Re: [PATCH][2.5] tulip: change device names
-In-Reply-To: <3D00F47C.3000801@mandrakesoft.com>
-Message-ID: <Pine.LNX.4.44.0206071203580.15675-100000@hawkeye.luckynet.adm>
+	id <S317317AbSFGSLv>; Fri, 7 Jun 2002 14:11:51 -0400
+Received: from khms.westfalen.de ([62.153.201.243]:8632 "EHLO
+	khms.westfalen.de") by vger.kernel.org with ESMTP
+	id <S317315AbSFGSLv>; Fri, 7 Jun 2002 14:11:51 -0400
+Date: 07 Jun 2002 20:08:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
+To: dsrelist@yahoo.com
+cc: linux-kernel@vger.kernel.org
+Message-ID: <8QRbBdkXw-B@khms.westfalen.de>
+In-Reply-To: <20020607165154.29392.qmail@web20809.mail.yahoo.com>
+Subject: Re: Stream Lined Booting - SCSI Hold Up
+X-Mailer: CrossPoint v3.12d.kh9 R/C435
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Organization: Organisation? Me?! Are you kidding?
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+dsrelist@yahoo.com (Shane Walton)  wrote on 07.06.02 in <20020607165154.29392.qmail@web20809.mail.yahoo.com>:
 
-On Fri, 7 Jun 2002, Jeff Garzik wrote:
-> Thanks for the effort, that was a quick turnaround :)
-> 
-> But unfortunately the patch is wrong.
-> 
-> You need to use an index which counts _tulip_ boards, which implies that 
-> the index is local to the driver.  Currently the only such counter is 
-> board_idx, which is a variable local to tulip_init_one().
+> Thank you all for your replies.  Disabling the SCSI
+> reset helps much, but not enough.  I ended up loading
+> a RAM disk to start key binaries to fulfill this
+> requirement, afterwards I then load the aic7xxx module
+> and pivot_root to the real root.  My biggest problem
+> is
+> the BIOS level resets and POST.  Thanks for your time.
 
-Would you suggest
+* Generic BIOS:
+  On modern BIOSes, there are usually several options that can be changed
+  to speed up that part - switching off the memory check, the floppy seek,
+  and so on.
 
-a) setting it in some global struct (tulip_private etc.)?
-b) calling it "eth%d", dev->ifindex?
+* Adaptec BIOS:
+  It's been a while since I saw that, but there's often stuff that can be
+  switched in a SCSI BIOS as well. Such as which targets and LUNs it will
+  look at, what options it will try, if those options can be negotiated,
+  if it will try to spin up disks, and so on. Some of those options also
+  affect boot speed.
 
-> I wonder who the heck this patch is from??  Mikael?  The "Lightweight 
-> patch manager" seems neat, but a rather unfriendly person to reply to :)
+You might need to experiment some to determine the fastest setting.
 
-You keep talking to me. It happens whenever I use sendpatch. I prefer not 
-to be determined as sender of my patches by grepping the list, but all 
-responses to patch@etc go to thunder@etc, which is me.
+But beware that *some* settings can at least theoretically make a reboot  
+hang that's not coming from power-off. (If the boot disk doesn't spin up  
+by itself, that can usually be changed by a jumper; the BIOS should not  
+*need* to spin up disks.) And turning off error checks means - just like  
+one would expect - that some errors aren't checked for.
 
-> Regards,
-> 
->     Jeff
-
-
-> P.S. A ChangeLog entry (in the patch, or to be cut-n-pasted) is missing 
-> also.
-
-What do you suggest?
-
-Regards,
-Thunder
--- 
-ship is leaving right on time	|	Thunder from the hill at ngforever
-empty harbour, wave goodbye	|
-evacuation of the isle		|	free inhabitant not directly
-caveman's paintings drowning	|	belonging anywhere
-
+MfG Kai

@@ -1,64 +1,137 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263246AbSJaTs4>; Thu, 31 Oct 2002 14:48:56 -0500
+	id <S265404AbSJaUNJ>; Thu, 31 Oct 2002 15:13:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263249AbSJaTs4>; Thu, 31 Oct 2002 14:48:56 -0500
-Received: from port326.ds1-brh.adsl.cybercity.dk ([217.157.160.207]:16751 "EHLO
-	mail.jaquet.dk") by vger.kernel.org with ESMTP id <S263246AbSJaTsy>;
-	Thu, 31 Oct 2002 14:48:54 -0500
-Date: Thu, 31 Oct 2002 20:55:14 +0100
-From: Rasmus Andersen <rasmus@jaquet.dk>
-To: Daniel Egger <degger@fhm.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: CONFIG_TINY
-Message-ID: <20021031205514.C12469@jaquet.dk>
-References: <20021030233605.A32411@jaquet.dk> <Pine.NEB.4.44.0210310145300.20835-100000@mimas.fachschaften.tu-muenchen.de> <20021031092440.B5815@jaquet.dk> <1036092802.7799.2.camel@sonja.de.interearth.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="jy6Sn24JjFx/iggw"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1036092802.7799.2.camel@sonja.de.interearth.com>; from degger@fhm.edu on Thu, Oct 31, 2002 at 08:33:21PM +0100
-X-PGP-Key: http://www.jaquet.dk/rasmus/pubkey.asc
-X-PGP-Fingerprint: 925A 8E4B 6D63 1C22 BFB9  29CF 9592 4049 9E9E 26CE
+	id <S265405AbSJaUNI>; Thu, 31 Oct 2002 15:13:08 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:32394 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S265404AbSJaUNB>; Thu, 31 Oct 2002 15:13:01 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Thu, 31 Oct 2002 12:28:11 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       <linux-aio@kvack.org>, <lse-tech@lists.sourceforge.net>,
+       Linus Torvalds <torvalds@transmeta.com>, Andrew Morton <akpm@digeo.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Unifying epoll,aio,futexes etc. (What I really want from epoll)
+In-Reply-To: <20021031154112.GB27801@bjl1.asuk.net>
+Message-ID: <Pine.LNX.4.44.0210311211160.1562-100000@blue1.dev.mcafeelabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 31 Oct 2002, Jamie Lokier wrote:
 
---jy6Sn24JjFx/iggw
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> ps. I thought I should explain what bothers me most about epoll at the
+> moment.  It's good at what it does, but it's so very limited in what
+> it supports.
+>
+> I have a high performance server application in mind, that epoll is
+> _almost_ perfect for but not quite.
+>
+> Davide, you like coroutines, so perhaps you will appreciate a web
+> server that serves a mixture of dynamic and static content, using
+> coroutines and user+kernel threading in a carefully balanced way.
+> Dynamic content is cached, accurately (taking advantage of nanosecond
+> mtimes if possible), yet served as fast as static pages (using a
+> clever cache validation method), and is built from files (read using
+> aio to improve throughput) and subrequests to other servers just like
+> a proxy.  Data is served zero-copy using sendfile and /dev/shm.
+>
+> A top quality server like that, optimised for performance, has to
+> respond to these events:
+>
+> 	- network accept()
+> 	- read/write/exception on sockets and pipes
+> 	- timers
+> 	- aio
+> 	- futexes
+> 	- dnotify events
+>
+> See how epoll only helps with the first two?  And this is the very
+> application space that epoll could _almost_ be perfect for.
+>
+> Btw, it doesn't _have_ to be a web server.  Enterprise scale Java
+> runtimes, database servers, spider clients, network load generators,
+> proxies, even humble X servers - also have very similar requirements.
+>
+> There are several scalable and fast event queuing mechanisms in the
+> kernel now: rt-signals, aio and epoll, yet each of them is limited by
+> only keeping track of a few kinds of possible event.
+>
+> Technically, it's possible to use them all together.  If you want to
+> react to all the kinds of events I listed above, you have to.  But
+> it's mighty ugly code to use them all at once, and it's certainly not
+> the "lean and mean" event loop that everyone aspires to.
+>
+> By adding yet another mechanism without solving the general problem,
+> epoll just makes the mighty ugly userspace more ugly.  (But it's
+> probably worth using - socket notifcation through rt-signals has its
+> own problems).
+>
+> I would very much like to see a general solution to the problem of all
+> different kinds of events being queued to userspace efficiently,
+> through one mechanism ("to bind them all...").  Every piece of this puzzle
+> has been written already, they're just not joined up very well.
+>
+> I'm giving this serious thought now, if anyone wants to offer input.
 
-On Thu, Oct 31, 2002 at 08:33:21PM +0100, Daniel Egger wrote:
-> Am Don, 2002-10-31 um 09.24 schrieb Rasmus Andersen:
->=20
-> > I tried -Os once, and it didn't boot for me. So I dumped it.
-> > However, reading a mail from Zwane <somethingorother> about
-> > booting 2.5.x on a 4MB system I got the impression that he
-> > used Os, so I might give it another shot. Dropping down to
-> > i386 support, perhaps.
->=20
-> If you meant removing special support for faster processors this might
-> be a gain, if it was something along the lines of "-mcpu=3Di386
-> -mtune=3Di386" this would be pretty sure a loss resulting in bigger code.
+Jamie, the fact that epoll supports a limited number of "objects" was an
+as-designed at that time. I see it quite easy to extend it to support
+other objects. Futexes are a matter of one line of code int :
 
-I was just wondering aloud if my boot problem would go away if
-I did -Os and -mcpu=3D386. Just a wonder, though.
+/* Waiter either waiting in FUTEX_WAIT or poll(), or expecting signal */
+static inline void tell_waiter(struct futex_q *q)
+{
+        wake_up_all(&q->waiters);
+        if (q->filp) {
+                send_sigio(&q->filp->f_owner, q->fd, POLL_IN);
++		file_notify_send(q->filp, ION_IN, POLLIN | POLLRDNORM);
+	}
+}
 
-Regards,
-  Rasmus
+Timer, as long as you access them through a file* interface ( like futexes )
+will become trivial too. Another line should be sufficent for dnotify :
 
---jy6Sn24JjFx/iggw
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+void __inode_dir_notify(struct inode *inode, unsigned long event)
+{
+        struct dnotify_struct * dn;
+        struct dnotify_struct **prev;
+        struct fown_struct *    fown;
+        int                     changed = 0;
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.0 (GNU/Linux)
+        write_lock(&dn_lock);
+        prev = &inode->i_dnotify;
+        while ((dn = *prev) != NULL) {
+                if ((dn->dn_mask & event) == 0) {
+                        prev = &dn->dn_next;
+                        continue;
+                }
+                fown = &dn->dn_filp->f_owner;
+                send_sigio(fown, dn->dn_fd, POLL_MSG);
++		file_notify_send(dn->dn_filp, ION_IN, POLLIN | POLLRDNORM | POLLMSG);
+                if (dn->dn_mask & DN_MULTISHOT)
+                        prev = &dn->dn_next;
+                else {
+                        *prev = dn->dn_next;
+                        changed = 1;
+                        kmem_cache_free(dn_cache, dn);
+                }
+        }
+        if (changed)
+                redo_inode_mask(inode);
+        write_unlock(&dn_lock);
+}
 
-iD8DBQE9wYqilZJASZ6eJs4RAgpMAKCH5Lq/7Tv85FQi6nohcdm2VcV2bQCfUwT4
-O0Iv/GjpNz8EZ/HP36dT9D0=
-=cQU5
------END PGP SIGNATURE-----
+This is the result of a quite quick analysis, but I do not expect it to be
+much more difficult than that.
 
---jy6Sn24JjFx/iggw--
+
+
+
+- Davide
+
+

@@ -1,47 +1,63 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317902AbSFNMaH>; Fri, 14 Jun 2002 08:30:07 -0400
+	id <S317908AbSFNMcB>; Fri, 14 Jun 2002 08:32:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317908AbSFNMaG>; Fri, 14 Jun 2002 08:30:06 -0400
-Received: from apollo.sot.fi ([195.74.13.237]:8201 "EHLO vscan.sot.com")
-	by vger.kernel.org with ESMTP id <S317902AbSFNMaF>;
-	Fri, 14 Jun 2002 08:30:05 -0400
-Message-ID: <3D09F128.5050208@sot.com>
-Date: Fri, 14 Jun 2002 15:35:36 +0200
-From: Yaroslav Popovitch <yp@sot.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4.1) Gecko/20020314 Netscape6/6.2.2
-X-Accept-Language: en-us
-MIME-Version: 1.0
+	id <S317909AbSFNMcB>; Fri, 14 Jun 2002 08:32:01 -0400
+Received: from bs1.dnx.de ([213.252.143.130]:54704 "EHLO bs1.dnx.de")
+	by vger.kernel.org with ESMTP id <S317908AbSFNMb7>;
+	Fri, 14 Jun 2002 08:31:59 -0400
+Date: Fri, 14 Jun 2002 14:31:40 +0200
+From: Robert Schwebel <robert@schwebel.de>
 To: linux-kernel@vger.kernel.org
-Subject: 2.4.19-pre10, there is still bug in mkdep.c
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Accessing odd bytes
+Message-ID: <20020614143140.A7467@schwebel.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.16i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell sent a patch which fix PATH_MAX bug, but I checked and 
-found that patch for mkdep.c was not applied
-For more info see:
-http://www.cs.helsinki.fi/linux/linux-kernel/2002-02/0242.html
+I have a strange effect on an embedded system (AMD Elan SC410,
+Linux-2.4.18) while accessing a static RAM.  The RAM is mapped to the bus
+at 0x0200'0000. If I map it to user space this way: 
 
+  pSRAM  = (unsigned short *)mmap(0, 0x00040000, PROT_READ + PROT_WRITE, MAP_SHARED, FD, 0x2000000);
 
---- linux/scripts/mkdep.c       Thu Jun 13 22:01:57 2002
-+++ linux/scripts/mkdep.c.mod   Fri Jun 14 15:30:56 2002
-@@ -218,7 +218,7 @@
- void add_path(const char * name)
- {
-        struct path_struct *path;
--       char resolved_path[PATH_MAX+1];
-+       char resolved_path[PATH_MAX];
-        const char *name2;
- 
-        if (strcmp(name, ".")) {
+and fill it like this: 
 
-Cheers,YP
+  pByte=(char*)pSRAM;
+  for (i=0; i<10; i++) {
+    *pByte++=(char)i;
+  }
+
+  pByte=(char*)pSRAM;
+  for (i=0; i<10; i++) {
+    printf("i: %02i -> %03i\n", i, *pByte++);
+  }
+
+I see a mirroring effect: 
+
+  i: 00 -> 001
+  i: 01 -> 001
+  i: 02 -> 003
+  i: 03 -> 003
+  i: 04 -> 005
+  i: 05 -> 005
+  i: 06 -> 007
+  i: 07 -> 007
+  i: 08 -> 009
+  i: 09 -> 009
+
+Now I'm wondering how the kernel/processor handles odd byte access
+exceptions. Can anybody give me a pointer where I could search or what my
+problem could be? 
+
+Robert
 -- 
-Mr. Yaroslav Popovitch     			- tel. +372 6419975
-SOT Finnish Software Engineering Ltd.   	- fax  +372 6419876
-Kreutzwaldi 7-4, 10124  TALLINN         	- http://www.sot.com/
-ESTONIA                                 	- http://sotlinux.net/
-
-
+ +--------------------------------------------------------+
+ | Dipl.-Ing. Robert Schwebel | http://www.pengutronix.de |
+ | Pengutronix - Linux Solutions for Science and Industry |
+ |   Braunschweiger Str. 79,  31134 Hildesheim, Germany   |
+ |    Phone: +49-5121-28619-0 |  Fax: +49-5121-28619-4    |
+ +--------------------------------------------------------+

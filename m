@@ -1,47 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266481AbUJIFKa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266362AbUJIFQn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266481AbUJIFKa (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Oct 2004 01:10:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266488AbUJIFKa
+	id S266362AbUJIFQn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Oct 2004 01:16:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266488AbUJIFQm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Oct 2004 01:10:30 -0400
-Received: from mail05.syd.optusnet.com.au ([211.29.132.186]:21406 "EHLO
-	mail05.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S266481AbUJIFKZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Oct 2004 01:10:25 -0400
-References: <20040921071854.GA7604@elte.hu> <20040921074426.GA10477@elte.hu> <20040922103340.GA9683@elte.hu> <20040923122838.GA9252@elte.hu> <20040923211206.GA2366@elte.hu> <20040924074416.GA17924@elte.hu> <20040928000516.GA3096@elte.hu> <20041003210926.GA1267@elte.hu> <20041004215315.GA17707@elte.hu> <20041005134707.GA32033@elte.hu> <20041007105230.GA17411@elte.hu> <1097297824.1442.132.camel@krustophenia.net>
-Message-ID: <cone.1097298596.537768.1810.502@pc.kolivas.org>
-X-Mailer: http://www.courier-mta.org/cone/
-From: Con Kolivas <kernel@kolivas.org>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>,
-       =?ISO-8859-1?B?Sy5SLg==?= Foley <kr@cybsft.com>,
-       Rui Nuno Capela <rncbc@rncbc.org>,
-       Florian Schmidt <mista.tapas@gmx.net>, Mark_H_Johnson@raytheon.com,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>
-Subject: Re: voluntary-preempt-2.6.9-rc3-mm3-T3
-Date: Sat, 09 Oct 2004 15:09:56 +1000
+	Sat, 9 Oct 2004 01:16:42 -0400
+Received: from fw.osdl.org ([65.172.181.6]:59325 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266362AbUJIFQl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Oct 2004 01:16:41 -0400
+Date: Fri, 8 Oct 2004 22:16:36 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: "Jack O'Quin" <joq@io.com>
+Cc: Chris Wright <chrisw@osdl.org>, Lee Revell <rlrevell@joe-job.com>,
+       Andrew Morton <akpm@osdl.org>,
+       Jody McIntyre <realtime-lsm@modernduck.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>, torbenh@gmx.de
+Subject: Re: [PATCH] Realtime LSM
+Message-ID: <20041008221635.V2357@build.pdx.osdl.net>
+References: <877jq5vhcw.fsf@sulphur.joq.us> <1097193102.9372.25.camel@krustophenia.net> <1097269108.1442.53.camel@krustophenia.net> <20041008144539.K2357@build.pdx.osdl.net> <1097272140.1442.75.camel@krustophenia.net> <20041008145252.M2357@build.pdx.osdl.net> <1097273105.1442.78.camel@krustophenia.net> <20041008151911.Q2357@build.pdx.osdl.net> <20041008152430.R2357@build.pdx.osdl.net> <87zn2wbt7c.fsf@sulphur.joq.us>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed; charset="US-ASCII"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <87zn2wbt7c.fsf@sulphur.joq.us>; from joq@io.com on Fri, Oct 08, 2004 at 08:01:27PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell writes:
-
-> On Thu, 2004-10-07 at 06:52, Ingo Molnar wrote:
->> i've released the -T3 VP patch:
->> 
->>   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc3-mm3-T3
->> 
+* Jack O'Quin (joq@io.com) wrote:
+> Chris Wright <chrisw@osdl.org> writes:
+> > use in_group_p
 > 
-> With VP and PREEMPT in general, does the scheduler always run the
-> highest priority process, or do we only preempt if a SCHED_FIFO process
-> is runnable?
+> I looked at that, it wasn't clear to me whether to use in_group_p() or
+> in_egroup_p().  How do you choose?
 
-Always the highest priority runnable.
+For most cases they'll be identical.  The difference is whether you're
+comparing the fsgid or the egid.  The former is what's used for file
+access, the latter might make more sense in your case.  However, in
+99.9% of the cases you care about fsgid == egid, so it's a wash.  So,
+in_egroup_p matches a bit better.  Relative to the other patches...
 
-Cheers,
-Con
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
 
+
+--- security/realtime.c~rm_CONFIG_SECURITY	2004-10-08 16:16:35.000000000 -0700
++++ security/realtime.c	2004-10-08 21:06:28.020084984 -0700
+@@ -66,7 +66,7 @@
+ 	if ((gid == e_gid) || (gid == current->gid))
+ 		return 1;
+ 
+-	return in_group_p(gid);
++	return in_egroup_p(gid);
+ }
+ 
+ static int realtime_bprm_set_security(struct linux_binprm *bprm)

@@ -1,73 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264266AbUGSWYx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264278AbUGSW3H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264266AbUGSWYx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jul 2004 18:24:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263943AbUGSWYx
+	id S264278AbUGSW3H (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jul 2004 18:29:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264579AbUGSW3H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jul 2004 18:24:53 -0400
-Received: from avarice.ph.ed.ac.uk ([129.215.73.46]:49352 "EHLO
-	avarice.ph.ed.ac.uk") by vger.kernel.org with ESMTP id S264266AbUGSWYm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jul 2004 18:24:42 -0400
+	Mon, 19 Jul 2004 18:29:07 -0400
+Received: from sccrmhc11.comcast.net ([204.127.202.55]:35038 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S264278AbUGSW3D convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jul 2004 18:29:03 -0400
+Date: Mon, 19 Jul 2004 22:29:18 +0000
+From: Willem Riede <osst@riede.org>
+Subject: Update mailing list for osst
 To: linux-kernel@vger.kernel.org
-Subject: 2.6.7 kernel
-From: Philip Clark <P.J.Clark@ed.ac.uk>
-Date: Mon, 19 Jul 2004 23:24:40 +0100
-Message-ID: <x02macxvskif.fsf@maverick.ph.ed.ac.uk>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3 (gnu/linux)
+X-Mailer: Balsa 2.2.0
+Message-Id: <1090276158l.20900l.4l@serve.riede.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII;
+	Format=Flowed
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This list has been on sourceforge for a while now,
+please apply this patch to make MAINTAINERS reflect that.
 
-Hi,
+Signed-off-by: Willem Riede <osst@riede.org>
 
-I have been using the 2.6 kernel with my DELL latitude CPiA 366XT now
-for sometime and it works great, but there are some quirks which would
-be worth trying to get fixed, most are related to apm.
+--- linux-2.6.8-rc1/MAINTAINERS.orig	2004-07-13 18:59:12.000000000 -0400
++++ linux-2.6.8-rc1/MAINTAINERS	2004-07-19 18:22:45.640192600 -0400
+@@ -1557,7 +1557,7 @@
+ ONSTREAM SCSI TAPE DRIVER
+ P:	Willem Riede
+ M:	osst@riede.org
+-L:	osst@linux1.onstream.nl
++L:	osst-users@lists.sourceforge.net
+ L:	linux-scsi@vger.kernel.org
+ S:	Maintained
+ 
 
-It used to be that when the battery power became low the machine would
-automatically suspend to disk. This seems to be disable now and the
-machine just crashes. 
 
-fn + D used to blank the screen in 2.4 and in 2.6 it only blanks it
-momentarily. 
 
-If I suspend with my pcmcia wireless card in place and disconnect the ac
-cord when suspended then it always crashes. 
 
-There are quite a few things like this I would help to try to debug. 
-
-Here are my config settings, I've tried the "display blank" to no
-avail. 
-
-Anyone have any ideas?
-
-Thanks for any help
-
--Phil
-
-CONFIG_PM=y
-# CONFIG_SOFTWARE_SUSPEND is not set
-# CONFIG_PM_DISK is not set
-
-#
-# ACPI (Advanced Configuration and Power Interface) Support
-#
-# CONFIG_ACPI is not set
-CONFIG_ACPI_BOOT=y
-
-#
-# APM (Advanced Power Management) BIOS Support
-#
-CONFIG_APM=y
-# CONFIG_APM_IGNORE_USER_SUSPEND is not set
-CONFIG_APM_DO_ENABLE=y
-# CONFIG_APM_CPU_IDLE is not set
-# CONFIG_APM_DISPLAY_BLANK is not set
-CONFIG_APM_RTC_IS_GMT=y
-# CONFIG_APM_ALLOW_INTS is not set
-# CONFIG_APM_REAL_MODE_POWER_OFF is not set
-
-#

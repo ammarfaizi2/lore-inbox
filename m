@@ -1,61 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281103AbRKTW5t>; Tue, 20 Nov 2001 17:57:49 -0500
+	id <S281459AbRKTW7U>; Tue, 20 Nov 2001 17:59:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281457AbRKTW5k>; Tue, 20 Nov 2001 17:57:40 -0500
-Received: from 27-ZARA-X4.libre.retevision.es ([62.82.232.27]:39433 "EHLO
-	head.redvip.net") by vger.kernel.org with ESMTP id <S281103AbRKTW5d>;
-	Tue, 20 Nov 2001 17:57:33 -0500
-Message-ID: <3BFAE0FD.8010909@zaralinux.com>
-Date: Wed, 21 Nov 2001 00:02:21 +0100
-From: Jorge Nerin <comandante@zaralinux.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:0.9.5) Gecko/20011012
-X-Accept-Language: es-es, en-us
+	id <S281461AbRKTW7M>; Tue, 20 Nov 2001 17:59:12 -0500
+Received: from mailout6-1.nyroc.rr.com ([24.92.226.177]:50157 "EHLO
+	mailout6.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id <S281459AbRKTW64>; Tue, 20 Nov 2001 17:58:56 -0500
+Message-ID: <040701c17215$357711c0$1a01a8c0@allyourbase>
+From: "Dan Maas" <dmaas@dcine.com>
+To: <root@chaos.analogic.com>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <fa.kb6ct7v.pgku0d@ifi.uio.no> <fa.k8qdvcv.184ak2l@ifi.uio.no>
+Subject: Re: Swap
+Date: Tue, 20 Nov 2001 17:46:35 -0500
 MIME-Version: 1.0
-To: Sven Heinicke <sven@research.nj.nec.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: /proc/stat description for proc.txt
-In-Reply-To: <15347.57175.887835.525156@abasin.nj.nec.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sven Heinicke wrote:
+> This is 'nice' for the server, it doesn't have the overhead of maintaining
+> a file-system state. That's why servers are supposed to be read-only.
+> However, somebody has got to write the stuff to the file-system that's
+> going to (eventually) be read-only. Beware when such access occurs.
 
-> I got tired at looking proc_misc.c to see what /proc/stat was
-> reporting about.  So here is my noted patched into proc.txt about the
-> /proc/stat file.  It's a patch off the 2.4.15-pre1 proc.txt, but it
-> worked fine patching it into 2.4.15-pre4 kernel.  Between which I
-> don't actually think proc.txt has changed.
-> 
-> 	   Sven
-> 
-> [snip]
+But NFS still allows atomic rename() right? Isn't it considered essential to
+write the new executable or library under a different name, and then
+atomically rename() over the old one? If you write() directly into the
+executable, you will get what you deserve...
 
->  Summary
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
-
-Hey I wrote the last update to this file about exactly one year ago, and 
-I wrote it for the same reasons as you.
-
-I needed some info about some files and fields in the proc tree, and the 
-responses was 1) read proc.txt (seriously out of date) and 2) look at 
-the source Luke.
-
-So I also got tired of seeking & greping around the code and wrote a 
-small update, nice to see someone updated it again.
-
-P.D. It should be updated by the people who updates the interface, at 
-least minimally, the name and meaning of the fields or where to look.
-
--- 
-Jorge Nerin
-<comandante@zaralinux.com>
+Regards,
+Dan
 

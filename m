@@ -1,54 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266708AbRGFOcY>; Fri, 6 Jul 2001 10:32:24 -0400
+	id <S266710AbRGFOmR>; Fri, 6 Jul 2001 10:42:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266709AbRGFOcO>; Fri, 6 Jul 2001 10:32:14 -0400
-Received: from [203.126.57.231] ([203.126.57.231]:17924 "HELO
-	mail.celestix.com") by vger.kernel.org with SMTP id <S266708AbRGFOcE>;
-	Fri, 6 Jul 2001 10:32:04 -0400
-Date: Fri, 6 Jul 2001 22:18:53 +0800
-From: Thibaut Laurent <thibaut@celestix.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: arjanv@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: [2.4.6] kernel BUG at softirq.c:206!
-Message-Id: <20010706221853.3391f528.thibaut@celestix.com>
-In-Reply-To: <20010706144311.J2425@athlon.random>
-In-Reply-To: <20010704232816.B590@marvin.mahowi.de>
-	<20010705162035.Q17051@athlon.random>
-	<3B447B6D.C83E5FB9@redhat.com>
-	<20010705164046.S17051@athlon.random>
-	<20010705233200.7ead91d5.thibaut@celestix.com>
-	<20010706144311.J2425@athlon.random>
-Organization: Celestix Networks Pte Ltd
-X-Mailer: Sylpheed version 0.4.99 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S266711AbRGFOmH>; Fri, 6 Jul 2001 10:42:07 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:4480 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S266710AbRGFOmD>; Fri, 6 Jul 2001 10:42:03 -0400
+Date: Fri, 6 Jul 2001 10:41:43 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: are ioctl calls supposed to take this long?
+In-Reply-To: <3B45BE6C.5DBE4F35@nortelnetworks.com>
+Message-ID: <Pine.LNX.3.95.1010706103248.519B-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 6 Jul 2001 14:43:11 +0200
-Andrea Arcangeli <andrea@suse.de> wrote:
+On Fri, 6 Jul 2001, Chris Friesen wrote:
 
- | On Thu, Jul 05, 2001 at 11:32:00PM +0800, Thibaut Laurent wrote:
- | > And the winner is... Andrea. Kudos to you, I've just applied these patches,
- | > recompiled and it seems to work fine.
- | 
- | can you apply this patch on top of the ksoftirqd patch and see if you
- | can trigger the BUG() again when based on pre2? (I want to make sure to
- | be as strict as mainline) Then if you apply the same patches on top of
- | pre3 the BUG() should go away.
+> 
+> I am using the following snippet of code to find out some information about the
+> MII PHY interface of my ethernet device (which uses the tulip driver).  When I
+> did some timing measurements with gettimeofday() I found that the ioctl call
+> takes a bit over a millisecond to complete.  This seems to me to be an awfully
+> long time for what should be (as far as I can see) a very simple operation.
+> 
+> Is this the normal amount of time that this should take, and if so then why in
+> the world does it take so long?  If not, then does anyone have any idea why it's
+> taking so long?
+> 
+> Thanks,
+> 
 
-Confirmed. I tried both pre2 and pre3
+It's not ioctl() overhead, it's what has to be done in the driver to
+get the information you request.
 
-2.4.7-pre2 + 00_ksoftirqd-7 + your last "bug" patch --> boot failed
-2.4.7-pre3 + 00_ksoftirqd-7 + your last "bug" patch --> boot ok
+(1)	Stop the chip
+(2)	Read the media interface using an awful SERIAL protocol in which
+	you manipulate 3 bits using multiple instructions, to send
+	or receive a single BIT (not BYTE) of data. You do the 8 times
+	per byte.
+(3)	Restart the chip.
 
-BTW, is there some kind of doc regarding all the patches in
-ftp.kernel.org/pub/linux/kernel/people/andrea/kernels ?
-Especially, what each of them is meant for.
+You are lucky it doesn't take an hour. This garbage 1 bit interface,
+in which hardware designers assumed that software was free, is an
+example of the junk software engineers have to put up with.
 
-Best regards,
+This is, obviously, not designed to be accessed very often, just
+any time somebody disconnects/reconnects the network wire. Don't
+ioctl-it in a loop. You will lose most of the network packets.
 
-Thibaut
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
+
 

@@ -1,49 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310190AbSGUJbw>; Sun, 21 Jul 2002 05:31:52 -0400
+	id <S311025AbSGUJgl>; Sun, 21 Jul 2002 05:36:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311025AbSGUJbw>; Sun, 21 Jul 2002 05:31:52 -0400
-Received: from [196.26.86.1] ([196.26.86.1]:43476 "HELO
-	infosat-gw.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S310190AbSGUJbw>; Sun, 21 Jul 2002 05:31:52 -0400
-Date: Sun, 21 Jul 2002 11:52:48 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@linux-box.realnet.co.sz
-To: Jos Hulzink <josh@stack.nl>
-Cc: Mike Galbraith <efault@gmx.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Give Bartlomiej a break!  (Re: Impressions of IDE 98?)
-In-Reply-To: <20020721105014.U26890-100000@toad.stack.nl>
-Message-ID: <Pine.LNX.4.44.0207211150100.32636-100000@linux-box.realnet.co.sz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S311885AbSGUJgk>; Sun, 21 Jul 2002 05:36:40 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:2567 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S311025AbSGUJgh>;
+	Sun, 21 Jul 2002 05:36:37 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: Announce: modutils 2.4.17 is available 
+Date: Sun, 21 Jul 2002 19:39:15 +1000
+Message-ID: <20746.1027244355@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 21 Jul 2002, Jos Hulzink wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> I was willing to test the 2.5 tree, but the way IDE development is going
-> at the moment makes me keeping my hands off any 2.5 kernel. I just don't
-> have a second system that is fast enough to recomile a kernel every few
-> days.
+Content-Type: text/plain; charset=us-ascii
 
-Compile on a faster machine and transfer kernel images across, using NFS 
-can simplify this quite a lot.
+ftp://ftp.<country>.kernel.org/pub/linux/utils/kernel/modutils/v2.4
 
-> Well... I already gave my opinion about the IDE maintenance in the early
-> 2.5 days, glad to see I was right back then.
+modutils-2.4.17.tar.gz          Source tarball, includes RPM spec file
+modutils-2.4.17-1.src.rpm       As above, in SRPM format
+modutils-2.4.17-1.i386.rpm      Compiled with gcc 2.96 20000731,
+                                glibc 2.2.2.
+patch-modutils-2.4.17.gz        Patch from modutils 2.4.15 to 2.4.17.
 
-Well i'm sure lotsa folks can say 'i told you so' but that doesn't help a 
-bit, how much you put in is directly related to what you'll get out...
+Changelog extract
 
-> Guys, see you again after 2.6.0, I probably won't compile any single
-> kernel before then.
+	* struct obj_symbol needs target specific value for 32/64 bit modutils.
+	  Will Schmidt.
+	* New binutils no longer uses '?' for kstrtab in System.map.
+	  Alan Modra.
+	* Only warn for unknown parameters on insmod.  This used to be an error
+	  which caused migration problems when a parameter was removed from a
+	  module.  Requested by Matt Domsch.
+	* Change default TAINT_URL to http://www.tux.org/lkml/#export-tainted.
+	* Upgrade for bison > 1.31.  Reported by Akim Demaille.
+	* Add license string "GPL v2".  Reported by Pavel Roskin.
+	* PPC64 updates for new relocation types.  Alan Modra.
+	* Revert depmod to pre-2.4.13 behaviour.  Unresolved symbols should not
+	  cause a non-zero return code unless depmod -u is explicitly set.
 
-... in 2.6
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: Exmh version 2.1.1 10/15/1999
 
-Cheers,
-	Zwane Mwaikambo
-
--- 
-function.linuxpower.ca
+iD8DBQE9OoFBi4UHNye0ZOoRAk4sAKDLl/eL1GxIsUi+0EKEganhM4dXAgCfR2tL
+4wKUbD1u1ZEV2V0/Dqp/elw=
+=vQWh
+-----END PGP SIGNATURE-----
 

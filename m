@@ -1,52 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261607AbVCaSIl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261611AbVCaSSU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261607AbVCaSIl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 13:08:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261611AbVCaSIR
+	id S261611AbVCaSSU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 13:18:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261609AbVCaSSU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 13:08:17 -0500
-Received: from stat16.steeleye.com ([209.192.50.48]:13727 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S261607AbVCaSIF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 13:08:05 -0500
-Subject: Re: [PATCH scsi-misc-2.6 08/13] scsi: move request preps in other
-	places into prep_fn()
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Tejun Heo <htejun@gmail.com>
-Cc: Jens Axboe <axboe@suse.de>, SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050331090647.94FFEC1E@htj.dyndns.org>
-References: <20050331090647.FEDC3964@htj.dyndns.org>
-	 <20050331090647.94FFEC1E@htj.dyndns.org>
-Content-Type: text/plain
-Date: Thu, 31 Mar 2005 12:07:44 -0600
-Message-Id: <1112292464.5619.30.camel@mulgrave>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-2) 
+	Thu, 31 Mar 2005 13:18:20 -0500
+Received: from ylpvm12-ext.prodigy.net ([207.115.57.43]:12965 "EHLO
+	ylpvm12.prodigy.net") by vger.kernel.org with ESMTP id S261611AbVCaSSE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Mar 2005 13:18:04 -0500
+X-ORBL: [69.107.61.180]
+From: David Brownell <david-b@pacbell.net>
+To: Patrick Mochel <mochel@digitalimplant.org>
+Subject: Re: klists and struct device semaphores
+Date: Thu, 31 Mar 2005 10:18:01 -0800
+User-Agent: KMail/1.7.1
+Cc: Alan Stern <stern@rowland.harvard.edu>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44L0.0503311054410.1510-100000@ida.rowland.org> <Pine.LNX.4.50.0503310947180.7249-100000@monsoon.he.net>
+In-Reply-To: <Pine.LNX.4.50.0503310947180.7249-100000@monsoon.he.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200503311018.02135.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-03-31 at 18:08 +0900, Tejun Heo wrote:
-> 	Move request preparations scattered in scsi_request_fn() and
-> 	scsi_dispatch_cmd() into scsi_prep_fn().
+On Thursday 31 March 2005 9:59 am, Patrick Mochel wrote:
+> On Thu, 31 Mar 2005, Alan Stern wrote:
+> > On Wed, 30 Mar 2005, Patrick Mochel wrote:
 > 
-> 	* CDB_SIZE check in scsi_dispatch_cmd()
-> 	* SCSI-2 LUN preparation in scsi_dispatch_cmd()
-> 	* scsi_init_cmd_errh() in scsi_request_fn()
+> > > In fact, we probably want to add a counter to every device for all "open
+> > > connections" so the device doesn't try to automatically sleep while a
+> > > device node is open. Once it reaches 0, we can have it enter a
+> > > pre-configured state, which should save us a bit of power for very little
+> > > pain.
+> >
+> > By "open connections", do you mean something more than unsuspended
+> > children?
 > 
-> 	No invalid request reaches scsi_request_fn() anymore.
+> Yes, I mean anything that requires the device be awake and functional.
 
-This one, I like, there's just one small problem:
+So for example a device that's suspended and enabled for wakeup could be
+"open" ... which fights against your "doesn't try to sleep" policy.
 
-You can't move scsi_init_cmd_errh() out of the request function path:
-It's where we set up the sense buffer handling, so it has to be done
-every time the command is prepared for execution (the prep function is
-only called once)---think what happens if we turn a command around for
-retry based on a sense indication.
+Maybe you mean "don't power-off" rather than "don't sleep"?  Or are
+you maybe assuming PC-style PCI, where nothing (on current Linux)
+seems to process PME# wakeup events outside of system sleep states?
+(Even when "lspci" shows PME# as active for a device ...)
 
-So redo the patch and I'll put it in.
 
-James
+> This would include open device nodes for many devices, open network
+> connections for network devices, active children for bridges and
+> controllers, etc.
 
+Same thing applies.  Many devices can be suspended but wake up on demand.
+And even pass the wakeup events up the hardware connectivity tree.  In
+fact, being able to do that is a requirement to support that "USB mouse
+on Centrino laptop" example:  USB mouse suspended, ditto the USB host
+controller, then the CPU can enter C3 state and save a few more Watts.
+Move mouse, wakeup the USB controller, CPU leaves C3.
+
+In general, good power management will _want_ to leverage such modes.
+
+Worth noting:  it's very similar to what modern CPUs do internally,
+powering parts off until they're needed.  The same model can apply
+to other chips; and to boards that integrate those chips...
+
+- Dave
 

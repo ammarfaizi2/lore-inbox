@@ -1,104 +1,144 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315942AbSHRULJ>; Sun, 18 Aug 2002 16:11:09 -0400
+	id <S315870AbSHRUGj>; Sun, 18 Aug 2002 16:06:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315988AbSHRULJ>; Sun, 18 Aug 2002 16:11:09 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:29970
+	id <S315923AbSHRUGj>; Sun, 18 Aug 2002 16:06:39 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:28946
 	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S315942AbSHRULH>; Sun, 18 Aug 2002 16:11:07 -0400
-Date: Sun, 18 Aug 2002 13:05:13 -0700 (PDT)
+	id <S315870AbSHRUGh>; Sun, 18 Aug 2002 16:06:37 -0400
+Date: Sun, 18 Aug 2002 13:00:35 -0700 (PDT)
 From: Andre Hedrick <andre@linux-ide.org>
-To: Shane <shane@zeke.yi.org>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.18-rc3aa3: dma_intr: status=0x51 errors
-In-Reply-To: <1029697810.2904.15.camel@mars.goatskin.org>
-Message-ID: <Pine.LNX.4.10.10208181304310.23171-100000@master.linux-ide.org>
+To: Sven Koch <haegar@sdinet.de>
+cc: Linux-Kernel-Mailinglist <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.20-pre2-ac3 IDE better than 2.4.19-pre10
+In-Reply-To: <Pine.LNX.4.44.0208181802130.11362-100000@space.comunit.de>
+Message-ID: <Pine.LNX.4.10.10208181300130.23171-100000@master.linux-ide.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Because it is a hardware error.
-Your drive is attempting to reallocate sectors and is failing.
+You are welcome sir!
+Thank you for the positive report.
 
-On 18 Aug 2002, Shane wrote:
+On Sun, 18 Aug 2002, Sven Koch wrote:
 
-> Hello,
+> hi...
 > 
-> I just tried running Cerberus for 15-20s and I got these errors in the
-> logs. I do use the nasty binary drivers but I replicated the errors from
-> a fresh boot without them ever being loaded. Can someone tell me what
-> these errors mean? And are they dangerous? Are there some docs on these
-> error codes such that I could translate them myself without having to
-> bother you guys?
+> My machine: Toshiba Satellite Pro 4600
 > 
-> The motherboard is an MSI KT133A
-> I use LVM on that drive and ext3
-> The controller the drive is on is a Promise Ultra 133 TX2
-> The drive is:
+> With my former kernel 2.4.19-pre10 it would hang hard every time after
+> some heavier downloads over the eepro100 to the local ide-harddisk,
+> without anything in the logfiles.
 > 
-> /dev/hdg:
+> Now with 2.4.20-pre2-ac3 it only logs
 > 
->  Model=MAXTOR 6L080J4, FwRev=A93.0500, SerialNo=664133005196
->  Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
->  RawCHS=16383/16/63, TrkSize=32256, SectSize=21298, ECCbytes=4
->  BuffType=DualPortCache, BuffSize=1819kB, MaxMultSect=16, MultSect=off
->  CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=156355584
->  IORDY=on/off, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
->  PIO modes: pio0 pio1 pio2 pio3 pio4 
->  DMA modes: mdma0 mdma1 mdma2 udma0 udma1 udma2 udma3 udma4 udma5 *udma6
->  AdvancedPM=no WriteCache=enabled
->  Drive Supports : ATA/ATAPI-5 T13 1321D revision 1 : ATA-1 ATA-2 ATA-3
-> ATA-4 ATA-5 
+> Aug 18 06:03:57 aurora kernel: hda: dma_timer_expiry: dma status == 0x21
+> Aug 18 06:04:12 aurora kernel: hda: timeout waiting for DMA
+> Aug 18 06:04:12 aurora kernel: hda: timeout waiting for DMA
+> Aug 18 06:04:12 aurora kernel: hda: (__ide_dma_test_irq) called while not
+> waiting
+> Aug 18 06:04:12 aurora kernel: hda: status timeout: status=0xd0 { Busy }
+> Aug 18 06:04:12 aurora kernel:
+> Aug 18 06:04:12 aurora kernel: hda: drive not ready for command
+> Aug 18 06:04:12 aurora kernel: ide0: reset: success
+> 
+> and continues to work.
+> 
+> Thanks a lot, now the box is usable even for bigger files!
+> 
+> c'ya
+> sven
 > 
 > 
-> Aug 18 14:49:58 mars kernel: invalidate: busy buffer
-> Aug 18 14:49:58 mars last message repeated 21 times
-> Aug 18 14:50:01 mars CROND[1863]: (root) CMD (/usr/lib/sa/sa1 1 1)
-> Aug 18 14:50:50 mars kernel: hdg: dma_intr: status=0x51 { DriveReady
-> SeekComplete Error }
-> Aug 18 14:50:50 mars kernel: hdg: dma_intr: error=0x40 {
-> UncorrectableError }, LBAsect=61193, sector=61192
-> Aug 18 14:50:50 mars kernel: end_request: I/O error, dev 22:00 (hdg),
-> sector 61192
-> Aug 18 14:50:55 mars kernel: hdg: dma_intr: status=0x51 { DriveReady
-> SeekComplete Error }
-> Aug 18 14:50:55 mars kernel: hdg: dma_intr: error=0x40 {
-> UncorrectableError }, LBAsect=61195, sector=61194
-> Aug 18 14:50:55 mars kernel: end_request: I/O error, dev 22:00 (hdg),
-> sector 61194
+> ps: some information for the interested, more available on request:
 > 
-> I also ran badblocks -v -s -n -b 4096 -c 128 /dev/hdg1 65000 55000 and
-> it found nothing.
+> 00:1f.1 IDE interface: Intel Corp. 82801BAM IDE U100 (rev 03) (prog-if 80
+> [Master])
+>         Subsystem: Toshiba America Info Systems: Unknown device 0001
+>         Flags: bus master, medium devsel, latency 0
+>         [virtual] I/O ports at 01f0 [size=8]
+>         [virtual] I/O ports at 03f4 [size=4]
+>         [virtual] I/O ports at 0170 [size=8]
+>         [virtual] I/O ports at 0374 [size=4]
+>         I/O ports at cff0 [size=16]
 > 
-> More info:
 > 
-> 00:00.0 Host bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133]
-> (rev 03)
-> 00:01.0 PCI bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133 AGP]
-> 00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South]
-> (rev 40)
-> 00:07.1 IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 06)
-> 00:07.2 USB Controller: VIA Technologies, Inc. UHCI USB (rev 16)
-> 00:07.3 USB Controller: VIA Technologies, Inc. UHCI USB (rev 16)
-> 00:07.4 Host bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI]
-> (rev 40)
-> 00:0a.0 Ethernet controller: 3Com Corporation 3c905C-TX [Fast Etherlink]
-> (rev 74)
-> 00:0c.0 Multimedia video controller: Brooktree Corporation Bt848 TV with
-> DMA push (rev 12)
-> 00:0d.0 Multimedia audio controller: Creative Labs SB Live! EMU10k1 (rev
-> 05)
-> 00:0d.1 Input device controller: Creative Labs SB Live! (rev 05)
-> 00:0e.0 Unknown mass storage controller: Promise Technology, Inc.:
-> Unknown device 4d69 (rev 02)
-> 01:00.0 VGA compatible controller: nVidia Corporation NV11 (GeForce2 MX)
-> (rev a1)
+> 02:08.0 Ethernet controller: Intel Corp. 82801BA/BAM/CA/CAM Ethernet
+> Controller (rev 03)
+>         Subsystem: Intel Corp.: Unknown device 3013
+>         Flags: bus master, medium devsel, latency 64, IRQ 11
+>         Memory at f7dff000 (32-bit, non-prefetchable) [size=4K]
+>         I/O ports at df40 [size=64]
+>         Capabilities: [dc] Power Management version 2
 > 
-> Regards,
+> Aug 18 05:47:09 aurora kernel: PCI: PCI BIOS revision 2.10 entry at
+> 0xfdbb5, las
+> t bus=7
+> Aug 18 05:47:09 aurora kernel: PCI: Using configuration type 1
+> Aug 18 05:47:09 aurora kernel: PCI: Probing PCI hardware
+> Aug 18 05:47:09 aurora kernel: Unknown bridge resource 0: assuming
+> transparent
+> Aug 18 05:47:09 aurora kernel: Unknown bridge resource 2: assuming
+> transparent
+> Aug 18 05:47:09 aurora kernel: Unknown bridge resource 2: assuming
+> transparent
+> Aug 18 05:47:09 aurora kernel: PCI: Using IRQ router PIIX [8086/244c] at
+> 00:1f.0
+> Aug 18 05:47:09 aurora kernel: PCI: Found IRQ 11 for device 02:0c.0
+> Aug 18 05:47:09 aurora kernel: PCI: Sharing IRQ 11 with 01:00.0
+> Aug 18 05:47:09 aurora kernel: PCI: Found IRQ 11 for device 02:0d.0
+> Aug 18 05:47:09 aurora kernel: PCI: Found IRQ 11 for device 02:0d.1
+> Aug 18 05:47:09 aurora kernel: PCI: Sharing IRQ 11 with 00:1f.5
+> Aug 18 05:47:09 aurora kernel: PCI: Sharing IRQ 11 with 00:1f.6
+> ...
+> Aug 18 05:47:09 aurora kernel: Uniform Multi-Platform E-IDE driver
+> Revision: 6.31
+> Aug 18 05:47:09 aurora kernel: ide: Assuming 33MHz system bus speed for
+> PIO modes; override with idebus=xx
+> Aug 18 05:47:09 aurora kernel: ICH2M: IDE controller on PCI bus 00 dev f9
+> Aug 18 05:47:09 aurora kernel: ICH2M: chipset revision 3
+> Aug 18 05:47:09 aurora kernel: ICH2M: not 100%% native mode: will probe
+> irqs later
+> Aug 18 05:47:09 aurora kernel:     ide0: BM-DMA at 0xcff0-0xcff7, BIOS
+> settings: hda:DMA, hdb:pio
+> Aug 18 05:47:09 aurora kernel:     ide1: BM-DMA at 0xcff8-0xcfff, BIOS
+> settings: hdc:DMA, hdd:pio
+> Aug 18 05:47:09 aurora kernel: hda: IBM-DJSA-210, ATA DISK drive
+> Aug 18 05:47:09 aurora kernel: ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+> Aug 18 05:47:09 aurora kernel: hdc: CD-224E-BA, ATAPI CD/DVD-ROM drive
+> Aug 18 05:47:09 aurora kernel: ide1 at 0x170-0x177,0x376 on irq 15
+> Aug 18 05:47:09 aurora kernel: hda: host protected area => 1
+> Aug 18 05:47:09 aurora kernel: hda: 19640880 sectors (10056 MB) w/384KiB
+> Cache, CHS=1222/255/63, UDMA(66)
+> Aug 18 05:47:09 aurora kernel: Partition check:
+> Aug 18 05:47:09 aurora kernel:  hda: hda1 hda2 hda3 hda4
 > 
-> Shane
+> 
+> cat /proc/interrupts:
+> 
+>            CPU0
+>   0:    4201709          XT-PIC  timer
+>   1:      26354          XT-PIC  keyboard
+>   2:          0          XT-PIC  cascade
+>   8:     382697          XT-PIC  rtc
+>  11:    2028987          XT-PIC  Texas Instruments PCI1410 PC card Cardbus
+> Controller, Toshiba America Info Systems ToPIC95 PCI to Cardbus Bridge
+> with ZV Support, Toshiba America Info Systems ToPIC95 PCI to Cardbus
+> Bridge with ZV Support (#2), usb-uhci, usb-uhci, orinoco_cs, Intel
+> 82801BA-ICH2, eth0
+>  12:     248224          XT-PIC  PS/2 Mouse
+>  14:     242584          XT-PIC  ide0
+>  15:          0          XT-PIC  ide1
+> NMI:          0
+> ERR:          0
+> 
+> 
+> -- 
+> 
+> The Internet treats censorship as a routing problem, and routes around it.
+> (John Gilmore on http://www.cygnus.com/~gnu/)
 > 
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,65 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261638AbUDSSX5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Apr 2004 14:23:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261678AbUDSSX5
+	id S261685AbUDSS1S (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Apr 2004 14:27:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261690AbUDSS1S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Apr 2004 14:23:57 -0400
-Received: from stgeorges-1-81-56-1-93.fbx.proxad.net ([81.56.1.93]:46476 "EHLO
-	garfield") by vger.kernel.org with ESMTP id S261638AbUDSSXz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Apr 2004 14:23:55 -0400
-Message-ID: <4084192E.1040708@free.fr>
-Date: Mon, 19 Apr 2004 20:23:42 +0200
-From: Fabian Fenaut <fabian.fenaut@free.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
-X-Accept-Language: French/France, fr-FR, en
-MIME-Version: 1.0
-To: sensors@Stimpy.netroedge.com
-CC: greg@kroah.com, linux-kernel@vger.kernel.org
-Subject: Re: Sensors (W83627HF) in Tyan S2882
-References: <1082387882.4083edaa52780@imp.gcu.info>	<200404191600.i3JG0ElX089970@zone3.gcu-squad.org>	<20040419190133.351d1401.khali@linux-fr.org>	<40840A18.8070907@free.fr> <20040419195034.24664469.khali@linux-fr.org>
-In-Reply-To: <20040419195034.24664469.khali@linux-fr.org>
-Content-Type: multipart/mixed;
- boundary="------------010602040503050104030707"
+	Mon, 19 Apr 2004 14:27:18 -0400
+Received: from sankara1.bol.com.br ([200.221.24.109]:15829 "EHLO
+	sankara1.bol.com.br") by vger.kernel.org with ESMTP id S261685AbUDSS1P
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Apr 2004 14:27:15 -0400
+Subject: task switching at Page Faults
+From: Fabiano Ramos <fabramos@bol.com.br>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1082399579.1146.15.camel@slack.domain.invalid>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Mon, 19 Apr 2004 15:32:59 -0300
+Content-Transfer-Encoding: 7bit
+X-Sender-IP: 200.165.173.234
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------010602040503050104030707
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Hi all.
 
-Jean Delvare wrote:
->> Ok, so I suppose this is the appropriate patch :
-> 
-> Except that it doesn't apply, yes ;)
-> 
-> I suspect that your email client is converting tabs to spaces.
+	I am in doubt about the linux kernel behaviour is this situation:
+supose a have the process A, with the highest realtime
+priority and SCHED_FIFO policy. The process then issues a syscall,
+say read():
 
-Sorry, see attachment.
+	1) Can I be sure that there will be no process switch during the
+syscall processing, even if the system call causes a page fault?
 
---
-Fabian
+	2) What if the process was a non-realtime processes (ordinary
+one, SCHED_OTHER)?
 
---------------010602040503050104030707
-Content-Type: text/plain;
- name="patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch"
 
---- drivers/i2c/chips/Kconfig.orig	2004-04-19 19:05:53.000000000 +0200
-+++ drivers/i2c/chips/Kconfig	2004-04-19 19:10:15.000000000 +0200
-@@ -163,7 +163,7 @@
- 	select I2C_SENSOR
- 	help
- 	  If you say yes here you get support for the Winbond W8378x series
--	  of sensor chips: the W83781D, W83782D, W83783S and W83682HF,
-+	  of sensor chips: the W83781D, W83782D, W83783S and W83627HF,
- 	  and the similar Asus AS99127F.
- 	  
- 	  This driver can also be built as a module.  If so, the module
-
---------------010602040503050104030707--
+Thanks a lot.
+Fabiano
 

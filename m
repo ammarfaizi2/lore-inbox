@@ -1,36 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312411AbSDEJFh>; Fri, 5 Apr 2002 04:05:37 -0500
+	id <S312413AbSDEJIH>; Fri, 5 Apr 2002 04:08:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312413AbSDEJF1>; Fri, 5 Apr 2002 04:05:27 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:17207 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S312411AbSDEJFN>; Fri, 5 Apr 2002 04:05:13 -0500
-To: Martin Mares <mj@ucw.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] x86 Boot enhancements, pic 16 4/9
-In-Reply-To: <m11ydwu5at.fsf@frodo.biederman.org> <20020405080115.GA409@ucw.cz>
-	<m1k7rmpmyq.fsf@frodo.biederman.org> <20020405084733.GG609@ucw.cz>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 05 Apr 2002 01:58:41 -0700
-Message-ID: <m1g02aplmm.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S312414AbSDEJH5>; Fri, 5 Apr 2002 04:07:57 -0500
+Received: from dns.uni-trier.de ([136.199.8.101]:39634 "EHLO
+	rzmail.uni-trier.de") by vger.kernel.org with ESMTP
+	id <S312413AbSDEJHq>; Fri, 5 Apr 2002 04:07:46 -0500
+Date: Fri, 5 Apr 2002 11:07:44 +0200 (CEST)
+From: Daniel Nofftz <nofftz@castor.uni-trier.de>
+X-X-Sender: nofftz@infcip10.uni-trier.de
+To: Oleg Drokin <green@namesys.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Q] reiserfs error message at boot-time
+In-Reply-To: <20020405124022.A18140@namesys.com>
+Message-ID: <Pine.LNX.4.40.0204051103280.13870-100000@infcip10.uni-trier.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Mares <mj@ucw.cz> writes:
+On Fri, 5 Apr 2002, Oleg Drokin wrote:
 
 > Hello!
-> 
-> > The fact that you can't treat the generated .o as a normal object
-> > is simply a maintenance nightmare.
-> 
-> Why? You can easily convert it to a normal absolute .o file by objcopy.
-> 
-> Also, I think you could do the same in the linker script.
+>
+> On Fri, Apr 05, 2002 at 10:37:06AM +0200, Daniel Nofftz wrote:
+> > > > i just moved my linux partitition from ext3 to reiserfs.
+> > > > now my problem:
+> > > > when i boot, i get this error-message:
+> > > > reiserfs: Unrecognized mount option errors
+> > > > reiserfs: Unrecognized mount option errors
+> > > Can you show content of your /etc/fstab?
+> > > It complains you passed it unrecognised "errors" option.
+> > /dev/hda2       /               reiserfs        defaults,errors=remount-ro
+> > 0       1
+> > i think it's the "errors=remount-ro" then, or ?
+>
+> Exactly.
+> Get rid of that errors=... option and you'll be fine
 
-Show me a linker script that can link together bootsect.o and bsetup.o.
+thanks ... will test it afap
 
-Eric
+daniel
+
+
+# Daniel Nofftz
+# Sysadmin CIP-Pool Informatik
+# University of Trier(Germany), Room V 103
+# Mail: daniel@nofftz.de
+

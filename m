@@ -1,45 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285230AbRLFVfx>; Thu, 6 Dec 2001 16:35:53 -0500
+	id <S285233AbRLFVmX>; Thu, 6 Dec 2001 16:42:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285224AbRLFVfn>; Thu, 6 Dec 2001 16:35:43 -0500
-Received: from rtlab.med.cornell.edu ([140.251.145.175]:30621 "HELO
-	openlab.rtlab.org") by vger.kernel.org with SMTP id <S285231AbRLFVfc>;
-	Thu, 6 Dec 2001 16:35:32 -0500
-Date: Thu, 6 Dec 2001 16:35:31 -0500 (EST)
-From: "Calin A. Culianu" <calin@ajvar.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Troels Walsted Hansen <troels@thule.no>, <linux-kernel@vger.kernel.org>
-Subject: Re: VIA acknowledges North Bridge bug (AKA Linux Kernel with Athlon
-In-Reply-To: <E16BmbY-0008DS-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.30.0112061633550.22686-100000@rtlab.med.cornell.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S285229AbRLFVmE>; Thu, 6 Dec 2001 16:42:04 -0500
+Received: from holomorphy.com ([216.36.33.161]:32898 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S285227AbRLFVlx>;
+	Thu, 6 Dec 2001 16:41:53 -0500
+Date: Thu, 6 Dec 2001 13:41:50 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: linux-kernel@vger.kernel.org
+Subject: proc_pid_statm
+Message-ID: <20011206134150.A818@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 6 Dec 2001, Alan Cox wrote:
+It's unclear where the number 0x60000000 comes from. I believe it's
+attempting to anticipate the layout of the process address space, in
+particular the fact that ELF interpreters are mapped starting at
+ELF_ET_DYN_BASE when formatted as dynamic shared objects, (and this
+used to happen around 0x60000000 if I remember old ldd output), and in
+many cases, all dynamic shared objects are mapped at still higher
+addresses. Open-coding this number seems non-portable.
 
-> > So does this mean we will be seeing a patch that clears bits 6,7, and 8 in
-> > register 55 on the northbridge soon?
->
-> We already have one. The Linux folks saw the problem much earlier than
-> windows people because our athlon optimised memory copies triggered it
-> reliably on many boards.
->
-> Whats sad is its taken VIA this long to finally acknowledge a bug that we
-> have shown existed months and months ago, and even had Linux fixes for a
-> while in 2.4
+Could someone comment on this?
 
 
-There seems to be some confusion though.. I probably should just read the
-code myself.. but it seems from what I've read that the patch we had
-didn't clear all the bits and that maybe on the KT266, the chipset isn't
-being detected as 'buggy' by the patch so nothing is being cleared... is
-this correct?  If not would you mind taking the time to just tell me where
-in the code I can grep for the patch?
+Cheers,
+Bill
 
 
-> > Alan
->
+I think the author may have had this in mind (though this may still
+report inaccurately on a few architectures):
 
+
+--- linux-2.4.17-pre4-virgin/fs/proc/array.c	Thu Oct 11 09:00:01 2001
++++ linux-2.4.17-pre4/fs/proc/array.c	Thu Dec  6 13:36:33 2001
+@@ -75,6 +75,7 @@
+ #include <asm/pgtable.h>
+ #include <asm/io.h>
+ #include <asm/processor.h>
++#include <linux/elf.h>
+ 
+ /* Gcc optimizes away "strlen(x)" for constant x */
+ #define ADDBUF(buffer, string) \
+@@ -491,14 +492,13 @@
+ 			share += shared;
+ 			dt += dirty;
+ 			size += total;
+-			if (vma->vm_flags & VM_EXECUTABLE)
+-				trs += pages;	/* text */
+-			else if (vma->vm_flags & VM_GROWSDOWN)
+-				drs += pages;	/* stack */
+-			else if (vma->vm_end > 0x60000000)
+-				lrs += pages;	/* library */
+-			else
+-				drs += pages;
++			if (vma->vm_flags & VM_EXECUTABLE) {
++				if(vma->vm_end > ELF_ET_DYN_BASE)
++					lrs += pages;    /* library */
++				else
++					trs += pages;	/* text */
++			} else
++				drs += pages;	/* stack and data */
+ 			vma = vma->vm_next;
+ 		}
+ 		up_read(&mm->mmap_sem);

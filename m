@@ -1,47 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263605AbUACRy2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jan 2004 12:54:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263618AbUACRy2
+	id S263620AbUACSHL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jan 2004 13:07:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263622AbUACSHL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jan 2004 12:54:28 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:26337 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S263605AbUACRy1 (ORCPT
+	Sat, 3 Jan 2004 13:07:11 -0500
+Received: from smtp004.mail.ukl.yahoo.com ([217.12.11.35]:6750 "HELO
+	smtp004.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S263620AbUACSHJ convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jan 2004 12:54:27 -0500
-Date: Sat, 3 Jan 2004 18:54:14 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Andrey Borzenkov <arvidjaar@mail.ru>
-Cc: Olaf Hering <olh@suse.de>, Andries Brouwer <aebr@win.tue.nl>,
-       Greg KH <greg@kroah.com>, linux-hotplug-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: removable media revalidation - udev vs. devfs or static /dev
-Message-ID: <20040103175414.GX5523@suse.de>
-References: <200401012333.04930.arvidjaar@mail.ru> <20040103133749.A3393@pclin040.win.tue.nl> <20040103124216.GA31006@suse.de> <200401031905.31806.arvidjaar@mail.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 3 Jan 2004 13:07:09 -0500
+From: BlaisorBlade <blaisorblade_spam@yahoo.it>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [NEW FEATURE]Partitions on loop device for 2.6
+Date: Sat, 3 Jan 2004 19:05:42 +0100
+User-Agent: KMail/1.5
+References: <200312241341.23523.blaisorblade_spam@yahoo.it> <3FF5DCE8.4020008@tmr.com>
+In-Reply-To: <3FF5DCE8.4020008@tmr.com>
+Cc: Bill Davidsen <davidsen@tmr.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <200401031905.31806.arvidjaar@mail.ru>
+Message-Id: <200401031905.42584.blaisorblade_spam@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 03 2004, Andrey Borzenkov wrote:
-> > Is there really no way to get a media change notification from ZIP or
-> > JAZ drives?
-> 
-> If anyone knows please tell me - I will put it into supermount ...
-> 
-> AFAIK in case of SCSI this is impossible simply by virtue of protocol - SCSI 
-> device is not initiator. So you need something to poll device for status. 
-> That is usually done on device open except in this case you can't open 
-> because you do not yet have handle.
-
-You could queue a media notification request for long periods of time,
-being completed by the drive when a media change happens. At least mmc
-allows for this, doubt anyone has ever done it.
-
-So yeah, poll...
-
+Alle 22:04, venerdì 2 gennaio 2004, Bill Davidsen ha scritto:
+> BlaisorBlade wrote:
+> > NEED:
+> > I have the need to loop mount files containing not plain filesystems, but
+> > whole disk images.
+> >
+> > This is especially needed when using User-mode-linux, since to run any
+> > distro installer you must partition the virtual disks(and on the host,
+> > the backing file of the disk contains a partition table).
+> >
+> > Currently this could be done by specifying a positive offset, but letting
+> > the kernel partition code handle this is better, isn't it? Would you ever
+> > accept this feature into stock kernel?
+>
+> UML is on my list of things to learn (as opposed to "try casually and
+> ignore")
+It is something a bit like VMWare. But instead of emulating hardware and 
+running an OS inside that, you run a patched Linux kernel that runs as an 
+userspace process on the host and provides a virtual machine, which must 
+access a virtual disk, which is stored on a file.
+See http://user-mode-linux.sourceforge.net/ for more info.
+> but have you considered using NBD?
+I didn't really know what it was, nor it seems useful for this "as is" (I've 
+not really checked). Maybe that sentence means that the server program could 
+do the partition parsing?
 -- 
-Jens Axboe
+cat <<EOSIGN
+Paolo Giarrusso, aka Blaisorblade
+Linux Kernel 2.4.23/2.6.0 on an i686; Linux registered user n. 292729
+EOSIGN
 

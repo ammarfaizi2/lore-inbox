@@ -1,45 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261862AbSJIRdA>; Wed, 9 Oct 2002 13:33:00 -0400
+	id <S261856AbSJIRbZ>; Wed, 9 Oct 2002 13:31:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261875AbSJIRdA>; Wed, 9 Oct 2002 13:33:00 -0400
-Received: from adsl-64-166-241-227.dsl.snfc21.pacbell.net ([64.166.241.227]:10399
-	"EHLO www.hockin.org") by vger.kernel.org with ESMTP
-	id <S261862AbSJIRcc>; Wed, 9 Oct 2002 13:32:32 -0400
-From: Tim Hockin <thockin@hockin.org>
-Message-Id: <200210091738.g99HcBY15929@www.hockin.org>
-Subject: Re: [PATCH] 2.5.41 s390 (8/8): 16 bit uid/gids.
-To: torvalds@transmeta.com (Linus Torvalds)
-Date: Wed, 9 Oct 2002 10:38:11 -0700 (PDT)
-Cc: schwidefsky@de.ibm.com (Martin Schwidefsky), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0210091022050.7355-100000@home.transmeta.com> from "Linus Torvalds" at Oct 09, 2002 10:24:04 AM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S261851AbSJIRbZ>; Wed, 9 Oct 2002 13:31:25 -0400
+Received: from ns0.cobite.com ([208.222.80.10]:14091 "EHLO ns0.cobite.com")
+	by vger.kernel.org with ESMTP id <S261856AbSJIRbW>;
+	Wed, 9 Oct 2002 13:31:22 -0400
+Date: Wed, 9 Oct 2002 13:36:57 -0400 (EDT)
+From: David Mansfield <lkml@dm.cobite.com>
+X-X-Sender: david@admin
+To: Benjamin LaHaise <bcrl@redhat.com>
+cc: Ingo Molnar <mingo@elte.hu>, <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] silence an unnescessary raid5 debugging message
+Message-ID: <Pine.LNX.4.44.0210091330300.29237-100000@admin>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Use common code for 16 bit user/groud id system calls on s390x.
-> 
-> Please make this use the real CONFIG_UID16_SYSCALLS instead of using a 
-> magic __UID16 thing that is s390x-specific. Then you make everybody who 
-> currently uses CONFIG_UID16 do both CONFIG_UID16 and 
-> CONFIG_UID16_SYSCALLS.
-> 
-> We don't want magic config options like __UID16 that aren't exposed as 
-> config options and make people go "Huh?!".
 
+>LVM manages to trigger the "raid5: switching cache buffer size" printk 
+>quiet voluminously when using a snapshot device.  The following patch 
+>disables it by placing it under the debugging PRINTK macro.
 
-Linus, This is actually something I sent to Martin (and DaveM).  The __UID16
-crap is because s390x and Sparc64 (and others?) do not want the highuid
-stuff except in very specific places - namely compat code.  Just using
-CONFIG_UID16_SYSCALLS has the same bad side-effect as CONFIG_UID16 - all or
-nothing.  In short, we want to build uid16.o with highuid translations, and
-a few other compat objects, but not everything.  Ugly.
+Ben (and Ingo),
 
-I wasn't aware Martin had tried to push this one quite yet.  Have a
-preferred solution?  I'd already passed this by DaveM and he said the fun
-would be getting it past you :)
+I happen to hit this message thousands of times per second sometimes under
+normal operation in certain loads (raw devices for oracle and fs on LVM on
+raid5).  I understand that it's annoying, I actually think it shouldn't be
+removed, because it's telling the operator importantn information.
 
-Tim
+As I understand it, the message is indicating a really bad performance 
+problem (i.e a complete flush of the stripe cache), and that anyone 
+encountering it on a very frequent (i.e. annoying) basis should consider 
+changing their setup.
+
+Encountering this message has forced us to plan to split the single raid5 
+we have into two, in order to satisfy the different request sizes of the 
+raw-device vs. the ext3 fs.
+
+David
+
+P.S.  Is there any hope of fixing this issue so that the stripe cache can 
+handle different sized requests?  Possibly is this a bug in LVM?
+
+-- 
+/==============================\
+| David Mansfield              |
+| david@cobite.com             |
+\==============================/
+

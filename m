@@ -1,105 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263262AbTIAUYQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Sep 2003 16:24:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263263AbTIAUYQ
+	id S263258AbTIAUWx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Sep 2003 16:22:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263259AbTIAUWx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Sep 2003 16:24:16 -0400
-Received: from [165.165.196.206] ([165.165.196.206]:34469 "EHLO nosferatu.lan")
-	by vger.kernel.org with ESMTP id S263262AbTIAUYK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Sep 2003 16:24:10 -0400
-Subject: Re: 2.6.0-test4-mm3
-From: Martin Schlemmer <azarah@gentoo.org>
-Reply-To: azarah@gentoo.org
-To: Valdis.Kletnieks@vt.edu
-Cc: Boszormenyi Zoltan <zboszor@freemail.hu>, Andrew Morton <akpm@osdl.org>,
-       KML <linux-kernel@vger.kernel.org>
-In-Reply-To: <200308291553.h7TFrcGG009390@turing-police.cc.vt.edu>
-References: <3F4F22D3.9080104@freemail.hu>
-	 <200308291300.h7TD049n022785@turing-police.cc.vt.edu>
-	 <1062168946.19599.114.camel@workshop.saharacpt.lan>
-	 <200308291553.h7TFrcGG009390@turing-police.cc.vt.edu>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-13743JrBwJf1hpYurBty"
-Message-Id: <1062447809.5275.7.camel@nosferatu.lan>
+	Mon, 1 Sep 2003 16:22:53 -0400
+Received: from h214n1fls32o988.telia.com ([62.20.176.214]:14006 "EHLO
+	procyon.nix.homeunix.net") by vger.kernel.org with ESMTP
+	id S263258AbTIAUWw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Sep 2003 16:22:52 -0400
+Date: Mon, 1 Sep 2003 22:22:50 +0200
+From: Henrik Persson <nix@syndicalist.net>
+To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+Cc: pclark@SLAC.Stanford.EDU, linux-kernel@vger.kernel.org
+Subject: Re: orinoco wireless driver
+In-Reply-To: <20030901174437.GK10584@conectiva.com.br>
+References: <x34vfscwgq8.fsf@bbrcu5.slac.stanford.edu>
+	<20030901174437.GK10584@conectiva.com.br>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Mon, 01 Sep 2003 22:23:30 +0200
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Message-Id: <20030901202251.066AD3FA2A@procyon.nix.homeunix.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 1 Sep 2003 14:44:37 -0300
+Arnaldo Carvalho de Melo <acme@conectiva.com.br> wrote:
 
---=-13743JrBwJf1hpYurBty
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> humm, I saw this lots of times, care to try, after it is detected as
+> "memory" to do this:
+> 
+> cardctl eject
+> cardctl insert
+> 
+> and see if gets correctly detected this turn? works for me.
 
-On Fri, 2003-08-29 at 17:53, Valdis.Kletnieks@vt.edu wrote:
-> On Fri, 29 Aug 2003 16:55:47 +0200, Martin Schlemmer said:
->=20
-> > Cannot think of one that is known.  An quick solution
-> > your (and not RH) side, might be something like below.
->=20
-> What about something like this instead?  I tested it with the module-init=
--tools
-> and stock RH9 depmods...
->=20
-> Only complain if the depmod actually fails:
->=20
-> --- Makefile.hold	2003-08-27 01:52:20.000000000 -0400
-> +++ Makefile	2003-08-29 11:52:15.542286300 -0400
-> @@ -209,7 +209,7 @@
->  RPM 		:=3D $(shell if [ -x "/usr/bin/rpmbuild" ]; then echo rpmbuild; \
->  		    	else echo rpm; fi)
->  GENKSYMS	=3D scripts/genksyms/genksyms
-> -DEPMOD		=3D /sbin/depmod
-> +DEPMOD		=3D /sbin/depmod.old
->  KALLSYMS	=3D scripts/kallsyms
->  PERL		=3D perl
->  CHECK		=3D sparse
-> @@ -612,7 +612,14 @@
->  endif
->  .PHONY: _modinst_post
->  _modinst_post: _modinst_
-> -	if [ -r System.map ]; then $(DEPMOD) -ae -F System.map $(depmod_opts) $=
-(KERNELRELEASE); fi
-> +	@if [ -r System.map ]; then \
-> +		if ! $(DEPMOD) -ae -F System.map $(depmod_opts) $(KERNELRELEASE)   ; t=
-hen \
-> +			echo "*** Depmod failed!!!"; \
-> +			echo "*** You may need to install a current version of module-init-to=
-ols"; \
-> +			echo "*** See http://www.codemonkey.org.uk/post-halloween-2.5.txt"; \
-> +			exit 1; \
-> +	 	fi \
-> +	fi
-> =20
->  else # CONFIG_MODULES
+And restart cardmgr a couple of times and then ejecting and inserting..
+Those procedures are needed here. ;)
 
-Hmm, this will only work with RH based systems (not using here).  I
-think the best way is how Andrew did it to just warn if depmod fails.
-You may agree to disagree if need be :)
-
-
-Regards,
-
---=20
-
-Martin Schlemmer
-
-
-
-
---=-13743JrBwJf1hpYurBty
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQA/U6rBqburzKaJYLYRAm9DAJsF2YZNtX4QVYKASXPosn53AD6J3gCeJ7P7
-TdhztTDruqJBk7sBzxBkmJA=
-=/klt
------END PGP SIGNATURE-----
-
---=-13743JrBwJf1hpYurBty--
-
+-- 
+Henrik Persson  nix@syndicalist.net

@@ -1,51 +1,101 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261808AbRESN6E>; Sat, 19 May 2001 09:58:04 -0400
+	id <S261803AbRESNzy>; Sat, 19 May 2001 09:55:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261807AbRESN5z>; Sat, 19 May 2001 09:57:55 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:51100 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S261805AbRESN5s>;
-	Sat, 19 May 2001 09:57:48 -0400
-Date: Sat, 19 May 2001 09:57:46 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Ben LaHaise <bcrl@redhat.com>
-cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org
-Subject: Why side-effects on open(2) are evil. (was Re: [RFD w/info-PATCH]
- device arguments from lookup)
-In-Reply-To: <Pine.LNX.4.33.0105190138150.6079-100000@toomuch.toronto.redhat.com>
-Message-ID: <Pine.GSO.4.21.0105190940310.5339-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261805AbRESNzp>; Sat, 19 May 2001 09:55:45 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:28522 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S261803AbRESNze>; Sat, 19 May 2001 09:55:34 -0400
+Date: Sat, 19 May 2001 15:55:02 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Cc: Richard Henderson <rth@twiddle.net>, linux-kernel@vger.kernel.org
+Subject: Re: alpha iommu fixes
+Message-ID: <20010519155502.A16482@athlon.random>
+In-Reply-To: <20010518214617.A701@jurassic.park.msu.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010518214617.A701@jurassic.park.msu.ru>; from ink@jurassic.park.msu.ru on Fri, May 18, 2001 at 09:46:17PM +0400
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Folks, before you get all excited about cramming side effects into
-open(2), consider the following case:
+On Fri, May 18, 2001 at 09:46:17PM +0400, Ivan Kokshaysky wrote:
+> The most interesting thing here is the pyxis "tbia" fix.
+> Whee! I can now copy files from SCSI to bus-master IDE, or
+> between two IDE drives on separate channels, or do other nice
+> things without hanging lx/sx164. :-)
+> The pyxis "tbia" turned out to be broken in a more nastier way
+> than one could expect - tech details are commented in the patch.
+> 
+> Another problem, I think, is that we need extra locking in
+> pci_unmap_xx(). It seems to be possible that after the scatter-gather
+> table "wraps" and some SG ptes get free, these ptes might be
+> immediately allocated and next_entry pointer advanced by pci_map_xx()
+> from interrupt or another CPU *before* the test for mv_pci_tbi().
+> In this case we'd have stale TLB entries.
+> 
+> Also small compile fix for 2.4.5-pre3.
+> 
 
-1) opening "/dev/zero/start_nuclear_war" has a certain side effect.
+I fixed the same race condition in the unmap (not flushed pte after
+next_entry was visible) two days ago and it's ovbiosuly correct, but it
+was not nearly enough here, there was a very nasty other race condition
+that triggers at least on all ds10 ds20 es40 tsunami/clibber based
+boards that is necessary to fix too to make the machine stable (fixed
+yesterday and getting tested today).
 
-2) Local user does the following:
-	ln -sf /dev/zero/start_nuclear_war bar
-	while true; do
-		mkdir foo
-		rmdir foo
-		ln -sf bar foo
-		rm foo
-	done
+Reading the tsunami specs I learnt 1 tlb entry caches 8 pagetables (not 1)
+so the tlb flush will be invalidate immediatly by any PCI DMA run after
+the flush on any of the other 7 mappings cached in the same tlb entry.
 
-3) Comes the night and root runs (from crontab) updatedb(8). Said beast
-includes find(1). With sufficiently bad timing find _will_ be tricked
-into attempt to open foo. It will honestly lstat() it, all right. But
-there's no way to make sure that subsequent open() on the found directory
-will get the same object.
 
-4) Side effect happens...
+This is the fix:
 
-Similar scenarios can be found for other programs run by/as root, but I
-think that the point is obvious - side effects on open() are not a good
-idea. Yes, we can play with checking for O_DIRECTORY, yodda, yodda, but
-I wouldn't bet a dime on security of a system with such side effects.
-A lot of stuff relies on the fact that close(open(foo, O_RDONLY)) is a
-no-op. Breaking that assumption is a Bad Thing(tm).
+diff -urN alpha-ref/arch/alpha/kernel/pci_iommu.c
+alpha-works/arch/alpha/kernel/pci_iommu.c
+--- alpha-ref/arch/alpha/kernel/pci_iommu.c	Sun Apr  1 01:17:07 2001
++++ alpha-works/arch/alpha/kernel/pci_iommu.c	Fri May 18 18:07:40 2001
+@@ -69,7 +69,7 @@
+ 
+ 	/* Align allocations to a multiple of a page size.  Not needed
+ 	   unless there are chip bugs.  */
+-	arena->align_entry = 1;
++	arena->align_entry = 8;
+ 
+ 	return arena;
+ }
+@@
 
+However thsi is just the production fix, the real fix will only change
+that for the tsunami chipset
+
+since I didn't wanted to deal with the optimizations yet I also disabled
+the optimizations (I will audit the optimizations shortly). Then I fixed
+at least the eppro100 driver to check if it runs of pci map entries (all
+drivers out there are broken, they don't check the retval from pci_map*
+etc...).
+
+then I also enlarged the pci SG space to 1G beause runing out of entries
+right now breaks the whole world:
+
+@@ -358,7 +360,7 @@
+ 	 * address range.
+ 	 */
+ 	hose->sg_isa = iommu_arena_new(hose, 0x00800000, 0x00800000, 0);
+-	hose->sg_pci = iommu_arena_new(hose, 0xc0000000, 0x08000000, 0);
++	hose->sg_pci = iommu_arena_new(hose, 0xc0000000, 0x40000000, 0);
+ 	__direct_map_base = 0x40000000;
+ 	__direct_map_size = 0x80000000;
+ 
+diff
+
+With all this stuff plus the same fix you posted the es40 8g runs rock
+solid on top of 2.4.5pre3aa1.
+
+I was going to wait to cleanup all those fixes but I'm posting this half
+curroputed email here now just so we don't duplicate further efforts ;)
+
+Andrea

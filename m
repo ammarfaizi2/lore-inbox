@@ -1,63 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261863AbTDUTXI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Apr 2003 15:23:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261876AbTDUTXI
+	id S261876AbTDUTcF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Apr 2003 15:32:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261877AbTDUTcF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Apr 2003 15:23:08 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:53206 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261863AbTDUTXH
+	Mon, 21 Apr 2003 15:32:05 -0400
+Received: from fencepost.gnu.org ([199.232.76.164]:32467 "EHLO
+	fencepost.gnu.org") by vger.kernel.org with ESMTP id S261876AbTDUTcE
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Apr 2003 15:23:07 -0400
-Date: Mon, 21 Apr 2003 20:35:10 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Roman Zippel <zippel@linux-m68k.org>,
-       "David S. Miller" <davem@redhat.com>, Andries.Brouwer@cwi.nl,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] new system call mknod64
-Message-ID: <20030421193510.GQ10374@parcelfarce.linux.theplanet.co.uk>
-References: <20030421185806.GP10374@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.44.0304211204440.9109-100000@home.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0304211204440.9109-100000@home.transmeta.com>
-User-Agent: Mutt/1.4.1i
+	Mon, 21 Apr 2003 15:32:04 -0400
+Date: Mon, 21 Apr 2003 15:44:07 -0400 (EDT)
+From: Pavel Roskin <proski@gnu.org>
+X-X-Sender: proski@marabou.research.att.com
+To: Christoph Hellwig <hch@lst.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.68-bk1 crash in devfs_remove() for defpts files
+In-Reply-To: <20030421210020.A29421@lst.de>
+Message-ID: <Pine.LNX.4.55.0304211539350.2462@marabou.research.att.com>
+References: <Pine.LNX.4.55.0304211338540.1491@marabou.research.att.com>
+ <20030421195555.A28583@lst.de> <20030421195847.A28684@lst.de>
+ <Pine.LNX.4.55.0304211451110.1798@marabou.research.att.com>
+ <20030421210020.A29421@lst.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 21, 2003 at 12:05:32PM -0700, Linus Torvalds wrote:
-> 
-> On Mon, 21 Apr 2003 viro@parcelfarce.linux.theplanet.co.uk wrote:
-> > 
-> > Let's go for 32:32 internal and simply map upon mknod(2) and friends.
-                                                             ^^^^^^^^^^^ ;-)
-> stat() too.
+On Mon, 21 Apr 2003, Christoph Hellwig wrote:
 
-stat() family, ustat(2), quota syscall, ioctls that pass device numbers,
-/dev/raw, RAID, probably process accounting.
+> On Mon, Apr 21, 2003 at 02:53:54PM -0400, Pavel Roskin wrote:
+> > On Mon, 21 Apr 2003, Christoph Hellwig wrote:
+> >
+> > > On Mon, Apr 21, 2003 at 07:55:55PM +0200, Christoph Hellwig wrote:
+> > > > Could you please try this patch?
+> > >
+> > > Better this one :)  Sorry.
+> >
+> > No, it doesn't help, although the stack trace is different this time:
+>
+> Hmm.  Can you please apply the following patch in addition and
+> see what the printk I added sais?
 
-FWIW, I believe that you are overestimating the amount of internal code
-that cares about device numbers.  Recent example: tty drivers.  99% of
-references to tty->device were of form
-	minor(tty->device)-tty->driver.start_minor.
-Adding tty->index initialized to the above
-	a) cleans the code up and kills a bunch of typos
-	b) is obvious (albeit minor) optimization
-	c) makes much more sense from the driver POV - "that's 5th of my
-ttys" vs. "when somebody opens a device with dev_t equal to 5:69, they'll
-get this tty".  The latter makes sense when we are opening that sucker -
-at the same time when we decide which driver will handle it in the first
-place.
+Following is happening.  The system boots, /dev/pts is a directory (I can
+see it by logging on the serial console).  devpts is mounted on /dev/pts.
 
-If anything, I'd rather see code in char_dev.c give us a triple -
-file_operations, pointer to whatever object driver wanted to associate
-with this device number (tty_driver, in case of tty layer) and index.
+I log in by ssh.  It works.  /dev/pts/0 appears.  I log out.  /dev/pts
+directory disappears!
 
-We can do that easily (drivers/block/genhd.c has almost exactly what
-we need), old drivers can still use minor() to their hearts' contest
-and we can start killing a *lot* of ugly warts.  Old register_chrdev()
-will work as usual - just tell the char_dev.c that everything with
-that major should get a triple (file_operations, NULL, minor).  No
-changes required....
+I log in by ssh again.  I get this message on the console:
+
+devfs_remove: no entry for pts!
+
+ssh hangs.  I can recreate /dev/pts by mkdir, umount it and mount it
+again.  Then ssh works again, but again only once.  /dev/pts disappears on
+logout.
+
+-- 
+Regards,
+Pavel Roskin

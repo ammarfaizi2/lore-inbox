@@ -1,43 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312748AbSDBDOd>; Mon, 1 Apr 2002 22:14:33 -0500
+	id <S312754AbSDBDXY>; Mon, 1 Apr 2002 22:23:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312752AbSDBDOX>; Mon, 1 Apr 2002 22:14:23 -0500
-Received: from asooo.flowerfire.com ([63.254.226.247]:45729 "EHLO
-	asooo.flowerfire.com") by vger.kernel.org with ESMTP
-	id <S312748AbSDBDOL>; Mon, 1 Apr 2002 22:14:11 -0500
-Date: Mon, 1 Apr 2002 21:14:10 -0600
-From: Ken Brownfield <ken@irridia.com>
-To: linux-kernel@vger.kernel.org
-Subject: Status of quotas on ext3 and reiser?
-Message-ID: <20020401211410.A9161@asooo.flowerfire.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S312752AbSDBDXO>; Mon, 1 Apr 2002 22:23:14 -0500
+Received: from chamber.cco.caltech.edu ([131.215.48.55]:16572 "EHLO
+	chamber.cco.caltech.edu") by vger.kernel.org with ESMTP
+	id <S312754AbSDBDW7>; Mon, 1 Apr 2002 22:22:59 -0500
+Message-ID: <3CA923FF.9060408@bryanr.org>
+Date: Mon, 01 Apr 2002 19:22:39 -0800
+From: Bryan Rittmeyer <bryanr@bryanr.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020214
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Luis Falcon <lfalcon@thymbra.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: IRQ routing conflicts / Assigning IRQ 0 to ethernet
+In-Reply-To: <1017704252.20857.7.camel@abyss>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm about to install a 2TB disk array, and I'd very strongly prefer to
-use ext3 or possibly reiser to gain journaling.  Fscking 250GB is
-already lethal.
+try the latest acpi patch from http://sf.net/projects/acpi/
 
-But I also need quotas.  I've noticed that quotas do not appear to be
-supported by ext3, but I haven't tried reiser yet.  And I'm not sure
-if I simply need new quota userspace tools -- the ones I found were 1994
-vintage.  I'm on RH6.2 BTW for this case, and the builtin tools don't
-appear to grok ext3.
+-Bryan
 
-What is the current viability of quotas on ext3/reiser in a
-conservative, production environment?  Is it waiting for the 32-bit UID
-mods in 2.4.x, or has quota support been pushed off onto 2.5?  Am I
-going to have to make the hard choice of journaling vs quotas? :-/
+Luis Falcon wrote:
+> The main problem is that it can't assign an interrupt for the
+> controller, plus I get irq routing conflicts on other devices...
 
-I couldn't find a definitive answer in the archives; sorry if this is a
-FAQ.  I'd bug poor Andrew Morton directly :), but I'm also interested in
-the status or reiser vs quotas.
-
-Thanks,
--- 
-Ken.
-ken@irridia.com

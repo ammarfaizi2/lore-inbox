@@ -1,57 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129050AbQKGSup>; Tue, 7 Nov 2000 13:50:45 -0500
+	id <S129515AbQKGSvf>; Tue, 7 Nov 2000 13:51:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129544AbQKGSuf>; Tue, 7 Nov 2000 13:50:35 -0500
-Received: from TELOS.ODYSSEY.CS.CMU.EDU ([128.2.185.175]:27411 "EHLO
-	telos.odyssey.cs.cmu.edu") by vger.kernel.org with ESMTP
-	id <S129505AbQKGSuT>; Tue, 7 Nov 2000 13:50:19 -0500
-Date: Tue, 7 Nov 2000 13:48:42 -0500
-From: Jan Harkes <jaharkes@cs.cmu.edu>
-To: Pavel Machek <pavel@suse.cz>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: mount -tcoda /dev/cfs0 /mnt no longer works in -test9 and newer?
-Message-ID: <20001107134841.A31058@cs.cmu.edu>
-Mail-Followup-To: Pavel Machek <pavel@suse.cz>,
-	kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20001106103539.A343@bug.ucw.cz>
+	id <S129544AbQKGSvZ>; Tue, 7 Nov 2000 13:51:25 -0500
+Received: from cerebus-ext.cygnus.co.uk ([194.130.39.252]:62456 "EHLO
+	passion.cygnus") by vger.kernel.org with ESMTP id <S129515AbQKGSvK>;
+	Tue, 7 Nov 2000 13:51:10 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <D5E932F578EBD111AC3F00A0C96B1E6F07DBDC56@orsmsx31.jf.intel.com> 
+In-Reply-To: <D5E932F578EBD111AC3F00A0C96B1E6F07DBDC56@orsmsx31.jf.intel.com> 
+To: "Dunlap, Randy" <randy.dunlap@intel.com>
+Cc: "'Russell King'" <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: USB init order dependencies. 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20001106103539.A343@bug.ucw.cz>; from pavel@suse.cz on Mon, Nov 06, 2000 at 10:35:39AM +0100
+Date: Tue, 07 Nov 2000 18:50:50 +0000
+Message-ID: <17072.973623050@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 06, 2000 at 10:35:39AM +0100, Pavel Machek wrote:
-> Hi!
-> 
-> It complains
-> 
-> coda_read_super: Bad mount data
-> coda_read_super: device index: 0
-> 
-> and will not mount. What do I need to mount coda?
-> 								Pavel
 
-Miklos Szeredi sent a patch to support multiple mountpoints/coda
-devices. However, the code falls back on the default device (cfs0)
-when the mountdata is incorrect. So the problem must be unrelated
-to the "Bad mount data" error message.
+randy.dunlap@intel.com said:
+>  Yes, your proposal is to init only "usbcore" from init/main.c. I
+> still don't see a need to do this in test10. It's fixed now AFAIK.
 
-The code to mount with the correct mountdata looks like this:
+Not my proposal. The proposal to which Russell was objecting. 
 
-      #include <linux/coda.h>
+My proposal was to just make the thing work without having to care about 
+the link order.
 
-      muxfd = open("/dev/cfs0", O_RDWR);
+--
+dwmw2
 
-      struct coda_mount_data mountdata;
-      mountdata.version = CODA_MOUNT_VERSION;
-      mountdata.fd = muxfd
-
-      error = mount("coda", "/coda", "coda",  MS_MGC_VAL,
-		    (void *)&mountdata);
-
-Jan
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

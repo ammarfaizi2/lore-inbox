@@ -1,49 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129702AbRBOQLK>; Thu, 15 Feb 2001 11:11:10 -0500
+	id <S129598AbRBOQTE>; Thu, 15 Feb 2001 11:19:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129723AbRBOQKu>; Thu, 15 Feb 2001 11:10:50 -0500
-Received: from smtp1.cern.ch ([137.138.128.38]:62225 "EHLO smtp1.cern.ch")
-	by vger.kernel.org with ESMTP id <S129702AbRBOQKp>;
-	Thu, 15 Feb 2001 11:10:45 -0500
-To: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Ion Badulescu <ionut@moisil.cs.columbia.edu>,
-        Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org,
-        becker@scyld.com
-Subject: Re: [PATCH] starfire reads irq before pci_enable_device.
-In-Reply-To: <157828DC5517@vcnet.vc.cvut.cz>
-From: Jes Sorensen <jes@linuxcare.com>
-Date: 15 Feb 2001 17:09:47 +0100
-In-Reply-To: "Petr Vandrovec"'s message of "Wed, 14 Feb 2001 16:54:22 MET-1"
-Message-ID: <d366ic0vxw.fsf@lxplus015.cern.ch>
-User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
+	id <S129691AbRBOQSo>; Thu, 15 Feb 2001 11:18:44 -0500
+Received: from relay02.valueweb.net ([216.219.253.236]:33805 "EHLO
+	relay02.valueweb.net") by vger.kernel.org with ESMTP
+	id <S129598AbRBOQSd>; Thu, 15 Feb 2001 11:18:33 -0500
+Message-ID: <3A8C029B.3B2C1AD3@opersys.com>
+From: Karim Yaghmour <karym@opersys.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.14 i686)
+X-Accept-Language: en, French/Canada, French/France, fr-FR, fr-CA
 MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE] Adaptive Domain Environment for Operating Systems
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Date: Thu, 15 Feb 2001 11:18:15 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Petr" == Petr Vandrovec <VANDROVE@vc.cvut.cz> writes:
 
-Petr> On 14 Feb 01 at 16:35, Jes Sorensen wrote:
->>  What else is sending out 802.3 frames these days? I really don't
->> care about IPX when it comes to performance.
->> 
->> I am just advocating that we optimize for the common case which is
->> DIX frames and not 802.3.
+I've put up the following (white) papers out for general discussion:
+-Adaptive Domain Environment for Operating Systems (Adeos)
+-Building a Real-Time Operating System on top of the Adeos
 
-Petr> Pardon me, but IPX in 802.3 and IPX in DIX are exactly same
-Petr> frames on wire, except that IPX/802.3 contains frame length in
-Petr> bytes 0x0C/0x0D, while IPX/DIX contains 0x8137 here. They have
-Petr> same length, and same length of media header, so I really do not
-Petr> understand.
+The first paper discusses the design and implementation of a nano-kernel-
+like facility that may be used to take control away from an unmodified
+running linux on ix86 for further uses including (but not limited to):
+-patch-less kernel debuggers/probers
+-running multiple general purpose OSes on the same hardware,
+-OS development
+-etc.
 
-Petr> If you are talking about encapsulation which is known as
-Petr> `ethernet_802.2' in IPX world, then it is true, it has odd bytes
-Petr> in header. But nobody sane except Appletalk uses 802.2
-Petr> now... Our Suns already died due to this couple of years ago ;-)
+As the first item suggests, this may be of interest to some on
+this list as kernel debuggers have been a rather pointy subject...
 
-My point is that you rarely see Ethernet frames with 802.3 except for
-places running IPX.
+The second document discusses a special case usage of Adeos that
+enables a real-time-bound kernel to co-exist with Linux on top of
+Adeos.
+ 
+The documents can be found here:
+http://www.opersys.com/adeos/index.html
 
-Jes
+I've requested a project entry for Adeos on sourceforge and will
+update the project's home page as soon as everything is set up.
+
+In the mean time, anyone interested to participate in the project
+or that has pertinent information regarding the implementation, or
+its feasibility or lack of, as described in the Adeos document is
+welcomed to contact me.
+
+KEEP IN MIND that the documents are only a suggested method of
+doing things designed to stimulate discussion. There isn't one
+line of functionnal code out there (yet).
+
+Best regards,
+
+Karim
+
+===================================================
+                 Karim Yaghmour
+               karym@opersys.com
+          Operating System Consultant
+ (Linux kernel, real-time and distributed systems)
+===================================================

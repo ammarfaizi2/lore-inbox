@@ -1,39 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264353AbTDKNVG (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 09:21:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264354AbTDKNVG (for <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Apr 2003 09:21:06 -0400
-Received: from ecbull20.frec.bull.fr ([129.183.4.3]:59315 "EHLO
-	ecbull20.frec.bull.fr") by vger.kernel.org with ESMTP
-	id S264353AbTDKNVF (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 11 Apr 2003 09:21:05 -0400
-Message-ID: <3E96C417.B11A5AA0@Bull.Net>
-Date: Fri, 11 Apr 2003 15:33:11 +0200
-From: Eric Piel <Eric.Piel@Bull.Net>
-Organization: Bull S.A.
-X-Mailer: Mozilla 4.78 [en] (X11; U; AIX 4.3)
-X-Accept-Language: fr, en
+	id S263654AbTDKNZ0 (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 09:25:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264354AbTDKNZ0 (for <rfc822;linux-kernel-outgoing>);
+	Fri, 11 Apr 2003 09:25:26 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:47744 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S263654AbTDKNZZ (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 11 Apr 2003 09:25:25 -0400
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200304111339.h3BDdcDR000919@81-2-122-30.bradfords.org.uk>
+Subject: Re: kernel support for non-English user messages
+To: alan@lxorguk.ukuu.org.uk (Alan Cox)
+Date: Fri, 11 Apr 2003 14:39:38 +0100 (BST)
+Cc: Riley@Williams.Name (Riley Williams),
+       linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
+In-Reply-To: <1050063394.14153.16.camel@dhcp22.swansea.linux.org.uk> from "Alan Cox" at Apr 11, 2003 01:16:35 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: george anzinger <george@mvista.com>
-CC: Aniruddha M Marathe <aniruddha.marathe@wipro.com>,
-       linux-kernel@vger.kernel.org,
-       Chandrashekhar RS <chandra.smurthy@wipro.com>
-Subject: Re: [BUG] settimeofday(2) succeeds for microsecond value more 
- thanUSEC_PER_SEC and for negative value
-References: <94F20261551DC141B6B559DC491086723E0EB7@blr-m3-msg.wipro.com> <3E966009.1060501@mvista.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-george anzinger wrote:
+> >  1. If the printk() messages are internationalised, we are going to
+> >     see log extracts posted here in various languages, including some
+> >     that the relevant maintainers don't understand. To stand any
+> >     realistic chance of dealing with the resultant bug reports, we
+> >     need to include the message code in the report so we can just
+> >     feed the various reports through a tool that translates them into
+> >     our preferred language.
 > 
->   I suppose it is too much to ask, but it would be nice if
-> do_sys_settimeofday() took a timespec instead of a timeval.  Of course
-> this changes the interface for all the archs, but it would allow the
-> clock_settimeofday to send in the nsec value.
-IMHO on IA64 it would not be a bad idea since internally everything is
-computed on nsec. Currently there is conversion from usec to nsec at the
-beginning of do_sys_settimeofday() :-)
-I could support you on IA64 to do the change if this is needed.
+> Providing the viewer is translating the originals always exist. Indeed
+> you can do
+> 
+> 	LANG=es view-logs
+> 	LANG=ru view-logs
+> 	...
+> 
+> You can have sysadmins with no common language("not a recommended
+> configuration" ;))
+> 
+> You are right about needing to log parameters, but given a log line
+> of the form
+> 
+> %s: went up in flames\n\0eth0\0\0
+> 
+> that can be handled by the log viewer
 
-Eric
+Wouldn't we be better off just more fully documenting the English
+error messages, though, and possibly translating that explaination
+document in to as many languages as possible?  A lot of people search
+for error messages strings in the LKML archives, and variations of the
+same string will hinder this.
+
+On a related note, if we are going to make a dmesg interpreter and
+translator, could we include the ability to generate a kernel .config
+from the boot time output?  Note, I don't mean re-create the .config
+that the kernel was compiled with, but something like NetBSD, (at
+least), which lets you boot with a kernel that has drivers that you
+don't need, and generate a config file which will compile a kernel
+which contains only those that are actually needed.
+
+John.

@@ -1,42 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132039AbRDNMGJ>; Sat, 14 Apr 2001 08:06:09 -0400
+	id <S132044AbRDNMM3>; Sat, 14 Apr 2001 08:12:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132042AbRDNMF7>; Sat, 14 Apr 2001 08:05:59 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:55301 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S132039AbRDNMFs>; Sat, 14 Apr 2001 08:05:48 -0400
-Date: Sat, 14 Apr 2001 07:24:42 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: "Stephen C. Tweedie" <sct@redhat.com>, Alexander Viro <viro@math.psu.edu>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: generic_osync_inode/ext2_fsync_inode still not safe
-Message-ID: <Pine.LNX.4.21.0104140632300.1615-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132046AbRDNMMT>; Sat, 14 Apr 2001 08:12:19 -0400
+Received: from c-025.static.AT.KPNQwest.net ([193.154.188.25]:18566 "EHLO
+	stefan.sime.com") by vger.kernel.org with ESMTP id <S132044AbRDNMMO>;
+	Sat, 14 Apr 2001 08:12:14 -0400
+Date: Sat, 14 Apr 2001 14:12:08 +0200
+From: Stefan Traby <stefan@hello-penguin.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Dave <daveo@osdn.com>, linux-kernel@vger.kernel.org
+Subject: Re: bizarre TCP behavior
+Message-ID: <20010414141208.A31782@stefan.sime.com>
+Reply-To: Stefan Traby <stefan@hello-penguin.com>
+In-Reply-To: <Pine.LNX.4.33.0104101809190.1468-100000@meatloop.andover.net> <20010411022142.A28926@gruyere.muc.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010411022142.A28926@gruyere.muc.suse.de>; from ak@suse.de on Wed, Apr 11, 2001 at 02:21:42AM +0200
+Organization: Stefan Traby Services && Consulting
+X-Operating-System: Linux 2.4.3 (i686)
+X-APM: 100% 400 min
+X-MIL: A-6172171143
+X-Lotto: Suggested Lotto numbers (Austrian 6 out of 45): 4 15 25 27 28 37
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Apr 11, 2001 at 02:21:42AM +0200, Andi Kleen wrote:
 
-Hi,
+> Try echo 0 > /proc/sys/net/ipv4/tcp_ecn
+> If it helps complain to the sites that their firewall is broken.
 
-As described earlier, code which wants to write an inode cannot rely on
-the I_DIRTY bits (on inode->i_state) being clean to guarantee that the
-inode and its dirty pages, if any, are safely synced on disk.
+Not always firewall related.
+There are companies like Zyxel that ship broken router
+too.
 
-The reason for that is sync_one() --- it cleans the I_DIRTY bits of an
-inode, sets the I_LOCK and starts a writeout. 
+For example the Zyxel 681 SDSL-Router breaks ECN by
+stripping 0x80 (ECN Cwnd Reduced) but not 0x40 (ECN Echo)
+(TOS bits) on all SYN packets (!).
 
-If sync_one() is called to write an inode _asynchronously_, there is no
-guarantee that an inode will have its data fully synced on disk even if
-the inode gets unlocked, which means the previous fix to
-generic_osync_inode() is not safe.
+I complained because of this two times more than a month ago
+but they do not even respond.
 
-The easy and safe fix is to simply remove the I_DIRTY_* checks from
-generic_osync_inode and ext2_fsync_inode. Easy but slow. Another fix would
-be to make sync_one() unconditionally synchronous... slow.
+I do not know if they are unable or just unwilling to fix it;
+maybe they just unable to read RFC's.
 
-Any suggestion for a fast, safe, but simple fix to this bug?
+-- 
 
-
+  ciao - 
+    Stefan

@@ -1,60 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266530AbRGDHuR>; Wed, 4 Jul 2001 03:50:17 -0400
+	id <S266528AbRGDHqh>; Wed, 4 Jul 2001 03:46:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266531AbRGDHuH>; Wed, 4 Jul 2001 03:50:07 -0400
-Received: from mail.bmlv.gv.at ([193.171.152.34]:53428 "EHLO mail.bmlv.gv.at")
-	by vger.kernel.org with ESMTP id <S266530AbRGDHt7>;
-	Wed, 4 Jul 2001 03:49:59 -0400
-Message-Id: <3.0.6.32.20010704095314.009201b0@pop3.bmlv.gv.at>
-X-Mailer: QUALCOMM Windows Eudora Light Version 3.0.6 (32)
-Date: Wed, 04 Jul 2001 09:53:14 +0200
-To: Daniel Phillips <phillips@bonn-fries.net>
-From: "Ph. Marek" <marek@bmlv.gv.at>
-Subject: Re: Ideas for TUX2
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <01070408542401.03760@starship>
-In-Reply-To: <3.0.6.32.20010704081621.00921a60@pop3.bmlv.gv.at>
- <3.0.6.32.20010703082513.0091f900@pop3.bmlv.gv.at>
- <3.0.6.32.20010704081621.00921a60@pop3.bmlv.gv.at>
+	id <S266529AbRGDHq2>; Wed, 4 Jul 2001 03:46:28 -0400
+Received: from lorax.neutraldomain.org ([64.81.248.141]:1806 "HELO
+	lorax.neutraldomain.org") by vger.kernel.org with SMTP
+	id <S266528AbRGDHqX>; Wed, 4 Jul 2001 03:46:23 -0400
+Date: Wed, 4 Jul 2001 00:47:38 -0700
+From: Gabriel Rocha <grocha@onesecure.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Regrding module programing
+Message-ID: <20010704004738.L22643@onesecure.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20010703180535.3803.qmail@web14801.mail.yahoo.com> <3B42C665.E9D70535@Sun.COM>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="IUSVF+LtaR4kWxuH"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3B42C665.E9D70535@Sun.COM>; from Julien.Laganier@Sun.COM on Wed, Jul 04, 2001 at 09:31:49AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> >> If a file's data has been changed, it suffices to update the inode and
->> >> the of free blocks bitmap (fbb).
->> >> But updating them in one go is not possible
->> >
->> >You seem to have missed some fundamental understanding of
->> >exactly how phase tree works; the wohle point of phase
->> >tree is to make atomic updates like this possible!
->>
->> Well, my point was, that with several thousand inodes spread over the disk
->> it won't always be possible to update the inode AND the fbb in one go.
->> So I proposed the 2nd inode with generation counter!
->
->The cool thing is, it *is* possible, read how here:
->
->  http://nl.linux.org/~phillips/tux2/phase.tree.tutorial.html
-Well, ok. Your split the inode "files" too.
 
-Hmmm...
-That sound more complex than my version (at least now, until I've seen the
-implementation - maybe it's easier because it has less special cases than
-mine).
+--IUSVF+LtaR4kWxuH
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-And of course the memory usage on the harddisk is much less with your
-version as you split your inode data and don't have it duplicated.
+freebsd has kernel modules...
 
-Well, I hope to see an implementation soon - I'd like to help, even if it's
-only testing.
+,----[ On Wed, Jul 04, at 09:31AM, Julien Laganier wrote: ]--------------
+| > I like to know whether the kernel modules concepts is
+| > present only in linux (or) it is also supported in
+| > some other flavour of unix operating systems.
+| > Can any one please update me, regarding this ?
+|=20
+| I know that there's also kernel modules in Solaris, and possibly in all
+| unix dialects.
+|=20
+| Julien.
+| -
+| To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+| the body of a message to majordomo@vger.kernel.org
+| More majordomo info at  http://vger.kernel.org/majordomo-info.html
+| Please read the FAQ at  http://www.tux.org/lkml/
+|=20
+`----[ End Quote ]---------------------------
 
+--=20
+Gabriel Rocha (grocha@onesecure.com) - 1-877-4-1SECURE
+OneSecure, Inc. Sunnyvale Security Operations Center (GMT -0700)
 
-Thanks for the answer!
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: 2.6.3ia
 
+mQCNAzrYQA8AAAEEAL/fjYD12U8QNO0PJX30zYd+0Wg1aZq+jPp34hTiMXrGg2bv
+VE2hwrcz4iILCaQ5KlncteycMx6VL7u0tnIkxnT0M8fAPuS4VpqB/tS/mr3RcHLa
+52+TRZ45KnZt/6pp+pc9zJM8STJvGatfF+YPYKtzEM3mFL4OEnMJdtsEFkx1AAUT
+tCRHYWJyaWVsIFJvY2hhIDxncm9jaGFAb25lc2VjdXJlLmNvbT6JAJUDBRA62EAP
+cwl22wQWTHUBATrVA/9Z+/pUsd0nV6ZtOn014Q9hJ1TUzhzVcNVF1zUufTHTwLO1
+gnKaomNj1Fb+pwGK3ZxNqomUTAnCXCU3HxQ0DkG8OIjzuOIr08Lv57pA9u/yjlTR
+IOV5REUNFWD0ogKLAlVG9wp3IsSgntjToB/rj75siVrBapqzbgR+Dcs3nb8Ijg=3D=3D
+=3DHwqX
+-----END PGP PUBLIC KEY BLOCK-----
 
-Regards,
+--IUSVF+LtaR4kWxuH
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-Phil
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (FreeBSD)
+Comment: For info see http://www.gnupg.org
 
+iQCVAwUBO0LKGnMJdtsEFkx1AQFzAgP8Cng5tcNTgQ573T1qZOAIDFq5iYtWn+SN
+JOoeKA+8Kf/HHxCoh0KDTX3vZXbXE5UqjrMehgDSrtscagdHUk1jR8/0P0/xvZvN
+hJhUTz76BR8zya3uZZrVDVBMEGAgkFEBgCF+/gAMDH0zb9zFTocHYRXZTkU2ZDA6
+OneYkbbBYqI=
+=B1Wv
+-----END PGP SIGNATURE-----
+
+--IUSVF+LtaR4kWxuH--

@@ -1,78 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266035AbVBECYb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263643AbVBECYN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266035AbVBECYb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 21:24:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261760AbVBECYb
+	id S263643AbVBECYN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 21:24:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261370AbVBECYM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 21:24:31 -0500
-Received: from orb.pobox.com ([207.8.226.5]:16300 "EHLO orb.pobox.com")
-	by vger.kernel.org with ESMTP id S266560AbVBECTN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 21:19:13 -0500
-Date: Fri, 4 Feb 2005 18:19:06 -0800
-From: "Barry K. Nathan" <barryn@pobox.com>
-To: Gary Smith <linuxkernel@adndrealm.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Post install 2.4.29 causes many apps to seg fault.
-Message-ID: <20050205021906.GA7524@ip68-4-98-123.oc.oc.cox.net>
-References: <1107544219.4203c89bdfa6a@www.adndrealm.net>
+	Fri, 4 Feb 2005 21:24:12 -0500
+Received: from cavan.codon.org.uk ([213.162.118.85]:13232 "EHLO
+	cavan.codon.org.uk") by vger.kernel.org with ESMTP id S266390AbVBECRm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Feb 2005 21:17:42 -0500
+From: Matthew Garrett <mjg59@srcf.ucam.org>
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: Pavel Machek <pavel@ucw.cz>,
+       Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>,
+       ncunningham@linuxmail.org, ACPI List <acpi-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <9e4733910502041809738017a7@mail.gmail.com>
+References: <20050122134205.GA9354@wsc-gmbh.de> <4202A972.1070003@gmx.net>
+	 <20050203225410.GB1110@elf.ucw.cz>
+	 <1107474198.5727.9.camel@desktop.cunninghams> <4202DF7B.2000506@gmx.net>
+	 <9e47339105020321031ccaabb@mail.gmail.com> <420367CF.7060206@gmx.net>
+	 <20050204163019.GC1290@elf.ucw.cz>
+	 <9e4733910502040931955f5a6@mail.gmail.com>
+	 <1107569089.8575.35.camel@tyrosine>
+	 <9e4733910502041809738017a7@mail.gmail.com>
+Date: Sat, 05 Feb 2005 02:17:22 +0000
+Message-Id: <1107569842.8575.44.camel@tyrosine>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1107544219.4203c89bdfa6a@www.adndrealm.net>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Evolution 2.0.3 
+X-SA-Exim-Connect-IP: 213.162.118.93
+X-SA-Exim-Mail-From: mjg59@srcf.ucam.org
+Subject: Re: [RFC] Reliable video POSTing on resume
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
+X-SA-Exim-Scanned: Yes (on cavan.codon.org.uk)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 04, 2005 at 11:10:19AM -0800, Gary Smith wrote:
-> Hello, 
-> 
-> I have been running RHEL3 update 3 for some time and need to patch netfilter 
-> for PPTP.  After doing so and installing the kernel I found that certain 
-> applications (such as MySQL, nslook, etc) began to segfault.  Rolling the 
-> kernel back fixed the problem.
-> 
-> I have since then gone back and recompiled the vanilla 2.4.29 kernel (without 
-> additing any patches this time - clean from tarball) and installed it and all 
-> of the the applications that failed on the custom kernel (with the PPTP 
-> patches) continue to fail (clean box as well).
-> 
-> Is there something more that I need to compile besides the kernel for 
-> compatability or is this a sign of some type of bug.  I do realize that RHEL3 
-> itself has some proprietary items added to their kernel but replacing it 
-> shouldn't make other applications fails.
+On Fri, 2005-02-04 at 21:09 -0500, Jon Smirl wrote:
 
-RHEL3 glibc (and some application binaries IIRC) assume the existence of
-futex support in the kernel. Upstream, futex support only exists in 2.6,
-but Red Hat backported it to their 2.4 kernels for Red Hat 9, RHEL 3,
-and Fedora Core 1.
+> How does the hardware die? Are you sure that it is not simply a bug in
+> the program doing the POST? Look at the scitech source and you will
+> see many BIOS quirks that have to be emulated in order for the post to
+> work. If your post program is missing any of these the post won't
+> work. So far every time I have encountered a non-working post it was
+> fixed by tweaking some things in the post program.
 
-Red Hat's assumption with RHEL is that you will be running *their* kernel
-so it's OK for them to make their glibc and application binaries depend
-on their kernel.
+On laptops, it's frequently the case that c000:0003 will jump to a
+section of code that is no longer mapped into the address space.
+Instead, it's entirely possible that some other section of BIOS will be
+mapped there. The resulting behaviour is undefined, and can cause the
+hardware to hang.
 
-If you must run a vanilla kernel, it would be best to use RHEL 2.1
-instead, or to run a 2.6 kernel. Note that you'll need to install
-module-init-tools to get modules working under 2.6. One way to do this
-is to install a newer "modutils" package (I *think* the one from Fedora
-Core 2 should work, but I don't remember for certain) -- despite the name,
-the modutils package from Fedora Core 2 actually has module-init-tools in
-it as well.
-
-You may run into other gotchas when trying to run 2.6 on RHEL3; in that
-case it may be easiest to wait for RHEL4 (Valentine's Day is rumored),
-as that will work with 2.6 out-of-the-box and RHEL4's 2.6 kernel will
-likely be far less heavily patched than RHEL3's 2.4 kernel. If you can't
-wait for RHEL4, you could try the RHEL4 beta or Fedora Core in the
-meantime.
-
-If you *really* need to run a vanilla 2.4 kernel on RHEL3, you could try
-installing the glibc packages from Fedora Core 1 or 2 (*maybe* FC3 glibc
-packages would work too, but I'm less sure about that). Then recompile
-any applications that still segfault or freeze with a vanilla kernel
-(note that, for all I know, rpm itself could be one of these!)
-
-I hope this helps...
-
--Barry K. Nathan <barryn@pobox.com>
+-- 
+Matthew Garrett | mjg59@srcf.ucam.org
 

@@ -1,74 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316185AbSFUD3Y>; Thu, 20 Jun 2002 23:29:24 -0400
+	id <S316221AbSFUETN>; Fri, 21 Jun 2002 00:19:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316187AbSFUD3X>; Thu, 20 Jun 2002 23:29:23 -0400
-Received: from dsl-213-023-043-172.arcor-ip.net ([213.23.43.172]:56485 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S316185AbSFUD3X>;
-	Thu, 20 Jun 2002 23:29:23 -0400
+	id <S316217AbSFUETM>; Fri, 21 Jun 2002 00:19:12 -0400
+Received: from supreme.pcug.org.au ([203.10.76.34]:14791 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id <S316213AbSFUETL>;
+	Fri, 21 Jun 2002 00:19:11 -0400
+Date: Fri, 21 Jun 2002 14:18:16 +1000
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Jaroslav Kysela <perex@suse.cz>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       Trivial Kernel Patches <trivial@rustcorp.com.au>
+Subject: [PATCH] cs46xx.c needs init.h
+Message-Id: <20020621141816.1388e2da.sfr@canb.auug.org.au>
+X-Mailer: Sylpheed version 0.7.8 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: "Stephen C. Tweedie" <sct@redhat.com>, Andrew Morton <akpm@zip.com.au>
-Subject: Re: [Ext2-devel] Re: Shrinking ext3 directories
-Date: Fri, 21 Jun 2002 05:28:28 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Christopher Li <chrisl@gnuchina.org>,
-       Linux-kernel <linux-kernel@vger.kernel.org>,
-       ext2-devel@lists.sourceforge.net
-References: <20020619113734.D2658@redhat.com> <20020619234340.A24016@redhat.com> <20020620005452.M5119@redhat.com>
-In-Reply-To: <20020620005452.M5119@redhat.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17LF65-0001K4-00@starship>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 20 June 2002 01:54, Stephen C. Tweedie wrote:
-> > I'm checking out a proper hash function at the moment.
-> 
-> Done, checked into ext3 cvs (features-branch again.)
-> 
-> Deleting and recreating 100,000 files with this kernel:
-> 
-> [root@spock test0]# time xargs rm -f < /root/flist.100000 
-> 
-> real    0m14.305s
-> user    0m0.750s
-> sys     0m5.430s
-> [root@spock test0]# time xargs touch < /root/flist.100000 
-> 
-> real    0m16.244s
-> user    0m0.530s
-> sys     0m6.660s
-> 
-> that's an average of 160usec per create, 140usec per delete elapsed
-> time, and 66/54usec respectively system time.  
-> 
-> I assume the elapsed time is greater only because we're starting to
-> wrap the journal due to the large amount of metadata being touched
-> (we're touching a lot of inodes doing the above, which I could avoid
-> by making hard links instead of new files.)  Certainly, limiting the
-> test to 10,000 files lets it run at 100% cpu.
+Hi,
 
-I ran a bakeoff between your new half-md4 and dx_hack_hash on Ext2.  As 
-predicted, half-md4 does produce very even bucket distributions.  For 200,000 
-creates:
+This patch was included in 2.5.23, but removed in 2.5.24.  I guess
+I should have sent it to the maintainer in the first place ...
 
-   half-md4:        2872 avg bytes filled per 4k block (70%)
-   dx_hack_hash:    2853 avg bytes filled per 4k block (69%)
-
-but guess which was faster overall?
-
-   half-md4:        user 0.43 system 6.88 real 0:07.33 CPU 99%
-   dx_hack_hash:    user 0.43 system 6.40 real 0:06.82 CPU 100%
-
-This is quite reproducible: dx_hack_hash is always faster by about 6%.  This 
-must be due entirely to the difference in hashing cost, since half-md4 
-produces measurably better distributions.  Now what do we do?
-
-By the way, I'm running about 37 usec per create here, on a 1GHz/1GB PIII, 
-with Ext2.  I think most of the difference vs your timings is that your test 
-code is eating a lot of cpu.
+This allows the cs46xx driver to build.
 
 -- 
-Daniel
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
+
+diff -ruN 2.5.24/sound/pci/cs46xx/cs46xx.c 2.5.24-sfr.1/sound/pci/cs46xx/cs46xx.c
+--- 2.5.24/sound/pci/cs46xx/cs46xx.c	Fri Jun 21 10:23:42 2002
++++ 2.5.24-sfr.1/sound/pci/cs46xx/cs46xx.c	Fri Jun 21 12:30:12 2002
+@@ -28,6 +28,7 @@
+ #include <sound/driver.h>
+ #include <linux/pci.h>
+ #include <linux/time.h>
++#include <linux/init.h>
+ #include <sound/core.h>
+ #include <sound/cs46xx.h>
+ #define SNDRV_GET_ID

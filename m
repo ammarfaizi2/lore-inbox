@@ -1,42 +1,34 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317139AbSEXOqk>; Fri, 24 May 2002 10:46:40 -0400
+	id <S317145AbSEXOrr>; Fri, 24 May 2002 10:47:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317142AbSEXOqj>; Fri, 24 May 2002 10:46:39 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:5388 "EHLO
+	id <S317146AbSEXOrq>; Fri, 24 May 2002 10:47:46 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:7436 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S317139AbSEXOqj>; Fri, 24 May 2002 10:46:39 -0400
-Subject: Re: IDE problem: linux-2.5.17
-To: dalecki@evision-ventures.com (Martin Dalecki)
-Date: Fri, 24 May 2002 16:05:41 +0100 (BST)
-Cc: andre@linux-ide.org (Andre Hedrick), szepe@pinerecords.com (Tomas Szepe),
-        grev@namesys.botik.ru (Gryaznova E.), linux-kernel@vger.kernel.org
-In-Reply-To: <3CED2B9D.4080402@evision-ventures.com> from "Martin Dalecki" at May 23, 2002 07:49:17 PM
+	id <S317145AbSEXOro>; Fri, 24 May 2002 10:47:44 -0400
+Subject: Re: Quota patches
+To: torvalds@transmeta.com (Linus Torvalds)
+Date: Fri, 24 May 2002 16:07:41 +0100 (BST)
+Cc: jack@suse.cz (Jan Kara), alan@lxorguk.ukuu.org.uk (Alan Cox),
+        nathans@sgi.com (Nathan Scott),
+        hirofumi@mail.parknet.co.jp (OGAWA Hirofumi),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0205231002460.1006-100000@home.transmeta.com> from "Linus Torvalds" at May 23, 2002 10:03:50 AM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E17BGdR-0006UH-00@the-village.bc.nu>
+Message-Id: <E17BGfN-0006Ub-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Uz.ytkownik Andre Hedrick napisa?:
-> > Not true at all.
-> > 
-> > Many of the OEM's use 40c's to do 66 and 100, just they have to be very
-> > high quality and about 6" in length.
-> > 
+> This makes me pretty certain we just do not want to have the backwards-
+> compatibility layer in 2.5.x
 > 
-> Please don't confuse people the standard is clear.
-> The OEM's are just cheap becous they can controll what they
-> put in to the box and how they layout the cables inside
-> the box. If someone asks. The 80 lines are half the same
-> contacts as before and half signal shilding. So indeed
-> 40 wire cables can turn out to work, but thats subjec to
-> "quality" assurance on behalf of the OEM's.
+> Are there _any_ reasons to use the old stuff, if the fix is just to
+> upgrade to a newer quota tool?
 
-And Linux is supposed to run properly on those boxes not on some abstract
-specification. Never forget that.
-
-Alan
+Most people use 2.4 with quota tools and 32bit uid quota already, so its
+not much of a breakage at all. The 2.4 quota base code is unusable in the
+real world so the problem got settled by the vendor trees

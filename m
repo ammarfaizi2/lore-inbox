@@ -1,54 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264595AbUHABEh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264577AbUHABLy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264595AbUHABEh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Jul 2004 21:04:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264702AbUHABEh
+	id S264577AbUHABLy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Jul 2004 21:11:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264702AbUHABLy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Jul 2004 21:04:37 -0400
-Received: from fw.osdl.org ([65.172.181.6]:42649 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264595AbUHABEg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Jul 2004 21:04:36 -0400
-Date: Sat, 31 Jul 2004 18:02:40 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Dimitri Sivanich <sivanich@sgi.com>
-Cc: mingo@elte.hu, nickpiggin@yahoo.com.au, jbarnes@engr.sgi.com,
-       hawkes@sgi.com, ak@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Isolated sched domains for 2.6.8-rc2-mm1
-Message-Id: <20040731180240.5dbd3887.akpm@osdl.org>
-In-Reply-To: <20040730174651.GA14868@sgi.com>
-References: <20040730174651.GA14868@sgi.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sat, 31 Jul 2004 21:11:54 -0400
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:31748 "EHLO
+	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S264577AbUHABLv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 Jul 2004 21:11:51 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.8-rc2-L2 PS2 keyboard gone south
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Shane Shrybman <shrybman@aei.ca>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1091320373.20819.74.camel@mindpipe>
+References: <1091196403.2401.10.camel@mars> <20040730152040.GA13030@elte.hu>
+	 <1091209106.2356.3.camel@mars>
+	 <1091229695.2410.1.camel@teapot.felipe-alfaro.com>
+	 <1091232345.1677.20.camel@mindpipe>
+	 <1091236384.2672.0.camel@teapot.felipe-alfaro.com>
+	 <1091246222.1677.65.camel@mindpipe>
+	 <1091319840.2386.3.camel@teapot.felipe-alfaro.com>
+	 <1091320373.20819.74.camel@mindpipe>
+Content-Type: text/plain
+Date: Sun, 01 Aug 2004 03:11:31 +0200
+Message-Id: <1091322692.1860.5.camel@teapot.felipe-alfaro.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 1.5.91 (1.5.91-1) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dimitri Sivanich <sivanich@sgi.com> wrote:
->
-> Here's a version of the isolated scheduler domain code that I mentioned in an
->  RFC on 7/22.  This patch applies on top of 2.6.8-rc2-mm1 (to include all of
->  the new arch_init_sched_domain code).  This patch also contains the 2 line
->  fix to remove the check of first_cpu(sd->groups->cpumask)) that Jesse
->  sent in earlier.
+On Sat, 2004-07-31 at 20:32 -0400, Lee Revell wrote:
+> On Sat, 2004-07-31 at 20:24, Felipe Alfaro Solana wrote:
+> > On Fri, 2004-07-30 at 23:57 -0400, Lee Revell wrote:
+> > > On Fri, 2004-07-30 at 21:13, Felipe Alfaro Solana wrote:
+> > > > On Fri, 2004-07-30 at 20:05 -0400, Lee Revell wrote:
+> > > > > On Fri, 2004-07-30 at 19:21, Felipe Alfaro Solana wrote:
+> > > > > > On Fri, 2004-07-30 at 13:38 -0400, Shane Shrybman wrote:
+> > > > > > 
+> > > > > > > > M5 does that differently, yes - so could you try it? If you still get
+> > > > > > > > problems, does this fix it:
+> > > > > > > 
+> > > > > > > Ok, M5 locked up the whole machine within a few seconds of starting X.
+> > > > > > 
+> > > > > > Me too, with voluntary-preempt=3... It seems I can trigger this randomly
+> > > > > > by heavily moving the mouse around while logging in into my KDE session.
+> > > > > > 
+> > > > > > However, with voluntary-preempt=2 I've been unable to lock the machine
+> > > > > > yet.
+> > > > > 
+> > > > > It looks like this is a mouse problem, I have a PS/2 keyboard and USB
+> > > > > mouse and have not had any problems yet with M5.  I also found that with
+> > > > > L2, I could toggle Caps Lock fast enough to get significantly 'ahead' of
+> > > > > it, this no longer happens with M5.
+> > > > 
+> > > > I have a PS/2 keyboard and a USB mouse.
+> > > 
+> > > Weird.  This is my setup also, and I have had no problems since
+> > > installing M5.
+> > > 
+> > > Try:
+> > > 
+> > >         Option          "NoAccel"
+> > > 
+> > > in section "Device" of your XF86Config.  Also try commenting out:
+> > > 
+> > > 	Load		"dri"
+> > > 
+> > > in the "Module" section.
+> > > 
+> > > This will ensure that the X server is not accessing hardware directly. 
+> > > Normally this should not be a problem but a buggy video driver can cause
+> > > problems.  On my machine, having 2D acceleration enabled caused
+> > > interrupts from other devices to be lost when dragging a window.
+> > > 
+> > > Also, is the machine pingable after it locks up?
+> > 
+> > Curiously, the machine is pingable, but I can't ssh/telnet into it: no
+> > data is received from the locked machine.
 > 
->  Note that this has not been tested with CONFIG_SCHED_SMT.  I hope that
->  my handling of those instances is OK.
+> Hmm.  Maybe the problem is filesystem or disk related.  Is your root
+> partition on IDE or SCSI?  It could be a SCSI problem.
 
-It wasn't even compile-tested :(
+No SCSI. Only 2 IDE drives, 1 ATAPI DVD and 1 ATAPI CD-RW.
 
-diff -puN kernel/sched.c~sched-isolated-sched-domains-fix kernel/sched.c
---- 25/kernel/sched.c~sched-isolated-sched-domains-fix	2004-07-31 18:00:24.258057576 -0700
-+++ 25-akpm/kernel/sched.c	2004-07-31 18:00:45.420840344 -0700
-@@ -3861,7 +3861,7 @@ __init static void arch_init_sched_domai
- 		if (i != first_cpu(this_sibling_map))
- 			continue;
- 
--		init_sched_build_groups(sched_group_cpus, this_sibling_mask,
-+		init_sched_build_groups(sched_group_cpus, this_sibling_map,
- 						&cpu_to_cpu_group);
- 	}
- #endif
-_
+> Are you running software or hardware RAID?
+
+No.
+
+> This is the same behavior you get when, for example, a disk dies.
+
+I have 2 identical UDMA 120GB Seagate disks which are 1 month old, so I
+guess it's not a problem with bad hardware.
+
+It turns out that my lock ups where related to APIC. Disabling APIC
+seems to get rid of those lock ups.
 

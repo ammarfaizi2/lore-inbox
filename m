@@ -1,36 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268148AbUHWVln@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268145AbUHWVll@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268148AbUHWVln (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 17:41:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268147AbUHWVjl
+	id S268145AbUHWVll (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 17:41:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268010AbUHWVj4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 17:39:41 -0400
-Received: from mail.kroah.org ([69.55.234.183]:18333 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S268118AbUHWVgG (ORCPT
+	Mon, 23 Aug 2004 17:39:56 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:14301 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S264443AbUHWVb5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 17:36:06 -0400
-Date: Mon, 23 Aug 2004 14:34:31 -0700
-From: Greg KH <greg@kroah.com>
-To: John Cherry <cherry@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: IA32 (2.6.8.1 - 2004-08-22.21.30) - 3 New warnings (gcc 3.2.2)
-Message-ID: <20040823213431.GA4371@kroah.com>
-References: <200408231251.i7NCpJDK006874@cherrypit.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 23 Aug 2004 17:31:57 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Subject: Re: Performance of -mm2 and -mm4
+Date: Mon, 23 Aug 2004 14:31:25 -0700
+User-Agent: KMail/1.6.2
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>,
+       Nick Piggin <piggin@cyberone.com.au>
+References: <336080000.1093280286@[10.10.2.4]>
+In-Reply-To: <336080000.1093280286@[10.10.2.4]>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <200408231251.i7NCpJDK006874@cherrypit.pdx.osdl.net>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200408231431.25986.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 23, 2004 at 05:51:19AM -0700, John Cherry wrote:
-> drivers/cpufreq/cpufreq_userspace.c:157:2: warning: #warning The /proc/sys/cpu/ and sysctl interface to cpufreq will be removed from the 2.6. kernel series soon after 2005-01-01
-> drivers/cpufreq/proc_intf.c:15:2: warning: #warning This module will be removed from the 2.6. kernel series soon after 2005-01-01
+On Monday, August 23, 2004 9:58 am, Martin J. Bligh wrote:
+> The -mm4 looks more like sched stuff to me (copy_to/from_user, etc),
+> but the -mm2 stuff looks like something else. Buggered if I know what.
+> -mm3 didn't compile cleanly, so I didn't bother, but I prob can if you
+> like.
 
-Um, these look like valid warnings to me, you might want to review these
-by hand before sending them out.
+If you suspect the scheduler, you could try bumping SD_NODES_PER_DOMAIN in 
+kernel/sched.c to a larger value (e.g. the number of nodes in your system).  
+That'll make the scheduler balance more aggressively across the whole system.
 
-thanks,
-
-greg k-h
+Jesse

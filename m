@@ -1,44 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292131AbSBOVOE>; Fri, 15 Feb 2002 16:14:04 -0500
+	id <S292133AbSBOVMu>; Fri, 15 Feb 2002 16:12:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292130AbSBOVNw>; Fri, 15 Feb 2002 16:13:52 -0500
-Received: from ns.suse.de ([213.95.15.193]:62982 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S292131AbSBOVNn> convert rfc822-to-8bit;
-	Fri, 15 Feb 2002 16:13:43 -0500
-To: Olivier Kaloudoff <kalou@kalou.net>
-Cc: linux-kernel@vger.kernel.org, qa@mandrakesoft.com
-Subject: Re: 2.4.17: LOOP_SET_FS: Invalid argument
-In-Reply-To: <Pine.LNX.4.43.0202151458150.2090-100000@clients.nfrance.com>
-X-Yow: Did an Italian CRANE OPERATOR just experience uninhibited sensations
- in a MALIBU HOT TUB?
-From: Andreas Schwab <schwab@suse.de>
-Date: Fri, 15 Feb 2002 22:13:39 +0100
-In-Reply-To: <Pine.LNX.4.43.0202151458150.2090-100000@clients.nfrance.com> (Olivier
- Kaloudoff's message of "Fri, 15 Feb 2002 15:05:57 +0100 (CET)")
-Message-ID: <jeheoibg8s.fsf@suse.de>
-User-Agent: Gnus/5.090005 (Oort Gnus v0.05) Emacs/21.2.50 (ia64-suse-linux)
+	id <S292131AbSBOVMl>; Fri, 15 Feb 2002 16:12:41 -0500
+Received: from [208.29.163.248] ([208.29.163.248]:57237 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP
+	id <S292130AbSBOVMg>; Fri, 15 Feb 2002 16:12:36 -0500
+Date: Fri, 15 Feb 2002 13:11:09 -0800 (PST)
+From: David Lang <dlang@diginsite.com>
+To: Robert Love <rml@tech9.net>
+cc: J Sloan <jjs@lexus.com>, john slee <indigoid@higherplane.net>,
+        J Sloan <joe@tmsusa.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: tux officially in kernel?
+In-Reply-To: <1013730883.807.251.camel@phantasy>
+Message-ID: <Pine.LNX.4.44.0202151309090.2991-100000@dlang.diginsite.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Olivier Kaloudoff <kalou@kalou.net> writes:
+On 14 Feb 2002, Robert Love wrote:
 
-|> Hi gurus,
-|> 
-|> 
-|> 	I'm simply trying to mount a filesystem
-|> located in a file, and get in trouble with this
-|> message I don't understand...
+> On Thu, 2002-02-14 at 18:33, J Sloan wrote:
+>
+> > So, just out of curioisity, why is khttpd in
+> > the kernel? If there were any web server
+> > in the mainline kernel I'd think it'd be tux -
+>
+> Personally khttpd should be ripped from the kernel.  It is a nice, uh,
+> example.  Or something.
 
-Perhaps /tmp is mounted as tmpfs?
+Linus put khttpd in the kernel just after sendfile support was added, IIRC
+he said something about khttpd being a very small number of lines to add
+once sendfile support was there.
 
-Andreas.
+if it's really that small (IIRC <<100 lines of code) it's still in there
+becouse it's not worth ripping out.
 
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE GmbH, Deutschherrnstr. 15-19, D-90429 Nürnberg
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+David Lang

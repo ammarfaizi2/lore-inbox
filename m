@@ -1,88 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263669AbTE3Nqp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 May 2003 09:46:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263671AbTE3Nqp
+	id S263671AbTE3OLR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 May 2003 10:11:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263681AbTE3OLR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 May 2003 09:46:45 -0400
-Received: from mail.ithnet.com ([217.64.64.8]:32018 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id S263669AbTE3Nqn (ORCPT
+	Fri, 30 May 2003 10:11:17 -0400
+Received: from kweetal.tue.nl ([131.155.3.6]:33285 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S263671AbTE3OLQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 May 2003 09:46:43 -0400
-Date: Fri, 30 May 2003 15:59:28 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: marcelo@conectiva.com.br, m.c.p@wolk-project.de, willy@w.ods.org,
-       gibbs@scsiguy.com, linux-kernel@vger.kernel.org
-Subject: Re: Undo aic7xxx changes
-Message-Id: <20030530155928.4395bd50.skraw@ithnet.com>
-In-Reply-To: <20030530133456.GA22969@gtf.org>
-References: <Pine.LNX.4.55L.0305071716050.17793@freak.distro.conectiva>
-	<20030524111608.GA4599@alpha.home.local>
-	<20030525125811.68430bda.skraw@ithnet.com>
-	<200305251447.34027.m.c.p@wolk-project.de>
-	<20030526170058.105f0b9f.skraw@ithnet.com>
-	<20030530133456.GA22969@gtf.org>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Fri, 30 May 2003 10:11:16 -0400
+Date: Fri, 30 May 2003 16:24:34 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: William Lee Irwin III <wli@holomorphy.com>,
+       viro@parcelfarce.linux.theplanet.co.uk,
+       Stewart Smith <stewartsmith@mac.com>, linux-kernel@vger.kernel.org,
+       trivial@rustcorp.com.au
+Subject: Re: buffer_head.b_bsize type
+Message-ID: <20030530162434.A2700@pclin040.win.tue.nl>
+References: <746529B0-91C0-11D7-9488-00039346F142@mac.com> <20030529103503.GZ8978@holomorphy.com> <20030529111517.GP14138@parcelfarce.linux.theplanet.co.uk> <20030529112841.GA8978@holomorphy.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030529112841.GA8978@holomorphy.com>; from wli@holomorphy.com on Thu, May 29, 2003 at 04:28:41AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 30 May 2003 09:34:56 -0400
-Jeff Garzik <jgarzik@pobox.com> wrote:
+On Thu, May 29, 2003 at 04:28:41AM -0700, William Lee Irwin III wrote:
 
-> On Fri, May 30, 2003 at 10:09:00AM +0200, Stephan von Krawczynski wrote:
-> > Hello Marcelo,
-> > 
-> > I tried plain rc6 now and have to tell you it does not survive a single day
-> > of my usual tests. It freezes during tar from 3ware-driven IDE to
-> > aic-driven SDLT. This is identical to all previous rc (and some pre)
-> > releases of 2.4.21. So far I can tell you that the only thing that has
-> > recently cured this problem is replacing the aic-driver with latest of
-> > justins' releases.
-> 
-> So Justin's driver fixes your 3ware problems???
+> The thought behind my comment was that it didn't make sense to allow
+> the representation to go negative. There of course shouldn't ever be
+> any need to allow >= 2GB b_size to be representable.
 
-This is _no_ 3ware problem. As I told you data comes from 3ware and goes to
-aic. The problem occurs if using plain-version aic and is gone if using justins
-latest releases.
-As long as we do nothing with the aic driver there is no problem at all (3ware
-works fine here).
+Not about this particular case, but as a general remark:
+Use of unsigned is dangerous - use of int is far preferable,
+everywhere that is possible.
 
-> And exactly what -rc/-pre release stopped working for you?
+With ints the test a+b > c is equivalent to the test a > c-b.
+Intuition works.
 
-Very good question. I can check, but I need one day per version to check. It
-may well be that in fact none of the pre/rc releases worked, we have this box
-since about pre3 and to my knowledge we always had the problem. Boy, we were
-quite happy when we found out that Justins stuff got it going - it already got
-on our nerves quite a bit ;-)
+As soon as there is some unsigned in an expression comparisons
+get counterintuitive because -1 is very large.
+Thus, 1+sizeof(int) > 3 is true, but 1 > 3-sizeof(int) is false.
 
-If you want to know about some special kernel release just tell me and I will
-try it.
+It has happened several times that kernel code was broken because
+some variable (that always was nonnegative) was made unsigned.
 
-Maybe I should tell again details about the test setup as not all may remember
-in this long-lasting thread.
-Basically the problem seldomly arises after booting. I have the impression that
-this got in fact better over the releases, earlier pre's froze earlier.
-what we do:
-1) copy around 50 - 100 GB of data via nfs to a 3ware drive (always works well)
-2) tar this data on the nfs server from 3ware drive to aic(-driven) SDLT
-(quantum)
-3) verify the archived data via tar
+Andries
 
-freezes happen while 2) or 3). If you reboot after 1) they are very rare, never
-on any later rc-release.
-As this whole things takes time we do it overnight and have a look at the box
-next morning. Not a single plain release is ok on the next morning. Checking
-the logs we find out it froze in 2) or 3).
-If you do exactly the same thing on exactly the same box with exactly the same
-data but Justins driver everything is ok (aic-20030523). It was not ok with
-aic-20030520 (just to mention this), aic-20030502 was quite ok (survived 14 days).
-
-What else can I tell you?
-
-Regards,
-Stephan

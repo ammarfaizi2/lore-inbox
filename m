@@ -1,54 +1,98 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261505AbREVM5q>; Tue, 22 May 2001 08:57:46 -0400
+	id <S261513AbREVNMh>; Tue, 22 May 2001 09:12:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261480AbREVM5g>; Tue, 22 May 2001 08:57:36 -0400
-Received: from isis.its.uow.edu.au ([130.130.68.21]:44521 "EHLO
-	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S261517AbREVM5Z>; Tue, 22 May 2001 08:57:25 -0400
-Message-ID: <3B0A611F.B0A554AA@uow.edu.au>
-Date: Tue, 22 May 2001 22:52:47 +1000
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5-pre4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Carlos Laviola <claviola@ajato.com.br>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Weird bug in kernel (invalid operand?)
-In-Reply-To: <20010521171108.2fe854ab.claviola@ajato.com.br>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S261519AbREVNM1>; Tue, 22 May 2001 09:12:27 -0400
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:261 "HELO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S261513AbREVNMS>; Tue, 22 May 2001 09:12:18 -0400
+From: Matt Chapman <matthewc@cse.unsw.edu.au>
+To: Linus Torvalds <torvalds@transmeta.com>
+Date: Tue, 22 May 2001 23:11:40 +1000
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
+        Linux Kernel <linux-kernel@vger.kernel.org>,
+        Linux FS-Devel <linux-fsdevel@vger.kernel.org>
+Subject: Fix for an SMP locking bug in NFS code
+Message-ID: <20010522231139.A515@cse.unsw.edu.au>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="r5Pyd7+fXNt84Ff3"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Carlos Laviola wrote:
-> 
-> invalid operand: 0000
-> CPU:    0
-> EIP:    0010:[<c48fb709>]
-> EFLAGS: 00010282
-> eax: 00000019   ebx: 00000000   ecx: c1272000   edx: c3f7bc20
-> esi: 00206c60   edi: c3ca5240   ebp: c0695aa0   esp: c1273e68
-> ds: 0018   es: 0018   ss: 0018
-> Process snarf (pid: 324, stackpage=c1273000)
-> Stack: c48fe965 c48fea27 00000045 000001f0 00000200 00040d8c c1273ec0 c012cf56
->        c3ca5240 00206c60 c0695aa0 00000001 000001f0 c1273f64 00040d8c 000002e5
->        c0605000 c0695aa0 00000200 00206c60 00000000 c0695aa0 0000004b 0000004b
-> Call Trace: [<c48fe965>] [<c48fea27>] [<c012cf56>] [<c012d553>] [<c48fb6ac>] [<c48fcf1c>] [<c48fb6ac>]
->        [<c012179a>] [<c48fb7d2>] [<c48fb7b0>] [<c012ac5a>] [<c0106a63>]
-> 
-> Code: 0f 0b 83 c4 0c b8 fb ff ff ff eb 6d 8b 87 8c 00 00 00 0f b7
-> Segmentation fault
-> 
-> This seems to be a bug in the kernel, maybe because the file is too big,
-> and VFAT partitions don't like that.
 
-It used to be that fatfs would hit the second BUG() in fat_get_block()
-when a file reaches two gig.  But I can't make that happen in testing,
-because the s_maxbytes stuff restricts it to 2gig-1.  What you *should*
-have seen was `wget' locking up because of a different bug :)
+--r5Pyd7+fXNt84Ff3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Are you sure you got this with 2.4.4?  If so, please run the
-output through
+Linus,
 
-	ksymoops -m System.map < oops-text
+I've already run this by Trond so I'm sending this patch without
+further ado.  It adds a lock_kernel around a call into NLM code,
+and removes an extraneous (really) lock_kernel in sys_fcntl64.
+
+In more detail:
+
+There's no lock_kernel around the F_SETLK case in fcntl, but
+some of the NLM code which gets called in the NFS case needs
+to be protected by locks (in particular, nlmclnt_block fiddles
+with the global list nlm_blocked).  We decided that, to protect
+the RPC code as well, the best place to put a lock would be
+around the call to nlmclnt_proc in nfs_lock.
+
+There is, on the other hand, a lock_kernel in fcntl64, and
+analysis shows that if it's not needed in fcntl - which it
+shouldn't be, if the filesystems do any necessary locking -
+then it's not needed in fcntl64 either (the code is essentially
+identical).
+
+Cheers,
+Matt
+
+
+--r5Pyd7+fXNt84Ff3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="nfslockfix-2.4.5-pre4.diff"
+
+diff -u --recursive --new-file linux-2.4.5-pre4/fs/fcntl.c linux-2.4.5-pre4-nfslockfix/fs/fcntl.c
+--- linux-2.4.5-pre4/fs/fcntl.c	Thu Nov 16 17:50:25 2000
++++ linux-2.4.5-pre4-nfslockfix/fs/fcntl.c	Tue May 22 22:37:32 2001
+@@ -338,7 +338,6 @@
+ 	if (!filp)
+ 		goto out;
+ 
+-	lock_kernel();
+ 	switch (cmd) {
+ 		case F_GETLK64:
+ 			err = fcntl_getlk64(fd, (struct flock64 *) arg);
+@@ -353,7 +352,6 @@
+ 			err = do_fcntl(fd, cmd, arg, filp);
+ 			break;
+ 	}
+-	unlock_kernel();
+ 	fput(filp);
+ out:
+ 	return err;
+diff -u --recursive --new-file linux-2.4.5-pre4/fs/nfs/file.c linux-2.4.5-pre4-nfslockfix/fs/nfs/file.c
+--- linux-2.4.5-pre4/fs/nfs/file.c	Tue May 22 22:32:52 2001
++++ linux-2.4.5-pre4-nfslockfix/fs/nfs/file.c	Tue May 22 22:36:00 2001
+@@ -299,10 +299,13 @@
+ 	if (status < 0)
+ 		return status;
+ 
+-	if ((status = nlmclnt_proc(inode, cmd, fl)) < 0)
++	lock_kernel();
++	status = nlmclnt_proc(inode, cmd, fl);
++	unlock_kernel();
++	if (status < 0)
+ 		return status;
+-	else
+-		status = 0;
++	
++	status = 0;
+ 
+ 	/*
+ 	 * Make sure we clear the cache whenever we try to get the lock.
+
+--r5Pyd7+fXNt84Ff3--

@@ -1,39 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267783AbTGLQQE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jul 2003 12:16:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267647AbTGLQP3
+	id S266151AbTGLQGq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jul 2003 12:06:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266164AbTGLQGp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jul 2003 12:15:29 -0400
-Received: from smtp-send.myrealbox.com ([192.108.102.143]:50734 "EHLO
-	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
-	id S266988AbTGLQNy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jul 2003 12:13:54 -0400
-Subject: 2.5.75 failure
-From: "Trever L. Adams" <tadams-lists@myrealbox.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1058027317.3541.8.camel@aurora.localdomain>
+	Sat, 12 Jul 2003 12:06:45 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:59539 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S266151AbTGLQFr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Jul 2003 12:05:47 -0400
+Date: Sat, 12 Jul 2003 17:20:29 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Miguel Freitas <miguel@cetuc.puc-rio.br>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] SCHED_SOFTRR linux scheduler policy ...
+Message-ID: <20030712162029.GE9547@mail.jlokier.co.uk>
+References: <1058017391.1197.24.camel@mf> <Pine.LNX.4.55.0307120735540.4351@bigblue.dev.mcafeelabs.com> <20030712154942.GB9547@mail.jlokier.co.uk> <Pine.LNX.4.55.0307120845470.4351@bigblue.dev.mcafeelabs.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 (1.4.0-2) 
-Date: 12 Jul 2003 12:28:37 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.55.0307120845470.4351@bigblue.dev.mcafeelabs.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok, I am using an nVideo nForce2 based mother board (Asus A7N8X Delux). 
-Linus wanted people to try out the 2.5 stuff.  I installed
-kernel-2.5.75-1.21.athlon.rpm provided by the person at RedHat that
-mentioned it yesterday.
+Davide Libenzi wrote:
+> > Cool.  What happens if you run two SCHED_SOFTRR tasks and they both
+> > use 50% of the CPU - will that starve all the other tasks?  Or is the
+> > CPU usage of all SOFTRR tasks bounded collectively?
+> 
+> Nope :) They will run their timeslice entirely and then they will try to
+> get some more. Looking at their last recharge timestamp, Dad scheduler
+> will put them in bed and will give other tasks a chance to run.
 
-It brings up my ethernet, and I get a message saying it is a 3Com 3c920
-based card.  I then get "divert: allocating divert_blok for eth0" and
-the system hangs.
+Nice, but answer to wrong question, possibly :)
 
-I was unable to get sak to show anything.  I will keep trying.
+I'm wondering what happens if the tasks are both good, early to bed
+without a fuss.  Neither runs their entire timeslice.
 
-Trever
---
-First Law of System Requirements: "Anything is possible if you don't
-know what you're talking about..." -- Unknown
+Or to illustrate: say xine uses 10% of my CPU.  What happens when I
+open 11 xine windows?
 
+-- Jamie

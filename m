@@ -1,64 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135549AbREBPDa>; Wed, 2 May 2001 11:03:30 -0400
+	id <S135545AbREBPKu>; Wed, 2 May 2001 11:10:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135545AbREBPDW>; Wed, 2 May 2001 11:03:22 -0400
-Received: from obelix.hrz.tu-chemnitz.de ([134.109.132.55]:16026 "EHLO
-	obelix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S135549AbREBPDG>; Wed, 2 May 2001 11:03:06 -0400
-Date: Wed, 2 May 2001 17:03:03 +0200
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Richard Gooch <rgooch@ras.ucalgary.ca>,
-        Jonathan Lundell <jlundell@pobox.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] adding PCI bus information to SCSI layer
-Message-ID: <20010502170303.M706@nightmaster.csn.tu-chemnitz.de>
-In-Reply-To: <200105011653.f41Grwm12595@vindaloo.ras.ucalgary.ca> <E14ugpA-0002J3-00@the-village.bc.nu>
+	id <S135574AbREBPKk>; Wed, 2 May 2001 11:10:40 -0400
+Received: from geos.coastside.net ([207.213.212.4]:48599 "EHLO
+	geos.coastside.net") by vger.kernel.org with ESMTP
+	id <S135545AbREBPKW>; Wed, 2 May 2001 11:10:22 -0400
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <E14ugpA-0002J3-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Tue, May 01, 2001 at 09:32:41PM +0100
+Message-Id: <p05100343b715d114a239@[207.213.214.37]>
+In-Reply-To: <Pine.LNX.4.31.0105011542410.2667-100000@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.31.0105011542410.2667-100000@penguin.transmeta.com>
+Date: Wed, 2 May 2001 08:10:10 -0700
+To: Linus Torvalds <torvalds@transmeta.com>
+From: Jonathan Lundell <jlundell@pobox.com>
+Subject: Re: isa_read/write not available on ppc - solution suggestions ??
+Cc: <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii" ; format="flowed"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 01, 2001 at 09:32:41PM +0100, Alan Cox wrote:
-> Having thought over the issues I plan to maintain a 32bit dev_t kernel with
-> conventional mknod behaviour, even if Linus won't. One very interesting item
-> that Peter Anvin noted is that its not clear in POSIX that
-> 
-> 	mknod /dev/ttyF00 c 100 100
-> 
-> 	open("/dev/ttyF00/speed=9600,clocal");
-> 
-> is illegal. That may be a nice way to get much of the desired
-> behaviour without totally breaking compatibility
+At 3:46 PM -0700 2001-05-01, Linus Torvalds wrote:
+>On Tue, 1 May 2001, Russell King wrote:
+>  >
+>>  In which case, can we change the following in IO-mapping.txt please?
+>
+>Oh, sorry. I misread your question. The _return_ value is a cookie.
+>
+>The first argument should basically be the start of a "struct pci_dev"
+>resource entry, but obviously architecture-specific code can (and does)
+>know what the thing means. And the ISA space (ie 0xA0000-0x100000) has
+>been considered an acceptable special case.
+>
+>So the only usage that is "portable" is to do something like
+>
+>	cookie = ioremap(pdev->resource[0].start, pdev->resource[0].len);
+>
+>and I guess we should actually create some helper functions for that too.
+>
+>You can use ioremap in other ways, but there's nothing to say that they
+>will work reliably across multiple PCI buses etc.
 
-Ouch! 
-
-How is that supposed to work with the dcache?
-
-1. Does POSIX state, that "/" is the directory/entry[1] separator?
-2. Can a device node be an directory?
-
-If 1. and not 2., there is no way to implement it like that.
-
-I don't know how people call this, if they call sth. like DevFS
-"crappy", but I would be very surprised, if they call it "clean".
-
-Just think of: 
-
-test -r /dev/ttyF00/speed=9600,clocal && cat /dev/ttyF00/speed=9600,clocal
-
-Or the equivalent in C in most of the programs, which read sth.
-
-POSIX might not forbid this, because common sense already does ;-)
-
-Regards
-
-Ingo Oeser
-
-[1] entry := directory | file
+What's the Linu[sx] attitude to using a type to help control (and 
+illuminate) the use of these objects? I'm thinking here in particular 
+of the cookie returned by ioremap() and used by readx/writex, but I 
+suppose there might be similar applicability to its first parameter.
 -- 
-10.+11.03.2001 - 3. Chemnitzer LinuxTag <http://www.tu-chemnitz.de/linux/tag>
-         <<<<<<<<<<<<     been there and had much fun   >>>>>>>>>>>>
+/Jonathan Lundell.

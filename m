@@ -1,44 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261664AbVCNSC2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261676AbVCNSC7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261664AbVCNSC2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 13:02:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261670AbVCNR7H
+	id S261676AbVCNSC7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 13:02:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261660AbVCNR6q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 12:59:07 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:58031 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261652AbVCNRye
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 12:54:34 -0500
-Date: Mon, 14 Mar 2005 09:54:27 -0800
-From: Nishanth Aravamudan <nacc@us.ibm.com>
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-Cc: domen@coderock.org, ghoward@sgi.com, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch 01/14] char/snsc: reorder set_current_state() and add_wait_queue()
-Message-ID: <20050314175427.GA2993@us.ibm.com>
-References: <20050306223616.C82751EC90@trashy.coderock.org> <200503140945.44323.jbarnes@engr.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200503140945.44323.jbarnes@engr.sgi.com>
-X-Operating-System: Linux 2.6.11 (i686)
-User-Agent: Mutt/1.5.6+20040907i
+	Mon, 14 Mar 2005 12:58:46 -0500
+Received: from mailhub.sw.ru ([195.133.213.200]:35857 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S261659AbVCNRzo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Mar 2005 12:55:44 -0500
+Message-ID: <4235CFFD.1040006@vlnb.net>
+Date: Mon, 14 Mar 2005 20:55:09 +0300
+From: Vladislav Bolkhovitin <vst@vlnb.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: ru, en-us, en
+MIME-Version: 1.0
+To: Adrian Bunk <bunk@stusta.de>
+CC: "Moore, Eric Dean" <Eric.Moore@lsil.com>, mpt_linux_developer@lsil.com,
+       linux-kernel@vger.kernel.org,
+       "Shirron, Stephen" <Stephen.Shirron@lsil.com>
+Subject: Re: 2.6: unused code under drivers/message/fusion/
+References: <91888D455306F94EBD4D168954A9457C2D1E91@nacos172.co.lsil.com> <4191CD47.1000205@vlnb.net> <20041110094041.GI4089@stusta.de> <4191E657.1030409@vlnb.net> <20050312113142.GB3156@stusta.de>
+In-Reply-To: <20050312113142.GB3156@stusta.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 14, 2005 at 09:45:44AM -0800, Jesse Barnes wrote:
-> On Sunday, March 6, 2005 2:36 pm, domen@coderock.org wrote:
-> > Any comments would be, as always, appreciated.
+Adrian Bunk wrote:
+> On Wed, Nov 10, 2004 at 12:58:47PM +0300, Vladislav Bolkhovitin wrote:
 > 
-> I don't have a problem with this change, but the maintainer probably should 
-> have been Cc'd.  Greg, does this change look ok to you?  Note that it's 
-> already been committed to the upstream tree, so if it's a bad change we'll 
-> need to have the cset excluded or something.
+>>Adrian Bunk wrote:
+>>
+>>>On Wed, Nov 10, 2004 at 11:11:51AM +0300, Vladislav Bolkhovitin wrote:
+>>>
+>>>
+>>>>Moore, Eric Dean wrote:
+>>>>
+>>>>
+>>>>>We need to hold off on this change. Yes, there are 
+>>>>>customers of LSI Logic using mptstm.c, as
+>>>>>part of the target-mode drivers.  
+>>>>>
+>>>>>The proposed generic target mode drivers proposal is yet part
+>>>>>of the kernel.  
+>>>>>http://scst.sourceforge.net/
+>>>>>We are looking into supporting this once its available.
+>>>>
+>>>>Well, SCST is already available, stable and useful. People use it 
+>>>>without considerable problems, except with inconvenient LUNs management, 
+>>>>which we are going to fix in the next version. I don't expect it will be 
+>>>>considering for the kernel inclusion at least until 2.7. So, you can 
+>>>>start supporting it right now :-).
+>>>
+>>>
+>>>With the current kernel development model, there is no 2.7 planned for 
+>>>the next years.
+>>>
+>>>Linus and Andrew believe 6 was an odd number, so you could submit your 
+>>>code now. [1]
+>>
+>>OK, I'll prepare the next version as the kernel patch.
+> 
+> 
+> Any news regarding this?
 
-Thanks for the feedback. I don't see a maintainer entry for Greg
-anywhere in the snsc.{c,h} files or MAINTAINERS. Could someone throw a
-patch upstream so that whomever should be contacted for this driver will
-be in the future?
+Unfortunately, I have not much time for it now, so I can't expect
+release of 0.9.3 version, which is going to have the patch, earlier than
+in May. But I'm ready to publish 0.9.3-pre1 as well as some bugfixes in
+the Qlogic driver in the nearest future, as soon as I settle down some
+untechnical stuff. If somebody is interested, I can send him a copy
+privately. As before, it still has ZERO modifications of the kernel, so
+it could live perfectly outside the tree.
 
-Thanks,
-Nish
+Also, everybody who think that he/she can help in testing,
+developing, bugfixing or just commenting/suggesting are welcome.
+
+Vlad
+
+
+
+
+

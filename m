@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265489AbUHYWqr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265161AbUHYWuC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265489AbUHYWqr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 18:46:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262279AbUHYWqr
+	id S265161AbUHYWuC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 18:50:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266201AbUHYWsp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 18:46:47 -0400
-Received: from mail.kroah.org ([69.55.234.183]:39323 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S266473AbUHYWhG convert rfc822-to-8bit
+	Wed, 25 Aug 2004 18:48:45 -0400
+Received: from mail.kroah.org ([69.55.234.183]:35739 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S266291AbUHYWhB convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 18:37:06 -0400
+	Wed, 25 Aug 2004 18:37:01 -0400
 X-Donotread: and you are reading this why?
 Subject: Re: [PATCH] Driver Core patches for 2.6.9-rc1
-In-Reply-To: <10934733882615@kroah.com>
+In-Reply-To: <1093473387435@kroah.com>
 X-Patch: quite boring stuff, it's just source code...
-Date: Wed, 25 Aug 2004 15:36:29 -0700
-Message-Id: <10934733893547@kroah.com>
+Date: Wed, 25 Aug 2004 15:36:27 -0700
+Message-Id: <10934733873593@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: linux-kernel@vger.kernel.org
@@ -23,95 +23,69 @@ From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1877, 2004/08/25 13:23:54-07:00, johnrose@austin.ibm.com
+ChangeSet 1.1803.64.3, 2004/08/10 14:47:24-07:00, olh@suse.de
 
-[PATCH] PCI Hotplug: create pci_remove_bus()
+[PATCH] export legacy pty info via sysfs
 
-The following patch implements a pci_remove_bus() that can be used by
-hotplug drivers for the removal of root buses.  It also defines a
-release function that frees the device struct for pci_bus->bridge when a
-root bus class device is unregistered.
+You missed that one last year.
 
-Signed-off-by:  John Rose <johnrose@austin.ibm.com>
+
+export the legacy pty/tty device nodes via sysfs,
+so udev has a chance to create them if /dev is in tmpfs.
+
+Signed-off-by: Olaf Hering <olh@suse.de>
 Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
 
- drivers/pci/probe.c  |    6 ++++++
- drivers/pci/remove.c |   20 +++++++++++++-------
- include/linux/pci.h  |    2 +-
- 3 files changed, 20 insertions(+), 8 deletions(-)
+ drivers/char/tty_io.c |   22 ++++++++++++++++------
+ 1 files changed, 16 insertions(+), 6 deletions(-)
 
 
-diff -Nru a/drivers/pci/probe.c b/drivers/pci/probe.c
---- a/drivers/pci/probe.c	2004-08-25 14:51:47 -07:00
-+++ b/drivers/pci/probe.c	2004-08-25 14:51:47 -07:00
-@@ -571,6 +571,11 @@
- 	return PCI_CFG_SPACE_SIZE;
+diff -Nru a/drivers/char/tty_io.c b/drivers/char/tty_io.c
+--- a/drivers/char/tty_io.c	2004-08-25 14:56:56 -07:00
++++ b/drivers/char/tty_io.c	2004-08-25 14:56:56 -07:00
+@@ -766,6 +766,17 @@
+ 	return tty_write(file, buf, count, ppos);
  }
  
-+static void pci_release_bus_bridge_dev(struct device *dev)
++static char ptychar[] = "pqrstuvwxyzabcde";
++
++static inline void pty_line_name(struct tty_driver *driver, int index, char *p)
 +{
-+	kfree(dev);
++	int i = index + driver->name_base;
++	/* ->name is initialized to "ttyp", but "tty" is expected */
++	sprintf(p, "%s%c%x",
++			driver->subtype == PTY_TYPE_SLAVE ? "tty" : driver->name,
++			ptychar[i >> 4 & 0xf], i & 0xf);
 +}
 +
- /*
-  * Read the config data for a PCI device, sanity-check it
-  * and fill in the dev structure...
-@@ -772,6 +777,7 @@
+ static inline void tty_line_name(struct tty_driver *driver, int index, char *p)
+ {
+ 	sprintf(p, "%s%d", driver->name, index + driver->name_base);
+@@ -2170,6 +2181,7 @@
+ void tty_register_device(struct tty_driver *driver, unsigned index,
+ 			 struct device *device)
+ {
++	char name[64];
+ 	dev_t dev = MKDEV(driver->major, driver->minor_start) + index;
  
- 	memset(dev, 0, sizeof(*dev));
- 	dev->parent = parent;
-+	dev->release = pci_release_bus_bridge_dev;
- 	sprintf(dev->bus_id, "pci%04x:%02x", pci_domain_nr(b), bus);
- 	device_register(dev);
- 	b->bridge = get_device(dev);
-diff -Nru a/drivers/pci/remove.c b/drivers/pci/remove.c
---- a/drivers/pci/remove.c	2004-08-25 14:51:47 -07:00
-+++ b/drivers/pci/remove.c	2004-08-25 14:51:47 -07:00
-@@ -59,6 +59,18 @@
+ 	if (index >= driver->num) {
+@@ -2181,13 +2193,11 @@
+ 	devfs_mk_cdev(dev, S_IFCHR | S_IRUSR | S_IWUSR,
+ 			"%s%d", driver->devfs_name, index + driver->name_base);
+ 
+-	/* we don't care about the ptys */
+-	/* how nice to hide this behind some crappy interface.. */
+-	if (driver->type != TTY_DRIVER_TYPE_PTY) {
+-		char name[64];
++	if (driver->type == TTY_DRIVER_TYPE_PTY)
++		pty_line_name(driver, index, name);
++	else
+ 		tty_line_name(driver, index, name);
+-		class_simple_device_add(tty_class, dev, device, name);
+-	}
++	class_simple_device_add(tty_class, dev, device, name);
  }
- EXPORT_SYMBOL(pci_remove_device_safe);
  
-+void pci_remove_bus(struct pci_bus *b)
-+{
-+	pci_proc_detach_bus(b);
-+
-+	spin_lock(&pci_bus_lock);
-+	list_del(&b->node);
-+	spin_unlock(&pci_bus_lock);
-+
-+	class_device_unregister(&b->class_dev);
-+}
-+EXPORT_SYMBOL(pci_remove_bus);
-+
  /**
-  * pci_remove_bus_device - remove a PCI device and any children
-  * @dev: the device to remove
-@@ -77,13 +89,7 @@
- 		struct pci_bus *b = dev->subordinate;
- 
- 		pci_remove_behind_bridge(dev);
--		pci_proc_detach_bus(b);
--
--		spin_lock(&pci_bus_lock);
--		list_del(&b->node);
--		spin_unlock(&pci_bus_lock);
--
--		class_device_unregister(&b->class_dev);
-+		pci_remove_bus(b);
- 		dev->subordinate = NULL;
- 	}
- 
-diff -Nru a/include/linux/pci.h b/include/linux/pci.h
---- a/include/linux/pci.h	2004-08-25 14:51:47 -07:00
-+++ b/include/linux/pci.h	2004-08-25 14:51:47 -07:00
-@@ -712,7 +712,7 @@
- int pci_get_interrupt_pin(struct pci_dev *dev, struct pci_dev **bridge);
- extern struct pci_dev *pci_dev_get(struct pci_dev *dev);
- extern void pci_dev_put(struct pci_dev *dev);
--
-+extern void pci_remove_bus(struct pci_bus *b);
- extern void pci_remove_bus_device(struct pci_dev *dev);
- 
- /* Generic PCI functions exported to card drivers */
 

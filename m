@@ -1,38 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131472AbREBILB>; Wed, 2 May 2001 04:11:01 -0400
+	id <S131563AbREBITn>; Wed, 2 May 2001 04:19:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131563AbREBIKw>; Wed, 2 May 2001 04:10:52 -0400
-Received: from [195.6.125.97] ([195.6.125.97]:55309 "EHLO looping.sycomore.fr")
-	by vger.kernel.org with ESMTP id <S131472AbREBIKj>;
-	Wed, 2 May 2001 04:10:39 -0400
-Date: Wed, 2 May 2001 10:08:16 +0200
-From: =?ISO-8859-1?Q?s=E9bastien?= person <sebastien.person@sycomore.fr>
-To: liste noyau linux <linux-kernel@vger.kernel.org>
-Subject: ioctl call for network device
-Message-Id: <20010502100816.61389ed6.sebastien.person@sycomore.fr>
-X-Mailer: Sylpheed version 0.4.64 (GTK+ 1.2.6; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S132338AbREBITe>; Wed, 2 May 2001 04:19:34 -0400
+Received: from fs1.dekanat.physik.uni-tuebingen.de ([134.2.216.20]:43016 "EHLO
+	fs1.dekanat.physik.uni-tuebingen.de") by vger.kernel.org with ESMTP
+	id <S131563AbREBIT2>; Wed, 2 May 2001 04:19:28 -0400
+Date: Wed, 2 May 2001 10:19:20 +0200 (CEST)
+From: Richard Guenther <richard.guenther@student.uni-tuebingen.de>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        <linux-via@gtf.org>
+Subject: Re: PATCH 2.4.4: Via audio fixes
+In-Reply-To: <3AED958C.3F9EBE1B@mandrakesoft.com>
+Message-ID: <Pine.LNX.4.30.0105021018300.15603-100000@fs1.dekanat.physik.uni-tuebingen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, 30 Apr 2001, Jeff Garzik wrote:
 
-I've succeed to do an ioctl call and recept it in my module
+> The attached patch includes fixes to the Via audio driver for which I'm
+> interested finding testers.  Testing and a private "it works" (hopefully
+> :)) or "it doesn't work, <here> is what breaks for me" would be
+> appreciated.
 
-ioctl(file_descriptor, cmd, struct ifreq)
+Works as before -> mono recording does _not_ work, i.e. gives garbage
+(as described in sf bugreport).
 
-but I believe that I'm oblige to use the struct ifreq and I can't
-pass any other arguments because an user can't acces kernel space
-so the ioctl call recopy data in the kernel space (this is what I've
-understood, maybe I'm wrong ...).
+Richard.
 
-My problem is that I need to pass some int arguments (the best way was an
-int* ) but the struct ifreq doesn't permit me it, so could I add other
-arguments as we can do in an normal ioctl call ?
+--
+Richard Guenther <richard.guenther@uni-tuebingen.de>
+WWW: http://www.tat.physik.uni-tuebingen.de/~rguenth/
+The GLAME Project: http://www.glame.de/
 
-I hope this is the wrong place for this question.
-
-sebastien person

@@ -1,60 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281318AbRKQKcy>; Sat, 17 Nov 2001 05:32:54 -0500
+	id <S281327AbRKQK53>; Sat, 17 Nov 2001 05:57:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281319AbRKQKcp>; Sat, 17 Nov 2001 05:32:45 -0500
-Received: from gw.chygwyn.com ([62.172.158.50]:61453 "EHLO gw.chygwyn.com")
-	by vger.kernel.org with ESMTP id <S281318AbRKQKcc>;
-	Sat, 17 Nov 2001 05:32:32 -0500
-From: Steven Whitehouse <steve@gw.chygwyn.com>
-Message-Id: <200111171027.KAA18835@gw.chygwyn.com>
-Subject: Re: The memory usage of the network block device
-To: chen_xiangping@emc.com (chen, xiangping)
-Date: Sat, 17 Nov 2001 10:27:30 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <FA2F59D0E55B4B4892EA076FF8704F553D1891@srgraham.eng.emc.com> from "chen, xiangping" at Nov 16, 2001 03:44:48 PM
-Organization: ChyGywn Limited
-X-RegisteredOffice: 7, New Yatt Road, Witney, Oxfordshire. OX28 1NU England
-X-RegisteredNumber: 03887683
-Reply-To: Steve Whitehouse <Steve@ChyGwyn.com>
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S281329AbRKQK5S>; Sat, 17 Nov 2001 05:57:18 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:53520 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S281327AbRKQK5D>;
+	Sat, 17 Nov 2001 05:57:03 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Christoph Hellwig <hch@caldera.de>
+Cc: kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] mconfig 0.20 available 
+In-Reply-To: Your message of "Fri, 16 Nov 2001 17:38:40 BST."
+             <20011116173840.A15515@caldera.de> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Sat, 17 Nov 2001 21:56:51 +1100
+Message-ID: <16782.1005994611@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, 16 Nov 2001 17:38:40 +0100, 
+Christoph Hellwig <hch@caldera.de> wrote:
+>The mconfig release 0.20 is now available.
+>
+>Mconfig is a tool to configure the linux kernel, similar to
+>make {menu,x,}config, but written in C and with a proper yacc
+>parser.
 
-> 
-> Hi,
-> 
-> I changed a setup to make the server response quicker, and the 
-> client slower. Looks OK now. So the problem seems like too many
-> pending tcp requests stucks the client system. Is there any good
-> way to control the flow or pending requests of the system? I 
-> tried to set some threshold in do_nbd_requests, only blocks the
-> processes in _get_request_wait() which is not I wanted.
-> 
-> Thanks,
-> 
-> Xiangping
-> 
-> 
+Christoph, could you explain why this is being added now and how it
+compares to CML1 and/or CML2?
 
-I did wonder about that whih was why I asked the question about the tcp_*mem
-settings. I guess that if that is the case either you can increase the tcp_*mem
-settings or make the maximum number of blocks merged into a single request
-lower. Personally I'd go for the former solution, all you need to do is select
-suitable numbers to set for these files (see 
-linux/Documentation/networking/ip-sysctl.txt for their exact meaning). If
-this does turn out to be the problem, then you'll need to make the config
-changes on both server and client as they can both send maximum sized requests
-(128 (MAX_SEGMENTS) sectors plus the size of the header).
-
-To reduce the request size you can alter MAX_SEGMENTS in blkdev.h but this
-isn't really a very good solution as it reduces the ability to merge I/O
-for local disks.
-
-Steve.
+kbuild 2.[45] is completely agnostic about how .config and autoconf.h
+are built, the only requirement is that .config be internally
+consistent before it goes into the main build phase.  I don't care how
+.config is built, but I do want to understand why another version of
+CML is being developed.
 

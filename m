@@ -1,74 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265193AbRGGQoh>; Sat, 7 Jul 2001 12:44:37 -0400
+	id <S265830AbRGGQoG>; Sat, 7 Jul 2001 12:44:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264582AbRGGQo1>; Sat, 7 Jul 2001 12:44:27 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:51224 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S265193AbRGGQoS>; Sat, 7 Jul 2001 12:44:18 -0400
-Date: Sat, 7 Jul 2001 18:44:20 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.7pre3aa1
-Message-ID: <20010707184419.I2425@athlon.random>
+	id <S265193AbRGGQn4>; Sat, 7 Jul 2001 12:43:56 -0400
+Received: from smtp.mailbox.co.uk ([195.82.125.32]:3481 "EHLO
+	smtp.mailbox.net.uk") by vger.kernel.org with ESMTP
+	id <S264582AbRGGQnr>; Sat, 7 Jul 2001 12:43:47 -0400
+Date: Sat, 7 Jul 2001 17:43:45 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Oleg Drokin <green@linuxhacker.ru>
+Cc: kai@tp1.ruhr-uni-bochum.de, linux-kernel@vger.kernel.org,
+        alan@lxorguk.ukuu.org.uk
+Subject: Re: 2.4.6 PCMCIA NET modular build breakage
+Message-ID: <20010707174345.C11074@flint.arm.linux.org.uk>
+In-Reply-To: <Pine.LNX.4.33.0107071520250.1054-100000@vaio> <200107071430.f67EUXq07488@linuxhacker.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200107071430.f67EUXq07488@linuxhacker.ru>; from green@linuxhacker.ru on Sat, Jul 07, 2001 at 06:30:33PM +0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Diff between 2.4.7pre2aa1 and 2.4.7pre3aa1:
+On Sat, Jul 07, 2001 at 06:30:33PM +0400, Oleg Drokin wrote:
+> Hmm....
+> (examining Makefile...)
+> I see. So there cannot be usual targets before including Rules.make,
+> and my copy of the tree have these. And if I move them after inclusion,
+> everything builds just fine.
+> Perhaps it should be documented somewhere.
+> 
+> Well. So at the end it seems to be not a vanilla kernel problem. That's good.
 
----------------------------------------------------------
-Only in 2.4.7pre2aa1: 00_3c59x-zerocopy-1
-Only in 2.4.7pre3aa1: 00_3c59x-zerocopy-2
+Ok, so you got the problem solved.  Mind enlightening me and Nico so we
+know what's wrong please?
 
-	Right fix for enabling zerocopy on highmem kernels.
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-	(nice to have)
-
-Only in 2.4.7pre3aa1: 00_async-io-unlock-race-1
-
-	Fix possible memory corruption due a race where
-	the page can be unlocked under us and so the bh could
-	be unlocked as well under us. Found it in -ac.
-
-	(recommended)
-
-Only in 2.4.7pre2aa1: 00_ksoftirqd-7
-Only in 2.4.7pre3aa1: 00_ksoftirqd-8
-
-	Add the BUG() check, to be as strict as mainline (no functional
-	differences for correct code).
-
-	(nice to have)
-
-Only in 2.4.7pre3aa1: 00_meminfo-wraparound-1
-
-	Use long long in /proc/meminfo to avoid wrap arounds on >4G boxes.
-
-	(nice to have)
-
-Only in 2.4.7pre3aa1: 00_rawio-down_read-1
-
-	Use read lock for rawio.
-
-	(nice to have)
-
-Only in 2.4.7pre2aa1: 00_vm-deadlock-fix-1
-Only in 2.4.7pre2aa1: 00_xircom-serial-1
-
-	Merged in mainline.
-
-Only in 2.4.7pre2aa1: 10_blkdev-pagecache-4
-Only in 2.4.7pre3aa1: 40_experimental
-
-	Moved the 10_blkdev-pagecache-4 patch back into the
-	40_experimental directory, don't apply it for
-	production it's not ready yet, initrd is still broken
-	(it will be fixed soon).
----------------------------------------------------------
-
-Andrea

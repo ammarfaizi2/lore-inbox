@@ -1,28 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264244AbTCXOqC>; Mon, 24 Mar 2003 09:46:02 -0500
+	id <S264230AbTCXOxx>; Mon, 24 Mar 2003 09:53:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264246AbTCXOqC>; Mon, 24 Mar 2003 09:46:02 -0500
-Received: from gorilla.mchh.siemens.de ([194.138.158.18]:15612 "EHLO
-	gorilla.mchh.siemens.de") by vger.kernel.org with ESMTP
-	id <S264244AbTCXOqB>; Mon, 24 Mar 2003 09:46:01 -0500
-Message-ID: <AEEEEE93AFA5D411AF8500D0B75E4A16062A4675@BSL203E>
-From: Spang Oliver <oliver.spang@siemens.com>
-To: "'pbadari@us.ibm.com'" <pbadari@us.ibm.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.64 ttyS problem ?
-Date: Mon, 24 Mar 2003 15:56:50 +0100
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2656.59)
-Content-Type: text/plain;
-	charset="ISO-8859-1"
+	id <S264234AbTCXOxx>; Mon, 24 Mar 2003 09:53:53 -0500
+Received: from phoenix.infradead.org ([195.224.96.167]:8452 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S264230AbTCXOxw>; Mon, 24 Mar 2003 09:53:52 -0500
+Date: Mon, 24 Mar 2003 15:04:59 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@digeo.com>, Christoph Hellwig <hch@infradead.org>
+Subject: Re: [PATCH 1/3] revert register_chrdev_region change
+Message-ID: <20030324150458.A19789@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andries Brouwer <aebr@win.tue.nl>,
+	Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org,
+	Andrew Morton <akpm@digeo.com>
+References: <Pine.LNX.4.44.0303240023420.9053-100000@serv> <20030324142515.GA10462@win.tue.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030324142515.GA10462@win.tue.nl>; from aebr@win.tue.nl on Mon, Mar 24, 2003 at 03:25:15PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, Mar 24, 2003 at 03:25:15PM +0100, Andries Brouwer wrote:
+> It still looks like you do not understand the purpose of these patches.
+> First of all, it is a series - code is morphed into a more desirable
+> state; at each point in time there are imperfections, and some of these
+> disappear the next stage.
+> The first goal is not at all handling many devices. The first goal is
+> having a larger dev_t. Handling many devices comes after that.
 
-has anyone another solution? I tried 2.5.62 to 2.5.65, same result.
+Well, there's people here who disagree with tour order.  And yes, making
+dev_t larger before making the kernel ready for a large number of devices
+is the wrong way around.
 
-regards
-Oliver
-
+If you look at Roman's patches they don't even hinder your dev_t enlargement
+but they provide a singificant benefit.   Now I'm personally not yet
+completly happy with his interface either because he still uses the
+major/minor split, but I'm working on fixing this properly.

@@ -1,90 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282694AbRK0A6O>; Mon, 26 Nov 2001 19:58:14 -0500
+	id <S282695AbRK0BCO>; Mon, 26 Nov 2001 20:02:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282693AbRK0A6F>; Mon, 26 Nov 2001 19:58:05 -0500
-Received: from host113.south.iit.edu ([216.47.130.113]:51585 "EHLO
-	lostlogicx.com") by vger.kernel.org with ESMTP id <S282696AbRK0A5x>;
-	Mon, 26 Nov 2001 19:57:53 -0500
-Message-ID: <3C02E504.4090501@lostlogicx.com>
-Date: Mon, 26 Nov 2001 18:57:40 -0600
-From: Lost Logic <lostlogic@lostlogicx.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
-X-Accept-Language: en-us
+	id <S282700AbRK0BCE>; Mon, 26 Nov 2001 20:02:04 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:47628 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S282699AbRK0BBy>;
+	Mon, 26 Nov 2001 20:01:54 -0500
+Date: Mon, 26 Nov 2001 23:01:46 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Patrick McFarland <unknown@panax.com>
+Cc: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.16-pre1
+In-Reply-To: <20011126194732.D242@localhost>
+Message-ID: <Pine.LNX.4.33L.0111262300050.4079-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Unresponiveness of 2.4.16
-In-Reply-To: <1006812135.1420.0.camel@cygnusx-1.okcforum.org> <3C02E1F8.8090407@lostlogicx.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lost Logic wrote:
+On Mon, 26 Nov 2001, Patrick McFarland wrote:
 
-> I'm running 2.4.16 with 2 IDE UDMA mode 4 drives, and I have 
-> experienced no such pausing no matter what I do.  (which usually 
-> includes patching, extracting, and generally messing with kernels from 
-> Eterm with XMMS playing, and a couple mozillas open)
+> Thats just it, Im automatically called a troll because I disagree with
+> the community.
 
-Ignore that, I know why I have no problems, I can extract kernels, make 
-kernels, etc w/o paging...
+No. People think you're a troll because all you've done up
+till now is shout around some generic handwaving about how
+other people should do stuff better.
 
->
-> Nathan G. Grennan wrote:
->
->> 2.4.16 becomes very unresponsive for 30 seconds or so at a time during
->> large unarchiving of tarballs, like tar -zxf mozilla-src.tar.gz. The
->> file is about 36mb. I run top in one window, run free repeatedly in
->> another window and run the tar -zxf in a third window. I had many
->> suspects, but still not sure what it is. I have tried
->>
->> ext2 vs ext3
->> preemptive vs non-preemptive
->> tainted vs non-tainted
->>
->> Nothing seems to help 2.4.16.
->>
->> I tried switching to Redhat's 2.4.9-13 kernel and it acts Alot better.
->> Not only does 2.4.9-13 not get the 30 second delay, but it also seems to
->> take advantage of caching. 2.4.16 takes the same moment of time each
->> time, even tho it should have cached it all into memory the first time.
->> 2.4.9-13 takes a while the first time(without the 30 second new process
->> freezing), but then takes almost no time the times after that. One
->> interesting thing I noticed is that with and without preemptive a
->> already started mp3 playing had no disruption even during the 30 second
->> windows where any new commands would get stuck with 2.4.16. I am not
->> using custom
->>
->> I plan to do more testing to see how say 2.4.9, 2.4.13ac7, etc.
->> Any ideas of how to fix this for 2.4.16?
->>
->> I have attached my .config.
->>
->> My system:
->>
->> Redhat 7.2 with all updates
->>
->> Athlon Thunderbird 1.33ghz
->> 768mb(512mb, 256mb) PC133 SDRAM
->> Abit KT7A-RAID v1.0(KT133A chipset)
->> Bios 64
->> HPT370(bios v1.2.0604)
->>   Primary Master   Quantum Fireball AS40.0
->>   Secondary Master IBM-DTLA-307045
->> VIA686B   Primary Master   CREATIVE DVD-ROM DVD6240E
->>   Secondary Master CR-2801TE
->>
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
->
+Now if you showed us some of your work (patches, documentation,
+tracing down bugs, etc...) you could convince us you're serious
+about helping out improving the kernel.
 
+regards,
 
+Rik
+--
+Shortwave goes a long way:  irc.starchat.net  #swl
+
+http://www.surriel.com/		http://distro.conectiva.com/
 

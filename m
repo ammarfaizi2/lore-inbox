@@ -1,82 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270646AbRIFNS3>; Thu, 6 Sep 2001 09:18:29 -0400
+	id <S270657AbRIFNVT>; Thu, 6 Sep 2001 09:21:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270661AbRIFNSW>; Thu, 6 Sep 2001 09:18:22 -0400
-Received: from etpmod.phys.tue.nl ([131.155.111.35]:16999 "EHLO
-	etpmod.phys.tue.nl") by vger.kernel.org with ESMTP
-	id <S270657AbRIFNSI>; Thu, 6 Sep 2001 09:18:08 -0400
-Date: Thu, 6 Sep 2001 15:18:27 +0200
-From: Kurt Garloff <garloff@suse.de>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Daniel Phillips <phillips@bonn-fries.net>,
-        Jan Harkes <jaharkes@cs.cmu.edu>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        linux-kernel@vger.kernel.org
-Subject: Re: page_launder() on 2.4.9/10 issue
-Message-ID: <20010906151827.F21793@gum01m.etpnet.phys.tue.nl>
-Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
-	Rik van Riel <riel@conectiva.com.br>,
-	Daniel Phillips <phillips@bonn-fries.net>,
-	Jan Harkes <jaharkes@cs.cmu.edu>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20010906124700Z16067-32383+3773@humbolt.nl.linux.org> <Pine.LNX.4.33L.0109061002050.31200-100000@imladris.rielhome.conectiva>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Zs/RYxT/hKAHzkfQ"
+	id <S270721AbRIFNVK>; Thu, 6 Sep 2001 09:21:10 -0400
+Received: from shed.alex.org.uk ([195.224.53.219]:42928 "HELO shed.alex.org.uk")
+	by vger.kernel.org with SMTP id <S270661AbRIFNU4>;
+	Thu, 6 Sep 2001 09:20:56 -0400
+Date: Thu, 06 Sep 2001 14:21:14 +0100
+From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+To: Rik van Riel <riel@conectiva.com.br>,
+        Stephan von Krawczynski <skraw@ithnet.com>
+Cc: _deepfire@mail.ru, linux-kernel@vger.kernel.org, marcelo@conectiva.com.br,
+        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Subject: Re: page pre-swapping + moving it on cache-list
+Message-ID: <591984348.999786074@[10.132.112.53]>
+In-Reply-To: <Pine.LNX.4.33L.0109061003320.31200-100000@imladris.rielhome.conectiva>
+In-Reply-To: <Pine.LNX.4.33L.0109061003320.31200-100000@imladris.rielhome.con
+ ectiva>
+X-Mailer: Mulberry/2.1.0 (Win32)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33L.0109061002050.31200-100000@imladris.rielhome.conectiva>
-User-Agent: Mutt/1.3.20i
-X-Operating-System: Linux 2.4.7 i686
-X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
-X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
-Organization: TU/e(NL), SuSE(DE)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Stephan / Rik,
 
---Zs/RYxT/hKAHzkfQ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+--On Thursday, September 06, 2001 10:05 AM -0300 Rik van Riel 
+<riel@conectiva.com.br> wrote:
 
-On Thu, Sep 06, 2001 at 10:03:03AM -0300, Rik van Riel wrote:
-> On Thu, 6 Sep 2001, Daniel Phillips wrote:
-> > On September 6, 2001 02:32 pm, Rik van Riel wrote:
-> > > Two words:  "IO clustering".
-> >
-> > Yes, *after* the IO queue is fully loaded that makes sense.  Leaving it
-> > partly or fully idle while waiting for it to load up makes no sense at =
-all.
-> >
-> > IO clustering will happen naturally after the queue loads up.
->=20
-> Exactly, so we need to give the queue some time to load
-> up, right ?
+> Pages on the inactive_clean list contain data. Throwing
+> away data when you can keep it in memory isn't the smartest
+> thing.
+>
+>> Besides the fact, that the splitting in two lists prevents proper
+>> defragmentation
+>
+> Patches to fix this thing while still allowing us to keep
+> the data in memory for most pages are appreciated.
 
-Just use two limits:
-* Time: After some time (say two seconds), we can always afford to write it
-  out=20
-* Queue filling: After it has a certain size, it's worth doing a writing.
+It's not keeping it two lists that prevents proper
+defragmentation. It's having it allocated all around
+memory, and never freeing the pages which prevent
+coalescence of areas, and thus either
+throwing away the data, or garbage collecting, that
+prevents defragmentation. We never free these pages
+either because they sit in an idle system (with
+no memory pressure) in places like
+inactive_dirty, or in caches, or, in an active
+system, because they are direct_reclaim'd out
+of inactive_clean etc., so never get freed [1].
 
-Regards,
---=20
-Kurt Garloff  <garloff@suse.de>                          Eindhoven, NL
-GPG key: See mail header, key servers         Linux kernel development
-SuSE GmbH, Nuernberg, DE                                SCSI, Security
+As this kind of garbage collection requires memcpy()
+etc., it might be harmless when the system is
+idle, but isn't going to be an attractive option when
+the system is busy thrashing away (though it might be
+possible to hueristically evict awkward pages
+preferentially, by aging them more harshly).
 
---Zs/RYxT/hKAHzkfQ
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+But before we go introducing tentacles of the buddy
+system into every part of the memory manager, I'd
+like to be satisfied we can't attempt to allocate
+and free stuff more intelligently in the first place.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+I have some more ideas on this I shall code up
+tonight.
 
-iD8DBQE7l3eixmLh6hyYd04RAuJcAJ0R3gmlo4urF+EpRsFrY4/VKboxDQCgqPkB
-mKXk3gXQn96h43CfQjsO2Yk=
-=FuBq
------END PGP SIGNATURE-----
+[1] though as disabling direct_reclaim entirely
+    has NO measurable effect on fragmentation, fixing
+    it is at best a necessary but not sufficient component
+    of a fix). I haven't measured the effect of Roger L's
+    patch in total.
 
---Zs/RYxT/hKAHzkfQ--
+
+--
+Alex Bligh

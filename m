@@ -1,84 +1,110 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266006AbSKFI4m>; Wed, 6 Nov 2002 03:56:42 -0500
+	id <S262364AbSKFJDn>; Wed, 6 Nov 2002 04:03:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266008AbSKFI4m>; Wed, 6 Nov 2002 03:56:42 -0500
-Received: from bozo.vmware.com ([65.113.40.131]:3335 "EHLO mailout1.vmware.com")
-	by vger.kernel.org with ESMTP id <S266006AbSKFI4l>;
-	Wed, 6 Nov 2002 03:56:41 -0500
-Message-ID: <3C77B405ABE6D611A93A00065B3FFBBA080B3D@PA-EXCH2>
-From: Christopher Li <chrisl@vmware.com>
-To: "'Jeremy Fitzhardinge '" <jeremy@goop.org>,
-       Christopher Li <chrisl@vmware.com>
-Cc: "'Ext2 devel '" <ext2-devel@lists.sourceforge.net>,
-       "'Linux Kernel List '" <linux-kernel@vger.kernel.org>
-Subject: RE: [Ext2-devel] bug in ext3 htree rename: doesn't delete old nam
-	e, leaves ino with bad nlink
-Date: Wed, 6 Nov 2002 01:03:15 -0800 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2655.55)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S262862AbSKFJDn>; Wed, 6 Nov 2002 04:03:43 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:1191 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S262364AbSKFJDk>;
+	Wed, 6 Nov 2002 04:03:40 -0500
+Date: Wed, 6 Nov 2002 14:41:47 +0530
+From: Suparna Bhattacharya <suparna@in.ibm.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Werner Almesberger <wa@almesberger.net>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       "Matt D. Robinson" <yakker@aparity.com>,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       lkcd-general@lists.sourceforge.net, lkcd-devel@lists.sourceforge.net
+Subject: Re: [lkcd-devel] Re: What's left over.
+Message-ID: <20021106144147.A2432@in.ibm.com>
+Reply-To: suparna@in.ibm.com
+References: <Pine.LNX.4.44.0211052203150.1416-100000@home.transmeta.com> <m1znsndtpn.fsf@frodo.biederman.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <m1znsndtpn.fsf@frodo.biederman.org>; from ebiederm@xmission.com on Wed, Nov 06, 2002 at 12:48:36AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
+On Wed, Nov 06, 2002 at 12:48:36AM -0700, Eric W. Biederman wrote:
+> Linus Torvalds <torvalds@transmeta.com> writes:
+> 
+> > On 5 Nov 2002, Eric W. Biederman wrote:
+> > > 
+> > > In replying to another post by Al Viro I managed to think this through.
+> > > kexec needs:
+> > 
+> > Note that kexec doesn't bother me at all, and I might find myself using it 
+> > myself.
+> 
+> Good.  Just before I saw this message I sent you my patch ported to 2.5.46,
+> and from the feed back on this one it looks like people would
+> appreciate a tweak or two.
+>  
+> 
+> That sounds reasonable to me.  Especially as that lines up a little more
+> with what the mcore people want as well.  Until today I hadn't realized
+> they were using a spare current to process oopses.  For just booting
+> another kernel all of the staging can currently be done by reading the
+> new kernel into your process before calling the user-level shutdown code.
+> 
+> > Right now the kexec() stuff seems to mix up the loading and rebooting, but
+> > I didn't take a very deep look, maybe I'm wrong.
+> 
+> It currently happens all in one step because I had never gotten
+> feedback that people wanted it in two steps.   
 
------Original Message-----
-From: Jeremy Fitzhardinge
-To: chrisl@vmware.com
-Cc: Ext2 devel; Linux Kernel List
-Sent: 11/5/02 9:02 PM
-Subject: Re: [Ext2-devel] bug in ext3 htree rename: doesn't delete old name,
-leaves ino with bad nlink
+I'd mentioned it a few times in the context of mcore, but probably 
+didn't explain myself clearly enough then. 
 
-On Tue, 2002-11-05 at 13:24, chrisl@vmware.com wrote:
+> 
+> > Note that the two-phase boot means that you can load the new kernel early, 
+> > which allows you to later on use it for oops handling (it's a bit late to 
+> > try to set up the kernel to be loaded at that time ;)
+> 
+> Given that it is definitely a good idea to split the patch up into two
+> pieces.  And a kernel for oops handling should work once all of other
+> problems are resolved.
 
->Thanks for looking at it so quickly.  I want ext3+htree to stabilise as
->quickly as possible, and since I had a nice reproducible bug, I may as
->well make the most of it.
+Yes, this fits the model we need.
 
-That save me a lot of time to duplicate the bug. I want to make htree
-stablilise quickly also.
+> 
+> The question is how much of that do we need.
+> 
+> Thinking out loud, and hopefully answering your question.
+> - We need a working stack when the new kernel is jumped to so PIC code
+>   can exist at the entry point.
+> 
+> - An oops processing kernel needs to load at an address other than 1MB,
+>   or at the very least it's boot sequence needs to squirrel away the
+>   old contents of the kernel text and data segments, which reside at
+>   1MB, before it moves down to 1MB.
 
+Yes, that bit of memory save logic exists in the mcore mechanism. These
+pages are saved away in compressed form in memory and written out
+later after dump.  
 
->Yes, I would have guessed that it was related to a tree split.  The
->interesting thing to me is that it happened twice in this particular
->run, and yet it must be a fairly uncommon occurrence overall (otherwise
->it would have been reported before).  I wonder if it really is a rare
->event, or it has just gone unnoticed?
+Now to avoid these pages from being used by the new kernel until
+the dump is safetly written out to disk, mcore patches some of
+the initialization code to mark these pages (containing saved
+dump) as reserved. 
 
-It is a relative rare event. Let's see. To make this happen, rename need to
-add new entry and split the dir entry block. Depend on how much space left
-on
-your leaf block. Let's say your average filename length is 9. A dir entry
-record is 24 bytes. A 4K block can have 170 entries. Given htree after split
-is half full. Chance to hit a split on add an entry is about 1/85.
-Assuem you have N leaf dir entry blocks in your dir. Chance of the old file
-entry in the same block of new file entry is 1/N. Chance of old file
-not in the same block after split is 1/2.
+> O.k.  In the next couple of days I will split the loading, and
+> executing phase of my kexec code into parts, and resubmit the code.
 
-So total chance is about 1/(170*N). When you have relative small
-direcotrys, the chance is bigger than huge directorys.
+Great !
 
+> The we can dig in on what it takes to make kexec run stably.
+> 
 
->Update it in what way?  In principle a rename is an atomic operation, so
->other things shouldn't be able to observe the directory in an
->intermediate state.
+Regards
+Suparna
 
-I mean when split dir entry blocks, it will move the dir entry inside
-that block. I am not clear about do we need to invalidate the dentry
-cache for those changed entry. I need to check the source.
-
-Cheers
-
-Chris
-
-
-
-
-
-	J
-
-
+-- 
+Suparna Bhattacharya (suparna@in.ibm.com)
+Linux Technology Center
+IBM Software Labs, India
 

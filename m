@@ -1,62 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287421AbSCEWGg>; Tue, 5 Mar 2002 17:06:36 -0500
+	id <S288377AbSCEWHx>; Tue, 5 Mar 2002 17:07:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288377AbSCEWGY>; Tue, 5 Mar 2002 17:06:24 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:27999 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S287421AbSCEWGM>; Tue, 5 Mar 2002 17:06:12 -0500
-Date: Tue, 5 Mar 2002 22:04:00 +0000
-From: Tim Waugh <twaugh@redhat.com>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Bill Davidsen <davidsen@prodigy.com>, Mikael Pettersson <mikpe@csd.uu.se>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG] 2.4.18-pre/rc broke PLIP
-Message-ID: <20020305220359.B8959@redhat.com>
-In-Reply-To: <20020305165533.A1195@redhat.com> <Pine.LNX.3.96.1020305155013.28458A-100000@gatekeeper.tmr.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="dTy3Mrz/UPE2dbVg"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.3.96.1020305155013.28458A-100000@gatekeeper.tmr.com>; from davidsen@tmr.com on Tue, Mar 05, 2002 at 04:20:25PM -0500
+	id <S291041AbSCEWHf>; Tue, 5 Mar 2002 17:07:35 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:38272 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S288377AbSCEWHY>; Tue, 5 Mar 2002 17:07:24 -0500
+Date: Tue, 5 Mar 2002 17:07:12 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Pavel Machek <pavel@suse.cz>
+cc: Andreas Ferber <aferber@techfak.uni-bielefeld.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: ext3 and undeletion
+In-Reply-To: <20020304162614.C96@toy.ucw.cz>
+Message-ID: <Pine.LNX.3.95.1020305165859.27211A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 4 Mar 2002, Pavel Machek wrote:
 
---dTy3Mrz/UPE2dbVg
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> Hi
+> > > All the deleted files, with the correct path(s), are now in the
+> > > top directory file the file-system ../lost+found directory. They
+> > > are still owned by the original user, still subject to the same
+> > > quota.
+> > 
+> > And what about:
+> > 
+> > - Luser rm's "foo.c"
+> > - Luser starts working on new version of "foo.c"
+> > - Luser recognizes, that the old version was better
+> > - Luser rm's new "foo.c"
+> > - Luser tries to unrm the old "foo.c" -> *bang*
+> > 
+> > Trust me, there /will/ be a luser who tries to do it this way. If
+> > teaching lusers were enough, you'd have no need for an unrm at all.
+> 
+> You don't consider me a luser, right?
 
-On Tue, Mar 05, 2002 at 04:20:25PM -0500, Bill Davidsen wrote:
+Nope.
 
-> 1 - didn't try, I checked that the patch had not been reverted, and
->     assumed that if it was broken and not changed it was broken still.
->     And I only looked in pre2-ac2, if it was fixed and Alan patched it
->     back broken.
+Some newbees think that Windoze 'send-to-the-wastebasket' is a kernel-
+level "safe-delete". It's just some ^&$)##*@*) program that slows most
+of us down.
 
-Well, try it.  The correct patch is in there.
+Even Windows/Professional/2000 (NT) developers knew that it was
+garbage. If you've figured out how to get to the CMD prompt, just
+type:
 
-> 2 - understanding vast stretches of uncommented code you may need to
->     change is worthwhile reading. The corolary is that comments are worthwhile
->     typing.
+cd \
+rm -r *.*
+ |  |   |______ They still have dots
+ |  |__________ Yes, even "folders" <coff, coff>
+ |_____________ What do you expect for a stolen OS? Yes, `rm` instead of
+                del, following the Unix pathname tradition.
 
-(You must have missed the ChangeLog.)
+Cheers,
+Dick Johnson
 
-Tim.
-*/
+Penguin : Linux version 2.4.18 on an i686 machine (799.53 BogoMips).
 
---dTy3Mrz/UPE2dbVg
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+	Bill Gates? Who?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE8hUDPyaXy9qA00+cRAiXTAKCIwHlkjL/R8KkdzXZJuk53Ku9a6gCeM1dF
-MLYIOKrUOEn4CG5yACzCMq4=
-=97EK
------END PGP SIGNATURE-----
-
---dTy3Mrz/UPE2dbVg--

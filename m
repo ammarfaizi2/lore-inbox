@@ -1,48 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290766AbSARRtd>; Fri, 18 Jan 2002 12:49:33 -0500
+	id <S290769AbSARRvX>; Fri, 18 Jan 2002 12:51:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290769AbSARRtY>; Fri, 18 Jan 2002 12:49:24 -0500
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:25079 "EHLO
-	lynx.adilger.int") by vger.kernel.org with ESMTP id <S290766AbSARRtL>;
-	Fri, 18 Jan 2002 12:49:11 -0500
-Date: Fri, 18 Jan 2002 10:48:46 -0700
-From: Andreas Dilger <adilger@turbolabs.com>
-To: Christian Hammers <ch@westend.com>
-Cc: ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [Ext2-devel] ext3 fs corruption with 2.4.17
-Message-ID: <20020118104846.Q29178@lynx.adilger.int>
-Mail-Followup-To: Christian Hammers <ch@westend.com>,
-	ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-In-Reply-To: <20020118143214.GH28471@westend.com>
-Mime-Version: 1.0
+	id <S290770AbSARRvN>; Fri, 18 Jan 2002 12:51:13 -0500
+Received: from lacrosse.corp.redhat.com ([12.107.208.154]:27328 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S290769AbSARRvH>; Fri, 18 Jan 2002 12:51:07 -0500
+Message-ID: <3C48607C.35D3DDFF@redhat.com>
+Date: Fri, 18 Jan 2002 17:50:53 +0000
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+Organization: Red Hat, Inc
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-13smp i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Justin Cormack <kernel@street-vision.com>, linux-kernel@vger.kernel.org
+Subject: Re: performance of O_DIRECT on md/lvm
+In-Reply-To: <200201181743.g0IHhO226012@street-vision.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020118143214.GH28471@westend.com>; from ch@westend.com on Fri, Jan 18, 2002 at 03:32:14PM +0100
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jan 18, 2002  15:32 +0100, Christian Hammers wrote:
-> Does anybody knows what exactly this means and if it could be helpful to
-> track down the origin of the problems? Or did anybody else experienced this
-> messages before?
+Justin Cormack wrote:
 > 
-> On Thu, Jan 17, 2002 at 07:05:03PM +0100, root wrote:
-> > Jan 17 19:01:15 HOSTNAME kernel: EXT3-fs error (device sd(8,7)): ext3_new_block: Allocating block in system zone - block = 5931009
-> > Jan 17 19:01:16 HOSTNAME kernel: EXT3-fs error (device sd(8,7)): ext3_new_block: Allocating block in system zone - block = 5931018
-> > Jan 17 19:01:16 HOSTNAME kernel: EXT3-fs error (device sd(8,7)): ext3_new_block: Allocating block in system zone - block = 5931019
-> [repeats several hundert times with increasing block numbers]
+> Reading files with O_DIRECT works very nicely for me off a single drive
+> (for video streaming, so I dont want cacheing), but is extremely slow on
+> software raid0 devices, and striped lvm volumes. Basically a striped
+> raid device reads at much the same speed as a single device with O_DIRECT,
+> while reading the same file without O_DIRECT gives the expected performance
+> (but with unwanted cacheing).
+> 
+> raw devices behave similarly (though if you are using them you can probably
+> do your own raid0).
+> 
+> My guess is this is because of the md blocksizes being 1024, rather than
+> 4096: is this the case and is there a fix (my quick hack at md.c to try
+> to make this happen didnt work).
 
-It means your block bitmap is corrupt and it says that metadata blocks
-are not in use, when they really are.  That will lead to serious
-corruption.
+well not exactly. Raid0 is faster due to readahead (eg you read one
+block and the kernel 
+sets the OTHER disk also working in parallel in anticipation of you
+using that). O_DIRECT
+is of course directly in conflict with this as you tell the kernel that
+you DON'T want
+any optimisations....
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-
+Greetinsg,
+  Arjan van de Ven

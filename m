@@ -1,80 +1,92 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287885AbSAHFK3>; Tue, 8 Jan 2002 00:10:29 -0500
+	id <S287895AbSAHFNB>; Tue, 8 Jan 2002 00:13:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287648AbSAHFKB>; Tue, 8 Jan 2002 00:10:01 -0500
-Received: from asooo.flowerfire.com ([63.254.226.247]:49162 "EHLO
-	asooo.flowerfire.com") by vger.kernel.org with ESMTP
-	id <S287885AbSAHFJt>; Tue, 8 Jan 2002 00:09:49 -0500
-Date: Mon, 7 Jan 2002 23:09:44 -0600
-From: Ken Brownfield <brownfld@irridia.com>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-Message-ID: <20020107230944.B19649@asooo.flowerfire.com>
-In-Reply-To: <20020103142301.C4759@asooo.flowerfire.com> <200201040019.BAA30736@webserver.ithnet.com> <20020103232601.B12884@asooo.flowerfire.com> <20020104140321.51cb8bf0.skraw@ithnet.com> <20020104175050.A3623@asooo.flowerfire.com> <20020105154053.A18545@asooo.flowerfire.com> <20020106164813.23555724.skraw@ithnet.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20020106164813.23555724.skraw@ithnet.com>; from skraw@ithnet.com on Sun, Jan 06, 2002 at 04:48:13PM +0100
+	id <S287648AbSAHFMs>; Tue, 8 Jan 2002 00:12:48 -0500
+Received: from adsl-63-199-104-197.dsl.lsan03.pacbell.net ([63.199.104.197]:65030
+	"HELO mail.theoesters.com") by vger.kernel.org with SMTP
+	id <S287896AbSAHFLo>; Tue, 8 Jan 2002 00:11:44 -0500
+From: "Phil Oester" <kernel@theoesters.com>
+To: "'Stephan von Krawczynski'" <skraw@ithnet.com>
+Cc: <linux-kernel@vger.kernel.org>, "'M.H.VanLeeuwen'" <vanl@megsinet.net>
+Subject: RE: 1gb RAM + 1gb SWAP + make -j bzImage = OOM
+Date: Mon, 7 Jan 2002 21:11:42 -0800
+Message-ID: <000301c19802$f5ec5fb0$6400a8c0@philxp>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.2627
+In-Reply-To: <20020107152422.42cfb554.skraw@ithnet.com>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 06, 2002 at 04:48:13PM +0100, Stephan von Krawczynski wrote:
-[...]
-| I read all your LKML mails since beginning of November, could find a lot about
-| cpu, configs,tops etc but not a single "cat /proc/interrupts" together with
-| uptime.
+The vmscan patch doesn't seem to help in the 'make -j' testcase.  
 
-http://web.irridia.com/info/linux/APIC/
+Here's time of a couple runs:
 
-This was published back in the beginning (4/2001), and additional stuff
-sent to Alan and Manfred for debugging.  I was pushing my problem on
-LKML for a couple of weeks, but without much feedback I'm sticking to my
-workaround.
+2.4.17 vanilla
 
-This also feeds back to my earlier thoughts on some kind of LKML summary
-page of patches and problem reports for those disinclined to wade
-through the high LKML traffic.  It's hard for me, much less you, to go
-back through the archives manually...
+real    32m2.097s
+user    9m51.800s
+sys     3m47.700s
 
-| According to the ongoings of your mails you seem to try really a lot of things
-| to make it work out. I recommend not to intermix the patches a lot. I would
-| stay close to marcelo's tree and try _single_ small patches on top of that. If
-| you mix them up (even only two of them) you won't be able to track down very
-| well, what is really better or worse.
+real    19m45.696s
+user    9m55.820s
+sys     2m32.170s
 
-Actually, that's why I don't test -aa.  Whatever Marcelo chooses to
-include, I'll trust it in its entirety.  But I've tested, for example,
-Linus' locked memory patch, and a couple of Andrew's isolated patches,
-all applied to mainline with nothing else.  I can't try -aa because it
-has interdependencies and unintentional (I assume) backouts of code.
+2.4.17 + vmscan patch
 
-| One thing I would like to ask here is this (as you are dealing with oracle
-| stuff): why does oracle recommend to compile the kernel in 486 mode? I talked
-| to someone who uses oracle on 2.4.x and he told me it is even in the latest
-| docs. What is the voodoo behind that? Btw he has no freezes or the like, but
-| occasional coredumps from oracle processes, which he states as "not nice, but
-| no showstopper" as his clients reconnect/retransmit with only a slight delay.
-| This may be related to VM, thats why I will try to convince him of some patches
-| :-) and have a look at the coredump-frequency.
+gave up waiting after 2 hours...never finished.
 
-I haven't had any problems with Oracle at all since Linus' locked memory
-patch back in the 2.4.14-15ish days.  This on a 4GB 6-way Xeon with
-ext2, reiser, couple of other complications, with the kernel compiled
-for P3.  I really don't know what would cause Oracle to misbehave with
-an i686 kernel that wouldn't be a kernel bug.
+Unfortunately, box was not responsive enough to gather any useful
+information.  Perhaps not swapping enough???
 
-Perhaps a gcc-related bug?  I'm still using 2.91.66 for kernels,
-although I've used 2.95.x with no problems.  I'm not touching 2.96.x
-with a ten-foot pole, waiting instead for a sane 3.x one of these years.
+-Phil
 
-I think Oracle (the company) is a little short of tooth on Linux
-experience, since for example and AFAIK they never discovered the fatal
-2.4 locked memory problem -- that took Google's report and to a much
-lesser extent my later discovery of the same problem.
+-----Original Message-----
+From: Stephan von Krawczynski [mailto:skraw@ithnet.com] 
+Sent: Monday, January 07, 2002 6:24 AM
+To: Phil Oester
+Cc: nknight@pocketinet.com; linux-kernel@vger.kernel.org
+Subject: Re: 1gb RAM + 1gb SWAP + make -j bzImage = OOM
 
--- 
-Ken.
-brownfld@irridia.com
+
+On Sun, 6 Jan 2002 22:22:16 -0800
+"Phil Oester" <kernel@theoesters.com> wrote:
+
+> I've rerun this test a number of times, and cannot reliably reproduce
+> the OOM - though it still does OOM occasionally.  It never OOM's right
+> after a bootup - usually the greatest chance of OOM is after 2 or 3
+> consecutive runs without a reboot.  Once it even froze the box and
+> required a powercycle.
+> 
+> I'm surprised you cannot OOM with 1gb RAM/256MB swap, as sometimes I'm
+> over 900MB in swap - did you try consecutive runs, or just once and
+then
+> reboot between each run?
+
+I tried just about everything I could think of and it never went in OOM.
+Even
+the first test I did were with several days uptime - meaning far away
+from
+"cleaning" reboot. I hate reboot :-)
+
+> [...]
+> Haven't yet tried Martin's patch - though since I can't reliably
+produce
+> the OOM, testing it wouldn't help much.
+
+Well, take the other side: if you do not manage to OOM afterwards, even
+at the
+tenth consecutive try, there is probably something about the patch ...
+
+Regards,
+Stephan
+
+
 

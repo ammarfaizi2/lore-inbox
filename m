@@ -1,447 +1,288 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263084AbTFZVxu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jun 2003 17:53:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263201AbTFZVxt
+	id S263183AbTFZWAk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jun 2003 18:00:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263201AbTFZWAk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jun 2003 17:53:49 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:49338 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S263084AbTFZVvg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jun 2003 17:51:36 -0400
-Date: Thu, 26 Jun 2003 19:03:02 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Linux 2.4.22-pre2
-Message-ID: <Pine.LNX.4.55L.0306261858460.10651@freak.distro.conectiva>
+	Thu, 26 Jun 2003 18:00:40 -0400
+Received: from moutng.kundenserver.de ([212.227.126.183]:57031 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S263183AbTFZWAT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jun 2003 18:00:19 -0400
+Date: Fri, 27 Jun 2003 00:15:50 +0200
+From: Arne Brutschy <abrutschy@xylon.de>
+X-Mailer: The Bat! (v1.62r) Personal
+Reply-To: Arne Brutschy <abrutschy@xylon.de>
+Organization: Xylon
+X-Priority: 3 (Normal)
+Message-ID: <1396499038.20030627001550@xylon.de>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: RAID/IDE driver kernel panic (as usual ICH4 problems)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
 Hello,
 
-Here goes -pre2 with a big number of changes, including the new aic7xxx
-driver.
+I'm still having problems with the ICH4 and my PDC20276.
 
-I wont accept any big changes after -pre4: I want 2.4.22 timecycle to be
-short.
+I'm trying to find a stable setup fro the ICH4 since 2.4.18, but
+nothing worked till 2.4.21. I always had the resource collisions
+and lost interrupts all the others users reported. With this
+kernel release (and the ide driver backport), the lost interrupts
+vanished. So I recreated my Raid5 and put hapily all data on it.
+Now, the lost interrupts are back again. :(
 
-Have fun
+I had serveral lost interrups on some of the ICH4 disks, and this
+evening the PDC crashed completely (for the first time). Before that,
+the PDC was pretty stable.
+
+More about my hardware setup:
+
+PCI SCSI Controller
+   System on /dev/md0-4
+onboard ICH4
+   2x Maxtor 96147H6, ATA DISK drive, 60GB, /dev/md6
+   2x SAMSUNG SV1204H, ATA DISK drive, 120GB
+onboard PDC 20276
+   4x Maxtor 4G120J6, ATA DISK drive, 120GB
+
+The 120GB drives are /dev/md5, raid level 5. All other raid devices
+are raid level 1.
+
+See the thread "[PATCH] ide driver 2.4.21-rc6" starting at 2nd june
+about my problems with the PDC20276 and bootorder.
+
+I will include two logs here, sorry for the long mail.
+
+After the crash, I cannot mount the raid 5 disks anymore, it complains
+about different superblocks on /dev/hdf5 and /dev/hde5:
+
+Jun 27 00:08:09 gonzo kernel: md: running: <hdh5><hdg5><hdf5><hde5><hdd5><hdc5>
+Jun 27 00:08:09 gonzo kernel: md: hdh5's event counter: 00000022
+Jun 27 00:08:09 gonzo kernel: md: hdg5's event counter: 00000022
+Jun 27 00:08:09 gonzo kernel: md: hdf5's event counter: 0000001f
+Jun 27 00:08:09 gonzo kernel: md: hde5's event counter: 0000001f
+Jun 27 00:08:09 gonzo kernel: md: hdd5's event counter: 00000022
+Jun 27 00:08:09 gonzo kernel: md: hdc5's event counter: 00000022
+Jun 27 00:08:09 gonzo kernel: md: superblock update time inconsistency -- using the most recent one
+Jun 27 00:08:09 gonzo kernel: md: freshest: hdh5
+Jun 27 00:08:09 gonzo kernel: md: kicking non-fresh hdf5 from array!
+Jun 27 00:08:09 gonzo kernel: md: unbind<hdf5,5>
+Jun 27 00:08:09 gonzo kernel: md: export_rdev(hdf5)
+Jun 27 00:08:09 gonzo kernel: md: kicking non-fresh hde5 from array!
+Jun 27 00:08:09 gonzo kernel: md: unbind<hde5,4>
+Jun 27 00:08:09 gonzo kernel: md: export_rdev(hde5)
+Jun 27 00:08:09 gonzo kernel: md5: removing former faulty hde5!
+Jun 27 00:08:09 gonzo kernel: md5: removing former faulty hdf5!
 
 
-Summary of changes from v2.4.22-pre1 to v2.4.22-pre2
-============================================
+I hope somebody can help me, and I hope I can get the data back.
 
-<bernie@develer.com>:
-  o fix bug in drivers/net/cs89x0.c:set_mac_address()
-  o [IPV4]: Trim the includes used in util.c
+My questions are:
 
-<cramerj@intel.com>:
-  o [e1000] TSO fix
-  o [e1000] Added ethtool test ioctl
-  o [e1000] Added support for 82546 Quad-port adapter
-  o [e1000] Removed strong branded device ids
-  o [e1000] Fixed LED coloring on 82541/82547 controllers
-  o [e1000] Miscellaneous code cleanup
-  o [e1000] Whitespace cleanup
+1) how can I get the IDE drives stable?
+2) how can I get the array (and my data) back?
 
-<dean@arctic.org>:
-  o [netdrvr tulip] support DM910x chip from ALi
 
-<dlstevens@us.ibm.com>:
-  o [IPV{4,6}]: Fix "slow multicast on 2.5.69" bug
+Regards,
+Arne
 
-<gandalf@wlug.westbo.se>:
-  o [NETFILTER]: Really search _backwards_ to find the oldest unreplied connection to evict
+******LOGS*****
 
-<green@linuxhacker.ru>:
-  o current bk ipmi build fix
+booting:
 
-<hadi@shell.cyberus.ca>:
-  o [NET]: Fix OOPSes with RSVP
+Jun 26 23:22:12 gonzo kernel: ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+Jun 26 23:22:12 gonzo kernel: ICH4: IDE controller at PCI slot 00:1f.1
+Jun 26 23:22:12 gonzo kernel: ICH4: chipset revision 1
+Jun 26 23:22:13 gonzo kernel: ICH4: not 100%% native mode: will probe irqs later
+Jun 26 23:22:13 gonzo kernel:     ide0: BM-DMA at 0xf000-0xf007, BIOS settings: hda:DMA, hdb:DMA
+Jun 26 23:22:13 gonzo kernel:     ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: hdc:DMA, hdd:DMA
+Jun 26 23:22:13 gonzo kernel: PDC20276: IDE controller at PCI slot 02:02.0
+Jun 26 23:22:13 gonzo kernel: PDC20276: chipset revision 1
+Jun 26 23:22:13 gonzo kernel: PDC20276: not 100%% native mode: will probe irqs later
+Jun 26 23:22:13 gonzo kernel:     ide2: BM-DMA at 0xa000-0xa007, BIOS settings: hde:pio, hdf:pio
+Jun 26 23:22:13 gonzo kernel:     ide3: BM-DMA at 0xa008-0xa00f, BIOS settings: hdg:pio, hdh:pio
+Jun 26 23:22:13 gonzo kernel: hda: Maxtor 96147H6, ATA DISK drive
+Jun 26 23:22:13 gonzo kernel: hdb: Maxtor 96147H6, ATA DISK drive
+Jun 26 23:22:13 gonzo kernel: blk: queue c033fb60, I/O limit 4095Mb (mask 0xffffffff)
+Jun 26 23:22:13 gonzo kernel: blk: queue c033fc9c, I/O limit 4095Mb (mask 0xffffffff)
+Jun 26 23:22:14 gonzo kernel: hdc: SAMSUNG SV1204H, ATA DISK drive
+Jun 26 23:22:14 gonzo kernel: hdd: SAMSUNG SV1204H, ATA DISK drive
+Jun 26 23:22:14 gonzo kernel: blk: queue c033ffb4, I/O limit 4095Mb (mask 0xffffffff)
+Jun 26 23:22:14 gonzo kernel: blk: queue c03400f0, I/O limit 4095Mb (mask 0xffffffff)
+Jun 26 23:22:14 gonzo kernel: hde: Maxtor 4G120J6, ATA DISK drive
+Jun 26 23:22:14 gonzo kernel: hdf: Maxtor 4G120J6, ATA DISK drive
+Jun 26 23:22:14 gonzo kernel: blk: queue c0340408, I/O limit 4095Mb (mask 0xffffffff)
+Jun 26 23:22:14 gonzo kernel: blk: queue c0340544, I/O limit 4095Mb (mask 0xffffffff)
+Jun 26 23:22:14 gonzo kernel: hdg: Maxtor 4G120J6, ATA DISK drive
+Jun 26 23:22:14 gonzo kernel: hdh: Maxtor 4G120J6, ATA DISK drive
+Jun 26 23:22:14 gonzo kernel: blk: queue c034085c, I/O limit 4095Mb (mask 0xffffffff)
+Jun 26 23:22:15 gonzo kernel: blk: queue c0340998, I/O limit 4095Mb (mask 0xffffffff)
+Jun 26 23:22:15 gonzo kernel: ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+Jun 26 23:22:15 gonzo kernel: ide1 at 0x170-0x177,0x376 on irq 15
+Jun 26 23:22:15 gonzo kernel: ide2 at 0x9000-0x9007,0x9402 on irq 18
+Jun 26 23:22:15 gonzo kernel: ide3 at 0x9800-0x9807,0x9c02 on irq 18
+Jun 26 23:22:15 gonzo kernel: hda: attached ide-disk driver.
+Jun 26 23:22:15 gonzo kernel: hda: host protected area => 1
+Jun 26 23:22:15 gonzo kernel: hda: 120064896 sectors (61473 MB) w/2048KiB Cache, CHS=7473/255/63, UDMA(100)
+Jun 26 23:22:15 gonzo kernel: hdb: attached ide-disk driver.
+Jun 26 23:22:15 gonzo kernel: hdb: host protected area => 1
+Jun 26 23:22:16 gonzo kernel: hdb: 120064896 sectors (61473 MB) w/2048KiB Cache, CHS=7473/255/63, UDMA(100)
+Jun 26 23:22:16 gonzo kernel: hdc: attached ide-disk driver.
+Jun 26 23:22:16 gonzo kernel: hdc: host protected area => 1
+Jun 26 23:22:16 gonzo kernel: hdc: 234493056 sectors (120060 MB) w/2048KiB Cache, CHS=232632/16/63, UDMA(100)
+Jun 26 23:22:16 gonzo kernel: hdd: attached ide-disk driver.
+Jun 26 23:22:16 gonzo kernel: hdd: host protected area => 1
+Jun 26 23:22:16 gonzo kernel: hdd: 234493056 sectors (120060 MB) w/2048KiB Cache, CHS=232632/16/63, UDMA(100)
+Jun 26 23:22:16 gonzo kernel: hde: attached ide-disk driver.
+Jun 26 23:22:16 gonzo kernel: hde: host protected area => 1
+Jun 26 23:22:16 gonzo kernel: hde: 240121728 sectors (122942 MB) w/2048KiB Cache, CHS=14946/255/63, UDMA(133)
+Jun 26 23:22:16 gonzo kernel: hdf: attached ide-disk driver.
+Jun 26 23:22:16 gonzo kernel: hdf: host protected area => 1
+Jun 26 23:22:17 gonzo kernel: hdf: 240121728 sectors (122942 MB) w/2048KiB Cache, CHS=14946/255/63, UDMA(133)
+Jun 26 23:22:17 gonzo kernel: hdg: attached ide-disk driver.
+Jun 26 23:22:17 gonzo kernel: hdg: host protected area => 1
+Jun 26 23:22:17 gonzo kernel: hdg: 240121728 sectors (122942 MB) w/2048KiB Cache, CHS=14946/255/63, UDMA(133)
+Jun 26 23:22:17 gonzo kernel: hdh: attached ide-disk driver.
+Jun 26 23:22:17 gonzo kernel: hdh: host protected area => 1
+Jun 26 23:22:17 gonzo kernel: hdh: 240121728 sectors (122942 MB) w/2048KiB Cache, CHS=14946/255/63, UDMA(133)
+Jun 26 23:22:17 gonzo kernel: Partition check:
+Jun 26 23:22:18 gonzo kernel:  hda: unknown partition table
+Jun 26 23:22:18 gonzo kernel:  hdb: unknown partition table
+Jun 26 23:22:18 gonzo kernel:  hdc: hdc1 < hdc5 >
+Jun 26 23:22:19 gonzo kernel:  hdd: hdd1 < hdd5 >
+Jun 26 23:22:19 gonzo kernel:  hde: hde1 < hde5 >
+Jun 26 23:22:19 gonzo kernel:  hdf: hdf1 < hdf5 >
+Jun 26 23:22:19 gonzo kernel:  hdg: hdg1 < hdg5 >
+Jun 26 23:22:20 gonzo kernel:  hdh: hdh1 < hdh5 >
 
-<hall@vdata.com>:
-  o [NETFILTER]: Fix two issues in the newnat core, with help from laforge@netfilter.org
+crash:
 
-<heiko.carstens@de.ibm.com>:
-  o sd.c: set data direction to SCSI_DATA_NONE for START_STOP
-
-<jejb@raven.il.steeleye.com>:
-  o Add XRAYTEX to SCSI whitelist
-  o sd.c: Backport wild spin loop mitigation from 2.5
-  o Backport from 2.5: scsi allow devices to restrict start on add
-
-<laforge@netfilter.org>:
-  o [NETFILTER]: Cosmetic changes
-  o [NETFILTER]: ip{,6}tables enhancement, add new /proc/net files
-  o [NETFILTER]: Fix conntrack master_ct refcounting
-
-<linux-kernel@vger.kernel.org>:
-  o new eepro100 PDI ID
-
-<marcel@holtmann.org[holtmann]>:
-  o [Bluetooth] Add CAPI message transport protocol support
-
-<mgreer@mivsta.com>:
-  o PPC32: Fix /proc/sys/kernel/l2cr on newer CPUs
-
-<mort@wildopensource.com>:
-  o [NETFILTER]: Fix processor shifts in lockhelp.h
-
-<mulix@mulix.org>:
-  o ISDN: [PATCH] memory leak in tpam_queues.c
-
-<oliver@vermuden.neukum.org>:
-  o hfs-readonly-fix.diff
-
-<qboosh@pld.org.pl>:
-  o [NETFILTER]: Fix ip6tables alignment (64bit archs)
-  o [NETFILTER]: Fix endianness bugs in conntrack
-  o [NETFILTER]: Fix endianness bugs in ipt_nat
-
-<reeja.john@amd.com>:
-  o [netdrvr amd8111e] interrupt coalescing, libmii, bug fixes
-  o [netdrvr amd8111e] link against mii lib
-  o [netdrvr amd8111e] bug fix: move stats update after irq free
-
-<riel@redhat.com>:
-  o [wireless airo] fix end-of-array test
-
-<sfrost@snowman.net>:
-  o [NETFILTER]: Add iptables "recent" module
-
-<shmulik.hen@intel.com>:
-  o [bonding] ABI versioning
-  o [bonding] better 802.3ad mode control, some cleanup
-  o [bonding] much improved locking
-  o [bonding] support xmit load balancing mode
-  o [bonding] add rcv load balancing mode
-  o [netdrvr bonding] fix long failover in 802.3ad mode
-  o [netdrvr bonding] fix ABI version control problem
-
-<solt@dns.toxicfilms.tv>:
-  o [IPV4]: Be more verbose about invalid ICMPs sent to broadcast
-
-<tonyb@cybernetics.com>:
-  o make sym53c8xx_2 not reject autosense IWR
-
-<valdis.kletnieks@vt.edu>:
-  o [netdrvr typhoon] s/#if/#ifdef/ for a CONFIG_ var
-
-Adrian Bunk <bunk@fs.tum.de>:
-  o fix .text.exit error in drivers/net/r8169.c
-  o add three ACPI Configure.help entries
-
-Alan Cox <alan@lxorguk.ukuu.org.uk>:
-  o [netdrvr tlan] fix 64-bit issues
-
-Andi Kleen <ak@muc.de>:
-  o Remove copied inet_aton code in bond_main.c
-  o ACPI compile fixes for 2.4.22pre1
-  o Don't enable I2O for AMD64
-
-Andrew Morton <akpm@digeo.com>:
-  o Additional 3c980 device support
-
-Andy Grover <agrover@groveronline.com>:
-  o ACPI: Fix config.in (Jeff Garzik)
-  o ACPI: make it so acpismp=force works (reported by Andrew Morton)
-
-Anton Blanchard <anton@samba.org>:
-  o [netdrvr 8139cp] enable MWI via pci_set_mwi, rather than manually
-
-Dave Engebretsen <engebret@us.ibm.com>:
-  o [netdrvr pcnet32] bug fixes
-
-Dave Kleikamp <shaggy@shaggy.austin.ibm.com>:
-  o Update JFS team members in jfs.txt
-  o JFS: resize fixes
-
-Douglas Gilbert <dougg@torque.net>:
-  o sg driver version 3.1.25
-
-Edward Peng <edward_peng@dlink.com.tw>:
-  o [netdrvr via-rhine] fix promisc mode
-  o [netdrvr sundance] bug fixes, VLAN support
-  o [netdrvr sundance] fix flow control bug
-  o [netdrvr sundance] fix another flow control bug
-
-Hideaki Yoshifuji <yoshfuji@linux-ipv6.org>:
-  o IPv6 over ARCnet (RFC2497) support, driver part
-  o IPv6 over ARCnet (RFC2497) support, IPv6 part
-
-Hugh Dickins <hugh@veritas.com>:
-  o remove unsafe BUG() in __remove_inode_page()
-
-Ivan Kokshaysky <ink@jurassic.park.msu.ru>:
-  o alpha: Lynx platform support (Jay Estabrook)
-  o alpha: initrd fix (Wiedemeier, Jeff)
-  o alpha: nautilus poweroff
-
-Jay Vosburgh <fubar@us.ibm.com>:
-  o [bonding] small cleanups
-  o Bonding 2.4 update patch 1
-  o Bonding 2.4 update patch 2
-  o Bonding 2.4 update patch 3
-  o Bonding 2.4 update patch 4
-  o Bonding 2.4 update patch 5
-  o Bonding 2.4 update patch 6
-
-Jean Tourrilhes <jt@bougret.hpl.hp.com>:
-  o irda: static init fixes
-  o irda: Export CRC routine to drivers
-  o irda: Mask C/R bit from connection
-  o irda-usb driver fixes
-  o IrCOMM chat fixes
-  o QoS interoperability fixes
-  o IrLMP timer race fix
-  o Fix IrIAP skb leak
-  o irda: Secondary nack code fixes
-
-Jeff Garzik <jgarzik@redhat.com>:
-  o [net] store physical device a packet arrives in on
-  o [bonding] fix comment to prevent future merge difficulties
-  o [bonding] add support for getting slave's speed and duplex via ethtool
-  o [bonding] Moved setting slave mac addr, and open, from app to the driver
-  o [bonding] move driver into new drivers/net/bonding directory
-  o [bonding] move private decls into new drv/net/bonding/bonding.h file
-  o [bonding] add support for IEEE 802.3ad Dynamic link aggregation
-  o [netdrvr sundance] small cleanups from 2.5
-  o Remove duplicate CONFIG_TULIP_MWI entry in Configure.help
-  o [netdrvr eepro] update MODULE_AUTHOR per old-author request
-  o [netdrvr tlan] backport fixes and cleanups from 2.5
-  o [netdrvr] s/init_etherdev/alloc_etherdev/ in code comments, in 8139too and pci-skeleton drivers.
-  o [netdrvr 8139too] add comment, whitespace cleanup
-  o [netdrvr olympic] fix build with gcc 3.3
-  o [netdrvr r8169] use alloc_etherdev (fix race), pci_disable_device
-  o [netdrvr r8169] sync with 2.5 (backport whitespace cleanups)
-  o [netdrvr amd8111e] remove out-of-tree feature that snuck in
-  o [netdrvr] gcc 3.3 cleanups
-  o [netdrvr sis900] minor fixes from 2.5
-
-Justin T. Gibbs <gibbs@overdrive.btc.adaptec.com>:
-  o Update the aic7xxx driver to 6.2.10 and add the aic79xx driver version 1.1.1
-  o Correct building of aicasm
-  o Update to aic7xxx version 6.2.22 and aic79xx 1.3.0_ALPHA2
-  o Integrate 2.5.X aic7xxx and aic79xx changes
-  o Misc driver updates
-  o Integrate changes from Christoph Hellwig <hch@infradead.org>
-  o Update to aic7xxx version 6.2.24 and aic79xx version 1.3.0_ALPHA5
-  o Preface the "asserting atn" diagnostic with controller/target information
-  o aic7xxx Driver
-  o Aic7xxx Driver
-  o Aic7xxx & Aic79xx Drivers Correct 2.5.X declaration for aic_sector_div().
-  o Aic7XXX Firmware Assembler
-  o Aic7XXX and Aic79XX drivers Use down_interruptable() rather than down() to avoid having our DV threads counted toward the load average.
-  o Aic7XXX and Aic79XX drivers
-  o Aic79XX and Aic7xxx Drivers
-  o Aic7XXX and Aic79XX Drivers
-  o Aic7XXX and Aic79xx Drivers
-  o aic7xxx/aic79xx firmware assembler
-  o aic7xx and aic79xx drivers - Correct several DV issues
-  o aic7xxx and aic79xx driver updates
-  o Aic7xxx and Aic79xx DV fix
-  o Aic79xx Driver Update Enable abort and bus device reset handlers for both legacy and packetized connections.
-  o Aic7xxx Driver Update
-  o Aic7xxx and Aic79xx Driver Update Force an SDTR after a rejected WDTR if the syncrate is unkonwn.
-  o Aic7xxx Driver Update 6.2.28
-  o Update Aic7xxx and Aic79xx Driver Documentation
-  o Bump aic79xx version number to 1.3.0 now that it has passed functional testing.
-  o Aic7xxx Driver Update to verstion 6.2.29
-  o Update aic7xxx/Makefile
-  o Update aicasm/Makefile so that link specifications are specified after all object files.  This seems to be required in order to link correctly in some cases.
-  o Aic79xx Driver Update to 1.3.2
-  o Update Aic7xxx to version 6.2.29
-  o AICLIB Update
-  o Update Aic7xxx driver [Rev 6.2.31]
-  o Aic79XX Driver Update [Rev 1.3.5]
-  o Change the callback argument for aic brace option parsing to u_long to avoid casting problems with different architectures.
-  o Aic7xxx Driver Update (version 6.2.32)
-  o Aic79xx Driver Update (version 1.3.6)
-  o Complete merge of AC aic7xxx and aic79xx bits
-  o Remove the CONFIG_AIC7XXX_ALLOW_MEMIO option.  It has been supplanted by the MEMIO probe/test code.
-  o Aic79xx Driver Update
-  o Aic7xxx and Aic79xx driver Update
-  o Aic7xxx and Aic79xx Driver Update
-  o Aic7xxx and Aic79xx driver updates
-  o Aic7xxx and Aic79xx driver updates
-  o Aic7xxx and Aic79xx driver Update
-  o Aic7xxx and Aic79xx Driver Updates
-  o Aic7xxx Driver Update
-  o Aic79xx Driver Update
-  o Use absolute path to drivers/scsi in the aic7xxx Makefile
-  o Aic79xx Driver Update
-  o Aic79xx Driver Update
-  o Aic79xx Driver Upate
-  o Remove pre-2.2.X kernel support.  Pre-2.2.X support requires
-  o Aic79xx Driver Update
-  o Aic7xxx and Aic79xx Driver Updates
-  o Update Aic79xx and Aic7xxx Documenation
-  o Aic79xx Driver Update (version 1.3.8)
-  o Aic7xxx Driver Update (6.2.33)
-  o Aic7xxx Driver Update
-  o Aic7xxx and Aic79xx Driver Updates
-  o Aic7xxx and Aic79xx Driver Update
-  o Aic7xxx and Aic79xx Driver Update
-  o Aic79XX Driver Update
-  o Aic7xxx Driver Update
-  o Aic7xxx Driver README update
-  o Aic79xx and Aic7xxx Driver Updates
-  o Cset exclude: ak@muc.de|ChangeSet|20030508192559|45150 Cset exclude: marcelo@freak.distro.conectiva|ChangeSet|20030507201543|47130 Cset exclude: marcelo@freak.distro.conectiva|ChangeSet|20030507200707|47153
-  o Aic7xxx and Aic79xx Updates
-  o Aic79xx Update
-  o Aic79xx Driver Update
-  o Aic7xxx Driver version 6.2.35
-  o Aic7xxx Driver Update
-  o Aic7xxx and Aic79xx Driver Updated
-  o Aic7xxx Driver Update
-  o Aic7xxx Driver Update
-  o Aic79xx Driver Update
-  o Aic7xxx and Aic79xx Driver Updates
-  o Bump aic79xx driver version to 1.3.9
-  o Aic7xxx Driver Update
-  o Aic7xxx Driver Update
-  o Aic79xx Driver Update
-  o Aic79xx Driver Update
-  o Aic7xxx Driver Update
-  o Aic7xxx and Aic79xx Driver Update
-  o Aic7xxx and Aic79xx driver Update
-  o Aic7xxx Driver Update
-  o Aic7xxx Driver Update
-  o Aic79xx Driver Update
-  o Aic7xxx and Aic79xx Driver Update
-  o Aic7xxx Driver Update
-  o Aic79xx Driver Update
-  o Update Aic79xx Readme
-
-Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>:
-  o ISDN: Fix Fritz!PCI v2 xmit irq underrun recovery
-  o ISDN: Fix bug in ST5481 D-Channel state machine
-
-Karsten Keil <kkeil@suse.de>:
-  o ISDN: [PATCH] Fix problem with external hisax drivers
-
-Maksim Krasnyanskiy <maxk@qualcomm.com>:
-  o L2CAP config req/rsp handling fixes
-  o [Bluetooth] Detect and log error condition when first L2CAP fragment is too long
-  o [Bluetooth] RFCOMM must wait for MSC exchange to complete before sending the data
-  o [Bluetooth] L2CAP sockets can now set LM_RELIABLE flag and get notification when we detect reliablity problem with the ACL connection.
-  o [Bluetooth] Add support for SO_LINGER option to all Bluetooth protocols
-  o Bluetooth: RFCOMM must send MSC when DLC was opened by SABM
-  o [Bluetooth] Fix RFCOMM C/R and Direction bit handling
-  o [Bluetooth] L2CAP qualification spec mandates sending additional config request if we receive config response with unacceptable parameters error code.
-
-Marcel Holtmann <marcel@holtmann.org>:
-  o [Bluetooth] Send the correct values in RPN response
-  o [Bluetooth] Handle priority bits in parameter negotiation
-  o [Bluetooth] Implement rfcomm_tty_put_char() function
-  o [Bluetooth] Send correct RPN response for accepted values
-  o [Bluetooth] Set EA bit for V.24 signals parameter
-  o [Bluetooth] Handle bit rate in remote port negotiation
-  o [Bluetooth] Quirk for devices with no ISOC endpoints
-
-Marcelo Tosatti <marcelo@freak.distro.conectiva>:
-  o Changed EXTRAVERSION to -pre2
-  o Cset exclude: jamagallon@able.es|ChangeSet|20030620200318|50799
-
-Mark A. Greer <mgreer@mvista.com>:
-  o PPC32: Fix the gen550 infrastructure for baud rates other than 9600
-
-Olaf Hering <olh@suse.de>:
-  o remove TIOCGDEV from asm/ioctls.h
-  o RAID_AUTORUN is a compatible ioctl
-
-Patrick McHardy <kaber@trash.net>:
-  o ISDN: [PATCH]  missing cli() in isdn_net.c
-  o ISDN: [PATCH] don't unlock lp if there is nothing to unlock
-  o ISDN: Add CONFIG_IPPP_FILTER
-  o [NETFILTER]: Dont call helpers expectfn() for unconfirmed connections
-
-Paul Mackerras <paulus@samba.org>:
-  o PPC32: Update for PPC 4xx TLB and exception handling
-  o PPC32: Add a new framework for on-chip peripherals for the IBM 4xx embedded processors.
-  o PPC32: Introduce a new config symbol, CONFIG_40x, used for PPC 40x cpus
-  o PPC32: Add generic IBM PPC405GP support and use it on the walnut platform
-  o PPC32: Update the support for the "Walnut" 405GP platform
-  o PPC32: Make debug exceptions usable on 4xx-class processors, and improve trap handling.
-  o PPC32: Add support for PPC 405GP interrupt controller
-  o PPC32: Extra register and other definitions for the PPC 405GP processor
-  o PPC32: Move PC-style serial port definitions out to asm/pc_serial.h
-  o PPC32: remove ppc4xx_serial.h, it is no longer used
-  o PPC32: Cleanups for PPC 405GP-based systems; add file of OCP ids
-  o PPC32: Don't run `checks' program on make zImage
-  o PPC32: Add definitions for the UIC interrupt controller on the 405GP processor
-  o PPC32: Add support for PCI and time-of-day clock on 405GP-based systems
-  o PPC32: Allow for PCI host bridges that need explicit type 1 cycle indication
-
-Randy Dunlap <rddunlap@osdl.org>:
-  o unexpected IO-APIC code update
-
-Rusty Russell <rusty@rustcorp.com.au>:
-  o [irda] module refcounts for irlan
-  o [patch, 2.5] dgrs doesn't free on error path
-  o namespace pollution in cosa driver
-  o [2.4 patch] fix wavelan_cs compile warning
-  o Clear up GFP confusion in rcpci45.c
-  o [patch, 2.5] fix errorpath in apne.c
-  o Remove naked GFP_DMA from drivers_net_macmace.c
-  o namespace pollution in skfddi driver
-  o improve signal-to-noise ratio in atm code
-  o 2.4.20 wait.h doc typo
-  o fs_autofs4_root.c unused variable
-  o [TRIVIAL PATCH 2.4] update README file to current
-  o fix documentation in include_asm-i386_bitops.h
-  o missing headers in i82092.c
-  o fix linewrap in Documentation_power_pci.txt
-  o include_asm-ia64_sal.h, typo: the the
-  o Typos in drivers_s390_net_iucv.h
-  o [TRIVIAL PATCH] include_asm-i386_dma.h: wrong lowest DMA
-  o redundant declarations (#1_15)
-  o add some missing init.h inclusions
-  o remove superflous if in wait_kio
-  o Squash warning in ppc64 addnote tool
-  o fix linewrap in Documentation_filesystems_sysv-fs.txt
-  o set b_page to null in fake buffer_head for O_DIRECT
-  o fix linewrap in Documentation_pci.txt
-  o misc_register audit fix of wdt_pci
-  o misc register fix on ds1286
-  o reorganize for unreachable code
-
-Sam Ravnborg <sam@mars.ravnborg.org>:
-  o [netdrvr sis900] make function headers readable by kernel-doc tool
-
-Scott Feldman <scott.feldman@intel.com>:
-  o [netdrvr e1000] add support for NAPI
-  o [netdrvr e1000] add TSO support -- disabled
-  o 10GbE ethtool support
-  o remove ethtool privileged references
-  o [e100] Remove "Freeing alive device" warning
-  o [e100] move e100_asf_enable under CONFIG_PM to avoid warning
-  o [e100] Add ethtool parameter support
-  o [e100] Add ethtool cable diag test
-  o [e100] Add MDI/MDI-X status to ethtool reg dump
-  o [e100] cleanup Tx resources before running ethtool diags
-  o [e100] full stop/start on ethtool set speed/duplex/autoneg
-  o [e100] fixed stalled stats collection
-  o [e100] VLAN configuration was lost after ethtool diags run
-  o [e100] use skb_headlen() rather than rolling own
-  o [e100] set netdev members before registration
-  o [e100] misc
-
-Tom Rini <trini@kernel.crashing.org>:
-  o PPC32: Clean up the cpu_idle() code a bit
-  o PPC32: Fix a multicast bug in the MPC 8xx / 8260 enet drivers
-  o PPC32: Correct the DTLB miss handler on MPC8xx
-  o PPC32: Fix a problem with MDIO requests on reset in MPC 8xx enet
-  o PPC32: Minor cleanups to the MPC 8xx FEC driver
-  o PPC32: Fix a small problem in the 8xx / 8260 uart code
-  o PPC32: Important fixes in the MPC8xx FEC and MPC826x enet driver
-  o PPC32: Describe when we want to do a CPM reset on MPC8xx
-  o Add /proc/sys/kernel/l3cr
-
-Zwane Mwaikambo <zwane@linuxpower.ca>:
-  o Remove warning due to comparison in drivers/net/pcnet32.c
+Jun 26 04:07:37 gonzo kernel: hdc: dma_timer_expiry: dma status == 0x64
+Jun 26 04:07:37 gonzo kernel: hdc: lost interrupt
+Jun 26 04:07:37 gonzo kernel: hdc: dma_intr: bad DMA status (dma_stat=70)
+Jun 26 04:07:37 gonzo kernel: hdc: dma_intr: status=0x50 { DriveReady SeekComplete }
+..
+Jun 26 16:43:35 gonzo kernel: hdc: dma_timer_expiry: dma status == 0x64
+Jun 26 16:43:35 gonzo kernel: hdc: lost interrupt
+Jun 26 16:43:35 gonzo kernel: hdc: dma_intr: bad DMA status (dma_stat=70)
+Jun 26 16:43:35 gonzo kernel: hdc: dma_intr: status=0x50 { DriveReady SeekComplete }
+..
+Jun 26 20:14:24 gonzo kernel: hde: dma_timer_expiry: dma status == 0x61
+Jun 26 20:14:34 gonzo kernel: hde: timeout waiting for DMA
+Jun 26 20:14:34 gonzo kernel: PDC202XX: Primary channel reset.
+Jun 26 20:14:34 gonzo kernel: hde: timeout waiting for DMA
+Jun 26 20:14:34 gonzo kernel: hde: (__ide_dma_test_irq) called while not waiting
+Jun 26 20:14:59 gonzo kernel: hdf: dma_timer_expiry: dma status == 0x40
+Jun 26 20:14:59 gonzo kernel: hdf: timeout waiting for DMA
+Jun 26 20:14:59 gonzo kernel: PDC202XX: Primary channel reset.
+Jun 26 20:14:59 gonzo kernel: hdf: timeout waiting for DMA
+Jun 26 20:14:59 gonzo kernel: hdf: (__ide_dma_test_irq) called while not waiting
+Jun 26 20:14:59 gonzo kernel: hde: status timeout: status=0xd0 { Busy }
+Jun 26 20:14:59 gonzo kernel:
+Jun 26 20:14:59 gonzo kernel: PDC202XX: Primary channel reset.
+Jun 26 20:14:59 gonzo kernel: hde: drive not ready for command
+Jun 26 20:15:34 gonzo kernel: ide2: reset timed-out, status=0xd0
+Jun 26 20:15:34 gonzo kernel: hdf: status error: status=0x50 { DriveReady SeekComplete }
+Jun 26 20:15:34 gonzo kernel:
+Jun 26 20:15:34 gonzo kernel: hdf: no DRQ after issuing WRITE
+Jun 26 20:15:34 gonzo kernel: hde: status timeout: status=0xd0 { Busy }
+Jun 26 20:15:34 gonzo kernel:
+Jun 26 20:15:34 gonzo kernel: PDC202XX: Primary channel reset.
+Jun 26 20:15:34 gonzo kernel: hde: drive not ready for command
+Jun 26 20:16:04 gonzo kernel: ide2: reset timed-out, status=0xd0
+Jun 26 20:16:04 gonzo kernel: hdf: status error: status=0x50 { DriveReady SeekComplete }
+Jun 26 20:16:04 gonzo kernel:
+Jun 26 20:16:04 gonzo kernel: hdf: no DRQ after issuing WRITE
+Jun 26 20:16:04 gonzo kernel: blk: queue c0340408, I/O limit 4095Mb (mask 0xffffffff)
+Jun 26 20:16:04 gonzo kernel: end_request: I/O error, dev 21:05 (hde), sector 159991808
+Jun 26 20:16:04 gonzo kernel: raid5: Disk failure on hde5, disabling device. Operation continuing on 5 devices
+Jun 26 20:16:04 gonzo kernel: md: updating md5 RAID superblock on device
+Jun 26 20:16:04 gonzo kernel: md: hdh5 [events: 00000020]<6>(write) hdh5's sb offset: 120060736
+Jun 26 20:16:04 gonzo kernel: md: recovery thread got woken up ...
+Jun 26 20:16:04 gonzo kernel: md5: no spare disk to reconstruct array! -- continuing in degraded mode
+Jun 26 20:16:04 gonzo kernel: md: recovery thread finished ...
+Jun 26 20:16:04 gonzo kernel: md: hdg5 [events: 00000020]<6>(write) hdg5's sb offset: 120053568
+Jun 26 20:16:04 gonzo kernel: md: hdf5 [events: 00000020]<6>(write) hdf5's sb offset: 120060736
+..
+Jun 26 20:16:34 gonzo kernel: hdf: lost interrupt
+Jun 26 20:16:34 gonzo kernel: hdf: status error: status=0x50 { DriveReady SeekComplete }
+Jun 26 20:16:34 gonzo kernel:
+Jun 26 20:16:34 gonzo kernel: hdf: no DRQ after issuing WRITE
+Jun 26 20:16:34 gonzo kernel: end_request: I/O error, dev 21:05 (hde), sector 159991816
+Jun 26 20:16:34 gonzo kernel: hdf: status error: status=0x50 { DriveReady SeekComplete }
+Jun 26 20:16:34 gonzo kernel:
+Jun 26 20:16:34 gonzo kernel: hde: DMA disabled
+Jun 26 20:16:34 gonzo kernel: PDC202XX: Primary channel reset.
+Jun 26 20:16:34 gonzo kernel: hdf: no DRQ after issuing WRITE
+Jun 26 20:17:04 gonzo kernel: ide2: reset timed-out, status=0xd0
+Jun 26 20:17:04 gonzo kernel: hdf: status error: status=0x50 { DriveReady SeekComplete }
+Jun 26 20:17:04 gonzo kernel:
+Jun 26 20:17:04 gonzo kernel: hdf: no DRQ after issuing WRITE
+Jun 26 20:17:04 gonzo kernel: end_request: I/O error, dev 21:05 (hde), sector 159991824
+Jun 26 20:17:04 gonzo kernel: hdf: status error: status=0x50 { DriveReady SeekComplete }
+Jun 26 20:17:04 gonzo kernel:
+Jun 26 20:17:04 gonzo kernel: hdf: no DRQ after issuing WRITE
+Jun 26 20:17:34 gonzo kernel: hdf: lost interrupt
+Jun 26 20:17:34 gonzo kernel: hdf: status error: status=0x50 { DriveReady SeekComplete }
+Jun 26 20:17:34 gonzo kernel:
+Jun 26 20:17:34 gonzo kernel: hdf: no DRQ after issuing WRITE
+Jun 26 20:17:34 gonzo kernel: end_request: I/O error, dev 21:05 (hde), sector 159988056
+Jun 26 20:17:34 gonzo kernel: hdf: status error: status=0x50 { DriveReady SeekComplete }
+Jun 26 20:17:34 gonzo kernel:
+Jun 26 20:17:34 gonzo kernel: PDC202XX: Primary channel reset.
+Jun 26 20:17:34 gonzo kernel: hdf: no DRQ after issuing WRITE
+Jun 26 20:18:04 gonzo kernel: ide2: reset timed-out, status=0xd0
+Jun 26 20:18:04 gonzo kernel: blk: queue c0340544, I/O limit 4095Mb (mask 0xffffffff)
+Jun 26 20:18:04 gonzo kernel: end_request: I/O error, dev 21:45 (hdf), sector 159991832
+Jun 26 20:18:04 gonzo kernel: raid5: Disk failure on hdf5, disabling device. Operation continuing on 4 devices
+Jun 26 20:18:04 gonzo kernel: end_request: I/O error, dev 21:05 (hde), sector 159988064
+Jun 26 20:18:04 gonzo kernel: end_request: I/O error, dev 21:45 (hdf), sector 159991840
+Jun 26 20:18:04 gonzo kernel: end_request: I/O error, dev 21:45 (hdf), sector 159991848
+Jun 26 20:18:04 gonzo kernel: end_request: I/O error, dev 21:45 (hdf), sector 159991856
+Jun 26 20:18:04 gonzo kernel: end_request: I/O error, dev 21:45 (hdf), sector 159991864
+Jun 26 20:18:04 gonzo kernel: end_request: I/O error, dev 21:45 (hdf), sector 6976
+Jun 26 20:18:04 gonzo kernel: end_request: I/O error, dev 21:45 (hdf), sector 240121472
+Jun 26 20:18:04 gonzo kernel: md: recovery thread got woken up ...
+Jun 26 20:18:04 gonzo kernel: md: updating md5 RAID superblock on device
+Jun 26 20:18:04 gonzo kernel: md: hdh5 [events: 00000021]<6>(write) hdh5's sb offset: 120060736
+Jun 26 20:18:04 gonzo kernel: md: write_disk_sb failed for device hdf5
+Jun 26 20:18:04 gonzo kernel: md: (skipping faulty hde5 )
+Jun 26 20:18:04 gonzo kernel: md: hdd5 [events: 00000021]<6>(write) hdd5's sb offset: 117246400
+Jun 26 20:18:05 gonzo kernel: md: hdc5 [events: 00000021]<6>(write) hdc5's sb offset: 117246400
+Jun 26 20:18:05 gonzo kernel: md: hdg5 [events: 00000021]<6>(write) hdg5's sb offset: 120053568
+Jun 26 20:18:05 gonzo kernel: md: errors occurred during superblock update, repeating
+Jun 26 20:18:05 gonzo kernel: md: updating md5 RAID superblock on device
+Jun 26 20:18:05 gonzo kernel: md: hdh5 [events: 00000022]<6>(write) hdh5's sb offset: 120060736
+Jun 26 20:18:05 gonzo kernel: md: (skipping faulty hdf5 )
+Jun 26 20:18:05 gonzo kernel: md: (skipping faulty hde5 )
+Jun 26 20:18:05 gonzo kernel: md: hdd5 [events: 00000022]<6>(write) hdd5's sb offset: 117246400
+Jun 26 20:18:05 gonzo kernel: md: hdg5 [events: 00000022]<6>(write) hdg5's sb offset: 120053568
+Jun 26 20:18:05 gonzo kernel: md: hdc5 [events: 00000022]<6>(write) hdc5's sb offset: 117246400
+Jun 26 20:18:05 gonzo kernel: md: (skipping faulty hdf5 )
+Jun 26 20:18:05 gonzo kernel: md: (skipping faulty hde5 )
+Jun 26 20:18:05 gonzo kernel: md: hdd5 [events: 00000022]<6>(write) hdd5's sb offset: 117246400
+Jun 26 20:18:05 gonzo kernel: md5: no spare disk to reconstruct array! -- continuing in degraded mode
+Jun 26 20:18:05 gonzo kernel: md: recovery thread finished ...
+Jun 26 20:18:05 gonzo kernel: md: hdc5 [events: 00000022]<6>(write) hdc5's sb offset: 117246400
+Jun 26 20:18:05 gonzo kernel: journal-601, buffer write failed
+Jun 26 20:18:05 gonzo kernel: kernel BUG at prints.c:334!
+Jun 26 20:18:05 gonzo kernel: invalid operand: 0000
+Jun 26 20:18:05 gonzo kernel: CPU:    0
+Jun 26 20:18:05 gonzo kernel: EIP:    0010:[<c019fa58>]    Tainted: P
+Jun 26 20:18:05 gonzo kernel: EFLAGS: 00010282
+Jun 26 20:18:05 gonzo kernel: eax: 00000024   ebx: def60800   ecx: 00000001   edx: c02b5ffc
+Jun 26 20:18:05 gonzo kernel: esi: 00000000   edi: def60800   ebp: 00000007   esp: c1591ec0
+Jun 26 20:18:05 gonzo kernel: ds: 0018   es: 0018   ss: 0018
+Jun 26 20:18:05 gonzo kernel: Process kupdated (pid: 7, stackpage=c1591000)
+Jun 26 20:18:05 gonzo kernel: Stack: c027c8f5 c0327220 def60800 e0b1460c c01aadba def60800 c0289520 00001000
+Jun 26 20:18:05 gonzo kernel:        da263780 0000000a 00000008 00000000 ceac7880 00000000 00000014 c9675000
+Jun 26 20:18:05 gonzo kernel:        00000004 c01aeee1 def60800 e0b1460c 00000001 00000006 e0b1d1bc 00000004
+Jun 26 20:18:05 gonzo kernel: Call Trace:    [<c01aadba>] [<c01aeee1>] [<c01ae095>] [<c019c8b0>] [<c013f64b>]
+Jun 26 20:18:06 gonzo kernel:   [<c013eb2c>] [<c013ee21>] [<c0105000>] [<c0105000>] [<c010577e>] [<c013ed50>]
+Jun 26 20:18:06 gonzo kernel:
+Jun 26 20:18:06 gonzo kernel: Code: 0f 0b 4e 01 8e fa 27 c0 85 db 74 0e 0f b7 43 08 89 04 24 e8
 

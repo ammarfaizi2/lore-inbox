@@ -1,81 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262329AbVBKT6O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262326AbVBKUAz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262329AbVBKT6O (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Feb 2005 14:58:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262325AbVBKT5n
+	id S262326AbVBKUAz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Feb 2005 15:00:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262325AbVBKUAz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Feb 2005 14:57:43 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:12973 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S262324AbVBKT5Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Feb 2005 14:57:24 -0500
-Subject: Re: 2.6.11-rc3-mm2
-From: Lee Revell <rlrevell@joe-job.com>
-To: Matt Mackall <mpm@selenic.com>
-Cc: Paul Davis <paul@linuxaudiosystems.com>, Ingo Molnar <mingo@elte.hu>,
-       Peter Williams <pwil3058@bigpond.net.au>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Chris Wright <chrisw@osdl.org>,
-       "Jack O'Quin" <jack.oquin@gmail.com>, Andrew Morton <akpm@osdl.org>,
-       Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       Con Kolivas <kernel@kolivas.org>
-In-Reply-To: <20050211194233.GL15058@waste.org>
-References: <20050211082536.GF15058@waste.org>
-	 <200502111749.j1BHn4pe021145@localhost.localdomain>
-	 <20050211194233.GL15058@waste.org>
-Content-Type: text/plain
-Date: Fri, 11 Feb 2005 14:57:21 -0500
-Message-Id: <1108151842.20365.22.camel@krustophenia.net>
+	Fri, 11 Feb 2005 15:00:55 -0500
+Received: from ipcop.bitmover.com ([192.132.92.15]:52385 "EHLO
+	mail.bitmover.com") by vger.kernel.org with ESMTP id S262326AbVBKUAn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Feb 2005 15:00:43 -0500
+Date: Fri, 11 Feb 2005 12:00:41 -0800
+To: Alexandre Oliva <aoliva@redhat.com>
+Cc: Jon Smirl <jonsmirl@gmail.com>, Stelian Pop <stelian@popies.net>,
+       Francois Romieu <romieu@fr.zoreil.com>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Linux Kernel Subversion Howto
+Message-ID: <20050211200041.GB24759@bitmover.com>
+Mail-Followup-To: lm@bitmover.com,
+	Alexandre Oliva <aoliva@redhat.com>, Jon Smirl <jonsmirl@gmail.com>,
+	Stelian Pop <stelian@popies.net>,
+	Francois Romieu <romieu@fr.zoreil.com>, linux-kernel@vger.kernel.org
+References: <20050205233841.GA20875@bitmover.com> <20050208154343.GH3537@crusoe.alcove-fr> <20050208155845.GB14505@bitmover.com> <ord5vatdph.fsf@livre.redhat.lsd.ic.unicamp.br> <20050209155113.GA10659@bitmover.com> <or7jlgpxio.fsf@livre.redhat.lsd.ic.unicamp.br> <20050210211700.GA26361@bitmover.com> <or1xbn6rn5.fsf@livre.redhat.lsd.ic.unicamp.br> <9e473391050211081338f9d84e@mail.gmail.com> <orbrar57vp.fsf@livre.redhat.lsd.ic.unicamp.br>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <orbrar57vp.fsf@livre.redhat.lsd.ic.unicamp.br>
+User-Agent: Mutt/1.5.6+20040907i
+From: lm@bitmover.com (Larry McVoy)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-02-11 at 11:42 -0800, Matt Mackall wrote:
-> On Fri, Feb 11, 2005 at 12:49:04PM -0500, Paul Davis wrote:
-> > >RT-LSM introduces architectural problems in the form of bogus API. And
-> > 
-> > that may be true of LSM, but not RT-LSM in particular. RT-LSM doesn't
-> > introduce *any* API whatsoever - it simply allows software to call
-> > various existing APIs (mostly from POSIX) and have them not fail as
-> > result of not being root and/or not running on a capabilities-enabled
-> > kernel without the required caps.
+On Fri, Feb 11, 2005 at 03:22:34PM -0200, Alexandre Oliva wrote:
+> On Feb 11, 2005, Jon Smirl <jonsmirl@gmail.com> wrote:
 > 
-> The API is the parameters to modprobe or sysfs. 
+> > It's not Larry choosing not to have you do the work, you are self
+> > selecting not to do it because you won't sign the contracts.
 > 
+> No.  We don't want access to the BK software.  We want access to the
+> data that is stored in the repository, that's all.
 
-I think you are talking about the API for root to administer it vs. the
-(lack of) API for apps to use the RT capabilities.  I think Paul's point
-is that we can transparently replace it with something better (IMO the
-RT rlimit is better) in the future, and the apps don't have to know
-about it at all.  Comparing it to devfs/udev is bogus because those are
-way, way more complicated.
+No, you want access to the metadata that BK uses to store the data.
 
-> > >it's implemented as an LSM is meaningless if Redhat and SuSE ship it
-> > >on by default.
-> > 
-> > We haven't encouraged anyone to ship anything with it on by default:
-> > the idea is for the module to be present and usable, not turned on.
-> 
-> On as in turned on for build in the kernel config and shipped. But I
-> expect people will eventually actually ship it _on_ with a group
-> called 'rt' and possibly even put the primary user in there on install
-> unless you start slapping some big fat warnings on it. (I just noticed
-> the new Debian installer is putting the primary user in audio, cdrom,
-> video, etc.)
-> 
+It would be nice if you were to stop pretending that access to that data
+wouldn't teach you anything, we all know that not to be true.  All the
+claims you make that it is your data are as wrong as saying you own the
+file system metadata when you store a file or the database metadata when
+you store a record.  You don't.  You just want it.  It's not a smart
+move for us to give it to you since you have stated that the only good
+use of a commercial product is to create an open source copy of it.
+It's pretty clear what you want to do and you keep asking for us to help
+you and the answer now, and forever, is no, we aren't going to help you
+create a copy of our product.
 
-Sorry, if the distros are so dumb they need a big fat warning to know
-that this is not a safe thing to enable by default, at least on anything
-you would ever consider a multiuser system, then they get what they
-deserve.  If they have half a brain they will use the setgid approach
-that Ingo suggested, and only enable this for apps like JACK and
-cdrecord that have been farily well audited and can be trusted to use
-this feature (for example JACK has the internal watchdog to keep a bad
-client from locking the system).  Really it only makes sense for a
-distro to enable this if the user selects the "low latency desktop" or
-"multimedia desktop" or whatever install option and makes clear that
-this profile is NOT suitable for a multiuser system. 
-
-Lee
-
+You or Roman or whoever will say "we aren't trying to create a copy of
+your product" and that's nonsense.  You want a product that stores the
+data in exactly the same way as BK, that's why you keep asking for the
+metadata.  If you wanted to create your own system you wouldn't care,
+you already have the CVS tree, it has 96% of the deltas that the BK
+tree has.  96%.  So you are trying to tell us all that you need the
+last 4% of the deltas so you can create a *different* system than BK?
+Come on, gimme a break already, you aren't fooling anyone.
+-- 
+---
+Larry McVoy                lm at bitmover.com           http://www.bitkeeper.com

@@ -1,42 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264642AbTDZK13 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Apr 2003 06:27:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264644AbTDZK13
+	id S264645AbTDZK3h (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Apr 2003 06:29:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264648AbTDZK3h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Apr 2003 06:27:29 -0400
-Received: from mux1.uit.no ([129.242.4.252]:30995 "EHLO mux1.uit.no")
-	by vger.kernel.org with ESMTP id S264642AbTDZK11 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Apr 2003 06:27:27 -0400
-Date: Sat, 26 Apr 2003 12:39:39 +0200
-From: Tobias Brox <tobias@stud.cs.uit.no>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: nfsroot.c + ipconfig.c (2.4.20)
-Message-ID: <20030426123939.D12540@stud.cs.uit.no>
-Reply-To: tobias@stud.cs.uit.no
-References: <200304231510.h3NFAh430564@lgserv3.stud.cs.uit.no> <shs8yu1uqak.fsf@charged.uio.no> <20030426123356.C12540@stud.cs.uit.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030426123356.C12540@stud.cs.uit.no>; from tobias@stud.cs.uit.no on Sat, Apr 26, 2003 at 12:33:56PM +0200
-Organization: =?iso-8859-1?Q?University_of_Troms=F8?=
+	Sat, 26 Apr 2003 06:29:37 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:40202 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S264645AbTDZK3d
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Apr 2003 06:29:33 -0400
+Date: Sat, 26 Apr 2003 06:36:13 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Ben Collins <bcollins@debian.org>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: IEEE-1394 problem on init [ was Re: Linux 2.4.21-rc1 ]
+In-Reply-To: <20030425181610.GA2774@phunnypharm.org>
+Message-ID: <Pine.LNX.3.96.1030426063455.20200B-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Tobias Brox - Sat at 12:33:56PM +0200]
-> I'd like to hear success-stories from people that
-> have managed to do a diskless boot with a kernel of version 2.4.20 or
-> more recent.
+On Fri, 25 Apr 2003, Ben Collins wrote:
 
-Oh .. for the record: after hacking a bit around, I did manage to boot
-up disklessly with 2.4.20 - but when trying to mount other
-NFS-partitions run-time, the mount-command hangs.  (This problem does
-not occur when booting up with the same kernel on a computer with a
-disk)
+> > Yes, and I miss why that matters. Let me see if I can make the idea clear
+> > to you:
+> >   2.4.22-pre5		some code
+> >   2.4.22-pre5-bk1	fixes
+> >   2.4.22-pre5-bk2	more fixes
+> >   2.4.22-pre5-bk3	still more fixes
+> >   2.4.22-pre6		fixes to date plus major changes
+> > 
+> > So when a maintainer got something major it wouldn't go into bk (the
+> > commercial software database) until a new -pre, while the -bk patches
+> > available for download would get the fixes only.
+> 
+> What if a fix depends on a major-change-patch? What if a fix is itself a
+> major change?
+
+Time for a -pre. That's a change management decision. Hopefully -pre would
+be somewhat closer spaced than has happened with 2.4.21.
 
 -- 
-Check our new Mobster game at http://hstudd.cs.uit.no/mobster/
-(web game, updates every 4th hour, no payment, no commercials)
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

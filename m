@@ -1,48 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265277AbUBPBMH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Feb 2004 20:12:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265289AbUBPBMH
+	id S265237AbUBPBIM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Feb 2004 20:08:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265275AbUBPBIM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Feb 2004 20:12:07 -0500
-Received: from wombat.indigo.net.au ([202.0.185.19]:18705 "EHLO
-	wombat.indigo.net.au") by vger.kernel.org with ESMTP
-	id S265277AbUBPBME (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Feb 2004 20:12:04 -0500
-Date: Mon, 16 Feb 2004 09:13:55 +0800 (WST)
-From: Ian Kent <raven@themaw.net>
-X-X-Sender: raven@wombat.indigo.net.au
-To: Rusty Russell <rusty@rustcorp.com.au>
-cc: =?koi8-r?Q?=22?=Peter Lojkin=?koi8-r?Q?=22=20?= <ia6432@inbox.ru>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       autofs mailing list <autofs@linux.kernel.org>,
-       nfs@lists.sourceforge.net
-Subject: Re: [NFS] nfs or autofs related hangs 
-In-Reply-To: <20040215222107.7E4382C2D8@lists.samba.org>
-Message-ID: <Pine.LNX.4.58.0402160910300.28358@wombat.indigo.net.au>
-References: <20040215222107.7E4382C2D8@lists.samba.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-2, required 8,
-	EMAIL_ATTRIBUTION, IN_REP_TO, REFERENCES, REPLY_WITH_QUOTES,
-	USER_AGENT_PINE)
+	Sun, 15 Feb 2004 20:08:12 -0500
+Received: from mtvcafw.SGI.COM ([192.48.171.6]:22703 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id S265237AbUBPBIB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Feb 2004 20:08:01 -0500
+Date: Sun, 15 Feb 2004 17:08:27 -0800
+From: Paul Jackson <pj@sgi.com>
+To: wrlk@riede.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] remove obsolete onstream support from ide-tape in
+ 2.6.3-rc3
+Message-Id: <20040215170827.2e643ed2.pj@sgi.com>
+In-Reply-To: <20040215234711.GC4957@serve.riede.org>
+References: <20040215221108.GA4957@serve.riede.org>
+	<20040215153214.002dcc9a.pj@sgi.com>
+	<20040215234711.GC4957@serve.riede.org>
+Organization: SGI
+X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 15 Feb 2004, Rusty Russell wrote:
+Thanks for the reply - I wish you well with it.
 
-> In message <Pine.LNX.4.58.0402082326270.5926@raven.themaw.net> you write:
-> > +static spinlock_t waitq_lock __cacheline_aligned_in_smp = SPIN_LOCK_UNLOCKED;
-> 
-> Is this __cacheline_aligned_in_smp really required?
-> 
-
-I must admit I put this together without much thought with a "cut and 
-paste".
-
-But, please tell me. I'm not entirely clear on what conditions I 
-should be concerned about blowing the cache.
-
-Ian
-
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

@@ -1,43 +1,47 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314264AbSEBE51>; Thu, 2 May 2002 00:57:27 -0400
+	id <S314266AbSEBGQm>; Thu, 2 May 2002 02:16:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314265AbSEBE50>; Thu, 2 May 2002 00:57:26 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:38161 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S314264AbSEBE50>; Thu, 2 May 2002 00:57:26 -0400
-Date: Wed, 1 May 2002 21:56:48 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Roman Zippel <zippel@linux-m68k.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.12: remove VALID_PAGE
-In-Reply-To: <Pine.LNX.4.21.0205020101440.23113-100000@serv>
-Message-ID: <Pine.LNX.4.44.0205012153310.2272-100000@home.transmeta.com>
+	id <S314267AbSEBGQl>; Thu, 2 May 2002 02:16:41 -0400
+Received: from w032.z064001165.sjc-ca.dsl.cnc.net ([64.1.165.32]:35663 "EHLO
+	nakedeye.aparity.com") by vger.kernel.org with ESMTP
+	id <S314266AbSEBGQk>; Thu, 2 May 2002 02:16:40 -0400
+Date: Wed, 1 May 2002 14:22:50 -0700 (PDT)
+From: "Matt D. Robinson" <yakker@aparity.com>
+To: linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE] LKCD 4.1 Released
+Message-ID: <Pine.LNX.4.44.0205011417400.22574-100000@nakedeye.aparity.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+LKCD (Linux Kernel Crash Dumps) version 4.1 is now available.
+Please feel free to download the latest release at:
 
+	http://lkcd.sourceforge.net/download/4.1
 
-On Thu, 2 May 2002, Roman Zippel wrote:
-> > [ pte_pfn ]
->
-> Do you have an example, where that would be useful?
+Be sure to download both the LKCD patch as well as the lkcdutils and
+lkcdutils-qlcrash (for graphical systems) RPMs.  Source RPMs are also
+available.  I'm hoping to work with the two Debian folks working on
+LKCD to get Debian images ready for the next snapshot.
 
+The LKCD patch is prepared for 2.4.17 systems, and should be
+relatively straightforward to migrate to 2.4.18 and beyond.
 
+For more information about LKCD, including mailing lists,
+contributors, and objectives, please visit our main web page at:
 
-> I know these are special cases, but this covers everything that's
-> currently needed.
+	http://lkcd.sourceforge.net/
 
-.. but the _design_ is bad (limited usability anywhere else). And my
-suggested interface is actually likely to generate better code, ie instead
-of having two tests (one inside "pte_valid_page()", and one on the return
-value), you'd only have one (in "valid_pfn()").
+Thanks to everyone out there who has contributed to make LKCD such
+a great success so far.  There have been contributions from IBM, NEC,
+Storigen, Mission Critical Linux, Fujitsu, 3ParData, SGI, Alacritech,
+HCL Technologies, Amazon, Intel, and others (please forgive me if
+I've left your company off the list) for this past release, including
+a few fixes from individual contributors.
 
-The whole notion of "pte_valid_page()" is horrible: you're doing two
-_completely_ different things in the function - validation and "pte->page"
-conversion. That's bad programming.
+Now it's time to get a BK patch ready.  Until next time,
 
-		Linus
+--Matt
 

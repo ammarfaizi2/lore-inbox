@@ -1,37 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265262AbRFUWUf>; Thu, 21 Jun 2001 18:20:35 -0400
+	id <S265264AbRFUWWp>; Thu, 21 Jun 2001 18:22:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265265AbRFUWUZ>; Thu, 21 Jun 2001 18:20:25 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:38795 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S265262AbRFUWUP>;
-	Thu, 21 Jun 2001 18:20:15 -0400
-From: "David S. Miller" <davem@redhat.com>
+	id <S265263AbRFUWWf>; Thu, 21 Jun 2001 18:22:35 -0400
+Received: from modemcable084.137-200-24.mtl.mc.videotron.ca ([24.200.137.84]:62453
+	"EHLO xanadu.home") by vger.kernel.org with ESMTP
+	id <S265264AbRFUWW1>; Thu, 21 Jun 2001 18:22:27 -0400
+Date: Thu, 21 Jun 2001 18:22:22 -0400 (EDT)
+From: Nicolas Pitre <nico@cam.org>
+X-X-Sender: <nico@xanadu.home>
+To: "Eric S. Raymond" <esr@thyrsus.com>
+cc: CML2 <linux-kernel@vger.kernel.org>, <kbuild-devel@lists.sourceforge.net>
+Subject: Re: Missing help entries in 2.4.6pre5
+In-Reply-To: <20010621154934.A6582@thyrsus.com>
+Message-ID: <Pine.LNX.4.33.0106211812560.30096-100000@xanadu.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15154.29468.215080.602628@pizda.ninka.net>
-Date: Thu, 21 Jun 2001 15:20:12 -0700 (PDT)
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: root@chaos.analogic.com, linux-kernel@vger.kernel.org
-Subject: Re: Is it useful to support user level drivers
-In-Reply-To: <200106212206.f5LM6dK12282@devserv.devel.redhat.com>
-In-Reply-To: <mailman.993156181.18994.linux-kernel2news@redhat.com>
-	<200106212206.f5LM6dK12282@devserv.devel.redhat.com>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Pete Zaitcev writes:
- > If memory does not deceive me, SunLab Spring processed interrupts
- > in user space. I do not remember for sure, but I think QNX did, too.
- > User mode interrupt handlers are perfectly doable, provided that the
- > hardware allows to mask interrupts selectively.
 
-SGI's IRIX does it too, for graphics card interrupts like "VBLANK" and
-"rendering pipeline FIFO not full anymore".
+On Thu, 21 Jun 2001, Eric S. Raymond wrote:
 
-Later,
-David S. Miller
-davem@redhat.com
+> The following configuration symbols in 2.4.6pre5 do not have
+> Congfgure.help entries,:
+[...]
+> CONFIG_XSCALE_IQ80310
+
+1- This symbol is mine;
+2- It is part of 2.4.6-pre5 only as a dependency argument, with no
+   point where a value is actually assigned to it;
+3- It is likely to be different when the actual question for which the
+   user need an help text is merged into the mainline kernel.
+
+So you can safely ignore it for now.
+
+Maybe it could be a good thing for your tool to ignore missing help text for
+symbols that don't get enabled interactively by the user?
+
+
+Nicolas
+

@@ -1,76 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261319AbUKCCIB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261329AbUKCC0Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261319AbUKCCIB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 21:08:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261329AbUKCCIB
+	id S261329AbUKCC0Y (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 21:26:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261336AbUKCC0Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 21:08:01 -0500
-Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:28428 "EHLO
-	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S261319AbUKCCHs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Nov 2004 21:07:48 -0500
-Date: Wed, 3 Nov 2004 02:07:43 +0000 (GMT)
-From: "Maciej W. Rozycki" <macro@linux-mips.org>
-To: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.6.9: Only handle system NMIs on the BSP
-Message-ID: <Pine.LNX.4.58L.0411030125340.32079@blysk.ds.pg.gda.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 2 Nov 2004 21:26:24 -0500
+Received: from mail-relay-3.tiscali.it ([213.205.33.43]:40867 "EHLO
+	mail-relay-3.tiscali.it") by vger.kernel.org with ESMTP
+	id S261329AbUKCC0W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Nov 2004 21:26:22 -0500
+Date: Wed, 3 Nov 2004 03:26:06 +0100
+From: Andrea Arcangeli <andrea@novell.com>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: fix iounmap and a pageattr memleak (x86 and x86-64)
+Message-ID: <20041103022606.GI3571@dualathlon.random>
+References: <4187FA6D.3070604@us.ibm.com> <20041102220720.GV3571@dualathlon.random> <41880E0A.3000805@us.ibm.com> <4188118A.5050300@us.ibm.com> <20041103013511.GC3571@dualathlon.random> <418837D1.402@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <418837D1.402@us.ibm.com>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Tue, Nov 02, 2004 at 05:43:45PM -0800, Dave Hansen wrote:
+> Oh, crap.  I meant to clear ->mapped when change_attr(__pgprot(0)) was 
+> done on it, and set it when it was changed back.  Doing that correctly 
+> preserves the symmetry, right?
 
- While discussing races in the NMI handler's trailer fiddling with RTC
-registers, I've discovered we incorrectly attempt to handle NMIs coming
-from the system (memory errors, IOCHK# assertions, etc.) with all
-processors even though the interrupts are only routed to the bootstrap
-processor.  If one of these events coincides with a NMI watchdog tick it
-may even be handled multiple times in parallel.
+yes it should. I agree with Andrew a bitflag would be enough. I'd call
+it PG_prot_none.
 
- Here is a fix that makes application processors ignore these events.  
-They no longer access the NMI status bits at I/O port 0x61 which has also
-the advantage of removing the contention on the port when the I/O APIC NMI
-watchdog makes all processors arrive at the handler at the same time.
-
- For both the i386 and the x86_64.  Please apply.
-
-  Maciej
-
-Signed-off-by: Maciej W. Rozycki <macro@linux-mips.org>
-
-patch-2.6.9-nmi-bsp-1
-diff -up --recursive --new-file linux-2.6.9.macro/arch/i386/kernel/traps.c linux-2.6.9/arch/i386/kernel/traps.c
---- linux-2.6.9.macro/arch/i386/kernel/traps.c	2004-10-12 23:57:01.000000000 +0000
-+++ linux-2.6.9/arch/i386/kernel/traps.c	2004-11-03 01:04:13.000000000 +0000
-@@ -598,7 +598,11 @@ void die_nmi (struct pt_regs *regs, cons
- 
- static void default_do_nmi(struct pt_regs * regs)
- {
--	unsigned char reason = get_nmi_reason();
-+	unsigned char reason = 0;
-+
-+	/* Only the BSP gets external NMIs from the system.  */
-+	if (!smp_processor_id())
-+		reason = get_nmi_reason();
-  
- 	if (!(reason & 0xc0)) {
- 		if (notify_die(DIE_NMI_IPI, "nmi_ipi", regs, reason, 0, SIGINT)
-diff -up --recursive --new-file linux-2.6.9.macro/arch/x86_64/kernel/traps.c linux-2.6.9/arch/x86_64/kernel/traps.c
---- linux-2.6.9.macro/arch/x86_64/kernel/traps.c	2004-10-12 23:57:12.000000000 +0000
-+++ linux-2.6.9/arch/x86_64/kernel/traps.c	2004-11-03 01:04:27.000000000 +0000
-@@ -565,8 +565,12 @@ static void unknown_nmi_error(unsigned c
- 
- asmlinkage void default_do_nmi(struct pt_regs * regs)
- {
--	unsigned char reason = inb(0x61);
-+	unsigned char reason = 0;
- 
-+	/* Only the BSP gets external NMIs from the system.  */
-+	if (!smp_processor_id())
-+		reason = inb(0x61);
-+ 
- 	if (!(reason & 0xc0)) {
- 		if (notify_die(DIE_NMI_IPI, "nmi_ipi", regs, reason, 0, SIGINT)
- 								== NOTIFY_STOP)
+I realized if the page is in the freelist it's like if it's reserved,
+since you're guaranteed there's no other pageattr working on it
+(assuming every other pageattr is symmetric too, which we always depend
+on). So I wonder why it's not symmetric already, despite the lack of
+page->mapped. Would be nice to dump_stack when a __pg_prot(0) &&
+page->mapped triggers.

@@ -1,134 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132019AbRACPIB>; Wed, 3 Jan 2001 10:08:01 -0500
+	id <S132114AbRACPKL>; Wed, 3 Jan 2001 10:10:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132066AbRACPHv>; Wed, 3 Jan 2001 10:07:51 -0500
-Received: from nta-monitor.demon.co.uk ([212.229.78.70]:22790 "EHLO
-	mercury.nta-monitor.com") by vger.kernel.org with ESMTP
-	id <S132019AbRACPHh>; Wed, 3 Jan 2001 10:07:37 -0500
-Message-Id: <4.3.2.7.2.20010103142412.00b54ea0@192.168.124.1>
-X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
-Date: Wed, 03 Jan 2001 14:36:23 +0000
+	id <S132116AbRACPKB>; Wed, 3 Jan 2001 10:10:01 -0500
+Received: from air.lug-owl.de ([62.52.24.190]:44555 "HELO air.lug-owl.de")
+	by vger.kernel.org with SMTP id <S132114AbRACPJz>;
+	Wed, 3 Jan 2001 10:09:55 -0500
+Date: Wed, 3 Jan 2001 15:39:25 +0100
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
 To: linux-kernel@vger.kernel.org
-From: Roy Hills <Roy.Hills@nta-monitor.com>
-Subject: Re: UDP ports 800-n used by NFS client in 2.2.17
-In-Reply-To: <14925.931.62753.695344@notabene.cse.unsw.edu.au>
-In-Reply-To: <message from Roy Hills on Friday December 29>
- <4.3.2.7.2.20001229133326.00b28990@192.168.124.1>
+Subject: Re: Timeout: AT keyboard not present?
+Message-ID: <20010103153924.B12108@lug-owl.de>
+Reply-To: jbglaw@lug-owl.de
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <UTC200101031432.PAA136866.aeb@texel.cwi.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="5/uDoXvLw7AC5HRs"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <UTC200101031432.PAA136866.aeb@texel.cwi.nl>; from Andries.Brouwer@cwi.nl on Wed, Jan 03, 2001 at 03:32:38PM +0100
+X-Operating-System: Linux air 2.4.0-test8-pre1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks to Neil and everyone else who helped me understand this one.
-Here's my summary of what I've been told and what I've discovered:
 
-The port 800-n is indeed the source port that is used for NFS
-communications for the filesystem.  Using tcpdump, we see
-communication between port 800 on the client and port 2049
-on the NFS server.
+--5/uDoXvLw7AC5HRs
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-The kernel source code involved for 2.2 and 2.4 is function
-xprt_bindresvport in net/sunrpc/xprt.c.
+On Wed, Jan 03, 2001 at 03:32:38PM +0100, Andries.Brouwer@cwi.nl wrote:
+> How you got into scancode mode 1 I don't know
+> (maybe by sending the command f0 01 to the keyboard).
 
-I can prevent this wild UDP socket by using TCP for the mount.
-This results in an established TCP connection between client
-and server, e.g:
+Kind of f00f bug?
 
-tcp        0      0 192.168.124.7:800       192.168.124.6:2049      ESTABLISHED
+SCNR, JBG
 
-My only remaining question is why the UDP port needs to be bound
-to any local address, any foreign address, and any foreign port
-e.g. why we can't have:
+--=20
+Fehler eingestehen, Gr=F6=DFe zeigen: Nehmt die Rechtschreibreform zur=FCck=
+!!!
+/* Jan-Benedict Glaw <jbglaw@lug-owl.de> -- +49-177-5601720 */
+keyID=3D0x8399E1BB fingerprint=3D250D 3BCF 7127 0D8C A444 A961 1DBD 5E75 83=
+99 E1BB
+     "insmod vi.o and there we go..." (Alexander Viro on linux-kernel)
 
-udp        0      0 192.168.124.7:800            192.168.124.6:2049
+--5/uDoXvLw7AC5HRs
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-instead of:
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.2 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-udp        0      0 0.0.0.0:800            0.0.0.0:*
+iEYEARECAAYFAjpTOZwACgkQHb1edYOZ4bvo+ACfdg1EJKJxpMfQIrW8/92QX+6Z
+BcYAmwTxrhMVqxIXfngHYc+kCWhmmqY4
+=b4t9
+-----END PGP SIGNATURE-----
 
-This would avoid having a UDP socket that is accessible from any address/port.
-
-Roy Hills
-
-At 08:35 30/12/00 +1100, Neil Brown wrote:
->On Friday December 29, Roy.Hills@nta-monitor.com wrote:
-> > Does anyone know what causes netstat to show UDP port 800
-> > as active on a Linux NFS client with 2.2.17 kernel when an NFS filesystem
-> > is mounted?
-> >
-> > Using Debian Linux 2.2 with Kernel 2.2.17 with one NFS filesystem mounted,
-> > I see
-> > the following:
-> >
-> >     rsh@lithium [3]$ netstat -n -a -u
-> >     Active Internet connections (servers and established)
-> >     Proto Recv-Q Send-Q Local Address          Foreign Address
-> >     udp        0      0 0.0.0.0:800            0.0.0.0:*
-> >
-> > If I unmount the NFS Filesystem, the UDP port disappears.
->
->That will be the local port that is used to talk to the NFS server.
->
-> >
-> > It appears that each NFS mounted filesystem uses a separate UDP
-> > port, and that they count down from port 800.  I.e. the first
-> > mount uses UDP port 800, the second UDP port 799.
-> >
-> > "lsof -i" doesn't show this port belonging to any process, and the "-p"
-> > option to netstat
-> > doesn't show any process info either. I assume that this means that it's a
-> > kernel thing
-> > rather than a process level thing.
-> >
-> > A network sniff while mounting and umounting the NFS filesystem
-> > doesn't show any traffic on UDP port 800 - I just see portmapper, mountd
-> > and nfs
-> > traffic.
->
->While mounting and unmounting you might not (I'm not sure) but while
->accessing the filesystem you definately should.
->You say that you see "nfs" traffic.  Each packet has a source port and
->a destintation port.  For an NFS request, the destination port will be 2049
->on the server, the source port will be 800 (or 799 ...) on the client.
->
-> >
-> > Does anyone know what this is or where I can look in the source for 
-> more info?
-> > I've searched /usr/src/linux/fs/nfs/*.c for 800 and 320 (800 in hex)
-> > without success.
->
->Check out net/sunrpc/xprt.c:xprt_bindresvport
->
->NeilBrown
->
-> >
-> > Roy Hills
-> > --
-> > Roy Hills                                    Tel:   +44 1634 721855
-> > NTA Monitor Ltd                              FAX:   +44 1634 721844
-> > 14 Ashford House, Beaufort Court,
-> > Medway City Estate,                          Email: 
-> Roy.Hills@nta-monitor.com
-> > Rochester, Kent ME2 4FA, 
-> UK                  WWW:   http://www.nta-monitor.com/
-> >
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > Please read the FAQ at http://www.tux.org/lkml/
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->Please read the FAQ at http://www.tux.org/lkml/
-
---
-Roy Hills                                    Tel:   +44 1634 721855
-NTA Monitor Ltd                              FAX:   +44 1634 721844
-14 Ashford House, Beaufort Court,
-Medway City Estate,                          Email: Roy.Hills@nta-monitor.com
-Rochester, Kent ME2 4FA, UK                  WWW:   http://www.nta-monitor.com/
-
+--5/uDoXvLw7AC5HRs--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

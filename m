@@ -1,41 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269462AbTGJRDR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 13:03:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269450AbTGJRAb
+	id S269390AbTGJQ5I (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 12:57:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269424AbTGJQ5H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 13:00:31 -0400
-Received: from storm.he.net ([64.71.150.66]:13733 "HELO storm.he.net")
-	by vger.kernel.org with SMTP id S269451AbTGJQ75 (ORCPT
+	Thu, 10 Jul 2003 12:57:07 -0400
+Received: from tmi.comex.ru ([217.10.33.92]:2988 "EHLO gw.home.net")
+	by vger.kernel.org with ESMTP id S269417AbTGJQzC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 12:59:57 -0400
-Date: Thu, 10 Jul 2003 10:14:43 -0700
-From: Greg KH <greg@kroah.com>
-To: Mikael Starvik <mikael.starvik@axis.com>
-Cc: "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
-Subject: Re: CRIS architecture update
-Message-ID: <20030710171443.GB12171@kroah.com>
-References: <3C6BEE8B5E1BAC42905A93F13004E8AB034C5655@mailse01.axis.se> <3C6BEE8B5E1BAC42905A93F13004E8AB03277A7D@mailse01.axis.se> <20030710171341.GA12171@kroah.com>
-Mime-Version: 1.0
+	Thu, 10 Jul 2003 12:55:02 -0400
+X-Comment-To: Andrew Morton
+To: Andrew Morton <akpm@osdl.org>
+Cc: Alex Tomas <bzzz@tmi.comex.ru>, linux-kernel@vger.kernel.org,
+       ext2-devel@lists.sourceforge.net
+Subject: Re: [PATCH] minor optimization for EXT3
+From: Alex Tomas <bzzz@tmi.comex.ru>
+Organization: HOME
+Date: Thu, 10 Jul 2003 21:09:12 +0000
+In-Reply-To: <20030710100102.32950703.akpm@osdl.org> (Andrew Morton's
+ message of "Thu, 10 Jul 2003 10:01:02 -0700")
+Message-ID: <874r1ugkcn.fsf@gw.home.net>
+User-Agent: Gnus/5.090018 (Oort Gnus v0.18) Emacs/21.3 (gnu/linux)
+References: <87smpeigio.fsf@gw.home.net>
+	<20030710042016.1b12113b.akpm@osdl.org> <87isqaiegy.fsf@gw.home.net>
+	<20030710085155.40c78883.akpm@osdl.org> <877k6qgldo.fsf@gw.home.net>
+	<20030710100102.32950703.akpm@osdl.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030710171341.GA12171@kroah.com>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 10, 2003 at 10:13:41AM -0700, Greg KH wrote:
-> On Thu, Jul 10, 2003 at 07:24:58AM +0200, Mikael Starvik wrote:
-> > Ok, do you have any other suggestion on how to make the driver 
-> > compilable for both >= 2.4.20 and < 2.4.20?
-> 
-> As the driver is _in_ the kernel tree, why does it need to be compilable
-> for older kernels?  :)
+>>>>> Andrew Morton (AM) writes:
 
-Speaking of older kernels, any chances for a 2.5 update?  I know the
-CRIS USB host controller driver has fallen pretty out of date with the
-rest of the USB core, and would hope to see that sync up sometime.
+ AM> Alex Tomas <bzzz@tmi.comex.ru> wrote:
+ >> 
+ >> OK. fixed version:
 
-thanks,
+ AM> Looks nice.  Now, Andreas did mention a while back that the locking rework
+ AM> added an additional complexity to this optimization.  Perhaps he can remind
+ AM> us of the details there?
 
-greg k-h
+he meant than 2.5 don't use lock_sb() for inode allocation. this patch is safe
+from this point of view.
+
+

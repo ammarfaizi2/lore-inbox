@@ -1,86 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265564AbUEZMpt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265560AbUEZMrI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265564AbUEZMpt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 May 2004 08:45:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265566AbUEZMpt
+	id S265560AbUEZMrI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 May 2004 08:47:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265569AbUEZMrI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 May 2004 08:45:49 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:8064 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S265564AbUEZMpQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 May 2004 08:45:16 -0400
-Date: Wed, 26 May 2004 08:44:49 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Zenaan Harkness <zen@freedbms.net>
-cc: debian-devel@lists.debian.org, linux-kernel@vger.kernel.org
-Subject: Re: drivers DB and id/ info registration
-In-Reply-To: <1085573236.2213.77.camel@zen8100a.freedbms.net>
-Message-ID: <Pine.LNX.4.53.0405260835370.858@chaos>
-References: <1085542706.2908.25.camel@zen8100a.freedbms.net> 
- <20040526065447.GA32304@dat.etsit.upm.es>  <200405260918.51589@fortytwo.ch>
-  <1085566079.2522.54.camel@zen8100a.freedbms.net>  <1085571316.906.3.camel@localhost>
- <1085573236.2213.77.camel@zen8100a.freedbms.net>
+	Wed, 26 May 2004 08:47:08 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:19725 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S265560AbUEZMqd convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 May 2004 08:46:33 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: "Buddy Lumpkin" <b.lumpkin@comcast.net>,
+       "'William Lee Irwin III'" <wli@holomorphy.com>
+Subject: RE: why swap at all?
+Date: Wed, 26 May 2004 15:40:50 +0300
+X-Mailer: KMail [version 1.4]
+Cc: <orders@nodivisions.com>, <linux-kernel@vger.kernel.org>
+References: <S265489AbUEZLfK/20040526113510Z+1673@vger.kernel.org>
+In-Reply-To: <S265489AbUEZLfK/20040526113510Z+1673@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200405261540.50539.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 26 May 2004, Zenaan Harkness wrote:
-
-> On Wed, 2004-05-26 at 21:35, Wouter Verhelst wrote:
-> > Op wo 26-05-2004, om 12:07 schreef Zenaan Harkness:
-> > > I develop widget X.
-> > >
-> > > I contact microsoft and have X incorporated into windows.
-> >
-> > Rotfl.
+On Wednesday 26 May 2004 10:55, William Lee Irwin III wrote:
+> On Wed, May 26, 2004 at 12:31:16AM -0700, Buddy Lumpkin wrote:
+> > This of course doesn't address the VM paging storms that happen due to
+> > large amounts of file system writes. Once the pagecache fills up, dirty
+> > pages must be evicted from the pagecache so that new pages can be added
+> > to the pagecache.
 >
-> OK, bad assumption.
->
-> The only reason I say that is that so many devices work
-> "seamlessly" with MSW*
->
->  - recently I read a review on the X-Arcade retro joystick
-> controllers (those heavy "for cabinets and MAME" things).
-> The reviewer just plugged it in and Windows literally popped
-> up with a dialog telling the "end user recognizable" name of
-> the device.
->
->  - a year or so back, my brother bought a "blue eye" USB
-> external 2.5" HDD (really nice looking thing) and on his
-> XP box it auto added a new drive (E: or whatever). Seamless.
->
-> So how come devices tend to just plug and play when
-> used with Windows (USB HDDs, audi cards, logitec gear)?
->
-> Will a "visible"/ centralized location where manufacturers
-> can submit info on their devices (for free software kernels)
-> help to get us closer to the "front line" of device support?
->
-> thanks
-> zen
+> If you've got a real performance issue, please describe it properly
+> instead of asserting without evidence the existence of one.
 
-M$ has a whole division dedicated to plug-and-pray developers.
-When their USB disk, camera, or whatever gets "approved", its
-name is put into W$ even without installing any "drivers".
-That's why W$ is so large. It would be good if somebody
-started to do something like that for Linux, perhaps a
-database from which configuration stuff could be extracted.
-It's not a kernel issue, so some distribution really should
-take it up.
+On Wed, May 26, 2004 at 01:30:09AM -0700, Buddy Lumpkin wrote:
+> As for your short, two sentence comment below, let me save you the energy of
+> insinuations and translate your message the way I read it: 
+> -------------------------------------------------------------------------
+> I don't recognize your name, therefore you can't possibly have a valuable
+> opinion on the direction VM system development should go. I doubt you have
+> an actual performance problem to share, but if you do, please share it and
+> go away so that we can work on solving the problem.
+> --------------------------------------------------------------------------
+> My response:
+> Get over yourself.
 
-Of course, the work needs to be done correctly so you don't
-get the M$ problem of; "Everything was working until I installed
-my new printer...." Whereupon you install everything from a
-newly-formatted hard-disk, all over again, installing the
-new printer first!
+You were very wrong here. He did not say that. You pervert his words.
 
+On Wednesday 26 May 2004 12:09, William Lee Irwin III wrote:
+> >- My response:
+> > Get over yourself.
+>
+> What the Hell? I have enough bugs I'm paid to fix that I'm not going to
+> tolerate harassment for requesting that claims that the kernel behaves
+> pathologically in some scenario be cast as comprehensible bugreports.
+> It's also worth noting that paying customers don't respond so uncouthly.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
-            Note 96.31% of all statistics are fiction.
+wli, understandably, become angry.
 
+On Wednesday 26 May 2004 14:38, Buddy Lumpkin wrote:
+> If you follow the thread, you will see no claim from me that there is
+> anything wrong with the kernel. I simply stated that the priority of VM
+> system development should focus on physical memory...
+...
+> This situation isn't even remotely similar. In this case, you (a
+> contributor to a very, very large FREE software project) misread a thread
+> and made some surly comments that you ended up eating, and are so used to
+> telling people that you owe them nothing, that you have some how conjured
+> up the image that I actually want something from you.
+...
+> This is classic, you have managed to put yourself in a position where you
+> spend the majority of your time working on a free project that has some
+> very ambitious goals. It has afforded you the ability to forfill your own
+> personal and professional goals as well, yet you reserve the right to
+> discard all accountability for your actions when it's convenient because
+> you get some frank feedback from someone that is not a paying customer.
+>
+> What a crutch.
+>
+> I can picture where this is going. Here is an interview between you and a
+> popular Linux magazine in two years:
 
+<joke>
+Aha!
+Now we all know that wli is evil. Thanks for your crystall ball.
+</joke>
+--
+vda

@@ -1,89 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262054AbVAYSgY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262055AbVAYSh2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262054AbVAYSgY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 13:36:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262056AbVAYSgY
+	id S262055AbVAYSh2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 13:37:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262056AbVAYSh2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 13:36:24 -0500
-Received: from mail.joq.us ([67.65.12.105]:34274 "EHLO sulphur.joq.us")
-	by vger.kernel.org with ESMTP id S262054AbVAYSf4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 13:35:56 -0500
-To: Con Kolivas <kernel@kolivas.org>
-Cc: Alexander Nyberg <alexn@dsv.su.se>, Ingo Molnar <mingo@elte.hu>,
-       linux <linux-kernel@vger.kernel.org>, CK Kernel <ck@vds.kolivas.org>,
-       Rui Nuno Capela <rncbc@rncbc.org>
-Subject: Re: [PATCH]sched: Isochronous class v2 for unprivileged soft rt
- scheduling
-References: <200501201542.j0KFgOwo019109@localhost.localdomain>
-	<87y8eo9hed.fsf@sulphur.joq.us> <20050120172506.GA20295@elte.hu>
-	<87wtu6fho8.fsf@sulphur.joq.us> <20050122165458.GA14426@elte.hu>
-	<87pszvlvma.fsf@sulphur.joq.us> <41F42BD2.4000709@kolivas.org>
-	<877jm3ljo9.fsf@sulphur.joq.us> <41F44AC2.1080609@kolivas.org>
-	<87hdl7v3ik.fsf@sulphur.joq.us> <87651nv356.fsf@sulphur.joq.us>
-	<87ekgbqr2a.fsf@sulphur.joq.us> <41F49735.5000400@kolivas.org>
-	<873bwrpb4o.fsf@sulphur.joq.us> <41F57D94.4010500@kolivas.org>
-	<41F5C347.4030605@kolivas.org> <41F64410.4000702@kolivas.org>
-From: "Jack O'Quin" <joq@io.com>
-Date: Tue, 25 Jan 2005 12:36:50 -0600
-In-Reply-To: <41F64410.4000702@kolivas.org> (Con Kolivas's message of "Wed,
- 26 Jan 2005 00:05:20 +1100")
-Message-ID: <87k6q1nynx.fsf@sulphur.joq.us>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
+	Tue, 25 Jan 2005 13:37:28 -0500
+Received: from rwcrmhc13.comcast.net ([204.127.198.39]:55789 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S262055AbVAYShB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 13:37:01 -0500
+Message-ID: <41F691D6.8040803@comcast.net>
+Date: Tue, 25 Jan 2005 13:37:10 -0500
+From: John Richard Moser <nigelenki@comcast.net>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041211)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Bill Davidsen <davidsen@tmr.com>, Valdis.Kletnieks@vt.edu,
+       Arjan van de Ven <arjan@infradead.org>, Ingo Molnar <mingo@elte.hu>,
+       Christoph Hellwig <hch@infradead.org>, Dave Jones <davej@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, marcelo.tosatti@cyclades.com,
+       Greg KH <greg@kroah.com>, chrisw@osdl.org,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: thoughts on kernel security issues
+References: <1106157152.6310.171.camel@laptopd505.fenrus.org> <200501191947.j0JJlf3j024206@turing-police.cc.vt.edu> <41F6604B.4090905@tmr.com> <Pine.LNX.4.58.0501250741210.2342@ppc970.osdl.org> <41F6816D.1020306@tmr.com> <41F68975.8010405@comcast.net> <Pine.LNX.4.58.0501251025510.2342@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0501251025510.2342@ppc970.osdl.org>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas <kernel@kolivas.org> writes:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> There were numerous bugs in the SCHED_ISO design prior to now, so it
-> really was not performing as expected. What is most interesting is
-> that the DSP load goes to much higher levels now if xruns are avoided
-> and stay at those high levels. If I push the cpu load too much so that
-> they get transiently throttled from SCHED_ISO, after the Xrun the dsp
-> load drops to half. Is this expected behaviour?
 
-Yes.
 
-Any xrun is pretty much guaranteed to blow the next audio cycle or
-two.  Several together tend to "snowball" into a "avalanche".  Hitting
-your CPU limit practically guaranteed that kind of realtime disaster.
+Linus Torvalds wrote:
+> 
+> On Tue, 25 Jan 2005, John Richard Moser wrote:
+> 
+>>It's kind of like locking your front door, or your back door.  If one is
+>>locked and the other other is still wide open, then you might as well
+>>not even have doors.  If you lock both, then you (finally) create a
+>>problem for an intruder.
+>>
+>>That is to say, patch A will apply and work without B; patch B will
+>>apply and work without patch A; but there's no real gain from using
+>>either without the other.
+> 
+> 
+> Sure there is. There's the gain that if you lock the front door but not 
+> the back door, somebody who goes door-to-door, opportunistically knocking 
+> on them and testing them, _will_ be discouraged by locking the front door.
+> 
 
-If you grep your log file for 'client failure:', you'll probably find
-that JACK has reacted to the deteriorating situation by shutting down
-some of its clients.  The number of 'client failure:' messages is
-*not* the number of clients shut down, there is some repetition (not
-sure why).  This will give the actual number...
+In the real world yes.  On the computer, the front and back doors are
+half-consumed by a short-path wormhole that places them right next to
+eachother, so not really.  :)
 
-  $ grep '^client failure:' ${LOGFILE} | cut -f4 -d' ' | sort -u | wc -l
+> Never mind that he still could have gotten in. After all, if you locked 
+> the back door too, he might still have a crow-bar.
+> 
 
-It would help if the test script reported this value.
+Crowbars don't work in computer security.  The most you can do is slow
+the machine down by infinite network requests or CPU hogging (web server
+requests take CPU, even to reject) if *everything* else is perfect; but
+the goal is to keep them out, since we live in reality and not fairyland
+where we can even stop DDoSes from eating network BW.
 
-In extreme cases like the following example, eleven of the twenty
-clients were shut down by the JACK server.  You can see that clearly
-in the blue line (DSP load) of the graph...
+> It is a logically fallacy to think that "perfect" is good. It's not. 
+> Anybody who strives for perfection will FAIL. 
+> 
 
-  http://www.joq.us/jack/benchmarks/sched-iso+compile/jack_test3-2.6.11-rc1-exp-200501222329.log
-  http://www.joq.us/jack/benchmarks/sched-iso+compile/jack_test3-2.6.11-rc1-exp-200501222329.png
+No, you aim close.  You won't hit it, but you'll get close.
 
-> Anyway the next patch works well in my environment. Jack, while I
-> realise you're getting the results you want from Ingo's dropped
-> privilege, dropped cpu limit patch I would appreciate you testing this
-> patch. It is not clear yet what direction we will take, but even if we
-> dont do this, it would be nice just because of the effort on my part.
+> What's good is "incremental changes". Something that everybody and his dog 
+> can look at for five seconds and say "oh, that's obviously fine", and then 
+> can get more testing (because "everybody and his dog" saying "that's fine" 
+> doesn't actually prove much of anything).
+> 
+> This has nothing to do with security, btw. It's universally true. You get 
+> absolutely nowhere by trying to redesign the world. 
+> 
 
-Will do.  I appreciate your efforts, and want to see them reach a
-working point of closure.  
+yeah, I'm just very security minded.  Don't mind me much.
 
-Though I'm somewhat swamped today, I'll run it as soon as I can.
+> 		Linus
+> 
 
-> This version of the patch has full priority support and both ISO_RR
-> and ISO_FIFO.
->
-> This is the patch to apply to 2.6.11-rc2-mm1:
-> http://ck.kolivas.org/patches/SCHED_ISO/2.6.11-rc2-mm1/2.6.11-rc2-mm1-iso-prio-fifo.diff
+- --
+All content of all messages exchanged herein are left in the
+Public Domain, unless otherwise explicitly stated.
 
--- 
-  joq
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD4DBQFB9pHWhDd4aOud5P8RAoDBAJwIrXSd5Z6uDUoFFBUWP4y/0m/TLgCYrcEa
+Qu0RrJrCbo4A0OCj8im4JQ==
+=6pZA
+-----END PGP SIGNATURE-----

@@ -1,56 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266116AbRF2Qhn>; Fri, 29 Jun 2001 12:37:43 -0400
+	id <S266115AbRF2Qkm>; Fri, 29 Jun 2001 12:40:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266115AbRF2Qhc>; Fri, 29 Jun 2001 12:37:32 -0400
-Received: from datafoundation.com ([209.150.125.194]:45584 "EHLO
-	datafoundation.com") by vger.kernel.org with ESMTP
-	id <S266117AbRF2Qh1>; Fri, 29 Jun 2001 12:37:27 -0400
-Date: Fri, 29 Jun 2001 12:37:26 -0400 (EDT)
-From: John Jasen <jjasen@datafoundation.com>
-To: <linux-kernel@vger.kernel.org>
-cc: <gibbs@freebsd.org>, <dima@datafoundation.com>
-Subject: problems with aic7xxx driver 6.1.11 (fwd)
-Message-ID: <Pine.LNX.4.30.0106291237030.9716-100000@flash.datafoundation.com>
+	id <S266119AbRF2Qkc>; Fri, 29 Jun 2001 12:40:32 -0400
+Received: from biglinux.tccw.wku.edu ([161.6.10.206]:60354 "EHLO
+	biglinux.tccw.wku.edu") by vger.kernel.org with ESMTP
+	id <S266115AbRF2QkX>; Fri, 29 Jun 2001 12:40:23 -0400
+Date: Fri, 29 Jun 2001 11:40:15 -0500 (CDT)
+From: "Brent D. Norris" <brent@biglinux.tccw.wku.edu>
+To: Dan Podeanu <pdan@spiral.extreme.ro>
+cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: A Possible 2.5 Idea, maybe?
+In-Reply-To: <Pine.LNX.4.33L2.0106291901550.14545-100000@spiral.extreme.ro>
+Message-ID: <Pine.LNX.4.33.0106291124490.26820-100000@biglinux.tccw.wku.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Thats why we have /proc/... To echo things into it.
 
----------- Forwarded message ----------
-Date: Mon, 25 Jun 2001 11:31:32 -0400 (EDT)
-From: John Jasen <jjasen@datafoundation.com>
-To: gibbs@freebsd.org
-Cc: Dima Meschaninov <dima@datafoundation.com>
-Subject: problems with aic7xxx driver 6.1.11
+I don't know of a proc entry that lets the user tell the VM not to cache
+as much or use swap in a different manner.
 
+> Several kernel threads are hard to maintain, hard to evolve, hard to
+> bugfix, modify patches, etc. Mainly, we should have a single kernel that
+> can be tuned to fit people's needs.
 
-#1) It seems that the new aic7xxx drivers do not detect raid controllers,
-et al on the bus, as we have an nStor NexStor 8le that is completely
-invisible to your driver.
+I agree that keeping several threads would be difficult, but is there not
+a way to have certain values plugged into the code for something like
+cache pressure before swapping, or extended boot messages instead of a
+quiet boot?  These values would be dependant on the config options that
+were selected in the config.  I am not talking about forking the kernel.
+I am instead talking about a process to select a different concept that
+the same kernel runs under and have this concept selected at compile time.
 
-#2) There seem to be a few problems with the new driver, where it can
-easily get confused into a reset loop. (see below for a rough
-description)
+> IMO, the Linux distributions out there should configure the kernel based
+> on the type of system the (l[inux])user wants. Those who have the balls to
+> compile their own system should know such things anyway. The rest, better
+> rely on the distribution default and/or ask around and get some more
+> info [the kernel configuration help is explicit enough anyway, given a
+> decent level of common sense is used].
 
----------- Forwarded message ----------
-Date: Mon, 25 Jun 2001 11:20:08 -0400
-From: Dmitry Meshchaninov <dima@datafoundation.com>
-To: John Jasen <jjasen@datafoundation.com>
-Subject: Description of SCSI situation on zathras
+This leaves several people out in the rain though.  First how would a
+distro make a system that works well for the desktop users if the kernel
+is designed to work well on servers?  Also I should be able to run debian
+on my desktop if I want without having to suffer through interactivity
+issues, because debian builds their distros for servers and has most of
+the hard drives cached.  Also I know several people that recompile kernels
+and such, but have no clue as the process to go through to optimize it for
+their particular setup.  If people are hoping that linux will move into
+other markets besides servers then you cannot have the attitude that
+everyone has to suffer with a) what the distros give them or b) be come
+fluent enought in kernel programming and desgin to be able to edit the
+code so that it works better for them.
 
-Looks like we have had power down at night. Afterwards, the scsi tray was
-in a strange state - the system BIOS didn't find anything on the bus, and
-naturally the linux driver didn't either.
+Brent Norris
 
-After we power cycled scsi tray and rebooted the system, the system BIOS
-detected all the scsi devices but the linux driver still was blind.
-
-It said something about timeouts during lun probing and marked all the
-devicess offline, and we tried it via reboot/powercycle of the system at
-least 2-3 times.
-
-After we setup the old driver everything went fine.
-
+Executive Advisor -- WKU-Linux
 

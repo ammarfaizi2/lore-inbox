@@ -1,45 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315417AbSGIOVg>; Tue, 9 Jul 2002 10:21:36 -0400
+	id <S315420AbSGIO30>; Tue, 9 Jul 2002 10:29:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315420AbSGIOVf>; Tue, 9 Jul 2002 10:21:35 -0400
-Received: from [62.70.58.70] ([62.70.58.70]:10886 "EHLO mail.pronto.tv")
-	by vger.kernel.org with ESMTP id <S315417AbSGIOVd> convert rfc822-to-8bit;
-	Tue, 9 Jul 2002 10:21:33 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Organization: ProntoTV AS
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] using 2.5.25 with IDE
-Date: Tue, 9 Jul 2002 16:24:23 +0200
-User-Agent: KMail/1.4.1
-References: <Pine.SOL.4.30.0207091613350.16892-100000@mion.elka.pw.edu.pl>
-In-Reply-To: <Pine.SOL.4.30.0207091613350.16892-100000@mion.elka.pw.edu.pl>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200207091624.23388.roy@karlsbakk.net>
+	id <S315427AbSGIO3Z>; Tue, 9 Jul 2002 10:29:25 -0400
+Received: from mail.clsp.jhu.edu ([128.220.34.27]:47083 "EHLO
+	mail.clsp.jhu.edu") by vger.kernel.org with ESMTP
+	id <S315420AbSGIO3Z>; Tue, 9 Jul 2002 10:29:25 -0400
+Date: Tue, 9 Jul 2002 16:00:53 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: Pavel Machek <pavel@ucw.cz>,
+       Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: simple handling of module removals Re: [OKS] Module removal
+Message-ID: <20020709140052.GC277@elf.ucw.cz>
+References: <20020708181331.GD28335@atrey.karlin.mff.cuni.cz> <21009.1026168230@ocs3.intra.ocs.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <21009.1026168230@ocs3.intra.ocs.com.au>
+User-Agent: Mutt/1.3.28i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Contrary to the popular belief 2.5.25 has only Martin's IDE-93
-> and has broken locking...
->
-> If you want to run IDE on 2.5.25 get and apply:
->
-> IDE-94 by Martin
-> IDE-95/96/97/98-pre by me
->
-> from:
-> http://home.elka.pw.edu.pl/~bzolnier/ata/
+Hi!
 
-...or run it with 2.4 IDE core as previously announced by Jens Axboe :-)
+> >> freeze_processes()
+> >>   signal_wake_up() - sets TIF_SIGPENDING for other task
+> >>     kick_if_running()
+> >>       resched_task() - calls preempt_disable() for this cpu
+> >>         smp_send_reschedule()
+> >>           smp_reschedule_interrupt() - now on another cpu
+> >>             ret_from_intr
+> >>               resume_kernel - on other cpu
+> >> 
+> >> With CONFIG_PREEMPT, a process running on another cpu without a lock
+> >> when freeze_processes() is called should immediately end up in
+> >> schedule.  I don't see anything in that code path that disables
+> >> preemption on other cpus.  If I am right, then a second cpu could be in
+> >> this window when freeze_processes is called
+> >> 
+> >>   if (xxx->func)
+> >>     xxx->func()
+> >
+> >okay, so we have
+> >
+> >	if (xxx->func)
+> >		interrupt
+> >			schedule()
+> >
+> >but schedule at this point is certainly not going to enter signal
+> >handling code
+> 
+> With preempt it will.  The interrupt drops back through ret_from_intr
+> -> resume_kernel.  The preempt count is 0, preemption has only been
+> disabled on the sending cpu, not the receiving cpu.  need_resched is
+> entered immediately.
 
-roy
-
+Yep but signal handling code will not be entered because signal
+handling is only entered when returning to userspace.
+								Pavel
 -- 
-Roy Sigurd Karlsbakk, Datavaktmester
-
-Computers are like air conditioners.
-They stop working when you open Windows.
-
+Worst form of spam? Adding advertisment signatures ala sourceforge.net.
+What goes next? Inserting advertisment *into* email?

@@ -1,67 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263067AbSIPVL3>; Mon, 16 Sep 2002 17:11:29 -0400
+	id <S263080AbSIPVTe>; Mon, 16 Sep 2002 17:19:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263070AbSIPVL2>; Mon, 16 Sep 2002 17:11:28 -0400
-Received: from smtpout.mac.com ([204.179.120.87]:23546 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id <S263067AbSIPVL1>;
-	Mon, 16 Sep 2002 17:11:27 -0400
-Date: Mon, 16 Sep 2002 23:16:20 +0200
-Subject: Re: Oops in sched.c on PPro SMP
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Mime-Version: 1.0 (Apple Message framework v482)
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-       mingo@redhat.com
-To: Andrea Arcangeli <andrea@suse.de>
-From: Peter Waechtler <pwaechtler@mac.com>
-In-Reply-To: <20020916154446.GI11605@dualathlon.random>
-Message-Id: <8BA3FD1E-C9B9-11D6-8873-00039387C942@mac.com>
-Content-Transfer-Encoding: 7bit
-X-Mailer: Apple Mail (2.482)
+	id <S263082AbSIPVTe>; Mon, 16 Sep 2002 17:19:34 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:24273 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S263080AbSIPVTd> convert rfc822-to-8bit; Mon, 16 Sep 2002 17:19:33 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: James Cleverdon <jamesclv@us.ibm.com>
+Reply-To: jamesclv@us.ibm.com
+Organization: IBM xSeries Linux Solutions
+To: Dave Jones <davej@suse.de>
+Subject: Re: [PATCH] Summit patch for 2.5.34
+Date: Mon, 16 Sep 2002 14:24:14 -0700
+User-Agent: KMail/1.4.1
+Cc: linux-kernel@vger.kernel.org, James.Bottomley@steeleye.com,
+       torvalds@transmeta.com, alan@redhat.com, mingo@redhat.com
+References: <200209122035.14678.jamesclv@us.ibm.com> <20020916175545.A21875@suse.de>
+In-Reply-To: <20020916175545.A21875@suse.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200209161424.14865.jamesclv@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Montag den, 16. September 2002, um 17:44, schrieb Andrea Arcangeli:
-
-> On Mon, Sep 16, 2002 at 03:49:27PM +0100, Alan Cox wrote:
->> Also does turning off the nmi watchdog junk make the box stable ?
+On Monday 16 September 2002 08:55 am, Dave Jones wrote:
+> On Thu, Sep 12, 2002 at 08:35:14PM -0700, James Cleverdon wrote:
+>  > Patch that allows IBM x440 boxes to on-line all CPUs and interrupt
+>  > routing for x360s.   Fixed x360 ID bug.
 >
-> good idea, I didn't though about this one since I only heard the nmi to
-> lockup hard boxes after hours of load, never to generate any
-> malfunction, but certainly the nmi handling isn't probably one of the
-> most exercised hardware paths in the cpus, so it's a good idea to
-> reproduce with it turned off (OTOH I guess you probably turned it on
-> explicitly only after you got these troubles, in order to debug them).
+> Couple questions/comments.
 >
+> - Is this the same summit code as is in 2.4-ac ?
+>   (Ie, the one that boots on non summit systems too)
 
-I only turned the nmi watchdog on, on the one "unknown" version Oops.
+Yes, save for the dynamic TPR enhancement.  (Already addressed by Alan, etc, 
+in other postings.)
 
-This box was running fine with 2.4.18-SuSE with uptimes 40+days. _Now_
-I am almost sure, that it's _not_ a hardware problem (FENCE counting
-here as software - since there is a software workaround).
+> - I believe the way forward here is to work with James Bottomley,
+>   who has a nice abstraction of the areas your patch touches for
+>   his Voyager sub-architecture.
+>   Linus has however been completley silent on the x86-subarch idea
+>   despite heavyweights like Alan and Ingo adding their support...
+>   If you go this route, James' base needs to go in first
+>   (converting just the in-kernel visws support). After which, adding
+>   support for Voyager, Summit and any other wacky x86esque hardware
+>   is a simple non-intrusive patch that touches subarch specific areas.
+> - Some of the code you've added looks along the lines of..
+>
+>    if (numaq)
+>       foo();
+>    else if (summit)
+>       foo2();
+>    else
+>       foo3();
+>
+>   Would it be over-abstracting to have some form of APIC struct,
+>   defining pointers to various routines instead of lots of ugly
+>   if's/switches/fall-through's.
+>
+> However, the last point may be completley pointless after adapting to
+> use what James B has come up with..
+>
+>         Dave
 
-I had 3 lockups in 2 days, when I switched to 2.4.19 - and even lower
-room temperature. No, there _must_ be a bug :)
+All the if/else chains are in init code, where a few more microseconds for 
+some extra branches isn't important.  However, a nice sub-arch abstraction 
+would be welcome.
 
-With the relocation you are right - I thought it would test against 
-NULL :-(
+Thanks!
 
-I think that the tasklist is broken inbetween - either due to broken
-readlocks (no working EFENCE on PPRO)
-
-Can someone explain me the difference for label 1 and 2?
-Why is the "js 2f" there? This I don't understand fully -
-it looks broken to me.
-
-include/asm-i386/rwlock.h
-
-#define __build_read_lock_ptr(rw, helper)   \
-     asm volatile(LOCK "subl $1,(%0)\n\t" \
-              "js 2f\n" \
-              "1:\n" \
-              LOCK_SECTION_START("") \
-              "2:\tcall " helper "\n\t" \
-              "jmp 1b\n" \
-              LOCK_SECTION_END \
-              ::"a" (rw) : "memory")
+-- 
+James Cleverdon
+IBM xSeries Linux Solutions
+{jamesclv(Unix, preferred), cleverdj(Notes)} at us dot ibm dot com
 

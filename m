@@ -1,101 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268480AbUIWNoD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268465AbUIWNtp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268480AbUIWNoD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 09:44:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268468AbUIWNmG
+	id S268465AbUIWNtp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 09:49:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268468AbUIWNtp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 09:42:06 -0400
-Received: from reptilian.maxnet.nu ([212.209.142.131]:8979 "EHLO
-	reptilian.maxnet.nu") by vger.kernel.org with ESMTP id S268470AbUIWNlq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 09:41:46 -0400
-From: Thomas Habets <thomas@habets.pp.se>
-To: Tonnerre <tonnerre@thundrix.ch>
-Subject: Re: [PATCH] oom_pardon, aka don't kill my xlock
-Date: Thu, 23 Sep 2004 15:32:01 +0200
-User-Agent: KMail/1.7
-Cc: linux-kernel@vger.kernel.org
-References: <200409230123.30858.thomas@habets.pp.se> <200409230857.57145.thomas@habets.pp.se> <20040923122428.GA8816@thundrix.ch>
-In-Reply-To: <20040923122428.GA8816@thundrix.ch>
-MIME-Version: 1.0
-Message-Id: <200409231532.07958.thomas@habets.pp.se>
-Content-Type: multipart/signed;
-  boundary="nextPart9471515.DFdtakmH1m";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+	Thu, 23 Sep 2004 09:49:45 -0400
+Received: from mail.renesas.com ([202.234.163.13]:7668 "EHLO
+	mail01.idc.renesas.com") by vger.kernel.org with ESMTP
+	id S268465AbUIWNtI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Sep 2004 09:49:08 -0400
+Date: Thu, 23 Sep 2004 22:48:54 +0900 (JST)
+Message-Id: <20040923.224854.582763130.takata.hirokazu@renesas.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: [PATCH 2.6.9-rc2-mm2] [m32r] Trivial fix of smc91x.h
+From: Hirokazu Takata <takata@linux-m32r.org>
+Cc: linux-kernel@vger.kernel.org, takata@linux-m32r.org
+X-Mailer: Mew version 3.3 on XEmacs 21.4.15 (Security Through Obscurity)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart9471515.DFdtakmH1m
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Hello,
 
-Once upon a midnight dreary, Tonnerre pondered, weak and weary:
-> > Yup. What would be a good interface for setting that flag per-process?
-> Well, either  via a  new syscall/ioctl, or  via some exported  file in
-> /proc or /sys.
+Here is a patch to fix smc91x.h for m32r.
+Please apply.
 
-In /proc, you mean /proc/<pid>/oom_pardon then?
-I didn't see any other settings there, so I thought it might be the wrong=20
-place.
+Thanks.
 
-Or should it maybe be a multiline rule file in /proc/sys/net/vm/oom_pardon:
-0:exe /usr/bin/vlock
-+10:user jerry
-+5:user bob:exe /usr/bin/vlock
-+100000:user !thomas:exe /usr/bin/emacs
+	* drivers/net/smc91x.h:
+	Fix LED control.
 
-: separating fields and \: escaping it. Maybe skip "exe" and "user" and hav=
-e=20
-fixed fields.
+Signed-off-by: Hayato Fujiwara <fujiwara@linux-m32r.org>
+Signed-off-by: Hirokazu Takata <takata@linux-m32r.org>
+---
 
-Then match the whole table for every task on OOM, setting the absolute badn=
-ess=20
-if there's no +/- and change relatively if there is.
-Don't exit on match, so the first two would both apply to jerrys vlock, giv=
-ing=20
-it a badness of 10, and bobs would get 5.
+ smc91x.h |    3 +++
+ 1 files changed, 3 insertions(+)
 
-And probably uid instead of username.
+diff -ruNp a/drivers/net/smc91x.h b/drivers/net/smc91x.h
+--- a/drivers/net/smc91x.h	2004-09-23 10:11:08.000000000 +0900
++++ b/drivers/net/smc91x.h	2004-09-23 13:16:42.000000000 +0900
+@@ -216,6 +216,9 @@ static inline void SMC_outsw (unsigned l
+ #define SMC_insw(a, r, p, l)	insw((a) + (r) - 0xa0000000, p, l)
+ #define SMC_outsw(a, r, p, l)	outsw((a) + (r) - 0xa0000000, p, l)
+ 
++#define RPC_LSA_DEFAULT		RPC_LED_TX_RX
++#define RPC_LSB_DEFAULT		RPC_LED_100_10
++
+ #elif	defined(CONFIG_MACH_LPD7A400) || defined(CONFIG_MACH_LPD7A404)
+ 
+ #include <asm/arch/constants.h>	/* IOBARRIER_VIRT */
 
-Hmm, or maybe this is overkill? But having it apply to every newly-created=
-=20
-process before a daemon could have the time to apply badness via *ctl() on=
-=20
-every new process would be nice.
-
-> so you can protect httpd more strongly than xlock.
-
-Never! :-)
-
-> > > What about programs with spaces in its names?
-> > I thought "screw 'em". :-)
-> Now that's what I call policy!
-
-You gotta let the processes know who's boss.
-
-=2D--------
-typedef struct me_s {
-  char name[]      =3D { "Thomas Habets" };
-  char email[]     =3D { "thomas@habets.pp.se" };
-  char kernel[]    =3D { "Linux" };
-  char *pgpKey[]   =3D { "http://www.habets.pp.se/pubkey.txt" };
-  char pgp[] =3D { "A8A3 D1DD 4AE0 8467 7FDE  0945 286A E90A AD48 E854" };
-  char coolcmd[]   =3D { "echo '. ./_&. ./_'>_;. ./_" };
-} me_t;
-
---nextPart9471515.DFdtakmH1m
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQBBUtBXKGrpCq1I6FQRAvupAKDRCMN02sM5dtq7boYeMcF+jH82DQCfb8aI
-6iDQrgdz7yNKTe8b/j/dems=
-=Mlnj
------END PGP SIGNATURE-----
-
---nextPart9471515.DFdtakmH1m--
+--
+Hirokazu Takata <takata@linux-m32r.org>
+Linux/M32R Project:  http://www.linux-m32r.org/

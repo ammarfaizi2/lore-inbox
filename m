@@ -1,53 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264067AbTFPRou (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jun 2003 13:44:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264069AbTFPRot
+	id S264072AbTFPRq5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jun 2003 13:46:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264052AbTFPRq5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jun 2003 13:44:49 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:37862 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264067AbTFPRor (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jun 2003 13:44:47 -0400
-Date: Mon, 16 Jun 2003 11:00:31 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: mochel@cherise
-To: Alan Stern <stern@rowland.harvard.edu>
-cc: Russell King <rmk@arm.linux.org.uk>, Greg KH <greg@kroah.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: Flaw in the driver-model implementation of attributes
-In-Reply-To: <Pine.LNX.4.44L0.0306161349360.1350-100000@ida.rowland.org>
-Message-ID: <Pine.LNX.4.44.0306161057230.908-100000@cherise>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 16 Jun 2003 13:46:57 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:17425 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S264072AbTFPRqw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jun 2003 13:46:52 -0400
+Date: Mon, 16 Jun 2003 19:00:42 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: linux-fbdev-devel@lists.sourceforge.net,
+       Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: [BUG] 2.5.71: no cursor until tty output
+Message-ID: <20030616190042.F13312@flint.arm.linux.org.uk>
+Mail-Followup-To: linux-fbdev-devel@lists.sourceforge.net,
+	Linux Kernel List <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+There appears to be a bug in fbcon where the soft cursor does not appear
+on the screen until some tty output occurs.  I suspect soft cursor is
+missing some initialisation somewhere; I have once seen some random garbage
+flashing on the screen instead of the cursor, which seems to be where
+the cursor is supposed to be.
 
-> > In the pcmcia case, we effectively own the object (class device) we're
-> > attaching the files to, so we can ensure that the module is not unloaded
-> > until the class device files are closed and all references to the object
-> > are gone.
-> > 
-> > IMO, if you don't own the object (and therefore don't know its lifetime),
-> > you shouldn't be adding sysfs or device model attributes of any kind to
-> > that object.
-> 
-> That's not practical.  How else can a device driver provide 
-> device-specific configuration options or information in sysfs?  In many 
-> cases the device is owned by the bus, not the device driver.
+When tty output occurs, the characters appear where the garbage was, and
+the normal cursor appears.
 
-Read it again. :) 
+I've noticed this on several fbcon drivers, so I don't believe it is a
+generic fbcon bug.
 
-The driver is able to create a class-specific object for the device, which 
-it owns entirely. Russell is suggesting that if you're going to export 
-attributes, you best be doing them as attributes of the object you own. 
-
-Otherwise, if you're a subordinate module, then you should explicitly 
-increment the refcount of the module of the object you're exporting 
-attributes for, and decrement it when your module is unloaded. Then again, 
-this may happen implicitly with modules..
-
-
-	-pat
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

@@ -1,43 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261545AbVBRWnU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261547AbVBRW63@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261545AbVBRWnU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Feb 2005 17:43:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261544AbVBRWnU
+	id S261547AbVBRW63 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Feb 2005 17:58:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261548AbVBRW63
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Feb 2005 17:43:20 -0500
-Received: from stat16.steeleye.com ([209.192.50.48]:55211 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S261543AbVBRWnR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Feb 2005 17:43:17 -0500
-Subject: Re: cciss CSMI via sysfs for 2.6
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Greg KH <greg@kroah.com>
-Cc: Christoph Hellwig <hch@infradead.org>, mike.miller@hp.com,
-       Linux Kernel <linux-kernel@vger.kernel.org>, mochel@osdl.org,
-       Andrew Morton <akpm@osdl.org>, eric.moore@lsil.com,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-In-Reply-To: <20050218200552.GC20171@kroah.com>
-References: <20050216164512.GA5734@beardog.cca.cpqcorp.net>
-	 <20050218194628.GA24583@infradead.org>  <20050218200552.GC20171@kroah.com>
-Content-Type: text/plain
-Date: Fri, 18 Feb 2005 16:42:57 -0600
-Message-Id: <1108766577.5764.29.camel@mulgrave>
+	Fri, 18 Feb 2005 17:58:29 -0500
+Received: from bender.bawue.de ([193.7.176.20]:13440 "EHLO bender.bawue.de")
+	by vger.kernel.org with ESMTP id S261547AbVBRW6Z (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Feb 2005 17:58:25 -0500
+Date: Fri, 18 Feb 2005 23:57:22 +0100
+From: Joerg Sommrey <jo@sommrey.de>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Question on CONFIG_IRQBALANCE / 2.6.x
+Message-ID: <20050218225722.GA11292@sommrey.de>
+Mail-Followup-To: Joerg Sommrey <jo@sommrey.de>,
+	"Martin J. Bligh" <mbligh@aracnet.com>,
+	Linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <20050218213332.GA13485@sommrey.de> <4440000.1108766389@flay>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4440000.1108766389@flay>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-02-18 at 12:05 -0800, Greg KH wrote:
-> For a device?  It seems a huge overkill to add this attribute for
-> _every_ device in the system, when only a small minority can actually
-> use it.  Just put it as a default scsi or transport class attribute
-> instead.
+On Fri, Feb 18, 2005 at 02:39:49PM -0800, Martin J. Bligh wrote:
+> > 
+> > there's something I don't understand:  With IRQBALANCE *enabled* almost
+> > all interrupts are processed on CPU0.  This changed in an unexpected way
+> > after disabling IRQBALANCE: now all interrupts are distributed uniformly
+> > to both CPUs.  Maybe it's intentional, but it's not what I expect when a
+> > config option named IRQBALANCE is *disabled*.
+> > 
+> > Can anybody comment on this?
+> 
+> If you have a Pentium 3 based system, by default they'll round robin.
+> If you turn on IRQbalance, they won't move until the traffic gets high
+> enough load to matter. That's presumably what you're seeing.
 
-Actually, we might be able to do this as a simple attribute container
-rather than a transport class, but I agree, it's not a generic property
-of every device.
+It's an Athlon box that propably has the same behaviour.  Just another
+question on this topic:  with IRQBALANCE enabled, almost all interupts
+are routet to CPU0.  Lately irq 0 runs on CPU1 and never returns to CPU0
+- is there any obvious reason for that?
 
-James
+-jo
 
-
+-- 
+-rw-r--r--  1 jo users 63 2005-02-18 23:29 /home/jo/.signature

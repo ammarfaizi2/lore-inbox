@@ -1,70 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261515AbULBEFa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261551AbULBE2L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261515AbULBEFa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Dec 2004 23:05:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261542AbULBEFa
+	id S261551AbULBE2L (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Dec 2004 23:28:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261553AbULBE2L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Dec 2004 23:05:30 -0500
-Received: from out001pub.verizon.net ([206.46.170.140]:5829 "EHLO
-	out001.verizon.net") by vger.kernel.org with ESMTP id S261515AbULBEFV
+	Wed, 1 Dec 2004 23:28:11 -0500
+Received: from mail5.speakeasy.net ([216.254.0.205]:7394 "EHLO
+	mail5.speakeasy.net") by vger.kernel.org with ESMTP id S261551AbULBE2G
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Dec 2004 23:05:21 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: Ingo Molnar <mingo@elte.hu>
-Subject: 2.6.10-rc2-mm3-V0.7.31-19
-Date: Wed, 1 Dec 2004 23:05:26 -0500
-User-Agent: KMail/1.7
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200412012305.27009.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out001.verizon.net from [151.205.46.7] at Wed, 1 Dec 2004 22:05:18 -0600
+	Wed, 1 Dec 2004 23:28:06 -0500
+Date: Wed, 1 Dec 2004 22:28:02 -0600
+From: John Lash <jlash@speakeasy.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: dma errors with sata_sil and Seagate disk
+Message-ID: <20041201222802.4545e663@tux>
+In-Reply-To: <1101944482.30990.74.camel@localhost.localdomain>
+References: <20041201115045.3ab20e03@homer.sarvega.com>
+	<1101944482.30990.74.camel@localhost.localdomain>
+X-Mailer: Sylpheed-Claws 0.9.12cvs126 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Imgo;
+On Wed, 01 Dec 2004 23:41:22 +0000
+Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
 
-I just built -19 and rebooted to it, and got this when I did
-the startx:
+> On Mer, 2004-12-01 at 17:50, John Lash wrote:
+> > I don't see any indication that Seagate has released any public firmware
+> > upgrades for this drive. Anybody have a suggestion?
+> 
+> Don't mix seagate drives and SI311x hardware is the best suggestion.
+> Even if you activate the workaround for the problem you take a
+> performance hit.
+> 
+> Please send Jeff Garzik a patch for the the change you made of course.
+> 
+> 
 
-Dec  1 22:44:11 coyote kernel: Linux agpgart interface v0.100 (c) Dave Jones
-Dec  1 22:44:11 coyote kernel: [drm] Initialized drm 1.0.0 20040925
-Dec  1 22:44:11 coyote kernel: [drm] Initialized radeon 1.11.0 20020828 on minor 0: ATI Technologies Inc RV280 [Radeon 9200 SE]
-Dec  1 22:44:11 coyote kernel: ACPI: PCI Interrupt Link [APC4] enabled at IRQ 19
-Dec  1 22:44:11 coyote kernel: ACPI: PCI interrupt 0000:02:00.0[A] -> GSI 19 (level, high) -> IRQ 19
-Dec  1 22:44:11 coyote kernel: [drm:radeon_cp_init] *ERROR* radeon_cp_init called without lock held
-Dec  1 22:44:11 coyote kernel: [drm:drm_unlock] *ERROR* Process 3093 using kernel context 0
+Thanks Alan, that's pretty clear ;-) Yes, performance hit, big time, 9-10 MB/sec, load average
+through the roof on a big copy. Pretty much what I was expecting though. I'll look around work and
+see if there is anybody I can trade with. Odd that those two devices are so wildly incompatible.
 
-The drm module is loaded and apparently running.  glxgears runs, but
-slow (300fps) as I may have some of the ati special stuff installed yet.
+I'll roll up a patch for the change in the morning.
 
-In terms of the overall usefullness, it almost going backwards in one area.
-
-Kmail, when it fires off spamassassin, virtually locks up the composer,
-ignoreing keyboard input as in showing it on the screen for as much as
-30 seconds at a time.  Back at about -7 or -9 I had noted that the
-cfq scheduler seemed to be exerting enough control over that that
-the machine was still useable while a mail fetch was being done in
-the background.  By -13 the lags were back to noticable and by -15
-they were in full force as if I was running the anticipatory
-scheduler, which I'm not.  This is now -19 and I'm waiting for the router
-lights to tell me a mail fetch in in progress..  Ahh and its doing it again,
-possibly not so bad, or there weren't any new messages.
-
-Has there been any changes in that area or is this my imagination?
-
-
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.29% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+--john

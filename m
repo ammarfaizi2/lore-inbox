@@ -1,59 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269136AbUJQORX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269140AbUJQOTt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269136AbUJQORX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Oct 2004 10:17:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269142AbUJQORW
+	id S269140AbUJQOTt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Oct 2004 10:19:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269142AbUJQOTs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Oct 2004 10:17:22 -0400
-Received: from rproxy.gmail.com ([64.233.170.203]:52207 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S269136AbUJQORK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Oct 2004 10:17:10 -0400
-DomainKey-Signature: a=rsa-sha1; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=fZvIpU/xRTzsyn+Au4EW5qamd3KfsIV/R0ig5ZRIMB6vjnWXkpw+DKyKi3YFFgYlwHBMcyI8SUAKcpCYmQWND2w6mvl1sbTOqTh3Q4dOTb1AuQIRXly0XUU0KMU1HbXdbwe3SSHgwt9r0DxhwRsoYGNPPOqnBHTtvyOBF1kLJt4
-Message-ID: <5d6b657504101707175aab0fcb@mail.gmail.com>
-Date: Sun, 17 Oct 2004 16:17:06 +0200
-From: Buddy Lucas <buddy.lucas@gmail.com>
-Reply-To: Buddy Lucas <buddy.lucas@gmail.com>
-To: Lars Marowsky-Bree <lmb@suse.de>
-Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
-Cc: David Schwartz <davids@webmaster.com>,
-       "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041017133537.GL7468@marowsky-bree.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 17 Oct 2004 10:19:48 -0400
+Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:60822 "HELO
+	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S269140AbUJQOTP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Oct 2004 10:19:15 -0400
+Message-ID: <41727F60.2000200@yahoo.com.au>
+Date: Mon, 18 Oct 2004 00:19:12 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: Hang on x86-64, 2.6.9-rc3-bk4
+References: <41719537.1080505@pobox.com>	<417196AA.3090207@pobox.com>	<20041016154818.271a394b.akpm@osdl.org>	<4171B23F.6060305@pobox.com>	<20041016171458.4511ad8b.akpm@osdl.org>	<4171C20D.1000105@pobox.com> <20041016182116.33b3b788.akpm@osdl.org> <4171E978.6060207@pobox.com> <41720740.2030901@yahoo.com.au> <417273F9.6050605@pobox.com> <41727866.3000009@yahoo.com.au> <41727AE9.9050703@pobox.com>
+In-Reply-To: <41727AE9.9050703@pobox.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-References: <20041016062512.GA17971@mark.mielke.cc>
-	 <MDEHLPKNGKAHNMBLJOLKMEONPAAA.davids@webmaster.com>
-	 <20041017133537.GL7468@marowsky-bree.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 17 Oct 2004 15:35:37 +0200, Lars Marowsky-Bree <lmb@suse.de> wrote:
-> On 2004-10-16T17:28:24, David Schwartz <davids@webmaster.com> wrote:
-> 
-> > The kernel elects to drop the packet on the call to 'recvmsg'. This is its
-> > right -- it can drop a UDP packet at any time. POSIX is careful not to imply
-> > that 'select' guarantees future behavior because this is not possible in
-> > principle.
-> 
-> I'm sorry, but according to my reading of POSIX and the Austin spec,
-> this is exactly what select() returning 'ready to read' implies.
-> 
-> The SuV spec is actually quite detailed about the options here:
-> 
->         A descriptor shall be considered ready for reading when a call
->         to an input function with O_NONBLOCK clear would not block,
->         whether or not the function would transfer data successfully.
->         (The function might return data, an end-of-file indication, or
->         an error other than one indicating that it is blocked, and in
->         each of these cases the descriptor shall be considered ready for
->         reading.)
+Jeff Garzik wrote:
 
-But it says nowhere that the select()/recvmsg() operation is atomic, right?
+> _Someone_ just please get _something_ into 2.6.9-final, so that the 
+> kernel doesn't hang under heavy I/O (someone else ack'd the problem, and 
+> the fix, privately as well, under a totally different test case).
+> 
 
-
-Cheers,
-Buddy
+Yep. Andrew was of course the one who sent my fix to Linus. Please
+make sure you get that someone else to test the next -bk release too :)

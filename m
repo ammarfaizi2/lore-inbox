@@ -1,57 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268577AbUIQIlZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268580AbUIQIrR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268577AbUIQIlZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Sep 2004 04:41:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268576AbUIQIlZ
+	id S268580AbUIQIrR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Sep 2004 04:47:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268576AbUIQIrR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Sep 2004 04:41:25 -0400
-Received: from relay.pair.com ([209.68.1.20]:43025 "HELO relay.pair.com")
-	by vger.kernel.org with SMTP id S268577AbUIQIlP (ORCPT
+	Fri, 17 Sep 2004 04:47:17 -0400
+Received: from srv1.dnstoip.com ([66.220.30.245]:39900 "EHLO srv1.dnstoip.com")
+	by vger.kernel.org with ESMTP id S268580AbUIQIrP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Sep 2004 04:41:15 -0400
-X-pair-Authenticated: 24.126.73.164
-Message-ID: <414AA2CA.5080201@kegel.com>
-Date: Fri, 17 Sep 2004 01:39:38 -0700
-From: Dan Kegel <dank@kegel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
-X-Accept-Language: en, de-de
-MIME-Version: 1.0
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Fix allnoconfig on arm with small tweak to kconfig?
-References: <414551FD.4020701@kegel.com> <20040913091534.B27423@flint.arm.linux.org.uk> <4145BB30.60309@kegel.com> <20040913195119.B4658@flint.arm.linux.org.uk> <41464C8E.3060004@kegel.com> <20040914092951.A15258@flint.arm.linux.org.uk>
-In-Reply-To: <20040914092951.A15258@flint.arm.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 17 Sep 2004 04:47:15 -0400
+Subject: [patch] xpad driver - incorrect axis settings
+From: William Pettersson <enigma@strudel-hound.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-KjFWa9oRI1maQO+vZYJb"
+Message-Id: <1095410828.2097.11.camel@enigmas>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 17 Sep 2004 18:47:08 +1000
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - srv1.dnstoip.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - strudel-hound.com
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
-> last time I built a pure bk-based tree (4 days ago), the following worked:
-> 
-> - ebsa110
-> - netwinder
-> - imx
-> - integrator
-> - lubbock
-> - rpc
-> - s3c2410
-> - versatile
-> 
- > ... So
-> $ make netwinder_defconfig
-> $ make
-> 
-> will build a working kernel.
 
-OK, I've given up entirely on allnoconfig, and simply ran 'make netwinder_defconfig'
-once by hand to capture a working arm config file
-(since I already lug around config files).   This lets me avoid special-casing arm,
-and seems to work ok.
+--=-KjFWa9oRI1maQO+vZYJb
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Sorry for the noise.
-- Dan
+Hi,
+Seems the xpad (xbox controller) driver, whilst functioning, reported
+down as up, and up as down, on the analogue joysticks for the xpad.=20
+Also the L and R triggers were implemented as axis, rather than buttons.
+This patch fixes up both of those issues.  I'm yet to have any people
+have any errors with it, although not many people have tested it.  Also
+it seems weird that the driver would be reported functioning if the axis
+were inverted, so it might be just an issue with the S controllers from
+Microsoft.  I tried contacting the maintainer, but got no response from
+his email account.
+Here's a patch, which patches against most 2.6 kernels, including
+2.6.8.1 and 2.6.9, and inverts the axis and fixes the buttons
+http://www.strudel-hound.com/xpad-0.6.patch
 
--- 
-My technical stuff: http://kegel.com
-My politics: see http://www.misleader.org for examples of why I'm for regime change
+As soon as I can find an original xbox controller, I'll test it out with
+my driver to see what it does.  Until then, are there any changes anyone
+could suggest?  Or if anyone could test it out with an actual original
+xbox controller, or any xbox controller for that matter, it would be
+great.  I'm willing to listen to any advice or demands or insults, I am
+not an experience programmer and will make mistakes
+
+William
+
+--=-KjFWa9oRI1maQO+vZYJb
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBBSqSMNSpXjKoV00kRAmvVAJ9irhP+k7irkwqP8/TXB6+2pcoaSgCeKqPN
+tcztV6S5hZHOM284Hrl7KKg=
+=+jib
+-----END PGP SIGNATURE-----
+
+--=-KjFWa9oRI1maQO+vZYJb--
+

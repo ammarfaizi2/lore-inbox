@@ -1,102 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262606AbUCZDAx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Mar 2004 22:00:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261992AbUCZDAx
+	id S262993AbUCZDDz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Mar 2004 22:03:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263304AbUCZDDz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Mar 2004 22:00:53 -0500
-Received: from 66-194-152-191.gen.twtelecom.net ([66.194.152.191]:35457 "EHLO
-	pico.surpasshosting.com") by vger.kernel.org with ESMTP
-	id S262974AbUCZDAr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Mar 2004 22:00:47 -0500
-Date: Thu, 25 Mar 2004 20:59:09 -0600
-From: Chris Cheney <ccheney@cheney.cx>
-To: David Schwartz <davids@webmaster.com>
-Cc: Matthew Wilcox <willy@debian.org>, Jeff Garzik <jgarzik@pobox.com>,
-       Adrian Bunk <bunk@fs.tum.de>, 239952@bugs.debian.org,
-       debian-devel@lists.debian.org, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-Subject: Re: Binary-only firmware covered by the GPL?
-Message-ID: <20040326025909.GY9248@cheney.cx>
-Mail-Followup-To: David Schwartz <davids@webmaster.com>,
-	Matthew Wilcox <willy@debian.org>, Jeff Garzik <jgarzik@pobox.com>,
-	Adrian Bunk <bunk@fs.tum.de>, 239952@bugs.debian.org,
-	debian-devel@lists.debian.org, linux-kernel@vger.kernel.org,
-	linux-scsi@vger.kernel.org
-References: <81ptb0wh45.wl@omega.webmasters.gr.jp> <MDEHLPKNGKAHNMBLJOLKAEFILEAA.davids@webmaster.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="t3Rhqlz/9+3FgEet"
-Content-Disposition: inline
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKAEFILEAA.davids@webmaster.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - pico.surpasshosting.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - cheney.cx
+	Thu, 25 Mar 2004 22:03:55 -0500
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:57284 "EHLO
+	dsl.commfireservices.com") by vger.kernel.org with ESMTP
+	id S261992AbUCZDDt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Mar 2004 22:03:49 -0500
+Date: Thu, 25 Mar 2004 22:03:56 -0500 (EST)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: "Nguyen, Tom L" <tom.l.nguyen@intel.com>
+Cc: davidm@napali.hpl.hp.com, jgarzik@pobox.com,
+       "Nakajima, Jun" <jun.nakajima@intel.com>, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org, "Luck, Tony" <tony.luck@intel.com>,
+       greg@kroah.com
+Subject: RE: RE[PATCH]2.6.5-rc2 MSI Support for IA64
+In-Reply-To: <C7AB9DA4D0B1F344BF2489FA165E50240405818C@orsmsx404.jf.intel.com>
+Message-ID: <Pine.LNX.4.58.0403251420590.19857@montezuma.fsmlabs.com>
+References: <C7AB9DA4D0B1F344BF2489FA165E50240405818C@orsmsx404.jf.intel.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 25 Mar 2004, Nguyen, Tom L wrote:
 
---t3Rhqlz/9+3FgEet
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> >>  static int nr_msix_devices = 0;
+> >
+> >ditto for all those other statics.
+>
+> For readability and maintaining purpose, we prefer to have these static
+> variables defined to their initial states.
 
-On Thu, Mar 25, 2004 at 06:06:37PM -0800, David Schwartz wrote:
->=20
->=20
-> > At Fri, 26 Mar 2004 00:33:39 +0000,
->=20
-> > Matthew Wilcox wrote:
->=20
-> > > I realise there's a grey area between "magic data you write to a devi=
-ce"
-> > > and "a program that is executed on a different processor".  For examp=
-le,
-> > > palette data for a frame buffer.  But nobody's arguing for that grey
-> > > area here -- it's clearly a program without source code that Debian
-> > > can't distribute.
->=20
-> > Well, I also think this is grey area.
->=20
-> 	On what basis? How is this file different from an executable?
->=20
-> 	The gray area cases are where the code, as orginally written, is obscure.
-> Perhaps because it uses 'magic numbers' from data sheets rather than
-> symbolic constants. However, the GPL doesn't require you to add comments =
-or
-> to write clear code. It simply prohibits deliberate obfuscation by one
-> particular means, namely having two forms of the code, one that you
-> distribute and one that you use to make modifications. (Other forms of
-> obfuscation are the gray areas.)
->=20
-> 	But this case is squarely where the GPL says "no". In this case, there is
-> one form of the firmware for the purposes of making modifications to it a=
-nd
-> there is another form that's distributed, ostensibly under the GPL.
+Understandable.
 
-So is a reverse engineered driver where there is a binary blob the
-preferred form of source? Otherwise the case isn't that binary blobs are
-against the GPL, just that if the author knows what generates the binary
-blob and doesn't disclose it then it is against the GPL. Of course
-reverse engineered drivers with binary blobs in them are probably
-copyright infringements anyway...
+> >> +#ifndef CONFIG_IA64
+> >>  int assign_irq_vector(int irq)
+> >>  {
+> >
+> >We could define this as a weak function with arch override.
+>
+> Agree. We are thinking of replacing the semantics of assign_irq_vector()
+> in existing arch/i386/kernel/io_apic.c with the semantics of
+> assign_irq_vector() in drivers/pci/msi.c. With this way,
 
-Chris
+There shouldn't be a problem replacing it on i386, the only thing is
+perhaps making sure it's marked __init when we're not using
+CONFIG_PCI_USE_VECTOR
 
---t3Rhqlz/9+3FgEet
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+> >current pci_vector_resources() returns strange values when say, last
+> >vector was 0x39 and nr_released was 2, semantically, shouldn't the return
+> >value be 187?
+>
+> Glad you pointed it out. I think the function name pci_vector_resources()
+> has a little confusion. The purpose of this function is to return the number
+> of vectors currently avaiable in the system for any new allocations, not
+> already in use. First argument, last, indicates the last vector already
+> assigned and second argument, nr_released, indicates the number of vectors
+> released by devices being hot-removed.
+>
+> Regarding your example, the last assigned vector is 0x39, the
+> return should be 187 (vectors left available for new allocation) if
+> nr_released was 0 (no device is hot-removed). If the device, which claims
+> vector 0x39 was hot-removed, then nr_released was 1; as a result,
+> pci_vector_resources() returns 188. The case of nr_released of 2 was
+> impossible. If you think of the better name for this function, we are glad
+> to rename it. Please let's know what you think.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+Thanks for clearing that up, i'm not sure of a self descriptive name. I'll
+let you use your good judgement.
 
-iD8DBQFAY5x90QZas444SvIRApTCAKCyBAii8vZhlos6YuHD6iJtHaNDwgCgsLCv
-Gd61Bzvk82tnxi4RKtteyG4=
-=ZmHM
------END PGP SIGNATURE-----
+Otherwise it looks good, thanks for the grinding this out.
 
---t3Rhqlz/9+3FgEet--
+	Zwane

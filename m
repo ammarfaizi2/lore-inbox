@@ -1,48 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288768AbSAQOOL>; Thu, 17 Jan 2002 09:14:11 -0500
+	id <S288799AbSAQORb>; Thu, 17 Jan 2002 09:17:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288783AbSAQOOB>; Thu, 17 Jan 2002 09:14:01 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:1049 "EHLO
+	id <S288800AbSAQORV>; Thu, 17 Jan 2002 09:17:21 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:18970 "EHLO
 	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S288768AbSAQONu>; Thu, 17 Jan 2002 09:13:50 -0500
-Date: Thu, 17 Jan 2002 15:13:56 +0100
+	id <S288799AbSAQORM>; Thu, 17 Jan 2002 09:17:12 -0500
+Date: Thu, 17 Jan 2002 15:17:45 +0100
 From: Andrea Arcangeli <andrea@suse.de>
-To: Chris Chabot <chabotc@reviewboard.com>
+To: Adam Kropelin <akropel1@rochester.rr.com>
 Cc: linux-kernel@vger.kernel.org, Rik van Riel <riel@conectiva.com.br>
-Subject: blkdev speedup
-Message-ID: <20020117151356.G4847@athlon.random>
-In-Reply-To: <20020116200459.E835@athlon.random> <3C460255.4020805@reviewboard.com>
+Subject: async buffer flushing reported slowdown (could be a driver issue?)
+Message-ID: <20020117151745.H4847@athlon.random>
+In-Reply-To: <20020116200459.E835@athlon.random> <056c01c19ed4$f0e77300$02c8a8c0@kroptech.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.3.12i
-In-Reply-To: <3C460255.4020805@reviewboard.com>; from chabotc@reviewboard.com on Wed, Jan 16, 2002 at 11:44:37PM +0100
+In-Reply-To: <056c01c19ed4$f0e77300$02c8a8c0@kroptech.com>; from akropel1@rochester.rr.com on Wed, Jan 16, 2002 at 04:29:54PM -0500
 X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
 X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 16, 2002 at 11:44:37PM +0100, Chris Chabot wrote:
+On Wed, Jan 16, 2002 at 04:29:54PM -0500, Adam Kropelin wrote:
+> Andrea Arcangeli wrote:
+> <snip>
+> >I don't have a single bugreport about the current 2.4.18pre2aa2 VM (except 
+> >perhaps the bdflush wakeup that seems to be a little too late and that deals to 
+> >lower numbers with slow write load etc.., fixable with bdflush tuning). 
 > 
-> > Test hardware:
-> > 4 way Dell, 4 GB physical RAM, SCSI/RAID subsystem,
-> > DB runs on FS.
-> 
-> Can we first make sure that the other factors dont plat a rol in this 
-> benchmark? I have a couple (14+) Dell servers here, and i know for a 
-> fact that most of their RAID systems are heavely borked in the 
-> performance department.
-> 
-> All kernels upto 2.4.1x performed horibly, and all kernels after 2.4.16 
-> or so perform horibly again! Somewhere inbetween some magic seemed to 
-> happen in the block layer / elevator code / etc, that caused performance 
-> to increase upto 100% on the Dell PERC adapters. (started @ the first 
-> release of the AA VM). However after a few small releases, the 
+> I don't know if this is a reference to the issue I reported under the "Writeout in
+> recent kernels..." thread or not. If not, my apologies for clogging up this new
+> "discussion".
 
-if you're using the blkdev directly, then please try to mount the blkdev
-with a 4k filesystem before making your benchmark, that should give you
-the magic performance back. 2.4.10 intentionally were defaulting to 4k
-I/O, this is probably what made the difference for you.
+yes, I was thinking about you report.
+
+> 
+> As reported[0] in the above-mentioned thread, the bdflush tuning parameters
+> you suggested made no difference in my test case other than slightly adjusting
+> the temporal relationship between writeout and file transfer. -aa still performs
+> slightly worse than both 2.4.17 stock and -rmap. 2.4.13-ac7 currently beats
+> all competitors.
+
+Then can you verify the bandwith you get out of the network card is the
+same across 2.4.13-ac7 and all the other kernels you are trying. Also
+please check with an hdparm -t the speed you get out of IDE is the same.
+This sounds like some driver changed (note that -ac is used to queue
+lots of driver updates) and that made the difference. Otherwise if we
+wakeup bdflush early enough I don't see why it takes more time.
 
 Andrea

@@ -1,63 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263062AbUFBOhf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261184AbUFBOjS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263062AbUFBOhf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 10:37:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263079AbUFBOhf
+	id S261184AbUFBOjS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 10:39:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261239AbUFBOjS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 10:37:35 -0400
-Received: from hostmaster.org ([212.186.110.32]:14976 "HELO hostmaster.org")
-	by vger.kernel.org with SMTP id S263062AbUFBOh0 (ORCPT
+	Wed, 2 Jun 2004 10:39:18 -0400
+Received: from ns1.g-housing.de ([62.75.136.201]:23172 "EHLO mail.g-house.de")
+	by vger.kernel.org with ESMTP id S261184AbUFBOi6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 10:37:26 -0400
-Subject: Re: Linux 2.6.7-rc2
-From: Thomas Zehetbauer <thomasz@hostmaster.org>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0405292349110.1632@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0405292349110.1632@ppc970.osdl.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-SJn9MXMDf1aFyPGrL0og"
-Message-Id: <1086187044.6179.8.camel@hostmaster.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 02 Jun 2004 16:37:24 +0200
+	Wed, 2 Jun 2004 10:38:58 -0400
+Message-ID: <40BDE67A.9030402@g-house.de>
+Date: Wed, 02 Jun 2004 16:38:50 +0200
+From: Christian Kujau <evil@g-house.de>
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040528)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: /bin/sh: line 1: defkeymap.c: Permission denied (2.4-BK)
+X-Enigmail-Version: 0.83.6.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
---=-SJn9MXMDf1aFyPGrL0og
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+hi,
 
-http://bugzilla.kernel.org/show_bug.cgi?id=3D2819
+every now and then i get an error when trying to compile 2.4 kernels.
+to see what's going on i just moved drivers/char/defkeymap.* to
+somewhere else and did the following:
 
-Make oldconfig silently disabled support for my CONFIG_TIGON3 NIC.
 
-It seems that it depends on CONFIG_NET_GIGE which in turn depends on
-CONFIG_NET_ETHERNET which was not required in 2.6.6 kernel.
+- ---------------------------------
+$ la drivers/char/defkeymap.*
+ls: drivers/char/defkeymap.*: No such file or directory
+$ bk co drivers/char/defkeymap.c
+drivers/char/defkeymap.c 1.1: 262 lines
+$ bk co drivers/char/defkeymap.map
+drivers/char/defkeymap.map 1.1: 357 lines
+$ la drivers/char/defkeymap.*
+- -r--r--r--    1 evil users  11K Jun  2 16:26 drivers/char/defkeymap.c
+- -r--r--r--    1 evil users  12K Jun  2 16:26 drivers/char/defkeymap.map
 
-Tom
+$ make bzImage 2>&1 | tail -n10
+make[3]: Entering directory `/usr/src/linux-2.4-BK/drivers/char'
+set -e ; loadkeys --mktable defkeymap.map | sed -e 's/^static *//' >
+defkeymap.c
+/bin/sh: line 1: defkeymap.c: Permission denied
+make[3]: *** [defkeymap.c] Error 1
+make[3]: Leaving directory `/usr/src/linux-2.4-BK/drivers/char'
+make[2]: *** [first_rule] Error 2
+make[2]: Leaving directory `/usr/src/linux-2.4-BK/drivers/char'
+make[1]: *** [_subdir_char] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.4-BK/drivers'
+make: *** [_dir_drivers] Error 2
+$ umask
+0022
+- ---------------------------------
 
---=20
-  T h o m a s   Z e h e t b a u e r   ( TZ251 )
-  PGP encrypted mail preferred - KeyID 96FFCB89
-      finger thomasz@hostmaster.org for key
+i'll chmod drivers/char/defkeymap.c to 0644 then and it's compiling
+then. i can also *ignore* the error ("make -i") and the kernel will
+build fine. how comes? and why is the file 0444 at all?
 
-Growing old is mandatory... growing up is optional.
+Thanks,
+Christian.
 
---=-SJn9MXMDf1aFyPGrL0og
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+PS: this is debian/unstable (i386), with
+$ gcc --version
+gcc (GCC) 3.3.3 (Debian 20040422)
+Copyright (C) 2003 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
+$ ld -V
+GNU ld version 2.14.90.0.7 20031029 Debian GNU/Linux
+~  Supported emulations:
+~   elf_i386
+~   i386linux
+~   elf_x86_64
+- --
+BOFH excuse #377:
+
+Someone hooked the twisted pair wires into the answering machine.
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-iQEVAwUAQL3mJGD1OYqW/8uJAQK5JQgAhKFVot847begIiG2KUZaDaopw1X7wQ/G
-+MxMZTBT2r7YL50cHbNKZZv0PLjno1vtGc3nOuiTfTGLIQ8Nz7xytCSqJvSzIOyl
-eJCVg6dqDM9N+myY15aM2ZuOaUGp1gW8R1kiSWUioDQhjnX+QNWw76bPppRMm2nf
-dFqZZ2sicE3saXxcx/ETnc5RAkk6AB+erLkrRdRtRNOi66tBp6VRLJmuA14bGYuR
-w5PIxRHtw0Ps02VGlJtT7mmzZXSHPffVqPBpmRPjb0ewK25E4cROgjaDCwrZ04/I
-jK3J5no1vaO1AJUYRXTJs8mPXRLyD1x1B9GpnclyVhR6aZALhBbJlA==
-=9TpK
+iD8DBQFAveZ6+A7rjkF8z0wRAooXAJwLyxauqZ6Sb8TN3r3W0pkOZ/uiLgCfaCOI
+MGQkz3B3ilygOL9pA3alviw=
+=cpN3
 -----END PGP SIGNATURE-----
-
---=-SJn9MXMDf1aFyPGrL0og--
-

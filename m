@@ -1,39 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130540AbRAQJBG>; Wed, 17 Jan 2001 04:01:06 -0500
+	id <S129860AbRAQJBg>; Wed, 17 Jan 2001 04:01:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130339AbRAQJAr>; Wed, 17 Jan 2001 04:00:47 -0500
-Received: from stud3.tuwien.ac.at ([193.170.75.13]:13320 "EHLO
-	stud3.tuwien.ac.at") by vger.kernel.org with ESMTP
-	id <S129860AbRAQJAn>; Wed, 17 Jan 2001 04:00:43 -0500
-Date: Wed, 17 Jan 2001 10:00:31 +0100 (MET)
-From: Stefan Ring <e9725446@student.tuwien.ac.at>
-To: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.0.37 crashes immediately
-In-Reply-To: <Pine.LNX.4.21.0101161605570.17397-100000@sol.compendium-tech.com>
-Message-ID: <Pine.HPX.4.10.10101170957350.29885-100000@stud3.tuwien.ac.at>
+	id <S130339AbRAQJB0>; Wed, 17 Jan 2001 04:01:26 -0500
+Received: from cmb1-3.dial-up.arnes.si ([194.249.32.3]:8576 "EHLO
+	cmb1-3.dial-up.arnes.si") by vger.kernel.org with ESMTP
+	id <S129860AbRAQJA6>; Wed, 17 Jan 2001 04:00:58 -0500
+From: Igor Mozetic <igor.mozetic@uni-mb.si>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <14949.24380.105648.57238@cmb1-3.dial-up.arnes.si>
+Date: Wed, 17 Jan 2001 10:00:44 +0100
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.0+aic7xxx doesn't boot, 2.2.17 OK
+In-Reply-To: <14948.13544.776999.735127@ravan.camtp.uni-mb.si>
+	<3A6479F3.3000305@fugmann.net>
+X-Mailer: VM 6.89 under Emacs 20.7.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 Jan 2001, Dr. Kelsey Hudson wrote:
+Anders Peter Fugmann writes:
 
-> Is there a reason you are using a relatively new machine like that with
-> such an outdated and arcane kernel (and distribution, for that
-> matter)? I'd suggest you upgrade to a more recent kernel and/or
-> distribution...it'll be a lot more stable (and not to mention secure!)
+ > Later I saw an announcement from Justin T. Gibbs, who, I beleive, is 
+ > currently developing an opensource driver for Adaptec.
+ > You can find his patches for the Adaptec aic7xxx driver, for both 2.4.0 
+ > and 2.2.8 at: http://people.FreeBSD.org/~gibbs/linux/
+ > 
+ > The patch makes all problems go away, and all my dics on the Adaptc 
+ > controller is now running at full speed. (Great job Gibbs.)
 
-Every version above 2.0.36 behaves the same (from the 2.0.x series). Gee,
-I should have said a few words about my intent. Of course, I'm not
-actually using these old versions of everything. I just wanted to run a
-2.0.x kernel to do some hardware testing, and since 2.0.x can't access the
-new ext2fs with the spare superblock option, I thought, I might be up and
-running fastest by installing a RH distribution still using the 2.0.x
-kernel. It just happened that RH4.2 was the only one I had handy at that
-moment.
+Yes, this solves the problem, thanks.
 
+-Igor Mozetic
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

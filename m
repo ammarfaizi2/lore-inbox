@@ -1,37 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263658AbRFASOP>; Fri, 1 Jun 2001 14:14:15 -0400
+	id <S263311AbRFASYP>; Fri, 1 Jun 2001 14:24:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263659AbRFASOF>; Fri, 1 Jun 2001 14:14:05 -0400
-Received: from comverse-in.com ([38.150.222.2]:42203 "EHLO
-	eagle.comverse-in.com") by vger.kernel.org with ESMTP
-	id <S263658AbRFASNx>; Fri, 1 Jun 2001 14:13:53 -0400
-Message-ID: <6B1DF6EEBA51D31182F200902740436802678F0F@mail-in.comverse-in.com>
-From: "Khachaturov, Vassilii" <Vassilii.Khachaturov@comverse.com>
-To: "'Dawson Engler'" <engler@csl.Stanford.EDU>, kai@tp1.ruhr-uni-bochum.de
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: [CHECKER] 2.4.5-ac4 non-init functions calling init functions
-Date: Fri, 1 Jun 2001 14:09:34 -0400 
+	id <S263395AbRFASX4>; Fri, 1 Jun 2001 14:23:56 -0400
+Received: from pille1.addcom.de ([62.96.128.35]:4618 "HELO pille1.addcom.de")
+	by vger.kernel.org with SMTP id <S263311AbRFASXn>;
+	Fri, 1 Jun 2001 14:23:43 -0400
+Date: Fri, 1 Jun 2001 20:23:24 +0200 (CEST)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: <kai@vaio>
+To: CZUCZY Gergely <phoemix@mayday.hu>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: PROBLEM: isdn connecting error(auth failed) with 2.4.4-ac9 and
+ 2.4.5
+In-Reply-To: <Pine.LNX.4.21.0105312020010.20643-100000@hirosima.martos.bme.hu>
+Message-ID: <Pine.LNX.4.33.0106011728360.1481-100000@vaio>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If you do implement such a thing, make sure that you don't mistakenly spot
-smth that gets exported to a non-kernel-tree driver, or smth that gets
-called by a non-__init, --- but not in the current kernel config!
+On Thu, 31 May 2001, CZUCZY Gergely wrote:
 
-V.
+> May 27 15:00:50 kign kernel: ippp0: dialing 1 0651201201...
+> May 27 15:00:51 kign kernel: isdn_net: ippp0 connected
+> May 27 15:00:51 kign ipppd[391]: Local number: 2536889, Remote
+> number: 0651201201, Type: outgoing
+> May 27 15:00:51 kign ipppd[391]: PHASE_WAIT -> PHASE_ESTABLISHED,
+> ifunit: 0, linkunit: 0, fd: 7
+> May 27 15:00:52 kign ipppd[391]: Remote message: Access Denied
+> May 27 15:00:52 kign ipppd[391]: PAP authentication failed
+> May 27 15:00:52 kign ipppd[391]: LCP terminated by peer
 
-> -----Original Message-----
-> From: Dawson Engler [mailto:engler@csl.Stanford.EDU]
-> checker to
-> > find functions which are only called from __init functions, but not
-> > marked __init themselves, you'd most likely find lots more 
-> performance
-> > bugs of this kind.
-> 
-> I haven't hacked this in --- I was waiting to get a feel for how
-> important the checker was before spending too much time on 
+That really looks more like an authentication problem. Is this problem
+reproducible, and does it vanish if you go back to 2.4.4?
+
+If the problem persists, contact me off list, and I'll try to sort it
+out.
+
+--Kai
+
+
+

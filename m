@@ -1,103 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263097AbUCSSjV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Mar 2004 13:39:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263121AbUCSSjV
+	id S263076AbUCSSoP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Mar 2004 13:44:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263118AbUCSSoO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Mar 2004 13:39:21 -0500
-Received: from notes.hallinto.turkuamk.fi ([195.148.215.149]:30992 "EHLO
-	notes.hallinto.turkuamk.fi") by vger.kernel.org with ESMTP
-	id S263097AbUCSSjC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Mar 2004 13:39:02 -0500
-Message-ID: <405B3F74.6040706@kolumbus.fi>
-Date: Fri, 19 Mar 2004 20:44:04 +0200
-From: =?ISO-8859-1?Q?Mika_Penttil=E4?= <mika.penttila@kolumbus.fi>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>, Chris Mason <mason@suse.com>
-Subject: Re: [PATCH] barrier patch set
-References: <20040319153554.GC2933@suse.de> <405B200A.40909@kolumbus.fi> <20040319181616.GA2423@suse.de>
-In-Reply-To: <20040319181616.GA2423@suse.de>
-X-MIMETrack: Itemize by SMTP Server on marconi.hallinto.turkuamk.fi/TAMK(Release 5.0.8 |June
- 18, 2001) at 19.03.2004 20:41:25,
-	Serialize by Router on notes.hallinto.turkuamk.fi/TAMK(Release 5.0.10 |March
- 22, 2002) at 19.03.2004 20:40:29,
-	Serialize complete at 19.03.2004 20:40:29
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 19 Mar 2004 13:44:14 -0500
+Received: from mail.kroah.org ([65.200.24.183]:19627 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263076AbUCSSoJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Mar 2004 13:44:09 -0500
+Date: Fri, 19 Mar 2004 09:59:57 -0800
+From: Greg KH <greg@kroah.com>
+To: Jesse Barnes <jbarnes@sgi.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Exporting physical topology information
+Message-ID: <20040319175957.GB10432@kroah.com>
+References: <20040317213714.GD23195@localhost> <20040318232139.GA17586@kroah.com> <200403190951.52899.jbarnes@sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200403190951.52899.jbarnes@sgi.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Mar 19, 2004 at 09:51:52AM -0800, Jesse Barnes wrote:
+> On Thursday 18 March 2004 3:21 pm, Greg KH wrote:
+> > > If we could physically locate a PCI bus, then it would be much easier
+> > > to (for example) locate our defective SCSI disk that is target4 on the
+> > > SCSI controller that is on pci bus 0000:20.
+> > 
+> > Um, what's wrong with the current /sys/class/pci_bus/*/cpuaffinity files
+> > for determining this topology information?  That is why it was added.
+> 
+> Nothing, except that it only provides logical information.  In a large
+> system, it's really useful to be able to physically locate a component
+> somehow.  That was the idea behind adding 'physid'.  For example:
+> 
+> [jbarnes@spamtin pci0000:02]$ pwd
+> /sys/devices/pci0000:02
+> [jbarnes@spamtin pci0000:02]$ cat physid
+> rack: 5
+> module: 12
+> slot: 3
 
+Hm, that looks to violate the "one value per file" mandate of sysfs,
+right?  Right now PCI Hotplug slots have a LED on them that you can
+flash from userspace to help locate the physical slot that you want to
+change.  I also know of large PCI drawers that have LEDs that flash to
+locate them.
 
-Jens Axboe wrote:
+Also, this is _very_ hardware/platform specific.  If you want to try to
+implement this, I'd be interested in what the patch would look like.
 
->On Fri, Mar 19 2004, Mika Penttil? wrote:
->  
->
->>Jens Axboe wrote:
->>
->>    
->>
->>>Hi,
->>>
->>>A first release of a collected barrier patchset for 2.6.5-rc1-mm2. I
->>>have a few changes planned to support dm/md + sata, I'll do those
->>>changes over the weekend.
->>>
->>>Reiser has the best barrier support, ext3 works but only if things don't
->>>go wrong. So only attempt to use the barrier feature on ext3 if on ide
->>>drives, not SCSI nor SATA.
->>>
->>>
->>>
->>>      
->>>
->>What are these brutal pieces...?
->>
->>
->>+static int ide_transform_pc_req(ide_drive_t *drive, struct request *rq)
->>+{
->>+ if (rq->cmd[0] != 0x35) {
->>+ ide_end_request(drive, 0, 0);
->>+ return 1;
->>+ }
->>+
->>+ if (!drive->wcache) {
->>+ ide_end_request(drive, 1, 0);
->>+ return 1;
->>+ }
->>+
->>+ ide_fill_flush_cmd(drive, rq);
->>+ return 0;
->>+}
->>
->>
->>/*
->>+ * basic transformation support for scsi -> ata commands
->>+ */
->>+ if (blk_pc_request(rq)) {
->>+ if (drive->media != ide_disk)
->>+ goto kill_rq;
->>+ if (ide_transform_pc_req(drive, rq))
->>+ return ide_stopped;
->>+ }
->>    
->>
->
->Hmm, I thought it was pretty obvious, even just from the naming and
->comments. Right now, the block layer issued flush without data attached
->(ie a drive barrier without pinning it to a buffer) comes as a scsi
->synchronize cache command. I'm going to change this anyways and allow
->queue hook of a ->issue_flush_fn() that can just tailored to ide or
->scsi, _or_ dm/md and that sort of thing.
->  
->
-I mean other BLOCK_PC requests than SYNCHRONIZE CACHE -> 
-ide_end_request() and ide_stopped.
+thanks,
 
---Mika
-
-
+greg k-h

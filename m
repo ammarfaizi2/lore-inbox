@@ -1,49 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263036AbVCQJ7y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263032AbVCQL3u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263036AbVCQJ7y (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Mar 2005 04:59:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263039AbVCQJ7n
+	id S263032AbVCQL3u (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Mar 2005 06:29:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263037AbVCQL3t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Mar 2005 04:59:43 -0500
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:49545 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S263036AbVCQJ7J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Mar 2005 04:59:09 -0500
-Date: Thu, 17 Mar 2005 04:58:59 -0500 (EST)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@localhost.localdomain
-Reply-To: rostedt@goodmis.org
-To: Andrew Morton <akpm@osdl.org>
-cc: mingo@elte.hu, rlrevell@joe-job.com, linux-kernel@vger.kernel.org
-Subject: Re: [patch 0/3] j_state_lock, j_list_lock, remove-bitlocks
-In-Reply-To: <Pine.LNX.4.58.0503161234350.14460@localhost.localdomain>
-Message-ID: <Pine.LNX.4.58.0503170456410.17019@localhost.localdomain>
-References: <Pine.LNX.4.58.0503141024530.697@localhost.localdomain>
- <Pine.LNX.4.58.0503150641030.6456@localhost.localdomain> <20050315120053.GA4686@elte.hu>
- <Pine.LNX.4.58.0503150746110.6456@localhost.localdomain> <20050315133540.GB4686@elte.hu>
- <Pine.LNX.4.58.0503151150170.6456@localhost.localdomain> <20050316085029.GA11414@elte.hu>
- <20050316011510.2a3bdfdb.akpm@osdl.org> <20050316095155.GA15080@elte.hu>
- <20050316020408.434cc620.akpm@osdl.org> <20050316101906.GA17328@elte.hu>
- <20050316024022.6d5c4706.akpm@osdl.org> <Pine.LNX.4.58.0503160600200.11824@localhost.localdomain>
- <20050316031909.08e6cab7.akpm@osdl.org> <Pine.LNX.4.58.0503160853360.11824@localhost.localdomain>
- <Pine.LNX.4.58.0503161141001.14087@localhost.localdomain>
- <Pine.LNX.4.58.0503161234350.14460@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 17 Mar 2005 06:29:49 -0500
+Received: from adsl-203-134.38-151.net24.it ([151.38.134.203]:29168 "EHLO
+	mail.gnudd.com") by vger.kernel.org with ESMTP id S263032AbVCQKZz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Mar 2005 05:25:55 -0500
+Date: Thu, 17 Mar 2005 11:29:01 +0100
+From: Alessandro Rubini <rubini@gnudd.com>
+To: mohanlal@samsung.com, linux-kernel@vger.kernel.org,
+       kernelnewbies@nl.linux.org
+Subject: Re: why CURRENT->sector is zero??
+Message-ID: <20050317102901.GA7077@mail.gnudd.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+X-Face: #Q;A)@_4.#>0+_%y]7aBr:c"ndLp&#+2?]J;lkse\^)FP^Lr5@O0{)J;'nny4%74.fM'n)M
+	>ISCj.KmsL/HTxz!:Ju'pnj'Gz&.
+Organization: GnuDD, Device Drivers, Embedded Systems, Courses
+In-Reply-To: <01ae01c52ad1$83e79190$3d476c6b@sisodomain.com>
+References: <01ae01c52ad1$83e79190$3d476c6b@sisodomain.com> 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Hello.
 
-On Wed, 16 Mar 2005, Steven Rostedt wrote:
-> [...]  There's a couple of places that
-> jbd_trylock_bh_state is used in checkpoint.c, but this is the one place
-> that it definitely deadlocks the system.  I believe that the
-> code in checkpoint.c also has this problem.
->
+> I downloaded sbull.c (for LDD 2nd Edition) from 
 
-I've examined the code in checkpoint.c, and I now believe that it doesn't
-have this problem.  When it fails a lock, it just falls out of the while
-loops.
+Please note that sbull is a block device not hosting partitions.
 
--- Steve
+> of req->sector in sbull_transfer function). The observations are as follows:
+> File System  req->sector
+> msdos          0
+> vfat              0
+> ext2             2
+> ext3             2
+> iso9000       72
+
+If there is no filesystem in the device, you just get the probe
+transfers. Not very interesting, indeed. Some filesystems have their
+magic number in the first sector, and some have it later in the device.
+
+> I don't know about other file systems, but I believe the value of 
+> req->sector for msdos/vfat is wrong. Because when I mount a CF card having 
+> FAT file system on my Linux box (using USB mass storage driver), the first 
+> read request contains sector 0x20.
+
+Before you state it's wrong you should see some effect. In your case
+there is no effect at all. If you make a filesystem on the device you'll
+see it works. So if this concerns you, you should look for an explanation
+rather than saying it is wrong.
+
+> Does someone have any clue, why sbull gets this value as 0 rather then 0x20? 
+
+I suspect because the device is not partitioned, while the other one is,
+so every transfer just is done inside the partition (while the low-level
+access uses absolute sector number of the device).
+
+/alessandro

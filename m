@@ -1,48 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261482AbTD2LIE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Apr 2003 07:08:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261528AbTD2LIE
+	id S261598AbTD2L2m (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Apr 2003 07:28:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261609AbTD2L2m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Apr 2003 07:08:04 -0400
-Received: from phoenix.infradead.org ([195.224.96.167]:42002 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S261482AbTD2LID (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Apr 2003 07:08:03 -0400
-Date: Tue, 29 Apr 2003 12:20:14 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Cc: Marc Zyngier <mzyngier@freesurf.fr>, rth@twiddle.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Patch] DMA mapping API for Alpha
-Message-ID: <20030429122014.A27520@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-	Marc Zyngier <mzyngier@freesurf.fr>, rth@twiddle.net,
-	linux-kernel@vger.kernel.org
-References: <wrp65oycvrw.fsf@hina.wild-wind.fr.eu.org> <20030429150532.A3984@jurassic.park.msu.ru>
+	Tue, 29 Apr 2003 07:28:42 -0400
+Received: from main.gmane.org ([80.91.224.249]:43221 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261598AbTD2L2l (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Apr 2003 07:28:41 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Nicholas Wourms <dragon@gentoo.org>
+Subject: Re: 2.4.21-rc1-ac3: unresolved symbol only with gcc-3.3
+Date: Tue, 29 Apr 2003 07:35:32 -0400
+Message-ID: <3EAE6384.3050702@gentoo.org>
+References: <20030429104434.GA19733@neon.pearbough.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030429150532.A3984@jurassic.park.msu.ru>; from ink@jurassic.park.msu.ru on Tue, Apr 29, 2003 at 03:05:32PM +0400
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@main.gmane.org
+User-Agent: Mozilla/5.0 (Windows; U; Win 9x 4.90; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
+X-Accept-Language: en-us, en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 29, 2003 at 03:05:32PM +0400, Ivan Kokshaysky wrote:
-> On Mon, Apr 28, 2003 at 08:38:27PM +0200, Marc Zyngier wrote:
-> > As part of my effort to get the Jensen up and running on the latest
-> > 2.5 kernels, I have introduced some support for the DMA API, rather
-> > than relying on the generic PCI based one (which introduces problems
-> > with the EISA bus).
+Axel Siebenwirth wrote:
+> Hi,
 > 
-> Since the Jensen is the only non-PCI alpha, I'd really prefer to
-> keep existing pci_* functions as is and make dma_* ones just
-> wrappers.
+> today I have successfully built 2.4.21-rc1-ac3 with gcc-3.2.3. Everything
+> was fine.
+> Then I built with gcc-3.3 and I encountered an error:
+> 
+> net/network.o(.text+0xdcd7): In function `rtnetlink_rcv':
+> : undefined reference to `rtnetlink_rcv_skb'
+> 
+> This build error only occurs with gcc-3.3.
+> 
+> Can somebody who knows the kernel look whether the error is legitimate or 
+> gcc is making errors.
 
-Well, pci_* is a legacy API in Linux 2.5 now.  Currently architectures
-can either implement dma_* or pci_* and the other one will be emulated,
-but I hope we can get rid of this mess soon and dma_* is the one
-implemented on the architectures and pci_* emulated in a single
-place - and maybe it can go away two stables series from now.
+I'm not sure if this is necessarily the right way, but 
+changing the declaration for rtnetlink_rcv_skb() in 
+net/core/rtnetlink.c from "extern" to "static" seems to have 
+fixed the problem for me.  In any case, I couldn't find any 
+external references to that function, so it seems to me that 
+this is the way to go.
+
+Cheers,
+Nicholas
+
 

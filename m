@@ -1,38 +1,76 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315889AbSEGQUo>; Tue, 7 May 2002 12:20:44 -0400
+	id <S315890AbSEGQ0w>; Tue, 7 May 2002 12:26:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315890AbSEGQUn>; Tue, 7 May 2002 12:20:43 -0400
-Received: from RAVEL.CODA.CS.CMU.EDU ([128.2.222.215]:9861 "EHLO
-	ravel.coda.cs.cmu.edu") by vger.kernel.org with ESMTP
-	id <S315889AbSEGQUn>; Tue, 7 May 2002 12:20:43 -0400
-Date: Tue, 7 May 2002 12:20:43 -0400
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.14 IDE 56
-Message-ID: <20020507162010.GA13032@ravel.coda.cs.cmu.edu>
-Mail-Followup-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <5.1.0.14.2.20020507153451.02381ec0@pop.cus.cam.ac.uk> <Pine.LNX.4.44.0205070827050.1343-100000@home.transmeta.com>
+	id <S315891AbSEGQ0v>; Tue, 7 May 2002 12:26:51 -0400
+Received: from gate.in-addr.de ([212.8.193.158]:25612 "HELO mx.in-addr.de")
+	by vger.kernel.org with SMTP id <S315890AbSEGQ0u>;
+	Tue, 7 May 2002 12:26:50 -0400
+Date: Tue, 7 May 2002 18:26:20 +0200
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: Jeff Dike <jdike@karaya.com>
+Cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net,
+        user-mode-linux-user@lists.sourceforge.net
+Subject: Re: [uml-devel] Re: UML is now self-hosting!
+Message-ID: <20020507182620.U2539@marowsky-bree.de>
+In-Reply-To: <20020506181427.K918@marowsky-bree.de> <200205062055.PAA04067@ccure.karaya.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-From: Jan Harkes <jaharkes@cs.cmu.edu>
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.22.1i
+X-Ctuhulu: HASTUR
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 07, 2002 at 08:36:54AM -0700, Linus Torvalds wrote:
-> On Tue, 7 May 2002, Anton Altaparmakov wrote:
-> > As the new IDE maintainer so far we have only seen you removing one
-> > feature after the other in the name of cleanup, without adequate or even
-> > any at all(!) replacements,
-> 
-> Who cares? Have you found _anything_ that Martin removed that was at all
-> worthwhile? I sure haven't.
+On 2002-05-06T15:55:52,
+   Jeff Dike <jdike@karaya.com> said:
 
-I'm still hoping a patch will show up that will allow me to regain
-access to my compactflash cards and IBM microdrive disks. The code
-currently doesn't rescan for new drives when a card has been inserted,
-although it still seems to have all the necessary logic.
+> > but spreading an instance across multiple nodes is nowhere as simple
+> > as it seems; 
+> It is if you want to be sufficiently stupid about it :-)
 
-Jan
+Ugh.
+
+> > where do you keep OS data, 
+> It gets faulted from host to host as needed.
+
+Ugh Ugh Ugh. You need coherency algorithms for these.
+
+> > IO access, 
+> This scheme (and any clustering scheme, I think) would need back channels
+> for one node to access the devices of another
+
+Right. You need communication services and coherency algorithms for these ;-)
+
+> > scheduling decisions, 
+> This machine thinks it's a normal SMP box, so scheduling happens as normal
+
+Ugh ugh ugh. Too many page faults; you need a scheduler capable of keeping
+node affinity.
+
+> > inter-node communication in the first place, how to deal
+> > with node failure etc...
+> Maybe I'm not familiar enough with the clustering world, but I was under the
+> impression that with a normal SSI cluster, the nodes are like CPUs in an
+> SMP box - if one fails, the whole thing dies.  In other words, that SSI
+> clustering and HA clustering are pretty disjoint.
+
+No. In the optimal case, nothing dies. ;-) In the less than optimal case, only
+the processes affected directly by the failure die (the processes which had
+dirty pages there etc).
+
+In the really useless case, the entire cluster goes down like on a SMP box or
+an unpartitioned CC-NUMA.
+
+"In search of clusters" is definetely highly recommended reading. It is very
+entertaining, too.
+
+
+Sincerely,
+    Lars Marowsky-Brée <lmb@suse.de>
+
+-- 
+Immortality is an adequate definition of high availability for me.
+	--- Gregory F. Pfister
 

@@ -1,37 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130539AbQLIXIu>; Sat, 9 Dec 2000 18:08:50 -0500
+	id <S130393AbQLIXKU>; Sat, 9 Dec 2000 18:10:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130393AbQLIXIk>; Sat, 9 Dec 2000 18:08:40 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:12037 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S130539AbQLIXI0>; Sat, 9 Dec 2000 18:08:26 -0500
-Date: Sat, 9 Dec 2000 16:37:40 -0600
-To: Pavel Machek <pavel@suse.cz>
-Cc: Rasmus Andersen <rasmus@jaquet.dk>, perex@suse.cz,
+	id <S131160AbQLIXKK>; Sat, 9 Dec 2000 18:10:10 -0500
+Received: from saturn.cs.uml.edu ([129.63.8.2]:1284 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S130393AbQLIXJ4>;
+	Sat, 9 Dec 2000 18:09:56 -0500
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200012092238.eB9Mcx4118840@saturn.cs.uml.edu>
+Subject: Re: [PATCH] mm->rss is modified without page_table_lock held
+To: davem@redhat.com (David S. Miller)
+Date: Sat, 9 Dec 2000 17:38:59 -0500 (EST)
+Cc: kernel@tekno-soft.it, rasmus@jaquet.dk, torvalds@transmeta.com,
         linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] remove warning from drivers/net/hp100.c (240-test12-pre7)
-Message-ID: <20001209163740.U6567@cadcamlab.org>
-In-Reply-To: <20001208211908.D599@jaquet.dk> <20001209101924.A126@bug.ucw.cz>
-Mime-Version: 1.0
+In-Reply-To: <200012091442.GAA20532@pizda.ninka.net> from "David S. Miller" at Dec 09, 2000 06:42:38 AM
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20001209101924.A126@bug.ucw.cz>; from pavel@suse.cz on Sat, Dec 09, 2000 at 10:19:24AM +0100
-From: Peter Samuelson <peter@cadcamlab.org>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> 32-bit Sparc has unsigned long as 32-bit, and the top 8 bits of the
+> atomic_t are used for a spinlock, thus a 27-bit atomic_t, there
+> is not enough precision.
 
-[Pavel Machek]
-> I'd say that warning is more acceptable than #ifdef... In cases where
-> warnings can be eliminating without ifdefs, that's okay, but this...
+So the SPARC port is broken. It is just sick to have this "feature"
+screw things up for all the ports with a proper atomic_t.
 
-In this case it is dead weight in the object file -- and for machines
-that can least afford it (CONFIG_PCI=n is mostly for the low end,
-right?).
-
-Peter
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

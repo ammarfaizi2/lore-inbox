@@ -1,51 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263239AbTFDNe4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jun 2003 09:34:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263293AbTFDNe4
+	id S263293AbTFDNiF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jun 2003 09:38:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263295AbTFDNiF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jun 2003 09:34:56 -0400
-Received: from ns.suse.de ([213.95.15.193]:55820 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S263239AbTFDNez (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jun 2003 09:34:55 -0400
-Date: Wed, 4 Jun 2003 15:48:28 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: linux-kernel@vger.kernel.org
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: shmctl(SHM_LOCK/UNLOCK) deadlock
-Message-ID: <20030604134828.GZ3412@x30.school.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 4 Jun 2003 09:38:05 -0400
+Received: from imsantv22.netvigator.com ([210.87.250.78]:19852 "EHLO
+	imsantv22.netvigator.com") by vger.kernel.org with ESMTP
+	id S263293AbTFDNiE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jun 2003 09:38:04 -0400
+From: Michael Frank <mflt1@micrologica.com.hk>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       hugang <hugang@soulinfo.com>
+Subject: Re: IDE Power Management (Was: software suspend in 2.5.70-mm3)
+Date: Wed, 4 Jun 2003 21:51:09 +0800
+User-Agent: KMail/1.5.2
+Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Pavel Machek <pavel@ucw.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20030603211156.726366e7.hugang@soulinfo.com> <1054659866.20839.10.camel@gaston> <1054732481.20839.30.camel@gaston>
+In-Reply-To: <1054732481.20839.30.camel@gaston>
+X-OS: GNU/Linux+KDE
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43
-X-PGP-Key: 1024R/CB4660B9
+Message-Id: <200306042151.10611.mflt1@micrologica.com.hk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Patch 2.5.70-mm3 and  compile with gcc295 OK
 
-this patch fixes an SMP deadlock that triggered in some production
-usage:
+Bare multisuer with serial console, 
+no modules, network, usb, acpi .....
 
---- xxx/mm/shmem.c.~1~	2003-06-01 19:14:07.000000000 +0200
-+++ xxx/mm/shmem.c	2003-06-04 02:17:23.000000000 +0200
-@@ -808,9 +808,9 @@ void shmem_lock(struct file * file, int 
- 	struct inode * inode = file->f_dentry->d_inode;
- 	struct shmem_inode_info * info = SHMEM_I(inode);
- 
--	down(&info->sem);
-+	spin_lock(&info->lock);
- 	info->locked = lock;
--	up(&info->sem);
-+	spin_unlock(&info->lock);
- }
- 
- int shmem_make_bigpage_mmap(struct file * file, struct vm_area_struct * vma)
+During suspend, after a while (some dots on the console)  
+got the output below in an endless loop
 
-you can merge it in 21-final IMHO (even dropping the lock enterely would
-been ok, the reader is out of order anyways and that's atomic stuff in C
-no matter the architecture)
+Is there any debug or progress output in this version
+and how to use?
 
-Andrea
+Regards
+Michael
+
+Call Trace:
+ [<c011d958>] schedule+0x40/0x388
+ [<c011eb02>] io_schedule+0xe/0x18
+ [<c01384d5>] wait_on_page_bit_wq+0xc9/0xe4
+ [<c011f320>] autoremove_wake_function+0x0/0x3c
+ [<c011f320>] autoremove_wake_function+0x0/0x3c
+ [<c01384fa>] wait_on_page_bit+0xa/0x10
+ [<c014cc34>] rw_swap_page_sync+0x98/0xc6
+ [<c0136afd>] write_suspend_image+0xf1/0x324
+ [<c0246bdf>] device_resume+0x7f/0x88
+ [<c01370e1>] drivers_unsuspend+0x11/0x18
+ [<c013735e>] suspend_save_image+0x12/0x1c
+ [<c013753f>] do_magic_suspend_2+0x17/0xa8
+ [<c011ba9d>] do_magic+0x4d/0x130
+ [<c013763b>] do_software_suspend+0x6b/0x90
+ [<c0137695>] software_suspend+0x35/0x3c
+ [<c012ba97>] sys_reboot+0x2df/0x36c
+ [<c0143830>] unmap_page_range+0x38/0x5c
+ [<c0143959>] unmap_vmas+0x105/0x208
+ [<c01656e4>] dput+0x1c/0x204
+ [<c01656e4>] dput+0x1c/0x204
+ [<c015d367>] path_release+0xf/0x30
+ [<c014fe69>] sys_chdir+0x5d/0x68
+ [<c010af17>] syscall_call+0x7/0xb
+
+-- 
+Powered by linux-2.5.70-mm3
+My current linux related activities in rough order of priority:
+- Testing of 2.4/2.5 kernel interactivity
+- Testing of Swsusp for 2.4
+- Testing of Opera 7.11 emphasizing interactivity
+- Research of NFS i/o errors during transfer 2.4>2.5
+- Learning 2.5 series kernel debugging with kgdb
+- Studying 2.5 series serial and ide drivers, ACPI, S3
+* Input and feedback is always welcome *
+

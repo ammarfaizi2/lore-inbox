@@ -1,74 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132255AbQLQJkP>; Sun, 17 Dec 2000 04:40:15 -0500
+	id <S129655AbQLQJzu>; Sun, 17 Dec 2000 04:55:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132358AbQLQJkF>; Sun, 17 Dec 2000 04:40:05 -0500
-Received: from [195.163.91.180] ([195.163.91.180]:55822 "EHLO frontpartner.com")
-	by vger.kernel.org with ESMTP id <S132255AbQLQJj7>;
-	Sun, 17 Dec 2000 04:39:59 -0500
-Message-ID: <3A3C828D.E84FA89C@linux.se>
-Date: Sun, 17 Dec 2000 10:08:29 +0100
-From: Mathias Wiklander <eastbay@linux.se>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test12 i686)
-X-Accept-Language: en
+	id <S129733AbQLQJzk>; Sun, 17 Dec 2000 04:55:40 -0500
+Received: from mx1.eskimo.com ([204.122.16.48]:42506 "EHLO mx1.eskimo.com")
+	by vger.kernel.org with ESMTP id <S129655AbQLQJzf>;
+	Sun, 17 Dec 2000 04:55:35 -0500
+Date: Sun, 17 Dec 2000 01:25:06 -0800 (PST)
+From: Clayton Weaver <cgweav@eskimo.com>
+To: linux-kernel@vger.kernel.org
+Subject: klogd -f logname "append to logname" patch
+Message-ID: <Pine.SUN.3.96.1001217011004.16489A-100000@eskimo.com>
 MIME-Version: 1.0
-To: stewart@neuron.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: aic7xxx
-In-Reply-To: <Pine.LNX.4.10.10012170237090.757-100000@localhost>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-That's not the case for me. When I build it in to the kernel, the kernel
-comes tho the init of thje board then these lines repeats  forever.
+(For anyone else who shares the opinion that
 
-SCSI host 0 abort (pid 0) timed out - resetting
-SCSI bus is being reset for host 0 channel 0.
-SCSI host 0 channel 0 reset (pid 0) timed out - trying harder
-SCSI bus is being reset for host 0 channel 0.
+  klogd -f /var/log/kmsg -x
 
-/Mathias
+should append to its kmsg log file instead of overwriting it.)
 
-stewart@neuron.com wrote:
-> 
->  I am also having problems with this driver, but with different adapters
->  and symptoms. depmod is reporting a lot of unresolved symbols for generic
->  scsi and scsi cdrom. Compiling it into the kernel instead of as a module
->  seems to bypass the problems.
-> 
->  stewart
-> 
-> On Sun, 17 Dec 2000, Mathias Wiklander wrote:
-> 
-> > Hi!
-> >
-> > I have problem using my scsi card. It is an Adaptec 2940 (SCSI2). When
-> > ever I try to load it as a module or if I compile it in the kernel I get
-> > the folowing error messages. The last 4 messages repeats for ever. The
-> > problem is on 3 diffrent machines. Anyone who know what it can be and
-> > how to fix it.
-> >
-> > /Eastbay
-> >
-> > (scsi0) <Adaptec AHA-294X SCSI host adapter> found at PCI 0/19/0
-> > (scsi0) Narrow Channel, SCSI ID=7, 16/255 SCBs
-> > (scsi0) Cables present (Int-50 NO, Ext-50 NO)
-> > (scsi0) Downloading sequencer code... 415 instructions downloaded
-> > scsi0 : Adaptec AHA274x/284x/294x (EISA/VLB/PCI-Fast SCSI) 5.2.1/5.2.0
-> >        <Adaptec AHA-294X SCSI host adapter>
-> > scsi : aborting command due to timeout : pid 0, scsi0, channel 0, id 0,
-> > lun 0 Inquiry 00 00 00 ff 00
-> > SCSI host 0 abort (pid 0) timed out - resetting
-> > SCSI bus is being reset for host 0 channel 0.
-> > SCSI host 0 channel 0 reset (pid 0) timed out - trying harder
-> > SCSI bus is being reset for host 0 channel 0.
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > Please read the FAQ at http://www.tux.org/lkml/
-> >
+-f insulates klogd messages from syslogd bugs (although you can't split
+them up into multiple files the way that /etc/syslog.conf enables). You
+can always solve any klogd-to-syslogd problem *after* you find out what
+is otherwise wrong with your kernel (and lose the -f switch then if that's
+what you prefer or require). But when you are debugging a kernel deadlock
+with no oops, for example, and actually have local persistent storage
+to write to, it helps if the next hard reset doesn't truncate the -f
+pathname when klogd opens it.
+
+--- klogd.c.orig	Mon Sep 18 00:34:11 2000
++++ klogd.c	Wed Nov 29 14:06:40 2000
+@@ -1109,7 +1109,7 @@
+ 	{
+ 		if ( strcmp(output, "-") == 0 )
+ 			output_file = stdout;
+-		else if ( (output_file = fopen(output, "w")) == (FILE *) 0 )
++		else if ( (output_file = fopen(output, "a")) == (FILE *) 0 )
+ 		{
+ 			fprintf(stderr, "klogd: Cannot open output file " \
+ 				"%s - %s\n", output, strerror(errno));
+
+Regards,
+
+Clayton Weaver
+<mailto:cgweav@eskimo.com>
+(Seattle)
+
+"Everybody's ignorant, just in different subjects."  Will Rogers
+
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,45 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132148AbRCVSth>; Thu, 22 Mar 2001 13:49:37 -0500
+	id <S132147AbRCVStH>; Thu, 22 Mar 2001 13:49:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132150AbRCVSt1>; Thu, 22 Mar 2001 13:49:27 -0500
-Received: from mailgw.prontomail.com ([216.163.180.10]:22925 "EHLO
-	c0mailgw04.prontomail.com") by vger.kernel.org with ESMTP
-	id <S132148AbRCVStV>; Thu, 22 Mar 2001 13:49:21 -0500
-Message-ID: <3ABA4833.C169783@mvista.com>
-Date: Thu, 22 Mar 2001 10:45:07 -0800
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.2.12-20b i686)
-X-Accept-Language: en
+	id <S132148AbRCVSs7>; Thu, 22 Mar 2001 13:48:59 -0500
+Received: from mailhost.mipsys.com ([62.161.177.33]:52929 "EHLO
+	mailhost.mipsys.com") by vger.kernel.org with ESMTP
+	id <S132147AbRCVSsq>; Thu, 22 Mar 2001 13:48:46 -0500
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: <frey@cxau.zko.dec.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: kernel_thread vs. zombie
+Date: Thu, 22 Mar 2001 19:47:40 +0100
+Message-Id: <20010322184740.17781@mailhost.mipsys.com>
+In-Reply-To: <007001c0b2f4$a4630110$90600410@SCHLEPPDOWN>
+In-Reply-To: <007001c0b2f4$a4630110$90600410@SCHLEPPDOWN>
+X-Mailer: CTM PowerMail 3.0.8 <http://www.ctmdev.com>
 MIME-Version: 1.0
-To: Parity Error <bootup@mail.ru>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: current->need_reshed, can it be a global flag ?
-In-Reply-To: <E14g4XZ-0009hb-00@f5.mail.ru>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Parity Error wrote:
-> 
-> instead of need_reshed being a per-task flag, could it be
-> as a global flag ?, since every time current->need_reshed
-> is checked, schedule() is just called to pick another
-> process.
-> 
-> ---
-But for which cpu?  Really this is a short cut to provide a per cpu area
-that I think works very well, thank you.
+>The stuff done in daemonize() and the exit_files could need
+>the kernel lock. At least on some 2.2.x version it does,
+>I did not check whether it is still needed on 2.4.
 
-Putting it in a real cpu data area would make access slower.  The
-"current" pointer is either very quickly computed or pre loaded in a
-register (depends on the platform) so it is about as fast as it can get
-as it is.
+Well, I don't really plan to backport this to 2.2.x. I'll
+try to see if my problem is related to the lack of kernel
+lock, or maybe I have just something else wrong.
 
-Also, the flag is often checked by selective preemption code in the
-kernel.  Even more often by the full preemption patch.
+>On stop of the thread I need the big kernel lock to make
+>sure the kernel thread exited (everything really done
+>from my up() till the thread is in zombie state) before
+>I unload the module. The comment in the code should explain 
+>in.
 
-Nuf said
-George
+Ok. I don't need that as I'm not in a module, no chances I ever
+get unloaded. At least not in 2.4. Making ADB and all the controllers
+and device drivers in modules would  be an interesting exercise with
+module dependencies ;)
+
+>Note that the threads itself do not run with the kernel lock
+>held. After setting everything up the make an unlock.
+
+Ok. Well, I just have an atomic flag test&set'ed before starting the
+bus reset, and released at the end of the thread. No need to make sure
+the previous one is really dead before starting a new one. I could
+benefit from semaphores when starting it since if it's already running,
+I just loop scheduling waiting for the lock bit to be available. But
+that case will almost never happen in real life. ADB probes are quite
+rare.
+
+Many thanks for your help,
+
+I'll see what's wrong in my code ;)
+
+ben.
+
+
+

@@ -1,63 +1,126 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317332AbSFCJbu>; Mon, 3 Jun 2002 05:31:50 -0400
+	id <S317336AbSFCJfo>; Mon, 3 Jun 2002 05:35:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317336AbSFCJbt>; Mon, 3 Jun 2002 05:31:49 -0400
-Received: from twilight.ucw.cz ([195.39.74.230]:55683 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S317332AbSFCJbs>;
-	Mon, 3 Jun 2002 05:31:48 -0400
-Date: Mon, 3 Jun 2002 11:31:28 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Derek Vadala <derek@cynicism.com>
-Cc: Roy Sigurd Karlsbakk <roy@karlsbakk.net>, linux-kernel@vger.kernel.org,
-        linux-raid@vger.kernel.org, Tedd Hansen <tedd@konge.net>,
-        Christian Vik <christian@konge.net>,
-        Lars Christian Nygaard <lars@snart.com>
-Subject: Re: RAID-6 support in kernel?
-Message-ID: <20020603113128.C13204@ucw.cz>
-In-Reply-To: <Pine.LNX.4.33.0206031020290.30424-100000@mail.pronto.tv> <Pine.GSO.4.21.0206030213510.23709-100000@gecko.roadtoad.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S317333AbSFCJfn>; Mon, 3 Jun 2002 05:35:43 -0400
+Received: from 12-237-16-92.client.attbi.com ([12.237.16.92]:10112 "EHLO
+	ledzep.dyndns.org") by vger.kernel.org with ESMTP
+	id <S317336AbSFCJfl>; Mon, 3 Jun 2002 05:35:41 -0400
+Message-ID: <3CFB3865.4060406@attbi.com>
+Date: Mon, 03 Jun 2002 04:35:33 -0500
+From: Jordan Breeding <jordan.breeding@attbi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc3) Gecko/20020523
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Oops in 2.5.20 with radeon framebuffer
+Content-Type: multipart/mixed;
+ boundary="------------030207090605080008040401"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 03, 2002 at 02:25:22AM -0700, Derek Vadala wrote:
-> On Mon, 3 Jun 2002, Roy Sigurd Karlsbakk wrote:
-> 
-> > It'll waste 9 drives, giving me a total capacity of 7n instead of 14n. 
-> > And, by definition, RAID-6 _can_ withstand _any_ two-drive failure.
-> 
-> This is certainly not true. 
-> 
-> Combining N RAID-5 into a stripe wastes on N disks. 
-> 
-> If you combine two it wastes 2 disks, etc.
-> 
-> That is, for each RAID-5 you waste a single disk worth of storage for
-> partiy. I don't know what equation you're using where you get 9 drives
-> from.
+This is a multi-part message in MIME format.
+--------------030207090605080008040401
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
 
-He was thinking "mirror", not "stripe". Mirror of 2 RAID-5 arrays (would
-be probably called RAID-15 (when there is a RAID-10 for mirrored stripe
-arrays)), can withstand any two disks failing anytime. Even more for
-certain combinations. But it is terribly inefficient.
+Hello,
 
-> As far as it's ability to withstand _any_ 2-disk failure... I'm not sure
-> what you mean by definition. RAID-6 implemations don't follow a standard
-> because there isn't one. Depending on how it's implemented, RAID-6 is not
-> necessarily able to withstand a filaure of any two disks. We can argue as
-> much as you want, but I'm not willing to invest the time.
-> 
-> > With a 1500MHz Athlon on a typical file server where there's not much 
-> > writes, the CPU is sitting there chrunching RC5-64 som 99,95 % of the 
-> > time. I don't think it'll make much differnce with today's CPUs
-> 
-> It's up to you to decide if the performance trade-off is worthwhile. I
-> merely trying to point out that system with 2 RAID-5 is likely to incur
-> the same CPU hit as a single RAID-6, implemented in the kernel. 
+   For the past couple of 2.5.x kernel versions I have been seeing an 
+odd Oops on boot of a newly built kernel.  The Oops only happens on 
+stock kernels from ftp.kernel.org, if I wait until the -dj patch for the 
+version in question it always boots fine.  I guess the means that 
+somewhere the framebuffer code in -dj is different enough from mainline 
+to allow my machine to boot and to work perfectly.  With a mainline 
+kernel my system will start to boot and then as soon as video switches 
+from text to framebuffer the Oops happens, the logo in the top left 
+never even gets drawn.  Attached is a copy of the oops which has been 
+run through ksymoops already.  Thank you for any help.
 
--- 
-Vojtech Pavlik
-SuSE Labs
+Jordan
+
+--------------030207090605080008040401
+Content-Type: text/plain;
+ name="oops.processed"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="oops.processed"
+
+ksymoops 2.4.4 on i686 2.5.18-dj1.  Options used
+     -v /usr/src/linux/vmlinux (specified)
+     -K (specified)
+     -L (specified)
+     -o /lib/modules/2.5.20 (specified)
+     -m /usr/src/linux/System.map (specified)
+
+No modules in ksyms, skipping objects
+Unable to handle kernel NULL pointer dereference at virtual address 00000040
+c02e4554
+*pde = 00000000
+Oops: 0002
+CPU: 0
+EIP: 0010:[<c02e4554>]  Not Tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+eax: c053c6c0 ebx: 00000020 ecx: 00000008 edx: 00000020
+esi: c053c6c0 edi: 00000040 ebp: 00000000 esp: c17d7d94
+ds: 0018 es: 0018 ss: 0018
+Stack: 00000020 00002c2c 00003e3e 00000030 00000010 dfd06128 00000000 00000000
+  dfd06000 c02e8fc8 c044530c dfd06128 00000000 00000010 00000010 00000010
+  00000010 c046dd84 c044530c 00000001 00000000 dfd06000 c0538340 c1507a40
+Call Trace: [<c02e8fc8>] [<c02e59b7>] [<c02eb7fd>] [<c02e73ad>] [<c02512b9>]
+  [<c0254f4c>] [<c02e429c>] [<c02e9f59>] [<c022368d>] [<c024048e>] [<c02405d5>]
+  [<c02415d6>] [<c02405f2>] [<c02405a0>] [<c0241cc0>] [<c0105000>] [<c0223776>]
+  [<c01050de>] [<c0105000>] [<c0107386>] [<c0105080>]
+Code: f3 a5 f6 c3 02 74 02 66 a5 f6 c3 01 74 01 a4 eb 0b 53 56 57
+
+>>EIP; c02e4554 <fb_copy_cmap+a4/2c0>   <=====
+Trace; c02e8fc8 <gen_set_cmap+88/a0>
+Trace; c02e59b7 <fbcon_setup+8c7/940>
+Trace; c02eb7fd <radeonfb_switch+fd/130>
+Trace; c02e73ad <fbcon_switch+17d/1c0>
+Trace; c02512b9 <redraw_screen+c9/140>
+Trace; c0254f4c <take_over_console+ec/180>
+Trace; c02e429c <register_framebuffer+fc/140>
+Trace; c02e9f59 <radeonfb_pci_register+679/7d0>
+Trace; c022368d <pci_device_probe+1d/30>
+Trace; c024048e <found_match+2e/b0>
+Trace; c02405d5 <do_driver_bind+35/40>
+Trace; c02415d6 <bus_for_each_dev+a6/120>
+Trace; c02405f2 <driver_bind+12/20>
+Trace; c02405a0 <do_driver_bind+0/40>
+Trace; c0241cc0 <driver_register+b0/c0>
+Trace; c0105000 <_stext+0/0>
+Trace; c0223776 <pci_register_driver+36/50>
+Trace; c01050de <init+5e/200>
+Trace; c0105000 <_stext+0/0>
+Trace; c0107386 <kernel_thread+26/30>
+Trace; c0105080 <init+0/200>
+Code;  c02e4554 <fb_copy_cmap+a4/2c0>
+00000000 <_EIP>:
+Code;  c02e4554 <fb_copy_cmap+a4/2c0>   <=====
+   0:   f3 a5                     repz movsl %ds:(%esi),%es:(%edi)   <=====
+Code;  c02e4556 <fb_copy_cmap+a6/2c0>
+   2:   f6 c3 02                  test   $0x2,%bl
+Code;  c02e4559 <fb_copy_cmap+a9/2c0>
+   5:   74 02                     je     9 <_EIP+0x9> c02e455d <fb_copy_cmap+ad/2c0>
+Code;  c02e455b <fb_copy_cmap+ab/2c0>
+   7:   66 a5                     movsw  %ds:(%esi),%es:(%edi)
+Code;  c02e455d <fb_copy_cmap+ad/2c0>
+   9:   f6 c3 01                  test   $0x1,%bl
+Code;  c02e4560 <fb_copy_cmap+b0/2c0>
+   c:   74 01                     je     f <_EIP+0xf> c02e4563 <fb_copy_cmap+b3/2c0>
+Code;  c02e4562 <fb_copy_cmap+b2/2c0>
+   e:   a4                        movsb  %ds:(%esi),%es:(%edi)
+Code;  c02e4563 <fb_copy_cmap+b3/2c0>
+   f:   eb 0b                     jmp    1c <_EIP+0x1c> c02e4570 <fb_copy_cmap+c0/2c0>
+Code;  c02e4565 <fb_copy_cmap+b5/2c0>
+  11:   53                        push   %ebx
+Code;  c02e4566 <fb_copy_cmap+b6/2c0>
+  12:   56                        push   %esi
+Code;  c02e4567 <fb_copy_cmap+b7/2c0>
+  13:   57                        push   %edi
+
+<0>Kernel Panic: Attempted to kill init!
+
+--------------030207090605080008040401--
+

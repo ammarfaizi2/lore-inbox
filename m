@@ -1,52 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261321AbULHToi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261332AbULHTqi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261321AbULHToi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Dec 2004 14:44:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261332AbULHToi
+	id S261332AbULHTqi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Dec 2004 14:46:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261333AbULHTqi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Dec 2004 14:44:38 -0500
-Received: from mx02.cybersurf.com ([209.197.145.105]:52098 "EHLO
-	mx02.cybersurf.com") by vger.kernel.org with ESMTP id S261321AbULHTog
+	Wed, 8 Dec 2004 14:46:38 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:47323 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261332AbULHTqb
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Dec 2004 14:44:36 -0500
-Subject: Re: Hard freeze with 2.6.10-rc3 and QoS, worked fine with 2.6.9
-From: jamal <hadi@cyberus.ca>
-Reply-To: hadi@cyberus.ca
-To: Patrick McHardy <kaber@trash.net>
-Cc: "David S. Miller" <davem@davemloft.net>, tgraf@suug.ch, akpm@osdl.org,
-       tomc@compaqnet.fr, linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-In-Reply-To: <41B73263.4040706@trash.net>
-References: <1102380430.6103.6.camel@buffy>
-	 <20041206224441.628e7885.akpm@osdl.org>
-	 <1102422544.1088.98.camel@jzny.localdomain> <41B5E188.5050800@trash.net>
-	 <20041207170748.GF1371@postel.suug.ch> <41B5E722.2080600@trash.net>
-	 <20041207213053.6bb602c1.davem@davemloft.net>
-	 <1102507470.1051.27.camel@jzny.localdomain>  <41B73263.4040706@trash.net>
-Content-Type: text/plain
-Organization: jamalopolous
-Message-Id: <1102535069.1023.110.camel@jzny.localdomain>
+	Wed, 8 Dec 2004 14:46:31 -0500
+Date: Wed, 8 Dec 2004 11:46:18 -0800
+From: Greg KH <greg@kroah.com>
+To: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE] udev 048 release
+Message-ID: <20041208194618.GA28810@kroah.com>
+References: <20041208185856.GA26734@kroah.com> <20041208192810.GA28374@kroah.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 08 Dec 2004 14:44:30 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041208192810.GA28374@kroah.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-12-08 at 11:57, Patrick McHardy wrote:
-> jamal wrote:
+On Wed, Dec 08, 2004 at 11:28:10AM -0800, Greg KH wrote:
+> On Wed, Dec 08, 2004 at 10:58:56AM -0800, Greg KH wrote:
+> > I've released the 047 version of udev.  It can be found at:
+> >   	kernel.org/pub/linux/utils/kernel/hotplug/udev-046.tar.gz
 > 
-> >I can almost guarantee that one or more of those tests i outlined would
-> >fail. So i would suggest a revert until the testing has been done.
-> >
-> Please be more specific than an "almost guarantee" that
-> "one or more tests" may fail when asking to revert a patch
-> that fixes an easily triggerable crash. For example, point
-> to the code that makes you think it might fail.
+> Ick, the programs in the extras/ directory don't seem to build anymore.
+> I'll fix that up and do a new release in a few hours.  Sorry about
+> that...
 
-I hope this is clear after you read the last email exchange i had with
-Thomas and that you are not intentionaly trying to be annoying.
+Ok, version 048 has been released to fix the build errors for the
+extras/ directory.  It's available at
+	kernel.org/pub/linux/utils/kernel/hotplug/udev-048.tar.gz
 
-cheers,
-jamal
+thanks,
 
-
+greg k-h

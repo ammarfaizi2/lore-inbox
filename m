@@ -1,38 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265037AbTBJQru>; Mon, 10 Feb 2003 11:47:50 -0500
+	id <S264945AbTBJQqM>; Mon, 10 Feb 2003 11:46:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265039AbTBJQru>; Mon, 10 Feb 2003 11:47:50 -0500
-Received: from mons.uio.no ([129.240.130.14]:60337 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S265037AbTBJQrt>;
-	Mon, 10 Feb 2003 11:47:49 -0500
-To: Andrew Walrond <andrew@walrond.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: NFS root: New error messages in latest bk
-References: <3E47D057.4070205@walrond.org>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 10 Feb 2003 17:57:28 +0100
-In-Reply-To: <3E47D057.4070205@walrond.org>
-Message-ID: <shsfzqwxedj.fsf@charged.uio.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
+	id <S265008AbTBJQqM>; Mon, 10 Feb 2003 11:46:12 -0500
+Received: from 12-211-138-234.client.attbi.com ([12.211.138.234]:31072 "EHLO
+	vlad.geekizoid.com") by vger.kernel.org with ESMTP
+	id <S264945AbTBJQqL>; Mon, 10 Feb 2003 11:46:11 -0500
+Reply-To: <vlad@geekizoid.com>
+From: "Vlad@geekizoid.com" <vlad@geekizoid.com>
+To: "'Maciej Soltysiak'" <solt@dns.toxicfilms.tv>
+Cc: "Lkml \(E-mail\)" <linux-kernel@vger.kernel.org>
+Subject: RE: hi
+Date: Mon, 10 Feb 2003 10:55:42 -0600
+Message-ID: <007801c2d125$41772e40$0200a8c0@wsl3>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2910.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+In-Reply-To: <Pine.LNX.4.51.0302101735020.15570@dns.toxicfilms.tv>
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Andrew Walrond <andrew@walrond.org> writes:
+just came out though, stick with 4.7 for now, trust me...  :-)
 
-     > Latest bk 2.5; Just booted with NFS root and noticed these new
-     > error messages in dmesg:
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Maciej Soltysiak
+Sent: Monday, February 10, 2003 10:36 AM
+To: mattp@pobox.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: hi
 
-     > NFS: server cheating in read reply: count 4096 > recvd 1000
-     > NFS: giant filename in readdir (len 0xcb2d2053)!
 
-     > Anybody know what this means?
+> the FreeBSD distro is at 4.7. The original poster might want
+5.0 is the most fresh.
 
-It means that the client can only see 1000 out of a promised 4096
-bytes. Either the client or the server has a bug. A tcpdump should
-sort it out.
+Regards,
+Maciej
 
-Cheers,
-  Trond
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

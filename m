@@ -1,21 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271903AbRH2EvR>; Wed, 29 Aug 2001 00:51:17 -0400
+	id <S271900AbRH2EuR>; Wed, 29 Aug 2001 00:50:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271904AbRH2EvH>; Wed, 29 Aug 2001 00:51:07 -0400
-Received: from s210-181-87-28.thrunet.ne.kr ([210.181.87.28]:63241 "EHLO
-	ns.formail.org") by vger.kernel.org with ESMTP id <S271903AbRH2Eut>;
-	Wed, 29 Aug 2001 00:50:49 -0400
-From: Kim Yong Il <nalabi@linuxkim.net>
-Date: Wed, 29 Aug 2001 13:51:02 +0900
-To: linux-kernel@vger.kernel.org
-Subject: netinet/tcp_debug.h is what programe??
-Message-ID: <20010829135102.A8969@formail.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=euc-kr
-Content-Disposition: inline
-User-Agent: Mutt/1.3.18i
+	id <S271903AbRH2EuH>; Wed, 29 Aug 2001 00:50:07 -0400
+Received: from 202-54-39-145.tatainfotech.co.in ([202.54.39.145]:28420 "EHLO
+	brelay.tatainfotech.com") by vger.kernel.org with ESMTP
+	id <S271900AbRH2EuC>; Wed, 29 Aug 2001 00:50:02 -0400
+Date: Wed, 29 Aug 2001 10:41:41 +0530 (IST)
+From: "SATHISH.J" <sathish.j@tatainfotech.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Reg- Clarification on Ramdisk
+Message-ID: <Pine.LNX.4.10.10108291038530.31475-100000@blrmail>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-netinet/tcp_debug.h is where ?
+Hi,
+I am writing a dummy filesystem with the minimal features. At present I am
+writing the mkfs.dummyfs. I am testing it on a Ramdisk. My doubt is
+whether both are funtionally the same. That is if my mkfs.dummyfs works on
+Ramdisk, it sjhould also work on a harddisk partition right? Please help
+me wi the answer.
+
+Thanks in advance,
+Warm regs,
+sathish.j
+

@@ -1,56 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262901AbTKTWt6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Nov 2003 17:49:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263008AbTKTWt6
+	id S262790AbTKTWta (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Nov 2003 17:49:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262901AbTKTWta
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Nov 2003 17:49:58 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:22954 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262901AbTKTWt4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Nov 2003 17:49:56 -0500
-Date: Thu, 20 Nov 2003 14:48:44 -0800
-From: Hanna Linder <hannal@us.ibm.com>
-Reply-To: Hanna Linder <hannal@us.ibm.com>
-To: Pavel Machek <pavel@ucw.cz>, Greg KH <greg@kroah.com>
-cc: hannal@us.ibm.com, Martin Schlemmer <azarah@nosferatu.za.org>,
-       Adrian Bunk <bunk@fs.tum.de>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
-Subject: Re: driver model for inputs
-Message-ID: <55080000.1069368524@w-hlinder>
-In-Reply-To: <20031120222825.GE196@elf.ucw.cz>
-References: <20031119213237.GA16828@fs.tum.de> <20031119221456.GB22090@kroah.com> <1069283566.5032.21.camel@nosferatu.lan> <20031119232651.GA22676@kroah.com> <20031120125228.GC432@openzaurus.ucw.cz> <20031120170303.GJ26720@kroah.com>
- <20031120222825.GE196@elf.ucw.cz>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Thu, 20 Nov 2003 17:49:30 -0500
+Received: from h68-147-142-75.cg.shawcable.net ([68.147.142.75]:44526 "EHLO
+	schatzie.adilger.int") by vger.kernel.org with ESMTP
+	id S262790AbTKTWt2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Nov 2003 17:49:28 -0500
+Date: Thu, 20 Nov 2003 15:44:55 -0700
+From: Andreas Dilger <adilger@clusterfs.com>
+To: Xavier Bestel <xavier.bestel@free.fr>
+Cc: Jesse Pollard <jesse@cats-chateau.net>, Florian Weimer <fw@deneb.enyo.de>,
+       Valdis.Kletnieks@vt.edu, Daniel Gryniewicz <dang@fprintf.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: OT: why no file copy() libc/syscall ??
+Message-ID: <20031120154454.K20568@schatzie.adilger.int>
+Mail-Followup-To: Xavier Bestel <xavier.bestel@free.fr>,
+	Jesse Pollard <jesse@cats-chateau.net>,
+	Florian Weimer <fw@deneb.enyo.de>, Valdis.Kletnieks@vt.edu,
+	Daniel Gryniewicz <dang@fprintf.net>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <1068512710.722.161.camel@cube> <03111209360001.11900@tabby> <20031120172143.GA7390@deneb.enyo.de> <03112013081700.27566@tabby> <1069367504.8945.55.camel@bip.parateam.prv>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1069367504.8945.55.camel@bip.parateam.prv>; from xavier.bestel@free.fr on Thu, Nov 20, 2003 at 11:31:45PM +0100
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---On Thursday, November 20, 2003 11:28:25 PM +0100 Pavel Machek <pavel@ucw.cz> wrote:
+On Nov 20, 2003  23:31 +0100, Xavier Bestel wrote:
+> Le jeu 20/11/2003 à 20:08, Jesse Pollard a écrit :
+> > 1. what happens if the copy is aborted?
 
+Same as now with "cp" - partial copy.
 
->> tree.  Hanna Linder is working on the input sysfs patches, and has
->> posted some work in the past.
-> 
-> I could only find 2.5.70 patches, and those did not seem "good enough"
-> to do power managment with them. Do you have some newer version?
-> 
-> [One of machines near me needs keyboard to be reinitialized after S3
-> sleep... And users are starting to hit that, too.]
-> 								Pavel
+> > 2. what happens if the network drops while the remote server continues?
 
-Hi Pavel,
+Irrelevant, since you can't access the file at that point (i.e. if server
+continues then great, but if it doesn't it's no different than the server
+disconnecting/crashing in the middle of a regular copy.
 
-I have test8 version of the patch which mostly works. The only problem now
-is a panic when I remove the mouse... The input layer is sorta hard to follow
-you know :) Im guessing it is a reference counting issue. Do you want what I
-have now or can I update it to test9 and see if taking a break from staring
-at it has helped?
+> > 3. what about buffer synchronization?
 
-Thanks.
+Sync file locally before starting, and no buffers on client are created.
+If you write to file while it is being copied, how is that different
+than two writers for same file now (i.e. usually broken).  If the network
+filesystem doesn't support locking, that's the filesystem's problem and
+this API doesn't change it.
 
-Hanna
+> > 4. what errors should be reported ?
+
+Covered pretty well elsewhere.  Of course EINTR should be reserved for
+"interrupted, please continue if you want" as opposed to a hard error.
+
+> > 5. what happens when the syscall is interupted? Especially if the remote
+> >    copy may take a while (I've seen some require an hour or more - worst
+> >    case: days due to a media error (completed after the disk was replaced)).
+
+Partial copy, no different than now.
+
+> > 6. what about a client opening the copy before it is finished copying?
+
+Reads partial file, no different than now.
+
+> 7. How to report progress with your average file manager ?
+
+Support signals and restart the copy where it left off.  Interrupting
+once a second or whatever isn't onerous if needed and you can restart.
+You could even support some sort of "SIGUSR1" like dd does to get status
+back without actually killing things.  Alternately, just stat the target
+file as it is being copied to watch progress.
+
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 

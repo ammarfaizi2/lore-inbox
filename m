@@ -1,43 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129697AbQK2DTA>; Tue, 28 Nov 2000 22:19:00 -0500
+        id <S129552AbQK2Dc5>; Tue, 28 Nov 2000 22:32:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129802AbQK2DSt>; Tue, 28 Nov 2000 22:18:49 -0500
-Received: from pixar.pixar.com ([138.72.10.20]:21675 "EHLO pixar.pixar.com")
-        by vger.kernel.org with ESMTP id <S129697AbQK2DSn>;
-        Tue, 28 Nov 2000 22:18:43 -0500
-Date: Tue, 28 Nov 2000 18:48:36 -0800 (PST)
-From: Kiril Vidimce <vkire@pixar.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Dan Hollis <goemon@anime.net>,
-        Petter Sundlöf <odd@findus.dhs.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: XFree 4.0.1/NVIDIA 0.9-5/2.4.0-testX/11 woes [solved]
-In-Reply-To: <E140x2k-0005Ou-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.21.0011281843100.1353-100000@nevena.pixar.com>
+        id <S129683AbQK2Dcr>; Tue, 28 Nov 2000 22:32:47 -0500
+Received: from natmail2.webmailer.de ([192.67.198.65]:25246 "EHLO
+        post.webmailer.de") by vger.kernel.org with ESMTP
+        id <S129552AbQK2Dcl>; Tue, 28 Nov 2000 22:32:41 -0500
+From: Stefan Hoffmeister <Stefan.Hoffmeister@Econos.de>
+To: linux-kernel@vger.kernel.org
+Subject: Mobile IBM disk drive power settings?
+Date: Wed, 29 Nov 2000 04:03:03 +0100
+Organization: Econos
+Message-ID: <2as82tgc1f112b9iesvt5rge3fi47frid4@4ax.com>
+X-Mailer: Forte Agent 1.8/32.548
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 29 Nov 2000, Alan Cox wrote:
-> > I've never seen such thing as code without bugs. In my experience,
-> > the NVIDIA drivers are by far the most complete and solid 3D drivers 
-> > under Linux.
-> 
-> You are welcome to your opinion. I've got this great bridge to sell you too
 
-I don't see the need for sarcasm. If you feel that you can demonstrate
-that the above is untrue, by all means do so. I am sure there is more
-than one person that would want to know what's currently the best 3D 
-Linux configuration out there.
+Is there any support for the mobile IBM disk drive Advanced Battery Life
+Extender power settings in Linux?
 
-KV
---
-  ___________________________________________________________________
-  Studio Tools                                        vkire@pixar.com
-  Pixar Animation Studios                        http://www.pixar.com/
+  http://www.alphaworks.ibm.com/tech/powerbooster
 
+<quote>
+Power Booster allows any computer running Windows 95/98 and an IBM ATAPI 4
+mobile disk drive to directly control advanced power management features
+of the drive. 
+...
+PowerBooster uses a VXD to write ATA commands to the disk drive-
+</quote>
+
+TIA,
+Stefan
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,42 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261265AbTEKWI6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 May 2003 18:08:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261203AbTEKWI6
+	id S261319AbTEKWJ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 May 2003 18:09:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261203AbTEKWJB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 May 2003 18:08:58 -0400
-Received: from customer-148-223-196-18.uninet.net.mx ([148.223.196.18]:44423
-	"EHLO soltisns.soltis.cc") by vger.kernel.org with ESMTP
-	id S261265AbTEKV6p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 May 2003 17:58:45 -0400
-From: "jds" <jds@soltis.cc>
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.69mm3  end_request: I/O error, dev hdc, sector 0
-Date: Sun, 11 May 2003 15:34:31 -0600
-Message-Id: <20030511213015.M69244@soltis.cc>
-X-Mailer: Open WebMail 1.90 20030212
-X-OriginatingIP: 200.78.44.117 (jds)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Sun, 11 May 2003 18:09:01 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:56010 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S261288AbTEKWBg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 May 2003 18:01:36 -0400
+Date: Sun, 11 May 2003 15:15:06 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: tomlins@cam.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+       rusty@rustcorp.com.au, laforge@netfilter.org
+Subject: Re: Slab corruption mm3 + davem fixes
+Message-Id: <20030511151506.172eee58.akpm@digeo.com>
+In-Reply-To: <1052690490.4471.2.camel@rth.ninka.net>
+References: <20030511031940.97C24251B@oscar.casa.dyndns.org>
+	<200305111221.26048.tomlins@cam.org>
+	<1052690490.4471.2.camel@rth.ninka.net>
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 11 May 2003 22:14:14.0232 (UTC) FILETIME=[A7E92580:01C3180A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"David S. Miller" <davem@redhat.com> wrote:
+>
+> On Sun, 2003-05-11 at 09:21, Ed Tomlinson wrote:
+> > I am also seeing this on 69-bk (as of Sunday morning)
+> ...
+> > On May 10, 2003 11:19 pm, Ed Tomlinson wrote:
+> > > I looked at my logs and found the following error in it.  My kernel is
+> > > 69-mm3 with two davem fixes on it.
+> ...
+> > > May 10 22:41:06 oscar kernel: Call Trace:
+> > > May 10 22:41:06 oscar kernel:  [__slab_error+30/32] __slab_error+0x1e/0x20
+> > > May 10 22:41:06 oscar kernel:  [check_poison_obj+376/384]
+> > > check_poison_obj+0x178/0x180 May 10 22:41:06 oscar kernel: 
+> > > [kmalloc+221/392] kmalloc+0xdd/0x188 May 10 22:41:06 oscar kernel: 
+> > > [alloc_skb+64/240] alloc_skb+0x40/0xf0 May 10 22:41:06 oscar kernel: 
+> 
+> Yeah, more bugs in the NAT netfilter changes.  Debugging this one
+> patch is becomming a full time job :-(
+> 
+> This should fix it.  Rusty, you're computing checksums and mangling
+> src/dst using header pointers potentially pointing to free'd skbs.
+> 
 
-
-  Hi:
-
-   Iam revice in kernel log this messages very muchs this errors in log:
-
-   May 11 16:53:54 toshiba kernel: end_request: I/O error, dev hdc, sector 0
-May 11 16:54:26 toshiba last message repeated 64 times
-May 11 16:55:28 toshiba last message repeated 124 times
-May 11 16:56:30 toshiba last message repeated 124 times
-May 11 16:57:32 toshiba last message repeated 124 times
-May 11 16:58:33 toshiba last message repeated 120 times
-
-
-  Helpme Please.
-
-  Regards
-
-   
+Did you mean to send a one megabyte diff?

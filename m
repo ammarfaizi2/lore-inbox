@@ -1,37 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266976AbTAITSl>; Thu, 9 Jan 2003 14:18:41 -0500
+	id <S266965AbTAITON>; Thu, 9 Jan 2003 14:14:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266977AbTAITSl>; Thu, 9 Jan 2003 14:18:41 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:15246
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S266976AbTAITSl>; Thu, 9 Jan 2003 14:18:41 -0500
-Subject: Re: MB without keyboard controller / USB-only keyboard ?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200301091916.h09JGI228106@devserv.devel.redhat.com>
-References: <20030109114247.211f7072.skraw@ithnet.com>
-	 <1042134121.27796.20.camel@irongate.swansea.linux.org.uk>
-	 <20030109183952.6be142fe.skraw@ithnet.com>
-	 <mailman.1042135501.3903.linux-kernel2news@redhat.com>
-	 <200301091916.h09JGI228106@devserv.devel.redhat.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1042143195.27796.64.camel@irongate.swansea.linux.org.uk>
+	id <S266969AbTAITON>; Thu, 9 Jan 2003 14:14:13 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:34028 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S266965AbTAITOM>;
+	Thu, 9 Jan 2003 14:14:12 -0500
+Date: Thu, 9 Jan 2003 19:20:22 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Corey Minyard <minyard@acm.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] PATCH: IPMI driver
+Message-ID: <20030109192022.GA5693@codemonkey.org.uk>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Corey Minyard <minyard@acm.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200301090332.h093WML05981@hera.kernel.org> <20030109164407.GA26195@codemonkey.org.uk> <1042135594.27796.37.camel@irongate.swansea.linux.org.uk> <20030109172229.GA27288@codemonkey.org.uk> <1042135971.27796.44.camel@irongate.swansea.linux.org.uk> <3E1DCA8D.4040005@acm.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
-Date: 09 Jan 2003 20:13:16 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3E1DCA8D.4040005@acm.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-01-09 at 19:16, Pete Zaitcev wrote:
-> I fail to see the point, Alan. Stephan's BIOS does exactly the
-> right thing: it emulates BIOS INTs which allow to read buffered
-> keystrokes, but it does not do SMM tricks to emulate port 0x60.
-> This is great, now pc_keyb.d must do detection right. It must
-> not loop endlessly if 0xff is returned from inb(). It's a bug.
+On Thu, Jan 09, 2003 at 01:16:29PM -0600, Corey Minyard wrote:
 
-Thats what I wanted to verify.
+ > >Pull the 2.5 port from openipmi.sourceforge.net  saves you doing the port
+ > >yourself. 
+ > >
+ > Definately pull the 2.5 port from there, as there are some differences 
+ > between the 2.4 and 2.5 versions.
 
+I had a quick skim through the patch.
+Is the handling of jiffies wraps done correctly ? It doesn't
+look like it...
+
+time_diff = ((jiffies_now - kcs_info->last_timeout_jiffies)
+
+		Dave
+
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk

@@ -1,79 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264337AbTLKBqI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Dec 2003 20:46:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264329AbTLKBbN
+	id S264347AbTLKBzR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Dec 2003 20:55:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264327AbTLKBzF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Dec 2003 20:31:13 -0500
-Received: from mail.kroah.org ([65.200.24.183]:60111 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S264331AbTLKBaO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Dec 2003 20:30:14 -0500
-Date: Wed, 10 Dec 2003 17:27:31 -0800
-From: Greg KH <greg@kroah.com>
-To: torvalds@osdl.org
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [BK PATCH] USB Fixes for 2.6.0-test11
-Message-ID: <20031211012731.GA10632@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Wed, 10 Dec 2003 20:55:05 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:62220 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S264386AbTLKBxW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Dec 2003 20:53:22 -0500
+To: linux-kernel@vger.kernel.org
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: 2.6.0-test11-wli-1
+Date: 11 Dec 2003 01:42:00 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <br8i18$v8s$1@gatekeeper.tmr.com>
+References: <20031209233523.GS8039@holomorphy.com> <Pine.LNX.4.58.0312091859330.2313@montezuma.fsmlabs.com>
+X-Trace: gatekeeper.tmr.com 1071106920 32028 192.168.12.62 (11 Dec 2003 01:42:00 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+In article <Pine.LNX.4.58.0312091859330.2313@montezuma.fsmlabs.com>,
+Zwane Mwaikambo  <zwane@arm.linux.org.uk> wrote:
+| On Tue, 9 Dec 2003, William Lee Irwin III wrote:
+| 
+| > On Thu, Dec 04, 2003 at 12:01:20PM -0800, William Lee Irwin III wrote:
+| > > Successfully tested on a Thinkpad T21. Any feedback regarding
+| > > performance would be very helpful. Desktop users should notice top(1)
+| > > is faster, kernel hackers that kernel compiles are faster, and highmem
+| > > users should see much less per-process lowmem overhead.
+| >
+| > Bill Davidsen reported an issue where compiled kernel images aren't
+| > properly distinguished from mainline kernels' by installation scripts.
+| >
+| > The following patch should resolve this:
+| 
+| Argh, i've been screaming about this for ages...
 
-Here are some USB fixes for 2.6.0-test11.  They all fix real bugs, and
-are 1-4 line fixes with the exception of the usb-serial close() fix,
-which is a bit larger, but has been well tested by a number of different
-users.
+Look, I'm a big boy now, I should be smart enough to *check* this,
+because every once in a while other people (you know who you are) do it
+too. My fault, I just noted it because other people may not be backed up
+as well as I am and shoot their only working kernel.
 
-Please pull from:  bk://linuxusb.bkbits.net/gregkh-2.6
 
-Patches will be posted as a follow-up thread for those who want to see
-them.
-
-thanks,
-
-greg k-h
-
- drivers/usb/core/devio.c        |    2 -
- drivers/usb/core/hub.c          |   10 +++++---
- drivers/usb/core/usb.c          |    1 
- drivers/usb/image/Kconfig       |    4 ++-
- drivers/usb/misc/auerswald.c    |    4 +--
- drivers/usb/serial/usb-serial.c |   50 +++++++++++-----------------------------
- drivers/usb/storage/datafab.c   |    2 -
- drivers/usb/storage/jumpshot.c  |    2 -
- scripts/file2alias.c            |    7 +++++
- 9 files changed, 37 insertions(+), 45 deletions(-)
------
-
-Alan Stern:
-  o USB: fix bug not setting device state following usb_device_reset()
-
-Andrey Borzenkov:
-  o USB: prevent catch-all USB aliases in modules.alias
-
-David Brownell:
-  o USB: fix remove device after set_configuration
-
-Greg Kroah-Hartman:
-  o USB: fix bug for multiple opens on ttyUSB devices
-  o USB: fix race with hub devices disconnecting while stuff is still happening to them
-  o USB: register usb-serial ports in the proper place in sysfs
-
-Herbert Xu:
-  o USB: Fix connect/disconnect race
-
-Matthew Dharm:
-  o USB storage: fix for jumpshot and datafab devices
-
-Oliver Neukum:
-  o USB: fix race with signal delivery in usbfs
-  o USB: fix sleping in interrupt bug in auerswald driver
-
-Tom Rini:
-  o USB: mark the scanner driver as obsolete
-
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

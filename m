@@ -1,61 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278551AbRJXPRE>; Wed, 24 Oct 2001 11:17:04 -0400
+	id <S278556AbRJXPSx>; Wed, 24 Oct 2001 11:18:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278567AbRJXPQy>; Wed, 24 Oct 2001 11:16:54 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:56076 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S278556AbRJXPQi>; Wed, 24 Oct 2001 11:16:38 -0400
-Date: Wed, 24 Oct 2001 17:16:58 +0200
-From: Jan Kara <jack@suse.cz>
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: RFC - tree quotas for Linux (2.4.12, ext2)
-Message-ID: <20011024171658.B10075@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <15310.25406.789271.793284@notabene.cse.unsw.edu.au>
+	id <S278561AbRJXPSo>; Wed, 24 Oct 2001 11:18:44 -0400
+Received: from geos.coastside.net ([207.213.212.4]:37058 "EHLO
+	geos.coastside.net") by vger.kernel.org with ESMTP
+	id <S278556AbRJXPSd>; Wed, 24 Oct 2001 11:18:33 -0400
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <15310.25406.789271.793284@notabene.cse.unsw.edu.au>
-User-Agent: Mutt/1.3.20i
+Message-Id: <p05100321b7fc88a08346@[207.213.214.37]>
+In-Reply-To: <E15wKn8-00013C-00@the-village.bc.nu>
+In-Reply-To: <E15wKn8-00013C-00@the-village.bc.nu>
+Date: Wed, 24 Oct 2001 08:18:04 -0700
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        benh@kernel.crashing.org (Benjamin Herrenschmidt)
+From: Jonathan Lundell <jlundell@pobox.com>
+Subject: Re: [RFC] New Driver Model for 2.5
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org,
+        mochel@osdl.org (Patrick Mochel)
+Content-Type: text/plain; charset="us-ascii" ; format="flowed"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hello,
+At 10:57 AM +0100 10/24/01, Alan Cox wrote:
+>  > the HW or not when getting a new request). In cases where a mid-layer
+>>  enters the scene, like SCSI, that wants to do timeouts, then well...
+>>  we can let it timeout (just stop processing requests), or we can
+>>  have the midlayer go to sleep as well :) That later solution
+>>  may cause some interesting ordering issues however...
+>
+>For scsi you have to complete the pending commands, you don't know what the
+>transaction granularity is in some cases and half completing the sequence
+>won't help you. In addition the upper layers have to queue additional scsi
+>commands to do stuff like cd drawer locking and to ask the drive firmware
+>to enter powerdown modes
+>
+>>  For USB, for example, we can consider that when a device driver
+>>  (not a controller driver) suspend has been done, any URB it submits
+>>  can just be dropped (returned immediately with an error). We don't
+>>  need blocking here neither. Of course, that means we have the
+>>  framework to call devices' suspend/resume callbacks when the
+>  > controller is about to go to sleep.
+>
+>That will scramble large numbers of devices. Randomly erroring pending block
+>writes is -not- civilised.
 
->  In my ongoing effort to provide centralised file storage that I can
->  be proud of, I have put together some code to implement tree quotas.
-> 
->  The idea of a tree quota is that the block and inode usage of a file
->  is charged to the (owner of the root of the) tree rather than the
->  owner (or group owner) of the file.
->  This will (I hope) make life easier for me.  There are several
->  reasons that I have documented (see URL below) but a good one is that
->  they are transparent and predictable.  du -s $HOME should *always*
->  match your usage according to "quota".
-> 
->  I have written a patch which is included below, but also is at
->     htttp://www.cse.unsw.edu.au/~neilb/patches/linux/
-> 
->  which defines a third type of quotas for Linux, named "treequotas".
->  The patch supports these quotas for ext2 by borrowing (or is that
->  stealing) i_reserved2 from the on-disc inode to store the "tid",
->  which is the uid of the ultimate non-root parent of the file.
-> 
->  There are obvious issues with hardlinks between trees with different
->  tree-ids, but they can be easily restricted to root who should know
->  better.
-> 
->  The patch introduces the concept of a "Treeid" or "tid" which is
->  inherited from the parent, if not zero, or set from the uid
->  otherwise.
->  Thus if root creates a directory near the top of a filesystem and
->  chowns it to someone, all files created beneath that directory,
->  independant of ownership, get charged to the someone (for the purpose
->  of treequotaing).
-  But how do you solve the following: mv <dir> <some_other_dir>
-The parent changes. You need to go through all the subdirs of <dir> and change
-the TID. This is really hard to get right and to avoid deadlocks
-and races... At least it seems to me so.
+In our "extreme prejudice" suspend (this is in the context of masking 
+& recovering from a fault in a fault-tolerant machine) we have cases 
+in which completion of pending commands isn't possible. Our solution 
+is to issue a SCSI bus reset, and terminate all outstanding commands 
+with an appropriate (retryable) error. This is especially easy to 
+implement in drivers that use SCSI bus reset as a routine (though 
+last resort) error recovery mechanism, since the requisite logic is 
+already in place. Not pretty, I suppose, but effective.
 
-									Honza
+One model we've considered (but haven't implemented yet) is to make 
+parents in the device tree responsible for suspending their children, 
+so the suspend propagates down the tree and each node "knows" how to 
+suspend its children, assuming any special action is required. So a 
+SCSI HBA, for example, would be asked by its bus parent to suspend, 
+and in turn would suspend its SCSI device children before suspending 
+itself. I'm not quite sure how virtual device layers like md would 
+fit into this scheme, since they can cut across device and power 
+hierarchies.
+
+At 11:54 AM +0100 10/24/01, Alan Cox wrote:
+>So the scsi devices hang off sd, sr etc which in turn hang off scsi and
+>the controllers hang off scsi (and or the bus layers)
+
+Our first implementation was under Solaris 2.x (SPARC) in which the 
+parent->child relationship is bus->hba->sd. scsi isn't in the tree; 
+it's more of an interface layer between hba & sd. fwiw.
+-- 
+/Jonathan Lundell.

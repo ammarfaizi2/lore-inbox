@@ -1,77 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263618AbUDFFAZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 01:00:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263625AbUDFFAZ
+	id S263625AbUDFFBi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 01:01:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263624AbUDFFBi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 01:00:25 -0400
-Received: from ausmtp02.au.ibm.com ([202.81.18.187]:49891 "EHLO
-	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP id S263618AbUDFFAS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 01:00:18 -0400
-Subject: Re: [PATCH] mask ADT: new mask.h file [2/22]
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Paul Jackson <pj@sgi.com>
-Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       mbligh@aracnet.com, Andrew Morton <akpm@osdl.org>, wli@holomorphy.com,
-       haveblue@us.ibm.com, colpatch@us.ibm.com
-In-Reply-To: <20040405010839.65bf8f1c.pj@sgi.com>
-References: <20040329041253.5cd281a5.pj@sgi.com>
-	 <1081128401.18831.6.camel@bach> <20040405000528.513a4af8.pj@sgi.com>
-	 <1081150967.20543.23.camel@bach>  <20040405010839.65bf8f1c.pj@sgi.com>
-Content-Type: text/plain
-Message-Id: <1081227547.15274.153.camel@bach>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 06 Apr 2004 14:59:07 +1000
+	Tue, 6 Apr 2004 01:01:38 -0400
+Received: from adelaide.maptek.com.au ([202.174.40.42]:11964 "EHLO
+	mail.adelaide.maptek.com.au") by vger.kernel.org with ESMTP
+	id S263620AbUDFFBe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Apr 2004 01:01:34 -0400
+Message-ID: <407239DB.1010600@maptek.com.au>
+Date: Tue, 06 Apr 2004 14:32:19 +0930
+From: Malcolm Blaney <malcolm.blaney@maptek.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.1) Gecko/20031030
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: mark_offset_tsc() hangs usb
+References: <406BA62A.2090503@maptek.com.au>
+In-Reply-To: <406BA62A.2090503@maptek.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-6.1, required 5,
+	BAYES_01 -5.40, IN_REP_TO -0.37, QUOTED_EMAIL_TEXT -0.38,
+	REFERENCES -0.00, REPLY_WITH_QUOTES 0.00, TW_UH 0.08,
+	USER_AGENT_MOZILLA_UA 0.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-04-05 at 18:08, Paul Jackson wrote:
-> > get rid of the
-> > asm-generic/cpumask_optimized_for_large_smp_with_sparse_array_and_small_stack.h
+
+
+I wrote:
+
+> I have been trying to fix a problem related to usb, with the help of the 
+> usb-dev list. Plugging in a usb device hangs my computer when bandwidth 
+> reclamation (fsbr) is turned on in the uhci-hcd driver.
 > 
-> My mask patch does this.
-
-Yes, which is why I'm such a fan.
-
-> > then finally look at how ugly it would be to change users to
-> > directly using the bitmap.h functions on cpumasks.
+> I have found though, that when an interrupt is triggered by plugging in 
+> a usb device, the timer_interrupt() function in arch/i386/kernel/time.c 
+> is reached, and the computer hangs in mark_offset_tsc() in 
+> timers/timer_tsc.c. I removed the call to this function in 
+> timer_interrupt() and then usb worked as normal. I'm hoping there's a 
+> better way to get usb working than this though! This doesn't happen when 
+> fsbr is switched off.
 > 
-> That boils down to a very straightforward question.  Do we ask
-> them to write:
-> 
-> 	cpus_or(s.bits, d1.bits, d2.bits)
-> 
-> or:
-> 
-> 	bitmap_or(s.bits, d1.bits, d2.bits, NR_CPUS);
-> 
-> I prefer the first choice.  It requires a thin cpumask.h header
-> to wrap the bitmap ops, and add the final NR_CPUS to each one.
+> The computer has a Crusoe TM5400 cpu and a VIA VT82C686A controller.
 
-Well, you'd do presumably:
-	cpus_or(&s, &d1, &d2);
+I've been trying to work out what goes wrong in mark_offset_tsc() and 
+found that it's just the outb_p() & inb_p() calls that are causing the 
+problem. I found a thread relating to this, 
+http://www.ussg.iu.edu/hypermail/linux/kernel/0309.2/1039.html, and 
+tried the line:
+#define __SLOW_DOWN_IO__ ""
+which also allowed usb to work normally. Since this is just avoiding the 
+read or write to port 0x80, is this a sign of having dodgy hardware? The 
+thread doesn't talk about writing to the port as being fatal, even if it 
+does cause problems for some people.
 
-And make cpus_or() an inline so you get typechecking.
+Anybody got a better fix?
 
-But my rough grepping reveals that there are around 420 uses of all the
-cpu macros throughout the kernel.  But if you merely implement:
-
-	any_online_cpu
-	cpumask_of_cpu
-	cpu_isset
-	cpu_set
-	cpu_clear
-
-You'll have covered about 300 of them.  I don't think a complete
-abstraction is actually required or desirable: if someone wants to do
-something tricky (like anding, oring, etc), there's nothing wrong with
-accessing cpu.bits.
-
-Thanks!
-Rusty.
--- 
-Anyone who quotes me in their signature is an idiot -- Rusty Russell
+Malcolm.
 

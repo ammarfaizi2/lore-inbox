@@ -1,73 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262112AbVADTw5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261969AbVADUAa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262112AbVADTw5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 14:52:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262108AbVADTvX
+	id S261969AbVADUAa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 15:00:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262108AbVADT5B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 14:51:23 -0500
-Received: from one.firstfloor.org ([213.235.205.2]:46776 "EHLO
-	one.firstfloor.org") by vger.kernel.org with ESMTP id S261854AbVADTqv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 14:46:51 -0500
-To: Christoph Lameter <clameter@sgi.com>
-Cc: Hugh Dickins <hugh@veritas.com>, akpm@osdl.org,
-       Nick Piggin <nickpiggin@yahoo.com.au>, linux-mm@kvack.org,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: page fault scalability patch V14 [5/7]: x86_64 atomic pte
- operations
-References: <Pine.LNX.4.44.0411221457240.2970-100000@localhost.localdomain>
-	<Pine.LNX.4.58.0411221343410.22895@schroedinger.engr.sgi.com>
-	<Pine.LNX.4.58.0411221419440.20993@ppc970.osdl.org>
-	<Pine.LNX.4.58.0411221424580.22895@schroedinger.engr.sgi.com>
-	<Pine.LNX.4.58.0411221429050.20993@ppc970.osdl.org>
-	<Pine.LNX.4.58.0412011539170.5721@schroedinger.engr.sgi.com>
-	<Pine.LNX.4.58.0412011545060.5721@schroedinger.engr.sgi.com>
-	<Pine.LNX.4.58.0501041129030.805@schroedinger.engr.sgi.com>
-	<Pine.LNX.4.58.0501041137410.805@schroedinger.engr.sgi.com>
-From: Andi Kleen <ak@muc.de>
-Date: Tue, 04 Jan 2005 20:46:50 +0100
-In-Reply-To: <Pine.LNX.4.58.0501041137410.805@schroedinger.engr.sgi.com> (Christoph
- Lameter's message of "Tue, 4 Jan 2005 11:38:20 -0800 (PST)")
-Message-ID: <m1652ddljp.fsf@muc.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 4 Jan 2005 14:57:01 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:45445 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261969AbVADT4i (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jan 2005 14:56:38 -0500
+From: David Howells <dhowells@redhat.com>
+To: akpm@osdl.org
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Exclude PUD/PMD alloc functions if !MMU
+X-Mailer: MH-E 7.82; nmh 1.0.4; GNU Emacs 21.3.50.1
+Date: Tue, 04 Jan 2005 19:56:28 +0000
+Message-ID: <17892.1104868588@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter <clameter@sgi.com> writes:
 
-I bet this has been never tested.
+Don't declare pud_alloc() and pmd_alloc() if a nommu kernel is being
+compiled. These functions require various things that aren't defined for
+nommu.
 
->  #define pmd_populate_kernel(mm, pmd, pte) \
->  		set_pmd(pmd, __pmd(_PAGE_TABLE | __pa(pte)))
->  #define pud_populate(mm, pud, pmd) \
-> @@ -14,11 +18,24 @@
->  #define pgd_populate(mm, pgd, pud) \
->  		set_pgd(pgd, __pgd(_PAGE_TABLE | __pa(pud)))
->
-> +#define pmd_test_and_populate(mm, pmd, pte) \
-> +		(cmpxchg((int *)pmd, PMD_NONE, _PAGE_TABLE | __pa(pte)) == PMD_NONE)
-> +#define pud_test_and_populate(mm, pud, pmd) \
-> +		(cmpxchg((int *)pgd, PUD_NONE, _PAGE_TABLE | __pa(pmd)) == PUD_NONE)
-> +#define pgd_test_and_populate(mm, pgd, pud) \
-> +		(cmpxchg((int *)pgd, PGD_NONE, _PAGE_TABLE | __pa(pud)) == PGD_NONE)
-> +
+Signed-Off-By: David Howells <dhowells@redhat.com>
+---
+warthog>diffstat nommu-exclusions-2610mm1.diff 
+ mm.h |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
-Shouldn't this all be (long *)pmd ? page table entries on x86-64 are 64bit.
-Also why do you cast at all? i think the macro should handle an arbitary
-pointer.
-
-> +
->  static inline void pmd_populate(struct mm_struct *mm, pmd_t *pmd, struct page *pte)
->  {
->  	set_pmd(pmd, __pmd(_PAGE_TABLE | (page_to_pfn(pte) << PAGE_SHIFT)));
->  }
->
-> +static inline int pmd_test_and_populate(struct mm_struct *mm, pmd_t *pmd, struct page *pte)
-> +{
-> +	return cmpxchg((int *)pmd, PMD_NONE, _PAGE_TABLE | (page_to_pfn(pte) << PAGE_SHIFT)) == PMD_NONE;
-
-Same.
-
--Andi
+diff -uNrp /warthog/kernels/linux-2.6.10-mm1/include/linux/mm.h linux-2.6.10-mm1-frv/include/linux/mm.h
+--- /warthog/kernels/linux-2.6.10-mm1/include/linux/mm.h	2005-01-04 11:15:27.000000000 +0000
++++ linux-2.6.10-mm1-frv/include/linux/mm.h	2005-01-04 17:39:56.462745022 +0000
+@@ -668,7 +668,7 @@ extern void remove_shrinker(struct shrin
+  * The following ifdef needed to get the 4level-fixup.h header to work.
+  * Remove it when 4level-fixup.h has been removed.
+  */
+-#ifndef __ARCH_HAS_4LEVEL_HACK 
++#if defined(CONFIG_MMU) && !defined(__ARCH_HAS_4LEVEL_HACK)
+ static inline pud_t *pud_alloc(struct mm_struct *mm, pgd_t *pgd, unsigned long address)
+ {
+ 	if (pgd_none(*pgd))

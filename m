@@ -1,46 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261581AbVAGUIs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261586AbVAGUFt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261581AbVAGUIs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 15:08:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261588AbVAGUGC
+	id S261586AbVAGUFt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 15:05:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261577AbVAGUEl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 15:06:02 -0500
-Received: from waste.org ([216.27.176.166]:57802 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S261581AbVAGUFQ (ORCPT
+	Fri, 7 Jan 2005 15:04:41 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:11752 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S261581AbVAGUEK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 15:05:16 -0500
-Date: Fri, 7 Jan 2005 12:05:00 -0800
-From: Matt Mackall <mpm@selenic.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andrew Morton <akpm@osdl.org>, ast@domdv.de, rlrevell@joe-job.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, mingo@elte.hu,
-       joq@io.com
-Subject: Re: [PATCH] [request for inclusion] Realtime LSM
-Message-ID: <20050107200500.GX2940@waste.org>
-References: <20050103140359.GA19976@infradead.org> <1104862614.8255.1.camel@krustophenia.net> <20050104182010.GA15254@infradead.org> <1104865034.8346.4.camel@krustophenia.net> <41DB4476.8080400@domdv.de> <1104898693.24187.162.camel@localhost.localdomain> <20050104215010.7f32590e.akpm@osdl.org> <20050105120601.GA8730@mail.13thfloor.at> <20050107011309.GB2995@waste.org> <1105062723.17166.319.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1105062723.17166.319.camel@localhost.localdomain>
-User-Agent: Mutt/1.3.28i
+	Fri, 7 Jan 2005 15:04:10 -0500
+Date: Fri, 7 Jan 2005 12:02:13 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: Martin Hicks <mort@wildopensource.com>
+cc: Marco Cipullo <cipullo@libero.it>, linux-kernel@vger.kernel.org
+Subject: Re: From last __GFP_ZERO changes
+In-Reply-To: <20050107193354.GT18461@localhost>
+Message-ID: <Pine.LNX.4.58.0501071200280.28689@schroedinger.engr.sgi.com>
+References: <200501061243.58968.cipullo@libero.it> <20050107193354.GT18461@localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 07, 2005 at 01:55:09AM +0000, Alan Cox wrote:
-> On Gwe, 2005-01-07 at 01:13, Matt Mackall wrote:
-> > You can't fix them without changing the semantics for existing users
-> > in ways they didn't expect. It could be done with a new personality flag,
-> > but..
-> 
-> I disagree. At the most trivial you could just add another 32bits of
-> sticky capability that are never touched by setuid/non-setuidness and
-> represent additional "user" (or more rightly session) abilities to do
-> limited overrides
+On Fri, 7 Jan 2005, Martin Hicks wrote:
 
-I think we're referring to different brokenness. The problems I see
-are with the semantics of inheritance of capabilities which make
-wrapping applications painful. Those can't be changed without creating
-holes in existing apps so the general utility of caps is limited.
+>
+> On Thu, Jan 06, 2005 at 12:43:58PM +0100, Marco Cipullo wrote:
+> > From last __GFP_ZERO changes:
+> >
+> > --- a/drivers/block/pktcdvd.c	2005-01-06 03:27:45 -08:00
+> > +++ b/drivers/block/pktcdvd.c	2005-01-06 03:27:45 -08:00
+> > @@ -135,12 +135,10 @@
+> >  		goto no_bio;
+> >
+> >  	for (i = 0; i < PAGES_PER_PACKET; i++) {
+> > -		pkt->pages[i] = alloc_page(GFP_KERNEL);
+> > +		pkt->pages[i] = alloc_page(GFP_KERNEL|| __GFP_ZERO);
+> >
+> > Is this OK?
+> >
+> > Or should be
+> >
+> >  	for (i = 0; i < PAGES_PER_PACKET; i++) {
+> > -		pkt->pages[i] = alloc_page(GFP_KERNEL);
+> > +		pkt->pages[i] = alloc_page(GFP_KERNEL| __GFP_ZERO);
+>
+> It definitely should be the latter.
 
--- 
-Mathematics is the supreme nostalgia of our time.
+Correct. Please submit the patch. I see a patch that fixes a pktcdvd.c
+issue in Andrews tree so it was likely already fixed without me hearing of
+it.

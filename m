@@ -1,44 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263850AbUHNWvo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266252AbUHNWx0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263850AbUHNWvo (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Aug 2004 18:51:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266249AbUHNWvo
+	id S266252AbUHNWx0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Aug 2004 18:53:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266249AbUHNWx0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Aug 2004 18:51:44 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:50139 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S263850AbUHNWvn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Aug 2004 18:51:43 -0400
-Subject: Re: Linux SATA RAID FAQ
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Bernd Eckenfels <ecki-news2004-05@lina.inka.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <411BA940.5000300@pobox.com>
-References: <E1BvFmM-0007W5-00@calista.eckenfels.6bone.ka-ip.net>
-	 <1092315392.21994.52.camel@localhost.localdomain> <411BA7A1.403@pobox.com>
-	 <411BA940.5000300@pobox.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1092520163.27405.11.camel@localhost.localdomain>
+	Sat, 14 Aug 2004 18:53:26 -0400
+Received: from fw.osdl.org ([65.172.181.6]:13242 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266252AbUHNWxU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Aug 2004 18:53:20 -0400
+Date: Sat, 14 Aug 2004 15:53:11 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: akpm@osdl.org, torvalds@osdl.org
+Cc: Kurt Garloff <garloff@suse.de>,
+       Linux kernel list <linux-kernel@vger.kernel.org>,
+       Stephen Smalley <sds@epoch.ncsc.mil>, James Morris <jmorris@redhat.com>
+Subject: [PATCH] configurable SELinux bootparam value
+Message-ID: <20040814155311.Z1924@build.pdx.osdl.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sat, 14 Aug 2004 22:49:24 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2004-08-12 at 18:30, Jeff Garzik wrote:
-> > The SX4 has an on-board DIMM (128M - 2G), through which all data _must_ 
-> > pass.  The data transfer between host and on-board DIMM is a separate 
-> > DMA engine and separate interrupt event from the four ATA DMA engines 
-> > (one per SATA port).  There are several possibilities that are worth 
-> > exploring on this card:
-> > 
-> > * Caching
+Add configure option for setting default SELinux bootparam value.
+Ack'd by James Morris.
 
-Is it battery backed ? If it is battery backed then its useful, if not
-then it becomes less useful although not always. The i2o drivers have
-some ioctls so you can turn on writeback caching even without battery
-backup. While this is suicidal for filesytems its just great for swap..
+Signed-off-by: Chris Wright <chrisw@osdl.org>
 
-
+===== security/selinux/Kconfig 1.6 vs edited =====
+--- 1.6/security/selinux/Kconfig	2004-06-01 02:27:56 -07:00
++++ edited/security/selinux/Kconfig	2004-08-10 13:39:43 -07:00
+@@ -24,6 +24,21 @@
+ 
+ 	  If you are unsure how to answer this question, answer N.
+ 
++config SECURITY_SELINUX_BOOTPARAM_VALUE
++	int "NSA SELinux boot parameter default value"
++	depends on SECURITY_SELINUX_BOOTPARAM
++	range 0 1
++	default 1
++	help
++	  This option sets the default value for the kernel parameter
++	  'selinux', which allows SELinux to be disabled at boot.  If this
++	  option is set to 0 (zero), the SELinux kernel parameter will
++	  default to 0, disabling SELinux at bootup.  If this option is
++	  set to 1 (one), the SELinux kernel paramater will default to 1,
++	  enabling SELinux at bootup.
++
++	  If you are unsure how to answer this question, answer 1.
++
+ config SECURITY_SELINUX_DISABLE
+ 	bool "NSA SELinux runtime disable"
+ 	depends on SECURITY_SELINUX
+===== security/selinux/hooks.c 1.53 vs edited =====
+--- 1.53/security/selinux/hooks.c	2004-07-28 21:58:32 -07:00
++++ edited/security/selinux/hooks.c	2004-08-10 13:44:00 -07:00
+@@ -87,7 +87,7 @@
+ #endif
+ 
+ #ifdef CONFIG_SECURITY_SELINUX_BOOTPARAM
+-int selinux_enabled = 1;
++int selinux_enabled = CONFIG_SECURITY_SELINUX_BOOTPARAM_VALUE;
+ 
+ static int __init selinux_enabled_setup(char *str)
+ {

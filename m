@@ -1,53 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263191AbTCSWAj>; Wed, 19 Mar 2003 17:00:39 -0500
+	id <S262627AbTCSWDI>; Wed, 19 Mar 2003 17:03:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263193AbTCSWAi>; Wed, 19 Mar 2003 17:00:38 -0500
-Received: from colossus.systems.pipex.net ([62.241.160.73]:1690 "HELO
-	colossus.systems.pipex.net") by vger.kernel.org with SMTP
-	id <S263191AbTCSWAi>; Wed, 19 Mar 2003 17:00:38 -0500
-From: Angus Sawyer <angus.sawyer@dsl.pipex.com>
-Reply-To: angus.sawyer@dsl.pipex.com
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] floppy driver oopses on forced unload (against 2.5.65)
-Date: Wed, 19 Mar 2003 22:11:35 +0000
-User-Agent: KMail/1.5
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	id <S262628AbTCSWDI>; Wed, 19 Mar 2003 17:03:08 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:33802 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S262627AbTCSWDH>;
+	Wed, 19 Mar 2003 17:03:07 -0500
+Date: Wed, 19 Mar 2003 14:01:51 -0800
+From: Greg KH <greg@kroah.com>
+To: Andries.Brouwer@cwi.nl, akpm@digeo.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] dev_t [1/3]
+Message-ID: <20030319220151.GA16947@kroah.com>
+References: <UTC200303182145.h2ILjEB29313.aeb@smtp.cwi.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200303192211.35980.angus.sawyer@dsl.pipex.com>
+In-Reply-To: <UTC200303182145.h2ILjEB29313.aeb@smtp.cwi.nl>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Mar 18, 2003 at 10:45:14PM +0100, Andries.Brouwer@cwi.nl wrote:
+> Now that 2.5.65 is out, the next dev_t patch.
+> It was a bit large and unreadable, so I split it into
+> three clean pieces. Afterwards, since many people ask
+> for this, a fourth patch that actually changes the
+> type of dev_t (not to be applied yet, that is just for
+> playing).
 
-Prevent OOPS on removing floppy driver with "rmmod -f floppy".
+I've been beating on these three patches and don't seem to have any
+problems.  And I see Andrew has put them in his -mm tree too.
 
-floppy.c would attempt to unregister resources for nonexistent device.  
+Andrew, I don't see any problem with sending them on to Linus if you
+want to (just the 3, not the 4th one :)
 
-Patch stops the driver attempting to register and unregister the nonexistent 
-device by removing the drive from the allowed drives mask (defaults to 
-present). 
+thanks,
 
-
-
- drivers/block/floppy.c |    2 ++
- 1 files changed, 2 insertions(+)
-
-diff -puN drivers/block/floppy.c~floppy-unload-fix drivers/block/floppy.c
---- linux-2.5.65/drivers/block/floppy.c~floppy-unload-fix	Wed Mar 19 18:44:15 
-2003
-+++ linux-2.5.65-/drivers/block/floppy.c	Wed Mar 19 21:33:22 2003
-@@ -3649,6 +3649,8 @@ static void __init config_types(void)
- 				name = default_drive_params[type].name;
- 				allowed_drive_mask |= 1 << drive;
- 			}
-+			else
-+				allowed_drive_mask &= ~(1 << drive);
- 		} else {
- 			params = &default_drive_params[0].params;
- 			sprintf(temparea, "unknown type %d (usb?)", type);
-
-_
-
+greg k-h

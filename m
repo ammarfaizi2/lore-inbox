@@ -1,32 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263150AbTCLLIk>; Wed, 12 Mar 2003 06:08:40 -0500
+	id <S263152AbTCLLKO>; Wed, 12 Mar 2003 06:10:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263148AbTCLLIk>; Wed, 12 Mar 2003 06:08:40 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:2308 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S263152AbTCLLIj>;
-	Wed, 12 Mar 2003 06:08:39 -0500
-Date: Tue, 11 Mar 2003 11:47:22 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: kernel list <linux-kernel@vger.kernel.org>
-Subject: 2.5.64: i2c-proc kills machine at boot
-Message-ID: <20030311104721.GA401@elf.ucw.cz>
+	id <S263161AbTCLLKO>; Wed, 12 Mar 2003 06:10:14 -0500
+Received: from bjl1.jlokier.co.uk ([81.29.64.88]:28288 "EHLO
+	bjl1.jlokier.co.uk") by vger.kernel.org with ESMTP
+	id <S263152AbTCLLKM>; Wed, 12 Mar 2003 06:10:12 -0500
+Date: Wed, 12 Mar 2003 11:20:55 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] BK->CVS (real time mirror)
+Message-ID: <20030312112055.GA18276@bjl1.jlokier.co.uk>
+References: <20030312034330.GA9324@work.bitmover.com> <20030312041621.GE563@phunnypharm.org> <20030312085517.GK811@suse.de> <20030312032614.G12806@schatzie.adilger.int>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+In-Reply-To: <20030312032614.G12806@schatzie.adilger.int>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Andreas Dilger wrote:
+> Ironically, SCCS was a former "evil proprietary format" that was reverse
+> engineered to get CSSC, AFAIK.  People are still free to update CSSC to
+> track BK if they so choose.
 
-If I turn #ifdef DEBUG in i2c_register_entry() into #if 1, it prints 
+Actually the SCCS format is documented in a manual page (although
+there are a few annoying ambiguities in it).
 
-i2c-proc.o: NULL pointer when trying to install fill_inode fix!\n
-
-but boots.
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+-- Jamie

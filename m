@@ -1,93 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283757AbRLWGXh>; Sun, 23 Dec 2001 01:23:37 -0500
+	id <S283786AbRLWG2a>; Sun, 23 Dec 2001 01:28:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283786AbRLWGX2>; Sun, 23 Dec 2001 01:23:28 -0500
-Received: from nycsmtp3out.rdc-nyc.rr.com ([24.29.99.227]:6354 "EHLO
-	nycsmtp3out.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
-	id <S283757AbRLWGXL>; Sun, 23 Dec 2001 01:23:11 -0500
-Message-ID: <3C257842.79A3C59B@nyc.rr.com>
-Date: Sun, 23 Dec 2001 01:22:58 -0500
-From: John Weber <weber@nyc.rr.com>
-Organization: WorldWideWeber
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.16 i686)
-X-Accept-Language: en
+	id <S283795AbRLWG2S>; Sun, 23 Dec 2001 01:28:18 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:23126 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S283786AbRLWG2I>; Sun, 23 Dec 2001 01:28:08 -0500
+To: dcinege@psychosis.com
+Cc: otto.wyss@bluewin.ch,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+        Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: Booting a modular kernel through a multiple streams file
+In-Reply-To: <3C1D060B.9475C9F8@bluewin.ch>
+	<E16HwC0-0001k4-00@schizo.psychosis.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 22 Dec 2001 23:26:14 -0700
+In-Reply-To: <E16HwC0-0001k4-00@schizo.psychosis.com>
+Message-ID: <m1vgeyqwop.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: OOPS Kernel 2.4.17
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As previously posted, this oops occurs on boot (and somewhere after or
-during the loading of the floppy driver).
+Dave Cinege <dcinege@psychosis.com> writes:
 
-$ ksymoops --no-ksyms --no-lsmod -o /lib/modules/2.4.17/ -m
-/boot/System.map-2.4.17 Oops.file 
-ksymoops 2.4.1 on i686 2.4.16.  Options used
-     -V (default)
-     -K (specified)
-     -L (specified)
-     -o /lib/modules/2.4.17/ (specified)
-     -m /boot/System.map-2.4.17 (specified)
+> On Sunday 16 December 2001 15:37, Otto Wyss wrote:
+> 
+> > modules) are combined into a single file. The boot loader (i.e. lilo)
+> 
+> LILO follows an outdated, broken concept and should once and for all
+> be layed to rest, preferably with a stake through it's heart. 
 
-No modules in ksyms, skipping objects
-Unable to handle kernel paging request at virual address 0000413d
-c0106ea6
-*pde = 00000000
-Oops: 0000
-CPU:    0
-EIP:    0010:[<c0106ea6>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010286
-eax: c7faff2c   ebx: c7fae000   ecx: 00000000   edx: 00000001
-esi: c7faff60   edi: c7fae246   ebp: 00004111   esp: c7fafe84
-ds: 0018   es: 0018   ss: 0018
-Process keventd (pid: 2, stackpage=c7faf000)
-Stack: 00000202 c02962e0 c7fae000 00000000 c02e8500 c7fae000 c7fafef4
-c02eab80
-       c7fafed4 c0112fec 00000000 c7fae000 00000000 00000000 00000001
-c7fae000
-       c7fafef8 c7fafef8 c7f62000 00000008 00004000 c0114b13 00000000
-00004111
-Call Trace: [<c0112fec>] [<c0114b13>] [<c0121ec0>] [<c0105abf>]
-[<c0107384>]
-   [<c0121ec0>] [<c0105655>] [<c0121f33>] [<c0121ec0>] [<c011a54a>]
-[<c01224dc>]
-   [<c0122310>] [<c0105000>] [<c010565e>] [<c0122310>]
-Code: 8b 45 2c 83 e0 03 83 f8 03 74 0f 81 c4 94 00 00 00 89 d0 5b
+The way LILO does things is perfectly valid.  Not flexible, not dynamic
+but valid.
 
->>EIP; c0106ea6 <do_signal+16/2e0>   <=====
-Trace; c0112fec <wait_for_completion+6c/90>
-Trace; c0114b13 <do_fork+4b3/640>
-Trace; c0121ec0 <____call_usermodehelper+0/50>
-Trace; c0105abf <sys_clone+2f/40>
-Trace; c0107384 <signal_return+14/18>
-Trace; c0121ec0 <____call_usermodehelper+0/50>
-Trace; c0105655 <kernel_thread+25/40>
-Trace; c0121f33 <__call_usermodehelper+23/40>
-Trace; c0121ec0 <____call_usermodehelper+0/50>
-Trace; c011a54a <__run_task_queue+5a/70>
-Trace; c01224dc <context_thread+1cc/1e0>
-Trace; c0122310 <context_thread+0/1e0>
-Trace; c0105000 <_stext+0/0>
-Trace; c010565e <kernel_thread+2e/40>
-Trace; c0122310 <context_thread+0/1e0>
-Code;  c0106ea6 <do_signal+16/2e0>
-00000000 <_EIP>:
-Code;  c0106ea6 <do_signal+16/2e0>   <=====
-   0:   8b 45 2c                  mov    0x2c(%ebp),%eax   <=====
-Code;  c0106ea9 <do_signal+19/2e0>
-   3:   83 e0 03                  and    $0x3,%eax
-Code;  c0106eac <do_signal+1c/2e0>
-   6:   83 f8 03                  cmp    $0x3,%eax
-Code;  c0106eaf <do_signal+1f/2e0>
-   9:   74 0f                     je     1a <_EIP+0x1a> c0106ec0
-<do_signal+30/2e0>
-Code;  c0106eb1 <do_signal+21/2e0>
-   b:   81 c4 94 00 00 00         add    $0x94,%esp
-Code;  c0106eb7 <do_signal+27/2e0>
-  11:   89 d0                     mov    %edx,%eax
-Code;  c0106eb9 <do_signal+29/2e0>
-  13:   5b                        pop    %ebx
+ 
+> > simply loads this file and starts the first stream (the kernel).
+> 
+> The point to all these 'streams' escapes me. The proper way to implement
+> this has all ready been done. It's called the Multi Boot Standard
+> as implemented in GRUB bootloader. http://www.gnu.org/software/grub/
+
+GRUB is a good proof of concept bootloader but I wouldn't call it
+a good way to implement things.  As for the Multi Boot Specification
+it is hardly a standard, and it got a lot of details wrong.  A big
+one is who is supposed to do the BIOS calls.
+
+It should be o.k. for a bootloader to be static, but still useful on multiple
+machines for years.  What comes out of GRUB does not encourage a
+static bootloader.  But the development of GRUB is slow enough that it
+is practically static...
+ 
+> GRUB is similar to syslinux in that is can read directly from the the FS,
+> but unlike syslinux supports just about all of them instead of just FAT.
+> 
+> Basically what Grub does is loads the kernel modules from disk
+> into memory, and 'tells' the kernel the memory location to load
+> them from, very similar to how an initrd file is loaded. The problem
+> is Linux, is not MBS compilant and doesn't know to look for and load
+> the modules. 
+
+So tell me how you make an MBS compliant alpha kernel again?
+
+Eric

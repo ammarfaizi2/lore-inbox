@@ -1,558 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268723AbUJKIvi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268728AbUJKJC0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268723AbUJKIvi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 04:51:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268724AbUJKIvi
+	id S268728AbUJKJC0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 05:02:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268729AbUJKJC0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 04:51:38 -0400
-Received: from gate.crashing.org ([63.228.1.57]:51132 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S268723AbUJKIvD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 04:51:03 -0400
-Subject: Re: [PATCH] (Test) rework radeonfb blanking
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Linux Kernel list <linux-kernel@vger.kernel.org>
-Cc: Jeremy Kerr <jk@ozlabs.org>, Andrew Morton <akpm@osdl.org>,
-       Paul Mackerras <paulus@samba.org>
-In-Reply-To: <1097468880.3249.6.camel@gaston>
-References: <1097468880.3249.6.camel@gaston>
-Content-Type: text/plain
-Message-Id: <1097484633.3342.5.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 11 Oct 2004 18:50:34 +1000
-Content-Transfer-Encoding: 7bit
+	Mon, 11 Oct 2004 05:02:26 -0400
+Received: from fmr05.intel.com ([134.134.136.6]:17093 "EHLO
+	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S268728AbUJKJCV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Oct 2004 05:02:21 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="----_=_NextPart_001_01C4AF71.00C5E584"
+Subject: ctx64 is not initiated in sys32_io_setup
+Date: Mon, 11 Oct 2004 17:02:14 +0800
+Message-ID: <8126E4F969BA254AB43EA03C59F44E848B0376@pdsmsx404>
+X-MS-Has-Attach: yes
+X-MS-TNEF-Correlator: 
+Thread-Topic: ctx64 is not initiated in sys32_io_setup
+Thread-Index: AcSvcQAwHXz0fOQjRPG8+rJerlZAkQ==
+From: "Zhang, Yanmin" <yanmin.zhang@intel.com>
+To: <discuss@x86-64.org>, <linux-kernel@vger.kernel.org>
+Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+X-OriginalArrivalTime: 11 Oct 2004 09:02:15.0579 (UTC) FILETIME=[00FA5EB0:01C4AF71]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here's a better version of the improved blanking patch, it should
-cooperate more smoothly with mode switching and sleep.
+This is a multi-part message in MIME format.
 
-(Andrew, if you applied the previous one, please use this one instead)
+------_=_NextPart_001_01C4AF71.00C5E584
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
-Ben.
+Kernel 2.6.9-rc3-mm3 has a bug in function sys32_io_setup in file
+arch/x86_64/ia32/sys_ia32.c. Local variable ctx64 is not initiated
+before sys32_io_setup calls sys_io_setup. If ctx64 is not zero, and
+sys_io_setup will return -EINVAL. Generic function compat_sys_io_setup
+has not the bug.=20
 
-This patch improves the handling of screen blanking with flat panels (Me),
-plus some other issues with recent Mac laptops (Me), and PLL config
-problems on CRTs when no suitable "even" value was found (Peter Anvin).
+Here is the patch against 2.6.9-rc3-mm3. Just use compat_sys_io_setup to
+replace sys32_io_setup.
 
-diff -urN linux-2.5/drivers/video/aty/radeon_base.c linux-lappy/drivers/video/aty/radeon_base.c
---- linux-2.5/drivers/video/aty/radeon_base.c	2004-10-11 13:51:42.000000000 +1000
-+++ linux-lappy/drivers/video/aty/radeon_base.c	2004-10-11 18:40:34.000000000 +1000
-@@ -527,8 +527,7 @@
-         break;
- 	}
- 
--	OUTREG8(CLOCK_CNTL_INDEX, 1);
--	ppll_div_sel = INREG8(CLOCK_CNTL_DATA + 1) & 0x3;
-+	ppll_div_sel = INREG(CLOCK_CNTL_INDEX + 1) & 0x3;
- 
- 	n = (INPLL(PPLL_DIV_0 + ppll_div_sel) & 0x7ff);
- 	m = (INPLL(PPLL_REF_DIV) & 0x3ff);
-@@ -595,53 +594,10 @@
-  */
- static void __devinit radeon_get_pllinfo(struct radeonfb_info *rinfo)
+Signed-of-by: Zhang Yanmin <yanmin.zhang@intel.com>
+
+diff -Nraup a/arch/x86_64/ia32/ia32entry.S
+b/arch/x86_64/ia32/ia32entry.S
+--- a/arch/x86_64/ia32/ia32entry.S	2004-10-08 12:09:03.000000000
++0800
++++ b/arch/x86_64/ia32/ia32entry.S	2004-10-10 18:59:38.295452840
++0800
+@@ -547,7 +547,7 @@ ia32_sys_call_table:
+ 	.quad compat_sys_sched_getaffinity
+ 	.quad sys32_set_thread_area
+ 	.quad sys32_get_thread_area
+-	.quad sys32_io_setup		/* 245 */
++	.quad compat_sys_io_setup	/* 245 */
+ 	.quad sys_io_destroy
+ 	.quad sys32_io_getevents
+ 	.quad sys32_io_submit
+diff -Nraup a/arch/x86_64/ia32/sys_ia32.c b/arch/x86_64/ia32/sys_ia32.c
+--- a/arch/x86_64/ia32/sys_ia32.c	2004-10-08 12:09:03.000000000
++0800
++++ b/arch/x86_64/ia32/sys_ia32.c	2004-10-10 18:59:38.296452688
++0800
+@@ -1185,21 +1185,6 @@ long sys32_kill(int pid, int sig)
  {
--#ifdef CONFIG_PPC_OF
--	/*
--	 * Retreive PLL infos from Open Firmware first
--	 */
--       	if (!force_measure_pll && radeon_read_xtal_OF(rinfo) == 0) {
--       		printk(KERN_INFO "radeonfb: Retreived PLL infos from Open Firmware\n");
--       		rinfo->pll.ref_div = INPLL(PPLL_REF_DIV) & 0x3ff;
--		/* FIXME: Max clock may be higher on newer chips */
--       		rinfo->pll.ppll_min = 12000;
--       		rinfo->pll.ppll_max = 35000;
--		goto found;
--	}
--#endif /* CONFIG_PPC_OF */
--
--	/*
--	 * Check out if we have an X86 which gave us some PLL informations
--	 * and if yes, retreive them
--	 */
--	if (!force_measure_pll && rinfo->bios_seg) {
--		u16 pll_info_block = BIOS_IN16(rinfo->fp_bios_start + 0x30);
--
--		rinfo->pll.sclk		= BIOS_IN16(pll_info_block + 0x08);
--		rinfo->pll.mclk		= BIOS_IN16(pll_info_block + 0x0a);
--		rinfo->pll.ref_clk	= BIOS_IN16(pll_info_block + 0x0e);
--		rinfo->pll.ref_div	= BIOS_IN16(pll_info_block + 0x10);
--		rinfo->pll.ppll_min	= BIOS_IN32(pll_info_block + 0x12);
--		rinfo->pll.ppll_max	= BIOS_IN32(pll_info_block + 0x16);
--
--		printk(KERN_INFO "radeonfb: Retreived PLL infos from BIOS\n");
--		goto found;
--	}
--
--	/*
--	 * We didn't get PLL parameters from either OF or BIOS, we try to
--	 * probe them
--	 */
--	if (radeon_probe_pll_params(rinfo) == 0) {
--		printk(KERN_INFO "radeonfb: Retreived PLL infos from registers\n");
--		/* FIXME: Max clock may be higher on newer chips */
--       		rinfo->pll.ppll_min = 12000;
--       		rinfo->pll.ppll_max = 35000;
--		goto found;
--	}
--
- 	/*
--	 * Neither of the above worked, we have a few default values, though
--	 * that's mostly incomplete
-+	 * In the case nothing works, these are defaults; they are mostly
-+	 * incomplete, however.  It does provide ppll_max and _min values
-+	 * even for most other methods, however.
- 	 */
- 	switch (rinfo->chipset) {
- 	case PCI_DEVICE_ID_ATI_RADEON_QW:
-@@ -697,6 +653,47 @@
- 	}
- 	rinfo->pll.ref_div = INPLL(PPLL_REF_DIV) & 0x3ff;
- 
-+
-+#ifdef CONFIG_PPC_OF
-+	/*
-+	 * Retreive PLL infos from Open Firmware first
-+	 */
-+       	if (!force_measure_pll && radeon_read_xtal_OF(rinfo) == 0) {
-+       		printk(KERN_INFO "radeonfb: Retreived PLL infos from Open Firmware\n");
-+		goto found;
-+	}
-+#endif /* CONFIG_PPC_OF */
-+
-+	/*
-+	 * Check out if we have an X86 which gave us some PLL informations
-+	 * and if yes, retreive them
-+	 */
-+	if (!force_measure_pll && rinfo->bios_seg) {
-+		u16 pll_info_block = BIOS_IN16(rinfo->fp_bios_start + 0x30);
-+
-+		rinfo->pll.sclk		= BIOS_IN16(pll_info_block + 0x08);
-+		rinfo->pll.mclk		= BIOS_IN16(pll_info_block + 0x0a);
-+		rinfo->pll.ref_clk	= BIOS_IN16(pll_info_block + 0x0e);
-+		rinfo->pll.ref_div	= BIOS_IN16(pll_info_block + 0x10);
-+		rinfo->pll.ppll_min	= BIOS_IN32(pll_info_block + 0x12);
-+		rinfo->pll.ppll_max	= BIOS_IN32(pll_info_block + 0x16);
-+
-+		printk(KERN_INFO "radeonfb: Retreived PLL infos from BIOS\n");
-+		goto found;
-+	}
-+
-+	/*
-+	 * We didn't get PLL parameters from either OF or BIOS, we try to
-+	 * probe them
-+	 */
-+	if (radeon_probe_pll_params(rinfo) == 0) {
-+		printk(KERN_INFO "radeonfb: Retreived PLL infos from registers\n");
-+		goto found;
-+	}
-+
-+	/*
-+	 * Fall back to already-set defaults...
-+	 */
-        	printk(KERN_INFO "radeonfb: Used default PLL infos\n");
- 
- found:
-@@ -715,6 +712,7 @@
- 	       rinfo->pll.ref_div,
- 	       rinfo->pll.mclk / 100, rinfo->pll.mclk % 100,
- 	       rinfo->pll.sclk / 100, rinfo->pll.sclk % 100);
-+	printk("radeonfb: PLL min %d max %d\n", rinfo->pll.ppll_min, rinfo->pll.ppll_max);
+ 	return sys_kill(pid, sig);
  }
- 
- static int radeonfb_check_var (struct fb_var_screeninfo *var, struct fb_info *info)
-@@ -934,43 +932,94 @@
- }
- 
- 
--static int radeon_screen_blank (struct radeonfb_info *rinfo, int blank)
-+static int radeon_screen_blank (struct radeonfb_info *rinfo, int blank, int mode_switch)
- {
--        u32 val = INREG(CRTC_EXT_CNTL);
--	u32 val2 = 0;
-+        u32 val;
-+	u32 tmp_pix_clks;
- 
--	if (rinfo->mon1_type == MT_LCD)
--		val2 = INREG(LVDS_GEN_CNTL) & ~LVDS_DISPLAY_DIS;
--	
--        /* reset it */
-+	if (rinfo->lock_blank)
-+		return 0;
-+
-+	radeon_engine_idle();
-+
-+	val = INREG(CRTC_EXT_CNTL);
-         val &= ~(CRTC_DISPLAY_DIS | CRTC_HSYNC_DIS |
-                  CRTC_VSYNC_DIS);
+-=20
 -
-         switch (blank) {
--                case VESA_NO_BLANKING:
--                        break;
--                case VESA_VSYNC_SUSPEND:
--                        val |= (CRTC_DISPLAY_DIS | CRTC_VSYNC_DIS);
--                        break;
--                case VESA_HSYNC_SUSPEND:
--                        val |= (CRTC_DISPLAY_DIS | CRTC_HSYNC_DIS);
--                        break;
--                case VESA_POWERDOWN:
--                        val |= (CRTC_DISPLAY_DIS | CRTC_VSYNC_DIS | 
--                                CRTC_HSYNC_DIS);
--			val2 |= (LVDS_DISPLAY_DIS);
--                        break;
-+	case VESA_NO_BLANKING:
-+		break;
-+	case VESA_VSYNC_SUSPEND:
-+		val |= (CRTC_DISPLAY_DIS | CRTC_VSYNC_DIS);
-+		break;
-+	case VESA_HSYNC_SUSPEND:
-+		val |= (CRTC_DISPLAY_DIS | CRTC_HSYNC_DIS);
-+		break;
-+	case VESA_POWERDOWN:
-+		val |= (CRTC_DISPLAY_DIS | CRTC_VSYNC_DIS | 
-+			CRTC_HSYNC_DIS);
-+		break;
-         }
-+	OUTREG(CRTC_EXT_CNTL, val);
-+	
- 
--	radeon_fifo_wait(1);
- 	switch (rinfo->mon1_type) {
--		case MT_LCD:
--			OUTREG(LVDS_GEN_CNTL, val2);
--			break;
--		case MT_CRT:
--		default:
--		        OUTREG(CRTC_EXT_CNTL, val);
-+	case MT_DFP:
-+		if (mode_switch)
- 			break;
-+		if (blank == VESA_NO_BLANKING)
-+			OUTREGP(FP_GEN_CNTL, (FP_FPON | FP_TMDS_EN),
-+				~(FP_FPON | FP_TMDS_EN));
-+		else
-+			OUTREGP(FP_GEN_CNTL, 0, ~(FP_FPON | FP_TMDS_EN));
-+		break;
-+	case MT_LCD:
-+		val = INREG(LVDS_GEN_CNTL);
-+		if (blank == VESA_NO_BLANKING) {
-+			u32 target_val = (val & ~LVDS_DISPLAY_DIS) | LVDS_BLON | LVDS_ON
-+				| LVDS_ON | (rinfo->init_state.lvds_gen_cntl & LVDS_DIGON);
-+			if ((val ^ target_val) == LVDS_DISPLAY_DIS)
-+				OUTREG(LVDS_GEN_CNTL, target_val);				
-+			else if ((val ^ target_val) != 0) {
-+				del_timer_sync(&rinfo->lvds_timer);
-+				OUTREG(LVDS_GEN_CNTL, target_val & ~LVDS_ON);
-+				rinfo->init_state.lvds_gen_cntl &= ~LVDS_STATE_MASK;
-+				rinfo->init_state.lvds_gen_cntl |= target_val & LVDS_STATE_MASK;
-+				if (mode_switch) {
-+					msleep(rinfo->panel_info.pwr_delay);
-+					OUTREG(LVDS_GEN_CNTL, target_val);
-+				}
-+				else {
-+					rinfo->pending_lvds_gen_cntl = target_val;
-+					mod_timer(&rinfo->lvds_timer,
-+						  jiffies + MS_TO_HZ(rinfo->panel_info.pwr_delay));
-+				}
-+			}
-+		} else {
-+			val |= LVDS_DISPLAY_DIS;
-+			OUTREG(LVDS_GEN_CNTL, val);			
-+
-+			/* We don't do a full switch-off on a simple mode switch */
-+			if (mode_switch)
-+				break;
-+
-+			/* Asic bug, when turning off LVDS_ON, we have to make sure
-+			 * RADEON_PIXCLK_LVDS_ALWAYS_ON bit is off
-+			 */
-+			tmp_pix_clks = INPLL(PIXCLKS_CNTL);
-+			if (rinfo->is_mobility || rinfo->is_IGP)
-+				OUTPLLP(PIXCLKS_CNTL, 0, ~PIXCLK_LVDS_ALWAYS_ONb);
-+			val &= ~(LVDS_BLON | LVDS_ON);
-+			OUTREG(LVDS_GEN_CNTL, val);	
-+			rinfo->init_state.lvds_gen_cntl &= ~LVDS_STATE_MASK;
-+			rinfo->init_state.lvds_gen_cntl |= val & LVDS_STATE_MASK;
-+			if (rinfo->is_mobility || rinfo->is_IGP)
-+				OUTPLL(PIXCLKS_CNTL, tmp_pix_clks);
-+		}
-+		break;
-+	case MT_CRT:
-+		// todo: powerdown DAC
-+	default:
-+		break;
- 	}
- 
- 	return 0;
-@@ -983,17 +1032,7 @@
- 	if (rinfo->asleep)
- 		return 0;
- 		
--#ifdef CONFIG_PMAC_BACKLIGHT
--	if (rinfo->mon1_type == MT_LCD && _machine == _MACH_Pmac && blank)
--		set_backlight_enable(0);
--#endif
--                        
--	radeon_screen_blank(rinfo, blank);
--
--#ifdef CONFIG_PMAC_BACKLIGHT
--	if (rinfo->mon1_type == MT_LCD && _machine == _MACH_Pmac && !blank)
--		set_backlight_enable(1);
--#endif
-+	radeon_screen_blank(rinfo, blank, 0);
- 
- 	return 0;
- }
-@@ -1225,7 +1264,8 @@
- 
- 	del_timer_sync(&rinfo->lvds_timer);
- 
--	radeon_screen_blank(rinfo, VESA_POWERDOWN);
-+	radeon_screen_blank(rinfo, VESA_POWERDOWN, 1);
-+	msleep(100);
- 
- 	radeon_fifo_wait(31);
- 	for (i=0; i<10; i++)
-@@ -1265,35 +1305,9 @@
- 		OUTREG(FP_GEN_CNTL, mode->fp_gen_cntl);
- 		OUTREG(TMDS_CRC, mode->tmds_crc);
- 		OUTREG(TMDS_TRANSMITTER_CNTL, mode->tmds_transmitter_cntl);
--
--		if (primary_mon == MT_LCD) {
--			unsigned int tmp = INREG(LVDS_GEN_CNTL);
--
--			/* HACK: The backlight control code may have modified init_state.lvds_gen_cntl,
--			 * so we update ourselves
--			 */
--			mode->lvds_gen_cntl &= ~LVDS_STATE_MASK;
--			mode->lvds_gen_cntl |= (rinfo->init_state.lvds_gen_cntl & LVDS_STATE_MASK);
--
--			if ((tmp & (LVDS_ON | LVDS_BLON)) ==
--			    (mode->lvds_gen_cntl & (LVDS_ON | LVDS_BLON))) {
--				OUTREG(LVDS_GEN_CNTL, mode->lvds_gen_cntl);
--			} else {
--				rinfo->pending_pixclks_cntl = INPLL(PIXCLKS_CNTL);
--				if (rinfo->is_mobility || rinfo->is_IGP)
--					OUTPLLP(PIXCLKS_CNTL, 0, ~PIXCLK_LVDS_ALWAYS_ONb);
--				if (!(tmp & (LVDS_ON | LVDS_BLON)))
--					OUTREG(LVDS_GEN_CNTL, mode->lvds_gen_cntl | LVDS_BLON);
--				rinfo->pending_lvds_gen_cntl = mode->lvds_gen_cntl;
--				mod_timer(&rinfo->lvds_timer,
--					  jiffies + MS_TO_HZ(rinfo->panel_info.pwr_delay));
--			}
--		}
- 	}
- 
--	RTRACE("lvds_gen_cntl: %08x\n", INREG(LVDS_GEN_CNTL));
--
--	radeon_screen_blank(rinfo, VESA_NO_BLANKING);
-+	radeon_screen_blank(rinfo, VESA_NO_BLANKING, 1);
- 
- 	radeon_fifo_wait(2);
- 	OUTPLL(VCLK_ECP_CNTL, mode->vclk_ecp_cntl);
-@@ -1329,7 +1343,7 @@
- 	 * not sure which model starts having FP2_GEN_CNTL, I assume anything more
- 	 * recent than an r(v)100...
- 	 */
--#if 0
-+#if 1
- 	/* XXX I had reports of flicker happening with the cinema display
- 	 * on TMDS1 that seem to be fixed if I also forbit odd dividers in
- 	 * this case. This could just be a bandwidth calculation issue, I
-@@ -1379,6 +1393,8 @@
- 		freq = rinfo->pll.ppll_max;
- 	if (freq*12 < rinfo->pll.ppll_min)
- 		freq = rinfo->pll.ppll_min / 12;
-+	RTRACE("freq = %lu, PLL min = %u, PLL max = %u\n",
-+	       freq, rinfo->pll.ppll_min, rinfo->pll.ppll_max);
- 
- 	for (post_div = &post_divs[0]; post_div->divider; ++post_div) {
- 		pll_output_freq = post_div->divider * freq;
-@@ -1391,6 +1407,16 @@
- 		    pll_output_freq <= rinfo->pll.ppll_max)
- 			break;
- 	}
-+	
-+	/* If we fall through the bottom, try the "default value"
-+	   given by the terminal post_div->bitvalue */
-+	if ( !post_div->divider ) {
-+		post_div = &post_divs[post_div->bitvalue];
-+		pll_output_freq = post_div->divider * freq;
-+	}
-+	RTRACE("ref_div = %d, ref_clk = %d, output_freq = %d\n",
-+	       rinfo->pll.ref_div, rinfo->pll.ref_clk,
-+	       pll_output_freq);
- 
- 	fb_div = round_div(rinfo->pll.ref_div*pll_output_freq,
- 				  rinfo->pll.ref_clk);
-@@ -1780,8 +1806,7 @@
- static int radeon_set_backlight_enable(int on, int level, void *data)
- {
- 	struct radeonfb_info *rinfo = (struct radeonfb_info *)data;
--	unsigned int lvds_gen_cntl = INREG(LVDS_GEN_CNTL);
--	unsigned long tmpPixclksCntl = INPLL(PIXCLKS_CNTL);
-+	u32 lvds_gen_cntl, tmpPixclksCntl;
- 	int* conv_table;
- 
- 	if (rinfo->mon1_type != MT_LCD)
-@@ -1803,42 +1828,47 @@
- 		conv_table = backlight_conv_m6;
- 
- 	del_timer_sync(&rinfo->lvds_timer);
-+	radeon_engine_idle();
- 
--	lvds_gen_cntl |= (LVDS_BL_MOD_EN | LVDS_BLON);
--	radeon_fifo_wait(3);
-+	lvds_gen_cntl = INREG(LVDS_GEN_CNTL);
- 	if (on && (level > BACKLIGHT_OFF)) {
--		lvds_gen_cntl |= LVDS_DIGON;
--		if (!(lvds_gen_cntl & LVDS_ON)) {
--			lvds_gen_cntl &= ~LVDS_BLON;
-+		lvds_gen_cntl &= ~LVDS_DISPLAY_DIS;
-+		if (!(lvds_gen_cntl & LVDS_BLON) || !(lvds_gen_cntl & LVDS_ON)) {
-+			lvds_gen_cntl |= LVDS_BLON /* | LVDS_EN | LVDS_DIGON */;
- 			OUTREG(LVDS_GEN_CNTL, lvds_gen_cntl);
--			(void)INREG(LVDS_GEN_CNTL);
--			mdelay(rinfo->panel_info.pwr_delay);/* OUCH !!! FIXME */
--			lvds_gen_cntl |= LVDS_BLON;
-+			lvds_gen_cntl &= ~LVDS_BL_MOD_LEVEL_MASK;
-+			lvds_gen_cntl |= (conv_table[level] <<
-+					  LVDS_BL_MOD_LEVEL_SHIFT);
-+			lvds_gen_cntl |= LVDS_ON;
-+			rinfo->pending_lvds_gen_cntl = lvds_gen_cntl;
-+			mod_timer(&rinfo->lvds_timer,
-+				  jiffies + MS_TO_HZ(rinfo->panel_info.pwr_delay));
-+		} else {
-+			lvds_gen_cntl &= ~LVDS_BL_MOD_LEVEL_MASK;
-+			lvds_gen_cntl |= (conv_table[level] <<
-+					  LVDS_BL_MOD_LEVEL_SHIFT);
- 			OUTREG(LVDS_GEN_CNTL, lvds_gen_cntl);
- 		}
--		lvds_gen_cntl &= ~LVDS_BL_MOD_LEVEL_MASK;
--		lvds_gen_cntl |= (conv_table[level] <<
--				  LVDS_BL_MOD_LEVEL_SHIFT);
--		lvds_gen_cntl |= (LVDS_ON | LVDS_EN);
--		lvds_gen_cntl &= ~LVDS_DISPLAY_DIS;
-+		rinfo->init_state.lvds_gen_cntl &= ~LVDS_STATE_MASK;
-+		rinfo->init_state.lvds_gen_cntl |= rinfo->pending_lvds_gen_cntl
-+			& LVDS_STATE_MASK;
- 	} else {
- 		/* Asic bug, when turning off LVDS_ON, we have to make sure
- 		   RADEON_PIXCLK_LVDS_ALWAYS_ON bit is off
- 		*/
-+		tmpPixclksCntl = INPLL(PIXCLKS_CNTL);
- 		if (rinfo->is_mobility || rinfo->is_IGP)
- 			OUTPLLP(PIXCLKS_CNTL, 0, ~PIXCLK_LVDS_ALWAYS_ONb);
- 		lvds_gen_cntl &= ~LVDS_BL_MOD_LEVEL_MASK;
- 		lvds_gen_cntl |= (conv_table[0] <<
- 				  LVDS_BL_MOD_LEVEL_SHIFT);
--		lvds_gen_cntl |= LVDS_DISPLAY_DIS | LVDS_BLON;
-+		lvds_gen_cntl |= LVDS_DISPLAY_DIS;
-+		OUTREG(LVDS_GEN_CNTL, lvds_gen_cntl);
-+		lvds_gen_cntl &= ~(LVDS_ON | LVDS_BLON /* | LVDS_EN | LVDS_DIGON */);
- 		OUTREG(LVDS_GEN_CNTL, lvds_gen_cntl);
--		mdelay(rinfo->panel_info.pwr_delay);/* OUCH !!! FIXME */
--		lvds_gen_cntl &= ~(LVDS_ON | LVDS_EN | LVDS_BLON | LVDS_DIGON);
-+		if (rinfo->is_mobility || rinfo->is_IGP)
-+			OUTPLL(PIXCLKS_CNTL, tmpPixclksCntl);
- 	}
--
--	OUTREG(LVDS_GEN_CNTL, lvds_gen_cntl);
--	if (rinfo->is_mobility || rinfo->is_IGP)
--		OUTPLL(PIXCLKS_CNTL, tmpPixclksCntl);
- 	rinfo->init_state.lvds_gen_cntl &= ~LVDS_STATE_MASK;
- 	rinfo->init_state.lvds_gen_cntl |= (lvds_gen_cntl & LVDS_STATE_MASK);
- 
-diff -urN linux-2.5/drivers/video/aty/radeon_monitor.c linux-lappy/drivers/video/aty/radeon_monitor.c
---- linux-2.5/drivers/video/aty/radeon_monitor.c	2004-10-11 13:51:42.000000000 +1000
-+++ linux-lappy/drivers/video/aty/radeon_monitor.c	2004-10-11 11:39:04.000000000 +1000
-@@ -632,43 +632,25 @@
-  */
- static void radeon_fixup_panel_info(struct radeonfb_info *rinfo)
- {
-+ #ifdef CONFIG_PPC_OF
- 	/*
--	 * A few iBook laptop panels seem to need a fixed PLL setting
--	 *
--	 * We should probably do this differently based on the panel
--	 * type/model or eventually some other device-tree informations,
--	 * but these tweaks below work enough for now. --BenH
--	 */
--#ifdef CONFIG_PPC_OF
--	/* iBook2's */
--	if (machine_is_compatible("PowerBook4,3")) {
--		rinfo->panel_info.ref_divider = rinfo->pll.ref_div;
--		rinfo->panel_info.post_divider = 0x6;
--		rinfo->panel_info.fbk_divider = 0xad;
--		rinfo->panel_info.use_bios_dividers = 1;
--	}
--	/* Aluminium PowerBook 15" */
--	if (machine_is_compatible("PowerBook5,4")) {
--		rinfo->panel_info.ref_divider = rinfo->pll.ref_div;
--		rinfo->panel_info.post_divider = 0x2;
--		rinfo->panel_info.fbk_divider = 0x8e;
--		rinfo->panel_info.use_bios_dividers = 1;
--	}
--	/* Aluminium PowerBook 17" */
--	if (machine_is_compatible("PowerBook5,3") ||
--	    machine_is_compatible("PowerBook5,5")) {
--		rinfo->panel_info.ref_divider = rinfo->pll.ref_div;
--		rinfo->panel_info.post_divider = 0x4;
--		rinfo->panel_info.fbk_divider = 0x80;
--		rinfo->panel_info.use_bios_dividers = 1;
--	}
--	/* iBook G4 */
--        if (machine_is_compatible("PowerBook6,3") ||
--            machine_is_compatible("PowerBook6,5")) {
-+	 * LCD Flat panels should use fixed dividers, we enfore that on
-+	 * PowerMac only for now...
-+	 */
-+	if (!rinfo->panel_info.use_bios_dividers && rinfo->mon1_type == MT_LCD
-+	    && rinfo->is_mobility) {
-+		int ppll_div_sel = INREG8(CLOCK_CNTL_INDEX + 1) & 0x3;
-+		u32 ppll_divn = INPLL(PPLL_DIV_0 + ppll_div_sel);
- 		rinfo->panel_info.ref_divider = rinfo->pll.ref_div;
--		rinfo->panel_info.post_divider = 0x6;
--		rinfo->panel_info.fbk_divider = 0xad;
-+		rinfo->panel_info.fbk_divider = ppll_divn & 0x7ff;
-+		rinfo->panel_info.post_divider = (ppll_divn >> 16) & 0x7;
- 		rinfo->panel_info.use_bios_dividers = 1;
-+		
-+		printk(KERN_DEBUG "radeonfb: Using Firmware dividers 0x%08x "
-+		       "from PPLL %d\n",
-+		       rinfo->panel_info.fbk_divider | 
-+		       (rinfo->panel_info.post_divider << 16),
-+		       ppll_div_sel);
- 	}
- #endif /* CONFIG_PPC_OF */
- }
-diff -urN linux-2.5/drivers/video/aty/radeon_pm.c linux-lappy/drivers/video/aty/radeon_pm.c
---- linux-2.5/drivers/video/aty/radeon_pm.c	2004-10-11 13:51:42.000000000 +1000
-+++ linux-lappy/drivers/video/aty/radeon_pm.c	2004-10-11 13:23:58.000000000 +1000
-@@ -465,7 +465,9 @@
- 						
-  	OUTPLL( pllPIXCLKS_CNTL, pixclks_cntl);
- 
--
-+	/* Switch off LVDS interface */
-+	OUTREG(LVDS_GEN_CNTL, INREG(LVDS_GEN_CNTL) &
-+	       ~(LVDS_BLON | LVDS_EN | LVDS_ON | LVDS_DIGON));
- 
- 	/* Enable System power management */
- 	pll_pwrmgt_cntl = INPLL( pllPLL_PWRMGT_CNTL);
-diff -urN linux-2.5/include/video/radeon.h linux-lappy/include/video/radeon.h
---- linux-2.5/include/video/radeon.h	2004-10-11 13:51:52.000000000 +1000
-+++ linux-lappy/include/video/radeon.h	2004-10-11 13:19:32.000000000 +1000
-@@ -619,8 +619,7 @@
- #define LVDS_BLON				   (1 << 19)
- #define LVDS_SEL_CRTC2				   (1 << 23)
- #define LVDS_STATE_MASK	\
--	(LVDS_ON | LVDS_DISPLAY_DIS | LVDS_BL_MOD_LEVEL_MASK | \
--	 LVDS_EN | LVDS_DIGON | LVDS_BLON)
-+	(LVDS_ON | LVDS_DISPLAY_DIS | LVDS_BL_MOD_LEVEL_MASK | LVDS_BLON)
- 
- /* LVDS_PLL_CNTL bit constatns */
- #define HSYNC_DELAY_SHIFT			   0x1c
+-long sys32_io_setup(unsigned nr_reqs, u32 __user *ctx32p)
+-{=20
+-	long ret;=20
+-	aio_context_t ctx64;
+-	mm_segment_t oldfs =3D get_fs(); =09
+-	set_fs(KERNEL_DS);=20
+-	ret =3D sys_io_setup(nr_reqs, &ctx64);=20
+-	set_fs(oldfs);=20
+-	/* truncating is ok because it's a user address */
+-	if (!ret)=20
+-		ret =3D put_user((u32)ctx64, ctx32p);
+-	return ret;
+-}=20
+=20
+ asmlinkage long sys32_io_submit(aio_context_t ctx_id, int nr,
+ 		   compat_uptr_t __user *iocbpp)
 
 
+ <<sys32_io_setup_initiate.2.6.9.rc3.mm3.patch.diff>>=20
+
+------_=_NextPart_001_01C4AF71.00C5E584
+Content-Type: application/octet-stream;
+	name="sys32_io_setup_initiate.2.6.9.rc3.mm3.patch.diff"
+Content-Transfer-Encoding: base64
+Content-Description: sys32_io_setup_initiate.2.6.9.rc3.mm3.patch.diff
+Content-Disposition: attachment;
+	filename="sys32_io_setup_initiate.2.6.9.rc3.mm3.patch.diff"
+
+ZGlmZiAtTnJhdXAgYS9hcmNoL3g4Nl82NC9pYTMyL2lhMzJlbnRyeS5TIGIvYXJjaC94ODZfNjQv
+aWEzMi9pYTMyZW50cnkuUwotLS0gYS9hcmNoL3g4Nl82NC9pYTMyL2lhMzJlbnRyeS5TCTIwMDQt
+MTAtMDggMTI6MDk6MDMuMDAwMDAwMDAwICswODAwCisrKyBiL2FyY2gveDg2XzY0L2lhMzIvaWEz
+MmVudHJ5LlMJMjAwNC0xMC0xMCAxODo1OTozOC4yOTU0NTI4NDAgKzA4MDAKQEAgLTU0Nyw3ICs1
+NDcsNyBAQCBpYTMyX3N5c19jYWxsX3RhYmxlOgogCS5xdWFkIGNvbXBhdF9zeXNfc2NoZWRfZ2V0
+YWZmaW5pdHkKIAkucXVhZCBzeXMzMl9zZXRfdGhyZWFkX2FyZWEKIAkucXVhZCBzeXMzMl9nZXRf
+dGhyZWFkX2FyZWEKLQkucXVhZCBzeXMzMl9pb19zZXR1cAkJLyogMjQ1ICovCisJLnF1YWQgY29t
+cGF0X3N5c19pb19zZXR1cAkvKiAyNDUgKi8KIAkucXVhZCBzeXNfaW9fZGVzdHJveQogCS5xdWFk
+IHN5czMyX2lvX2dldGV2ZW50cwogCS5xdWFkIHN5czMyX2lvX3N1Ym1pdApkaWZmIC1OcmF1cCBh
+L2FyY2gveDg2XzY0L2lhMzIvc3lzX2lhMzIuYyBiL2FyY2gveDg2XzY0L2lhMzIvc3lzX2lhMzIu
+YwotLS0gYS9hcmNoL3g4Nl82NC9pYTMyL3N5c19pYTMyLmMJMjAwNC0xMC0wOCAxMjowOTowMy4w
+MDAwMDAwMDAgKzA4MDAKKysrIGIvYXJjaC94ODZfNjQvaWEzMi9zeXNfaWEzMi5jCTIwMDQtMTAt
+MTAgMTg6NTk6MzguMjk2NDUyNjg4ICswODAwCkBAIC0xMTg1LDIxICsxMTg1LDYgQEAgbG9uZyBz
+eXMzMl9raWxsKGludCBwaWQsIGludCBzaWcpCiB7CiAJcmV0dXJuIHN5c19raWxsKHBpZCwgc2ln
+KTsKIH0KLSAKLQotbG9uZyBzeXMzMl9pb19zZXR1cCh1bnNpZ25lZCBucl9yZXFzLCB1MzIgX191
+c2VyICpjdHgzMnApCi17IAotCWxvbmcgcmV0OyAKLQlhaW9fY29udGV4dF90IGN0eDY0OwotCW1t
+X3NlZ21lbnRfdCBvbGRmcyA9IGdldF9mcygpOyAJCi0Jc2V0X2ZzKEtFUk5FTF9EUyk7IAotCXJl
+dCA9IHN5c19pb19zZXR1cChucl9yZXFzLCAmY3R4NjQpOyAKLQlzZXRfZnMob2xkZnMpOyAKLQkv
+KiB0cnVuY2F0aW5nIGlzIG9rIGJlY2F1c2UgaXQncyBhIHVzZXIgYWRkcmVzcyAqLwotCWlmICgh
+cmV0KSAKLQkJcmV0ID0gcHV0X3VzZXIoKHUzMiljdHg2NCwgY3R4MzJwKTsKLQlyZXR1cm4gcmV0
+OwotfSAKIAogYXNtbGlua2FnZSBsb25nIHN5czMyX2lvX3N1Ym1pdChhaW9fY29udGV4dF90IGN0
+eF9pZCwgaW50IG5yLAogCQkgICBjb21wYXRfdXB0cl90IF9fdXNlciAqaW9jYnBwKQo=
+
+------_=_NextPart_001_01C4AF71.00C5E584--

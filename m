@@ -1,46 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272401AbTHSRgM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 13:36:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272375AbTHSRfo
+	id S272338AbTHSRmz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 13:42:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272327AbTHSRmG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 13:35:44 -0400
-Received: from mail.kroah.org ([65.200.24.183]:36301 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S272603AbTHSR1R (ORCPT
+	Tue, 19 Aug 2003 13:42:06 -0400
+Received: from gate.in-addr.de ([212.8.193.158]:20613 "EHLO mx.in-addr.de")
+	by vger.kernel.org with ESMTP id S272342AbTHSRkl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 13:27:17 -0400
-Date: Tue, 19 Aug 2003 10:23:55 -0700
-From: Greg KH <greg@kroah.com>
-To: CaT <cat@zip.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 6/10] 2.6.0-t3: struct C99 initialiser conversion
-Message-ID: <20030819172355.GA4864@kroah.com>
-References: <20030819063727.GL643@zip.com.au>
+	Tue, 19 Aug 2003 13:40:41 -0400
+Date: Tue, 19 Aug 2003 19:39:20 +0200
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: "David S. Miller" <davem@redhat.com>, Bas Bloemsaat <bloemsaa@xs4all.nl>
+Cc: richard@aspectgroup.co.uk, skraw@ithnet.com, willy@w.ods.org,
+       alan@lxorguk.ukuu.org.uk, carlosev@newipnet.com,
+       lamont@scriptkiddie.org, davidsen@tmr.com, marcelo@conectiva.com.br,
+       netdev@oss.sgi.com, linux-net@vger.kernel.org, layes@loran.com,
+       torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [2.4 PATCH] bugfix: ARP respond on all devices
+Message-ID: <20030819173920.GA3301@marowsky-bree.de>
+References: <353568DCBAE06148B70767C1B1A93E625EAB57@post.pc.aspectgroup.co.uk> <070c01c36653$7f3c1ab0$c801a8c0@llewella> <20030819083438.26c985b9.davem@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20030819063727.GL643@zip.com.au>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030819083438.26c985b9.davem@redhat.com>
+User-Agent: Mutt/1.4i
+X-Ctuhulu: HASTUR
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 19, 2003 at 04:37:27PM +1000, CaT wrote:
-> diff -aur linux.backup/drivers/usb/host/hc_sl811_rh.c linux/drivers/usb/host/hc_sl811_rh.c
-> --- linux.backup/drivers/usb/host/hc_sl811_rh.c	Sat Aug 16 15:02:54 2003
-> +++ linux/drivers/usb/host/hc_sl811_rh.c	Sat Aug 16 23:57:09 2003
-> @@ -329,7 +329,7 @@
->  	switch (bmRType_bReq) {
->  		/* Request Destination:
->  		   without flags: Device, 
-> -		   RH_INTERFACE: interface, 
-> +		   RH_INTERFACE: interface,
->  		   RH_ENDPOINT: endpoint,
->  		   RH_CLASS means HUB here, 
->  		   RH_OTHER | RH_CLASS  almost ever means HUB_PORT here 
+On 2003-08-19T08:34:38,
+   "David S. Miller" <davem@redhat.com> said:
 
-I think you need to work on your scripts if you thought this was a C99
-"fix".  More like a "delete trailing space" patch...
+> There are two valid ways the RFCs allow systems to handle
+> IP addresses.
+> 
+> 1) IP addresses are owned by "the host"
+> 2) IP addresses are owned by "the interface"
+> 
+> Linux does #1, many systems do #2, both are correct.
 
-thanks,
+Yes, both are "correct" in the sense that the RFC allows this
+interpretation. The _sensible_ interpretation for practical networking
+however is #2, and the only persons who seem to believe differently are
+those in charge of the Linux network code...
 
-greg k-h
+
+Sincerely,
+    Lars Marowsky-Brée <lmb@suse.de>
+
+-- 
+High Availability & Clustering		ever tried. ever failed. no matter.
+SuSE Labs				try again. fail again. fail better.
+Research & Development, SuSE Linux AG		-- Samuel Beckett
+

@@ -1,57 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268397AbUIQMrh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268722AbUIQMwz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268397AbUIQMrh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Sep 2004 08:47:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268716AbUIQMrh
+	id S268722AbUIQMwz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Sep 2004 08:52:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268726AbUIQMwz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Sep 2004 08:47:37 -0400
-Received: from sd291.sivit.org ([194.146.225.122]:60128 "EHLO sd291.sivit.org")
-	by vger.kernel.org with ESMTP id S268397AbUIQMrf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Sep 2004 08:47:35 -0400
-Date: Fri, 17 Sep 2004 14:48:15 +0200
-From: Stelian Pop <stelian@popies.net>
-To: Duncan Sands <baldrick@free.fr>
-Cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
+	Fri, 17 Sep 2004 08:52:55 -0400
+Received: from smtp.andrew.cmu.edu ([128.2.10.83]:50912 "EHLO
+	smtp.andrew.cmu.edu") by vger.kernel.org with ESMTP id S268722AbUIQMww
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Sep 2004 08:52:52 -0400
+Date: Fri, 17 Sep 2004 08:52:46 -0400 (EDT)
+From: James R Bruce <bruce@andrew.cmu.edu>
+To: Andrew Morton <akpm@osdl.org>
+cc: Stelian Pop <stelian@popies.net>, linux-kernel@vger.kernel.org
 Subject: Re: [RFC, 2.6] a simple FIFO implementation
-Message-ID: <20040917124815.GE3089@crusoe.alcove-fr>
-Reply-To: Stelian Pop <stelian@popies.net>
-Mail-Followup-To: Stelian Pop <stelian@popies.net>,
-	Duncan Sands <baldrick@free.fr>, Hugh Dickins <hugh@veritas.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20040917102413.GA3089@crusoe.alcove-fr> <Pine.LNX.4.44.0409171228240.4678-100000@localhost.localdomain> <20040917122400.GD3089@crusoe.alcove-fr> <200409171437.57766.baldrick@free.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200409171437.57766.baldrick@free.fr>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20040916000438.46d91e94.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.60-041.0409170823140.1298@unix48.andrew.cmu.edu>
+References: <20040913135253.GA3118@crusoe.alcove-fr> <20040915153013.32e797c8.akpm@osdl.org>
+ <20040916064320.GA9886@deep-space-9.dsnet> <20040916000438.46d91e94.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 17, 2004 at 02:37:57PM +0200, Duncan Sands wrote:
 
-> > + * Note that with only one concurrent reader and one concurrent 
-> > + * writer, you don't need extra locking to use these functions.
->                                  ^^^^^ which functions? (ambiguous)
+On Thu, 16 Sep 2004, Andrew Morton wrote:
+> My point is that there is no need to store the "number of bytes currently
+> in the buffer", because that is always equal to `head - tail' if you allow
+> those indices to freely wrap.
+>
+> All the struct needs is `head', `tail' and `number_of_bytes_at_buf', all
+> unsigned.
+>
+> add(char c)
+> {
+> 	p->buf[p->head++ % p->number_of_bytes_at_buf] = c;
+> }
+>
+> get()
+> {
+> 	return p->buf[p->tail++ %  p->number_of_bytes_at_buf];
+> }
 
-Well, the same comment is for two adjacent functions, so I don't
-think it's so ambiguous. Or s/these/this/ if you prefer.
+The "just let it wrap" approach will only work if number_of_bytes_at_buf 
+is a power of two.  If it isn't, then the FIFO will skip back to zero at 
+the wrong place after correctly storing 2^32 bytes.  I'll explain:
 
-> And what does "extra locking" mean?
+S = size of storage buffer
+N = 1<<32 (or whatever size int is on a platform)
 
-Some kind of locking, like the one the wrapper kfifo_get/kfifo_put
-propose.
+The hidden assumption is:
+   a % S == (a % N) % S
 
-> > +	len = min(len, fifo->size - fifo->in + fifo->out);
-> 
-> After all, since you are reading both in and out here, some kind of
-> locking is needed.
+But this is only true if:
+   N % S == 0
 
-But the order in which in and out get modified guarantees that you
-will still have a coherent content (provided the assignments are 
-atomic, which they are).
+Or in other words, that S is a power of two less than N.
 
-Stelian.
--- 
-Stelian Pop <stelian@popies.net>    
+> free_space()
+> {
+> 	return p->head - p->tail;
+> }
+
+This will of course always work fine, since S is not involved.
+
+> pretty simple...
+
+"Things should be made as simple as possible -- but no simpler."
+  - Albert Einstein
+
+IMHO restricting it to powers of two may not be so bad, and allows us to 
+get away with using faster bitwise ANDs instead of modulus operations. 
+Most FIFOs are probably power-of-two sizes anyway.  However, if the 
+interface exports using any size, it'd better work that way, and not fail 
+after working correctly for the first 4GB.
+
+This is a perfect example of why we need a common, well tested 
+implementation that all the drivers, etc. can use.  Keep up the excellent 
+work :)
+
+  - Jim Bruce

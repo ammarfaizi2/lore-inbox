@@ -1,58 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263279AbTDGGhJ (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 02:37:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263285AbTDGGhJ (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 02:37:09 -0400
-Received: from granite.he.net ([216.218.226.66]:12044 "EHLO granite.he.net")
-	by vger.kernel.org with ESMTP id S263279AbTDGGhA (for <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Apr 2003 02:37:00 -0400
-Date: Sun, 6 Apr 2003 23:51:01 -0700
-From: Greg KH <greg@kroah.com>
-To: Jens Ansorg <jens@ja-web.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: USB devices in 2.5.xx do not show in /dev
-Message-ID: <20030407065101.GA20257@kroah.com>
-References: <1049632582.3405.0.camel@lisaserver> <20030406201638.GC18279@kroah.com> <1049696485.3321.16.camel@lisaserver>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1049696485.3321.16.camel@lisaserver>
-User-Agent: Mutt/1.4.1i
+	id S263186AbTDGGmF (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 02:42:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263273AbTDGGmF (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 02:42:05 -0400
+Received: from smtp-out.comcast.net ([24.153.64.110]:19153 "EHLO
+	smtp-out.comcast.net") by vger.kernel.org with ESMTP
+	id S263186AbTDGGmC (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 7 Apr 2003 02:42:02 -0400
+Date: Mon, 07 Apr 2003 02:53:32 -0400
+From: John M Flinchbaugh <glynis@butterfly.hjsoft.com>
+Subject: orinoco_cs under load
+To: linux-kernel@vger.kernel.org
+Message-id: <20030407065332.GA24606@butterfly.hjsoft.com>
+MIME-version: 1.0
+Content-type: multipart/signed; boundary="bp/iNruPH9dso1Pn";
+ protocol="application/pgp-signature"; micalg=pgp-sha1
+Content-disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 07, 2003 at 08:21:26AM +0200, Jens Ansorg wrote:
-> On Sun, 2003-04-06 at 22:16, Greg KH wrote:
-> > You have to have an actual device for the /dev node to show up.  Do you
-> > have any USB devices plugged in?  What does:
-> > 	tree /sys/bus/usb/
-> > show?
-> > 
-> 
-> yes, I have both, a scanner and a printer plugged into the computer
-> 
-> but there is nothing under /proc/bus/usb, it's empty
 
-Please see:
-	http://www.linux-usb.org/FAQ.html#gs3
+--bp/iNruPH9dso1Pn
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-You probably have to mount usbfs yourself, as some distro's startup
-scripts seem to not like 2.5 and don't do it for you.
+when my hawking tech 802.11b card gets heavily loaded (tar | bzip2 >
+nfs_file) i see these errors repeated at a very high rate:
+---
+Apr  7 02:41:01 density kernel: eth0: Information frame lost.
+Apr  7 02:41:01 density kernel: eth0: Information frame lost.
+Apr  7 02:41:01 density kernel: eth0: Information frame lost.
+Apr  7 02:41:01 density kernel: eth0: Information frame lost.
+Apr  7 02:41:01 density kernel: eth0: Information frame lost.
+Apr  7 02:41:01 density kernel: eth0: Information frame lost.
+Apr  7 02:41:01 density kernel: eth0: Information frame lost.
+Apr  7 02:41:01 density kernel: eth0: Information frame lost.
+Apr  7 02:41:01 density kernel: eth0: Information frame lost.
+---
+then it eventually, in this case after 40 minutes, turns to repeating
+this at a slower rate:
+---
+Apr  7 02:41:03 density kernel: NETDEV WATCHDOG: eth0: transmit timed
+out
+Apr  7 02:41:03 density kernel: eth0: Tx timeout! ALLOCFID=3D0123,
+TXCOMPLFID=3D0179, EVSTAT=3Da00a
+Apr  7 02:41:03 density kernel: eth0: orinoco_reset()
+Apr  7 02:41:04 density kernel: NETDEV WATCHDOG: eth0: transmit timed
+out
+Apr  7 02:41:04 density kernel: eth0: Tx timeout! ALLOCFID=3D0000,
+TXCOMPLFID=3D0000, EVSTAT=3D0000
+Apr  7 02:41:05 density kernel: NETDEV WATCHDOG: eth0: transmit timed
+out
+Apr  7 02:41:05 density kernel: eth0: Tx timeout! ALLOCFID=3D0000,
+TXCOMPLFID=3D0000, EVSTAT=3D0000
+Apr  7 02:41:06 density kernel: NETDEV WATCHDOG: eth0: transmit timed
+out
+Apr  7 02:41:06 density kernel: eth0: Tx timeout! ALLOCFID=3D0000,
+TXCOMPLFID=3D0000, EVSTAT=3D0000
+---
+once this is scrolling, the keyboard ceases to respond.  the mouse
+works in x, and i can close things, but i can't type or switch vt's.
+alt-sysrq does work though.
 
-> (there is no /sys/ on my PC?)
+i've probably been seeing this behavior since the 2.5.5x kernels, but=20
+that's probably when i got the wireless card.
 
-Make the directory:
-	mkdir /sys
-and then mount sysfs there:
-	mount -t sysfs none /sys
+this report is from the 2.5.66 kernel, but it looks the same as
+earlier kernels.  i'm using the orinoco_cs module on debian unstable
+on my dell inspiron 3800.
 
-Edit your /etc/fstab to add it so that it is always mounted at startup.
+i have not been able to reproduce the error with processes other than
+my tar | bzip2 > (nfs-mounted-file).
 
-> the usbview application also complains that there is no usbfs although
-> it gets registered by the core usb driver
+thanks.
+--=20
+____________________}John Flinchbaugh{______________________
+| glynis@hjsoft.com         http://www.hjsoft.com/~glynis/ |
+~~Powered by Linux: Reboots are for hardware upgrades only~~
 
-Sounds like you don't have a USB host controller driver getting loaded,
-right?  What does lsmod show?
+--bp/iNruPH9dso1Pn
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-thanks,
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-greg k-h
+iD8DBQE+kSBsCGPRljI8080RAqjBAKCEBXuNB45K2XzQYJ5J1ET+sP6leQCeP9pw
+QKpO65ub6fZYRRjojP7fVS8=
+=EWSH
+-----END PGP SIGNATURE-----
+
+--bp/iNruPH9dso1Pn--

@@ -1,74 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317896AbSGPRSe>; Tue, 16 Jul 2002 13:18:34 -0400
+	id <S317901AbSGPRYQ>; Tue, 16 Jul 2002 13:24:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317899AbSGPRSd>; Tue, 16 Jul 2002 13:18:33 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:63373 "EHLO geena.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S317896AbSGPRSc>;
-	Tue, 16 Jul 2002 13:18:32 -0400
-Date: Tue, 16 Jul 2002 10:19:57 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: <mochel@geena.pdx.osdl.net>
-To: Oliver Neukum <oliver@neukum.name>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Driver reference counting and locking, again
-In-Reply-To: <200207161138.44246.oliver@neukum.name>
-Message-ID: <Pine.LNX.4.33.0207161017260.14360-100000@geena.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317902AbSGPRYP>; Tue, 16 Jul 2002 13:24:15 -0400
+Received: from 216-42-72-142.ppp.netsville.net ([216.42.72.142]:6499 "EHLO
+	roc-24-169-102-121.rochester.rr.com") by vger.kernel.org with ESMTP
+	id <S317901AbSGPRYP>; Tue, 16 Jul 2002 13:24:15 -0400
+Subject: Re: [Announce] device-mapper beta3 (fast snapshots)
+From: Chris Mason <mason@suse.com>
+To: linux-lvm@sistina.com
+Cc: Andrew Theurer <habanero@us.ibm.com>, Kevin Corry <corryk@us.ibm.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20020716163157.GA11334@fib011235813.fsnet.co.uk>
+References: <3D2F6464.60908@us.ibm.com> <02071513565400.06209@boiler>
+	<20020716084234.GA431@fib011235813.fsnet.co.uk>
+	<200207161105.49328.habanero@us.ibm.com> 
+	<20020716163157.GA11334@fib011235813.fsnet.co.uk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 16 Jul 2002 13:27:24 -0400
+Message-Id: <1026840444.21656.544.camel@tiny>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2002-07-16 at 12:31, Joe Thornber wrote:
 
-On Tue, 16 Jul 2002, Oliver Neukum wrote:
-
-> Am Dienstag, 16. Juli 2002 02:56 schrieb Patrick Mochel:
-> > Ok, here is another stab at trying to get reference counting and locking
-> > right for drivers.
-> >
-> > The short of it is that struct device_driver gets an owner field, which
-> > should be initialized to THIS_MODULE in the driver.
+> > Joe, are you absolutely sure these tests had the disk cache disabled?  That's
+> > the only hardware thing I can think of that would make a difference.
 > 
-> In your implementation it would seem that get_driver can suceed while
-> remove_driver is already running and the deletion from bus_list has
-> already happened.
+> Absolutely sure.  Those figures were for a pair of PVs that were
+> sharing an IDE cable so I can certainly get things moving faster.
 
-Yes, you're right. Relative patch appended. You can also pull from 
-bk://ldm.bkbits.net/linux-2.5/
+Some IDE drives ignore commands to turn off the write back cache, or
+turn it back on when load gets high.
 
-	-pat
+Try iozone -s 50M -i 0 -o with writeback on and off.  If you get the
+same answer the benchmarks are suspect....
 
-ChangeSet@1.729, 2002-07-16 10:16:20-07:00, mochel@osdl.org
-  driver refcounting:
-  Remove driver from global list as early as possible in remove_driver
+-chris
 
-diffstat results: 
- drivers/base/driver.c |    8 ++++----
- 1 files changed, 4 insertions, 4 deletions
-
-diff -Nru a/drivers/base/driver.c b/drivers/base/driver.c
---- a/drivers/base/driver.c	Tue Jul 16 10:16:39 2002
-+++ b/drivers/base/driver.c	Tue Jul 16 10:16:39 2002
-@@ -86,6 +86,10 @@
- 
- void remove_driver(struct device_driver * drv)
- {
-+	down(&driver_sem);
-+	list_del_init(&drv->g_list);
-+	up(&driver_sem);
-+
- 	write_lock(&drv->bus->lock);
- 	list_del_init(&drv->bus_list);
- 	write_unlock(&drv->bus->lock);
-@@ -93,10 +97,6 @@
- 	pr_debug("Unregistering driver '%s' from bus '%s'\n",drv->name,drv->bus->name);
- 	driver_detach(drv);
- 	driverfs_remove_dir(&drv->dir);
--
--	down(&driver_sem);
--	list_del_init(&drv->g_list);
--	up(&driver_sem);
- 
- 	if (drv->release)
- 		drv->release(drv);
 

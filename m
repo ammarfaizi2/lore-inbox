@@ -1,39 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267548AbUIFHKj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267552AbUIFHdA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267548AbUIFHKj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Sep 2004 03:10:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267549AbUIFHKi
+	id S267552AbUIFHdA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Sep 2004 03:33:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267554AbUIFHdA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Sep 2004 03:10:38 -0400
-Received: from fw.osdl.org ([65.172.181.6]:17036 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267548AbUIFHK1 (ORCPT
+	Mon, 6 Sep 2004 03:33:00 -0400
+Received: from acheron.informatik.uni-muenchen.de ([129.187.214.135]:47319
+	"EHLO acheron.informatik.uni-muenchen.de") by vger.kernel.org
+	with ESMTP id S267552AbUIFHc4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Sep 2004 03:10:27 -0400
-Date: Mon, 6 Sep 2004 00:08:26 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Kirill Korotaev <dev@sw.ru>
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: [PATCH] removes unnessary print of space
-Message-Id: <20040906000826.73157de6.akpm@osdl.org>
-In-Reply-To: <413C0CC5.4000807@sw.ru>
-References: <413C0CC5.4000807@sw.ru>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 6 Sep 2004 03:32:56 -0400
+Message-ID: <413C12A6.80909@bio.ifi.lmu.de>
+Date: Mon, 06 Sep 2004 09:32:54 +0200
+From: Frank Steiner <fsteiner-mail@bio.ifi.lmu.de>
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040503)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6.8.1-mm1][input] - IBM TouchPad support added? Which patch
+ is this? - Unsure still
+References: <200408170349.44626.shawn.starr@rogers.com> <200408170801.00068.dtor_core@ameritech.net> <41381972.8080600@bio.ifi.lmu.de> <200409030227.42441.dtor_core@ameritech.net> <413822F1.5060406@bio.ifi.lmu.de>
+In-Reply-To: <413822F1.5060406@bio.ifi.lmu.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kirill Korotaev <dev@sw.ru> wrote:
->
-> This patch removes unnessary print of space in bust_spinlocks().
->  printk("") wakeups klogd as well,
+Frank Steiner wrote:
 
-Until some smarty comes along and optimises printk() to skip empty strings.
+>> But have you tried installing XFree86/XOrg Synaptics driver
+>> (http://w1.894.telia.com/~u89404340/touchpad/index.html)?
+>> It does support tapping just fine...
 
-An explicit wake_up_klogd() thing might make sense, rather than relying
-upon side-effects.
+Yes, that works, as well as the gpm version I have (I just had to
+detect the evdev option :-)).
 
-> no need to print a space and make a mess.
+And I also had success with the psmouse.proto=bare option which I just
+checked to see if it works...
 
-Can't say that I've ever noticed that space.
+cu,
+Frank
+
+-- 
+Dipl.-Inform. Frank Steiner   Web:  http://www.bio.ifi.lmu.de/~steiner/
+Lehrstuhl f. Bioinformatik    Mail: http://www.bio.ifi.lmu.de/~steiner/m/
+LMU, Amalienstr. 17           Phone: +49 89 2180-4049
+80333 Muenchen, Germany       Fax:   +49 89 2180-99-4049
+* Rekursion kann man erst verstehen, wenn man Rekursion verstanden hat. *

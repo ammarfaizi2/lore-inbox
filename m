@@ -1,59 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264829AbTFVJuZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Jun 2003 05:50:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264846AbTFVJuY
+	id S264723AbTFVJxF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Jun 2003 05:53:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264725AbTFVJxF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Jun 2003 05:50:24 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:23301 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S264829AbTFVJuV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Jun 2003 05:50:21 -0400
-Date: Sun, 22 Jun 2003 03:04:48 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Samuel.Thibault@ens-lyon.fr, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Permit big console scrolls
-Message-Id: <20030622030448.7aa98dfd.akpm@digeo.com>
-In-Reply-To: <Pine.GSO.4.21.0306221146170.869-100000@vervain.sonytel.be>
-References: <20030622023626.60d2a24e.akpm@digeo.com>
-	<Pine.GSO.4.21.0306221146170.869-100000@vervain.sonytel.be>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sun, 22 Jun 2003 05:53:05 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:2180 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S264723AbTFVJxD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Jun 2003 05:53:03 -0400
+Date: Sun, 22 Jun 2003 12:03:01 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Lou Langholtz <ldl@aros.net>
+Cc: viro@parcelfarce.linux.theplanet.co.uk, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@digeo.com>, Pavel Machek <pavel@ucw.cz>,
+       Steven Whitehouse <steve@chygwyn.com>
+Subject: Re: [PATCH] nbd driver for 2.5+: fix for module removal & new block device layer
+Message-ID: <20030622100301.GJ608@suse.de>
+References: <3EF4D2C8.6060608@aros.net> <20030621225500.GL6754@parcelfarce.linux.theplanet.co.uk> <3EF4E73A.4070108@aros.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 22 Jun 2003 10:04:25.0928 (UTC) FILETIME=[A965B480:01C338A5]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3EF4E73A.4070108@aros.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Geert Uytterhoeven <geert@linux-m68k.org> wrote:
->
-> On Sun, 22 Jun 2003, Andrew Morton wrote:
-> > Geert Uytterhoeven <geert@linux-m68k.org> wrote:
-> > >
-> > > > -			if (get_user(lines, (char *)arg+1)) {
-> > >  						    ^^^^^
-> > >  > +			if (get_user(lines, (s32 *)((char *)arg+4))) {
-> > >  							    ^^^^^
-> > >  >  				ret = -EFAULT;
-> > >  >  			} else {
-> > >  >  				scrollfront(lines);
-> > > 
-> > >  Why was the `arg+1' changed to `arg+4'? Do we really want to skip 12 bytes?
-> > 
-> > It skips three bytes?
-> 
-> Oops, you're right. But my first question remains: why skip 3 bytes?
+On Sat, Jun 21 2003, Lou Langholtz wrote:
+> >	b) you definitely don't have to use separate queue locks.  The
+> >thing will work fine with spinlock being shared and I doubt that there
+> >will be any noticable extra contention.
+> >
+> Probably not noticeable no.
 
-Well we want to use a 32-bit quantity, not an 8-bit one.  So Samuel aligned
-that quantity 32 bits beyond the 8-bit ioctl `type' arg.
+The approach you took is probably _worse_ than a single lock, since you
+don't even cache align the locks. I'd say just keep the single nbd_lock
+and use that in all queues, seperate locks are a questionable win but do
+take up extra space.
 
-So I guess you'd do:
-
-	struct foo {
-		char type;
-		char pad[3];
-		s32 distance;
-	};
-
+-- 
+Jens Axboe
 

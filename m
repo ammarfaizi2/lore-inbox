@@ -1,45 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264650AbUFSUrC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264660AbUFSUuh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264650AbUFSUrC (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jun 2004 16:47:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264660AbUFSUrC
+	id S264660AbUFSUuh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jun 2004 16:50:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264665AbUFSUuh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jun 2004 16:47:02 -0400
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:32214 "EHLO
-	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S264650AbUFSUq7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jun 2004 16:46:59 -0400
-Date: Sat, 19 Jun 2004 16:49:02 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: Christophe Saout <christophe@saout.de>
-Cc: Brice Goglin <Brice.Goglin@ens-lyon.fr>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.7 Samba OOPS (in smb_readdir)
-In-Reply-To: <Pine.LNX.4.58.0406191624430.2228@montezuma.fsmlabs.com>
-Message-ID: <Pine.LNX.4.58.0406191648240.2228@montezuma.fsmlabs.com>
-References: <Pine.LNX.4.58.0406152253390.6392@ppc970.osdl.org> 
- <20040618163759.GN1146@ens-lyon.fr> <20040618164125.GO1146@ens-lyon.fr> 
- <Pine.LNX.4.58.0406181309440.2228@montezuma.fsmlabs.com> 
- <1087585251.13235.3.camel@leto.cs.pocnet.net> <1087586532.9085.1.camel@leto.cs.pocnet.net>
- <Pine.LNX.4.58.0406191624430.2228@montezuma.fsmlabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 19 Jun 2004 16:50:37 -0400
+Received: from v2.gawab.com ([204.97.230.42]:34246 "HELO gawab.com")
+	by vger.kernel.org with SMTP id S264660AbUFSUug (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Jun 2004 16:50:36 -0400
+Message-ID: <20040619205038.27491.qmail@gawab.com>
+From: "AshMilsted" <thatistosayiseenem@gawab.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.7-ck1
+Date: Sat, 19 Jun 2004 20:50:38 GMT
+Mime-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [212.159.119.65]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 19 Jun 2004, Zwane Mwaikambo wrote:
 
-> On Fri, 18 Jun 2004, Christophe Saout wrote:
->
-> > Well, it's not. :(
-> >
-> > The oops is gone but the processes are still hanging. I'm posting the
-> > SysRq-T trace on bugzilla. Hope it helps. If you need some help
-> > debugging the problem, please tell me if I can do something.
->
-> This is an updated debugging patch (which is also added to Bugzilla),
-> please give this a spin. There are still a few issues with this patch but
-> lets try at least avoid oopsing for now.
+2.6.7-ck1 is very useable on my Celeron 500 (medochino) system
+(using cfq I/O sched). It seems more responsive than the recent
+stock kernels, and staircase 7.0/7.1 is a big improvement over
+6.3, which stalled in annoying places. In fact, the only problem
+I have with the patchset is that when I run foobar2000 under
+wine the sound skips when I load a new web page in epiphany. If
+I make wine an ISO task with schedtool then it no longer skips,
+but it also hangs the system for a few seconds while browsing
+the foobar preferences dialogue. I guess I'll have to keep a
+launcher without schedtool ready for when I need to mess with
+the prefs for now.
+Anyway, great work - makes this old system seem that little bit
+snappier.
 
-Hold on, this is buggy garbage. i'll have something in a bit.
+-Ash
 
+PS: I'm not subscribed to the list, so please CC me if you reply
+to this.
+________________________________
+15 Mbytes Free Web-based and  POP3
+Sign up now: http://www.gawab.com

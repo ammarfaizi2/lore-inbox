@@ -1,85 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271346AbTHHNmQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Aug 2003 09:42:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271351AbTHHNmP
+	id S271337AbTHHNvK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Aug 2003 09:51:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271343AbTHHNvK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Aug 2003 09:42:15 -0400
-Received: from angband.namesys.com ([212.16.7.85]:26301 "EHLO
-	angband.namesys.com") by vger.kernel.org with ESMTP id S271346AbTHHNmN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Aug 2003 09:42:13 -0400
-Date: Fri, 8 Aug 2003 17:42:11 +0400
-From: Oleg Drokin <green@namesys.com>
-To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] [2.5] reiserfs: Fix handling of some extended inode attributes
-Message-ID: <20030808134211.GA10853@namesys.com>
+	Fri, 8 Aug 2003 09:51:10 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:5838 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S271337AbTHHNvH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Aug 2003 09:51:07 -0400
+Date: Fri, 8 Aug 2003 19:26:45 +0530
+From: Suparna Bhattacharya <suparna@in.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Badari Pulavarty <pbadari@us.ibm.com>, linux-kernel@vger.kernel.org,
+       linux-aio@kvack.org
+Subject: Re: [PATCH][2.6-mm] Readahead issues and AIO read speedup
+Message-ID: <20030808135645.GA3430@in.ibm.com>
+Reply-To: suparna@in.ibm.com
+References: <20030807100120.GA5170@in.ibm.com> <200308071021.39816.pbadari@us.ibm.com> <20030807103930.69e497a7.akpm@osdl.org> <200308071341.50834.pbadari@us.ibm.com> <20030807135819.3368ee16.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20030807135819.3368ee16.akpm@osdl.org>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Thu, Aug 07, 2003 at 01:58:19PM -0700, Andrew Morton wrote:
+> Badari Pulavarty <pbadari@us.ibm.com> wrote:
+> >
+> > On Thursday 07 August 2003 10:39 am, Andrew Morton wrote:
+> >  > Badari Pulavarty <pbadari@us.ibm.com> wrote:
+> >  > > We should do readahead of actual pages required by the current
+> >  > > read would be correct solution. (like Suparna suggested).
+> >  >
+> >  > I repeat: what will be the effect of this if all those pages are already in
+> >  > pagecache?
+> > 
+> >  Hmm !! Do you think just peeking at pagecache and bailing out if
+> >  nothing needed to be done, is too expensive ? Anyway, slow read
+> >  code has to do this later. Doing it in readahead one more time causes
+> >  significant perf. hit ?
+> 
+> It has been observed, yes.
+> 
+> > And also, do you think this is the most common case ?
+> 
+> It is a very common case.  It's one we need to care for.  Especially when
+> lots of CPUs are hitting the same file.
 
-   This patch fixes a problem in reiserfs' handling of immutable attribute,     
-   where every user (not just root) can unset it. Also it adds "append-only"    
-   attribute "support" (all the support is in VFS anyway, we only recognise     
-   the bit now). Also misleading comment in reiserfs_fs.h is removed.
-   Please apply.
+So, you are concerned about the case when the window was maximally
+shrunk via check_ra_success because the pages are already cached ?
+Is it mainly for small reads that the performance hit due to the 
+extra pagecache lookup is significant compared to the cycles spent 
+in copy_to_user ? For less than page-sized reads clustering isn't
+relevant, we can just keep the old behaviour there.
 
-Bye,
-    Oleg
+If on the other hand large cached reads are affected as well, then
+we need to work on a solution.
 
-===== fs/reiserfs/inode.c 1.79 vs edited =====
---- 1.79/fs/reiserfs/inode.c	Fri Jul 11 09:22:55 2003
-+++ edited/fs/reiserfs/inode.c	Wed Aug  6 18:14:02 2003
-@@ -2236,6 +2236,10 @@
- 			inode -> i_flags |= S_IMMUTABLE;
- 		else
- 			inode -> i_flags &= ~S_IMMUTABLE;
-+		if( sd_attrs & REISERFS_APPEND_FL )
-+			inode -> i_flags |= S_APPEND;
-+		else
-+			inode -> i_flags &= ~S_APPEND;
- 		if( sd_attrs & REISERFS_NOATIME_FL )
- 			inode -> i_flags |= S_NOATIME;
- 		else
-===== fs/reiserfs/ioctl.c 1.11 vs edited =====
---- 1.11/fs/reiserfs/ioctl.c	Mon May 26 01:07:50 2003
-+++ edited/fs/reiserfs/ioctl.c	Wed Aug  6 18:13:53 2003
-@@ -47,7 +47,7 @@
- 		if (get_user(flags, (int *) arg))
- 			return -EFAULT;
- 
--		if ( ( flags & REISERFS_IMMUTABLE_FL ) && 
-+		if ( ( ( flags ^ REISERFS_I(inode) -> i_attrs) & ( REISERFS_IMMUTABLE_FL | REISERFS_APPEND_FL)) && 
- 		     !capable( CAP_LINUX_IMMUTABLE ) )
- 			return -EPERM;
- 			
-===== include/linux/reiserfs_fs.h 1.50 vs edited =====
---- 1.50/include/linux/reiserfs_fs.h	Fri Jul 11 09:22:55 2003
-+++ edited/include/linux/reiserfs_fs.h	Wed Aug  6 20:07:30 2003
-@@ -879,19 +879,14 @@
- /* we want common flags to have the same values as in ext2,
-    so chattr(1) will work without problems */
- #define REISERFS_IMMUTABLE_FL EXT2_IMMUTABLE_FL
-+#define REISERFS_APPEND_FL    EXT2_APPEND_FL
- #define REISERFS_SYNC_FL      EXT2_SYNC_FL
- #define REISERFS_NOATIME_FL   EXT2_NOATIME_FL
- #define REISERFS_NODUMP_FL    EXT2_NODUMP_FL
- #define REISERFS_SECRM_FL     EXT2_SECRM_FL
- #define REISERFS_UNRM_FL      EXT2_UNRM_FL
- #define REISERFS_COMPR_FL     EXT2_COMPR_FL
--/* persistent flag to disable tails on per-file basic.
--   Note, that is inheritable: mark directory with this and
--   all new files inside will not have tails. 
--
--   Teodore Tso allocated EXT2_NODUMP_FL (0x00008000) for this. Change
--   numeric constant to ext2 macro when available. */
--#define REISERFS_NOTAIL_FL    (0x00008000) /* EXT2_NOTAIL_FL */
-+#define REISERFS_NOTAIL_FL    EXT2_NOTAIL_FL
- 
- /* persistent flags that file inherits from the parent directory */
- #define REISERFS_INHERIT_MASK ( REISERFS_IMMUTABLE_FL |	\
+> 
+> There are things we can do to tweak it up, such as adding a max_index to
+> find_get_pages(), then do multipage lookups, etc.  But not doing it at all
+> is always the fastest way.
+
+Regards
+Suparna
+
+-- 
+Suparna Bhattacharya (suparna@in.ibm.com)
+Linux Technology Center
+IBM Software Labs, India
+

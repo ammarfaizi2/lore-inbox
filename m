@@ -1,41 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263889AbTDYLuM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Apr 2003 07:50:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263893AbTDYLuM
+	id S263886AbTDYLrA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Apr 2003 07:47:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263887AbTDYLrA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Apr 2003 07:50:12 -0400
-Received: from [80.190.48.67] ([80.190.48.67]:6662 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S263889AbTDYLuL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Apr 2003 07:50:11 -0400
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: Working Overloaded Linux Kernel
-To: andersen@codepoet.org, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: ALSA and 2.4.x
-Date: Fri, 25 Apr 2003 14:01:36 +0200
-User-Agent: KMail/1.5.1
-References: <20030424212508.GI14661@codepoet.org>
-In-Reply-To: <20030424212508.GI14661@codepoet.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Fri, 25 Apr 2003 07:47:00 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:35975
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S263886AbTDYLq7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Apr 2003 07:46:59 -0400
+Subject: Re: problem with Serverworks CSB5 IDE
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Duncan Laurie <duncan@sun.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Olivier Bornet <Olivier.Bornet@puck.ch>
+In-Reply-To: <3EA85C5C.7060402@sun.com>
+References: <20030423212713.GD21689@puck.ch>
+	 <1051136469.2062.108.camel@dhcp22.swansea.linux.org.uk>
+	 <20030423232909.GE21689@puck.ch> <20030423232909.GE21689@puck.ch>
+	 <20030424080023.GG21689@puck.ch>  <3EA85C5C.7060402@sun.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200304251401.36430.m.c.p@wolk-project.de>
+Organization: 
+Message-Id: <1051268422.5573.25.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 25 Apr 2003 12:00:22 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 24 April 2003 23:25, Erik Andersen wrote:
+> Actually UDMA mode detection is not working at all for CSB5 in
+> 2.4.21-rc1 because svwks_revision variable is set in __init function
+> so was reading as 0 in svwks_ratemask().  This made it think UDMA
+> mode 2 was the max supported, when in reality new revisions do UDMA
+> mode 5 and old revisions are mode 4 max.
 
-Hi Erik,
+The revision id is read when we init_chipset_svwks, which comes from the
+PCI setup. If the chip is in legacy mode we call init chipset early on
+regardless. If it is in native mode it gets called too and we ignore
+its view of the IRQ (since thats now PCI defined).
 
-> > Is there a ALSA backport to 2.4.x anywhere?
-> I was crazy enough to take ALSA 0.9.2 and made it into a patch vs
-> 2.4.x a week or two ago.  I just prefer to have ALSA be part of
-> the kernel rather than needing to compile it seperately all the
-> time.  The patch, along with various other things, is included as
-> part of my 2.4.21-rc1-erik kernel:
-Are you sure that this is 0.9.2 ALSA? I am afraid it is 0.9.0-rc6.
+>  		/* Check the OSB4 DMA33 enable bit */
+>  		return ((reg & 0x00004000) == 0x00004000) ? 1 : 0;
+>  	} else if (svwks_revision < SVWKS_CSB5_REVISION_NEW) {
+> -		return 1;
+> +		return 2;
 
-ciao, Marc
+Why this change ?
+
+

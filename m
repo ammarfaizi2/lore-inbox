@@ -1,103 +1,127 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263259AbSJFBAk>; Sat, 5 Oct 2002 21:00:40 -0400
+	id <S263175AbSJFAxh>; Sat, 5 Oct 2002 20:53:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263285AbSJFBAk>; Sat, 5 Oct 2002 21:00:40 -0400
-Received: from c17928.thoms1.vic.optusnet.com.au ([210.49.249.29]:1664 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S263259AbSJFBAi> convert rfc822-to-8bit; Sat, 5 Oct 2002 21:00:38 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Con Kolivas <conman@kolivas.net>
-To: Andrew Morton <akpm@digeo.com>,
-       Paolo Ciarrocchi <ciarrocchi@linuxmail.org>
-Subject: Re: [BENCHMARK] contest 0.50 results to date
-Date: Sun, 6 Oct 2002 11:03:27 +1000
-User-Agent: KMail/1.4.3
-Cc: linux-kernel@vger.kernel.org, rmaureira@alumno.inacap.cl,
-       rcastro@ime.usp.br
-References: <20021005182850.31930.qmail@linuxmail.org> <3D9F3A52.4FB46701@digeo.com>
-In-Reply-To: <3D9F3A52.4FB46701@digeo.com>
+	id <S263179AbSJFAxh>; Sat, 5 Oct 2002 20:53:37 -0400
+Received: from smtp801.mail.sc5.yahoo.com ([66.163.168.180]:55636 "HELO
+	smtp801.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id <S263175AbSJFAxf>; Sat, 5 Oct 2002 20:53:35 -0400
+From: "Joseph D. Wagner" <wagnerjd@prodigy.net>
+To: "Linux Kernel Development List" <linux-kernel@vger.kernel.org>
+Subject: Good Idea (tm): Code Consolidation for Functions and Macros that Access the Process Address Space
+Date: Sat, 5 Oct 2002 19:58:55 -0500
+Message-ID: <000001c26cd3$950ef580$7975d73f@joe>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200210061103.35105.conman@kolivas.net>
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.4024
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+SUBJECT: Good Idea (tm): Code Consolidation for Functions and Macros
+that Access the Process Address Space
 
-On Sunday 06 Oct 2002 5:15 am, Andrew Morton wrote:
-> Paolo Ciarrocchi wrote:
-> > And here are my results:
-> I think I'm going to have to be reminded what "Loads" and "LCPU"
-> mean, please.
+PROBLEM: Eight (8) functions/macros are near duplicates of, and
+equivalent to, other functions/macros that access the process address
+space.  Specifically:
 
-Loads for process_load is the number of iterations each load manages to 
-succeed doing divided by 10000. Loads for mem_load is the number of times 
-mem_load manages to access the ram divided by 1000. Loads for io_load is the 
-approximate number of megabytes divided by 100 it writes during the kernel 
-compile.  The denominator for loads was chosen to easily represent the data, 
-and also correlates well with significant digits.
+	get_user		duplicates get_user_ret
+	__get_user		duplicates __get_user_ret
+	put_user		duplicates put_user_ret
+	__put_user		duplicates __put_user_ret
+	copy_from_user	duplicates copy_from_user_ret
+	__copy_from_user	duplicates copy_from_user_ret
+	copy_to_user	duplicates copy_to_user_ret
+	__copy_to_user	duplicates copy_to_user_ret
 
-LCPU% is the load's cpu% usage while it is running. The load is started 3 
-seconds before the kernel compile and takes a variable length of time to 
-finish, so it can be more than 100-cpu%
+EXPLAINATION: One functional difference exists between the
+functions/macros with "_ret" and those without: functions/macros with
+"_ret" return an error code; those without "_ret" return void.
 
-> For these sorts of tests, I think system-wide CPU% is an interesting
-> thing to track - both user and system.  If it is high then we're doing
-> well - doing real work.
+Since the only difference is whether or not an error code is returned,
+the functions/macros can be used interchangeably.
 
-So total cpu% being used during the kernel compile? The cpu% + lcpu% should be 
-very close to this.  However I'm not sure of the most accurate way to find 
-out average total cpu% used during just the kernel compile - suggestion?
+Remember, if a function call has no place for a returned value to go,
+nothing bad happens; the returned value is simply ignored/discarded.
 
-> The same isn't necessarily true of the compressed-cache kernel, because
-> it's doing extra work in-kernel, so CPU load comparisons there need
-> to be made with some caution.
+WHY THIS SHOULD BE CHANGED:
+1) Easier to maintain code (because there's less of it to maintain).
+2) Less code means smaller kernel.
+3) Forces better coding structures and procedures (because no matter
+which function the user will choose under the new system, an error code
+will always be returned).
+4) Is backward compatible with all existing code.
+5) The solution can be seamlessly integrated.
+6) The overhead for returning an error code is nominal.
 
-That is clear, and also the reason I have a measure of work done by the load 
-as well as just the lcpu% (which by itself is not very helpful).
+SOLUTION:
 
-> Apart from observing overall CPU occupancy, we also need to monitor
-> fairness - one way of doing that is to measure the total kernel build
-> elapsed time.  Another way would be to observe how much actual progress
-> the streaming IO makes during the kernel build.
+Use the #define Preprocessor Directive for Symbolic Constants.  Here's
+some sample code:
 
-I believe that is what I'm already showing with the time for each load == 
-kernel build time, and loads==io work done.
+	#define get_user get_user_ret
+	#define __get_user __get_user_ret
+	#define put_user put_user_ret
+	#define __put_user __put_user_ret
+	#define copy_from_user copy_from_user_ret
+	#define __copy_from_user copy_from_user_ret
+	#define copy_to_user copy_to_user_ret
+	#define __copy_to_user copy_to_user_ret
 
-> What is "2.4.19-0.24pre4"?
+By placing that code in the appropriate header file(s), the #define
+statements will trickle down to the appropriate source files.
 
-Latest version of compressed cache. Note that in my testing of cc I used the 
-optional LZO compression.
+Hence the functions/macros without "_ret" can be eliminated, resulting
+in code consolidation.
 
-> I'd suggest that more tests be added.  Perhaps
->
-> - one competing streaming read
->
-> - several competing streaming reads
->
-> - competing "tar cf foo ./linux"
->
-> - competing "tar xf foo"
->
-> - competing "ls -lR > /dev/null"
->
+NOTE: The validity of using a #define Preprocessor Directive as a
+Symbolic Constant on a function has been tested, and proven viable, in
+the following sample program:
 
-Sure, adding loads is easy enough. Just exactly what to add I wasn't sure 
-about. I'll give those a shot soon.
+#include <iostream>
+using std::cout;
+using std::cin;
+using std::endl;
 
-> It would be interesting to test -aa kernels as well - Andrea's kernels
-> tend to be well tuned.
+void Hello();
+void Hello_Again();
 
-Where time permits sure.
+#define Hi Hello
+#define Hi_Again Hello_Again
 
-Regards,
-Con.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
+/*
+void Hi();
+void Hi_Again();
+*/
 
-iD8DBQE9n4viF6dfvkL3i1gRArn8AJ9c+jKc/CMPxV0GWaXbVJasmBNX5QCghVYX
-dbvST9mdltwuwmqEk0HHXYY=
-=pcOu
------END PGP SIGNATURE-----
+int main() {
+	Hello();
+	Hello_Again();
+	Hi();
+	Hi_Again();
+}
+
+void Hello () {
+	cout << "Hello." << endl;
+}
+
+void Hello_Again() {
+	cout << "Hello, again." << endl;
+}
+
+/*
+void Hi() {
+	cout << "Hi." << endl;
+}
+
+void Hi_Again() {
+	cout << "Hi, again." << endl;
+}
+*/
+
+

@@ -1,66 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270015AbRHJUaz>; Fri, 10 Aug 2001 16:30:55 -0400
+	id <S270641AbRHJUqk>; Fri, 10 Aug 2001 16:46:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270016AbRHJUaq>; Fri, 10 Aug 2001 16:30:46 -0400
-Received: from guestpc.physics.umanitoba.ca ([130.179.72.122]:2311 "EHLO
-	mobilix.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S270015AbRHJUad>; Fri, 10 Aug 2001 16:30:33 -0400
-Date: Fri, 10 Aug 2001 15:30:41 -0500
-Message-Id: <200108102030.f7AKUfa05113@mobilix.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Douglas Gilbert <dougg@torque.net>
-Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [RFT] #2 Support for ~2144 SCSI discs, scsi_debug
-In-Reply-To: <3B73D9F0.8BE1B0D1@torque.net>
-In-Reply-To: <200108020642.f726g0L15715@mobilix.ras.ucalgary.ca>
-	<3B735FCF.E197DD5B@torque.net>
-	<200108100431.f7A4VkG01068@mobilix.ras.ucalgary.ca>
-	<3B73D9F0.8BE1B0D1@torque.net>
+	id <S270642AbRHJUqa>; Fri, 10 Aug 2001 16:46:30 -0400
+Received: from ns.cablesurf.de ([195.206.131.193]:51093 "EHLO ns.cablesurf.de")
+	by vger.kernel.org with ESMTP id <S270641AbRHJUq1>;
+	Fri, 10 Aug 2001 16:46:27 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Vendor kernels unpakced
+Date: Fri, 10 Aug 2001 22:46:55 +0200
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <2167D6D1AACDD31196BE0008C7CF24DDAE0A18@issexc01.solthree.com>
+In-Reply-To: <2167D6D1AACDD31196BE0008C7CF24DDAE0A18@issexc01.solthree.com>
+MIME-Version: 1.0
+Message-Id: <01081022465500.02522@idun>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Douglas Gilbert writes:
-> Richard Gooch wrote:
-> > 
-> > Douglas Gilbert writes:
-> 
-> > > $ ls -l /devfs/scsi/host46/bus0/target0/lun0/*
-> > > brw-------    1 root     root     114,  16 Dec 31  1969
-> > >                         /devfs/scsi/host46/bus0/target0/lun0/disc
-> > > brw-------    1 root     root     114,  17 Dec 31  1969
-> > >                         /devfs/scsi/host46/bus0/target0/lun0/part1
-> > > brw-------    1 root     root     114,  18 Dec 31  1969
-> > >                         /devfs/scsi/host46/bus0/target0/lun0/part2
-> > > brw-------    1 root     root     114,  19 Dec 31  1969
-> > >                         /devfs/scsi/host46/bus0/target0/lun0/part3
-> > >
-> > > Note the large major device number that devfs is pulling
-> > > from the unused pool. Devfs makes some noise when
-> > > 'rmmod scsi_debug' is executed but otherwise things looked
-> > > ok.
-> > 
-> > What was the message?
-> 
-> After several seconds of silence, lots of these appeared:
->  devfs_dealloc_unique_number(): number 128 was already free
->  devfs_dealloc_unique_number(): number 128 was already free
+Am Freitag, 10. August 2001 21:29 schrieb Phil Kos:
+> > Just as it makes no sense to run a not-up-to-date release
+> > kernel, it makes
+> > no sense to keep anything but the very last on line. Just MVHO.
+>
+> I beg to differ, Herr Doktor von Brand. It makes more sense to run a
+> not-up-to-date release kernel than it does to slavishly update to every new
+> release without any pressing need for new features or functionality. Don't
+> fall into the commercial software trap of "it's newer, so it *must* be
+> better!"--here be tygers...
 
-I'm not able to debug this for the time being. Could you poke around
-and figure out what's happening? The first thing to check for is to
-see whether block major 128 was even allocated in the first
-place. Check /proc/devices to see (make sure you don't pass devfs=only
-at the boot line).
+The problem is not what people should be running. The kernels people are 
+actually running are relevant. Any kernel on a CD sold in the last ~3 years 
+is run and bug reports will arrive.
+If you choose to ignore anything but the latest standard kernels you loose a 
+large number of testers and bugs will go unnoticed longer.
 
-Next step is to hack in drivers/scsi/sd.c:sd_alloc_majors() and
-sd_dealloc_majors() and add printk() calls. Is it possible
-sd_dealloc_majors() is being called more than once?
-
-Is 128 the only major number that it complains about? Any other
-bitching and moaning?
-
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+	Regards
+		Oliver

@@ -1,39 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264229AbUBHWT4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Feb 2004 17:19:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264233AbUBHWT4
+	id S264233AbUBHWXO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Feb 2004 17:23:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264257AbUBHWXO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Feb 2004 17:19:56 -0500
-Received: from h196n1fls22o974.bredband.comhem.se ([213.64.79.196]:60554 "EHLO
-	latitude.mynet.no-ip.org") by vger.kernel.org with ESMTP
-	id S264229AbUBHWTz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Feb 2004 17:19:55 -0500
-X-Mailer: exmh version 2.6.3 04/02/2003 with nmh-1.0.4
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Murilo Pontes <murilo_pontes@yahoo.com.br>, linux-kernel@vger.kernel.org
-Subject: Re: psmouse.c, throwing 3 bytes away 
-In-Reply-To: Message from Vojtech Pavlik <vojtech@suse.cz> 
-   of "Sun, 08 Feb 2004 22:59:35 +0100." <20040208215935.GA13280@ucw.cz> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 08 Feb 2004 23:19:32 +0100
-From: aeriksson@fastmail.fm
-Message-Id: <20040208221933.92D0B3F1B@latitude.mynet.no-ip.org>
+	Sun, 8 Feb 2004 17:23:14 -0500
+Received: from nsmtp.pacific.net.th ([203.121.130.117]:16605 "EHLO
+	nsmtp.pacific.net.th") by vger.kernel.org with ESMTP
+	id S264233AbUBHWXN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Feb 2004 17:23:13 -0500
+From: Michael Frank <mhf@linuxmail.org>
+To: werner@almesberger.net, Andrew Morton <akpm@osdl.org>
+Subject: [patch] defer panic for too many items in boot parameter line
+Date: Mon, 9 Feb 2004 06:23:04 +0800
+User-Agent: KMail/1.5.4
+Cc: linux-kernel@vger.kernel.org
+X-OS: KDE 3 on GNU/Linux
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200402090623.05965.mhf@linuxmail.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ah, nice, I like to defer a panic on zone init failure.
 
-> 
-> > Problem still occurs :-(
-> 
-> I have good news - I've managed to reliably reproduce the bug on my
-> machine and that means I now have a good chance to find and fix it.
-> 
+Perhaps we could combine the panic side and use panic_later.
 
-Another data point. I just tried switching to a non-preempt kernel as
-was suggested by someone. The problem still occurs.
-
-/A
-
+Regards
+Michael 
 

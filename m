@@ -1,42 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261366AbVAGSAU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261375AbVAGSEr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261366AbVAGSAU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 13:00:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261370AbVAGR7p
+	id S261375AbVAGSEr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 13:04:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261523AbVAGSEM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 12:59:45 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:22443 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261366AbVAGR52
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 12:57:28 -0500
-Message-ID: <41DECD7A.5030600@pobox.com>
-Date: Fri, 07 Jan 2005 12:57:14 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Pete Clements <clem@clem.clem-digital.net>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.10-bk10 fails compile -- kernel/sys.c
-References: <200501071543.j07FhrPt007757@clem.clem-digital.net>
-In-Reply-To: <200501071543.j07FhrPt007757@clem.clem-digital.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 7 Jan 2005 13:04:12 -0500
+Received: from fw.osdl.org ([65.172.181.6]:39627 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261375AbVAGSB6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jan 2005 13:01:58 -0500
+Date: Fri, 7 Jan 2005 10:01:57 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: Paul Davis <paul@linuxaudiosystems.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Lee Revell <rlrevell@joe-job.com>, Ingo Molnar <mingo@elte.hu>,
+       Chris Wright <chrisw@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "Jack O'Quin" <joq@io.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] [request for inclusion] Realtime LSM
+Message-ID: <20050107100157.F2357@build.pdx.osdl.net>
+References: <20050107130407.GA8119@infradead.org> <200501071416.j07EGoa4018080@localhost.localdomain> <20050107142637.GB20398@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20050107142637.GB20398@devserv.devel.redhat.com>; from arjanv@redhat.com on Fri, Jan 07, 2005 at 03:26:37PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pete Clements wrote:
-> fyi:
-> 
-> kernel/sys.c: In function `sys_setsid':
-> kernel/sys.c:1078: `tty_sem' undeclared (first use in this function)
-> kernel/sys.c:1078: (Each undeclared identifier is reported only once
-> kernel/sys.c:1078: for each function it appears in.)
-> make[1]: *** [kernel/sys.o] Error 1
+* Arjan van de Ven (arjanv@redhat.com) wrote:
+> eh no. It defaults to zero, but if you increase it for a specific user, that
+> user is allowed to mlock more.
 
-include linux/tty.h to fix.
+Actually, I think it defaults to 32k to keep gpg happy (at least in
+mainline) ;-)
 
-	Jeff
-
-
-
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

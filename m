@@ -1,40 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313190AbSIIGoe>; Mon, 9 Sep 2002 02:44:34 -0400
+	id <S316569AbSIIHDr>; Mon, 9 Sep 2002 03:03:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316542AbSIIGoe>; Mon, 9 Sep 2002 02:44:34 -0400
-Received: from outpost.ds9a.nl ([213.244.168.210]:29628 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id <S313190AbSIIGod>;
-	Mon, 9 Sep 2002 02:44:33 -0400
-Date: Mon, 9 Sep 2002 08:49:16 +0200
-From: bert hubert <ahu@ds9a.nl>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][RFC] per isr in_progress markers
-Message-ID: <20020909064916.GA30669@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0209081700460.1096-100000@linux-box.realnet.co.sz> <Pine.LNX.4.44.0209081453010.1293-100000@home.transmeta.com>
-Mime-Version: 1.0
+	id <S316573AbSIIHDr>; Mon, 9 Sep 2002 03:03:47 -0400
+Received: from gc-na5.alcatel.fr ([64.208.49.5]:30083 "EHLO smail2.alcatel.fr")
+	by vger.kernel.org with ESMTP id <S316569AbSIIHDq>;
+	Mon, 9 Sep 2002 03:03:46 -0400
+Message-ID: <3D7C48E6.9DC9E218@sxb.bsf.alcatel.fr>
+Date: Mon, 09 Sep 2002 09:08:22 +0200
+From: Denis RICHARD <dri@sxb.bsf.alcatel.fr>
+X-Mailer: Mozilla 4.75 [en] (X11; U; SunOS 5.8 sun4u)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: Yves LUDWIG <Yves.Ludwig@sxb.bsf.alcatel.fr>,
+       Denis RICHARD <Denis.Richard@sxb.bsf.alcatel.fr>
+Subject: WEB site for e2compress patch on 2.4 kernel.
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0209081453010.1293-100000@home.transmeta.com>
-User-Agent: Mutt/1.3.28i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 08, 2002 at 03:01:02PM -0700, Linus Torvalds wrote:
+Hi,
 
->    setups (as opposed to most laptops, which often seem to put every PCI
->    device on the same irq)
+A new WEB site  for the e2compress patch on the 2.4 kernel is available
+at http://www.alizt.com .
 
-I've always thought that this was a linux problem - any reason *why* laptops
-do this?
+The last version of the patch to download, is 0.4.43 for the 2.4.17 linux kernel.
 
-Regards,
+The fixed bugs are :
+ - Deadlock correction between compressing cluster and sync of pages.
+ - Management of MAPPED and DIRTY buffer flags.
+ - Test of block numbers in compression.
+ - Test if page is dirty to allocate buffer when compressing.
+ - When decompressing cluster use the size of the cluster and not the size of the file,
+     because it can be called from vmtruncate (the size of the file has already changed).
+ - Management of working area lock.
+ - When (de)compressing file containing holes, the data must be moved and not only the block number.
+ - New function ext2_decompress_pages() to allocate blocks for a cluster already read (block decompressed).
+     It is now called in ext2_decompress_cluster() and not only in ext2_file_write().
 
-bert hubert
+Feel free to contact me if you have some problems.
 
--- 
-http://www.PowerDNS.com          Versatile DNS Software & Services
-http://www.tk                              the dot in .tk
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
+Good compression.
+
+Bye.
+
+--
+-----------------------------\--------------------------\
+Denis RICHARD                 \ ALCATEL Business Systems \
+mailto:dri@sxb.bsf.alcatel.fr / Tel: +33(0)3 90 67 69 36 /
+-----------------------------/--------------------------/
+
+
+

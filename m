@@ -1,106 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261705AbVCRSrw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261764AbVCRSt1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261705AbVCRSrw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Mar 2005 13:47:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261764AbVCRSrw
+	id S261764AbVCRSt1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Mar 2005 13:49:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261771AbVCRSt1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Mar 2005 13:47:52 -0500
-Received: from alog0452.analogic.com ([208.224.222.228]:54702 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261705AbVCRSrr
+	Fri, 18 Mar 2005 13:49:27 -0500
+Received: from smtp-105-friday.nerim.net ([62.4.16.105]:19984 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S261764AbVCRStN
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Mar 2005 13:47:47 -0500
-Date: Fri, 18 Mar 2005 13:44:36 -0500 (EST)
-From: linux-os <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: Le Wen <le_wen@hotmail.com>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Questions about request_irq and reading PCI_INTERRUPT_LINE
-In-Reply-To: <BAY20-F12D2C7B3C608DE7BF487B9E54A0@phx.gbl>
-Message-ID: <Pine.LNX.4.61.0503181337240.27860@chaos.analogic.com>
-References: <BAY20-F12D2C7B3C608DE7BF487B9E54A0@phx.gbl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Fri, 18 Mar 2005 13:49:13 -0500
+Date: Fri, 18 Mar 2005 19:49:15 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: Greg Stark <gsstark@mit.edu>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.11 breaks modules gratuitously
+Message-Id: <20050318194915.580c3511.khali@linux-fr.org>
+In-Reply-To: <3JrTO-1C4-41@gated-at.bofh.it>
+References: <3JrTO-1C4-41@gated-at.bofh.it>
+X-Mailer: Sylpheed version 1.0.3 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 Mar 2005, Le Wen wrote:
+Hi Greg,
 
-> Hi, there,
->
-> I have problem to grab video from my ati all-in-wonder card. The card is in a 
-> PII Celeron machine with an on board video card (ATI Technologies Inc 3D Rage 
-> IIC AGP). there is no monitor connected with the on board video card. I only 
-> hook my AIW card with a monitor.
->
-> I use km-0.6 from gatos project. I load this km_drv module, but kernel always 
-> complains:
->
-> km: IRQ 0 busy
->
-> I checked code:
->       km_probe(struct pci_dev *dev, const struct pci_device_id *pci_id)
->
-> here dev->irq with a value 0.
->
-> When km_probe gets called, it try to request an IRQ0 returns a -EBUSY:
->       kms_irq=dev.irq;
->       result=request_irq(kms->irq, handler, SA_SHIRQ, tag, (void *)kms);
->
->       if(result==-EBUSY){
->               printk(KERN_ERR "km: IRQ %ld busy\n", kms->irq);
->               goto fail;
->       }
->
->
-> So I tried to get right IRQ number using:
->       u8 myirq;
->       int rtn=pci_read_config_byte(dev,PCI_INTERRUPT_LINE, &myirq);
->       dev->irq=myirq;
->       kms->irq=dev_irq;
->       result=request_irq(kms->irq, handler, SA_SHIRQ, tag, (void *)kms);
->
->       if(result==-EBUSY){
->               printk(KERN_ERR "km: IRQ %ld busy\n", kms->irq);
->               goto fail;
->       }
->       if(result<0){
->               printk(KERN_ERR "km: could not install irq handler: 
-> result=%d\n",result);
->               goto fail;
->       }
-> But this time I got:
->
-> km: kms->irq=24
-> km: could not install irq handler: result=-38
->
->
-> My questions are:
-> 1. I don't know why dev->irq has value of 0?
->
+> When you guys go on these "make needlessly global code static" kicks
+> you should maybe consider that even functions that aren't currently
+> used by any other area of the tree might be useful for module writers.
+> 
+> Instead of just checking which functions are currently used by other
+> parts of the kernel perhaps you should think about what makes a
+> logical API and stick to that, even if not all of the functions are
+> currently used.
 
-The PCI interface now needs to be enabled first. The IRQ value
-returned is BAD until after one calls pci_enable_device(). This
-is a BUG, now considered a FEATURE so it's unlikely to be fixed!
-There are lots of people who have encountered this problem
-with modules that are not in the "distribution".
+I'd second that. Cleanups are good and I do not deny that Adrian Bunk
+has been doing a terrific work. However, unexporting or removing
+functions just because they have no current user in the kernel tree is
+not always a clever thing to do. Keeping things square and logical
+should be taken into consideration, as should the possibility that some
+function might be used outside of the kernel tree. I do *not* mean
+entire interfaces only used outside of the kernel tree, because these
+are highly questionable, but functions that are part of a larger set of
+functions representing an interface, most of which are used inside the
+kernel. In this specific case, dropping exports or removing functions
+make very little sense to me and is sometimes calling for trouble, as
+Greg just underlined. In some cases, the functions are likely to be
+reintroduced/reexported a few months later and we certainly could use
+our time in a more useful way than undoing and redoing things.
 
-> 2. Is an IRQ number of 24 valid for a Intel PII Celeron?
->
-
-Could be, but it;s probably invalid considering the way you
-got it.
-
-> 3. What does this result=-38 mean?
->
-
-Probably errno 38, i.e., ENOSYS
-
->
-> Wen, Le
->
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
+Thanks,
+-- 
+Jean Delvare

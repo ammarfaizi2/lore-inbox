@@ -1,68 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261450AbUCIBjY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Mar 2004 20:39:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261451AbUCIBjY
+	id S261451AbUCIBvi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Mar 2004 20:51:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261472AbUCIBvi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Mar 2004 20:39:24 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:23527 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S261450AbUCIBjW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Mar 2004 20:39:22 -0500
-Date: Tue, 9 Mar 2004 02:39:17 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Andrew Morton <akpm@osdl.org>, Corey Minyard <minyard@acm.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: 2.6.4-rc2-mm1: IPMI_SMB doesnt compile
-Message-ID: <20040309013917.GH14833@fs.tum.de>
-References: <20040307223221.0f2db02e.akpm@osdl.org>
+	Mon, 8 Mar 2004 20:51:38 -0500
+Received: from ozlabs.org ([203.10.76.45]:26073 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S261451AbUCIBvg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Mar 2004 20:51:36 -0500
+Subject: Re: more efficient current_is_keventd macro? [was Re: [lhcs-devel]
+	Re: Kthread_create() never returns when called from worker_thread]
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Andrew Morton <akpm@osdl.org>
+Cc: vatsa@in.ibm.com, mingo@redhat.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20040308143658.25c1d378.akpm@osdl.org>
+References: <20040308123030.GA7428@in.ibm.com>
+	 <20040308143658.25c1d378.akpm@osdl.org>
+Content-Type: text/plain
+Message-Id: <1078797038.18171.707.camel@bach>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040307223221.0f2db02e.akpm@osdl.org>
-User-Agent: Mutt/1.4.2i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 09 Mar 2004 12:50:39 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 07, 2004 at 10:32:21PM -0800, Andrew Morton wrote:
->... 
-> +ipmi-updates-3.patch
-> +ipmi-socket-interface.patch
+On Tue, 2004-03-09 at 09:36, Andrew Morton wrote:
+> Srivatsa Vaddagiri <vatsa@in.ibm.com> wrote:
+> > int current_is_keventd(void)
+> > {
+> > +       int cpu = smp_processor_id();
+> > +	cwq = keventd_wq->cpu_wq + cpu;
+> > +	if (current == cwq->thread)
+> > +		return 1;
+> > +	else
+> > +		return 0;
+> > }
 > 
->  IPMI driver updates
->...
+> Is racy in the presence of preemption.
 
-This causes the following compile error:
+Actually, it's not, because if current *is* keventd we're nailed to the
+CPU, and if it's not, we're going to return false either way.
 
-<--  snip  -->
+But it *should* be fixed, simply as an example to others.
 
-...
-  CC      drivers/char/ipmi/ipmi_smb.o
-drivers/char/ipmi/ipmi_smb.c: In function `smbus_client_read_block_data':
-drivers/char/ipmi/ipmi_smb.c:224: warning: implicit declaration of 
-function `i2c_set_spin_delay'
-...
-  LD      .tmp_vmlinux1
-drivers/built-in.o(.text+0x1342eb): In function 
-`smbus_client_read_block_data':
-: undefined reference to `i2c_set_spin_delay'
-drivers/built-in.o(.text+0x13448d): In function 
-`smbus_client_write_block_data':
-: undefined reference to `i2c_set_spin_delay'
-drivers/built-in.o(.text+0x134b7f): In function `set_run_to_completion':
-: undefined reference to `i2c_set_spin_delay'
-make: *** [.tmp_vmlinux1] Error 1
-
-<--  snip  -->
-
-
-cu
-Adrian
-
+Cheers,
+Rusty.
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Anyone who quotes me in their signature is an idiot -- Rusty Russell
 

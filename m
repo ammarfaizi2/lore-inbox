@@ -1,45 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271387AbTGQMNy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 08:13:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271393AbTGQMNy
+	id S271395AbTGQMP7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 08:15:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271400AbTGQMP6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 08:13:54 -0400
-Received: from gsd.di.uminho.pt ([193.136.20.132]:42387 "EHLO
-	bbb.lsd.di.uminho.pt") by vger.kernel.org with ESMTP
-	id S271387AbTGQMNx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 08:13:53 -0400
-Date: Thu, 17 Jul 2003 13:28:46 +0100
-From: Luciano Miguel Ferreira Rocha <luciano@lsd.di.uminho.pt>
-To: linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.0-test1-ac2
-Message-ID: <20030717122846.GA14202@lsd.di.uminho.pt>
-Mail-Followup-To: Luciano Miguel Ferreira Rocha <luciano@lsd.di.uminho.pt>,
-	linux kernel <linux-kernel@vger.kernel.org>
-References: <200307161816.h6GIGKH09243@devserv.devel.redhat.com> <20030716201339.GA618@sokrates> <1058392329.7677.1.camel@dhcp22.swansea.linux.org.uk> <3F15CB80.4020306@tmsusa.com>
+	Thu, 17 Jul 2003 08:15:58 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:30158
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S271395AbTGQMPx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jul 2003 08:15:53 -0400
+Subject: Re: BK Licence: Protocols and Research
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Rory Browne <robro@frink.nuigalway.ie>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030717120505.GA22304@zion.nuigalway.ie>
+References: <20030717120505.GA22304@zion.nuigalway.ie>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1058444890.8621.44.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F15CB80.4020306@tmsusa.com>
-User-Agent: Mutt/1.4.1i
-X-Disclaimer: 'Author of this message is not responsible for any harm done to reader's computer.'
-X-Organization: 'GSD'
-X-Section: 'BIC'
-X-Priority: '1 (Highest)'
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 17 Jul 2003 13:28:18 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 16, 2003 at 03:02:40PM -0700, joe wrote:
-> Alan Cox wrote:
-> 
-> >ALSA has a lot more functionality than OSS and the API is better in many
-> >ways. The ALSA drivers dont have so much use and exposure so they will
-> >need time to shake down, but it should be worth it in the end.
-> >
-> hmm, it would be really cool if redhat shipped alsa utils......
+On Iau, 2003-07-17 at 13:05, Rory Browne wrote:
+> Would previous activity in the area of developing a product which
+> contains substantially similary features to Bitkeeper preclude users from
+> using the Free Bitkeeper software?
 
-RedHat doesn't, but other people do, for RedHat products:
-http://shrike.freshrpms.net/
-
-Regards,
-Luciano Rocha
+Hire a lawyer or talk to the company selling it. This list is definitely
+the wrong place to ask about it. 

@@ -1,42 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262968AbUKYEuY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262971AbUKYE5E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262968AbUKYEuY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 23:50:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262971AbUKYEuX
+	id S262971AbUKYE5E (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 23:57:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262972AbUKYE5E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 23:50:23 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:46792 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S262968AbUKYEtb (ORCPT
+	Wed, 24 Nov 2004 23:57:04 -0500
+Received: from fmr06.intel.com ([134.134.136.7]:39040 "EHLO
+	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
+	id S262971AbUKYE5C convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 23:49:31 -0500
-Date: Wed, 24 Nov 2004 20:33:49 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: arjan@infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Work around for periodic do_gettimeofday hang
-Message-Id: <20041124203349.7982efb7.akpm@osdl.org>
-In-Reply-To: <1101356864.4007.35.camel@mulgrave>
-References: <1101314988.1714.194.camel@mulgrave>
-	<1101323621.2811.24.camel@laptop.fenrus.org>
-	<1101356864.4007.35.camel@mulgrave>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 24 Nov 2004 23:57:02 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: 
+Date: Thu, 25 Nov 2004 12:56:50 +0800
+Message-ID: <3ACA40606221794F80A5670F0AF15F8403BD5869@pdsmsx403>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Index: AcTSqy0D7TxkR0V5R92yIk5rllQZUA==
+From: "Zhu, Yi" <yi.zhu@intel.com>
+To: "Pavel Machek" <pavel@ucw.cz>
+Cc: <akpm@osdl.org>, <linux-kernel@vger.kernel.org>, <linux-pm@lists.osdl.org>
+X-OriginalArrivalTime: 25 Nov 2004 04:56:51.0677 (UTC) FILETIME=[2D6FF8D0:01C4D2AB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Bottomley <James.Bottomley@SteelEye.com> wrote:
->
->  +config X86_HZ
->  +       int "Clock Tick Rate"
->  +       default 1000 if !(M386 || M486 || M586 || M586TSC || M586MMX)	
->  +       default 100 if (M386 || M486 || M586 || M586TSC || M586MMX)	
->  +       help
->  +	  Select the kernel clock tick rate in interrupts per second.
->  +	  Slower processors should choose 100; everything else 1000.
-
-I guess we don't need the help, given that it's not a menuisable option. 
-(There was a make-HZ-selectable patch once, and Linus spat it out).
-
-Silly question: how come do_gettimeofday() is hanging?

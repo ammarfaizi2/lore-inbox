@@ -1,34 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284034AbRLAJpm>; Sat, 1 Dec 2001 04:45:42 -0500
+	id <S284036AbRLAJrw>; Sat, 1 Dec 2001 04:47:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284036AbRLAJpc>; Sat, 1 Dec 2001 04:45:32 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:50440 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S284034AbRLAJpY>; Sat, 1 Dec 2001 04:45:24 -0500
-Subject: Re: [PATCH] remove BKL from drivers' release functions
-To: ricklind@us.ibm.com (Rick Lindsley)
-Date: Sat, 1 Dec 2001 09:52:57 +0000 (GMT)
-Cc: viro@math.psu.edu (Alexander Viro), dave@sr71.net (David C. Hansen),
-        alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <200112010047.fB10lA406654@eng4.beaverton.ibm.com> from "Rick Lindsley" at Nov 30, 2001 04:47:10 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S284037AbRLAJrm>; Sat, 1 Dec 2001 04:47:42 -0500
+Received: from web20505.mail.yahoo.com ([216.136.226.140]:22799 "HELO
+	web20505.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S284036AbRLAJrf>; Sat, 1 Dec 2001 04:47:35 -0500
+Message-ID: <20011201094733.84784.qmail@web20505.mail.yahoo.com>
+Date: Sat, 1 Dec 2001 10:47:33 +0100 (CET)
+From: =?iso-8859-1?q?willy=20tarreau?= <wtarreau@yahoo.fr>
+Subject: Re: Did someone try to boot 2.4.16 on a 386 ? [SOLVED] 
+To: Keith Owens <kaos@ocs.com.au>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <13800.1007198991@ocs3.intra.ocs.com.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16A6pN-0006d0-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> opens, we CAN announce we are closer, and nothing else will be any more
-> broken than it was before we started. As I said in an earlier post (and
-> I don't think anybody disagrees): this is an incremental task. Any
+> But try telling people that shipping files then
+> overwriting them is a bad idea.
 
-This is why we have a development tree. Its moving things in the right
-direction which is important. I suspect many drivers will want to use
-semaphores rather than atomic counts however, to ensure that an open doesn't
-complete while a previous release is still shutting down hardware
+if a file is to be modified, then it ought to be
+copied at make time, deleted at clean time, and
+only its copy should be used. Anyway, by definition,
+a modified file is not a source anymore.
+ 
+> The moment you use cp -al on a kernel source tree,
+> you are running the risk of time stamp problems.
+> 
+>   cp -al pristine tree1
+>   cp -al pristine tree2
+>   cd tree1
+>   make *config bzImage
+>   cd tree2
+>   make *config bzImage
+> 
+> The make in tree1 and tree2 touches the time stamps
+> on included files. Because most include files are
+> hard linked, it changes the time stamps on all three
+> trees, including the pristine source. Even if you
+> never compile in tree1 and tree2 at the same time,
+> when you switch back and forth between trees you
+> will get semi-random time stamp changes.
 
-Alan
+so a recursive touch before a make in such a tree
+should be safer ?
 
+> Normally the unwanted time stamp updates only forces
+> spurious recompiles, but I believe that there are
+> some sequences that create an incomplete kernel
+> build.
+
+Although I can't swear I never encountered this
+problem, I can tell that I already had some
+interrogations about strangely compiled kernels
+which led me to repatch against a clean tree.
+
+Regards,
+Willy
+
+
+___________________________________________________________
+Do You Yahoo!? -- Une adresse @yahoo.fr gratuite et en français !
+Yahoo! Courrier : http://courrier.yahoo.fr

@@ -1,50 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262299AbTFIXsG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jun 2003 19:48:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262306AbTFIXsG
+	id S262312AbTFJAAW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jun 2003 20:00:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262316AbTFJAAV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jun 2003 19:48:06 -0400
-Received: from pat.uio.no ([129.240.130.16]:3019 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S262299AbTFIXsF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jun 2003 19:48:05 -0400
+	Mon, 9 Jun 2003 20:00:21 -0400
+Received: from dyn-ctb-203-221-72-225.webone.com.au ([203.221.72.225]:40464
+	"EHLO chimp.local.net") by vger.kernel.org with ESMTP
+	id S262312AbTFJAAS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jun 2003 20:00:18 -0400
+Message-ID: <3EE522AA.7020200@cyberone.com.au>
+Date: Tue, 10 Jun 2003 10:13:30 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030327 Debian/1.3-4
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Steven Pratt <slpratt@austin.ibm.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.70-mm2 causes performance drop of random read O_DIRECT
+References: <3EE5190D.3070401@austin.ibm.com>
+In-Reply-To: <3EE5190D.3070401@austin.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <16101.8150.408526.624242@charged.uio.no>
-Date: Tue, 10 Jun 2003 02:01:26 +0200
-To: Frank Cusack <fcusack@fcusack.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>, marcelo@conectiva.com.br,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] nfs_unlink() race (was: nfs_refresh_inode: inode number mismatch)
-In-Reply-To: <20030609134655.A10940@google.com>
-References: <20030609065141.A9781@google.com>
-	<Pine.LNX.4.44.0306090848080.12683-100000@home.transmeta.com>
-	<16100.47243.421268.704120@charged.uio.no>
-	<20030609134655.A10940@google.com>
-X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
-X-UiO-MailScanner: No virus found
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Frank Cusack <fcusack@fcusack.com> writes:
 
-     > On Mon, Jun 09, 2003 at 06:40:43PM +0200, Trond Myklebust
-     > wrote:
-    >> If people prefer 'rm -rf' correctness instead of
-    >> unlinked-but-open, then we could do that by changing the
-    >> behaviour of 'unlink' on a silly-deleted filed. Currently it
-    >> returns EBUSY, but we could just as well have it complete the
-    >> unlink, and mark the inode as being stale...
 
-     > Actually, *currently* it unlinks. :-) That's the problem.
+Steven Pratt wrote:
 
-No. The problem is that it aliases the dentry, and so it unlinks
-incorrectly...
+> Starting in 2.5.70-mm2 and continuing in the mm tree, there is a 
+> significant degrade in random read for block devices using O_DIRECT.   
+> The drop occurs for all block sizes and ranges from 30%-40.  CPU usage 
+> is also lower although it may already be so low as to be irrelavent.
 
-Cheers,
-  Trond
+
+Hi Steven, this is quite likely to be an io scheduler problem.
+Is your test program rawread v2.1.5? What is the command line
+you are using to invoke the program?
+
+

@@ -1,58 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310470AbSCUXuj>; Thu, 21 Mar 2002 18:50:39 -0500
+	id <S310504AbSCUX5j>; Thu, 21 Mar 2002 18:57:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310475AbSCUXu2>; Thu, 21 Mar 2002 18:50:28 -0500
-Received: from holomorphy.com ([66.224.33.161]:32142 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S310470AbSCUXuO>;
-	Thu, 21 Mar 2002 18:50:14 -0500
-Date: Thu, 21 Mar 2002 15:49:43 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Christoph Hellwig <hch@suse.de>,
-        "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-        Hugh Dickins <hugh@veritas.com>, Rik van Riel <riel@conectiva.com.br>,
-        Dave McCracken <dmccr@us.ibm.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Creating a per-task kernel space for kmap, user pagetables, et al
-Message-ID: <20020321234943.GC785@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrea Arcangeli <andrea@suse.de>, Christoph Hellwig <hch@suse.de>,
-	"Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-	Hugh Dickins <hugh@veritas.com>,
-	Rik van Riel <riel@conectiva.com.br>,
-	Dave McCracken <dmccr@us.ibm.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <127930000.1016651345@flay> <20020320212341.M4268@dualathlon.random> <20020320203520.A2003@infradead.org> <20020320223425.P4268@dualathlon.random> <20020320214607.A6363@infradead.org> <20020320230002.A16801@dualathlon.random>
-Mime-Version: 1.0
+	id <S310517AbSCUX53>; Thu, 21 Mar 2002 18:57:29 -0500
+Received: from mailout06.sul.t-online.com ([194.25.134.19]:8376 "EHLO
+	mailout06.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S310515AbSCUX52>; Thu, 21 Mar 2002 18:57:28 -0500
+To: HGadi@ecutel.com (Hari Gadi)
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: module (kernel) debugging
+In-Reply-To: <E16oBVq-0006Z6-00@the-village.bc.nu>
+From: Olaf Dietsche <olaf.dietsche--list.linux-kernel@exmail.de>
+Date: Fri, 22 Mar 2002 00:46:07 +0100
+Message-ID: <87663pmqm8.fsf@tigram.bogus.local>
+User-Agent: Gnus/5.090006 (Oort Gnus v0.06) XEmacs/21.4 (Artificial
+ Intelligence, i386-debian-linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 20, 2002 at 11:00:02PM +0100, Andrea Arcangeli wrote:
-> Thet's another bit yes, but we'll need 200000 tasks to overflow the
-> lowmem (ignoring the fact the lowmem is shared also for the other lowmem
-> data structures) and there's the PID limit of 64k tasks. So I don't see
-> it as a major thing. Anyways if we really wanted to put the stack [and
-> task structure of course] in highmem, we could do that in two additional
-> entries after the user stack together with the two entries for the
-> pagecache and pagetable persistent kmaps. I think we can officially call
-> that area the "userfixmap" or "per-process-fixmap" (no matter if it's in
-> user or kernel space).  But it is much faster to keep the kernel stack
-> always in 4M global tlbs, thus I don't think we need to change that in
-> 2.5.  (also USB was used to do dma in the kernel stack, not sure if they
-> changed it recently)
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-Another (perhaps obvious) pitfall is stack-allocated storage used for
-components of globally-mapped structures. The premier example of this
-is probably waitqueues. To keep them working, dynamic allocation of
-globally-mapped storage or per-task static allocation thereof is
-required as a substitute.
+>> I am new to kernel level development. What are the best ways to debug runtime
+>> kernel (module).
+>
+> Your brain 8)
 
+I can confirm this :-).
 
-Cheers,
-Bill
+>> Are there any third party tools for debugging the kernel.
+
+A _first_ party tool, which comes to my mind is:
+	printk(KERN_DEBUG "whatever\n");
+The advantage with printk() is, others can test and debug your module
+as well and report results to you.
+
+Regards, Olaf.

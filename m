@@ -1,99 +1,109 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265236AbTLKUZm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Dec 2003 15:25:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265240AbTLKUZm
+	id S265229AbTLKU1M (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Dec 2003 15:27:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265235AbTLKU1M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Dec 2003 15:25:42 -0500
-Received: from cpe.atm2-0-1071046.0x50a5258e.abnxx8.customer.tele.dk ([80.165.37.142]:62624
-	"EHLO starbattle.com") by vger.kernel.org with ESMTP
-	id S265236AbTLKUZj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Dec 2003 15:25:39 -0500
-From: Daniel Tram Lux <daniel@starbattle.com>
-Date: Thu, 11 Dec 2003 21:25:36 +0100
-To: linux-kernel@vger.kernel.org
-Subject: [patch] ide.c as a module
-Message-ID: <20031211202536.GA10529@starbattle.com>
+	Thu, 11 Dec 2003 15:27:12 -0500
+Received: from astra.telenet-ops.be ([195.130.132.58]:17280 "EHLO
+	astra.telenet-ops.be") by vger.kernel.org with ESMTP
+	id S265229AbTLKU1F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Dec 2003 15:27:05 -0500
+Date: Thu, 11 Dec 2003 21:26:23 +0100
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: [USB] hid blacklist addition for the BerkshireProducts USB PC Watchdog
+Message-ID: <20031211212623.A5490@infomag.infomag.iguana.be>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi Vojtech,
 
-I needed the ide-subsytem as a module on 2.4.23 and noticed (due to the missing modprobe on the embedded linux system)
-that ide.c tries to load the module ide-probe-mod which is called ide-detect now.
-The patch also get's rid of the need for ide-probe-mini alias ide-detect, but I don't know if that is desired? (it was in my case).
+the hid driver oops'es on the BerkshireProducts USB PC Watchdog card 
+when it automatically disconnects itself, just before doing it's 
+reboot stuff. (See Oops log at the end of this message)
 
-Regards
+The (quick) fix in this case is to add this card to the hid blacklist.
+(See diff below).
 
-Daniel Lux
+I added the change to the linux-watchdog bitkeeper tree 
+(See http://linux-watchdog.bkbits.net:8080/linux-2.5-watchdog
+ChangeSet 1.1436).
 
-P.S.
-please c/c me for comments. 
+Some more info:
 
---- linux-2.4.23.org/drivers/ide/ide.c  2003-11-28 19:26:20.000000000 +0100
-+++ linux-2.4.23/drivers/ide/ide.c      2004-03-11 20:31:51.000000000 +0100
-@@ -514,11 +514,7 @@
+ drivers/usb/input/hid-core.c |    4 ++++
+ 1 files changed, 4 insertions(+)
 
- void ide_probe_module (int revaldiate)
- {
--       if (!ide_probe) {
--#if  defined(CONFIG_BLK_DEV_IDE_MODULE)
--               (void) request_module("ide-probe-mod");
--#endif
--       } else {
-+       if (ide_probe) {
-                (void) ide_probe->init();
-        }
-        revalidate_drives(revaldiate);
-@@ -3018,13 +3014,13 @@
-                banner_printed = 1;
-        }
+through these ChangeSets:
 
-+       initializing = 1;
-        init_ide_data();
+<wim@iguana.be> (03/12/11 1.1436)
+   [USB] hid blacklist addition
+   
+   Added the Berkshire Products USB PC Watchdog to the hid blacklist.
+   This to avoid problems with USB-Disconnects when the card feels it should reboot...
 
- #ifndef CLASSIC_BUILTINS_METHOD
-        ide_init_builtin_subdrivers();
- #endif /* CLASSIC_BUILTINS_METHOD */
+Greetings,
+Wim.
 
--       initializing = 1;
-        ide_init_builtin_drivers();
-        initializing = 0;
-
-@@ -3043,6 +3039,9 @@
- MODULE_PARM(options,"s");
- MODULE_LICENSE("GPL");
-
-+extern int ideprobe_init_module();
-+extern void ideprobe_cleanup_module (void);
+================================================================================
+diff -Nru a/drivers/usb/input/hid-core.c b/drivers/usb/input/hid-core.c
+--- a/drivers/usb/input/hid-core.c	Thu Dec 11 21:04:40 2003
++++ b/drivers/usb/input/hid-core.c	Thu Dec 11 21:04:40 2003
+@@ -1354,6 +1354,9 @@
+ #define USB_VENDOR_ID_A4TECH		0x09DA
+ #define USB_DEVICE_ID_A4TECH_WCP32PU	0x0006
+ 
++#define USB_VENDOR_ID_BERKSHIRE		0x0c98
++#define USB_DEVICE_ID_BERKSHIRE_PCWD	0x1140
 +
- static void __init parse_options (char *line)
- {
-        char *next = line;
-@@ -3059,14 +3058,19 @@
-
- int init_module (void)
- {
-+        int res;
-+
-        parse_options(options);
--       return ide_init();
-+       res = ide_init();
-+       ideprobe_init_module();
-+       return(res);
- }
-
- void cleanup_module (void)
- {
-        int index;
--
-+
-+       ideprobe_cleanup_module();
-        unregister_reboot_notifier(&ide_notifier);
-        for (index = 0; index < MAX_HWIFS; ++index) {
-                ide_unregister(index);
-
+ struct hid_blacklist {
+ 	__u16 idVendor;
+ 	__u16 idProduct;
+@@ -1403,6 +1406,7 @@
+ 	{ USB_VENDOR_ID_TANGTOP, USB_DEVICE_ID_TANGTOP_USBPS2, HID_QUIRK_NOGET },
+ 	{ USB_VENDOR_ID_ESSENTIAL_REALITY, USB_DEVICE_ID_ESSENTIAL_REALITY_P5, HID_QUIRK_IGNORE },
+ 	{ USB_VENDOR_ID_A4TECH, USB_DEVICE_ID_A4TECH_WCP32PU, HID_QUIRK_2WHEEL_MOUSE_HACK },
++	{ USB_VENDOR_ID_BERKSHIRE, USB_DEVICE_ID_BERKSHIRE_PCWD, HID_QUIRK_IGNORE },
+ 	{ 0, 0 }
+ };
+ 
+================================================================================
+Nov 23 13:38:58 stafke kernel: usb 1-2: USB disconnect, address 2
+Nov 23 13:38:58 stafke kernel: Unable to handle kernel paging request at virtual address c8828060
+Nov 23 13:38:58 stafke kernel:  printing eip:
+Nov 23 13:38:58 stafke kernel: c8822ee4
+Nov 23 13:38:58 stafke kernel: *pde = 011a1067
+Nov 23 13:38:58 stafke kernel: *pte = 00000000
+Nov 23 13:38:58 stafke kernel: Oops: 0002 [#1]
+Nov 23 13:38:58 stafke kernel: CPU:    0
+Nov 23 13:38:58 stafke kernel: EIP:    0060:[<c8822ee4>]    Not tainted
+Nov 23 13:38:58 stafke kernel: EFLAGS: 00010246
+Nov 23 13:38:58 stafke kernel: EIP is at hiddev_cleanup+0x24/0x40 [hid]
+Nov 23 13:38:58 stafke kernel: eax: 00000060   ebx: c7e8b6e0   ecx: 00000000   edx: 00000000
+Nov 23 13:38:58 stafke kernel: esi: c8827ac0   edi: c79e6e00   ebp: c1361e88   esp: c1361e7c
+Nov 23 13:38:58 stafke kernel: ds: 007b   es: 007b   ss: 0068
+Nov 23 13:38:58 stafke kernel: Process khubd (pid: 67, threadinfo=c1360000 task=c1395300)
+Nov 23 13:38:58 stafke kernel: Stack: c7e8b6fc c8827bb8 c12a4000 c1361e9c c8822968 c7e8b6e0 c8827ac0 c7fa2200
+Nov 23 13:38:58 stafke kernel:        c1361eb4 c883f136 c7fa2200 c7fa2200 c7fa2214 c8827ae0 c1361ecc c01cf836
+Nov 23 13:38:58 stafke kernel:        c7fa2214 c7fa2240 c7fa2214 c79e6ecc c1361ee4 c01cf973 c7fa2214 c7fa2270
+Nov 23 13:38:59 stafke kernel: Call Trace:
+Nov 23 13:38:59 stafke kernel:  [<c8822968>] hid_disconnect+0xb8/0xe0 [hid]
+Nov 23 13:38:59 stafke kernel:  [<c883f136>] usb_unbind_interface+0x76/0x80 [usbcore]
+Nov 23 13:38:59 stafke kernel:  [<c01cf836>] device_release_driver+0x66/0x70
+Nov 23 13:38:59 stafke kernel:  [<c01cf973>] bus_remove_device+0x53/0xa0
+Nov 23 13:38:59 stafke kernel:  [<c01ce83d>] device_del+0x5d/0xa0
+Nov 23 13:38:59 stafke kernel:  [<c8845210>] usb_disable_device+0x70/0xb0 [usbcore]
+Nov 23 13:38:59 stafke kernel:  [<c883fa16>] usb_disconnect+0xa6/0x100 [usbcore]Nov 23 13:38:59 stafke kernel:  [<c8842161>] hub_port_connect_change+0x321/0x330 [usbcore]
+Nov 23 13:38:59 stafke kernel:  [<c8841a58>] hub_port_status+0x38/0xa0 [usbcore]Nov 23 13:38:59 stafke kernel:  [<c8842493>] hub_events+0x323/0x370 [usbcore]
+Nov 23 13:38:59 stafke kernel:  [<c8842515>] hub_thread+0x35/0xe0 [usbcore]
+Nov 23 13:38:59 stafke kernel:  [<c0118270>] default_wake_function+0x0/0x30
+Nov 23 13:38:59 stafke kernel:  [<c88424e0>] hub_thread+0x0/0xe0 [usbcore]
+Nov 23 13:38:59 stafke kernel:  [<c01091c9>] kernel_thread_helper+0x5/0xc
+Nov 23 13:38:59 stafke kernel:
+Nov 23 13:38:59 stafke kernel: Code: 89 0c 85 e0 7e 82 c8 89 5d 08 8b 5d fc 89 ec 5d e9 97 56 91

@@ -1,51 +1,113 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317725AbSGKCws>; Wed, 10 Jul 2002 22:52:48 -0400
+	id <S317729AbSGKC4x>; Wed, 10 Jul 2002 22:56:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317726AbSGKCwr>; Wed, 10 Jul 2002 22:52:47 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:22035 "HELO
-	garrincha.netbank.com.br") by vger.kernel.org with SMTP
-	id <S317725AbSGKCwq>; Wed, 10 Jul 2002 22:52:46 -0400
-Date: Wed, 10 Jul 2002 23:55:04 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: "Adam J. Richter" <adam@yggdrasil.com>, R.E.Wolff@BitWizard.nl,
-       linux-kernel@vger.kernel.org
-Subject: Re: Rusty's module talk at the Kernel Summit
-Message-ID: <20020711025503.GB5973@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Rusty Russell <rusty@rustcorp.com.au>,
-	"Adam J. Richter" <adam@yggdrasil.com>, R.E.Wolff@BitWizard.nl,
-	linux-kernel@vger.kernel.org
-References: <200207041724.KAA06758@adam.yggdrasil.com> <20020711124830.26e2388b.rusty@rustcorp.com.au>
-Mime-Version: 1.0
+	id <S317730AbSGKC4w>; Wed, 10 Jul 2002 22:56:52 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:44816 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317729AbSGKC4u>;
+	Wed, 10 Jul 2002 22:56:50 -0400
+Message-ID: <3D2CF62E.949F20B4@zip.com.au>
+Date: Wed, 10 Jul 2002 20:06:22 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre9 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Hanna Linder <hannal@us.ibm.com>
+CC: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+       Keith Mannthey <mannthey@us.ibm.com>, haveblue@us.ibm.com,
+       lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: scalable kmap (was Re: vm lock contention reduction) (fwd)
+References: <237170000.1026317715@flay> <40740000.1026339488@w-hlinder>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020711124830.26e2388b.rusty@rustcorp.com.au>
-User-Agent: Mutt/1.4i
-X-Url: http://advogato.org/person/acme
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Thu, Jul 11, 2002 at 12:48:30PM +1000, Rusty Russell escreveu:
-> On Thu, 4 Jul 2002 10:24:11 -0700
-> "Adam J. Richter" <adam@yggdrasil.com> wrote:
-> > smaller ones, in the case where there is substantial code that is not
-> > needed for some configurations.
+Hanna Linder wrote:
 > 
-> For God's sake, WHY?  Look at what you're doing to your TLB (and if you
-> made IPv4 a removable module, I'll bet real money you have a bug unless
-> you are *very* *very* clever).
+> ...
+> Andrew and Martin,
 > 
-> Modules are not "free".  Sorry.
+>         I ran this updated patch on 2.5.25 with dbench on
+> the 8-way with 4 Gb of memory compared to clean 2.5.25.
+> I saw a significant improvement in throughput about 15%
+> (averaged over 5 runs each).
 
-What about Andi Kleen patch to not use vmalloc (well, vmalloc is used as a
-fallback) when loading modules but instead use big pages?  It is being
-integrated in 2.4.20-pre, IIRC. IIRC with that there is still some issues, so
-for enlightening the audience here, could you share your view on that patch? 8)
+Thanks, Hanna.
 
-And for _debugging_ IPv4 maybe the modularisation, if Adam was clever, could
-help somewhat.
+The kernel compile test isn't a particularly heavy user of
+copy_to_user(), whereas with RAM-only dbench, copy_*_user()
+is almost the only thing it does.  So that makes sense.
 
-- Arnaldo (who is stupid not to be using UML extensively, but this
-           will change RSN 8) )
+Tried dbench on the 2.5G 4xPIII Xeon: no improvement at all.
+This thing seems to have quite poor memory bandwidth - maybe
+250 megabyte/sec downhill with the wind at its tail.
+
+>         Included is the pretty picture (akpm-2525.png) the
+> data that picture came from (akpm-2525.data) and the raw
+> results of the runs with min/max and timing results
+> (2525akpmkmaphi and 2525clnhi).
+>         I believe the drop at around 64 clients is caused by
+> memory swapping leading to increased disk accesses since the
+> time increased by 200% in direct correlation with the decreased
+> throughput.
+
+Yes.  The test went to disk.   There are two reasons why
+it will do this:
+
+1: Some dirty data was in memory for more than 30-35 seconds or
+
+2: More than 40% of memory is dirty.
+
+In your case, the 64-client run was taking 32 seconds.  After that
+the disks lit up.  Once that happens, dbench isn't a very good
+benchmark.  It's an excellent benchmark when it's RAM-only
+though.  Very repeatable and hits lots of code paths which matter.
+
+You can run more clients before the disk I/O cuts in by
+increasing /proc/sys/vm/dirty_expire_centisecs and
+/proc/sys/vm/dirty_*_ratio.
+
+The patch you tested only uses the atomic kmap across generic_file_read.
+It is reasonable to hope that another 15% or morecan be gained by holding
+an atomic kmap across writes as well.  On your machine ;)
+
+Here's what oprofile says about `dbench 40' with that patch:
+
+c0140f1c 402      0.609543    __block_commit_write    
+c013dfd4 413      0.626222    vfs_write               
+c01402cc 431      0.653515    __find_get_block        
+c013a895 472      0.715683    .text.lock.highmem      
+c017fe30 494      0.749041    ext2_get_block          
+c012cef0 564      0.85518     unlock_page             
+c013ee80 564      0.85518     fget                    
+c01079f4 571      0.865794    apic_timer_interrupt    
+c01e8ecc 594      0.900669    radix_tree_lookup       
+c013da90 597      0.905218    generic_file_llseek     
+c01514b4 607      0.92038     __d_lookup              
+c0106ff8 687      1.04168     system_call             
+c013a02c 874      1.32523     kunmap_high             
+c0148388 922      1.39801     link_path_walk          
+c0140b00 1097     1.66336     __block_prepare_write   
+c01346d0 1138     1.72552     rmqueue                 
+c01127ac 1243     1.88473     smp_apic_timer_interrupt 
+c0139eb8 1514     2.29564     kmap_high               
+c0105368 6188     9.38272     poll_idle               
+c012d8a8 9564     14.5017     file_read_actor         
+c012ea70 21326    32.3361     generic_file_write      
+
+
+Not taking a kmap in generic_file_write is a biggish patch - it
+means changing the prepare_write/commit_write API and visiting
+all filesystems.  The API change would be: core kernel no longer
+holds a kmap across prepare/commit. If the filesystem wants one
+for its own purposes then it gets to do it for itself, possibly in
+its prepare_write().
+
+I think I'd prefer to get some additional testing and understanding
+before undertaking that work.  It arguably makes sense as a small
+cleanup/speedup anyway, but that's not a burning issue.
+
+hmm.  I'll do just ext2, and we can take another look then.
+
+-

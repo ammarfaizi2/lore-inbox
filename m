@@ -1,43 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270002AbRHJUCV>; Fri, 10 Aug 2001 16:02:21 -0400
+	id <S270003AbRHJUCv>; Fri, 10 Aug 2001 16:02:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270001AbRHJUCL>; Fri, 10 Aug 2001 16:02:11 -0400
-Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:12294 "EHLO
-	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S270003AbRHJUB4>; Fri, 10 Aug 2001 16:01:56 -0400
-Date: Fri, 10 Aug 2001 16:00:36 -0400
-From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-To: Rob <rwideman@austin.rr.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: question on best "Linux" Internals book
-Message-ID: <20010810160036.H1004@arthur.ubicom.tudelft.nl>
-In-Reply-To: <LHEGJICMMCCGOHKDFALMIEOICAAA.rwideman@austin.rr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <LHEGJICMMCCGOHKDFALMIEOICAAA.rwideman@austin.rr.com>; from rwideman@austin.rr.com on Fri, Aug 10, 2001 at 01:35:29AM -0500
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+	id <S270004AbRHJUCm>; Fri, 10 Aug 2001 16:02:42 -0400
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:5233 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S270001AbRHJUCa>; Fri, 10 Aug 2001 16:02:30 -0400
+Date: Fri, 10 Aug 2001 16:02:29 -0400 (EDT)
+From: Ben LaHaise <bcrl@redhat.com>
+X-X-Sender: <bcrl@touchme.toronto.redhat.com>
+To: =?iso-8859-1?Q?Ragnar_Kj=F8rstad?= <kernel@ragnark.vestdata.no>
+cc: <linux-fsdevel@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <mike@bigstorage.com>, <kevin@bigstorage.com>
+Subject: Re: [PATCH] 64 bit scsi read/write
+In-Reply-To: <20010810215136.C16864@vestdata.no>
+Message-ID: <Pine.LNX.4.33.0108101557480.5531-100000@touchme.toronto.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 10, 2001 at 01:35:29AM -0500, Rob wrote:
-> Please CC me.
-> I am posting to this mailing list since it is Development related and it
-> isnt a HOWTO question.
+On Fri, 10 Aug 2001, Ragnar Kjørstad wrote:
 
-See the "Recommended books list" on kernelnewbies.org:
+> * >1TB devices over scsi.
+>   * /proc/partitions report incorrect sizes
 
-  http://www.kernelnewbies.org/books.php3
+Okay, interesting, I'll have to dig through that.
 
+>   * mkreiserfs fails: "mkreiserfs: can not create filesystem on that
+>     small device (0 blocks)."
+>   * mkfs.xfs fails: "warning - cannot set blocksize on block device
+>     /dev/sdb: Invalid argument"
 
-Erik
+Someone needs to patch reiserfs/xfs.
+
+>   I assume both mkreiserfs and mkfs.xfs use ioctl to get the size
+>   of the device, and that ioctl uses an unsigned int? How is
+>   userspace supposed to get the devicesize of >2GB devices with
+>   your code?
+
+See the e2fsprogs patch (again, below).
+
+>   * mkfs.ext2 makes the machine panic after a while.
+>     Unfortenately I don't have the panic message anymore, and at the
+>     moment I don't have the hardware to redo the test.
+
+That would've been a useful bug report.
+
+>   * fdisk bails out with 'Unable to read /dev/sdb'
+
+MS-DOS partitions do not work on huge devices, so at best we can make it
+report a more informative message.
+
+The amount of response I've received is absolutely dismal for a feature
+lots of people are clamouring on about needing.  At this rate, I doubt
+we'll have any of it decently tested before we start advertising it as a
+supported feature in 2.6.
+
+		-ben
 
 -- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
-of Electrical Engineering, Faculty of Information Technology and Systems,
-Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
-Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/
+"The world would be a better place if Larry Wall had been born in
+Iceland, or any other country where the native language actually
+has syntax" -- Peter da Silva
+

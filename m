@@ -1,63 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262308AbTLNSjG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Dec 2003 13:39:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262319AbTLNSjG
+	id S262303AbTLNSfJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Dec 2003 13:35:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262308AbTLNSfJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Dec 2003 13:39:06 -0500
-Received: from real-outmail.cc.huji.ac.il ([132.64.1.17]:1234 "EHLO
-	mail1.cc.huji.ac.il") by vger.kernel.org with ESMTP id S262308AbTLNSjD
+	Sun, 14 Dec 2003 13:35:09 -0500
+Received: from wblv-224-192.telkomadsl.co.za ([165.165.224.192]:65417 "EHLO
+	gateway.lan") by vger.kernel.org with ESMTP id S262303AbTLNSfD
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Dec 2003 13:39:03 -0500
-Message-ID: <3FDC9EC8.1000908@mscc.huji.ac.il>
-Date: Sun, 14 Dec 2003 19:32:56 +0200
-From: Voicu Liviu <pacman@mscc.huji.ac.il>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5) Gecko/20031007
-X-Accept-Language: en-us, en, he
-MIME-Version: 1.0
-To: Roberto Sanchez <rcsanchez97@yahoo.es>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4 vs 2.6
-References: <20031201062052.GA2022@frodo> <Pine.LNX.4.44.0312011202330.13692-100000@logos.cnet> <m2r7z8xl2o.fsf_-_@tnuctip.rychter.com> <3FDC0BAC.8020909@mscc.huji.ac.il> <3FDC8957.4000602@yahoo.es>
-In-Reply-To: <3FDC8957.4000602@yahoo.es>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 14 Dec 2003 13:35:03 -0500
+Subject: Re: udev for dummies
+From: Martin Schlemmer <azarah@nosferatu.za.org>
+Reply-To: azarah@nosferatu.za.org
+To: Greg KH <greg@kroah.com>
+Cc: "J.A. Magallon" <jamagallon@able.es>,
+       Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20031212213148.GA24643@kroah.com>
+References: <20031211221604.GA2939@werewolf.able.es>
+	 <20031212213148.GA24643@kroah.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-jQyRdoBH20eXxpw56vE3"
+Message-Id: <1071427017.17146.2.camel@nosferatu.lan>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sun, 14 Dec 2003 20:36:57 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roberto Sanchez wrote:
 
-> Voicu Liviu wrote:
->
->> My specs:
->> Cpu:Athlon XP 2500+ BARTON {10x190}
->> Mobo:EPOX 8RDA3 + NFORCE 2
->> Ram:Corsair TWINX 512 3200LL{dual channel/11-3-2-2.0}
->> Fan:Cooler Master +7
->> Video:Hercules 3D Prophet 9600 PRO Radeon 128MB
->>
->> My Hercules 3D Prophet 9600 PRO Radeon simply freezes my comp. with
->> ati-drivers from ati.com so I need to press reset!(so I only can run
->> console)
->> My sound (nvidia on board) works very shitty and I have no control on
->> it (level sound I mean).
->> I was running 2.4.23 vanilla + lvm1 so I moved to 2.6 vanilla+lvm2 and
->> now I can not move back
->>
->> These are my biggest problems with 2.6.
->
->
->
-> Have you treid the in kernel DRI drivers?  They work with my Radeon
-> 9000 on an nForce2.
->
-> Also, why can't you go back to 2.4.23?
+--=-jQyRdoBH20eXxpw56vE3
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Because i use lvm2 and I could not find the way to get back to lvm1
-Any clue?
+On Fri, 2003-12-12 at 23:31, Greg KH wrote:
+> On Thu, Dec 11, 2003 at 11:16:04PM +0100, J.A. Magallon wrote:
+> > Hi all...
+> >=20
+> > I am starting to use 2.6, and I really would like to use udev.
+> > But I can't find a doc about how to move from taditional heavily
+> > populated /dev to new method.
+> >=20
+> > Any pointer ?
+>=20
+> Did you read the README in udev's package?
+>=20
+> Anyway, I don't really recommend using udev for management of your /dev
+> at this moment in time.  In order to do this we need some more
+> intregration of udev into the early boot process.  People are working on
+> this, but it will be a bit of time before it works properly, sorry.
+>=20
 
->
-> -Roberto
+It does work nicely to manage /dev if /dev is well populated as you
+would have for a non-devfs system (yes, it does sort of defeat the
+point, but the extra functionality of udev like changing the name
+of a specific usb device, etc, makes up for the current 'bloat of
+this approach).
 
-Liviu
+
+--=20
+Martin Schlemmer
+
+--=-jQyRdoBH20eXxpw56vE3
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQA/3K3JqburzKaJYLYRArygAJ9Erryps8ktgk1Nj1cDYJek05aizQCfS3Ju
+4dI4CmqnmORDsLl4sRBICoY=
+=v95Y
+-----END PGP SIGNATURE-----
+
+--=-jQyRdoBH20eXxpw56vE3--
 

@@ -1,35 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261536AbTCKRVE>; Tue, 11 Mar 2003 12:21:04 -0500
+	id <S261532AbTCKROL>; Tue, 11 Mar 2003 12:14:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261538AbTCKRVE>; Tue, 11 Mar 2003 12:21:04 -0500
-Received: from dp.samba.org ([66.70.73.150]:17550 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S261536AbTCKRVE>;
-	Tue, 11 Mar 2003 12:21:04 -0500
-Date: Wed, 12 Mar 2003 04:29:34 +1100
-From: Anton Blanchard <anton@samba.org>
-To: Andi Kleen <ak@muc.de>
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Dcache hash distrubition patches
-Message-ID: <20030311172934.GB8268@krispykreme>
-References: <10280000.1047318333@[10.10.2.4]> <20030310175221.GA20060@averell> <26350000.1047368465@[10.10.2.4]> <20030311152322.GA2358@averell> <31840000.1047396682@[10.10.2.4]> <20030311162734.GA5640@averell>
+	id <S261536AbTCKROL>; Tue, 11 Mar 2003 12:14:11 -0500
+Received: from mail.ithnet.com ([217.64.64.8]:52487 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S261532AbTCKROK>;
+	Tue, 11 Mar 2003 12:14:10 -0500
+Date: Tue, 11 Mar 2003 18:24:26 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: alan@lxorguk.ukuu.org.uk, marcelo@conectiva.com.br
+Subject: Re: OOPS in 2.4.21-pre5, ide-scsi
+Message-Id: <20030311182426.561df21e.skraw@ithnet.com>
+In-Reply-To: <20030228162841.17ac0092.skraw@ithnet.com>
+References: <20030227221017.4291c1f6.skraw@ithnet.com>
+	<20030228162841.17ac0092.skraw@ithnet.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030311162734.GA5640@averell>
-User-Agent: Mutt/1.5.3i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello all,
 
-> I doubt inode cache is very critical, except perhaps in NFS server loads
-> (but even the nfs server has an own frontend cache)
-> Normally the dcache should bear most of the load.
+again, news on this topic. Today I plugged in an additional:
 
-I did some analysis of the hashes ages ago. From memory the regular
-grouping of inodes caused this unbalanced distribution:
+01:03.0 Unknown mass storage controller: Promise Technology, Inc. 20268 (rev
+01)
 
-http://samba.org/~anton/linux/hashes/1/icache.png
+and connected my ATAPI cdwriter to it. And _now_ everything works! ide-scsi is
+just fine, I can mount CDs again. So I state that the ide-driver for 
 
-Anton
+00:0f.1 IDE interface: ServerWorks CSB5 IDE Controller (rev 93)
+
+is in fact broken, at least regarding use of ide-scsi. If anyone has patches or
+the like, please submit, I can test.
+I tested all available -ac and they all do not work. 2.4.20 does not work
+either.
+
+-- 
+Regards,
+Stephan

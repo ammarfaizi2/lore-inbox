@@ -1,51 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262418AbSKTTAJ>; Wed, 20 Nov 2002 14:00:09 -0500
+	id <S262384AbSKTTC7>; Wed, 20 Nov 2002 14:02:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262420AbSKTTAJ>; Wed, 20 Nov 2002 14:00:09 -0500
-Received: from packet.digeo.com ([12.110.80.53]:56220 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S262418AbSKTTAI>;
-	Wed, 20 Nov 2002 14:00:08 -0500
-Message-ID: <3DDBDD5A.F76AAD0E@digeo.com>
-Date: Wed, 20 Nov 2002 11:07:06 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Mark Haverkamp <markh@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Call trace at mm/page-writeback.c in 2.5.47
-References: <1037808468.6367.41.camel@markh1.pdx.osdl.net>
+	id <S262394AbSKTTC7>; Wed, 20 Nov 2002 14:02:59 -0500
+Received: from crack.them.org ([65.125.64.184]:42406 "EHLO crack.them.org")
+	by vger.kernel.org with ESMTP id <S262384AbSKTTC5>;
+	Wed, 20 Nov 2002 14:02:57 -0500
+Date: Wed, 20 Nov 2002 14:09:36 -0500
+From: Daniel Jacobowitz <dan@debian.org>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: spinlocks, the GPL, and binary-only modules
+Message-ID: <20021120190936.GA11446@nevyn.them.org>
+Mail-Followup-To: Andre Hedrick <andre@linux-ide.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <1037802074.3267.24.camel@irongate.swansea.linux.org.uk> <Pine.LNX.4.10.10211201055310.3892-100000@master.linux-ide.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 20 Nov 2002 19:07:06.0605 (UTC) FILETIME=[04AC39D0:01C290C8]
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.10.10211201055310.3892-100000@master.linux-ide.org>
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Haverkamp wrote:
+On Wed, Nov 20, 2002 at 10:57:58AM -0800, Andre Hedrick wrote:
+> On 20 Nov 2002, Alan Cox wrote:
 > 
-> While running a memory stress workload test on a 16 processor numa
-> system, I received a number of call traces like the following:
+> > On Wed, 2002-11-20 at 04:26, Ross Vandegrift wrote:
+> > > On Wed, Nov 20, 2002 at 12:59:26AM -0200, Rik van Riel wrote:
+> > > > You can copyright songs, but not individual musical notes.
+> > > > 
+> > > > Likewise, snippets of code aren't copyrightable if they're below
+> > > > a certain "triviality size".
+> > > 
+> > > I don't pretend to be current on all the issues involved, but I've
+> > > always been under the impression that Linus has insisted that
+> > > binary-only drivers aren't derived works, with respect to the GPL.
+> > 
+> > Linus has said much the reverse if you look back. Being a module doesnt
+> > make it not a derivative work. In some ways thats not even directly
+> > relevant
+> 
+> The double negative unwrapped:
+> 
+> "Being a module doesnt make it not a derivative work."
+> 
+> 'Being a module does (not) make it not a derivative work.'
+> 'Being a module does (not) make it (not) a derivative work.'
+> 
+> 'Being a module does make it a derivative work.'
+> 
+> Is this the intent of the statement?
 
-What is the workload?  And in which journalling mode was ext3
-being used?
+That's faulty grammar and faulty logic.  "A" does not require "not B".
 
-Was the workload actually being run against ext3?
-
-> buffer layer error at mm/page-writeback.c:559
-> Pass this trace through ksymoops for reporting
-> Call Trace:
->  [<c013f1fb>] __set_page_dirty_buffers+0x3b/0x150
->  [<c012d746>] zap_pte_range+0x1d6/0x2c0
->  [<c0183401>] do_get_write_access+0x4a1/0x4d0
->  [<c012d89c>] zap_pmd_range+0x6c/0x80
-
-A non-uptodate page mapped into pagetables.  I _think_ I
-can see how that can happen.  If the workload was, say,
-bash-shared-mapping...
-
-If it is reproducible, does the removal of the ClearPageUptodate
-statement from mm/truncate.c:truncate_complete_page() make it
-go away?
-
-Thanks.
+-- 
+Daniel Jacobowitz
+MontaVista Software                         Debian GNU/Linux Developer

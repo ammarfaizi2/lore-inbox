@@ -1,48 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268714AbRHBEr0>; Thu, 2 Aug 2001 00:47:26 -0400
+	id <S268778AbRHBFlu>; Thu, 2 Aug 2001 01:41:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268713AbRHBErQ>; Thu, 2 Aug 2001 00:47:16 -0400
-Received: from quattro.sventech.com ([205.252.248.110]:54288 "HELO
-	quattro.sventech.com") by vger.kernel.org with SMTP
-	id <S268712AbRHBErB>; Thu, 2 Aug 2001 00:47:01 -0400
-Date: Thu, 2 Aug 2001 00:47:10 -0400
-From: Johannes Erdfelt <johannes@erdfelt.com>
-To: William T Wilson <fluffy@snurgle.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: SMP possible with AMD CPUs?
-Message-ID: <20010802004708.O3126@sventech.com>
-In-Reply-To: <20010801161005.B784@sventech.com> <Pine.LNX.4.21.0108020032330.944-100000@benatar.snurgle.org>
-Mime-Version: 1.0
+	id <S268779AbRHBFlj>; Thu, 2 Aug 2001 01:41:39 -0400
+Received: from cx570538-a.elcjn1.sdca.home.com ([24.5.14.144]:3712 "EHLO
+	keroon.dmz.dreampark.com") by vger.kernel.org with ESMTP
+	id <S268778AbRHBFli>; Thu, 2 Aug 2001 01:41:38 -0400
+Message-ID: <3B68E74B.E4A9E481@randomlogic.com>
+Date: Wed, 01 Aug 2001 22:38:19 -0700
+From: "Paul G. Allen" <pgallen@randomlogic.com>
+Organization: Akamai Technologies, Inc.
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.2-2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: OT: Virii on vger.kernel.org lists
+In-Reply-To: <Pine.LNX.4.33.0108011406320.15992-100000@sol.compendium-tech.com> <Pine.GSO.4.21.0108011713080.27494-100000@weyl.math.psu.edu> <20010801235724.A23000@werewolf.able.es>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <Pine.LNX.4.21.0108020032330.944-100000@benatar.snurgle.org>; from fluffy@snurgle.org on Thu, Aug 02, 2001 at 12:34:54AM -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 02, 2001, William T Wilson <fluffy@snurgle.org> wrote:
-> On Wed, 1 Aug 2001, Johannes Erdfelt wrote:
+"J . A . Magallon" wrote:
 > 
-> > I don't know if this was true to begin with, but I know that SMP AMD
-> > systems use the APIC SMP scheme Intel defined and uses.
+
+[SNIP]
 > 
-> Is this really true?  I seem to remember that there was very little
-> difference between OPIC and APIC in the first place, but AMD could not use
-> APIC because of licensing problems.
+> That is the always repeated answer. I could get a web page at some box at the
+> University, but there are many people that have not a permanent address. Going
+> to the mess of using a ISP-provided web page is a pain. Instead of bzip your
+> patch and send it to the list you have to go through bizarre http interfaces
+> to manage your web page (tell me about a ISP that lets you telnet/ssh/ftp to your
+> account).
 > 
-> Since Athlons cannot use the same motherboards as Intel (unlike the K6-2)
-> and AMD makes the SMP chipsets for Athlon, why would they possibly want to
-> use APIC when they could more easily and cheaply use OPIC?
+> I do not see why a bzipped patch is so bad. The only person I was aware he won't
+> read anything but plain text is Linus (and now some on this thread look with
+> the same feeling).
+> 
 
-I'm pretty sure it's not identical since the APIC bus on GTL+ is most
-likely different than the EV6 bus.
+There are a few reasons why zipped attachments, large attachments, and
+even large text-only patches are bad on a mailing list such as this:
 
-However, from a software point of view, they are pretty much identical
-give or take a few implementation details (as seen in 2.2)
+1. Not everyone uses a mail client that will support the various
+attachment encodings and therefore can not get the attachment without
+jumping through hoops. Why subject them to this?
 
-I don't know anything about OpenAPIC, so I can't say anything about the
-similarities.
+2. Some mail clients pervert the standard attachment formats, such as
+Outlook Express, making them undecipherable by anyone using anything
+other than that very same client. Again, why subject people to that?
 
-JE
+3. Many, many people PAY PER BYTE for their Internet connection. Adding
+a large attachment, or sending a large text patch file, costs them
+money. Many times they do not want it anyway and you are costing them
+money by forcing them to D/L it.
 
+4. Not everyone has a high speed connection and with the volume that a
+list like this creates, it is a LARGE burden on them to wait, and wait,
+and wait, for the few messages they want, and/or need, to see.
+
+So, as with other large projects I've worked on (though none quite this
+large) involving a mailing list, the best solution is to a) strip
+attachments atthe mailing list server and b) provide a repository for
+people to D/L patches, new kernels, etc. for public access.
+
+PGA
+
+-- 
+Paul G. Allen
+UNIX Admin II/Network Security
+Akamai Technologies, Inc.
+www.akamai.com

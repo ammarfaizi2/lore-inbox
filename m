@@ -1,65 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131016AbRBVCaE>; Wed, 21 Feb 2001 21:30:04 -0500
+	id <S129170AbRBVCdO>; Wed, 21 Feb 2001 21:33:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131049AbRBVC3y>; Wed, 21 Feb 2001 21:29:54 -0500
-Received: from hermes.mixx.net ([212.84.196.2]:60934 "HELO hermes.mixx.net")
-	by vger.kernel.org with SMTP id <S131016AbRBVC3i>;
-	Wed, 21 Feb 2001 21:29:38 -0500
-Message-ID: <3A947953.B88A23E2@innominate.de>
-Date: Thu, 22 Feb 2001 03:28:35 +0100
-From: Daniel Phillips <phillips@innominate.de>
-Organization: innominate
-X-Mailer: Mozilla 4.72 [de] (X11; U; Linux 2.4.0-test10 i586)
-X-Accept-Language: en
+	id <S129693AbRBVCdE>; Wed, 21 Feb 2001 21:33:04 -0500
+Received: from [216.184.166.130] ([216.184.166.130]:8008 "EHLO
+	scsoftware.sc-software.com") by vger.kernel.org with ESMTP
+	id <S130954AbRBVCcy>; Wed, 21 Feb 2001 21:32:54 -0500
+Date: Wed, 21 Feb 2001 18:31:18 +0000 (   )
+From: John Heil <kerndev@sc-software.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux-2.4.2
+In-Reply-To: <Pine.LNX.4.10.10102211811430.1005-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.3.95.1010221182554.14140C-100000@scsoftware.sc-software.com>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [rfc] Near-constant time directory index for Ext2
-In-Reply-To: <01022022544707.18944@gimli> <Pine.LNX.4.10.10102201618520.31530-100000@penguin.transmeta.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> On Tue, 20 Feb 2001, Daniel Phillips wrote:
-> >
-> > You mean full_name_hash?  I will un-static it and try it.  I should have
-> > some statistics tomorrow.  I have a couple of simple metrics for
-> > measuring the effectiveness of the hash function: the uniformity of
-> > the hash space splitting (which in turn affects the average fullness
-> > of directory leaves) and speed.
-> 
-> I was more thinking about just using "dentry->d_name->hash" directly, and
-> not worrying about how that hash was computed. Yes, for ext2 it will have
-> the same value as "full_name_hash" - the difference really being that
-> d_hash has already been precomputed for you anyway.
-> 
-> > Let the hash races begin.
-> 
-> Note that dentry->d_name->hash is really quick (no extra computation), but
-> I'm not claiming that it has anything like a CRC quality. And it's
-> probably a bad idea to use it, because in theory at least the VFS layer
-> might decide to switch the hash function around. I'm more interested in
-> hearing whether it's a good hash, and maybe we could improve the VFS hash
-> enough that there's no reason to use anything else..
+On Wed, 21 Feb 2001, Linus Torvalds wrote:
 
-In the first heat of hash races - creating 20,000 files in one directory
-- dentry::hash lost out to my original hack::dx_hash, causing a high
-percentage of leaf blocks to remain exactly half full and slowing down
-the whole thing by about 5%.  (This was under uml - I haven't tried it
-native yet but I expect the results to be similar.)
+> Date: Wed, 21 Feb 2001 18:19:43 -0800 (PST)
+> From: Linus Torvalds <torvalds@transmeta.com>
+> To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+> Subject: Linux-2.4.2
+> 
+> 
+> Ok, the patch looks huge (it's a meg and a half compressed, 6+ megs
+> uncompressed), but most of the patch by far is S/390 updates and the new
+> Cris architecture. 
+> 
+> The biggest real changes that impact normal users are the two bugs that
+> could corrupt your harddisk. The IDE driver bug that Russell found has, to
+> my knowledge, never been shown to happen on anything but his ARM machine,
+> but for all we know it could be quite bad even on x86. Similarly, the
+> elevator bug could cause corruption, but probably has not actually bit
+> people in practice. But both are definitely deadly at least in theory even
+> on bog-standard common PC hardware.
+> 
+> The reiserfs fix should hopefully make the "null bytes in log-files"
+> problem a non-issue, and along with the smbfs/HIGHMEM thing it is
+> certainly important for those that it can affect.
+> 
+> 		Linus
+> 
+> ----
+> 
+> final:
+>  - sync up more with Alan
+>  - Urban Widmark: smbfs and HIGHMEM fix
+>  - Chris Mason: reiserfs tail unpacking fix ("null bytes in reiserfs files")
+>  - Adan Richter: new cpia usb ID
+>  - Hugh Dickins: misc small sysv ipc fixes
+>  - Andries Brouwer: remove overly restrictive sector size check for
+>    SCSI cd-roms
 
-	  Contender			Result
-	  =========			======
-	dentry::hash		Average fullness = 2352 (57%)
-	hack::dx_hash		Average fullness = 2758 (67%)
+snip
 
-This suggests that dentry::hash is producing distinctly non-dispersed
-results and needs to be subjected to further scrutiny.  I'll run the
-next heat of hash races tomorrow, probably with R5, and CRC32 too if I
-have time.
 
---
-Daniel
+Hi, 
+
+Which -ac series patch does this match up with or superceed
+ie should this be considered superior to -ac19 ?
+
+Thnx much
+
+
+-----------------------------------------------------------------
+John Heil
+South Coast Software
+Custom systems software for UNIX and IBM MVS mainframes
+1-714-774-6952
+kerndev@sc-software.com
+johnhscs@sc-software.com
+http://www.sc-software.com
+-----------------------------------------------------------------
+

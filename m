@@ -1,85 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267904AbUJDKPt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267940AbUJDKP7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267904AbUJDKPt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 06:15:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267934AbUJDKPt
+	id S267940AbUJDKP7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 06:15:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267939AbUJDKPx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 06:15:49 -0400
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:64998 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S267904AbUJDKPn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 06:15:43 -0400
-Date: Mon, 04 Oct 2004 19:17:24 +0900
-From: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
-Subject: take2: [Patch 0/3] Updated patches for PCI IRQ deallocation support
-To: Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
-       Len Brown <len.brown@intel.com>, "Luck, Tony" <tony.luck@intel.com>
-Cc: linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net,
-       linux-ia64@vger.kernel.org
-Message-id: <41612334.3070407@jp.fujitsu.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-X-Accept-Language: ja
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; ja-JP; rv:1.4)
- Gecko/20030624 Netscape/7.1 (ax)
+	Mon, 4 Oct 2004 06:15:53 -0400
+Received: from scanner2.mail.elte.hu ([157.181.151.9]:55744 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S267928AbUJDKPo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Oct 2004 06:15:44 -0400
+Date: Mon, 4 Oct 2004 12:17:11 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, "K.R. Foley" <kr@cybsft.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc2-mm4-S7
+Message-ID: <20041004101711.GA21029@elte.hu>
+References: <20040922103340.GA9683@elte.hu> <20040923122838.GA9252@elte.hu> <20040923211206.GA2366@elte.hu> <20040924074416.GA17924@elte.hu> <20040928000516.GA3096@elte.hu> <1096785457.1837.0.camel@krustophenia.net> <1096786248.1837.4.camel@krustophenia.net> <1096787179.1837.8.camel@krustophenia.net> <20041003195725.GA31882@elte.hu> <1096851180.16648.2.camel@krustophenia.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1096851180.16648.2.camel@krustophenia.net>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-Here is an updated set of patches for PCI IRQ resource deallocation
-based on feedbacks. Change logs are described in each patch. This set
-of patches has the following three patches:
+* Lee Revell <rlrevell@joe-job.com> wrote:
 
-    - [Patch 1/3]: This is for PCI code that has no dependencies. This
-      patch is already included in 2.6.9-rc3-mm1 tree.
+> Here is an almost identical one (it's even exactly 507 usecs!).  This
+> and the one I sent previously were apparently caused by switching from
+> X to a text console and back. 
 
-    - [Patch 2/3]: This is for ACPI code that has no dependencies.
+ah, it's the VGA console:
 
-    - [Patch 3/3]: This is for ia64 code. This depends on [patch 2/3].
+> Sep  2 16:13:49 krustophenia kernel:  [_mmx_memcpy+314/384] _mmx_memcpy+0x13a/0x180
+> Sep  2 16:13:49 krustophenia kernel:  [vgacon_save_screen+120/128] vgacon_save_screen+0x78/0x80
+> Sep  2 16:13:49 krustophenia kernel:  [redraw_screen+411/560] redraw_screen+0x19b/0x230
 
-Thanks,
-Kenji Kaneshige
+now i'm wondering why that's running with preemption disabled - i
+thought we fixed that.
 
-----
-Architecture dependent IRQ resources such as interrupt vector for PCI
-devices are allocated at pci_enable_device() time on i386, x86-64 and
-ia64 platform. Today, however, these IRQ resources are never
-deallocated even if they are no longer used. The following set of
-patches adds supports to deallocate IRQ resources at
-pci_disable_device() time.
-
-The motivation of the set of patches is as follows:
-
-    - IRQ resources such as interrupt vectors should be freed if they
-      are no longer used because the amount of these resources are
-      limited. By deallocating IRQ resources, we can recycle them.
-
-    - I think some hardwares will support hot-pluggable I/O units with
-      I/O xAPICs in the near future. So I/O xAPIC hot-plug support by
-      OS will be needed soon. IRQ resouces deallocation will be one of
-      the most important stuff for I/O xAPIC hot-plug.
-
-To realize IRQ resource deallocation, the following set of patches
-defines new interfaces:
-
-    - void pcibios_disable_device (struct pci_dev *dev)
-
-      This is a opposite portion of pcibios_enable_device(). It's a
-      hook to call architecture specific code for deallocating PCI
-      resources.
-      
-    - void acpi_unregister_gsi (unsigned int gsi)
-
-      This is a opposite portion of acpi_register_gsi(). This has a
-      responsibility for deallocating IRQ resources associated with
-      the specified linux IRQ number. 
-
-For details of these interfaces, please see the description in each
-patch.
-
-For now, the following set of patches has ia64 implementation only.
-i386 and x86_64 implementations are TBD.
-
-
+	Ingo

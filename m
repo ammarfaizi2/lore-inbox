@@ -1,128 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263399AbTI2Nzx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 09:55:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263400AbTI2Nzx
+	id S263380AbTI2NvP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 09:51:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263392AbTI2NvP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 09:55:53 -0400
-Received: from smtp.actcom.co.il ([192.114.47.13]:39052 "EHLO
-	smtp1.actcom.net.il") by vger.kernel.org with ESMTP id S263399AbTI2Nzu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 09:55:50 -0400
-Date: Mon, 29 Sep 2003 16:55:40 +0300
-From: Muli Ben-Yehuda <mulix@mulix.org>
-To: Florin Iucha <florin@iucha.net>, Jaroslav Kysela <perex@suse.cz>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.0-test6
-Message-ID: <20030929135540.GO29313@actcom.co.il>
-References: <Pine.LNX.4.44.0309271822450.6141-100000@home.osdl.org> <20030929132355.GA1206@iucha.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="eAnxKwVhzStH6fSc"
+	Mon, 29 Sep 2003 09:51:15 -0400
+Received: from mailrelay.tu-graz.ac.at ([129.27.3.7]:43881 "EHLO
+	mailrelay01.tugraz.at") by vger.kernel.org with ESMTP
+	id S263380AbTI2NvN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Sep 2003 09:51:13 -0400
+From: Thomas Winkler <tom@qwws.net>
+Reply-To: tom@qwws.net
+To: linux-kernel@vger.kernel.org
+Subject: BugReport (test6): USB (ACPI), SWSUSP, E100
+Date: Mon, 29 Sep 2003 15:51:00 +0200
+User-Agent: KMail/1.5.1
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20030929132355.GA1206@iucha.net>
-User-Agent: Mutt/1.5.4i
+Message-Id: <200309291551.00446.tom@qwws.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello, 
 
---eAnxKwVhzStH6fSc
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I sent a similar report for 2.6.0test5 already (see: 
+http://linux.derkeiler.com/Mailing-Lists/Kernel/2003-09/3017.html).
+Back than I was told to wait for the next kernel (test6) and check again. So 
+here are the results with test6:
 
-On Mon, Sep 29, 2003 at 08:23:55AM -0500, Florin Iucha wrote:
+ 
+- USB - still dead
+This notebook has some IRQ routing problems and requires ACPI to get it right. 
+When using older 2.4 Kernels I always had to apply the ACPI patches to get 
+USB working. With 2.6-test3 the IRQ routing / ACPI stuff worked out of the 
+box. With test5 and test6 USB is not working.
+The following of dmesg seems to be interesting (full dmesg at the end of the 
+mail):
 
-> I can no longer select my soundcard: In test5 it was configured by
-> CONFIG_SND_CS46XX! This option is no longer available in test6 (make
-> menuconfig does not offer me the opportunity).
+drivers/usb/host/uhci-hcd.c: USB Universal Host Controller Interface driver 
+v2.1
+uhci-hcd 0000:00:1f.2: UHCI Host Controller
+irq 9: nobody cared!
+Call Trace:
+ [<c010ae0a>] __report_bad_irq+0x2a/0x90
+ [...]
+ [<c01072a9>] kernel_thread_helper+0x5/0xc
 
-You need to enable CONFIG_GAMEPORT, or apply this patch. Jaroslav, is
-there a master plan for the CONFIG_SOUND_GAMEPORT -> CONFIG_GAMEPORT
-conversion or is it a bug? this patch reverts it.=20
-
-diff -Naur --exclude-from /home/muli/p/dontdiff linux-2.5/sound/pci/Kconfig=
- revert-alsa-gameport-2.6.0-t6/sound/pci/Kconfig
---- linux-2.5/sound/pci/Kconfig	Mon Sep 29 16:46:37 2003
-+++ revert-alsa-gameport-2.6.0-t6/sound/pci/Kconfig	Mon Sep 29 16:48:00 2003
-@@ -17,7 +17,7 @@
-=20
- config SND_CS46XX
- 	tristate "Cirrus Logic (Sound Fusion) CS4280/CS461x/CS462x/CS463x"
--	depends on SND && GAMEPORT
-+	depends on SND && SOUND_GAMEPORT
- 	help
- 	  Say 'Y' or 'M' to include support for Cirrus Logic CS4610 / CS4612 /
- 	  CS4614 / CS4615 / CS4622 / CS4624 / CS4630 / CS4280 chips.
-@@ -30,7 +30,7 @@
-=20
- config SND_CS4281
- 	tristate "Cirrus Logic (Sound Fusion) CS4281"
--	depends on SND && GAMEPORT
-+	depends on SND && SOUND_GAMEPORT
- 	help
- 	  Say 'Y' or 'M' to include support for Cirrus Logic CS4281.
-=20
-@@ -83,7 +83,7 @@
-=20
- config SND_TRIDENT
- 	tristate "Trident 4D-Wave DX/NX; SiS 7018"
--	depends on SND && GAMEPORT
-+	depends on SND && SOUND_GAMEPORT
- 	help
- 	  Say 'Y' or 'M' to include support for Trident 4D-Wave DX/NX and
- 	  SiS 7018 soundcards.
-@@ -110,20 +110,20 @@
-=20
- config SND_ENS1370
- 	tristate "(Creative) Ensoniq AudioPCI 1370"
--	depends on SND && GAMEPORT
-+	depends on SND && SOUND_GAMEPORT
- 	help
- 	  Say 'Y' or 'M' to include support for Ensoniq AudioPCI ES1370.
-=20
- config SND_ENS1371
- 	tristate "(Creative) Ensoniq AudioPCI 1371/1373"
--	depends on SND && GAMEPORT
-+	depends on SND && SOUND_GAMEPORT
- 	help
- 	  Say 'Y' or 'M' to include support for Ensoniq AudioPCI ES1371 and
- 	  Sound Blaster PCI 64 or 128 soundcards.
-=20
- config SND_ES1938
- 	tristate "ESS ES1938/1946/1969 (Solo-1)"
--	depends on SND && GAMEPORT
-+	depends on SND && SOUND_GAMEPORT
- 	help
- 	  Say 'Y' or 'M' to include support for ESS Solo-1 (ES1938, ES1946, ES196=
-9)
- 	  soundcard.
-@@ -173,7 +173,7 @@
-=20
- config SND_SONICVIBES
- 	tristate "S3 SonicVibes"
--	depends on SND && GAMEPORT
-+	depends on SND && SOUND_GAMEPORT
- 	help
- 	  Say 'Y' or 'M' to include support for S3 SonicVibes based soundcards.
-=20
-
---=20
-Muli Ben-Yehuda
-http://www.mulix.org
+handlers:
+[<c0204f3f>] (acpi_irq+0x0/0x16)
+Disabling IRQ #9
 
 
---eAnxKwVhzStH6fSc
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+- SWSUSP 
+In contrast du test5 there now is a /proc/acpi/sleep file again. But an 
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+echo 4 > /proc/acpi/sleep shows no effect at all. SWSUSP is enabled in the 
+kernel (full .config at the end of the mail).
 
-iD8DBQE/eDncKRs727/VN8sRAhXRAJ9y1ClSi3zsJi48QR4XdCVB4xh4+gCfTLw/
-H8dlx8YgEjr4Ujk38mb587U=
-=nrpl
------END PGP SIGNATURE-----
+echo 3 > /proc/acpi/sleep produces the following output and then the prompt 
+returns again:
+Stopping tasks: ==================
+ stopping tasks failed (1 tasks remaining)
+Restarting tasks...<6> Strange, khubd not stopped
+ done
 
---eAnxKwVhzStH6fSc--
+
+- The e100 driver seems to be broken 
+The NIC is detected correctly and ifconfig shows eth0 as usually. But for some 
+reason not a single Byte seems to go over the NIC. I can ping the machine 
+itself but I'm not able to send anything to any outside machine. This again 
+works perfectly with test3 but shows the same problems with test5 and test6
+Please note: I compiled test6 with the same .config as test3 and I didn't 
+change any init scripts before bootuing test6. I've no idea but might this 
+problem be related to the broken ACPI?
+
+
+full dmesg: http://www.wnk.at/tmp/test6/dmesg.txt 
+.config used building the kernel: http://www.wnk.at/tmp/test6/config.txt 
+ 
+Since I'm not subscribed to LKM please CC me on replys. 
+If you need more information please drop me a line.
+ 
+Thanks,
+-- 
+Tom Winkler
+e-mail: tom@qwws.net

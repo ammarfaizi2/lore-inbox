@@ -1,73 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132479AbRANMQo>; Sun, 14 Jan 2001 07:16:44 -0500
+	id <S132563AbRANMcB>; Sun, 14 Jan 2001 07:32:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132563AbRANMQe>; Sun, 14 Jan 2001 07:16:34 -0500
-Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:59250
-	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
-	id <S132479AbRANMQR>; Sun, 14 Jan 2001 07:16:17 -0500
-Date: Sun, 14 Jan 2001 13:16:09 +0100
-From: Rasmus Andersen <rasmus@jaquet.dk>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] drivers/net/yellowfin.c zero initialization cleanup (2.4.0p3)
-Message-ID: <20010114131609.A604@jaquet.dk>
+	id <S132564AbRANMbv>; Sun, 14 Jan 2001 07:31:51 -0500
+Received: from Cantor.suse.de ([194.112.123.193]:5644 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S132563AbRANMbl>;
+	Sun, 14 Jan 2001 07:31:41 -0500
+Date: Sun, 14 Jan 2001 13:31:40 +0100
+From: Andi Kleen <ak@suse.de>
+To: Igmar Palsenberg <i.palsenberg@jdimedia.nl>
+Cc: Andi Kleen <ak@suse.de>, "David S. Miller" <davem@redhat.com>,
+        Harald Welte <laforge@gnumonks.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.0 + iproute2
+Message-ID: <20010114133140.A23640@gruyere.muc.suse.de>
+In-Reply-To: <20010114124659.A23188@gruyere.muc.suse.de> <Pine.LNX.4.30.0101141309160.16758-100000@jdi.jdimedia.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.30.0101141309160.16758-100000@jdi.jdimedia.nl>; from i.palsenberg@jdimedia.nl on Sun, Jan 14, 2001 at 01:13:16PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Sun, Jan 14, 2001 at 01:13:16PM +0100, Igmar Palsenberg wrote:
+> On Sun, 14 Jan 2001, Andi Kleen wrote:
+> 
+> > On Sun, Jan 14, 2001 at 03:36:55AM -0800, David S. Miller wrote:
+> > >
+> > > Andi Kleen writes:
+> > >  > How would you pass the extended errors? As strings or as to be
+> > >  > defined new numbers? I would prefer strings, because the number
+> > >  > namespace could turn out to be as nasty to maintain as the current
+> > >  > sysctl one.
+> > >
+> > > Textual error messages for system calls never belong in the kernel.
+> > > Put it in glibc or wherever.
+> >
+> > This just means that a table needs to be kept in sync between glibc and
+> > netlink, and if someone e.g. gets a new CBQ module he would need to update
+> > glibc. It's also bad for maintainers, because patches for tables of number
+> > tend to always reject ;)
+> 
+> Agree, but textual strings are bad. I want to say :
+> 
+> if (error) {
+> 	perror("RTNETLINK");
+> 	return -1;
+> 	}
+> 
+> Using textual strings means you can't use standard functions. An option
+> would be to extend the call so that if the userspace app wants to know
+> what really went wrong he can ask the kernel.
 
-The following trivial patch cleans up some unneeded zero initializations in
-drivers/net/yellowfix.c. Applies cleanly against 2.4.0p3 and with a bit of
-fuzz against ac9 too.
+That will not work. Consider an application that has multiple rtnetlink
+sockets open, which each have own errors.
+
+rtnetlink is such a radical interface for unix, adding a few more changes
+for a different error reporting system probably does not make much difference.
+
+my problem with keeping the textual error messages out of kernel is that
+it means that three entities (kernel module, number table in kernel and 
+external string table) need to be kept in sync. In practice that's usually
+not the case.
+
+David's /proc/errno_strings would only require keeping kernel table and
+module in sync. 
+Text errors for rtnetlink would localize it to the module itself. 
+I could probably live with David's solution, although I would prefer the full
+way. 
 
 
---- linux-240-t12-pre8-clean/drivers/net/yellowfin.c	Sat May 13 17:19:21 2000
-+++ linux/drivers/net/yellowfin.c	Tue Dec 12 21:17:32 2000
-@@ -24,10 +24,10 @@
- 
- static int debug = 1;
- static int max_interrupt_work = 20;
--static int mtu = 0;
-+static int mtu;
- #ifdef YF_PROTOTYPE			/* Support for prototype hardware errata. */
- /* System-wide count of bogus-rx frames. */
--static int bogus_rx = 0;
-+static int bogus_rx;
- static int dma_ctrl = 0x004A0263; 			/* Constrained by errata */
- static int fifo_cfg = 0x0020;				/* Bypass external Tx FIFO. */
- #elif YF_NEW					/* A future perfect board :->.  */
-@@ -40,7 +40,7 @@
- 
- /* Set the copy breakpoint for the copy-only-tiny-frames scheme.
-    Setting to > 1514 effectively disables this feature. */
--static int rx_copybreak = 0;
-+static int rx_copybreak;
- 
- /* Used to pass the media type, etc.
-    No media types are currently defined.  These exist for driver
-@@ -51,7 +51,7 @@
- static int full_duplex[MAX_UNITS] = {-1, -1, -1, -1, -1, -1, -1, -1};
- 
- /* Do ugly workaround for GX server chipset errata. */
--static int gx_fix = 0;
-+static int gx_fix;
- 
- /* Operational parameters that are set at compile time. */
- 
-
--- 
-Regards,
-        Rasmus(rasmus@jaquet.dk)
-
-Question: If you could live forever, would you and why?  
-Answer: I would not live forever, because we should not live forever,
-because if we were supposed to live forever, then we would live forever,
-but we cannot live forever, which is why I would not live forever.  
--Miss Alabama in the 1994 Miss Universe contest
+-Andi
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

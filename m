@@ -1,55 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129094AbQKCQvK>; Fri, 3 Nov 2000 11:51:10 -0500
+	id <S130653AbQKCQzU>; Fri, 3 Nov 2000 11:55:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130653AbQKCQuv>; Fri, 3 Nov 2000 11:50:51 -0500
-Received: from smartmail.smartweb.net ([207.202.14.198]:7947 "EHLO
-	smartmail.smartweb.net") by vger.kernel.org with ESMTP
-	id <S129094AbQKCQun>; Fri, 3 Nov 2000 11:50:43 -0500
-Message-ID: <3A02ECEB.B1AE89@dm.ultramaster.com>
-Date: Fri, 03 Nov 2000 11:50:51 -0500
-From: David Mansfield <lkml@dm.ultramaster.com>
-Organization: Ultramaster Group LLC
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test10 i686)
-X-Accept-Language: en
+	id <S130826AbQKCQzK>; Fri, 3 Nov 2000 11:55:10 -0500
+Received: from w090.z064003079.san-ca.dsl.cnc.net ([64.3.79.90]:64252 "HELO
+	mail.land-5.com") by vger.kernel.org with SMTP id <S130691AbQKCQzC>;
+	Fri, 3 Nov 2000 11:55:02 -0500
+Date: Fri, 3 Nov 2000 09:53:42 -0800 (PST)
+From: jsack <jsack@land-5.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: raid5 2.4-test10: EXT2-fs corruption during sync
+Message-ID: <Pine.LNX.4.10.10011030906190.1087-100000@jgs.land-5.com>
 MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: blk-8 oopses at boot (was: blk-7 fails to boot)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jens.
+Running mke2fs on a raid5 which is still syncing causes a *variety* of
+filesystem corruption errors:
 
-I've tried your blk-8 patch and it oopses during boot.  I only hand
-copied the stack trace, and ran it through ksymoops:
+(sample errs)
+-------------
+- ...kernel: EXT2-fs error (device md(9,0)): ext2_check_descriptors:
+Block bitmap for group 4 not in group (block 0)!
 
-Call Trace: [<c01310e0>] [<c0131f55>] [<c014c88e>] [<c014c3dc>]
-[<c01b9cea>] [<c014c4ea>] [<c014c456>]
-        [<c01ba3a4>] [<c018c7ab>] [<c0105000>] [<c018c8ae>] [<c01070e7>]
-[<c0108ce3>]
-Warning (Oops_read): Code line not seen, dumping what data is available
+- e2fsck 1.18, 11-Nov-1999 for EXT2 FS 0.5b, 95/08/09 Group descriptors
+look bad... trying backup blocks... e2fsck: Bad magic number in
+super-block while trying to open /dev/md0
 
-Trace; c01310e0 <__wait_on_buffer+90/c0>
-Trace; c0131f55 <bread+45/70>
-Trace; c014c88e <msdos_partition+8e/3f0>
-Trace; c014c3dc <check_partition+8c/d0>
-Trace; c01b9cea <sd_init_onedisk+75a/770>
-Trace; c014c4ea <grok_partitions+8a/d0>
-Trace; c014c456 <register_disk+26/30>
-Trace; c01ba3a4 <sd_finish+134/1c0>
-Trace; c018c7ab <scsi_register_device_module+eb/110>
-Trace; c0105000 <empty_bad_page+0/1000>
-Trace; c018c8ae <scsi_register_module+4e/60>
-Trace; c01070e7 <init+7/150>
-Trace; c0108ce3 <kernel_thread+23/30>
+The superblock could not be read
 
-I'm going to try taking MSDOS out of my .config to try to work around
-this.  I'll keep you posted as to my progress.
+- e2fsck 1.18, 11-Nov-1999 for EXT2 FS 0.5b, 95/08/09
+...Pass 5: Checking group summary information
+Padding at end of block bitmap is not set. Fix<y>? yes
+--------------
+(/sample errs)
 
-David Mansfield
+Raid operations seem stable after fixing errors or if mke2fs is run after
+sync is complete. Delaying mke2fs is not a real workaround, because the
+fs corruption also occurs when resyncing (a spare) after a disk failure.
+
+
+This behaviour has also been seen with test9, but does not occur with 2.2
+kernels. Non-exhaustive testing indicates it does not occur with raid1.
+
+Where do I go from here?
+
+..jim
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,56 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262482AbTCZVCy>; Wed, 26 Mar 2003 16:02:54 -0500
+	id <S262502AbTCZVEJ>; Wed, 26 Mar 2003 16:04:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262502AbTCZVCy>; Wed, 26 Mar 2003 16:02:54 -0500
-Received: from inet-mail4.oracle.com ([148.87.2.204]:10951 "EHLO
-	inet-mail4.oracle.com") by vger.kernel.org with ESMTP
-	id <S262482AbTCZVCx>; Wed, 26 Mar 2003 16:02:53 -0500
-Date: Wed, 26 Mar 2003 13:12:51 -0800
-From: Joel Becker <Joel.Becker@oracle.com>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: Erik Hensema <erik@hensema.net>, linux-kernel@vger.kernel.org
-Subject: Re: LVM/Device mapper breaks with -mm (was: Re: 2.5.66-mm1)
-Message-ID: <20030326211251.GR19670@ca-server1.us.oracle.com>
-References: <20030326013839.0c470ebb.akpm@digeo.com> <slrnb8373s.19a.usenet@bender.home.hensema.net> <20030326134834.GA11173@win.tue.nl> <slrnb83ehl.196.usenet@bender.home.hensema.net> <20030326160350.GA11190@win.tue.nl> <20030326184723.GM19670@ca-server1.us.oracle.com> <20030326205228.GA11217@win.tue.nl>
+	id <S262495AbTCZVEJ>; Wed, 26 Mar 2003 16:04:09 -0500
+Received: from havoc.daloft.com ([64.213.145.173]:9707 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id <S262502AbTCZVEC>;
+	Wed, 26 Mar 2003 16:04:02 -0500
+Date: Wed, 26 Mar 2003 16:15:08 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: BK-kernel-tools/shortlog update
+Message-ID: <20030326211508.GD16662@gtf.org>
+References: <20030326103036.064147C8DD@merlin.emma.line.org> <Pine.LNX.4.44.0303260917320.15530-100000@home.transmeta.com> <20030326201031.GA29746@merlin.emma.line.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030326205228.GA11217@win.tue.nl>
-X-Burt-Line: Trees are cool.
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20030326201031.GA29746@merlin.emma.line.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 26, 2003 at 09:52:28PM +0100, Andries Brouwer wrote:
-> > We also should iron out our representations.  eg, hpa's
-> > recommendation for 64bits, or the 12/20 split for 32bit, or etc.
+On Wed, Mar 26, 2003 at 09:10:31PM +0100, Matthias Andree wrote:
+> On Wed, 26 Mar 2003, Linus Torvalds wrote:
 > 
-> There is no hurry. These changes are just editing a few lines
-> in kdev_t.h. I tend to prefer 64 bits, like hpa.
-> Maybe I should send another patch tonight, just for playing.
+> > Btw, one feature I'd like to see in shortlog is the ability to use 
+> > regexps for email address matching, ie something like
+> > 
+> > 	'torvalds@.*transmeta.com' => 'Linus Torvalds'
+> > 	... 
+> > 	'alan@.*swansea.linux.org.uk' => 'Alan Cox'
+> > 	...
+> > 	'bcrl@redhat.com' => 'Benjamin LaHaise',
+> > 	'bcrl@.*' => '?? Benjamin LaHaise',
+> > 	..
+> > 
+> > I don't know whether you can force perl to do something like this, but if 
+> > somebody were to try...
 
-	Please, I'd like that.  It does actually matter, because glibc
-and mknod (to name a couple) have to pass a proper dev_t for the new
-format (glibc actually does an explicit conversion to 8:8 in
-sysdeps/sysv/linux/xmkmod.c, which we need to fix to the proper
-mapping).
-	Stuff like that.
-
-Joel
+Perl is very regex-friendly.  Sure it can do this :)
 
 
--- 
+> I'd like to keep the hash for all those addresses that aren't wildcards
+> and that aren't regexps -- we have fast, that is O(1) to O(log n),
+> access to the hash (depending on Perl's implementation) and we have
+> worse than O(n) for regexp, where n is the count of address strings or
+> regexps.
+> 
+> Would you agree to a version that has a set of fixed addresses and a
+> separate list of regexps, tries the hash first and then a list of
+> regexps?  That sounds like a) easy addition, b) good performance to me
+> (before implementing it). If so, I could add some code for that feature.
 
-"This is the end, beautiful friend.
- This is the end, my only friend the end
- Of our elaborate plans, the end
- Of everything that stands, the end
- No safety or surprise, the end
- I'll never look into your eyes again."
+Do we really care about performance here?
 
-Joel Becker
-Senior Member of Technical Staff
-Oracle Corporation
-E-mail: joel.becker@oracle.com
-Phone: (650) 506-8127
+I think maintain-ability is probably more important.
+
+In any case, splitting the lists into "fixed" and "regex" doesn't seem
+like a bad idea, provided that the change was fairly easy and
+self-contained.
+
+	Jeff
+
+
+

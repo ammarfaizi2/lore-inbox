@@ -1,201 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261779AbVC1NoH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261842AbVC1N4R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261779AbVC1NoH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Mar 2005 08:44:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261825AbVC1Nno
+	id S261842AbVC1N4R (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Mar 2005 08:56:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261764AbVC1Nzw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Mar 2005 08:43:44 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:49129 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261779AbVC1N0p (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Mar 2005 08:26:45 -0500
-Subject: [RFC/PATCH 7/17][Kdump] Documentation for Kdump
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-       fastboot <fastboot@lists.osdl.org>
-Content-Type: multipart/mixed; boundary="=-GnVLAxUYgCcK5cK3sO8C"
-Date: Mon, 28 Mar 2005 18:56:41 +0530
-Message-Id: <1112016401.4001.78.camel@localhost.localdomain>
+	Mon, 28 Mar 2005 08:55:52 -0500
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:4331 "EHLO
+	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S261802AbVC1NrD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Mar 2005 08:47:03 -0500
+Subject: Re: Can't use SYSFS for "Proprietry" driver modules !!!.
+From: Steven Rostedt <rostedt@goodmis.org>
+To: linux-os@analogic.com
+Cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Kyle Moffett <mrmacman_g4@mac.com>, Aaron Gyes <floam@sh.nu>,
+       "Dr. David Alan Gilbert" <gilbertd@treblig.org>,
+       Arjan van de Ven <arjan@infradead.org>,
+       LKML <linux-kernel@vger.kernel.org>, Adrian Bunk <bunk@stusta.de>
+In-Reply-To: <Pine.LNX.4.61.0503280727310.19644@chaos.analogic.com>
+References: <200503280154.j2S1s9e6009981@laptop11.inf.utfsm.cl>
+	 <1112011441.27381.31.camel@localhost.localdomain>
+	 <Pine.LNX.4.61.0503280727310.19644@chaos.analogic.com>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Mon, 28 Mar 2005 08:46:02 -0500
+Message-Id: <1112017562.27381.53.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2005-03-28 at 08:12 -0500, linux-os wrote:
+> On Mon, 28 Mar 2005, Steven Rostedt wrote:
 
---=-GnVLAxUYgCcK5cK3sO8C
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+> Following the flock in this GPL issue insulates you from
+> many future changes in the kernel. Major portions of the
+> module code has already been rewritten to erect a solid
+> barrier, marking what's in the kernel and what's without.
+> What used to be done outside the kernel, the only reasonable
+> place to do it, has now been moved inside the kernel for no
+> other reason but isolation.
+> 
+> So tell your senior staff that you need to include the
+> GPL license with your code. If you write good code, the
+> chances of anybody outside your company actually reading
+> it is near zero. If your "trade secrets" are so obvious
+> that a look at the code will reveal them, you really need
+> to get another job, your company will disappear in a
+> month or two.
 
+I first started on this thread because of NVidia. Since I have many
+machines that use nvidia drivers and I suffer the consequences of this,
+but I'm a kernel programmer and can get around this too. 
 
+But now you hit on something that I'm fighting with.  I may be part of
+the GPL religion, but I'm not a true believer.  I like the concept. All
+code that I write on my own time is usually LGPL (otherwise it is just
+public use). I like to share and share alike. But the problem I have is
+that I don't have senior management. I'm a free lance programmer. I have
+companies (my customers) pay me to code. I can refuse to code if I don't
+agree with them, but then they get someone else and I go hungry. I
+strongly recommend to them that it is in their interest to release the
+code I write under GPL, but the managers don't see it. I may not be that
+strong of a spokesman, but they don't like to listen to me, the just
+tell me, do what we pay you to do. Like I said, I'm not a strong
+believer, so I won't risk not being able to feed my family for the FSF
+cause. So I just go on and code, and let their lawyers figure out what
+to do. 
 
---=-GnVLAxUYgCcK5cK3sO8C
-Content-Disposition: attachment; filename=crashdump-documentation.patch
-Content-Type: message/rfc822; name=crashdump-documentation.patch
+The customers I work for are actually more interested in selling their
+hardware than the software. But when they spend a lot of money to code
+for their hardware, they find it hard to understand that it is best to
+give it up as GPL code, especially when the workings of the hardware are
+explicit in the code. I usually have to also make changes to the kernel
+to handle the situation (which all goes under the GPL of course), so the
+modules I write are never expected to be used by the vanilla kernel, or
+by anyone elses kernel for that matter. The kernel is made to run on
+special hardware, and then have some special extensions put on that are
+in the form of modules. I'm still in the process of fighting to get
+these under GPL, but I'm not an employee, I'm a vendor. And the
+management sees me as such. It's very easy for them to pull the plug on
+me and find another approach to go. 
 
-From: 
-Date: Mon, 28 Mar 2005 17:37:11 +0530
-Subject: No Subject
-Message-Id: <1112011631.4001.25.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+These companies are rather large, and sell things for a niche market,
+that usually don't care about fighting for the GPL. This is not NVidia
+selling video cards to consumers. This is large companies selling larger
+systems to other large companies, and my part is just a small one. So, I
+don't think they'll disappear simply because they don't put everything
+under the GPL. They are smart enough to keep the extensions under GPL
+and allow me to send fixes if I find a bug with the code back to the
+maintainer. So the maintainer still benefits from this in the form of
+testing and updates.
 
-From: "Vivek Goyal" <vgoyal@in.ibm.com>
+The one way I do try to fight for the GPL is always make the imbedded
+code more efficient than the modules. So, to keep the code proprietary
+always has a impact on performance. This isn't hard to do, since
+obviously the code that is imbedded would be more efficient than code
+that needs to be called indirectly through hooks. Nothing has been
+decided yet, but if the benchmarks hold out, it all may be under GPL in
+the end anyway.
 
-o Updated the documentation.
+-- Steve
 
-From: "Eric W. Biederman" <ebiederm@xmission.com>
-
-I have addressed the worst of the documentation changes that come about from
-the current refacatoring.
-
-From: Hariprasad Nellitheertha <hari@in.ibm.com>
-
-This patch contains the documentation for the kexec based crash dump tool.
-Signed off by Hariprasad Nellitheertha <hari@in.ibm.com>
-Signed-off-by: Eric Biederman <ebiederm@xmission.com>
-Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
----
-
- linux-2.6.12-rc1-mm1-16M-root/Documentation/00-INDEX  |    2 
- linux-2.6.12-rc1-mm1-16M-root/Documentation/kdump.txt |  118 ++++++++++++++++++
- 2 files changed, 120 insertions(+)
-
-diff -puN Documentation/00-INDEX~crashdump-documentation Documentation/00-INDEX
---- linux-2.6.12-rc1-mm1-16M/Documentation/00-INDEX~crashdump-documentation	2005-03-22 16:24:17.000000000 +0530
-+++ linux-2.6.12-rc1-mm1-16M-root/Documentation/00-INDEX	2005-03-22 16:24:16.000000000 +0530
-@@ -140,6 +140,8 @@ java.txt
- 	- info on the in-kernel binary support for Java(tm).
- kbuild/
- 	- directory with info about the kernel build process.
-+kdumpt.txt
-+       - mini HowTo on getting the crash dump code to work.
- kernel-doc-nano-HOWTO.txt
- 	- mini HowTo on generation and location of kernel documentation files.
- kernel-docs.txt
-diff -puN /dev/null Documentation/kdump.txt
---- /dev/null	2004-02-24 02:32:56.000000000 +0530
-+++ linux-2.6.12-rc1-mm1-16M-root/Documentation/kdump.txt	2005-03-22 18:19:43.000000000 +0530
-@@ -0,0 +1,118 @@
-+Documentation for kdump - the kexec based crash dumping solution
-+================================================================
-+
-+DESIGN
-+======
-+
-+Kdump uses kexec to reboot to a second kernel whenever a dump needs to be taken.
-+This second kernel is booted with very little memory. The first kernel reserves
-+the section of memory that the second kernel uses. This ensures that on-going
-+DMA from the first kernel does not corrupt the second kernel.
-+
-+All the necessary information about Core image is encoded in ELF format and
-+stored in reserved area of memory before crash. Physical address of start of
-+elf header is passed to new kernel through command line parameter elfcorehdr=.
-+
-+On i386, first 640k of physical memory is needed to boot, irrespctive of where
-+the kernel loads at. Hence, this region is backed up by kexec just before
-+rebooting into the new kernel.
-+
-+In the second kernel, "old memory" can be accessed in two ways.
-+
-+- The first one is through a /dev/oldmem device interface. A capture utility
-+  can read the device file and write out the memory in raw format. This is raw
-+  dump of memory and analysis/capture tool should be intelligent enough to
-+  determine where to look for the right information. Elf headers (elfcorehdr=)
-+  can become handy here.
-+
-+- The second interface is through /proc/vmcore. This exports the dump as an ELF
-+  format file which can be written out using any file copy command
-+  (cp, scp, etc). Further, gdb can be used to perform limited debugging on
-+  the dump file. This method ensures methods ensure that there is correct
-+  ordering of the dump pages (corresponding to the first 640k that has been
-+  relocated).
-+
-+SETUP
-+=====
-+
-+1) Obtain the appropriate -mm tree patch and apply it on to the vanilla
-+   kernel tree.
-+
-+2) Obtain appropriate version of kexec-tools.
-+
-+3) Two kernels need to be built in order to get this feature working.
-+
-+   First kernel:
-+   a) Enable "kexec system call" feature.
-+   b) Enable "sysfs file system support" (Pseudo filesystems).
-+   c) Boot into first kernel with command line "crashkernel=Y@X".  Put
-+      appropriate values for X and Y. Y denotes, how much memory to reserve for
-+      second kernel, and X denotes at what physical address reserved memory
-+      section starts. For example, crashkernel=48M@16M.
-+
-+   Second kernel:
-+   a) Enable "kernel crash dumps" feature.
-+   b) Specifiy a suitable value for "Physical address where the kernel is
-+      loaded". Typically this value should be same as X (See option c) above).
-+   c) Enable "/proc/vmcore support" (Optional).
-+
-+      Note: Option a) and b) depend upon "Configure standard kernel feature
-+            (for small systems)".
-+	    Option a) also depends on CONFIG_HIGHMEM.
-+	    Both option a) and b) are under "Processor Types and Features"
-+
-+3) Boot into the first kernel. You are now ready to try out kexec based crash
-+   dumps.
-+
-+4) Load the second kernel to be booted using
-+
-+   kexec -p <second-kernel> --crash-dump --args-linux --append="root=<root-dev>
-+   maxcpus=1 init 1"
-+
-+   Note: i) <second-kernel> has to be a vmlinux image. bzImage will not work,
-+	    as of now.
-+	ii) By default elf headers are stored in ELF32 format(for i386). This is
-+	    sufficient to represent the physical memory up to 4GB. To store
-+	    headers in ELF64 format, specifiy "--elf64-core-headers" on kexec
-+	    command line additionally.
-+
-+5) System reboots into the second kernel when a panic occurs. A module can be
-+   written to force the panic, for testing purposes.
-+
-+6) Write out the dump file using
-+
-+   cp /proc/vmcore <dump-file>
-+
-+   Dump can also be accessed as a /dev/oldmem device for a linear/raw view.
-+   To create the device, type
-+
-+   mknod /dev/oldmem c 1 12
-+
-+   Use "dd" with suitable options for count, bs and skip to access specific
-+   portions of the dump.
-+
-+ANALYSIS
-+========
-+
-+Limited analysis can be done using gdb on the dump file copied out of
-+/proc/vmcore. Use vmlinux built with -g and run
-+
-+  gdb vmlinux <dump-file>
-+
-+Stack trace for the task on processor 0, register display, memory display
-+work fine.
-+
-+Note: gdb can not analyse core files generated in ELF64 format for i386.
-+
-+TODO
-+====
-+
-+1) Provide a kernel pages filtering mechanism so that core file size is not
-+   insane on systems having huge memory banks.
-+2) Modify "crash" tool to make it recognize this dump.
-+
-+CONTACT
-+=======
-+
-+Hariprasad Nellitheertha - hari at in dot ibm dot com
-+Vivek Goyal (vgoyal@in.ibm.com)
-_
-
---=-GnVLAxUYgCcK5cK3sO8C--
 

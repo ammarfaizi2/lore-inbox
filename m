@@ -1,89 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264885AbSL0LWk>; Fri, 27 Dec 2002 06:22:40 -0500
+	id <S264886AbSL0L3z>; Fri, 27 Dec 2002 06:29:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264886AbSL0LWk>; Fri, 27 Dec 2002 06:22:40 -0500
-Received: from almesberger.net ([63.105.73.239]:58891 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id <S264885AbSL0LWj>; Fri, 27 Dec 2002 06:22:39 -0500
-Date: Fri, 27 Dec 2002 08:30:47 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: Anomalous Force <anomalous_force@yahoo.com>
-Cc: ebiederm@xmission.com, linux-kernel@vger.kernel.org
-Subject: Re: holy grail
-Message-ID: <20021227083047.B1406@almesberger.net>
-References: <20021227010338.A1406@almesberger.net> <20021227072142.26177.qmail@web13208.mail.yahoo.com>
+	id <S264903AbSL0L3z>; Fri, 27 Dec 2002 06:29:55 -0500
+Received: from jurassic.park.msu.ru ([195.208.223.243]:38916 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id <S264886AbSL0L3y>; Fri, 27 Dec 2002 06:29:54 -0500
+Date: Fri, 27 Dec 2002 14:37:54 +0300
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: Jason Papadopoulos <jasonp@boo.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: panic during boot: 2.5.53 on alpha
+Message-ID: <20021227143754.A2107@jurassic.park.msu.ru>
+References: <3.0.6.32.20021226204855.007e4e30@boo.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021227072142.26177.qmail@web13208.mail.yahoo.com>; from anomalous_force@yahoo.com on Thu, Dec 26, 2002 at 11:21:42PM -0800
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3.0.6.32.20021226204855.007e4e30@boo.net>; from jasonp@boo.net on Thu, Dec 26, 2002 at 08:48:55PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anomalous Force wrote:
-> what if the new kernel asked the old kernel to hand over the data in
-> a form that was understood universally beginning at some kernel
-> version X (earliest supported kernel in other words).
+On Thu, Dec 26, 2002 at 08:48:55PM -0500, Jason Papadopoulos wrote:
+> Turning off module support lets the 2.5.53 kernel compile on an Alpha, but
+> when booting on a DS10 the kernel claims that the argument to "root=" is
+> invalid, fails to mount the root filesystem, and panics. 
+> 
+> The 2.2 and 2.4 kernels all worked fine with "root=/dev/hda3". The machine
+> has a single IDE drive; /boot is mounted on hda1, /tmp on hda2, and / on hda3.
+> The gzipped vmlinux and System.map are both in /boot.
 
-Yes, and that information would ideally just be what is visible
-from user space. This gives you a well-defined abstraction, and
-limits the dependency on kernel internals.
+The 2.5 is known to have problems with certain IDE chipsets.
+Please try appended patch.
 
-> im thinking of something along the lines of a data packet (tcp/ip
-> comes to mind) that contains data about its data.
+Ivan.
 
-I guess you never looked at how much state TCP really carries
-around :-) For a rough idea, you may want to have a look at
-tcpcp (TCP Connection Passing), which does pretty much what you'd
-have to do for this kind of checkpointing:
-http://www.almesberger.net/tcpcp/
-
-Now, there are a few things to consider:
-
- - tcpcp ignores several rare conditions, such as urgent mode
- - tcpcp doesn't even try (yet) to preserve congestion control
-   information, which is about twice the current amount of
-   information again
- - even with all those constraints, there are almost certainly
-   some things I've overlooked
- - that's only TCP, i.e. one of several networking protocols. And
-   networking is just one of many subsystems. And what tcpcp does
-   is not even transparent to applications.
- - while TCP is certainly not trivial, there is a reasonably well
-   defined abstraction of its state, which simplifies this kind of
-   checkpointing
-
-And remember, this is still only about what can be seen from user
-space. No attempt is made to transplant timers, memory allocations,
-cloned skbs, etc.
-
-> yes, it would be extremely difficult. but, as with all fields of
-> endevour, a holy grail is only such because it is. the question
-> remains, is this do-able? perhaps not now, or in two years, but
-> what about five? say, kernel 3.x.x or even 4.x.x?
-
-For full direct kernel-to-kernel migration, I'm fairly confident
-the answer is "never", simply because it doesn't make sense, and
-because it would be completely unmaintainable (1,2). (I expect to
-see some information passing for things like IDE or SCSI bus scan
-results, though.)
-
-(1) Okay, I'll reverse my prognosis when we've had, say, ten new
-    kernels in a row, without any obvious major bugs or build
-    problems :-)
-(2) If you dig out IFS, you'll see a nice example of why you
-    don't want to create too many dependencies on kernel
-    internals :-) http://www.almesberger.net/epfl/ifs.html
-
-For userspace-to-userspace, we can probably do some things already
-today (e.g. "classical" batch jobs), and I guess we might be able
-to migrate reasonably complete systems in maybe one or two years,
-if somebody starts working on the corner cases that aren't of much
-interest for process migration (e.g. video, audio, etc.).
-
-- Werner
-
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/
+--- 2.5.53/drivers/pci/quirks.c	Tue Dec 24 16:13:22 2002
++++ linux/drivers/pci/quirks.c	Fri Dec 27 14:17:43 2002
+@@ -536,6 +536,48 @@ static void __init quirk_mediagx_master(
+ }
+ 
+ /*
++ * As per PCI spec, ignore base address registers 0-3 of the IDE controllers
++ * running in Compatible mode (bits 0 and 2 in the ProgIf for primary and
++ * secondary channels respectively). If the device reports Compatible mode
++ * but does use BAR0-3 for address decoding, we assume that firmware has
++ * programmed these BARs with standard values (0x1f0,0x3f4 and 0x170,0x374).
++ * Exceptions (if they exist) must be handled in chip/architecture specific
++ * fixups.
++ */ 
++static void __devinit
++quirk_ide_bases(struct pci_dev *dev)
++{
++	struct resource *res;
++	int first_bar = 2, last_bar = 0;
++
++	if ((dev->class >> 8) != PCI_CLASS_STORAGE_IDE)
++		return;
++
++	res = &dev->resource[0];
++
++	/* primary channel: ProgIf bit 0, BAR0, BAR1 */
++	if (!(dev->class & 1) && (res[0].flags || res[1].flags)) { 
++		res[0].start = res[0].end = res[0].flags = 0;
++		res[1].start = res[1].end = res[1].flags = 0;
++		first_bar = 0;
++		last_bar = 1;
++	}
++
++	/* secondary channel: ProgIf bit 2, BAR2, BAR3 */
++	if (!(dev->class & 4) && (res[2].flags || res[3].flags)) { 
++		res[2].start = res[2].end = res[2].flags = 0;
++		res[3].start = res[3].end = res[3].flags = 0;
++		last_bar = 3;
++	}
++
++	if (!last_bar)
++		return;
++
++	printk(KERN_INFO "PCI: Ignoring BAR%d-%d of IDE controller %s\n",
++	       first_bar, last_bar, dev->slot_name);
++}
++
++/*
+  *  The main table of quirks.
+  */
+ 
+@@ -577,6 +619,7 @@ static struct pci_fixup pci_fixups[] __d
+ 	{ PCI_FIXUP_HEADER,	PCI_VENDOR_ID_AL,	PCI_DEVICE_ID_AL_M7101,		quirk_ali7101_acpi },
+  	{ PCI_FIXUP_HEADER,	PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82371SB_2,	quirk_piix3_usb },
+ 	{ PCI_FIXUP_HEADER,	PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82371AB_2,	quirk_piix3_usb },
++	{ PCI_FIXUP_HEADER,	PCI_ANY_ID,		PCI_ANY_ID,			quirk_ide_bases },
+ 	{ PCI_FIXUP_FINAL,	PCI_ANY_ID,		PCI_ANY_ID,			quirk_cardbus_legacy },
+ 
+ #ifdef CONFIG_X86_IO_APIC 

@@ -1,43 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281337AbRKVSyu>; Thu, 22 Nov 2001 13:54:50 -0500
+	id <S281418AbRKVS5p>; Thu, 22 Nov 2001 13:57:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281326AbRKVSxQ>; Thu, 22 Nov 2001 13:53:16 -0500
-Received: from mail-smtp.uvsc.edu ([161.28.224.157]:44488 "HELO
-	MAIL-SMTP.uvsc.edu") by vger.kernel.org with SMTP
-	id <S281337AbRKVSxE> convert rfc822-to-8bit; Thu, 22 Nov 2001 13:53:04 -0500
-Message-Id: <sbfce764.052@MAIL-SMTP.uvsc.edu>
-X-Mailer: Novell GroupWise Internet Agent 5.5.4.1
-Date: Thu, 22 Nov 2001 11:53:51 -0700
-From: "Tyler BIRD" <birdty@uvsc.edu>
-To: <P.Titera@century.cz>, <linux-kernel@vger.kernel.org>
-Subject: Re: Filesize limit on SMBFS
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
+	id <S281355AbRKVS5f>; Thu, 22 Nov 2001 13:57:35 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:37898 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S281326AbRKVS5T>; Thu, 22 Nov 2001 13:57:19 -0500
+Date: Thu, 22 Nov 2001 10:52:03 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Anuradha Ratnaweera <anuradha@gnu.org>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux-2.4.15-pre9
+In-Reply-To: <20011122134700.A4966@bee.lk>
+Message-ID: <Pine.LNX.4.33.0111221046170.1479-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ext2 Filesystems I believe have the limit of 2 GB.  Ext3 Extends that Limit to something??
-Try making the ext3 filesystem partitions and sharing those.  
-I don't know limits on FAT32 or any other filesystem you can share
 
-Tyler
+On Thu, 22 Nov 2001, Anuradha Ratnaweera wrote:
+>
+> On Wed, Nov 21, 2001 at 10:44:30PM -0800, Linus Torvalds wrote:
+> >
+> > I think I'm ready to hand this over to Marcelo.
+>
+> Aren't you going to include Tim Schmielau's patch to handle uptime larger than
+> 497 days?  It is a cool feature we always liked to have.
 
->>> Petr Tite(ra <P.Titera@century.cz> 11/22/01 02:10AM >>>
-Hello,
+Quite frankly, right now I'm in "handle only bugs that can crash the
+system mode". Anything that takes 497 days to see is fairly low on my
+priority list. My highest priority, in fact, is to get 2.4.15 out without
+any embarrassment.
 
-    is maximum file size on SMBFS really 2GB? I cannot create file 
-bigger than that.
+Because it's not as if time stops when Marcelo takes over. I've suggested
+to him that he wait for a while just to see what the real problem spots
+are, but he'll have a full-time job integrating patches.
 
-Petr Titera
-P.Titera@century.cz 
+Note that I'll probably do the same thing: when I release 2.4.15, I'll at
+the same time release a 2.5.0 that is identical except for version number
+(that makes synchronization easier later on). And I'll probably _not_
+start accepting all the big waiting patches immediately, I'd rather wait
+for at least a week or two to see that there aren't any other issues.
 
+It's much easier doing some of the IO patches in particular knowing that
+the base you start out from is stable.
 
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org 
-More majordomo info at  http://vger.kernel.org/majordomo-info.html 
-Please read the FAQ at  http://www.tux.org/lkml/
+		Linus
 

@@ -1,59 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266002AbUFUEIi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266003AbUFUEQr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266002AbUFUEIi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jun 2004 00:08:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266003AbUFUEIi
+	id S266003AbUFUEQr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jun 2004 00:16:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266001AbUFUEQr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jun 2004 00:08:38 -0400
-Received: from pacific.moreton.com.au ([203.143.235.130]:14862 "EHLO
-	dorfl.internal.moreton.com.au") by vger.kernel.org with ESMTP
-	id S266002AbUFUEIg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jun 2004 00:08:36 -0400
-Message-ID: <40D65F09.8090909@snapgear.com>
-Date: Mon, 21 Jun 2004 14:07:37 +1000
-From: Greg Ungerer <gerg@snapgear.com>
-Organization: SnapGear
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: William Lee Irwin III <wli@holomorphy.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]: linux-2.6.7-uc0 (MMU-less fixups)
-References: <40D65A88.8080601@snapgear.com> <20040621035417.GY1863@holomorphy.com>
-In-Reply-To: <20040621035417.GY1863@holomorphy.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 21 Jun 2004 00:16:47 -0400
+Received: from gate.crashing.org ([63.228.1.57]:63130 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S266003AbUFUEQq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jun 2004 00:16:46 -0400
+Subject: Re: [Patch]: Fix rivafb's NV_ARCH_
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Guido Guenther <agx@sigxcpu.org>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040620192549.GA4307@bogon.ms20.nix>
+References: <20040601041604.GA2344@bogon.ms20.nix>
+	 <1086064086.1978.0.camel@gaston> <20040601135335.GA5406@bogon.ms20.nix>
+	 <20040616070326.GE28487@bogon.ms20.nix>
+	 <20040620192549.GA4307@bogon.ms20.nix>
+Content-Type: text/plain
+Message-Id: <1087791100.24157.9.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sun, 20 Jun 2004 23:11:41 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi William,
+On Sun, 2004-06-20 at 14:25, Guido Guenther wrote:
+> Hi,
+> On Wed, Jun 16, 2004 at 09:03:27AM +0200, Guido Guenther wrote:
+> > here's another piece of rivafb fixing that helps the driver on ppc
+> > pbooks again a bit further. It corrects several wrong NV_ARCH_20
+> > settings which are actually NV_ARCH_10 as determined by the PCIId.
+> Any comments on this patch?
 
-William Lee Irwin III wrote:
-> On Mon, Jun 21, 2004 at 01:48:24PM +1000, Greg Ungerer wrote:
-> 
->>An update of the uClinux (MMU-less) fixups against 2.6.7.
->>A few more things merged in 2.6.7, so only a handful of patches
->>for general uClinux and m68knommu.
->>http://www.uclinux.org/pub/uClinux/uClinux-2.6.x/linux-2.6.7-uc0.patch.gz
->>Change log:
->>. merge linux-2.6.7                          me
->>. more Feith hardware support                Werner Feith
->>. stop 5282 pit timer from going backwards   me/Felix Daners
->>. fix PHY race confition in FEC driver       Philippe De Muyter
->>. fix OOM killer for non-MMU configs         Giovanni Casoli
-> 
-> 
-> Could you send the OOM killer fix out to mainline?
+I don't, but did you ask on the linux-fbdev list ?
 
-Yep, that one is definately geting submitted to Linus.
-(Within the next 24 hours).
-
-Regards
-Greg
+Ben.
 
 
-------------------------------------------------------------------------
-Greg Ungerer  --  Chief Software Dude       EMAIL:     gerg@snapgear.com
-SnapGear -- a CyberGuard Company            PHONE:       +61 7 3435 2888
-825 Stanley St,                             FAX:         +61 7 3891 3630
-Woolloongabba, QLD, 4102, Australia         WEB: http://www.SnapGear.com

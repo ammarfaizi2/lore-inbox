@@ -1,59 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268092AbUJOQUH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268146AbUJOQYI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268092AbUJOQUH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Oct 2004 12:20:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268134AbUJOQUG
+	id S268146AbUJOQYI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Oct 2004 12:24:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268136AbUJOQVc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Oct 2004 12:20:06 -0400
-Received: from ida.rowland.org ([192.131.102.52]:16132 "HELO ida.rowland.org")
-	by vger.kernel.org with SMTP id S268092AbUJOQSS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Oct 2004 12:18:18 -0400
-Date: Fri, 15 Oct 2004 12:18:17 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@ida.rowland.org
-To: Paul Fulghum <paulkf@microgate.com>
-cc: Laurent Riffard <laurent.riffard@free.fr>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>,
-       Kernel development list <linux-kernel@vger.kernel.org>,
-       Greg KH <greg@kroah.com>
-Subject: Re: 2.6.9-rc4-mm1 : oops when rmmod uhci_hcd  [was: 2.6.9-rc3-mm2
- : oops...]
-In-Reply-To: <1097853723.5829.17.camel@deimos.microgate.com>
-Message-ID: <Pine.LNX.4.44L0.0410151215440.1052-100000@ida.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 15 Oct 2004 12:21:32 -0400
+Received: from mail-relay-4.tiscali.it ([213.205.33.44]:26243 "EHLO
+	mail-relay-4.tiscali.it") by vger.kernel.org with ESMTP
+	id S268134AbUJOQUM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Oct 2004 12:20:12 -0400
+Date: Fri, 15 Oct 2004 18:20:00 +0200
+From: Andrea Arcangeli <andrea@novell.com>
+To: Albert Cahalan <albert@users.sf.net>
+Cc: Hugh Dickins <hugh@veritas.com>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton OSDL <akpm@osdl.org>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Albert Cahalan <albert@users.sourceforge.net>
+Subject: Re: per-process shared information
+Message-ID: <20041015162000.GB17849@dualathlon.random>
+References: <Pine.LNX.4.44.0410151207140.5682-100000@localhost.localdomain> <1097846353.2674.13298.camel@cube>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1097846353.2674.13298.camel@cube>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 15 Oct 2004, Paul Fulghum wrote:
+On Fri, Oct 15, 2004 at 09:19:13AM -0400, Albert Cahalan wrote:
+> I don't see why it is such trouble to provide the old data.
 
-> This looks like it is related to the generic-irq-subsystem patches.
-> Specifically, adding and removing proc entries for each interrupt.
-> 
-> Laurent's configuration has two controllers sharing the same interrupt.
-> The hcd->description for both controllers are identical: "uhci_hcd"
-> 
-> This string is used when requesting the irq (hcd-pci.c).
-> request_irq() creates a /proc/irq/nn/uhci_hcd entry.
-> The IRQ action->dir (one for each device) is a pointer to this entry.
-> There does not appear to be a check for name collision
-> when creating this entry. So two identical entries are created,
-> one for each device. The proc entries are added to the head of
-> a list so the second entry is 1st in the list.
-> 
-> When unloading the module, the proc entry is removed when free_irq()
-> is called. Removal of the proc entry is based on name matching
-> starting at the head of the list so the 2nd entry is found 1st.
-> It looks like the proc entry of the second device is removed
-> when calling free_irq() for the first device. When the
-> second device is removed, the action->dir has already
-> been freed causing the oops.
-> 
-> Comments?
+I agree with you w.r.t. binary compatibility, here it's even a "source
+compatibility" matter, a recompile wouldn't fix it.
 
-Your explanation sounds entirely reasonable to me.  Can you pass it on to 
-the people responsible for the generic-irq subsystem?
+However I wasn't exactly advocating to keep it 100% backwards
+compatible in this case: somebody already broke it from 2.5.x to
+2.6.9-rc, and since there was a very good reason for that, we should
+probably declare it broken.  Here there has been a very strong technical
+reason to break statm, but they didn't break binary and source
+compatibility gratuitously like some solaris kernel developer seems to
+think in some blog.
 
-Alan Stern
+the problem is that when ps xav wants to know the RSS it reads statm,
+so we just cannot hurt ps xav to show the "old shared" information that
+would be extremely slow to collect.
 
+I was only not happy about dropping the old feature completely instead
+of providing it with a different new API. Now I think the solution Hugh
+just proposed with the anon_rss should mimic the old behaviour well
+enough and it's probably the right way to go, it's still not literally
+the same, but I doubt most people from userspace could notice the
+difference, and most important it provides useful information, which is
+the number of _physical_ pages mapped that aren't anonymous memory, this
+is very valuable info and it's basically the same info that people was
+getting from the old "shared". So I like it.

@@ -1,59 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312420AbSDSLUO>; Fri, 19 Apr 2002 07:20:14 -0400
+	id <S312261AbSDSLeS>; Fri, 19 Apr 2002 07:34:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312426AbSDSLUN>; Fri, 19 Apr 2002 07:20:13 -0400
-Received: from web10405.mail.yahoo.com ([216.136.130.97]:11013 "HELO
-	web10405.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S312420AbSDSLUM>; Fri, 19 Apr 2002 07:20:12 -0400
-Message-ID: <20020419112012.4188.qmail@web10405.mail.yahoo.com>
-Date: Fri, 19 Apr 2002 21:20:12 +1000 (EST)
-From: =?iso-8859-1?q?Steve=20Kieu?= <haiquy@yahoo.com>
-Subject: Kernel 2.4.19-pre6aa1 problem report (VM related)
-To: kernel <linux-kernel@vger.kernel.org>
+	id <S312256AbSDSLeR>; Fri, 19 Apr 2002 07:34:17 -0400
+Received: from [213.38.169.194] ([213.38.169.194]:29445 "EHLO
+	proxy.herefordshire.gov.uk") by vger.kernel.org with ESMTP
+	id <S311749AbSDSLeP>; Fri, 19 Apr 2002 07:34:15 -0400
+Message-ID: <AFE36742FF57D411862500508BDE8DD004639E64@cordelia.herefordshire.gov.uk>
+From: "Randal, Phil" <prandal@herefordshire.gov.uk>
+To: "'Matt'" <matt@progsoc.uts.edu.au>, linux-kernel@vger.kernel.org
+Subject: RE: [RFC] 2.5.8 sort kernel tables
+Date: Fri, 19 Apr 2002 12:38:05 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+X-Mailer: Internet Mail Service (5.5.2655.55)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This variation on Quicksort seems superior...  Must look at the libc
+sources someday to see how it does it...
 
-Hi,
+http://www.neubert.net/Flapaper/9802n.htm
 
-I am testing 2.4.19-pre6aa1 for several days and today
-I got the system totally freezed ; all I have is a
-striped color screen, can not move mouse ; only thing
-I could do is power off. This happened after about 8
-hours ; just running Mozilla and just 15 minutes ago
-the system began swapping. I check free and all swap
-is used, then suddenly I got that screen. After power
-off and on, I check messages and syslog, not any
-usefull information.
-(OOP or OOM or something similar I expect)
+For small arrays, Insertion Sort has the least overhead.
 
-This symptom did not happen with 2.4.19-pre4-ac4  and
-I remember I am rarely running out of swap.
+Cheers,
 
-This is a Intel celeron 400Mh, 128Mb RAM and 72Mb
-swap. The kernel I said above is 2.4.19-pre6aa1  plus
-ide-akpm.patch  
+Phil
 
-I notice that the aa kernel uses much more swap and
-leave a lot of free RAM than the 2.4.19-pre4ac4
-kernel. Responsiveness of both kernel are good even
-when heavy swapping, but with aa kernel, swap is
-easily running out while the 2.4.19-pre4ac4 not (even
-run Mozilla, xmms, Star Office 5-2 and editting
-document); but with aa only mozilla and running for
-rather a long time should be enough)
+P.S. A google for quickersort yields loads of interesting references.
 
-Regards,
+---------------------------------------------
+Phil Randal
+Network Engineer
+Herefordshire Council
+Hereford, UK 
 
-
-
-
-=====
-Steve Kieu
-
-http://messenger.yahoo.com.au - Yahoo! Messenger
-- A great way to communicate long-distance for FREE!
+> -----Original Message-----
+> From: Matt [mailto:matt@progsoc.uts.edu.au]
+> Sent: 19 April 2002 06:00
+> To: linux-kernel@vger.kernel.org
+> Subject: Re: [RFC] 2.5.8 sort kernel tables
+> 
+> 
+> On Thu, Apr 18, 2002 at 03:20:17PM -0500, Oliver Xymoron wrote:
+> > On Thu, 18 Apr 2002, William Lee Irwin III wrote:
+> 
+> >> On Thu, Apr 18, 2002 at 07:46:26PM +1000, Keith Owens wrote:
+> 
+> >>> The use of __init and __exit sections breaks the assumption that
+> >>> tables such as __ex_table are sorted, it has already broken the
+> >>> dbe table in mips on 2.5.  This patch against 2.5.8 adds a generic
+> >>> sort routine and sorts the i386 exception table.  This sorting
+> >>> needs to be extended to several other tables, to all
+> >>> architectures, to modutils (insmod loads some of these tables for
+> >>> modules) and back ported to 2.4.  Before I spend the rest of the
+> >>> time, any objections?
+> 
+> >> It doesn't have to be an O(n lg(n)) method but could you use
+> >> something besides bubblesort? Insertion sort, selection sort,
+> >> etc. are just as easy and they don't have the horrific stigma of
+> >> being "the worst sorting algorithm ever" etc.
+> 
+> > Combsort is a trivial modification of bubblesort that's O(n log(n)).
+> 
+> >  http://cs.clackamas.cc.or.us/molatore/cs260Spr01/combsort.htm
+> 
+> > Though we should probably just stick a simple qsort in the library
+> > somewhere.
+> 
+> but isn't qsort's worst case behaviour for an already sorted list? i
+> cant remember how bad it is but i thought it was like O(n^2) for worst
+> case, ie just as bad as bubble sort..
+> 
+> 	matt
+> -
+> To unsubscribe from this list: send the line "unsubscribe 
+> linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

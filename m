@@ -1,42 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289510AbSAJPqS>; Thu, 10 Jan 2002 10:46:18 -0500
+	id <S289512AbSAJPw7>; Thu, 10 Jan 2002 10:52:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289511AbSAJPp6>; Thu, 10 Jan 2002 10:45:58 -0500
-Received: from oker.escape.de ([194.120.234.254]:21782 "EHLO oker.escape.de")
-	by vger.kernel.org with ESMTP id <S289510AbSAJPpy>;
-	Thu, 10 Jan 2002 10:45:54 -0500
-Date: Thu, 10 Jan 2002 16:24:56 +0100 (CET)
-From: Matthias Kilian <kili@outback.escape.de>
-To: "H. Peter Anvin" <hpa@zytor.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] klibc requirements
-In-Reply-To: <a1grbm$n6o$1@cesium.transmeta.com>
-Message-ID: <Pine.LNX.4.30.0201101619230.29097-100000@outback.escape.de>
+	id <S289513AbSAJPwt>; Thu, 10 Jan 2002 10:52:49 -0500
+Received: from nick.dcs.qmul.ac.uk ([138.37.88.61]:29117 "EHLO
+	nick.dcs.qmul.ac.uk") by vger.kernel.org with ESMTP
+	id <S289512AbSAJPwp>; Thu, 10 Jan 2002 10:52:45 -0500
+Date: Thu, 10 Jan 2002 15:52:44 +0000 (GMT)
+From: Matt Bernstein <matt@theBachChoir.org.uk>
+To: Andrew Morton <akpm@zip.com.au>
+cc: linux-kernel@vger.kernel.org
+Subject: oops with 2.4.17 + mini-ll patch
+Message-ID: <Pine.LNX.4.43.0201101544330.31242-100000@nick.dcs.qmul.ac.uk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8 Jan 2002, H. Peter Anvin wrote:
+Not sure if this is related to your patch (which looked harmless enough to
+me :), but here it is anyway.
 
-> 		       initramfs buffer format
-[...]
-> compressed using gzip(1).  The simplest form of the initramfs buffer
-> is thus a single .cpio.gz file.
+Dual PIII 1GHz, modular everything inc. ATA/IDE (VIA); SCSI (gdth.o);
+NFSv3 (udp, client only); autofs4; ext2 only for local fs. Debian woody.
 
-FYI: I've already implemented this *simplest* form for .tar.gz files. A
-patch can be found here:
+HTH (anything else anyone needs, let me know!)
 
-http://www.escape.de/users/outback/linux/patch-2.4.17-inittar.gz
+Matt
 
-(I could also prepare a patch against 2.5.x)
+ksymoops 2.4.3 on i686 2.4.9-ac18.  Options used
+     -v /usr/src/linux-2.4.17/vmlinux (specified)
+     -K (specified)
+     -L (specified)
+     -O (specified)
+     -m /usr/src/linux-2.4.17/System.map (specified)
 
-So, before starting to implement the initramfs stuff, may be you should
-have a look on my version.
+Unable to handle kernel NULL pointer dereference at virtual address 00000001
+00000001
+*pde = 00000000
+Oops: 0000
+CPU:    1
+EIP:    0010:[<00000001>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010246
+eax: c0265f5c   ebx: 00000001   ecx: d26a597c   edx: c0265f5c
+esi: 00000001   edi: 00000020   ebp: 00000000   esp: c181bf0c
+ds: 0018   es: 0018   ss: 0018
+Process swapper (pid: 0, stackpage=c181b000)
+Stack: c011f106 00000001 00000000 00000001 00000020 00000000 c011b4ab c0265260
+       c011b36c 00000000 00000001 c023e500 fffffffe 00000001 c011b0eb c023e500
+       00000046 00000000 c023a800 00000000 00000020 c0108c1d c01f0168 c0105430
+Call Trace: [<c011f106>] [<c011b4ab>] [<c011b36c>] [<c011b0eb>] [<c0108c1d>]
+   [<c0105430>] [<c0105430>] [<c0105430>] [<c0105430>] [<c010545c>] [<c01054e2>]
+   [<c0116e6b>] [<c0117018]
+Code:  Bad EIP value.
 
-Changing it from .tar to .cpio (if required) shouldn't be too difficult.
+>>EIP; 00000000 Before first symbol
+Trace; c011f106 <timer_bh+256/2b0>
+Trace; c011b4aa <bh_action+4a/80>
+Trace; c011b36c <tasklet_hi_action+6c/a0>
+Trace; c011b0ea <do_softirq+7a/e0>
+Trace; c0108c1c <do_IRQ+dc/f0>
+Trace; c0105430 <default_idle+0/40>
+Trace; c0105430 <default_idle+0/40>
+Trace; c0105430 <default_idle+0/40>
+Trace; c0105430 <default_idle+0/40>
+Trace; c010545c <default_idle+2c/40>
+Trace; c01054e2 <cpu_idle+52/70>
+Trace; c0116e6a <call_console_drivers+ea/100>
 
-Bye,
-	Kili
 

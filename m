@@ -1,37 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264645AbUEVBhQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265210AbUEVBoI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264645AbUEVBhQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 May 2004 21:37:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265065AbUEUXjY
+	id S265210AbUEVBoI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 May 2004 21:44:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265140AbUEVBnQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 May 2004 19:39:24 -0400
-Received: from fw.osdl.org ([65.172.181.6]:14028 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264645AbUEUXSK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 May 2004 19:18:10 -0400
-Date: Fri, 21 May 2004 16:20:44 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: swsusp: fix swsusp with intel-agp
-Message-Id: <20040521162044.7ad42db2.akpm@osdl.org>
-In-Reply-To: <20040521100734.GA31550@elf.ucw.cz>
-References: <20040521100734.GA31550@elf.ucw.cz>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 21 May 2004 21:43:16 -0400
+Received: from web13907.mail.yahoo.com ([216.136.175.70]:28938 "HELO
+	web13907.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S265200AbUEUXn3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 May 2004 19:43:29 -0400
+Message-ID: <20040521100200.84714.qmail@web13907.mail.yahoo.com>
+X-RocketYMMF: knobi.rm
+Date: Fri, 21 May 2004 03:02:00 -0700 (PDT)
+From: Martin Knoblauch <knobi@knobisoft.de>
+Reply-To: knobi@knobisoft.de
+Subject: Re: Broken things in kernel 2.6.6-mm2 and 2.6.6-mm3
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek <pavel@ucw.cz> wrote:
+Using 2.6.x kernel build system.
+make: Entering directory `/tmp/vmware-config2/vmmon-only'
+make -C /lib/modules/2.6.6/build/include/.. SUBDIRS=$PWD SRCROOT=$PWD/.
+modules
+make[1]: Entering directory `/usr/src/linux-2.6.6'
+CC [M] /tmp/vmware-config2/vmmon-only/linux/driver.o
+/tmp/vmware-config2/vmmon-only/linux/driver.c:131: warning:
+initialization from incompatible pointer type
+>/tmp/vmware-config2/vmmon-only/linux/driver.c:135: warning:
+>initialization from incompatible pointer type
+>CC [M] /tmp/vmware-config2/vmmon-only/linux/hostif.o
+>/tmp/vmware-config2/vmmon-only/linux/hostif.c: In function
+`>HostIF_FreeLockedPages':
+>/tmp/vmware-config2/vmmon-only/linux/hostif.c:738: error: structure
+>has no member named `count'
+>/tmp/vmware-config2/vmmon-only/linux/hostif.c:740: error: structure
+>has no member named `count'
+>make[2]: *** [/tmp/vmware-config2/vmmon-only/linux/hostif.o] Error 1
+>make[1]: *** [/tmp/vmware-config2/vmmon-only] Error 2
+>make[1]: Leaving directory `/usr/src/linux-2.6.6'
+>make: *** [vmmon.ko] Error 2
+>make: Leaving directory `/tmp/vmware-config2/vmmon-only'
+>Unable to build the vmmon module.
 >
-> +#ifdef CONFIG_SOFTWARE_SUSPEND
-> +	{
-> +		extern char swsusp_pg_dir[PAGE_SIZE];
-> +		memcpy(swsusp_pg_dir, swapper_pg_dir, PAGE_SIZE);
-> +	}
-> +#endif
 
-Please move the declaration of swsusp_pg_dir[] to a header file where it is
-visible to both the users and the definition site, then resend.  Thanks.
+ Yup. I have been bitten by this too. Apparently "count" has been
+replaced by "_count" which in addition seems to be "count-1". But there
+is now a function "page_count" that does the right thing.
+
+ For VMware I have just removed the definition of the "page_count"
+macro from vmmon-only/include/compat_mm.h.
+
+Martin
+
+=====
+------------------------------------------------------
+Martin Knoblauch
+email: k n o b i AT knobisoft DOT de
+www:   http://www.knobisoft.de

@@ -1,60 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266616AbUJIJkd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266646AbUJIJrt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266616AbUJIJkd (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Oct 2004 05:40:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266626AbUJIJkd
+	id S266646AbUJIJrt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Oct 2004 05:47:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266627AbUJIJrt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Oct 2004 05:40:33 -0400
-Received: from hirsch.in-berlin.de ([192.109.42.6]:6048 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S266616AbUJIJkb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Oct 2004 05:40:31 -0400
-X-Envelope-From: kraxel@bytesex.org
-Date: Sat, 9 Oct 2004 11:28:01 +0200
-From: Gerd Knorr <kraxel@bytesex.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux@MichaelGeng.de, linux-kernel@vger.kernel.org,
-       "viro@parcelfarce.linux.theplanet.co.uk" 
-	<viro@parcelfarce.linux.theplanet.co.uk>
-Subject: Re: video_usercopy() enforces change of VideoText IOCTLs since 2.6.8
-Message-ID: <20041009092801.GC3482@bytesex>
-References: <20041007165410.GA2306@t-online.de> <20041008105219.GA24842@bytesex> <20041008140056.72b177d9.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041008140056.72b177d9.akpm@osdl.org>
-User-Agent: Mutt/1.5.6i
+	Sat, 9 Oct 2004 05:47:49 -0400
+Received: from fmr12.intel.com ([134.134.136.15]:39859 "EHLO
+	orsfmr001.jf.intel.com") by vger.kernel.org with ESMTP
+	id S266646AbUJIJrr convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Oct 2004 05:47:47 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="gb2312"
+Content-Transfer-Encoding: 8BIT
+Subject: [PATCH x86_64]: Add TCSBRKP ioctl translation for arch/x86_64/ia32
+Date: Sat, 9 Oct 2004 17:47:42 +0800
+Message-ID: <8126E4F969BA254AB43EA03C59F44E848AF8D0@pdsmsx404>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH x86_64]: Add TCSBRKP ioctl translation for arch/x86_64/ia32
+Thread-Index: AcSt5QWpVL6ooJXiR0KPkdX8I02GAA==
+From: "Jin, Gordon" <gordon.jin@intel.com>
+To: <discuss@x86-64.org>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 09 Oct 2004 09:47:43.0827 (UTC) FILETIME=[06507A30:01C4ADE5]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >  	/*  Copy arguments into temp kernel buffer  */
-> >  	switch (_IOC_DIR(cmd)) {
-> >  	case _IOC_NONE:
-> > -		parg = NULL;
-> > +		parg = (void*)arg;
-> >  		break;
-> 
-> (the typecast is unneeded)
-> 
-> Seems that with this change we are now sometimes passing a user pointer
-> into (*func)().  And we're sometimes passing a kernel pointer, yes?
+Hi,
 
-Assuming that ioctls passing _pointers_ are declared correctly with _IO*
-that shouldn't be the case:  _IOC_DIR(cmd) == _IOC_NONE means _IO()
-means no pointer passed in.
+The following patch adds TCSBRKP ioctl translation for arch/x86_64/ia32.
+TCSBRKP is needed for POSIX tcsendbreak().
+Some archs (such as sparc64) have added TCSBRKP in their compat codes,
+Here is for x86_64.
 
-> Are all the implementations of (*func)() handling that correctly?
+Signed-off-by: Gordon Jin <gordon.jin@intel.com>
 
-Hmm, it broke for videotext, checking ...
+--- linux-2.6.8/arch/x86_64/ia32/ia32_ioctl.c.orig	2004-09-23 09:21:20.000000000 -0700
++++ linux-2.6.8/arch/x86_64/ia32/ia32_ioctl.c	2004-09-23 09:22:31.000000000 -0700
+@@ -189,6 +189,7 @@ COMPATIBLE_IOCTL(RTC_SET_TIME)
+ COMPATIBLE_IOCTL(RTC_WKALM_SET)
+ COMPATIBLE_IOCTL(RTC_WKALM_RD)
+ COMPATIBLE_IOCTL(FIOQSIZE)
++COMPATIBLE_IOCTL(TCSBRKP)
+ 
+ /* And these ioctls need translation */
+ HANDLE_IOCTL(TIOCGDEV, tiocgdev)
 
-Ok, you can drop it.  The videotext ioctls (include/videotext.h) don't
-use the _IO*() macros but pass around pointers anyway, thats bad.
-
-Michael, you'll have to fix the saa5246a driver.  video_usercopy() will
-not work for you because the videotext ioctls doesn't use the _IO()
-macros.  You have to do the userspace copying in the driver yourself.
-
-  Gerd
-
--- 
-return -ENOSIG;
+Thanks,
+Gordon 

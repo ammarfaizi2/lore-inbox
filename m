@@ -1,154 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262664AbVCWEq2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262667AbVCWEst@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262664AbVCWEq2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 23:46:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262667AbVCWEq2
+	id S262667AbVCWEst (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 23:48:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262669AbVCWEst
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 23:46:28 -0500
-Received: from dea.vocord.ru ([217.67.177.50]:29908 "EHLO vocord.com")
-	by vger.kernel.org with ESMTP id S262664AbVCWEqP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 23:46:15 -0500
-Subject: Re: [patch 1/2] fork_connector: add a fork connector
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Reply-To: johnpol@2ka.mipt.ru
-To: Ram <linuxram@us.ibm.com>
-Cc: Guillaume Thouvenin <guillaume.thouvenin@bull.net>,
-       Jesse Barnes <jbarnes@engr.sgi.com>, Andrew Morton <akpm@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>, Jay Lan <jlan@engr.sgi.com>,
-       Erich Focht <efocht@hpce.nec.com>, Gerrit Huizenga <gh@us.ibm.com>,
-       elsa-devel <elsa-devel@lists.sourceforge.net>
-In-Reply-To: <1111524168.5860.109.camel@localhost>
-References: <1111050243.306.107.camel@frecb000711.frec.bull.fr>
-	 <200503170856.57893.jbarnes@engr.sgi.com>
-	 <20050318003857.4600af78@zanzibar.2ka.mipt.ru>
-	 <200503171405.55095.jbarnes@engr.sgi.com>
-	 <1111409303.8329.16.camel@frecb000711.frec.bull.fr>
-	 <1111438349.5860.27.camel@localhost>
-	 <1111475252.8465.23.camel@frecb000711.frec.bull.fr>
-	 <1111515979.5860.57.camel@localhost>
-	 <20050322222201.0fa25d34@zanzibar.2ka.mipt.ru>
-	 <1111519086.5860.80.camel@localhost>
-	 <20050322232524.67bf5054@zanzibar.2ka.mipt.ru>
-	 <1111524168.5860.109.camel@localhost>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-uyeBDSG72iP5BeySF9Wd"
-Organization: MIPT
-Date: Wed, 23 Mar 2005 07:52:30 +0300
-Message-Id: <1111553550.23532.52.camel@uganda>
+	Tue, 22 Mar 2005 23:48:49 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:30632 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262667AbVCWEsq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 23:48:46 -0500
+Date: Tue, 22 Mar 2005 20:48:49 -0800
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.41-01
+Message-ID: <20050323044849.GA1294@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <20050319191658.GA5921@elte.hu> <20050320174508.GA3902@us.ibm.com> <20050321085332.GA7163@elte.hu> <20050321090122.GA8066@elte.hu> <20050321090622.GA8430@elte.hu> <20050322054345.GB1296@us.ibm.com> <20050322072413.GA6149@elte.hu> <20050322092331.GA21465@elte.hu> <20050322093201.GA21945@elte.hu>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-1) 
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.4 (vocord.com [192.168.0.1]); Wed, 23 Mar 2005 07:45:22 +0300 (MSK)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050322093201.GA21945@elte.hu>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Mar 22, 2005 at 10:32:01AM +0100, Ingo Molnar wrote:
+> 
+> * Ingo Molnar <mingo@elte.hu> wrote:
+> 
+> > seems to be a true SMP race: when i boot with 1 CPU it doesnt trigger,
+> > the same kernel image and 2 CPUs triggers it on CPU#1. (CPU#0 is the
+> > boot CPU) Note that the timing of the crash is not deterministic
+> > (sometimes i get it during net startup, sometimes during ACPI
+> > startup), but it always crashes within rcu_advance_callbacks().
+> > 
+> > one difference between your tests and mine is that your kernel is
+> > doing _synchronize_kernel() from preempt-off sections (correct?),
+> > while my kernel with PREEMPT_RT does it on preemptable sections.
+> 
+> hm, another thing: i think call_rcu() needs to take the read-lock. Right
+> now it assumes that it has the data structure private, but that's only
+> statistically true on PREEMPT_RT: another CPU may have this CPU's RCU
+> control structure in use. So IRQs-off (or preempt-off) is not a
+> guarantee to have the data structure, the read lock has to be taken.
 
---=-uyeBDSG72iP5BeySF9Wd
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+!!!  The difference is that in the stock kernel, rcu_check_callbacks()
+is invoked from irq.  In PREEMPT_RT, it is invoked from process context
+and appears to be preemptible.  This means that rcu_advance_callbacks()
+can be preempted, resulting in all sorts of problems.  Need to disable
+preemption over this.
 
-On Tue, 2005-03-22 at 12:42 -0800, Ram wrote:
-> On Tue, 2005-03-22 at 12:25, Evgeniy Polyakov wrote:
-> > On Tue, 22 Mar 2005 11:18:07 -0800
-> > Ram <linuxram@us.ibm.com> wrote:
-> >=20
-> > > > I still do not see why it is needed.
-> > > > Super-user can run ip command and turn network interface off
-> > > > not waiting while apache or named exits or unbind.
-> > > >=20
-> > > > In theory I can create some kind of userspace registration mechanis=
-m,
-> > > > when userspace application reports it's pid to the connector,=20
-> > > > and then it sends data to the specified pids, but does not=20
-> > > > allow controlling from userspace.
-> > > > But I really do not think it is a good idea to permit
-> > > > non-priviledged userspace processes to know about deep
-> > > > kernel internals through connector's messages.
-> > >=20
-> > > Yes. non-priviledged userspace processes should not know
-> > > any deep kernel internals through connector events.
-> > >=20
-> > > I think what I am driving at is, an application that is critically
-> > > dependent on the fork-notification, suddenly stops receiving such
-> > > notification because some other application has switched off the=20
-> > > service without its notice.=20
-> > >=20
-> > > the reason I am concerned is I am planning to feed this fork-events
-> > > to my in-kernel module. Side note: I would really like support for
-> > > in-kernel listners through connector infrastructure.
-> >=20
-> > fork connector can be extended to send to the rest of the world
-> > information that it was turned off or on.
->=20
-> This will support the paradigm: "Let me know if this is switched off,
-> and I don't mind any arbitrary process switching it off".  No
-> applications can seriously rely on this service, because there is this
-> *arbritray-application-being-able-to-control* component to it.
+There are probably other bugs of this sort, I will track them down.
 
-It is fork connector who will inform all it's listeners that it is not
-working any more.
-And it is only super-user who can turn it off.
+But, just to make sure I understand -- if I have preempt disabled over
+all accesses to a per-CPU variable, and that variable is -not- accessed
+from a real interrupt handler, then I am safe without a lock, right?
 
-> A ideal paradigm would be: "Don't switch it off, without my consent".
-> Essentially this will give applications enough confidence to rely on it
-> seriously.
+						Thanx, Paul
 
-Does ip command wait until apache or bind exited when trying to turn=20
-network interface off? No. One can even unload network driver.
-Because super-user must have ability to control the whole system.
-
-> However an inbetween paradigm that would acceptable is:
-> "Let me know if this is swtiched off provided only application that I
-> can trust-on has the power to manage it".
-
-I suppose fork connector [kernel module] is trusted enough application
-that can inform external listeners about it's status.
-But super-user still can turn it off by any program,
-like one can turn network interface off using ip, ifconfig, your own=20
-application that can, btw, do it using netlink socket.
-
-> To me 2nd or 3rd paradigm seems acceptable, but not the 1st.
-
-Ok, fork module can implement following controlling mechanism:
-on insert time super-user provides pid of the controlling=20
-program, later in fork callback it searches for the given pid,=20
-sends some signal to it, and if it receives=20
-magic message [with signal number for example] after it, then it is ok
-to perform desired action.
-I believe there are plenty of auth techniques that can be applied
-here, but I strongly object against it.
-
-What would happen with the system, if only one controlling daemon=20
-is allowed to turn networking off, or change hard drive work modes,
-or super-user could not be allowed to remove user's file using usual
-rm comman, but not specially authentificated daemon?
-Or if it should ask all user's application, do they agree
-to remove user's files?
-
-> Thanks,
-> RP
->=20
-> >=20
-> > > RP
-> >=20
-> > 	Evgeniy Polyakov
-> >=20
-> > Only failure makes us experts. -- Theo de Raadt
---=20
-        Evgeniy Polyakov
-
-Crash is better than data corruption -- Arthur Grabowski
-
---=-uyeBDSG72iP5BeySF9Wd
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQBCQPYOIKTPhE+8wY0RApn0AKCA1RwtzLIrc5VYp8vyP2Xk9F7f4gCeKRve
-C/LnzdqzfSKHfQpyGeVOOV0=
-=XhXR
------END PGP SIGNATURE-----
-
---=-uyeBDSG72iP5BeySF9Wd--
-
+PS.  Fixing my stupid bugs that you pointed out in earlier email,
+     as well.  :-/

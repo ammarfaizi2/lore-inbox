@@ -1,49 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263472AbUEGJub@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263429AbUEGJzQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263472AbUEGJub (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 May 2004 05:50:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263394AbUEGJub
+	id S263429AbUEGJzQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 May 2004 05:55:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263435AbUEGJzQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 May 2004 05:50:31 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:63759 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP id S263472AbUEGJtA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 May 2004 05:49:00 -0400
-Message-ID: <409B5BF0.6070609@aitel.hist.no>
-Date: Fri, 07 May 2004 11:50:40 +0200
-From: Helge Hafting <helgehaf@aitel.hist.no>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040306)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Valdis.Kletnieks@vt.edu
-CC: Linux Kernel ML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.6-rc3-mm2 (4KSTACK)
-References: <20040505013135.7689e38d.akpm@osdl.org> <200405051312.30626.dominik.karall@gmx.net> <200405051822.i45IM2uT018573@turing-police.cc.vt.edu> <20040505215136.GA8070@wohnheim.fh-wedel.de> <200405061518.i46FIAY2016476@turing-police.cc.vt.edu>            <1083858033.3844.6.camel@laptop.fenrus.com> <200405061629.i46GTm2x018759@turing-police.cc.vt.edu>
-In-Reply-To: <200405061629.i46GTm2x018759@turing-police.cc.vt.edu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 7 May 2004 05:55:16 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:2224 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S263429AbUEGJzN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 May 2004 05:55:13 -0400
+Date: Fri, 7 May 2004 02:53:04 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Paul Jackson <pj@sgi.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, colpatch@us.ibm.com,
+       wli@holomorphy.com, rusty@rustcorp.com.au, joe.korty@ccur.com,
+       jbarnes@sgi.com
+Subject: Re: [PATCH mask 0/15] bitmap and cpumask cleanup
+Message-Id: <20040507025304.15d03c88.pj@sgi.com>
+In-Reply-To: <20040506111814.62d1f537.pj@sgi.com>
+References: <20040506111814.62d1f537.pj@sgi.com>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Valdis.Kletnieks@vt.edu wrote:
+Andrew has requested by private email that I hold off for now, and try
+resubmitting this patchset after he has "unloaded a few hundred patches
+into 2.6.7."  Something about too many confusions ...
 
->On Thu, 06 May 2004 17:40:33 +0200, Arjan van de Ven said:
->  
->
->>Ok I don't want to start a flamewar but... Do we want to hold linux back
->>until all binary only module vendors have caught up ??
->>    
->>
->
->No.. I merely suggested that coordinating with as few as possibly one vendor to
->clean their module up might minimize the pain considerably.  
->
+I will do so, gladly.
 
-I don't see much of a problem.  So what if Linus puts 4k stacks in 2.6.6 
-tomorrow?
-It won't kill linux for all those nvidia users.  They'll simply have to 
-stop at 2.6.5
-until nvidia catch up.  Not much of a problem, considering how the majority
-still runs various versions of 2.4.x.
-
-Helge Hafting
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

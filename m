@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318427AbSGaSOD>; Wed, 31 Jul 2002 14:14:03 -0400
+	id <S318433AbSGaSYP>; Wed, 31 Jul 2002 14:24:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318428AbSGaSOD>; Wed, 31 Jul 2002 14:14:03 -0400
-Received: from [195.39.17.254] ([195.39.17.254]:2176 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S318427AbSGaSOC>;
-	Wed, 31 Jul 2002 14:14:02 -0400
-Date: Tue, 30 Jul 2002 11:17:48 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Russell King <rmk@arm.linux.org.uk>, Christoph Hellwig <hch@lst.de>,
-       Linus Torvalds <torvalds@transmeta.com>, Robert Love <rml@tech9.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] cli()/sti() cleanup, 2.5.27-A2
-Message-ID: <20020730091747.GA331@elf.ucw.cz>
-References: <20020722144626.D2838@flint.arm.linux.org.uk> <Pine.LNX.4.44.0207221546320.9136-100000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0207221546320.9136-100000@localhost.localdomain>
-User-Agent: Mutt/1.3.28i
-X-Warning: Reading this can be dangerous to your mental health.
+	id <S318434AbSGaSYP>; Wed, 31 Jul 2002 14:24:15 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:6158 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S318433AbSGaSYP>; Wed, 31 Jul 2002 14:24:15 -0400
+Date: Wed, 31 Jul 2002 14:21:43 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: jeff millar <wa1hco@adelphia.net>
+cc: Jakob Oestergaard <jakob@unthought.net>,
+       Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: RAID problems
+In-Reply-To: <004501c23841$03265a30$6a01a8c0@wa1hco>
+Message-ID: <Pine.LNX.3.96.1020731135724.10066D-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Tue, 30 Jul 2002, jeff millar wrote:
 
-> > > It's not that we confuse flags with some other flag all that
-> > > frequently that would necessiate some structure-based more abstract
-> > > protection of these variables.
+> In the 3 weeks since installing Linux software raid-5 (3 x 80 GB), I had to
+> reinitialize the raid devices twice (mkraid --force)...once due to an abrupt
+> shutdown and once due to some weird ATA/ATAPI/drive problem that caused a
+> disk to begin "clicking" spasmodically...and left the raid array all out of
+> whack..
 > 
-> are you sure type-checking is really needed? Sure people can mess up the
-> flags variable, but 64-bit archs could do a sizeof at compile-time.
+> Linux software raid seems very fragile and very scary to recover.  I feel a
+> much stronger need for backup with raid than without it.
 
-Yes, it is needed; type-checking can be easily implemented as 
+I'm happy to say my experience has been better, when swraid was a patch I
+built a kernel:
+-rw-r--r--   1 root       763429 Dec 14  1999 k2.2.13s3r
 
-{
-	unsigned long foo;
-	(&foo == &arg);
-}
+And set up a four drive RAID-0+1. It has recovered from every problem with
+nothing more that a hot add. You certainly have had bad luck, but I don't
+think it's typical.
 
- -- that gives warning when arg is not unsigned long.
-								Pavel
-
+The situation when a drive fails and the system stays up seems to be
+pretty good, back in the days of 340MB IDE drives I tested it more than I
+wanted;-) As you note, recovery if the system goes down is somewhat
+painful and manual.
 
 -- 
-Worst form of spam? Adding advertisment signatures ala sourceforge.net.
-What goes next? Inserting advertisment *into* email?
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

@@ -1,48 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268989AbTBWXK1>; Sun, 23 Feb 2003 18:10:27 -0500
+	id <S269022AbTBWXSq>; Sun, 23 Feb 2003 18:18:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268990AbTBWXK0>; Sun, 23 Feb 2003 18:10:26 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:44416
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S268989AbTBWXK0>; Sun, 23 Feb 2003 18:10:26 -0500
-Subject: Re: Question about Linux signal handling
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Albert Cahalan <albert@users.sourceforge.net>
-Cc: Albert Cahalan <albert@users.sourceforge.net>, developer_linux@yahoo.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1046041491.31809.46.camel@cube>
-References: <1046039341.32116.34.camel@cube>
-	 <1046043810.2092.0.camel@irongate.swansea.linux.org.uk>
-	 <1046041491.31809.46.camel@cube>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1046046030.2210.11.camel@irongate.swansea.linux.org.uk>
+	id <S269021AbTBWXSq>; Sun, 23 Feb 2003 18:18:46 -0500
+Received: from to-wiznet.redhat.com ([216.129.200.2]:40181 "EHLO
+	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
+	id <S269022AbTBWXSp>; Sun, 23 Feb 2003 18:18:45 -0500
+Date: Sun, 23 Feb 2003 18:28:56 -0500
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: David Mosberger <davidm@napali.hpl.hp.com>
+Cc: David Lang <david.lang@digitalinsight.com>,
+       Gerrit Huizenga <gh@us.ibm.com>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
+Subject: Re: Minutes from Feb 21 LSE Call
+Message-ID: <20030223182856.A15376@redhat.com>
+References: <E18moa2-0005cP-00@w-gerrit2> <Pine.LNX.4.44.0302222354310.8609-100000@dlang.diginsite.com> <15961.7487.465791.980935@napali.hpl.hp.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
-Date: 24 Feb 2003 00:20:31 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <15961.7487.465791.980935@napali.hpl.hp.com>; from davidm@napali.hpl.hp.com on Sun, Feb 23, 2003 at 11:13:03AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-02-23 at 23:04, Albert Cahalan wrote:
-> > Firstly BSD didn't get it wrong, things merely diverged
-> > historically after V7 unix.
-> 
-> BSD is wrong for not choosing a different name
-> for the new system call and leaving the old one.
+On Sun, Feb 23, 2003 at 11:13:03AM -0800, David Mosberger wrote:
+> This simply isn't true.  Itanium and Itanium 2 have full x86 hardware
+> built into the chip (for better or worse ;-).  The speed isn't as good
+> as the fastest x86 chips today, but it's faster (~300MHz P6) than the
 
-The same is true of System 5. Both of the changes semantics
-from V7 unix.
+That hardly counts as reasonably performant: the slowest mainstream chips 
+from Intel and AMD are clocked well over 1 GHz.  At least x86-64 will 
+improve the performance of the 32 bit databases people have already 
+invested large amounts of money in, and it will do so without the need 
+for a massive outlay of funds for a new 64 bit license.  Why accept 
+more than 10x the cost to migrate to ia64 when a new x86-64 will improve 
+the speed of existing applications, and improve scalability with the 
+transparent addition of a 64 bit kernel?
 
-> > glibc has the best of both worlds
-> 
-> Non-default behavior is nearly irrelevant. The default
-> should have matched traditional UNIX and Linux behavior.
-
-Its all in the docs, and to quote one of the smarter managerial
-people we had in Red Hat "I can only provide the information, I 
-can't make you hear it."
-
-Alan
-
+		-ben
+-- 
+Don't email: <a href=mailto:"aart@kvack.org">aart@kvack.org</a>

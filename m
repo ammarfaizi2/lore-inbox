@@ -1,51 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263104AbVCXRAr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263125AbVCXREW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263104AbVCXRAr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 12:00:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263102AbVCXRAr
+	id S263125AbVCXREW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 12:04:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263120AbVCXREV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 12:00:47 -0500
-Received: from tiu.fh-brandenburg.de ([195.37.0.8]:11633 "EHLO
-	tiu.fh-brandenburg.de") by vger.kernel.org with ESMTP
-	id S263104AbVCXRAK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 12:00:10 -0500
-Date: Thu, 24 Mar 2005 18:00:04 +0100
-From: Markus Dahms <dahms@fh-brandenburg.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [BUG] Lockup using ALi SATA controller (sata_uli)
-Message-ID: <20050324170004.GA18726@fh-brandenburg.de>
-References: <20050321224410.GA27760@fh-brandenburg.de> <20050322222606.760e03e4.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 24 Mar 2005 12:04:21 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:34257 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S262463AbVCXREE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Mar 2005 12:04:04 -0500
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: Dave Airlie <airlied@linux.ie>
+Subject: Re: drm bugs hopefully fixed but there might still be one..
+Date: Thu, 24 Mar 2005 09:02:03 -0800
+User-Agent: KMail/1.7.2
+Cc: Andrew Morton <akpm@osdl.org>, Dave Jones <davej@redhat.com>,
+       linux-kernel@vger.kernel.org, dri-devel@lists.sourceforge.net
+References: <Pine.LNX.4.58.0503241015190.7647@skynet>
+In-Reply-To: <Pine.LNX.4.58.0503241015190.7647@skynet>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20050322222606.760e03e4.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200503240902.03808.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Andrew Morton,
+On Thursday, March 24, 2005 2:33 am, Dave Airlie wrote:
+> Hi Andrew, Dave,
+>
+> I've put a couple of patches into my drm-2.6 tree that hopefully fix up
+> the multi-bridge on i915 and the XFree86 4.3 issue.. Andrew can you drop
+> the two patches in your tree.. the one from Brice and the one I attached
+> to the bug? you'll get conflicts anyway I'm sure. I had to modify Brices
+> one as it didn't look safe to me in all cases..
+>
+> I think their might be one left, but I think it only seems to be on
+> non-intel AGP system, as in my system works fine for a combination of
+> cards and X releases ... anyone with a VIA chipset and Radeon graphics
+> card or r128 card.. testing the next -mm would help me a lot..
 
->>  I have a reproducable lockup of my system using an ALi SATA controller
->>  and writing some 100 MB to the attached disk.
->> ...
->>  Do you have some hints?
-> As a test you might like to try an uniprocessor kernel - we do have a
-> deadlock on the sata error recovery paths at present.
+I'm trying to get ahold of one--so hopefully I'll be able to test and fix this 
+stuff up when I do.
 
-The UP kernel didn't change anything, same error on console. In addition
-this kernel crashes every second time or so immediately after boot
-(some pci stuff in backtrace), I'll try catch some error messages....
-
-> Or ensure that you've enabled the io-apci in Kconfig and boot with
-> nmi_watchdog=1.
-
-Except the line "testing NMI watchdog ... OK." in the boot messages
-I don't see any difference. :-(
-
-thanks anyway,
-
-	Markus
-
--- 
-A CRAY is the only computer that runs an endless loop in just 4 hours...
+Jesse

@@ -1,57 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266362AbUAOBML (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jan 2004 20:12:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266369AbUAOBMK
+	id S264889AbUAOBCS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jan 2004 20:02:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264893AbUAOBCS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jan 2004 20:12:10 -0500
-Received: from news.cistron.nl ([62.216.30.38]:6353 "EHLO ncc1701.cistron.net")
-	by vger.kernel.org with ESMTP id S266362AbUAOBMI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jan 2004 20:12:08 -0500
-From: "Miquel van Smoorenburg" <miquels@cistron.nl>
-Subject: Re: Slow NFS performance over wireless!
-Date: Thu, 15 Jan 2004 01:12:07 +0000 (UTC)
-Organization: Cistron Group
-Message-ID: <bu4pd6$anf$1@news.cistron.nl>
-References: <Pine.LNX.4.44.0401060055570.1417-100000@poirot.grange> <200401130155.32894.hackeron@dsl.pipex.com> <1074025508.1987.10.camel@lumiere> <1074026758.4524.65.camel@nidelv.trondhjem.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: ncc1701.cistron.net 1074129127 10991 62.216.29.200 (15 Jan 2004 01:12:07 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
+	Wed, 14 Jan 2004 20:02:18 -0500
+Received: from amsfep18-int.chello.nl ([213.46.243.14]:15639 "EHLO
+	amsfep18-int.chello.nl") by vger.kernel.org with ESMTP
+	id S264889AbUAOBCM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jan 2004 20:02:12 -0500
+Date: Thu, 15 Jan 2004 02:02:10 +0100
+From: Haakon Riiser <haakon.riiser@fys.uio.no>
 To: linux-kernel@vger.kernel.org
+Subject: NTFS disk usage on Linux 2.6
+Message-ID: <20040115010210.GA570@s.chello.no>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <1074026758.4524.65.camel@nidelv.trondhjem.org>,
-Trond Myklebust  <trond.myklebust@fys.uio.no> wrote:
->There are a couple of performance related patches that should be applied
->to stock 2.6.0/2.6.1. One handles a problem with remove_suid()
->generating a whole load of SETATTR calls if you are writing to a file
->that has the "x" bit set. The other handles an efficiency issue related
->to random write + read combinations.
->
->Either look for them on my website (under
->http://www.fys.uio.no/~trondmy/src), or apply Andrew's 2.6.1-mm2 patch.
+Has anyone else noticed that the reported disk space usage on
+NTFS is completely unreliable on Linux 2.6?  Just issued the
+command "du -sh" on my main Windows XP partition, and on 2.6.1,
+the reported disk usage is bigger than the partition size.
 
-If one runs bonnie on a NFS mounted share, what should the rewrite
-throughput be?
+Here's the output from "du -sh *" in Windows' root directory
+under Linux 2.6.1:
 
-On an NFS server locally (2.6.1-mm3) I get as write/rewrite/read
-speeds 107 / 25 / 110 MB/sec, CPU loads of a few percent.
+  0       AUTOEXEC.BAT
+  0       CONFIG.SYS
+  43M     Documents and Settings
+  0       IO.SYS
+  0       MSDOS.SYS
+  48K     NTDETECT.COM
+  366M    Program Files
+  0       RECYCLER
+  20K     System Volume Information
+  12G     WINDOWS
+  0       boot.ini
+  232K    ntldr
+  768M    pagefile.sys
 
-On an NFS client (2.6.1-mm3, filesystem mounted with options
-udp,nfsvers=3,rsize=32768,wsize=32768) I get for the same share as
-write/rewrite/read speeds 36 / 4 / 38 MB/sec. CPU load is also
-very high on the client for the rewrite case (80%).
+Same command on 2.4.24:
 
-That's with back-to-back GigE, full duplex, MTU 9000, P IV 3.0 Ghz.
-(I tried MTU 5000 and 1500 as well, doesn't really matter).
+  0       AUTOEXEC.BAT
+  0       CONFIG.SYS
+  41M     Documents and Settings
+  0       IO.SYS
+  0       MSDOS.SYS
+  48K     NTDETECT.COM
+  366M    Program Files
+  2.0K    RECYCLER
+  21K     System Volume Information
+  1.4G    WINDOWS
+  1.0K    boot.ini
+  230K    ntldr
+  770M    pagefile.sys
 
-Is that what would be expected ?
+(The contents of the filesystem was, of course, identical in both
+cases -- I did not run Windows in between these tests.)
 
-Mike.
+Compare the disk space used by the WINDOWS directory in the
+two listings.  On 2.4.24, it correctly reports 1.4G, while
+2.6.1 reports 12G, which is 2G more than the total space on
+the filesystem.
 
+I also compared this to the listings produced by "ls -lR"
+(summing the numbers on the "total ..." lines).  The result
+was the same as with du -sh.
+
+-- 
+ Haakon

@@ -1,40 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262460AbTCRO6Q>; Tue, 18 Mar 2003 09:58:16 -0500
+	id <S262451AbTCRO4l>; Tue, 18 Mar 2003 09:56:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262461AbTCRO6Q>; Tue, 18 Mar 2003 09:58:16 -0500
-Received: from landfill.ihatent.com ([217.13.24.22]:42882 "EHLO
-	mail.ihatent.com") by vger.kernel.org with ESMTP id <S262460AbTCRO5z>;
-	Tue, 18 Mar 2003 09:57:55 -0500
-To: Andrew Morton <akpm@digeo.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.5.65-mm1
-References: <20030318031104.13fb34cc.akpm@digeo.com>
-From: Alexander Hoogerhuis <alexh@ihatent.com>
-Date: 18 Mar 2003 16:08:51 +0100
-In-Reply-To: <20030318031104.13fb34cc.akpm@digeo.com>
-Message-ID: <87adfs4sqk.fsf@lapper.ihatent.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	id <S262453AbTCRO4k>; Tue, 18 Mar 2003 09:56:40 -0500
+Received: from express.corp.cubic.com ([149.63.71.200]:41885 "EHLO
+	express.corp.cubic.com") by vger.kernel.org with ESMTP
+	id <S262451AbTCRO4j>; Tue, 18 Mar 2003 09:56:39 -0500
+From: "Sparks, Jamie" <JAMIE.SPARKS@cubic.com>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: DervishD <raul@pleyades.net>, Linux kernel <linux-kernel@vger.kernel.org>
+Date: Tue, 18 Mar 2003 10:05:43 -0500 (Eastern Standard Time)
+Subject: Re: select() stress
+In-Reply-To: <Pine.LNX.4.53.0303180958320.27113@chaos>
+Message-ID: <Pine.WNT.4.44.0303181005320.1424-100000@GOLDENEAGLE.gameday2000>
+X-X-Sender: sparksj@curly.ds.cubic.com
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@digeo.com> writes:
+I'm using pine.
+
+j
+
+On Tue, 18 Mar 2003, Richard B. Johnson wrote:
+
+>   On Tue, 18 Mar 2003, Sparks, Jamie wrote:
 >
-> [SNIP]
+>   > This message uses a character set that is not supported by the Internet
+>   > Service.  To view the original message content,  open the attached message.
+>   > If the text doesn't display correctly, save the attachment to disk, and then
+>   > open it using a viewer that can display the original character set.
+>   > <<message.txt>>
+>   >
+>
+>   Please don't use that goddam M$ mailer. I can't see what you
+>   wrote without saving to a file, etc. Most use 'pine'  or
+>   something compatible with __text__ !
+>
+>
+>   Anyway you advised to do something like:
+>
+>   	fd = open("/", O_RDONLY);
+>           close(fd);
+>
+>           fd is now supposed to contain the largest process fd + 1.
+>           I don't think this is correct! You can do open thousands
+>            of fds, ultimately more than the max fd value. It will
+>           eventually wrap.
+>
+>
+>   Cheers,
+>   Dick Johnson
+>   Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+>   Why is the government concerned about the lunatic fringe? Think about it.
 >
 
-I tried to get find what made 2.5.64-mm1 special that made my Radeon
-card work, and had no luck in boiling down the differences more than
-generally waving in the general direction "seems to be the PCI
-updates". Nothing, up to and including 2.5.64-mm8, worked, but now
-2.5.65-mm1 works like a charm and I'm on it now. I'll let you know if
-it breaks again (or other breakage I find) :)
-
-mvh,
-A
--- 
-Alexander Hoogerhuis                               | alexh@ihatent.com
-CCNP - CCDP - MCNE - CCSE                          | +47 908 21 485
-"You have zero privacy anyway. Get over it."  --Scott McNealy

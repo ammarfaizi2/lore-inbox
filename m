@@ -1,62 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129666AbRCFIbg>; Tue, 6 Mar 2001 03:31:36 -0500
+	id <S129881AbRCFJAV>; Tue, 6 Mar 2001 04:00:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129686AbRCFIb0>; Tue, 6 Mar 2001 03:31:26 -0500
-Received: from 13dyn176.delft.casema.net ([212.64.76.176]:64005 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S129666AbRCFIbL>; Tue, 6 Mar 2001 03:31:11 -0500
-Message-Id: <200103060831.JAA04492@cave.bitwizard.nl>
+	id <S129986AbRCFJAO>; Tue, 6 Mar 2001 04:00:14 -0500
+Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:45432 "EHLO
+	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
+	id <S129835AbRCFJAA>; Tue, 6 Mar 2001 04:00:00 -0500
+Date: Tue, 6 Mar 2001 02:59:31 -0600
+From: Philipp Rumpf <prumpf@mandrakesoft.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Kenn Humborg <kenn@linux.ie>, Linux-Kernel <linux-kernel@vger.kernel.org>
 Subject: Re: kmalloc() alignment
-In-Reply-To: <981a78$cb2$1@cesium.transmeta.com> from "H. Peter Anvin" at "Mar
- 5, 2001 04:15:36 pm"
-To: "H. Peter Anvin" <hpa@zytor.com>
-Date: Tue, 6 Mar 2001 09:31:01 +0100 (MET)
-CC: linux-kernel@vger.kernel.org
-From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Message-ID: <20010306025931.A12655@mandrakesoft.mandrakesoft.com>
+In-Reply-To: <20010304221711.A1023@excalibur.research.wombat.ie> <E14Zh5G-0005tP-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.95.4us
+In-Reply-To: <E14Zh5G-0005tP-00@the-village.bc.nu>; from Alan Cox on Sun, Mar 04, 2001 at 10:34:31PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Mar 04, 2001 at 10:34:31PM +0000, Alan Cox wrote:
+> > Does kmalloc() make any guarantees of the alignment of allocated
+> > blocks?  Will the returned block always be 4-, 8- or 16-byte
+> > aligned, for example?
+> 
+> There are people who assume 16byte alignment guarantees. I dont think anyone
+> has formally specified the guarantee beyond 4 bytes tho
 
-> Followup to:  <20010306000652.A13992@excalibur.research.wombat.ie>
-> By author:    Kenn Humborg <kenn@linux.ie>
-> In newsgroup: linux.dev.kernel
-> >
-> > On Sun, Mar 04, 2001 at 11:41:12PM +0100, Manfred Spraul wrote:
-> > > >
-> > > > Does kmalloc() make any guarantees of the alignment of allocated 
-> > > > blocks? Will the returned block always be 4-, 8- or 16-byte 
-> > > > aligned, for example? 
-> > > >
-> > > 
-> > > 4-byte alignment is guaranteed on 32-bit cpus, 8-byte alignment on
-> > > 64-bit cpus.
-> > 
-> > So, to summarise (for 32-bit CPUs):
-> > 
-> > o  Alan Cox & Manfred Spraul say 4-byte alignment is guaranteed.
-> > 
-> > o  If you need larger alignment, you need to alloc a larger space,
-> >    round as necessary, and keep the original pointer for kfree()
-> > 
-> > Maybe I'll just use get_free_pages, since it's a 64KB chunk that
-> > I need (and it's only a once-off).
+Userspace malloc is "suitably aligned for any kind of variable", so I think
+expecting 8 bytes alignment (long long on 32-bit platforms) should be okay.
 
-My old kmalloc would actually use n+10 bytes if you request n bytes.
-As memory comes in pools of powers of two, if you request 64k, you
-would acutaly use 128k of memory. If you use "get_free_pages", you'll
-not have the overhead, and actually allocate the 64k you need. 
+>From reading the code it seems as though we actually use L1_CACHE_BYTES,
+and I think it might be a good idea to document the current behaviour (as
+long as there's no good reason to change it ?)
 
-I'm not sure what the slab stuff does...
-
-		Roger. 
-
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* There are old pilots, and there are bold pilots. 
-* There are also old, bald pilots. 
+diff -ur linux/mm/slab.c linux-prumpf/mm/slab.c
+--- linux/mm/slab.c	Tue Mar  6 00:54:38 2001
++++ linux-prumpf/mm/slab.c	Tue Mar  6 01:00:47 2001
+@@ -1525,9 +1525,10 @@
+  * @flags: the type of memory to allocate.
+  *
+  * kmalloc is the normal method of allocating memory
+- * in the kernel.  Note that the @size parameter must be less than or
+- * equals to %KMALLOC_MAXSIZE and the caller must ensure this. The @flags
+- * argument may be one of:
++ * in the kernel.  It returns a pointer (aligned to a hardware cache line
++ * boundary) to the allocated memory, or %NULL in case of failure. Note that
++ * the @size parameter must be less than or equal to %KMALLOC_MAXSIZE and
++ * the caller must ensure this. The @flags argument may be one of:
+  *
+  * %GFP_USER - Allocate memory on behalf of user.  May sleep.
+  *

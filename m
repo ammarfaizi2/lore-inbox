@@ -1,72 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261409AbREMOXW>; Sun, 13 May 2001 10:23:22 -0400
+	id <S261411AbREMOjd>; Sun, 13 May 2001 10:39:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261408AbREMOXM>; Sun, 13 May 2001 10:23:12 -0400
-Received: from smtp1.cern.ch ([137.138.128.38]:51211 "EHLO smtp1.cern.ch")
-	by vger.kernel.org with ESMTP id <S261407AbREMOXH>;
-	Sun, 13 May 2001 10:23:07 -0400
-To: esr@thyrsus.com
-Cc: CML2 <linux-kernel@vger.kernel.org>, kbuild-devel@lists.sourceforge.net
-Subject: Re: CML2 design philosophy heads-up
-In-Reply-To: <20010505192731.A2374@thyrsus.com>
-From: Jes Sorensen <jes@sunsite.dk>
-Date: 13 May 2001 16:22:59 +0200
-In-Reply-To: "Eric S. Raymond"'s message of "Sat, 5 May 2001 19:27:31 -0400"
-Message-ID: <d33da9tjjw.fsf@lxplus015.cern.ch>
-User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
+	id <S261410AbREMOjW>; Sun, 13 May 2001 10:39:22 -0400
+Received: from smtp3.libero.it ([193.70.192.53]:24317 "EHLO smtp3.libero.it")
+	by vger.kernel.org with ESMTP id <S261408AbREMOjF>;
+	Sun, 13 May 2001 10:39:05 -0400
+Message-ID: <3AFE9C7F.6081665B@alsa-project.org>
+Date: Sun, 13 May 2001 16:38:55 +0200
+From: Abramo Bagnara <abramo@alsa-project.org>
+Organization: Opera Unica
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i586)
+X-Accept-Language: it, en
 MIME-Version: 1.0
+To: Jes Sorensen <jes@sunsite.dk>
+CC: "David S. Miller" <davem@redhat.com>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: unsigned long ioremap()?
+In-Reply-To: <3AF10E80.63727970@alsa-project.org> <Pine.LNX.4.05.10105030852330.9438-100000@callisto.of.borg> <15089.979.650927.634060@pizda.ninka.net> <11718.988883128@redhat.com> <3AF12B94.60083603@alsa-project.org> <15089.63036.52229.489681@pizda.ninka.net> <3AF25700.19889930@alsa-project.org> <d37kzltkky.fsf@lxplus015.cern.ch>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Eric" == Eric S Raymond <esr@thyrsus.com> writes:
+Jes Sorensen wrote:
+> 
+> >>>>> "Abramo" == Abramo Bagnara <abramo@alsa-project.org> writes:
+> 
+> Abramo> "David S. Miller" wrote:
+> >> One final point, I want to reiterate that I believe:
+> >>
+> >> foo = readl(&regs->bar);
+> >>
+> >> is perfectly legal and should not be discouraged and in particular,
+> >> not made painful to do.
+> 
+> Abramo> I disagree: regs it's not a dereferenceable thing and I think
+> Abramo> it's an abuse of pointer type. You're keeping a pointer that
+> Abramo> need a big sign on it saying "Don't dereference me", it's a
+> Abramo> mess.
+> 
+> Thats complete rubbish, in many cases the regs structure matches a
+> regs structure seen by another CPU on the other side of the PCI bus
+> (ie. the firmware case). There is nothing wrong with the above
+> approach as long as you keep in mind that you cannot dereference the
+> struct without using readl and you have to make sure to explicitly do
+> padding in the struct (not all CPUs guarantee the same natural
+> alignment).
 
-Eric> I've said before on these lists that one of the purposes of
-Eric> CML2's single-apex tree design is to move the configuration
-Eric> dialog away from low-level platform- specific questions towards
-Eric> higher-level questions about policy or intentions.
+"As long as you handle with gloves thick enough such a shit, there's no
+problems.."
 
-Eric> Or to put another way: away from hardware, towards capabilities.
+-- 
+Abramo Bagnara                       mailto:abramo@alsa-project.org
 
-Eric> As a concrete example, the CML2 rulesfile master for the m68k
-Eric> port tree now has a section that looks like this:
+Opera Unica                          Phone: +39.546.656023
+Via Emilia Interna, 140
+48014 Castel Bolognese (RA) - Italy
 
-Eric> # These were separate questions in CML1.  They enable on-board
-Eric> peripheral # controllers in single-board computers.  derive
-Eric> MVME147_NET from MVME147 & NET_ETHERNET derive MVME147_SCC from
-Eric> MVME147 & SERIAL derive MVME147_SCSI from MVME147 & SCSI derive
-Eric> MVME16x_NET from MVME16x & NET_ETHERNET derive MVME16x_SCC from
-Eric> MVME16x & SERIAL derive MVME16x_SCSI from MVME16x & SCSI derive
-Eric> BVME6000_NET from BVME6000 & NET_ETHERNET derive BVME6000_SCC
-Eric> from BVME6000 & SERIAL derive BVME6000_SCSI from BVME6000 & SCSI
-
-Not all cards have all features, not all users wants to enable all
-features.
-
-Eric> # These were separate questions in CML1 derive MAC_SCC from MAC
-Eric> & SERIAL derive MAC_SCSI from MAC & SCSI derive SUN3_SCSI from
-Eric> (SUN3 | SUN3X) & SCSI
-
-As Alan already pointed out thats assumption is invalid.
-
-Eric> This is different from the CML1 approach, which generally
-Eric> involved explicitly specifying each driver with mutual
-Eric> dependencies described (if at all) in Configure.help.
-
-Yes and it should stay like that. If Richard had wanted all those
-features enabled per default when an MVME setting was selected, he
-would have done it in the config.in file, which is perfectly valid to
-do so today.
-
-Eric> This note is a heads-up.  If others with a stake in the
-Eric> configuration system (port managers, etc.) have objections to
-Eric> moving further in this direction, I need to hear about it, and
-Eric> about what you think we should be doing instead.  -- <a
-Eric> href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
-
-Yes I have objections. I thought I had made this clear a long time
-ago: Go play with another port and leave the m68k port alone.
-
-Thank you
-Jes
+ALSA project               http://www.alsa-project.org
+It sounds good!

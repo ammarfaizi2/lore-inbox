@@ -1,91 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265211AbUGZLnb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265212AbUGZLqZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265211AbUGZLnb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jul 2004 07:43:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265212AbUGZLnb
+	id S265212AbUGZLqZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jul 2004 07:46:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265214AbUGZLqZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jul 2004 07:43:31 -0400
-Received: from smtp018.mail.yahoo.com ([216.136.174.115]:41119 "HELO
-	smtp018.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S265211AbUGZLn2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jul 2004 07:43:28 -0400
-Message-ID: <4104EE5C.406@yahoo.com.au>
-Date: Mon, 26 Jul 2004 21:43:24 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040707 Debian/1.7-5
-X-Accept-Language: en
+	Mon, 26 Jul 2004 07:46:25 -0400
+Received: from mail.bbb2.mdc-berlin.de ([141.80.34.25]:33036 "EHLO
+	mail.bbb2.mdc-berlin.de") by vger.kernel.org with ESMTP
+	id S265212AbUGZLqV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jul 2004 07:46:21 -0400
+Message-ID: <4104EF08.4050006@bioinf.cs.uni-potsdam.de>
+Date: Mon, 26 Jul 2004 13:46:16 +0200
+From: Juergen Rose <rose@bioinf.cs.uni-potsdam.de>
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040506)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Jan-Frode Myklebust <janfrode@parallab.uib.no>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: OOM-killer going crazy.
-References: <20040725094605.GA18324@zombie.inka.de> <41045EBE.8080708@comcast.net> <20040726091004.GA32403@ii.uib.no> <4104E307.1070004@yahoo.com.au> <20040726111032.GA2067@ii.uib.no>
-In-Reply-To: <20040726111032.GA2067@ii.uib.no>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
+Subject: Oops modprobing snd_intel8x0 with linux-2.6.7-mm7, linux-2.6.8-rc[1-2]
+ under Slackware and Gentoo
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan-Frode Myklebust wrote:
-> On Mon, Jul 26, 2004 at 08:55:03PM +1000, Nick Piggin wrote:
-> 
->>Can you just check you CONFIG_SWAP is on and /proc/sys/vm/laptop_mode is 0,
->>and that you have some swap enabled.
-> 
-> 
-> # grep CONFIG_SWAP .config
-> CONFIG_SWAP=y
-> # cat /proc/sys/vm/laptop_mode
-> 0
-> # free
->              total       used       free     shared    buffers     cached
-> Mem:       2074708    1223324     851384          0        296     258376
-> -/+ buffers/cache:     964652    1110056
-> Swap:      2040244          0    2040244
-> 
+if I try to boot Gentoo with the current kernels (linux-2.6.7-mm4, or 
+linux-2.6.8-rc[1-2]) patched for VIA which a need at one PC with a ASUS 
+P4P800 mainboard, I get kernel Oops.
+With linux-2.6.8-rc2 I get the following output:
+...
+* Starting pci hotplug...
+Oops: 0000 [#1]
+PREEMPT SMP
+Modules linked in: snd_intel8x0 snd_ac97_codec snd_pcm snd_page_alloc 
+snd_mpu401_uart snd_rawmidi hw_random ehci_hcd uhci intel_mch_agp 
+agpgart evdev sk98li
+n
+CPU:       0
+EIP:         0060:[<c01908295>]    Not tainted
+EFLAGS: 00018286      (2.6.8-rc2)
+EIP is at create_dir+0x16/0x8b
+eax: ...
+esi:  ...
+ds: ...
+Process modprobe (pid: 7692, threadinfo=f64c2000 task=f77d62b0)
+Stack: ....
+         ....
+         ....
+[<c0106ce9>] show_stack+0x7a/0x90
+[<....           >] show_register+0x...
+[<....           >] die+0x....
+[<....           >] do_page+0x...
+[<....           >] error_code+0x...
+[<....           >] sysfs_create_dir+0x...
+[<....           >] create_dir
+[<....           >] kobject_add
+[<....           >] class_device_add
+[<....           >] class_simple_device_add
+[<....           >] snd_register_device
+[<....           >] snd_pcm_dev_register
+[<....           >] snd_device_register_all
+[<....           >] snd_card_register
+[<....           >] snd_intel8x0_probe
+[<....           >] pci_device_probe_static
+[<....           >] __pci_device_probe
+[<....           >] pci_device_probe
+[<....           >] bus_match
+[<....           >] driver_attach
+[<....           >] bus_add_driver
+[<....           >] pci_register_driver
+[<....           >] alsa_card_intel8x0_init
+[<....           >] sys_init_modul
+[<....           >] sysenter_past_esp+0x52/0x71
+Code: 8b 52 0c 8b 7d 80 8d 42 6c 89 c1 f0 ff 4a 6c 0f 88 b5 83 00
+/etc/hotplug/pci_agent: line 157:  7692 Segmentation fault   $MODPROBE 
+$MODULE >/dev/null 2>&1
+... can't load module snd-intel8x0
+missing kernel or user mode driver snd-intel8x0
 
-Good. Just making sure.
+Which stops booting and computer. CRTL-ALT-DEL works until :
+...
+* Stopping usb hotplugging...
 
-> 
-> 
->>If the problem persists, can you send a copy each of 
->>/proc/sys/fs/dentry-state,
->>/proc/slabinfo and /proc/vmstat before and after you run dsmc until it goes
->>OOM please?
-> 
-> 
-> I turned of a option (MEMORYEFFICIENTBACKUP) in 'dsmc', and then it uses a bit 
-> more memory, and crashes quicker.
-> 
+Then I have to use the power switch. Is there anybody, who found the 
+same problem or even knows a patch?
 
-Thanks. Let's see.
+   Regards  Juergen
 
-dentry-state before
-> 644923  572300  45      0       0       0
-after
- > 570734  495922  45      0       0       0
+PS. Please send your answers also to my email address.
 
-slabinfo before
-> # name            <active_objs> <num_objs> <objsize> <objperslab> <pagesperslab> : tunables <batchcount> <limit> <sharedfactor> : slabdata <active_slabs> <num_slabs> <sharedavail>
-> xfs_inode         927591 980848    368   11    1 : tunables   54   27    8 : slabdata  89168  89168      0
-> linvfs_icache     927591 980810    384   10    1 : tunables   54   27    8 : slabdata  98081  98081      0
-> dentry_cache      645063 703566    144   27    1 : tunables  120   60    8 : slabdata  26058  26058      0
-after
- > xfs_inode         828633 980507    368   11    1 : tunables   54   27    8 : slabdata  89137  89137    216
- > linvfs_icache     828629 980220    384   10    1 : tunables   54   27    8 : slabdata  98022  98022    216
- > dentry_cache      571383 703458    144   27    1 : tunables  120   60    8 : slabdata  26054  26054    480
-
-So you're basically drowning in mostly reclaimable slab here. These three entries
-are consuming over 800MB of zone_normal alone.
-
-vmstat before
-> pginodesteal 36508
-> slabs_scanned 56099472
-> kswapd_inodesteal 317433
-after
-> pginodesteal 36536
-> slabs_scanned 56443602
-> kswapd_inodesteal 317433
-
-The things are being slowly scanned and freed, but it is being pretty lethargic.
-
-Can you try echo 10000 > /proc/sys/vm/vfs_cache_pressure, and see how that goes?

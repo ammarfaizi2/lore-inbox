@@ -1,48 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270550AbUJTUYy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269008AbUJTUgG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270550AbUJTUYy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 16:24:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270531AbUJTUUg
+	id S269008AbUJTUgG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 16:36:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270563AbUJTUgA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 16:20:36 -0400
-Received: from zmamail03.zma.compaq.com ([161.114.64.103]:22542 "EHLO
-	zmamail03.zma.compaq.com") by vger.kernel.org with ESMTP
-	id S270500AbUJTUPu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 16:15:50 -0400
-Date: Wed, 20 Oct 2004 15:15:21 -0500
-From: mikem <mikem@beardog.cca.cpqcorp.net>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Jens Axboe <axboe@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: cciss update [2/2] fixes for Steeleye Lifekeeper
-Message-ID: <20041020201521.GB21452@beardog.cca.cpqcorp.net>
-References: <20041013212253.GB9866@beardog.cca.cpqcorp.net> <20041014083900.GB7747@infradead.org> <1097764660.2198.11.camel@mulgrave> <20041014183948.GA12325@infradead.org> <1097852716.1718.9.camel@mulgrave> <20041018163532.GA24511@beardog.cca.cpqcorp.net> <1098128731.2011.296.camel@mulgrave>
+	Wed, 20 Oct 2004 16:36:00 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:8634 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S269008AbUJTUfQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 16:35:16 -0400
+Subject: Re: [PATCH] Make netif_rx_ni preempt-safe
+From: Lee Revell <rlrevell@joe-job.com>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: "J. Ryan Earl" <heretic@clanhk.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <200410202255.56304.vda@port.imtp.ilyichevsk.odessa.ua>
+References: <1098230132.23628.28.camel@krustophenia.net>
+	 <1098231737.23628.42.camel@krustophenia.net>
+	 <200410201811.44419.vda@port.imtp.ilyichevsk.odessa.ua>
+	 <200410202255.56304.vda@port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain
+Message-Id: <1098304347.2456.1.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1098128731.2011.296.camel@mulgrave>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 20 Oct 2004 16:32:28 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 18, 2004 at 02:45:24PM -0500, James Bottomley wrote:
-> On Mon, 2004-10-18 at 11:35, mikem wrote:
-> > This patch only registers the controller if no logical drives are configured. It will not result in all possible logical drives being added. I added printk's to the driver to show me what I'm registering.
-> > What I see is the controller registers every time, and only drives that are phsically configured are registered. That is true for reserved drives, also.
-> 
-> It also looks like this device is always the one used when the array
-> comes on line, so it's only a shadow for as long as the actual array has
-> none of it's storage configured.  OK.
-> 
-> The code also seems to imply that we use a single block queue for all of
-> the array devices ... isn't that a bit inefficient?
-> 
-> James
-Yes, it's not a perfect solution, but I have yet to complete my fairness algorithm for the per drive queues.
+On Wed, 2004-10-20 at 15:55, Denis Vlasenko wrote:
+> 	padding is larger that code it aligns! Zero gain in speed,
+> 	11 bytes wasted. >8(
 
-mikem
-> 
-> 
-> 
-> 
+Still too big to inline it?  You could submit a patch that converts it
+to asm... :-)
+
+Lee
+

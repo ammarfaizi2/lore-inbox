@@ -1,53 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292650AbSBURLy>; Thu, 21 Feb 2002 12:11:54 -0500
+	id <S292654AbSBURUe>; Thu, 21 Feb 2002 12:20:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292652AbSBURLo>; Thu, 21 Feb 2002 12:11:44 -0500
-Received: from Backfire.WH8.TU-Dresden.De ([141.30.225.118]:55690 "EHLO
-	backfire.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-	id <S292650AbSBURLf>; Thu, 21 Feb 2002 12:11:35 -0500
-Message-Id: <200202211711.g1LHBYAH014952@backfire.WH8.TU-Dresden.De>
-Content-Type: text/plain; charset=US-ASCII
-From: Gregor Jasny <gjasny@wh8.tu-dresden.de>
-Organization: Networkadministrator WH8/DD/Germany
-Date: Thu, 21 Feb 2002 18:11:34 +0100
-X-Mailer: KMail [version 1.3.2]
-X-PGP-fingerprint: 5A65 E2CC EB06 F110 4F45  AB34 DE58 C135 1361 35BD
-X-PGP-public-key: finger gjasny@hell.wh8.tu-dresden.de
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.5 - Linking error
+	id <S292659AbSBURUZ>; Thu, 21 Feb 2002 12:20:25 -0500
+Received: from host213-121-106-53.in-addr.btopenworld.com ([213.121.106.53]:2284
+	"HELO mail.dark.lan") by vger.kernel.org with SMTP
+	id <S292657AbSBURUN>; Thu, 21 Feb 2002 12:20:13 -0500
+Subject: Re: paging question
+From: Gianni Tedesco <gianni@ecsc.co.uk>
+To: Jason Yan <jasonyanjk@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020220182600.PTIU27257.tomts11-srv.bellnexxia.net@abc337>
+In-Reply-To: <20020220182600.PTIU27257.tomts11-srv.bellnexxia.net@abc337>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 
+Date: 21 Feb 2002 17:20:10 +0000
+Message-Id: <1014312010.8529.4.camel@lemsip>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, 2002-02-20 at 21:26, Jason Yan wrote:
+> Hi,
+> 
+> I have a question about the code to enable  to initialize page 
+> tables in linux/arch/i386/head.S
+> 
+> I search the internet again and again but fail to find any answer
+> so far, maybe you gurus can help me out, here it goes:
+> 
+> 48         cld
+> 49         movl $(__KERNEL_DS),%eax
+> 50         movl %eax,%ds
+> 51         movl %eax,%es
+> 52         movl %eax,%fs
+> 53         movl %eax,%gs
+> 81 /*
+> 82  * Initialize page tables
+> 83  */
+> 84         movl $pg0-__PAGE_OFFSET,%edi /* initialize page tables */
+> 85         movl $007,%eax  /* "007" doesn't mean with right to kill, but
+> 86                                    PRESENT+RW+USER */
+> 87 2:      stosl
+> 88         add $0x1000,%eax
+> 89         cmp $empty_zero_page-__PAGE_OFFSET,%edi
+> 90         jne 2b
+>    
+> I remove the SMP code.  According the setup.S, gdt_table is setup as
+> gdt_table:		
+> 			#.quad 0x0000000000000000;	// null
+> 			#.quad 0x0000000000000000;	// not used
+> 			#.quad 0x00cf9a000000ffff;	// 0x10 kernel 4GB code at 0x00000000
+> 			#.quad 0x00cf92000000ffff;	// 0x18 kernel 4GB data at 0x00000000
+> 
+> 1) So, what's in %eax after line 49 ?  0x0 ?
 
-On my debian sid with binutils 2.11.93.0.2-1 I get the following linking 
-error:
+0x18, its the index of the 4th item in GDT. Lines 49-53 set the segment
+registers to use the settings in gdt[3];
 
-ld -m elf_i386 -T /usr/src/linux-2.5.5/arch/i386/vmlinux.lds -e stext 
-arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o 
-init/version.o init/do_mounts.o \
-        --start-group \
-        arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o mm/mm.o 
-fs/fs.o ipc/ipc.o \
-        /usr/src/linux-2.5.5/arch/i386/lib/lib.a 
-/usr/src/linux-2.5.5/lib/lib.a /usr/src/linux-2.5.5/arch/i386/lib/lib.a \
-         drivers/acpi/acpi.o drivers/base/base.o drivers/char/char.o 
-drivers/block/block.o drivers/misc/misc.o drivers/net/net.o 
-drivers/media/media.o drivers/char/agp/agp.o drivers/char/drm/drm.o 
-drivers/ide/idedriver.o drivers/scsi/scsidrv.o drivers/cdrom/driver.o 
-drivers/pci/driver.o drivers/video/video.o \
-        net/network.o \
-        --end-group \
-        -o vmlinux
-drivers/net/net.o(.data+0xd4): undefined reference to `local symbols in 
-discarded section .text.exit'
-make[1]: *** [vmlinux] Error 1
-make[1]: Leaving directory `/usr/src/linux-2.5.5'
+> 2) Isn't __PAGE_OFFSET 0xC0000000 ? what's the result of $pg0-__PAGE_OFFSET ?
 
-What must I change that it links properly?
+the physical address of $pg0, the kernel is linked to PAGE_OFFSET so it
+thinks the address of $pg0 is PAGE_OFFSET+something. Suptracting
+PAGE_OFFSET is the simple way to obtain the physical address.
 
-Best Regards,
--G. Jasny
+-- 
+// Gianni Tedesco <gianni@ecsc.co.uk>
+80% of all email is a figment of procmails imagination.
+

@@ -1,32 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265377AbRGBR46>; Mon, 2 Jul 2001 13:56:58 -0400
+	id <S265381AbRGBSL2>; Mon, 2 Jul 2001 14:11:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265381AbRGBR4i>; Mon, 2 Jul 2001 13:56:38 -0400
-Received: from cs.columbia.edu ([128.59.16.20]:34521 "EHLO cs.columbia.edu")
-	by vger.kernel.org with ESMTP id <S265376AbRGBR4d>;
-	Mon, 2 Jul 2001 13:56:33 -0400
-Message-Id: <200107021756.NAA24717@razor.cs.columbia.edu>
-X-Mailer: exmh version 2.1.1 10/15/1999
-To: "H. Peter Anvin" <hpa@zytor.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Uncle Sam Wants YOU! 
-In-Reply-To: Your message of "02 Jul 2001 10:49:37 PDT."
-             <9hqc7h$b7f$1@cesium.transmeta.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 02 Jul 2001 13:56:31 -0400
-From: Hua Zhong <huaz@cs.columbia.edu>
+	id <S265382AbRGBSLS>; Mon, 2 Jul 2001 14:11:18 -0400
+Received: from wrath.cs.utah.edu ([155.99.198.100]:22450 "EHLO
+	wrath.cs.utah.edu") by vger.kernel.org with ESMTP
+	id <S265381AbRGBSLE>; Mon, 2 Jul 2001 14:11:04 -0400
+Date: Mon, 2 Jul 2001 12:11:02 -0600 (MDT)
+From: Shashi Guruprasad <shash@cs.utah.edu>
+To: linux-kernel@vger.kernel.org
+Subject: cleaning up a socket in FIN_WAIT_1 
+Message-ID: <Pine.LNX.4.21.0107021204210.8956-100000@famine.cs.utah.edu>
+Return-Recipt-To: <shash@cs.utah.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
--> From "H. Peter Anvin" <hpa@zytor.com> :
-> When I got Pac*Smell DSL, the installer guy (who seemed to be a
-> relatively clueful type) said "and [the contract] says you're not
-> allowed to run a server... but who'd know?"
+A socket got stuck in the FIN_WAIT_1 state coz the client that was
+generating these TCP segments got terminated prematurely. The kernel does
+clean it up after 2MSL seconds. However, I would like to know if there is
+a way to explicitly clean it up from the command line (as root).  
+SO_REUSEADDR option only helps for sockets in TIME_WAIT. Also, Does the
+kernel have such mechanisms to clean up any kernel data structure?
 
-..and please define "server".  Does it mean that you can not run any programs 
-listening on a port and accepting incoming connections or datagrams? :-)
+I would appreciate it if whoever answers this query also Cc me coz I'm not
+subscribed to the kernel mailing list.
 
-
+Thanks,
+Shashi
 

@@ -1,57 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263083AbUCSTBf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Mar 2004 14:01:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263089AbUCSTBf
+	id S263090AbUCSTEo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Mar 2004 14:04:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263118AbUCSTEo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Mar 2004 14:01:35 -0500
-Received: from smtp02.web.de ([217.72.192.151]:29196 "EHLO smtp.web.de")
-	by vger.kernel.org with ESMTP id S263083AbUCSTBd convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Mar 2004 14:01:33 -0500
-From: Thomas Schlichter <thomas.schlichter@web.de>
-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-Subject: Re: [2.6.4-rc2] bogus semicolon behind if()
-Date: Fri, 19 Mar 2004 20:01:11 +0100
-User-Agent: KMail/1.5.4
-Cc: Philippe Elie <phil.el@wanadoo.fr>, Andrew Morton <akpm@osdl.org>,
-       Andreas Schwab <schwab@suse.de>, linux-kernel@vger.kernel.org
-References: <200403090014.03282.thomas.schlichter@web.de> <200403091208.20556.thomas.schlichter@web.de> <Pine.LNX.4.55.0403171734090.14525@jurand.ds.pg.gda.pl>
-In-Reply-To: <Pine.LNX.4.55.0403171734090.14525@jurand.ds.pg.gda.pl>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	Fri, 19 Mar 2004 14:04:44 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:62691 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id S263090AbUCSTEm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Mar 2004 14:04:42 -0500
+Date: Fri, 19 Mar 2004 20:03:55 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Gerhard Mack <gmack@innerfire.net>
+Cc: Peter Williams <peterw@aurema.com>,
+       =?iso-8859-1?B?IkZy6WTpcmljIEwuIFcuIE1ldW5pZXIi?= 
+	<1@pervalidus.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: XFree86 seems to be being wrongly accused of doing the wrong thing
+Message-ID: <20040319190355.GA30255@ucw.cz>
+References: <40593015.9090507@aurema.com> <Pine.LNX.4.58.0403180346000.1276@pervalidus.dyndns.org> <40594984.3010001@aurema.com> <Pine.LNX.4.58.0403191236170.10220@innerfire.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Message-Id: <200403192001.13129.thomas.schlichter@web.de>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.58.0403191236170.10220@innerfire.net>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Mittwoch, 17. März 2004 17:51 schrieb Maciej W. Rozycki:
+On Fri, Mar 19, 2004 at 12:37:37PM -0500, Gerhard Mack wrote:
+> On Thu, 18 Mar 2004, Peter Williams wrote:
+> 
+> > Frédéric L. W. Meunier wrote:
+> > > Wrongly ?
+> >
+> > Yes, wrongly.  XFree86 wasn't even running when the messages appeared so
+> > there's no way that it could be to blame.  Also no keys had been pressed
+> > or released.
+> 
+> I have a machine here I see that message on before the init scripts even
+> load.
 
-~~ snip ~~
+Quick question: Does it go away if you compile USB support into the
+kernel statically?
 
->  You need timer_ack set to one when either:
->
-> 1. you use the I/O APIC NMI watchdog and you have a discrete APIC chip
-> (i.e. the 82489DX),
->
-> or:
->
-> 2. the timer interrupt (IRQ 0) goes through one of the APICs (whatever
-> way; we check three variations) and the TSC is non-functional (absent or
-> disabled).
->
-> Since you have an integrated APIC and you use the TSC, you may have
-> timer_ack set to zero.  That saves a few (possibly slow) I/O accesses and
-> works around problems that may arise due 8259A clone (in)compatibility or
-> bugs in SMM firmware.
->
->   Maciej
-
-Well, my timer interrupt goes through the IO-APIC but I do have a functional 
-TSC. Nevertheless my system requires timer_ack to be set... If it isn't, my 
-CPU does not utilize its C2 state...
-
-  Thomas
-
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

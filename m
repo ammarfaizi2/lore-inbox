@@ -1,47 +1,118 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261878AbTEHShg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 May 2003 14:37:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261919AbTEHShg
+	id S261919AbTEHSl0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 May 2003 14:41:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261923AbTEHSl0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 May 2003 14:37:36 -0400
-Received: from 34.mufa.noln.chcgil24.dsl.att.net ([12.100.181.34]:34040 "EHLO
-	tabby.cats.internal") by vger.kernel.org with ESMTP id S261878AbTEHShf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 May 2003 14:37:35 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Jesse Pollard <jesse@cats-chateau.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: The disappearing sys_call_table export.
-Date: Thu, 8 May 2003 13:28:05 -0500
-X-Mailer: KMail [version 1.2]
-Cc: Chuck Ebbert <76306.1226@compuserve.com>,
-       "viro@parcelfarce.linux.theplanet.co.uk" 
-	<viro@parcelfarce.linux.theplanet.co.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Terje Eggestad <terje.eggestad@scali.com>
-References: <200305081009_MC3-1-37FA-2408@compuserve.com> <03050809564900.09057@tabby> <1052407341.10038.69.camel@dhcp22.swansea.linux.org.uk>
-In-Reply-To: <1052407341.10038.69.camel@dhcp22.swansea.linux.org.uk>
-MIME-Version: 1.0
-Message-Id: <03050813280502.09468@tabby>
-Content-Transfer-Encoding: 7BIT
+	Thu, 8 May 2003 14:41:26 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:60392 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S261919AbTEHSlW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 May 2003 14:41:22 -0400
+Date: Thu, 8 May 2003 20:53:50 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: linux-kernel@vger.kernel.org
+Cc: trivial@rustcorp.com.au
+Subject: [2.5 patch] fix miropcm20-rds.c compilation (fwd)
+Message-ID: <20030508185350.GS9794@fs.tum.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 08 May 2003 10:22, Alan Cox wrote:
-[snip]
-> > Fix the vulnerability. Then there won't be a virus.
->
-> But you don't know if its fixed and if there are any more holes without
-> being able to detect attackers be they electronic or human.
+The issue described in the mail forwarded below is still present in 2.5.
 
-Detecting attackers is a different situation. An attack that is already fixed
-is not a serious problem other than bandwidth. Virus scanners can't do that
-anyway - they can only detect what has already been detected... and which
-should have been fixed by the time the signature could have been put out,
-anyway. Detection should be part of an intrusion facility (isn't LIDS supposed
-to do that?)
+Please apply the patch
+Adrian
 
-Second, I want to setup SELinux to sandbox various facilities anyway (delayed 
-due to job change). That should isolate any unknown attack to just one
-service, and protect the overall system.
+
+----- Forwarded message from Adrian Bunk <bunk@fs.tum.de> -----
+
+Date:	Fri, 2 May 2003 00:15:52 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Christoph Hellwig <hch@lst.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.5 patch] fix miropcm20-rds.c compilation
+
+The removal of #include <linux/devfs_fs_kernel.h> broke the compilation 
+of drivers/media/radio/miropcm20-rds.c.old in 2.5.68-bk11:
+
+<--  snip  -->
+
+...
+  gcc-2.95 -Wp,-MD,drivers/media/radio/.miropcm20-rds.o.d -D__KERNEL__ 
+-Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing 
+-fno-common -pipe -mpreferred-stack-boundary=2 -march=k6 
+-Iinclude/asm-i386/mach-default -nostdinc -iwithprefix include    -DKBUILD_BASENAME=miropcm20_rds 
+-DKBUILD_MODNAME=miropcm20_rds -c -o drivers/media/radio/miropcm20-rds.o 
+drivers/media/radio/miropcm20-rds.c
+drivers/media/radio/miropcm20-rds.c:23: warning: `struct inode' declared 
+inside parameter list
+drivers/media/radio/miropcm20-rds.c:23: warning: its scope is only this 
+definition or declaration, which is probably not what you want.
+drivers/media/radio/miropcm20-rds.c:38: warning: `struct inode' declared 
+inside parameter list
+drivers/media/radio/miropcm20-rds.c:106: variable `rds_fops' has 
+initializer but incomplete type
+drivers/media/radio/miropcm20-rds.c:107: unknown field `owner' specified 
+in initializer
+drivers/media/radio/miropcm20-rds.c:107: warning: excess elements in 
+struct initializer
+drivers/media/radio/miropcm20-rds.c:107: warning: (near initialization 
+for `rds_fops')
+drivers/media/radio/miropcm20-rds.c:108: unknown field `read' specified 
+in initializer
+drivers/media/radio/miropcm20-rds.c:108: warning: excess elements in 
+struct initializer
+drivers/media/radio/miropcm20-rds.c:108: warning: (near initialization 
+for `rds_fops')
+drivers/media/radio/miropcm20-rds.c:109: unknown field `open' specified 
+in initializer
+drivers/media/radio/miropcm20-rds.c:109: warning: excess elements in 
+struct initializer
+drivers/media/radio/miropcm20-rds.c:109: warning: (near initialization 
+for `rds_fops')
+drivers/media/radio/miropcm20-rds.c:110: unknown field `release' 
+specified in initializer
+drivers/media/radio/miropcm20-rds.c:111: warning: excess elements in 
+struct initializer
+drivers/media/radio/miropcm20-rds.c:111: warning: (near initialization 
+for `rds_fops')
+make[3]: *** [drivers/media/radio/miropcm20-rds.o] Error 1
+
+<--  snip  -->
+
+The fix is simple:
+
+--- linux-2.5.68-bk11/drivers/media/radio/miropcm20-rds.c.old	2003-05-02 00:07:45.000000000 +0200
++++ linux-2.5.68-bk11/drivers/media/radio/miropcm20-rds.c	2003-05-02 00:11:01.000000000 +0200
+@@ -13,6 +13,7 @@
+ #include <linux/init.h>
+ #include <linux/slab.h>
+ #include <linux/miscdevice.h>
++#include <linux/fs.h>
+ #include <asm/uaccess.h>
+ #include "miropcm20-rds-core.h"
+ 
+
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+----- End forwarded message -----
+

@@ -1,25 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315529AbSHKRcJ>; Sun, 11 Aug 2002 13:32:09 -0400
+	id <S315919AbSHKRdM>; Sun, 11 Aug 2002 13:33:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315805AbSHKRcI>; Sun, 11 Aug 2002 13:32:08 -0400
-Received: from h255-64-41.BO1.albacom.net ([213.255.64.41]:30735 "HELO
-	localhost.com") by vger.kernel.org with SMTP id <S315529AbSHKRcH> convert rfc822-to-8bit;
-	Sun, 11 Aug 2002 13:32:07 -0400
-From: "elsa" <secret@libero.it>
+	id <S316903AbSHKRdM>; Sun, 11 Aug 2002 13:33:12 -0400
+Received: from nycsmtp2fb.rdc-nyc.rr.com ([24.29.99.78]:52487 "EHLO si.rr.com")
+	by vger.kernel.org with ESMTP id <S315919AbSHKRc7>;
+	Sun, 11 Aug 2002 13:32:59 -0400
+Date: Sun, 11 Aug 2002 13:28:27 -0400 (EDT)
+From: Frank Davis <fdavis@si.rr.com>
+X-X-Sender: fdavis@localhost.localdomain
 To: linux-kernel@vger.kernel.org
-Date: Sun, 11 Aug 2002 19.35.55 +0200
-Subject: incredibile
-X-Mailer: MailXSender 1.06
+cc: fdavis@si.rr.com
+Subject: 2.5.31 : fs/intermezzo/vfs.c compile error
+Message-ID: <Pine.LNX.4.44.0208111327080.13320-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <20020811173207Z315529-686+4867@vger.kernel.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http.//amori.da.ru
-infedeli e perverse
-http.//amori.da.ru
+Hello all,
+ While 'make modules', I received the following error:
+Regards,
+Frank
 
+vfs.c: In function `presto_debug_fail_blkdev':
+vfs.c:134: invalid initializer
+vfs.c:136: warning: implicit declaration of function `is_read_only'
+vfs.c: In function `presto_do_rmdir':
+vfs.c:1244: warning: implicit declaration of function `double_down'
+vfs.c:1260: warning: implicit declaration of function `double_up'
+vfs.c: In function `presto_rename_dir':
+vfs.c:1627: warning: implicit declaration of function `triple_down'
+vfs.c:1644: warning: implicit declaration of function `triple_up'
+vfs.c: In function `lento_do_rename':
+vfs.c:1755: warning: implicit declaration of function `double_lock'
+make[2]: *** [vfs.o] Error 1
+make[2]: Leaving directory `/usr/src/linux/fs/intermezzo'
+make[1]: *** [intermezzo] Error 2
+make[1]: Leaving directory `/usr/src/linux/fs'
+make: *** [fs] Error 2
 

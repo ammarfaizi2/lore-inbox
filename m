@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262225AbVATQQL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262239AbVATQSw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262225AbVATQQL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 11:16:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262226AbVATQQK
+	id S262239AbVATQSw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 11:18:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262222AbVATQPj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 11:16:10 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:58829 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S262204AbVATQNI (ORCPT
+	Thu, 20 Jan 2005 11:15:39 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:28621 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262196AbVATQLi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 11:13:08 -0500
-Date: Thu, 20 Jan 2005 17:12:59 +0100
+	Thu, 20 Jan 2005 11:11:38 -0500
+Date: Thu, 20 Jan 2005 17:11:16 +0100
 From: Ingo Molnar <mingo@elte.hu>
 To: Linus Torvalds <torvalds@osdl.org>
 Cc: Peter Chubb <peterc@gelato.unsw.edu.au>, Chris Wedgwood <cw@f00f.org>,
@@ -18,13 +18,13 @@ Cc: Peter Chubb <peterc@gelato.unsw.edu.au>, Chris Wedgwood <cw@f00f.org>,
        dsw@gelato.unsw.edu.au, benh@kernel.crashing.org,
        linux-ia64@vger.kernel.org, hch@infradead.org, wli@holomorphy.com,
        jbarnes@sgi.com
-Subject: [patch 3/3] spinlock fix #3: type-checking spinlock primitives, x86
-Message-ID: <20050120161259.GB13812@elte.hu>
-References: <16878.9678.73202.771962@wombat.chubb.wattle.id.au> <20050119092013.GA2045@elte.hu> <16878.54402.344079.528038@cargo.ozlabs.ibm.com> <20050120023445.GA3475@taniwha.stupidest.org> <20050119190104.71f0a76f.akpm@osdl.org> <20050120031854.GA8538@taniwha.stupidest.org> <16879.29449.734172.893834@wombat.chubb.wattle.id.au> <Pine.LNX.4.58.0501200747230.8178@ppc970.osdl.org> <20050120160839.GA13067@elte.hu> <20050120161116.GA13812@elte.hu>
+Subject: [patch 2/3] spinlock fix #2: generalize [spin|rw]lock yielding
+Message-ID: <20050120161116.GA13812@elte.hu>
+References: <20050119080403.GB29037@elte.hu> <16878.9678.73202.771962@wombat.chubb.wattle.id.au> <20050119092013.GA2045@elte.hu> <16878.54402.344079.528038@cargo.ozlabs.ibm.com> <20050120023445.GA3475@taniwha.stupidest.org> <20050119190104.71f0a76f.akpm@osdl.org> <20050120031854.GA8538@taniwha.stupidest.org> <16879.29449.734172.893834@wombat.chubb.wattle.id.au> <Pine.LNX.4.58.0501200747230.8178@ppc970.osdl.org> <20050120160839.GA13067@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050120161116.GA13812@elte.hu>
+In-Reply-To: <20050120160839.GA13067@elte.hu>
 User-Agent: Mutt/1.4.1i
 X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
 X-ELTE-VirusStatus: clean
@@ -37,48 +37,195 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-[this patch didnt change due to can_lock but i've resent it so that the
-patch stream is complete.]
+[patch respun with s/trylock_test/can_lock/]
 
 --
-this patch would have caught the bug in -BK-curr (that patch #1 fixes),
-via a compiler warning. Test-built/booted on x86.
+this patch generalizes the facility of targeted lock-yielding originally
+implemented for ppc64. This facility enables a virtual CPU to indicate
+towards the hypervisor which other virtual CPU this CPU is 'blocked on',
+and hence which CPU the hypervisor should yield the current timeslice
+to, in order to make progress on releasing the lock.
+
+On physical platforms these functions default to cpu_relax(). Since
+physical platforms are in the overwhelming majority i've added the two
+new functions to the new asm-generic/spinlock.h include file - here i
+hope we can later on move more generic spinlock bits as well.
+
+this patch solves the ppc64/PREEMPT functionality-regression reported by
+Paul Mackerras. I only tested it on x86, Paul, would you mind to test it
+on ppc64?
 
 	Ingo
 
 Signed-off-by: Ingo Molnar <mingo@elte.hu>
 
+--- linux/kernel/spinlock.c.orig
++++ linux/kernel/spinlock.c
+@@ -184,7 +184,7 @@ void __lockfunc _##op##_lock(locktype##_
+ 		if (!(lock)->break_lock)				\
+ 			(lock)->break_lock = 1;				\
+ 		while (!op##_can_lock(lock) && (lock)->break_lock)	\
+-			cpu_relax();					\
++			locktype##_yield(lock);				\
+ 		preempt_disable();					\
+ 	}								\
+ }									\
+@@ -206,7 +206,7 @@ unsigned long __lockfunc _##op##_lock_ir
+ 		if (!(lock)->break_lock)				\
+ 			(lock)->break_lock = 1;				\
+ 		while (!op##_can_lock(lock) && (lock)->break_lock)	\
+-			cpu_relax();					\
++			locktype##_yield(lock);				\
+ 		preempt_disable();					\
+ 	}								\
+ 	return flags;							\
+--- linux/arch/ppc64/lib/locks.c.orig
++++ linux/arch/ppc64/lib/locks.c
+@@ -23,7 +23,7 @@
+ /* waiting for a spinlock... */
+ #if defined(CONFIG_PPC_SPLPAR) || defined(CONFIG_PPC_ISERIES)
+ 
+-void __spin_yield(spinlock_t *lock)
++void spinlock_yield(spinlock_t *lock)
+ {
+ 	unsigned int lock_value, holder_cpu, yield_count;
+ 	struct paca_struct *holder_paca;
+@@ -54,7 +54,7 @@ void __spin_yield(spinlock_t *lock)
+  * This turns out to be the same for read and write locks, since
+  * we only know the holder if it is write-locked.
+  */
+-void __rw_yield(rwlock_t *rw)
++void rwlock_yield(rwlock_t *rw)
+ {
+ 	int lock_value;
+ 	unsigned int holder_cpu, yield_count;
+@@ -87,7 +87,7 @@ void spin_unlock_wait(spinlock_t *lock)
+ 	while (lock->lock) {
+ 		HMT_low();
+ 		if (SHARED_PROCESSOR)
+-			__spin_yield(lock);
++			spinlock_yield(lock);
+ 	}
+ 	HMT_medium();
+ }
+--- linux/include/asm-ia64/spinlock.h.orig
++++ linux/include/asm-ia64/spinlock.h
+@@ -17,6 +17,8 @@
+ #include <asm/intrinsics.h>
+ #include <asm/system.h>
+ 
++#include <asm-generic/spinlock.h>
++
+ typedef struct {
+ 	volatile unsigned int lock;
+ #ifdef CONFIG_PREEMPT
+--- linux/include/asm-generic/spinlock.h.orig
++++ linux/include/asm-generic/spinlock.h
+@@ -0,0 +1,11 @@
++#ifndef _ASM_GENERIC_SPINLOCK_H
++#define _ASM_GENERIC_SPINLOCK_H
++
++/*
++ * Virtual platforms might use these to
++ * yield to specific virtual CPUs:
++ */
++#define spinlock_yield(lock)	cpu_relax()
++#define rwlock_yield(lock)	cpu_relax()
++
++#endif /* _ASM_GENERIC_SPINLOCK_H */
+--- linux/include/linux/spinlock.h.orig
++++ linux/include/linux/spinlock.h
+@@ -206,6 +206,8 @@ typedef struct {
+ #define _raw_spin_unlock(lock) do { (void)(lock); } while(0)
+ #endif /* CONFIG_DEBUG_SPINLOCK */
+ 
++#define spinlock_yield(lock)	(void)(lock)
++
+ /* RW spinlocks: No debug version */
+ 
+ #if (__GNUC__ > 2)
+@@ -224,6 +226,8 @@ typedef struct {
+ #define _raw_read_trylock(lock) ({ (void)(lock); (1); })
+ #define _raw_write_trylock(lock) ({ (void)(lock); (1); })
+ 
++#define rwlock_yield(lock)	(void)(lock)
++
+ #define _spin_trylock(lock)	({preempt_disable(); _raw_spin_trylock(lock) ? \
+ 				1 : ({preempt_enable(); 0;});})
+ 
 --- linux/include/asm-i386/spinlock.h.orig
 +++ linux/include/asm-i386/spinlock.h
-@@ -36,7 +36,10 @@ typedef struct {
+@@ -7,6 +7,8 @@
+ #include <linux/config.h>
+ #include <linux/compiler.h>
  
- #define SPIN_LOCK_UNLOCKED (spinlock_t) { 1 SPINLOCK_MAGIC_INIT }
- 
--#define spin_lock_init(x)	do { *(x) = SPIN_LOCK_UNLOCKED; } while(0)
-+static inline void spin_lock_init(spinlock_t *lock)
-+{
-+	*lock = SPIN_LOCK_UNLOCKED;
-+}
- 
- /*
-  * Simple spin lock operations.  There are two variants, one clears IRQ's
-@@ -45,8 +48,17 @@ typedef struct {
-  * We make no fairness assumptions. They have a cost.
-  */
- 
--#define spin_is_locked(x)	(*(volatile signed char *)(&(x)->lock) <= 0)
--#define spin_unlock_wait(x)	do { barrier(); } while(spin_is_locked(x))
-+static inline int spin_is_locked(spinlock_t *lock)
-+{
-+	return *(volatile signed char *)(&lock->lock) <= 0;
-+}
++#include <asm-generic/spinlock.h>
 +
-+static inline void spin_unlock_wait(spinlock_t *lock)
-+{
-+	do {
-+		barrier();
-+	} while (spin_is_locked(lock));
-+}
+ asmlinkage int printk(const char * fmt, ...)
+ 	__attribute__ ((format (printf, 1, 2)));
  
- #define spin_lock_string \
- 	"\n1:\t" \
+--- linux/include/asm-ppc64/spinlock.h.orig
++++ linux/include/asm-ppc64/spinlock.h
+@@ -64,11 +64,11 @@ static __inline__ void _raw_spin_unlock(
+ #if defined(CONFIG_PPC_SPLPAR) || defined(CONFIG_PPC_ISERIES)
+ /* We only yield to the hypervisor if we are in shared processor mode */
+ #define SHARED_PROCESSOR (get_paca()->lppaca.shared_proc)
+-extern void __spin_yield(spinlock_t *lock);
+-extern void __rw_yield(rwlock_t *lock);
++extern void spinlock_yield(spinlock_t *lock);
++extern void rwlock_yield(rwlock_t *lock);
+ #else /* SPLPAR || ISERIES */
+-#define __spin_yield(x)	barrier()
+-#define __rw_yield(x)	barrier()
++#define spinlock_yield(x)	barrier()
++#define rwlock_yield(x)	barrier()
+ #define SHARED_PROCESSOR	0
+ #endif
+ extern void spin_unlock_wait(spinlock_t *lock);
+@@ -109,7 +109,7 @@ static void __inline__ _raw_spin_lock(sp
+ 		do {
+ 			HMT_low();
+ 			if (SHARED_PROCESSOR)
+-				__spin_yield(lock);
++				spinlock_yield(lock);
+ 		} while (likely(lock->lock != 0));
+ 		HMT_medium();
+ 	}
+@@ -127,7 +127,7 @@ static void __inline__ _raw_spin_lock_fl
+ 		do {
+ 			HMT_low();
+ 			if (SHARED_PROCESSOR)
+-				__spin_yield(lock);
++				spinlock_yield(lock);
+ 		} while (likely(lock->lock != 0));
+ 		HMT_medium();
+ 		local_irq_restore(flags_dis);
+@@ -201,7 +201,7 @@ static void __inline__ _raw_read_lock(rw
+ 		do {
+ 			HMT_low();
+ 			if (SHARED_PROCESSOR)
+-				__rw_yield(rw);
++				rwlock_yield(rw);
+ 		} while (likely(rw->lock < 0));
+ 		HMT_medium();
+ 	}
+@@ -258,7 +258,7 @@ static void __inline__ _raw_write_lock(r
+ 		do {
+ 			HMT_low();
+ 			if (SHARED_PROCESSOR)
+-				__rw_yield(rw);
++				rwlock_yield(rw);
+ 		} while (likely(rw->lock != 0));
+ 		HMT_medium();
+ 	}
+--- linux/include/asm-x86_64/spinlock.h.orig
++++ linux/include/asm-x86_64/spinlock.h
+@@ -6,6 +6,8 @@
+ #include <asm/page.h>
+ #include <linux/config.h>
+ 
++#include <asm-generic/spinlock.h>
++
+ extern int printk(const char * fmt, ...)
+ 	__attribute__ ((format (printf, 1, 2)));
+ 

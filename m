@@ -1,43 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293218AbSB1RYc>; Thu, 28 Feb 2002 12:24:32 -0500
+	id <S293105AbSB1SEi>; Thu, 28 Feb 2002 13:04:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293410AbSB1RXy>; Thu, 28 Feb 2002 12:23:54 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:61456 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S293621AbSB1RTV>; Thu, 28 Feb 2002 12:19:21 -0500
-Date: Thu, 28 Feb 2002 09:16:47 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: David Howells <dhowells@redhat.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: thread groups bug?
-In-Reply-To: <2720.1014908983@warthog.cambridge.redhat.com>
-Message-ID: <Pine.LNX.4.33.0202280914500.15607-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S293673AbSB1SBS>; Thu, 28 Feb 2002 13:01:18 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:1446 "EHLO e31.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S293646AbSB1R7N>;
+	Thu, 28 Feb 2002 12:59:13 -0500
+Date: Thu, 28 Feb 2002 09:58:57 -0800
+From: Mike Anderson <andmike@us.ibm.com>
+To: Chris Mason <mason@suse.com>
+Cc: James Bottomley <James.Bottomley@steeleye.com>,
+        "Stephen C. Tweedie" <sct@redhat.com>, linux-kernel@vger.kernel.org,
+        linux-scsi@vger.kernel.org
+Subject: Re: [PATCH] 2.4.x write barriers (updated for ext3)
+Message-ID: <20020228095857.B4353@beaverton.ibm.com>
+Mail-Followup-To: Chris Mason <mason@suse.com>,
+	James Bottomley <James.Bottomley@steeleye.com>,
+	"Stephen C. Tweedie" <sct@redhat.com>, linux-kernel@vger.kernel.org,
+	linux-scsi@vger.kernel.org
+In-Reply-To: <200202281536.g1SFaqF02079@localhost.localdomain> <3746210000.1014911746@tiny>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <3746210000.1014911746@tiny>; from mason@suse.com on Thu, Feb 28, 2002 at 10:55:46AM -0500
+X-Operating-System: Linux 2.0.32 on an i486
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Chris Mason [mason@suse.com] wrote:
+> 
+> ..snip..
+> > 
+> > Clearly, there would also have to be a mechanism to flush the cache on 
+> > unmount, so if this were done by ioctl, would you prefer that the filesystem 
+> > be in charge of flushing the cache on barrier writes, or would you like the sd 
+> > device to do it transparently?
+> 
+> How about triggered by closing the block device.  That would also cover
+> people like oracle that do stuff to the raw device.
+> 
+> -chris
 
+Doing something in sd_release should be covered in the raw case. 
+raw_release->blkdev_put->bdev->bd_op->release "sd_release".
 
-On Thu, 28 Feb 2002, David Howells wrote:
->
-> If the master thread of a thread group (PID==TGID) performs an execve() then
-> it is possible to end up with two or more thread groups with the same TGID.
-
-No.
-
-When they have the same TGID, they _are_ the same thread group.
-
-There is absolutely _zero_ correlation between thread ID and MM. Never has
-been, never will be. An execve() is a total non-event from a TGID
-perspective.
-
-If you expect POSIX behaviour, you do not do execve's from the master.
-It's that simple.
-
-(Note that if you want POSIX behaviour, you're catching execve() anyway,
-so the matter is moot).
-
-		Linus
+At least from what I understand of the raw release call path :-).
+-Mike
+-- 
+Michael Anderson
+andmike@us.ibm.com
 

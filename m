@@ -1,58 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261782AbVBOQg2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261783AbVBOQsq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261782AbVBOQg2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 11:36:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261781AbVBOQg2
+	id S261783AbVBOQsq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 11:48:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261784AbVBOQsq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 11:36:28 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:39380 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S261782AbVBOQgO (ORCPT
+	Tue, 15 Feb 2005 11:48:46 -0500
+Received: from fire.osdl.org ([65.172.181.4]:7078 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261783AbVBOQsm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 11:36:14 -0500
-Date: Tue, 15 Feb 2005 08:35:29 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Robin Holt <holt@sgi.com>
-Cc: holt@sgi.com, haveblue@us.ibm.com, raybry@sgi.com, taka@valinux.co.jp,
-       hugh@veritas.com, akpm@osdl.org, marcello@cyclades.com,
-       raybry@austin.rr.com, linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [RFC 2.6.11-rc2-mm2 7/7] mm: manual page migration --
- sys_page_migrate
-Message-Id: <20050215083529.2f80c294.pj@sgi.com>
-In-Reply-To: <20050215162135.GA22646@lnx-holt.americas.sgi.com>
-References: <20050212032535.18524.12046.26397@tomahawk.engr.sgi.com>
-	<20050212032620.18524.15178.29731@tomahawk.engr.sgi.com>
-	<1108242262.6154.39.camel@localhost>
-	<20050214135221.GA20511@lnx-holt.americas.sgi.com>
-	<1108407043.6154.49.camel@localhost>
-	<20050214220148.GA11832@lnx-holt.americas.sgi.com>
-	<20050215074906.01439d4e.pj@sgi.com>
-	<20050215162135.GA22646@lnx-holt.americas.sgi.com>
-Organization: SGI
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 15 Feb 2005 11:48:42 -0500
+Message-ID: <421227DF.8060209@osdl.org>
+Date: Tue, 15 Feb 2005 08:48:31 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+Organization: OSDL
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: =?ISO-8859-1?Q?Aur=E9lien_G=C9R=D4ME?= <ag@roxor.cx>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: RTC Inappropriate ioctl for device
+References: <20050213214145.GN12421@roxor.cx> <42117047.6020209@osdl.org> <20050215111636.GO12421@roxor.cx>
+In-Reply-To: <20050215111636.GO12421@roxor.cx>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robin wrote:
-> That seems like it is insane!
+Aurélien GÉRÔME wrote:
+> On Mon, Feb 14, 2005 at 07:45:11PM -0800, Randy.Dunlap wrote:
+> 
+>>Aurélien GÉRÔME wrote:
+>>
+>>>Hi,
+>>>
+>>>Having CONFIG_RTC=y, I tried on x86 the rtctest program found in
+>>>linux-2.6.10/Documentation/rtc.txt. However, it failed at:
+>>>
+>>>ioctl(fd, RTC_UIE_ON, 0);
+>>>
+>>>with:
+>>>
+>>>ioctl: Inappropriate ioctl for device
+>>>
+>>>Did I miss something? Maybe something else conflicts with CONFIG_RTC?
+>>>
+>>>Cheers.
+>>
+>>Do you have an HPET timer enabled?  That could cause a conflict.
+> 
+> 
+> I have HPET timer enabled.
 
-Thank-you, thank-you.  <blush>
+Please add/enable the second line here:
+CONFIG_HPET_TIMER=y
+# CONFIG_HPET_EMULATE_RTC is not set
 
-What about the suggestion I had that you sort of skipped over, which
-amounted to changing the system call from a node array to just one
-node:
+and try it again.
 
-    sys_page_migrate(pid, va_start, va_end, count, old_nodes, new_nodes);
 
-to:
+>>Does /proc/interrupts report rtc interrupts increasing when you
+>>run rtctest?
+>>I.e., does the number of this line increase like this?
+>>
+>>  8:        131    IO-APIC-edge  rtc
+> 
+> 
+> I have no lines with rtc at the end, maybe due to HPET.
+> 
+> Is it a known behaviour of RTC with HPET?
 
-    sys_page_migrate(pid, va_start, va_end, old_node, new_node);
+Apparently that's why a config option was added for it.
 
-Doesn't that let you do all you need to?  Is it insane too?
+>>rtctest works for me (2.6.11-rc4).  Maybe send me the strace
+>>output when you run rtctest and your .config file.
+> 
+> 
+> See attachment for strace and .config.
+> 
+> 
+>>Oh, and your kernel boot log, maybe there are some rtc driver
+>>messages in it.
+> 
+> 
+> See attachment for kern.log.
+> 
+> I have bzip2'ed kern.log and .config, since they were rather large.
+
 
 -- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.650.933.1373, 1.925.600.0401
+~Randy

@@ -1,156 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261285AbVCOOxv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261310AbVCOO5K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261285AbVCOOxv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 09:53:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261299AbVCOOxv
+	id S261310AbVCOO5K (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 09:57:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261306AbVCOO5K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 09:53:51 -0500
-Received: from grendel.digitalservice.pl ([217.67.200.140]:8418 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S261285AbVCOOwu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 09:52:50 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: swsusp_restore crap
-Date: Tue, 15 Mar 2005 15:55:43 +0100
-User-Agent: KMail/1.7.1
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-References: <1110857069.29123.5.camel@gaston> <200503151251.01109.rjw@sisk.pl> <20050315120217.GE1344@elf.ucw.cz>
-In-Reply-To: <20050315120217.GE1344@elf.ucw.cz>
+	Tue, 15 Mar 2005 09:57:10 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:35514 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261310AbVCOO5D (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Mar 2005 09:57:03 -0500
+Date: Tue, 15 Mar 2005 06:56:57 -0800
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>, Dave Hansen <haveblue@us.ibm.com>,
+       Andy Whitcroft <apw@shadowen.org>, Dave McCracken <dmccr@us.ibm.com>,
+       Daniel Phillips <phillips@redhat.com>
+cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/4] sparsemem intro patches
+Message-ID: <214580000.1110898616@[10.10.2.4]>
+In-Reply-To: <20050314183042.7e7087a2.akpm@osdl.org>
+References: <1110834883.19340.47.camel@localhost> <20050314183042.7e7087a2.akpm@osdl.org>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-2"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <200503151555.44523.rjw@sisk.pl>
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Tuesday, 15 of March 2005 13:02, Pavel Machek wrote:
-> Hi!
+>>  The following four patches provide the last needed changes before the
+>>  introduction of sparsemem.  For a more complete description of what this
+>>  will do, please see this patch:
+>> 
+>>  http://www.sr71.net/patches/2.6.11/2.6.11-bk7-mhp1/broken-out/B-sparse-150-sparsemem.patch
 > 
-> > > > > Please kill that swsusp_restore() call that itself calls
-> > > > > flush_tlb_global(), it's junk. First, the flush_tlb_global() thing is
-> > > > > arch specific, and that's all swsusp_restore() does. Then, the asm just
-> > > > > calls this before returning to C code, so it makes no sense to have a
-> > > > > hook there. The x86 asm can have it's own call to some arch stuff if it
-> > > > > wants or just do the tlb flush in asm...
-> > > > 
-> > > > Better, here is a patch... (note: flush_tlb_global() is an x86'ism,
-> > > > doesn't exist on ppc, thus breaks compile, and that has nothing to do in
-> > > > the generic code imho, it should be clearly defined as the
-> > > > responsibility of the asm code).
-> > > 
-> > > x86-64 needs this, too.... Otherwise it looks okay.
-> > 
-> > It breaks compilation on i386 either, because nr_copy_pages_check
-> > is static in swsusp.c.  May I propose the following patch instead (tested on
-> > x86-64 and i386)?
+> I don't know what to think about this.  Can you describe sparsemem a little
+> further, differentiate it from discontigmem and tell us why we want one? 
+> Is it for memory hotplug?  If so, how does it support hotplug?
 > 
+> To which architectures is this useful, and what is the attitude of the
+> relevant maintenance teams?
+
+This isn't just for hotplug by any means. Andy wrote it to get rid of a whole
+bunch of different problems, roughly based on some previous work by Dan Phillips
+and Dave McCracken (I've added a cc to the actual authors of these patches). 
+This is the major part of what used to be called CONFIG_NONLINEAR, which we 
+discussed at last year's kernel summit, and people were pretty enthusiastic 
+about. 
+
+> Quoting from the above patch:
 > 
-> > +asmlinkage int __swsusp_flush_tlb(void)
-> > +{
-> > +	swsusp_restore_check();
+>> Sparsemem replaces DISCONTIGMEM when enabled, and it is hoped that
+>> it can eventually become a complete replacement.
+>> ...
+>> This patch introduces CONFIG_FLATMEM.  It is used in almost all
+>> cases where there used to be an #ifndef DISCONTIG, because
+>> SPARSEMEM and DISCONTIGMEM often have to compile out the same areas
+>> of code.
 > 
-> Someone will certainly forget this one, and it is probably
-> nicer/easier to just move BUG_ON into swsusp_suspend(), just after
-> restore_processor_state() or something like that...
+> Would I be right to worry about increasing complexity, decreased
+> maintainability and generally increasing mayhem?
 
-... in which case __swsusp_flush_tlb() would only contain a "call" to
-__flush_tlb_global(), but this is a macro on both x86-64 and i386, so we can
-drop the __swsusp_flush_tlb() altogether and do it in assembly (before the
-GPRs are restored, perhaps).  Patch follows.
+Not really - it cleans up the current mess where discontigmem means, and
+is used for, two distinct things: 1. the memory is significantly non-contig
+in the physical layout. 2. NUMA support.
 
-Greets,
-Rafael
+It also allows us to support discontiguous memory *within* a NUMA node, which
+is important for some systems - we can scrap the added complexity of ia64s
+vmemmap stuff, for instance. 
 
+Whatever your opinions are on mem hotplug, I think we want CONFIG_SPARSEMEM
+to clean up the existing mess of discontig - with or without hotplug. I've 
+wanted this for a very long time, and was dicussing it with Andy at OLS last 
+year; he came up with a much better, cleaner way to implement it than I had.
 
-Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
+It also makes a lot of sense as a foundation for hotplug, which multiple 
+people seem to want for virtualization stuff.
 
-diff -Nrup linux-2.6.11-bk10-a/arch/i386/power/swsusp.S linux-2.6.11-bk10-b/arch/i386/power/swsusp.S
---- linux-2.6.11-bk10-a/arch/i386/power/swsusp.S	2005-03-15 09:20:53.000000000 +0100
-+++ linux-2.6.11-bk10-b/arch/i386/power/swsusp.S	2005-03-15 15:37:25.000000000 +0100
-@@ -51,6 +51,15 @@ copy_loop:
- 	.p2align 4,,7
- 
- done:
-+	/* Flush TLB, including "global" things (vmalloc) */
-+	movl	mmu_cr4_features, %eax
-+	movl	%eax, %edx
-+	andl	$~(1<<7), %edx;  # PGE
-+	movl	%edx, %cr4;  # turn off PGE
-+	movl	%cr3, %ecx;  # flush TLB
-+	movl	%ecx, %cr3
-+	movl	%eax, %cr4;  # turn PGE back on
-+
- 	movl saved_context_esp, %esp
- 	movl saved_context_ebp, %ebp
- 	movl saved_context_ebx, %ebx
-@@ -58,5 +67,5 @@ done:
- 	movl saved_context_edi, %edi
- 
- 	pushl saved_context_eflags ; popfl
--	call swsusp_restore
-+
- 	ret
-diff -Nrup linux-2.6.11-bk10-a/arch/x86_64/kernel/suspend_asm.S linux-2.6.11-bk10-b/arch/x86_64/kernel/suspend_asm.S
---- linux-2.6.11-bk10-a/arch/x86_64/kernel/suspend_asm.S	2005-03-15 09:20:53.000000000 +0100
-+++ linux-2.6.11-bk10-b/arch/x86_64/kernel/suspend_asm.S	2005-03-15 15:36:29.000000000 +0100
-@@ -69,6 +69,14 @@ loop:
- 	movq	pbe_next(%rdx), %rdx
- 	jmp	loop
- done:
-+	/* Flush TLB, including "global" things (vmalloc) */
-+	movq	%rax, %rdx;  # mmu_cr4_features(%rip)
-+	andq	$~(1<<7), %rdx;  # PGE
-+	movq	%rdx, %cr4;  # turn off PGE
-+	movq	%cr3, %rcx;  # flush TLB
-+	movq	%rcx, %cr3
-+	movq	%rax, %cr4;  # turn PGE back on
-+
- 	movl	$24, %eax
- 	movl	%eax, %ds
- 
-@@ -89,5 +97,5 @@ done:
- 	movq saved_context_r14(%rip), %r14
- 	movq saved_context_r15(%rip), %r15
- 	pushq saved_context_eflags(%rip) ; popfq
--	call	swsusp_restore
-+
- 	ret
-diff -Nrup linux-2.6.11-bk10-a/kernel/power/swsusp.c linux-2.6.11-bk10-b/kernel/power/swsusp.c
---- linux-2.6.11-bk10-a/kernel/power/swsusp.c	2005-03-15 09:21:23.000000000 +0100
-+++ linux-2.6.11-bk10-b/kernel/power/swsusp.c	2005-03-15 15:35:44.000000000 +0100
-@@ -900,22 +900,13 @@ int swsusp_suspend(void)
- 	error = swsusp_arch_suspend();
- 	/* Restore control flow magically appears here */
- 	restore_processor_state();
-+	BUG_ON (nr_copy_pages_check != nr_copy_pages);
- 	restore_highmem();
- 	device_power_up();
- 	local_irq_enable();
- 	return error;
- }
- 
--
--asmlinkage int swsusp_restore(void)
--{
--	BUG_ON (nr_copy_pages_check != nr_copy_pages);
--	
--	/* Even mappings of "global" things (vmalloc) need to be fixed */
--	__flush_tlb_global();
--	return 0;
--}
--
- int swsusp_resume(void)
- {
- 	int error;
+Anyway, that's what I want it for ;-)
 
--- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+> If a competent kernel developer who is not familiar with how all this code
+> hangs together wishes to acquaint himself with it, what steps should he
+> take?
+
+Andy, can you explain that further? Maybe also worth checking these are the
+correct version of your patches.
+
+M.
+

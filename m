@@ -1,95 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265912AbUAFAcV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 19:32:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265940AbUAFAcV
+	id S265946AbUAFAdt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 19:33:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265972AbUAFAdt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 19:32:21 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:29088
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S265912AbUAFAcN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 19:32:13 -0500
-From: Rob Landley <rob@landley.net>
-Reply-To: rob@landley.net
-To: Andries Brouwer <aebr@win.tue.nl>, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: udev and devfs - The final word
-Date: Mon, 5 Jan 2004 18:31:26 -0600
-User-Agent: KMail/1.5.4
-Cc: Andries Brouwer <aebr@win.tue.nl>, Daniel Jacobowitz <dan@debian.org>,
-       Rob Love <rml@ximian.com>, Pascal Schmidt <der.eremit@email.de>,
-       linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
-References: <20040104142111.A11279@pclin040.win.tue.nl> <Pine.LNX.4.58.0401051224480.2153@home.osdl.org> <20040106001326.A1128@pclin040.win.tue.nl>
-In-Reply-To: <20040106001326.A1128@pclin040.win.tue.nl>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 5 Jan 2004 19:33:49 -0500
+Received: from 202.46.136.55.interact.com.au ([202.46.136.55]:2929 "EHLO
+	gaston") by vger.kernel.org with ESMTP id S265946AbUAFAdm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jan 2004 19:33:42 -0500
+Subject: Get console sem on fbdev ioctls
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Reply-To: benh@kernel.crashing.org
+To: James Simmons <jsimmons@infradead.org>
+Cc: Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200401051831.26973.rob@landley.net>
+Message-Id: <1073349137.9497.170.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 06 Jan 2004 11:32:18 +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 05 January 2004 17:13, Andries Brouwer wrote:
-> An earlier fragment of the discussion was concerned with the fact
-> that random(); is a bad idea. Something reproducible is better.
 
-To find people making bad assuptions that will only break after widespread 
-deployment, random() is much better than "usually reproducible".
+Along with my VT race fixes I sent earlier, this is a patch (that may
+need to be applied manually, I hacked the patch file a bit since my
+tree is so different from yours at this point). It takes the console
+semaphore on userland initiated mode change, pan display, ... ioctls.
 
-> Let us abbreviate the above function f. Some driver determines that
-> a disk has serial number A809ADGC. Another driver determines that
-> some device was produced by HP but otherwise has no opinion.
-> A third driver has no stable information at all about the device.
-> They assign device numbers f("A809ADGC"), f("HP"), f("").
->
-> What is the result? Yes, device numbers are cookies, but a reasonable
-> attempt has been made to make the device numbers stable.
+Maybe more are required... This is the basics for at least fbset operations
+to be "safe" (vs. printk/blanking and vs. the console resize code).
 
-Should the same argument be made about process ID's?  When your system boots 
-up, your daemons generally start in the same order.  But any script that 
-depends on this is broken.
+Note that with that and the VT fixes, I can properly now call vc_resize
+instead of fbcon_resize in fbcon when getting a mode changed callback,
+and that works really better.
 
-Or filehandles.  They're cookies.  There's whole pages on why it's a bad idea 
-to make assumptions about what filehandles point to:
+I basically do that if cols and rows are seen to have changed:
 
-http://en.tldp.org/HOWTO/Secure-Programs-HOWTO/avoid-race.html
+	vc_resize(vc->vc_num, cols, rows);
+	if (CON_IS_VISIBLE(vc)) {
+		accel_clear_margins(vc, info, 0);
+		update_screen(vc->vc_num);
+	}
 
-> No guarantees anywhere - this is best effort. Better than no effort.
+Though for stty to work fine, I also had to do proper mode selection/validation
+for which I added this FB_ACTIVATE_FIND option (see my other email on the subject)
+along with proper support in radeonfb.
 
-You're suggesting that it should be easier to write things that are 
-fundamentally unclean, and bake in assumptions that WILL break, but not on 
-the developer's machine, only for end-users who aren't expecting it.
 
-What's the advantage?  Making it easier for people to do something stupid?  
-(You can sort of trust this thing we can't make any guarantees about.  Since 
-when is "sort of trust" a condition that's encouraged?  At the very least, 
-those kinds of cases are backed up by a detection and recovery mechanism and 
-the whole thing's called a heuristic.)  Why is there a need for this?
-
-Either the kernel can make a guarantee, or it should very much not make a 
-guarantee.  Where is an example of a middle ground?
-
-> And this information helps udev. It may make a callout superfluous,
-> or even give udev information that cannot be obtained from userspace.
-
-I'm waiting for the udev maintainer to weight in on this and say "no, it 
-doesn't".  If there is information that "cannot be obtained from userspace", 
-then we should fix the sysfs exports.  Encoding something in a semi-stable 
-cookie and actually trying to USE that information is stupid.
-
-What about kernel upgrades?  Future backwards compatability when developers 
-change the device enumeration methods?  (The sata driver got completely 
-rewritten from scratch, and now it detects devices in a wildly different 
-order, but we need this shim layer for backwards compatability with a 
-guarantee we never should have made because we encouraged old scripts to 
-remain broken.)  This plants hidden land mines restricting future 
-development.  You're basically proposing a whole "device number stabilization 
-infrastructure" for future kernels if it's to have ANY meaning at all...
-
-Where's the advantage?  Name a single real-world case that's more difficult to 
-fix than it would be to make the kernel pander to it in perpetuity.
-
-> Andries
-
-Rob
+diff -urN linux-2.5/drivers/video/fbmem.c linuxppc-2.5-benh/drivers/video/fbmem.c
+--- linux-2.5/drivers/video/fbmem.c	2004-01-06 10:05:18.708660576 +1100
++++ linuxppc-2.5-benh/drivers/video/fbmem.c	2003-12-31 12:38:25.000000000 +1100
+@@ -27,6 +27,7 @@
+ #include <linux/init.h>
+ #include <linux/linux_logo.h>
+ #include <linux/proc_fs.h>
++#include <linux/console.h>
+ #ifdef CONFIG_KMOD
+ #include <linux/kmod.h>
+ #endif
+@@ -984,7 +995,9 @@
+ 	case FBIOPUT_VSCREENINFO:
+ 		if (copy_from_user(&var, (void *) arg, sizeof(var)))
+ 			return -EFAULT;
++		acquire_console_sem();
+ 		i = fb_set_var(info, &var);
++		release_console_sem();
+ 		if (i) return i;
+ 		if (copy_to_user((void *) arg, &var, sizeof(var)))
+ 			return -EFAULT;
+@@ -1003,7 +1016,10 @@
+ 	case FBIOPAN_DISPLAY:
+ 		if (copy_from_user(&var, (void *) arg, sizeof(var)))
+ 			return -EFAULT;
+-		if ((i = fb_pan_display(info, &var)))
++		acquire_console_sem();
++		i = fb_pan_display(info, &var);
++		release_console_sem();
++		if (i)
+ 			return i;
+ 		if (copy_to_user((void *) arg, &var, sizeof(var)))
+ 			return -EFAULT;
+@@ -1039,7 +1055,10 @@
+ 		return 0;
+ #endif	/* CONFIG_FRAMEBUFFER_CONSOLE */
+ 	case FBIOBLANK:
+-		return fb_blank(info, arg);
++		acquire_console_sem();
++		i = fb_blank(info, arg);
++		release_console_sem();
++		return i;
+ 	default:
+ 		if (fb->fb_ioctl == NULL)
+ 			return -EINVAL;
 

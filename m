@@ -1,62 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261977AbTDUSxZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Apr 2003 14:53:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262001AbTDUSxZ
+	id S261903AbTDUSto (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Apr 2003 14:49:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261893AbTDUSsc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Apr 2003 14:53:25 -0400
-Received: from phoenix.mvhi.com ([195.224.96.167]:44298 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S261977AbTDUSw2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Apr 2003 14:52:28 -0400
-Date: Mon, 21 Apr 2003 20:04:30 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Dave Olien <dmo@osdl.org>
-Cc: Christoph Hellwig <hch@infradead.org>, marcelo@conectiva.com.br,
-       alan@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] DAC960 open with O_NONBLOCK
-Message-ID: <20030421200430.A11175@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Dave Olien <dmo@osdl.org>, marcelo@conectiva.com.br,
-	alan@redhat.com, linux-kernel@vger.kernel.org
-References: <20030421172402.GA26863@osdl.org> <20030421183752.A8782@infradead.org> <20030421190111.GA27126@osdl.org>
+	Mon, 21 Apr 2003 14:48:32 -0400
+Received: from verein.lst.de ([212.34.181.86]:34832 "EHLO verein.lst.de")
+	by vger.kernel.org with ESMTP id S261877AbTDUSsU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Apr 2003 14:48:20 -0400
+Date: Mon, 21 Apr 2003 21:00:20 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: Pavel Roskin <proski@gnu.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.68-bk1 crash in devfs_remove() for defpts files
+Message-ID: <20030421210020.A29421@lst.de>
+Mail-Followup-To: Christoph Hellwig <hch@lst.de>,
+	Pavel Roskin <proski@gnu.org>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.55.0304211338540.1491@marabou.research.att.com> <20030421195555.A28583@lst.de> <20030421195847.A28684@lst.de> <Pine.LNX.4.55.0304211451110.1798@marabou.research.att.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030421190111.GA27126@osdl.org>; from dmo@osdl.org on Mon, Apr 21, 2003 at 12:01:11PM -0700
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.55.0304211451110.1798@marabou.research.att.com>; from proski@gnu.org on Mon, Apr 21, 2003 at 02:53:54PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 21, 2003 at 12:01:11PM -0700, Dave Olien wrote:
-> > What applications?
+On Mon, Apr 21, 2003 at 02:53:54PM -0400, Pavel Roskin wrote:
+> On Mon, 21 Apr 2003, Christoph Hellwig wrote:
 > 
-> John Kamp has run across a libhd applcation from Suse that hit this bug.
-> It's some kind of hardware detection application.  It opens devices with
-> O_NONBLOCK.  But, it doesn't in fact use the DAC960 pass-through commands.
+> > On Mon, Apr 21, 2003 at 07:55:55PM +0200, Christoph Hellwig wrote:
+> > > Could you please try this patch?
+> >
+> > Better this one :)  Sorry.
+> 
+> No, it doesn't help, although the stack trace is different this time:
 
-Do you have source to it?
+Hmm.  Can you please apply the following patch in addition and
+see what the printk I added sais?
 
-> The Mylex web page has a RAID management application for DAC960 on Linux that
-> is available only in BINARY form.  Unfortunately, it requires
-> a Windows front-end to provide a GUI.  So, I haven't actually experimented
-> with it. If any application uses the pass-through commands, this would likely
-> be it.  But since no one has complained about this being broken, it may
-> indicate no one is using this application.
 
-Hmm, breaking it wouldn't be nice, but if they're not willing to
-release an updated version we'll just need a LD_PRELOAD wrapper
-that maps the open to a new mangment device.
-
-> The pass-through behavior could be made available either through
-> a /proc or a sysfs file.
-
-My preference would be a char device (miscdev)
-
-> A related question, why does linux 2.5 continue to have a "struct file *"
-> argument to driver release methods? As far as I can tell, that argument
-> is always NULL?
-
-->release will change to struct gendisk * at some point.  Touching
-it before to just remove the struct file * sounds like a bad idea.
-
+--- 1.87/fs/devfs/base.c	Mon Apr 21 10:43:52 2003
++++ edited/fs/devfs/base.c	Mon Apr 21 19:36:20 2003
+@@ -1754,6 +1803,12 @@
+ 	n = vsnprintf(buf, 64, fmt, args);
+ 	if (n < 64 && buf[0]) {
+ 		devfs_handle_t de = _devfs_find_entry(NULL, buf, 0);
++
++		if (!de) {
++			printk(KERN_WARNING "%s: no entry for %s!\n",
++					__FUNCTION__, buf);
++			return;
++		}
+ 
+ 		write_lock(&de->parent->u.dir.lock);
+ 		_devfs_unregister(de->parent, de);

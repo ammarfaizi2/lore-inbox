@@ -1,37 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264550AbUGBQs2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264665AbUGBQu3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264550AbUGBQs2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jul 2004 12:48:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264665AbUGBQs2
+	id S264665AbUGBQu3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jul 2004 12:50:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264723AbUGBQu3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jul 2004 12:48:28 -0400
-Received: from smtp2.Stanford.EDU ([171.67.16.125]:29639 "EHLO
-	smtp2.Stanford.EDU") by vger.kernel.org with ESMTP id S264550AbUGBQs1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jul 2004 12:48:27 -0400
-Date: Fri, 2 Jul 2004 09:48:22 -0700 (PDT)
-From: Yichen Xie <yxie@cs.stanford.edu>
-X-X-Sender: yxie@kaki.stanford.edu
-To: Andrew Morton <akpm@osdl.org>
-cc: nathans@sgi.com, <linux-kernel@vger.kernel.org>
-Subject: Re: [BUGS] [CHECKER] 99 synchronization bugs and a lock summary
- database
-In-Reply-To: <20040702004421.2b126551.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.44.0407020939540.23611-100000@kaki.stanford.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 2 Jul 2004 12:50:29 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:52102 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S264665AbUGBQu1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jul 2004 12:50:27 -0400
+Date: Fri, 2 Jul 2004 18:50:13 +0200
+From: Andries Brouwer <Andries.Brouwer@cwi.nl>
+To: Szakacsits Szabolcs <szaka@sienet.hu>
+Cc: "Patrick J. LoPresti" <patl@users.sourceforge.net>, bug-parted@gnu.org,
+       "K.G." <k_guillaume@libertysurf.fr>,
+       Steffen Winterfeldt <snwint@suse.de>, Thomas Fehr <fehr@suse.de>,
+       Andries Brouwer <Andries.Brouwer@cwi.nl>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Restoring HDIO_GETGEO semantics (was: Re: workaround for BIOS / CHS stuff)
+Message-ID: <20040702165013.GB25914@apps.cwi.nl>
+References: <s5gwu1mwpus.fsf@patl=users.sf.net> <Pine.LNX.4.21.0407021528150.21499-100000@mlf.linux.rulez.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.21.0407021528150.21499-100000@mlf.linux.rulez.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'd be happy to! -yichen
+On Fri, Jul 02, 2004 at 06:17:53PM +0200, Szakacsits Szabolcs wrote:
 
-On Fri, 2 Jul 2004, Andrew Morton wrote:
+> Please also note, so far nobody stepped forward to fix parted.
 
-> Yichen Xie <yxie@cs.stanford.edu> wrote:
-> >
-> > I will update the error reports when the results are ready. 
-> 
-> Do you plan to run this tool and generate reports against the 2.6 kernel
-> on a regular basis?
-> 
+Nobody asked, but I wouldnt mind fixing this particular
+aspect of parted.
 
+If nobody else wants to maintain it I can take it, but then
+"maintain" means: zero development, just bugfixes.
+
+Andries

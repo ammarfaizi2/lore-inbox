@@ -1,52 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264396AbUEMSzq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264397AbUEMS4R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264396AbUEMSzq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 May 2004 14:55:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264397AbUEMSzq
+	id S264397AbUEMS4R (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 May 2004 14:56:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264404AbUEMS4R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 May 2004 14:55:46 -0400
-Received: from fw.osdl.org ([65.172.181.6]:32177 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264396AbUEMSzp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 May 2004 14:55:45 -0400
-Date: Thu, 13 May 2004 11:55:16 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Lorenzo Allegrucci <l_allegrucci@despammed.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.6-mm2
-Message-Id: <20040513115516.1bbfa7b7.akpm@osdl.org>
-In-Reply-To: <200405131707.36807.l_allegrucci@despammed.com>
-References: <20040513032736.40651f8e.akpm@osdl.org>
-	<200405131707.36807.l_allegrucci@despammed.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 13 May 2004 14:56:17 -0400
+Received: from sampa7.prodam.sp.gov.br ([200.230.190.107]:17937 "EHLO
+	sampa7.prodam.sp.gov.br") by vger.kernel.org with ESMTP
+	id S264397AbUEMS4M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 May 2004 14:56:12 -0400
+Date: Thu, 13 May 2004 15:54:49 -0300
+From: "Luiz Fernando N. Capitulino" <lcapitulino@prefeitura.sp.gov.br>
+To: Gene Heskett <gene.heskett@verizon.net>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.6-mm2 foibles
+Message-ID: <20040513185449.GA731@lorien.prodam>
+Mail-Followup-To: Gene Heskett <gene.heskett@verizon.net>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <200405131442.27573.gene.heskett@verizon.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200405131442.27573.gene.heskett@verizon.net>
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lorenzo Allegrucci <l_allegrucci@despammed.com> wrote:
->
->  On Thursday 13 May 2004 12:27, Andrew Morton wrote:
->  > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.6/2.6.6-m
->  >m2/
-> 
->  make[2]: *** No rule to make target `fs/xfs/support/qsort.s', needed by 
->  `fs/xfs/support/qsort.o'.  Stop.
 
-That's odd.
+ Hi Gene,
 
-diff -puN fs/xfs/Makefile~have-xfs-use-kernel-provided-qsort-fix fs/xfs/Makefile
---- 25/fs/xfs/Makefile~have-xfs-use-kernel-provided-qsort-fix	2004-05-13 11:54:24.869488456 -0700
-+++ 25-akpm/fs/xfs/Makefile	2004-05-13 11:54:28.218979256 -0700
-@@ -142,7 +142,6 @@ xfs-y				+= $(addprefix linux/, \
- xfs-y				+= $(addprefix support/, \
- 				   debug.o \
- 				   move.o \
--				   qsort.o \
- 				   uuid.o)
- 
- xfs-$(CONFIG_XFS_TRACE)		+= support/ktrace.o
+Em Thu, May 13, 2004 at 02:42:27PM -0400, Gene Heskett escreveu:
 
-_
+| I just booted to a 2.6.6-mm2 kernel, and discoverd I had no sound.  So 
+| I logged back out of x, and found I had no keyboard!  ssh'd in from 
+| the firewall and rebooted it.
+| 
+| Both sound, and the backswitch from x were working perfectly up to and 
+| including 2.6.6.
+| 
+| 1400 mhz Athlon, half a gig of memory, FC1 all yum updates.
+| 
+| Ideas?
 
+ I got something like that, but from the console: I was just using the
+computer and my keyboard locks (at console). I tryed a ssh from
+another machine and it worked (nothing special in log messages too),
+so I rebooted.
+
+ It happened two times in some minutes ago. I'm looking at suspects
+patches, if it happens again I will try to reverse something.
+
+-- 
+Luiz Fernando N. Capitulino
+<http://www.telecentros.sp.gov.br>

@@ -1,49 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267455AbTBDUAc>; Tue, 4 Feb 2003 15:00:32 -0500
+	id <S266645AbTBDT5p>; Tue, 4 Feb 2003 14:57:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267457AbTBDUAb>; Tue, 4 Feb 2003 15:00:31 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:59540 "EHLO
-	mtvmime02.veritas.com") by vger.kernel.org with ESMTP
-	id <S267455AbTBDUAb>; Tue, 4 Feb 2003 15:00:31 -0500
-Date: Tue, 4 Feb 2003 20:11:36 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Linus Torvalds <torvalds@transmeta.com>
+	id <S267438AbTBDT5p>; Tue, 4 Feb 2003 14:57:45 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:1946 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S267436AbTBDT5o>; Tue, 4 Feb 2003 14:57:44 -0500
+Date: Tue, 4 Feb 2003 15:10:06 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Fiona Sou-Yee Wong <wongfs@cs.ucdavis.edu>
 cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] loopy loop loop
-Message-ID: <Pine.LNX.4.44.0302042005410.6681-100000@localhost.localdomain>
+Subject: Re: disabling nagle
+In-Reply-To: <Pine.LNX.4.44.0302041138070.2629-100000@pc6.cs.ucdavis.edu>
+Message-ID: <Pine.LNX.3.95.1030204150721.12306A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The loop driver's loop over elements of bi_io_vec is in lo_send and
-lo_receive: iterating that same transfer bi_vcnt times at the level
-above is, er, excessive.  (And no need to increment bi_idx here.)
+On Tue, 4 Feb 2003, Fiona Sou-Yee Wong wrote:
 
-Hugh
+> Hi
+> 
+> I have kernel version 2.4.18 and I was looking for a patch to have the 
+> option to disable NAGLE's algorithm.
+> Is there a patch available for kernels 2.4 and greater and if not, what 
+> other options do I have?
+> 
+> Thanks
+> Fiona
 
---- 2.5.59/drivers/block/loop.c	Tue Dec 10 05:49:02 2002
-+++ linux/drivers/block/loop.c	Tue Feb  4 19:44:01 2003
-@@ -350,15 +350,10 @@
- 	int ret;
- 
- 	pos = ((loff_t) bio->bi_sector << 9) + lo->lo_offset;
--
--	do {
--		if (bio_rw(bio) == WRITE)
--			ret = lo_send(lo, bio, lo->lo_blocksize, pos);
--		else
--			ret = lo_receive(lo, bio, lo->lo_blocksize, pos);
--
--	} while (++bio->bi_idx < bio->bi_vcnt);
--
-+	if (bio_rw(bio) == WRITE)
-+		ret = lo_send(lo, bio, lo->lo_blocksize, pos);
-+	else
-+		ret = lo_receive(lo, bio, lo->lo_blocksize, pos);
- 	return ret;
- }
- 
+Just turn it off in your program:
+
+int on = 1;
+setsockopt(s, SOL_TCP, TCP_NODELAY, &on, sizeof(on));
+
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
+
 

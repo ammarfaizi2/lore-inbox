@@ -1,47 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264972AbTAJMaf>; Fri, 10 Jan 2003 07:30:35 -0500
+	id <S264986AbTAJMed>; Fri, 10 Jan 2003 07:34:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264983AbTAJMaf>; Fri, 10 Jan 2003 07:30:35 -0500
-Received: from mail2.sonytel.be ([195.0.45.172]:33751 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S264972AbTAJMae>;
-	Fri, 10 Jan 2003 07:30:34 -0500
-Date: Fri, 10 Jan 2003 13:38:34 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Rusty Russell <rusty@rustcorp.com.au>
-cc: Russell King <rmk@arm.linux.org.uk>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: __gpl_ksymtab 
-In-Reply-To: <20030110091014.231C82C4C2@lists.samba.org>
-Message-ID: <Pine.GSO.4.21.0301101338110.9440-100000@vervain.sonytel.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264992AbTAJMec>; Fri, 10 Jan 2003 07:34:32 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:62865
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S264986AbTAJMe0>; Fri, 10 Jan 2003 07:34:26 -0500
+Subject: Re: spin_locks without smp.
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Maciej Soltysiak <solt@dns.toxicfilms.tv>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.51.0301101238560.6124@dns.toxicfilms.tv>
+References: <Pine.LNX.4.51.0301101238560.6124@dns.toxicfilms.tv>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1042205356.28469.84.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
+Date: 10 Jan 2003 13:29:16 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 10 Jan 2003, Rusty Russell wrote:
-> diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.55/arch/m68k/vmlinux-std.lds working-2.5.55-gpl_ksymtab/arch/m68k/vmlinux-std.lds
-> --- linux-2.5.55/arch/m68k/vmlinux-std.lds	2003-01-02 14:47:57.000000000 +1100
-> +++ working-2.5.55-gpl_ksymtab/arch/m68k/vmlinux-std.lds	2003-01-10 19:43:03.000000000 +1100
-> @@ -24,6 +24,10 @@ SECTIONS
->    __ksymtab : { *(__ksymtab) }
->    __stop___ksymtab = .;
->  
-> +  __start___ksymtab = .;	/* Kernel symbol table */
-> +  __ksymtab : { *(__ksymtab) }
-> +  __stop___ksymtab = .;
+On Fri, 2003-01-10 at 11:42, Maciej Soltysiak wrote:
+> Hi,
+> 
+> while browsing through the network drivers about the etherleak issue i
+> found that some drivers have:
+> 
+> #ifdef CONFIG_SMP
+> 	spin_lock_irqsave(...)
+> #endif
+> 
+> and some just:
+> 
+> 	spin_lock_irqsave(...)
+> 
+> or similar.
+> Which version should be practiced? i thought spinlocks are irrelevant
+> without SMP so we should use #ifdef to shorten the execution path.
 
-Woops, where's the `gpl'?
+Long answer: The network driver authors are doing some fairly clever
+things to make old ISA adapters usable in Linux 2.4 and later. Linux
+lacks the functionality to do 
+	
+	spin_lock_disable_irqmask(lock, flags, mask)
 
-Gr{oetje,eeting}s,
+Implementing it is rather expensive and hard to do well. In general
+those code paths need reviewing and probably to change to
 
-						Geert
+	preempt_disable()
+#ifdef CONFIG_SMP
+	spin_lock_irqsave(..)
+#endif
+..
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+Please ensure that if you change these drivers you 
+a) Have the hardware and test it uniprocessor and SMP
+b) Verify that with your change a serial modem port still works
+c) Understand the game the author is playing
+
+(Also d) ensure the author understands the games she/he is playing too!)
+
+If you've been looking at the etherleak stuff btw, the -ac tree has what
+is theoretically a full set of fixes. I'd love someone who is looking
+at this into 2.5 to review them and merge them into the 2.5 tree. I 
+doubt I have them all right so more eyes is most welcome.
+
+Alan
 

@@ -1,37 +1,47 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316598AbSFKVXm>; Tue, 11 Jun 2002 17:23:42 -0400
+	id <S310206AbSFKV1t>; Tue, 11 Jun 2002 17:27:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316757AbSFKVXl>; Tue, 11 Jun 2002 17:23:41 -0400
-Received: from ns.suse.de ([213.95.15.193]:24845 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S316598AbSFKVXl>;
-	Tue, 11 Jun 2002 17:23:41 -0400
-Date: Tue, 11 Jun 2002 23:23:06 +0200
-From: Andi Kleen <ak@suse.de>
-To: jt@hpl.hp.com
-Cc: Andi Kleen <ak@suse.de>, kuznet@ms2.inr.ac.ru,
-        linux-kernel@vger.kernel.org
-Subject: Re: Multicast netlink for non-root process
-Message-ID: <20020611232306.A30205@wotan.suse.de>
-In-Reply-To: <20020611134418.A22893@bougret.hpl.hp.com.suse.lists.linux.kernel> <p737kl5cyw1.fsf@oldwotan.suse.de> <20020611141330.A22927@bougret.hpl.hp.com>
+	id <S315276AbSFKV1s>; Tue, 11 Jun 2002 17:27:48 -0400
+Received: from tapu.f00f.org ([66.60.186.129]:41695 "EHLO tapu.f00f.org")
+	by vger.kernel.org with ESMTP id <S310206AbSFKV1r>;
+	Tue, 11 Jun 2002 17:27:47 -0400
+Date: Tue, 11 Jun 2002 14:27:27 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Martin Wilck <Martin.Wilck@Fujitsu-Siemens.com>
+Cc: Daniela Engert <dani@ngrt.de>,
+        Linux Kernel mailing list <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Serverworks OSB4 in impossible state
+Message-ID: <20020611212727.GA3529@tapu.f00f.org>
+In-Reply-To: <20020611064201.9F55DEDBE@mail.medav.de> <1023794726.23733.375.camel@biker.pdb.fsc.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
+User-Agent: Mutt/1.4i
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 11, 2002 at 02:13:30PM -0700, Jean Tourrilhes wrote:
-> On Tue, Jun 11, 2002 at 11:02:22PM +0200, Andi Kleen wrote:
-> > 
-> > There used to be a reason for it (ask Alexey for details), but it has gone.
-> > It should be safe now to remove it I think.
-> > 
-> > -Andi
-> 
-> 	Ok, so let's ask Alexey ;-)
+On Tue, Jun 11, 2002 at 01:25:25PM +0200, Martin Wilck wrote:
 
-I think the reason was that at some point there was no proper receive
-buffer management in place for netlink multicast. But that should be long fixed.
+    Is it possible that the 4-byte shift occurs only with some
+    particular (older?) version of the chipset?
 
--Andi
+Maybe.
+
+I have an oldish OSB4 here and beating on it only with the CDROM
+(disks are all SCSI) I don't ever seem to see this problem:
+
+00:00.0 Host bridge: ServerWorks CNB20LE Host Bridge (rev 05)
+        Flags: bus master, medium devsel, latency 48
+
+00:00.1 Host bridge: ServerWorks CNB20LE Host Bridge (rev 05)
+        Flags: bus master, medium devsel, latency 48
+
+I think what is really required is input from ServerWorks/Broadcom
+about this.
+
+
+
+  --cw

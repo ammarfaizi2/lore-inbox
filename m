@@ -1,45 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263147AbRE1Uxb>; Mon, 28 May 2001 16:53:31 -0400
+	id <S263143AbRE1Uyb>; Mon, 28 May 2001 16:54:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263144AbRE1UxV>; Mon, 28 May 2001 16:53:21 -0400
-Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:5715
-	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
-	id <S263143AbRE1UxQ>; Mon, 28 May 2001 16:53:16 -0400
-Date: Mon, 28 May 2001 22:53:05 +0200
-From: Rasmus Andersen <rasmus@jaquet.dk>
-To: werner@titro.de
-Cc: isdn4linux@listserv.isdn4linux.de, linux-kernel@vger.kernel.org
-Subject: [PATCH] make kmalloc error return unconditional in hysdn_net.c (245ac1)
-Message-ID: <20010528225305.M846@jaquet.dk>
+	id <S263149AbRE1UyP>; Mon, 28 May 2001 16:54:15 -0400
+Received: from marine.sonic.net ([208.201.224.37]:57882 "HELO marine.sonic.net")
+	by vger.kernel.org with SMTP id <S263143AbRE1Ux3>;
+	Mon, 28 May 2001 16:53:29 -0400
+X-envelope-info: <dalgoda@ix.netcom.com>
+Date: Mon, 28 May 2001 13:53:02 -0700
+From: Mike Castle <dalgoda@ix.netcom.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [2.4.5] buz.c won't compile
+Message-ID: <20010528135302.H32600@thune.mrc-home.com>
+Reply-To: Mike Castle <dalgoda@ix.netcom.com>
+Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.04.10105281512050.1601-100000@beaker.bluetopia.net>
+User-Agent: Mutt/1.3.18i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Mon, May 28, 2001 at 03:15:04PM -0400, Ricky Beam wrote:
+> PS: I really hate it when people break "functional" things in the "stable"
+>     tree. (functional and stable are both open to debate.)
 
-The patch below fixes what I believe is a bug in hysdn_net.c.
-I cannot see how we can proceed under _any_ circumstances
-after the kmalloc fails. Applies against 245ac1.
+I was under the impression that it really wasn't functional.
 
-
---- linux-245-ac1-clean/drivers/isdn/hysdn/hysdn_net.c	Sun May 27 22:15:22 2001
-+++ linux-245-ac1/drivers/isdn/hysdn/hysdn_net.c	Mon May 28 22:44:16 2001
-@@ -304,8 +304,7 @@
- 	hysdn_net_release(card);	/* release an existing net device */
- 	if ((dev = kmalloc(sizeof(struct net_local), GFP_KERNEL)) == NULL) {
- 		printk(KERN_WARNING "HYSDN: unable to allocate mem\n");
--		if (card->debug_flags & LOG_NET_INIT)
--			return (-ENOMEM);
-+		return (-ENOMEM);
- 	}
- 	memset(dev, 0, sizeof(struct net_local));	/* clean the structure */
- 
+mrc
 -- 
-Regards,
-        Rasmus(rasmus@jaquet.dk)
-
-It has just been discovered that research causes cancer in rats. 
+       Mike Castle       Life is like a clock:  You can work constantly
+  dalgoda@ix.netcom.com  and be right all the time, or not work at all
+www.netcom.com/~dalgoda/ and be right at least twice a day.  -- mrc
+    We are all of us living in the shadow of Manhattan.  -- Watchmen

@@ -1,65 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265249AbTLFVDF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Dec 2003 16:03:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265258AbTLFVDF
+	id S265246AbTLFVTG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Dec 2003 16:19:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265250AbTLFVTG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Dec 2003 16:03:05 -0500
-Received: from mail.parknet.co.jp ([210.171.160.6]:9737 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S265249AbTLFVDC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Dec 2003 16:03:02 -0500
-To: Michal Rokos <m.rokos@sh.cvut.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.0-test11] VFAT fix for UTF-8 and trailing dots
-References: <20031206085539.GA3134@nightmare.sh.cvut.cz>
-	<87d6b2vt94.fsf@devron.myhome.or.jp>
-	<20031206192919.GA31981@nightmare.sh.cvut.cz>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Sun, 07 Dec 2003 06:02:47 +0900
-In-Reply-To: <20031206192919.GA31981@nightmare.sh.cvut.cz>
-Message-ID: <87iskt8xs8.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
+	Sat, 6 Dec 2003 16:19:06 -0500
+Received: from thunk.org ([140.239.227.29]:46546 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S265246AbTLFVTC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Dec 2003 16:19:02 -0500
+Date: Sat, 6 Dec 2003 16:19:00 -0500
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Larry McVoy <lm@work.bitmover.com>, linux-kernel@vger.kernel.org,
+       Linus Torvalds <torvalds@osdl.org>, Larry McVoy <lm@bitmover.com>,
+       Erik Andersen <andersen@codepoet.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Paul Adams <padamsdev@yahoo.com>
+Subject: Re: Linux GPL and binary module exception clause?
+Message-ID: <20031206211900.GA9034@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Larry McVoy <lm@work.bitmover.com>, linux-kernel@vger.kernel.org,
+	Linus Torvalds <torvalds@osdl.org>, Larry McVoy <lm@bitmover.com>,
+	Erik Andersen <andersen@codepoet.org>,
+	Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+	Paul Adams <padamsdev@yahoo.com>
+References: <20031204235055.62846.qmail@web21503.mail.yahoo.com> <20031205004653.GA7385@codepoet.org> <Pine.LNX.4.58.0312041956530.27578@montezuma.fsmlabs.com> <20031205010349.GA9745@codepoet.org> <20031205012124.GB15799@work.bitmover.com> <Pine.LNX.4.58.0312041750270.6638@home.osdl.org> <20031206030037.GB28765@work.bitmover.com> <20031206141300.GA13372@pimlott.net> <20031206175041.GD28765@work.bitmover.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031206175041.GD28765@work.bitmover.com>
+User-Agent: Mutt/1.5.4i
+X-Habeas-SWE-1: winter into spring
+X-Habeas-SWE-2: brightly anticipated
+X-Habeas-SWE-3: like Habeas SWE (tm)
+X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
+X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
+X-Habeas-SWE-6: email in exchange for a license for this Habeas
+X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
+X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
+X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michal Rokos <m.rokos@sh.cvut.cz> writes:
+On Sat, Dec 06, 2003 at 09:50:41AM -0800, Larry McVoy wrote:
+> The sticky one is the one where we started, kernel modules.  Linus is
+> saying that kernel modules are covered by the GPL because they are
+> combined with the kernel.  I think his reasoning is weak and unlikely
+> to be upheld by the courts.  If we remove the issue of inline functions
+> for a moment then we are talking about pure API's and there is no way
+> that the courts are going to uphold that a copyright license can cross a
+> pure API (famous last words).  Well, no way if both sides of the dispute
+> have equally good lawyers, without that who knows.  
 
-> I don't know... Functions in nls_base.c have specification the same as
-> those from userspace (defined by ISO/ANSI C or UNIX98).
-> 
-> Probably we should. This was meant as minimal patch.
-> 
-> In case you'll be modifiing nls_base.c, please, decide whether this
-> shouldn't be in...
-> 
-> 
-> --- linux-2.6.0-test11/fs/nls/nls_base.c.old	2003-11-26 21:44:31.000000000 +0100
-> +++ linux-2.6.0-test11/fs/nls/nls_base.c	2003-12-06 20:09:01.000000000 +0100
-> @@ -99,6 +99,7 @@ utf8_mbstowcs(wchar_t *pwcs, const __u8 
->  			}
->  		} else {
->  			*op++ = *ip++;
-> +			n--;
->  		}
->  	}
->  	return (op - pwcs);
-> > 
-> > For example, utf8_mbstowcs(outbuf, outlen, inbuf, inlen);
-> > 
-> 
-> I'd would propose uft8_mbsntowcs(outbuf, outlen, inbuf, inlen);
+I had a law professor from the MIT Sloan School of Technology, who
+when I posed the question informally, said that the FSF would be
+laughed out of court if they tried to claim that the GPL infected
+across API's.  But Larry's right, in the U.S. at least, you get the
+best justice money can buy, and with enough high-paid lawyers and
+lobbyist, you can probably pervert the system any way you like ---
+witness the RIAA and DMCA.
 
-Whoops, sorry. You are right.
+But that aside, does the Open Source community really want to push for
+the legal principal that just because you write an independent program
+which uses a particular API, the license infects across the interface?
+That's essentially interface copyrights, and if say the FSF were to
+file an amicus curiae brief support that particular legal principle in
+an kernel modules case, it's worthwhile to think about how Microsoft
+and Apple could use that case law to f*ck us over very badly.  
 
-But I really like the interface like iconv() than this. And current
-nls interfaces also...
+It would mean that we would not be able to use Microsoft DLL's in
+programs like xine.  It would mean that programs like Crossover office
+wouldn't work.  It would mean that Apple could legally prohibit people
+from writing enhancements to MacOS (for example, how do all of the
+various extensions in Mac OS 9 work?  They link into the operating
+system and modify its behaviour.  If they are therefore a derived work
+of MacOS, then Apple could screw over all of the people who write
+system extensions of MacOS.)  
 
-Anyway, I think your patches fix some bugs right now.
-I'll submit the your both patches.
+Be careful of what you wish for, before you get it.  The ramifications
+of the statement that just because a device driver is written for
+Linux, that it is presumptively a derived work of Linux unless proven
+otherwise, is amazingly scary.  Fortunately, we can hope that the law
+professor I talked to was right, and that such a claim would be
+laughed out of court.  But if it isn't, look to Microsoft and other
+unsavory companies to use that kind of case law to completely screw us
+to the wall.....
 
-Thanks.
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+						- Ted

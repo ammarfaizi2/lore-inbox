@@ -1,80 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313438AbSDLIIn>; Fri, 12 Apr 2002 04:08:43 -0400
+	id <S313442AbSDLIJ7>; Fri, 12 Apr 2002 04:09:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313442AbSDLIIn>; Fri, 12 Apr 2002 04:08:43 -0400
-Received: from firewall.sfn.asso.fr ([193.49.43.1]:62625 "HELO out.esrf.fr")
-	by vger.kernel.org with SMTP id <S313438AbSDLIIl>;
-	Fri, 12 Apr 2002 04:08:41 -0400
-Date: Fri, 12 Apr 2002 10:08:04 +0200
-From: Samuel Maftoul <maftoul@esrf.fr>
-To: Rowan Ingvar Wilson <rowan.ingvar.wilson@0800dial.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: /dev/zero
-Message-ID: <20020412100804.A6605@pcmaftoul.esrf.fr>
-In-Reply-To: <1018595942.2918.2.camel@ADMIN> <002c01c1e1f3$5bf7e600$c82d3c3e@m3v0u8>
+	id <S313447AbSDLIJz>; Fri, 12 Apr 2002 04:09:55 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:35799 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S313442AbSDLIJc>;
+	Fri, 12 Apr 2002 04:09:32 -0400
+Date: Fri, 12 Apr 2002 10:09:29 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Helge Hafting <helgehaf@aitel.hist.no>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
+Subject: Re: linux as a minicomputer ?
+Message-ID: <20020412100929.B17963@ucw.cz>
+In-Reply-To: <20020411170910.GS612@gallifrey> <20020411191339.B15435@ucw.cz> <20020411174941.GC17962@antefacto.com> <20020411.195921.730560311.rene.rebe@gmx.net> <20020411210606.A15783@ucw.cz> <3CB68FA6.F2DACB93@aitel.hist.no>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2i
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It's just zeroes, so it allows you to test raw write speed on any
-device:
-dd if=/dev/zero of=/dev/hda to test your performances of hda ...
-normally if I get it well, /dev/zero can't be you're bottleneck.
-        Sam
-On Fri, Apr 12, 2002 at 08:26:22AM +0100, Rowan Ingvar Wilson wrote:
-> Just as a matter of interest myself...what is it's actual function? It
-> is used during kernel debugging to supply an input?
+On Fri, Apr 12, 2002 at 09:41:26AM +0200, Helge Hafting wrote:
+> Vojtech Pavlik wrote:
 > 
-> -----Original Message-----
-> From: linux-kernel-owner@vger.kernel.org
-> [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Frank Schaefer
-> Sent: 12 April 2002 08:19
-> To: linux-kernel@vger.kernel.org
-> Subject: Re: /dev/zero
-> 
-> On Fri, 2002-04-12 at 08:46, blesson paul wrote:
-> > Hi all
-> >                I am newbie to linux kernel. What is the use of
-> /dev/zero. 
-> > Why it is created and how to use it
-> > regards
-> > Blesson Paul
+> > > It IS the kernel's fault, because only one VT can be active. The
+> > > kernel VT stuff needs to be redesigned to hadle multiple VT at the
+> > > same time ...
 > > 
-> > 
-> > 
-> > _________________________________________________________________
-> > Chat with friends online, try MSN Messenger: http://messenger.msn.com
-> > 
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe
-> linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> > 
-> Hi,
+> > Yes and no. You shouldn't need VTs to run Xservers at all.
 > 
-> /dev/zero is a data source. It delivers zeroes ( maybe that's why this
-> name ;-).
-> 
-> BTW: You are new to the linux kernel or new to linux / unix?
-> 
-> Regards
-> Frank
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-> in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> Still a kernel problem, what if all the users want to run
+> vgacon/fbcon instead of X?  One VT per physical interface
+> is what we need, rather than "per machine".
+
+Yes. James Simmons has this work almost done.
+
+-- 
+Vojtech Pavlik
+SuSE Labs

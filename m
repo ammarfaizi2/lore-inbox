@@ -1,55 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261695AbVAMVGi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261719AbVAMVvy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261695AbVAMVGi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 16:06:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261403AbVAMVEa
+	id S261719AbVAMVvy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 16:51:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261728AbVAMVuI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 16:04:30 -0500
-Received: from moutng.kundenserver.de ([212.227.126.184]:33011 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S261695AbVAMVCf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 16:02:35 -0500
-From: Christian Borntraeger <cborntra@de.ibm.com>
-To: Christoph Hellwig <hch@infradead.org>
-Subject: Re: [PATCH] reintroduce EXPORT_SYMBOL(task_nice) for binfmt_elf32
-Date: Thu, 13 Jan 2005 22:02:24 +0100
-User-Agent: KMail/1.7.1
-Cc: linux-kernel@vger.kernel.org, Arjan van de Ven <arjan@infradead.org>,
-       Andrew Morton <akpm@osdl.org>
-References: <200501132042.31215.cborntra@de.ibm.com> <20050113194807.GA28010@infradead.org>
-In-Reply-To: <20050113194807.GA28010@infradead.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 13 Jan 2005 16:50:08 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:63211 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261719AbVAMVoi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 16:44:38 -0500
+Date: Thu, 13 Jan 2005 22:43:20 +0100
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: "Jack O'Quin" <joq@io.com>, Chris Wright <chrisw@osdl.org>,
+       Paul Davis <paul@linuxaudiosystems.com>, Matt Mackall <mpm@selenic.com>,
+       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       mingo@elte.hu, alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org,
+       Con Kolivas <kernel@kolivas.org>
+Subject: Re: [PATCH] [request for inclusion] Realtime LSM
+Message-ID: <20050113214320.GB22208@devserv.devel.redhat.com>
+References: <20050111214152.GA17943@devserv.devel.redhat.com> <200501112251.j0BMp9iZ006964@localhost.localdomain> <20050111150556.S10567@build.pdx.osdl.net> <87y8ezzake.fsf@sulphur.joq.us> <20050112074906.GB5735@devserv.devel.redhat.com> <87oefuma3c.fsf@sulphur.joq.us> <20050113072802.GB13195@devserv.devel.redhat.com> <878y6x9h2d.fsf@sulphur.joq.us> <20050113210750.GA22208@devserv.devel.redhat.com> <1105651508.3457.31.camel@krustophenia.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200501132202.25048.cborntra@de.ibm.com>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:5a8b66f42810086ecd21595c2d6103b9
+In-Reply-To: <1105651508.3457.31.camel@krustophenia.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
-> On Thu, Jan 13, 2005 at 08:42:30PM +0100, Christian Borntraeger wrote:
-> > export was the fact, that binfmt_elf is no longer modular.
-> > Unfortunately that is not true in the emulation case on s390 and
-> > (untested) sparc64.
->
-> I'd suggest putting it under CONFIG_COMPAT.
 
-Agreed. Better?
+On Thu, Jan 13, 2005 at 04:25:08PM -0500, Lee Revell wrote:
+> The basic issue is that the current semantics of SCHED_FIFO seem make
+> the deadlock/data corruption due to runaway RT thread issue difficult.
+> The obvious solution is a new scheduling class equivalent to SCHED_FIFO
+> but with a mechanism for the kernel to demote the offending thread to
+> SCHED_OTHER in an emergency. 
 
-Signed-Off: Christian Borntraeger <cborntra@de.ibm.com>
+and this is getting really close to the original "counter proposal" to the
+LSM module that was basically "lets make lower nice limit an rlimit, and
+have -20 mean "basically FIFO" *if* the task behaves itself".
 
---- a/kernel/sched.c	2005-01-12 01:42:35 +01:00
-+++ b/kernel/sched.c	2005-01-13 21:59:15 +01:00
-@@ -3187,6 +3187,10 @@
- 	return TASK_NICE(p);
- }
- 
-+#ifdef CONFIG_COMPAT
-+EXPORT_SYMBOL(task_nice);
-+#endif
-+
- /**
-  * idle_cpu - is a given cpu idle currently?
-  * @cpu: the processor in question.

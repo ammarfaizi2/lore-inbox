@@ -1,29 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129742AbRCAR7Z>; Thu, 1 Mar 2001 12:59:25 -0500
+	id <S129608AbRCARuy>; Thu, 1 Mar 2001 12:50:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129747AbRCAR7Q>; Thu, 1 Mar 2001 12:59:16 -0500
-Received: from smtp-rt-2.wanadoo.fr ([193.252.19.154]:62175 "EHLO
-	apeiba.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S129742AbRCAR7J>; Thu, 1 Mar 2001 12:59:09 -0500
-Message-ID: <3a9e8dcd3b72e6a5@amyris.wanadoo.fr> (added by amyris.wanadoo.fr)
-From: "Sébastien HINDERER" <jrf3@wanadoo.fr>
-To: <linux-kernel@vger.kernel.org>
-Subject: Escape sequences & console
-Date: Thu, 1 Mar 2001 19:03:50 -0000
-X-MSMail-Priority: Normal
-X-Priority: 3
-X-Mailer: Microsoft Internet Mail 4.70.1161
+	id <S129742AbRCARup>; Thu, 1 Mar 2001 12:50:45 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:3324 "EHLO
+	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S129608AbRCARuk>; Thu, 1 Mar 2001 12:50:40 -0500
+Date: Thu, 1 Mar 2001 14:49:51 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: God <atm@pinky.penguinpowered.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Stable Version?
+In-Reply-To: <Pine.LNX.4.21.0103011008550.918-100000@scotch.homeip.net>
+Message-ID: <Pine.LNX.4.33.0103011447350.1961-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Thu, 1 Mar 2001, God wrote:
 
-Could someone tell me where I can find a document listing all the
-escape-sequences that could be sent to the console (/dev/console) and what
-they do.
-Thank you: Sébastien.
+> What version of the 2.4.x kernels is actually stable enough to
+> use?  I ask this because I see 2.4.2, but then the 2.4.2ac7 fix
+> which from what I have read on here, is a pretty important
+> patch.  Is 2.4.2 or 2.4.1 stable enough?
+>
+> I don't run a large site, but what I do have, I think would
+> benefit very much from the improved 2.4.x kernel over what I
+> have mostly have now, of 2.2.16's and 2.2.18's (if not for the
+> the network stuff alone).
+
+It all depends on exactly what you are doing.
+
+I suspect that for most "normal" situations, 2.4 should be
+pretty stable.
+
+There are, however, a few areas where we still have bugs:
+- loop device driver (fixed in -ac?)
+- highmem (fixed in -ac?)
+- SMP (detection, fixed ??)
+- IPX
+- NFS (fixed in -ac?)
+
+I suspect we'll be finding a few more over the next weeks,
+but if you're just using your machine as a webserver and
+are not using anything special (ie. just ext2, tcp/ip, etc.)
+2.4 should be solid.
+
+regards,
+
+Rik
+--
+Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
+
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
 

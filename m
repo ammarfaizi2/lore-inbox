@@ -1,54 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261620AbVCNQ7z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261263AbVCNRAz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261620AbVCNQ7z (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 11:59:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261621AbVCNQ7z
+	id S261263AbVCNRAz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 12:00:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261625AbVCNRAz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 11:59:55 -0500
-Received: from alog0162.analogic.com ([208.224.220.177]:62373 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261620AbVCNQ7x
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 11:59:53 -0500
-Date: Mon, 14 Mar 2005 11:57:40 -0500 (EST)
-From: linux-os <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: Evgeniy <shubin_evgeniy@mail.ru>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: bug in kernel
-In-Reply-To: <200503141748.05661.shubin_evgeniy@mail.ru>
-Message-ID: <Pine.LNX.4.61.0503141150300.19270@chaos.analogic.com>
-References: <200503141748.05661.shubin_evgeniy@mail.ru>
+	Mon, 14 Mar 2005 12:00:55 -0500
+Received: from fire.osdl.org ([65.172.181.4]:56004 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261263AbVCNRAr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Mar 2005 12:00:47 -0500
+Message-ID: <4235C333.4060006@osdl.org>
+Date: Mon, 14 Mar 2005 09:00:35 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+Organization: OSDL
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: "Nguyen, Tom L" <tom.l.nguyen@intel.com>
+CC: David Vrabel <dvrabel@cantab.net>, long <tlnguyen@snoqualmie.dp.intel.com>,
+       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
+       greg@kroah.com
+Subject: Re: [PATCH 1/6] PCI Express Advanced Error Reporting Driver
+References: <C7AB9DA4D0B1F344BF2489FA165E50240803A13E@orsmsx404.amr.corp.intel.com>
+In-Reply-To: <C7AB9DA4D0B1F344BF2489FA165E50240803A13E@orsmsx404.amr.corp.intel.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 14 Mar 2005, Evgeniy wrote:
+Nguyen, Tom L wrote:
+> Monday, March 14, 2005 3:01 AM David Vrabel wrote:
+> 
+> 
+>>>This patch includes PCIEAER-HOWTO.txt, which describes how the PCI
+>>>Express Advanced Error Reporting Root driver works.
+>>>
+>>>--- linux-2.6.11-rc5/Documentation/PCIEAER-HOWTO.txt
+>>>
+>>
+>>Could this be placed in a sub-system subdirectory (creating one if
+>>necessary, e.g., pci/)?  The root of Documentation/ is rather full of
+>>random files as is.
+> 
+> 
+> Most of the HOWTO documents are under Documentation/ directory. I have
+> no problem of placing it in a sub-system subdirectory if it is OK with
+> Linux community?
 
-> Here is a simple program.
->
-> #include <stdio.h>
-> #include <errno.h>
-> main(){
->  int err;
->  err=read(0,NULL,6);
->  printf("%d %d\n",err,errno);
-> }
->
-> I think that it should be an error : Null pointer assignment, like in windows.
-> But in practise it is not so.
+It should remain in the Documentation/ directory or a (new)
+subdirectory under Documentation/ .
 
-It is an error. It will wait <forever> until you enter the [Enter]
-key (it's reading from STDIN_FILENO). Then it will return -1 which
-means there was an error, the error code in errno is 14 (EFAULT)
-or "bad address".
-
-You can configure user-mode code to "seg-fault" upon receiving
-such an error. It can print a nasty message and leave a worthless
-core file in your directory.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
+-- 
+~Randy

@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277403AbRJEOwq>; Fri, 5 Oct 2001 10:52:46 -0400
+	id <S277400AbRJEO4e>; Fri, 5 Oct 2001 10:56:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277400AbRJEOwe>; Fri, 5 Oct 2001 10:52:34 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:15366 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S277407AbRJEOwO>; Fri, 5 Oct 2001 10:52:14 -0400
-Subject: Re: [POT] Which journalised filesystem ?
-To: riel@conectiva.com.br (Rik van Riel)
-Date: Fri, 5 Oct 2001 15:57:49 +0100 (BST)
-Cc: torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33L.0110042054490.4835-100000@imladris.rielhome.conectiva> from "Rik van Riel" at Oct 04, 2001 08:55:08 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S277401AbRJEO4Y>; Fri, 5 Oct 2001 10:56:24 -0400
+Received: from ns.suse.de ([213.95.15.193]:55051 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S277400AbRJEO4H>;
+	Fri, 5 Oct 2001 10:56:07 -0400
+Date: Fri, 5 Oct 2001 16:56:31 +0200 (CEST)
+From: Dave Jones <davej@suse.de>
+To: Juha Siltala <juha.siltala@mail.suomi.net>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Fw: Re: Past CREDITS files
+In-Reply-To: <20011005103822.21d1f663.juha.siltala@mail.suomi.net>
+Message-ID: <Pine.LNX.4.30.0110051650340.25960-100000@Appserv.suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15pWQA-0006bs-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > We (as in Linux) should make sure that we explicitly tell the disk when
-> > we need it to flush its disk buffers. We don't do that right, and
-> > because of _our_ problems some people claim that writeback caching is
-> > evil and bad.
-> 
-> Does this even work right for IDE ?
+On Fri, 5 Oct 2001, Juha Siltala wrote:
 
-Current IDE drives it may be a NOP. Worse than that it would totally ruin
-high end raid performance. We need to pass write barriers. A good i2o card
-might have 256Mb of writeback cache that we want to avoid flushing - because
-it is battery backed and can be ordered.
+> Now this is not too much but a couple of developments are emerging:
+> checking out the geographical distribution of kernel hackers
 
-By all means have drivers fall back to cache writeback, but don't assume
-that is the basic operation.
+Two points to be aware of.
+- Kernel hackers move sometimes :)
+  Be sure to associate the two (or more) addresses of any hacker
+  with one person. Automating this may be quite difficult in some
+  cases.. My data from a year or so ago was completely different
+  to current. I think every field has changed since then.
+  On the other hand, it may be interesting to see the data tracking
+  hackers movements over the past few years :)
 
-Indeed a smarter raid card can generally do
+- Tracking by snail mail address (where present) is more accurate
+  than by email address TLD.
+  (Mine states .de, but I'm actually in London, UK for example)
 
-	"read"
-	"read with readahead"
-	"read with readahead and some readahead on card only"
-	"read but dont cache"
+> Thanks for taking the time to point out these weaknesses in my method!
 
-	"write to cache"
-	"write through cache"
-	"write uncached"
+Happy to help.
 
-Alan
+regards,
+
+Dave.
+
+-- 
+| Dave Jones.        http://www.suse.de/~davej
+| SuSE Labs
+

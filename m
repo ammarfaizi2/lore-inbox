@@ -1,68 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261394AbULEVMr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261395AbULEVNO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261394AbULEVMr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Dec 2004 16:12:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261395AbULEVMr
+	id S261395AbULEVNO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Dec 2004 16:13:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261396AbULEVNO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Dec 2004 16:12:47 -0500
-Received: from gprs215-105.eurotel.cz ([160.218.215.105]:27520 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S261394AbULEVMo (ORCPT
+	Sun, 5 Dec 2004 16:13:14 -0500
+Received: from ozlabs.org ([203.10.76.45]:43972 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S261395AbULEVNJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Dec 2004 16:12:44 -0500
-Date: Sun, 5 Dec 2004 22:12:31 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Matthew Garrett <mjg59@srcf.ucam.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH/RFC] Add support to resume swsusp from initrd
-Message-ID: <20041205211230.GC1012@elf.ucw.cz>
-References: <1102279686.9384.22.camel@tyrosine>
-Mime-Version: 1.0
+	Sun, 5 Dec 2004 16:13:09 -0500
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1102279686.9384.22.camel@tyrosine>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040722i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16819.31194.561882.514591@cargo.ozlabs.ibm.com>
+Date: Mon, 6 Dec 2004 08:12:58 +1100
+From: Paul Mackerras <paulus@samba.org>
+To: Linh Dang <dang.linh@gmail.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][PPC32[NEWBIE] enhancement to virt_to_bus/bus_to_virt (try 2)
+In-Reply-To: <3b2b32004120306463b016029@mail.gmail.com>
+References: <3b2b32004120206497a471367@mail.gmail.com>
+	<3b2b320041202082812ee4709@mail.gmail.com>
+	<16815.31634.698591.747661@cargo.ozlabs.ibm.com>
+	<3b2b32004120306463b016029@mail.gmail.com>
+X-Mailer: VM 7.18 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Linh Dang writes:
 
-> These two patches do two things:
-> 
-> 1) The first removes __init declarations from swsusp code
-> 2) The second allows for the resume device to be set from userspace (ie,
-> without having to use name_to_dev_t) and also allows for resumes to be
-> triggered from userspace.
-> 
-> A /sys/power/resume file is added. Doing
-> 
-> echo -n "set 03:02" >/sys/power/resume
+> I wrote a DMA engine (to used by other drivers) that (would like to) accept
+> all kind of buffers as input (vmalloced, dual-access shared RAM mapped
+> by BATs, etc). The DMA engine has to decode the virtual address of the
+> input buffer to (possibly multiple) physical  address(es). virt_to_phys()
+> has the right name for the job except it only works for the kernel virtual
+> addresses initially mapped at KERNELBASE
 
-I'd prefer not to have this one. Is it actually usefull? Then resume
-could be triggered by echo -n "03:02" > /sys/power/resume...
+Have you read Documentation/DMA-API.txt?  It explains the official
+kernel API for DMA, and drivers should use it in order to be portable
+to more than just one architecture.
 
-> will set /dev/hda2 as the resume device. 
-> 
-> echo -n "resume 03:02" >/sys/power/resume
-> 
-> will attempt a resume from /dev/hda2. Patches are against
-> 2.6.10-rc3.
+If you want to create a competing DMA API, you'll have to show us at
+least one driver that really needs your new API.
 
-Nice way to loose your data :-). [Note note note -- I'm not going to
-merge it before my bigdiff goes to mainline, so expect to rediff it
-when 2.6.10 is out. I can generate the big diff if you want to test it
-now.]
+Also, please don't change the existing virt_to_*/*_to_virt functions.
+Instead define your own functions (with different names) in the same
+source file as your other new code.
 
-You really need to make sure that userland processes are stopped
-before swsusp-resume is started. You should do freeze_process(). Then
-resume process depends on having enough memory available, so you
-probably want to free_some_memory() and warn in documentation about
-the fact.
+Paul.
 
-Ugh, and you really should document "list of bad ideas with resume
-from userspace". It is extremely easy to shoot yourself into the foot
-with this one.
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264028AbTJFRBU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Oct 2003 13:01:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264030AbTJFRA3
+	id S262366AbTJFQ4F (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Oct 2003 12:56:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262372AbTJFQ4F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Oct 2003 13:00:29 -0400
-Received: from mail.parknet.co.jp ([210.171.160.6]:4879 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S264027AbTJFQ6z
+	Mon, 6 Oct 2003 12:56:05 -0400
+Received: from mail.parknet.co.jp ([210.171.160.6]:61966 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S262366AbTJFQz6
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Oct 2003 12:58:55 -0400
+	Mon, 6 Oct 2003 12:55:58 -0400
 To: Linus Torvalds <torvalds@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] lib/parser: Not recognize nul string as "%s" (6/6)
+Subject: [PATCH] use ->d_lock instead of dcache_lock in vfat_revalidate (2/6)
 From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Tue, 07 Oct 2003 01:58:47 +0900
-Message-ID: <87wubinvzs.fsf@devron.myhome.or.jp>
+Date: Tue, 07 Oct 2003 01:55:52 +0900
+Message-ID: <87ekxqpap3.fsf@devron.myhome.or.jp>
 User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -23,30 +23,30 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-Current match_token recognize "foo=" as "foo=%s". So this change the
-nul string does not recognize as "%s".
+This uses more fine granularity ->d_lock than ->dcache_lock for
+->d_parent with d_move() race.
 
-(Umm... this should be check by caller?)
+Please apply.
 
+ linux-2.6.0-test6-hirofumi/fs/vfat/namei.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-
- linux-2.6.0-test6-hirofumi/lib/parser.c |    4 +++-
- 1 files changed, 3 insertions(+), 1 deletion(-)
-
-diff -puN lib/parser.c~parser-zero-string lib/parser.c
---- linux-2.6.0-test6/lib/parser.c~parser-zero-string	2003-10-07 01:51:51.000000000 +0900
-+++ linux-2.6.0-test6-hirofumi/lib/parser.c	2003-10-07 01:51:51.000000000 +0900
-@@ -45,7 +45,9 @@ static int match_one(char *s, char *p, s
- 		args[argc].from = s;
- 		switch (*p++) {
- 		case 's':
--			if (len == -1 || len > strlen(s))
-+			if (strlen(s) == 0)
-+				return 0;
-+			else if (len == -1 || len > strlen(s))
- 				len = strlen(s);
- 			args[argc].to = s + len;
- 			break;
+diff -puN fs/vfat/namei.c~fat_d_lock-for-d_move fs/vfat/namei.c
+--- linux-2.6.0-test6/fs/vfat/namei.c~fat_d_lock-for-d_move	2003-10-07 01:51:28.000000000 +0900
++++ linux-2.6.0-test6-hirofumi/fs/vfat/namei.c	2003-10-07 01:51:28.000000000 +0900
+@@ -82,10 +82,10 @@ static int vfat_revalidate(struct dentry
+ 		 */
+ 		ret = 0;
+ 	else {
+-		spin_lock(&dcache_lock);
++		spin_lock(&dentry->d_lock);
+ 		if (dentry->d_time != dentry->d_parent->d_inode->i_version)
+ 			ret = 0;
+-		spin_unlock(&dcache_lock);
++		spin_unlock(&dentry->d_lock);
+ 	}
+ 	return ret;
+ }
 
 _
 

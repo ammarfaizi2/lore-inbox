@@ -1,54 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262108AbTEOFVB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 May 2003 01:21:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262671AbTEOFVB
+	id S263578AbTEOFZg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 May 2003 01:25:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263837AbTEOFZg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 May 2003 01:21:01 -0400
-Received: from relay01.roc.ny.frontiernet.net ([66.133.131.34]:61869 "EHLO
-	relay01.roc.ny.frontiernet.net") by vger.kernel.org with ESMTP
-	id S262108AbTEOFVA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 May 2003 01:21:00 -0400
-Date: Thu, 15 May 2003 01:33:50 -0400
-From: Scott McDermott <vaxerdec@frontiernet.net>
-To: linux-kernel@vger.kernel.org
-Subject: O_DIRECT write to file by block-aligned, block-multiple buf fails?
-Message-ID: <20030515013350.B1540@newbox.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	Thu, 15 May 2003 01:25:36 -0400
+Received: from blackbird.intercode.com.au ([203.32.101.10]:48656 "EHLO
+	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
+	id S263578AbTEOFZf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 May 2003 01:25:35 -0400
+Date: Thu, 15 May 2003 15:38:15 +1000 (EST)
+From: James Morris <jmorris@intercode.com.au>
+To: Alex Davis <alex14641@yahoo.com>
+cc: linux-kernel@vger.kernel.org, <netdev@oss.sgi.com>
+Subject: Re: link error building kernel with gcc-3.3
+In-Reply-To: <20030514202941.39519.qmail@web40503.mail.yahoo.com>
+Message-ID: <Mutt.LNX.4.44.0305151536280.12417-100000@excalibur.intercode.com.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I thought based on searching the archives that 2.4 O_DIRECT
-requires fs block size alignment of the buffer, and that the
-buffer is an exact multiple of block size.  This should mean
-I can write aligned pages with direct IO, right?
+On Wed, 14 May 2003, Alex Davis wrote:
 
-        int
-        main (void)
-        {
-                char *buf;
-                int fd;
+> I got the following linking 2.4.21rc1:
+> 
+> net/network.o(.text+0xdcb7): In function `rtnetlink_rcv':
+> : undefined reference to `rtnetlink_rcv_skb'
+> make: *** [vmlinux] Error 1
+> 
+> Removing '__inline__' from the definition of rtnetlink_rcv_skb
+> in net/core/rtnetlink.c fixed the problem. 
+> 
+> Note: this error also occurs in 2.4.21rc2-ac2
 
-                buf = memalign(getpagesize(), getpagesize());
-                fd = open("/tmp/testfile", O_TRUNC|O_WRONLY|O_DIRECT);
-                if (write(fd, buf, getpagesize()) == -1)
-                        perror("write");
-        }
+I wonder, does this mean that the compiler failed to inline the function?
 
-        $ ./test
-        write: Invalid argument
+Removing __inline__ is not the correct solution.
 
-        $ grep /tmp /proc/mounts
-        /dev/hda5 /mnt/tmp ext3 rw 0 0
 
-        $ sudo dumpe2fs /dev/hda5 | grep Block\ size
-        dumpe2fs 1.27 (8-Mar-2002)
-        Block size:               4096
+- James
+-- 
+James Morris
+<jmorris@intercode.com.au>
 
-        $ uname -rm
-        2.4.21-pre4-ac1 i686
-
-what silly thing am I not understanding here?

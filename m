@@ -1,34 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271716AbRHUPYb>; Tue, 21 Aug 2001 11:24:31 -0400
+	id <S271719AbRHUPbV>; Tue, 21 Aug 2001 11:31:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271718AbRHUPYU>; Tue, 21 Aug 2001 11:24:20 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:57106 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S271716AbRHUPYS>; Tue, 21 Aug 2001 11:24:18 -0400
+	id <S271720AbRHUPbL>; Tue, 21 Aug 2001 11:31:11 -0400
+Received: from smtp3.cern.ch ([137.138.131.164]:40895 "EHLO smtp3.cern.ch")
+	by vger.kernel.org with ESMTP id <S271719AbRHUPbA>;
+	Tue, 21 Aug 2001 11:31:00 -0400
+To: "David S. Miller" <davem@redhat.com>
+Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
 Subject: Re: Qlogic/FC firmware
-To: davem@redhat.com (David S. Miller)
-Date: Tue, 21 Aug 2001 16:26:55 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk, jes@sunsite.dk, linux-kernel@vger.kernel.org
-In-Reply-To: <no.id> from "David S. Miller" at Aug 21, 2001 07:46:28 AM
-X-Mailer: ELM [version 2.5 PL5]
+In-Reply-To: <no.id> <E15ZCmV-00080q-00@the-village.bc.nu> <20010821.074720.118955855.davem@redhat.com>
+From: Jes Sorensen <jes@sunsite.dk>
+Date: 21 Aug 2001 17:29:37 +0200
+In-Reply-To: "David S. Miller"'s message of "Tue, 21 Aug 2001 07:47:20 -0700 (PDT)"
+Message-ID: <d3ofp98m8u.fsf@lxplus015.cern.ch>
+User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15ZDQd-00085r-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> We saved nothing, __init_data the firmware, problem solved.
+>>>>> "David" == David S Miller <davem@redhat.com> writes:
 
-Except when its modular, as in 99% of distro kernels
+David>    From: Alan Cox <alan@lxorguk.ukuu.org.uk> Date: Tue, 21 Aug
+David> 2001 15:45:26 +0100 (BST)
+   
+>    Ok so you have a sparc specific firmware loading problem.
 
-> If the firmware was out of date, update it to a known "Qlogic stamp of
-> approval" version.
+David> No, it is a non-x86 firmware loading problem.  Do not label it
+David> is as a "all the world a Sparc" problem, it isn't centric to
+David> any particular platform.
 
-That requires sorting licensing out with Qlogic. I've talked to them
-usefully about other stuff so I'll pursue it for a seperate firmware
-loader module.
+It's centric to a limited userbase, other systems such as Alpha and
+ia64 can load the firmware off the cards no problem.
 
-Alan
+Doesn't mean we have solved your problem, true. But initrd is still a
+cleaner solution and gets around the licensing problem as well.
+
+Jes

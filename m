@@ -1,43 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263358AbVBENzo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267419AbVBEOI5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263358AbVBENzo (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Feb 2005 08:55:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264978AbVBENzn
+	id S267419AbVBEOI5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Feb 2005 09:08:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267417AbVBEOI5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Feb 2005 08:55:43 -0500
-Received: from scrat.cs.umu.se ([130.239.40.18]:54709 "EHLO scrat.cs.umu.se")
-	by vger.kernel.org with ESMTP id S263358AbVBENzY (ORCPT
+	Sat, 5 Feb 2005 09:08:57 -0500
+Received: from mail1.kontent.de ([81.88.34.36]:56512 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S273566AbVBEOIe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Feb 2005 08:55:24 -0500
-Date: Sat, 5 Feb 2005 14:55:10 +0100
-From: Peter Hagervall <hager@cs.umu.se>
-To: linux-kernel@vger.kernel.org
-Cc: greg@kroah.com
-Subject: [PATCH] arch/i386/kernel/pci-dma.c Remove some sparse warnings
-Message-ID: <20050205135510.GA20631@peppar.cs.umu.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 5 Feb 2005 09:08:34 -0500
+From: Oliver Neukum <oliver@neukum.org>
+To: Adrian Bunk <bunk@stusta.de>
+Subject: Re: [2.6 patch] remove drivers/char/tpqic02.c
+Date: Sat, 5 Feb 2005 15:08:18 +0100
+User-Agent: KMail/1.7.1
+Cc: linux-kernel@vger.kernel.org
+References: <20050205114047.GA3129@stusta.de>
+In-Reply-To: <20050205114047.GA3129@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Message-Id: <200502051508.18813.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Not sure if this is the correct way of fixing this, but at least it
-compiles cleanly and seems to work for me.
+Am Samstag, 5. Februar 2005 12:40 schrieb Adrian Bunk:
+> Since at about half a year, this driver was no longer selectable via
+> Kconfig.
 
+What happened when you ran oldconfig with a .config that had it set?
 
---- linux-bk/arch/i386/kernel/pci-dma.c	2005-02-03 18:11:54.000000000 +0100
-+++ linux/arch/i386/kernel/pci-dma.c	2005-02-05 12:47:05.000000000 +0100
-@@ -14,7 +14,7 @@
- #include <asm/io.h>
- 
- struct dma_coherent_mem {
--	void		*virt_base;
-+	void __iomem	*virt_base;
- 	u32		device_base;
- 	int		size;
- 	int		flags;
-
-
--- 
-Peter Hagervall <hager@cs.umu.se>
+	Regards
+		Oliver

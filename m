@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266619AbTGKHs4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jul 2003 03:48:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269813AbTGKHs4
+	id S269824AbTGKHws (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jul 2003 03:52:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269832AbTGKHws
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 03:48:56 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:34523 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S266619AbTGKHsz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 03:48:55 -0400
-Date: Fri, 11 Jul 2003 10:03:35 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.75 does not boot - TCQ oops
-Message-ID: <20030711080335.GD843@suse.de>
-References: <200307102251.42787.ivg2@cornell.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 11 Jul 2003 03:52:48 -0400
+Received: from mail-in-01.arcor-online.net ([151.189.21.41]:53661 "EHLO
+	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
+	id S269824AbTGKHvr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jul 2003 03:51:47 -0400
+From: Daniel Phillips <phillips@arcor.de>
+To: Davide Libenzi <davidel@xmailserver.org>
+Subject: Re: 2.5.74-mm1
+Date: Fri, 11 Jul 2003 10:07:49 +0200
+User-Agent: KMail/1.5.2
+Cc: Peter Chubb <peter@chubb.wattle.id.au>, Jamie Lokier <jamie@shareable.org>,
+       Mel Gorman <mel@csn.ul.ie>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Memory Management List <linux-mm@kvack.org>
+References: <20030703023714.55d13934.akpm@osdl.org> <200307110304.11216.phillips@arcor.de> <Pine.LNX.4.55.0307102238420.3551@bigblue.dev.mcafeelabs.com>
+In-Reply-To: <Pine.LNX.4.55.0307102238420.3551@bigblue.dev.mcafeelabs.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200307102251.42787.ivg2@cornell.edu>
+Message-Id: <200307111007.50246.phillips@arcor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 10 2003, Ivan Gyurdiev wrote:
-> See, 
-> 
-> http://www.ussg.iu.edu/hypermail/linux/kernel/0307.0/0515.html
-> 
-> where the bug is described for 2.5.74.
-> I got no replies, and the bug persists in 2.5.75 (+bk patches).
-> 
-> Note:
-> The machine boots with TASKFILE on, TCQ is causing the problem.
+On Friday 11 July 2003 07:44, Davide Libenzi wrote:
+> http://www.xmailserver.org/linux-patches/softrr.html
 
-Looks like IDE using the queue before it has been setup, probably Bart
-broke it when he moved the TCQ init around. I'll take a look.
+:-)
 
--- 
-Jens Axboe
+Regards,
+
+Daniel
 

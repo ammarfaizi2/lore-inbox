@@ -1,93 +1,107 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291863AbSBHVnQ>; Fri, 8 Feb 2002 16:43:16 -0500
+	id <S291868AbSBHV4A>; Fri, 8 Feb 2002 16:56:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291868AbSBHVnH>; Fri, 8 Feb 2002 16:43:07 -0500
-Received: from moutvdom01.kundenserver.de ([195.20.224.200]:53117 "EHLO
-	moutvdom01.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S291863AbSBHVm5>; Fri, 8 Feb 2002 16:42:57 -0500
-Date: Fri, 8 Feb 2002 22:48:38 +0100
-From: Heinz Diehl <hd@cavy.de>
-To: Pavel Machek <pavel@suse.cz>
-Cc: linux-kernel@vger.kernel.org, viro@math.psu.edu
-Subject: Re: Warning, 2.5.3 eats filesystems
-Message-ID: <20020208214838.GA1129@chiara.cavy.de>
-Mail-Followup-To: Pavel Machek <pavel@suse.cz>,
-	linux-kernel@vger.kernel.org, viro@math.psu.edu
-In-Reply-To: <20020206233051.GA503@chiara.cavy.de> <Pine.GSO.4.21.0202061836450.22680-100000@weyl.math.psu.edu> <20020208105050.GA175@elf.ucw.cz>
+	id <S287781AbSBHVzt>; Fri, 8 Feb 2002 16:55:49 -0500
+Received: from orange.csi.cam.ac.uk ([131.111.8.77]:16539 "EHLO
+	orange.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S291871AbSBHVzf>; Fri, 8 Feb 2002 16:55:35 -0500
+Message-Id: <5.1.0.14.2.20020208211308.0385b910@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Fri, 08 Feb 2002 21:55:32 +0000
+To: yodaiken@fsmlabs.com
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: [RFC] New locking primitive for 2.5
+Cc: nigel@nrg.org, Christoph Hellwig <hch@ns.caldera.de>,
+        Ingo Molnar <mingo@elte.hu>, yodaiken <yodaiken@fsmlabs.com>,
+        Martin Wirth <Martin.Wirth@dlr.de>,
+        linux-kernel <linux-kernel@vger.kernel.org>, akpm <akpm@zip.com.au>,
+        torvalds <torvalds@transmeta.com>, rml <rml@tech9.net>
+In-Reply-To: <20020208133851.B11590@hq.fsmlabs.com>
+In-Reply-To: <5.1.0.14.2.20020208174632.00b0dad0@pop.cus.cam.ac.uk>
+ <200202081231.g18CV7e31341@ns.caldera.de>
+ <Pine.LNX.4.40.0202080838230.3883-100000@cosmic.nrg.org>
+ <5.1.0.14.2.20020208174632.00b0dad0@pop.cus.cam.ac.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020208105050.GA175@elf.ucw.cz>
-User-Agent: Mutt/1.5.0-hc8-current-20020125i (Linux 2.4.18-pre8-mjc i586)
-Organization: private site in Mannheim/Germany
-X-PGP-Key: To get my public-key, send mail with subject 'get pgpkey'
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri Feb 08 2002, Pavel Machek wrote:
+At 20:38 08/02/02, yodaiken@fsmlabs.com wrote:
+>On Fri, Feb 08, 2002 at 08:14:32PM +0000, Anton Altaparmakov wrote:
+> > The value of allowing multiple cpus to read the same data 
+> simultaneously by
+> > far offsets the priority problems IMVHO. At least the way I am using rw
+> > semaphores in ntfs it is. Readlocks are grabbed loads and loads of 
+> times to
+> > serialize meta data access in the page cache while writelocks are a minute
+> > number in comparison and because the data required to be accessed may not
+>
+>this is absolutely correct. However, once the decision has been made or
+>fallen into to go to a priority inherit scheme, Linux will find itself
+>in the same bind as Solaris.
+>
+> > be cached in memory (page cache page is not read in, is swapped out,
+> > whatever) a disk access may be required which means a rw spin lock is no
+> > good. In fact ntfs would be the perfect candidate for automatic rw combi
+> > locks where the locking switches from spinning to sleeping if the code 
+> path
+> > reaches a disk access. I can't use a manually controlled lock as the page
+>
+>Seem like the lock is simply grabbed way to far up.
 
-> For me, mounted filesystems look like this:
-[....]
+It cannot be taken any later. NTFS is a database both in memory and on disk 
+and in fact the in memory meta data is the on-disk structures (i.e. no 
+conversion between the two is performed, except in few speed optimization 
+cases and in cases where meta data is compressed on disk).
 
-Yep. I sent the "mount" output already to Alexander Viro, unfortunately I
-did not Cc: the mail to lkml.
+Because everything is ogranized in database records, I need to grab the 
+lock as soon as I intend to access the record (in fact the lock itself is 
+taken by map_mft_record(READ or WRITE) which returns a locked record, that 
+is mapped and pinned in memory, to the caller. I can then do all sorts of 
+things with the record, like search it, parse data from it, etc. When 
+finished I unmap_mft_record(READ or WRITE) which undoes everything 
+map_mft_record() did, i.e. unpins the record, unmaps it and releases the lock.
 
-/dev/hda1 on / type ext2 (rw)
-proc on /proc type proc (rw)
-/dev/hda6 on /usr type ext2 (rw)
-/dev/hda5 on /home type ext2 (rw)
-/dev/hdb5 on /var/spool/news type ext2 (rw)
-tmpfs on /dev/shm type shm (rw)
-tmpfs on /tmp type tmpfs (rw)
-tmpfs on /var/tmp type tmpfs (rw)
+All transactions with the on disk storage are done via the page cache and 
+read_cache_page() using a special readpage() and a special async io 
+completion handler.
 
-00:07.1 IDE interface: VIA Technologies, Inc. VT82C586 IDE [Apollo] (rev06) 
-        (prog-if 8a [Master SecP PriP])
-        Flags: bus master, medium devsel, latency 64
-	I/O ports at e000 [size=16]
+Because of the abstraction of access layers it is undesirable to operate on 
+the same locks in different layers, hence the top most layer is the one 
+locking and unlocking the records. The lower layers don't even know the 
+locks exist. Also pushing the lock deep into the layers is not actually 
+possible as it would probably need to be taken in reac_cache_page() (the 
+only place where the code knows if the page is present in memory or not and 
+a disk access is required) which is a VFS/MM function and hence that is not 
+an option.
 
-[....]
-Uniform Multi-Platform E-IDE driver Revision: 6.31
-ide: Assuming 33MHz system bus speed for PIO modes
-VP_IDE: IDE controller on PCI bus 00 dev 39
-VP_IDE: chipset revision 6
-VP_IDE: not 100% native mode: will probe irqs later
-VP_IDE: VIA vt82c586b (rev 41) IDE UDMA33 controller on pci00:07.1
-ide0: BM-DMA at 0xe000-0xe007, BIOS settings: hda:DMA, hdb:DMA
-ide1: BM-DMA at 0xe008-0xe00f, BIOS settings: hdc:DMA, hdd:DMA
-hda: IBM-DHEA-36481, ATA DISK drive
-hdb: Conner Peripherals 1275MB - CFS1275A, ATA DISK drive
-hdc: CD-540E, ATAPI CD/DVD-ROM drive
-hdd: CD-W54E, ATAPI CD/DVD-ROM drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide1 at 0x170-0x177,0x376 on irq 15
-hda: 12692736 sectors (6499 MB) w/472KiB Cache, CHS=790/255/63, UDMA(33)
-hdb: 2496876 sectors (1278 MB) w/64KiB Cache, CHS=2477/16/63, DMA
-[....]
+Further, I may need to allocate memory in order to store decompressed 
+metadata for example but I won't know if I need to do that until I have 
+already locked the record and accessed it to determine if the metadata is 
+compressed or not.
 
-chiara:~ # hdparm /dev/hda /dev/hdb
-/dev/hda:
-multcount    = 16 (on)
-I/O support  =  3 (32-bit w/sync)
-unmaskirq    =  1 (on)
-using_dma    =  1 (on)
-keepsettings =  0 (off)
-nowerr       =  0 (off)
-readonly     =  0 (off)
-readahead    =  8 (on)
-geometry     = 790/255/63, sectors = 12692736, start = 0
+So basically I can only obtain sufficient info for deciding what lock I 
+need after I have already accessed parts of the record, but to access it I 
+need to have locked it. Chicken and egg situation... So the locks are 
+always semaphores and are taken in the top layer.
 
-/dev/hdb:
-multcount    =  8 (on)
-I/O support  =  3 (32-bit w/sync)
-unmaskirq    =  1 (on)
-using_dma    =  1 (on)
-keepsettings =  0 (off)
-nowerr       =  0 (off)
-readonly     =  0 (off)
-readahead    =  8 (on)
-geometry     = 619/64/63, sectors = 2496876, start = 0
-	 
+A combi lock would allow spinning in the case where it turns out the code 
+paths will not hit disk or sleep in kmalloc, etc and sleeping in the 
+disk/kmalloc hit case.
+
+(Yes I know atomic kmalloc exists but I actually need vmalloc in some cases 
+depending how much memory I need to handle the metadata...)
+
+Best regards,
+
+Anton
+
+
 -- 
-# Heinz Diehl, 68259 Mannheim, Germany
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+

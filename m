@@ -1,51 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262374AbSJEPZj>; Sat, 5 Oct 2002 11:25:39 -0400
+	id <S262380AbSJEPgp>; Sat, 5 Oct 2002 11:36:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262375AbSJEPZj>; Sat, 5 Oct 2002 11:25:39 -0400
-Received: from CompactServ-SUrNet.ll.surnet.ru ([195.54.9.58]:61941 "EHLO
-	zzz.zzz") by vger.kernel.org with ESMTP id <S262374AbSJEPZj>;
-	Sat, 5 Oct 2002 11:25:39 -0400
-Date: Sat, 5 Oct 2002 21:30:14 +0600
-From: Denis Zaitsev <zzz@cd-club.ru>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [TRIVIAL] 2.5.40 de2104x: a lots of timer messages
-Message-ID: <20021005213014.A320@natasha.zzz.zzz>
-References: <20021004225051.B346@natasha.zzz.zzz> <3D9DF1EB.8040807@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3D9DF1EB.8040807@pobox.com>; from jgarzik@pobox.com on Fri, Oct 04, 2002 at 03:54:19PM -0400
+	id <S262379AbSJEPgp>; Sat, 5 Oct 2002 11:36:45 -0400
+Received: from mons.uio.no ([129.240.130.14]:59124 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S262377AbSJEPgl>;
+	Sat, 5 Oct 2002 11:36:41 -0400
+Message-ID: <3D9F084F.1020200@karlsbakk.net>
+Date: Sat, 05 Oct 2002 17:42:07 +0200
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jakob Oestergaard <jakob@unthought.net>
+CC: Kernel mailing list <linux-kernel@vger.kernel.org>,
+       linux-raid@vger.kernel.org
+Subject: Re: AARGH! Please help. IDE controller fsckup
+References: <200210021516.46668.roy@karlsbakk.net> <200210031225.11283.roy@karlsbakk.net> <20021003114020.GD7350@unthought.net> <200210031513.28459.roy@karlsbakk.net> <20021003132349.GE7350@unthought.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 04, 2002 at 03:54:19PM -0400, Jeff Garzik wrote:
-> Denis Zaitsev wrote:
-> > This patch fixes a lots of annoying timer messages for this ethernet
-> > adapter.  Please, apply it.
-> 
-> 
-> If the messages annoy you, disable that bit using ethtool.  It's not 
-> necessary to hack the driver for this.
-> 
+Jakob Oestergaard wrote:
 
-It's hard to really call that a "hack"...
-And do you want to say that you won't be annoyed, if each minute you
-have on your console the message:
+>>>>But ... with persistent superblock - is it possible to fsckup the raid?
+>>>>        
+>>>>
+>>>You're root, it is indeed possible  :)
+>>>      
+>>>
+>>er - yes. I more meant like 'automagically'
+>>    
+>>
+>
+>It will only automagically screw up your arrays if you shuffle disks
+>between machines (mix several RAID arrays from other systems in one
+>system)  (you can of course move all your disks to one new machine, if
+>it has none of it's original RAIDed disks left).
+>
+>Just don't mix disks with persistent superblocks from multiple machines
+>into one single machine.  Unless you know exactly what you're doing.
+>  
+>
+Could it be some kind of idea to 'sign' the disks with some hash out of 
+hostname and  IP or something?
 
-        eth0: 10baseT auto link ok, mode 7ffc2002 status 51c8
+roy
 
-I.e. 1440 of the same messages per day...  So, will you?  Or another
-approach: the only one of all the other drivers/net use
-NETIF_MSG_TIMER included into xxx_DEF_MSG_ENABLE, and this one is
-Tigon3 driver, which is, again, your.  And no one else.  And this
-silence seems to be a some kind of a "normal" behaviour, doesn't it?
-And no one of other drivers needs ethtool to be just silent...
 
-Or, may be there are some reasons for such a verbosing, I just don't
-know about?
-
-And, important: of course, I had to send the patch to you.  I'm sorry,
-for some reason I decided that the driver is unmaintained for the some
-time.

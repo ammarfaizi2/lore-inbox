@@ -1,60 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268690AbUILMSN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268689AbUILMcH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268690AbUILMSN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Sep 2004 08:18:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268695AbUILMSN
+	id S268689AbUILMcH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Sep 2004 08:32:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268702AbUILMcH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Sep 2004 08:18:13 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:2235 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S268690AbUILMSL (ORCPT
+	Sun, 12 Sep 2004 08:32:07 -0400
+Received: from ozlabs.org ([203.10.76.45]:37774 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S268689AbUILMcF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Sep 2004 08:18:11 -0400
-Subject: Re: /proc/sys/kernel/pid_max issues
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Anton Blanchard <anton@samba.org>
+	Sun, 12 Sep 2004 08:32:05 -0400
+Date: Sun, 12 Sep 2004 22:30:00 +1000
+From: Anton Blanchard <anton@samba.org>
+To: Arjan van de Ven <arjanv@redhat.com>
 Cc: linux-kernel@vger.kernel.org, mingo@elte.hu,
        viro@parcelfarce.linux.theplanet.co.uk, wli@holomorphy.com
-In-Reply-To: <20040912085609.GK32755@krispykreme>
-References: <20040912085609.GK32755@krispykreme>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-i0A6oVaUNP9T5pXrBREW"
-Organization: Red Hat UK
-Message-Id: <1094991480.2626.0.camel@laptop.fenrus.com>
+Subject: Re: /proc/sys/kernel/pid_max issues
+Message-ID: <20040912122959.GN25741@krispykreme>
+References: <20040912085609.GK32755@krispykreme> <1094991480.2626.0.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sun, 12 Sep 2004 14:18:00 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1094991480.2626.0.camel@laptop.fenrus.com>
+User-Agent: Mutt/1.5.6+20040818i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ 
+> there are a lot of other reasons why you can't go over 64k threads ;)
+> (esp on a 32 bit machine)
 
---=-i0A6oVaUNP9T5pXrBREW
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+After all the effort of going to 4kB stacks on x86? :)
 
-On Sun, 2004-09-12 at 10:56, Anton Blanchard wrote:
-> Hi,
->=20
-> I tried creating 100,000 threads just for the hell of it. I was
-> surprised that it appears to have worked even with pid_max set at 32k.
+> such as all the 16 bit counters in rwsems etc etc... 
+> Just Say No(tm) :)
 
-there are a lot of other reasons why you can't go over 64k threads ;)
-(esp on a 32 bit machine)
+Hmm can you point the 16bit counter out? I can create 1 million NPTL
+threads on ppc64 easily, so why not?
 
-such as all the 16 bit counters in rwsems etc etc...=20
-Just Say No(tm) :)
+As Ingo points out the same proc inode overflow happens with
+applications with lots of FDs. 
 
-
---=-i0A6oVaUNP9T5pXrBREW
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBBRD54xULwo51rQBIRAqnoAJ9jBM+4C3s9YcDYwJLSz7SyM3LP4gCgg4aB
-kRkf5kdIituEPwTZqewCqpE=
-=9rVz
------END PGP SIGNATURE-----
-
---=-i0A6oVaUNP9T5pXrBREW--
-
+Anton

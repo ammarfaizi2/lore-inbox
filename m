@@ -1,76 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261349AbVACAO5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261352AbVACAWo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261349AbVACAO5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jan 2005 19:14:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261352AbVACAO5
+	id S261352AbVACAWo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jan 2005 19:22:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261353AbVACAWo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jan 2005 19:14:57 -0500
-Received: from pop.gmx.de ([213.165.64.20]:28810 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261349AbVACAOy (ORCPT
+	Sun, 2 Jan 2005 19:22:44 -0500
+Received: from holomorphy.com ([207.189.100.168]:52886 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S261352AbVACAWl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jan 2005 19:14:54 -0500
-X-Authenticated: #438326
-From: Michael Geithe <warpy@gmx.de>
-To: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: 2.6.10-bk5
-Date: Mon, 3 Jan 2005 01:14:55 +0100
-User-Agent: KMail/1.7.2
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Sun, 2 Jan 2005 19:22:41 -0500
+Date: Sun, 2 Jan 2005 16:19:17 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: William Lee Irwin III <wli@debian.org>, Andries Brouwer <aebr@win.tue.nl>,
+       Maciej Soltysiak <solt2@dns.toxicfilms.tv>,
+       linux-kernel@vger.kernel.org
+Subject: Re: starting with 2.7
+Message-ID: <20050103001917.GO29332@holomorphy.com>
+References: <1697129508.20050102210332@dns.toxicfilms.tv> <20050102203615.GL29332@holomorphy.com> <20050102212427.GG2818@pclin040.win.tue.nl> <20050102214211.GM29332@holomorphy.com> <20050102221534.GG4183@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200501030114.55399.warpy@gmx.de>
-X-Y-GMX-Trusted: 0
+In-Reply-To: <20050102221534.GG4183@stusta.de>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-when booting 2.6.10-bk5, my box generate the following:
+On Sun, Jan 02, 2005 at 01:42:11PM -0800, William Lee Irwin III wrote:
+>> This is not optimism. This is experience. Every ``stable'' kernel I've
+>> seen is a pile of incredibly stale code where vi'ing any file in it
+>> instantly reveals numerous months or years old bugs fixed upstream.
+>> What is gained in terms of reducing the risk of regressions is more
+>> than lost by the loss of critical examination and by a long longshot.
+
+On Sun, Jan 02, 2005 at 11:15:34PM +0100, Adrian Bunk wrote:
+> The main advantage with stable kernels in the good old days (tm) when 4 
+> and 6 were even numbers was that you knew if something didn't work, and 
+> upgrading to a new kernel inside this stable kernel series had a 
+> relatively low risk of new breakages. This meant one big migration every 
+> few years and relatively easy upgrades between stable series kernels.
+
+This never saved anyone any pain. 2.4.x was not the stable kernel
+you're painting it to be until 2.4.20 or later, and by the time it
+became so the fixes for major regressions that occurred during 2.3.x
+were deemphasized and ignored for anything prior to 2.6.x.
 
 
- BIOS-provided physical RAM map:
- BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
- BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
- BIOS-e820: 00000000000d4000 - 00000000000de014 (reserved)
- BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved)
- BIOS-e820: 0000000000100000 - 000000003fff0000 (usable)
- BIOS-e820: 000000003fff0000 - 000000003fff8000 (ACPI data)
- BIOS-e820: 000000003fff8000 - 0000000040000000 (ACPI NVS)
- BIOS-e820: 00000000fec00000 - 00000000fec01000 (reserved)
- BIOS-e820: 00000000fee00000 - 00000000fee01000 (reserved)
- BIOS-e820: 00000000fff00000 - 0000000100000000 (reserved)
-127MB HIGHMEM available.
-896MB LOWMEM available.
-found SMP MP-table at 000fc0f0
-On node 0 totalpages: 262128
-  DMA zone: 4096 pages, LIFO batch:1
-  Normal zone: 225280 pages, LIFO batch:16
-  HighMem zone: 32752 pages, LIFO batch:7
-DMI 2.3 present.
-__iounmap: bad address c00f0000
-ACPI: RSDP (v000 AMI                                   ) @ 0x000fa380
-ACPI: RSDT (v001 AMIINT INTEL875 0x00000010 MSFT 0x00000097) @ 0x3fff0000
-ACPI: FADT (v001 AMIINT INTEL875 0x00000011 MSFT 0x00000097) @ 0x3fff0030
-ACPI: MADT (v001 AMIINT INTEL875 0x00000009 MSFT 0x00000097) @ 0x3fff00c0
-ACPI: DSDT (v001  INTEL     I875 0x00001000 MSFT 0x0100000d) @ 0x00000000
+On Sun, Jan 02, 2005 at 11:15:34PM +0100, Adrian Bunk wrote:
+> Nowadays in 2.6, every new 2.6 kernel has several regressions compared 
+> to the previous one, and additionally obsolete but used code like 
+> ipchains and devfs is scheduled for removal making upgrades even harder 
+> for many users.
 
-These warnings/errors are new since 2.6.10-bk2
-__iounmap: bad address c00f0000
+My experience tells me that the number of regressions in 2.6.x compared
+to purportedly ``far stabler'' kernels is about the same or (gasp!)
+less. So the observable advantage of the ``frozen'' or ``stable'' model
+is less than or equal to zero.
+
+Frankly, kernel hacking is a difficult enough task (not that I
+personally find it so) that frivolous patches are not overwhemingly
+numerous. The ``barrier'' you're erecting is primarily acting as a
+barrier to fixes, not bugs.
 
 
-Mainboard MSI 875P NEO-LSR
-Linux 2.6.10-bk5 #1 SMP Sun Jan 2 15:29:57 CET 2005 i686 Intel(R) Pentium(R) 4 
-CPU 2.80GHz GenuineIntel GNU/Linux
+On Sun, Jan 02, 2005 at 11:15:34PM +0100, Adrian Bunk wrote:
+> There's the point that most users should use distribution kernels, but 
+> consider e.g. that there are poor souls with new hardware not supported 
+> by the 3 years old 2.4.18 kernel in the stable part of your Debian 
+> distribution.
 
--- 
-Michael Geithe
+Again, the loss of critical examination far outweighs the purported
+defense against regressions. The most typical result of playing the fix
+backporting game for extended periods of time is numerous rounds of
+months-long bughunts for bugs whose fixes were merged years ago upstream.
+When the bugs are at long last found, they are discovered to fix the
+problems of hundreds of users until the next such problem surfaces.
 
 
-
-
-
-
-
-
-
+-- wli

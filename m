@@ -1,33 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288926AbSA2H4V>; Tue, 29 Jan 2002 02:56:21 -0500
+	id <S288925AbSA2IIx>; Tue, 29 Jan 2002 03:08:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288925AbSA2H4L>; Tue, 29 Jan 2002 02:56:11 -0500
-Received: from dsl-213-023-043-145.arcor-ip.net ([213.23.43.145]:11137 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S288926AbSA2Hz5>;
-	Tue, 29 Jan 2002 02:55:57 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Andrew Pimlott <andrew@pimlott.ne.mediaone.net>,
-        Rob Landley <landley@trommello.org>
-Subject: Re: A modest proposal -- We need a patch penguin
-Date: Tue, 29 Jan 2002 09:00:00 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200201282213.g0SMDcU25653@snark.thyrsus.com> <20020129005155.A6726@pimlott.ne.mediaone.net>
-In-Reply-To: <20020129005155.A6726@pimlott.ne.mediaone.net>
+	id <S288930AbSA2IIm>; Tue, 29 Jan 2002 03:08:42 -0500
+Received: from dns.uni-trier.de ([136.199.8.101]:47286 "EHLO
+	rzmail.uni-trier.de") by vger.kernel.org with ESMTP
+	id <S288925AbSA2IIh>; Tue, 29 Jan 2002 03:08:37 -0500
+Date: Tue, 29 Jan 2002 09:07:51 +0100 (CET)
+From: Daniel Nofftz <nofftz@castor.uni-trier.de>
+X-X-Sender: nofftz@infcip10.uni-trier.de
+To: "Calin A. Culianu" <calin@ajvar.org>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Steven Hassani <hassani@its.caltech.edu>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Athlon Optimization Problem
+In-Reply-To: <Pine.LNX.4.30.0201281551250.2376-100000@rtlab.med.cornell.edu>
+Message-ID: <Pine.LNX.4.40.0201290900490.7168-100000@infcip10.uni-trier.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16VTBQ-00008x-00@starship.berlin>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On January 29, 2002 06:51 am, Andrew Pimlott wrote:
-> Three, regarding your complaint about "clean-up" patches being
-> dropped: maybe this just means there is a maintainer missing from
-> the pantheon: the clean-up maintainer.
+On Mon, 28 Jan 2002, Calin A. Culianu wrote:
 
-Oh, you mean acme :-)
+> Hmm.  What do you recommend?  I remember seeing a spec sheet and register
+> 0x95 was the memory write queue timer.. but I could have dreamed it..
+>
+> Anyone know what register 0x95 does?
 
--- 
-Daniel
+hmmm ... when i was working on the athlon disconnect patch i found that
+the pcr files (resorce files) for the wpcredit programm (windows tool for
+changing the configuration of chipset) are a good source of information.
+but this register isn't discribed in this file ... sorry
+
+daniel
+(i placed the pcr file on the web, if you are interested, have a look at:
+http://cip.uni-trier.de/nofftz/linux/kt266_pcr.txt ... the webserver is
+down at the moment, but should be up again in 1-2 hours)
+
+
+# Daniel Nofftz
+# Sysadmin CIP-Pool Informatik
+# University of Trier(Germany), Room V 103
+# Mail: daniel@nofftz.de
+

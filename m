@@ -1,40 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274194AbRJNEcD>; Sun, 14 Oct 2001 00:32:03 -0400
+	id <S274244AbRJNE5N>; Sun, 14 Oct 2001 00:57:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274244AbRJNEbx>; Sun, 14 Oct 2001 00:31:53 -0400
-Received: from ppp-RAS1-2-181.dialup.eol.ca ([64.56.225.181]:10763 "EHLO
-	node0.opengeometry.ca") by vger.kernel.org with ESMTP
-	id <S274194AbRJNEbn>; Sun, 14 Oct 2001 00:31:43 -0400
-Date: Sun, 14 Oct 2001 00:31:36 -0400
-From: William Park <opengeometry@yahoo.ca>
-To: pd <pdickson@att.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PCI modem doesn't work after 2.4.2->2.4.10 upgrade
-Message-ID: <20011014003136.A2031@node0.opengeometry.ca>
-Mail-Followup-To: pd <pdickson@att.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <01101319043002.01369@gabrielle.pdickson.newboston.nh.us> <20011013190658.A32535@hapablap.dyn.dhs.org> <p04320401b7eeb405a4a8@[12.79.180.246]>
-Mime-Version: 1.0
+	id <S274248AbRJNE5E>; Sun, 14 Oct 2001 00:57:04 -0400
+Received: from gear.torque.net ([204.138.244.1]:53771 "EHLO gear.torque.net")
+	by vger.kernel.org with ESMTP id <S274244AbRJNE4v>;
+	Sun, 14 Oct 2001 00:56:51 -0400
+Message-ID: <3BC919DE.7E3C9F23@torque.net>
+Date: Sun, 14 Oct 2001 00:51:42 -0400
+From: Douglas Gilbert <dougg@torque.net>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.10 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linux Bigot <linuxopinion@yahoo.com>, linux-kernel@vger.kernel.org
+CC: linux-scsi@vger.kernel.org
+Subject: Re: SCSI driver query
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <p04320401b7eeb405a4a8@[12.79.180.246]>; from pdickson@att.net on Sat, Oct 13, 2001 at 11:21:58PM -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 13, 2001 at 11:21:58PM -0400, pd wrote:
-> >Unlike 2.4.2, 2.4.10 can automatically detect and configure PCI modems.
-> >That's why its already in use to setserial.  The kernel has already
-> >found your modem, and assigned it ttyS4 (0-3 are reserved for the
-> >standard COM1-4).  Theoretically, then, all you have to do is relink
-> >/dev/modem to /dev/ttyS4, and you should be set.
-> 
-> That is exactly what it turned out to be.  Tnx.  Works fine now.
+Linux Bigot <linuxopinion@yahoo.com> wrote:
 
-Hi pd,
+> How is the ioctl() entry point in Scsi_Host_Template
+> used. What device node is associated with it and what
+> all commands can be passed down through this
+> interface.
 
-Which PCI modem do you have?
+That ioctl can be accessed (if defined) via a "trickle
+down" ioctl call to any open SCSI device name (e.g. /dev/sda).
 
--- 
-William Park, Open Geometry Consulting, <opengeometry@yahoo.ca>
-8 CPU cluster, Linux (Slackware), Python, LaTeX, Vim, Mutt, Tin
+When an ioctl is called on an open SCSI device name
+then the first match in the following list processes
+it:
+   - the associated upper level SCSI driver looks for 
+     a match on the ioctl 'cmd' number
+   - the mid-level looks for a match on the ioctl
+     'cmd' number
+   - otherwise if Scsi_Host_Template::ioctl is non-NULL
+     then it is called for the given SCSI device with
+     the 'cmd' and 'arg' of the original user ioctl call
+
+A SCSI lower level (adapter) driver is not required to
+support Scsi_Host_Template::ioctl in which case it will
+be NULL. If it is supported then it is up to that adapter
+driver what is supported.
+
+
+This mechanism only allows an adapter which has attached 
+SCSI devices to be sent an ioctl. The proc_fs interface
+may be useful for contacting an adapter driver even if it
+doesn't have any attached devices. Something like:
+ $ echo "<some_command>" > /proc/scsi/advansys/0
+
+
+Doug Gilbert

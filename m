@@ -1,68 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270980AbTHCJKe (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Aug 2003 05:10:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271089AbTHCJKe
+	id S271107AbTHCJO0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Aug 2003 05:14:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271110AbTHCJOZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Aug 2003 05:10:34 -0400
-Received: from 3eea282f.cable.wanadoo.nl ([62.234.40.47]:64517 "EHLO
-	diana.kozmix.org") by vger.kernel.org with ESMTP id S270980AbTHCJK2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Aug 2003 05:10:28 -0400
-Date: Sun, 3 Aug 2003 11:10:07 +0200
-From: Sander van Malssen <svm@kozmix.org>
-To: Andrew Morton <akpm@osdl.org>, yoh@onerussian.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test2-bk3 phantom I/O errors
-Message-ID: <20030803091007.GA885@kozmix.org>
-Mail-Followup-To: Sander van Malssen <svm@kozmix.org>,
-	Andrew Morton <akpm@osdl.org>, yoh@onerussian.com,
-	linux-kernel@vger.kernel.org
-References: <20030729153114.GA30071@washoe.rutgers.edu> <20030729135025.335de3a0.akpm@osdl.org> <20030730170432.GA692@kozmix.org> <20030730120002.29c13b0c.akpm@osdl.org> <20030730191115.GA733@kozmix.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030730191115.GA733@kozmix.org>
-User-Agent: Mutt/1.4.1i
+	Sun, 3 Aug 2003 05:14:25 -0400
+Received: from [66.212.224.118] ([66.212.224.118]:23558 "EHLO
+	hemi.commfireservices.com") by vger.kernel.org with ESMTP
+	id S271107AbTHCJNs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Aug 2003 05:13:48 -0400
+Date: Sun, 3 Aug 2003 05:02:05 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: maz@wild-wind.fr.eu.org
+Subject: [PATCH][2.6] sprinkle __init* in drivers/eisa
+Message-ID: <Pine.LNX.4.53.0308030441530.3473@montezuma.mastecende.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday, 30 July 2003 at 21:11:15 +0200, Sander van Malssen wrote:
+Patch applies on top of previous virtual eisa bridge ->release() patch. 
+Otherwise one line reject.
 
-> On Wednesday, 30 July 2003 at 12:00:02 -0700, Andrew Morton wrote:
-> 
-> > OK, looks like the new readahead stuff confused the error reporting.
-> > 
-> > Does this make the error messages go away?
-> > 
-> > 
-> > diff -puN mm/readahead.c~a mm/readahead.c
-> > --- 25/mm/readahead.c~a	2003-07-30 11:58:07.000000000 -0700
-> > +++ 25-akpm/mm/readahead.c	2003-07-30 11:58:20.000000000 -0700
-> > @@ -96,7 +96,7 @@ static int read_pages(struct address_spa
-> >  	struct pagevec lru_pvec;
-> >  	int ret = 0;
-> >  
-> > -	current->flags |= PF_READAHEAD;
-> > +//	current->flags |= PF_READAHEAD;
-> >  
-> >  	if (mapping->a_ops->readpages) {
-> >  		ret = mapping->a_ops->readpages(filp, mapping, pages, nr_pages);
-> 
-> That seems to have fixed it!
-
-
-Well, that's funny. If I run a pristine test2-mm3-1 kernel I don't get
-those "Buffer I/O error on device ..." kernel messages anymore, but I do
-get the actual I/O error itself.
-
-Putting that dump_stack() call back into buffer_io_error() doesn't
-trigger a stack dump either. Different bug perhaps?
-
-
-Cheers,
-Sander
-
--- 
-     Sander van Malssen -- svm@kozmix.org -- http://www.kozmix.org/
-      http://www.peteandtommysdayout.com/ -- http://www.1-2-5.net/
+Index: linux-2.6.0-test2-mm2/drivers/eisa/eisa-bus.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.6.0-test2/drivers/eisa/eisa-bus.c,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 eisa-bus.c
+--- linux-2.6.0-test2-mm2/drivers/eisa/eisa-bus.c	30 Jul 2003 00:06:12 -0000	1.1.1.1
++++ linux-2.6.0-test2-mm2/drivers/eisa/eisa-bus.c	3 Aug 2003 08:57:10 -0000
+@@ -36,10 +36,10 @@ static struct eisa_device_info __initdat
+ #define EISA_MAX_FORCED_DEV 16
+ #define EISA_FORCED_OFFSET  2
+ 
+-static int enable_dev[EISA_MAX_FORCED_DEV + EISA_FORCED_OFFSET]  = { 1, EISA_MAX_FORCED_DEV, };
+-static int disable_dev[EISA_MAX_FORCED_DEV + EISA_FORCED_OFFSET] = { 1, EISA_MAX_FORCED_DEV, };
++static int __initdata enable_dev[EISA_MAX_FORCED_DEV + EISA_FORCED_OFFSET]  = { 1, EISA_MAX_FORCED_DEV, };
++static int __initdata disable_dev[EISA_MAX_FORCED_DEV + EISA_FORCED_OFFSET] = { 1, EISA_MAX_FORCED_DEV, };
+ 
+-static int is_forced_dev (int *forced_tab,
++static int __init is_forced_dev (int *forced_tab,
+ 			  struct eisa_root_device *root,
+ 			  struct eisa_device *edev)
+ {
+@@ -375,7 +375,7 @@ static struct resource eisa_root_res = {
+ 	.flags = IORESOURCE_IO,
+ };
+ 
+-static int eisa_bus_count;
++static int __initdata eisa_bus_count;
+ 
+ int __init eisa_root_register (struct eisa_root_device *root)
+ {
+Index: linux-2.6.0-test2-mm2/drivers/eisa/virtual_root.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.6.0-test2/drivers/eisa/virtual_root.c,v
+retrieving revision 1.2
+diff -u -p -B -r1.2 virtual_root.c
+--- linux-2.6.0-test2-mm2/drivers/eisa/virtual_root.c	3 Aug 2003 08:57:03 -0000	1.2
++++ linux-2.6.0-test2-mm2/drivers/eisa/virtual_root.c	3 Aug 2003 08:57:58 -0000
+@@ -21,7 +21,7 @@
+ #define EISA_FORCE_PROBE_DEFAULT 0
+ #endif
+ 
+-static int force_probe = EISA_FORCE_PROBE_DEFAULT;
++static int __initdata force_probe = EISA_FORCE_PROBE_DEFAULT;
+ static void virtual_eisa_release(struct device *);
+ 
+ /* The default EISA device parent (virtual root device).
+@@ -50,7 +50,7 @@ static void virtual_eisa_release (struct
+ 	return;
+ }
+ 
+-static int virtual_eisa_root_init (void)
++static int __init virtual_eisa_root_init (void)
+ {
+ 	int r;
+ 	

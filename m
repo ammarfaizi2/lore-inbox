@@ -1,46 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312455AbSDNUhq>; Sun, 14 Apr 2002 16:37:46 -0400
+	id <S312453AbSDNUg2>; Sun, 14 Apr 2002 16:36:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312457AbSDNUhp>; Sun, 14 Apr 2002 16:37:45 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:39431 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S312455AbSDNUho>; Sun, 14 Apr 2002 16:37:44 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: nanosleep
-Date: 14 Apr 2002 13:37:22 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <a9cpa2$36i$1@cesium.transmeta.com>
-In-Reply-To: <20020410055708.9474.qmail@fastermail.com> <1018418496.903.228.camel@phantasy> <20020413145306.A29006@ecam.san.rr.com>
-MIME-Version: 1.0
+	id <S312455AbSDNUg1>; Sun, 14 Apr 2002 16:36:27 -0400
+Received: from server0011.freedom2surf.net ([194.106.56.14]:33144 "EHLO
+	server0011.freedom2surf.net") by vger.kernel.org with ESMTP
+	id <S312453AbSDNUg0>; Sun, 14 Apr 2002 16:36:26 -0400
+Date: Sun, 14 Apr 2002 21:43:45 +0100
+From: Ian Molton <spyro@armlinux.org>
+To: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
+Cc: greg@kroah.com, linux-kernel@vger.kernel.org
+Subject: Re: usb-uhci *BUG*
+Message-Id: <20020414214345.677aa1f5.spyro@armlinux.org>
+In-Reply-To: <3CB9D940.8040303@wanadoo.fr>
+Reply-To: spyro@armlinux.org
+Organization: The dragon roost
+X-Mailer: Sylpheed version 0.7.4cvs5 (GTK+ 1.2.10; )
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20020413145306.A29006@ecam.san.rr.com>
-By author:    andrew may <acmay@acmay.homeip.net>
-In newsgroup: linux.dev.kernel
+Pierre Rousselet Awoke this dragon, who will now respond:
+
+> Ian Molton wrote:
+> > Its a VIA based board, and it /is/ an add-on card. its a 4 port OPTi
+> > based card.
 > 
-> Make all your calls to nanasleep be less than 2ms, and loop through as
-> many as you need until you are under 2ms.
+>  From FAQ on Alcatel site:
 > 
-> Don't do it for too long because you get no other use out of your machine
-> while your doing this but it does work.
-> 
+> Q11: My modem often powers down without any reason and I have to reboot 
+> to connect again.
 
-If you want to busy-wait, you might as well do it in userspace (use
-RDTSC.)
+the modem doesnt power down. all I get is an oops.
 
-Maybe a future version of the kernel will have more flexible
-scheduling.
+the machine is a k6-ii and is otherwise reliable (even with 100mbit
+ethernet).
 
-	-hpa
+I've been poking about and have replaced the BUG() with a printk("about to
+die!\n"), and return NULL.
 
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+I then hardened dl_reverse_done_list so it wouldnt die on receiving a NULL.
+
+this seems to have improved things a LITTLE. I see a few 'about to die's
+whizz by, and it stiffs shortly after.
+
+does that help anyone?

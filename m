@@ -1,46 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269000AbUIQQCW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269006AbUIQQDZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269000AbUIQQCW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Sep 2004 12:02:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268968AbUIQP5i
+	id S269006AbUIQQDZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Sep 2004 12:03:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269012AbUIQQDC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Sep 2004 11:57:38 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:16339 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S268998AbUIQP4o
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Sep 2004 11:56:44 -0400
-Subject: Re: [RFC][PATCH] inotify 0.9
-From: Robert Love <rml@novell.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Bill Davidsen <davidsen@tmr.com>, Jan Kara <jack@suse.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1095432696.26146.15.camel@localhost.localdomain>
-References: <Pine.LNX.3.96.1040916182127.20906B-100000@gatekeeper.tmr.com>
-	 <1095376979.23385.176.camel@betsy.boston.ximian.com>
-	 <1095377752.23913.3.camel@localhost.localdomain>
-	 <1095388176.20763.29.camel@localhost>
-	 <1095431960.26147.13.camel@localhost.localdomain>
-	 <1095436123.23385.182.camel@betsy.boston.ximian.com>
-	 <1095432696.26146.15.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Fri, 17 Sep 2004 11:55:41 -0400
-Message-Id: <1095436541.23385.183.camel@betsy.boston.ximian.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 1.5.94.1 
-Content-Transfer-Encoding: 7bit
+	Fri, 17 Sep 2004 12:03:02 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:59287 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S268995AbUIQP7v (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Sep 2004 11:59:51 -0400
+Date: Fri, 17 Sep 2004 17:59:44 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Yuval Turgeman <yuvalt@gmail.com>
+cc: sam@ravnborg.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Menuconfig search changes - pt. 3
+In-Reply-To: <9ae345c004091415197ea06621@mail.gmail.com>
+Message-ID: <Pine.LNX.4.61.0409171752540.877@scrub.home>
+References: <20040914121401.GA13531@aduva.com>  <Pine.LNX.4.61.0409141613050.877@scrub.home>
+ <9ae345c004091415197ea06621@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-09-17 at 15:51 +0100, Alan Cox wrote:
+Hi,
 
-> For the file change case I'm unconvinced, although it looks like it
-> could be done with the security module hooks and without kernel mods
-> beyond that.
+On Wed, 15 Sep 2004, Yuval Turgeman wrote:
 
-Everyone keeps telling me this.  I am unconvinced, too. ;-)
+> > This still prints duplicate information, look at how
+> > ConfigMainWindow::setHelp() in qconf.cc does it. Your function should have
+> > pretty much the same structure, e.g.
+> 
+> I don't understand - duplicate information of what ?
+> Can you perhaps give me an example (it seems to me that i am actually
+> doing what qconf is doing... printing all the P_SELECT of the all the
+> properties, printing the dependencies and the reverse dependencies) ?
 
-It should get more attention, though..
+try the following:
 
-	Robert Love
+config FOO
+	bool "foo1"
+	select BAR
 
+config FOO
+	bool "foo2"
 
+config BAR
+	bool "bar"
+
+> > here you should iterate over all properties and print the info about it.
+> 
+> The search prints out plenty of info already - what info do you think
+> is missing ?
+
+defaults are missing. Don't concentrate too much on the menu structure 
+(it's only relevant for the prompts), if you want to print information 
+about a symbol, you have to primarily work with the properties.
+
+bye, Roman

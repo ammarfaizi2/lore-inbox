@@ -1,42 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288285AbSAHUYZ>; Tue, 8 Jan 2002 15:24:25 -0500
+	id <S288283AbSAHUYP>; Tue, 8 Jan 2002 15:24:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288287AbSAHUYP>; Tue, 8 Jan 2002 15:24:15 -0500
-Received: from marine.sonic.net ([208.201.224.37]:12384 "HELO marine.sonic.net")
-	by vger.kernel.org with SMTP id <S288285AbSAHUYF>;
-	Tue, 8 Jan 2002 15:24:05 -0500
-X-envelope-info: <dalgoda@ix.netcom.com>
-Date: Tue, 8 Jan 2002 12:23:59 -0800
-From: Mike Castle <dalgoda@ix.netcom.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: PROBLEM: "shutdown -r now" (lilo, win98) (fwd)
-Message-ID: <20020108202358.GO22948@thune.mrc-home.com>
-Reply-To: Mike Castle <dalgoda@ix.netcom.com>
-Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.21.0201081952090.7547-100000@Consulate.UFP.CX> <E16O2eJ-0007VZ-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E16O2eJ-0007VZ-00@the-village.bc.nu>
-User-Agent: Mutt/1.3.24i
+	id <S288287AbSAHUYG>; Tue, 8 Jan 2002 15:24:06 -0500
+Received: from odin.allegientsystems.com ([208.251.178.227]:8833 "EHLO
+	lasn-001.allegientsystems.com") by vger.kernel.org with ESMTP
+	id <S288283AbSAHUYA>; Tue, 8 Jan 2002 15:24:00 -0500
+Message-ID: <3C3B555E.2000005@allegientsystems.com>
+Date: Tue, 08 Jan 2002 15:23:58 -0500
+From: Nathan Bryant <nbryant@allegientsystems.com>
+Organization: Allegient Systems
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011226
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Nathan Bryant <nbryant@allegientsystems.com>
+CC: Doug Ledford <dledford@redhat.com>,
+        Thomas Gschwind <tom@infosys.tuwien.ac.at>,
+        linux-kernel@vger.kernel.org
+Subject: Re: i810_audio
+In-Reply-To: <20020105031329.B6158@infosys.tuwien.ac.at> <3C3A2B5D.8070707@allegientsystems.com> <3C3A301A.2050501@redhat.com> <3C3AA6F9.5090407@redhat.com> <3C3B501D.7050508@allegientsystems.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 08, 2002 at 08:15:07PM +0000, Alan Cox wrote:
-> Some windows driver is assuming things that the BIOS has not cleared up
-> on reset and whichit probably shouldn't. Its not uncommon to have to 
-> powercycle a box between OS's. Sometimes you see it with windows hanging
-> sometimes with Linux
+Nathan Bryant wrote:
 
-I thought that Linux forced a cold-restart upon a reboot to solve this very
-issue.  At least wrt the BIOS.
+> 1) Is the LVI interrupt supposed to arrive when the chip *starts* 
+> playing the last buffer?
+> 2) Does SiS actually do it this way?
+>
+> If your theory on why the registers are spinning is correct, and if we 
+> receive the LVI interrupt with too much latency, your code will still 
+> deadlock, Doug. (The LVI interrupt handler calls update_ptr first 
+> thing, which calls get_dma_address.) Furthermore, if this turns out to 
+> be the case, the LVI IRQ handler uses dmabuf->count to determine 
+> whether to call stop_dac, and needs to call update_ptr to update 
+> dmabuf->count... so an explicit stop_dac might be needed elsewhere.
+>
+> Even if the LVI interrupt comes at the beginning of the buffer, those 
+> 2048 bytes will play in 10.67 ms. Can we really guarantee that kind of 
+> latency?
 
-Perhaps a physical component needs that power cycle to do a reset?
 
-mrc
--- 
-     Mike Castle      dalgoda@ix.netcom.com      www.netcom.com/~dalgoda/
-    We are all of us living in the shadow of Manhattan.  -- Watchmen
-fatal ("You are in a maze of twisty compiler features, all different"); -- gcc
+Add to this, if SiS isn't sending DCH, and LVI arrives at the beginning 
+of the last buffer, count is still > 0, so we don't call stop_dac. And 
+we're right back where we started.
+

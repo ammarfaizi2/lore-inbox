@@ -1,58 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313070AbSDSWMd>; Fri, 19 Apr 2002 18:12:33 -0400
+	id <S313062AbSDSWMW>; Fri, 19 Apr 2002 18:12:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313090AbSDSWMc>; Fri, 19 Apr 2002 18:12:32 -0400
-Received: from ip68-3-107-226.ph.ph.cox.net ([68.3.107.226]:39355 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S313070AbSDSWMc>;
-	Fri, 19 Apr 2002 18:12:32 -0400
-Message-ID: <3CC0964D.4000008@candelatech.com>
-Date: Fri, 19 Apr 2002 15:12:29 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: rddunlap@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: unresolved symbol: __udivdi3
-In-Reply-To: <Pine.LNX.4.33L2.0204191408450.15597-100000@dragon.pdx.osdl.net>	<3CC092F2.8090009@candelatech.com> <20020419.145651.82832824.davem@redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S313070AbSDSWMV>; Fri, 19 Apr 2002 18:12:21 -0400
+Received: from smtp-server6.tampabay.rr.com ([65.32.1.43]:17575 "EHLO
+	smtp-server6.tampabay.rr.com") by vger.kernel.org with ESMTP
+	id <S313062AbSDSWMU>; Fri, 19 Apr 2002 18:12:20 -0400
+Date: Fri, 19 Apr 2002 18:10:26 -0400
+From: Rick Haines <rick@kuroyi.net>
+To: davidm@hpl.hp.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: read latency (ia64)
+Message-ID: <20020419221026.GA1995@sasami.kuroyi.net>
+In-Reply-To: <20020418140622.GA31405@sasami.kuroyi.net> <15552.34913.686564.487970@napali.hpl.hp.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-David S. Miller wrote:
-
->    From: Ben Greear <greearb@candelatech.com>
->    Date: Fri, 19 Apr 2002 14:58:10 -0700
+On Fri, Apr 19, 2002 at 02:13:05PM -0700, David Mosberger wrote:
+> >>>>> On Thu, 18 Apr 2002 10:06:22 -0400, Rick Haines <rick@kuroyi.net> said:
 > 
->    then I get another unresolved symbol:
->    __umodi3
->    
-> Someone needs to add this routine under arch/sparc/lib/
+>   Rick> I have a Lion with 4 666mhz B3 stepping cpus and 4GB ram
+>   Rick> running Debian unstable with kernel 2.4.18 and the 020410 ia64
+>   Rick> patch (I have the same problem with 2.4.9-itanium-smp from the
+>   Rick> archive).
 > 
->    I'm guessing that there is some optimization the compiler is doing that
->    is using the mod operator somehow, but I am unsure about how to work around
->    this.
+>   Rick> I have a program that reads large files in increments of 81920
+>   Rick> blocks.  After about 9600 read calls I get about a dozen reads
+>   Rick> that take about 3 seconds each.  Does anyone have any ideas as
+>   Rick> to a cause/solution?  (I have 4 other threads working/possibly
+>   Rick> writing output at the same time, although in this case only 1
+>   Rick> of them would be active at the same time).  I am also running
+>   Rick> a program that callocs almost all my ram to make sure none of
+>   Rick> the file is cached.
 > 
-> "guessing"?  Have a look the definition of do_div in asm-sparc/div64.h
-> it explicitly does a mod operation :-)
+> I don't think anyone will be able to help you without a test case.
+> Do you have a minimal test case that reproduces the problem?
 
-
-Yeah, I just noticed that.  What good is do_div if it calls %
-which is also not resolved???  I can see why you had all the
-hi/lo crap in the pktgen.c now :)
-
-(I'm looking in asm-i386/div64.h, btw, since I'm running on x86
-right now.)
-
+I got a response from Andrew Morton that sounds promising.  He says 
+it's probably that "writeback has kicked in, and your reads are stalling
+behind the writes".  I'll send another email after I try his patch.
 
 -- 
-Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+Rick (rick@kuroyi.net)
+http://dxr3.sourceforge.net
 
-
+I think the slogan of the fansubbers puts
+it best: "Cheaper than crack, and lots more fun."

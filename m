@@ -1,28 +1,24 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271433AbTGQLSJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 07:18:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271436AbTGQLSJ
+	id S271435AbTGQLWo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 07:22:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271436AbTGQLWo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 07:18:09 -0400
-Received: from ns.suse.de ([213.95.15.193]:5896 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S271433AbTGQLSE (ORCPT
+	Thu, 17 Jul 2003 07:22:44 -0400
+Received: from ns.suse.de ([213.95.15.193]:54024 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S271435AbTGQLWm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 07:18:04 -0400
-Date: Thu, 17 Jul 2003 13:32:57 +0200
-Message-ID: <s5hfzl5z8uu.wl@alsa2.suse.de>
+	Thu, 17 Jul 2003 07:22:42 -0400
+Date: Thu, 17 Jul 2003 13:37:36 +0200
+Message-ID: <s5hel0pz8n3.wl@alsa2.suse.de>
 From: Takashi Iwai <tiwai@suse.de>
-To: ookhoi@humilis.net
-Cc: Linux-Kernel <linux-kernel@vger.kernel.org>, eugene.teo@eugeneteo.net
-Subject: Re: 2.6 sound drivers?
-In-Reply-To: <20030717111958.GB30717@favonius>
-References: <20030716225826.GP2412@rdlg.net>
-	<20030716231029.GG1821@matchmail.com>
-	<20030716233045.GR2412@rdlg.net>
-	<1058426808.1164.1518.camel@workshop.saharacpt.lan>
-	<20030717085704.GA1381@eugeneteo.net>
-	<s5hu19lzevt.wl@alsa2.suse.de>
-	<20030717111958.GB30717@favonius>
+To: Wil Reichert <wilreichert@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel 2.6.0-test1 snd-ice1724 module OOPS
+In-Reply-To: <20030717072536.49057dc7.wilreichert@yahoo.com>
+References: <20030716115156.2b5a1992.wilreichert@yahoo.com>
+	<s5hr84pzdu1.wl@alsa2.suse.de>
+	<20030717072536.49057dc7.wilreichert@yahoo.com>
 User-Agent: Wanderlust/2.6.1 (Upside Down) SEMI/1.14.4 (Hosorogi)
  FLIM/1.14.4 (=?ISO-8859-4?Q?Kashiharajing=FE-mae?=) APEL/10.2 MULE
  XEmacs/21.4 (patch 12) (Portable Code) (i386-suse-linux)
@@ -31,36 +27,35 @@ Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At Thu, 17 Jul 2003 13:19:58 +0200,
-Ookhoi wrote:
+At Thu, 17 Jul 2003 07:25:36 -0400,
+Wil Reichert wrote:
 > 
-> Takashi Iwai wrote (ao):
-> > At Thu, 17 Jul 2003 16:57:04 +0800,
-> > Eugene Teo wrote:
-> > > One thing I noticed abt this ALSA driver is that if I am playing
-> > > say, xmms at the moment, any additional sound output will be delayed
-> > > until I stop xmms. Is there any workaround? 
-> > > 
-> > > Using Intel(r) AC'97 Audio Controller - Sigmatel 9723 Codec
-> > 
-> > the intel chip supports only one stream for playback, so the
-> > succeeding open is blocked since ALSA opens the device in the blocking
-> > mode as default.  and it's so for OSS-emulation, too.
-> > 
-> > for the oss-emulation, you can change this behavior via the module
-> > option nonblock_open of snd-pcm-oss module.  please check
-> > Documentation/sound/alsa/OSS-Emulation.txt.
+> Yes, the module loads fine now.
 > 
-> Wouldn't esd (the enlightment sound daemon) take care of this in
-> userspace? I can have sound out of xmms, firebird, mpg321 and mplayer at
-> the same time with esd.
+> I have a couple of questions regarding this card (M-Audio Revolution 7.1) and ALSA if you'll humour me.
+> 
+> A) Does the driver support more than 2 channels of sound?
 
-of course, it does.
-not only esd but arts can.
+yes.  you'll need to raise the DAC volumes.
 
-also, ALSA provides dmix plugin, which does the similar mixing but
-without server process in very low latency.  unfortunately, using dmix
-plugin for OSS apps is tricky.
+> I've had no luck getting output out of anything but the analog front channel.
+ 
+what program did you use?
+if you want to duplicate signals to surround ,etc., you can configure
+it in your ~/.asoundrc file.  (only for ALSA apps, though.)
+we don't do signal duplication in kernel.
+
+> B) Instead of the typical <Master> <PCM> <Line> etc channels in alsamixer I have DAC[1-7], with the front left & right channel being <DAC> and <DAC1>.  Is this normal?
+
+yes.  it's not a typical consumer card.
+if you have 6 or 8 channels, which should be called "Master"? :)
+
+> C) mplayer (http://www.mplayerhq.hu) compiled with alsa support will detect the card but fails a snd_pcm_hw_params_set_format call.  It will work fine via OSS emulation however.  The same build of mplayer works fine via alsa with other cards, tho.  Is this a driver problem, a hardware limitation, or a problem in mplayer?
+
+the problem of application.  the application should use plug (or
+other) plugin to convert the sample format on user-space.
 
 
-Takashi
+-- 
+Takashi Iwai <tiwai@suse.de>		SuSE Linux AG - www.suse.de
+ALSA Developer				ALSA Project - www.alsa-project.org

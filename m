@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264825AbSJOWAl>; Tue, 15 Oct 2002 18:00:41 -0400
+	id <S264700AbSJOWDS>; Tue, 15 Oct 2002 18:03:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264831AbSJOWAl>; Tue, 15 Oct 2002 18:00:41 -0400
-Received: from mtao-m02.ehs.aol.com ([64.12.52.8]:22225 "EHLO
+	id <S264831AbSJOWDK>; Tue, 15 Oct 2002 18:03:10 -0400
+Received: from mtao-m02.ehs.aol.com ([64.12.52.8]:22993 "EHLO
 	mtao-m02.ehs.aol.com") by vger.kernel.org with ESMTP
-	id <S264825AbSJOV7g>; Tue, 15 Oct 2002 17:59:36 -0400
-Date: Tue, 15 Oct 2002 15:05:18 -0700
+	id <S264700AbSJOWCX>; Tue, 15 Oct 2002 18:02:23 -0400
+Date: Tue, 15 Oct 2002 15:08:12 -0700
 From: John Gardiner Myers <jgmyers@netscape.com>
 Subject: Re: [PATCH] aio updates
 To: Benjamin LaHaise <bcrl@redhat.com>
 Cc: linux-aio@kvack.org, linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Message-id: <3DAC911E.1050605@netscape.com>
+Message-id: <3DAC91CC.5000202@netscape.com>
 MIME-version: 1.0
 Content-type: multipart/signed;
- boundary=------------ms050705040007020903050100; micalg=sha1;
+ boundary=------------ms070001050707070607030003; micalg=sha1;
  protocol="application/x-pkcs7-signature"
 X-Accept-Language: en-us, en
 User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.2a)
@@ -27,19 +27,21 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a cryptographically signed message in MIME format.
 
---------------ms050705040007020903050100
-Content-Type: text/plain; charset=us-ascii; format=flowed
+--------------ms070001050707070607030003
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
 Benjamin LaHaise wrote:
 
->aio_nbytes is clamped to disallow negative values at present.
->  
+>non-file descriptor consuming operations should most likely 
+>be their own syscalls (imho).
 >
-The IOCB_CMD_NOOP patch doesn't use aio_nbytes.
+This would defeat the multiple iocb submission feature of io_submit(). 
+ All async operations should be submittable through io_submit() to 
+permit multiple operation submission.
 
 
---------------ms050705040007020903050100
+--------------ms070001050707070607030003
 Content-Type: application/x-pkcs7-signature; name="smime.p7s"
 Content-Transfer-Encoding: base64
 Content-Disposition: attachment; filename="smime.p7s"
@@ -102,14 +104,14 @@ mjCBkzELMAkGA1UEBhMCVVMxCzAJBgNVBAgTAkNBMRYwFAYDVQQHEw1Nb3VudGFpbiBWaWV3
 MRswGQYDVQQKExJBbWVyaWNhIE9ubGluZSBJbmMxGTAXBgNVBAsTEEFPTCBUZWNobm9sb2dp
 ZXMxJzAlBgNVBAMTHkludHJhbmV0IENlcnRpZmljYXRlIEF1dGhvcml0eQICW+AwCQYFKw4D
 AhoFAKCCAWEwGAYJKoZIhvcNAQkDMQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcNMDIx
-MDE1MjIwNTE4WjAjBgkqhkiG9w0BCQQxFgQUH7zVMZdtGc5zZ/DR10Ci49rqX2kwUgYJKoZI
+MDE1MjIwODEyWjAjBgkqhkiG9w0BCQQxFgQUXbnL5MmMSvZEpj8evidgQEuiEcswUgYJKoZI
 hvcNAQkPMUUwQzAKBggqhkiG9w0DBzAOBggqhkiG9w0DAgICAIAwDQYIKoZIhvcNAwICAUAw
 BwYFKw4DAgcwDQYIKoZIhvcNAwICASgwga0GCyqGSIb3DQEJEAILMYGdoIGaMIGTMQswCQYD
 VQQGEwJVUzELMAkGA1UECBMCQ0ExFjAUBgNVBAcTDU1vdW50YWluIFZpZXcxGzAZBgNVBAoT
 EkFtZXJpY2EgT25saW5lIEluYzEZMBcGA1UECxMQQU9MIFRlY2hub2xvZ2llczEnMCUGA1UE
 AxMeSW50cmFuZXQgQ2VydGlmaWNhdGUgQXV0aG9yaXR5AgJb3zANBgkqhkiG9w0BAQEFAASB
-gE016DDE0y8dbLSR+3PIyRnKObkzwVLT1u8qftkAJaZ0klCcFa50z7cIqtMz6p4tRMsmzqfc
-spust2ZYJyop7iAZKB9+4t/LkVywI1Vt15xoIWIgRYmNieyX4bNy+8KckEfGY71UvyZRyZ5X
-nWgt0q+xS3IFkQTvoREaBidVbTBnAAAAAAAA
---------------ms050705040007020903050100--
+gBdKP5w7sXTUvUzqSvwX5InVJFC0gMeV4doZkLGf+F8Or7tHRj97t86obcCWuGi9tNPYdUDA
+SxtlTX8udX+3T6X/qDLtnqTjykkWjfvN4k5xNkIbfizOOaN/+bP1wcxcqUnRhrMzTXVruwuI
+60SMgcZWTg/PKZlbm0Yki9eSPe/6AAAAAAAA
+--------------ms070001050707070607030003--
 

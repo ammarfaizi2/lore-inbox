@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287909AbSAMBjB>; Sat, 12 Jan 2002 20:39:01 -0500
+	id <S287436AbSAMBoW>; Sat, 12 Jan 2002 20:44:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287907AbSAMBiu>; Sat, 12 Jan 2002 20:38:50 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:13468 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S287436AbSAMBik>;
-	Sat, 12 Jan 2002 20:38:40 -0500
-Date: Sat, 12 Jan 2002 20:38:27 -0500 (EST)
+	id <S287907AbSAMBoM>; Sat, 12 Jan 2002 20:44:12 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:23715 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S287436AbSAMBn4>;
+	Sat, 12 Jan 2002 20:43:56 -0500
+Date: Sat, 12 Jan 2002 20:43:54 -0500 (EST)
 From: Alexander Viro <viro@math.psu.edu>
-To: Juan Quintela <quintela@mandrakesoft.com>
-cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
-        felix-dietlibc@fefe.de, andersen@codepoet.org
+To: Erik Andersen <andersen@codepoet.org>
+cc: Felix von Leitner <felix-dietlibc@fefe.de>, Greg KH <greg@kroah.com>,
+        linux-kernel@vger.kernel.org
 Subject: Re: [RFC] klibc requirements, round 2
-In-Reply-To: <m2r8ovjpey.fsf@trasno.mitica>
-Message-ID: <Pine.GSO.4.21.0201122032250.24774-100000@weyl.math.psu.edu>
+In-Reply-To: <20020112122152.GA24994@codepoet.org>
+Message-ID: <Pine.GSO.4.21.0201122038480.24774-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -21,38 +21,45 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On 12 Jan 2002, Juan Quintela wrote:
+On Sat, 12 Jan 2002, Erik Andersen wrote:
 
-> >>>>> "greg" == Greg KH <greg@kroah.com> writes:
+> On Fri Jan 11, 2002 at 02:31:50PM +0100, Felix von Leitner wrote:
+> > > How about responses from the dietlibc and uClibc people on the odds of
+> > > them being able to port to the remaining platforms?
+> > 
+> > I think I can speak for both Erik and myself when I say that we don't
+> > hate architectures and because of that don't support them.  If we get a
+> > chance (and maybe a little help from someone who knows those platform),
+> > we will port our libc to that platform.
+> > 
+> > Sadly, I don't have the deep pockets to buy myself a hardware lab with a
+> > VAX to port my libc to it.  So I (and Erik, too, obviously) would need
+> > at least an account on one of those boxes, with gcc, binutils, strace
+> > and gdb installed.
+
+There are several VAX emulators with varying degrees of b0rkenness.
+At least one of them manages to boot NetBSD...
+ 
+> Fully agreed.  Porting libc (diet or uClibc) is an issue of
+> hardware access, access to the instruction set docs for the arch,
+> access to a gnu toolchain, and (the biggest issue) an issue of
+> time and motivation.
 > 
-> Hi
+> > In my eyes that is a waste of time, really.
+> > But it's your time, so don't let that stand in your way ;)
 > 
-> greg> To summarize, here's a partial list of the programs people want to run:
-> greg> - mount
+> I agree here.  dietlibc is GPL.  uClibc is LGPL.  I think they
+> both address the problem space pretty well.  Felix and I are
+> both willing to accept patches.
+> 
+> Lets look at it the other way...  Suppose you start making a
+> separate klibc.  You skip/eliminate a ton of stuff and next week
+> someone complains that it's missing, say, the pivot_root syscall.
+> So you add it.  Then the week after, someone complains that you
+> are missing varargs.  So you add that too.  Pretty soon, someone
+> will complain about how printf feature foo is missing, and they
+> just _need_ SuS2 wordexp compatibility, etc, etc.  Trust me when
 
-	I _really_ doubt it.  /init calling mount(2) - sure, but mount(8)?
-Not really.
-
-> greg> - hotplug
-> greg> - busybox
-> greg> - dhcpcd
-> greg> - image viewer
-> greg> - mkreiserfs
-> greg> - partition discovery (currently in the kernel)
-
-Assuming that it moves to userland, which is non-obvious.  Going other
-way (i.e. clean kernel API for parsing _and_ changing partitioning)
-might be better.  Current mechanisms for notifying kernel about partition
-table changes are really gross.
-
-> greg> - lots of other, existing in kernel code.
-
-nfsroot mounting (socket/sendto/recvfrom/open/close/read/write/malloc/free/
-snprintf/memcpy/strlen/mount).
-
-> I still think that fsck at this point will be great.  You will
-> minimize the need to have the kernel special case for fsck the root fs
-> with respect to the rest of fs.
-
-_Kernel_ has no special-casing of that kind.
+... at which point you tell them to bugger off.  If they refuse -
+man procmailrc.  Problem solved.
 

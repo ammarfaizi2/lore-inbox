@@ -1,54 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261705AbTCNKEm>; Fri, 14 Mar 2003 05:04:42 -0500
+	id <S261468AbTCNKHU>; Fri, 14 Mar 2003 05:07:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261715AbTCNKEm>; Fri, 14 Mar 2003 05:04:42 -0500
-Received: from mail2.sonytel.be ([195.0.45.172]:8924 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S261705AbTCNKEl>;
-	Fri, 14 Mar 2003 05:04:41 -0500
-Date: Fri, 14 Mar 2003 11:14:53 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Kendall Bennett <KendallB@scitechsoft.com>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Petr Vandrovec <vandrove@vc.cvut.cz>
-Subject: Re: VESA FBconsole driver?
-In-Reply-To: <3E70A68F.9422.AF1599@localhost>
-Message-ID: <Pine.GSO.4.21.0303141114210.3569-100000@vervain.sonytel.be>
+	id <S261641AbTCNKHU>; Fri, 14 Mar 2003 05:07:20 -0500
+Received: from 169.imtp.Ilyichevsk.Odessa.UA ([195.66.192.169]:7946 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S261468AbTCNKHT>; Fri, 14 Mar 2003 05:07:19 -0500
+Message-Id: <200303141008.h2EA8gu08535@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=US-ASCII
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: Jens Axboe <axboe@suse.de>, Oleg Drokin <green@namesys.com>
+Subject: Re: [2.4] init/do_mounts.c::rd_load_image() memleak
+Date: Fri, 14 Mar 2003 12:05:40 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Oleg Drokin <green@linuxhacker.ru>, alan@redhat.com,
+       linux-kernel@vger.kernel.org, viro@math.psu.edu
+References: <20030313210144.GA3542@linuxhacker.ru> <20030314110421.A28273@namesys.com> <20030314080911.GY836@suse.de>
+In-Reply-To: <20030314080911.GY836@suse.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 13 Mar 2003, Kendall Bennett wrote:
-> Petr Vandrovec <vandrove@vc.cvut.cz> wrote:
-> > Why you need it? To run some parts of VGA BIOS? Why you cannot run
-> > them from userspace task? I think that it is much easier,
-> > especially now when initramfs is here. 
-> 
-> The reason why it would nice is so that the VESA FBconsole driver (and in 
-> fact all the FBconsole drivers that use the real mode BIOS to set an 
-> initial display mode) can restore that mode correctly when an application 
-> exists and restores the console. Right now it is up to the application 
-> program to restore the console, as the kernel has absolutely no way to do 
-> it. If that program has not way to restore it (old SVGALib code for 
-> instance) or the application crashes, you are stuck with a black screen 
-> if you are using a framebuffer console. If the kernel knew how to call 
-> the BIOS to restore the mode, this problem could be completely eliminated 
-> and services could be provided to properly restore the system state when 
-> console graphics programs crash (or the X server for that matter if it 
-> crashes and does not properly clean up).
+On 14 March 2003 10:09, Jens Axboe wrote:
+> No that would just be another pointless exercise in causing more
+> annoyance for someone who has to look through patches finding that
+> one hunk that breaks stuff. The recent spelling changes come to mind.
 
-Assumed the BIOS can recover from whatever the application has done to the
-graphics chipset...
+How we should do such global small cleanups?
+Maybe grep the source and bring the list of affected files
+to maintainers' attention, letting the to gradually push
+changes to Linus...
 
-Gr{oetje,eeting}s,
+I suspect "bring the list to maintainers' attention"
+will be a trickier part ;)
 
-						Geert
+> But just because you don't seem to have seen any kfree(NULL) in the
+> kernel does not mean they are not there. And should a good trend not
+> allow to grow?
 
+"if(p) free(p)" => "free(p)" is mostly ok, less code.
+
+But free is called now unconditionally. Make an exception
+for performance-critical places where p is almost always 0.
 --
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
-
+vda

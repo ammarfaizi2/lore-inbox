@@ -1,66 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286821AbSAGJdp>; Mon, 7 Jan 2002 04:33:45 -0500
+	id <S289160AbSAGJvg>; Mon, 7 Jan 2002 04:51:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289155AbSAGJde>; Mon, 7 Jan 2002 04:33:34 -0500
-Received: from dlezb.ext.ti.com ([192.91.75.132]:64400 "EHLO go4.ext.ti.com")
-	by vger.kernel.org with ESMTP id <S286821AbSAGJdW>;
-	Mon, 7 Jan 2002 04:33:22 -0500
-Message-ID: <3C396B45.6040702@ti.com>
-Date: Mon, 07 Jan 2002 10:32:53 +0100
-From: christian e <cej@ti.com>
-Organization: Texas Instruments A/S,Denmark
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011202
-X-Accept-Language: en
+	id <S289158AbSAGJv0>; Mon, 7 Jan 2002 04:51:26 -0500
+Received: from mx03.uni-tuebingen.de ([134.2.3.13]:15369 "EHLO
+	mx03.uni-tuebingen.de") by vger.kernel.org with ESMTP
+	id <S289087AbSAGJvU>; Mon, 7 Jan 2002 04:51:20 -0500
+Date: Mon, 7 Jan 2002 10:51:14 +0100 (CET)
+From: Richard Guenther <rguenth@tat.physik.uni-tuebingen.de>
+To: Oliver Paukstadt <pstadt@stud.fh-heilbronn.de>
+cc: Andrew Morton <akpm@zip.com.au>, Matti Aarnio <matti.aarnio@zmailer.org>,
+        Linux-Kernel <linux-kernel@vger.kernel.org>,
+        <linux-raid@vger.kernel.org>
+Subject: Re: 2.4.17 RAID-1 EXT3  reliable to hang....
+In-Reply-To: <Pine.LNX.4.33.0201070933590.4076-100000@lola.stud.fh-heilbronn.de>
+Message-ID: <Pine.LNX.4.33.0201071047410.17279-100000@bellatrix.tat.physik.uni-tuebingen.de>
 MIME-Version: 1.0
-To: Stephan von Krawczynski <skraw@ithnet.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: swapping,any updates ?? Just wasted money on mem upgrade performance still suck :-(
-In-Reply-To: <3C386DC9.307@ti.com> <20020106170204.7e04e81f.skraw@ithnet.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephan von Krawczynski wrote:
+On Mon, 7 Jan 2002, Oliver Paukstadt wrote:
 
+> Heavy traffic on ext3 seems to cause short system freezes.
 
-> Besides the fact I couldn't identify the kernel version from your mail, I would
-> try:
-> 
-> 1) Turn off swap, then
-> 2) Use 2.4.17 with patch I send you off LKML.
-> 
-> Then give us a hint if things got better.
+I see dropped frames while watching TV (bttv chip, xawtv in overlay mode,
+XFree 4.1.0)
+since I use ext3 (2.4.16&17). Always during disk activity (IDE, umask irq
+and dma enabled). From what I know the bttv driver does it seems to loose
+interrupts!? This doesnt happen with ext2.
 
+> Seems only to happen on 2 or more processor boxes.
 
+Nope, UP Athlon.
 
-Sorry forgot that.Currently running 2.4.17-mjc1.
-Turning off swap is apparently not an option 'cause now VMware won't run 
-anymore (really a swap happy app if I ever saw one :o) I get this error 
-when starting to log on to my virtual Windows XP Pro:
+> I'm not deep into kernel nor ext3, but how is the journal flushed if
+> full?
 
-AIO: unexpected loss of channel ide0:0 (thread ide 0:0)
+By any chance, is some global lock held during any IO intensive part of
+ext3?
 
-and turning swap back on it runs with no problems..*sigh*
-Can I make a RAM drive and then use that for swap ??Will the patch you 
-sent me work with swap turned on ??
+Richard.
 
-For info my system:
-
-Dell latitude cpx j650GT,650 MHz P3
-512 MB mem
-12 GB hdd
-3com 3c575ct pcmcia NIC
-Debian woody
-kernel 2.4.17-mjc1
-
-running in a dock station with Nvidia TNT2 32 MB graphic card
-
-
-that should be all..
-
-best regards
-
-Christian
+--
+Richard Guenther <richard.guenther@uni-tuebingen.de>
+WWW: http://www.tat.physik.uni-tuebingen.de/~rguenth/
+The GLAME Project: http://www.glame.de/
 

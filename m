@@ -1,47 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266066AbTLIQvr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Dec 2003 11:51:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266067AbTLIQvr
+	id S266065AbTLIQr7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Dec 2003 11:47:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266066AbTLIQr7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Dec 2003 11:51:47 -0500
-Received: from terminus.zytor.com ([63.209.29.3]:41189 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S266066AbTLIQvp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Dec 2003 11:51:45 -0500
-Message-ID: <3FD5FD8C.7010608@zytor.com>
-Date: Tue, 09 Dec 2003 08:51:24 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030630
-X-Accept-Language: en, sv, es, fr
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Arnd Bergmann <arnd@arndb.de>, Jamie Lokier <jamie@shareable.org>,
-       Nikita Danilov <Nikita@Namesys.COM>, linux-kernel@vger.kernel.org
-Subject: Re: const versus __attribute__((const))
-References: <200312081646.42191.arnd@arndb.de> <Pine.LNX.4.58.0312082321470.18255@home.osdl.org> <3FD57C77.4000403@zytor.com> <200312091256.47414.arnd@arndb.de> <3FD5ED77.6070505@zytor.com> <Pine.LNX.4.58.0312090837370.19936@home.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0312090837370.19936@home.osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 9 Dec 2003 11:47:59 -0500
+Received: from mail.uni-kl.de ([131.246.137.52]:35034 "EHLO uni-kl.de")
+	by vger.kernel.org with ESMTP id S266065AbTLIQr6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Dec 2003 11:47:58 -0500
+Date: Tue, 9 Dec 2003 17:47:39 +0100
+From: Eduard Bloch <edi@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: State of devfs in 2.6?
+Message-ID: <20031209164738.GA4159@zombie.inka.de>
+References: <200312081536.26022.andrew@walrond.org> <20031208154256.GV19856@holomorphy.com> <pan.2003.12.08.23.04.07.111640@dungeon.inka.de> <20031208233428.GA31370@kroah.com> <1070953338.7668.6.camel@simulacron> <20031209083228.GC1698@kroah.com> <3FD59CED.6090408@portrix.net> <20031209162747.GB8675@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031209162747.GB8675@kroah.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> On Tue, 9 Dec 2003, H. Peter Anvin wrote:
-> 
->>In some ways, this is rather unfortunate, too.  What it really means is
->>that the gcc "m" constraint is overloaded; it would have been better if
->>they would have created a new modifier (say "*") for "must be lvalue."
-> 
-> 
-> The thing is, most users of "m" (like 99%) actually mean "_THIS_ memory
-> location". So just fixing the "m" modifier was an easy way to make sure
-> that users get the behaviour they expect.
-> 
+#include <hallo.h>
+* Greg KH [Tue, Dec 09 2003, 08:27:47AM]:
 
-Agreed.  It's just a bit ugly that the "m" in "rm" has a different 
-meaning than just "m".
+> Like Matthew stated, either use the udev rc startup script, or put udev
+> into your initramfs image to catch all of the early boot messages.
+> Doing the initramfs method is still very tough to do right now, but
+> people have reported success that way.  I still recommend just using the
+> init.d script for now.
 
-	-hpa
+Wouln't it be less error-prone to introduce a kind of queing for the
+hotplug program so kernel puts all the registered devices in a list and
+the list is submitted in one pass when udev asks for it?
 
+MfG,
+Eduard.

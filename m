@@ -1,39 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271407AbTG2Lv5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 07:51:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271410AbTG2Lv5
+	id S271411AbTG2L7x (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 07:59:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271412AbTG2L7x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 07:51:57 -0400
-Received: from mailgw.cvut.cz ([147.32.3.235]:22757 "EHLO mailgw.cvut.cz")
-	by vger.kernel.org with ESMTP id S271407AbTG2Lvy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 07:51:54 -0400
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Wakko Warner <wakko@animx.eu.org>
-Date: Tue, 29 Jul 2003 13:51:28 +0200
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: matroxfb and 2.6.0-test2
-Cc: linux-kernel@vger.kernel.org
-X-mailer: Pegasus Mail v3.50
-Message-ID: <89B099B2CBF@vcnet.vc.cvut.cz>
+	Tue, 29 Jul 2003 07:59:53 -0400
+Received: from crosslink-village-512-1.bc.nu ([81.2.110.254]:60143 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S271411AbTG2L7w
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 07:59:52 -0400
+Subject: Re: malloc problem to allocate very large blocks
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: nagendra_tomar@adaptec.com
+Cc: Tung-Han Hsieh <thhsieh@xcin.phys.ntu.edu.tw>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       jamagallon@able.es
+In-Reply-To: <Pine.LNX.4.44.0307291027230.17227-100000@localhost.localdomain>
+References: <Pine.LNX.4.44.0307291027230.17227-100000@localhost.localdomain>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1059479571.3118.3.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 29 Jul 2003 12:52:51 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 29 Jul 03 at 7:27, Wakko Warner wrote:
+On Maw, 2003-07-29 at 05:58, Nagendra Singh Tomar wrote:
+> AFAIK malloc will not return you memory more than the total virtual memory 
+> (RAM+swap) in the system. So if you want more than 2GB allocations from 
+> malloc, make sure you have at least 2GB virtual mem, keeping aside some 
+> space for the kernel.
 
-> I have an old matrox millenium 1 card.  does the matrox fb support this
-> card?  All I got was a blank screen.  fbcon and matroxfb with support for
-> I/II cards compiled in.  When I had vga16 compiled in as well, I would get the
-> console if I switched to vt2 and back to vt1.
+On the default memory settings it may do. However a request for 2Gb of
+memory requires there is a free 2Gb of address space to map it into -
+which may not be true because of things like shared libraries. 
 
-Yes, it supports Millennium1 too. Are you sure that you built fbcon
-support into the kernel? And that you have only one fbdev, matroxfb?
->From your description it looks to me like that you are using vesafb
-together with matroxfb.
-                                                    Petr
-                                                    
+The actual total allocatable limit for x86 is a bit under 3Gb, but you 
+won't get that as one linear allocation. (1Gb is kernel mappings)
 

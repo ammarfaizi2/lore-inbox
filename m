@@ -1,90 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265264AbTIDQcL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 12:32:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265279AbTIDQcL
+	id S265284AbTIDQhN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 12:37:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265281AbTIDQhN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 12:32:11 -0400
-Received: from fw.osdl.org ([65.172.181.6]:33174 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265264AbTIDQcF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 12:32:05 -0400
-Subject: Re: IA32 - 4 New warnings
-From: John Cherry <cherry@osdl.org>
-To: "David S. Miller" <davem@redhat.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030904002430.306cfa83.davem@redhat.com>
-References: <13539.4.5.59.77.1062658134.squirrel@www.osdl.org>
-	 <20030904002430.306cfa83.davem@redhat.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1062693117.9322.48.camel@cherrytest.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 04 Sep 2003 09:31:57 -0700
-Content-Transfer-Encoding: 7bit
+	Thu, 4 Sep 2003 12:37:13 -0400
+Received: from trained-monkey.org ([209.217.122.11]:56584 "EHLO
+	trained-monkey.org") by vger.kernel.org with ESMTP id S265284AbTIDQhF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Sep 2003 12:37:05 -0400
+To: dsaxena@mvista.com
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
+       Paul Mackerras <paulus@samba.org>,
+       Christoph Hellwig <hch@infradead.org>,
+       "David S. Miller" <davem@redhat.com>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] fix ppc ioremap prototype
+References: <16215.13051.836875.270440@nanango.paulus.ozlabs.org>
+	<Pine.GSO.4.21.0309041449260.8244-100000@waterleaf.sonytel.be>
+	<20030904155856.GB31420@xanadu.az.mvista.com>
+From: Jes Sorensen <jes@trained-monkey.org>
+Date: 04 Sep 2003 12:36:45 -0400
+In-Reply-To: <20030904155856.GB31420@xanadu.az.mvista.com>
+Message-ID: <m3ekywbjdu.fsf@trained-monkey.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David,
+>>>>> "Deepak" == Deepak Saxena <dsaxena@mvista.com> writes:
 
-You are absolutely correct that these are not new warnings.  However,
-they are new with respect to CLEAN_COMPILE being enabled by default.  On
-Sept 2, Linus add the following patch...
+Deepak> What happens if I have a device that can be either ISA or
+Deepak> connected directly to a local memory bus? The driver should be
+Deepak> able to ioremap(some resource) and then read/write the device
+Deepak> without having to have ugly #ifdefs to deal with different bus
+Deepak> types.
 
--config BROKEN
--	bool "Prompt for old and known-broken drivers"
--	depends on EXPERIMENTAL
--	default n
-+config CLEAN_COMPILE
-+	bool "Don't select drivers known to be broken" if EXPERIMENTAL
-+	default y 	help
--	  This option allows you to choose whether you want to try to
--	  compile (and fix) old drivers that haven't been updated to
--	  new infrastructure.
-+	  Select this option if you don't even want to see the option
-+	  to configure known-broken drivers.
-+
-+	  If unsure, say Y 
--	  If unsure, say N.
-+config BROKEN
-+	bool
-+	depends on !CLEAN_COMPILE
-+	default y
+You can't do that reliably, some architectures requires different
+access for ISA vs PCI vs random-other busses. The driver needs to be
+aware what bus it's trying to go through.
 
-By default, the builds did not include known broken drivers.  The build 
-yesterday picked up bunk's patch for COSA...
+Deepak> Example in point is the CS8900a device which is hooked
+Deepak> up directly to a FPGA on the local memory bus with the
+Deepak> bytelanes backwards.  The ammount of hacking done in the
+Deepak> driver to get around that is ugly. It would be much nicer if
+Deepak> the driver still just did read*/write* and the platform level
+Deepak> code could deal with all the translation issues. This requires
+Deepak> a generic API for all I/O devices.
 
--	depends on WAN && ISA && m && BROKEN
-+	depends on WAN && ISA && m
+That might be nicer from the driver perspective but it will make
+readb/writeb a lot more complex and inefficient for no reason on some
+architectures.
 
-This allowed the driver to be built again, and the warnings reappeared.
-So these ARE new warnings in the sense that bunk specifically declared
-this driver NOT to be broken.  In fact, the changeset comment was "COSA
-is no longer BROKEN".
+The driver will have to know whether it's on a PCI, ISA or directly
+attached anyway when it's probing so it's perfectly reasonable to
+expect it to deal with that when it's accessing the registers as well.
 
-Actually, to remain consistent with warning and error statistics, I will
-need to over-ride the default CLEAN_COMPILE config option in the
-automated builds and continue to build broken drivers.  Perhaps I will
-build both.  Hey, it is just CPU time.  :)
-
-John
-
-
-On Thu, 2003-09-04 at 00:24, David S. Miller wrote:
-> On Wed, 3 Sep 2003 23:48:54 -0700 (PDT)
-> John Cherry <cherry@osdl.org> wrote:
-> 
-> > drivers/net/wan/cosa.c:516: warning: implicit declaration of function `sti'
-> > drivers/net/wan/cosa.c:661: warning: `MOD_INC_USE_COUNT' is deprecated
-> > (declared at include/linux/module.h:482)
-> 
-> There is no way these warnings were added in the past
-> 24 hours, they've been there nearly the entire 2.5.x
-> series.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
+Cheers,
+Jes

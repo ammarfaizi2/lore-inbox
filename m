@@ -1,71 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288821AbSA2RS4>; Tue, 29 Jan 2002 12:18:56 -0500
+	id <S289770AbSA2R0G>; Tue, 29 Jan 2002 12:26:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289768AbSA2RSs>; Tue, 29 Jan 2002 12:18:48 -0500
-Received: from port-213-20-128-35.reverse.qdsl-home.de ([213.20.128.35]:52491
-	"EHLO drocklinux.dyndns.org") by vger.kernel.org with ESMTP
-	id <S288821AbSA2RSe> convert rfc822-to-8bit; Tue, 29 Jan 2002 12:18:34 -0500
-Date: Tue, 29 Jan 2002 18:17:25 +0100 (CET)
-Message-Id: <20020129.181725.596534475.rene.rebe@gmx.net>
-To: pgallen@randomlogic.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Athlon Optimization Problem
-From: Rene Rebe <rene.rebe@gmx.net>
-In-Reply-To: <3C56D62D.595EA80D@randomlogic.com>
-In-Reply-To: <E16VIKU-0001f7-00@the-village.bc.nu>
-	<3C56D62D.595EA80D@randomlogic.com>
-X-Mailer: Mew version 2.1 on XEmacs 21.4.6 (Common Lisp)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S289775AbSA2RZ5>; Tue, 29 Jan 2002 12:25:57 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:60686 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S289769AbSA2RZv>; Tue, 29 Jan 2002 12:25:51 -0500
+Date: Tue, 29 Jan 2002 15:25:26 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Oliver Xymoron <oxymoron@waste.org>
+Cc: Daniel Phillips <phillips@bonn-fries.net>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Josh MacDonald <jmacd@CS.Berkeley.EDU>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        <reiserfs-list@namesys.com>, <reiserfs-dev@namesys.com>
+Subject: Re: Note describing poor dcache utilization under high memory pressure
+In-Reply-To: <Pine.LNX.4.44.0201291044060.25443-100000@waste.org>
+Message-ID: <Pine.LNX.4.33L.0201291524570.12225-100000@duckman.distro.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On: Tue, 29 Jan 2002 09:04:45 -0800,
-    "Paul G. Allen" <pgallen@randomlogic.com> wrote:
-> FWIW, I've been compiling kernels since 2.4.8 with Athlon optimizations
-> and have not had a problem with them. This is on a Tyan Thunder K7.
-> 
-> PGA
+On Tue, 29 Jan 2002, Oliver Xymoron wrote:
 
-I have also compiled every kernel with Athlon optimization since
-2.3.<whatever> but I have no Via boards! Irongates and SiS-735 are in
-use here ... No problem! - The only problem is this box of a friend
-... - which seems to be a Linux on Via hardware issue ... (Or a
-general stupid Via hardware issue ...)
+> Daniel's approach seems to be workable (once he's spelled out all the
+> details) but it misses the big performance win for fork/exec, which is
+> surely the common case. Given that exec will be throwing away all these
+> mappings, we can safely assume that we will not be inheriting many shared
+> mappings from parents of parents so Daniel's approach also still ends up
+> marking most of the pages RO still.
 
-> Alan Cox wrote:
-> > 
-> > Im still not convinced touching the register on the 266 chipset at 0x95 is
-> > correct. I now have several reports of boxes that only work if you leave it
-> > alone
-> > 
-> > Alan
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> -- 
-> Paul G. Allen
-> Owner, Sr. Engineer, Security Specialist
-> Random Logic/Dream Park
-> www.randomlogic.com
+It gets worse.  His approach also needs to adjust the reference
+counts on all pages (and swap pages).
 
+kind regards,
 
-k33p h4ck1n6
-  René
-
+Rik
 -- 
-René Rebe (Registered Linux user: #248718 <http://counter.li.org>)
+DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/
 
-eMail:    rene.rebe@gmx.net
-          rene@rocklinux.org
+http://www.surriel.com/		http://distro.conectiva.com/
 
-Homepage: http://drocklinux.dyndns.org/rene/
-
-Anyone sending unwanted advertising e-mail to this address will be
-charged $25 for network traffic and computing time. By extracting my
-address from this message or its header, you agree to these terms.

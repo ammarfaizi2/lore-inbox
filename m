@@ -1,50 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265798AbTBKCdh>; Mon, 10 Feb 2003 21:33:37 -0500
+	id <S265854AbTBKCna>; Mon, 10 Feb 2003 21:43:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265806AbTBKCdh>; Mon, 10 Feb 2003 21:33:37 -0500
-Received: from mta02ps.bigpond.com ([144.135.25.134]:8918 "EHLO
-	wmailout2.bigpond.com") by vger.kernel.org with ESMTP
-	id <S265798AbTBKCdg>; Mon, 10 Feb 2003 21:33:36 -0500
-From: Srihari Vijayaraghavan <harisri@telstra.com>
-To: linux-kernel@vger.kernel.org
-Cc: harisri@bigpond.com
-Message-ID: <14122914808b.14808b141229@bigpond.com>
-Date: Tue, 11 Feb 2003 13:43:17 +1100
-X-Mailer: Netscape Webmail
+	id <S265857AbTBKCna>; Mon, 10 Feb 2003 21:43:30 -0500
+Received: from sccimhc02.insightbb.com ([63.240.76.164]:54227 "EHLO
+	sccimhc02.insightbb.com") by vger.kernel.org with ESMTP
+	id <S265854AbTBKCn3>; Mon, 10 Feb 2003 21:43:29 -0500
+Message-ID: <3E486596.2090800@ntr.net>
+Date: Mon, 10 Feb 2003 21:53:10 -0500
+From: "Marco C. Mason" <mason@ntr.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:1.2.1) Gecko/20021130
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Language: en
-Subject: 2.5.60 - xscreensaver no go.
-X-Accept-Language: en
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+To: linux-kernel@vger.kernel.org, raid@a2000.nu
+Subject: fsck out of memory
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Stephan--
 
-While I can lock the screen fine (in GNOME that is), I can't unlock the 
-screen (xscreen saver says my password is wrong, while it isn't). I had 
-to terminate XFree86 to get back my desktop (bit of a trouble if I had 
-any unsaved work on the desktop I guess).
+I don't know if anyone mentioned it or not, but the block addresses in your
+error messages appear suspiciously close to 2^29.  I'm suspecting an 
+internal
+overflow in a calculation somewhere...
 
-The same functionality works fine under 2.5.59 and 2.4.latest.
+--marco
 
-I have:
-XFree86 4.2.0 (the one in RH 8.0) - s3virge driver
-xscreensaver-4.05-6 (the one in RH 8.0)
-
-I can give other details such as XF86Config, dmesg etc.. on request. 
-Later today I can verify this behaviour on 2 different computers (one 
-using i810 driver and other using vesa driver, and may be another one 
-using radeon driver).
-
-Sorry if this is a known problem, please cc me if you can.
-
-Thanks
-Hari
-harisri@bigpond.com
-
- 
 

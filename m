@@ -1,26 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266554AbUF3FOO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266205AbUF3FRx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266554AbUF3FOO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jun 2004 01:14:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266557AbUF3FOO
+	id S266205AbUF3FRx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jun 2004 01:17:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266560AbUF3FRx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jun 2004 01:14:14 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:39068 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266554AbUF3FOI (ORCPT
+	Wed, 30 Jun 2004 01:17:53 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:9118 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S265902AbUF3FRn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jun 2004 01:14:08 -0400
-Date: Tue, 29 Jun 2004 22:13:41 -0700
+	Wed, 30 Jun 2004 01:17:43 -0400
+Date: Tue, 29 Jun 2004 22:17:11 -0700
 From: "David S. Miller" <davem@redhat.com>
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: inconsistency between SIOCGIFCONF and SIOCGIFNAME
-Message-Id: <20040629221341.52824096.davem@redhat.com>
-In-Reply-To: <40E24573.5030403@redhat.com>
-References: <40E0EAC1.50101@redhat.com>
-	<20040629012604.20c3ad8b.davem@redhat.com>
-	<40E1BE7D.7070806@redhat.com>
-	<20040629141915.0268b741.davem@redhat.com>
-	<40E24573.5030403@redhat.com>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: wesolows@foobazco.org, sparclinux@vger.kernel.org,
+       ultralinux@vger.kernel.org, linux-kernel@vger.kernel.org,
+       wesolows@foobazco.org
+Subject: Re: A question about PROT_NONE on Sparc and Sparc64
+Message-Id: <20040629221711.77f0fca5.davem@redhat.com>
+In-Reply-To: <20040630030503.GA25149@mail.shareable.org>
+References: <20040630030503.GA25149@mail.shareable.org>
 X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
 X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
@@ -29,29 +27,62 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 29 Jun 2004 21:45:39 -0700
-Ulrich Drepper <drepper@redhat.com> wrote:
+On Wed, 30 Jun 2004 04:05:03 +0100
+Jamie Lokier <jamie@shareable.org> wrote:
 
-> When was the netlink interface introduced?  The ioctl() code is most
-> probably older and therefore we would still get wrong results on old
-> kernels.  I don't know the reason why  you hesitate, but the patch seems
-> really harmless and, as you pointed out, more compatible with the BSD
-> version.
+> In include/asm-sparc64/pgtable.h, there's:
+> 
+> #define __ACCESS_BITS   (_PAGE_ACCESSED | _PAGE_READ | _PAGE_R)
+> #define PAGE_NONE       __pgprot (_PAGE_PRESENT | _PAGE_ACCESSED | _PAGE_CACHE)
+> #define PAGE_READONLY   __pgprot (_PAGE_PRESENT | _PAGE_VALID | _PAGE_CACHE | \
+>                                   __ACCESS_BITS)
+> 
+> PAGE_NONE has the hardware _PAGE_PRESENT bit set.  However unlike
+> PAGE_READONLY, it doesn't have the hardware _PAGE_R and software
+> _PAGE_READ bits.
+> 
+> I guess that means that PAGE_NONE pages aren't readable from
+> userspace.  Presumably the TLB handler takes care of it.
+> Does it prevent reads from kernel space as well?
 
-RTNETLINK interfaces to get link information has existed since at
-least 2.0.x or something :-)  In fact, the first RTNETLINK codes
-are the ones to obtain and set link information.
+Neither user nor kernel can get at that page.  If _PAGE_R is not set
+we get a real fault no matter who attempts the access.
 
-All of these BSD ioctls are deprecated interfaces, back compatability
-hacks if you real, and the recommended interface to change link and
-route information is RTNETLINK.
+> I.e. can you confirm that write() won't succeed in reading the data
+> from a PROT_NONE page on Sparc64?  I think that's probably the case.
+> You'll see why I ask, from the next one:
 
-I really hesitate to change the ioctl() code, because basically my
-suggested change puts effectively an AF_UNSPEC address there (this
-is what you get with a zero'd out sockaddr_t).  Who knows what that
-means.  Sure most apps will ignore it but I absolutely do not want
-to take the chance.
+That's correct.
 
-This is especially unnecessary since rtnetlink does exactly what you
-want already, so we don't need to add a new interface nor change the
-semantics of an old one.
+> In include/asm-sparc/pgtsrmmu.h, there's:
+> 
+> #define SRMMU_PAGE_NONE    __pgprot(SRMMU_VALID | SRMMU_CACHE | \
+> 				    SRMMU_PRIV | SRMMU_REF)
+> #define SRMMU_PAGE_RDONLY  __pgprot(SRMMU_VALID | SRMMU_CACHE | \
+> 				    SRMMU_EXEC | SRMMU_REF)
+> 
+> This one bothers me.  The difference is that PROT_NONE pages are not
+> accessible to userspace, and not executable.
+> 
+> So userspace will get a fault if it tries to read a PROT_NONE page.
+> 
+> But what happens when the kernel reads one?  Don't those bits mean
+> that the read will succeed?  I.e. write() on a PROT_NONE page will
+> succeed, instead of returning EFAULT?
+> 
+> If so, this is a bug.  A minor bug, perhaps, but nonetheless I wish to
+> document it.
+
+Yes this one is a bug and not intentional.
+
+Keith W., we need to fix this.  Probably the simplest fix is just to
+drop the SRMMU_VALID bit.
+
+> Alternatively, perhaps in this case simply omitting the SRMMU_REF bit
+> would be enough?  Would that cause the TLB handler to be entered, and
+> the TLB handler could then refuse access?  Again, I don't know enough
+> about Sparc to say more.
+
+No, if it's SRMMU_VALID the hardware lets the translation succeed and
+like on x86 the hardware does the page table walk and thus the SRMMU_REF
+bit setting.

@@ -1,143 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272181AbRIOIrP>; Sat, 15 Sep 2001 04:47:15 -0400
+	id <S272196AbRIOKJZ>; Sat, 15 Sep 2001 06:09:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272195AbRIOIrF>; Sat, 15 Sep 2001 04:47:05 -0400
-Received: from natpost.webmailer.de ([192.67.198.65]:46750 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S272181AbRIOIqx>; Sat, 15 Sep 2001 04:46:53 -0400
-Message-ID: <3BA3156C.9050704@korseby.net>
-Date: Sat, 15 Sep 2001 10:46:36 +0200
-From: Kristian <kristian@korseby.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010808
-X-Accept-Language: de, en
-MIME-Version: 1.0
+	id <S272197AbRIOKJE>; Sat, 15 Sep 2001 06:09:04 -0400
+Received: from csa.iisc.ernet.in ([144.16.67.8]:20236 "EHLO csa.iisc.ernet.in")
+	by vger.kernel.org with ESMTP id <S272196AbRIOKIx>;
+	Sat, 15 Sep 2001 06:08:53 -0400
+Date: Sat, 15 Sep 2001 15:38:52 +0530 (IST)
+From: "M.Gopi Krishna" <mgopi@csa.iisc.ernet.in>
 To: linux-kernel@vger.kernel.org
-Subject: ext2fs corruption again
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Subject: regarding scsi logging
+Message-ID: <Pine.LNX.4.21.0109151534420.6362-100000@ruby.csa.iisc.ernet.in>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
-
-For about 3 weeks I sent a report that I've got very strange kernel error messages.
-
-I changed my harddrive to IBM 75 GB because someone said that IBM's 40 GB 
-harddisks are not very stable.
-
-Today I've got these from the kernel (with the new hd):
-
-Sep 15 10:01:58 adlib kernel: EXT2-fs error (device ide0(3,5)): 
-ext2_free_blocks: bit already cleared for block 4215
-Sep 15 10:01:58 adlib kernel: EXT2-fs error (device ide0(3,5)): 
-ext2_free_blocks: bit already cleared for block 4217
-Sep 15 10:01:59 adlib kernel: EXT2-fs error (device ide0(3,5)): 
-ext2_free_blocks: bit already cleared for block 4234
-Sep 15 10:01:59 adlib kernel: EXT2-fs error (device ide0(3,5)): 
-ext2_free_blocks: bit already cleared for block 4236
-Sep 15 10:01:59 adlib kernel: EXT2-fs error (device ide0(3,5)): 
-ext2_free_blocks: bit already cleared for block 4239
-Sep 15 10:02:03 adlib kernel: EXT2-fs error (device ide0(3,5)): 
-ext2_free_blocks: bit already cleared for block 4847
-Sep 15 10:02:03 adlib kernel: EXT2-fs error (device ide0(3,5)): 
-ext2_free_blocks: bit already cleared for block 4848
-Sep 15 10:02:03 adlib kernel: EXT2-fs error (device ide0(3,5)): 
-ext2_free_blocks: bit already cleared for block 4852
-Sep 15 10:02:03 adlib kernel: EXT2-fs error (device ide0(3,5)): 
-ext2_free_blocks: bit already cleared for block 4855
-Sep 15 10:02:06 adlib kernel: EXT2-fs error (device ide0(3,5)): ext2_new_block: 
-Allocating block in system zone - block = 174
-Sep 15 10:02:06 adlib kernel: EXT2-fs error (device ide0(3,5)): 
-ext2_free_blocks: Freeing blocks in system zones - Block = 179, count = 3
-Sep 15 10:02:09 adlib kernel: EXT2-fs error (device ide0(3,5)): 
-ext2_free_blocks: bit already cleared for block 4839
-
-Then I did an e2fsck on that device (hda5) and the errors occured after the 
-check (and a complete reboot) again:
-
-Sep 15 10:10:38 adlib kernel: EXT2-fs error (device ide0(3,5)): 
-ext2_free_blocks: bit already cleared for block 4163
-Sep 15 10:10:38 adlib kernel: EXT2-fs error (device ide0(3,5)): 
-ext2_free_blocks: bit already cleared for block 4166
-Sep 15 10:10:38 adlib kernel: EXT2-fs error (device ide0(3,5)): 
-ext2_free_blocks: bit already cleared for block 4131
-Sep 15 10:10:38 adlib kernel: EXT2-fs error (device ide0(3,5)): 
-ext2_free_blocks: bit already cleared for block 4132
-Sep 15 10:10:38 adlib kernel: EXT2-fs error (device ide0(3,5)): 
-ext2_free_blocks: bit already cleared for block 4155
-Sep 15 10:10:38 adlib kernel: EXT2-fs error (device ide0(3,5)): 
-ext2_free_blocks: bit already cleared for block 4156
-Sep 15 10:10:38 adlib kernel: EXT2-fs error (device ide0(3,5)): 
-ext2_free_blocks: bit already cleared for block 4157
-Sep 15 10:10:38 adlib kernel: EXT2-fs error (device ide0(3,5)): 
-ext2_free_blocks: bit already cleared for block 4161
-Sep 15 10:10:38 adlib kernel: EXT2-fs error (device ide0(3,5)): 
-ext2_free_blocks: bit already cleared for block 4162
-Sep 15 10:10:43 adlib kernel: EXT2-fs error (device ide0(3,5)): 
-ext2_free_blocks: bit already cleared for block 716
-Sep 15 10:10:43 adlib kernel: EXT2-fs error (device ide0(3,5)): 
-ext2_free_blocks: bit already cleared for block 717
-Sep 15 10:10:43 adlib kernel: EXT2-fs error (device ide0(3,5)): 
-ext2_free_blocks: bit already cleared for block 720
-Sep 15 10:10:43 adlib kernel: EXT2-fs error (device ide0(3,5)): 
-ext2_free_blocks: bit already cleared for block 723
-Sep 15 10:10:43 adlib kernel: EXT2-fs error (device ide0(3,5)): 
-ext2_free_blocks: bit already cleared for block 724
-Sep 15 10:10:43 adlib kernel: EXT2-fs error (device ide0(3,5)): 
-ext2_free_blocks: bit already cleared for block 725
-Sep 15 10:10:43 adlib kernel: EXT2-fs error (device ide0(3,5)): 
-ext2_free_blocks: bit already cleared for block 726
-Sep 15 10:10:43 adlib kernel: EXT2-fs error (device ide0(3,5)): 
-ext2_free_blocks: bit already cleared for block 727
-
-I've written down all e2fsck messages by hand. ;-) And I compared them.
-
-The following messages from e2fsck are always the same even on the old and on 
-the new hd. Here they are:
-
-Duplicate/bad bock(s) in inode:  97: 643
-Duplicate/bad bock(s) in inode: 100: 649
-Duplicate/bad bock(s) in inode: 101: 650 651
-Duplicate/bad bock(s) in inode: 102: 652
-Duplicate/bad bock(s) in inode: 103: 653 656
-Duplicate/bad bock(s) in inode: 104: 659 660
-Duplicate/bad bock(s) in inode: 105: 661 662 663 664 665 666
-Duplicate/bad bock(s) in inode: 106: 667 668
-Duplicate/bad bock(s) in inode: 107: 669 671
-Duplicate/bad bock(s) in inode: 108: 672 673 674
-Duplicate/bad bock(s) in inode: 110: 678
-
-Inodes 643-678 are always connected to faults.
-
-The following files are always in connection with these errors:
-/var/log/wtmp
-/var/log/messages
-
-The old hd was hda: IBM-DTLA-305040, ATA DISK drive. The new is: hda: 
-IBM-DTLA-307075, ATA DISK drive.
-
-hdparm says:
-  Model=IBM-DTLA-307075, FwRev=TXAOA50C, SerialNo=YSDYSFN9998
-  Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
-  RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=40
-  BuffType=DualPortCache, BuffSize=1916kB, MaxMultSect=16, MultSect=8
-  CurCHS=17475/15/63, CurSects=-78446341, LBA=yes, LBAsects=150136560
-  IORDY=on/off, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
-  PIO modes: pio0 pio1 pio2 pio3 pio4
-  DMA modes: mdma0 mdma1 mdma2 udma0 udma1 *udma2
-  AdvancedPM=yes: disabled (255)
-  Drive Supports : ATA/ATAPI-5 T13 1321D revision 1 : ATA-2 ATA-3 ATA-4 ATA-5
-
-I currently use linux 2.4.9 and e2fsprogs 1.23 and fileutils-4.1 and a modified 
-RedHat 6.2. These errors only occured with linux>=2.4.5-ac11.
-
-I might say this is definitely an error with ext2 !
-
-Kristian
-
-·· · · reach me :: · ·· ·· ·  · ·· · ··  · ··· · ·
-                          :: http://www.korseby.net
-                          :: http://www.tomlab.de
-kristian@korseby.net ....::
+I think i've turned full scsi logging on while compiling the kernel.
+Somewhere i read that this can cause infinite loop if the log file also
+resides on scsi disk.
+Currently i'm testing a new (pseudo) device driver on scsi device driver.
+While writing to that device , the use appl hangs though the system is
+usable.
+Can it be because of above problem, since i find no problem in using the
+mounted file system which resides on scsi disk.
+Thanks
+PS: pl cc the responses to me as i'm not on the group
+-- 
+mgopi.
 

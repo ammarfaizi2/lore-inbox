@@ -1,56 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319097AbSHSW4F>; Mon, 19 Aug 2002 18:56:05 -0400
+	id <S319095AbSHSWyz>; Mon, 19 Aug 2002 18:54:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319098AbSHSW4F>; Mon, 19 Aug 2002 18:56:05 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:7894 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S319097AbSHSW4D>;
-	Mon, 19 Aug 2002 18:56:03 -0400
-Date: Tue, 20 Aug 2002 01:01:22 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-Cc: Robert Love <rml@tech9.net>, Linus Torvalds <torvalds@transmeta.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: MAX_PID changes in 2.5.31
-In-Reply-To: <200208192247.g7JMlUM29487@vindaloo.ras.ucalgary.ca>
-Message-ID: <Pine.LNX.4.44.0208200049590.5653-100000@localhost.localdomain>
+	id <S319098AbSHSWyz>; Mon, 19 Aug 2002 18:54:55 -0400
+Received: from [209.47.40.2] ([209.47.40.2]:42505 "EHLO mailnet.consensys.com")
+	by vger.kernel.org with ESMTP id <S319095AbSHSWyy>;
+	Mon, 19 Aug 2002 18:54:54 -0400
+Message-ID: <033f01c247d4$1abd5610$4902a8c0@consensys.com>
+From: "Jason Zebchuk" <jason@consensys.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: SE7500CW2 motherboard
+Date: Mon, 19 Aug 2002 18:59:42 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-On Mon, 19 Aug 2002, Richard Gooch wrote:
+    I'm having problems with the kernel debugger on a number of machines
+with Intel SE7500CW2 motherboards.
 
-> Having a stable ABI to user-space has been one of the strong points of
-> Linux, versus just about everything else out there. And I wouldn't be
-> using libc 5 if glibc wasn't growing exponentially with time (both in
-> terms of total bytes and in terms of number of shared libraries I have
-> to add to my link line).
+    When attempting to enter the debugger, either by pressing "PAUSE" or at
+a breakpoint, one of  four things will happen:
 
-Richard, if you have read the current thread you are replying to, then you
-sure must have noticed that i was mailing exactly because i was worried
-about binary compatibility with certain old applications, not because i
-wanted to break or obsolete them. A patch with a solution was posted.
+    1.  It works as expected.
 
-Since glibc has not linked any application with the old interfaces in the
-past 2 years or more, there's no realistic chance to have any 'recent'
-applications that will just break. And old stuff has to be careful anyway
-=> one more thing to watch out for to get a working system with an old
-libc under a new kernel. If you really really need the old app then you
-can change pid_max, or you can even run the application under UML running
-an older Linux kernel or a new Linux kernel with a more conservative
-pid_max value. Plus, as the icing on the cake, new glibc detects old
-interface usage safely, so it's not as if things broke silently.
+    2. It reboots.
 
-now on to the interface you complain about. It's horribly broken. It
-assumes 16-bit PIDs and provides no safeguards against PID overflow. The
-new kernel might as well have scrapped the whole 16-bit implementation of
-the API and return -ENOSYS on it. Now it provides a way to limit the PID
-space to save these applications that use this broken 16-bit API. Good
-enough?
+    3.  It hangs.  ie. input seems to have no effect, no signs of activity,
+forced to power down.
 
-	Ingo
+    4.  It prints:
 
+            PCI System Error on Bus/Device/Function 00B0h
+            PCI Parity Error on Bus/Device/Function 00B0h
+
+        and then continues to function as expected.
+
+
+    In addition, it also occasionally hangs or reboots after entering the
+debugger successfully and using it for a short while.
+
+
+    I'm using a 2.4.18 kernel, and the problems are only happening on Intel
+SE7500CW2 motherboards (ie.  I don't have problems on say an Intel SDS2).
+
+    Has anyone seen any similar problems?  Has anyone had problems using
+this motherboard?  Does anyone have any suggestions?
+
+Thanks,
+
+Jason Zebchuk
 

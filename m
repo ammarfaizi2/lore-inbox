@@ -1,58 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262631AbSLBL6P>; Mon, 2 Dec 2002 06:58:15 -0500
+	id <S261963AbSLBMHU>; Mon, 2 Dec 2002 07:07:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262692AbSLBL6P>; Mon, 2 Dec 2002 06:58:15 -0500
-Received: from natsmtp01.webmailer.de ([192.67.198.81]:19699 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S262631AbSLBL6O>; Mon, 2 Dec 2002 06:58:14 -0500
-Message-Id: <200212021205.NAA22003@post.webmailer.de>
-From: Arnd Bergmann <arnd@bergmann-dalldorf.de>
-Subject: Re: [PATCH] Unsafe MODULE_ usage in crc32.c
-To: Matt Reppert <arashi@arashi.yi.org>, linux-kernel@vger.kernel.org
-Date: Mon, 02 Dec 2002 14:31:10 +0100
-References: <20021130181224.4b4cddad.arashi@arashi.yi.org>
-Organization: IBM Deutschland Entwicklung GmbH
-User-Agent: KNode/0.7.1
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
+	id <S262457AbSLBMHU>; Mon, 2 Dec 2002 07:07:20 -0500
+Received: from pc-62-30-72-146-ed.blueyonder.co.uk ([62.30.72.146]:46721 "EHLO
+	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
+	id <S261963AbSLBMHT>; Mon, 2 Dec 2002 07:07:19 -0500
+Subject: Re: data corrupting bug in 2.4.20 ext3, data=journal
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Nick Piggin <piggin@cyberone.com.au>, lkml <linux-kernel@vger.kernel.org>,
+       ext3 users list <ext3-users@redhat.com>
+In-Reply-To: <3DEB08EE.CBA49BA@digeo.com>
+References: <3DE9C43D.61FF79C5@digeo.com>
+	<3DEA0374.2040306@cyberone.com.au>  <3DEB08EE.CBA49BA@digeo.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 02 Dec 2002 12:15:05 +0000
+Message-Id: <1038831305.1852.102.camel@sisko.scot.redhat.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt Reppert wrote:
+On Mon, 2002-12-02 at 07:17, Andrew Morton wrote:
 
-> Okay, I know, it's just a library module, doesn't need to ever be unloaded
-> anyway. But error noise in dmesg annoys me, hence this patch.
+> Are you sure?  I can't make it happen on 2.4.19.  And disabling the new
+> BH_Freed logic (which went into 2.4.20-pre5) makes it go away.
+> 
+> --- linux-akpm/fs/jbd/commit.c~a	Sun Dec  1 23:10:12 2002
+> +++ linux-akpm-akpm/fs/jbd/commit.c	Sun Dec  1 23:10:27 2002
+> @@ -695,7 +695,7 @@ skip_commit: /* The journal should be un
+> -			clear_bit(BH_JBDDirty, &bh->b_state);
+> +//			clear_bit(BH_JBDDirty, &bh->b_state);
 
-I don't think you even need to set the use count at all for crc32:
-As long as another module is using it, you can't unload it because
-the exported symbols are used. When those symbols are not known
-to other modules, it is also safe to unload crc32.
+Argh.
 
-I noticed another small problem with init_crc: if crc32init_be()
-fails, the memory allocated by crc32init_le() is never freed,
-see below.
+That's not the right fix --- it reintroduces the bug that BH_Freed was
+introduced to solve in the first place. 
 
-	Arnd <><
+The problem is that ext3 is expecting that truncate_inode_pages() (and
+hence ext3_flushpage) is only called during a truncate.  That's what the
+function is named for, after all, and it's the hint we need to indicate
+that future writeback on the data we're discarding should be disabled
+(so that we don't get old data written on top of new data should the
+block get deallocated.)
 
---- 1.5/lib/crc32.c	Mon Apr  8 22:22:00 2002
-+++ edited/lib/crc32.c	Mon Dec  2 14:25:37 2002
-@@ -547,11 +547,13 @@
-  */
- static int __init init_crc32(void)
- {
--	int rc1, rc2, rc;
--	rc1 = crc32init_le();
--	rc2 = crc32init_be();
--	rc = rc1 || rc2;
--	if (!rc) MOD_INC_USE_COUNT;
-+	int rc;
-+	rc = crc32init_le();
-+	if (rc)
-+		return rc;
-+	rc = crc32init_be();
-+	if (rc)
-+		crc32cleanup_le();
- 	return rc;
- }
+But kill_supers() eventually calls truncate_inode_pages() too when we're
+doing the invalidate_inodes().  And ext3 is reacting just the way it
+would for a normal truncate --- the data still gets written to the
+journal (correct, if we reboot before the truncate commits then the old
+data is preserved in the journal) but is not queued for writeback.
+
+The solution is to set BH_Freed in ext3_flushpage IFF we're being called
+from the truncate, but to avoid it if we're in an umount.  I'm not sure
+of the best way to do that right now, but there are some trivial but
+hacky methods possible (eg. see if we're in a nested transaction; if so,
+it's a truncate, if not, it's a umount.)  MS_ACTIVE might be a possible
+flag to test, but I'll need to double-check whether that is 100% safe
+--- we can't afford to skip the BH_Freed setting if we're in a truncate
+and the filesystem is not yet completely quiesced.
+
+Cheers,
+ Stephen
+

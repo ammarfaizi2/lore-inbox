@@ -1,40 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261568AbUC1MTF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Mar 2004 07:19:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261610AbUC1MTF
+	id S261463AbUC1MSi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Mar 2004 07:18:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261568AbUC1MSi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Mar 2004 07:19:05 -0500
-Received: from mail.shareable.org ([81.29.64.88]:49810 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S261568AbUC1MTB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Mar 2004 07:19:01 -0500
-Date: Sun, 28 Mar 2004 13:16:40 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Peter Williams <peterw@aurema.com>
-Cc: Micha Feigin <michf@post.tau.ac.il>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: finding out the value of HZ from userspace
-Message-ID: <20040328121640.GA32296@mail.shareable.org>
-References: <20040316063331.GB23988@devserv.devel.redhat.com> <40578FDB.9060000@aurema.com> <20040320102241.GK2803@devserv.devel.redhat.com> <405C2AC0.70605@stesmi.com> <20040322223456.GB2549@luna.mooo.com> <405F70F6.5050605@aurema.com> <20040325174053.GB11236@mail.shareable.org> <406369A1.7090905@aurema.com> <20040327133133.GB21884@mail.shareable.org> <406613BC.90602@aurema.com>
+	Sun, 28 Mar 2004 07:18:38 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:62985 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S261463AbUC1MSg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Mar 2004 07:18:36 -0500
+Date: Sun, 28 Mar 2004 14:18:31 +0200
+From: Willy TARREAU <willy@w.ods.org>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-kernel@vger.kernel.org, mdharm-usb@one-eyed-alien.net
+Subject: Re: [PATCH-2.4.26] sddr09 cleanup
+Message-ID: <20040328121831.GA3957@pcw.home.local>
+References: <20040328042608.GA17969@logos.cnet> <20040328121552.GD24421@pcw.home.local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <406613BC.90602@aurema.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20040328121552.GD24421@pcw.home.local>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Williams wrote:
-> >>Making HZ == USER_HZ would also solve the problem.
-> >
-> >Making them equal now would reintroduce the problem that USER_HZ was
-> >created to resolve: some userspace programs hard-code the value, so it
-> >cannot be changed in interfaces used by those programs.
+On Sun, Mar 28, 2004 at 02:15:52PM +0200, Willy TARREAU wrote:
+> Hi Marcelo,
 > 
-> That was the wrong solution to that particular problem.  The programs 
-> should have been fixed rather than the kernel being maimed to 
-> accommodate their shortcomings.
+> sddr09 prints a warning about print_heap() which is not used.
+> I ifdef'ed it out so that is still is usable for debugging
+> purposes.
 
-I agree, and perhaps that should still be done so we can eliminate USER_HZ.
+Sorry, I confused it with radeon_mem (which comes next).
+For sddr09, it was sddr09_request_sense() which was not used
+(only referenced in an ifdef'ed out function). Patch is correct
+anyway.
 
--- Jamie
+Cheers,
+Willy
+

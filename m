@@ -1,64 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261921AbSJNGrj>; Mon, 14 Oct 2002 02:47:39 -0400
+	id <S261843AbSJNGzI>; Mon, 14 Oct 2002 02:55:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261922AbSJNGrj>; Mon, 14 Oct 2002 02:47:39 -0400
-Received: from angband.namesys.com ([212.16.7.85]:29625 "HELO
-	angband.namesys.com") by vger.kernel.org with SMTP
-	id <S261921AbSJNGrh>; Mon, 14 Oct 2002 02:47:37 -0400
-Date: Mon, 14 Oct 2002 10:53:23 +0400
-From: Oleg Drokin <green@namesys.com>
-To: Kai Germaschewski <kai-germaschewski@uiowa.edu>
-Cc: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>,
-       linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net
-Subject: Re: [PATCH] 2.5.42: UML build error
-Message-ID: <20021014105323.A5883@namesys.com>
-References: <877kgn7kmk.fsf@goat.bogus.local> <Pine.LNX.4.44.0210121145510.17947-100000@chaos.physics.uiowa.edu>
+	id <S261844AbSJNGzI>; Mon, 14 Oct 2002 02:55:08 -0400
+Received: from AGrenoble-101-1-1-171.abo.wanadoo.fr ([193.251.23.171]:51602
+	"EHLO awak") by vger.kernel.org with ESMTP id <S261843AbSJNGzI> convert rfc822-to-8bit;
+	Mon, 14 Oct 2002 02:55:08 -0400
+Subject: Re: Bitkeeper outragem, old and new
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Richard Stallman <rms@gnu.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44L.0210132057430.22735-100000@imladris.surriel.com>
+References: <Pine.LNX.4.44L.0210132057430.22735-100000@imladris.surriel.com>
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 14 Oct 2002 09:00:50 +0200
+Message-Id: <1034578850.907.2.camel@bip>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0210121145510.17947-100000@chaos.physics.uiowa.edu>
-User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Le lun 14/10/2002 à 01:00, Rik van Riel a écrit :
+> On Sun, 13 Oct 2002, Richard Stallman wrote:
+> 
+> > If the latest outrage brings the spirit of the non-free Bitkeeper
+> > license into clear view, perhaps that will be enough to convince the
+> > developers of Linux to stop using Bitkeeper for Linux development.
+> 
+> What would be even better is if it convinced free software people
+> to develop a tool as good as, or better than, Bitkeeper.
+> 
+> Until such a tool exists I'll tolerate Bitkeeper's licensing, since
+> my use of bitkeeper seems to increase rather than decrease the amount
+> of free software that's available.
 
-On Sat, Oct 12, 2002 at 11:49:35AM -0500, Kai Germaschewski wrote:
-
-> > When building 2.5.42 UML it fails with:
-> > [...]
-> Okay, so here's a patch which fixes the UML build for me (i386) -
-> generally, UML could use some more kbuild work, but I'll leave that for
-> post-freeze ;)
-
-Actually this patch does not work for make ARCH=um distclean (at least it does
-not work for me) because there is no Makefile in arch/um/include/sysdep/
-(something like a fix attached).
-Also after "distclean", you cannot build UML anymore.
-It fails to execute "prepare" target and therefore include/asm/arch
-symlink (and others ) is not made and build fails.
-
-  gcc -Wp,-MD,arch/um/sys-i386/util/.mk_thread_kern.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -O2  -fno-strict-aliasing -fno-common -g  -U__i386__ -Ui386 -D__arch_um__ -DSUBARCH=\"i386\" -D_LARGEFILE64_SOURCE -I/home/green/bk/linux-2.5/arch/um/include -Derrno=kernel_errno -nostdinc -iwithprefix include    -DKBUILD_BASENAME=mk_thread_kern   -c -o arch/um/sys-i386/util/mk_thread_kern.o arch/um/sys-i386/util/mk_thread_kern.c
-In file included from include/linux/posix_types.h:46,
-                 from include/linux/types.h:11,
-                 from include/linux/capability.h:16,
-                 from include/linux/sched.h:9,
-                 from arch/um/sys-i386/util/mk_thread_kern.c:2:
-include/asm/posix_types.h:4: asm/arch/posix_types.h: No such file or directory
+Maybe we should start using Intel's compiler in place of gcc for x86
+arch ? After all there's no such good free compiler ..
 
 
-===== arch/um/Makefile-i386 1.2 vs edited =====
---- 1.2/arch/um/Makefile-i386	Sat Oct 12 20:47:35 2002
-+++ edited/arch/um/Makefile-i386	Mon Oct 14 09:54:09 2002
-@@ -28,4 +28,4 @@
- 
- sysclean :
- 	rm -f $(SYS_HEADERS)
--	@$(call descend,$(SYS_DIR),clean)
-+	@$(call descend,$(SYS_UTIL_DIR),clean)
-
-
-Bye,
-    Oleg

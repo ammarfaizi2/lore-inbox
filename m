@@ -1,56 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267732AbUHJVON@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267707AbUHJVO6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267732AbUHJVON (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 17:14:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267727AbUHJVON
+	id S267707AbUHJVO6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 17:14:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267727AbUHJVO6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 17:14:13 -0400
-Received: from mail2.uklinux.net ([80.84.72.32]:52674 "EHLO mail2.uklinux.net")
-	by vger.kernel.org with ESMTP id S267707AbUHJVOA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 17:14:00 -0400
-From: Nick Warne <nick@linicks.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Bug zapper?  :)
-Date: Tue, 10 Aug 2004 22:13:56 +0100
-User-Agent: KMail/1.6.2
-MIME-Version: 1.0
+	Tue, 10 Aug 2004 17:14:58 -0400
+Received: from pfepb.post.tele.dk ([195.41.46.236]:39712 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S267707AbUHJVOt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 17:14:49 -0400
+Date: Tue, 10 Aug 2004 23:16:57 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: Roman Zippel <zippel@linux-m68k.org>, Sam Ravnborg <sam@ravnborg.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] select FW_LOADER -> depends HOTPLUG
+Message-ID: <20040810211656.GA7221@mars.ravnborg.org>
+Mail-Followup-To: Adrian Bunk <bunk@fs.tum.de>,
+	Roman Zippel <zippel@linux-m68k.org>,
+	Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
+References: <20040809195656.GX26174@fs.tum.de> <20040809203840.GB19748@mars.ravnborg.org> <Pine.LNX.4.58.0408100130470.20634@scrub.home> <20040810084411.GI26174@fs.tum.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200408102213.56383.nick@linicks.net>
+In-Reply-To: <20040810084411.GI26174@fs.tum.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"I'm suggesting things to make code auditing simpler, more accurate, more 
-precise.  "Quality-Assurance audited code still contains on average 5 
-bugs per kloc" is a really nasty thought."
+On Tue, Aug 10, 2004 at 10:44:11AM +0200, Adrian Bunk wrote:
+> 
+> I assume Sam thinks in the direction to let a symbol inherit the 
+> dependencies off all symbols it selects.
+> 
+> E.g. in
+> 
+> config A
+> 	depends on B
+> 
+> config C
+> 	select A
+        depends on Z
 
-I really disagree with stuff like this.
+  config Z
+        depends on Y
+> 
+> 
+> C should be treated as if it would depend on B.
 
-OK, I am not a contributer to kernel code - far from it - nor really any sort 
-of coder at all except I can read it all and try to understand.
+Correct. But at the same time I miss some functionality to
+tell me what a given symbol:
+1) depends on
+2) selects
 
-But why does 'quality assurance' == less bugs (or whatever you try it on - and 
-take we know who for an e.g.)?
+It would be nice in menuconfig to see what config symbol
+that has dependencies and/or side effects. 
 
-It doesn't.  All it does is give a 'false' assurance to something that when 
-tested and looked at didn't find what it was searching for to look at and 
-find - and of course, who/whatever does the assessment needs to be 'QA'ed' 
-first to make sure that is correct - so what/who does that?
-
-If the code is 'Assured clean' then should everybody accept it and carry on to 
-the next bit?
-
-Quality assurance may work in the manufacturing industry (sort of), but in 
-abstract fluent work...
-
-Many eyes is the only way, reading and re-reading.
-
-Nick
+[*] PCI support
+Could look like:
+[*]d PCI support
+The space for the 'd' tag could be misused for other purposes later.
 
 
--- 
-"When you're chewing on life's gristle,
-Don't grumble, Give a whistle..."
+The pressing 'd' would give me the following output:
+
+C "The C prompt"
+-> depends on
+   CONFIG_Z "Prompt for Z"
+   -> depends on
+      CONFIG_Y "Prompt for Y"
+-> Selects
+   CONFIG_A "Promtp for A"
+   -> depends on
+      CONFIG_B "Prompt for B"
+
+Or something similar.
+The idea is to give user an idea of dependencies (both ways) - recursive.
+Using both CONFIG symbol and prompt will give the user an idea where to
+locate it.
+
+Something like this is on my wish list.
+
+	Sam

@@ -1,56 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281931AbRKUSFq>; Wed, 21 Nov 2001 13:05:46 -0500
+	id <S281934AbRKUSLh>; Wed, 21 Nov 2001 13:11:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281927AbRKUSFh>; Wed, 21 Nov 2001 13:05:37 -0500
-Received: from palrel13.hp.com ([156.153.255.238]:58631 "HELO palrel13.hp.com")
-	by vger.kernel.org with SMTP id <S281395AbRKUSFa>;
-	Wed, 21 Nov 2001 13:05:30 -0500
-Message-ID: <3BFBECE4.BD24CD73@cup.hp.com>
-Date: Wed, 21 Nov 2001 10:05:24 -0800
-From: Rafael Hernandez <rafael@cup.hp.com>
-Reply-To: rhernandez@hp.com
-X-Mailer: Mozilla 4.76 [en] (X11; U; HP-UX B.11.00 9000/889)
-X-Accept-Language: en
+	id <S281927AbRKUSL1>; Wed, 21 Nov 2001 13:11:27 -0500
+Received: from [213.97.45.174] ([213.97.45.174]:22022 "EHLO pau.intranet.ct")
+	by vger.kernel.org with ESMTP id <S281395AbRKUSLT>;
+	Wed, 21 Nov 2001 13:11:19 -0500
+Date: Wed, 21 Nov 2001 19:10:43 +0100 (CET)
+From: Pau Aliagas <pau@newtral.com>
+X-X-Sender: <pau@pau.intranet.ct>
+To: Dave McCracken <dmccr@us.ibm.com>
+cc: lkml <linux-kernel@vger.kernel.org>, Jeff Long <jeffwlong@hotmail.com>,
+        OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Subject: Re: [PATCH] Re: Zombies with 2.4.15pre5 (exit.c)
+In-Reply-To: <41490000.1006272492@baldur>
+Message-ID: <Pine.LNX.4.33.0111211908210.1844-100000@pau.intranet.ct>
 MIME-Version: 1.0
-To: ia64-list@redhat.com, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: SHM_REMAP
-In-Reply-To: <200111200043.QAA32367@wilson.cygnus.com> <3BFA9D0F.F0BFDEEA@cup.hp.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-in sys/shm.h and in  bits/shm.h there's defined a flag  SHM_REMAP
+On Tue, 20 Nov 2001, Dave McCracken wrote:
 
-but I don't see it being used anywhere in the kernel. This was used in 2.2.x
-kernels
-in the file ipc/shm.c but I have looked for it in the latest 2.4.14 and it seems
-it not used
-anymore and it's not used in the Itanium RedHat linux-2.4.7-2 we have installed
-either.
+> > Running 2.4.15pre5 (UP) on i386, running UML 2.4.14-2.
+> > UML processes create threads on the host system that don't
+> > die.  Threads are stuck at do_exit( ), so I backed out the
+> > patch to kernel/exit.c @ 539 (in 2.4.15pre5 patch):
+> > 
+> >   p->state = TASK_DEAD;
+> > 
+> > and things work fine.  I do not see zombies with anything
+> > other than UML processes/native threads.
+> 
+> The intent of the original patch was to make the task unfindable to other
+> waiters, which fixed a race condition in sys_wait4().  My assumption was
+> that the task was about to be cleaned up in release_task().  What I missed
+> was that there are a couple of code paths that don't release the task, but
+> assume it'll be cleaned up later.
+> 
+> The patch below should fix the problem.
 
-Has this support for SHM_REMAP been droped or am I missing someting?
+It doesn't for me.
+I'll try OGAWA Hirofumi's patch -posted to the list- and let you know.
 
-Thanks in advance,
-Rafa
-
---
-                   __         Rafael M. Hernandez
-                  / /\          Enterprise Software Technology Lab
-        __       / /  \         Core HP-UX Operation
-       /_/\     /_/ /\ \      e-mail: rafael@cup.hp.com
-       \ \ \  __\ \ \_\ \     e-mail: rhernandez@hp.com
-        \ \ \/ /\\ \ \/ /     Hewlett-Packard Company
-         \ \ \/\ \\ \ \/      19447 Pruneridge Ave.
-          \ \ \ \ \\ \ \      MailStop 47LT
-           \ \ \_\/ \ \ \     Cupertino, CA 95014-0603
-            \ \ \    \_\/     Tel: 1-(408)-447-3637
-             \_\/             Telnet : 447-3637
-
-~
-~
+Pau
 
 
 

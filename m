@@ -1,55 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261824AbTCNLkL>; Fri, 14 Mar 2003 06:40:11 -0500
+	id <S262599AbTCNLon>; Fri, 14 Mar 2003 06:44:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262599AbTCNLkL>; Fri, 14 Mar 2003 06:40:11 -0500
-Received: from gate.in-addr.de ([212.8.193.158]:55474 "EHLO mx.in-addr.de")
-	by vger.kernel.org with ESMTP id <S261824AbTCNLkL>;
-	Fri, 14 Mar 2003 06:40:11 -0500
-Date: Fri, 14 Mar 2003 12:50:55 +0100
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: Pavel Machek <pavel@suse.cz>, kernel list <linux-kernel@vger.kernel.org>,
-       vojtech@suse.cz, lm@bitmover.com
-Subject: Re: Never ever use word BitKeeper if Larry does not like you
-Message-ID: <20030314115055.GR1211@marowsky-bree.de>
-References: <20030314105132.GB14270@atrey.karlin.mff.cuni.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030314105132.GB14270@atrey.karlin.mff.cuni.cz>
-User-Agent: Mutt/1.4i
-X-Ctuhulu: HASTUR
+	id <S262966AbTCNLon>; Fri, 14 Mar 2003 06:44:43 -0500
+Received: from node-c-3cf4.a2000.nl ([62.194.60.244]:3599 "HELO
+	vger.kernel.org") by vger.kernel.org with SMTP id <S262599AbTCNLom>;
+	Fri, 14 Mar 2003 06:44:42 -0500
+From: " MR.JOHNSON OYE" <johnoye10@netscape.net>
+Date: Fri, 14 Mar 2003 12:55:32
+To: linux-kernel@vger.kernel.org
+Subject: URGENT
+MIME-Version: 1.0
+Content-Type: text/plain;charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20030314114442Z262599-25575+29962@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2003-03-14T11:51:32,
-   Pavel Machek <pavel@suse.cz> said:
-
-> As for it being on your own time, let's see if SuSE wants the negative
-> publicity.  I'm quite willing to make a stink, you've annoyed me and
-> I've put up with as much as I'm going to.
-
-Ok, Larry, you have finally done the coyote stunt. Please report how it really
-feels, stepping of the cliff.
-
-So far, I have considered BK a very cool piece of work, and not taken a
-political interest in it. But by threatening SuSE developers (for work done on
-their own time, and for merely describing something as BK-compatible) by
-threatening SuSE with bad publicity, I can't even begin to describe my disgust
-for you.
-
-Technically, you are very competent. BK proves that, no doubt. But you should
-take a year off and work on your social skills. Because, as it is, you _are_
-making a stink.
-
-
-Sincerely,
-    Lars Marowsky-Brée <lmb@suse.de>
-
--- 
-Principal Squirrel 
-SuSE Labs - Research & Development, SuSE Linux AG
+ATTN:Friend
+   
+ I PRESUME THIS MAIL WILL NOT BE A SURPRISE TO YOU. 
+ I AM AN ACCOUNTANT WITH THE MINISTRY OF MINERAL 
+ RESOURCES AND ENERGY IN SOUTH AFRICA AND ALSO A MEMBER
+ OF CONTRACTS AWARDING COMMITTEE OF THIS MINISTRY UNDER
+ SOUTH AFRICA GOVERNMENT. 
+   
+ MANY YEARS AGO, SOUTH AFRICA GOVERNMENT ASKED THIS
+ COMMITTEE TO AWARDS CONTRACTS TO FOREIGN FIRMS, WHICH
+ I AND 2 OF MY PARTNERS ARE THE LEADER OF THIS
+ COMMITTEE, WITH OUR GOOD POSITION , THIS CONTRACRS 
+ WAS OVER INVOICED TO THE TUNE OF US$21,500,000:00 AS A
+ 
+ DEAL TO BE BENEFIT BY THE THREE TOP MEMBER OF THIS 
+ COMMITTEE. 
+ NOW THE CONTRACTS VALUE HAS BEEN PAID OFF TO THE 
+ CTUAL CONTRACTORS THAT EXECUTED THIS JOBS, ALL WE 
+ WANT NOW IS A TRUSTED FOREIGN PARTNER LIKE YOU THAT WE
   
-"If anything can go wrong, it will." "Chance favors the prepared (mind)."
-  -- Capt. Edward A. Murphy            -- Louis Pasteur
+ SHALL FRONT WITH HIS BANKING ACCOUNT NUMBER TO CLAIM 
+ THE OVER INFLATED SUM. 
+ UPON OUR AGREEMEENT TO CARRY ON THIS TRANSACTION WITH 
+ YOU, THE SAID FUND WILL BE SHARE AS FOLLOWS. 
+ 75% WILL BE FOR US IN SOUTH AFRICA. 
+ 20% FOR USING YOUR ACCOUNT AND OTHER CONTRIBUTION 
+ THAT MIGHT REQIURED FROM YOU. 
+ 5% IS SET ASIDE FOR THE UP FRONT EXPENCES THAT 
+ WILL BE ENCOUNTER BY BOTH PARTY TO GET ALL NECESSARY 
+ DOCUMENTS AND FORMARLITIES THAT WILL JUSTIFY YOU AS 
+ THE RIGHTFUL OWNER OF THIS FUND. 
+ IF YOU ARE INTERESTED IN THIS TRANSACTION, KINDLY 
+ REPLY THIS MASSEGE WITH ALL YOUR PHONE AND FAX
+ NUMBERS, OR MAIL ME THROUGH(oye100@netscape.net)
+ TO ENABLE US FURNISH YOU WITH DETAILS AND
+ PROCEDURES OF THIS TRANSACTION. 
+   
+ YOURS FAITHFULLY. 
+  
+ MR.JOHNSON OYE
+
+
+
+

@@ -1,37 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317540AbSGETAf>; Fri, 5 Jul 2002 15:00:35 -0400
+	id <S317542AbSGETHK>; Fri, 5 Jul 2002 15:07:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317542AbSGETAe>; Fri, 5 Jul 2002 15:00:34 -0400
-Received: from mraos.ra.phy.cam.ac.uk ([131.111.48.8]:9858 "EHLO
-	mraos.ra.phy.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S317540AbSGETAd>; Fri, 5 Jul 2002 15:00:33 -0400
-To: Jan Harkes <jaharkes@cs.cmu.edu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Thinkpad 560 suspend/hibernate requires floppy 
-In-Reply-To: Your message of "Sun, 30 Jun 2002 13:55:22 EDT."
-             <20020630175522.GA26454@ravel.coda.cs.cmu.edu> 
-Date: Fri, 05 Jul 2002 20:03:04 +0100
-From: Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>
-Message-Id: <E17QYMC-0006Se-00@coll.ra.phy.cam.ac.uk>
+	id <S317543AbSGETHJ>; Fri, 5 Jul 2002 15:07:09 -0400
+Received: from www.transvirtual.com ([206.14.214.140]:34577 "EHLO
+	www.transvirtual.com") by vger.kernel.org with ESMTP
+	id <S317542AbSGETHI>; Fri, 5 Jul 2002 15:07:08 -0400
+Date: Fri, 5 Jul 2002 12:09:28 -0700 (PDT)
+From: James Simmons <jsimmons@transvirtual.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux console project <linuxconsole-dev@lists.sourceforge.net>
+Subject: [PATCH] New Console part One.
+Message-ID: <Pine.LNX.4.44.0207051053500.25589-100000@www.transvirtual.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> # CONFIG_APM_ALLOW_INTS is not set
 
-> Enable this, the bios seems to want interrupts enabled, especially when
-> suspending to disk.
+After some testings here is the start of the new console system.
+The changes here are removal of struct kbd_struct from handler_sysrq. Only
+two sysrq functions actually use it. Sysrq should work with any kind of
+console system and the major of them will lack a physical keyboard. The
+second change is a cleanup and preparation of moving the VT console system
+input devices over to the input api.
 
-I'll try that.   Though I'm running bios v1.11 on the TP560, not v1.20
-(which apparently requires CONFIG_APM_ALLOW_INTS to be set).
+   . ---
+   |o_o |
+   |:_/ |   Give Micro$oft the Bird!!!!
+  //   \ \  Use Linux!!!!
+ (|     | )
+ /'\_   _/`\
+ \___)=(___/
 
-For now, I've found that to get hibernate/suspend working again, I
-don't even need to have a floppy drive attached or even use
-mount/umount.  All I have to do is:
 
-% modprobe -r floppy
-% modprobe floppy
+ arch/i386/kernel/apm.c         |    2
+ arch/ppc/xmon/start.c          |    2
+ arch/ppc64/xmon/start.c        |    2
+ drivers/acpi/system.c          |    2
+ drivers/char/console.c         |   82 ++--
+ drivers/char/keyboard.c        |  781 +++++++++++++++++++++--------------------
+ drivers/char/sysrq.c           |   46 +-
+ drivers/char/tty_io.c          |   15
+ include/linux/console_struct.h |    1
+ include/linux/sysrq.h          |   13
+ 11 files changed, 487 insertions(+), 459 deletions(-)
 
-then I can suspend or hibernate with no problem.
+The BK link is
 
--Sanjoy
+http://linuxconsole.bkbits.net/dev
+
+diff:
+
+http://www.transvirtual.com/~jsimmons/console.diff.gz
+

@@ -1,44 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312772AbSDSSin>; Fri, 19 Apr 2002 14:38:43 -0400
+	id <S312791AbSDSSrM>; Fri, 19 Apr 2002 14:47:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312791AbSDSSin>; Fri, 19 Apr 2002 14:38:43 -0400
-Received: from relay1.pair.com ([209.68.1.20]:26376 "HELO relay.pair.com")
-	by vger.kernel.org with SMTP id <S312772AbSDSSim>;
-	Fri, 19 Apr 2002 14:38:42 -0400
-X-pair-Authenticated: 24.126.75.99
-Message-ID: <3CC06470.F05543C4@kegel.com>
-Date: Fri, 19 Apr 2002 11:39:44 -0700
-From: Dan Kegel <dank@kegel.com>
-Reply-To: dank@kegel.com
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: printk in init_module mixing with printf in insmod
+	id <S312826AbSDSSrL>; Fri, 19 Apr 2002 14:47:11 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:8723 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S312791AbSDSSrL>; Fri, 19 Apr 2002 14:47:11 -0400
+Date: Fri, 19 Apr 2002 19:47:03 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Dan Kegel <dank@kegel.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: printk in init_module mixing with printf in insmod
+Message-ID: <20020419194703.A28850@flint.arm.linux.org.uk>
+In-Reply-To: <3CC06470.F05543C4@kegel.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I recently upgraded my ppc405 embedded system
-from 2.4.2 or so to 2.4.17 or so.  I use modutils-2.4.12.
-When I insert a nongpl module, 
-the 
-  fprintf(stderr, "Warning: loading foo.o will taint kernel\n");
-in insmod and the
-  printk("Hello, world\n");
-in the module are intermixed unpleasantly, yielding output like
-    Warning: loHello,ading foo.o world
-    will taint kernel
+On Fri, Apr 19, 2002 at 11:39:44AM -0700, Dan Kegel wrote:
+> I suppose this isn't terribly important, since printk's are
+> kind of a no-no in production, and this only affects printk's
+> in init_module, but it'd be nice to know what
+> the cleanest way to get rid of the mixing is.  Adding a sleep
+> inside insmod seems heavyhanded.  I suppose I could redirect
+> insmod's output to a file, sleep a bit, and then display the 
+> file... bleah.
 
-This garbled output makes reading the debugging printk's difficult.
+Output from a program to a serial port is buffered, and is thus
+asynchronous to the program.  printk output is synchronous, and as
+such will interrupt the normal IO to the port.
 
-I suppose this isn't terribly important, since printk's are
-kind of a no-no in production, and this only affects printk's
-in init_module, but it'd be nice to know what
-the cleanest way to get rid of the mixing is.  Adding a sleep
-inside insmod seems heavyhanded.  I suppose I could redirect
-insmod's output to a file, sleep a bit, and then display the 
-file... bleah.
-- Dan
+If you're going to use delays, you need to take account of the serial
+port baud rate and adjust the delay accordingly.  However, you don't
+really know how many characters are pending in the kernel anyway.
+
+I don't think there's an answer to this if you're going to run both
+applications and kernel console on the same port.
+
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

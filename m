@@ -1,120 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263271AbTIVUFt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Sep 2003 16:05:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263272AbTIVUFt
+	id S263309AbTIVT7h (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Sep 2003 15:59:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263310AbTIVT7h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Sep 2003 16:05:49 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:19262 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S263271AbTIVUFa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Sep 2003 16:05:30 -0400
-To: Jamie Lokier <jamie@shareable.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Mon, 22 Sep 2003 15:59:37 -0400
+Received: from 81-5-136-19.dsl.eclipse.net.uk ([81.5.136.19]:39113 "EHLO
+	vlad.carfax.org.uk") by vger.kernel.org with ESMTP id S263309AbTIVT7d
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Sep 2003 15:59:33 -0400
+Date: Mon, 22 Sep 2003 20:59:20 +0100
+From: Hugo Mills <hugo-lkml@carfax.org.uk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Per Andreas Buer <perbu@linpro.no>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Can we kill f inb_p, outb_p and other random I/O on port 0x80, in 2.6?
-References: <m1isnlk6pq.fsf@ebiederm.dsl.xmission.com>
-	<1064229778.8584.2.camel@dhcp23.swansea.linux.org.uk>
-	<20030922162602.GB27209@mail.jlokier.co.uk>
-	<1064248391.8895.6.camel@dhcp23.swansea.linux.org.uk>
-	<20030922190054.GC27209@mail.jlokier.co.uk>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 22 Sep 2003 14:05:15 -0600
-In-Reply-To: <20030922190054.GC27209@mail.jlokier.co.uk>
-Message-ID: <m1wuc0io78.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Re: SiI3112: problemes with shared interrupt line?
+Message-ID: <20030922195920.GH10409@carfax.org.uk>
+Mail-Followup-To: Hugo Mills <hugo-lkml@carfax.org.uk>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Per Andreas Buer <perbu@linpro.no>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <PERBUMSGID-ul6pthskb16.fsf@ipchains.linpro.no> <1064256539.9008.13.camel@dhcp23.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="wj9ZLJVQDRFjGSdK"
+Content-Disposition: inline
+In-Reply-To: <1064256539.9008.13.camel@dhcp23.swansea.linux.org.uk>
+X-GPG-Fingerprint: B997 A9F1 782D D1FD 9F87  5542 B2C2 7BC2 1C33 5860
+X-GPG-Key: 1C335860
+X-Parrot: It is no more. It has joined the choir invisible.
+X-IRC-Nicks: hugo darksatanic
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jamie Lokier <jamie@shareable.org> writes:
 
-> A few architectures define in[bwl]_p & out[bwl]_p differently from
-> in[bwl] and out[bwl].  These are:
+--wj9ZLJVQDRFjGSdK
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> 	x86_64
-> 		- four methods just like i386
+On Mon, Sep 22, 2003 at 07:49:00PM +0100, Alan Cox wrote:
+> Just about every bug report I have about SI3112 now is on Nforce
+> chipsets. At the moment however I don't know what the magic connection
+> is.
 
-At least until some new chipsets come out I can certify that x86_64
-works just fine without the delay.
+   I don't know if this comes under the heading of "SiI3112 bugs", but
+Adaptec AAR-1210SA still doesn't work for me (and I've seen one other
+identical report on LKML in the last fortnight).
 
-> Some of the architectures _call_ the _p operators even for some
-> architecture-specific devices, even though those operators don't have
-> a delay.
-> 
-> The m68k implementation is nice: it defines a function called
-> isa_delay(), which contains the delay which is done after the I/O by
-> _p operations.
-> 
-> IMHO, it would be nice if all architectures simply provided an
-> appropriate isa_delay() function, and the _p I/O operators were simply
-> removed.  That would make the intent of drivers using those operators
-> a little clearer, too.
+   Any attempt to access the drive (Seagate Barracuda V) causes this
+to happen:
 
-It certainly removes the magic coupling.
+Sep 22 20:56:00 src@vlad kernel: hda: dma_timer_expiry: dma status == 0x24
+Sep 22 20:56:10 src@vlad kernel: hda: DMA interrupt recovery
+Sep 22 20:56:10 src@vlad kernel: hda: lost interrupt
 
+   Data does eventually get to/from the drive, but so slowly as to be
+unusable.
 
-> Devices
-> =======
-> 
-> I think they're all ISA devices, or emulations of them.
-> 
-> Unfortunately, a _lot_ of drivers in the kernel use the _p I/O
-> operators so it's not possible to look for a few special quirky
-> devices.  I suspect that in many cases, the _p operators are not
-> required but have been used for safety.  There is no harm in this of
-> course.
-> 
-> Alan mentioned the PIT timer chip and keyboard which appear on x86
-> machines as being specifically quirky.
-> 
-> I find it interesting, but awfully difficult to know whether it's
-> "correct", that the i386 PIT code uses inb/outb for some operations
-> and inb_p/outb_p for some others.
-> 
+   Hugo.
 
-> I'm wondering if there's a way to detect how much udelay is needed on
-> a particular board, and reduce or remove it on boards where it isn't
-> needed.
+-- 
+=== Hugo Mills: hugo@... carfax.org.uk | darksatanic.net | lug.org.uk ===
+  PGP key: 1C335860 from wwwkeys.eu.pgp.net or http://www.carfax.org.uk
+      --- In event of Last Trump,  please form an orderly queue ---      
+                          and await judgement.                           
 
-Until the problem is more clearly defined I don't think we can
-auto-detect.  The best we can do is to have drivers that replace
-the legacy drivers when appropriate and don't do the delay.  If the
-delay is done with udelay though it does not cause any bus traffic and
-another device can be using the bus.
+--wj9ZLJVQDRFjGSdK
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-> udelay() is also unreliable nowadays, due to CPUs changing clock
-> speeds according to the whims of the BIOS.  On laptops, even the rdtsc
-> rate varies.  If the delay is critical to system reliability for
-> unknown reasons, then switching to udelay() removes some of that "we
-> always did this and it fixed the unknown problems" legacy driver safety
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
-As long as udelay is calibrated at the fast system clock speed we are
-ok.  When the clock slows down the delay just increases, which is fine.
+iD8DBQE/b1SYssJ7whwzWGARAtrKAJ4i3EzWL1biF92DhcCKZbcGBvOZowCgkovb
+DSt/o0Py07IMXwixEby1cKI=
+=zqYq
+-----END PGP SIGNATURE-----
 
-> Unfortunately, there are a lot of drivers, and a lot of x86
-> arch-specific code, which use the delay operaters.  There's no real
-> way to verify that all the drivers are fine when the delay is reduced
-> or removed.
-
-We just need something sufficiently good.  If the delay is removed
-on a system that needs it someone will complain.
- 
-> The delay should only be effective for ISA devices.  I wonder if it
-> makes sense to separate the delay into an isa_delay() or io_delay()
-> function, sprinkled into source where the _p operators currently
-> appear, to make it clearer where the delays should appear.
->
-> In the i386 floppy driver, for example, it's clear why the delay is
-> there in one part of the virtual DMA loop and not the other: to allow
-> a device time to propagate a state change.  That also explains the
-> need for a delay after writing to port 0x42 of the PIT but not after
-> writing port 0x43.  I think calls to isa_delay() would make the intent
-> there a little clearer.
-
-I would agree with that.  Although I wonder if we are not mixing up
-various delays into one mechanism.  In any event it is a small safe step
-forward to entangling this legacy confusion.
-
-Eric
+--wj9ZLJVQDRFjGSdK--

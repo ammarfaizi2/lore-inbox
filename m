@@ -1,49 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262060AbTERNoY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 May 2003 09:44:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262063AbTERNoY
+	id S262072AbTEROFS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 May 2003 10:05:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262073AbTEROFS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 May 2003 09:44:24 -0400
-Received: from bv-n-3b5d.adsl.wanadoo.nl ([212.129.187.93]:15624 "HELO
-	legolas.dynup.net") by vger.kernel.org with SMTP id S262060AbTERNoX convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 May 2003 09:44:23 -0400
-From: Rudmer van Dijk <rudmer@legolas.dynup.net>
-To: Diego Calleja =?iso-8859-15?q?Garc=EDa?= <diegocg@teleline.es>,
-       Helge Hafting <helgehaf@aitel.hist.no>
-Subject: Re: 2.5.69-mm6
-Date: Sun, 18 May 2003 15:58:17 +0200
-User-Agent: KMail/1.5.1
-Cc: akpm@digeo.com, linux-kernel@vger.kernel.org
-References: <20030516015407.2768b570.akpm@digeo.com> <20030518113634.GA3446@hh.idb.hist.no> <20030518150547.2c2049ba.diegocg@teleline.es>
-In-Reply-To: <20030518150547.2c2049ba.diegocg@teleline.es>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200305181558.17825.rudmer@legolas.dynup.net>
+	Sun, 18 May 2003 10:05:18 -0400
+Received: from nat9.steeleye.com ([65.114.3.137]:62724 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S262072AbTEROFR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 May 2003 10:05:17 -0400
+Subject: Re: [patch] support 64 bit pci_alloc_consistent
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: arjanv@redhat.com
+Cc: Jes Sorensen <jes@wildopensource.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       "David S. Miller" <davem@redhat.com>,
+       Grant Grundler <grundler@dsl2.external.hp.com>,
+       Colin Ngam <cngam@sgi.com>, Jeremy Higdon <jeremy@sgi.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, linux-ia64@linuxia64.org,
+       wildos@sgi.com
+In-Reply-To: <1053250142.1300.8.camel@laptop.fenrus.com>
+References: <16071.1892.811622.257847@trained-monkey.org> 
+	<1053250142.1300.8.camel@laptop.fenrus.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 18 May 2003 09:17:48 -0500
+Message-Id: <1053267471.10811.28.camel@mulgrave>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 18 May 2003 15:05, Diego Calleja García wrote:
-> On Sun, 18 May 2003 13:36:34 +0200
->
-> Helge Hafting <helgehaf@aitel.hist.no> wrote:
-> > On Sun, May 18, 2003 at 12:06:44AM +0200, Diego Calleja García wrote:
-> > > I had this oops don't know how it happened (not reproduceable):
-> >
-> > <...>
-> > I also had a 2.5.69-mm6 freeze.  No dump since it happened
-> > while running X, and no disk activity were possible afterwards.
-> > No emergency sync, just the sysrq+B.
-> > This was UP with preempt.
->
-> BTW, this was compiled with gcc-3.3 (yeah...i know everybody loves 2.95,
-> but.... :)
+On Sun, 2003-05-18 at 04:29, Arjan van de Ven wrote:
+> An interface like
+> 
+> #define PCI_DMA_64BIT 0xffffffffffffffffULL
+> #define PCI_DMA_32BIT 0xffffffffULL
 
-I'm running 2.5.69-mm6 compiled with gcc-3.3 on UP without preemt and no 
-problems here 
+This we can add now.
 
-	Rudmer
+> void pci_set_dma_capabilities(device, 
+>                u64 streaming_mask, u64 persistent_mask);
+> u64 pci_get_effective_streaming_mask(device);
+> u64 pci_get_effective_persistent_mask(device);
+> 
+
+I see the value in this for weird mask devices, but I don't think it's a
+"must fix" for 2.6 since the weird mask devices can advertise a lower
+standard supported mask.
+
+The aic driver, for instance, seems to have a 39 bit addressing range
+(it uses 32 bit addr and 32 bit len descriptors, but reduces len to 24
+bits to steal the extra byte for 7 bits extra addressing).  However, it
+is forced to request the full 64 bit address mask---I've never worked
+out what will happen to it on a machine with more than 512GB memory.
+
+The lack of a coherent_mask is causing breakage on some platforms, so
+putting it in is a 2.6 must fix thing.
+
+James
+

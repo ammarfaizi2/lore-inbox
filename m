@@ -1,63 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264670AbTFLBLA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 21:11:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264674AbTFLBLA
+	id S264655AbTFLBKN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 21:10:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264663AbTFLBKN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 21:11:00 -0400
-Received: from ms-smtp-01.texas.rr.com ([24.93.36.229]:48800 "EHLO
-	ms-smtp-01.texas.rr.com") by vger.kernel.org with ESMTP
-	id S264670AbTFLBK4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 21:10:56 -0400
-Message-ID: <3EE7D659.2000003@austin.rr.com>
-Date: Wed, 11 Jun 2003 20:24:41 -0500
-From: Steve French <smfrench@austin.rr.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:0.9.4) Gecko/20011128 Netscape6/6.2.1
-X-Accept-Language: en-us
+	Wed, 11 Jun 2003 21:10:13 -0400
+Received: from dyn-ctb-210-9-241-68.webone.com.au ([210.9.241.68]:18436 "EHLO
+	chimp.local.net") by vger.kernel.org with ESMTP id S264655AbTFLBKE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jun 2003 21:10:04 -0400
+Message-ID: <3EE7D5F2.1070508@cyberone.com.au>
+Date: Thu, 12 Jun 2003 11:22:58 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030327 Debian/1.3-4
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: Compiling kernel with SuSE 8.2/gcc 3.3
-References: <3EE6B7A2.3000606@austin.rr.com.suse.lists.linux.kernel> <p73he6x59hf.fsf@oldwotan.suse.de>
+To: Robert Love <rml@tech9.net>
+CC: Andrew Morton <akpm@digeo.com>, bos@serpentine.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] as-iosched divide by zero fix
+References: <1055369849.1084.4.camel@serpentine.internal.keyresearch.com>	 <20030611154122.55570de0.akpm@digeo.com> <1055374476.673.1.camel@localhost>	 <1055377120.665.6.camel@localhost> <20030611172444.76556d5d.akpm@digeo.com> <1055380257.662.8.camel@localhost>
+In-Reply-To: <1055380257.662.8.camel@localhost>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Although it fixes it for building on 32 bit architectures, won't changing
 
 
-	__u64 uid = 0xFFFFFFFFFFFFFFFF;
-to
+Robert Love wrote:
 
-	__u64 uid = 0xFFFFFFFFFFFFFFFFULL;
-
-generate a type mismatch warning on ppc64 and similar 64 bit
-architecutres since __u64 is not a unsigned long long on ppc64 
-(it is unsigned long)?  My gut reaction is to just ingore the three
-places that cause warnings and the remaining two places that cause 
-signed/unsigned compare warnings of unsigned int local variables 
-to #defined literals (which presumably are treated as signed by default).
-
-Andi Kleen wrote:
-
->Steve French <smfrench@austin.rr.com> writes:
+>On Wed, 2003-06-11 at 17:24, Andrew Morton wrote:
 >
->>... and the similar ones in the same file
->>(fs/cifs/inode.c):
->>
->>	__u64 uid = 0xFFFFFFFFFFFFFFFF;
->>
->>generates a warning saying the value is too long for a long on x86
->>SuSE 8.2 with gcc 3.3
+>
+>>Do you know what the actual oops is?
 >>
 >
->Define it with ULL   (= long long) 
+>I got it all figured out now.
+>
+>It is a divide by zero in update_write_batch() called from
+>as_completed_request().
 >
 >
->AFAIK the problem is that it has no default promotion for constants to 
->long long (normally they are int, long, unsigned long etc. depending on
->their value) It's some C99 thing. Or maybe a gcc bug. Anyways ULL 
->makes it clear that it is unsigned long long.
+>>Odd that starting the X server triggers it.  Be interesting if your patch
+>>fixes things for Brian.
+>>
 >
+>I reproduced it without X.
+>
+>The divide by zero is on line 959 with the divide by 'write_time'. It
+>can obviously be zero (see line 950). The divide by 'batch' on line 953
+>seems safe.
+>
+>The correct patch is below.
+>
+
+Probably put in the other check to be on the safe side.
+And can the check be if (!write_time || (batch / write_time > 2)
+
+>
+>
+>Most important question: why are only some of us seeing this?
+>
+
+It would occur if a write batch didn't take any jiffies, which
+isn't very likely. The HZ=100 change probbly brought it out.
+Thanks guys.
 
 

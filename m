@@ -1,30 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264282AbRFSPL7>; Tue, 19 Jun 2001 11:11:59 -0400
+	id <S264293AbRFSPOj>; Tue, 19 Jun 2001 11:14:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264287AbRFSPLt>; Tue, 19 Jun 2001 11:11:49 -0400
-Received: from mercury.Sun.COM ([192.9.25.1]:60840 "EHLO mercury.Sun.COM")
-	by vger.kernel.org with ESMTP id <S264282AbRFSPLj>;
-	Tue, 19 Jun 2001 11:11:39 -0400
-Message-ID: <3B2F6C4C.3E3C502B@Sun.COM>
-Date: Tue, 19 Jun 2001 17:14:20 +0200
-From: Julien Laganier <Julien.Laganier@Sun.COM>
-Organization: Sun Microsystems
-X-Mailer: Mozilla 4.76C-CCK-MCD Netscape [en] (X11; U; SunOS 5.7 sun4u)
-X-Accept-Language: en
+	id <S264298AbRFSPO3>; Tue, 19 Jun 2001 11:14:29 -0400
+Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:59148
+	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
+	with ESMTP id <S264293AbRFSPOM>; Tue, 19 Jun 2001 11:14:12 -0400
+Date: Tue, 19 Jun 2001 11:13:47 -0400
+From: Chris Mason <mason@suse.com>
+To: Alan Cox <alan@redhat.com>, Justin Guyett <justin@soze.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.6-pre3 breaks ReiserFS mount on boot
+Message-ID: <46700000.992963627@tiny>
+In-Reply-To: <E15CHtN-0005gC-00@the-village.bc.nu>
+X-Mailer: Mulberry/2.0.8 (Linux/x86)
 MIME-Version: 1.0
-To: Linux Mailing List <linux-kernel@vger.kernel.org>
-Subject: Runsocks
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was searching for a source code of Runsocks. Does anybody knows where
-to find it ?
 
-Tnx
--- 
-    Julien Laganier
-     Student Intern
-Sun Microsystem Laboratories
+
+On Tuesday, June 19, 2001 10:33:49 AM +0100 Alan Cox
+<alan@lxorguk.ukuu.org.uk> wrote:
+
+>> 
+>> This after only using ac15 for a few hours... I've never seen anything
+>> like that with ac13, which I've used for days.
+> 
+> Is ac14 stable for you ?
+> 
+
+Hi Justin,
+
+ac14 was the first with a big reiserfs cleanup patch from me, so it would
+be great if you could try it to help narrow things down a bit.
+
+I can also just send you the patch to reverse, it might be faster, just let
+me know which way you'd prefer.
+
+-chris
+

@@ -1,58 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277338AbRJVAK2>; Sun, 21 Oct 2001 20:10:28 -0400
+	id <S277347AbRJVAUA>; Sun, 21 Oct 2001 20:20:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277341AbRJVAKT>; Sun, 21 Oct 2001 20:10:19 -0400
-Received: from adsl-204-0-249-112.corp.se.verio.net ([204.0.249.112]:21239
-	"EHLO tabby.cats-chateau.net") by vger.kernel.org with ESMTP
-	id <S277333AbRJVAKC>; Sun, 21 Oct 2001 20:10:02 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Jesse Pollard <jesse@cats-chateau.net>
-Reply-To: jesse@cats-chateau.net
-To: Tim Jansen <tim@tjansen.de>, James Simmons <jsimmons@transvirtual.com>
-Subject: Re: The new X-Kernel !
-Date: Sun, 21 Oct 2001 19:10:32 -0500
-X-Mailer: KMail [version 1.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.10.10110211025130.13079-100000@transvirtual.com> <15vO3W-0DSqTwC@fmrl00.sul.t-online.com>
-In-Reply-To: <15vO3W-0DSqTwC@fmrl00.sul.t-online.com>
+	id <S277353AbRJVATt>; Sun, 21 Oct 2001 20:19:49 -0400
+Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:22544 "EHLO
+	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
+	id <S277347AbRJVATm>; Sun, 21 Oct 2001 20:19:42 -0400
+Message-ID: <3BD36631.41618DE8@delusion.de>
+Date: Mon, 22 Oct 2001 02:20:01 +0200
+From: "Udo A. Steinberg" <reality@delusion.de>
+Organization: Disorganized
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.12-ac4 i686)
+X-Accept-Language: en, de
 MIME-Version: 1.0
-Message-Id: <01102119103200.19723@tabby>
-Content-Transfer-Encoding: 7BIT
+To: Alan Cox <laughing@shared-source.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.12-ac5
+In-Reply-To: <20011022004549.A32210@lightning.swansea.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 21 October 2001 14:17, Tim Jansen wrote:
-> On Sunday 21 October 2001 19:40, James Simmons wrote:
-> > It sets the hardware state of the keyboards and the
-> > mice. The user runs apps that alter the state. The second user comes
-> > along and log in on desktop two. He runs another small application to
-> > test the mice. It changes the state which in turn effects the person on
-> > desktop one.
->
-> Isn't this a driver problem? If two processes can interfere when using the
-> same device the driver should only allow one access (one device file
-> opened) at a time. And if two processes need to access it it should be
-> managed by a daemon.
+Alan Cox wrote:
 
-Neither - It is a resource allocation problem, which all UNIX style systems
-seem to lack. And second, it doesn't happen at the present time with 
-mice/keyboard/display unless somebody (root) did not configure the system 
-properly (as in leave the device inodes accessable to world) OR change the
-protection to permit access.
+> 2.4.12-ac5
+> o       Mini-acpi support for using ACPI apic/cpu       (Andrew Henroid,
+>         tables (needed for some new IBM stuff)           Richard Schaal,
+>         | You must use a command line option to enable   Jun Nakajima,
+>         | this for now                                   Arjan van de Ven)
+>         | (Submitted by IBM but written by Intel)
 
-Once a resource is allocated to a user session (not process) it should not be 
-accessable to other users.
+Hi Alan,
 
-Linux doesn't have a resource allocation other than the limited single open
-support for character device drivers. This is usually sufficient for 
-keyboard/mouse/display since it is the X server that is opening the device.
+The acpi stuff doesn't compile.
 
-It is NOT sufficient for things like tape drives. The only way to prevent
-conflict at the present time is to change the ownership of the inode, and 
-ensure that the protection mask only permits user access. It is ALSO 
-necessary to ensure that no other processes have that device open at the same 
-time.
+acpitable.c: In function `__va_range':
+acpitable.c:479: `FIX_IO_APIC_BASE_0' undeclared (first use in this function)
+acpitable.c:479: (Each undeclared identifier is reported only once
+acpitable.c:479: for each function it appears in.)
+acpitable.c:496: `FIX_IO_APIC_BASE_END' undeclared (first use in this function)
 
-How those devices are controled/configured/used after allocation is and 
-should remain a user mode function, NOT a kernel function.
+Regards,
+Udo.

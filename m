@@ -1,77 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268733AbUH3SYv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268848AbUH3SYv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268733AbUH3SYv (ORCPT <rfc822;willy@w.ods.org>);
+	id S268848AbUH3SYv (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 30 Aug 2004 14:24:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268848AbUH3SYm
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268838AbUH3SYX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 14:24:42 -0400
-Received: from fw.osdl.org ([65.172.181.6]:36995 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268754AbUH3SFC (ORCPT
+	Mon, 30 Aug 2004 14:24:23 -0400
+Received: from open.hands.com ([195.224.53.39]:61070 "EHLO open.hands.com")
+	by vger.kernel.org with ESMTP id S268724AbUH3SEP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 14:05:02 -0400
-Date: Mon, 30 Aug 2004 10:58:54 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Paul Stewart <stewart@parc.com>
-cc: Paul Jackson <pj@sgi.com>, Hans Reiser <reiser@namesys.com>,
-       riel@redhat.com, ninja@slaphack.com, diegocg@teleline.es,
-       jamie@shareable.org, christophe@saout.de,
-       vda@port.imtp.ilyichevsk.odessa.ua, christer@weinigel.se,
-       spam@tnonline.net, akpm@osdl.org, wichert@wiggy.net, jra@samba.org,
-       hch@lst.de, linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       flx@namesys.com, reiserfs-list@namesys.com
-Subject: Re: silent semantic changes with reiser4
-In-Reply-To: <1093887838l.11947l.1l@orlando>
-Message-ID: <Pine.LNX.4.58.0408301052040.2295@ppc970.osdl.org>
-References: <Pine.LNX.4.44.0408271043090.10272-100000@chimarrao.boston.redhat.com>
- <412F7D63.4000109@namesys.com> <20040827230857.69340aec.pj@sgi.com>
- <1093887838l.11947l.1l@orlando>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 30 Aug 2004 14:04:15 -0400
+Date: Mon, 30 Aug 2004 19:15:20 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: fireflier firewall userspace program doing userspace packet filtering
+Message-ID: <20040830181519.GE8382@lkcl.net>
+References: <20040830104202.GG3712@lkcl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040830104202.GG3712@lkcl.net>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-hands-com-MailScanner: Found to be clean
+X-hands-com-MailScanner-SpamScore: s
+X-MailScanner-From: lkcl@lkcl.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+regarding this issue, i have done some exploration and found that
+ipt_owner is capable of registering by pid.
+
+therefore, the naive approach considered was to have fireflier
+"vet" rules via its userspace rules dynamically creating per-pid
+_new_ and _real_ rules (based on the template of options specified
+from the corresponding userspace rule) but of course with the
+ipt_owner "pid" set.
+
+this would at first glance solve the "INCOMING" problem which i
+understand the present ipt_owner code to be suffering from.
+
+anyway - this approach is insufficient and fraught with
+difficulties, not least involving purging the queue of existing
+packets that _would_ match the newly created rule, but it's
+too late, they're already in the queue.
+
+etc.
+
+so, what i would like to consider doing is to modify the ipt_owner
+module to include the full pathname of the binary it is supposed to
+vet.
+
+i don't give a rat's monkeybutt about "oo, yuk, that's disgusting
+to do that in the kernel" or "that would _so_ slow network traffic
+down": i don't care: this is going in an selinux system where the
+performance hit of selinux has already been accepted, so a couple
+more percentage performance hit i really don't give a stuff.
 
 
-On Mon, 30 Aug 2004, Paul Stewart wrote:
+so, my question, therefore, is:
+
+	what should i record in a modified version of ipt_owner in
+	order to "vet" packets on a per-executable basis?
+
+	should i consider recording the inode of the program's binary?
+
+	should i consider recording the _name_ of the program?
+
+	if i record the inode number, what example code should i examine
+	in order to DoTheRightThing of getting from process-pid to
+	inode/program?
+
+for example, i notice in ipt_owner.c that match_pid() calls
+find_task_by_pid().   okkkaaay... so... and then in fs/proc/base.c's
+proc_exe_link(), i see that get_task_mm() is called to get
+something called an mm_struct.   and theeeennn... dget is called
+on _that_, and _then_ in struct dentry, there's something called
+a d_inode, and _that_ is what i presume contains the inode number
+of the running process (i_ino).
+
+am i along the right lines, or should i be (according to
+proc_exe_link()) hunting down the struct vfsmount argument
+with mntget() instead?  somehow i don't think so, but i haven't
+any point of reference to know in advance.
+
+anyone with experience in the workings of proc and things, your
+input and advice greatly appreciated.
+
+l.
+
+
+On Mon, Aug 30, 2004 at 11:42:02AM +0100, Luke Kenneth Casson Leighton wrote:
+
+> 	is it possible to leverage - and i mean without cut/pasting
+> 	large parts of kernel-space code into fireflier-in-userspace -
+> 	the EXISTING kernel's iptables functionality in some way,
+> 	such that per-program packet filtering may be performed?
+
+> ultimate aim:
 > 
-> Here's another take on the same theme.  To see attrs on files, one can  
-> either use a newly developed application which can use special new  
-> syscalls/flags on syscalls a Paul Jackson recommends.  However from an  
-> old shell or application one can also open the attribute node on
-> /home/myself/foo.txt by checking out /attr/home/myself/foo.txt/, which  
-> points to the "as directory" node on the filesystem that foo.txt points  
-> to.
-
-This is the same idea as Al Viro's /proc/self/fd/#42/attr issue, except 
-yours has two fundamental problem: races and ambiguities.
-
-If you open a filename in some "secondary" tree (be it /proc or //attr or 
-whatever) based on the filename in the primary one, you have two issues 
-that you need to work out:
-
- - how do you handle a name change in the primary tree at the same time as 
-   lookup
- - how do you handle the ambiguity of
-	//attr/usr/bin/emacs/icon
-   (is that the "icon" attribute on "/usr/bin/emacs", or is it perhaps the 
-   "emacs/icon" attribute on "/usr/bin").
-
-The ambiguity can be handled by saying that attributes only have one
-component (ie only the _last_ component of a lookup is the attribute
-name). But the race between primary tree and secondary tree cannot be
-handled in a normal name-space.
-
-What Al did was to avoid both by "fixing" the attribute lookup point with 
-another open - _exactly_ the same way "openat()" handles it. So Al's 
-naming convention avoids both the ambiguity and the primary tree name 
-change races by first opening the primary tree file, and then explicitly 
-using that file as the "anchor" in the secondary tree. He did it in /proc, 
-where we obviously already do export an open fd as an anchor-point.
-
-> The strange part of this idea is that the /attr filesystem wouldn't be  
-> conventionally browsable.
-
-That may make it non-intuitive to use, but that's not the real problem.  
-See above.
-
-		Linus
+> 	to be able to "enhance" existing iptables firewall rule
+> 	checking rather than to be backed into a corner of "replacing"
+> 	existing functionality.... just because of one extra check
+> 	[the pid]

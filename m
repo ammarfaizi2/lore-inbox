@@ -1,39 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267504AbUIZEwE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269492AbUIZFX4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267504AbUIZEwE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Sep 2004 00:52:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269492AbUIZEwE
+	id S269492AbUIZFX4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Sep 2004 01:23:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269495AbUIZFX4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Sep 2004 00:52:04 -0400
-Received: from rproxy.gmail.com ([64.233.170.203]:36196 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S267504AbUIZEwC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Sep 2004 00:52:02 -0400
-Message-ID: <b2fa632f040925215271e9ecb@mail.gmail.com>
-Date: Sun, 26 Sep 2004 10:22:02 +0530
-From: Obelix <inguva@gmail.com>
-Reply-To: Obelix <inguva@gmail.com>
-To: Robert Hancock <hancockr@shaw.ca>, mdlinux7@yahoo.co.in
+	Sun, 26 Sep 2004 01:23:56 -0400
+Received: from web8503.mail.in.yahoo.com ([202.43.219.165]:23639 "HELO
+	web8503.mail.in.yahoo.com") by vger.kernel.org with SMTP
+	id S269492AbUIZFXy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Sep 2004 01:23:54 -0400
+Message-ID: <20040926052353.89645.qmail@web8503.mail.in.yahoo.com>
+Date: Sun, 26 Sep 2004 06:23:53 +0100 (BST)
+From: Dinesh Ahuja <mdlinux7@yahoo.co.in>
 Subject: Re: Problem in loading Module
+To: Obelix <inguva@gmail.com>
 Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <00d801c4a2c2$e7d8b270$6601a8c0@northbrook>
-Mime-Version: 1.0
+In-Reply-To: <b2fa632f040925215271e9ecb@mail.gmail.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <fa.jqou8ro.g3cl3k@ifi.uio.no>
-	 <00d801c4a2c2$e7d8b270$6601a8c0@northbrook>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 24 Sep 2004 23:45:46 -0600, Robert Hancock <hancockr@shaw.ca> wrote:
-> What kernel headers are you compiling the module against? They must match
-> the actual kernel you are using. If you are using Red Hat kernel 2.4.20-6
-> then you must compile against Red Hat 2.4.20-6 kernel headers.
+> What kernel headers are you compiling the module
+> against? They must match
+> the actual kernel you are using. If you are using
+> Red Hat kernel 2.4.20-6
+> then you must compile against Red Hat 2.4.20-6
+> kernel headers.
 
-you could also try turning off 'module versioning' in which case you
-can 'force' load
-a module. of course you risk your system when you do this.
+I have downloaded the kernel source for 2.4.20-6 and
+able to proceed and compile and load kernel.
+
+Thanks a lot for your guidance.
+
+Regards
+Dinesh
 
 
--- 
-Obelix###
+
+________________________________________________________________________
+Yahoo! India Matrimony: Find your life partner online
+Go to: http://yahoo.shaadi.com/india-matrimony

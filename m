@@ -1,42 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263937AbTDHEy3 (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 00:54:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263942AbTDHEy2 (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 00:54:28 -0400
-Received: from almesberger.net ([63.105.73.239]:42503 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id S263937AbTDHEy2 (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 8 Apr 2003 00:54:28 -0400
-Date: Tue, 8 Apr 2003 02:06:00 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: Clayton Weaver <cgweav@email.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] new syscall: flink
-Message-ID: <20030408020600.E19288@almesberger.net>
-References: <20030407165009.13596.qmail@email.com> <20030407154303.C19288@almesberger.net>
-Mime-Version: 1.0
+	id S263945AbTDHFLl (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 01:11:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263947AbTDHFLl (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 01:11:41 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:54661 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S263945AbTDHFLk (for <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Apr 2003 01:11:40 -0400
+Date: Mon, 07 Apr 2003 22:23:13 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [Bug 551] New: CONFIG_INPUT should be "y" by default
+Message-ID: <9360000.1049779393@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20030407154303.C19288@almesberger.net>; from wa@almesberger.net on Mon, Apr 07, 2003 at 03:43:03PM -0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I wrote:
-> Example: I write some kind of RAID mounted at /world, that contains
-> my disk under /world/disk, and some Flash storage under /world/flash.
-> I protect /world/flash against writes by other people. If a
-> read-only FD could be turned into something writeable, some malicious
-> creature could "wear out" my Flash by writing to it a lot of times.
+http://bugme.osdl.org/show_bug.cgi?id=551
 
-Just to clarify: the file in question would be inaccessible for the
-abuser, and the read-only fd would have to be handed out by some
-access mediator.
+           Summary: CONFIG_INPUT should be "y" by default
+    Kernel Version: 2.5.66
+            Status: NEW
+          Severity: normal
+             Owner: vojtech@suse.cz
+         Submitter: michael.wardle@adacel.com
 
-Obviously, if the abuser obtains a read-only fd directly by opening
-a file, the hypothetical flink couldn't be used for privilege
-escalation.
 
-- Werner
+Problem Description:
+When attempting to build a 2.5.66 kernel, CONFIG_INPUT is "m" by default.  This
+hides configuration items such as CONFIG_VT, without which the new kernel will
+not have a console.  As a working console is a basic feature that I expect most
+users will want, I suggest both CONFIG_INPUT and CONFIG_VT be "y" by default.
 
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/
+---------------------------- NOTE -----------------------
+
+Above was the bug as filed.
+
+CONFIG_INPUT and CONFIG_VT *do* default to y.
+Unfortunately 2.4 configs have CONFIG_INPUT disabled, which overrides
+the default ;-( This is breaking far too many people ... we really 
+need to do something like make CONFIG_INPUT_DISABLE and flip the 
+logic instead, so people stop tripping over this. Too much upgrade
+pain.
+
+M.
+

@@ -1,151 +1,295 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264637AbTEQAqi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 May 2003 20:46:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264640AbTEQAqi
+	id S264635AbTEQAlh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 May 2003 20:41:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264637AbTEQAlh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 May 2003 20:46:38 -0400
-Received: from cable98.usuarios.retecal.es ([212.22.32.98]:51857 "EHLO
-	hell.lnx.es") by vger.kernel.org with ESMTP id S264637AbTEQAqV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 May 2003 20:46:21 -0400
-Date: Sat, 17 May 2003 02:59:10 +0200
-From: Manuel Estrada Sainz <ranty@debian.org>
-To: Oliver Neukum <oliver@neukum.org>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-       Simon Kelley <simon@thekelleys.org.uk>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "Downing, Thomas" <Thomas.Downing@ipc.com>, Greg KH <greg@kroah.com>,
-       jt@hpl.hp.com, Pavel Roskin <proski@gnu.org>
-Subject: Re: request_firmware() hotplug interface, third round.
-Message-ID: <20030517005910.GA3808@ranty.ddts.net>
-Reply-To: ranty@debian.org
-References: <20030515200324.GB12949@ranty.ddts.net> <200305161753.17198.oliver@neukum.org> <20030516183152.GB18732@ranty.ddts.net> <200305170022.29824.oliver@neukum.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200305170022.29824.oliver@neukum.org>
-User-Agent: Mutt/1.5.4i
+	Fri, 16 May 2003 20:41:37 -0400
+Received: from c3po.aoltw.net ([64.236.137.25]:39633 "EHLO netscape.com")
+	by vger.kernel.org with ESMTP id S264635AbTEQAlc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 May 2003 20:41:32 -0400
+Date: Fri, 16 May 2003 17:54:14 -0700 (PDT)
+From: John Myers <jgmyers@netscape.com>
+Message-Id: <200305170054.RAA10802@pagarcia.nscp.aoltw.net>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Re: aio_poll in 2.6?
+References: <fa.mc7vl0v.u7u2ah@ifi.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 17, 2003 at 12:22:29AM +0200, Oliver Neukum wrote:
-> 
-> > > How and what is the benefit? If you go low on battery you have to
-> > > suspend, there's no choice. This means that you have to have it in RAM
-> > > always.
-> >
-> >  If the device losses the firmware upon suspend, the driver will have to
-> >  reinitialize it as if it just got plugged, which somehow makes all
-> >  devices hotplugable.
-> 
-> So all firmware has to be permanently in RAM anyway?
+It's basically waiting for someone to merge the patch.  There were
+some people making unsubstantiated claims that it didn't scale, but
+the available benchmarks showed that it scaled perfectly across the
+parameters tested.
 
- If you really can't access the filesystem on wakeup, you could pull the
- required firmware into ram upon suspend and remove it after wakeup.
- Then while the system is running it will not use kernel memory.
-
-> >  If the driver uses request_firmware(), it doesn't need to handle any
-> >  special case, just initialize as usual and it will get the firmware
-> >  when it needs it.
-> 
-> How or precisely, how do you know that it gets it when it needs
-> it? Are you planning to have a gray area where the kernel generates
-> a special user space before everything else gets woken?
-
- For this I proposed fwfs (a kernel friendly filesystem on top of
- ramfs), but it didn't get a good acceptance. And after reading Greg's
- recent post initramfs should be able to fill that gap.
+diff -Nur --exclude=SCCS --exclude=BitKeeper --exclude=ChangeSet ./fs/Makefile ../linux-aiopoll/fs/Makefile
+--- ./fs/Makefile	Fri May 16 17:01:25 2003
++++ ../linux-aiopoll/fs/Makefile	Fri May 16 16:57:55 2003
+@@ -10,7 +10,8 @@
+ 		namei.o fcntl.o ioctl.o readdir.o select.o fifo.o locks.o \
+ 		dcache.o inode.o attr.o bad_inode.o file.o dnotify.o \
+ 		filesystems.o namespace.o seq_file.o xattr.o libfs.o \
+-		fs-writeback.o mpage.o direct-io.o aio.o eventpoll.o
++		fs-writeback.o mpage.o direct-io.o aio.o eventpoll.o \
++		aiopoll.o
  
-> >  If the device is needed to access the filesystem, some kind of
-> >  persistence will be needed, so the required firmware is already in
-> >  kernel space. But the driver doesn't need to care, it will just ask for
-> >  the firmware as usual.
-> >
-> >  Which brings me to another issue, the same device can be required to
-> >  access the filesystem or not:
-> > 	- In a diskless client, it is the network card
-> > 	- In a live-cd it is the cdrom drive
-> > 	- In a multi disk system just one of them will be holding
-> > 	  required firmware.
-> >  So you can not decide at coding time, the latest at compile time, and
-> >  ideally at runtime (which is what I am trying to do).
-> 
-> How? You cannot page out memory during resumption.
-> You must not cause any access to disk during resumption.
-
- You will have to make sure that the firmware is copied into RAM before
- suspension, either via fwfs, initramfs or whatever persistence method
- gets implemented.
-
-> >  OK, how about:
-> >
-> >   int request_firmware_nowait (
-> >   		struct module *module,
-> >  		const char *name, const char *device, void *context,
-> >  		void (*cont)(const struct firmware *fw, void context)
-> >   );
-> >
-> >   request_firmware code will try_module_get/module_put as needed.
-> >
-> >   Would that fix the issue?
-> 
-> No, still no good. It means that you get a memory leak if you unload
-> a driver before firmware is provided. You need the ability to explicitely
-> cancel a request for firmware.
-
- The driver will not unload if request_firmware_nowait() has called
- try_module_get() on it.
-
- But the device could get disconnected and in that case the firmware
- load should be canceled. I'll add request_firmware_cancel().
+ obj-$(CONFIG_COMPAT) += compat.o
  
-> > > >  Would a patch to wait for hotplug termination and provide termination
-> > > >  status be accepted?
-> > >
-> > > No, you must not wait for user space.
-> >
-> >  And to get notified when userspace is done?
-> 
-> Not with that interface.
-> You'd need drivers to register both with their subsystem and
-> a firmware subsystem.
-
- Why?, the current interface already provides termination notification.
-
-> But you cannot make device discovery wait for user space.
-
- Why not?
+diff -Nur --exclude=SCCS --exclude=BitKeeper --exclude=ChangeSet ./fs/aio.c ../linux-aiopoll/fs/aio.c
+--- ./fs/aio.c	Fri May 16 17:01:25 2003
++++ ../linux-aiopoll/fs/aio.c	Fri May 16 16:57:55 2003
+@@ -58,6 +58,8 @@
  
- And anyway, request_firmware_nowait() could be used if that is an
- issue.
-
-> You'd have to rewrite the probe method of all drivers that need
-> firmware.
-
- Keep in mind that the "firmware in a header" method is not allowed
- any more. Drivers needing firmware will have to get their probe method
- modified to get the firmware from userspace anyway.
-
- Using request_firmware() if they can sleep (USB probe callbacks can
- sleep) is trivial, and using request_firmware_nowait() if they can't
- sleep is just a matter of splitting probe in two pieces.
-
- So, what alternative are you proposing to get the firmware?
+ static void aio_kick_handler(void *);
  
- If your proposal is just keeping the firmware in a header so you just
- have it there all the time, you should discuss it with Alan, Greg,
- Jeff, et all, not me.
-
- Thanks
-
- 	Manuel
++int async_poll(struct kiocb *iocb, int events);
++
+ /* aio_setup
+  *	Creates the slab caches used by the aio routines, panic on
+  *	failure as this is done early during the boot sequence.
+@@ -984,6 +986,19 @@
+ 	return -EINVAL;
+ }
  
-
--- 
---- Manuel Estrada Sainz <ranty@debian.org>
-                         <ranty@bigfoot.com>
-			 <ranty@users.sourceforge.net>
------------------------- <manuel.estrada@hispalinux.es> -------------------
-Let us have the serenity to accept the things we cannot change, courage to
-change the things we can, and wisdom to know the difference.
++ssize_t generic_aio_poll(struct file *file, struct kiocb *req, struct iocb *iocb)
++{
++	unsigned events = iocb->aio_buf;
++
++	/* Did the user set any bits they weren't supposed to? (The 
++	 * above is actually a cast.
++	 */
++	if (unlikely(events != iocb->aio_buf))
++		return -EINVAL;
++	
++	return async_poll(req, events);
++}
++
+ int FASTCALL(io_submit_one(struct kioctx *ctx, struct iocb *user_iocb,
+ 				  struct iocb *iocb));
+ int io_submit_one(struct kioctx *ctx, struct iocb *user_iocb,
+@@ -1070,6 +1085,9 @@
+ 		if (file->f_op->aio_fsync)
+ 			ret = file->f_op->aio_fsync(req, 0);
+ 		break;
++ 	case IOCB_CMD_POLL:
++ 		ret = generic_aio_poll(file, req, iocb);
++ 		break;
+ 	default:
+ 		dprintk("EINVAL: io_submit: no operation provided\n");
+ 		ret = -EINVAL;
+diff -Nur --exclude=SCCS --exclude=BitKeeper --exclude=ChangeSet ./fs/aiopoll.c ../linux-aiopoll/fs/aiopoll.c
+--- ./fs/aiopoll.c	Wed Dec 31 16:00:00 1969
++++ ../linux-aiopoll/fs/aiopoll.c	Fri May 16 16:57:55 2003
+@@ -0,0 +1,175 @@
++/*
++ * This file contains the procedures for the handling of aio poll
++ */
++
++#include <linux/slab.h>
++#include <linux/poll.h>
++#include <linux/aio.h>
++#include <linux/init.h>
++
++struct async_poll_iocb;
++
++struct async_poll_entry {
++	wait_queue_t wait;
++	wait_queue_head_t *whead;
++	struct async_poll_entry *next;
++	struct async_poll_iocb *apiocb;
++};
++
++struct async_poll_iocb {
++	poll_table		pt;
++	void			*armed;
++	int			outofmem;
++	int			events;		/* event mask for async poll */
++	struct async_poll_entry *ehead;
++	struct async_poll_entry entry[2];	/* space for two entries */
++};
++
++static kmem_cache_t *async_poll_entry_cache;
++
++static inline struct async_poll_iocb *kiocb_to_apiocb(struct kiocb *iocb)
++{
++	BUG_ON(sizeof(struct async_poll_iocb) > KIOCB_PRIVATE_SIZE);
++	return (struct async_poll_iocb *)iocb->private;
++}
++
++static inline struct kiocb *apiocb_to_kiocb(struct async_poll_iocb *apiocb)
++{
++	return container_of((void *)apiocb, struct kiocb, private);
++}
++
++static void async_poll_freewait(struct async_poll_iocb *apiocb, wait_queue_t *wait)
++{
++	struct async_poll_entry *entry = apiocb->ehead;
++	struct async_poll_entry *old;
++
++	while (entry) {
++		if (wait != &entry->wait) {
++			remove_wait_queue(entry->whead, &entry->wait);
++		} else {
++			__remove_wait_queue(entry->whead, &entry->wait);
++		}
++		old = entry;
++		entry = entry->next;
++		if (old != &apiocb->entry[0] && old != &apiocb->entry[1]) {
++			kmem_cache_free(async_poll_entry_cache, old);
++		}
++	}
++}
++
++static int async_poll_waiter(wait_queue_t *wait, unsigned mode, int sync)
++{
++	struct async_poll_entry *entry = (struct async_poll_entry *)wait;
++	struct async_poll_iocb *apiocb = entry->apiocb;
++	struct kiocb *iocb = apiocb_to_kiocb(apiocb);
++	unsigned int mask;
++
++	mask = iocb->ki_filp->f_op->poll(iocb->ki_filp, NULL);
++	mask &= apiocb->events | POLLERR | POLLHUP;
++	if (mask) {
++		if (xchg(&apiocb->armed, NULL)) {
++			async_poll_freewait(apiocb, wait); 
++			aio_complete(iocb, mask, 0);
++			return 1;
++		}
++	}
++	return 0;
++}
++
++int async_poll_cancel(struct kiocb *iocb, struct io_event *res)
++{
++	struct async_poll_iocb *apiocb = kiocb_to_apiocb(iocb);
++	void *armed;
++
++	armed = xchg(&apiocb->armed, NULL);
++	aio_put_req(iocb);
++	if (armed) {
++		async_poll_freewait(apiocb, NULL); 
++ 		/*
++ 		 * Since async_poll_freewait() locks the wait queue, we
++		 * know that async_poll_waiter() is either not going to
++		 * be run or has finished all its work.
++ 		 */
++  		aio_put_req(iocb);
++		return 0;
++	}
++	return -EAGAIN;
++}
++
++static void async_poll_queue_proc(struct file *file, wait_queue_head_t *whead, poll_table *pt)
++{
++	struct async_poll_iocb *apiocb = (struct async_poll_iocb *)pt;
++	struct async_poll_entry *entry;
++
++	if (!apiocb->ehead) {
++		entry = &apiocb->entry[0];
++	} else if (apiocb->ehead == &apiocb->entry[0]) {
++		entry = &apiocb->entry[1];
++	} else {
++		entry = kmem_cache_alloc(async_poll_entry_cache, SLAB_KERNEL);
++		if (!entry) {
++			apiocb->outofmem = 1;
++			return;
++		}
++	}
++	init_waitqueue_func_entry(&entry->wait, async_poll_waiter);
++	entry->whead = whead;
++	entry->next = apiocb->ehead;
++	entry->apiocb = apiocb;
++	add_wait_queue(whead, &entry->wait);
++	apiocb->ehead = entry;
++}
++
++int async_poll(struct kiocb *iocb, int events)
++{
++	unsigned int mask;
++	struct async_poll_iocb *apiocb = kiocb_to_apiocb(iocb);
++
++	/* Fast path */
++	if (iocb->ki_filp->f_op && iocb->ki_filp->f_op->poll) {
++		mask = iocb->ki_filp->f_op->poll(iocb->ki_filp, NULL);
++		mask &= events | POLLERR | POLLHUP;
++		if (mask & events)
++			return events;
++	}
++
++	init_poll_funcptr(&apiocb->pt, async_poll_queue_proc);
++	apiocb->armed = &apiocb;
++	apiocb->outofmem = 0;
++	apiocb->events = events;
++	apiocb->ehead = NULL;
++
++	iocb->ki_users++;
++	wmb();
++
++	mask = DEFAULT_POLLMASK;
++	if (iocb->ki_filp->f_op && iocb->ki_filp->f_op->poll)
++		mask = iocb->ki_filp->f_op->poll(iocb->ki_filp, &apiocb->pt);
++	mask &= events | POLLERR | POLLHUP;
++ 	if (mask && xchg(&apiocb->armed, NULL)) {
++		async_poll_freewait(apiocb, NULL);
++		aio_complete(iocb, mask, 0);
++	}
++	if (unlikely(apiocb->outofmem) && xchg(&apiocb->armed, NULL)) {
++		async_poll_freewait(apiocb, NULL);
++		aio_put_req(iocb);
++		aio_put_req(iocb);
++		return -ENOMEM;
++	}
++
++	iocb->ki_cancel = async_poll_cancel;
++	aio_put_req(iocb);
++	return -EIOCBQUEUED;
++}
++
++static int __init async_poll_init(void)
++{
++	async_poll_entry_cache = kmem_cache_create("async poll entry",
++                        sizeof(struct async_poll_entry), 0, 0, NULL, NULL);
++	if (!async_poll_entry_cache)
++		panic("unable to alloc poll_entry_cache");
++	return 0;
++}
++
++module_init(async_poll_init);
++
+diff -Nur --exclude=SCCS --exclude=BitKeeper --exclude=ChangeSet ./fs/select.c ../linux-aiopoll/fs/select.c
+--- ./fs/select.c	Fri May 16 17:01:26 2003
++++ ../linux-aiopoll/fs/select.c	Fri May 16 16:57:55 2003
+@@ -24,7 +24,6 @@
+ #include <asm/uaccess.h>
+ 
+ #define ROUND_UP(x,y) (((x)+(y)-1)/(y))
+-#define DEFAULT_POLLMASK (POLLIN | POLLOUT | POLLRDNORM | POLLWRNORM)
+ 
+ struct poll_table_entry {
+ 	struct file * filp;
+diff -Nur --exclude=SCCS --exclude=BitKeeper --exclude=ChangeSet ./include/linux/aio_abi.h ../linux-aiopoll/include/linux/aio_abi.h
+--- ./include/linux/aio_abi.h	Fri May 16 17:02:12 2003
++++ ../linux-aiopoll/include/linux/aio_abi.h	Fri May 16 16:58:29 2003
+@@ -38,8 +38,8 @@
+ 	IOCB_CMD_FDSYNC = 3,
+ 	/* These two are experimental.
+ 	 * IOCB_CMD_PREADX = 4,
+-	 * IOCB_CMD_POLL = 5,
+ 	 */
++	IOCB_CMD_POLL = 5,
+ 	IOCB_CMD_NOOP = 6,
+ };
+ 
+diff -Nur --exclude=SCCS --exclude=BitKeeper --exclude=ChangeSet ./include/linux/poll.h ../linux-aiopoll/include/linux/poll.h
+--- ./include/linux/poll.h	Fri May 16 17:02:16 2003
++++ ../linux-aiopoll/include/linux/poll.h	Fri May 16 16:58:33 2003
+@@ -10,6 +10,8 @@
+ #include <linux/mm.h>
+ #include <asm/uaccess.h>
+ 
++#define DEFAULT_POLLMASK (POLLIN | POLLOUT | POLLRDNORM | POLLWRNORM)
++
+ struct poll_table_struct;
+ 
+ /* 

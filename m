@@ -1,59 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261544AbVALCci@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261264AbVALC6A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261544AbVALCci (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 21:32:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261354AbVALCci
+	id S261264AbVALC6A (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 21:58:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262804AbVALC6A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 21:32:38 -0500
-Received: from orb.pobox.com ([207.8.226.5]:56012 "EHLO orb.pobox.com")
-	by vger.kernel.org with ESMTP id S261544AbVALCc3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 21:32:29 -0500
-Date: Tue, 11 Jan 2005 18:32:18 -0800
-From: "Barry K. Nathan" <barryn@pobox.com>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: David Lang <dlang@digitalinsight.com>, Jesper Juhl <juhl-lkml@dif.dk>,
-       Andries Brouwer <aebr@win.tue.nl>, "Barry K. Nathan" <barryn@pobox.com>,
-       Linus Torvalds <torvalds@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Lukasz Trabinski <lukasz@wsisiz.edu.pl>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] make uselib configurable (was Re: uselib()  & 2.6.X?)
-Message-ID: <20050112023218.GF4325@ip68-4-98-123.oc.oc.cox.net>
-References: <20050111235907.GG2760@pclin040.win.tue.nl> <Pine.LNX.4.61.0501120203510.2912@dragon.hygekrogen.localhost> <Pine.LNX.4.60.0501111714450.18921@dlang.diginsite.com> <20050111223641.GA27100@logos.cnet>
+	Tue, 11 Jan 2005 21:58:00 -0500
+Received: from fmr17.intel.com ([134.134.136.16]:27312 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261264AbVALC54 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jan 2005 21:57:56 -0500
+Subject: [PATCH]change 'struct device' -> platform_data to firmware_data
+From: Li Shaohua <shaohua.li@intel.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: Greg <greg@kroah.com>, Andrew Morton <akpm@osdl.org>
+Content-Type: text/plain
+Message-Id: <1105498626.26324.14.camel@sli10-desk.sh.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050111223641.GA27100@logos.cnet>
-User-Agent: Mutt/1.5.5.1i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 12 Jan 2005 10:57:06 +0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 11, 2005 at 08:36:41PM -0200, Marcelo Tosatti wrote:
-> On Tue, Jan 11, 2005 at 05:18:16PM -0800, David Lang wrote:
-[snip]
-> > how about something like the embedded, experimental, and broken options. 
-> > that way normal users can disable all of them at a stroke, people who need 
-> > them can add them in.
+Hi,
+struct device->platform_data is designed for ACPI, BIOS or other
+platform specific data, but some drivers misused the field which makes
+adding ACPI handle in device core impossible. Greg suggested me changing
+the name of the filed and so it breaks all such drivers, and then fix
+them. I'll try to fix some, but it would be great if the driver authors
+could do it.
 
-That is what I had in mind for the longer term. Now that I think about
-it, my current patch is probably a bad way to get from here to there --
-it adds a config option that would later *need* to be renamed and moved
-to a different category.
+Thanks,
+Shaohua
 
-(To be specific, the concept I have in mind is to have an option that
-disables the syscalls that are usually used only by libc5 and earlier.)
+---
 
-> Thats just not an option - you would have zillions of config options. 
+ 2.5-root/include/linux/device.h |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
-I don't see how it would be zillions, but it's possible there's
-something I'm not yet understanding.
+diff -puN include/linux/device.h~platform_data include/linux/device.h
+--- 2.5/include/linux/device.h~platform_data	2005-01-12 10:41:35.446722944 +0800
++++ 2.5-root/include/linux/device.h	2005-01-12 10:42:37.762249544 +0800
+@@ -265,7 +265,7 @@ struct device {
+ 	struct device_driver *driver;	/* which driver has allocated this
+ 					   device */
+ 	void		*driver_data;	/* data private to the driver */
+-	void		*platform_data;	/* Platform specific data (e.g. ACPI,
++	void		*firmware_data;	/* Platform specific data (e.g. ACPI,
+ 					   BIOS data relevant to device) */
+ 	struct dev_pm_info	power;
+ 
+_
 
-> Moreover this is a system call, and the system call interface is one of the few 
-> supposed to be stable. You shouldnt simply assume that "no one will ever use sys_uselib()" - 
-> there might be programs out there who use it.
-
-And if you have programs that need it, you (or your vendor) can set the
-config option accordingly.
-
--Barry K. Nathan <barryn@pobox.com>
 

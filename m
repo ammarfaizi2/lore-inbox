@@ -1,56 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262577AbUKEDIO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262581AbUKEDK2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262577AbUKEDIO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 22:08:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262579AbUKEDIO
+	id S262581AbUKEDK2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 22:10:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262584AbUKEDK1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 22:08:14 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:31660 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262577AbUKEDIM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 22:08:12 -0500
-Message-ID: <418AEE8D.4010007@pobox.com>
-Date: Thu, 04 Nov 2004 22:07:57 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-CC: Jakob Oestergaard <jakob@unthought.net>, Brad Campbell <brad@wasp.net.au>,
-       lkml <linux-kernel@vger.kernel.org>,
-       "Dr. Bruce Fields" <bfields@fieldses.org>
+	Thu, 4 Nov 2004 22:10:27 -0500
+Received: from pat.uio.no ([129.240.130.16]:42717 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S262581AbUKEDKO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 22:10:14 -0500
 Subject: Re: nfs stale filehandle issues with 2.6.10-rc1 in-kernel server
-References: <41877751.502@wasp.net.au>	 <1099413424.7582.5.camel@lade.trondhjem.org> <4187E4E1.5080304@pobox.com>	 <20041102200925.GA12752@unthought.net>  <418AE9DD.3010008@pobox.com> <1099623541.25951.8.camel@lade.trondhjem.org>
-In-Reply-To: <1099623541.25951.8.camel@lade.trondhjem.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Brad Campbell <brad@wasp.net.au>, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <418AEC14.3040605@pobox.com>
+References: <41877751.502@wasp.net.au>
+	 <1099413424.7582.5.camel@lade.trondhjem.org>  <4187E4E1.5080304@pobox.com>
+	 <1099431364.7854.17.camel@lade.trondhjem.org>  <418AEC14.3040605@pobox.com>
+Content-Type: text/plain
+Date: Thu, 04 Nov 2004 19:09:52 -0800
+Message-Id: <1099624193.25951.17.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 
 Content-Transfer-Encoding: 7bit
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
+X-UiO-MailScanner: No virus found
+X-UiO-Spam-info: not spam, SpamAssassin (score=0, required 12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust wrote:
-> to den 04.11.2004 Klokka 21:47 (-0500) skreiv Jeff Garzik:
-> 
->>>Does running an 'ls' on the server in the exported directory that is
->>>stale on the client resolve the problem (temporarily)?
->>
->>Yes.
-> 
-> 
-> This still looks very much like a server issue to me. Could someone who
-> is seeing the bug try to capture an instance of the ESTALE error going
-> across the wire, and then do a fresh lookup of the same file from an
-> "ls" call. I'd like to check how the stale filehandle differs from the
-> freshly looked up one...
-> 
-> Please use "tcpdump -s 9000 -w /tmp/binary.pcap port 2049 and host
-> my.servers.name" for the actual capture.
+to den 04.11.2004 Klokka 21:57 (-0500) skreiv Jeff Garzik:
 
-Will do.
+> Not saying that the client is _generating_ the stale filehandle errors, 
+> only saying that they appear to go away when I boot the _client_ into 
+> older 2.6.9 kernels.
 
-FWIW my server is running 2.6.9-final.  Client mount options in fstab 
-are "defaults,tcp" and server options are (rw,no_root_squash,async).
+That would point to some pretty nasty memory corruption issues on the
+client then (affecting the cached filehandle in the inode itself).
 
-	Jeff
+So... I can't see that any NFS client changes have been pushed to Linus
+after the release of 2.6.9-rc2. Is the latter afflicted with the ESTALE
+problem?
 
+Cheers,
+  Trond
 
+-- 
+Trond Myklebust <trond.myklebust@fys.uio.no>
 

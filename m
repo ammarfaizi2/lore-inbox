@@ -1,91 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261310AbVCTW1i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261311AbVCTWbL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261310AbVCTW1i (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Mar 2005 17:27:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261311AbVCTW1i
+	id S261311AbVCTWbL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Mar 2005 17:31:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261314AbVCTWbL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Mar 2005 17:27:38 -0500
-Received: from mail.dif.dk ([193.138.115.101]:64479 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S261310AbVCTW10 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Mar 2005 17:27:26 -0500
-Date: Sun, 20 Mar 2005 23:29:04 +0100 (CET)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Antonino Daplas <adaplas@pol.net>
-Cc: Jesper Juhl <juhl-lkml@dif.dk>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-fbdev-devel@lists.sourceforge.net, Alex Kern <alex.kern@gmx.de>,
-       "Ben. Herrenschmidt" <benh@kernel.crashing.org>,
-       Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-       Helge Deller <deller@gmx.de>, Philipp Rumpf <prumpf@tux.org>,
-       James Simmons <jsimmons@users.sf.net>,
-       Geert Uytterhoeven <geert@linux-m68k.org>,
-       "Eddie C. Dost" <ecd@skynet.be>, Nicolas Pitre <nico@cam.org>,
-       linux-arm-kernel@lists.arm.linux.org.uk, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] remove redundant NULL checks before kfree() in drivers/video/
-In-Reply-To: <200503210617.53272.adaplas@hotpop.com>
-Message-ID: <Pine.LNX.4.62.0503202325360.2508@dragon.hyggekrogen.localhost>
-References: <Pine.LNX.4.62.0503192339190.5507@dragon.hyggekrogen.localhost>
- <200503210453.47487.adaplas@hotpop.com> <Pine.LNX.4.62.0503202255060.2508@dragon.hyggekrogen.localhost>
- <200503210617.53272.adaplas@hotpop.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 20 Mar 2005 17:31:11 -0500
+Received: from p3EE2BB7C.dip.t-dialin.net ([62.226.187.124]:48256 "EHLO
+	mail.linux-mips.net") by vger.kernel.org with ESMTP id S261311AbVCTWbD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Mar 2005 17:31:03 -0500
+Date: Fri, 18 Mar 2005 22:56:40 +0000
+From: Ralf Baechle <ralf@linux-mips.org>
+To: Jesper Juhl <juhl-lkml@dif.dk>
+Cc: Andrew Morton <akpm@osdl.org>, Yoichi Yuasa <yuasa@hh.iij4u.or.jp>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch][resend] convert a remaining verify_area to access_ok (was: Re: [PATCH 2.6.11-mm1] mips: more convert verify_area to access_ok) (fwd)
+Message-ID: <20050318225640.GA4817@linux-mips.org>
+References: <Pine.LNX.4.62.0503162227270.2558@dragon.hyggekrogen.localhost> <20050317214302.GA14882@linux-mips.org> <Pine.LNX.4.62.0503180109490.2512@dragon.hyggekrogen.localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.62.0503180109490.2512@dragon.hyggekrogen.localhost>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Mar 18, 2005 at 01:17:47AM +0100, Jesper Juhl wrote:
 
-On Mon, 21 Mar 2005, Antonino A. Daplas wrote:
-> On Monday 21 March 2005 06:02, Jesper Juhl wrote:
-> > On Mon, 21 Mar 2005, Antonino A. Daplas wrote:
-> > > On Sunday 20 March 2005 06:59, Jesper Juhl wrote:
-> > > > Checking a pointer for NULL before calling kfree() on it is redundant,
-> > > > kfree() deals with NULL pointers just fine.
-> > > > This patch removes such checks from files in drivers/video/
-> > > >
-> > > [snip]
-> > >
-> > > > --- linux-2.6.11-mm4-orig/drivers/video/console/bitblit.c	2005-03-16
-> > > > 15:45:26.000000000 +0100 +++
-> > > > linux-2.6.11-mm4/drivers/video/console/bitblit.c	2005-03-19
-> > > > 22:27:39.000000000 +0100 @@ -199,8 +199,7 @@ static void
-> > > > bit_putcs(struct vc_data *vc
-> > > >  		count -= cnt;
-> > > >  	}
-> > > >
-> > > > -	if (buf)
-> > > > -		kfree(buf);
-> > > > +	kfree(buf);
-> > > >  }
-> > >
-> > > This is performance critical, so I would like the check to remain. A
-> > > comment may be added in this section.
-> >
-> > Ok, I believe Andrew already merged the patch into -mm, if you really want
-> > that check back then I'll send him a patch to put it back and add a
-> > comment once he puts out the next -mm.
-> > But, at the risk of exposing my ignorance, I have to ask if it wouldn't
-> > actually perform better /without/ the if(buf) bit?  The reason I say that
-> > is that the generated code shrinks quite a bit when it's removed, and also
-> > kfree() itself does the same NULL check as the very first thing, so it
-> > comes down to the bennefit of shorter generated code, one less branch,
-> > against the overhead of a function call - and how often will 'buf' be
-> > NULL? if buff is != NULL the majority of the time, then it should be a
-> > gain to remove the if().
-> 
-> You said it, buf is almost always NULL, except when the driver is in
-> monochrome mode.  So a kfree is rarely done.
-> 
-I see, then my change in this exact spot woul probably be a loss in the 
-general case. Thank you for explaining.
+> I hope I did a descent job and that you didn't waste too much time 
+> duplicating effort...
 
-> Anyway, if the patch is already in the tree, let's leave it at that.  I would
-> surmise that the performance loss is negligible.
-> 
-Well, I just spotted two cases I missed in drivers/video/ , so when I send 
-that patch I might as well include a hunk that puts this one check back 
-including a comment as to why it should stay.
+Didn't look too hard at it since my patch of something like 2,500 lines
+should be a superset of yours.
 
+> > The last instance of verify_area() in the MIPS code is now the definition
+> > itself.
+> > 
+> The plan is to wait for a few months (or a few kernel releases - whichever 
+> comes first) and then I'll send Andrew patches to remove it completely.
+> There are still a few related nits left, like the FPU_verify_area function 
+> arch/i386/math-emu/reg_ld_str.c and the rw_verify_area function in 
+> fs/read_write.c that I want to get out of the way first (think I'll 
+> probably end up attempting to rename those s/verify_area/access_ok/ and 
+> see if people scream).
 
--- 
-Jesper 
+Access_ok was introduced in 2.1.4.  Easy for people to write code that's
+portable and so verify_area should die a peaceful death.
 
+  Ralf

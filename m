@@ -1,42 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263698AbTKFTmd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Nov 2003 14:42:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263702AbTKFTmd
+	id S263806AbTKFTpx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Nov 2003 14:45:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263807AbTKFTpx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Nov 2003 14:42:33 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:5801 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S263698AbTKFTmc (ORCPT
+	Thu, 6 Nov 2003 14:45:53 -0500
+Received: from fw.osdl.org ([65.172.181.6]:8637 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263806AbTKFTpv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Nov 2003 14:42:32 -0500
-Date: Thu, 6 Nov 2003 11:37:16 -0800
-From: "David S. Miller" <davem@redhat.com>
-To: azarah@gentoo.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.4.21-rc1: byteorder.h breaks with __STRICT_ANSI__
- defined (trivial)
-Message-Id: <20031106113716.7382e5d2.davem@redhat.com>
-In-Reply-To: <1068144179.12287.283.camel@nosferatu.lan>
-References: <1068140199.12287.246.camel@nosferatu.lan>
-	<20031106093746.5cc8066e.davem@redhat.com>
-	<1068143563.12287.264.camel@nosferatu.lan>
-	<1068144179.12287.283.camel@nosferatu.lan>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 6 Nov 2003 14:45:51 -0500
+Date: Thu, 6 Nov 2003 11:45:49 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: bill davidsen <davidsen@tmr.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.9test9-mm1 and DAO ATAPI cd-burning corrupt
+In-Reply-To: <boe6in$f4q$1@gatekeeper.tmr.com>
+Message-ID: <Pine.LNX.4.44.0311061143300.1842-100000@home.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 06 Nov 2003 20:42:59 +0200
-Martin Schlemmer <azarah@gentoo.org> wrote:
 
-> Ok, so maybe above is not a case to work on, but if I write an
-> app that use only 32bit data types, and it links to a library that
-> also handles 64bit, it does not matter, as I do not call the functions
-> that handle 64bit data types, no ?
+On 6 Nov 2003, bill davidsen wrote:
+> 
+> I'm not sure what you mean by faster, burning runs at device limited
+> speed in CPU time in the  less than 1% range if you remember to enable
+> DMA. The last time I looked DMA didn't work in either kernel if write
+> size was not a multiple of 1k, (or 2k?) has that changed?
 
-Let's say that you end up using some inline function
-that takes u32 arguments, and internally it uses
-u64 types to speed up the calculation or make it more
-accurate or something like that.
+DMA works fine 
+
+	IF YOU DON'T USE IDE-SCSI
+
+Don't use it. Please. There's no point. 
+
+It's much more readable to do
+
+	cdrecord dev=/dev/hdc
+
+than it is to do some stupid "scan SCSI devices" + "dev=0,1,0" or similar 
+totally incomprehensible crap that doesn't even work right.
+
+> I'm not sure what you meant by faster, so don't think I'm disagreeing
+> with you.
+
+Faster as in "it uses DMA for everything, so you can actually burn at full 
+speed without having to worry about it or sucking up CPU".
+
+		Linus
+

@@ -1,50 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262273AbTEFCpv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 22:45:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262275AbTEFCpv
+	id S262281AbTEFCtl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 22:49:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262288AbTEFCtl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 22:45:51 -0400
-Received: from rth.ninka.net ([216.101.162.244]:32431 "EHLO rth.ninka.net")
-	by vger.kernel.org with ESMTP id S262273AbTEFCpo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 22:45:44 -0400
-Subject: Re: [PATCH] kmalloc_percpu
-From: "David S. Miller" <davem@redhat.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, dipankar@in.ibm.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20030505185248.3c3a478f.akpm@digeo.com>
-References: <20030505014729.5db76f70.akpm@digeo.com>
-	 <20030506012846.18DD62C568@lists.samba.org>
-	 <20030505185248.3c3a478f.akpm@digeo.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1052187119.983.5.camel@rth.ninka.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 05 May 2003 19:11:59 -0700
+	Mon, 5 May 2003 22:49:41 -0400
+Received: from munk.apl.washington.edu ([128.95.96.184]:52166 "EHLO
+	munk.apl.washington.edu") by vger.kernel.org with ESMTP
+	id S262281AbTEFCtj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 May 2003 22:49:39 -0400
+Date: Mon, 5 May 2003 20:19:11 -0700 (PDT)
+From: Brian Dushaw <dushaw@apl.washington.edu>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Albatron KM18G PRO/RedHat 9.0 - disk errors and system seizures...
+Message-ID: <Pine.LNX.4.44.0305052017190.27270-100000@munk.apl.washington.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-05-05 at 18:52, Andrew Morton wrote:
-> Rusty Russell <rusty@rustcorp.com.au> wrote:
-> > OK.  It has a size restriction: PERCPU_POOL_SIZE is the maximum total
-> > kmalloc_percpu + static DECLARE_PER_CPU you'll get, ever.  This is the
-> > main downside.  It's allocated at boot.
+On Sun, 4 May 2003, Brad Laue wrote:
+
+> Brian Dushaw wrote:
+> >     I've installed RedHat 9.0 three times now - going on the fourth.  Most
+> > recently I upgraded the kernel with the RedHat update, to similar effect.  The
+> > problem seems to be two fold:  system lockups and disk errors. 
 > 
-> And is subject to fragmentation.
-> 
-> Is it not possible to go allocate another N * PERCPU_POOL_SIZE from
-> slab if it runs out?
+> The RedHat kernel is massively modified, especially in version 9.0 of 
+> the distribution. Try a vanilla kernel and see if the system continues 
+> to misbehave.
 
-No, then you go back to things requireing multiple levels of
-dereferencing.  It's hard to realloc() because you have to
-freeze the whole kernel to do that properly, and that is not
-simple at all.
+A fourth install...
 
-I think the fixed size pool is perfectly reasonable.
+I've tried the 2.4.21-rc1-acX kernel (after trials and tribulations with
+RedHat - the compilation kept segmentation faulting).  This seems to be
+somewhat more stable, but still unstable.  Sorry to be vague, but if I could
+be more specific I could probably solve the problem...  I still get X-windows/
+system seizures, although I can't say I have any disk errors now  (except 
+perhaps for those caused by the lockups.)  I am going to try an offboard
+video card to see if that helps (the onboard video apparently uses system
+ram for its memory - I don't know if this makes a difference to linux or not).
 
--- 
-David S. Miller <davem@redhat.com>
+I tried using only one memory card, which did not solve the problem (i.e.,
+twin bank memory is not the problem).
+
+Disk access is about twice as fast (~60 MB/s by hdparm -tT) now with the new 
+kernel, if only the system were stable!  I watched Lawrence of Arabia on 
+DVD (3.5 hr movie) with this same system in Win2K without a problem, so the 
+problem would appear to be linux OS specific.
+
+Still trolling for advice, thanks, 
+
+B.D.
+
+
+

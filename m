@@ -1,77 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263426AbVCEAgh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263468AbVCEAgj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263426AbVCEAgh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 19:36:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263424AbVCEATI
+	id S263468AbVCEAgj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 19:36:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263460AbVCEAMb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 19:19:08 -0500
-Received: from wproxy.gmail.com ([64.233.184.199]:15666 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S263427AbVCEAE5 (ORCPT
+	Fri, 4 Mar 2005 19:12:31 -0500
+Received: from gate.crashing.org ([63.228.1.57]:12270 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S263376AbVCDXao (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 19:04:57 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:mime-version:content-type:content-transfer-encoding;
-        b=Prv6ZqjDi3WMnZvHYbaNdZLrp1ixWwetSHaCUi3pc/EYT89py/YCTqmg/UHQxdhNV01bItNH0a+eCWKTFbfAuG75rLwqF22jHm66F9vN+jkPlgW1Q/P08qKwBi5yW0cPPEzBHH+emGa61JXAXK+qvBx1WfrHNyLVI/6bov7gvW0=
-Message-ID: <e16ac85e050304160467045421@mail.gmail.com>
-Date: Fri, 4 Mar 2005 17:04:55 -0700
-From: Greg Felix <gregfelixlkml@gmail.com>
-Reply-To: Greg Felix <gregfelixlkml@gmail.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Subject: [PATCH] ata_piix.c: check PCI sub-class code before AHCI disabling
-Cc: linux-kernel@vger.kernel.org,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
+	Fri, 4 Mar 2005 18:30:44 -0500
+Subject: Re: [PATCH/RFC] I/O-check interface for driver's error handling
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Jesse Barnes <jbarnes@engr.sgi.com>, linux-pci@atrey.karlin.mff.cuni.cz,
+       Matthew Wilcox <matthew@wil.cx>, Linus Torvalds <torvalds@osdl.org>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       linux-ia64@vger.kernel.org, Linas Vepstas <linas@austin.ibm.com>,
+       "Luck, Tony" <tony.luck@intel.com>
+In-Reply-To: <20050304231807.GC2647@elf.ucw.cz>
+References: <422428EC.3090905@jp.fujitsu.com>
+	 <Pine.LNX.4.58.0503010844470.25732@ppc970.osdl.org>
+	 <20050301165904.GN28741@parcelfarce.linux.theplanet.co.uk>
+	 <200503010910.29460.jbarnes@engr.sgi.com>
+	 <20050304135429.GC3485@openzaurus.ucw.cz>
+	 <1109975846.5680.305.camel@gaston> <20050304225710.GB2647@elf.ucw.cz>
+	 <1109977417.5611.318.camel@gaston>  <20050304231807.GC2647@elf.ucw.cz>
+Content-Type: text/plain
+Date: Sat, 05 Mar 2005 10:27:07 +1100
+Message-Id: <1109978827.5680.324.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds functionality to check the PCI sub-class code of an
-AHCI capable device before disabling AHCI.  It fixes a bug where an
-ICH7 sata controller is being setup by the BIOS as sub-class 1 (ide)
-and the AHCI control registers weren't being initialized, thus causing
-an IO error in piix_disable_ahci().
+On Sat, 2005-03-05 at 00:18 +0100, Pavel Machek wrote:
+> On So 05-03-05 10:03:37, Benjamin Herrenschmidt wrote:
+> > On Fri, 2005-03-04 at 23:57 +0100, Pavel Machek wrote:
+> > 
+> > > What prevents driver from being run on another CPU, maybe just doing
+> > > mdelay() between hardware accesses? 
+> > 
+> > Almost all drivers that I know have some sort of locking. Nothing nasty
+> > about it. Besides, you can't expect everything to be as simple as
+> > putting two bit of lego together, the problem isn't simple.
+> 
+> If error() is allowed to sleep, then yes, its probably easy enough. If
+> it is not allowed to sleep, it will just postpone work to context that
+> is allowed to sleep, and it will probably be okay, too.
 
-Thanks,
-Greg Felix
+Yes, it's my itend that the notification callback is to be called in a
+task context where it can sleep.
 
+> => there are some locking issues, but they are probably easy
+> enough. Sorry for noise.
+> 								Pavel
+> 
+-- 
+Benjamin Herrenschmidt <benh@kernel.crashing.org>
 
-Signed-off-by: Gregory Felix <greg.felix@gmail.com>
-
---- drivers/scsi/ata_piix.c.orig        2005-03-04 15:25:48.966846795 -0700
-+++ drivers/scsi/ata_piix.c     2005-03-04 15:27:55.942404850 -0700
-@@ -38,6 +38,7 @@ enum {
-        PIIX_IOCFG              = 0x54, /* IDE I/O configuration register */
-        ICH5_PMR                = 0x90, /* port mapping register */
-        ICH5_PCS                = 0x92, /* port control and status */
-+       PIIX_SCC                = 0x0A, /* sub-class code register */
-
-        PIIX_FLAG_AHCI          = (1 << 28), /* AHCI possible */
-        PIIX_FLAG_CHECKINTR     = (1 << 29), /* make sure PCI INTx enabled */
-@@ -61,6 +62,8 @@ enum {
-        ich6_sata               = 3,
-        ich6_sata_rm            = 4,
-        ich7_sata               = 5,
-+
-+       PIIX_AHCI_DEVICE        = 6,
- };
-
- static int piix_init_one (struct pci_dev *pdev,
-@@ -609,9 +612,13 @@ static int piix_init_one (struct pci_dev
-        port_info[1] = NULL;
-
-        if (port_info[0]->host_flags & PIIX_FLAG_AHCI) {
--               int rc = piix_disable_ahci(pdev);
--               if (rc)
--                       return rc;
-+               u8 tmp;
-+               pci_read_config_byte(pdev, PIIX_SCC, &tmp);
-+               if (tmp == PIIX_AHCI_DEVICE) {
-+                       int rc = piix_disable_ahci(pdev);
-+                       if (rc)
-+                           return rc;
-+               }
-        }
-
-        if (port_info[0]->host_flags & PIIX_FLAG_COMBINED) {

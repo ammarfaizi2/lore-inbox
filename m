@@ -1,36 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281124AbRKKWUN>; Sun, 11 Nov 2001 17:20:13 -0500
+	id <S281126AbRKKWVn>; Sun, 11 Nov 2001 17:21:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281125AbRKKWUD>; Sun, 11 Nov 2001 17:20:03 -0500
-Received: from AMontpellier-201-1-5-6.abo.wanadoo.fr ([193.251.15.6]:4883 "EHLO
-	awak") by vger.kernel.org with ESMTP id <S281124AbRKKWTs> convert rfc822-to-8bit;
-	Sun, 11 Nov 2001 17:19:48 -0500
-Subject: Re: Best kernel config for exactly 1GB ram
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: Steve Bergman <steve@uhura.rueb.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, steve@rueb.com
-In-Reply-To: <3BEEE61A.6050002@uhura.rueb.com>
-In-Reply-To: <3BEEE61A.6050002@uhura.rueb.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Evolution/0.99.1+cvs.2001.11.07.16.49 (Preview Release)
-Date: 11 Nov 2001 23:13:22 +0100
-Message-Id: <1005516803.16817.40.camel@nomade>
-Mime-Version: 1.0
+	id <S281132AbRKKWVd>; Sun, 11 Nov 2001 17:21:33 -0500
+Received: from B55de.pppool.de ([213.7.85.222]:64006 "HELO Nicole.fhm.edu")
+	by vger.kernel.org with SMTP id <S281126AbRKKWVR>;
+	Sun, 11 Nov 2001 17:21:17 -0500
+Date: Sun, 11 Nov 2001 17:46:57 +0100 (CET)
+From: degger@fhm.edu
+Reply-To: degger@fhm.edu
+Subject: Idea (Was: Re: .... kernels)
+To: alan@lxorguk.ukuu.org.uk
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E162uiz-0002Xp-00@the-village.bc.nu>
+MIME-Version: 1.0
+Content-Type: TEXT/plain; charset=us-ascii
+Message-Id: <20011111164652.604E05A37@Nicole.fhm.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-le dim 11-11-2001 à 21:56, Steve Bergman a écrit :
-> Hi,
-> 
-> 
-> I have just upgraded my athlon 1200 system to 1GB ram.  I am unclear as 
-> to how I should configure the kernel for this box.  The config.help says 
->    to say no to "high memory support" if the kernel will not run on a 
-> machne with more than 1GB.  When I do this I notice that my available 
+On 11 Nov, Alan Cox wrote:
 
-Actually it's a bit less than 1GB, so you'd better go for 4GB support.
+> Actually no. We are researching how to stop trolls posting to the
+> kernel list as our main AI project.
 
-	Xav
+Maybe a good start would be to filter the list from messages with
+abusive words in the subject like nazi, porn, Micro[s$]oft, emacs,
+<insert your favourite flamewar topics here>.
+
+--
+Servus,
+       Daniel	
 

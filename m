@@ -1,46 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266149AbUIJKOr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266808AbUIJKQt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266149AbUIJKOr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 06:14:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266808AbUIJKOr
+	id S266808AbUIJKQt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 06:16:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266813AbUIJKQs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 06:14:47 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:55214 "EHLO
+	Fri, 10 Sep 2004 06:16:48 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:57006 "EHLO
 	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S266149AbUIJKOq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 06:14:46 -0400
+	id S266808AbUIJKQo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Sep 2004 06:16:44 -0400
 Subject: Re: [PATCH 1/3] Separate IRQ-stacks from 4K-stacks option
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Chris Wedgwood <cw@f00f.org>
-Cc: Arjan van de Ven <arjanv@redhat.com>, LKML <linux-kernel@vger.kernel.org>,
+To: arjanv@redhat.com
+Cc: Chris Wedgwood <cw@f00f.org>, LKML <linux-kernel@vger.kernel.org>,
        Christoph Hellwig <hch@infradead.org>
-In-Reply-To: <20040910071530.GB4480@taniwha.stupidest.org>
+In-Reply-To: <1094798428.2800.3.camel@laptop.fenrus.com>
 References: <20040909232532.GA13572@taniwha.stupidest.org>
 	 <1094798428.2800.3.camel@laptop.fenrus.com>
-	 <20040910064519.GA4232@taniwha.stupidest.org>
-	 <20040910065213.GA11140@devserv.devel.redhat.com>
-	 <20040910071530.GB4480@taniwha.stupidest.org>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <1094807529.17029.1.camel@localhost.localdomain>
+Message-Id: <1094807650.17041.3.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Fri, 10 Sep 2004 10:12:12 +0100
+Date: Fri, 10 Sep 2004 10:14:11 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2004-09-10 at 08:15, Chris Wedgwood wrote:
-> also, why 4K and not 8K or 2K?  because it's the page size?  why not
-> 4K to then on amd64 or ppc64?
+On Gwe, 2004-09-10 at 07:40, Arjan van de Ven wrote:
+> Well I always assumed the future plan was to remove 8k stacks entirely;
+> 4k+irqstacks and 8k basically have near comparable stack space, with
+> this patch you create an option that has more but that is/should be
+> deprecated. I'm not convinced that's a good idea.
 
-It would be really really nice to get AMD64 down to 4K stacks. The
-bigger sizes of stack frames may make that harder for current big 
-stack users. The pain/gain ratio isn't so sweet as with x86 down to
-4K.
-
-Also the x86 one really didnt change anything. AMD64 has IRQ stacks
-while x86 did not. That meant in practical terms anything using > 4K
-was eventually going to go bang 
-
-Alan
+Its probably appropriate to drop gcc 2.x support at that point too since
+it's the major cause of remaining problems
 

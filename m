@@ -1,54 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270173AbRHGK3p>; Tue, 7 Aug 2001 06:29:45 -0400
+	id <S270176AbRHGKeE>; Tue, 7 Aug 2001 06:34:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270178AbRHGK3f>; Tue, 7 Aug 2001 06:29:35 -0400
-Received: from customers.imt.ru ([212.16.0.33]:33342 "HELO smtp.direct.ru")
-	by vger.kernel.org with SMTP id <S270173AbRHGK3R>;
-	Tue, 7 Aug 2001 06:29:17 -0400
-Message-ID: <20010807032443.A10193@saw.sw.com.sg>
-Date: Tue, 7 Aug 2001 03:24:43 -0700
-From: Andrey Savochkin <saw@saw.sw.com.sg>
-To: root@chaos.analogic.com
-Cc: Colin Walters <walters@cis.ohio-state.edu>, linux-kernel@vger.kernel.org
-Subject: Re: eepro100 (PCI ID 82820) lockups/failure
-In-Reply-To: <873d75janh.church.of.emacs@space-ghost.verbum.org> <Pine.LNX.3.95.1010806144632.8686A-100000@chaos.analogic.com>
+	id <S270179AbRHGKdy>; Tue, 7 Aug 2001 06:33:54 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:44042 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S270176AbRHGKdn>; Tue, 7 Aug 2001 06:33:43 -0400
+Date: Tue, 7 Aug 2001 12:33:58 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: David Spreen <david@spreen.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Encrypted Swap
+Message-ID: <20010807123358.B31832@athlon.random>
+In-Reply-To: <20010807042810.A23855@foobar.toppoint.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93.2i
-In-Reply-To: <Pine.LNX.3.95.1010806144632.8686A-100000@chaos.analogic.com>; from "Richard B. Johnson" on Mon, Aug 06, 2001 at 03:00:07PM
+Content-Disposition: inline
+In-Reply-To: <20010807042810.A23855@foobar.toppoint.de>; from david@spreen.de on Tue, Aug 07, 2001 at 04:28:10AM +0200
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, Aug 07, 2001 at 04:28:10AM +0200, David Spreen wrote:
+> Hey there,
+> I was just searching for swap-encryption-solutions in the lkml-archive.
+> Did I get the point saying ther's no way to do swap encryption
+> in linux right now? (Well, a swapfile in an encrypted kerneli
+> partition r something like that is not really what I want to
+> do I think).
 
-On Mon, Aug 06, 2001 at 03:00:07PM -0400, Richard B. Johnson wrote:
-[snip]
-> This may not be a timing problem, but rather a problem that was
-> attempted to be fixed with some timing change.
-> 
-> Possible problem (and solution). Given:
-> 
-> 	writel(value, pci_reg);
-> 	status = readl(pci_reg);
-> 
-> The second readl() may (read will) complete before the writel().
-> This is because writes to the PCI bus may be posted (queued). The
-> first read will force all writes to complete, however the value
-> read may be something that was not yet affected by the write.
-> 
-> 	writel(value, pci_reg);
-> 	status = readl(pci_reg);
-> 	status = readl(pci_reg);
+cryptoloop on the blkdev or filebacked should work just fine. However it
+will increase memory pressure and it increases the probability for a
+deadlock (but normal 2.4 swap activities can deadlock anyways if you do
+the math).
 
-Thanks for the note, I'll keep it in mind.
-
-However, for this particular case I'm interested about a loop like
-	while((a = readb(reg)) && --count >= 0);
-I wonder if there are circumstances in which the repeated read's can return
-"cached" values or whatever, so that the loop will result in significantly less
-number of bus cycles than it's supposed?
-My understanding is that there shouldn't be such.
-
-Best regards
-		Andrey
+Andrea

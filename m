@@ -1,38 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129742AbRAIQ4s>; Tue, 9 Jan 2001 11:56:48 -0500
+	id <S130685AbRAIQ6i>; Tue, 9 Jan 2001 11:58:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129573AbRAIQ4i>; Tue, 9 Jan 2001 11:56:38 -0500
-Received: from Cantor.suse.de ([194.112.123.193]:1285 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S129759AbRAIQ4Z>;
-	Tue, 9 Jan 2001 11:56:25 -0500
-Date: Tue, 9 Jan 2001 17:56:20 +0100
-From: Andi Kleen <ak@suse.de>
-To: Kambo Lohan <kambo77@hotmail.com>
-Cc: linux-kernel@vger.kernel.org
+	id <S129913AbRAIQ62>; Tue, 9 Jan 2001 11:58:28 -0500
+Received: from law2-f15.hotmail.com ([216.32.181.15]:27921 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S130685AbRAIQ6T>;
+	Tue, 9 Jan 2001 11:58:19 -0500
+X-Originating-IP: [208.5.125.50]
+From: "Kambo Lohan" <kambo77@hotmail.com>
+To: linux-kernel@vger.kernel.org
 Subject: Re: [eepro100] Ok, I'm fed up now
-Message-ID: <20010109175620.A5913@gruyere.muc.suse.de>
-In-Reply-To: <LAW2-F8403oHMwVN7mi0000e9c6@hotmail.com>
+Date: Tue, 09 Jan 2001 11:58:12 -0500
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <LAW2-F8403oHMwVN7mi0000e9c6@hotmail.com>; from kambo77@hotmail.com on Tue, Jan 09, 2001 at 11:45:49AM -0500
+Content-Type: text/plain; format=flowed
+Message-ID: <LAW2-F15UtYj7XGeFaa00000b4d@hotmail.com>
+X-OriginalArrivalTime: 09 Jan 2001 16:58:13.0164 (UTC) FILETIME=[5A48C6C0:01C07A5D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Whoops,
+I didnt set the cc address properly, the full thread is on the 
+eepro100@scyld.com list.
 
-You could try the Intel driver (e100.c), which is downloadable from their website.
-It apparently has some silicon bug workarounds that Donald's driver hasn't. 
+Karl Pickett
 
-Another popular cause of strange lockups are PCI bios problems (interrupt conflicts
-etc. -- exchanging slots may help) 
+_________________________________________________________________
+Get your FREE download of MSN Explorer at http://explorer.msn.com
 
-Also please note that such a subject line is not a good motivation to help
-you for free.
-
-
--Andi
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

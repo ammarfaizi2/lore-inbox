@@ -1,53 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290312AbSA3SJq>; Wed, 30 Jan 2002 13:09:46 -0500
+	id <S290304AbSA3SHG>; Wed, 30 Jan 2002 13:07:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290306AbSA3SId>; Wed, 30 Jan 2002 13:08:33 -0500
-Received: from 12-237-170-171.client.attbi.com ([12.237.170.171]:65420 "EHLO
-	wf-rch.cirr.com") by vger.kernel.org with ESMTP id <S290311AbSA3SHo>;
-	Wed, 30 Jan 2002 13:07:44 -0500
-Message-ID: <3C583655.6060707@acm.org>
-Date: Wed, 30 Jan 2002 12:07:17 -0600
-From: Corey Minyard <minyard@acm.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011226
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-CC: "Richard B. Johnson" <root@chaos.analogic.com>,
-        Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: TCP/IP Speed
-In-Reply-To: <Pine.LNX.4.44.0201301831120.5518-100000@netfinity.realnet.co.sz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S290314AbSA3SFv>; Wed, 30 Jan 2002 13:05:51 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:5538 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S290311AbSA3SFL>; Wed, 30 Jan 2002 13:05:11 -0500
+Date: Wed, 30 Jan 2002 11:04:49 -0700
+Message-Id: <200201301804.g0UI4nQ13064@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: vda@port.imtp.ilyichevsk.odessa.ua, tao@acc.umu.se (David Weinehall),
+        brand@jupiter.cs.uni-dortmund.de (Horst von Brand),
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] KERN_INFO for devfs
+In-Reply-To: <E16VwTl-0007VJ-00@the-village.bc.nu>
+In-Reply-To: <200201301232.g0UCWmt10496@Port.imtp.ilyichevsk.odessa.ua>
+	<E16VwTl-0007VJ-00@the-village.bc.nu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zwane Mwaikambo wrote:
+Alan Cox writes:
+> > > Yes, but that may change (in theory, at least.) Consistency is a virtue.
+> > 
+> > I'll do this cleanup if my KERN_INFO patches will be accepted, at least some 
+> > of them. So far only Richard Gooch replied...
+> 
+> I ran some of them into 7ac1 but got rejects so I've dumped them out
+> for now. They mostly look completely sensible
 
->On Wed, 30 Jan 2002, Richard B. Johnson wrote:
->
->>But it's already connected.
->>
->>
->>         host:
->>         for (;;) {
->>            gettimeofday(...);
->>            write(s, buf, 64);
->>            read(s, buf, sizeof(buffer));
->>            gettimeofday(...);
->>         /* delay is 1.0 ms */
->>         }
->>         server is IPPORT_ECHO
->>
->
->You didn't make that explicit in your previous email, and anyway what kind 
->of resolution can you expect from gettimeofday...
->
-Depending on the processor, gettimeofday has very high resolution.
+I'd prefer if tree maintainers (that means you, Alan:-) don't apply
+devfs patches that didn't come from me. I've already posted a patch
+which cleans up *all* the remaining printk()'s. In fact, it's a pair
+of patches, one for 2.4.x and one for 2.5.x. That was yesterday. Today
+I'm still seeing this thread being beaten to death.
 
-If I remember correctly, the TCP stacks put in delays for small sends so 
-they can pack multiple things together.  I think there are ways to work 
-around this via some type of flush, but memory fails me on exactly how.
+Besides, this is hardly an urgent fix, so there's no great rush to
+apply a random patch from someone else, even if I did sit on it for a
+week or two. Applying random patches will just end up generating more
+merge work for me down the track.
 
--Corey
+				Regards,
 
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

@@ -1,38 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280691AbRKNQkE>; Wed, 14 Nov 2001 11:40:04 -0500
+	id <S280686AbRKNQre>; Wed, 14 Nov 2001 11:47:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280690AbRKNQjz>; Wed, 14 Nov 2001 11:39:55 -0500
-Received: from access-35.98.rev.fr.colt.net ([213.41.98.35]:49168 "HELO
-	phoenix.linuxatbusiness.com") by vger.kernel.org with SMTP
-	id <S280686AbRKNQjj> convert rfc822-to-8bit; Wed, 14 Nov 2001 11:39:39 -0500
-Subject: Re: Athlon SMP blues - kernels 2.4.[9 13 15-pre4]
-From: Philippe Amelant <philippe.amelant@free.fr>
-To: Alastair Stevens <alastair.stevens@mrc-bsu.cam.ac.uk>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.GSO.4.33.0111141607170.14971-100000@gurney>
-In-Reply-To: <Pine.GSO.4.33.0111141607170.14971-100000@gurney>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Evolution/0.99.0 (Preview Release)
-Date: 14 Nov 2001 18:34:39 +0100
-Message-Id: <1005759280.23907.10.camel@avior>
+	id <S280690AbRKNQrZ>; Wed, 14 Nov 2001 11:47:25 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:51163
+	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S280686AbRKNQrQ>; Wed, 14 Nov 2001 11:47:16 -0500
+Date: Wed, 14 Nov 2001 12:33:25 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+Subject: Re: [kbuild-devel] CML 1.8.4 is available
+Message-ID: <20011114123325.A500@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
+	kbuild-devel@lists.sourceforge.net
+In-Reply-To: <20011113175010.A15716@thyrsus.com> <20011113182718.A1630@kroah.com>
 Mime-Version: 1.0
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011113182718.A1630@kroah.com>; from greg@kroah.com on Tue, Nov 13, 2001 at 06:27:19PM -0800
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-le mer 14-11-2001 à 17:15, Alastair Stevens a écrit :
-> > We just finished putting together what was for us a pretty big box using
-> > the Tyan S2460 with 1.4GHz Athlons (not MP) and ran into some troublesome
-> > heating problems.
-> 
-> Well, I finally managed to check, and both CPUs are at 76C - sounds
-> quite hot to me. Is that problematic? I've never run these Athlons
-> before, so I'm not sure what's supposed to be normal ;-)
-> 
+Greg KH <greg@kroah.com>:
+> The following symbols should be allowed to be set to 'm' but are not:
+> 	CONFIG_USB
 
-It's hot i think, my dual celeron hang around 60°C.
+That's odd.  M  shows up as a choice when I do xconfig.
 
+> 	CONFIG_UHCI
+> 	CONFIG_UHCI_ALT
 
+My error.  These are declared bool rather than trit in the 1.8.5 rulebase.
+I've just fixed tht.
 
+> If CONFIG_USB_SERIAL is set to 'y' CONFIG_USB_SERIAL_DEBUG should be
+> allowed to be chosen.  I do not see this happening.
+
+Another rulebase bug, now fixed.
+
+> And why is the CONFIG_USB_SERIAL options in the drivers/usb directory?
+> In the CML1 version they live in their own subdirectory quite nicely :)
+> Either way they should be in the USB port drivers section, not the "USB
+> devices" section of the menu.
+
+Historical reasons.  My rulebase was opriginally one big file for editing
+conveniece.  What directory whould the USB serial stuff live in?
+
+> There doesn't seem to be any rules set up for drivers/hotplug.
+
+What symbols should be in there,
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+
+Such are a well regulated militia, composed of the freeholders,
+citizen and husbandman, who take up arms to preserve their property,
+as individuals, and their rights as freemen.
+        -- "M.T. Cicero", in a newspaper letter of 1788 touching the "militia" 
+            referred to in the Second Amendment to the Constitution.

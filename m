@@ -1,44 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261462AbSKGQsm>; Thu, 7 Nov 2002 11:48:42 -0500
+	id <S261492AbSKGQqx>; Thu, 7 Nov 2002 11:46:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261504AbSKGQsm>; Thu, 7 Nov 2002 11:48:42 -0500
-Received: from inet-mail4.oracle.com ([148.87.2.204]:15002 "EHLO
-	inet-mail4.oracle.com") by vger.kernel.org with ESMTP
-	id <S261462AbSKGQsl>; Thu, 7 Nov 2002 11:48:41 -0500
-Message-ID: <5890690.1036687877193.JavaMail.nobody@web54.us.oracle.com>
-Date: Thu, 7 Nov 2002 08:51:17 -0800 (PST)
-From: "ALESSANDRO.SUARDI" <ALESSANDRO.SUARDI@oracle.com>
-To: devilkin-lkml@blindguardian.org, linux-kernel@vger.kernel.org
-Subject: Re: [2.5.44] Poweroff after warm reboot
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S261495AbSKGQqx>; Thu, 7 Nov 2002 11:46:53 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:24850 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261492AbSKGQqv>;
+	Thu, 7 Nov 2002 11:46:51 -0500
+Message-ID: <3DCA9A88.4060109@pobox.com>
+Date: Thu, 07 Nov 2002 11:53:28 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: George France <france@handhelds.org>
+CC: Thorsten Kranzkowski <dl8bcu@dl8bcu.de>,
+       axp-list mailing list <axp-list@redhat.com>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       rth@twiddle.net, ink@jurassic.park.msu.ru
+Subject: Re: [PATCH] eliminate compile warnings
+References: <20021106214705.A15525@Marvin.DL8BCU.ampr.org> <02110709222600.14483@shadowfax.middleearth>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-Mailer: Oracle Webmail Client
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Tuesday 29 October 2002 12:21, DevilKin wrote:
-> > On Tuesday 29 October 2002 11:09, Jos Hulzink wrote:
-> > > On Tuesday 29 October 2002 10:31, DevilKin wrote:
-> > > > Hello,
-> > > >
-> > > > If I reboot my laptop with kernel 2.5.44 (warm reboot), the machine
-> > > > reboots, loads the kernel, and then in the middle of the booting
-> > > > process powers off.
-> > >
-> > > Hmm... maybe it has something to do with ACPI ? Could you try booting the
-> > > kernel after a warm reboot with ACPI disabled ?
-> >
-> > It's APM, not ACPI (luckely :oP)
-> This problem is still present with 2.5.45 and 2.5.46.
+George France wrote:
+> On Wednesday 06 November 2002 16:47, Thorsten Kranzkowski wrote:
+> 
+>>Hello!
+>>
+>>My attempt to compile 2.5.46 with gcc 3.3 resulted in over 66% lines of the
+>>form:
+> 
+> 
+> You are brave sole. The bleeding edge cuts both ways.
+> 
+> 
+>>xyz.c: warning: comparison between signed and unsigned
+>>
+>>This is a first step to eliminate those, covering arch/alpha. Most fixes
+>>are obvious, but please check.
+>>
+>>BTW who is the current maintainer for Alpha issues? MAINTAINERS has no
+>>entry :-/
+> 
+> 
+> If there is no entry in the MAINTAINERS file, then it is Linus.  He did the Alpha port.
+> The first foray of Linux outside of the Intel architecture was to the Alpha processor.
+> The Alpha system came from the laboratories of the Digital Equipment Corp.  An engineer
+>  from Digital (now HP) arranged for a loan of an Alpha server to Linus Torvalds
+> for him to begin a port of Linux. This act of beneficence greatly accelerated the
+> migration of Linux to other platforms.  Linus is still the MAINTAINER for Alpha to this day.
+> He still has his loaner box from Digital.
 
-<AOL>same here</AOL>
 
-Actually I haven't tested further kernels than 2.5.45 as I just spent the night moving
- files from the laptop that suffered, alas, uncorrectable drive errors. Luckily the only
- file lost was linux-2.5.45.tar :) I only hope that the poweroffs didn't help the drive
- to die earlier than it should have :/
+Weeeellll....  If you want to go by the "if there is no listing in 
+MAINTAINERS" rule, sure :)
 
---alessandro
+Richard Henderson can be considered the current alphalinux kernel 
+maintainer for 2.4.x and 2.5.x, though he gets help from Ivan Kokshaysky 
+and Jay Estabrook, and a tiny bit of help from me too.
+
+So at the very least, please make sure alpha kernel patches get CC'd to 
+rth@twiddle.net and ink@jurassic.park.msu.ru.
+
+	Jeff
+
+
+

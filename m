@@ -1,72 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268906AbRHFR3S>; Mon, 6 Aug 2001 13:29:18 -0400
+	id <S268917AbRHFRqd>; Mon, 6 Aug 2001 13:46:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268910AbRHFR3I>; Mon, 6 Aug 2001 13:29:08 -0400
-Received: from [63.209.4.196] ([63.209.4.196]:12037 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S268906AbRHFR2y>; Mon, 6 Aug 2001 13:28:54 -0400
-Date: Mon, 6 Aug 2001 10:27:33 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: "David S. Miller" <davem@redhat.com>, Chris Wedgwood <cw@f00f.org>,
+	id <S268914AbRHFRqX>; Mon, 6 Aug 2001 13:46:23 -0400
+Received: from libra.cus.cam.ac.uk ([131.111.8.19]:60391 "EHLO
+	libra.cus.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S268917AbRHFRqI> convert rfc822-to-8bit; Mon, 6 Aug 2001 13:46:08 -0400
+Message-Id: <5.1.0.14.2.20010806184120.04b9b640@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Mon, 06 Aug 2001 18:46:09 +0100
+To: Linus Torvalds <torvalds@transmeta.com>
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: /proc/<n>/maps growing...
+Cc: Andrea Arcangeli <andrea@suse.de>, Chris Wedgwood <cw@f00f.org>,
+        "David S. Miller" <davem@redhat.com>,
         David Luyer <david_luyer@pacific.net.au>,
         <linux-kernel@vger.kernel.org>
-Subject: Re: /proc/<n>/maps growing...
-In-Reply-To: <20010806152919.H20837@athlon.random>
-Message-ID: <Pine.LNX.4.33.0108061020430.8972-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+In-Reply-To: <Pine.LNX.4.33.0108061019280.8972-100000@penguin.transmeta.
+ com>
+In-Reply-To: <20010806143603.C20837@athlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"; format=flowed
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+At 18:20 06/08/2001, Linus Torvalds wrote:
 
-On Mon, 6 Aug 2001, Andrea Arcangeli wrote:
+>On Mon, 6 Aug 2001, Andrea Arcangeli wrote:
 >
-> On Mon, Aug 06, 2001 at 06:06:14AM -0700, David S. Miller wrote:
-> > I wouldn't classify it as a horrible hack... but.
+> > On Tue, Aug 07, 2001 at 12:26:50AM +1200, Chris Wedgwood wrote:
+> > > mmap does merge in many common cases.
+> >
+> > (assuming you speak about 2.2 because 2.4 obviously doesn't merge
+> > anything and that's the point of the discussion) So what? What do you
+> > mean with your observation?
 >
-> The part I find worse is that we just walk the tree two times.
+>2.4.x _does_ merge. Look for yourself. It doesn't merge mprotects, no. And
+>why should glibc do mprotect() for a malloc() call? Electric Fence, yes.
+>glibc, no.
 
-Try it without doing it - the code grows quite nasty without completely
-getting rid of "insert_vm_struct()".
+Is it possible that is has something to do with what "man malloc" on my 
+machine says in the notes section:
 
-Which I considered, but decided that 2.4.x is not the time to do so.
+---quote from man page, glibc 2.2.3-14 on RedHat 7.something---
+Recent versions of Linux libc (later than 5.4.23) and GNU libc (2.x) 
+include a malloc implementation which is tunable via environment variables. 
+When MALLOC_CHECK_ is set, a special (less efficient) implementation is 
+used which is designed to be tolerant against simple errors, such as double 
+calls of free() with the same argument, or overruns of a single byte 
+(off-by-one bugs). Not all such errors can be proteced against, however, 
+and memory leaks can result. If MALLOC_CHECK_ is set to 0, any detected 
+heap corruption is silently ignored; if set to 1, a diag­nostic is printed 
+on stderr; if set to 2, abort() is called immediately. This can be useful 
+because otherwise a crash may happen much later, and the true cause for the 
+problem is then very hard to track down.
+---eoq---
 
-> I believe the best way is to allocate always the new vma, and to hide
-> the merging into the lowlevel of a new insert_vm_struct (with a special
-> function ala merge_segments that we can share with mprotect like in 2.2).
+That sounds like the kind of stuff Electric Fence would be doing, doesn't it?
 
-Oh, and THAT is going to speed things up?
+Best regards,
 
-Hint: the merging actually happens at a fairly high percentage for the
-common cases. We win more by walking the tree twice and avoiding the
-unnecessary allocation/free.
+Anton
 
-Now, if you _really_ want to do this right, you can:
- - hold the write lock on the semaphore. Nobody is going to change the
-   list.
 
- - walk the table just once, remembering what the previous entry was.
-
-   NOTE! You ahve to do this _anyway_, as part of checking the "do I need
-   to unmap anything?" Right now we just call "do_munmap()", but done
-   right we would walk the tree _once_, noticing whether we need to unmap
-   or not, and keep track of what the previous one was.
-
- - just expand the previous entry when you notice that it's doable.
-
- - allocate and insert a new entry if needed.
-
-However, this absolutely means getting rid of "insert_vm_struct()", and
-moving a large portion of it into the caller.
-
-It also means doing the same for "do_munmap()".
-
-Try it. I'd love to see the code. I didn't want to do it myself.
-
-And remember: optimize for _well_written applications. Not for stupid
-glibc code that can be fixed.
-
-		Linus
+-- 
+   "Nothing succeeds like success." - Alexandre Dumas
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
 

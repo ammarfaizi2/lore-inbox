@@ -1,191 +1,300 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261225AbVAREIJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261226AbVARE3y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261225AbVAREIJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jan 2005 23:08:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261226AbVAREIJ
+	id S261226AbVARE3y (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jan 2005 23:29:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261230AbVARE3y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jan 2005 23:08:09 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:33205 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261225AbVAREHi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jan 2005 23:07:38 -0500
-Subject: Re: [RFC/PATCH] add support for sysdev class attributes
-From: Nathan Lynch <nathanl@austin.ibm.com>
-To: Greg KH <greg@kroah.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050111192909.GA4623@kroah.com>
-References: <1105136891.13391.20.camel@pants.austin.ibm.com>
-	 <20050108050729.GA7587@kroah.com>
-	 <1105372684.27280.3.camel@localhost.localdomain>
-	 <20050111192909.GA4623@kroah.com>
-Content-Type: text/plain
-Date: Mon, 17 Jan 2005 22:02:44 -0600
-Message-Id: <1106020965.11566.40.camel@localhost.localdomain>
+	Mon, 17 Jan 2005 23:29:54 -0500
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:6802 "EHLO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
+	id S261226AbVARE3P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jan 2005 23:29:15 -0500
+From: Darren Williams <dsw@gelato.unsw.edu.au>
+To: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       Chris Wedgwood <cw@f00f.org>, torvalds@osdl.org,
+       benh@kernel.crashing.org, linux-kernel@vger.kernel.org,
+       Ia64 Linux <linux-ia64@vger.kernel.org>
+Date: Tue, 18 Jan 2005 15:28:58 +1100
+Subject: Re: Horrible regression with -CURRENT from "Don't busy-lock-loop in preemptable spinlocks" patch
+Message-ID: <20050118042858.GD14709@cse.unsw.EDU.AU>
+Mail-Followup-To: Ingo Molnar <mingo@elte.hu>,
+	Andrew Morton <akpm@osdl.org>, Chris Wedgwood <cw@f00f.org>,
+	torvalds@osdl.org, benh@kernel.crashing.org,
+	linux-kernel@vger.kernel.org,
+	Ia64 Linux <linux-ia64@vger.kernel.org>
+References: <20050117055044.GA3514@taniwha.stupidest.org> <20050116230922.7274f9a2.akpm@osdl.org> <20050117143301.GA10341@elte.hu> <20050118014752.GA14709@cse.unsw.EDU.AU>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050118014752.GA14709@cse.unsw.EDU.AU>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-01-11 at 11:29 -0800, Greg KH wrote:
-> On Mon, Jan 10, 2005 at 09:58:03AM -0600, Nathan Lynch wrote:
-> > On Fri, 2005-01-07 at 21:07 -0800, Greg KH wrote:
-> > > On Fri, Jan 07, 2005 at 04:28:12PM -0600, Nathan Lynch wrote:
-> > > > @@ -88,6 +123,12 @@ int sysdev_class_register(struct sysdev_
-> > > >  	INIT_LIST_HEAD(&cls->drivers);
-> > > >  	cls->kset.subsys = &system_subsys;
-> > > >  	kset_set_kset_s(cls, system_subsys);
-> > > > +
-> > > > +	/* I'm not going to claim to understand this; see
-> > > > +	 * fs/sysfs/file::check_perm for how sysfs_ops are selected
-> > > > +	 */
-> > > > +	cls->kset.kobj.ktype = &sysdev_class_ktype;
-> > > > +
-> > > 
-> > > I think you need to understand this, and then submit a patch without
-> > > such a comment :)
-> > > 
-> > > And probably without such code, as I don't think you need to do that.
-> > 
-> > Sure, now I'm not sure how I convinced myself that bit was needed.
-> > Things work fine without it.
 
-OK I'm an idiot, because things certainly do not work without somehow
-associating the new sysfs_ops with the sysdev_class being registered.
-Otherwise, sysfs winds up using sysdev_store/sysdev_show, since
-ktype_sysdev is the kobj_type for the "system" subsystem.
+On Tue, 18 Jan 2005, Darren Williams wrote:
 
-Since sysdev_register is explicitly associating ktype_sysdev with the
-sysdev being registered anyway, I think it should be fine to define
-system_subsys with sysdev_class_ktype for its kobj_type.  What do you
-say?
-
-> > Before I repatch, does sysdev_class_ktype need a release function?
+> Hi Ingo
 > 
-> Why would it not?
+> On Mon, 17 Jan 2005, Ingo Molnar wrote:
+> 
+> > 
+> > * Andrew Morton <akpm@osdl.org> wrote:
+> > 
+> > > > +BUILD_LOCK_OPS(spin, spinlock_t, spin_is_locked);
+> > > > +BUILD_LOCK_OPS(read, rwlock_t, rwlock_is_locked);
+> > > > +BUILD_LOCK_OPS(write, rwlock_t, spin_is_locked);
+> > > 
+> > > If you replace the last line with
+> > > 
+> > > 	BUILD_LOCK_OPS(write, rwlock_t, rwlock_is_locked);
+> > > 
+> > > does it help?
+> > 
+> > this is not enough - the proper solution should be the patch below,
+> > which i sent earlier today as a reply to Paul Mackerras' comments.
+> > 
+> > 	Ingo
+> > 
+> > --
+> > the first fix is that there was no compiler warning on x86 because it
+> > uses macros - i fixed this by changing the spinlock field to be
+> > '->slock'. (we could also use inline functions to get type protection, i
+> > chose this solution because it was the easiest to do.)
+> > 
+> > the second fix is to split rwlock_is_locked() into two functions:
+> > 
+> >  +/**
+> >  + * read_is_locked - would read_trylock() fail?
+> >  + * @lock: the rwlock in question.
+> >  + */
+> >  +#define read_is_locked(x) (atomic_read((atomic_t *)&(x)->lock) <= 0)
+> >  +
+> >  +/**
+> >  + * write_is_locked - would write_trylock() fail?
+> >  + * @lock: the rwlock in question.
+> >  + */
+> >  +#define write_is_locked(x) ((x)->lock != RW_LOCK_BIAS)
+> > 
+> > this canonical naming of them also enabled the elimination of the newly
+> > added 'is_locked_fn' argument to the BUILD_LOCK_OPS macro.
+> > 
+> > the third change was to change the other user of rwlock_is_locked(), and
+> > to put a migration helper there: architectures that dont have
+> > read/write_is_locked defined yet will get a #warning message but the
+> > build will succeed. (except if PREEMPT is enabled - there we really
+> > need.)
+> > 
+> > compile and boot-tested on x86, on SMP and UP, PREEMPT and !PREEMPT. 
+> > Non-x86 architectures should work fine, except PREEMPT+SMP builds which
+> > will need the read_is_locked()/write_is_locked() definitions.
+> > !PREEMPT+SMP builds will work fine and will produce a #warning.
+> > 
+> > 	Ingo
+> This may fix some archs however ia64 is still broken, with:
+> 
+> kernel/built-in.o(.spinlock.text+0x8b2): In function `sched_init_smp':
+> kernel/sched.c:650: undefined reference to `read_is_locked'
+> kernel/built-in.o(.spinlock.text+0xa52): In function `sched_init':
+> kernel/sched.c:687: undefined reference to `read_is_locked'
+> kernel/built-in.o(.spinlock.text+0xcb2): In function `schedule':
+> include/asm/bitops.h:279: undefined reference to `write_is_locked'
+> kernel/built-in.o(.spinlock.text+0xe72): In function `schedule':
+> include/linux/sched.h:1122: undefined reference to `write_is_locked'
+> make: *** [.tmp_vmlinux1] Error 1
+> 
+> include/asm-ia64/spinflock.h needs to define:
+>  read_is_locked(x)
+>  write_is_locked(x)
+> 
+> someone who knows the locking code will need to fill in
+> the blanks.
+> 
 
-I'm not sure what it would actually do...  it seems that we would need
-it if sysdevs were dynamically allocated, but they're not.  Not that
-they couldn't be, but that's existing practice afaict.  In any case,
-it's a matter for a separate patch, I would say.
+On top of Ingo's patch I attempt a solution that failed:
+include/asm-ia64/spinlock.h: 1.23 1.24 dsw 05/01/18 10:22:35 (modified, needs delta)
 
-Updated patch below:
-
-
-Add support for system device class attributes.  I would like to have
-this for doing cpu add and remove on ppc64, and I think the memory
-hotplug people probably will want it, too.
-
-o  Add the necessary show and store methods and related data
-   structures.
-
-o  Add sysdev_create_file and sysdev_remove_file.
-
-o  Make the "system" subsys' ktype ktype_sysdev_class instead of
-   ktype_sysdev, which should be used only for sysdevs.
-
-Signed-off-by: Nathan Lynch <nathanl@austin.ibm.com>
-
-
----
-
-
-diff -puN drivers/base/sys.c~sysdev_class-attr-support drivers/base/sys.c
---- linux-2.6.11-rc1-bk1/drivers/base/sys.c~sysdev_class-attr-support	2005-01-17 17:04:16.000000000 -0600
-+++ linux-2.6.11-rc1-bk1-nathanl/drivers/base/sys.c	2005-01-17 17:32:25.000000000 -0600
-@@ -76,10 +76,45 @@ void sysdev_remove_file(struct sys_devic
- EXPORT_SYMBOL_GPL(sysdev_create_file);
- EXPORT_SYMBOL_GPL(sysdev_remove_file);
+@@ -126,7 +126,8 @@
+ #define RW_LOCK_UNLOCKED (rwlock_t) { 0, 0 }
  
-+#define to_sysdev_class(k) container_of(to_kset(k), struct sysdev_class, kset)
-+#define to_sysdev_class_attr(a) container_of(a, struct sysdev_class_attribute, attr)
-+
-+static ssize_t
-+sysdev_class_show(struct kobject * kobj, struct attribute * attr, char * buffer)
-+{
-+	struct sysdev_class * sysdev_class = to_sysdev_class(kobj);
-+	struct sysdev_class_attribute * sysdev_class_attr = to_sysdev_class_attr(attr);
-+
-+	if (sysdev_class_attr->show)
-+		return sysdev_class_attr->show(sysdev_class, buffer);
-+	return 0;
-+}
-+
-+static ssize_t
-+sysdev_class_store(struct kobject * kobj, struct attribute * attr,
-+	     const char * buffer, size_t count)
-+{
-+	struct sysdev_class * sysdev_class = to_sysdev_class(kobj);
-+	struct sysdev_class_attribute * sysdev_class_attr = to_sysdev_class_attr(attr);
-+
-+	if (sysdev_class_attr->store)
-+		return sysdev_class_attr->store(sysdev_class, buffer, count);
-+	return 0;
-+}
-+
-+static struct sysfs_ops sysdev_class_sysfs_ops = {
-+	.show	= sysdev_class_show,
-+	.store	= sysdev_class_store,
-+};
-+
-+static struct kobj_type sysdev_class_ktype = {
-+	.sysfs_ops	= &sysdev_class_sysfs_ops,
-+};
-+
- /*
-  * declare system_subsys
-  */
--decl_subsys(system, &ktype_sysdev, NULL);
-+decl_subsys(system, &sysdev_class_ktype, NULL);
+ #define rwlock_init(x)		do { *(x) = RW_LOCK_UNLOCKED; } while(0)
+-#define rwlock_is_locked(x)	(*(volatile int *) (x) != 0)
++#define read_is_locked(x)	(*(volatile int *) (x) > 0)
++#define write_is_locked(x)	(*(volatile int *) (x) < 0)
  
- int sysdev_class_register(struct sysdev_class * cls)
- {
-@@ -98,6 +133,19 @@ void sysdev_class_unregister(struct sysd
- 	kset_unregister(&cls->kset);
- }
- 
-+int sysdev_class_create_file(struct sysdev_class *s, struct sysdev_class_attribute *a)
-+{
-+	return sysfs_create_file(&s->kset.kobj, &a->attr);
-+}
-+
-+
-+void sysdev_class_remove_file(struct sysdev_class *s, struct sysdev_class_attribute *a)
-+{
-+	sysfs_remove_file(&s->kset.kobj, &a->attr);
-+}
-+
-+EXPORT_SYMBOL_GPL(sysdev_class_create_file);
-+EXPORT_SYMBOL_GPL(sysdev_class_remove_file);
- EXPORT_SYMBOL_GPL(sysdev_class_register);
- EXPORT_SYMBOL_GPL(sysdev_class_unregister);
- 
-diff -puN include/linux/sysdev.h~sysdev_class-attr-support include/linux/sysdev.h
---- linux-2.6.11-rc1-bk1/include/linux/sysdev.h~sysdev_class-attr-support	2005-01-17 17:04:16.000000000 -0600
-+++ linux-2.6.11-rc1-bk1-nathanl/include/linux/sysdev.h	2005-01-17 17:04:16.000000000 -0600
-@@ -40,6 +40,21 @@ struct sysdev_class {
- extern int sysdev_class_register(struct sysdev_class *);
- extern void sysdev_class_unregister(struct sysdev_class *);
- 
-+struct sysdev_class_attribute {
-+	struct attribute	attr;
-+	ssize_t (*show)(struct sysdev_class *, char *);
-+	ssize_t (*store)(struct sysdev_class *, const char *, size_t);
-+};
-+
-+#define SYSDEV_CLASS_ATTR(_name,_mode,_show,_store) 		\
-+struct sysdev_class_attribute attr_##_name = { 			\
-+	.attr = {.name = __stringify(_name), .mode = _mode },	\
-+	.show	= _show,					\
-+	.store	= _store,					\
-+};
-+
-+extern int sysdev_class_create_file(struct sysdev_class *, struct sysdev_class_attribute *);
-+extern void sysdev_class_remove_file(struct sysdev_class *, struct sysdev_class_attribute *);
- 
- /**
-  * Auxillary system device drivers.
+ #define _raw_read_lock(rw)								\
+ do {											
 
-_
+However this breaks on the simulator with:
+
+Freeing unused kernel memory: 192kB freed
+INIT: version 2.78 booting
+kernel BUG at kernel/exit.c:870
 
 
+> Darren
+> 
+> > 
+> > Signed-off-by: Ingo Molnar <mingo@elte.hu>
+> > 
+> > --- linux/kernel/spinlock.c.orig
+> > +++ linux/kernel/spinlock.c
+> > @@ -173,7 +173,7 @@ EXPORT_SYMBOL(_write_lock);
+> >   * (We do this in a function because inlining it would be excessive.)
+> >   */
+> >  
+> > -#define BUILD_LOCK_OPS(op, locktype, is_locked_fn)			\
+> > +#define BUILD_LOCK_OPS(op, locktype)					\
+> >  void __lockfunc _##op##_lock(locktype *lock)				\
+> >  {									\
+> >  	preempt_disable();						\
+> > @@ -183,7 +183,7 @@ void __lockfunc _##op##_lock(locktype *l
+> >  		preempt_enable();					\
+> >  		if (!(lock)->break_lock)				\
+> >  			(lock)->break_lock = 1;				\
+> > -		while (is_locked_fn(lock) && (lock)->break_lock)	\
+> > +		while (op##_is_locked(lock) && (lock)->break_lock)	\
+> >  			cpu_relax();					\
+> >  		preempt_disable();					\
+> >  	}								\
+> > @@ -205,7 +205,7 @@ unsigned long __lockfunc _##op##_lock_ir
+> >  		preempt_enable();					\
+> >  		if (!(lock)->break_lock)				\
+> >  			(lock)->break_lock = 1;				\
+> > -		while (is_locked_fn(lock) && (lock)->break_lock)	\
+> > +		while (op##_is_locked(lock) && (lock)->break_lock)	\
+> >  			cpu_relax();					\
+> >  		preempt_disable();					\
+> >  	}								\
+> > @@ -246,9 +246,9 @@ EXPORT_SYMBOL(_##op##_lock_bh)
+> >   *         _[spin|read|write]_lock_irqsave()
+> >   *         _[spin|read|write]_lock_bh()
+> >   */
+> > -BUILD_LOCK_OPS(spin, spinlock_t, spin_is_locked);
+> > -BUILD_LOCK_OPS(read, rwlock_t, rwlock_is_locked);
+> > -BUILD_LOCK_OPS(write, rwlock_t, spin_is_locked);
+> > +BUILD_LOCK_OPS(spin, spinlock_t);
+> > +BUILD_LOCK_OPS(read, rwlock_t);
+> > +BUILD_LOCK_OPS(write, rwlock_t);
+> >  
+> >  #endif /* CONFIG_PREEMPT */
+> >  
+> > --- linux/include/asm-i386/spinlock.h.orig
+> > +++ linux/include/asm-i386/spinlock.h
+> > @@ -15,7 +15,7 @@ asmlinkage int printk(const char * fmt, 
+> >   */
+> >  
+> >  typedef struct {
+> > -	volatile unsigned int lock;
+> > +	volatile unsigned int slock;
+> >  #ifdef CONFIG_DEBUG_SPINLOCK
+> >  	unsigned magic;
+> >  #endif
+> > @@ -43,7 +43,7 @@ typedef struct {
+> >   * We make no fairness assumptions. They have a cost.
+> >   */
+> >  
+> > -#define spin_is_locked(x)	(*(volatile signed char *)(&(x)->lock) <= 0)
+> > +#define spin_is_locked(x)	(*(volatile signed char *)(&(x)->slock) <= 0)
+> >  #define spin_unlock_wait(x)	do { barrier(); } while(spin_is_locked(x))
+> >  
+> >  #define spin_lock_string \
+> > @@ -83,7 +83,7 @@ typedef struct {
+> >  
+> >  #define spin_unlock_string \
+> >  	"movb $1,%0" \
+> > -		:"=m" (lock->lock) : : "memory"
+> > +		:"=m" (lock->slock) : : "memory"
+> >  
+> >  
+> >  static inline void _raw_spin_unlock(spinlock_t *lock)
+> > @@ -101,7 +101,7 @@ static inline void _raw_spin_unlock(spin
+> >  
+> >  #define spin_unlock_string \
+> >  	"xchgb %b0, %1" \
+> > -		:"=q" (oldval), "=m" (lock->lock) \
+> > +		:"=q" (oldval), "=m" (lock->slock) \
+> >  		:"0" (oldval) : "memory"
+> >  
+> >  static inline void _raw_spin_unlock(spinlock_t *lock)
+> > @@ -123,7 +123,7 @@ static inline int _raw_spin_trylock(spin
+> >  	char oldval;
+> >  	__asm__ __volatile__(
+> >  		"xchgb %b0,%1"
+> > -		:"=q" (oldval), "=m" (lock->lock)
+> > +		:"=q" (oldval), "=m" (lock->slock)
+> >  		:"0" (0) : "memory");
+> >  	return oldval > 0;
+> >  }
+> > @@ -138,7 +138,7 @@ static inline void _raw_spin_lock(spinlo
+> >  #endif
+> >  	__asm__ __volatile__(
+> >  	
+> 	spin_lock_string
+> > -		:"=m" (lock->lock) : : "memory");
+> > +		:"=m" (lock->slock) : : "memory");
+> >  }
+> >  
+> >  static inline void _raw_spin_lock_flags (spinlock_t *lock, unsigned long flags)
+> > @@ -151,7 +151,7 @@ static inline void _raw_spin_lock_flags 
+> >  #endif
+> >  	__asm__ __volatile__(
+> >  		spin_lock_string_flags
+> > -		:"=m" (lock->lock) : "r" (flags) : "memory");
+> > +		:"=m" (lock->slock) : "r" (flags) : "memory");
+> >  }
+> >  
+> >  /*
+> > @@ -186,7 +186,17 @@ typedef struct {
+> >  
+> >  #define rwlock_init(x)	do { *(x) = RW_LOCK_UNLOCKED; } while(0)
+> >  
+> > -#define rwlock_is_locked(x) ((x)->lock != RW_LOCK_BIAS)
+> > +/**
+> > + * read_is_locked - would read_trylock() fail?
+> > + * @lock: the rwlock in question.
+> > + */
+> > +#define read_is_locked(x) (atomic_read((atomic_t *)&(x)->lock) <= 0)
+> > +
+> > +/**
+> > + * write_is_locked - would write_trylock() fail?
+> > + * @lock: the rwlock in question.
+> > + */
+> > +#define write_is_locked(x) ((x)->lock != RW_LOCK_BIAS)
+> >  
+> >  /*
+> >   * On x86, we implement read-write locks as a 32-bit counter
+> > --- linux/kernel/exit.c.orig
+> > +++ linux/kernel/exit.c
+> > @@ -861,8 +861,12 @@ task_t fastcall *next_thread(const task_
+> >  #ifdef CONFIG_SMP
+> >  	if (!p->sighand)
+> >  		BUG();
+> > +#ifndef write_is_locked
+> > +# warning please implement read_is_locked()/write_is_locked()!
+> > +# define write_is_locked rwlock_is_locked
+> > +#endif
+> >  	if (!spin_is_locked(&p->sighand->siglock) &&
+> > -				!rwlock_is_locked(&tasklist_lock))
+> > +				!write_is_locked(&tasklist_lock))
+> >  		BUG();
+> >  #endif
+> >  	return pid_task(p->pids[PIDTYPE_TGID].pid_list.next, PIDTYPE_TGID);
+> > 
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> --------------------------------------------------
+> Darren Williams <dsw AT gelato.unsw.edu.au>
+> Gelato@UNSW <www.gelato.unsw.edu.au>
+> --------------------------------------------------
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-ia64" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--------------------------------------------------
+Darren Williams <dsw AT gelato.unsw.edu.au>
+Gelato@UNSW <www.gelato.unsw.edu.au>
+--------------------------------------------------

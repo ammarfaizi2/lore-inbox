@@ -1,41 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284509AbRLJT6Q>; Mon, 10 Dec 2001 14:58:16 -0500
+	id <S286366AbRLJUBQ>; Mon, 10 Dec 2001 15:01:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286365AbRLJT6G>; Mon, 10 Dec 2001 14:58:06 -0500
-Received: from moutvdom01.kundenserver.de ([195.20.224.200]:14912 "EHLO
-	moutvdom01.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S284509AbRLJT6D>; Mon, 10 Dec 2001 14:58:03 -0500
-Reply-To: <linux-kernel@pogrammers-world.com>
-From: "Sascha Andres" <linux-kernel@programmers-world.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: RE: Unresolved symbols (NOT A BUG)
-Date: Mon, 10 Dec 2001 20:59:37 +0100
-Message-ID: <000301c181b5$3256d660$0328a8c0@keasanb>
+	id <S286369AbRLJUBH>; Mon, 10 Dec 2001 15:01:07 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:2944 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S286366AbRLJUAu>; Mon, 10 Dec 2001 15:00:50 -0500
+Date: Mon, 10 Dec 2001 15:00:45 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Ben Greear <greearb@candelatech.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: min-write-size for a UDP socket to be POLLOUT cannot be set. (proposed fixes)
+In-Reply-To: <3C151128.5080109@candelatech.com>
+Message-ID: <Pine.LNX.3.95.1011210145814.405A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2627
-In-Reply-To: <Pine.LNX.4.33.0112092356340.10961-100000@ns1.Aniela.EU.ORG>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Importance: Normal
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
-> You know you could try to use ULOGD target. It's easier to 
-> hack that than
-> the kernel.
-as far as I can see the patch simply adds code to the kernel.
-perhaps I did not get the point. why it's easier?
+On Mon, 10 Dec 2001, Ben Greear wrote:
 
-for me as a beginner it's just the same prob. hacking it
-would lead to unresolved symbols.
+> This relates to my earlier question about setting the threshold
+> at which select returns that a (UDP) socket is writable.
+> 
+> It appears that UDP sockets are hardwired at 2048 bytes...
+> 
+>  From linux/include/net/sock.h:
 
-would it help to place syslog.h in linux include dir?
+    int len = 0x8000;
 
-ciao sascha
+    setsockopt(s, SOL_SOCKET, SO_SNDBUF, &len, sizeof(len));
+    setsockopt(s, SOL_SOCKET, SO_RCVBUF, &len, sizeof(len));
+
+
+Doesn't this work?
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
+
 

@@ -1,68 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319467AbSILHqX>; Thu, 12 Sep 2002 03:46:23 -0400
+	id <S313181AbSILHwj>; Thu, 12 Sep 2002 03:52:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319469AbSILHqX>; Thu, 12 Sep 2002 03:46:23 -0400
-Received: from bg77.anu.edu.au ([150.203.223.77]:51648 "EHLO lassus.himi.org")
-	by vger.kernel.org with ESMTP id <S319467AbSILHqW>;
-	Thu, 12 Sep 2002 03:46:22 -0400
-Date: Thu, 12 Sep 2002 17:51:09 +1000
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.20-pre4 & ff. blows away Xwindows with Matrox G400 and agpgart
-Message-ID: <20020912075109.GA19542@himi.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <3D7FF444.87980B8E@bigpond.com>
+	id <S313190AbSILHwj>; Thu, 12 Sep 2002 03:52:39 -0400
+Received: from dp.samba.org ([66.70.73.150]:18888 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S313181AbSILHwi>;
+	Thu, 12 Sep 2002 03:52:38 -0400
+Date: Thu, 12 Sep 2002 17:48:22 +1000
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Zwane Mwaikambo <zwane@mwaikambo.name>
+Cc: mingo@elte.hu, linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: [patch] fix NMI watchdog, 2.5.34
+Message-Id: <20020912174822.2ecd4294.rusty@rustcorp.com.au>
+In-Reply-To: <Pine.LNX.4.44.0209102008000.1100-100000@linux-box.realnet.co.sz>
+References: <20020910054147.CD7972C201@lists.samba.org>
+	<Pine.LNX.4.44.0209102008000.1100-100000@linux-box.realnet.co.sz>
+X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="RnlQjJ0d97Da+TV1"
-Content-Disposition: inline
-In-Reply-To: <3D7FF444.87980B8E@bigpond.com>
-User-Agent: Mutt/1.3.28i
-From: simon@himi.org (Simon Fowler)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 10 Sep 2002 20:11:49 +0200 (SAST)
+Zwane Mwaikambo <zwane@mwaikambo.name> wrote:
 
---RnlQjJ0d97Da+TV1
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> On Tue, 10 Sep 2002, Rusty Russell wrote:
+> 
+> > Well spotted.  You might want to test the following patch which
+> > catches calls to smp_call_function() before the cpus are actually
+> > online.  I ran a variant on my (crappy, old, SMP) box before I sent
+> > the patch to Linus, and all I saw was the (harmless) tlb_flush.
+> 
+> hmm...
+> 
+> > diff -urNp --exclude TAGS -X /home/rusty/current-dontdiff --minimal linux-2.5.34/arch/i386/kernel/smpboot.c working-2.5.34-smp_call_cpus/arch/i386/kernel/smpboot.c
+> > --- linux-2.5.34/arch/i386/kernel/smpboot.c	Sun Sep  1 12:22:57 2002
+> > +++ working-2.5.34-smp_call_cpus/arch/i386/kernel/smpboot.c	Tue Sep 10 14:35:07 2002
+> > @@ -1218,7 +1218,10 @@ int __devinit __cpu_up(unsigned int cpu)
+> >  	return 0;
+> >  }
+> >  
+> > +unsigned int smp_done = 0;
+> > +
+> >  void __init smp_cpus_done(unsigned int max_cpus)
+> >  {
+> >  	zap_low_mappings();
+> > +	smp_done = 1;
+> 
+> I've got an SMP box which dies reliably at zap_low_mappings, i wonder if 
+> this could be the same problem. My BSP sits spinning on the completion 
+> check.
 
-On Thu, Sep 12, 2002 at 11:56:20AM +1000, Allan Duncan wrote:
-> This is a reissue of an earlier report, and I've since done some more dig=
-ging.
->=20
-> Up to kernel 2.4.20-pre2 there was no problem, agpgart et al ran fine etc,
-> but from 2.4.20-pre4 onwards when Xwindows starts to load these modules
-> I am instantly thrown back to a booting machine.
-> The same kernels on a VIA MVP3 chipset box with a Matrox G200 are fine.
->=20
-> I have ascertained that any attempt to use agpgart triggers it.
->=20
-I've seen the same thing with 2.4.20-pre5-ac1, and I'm just building
-pre5-aa2 to see if there's any difference. This is with an AMD 751
-system (an Asus K7M), an original Radeon, and the DRI CVS code. I
-couldn't get any log messages out of it, though.
+Hmmm, I can't see how: you mean it hangs in flush_tlb_all() (waiting for the
+ack in smp_call_function()?).  If so, that seems really wierd.  You could add
+a printk("here: %u\n", smp_processor_id()) in flush_tlb_all_ipi() to see which
+CPU isn't getting it...
 
-Simon
-
---=20
-PGP public key Id 0x144A991C, or ftp://bg77.anu.edu.au/pub/himi/himi.asc
-(crappy) Homepage: http://bg77.anu.edu.au
-doe #237 (see http://www.lemuria.org/DeCSS)=20
-My DeCSS mirror: ftp://bg77.anu.edu.au/pub/mirrors/css/=20
-
---RnlQjJ0d97Da+TV1
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE9gEdsQPlfmRRKmRwRArtmAJ9lBDPvepkngE0rdNLBik9ZnDm9ZgCfWbSI
-CIheejF7O1WswaQ2o0ThlPM=
-=1Cex
------END PGP SIGNATURE-----
-
---RnlQjJ0d97Da+TV1--
+Strange,
+Rusty.
+-- 
+   there are those who do and those who hang on and you don't see too
+   many doers quoting their contemporaries.  -- Larry McVoy

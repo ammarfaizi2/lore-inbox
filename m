@@ -1,98 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262371AbULOPzz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262374AbULOQM3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262371AbULOPzz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Dec 2004 10:55:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262372AbULOPzz
+	id S262374AbULOQM3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Dec 2004 11:12:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261746AbULOQM3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Dec 2004 10:55:55 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:54913 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262371AbULOPzj (ORCPT
+	Wed, 15 Dec 2004 11:12:29 -0500
+Received: from aktion1.adns.de ([62.116.145.13]:27098 "EHLO aktion1.adns.de")
+	by vger.kernel.org with ESMTP id S262374AbULOQMT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Dec 2004 10:55:39 -0500
-In-Reply-To: <2149.1103124772@redhat.com> 
-References: <2149.1103124772@redhat.com> 
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] Cross-reference nommu VMAs with mappings
-X-Mailer: MH-E 7.82; nmh 1.0.4; GNU Emacs 21.3.50.3
-Date: Wed, 15 Dec 2004 15:55:35 +0000
-Message-ID: <2547.1103126135@redhat.com>
-From: David Howells <dhowells@redhat.com>
-To: unlisted-recipients:; (no To-header on input)
+	Wed, 15 Dec 2004 11:12:19 -0500
+Message-ID: <41C062E4.3030906@asbest-online.de>
+Date: Wed, 15 Dec 2004 17:14:28 +0100
+From: Sven Krohlas <sven@asbest-online.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a6) Gecko/20041213
+X-Accept-Language: de, de-at, de-de, de-li, de-lu, de-ch, en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: Understanding schedular and slab allocation
+References: <3bGLs-1dr-3@gated-at.bofh.it> <3bGLs-1dr-1@gated-at.bofh.it> <3bGVh-1jR-23@gated-at.bofh.it>
+In-Reply-To: <3bGVh-1jR-23@gated-at.bofh.it>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-Virus-Scan: smtp-vilter
+X-SMTP-Vilter-Version: 1.1.4
+X-SMTP-Vilter-Backend: vilter-clamd
+X-SMTP-Vilter-Status: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-The attached patch includes prio-tree support and adds cross-referencing of
-VMAs with address spaces back in, as is done under normal MMU Linux.
+>> Btw: is anybody working on the slab allocator as described in Bonwicks
+>> 2001 paper?
+> Linux already fronts the slab allocator with per-cpu pools.
 
-Signed-Off-By: David Howells <dhowells@redhat.com>
----
-warthog>diffstat nommu-prio-2610rc3.diff 
- Makefile |    4 ++--
- nommu.c  |   22 ++++++++++++++++++----
- 2 files changed, 20 insertions(+), 6 deletions(-)
+Well, I haven't had such a deep look at the 2001 version (my topic was
+the current implementation)...
+I've seen the per-cpu pools. Bonwick talks in his paper of allocations in
+guaranteed constant time (using vmem). Is this goal already achived in
+Linux? There is a lock protecting the cache_chain, doesn't this hurt
+scalability?
 
-diff -uNrp linux-2.6.10-rc3-mm1-nommu-rb/mm/Makefile linux-2.6.10-rc3-mm1-nommu-prio/mm/Makefile
---- linux-2.6.10-rc3-mm1-nommu-rb/mm/Makefile	2004-12-13 17:34:22.000000000 +0000
-+++ linux-2.6.10-rc3-mm1-nommu-prio/mm/Makefile	2004-12-15 13:38:04.000000000 +0000
-@@ -5,12 +5,12 @@
- mmu-y			:= nommu.o
- mmu-$(CONFIG_MMU)	:= fremap.o highmem.o madvise.o memory.o mincore.o \
- 			   mlock.o mmap.o mprotect.o mremap.o msync.o rmap.o \
--			   vmalloc.o prio_tree.o
-+			   vmalloc.o
- 
- obj-y			:= bootmem.o filemap.o mempool.o oom_kill.o fadvise.o \
- 			   page_alloc.o page-writeback.o pdflush.o \
- 			   readahead.o slab.o swap.o truncate.o vmscan.o \
--			   $(mmu-y)
-+			   prio_tree.o $(mmu-y)
- 
- obj-$(CONFIG_SWAP)	+= page_io.o swap_state.o swapfile.o thrash.o
- obj-$(CONFIG_HUGETLBFS)	+= hugetlb.o
-diff -uNrp linux-2.6.10-rc3-mm1-nommu-rb/mm/nommu.c linux-2.6.10-rc3-mm1-nommu-prio/mm/nommu.c
---- linux-2.6.10-rc3-mm1-nommu-rb/mm/nommu.c	2004-12-15 14:32:07.000000000 +0000
-+++ linux-2.6.10-rc3-mm1-nommu-prio/mm/nommu.c	2004-12-15 13:38:04.000000000 +0000
-@@ -48,10 +48,6 @@ DECLARE_RWSEM(nommu_vma_sem);
- struct vm_operations_struct generic_file_vm_ops = {
- };
- 
--void __init prio_tree_init(void)
--{
--}
--
- /*
-  * Handle all mappings that got truncated by a "truncate()"
-  * system call.
-@@ -319,6 +315,15 @@ static void add_nommu_vma(struct vm_area
- 	struct rb_node **p = &nommu_vma_tree.rb_node;
- 	struct rb_node *parent = NULL;
- 
-+	/* add the VMA to the mapping */
-+	if (vma->vm_file) {
-+		mapping = vma->vm_file->f_mapping;
-+
-+		flush_dcache_mmap_lock(mapping);
-+		vma_prio_tree_insert(vma, &mapping->i_mmap);
-+		flush_dcache_mmap_unlock(mapping);
-+	}
-+
- 	/* add the VMA to the master list */
- 	while (*p) {
- 		parent = *p;
-@@ -353,6 +358,15 @@ static void delete_nommu_vma(struct vm_a
- {
- 	struct address_space *mapping;
- 
-+	/* remove the VMA from the mapping */
-+	if (vma->vm_file) {
-+		mapping = vma->vm_file->f_mapping;
-+
-+		flush_dcache_mmap_lock(mapping);
-+		vma_prio_tree_remove(vma, &mapping->i_mmap);
-+		flush_dcache_mmap_unlock(mapping);
-+	}
-+
- 	/* remove from the master list */
- 	rb_erase(&vma->vm_rb, &nommu_vma_tree);
- }
+And what about the other improvements?
+
+-vmem for allocating general resources
+-A user-space implementation (well I know, that's a bit off topic here..)
+
+Are they already implemented/is anybody working on this or are there
+already known better solutions than Bonwicks suggestions?
+
+Greetings,
+Sven

@@ -1,51 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317423AbSGQWQl>; Wed, 17 Jul 2002 18:16:41 -0400
+	id <S316795AbSGQWaC>; Wed, 17 Jul 2002 18:30:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317546AbSGQWQk>; Wed, 17 Jul 2002 18:16:40 -0400
-Received: from jalon.able.es ([212.97.163.2]:7667 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S317423AbSGQWQk>;
-	Wed, 17 Jul 2002 18:16:40 -0400
-Date: Thu, 18 Jul 2002 00:18:37 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: "Justin M. Forbes" <kernelmail@attbi.com>, marcelo@conectiva.com.br,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19-rc2 compile fail
-Message-ID: <20020717221837.GA2390@werewolf.able.es>
-References: <Pine.NEB.4.44.0207171902230.16056-100000@mimas.fachschaften.tu-muenchen.de>
+	id <S316798AbSGQWaC>; Wed, 17 Jul 2002 18:30:02 -0400
+Received: from numenor.qualcomm.com ([129.46.51.58]:8171 "EHLO
+	numenor.qualcomm.com") by vger.kernel.org with ESMTP
+	id <S316795AbSGQWaB>; Wed, 17 Jul 2002 18:30:01 -0400
+Message-Id: <5.1.0.14.2.20020717153013.09006b48@mail1.qualcomm.com>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Wed, 17 Jul 2002 15:32:04 -0700
+To: kuznet@ms2.inr.ac.ru, Jack.Bloch@icn.siemens.COM (Bloch Jack)
+From: "Maksim (Max) Krasnyanskiy" <maxk@qualcomm.com>
+Subject: Re: Networking question
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200207161700.VAA14214@sex.inr.ac.ru>
+References: <180577A42806D61189D30008C7E632E8793998@boca213a.boca.ssc.siemens.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <Pine.NEB.4.44.0207171902230.16056-100000@mimas.fachschaften.tu-muenchen.de>; from bunk@fs.tum.de on Wed, Jul 17, 2002 at 19:11:49 +0200
-X-Mailer: Balsa 1.3.6
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On 2002.07.17 Adrian Bunk wrote:
->On Wed, 17 Jul 2002, Justin M. Forbes wrote:
+> > the priority of the softirq daemon or ensure that it is always awoken 
+> when a
+> > netif_rx is called?
 >
->>  GCC version is 3.1 .config is attached, fairly large as I base it off of
->> the original Red Hat one to make sure everything compiles, even though I
->> am not using most of it. Strangely no compile problems on my base 7.2 box
->> (gcc 2.96).  .config is attached.
->
->The short answer ist perhaps: 3.1 is not a supported compiler...
->
->But I'm surprised that I wasn't able to reproduce it using the 20020703
->(past 3.1) snapshot of the gcc-3.1 branch that is in Debian unstable.
->
+>You should suppound it with local_bh_disable()/enable(), when using
+>from process context.
+Actually he should call netif_rx_ni() instead of netif_rx().
+_ni stands for non-interrupt context.
 
-I am building kernels with Mandrakes gcc-3.1.1 snapshots since time ago,
-and have no problems with it (now gcc-3.1.1-0.7mdk, branch of 2002/07/01)
+Max
 
-Probably kernel is more sensible to binutils version...
-Here: binutils-2.12.90.0.14-2mdk
-
--- 
-J.A. Magallon             \   Software is like sex: It's better when it's free
-mailto:jamagallon@able.es  \                    -- Linus Torvalds, FSF T-shirt
-Linux werewolf 2.4.19-rc1-jam3, Mandrake Linux 8.3 (Cooker) for i586
-gcc (GCC) 3.1.1 (Mandrake Linux 8.3 3.1.1-0.7mdk)

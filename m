@@ -1,66 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262279AbUKQLgp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262195AbUKQLlE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262279AbUKQLgp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 06:36:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262280AbUKQLgp
+	id S262195AbUKQLlE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 06:41:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262281AbUKQLlE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 06:36:45 -0500
-Received: from tarjoilu.luukku.com ([194.215.205.232]:25227 "EHLO
-	tarjoilu.luukku.com") by vger.kernel.org with ESMTP id S262279AbUKQLgd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 06:36:33 -0500
-Message-ID: <419B383C.CE11D38C@users.sourceforge.net>
-Date: Wed, 17 Nov 2004 13:38:36 +0200
-From: Jari Ruusu <jariruusu@users.sourceforge.net>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.22aa1r7 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Sami Farin <7atbggg02@sneakemail.com>
-Cc: linux-kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: vm-pageout-throttling.patch: hanging in 
- throttle_vm_writeout/blk_congestion_wait
-References: <20041115012620.GA5750@m.safari.iki.fi> <Pine.LNX.4.44.0411152140030.4171-100000@localhost.localdomain> <20041115223709.GD6654@m.safari.iki.fi>
+	Wed, 17 Nov 2004 06:41:04 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:37519 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S262195AbUKQLky (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Nov 2004 06:40:54 -0500
+Date: Wed, 17 Nov 2004 13:42:34 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: linux-kernel@vger.kernel.org
+Cc: Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Mark_H_Johnson@Raytheon.com, "K.R. Foley" <kr@cybsft.com>,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
+       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>
+Subject: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm1-V0.7.28-0
+Message-ID: <20041117124234.GA25956@elte.hu>
+References: <20041103105840.GA3992@elte.hu> <20041106155720.GA14950@elte.hu> <20041108091619.GA9897@elte.hu> <20041108165718.GA7741@elte.hu> <20041109160544.GA28242@elte.hu> <20041111144414.GA8881@elte.hu> <20041111215122.GA5885@elte.hu> <20041116125402.GA9258@elte.hu> <20041116130946.GA11053@elte.hu> <20041116134027.GA13360@elte.hu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20041116134027.GA13360@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sami Farin wrote:
-> On Mon, Nov 15, 2004 at 09:56:29PM +0000, Hugh Dickins wrote:
-> > On Mon, 15 Nov 2004, Sami Farin wrote:
-> > >
-> > > this time I had some swapspace on /dev/loop1 (file-backed, reiserfs,
-> > > loop-AES-2.2d)...  I think (!) it caused this deadlock.
-> >
-> > That's not at all surprising.  See the swap_extent work Andrew did
-> > for 2.5 (in mm/swapfile.c), by which swap to a swapfile now avoids
-> > the filesystem altogether (except while swapon prepares the map of
-> > disk blocks).  By swapping to a loop device over a file, you're
-> > sneaking past his work, and putting the filesystem back under swap.
-> 
-> Aha...  interesting.
-> 
-> > It is begging for deadlocks: I'm not saying it couldn't be got to
-> > work, and of course it would be nice to boast that there's no such
-> > issue; but there are so many better places to invest such effort...
-> 
-> So, this was a known issue and it's hard to fix?  I didn't know that.
-> 
-> I know it's a "nicer" idea to use some partition for the swap
-> instead of a file on reiserfs, but I created too small swap partitions
-> originally and I can't(/bother?) resize the other partitions.
-> And sometimes some memhog forces me to add even more swap.
 
-Quote from loop-AES' README file:
-"
-7.1. Example 1 - Encrypting swap on 2.4 and newer kernels
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Device backed (partition backed) loop is capable of encrypting swap on 2.4
-and newer kernels. File backed loops can't be used for swap.
-"
+i have released the -V0.7.28-0 Real-Time Preemption patch, which can be
+downloaded from the usual place:
 
-That "file backed loops can't be used for swap" warning has been there in
-that README file since September 2001.
+	http://redhat.com/~mingo/realtime-preempt/
 
--- 
-Jari Ruusu  1024R/3A220F51 5B 4B F9 BB D3 3F 52 E9  DB 1D EB E3 24 0E A9 DD
+this is a fixes & latency-reduction release.
+
+Changes since a -V0.7.27-3:
+
+ - made the UP-ioapic code a bit more conservative again - maybe some of
+   the lockups are related?
+
+ - removed the BKL from the sound code in a cleaner way and
+   removed the quite fragile 'negative ->lock_depth' code. Much less
+   intrusive than i originally thought, and much cleaner as well.
+
+ - more fixes to the wakeup-timing logic, 4 false positives fixed in
+   total, mostly related to new-task-wakeup not accurately starting the
+   tracer.
+
+ - fixed the mmx-memcpy related latency reported by Florian Schmidt and 
+   others. Also turned off the MMX/SSE ops in the RAID code, which 
+   can introduce similar latencies.
+
+ - kgdb fix from Bill Huey
+
+ - knfsd shutdown with-BKL-held fix
+
+ - highmem compilation fix
+
+ - profiling related crash fix
+
+ - implemented 'direct-path' rescheduling to further reduce scheduling
+   latency: the kernel will now in most cases go from try_to_wakeup()
+   into the scheduler directly without re-enabling interrupts ever again
+   (and thus not giving irq handlers a window to increase latency). This
+   is also the final fix for irq nesting and irq-stack recursion.
+
+ - turn off sync wakeups on PREEMPT_RT -> they are latency generators
+
+to create a -V0.7.28-0 tree from scratch, the patching order is:
+
+  http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.9.tar.bz2
+  http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.10-rc2.bz2
+  http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.10-rc2/2.6.10-rc2-mm1/2.6.10-rc2-mm1.bz2
+  http://redhat.com/~mingo/realtime-preempt/realtime-preempt-2.6.10-rc2-mm1-V0.7.28-0
+
+	Ingo

@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261564AbTEMQbY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 12:31:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261807AbTEMQbU
+	id S261985AbTEMQiX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 12:38:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261956AbTEMQiW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 12:31:20 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:44444
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S261564AbTEMQaM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 12:30:12 -0400
-Subject: Re: [PATCH] in-core AFS multiplexor and PAG support
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: David Howells <dhowells@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-fsdevel@vger.kernel.org, openafs-devel@openafs.org
-In-Reply-To: <Pine.LNX.4.44.0305130849480.1562-100000@home.transmeta.com>
-References: <Pine.LNX.4.44.0305130849480.1562-100000@home.transmeta.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1052840663.463.64.camel@dhcp22.swansea.linux.org.uk>
+	Tue, 13 May 2003 12:38:22 -0400
+Received: from s4.uklinux.net ([80.84.72.14]:51904 "EHLO mail2.uklinux.net")
+	by vger.kernel.org with ESMTP id S262102AbTEMQhb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 12:37:31 -0400
+Date: Tue, 13 May 2003 16:45:23 +0000
+From: Jonathan Matthews <jaycee.removeifnotspam@jaycee.uklinux.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: What exactly does "supports Linux" mean?
+Message-ID: <20030513164523.GA29878@bigdaddy>
+References: <20030513151630.75ad4028.skraw@ithnet.com> <1052830415.432.2.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 13 May 2003 16:44:24 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1052830415.432.2.camel@dhcp22.swansea.linux.org.uk>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2003-05-13 at 16:52, Linus Torvalds wrote:
-> I think the code looks pretty horrible, but I think we'll need something
-> like this to keep track of keys. However, I'm not sure we should make this
-> a new structure - I think we should make the current "tsk->user" thing
-> _be_ the "PAG". 
+On Tue, May 13, 2003 at 01:53:37PM +0100, Alan Cox wrote:
+> On Maw, 2003-05-13 at 14:16, Stephan von Krawczynski wrote:
+[snip]
+> 
+> > My general conclusion would be that something not working with a standard
+> > kernel cannot be called "supporting linux", no matter what distros ever are
+> > supported. You may call me purist...
+> > Any ideas?
+> 
+> Linus owns the trademark for the USA certainly.
 
-With something like SELinux a PAG may belong to a role not to a user
-even though other limits like processes probably belong to the user as a
-whole. 
+Any ideas who (if anyone) owns it in the UK?  Is there anywhere to go to 
+find this out, perhaps for other countries too?
 
-How does AFS currently handle this, can two logins of the same user have
-seperate PAGs ?
-
+  jc

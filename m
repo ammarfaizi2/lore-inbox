@@ -1,51 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281137AbRKENF1>; Mon, 5 Nov 2001 08:05:27 -0500
+	id <S281132AbRKENEZ>; Mon, 5 Nov 2001 08:04:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281135AbRKENFQ>; Mon, 5 Nov 2001 08:05:16 -0500
-Received: from mons.uio.no ([129.240.130.14]:61840 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S281128AbRKENFJ>;
-	Mon, 5 Nov 2001 08:05:09 -0500
-To: Manfred Spraul <manfred@colorfullife.com>
+	id <S281129AbRKENEG>; Mon, 5 Nov 2001 08:04:06 -0500
+Received: from mnh-1-25.mv.com ([207.22.10.57]:54020 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S281128AbRKEND7>;
+	Mon, 5 Nov 2001 08:03:59 -0500
+Message-Id: <200111051422.JAA01263@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: Ryan Cumming <bodnar42@phalynx.dhs.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [CFT][PATCH] ramfs/tmpfs readdir()
-In-Reply-To: <3BE58883.844058@colorfullife.com>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 05 Nov 2001 14:05:00 +0100
-In-Reply-To: <3BE58883.844058@colorfullife.com>
-Message-ID: <shspu6xz7ur.fsf@charged.uio.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
-MIME-Version: 1.0
+Subject: Re: Special Kernel Modification 
+In-Reply-To: Your message of "Sun, 04 Nov 2001 21:30:38 PST."
+             <E160cLH-0001Nw-00@localhost> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Date: Mon, 05 Nov 2001 09:22:09 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Manfred Spraul <manfred@colorfullife.com> writes:
+bodnar42@phalynx.dhs.org said:
+> Nope, last I checked O_DIRECT enforces buffer and file offset
+> alignment.  Normal apps wouldn't work very well at all. 
 
-     > Content-Type: text/plain; charset=us-ascii
-     > Content-Transfer-Encoding: 7bit
+Except that the apps won't be the ones doing O_DIRECT IO.  It'll be UML, and
+it can presumably provide whatever alignment is required.
 
-    >>
-    >> Note that other filesystems would already enjoy having a
-    >> d_offset in the dentry: it allows for various other
-    >> optimizations (ie making "unlink()" a O(1) operation, by not
-    >> having to search the directory).
-    >>
-     > The dentry structure already contains 2 members for filesystem
-     > use (d_time and d_fsdata), is a third member really required?
+> Maybe UML needs some hacks around  the whole caching issue?
 
-It could be useful. For NFS, we're also looking for 64-bits in which
-to store the parent directory's mtime. This is needed in order to
-improve the dentry revalidation heuristics.
+Not that I can see...
 
-Ultimately, though, allowing the filesystem to allocate dentries
-itself on its own slab might be a preferable manner to accomodate the
-need for these private fields. IOW to allow one to allocate
+				Jeff
 
-   struct nfs_dentry { 
-        struct dentry dentry;
-        ... private fields ....
-   };
-
-Cheers,
-  Trond

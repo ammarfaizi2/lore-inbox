@@ -1,80 +1,92 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135226AbRDZJM3>; Thu, 26 Apr 2001 05:12:29 -0400
+	id <S135223AbRDZJLM>; Thu, 26 Apr 2001 05:11:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135240AbRDZJMU>; Thu, 26 Apr 2001 05:12:20 -0400
-Received: from chiara.elte.hu ([157.181.150.200]:26638 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S135226AbRDZJMJ>;
-	Thu, 26 Apr 2001 05:12:09 -0400
-Date: Thu, 26 Apr 2001 10:10:45 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Mike Galbraith <mikeg@wen-online.de>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] swap-speedup-2.4.3-B3 (fwd)
-In-Reply-To: <Pine.LNX.4.33.0104261043330.292-100000@mikeg.weiden.de>
-Message-ID: <Pine.LNX.4.30.0104260955540.1546-100000@elte.hu>
+	id <S135226AbRDZJLA>; Thu, 26 Apr 2001 05:11:00 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:1540 "EHLO mail.stock-world.de")
+	by vger.kernel.org with ESMTP id <S135223AbRDZJKu>;
+	Thu, 26 Apr 2001 05:10:50 -0400
+Message-ID: <3AE7E346.731E19FA@evision-ventures.com>
+Date: Thu, 26 Apr 2001 10:58:46 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17-14 i686)
+X-Accept-Language: en, de
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: PATCH: 2.4.3 tinny module interface cleanum
+Content-Type: multipart/mixed;
+ boundary="------------43925C8050D15D7AD91312A5"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------43925C8050D15D7AD91312A5
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-On Thu, 26 Apr 2001, Mike Galbraith wrote:
+Hello!
 
-> 2.4.4.pre7.virgin
-> real    11m33.589s
+The following patch is making the get_empty_super() function
+just local to the place where it's only use is and where it's only
+use should be: fs/super.c
 
-> 2.4.4.pre7.sillyness
-> real    9m30.336s
+The removal of this symbol from ksyms.c should:
 
-very interesting. Looks like there are still reserves in the VM, for heavy
-workloads. (and swapping is all about heavy workloads.)
+1. Help making the module interface cleaner by a tinny margin :-).
 
-it would be interesting to see why your patch has such a good effect.
-(and it would be nice get the same improvement in a clean way.)
+2. shouldn't hurt anything sane.
 
-> -		if (!page->age)
-> -			deactivate_page(page);
-> +		age_page_down(page);
+Please apply... line sloops in the patch are due to bla bla, and
+don't hurt...
 
-this one preserves the cache a bit more agressively.
+Thank's
 
->  	/* Always start by trying to penalize the process that is allocating memory */
->  	if (mm)
-> -		retval = swap_out_mm(mm, swap_amount(mm));
-> +		return swap_out_mm(mm, swap_amount(mm));
+-- 
+- phone: +49 214 8656 283
+- job:   eVision-Ventures AG, LEV .de (MY OPINIONS ARE MY OWN!)
+- langs: de_DE.ISO8859-1, en_US, pl_PL.ISO8859-2, last ressort:
+ru_RU.KOI8-R
+--------------43925C8050D15D7AD91312A5
+Content-Type: text/plain; charset=us-ascii;
+ name="get_emty_super.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="get_emty_super.diff"
 
-keep swap-out activity more focused to the process that is generating the
-VM pressure. It might make sense to test this single change in isolation.
-(While we cannot ignore to swap out other contexts under memory pressure,
-we could do something to make it focused on the current MM a bit more.)
+diff -ur linux/fs/super.c new/fs/super.c
+--- linux/fs/super.c	Wed Apr 18 20:41:17 2001
++++ new/fs/super.c	Thu Apr 26 01:08:48 2001
+@@ -691,7 +691,7 @@
+  *	the request.
+  */
+  
+-struct super_block *get_empty_super(void)
++static struct super_block *get_empty_super(void)
+ {
+ 	struct super_block *s;
+ 
+diff -ur linux/include/linux/fs.h new/include/linux/fs.h
+--- linux/include/linux/fs.h	Wed Apr 18 20:41:18 2001
++++ new/include/linux/fs.h	Thu Apr 26 01:03:03 2001
+@@ -1291,7 +1285,6 @@
+ 
+ extern struct file_system_type *get_fs_type(const char *name);
+ extern struct super_block *get_super(kdev_t);
+-struct super_block *get_empty_super(void);
+ extern void put_super(kdev_t);
+ unsigned long generate_cluster(kdev_t, int b[], int);
+ unsigned long generate_cluster_swab32(kdev_t, int b[], int);
+diff -ur linux/kernel/ksyms.c new/kernel/ksyms.c
+--- linux/kernel/ksyms.c	Wed Apr 18 20:41:19 2001
++++ new/kernel/ksyms.c	Thu Apr 26 00:40:48 2001
+@@ -129,7 +129,6 @@
+ EXPORT_SYMBOL(update_atime);
+ EXPORT_SYMBOL(get_fs_type);
+ EXPORT_SYMBOL(get_super);
+-EXPORT_SYMBOL(get_empty_super);
+ EXPORT_SYMBOL(getname);
+ EXPORT_SYMBOL(names_cachep);
+ EXPORT_SYMBOL(fput);
 
-> +	static unsigned long lastscan;
-> +
-> +	if (lastscan == jiffies)
-> +		return 0;
-
-limit the runtime of refill_inactive_scan(). This is similar to Rik's
-reclaim-limit+aging-tuning patch to linux-mm yesterday. could you try
-Rik's patch with your patch except this jiffies hack, does it still
-achieve the same improvement?
-
-> +	int shortage = inactive_shortage();
->
-> +	if (refill_inactive_scan(DEF_PRIORITY, 0) < shortage)
->  		/* If refill_inactive_scan failed, try to page stuff out.. */
->  		swap_out(DEF_PRIORITY, gfp_mask);
->
-> +	return 0;
-
-(i cannot see how this chunk affects the VM, AFAICS this too makes the
-zapping of the cache less agressive.)
-
-perhaps the best would be to first test Rik's patch on pre7-vanilla, it
-should go in the same direction your changes go, i think?
-
-	Ingo
+--------------43925C8050D15D7AD91312A5--
 

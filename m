@@ -1,79 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269933AbUJGXcL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269928AbUJGXco@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269933AbUJGXcL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 19:32:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269909AbUJGX36
+	id S269928AbUJGXco (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 19:32:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269926AbUJGXce
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 19:29:58 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:28333 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S269920AbUJGXZa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 19:25:30 -0400
-Date: Thu, 07 Oct 2004 16:26:05 -0700
-From: Hanna Linder <hannal@us.ibm.com>
-To: lkml <linux-kernel@vger.kernel.org>
-cc: kernel-janitors <kernel-janitors@lists.osdl.org>, greg@kroah.com,
-       hannal@us.ibm.com, paulus@samba.org, benh@kernel.crashing.org
-Subject: [PATCH 2.6][9/12] pplus.c replace pci_find_device with pci_get_device
-Message-ID: <33930000.1097191565@w-hlinder.beaverton.ibm.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 7 Oct 2004 19:32:34 -0400
+Received: from lakermmtao08.cox.net ([68.230.240.31]:39860 "EHLO
+	lakermmtao08.cox.net") by vger.kernel.org with ESMTP
+	id S269928AbUJGXay (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 19:30:54 -0400
+In-Reply-To: <20041007224640.GC7047@pclin040.win.tue.nl>
+References: <4164EBF1.3000802@nortelnetworks.com> <Pine.LNX.4.61.0410071244150.304@hibernia.jakma.org> <001601c4ac72$19932760$161b14ac@boromir> <Pine.LNX.4.61.0410071346040.304@hibernia.jakma.org> <001c01c4ac76$fb9fd190$161b14ac@boromir> <1097156727.31753.44.camel@localhost.localdomain> <001f01c4ac8b$35849710$161b14ac@boromir> <1097160628.31614.68.camel@localhost.localdomain> <20041007215834.GA7047@pclin040.win.tue.nl> <CE341A74-18B0-11D9-ABEB-000393ACC76E@mac.com> <20041007224640.GC7047@pclin040.win.tue.nl>
+Mime-Version: 1.0 (Apple Message framework v619)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <EE2D21FC-18B8-11D9-ABEB-000393ACC76E@mac.com>
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: mmap specification - was: ... select specification
+Date: Thu, 7 Oct 2004 19:30:53 -0400
+To: Andries Brouwer <aebr@win.tue.nl>
+X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Oct 07, 2004, at 18:46, Andries Brouwer wrote:
+> The POSIX text is clear to me, and Linux is compliant.
+> On the other hand, I have no idea what you try to say.
 
-As pci_find_device is going away I've replaced it with pci_get_device.
-If someone with a PPC system could test it I would appreciate it.
+> On Thu, Oct 07, 2004 at 06:32:43PM -0400, Kyle Moffett wrote:
+>
+>>>> "References within the address range starting at pa and continuing
+>>>> for len bytes to whole pages following the end of an object shall
+>>>> result in delivery of a SIGBUS signal."
 
-Thanks.
+Reviewing this once more:
 
-Hanna Linder
-IBM Linux Technology Center
+> References within the address range starting at pa and continuing for
+> len bytes:
+range = {pa ... pa+len};
 
-Signed-off-by: Hanna Linder <hannal@us.ibm.com>
+> To whole pages following the end of an object:
+range = {pa ... PAGE_ROUND_UP(pa+len)};
 
----
+> shall result in delivery of a SIGBUS signal:
+pa[ range[n] ]; => SIGBUS
 
-diff -Nrup linux-2.6.9-rc3-mm3cln/arch/ppc/platforms/pplus.c linux-2.6.9-rc3-mm3patch2/arch/ppc/platforms/pplus.c
---- linux-2.6.9-rc3-mm3cln/arch/ppc/platforms/pplus.c	2004-09-29 20:05:41.000000000 -0700
-+++ linux-2.6.9-rc3-mm3patch2/arch/ppc/platforms/pplus.c	2004-10-07 16:17:53.406339280 -0700
-@@ -359,7 +359,7 @@ void __init pplus_pib_init(void)
- 	 * Perform specific configuration for the Via Tech or
- 	 * or Winbond PCI-ISA-Bridge part.
- 	 */
--	if ((dev = pci_find_device(PCI_VENDOR_ID_VIA,
-+	if ((dev = pci_get_device(PCI_VENDOR_ID_VIA,
- 				   PCI_DEVICE_ID_VIA_82C586_1, dev))) {
- 		/*
- 		 * PPCBUG does not set the enable bits
-@@ -371,7 +371,7 @@ void __init pplus_pib_init(void)
- 		pci_write_config_byte(dev, 0x40, reg);
- 	}
- 
--	if ((dev = pci_find_device(PCI_VENDOR_ID_VIA,
-+	if ((dev = pci_get_device(PCI_VENDOR_ID_VIA,
- 				   PCI_DEVICE_ID_VIA_82C586_2,
- 				   dev)) && (dev->devfn = 0x5a)) {
- 		/* Force correct USB interrupt */
-@@ -379,7 +379,7 @@ void __init pplus_pib_init(void)
- 		pci_write_config_byte(dev, PCI_INTERRUPT_LINE, dev->irq);
- 	}
- 
--	if ((dev = pci_find_device(PCI_VENDOR_ID_WINBOND,
-+	if ((dev = pci_get_device(PCI_VENDOR_ID_WINBOND,
- 				   PCI_DEVICE_ID_WINBOND_83C553, dev))) {
- 		/* Clear PCI Interrupt Routing Control Register. */
- 		short_reg = 0x0000;
-@@ -389,7 +389,7 @@ void __init pplus_pib_init(void)
- 		pci_write_config_byte(dev, 0x43, reg);
- 	}
- 
--	if ((dev = pci_find_device(PCI_VENDOR_ID_WINBOND,
-+	if ((dev = pci_get_device(PCI_VENDOR_ID_WINBOND,
- 				   PCI_DEVICE_ID_WINBOND_82C105, dev))) {
- 		/*
- 		 * Disable LEGIRQ mode so PCI INTS are routed
+
+This is clearly not what is meant
+
+Cheers,
+Kyle Moffett
+
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.12
+GCM/CS/IT/U d- s++: a17 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
+L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
+PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
+!y?(-)
+------END GEEK CODE BLOCK------
+
 

@@ -1,46 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129511AbRAKRFh>; Thu, 11 Jan 2001 12:05:37 -0500
+	id <S129584AbRAKREr>; Thu, 11 Jan 2001 12:04:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129595AbRAKRFT>; Thu, 11 Jan 2001 12:05:19 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:59405 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S129744AbRAKRFE>;
-	Thu, 11 Jan 2001 12:05:04 -0500
-Date: Thu, 11 Jan 2001 18:04:43 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: KIOBUFS ??
-Message-ID: <20010111180443.I640@suse.de>
-In-Reply-To: <Pine.LNX.4.10.10101100008160.23071-100000@master.linux-ide.org>
+	id <S129868AbRAKREi>; Thu, 11 Jan 2001 12:04:38 -0500
+Received: from mail.zmailer.org ([194.252.70.162]:7172 "EHLO zmailer.org")
+	by vger.kernel.org with ESMTP id <S130893AbRAKREb>;
+	Thu, 11 Jan 2001 12:04:31 -0500
+Date: Thu, 11 Jan 2001 19:04:16 +0200
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Tobias Ringstrom <tori@tellus.mine.nu>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Is ECN useful yet?
+Message-ID: <20010111190416.E25659@mea-ext.zmailer.org>
+In-Reply-To: <Pine.LNX.4.30.0101111627330.5727-100000@svea.tellus>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.10.10101100008160.23071-100000@master.linux-ide.org>; from andre@linux-ide.org on Wed, Jan 10, 2001 at 12:28:18AM -0800
+In-Reply-To: <Pine.LNX.4.30.0101111627330.5727-100000@svea.tellus>; from tori@tellus.mine.nu on Thu, Jan 11, 2001 at 04:36:32PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 10 2001, Andre Hedrick wrote:
-> 
-> LT,
-> 
-> Will this maddness insure that the granularity of the request will be
-> dependent to the k_dev_t?  Specifically, can one make KIOBUFS do the
-> sizing of buffer to match the ideal or specified size limits imposed by a
-> given block device?  Otherwise I will need to design an sub-request layer
-> to reduce the pain of restarting the entire request because of the huge
-> DMA-PRD-Chain that has no clue how to report error location and allow a
-> restart from NxPRD's before the error.
+On Thu, Jan 11, 2001 at 04:36:32PM +0100, Tobias Ringstrom wrote:
+> Does anyone know if ECN is supported by the Internet backbone routers yet,
+> i.e. will I gain anything by enabling ECN in my Linux boxes at this point?
+> (except pushing this excellent technology, of course).
 
-Take a look at the XFS tree. I wrote IDE kiobuf support for that, and
-it simply doesn't take the request the queue before it has been
-completed (which may take many start-ups for a huge request). But unless
-you can make the prd table bigger (which doesn't make much sense anyway),
-I don't see any harm in setting up sg for each iteration.
+  No, at least not according to Cisco pages:
 
--- 
-* Jens Axboe <axboe@suse.de>
-* SuSE Labs
+  http://www.cisco.com/warp/public/759/ipj_3-2/ipj_3-2_tcp.html
+  http://www.cisco.com/warp/public/759/ipj_3-3/ipj_3-3_futureTCP.html 
+
+> /Tobias
+
+/Matti Aarnio
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

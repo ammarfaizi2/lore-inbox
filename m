@@ -1,166 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262222AbULQWvO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262223AbULQWzJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262222AbULQWvO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Dec 2004 17:51:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262221AbULQWuQ
+	id S262223AbULQWzJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Dec 2004 17:55:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262221AbULQWwS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Dec 2004 17:50:16 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.130]:14758 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S262219AbULQWrv
+	Fri, 17 Dec 2004 17:52:18 -0500
+Received: from natjimbo.rzone.de ([81.169.145.162]:2955 "EHLO
+	natjimbo.rzone.de") by vger.kernel.org with ESMTP id S262219AbULQWu3
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Dec 2004 17:47:51 -0500
-Subject: Re: [tpmdd-devel] Re: [PATCH 1/1] driver: Tpm hardware enablement
-	--updated version
-From: Kylene Hall <kjhall@us.ibm.com>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org, sailer@watson.ibm.com,
-       leendert@watson.ibm.com, Emily Ratliff <emilyr@us.ibm.com>,
-       Tom Lendacky <toml@us.ibm.com>, tpmdd-devel@lists.sourceforge.net
-In-Reply-To: <20041216224803.GA10542@kroah.com>
-References: <Pine.LNX.4.58.0412081546470.24510@jo.austin.ibm.com>
-	 <Pine.LNX.4.58.0412161632200.4219@jo.austin.ibm.com>
-	 <20041216224803.GA10542@kroah.com>
-Content-Type: text/plain
-Message-Id: <1103323632.3780.112.camel@jo.austin.ibm.com>
+	Fri, 17 Dec 2004 17:50:29 -0500
+Date: Fri, 17 Dec 2004 23:50:00 +0100
+From: Dominik Brodowski <linux@dominikbrodowski.de>
+To: cpufreq@www.linux.org.uk, linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE] cpufrequtils-0.1 released
+Message-ID: <20041217225000.GA8245@dominikbrodowski.de>
+Mail-Followup-To: cpufreq@www.linux.org.uk,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 17 Dec 2004 16:47:13 -0600
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="MGYHOYXEY6WxJCY8"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-12-16 at 16:48, Greg KH wrote:
-Thanks for your help.  Comments and more questions inline.  
 
-> On Thu, Dec 16, 2004 at 04:37:34PM -0600, Kylene Hall wrote:
-> > +config TCG_TPM
-> > +	tristate "TPM Hardware Support"
-> > +	depends on EXPERIMENTAL
-> > +	---help---
-> > +	  If you have a TPM security chip in your system, which
-> > +	  implements the Trusted Computing Group's specification,
-> > +	  say Yes and it will be accessible from within Linux. To 
-> > +	  compile this driver as a module, choose M here; the module 
-> > +	  will be called tpm. For more information see 
-> > +	  www.trustedcomputinggroup.org. A implementation of the 
-> > +	  Trusted Software Stack (TSS), the userspace enablement piece 
-> > +	  of the specification, can be obtained at 
-> > +	  http://sourceforge.net/projects/trousers
-> > +	  If unsure, say N.
-> 
-> What happened to the "if built as a module..
-> ." text?
-It is there in the middle of the paragraph.  I moved it to the end of
-the paragraph to make it easier to find in the future.
+--MGYHOYXEY6WxJCY8
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> 
-> > +
-> > +config TCG_NSC
-> > +	tristate "National Semiconductor TPM Interface"
-> > +	depends on TCG_TPM
-> > +
-> > +config TCG_ATMEL
-> > +	tristate "Atmel TPM Interface"
-> > +	depends on TCG_TPM
-> 
-> Please provide help text for these options.
-Added.
-> 
-> > +/*
-> > + * Vendor specific TPMs will have a unique name and probe function.
-> > + * Those fields should be populated prior to calling this function in
-> > + * tpm_<specific>.c's module init function.
-> > + */
-> > +int register_tpm_driver(struct pci_driver *drv)
-> > +{
-> > +	drv->id_table = tpm_pci_tbl;
-> > +	drv->remove = __devexit_p(tpm_remove);
-> > +	drv->suspend = tpm_pm_suspend;
-> > +	drv->resume = tpm_pm_resume;
-> > +
-> > +	return pci_register_driver(drv);
-> > +}
-> > +
-> > +EXPORT_SYMBOL(register_tpm_driver);
-> 
-> Why not EXPORT_SYMBOL_GPL()?  Based on the content of these drivers, I'd
-> feel better if they all were that way, but that's just me :)
+cpufrequtils-0.1 is out and available at
 
-> Actually, why even have this function at all?  It's not needed, just
-> export the suspend, resume, and remove functions, and you are set.
-> 
-All fixed.
+http://www.kernel.org/pub/linux/utils/kernel/cpufreq/cpufrequtils-0.1.tar.b=
+z2
 
-> Also, don't say that other drivers really support the other pci devices,
-> when they do not.  The MODULE_DEVICE_TABLE() stuff needs to be in the
-> driver that actually supports that hardware.  Otherwise all of the
-> hotplug functionality will not work properly.
-> 
-So the problem we have is that the chip does not have a unique id and we
-are just having to rely on the id of the chipset that the lpc bus is on
-therefore either chip (NSC or Atmel, etc.) could claim any of these ids.
-Do you have a better suggestion so we can get away from maintaining this
-list?  Also, in my latest version this table has been moved to the
-header inorder to move to static initialization of the struct pci_driver
-as Chris suggested.
+and will arrive the same place at kernel.org mirrors soon.
 
-> > +
-> > +void unregister_tpm_driver(struct pci_driver *drv)
-> > +{
-> > +	pci_unregister_driver(drv);
-> > +}
-> > +
-> > +EXPORT_SYMBOL(unregister_tpm_driver);
-> 
-> Um, why even have such a function?
-> 
-Fixed.
-> 
-> > +EXPORT_SYMBOL(register_tpm_hardware);
-> 
-> EXPORT_SYMBOL_GPL() (same goes for all of these exported symbols...)
-> 
-Fixed.
-> > diff -uprN linux-2.6.9/drivers/char/tpm.h linux-2.6.9-tpm/drivers/char/tpm.h
-> > --- linux-2.6.9/drivers/char/tpm.h	1969-12-31 18:00:00.000000000 -0600
-> > +++ linux-2.6.9-tpm/drivers/char/tpm.h	2004-12-16 17:16:50.000000000 -0600
-> > +extern void tpm_time_expired(unsigned long);
-> > +extern int rdx(int);
-> > +extern void wrx(int, int);
-> 
-> Please use better names for these functions.  That's very cryptic for a
-> global symbol.
-Fixed.
-> 
-> > +extern int lpc_bus_init(struct pci_dev *, u16);
-> 
-> No "tpm"?
-> 
-Fixed.
-> > +extern int register_tpm_driver(struct pci_driver *);
-> > +extern void unregister_tpm_driver(struct pci_driver *);
-> > +extern int register_tpm_hardware(struct pci_dev *, struct tpm_chip_ops *,
-> > +				 u16);
-> 
-> Try putting "tpm" first here, for these functions, so the namespace is sane.
-> 
-Fixed.
-> thanks,
-> 
-> greg k-h
-> 
-Thanks,
-Kylene
+It conists of the following elements:
 
-> 
-> -------------------------------------------------------
-> SF email is sponsored by - The IT Product Guide
-> Read honest & candid reviews on hundreds of IT Products from real users.
-> Discover which products truly live up to the hype. Start reading now. 
-> http://productguide.itmanagersjournal.com/
-> _______________________________________________
-> tpmdd-devel mailing list
-> tpmdd-devel@lists.sourceforge.net
-> https://lists.sourceforge.net/lists/listinfo/tpmdd-devel
-> 
 
+libcpufreq
+----------
+
+"libcpufreq" is a library which offers a unified access method for userspac=
+e=20
+tools and programs to the cpufreq core and drivers in the Linux kernel. This
+allows for code reduction in userspace tools, a clean implementation of
+the interaction to the cpufreq core, and support for both the sysfs and proc
+interfaces [depending on configuration, see below].
+
+
+utils
+-----
+
+"cpufreq-info" determines current cpufreq settings, and provides useful
+debug information to users and bug-hunters.
+"cpufreq-set" allows to set a specific frequency and/or new cpufreq policies
+without having to type "/sys/devices/system/cpu/cpu0/cpufreq" all the time.
+
+
+debug
+-----
+
+A few debug tools helpful for cpufreq have been merged into this package,
+but as they are highly architecture specific they are not built by default.
+
+
+compilation and installation
+----------------------------
+
+=2E/configure && make
+su
+make install
+
+should suffice on most systems. It builds default libcpufreq,
+cpufreq-set and cpufreq-info files and installs them in /usr/local/lib and
+/usr/local/bin, respectively. Due to the autotoolization by Mattia Dongili
+the standard options to make and make install, like "--prefix=3D/usr", can =
+be
+passed and (should) work correctly.
+
+
+options and dependencies
+------------------------
+
+=2E/configure by default enables the sysfs interface, but disables the
+deprecated /proc interface to the cpufreq core in the Linux kernel. For
+the sysfs interface to build and work correctly, you need "libsysfs", which
+is part of the "sysfsutils" package. Current requirement is
+	sysfsutils-1.0.0
+or later.
+
+To disable the sysfs interface, pass the option "--disable-sysfs" to
+=2E/configure.
+
+
+To enable the (deprecated) /proc interface support, pass the option
+"--enable-proc" to ./configure.
+
+
+THANKS
+------
+Many thanks to Mattia Dongili who wrote the autotoolization and
+libtoolization, the manpages and the italian language file for cpufrequtils=
+;=20
+to Dave Jones for his feedback and his dump_psb tool; to Bruno Ducrot for h=
+is=20
+powernow-k8-decode and intel_gsic tools as well as the french language file;
+and to various others commenting on the pre-releases of cpufrequtils-0.1.
+
+
+	Dominik
+
+--MGYHOYXEY6WxJCY8
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQFBw2KYZ8MDCHJbN8YRAtFMAJ9BtIev5b2EzvH1RWVt63iAJpoa2ACdELkl
+cjxxsG0pCGk31V7hWjGwmxY=
+=FV+u
+-----END PGP SIGNATURE-----
+
+--MGYHOYXEY6WxJCY8--

@@ -1,50 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314835AbSF3ML6>; Sun, 30 Jun 2002 08:11:58 -0400
+	id <S314885AbSF3MRd>; Sun, 30 Jun 2002 08:17:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314885AbSF3ML5>; Sun, 30 Jun 2002 08:11:57 -0400
-Received: from [193.14.93.89] ([193.14.93.89]:30980 "HELO acolyte.hack.org")
-	by vger.kernel.org with SMTP id <S314835AbSF3ML5>;
-	Sun, 30 Jun 2002 08:11:57 -0400
-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Cc: Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Can't find watchdog timer (sc1200)
-References: <200206271803.11350.roy@karlsbakk.net>
-	<m36601827v.fsf@acolyte.hack.org>
-	<200206301328.23850.roy@karlsbakk.net>
-From: Christer Weinigel <wingel@acolyte.hack.org>
-Date: 30 Jun 2002 14:14:10 +0200
-In-Reply-To: Roy Sigurd Karlsbakk's message of "Sun, 30 Jun 2002 13:28:23 +0200"
-Message-ID: <m3znxd6k19.fsf@acolyte.hack.org>
-User-Agent: Gnus/5.0806 (Gnus v5.8.6) Emacs/20.5
+	id <S314938AbSF3MRc>; Sun, 30 Jun 2002 08:17:32 -0400
+Received: from [62.70.58.70] ([62.70.58.70]:51333 "EHLO mail.pronto.tv")
+	by vger.kernel.org with ESMTP id <S314885AbSF3MRb> convert rfc822-to-8bit;
+	Sun, 30 Jun 2002 08:17:31 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Organization: ProntoTV AS
+To: linux-raid@vger.rutgers.edu,
+       Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Can't boot from /dev/md0 (RAID-1)
+Date: Sun, 30 Jun 2002 14:19:26 +0200
+User-Agent: KMail/1.4.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200206301419.26254.roy@karlsbakk.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roy Sigurd Karlsbakk <roy@karlsbakk.net> writes:
-> On Sunday 30 June 2002 12:56, Christer Weinigel wrote:
-> > I'm not all that sure if that driver works on the sc1200 because that
-> > driver tries to talk to the watchdog in the SuperI/O chip and that
-> > chip has another watchdog circuit too.  I've written a driver for the
-> > other watchdog chip, so if you can, please try this patch against a
-> > 2.4.9-pre10 kernel:
-> 
-> I guess that'll be 2.4.19-pre10? :-)
+hi
 
-Correct, my bad.
+I hope this is not OT - didn't find any LILO mailing list. after trying 
+virtually everything - can anyone help me with a tip?
 
-I've been reading the data sheets for the SC2200 and it seems as if
-the watchdog is gone from the integrated SuperI/O, so you should use
-my driver instead.  Zwane Mwaikambo's driver ought to work on the
-NatSemi PC97317 SuperI/O.  Hm, I think I have some hardware that I
-should be able to test that on.
+Running 2.4.19-pre10-ac2, RedHat 7.3 (LILO version 21.4-4), I have root on 
+/dev/md0 on RAID-1 on /dev/hda1 and /dev/hdb1. I've tried the howto at 
+http://www.tldp.org/HOWTO/mini/Boot+Root+Raid+LILO-3.html#ss3.1, but it still 
+doesn't help me. lilo just tells me "L 99 99 99 99 ..." some half a page, and 
+then stops.I'm trying. All the time it prints this, it seems to be searching 
+the floppy for some reason.
 
-Oh well, I think I'll just submit my driver to Marcelo and see what
-happens.  I've cleaned up the driver a bit since the last time I
-tried.
+The lilo.conf suggested by the above HOWTO, is this
 
-  /Christer
+# lilo.conf.hda - primary ide master
+disk=/dev/md0
+bios=0x80
+sectors=63
+heads=16
+cylinders=39770
+partition=/dev/md1
+start=63
+boot=/dev/hda
+map=/boot/map
+install=/boot/boot.b
 
+image=/boot/bzImage
+        root=/dev/md0
+        read-only
+        label=LinuxRaid
+
+sector/head/cylinder is corrected to the actual data reported from 'fdisk 
+-ul'. 
+
+When trying to set. boot=/dev/hdm (which is the first drive on the on-board 
+chipset), lilo installs, and I get LI instead of L 99 99 ... Same result with 
+LBA32.
+
+I also have another box with Linux, running SuSE 7.2 (LILO version 21.7-5) 
+with RAID-1 on two drives. Here everything works fine
+
+thanks for all help
+
+roy
 -- 
-"Just how much can I get away with and still go to heaven?"
+Roy Sigurd Karlsbakk, Datavaktmester
+
+Computers are like air conditioners.
+They stop working when you open Windows.
+

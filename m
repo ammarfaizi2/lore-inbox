@@ -1,45 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262955AbTJJPrH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Oct 2003 11:47:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262950AbTJJPrH
+	id S262974AbTJJPvu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Oct 2003 11:51:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262973AbTJJPvu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Oct 2003 11:47:07 -0400
-Received: from smtprelay01.ispgateway.de ([62.67.200.156]:20919 "EHLO
-	smtprelay01.ispgateway.de") by vger.kernel.org with ESMTP
-	id S262848AbTJJPrD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Oct 2003 11:47:03 -0400
-From: Ingo Oeser <ioe-lkml@rameria.de>
-To: "David S. Miller" <davem@redhat.com>
-Subject: Re: [PATCH] kfree_skb() bug in 2.4.22
-Date: Fri, 10 Oct 2003 17:43:48 +0200
-User-Agent: KMail/1.5.4
-Cc: toby@cbcg.net, netdev@oss.sgi.com, linux-net@vger.kernel.org,
-       linux-kernel@vger.kernel.org, coreteam@netfilter.org,
-       netfilter@lists.netfilter.org, akpm@zip.com.au, kuznet@ms2.inr.ac.ru,
-       pekkas@netcore.fi, jmorris@intercode.com.au, yoshfuji@linux-ipv6.org,
-       jgarzik@pobox.com
-References: <1065617075.1514.29.camel@localhost> <200310101453.44353.ioe-lkml@rameria.de> <20031010060050.057aab50.davem@redhat.com>
-In-Reply-To: <20031010060050.057aab50.davem@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 10 Oct 2003 11:51:50 -0400
+Received: from mark.mielke.cc ([216.209.85.42]:62983 "EHLO mark.mielke.cc")
+	by vger.kernel.org with ESMTP id S262971AbTJJPvs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Oct 2003 11:51:48 -0400
+Date: Fri, 10 Oct 2003 11:50:07 -0400
+From: Mark Mielke <mark@mark.mielke.cc>
+To: William Lee Irwin III <wli@holomorphy.com>, G?bor L?n?rt <lgb@lgb.hu>,
+       Stuart Longland <stuartl@longlandclan.hopto.org>,
+       Stephan von Krawczynski <skraw@ithnet.com>,
+       Fabian.Frederick@prov-liege.be, linux-kernel@vger.kernel.org
+Subject: Re: 2.7 thoughts
+Message-ID: <20031010155007.GA13825@mark.mielke.cc>
+References: <D9B4591FDBACD411B01E00508BB33C1B01F13BCE@mesadm.epl.prov-liege.be> <20031009115809.GE8370@vega.digitel2002.hu> <20031009165723.43ae9cb5.skraw@ithnet.com> <3F864F82.4050509@longlandclan.hopto.org> <20031010125137.4080a13b.skraw@ithnet.com> <3F86BD0E.4060607@longlandclan.hopto.org> <20031010143529.GT5112@vega.digitel2002.hu> <20031010144723.GC727@holomorphy.com> <20031010144837.GB12134@mark.mielke.cc> <20031010150122.GD727@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200310101743.48483.ioe-lkml@rameria.de>
+In-Reply-To: <20031010150122.GD727@holomorphy.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 10 October 2003 15:00, David S. Miller wrote:
-> Ingo Oeser <ioe-lkml@rameria.de> wrote:
-> > Would you mind __attribute_nonnull__ for these functions, if we
-> > enable GCC 3.3 support for this[1]?
->
-> I would say yes, but why?  All this attribute does is optimize
-> away tests for NULL which surprise surprise we don't have any
-> of in kfree_skb().
+On Fri, Oct 10, 2003 at 08:01:22AM -0700, William Lee Irwin III wrote:
+> On Fri, Oct 10, 2003 at 10:48:37AM -0400, Mark Mielke wrote:
+> > Perhaps I've naive here, but - with hot-pluggable CPU machines, do you not
+> > de-activate the CPU through software first, before pulling the CPU out, at
+> > which point it is not in use?
+> Well, you deleted my reply, but never mind that.
 
-And it wouldn't warn about passing NULL to these functions? That's bad...
-But maybe sparse/smatch are better for this...
+I wasn't responding to you. You're article just happened to be the one
+that I pushed 'g' to... :-)
 
+> This obviously can't work unless the kernel gets some kind of warning.
+> Userspace and kernel register state, once lost that way, can't be
+> recovered, and if tasks are automatically suspended (e.g. cpu dumps to
+> somewhere and a miracle occurs), you'll deadlock if the kernel was in
+> a non-preemptible critical section at the time.
+
+Again, I'm perhaps naive here - I've never been able to afford such a
+machine with hot-pluggable CPU's, however, I have heard from people who
+have used them at work, that you use software (i.e. system calls to the
+kernel) to instruct the kernel to no longer schedule tasks for the CPU.
+Once the CPU is no longer scheduled for use, you can feel free to unplug
+the CPU from the motherboard. Note that I didn't say that the software
+approach could *guarantee* immediate success. You wouldn't unplug the
+CPU until your had successfully deregistered the CPU from having anything
+scheduled for it.
+
+Is this not the way things (should) work?
+
+mark
+
+-- 
+mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
+.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
+|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
+|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
+
+  One ring to rule them all, one ring to find them, one ring to bring them all
+                       and in the darkness bind them...
+
+                           http://mark.mielke.cc/
 

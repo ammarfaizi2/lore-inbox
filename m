@@ -1,63 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275269AbTHMRAc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 13:00:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275279AbTHMRAc
+	id S275276AbTHMQz5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 12:55:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275279AbTHMQz5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 13:00:32 -0400
-Received: from fmr02.intel.com ([192.55.52.25]:51417 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id S275269AbTHMRA0 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 13:00:26 -0400
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-Subject: Re: 2.6.0-test2 : size of /proc/kcore is different from RAM size.
-Date: Wed, 13 Aug 2003 10:00:08 -0700
-Message-ID: <DD755978BA8283409FB0087C39132BD101B01063@fmsmsx404.fm.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Re: 2.6.0-test2 : size of /proc/kcore is different from RAM size.
-Thread-Index: AcNhvFm3BfGDZFnhRVm4P0HdeoeVqw==
-From: "Luck, Tony" <tony.luck@intel.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: <remi.colinet@wanadoo.fr>
-X-OriginalArrivalTime: 13 Aug 2003 17:00:23.0393 (UTC) FILETIME=[62AFA510:01C361BC]
+	Wed, 13 Aug 2003 12:55:57 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:60627 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S275276AbTHMQz4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Aug 2003 12:55:56 -0400
+Subject: Re: 2.6.0-test3 "loosing ticks"
+From: john stultz <johnstul@us.ibm.com>
+To: timothy parkinson <t@timothyparkinson.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030813014735.GA225@timothyparkinson.com>
+References: <20030813014735.GA225@timothyparkinson.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1060793667.10731.1437.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 13 Aug 2003 09:54:27 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I have noticed that the /proc/kcore file has a different size (1Go) 
-> compared with the available memory of my box (640Mo).
+On Tue, 2003-08-12 at 18:47, timothy parkinson wrote:
+> the 2.6 kernels have been loosing time on my box, and i just noticed this
+> message at the very bottom of dmesg that i think may relate:
 > 
-> [root@tigre01 kernel]# dmesg | grep Memory
-> Memory: 643148k/655360k available (2331k kernel code, 11424k reserved, 
-> 730k data, 348k init, 0k highmem)
+> Loosing too many ticks!
+> TSC cannot be used as a timesource. (Are you running with SpeedStep?)
+> Falling back to a sane timesource.
 > 
-> [root@tigre01 proc]# ls -l /proc | grep kcore
-> -r--------    1 root     root     1073692672 Aug 10 21:43 kcore
-> [root@tigre01 proc]#
-> 
-> Is it a bug or just a new behaviour of the /proc/kcore?
+> i'm running test-3 right now, but i've been seeing the same problem back into
+> the 2.5 kernels.  any ideas?  it's a dual PIII coppermine, relatively close
+> to default slackware 9, i'll attach the config in case that helps.  thanks in
+> advance!
 
-New behaivour ... /proc/kcore is a pseudo-file that tries to
-look as much like a "core" file as possible.  For architectures
-that use ELF executable format, this means that it starts with
-an ELF header, then a few elf_phdr structures to describe the
-various virtual sections, and then the sections themselves.  You
-can use "objdump -fp" to display these in human readable form.
+Sounds like either your PIT is running slowly or something is
+consistently keeping the timer interrupt from being handled. In 2.4 do
+you have any time related issues at all?  Does the "Loosing too many
+ticks!" message correlate to any event on the system (boot, heavy load)?
 
-/proc/kcore will usually be somewhat sparse, as the offsets chosen
-for the sections within the file depend on the virtual addresses
-of the sections in kernel virtual memory.
+Also listing system type, motherboard, any sort of funky devices you've
+got might be helpful.
 
-The size of the file should be large enough to cover all of the
-sections.  One glitch, that probably ought to be fixed, is that
-the size is initially assigned based on memory size, but the first
-time the file is opened we compute the correct size for all the
-sections.
+thanks
+-john
 
--Tony Luck  
 

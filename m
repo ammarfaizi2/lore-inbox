@@ -1,48 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261243AbUKSCUH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261198AbUKSCUH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261243AbUKSCUH (ORCPT <rfc822;willy@w.ods.org>);
+	id S261198AbUKSCUH (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 18 Nov 2004 21:20:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261241AbUKSCR4
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261243AbUKSCSF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 21:17:56 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:63684 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262869AbUKRSju (ORCPT
+	Thu, 18 Nov 2004 21:18:05 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:35237 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S262855AbUKRS31 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 13:39:50 -0500
-Date: Thu, 18 Nov 2004 19:39:21 +0100
-From: Jens Axboe <axboe@suse.de>
-To: "Vladimir B. Savkin" <master@sectorb.msk.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.10-rc2 OOPS on boot with 3ware + reiserfs
-Message-ID: <20041118183920.GL26240@suse.de>
-References: <Pine.LNX.4.58.0411141835150.2222@ppc970.osdl.org> <20041117165851.GA18044@tentacle.sectorb.msk.ru> <Pine.LNX.4.58.0411170935040.2222@ppc970.osdl.org> <20041118103526.GC26240@suse.de> <20041118160248.GA5922@tentacle.sectorb.msk.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041118160248.GA5922@tentacle.sectorb.msk.ru>
+	Thu, 18 Nov 2004 13:29:27 -0500
+Date: Thu, 18 Nov 2004 19:29:24 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Martin Josefsson <gandalf@wlug.westbo.se>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: local packets not in prerouting
+In-Reply-To: <1100800891.20185.59.camel@tux.rsn.bth.se>
+Message-ID: <Pine.LNX.4.53.0411181928230.19795@yvahk01.tjqt.qr>
+References: <Pine.LNX.4.53.0411181729350.12660@yvahk01.tjqt.qr>
+ <1100800891.20185.59.camel@tux.rsn.bth.se>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 18 2004, Vladimir B. Savkin wrote:
-> On Thu, Nov 18, 2004 at 11:35:26AM +0100, Jens Axboe wrote:
-> > On Wed, Nov 17 2004, Linus Torvalds wrote:
-> > > 
-> > > Jens, did you see this one?
-> > 
-> > Vladimir, is this completely reproducable? Does -rc1 work correctly (or
-> > which was the last version you tested)? I haven't been able to spot any
-> > errors in this path so far.
-> 
-> It happens 100% when smartd tries to fetch SMART info from
-> disks connected to 3ware controller.
-> Seems like using obsolete 3ware API has something to do with this.
-> It does happen with -rc1 too.
-> Here is a complete dmesg output:
+>> I have been observing that locally generated packets with a local destination
+>> have they don't pop up in the nat/PREROUTING chain.
+>> Anybody know why this is done? (If not, it's a bug.)
+>
+>It's not a bug. All locally generated packets go through nat/OUTPUT ,
+>not nat/PREROUTING.
 
-Really looks like a double requeue, bet it happens because we end up
-requeing both from the failed queuecommand return and from scsi_done().
-I'll take a look.
+Yeah I apparently found that out too now :] (it says "nat", which does not
+apply to locals anyway). "mangle" looks like what I need.
+Unfortunately, the REDIRECT target is only for nat, oh no :(
 
+
+
+Jan Engelhardt
 -- 
-Jens Axboe
-
+Gesellschaft für Wissenschaftliche Datenverarbeitung
+Am Fassberg, 37077 Göttingen, www.gwdg.de

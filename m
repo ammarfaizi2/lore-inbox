@@ -1,72 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132746AbRDQQTM>; Tue, 17 Apr 2001 12:19:12 -0400
+	id <S132752AbRDQQVw>; Tue, 17 Apr 2001 12:21:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132744AbRDQQTD>; Tue, 17 Apr 2001 12:19:03 -0400
-Received: from [212.90.202.121] ([212.90.202.121]:54261 "HELO
-	toe.terreactive.ch") by vger.kernel.org with SMTP
-	id <S132743AbRDQQSx>; Tue, 17 Apr 2001 12:18:53 -0400
-Message-ID: <3ADC6C70.1590D9B7@tac.ch>
-Date: Tue, 17 Apr 2001 18:16:48 +0200
-From: Roberto Nibali <ratz@tac.ch>
-Organization: terreActive
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.4-pre1 i686)
-X-Accept-Language: en, de-CH, zh-CN
-MIME-Version: 1.0
-To: Steve Hill <steve@navaho.co.uk>
-CC: linux-kernel@vger.kernel.org, becker@scyld.com, maurizio.quadrio@polimi.it,
-        harry@navaho.co.uk
-Subject: Re: Fix for Donald Becker's DP83815 network driver (v1.07)
-In-Reply-To: <Pine.LNX.4.21.0104171653110.4446-200000@sorbus.navaho>
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 7bit
+	id <S132744AbRDQQVm>; Tue, 17 Apr 2001 12:21:42 -0400
+Received: from ulima.unil.ch ([130.223.144.143]:56592 "EHLO ulima.unil.ch")
+	by vger.kernel.org with ESMTP id <S132743AbRDQQVd>;
+	Tue, 17 Apr 2001 12:21:33 -0400
+Date: Tue, 17 Apr 2001 18:21:30 +0200
+From: FAVRE Gregoire <greg@ulima.unil.ch>
+To: Johannes Erdfelt <johannes@erdfelt.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: USB with 2.4.3-ac{1,3,7} without devfs-> aic7xxx ?
+Message-ID: <20010417182130.A30800@ulima.unil.ch>
+Mail-Followup-To: FAVRE Gregoire <greg@ulima.unil.ch>,
+	Johannes Erdfelt <johannes@erdfelt.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20010417004248.A19914@ulima.unil.ch> <20010416185740.Y4295@sventech.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <20010416185740.Y4295@sventech.com>; from johannes@erdfelt.com on Mon, Apr 16, 2001 at 06:57:41PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steve Hill wrote:
-> 
-> The attached patch fixes the following problems with the DP83815 driver
-> (natsemi.c):
-> 
-> 1. When compiled into the kernel, the cards would be registered multiple
-> times.
+Thus spake Johannes Erdfelt (johannes@erdfelt.com):
 
-I assume this code fragment fixes this:
+> You should probably bring up things like this on the Linux USB list.
 
-+       static int done = 0;
+Well, where is that mailing list?
 
-+
-+       if (done) return -ENODEV;
-        if (pci_drv_register(&natsemi_drv_id, dev) < 0)
-                return -ENODEV;
-+       done = 1;
+> What does /proc/interrupts show for the 2.4.3-ac7 case?
 
-My 2 questions are: 
-Is this an acceptable fix for Donald? Because if so, I'd like to submit it
-for the starfire quardboard driver.
+Exactly the same as the one from 2.4.3:
+           CPU0       
+	     0:      30204          XT-PIC  timer
+	       1:        522          XT-PIC  keyboard
+	         2:          0          XT-PIC  cascade
+		   7:     293087          XT-PIC  aic7xxx, usb-uhci
+		     8:          1          XT-PIC  rtc
+		      10:        794          XT-PIC  eth0, bttv
+		       11:      47362          XT-PIC  saa7146(1)
+		        12:       2346          XT-PIC  PS/2 Mouse
+			 14:       6615          XT-PIC  ide0
+			  15:         37          XT-PIC  ide1
+			  NMI:          0 
+			  LOC:      30165 
+			  ERR:          0
+			  MIS:          0
 
---- starfire.c-old	Tue Apr 17 18:11:07 2001
-+++ starfire.c	Tue Apr 17 18:12:37 2001
-@@ -378,8 +378,12 @@
- #ifndef MODULE
- int starfire_probe(struct net_device *dev)
- {
-+	static int done = 0;
-+
-+	if (done) return -ENODEV;
- 	if (pci_drv_register(&starfire_drv_id, dev) < 0)
- 		return -ENODEV;
-+	done = 1;
- 	printk(KERN_INFO "%s" KERN_INFO "%s", version1, version2);
- 	return 0;
- }
+Sorry for the strange looking of my copy and paste to vim...
+Maybe the driver don't like IRQ sharing, but I can't change it: aic7xxx
+and usb are onboard, and changing the IRQ for aic7xxx change also the
+one from usb (P2B-LS mother board).
 
-Is there no implication with PCI latencies if multiple such cards
-are loaded? I'm still having problems initializing more then 4
-Quadboards.
+> s10sh doesn't use anything under /dev, it's all under /proc/bus/usb,
+> however, you are having a problem before it gets to s10sh at all.
 
-Regards,
-Roberto Nibali, ratz
+So, as my only change in config betweem 2.4.3 and 2.4.3-ac[137] was the
+removing of devfs, that's not the problem...
 
--- 
-mailto: `echo NrOatSz@tPacA.cMh | sed 's/[NOSPAM]//g'`
+Thanks you very much for your answer,
+
+	Greg
+________________________________________________________________
+http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch

@@ -1,53 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316962AbSFQT5f>; Mon, 17 Jun 2002 15:57:35 -0400
+	id <S316963AbSFQUAP>; Mon, 17 Jun 2002 16:00:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316982AbSFQT5e>; Mon, 17 Jun 2002 15:57:34 -0400
-Received: from www.transvirtual.com ([206.14.214.140]:9988 "EHLO
+	id <S316964AbSFQUAO>; Mon, 17 Jun 2002 16:00:14 -0400
+Received: from www.transvirtual.com ([206.14.214.140]:13060 "EHLO
 	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S316962AbSFQT5e>; Mon, 17 Jun 2002 15:57:34 -0400
-Date: Mon, 17 Jun 2002 12:57:19 -0700 (PDT)
+	id <S316963AbSFQUAN>; Mon, 17 Jun 2002 16:00:13 -0400
+Date: Mon, 17 Jun 2002 12:59:14 -0700 (PDT)
 From: James Simmons <jsimmons@transvirtual.com>
-To: Felix Seeger <seeger@sitewaerts.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Can I have 1024x768 with my Intel I815 card ?
-In-Reply-To: <200206111410.57293.seeger@sitewaerts.de>
-Message-ID: <Pine.LNX.4.44.0206171256390.31825-100000@www.transvirtual.com>
+To: Pavel Machek <pavel@suse.cz>
+cc: Ingo Molnar <mingo@elte.hu>, Keith Owens <kaos@ocs.com.au>,
+       Cengiz Akinli <cengiz@drtalus.aoe.vt.edu>,
+       <linux-kernel@vger.kernel.org>, xsdg <xsdg@openprojects.net>
+Subject: Re: [patch] early printk. (was: Re: computer reboots before
+ "Uncompressing Linux..." with 2.5.19-xfs)
+In-Reply-To: <20020612172754.C87@toy.ucw.cz>
+Message-ID: <Pine.LNX.4.44.0206171258470.31825-100000@www.transvirtual.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Yes there is a i81X fbdev driver.
-
-http://www.sf.net/projects/i810fb
-
-   . ---
-   |o_o |
-   |:_/ |   Give Micro$oft the Bird!!!!
-  //   \ \  Use Linux!!!!
- (|     | )
- /'\_   _/`\
- \___)=(___/
-
-On Tue, 11 Jun 2002, Felix Seeger wrote:
-
-> Hi
+> > > >>Then, after a small pause, the box reboots (note: it does _not_ print
+> > > >>"Uncompressing Linux...").  I have tried the following:
+> > > >
+> > > >Interesting problem.....  Interesting because I'm having the EXACT
+> > > >SAME PROBLEM!!!!  ARRRRRGGGGHHH!!!!
+> > >
+> > > Try http://marc.theaimsgroup.com/?l=linux-kernel&m=101072840225142&w=2
+> >
+> > you might as well try the attached early_printk() patch, it's slightly
+> > easier to use than a one-char macro. But the goal is the same.
 >
-> I have this card in my notebook. Can I have this resolution on my Linux
-> console ?
->
-> Maybe some special things...
->
-> thanks
-> have fun
-> Felix
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+> Could this be arch-independend? x86-64 has it, too, and AFAIR it was taken
+> from ia64.. Plus, it is *very* usefull.
 
+Please be patient. The new console code will support earlier printking.
 

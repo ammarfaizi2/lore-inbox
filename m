@@ -1,67 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262873AbREaHXU>; Thu, 31 May 2001 03:23:20 -0400
+	id <S262989AbREaH2v>; Thu, 31 May 2001 03:28:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262989AbREaHXK>; Thu, 31 May 2001 03:23:10 -0400
-Received: from olsinka.site.cas.cz ([147.231.11.16]:11136 "EHLO
-	twilight.suse.cz") by vger.kernel.org with ESMTP id <S262873AbREaHWv>;
-	Thu, 31 May 2001 03:22:51 -0400
-Date: Thu, 31 May 2001 08:08:45 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: Frank Davis <fdavis112@juno.com>, linux-kernel@vger.kernel.org,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: 2.4.5-ac4 es1371.o unresolved symbols
-Message-ID: <20010531080845.A808@suse.cz>
-In-Reply-To: <20010530181531.A12836@suse.cz> <13404.991272546@kao2.melbourne.sgi.com>
-Mime-Version: 1.0
+	id <S263022AbREaH2b>; Thu, 31 May 2001 03:28:31 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:55950 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S262989AbREaH21>;
+	Thu, 31 May 2001 03:28:27 -0400
+Message-ID: <3B15F287.305FEAC5@mandrakesoft.com>
+Date: Thu, 31 May 2001 03:28:07 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-pre6 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Yiping Chen <YipingChen@via.com.tw>
+Cc: "'Frank Eichentopf'" <frei@hap-bb.de>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: via-rhine DFE-530TX rev A1
+In-Reply-To: <611C3E2A972ED41196EF0050DA92E0760265D6B9@EXCHANGE2>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <13404.991272546@kao2.melbourne.sgi.com>; from kaos@ocs.com.au on Thu, May 31, 2001 at 11:29:06AM +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 31, 2001 at 11:29:06AM +1000, Keith Owens wrote:
-> On Wed, 30 May 2001 18:15:31 +0200, 
-> Vojtech Pavlik <vojtech@suse.cz> wrote:
-> >On Wed, May 30, 2001 at 02:46:42PM +1000, Keith Owens wrote:
-> >> This is messy.  gameport.h is included by code outside the joystick
-> >> directory and it needs to expand differently based on whether
-> >> gameport.o is compiled or not.  Also gameport.o needs to be built in if
-> >> _any_ consumers are built in (either joystick or sound), it needs to be
-> >> a module otherwise.  Lots of cross config and cross directory
-> >> dependencies :(.
-> >
-> >What about this solution? It's a little cleaner.
-> >
-> >diff -urN linux-2.4.5-ac4/drivers/char/joystick/Config.in linux/drivers/char/joystick/Config.in
-> >+tristate 'Game port support' CONFIG_INPUT_GAMEPORT
-> >+   dep_tristate '  Classic ISA/PnP gameports' CONFIG_INPUT_NS558 $CONFIG_INPUT_GAMEPORT
+Yiping Chen wrote:
 > 
-> CONFIG_INPUT_GAMEPORT must be a derived symbol, not a user selected
-> symbol.  CONFIG_INPUT_GAMEPORT is 'n' if no gameport drivers are
-> installed.  It is 'm' if all gameport drivers are modules *and* all
-> users of gameport_register_port() are modules, otherwise it is 'y'.
-> 
-> With your patch, if a user selects CONFIG_INPUT_GAMEPORT=m and
-> CONFIG_SOUND_ES1370=y then the built in es1370 driver has unresolved
-> references to gameport_register_port() which is in a module, vmlinux
-> will not link.  That is why I derived CONFIG_INPUT_GAMEPORT based on
-> the config options in two separate directories.
+> Yes, please download the newest driver from D-Link, becuase the
+> Win98 will change to D3 mode after it boot.
+> So the Mac address can't be fetch in Linux.
 
-Have you tried the patch? Because the gameport.h define has:
-
-#if defined(CONFIG_INPUT_GAMEPORT) || (defined(CONFIG_INPUT_GAMEPORT_MODULE) && defined(MODULE))
-void gameport_register_port(struct gameport *gameport);
-void gameport_unregister_port(struct gameport *gameport);
-#else
-void __inline__ gameport_register_port(struct gameport *gameport) { return; }
-void __inline__ gameport_unregister_port(struct gameport *gameport) { return; }
-#endif
-
-I think it should work.
+Most drivers read the EEPROM in their probe phase to present this sort
+of problem.
 
 -- 
-Vojtech Pavlik
-SuSE Labs
+Jeff Garzik      | Disbelief, that's why you fail.
+Building 1024    |
+MandrakeSoft     |

@@ -1,42 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264536AbRFOVuc>; Fri, 15 Jun 2001 17:50:32 -0400
+	id <S264538AbRFOVxl>; Fri, 15 Jun 2001 17:53:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264538AbRFOVuN>; Fri, 15 Jun 2001 17:50:13 -0400
-Received: from swan.mail.pas.earthlink.net ([207.217.120.123]:11431 "EHLO
-	swan.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id <S264536AbRFOVuB>; Fri, 15 Jun 2001 17:50:01 -0400
-Message-ID: <3B2A8404.168D6E1D@earthlink.net>
-Date: Fri, 15 Jun 2001 16:54:12 -0500
-From: Kelledin Tane <runesong@earthlink.net>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.3 i686)
-X-Accept-Language: en
+	id <S264539AbRFOVxf>; Fri, 15 Jun 2001 17:53:35 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:15234 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S264538AbRFOVx1>;
+	Fri, 15 Jun 2001 17:53:27 -0400
+From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: EEPRO100/S support
-In-Reply-To: <3B2A76A8.9F79082F@sun.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15146.33742.299279.102372@pizda.ninka.net>
+Date: Fri, 15 Jun 2001 14:53:18 -0700 (PDT)
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: tvlists@networx.com.br (Thiago Vinhas de Moraes),
+        laughing@shared-source.org (Alan Cox), linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.5-ac14
+In-Reply-To: <E15B0vv-000780-00@the-village.bc.nu>
+In-Reply-To: <200106162255.SAA02119@olimpo.networx.com.br>
+	<E15B0vv-000780-00@the-village.bc.nu>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hey all,
-> I just had an eepro/100 S delivered to me.  I haven't dug through specs
-> yet, but has anyone looke at this?  Supposedly has a 3DES ASIC built in to
-> the core.
->
-> Any way we can use it?
 
-Good question.  I've been wondering how exactly that ASIC would even benefit
-Windows users.
+Alan Cox writes:
+ > Because right now I dont consider the 2.4.6 page cache ext2 stuff safe
+ > enough to merge. I'm letting someone else be the sucide squad.. so far it
+ > looks like it is indeed fine but I want to wait and see more yet
 
-Should 3DES functions be moved to the kernel?  Anything's possible.  Then get
-with the libcrypt people to get the 3DES acceleration supported transparently
-in glibc.
+If it means anything it has already withstanded a few
+cerebus-->fsck_check-->cerebus rounds on machines here
+in my lab.
 
-FWIW, I believe Intel's Linux drivers will support this card under 2.4, and I
-believe (not 100% certain on this) that they're GPL.  I'll have to check on
-that.
-
-Kelledin
-
+Later,
+David S. Miller
+davem@redhat.com

@@ -1,30 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263266AbSJCO5X>; Thu, 3 Oct 2002 10:57:23 -0400
+	id <S261571AbSJCOw2>; Thu, 3 Oct 2002 10:52:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263302AbSJCO5X>; Thu, 3 Oct 2002 10:57:23 -0400
-Received: from isis.lip6.fr ([132.227.60.2]:64014 "EHLO isis.lip6.fr")
-	by vger.kernel.org with ESMTP id <S263266AbSJCO5W>;
-	Thu, 3 Oct 2002 10:57:22 -0400
-X-pt: isis.lip6.fr
-Date: Thu, 3 Oct 2002 17:02:52 +0200 (CEST)
-From: Cedric Roux <Cedric.Roux@lip6.fr>
-Reply-To: Cedric.Roux@lip6.fr
-To: linux-kernel@vger.kernel.org
-Subject: ipc - msg - ERRATA
-Message-ID: <Pine.LNX.4.44.0210031659200.18081-100000@ouessant.lip6.fr>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261575AbSJCOw1>; Thu, 3 Oct 2002 10:52:27 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:63954 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S261571AbSJCOw0>;
+	Thu, 3 Oct 2002 10:52:26 -0400
+Date: Thu, 03 Oct 2002 07:50:34 -0700 (PDT)
+Message-Id: <20021003.075034.12648168.davem@redhat.com>
+To: manfred@colorfullife.com
+Cc: alan@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.5.40-ac1
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <3D9C5827.70703@colorfullife.com>
+References: <3D9C5827.70703@colorfullife.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-it is 20 bytes for a struct msg_msg, not 36, which
-leads to 20 * 16 * 16384 = 5242880 bytes used, not
-36 * 16 * 16384 = 9437184
-sorry.
+   From: Manfred Spraul <manfred@colorfullife.com>
+   Date: Thu, 03 Oct 2002 16:45:59 +0200
 
--- 
-main(){int i,j;{printf("\n      Who did you say ? Sierpinski ?      \n");}
-for(i=0;i<80;i++){for(j=0;j<80;j++)printf("%c",i&j?'.':' ');printf("\n");}
-printf("\n   Life is a beach - George Sand (1804-1876)  \n\n"); return 0;}
-
+   On big endian computers, the nic is set into a big-endian mode, and it 
+   did work with set_bit on my power mac. Unfortunately, I don't have 
+   access to it right now.
+   
+How about a 64-bit system where set_bit works on 64-bit longs
+and not 32-bit ones?  That is why the current code there is broken.

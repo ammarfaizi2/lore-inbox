@@ -1,33 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261921AbSKCPDG>; Sun, 3 Nov 2002 10:03:06 -0500
+	id <S261978AbSKCPGb>; Sun, 3 Nov 2002 10:06:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261972AbSKCPDG>; Sun, 3 Nov 2002 10:03:06 -0500
-Received: from amsfep15-int.chello.nl ([213.46.243.28]:7508 "EHLO
-	amsfep15-int.chello.nl") by vger.kernel.org with ESMTP
-	id <S261921AbSKCPDG>; Sun, 3 Nov 2002 10:03:06 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Jos Hulzink <josh@stack.nl>
+	id <S262003AbSKCPGb>; Sun, 3 Nov 2002 10:06:31 -0500
+Received: from quechua.inka.de ([193.197.184.2]:4567 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id <S261978AbSKCPGa>;
+	Sun, 3 Nov 2002 10:06:30 -0500
+From: Bernd Eckenfels <ecki-news2002-09@lina.inka.de>
 To: linux-kernel@vger.kernel.org
-Subject: Petition against kernel configuration options madness...
-Date: Sun, 3 Nov 2002 18:09:45 +0100
-User-Agent: KMail/1.4.3
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <200211031809.45079.josh@stack.nl>
+Subject: Re: Filesystem Capabilities in 2.6?
+In-Reply-To: <Pine.GSO.4.21.0211022114280.25010-100000@steklov.math.psu.edu>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.0.39 (i686))
+Message-Id: <E188MQx-0006ww-00@sites.inka.de>
+Date: Sun, 3 Nov 2002 16:13:03 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+In article <Pine.GSO.4.21.0211022114280.25010-100000@steklov.math.psu.edu> you wrote:
+>        <shrug> that can be done without doing anything to filesystem.
+> Namely, turn current "nosuid" of vfsmount into a mask of capabilities.
+> Then use bindings instead of links.  *Note* - binary _is_ marked suid,
+> mask tells which capabilities _not_ to gain.
 
-It took me about an hour to find out why my keyboard didn't work in 2.5.45. 
-Well... after all it seemed that I need to enable 4 ! options inside the 
-input configuration, just to get my default, nothing special PS/2 keyboard up 
-and running. Oh, and I didn't even have my not so fancy boring default PS/2 
-mouse configured then. Guys, being able to configure everything is nice, but 
-with the 2.5 kernel, things are definitely getting out of control IMHO.
+the suid bit is important, I agree. this will make most security checks not
+fail. Problem: runtime checks depend on euid. PErhaps we should even return
+a different effective uid (or 0?) if a program is runnign with increased
+capabilities?
 
-Jos
-
-
+Greetings
+Bernd

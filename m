@@ -1,40 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264727AbSKDQae>; Mon, 4 Nov 2002 11:30:34 -0500
+	id <S262187AbSKDQmk>; Mon, 4 Nov 2002 11:42:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264736AbSKDQae>; Mon, 4 Nov 2002 11:30:34 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:55184 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S264727AbSKDQad>; Mon, 4 Nov 2002 11:30:33 -0500
-Subject: Re: [lkcd-general] Re: What's left over.
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Richard J Moore <richardj_moore@uk.ibm.com>,
-       Oliver Xymoron <oxymoron@waste.org>,
-       Dave Anderson <anderson@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       lkcd-devel@lists.sourceforge.net, lkcd-general@lists.sourceforge.net,
-       lkcd-general-admin@lists.sourceforge.net,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       "Matt D. Robinson" <yakker@aparity.com>
-In-Reply-To: <Pine.LNX.4.44.0211040727330.771-100000@home.transmeta.com>
-References: <Pine.LNX.4.44.0211040727330.771-100000@home.transmeta.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 04 Nov 2002 16:57:15 +0000
-Message-Id: <1036429035.1718.99.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S262497AbSKDQmk>; Mon, 4 Nov 2002 11:42:40 -0500
+Received: from anchor-post-32.mail.demon.net ([194.217.242.90]:41476 "EHLO
+	anchor-post-32.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S262187AbSKDQmj>; Mon, 4 Nov 2002 11:42:39 -0500
+From: "" <simon@baydel.com>
+To: linux-kernel@vger.kernel.org
+Date: Mon, 4 Nov 2002 09:40:59 -0000
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: halt and schedule
+Message-ID: <3DC640AB.12893.F77CB@localhost>
+X-mailer: Pegasus Mail for Win32 (v3.12c)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Let me ask another question here
 
-Other than "register_reboot_notifier()" and adding a 
-"register_exception_notifier()" chain what else does a dump tool need.
-Register_exception_notifier seems to solve about 90% of the insmod gdb 
-problem space as well ?
+I have been changing 2.4.19 to run on some new hardware, X86 
+based. The system boots and runs off a ramdisk. I am having 
+problems which I see as pauses. The system starts up and loads 
+the kernel. All seems ok until the ramdisk is mouned and INIT is 
+started. From this point on the system appears to stop responding 
+for a few seconds and then start again. Eventually, when logged in 
+command input can be slow with pauses between entering a 
+character and the console displaying the character.
 
 
+I have tried to debug this and found that the kernel is in the 
+cpu_idle() routine which is repeatedly calling default_idle() and
+safe_halt(). If you then type a character on the console, using a
+scope, you can see the interrupt being serviced and a character 
+being taken from the RX fifo, quickly. However there is no
+response for some seconds. I have also noticed that if you keep the
+thing busy with a benchmark or something simple like ls -lR there is
+no pause.  
 
+I noticed that to get out of this loop the kernel is looking for a
+process to schedule. It is as if the process is not being scheduled 
+as soon as it could be.
 
+One point to consider is that this board has no RTC or CTC just the 
+timer wired to a 10ms interrupt.
+
+I suspect that this is a hardware problem but I don't really know
+where to start looking. Can anyone help ?
+
+Many thanks
+
+Simon.
+__________________________
+
+Simon Haynes - Baydel 
+Phone : 44 (0) 1372 378811
+Email : simon@baydel.com
+__________________________

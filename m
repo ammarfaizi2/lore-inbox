@@ -1,60 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266067AbRGLGvz>; Thu, 12 Jul 2001 02:51:55 -0400
+	id <S267446AbRGLHYM>; Thu, 12 Jul 2001 03:24:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266069AbRGLGvp>; Thu, 12 Jul 2001 02:51:45 -0400
-Received: from age.cs.columbia.edu ([128.59.22.100]:57608 "EHLO
-	age.cs.columbia.edu") by vger.kernel.org with ESMTP
-	id <S266067AbRGLGvd>; Thu, 12 Jul 2001 02:51:33 -0400
-Date: Wed, 11 Jul 2001 23:51:28 -0700 (PDT)
-From: Ion Badulescu <ionut@cs.columbia.edu>
-To: Juri Haberland <juri@koschikode.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] starfire net driver update
-In-Reply-To: <20010711151630.7597.qmail@babel.spoiled.org>
-Message-ID: <Pine.LNX.4.33.0107112349390.17462-100000@age.cs.columbia.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267447AbRGLHYC>; Thu, 12 Jul 2001 03:24:02 -0400
+Received: from twilight.cs.hut.fi ([130.233.40.5]:14869 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
+	id <S267446AbRGLHXu>; Thu, 12 Jul 2001 03:23:50 -0400
+Date: Thu, 12 Jul 2001 10:23:46 +0300
+From: Ville Herva <vherva@mail.niksula.cs.hut.fi>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Switching Kernels without Rebooting?
+Message-ID: <20010712102346.B1503@niksula.cs.hut.fi>
+In-Reply-To: <3B4C180E.D3AE1960@idb.hist.no> <Pine.LNX.4.33.0107112310590.962-100000@fogarty.jakma.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0107112310590.962-100000@fogarty.jakma.org>; from paul@clubi.ie on Wed, Jul 11, 2001 at 11:12:12PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 11 Jul 2001, Juri Haberland wrote:
-
-> > Also, if you feel adventurous, search for these lines in the driver:
-> >         /* Configure the PCI bus bursts and FIFO thresholds. */
-> >         np->tx_mode = 0x0C04;           /* modified when link is up. */
-> > *       writel(0x8000 | np->tx_mode, ioaddr + TxMode);
-> > *       writel(np->tx_mode, ioaddr + TxMode);
-> > 
-> > and comment out those two marked with a *. At that point you should have 
-> > essentially the 2.4.6 driver, so see if they behaves similarly.
+On Wed, Jul 11, 2001 at 11:12:12PM +0100, you [Paul Jakma] claimed:
+> On Wed, 11 Jul 2001, Helge Hafting wrote:
 > 
-> I'll try that tomorrow.
+> > That seems completely out of question.  The structures a 2.4.7
+> > kernel understands might be insufficient to express the setup
+> > a future 2.6.9 kernel is using to do its stuff better.
+> 
+> however, it might be handy if say you needed to upgrade a stable
+> kernel due to a bug fix or security update.
+> 
+> no?
 
-Actually, try this patch first. I believe it will fix your problems, but
-I'd like to confirm it.
+<clueless>
+In that case you might get a way with a simpler approach. Perhaps you could
+just replace the changed function(s) with new ones and scan the kernel for
+calls to them. Each call should then be changed to point to the new
+function. This might work provided the function interfaces don't change
+(which might just be true for simple maintenance bug fixes and security
+fixes.) It might even be useful for kernel development.
 
-Thanks,
-Ion
+Of course this takes complex locking and the details are propably very
+thorny.
 
--- 
-  It is better to keep your mouth shut and be thought a fool,
-            than to open it and remove all doubt.
-------------------------------
---- /src/vanilla/linux-2.4/drivers/net/starfire.c	Thu Jul 12 02:47:25 2001
-+++ linux/drivers/net/starfire.c	Thu Jul 12 01:35:04 2001
-@@ -987,12 +987,12 @@
- 	struct netdev_private *np = dev->priv;
- 	u16 reg0;
- 
-+	mdio_write(dev, np->phys[0], MII_ADVERTISE, np->advertising);
- 	mdio_write(dev, np->phys[0], MII_BMCR, BMCR_RESET);
- 	udelay(500);
- 	while (mdio_read(dev, np->phys[0], MII_BMCR) & BMCR_RESET);
- 
- 	reg0 = mdio_read(dev, np->phys[0], MII_BMCR);
--	mdio_write(dev, np->phys[0], MII_ADVERTISE, np->advertising);
- 
- 	if (np->autoneg) {
- 		reg0 |= BMCR_ANENABLE | BMCR_ANRESTART;
+I'm not sure if this is possible, IANAKH. But AFAIK this is roughly what
+MSVC6.0 edit and continue does for userspace programs. 
+</clueless>
 
+
+-- v --
+
+v@iki.fi

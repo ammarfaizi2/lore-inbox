@@ -1,61 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261261AbRELOxJ>; Sat, 12 May 2001 10:53:09 -0400
+	id <S261265AbRELO4t>; Sat, 12 May 2001 10:56:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261262AbRELOw7>; Sat, 12 May 2001 10:52:59 -0400
-Received: from geos.coastside.net ([207.213.212.4]:46024 "EHLO
-	geos.coastside.net") by vger.kernel.org with ESMTP
-	id <S261261AbRELOwz>; Sat, 12 May 2001 10:52:55 -0400
-Mime-Version: 1.0
-Message-Id: <p05100305b722fde7cf26@[207.213.214.37]>
-In-Reply-To: <E14yXNZ-000447-00@the-village.bc.nu>
-In-Reply-To: <E14yXNZ-000447-00@the-village.bc.nu>
-Date: Sat, 12 May 2001 07:52:28 -0700
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-From: Jonathan Lundell <jlundell@pobox.com>
-Subject: Re: ENOIOCTLCMD?
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+	id <S261266AbRELO4j>; Sat, 12 May 2001 10:56:39 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:30988 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S261265AbRELO4g>;
+	Sat, 12 May 2001 10:56:36 -0400
+Date: Sat, 12 May 2001 11:56:20 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+To: "David S. Miller" <davem@redhat.com>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Mark Hemment <markhe@veritas.com>,
+        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org
+Subject: Re: [PATCH] allocation looping + kswapd CPU cycles 
+In-Reply-To: <15096.22053.524498.144383@pizda.ninka.net>
+Message-ID: <Pine.LNX.4.21.0105121155460.5468-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 12:16 PM +0100 2001-05-12, Alan Cox wrote:
->  > Can somebody explain the use of ENOIOCTLCMD? There are order of 170
->>  uses in the kernel, but I don't see any guidelines for that use (nor
->>  what prevents it from being seen by user programs).
->
->It should never be seen by apps. If it can be then it is wrong code.
->Basically you use it in things like
+On Tue, 8 May 2001, David S. Miller wrote:
 
-I was surmising something like that, but in that case aren't 
-ENOIOCTLCMD and ENOTTY redundant? That is, could not every occurrence 
-of ENOIOCTLCMD be replaced by ENOTTY with no change in function? 
-That's what's confusing me: why the distinction? It's true that the 
-current scheme allows the dev->ioctlfunc() call below to force ENOTTY 
-to be returned, bypassing the switch, but presumably that's not what 
-one wants.
+> So instead, you could test for the condition that prevents any
+> possible forward progress, no?
 
->	int err = dev->ioctlfunc(dev, op, arg);
->	if( err != -ENOIOCTLCMD)
->		return err;
->
->	/* Driver specific code does not support this ioctl */
->
->	switch(op)
->	{
->
->			...
->		default:
->			return -ENOTTY;
->	}
->
->Its a way of passing back 'you handle it'
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
+	if (!order || free_shortage() > 0)
+		goto try_again;
 
+(which was the experimental patch I discussed with Marcelo)
 
--- 
-/Jonathan Lundell.
+regards,
+
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+

@@ -1,35 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288466AbSANAlI>; Sun, 13 Jan 2002 19:41:08 -0500
+	id <S288460AbSANAoA>; Sun, 13 Jan 2002 19:44:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288460AbSANAlA>; Sun, 13 Jan 2002 19:41:00 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:11277 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S288466AbSANAki>; Sun, 13 Jan 2002 19:40:38 -0500
-Subject: Re: Getting Out of Memory errors at random intervals.
-To: abrink@ns.brink.cx (Andrew Brink)
-Date: Mon, 14 Jan 2002 00:52:28 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <20020114003907.GB1406@ns.brink.cx> from "Andrew Brink" at Jan 13, 2002 06:39:07 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S288494AbSANAmo>; Sun, 13 Jan 2002 19:42:44 -0500
+Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:46854 "EHLO
+	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S288460AbSANAls>; Sun, 13 Jan 2002 19:41:48 -0500
+Message-ID: <3C42293F.4962EC82@linux-m68k.org>
+Date: Mon, 14 Jan 2002 01:41:35 +0100
+From: Roman Zippel <zippel@linux-m68k.org>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: yodaiken@fsmlabs.com
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Robert Love <rml@tech9.net>,
+        Kenneth Johansson <ken@canit.se>, arjan@fenrus.demon.nl,
+        Rob Landley <landley@trommello.org>, linux-kernel@vger.kernel.org
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+In-Reply-To: <E16Pmok-0007GD-00@the-village.bc.nu> <3C41ED4E.4D3F2D2C@linux-m68k.org> <20020113171006.A17958@hq.fsmlabs.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16PvMS-00005i-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Mon, Jan 14, 2002 at 12:44:51AM +0000, Alan Cox wrote:
-> > > *Shrug* I've done some experimenting with this, having a lab (30 people)
-> > > all hit the site at the same time. Holds it fine most the time.  Usually
-> > > the OOM's come during the middle of the night.
-> > 
-> > About 4am by any chance ?
-> 
-> On second thought, I went and reviewed some logs.
-> Happened a lot on one box around 8ish.
-> 
+Hi,
 
-Ok. Let me know how trying the other things work (also the list). I'm sure
-Andrea, Marcelo and Rik all want to look at these cases
+yodaiken@fsmlabs.com wrote:
+
+> > It's a useful patch for anyone, who needs good latencies now, but it's
+> > still a quick&dirty solution. Preempt offers a clean solution for a
+> > certain part of the problem, as it's possible to cleanly localize the
+> > needed changes for preemption (at least for UP). That means the ll patch
+> > becomes smaller and future work on ll becomes simpler, since a certain
+> 
+> That is exactly what Andrew Morton disputes. So why do you think he is
+> wrong?
+
+Please explain, what do you mean?
+
+bye, Roman

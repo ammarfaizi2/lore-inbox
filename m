@@ -1,75 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265653AbUANBDM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jan 2004 20:03:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265657AbUANBDL
+	id S265555AbUANBBI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jan 2004 20:01:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265592AbUANBBI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jan 2004 20:03:11 -0500
-Received: from fw.osdl.org ([65.172.181.6]:30411 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265653AbUANBDG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jan 2004 20:03:06 -0500
-Date: Tue, 13 Jan 2004 16:59:51 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: drees@greenhydrant.com
-Subject: Re: modprobe failed: digest_null
-Message-Id: <20040113165951.4f74278a.rddunlap@osdl.org>
-In-Reply-To: <20040113160131.79520358.rddunlap@osdl.org>
-References: <20040113215355.GA3882@piper.madduck.net>
-	<20040113143053.1c44b97d.rddunlap@osdl.org>
-	<20040113223739.GA6268@piper.madduck.net>
-	<20040113144141.1d695c3d.rddunlap@osdl.org>
-	<20040113225047.GA6891@piper.madduck.net>
-	<20040113150319.1e309dcb.rddunlap@osdl.org>
-	<3156.208.48.139.163.1074037125.squirrel@www.greenhydrant.com>
-	<20040113160131.79520358.rddunlap@osdl.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 13 Jan 2004 20:01:08 -0500
+Received: from modemcable178.89-70-69.mc.videotron.ca ([69.70.89.178]:45187
+	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
+	id S265555AbUANBBC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jan 2004 20:01:02 -0500
+Date: Tue, 13 Jan 2004 20:00:10 -0500 (EST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: James Cleverdon <jamesclv@us.ibm.com>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Linus Torvalds <torvalds@osdl.org>, Chris McDermott <lcm@us.ibm.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>
+Subject: Re: [PATCH] 2.6.1-mm2: Get irq_vector size right for generic subarch
+ UP installer kernels
+In-Reply-To: <200401131627.02138.jamesclv@us.ibm.com>
+Message-ID: <Pine.LNX.4.58.0401131957420.18388@montezuma.fsmlabs.com>
+References: <200401131627.02138.jamesclv@us.ibm.com>
+MIME-Version: 1.0
+Content-Type: MULTIPART/Mixed; BOUNDARY="Boundary-00=_WzIBAILudZL8oQ+"
+Content-ID: <Pine.LNX.4.58.0401131957421.18388@montezuma.fsmlabs.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 13 Jan 2004 16:01:31 -0800 "Randy.Dunlap" <rddunlap@osdl.org> wrote:
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-| On Tue, 13 Jan 2004 15:38:45 -0800 (PST) "David Rees" <drees@greenhydrant.com> wrote:
-| 
-| | On Tue, January 13, 2004 at 3:03 pm, Randy.Dunlap wrote:
-| | >
-| | > OK, maybe someone else has an answer then.
-| | >
-| | > The message:
-| | > kernel: request_module: failed /sbin/modprobe -- digest_null. error = 256
-| | > is from modutils and not from module-init-tools according to my
-| | > source files.
-| | 
-| | I'm getting similar messages from dmesg after upgrading to 2.6.1, too:
-| | 
-| | request_module: failed /sbin/modprobe -- n. error = 256
-| | 
-| | [drees@summit drees]$ /sbin/modprobe -V
-| | module-init-tools version 3.0-pre5
-| | [drees@summit drees]$
-| | 
-| | Running on Fedora Core 1 compiled with gcc 3.3.2.  Didn't see these with
-| | 2.6.0.
-| 
-| Yes, I see a couple of similar messages:
-| 
-| request_module: failed /sbin/modprobe -- parport_lowlevel. error = -16
-| request_module: failed /sbin/modprobe -- fb0. error = 256
-| 
-| ...?
+--Boundary-00=_WzIBAILudZL8oQ+
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-ID: <Pine.LNX.4.58.0401131957422.18388@montezuma.fsmlabs.com>
+Content-Disposition: INLINE
 
-I don't think that it's related to IPsec since I'm not using that.
+On Tue, 13 Jan 2004, James Cleverdon wrote:
 
-I'm looking at the changes in kernel/kmod.c for 2.6.1 to see if they
-could cause it.
+> Problem:  Earlier I didn't consider the case of the generic sub-arch and
+> uni-proc installer kernels used by a number of distros.  It currently is
+> scaled by NR_CPUS.  The correct values should be big for summit and generic,
+> and can stay the same for all others.
 
---
-~Randy
-MOTD:  Always include version info.
+This all looks strange, especially in assign_irq_vector() does this
+mean that you'll try and allocate up to 1024 vectors?
+
+> diff -pru 2.6.1-mm2/include/asm-i386/mach-default/irq_vectors.h
+> t1mm2/include/asm-i386/mach-default/irq_vectors.h
+> --- 2.6.1-mm2/include/asm-i386/mach-default/irq_vectors.h	2004-01-08
+> 22:59:19.000000000 -0800
+> +++ t1mm2/include/asm-i386/mach-default/irq_vectors.h	2004-01-13
+> 13:43:56.000000000 -0800
+> @@ -90,8 +90,12 @@
+>  #else
+>  #ifdef CONFIG_X86_IO_APIC
+>  #define NR_IRQS 224
+> -# if (224 >= 32 * NR_CPUS)
+> -# define NR_IRQ_VECTORS NR_IRQS
+> +/*
+> + * For Summit or generic (i.e. installer) kernels, we have lots of I/O APICs,
+> + * even with uni-proc kernels, so use a big array.
+> + */
+> +# if defined(CONFIG_X86_SUMMIT) || defined(CONFIG_X86_GENERICARCH)
+> +# define NR_IRQ_VECTORS 1024
+>  # else
+>  # define NR_IRQ_VECTORS (32 * NR_CPUS)
+>  # endif
+
+--Boundary-00=_WzIBAILudZL8oQ+
+Content-Type: TEXT/X-DIFF; CHARSET=us-ascii; NAME="irq_vector_2004-01-13_2.6.1-mm2"
+Content-ID: <Pine.LNX.4.58.0401131957423.18388@montezuma.fsmlabs.com>
+Content-Description: 
+Content-Disposition: ATTACHMENT; FILENAME="irq_vector_2004-01-13_2.6.1-mm2"
+
+diff -pru 2.6.1-mm2/include/asm-i386/mach-default/irq_vectors.h t1mm2/include/asm-i386/mach-default/irq_vectors.h
+--- 2.6.1-mm2/include/asm-i386/mach-default/irq_vectors.h	2004-01-08 22:59:19.000000000 -0800
++++ t1mm2/include/asm-i386/mach-default/irq_vectors.h	2004-01-13 13:43:56.000000000 -0800
+@@ -90,8 +90,12 @@
+ #else
+ #ifdef CONFIG_X86_IO_APIC
+ #define NR_IRQS 224
+-# if (224 >= 32 * NR_CPUS)
+-# define NR_IRQ_VECTORS NR_IRQS
++/*
++ * For Summit or generic (i.e. installer) kernels, we have lots of I/O APICs,
++ * even with uni-proc kernels, so use a big array.
++ */
++# if defined(CONFIG_X86_SUMMIT) || defined(CONFIG_X86_GENERICARCH)
++# define NR_IRQ_VECTORS 1024
+ # else
+ # define NR_IRQ_VECTORS (32 * NR_CPUS)
+ # endif
+
+--Boundary-00=_WzIBAILudZL8oQ+--

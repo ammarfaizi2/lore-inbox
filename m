@@ -1,47 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261320AbSIWSpp>; Mon, 23 Sep 2002 14:45:45 -0400
+	id <S261303AbSIWSxz>; Mon, 23 Sep 2002 14:53:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261420AbSIWSnC>; Mon, 23 Sep 2002 14:43:02 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:27041 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S261320AbSIWSm2>;
-	Mon, 23 Sep 2002 14:42:28 -0400
-Subject: Re: 2.5.37 lockup with dbench 36 and make -j3 bzImage and PREEMPT=y.
-From: Steven Cole <elenstev@mesatop.com>
-To: Helge Hafting <helgehaf@aitel.hist.no>
-Cc: Robert Love <rml@tech9.net>, Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020921120529.A20153@hh.idb.hist.no>
-References: <1032555932.14946.225.camel@spc9.esa.lanl.gov> 
-	<20020921120529.A20153@hh.idb.hist.no>
-Content-Type: text/plain
+	id <S261380AbSIWSxO>; Mon, 23 Sep 2002 14:53:14 -0400
+Received: from kim.it.uu.se ([130.238.12.178]:16304 "EHLO kim.it.uu.se")
+	by vger.kernel.org with ESMTP id <S261318AbSIWSss>;
+	Mon, 23 Sep 2002 14:48:48 -0400
+From: Mikael Pettersson <mikpe@csd.uu.se>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2-5mdk 
-Date: 23 Sep 2002 10:09:30 -0600
-Message-Id: <1032797370.28405.5.camel@spc9.esa.lanl.gov>
-Mime-Version: 1.0
+Message-ID: <15759.25411.512115.64467@kim.it.uu.se>
+Date: Mon, 23 Sep 2002 20:53:55 +0200
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Jens Axboe <axboe@suse.de>, Linus Torvalds <torvalds@transmeta.com>,
+       Mikael Pettersson <mikpe@csd.uu.se>, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.37 broke the floppy driver
+In-Reply-To: <Pine.GSO.4.21.0209231104090.3948-100000@weyl.math.psu.edu>
+References: <20020923145253.GG9178@suse.de>
+	<Pine.GSO.4.21.0209231104090.3948-100000@weyl.math.psu.edu>
+X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-09-21 at 04:05, Helge Hafting wrote:
-> On 2002.09.20 23:05 Steven Cole wrote:
-> > While running 2.5.37 with 36 dbench clients and doing a kernel compile
-> > with make -j3 bzImage, my test machine locked up.  
-> 
-> 2.5.36 SMP no preempt locks up under similiar circumstances - a compile
-> with make -j 3 and moderate disk activity on 2 scsi disks makes it
-> freeze solid now and then.  Perhaps this is some sort of SMP problem
-> also exposed by preempt?
-> 
-> I haven't tested this in 2.5.37 because refuses to run X.
-> 
-> Helge Hafting
+Alexander Viro writes:
+ > 
+ > 
+ > On Mon, 23 Sep 2002, Jens Axboe wrote:
+ > 
+ > > Al? The first bug was a legitimate partial completion error in
+ > > ll_rw_blk, however there appears to be other breakage hitting floppy as
+ > > well.
+ > 
+ > The third is my fault - I've screwed up reordering patches; get_gendisk
+ > prototype change should've been submitted before floppy gendisks.  Missing
+ > patch is O/O100-get_gendisk-C38 in usual place, I'll send it to Linus
+ > when I finish with the next 4 chunks (ubd fixes on top of jdike's ones +
+ > unexporting register_disk() + tapeblock switch to gendisk + removal of
+ > "what if opened device has no gendisk" logics).  No comments on the
+ > second one, though.
 
-Further testing with 2.5.37 over the weekend showed that the lockup also
-occurred without preempt here too.
-
-This seems to have been fixed in 2.5.38-mm2.  I've run up to dbench 128
-while doing several kernel compiles with make -j3 with PREEMPT enabled,
-and have not observed any lockups at all.
-
-Steven
-
+With O100-get_gendisk-C38 the oops is cured, but the floppy size is
+still wrong. Freshly booted, dd if=/dev/fd0H1440 bs=72k of=/dev/null
+reads only 720K instead of 1440K. Same thing on write: trying to
+write more than 720K results in an ENOSPC error.

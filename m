@@ -1,84 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311578AbSCNKOp>; Thu, 14 Mar 2002 05:14:45 -0500
+	id <S311579AbSCNKhO>; Thu, 14 Mar 2002 05:37:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311580AbSCNKOg>; Thu, 14 Mar 2002 05:14:36 -0500
-Received: from mail.pha.ha-vel.cz ([195.39.72.3]:9221 "HELO mail.pha.ha-vel.cz")
-	by vger.kernel.org with SMTP id <S311578AbSCNKOS>;
-	Thu, 14 Mar 2002 05:14:18 -0500
-Date: Thu, 14 Mar 2002 11:14:16 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Daniela Engert <dani@ngrt.de>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, LKML <linux-kernel@vger.kernel.org>,
-        Martin Dalecki <martin@dalecki.de>, Shawn Starr <spstarr@sh0n.net>
-Subject: Re: [patch] PIIX rewrite patch, pre-final
-Message-ID: <20020314111416.A5613@ucw.cz>
-In-Reply-To: <20020314091808.B31998@ucw.cz> <20020314084211.2611E5246@mail.medav.de>
-Mime-Version: 1.0
+	id <S311580AbSCNKhE>; Thu, 14 Mar 2002 05:37:04 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:17192 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S311579AbSCNKgx>; Thu, 14 Mar 2002 05:36:53 -0500
+To: Hans Reiser <reiser@namesys.com>
+Cc: Tom Lord <lord@regexps.com>, andrew@pimlott.ne.mediaone.net,
+        lm@work.bitmover.com, Geert.Uytterhoeven@sonycom.com, james@and.org,
+        lm@bitmover.com, jaharkes@cs.cmu.edu, linux-kernel@vger.kernel.org
+Subject: Re: filesystem transactions (was Re: linux-2.5.4-pre1 - bitkeeper testing)
+In-Reply-To: <20020312223738.GB29832@pimlott.ne.mediaone.net>
+	<Pine.GSO.4.21.0203131037240.17582-100000@vervain.sonytel.be>
+	<20020313143720.GA32244@pimlott.ne.mediaone.net>
+	<20020313082647.Y23966@work.bitmover.com>
+	<20020313163045.GA6575@pimlott.ne.mediaone.net>
+	<3C8FA608.6040103@namesys.com>
+	<200203140939.BAA14739@morrowfield.home>
+	<3C905EA4.3050906@namesys.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 14 Mar 2002 03:31:06 -0700
+In-Reply-To: <3C905EA4.3050906@namesys.com>
+Message-ID: <m1y9gvxwyd.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020314084211.2611E5246@mail.medav.de>; from dani@ngrt.de on Thu, Mar 14, 2002 at 10:48:10AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 14, 2002 at 10:48:10AM +0100, Daniela Engert wrote:
+Hans Reiser <reiser@namesys.com> writes:
+> Since reiser4 is in feature freeze, let's defer this thread until October, ok?
+> It will be a long one I think.....
 
-> >00..1f 586
-> >20..2f 586a
-> >30..3f 586b
-> >40..46 586b 3040 silicon
-> >Has a bug where the preq# til ddack# bit must be cleared or can cause
-> >spontaneous reboots.
-> >47..4f 586b 3041 silicon
-> 
-> True. I leave this particular setup to the BIOS which is supposed to
-> take care of such idiosyncrasies...
+Playing with ideas is probably reasonable before then.  Especially
+the user space API.  A couple of points were made earlier in
+this thread that I would like to summarize.
 
-Unfortunately not all BIOSes do. I have at least two reported buggy
-BIOSES which set the bit even on the 3040 silicon.
+1) For a filesystem level design initially treat version control,
+   as the snapshot/backup problem.   This problem everyone
+   understands.  If you can get and keep an atomic snapshot of
+   your filesystem there are some things that become easier.
+2) Allow the ability to mount different versions/snapshots of the filesystem.
+   This ties in with the idea of per user namespaces.
+3) Don't require you be root to do this stuff.
 
-> >>        0x3109	 VT8233c	      x    x	x    x	   x   x   x   -    -
-> >>        0x3147	 VT8233a	      x    x	x    x	   x   x   x   x    -
-> >> 
-> >>  known bugs:
-> >>    - all:  no host side cable type detection.
-> >
-> >Not true, for the UDMA100 and UDMA133 capable ones, there are defined
-> >bits in the UDMA_TIMING register. Not all BIOSes use those, though.
-> 
-> Interesting. None of the user reports ever indicated that.
+At that point you are still a long ways from a version control system
+like bitkeeper but it looks like a foundation that could productively
+be built on.  While at the same time solving a very real user space
+problem, and not messing up normal userspace filesystem semantics. 
 
-It's possible the BIOSes don't set the bits. My driver also checks if
-the BIOS enabled UDMA >= 44MB/s on these chips, assuming 80 cable as
-well.
-
-Anyway, the docs state the bits should reflect the cable presence.
-
-> >> --------------------------------------------------------------------------------
-> >>  0x10DE Nvidia
-> >>    0x01BC     nForce		      x    x	x    x	   x   x   x   -    -
-> >> 
-> >>  known bugs:
-> >>    - nForce: no host side cable type detection.
-> >
-> >Do you have any info on this one? I'd really like to have a Linux driver
-> >for it ...
-> 
-> I have no docs, but my father's machine has this chip built in :-) My
-> driver is running it just fine. In fact, this is a clone of the ATA/100
-> capable AMD IDE chip cell with all config register addresses shifted up
-> by 0x10.
-
-Thanks for this info. :) I think I'll add the support to my AMD driver.
-Could you by any chance send me a PCI config space dump of the IDE
-controller there?
-
-> I'm looking forward to the new ATI chipset, let's bet where their IDE
-> cell is licenced from :-)
-
-I don't think it'll be Intel. I bet on VIA ...
-
--- 
-Vojtech Pavlik
-SuSE Labs
+Eric

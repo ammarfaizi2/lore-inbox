@@ -1,54 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263345AbTJBOOR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Oct 2003 10:14:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263354AbTJBOOR
+	id S263358AbTJBObu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Oct 2003 10:31:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263362AbTJBObu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Oct 2003 10:14:17 -0400
-Received: from moutng.kundenserver.de ([212.227.126.184]:52451 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S263345AbTJBOOA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Oct 2003 10:14:00 -0400
-Message-ID: <3F7C3280.7020803@daniel-luebke.de>
-Date: Thu, 02 Oct 2003 16:13:20 +0200
-From: Daniel Luebke <lkml@daniel-luebke.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030930 Debian/1.4-5
-X-Accept-Language: de-de, de, en
-MIME-Version: 1.0
+	Thu, 2 Oct 2003 10:31:50 -0400
+Received: from cpout2.tiscali.be ([62.235.13.194]:62703 "EHLO
+	cpout2.tiscali.be") by vger.kernel.org with ESMTP id S263358AbTJBObs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Oct 2003 10:31:48 -0400
+Date: Thu, 2 Oct 2003 16:31:46 +0200
+Message-ID: <3F4E0D2500025C61@ocpmta9.freegates.net>
+From: ealgera@tiscali.nl
+Subject: Wake On Lan 2.4.20 & Boot scripts
 To: linux-kernel@vger.kernel.org
-Subject: Re: System Freeze with Kernel 2.6.0-test5 and PCMCIA 3Com
-References: <3F704FAF.8050000@daniel-luebke.de>
-In-Reply-To: <3F704FAF.8050000@daniel-luebke.de>
-X-Enigmail-Version: 0.76.7.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+MIME-Version: 1.0
+Content-Type: text/plain; charset="ISO-8859-1"
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hallo list,
 
-I tried many kernels in the last time and I have found that the error is 
-somewhere different but I don't know where:
-- compiled 2.6.0-test6 -> same error
-- compiled 2.6.0-test6-bk1 -> same error
+Hi everyone,
 
-Ok, so I thought, 2.6. does not work, so try 2.4
+My network card (nvidia) is capable of Wake on Lan.
+When I issue the following commands from the command line, the system shuts
+down immediately and powers up on Wake on Lan:
+pci-config -#12 -S
+/sbin/halt -hdf
 
-- compiled 2.4.22 -> same error
+(pci-config from scyld.com)
 
-Hmm, estonishing, but hey, 2.4.21-debian worked, so compile 2.4.21 
-yourself, but
+However, when I put those commands in the /etc/init.d/halt.sh script, the
+system won't wake up. ( I put a 'sleep 3' command in between the two others
+to give pci-config the time to work) 
 
-- compiled 2.4.21 -> same error
+I have APM in my kernel as follows: (ACPI disabled)
 
-I really don't have any ideas anymore. Does anyone here has an idea?
+[*] Power Management support                                            
+ &#9474; &#9474;
+  &#9474; &#9474;                        <*>   Advanced Power Management
+BIOS support                              &#9474; &#9474;
+  &#9474; &#9474;                        [ ]     Ignore USER SUSPEND    
+                                          &#9474; &#9474;
+  &#9474; &#9474;                        [*]     Enable PM at boot time 
+                                          &#9474; &#9474;
+  &#9474; &#9474;                        [*]     Make CPU Idle calls when
+idle                                     &#9474; &#9474;
+  &#9474; &#9474;                        [ ]     Enable console blanking
+using APM                                 &#9474; &#9474;
+  &#9474; &#9474;                        [ ]     RTC stores time in GMT 
+                                          &#9474; &#9474;
+  &#9474; &#9474;                        [*]     Allow interrupts during
+APM BIOS calls                            &#9474; &#9474;
+  &#9474; &#9474;                        [*]     Use real mode APM BIOS call
+to power off    
 
-Compiler is
-gcc (GCC) 3.3.2 20030908 (Debian prerelease)
-GNU Make 3.80
 
-thanks
+I use gentoo with the gentoo-kernel-2.4.20-r7.
 
-Daniel
+Has anyone a clue why the wake on lan doesn't work from the shutdown scripts,
+and does work from the commandline?
+
+Thanks,
+Elton Algera
 

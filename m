@@ -1,44 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261956AbUAFMPN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jan 2004 07:15:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262040AbUAFMPN
+	id S261974AbUAFMiW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jan 2004 07:38:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262009AbUAFMiW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jan 2004 07:15:13 -0500
-Received: from gprs214-240.eurotel.cz ([160.218.214.240]:32642 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S261956AbUAFMPL (ORCPT
+	Tue, 6 Jan 2004 07:38:22 -0500
+Received: from [220.110.13.64] ([220.110.13.64]:63997 "EHLO smtp.sscnet.co.jp")
+	by vger.kernel.org with ESMTP id S261974AbUAFMiV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jan 2004 07:15:11 -0500
-Date: Tue, 6 Jan 2004 13:16:36 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Andrew Morton <akpm@osdl.org>, James Simmons <jsimmons@infradead.org>
-Subject: Re: [PATCH] VT locking
-Message-ID: <20040106121636.GA888@elf.ucw.cz>
-References: <1073349182.9504.175.camel@gaston>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1073349182.9504.175.camel@gaston>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+	Tue, 6 Jan 2004 07:38:21 -0500
+Message-ID: <3FFAACC7.5A63D5CE@ezinc.com>
+Date: Tue, 06 Jan 2004 21:40:39 +0900
+From: kernel sunder <kernel@ezinc.com>
+X-Mailer: Mozilla 4.78 [ja] (Windows NT 5.0; U)
+X-Accept-Language: ja
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: increasing ide1
+Content-Type: text/plain; charset=iso-2022-jp
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+I'm running RedHat9.0 with kernel 2.4.23.
+Using hdparm (idectl 1 on/off), I can attach or de-attach /dev/hdc.
+It's very fine, except increasing ide1.
+Like this.
 
-> The VT code is currently, it seems, full of races, it basically doesn't
-> do any locking... This patch is definitely not fixing everything,
-> but at
+# ls /proc/ide
+amd74xx drivers hda hdc ide0 ide1
 
-And the races bite, BTW. For years I was seeing weird stuff like
-console output on blanked console if scroll happened at approximately
-same time as blank. It was hard to reproduce reliably, through.
-								Pavel
+# idectl 1 off
+# idectl 1 on
+hdc: MAXTOR XXXXX, ATA DISK drive
+ide1 at 0x170-0x177,0x376 on irq 15
+hdc: attached ide-disk driver.
+hdc: host protected area => 1
 
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+# ls /proc/ide
+amd74xx drivers hda hdc ide0 ide1 ide1
+
+# idectl 1 off
+# idectl 1 on
+hdc: MAXTOR XXXXX, ATA DISK drive
+ide1 at 0x170-0x177,0x376 on irq 15
+hdc: attached ide-disk driver.
+hdc: host protected area => 1
+
+# ls /proc/ide
+amd74xx drivers hda hdc ide0 ide1 ide1 ide1
+
+How do I stop increasing ide1?
+
+nickey
+kernel@ezinc.com

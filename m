@@ -1,59 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267011AbTBHPB4>; Sat, 8 Feb 2003 10:01:56 -0500
+	id <S267013AbTBHPCM>; Sat, 8 Feb 2003 10:02:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267005AbTBHPB4>; Sat, 8 Feb 2003 10:01:56 -0500
-Received: from mail.epost.de ([193.28.100.167]:21144 "EHLO mail.epost.de")
-	by vger.kernel.org with ESMTP id <S267003AbTBHPBz>;
-	Sat, 8 Feb 2003 10:01:55 -0500
-Message-ID: <3E451E2B.3000901@epost.de>
-Date: Sat, 08 Feb 2003 16:11:39 +0100
-From: Oliver Sniehotta <oliver.sniehotta@epost.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020903
-X-Accept-Language: en-us, en
+	id <S267022AbTBHPCM>; Sat, 8 Feb 2003 10:02:12 -0500
+Received: from 213-187-164-3.dd.nextgentel.com ([213.187.164.3]:5446 "EHLO
+	exchange.Pronto.TV") by vger.kernel.org with ESMTP
+	id <S267013AbTBHPCK> convert rfc822-to-8bit; Sat, 8 Feb 2003 10:02:10 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Organization: ProntoTV AS
+To: Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: 2.5.59: loadavg shows 1.0 1.0 1.0 on idle system.(no APM enabled)
+Date: Sat, 8 Feb 2003 16:11:49 +0100
+User-Agent: KMail/1.4.1
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: agpgart fails with Via KT400 and GeForce 4200-8x
-X-Enigmail-Version: 0.63.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200302081611.49069.roy@karlsbakk.net>
+X-OriginalArrivalTime: 08 Feb 2003 15:12:31.0359 (UTC) FILETIME=[803820F0:01C2CF84]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+hi all
 
-I have a system with Via KT400 Mobo and a GeForce 4200-8x
-graphics card.
-When I try to load the agpgart module, I get the following
-message, that agpgart is unable to determine aperture size:
+I've got this computer running 2.5.59, and after some time (dunno how long) it 
+starts getting the load average stably at 1.0 while still being idle. check 
+below for more info:
 
+tonje:/usr/src/linux# uptime
+ 15:14:20 up 11 days,  4:08,  2 users,  load average: 1.00, 1.00, 1.00
+tonje:/usr/src/linux# cat /proc/loadavg
+1.00 1.00 1.00 1/95 12972
 
----- output of dmesg -----------------------------------------
+tonje:/usr/src/linux# vmstat 1 5
+procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
+ r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
+ 0  0    176  40220 137828 197012    0    0     2     9   23    30  1  0 99  0
+ 0  0    176  40220 137828 197012    0    0     0     0 1005   191  0  0 100  
+0
+ 0  0    176  40220 137828 197012    0    0     0     0 1003   189  0  0 100  
+0
+ 0  0    176  40220 137828 197012    0    0     0     0 1004   190  0  0 100  
+0
+ 0  0    176  40220 137828 197012    0    0     0    72 1013   204  0  1 99  0
 
-Linux agpgart interface v0.99 (c) Jeff Hartmann
-agpgart: Maximum main memory to use for agp memory: 203M
-agpgart: Detected Via Apollo Pro KT400 chipset
-agpgart: unable to determine aperture size.
+-- 
+Roy Sigurd Karlsbakk, Datavaktmester
+ProntoTV AS - http://www.pronto.tv/
+Tel: +47 9801 3356
 
---------------------------------------------------------------
-
-This happens with 2.4.19 , 2.4.20, 2.4.21-pre2 and -pre4.
-I think this a problem with AGP-8x.
-Is there any chance to force AGP-4x or to tell the module
-about the aperture size ?
-
-
-
-Regards
-  Oliver
-
-
-
-
-     _/_/_/_/   _/      _/_/_/  Oliver Sniehotta
-    _/    _/   _/      _/
-   _/    _/   _/      _/_/_/    email: oliver.sniehotta@epost.de
-  _/    _/   _/          _/
-_/_/_/_/   _/_/_/  _/_/_/
+Computers are like air conditioners.
+They stop working when you open Windows.
 

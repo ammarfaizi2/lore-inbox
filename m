@@ -1,135 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264189AbTCXNCf>; Mon, 24 Mar 2003 08:02:35 -0500
+	id <S264194AbTCXNJm>; Mon, 24 Mar 2003 08:09:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264190AbTCXNCf>; Mon, 24 Mar 2003 08:02:35 -0500
-Received: from chii.cinet.co.jp ([61.197.228.217]:19072 "EHLO
-	yuzuki.cinet.co.jp") by vger.kernel.org with ESMTP
-	id <S264189AbTCXNCZ>; Mon, 24 Mar 2003 08:02:25 -0500
-Date: Mon, 24 Mar 2003 22:12:34 +0900
-From: Osamu Tomita <tomita@cinet.co.jp>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [PATCH 2.5.65-ac4] Complete support for PC-9800 sub-arch (7/9) PCI
-Message-ID: <20030324131234.GG2508@yuzuki.cinet.co.jp>
-References: <20030324130025.GA2465@yuzuki.cinet.co.jp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030324130025.GA2465@yuzuki.cinet.co.jp>
-User-Agent: Mutt/1.4i
+	id <S264199AbTCXNJm>; Mon, 24 Mar 2003 08:09:42 -0500
+Received: from paris.xisl.com ([193.112.238.192]:11935 "EHLO paris.xisl.com")
+	by vger.kernel.org with ESMTP id <S264194AbTCXNJe>;
+	Mon, 24 Mar 2003 08:09:34 -0500
+Message-ID: <3E7F0625.2080406@xisl.com>
+Date: Mon, 24 Mar 2003 13:20:37 +0000
+From: John M Collins <jmc@xisl.com>
+Organization: Xi Software Ltd
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20021120 Netscape/7.01
+X-Accept-Language: en-us, en-gb
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Query about SIS963 Bridges
+References: <3E7E43C3.2080605@xisl.com>	 <1048467041.10727.100.camel@irongate.swansea.linux.org.uk>	 <3E7EABB0.9010505@xisl.com> <1048514988.25140.11.camel@irongate.swansea.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is the patch to support NEC PC-9800 subarchitecture
-against 2.5.65-ac4. (7/9)
+Alan Cox wrote:
 
-Small changes for PCI support.
-Fix for difference of IRQ numbers and IO addresses.
+>Can you try
+>
+>	lspci -vxx -H1 -M
+>
+>and see if thats different
+>  
+>
+Here's the output
 
-Regards,
-Osamu Tomita
+00:00.0 Host bridge: Silicon Integrated Systems [SiS]: Unknown device 
+0648 (rev 02)
+        Subsystem: Asustek Computer, Inc.: Unknown device 8086
+        Flags: bus master, medium devsel, latency 32
+        Memory at d0000000 (32-bit, non-prefetchable)
+        Capabilities: [c0] AGP version 3.0
+00: 39 10 48 06 07 00 10 22 02 00 00 06 00 20 80 00
+10: 00 00 00 d0 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 43 10 86 80
+30: 00 00 00 00 c0 00 00 00 00 00 00 00 00 00 00 00
 
-diff -Nru linux/arch/i386/pci/irq.c linux98/arch/i386/pci/irq.c
---- linux/arch/i386/pci/irq.c	2002-10-12 13:22:46.000000000 +0900
-+++ linux98/arch/i386/pci/irq.c	2002-10-12 14:18:52.000000000 +0900
-@@ -5,6 +5,7 @@
-  */
- 
- #include <linux/config.h>
-+#include <linux/pci_ids.h>
- #include <linux/types.h>
- #include <linux/kernel.h>
- #include <linux/pci.h>
-@@ -25,6 +26,7 @@
- 
- static struct irq_routing_table *pirq_table;
- 
-+#ifndef CONFIG_X86_PC9800
- /*
-  * Never use: 0, 1, 2 (timer, keyboard, and cascade)
-  * Avoid using: 13, 14 and 15 (FP error and IDE).
-@@ -36,6 +38,20 @@
- 	1000000, 1000000, 1000000, 1000, 1000, 0, 1000, 1000,
- 	0, 0, 0, 0, 1000, 100000, 100000, 100000
- };
-+#else
-+/*
-+ * Never use: 0, 1, 2, 7 (timer, keyboard, CRT VSYNC and cascade)
-+ * Avoid using: 8, 9 and 15 (FP error and IDE).
-+ * Penalize: 4, 5, 11, 12, 13, 14 (known ISA uses: serial, floppy, sound, mouse
-+ *                                 and parallel)
-+ */
-+unsigned int pcibios_irq_mask = 0xff78;
-+
-+static int pirq_penalty[16] = {
-+	1000000, 1000000, 1000000, 0, 1000, 1000, 0, 1000000,
-+	100000, 100000, 0, 1000, 1000, 1000, 1000, 100000
-+};
-+#endif
- 
- struct irq_router {
- 	char *name;
-@@ -612,6 +628,17 @@
- 		r->set(pirq_router_dev, dev, pirq, 11);
- 	}
- 
-+#ifdef CONFIG_X86_PC9800
-+	if ((dev->class >> 8) == PCI_CLASS_BRIDGE_CARDBUS) {
-+		if (pci_find_device(PCI_VENDOR_ID_INTEL,
-+				PCI_DEVICE_ID_INTEL_82439TX, NULL) != NULL) {
-+			if (mask & 0x0040) {
-+				mask &= 0x0040;	/* assign IRQ 6 only */
-+				printk("pci-irq: Use IRQ6 for CardBus controller\n");
-+			}
-+		}
-+	}
-+#endif
- 	/*
- 	 * Find the best IRQ to assign: use the one
- 	 * reported by the device if possible.
-diff -Nru linux/drivers/pcmcia/yenta.c linux98/drivers/pcmcia/yenta.c
---- linux/drivers/pcmcia/yenta.c	2002-11-18 13:29:48.000000000 +0900
-+++ linux98/drivers/pcmcia/yenta.c	2002-11-19 11:02:09.000000000 +0900
-@@ -8,6 +8,7 @@
-  * 	Dynamically adjust the size of the bridge resource
-  * 	
-  */
-+#include <linux/config.h>
- #include <linux/init.h>
- #include <linux/pci.h>
- #include <linux/sched.h>
-@@ -510,6 +511,7 @@
- 	add_timer(&socket->poll_timer);
- }
- 
-+#ifndef CONFIG_X86_PC9800
- /*
-  * Only probe "regular" interrupts, don't
-  * touch dangerous spots like the mouse irq,
-@@ -520,6 +522,10 @@
-  * Default to 11, 10, 9, 7, 6, 5, 4, 3.
-  */
- static u32 isa_interrupts = 0x0ef8;
-+#else
-+/* Default to 12, 10, 6, 5, 3. */
-+static u32 isa_interrupts = 0x1468;
-+#endif
- 
- static unsigned int yenta_probe_irq(pci_socket_t *socket, u32 isa_irq_mask)
- {
-diff -Nru linux/include/asm-i386/pci.h linux98/include/asm-i386/pci.h
---- linux/include/asm-i386/pci.h	2002-06-09 14:29:24.000000000 +0900
-+++ linux98/include/asm-i386/pci.h	2002-06-10 20:49:15.000000000 +0900
-@@ -17,7 +17,11 @@
- #endif
- 
- extern unsigned long pci_mem_start;
-+#ifdef CONFIG_X86_PC9800
-+#define PCIBIOS_MIN_IO		0x4000
-+#else
- #define PCIBIOS_MIN_IO		0x1000
-+#endif
- #define PCIBIOS_MIN_MEM		(pci_mem_start)
- 
- void pcibios_config_init(void);
+00:01.0 PCI bridge: Silicon Integrated Systems [SiS] 5591/5592 AGP 
+(prog-if 00 [Normal decode])
+        Flags: bus master, fast devsel, latency 0
+        Bus: primary=00, secondary=01, subordinate=01, sec-latency=0
+        Memory behind bridge: cf000000-cfffffff
+        Prefetchable memory behind bridge: eff00000-febfffff
+00: 39 10 01 00 07 00 00 00 00 00 04 06 00 00 01 00
+10: 00 00 00 00 00 00 00 00 00 01 01 00 e0 d0 00 20
+20: 00 cf f0 cf f0 ef b0 fe 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 08 00
+
+## 00.01:0 is a bridge from 00 to 01-01        {ONLY DIFFERENT LINE}
+00:02.0 ISA bridge: Silicon Integrated Systems [SiS]: Unknown device 
+0963 (rev 04)
+        Flags: bus master, medium devsel, latency 0
+00: 39 10 63 09 0f 00 00 02 04 00 01 06 00 00 80 00
+10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+And at the end we get:
+
+Summary of buses:
+
+00: Primary host bus
+        01.0 Bridge to 01-01
+01: Entered via 00:01.0
+
+-- 
+John Collins Xi Software Ltd www.xisl.com
+
+
+

@@ -1,48 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266889AbUAXHlY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jan 2004 02:41:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266885AbUAXHlX
+	id S266885AbUAXIDN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jan 2004 03:03:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266886AbUAXIDN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jan 2004 02:41:23 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:11703 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S266884AbUAXHlW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jan 2004 02:41:22 -0500
-Date: Fri, 23 Jan 2004 23:32:41 -0800 (PST)
-Message-Id: <20040123.233241.59493446.davem@redhat.com>
-To: grundler@parisc-linux.org
-Cc: jgarzik@redhat.com, linux-kernel@vger.kernel.org,
-       linux-net@vger.kernel.org
-Subject: Re: [PATCH] 2.6.1 tg3 DMA engine test failure
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20040124073032.GA7265@colo.lackof.org>
-References: <20040124013614.GB1310@colo.lackof.org>
-	<20040123.210023.74723544.davem@redhat.com>
-	<20040124073032.GA7265@colo.lackof.org>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Sat, 24 Jan 2004 03:03:13 -0500
+Received: from dsl081-085-091.lax1.dsl.speakeasy.net ([64.81.85.91]:32897 "EHLO
+	mrhankey.megahappy.net") by vger.kernel.org with ESMTP
+	id S266885AbUAXIDL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jan 2004 03:03:11 -0500
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH 2.6.2-rc1-mm2] drivers/net/tulip/tulip_core.c
+Cc: akpm@osdl.org, jgarzik@pobox.com, tulip-users@lists.sourceforge.net
+Message-Id: <20040124080217.ED53113A354@mrhankey.megahappy.net>
+Date: Sat, 24 Jan 2004 00:02:17 -0800 (PST)
+From: driver@megahappy.net (Bryan Whitehead)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Grant Grundler <grundler@parisc-linux.org>
-   Date: Sat, 24 Jan 2004 00:30:32 -0700
 
-   My gut feeling is if linux aligns or pads things nicely for any reason,
-   then the bye enables don't get used or clobber padding.
-   
-If the packet data length is an odd number of bytes, there is nothing
-we can do about this, and the newer tigon3 chips are going to use a
-cacheline burst for the end of the packet with the trailing byte
-enables turned off.  I've seen this myself and sparc64 PCI controllers
-generate a streaming byte hole error interrupt when it occurs and I
-get messages logged in dmesg :)
+This fixes a warning if CONFIG_NET_POLL_CONTROLLER is NOT set.
 
-   Maybe keep a shorter note about the bit changed meaning in later models
-   just to document the issues.
-   
-We can "document it" by having the setting of this bit be protected by
-chip version numbers.  I'd happily accept such a patch.
+--- drivers/net/tulip/tulip_core.c.orig 2004-01-23 23:53:17.484261904 -0800
++++ drivers/net/tulip/tulip_core.c      2004-01-23 23:53:53.675759960 -0800
+@@ -253,7 +253,9 @@
+ static struct net_device_stats *tulip_get_stats(struct net_device *dev);
+ static int private_ioctl(struct net_device *dev, struct ifreq *rq, int cmd);
+ static void set_rx_mode(struct net_device *dev);
++#ifdef CONFIG_NET_POLL_CONTROLLER
+ static void poll_tulip(struct net_device *dev);
++#endif
+  
+  
+ static void tulip_set_power_state (struct tulip_private *tp,
+
+--
+Bryan Whitehead
+driver@megahappy.net

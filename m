@@ -1,125 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278305AbRJSEpz>; Fri, 19 Oct 2001 00:45:55 -0400
+	id <S278307AbRJSEjQ>; Fri, 19 Oct 2001 00:39:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278306AbRJSEpp>; Fri, 19 Oct 2001 00:45:45 -0400
-Received: from swan.mail.pas.earthlink.net ([207.217.120.123]:28401 "EHLO
-	swan.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id <S278305AbRJSEpa>; Fri, 19 Oct 2001 00:45:30 -0400
-From: rwhron@earthlink.net
-Date: Fri, 19 Oct 2001 00:48:04 -0400
-To: linux-kernel@vger.kernel.org, ltp-list@lists.sourceforge.net
-Subject: VM tests on 2.4.13-pre5
-Message-ID: <20011019004804.A447@earthlink.net>
-Mime-Version: 1.0
+	id <S278306AbRJSEjG>; Fri, 19 Oct 2001 00:39:06 -0400
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:59553 "HELO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S278305AbRJSEi5>; Fri, 19 Oct 2001 00:38:57 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Toivo Pedaste <toivo@eleusis.ucs.uwa.edu.au>,
+        Rik van Riel <riel@conectiva.com.br>
+Date: Fri, 19 Oct 2001 14:39:19 +1000 (EST)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
+Message-ID: <15311.44663.227652.817688@notabene.cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: RFC - tree quotas for Linux (2.4.12, ext2)
+In-Reply-To: message from Toivo Pedaste on Friday October 19
+In-Reply-To: <0110191100090D.09386@eleusis.ucs.uwa.edu.au>
+X-Mailer: VM 6.72 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Friday October 19, toivo@eleusis.ucs.uwa.edu.au wrote:
+> 
+> 
+> >However I actually want to charge usage to users.
+> >There is a natural mapping from users to directory trees via the
+> >concept of the home-directory.  It is home directories that I want to
+> >impose quotas on.  So it seems natural to charge space usage to a
+> >users.
+> 
+> 
+> The use I can see for tree quotas whould be quite divorced from
+> accounts or users. Currently if you want limit the amount of
+> space the say /tmp, /home or /var/mail uses you need to put
+> it on a separate partition, but if you could put a quota 
+> on a tree you'd have a much more flexible systema adminstration
+> tool to control the disk space used by each particular function.
 
-Kernel: 2.4.13-pre5
+This relates to Rik's idea of having a treequota on "/home/students"
+which would apply to all students, not any one user.
 
-Tests:  mmap001 and mtest01 from Linux Test Project.  Listen to mp3blaster.
+One issue here is: how do you tell the quota-system what constitutes a
+   tree, for quota purposes.
 
-Summary: 
+NetworkAppliances have had treequotas on their filer for quite some
+time, and I believe that you have to create quota trees explicitly
+with "qtree create"
 
-mmap001 wall clock time higher than 2.4.13-ac3-vmpatch-freeswap and 2.4.13-pre3aa1.  
+I would rather not have to add such a new command if I can avoid it.
 
-mtest01 terminated with signals 2 and 3, CPU utilization ~ 100% on first run.
-Second try had much longer wall clock times than other kernels.
+For the above senarios,  I would simply create an accout called "tmp"
+or "home" or "mail" (you might have that one already) or "student",
+assign a quota to that account, and chown the directory appropriately.
+Afterall, there is no real reason why /tmp should be owned by "root".
+Any "system" account should be fine.
 
-mp3blaster not too pleasant.
+Can anyone else see a good way to flag an inode as "root-of-a-qtree"
+that does not require a new command and does not relate to uids?
 
-
-Average for 5 mmap001 runs
-bytes allocated:                    2048000000
-User time (seconds):                19.558
-System time (seconds):              19.800
-Elapsed (wall clock seconds) time:  262.80
-Percent of CPU this job got:        14.60
-Major (requiring I/O) page faults:  500213.0
-Minor (reclaiming a frame) faults:  40.6
-
-
-Comparison for mmap001 test:
-
-2.4.12-ac3-vmpatch-freeswap	Elapsed (wall clock seconds) time:  152.87
-2.4.13-pre3aa1			Elapsed (wall clock seconds) time:  204.09
-2.4.13-pre3aa1 page-cluster=2	Elapsed (wall clock seconds) time:  213.90
-2.4.13-pre3aa1 page-cluster=4	Elapsed (wall clock seconds) time:  209.41
-2.4.13-pre3aa1 page-cluster=6	Elapsed (wall clock seconds) time:  206.08
-2.4.13-pre5			Elapsed (wall clock seconds) time:  262.80
-
-
-mtest01
-
-The first time I ran this test, it went much longer than expected.
-Five tests terminated with signal 2, and five terminated with signal 3.
-That was odd because I run the same script with the same basically the
-same processes running each time.
-
-I re-ran the test a second time (only 3 iterations).  
-
-Averages for 3 mtest01 runs
-bytes allocated:                    1249902592
-User time (seconds):                2.143
-System time (seconds):              4.600
-Elapsed (wall clock) time:          153.333
-Percent of CPU this job got:        4.00
-Major (requiring I/O) page faults:  164.3
-Minor (reclaiming a frame) faults:  305953.3
-
-Comparison for mtest01:
-
-2.4.12-ac3 page-cluster=2	Elapsed (wall clock) time:          36.066
-2.4.12-ac3 page-cluster=4	Elapsed (wall clock) time:          34.777
-2.4.13-pre3aa1 page-cluster=2	Elapsed (wall clock) time:          47.878
-
-Only 2.4.13-pre3aa1 page-cluster=2 sounds good in mp3blaster throughout the test.
+NeilBrown
 
 
-
-mmap001test scripty
-
-#!/bin/bash
-
-# script to exercise mmap.  
-#
-# Uses "mmap001" test from Linux Test Project
-#
-# see: http://ltp.sourceforge.net/
-#
-
-PATH="$PATH:/usr/src/sources/l/cvs/ltp/testcases/bin"
-# mmap, touch, msync, and munmap pages
-
-test=mmap001
-pages=500000
-args="-m $pages"
-
-test_log=${test}-`uname -r`.log
-vmstat_log=vmstat-${test}-`uname -r`.log
-
-# iterations
-typeset -i i=5
-
-# watch memory usage every second
-vmstat 1 > $vmstat_log &
-
-echo running $i iterations of $test $args
-echo "output is going to $test_log and $vmstat_log"
-
-# need full featured bash for (( arith )).
-while	((i > 0))
-do	/usr/bin/time -v $test $args
-	((i--))
-done > $test_log  2>&1
-
-# kill vmstat 
-kill $!
-
--- 
-Randy Hron
-
+> 
+> I quite like the idea of the quota being related to an inode.
+> -- 
+>  Toivo Pedaste                        Email:  toivo@ucs.uwa.edu.au
+>  University Communications Services,  Phone:  +61 8 9 380 2605
+>  University of Western Australia      Fax:    +61 8 9 380 1109
+> "The time has come", the Walrus said, "to talk of many things"...
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

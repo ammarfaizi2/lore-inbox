@@ -1,39 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316051AbSHBPzW>; Fri, 2 Aug 2002 11:55:22 -0400
+	id <S316580AbSHBP7Q>; Fri, 2 Aug 2002 11:59:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316135AbSHBPzW>; Fri, 2 Aug 2002 11:55:22 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:17170 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S316051AbSHBPyh>; Fri, 2 Aug 2002 11:54:37 -0400
-Date: Fri, 2 Aug 2002 08:59:35 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Dave Jones <davej@suse.de>
-cc: davidm@hpl.hp.com, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       <linux-kernel@vger.kernel.org>, <davidm@napali.hpl.hp.com>
-Subject: Re: adjust prefetch in free_one_pgd()
-In-Reply-To: <20020802175608.O25761@suse.de>
-Message-ID: <Pine.LNX.4.44.0208020859060.18265-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316538AbSHBP65>; Fri, 2 Aug 2002 11:58:57 -0400
+Received: from hq.fsmlabs.com ([209.155.42.197]:18324 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S316512AbSHBP62>;
+	Fri, 2 Aug 2002 11:58:28 -0400
+Date: Fri, 2 Aug 2002 09:59:37 -0600
+From: yodaiken@fsmlabs.com
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: David Woodhouse <dwmw2@infradead.org>,
+       Roman Zippel <zippel@linux-m68k.org>,
+       David Howells <dhowells@redhat.com>, alan@redhat.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: manipulating sigmask from filesystems and drivers
+Message-ID: <20020802095937.B2300@hq.fsmlabs.com>
+References: <11294.1028240971@redhat.com> <Pine.LNX.4.33.0208011538220.1277-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.33.0208011538220.1277-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Thu, Aug 01, 2002 at 03:40:56PM -0700
+Organization: FSM Labs
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Aug 01, 2002 at 03:40:56PM -0700, Linus Torvalds wrote:
+> 
+> On Thu, 1 Aug 2002, David Woodhouse wrote:
+> > 
+> > torvalds@transmeta.com said:
+> > >  Any regular file IO is supposed to give you the full result. 
+> > 
+> > read(2) is permitted to return -EINTR.
+> 
+> It is _not_ allowed to do that for regular UNIX filesystems.
+> 
+
+SusV2 and POSIX seem to have changed the prior standard
+
+     The value  returned  may be less than nbyte if the number of bytes
+     left  in  the  file  is  less than nbyte, if the read() request was
+     interrupted  by  a  signal,  or  if  the  file is a pipe or FIFO or
+     special  file  and has fewer than nbyte bytes immediately available
+     for  reading.
 
 
-On Fri, 2 Aug 2002, Dave Jones wrote:
-> On Fri, Aug 02, 2002 at 08:46:38AM -0700, Linus Torvalds wrote:
->
->  > Personally, I would just say that we should disable prefetch on such
->  > clearly broken hardware, but since it's Alans favourite machine (some
->  > early AMD Athlon if I remember correctly), I think Alan will disagree ;)
->
-> I think I now understand why you silently dropped the 'disable broken hw
-> prefetch on early stepping P4' patch I sent you. 8-)
+The rationale mentions that
+	while( read(...) > 0) 
+must work
+but, I think Linus is correct that many programs rely on
+	while( read(fd,&b,n) == n)
 
-No, I don't think either I (nor Alan) has any early stepping P4's.
+------------------susv2
 
-Me dropping patches is just normal ;)
+     If a read() is interrupted by a signal before it reads any data, it
+     will return -1 with errno set to [EINTR].
 
-		Linus
+     If  a  read()  is interrupted by a signal after it has successfully
+     read some data, it will return the number of bytes read.
+----------------------
+
+
+
+The grim effects of "cancel" spread through the system.
+
+
+-------------------------------------
+The transitive closure of a design error is limited only by the size of
+the program.
 

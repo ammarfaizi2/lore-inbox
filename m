@@ -1,37 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268191AbTB1WAm>; Fri, 28 Feb 2003 17:00:42 -0500
+	id <S268165AbTB1WN1>; Fri, 28 Feb 2003 17:13:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268209AbTB1WAm>; Fri, 28 Feb 2003 17:00:42 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:37391 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S268191AbTB1WAm>; Fri, 28 Feb 2003 17:00:42 -0500
-Date: Fri, 28 Feb 2003 22:11:01 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: dsaxena@mvista.com, linux-kernel@vger.kernel.org
-Subject: Re: Proposal: Eliminate GFP_DMA
-Message-ID: <20030228221101.B18571@flint.arm.linux.org.uk>
-Mail-Followup-To: Pete Zaitcev <zaitcev@redhat.com>, dsaxena@mvista.com,
-	linux-kernel@vger.kernel.org
-References: <1046445897.16599.60.camel@irongate.swansea.linux.org.uk> <Pine.SGI.4.10.10302282138180.244855-100000@Sky.inp.nsk.su> <20030228155841.GA4678@gtf.org> <mailman.1046456425.7772.linux-kernel2news@redhat.com> <200302282051.h1SKpNm32220@devserv.devel.redhat.com>
-Mime-Version: 1.0
+	id <S268174AbTB1WN1>; Fri, 28 Feb 2003 17:13:27 -0500
+Received: from vsmtp3.tin.it ([212.216.176.223]:21496 "EHLO smtp3.cp.tin.it")
+	by vger.kernel.org with ESMTP id <S268165AbTB1WN0>;
+	Fri, 28 Feb 2003 17:13:26 -0500
+Message-ID: <3E5FE165.C8BABD4@libero.it>
+Date: Fri, 28 Feb 2003 23:23:33 +0100
+From: Abramo Bagnara <abramo.bagnara@libero.it>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.20 i686)
+X-Accept-Language: en, it
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org
+Subject: Re: [Bug 420] New: Divide by zero 
+ (/proc/sys/net/ipv4/neigh/DEV/base_reachable_time)
+References: <27440000.1046453828@[10.10.2.4].suse.lists.linux.kernel> <p733cm86yv0.fsf@amdsimf.suse.de>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200302282051.h1SKpNm32220@devserv.devel.redhat.com>; from zaitcev@redhat.com on Fri, Feb 28, 2003 at 03:51:23PM -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 28, 2003 at 03:51:23PM -0500, Pete Zaitcev wrote:
-> Pay it no mind and
-> implement it properly, that means copy it from sparc64.
+Andi Kleen wrote:
+> 
+> "Martin J. Bligh" <mbligh@aracnet.com> writes:
+> >
+> >     echo 0 > /proc/sys/net/ipv4/neigh/DEV/base_reachable_time
+> >
+> >   But neigh_rand_reach_time() divide by its argument.
+> >
+> >     unsigned long neigh_rand_reach_time(unsigned long base)
+> >     {
+> >       return (net_random() % base) + (base>>1);
+> >     }
+> 
+> Don't do that then. The sysctl is root-only. There are lots of ways to
+> break the system by writing bogus values into root only configuration
+> options. That is why they are root only
+> 
+> I would close the report as WONTFIX.
 
-and fix the documentation so the next unsuspecting individual doesn't
-fall into the same trap and ask the same question on the same mailing
-list. 8)
+Don't this argument bring to the weird equality:
+
+root user == infallible guy
+
+IMHO the "if you make a typo you crash the machine" should be avoided
+(at least when feasible without drawbacks).
 
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Abramo Bagnara                       mailto:abramo.bagnara@libero.it
 
+Opera Unica                          Phone: +39.546.656023
+Via Emilia Interna, 140
+48014 Castel Bolognese (RA) - Italy

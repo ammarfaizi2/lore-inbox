@@ -1,53 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261513AbULBATy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261523AbULBA2l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261513AbULBATy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Dec 2004 19:19:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261521AbULBATo
+	id S261523AbULBA2l (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Dec 2004 19:28:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261521AbULBA2T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Dec 2004 19:19:44 -0500
-Received: from atlrel7.hp.com ([156.153.255.213]:29371 "EHLO atlrel7.hp.com")
-	by vger.kernel.org with ESMTP id S261513AbULBASv (ORCPT
+	Wed, 1 Dec 2004 19:28:19 -0500
+Received: from cantor.suse.de ([195.135.220.2]:21148 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261525AbULBA0V (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Dec 2004 19:18:51 -0500
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: Adrian Bunk <bunk@stusta.de>
-Subject: Re: 2.6.10-rc2-mm4
-Date: Wed, 1 Dec 2004 17:18:42 -0700
-User-Agent: KMail/1.7.1
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org, Len Brown <len.brown@intel.com>
-References: <20041130095045.090de5ea.akpm@osdl.org> <20041201211036.GQ2650@stusta.de>
-In-Reply-To: <20041201211036.GQ2650@stusta.de>
+	Wed, 1 Dec 2004 19:26:21 -0500
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Jakub Jelinek <jakub@redhat.com>, Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: var args in kernel?
+References: <Pine.LNX.3.96.1041201174645.26528F-100000@gatekeeper.tmr.com>
+From: Andreas Schwab <schwab@suse.de>
+X-Yow: Clear the laundromat!!  This whirl-o-matic just had a nuclear
+ meltdown!!
+Date: Thu, 02 Dec 2004 01:26:18 +0100
+In-Reply-To: <Pine.LNX.3.96.1041201174645.26528F-100000@gatekeeper.tmr.com> (Bill
+ Davidsen's message of "Wed, 1 Dec 2004 17:49:29 -0500 (EST)")
+Message-ID: <je1xe98s0l.fsf@sykes.suse.de>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3.50 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200412011718.42740.bjorn.helgaas@hp.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 01 December 2004 2:10 pm, Adrian Bunk wrote:
-> > add-acpi-based-floppy-controller-enumeration.patch
-> >   Add ACPI-based floppy controller enumeration.
-> 
-> As far as I understood the discussion, this patch should be dropped.
+Bill Davidsen <davidsen@tmr.com> writes:
 
-As I understand it, Len & Linus have figured out how to fiddle
-with ELCR[1] in such a way that when ACPI disables a PCI link
-device that happens to be on IRQ6, the ELCR polarity doesn't
-get screwed up.  So the floppy driver can still blindly probe
-for its device without getting an interrupt storm.
+> Why did you think I said array?
 
-But the BIOS is still telling the OS that there's no floppy
-controller, and Linux still isn't listening.  In the case of
-floppy, maybe that's OK, because all arches that support floppy
-seem to make it safe to do blind probing.
+We are talking about assignment of va_list here, which is an array on some
+architectures. 
 
-But in the case of i8042, IDE, and IPMI, I think we definitely
-*should* do either ACPI or PNP-ACPI enumeration.  These devices
-are all optional on ia64, and at least on HP hardware, the only
-reason we configure the box to allow blind probing is so these
-deaf drivers continue to work.
+Andreas.
 
-[1] http://linux.bkbits.net:8080/linux-2.5/cset%4041a2c479tEbbKs1AxXHrR-LgHzPXzA
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

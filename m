@@ -1,78 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285415AbRLGFkf>; Fri, 7 Dec 2001 00:40:35 -0500
+	id <S285416AbRLGFmQ>; Fri, 7 Dec 2001 00:42:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285416AbRLGFk0>; Fri, 7 Dec 2001 00:40:26 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:29078 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S285415AbRLGFkR>; Fri, 7 Dec 2001 00:40:17 -0500
-Date: Thu, 6 Dec 2001 22:45:04 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: David Lang <david.lang@digitalinsight.com>
-Cc: Davide Libenzi <davidel@xmailserver.org>,
-        "David S. Miller" <davem@redhat.com>, lm@bitmover.com,
-        rusty@rustcorp.com.au, "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-        Rik vav Riel <riel@conectiva.com.br>, lars.spam@nocrew.org,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, hps@intermeta.de,
-        lkml <linux-kernel@vger.kernel.org>, jmerkey@timpanogas.org
-Subject: Re: SMP/cc Cluster description
-Message-ID: <20011206224504.A26478@vger.timpanogas.org>
-In-Reply-To: <20011206195650.A25735@vger.timpanogas.org> <Pine.LNX.4.40.0112062021260.3900-100000@dlang.diginsite.com>
+	id <S285417AbRLGFmG>; Fri, 7 Dec 2001 00:42:06 -0500
+Received: from adsl-63-203-198-52.dsl.snfc21.pacbell.net ([63.203.198.52]:901
+	"EHLO lame.durables.org") by vger.kernel.org with ESMTP
+	id <S285416AbRLGFlV>; Fri, 7 Dec 2001 00:41:21 -0500
+Subject: [PATCH] Sony DSC-F707 support in usb-storage
+From: Robert Walsh <rjwalsh@durables.org>
+To: mdharm-usb@one-eyed-alien.net
+Cc: lkml <linux-kernel@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-yqSp72ucjUMBaka/lPuK"
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 06 Dec 2001 21:41:19 -0800
+Message-Id: <1007703679.3008.0.camel@spoon>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.40.0112062021260.3900-100000@dlang.diginsite.com>; from david.lang@digitalinsight.com on Thu, Dec 06, 2001 at 08:23:36PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 06, 2001 at 08:23:36PM -0800, David Lang wrote:
-> On Thu, 6 Dec 2001, Jeff V. Merkey wrote:
-> 
-> > On Thu, Dec 06, 2001 at 03:16:13PM -0800, David Lang wrote:
-> > > also some applications (i.e. databases) are such that nobody has really
-> > > been able to rewrite them into the shared nothing model (although oracle
-> > > has attempted it, from what I hear it has problems)
-> > >
-> > > David Lang
-> >
-> > OPS (Oracle Parallel Server) is shared nothing.
-> >
-> 
-> correct, and from what I have been hearing from my local database folks
-> it's significantly less efficiant then a large SMP machine (up intil you
-> hit the point where you just can't buy a machine big enough :-)
-> 
-> I'm interested in hearing more if you have had better experiances with it.
-> 
-> David Lang
 
-I worked with the OPS code years back.  It came from DEC originally 
-and is a very old technology.  It grew out of disk pinging, where 
-the messages would be pinged across a shared disk.  Some cool features,
-but I never saw it scale well beyond 16 nodes.  SQL queries are a lot 
-like HTML requests, so similair approaches work well with them.  The code
-was not so good, or readable.
+--=-yqSp72ucjUMBaka/lPuK
+Content-Type: multipart/mixed; boundary="=-zt42cI/pN3s9t9Gpk7iF"
 
-Databases are "structured data" applications and present unique problems,
-but most data stored on planet earth is "unstructured data", word files, 
-emails, spreadsheets, etc.  The problem of scaling involves different 
-approaches for these two categories, and the unstructured data problem 
-is easily solvable and scalable.  
 
-I ported Oracle to NetWare SMP in 1995 with Van Okamura (a very fun 
-project), and SMP scaling was much better.  In those days, shared 
-SCSI was what was around.  Writing an SOSD layer for Oracle 
-was a lot of fun.  Working on OPS was also fun, but the code 
-was not in such good shape.  Their method of dealing with 
-deadlocks was not to.  Their approach assumed deadlocks were 
-infrequent events (which they were) and they used a mathod that would 
-detect them after the fact rather than before and deal with them 
-then.  
+--=-zt42cI/pN3s9t9Gpk7iF
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-I saw some impressive numbers for TPC-C come out of OPS 4 way clusters,
-but more nodes than this (except the N-cube implementation) seemed to 
-not do so well.
+Hi Matthew,
 
-Jeff 
+This small patch against the 2.4.16 kernel allows the USB storage driver
+to recognize the Sony DSC-F707 camera.
+
+Regards,
+ Robert.
+
+--=20
+Robert Walsh
+Amalgamated Durables, Inc.  -  "We bring dead things to life"
+Email: rjwalsh@durables.org
+
+--=-zt42cI/pN3s9t9Gpk7iF
+Content-Description: 
+Content-Disposition: attachment; filename=f707patch
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+--- linux/drivers/usb/storage/unusual_devs.h	Thu Dec  6 17:35:08 2001
++++ linux-rj/drivers/usb/storage/unusual_devs.h	Thu Dec  6 17:35:20 2001
+@@ -162,9 +162,9 @@
+ 		US_FL_SCM_MULT_TARG ),
+=20
+ /* This entry is needed because the device reports Sub=3Dff */
+-UNUSUAL_DEV(  0x054c, 0x0010, 0x0106, 0x0322,=20
++UNUSUAL_DEV(  0x054c, 0x0010, 0x0106, 0x0401,=20
+ 		"Sony",
+-		"DSC-S30/S70/S75/505V/F505",=20
++		"DSC-S30/S70/S75/505V/F505/F707",=20
+ 		US_SC_SCSI, US_PR_CB, NULL,
+ 		US_FL_SINGLE_LUN | US_FL_START_STOP | US_FL_MODE_XLATE ),
+=20
+
+--=-zt42cI/pN3s9t9Gpk7iF--
+
+--=-yqSp72ucjUMBaka/lPuK
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQA8EFZ/bZtqSALM5CYRAvw1AJ9KCSeWYfSxm5pDImaT8VgHM8I0PwCdF5tA
+s4ieSVIRonFBq7UK/TAAGJA=
+=7ud9
+-----END PGP SIGNATURE-----
+
+--=-yqSp72ucjUMBaka/lPuK--
 

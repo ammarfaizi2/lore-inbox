@@ -1,68 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264715AbUD1J7F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264718AbUD1KJb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264715AbUD1J7F (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 05:59:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264718AbUD1J7E
+	id S264718AbUD1KJb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 06:09:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264719AbUD1KJb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 05:59:04 -0400
-Received: from moutng.kundenserver.de ([212.227.126.184]:34780 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S264715AbUD1J7A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 05:59:00 -0400
-Date: Wed, 28 Apr 2004 11:58:49 +0200
-From: Armin Schindler <armin@melware.de>
-Message-Id: <200404280958.i3S9wnxP023626@phoenix.one.melware.de>
-To: torvalds@osdl.org, akpm@osdl.org
-Subject: [PATCH] 2.6 ISDN CAPI: fix ncci list semaphore
-Cc: i4ldeveloper@listserv.isdn4linux.de, linux-kernel@vger.kernel.org
-X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:4f0aeee4703bc17a8237042c4702a75a
+	Wed, 28 Apr 2004 06:09:31 -0400
+Received: from mail.fh-wedel.de ([213.39.232.194]:41398 "EHLO mail.fh-wedel.de")
+	by vger.kernel.org with ESMTP id S264718AbUD1KJ3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Apr 2004 06:09:29 -0400
+Date: Wed, 28 Apr 2004 12:09:16 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: David Lang <dlang@digitalinsight.com>
+Cc: Timothy Miller <miller@techsource.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: File system compression, not at the block layer
+Message-ID: <20040428100916.GA29219@wohnheim.fh-wedel.de>
+References: <408951CE.3080908@techsource.com> <Pine.LNX.4.58.0404271753380.20613@dlang.diginsite.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.58.0404271753380.20613@dlang.diginsite.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew, Hi Linus,
+On Tue, 27 April 2004 18:00:11 -0700, David Lang wrote:
+> 
+> to answer the fundamental question that was asked in this thread but not
+> answered.
+> 
+> the reason why we want to compress at the block level instead of over the
+> entire file is that sometimes we want to do random seeks into the middle
+> of the file or replace a chunk in the middle of a file (edits, inserts,
+> etc). by doing the compression in a block the worst that you have to do is
+> to read that one block, decompress it and get your data out (or modify the
+> block, compress it and put it back on disk). if your unit of compression
+> is the entire file each of these options will require manipulating basicly
+> the entire file (Ok, reads you can possibly stop after you found your
+> data)
 
-this patch fixes the new ncci-list semaphore when 
-CONFIG_ISDN_CAPI_MIDDLEWARE is disabled.
+*IF* your unit of compression...
 
-Please apply.
+If that is the complete block device, you're stupid and deserve what
+you get.  If it is the file, same thing.  No difference.
 
-Thanks,
-Armin
+Do it at the file system level or don't do it at all.
 
+Jörn
 
-Name: ISDN CAPI: fix ncci list semaphore 
-Author: Armin Schindler
-
-D: Fix new ISDN CAPI's internal ncci list
-   semaphore if CONFIG_ISDN_CAPI_MIDDLEWARE is disabled.
-   Thanks to Florian Schirmer.
-
-
-
---- linux/drivers/isdn/capi/capi.c.orig	Wed Apr 28 11:49:49 2004
-+++ linux/drivers/isdn/capi/capi.c	Wed Apr 28 11:50:12 2004
-@@ -1,4 +1,4 @@
--/* $Id: capi.c,v 1.1.2.6 2004/04/26 09:33:07 armin Exp $
-+/* $Id: capi.c,v 1.1.2.7 2004/04/28 09:48:59 armin Exp $
-  *
-  * CAPI 2.0 Interface for Linux
-  *
-@@ -45,7 +45,7 @@
- #include "capifs.h"
- #endif
- 
--static char *revision = "$Revision: 1.1.2.6 $";
-+static char *revision = "$Revision: 1.1.2.7 $";
- 
- MODULE_DESCRIPTION("CAPI4Linux: Userspace /dev/capi20 interface");
- MODULE_AUTHOR("Carsten Paeth");
-@@ -927,8 +927,8 @@
- 			if ((mp = nccip->minorp) != 0) {
- 				count += atomic_read(&mp->ttyopencount);
- 			}
--			up(&cdev->ncci_list_sem);
- #endif /* CONFIG_ISDN_CAPI_MIDDLEWARE */
-+			up(&cdev->ncci_list_sem);
- 			return count;
- 		}
- 		return 0;
+-- 
+Don't worry about people stealing your ideas. If your ideas are any good,
+you'll have to ram them down people's throats.
+-- Howard Aiken quoted by Ken Iverson quoted by Jim Horning quoted by
+   Raph Levien, 1979

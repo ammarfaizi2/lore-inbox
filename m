@@ -1,40 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287949AbSABUle>; Wed, 2 Jan 2002 15:41:34 -0500
+	id <S286996AbSABUlg>; Wed, 2 Jan 2002 15:41:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287967AbSABUlY>; Wed, 2 Jan 2002 15:41:24 -0500
-Received: from svr3.applink.net ([206.50.88.3]:23559 "EHLO svr3.applink.net")
-	by vger.kernel.org with ESMTP id <S287952AbSABUjm>;
-	Wed, 2 Jan 2002 15:39:42 -0500
-Message-Id: <200201022039.g02KdPSr022018@svr3.applink.net>
-Content-Type: text/plain; charset=US-ASCII
-From: Timothy Covell <timothy.covell@ashavan.org>
-Reply-To: timothy.covell@ashavan.org
-To: Kilobug <kilobug@freesurf.fr>, timothy.covell@ashavan.org
-Subject: Re: system.map
-Date: Wed, 2 Jan 2002 14:35:43 -0600
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020102191157.49760.qmail@web21204.mail.yahoo.com> <200201022006.g02K6vSr021827@svr3.applink.net> <3C336B65.2020905@freesurf.fr>
-In-Reply-To: <3C336B65.2020905@freesurf.fr>
+	id <S287955AbSABUl0>; Wed, 2 Jan 2002 15:41:26 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:30221 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S287953AbSABUju>; Wed, 2 Jan 2002 15:39:50 -0500
+Subject: Re: Linux 2.4.17 vs 2.2.19 vs rml new VM
+To: jjs@lexus.com (J Sloan)
+Date: Wed, 2 Jan 2002 20:50:02 +0000 (GMT)
+Cc: brian@worldcontrol.com, linux-kernel@vger.kernel.org
+In-Reply-To: <3C335A77.806@lexus.com> from "J Sloan" at Jan 02, 2002 11:07:35 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16LsKp-0005Ox-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 02 January 2002 14:19, Kilobug wrote:
-> > 5. sync;sync;shutdown -r now
->
-> Is there any particular reason for this double sync ? One isn't enough ?
-> (And is sync even needed with shutdown, all should be synced when
-> filesystems are unmounted or remounted read-only, am I wrong ? )
+> I find the low latency patch makes a noticeable
+> difference in e.g. q3a and rtcw - OTOH I have
+> not been able to discern any tangible difference
+> from the stock kernel when using -preempt.
 
-The double sync is tradition.  SysV init scripts should sync things,
-but "sync;sync;reboot" or "sync;sync;halt" are not so nice in how
-they go down; so it's a case of being extra careful.  I don't use
-linux all the time, and some of the other unices are less tolerant.
-(For example, on a sun box, I would prefer a double sync before I
-"<stop>-a".)
+The measurements I've seen put lowlatency ahead of pre-empt in quality
+of results. Since low latency fixes some of the locked latencies it might
+be interesting for someone with time to benchmark
 
--- 
-timothy.covell@ashavan.org.
+	vanilla
+	low latency
+	pre-empt
+	both together

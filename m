@@ -1,72 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129027AbRBGWN2>; Wed, 7 Feb 2001 17:13:28 -0500
+	id <S129053AbRBGWOI>; Wed, 7 Feb 2001 17:14:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129053AbRBGWNS>; Wed, 7 Feb 2001 17:13:18 -0500
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:22534 "HELO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S129027AbRBGWNP>; Wed, 7 Feb 2001 17:13:15 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Jean-Eric Cuendet <Jean-Eric.Cuendet@linkvest.com>
-Date: Thu, 8 Feb 2001 09:12:45 +1100 (EST)
+	id <S129997AbRBGWN7>; Wed, 7 Feb 2001 17:13:59 -0500
+Received: from roc-24-95-203-215.rochester.rr.com ([24.95.203.215]:48398 "EHLO
+	d185fcbd7.rochester.rr.com") by vger.kernel.org with ESMTP
+	id <S129053AbRBGWNl>; Wed, 7 Feb 2001 17:13:41 -0500
+Date: Wed, 07 Feb 2001 17:13:06 -0500
+From: Chris Mason <mason@suse.com>
+To: Xuan Baldauf <xuan--reiserfs@baldauf.org>
+cc: Chris Wedgwood <cw@f00f.org>, David Rees <dbr@spoke.nols.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "reiserfs-list@namesys.com" <reiserfs-list@namesys.com>
+Subject: Re: [reiserfs-list] Re: Apparent instability of reiserfs on 2.4.1
+Message-ID: <713040000.981583986@tiny>
+In-Reply-To: <3A81C6BF.D892CFE6@baldauf.org>
+X-Mailer: Mulberry/2.0.6b4 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <14977.51293.147436.164522@notabene.cse.unsw.edu.au>
-Cc: "'acl-devel@bestbits.at'" <acl-devel@bestbits.at>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: Lock in with 2.4.1 and NFS
-In-Reply-To: message from Jean-Eric Cuendet on Wednesday February 7
-In-Reply-To: <B45465FD9C23D21193E90000F8D0F3DF68391C@mailsrv.linkvest.ch>
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday February 7, Jean-Eric.Cuendet@linkvest.com wrote:
-> 
-> Hi,
-> I have a strange problem on one of our server.
-> I have 2.4.1 patched with ACLs 0.7.5 (from acl.bestbits.at) and some RAID +
-> LVM volumes.
-> At regular interval, NFS stops working (nfsd stops) and a stop/start of the
-> NFS service doesn't work. 
-> The NFS service stop blocks in "exportfs -auv" when trying to unmount a
-> client working apparently well. One time
-> it was a solaris 2.6 client, another time it was a linux 2.4 machine.
-> Any help appreciated.
-> Thanks
-> -jec
-> 
-> PS: I'm not in the kernel list. Please CC
-> 
-
-This scenario sounds a lot like one of the nfsd threads has oopsed
-while holding a readlock on the export table, and so exportfs cannot
-get a write lock.
-
-Could you check your kernel logs for an Oops message?
-
-NeilBrown
 
 
+On Wednesday, February 07, 2001 11:05:51 PM +0100 Xuan Baldauf
+<xuan--reiserfs@baldauf.org> wrote:
+
+> Mhhh. It's a busy server from which I am about 700km away. I don't like to
+> restart it now. (Especially because it cannot boot from hard disk, only
+> from floppy disk, due to bios problems). But I'd be happy if following is
+> true:
 > 
-> _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
-> Jean-Eric Cuendet
-> Linkvest SA
-> Av des Baumettes 19, 1020 Renens Switzerland
-> Tel +41 21 632 9043  Fax +41 21 632 9090
-> http://www.linkvest.com  E-mail: jean-eric.cuendet@linkvest.com
-> _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+> (1) Enabling "-o notails" is possible at runtime, i.e. "mount / -o
+> remount,notails" works and
+
+Nope.
+
+> (2) Notails is compatible with all the tails found on disk (so notails
+> only changes the way the disk is written, not the way the disk is read).
 > 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
+
+This part is true.
+
+Honestly, I don't want to do this kind of debugging on a busy server.
+Sure, it is completely safe, etc, etc, but ...
+
+We'll get the info elsewhere, leave the busy servers out of it ;-)
+
+-chris
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

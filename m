@@ -1,46 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262454AbSI2MIR>; Sun, 29 Sep 2002 08:08:17 -0400
+	id <S262453AbSI2MHD>; Sun, 29 Sep 2002 08:07:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262455AbSI2MIR>; Sun, 29 Sep 2002 08:08:17 -0400
-Received: from dbl.q-ag.de ([80.146.160.66]:3487 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id <S262454AbSI2MIR>;
-	Sun, 29 Sep 2002 08:08:17 -0400
-Message-ID: <3D96EE6B.9040605@colorfullife.com>
-Date: Sun, 29 Sep 2002 14:13:31 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/4.0 (compatible; MSIE 5.5; Windows NT 4.0)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: Ed Tomlinson <tomlins@cam.org>
-CC: Andrew Morton <akpm@digeo.com>,
-       John Levon <movement@marcelothewonderpenguin.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.5.39 kmem_cache bug
-References: <20020928201308.GA59189@compsoc.man.ac.uk> <3D961797.B4094994@digeo.com> <200209290745.20484.tomlins@cam.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S262454AbSI2MHD>; Sun, 29 Sep 2002 08:07:03 -0400
+Received: from bg77.anu.edu.au ([150.203.223.77]:62356 "EHLO lassus.himi.org")
+	by vger.kernel.org with ESMTP id <S262453AbSI2MHB>;
+	Sun, 29 Sep 2002 08:07:01 -0400
+Date: Sun, 29 Sep 2002 22:12:22 +1000
+To: linux-kernel@vger.kernel.org
+Subject: Re: System very unstable
+Message-ID: <20020929121222.GB15961@himi.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <200209281155.32668.felix.seeger@gmx.de> <20020928.025900.58828001.davem@redhat.com> <200209281233.21897.felix.seeger@gmx.de> <20020928.033510.40857147.davem@redhat.com> <3D958EF5.7080300@metaparadigm.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="mxv5cy4qt+RJ9ypb"
+Content-Disposition: inline
+In-Reply-To: <3D958EF5.7080300@metaparadigm.com>
+User-Agent: Mutt/1.3.28i
+From: simon@himi.org (Simon Fowler)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ed Tomlinson wrote:
-> 
-> Yes we can do this.  I would rather fix kmem_cache_destroy though.  Think that, if 
-> we play our cards right, we can get rid of the cachep->slabs_free list with out too
-> much pain.
-> 
-Please - lets check first if the free list is actually a problem, before 
-deciding to kill it.
 
-If you remove the free list, it becomes impossible to find the freeable 
-slab, if another (partial) slab is added to the partial list afterwards.
+--mxv5cy4qt+RJ9ypb
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-And I'm definitively against locking up one slab in each cache - it 
-coudl be a order=5 allocation. It would be possible to hack around that 
-(if alloc is high-order, then partial slabs do not exist), but that's 
-too ugly to think about.
+On Sat, Sep 28, 2002 at 07:13:57PM +0800, Michael Clark wrote:
+> On 09/28/02 18:35, David S. Miller wrote:
+> >   From: Felix Seeger <felix.seeger@gmx.de>
+> >   Date: Sat, 28 Sep 2002 12:33:21 +0200
+> >  =20
+> >   What card is good (performance for games and=20
+> >   a acceptable licenze for kernel developers)?
+> >
+> >ATI Radeon is pretty fast and all except the very latest chips have
+> >opensource drivers.
+>=20
+> Radeon 7500 is currently the fastest board with an opensource
+> driver that supports 3D. 8500 XFree support is currently 2D only,
+> although apparently work on the opensource GL driver is underway.
+>=20
+> You can get 3D support for the 8500 if you get a commercial
+> binary only X server ( http://www.xig.com/ ) - although I
+> guess this is almost as bad as having a binary kernel module
+> due to the type of hardware access the X server needs to do.
+>=20
+There's also 3D support for the r200 chip (that drives the 8500) in
+the DRI cvs tree (see http://dri.sf.net): I haven't tried it, since
+I don't have an 8500, but it's there, and under active development,
+and seem to work fairly well.
 
---
-	Manfred
+Simon
 
+--=20
+PGP public key Id 0x144A991C, or http://himi.org/stuff/himi.asc
+(crappy) Homepage: http://himi.org
+doe #237 (see http://www.lemuria.org/DeCSS)=20
+My DeCSS mirror: ftp://himi.org/pub/mirrors/css/=20
 
+--mxv5cy4qt+RJ9ypb
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE9lu4lQPlfmRRKmRwRAjbkAKCSpKLg2fjOwRb5NMpa3E8OrLdwlwCfaZHw
+0KmKDoaIc4GrWYv5BUY0jYA=
+=Pu4c
+-----END PGP SIGNATURE-----
+
+--mxv5cy4qt+RJ9ypb--

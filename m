@@ -1,63 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S132718AbQK3KQv>; Thu, 30 Nov 2000 05:16:51 -0500
+        id <S132764AbQK3KSb>; Thu, 30 Nov 2000 05:18:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S132764AbQK3KQm>; Thu, 30 Nov 2000 05:16:42 -0500
-Received: from chiara.elte.hu ([157.181.150.200]:34567 "HELO chiara.elte.hu")
-        by vger.kernel.org with SMTP id <S132718AbQK3KQY>;
-        Thu, 30 Nov 2000 05:16:24 -0500
-Date: Thu, 30 Nov 2000 10:45:53 +0100
-From: KELEMEN Peter <fuji@elte.hu>
-To: linux-kernel@vger.kernel.org
-Subject: Re: File corruption part deux
-Message-ID: <20001130104553.A29224@chiara.elte.hu>
-Reply-To: KELEMEN Peter <fuji@elte.hu>
-In-Reply-To: <20001129163635.A406@the-penguin.otak.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20001129163635.A406@the-penguin.otak.com>; from lawrence@the-penguin.otak.com on Wed, Nov 29, 2000 at 04:36:35PM -0800
-Organization: ELTE Eotvos Lorand University of Sciences, Budapest, Hungary
-X-GPG-KeyID: 1024D/EE4C26E8 2000-03-20
-X-GPG-Fingerprint: D402 4AF3 7488 165B CC34  4147 7F0C D922 EE4C 26E8
-X-PGP-KeyID: 1024/45F83E45 1998/04/04
-X-PGP-Fingerprint: 26 87 63 4B 07 28 1F AD  6D AA B5 8A D6 03 0F BF
-X-Comment: Personal opinion.  Paragraphs might have been reformatted.
-X-Copyright: Forwarding or publishing without permission is prohibited.
-X-Accept-Language: hu,en
-X-Beat: @448
+        id <S132780AbQK3KSV>; Thu, 30 Nov 2000 05:18:21 -0500
+Received: from 13dyn240.delft.casema.net ([212.64.76.240]:16144 "EHLO
+        abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+        id <S132764AbQK3KSG>; Thu, 30 Nov 2000 05:18:06 -0500
+Message-Id: <200011300947.KAA27728@cave.bitwizard.nl>
+Subject: Re: [PATCH] New user space serial port driver
+In-Reply-To: <Pine.LNX.4.21.0011300817320.846-100000@penguin.homenet> from Tigran
+ Aivazian at "Nov 30, 2000 08:22:13 am"
+To: Tigran Aivazian <tigran@veritas.com>
+Date: Thu, 30 Nov 2000 10:47:34 +0100 (MET)
+CC: Patrick van de Lageweg <patrick@bitwizard.nl>,
+        Rogier Wolff <wolff@bitwizard.nl>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+From: R.E.Wolff@bitwizard.nl (Rogier Wolff)
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2000-11-29 16:36:35 -0800, Lawrence Walton wrote:
+Tigran Aivazian wrote:
+> On Thu, 30 Nov 2000, Patrick van de Lageweg wrote:
+> > +static struct tty_struct * ussp_table[USSP_MAX_PORTS] = { NULL, };
+> 
+> this wastes at least 4 * USSP_MAX_PORTS bytes in the kernel image.
+> Typically around 64 bytes but could be more. For more info see the recent
+> silly flamewars on the list.
 
-> my system has been acting slightly odd on all the pre 12 kernels
-> with the fs going read only with out any messages until now.
-> no opps or anything like that, but I did get this just now.
+And I think the guys who were saying that the "documentation is more
+important than those few bytes" were winning. 
 
-> Nov 29 16:03:12 the-penguin kernel: EXT2-fs error
-> 	(device sd(8,2)): ext2_readdir:
-> 	bad entry in directory #458430:
-> 	directory entry across blocks - offset=152, inode=3393794200,
-> 	rec_len=12440, name_len=73
+I am one of those guys. I think the documentation aspect is much more
+important than those 64 bytes.
 
-> It is a SCSI only system.
+> The correct way is not to initialize the data
+> to zero explicitly as BSS is cleared automatically on boot. It is also
+> probably documented in the lkml FAQ at the bottom of this message.
+> 
+> Also, it makes your code look consistent as, e.g. in cases below you do
+> the right thing:
+> 
+> > +static struct termios    * ussp_termios[USSP_MAX_PORTS];
+> > +static struct termios    * ussp_termios_locked[USSP_MAX_PORTS];
 
-I observed the same thing on EIDE (2.4.0-test11):
+this SHOULD mean that these are first initialized before use. 
 
-Nov 27 17:16:41 octavianus kernel: EXT2-fs error (device ide0(3,6)):
-	ext2_readdir: bad entry in directory #60525:
-	directory entry across blocks - offset=308, inode=60543,
-	rec_len=34104, name_len=199
+If you think they can be used before first being initialized by the
+code, then that's a bug, and I'll look into it.
 
-Peter
+			Roger. 
 
 -- 
-    .+'''+.         .+'''+.         .+'''+.         .+'''+.         .+''
- Kelemen Péter     /       \       /       \       /      fuji@elte.hu
-.+'         `+...+'         `+...+'         `+...+'         `+...+'
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+* There are old pilots, and there are bold pilots. 
+* There are also old, bald pilots. 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

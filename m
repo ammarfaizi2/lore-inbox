@@ -1,67 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266341AbUG0IXT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266345AbUG0I2d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266341AbUG0IXT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 04:23:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266345AbUG0IXT
+	id S266345AbUG0I2d (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 04:28:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266352AbUG0I2d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 04:23:19 -0400
-Received: from arnor.apana.org.au ([203.14.152.115]:36105 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S266341AbUG0IXM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 04:23:12 -0400
-Date: Tue, 27 Jul 2004 18:22:41 +1000
-To: Marcelo Tosatti <marcelo@conectiva.com.br>, kkeil@suse.de,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [I4L] Fix IRQ-sharing lockup in nj_s
-Message-ID: <20040727082241.GA15624@gondor.apana.org.au>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="qDbXVdCdHGoSgWSk"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040523i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+	Tue, 27 Jul 2004 04:28:33 -0400
+Received: from fed1rmmtao03.cox.net ([68.230.241.36]:45009 "EHLO
+	fed1rmmtao03.cox.net") by vger.kernel.org with ESMTP
+	id S266345AbUG0I2c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jul 2004 04:28:32 -0400
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] voluntary-preempt-2.6.8-rc2-J3
+References: <20040726141143.6d8352b6.akpm@osdl.org>
+From: Junio C Hamano <junkio@cox.net>
+Date: Tue, 27 Jul 2004 01:28:30 -0700
+In-Reply-To: <fa.h4elqom.kjeer4@ifi.uio.no> (Andrew Morton's message of
+ "Mon, 26 Jul 2004 21:27:09 GMT")
+Message-ID: <7v8yd5c0r5.fsf@assigned-by-dhcp.cox.net>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> "AM" == Andrew Morton <akpm@osdl.org> writes:
 
---qDbXVdCdHGoSgWSk
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+AM> +#ifdef CONFIG_SMP
+AM> +#define cond_resched_lock(lock, counter, limit)		\
+AM> +	do {						\
+AM> +		if (++(counter) >= limit) {		\
+AM> +			spin_unlock(lock);		\
+AM> +			cpu_relax();			\
+AM> +			spin_lock(lock);		\
+AM> +		}					\
+AM> +		(counter) = 0;				\
+AM> +	} while (0)
+AM> +#else
 
-Hi:
+I am wondering if you meant to reset the counter to zero inside
+of the if(){}, probably after reaquiring the lock...
 
-This is a backport of a fix that's already in 2.6.  The problem is that
-nj_s is enabling interrupts before the handler is even installed.  This
-patch delays the call until after the handler has been registered.
+ 
 
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
-
---qDbXVdCdHGoSgWSk
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=p
-
-===== drivers/isdn/hisax/nj_s.c 1.7 vs edited =====
---- 1.7/drivers/isdn/hisax/nj_s.c	2002-04-01 11:02:11 +10:00
-+++ edited/drivers/isdn/hisax/nj_s.c	2004-07-27 18:19:41 +10:00
-@@ -130,6 +130,7 @@
- 			release_io_netjet(cs);
- 			return(0);
- 		case CARD_INIT:
-+			reset_netjet_s(cs);
- 			inittiger(cs);
- 			clear_pending_isac_ints(cs);
- 			initisac(cs);
-@@ -262,7 +263,6 @@
- 	} else {
- 		request_region(cs->hw.njet.base, bytecnt, "netjet-s isdn");
- 	}
--	reset_netjet_s(cs);
- 	cs->readisac  = &NETjet_ReadIC;
- 	cs->writeisac = &NETjet_WriteIC;
- 	cs->readisacfifo  = &NETjet_ReadICfifo;
-
---qDbXVdCdHGoSgWSk--

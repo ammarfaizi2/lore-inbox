@@ -1,51 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262381AbVBXPt3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262372AbVBXP4i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262381AbVBXPt3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 10:49:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262372AbVBXPtB
+	id S262372AbVBXP4i (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 10:56:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262365AbVBXPy0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 10:49:01 -0500
-Received: from mail.autoweb.net ([198.172.237.26]:45836 "EHLO mail.autoweb.net")
-	by vger.kernel.org with ESMTP id S262381AbVBXPr4 (ORCPT
+	Thu, 24 Feb 2005 10:54:26 -0500
+Received: from wproxy.gmail.com ([64.233.184.204]:20429 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262372AbVBXPum (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 10:47:56 -0500
-Date: Thu, 24 Feb 2005 10:47:05 -0500
-From: Ryan Anderson <ryan@michonline.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Guillaume Thouvenin <guillaume.thouvenin@bull.net>,
-       linux-kernel@vger.kernel.org, johnpol@2ka.mipt.ru,
-       elsa-devel@lists.sourceforge.net, jlan@engr.sgi.com, gh@us.ibm.com,
-       efocht@hpce.nec.com
-Subject: Re: [PATCH 2.6.11-rc4-mm1] connector: Add a fork connector
-Message-ID: <20050224154704.GC7828@mythryan2.michonline.com>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	Guillaume Thouvenin <guillaume.thouvenin@bull.net>,
-	linux-kernel@vger.kernel.org, johnpol@2ka.mipt.ru,
-	elsa-devel@lists.sourceforge.net, jlan@engr.sgi.com, gh@us.ibm.com,
-	efocht@hpce.nec.com
-References: <1109240677.1738.196.camel@frecb000711.frec.bull.fr> <20050224024605.76e7369f.akpm@osdl.org>
+	Thu, 24 Feb 2005 10:50:42 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=uGmBNt9f3nOafykYoME8siRth/EXdWXlmYenJQsbKZWcxvnENmev4K+PsDBTUioe0LBseB6YLCqQY/B0LUrPtqSOyPy8WiChI+9X7G/FdAaDWot6F7PilTk6imOXDsHEnHLNVNVJgTdaPNb0oHlgQvKlPB1yBMejnccEBr4O1I4=
+Message-ID: <58cb370e050224075040f5c031@mail.gmail.com>
+Date: Thu, 24 Feb 2005 16:50:39 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Tejun Heo <htejun@gmail.com>
+Subject: Re: [PATCH 2.6.11-rc3 10/11] ide: make ide_cmd_ioctl() use TASKFILE
+Cc: lkml <linux-kernel@vger.kernel.org>, linux-ide <linux-ide@vger.kernel.org>,
+       Jeff Garzik <jgarzik@pobox.com>
+In-Reply-To: <20050210083854.BD13DFBD@htj.dyndns.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050224024605.76e7369f.akpm@osdl.org>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <20050210083808.48E9DD1A@htj.dyndns.org>
+	 <20050210083854.BD13DFBD@htj.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 24, 2005 at 02:46:05AM -0800, Andrew Morton wrote:
-> Guillaume Thouvenin <guillaume.thouvenin@bull.net> wrote:
-> 
-> >  +spinlock_t fork_cn_lock = SPIN_LOCK_UNLOCKED;
-> 
-> This should have static scope, and could be local to fork_connector().
-> 
-> Please use DEFINE_SPINLOCK().  (There's a reason for this, but I forget
-> what it was).
+> +       in_valid->b.status_command      = 1;
+> +       in_valid->b.error_feature       = 1;
+> +       in_valid->b.nsector             = 1;
 
-Static analysis tools, IIRC. (Stanford checker, sparse)
+ide_end_drive_cmd() must be fixed first to respect ->tf_in_flags
+and it must be done *without* affecting HDIO_DRIVE_TASKFILE.
 
+>  extern int ide_driveid_update(ide_drive_t *);
+> -extern int ide_ata66_check(ide_drive_t *, ide_task_t *);
+> +int ide_ata66_check(ide_drive_t *, ide_task_t *);
+>  extern int ide_config_drive_speed(ide_drive_t *, u8);
+>  extern u8 eighty_ninty_three (ide_drive_t *);
+> -extern int set_transfer(ide_drive_t *, ide_task_t *);
+> +int set_transfer(ide_drive_t *, ide_task_t *);
+>  extern int taskfile_lib_get_identify(ide_drive_t *drive, u8 *);
 
--- 
-
-Ryan Anderson
-  sometimes Pug Majere
+leftovers from previous version of the patch

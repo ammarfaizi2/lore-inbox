@@ -1,36 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261857AbSK0Jwg>; Wed, 27 Nov 2002 04:52:36 -0500
+	id <S261859AbSK0KCT>; Wed, 27 Nov 2002 05:02:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261859AbSK0Jwg>; Wed, 27 Nov 2002 04:52:36 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:65433 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S261857AbSK0Jwf>;
-	Wed, 27 Nov 2002 04:52:35 -0500
-Date: Wed, 27 Nov 2002 01:57:17 -0800 (PST)
-Message-Id: <20021127.015717.91758081.davem@redhat.com>
-To: davidm@hpl.hp.com, davidm@napali.hpl.hp.com
-Cc: ak@muc.de, sfr@canb.auug.org.au, torvalds@transmeta.com,
-       linux-kernel@vger.kernel.org, anton@samba.org, schwidefsky@de.ibm.com,
-       ralf@gnu.org, willy@debian.org
-Subject: Re: [PATCH] Start of compat32.h (again)
+	id <S261872AbSK0KCT>; Wed, 27 Nov 2002 05:02:19 -0500
+Received: from rth.ninka.net ([216.101.162.244]:6576 "EHLO rth.ninka.net")
+	by vger.kernel.org with ESMTP id <S261859AbSK0KCT>;
+	Wed, 27 Nov 2002 05:02:19 -0500
+Subject: Re: [PATCH][2.4] update ref counts on all allocated pages
 From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <15844.34389.396428.645047@napali.hpl.hp.com>
-References: <15844.31669.896101.983575@napali.hpl.hp.com>
-	<20021127082918.GA5227@averell>
-	<15844.34389.396428.645047@napali.hpl.hp.com>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+To: Matt Porter <porter@cox.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20021126170723.A23962@home.com>
+References: <20021126170723.A23962@home.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 27 Nov 2002 02:31:31 -0800
+Message-Id: <1038393091.14825.0.camel@rth.ninka.net>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: David Mosberger <davidm@napali.hpl.hp.com>
-   Date: Wed, 27 Nov 2002 00:46:13 -0800
-   
-   The user-space won't, but the kernel exit path might.
+On Tue, 2002-11-26 at 16:07, Matt Porter wrote:
+> The following patch sets the ref count on all pages of an
+> allocation.  This allows an allocation with order>0 to be freed
+> via individual __free_page() calls within vfree().
 
-You need to have a different kernel exit path, you need
-a different one to chop off the top 32-bits of all the
-incoming arguments anyways David.
+If your pci_alloc_consistent implementation is doing something
+strang, _it_ should be doing the per-page reference counts.
+
+Don't make every caller eat this overhead.
+

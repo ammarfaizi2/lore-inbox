@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264555AbSIRE2v>; Wed, 18 Sep 2002 00:28:51 -0400
+	id <S264592AbSIREfI>; Wed, 18 Sep 2002 00:35:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264560AbSIRE2v>; Wed, 18 Sep 2002 00:28:51 -0400
-Received: from holomorphy.com ([66.224.33.161]:65511 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S264555AbSIRE2v>;
-	Wed, 18 Sep 2002 00:28:51 -0400
-Date: Tue, 17 Sep 2002 21:29:33 -0700
+	id <S264622AbSIREfI>; Wed, 18 Sep 2002 00:35:08 -0400
+Received: from holomorphy.com ([66.224.33.161]:2280 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S264592AbSIREfI>;
+	Wed, 18 Sep 2002 00:35:08 -0400
+Date: Tue, 17 Sep 2002 21:35:50 -0700
 From: William Lee Irwin III <wli@holomorphy.com>
 To: Guillaume Boissiere <boissiere@adiglobal.com>
 Cc: linux-kernel@vger.kernel.org
 Subject: Re: [STATUS 2.5]  September 18, 2002
-Message-ID: <20020918042933.GR3530@holomorphy.com>
+Message-ID: <20020918043550.GS3530@holomorphy.com>
 Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
 	Guillaume Boissiere <boissiere@adiglobal.com>,
 	linux-kernel@vger.kernel.org
@@ -27,17 +27,15 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 On Tue, Sep 17, 2002 at 11:59:02PM -0400, Guillaume Boissiere wrote:
-> o Alpha       VM large page support                           (Simon Winwood, Hubertus Franke)
+> Linux Kernel 2.5 Status  -  September 18th, 2002
+> (Latest kernel release is 2.5.36)
+> Items in bold have changed since last week.
+> Items in grey are post Halloween (feature freeze).
 
-I've been working with Hubertus Franke on a patch based on Simon
-Winwood's original MPSS code with some design influence from Shimizu's
-code. Shimizu Naohiko has also been involved in the effort, primarily
-2.4.x-based patches. Also, Ingo Molnar (and possibly other redhat.com
-contributors) deserve priority as theirs was the first patch to provide
-such functionality. Rohit Seth has also provided some large page
-functionality already included in 2.5.x mainline.
+I thought I reported this item a while ago:
 
-Others may yet become involved.
+page table reclamation
+	William Irwin, Rik van Riel
 
 
 Thanks,

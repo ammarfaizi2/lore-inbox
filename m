@@ -1,76 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278633AbRKHV5t>; Thu, 8 Nov 2001 16:57:49 -0500
+	id <S278642AbRKHV5T>; Thu, 8 Nov 2001 16:57:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278643AbRKHV5k>; Thu, 8 Nov 2001 16:57:40 -0500
-Received: from cayuga.grammatech.com ([209.4.89.66]:26126 "EHLO grammatech.com")
-	by vger.kernel.org with ESMTP id <S278633AbRKHV5e>;
-	Thu, 8 Nov 2001 16:57:34 -0500
-Message-ID: <3BEAFFC6.EAC56763@grammatech.com>
-Date: Thu, 08 Nov 2001 16:57:26 -0500
-From: David Chandler <chandler@grammatech.com>
-Organization: GrammaTech, Inc.
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: root@chaos.analogic.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Bug Report: Dereferencing a bad pointer
-In-Reply-To: <Pine.LNX.3.95.1011108162912.239A-100000@chaos.analogic.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S278633AbRKHV5J>; Thu, 8 Nov 2001 16:57:09 -0500
+Received: from aslan.scsiguy.com ([63.229.232.106]:61714 "EHLO
+	aslan.scsiguy.com") by vger.kernel.org with ESMTP
+	id <S278642AbRKHV5A>; Thu, 8 Nov 2001 16:57:00 -0500
+Message-Id: <200111082156.fA8LuuY66000@aslan.scsiguy.com>
+To: christophe =?iso-8859-1?Q?barb=E9?= <christophe.barbe@online.fr>
+cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Question: Adaptec AIC7xxx support 
+In-Reply-To: Your message of "Thu, 08 Nov 2001 22:45:58 +0100."
+             <20011108224558.C505@online.fr> 
+Date: Thu, 08 Nov 2001 14:56:56 -0700
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I get a seg fault on both 2.2 and 2.4 kernels by running the following
-one-line C program:
-	int main() { int k =  (int *)0x0; }
+>> >This is a drawback of single driver for multiple cards. Good cards
+>> >suffer to enable the driver to support bad ones.
+>>=20
+>> This has nothing to do with the card the aic7xxx driver is accessing.
+>
+>Sorry if I upset you.
 
-Debugging the offender,
-	int main() { int k =  (int *)0xc0000000; }
-is not very informative: single-stepping over the sole command just
-hangs, and you have to press Control-C to interrupt gdb, at which point
-you can single-step right into the same problem again.
+You didn't upset me.  I just wanted to ensure that an inacurate statement
+wasn't propogated.
 
-When the program hangs, 'top' says that the CPU is fully utilized and
-the system is spending 80% of its time in the kernel and 20% in the
-offending process.
+>I was convinced it was to support old hardware.
 
-Have you not been able to duplicate it on a 2.4 kernel on x86?  If not,
-please tell me which 2.4 kernel correctly seg faults.
+Yes and no.  Although more common in older hardware, there are still
+companies that bring new products to market that take *forever* to
+wakeup after a bus reset.
 
+>You seems to indicate that it depends more on the attached scsi targets,
+>and I believe it but I have never seen this kind of configuration where
+>the timeout needs to be 15000 Msec. Is this a so common config to set
+>this value as default ?
 
-David Chandler
+There are still lots of devices out there that don't work with shorter
+timeouts.  I don't know that it matters what percentage of people have
+these devices so much as allowing them to install/use the OS without
+the frustration of trying to figure out how to make their system work.
+Other than a bit of wall clock time, the extra delay does not "hurt"
+setups that can use a lower timeout.
 
--- 
-
-_____
-David L. Chandler.                              GrammaTech, Inc.
-mailto:chandler@grammatech.com         http://www.grammatech.com
-
-
-"Richard B. Johnson" wrote:
-> 
-> On Thu, 8 Nov 2001, David Chandler wrote:
-> 
-> > Dick,
-> >
-> > You're right that the one-liner below may not necessarily produce a seg
-> > fault, but shouldn't it terminate normally if it doesn't?  After all,
-> > the program just *reads*.  Hanging does not seem to be an option!
-> >
-> You may want to see if any deliberate seg-fault actually gets
-> delivered. Try to read *(0).  If that works (seg-faults), then
-> there may be a problem with some boundary condition on paging.
-> 
-> I can't duplicate the problem here. You can also try to trace
-> the code execution to see if it falls into some user-space loop.
-> 
-> Cheers,
-> Dick Johnson
-> 
-> Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-> 
->     I was going to compile a list of innovations that could be
->     attributed to Microsoft. Once I realized that Ctrl-Alt-Del
->     was handled in the BIOS, I found that there aren't any.
+--
+Justin

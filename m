@@ -1,65 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265243AbUE0VDk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265264AbUE0VJX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265243AbUE0VDk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 May 2004 17:03:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265250AbUE0VDk
+	id S265264AbUE0VJX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 May 2004 17:09:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265274AbUE0VJW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 May 2004 17:03:40 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:11701 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S265243AbUE0VDg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 May 2004 17:03:36 -0400
-Date: Thu, 27 May 2004 23:04:47 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Christoph Hellwig <hch@infradead.org>,
-       Takao Indoh <indou.takao@soft.fujitsu.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [3/4] [PATCH]Diskdump - yet another crash dump function
-Message-ID: <20040527210447.GA2029@elte.hu>
-References: <1CC443CDA50AF2indou.takao@soft.fujitsu.com> <1FC443E79D3948indou.takao@soft.fujitsu.com> <20040527135134.GC15356@infradead.org>
+	Thu, 27 May 2004 17:09:22 -0400
+Received: from host171.155.212.251.conversent.net ([155.212.251.171]:40965
+	"EHLO actuality-systems.com") by vger.kernel.org with ESMTP
+	id S265264AbUE0VJU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 May 2004 17:09:20 -0400
+Subject: Re: Can't make XFS work with 2.6.6
+From: David Aubin <daubin@actuality-systems.com>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <200405271925.24650.dj@david-web.co.uk>
+References: <200405271736.08288.dj@david-web.co.uk>
+	 <200405271854.20787.dj@david-web.co.uk> <1085680806.5311.44.camel@buffy>
+	 <200405271925.24650.dj@david-web.co.uk>
+Content-Type: text/plain
+Message-Id: <1085692088.5311.63.camel@buffy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040527135134.GC15356@infradead.org>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Thu, 27 May 2004 17:08:08 -0400
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 27 May 2004 21:07:50.0703 (UTC) FILETIME=[AB575BF0:01C4442E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Dave,
 
-* Christoph Hellwig <hch@infradead.org> wrote:
+  I think the problem is this:
+ hd0,0 is /dev/hda1.  Your kernel is in /dev/hda3.
+You want to have hd0,2, not hd0,0.  As for the output
+you see.  You must have a kernel at /dev/hda1 that does
+not support XFS and hence the unknown fs error.
+Please fix your grub entry and you should have fun.
 
-> > +/******************************** Disk dump ***********************************/
-> > +#if defined(CONFIG_DISKDUMP) || defined(CONFIG_DISKDUMP_MODULE)
-> > +#undef  add_timer
-> > +#define add_timer       diskdump_add_timer
-> > +#undef  del_timer_sync
-> > +#define del_timer_sync  diskdump_del_timer
-> > +#undef  del_timer
-> > +#define del_timer       diskdump_del_timer
-> > +#undef  mod_timer
-> > +#define mod_timer       diskdump_mod_timer
-> > +
-> > +#define tasklet_schedule        diskdump_tasklet_schedule
-> > +#endif
+Dave
+On Thu, 2004-05-27 at 14:25, David Johnson wrote:
+> On Thursday 27 May 2004 19:00, David Aubin wrote:
+> > Hi Dave,
+> >
+> >   Please include the latest copy of your .config.
 > 
-> Yikes.  No way in hell we'll place code like this in drivers.  This
-> needs to be handled in common code.
+> Attached.
+> 
+> > Also the boot loader parameter as well.  
+> 
+> >From Grub's menu.lst:
+> 
+> title		Debian GNU/Linux, kernel 2.6.6
+> root		(hd0,0)
+> kernel	/vmlinuz-2.6.6 lapic video=rivafb:mode:1024x768x16 root=/dev/hda3 ro
+> initrd		/initrd.img-2.6.6
+> savedefault
+> boot
+> 
+> > And possibly 
+> > the validation that the root partition is of type XFS?
+> 
+> Here's the mount output from the system running a 2.4 kernel:
+> 
+> lug:/tmp# mount
+> /dev/hda3 on / type xfs (rw)
+> proc on /proc type proc (rw)
+> devpts on /dev/pts type devpts (rw,gid=5,mode=620)
+> tmpfs on /dev/shm type tmpfs (rw)
+> /dev/hda1 on /boot type ext3 (rw)
+> /dev/hda2 on /home type xfs (rw)
+> /dev/sda2 on /var type xfs (rw)
+> usbfs on /proc/bus/usb type usbfs (rw)
+> 
+> >   At a glance it appears that XFS is not compilied in to
+> > your kernel now, if that is your root mount file type.
+> 
+> XFS is compiled in. I really don't know what else to try...
+> 
+> Thanks,
+> David.
 
-yeah, this is arguably the biggest (and i think only) conceptual item
-that needs to be solved before this can be integrated.
-
-The goal of these defines is to provide a separate (and polling based)
-timer mechanism that is completely separate from the normal kernel's
-state.
-
-it would also be easier to enable diskdump in a driver if this was
-handled in add_timer()/del_timer()/mod_timer()/tasklet_schedule().
-
-	Ingo

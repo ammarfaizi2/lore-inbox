@@ -1,33 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311523AbSCXEJm>; Sat, 23 Mar 2002 23:09:42 -0500
+	id <S311547AbSCXELc>; Sat, 23 Mar 2002 23:11:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311531AbSCXEJc>; Sat, 23 Mar 2002 23:09:32 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:12561 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S311523AbSCXEJU>;
-	Sat, 23 Mar 2002 23:09:20 -0500
-Date: Sun, 24 Mar 2002 01:18:24 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: OOPS: ide-cd, 2.4.19-pre3-ac5
-Message-ID: <20020324041824.GE12678@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Andre Hedrick <andre@linux-ide.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020324023007.GB12678@conectiva.com.br> <Pine.LNX.4.10.10203231956370.2377-200000@master.linux-ide.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-X-Url: http://advogato.org/person/acme
+	id <S311531AbSCXELX>; Sat, 23 Mar 2002 23:11:23 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:35775 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S311547AbSCXELR>;
+	Sat, 23 Mar 2002 23:11:17 -0500
+Date: Sat, 23 Mar 2002 23:11:11 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: rddunlap@osdl.org
+cc: linux-kernel@vger.kernel.org, davej@suse.de
+Subject: Re: [patch 2.5] seq_file for /proc/partitions
+In-Reply-To: <Pine.LNX.4.33.0203231920420.23956-100000@osdlab.pdx.osdl.net>
+Message-ID: <Pine.GSO.4.21.0203232308260.6560-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Sat, Mar 23, 2002 at 07:58:24PM -0800, Andre Hedrick escreveu:
-> Arnaldo,
-> 
-> We did this last night :-/
 
-Thanks, I got a private message telling me this, thanks for the fix!
 
-- Arnaldo
+On Sat, 23 Mar 2002 rddunlap@osdl.org wrote:
+
+> +static void *part_next(struct seq_file *part, void *v, loff_t *pos)
+> +{
+> +	++*pos;
+> +	return part_start(part, pos);
+
+Erm...  Actually that _is_ wrong - what you want is
+
+	return ((struct gendisk)v)->next;
+
+> +}
+
+Reasons:
+	a) just how many times do you want to grab that lock?
+	b) why bother scanning the list from the very beginning each time?
+

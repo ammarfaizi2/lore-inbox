@@ -1,59 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262078AbRETQUo>; Sun, 20 May 2001 12:20:44 -0400
+	id <S262074AbRETQSy>; Sun, 20 May 2001 12:18:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262077AbRETQUe>; Sun, 20 May 2001 12:20:34 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:54239 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S262075AbRETQU1>;
-	Sun, 20 May 2001 12:20:27 -0400
-Date: Sun, 20 May 2001 12:20:26 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Edgar Toernig <froese@gmx.de>
-cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Linus Torvalds <torvalds@transmeta.com>, Ben LaHaise <bcrl@redhat.com>,
-        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: F_CTRLFD (was Re: Why side-effects on open(2) are evil.)
-In-Reply-To: <3B07E6F6.E5C543B2@gmx.de>
-Message-ID: <Pine.GSO.4.21.0105201203090.8940-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262075AbRETQSp>; Sun, 20 May 2001 12:18:45 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:49681 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S262074AbRETQSi>; Sun, 20 May 2001 12:18:38 -0400
+Date: Sun, 20 May 2001 18:18:03 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Andrew Morton <andrewm@uow.edu.au>
+Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+        Richard Henderson <rth@twiddle.net>, linux-kernel@vger.kernel.org
+Subject: Re: alpha iommu fixes
+Message-ID: <20010520181803.I18119@athlon.random>
+In-Reply-To: <20010518214617.A701@jurassic.park.msu.ru> <20010519155502.A16482@athlon.random> <20010519231131.A2840@jurassic.park.msu.ru>, <20010519231131.A2840@jurassic.park.msu.ru>; <20010520044013.A18119@athlon.random> <3B07AF49.5A85205F@uow.edu.au> <20010520154958.E18119@athlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010520154958.E18119@athlon.random>; from andrea@suse.de on Sun, May 20, 2001 at 03:49:58PM +0200
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, May 20, 2001 at 03:49:58PM +0200, Andrea Arcangeli wrote:
+> they returned zero. You either have to drop the skb or to try again later
+> if they returns zero.
 
+BTW, pci_map_single is not a nice interface, it cannot return bus
+address 0, so once we start the fixage it is probably better to change
+the interface as well to get either the error or the bus address via a
+pointer passed to the function.
 
-On Sun, 20 May 2001, Edgar Toernig wrote:
-
-> IMHO any scheme that requires a special name to perform ioctl like
-> functions will not work.  Often you don't known the name of the
-> device you're talking to and then you're lost.
-
-ls -l /proc/self/fd/<n>
-
-and think of the results. We can export that as a syscall (fpath(2)), BTW.
-
-Again, folks, there are two things that are no going to happen:
-
-	1) sys_ioctl() going away from syscall table. Binary compatibility
-with existing userland stuff that deals with networking ioctls. Unlike
-special-case device ones, they really have a lot of users. Standard rules
-are "2 stable releases until we remove a syscall".
-
-	2) semi-automatic conversion of existing applications. To hell with
-the way we are finding descriptor, we need to deal with arguments themselves.
-And no extra logics in libc will help - the whole problem is that ioctls
-have rather irregular arguments.
-
-So "make it look as similar to ioctl() as possible" is not a good gaol.
-It would be, if we were preparing to do mass switching to new mechanism
-with minimal changes to existing codebase. Not realistic.
-
-What we need is "make it sane", not "inherit as many things from the
-old API as possible". And obvious first target is Linux-specific
-device ioctls, simply because they have fewer programs using them.
-
-Networking ioctls are there to stay for quite a while - we'll need
-at the very least to implement old ones in a userland library.
-Portability issues will be nasty, since _that_ stuff is used by
-tons of programs.
-
+Andrea

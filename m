@@ -1,36 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131878AbQLPU73>; Sat, 16 Dec 2000 15:59:29 -0500
+	id <S131818AbQLPVSN>; Sat, 16 Dec 2000 16:18:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132255AbQLPU7U>; Sat, 16 Dec 2000 15:59:20 -0500
-Received: from smtp03.mrf.mail.rcn.net ([207.172.4.62]:57802 "EHLO
-	smtp03.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
-	id <S131878AbQLPU7B>; Sat, 16 Dec 2000 15:59:01 -0500
-Date: Sat, 16 Dec 2000 15:28:33 -0500
-From: Tom Vier <thomassr@erols.com>
-To: Chad Schwartz <cwslist@main.cornernet.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Dropping chars on 16550
-Message-ID: <20001216152833.A7536@zero>
-In-Reply-To: <Pine.LNX.4.21.0012141529580.2159-100000@server.serve.me.nl> <Pine.LNX.4.30.0012140833520.14206-100000@main.cornernet.com>
+	id <S132236AbQLPVRx>; Sat, 16 Dec 2000 16:17:53 -0500
+Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:20054
+	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
+	id <S131818AbQLPVRm>; Sat, 16 Dec 2000 16:17:42 -0500
+Date: Sat, 16 Dec 2000 21:47:09 +0100
+From: Rasmus Andersen <rasmus@jaquet.dk>
+To: fritz@isdn4linux.de, linux-kernel@vger.kernel.org
+Subject: [PATCH] drivers/isdn/isdn_bsdcomp.c can only be modular (240t13p2)
+Message-ID: <20001216214709.C609@jaquet.dk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-User-Agent: Mutt/1.0.1i
-In-Reply-To: <Pine.LNX.4.30.0012140833520.14206-100000@main.cornernet.com>; from cwslist@main.cornernet.com on Thu, Dec 14, 2000 at 08:51:42AM -0600
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 14, 2000 at 08:51:42AM -0600, Chad Schwartz wrote:
-> And what kind of serial ports do you find on your Alpha?  16550's!  Your
-> PowerPC?  16550's!  Your PA-RISC box? 16550's!  Hey! Even RS/6000's use
-> 16550's!
+Hi.
 
-macs and sun machines use z85c30 chips, so there are some non-16550 boxes
-out there.
+drivers/isdn/isdn_bsdcomp.c #errors if it is not compiled as a module. The
+following patch moves this into the Config.in file. Other options include
+fixing the code or just noting this in the help option for the config entry.
+I leave this up to the maintainers.
+
+
+--- linux-240-t13-pre2-clean/drivers/isdn/Config.in	Sat Dec 16 20:40:56 2000
++++ linux/drivers/isdn/Config.in	Sat Dec 16 21:40:25 2000
+@@ -6,7 +6,7 @@
+    if [ "$CONFIG_ISDN_PPP" != "n" ]; then
+       bool     '    Use VJ-compression with synchronous PPP' CONFIG_ISDN_PPP_VJ
+       bool     '    Support generic MP (RFC 1717)' CONFIG_ISDN_MPP
+-      tristate '    Support BSD compression with sync PPP' CONFIG_ISDN_PPP_BSDCOMP
++      dep_tristate '    Support BSD compression with sync PPP' CONFIG_ISDN_PPP_BSDCOMP $CONFIG_MODULES
+    fi
+ fi
+ bool '  Support audio via ISDN' CONFIG_ISDN_AUDIO
 
 -- 
-Tom Vier <thomassr@erols.com>
-DSA Key id 0x27371A2C
+Regards,
+        Rasmus(rasmus@jaquet.dk)
+
+While the Melissa license is a bit unclear, Melissa aggressively
+encourages free distribution of its source code.
+  -- Kevin Dalley on Melissa being Open Source
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

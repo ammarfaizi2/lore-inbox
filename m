@@ -1,53 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267927AbUHUV4c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267945AbUHUWE5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267927AbUHUV4c (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Aug 2004 17:56:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267936AbUHUV4c
+	id S267945AbUHUWE5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Aug 2004 18:04:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267946AbUHUWE5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Aug 2004 17:56:32 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:64223 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S267927AbUHUV4a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Aug 2004 17:56:30 -0400
-Subject: Re: [patch] voluntary-preempt-2.6.8.1-P7
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Florian Schmidt <mista.tapas@gmx.net>
-In-Reply-To: <20040821140501.GA4189@elte.hu>
-References: <1092628493.810.3.camel@krustophenia.net>
-	 <20040816040515.GA13665@elte.hu> <1092654819.5057.18.camel@localhost>
-	 <20040816113131.GA30527@elte.hu> <20040816120933.GA4211@elte.hu>
-	 <1092716644.876.1.camel@krustophenia.net> <20040817080512.GA1649@elte.hu>
-	 <20040819073247.GA1798@elte.hu> <20040820133031.GA13105@elte.hu>
-	 <20040820195540.GA31798@elte.hu>  <20040821140501.GA4189@elte.hu>
-Content-Type: text/plain
-Message-Id: <1093125390.817.22.camel@krustophenia.net>
+	Sat, 21 Aug 2004 18:04:57 -0400
+Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:19667
+	"EHLO animx.eu.org") by vger.kernel.org with ESMTP id S267945AbUHUWE4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Aug 2004 18:04:56 -0400
+Date: Sat, 21 Aug 2004 18:01:59 -0400
+From: Wakko Warner <wakko@animx.eu.org>
+To: Francois Romieu <romieu@fr.zoreil.com>
+Cc: Lee Revell <rlrevell@joe-job.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux Incompatibility List
+Message-ID: <20040821220159.GA9492@animx.eu.org>
+References: <87r7q0th2n.fsf@dedasys.com> <20040821201632.GA7622@digitasaru.net> <20040821202058.GA9218@animx.eu.org> <1093120274.854.145.camel@krustophenia.net> <20040821205157.GA9300@animx.eu.org> <20040821211838.GA10932@electric-eye.fr.zoreil.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sat, 21 Aug 2004 17:56:30 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040821211838.GA10932@electric-eye.fr.zoreil.com>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-08-21 at 10:05, Ingo Molnar wrote:
-> i've uploaded the -P7 patch:
+> > True, however, their video cards *DO* work on linux (even though it is
+> > binary-only).  I have a laptop that has the chip.  Does any broadcom
 > 
->   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8.1-P7
-> 
-> Changes since -P6:
-> 
-> - fixed the XFree86/X.org context-switch latency. (let me know if you
->   see any weirdness like X not starting up while it did before.)
-> 
-> - halved the pagevec size, to reduce the radix gang-lookup costs.
-> 
+> Mantra: linux is not x86 only.
 
-Great, this is a significant improvement.  Most of the worst case
-latencies (~150 usec) seem related to the TCP stack now, and a minor one
-(51 usec) in the ext3 journaling:
+I forgot about that.  There's an alpha box sitting next to me =)
 
-http://krustophenia.net/testresults.php?dataset=2.6.8.1-P7
+> Btw have you considered discussion with the people behind
+> http://www.linuxhardware.net/ ?
 
-Lee
+Not sure if I've been there before.  I may have.
 
+-- 
+ Lab tests show that use of micro$oft causes cancer in lab animals

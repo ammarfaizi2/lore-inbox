@@ -1,48 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285666AbSAGTbT>; Mon, 7 Jan 2002 14:31:19 -0500
+	id <S285720AbSAGTb7>; Mon, 7 Jan 2002 14:31:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285703AbSAGTbJ>; Mon, 7 Jan 2002 14:31:09 -0500
-Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:16651 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S285691AbSAGTbD>;
-	Mon, 7 Jan 2002 14:31:03 -0500
-Date: Mon, 7 Jan 2002 11:29:03 -0800
-From: Greg KH <greg@kroah.com>
-To: Patrick Mochel <mochel@osdl.org>
-Cc: Dave Jones <davej@suse.de>, Paul Jakma <paulj@alphyra.ie>,
-        knobi@knobisoft.de, linux-kernel@vger.kernel.org
+	id <S285703AbSAGTbk>; Mon, 7 Jan 2002 14:31:40 -0500
+Received: from air-1.osdl.org ([65.201.151.5]:57986 "EHLO segfault.osdlab.org")
+	by vger.kernel.org with ESMTP id <S285691AbSAGTbh>;
+	Mon, 7 Jan 2002 14:31:37 -0500
+Date: Mon, 7 Jan 2002 11:33:21 -0800 (PST)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: <mochel@segfault.osdlab.org>
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+cc: <linux-kernel@vger.kernel.org>
 Subject: Re: Hardware Inventory [was: Re: ISA slot detection on PCI systems?]
-Message-ID: <20020107192903.GB8413@kroah.com>
-In-Reply-To: <20020107185001.GK7378@kroah.com> <Pine.LNX.4.33.0201071109490.28000-100000@segfault.osdlab.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0201071109490.28000-100000@segfault.osdlab.org>
-User-Agent: Mutt/1.3.25i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Mon, 10 Dec 2001 16:58:17 -0800
+In-Reply-To: <200201071904.g07J4Wf02751@vindaloo.ras.ucalgary.ca>
+Message-ID: <Pine.LNX.4.33.0201071119520.28000-100000@segfault.osdlab.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 07, 2002 at 11:19:06AM -0800, Patrick Mochel wrote:
-> 
-> It's very closely related; kinda like kissing cousins.
-> 
-> /sbin/hotplug is called from the kernel only, right?
 
-Right.  But there's no reason it can't be called from any other place.
-It's just a userspace program with a well documented interface :)
+> It still eludes me why a new device FS was developed when devfs
+> already has the mechanisms that are needed.
 
-> I see no reason to change that at all for notification of devices that are
-> plugged in/removed by suprise.
+It's really pretty simple, and I don't mean any disrespect by it, so don't
+take it personally.
 
-Also realize that the first scan of a bus looks just like a device was
-plugged in from the subsystem's point of view.
+When I started working on this new driver model thingy, I wanted to export
+the device tree, so I could individually turn devices on and off. So, I
+did it via procfs.
 
-> I was thinking, though, more along the lines of triggering the probe for
-> devices that the kernel has a tough time finding on its own. E.g. peer
-> Host/PCI bridges, batteries, etc.
+One fine, sunny day, I'm explaining the concept to Linus, and he says
+"Don't use proc."
 
-Ah, things that do not have individual kernel module drivers right now?
+"What do you mean, 'don't use proc'?" (Since I already had done it).
 
-greg k-h
+He pointed out that it was old and crufty, and already over-abused. He
+suggested that I write my own fs to do it.
+
+So I did. It was easy. I blatantly ripped off ramfs, and it worked.
+
+I looked at devfs for inspiration, but I didn't get very far. It seemed
+way too complex for what it was trying to do. And, it was taking too much
+frickin' time to figure what the hell you were doing.
+
+Besides, at the time, it was an orthogonal problem. I didn't care about
+device class functionality, only the hierarchy.
+
+That's still what I mainly care about. I realized a while back that it
+would be relatively simple to add class support. But, I've stayed away
+from it for political reasons. I predict there will be an integrated
+solution.
+
+Besides, everyone hates devfs. Being the image-conscious guy that I am, I
+don't want to play for the team that everyone hates.
+
+Basically, I think I'm just Linus' bitch in this whole scheme of things
+for
+
+1) creating a decent /dev replacement
+2) helping motivate you to fix devfs
+and/or
+3) helping motivate people to modernize/fix procfs
+
+He gets what he wants and I take the heat.
+
+I don't really care what gets used. I like my code because I wrote it. It
+might suck and be buggy; but I'm willing to fix it, and play by the common
+rules. I want something that works and that other people are happy with.
+
+	-pat
+

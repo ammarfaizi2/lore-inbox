@@ -1,62 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263658AbREYIrT>; Fri, 25 May 2001 04:47:19 -0400
+	id <S263659AbREYIs7>; Fri, 25 May 2001 04:48:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263659AbREYIrJ>; Fri, 25 May 2001 04:47:09 -0400
-Received: from libra.cus.cam.ac.uk ([131.111.8.19]:51610 "EHLO
-	libra.cus.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S263658AbREYIqw>; Fri, 25 May 2001 04:46:52 -0400
-Message-Id: <5.1.0.14.2.20010525093809.048337e0@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Fri, 25 May 2001 09:47:24 +0100
-To: Blesson Paul <blessonpaul@usa.net>
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: [Re: How to add NTFS support]
+	id <S263660AbREYIst>; Fri, 25 May 2001 04:48:49 -0400
+Received: from qn-212-127-144-62.quicknet.nl ([212.127.144.62]:261 "HELO
+	smcc.demon.nl") by vger.kernel.org with SMTP id <S263659AbREYIsb>;
+	Fri, 25 May 2001 04:48:31 -0400
+Message-ID: <XFMail.010525104812.nemosoft@smcc.demon.nl>
+X-Mailer: XFMail 1.3 [p0] on Linux
+X-Priority: 3 (Normal)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+In-Reply-To: <20010525085024.A17867@alpha.logic.tuwien.ac.at>
+Date: Fri, 25 May 2001 10:48:12 +0200 (MEST)
+Organization: I'm not organized
+From: "Nemosoft Unv." <nemosoft@smcc.demon.nl>
+To: Norbert Preining <preining@logic.at>
+Subject: RE: ac15 and 2.4.5-pre6, pwc format conversion
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010525044008.14212.qmail@nwcst284.netaddress.usa.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Greetings,
 
-At 05:40 25/05/2001, Blesson Paul wrote:
->So you are constructing a improved NTFS file driver. So when you have to 
->check your written codes of file driver, will u recompile the whole kernel 
->? . That is what I am asking. I am in a way to build a new file system.
->I took NTFS as a sample one. I thought , I will first try to compile and make
->it run.
+On 25-May-01 Norbert Preining wrote:
+> Hi!
+> 
+> According to ac ChangeLog:
+> o       Rip format conversion out of the pwc driver     (me)
+>         | It belongs in user space..
+> 
+> This change is included in 2.4.5-pre6, but
+>       drivers/usb/pwc-uncompress.c
+> still relies on this files:
+> gcc -D__KERNEL__ -I/usr/src/linux-2.4.5.6-packet/include -Wall
+> -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe
+> -mpreferred-stack-boundary=2 -march=k6 -DMODULE   -DEXPORT_SYMTAB -c
+> pwc-uncompress.c
+> pwc-uncompress.c:25: vcvt.h: No such file or directory
+> pwc-uncompress.c: In function `pwc_decompress':
+> pwc-uncompress.c:158: warning: implicit declaration of function
+> `vcvt_420i_rgb24'
+> pwc-uncompress.c:161: warning: implicit declaration of function
+> `vcvt_420i_bgr24'
+> pwc-uncompress.c:164: warning: implicit declaration of function
+> `vcvt_420i_rgb32'
+> pwc-uncompress.c:167: warning: implicit declaration of function
+> `vcvt_420i_bgr32'
+> pwc-uncompress.c:171: warning: implicit declaration of function
+> `vcvt_420i_yuyv'
+> pwc-uncompress.c:185: warning: implicit declaration of function
+> `vcvt_420i_420p'
 
-NTFS is not a good example for a 2.4.x file system at the moment IMHO. It 
-doesn't even use the page cache at all...
+That´s what you get for ripping out the guts of a driver. Have a nice day.
 
-But anyway, I recompile the whole kernel the first time round, i.e. say I 
-install the latest kernel, apply my latest NTFS patch, copy my old .config 
-to linux/.config, make oldconfig. Then I set off: make dep && make bzImage 
-&& make modules && sudo make modules_install [switch to different VT and do 
-other stuff, go out, have dinner, whatever...], then install kernel, lilo, 
-reboot.
+ - Nemosoft (the pwc module maintainer)
 
-Once I am running the new kernel, it becomes much easier: modify some code 
-in linux/fs/ntfs, then from linux/ I just do: make modules && make 
-modules_install && rmmod ntfs && modprobe ntfs and the new driver is loaded...
-
-If I change any code outside of fs/ntfs then a new make bzImage, etc is 
-required, as I build everything static (only ntfs as a module).
-
-If I install a new kernel as I do quite frequently to keep up on what's 
-going on, a new kernel compile is required from scratch...
-
-Hope this helps.
-
-Anton
-
-
--- 
-   "Nothing succeeds like success." - Alexandre Dumas
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://sf.net/projects/linux-ntfs/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
-
+-----------------------------------------------------------------------------
+Try SorceryNet!   One of the best IRC-networks around!   irc.sorcery.net:9000
+URL: never        IRC: nemosoft      IscaBBS (bbs.isca.uiowa.edu): Nemosoft
+                        >> Never mind the daylight << 

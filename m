@@ -1,175 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261234AbUBZXjO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 18:39:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261289AbUBZXiu
+	id S261307AbUBZXmn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 18:42:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261299AbUBZXjN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 18:38:50 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:35760 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261303AbUBZXhO (ORCPT
+	Thu, 26 Feb 2004 18:39:13 -0500
+Received: from imap.gmx.net ([213.165.64.20]:29345 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261234AbUBZXf4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 18:37:14 -0500
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, arjanv@redhat.com, davej@redhat.com,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: raid 5 with >= 5 members broken on x86
-References: <orznb5leqs.fsf@free.redhat.lsd.ic.unicamp.br>
-	<Pine.LNX.4.58.0402261329450.7830@ppc970.osdl.org>
-	<or1xohpjzn.fsf@free.redhat.lsd.ic.unicamp.br>
-	<Pine.LNX.4.58.0402261426460.7830@ppc970.osdl.org>
-From: Alexandre Oliva <aoliva@redhat.com>
-Organization: Red Hat Global Engineering Services Compiler Team
-Date: 26 Feb 2004 20:37:07 -0300
-In-Reply-To: <Pine.LNX.4.58.0402261426460.7830@ppc970.osdl.org>
-Message-ID: <orznb5e7ks.fsf@free.redhat.lsd.ic.unicamp.br>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Thu, 26 Feb 2004 18:35:56 -0500
+X-Authenticated: #4512188
+Message-ID: <403E82D8.3030209@gmx.de>
+Date: Fri, 27 Feb 2004 00:35:52 +0100
+From: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040216)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="=-=-="
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.3-mm4, sensors broken
+References: <20040225185536.57b56716.akpm@osdl.org>
+In-Reply-To: <20040225185536.57b56716.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
+Hi,
 
-On Feb 26, 2004, Linus Torvalds <torvalds@osdl.org> wrote:
+this release made my sensors broken. With mm3 it worked nicely.
 
-> Ok. I did the silly one-liner, but if the "don't care" approach really 
-> improves code generation, feel free to send one that fixes both the P5 and 
-> PII cases..
+This is what sensors-detect gives me:
 
-Here's an updated patch that is supposed to apply cleanly after the
-one-liner you've already checked in.
+Driver `adm1021' (should be inserted):
+   Detects correctly:
+   * Bus `SMBus nForce2 adapter at 5100' (Algorithm unavailable)
+     Busdriver `i2c-nforce2', I2C address 0x4e
+     Chip `National Semiconductor LM84' (confidence: 5)
 
+Driver `eeprom' (should be inserted):
+   Detects correctly:
+   * Bus `SMBus nForce2 adapter at 5100' (Algorithm unavailable)
+     Busdriver `i2c-nforce2', I2C address 0x50
+     Chip `SPD EEPROM' (confidence: 8)
+   * Bus `SMBus nForce2 adapter at 5100' (Algorithm unavailable)
+     Busdriver `i2c-nforce2', I2C address 0x52
+     Chip `SPD EEPROM' (confidence: 8)
 
---=-=-=
-Content-Type: text/x-patch
-Content-Disposition: inline; filename=i386-xor-stack-optimize.patch
+Driver `w83781d' (may not be inserted):
+   Misdetects:
+   * ISA bus address 0x0290 (Busdriver `i2c-isa')
+     Chip `Winbond W83627HF' (confidence: 8)
 
---- include/asm-i386/xor.h.orig	2004-02-26 19:41:22.000000000 -0300
-+++ include/asm-i386/xor.h	2004-02-26 19:48:24.000000000 -0300
-@@ -182,11 +182,15 @@
- 
- 	kernel_fpu_begin();
- 
--	/* need to save/restore p4/p5 manually otherwise gcc's 10 argument
--	   limit gets exceeded (+ counts as two arguments) */
-+	/* Make sure GCC forgets anything it knows about p4 or p5,
-+	   such that it won't pass to the asm volatile below a
-+	   register that is shared with any other variable.  That's
-+	   because we modify p4 and p5 there, but we can't mark them
-+	   as read/write, otherwise we'd overflow the 10-asm-operands
-+	   limit of GCC < 3.1.  */
-+	__asm__ ("" : "+r" (p4), "+r" (p5));
-+
- 	__asm__ __volatile__ (
--		"  pushl %4\n"
--		"  pushl %5\n"
- #undef BLOCK
- #define BLOCK(i) \
- 	LD(i,0)					\
-@@ -229,13 +233,16 @@
- 	"       addl $128, %5         ;\n"
- 	"       decl %0               ;\n"
- 	"       jnz 1b                ;\n"
--	"	popl %5\n"
--	"	popl %4\n"
- 	: "+r" (lines),
- 	  "+r" (p1), "+r" (p2), "+r" (p3)
- 	: "r" (p4), "r" (p5) 
- 	: "memory");
- 
-+	/* p4 and p5 were modified, and now the variables are dead.
-+	   Clobber them just to be sure nobody does something stupid
-+	   like assuming they have some legal value.  */
-+	__asm__ ("" : "=r" (p4), "=r" (p5));
-+
- 	kernel_fpu_end();
- }
- 
-@@ -425,10 +432,15 @@
- 
- 	kernel_fpu_begin();
- 
--	/* need to save p4/p5 manually to not exceed gcc's 10 argument limit */
-+	/* Make sure GCC forgets anything it knows about p4 or p5,
-+	   such that it won't pass to the asm volatile below a
-+	   register that is shared with any other variable.  That's
-+	   because we modify p4 and p5 there, but we can't mark them
-+	   as read/write, otherwise we'd overflow the 10-asm-operands
-+	   limit of GCC < 3.1.  */
-+	__asm__ ("" : "+r" (p4), "+r" (p5));
-+
- 	__asm__ __volatile__ (
--	"	pushl %4\n"
--	"	pushl %5\n"        	
- 	" .align 32,0x90             ;\n"
- 	" 1:                         ;\n"
- 	"       movq   (%1), %%mm0   ;\n"
-@@ -487,13 +499,16 @@
- 	"       addl $64, %5         ;\n"
- 	"       decl %0              ;\n"
- 	"       jnz 1b               ;\n"
--	"	popl %5\n"
--	"	popl %4\n"
- 	: "+r" (lines),
- 	  "+r" (p1), "+r" (p2), "+r" (p3)
- 	: "r" (p4), "r" (p5)
- 	: "memory");
- 
-+	/* p4 and p5 were modified, and now the variables are dead.
-+	   Clobber them just to be sure nobody does something stupid
-+	   like assuming they have some legal value.  */
-+	__asm__ ("" : "=r" (p4), "=r" (p5));
-+
- 	kernel_fpu_end();
- }
- 
-@@ -757,10 +772,15 @@
- 
- 	XMMS_SAVE;
- 
--	/* need to save p4/p5 manually to not exceed gcc's 10 argument limit */
-+	/* Make sure GCC forgets anything it knows about p4 or p5,
-+	   such that it won't pass to the asm volatile below a
-+	   register that is shared with any other variable.  That's
-+	   because we modify p4 and p5 there, but we can't mark them
-+	   as read/write, otherwise we'd overflow the 10-asm-operands
-+	   limit of GCC < 3.1.  */
-+	__asm__ ("" : "+r" (p4), "+r" (p5));
-+
-         __asm__ __volatile__ (
--		" pushl %4\n"
--		" pushl %5\n"
- #undef BLOCK
- #define BLOCK(i) \
- 		PF1(i)					\
-@@ -817,13 +837,16 @@
-         "       addl $256, %5           ;\n"
-         "       decl %0                 ;\n"
-         "       jnz 1b                  ;\n"
--	"	popl %5\n"	
--	"	popl %4\n"	
- 	: "+r" (lines),
- 	  "+r" (p1), "+r" (p2), "+r" (p3)
- 	: "r" (p4), "r" (p5)
- 	: "memory");
- 
-+	/* p4 and p5 were modified, and now the variables are dead.
-+	   Clobber them just to be sure nobody does something stupid
-+	   like assuming they have some legal value.  */
-+	__asm__ ("" : "=r" (p4), "=r" (p5));
-+
- 	XMMS_RESTORE;
- }
- 
+Driver `w83627hf' (should be inserted):
+   Detects correctly:
+   * ISA bus address 0x0290 (Busdriver `i2c-isa')
+     Chip `Winbond W83627HF Super IO Sensors' (confidence: 9)
 
---=-=-=
+Of course most of the drivers are not in the kernel, but w83781d worked 
+for me with mm3 and now it does not. gkrellm2 still is able to read out 
+voltages and fan speeds but no temperatures anymore.
+
+Typing "sensors" just gives me:
+w83627hf-isa-0290
+Adapter: ISA adapter
+ERROR: Can't get IN0 data!
+ERROR: Can't get IN1 data!
+ERROR: Can't get IN2 data!
+ERROR: Can't get IN3 data!
+ERROR: Can't get IN4 data!
+ERROR: Can't get IN5 data!
+ERROR: Can't get IN6 data!
+ERROR: Can't get IN7 data!
+ERROR: Can't get IN8 data!
+ERROR: Can't get FAN1 data!
+ERROR: Can't get FAN2 data!
+ERROR: Can't get FAN3 data!
+ERROR: Can't get TEMP1 data!
+ERROR: Can't get TEMP2 data!
+ERROR: Can't get TEMP3 data!
+ERROR: Can't get VID data!
+alarms:
+beep_enable:
+           Sound alarm disabled
 
 
--- 
-Alexandre Oliva   Enjoy Guarana', see http://www.ic.unicamp.br/~oliva/
-Happy GNU Year!                     oliva@{lsd.ic.unicamp.br, gnu.org}
-Red Hat GCC Developer                 aoliva@{redhat.com, gcc.gnu.org}
-Free Software Evangelist                Professional serial bug killer
+:-(
 
---=-=-=--
+Prakash

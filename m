@@ -1,62 +1,47 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317283AbSFLAwX>; Tue, 11 Jun 2002 20:52:23 -0400
+	id <S317282AbSFLAvl>; Tue, 11 Jun 2002 20:51:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317287AbSFLAwW>; Tue, 11 Jun 2002 20:52:22 -0400
-Received: from dsl093-058-082.blt1.dsl.speakeasy.net ([66.93.58.82]:35570 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S317283AbSFLAwS>; Tue, 11 Jun 2002 20:52:18 -0400
-Date: Tue, 11 Jun 2002 15:27:42 -0400 (EDT)
-From: Donald Becker <becker@scyld.com>
-X-X-Sender: <becker@presario>
-To: Matti Aarnio <matti.aarnio@zmailer.org>
-cc: Robert PipCA <robertpipca@yahoo.com>, <vortex@scyld.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [vortex] Re: MTU discovery
-In-Reply-To: <20020610110513.I18899@mea-ext.zmailer.org>
-Message-ID: <Pine.LNX.4.33.0206111523050.1688-100000@presario>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317283AbSFLAvk>; Tue, 11 Jun 2002 20:51:40 -0400
+Received: from ausmtp01.au.ibm.COM ([202.135.136.97]:40082 "EHLO
+	ausmtp01.au.ibm.com") by vger.kernel.org with ESMTP
+	id <S317282AbSFLAvk>; Tue, 11 Jun 2002 20:51:40 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+        k-suganuma@mvj.biglobe.ne.jp
+Subject: Re: [PATCH] 2.5.21 Nonlinear CPU support 
+In-Reply-To: Your message of "Tue, 11 Jun 2002 02:27:25 MST."
+             <3D05C27D.186DC066@zip.com.au> 
+Date: Wed, 12 Jun 2002 10:53:20 +1000
+Message-Id: <E17HwO1-0002OW-00@wagner.rustcorp.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 10 Jun 2002, Matti Aarnio wrote:
+In message <3D05C27D.186DC066@zip.com.au> you write:
+> Rusty Russell wrote:
+> > 
+> > ...
+> > Let's not perpetuate the myth that everything in the kernel needs to
+> > be tuned to the last cycle at all costs, hm?
+> 
+> I was more concerned about the RAM use, actually.
+> 
+> This patch is an additional reason for CONFIG_NR_CPUS, but I've rather
+> gone cold on that idea because the "proper fix" is to make all those
+> huge per-cpu arrays dynamically allocated.   So you can run a 64p kernel
+> on 2p without losing hundreds of k of memory and kernel address space.
+> 
+> But it looks like all those dynamically-allocated structures would
+> have to be allocated out to NR_CPUS anyway, to support hotplug, yes?
+> 
+> In which case, CONFIG_NR_CPUS is the only way to get the memory
+> back...
 
-> Date: Mon, 10 Jun 2002 11:05:13 +0300
-> From: Matti Aarnio <matti.aarnio@zmailer.org>
-> To: Robert PipCA <robertpipca@yahoo.com>
-> Cc: vortex@scyld.com, linux-kernel@vger.kernel.org
-> Subject: [vortex] Re: MTU discovery
->
-> On Mon, Jun 10, 2002 at 12:45:07AM -0700, Robert PipCA wrote:
-> >   Hi,
-> >   I'm working on a project that require knowing the max MTU size
-> > supported by the 3Com PCI 3c905C (Boomerang).
-> > The datasheet provided by 3Com does not mention it, and I already
-> > did the usual google search, but didn't find it neither.
-> > Does anyone knows a "generic way" of knowing this (or chip-specific)?
-..
->   Some devices do, however, support reception (and transmit) of what
->   is called "jumbograms".  With boomerang you can set a register
->   to contain the limit value.
+Precisely.  Previously, the assumption was that if you're SMP, memory
+is cheap.  To be frank, it's still true, but I don't want to
+discourage any sign of a "small is beautiful" mindset 8)
 
-A 16 bit register.. 64KB packets.  There are various issues with using
-large packet sizes.  There is no driver that has been verified with
-jumbo frames.  I have been throwing driver versions at Rishi Srivatsavai
-<rishis at CLEMSON.EDU> trying to sort out the issues.  You might notice
-the changes in 0.99W, although they don't handle the FIFO limit issues.
-
->  Alternatively with boomerang, and
->   its predecessors, you can set a bit to accept extra-large frames.
->
->   I recall the ultimate limit is in order of 4kB.
-
-More precisely, FDDI frame size minus the FDDI-specific bits, about
-4.5KB.
-
--- 
-Donald Becker				becker@scyld.com
-Scyld Computing Corporation		http://www.scyld.com
-410 Severn Ave. Suite 210		Second Generation Beowulf Clusters
-Annapolis MD 21403			410-990-9993
-
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

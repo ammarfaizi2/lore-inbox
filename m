@@ -1,45 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265092AbSLLTAC>; Thu, 12 Dec 2002 14:00:02 -0500
+	id <S265019AbSLLTK7>; Thu, 12 Dec 2002 14:10:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265094AbSLLTAC>; Thu, 12 Dec 2002 14:00:02 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:6890 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S265092AbSLLTAB>;
-	Thu, 12 Dec 2002 14:00:01 -0500
-From: Krishna Kumar <krkumar@us.ibm.com>
-Message-Id: <200212121905.gBCJ5hn18058@eng2.beaverton.ibm.com>
-Subject: [PATCH RESEND] memory leak in ndisc_router_discovery
-To: kuznet@ms2.inr.ac.ru, davem@redhat.com
-Date: Thu, 12 Dec 2002 11:05:43 -0800 (PST)
-Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.5 PL3]
+	id <S264984AbSLLTK7>; Thu, 12 Dec 2002 14:10:59 -0500
+Received: from host136-27.pool217141.interbusiness.it ([217.141.27.136]:14606
+	"EHLO mdvsrvsmtp01.north.h3g.it") by vger.kernel.org with ESMTP
+	id <S264877AbSLLTK5> convert rfc822-to-8bit; Thu, 12 Dec 2002 14:10:57 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.0.5762.3
+Content-Class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: Kernel bug handling TCP_RTO_MAX?
+Date: Thu, 12 Dec 2002 20:15:42 +0100
+Message-ID: <047ACC5B9A00D741927A4A32E7D01B73D66176@RMEXC01.h3g.it>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Kernel bug handling TCP_RTO_MAX?
+thread-index: AcKiEsQqYuHs0uDZQieYDM6iK+0WiQ==
+From: "Andreani Stefano" <stefano.andreani.ap@h3g.it>
+To: <linux-kernel@vger.kernel.org>, <linux-net@vger.kernel.org>
+X-OriginalArrivalTime: 12 Dec 2002 19:15:42.0468 (UTC) FILETIME=[DD3D2C40:01C2A212]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Problem: I need to change the max value of the TCP retransmission timeout. 
 
-I had sent this earlier, there is a bug in router advertisement handling code,
-where the reference (and memory) to an inet6_dev pointer can get leaked (this
-leak can happen atmost once for each interface on a system which receives
-invalid RA's). Below is the patch against 2.5.51 to fix it.
+Background: According to Karn's exponential backoff algorithm, when the receiver doesn't acknowledge packets for a while, the sender should retransmit the latest not acknowledged packet several times increasing the delay (RTO) since this delay reaches the Max Retransmission Timeout Value. 
 
-thanks,
+Testing environment: Red Hat Linux release 7.2 (Enigma), Kernel 2.4.7-10 on an i686, Kernel 2.4.7-10.
 
-- KK
+Test details: I supposed this timeout in Linux was TCP_RTO_MAX, so I changed in /include/net/tcp.h the following line:
 
--------------------------------------------------------------------------------
-diff -ruN linux.org/net/ipv6/ndisc.c linux/net/ipv6/ndisc.c
---- linux.org/net/ipv6/ndisc.c	Fri Nov  7 10:02:11 2002
-+++ linux/net/ipv6/ndisc.c	Fri Nov  8 14:37:27 2002
-@@ -871,6 +871,7 @@
- 	}
- 
- 	if (!ndisc_parse_options(opt, optlen, &ndopts)) {
-+		in6_dev_put(in6_dev);
- 		if (net_ratelimit())
- 			ND_PRINTK2(KERN_WARNING
- 				   "ICMP6 RA: invalid ND option, ignored.\n");
--------------------------------------------------------------------------------
+#define TCP_RTO_MAX	((unsigned)(6*HZ)) //It was: ((unsigned)(120*HZ))
+
+Then I recompiled the kernel, rebooted the machine and tested the solution. The result I obtained was the same I had before this modification. 
+
+I'm confident there isn't an error in the testing procedure because I already tested with a Solaris server the same procedure (changing the tcp_rexmit_interval_max variable) and it works. I'm just trying to reproduce the modification of that parameter in Linux. 
+
+Could it be a bug on the RTO calculation algorithm, or there is something I mistook?
+
+This is the first time I get into the linux kernel, so please be patient!
+
+Thanks,
+
+Stefano.
+
+-------------------------------
+        Stefano Andreani
+    Freelance ICT Consultant
+      H3G IOT Team - Italy
+      tel. +39 347 8215965
+   stefano.andreani.ap@h3g.it
+

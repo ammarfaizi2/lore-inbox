@@ -1,57 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318027AbSHHWHz>; Thu, 8 Aug 2002 18:07:55 -0400
+	id <S317602AbSHHWNU>; Thu, 8 Aug 2002 18:13:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318028AbSHHWHy>; Thu, 8 Aug 2002 18:07:54 -0400
-Received: from ppp-217-133-219-100.dialup.tiscali.it ([217.133.219.100]:28069
-	"EHLO home.ldb.ods.org") by vger.kernel.org with ESMTP
-	id <S318027AbSHHWHx>; Thu, 8 Aug 2002 18:07:53 -0400
-Subject: Re: [PATCH] [2.5] asm-generic/atomic.h and changes to arm, parisc,
-	mips, m68k, sh, cris to use it
-From: Luca Barbieri <ldb@ldb.ods.org>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Linux-Kernel ML <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0208082357170.8911-100000@serv>
-References: <Pine.LNX.4.44.0208082357170.8911-100000@serv>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-K6l+RS9sDatQluOl+1sb"
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 09 Aug 2002 00:11:21 +0200
-Message-Id: <1028844681.1669.80.camel@ldb>
-Mime-Version: 1.0
+	id <S318046AbSHHWNU>; Thu, 8 Aug 2002 18:13:20 -0400
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:50137 "EHLO
+	zcars04e.ca.nortel.com") by vger.kernel.org with ESMTP
+	id <S318040AbSHHWNT>; Thu, 8 Aug 2002 18:13:19 -0400
+Message-ID: <3D52EDD6.75150466@nortelnetworks.com>
+Date: Thu, 08 Aug 2002 18:16:54 -0400
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: flushing arp buffer -- why __skb_dequeue rather than __skb_dequeue_tail 
+ ?
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-K6l+RS9sDatQluOl+1sb
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+As part of one of our test cases we ran into a scenario where we were sending
+out messages while waiting on an arp reply.  As expected they were buffered, but
+we noticed that after the reply was received the packets were sent out in LIFO
+order.
 
-> Why did you change m68k? It was fine before.
+In neigh_update() in neighbor.c, we're looping through the list calling
+__skb_dequeue().  Is there any particular reason why this was chosen rather than
+__skb_dequeue_tail()?  The latter would result in FIFO flushing of the buffer
+which could have some benefits to udp applications that retry on out-of-order
+message receipt, and it doesn't seem to be many more instructions, if any. 
+Besides, this isn't the fast path so a few extra instructions shouldn't matter.
 
-- Didn't implement atomic_{add,sub,inc,dec}_return. This is currently
-not used in the generic kernel but it can be useful.
-- Had inline assembly for things the compiler should be able to generate
-on its own
-- Didn't work on SMP (irrelevant in practice, but we already need that
-in asm-generic/atomic.h for parisc so m68k gets it for free)
+Would you anticipate any odd side effects if we did change to FIFO flushing?
 
-The actual assembly generated should be the same and the header is
-shorter.
+Chris
 
-The only problem is that it may introduce bugs. Does it work on m68k?
-
-
---=-K6l+RS9sDatQluOl+1sb
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQA9UuyJdjkty3ft5+cRAo40AJ4sgAJVFr2yzNSfCFeyB8USvjq8XgCbBohB
-/HD18mau4j/0baybE2bOd+c=
-=I+4X
------END PGP SIGNATURE-----
-
---=-K6l+RS9sDatQluOl+1sb--
+-- 
+Chris Friesen                    | MailStop: 043/33/F10  
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com

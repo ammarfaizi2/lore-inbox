@@ -1,40 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266020AbTA2Nra>; Wed, 29 Jan 2003 08:47:30 -0500
+	id <S265947AbTA2Non>; Wed, 29 Jan 2003 08:44:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266038AbTA2Nra>; Wed, 29 Jan 2003 08:47:30 -0500
-Received: from AGrenoble-101-1-2-175.abo.wanadoo.fr ([193.253.227.175]:45065
-	"EHLO microsoft.com") by vger.kernel.org with ESMTP
-	id <S266020AbTA2Nr3>; Wed, 29 Jan 2003 08:47:29 -0500
-Subject: Re: Scaring the non-geeks (was Bootscreen)
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: "Richard B. Tilley   " "(Brad)" <rtilley@vt.edu>
-Cc: Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
-       John Bradford <john@grabjohn.com>, jeff millar <wa1hco@adelphia.net>,
-       Raphael_Schmid@CUBUS.COM, rob@r-morris.co.uk,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1043846348.11513.2.camel@oubop4.bursar.vt.edu>
-References: <200301281440.h0SEeBS8001126@darkstar.example.net>
-	 <200301291409.57213.roy@karlsbakk.net>
-	 <1043846348.11513.2.camel@oubop4.bursar.vt.edu>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1043848700.11095.2.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.1.1 (Preview Release)
-Date: 29 Jan 2003 14:58:21 +0100
+	id <S265960AbTA2Nom>; Wed, 29 Jan 2003 08:44:42 -0500
+Received: from [81.2.122.30] ([81.2.122.30]:48903 "EHLO darkstar.example.net")
+	by vger.kernel.org with ESMTP id <S265947AbTA2Nom>;
+	Wed, 29 Jan 2003 08:44:42 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200301291354.h0TDsEcb001684@darkstar.example.net>
+Subject: Re: AW: Bootscreen
+To: szepe@pinerecords.com (Tomas Szepe)
+Date: Wed, 29 Jan 2003 13:54:14 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20030129123315.GC29750@louise.pinerecords.com> from "Tomas Szepe" at Jan 29, 2003 01:33:15 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Ideas like yours remind me just how GREAT it is that Linus is
+> so hard to get to accept patches.  People are constantly trying
+> to get such a tremendous quantity of absolute junk into the
+> tree that it ceases to be funny.
 
-> How do positive terms such as OK or YES scare people? 
+Also, when a really good idea *does* come along, (morse code on the
+keyboard LEDs, for example), it get included, which is good.
 
-Goblodoing the frungled devil                 [OK]
-Escraping various gunfred                     [OK]
-Erasing sdfjebr documents                     [OK]
+I am thinking of re-wiring the MHz indicator on this machine to the
+parallel port, so that it can display the number of unread E-Mails
+I've got :-).  The turbo light is currently a SCSI bus activity
+indicator.  Oh, and it would be really cool would be two bulbs behind
+Linux and BSD case badges, which light up to indicate which OS is
+running :-).
 
-.. ad nauseum
-
-now who's scared ?
-
+John

@@ -1,58 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319538AbSH3KaL>; Fri, 30 Aug 2002 06:30:11 -0400
+	id <S319539AbSH3Kkv>; Fri, 30 Aug 2002 06:40:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319539AbSH3KaL>; Fri, 30 Aug 2002 06:30:11 -0400
-Received: from portal.beam.ltd.uk ([62.49.82.227]:55787 "EHLO beam.beamnet")
-	by vger.kernel.org with ESMTP id <S319538AbSH3KaK>;
-	Fri, 30 Aug 2002 06:30:10 -0400
-Message-ID: <3D6F4A3A.50806@beam.ltd.uk>
-Date: Fri, 30 Aug 2002 11:34:34 +0100
-From: Terry Barnaby <terry@beam.ltd.uk>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Linux kernel lockup with BVM SCSI controller on MCPN765 PPC board
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S319540AbSH3Kkv>; Fri, 30 Aug 2002 06:40:51 -0400
+Received: from ip68-4-86-174.oc.oc.cox.net ([68.4.86.174]:45305 "HELO
+	ip68-4-77-172.oc.oc.cox.net") by vger.kernel.org with SMTP
+	id <S319539AbSH3Kku>; Fri, 30 Aug 2002 06:40:50 -0400
+Date: Fri, 30 Aug 2002 03:45:14 -0700
+From: "Barry K. Nathan" <barryn@pobox.com>
+To: Mat Harris <mat.harris@genestate.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.18-3 on rh 7.1?
+Message-ID: <20020830104514.GA2165@ip68-4-77-172.oc.oc.cox.net>
+References: <20020830083233.GA9196@genestate.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020830083233.GA9196@genestate.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, Aug 30, 2002 at 09:32:33AM +0100, Mat Harris wrote:
+> silly question compared to all you gurus on the list, but it needs to be
+> asked. I need to fun freeswan (secure wan) between sever a redhat
+> servers. the only patched kernel i am permitted to use is the rpm for
+> ipsec enables 2.4.18-3. will this kernel work on redhat 7.1, or will it
+> fall over at the first opportunity?
 
-We have a major problem with using a BVM SCSI controller on a Motorola
-MCPN765 PowerPC Compact PCI Motherboard. When the SCSI driver module is
-loaded and starts to perform SCSI device interrogation the system will
-completely lock up.
-It appears that the hardware is locked up, the kernel locks up during
-a low level serial console print routine (serial_console_write). No interrupts
-occur (we have even disabled interrupts in the serial_console_write routine
-to make sure).
-The BVM SCSI controller is based on the LSI53C1010-66 chip and we are using the
-sym53c8xx_2 SCSI driver (although the same problem occurs with the
-sym53c8xx SCSI driver.
-We are using MontaVista Linux 2.1 with the 2.4.17 kernel.
+I've never done IPSec, but plain use of 2.4.18-3 does work with Red Hat
+7.1. Note that you'll need to either satisfy the dependencies by
+upgrading some packages from Red Hat 7.3, or use --nodeps. Both work in
+my experiences.
 
-Using this SCSI controller board with a Motorola MCP750 PowerPC motherboard
-works fine. One of the differences between the Motherboards is that the
-MCPN765 has a 66MHz/64bit PCI bus while the MCP750 has a 33MHz/32bit PCI bus.
-The MCPN765 uses a Hawk ASIC for Memory/PCI bus control.
+However, note that:
++ 2.4.18-3 has a data corruption bug with ext3 on SMP systems, fixed in
+  2.4.18-4.
++ 2.4.18-4 (and -3) has weird NFS problems which are fixed in 2.4.18-5
++ 2.4.18-[345] have security problems which are fixed in 2.4.18-10
+  (By the way, does anyone know if new 2.4.9-xx or 2.2.xx kernels are
+  coming from Red Hat to fix these holes for those releases? Or have
+  earlier Red Hat kernels (and releases) just been abandoned? Or are
+  they just not affected?)
 
-We have been attempting to debug the driver to find the cause but have been
-hitting brick walls. The system appears to lock up when the SCSI board
-is performing a DataIn phase under the control of its on-board SCRIPTS processor.
-
-As the system has completely locked up we have not been able to find the cause.
-Any information on possible causes or ideas on how to proceed would be most
-appreciated.
-
-Terry
--- 
-   Dr Terry Barnaby                     BEAM Ltd
-   Phone: +44 1454 324512               Northavon Business Center, Dean Rd
-   Fax:   +44 1454 313172               Yate, Bristol, BS37 5NH, UK
-   Email: terry@beam.ltd.uk             Web: www.beam.ltd.uk
-   BEAM for: Visually Impaired X-Terminals, Parallel Processing, Software Dev
-                          "Tandems are twice the fun !"
-
+-Barry K. Nathan <barryn@pobox.com>

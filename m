@@ -1,55 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261275AbTEEVHL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 17:07:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261315AbTEEVHL
+	id S261383AbTEEVVO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 17:21:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261387AbTEEVVO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 17:07:11 -0400
-Received: from [12.47.58.20] ([12.47.58.20]:9940 "EHLO pao-ex01.pao.digeo.com")
-	by vger.kernel.org with ESMTP id S261275AbTEEVHK (ORCPT
+	Mon, 5 May 2003 17:21:14 -0400
+Received: from [12.47.58.20] ([12.47.58.20]:36822 "EHLO pao-ex01.pao.digeo.com")
+	by vger.kernel.org with ESMTP id S261383AbTEEVVM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 17:07:10 -0400
-Date: Mon, 5 May 2003 14:16:01 -0700
+	Mon, 5 May 2003 17:21:12 -0400
+Date: Mon, 5 May 2003 14:30:06 -0700
 From: Andrew Morton <akpm@digeo.com>
-To: Nicolas <linux@1g6.biz>
-Cc: linux-kernel@vger.kernel.org, "Grover, Andrew" <andrew.grover@intel.com>
-Subject: Re: oops 2.5.68 ohci1394/ IRQ/acpi
-Message-Id: <20030505141601.7537365a.akpm@digeo.com>
-In-Reply-To: <200305051350.41340.linux@1g6.biz>
-References: <200305051350.41340.linux@1g6.biz>
+To: Shane Shrybman <shrybman@sympatico.ca>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.68-mmX: Drowning in irq 7: nobody cared!
+Message-Id: <20030505143006.29c0301a.akpm@digeo.com>
+In-Reply-To: <1052141029.2527.27.camel@mars.goatskin.org>
+References: <1052141029.2527.27.camel@mars.goatskin.org>
 X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 05 May 2003 21:19:34.0127 (UTC) FILETIME=[065657F0:01C3134C]
+X-OriginalArrivalTime: 05 May 2003 21:33:38.0710 (UTC) FILETIME=[FDBF7B60:01C3134D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nicolas <linux@1g6.biz> wrote:
+Shane Shrybman <shrybman@sympatico.ca> wrote:
 >
+> Hi,
 > 
-> May  5 13:36:56 hal9003 kernel: irq 9: nobody cared!
-> ...
-> May  5 13:36:56 hal9003 kernel: handlers:
-> May  5 13:36:56 hal9003 kernel: [acpi_irq+0/17] (acpi_irq+0x0/0x11)
-> May  5 13:36:56 hal9003 kernel: [<c01c1ff0>] (acpi_irq+0x0/0x11)
+> I am getting a lot of these in the logs. This is with the ALSA emu10k1
+> driver for a SB live card. This is a x86, UP, KT133 system with preempt
+> enabled. The system seems to be running fine.
+> 
+> handlers:
+> [<d8986540>] (gcc2_compiled.+0x0/0x390 [snd_emu10k1])
+> irq 7: nobody cared!
 
-Look like the ACPI IRQ handler isn't returning an appropriate value.
+Beats me.  Does this fix it up?
 
-Can you test this patch?
-
-diff -puN drivers/acpi/osl.c~acpi-irq-ret-fix drivers/acpi/osl.c
---- 25/drivers/acpi/osl.c~acpi-irq-ret-fix	Mon May  5 14:14:24 2003
-+++ 25-akpm/drivers/acpi/osl.c	Mon May  5 14:14:38 2003
-@@ -237,7 +237,7 @@ acpi_os_table_override (struct acpi_tabl
- static irqreturn_t
- acpi_irq(int irq, void *dev_id, struct pt_regs *regs)
- {
--	return (*acpi_irq_handler)(acpi_irq_context);
-+	return (*acpi_irq_handler)(acpi_irq_context) ? IRQ_HANDLED : IRQ_NONE;
+diff -puN sound/pci/emu10k1/irq.c~sound-irq-hack sound/pci/emu10k1/irq.c
+--- 25/sound/pci/emu10k1/irq.c~sound-irq-hack	Mon May  5 14:28:58 2003
++++ 25-akpm/sound/pci/emu10k1/irq.c	Mon May  5 14:29:17 2003
+@@ -147,5 +147,5 @@ irqreturn_t snd_emu10k1_interrupt(int ir
+ 			outl(IPR_FXDSP, emu->port + IPR);
+ 		}
+ 	}
+-	return IRQ_RETVAL(handled);
++	return IRQ_HANDLED;
  }
- 
- acpi_status
 
 _
 

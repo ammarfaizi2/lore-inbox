@@ -1,43 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266315AbUFPVdx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266316AbUFPVgO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266315AbUFPVdx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jun 2004 17:33:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266316AbUFPVdx
+	id S266316AbUFPVgO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jun 2004 17:36:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266317AbUFPVgO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jun 2004 17:33:53 -0400
-Received: from [213.146.154.40] ([213.146.154.40]:23456 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S266311AbUFPVdp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jun 2004 17:33:45 -0400
-Date: Wed, 16 Jun 2004 22:33:43 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Alan Cox <alan@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: PATCH: Further aacraid work
-Message-ID: <20040616213343.GA20488@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org,
-	linux-scsi@vger.kernel.org
-References: <20040616210455.GA13385@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040616210455.GA13385@devserv.devel.redhat.com>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Wed, 16 Jun 2004 17:36:14 -0400
+Received: from ns1.skjellin.no ([80.239.42.66]:2007 "HELO mail.skjellin.no")
+	by vger.kernel.org with SMTP id S266316AbUFPVgF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jun 2004 17:36:05 -0400
+Message-ID: <40D0BD42.1090007@tomt.net>
+Date: Wed, 16 Jun 2004 23:36:02 +0200
+From: Andre Tomt <andre@tomt.net>
+User-Agent: Mozilla Thunderbird 0.6 (Windows/20040502)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: root@chaos.analogic.com
+Subject: Re: Programtically tell diff between HT and real
+References: <20040616174646.70010.qmail@web51805.mail.yahoo.com>  <1087408567.7869.1.camel@localhost> <1087411607.7869.3.camel@localhost> <Pine.LNX.4.53.0406161644450.541@chaos>
+In-Reply-To: <Pine.LNX.4.53.0406161644450.541@chaos>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 16, 2004 at 05:04:55PM -0400, Alan Cox wrote:
-> I've been going through Mark's changes with a fine toothcomb and this merges
-> most of them. Its tested on 64bit SMP hardware and seems to be fine. There
-> are a couple of Mark's changes I've left out for now but there isnt really
-> an easy way to break down the changes further.
+Richard B. Johnson wrote:
+> flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
+>   mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe cid
+>                                                            ^_______
+> bogomips	: 5570.56
 > 
-> This fixes a whole host of problems including random hangs under high load
+> I would love to know how you turn in on! This is one of those
+> "latest-and-greatest" Intel D865PERL mother-boards and I've
+> even flashed the BIOS with the "latest-and-greatest".
 
-Looks mostly good except for the GART iommu ifdef.  That code is bogus for
-almost everything but a plain PC and should just be killed.
+The usual way is to enable HT in BIOS, and use a SMP enabled kernel.
 
-Does this apply ontop of Marc's ioctl patch?
+-- 
+Cheers,
+André Tomt

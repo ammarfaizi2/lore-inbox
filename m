@@ -1,38 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265002AbSLMAMk>; Thu, 12 Dec 2002 19:12:40 -0500
+	id <S267554AbSLMAQ0>; Thu, 12 Dec 2002 19:16:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267550AbSLMAMj>; Thu, 12 Dec 2002 19:12:39 -0500
-Received: from dp.samba.org ([66.70.73.150]:11946 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S265002AbSLMAMj>;
-	Thu, 12 Dec 2002 19:12:39 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Matt Reppert <arashi@arashi.yi.org>
-Cc: rth@twiddle.net, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] "extern inline" to "static inline" allows compile 
-In-reply-to: Your message of "Thu, 12 Dec 2002 17:09:02 MDT."
-             <20021212170902.34e344b1.arashi@arashi.yi.org> 
-Date: Fri, 13 Dec 2002 11:18:57 +1100
-Message-Id: <20021213002028.C2CC72C0AB@lists.samba.org>
+	id <S267560AbSLMAQ0>; Thu, 12 Dec 2002 19:16:26 -0500
+Received: from deimos.hpl.hp.com ([192.6.19.190]:40430 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S267554AbSLMAQZ>;
+	Thu, 12 Dec 2002 19:16:25 -0500
+Date: Thu, 12 Dec 2002 16:22:29 -0800
+To: Benjamin Reed <br33d@yahoo.com>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, jt@hpl.hp.com,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Benjamin Reed <breed@users.sourceforge.net>,
+       Jeff Garzik <jgarzik@mandrakesoft.com>, dahinds@users.sourceforge.net
+Subject: Re: Status new-modules + 802.11b/IrDA
+Message-ID: <20021213002229.GB21291@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+References: <20021212003733.2AF922C0E0@lists.samba.org> <20021212215126.96688.qmail@web20508.mail.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021212215126.96688.qmail@web20508.mail.yahoo.com>
+User-Agent: Mutt/1.3.28i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20021212170902.34e344b1.arashi@arashi.yi.org> you write:
-> Hi,
+On Thu, Dec 12, 2002 at 01:51:26PM -0800, Benjamin Reed wrote:
+> Sorry, I missed the original message.
 > 
-> I can't compile 2.5.51 on an EV56 without this. Tested, boots.
-> There are a bunch of symbols in core_cia.h that break the build if they're
-> extern inline because they're only defined in the header now. Make them
-> static inline instead. (Important, since they're #defined to things like
-> inb)
+> As far as the timer message from airo_cs when you try
+> to remove the card:  This executes some code that is
+> pretty much common to all PCMCIA drivers that sets a
+> timer to do the actual driver removal asynchronous to
+> the REMOVAL event.  You can find it in airo_cs.c. 
+> I'll update the driver.
 > 
-> Comments?
+> I haven't tried the recent 2.5 kernels, so I check if
+> I see anything.
+> 
+> ben 
 
-This patch is simple, but not trivial, and since RTH wrote this, I'm
-assuming all those __EXTERN_INLINE's are defined and undefned in
-multiple places for a reason.
+	Well, I said earlier that it was a generic Pcmcia problem,
+because I have the same problem with the orinoco driver. But, we need
+to separate the noise from the problem (Andrew says that the timer
+is only a harmless warning).
+	I personally never liked the release timer, and I personally
+avoided it in the wavelan_cs driver for a long time (before David
+forced me to it). But, anyway at some point this will need to be
+investigated.
 
-Richard?
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+	Have fun..
+
+	Jean
+	

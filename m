@@ -1,68 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263972AbUECUzW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263975AbUECU46@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263972AbUECUzW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 May 2004 16:55:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263991AbUECUzW
+	id S263975AbUECU46 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 May 2004 16:56:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263993AbUECU46
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 May 2004 16:55:22 -0400
-Received: from fw.osdl.org ([65.172.181.6]:26847 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263972AbUECUzQ (ORCPT
+	Mon, 3 May 2004 16:56:58 -0400
+Received: from palrel13.hp.com ([156.153.255.238]:47537 "EHLO palrel13.hp.com")
+	by vger.kernel.org with ESMTP id S263991AbUECU4z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 May 2004 16:55:16 -0400
-Date: Mon, 3 May 2004 13:57:19 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Ram Pai <linuxram@us.ibm.com>
-Cc: nickpiggin@yahoo.com.au, alexeyk@mysql.com, linux-kernel@vger.kernel.org,
-       axboe@suse.de
-Subject: Re: Random file I/O regressions in 2.6
-Message-Id: <20040503135719.423ded06.akpm@osdl.org>
-In-Reply-To: <1083615727.7949.40.camel@localhost.localdomain>
-References: <200405022357.59415.alexeyk@mysql.com>
-	<409629A5.8070201@yahoo.com.au>
-	<20040503110854.5abcdc7e.akpm@osdl.org>
-	<1083615727.7949.40.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 3 May 2004 16:56:55 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16534.45589.62353.878714@napali.hpl.hp.com>
+Date: Mon, 3 May 2004 13:56:53 -0700
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: David Mosberger <davidm@hpl.hp.com>, Andrew Morton <akpm@osdl.org>,
+       bunk@fs.tum.de, eyal@eyal.emu.id.au, linux-dvb-maintainer@linuxtv.org,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.6-rc3: modular DVB tda1004x broken
+In-Reply-To: <Pine.LNX.4.58.0405031336470.1589@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0404271858290.10799@ppc970.osdl.org>
+	<408F9BD8.8000203@eyal.emu.id.au>
+	<20040501201342.GL2541@fs.tum.de>
+	<Pine.LNX.4.58.0405011536300.18014@ppc970.osdl.org>
+	<20040501161035.67205a1f.akpm@osdl.org>
+	<Pine.LNX.4.58.0405011653560.18014@ppc970.osdl.org>
+	<20040501175134.243b389c.akpm@osdl.org>
+	<16534.35355.671554.321611@napali.hpl.hp.com>
+	<Pine.LNX.4.58.0405031336470.1589@ppc970.osdl.org>
+X-Mailer: VM 7.18 under Emacs 21.3.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ram Pai <linuxram@us.ibm.com> wrote:
->
-> > The place which needs attention is handle_ra_miss().  But first I'd like to
-> > reacquaint myself with the intent behind the lazy-readahead patch.  Was
-> > never happy with the complexity and special-cases which that introduced.
-> 
-> lazy-readahead has no role to play here.
+>>>>> On Mon, 3 May 2004 13:42:54 -0700 (PDT), Linus Torvalds <torvalds@osdl.org> said:
 
-Sure.  But lazy-readahead is bolted on the side and is generally not to my
-liking.  I'd like to find a solution to the sysbench problem which also
-solves the thing which lazy-readahead addressed.
+  Linus> Rule: every architecture needs to implement its own kernel
+  Linus> "execve()" function some way. Everything else is done by the
+  Linus> architecture-independent <linux/unistd.h> translation layer.
 
-> The readahead window got closed
-> because the i/o pattern was totally random. My guess is multiple threads
-> are generating 16k i/o on the same fd. In such a case the i/os can  get
-> interleaved and the readahead window size goes for a toss(which is
-> expected  behavior)
+Looks good to me.
 
-I don't think it's that.  The app is doing well-aligned 16k reads and
-writes.  If we get enough pagecache hits on the reads, readahead turns
-itself off (fair enough) but fails to turn itself on again.
+  Linus> The only change here is that this makes "open()" and friends
+  Linus> depend on the "sys_open()" and friends EXPORT's for
+  Linus> modules. Right now it appears that
+  Linus> sys_open/sys_lseek/sys_read are all EXPORT_SYMBOL_GPL's. That
+  Linus> sounds pretty insane anyway (it's not like we can claim that
+  Linus> "sys_open()" is some _internal_ interface), so I'd be
+  Linus> inclined to just change them all to regular EXPORT_SYMBOL's.
 
-The readahead logic _should_ be able to adapt to the fixed-sized I/Os and
-issue correct-sized reads immediately after each seek.  I _think_ this will
-fix the problem which lazy-readahead addressed, but as usual we don't have
-a rigorous description of that problem :(
+Does the rule have to be that all sys_FOO() entry-points must be
+exported via EXPORT_SYMBOL()?  Otherwise we have the strange issue
+where a kernel-module may not be able to (easily) invoke a system call
+which it could formerly invoke via _syscallN().  For example, the ATI
+driver wants to call mlock()/munlock().  While this happens to be a
+proprietary/binary-only driver, the same issue can arise with GPL'd
+modules.
 
-> Well if this is infact the case: the question is
-> 	1. does the i/o pattern really has some sequentiality to 
-> 		deserve a readahead?
-> 	2. or should we ensure that the interleaved case be somehow
-> 		 handled, by including the size parameter?
-> 
-> I know Nick has implied option (2) but I think from the readahead's
-> point of view it is (1),
+  Linus> Comments? To me, this is a pretty clear cleanup (and I left
+  Linus> the old _syscallX() crud alone, even though we could remove
+  Linus> it now entirely).
 
-Readahead has got too complex and is getting band-aidy.  I'd prefer to tear
-it down and rethink things.
+In my opinion, it would be good to remove _syscallX() altogether.
+
+	--david

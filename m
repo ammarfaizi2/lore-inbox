@@ -1,35 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289025AbSANVEM>; Mon, 14 Jan 2002 16:04:12 -0500
+	id <S289046AbSANVHo>; Mon, 14 Jan 2002 16:07:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289046AbSANVED>; Mon, 14 Jan 2002 16:04:03 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:33800 "EHLO
+	id <S289055AbSANVHd>; Mon, 14 Jan 2002 16:07:33 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:39432 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S289025AbSANVDw>; Mon, 14 Jan 2002 16:03:52 -0500
-Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery -- the elegant solution)
-To: esr@thyrsus.com
-Date: Mon, 14 Jan 2002 21:15:39 +0000 (GMT)
-Cc: arjan@fenrus.demon.nl, linux-kernel@vger.kernel.org
-In-Reply-To: <20020114145035.E17522@thyrsus.com> from "Eric S. Raymond" at Jan 14, 2002 02:50:35 PM
+	id <S289046AbSANVH1>; Mon, 14 Jan 2002 16:07:27 -0500
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+To: akpm@zip.com.au (Andrew Morton)
+Date: Mon, 14 Jan 2002 21:19:02 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), zippel@linux-m68k.org (Roman Zippel),
+        yodaiken@fsmlabs.com, phillips@bonn-fries.net (Daniel Phillips),
+        arjan@fenrus.demon.nl (Arjan van de Ven), linux-kernel@vger.kernel.org
+In-Reply-To: <3C43394D.412C7ECC@zip.com.au> from "Andrew Morton" at Jan 14, 2002 12:02:21 PM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16QESB-0002xq-00@the-village.bc.nu>
+Message-Id: <E16QEVS-0002yh-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> "Crap." Melvin thinks.  "I don't remember what kind of network card I
-> compiled in.  Am I going to have to open this puppy up just to eyeball
-> the hardware?" Doing that would take time Melvin was planning to spend
+> I have all along assumed that a well-designed RT application would delegate
+> all these operations to SCHED_OTHER worker processes, probably via shared
+> memory/shared mappings.  So in the simplest case, you'd have a SCHED_FIFO
+> task which talks to the hardware, and which has a helper task which reads
+> and writes stuff from and to disk.  With sufficient buffering and readahead
+> to cover the worst case IO latencies.
 
-So he builds a kernel with modular setups just like the vendor kernel. The
-existing module configuration and setup data that worked with the old
-kernel keeps working and he has time to read up on his technique and get
-laid.
+A real RT task has hard guarantees and to all intents and purposes you may
+deem the system failed if it ever misses one (arguably if you cannot verify
+it will never miss one).
 
-I just don't buy your examples. Eric all I can think is that you have seriously 
-weird relatives.
+The stuff we care about is things like DVD players which tangle with
+sockets, pipes, X11, memory allocation, and synchronization between multiple
+hardware devices all running at slightly incorrect clocks.
 
-Alan

@@ -1,57 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313125AbSG2ICK>; Mon, 29 Jul 2002 04:02:10 -0400
+	id <S312962AbSG2H6V>; Mon, 29 Jul 2002 03:58:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313181AbSG2ICK>; Mon, 29 Jul 2002 04:02:10 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:31502 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S313125AbSG2ICI>;
-	Mon, 29 Jul 2002 04:02:08 -0400
-Message-ID: <3D44F94D.E6F949AE@zip.com.au>
-Date: Mon, 29 Jul 2002 01:14:05 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc3-ac3 i686)
-X-Accept-Language: en
+	id <S313070AbSG2H6V>; Mon, 29 Jul 2002 03:58:21 -0400
+Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:11027 "EHLO
+	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S312962AbSG2H6N>; Mon, 29 Jul 2002 03:58:13 -0400
+Date: Mon, 29 Jul 2002 10:01:26 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: David Howells <dhowells@redhat.com>
+cc: Christoph Hellwig <hch@infradead.org>,
+       "Adam J. Richter" <adam@yggdrasil.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Patch: linux-2.5.29 __downgrade_write() for CONFIG_RWSEM_GENERIC_SPINLOCK
+In-Reply-To: <9911.1027928536@warthog.cambridge.redhat.com>
+Message-ID: <Pine.LNX.4.44.0207290958010.28515-100000@serv>
 MIME-Version: 1.0
-To: util-linux@math.uio.no
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: kernel profiler in 2.5.
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-The kernel profiler broke quite some time ago.  It's actually
-a problem with readprofile(8).   It doesn't like the weak
-symbols in System.map:
+On Mon, 29 Jul 2002, David Howells wrote:
 
-c011fb04 T notifier_call_chain
-c011fb44 T register_reboot_notifier
-c011fb5c T unregister_reboot_notifier
-c011fb74 T sys_ni_syscall
-c011fb74 W sys_acct
-c011fb74 W sys_quotactl
-c011fb80 t proc_sel
-c011fc28 T sys_setpriority
+> > You don't really need that extra argument, testing sem->activity should do
+> > the same job.
+> > If you exchange the wakewrite (or sem->activity) test and the
+> > waiter->flags you can fold it into the next test (this means all the extra
+> > work would only be done, if we have a writer waiting at the top).
+>
+> The reason for doing it this way is that it allows the compiler to discard
+> parts of the function when inlining it since the value is set at compile time
+> rather than being worked out at runtime. The value itself should be
+> disappeared entirely by the compiler.
 
-Here's a quick fix.  There are probably smarter ways...
+Did you look at the code? gcc should be able to optimize that itself.
 
---- sys-utils/readprofile.c.orig	Mon Jul 29 00:58:46 2002
-+++ sys-utils/readprofile.c	Mon Jul 29 00:59:27 2002
-@@ -267,7 +267,8 @@
- 		/* ignore any LEADING (before a '[tT]' symbol is found)
- 		   Absolute symbols */
- 		if (*mode == 'A' && total == 0) continue;
--		if (*mode!='T' && *mode!='t') break;/* only text is profiled */
-+		if (*mode!='T' && *mode!='t' && *mode!='w' && *mode != 'W')
-+			break;/* only text is profiled */
- 
- 		if (indx >= len / sizeof(*buf)) {
- 			fprintf(stderr, _("%s: profile address out of range. "
+bye, Roman
 
-
-And now HZ has been set to 1000, the resolution is awfully
-good.  The `-M' multiplier thing we added is overkill now.
-
-
--

@@ -1,54 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261946AbUCBWWK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Mar 2004 17:22:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262055AbUCBWWK
+	id S262055AbUCBWXY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Mar 2004 17:23:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262074AbUCBWXY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Mar 2004 17:22:10 -0500
-Received: from alpha.zarz.agh.edu.pl ([149.156.122.231]:51977 "EHLO
-	alpha.zarz.agh.edu.pl") by vger.kernel.org with ESMTP
-	id S261946AbUCBWVt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Mar 2004 17:21:49 -0500
-Date: Wed, 3 Mar 2004 00:17:48 +0100 (CET)
-From: "Wojciech 'Sas' Cieciwa" <cieciwa@alpha.zarz.agh.edu.pl>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Subject: [PATCH] ppc32: macserial.c missing variable declaration
-In-Reply-To: <1078263053.21573.176.camel@gaston>
-Message-ID: <Pine.LNX.4.58L.0403030014530.30738@alpha.zarz.agh.edu.pl>
-References: <1078263053.21573.176.camel@gaston>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 2 Mar 2004 17:23:24 -0500
+Received: from gprs40-190.eurotel.cz ([160.218.40.190]:24409 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262055AbUCBWXU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Mar 2004 17:23:20 -0500
+Date: Tue, 2 Mar 2004 23:23:07 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: "Amit S. Kale" <amitkale@emsyssoft.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       kgdb-bugreport@lists.sourceforge.net
+Subject: Re: [KGDB PATCH][1/7] Add / use kernel/Kconfig.kgdb
+Message-ID: <20040302222307.GB1225@elf.ucw.cz>
+References: <20040227212301.GC1052@smtp.west.cox.net> <200403021709.26396.amitkale@emsyssoft.com> <20040302150544.GC16434@smtp.west.cox.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040302150544.GC16434@smtp.west.cox.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-in file drivers/macintosh/macserial.c are two undeclared variable named 
-"cmd" 
+> > It also makes core.patch dependent on 8250.patch
+> > Any ideas on fixing that?
+> 
+> No, it's intentional.  eth.patch also depends on 8250.patch.
 
-based on 2.6.4-rc1+cset-20040302_0821.
-fixed by this patch.
+Perhaps that parts should be moved to core-lite? It should not be
+neccessary to have serial support...
 
---- linux-2.6.4-rc1/drivers/macintosh/macserial.c.org	2004-02-27 23:21:29.000000000 +0100
-+++ linux-2.6.4-rc1/drivers/macintosh/macserial.c	2004-03-02 21:49:44.533392464 +0100
-@@ -1781,6 +1781,7 @@
- {
- 	struct mac_serial * info = (struct mac_serial *)tty->driver_data;
- 	unsigned char control, status;
-+	unsigned int cmd;
- 	unsigned long flags;
- 
- #ifdef CONFIG_KGDB
-@@ -1811,6 +1812,7 @@
- {
- 	struct mac_serial * info = (struct mac_serial *)tty->driver_data;
- 	unsigned int arg, bits;
-+	unsigned int cmd; 
- 	unsigned long flags;
- 
- #ifdef CONFIG_KGDB
-
-
+Or perhaps we want to decrease number of modules, and merge 8250 into
+core-lite, having one less patch to care about?
+							Pavel
 -- 
-{Wojciech 'Sas' Cieciwa}  {Member of PLD Team                               }
-{e-mail: cieciwa@alpha.zarz.agh.edu.pl, http://www2.zarz.agh.edu.pl/~cieciwa}
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

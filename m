@@ -1,60 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270257AbUJUGcW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269007AbUJUGiz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270257AbUJUGcW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 02:32:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268995AbUJUG2o
+	id S269007AbUJUGiz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 02:38:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270665AbUJUG1Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 02:28:44 -0400
-Received: from smtp208.mail.sc5.yahoo.com ([216.136.130.116]:21401 "HELO
-	smtp208.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S270621AbUJUGYn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 02:24:43 -0400
-Message-ID: <41775625.6050102@yahoo.com.au>
-Date: Thu, 21 Oct 2004 16:24:37 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Con Kolivas <kernel@kolivas.org>
-CC: Tim Cambrant <cambrant@acc.umu.se>, Pavel Machek <pavel@ucw.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: power/disk.c: small fixups
-References: <20041020181617.GA29435@elf.ucw.cz> <20041020193741.GA27096@shaka.acc.umu.se> <cone.1098338726.500663.12209.502@pc.kolivas.org>
-In-Reply-To: <cone.1098338726.500663.12209.502@pc.kolivas.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 21 Oct 2004 02:27:25 -0400
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:54690
+	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
+	id S270475AbUJTTjk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 15:39:40 -0400
+Subject: [PATCH] SCSI: Replace semaphore with completion
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Andrew Morton <akpm@osdl.org>
+Cc: Ingo Molnar <mingo@elte.hu>, SCSI <linux-scsi@vger.kernel.org>,
+       LKML <linux-kernel@vger.kernel.org>,
+       James Bottomley <James.Bottomley@SteelEye.com>
+Content-Type: text/plain
+Organization: linutronix
+Message-Id: <1098300699.20821.68.camel@thomas>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 20 Oct 2004 21:31:39 +0200
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas wrote:
-> Tim Cambrant writes:
-> 
->> On Wed, Oct 20, 2004 at 08:16:17PM +0200, Pavel Machek wrote:
->>
->>> power_down may never ever fail, so it does not really need to return
->>> anything. Kill obsolete code and fixup old comments. Please apply,
->>>
->>
->> ...
->>
->>> @@ -162,7 +163,7 @@
->>>   *
->>>   *    If we're going through the firmware, then get it over with 
->>> quickly.
->>>   *
->>> - *    If not, then call pmdis to do it's thing, then figure out how
->>> + *    If not, then call swsusp to do it's thing, then figure out how
->>>   *    to power down the system.
->>>   */
->>
->>
->> I hate to be picky, but changing "it's" to the more correct "its" would
->> perhaps be nice to do when you're at it?
-> 
-> 
-> "it's" means it belongs to, so therefore "it's" is correct usage here.
-> 
 
-Actually this is an exception. "it's" is an abbreviation for "it is",
-"its" is possessive.
+Use completion instead of semaphore
+
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Acked-by: Ingo Molnar <mingo@elte.hu>
+---
+
+ 2.6.9-bk-041020-thomas/drivers/scsi/sym53c8xx_2/sym_glue.c |    8
+++++----
+ 1 files changed, 4 insertions(+), 4 deletions(-)
+
+diff -puN drivers/scsi/sym53c8xx_2/sym_glue.c~sym53c8xx
+drivers/scsi/sym53c8xx_2/sym_glue.c
+---
+2.6.9-bk-041020/drivers/scsi/sym53c8xx_2/sym_glue.c~sym53c8xx	2004-10-20
+16:04:34.000000000 +0200
++++
+2.6.9-bk-041020-thomas/drivers/scsi/sym53c8xx_2/sym_glue.c	2004-10-20
+16:04:50.000000000 +0200
+@@ -135,7 +135,7 @@ m_addr_t __vtobus(m_pool_ident_t dev_dma
+  *  It is allocated on the eh thread stack.
+  */
+ struct sym_eh_wait {
+-	struct semaphore sem;
++	struct completion done;
+ 	struct timer_list timer;
+ 	void (*old_done)(struct scsi_cmnd *);
+ 	int to_do;
+@@ -798,7 +798,7 @@ static void __sym_eh_done(struct scsi_cm
+ 
+ 	/* Wake up the eh thread if it wants to sleep */
+ 	if (ep->to_do == SYM_EH_DO_WAIT)
+-		up(&ep->sem);
++		complete(&ep->done);
+ }
+ 
+ /*
+@@ -858,7 +858,7 @@ prepare:
+ 	case SYM_EH_DO_IGNORE:
+ 		break;
+ 	case SYM_EH_DO_WAIT:
+-		init_MUTEX_LOCKED(&ep->sem);
++		init_completion(&ep->done);
+ 		/* fall through */
+ 	case SYM_EH_DO_COMPLETE:
+ 		ep->old_done = cmd->scsi_done;
+@@ -909,7 +909,7 @@ prepare:
+ 		ep->timed_out = 1;	/* Be pessimistic for once :) */
+ 		add_timer(&ep->timer);
+ 		spin_unlock_irq(np->s.host->host_lock);
+-		down(&ep->sem);
++		wait_for_completion(&ep->done);
+ 		spin_lock_irq(np->s.host->host_lock);
+ 		if (ep->timed_out)
+ 			sts = -2;
+_
+
+

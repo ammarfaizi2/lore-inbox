@@ -1,69 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267634AbUHJTBI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267608AbUHJTE2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267634AbUHJTBI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 15:01:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267361AbUHJSzC
+	id S267608AbUHJTE2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 15:04:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267680AbUHJTCk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 14:55:02 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:1971 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S267673AbUHJSvm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 14:51:42 -0400
-Subject: Re: bkl cleanup in do_sysctl
-From: Lee Revell <rlrevell@joe-job.com>
+	Tue, 10 Aug 2004 15:02:40 -0400
+Received: from ms-smtp-03.texas.rr.com ([24.93.47.42]:45026 "EHLO
+	ms-smtp-03-eri0.texas.rr.com") by vger.kernel.org with ESMTP
+	id S267487AbUHJTC0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 15:02:26 -0400
+Message-ID: <41191BB4.4020109@us.ibm.com>
+Date: Tue, 10 Aug 2004 14:02:12 -0500
+From: Santiago Leon <santil@us.ibm.com>
+User-Agent: Mozilla/5.0 (Windows; U; WinNT4.0; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: Dave Hansen <haveblue@us.ibm.com>
-Cc: Josh Aas <josha@sgi.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       steiner@sgi.com
-In-Reply-To: <1092158905.11212.18.camel@nighthawk>
-References: <4118FE9D.2050304@sgi.com> <1092158905.11212.18.camel@nighthawk>
-Content-Type: text/plain
-Message-Id: <1092163919.782.54.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 10 Aug 2004 14:51:59 -0400
+CC: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.6] ibmveth bug fixes 2/4
+References: <41190E8E.9050004@us.ibm.com> <1092162537.11212.27.camel@nighthawk>
+In-Reply-To: <1092162537.11212.27.camel@nighthawk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-08-10 at 13:28, Dave Hansen wrote:
-
-> Remember that the BKL isn't a plain-old spinlock.  You're allowed to
-> sleep while holding it and it can be recursively held, which isn't true
-> for other spinlocks.
+> How about something like this that doesn't add more magic numbers?
 > 
-> So, if you want to replace it with a spinlock, you'll need to do audits
-> looking for sysctl users that might_sleep() or get called recursively
-> somehow.  The might_sleep() debugging checks should help immensely for
-> the first part, but all you'll get are deadlocks at runtime for any
-> recursive holders.  But, those cases are increasingly rare, so you might
-> luck out and not have any.  
-> 
-> Or, you could just make it a semaphore and forget about the no sleeping
-> requirement.  
-> 
+> I'm not so sure about the type, though.  Is that (u16) cast OK?
 
-Someone once suggested that newbies who show up on LKML wanting to learn
-kernel hacking should be assigned to find one use of the BKL and replace
-it with proper locking.  Something similar worked very well with my
-previous employer, before giving someone root, new hires would first be
-assigned some task like writing a script to take the user account
-database and generate a report of old accounts on a bunch of machines,
-or rewrite the RADIUS accounting scripts, where the point was really to
-get them familiar with the system.
+Yep... Thanks Dave... no magic numbers is good... and the (u16) cast is 
+ok...
 
-This way, even if they come back with a totally botched fix, someone
-will probably just post a correct one.  We could get rid of the BKL very
-soon, I count only 247 files with lock_kernel in them.
+Andrew... please apply Dave's patch...
 
-For example reiserfs uses the BKL for all write locking (!), but it
-probably would not be too hard to fix, because you can just look at
-another filesystem that has proper locking.
-
-Maybe this should be added to the FAQ:
-
-Q:  I want to hack the kernel, and I *think* I know what I am doing. 
-Where do I start?
-
-Lee
-
+-- 
+Santiago A. Leon
+Power Linux Development
+IBM Linux Technology Center

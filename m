@@ -1,47 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271232AbTGWTL1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 15:11:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271224AbTGWTAI
+	id S271231AbTGWTLY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 15:11:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271233AbTGWTIo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 15:00:08 -0400
-Received: from crosslink-village-512-1.bc.nu ([81.2.110.254]:12028 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S271223AbTGWS75
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 14:59:57 -0400
-Subject: Re: kernel bug in socketpair()
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Glenn Fowler <gsf@research.att.com>
-Cc: davem@redhat.com, dgk@research.att.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       netdev@oss.sgi.com
-In-Reply-To: <200307231854.OAA90112@raptor.research.att.com>
-References: <200307231428.KAA15254@raptor.research.att.com>
-	 <20030723074615.25eea776.davem@redhat.com>
-	 <200307231656.MAA69129@raptor.research.att.com>
-	 <20030723100043.18d5b025.davem@redhat.com>
-	 <200307231724.NAA90957@raptor.research.att.com>
-	 <20030723103135.3eac4cd2.davem@redhat.com>
-	 <200307231814.OAA74344@raptor.research.att.com>
-	 <20030723112307.5b8ae55c.davem@redhat.com>
-	 <200307231854.OAA90112@raptor.research.att.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1058987301.5520.111.camel@dhcp22.swansea.linux.org.uk>
+	Wed, 23 Jul 2003 15:08:44 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:1810 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S271226AbTGWTHg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jul 2003 15:07:36 -0400
+Date: Wed, 23 Jul 2003 13:43:22 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: jimis@gmx.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Feature proposal (scheduling related)
+Message-ID: <20030723114322.GD729@zaurus.ucw.cz>
+References: <3F1E6A25.5030308@gmx.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 23 Jul 2003 20:08:21 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3F1E6A25.5030308@gmx.net>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2003-07-23 at 19:54, Glenn Fowler wrote:
-> named unix sockets reside in the fs namespace, no?
-> so they must be linked to a dir before use and unlinked after use
-> the unlink after use would be particularly tricky for the parent process
-> implementing
-> 	cmd <(cmd ...) ...
+Hi!
 
-Portable stuff yes, Linux also supports a pure socket namespace for them
-when the path starts with a nul character
+> With the current scheduler we can prioritize the CPU usage for each 
+> process. What I think would be extremely useful (as I have needed it 
+> many times) is the scheduling of disk I/O and net I/O traffic. 2 
+> examples showing the importance (the numbers are estimations just to 
+> explain whati I mean):
+
+Yes that would be nice, and in 2.5 timeframe
+there was patch doing that. Port it to 2.6 an test it!
+-- 
+				Pavel
+Written on sharp zaurus, because my Velo1 broke. If you have Velo you don't need...
 

@@ -1,58 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132971AbRDESqS>; Thu, 5 Apr 2001 14:46:18 -0400
+	id <S132973AbRDESu3>; Thu, 5 Apr 2001 14:50:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132975AbRDESqJ>; Thu, 5 Apr 2001 14:46:09 -0400
-Received: from platan.vc.cvut.cz ([147.32.240.81]:34573 "EHLO
-	platan.vc.cvut.cz") by vger.kernel.org with ESMTP
-	id <S132971AbRDESpv>; Thu, 5 Apr 2001 14:45:51 -0400
-Message-ID: <3ACCBD1C.1363992E@vc.cvut.cz>
-Date: Thu, 05 Apr 2001 11:44:44 -0700
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-ac3-4g i686)
-X-Accept-Language: cz, cs, en
+	id <S132972AbRDESuS>; Thu, 5 Apr 2001 14:50:18 -0400
+Received: from hood.tvd.be ([195.162.196.21]:24377 "EHLO hood.tvd.be")
+	by vger.kernel.org with ESMTP id <S132970AbRDESuD>;
+	Thu, 5 Apr 2001 14:50:03 -0400
+Date: Thu, 5 Apr 2001 20:48:29 +0200 (CEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@club-internet.fr>
+cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Linux Kernel Development <linux-kernel@vger.kernel.org>,
+        Linux/PPC Development <linuxppc-dev@lists.linuxppc.org>
+Subject: Re: st corruption with 2.4.3-pre4
+In-Reply-To: <Pine.LNX.4.05.10103221947120.552-100000@callisto.of.borg>
+Message-ID: <Pine.LNX.4.05.10104052040410.754-100000@callisto.of.borg>
 MIME-Version: 1.0
-To: David Balazic <david.balazic@uni-mb.si>
-CC: linux-fbdev@vuser.vu.union.edu, linux-kernel@vger.kernel.org,
-        linuxconsole-dev@lists.sourceforge.net
-Subject: Re: [linux-fbdev] Looking for a card with working TV-out in linux
-In-Reply-To: <3ACCADDE.2E72B1BE@uni-mb.si>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Balazic wrote:
+On Thu, 22 Mar 2001, Geert Uytterhoeven wrote:
+> On Tue, 20 Mar 2001, Gérard Roudier wrote:
+> > On Tue, 20 Mar 2001, Geert Uytterhoeven wrote:
+> > > On Tue, 20 Mar 2001, Geert Uytterhoeven wrote:
+> > > > On Mon, 19 Mar 2001, Jeff Garzik wrote:
+> > > I did some more tests:
+> > >   - The problem also occurs when tarring up files from a disk on the Sym53c875.
+> > >   - The corrupted data always occurs at offset 32*x (the `+1' above was caused
+> > >     by hexdump, starting counting at 1).
+> > >   - The 32 bytes of corrupted data at offset 32*x are always a copy of the data
+> > >     at offset 32*x-10240.
+> > >   - Since 10240 is the default blocksize of tar (bug in tar?), I made a tarball
+> > >     on disk instead of on tape, but no corruption.
+> > >   - 32 is the size of a cacheline on PPC. Is there a missing cacheflush
+> > >     somewhere in the Sym53c875 driver? But then it should happen on disk as
+> > >     well?
 > 
-> Requirements :
->  - working TV-out ( S-Video or composite-video ), I mean really working
->    and supported in linux, not "it works if the BIOS initializes it and
->    Linux doesn't touch it"
+> BTW, I tried my good old 2.4.0-test1-ac10 kernel from June 2000, and it also
+> suffered from the same problem. Also note that I did read/write tests on the
+> tape drive when I just bought it and when I installed the Sym53c875 later, and
+> I never noticed the problem. So I'm still willing to believe it's a software
+> bug in recent(?) kernels...
 
-G400 (not G450, TVout on G450 is not supported and maybe never will).
-But 
-you should preffer XF3.3.x over XF4 (and if you are going to use XF4,
-you
-must use HAL from Matrox).
+Status update:
+  - When I connect my DDS1 to the MESH, I see no corruption (as long as I get
+    no `lost arbitration' messages from the MESH driver. I never get those with
+    the disk BTW. Anyone who knows what needs to be done to make the MESH
+    driver recover from lost arbitration errors?). So the tape drive seems to
+    be fine.
+  - I wanted to try different tape drives, but all retired DDS drives I found
+    at work seem to be in a non-functional state. I tried 3 of them, without
+    any luck.
+  - I wanted to try a 2.2.x kernel, but linuxppc_2_2 (2.2.19-pre3) just says
+    `illegal instruction' and returns me to the OF prompt.
+  - Adding more eieio/syncs to the sym53c8xx driver doesn't help. In fact there
+    are already memory barriers where I'd expect them (as could be expected, of
+    course :-)
 
->  - video support ( in HW and linux-SW ) is desired ( color space conversion,
->    video overlays and stuff )
+[...]
 
-G400 hardware can do that, but nobody bothered with implementation.
+OK, I managed to compile an old 2.2.13 kernel from the PPC bk repository that
+boots more or less (no video) on my box.
 
->  - PCI interface ( I plan later to multihead with another AGP card and also
->    want to keep the price low )
+Surprise! So far no corruption!! Time to let Amanda make some dumps tonight :-)
 
-G400. If you do not need opensource, then Matrox HAL driver can
-initialize
-secondary heads from scratch too.
+So something broke the st/sym53c8xx combination on my box between 2.2.13 and
+2.4.0-test1-ac10...
 
->  - 3D acceleration welcome ( with XFree86 support ), but not that important
+I'm still waiting for other reports of st/sym53c8xx on PPC under 2.4.x. BTW,
+does it work on other big-endian platforms, like sparc?
 
-G400.
+Gr{oetje,eeting}s,
 
->  - low price :-)
+						Geert
 
-Sorry. Something else than Matrox ;-)
-							Petr Vandrovec
-							vandrove@vc.cvut.cz
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+

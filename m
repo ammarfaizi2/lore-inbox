@@ -1,48 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312271AbSCRJzc>; Mon, 18 Mar 2002 04:55:32 -0500
+	id <S312272AbSCRJ5W>; Mon, 18 Mar 2002 04:57:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312272AbSCRJzX>; Mon, 18 Mar 2002 04:55:23 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:64780 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S312271AbSCRJzI>;
-	Mon, 18 Mar 2002 04:55:08 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: Announce: ksymoops 2.4.5 is available 
-Date: Mon, 18 Mar 2002 20:54:56 +1100
-Message-ID: <4887.1016445296@ocs3.intra.ocs.com.au>
+	id <S312274AbSCRJ5M>; Mon, 18 Mar 2002 04:57:12 -0500
+Received: from pat.uio.no ([129.240.130.16]:3293 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S312272AbSCRJ5A>;
+	Mon, 18 Mar 2002 04:57:00 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15509.47571.248407.537415@charged.uio.no>
+Date: Mon, 18 Mar 2002 10:56:35 +0100
+To: NIIBE Yutaka <gniibe@m17n.org>
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
+        Stephan von Krawczynski <skraw@ithnet.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: BUG REPORT: kernel nfs between 2.4.19-pre2 (server) and 2.2.21-pre3 (client)
+In-Reply-To: <200203180933.g2I9XTg07727@mule.m17n.org>
+X-Mailer: VM 6.92 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+>>>>> " " == NIIBE Yutaka <gniibe@m17n.org> writes:
 
-Content-Type: text/plain; charset=us-ascii
+     > Because the inode could be on inode_unused, being still on the
+     > hash at the client side, and server could reuse the inode (in
+     > case of unfsd/ext3).  When the inode will be reused for
+     > different type, it will result error.  Here is a scenario for
+     > non-patched 2.4.18:
 
-ftp://ftp.<country>.kernel.org/pub/linux/utils/kernel/ksymoops/v2.4
+     >    (1) Symbolic link has been removed.  The inode is put on inode_unused.
+     >        Say the inode # was 0x1234.
+     > (2) Client issue "creat", server returns inode # 0x1234 (by the
+     >        reuse).
+     > (3) Call chain is:
 
-ksymoops-2.4.5.tar.gz		Source tarball, includes RPM spec file
-ksymoops-2.4.5-1.src.rpm	As above, in SRPM format
-ksymoops-2.4.5-1.i386.rpm	Compiled with 2.96 20000731, glibc 2.2.2
-patch-ksymoops-2.4.5.gz		Patch from ksymoops 2.4.4 to 2.4.5.
+     > 	 nfs_create -> nfs_instantiate -> nfs_fhget -> __nfs_fhget ->
+     > 	 iget4
 
-Changelog extract
+     >        iget4 returns the cached inode object on inode_unused.
+     > (4) nfs_fill_inode doesn't fill it, because inode->i_mode is
+     >        not 0.
+     > (5) nfs_refresh_inode result error because inode->i_mode !=
+     >        fattr->mode.
 
-	* Add x86-64 support.  Andi Kleen.
-	* Clean up and generalize register dumps.
-	* Print blank lines between each major block of output for readability.
+     > Note that this is _real_ case.
 
-Previous versions of ksymoops picked up and decoded some registers but
-not all.  2.4.5 picks up almost all registers and attempts to decode
-values >= 1024.
+Sure, but it is a consequence of a badly broken server that violates
+the NFS specs concerning file handles. Rigging the client in order to
+cope with *all* the consequences in terms of unfsd races is an
+exercise in futility - it cannot be done.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: Exmh version 2.1.1 10/15/1999
+The solution is not to keep flogging the dead horse that is unfsd. It
+is to put the effort into fixing knfsd so that it can cope with all
+those cases where people are using unfsd today.
 
-iD8DBQE8lblvi4UHNye0ZOoRAmiHAJ4/h0SXuHvnB2ToXevNJ3jKwTW9EACgiu5D
-48pj+AQjyrZ6jmUYbaJNLFU=
-=3u4P
------END PGP SIGNATURE-----
-
+Cheers,
+   Trond

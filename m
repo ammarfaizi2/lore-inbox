@@ -1,41 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132186AbRDCQKW>; Tue, 3 Apr 2001 12:10:22 -0400
+	id <S130470AbRDCQOo>; Tue, 3 Apr 2001 12:14:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132220AbRDCQKM>; Tue, 3 Apr 2001 12:10:12 -0400
-Received: from web5203.mail.yahoo.com ([216.115.106.97]:50706 "HELO
+	id <S130317AbRDCQOg>; Tue, 3 Apr 2001 12:14:36 -0400
+Received: from web5203.mail.yahoo.com ([216.115.106.97]:33298 "HELO
 	web5203.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S132186AbRDCQKA>; Tue, 3 Apr 2001 12:10:00 -0400
-Message-ID: <20010403160919.14357.qmail@web5203.mail.yahoo.com>
-Date: Tue, 3 Apr 2001 09:09:19 -0700 (PDT)
+	id <S130470AbRDCQO1>; Tue, 3 Apr 2001 12:14:27 -0400
+Message-ID: <20010403161345.15009.qmail@web5203.mail.yahoo.com>
+Date: Tue, 3 Apr 2001 09:13:45 -0700 (PDT)
 From: Rob Landley <telomerase@yahoo.com>
-Subject: SIS 5513/IBM Deskstar HDIO_SET_DMA Operation not permitted?
-To: linux-kernel@vger.kernel.org
+Subject: Re: Original destination of transparent proxied connections? 
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <m14jf1U-001PKaC@mozart>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.2 allowed me to set DMA on an SIS 5513 using an IBM
-Deskstar 40 gig IDE.  2.4 goes "Operation not
-permitted" when I try it.
 
-Why?
+--- Rusty Russell <rusty@rustcorp.com.au> wrote:
+> Summary: you had to use a *search engine* to find an
+> obscure piece of
+> coding information.
 
-I hit it with ide0=ata66 in lilo, and it sped up from
-3 megs/sec to 5 megs/second, but I used to get 12. 
-hdparm /dev/hda still says I'm not using DMA.
+Actually, I had to use a search engine to find a
+tangentially related howto that halfway through
+mentioned something in passing which gave me a clue of
+something else to search for that, it turns out,
+didn't work anyway.  (getsockname() in 2.2 returns the
+original destination ip, but not the original
+destination port.  I had to move to
+2.4/netfilter/getsockopt to get that piece of
+information.)
 
-I realise I'm doing dangerous stuff here to get the
-performance back.  I'm just curious why it's not doing
-it for me.  (Is there a known problem I should be
-worried about?)
+And the reason I didn't ask on the netfilter list is I
+was originally trying to use 2.2 ipchains, not 2.4
+iptables.  Didn't think the old stuff was on-topic
+there.
 
-Let's see, ide0=dma,ata66...  right?  Should I be
-really really worried about my data integrity if I do
-this?  It never had a problem under 2.2...
+> Shocked!
+> Rusty.
+
+It still requires pretty good forensic investigation
+skills to make it work...
+
+> Premature optmztion is rt of all evl. --DK
+
+Wouldn't that be "Premtur"? :)
 
 Rob
+
 
 __________________________________________________
 Do You Yahoo!?

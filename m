@@ -1,49 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263343AbVBEGSu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263514AbVBEGUy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263343AbVBEGSu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Feb 2005 01:18:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261806AbVBEGSs
+	id S263514AbVBEGUy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Feb 2005 01:20:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263030AbVBEGUx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Feb 2005 01:18:48 -0500
-Received: from mail.kroah.org ([69.55.234.183]:9412 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S264804AbVBEGSJ (ORCPT
+	Sat, 5 Feb 2005 01:20:53 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:27599 "EHLO suse.cz")
+	by vger.kernel.org with ESMTP id S263811AbVBEGUq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Feb 2005 01:18:09 -0500
-Date: Fri, 4 Feb 2005 22:16:36 -0800
-From: Greg KH <greg@kroah.com>
-To: Kay Sievers <kay.sievers@vrfy.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/7] driver core: export MAJOR/MINOR to the hotplug env
-Message-ID: <20050205061636.GA1185@kroah.com>
-References: <20050123041911.GA9209@vrfy.org> <20050201225625.GA14962@kroah.com> <20050202004812.GA29888@vrfy.org>
+	Sat, 5 Feb 2005 01:20:46 -0500
+Date: Sat, 5 Feb 2005 07:21:06 +0100
+From: Vojtech Pavlik <vojtech@ucw.cz>
+To: dtor_core@ameritech.net
+Cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
+       linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] input: make some code static
+Message-ID: <20050205062106.GA2344@ucw.cz>
+References: <20050204213955.GE19408@stusta.de> <d120d50005020413563d031866@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050202004812.GA29888@vrfy.org>
+In-Reply-To: <d120d50005020413563d031866@mail.gmail.com>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 02, 2005 at 01:48:12AM +0100, Kay Sievers wrote:
-> On Tue, Feb 01, 2005 at 02:56:25PM -0800, Greg KH wrote:
-> > Hm, that class_simple interface is looking like the way we should move
-> > toward, as it's "simple" to use, instead of the more complex class code.
-> > I'll have to look at migrating more code to use it over time, or move
-> > that interface back into the class code itself...
+On Fri, Feb 04, 2005 at 04:56:45PM -0500, Dmitry Torokhov wrote:
+> On Fri, 4 Feb 2005 22:39:55 +0100, Adrian Bunk <bunk@stusta.de> wrote:
+> > This patch makes some needlessly global code static.
+> > 
 > 
-> Nice idea! What about keeping a list of devices belonging to a
-> specific class in an own list in 'struct class' and maintaining that list
-> with class_device_add(), class_device_del()?
+> Hi Adrian,
+> 
+> I merged your patch into my tree and it is ready for Vojtech to pull from.
+ 
+Dmitry, I already pulled. :) Btw, please use my vojtech@ucw.cz (or
+@suse.de) e-mail addresses during the weekend, as mu @suse.cz doesn't
+work and likely won't be fixed until Monday.
 
-What would that help out with?
-
-> A class driver may use that list to keep track of its own devices if
-> wanted and class_simple would not be needed anymore as everything
-> would be available in the core.
-
-I must be tired, but I don't see how class_simple could be dropped if
-that was done.  Care to explain it with pseudo-code or something?
-
-thanks,
-
-greg k-h
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

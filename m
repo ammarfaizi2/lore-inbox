@@ -1,72 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263253AbTEIOVP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 10:21:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263265AbTEIOVP
+	id S263257AbTEIOZv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 10:25:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263265AbTEIOZv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 10:21:15 -0400
-Received: from filesrv1.baby-dragons.com ([199.33.245.55]:4224 "EHLO
-	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
-	id S263253AbTEIOVN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 10:21:13 -0400
-Date: Fri, 9 May 2003 10:33:52 -0400 (EDT)
-From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: The magical mystical changing ethernet interface order
-In-Reply-To: <1052437088.13561.36.camel@orca.madrabbit.org>
-Message-ID: <Pine.LNX.4.55.0305091020060.325@filesrv1.baby-dragons.com>
-References: <1052437088.13561.36.camel@orca.madrabbit.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 9 May 2003 10:25:51 -0400
+Received: from stine.vestdata.no ([195.204.68.10]:8621 "EHLO stine.vestdata.no")
+	by vger.kernel.org with ESMTP id S263257AbTEIOZu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 May 2003 10:25:50 -0400
+Date: Fri, 9 May 2003 16:37:15 +0200
+From: Ragnar =?unknown-8bit?Q?Kj=F8rstad?= <kernel@ragnark.vestdata.no>
+To: Jesse Pollard <jesse@cats-chateau.net>
+Cc: Chuck Ebbert <76306.1226@compuserve.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: The disappearing sys_call_table export.
+Message-ID: <20030509143715.GC16354@vestdata.no>
+References: <200305081546_MC3-1-3809-363E@compuserve.com> <03050908530400.11221@tabby>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=unknown-8bit
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <03050908530400.11221@tabby>
+User-Agent: Mutt/1.5.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hello Ray & All ,  While that RedHat/Debian/... have figured
-	these out is really nice .  NOT one of those methods appears to be
-	available for hand built distros .  Ie: there does not appear to
-	be a standardised(tm) method to approach this difficulty through
-	out all drivers (not just ethernet) .
+On Fri, May 09, 2003 at 08:53:04AM -0500, Jesse Pollard wrote:
+> On Thursday 08 May 2003 14:43, Chuck Ebbert wrote:
+> > > Have you tried catching the display IO ???
+> >
+> >   Not in a million years -- display drivers work by pure magic AFAIC.
+> >
+> > > HSM has existed on UNIX based machines for a long time.
+> >
+> >   Show me three HSM implementations for Linux and I'll show you three
+> > different mechanisms. :)
+> 
+> Actually... I think they all use the same one (Even the Solaris/IRIX/Cray ones
+> do that). All of them provide a filesystem interface via VFS. The Linux ones
+> were implemented via the "userfs" core or NFS.
 
-	Could someone please point me to NON RedHat/Debian/... centric
-	tool to determine the proper ethernet for now ?
+I'm not sure what you mean by "via" VFS, but most HSM implementations on linux 
+require extra interfaces and special support in the filesystem (XDSM or propriatary).
 
-	Modules are not an option for me here .  Imo: If this can be done
-	with modules it should well be possible for staticly built
-	drivers as well .  Tia , JimL
+The only exceptions I know are openXDSM which was intended to be a
+generic interface in the VFS-layer (but we never got time to implement
+it) and a implementation based on stackable filesystem.
 
-On Thu, 8 May 2003, Ray Lee wrote:
-> Jean Tourrilhes wrote:
-> >         My belief is that configuration scripts should be specified in
-> > term of MAC address (or subset) and not in term of device name. Just
-> > like the Pcmcia scripts are doing it.
-> Debian already supports this, integrated into the normal scheme for
-> dealing with interfaces. Anyone running Debian can take a look at
-> /usr/share/doc/ifupdown/examples directory, the network-interfaces.gz
-> file contains sample /etc/network/interfaces stanzas for configuring
-> your interfaces via MAC address:
-> 	auto eth0 eth1
-> 	mapping eth0 eth1
-> 		script /path/to/get-mac-addr.sh
-> 		map 11:22:33:44:55:66 lan
-> 		map AA:BB:CC:DD:EE:FF internet
-> 	iface lan inet static
-> 		address 192.168.42.1
-> 		netmask 255.255.255.0
-> 		pre-up /usr/local/sbin/enable-masq $IFACE
-> 	iface internet inet dhcp
-> 		pre-up /usr/local/sbin/firewall $IFACE
-> You can even do something like:
-> 	iface wireless inet dhcp
-> 		wireless_key 12345678901234567890123456
-> A sample get-mac-address.sh is in the same directory, though it has a
-> typo (missing a close paren -- I need to report that...). This same
-> scheme works for pinging some well-known host to determine where you
-> are, or using ARPs, or whatever. I use it on my laptop with PCMCIA
-> cards, works great.
-> Ray
+I don't know if the later is actually in use anywere, or if it is
+abandoned.
+
+
 -- 
-       +------------------------------------------------------------------+
-       | James   W.   Laferriere | System    Techniques | Give me VMS     |
-       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
-       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
-       +------------------------------------------------------------------+
+Ragnar Kjørstad
+Zet.no

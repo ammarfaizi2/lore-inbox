@@ -1,72 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262098AbTFIVU5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jun 2003 17:20:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262108AbTFIVU4
+	id S262100AbTFIVWL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jun 2003 17:22:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262116AbTFIVWK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jun 2003 17:20:56 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:56555 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S262098AbTFIVTt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jun 2003 17:19:49 -0400
-Date: Mon, 9 Jun 2003 23:33:21 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Frank Cusack <fcusack@fcusack.com>, Andrew Miklas <public@mikl.as>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linksys WRT54G and the GPL
-Message-ID: <20030609213321.GP16164@fs.tum.de>
-References: <200306072241.23725.public@mikl.as> <20030608222213.C9097@google.com> <1055183032.31138.4.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1055183032.31138.4.camel@dhcp22.swansea.linux.org.uk>
-User-Agent: Mutt/1.4.1i
+	Mon, 9 Jun 2003 17:22:10 -0400
+Received: from mail.webmaster.com ([216.152.64.131]:46271 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP id S262100AbTFIVVx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jun 2003 17:21:53 -0400
+From: "David Schwartz" <davids@webmaster.com>
+To: "Davide Libenzi" <davidel@xmailserver.org>
+Cc: "Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: RE: Coding standards.  (Was: Re: [PATCH] [2.5] Non-blocking write can block)
+Date: Mon, 9 Jun 2003 14:35:31 -0700
+Message-ID: <MDEHLPKNGKAHNMBLJOLKCELPDIAA.davids@webmaster.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <Pine.LNX.4.55.0306091142420.3614@bigblue.dev.mcafeelabs.com>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 09, 2003 at 07:23:52PM +0100, Alan Cox wrote:
-> On Llu, 2003-06-09 at 06:22, Frank Cusack wrote:
-> > > Finally, it would be strange if the source was included in the physical
-> > > package, as my contact at Linksys was initially unaware Linux was used
-> > > in this product.
-> > 
-> > Note that including the source with the physical package is not enough
-> > to meet the GPL requirements.  The source must be available to any third
-> > party, not just purchasers of the product.
-> 
-> Wrong. Its a common misconception. The GPL requires I make source
-> available to those I give the binaries, be it a box on a supermarket
-> shelf or a one of product for a client.
-> 
-> In fact the GPL has to do this because it is really import that the
-> author is not hit with the cost of third party distribution. What the
-> author cannot do is forbid that third party distribution.
 
-It depends which choice the distributor chooses regarding section three
-of the GPL.
+> If you try to define a bad/horrible "whatever" in an *absolute* way you
+> need either the *absolutely* unanimous consent or you need to prove it
+> using a logical combination of already proven absolute concepts. Since you
+> missing both of these requirements you cannot say that something is
+> bad/wrong in an absolute way. You can say though that something is
+> wrong/bad when dropped inside a given context, and a coding standard might
+> work as an example. If you try to approach a developer by saying that he
+> has to use ABC coding standard because it is better that his XYZ coding
+> standard you're just wrong and you'll have hard time to have him to
+> understand why he has to use the suggested standard when coding inside the
+> project JKL. The coding standard gives you the *rule* to define something
+> wrong when seen inside a given context, since your personal judgement does
+> not really matter here.
+>
+> - Davide
 
-If he chooses 3b ("written offer, valid for at least three years, to
-give any third party, for a charge no more than your cost of physically
-performing source distribution, a complete machine-readable copy of the
-corresponding source code") he has to give it to everyone.
+	This is just bad philosophy. You might as well argue that a canvas that's
+been randomly pissed on is just as much art as the Mona Lisa. In fact, it's
+a worse argument than that because coding styles aim at objective,
+measurable goals. Why does consent matter? If some imbecile wants to argue
+that it's good to write code that's hard to understand and debug, why should
+we care what he has to say? The consent of people whose opinions are
+nonsensical is of no value to people who are trying to create rules that
+meet their objective requirements.
 
-You are right for 3a (source shipped together with the binaries) and 3c 
-(noncommercial redistribution of binaries received under 3b).
+	Coding styles aim at specific measurable goals. Code should be easy to
+understand, extend, and debug. If someone argues code should be hard to
+understand, maintain, and debug, we just ignore him. We don't care if he
+agrees with us or not because his opinion is obviously (and objectively) of
+no value.
 
-> In Linksys case dumping the required source on the end of the CD of
-> goodies that comes with the kit and including a notice would be
-> sufficient. 
+	We can measure, for different coding style, how long it takes to find a
+bug. We can measure how long it takes a new programmer to get to the point
+that he can contribute to the existing code.
 
-Yup.
+	Coding styles are engineering rules. We can validate them based upon the
+results they produce. Objective, measureable results.
 
-cu
-Adrian
+	DS
 
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
 

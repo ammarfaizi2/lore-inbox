@@ -1,48 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262452AbVCSM16@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262459AbVCSNC7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262452AbVCSM16 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Mar 2005 07:27:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262449AbVCSM16
+	id S262459AbVCSNC7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Mar 2005 08:02:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262460AbVCSNC7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Mar 2005 07:27:58 -0500
-Received: from krusty.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:40077 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S261381AbVCSM1y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Mar 2005 07:27:54 -0500
-Date: Sat, 19 Mar 2005 13:27:49 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: 3c59x concerns on 2.4->2.6 update?
-Message-ID: <20050319122749.GB13652@merlin.emma.line.org>
-Mail-Followup-To: linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20050318103418.GA14636@merlin.emma.line.org> <20050319102250.GA11557@bayes.mathematik.tu-chemnitz.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050319102250.GA11557@bayes.mathematik.tu-chemnitz.de>
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
-User-Agent: Mutt/1.5.9i
+	Sat, 19 Mar 2005 08:02:59 -0500
+Received: from mta2.cl.cam.ac.uk ([128.232.0.14]:48261 "EHLO mta2.cl.cam.ac.uk")
+	by vger.kernel.org with ESMTP id S262459AbVCSNC5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Mar 2005 08:02:57 -0500
+In-Reply-To: <20050319105632.GH31328@cl.cam.ac.uk>
+References: <E1DBsgI-0001Cg-00@mta1.cl.cam.ac.uk> <m1k6o40x0p.fsf@ebiederm.dsl.xmission.com> <20050319105632.GH31328@cl.cam.ac.uk>
+Mime-Version: 1.0 (Apple Message framework v619.2)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <ca43c5769187191af6e1b3c3e91d4bf8@cl.cam.ac.uk>
+Content-Transfer-Encoding: 7bit
+Cc: Paul Mackerras <paulus@samba.org>, akpm@osdl.org,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Jesse Barnes <jbarnes@engr.sgi.com>, linux-kernel@vger.kernel.org,
+       riel@redhat.com, Ian.Pratt@cl.cam.ac.uk, kurt@garloff.de
+From: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
+Subject: Re: [PATCH] Xen/i386 cleanups - AGP bus/phys cleanups
+Date: Sat, 19 Mar 2005 13:01:31 +0000
+To: Christian Limpach <Christian.Limpach@cl.cam.ac.uk>
+X-Mailer: Apple Mail (2.619.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steffen Klassert schrieb am 2005-03-19:
 
-> In 2.6.11 ethtool data should be available. Please let me know if
-> you are using 2.6.11 and ethtool does not work with your card. 
-> 
-> I have no Tornado card to test but with 3c905/3c905B cards and 
-> options=0x204 configured, mii-diag reports:
-> Auto-negotiation disabled, with Speed fixed at 100 mbps, full-duplex.
-> 
-> I suppose you talking about 3c905C Tornado cards 
-> (3c900 cards are not of Tornado type).
+On 19 Mar 2005, at 10:56, Christian Limpach wrote:
 
-Ouch. Yes indeed, 3C905C. Please excuse my spreading confusion here.
-(I also have 3C900 Combo here, these are Boomerang cards.)
+>> For this specific case there may be another resolution but could
+>> you please, please look at marking the missing pages PG_reserved
+>> and not hacking phys_to_virt.
+>>
+>> At this point anything short of explicitly introducing an intermediate
+>> step say virt_to_logical() logical_to_virt() will be extremely
+>> confusing and lead to very hard to spot bugs.  Silently changing
+>> the semantics of functions is bad.
+>
+> We also use the additional level of indirection to implement suspend/
+> resume and relocation of virtual machines between physical machines  --
+> you won't get the same sparse allocation of memory on the target 
+> machine.
+> Also, this will make it much easier to support hot plug memory at the
+> hypervisor level since it will be able to substitute memory with very
+> little support from the OS running in the virtual machine.
 
-I'll try 2.6.11 as workload permits, the machine is a router in
-production with SuSE 9.2 (2.6.8 + SuSE hacks, "2.6.8-24.11-default")
-kernel.
+Also, more generally, I don't believe Linux would deal well with a 
+highly fragmented memory map. I wonder how far Linux would boot if you 
+PG_reserved every other page? We'd also need to deal with 
+virtual<->lowmem not being a 1:1 mapping (at least for kernel code and 
+data, as at least that obviously needs to be contiguous in virtual 
+space).
 
--- 
-Matthias Andree
+  -- Keir
+

@@ -1,125 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266444AbSLDMW0>; Wed, 4 Dec 2002 07:22:26 -0500
+	id <S266453AbSLDM1y>; Wed, 4 Dec 2002 07:27:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266453AbSLDMW0>; Wed, 4 Dec 2002 07:22:26 -0500
-Received: from turn6.biologie.uni-konstanz.de ([134.34.128.74]:24983 "EHLO
-	turn6.biologie.uni-konstanz.de") by vger.kernel.org with ESMTP
-	id <S266444AbSLDMWY>; Wed, 4 Dec 2002 07:22:24 -0500
-Message-ID: <3DEDF543.51C80677@uni-konstanz.de>
-Date: Wed, 04 Dec 2002 13:29:55 +0100
-From: Kay Diederichs <kay.diederichs@uni-konstanz.de>
-Organization: =?iso-8859-1?Q?Universit=E4t?= Konstanz
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.19-mosix i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: stock 2.4.20: loading amd76x_pm makes time jiggle on A7M266-D
-Content-Type: multipart/mixed;
- boundary="------------F846291740C78267A8AD2EAE"
+	id <S266456AbSLDM1y>; Wed, 4 Dec 2002 07:27:54 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:53256 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S266453AbSLDM1x>; Wed, 4 Dec 2002 07:27:53 -0500
+Date: Wed, 4 Dec 2002 12:35:17 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
+Cc: Dave Jones <davej@codemonkey.org.uk>, Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org
+Subject: Re: lkml, bugme.osdl.org?
+Message-ID: <20021204123517.A3563@flint.arm.linux.org.uk>
+Mail-Followup-To: "Dr. David Alan Gilbert" <gilbertd@treblig.org>,
+	Dave Jones <davej@codemonkey.org.uk>, Valdis.Kletnieks@vt.edu,
+	linux-kernel@vger.kernel.org
+References: <200212030724.gB37O4DL001318@turing-police.cc.vt.edu> <20021203121521.GB30431@suse.de> <20021204115819.GB1137@gallifrey>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021204115819.GB1137@gallifrey>; from gilbertd@treblig.org on Wed, Dec 04, 2002 at 11:58:19AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------F846291740C78267A8AD2EAE
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+On Wed, Dec 04, 2002 at 11:58:19AM +0000, Dr. David Alan Gilbert wrote:
+> Don't forget that ia64, x86-64 and s390 are all potentially growing
+> users of Linux.  Linux on ARM, MIPS and PPC also has a healthy band of
+> productive (commercial and home) users.
 
-the subject says it all: 
+ARM Linux still has rather a large patch, but it is gradually getting
+smaller again as things get merged.
 
-if I use the powersaving module amd76x_pm then the time is not kept. The
-hardware is Asus A7M266-D with 2 MP1900 processors, BIOS is 1004 (but I
-tried later BIOS versions as well).
+As far as keeping the bits that are in Linus' kernel buildable (and
+working), it is easier with the various BK cset patches or BK itself
+because you can always be on top of Linus' tree.  However, there are
+costs here:
 
-Symptoms are:
+1. An incompatible change can be merged at any time into Linus' tree,
+   so frequent testing is required - might need a build system that
+   automatically builds Linus' kernels for an architecture nightly.
 
-- ping times vary and there are 'time of day goes back' messages:
+2. As a result of (1), even if it built at the last test, that's no
+   guarantee that the patch Linus releases will work - changes have
+   appeared around the time of the release which break architecture
+   code.
 
-64 bytes from xx (1.2.3.4): icmp_seq=4 ttl=64 time=19.549 msec
-64 bytes from xx (1.2.3.4): icmp_seq=5 ttl=64 time=2.684 sec
-Warning: time of day goes back, taking countermeasures.
-64 bytes from xx (1.2.3.4): icmp_seq=6 ttl=64 time=9.799 msec
-64 bytes from xx (1.2.3.4): icmp_seq=7 ttl=64 time=88 usec
-64 bytes from xx (1.2.3.4): icmp_seq=8 ttl=64 time=20.011 msec
-(addresses edited)
+I would like to setup an automatic nightly ARM kernel build of the
+current BK tree for multiple ARM machine types to get as much code
+build-tested as possible.
 
-- ntpq -p shows a very high jitter:
-     remote           refid      st t when poll reach   delay   offset 
-jitter
-==============================================================================
- loop8.biologie. 134.34.3.18      2 u    6   64   77    0.807  -1920.6
-1804.31
- helix1.biologie 134.34.3.18      2 u   13   64   77    0.348  -1914.9
-1803.99
+However, this currently isn't feasible for me since most of the machines
+here (except server + firewall) get powered off at night, and the remote
+x86 boxen I've used in the past for occasional build testing are now under
+a relatively heavy FTP (vsftp), rsync and web load and would severely
+suffer from BK's consistency checks (l/a 0.91 1.32 1.76, blocks
+in: ~2500 blocks/sec average.)
 
-- ntpd complains:
+On bugme stuff, if you've submitted any ARM related bugs, I haven't had
+any notifications from bugzilla about them (so I've not looked at bugme
+since talking to Manfred.  Maybe Manfred missed settings things up.)
 
-Dec  3 19:18:51 turn22 ntpd[730]: synchronisation lost
-Dec  3 20:12:15 turn22 ntpd[730]: synchronisation lost
-Dec  3 22:50:40 turn22 ntpd[730]: synchronisation lost
-Dec  3 23:01:18 turn22 ntpd[730]: synchronisation lost
-
-- the program 'check_time' (attached) which was once posted by R.
-Johnson on this list shows that the internal timekeeping is
-inconsistent:
-
-Time = 3dedf443
-Last = 3dedf440
-Time = 3dedf440
-Last = 3dedf443
-Time = 3dedf443
-Last = 3dedf440
-Time = 3dedf440
-Last = 3dedf443
-Time = 3dedf443
-Last = 3dedf440
-Time = 3dedf440
-Last = 3dedf443
-Time = 3dedf443
-Last = 3dedf440
-Time = 3dedf440
-
-Any ideas? Am I really the only one who has seen these problems (on 4
-identical machines, BTW)?
-
-Kay
 -- 
-Kay Diederichs         http://strucbio.biologie.uni-konstanz.de/~kay 
-email: Kay.Diederichs@uni-konstanz.de  Tel +49 7531 88 4049 Fax 3183
-When replying to my email, please remove the blanks before and after the
-"@" !
-Fakultaet fuer Biologie, Universitaet Konstanz, Box M656, D-78457
-Konstanz
---------------F846291740C78267A8AD2EAE
-Content-Type: text/plain; charset=us-ascii;
- name="check_time.c"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="check_time.c"
-
-#include <stdio.h> 
-#include <time.h> 
-
-int main() 
-{ 
-    time_t tim; 
-    time_t last; 
-    (void)time(&last); 
-    (void)time(&tim); 
-    for(;;) 
-    { 
-        (void)time(&tim); 
-        if(tim != last) 
-        { 
-            if((last +1) != tim) 
-            { 
-                fprintf(stderr,"Time = %08lx\n", tim); 
-                fprintf(stderr,"Last = %08lx\n", last); 
-            } 
-            last = tim; 
-        } 
-    } 
-} 
-
---------------F846291740C78267A8AD2EAE--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

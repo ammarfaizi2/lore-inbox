@@ -1,37 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317416AbSGOKOF>; Mon, 15 Jul 2002 06:14:05 -0400
+	id <S315459AbSGOKQR>; Mon, 15 Jul 2002 06:16:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317418AbSGOKOE>; Mon, 15 Jul 2002 06:14:04 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:15108 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S317416AbSGOKOD>; Mon, 15 Jul 2002 06:14:03 -0400
-Date: Mon, 15 Jul 2002 11:16:56 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Thomas Sailer <sailer@scs.ch>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.19-rc1-ac3
-Message-ID: <20020715111656.C13277@flint.arm.linux.org.uk>
-References: <Pine.LNX.4.44.0207131435570.3808-100000@linux-box.realnet.co.sz> <m2n0svr42e.fsf@best.localdomain> <1026584861.13886.27.camel@irongate.swansea.linux.org.uk> <m265zj9zxn.fsf@best.localdomain> <20020713205422.E25995@flint.arm.linux.org.uk> <1026728020.2365.23.camel@watermelon.scs.ch>
+	id <S317419AbSGOKQQ>; Mon, 15 Jul 2002 06:16:16 -0400
+Received: from holomorphy.com ([66.224.33.161]:6824 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S315459AbSGOKQL>;
+	Mon, 15 Jul 2002 06:16:11 -0400
+Date: Mon, 15 Jul 2002 03:17:51 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Dipankar Sarma <dipankar@in.ibm.com>
+Cc: Matthew Wilcox <willy@debian.org>,
+       Janitors <kernel-janitor-discuss@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC] BH removal text
+Message-ID: <20020715101751.GG23693@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Dipankar Sarma <dipankar@in.ibm.com>,
+	Matthew Wilcox <willy@debian.org>,
+	Janitors <kernel-janitor-discuss@lists.sourceforge.net>,
+	linux-kernel@vger.kernel.org
+References: <20020701050555.F29045@parcelfarce.linux.theplanet.co.uk> <20020714010506.GW23693@holomorphy.com> <20020714102219.A9412@in.ibm.com> <20020714101730.GZ23693@holomorphy.com> <20020715145521.C15298@in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1026728020.2365.23.camel@watermelon.scs.ch>; from sailer@scs.ch on Mon, Jul 15, 2002 at 12:13:40PM +0200
+In-Reply-To: <20020715145521.C15298@in.ibm.com>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 15, 2002 at 12:13:40PM +0200, Thomas Sailer wrote:
-> The point is that frequency scaling is normally used with voltage
-> scaling. And lowering the voltage decreases the maximum frequency
-> roughly linearly, while the dynamic power consumption decreases
-> quadratically with voltage.
+On Sun, Jul 14, 2002 at 03:17:30AM -0700, William Lee Irwin III wrote:
+>> I actually suspect tty-related things are a likely culprit as
+>> significant use of the serial console occurs.
 
-Yes, but there are some systems out there where it is advantageous to
-use frequency scaling on hardware that supports it, without supporting
-voltage scaling.
+On Mon, Jul 15, 2002 at 02:55:21PM +0530, Dipankar Sarma wrote:
+> It should also be possible to make minimal non-smptimers 
+> bhless_timer patch - just in case smptimers isn't going in
+> any time soon. It will run a timer tasklet off of do_timer().
+> The tasklet handler still has to grab global_bh_lock and
+> the likes to keep the tty and other drivers that expect
+> serialization BH and timers or use __global_cli, happy.
+> Will such a patch be useful ?
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+The temporary "hangs" are so bad any way to mitigate this horrible
+problem will be useful. The machine is stuck so long in this stuff
+literal network timeouts occur. It's insanely bad, this is really
+beyond the scope of a performance problem and into the realm of an
+out-and-out bug. A machine stuck for that long in this code is
+effectively dead. I'm just slightly more patient than average users.
 
+
+Cheers,
+Bill

@@ -1,90 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129638AbRCTEy6>; Mon, 19 Mar 2001 23:54:58 -0500
+	id <S131723AbRCTFdn>; Tue, 20 Mar 2001 00:33:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131720AbRCTEyi>; Mon, 19 Mar 2001 23:54:38 -0500
-Received: from mpdr0.chicago.il.ameritech.net ([206.141.239.142]:45302 "EHLO
-	mailhost.chi.ameritech.net") by vger.kernel.org with ESMTP
-	id <S129638AbRCTEyf>; Mon, 19 Mar 2001 23:54:35 -0500
-Message-ID: <3AB6E242.FBBA50DE@ameritech.net>
-Date: Mon, 19 Mar 2001 22:53:22 -0600
-From: watermodem <aquamodem@ameritech.net>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
-X-Accept-Language: en
+	id <S131725AbRCTFdd>; Tue, 20 Mar 2001 00:33:33 -0500
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:44036 "HELO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S131723AbRCTFdX>; Tue, 20 Mar 2001 00:33:23 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: acc@CS.Stanford.EDU
+Date: Tue, 20 Mar 2001 16:33:17 +1100 (EST)
 MIME-Version: 1.0
-To: Matti Aarnio <matti.aarnio@zmailer.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Jiffy question and sound.
-In-Reply-To: <3AB5A53F.F8B0373B@ameritech.net> <20010319114615.E23336@mea-ext.zmailer.org> <3AB6DAFB.1E8F14DB@ameritech.net>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15030.60317.715787.369652@dulcimer.orchestra.cse.unsw.EDU.AU>
+Cc: linux-kernel@vger.kernel.org, mc@CS.Stanford.EDU
+Subject: Re: [CHECKER] 16 potential locking bugs in 2.4.1
+In-Reply-To: message from Andy Chou on Friday March 16
+In-Reply-To: <20010316213444.A3592@Xenon.Stanford.EDU>
+X-Mailer: VM 6.72 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-watermodem wrote:
+On Friday March 16, acc@CS.Stanford.EDU wrote:
+> Here are some more results from the MC project.  These are 16 errors found
+> in 2.4.1 related to inconsistent use of locks.  As usual, if you can
+> verify any of these or show that they are false positives, please let us
+> know by CC'ing mc@cs.stanford.edu.
 > 
-> Matti Aarnio wrote:
-> >
-> > On Mon, Mar 19, 2001 at 12:20:47AM -0600, watermodem wrote:
-> > > With the 2.4.0 kernel the loops_per_sec field was replaced (for i386)
-> > > with current_cpu_data.loops_per_jiffy.
-> > ...
-> > > #define LOOPS_PER_SEC current_cpu_data.loops_per_jiffy * 100
-> >
-> >   The intention was to accomodate systems with faster than 2 GHz clock
-> >   at which the LOOPS_PER_SEC counter spins around a bit too fast..
-> >   ('signed long' at i386 handles 0..2G just fine, then it thinks the sign
-> >    got inverted..  'unsigned long' works fine until 4 GHz processors.)
-> >
+> -Andy Chou
 > 
-> My sound card uses ALSA and ALSA wasn't available yet for
-> the new kernel.  So.. Noting that LOOPS_PER_SEC was what
-> failed in the kernel I modified it and compiled.  I am
-> not associated in anyway with the ALSA folks just wanted
-> too listen to music while working away.  I have no idea
-> why it needs it or if it is busy-looping... (I hope not).
+> | fs/nfsd/vfs.c                   | nfsd_link                  |
+> | fs/nfsd/vfs.c                   | nfsd_symlink               |
 
-I noticed that if I kill the "artsd" daemon and then
-let it naturally restart when starting another music player
-the problem goes away for awhile.   When artsd starts using
-more than 1.7% of the CPU then the problem occurs.  So I think
-I was looking at the wrong code.  Perhaps the problem is with
-the daemon.
+These are not actually bugs.  The usage of fh_lock is fairly obscure.
+The unlock gets done by an fh_put which the caller does after calling
+nfsd_link or nfs_symlink.
 
-> 
-> >   Why does the ALSA need  LOOPS_PER_SEC ?
-> >   Is it doing timing by busy-looping ?
-> >
-> > > Now compiling the same  ALSA modules with 2.4.2 this problem happens
-> > > much quicker and you don't need any other activity.  In fact it is hard
-> > > to play more than half a song.  (MP3)
-> > > It doesn't matter if what set of music players or tools I use the
-> > > problem is quite visible.
-> > >
-> > > When I boot back to the original 2.2.x kernel everything is perfect.
-> > >
-> > > So I guess I have a few questions here.
-> > >  1)   Is a jiffy 100th of a second or is it smaller  (so my loop count
-> > > is starving things.) (10ms) ?
-> >
-> >         "HZ" is the answer.  E.g. Alpha has HZ=1024, while i386 has HZ=100
-> >         Nearly all architectures have different values based on what some
-> >         other UNIX uses at given system.
-> >
-> > >  2)   Why is it so much worse in 2.4.2 than 2.4.0?
-> > >  3)   Any other "gotch's" that are important to watch for when moving
-> > > 2.2.x drivers to 2.4.x?
-> >
-> >         The FAQ may have some pointers to "porting drivers to 2.4" documents.
-> >
-> > > Thanks....
-> > > Watermodem
-> > > -
-> > > Please read the FAQ at  http://www.tux.org/lkml/
-> >
-> > /Matti Aarnio
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+NeilBrown

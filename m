@@ -1,103 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263691AbVBCSaP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263659AbVBCSYP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263691AbVBCSaP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 13:30:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261490AbVBCSaP
+	id S263659AbVBCSYP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 13:24:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263669AbVBCSVu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 13:30:15 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:45714 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261402AbVBCS2O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 13:28:14 -0500
-Date: Thu, 3 Feb 2005 13:16:59 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Ernie Petrides <petrides@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.4 patch] fix for memory corruption from /proc/kcore access
-Message-ID: <20050203151659.GB27727@logos.cnet>
-References: <200502030219.j132JsTi013377@pasta.boston.redhat.com>
+	Thu, 3 Feb 2005 13:21:50 -0500
+Received: from mail.kroah.org ([69.55.234.183]:2735 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263634AbVBCR5V (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Feb 2005 12:57:21 -0500
+Date: Thu, 3 Feb 2005 09:57:10 -0800
+From: Greg KH <greg@kroah.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       torben.mathiasen@hp.com
+Cc: linux-usb-devel@lists.sourceforge.net
+Subject: Re: [PATCH] Devices.txt, update with LANANA
+Message-ID: <20050203175710.GA24656@kroah.com>
+References: <200502021845.j12Ij99X030188@hera.kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200502030219.j132JsTi013377@pasta.boston.redhat.com>
-User-Agent: Mutt/1.5.5.1i
+In-Reply-To: <200502021845.j12Ij99X030188@hera.kernel.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Hi Ernie,
-
-On Wed, Feb 02, 2005 at 09:19:54PM -0500, Ernie Petrides wrote:
-> Hi, Marcelo.  A fairly nasty memory corruption potential exists when
-> /proc/kcore is accessed and there are at least 62 vmalloc'd areas.
+On Wed, Feb 02, 2005 at 04:48:39PM +0000, Linux Kernel Mailing List wrote:
+> ChangeSet 1.1992.2.74, 2005/02/02 08:48:39-08:00, torben.mathiasen@hp.com
 > 
-> The problem is that get_kcore_size() does not properly account for
-> the elf_prstatus, elf_prpsinfo, and task_struct structure sizes in
-> the fabricated ELF header, and then elf_kcore_store_hdr() and its
-> associated calls to storenote() will possibly overrun the "elf_buf"
-> buffer allocated by read_kcore().  Because the requested buffer size
-> is rounded up to a page multiple, only certain ranges of counts of
-> vmalloc'd areas will actually lead to a memory corruption.  When it
-> does happen, usually the end of the /proc/kcore reader's task_struct
-> ends up being copied into a slab page (or sometimes into a data page)
-> causing a kernel crash (or data corruption) at a later point in time.
+> 	[PATCH] Devices.txt, update with LANANA
+> 	
+> 	Attached is diff for bringing devices.txt uptodate with lanana.
+> 	
+> 	Please note: The devices.txt file in your tree will now be for 2.6+ kernels
+> 	only.  2.6 specific allocations will now be given out more freely, and some
+> 	of the stuff marked for obsolete for 2.6 has been removed.  I put a note in
+> 	the file to let people know its for 2.6+ kernels only.
+> 	
+> 	I wanted to rename the new file to devices-2.6+.txt and then make a link
+> 	from the old devices.txt to this new file, but diffing it became too ugly.
 
-Ouch.
+<snip>
 
-> The 1st hunk of the patch below fixes this problem.  The latter 3
-> hunks correct the "p_filesz" value for the note section (which is
-> already initialized to 0 on line 232) as stored in the ELF header,
-> but these hunks are not necessary to fix the corruption possiblity.
+> @@ -2546,7 +2542,12 @@
+>  		  0 = /dev/usb/lp0	First USB printer
+>  		    ...
+>  		 15 = /dev/usb/lp15	16th USB printer
+> -		 32 = /dev/usb/mdc800	MDC800 USB camera
+> +		 16 = /dev/usb/mouse0	First USB mouse
+> +		    ...
+> +		 31 = /dev/usb/mouse15	16th USB mouse
+> +		 32 = /dev/usb/ez0	First USB firmware loader
+> +		    ...
+> +		 47 = /dev/usb/ez15	16th USB firmware loader
+>  		 48 = /dev/usb/scanner0	First USB scanner
+>  		    ...
+>  		 63 = /dev/usb/scanner15 16th USB scanner
+> @@ -2554,23 +2555,11 @@
+>  		 65 = /dev/usb/usblcd	USBLCD Interface (info@usblcd.de)
+>  		 66 = /dev/usb/cpad0	Synaptics cPad (mouse/LCD)
+>  
+> -		 96 = /dev/usb/hiddev0	1st USB HID device
+> -		    ...
+> -		111 = /dev/usb/hiddev15	16th USB HID device
+> -		112 = /dev/usb/auer0	1st auerswald ISDN device
+> -		    ...
+> -		127 = /dev/usb/auer15	16th auerswald ISDN device
+> -		128 = /dev/usb/brlvgr0	First Braille Voyager device
+> -		    ...
+> -		131 = /dev/usb/brlvgr3	Fourth Braille Voyager device
+> -		132 = /dev/usb/idmouse	ID Mouse (fingerprint scanner) device
+> -		144 = /dev/usb/lcd	USB LCD device
+> -		160 = /dev/usb/legousbtower0	1st USB Legotower device
+> -		    ...
+> -		175 = /dev/usb/legousbtower15	16th USB Legotower device
+> -		240 = /dev/usb/dabusb0	First daubusb device
+> -		    ...
+> -		243 = /dev/usb/dabusb3	Fourth dabusb device
 
-Looks OK to me. 
+Hm, this is just wrong.  As I recall, LANANA is in charge of the major
+numbers, but for the USB major, the USB developers have been assigning
+the USB minors.  This patch just made the file different from what is
+currently present in the kernel.
 
-> The fix is already in 2.6.
+Should I just submit a patch to LANANA to update the USB minors for
+their copy so this doesn't happen again?
 
-Applied, cheers!
+I'll also fix this up in mainline in the next round of USB patches...
 
-> 
-> Cheers.  -ernie
-> 
-> 
-> 
-> --- linux-2.4.29/fs/proc/kcore.c.orig	2004-08-07 19:26:06.000000000 -0400
-> +++ linux-2.4.29/fs/proc/kcore.c	2005-02-02 19:52:50.000000000 -0500
-> @@ -136,7 +136,10 @@ static unsigned long get_kcore_size(int 
->  	}
->  	*elf_buflen =	sizeof(struct elfhdr) + 
->  			(*num_vma + 2)*sizeof(struct elf_phdr) + 
-> -			3 * sizeof(struct memelfnote);
-> +			3 * (sizeof(struct elf_note) + 4) +
-> +			sizeof(struct elf_prstatus) +
-> +			sizeof(struct elf_prpsinfo) +
-> +			sizeof(struct task_struct);
->  	*elf_buflen = PAGE_ALIGN(*elf_buflen);
->  	return (size - PAGE_OFFSET + *elf_buflen);
->  }
-> @@ -279,7 +282,7 @@ static void elf_kcore_store_hdr(char *bu
->  
->  	memset(&prstatus, 0, sizeof(struct elf_prstatus));
->  
-> -	nhdr->p_filesz	= notesize(&notes[0]);
-> +	nhdr->p_filesz += notesize(&notes[0]);
->  	bufp = storenote(&notes[0], bufp);
->  
->  	/* set up the process info */
-> @@ -296,7 +299,7 @@ static void elf_kcore_store_hdr(char *bu
->  	strcpy(prpsinfo.pr_fname, "vmlinux");
->  	strncpy(prpsinfo.pr_psargs, saved_command_line, ELF_PRARGSZ);
->  
-> -	nhdr->p_filesz	= notesize(&notes[1]);
-> +	nhdr->p_filesz += notesize(&notes[1]);
->  	bufp = storenote(&notes[1], bufp);
->  
->  	/* set up the task structure */
-> @@ -305,7 +308,7 @@ static void elf_kcore_store_hdr(char *bu
->  	notes[2].datasz	= sizeof(struct task_struct);
->  	notes[2].data	= current;
->  
-> -	nhdr->p_filesz	= notesize(&notes[2]);
-> +	nhdr->p_filesz += notesize(&notes[2]);
->  	bufp = storenote(&notes[2], bufp);
->  
->  } /* end elf_kcore_store_hdr() */
+thanks,
+
+greg k-h

@@ -1,40 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132580AbRDKORr>; Wed, 11 Apr 2001 10:17:47 -0400
+	id <S132406AbRDKONr>; Wed, 11 Apr 2001 10:13:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132579AbRDKORh>; Wed, 11 Apr 2001 10:17:37 -0400
-Received: from t2.redhat.com ([199.183.24.243]:1275 "HELO
-	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
-	id <S132578AbRDKOR1>; Wed, 11 Apr 2001 10:17:27 -0400
-To: afranck@gmx.de
-Cc: David Howells <dhowells@cambridge.redhat.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Andrew Morton <andrewm@uow.edu.au>, Ben LaHaise <bcrl@redhat.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2nd try: i386 rw_semaphores fix 
-In-Reply-To: Your message of "Wed, 11 Apr 2001 15:40:21 +0200."
-             <3AD45EC5.81EB82AD@akustik.rwth-aachen.de> 
-Date: Wed, 11 Apr 2001 15:17:19 +0100
-Message-ID: <16795.986998639@warthog.cambridge.redhat.com>
-From: David Howells <dhowells@cambridge.redhat.com>
+	id <S132578AbRDKON2>; Wed, 11 Apr 2001 10:13:28 -0400
+Received: from mx7.port.ru ([194.67.23.44]:52689 "EHLO mx7.port.ru")
+	by vger.kernel.org with ESMTP id <S132406AbRDKONW>;
+	Wed, 11 Apr 2001 10:13:22 -0400
+From: info <5740@mail.ru>
+To: John Jasen <jjasen@datafoundation.com>
+Subject: Re: 2.4.3 compile error No 4
+Date: Wed, 11 Apr 2001 17:59:23 +0400
+X-Mailer: KMail [version 1.0.28]
+Content-Type: text/plain
+In-Reply-To: <Pine.LNX.4.30.0104110947430.19243-100000@flash.datafoundation.com>
+In-Reply-To: <Pine.LNX.4.30.0104110947430.19243-100000@flash.datafoundation.com>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Message-Id: <01041118154201.30945@sh.lc>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I'd like you to look over it. It seems newer GCC's (snapshots and the
-> upcoming 3.0) will be more strict when modifying some values through
-> assembler-passed pointers - in this case, the passed semaphore structure got
-> freed too early, causing massive stack corruption on early bootup.
->
-> The solution was to directly mention the modified element (in this case,
-> sem->count) with a "=m" qualifier, which told GCC that the contents of the
-> semaphore structure are still really needed. It does not seem to have any
-> bad side effects on older GCC, but lets the code work on people trying to
-> use the newer snapshots.
+Срд, 11 Апр 2001 в сообщении на тему "Re: 2.4.3 compile error No 4" Вы написали:
+> On Wed, 11 Apr 2001, info wrote:
+> 
+> > OS: Mandrake 6.0RE
+> > AMD K6-200 144 M
+> > gcc 2.95.2-ipl3mdk
+> >
+> > # CONFIG_IPX_INTERN is not set
+> > # CONFIG_SYSCTL is not set
+> > CONFIG_HPFS_FS=y
+> >
+> > Compiler error message No 4:
+> 
+> this may be a stupid question, but are you doing a 'make clean' after
+> changing config parameters?
 
-I've just consulted with one of the gcc people we have here, and he says that
-the '"memory"' constraint should do the trick.
+Maybe it's is a stupid order, but I  do this:
+1. untar kernel into /usr/src (there was no /linux subdirectory)
+ 2. copy my own config file (named config-k6) from old 2.4.0 source
+tree (compiled and working - now I am on 2.4.0) 
+3. make xconfig, load configuration from this file and then manually
+check all parameters   
+4 store configuration into new config-k6-1 file
+5. press button "Save and exit"
+6. make dep
+7. make bzImage
 
-Do I take it that that is actually insufficient?
+When it was the first error, I done:
+1.make clean
+2. make mrproper
+3. then load configuration from my "config-k6-1" file, change
+paremeters, store configuration. save and exit, make dep, make
+bzImage 
 
-David
+Because there was several cases with mistakes, on one step I repead
+all procedure - rm -f -R linux/*, then untar source. No effect: error
+on the same place.
+
+By the vay.
+
+I put a mistake in my first letter in distributive number:
+nor 6.0, but Mandrake 7.0RE with latest updates.
+
+And another thing. When I compiled 2.4.0, there was errors too. I
+play with various config parameters and find the combination than
+compiled without errors.

@@ -1,35 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286140AbRLZDlm>; Tue, 25 Dec 2001 22:41:42 -0500
+	id <S286147AbRLZDvy>; Tue, 25 Dec 2001 22:51:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286145AbRLZDld>; Tue, 25 Dec 2001 22:41:33 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:53769 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S286140AbRLZDlT>;
-	Tue, 25 Dec 2001 22:41:19 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
+	id <S286148AbRLZDvo>; Tue, 25 Dec 2001 22:51:44 -0500
+Received: from f259.law9.hotmail.com ([64.4.8.134]:11270 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S286147AbRLZDvd>;
+	Tue, 25 Dec 2001 22:51:33 -0500
+X-Originating-IP: [66.92.149.187]
+From: "William Knop" <w_knop@hotmail.com>
 To: linux-kernel@vger.kernel.org
-Cc: Alexander Viro <viro@math.psu.edu>
-Subject: 2.5.2-pre2 forces ramfs on
+Subject: RE: LKML signal to noise ratio-- improvement
+Date: Tue, 25 Dec 2001 22:51:27 -0500
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 26 Dec 2001 14:41:02 +1100
-Message-ID: <2452.1009338062@ocs3.intra.ocs.com.au>
+Content-Type: text/plain; format=flowed
+Message-ID: <F259ZrIkyPzGNsokLQ800008cb0@hotmail.com>
+X-OriginalArrivalTime: 26 Dec 2001 03:51:27.0505 (UTC) FILETIME=[98831810:01C18DC0]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Index: 2-pre1.1/fs/Config.in
---- 2-pre1.1/fs/Config.in Sat, 24 Nov 2001 05:28:08 +1100 kaos (linux-2.5/F/d/27_Config.in 1.1 644)
-+++ 2-pre2.1/fs/Config.in Wed, 26 Dec 2001 14:32:39 +1100 kaos (linux-2.5/F/d/27_Config.in 1.2 644)
-@@ -45,7 +45,7 @@ if [ "$CONFIG_JFFS2_FS" = "y" -o "$CONFI
- fi
- tristate 'Compressed ROM file system support' CONFIG_CRAMFS
- bool 'Virtual memory file system support (former shm fs)' CONFIG_TMPFS
--tristate 'Simple RAM-based file system support' CONFIG_RAMFS
-+define_bool CONFIG_RAMFS y
+M. Edward Borasky wrote:
+>I rather like the way the R project does it. They have three lists:
+>one for developers, one for "announcements" and one for help. The
+>announcements list is probably irrelevant; the announcements show up
+>on the other two lists.
 
-Why is ramfs forced on?
+Ah yes, I meant to include -announcements too, but I forgot by the time I 
+got down to the named parts. Perhaps a -proposals would be good too, so 
+something like -misc posts would truly not fit into a preconcieved catagory. 
+If people still announce to the other lists, they can be scolded.
 
-And why is Al Viro's email address not in CREDITS or MAINTAINERS?  We
-should have somewhere to complain to ;).
+Although, it seems that with so many lists it gets too complex and parts of 
+the system might be ignored; perhaps you are right, that three lists would 
+suffice. But either way, one list with 7000+ messages a month is, as many 
+have admitted, not optimal for developers and maintainers.
+
+Thanks,
+Will
+
+_________________________________________________________________
+Get your FREE download of MSN Explorer at http://explorer.msn.com/intl.asp.
 

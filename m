@@ -1,39 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264842AbTAROqE>; Sat, 18 Jan 2003 09:46:04 -0500
+	id <S264797AbTARPLx>; Sat, 18 Jan 2003 10:11:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264844AbTAROqE>; Sat, 18 Jan 2003 09:46:04 -0500
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:52997 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S264842AbTAROqD>; Sat, 18 Jan 2003 09:46:03 -0500
-Message-ID: <3E296342.B3042E09@linux-m68k.org>
-Date: Sat, 18 Jan 2003 15:22:58 +0100
-From: Roman Zippel <zippel@linux-m68k.org>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.20 i686)
-X-Accept-Language: en
+	id <S264844AbTARPLx>; Sat, 18 Jan 2003 10:11:53 -0500
+Received: from landfill.ihatent.com ([217.13.24.22]:4100 "EHLO
+	mail.ihatent.com") by vger.kernel.org with ESMTP id <S264797AbTARPLw>;
+	Sat, 18 Jan 2003 10:11:52 -0500
+To: Dave Jones <davej@codemonkey.org.uk>
+Cc: "Mark F." <daracerz@hotmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.59 - Compaq 900z - No Go..
+References: <BAY2-DAV69nJkxWwBvt0000440f@hotmail.com>
+	<20030118132807.GC21489@codemonkey.org.uk>
+From: Alexander Hoogerhuis <alexh@ihatent.com>
+Date: 18 Jan 2003 16:20:41 +0100
+In-Reply-To: <20030118132807.GC21489@codemonkey.org.uk>
+Message-ID: <87lm1iiiwm.fsf@lapper.ihatent.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-To: Larry McVoy <lm@bitmover.com>
-CC: Jamie Lokier <jamie@shareable.org>, linux-kernel@vger.kernel.org
-Subject: Re: Is the BitKeeper network protocol documented?
-References: <20030118043309.GA18658@bjl1.asuk.net> <20030118052919.GA22751@work.bitmover.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Dave Jones <davej@codemonkey.org.uk> writes:
 
-Larry McVoy wrote:
+> On Fri, Jan 17, 2003 at 11:49:10AM -0500, Mark F. wrote:
+>  > Hello
+>  > 
+>  > After trying the recent latest release, the compilation mode is an ok except
+>  > for some warning and module install issues.
+>  > Anyways, when I configure the kernel into the boot loader, and I try to boot
+>  > it up it fails after each repeated attempt.  All that happens is that it
+>  > starts the Kernel Boot Up, gets to the line that says "Uncompressing
+>  > Kernel...." and the it just hard reboots the computer.  Does this after each
+>  > repeated chance.  Currently trying to play around with whch drivers I am
+>  > loading into the kernel to see if I am able to eliminate something
+>  > 
+>  > Computer is basically an AMD Athlon 1600 with the Radeon IGP Chipset for
+>  > those who don't know.  (Yes, with previous builds, think was 2.5.54 is
+>  > booted, and works on 2.4.21-pre3)
+> 
+> My Compaq Evo 1015v did the same thing. I think it was disabling the PNP
+> stuff that made it work for me iirc.
+> 
 
-> I guess I don't know how to help you.  As far as I can tell, if Linus
-> wasn't using BK he'd still be doing what he was doing up until he started
-> using BK which means you wouldn't have the option of the up to date
-> snapshots you can currently get.
+Comapq Evo800c here, boots somewhat fine. 2.5.58 hung at
+"Uncompressing, booting...", 2.5.59 did almost the same, but then I
+noticed the disk actually doing stuff, and by waiting, up popped the
+"login:" promt after a while, but nothing was printed to the console
+during boot.
 
-IOW "You should be thankful for what I offer, if you don't like it, piss
-off!"
-Might not be what you've intended, but that's what I arrived here and
-I'm sure I'm not the only one.
+I have module-init-tools 0.9.9_pre1 installed, and get about 2000
+lines in my /var/log/messages with mostly soudn and alsa related
+symbols that doesn't resolve.
 
-bye, Roman
+> 		Dave
 
+mvh,
+A
+-- 
+Alexander Hoogerhuis                               | alexh@ihatent.com
+CCNP - CCDP - MCNE - CCSE                          | +47 908 21 485
+"You have zero privacy anyway. Get over it."  --Scott McNealy

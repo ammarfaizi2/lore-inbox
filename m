@@ -1,62 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266547AbUBQTv4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 14:51:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266562AbUBQTv4
+	id S266495AbUBQToS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 14:44:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266483AbUBQToR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 14:51:56 -0500
-Received: from mailout02.sul.t-online.com ([194.25.134.17]:45956 "EHLO
-	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S266547AbUBQTvy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 14:51:54 -0500
-Message-ID: <40327054.5020303@t-online.de>
-Date: Tue, 17 Feb 2004 20:49:40 +0100
-From: Harald Dunkel <harald.dunkel@t-online.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7a) Gecko/20040214
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Sam Ravnborg <sam@ravnborg.org>
-CC: Rusty Russell <rusty@rustcorp.com.au>, Ryan Reich <ryanr@uchicago.edu>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.2: "-" or "_", thats the question
-References: <1pw4i-hM-27@gated-at.bofh.it> <1pw4i-hM-29@gated-at.bofh.it> <1pw4i-hM-31@gated-at.bofh.it> <1pw4i-hM-25@gated-at.bofh.it> <1pLmG-4E7-5@gated-at.bofh.it> <1pRLz-21o-33@gated-at.bofh.it> <1pRVi-2am-27@gated-at.bofh.it> <1pWi8-65a-11@gated-at.bofh.it> <40315225.3010104@uchicago.edu> <4031B01B.80006@t-online.de> <20040217160226.GB2178@mars.ravnborg.org>
-In-Reply-To: <20040217160226.GB2178@mars.ravnborg.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Seen: false
-X-ID: Tzn+FiZrZe7iMjmoUQYUuNiMqzj81DwAYeR7SnE7sXG843GTw+zMQ0
+	Tue, 17 Feb 2004 14:44:17 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:43445 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S266503AbUBQToP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Feb 2004 14:44:15 -0500
+Date: Tue, 17 Feb 2004 19:44:14 +0000
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: tridge@samba.org, Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: UTF-8 and case-insensitivity
+Message-ID: <20040217194414.GP8858@parcelfarce.linux.theplanet.co.uk>
+References: <16433.38038.881005.468116@samba.org> <Pine.LNX.4.58.0402162034280.30742@home.osdl.org> <16433.47753.192288.493315@samba.org> <Pine.LNX.4.58.0402170704210.2154@home.osdl.org> <Pine.LNX.4.58.0402170833110.2154@home.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0402170833110.2154@home.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam Ravnborg wrote:
+On Tue, Feb 17, 2004 at 08:57:40AM -0800, Linus Torvalds wrote:
+> Trust me, this is much less intrusive, and a lot easier to debug too. It 
+> won't be as fast as the regular path operations, but depending on what the 
+> common cases are (hopefully "look up name that is exact"), it would likely 
+> not be horrible either. And it could probably be debugged as a real 
+> module, without impacting any existing code, which would make it a lot 
+> easier to create.
 > 
-> When 2.7 opens I will try to find out if we can rename all victims.
-> I can tweak kbuild to warn for modules using '-', so we in the
-> end can get rid of this inconsistency.
+> See where I'm going? Would this be acceptable to you? Are there any samba 
+> people who are knowledgeable about the VFS-layer and have the time/energy 
+> to try something like this?
 > 
-> Rusty - do you see any problems with this?
-> 
-> 	Sam
-> 
-Any chance to get this warning for 2.6?
+> Al? What do you think?
 
-What would happen if a symbol filename is changed by replacing
-the '-' with '_'?
+What will protect your generation counts during the operation itself?
+->i_sem?
 
-The module-init-tools wouldn't care. I don't know the internals
-of kudzu, but discover2 uses modprobe to load the modules. The
-internal workarounds in discover2 for the inconsistency would
-become obsolete.
+If anything, I'd suggest doing it as
+	cretinous_rename(dir_fd, name1, name2)
+with the following semantics:
 
-Maybe the alsa stuff? There are many alsa modules with '-'.
+	* if directory had been changed since open() that gave us dir_fd -
+-EFOAD
+	* otherwise, rename name1 to name2 (no cross-directory renames here).
 
-Would it be easier to fix the output of /proc/modules than
-renaming all modules with '-'?
+No need to expose generation counts to userland - we can just compare the
+count at open() time with that at operation time.  The rest can be done
+in userland (including creation of files).
 
+We _definitely_ don't want to put "UTF-8 case-insensitive comparison" anywhere
+near the kernel - it's insane.  If samba wants it, they get to pay the price,
+both in performance and keeping butt-ugly code (after all, the goal of project
+is to imitate butt-ugly system for butt-ugly clients).  The same goes for Wine.
 
-Of course I would be glad to help.
-
-
-Regards
-
-Harri
+And we really don't want to encourage those who port Windows userland in
+not fixing the idiotic semantics.  As for Lindows... let's just say that
+I can't find any way to describe what I really think of those clowns, their
+intellect and their morals that wouldn't lead to a lawsuit from them.

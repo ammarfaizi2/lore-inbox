@@ -1,72 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265539AbUABNWX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jan 2004 08:22:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265538AbUABNWX
+	id S265560AbUABNU2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jan 2004 08:20:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265561AbUABNU1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jan 2004 08:22:23 -0500
-Received: from postbode02.zonnet.nl ([62.58.50.89]:12225 "EHLO
-	postbode02.zonnet.nl") by vger.kernel.org with ESMTP
-	id S265539AbUABNUd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jan 2004 08:20:33 -0500
-From: S Ait-Kassi <sait-kassi@zonnet.nl>
-To: linux-kernel@vger.kernel.org
-Subject: [update]  Vesafb problem since 2.5.51
-Date: Fri, 2 Jan 2004 14:22:44 +0100
-User-Agent: KMail/1.5.4
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+	Fri, 2 Jan 2004 08:20:27 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:4045 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S265560AbUABNUW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jan 2004 08:20:22 -0500
+Date: Fri, 2 Jan 2004 18:55:09 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: rusty@au1.ibm.com
+Cc: lhcs-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Module Observations
+Message-ID: <20040102185509.A18154@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200401021422.44324.sait-kassi@zonnet.nl>
-X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.23.0.2; VDF: 6.23.0.22; host: postbode02.zonnet.nl)
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi,
+	I was going thr' module code and made some observations:
 
-I figured out in which kernel the problem I was having appeared. It seems to 
-work with 2.5.50 and the problems starts with 2.5.51.
+1. sys_init_module drops the module_mutex semaphore
+   before calling mod->init() function and later
+   reacquires it. After reacquiring, it marks
+   the module state as MODULE_STATE_LIVE.
 
-I've looked at the changelog and showed these changes that might have 
-contibuted to my problem;
+   In the window when mod->init() function is running,
+   isn't it possible that sys_delete_module (running
+   on some other CPU and trying to remove the _same_ module)
+   acquires the module_mutex sem and marks the module
+   state as MODULE_STATE_GOING?
 
--There are some changes in fbcon. Made modular along with some fixes and some 
-vesafb fixes.
+   Shouldn't sys_init_module check for
+   that possibility when it reacquires the semaphore after
+   calling mod->init function?
 
--Accel wrapper is now intergarted into fbcon.c. VESA fb fixes 
+--- module.c.org        Fri Jan  2 18:37:54 2004
++++ module.c    Fri Jan  2 18:38:57 2004
+@@ -1750,7 +1750,8 @@
 
--Made fbcon modular.
-
--New NVIDIA and Radeon cards pci ids. Soon I will add support for these :-) 
-Also a needed fix for fbcon.c. 
-
--Moved AGP and DRM code back to drivers/char until a proper solution is done 
-for handling AGP/DMA based framebuffer devices.
-
-Almost all changes by the same developer <jsimmons>. I've been looking
-at the source differences but the introduction of the fbcon module really 
-complicates the matter.
-
-I was wondering where to go about reporting the 
-problem or where this issue might stem from. (i.e. the includes shown in 
-vesafb.h, vesafb.h itself, fb.h or the fbcon module related code.
-
-Or would it be best to just mail the developer? :)
-Any help is appreciated.
-
-Regards,
-
-P.S.: Here is the part of my original mail describing the problem. It has been 
-confirmed by two other submits to this mailinglist regarding the 2.6.0-test4 
-kernel. I'm using the 2.6.0.-bk3 kernel myself.
-
->The most apparent occurrence of the problem for me is when 
->running mc (Midnight Commander). The blue blackground isn't drawn in the 
->parts where there is no text. When using mcedit this comes all the more clear 
->and  particularly when scrolling is done. The space which hasn't got any text 
->is replaced with RGB pixels (looks grey from a distance). If you jump back 
->from one console and back again the screen is redrawn correctly.
+        /* Now it's a first class citizen! */
+        down(&module_mutex);
+-       mod->state = MODULE_STATE_LIVE;
++       if (likely(mod->state != MODULE_STATE_GOING))
++               mod->state = MODULE_STATE_LIVE;
+        /* Drop initial reference. */
+        module_put(mod);
+        module_free(mod, mod->module_init);
 
 
+  This off-course means that you are trying to insmod and rmmod 
+  the same module simultaneously from different CPUs and hence
+  may not be practical.
+
+2. try_module_get() and module_put()
+
+	try_module_get increments the local cpu's ref count for the module 
+   and module_put decrements it.
+
+   Is it required that the caller call both these functions from the same CPU?
+   Otherwise, the total refcount for the module will be non-zero!
+
+
+
+-- 
+
+
+Thanks and Regards,
+Srivatsa Vaddagiri,
+Linux Technology Center,
+IBM Software Labs,
+Bangalore, INDIA - 560017

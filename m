@@ -1,64 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317877AbSGKTUJ>; Thu, 11 Jul 2002 15:20:09 -0400
+	id <S317878AbSGKT0u>; Thu, 11 Jul 2002 15:26:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317878AbSGKTUI>; Thu, 11 Jul 2002 15:20:08 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:21523 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S317877AbSGKTUH>;
-	Thu, 11 Jul 2002 15:20:07 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200207111921.g6BJLtI459123@saturn.cs.uml.edu>
-Subject: Re: HZ, preferably as small as possible
-To: dalecki@evision-ventures.com (Martin Dalecki)
-Date: Thu, 11 Jul 2002 15:21:55 -0400 (EDT)
-Cc: jgarzik@mandrakesoft.com (Jeff Garzik),
-       andrew.grover@intel.com (Grover Andrew), cat@zip.com.au ('CaT'),
-       bcrl@redhat.com (Benjamin LaHaise), akpm@zip.com.au (Andrew Morton),
-       linux-kernel@vger.kernel.org (Linux)
-In-Reply-To: <3D2DBB7B.9020600@evision-ventures.com> from "Martin Dalecki" at Jul 11, 2002 07:08:11 PM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S317880AbSGKT0t>; Thu, 11 Jul 2002 15:26:49 -0400
+Received: from mta06-svc.ntlworld.com ([62.253.162.46]:35733 "EHLO
+	mta06-svc.ntlworld.com") by vger.kernel.org with ESMTP
+	id <S317878AbSGKT0p>; Thu, 11 Jul 2002 15:26:45 -0400
+Date: Thu, 11 Jul 2002 20:29:29 +0100 (BST)
+From: Iain Thomas <iain.thomas@dial.pipex.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: IBM Desktar disk problem?
+Message-ID: <Pine.LNX.4.10.10207112015310.7615-100000@magpie.local.domain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Dalecki writes:
-> U\277ytkownik Jeff Garzik napisa\263:
+Thunder wrote:
+>On Sun, 7 Jul 2002, Timo Jantunen wrote:
+>> There is a disk image for Linux, too, on the same page:
+>> http://www.geocities.com/dtla_update/dtlaupdt.tar.gz
+>I've talked to IBM about this. They say they don't have it on their
+>website because some people might think they need it and trash their hard
+>disks because they can't upgrade and are too lazy to read the README.
 
->> I don't see that making 'HZ' a variable is really an option, because 
->> many drivers and scheduler-related code will be wildly inaccurate as 
->> soon as HZ actually changes values.
+Hmm...
 
-Definitely:
-my_timeout = foo*HZ;
+http://www-1.ibm.com/support/manager.wss?rs=0&rt=0&org=psg&doc=MIGR-39082
+"Aptiva / IntelliStation / NetVista / PC300 / PC300GL / PC300PL - Why
+should you use the firmware update for IBM DeskStar hard disk drives?"
 
->> So that leaves us with the option of changing all the code related to 
->> waiting to be based on msecs and usecs.  Which I would love to do, but 
->> that's a lot of work, both code- and audit-wise.
->
-> vmstat.c:
->
-> hz = sysconf(_SC_CLK_TCK);	/* get ticks/s from system */
+and
 
-Oops! Sorry I missed that one. Not that it matters for
-the 2.5.25 kernel and above, but that code really should
-be using the Hertz value supplied by libproc.
+http://www-1.ibm.com/support/manager.wss?rs=0&rt=0&org=psg&doc=MIGR-38933
+"IBM IntelliStation / NetVista / PC300 / PC300GL / PC300PL - PZ2Z16US -
+IBM DeskStar hard disk drive firmware update"
 
-> And yes I know the libproc is *evil* in this area.
+and
 
-Hell yes. It's going to remain evil until the 2.4 kernel
-is a distant memory. Debian uses a 2.2 kernel in the
-upcoming release, so it will be a good long time until
-everyone is using a 2.6 kernel. When 2.8 comes out,
-Debian will finally stop using 2.4 and I can get rid of
-my evil hack.
+http://www-1.ibm.com/support/manager.wss?rs=0&rt=0&org=psg&doc=MIGR-42215
+"NetVista 2179, 2284, 6643, 6832, 6833 - PZ2Z18US - IBM DeskStar hard disk
+drive firmware update"
 
-Hey, I asked for a clean way to get HZ. I didn't even
-get "send a patch"; I got BS about the 2.5.25 behavior
-being standard, as if it had already been implemented.
+Left hand, heard of Right hand? Although I don't know how useful these are
+if you don't have an IBM computer...
 
-> The rest should be an implementation detail of sysconf().
+-- 
+Regards, iain.thomas@dial.pipex.com
+My website: http://www.iain.thomas.dial.pipex.com/
 
-That's broken. It can't even correctly report the
-number of processors you have.

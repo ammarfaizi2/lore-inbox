@@ -1,149 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263940AbTIIEOM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 00:14:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263941AbTIIEOM
+	id S263933AbTIIEQJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 00:16:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263945AbTIIEQJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 00:14:12 -0400
-Received: from dp.samba.org ([66.70.73.150]:7900 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S263940AbTIIEOE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 00:14:04 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Andrew Morton <akpm@osdl.org>
-Cc: hugh@veritas.com, drepper@redhat.com, Jamie Lokier <jamie@shareable.org>,
-       lk@tantalophile.demon.co.uk, shemminger@osdl.org,
-       torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Re: today's futex changes 
-In-reply-to: Your message of "Mon, 08 Sep 2003 12:02:34 MST."
-             <20030908120234.5d05cda9.akpm@osdl.org> 
-Date: Tue, 09 Sep 2003 14:12:38 +1000
-Message-Id: <20030909041403.77BC52C051@lists.samba.org>
+	Tue, 9 Sep 2003 00:16:09 -0400
+Received: from dyn-ctb-203-221-72-196.webone.com.au ([203.221.72.196]:51972
+	"EHLO chimp.local.net") by vger.kernel.org with ESMTP
+	id S263933AbTIIEQD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Sep 2003 00:16:03 -0400
+Message-ID: <3F5D53B9.8050004@cyberone.com.au>
+Date: Tue, 09 Sep 2003 14:14:49 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Con Kolivas <kernel@kolivas.org>
+CC: Andrew Morton <akpm@osdl.org>, Steven Pratt <slpratt@austin.ibm.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Minor scheduler fix to get rid of skipping in xmms
+References: <3F5D023A.5090405@austin.ibm.com> <200309091210.06333.kernel@kolivas.org> <200309091216.32964.kernel@kolivas.org> <200309091231.48709.kernel@kolivas.org>
+In-Reply-To: <200309091231.48709.kernel@kolivas.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20030908120234.5d05cda9.akpm@osdl.org> you write:
-> Rusty Russell <rusty@rustcorp.com.au> wrote:
-> >
-> > D: 4) Andrew Morton says spurious wakeup is a bug.  Catch it.
-> 
-> Yes, but going BUG() is a bit rude.  We can detect the error, we can
-> recover from it and it doesn't cause any user data corruption or anything.
-> A rude printk is all that is needed here.
 
-OK.  Changed.
 
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+Con Kolivas wrote:
 
-Name: Minor Tweaks To Jamie Lokier's Futex Patch
-Author: Rusty Russell
-Status: Booted on 2.6.0-test5
+>On Tue, 9 Sep 2003 12:16, Con Kolivas wrote:
+>
+>>On Tue, 9 Sep 2003 12:10, Con Kolivas wrote:
+>>
+>>>On Tue, 9 Sep 2003 08:56, Andrew Morton wrote:
+>>>
+>>>>Steven Pratt <slpratt@austin.ibm.com> wrote:
+>>>>
+>>>>>For specjbb things are looking good from a throughput point of view.
+>>>>>...
+>>>>>Volanomark, on the other hand is still off by quite a bit from test4
+>>>>>stock
+>>>>>
+>>>>hmm, thanks.
+>>>>
+>>>>I'm not sure that volanomark is very representative of any real-world
+>>>>thing.
+>>>>
+>>>>
+>>>>>...
+>>>>>If thre is any particular patch/tree combination you would like me to
+>>>>>try out, please let me know and I will see if I can get the results
+>>>>>for you.
+>>>>>
+>>>>Could we please see test5 versus test5 plus Andrew's patch?
+>>>>
+>>>>ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-tes
+>>>>t4 /2 .6.0-test4-mm6/broken-out/sched-CAN_MIGRATE_TASK-fix.patch
+>>>>
+>>>>and if you have time, also test5 plus sched-CAN_MIGRATE_TASK-fix.patch
+>>>>plus
+>>>>
+>>>>ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-tes
+>>>>t4 /2
+>>>>.6.0-test4-mm6/broken-out/sched-balance-fix-2.6.0-test3-mm3-A0.patch
+>>>>
+>>>Interestingly enough this drops the volano results the same proportion as
+>>>Ingo's A3 patch. 11000 ->10400 throughput with same idle, but more
+>>>schedule().
+>>>
+>>>I've posted some results for test5 volano and test5-A0 here:
+>>>http://kernel.kolivas.org/2.5/volano
+>>>
+>>>More testing underway.
+>>>
+>>Correction sorry: These changes were due to
+>>sched-CAN_MIGRATE_TASK-fix.patch and the test results say
+>>volano-results-2.6.0-test5-A0-*
+>>
+>
+>Further testing shows the patch: sched-balance-fix-2.6.0-test3-mm3-A0.patch to 
+>have no effect on volano results by itself. 
+>
 
-D: Minor changes to Jamie's excellent futex patch.
-D: 1) Remove obsolete comment above hash array decl.
-D: 2) Clarify comment about TASK_INTERRUPTIBLE.
-D: 3) Andrew Morton says spurious wakeup is a bug.  Catch it.
-D: 4) Try Jenkins hash.
+Hi Con,
+Any chance you could give this
+http://www.kerneltrap.org/~npiggin/v14/sched-rollup-nopolicy-v14.gz
+a try? It should apply against test5.
 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .9333-linux-2.6.0-test5/kernel/futex.c .9333-linux-2.6.0-test5.updated/kernel/futex.c
---- .9333-linux-2.6.0-test5/kernel/futex.c	2003-09-09 10:35:05.000000000 +1000
-+++ .9333-linux-2.6.0-test5.updated/kernel/futex.c	2003-09-09 14:06:06.000000000 +1000
-@@ -33,7 +33,7 @@
- #include <linux/poll.h>
- #include <linux/fs.h>
- #include <linux/file.h>
--#include <linux/hash.h>
-+#include <linux/jhash.h>
- #include <linux/init.h>
- #include <linux/futex.h>
- #include <linux/mount.h>
-@@ -44,6 +44,7 @@
- /*
-  * Futexes are matched on equal values of this key.
-  * The key type depends on whether it's a shared or private mapping.
-+ * Don't rearrange members without looking at hash_futex().
-  */
- union futex_key {
- 	struct {
-@@ -79,7 +80,6 @@ struct futex_q {
- 	struct file *filp;
- };
- 
--/* The key for the hash is the address + index + offset within page */
- static struct list_head futex_queues[1<<FUTEX_HASHBITS];
- static spinlock_t futex_lock = SPIN_LOCK_UNLOCKED;
- 
-@@ -89,11 +89,12 @@ static struct vfsmount *futex_mnt;
- /*
-  * We hash on the keys returned from get_futex_key (see below).
-  */
--static inline struct list_head *hash_futex(union futex_key *key)
-+static struct list_head *hash_futex(const union futex_key *key)
- {
--	return &futex_queues[hash_long(key->both.word
--				       + (unsigned long) key->both.ptr
--				       + key->both.offset, FUTEX_HASHBITS)];
-+	u32 hash = jhash2((u32*)&key->both.word,
-+			  (sizeof(key->both.word)+sizeof(key->both.ptr))/4,
-+			  key->both.offset);
-+	return &futex_queues[hash & ((1 << FUTEX_HASHBITS)-1)];
- }
- 
- /*
-@@ -333,7 +334,6 @@ static int futex_wait(unsigned long uadd
- 	union futex_key key;
- 	struct futex_q q;
- 
-- try_again:
- 	init_waitqueue_head(&q.waiters);
- 
- 	down_read(&current->mm->mmap_sem);
-@@ -367,10 +367,10 @@ static int futex_wait(unsigned long uadd
- 	/*
- 	 * There might have been scheduling since the queue_me(), as we
- 	 * cannot hold a spinlock across the get_user() in case it
--	 * faults.  So we cannot just set TASK_INTERRUPTIBLE state when
-+	 * faults, and we cannot just set TASK_INTERRUPTIBLE state when
- 	 * queueing ourselves into the futex hash.  This code thus has to
--	 * rely on the futex_wake() code doing a wakeup after removing
--	 * the waiter from the list.
-+	 * rely on the futex_wake() code removing us from hash when it
-+	 * wakes us up.
- 	 */
- 	add_wait_queue(&q.waiters, &wait);
- 	spin_lock(&futex_lock);
-@@ -394,26 +394,17 @@ static int futex_wait(unsigned long uadd
- 	 * we are the only user of it.
- 	 */
- 
--	/*
--	 * Were we woken or interrupted for a valid reason?
--	 */
--	ret = unqueue_me(&q);
--	if (ret == 0)
-+	/* If we were woken (and unqueued), we succeeded, whatever. */
-+	if (!unqueue_me(&q))
- 		return 0;
- 	if (time == 0)
- 		return -ETIMEDOUT;
--	if (signal_pending(current))
--		return -EINTR;
--
--	/*
--	 * No, it was a spurious wakeup.  Try again.  Should never happen. :)
--	 */
--	goto try_again;
-+	/* A spurious wakeup should never happen. */
-+	WARN_ON(!signal_pending(current));
-+	return -EINTR;
- 
-  out_unqueue:
--	/*
--	 * Were we unqueued anyway?
--	 */
-+	/* If we were woken (and unqueued), we succeeded, whatever. */
- 	if (!unqueue_me(&q))
- 		ret = 0;
-  out_release_sem:
+

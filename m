@@ -1,104 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268460AbTCFWZI>; Thu, 6 Mar 2003 17:25:08 -0500
+	id <S268454AbTCFWbC>; Thu, 6 Mar 2003 17:31:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268463AbTCFWZI>; Thu, 6 Mar 2003 17:25:08 -0500
-Received: from mailout10.sul.t-online.com ([194.25.134.21]:9125 "EHLO
-	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S268460AbTCFWZF>; Thu, 6 Mar 2003 17:25:05 -0500
-Date: Thu, 6 Mar 2003 23:35:18 +0100
-From: Martin Waitz <tali@admingilde.org>
-To: Robert Love <rml@tech9.net>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Andrew Morton <akpm@digeo.com>,
-       mingo@elte.hu, linux-kernel@vger.kernel.org
-Subject: Re: [patch] "HT scheduler", sched-2.5.63-B3
-Message-ID: <20030306223518.GB1326@admingilde.org>
-Mail-Followup-To: Robert Love <rml@tech9.net>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Andrew Morton <akpm@digeo.com>, mingo@elte.hu,
-	linux-kernel@vger.kernel.org
-References: <20030228202555.4391bf87.akpm@digeo.com> <Pine.LNX.4.44.0303051910380.1429-100000@home.transmeta.com> <20030306220307.GA1326@admingilde.org> <1046988457.715.37.camel@phantasy.awol.org>
+	id <S268470AbTCFWbC>; Thu, 6 Mar 2003 17:31:02 -0500
+Received: from mailrelay2.lanl.gov ([128.165.4.103]:33177 "EHLO
+	mailrelay2.lanl.gov") by vger.kernel.org with ESMTP
+	id <S268454AbTCFWbA>; Thu, 6 Mar 2003 17:31:00 -0500
+Subject: Re: [PATCH] Fix breakage caused by spelling 'fix'
+From: Steven Cole <elenstev@mesatop.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Michael Hayes <mike@aiinc.ca>, Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0303061356030.8521-100000@home.transmeta.com>
+References: <Pine.LNX.4.44.0303061356030.8521-100000@home.transmeta.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2-5mdk 
+Date: 06 Mar 2003 15:37:24 -0700
+Message-Id: <1046990244.4992.104.camel@spc9.esa.lanl.gov>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="gatW/ieO32f1wygP"
-Content-Disposition: inline
-In-Reply-To: <1046988457.715.37.camel@phantasy.awol.org>
-User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2003-03-06 at 14:57, Linus Torvalds wrote:
+> 
+> On Thu, 6 Mar 2003, Michael Hayes wrote:
+> >
+> > This fixes a spelling "fix" that resulted in a compile error.
+> > 
+> > With apologies to Russell King.
+> 
+> Ugh, please make things like this just write out the full non-contracted 
+> thing. Ie "cannot" is a perfectly fine word, we don't need to force 
+> spelling errors.
+> 
+> 		Linus
 
---gatW/ieO32f1wygP
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+For yet another alternative:
 
-On Thu, Mar 06, 2003 at 05:07:37PM -0500, Robert Love wrote:
-> On Thu, 2003-03-06 at 17:03, Martin Waitz wrote:
->=20
-> > RE: the patch, i think using sleep_avg is a wrong metric from the
-> > beginning.
-> Eh?  It is as close to a heuristic of interactivity as I can think of.
+[steven@spc9 steven]$ cat -n hello.c
+     1  #if 0
+     2  /* This won't break anything */
+     3  #include <bogus.h>
+     4  #endif
+     5
+     6  #if 0
+     7  * This won't compile
+     8  #include <missing.h>
+     9  #endif
+    10
+    11  #include <stdio.h>
+    12  int main()
+    13  {
+    14          printf("Hello world!\n");
+    15  }
+[steven@spc9 steven]$ cc -c hello.c
+hello.c:7:11: missing terminating ' character
 
-processes tend to max out at one extreme or the other
+--- linux-2.5.64/include/asm-arm/proc-fns.h.orig	Thu Mar  6 15:19:17 2003
++++ linux-2.5.64/include/asm-arm/proc-fns.h	Thu Mar  6 15:20:13 2003
+@@ -124,9 +124,9 @@
+ #endif /* __KERNEL__ */
+ 
+ #if 0
+- * The following is to fool mkdep into generating the correct
+- * dependencies.  Without this, it can't figure out that this
+- * file does indeed depend on the cpu-*.h files.
++/* The following is to fool mkdep into generating the correct */
++/* dependencies.  Without this, it can't figure out that this */
++/* file does indeed depend on the cpu-*.h files.              */
+ #include <asm/cpu-single.h>
+ #include <asm/cpu-multi26.h>
+ #include <asm/cpu-multi32.h>
 
-processes that get stalled by a huge overall load of the machine
-are forced to sleep, too; yet they are not interactive.
 
-priority should be based on things the processes did, not on what
-they haven't done.
-
-> > in addition, timeslices should be shortest for high priority processes
-> > (depending on dynamic prio, not static)
->=20
-> No, they should be longer.  In some cases they should be nearly
-> infinitely long (which is sort of what we do with the reinsertion into
-> the active array for highly interactive tasks).  We want interactive
-> tasks to always be able to run.
-
-but for interactive tasks, latency is all-important
-if the task can't provide a result in a short timeslice it already
-failed to provide low latency and should not be considered interactive
-any more.
-
-when the dynamic prio of the currently running process is high,
-then only interactive processes should run.
-but these processes should be rescheduled fast, to
-provide low-latency equally to all interactive processes
-
-when the dynamic prio of the currently running process is low
-then no interactive process runs and the scheduler can resort
-to a more batch-job mode: increase timeslices to reduce
-scheduling overhead.
-
-> You may think they need shorter timeslice because they are I/O-bound.=20
-> Keep in mind they need not _use_ all their timeslice in one go, and
-> having a large timeslice ensures they have timeslice available when they
-> wake up and need to run.
-but the time slice should not be large enough to stall other
-processes, which is extremely important for interactivity
-
---=20
-CU,		  / Friedrich-Alexander University Erlangen, Germany
-Martin Waitz	//  [Tali on IRCnet]  [tali.home.pages.de] _________
-______________/// - - - - - - - - - - - - - - - - - - - - ///
-dies ist eine manuell generierte mail, sie beinhaltet    //
-tippfehler und ist auch ohne grossbuchstaben gueltig.   /
-			    -
-Wer bereit ist, grundlegende Freiheiten aufzugeben, um sich=20
-kurzfristige Sicherheit zu verschaffen, der hat weder Freiheit=20
-noch Sicherheit verdient.            Benjamin Franklin (1706 - 1790)
-
---gatW/ieO32f1wygP
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+Z80mj/Eaxd/oD7IRAupfAJ97/REV2g5+V+8u53uQdZbIdz8y5ACfYzgE
-HbxY43RzFbyhJfXhA/yXj0A=
-=L/O4
------END PGP SIGNATURE-----
-
---gatW/ieO32f1wygP--

@@ -1,98 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268890AbUJFIGp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269119AbUJFIV0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268890AbUJFIGp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 04:06:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269050AbUJFIGp
+	id S269119AbUJFIV0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 04:21:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269093AbUJFIVZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 04:06:45 -0400
-Received: from ecbull20.frec.bull.fr ([129.183.4.3]:33724 "EHLO
-	ecbull20.frec.bull.fr") by vger.kernel.org with ESMTP
-	id S268890AbUJFIGi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 04:06:38 -0400
-Date: Wed, 6 Oct 2004 10:02:58 +0200 (CEST)
-From: Simon Derr <Simon.Derr@bull.net>
-X-X-Sender: derrs@openx3.frec.bull.fr
-To: Matthew Dobson <colpatch@us.ibm.com>
-cc: "Martin J. Bligh" <mbligh@aracnet.com>, Paul Jackson <pj@sgi.com>,
-       pwil3058@bigpond.net.au, frankeh@watson.ibm.com, dipankar@in.ibm.com,
-       Andrew Morton <akpm@osdl.org>, ckrm-tech@lists.sourceforge.net,
-       efocht@hpce.nec.com, LSE Tech <lse-tech@lists.sourceforge.net>,
-       hch@infradead.org, steiner@sgi.com, Jesse Barnes <jbarnes@sgi.com>,
-       sylvain.jeaugey@bull.net, djh@sgi.com,
-       LKML <linux-kernel@vger.kernel.org>, Simon.Derr@bull.net,
-       Andi Kleen <ak@suse.de>, sivanich@sgi.com
-Subject: Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement
-In-Reply-To: <1097014749.4065.48.camel@arrakis>
-Message-ID: <Pine.LNX.4.61.0410060952540.19964@openx3.frec.bull.fr>
-References: <20040805100901.3740.99823.84118@sam.engr.sgi.com> 
- <20040805190500.3c8fb361.pj@sgi.com><247790000.1091762644@[10.10.2.4]> 
- <200408061730.06175.efocht@hpce.nec.com> <20040806231013.2b6c44df.pj@sgi.com>
- <411685D6.5040405@watson.ibm.com> <20041001164118.45b75e17.akpm@osdl.org>
- <20041001230644.39b551af.pj@sgi.com> <20041002145521.GA8868@in.ibm.com>
- <415ED3E3.6050008@watson.ibm.com> <415F37F9.6060002@bigpond.net.au>
- <821020000.1096814205@[10.10.2.4]>  <20041003083936.7c844ec3.pj@sgi.com>
- <834330000.1096847619@[10.10.2.4]> <1097014749.4065.48.camel@arrakis>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 6 Oct 2004 04:21:25 -0400
+Received: from gate.crashing.org ([63.228.1.57]:17812 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S269091AbUJFIVX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Oct 2004 04:21:23 -0400
+Subject: Re: [RFC][PATCH] Way for platforms to alter built-in serial ports
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       linuxppc64-dev <linuxppc64-dev@ozlabs.org>
+In-Reply-To: <20041006082658.A18379@flint.arm.linux.org.uk>
+References: <1096534248.32721.36.camel@gaston>
+	 <20041006082658.A18379@flint.arm.linux.org.uk>
+Content-Type: text/plain
+Message-Id: <1097050508.21132.15.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 06 Oct 2004 18:15:11 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 5 Oct 2004, Matthew Dobson wrote:
-
-> On Sun, 2004-10-03 at 16:53, Martin J. Bligh wrote:
-> > > Martin wrote:
-> > >> Matt had proposed having a separate sched_domain tree for each cpuset, which
-> > >> made a lot of sense, but seemed harder to do in practice because "exclusive"
-> > >> in cpusets doesn't really mean exclusive at all.
-> > > 
-> > > See my comments on this from yesterday on this thread.
-> > > 
-> > > I suspect we don't want a distinct sched_domain for each cpuset, but
-> > > rather a sched_domain for each of several entire subtrees of the cpuset
-> > > hierarchy, such that every CPU is in exactly one such sched domain, even
-> > > though it be in several cpusets in that sched_domain.
-> > 
-> > Mmmm. The fundamental problem I think we ran across (just whilst pondering,
-> > not in code) was that some things (eg ... init) are bound to ALL cpus (or
-> > no cpus, depending how you word it); i.e. they're created before the cpusets
-> > are, and are a member of the grand-top-level-uber-master-thingummy.
-> > 
-> > How do you service such processes? That's what I meant by the exclusive
-> > domains aren't really exclusive. 
-> > 
-> > Perhaps Matt can recall the problems better. I really liked his idea, aside
-> > from the small problem that it didn't seem to work ;-)
+On Wed, 2004-10-06 at 17:26, Russell King wrote:
+> On Thu, Sep 30, 2004 at 06:50:48PM +1000, Benjamin Herrenschmidt wrote:
+> > +#ifndef ARCH_HAS_GET_LEGACY_SERIAL_PORTS
+> >  static struct old_serial_port old_serial_port[] = {
+> >  	SERIAL_PORT_DFNS /* defined in asm/serial.h */
+> >  };
+> > -
+> > +static inline struct old_serial_port *get_legacy_serial_ports(unsigned int *count)
+> > +{
+> > +	*count = ARRAY_SIZE(old_serial_port);
+> > +	return old_serial_port;
+> > +}
+> >  #define UART_NR	(ARRAY_SIZE(old_serial_port) + CONFIG_SERIAL_8250_NR_UARTS)
+> > +#endif /* ARCH_HAS_GET_LEGACY_SERIAL_PORTS */
+> > +
 > 
-> Well that doesn't seem like a fair statement.  It's potentially true,
-> but it's really hard to say without an implementation! ;)
-> 
-> I think that the idea behind cpusets is really good, essentially
-> creating isolated areas of CPUs and memory for tasks to run
-> undisturbed.  I feel that the actual implementation, however, is taking
-> a wrong approach, because it attempts to use the cpus_allowed mask to
-> override the scheduler in the general case.  cpus_allowed, in my
-> estimation, is meant to be used as the exception, not the rule.  If we
-> wish to change that, we need to make the scheduler more aware of it, so
-> it can do the right thing(tm) in the presence of numerous tasks with
-> varying cpus_allowed masks.  The other option is to implement cpusets in
-> a way that doesn't use cpus_allowed.  That is the option that I am
-> pursuing.  
+> What happens if 8250.c is built as a module and
+> ARCH_HAS_GET_LEGACY_SERIAL_PORTS is defined?
 
-I like this idea. 
+It well call get_legacy_serial_ports() which is hopefully exported by
+the arch code.
 
-The current implementation uses cpus_allowed because it is non-intrusive, 
-as it does not touch the scheduler at all, and also maybe because it was 
-easy to do this way since the cpuset development team seems to lack 
-scheduler gurus.
+> serial.h is used by userspace programs.  We should not expose this
+> structure to those programs.  Instead, maybe creating an 8250.h
+> header, or even moving the existing 8250.h header ?
 
-The 'non intrusive' part was also important as long as the cpusets were 
-mostly 'on their own', but if now it appears that more cooperation with 
-other functions such as CKRM is needed, I suppose a deeper impact on the 
-scheduler code might be OK. Especially if we intend to enforce 'real 
-exclusive' cpusets or things like that.
+Hrm... ok. Or adding a #ifdef __KERNEL__ (sic !) :)
 
-So I'm really interested in any design/bits of code that would go in that 
-direction.
+I'll send you a new patch later today as I had to do another fix, we
+tend to "force" register_console() apparently even when we have nothing
+to register because we set the "ops" to all ports even those who were
+never configured and we test "ops" to decide wether to succeed or fail
+in the console setup() callback.
 
-	Simon.
+Ben.
+
 

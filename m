@@ -1,78 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318738AbSHLQJu>; Mon, 12 Aug 2002 12:09:50 -0400
+	id <S318733AbSHLQD1>; Mon, 12 Aug 2002 12:03:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318742AbSHLQJu>; Mon, 12 Aug 2002 12:09:50 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:24076 "HELO
-	garrincha.netbank.com.br") by vger.kernel.org with SMTP
-	id <S318738AbSHLQJt>; Mon, 12 Aug 2002 12:09:49 -0400
-Date: Mon, 12 Aug 2002 13:13:11 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Mel <mel@csn.ul.ie>
-cc: Daniel Phillips <phillips@arcor.de>,
-       Bernd Eckenfels <ecki-news2002-08@lina.inka.de>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] VM Regress - A VM regression and test tool
-In-Reply-To: <Pine.LNX.4.44.0208121637100.16360-100000@skynet>
-Message-ID: <Pine.LNX.4.44L.0208121310180.23404-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318737AbSHLQD0>; Mon, 12 Aug 2002 12:03:26 -0400
+Received: from hercules.egenera.com ([208.254.46.135]:28940 "HELO
+	coyote.egenera.com") by vger.kernel.org with SMTP
+	id <S318733AbSHLQDY>; Mon, 12 Aug 2002 12:03:24 -0400
+Date: Mon, 12 Aug 2002 12:06:59 -0400
+From: Phil Auld <pauld@egenera.com>
+To: viro@math.psu.edu
+Cc: marcelo@connectiva.com.br, linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.4.19 revert block_llseek behavior to standard
+Message-ID: <20020812120659.B27650@vienna.EGENERA.COM>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 12 Aug 2002, Mel wrote:
-> On Mon, 12 Aug 2002, Rik van Riel wrote:
->
-> > On the other hand, if somebody could code up some scriptable
-> > benchmarks that approximate real workloads better than the
-> > current benchmarks do, I'd certainly appreciate it.
->
-> This looks like an overall system benchmark again and while it would be
-> great to have, it is not what I aim to provide here with VM Regress.
->
-> > For web serving, for example, I wouldn't mind a benchmark that:
-> >
-> > <Benchmark snipped>
->
-> That benchmarks like it would be more likely to test network throughput
-> than VM performance although I could be misunderstanding your benchmark,
+Hi Al,
+	I think this falls under the VFS umbrella, but I may be wrong. 
 
-The thing is that the indivual 'users' will be downloading
-files at modem and adsl speeds, meaning a LOT of apache
-daemons could be sitting around on the server.
+Below is a fix to make block_llseek behave as specified in the Single Unix Spec. v3.
+(http://www.unix-systems.org/single_unix_specification/). It's extremely trivial but
+may have political baggage.
 
-You are right though that this is more of an overall system
-benchmark than a pure VM test.  On the other hand, the VM
-doesn't function on its own, it really needs to be part of
-a larger system ;)
+--- fs/block_dev.c.orig	Mon Aug 12 09:23:19 2002
++++ fs/block_dev.c	Mon Aug 12 09:24:06 2002
+@@ -175,7 +175,7 @@
+ 			offset += file->f_pos;
+ 	}
+ 	retval = -EINVAL;
+-	if (offset >= 0 && offset <= size) {
++	if (offset >= 0) {
+ 		if (offset != file->f_pos) {
+ 			file->f_pos = offset;
+ 			file->f_reada = 0;
 
 
-> In VM Regress land, I would be much more likely to provide a benchmark
-> that did something like the folllowing. (Remember that VM Regress aims
-> to provide more than been a pure benchmarking tool. Benchmarking is just
-> one aspect)
+Thanks,
 
-That might be a useful test.  How useful it would be we can't
-really know until we've tried, but it definately does sound like
-it's worth a try...
+Phil
 
-
-> > Volunteers ? ;)
->
-> Not for that particular benchmark, but how useful would the VM Regress
-> equivilant be?
-
-I can't say in advance how useful it would be, but my gut
-feeling is that it might help getting things right.
-
-regards,
-
-Rik
 -- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+Philip R. Auld, Ph.D.                  Technical Staff 
+Egenera Corp.                        pauld@egenera.com
+165 Forest St., Marlboro, MA 01752       (508)858-2600

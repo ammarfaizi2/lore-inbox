@@ -1,61 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290785AbSART3p>; Fri, 18 Jan 2002 14:29:45 -0500
+	id <S290786AbSARTgz>; Fri, 18 Jan 2002 14:36:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290786AbSART3d>; Fri, 18 Jan 2002 14:29:33 -0500
-Received: from suhkur.cc.ioc.ee ([193.40.251.100]:7677 "HELO suhkur.cc.ioc.ee")
-	by vger.kernel.org with SMTP id <S290785AbSART3I>;
-	Fri, 18 Jan 2002 14:29:08 -0500
-Date: Fri, 18 Jan 2002 21:29:04 +0200 (GMT)
-From: Juhan Ernits <juhan@cc.ioc.ee>
-To: linux-kernel@vger.kernel.org
-Subject: Re: misconfiguration of ne.o module in 2.2.19 damaged hardware. Is
- it normal? 
-In-Reply-To: <200201181904.g0IJ4ThP001576@tigger.cs.uni-dortmund.de>
-Message-ID: <Pine.GSO.4.21.0201182116001.21822-100000@suhkur.cc.ioc.ee>
+	id <S290789AbSARTgq>; Fri, 18 Jan 2002 14:36:46 -0500
+Received: from darkwing.uoregon.edu ([128.223.142.13]:3275 "EHLO
+	darkwing.uoregon.edu") by vger.kernel.org with ESMTP
+	id <S290786AbSARTga>; Fri, 18 Jan 2002 14:36:30 -0500
+Date: Fri, 18 Jan 2002 11:36:42 -0800 (PST)
+From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
+X-X-Sender: <joelja@twin.uoregon.edu>
+To: "H. Peter Anvin" <hpa@zytor.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: kernel.org problem...
+In-Reply-To: <3C487754.4030909@zytor.com>
+Message-ID: <Pine.LNX.4.33.0201181135030.15646-100000@twin.uoregon.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+oops...
 
+Last time I had this sort of problem I discovered my terminal server had 
+crashed as well...
 
-On Fri, 18 Jan 2002, Horst von Brand wrote:
+;)
+joelja
 
-> > I installed linux on this box (Debian 2.2r4, kernel version 2.2.19).
-> > Then when configuring the network the module ne.o was chosen. 
-> > I was sure about the io address but not so sure about the irq. So I
-> > configured the module with only io address parameter.
+On Fri, 18 Jan 2002, H. Peter Anvin wrote:
+
+> kernel.org stopped responding to most services some time this morning.
+> Unfortunately, the system management port on the new server was never
+> connected at the time the new server was installed, so we can't debug the
+> problem remotely.
 > 
-> This is enough, IRQ can be found from that datum. I assume this is an ISA
-> NIC? If PCI, no such parameters are needed. BTW, NE clones are (in)famous
-> for their bizarre assortment of bugs, you might have hit one that doesn't
-> work with Linux.
+> I am trying to reach people at ISC to get the management port connected
+> and the system back to normal.
+> 
+> 	-hpa
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-It is (was) an ISA nic and the fun part is, that it had been working for
-me under minix & linux (under different hardware configuration though).
+-- 
+-------------------------------------------------------------------------- 
+Joel Jaeggli	      Academic User Services   joelja@darkwing.uoregon.edu    
+--    PGP Key Fingerprint: 1DE9 8FCA 51FB 4195 B42A 9C32 A30D 121E      --
+The accumulation of all powers, legislative, executive, and judiciary, in 
+the same hands, whether of one, a few, or many, and whether hereditary, 
+selfappointed, or elective, may justly be pronounced the very definition of
+tyranny. - James Madison, Federalist Papers 47 -  Feb 1, 1788
 
-> What does lsmod(8) tell you? If you do an "modprobe ne io=..." what does it
-> say?
-
-The bad part was, that I didnt do lsmod then. After reboot the card was
-rendered completely useless (except for a few probably functional diodes
-on the pc-board :-). 
-
-> If your guess at IO is wrong, nothing happens. If the NIC is _not_ an NE,
-> strange things could very well happen. It might be broken, not installed
-> correctly, jumpers set wrong, ...
-
-It was a jumperless ne2000 isa clone. The io adress was right alright, but
-i just left irq unspecified. And that fact drove me to bore the people on
-this list ...
-
-My question is that how can the module detect false parameters and how is
-it possible to make it protect the hardware in such case? 
-
-The module ne.o most probably managed to write some garbage to the nics
-flash address somehow and that makes me worry a bit.
-
-
-Juhan Ernits
 

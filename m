@@ -1,53 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266210AbTGDX2k (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jul 2003 19:28:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266215AbTGDX2k
+	id S266221AbTGDXpw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jul 2003 19:45:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266222AbTGDXpw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jul 2003 19:28:40 -0400
-Received: from qmail1.zwallet.com ([216.66.64.4]:48133 "HELO
-	qmail1.zwallet.com") by vger.kernel.org with SMTP id S266210AbTGDX2j
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jul 2003 19:28:39 -0400
-From: "Dr\.Ben Davis" <bendavis3@zwallet.com>
-X-Originating-IP: [62.56.188.246]
-To: bendavis3@zwallet.com
-Subject: Confidential  Business Proposal 
-Date: Fri, 04 Jul 2003 18:56:26 +0000
-Message-Id: <1057344986.366962.41523.zmail@web2.zwallet.com>
+	Fri, 4 Jul 2003 19:45:52 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:44481
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S266221AbTGDXpv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Jul 2003 19:45:51 -0400
+Date: Sat, 5 Jul 2003 02:00:16 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: Chris Mason <mason@suse.com>, lkml <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Nick Piggin <piggin@cyberone.com.au>
+Subject: Re: Status of the IO scheduler fixes for 2.4
+Message-ID: <20030705000016.GB23578@dualathlon.random>
+References: <Pine.LNX.4.55L.0307021923260.12077@freak.distro.conectiva> <Pine.LNX.4.55L.0307021927370.12077@freak.distro.conectiva> <1057197726.20903.1011.camel@tiny.suse.com> <Pine.LNX.4.55L.0307041639020.7389@freak.distro.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.55L.0307041639020.7389@freak.distro.conectiva>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dr Ben Davis.
-I.B.A Bank Plc
-20 Rue Du Commerce
-Lome-Togo 
+On Fri, Jul 04, 2003 at 05:01:54PM -0300, Marcelo Tosatti wrote:
+> release today), then fix pausing in -pre4. If the IO fairness still doesnt
 
-Attn;Friend,
+fix pausing is a showstopper bugfix, the box will hang for days without
+it.
 
-I am Ben Davis.a Manager at The International Bank Of Africa Head Office here in Togo. 
+lowlatency elevator is for the desktop complains we get about
+interactivity compared to 2.5, so it's much lower prio than fix pausing.
+I would never merge fix pausing after lowlatency elevator. But that's
+just me.
 
-Recently we discovered a Dormant Account with a huge amount of Money Valued USD14,000,000.00 (Fourteen Million Dollars only)that belongs to one of our late Customer who died in a plane crash . 
-
-During our investigation and auditing in this bank, my department came across a very huge sum of money belonging to a deceased person who died with his family and the fund has been dormant in his account with this Bank without any claim of the fund in our custody either from his family or relation before our discovery to this development.
-
-The Banking law here stipulates that if such money remains unclaimed for Six years, it will be forfeited to the Bank Treasury as an unclaimed bill.
-
-It is only a foreigner that can stand as a next of kin. It is upon this discovery that I decided to contact you to collaborate with you to pull out this dormant fund.
-
-I have it in mind to use 10% of the fund for Expences during the transfer, and another 30% of the money to you if this proposal meets your interest.
-
-What I want from you is for you to act as the deceased next of kin. I have in my possession, all the necessary Documents to successfully accomplish the operation. 
-
-Further Information will be given to you as soon as I receive your positive response.
-
-Best Regards.
-
-Dr.Ben Davis.
-
-
-
-
-______________________________________________________
-Get Paid... With Your Free Email at
-http://www.zwallet.com/index.html?user=bendavis3
+Andrea

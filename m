@@ -1,43 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S132405AbQKZQlt>; Sun, 26 Nov 2000 11:41:49 -0500
+        id <S132362AbQKZQ5c>; Sun, 26 Nov 2000 11:57:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S132402AbQKZQlj>; Sun, 26 Nov 2000 11:41:39 -0500
-Received: from lin-hs2-010.inetnebr.com ([209.50.4.42]:18681 "EHLO
-        falcon.inetnebr.com") by vger.kernel.org with ESMTP
-        id <S132396AbQKZQlZ>; Sun, 26 Nov 2000 11:41:25 -0500
-Date: Sun, 26 Nov 2000 10:11:15 -0600
-From: Jeff Epler <jepler@inetnebr.com>
-To: linux-kernel@vger.kernel.org, torvalds@transmeta.com,
-        alan@lxorguk.ukuu.org.uk
-Subject: 2.4.0-test11(-ac4)/i386 configure bug
-Message-ID: <20001126101115.A2502@potty.housenet>
-Mail-Followup-To: linux-kernel@vger.kernel.org, torvalds@transmeta.com,
-        alan@lxorguk.ukuu.org.uk
+        id <S132375AbQKZQ5X>; Sun, 26 Nov 2000 11:57:23 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:24439 "EHLO
+        penguin.e-mind.com") by vger.kernel.org with ESMTP
+        id <S132362AbQKZQ5J>; Sun, 26 Nov 2000 11:57:09 -0500
+Date: Sun, 26 Nov 2000 17:26:58 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Pavel Machek <pavel@suse.cz>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: kernel_thread bogosity
+Message-ID: <20001126172658.A5636@athlon.random>
+In-Reply-To: <20001123232333.A6426@bug.ucw.cz> <20001124014830.I1461@athlon.random> <20001124205247.A141@bug.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre3us
+Content-Disposition: inline
+In-Reply-To: <20001124205247.A141@bug.ucw.cz>; from pavel@suse.cz on Fri, Nov 24, 2000 at 08:52:47PM +0100
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(not affected by the -ac4 patch, the file in question is not touched)
+On Fri, Nov 24, 2000 at 08:52:47PM +0100, Pavel Machek wrote:
+> How can that work? restore_args ends with iret, anyway, and iret does
+> reload esp afaics...
 
-Parallel printer support (CONFIG_PRINTER) [N/m/?] (NEW) m
-  Support for console on line printer (CONFIG_LP_CONSOLE) [N/y/?] (NEW)
+... only if there's an IPL change during the iret. Page 3-321 of 24319102.pdf
+from Intel:
 
-Suggested change:
+	[..] If the return is to another privilege level, the IRET instruction
+	also pops the stack pointer and SS from the stack, before resuming
+	program execution. [..]
 
---- linux-2.4.0-test11/drivers/char/Config.in.orig	Sun Nov 26 10:05:10 2000
-+++ linux-2.4.0-test11/drivers/char/Config.in	Sun Nov 26 10:05:38 2000
-@@ -75,7 +75,7 @@
- fi
- if [ "$CONFIG_PARPORT" != "n" ]; then
-    dep_tristate 'Parallel printer support' CONFIG_PRINTER $CONFIG_PARPORT
--   if [ "$CONFIG_PRINTER" != "n" ]; then
-+   if [ "$CONFIG_PRINTER" = "y" ]; then
-       bool '  Support for console on line printer' CONFIG_LP_CONSOLE
-    fi
-    dep_tristate 'Support for user-space parallel port device drivers' CONFIG_PPDEV $CONFIG_PARPORT
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

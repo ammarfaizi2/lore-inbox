@@ -1,56 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261707AbTEHPuq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 May 2003 11:50:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261773AbTEHPuq
+	id S261688AbTEHPtz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 May 2003 11:49:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261707AbTEHPtz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 May 2003 11:50:46 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:36747 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S261707AbTEHPup (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 May 2003 11:50:45 -0400
-Date: Thu, 08 May 2003 07:54:38 -0700 (PDT)
-Message-Id: <20030508.075438.52189319.davem@redhat.com>
-To: alan@lxorguk.ukuu.org.uk
-Cc: haveblue@us.ibm.com, akpm@digeo.com, rmk@arm.linux.org.uk,
-       rddunlap@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: The magical mystical changing ethernet interface order
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <1052405730.10038.51.camel@dhcp22.swansea.linux.org.uk>
-References: <3EB98878.5060607@us.ibm.com>
-	<1052395526.23259.0.camel@rth.ninka.net>
-	<1052405730.10038.51.camel@dhcp22.swansea.linux.org.uk>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Thu, 8 May 2003 11:49:55 -0400
+Received: from h-64-105-35-101.SNVACAID.covad.net ([64.105.35.101]:2714 "EHLO
+	adam.yggdrasil.com") by vger.kernel.org with ESMTP id S261688AbTEHPty
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 May 2003 11:49:54 -0400
+Date: Thu, 8 May 2003 08:59:52 -0700
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Message-Id: <200305081559.h48FxqF07117@adam.yggdrasil.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Binary firmware in the kernel - licensing issues.
+Cc: joern@wohnheim.fh-wedel.de
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-   Date: 08 May 2003 15:55:31 +0100
+Jörn Engel wrote:
+>For the kernel or the main CPU, the driver firmware is just data. The
+>same, as the magic 0x12345678ul that gets written to some register
+>because [can't tell, NDA]. In both cases, magic data gets written
+>somewhere and afterwards, things just work.
 
-   Unfortunately for the ISA driver code we *have* to rely on link
-   order or rip out the __init stuff and use Space.c type hacks.
-   
-I do no argue that needing an invocation order is bogus.
-I merely disagree with the way we're trying to achieve it.
+	I think you are confusing "the preferred form of the work
+for making modifications to it" (the GPL's definition of "source
+code") with "documentation."  In the case of poking a few values,
+the preferred form for making modifications may be actually editing
+the numbers directly in source code.  That quite likely is the way
+that all developers maintain and modify that code, even if doing so
+in an effective manner requires additional documentation.
 
-You don't need Space.c magic, the linker in binutils has mechanisms by
-which this can be accomplished and we already use this in 2.5.x
+	In comparison, with the binary blobs of firmware, the preferred
+form of the work for making modifications is, presumably, to edit
+a source file from which the binary blob can be rebuilt using an
+assembler or compiler.
 
-Have a peek at __define_initcall($NUM,fn), imagine it with one more
-argument $PRIO.  It might look like this:
+	I am not a lawyer.  Please do not use this as legal advice.
 
-#define __define_initcall(level,prio,fn) \
-        static initcall_t __initcall_##fn __attribute__
-        ((unused,__section__ ("\.initcall" level "." prio ".init"))) = fn
-
-Use the 'prio' number to define the ordering.  The default for
-modules that don't care about relative ordering within a class
-use a value like "9999" or something like that.
-
-The only magic is what to do with the vmlinux.lds scripts to
-handle this correctly.  Are regular expressions allowed in the
-section names?
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Miplitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."

@@ -1,92 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261569AbULTRMc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261580AbULTRVn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261569AbULTRMc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Dec 2004 12:12:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261579AbULTRMc
+	id S261580AbULTRVn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Dec 2004 12:21:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261581AbULTRVn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Dec 2004 12:12:32 -0500
-Received: from mproxy.gmail.com ([216.239.56.250]:63424 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261569AbULTRMS convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Dec 2004 12:12:18 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=lNRGGiD6qEFtsnaDSTUlkVzUSw8WPRWVpL2Q8cZyPhG/bmueFZKfyLpxPu8KJVmv0YvmZFrP75zpaC8sZ7SWNuTtIpiWLFhH44KLQ4wtoKGQ42k16Kxfw4WiQYw+m9cf1ifaRKuIX6Cf1WqFQBww2EkWQ2vuAcflT3cn3g9k2i8=
-Message-ID: <8924577504122009126c40c1fe@mail.gmail.com>
-Date: Mon, 20 Dec 2004 11:12:17 -0600
-From: Jon Mason <jdmason@gmail.com>
-Reply-To: Jon Mason <jdmason@gmail.com>
-To: Richard Ems <richard.ems@mtg-marinetechnik.de>
-Subject: Re: PROBLEM: Network hang: "eth0: Tx timed out (f0080), is buffer full?"
-Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
-In-Reply-To: <41C6E2E1.8030801@mtg-marinetechnik.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-References: <200412171100.16601.richard.ems@mtg-marinetechnik.de>
-	 <89245775041217090726eb2751@mail.gmail.com>
-	 <41C31421.7090102@mtg-marinetechnik.de>
-	 <8924577504121710054331bb54@mail.gmail.com>
-	 <8924577504121712527144a5cf@mail.gmail.com>
-	 <41C6E2E1.8030801@mtg-marinetechnik.de>
+	Mon, 20 Dec 2004 12:21:43 -0500
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:45743 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S261580AbULTRVk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Dec 2004 12:21:40 -0500
+Message-ID: <41C70A1F.8000609@namesys.com>
+Date: Mon, 20 Dec 2004 09:21:35 -0800
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+CC: David Masover <ninja@slaphack.com>,
+       Peter Foldiak <Peter.Foldiak@st-andrews.ac.uk>,
+       reiserfs-list@namesys.com, linux-kernel@vger.kernel.org,
+       Nate Diller <ndiller@namesys.com>
+Subject: Re: file as a directory
+References: <200412180152.iBI1q98X007507@laptop11.inf.utfsm.cl>
+In-Reply-To: <200412180152.iBI1q98X007507@laptop11.inf.utfsm.cl>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It looks correct to me.  I apologize for the oversight.
+Horst von Brand wrote:
 
-
-On Mon, 20 Dec 2004 15:34:09 +0100, Richard Ems
-<richard.ems@mtg-marinetechnik.de> wrote:
-> Hi Jon, hi list.
-> 
-> The following patch is what I'm trying now:
-> (I added the *np declaration to your patch, is this correct?)
-> 
-> Thanks, Richard
-> 
-> --- dl2k.c,orig-save-2004.12.20 2004-12-20 09:32:19.000000000 +0100
-> +++ dl2k.c      2004-12-20 15:24:39.051556188 +0100
-> @@ -562,9 +562,11 @@
->   rio_tx_timeout (struct net_device *dev)
->   {
->          long ioaddr = dev->base_addr;
-> +       struct netdev_private *np = dev->priv;
-> 
-> -       printk (KERN_INFO "%s: Tx timed out (%4.4x), is buffer full?\n",
-> -               dev->name, readl (ioaddr + TxStatus));
-> +       printk (KERN_INFO "%s: Tx timed out (%4.4x) %d %d %x %x\n",
-> +               dev->name, readl (ioaddr + TxStatus), np->cur_tx,
-> np->cur_rx,
-> +               readl (ioaddr + DMACtrl), readw(ioaddr + IntEnable));
->          rio_free_tx(dev, 0);
->          dev->if_port = 0;
->          dev->trans_start = jiffies;
-> @@ -1005,8 +1007,9 @@
->          /* PCI Error, a catastronphic error related to the bus interface
->             occurs, set GlobalReset and HostReset to reset. */
->          if (int_status & HostError) {
-> -               printk (KERN_ERR "%s: HostError! IntStatus %4.4x.\n",
-> -                       dev->name, int_status);
-> +               printk (KERN_ERR "%s: HostError! IntStatus %4.4x. %d %d
-> %x %x\n",
-> +                       dev->name, int_status, np->cur_tx, np->cur_rx,
-> +                       readl (ioaddr + DMACtrl), readw(ioaddr +
-> IntEnable));
->                  writew (GlobalReset | HostReset, ioaddr + ASICCtrl + 2);
->                  mdelay (500);
->          }
-> 
-> --
-> Richard Ems
-> Tel: +49 40 65803 312
-> Fax: +49 40 65803 392
-> Richard.Ems@mtg-marinetechnik.de
-> 
-> MTG Marinetechnik GmbH - Wandsbeker Königstr. 62 - D 22041 Hamburg
-> 
-> GF Dipl.-Ing. Ullrich Keil
-> Handelsregister: Abt. B Nr. 11 500 - Amtsgericht Hamburg Abt. 66
-> USt.-IdNr.: DE 1186 70571
-> 
 >
+>>>Can you point me to any such literature?  I'm just curious.
+>>>      
+>>>
+>
+>  
+>
+>>Look in every field of cs except filesystems and kernels.;-)
+>>    
+>>
+>
+>Right. Smart people are found elsewhere only.
+>  
+>
+There is a huge pile of innovations by the database field that 
+filesystems people do not yet make use of.  The merits of 
+interdisciplinary study are understood by many.
+
+>  
+>
+>>                                                             Databases, 
+>>garbage collectors, etc.
+>>    
+>>
+>
+>Everthing stuff that works on the assumption that what they are working on
+>fits in RAM (or can overflow into swap space in a pinch), and that RAM is
+>fast (and even so they are infuriatingly slow). And disks are usually a few
+>thousand times larger than RAM (more stuff to shuffle around) and a million
+>times slower...
+>
+>  
+>
+>>                         Specific reference, no, I didn't collect them, 
+>>sorry, but alexander the befs driver guy knows more than I about this.
+>>    
+>>
+>
+>Furious handwaving doesn't make it true.
+>  
+>
+Ok, go talk to the befs driver guy, and you'll find out he has already 
+done work on it.
+
+If his work does not satisfy you, sorry, I do detailed research just 
+before coding, not to satisfy some guy on lkml.

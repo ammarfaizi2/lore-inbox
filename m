@@ -1,191 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129617AbRBOLCT>; Thu, 15 Feb 2001 06:02:19 -0500
+	id <S129537AbRBOLJb>; Thu, 15 Feb 2001 06:09:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129618AbRBOLCK>; Thu, 15 Feb 2001 06:02:10 -0500
-Received: from omecihuatl.rz.Uni-Osnabrueck.DE ([131.173.17.35]:64519 "EHLO
-	omecihuatl.rz.uni-osnabrueck.de") by vger.kernel.org with ESMTP
-	id <S129617AbRBOLB4>; Thu, 15 Feb 2001 06:01:56 -0500
-Date: Thu, 15 Feb 2001 11:58:44 +0100 (MET)
-From: ARND BERGMANN <std7652@et.FH-Osnabrueck.DE>
-To: Francois Romieu <romieu@cogenit.fr>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: IRQ (routing ?) problem [was Re: epic100 in current -ac kernels]
-In-Reply-To: <20010210114732.A6314@se1.cogenit.fr>
-Message-ID: <Pine.GSO.4.21.0102151137500.19331-200000@gamma10>
+	id <S129618AbRBOLJU>; Thu, 15 Feb 2001 06:09:20 -0500
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:44786 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S129537AbRBOLJE>; Thu, 15 Feb 2001 06:09:04 -0500
+Message-ID: <3A8BB89C.581BC524@redhat.com>
+Date: Thu, 15 Feb 2001 06:08:12 -0500
+From: Doug Ledford <dledford@redhat.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17-11 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-559023410-1804928587-982234724=:19331"
+To: Ville Herva <vherva@mail.niksula.cs.hut.fi>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Aic7xxx troubles with 2.4.1ac6
+In-Reply-To: <20010208135606.F2223@viasys.com> <3A8296E3.FC1EE707@redhat.com> <20010208181601.H2223@viasys.com> <20010215125735.C1147@niksula.cs.hut.fi>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
-
----559023410-1804928587-982234724=:19331
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-
-Sorry for the delay, I could not get physical access to the machine
-for the last days.
-
-I was able to do some more testing today and found this:
-- The problem is not the IRQ /sharing/, after getting rid of all the
-  other PCI cards, the problem was still there.
-- The only thing that seems to have any effect on the symptoms is the
-  presence of the USB driver, either usb-uhci or uhci. I am not using
-  USB at all. As described before, the system behaves is either of those
-  ways:
-   * epic100 driver without DMA mapping (e.g. 2.4.0-ac9): normal operation
-   * driver with DMA mapping+USB driver loaded: lots of interrupts -> slow
-   * driver with DMA mapping, USB driver not loaded: hang after ~2 seconds
-- I sometimes get 'spurious interrupt: IRQ7', even though no device is 
-  connected there. Probably not important.
-
-On Sat, 10 Feb 2001, Francois Romieu wrote:
-
+Ville Herva wrote:
 > 
-> The following informations may help:
-> - motherboard type
-Asus A7V, onboard USB hub and Promise ATA/100 chip
+> On Thu, Feb 08, 2001 at 06:16:01PM +0200, you [Ville Herva] claimed:
+> > On Thu, Feb 08, 2001 at 07:53:55AM -0500, you [Doug Ledford] claimed:
+> > > Ville Herva wrote:
+> > > >
+> > > > It looks like ac6 (which I believe includes the patch you posted) is
+> > > > still a no-go with 7892. The boot halts and it just prints this once a
+> > > > second:
+> > > >
+> > > > (SCSI0:0:3:1) Synchronous at 160 Mbyte/sec offset 31
+> > > > (SCSI0:0:3:1) CRC error during data in phase
+> > > > (SCSI0:0:3:1)   CRC error in intermediate CRC packet
+> > >
+> > > Check your cables, especially the connector on the card and the drive.  Look
+> > > for any possible bent pins.  The message you are seeing is *usually*, but not
+> > > always, a legitimate data corruption issue.  It doesn't show up under the
+> > > 5.2.1 driver because it limits your Quantum drive to 80MByte/s and that
+> > > particular speed doesn't include CRC checking.  On this driver you have to be
+> > > running at 160MByte/s before CRC checking is enabled.
+> >
+> > I checked the cables. I think HP didn't supply proper 160 MB/S capable
+> > cables (aren't those the ones with wattlings?). When I forced the drive to
+> > 80MB/s from bios, not only did aic7xxx/ac6 work like charm, but the BIOS
+> > also found the "missing" MBR. Stupid problem ;).
+> 
+> Umm, I think I said that too early. I begun to have problem even during
+> boot; the scsi bios did recognize the drive, but the bios didn't find the
+> boot record. This was completely cured by forcing the drive to 80MB/s mode.
+> So I think the cable wasn't Ultra160 capable.
+> 
+> However, the 2.4.1ac6, 2.4.1ac2 and 2.19pre6 aic7xxx.c still had trouble
+> with the drive. I went back to 80MB/s, 40MB/s and even 20MB/s, but that
+> still didn't help. 2.4.1* reported time out while waiting for a command and
+> would go into an endless loop resetting the bus. 2.2.19pre6 said there was
+> an error during the data in phase, but after some coughing it booted up and
+> seemed to work quite alright.
+> 
+> NT4 booted up without and visible problems.
+> 
+> The HP service guy changed the motherboard (integrated scsi) the cable (to
+> another (80MB/s one), and the drive logics, but that didn't help.
+> 
+> The problems first started after the motherboard was first changed (due to
+> separate problem.) The new one had newer bios and scsi bios.
+> 
+> Anyhow, I just compiled 2.4.1ac13 with Justin Gibbs's aic7xxx, and it does
+> not suffer of any problem at 80MB/s.
 
-> - bios revision
-Can't see right now, system was bought in October 2000
-I think it was 1.004, but I am not sure.
+There was a new aic7xxx driver (version 5.2.3) that went into the 2.4.1ac
+kernel series around 2.4.1-ac7.  I would be curious to know if it worked on
+your machine properly.
 
-> - lspci -x 
-see attachment, this was when I ripped out sound, tv and scsi
+-- 
 
-> - 2.4.2pre3 + whatever recent ac epic100 = ?
-Still no improvement until latest -ac (2.4.1-ac13)
-
-Arnd <><
-
-
-
----559023410-1804928587-982234724=:19331
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name=lspci-vx
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.GSO.4.21.0102151158440.19331@gamma10>
-Content-Description: 
-Content-Disposition: attachment; filename=lspci-vx
-
-MDA6MDAuMCBIb3N0IGJyaWRnZTogVklBIFRlY2hub2xvZ2llcywgSW5jLjog
-VW5rbm93biBkZXZpY2UgMDMwNSAocmV2IDAyKQ0KCVN1YnN5c3RlbTogQXN1
-c3RlayBDb21wdXRlciwgSW5jLjogVW5rbm93biBkZXZpY2UgODAzMw0KCUZs
-YWdzOiBidXMgbWFzdGVyLCBtZWRpdW0gZGV2c2VsLCBsYXRlbmN5IDANCglN
-ZW1vcnkgYXQgZTcwMDAwMDAgKDMyLWJpdCwgcHJlZmV0Y2hhYmxlKSBbc2l6
-ZT0xNk1dDQoJQ2FwYWJpbGl0aWVzOiBbYTBdIEFHUCB2ZXJzaW9uIDIuMA0K
-CUNhcGFiaWxpdGllczogW2MwXSBQb3dlciBNYW5hZ2VtZW50IHZlcnNpb24g
-Mg0KMDA6IDA2IDExIDA1IDAzIDA2IDAwIDEwIDIyIDAyIDAwIDAwIDA2IDAw
-IDAwIDAwIDAwDQoxMDogMDggMDAgMDAgZTcgMDAgMDAgMDAgMDAgMDAgMDAg
-MDAgMDAgMDAgMDAgMDAgMDANCjIwOiAwMCAwMCAwMCAwMCAwMCAwMCAwMCAw
-MCAwMCAwMCAwMCAwMCA0MyAxMCAzMyA4MA0KMzA6IDAwIDAwIDAwIDAwIGEw
-IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwDQoNCjAwOjAxLjAg
-UENJIGJyaWRnZTogVklBIFRlY2hub2xvZ2llcywgSW5jLjogVW5rbm93biBk
-ZXZpY2UgODMwNSAocHJvZy1pZiAwMCBbTm9ybWFsIGRlY29kZV0pDQoJRmxh
-Z3M6IGJ1cyBtYXN0ZXIsIDY2TWh6LCBtZWRpdW0gZGV2c2VsLCBsYXRlbmN5
-IDANCglCdXM6IHByaW1hcnk9MDAsIHNlY29uZGFyeT0wMSwgc3Vib3JkaW5h
-dGU9MDEsIHNlYy1sYXRlbmN5PTANCglNZW1vcnkgYmVoaW5kIGJyaWRnZTog
-ZTI4MDAwMDAtZTNkZmZmZmYNCglQcmVmZXRjaGFibGUgbWVtb3J5IGJlaGlu
-ZCBicmlkZ2U6IGUzZjAwMDAwLWU2ZmZmZmZmDQoJQ2FwYWJpbGl0aWVzOiBb
-ODBdIFBvd2VyIE1hbmFnZW1lbnQgdmVyc2lvbiAyDQowMDogMDYgMTEgMDUg
-ODMgMDcgMDAgMzAgMjIgMDAgMDAgMDQgMDYgMDAgMDAgMDEgMDANCjEwOiAw
-MCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMSAwMSAwMCBlMCBkMCAwMCAw
-MA0KMjA6IDgwIGUyIGQwIGUzIGYwIGUzIGYwIGU2IDAwIDAwIDAwIDAwIDAw
-IDAwIDAwIDAwDQozMDogMDAgMDAgMDAgMDAgODAgMDAgMDAgMDAgMDAgMDAg
-MDAgMDAgMDAgMDAgMDggMDANCg0KMDA6MDQuMCBJU0EgYnJpZGdlOiBWSUEg
-VGVjaG5vbG9naWVzLCBJbmMuIFZUODJDNjg2IFtBcG9sbG8gU3VwZXJdIChy
-ZXYgMjIpDQoJU3Vic3lzdGVtOiBBc3VzdGVrIENvbXB1dGVyLCBJbmMuOiBV
-bmtub3duIGRldmljZSA4MDMzDQoJRmxhZ3M6IGJ1cyBtYXN0ZXIsIHN0ZXBw
-aW5nLCBtZWRpdW0gZGV2c2VsLCBsYXRlbmN5IDANCjAwOiAwNiAxMSA4NiAw
-NiA4NyAwMCAxMCAwMiAyMiAwMCAwMSAwNiAwMCAwMCA4MCAwMA0KMTA6IDAw
-IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAw
-DQoyMDogMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgNDMg
-MTAgMzMgODANCjMwOiAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAw
-MCAwMCAwMCAwMCAwMCAwMA0KDQowMDowNC4xIElERSBpbnRlcmZhY2U6IFZJ
-QSBUZWNobm9sb2dpZXMsIEluYy4gVlQ4MkM1ODYgSURFIFtBcG9sbG9dIChy
-ZXYgMTApIChwcm9nLWlmIDhhIFtNYXN0ZXIgU2VjUCBQcmlQXSkNCglGbGFn
-czogYnVzIG1hc3RlciwgbWVkaXVtIGRldnNlbCwgbGF0ZW5jeSAzMg0KCUkv
-TyBwb3J0cyBhdCBkODAwIFtzaXplPTE2XQ0KCUNhcGFiaWxpdGllczogW2Mw
-XSBQb3dlciBNYW5hZ2VtZW50IHZlcnNpb24gMg0KMDA6IDA2IDExIDcxIDA1
-IDA3IDAwIDkwIDAyIDEwIDhhIDAxIDAxIDAwIDIwIDAwIDAwDQoxMDogMDAg
-MDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAN
-CjIwOiAwMSBkOCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAw
-MCAwMCAwMA0KMzA6IDAwIDAwIDAwIDAwIGMwIDAwIDAwIDAwIDAwIDAwIDAw
-IDAwIGZmIDAwIDAwIDAwDQoNCjAwOjA0LjIgVVNCIENvbnRyb2xsZXI6IFZJ
-QSBUZWNobm9sb2dpZXMsIEluYy4gVlQ4MkM1ODZCIFVTQiAocmV2IDEwKSAo
-cHJvZy1pZiAwMCBbVUhDSV0pDQoJU3Vic3lzdGVtOiBVbmtub3duIGRldmlj
-ZSAwOTI1OjEyMzQNCglGbGFnczogYnVzIG1hc3RlciwgbWVkaXVtIGRldnNl
-bCwgbGF0ZW5jeSAzMiwgSVJRIDExDQoJSS9PIHBvcnRzIGF0IGQ0MDAgW3Np
-emU9MzJdDQoJQ2FwYWJpbGl0aWVzOiBbODBdIFBvd2VyIE1hbmFnZW1lbnQg
-dmVyc2lvbiAyDQowMDogMDYgMTEgMzggMzAgMTcgMDAgMTAgMDIgMTAgMDAg
-MDMgMGMgMDggMjAgMDAgMDANCjEwOiAwMCAwMCAwMCAwMCAwMCAwMCAwMCAw
-MCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMA0KMjA6IDAxIGQ0IDAwIDAwIDAw
-IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDI1IDA5IDM0IDEyDQozMDogMDAgMDAg
-MDAgMDAgODAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMGIgMDQgMDAgMDANCg0K
-MDA6MDQuMyBVU0IgQ29udHJvbGxlcjogVklBIFRlY2hub2xvZ2llcywgSW5j
-LiBWVDgyQzU4NkIgVVNCIChyZXYgMTApIChwcm9nLWlmIDAwIFtVSENJXSkN
-CglTdWJzeXN0ZW06IFVua25vd24gZGV2aWNlIDA5MjU6MTIzNA0KCUZsYWdz
-OiBidXMgbWFzdGVyLCBtZWRpdW0gZGV2c2VsLCBsYXRlbmN5IDMyLCBJUlEg
-MTENCglJL08gcG9ydHMgYXQgZDAwMCBbc2l6ZT0zMl0NCglDYXBhYmlsaXRp
-ZXM6IFs4MF0gUG93ZXIgTWFuYWdlbWVudCB2ZXJzaW9uIDINCjAwOiAwNiAx
-MSAzOCAzMCAxNyAwMCAxMCAwMiAxMCAwMCAwMyAwYyAwOCAyMCAwMCAwMA0K
-MTA6IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAw
-IDAwIDAwDQoyMDogMDEgZDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAg
-MDAgMjUgMDkgMzQgMTINCjMwOiAwMCAwMCAwMCAwMCA4MCAwMCAwMCAwMCAw
-MCAwMCAwMCAwMCAwYiAwNCAwMCAwMA0KDQowMDowNC40IEhvc3QgYnJpZGdl
-OiBWSUEgVGVjaG5vbG9naWVzLCBJbmMuIFZUODJDNjg2IFtBcG9sbG8gU3Vw
-ZXIgQUNQSV0gKHJldiAzMCkNCglGbGFnczogbWVkaXVtIGRldnNlbCwgSVJR
-IDkNCglDYXBhYmlsaXRpZXM6IFs2OF0gUG93ZXIgTWFuYWdlbWVudCB2ZXJz
-aW9uIDINCjAwOiAwNiAxMSA1NyAzMCAwMCAwMCA5MCAwMiAzMCAwMCAwMCAw
-NiAwMCAwMCAwMCAwMA0KMTA6IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAw
-IDAwIDAwIDAwIDAwIDAwIDAwIDAwDQoyMDogMDAgMDAgMDAgMDAgMDAgMDAg
-MDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDANCjMwOiAwMCAwMCAwMCAw
-MCA2OCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMA0KDQowMDow
-Yy4wIEV0aGVybmV0IGNvbnRyb2xsZXI6IFN0YW5kYXJkIE1pY3Jvc3lzdGVt
-cyBDb3JwIFtTTUNdIDgzQzE3MFFGIChyZXYgMDgpDQoJU3Vic3lzdGVtOiBT
-dGFuZGFyZCBNaWNyb3N5c3RlbXMgQ29ycCBbU01DXTogVW5rbm93biBkZXZp
-Y2UgYTAyMA0KCUZsYWdzOiBidXMgbWFzdGVyLCBmYXN0IGRldnNlbCwgbGF0
-ZW5jeSAzMiwgSVJRIDEwDQoJSS9PIHBvcnRzIGF0IGE0MDAgW3NpemU9MjU2
-XQ0KCU1lbW9yeSBhdCBlMjAwMDAwMCAoMzItYml0LCBub24tcHJlZmV0Y2hh
-YmxlKSBbc2l6ZT00S10NCglFeHBhbnNpb24gUk9NIGF0IDx1bmFzc2lnbmVk
-PiBbZGlzYWJsZWRdIFtzaXplPTY0S10NCglDYXBhYmlsaXRpZXM6IFtkY10g
-UG93ZXIgTWFuYWdlbWVudCB2ZXJzaW9uIDENCjAwOiBiOCAxMCAwNSAwMCAw
-NyAwMCA5MCAwMCAwOCAwMCAwMCAwMiAwMCAyMCAwMCAwMA0KMTA6IDAxIGE0
-IDAwIDAwIDAwIDAwIDAwIGUyIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwDQoy
-MDogMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDcgMDEgMDAgMDAgYjggMTAg
-MjAgYTANCjMwOiAwMCAwMCAwMCAwMCBkYyAwMCAwMCAwMCAwMCAwMCAwMCAw
-MCAwYSAwMSAwOCAxYw0KDQowMDoxMS4wIFVua25vd24gbWFzcyBzdG9yYWdl
-IGNvbnRyb2xsZXI6IFByb21pc2UgVGVjaG5vbG9neSwgSW5jLjogVW5rbm93
-biBkZXZpY2UgMGQzMCAocmV2IDAyKQ0KCVN1YnN5c3RlbTogUHJvbWlzZSBU
-ZWNobm9sb2d5LCBJbmMuOiBVbmtub3duIGRldmljZSA0ZDMzDQoJRmxhZ3M6
-IGJ1cyBtYXN0ZXIsIG1lZGl1bSBkZXZzZWwsIGxhdGVuY3kgMzIsIElSUSA1
-DQoJSS9PIHBvcnRzIGF0IGEwMDAgW3NpemU9OF0NCglJL08gcG9ydHMgYXQg
-OTgwMCBbc2l6ZT00XQ0KCUkvTyBwb3J0cyBhdCA5NDAwIFtzaXplPThdDQoJ
-SS9PIHBvcnRzIGF0IDkwMDAgW3NpemU9NF0NCglJL08gcG9ydHMgYXQgODgw
-MCBbc2l6ZT02NF0NCglNZW1vcnkgYXQgZTE4MDAwMDAgKDMyLWJpdCwgbm9u
-LXByZWZldGNoYWJsZSkgW3NpemU9MTI4S10NCglFeHBhbnNpb24gUk9NIGF0
-IDx1bmFzc2lnbmVkPiBbZGlzYWJsZWRdIFtzaXplPTY0S10NCglDYXBhYmls
-aXRpZXM6IFs1OF0gUG93ZXIgTWFuYWdlbWVudCB2ZXJzaW9uIDENCjAwOiA1
-YSAxMCAzMCAwZCAwNyAwMCAxMCAwMiAwMiAwMCA4MCAwMSAwMCAyMCAwMCAw
-MA0KMTA6IDAxIGEwIDAwIDAwIDAxIDk4IDAwIDAwIDAxIDk0IDAwIDAwIDAx
-IDkwIDAwIDAwDQoyMDogMDEgODggMDAgMDAgMDAgMDAgODAgZTEgMDAgMDAg
-MDAgMDAgNWEgMTAgMzMgNGQNCjMwOiAwMCAwMCAwMCAwMCA1OCAwMCAwMCAw
-MCAwMCAwMCAwMCAwMCAwNSAwMSAwMCAwMA0KDQowMTowMC4wIFZHQSBjb21w
-YXRpYmxlIGNvbnRyb2xsZXI6IE1hdHJveCBHcmFwaGljcywgSW5jLiBNR0Eg
-RzQwMCBBR1AgKHJldiAwNCkgKHByb2ctaWYgMDAgW1ZHQV0pDQoJU3Vic3lz
-dGVtOiBNYXRyb3ggR3JhcGhpY3MsIEluYy46IFVua25vd24gZGV2aWNlIDAz
-NzgNCglGbGFnczogYnVzIG1hc3RlciwgbWVkaXVtIGRldnNlbCwgbGF0ZW5j
-eSA2NCwgSVJRIDEwDQoJTWVtb3J5IGF0IGU0MDAwMDAwICgzMi1iaXQsIHBy
-ZWZldGNoYWJsZSkgW3NpemU9MzJNXQ0KCU1lbW9yeSBhdCBlMzAwMDAwMCAo
-MzItYml0LCBub24tcHJlZmV0Y2hhYmxlKSBbc2l6ZT0xNktdDQoJTWVtb3J5
-IGF0IGUyODAwMDAwICgzMi1iaXQsIG5vbi1wcmVmZXRjaGFibGUpIFtzaXpl
-PThNXQ0KCUV4cGFuc2lvbiBST00gYXQgZTNmZjAwMDAgW2Rpc2FibGVkXSBb
-c2l6ZT02NEtdDQoJQ2FwYWJpbGl0aWVzOiBbZGNdIFBvd2VyIE1hbmFnZW1l
-bnQgdmVyc2lvbiAyDQoJQ2FwYWJpbGl0aWVzOiBbZjBdIEFHUCB2ZXJzaW9u
-IDIuMA0KMDA6IDJiIDEwIDI1IDA1IDA3IDAwIDkwIDAyIDA0IDAwIDAwIDAz
-IDA4IDQwIDAwIDAwDQoxMDogMDggMDAgMDAgZTQgMDAgMDAgMDAgZTMgMDAg
-MDAgODAgZTIgMDAgMDAgMDAgMDANCjIwOiAwMCAwMCAwMCAwMCAwMCAwMCAw
-MCAwMCAwMCAwMCAwMCAwMCAyYiAxMCA3OCAwMw0KMzA6IDAwIDAwIGZmIGUz
-IGRjIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDBhIDAxIDEwIDIwDQoNCg==
----559023410-1804928587-982234724=:19331--
+ Doug Ledford <dledford@redhat.com>  http://people.redhat.com/dledford
+      Please check my web site for aic7xxx updates/answers before
+                      e-mailing me about problems

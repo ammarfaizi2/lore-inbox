@@ -1,46 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265383AbUGND5y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263772AbUGNEEI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265383AbUGND5y (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jul 2004 23:57:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265431AbUGND5y
+	id S263772AbUGNEEI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jul 2004 00:04:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264461AbUGNEEI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jul 2004 23:57:54 -0400
-Received: from [211.152.157.138] ([211.152.157.138]:28587 "HELO soulinfo.com")
-	by vger.kernel.org with SMTP id S265383AbUGND5x (ORCPT
+	Wed, 14 Jul 2004 00:04:08 -0400
+Received: from havoc.gtf.org ([216.162.42.101]:57016 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S263772AbUGNEEF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jul 2004 23:57:53 -0400
-Date: Wed, 14 Jul 2004 11:48:54 +0800
-From: Hugang <hugang@soulinfo.com>
-To: linux-kernel@vger.kernel.org, bcollins@debian.org
-Subject: [PATCH] fix rmmod sbp2 hang in 2.6.7
-Message-Id: <20040714114854.29d4e015@localhost>
-X-Mailer: Sylpheed version 0.9.8claws (GTK+ 1.2.10; powerpc-unknown-linux-gnu)
+	Wed, 14 Jul 2004 00:04:05 -0400
+Date: Wed, 14 Jul 2004 00:04:03 -0400
+From: David Eger <eger@havoc.gtf.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>, rmk@arm.linux.org.uk
+Subject: Re: [PATCH] pmac_zilog: initialize port spinlock on all init paths
+Message-ID: <20040714040403.GA29729@havoc.gtf.org>
+References: <20040712075113.GB19875@havoc.gtf.org> <20040712082104.GA22366@havoc.gtf.org> <20040712220935.GA20049@havoc.gtf.org> <20040713003935.GA1050@havoc.gtf.org> <1089692194.1845.38.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Virus-Checked: Checked
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1089692194.1845.38.camel@gaston>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi:
+On Mon, Jul 12, 2004 at 11:16:34PM -0500, Benjamin Herrenschmidt wrote:
+> On Mon, 2004-07-12 at 19:39, David Eger wrote:
+> > Dear Ben,
+> > 
+> > This patch fixes the Zilog driver so it doesn't freak on my TiBook.
+> > [patch that initializes port->lock in pmac_zilog.c
+>
+> The spinlock should be initialized by the serial core when registering
+> the ports ... can you find out for me how do you end up with the
+> port not registered but still trying to use the lock ? 
 
- http://sourceforge.net/mailarchive/forum.php?thread_id=5036991&forum_id=5389
+After some testing, I found that the pmac_zilog Oops (which claims we've
+not initialized port->lock) only occurs when I also enable 8250/16550
+serial support (CONFIG_SERIAL_8250)
 
-* modified files
+I'll try to track down what's going on on the plane tomorrow, but I'm 
+curious to hear if any of the recent csets might have caused this...
+(hence the cc: rmk)
 
---- orig/drivers/base/driver.c
-+++ mod/drivers/base/driver.c
-@@ -106,8 +106,8 @@
- 
- void driver_unregister(struct device_driver * drv)
- {
--	bus_remove_driver(drv);
- 	down(&drv->unload_sem);
-+	bus_remove_driver(drv);
- 	up(&drv->unload_sem);
- }
- 
---- 
-Hu Gang / Steve
-Linux Registered User 204016
-GPG Public Key: http://soulinfo.com/~hugang/hugang.asc
+> > ( of course, it still spews diahrea of 'IN from bad port XXXXXXXX'
+> >   but then, I don't have the hardware.... still, seems weird that OF
+> >   would report that I do have said hardware :-/ )
+> 
+> The IN from bad port is a different issue, it's probably issued by
+> another driver trying to tap legacy hardware, either serial.o or
+> ps/2 kbd, I suppose, check what else of that sort you have in your
+>  .config
+
+Sure enough, the "IN from bad port XXXXXXXX" ended up being the i8042
+serial PC keyboard driver, enabled with CONFIG_SERIO_I8042.  Don't know
+why that's in ppc defconfig....
+
+-dte

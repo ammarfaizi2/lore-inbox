@@ -1,52 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263376AbTKJMPM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Nov 2003 07:15:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263386AbTKJMPM
+	id S263277AbTKJMIp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Nov 2003 07:08:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263319AbTKJMIp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Nov 2003 07:15:12 -0500
-Received: from mta4.rcsntx.swbell.net ([151.164.30.28]:58834 "EHLO
-	mta4.rcsntx.swbell.net") by vger.kernel.org with ESMTP
-	id S263376AbTKJMPI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Nov 2003 07:15:08 -0500
-Message-ID: <3FAF82D2.2050004@pacbell.net>
-Date: Mon, 10 Nov 2003 04:21:38 -0800
-From: David Brownell <david-b@pacbell.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en, fr
+	Mon, 10 Nov 2003 07:08:45 -0500
+Received: from natsmtp01.rzone.de ([81.169.145.166]:12016 "EHLO
+	natsmtp01.rzone.de") by vger.kernel.org with ESMTP id S263277AbTKJMIn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Nov 2003 07:08:43 -0500
+Message-ID: <3FAF7FC8.8050503@softhome.net>
+Date: Mon, 10 Nov 2003 13:08:40 +0100
+From: "Ihar 'Philips' Filipau" <filia@softhome.net>
+Organization: Home Sweet Home
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20030927
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>, colin@colino.net
-CC: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: kernel 2.6 : cdc_acm problem
-References: <3FAE77B7.8040901@pacbell.net> <20031109225027.GA2425@kroah.com>
-In-Reply-To: <20031109225027.GA2425@kroah.com>
+To: Davide Rossetti <davide.rossetti@roma1.infn.it>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: OT: why no file copy() libc/syscall ??
+References: <QiyV.1k3.15@gated-at.bofh.it>
+In-Reply-To: <QiyV.1k3.15@gated-at.bofh.it>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>The problem is that cdc_acm calls a "softirq-only" routine
->>in a hardirq context.  See this patch:
->>
->>http://marc.theaimsgroup.com/?l=linux-usb-devel&m=106764585001038&w=2
->>
->>It's not clear that'll make it into 2.6.0-final.
+
+   sendfile(2) - ?
+
+Davide Rossetti wrote:
+> it may be orribly RTFM... but writing a simple framework I realized 
+> there is no libc/POSIX/whoknows
+> copy(const char* dest_file_name, const char* src_file_name)
 > 
+> What is the technical reason???
 > 
-> I've not planned to submit it for 2.6.0 as it's a relativly big change,
-> and I don't have the hardware to test it out.  Anyone have any other
-> thoughts about this?
+> I understand that there may be little space for kernel side 
+> optimizations in this area but anyway I'm surprised I have to write
+> 
+> < the bits to clone the metadata of src_file_name on opening 
+> dest_file_name >
+> const int BUFSIZE = 1<<12;
+> char buffer[BUFSIZE];
+> int nrb;
+> while((nrb = read(infd, buffer, BUFSIZE) != -1) {
+>  ret = write(outfd, buffer, nrb);
+>  if(ret != nrb) {...}
+> }
+> 
+> instead of something similar to:
+> sys_fscopy(...)
+> 
+> regards
+> 
 
-Doesn't seem big to me.  It could be shrunk a smidgeon, but
-that's the version that's gotten the positive test results.
 
-The folk who have this kind of hardware have reported this
-happening for quite a few months now, and it does seem to
-fill up log buffers with catastrophic-seeming stack traces.
-
-Colin, does it fix your problem?  Can you eke more than
-twenty minutes from your laptop battery now?  :)
-
-- Dave
+-- 
+Ihar 'Philips' Filipau  / with best regards from Saarbruecken.
+--                                                           _ _ _
+  "... and for $64000 question, could you get yourself       |_|*|_|
+    vaguely familiar with the notion of on-topic posting?"   |_|_|*|
+                                 -- Al Viro @ LKML           |*|*|*|
 

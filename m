@@ -1,37 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278307AbRJMOs3>; Sat, 13 Oct 2001 10:48:29 -0400
+	id <S278308AbRJMOx7>; Sat, 13 Oct 2001 10:53:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278312AbRJMOsT>; Sat, 13 Oct 2001 10:48:19 -0400
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:31112 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S278307AbRJMOsM>; Sat, 13 Oct 2001 10:48:12 -0400
-From: "Paul E. McKenney" <pmckenne@us.ibm.com>
-Message-Id: <200110131448.f9DEmVR07852@eng4.beaverton.ibm.com>
-Subject: Re: RFC: patch to allow lock-free traversal of lists with insertion
-To: rusty@rustcorp.com.au (Rusty Russell)
-Date: Sat, 13 Oct 2001 07:48:30 -0700 (PDT)
-Cc: mckenney@eng4.beaverton.ibm.com (Paul E. McKenney),
-        lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
-In-Reply-To: <20011012141419.4ea534b5.rusty@rustcorp.com.au> from "Rusty Russell" at Oct 12, 2001 01:14:19 PM PST
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
+	id <S278309AbRJMOxu>; Sat, 13 Oct 2001 10:53:50 -0400
+Received: from [212.21.93.146] ([212.21.93.146]:28291 "EHLO
+	kushida.jlokier.co.uk") by vger.kernel.org with ESMTP
+	id <S278308AbRJMOxi>; Sat, 13 Oct 2001 10:53:38 -0400
+Date: Sat, 13 Oct 2001 16:53:32 +0200
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: Security question: "Text file busy" overwriting executables but not shared libraries?
+Message-ID: <20011013165332.A20499@kushida.jlokier.co.uk>
+In-Reply-To: <Pine.LNX.4.33.0110040842320.8350-100000@penguin.transmeta.com> <m1hetfz5ae.fsf@frodo.biederman.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <m1hetfz5ae.fsf@frodo.biederman.org>; from ebiederm@xmission.com on Thu, Oct 04, 2001 at 11:25:13AM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Here are two patches.  The wmbdd patch has been modified to use
->> the lighter-weight SPARC instruction, as suggested by Dave Miller.
->> The rmbdd patch defines an rmbdd() primitive that is defined to be
->> rmb() on Alpha and a nop on other architectures.  I believe this
->> rmbdd() primitive is what Richard is looking for.
->
->Surely we don't need both?  If rmbdd exists, any code needing wmbdd
->is terminally broken?
+Linus Torvalds wrote:
+> Trust me. The people who came up with MAP_COPY were stupid. Really. It's
+> an idiotic concept, and it's not worth implementing.
 
-One or the other.  And at this point, it looks like rmbdd() (or
-read_cache_depends()) is the mechanism of choice, given wmbdd()'s
-performance on Alpha.
+I can think of an efficiency-related use for MAP_COPY, and it has
+nothing to do with shared libraries:
 
-						Thanx, Paul
+ - An editor using mmap() to read a file.
+
+The existing semantics require that you either call read() and waste
+(potentially shared) memory to do this, or use MAP_PRIVATE and then
+deliberately page in and dirty all of the file's pages.
+
+Neither of these seem to be the most efficient way to launch an editor.
+
+cheers,
+-- Jamie

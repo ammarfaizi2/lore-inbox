@@ -1,113 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263013AbVALCNy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263010AbVALCNA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263013AbVALCNy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 21:13:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263008AbVALCNx
+	id S263010AbVALCNA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 21:13:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263006AbVALCMh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 21:13:53 -0500
-Received: from orb.pobox.com ([207.8.226.5]:30153 "EHLO orb.pobox.com")
-	by vger.kernel.org with ESMTP id S263005AbVALCMz (ORCPT
+	Tue, 11 Jan 2005 21:12:37 -0500
+Received: from main.gmane.org ([80.91.229.2]:63661 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S263004AbVALCL4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 21:12:55 -0500
-Date: Tue, 11 Jan 2005 18:12:46 -0800
-From: "Barry K. Nathan" <barryn@pobox.com>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: "Barry K. Nathan" <barryn@pobox.com>, Linus Torvalds <torvalds@osdl.org>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Lukasz Trabinski <lukasz@wsisiz.edu.pl>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] make uselib configurable (was Re: uselib()  & 2.6.X?)
-Message-ID: <20050112021246.GE4325@ip68-4-98-123.oc.oc.cox.net>
-References: <Pine.LNX.4.58LT.0501071648160.30645@oceanic.wsisiz.edu.pl> <20050107170712.GK29176@logos.cnet> <1105136446.7628.11.camel@localhost.localdomain> <Pine.LNX.4.58.0501071609540.2386@ppc970.osdl.org> <20050107221255.GA8749@logos.cnet> <Pine.LNX.4.58.0501081042040.2386@ppc970.osdl.org> <20050111225127.GD4378@ip68-4-98-123.oc.oc.cox.net> <20050111235907.GG2760@pclin040.win.tue.nl>
+	Tue, 11 Jan 2005 21:11:56 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Jim Zajkowski <jamesez@umich.edu>
+Subject: Re: Sparse LUN scanning - 2.4.x
+Date: Tue, 11 Jan 2005 21:11:40 -0500
+Message-ID: <cs210t$l8m$1@sea.gmane.org>
+References: <41E46A59.2010205@metaparadigm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050111235907.GG2760@pclin040.win.tue.nl>
-User-Agent: Mutt/1.5.5.1i
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
+Content-Transfer-Encoding: 7BIT
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: dsl093-002-011.det1.dsl.speakeasy.net
+User-Agent: Unison/1.5.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 12, 2005 at 12:59:07AM +0100, Andries Brouwer wrote:
-> > +config SYS_USELIB
-> > +	bool "sys_uselib syscall support (needed for old binaries)"
-> > +	---help---
-> > +	  Many old binaries (e.g. dynamically linked a.out binaries, and
-> > +	  ELF binaries that are dynamically linked against libc5), require
-> > +	  the sys_uselib syscall. However, on the typical Linux system, this
-> > +	  code is just old cruft that no longer serves a purpose.
-> > +
-> > +	  If you are unsure, say "N" if you care more about security and
-> > +	  trimming bloat, or say "Y" if you care more about compatibility
-> > +	  with old software. (If you will answer "Y" or "M" to BINFMT_AOUT,
-> > +	  below, you probably should answer "Y" here.)
-> 
-> s/sys_uselib/uselib/
-> The system call is uselib().
+On 2005-01-11 19:07:53 -0500, Michael Clark <michael@metaparadigm.com> said:
 
-Ok.
+>> The problem is this: since LUN 0 does not show up -- specifically, it 
+>> can't read the vendor or model informaton -- the kernel SCSI scan does 
+>> not match with the table to tell the kernel to do sparse LUN 
+>> scanning... so the RAID does not appear.
 
-> Hmm - old cruft.. Why insult your users?
-> I do not have source for Maple. And my xmaple binary works just fine.
-> But it is a libc4 binary.
+> Add the Xserve with the BLIST_SPARSELUN flag into the blacklist/quirks 
+> table in drivers/scsi/scsi_scan.c
 
-Err... I didn't see it as "insulting [my] users". That was not at all
-what I intended. I'll have to rework that...
+It already is in the quirks list.
 
-> You mean "on the typical recently installed Linux system,
-> with nothing but the usual Linux utilities".
+The problem is that LUN 0 does not show up on this machine, so the 
+quirks table doesn't work.  Looking at /proc/scsi/scsi shows the device 
+but only sorta:
 
-No, more like, "on the typical Linux system installed since 2000,
-running additional 3rd-party software from no earlier than 2001", or
-something vaguely like that.
+> Host: scsi1 Channel: 00 Id: 00 Lun: 00
+>   Vendor:          Model:                  Rev:
+>   Type:   Processor                        ANSI SCSI revision: ffffffff
 
-> People always claim that Linux is good in preserving binary compatibility.
-> Don't know how true that was, but introducing such config options doesnt
-> help.
+whereas the LUN that is mapped shows up like this:
 
-Binary compatibility is good to have, but it isn't everything in life.
-*Optionally* breaking compatibility with certain types of old binaries
-doesn't seem so bad to me. People who want binary compatibility can have
-it, and people who don't need it can choose to not install the old code
-on their systems.
+> Host: scsi1 Channel: 00 Id: 00 Lun: 01
+>   Vendor: APPLE    Model: Xserve RAID      Rev: 1.20
+>   Type:   Direct-Access                    ANSI SCSI revision: 02
 
-> Let me also mutter about something else.
-> In principle configuration options are evil. Nobody wants fifty thousand
-> configuration options. But I see them multiply like ioctls.
-> There should be a significant gain in having a config option.
-> 
-> Maybe some argue that there is a gain in security here. Perhaps.
-> Or a gain in memory. It is negligible.
-> I see mostly a loss.
+So since the information doesn't show up, the quirks table magic 
+doesn't work since it doesn't know that it needs to do a sparse lun 
+scan.
 
-It's probably the case that on millions (and growing) of Linux systems
-out there, the one and only possible use of this syscall is as a
-security threat. On these systems, with no need for libc4/5 binaries
-(and no installed versions of these libraries anyway), there is **NO**
-other redeeming use for this syscall.
+--Jim
 
-If removal of this syscall isn't a config option, then the alternatives
-are out-of-tree patches, forking 2.7 over this issue alone, or settling
-for the status quo. A 3rd-party patch would increase vendor kernel
-divergence again (which is also evil), and starting 2.7 just for this
-would be overkill. And I'm not the only person who is not satisfied
-with the current situation.
+-- 
+Jim Zajkowski          OpenPGP 0x21135C3    http://www.jimz.net/pgp.asc
+System Administrator  8A9E 1DDF 944D 83C3 AEAB  8F74 8697 A823 2113 5C53
+UM Life Sciences Institute
 
-> There are more ancient system calls, like old_stat and oldolduname.
-> Do we want separate options for each system call that is obsoleted?
 
-A config option for each one would be a bit much, I'll agree. However,
-I think having a single config option for the whole bunch would be a
-good idea. At the time that I wrote this patch, I was thinking that the
-rest of the old syscalls would be a second config option, but now that I
-think about it, it makes more sense for it to just be one config option,
-not two.
-
-FWIW, my current patch does uselib() alone, because I figured that would
-be less controversial than trying to do all of the old syscalls now.
-Maybe I'll rethink that decision though.
-
-Thank you for your feedback. It's quite helpful, and I greatly
-appreciate it.
-
--Barry K. Nathan <barryn@pobox.com>

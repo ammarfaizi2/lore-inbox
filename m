@@ -1,51 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268479AbUJOVnD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268463AbUJOVos@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268479AbUJOVnD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Oct 2004 17:43:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268463AbUJOVnC
+	id S268463AbUJOVos (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Oct 2004 17:44:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268486AbUJOVos
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Oct 2004 17:43:02 -0400
-Received: from holomorphy.com ([207.189.100.168]:32909 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S268479AbUJOVki (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Oct 2004 17:40:38 -0400
-Date: Fri, 15 Oct 2004 14:40:26 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrea Arcangeli <andrea@novell.com>
-Cc: Albert Cahalan <albert@users.sf.net>, Hugh Dickins <hugh@veritas.com>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton OSDL <akpm@osdl.org>,
-       Albert Cahalan <albert@users.sourceforge.net>
-Subject: Re: per-process shared information
-Message-ID: <20041015214026.GR5607@holomorphy.com>
-References: <20041015162000.GB17849@dualathlon.random> <1097857912.2669.13548.camel@cube> <20041015171355.GD17849@dualathlon.random> <1097862714.2666.13650.camel@cube> <20041015181446.GF17849@dualathlon.random> <20041015183025.GN5607@holomorphy.com> <20041015184009.GG17849@dualathlon.random> <20041015184713.GO5607@holomorphy.com> <20041015211626.GQ5607@holomorphy.com> <20041015212831.GL17849@dualathlon.random>
+	Fri, 15 Oct 2004 17:44:48 -0400
+Received: from ipx-196-245-190-80.ipxserver.de ([80.190.245.196]:36817 "EHLO
+	ipx10046.ipxserver.de") by vger.kernel.org with ESMTP
+	id S268463AbUJOVn2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Oct 2004 17:43:28 -0400
+Subject: tun.c patch to fix "smp_processor_id() in preemptible code"
+From: Alain Schroeder <alain@parkautomat.net>
+To: linux-kernel@vger.kernel.org
+Cc: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+Content-Type: multipart/mixed; boundary="=-n3kiN/2jthBHZzaOuFzb"
+Message-Id: <1097876587.4170.16.camel@marvin.home.parkautomat.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041015212831.GL17849@dualathlon.random>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 15 Oct 2004 23:43:07 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 15, 2004 at 02:16:26PM -0700, William Lee Irwin III wrote:
->> they're only waiting for ports to the vendor kernel(s) now.
 
-On Fri, Oct 15, 2004 at 11:28:31PM +0200, Andrea Arcangeli wrote:
-> Ok fine. But first it has to be included into mainline, then of course
-> we'll merge it. Fixing Oracle at the expense of being incompatible with
-> the user-ABI with future 2.6 is a no-way.
+--=-n3kiN/2jthBHZzaOuFzb
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-I've come to expect this as a requirement.
+I was getting these traces on a SMP host:
 
-The thing I wanted to convey most was that I got an acknowledgment from
-the original sources of Oracle's requirement, including the project
-lead for the team that maintains statistics collection kit that uses
-the statistics to estimate the client capacity of a system and not just
-whoever got the bug assigned to them inside Oracle, that Hugh's specific
-implementation we want to go with also satisfies the user requirements.
-They've even committed to runtime testing the patches to verify the
-patch does everything they want it to.
+dsor-vm2 kernel: using smp_processor_id() in preemptible code: linux/480
+dsor-vm2 kernel:  [smp_processor_id+108/132] smp_processor_id+0x6c/0x84
+kernel:  [pg0+945156838/1070318592] tun_chr_writev+0x14e/0x174 [tun]
+kernel:  [pg0+945156917/1070318592] tun_chr_write+0x29/0x30 [tun]
+kernel:  [vfs_write+189/236] vfs_write+0xbd/0xec
+kernel:  [sys_write+64/108] sys_write+0x40/0x6c
+kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
 
+The (very) little attached patch fixes this.
 
--- wli
+Bye,
+   Alain
+
+PS: I am not subscribed to the lkml.
+
+-- 
+"My grandfather once told me that there are two kinds of people: those
+who work and those who take the credit. He told me to try to be in the
+first group; there was less competition there." -- Indira Gandhi
+
+--=-n3kiN/2jthBHZzaOuFzb
+Content-Disposition: attachment; filename=tun-preempt.patch
+Content-Type: text/x-patch; name=tun-preempt.patch; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+--- linux-2.6.8-rc2/drivers/net/tun.c	Wed Jun 16 05:19:22 2004
++++ linux-2.6.9-rc4-mm1-skas/drivers/net/tun.c	Fri Oct 15 21:16:18 2004
+@@ -207,7 +207,9 @@
+ 	if (tun->flags & TUN_NOCHECKSUM)
+ 		skb->ip_summed = CHECKSUM_UNNECESSARY;
+  
++	preempt_disable();
+ 	netif_rx_ni(skb);
++	preempt_enable();
+    
+ 	tun->stats.rx_packets++;
+ 	tun->stats.rx_bytes += len;
+
+--=-n3kiN/2jthBHZzaOuFzb--
+

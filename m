@@ -1,58 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262069AbTKGWdb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Nov 2003 17:33:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262068AbTKGW1E
+	id S262074AbTKGWd3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Nov 2003 17:33:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262070AbTKGW1S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Nov 2003 17:27:04 -0500
+	Fri, 7 Nov 2003 17:27:18 -0500
 Received: from zeus.kernel.org ([204.152.189.113]:15062 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S264652AbTKGV7f (ORCPT
+	by vger.kernel.org with ESMTP id S264364AbTKGV7i (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Nov 2003 16:59:35 -0500
-Date: Fri, 7 Nov 2003 22:36:11 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: DI Dr Simon Vogl <simon@voxel.at>
-Cc: sensors@Stimpy.netroedge.com, linux-kernel@vger.kernel.org
-Subject: Re: I2C parallel port adapters drivers
-Message-Id: <20031107223611.173c82cc.khali@linux-fr.org>
-In-Reply-To: <3FAB6A8C.9070608@voxel.at>
-References: <20031102132342.79920c6f.khali@linux-fr.org>
-	<3FAB6A8C.9070608@voxel.at>
-Reply-To: sensors@Stimpy.netroedge.com
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Fri, 7 Nov 2003 16:59:38 -0500
+Date: Fri, 7 Nov 2003 13:58:06 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: jbarnes@sgi.com (Jesse Barnes)
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] use NODES_SHIFT to calculate ZONE_SHIFT
+Message-Id: <20031107135806.3c929688.akpm@osdl.org>
+In-Reply-To: <20031105211608.GA23560@sgi.com>
+References: <20031105211608.GA23560@sgi.com>
+X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+jbarnes@sgi.com (Jesse Barnes) wrote:
+>
+> Now that we have a proper NODES_SHIFT value, we need to use it to define
+> ZONE_SHIFT otherwise we'll spill over 8 bits if we have more than 85
+> nodes.  How does this look?  The '+2' should really be
+> log2(MAX_NR_NODES), but I think this is an improvement over what was
+> there.
 
-> hi,
-> sorry for the late answer.
+You mean log2(MAX_NR_ZONES).
 
-No problem. After all, you're the first one to answer, too ;)
+How about we do it this way, so at least the duplicated information is on
+adjacent lines, and they are unlikely to get out of sync?
 
-> you're right, the drivers are very similar, and typically you will
-> only use one of them. It is of course possible to integrate them all
-> into one physical module, which you are free to do :) This is more or
-> less grounded on historic reasons far back in the development of the
-> driver where I introduced the different hardware access
-> implementations to accomodate the different implementations (and this
-> went eventually into the kernel...).
-> 
-> So I'd say, go ahead and code :)
 
-OK, I'll write a unified driver then. Just one more question. Any reason
-to prefer direct I/O access (ELV/Velleman) over parallel-port-style
-programming (i2c-philips-par)? I'd say that the second is preferable,
-but you might have had a reason to use direct access, that I ignore. If
-not, I'll somehow use i2c-philips-par as a base for my unified driver,
-which I'll probably call i2c-parport (since it won't be Philips-specific
-anymore). That driver would support Philips adapters, ELV, Velleman and
-ADM evaluation boards (I have one here for testing).
+ 
+diff -puN include/linux/mm.h~ZONE_SHIFT-from-NODES_SHIFT include/linux/mm.h
+--- 25/include/linux/mm.h~ZONE_SHIFT-from-NODES_SHIFT	Fri Nov  7 13:51:22 2003
++++ 25-akpm/include/linux/mm.h	Fri Nov  7 13:55:11 2003
+@@ -322,8 +322,10 @@ static inline void put_page(struct page 
+ /*
+  * The zone field is never updated after free_area_init_core()
+  * sets it, so none of the operations on it need to be atomic.
++ * We'll have up to log2(MAX_NUMNODES * MAX_NR_ZONES) zones
++ * total, so we use NODES_SHIFT here to get enough bits.
+  */
+-#define ZONE_SHIFT (BITS_PER_LONG - 8)
++#define ZONE_SHIFT (BITS_PER_LONG - NODES_SHIFT - MAX_NR_ZONES_SHIFT)
+ 
+ struct zone;
+ extern struct zone *zone_table[];
+diff -puN include/linux/mmzone.h~ZONE_SHIFT-from-NODES_SHIFT include/linux/mmzone.h
+--- 25/include/linux/mmzone.h~ZONE_SHIFT-from-NODES_SHIFT	Fri Nov  7 13:51:49 2003
++++ 25-akpm/include/linux/mmzone.h	Fri Nov  7 13:57:19 2003
+@@ -159,7 +159,10 @@ struct zone {
+ #define ZONE_DMA		0
+ #define ZONE_NORMAL		1
+ #define ZONE_HIGHMEM		2
+-#define MAX_NR_ZONES		3
++
++#define MAX_NR_ZONES		3	/* Sync this with MAX_NR_ZONES_SHIFT */
++#define MAX_NR_ZONES_SHIFT	2	/* ceil(log2(MAX_NR_ZONES)) */
++
+ #define GFP_ZONEMASK	0x03
+ 
+ /*
 
-Thanks a lot for spending some time replying.
+_
 
--- 
-Jean Delvare
-http://www.ensicaen.ismra.fr/~delvare/

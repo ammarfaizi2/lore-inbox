@@ -1,53 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266094AbUAUVzU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jan 2004 16:55:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266076AbUAUVzT
+	id S266118AbUAUV6k (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jan 2004 16:58:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266110AbUAUV6k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jan 2004 16:55:19 -0500
-Received: from 101.24.177.216.inaddr.g4.Net ([216.177.24.101]:53948 "EHLO
-	sparrow.stearns.org") by vger.kernel.org with ESMTP id S266094AbUAUVzH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jan 2004 16:55:07 -0500
-Date: Wed, 21 Jan 2004 16:55:04 -0500 (EST)
-From: William Stearns <wstearns@pobox.com>
-X-X-Sender: wstearns@sparrow
-Reply-To: William Stearns <wstearns@pobox.com>
-To: Esben Stien <executiv@online.no>
-cc: ML-linux-kernel <linux-kernel@vger.kernel.org>,
-       William Stearns <wstearns@pobox.com>
-Subject: Re: logging all input and output on a tty
-In-Reply-To: <87ad4h5juk.fsf@online.no>
-Message-ID: <Pine.LNX.4.44.0401211651130.2713-100000@sparrow>
+	Wed, 21 Jan 2004 16:58:40 -0500
+Received: from fmr02.intel.com ([192.55.52.25]:16330 "EHLO
+	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
+	id S266118AbUAUV6W convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jan 2004 16:58:22 -0500
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Subject: RE: PROBLEM: ACPI freezes 2.6.1 on boot
+Date: Wed, 21 Jan 2004 16:57:51 -0500
+Message-ID: <BF1FE1855350A0479097B3A0D2A80EE0CC8A1E@hdsmsx402.hd.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: PROBLEM: ACPI freezes 2.6.1 on boot
+Thread-Index: AcPgZKFzKiBNFGiTSpGc+URG+3n03QABOFIg
+From: "Brown, Len" <len.brown@intel.com>
+To: "Georg C. F. Greve" <greve@gnu.org>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>
+Cc: "Martin Loschwitz" <madkiss@madkiss.org>, <linux-kernel@vger.kernel.org>,
+       <acpi-devel@lists.sourceforge.net>
+X-OriginalArrivalTime: 21 Jan 2004 21:57:52.0675 (UTC) FILETIME=[9E31AF30:01C3E069]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Good afternoom, Esben,
+Didn't see that report b/c it was filed against "Alternate Trees".  I've
+updated it to be against "ACPI" and assigned it to myself -- lets work
+it there.
 
-On 21 Jan 2004, Esben Stien wrote:
+Thanks,
+-Len
 
-> I've been trying to get an answer to tty logging for a long time without
-> anyone able to answer. I want to log everything that is written to and
-> from a certain tty. I expect this to be a kernel module. Anyone have any
-> pointers where I can look?. Is there an existing module?
+> -----Original Message-----
+> From: Georg C. F. Greve [mailto:greve@gnuhh.org] On Behalf Of 
+> Georg C. F. Greve
+> Sent: Wednesday, January 21, 2004 4:22 PM
+> To: Nakajima, Jun
+> Cc: Martin Loschwitz; linux-kernel@vger.kernel.org; Brown, 
+> Len; acpi-devel@lists.sourceforge.net
+> Subject: Re: PROBLEM: ACPI freezes 2.6.1 on boot
+> 
+> 
+>  || On Wed, 21 Jan 2004 08:32:50 -0800
+>  || "Nakajima, Jun" <jun.nakajima@intel.com> wrote: 
+> 
+>  nj> Right now I forwarded this to linux-acpi@intel.com, but copying
+>  nj> the ACPI mailing list acpi-devel@lists.sourceforge.net would be
+>  nj> helpful in general. Len can provide more specific directions for
+>  nj> reporting ACPI bugs.
+> 
+> Thanks.
+> 
+> FYI, there is a bug on the Linux kernel bugzilla corresponding to this
+> problem: 
+> 
+         http://bugzilla.kernel.org/show_bug.cgi?id=1774
 
-	User-Mode Linux can log all traffic to or from a tty to files 
-stored on the host.
-	http://user-mode-linux.sourceforge.net/tty_logging.html
+Regards,
+Georg
 
-	Any questions about this feature should be directed to: 
-User-mode-linux-user@lists.sourceforge.net
-	Cheers,
-	- Bill
-
----------------------------------------------------------------------------
-	How's my programming?  Call 1-800-DEV-NULL
-(Courtesy of http://www.tux.org/~ricdude/)
---------------------------------------------------------------------------
-William Stearns (wstearns@pobox.com).  Mason, Buildkernel, freedups, p0f,
-rsync-backup, ssh-keyinstall, dns-check, more at:   http://www.stearns.org
-Linux articles at:                         http://www.opensourcedigest.com
---------------------------------------------------------------------------
-
+-- 
+Georg C. F. Greve                                       <greve@gnu.org>
+Free Software Foundation Europe	                 (http://fsfeurope.org)
+Brave GNU World	                           (http://brave-gnu-world.org)

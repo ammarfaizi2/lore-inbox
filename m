@@ -1,62 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261397AbVCRAQR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261398AbVCRAQi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261397AbVCRAQR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Mar 2005 19:16:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261398AbVCRAQR
+	id S261398AbVCRAQi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Mar 2005 19:16:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261327AbVCRAQi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Mar 2005 19:16:17 -0500
-Received: from mail.dif.dk ([193.138.115.101]:38283 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S261397AbVCRAQO (ORCPT
+	Thu, 17 Mar 2005 19:16:38 -0500
+Received: from ozlabs.org ([203.10.76.45]:10462 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S261398AbVCRAQf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Mar 2005 19:16:14 -0500
-Date: Fri, 18 Mar 2005 01:17:47 +0100 (CET)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Ralf Baechle <ralf@linux-mips.org>
-Cc: Andrew Morton <akpm@osdl.org>, Yoichi Yuasa <yuasa@hh.iij4u.or.jp>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch][resend] convert a remaining verify_area to access_ok
- (was: Re: [PATCH 2.6.11-mm1] mips: more convert verify_area to access_ok)
- (fwd)
-In-Reply-To: <20050317214302.GA14882@linux-mips.org>
-Message-ID: <Pine.LNX.4.62.0503180109490.2512@dragon.hyggekrogen.localhost>
-References: <Pine.LNX.4.62.0503162227270.2558@dragon.hyggekrogen.localhost>
- <20050317214302.GA14882@linux-mips.org>
+	Thu, 17 Mar 2005 19:16:35 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16954.7656.838769.483631@cargo.ozlabs.ibm.com>
+Date: Fri, 18 Mar 2005 11:16:40 +1100
+From: Paul Mackerras <paulus@samba.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>,
+       Jesse Barnes <jbarnes@engr.sgi.com>, akpm@osdl.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       riel@redhat.com, Ian.Pratt@cl.cam.ac.uk, kurt@garloff.de,
+       Christian.Limpach@cl.cam.ac.uk
+Subject: Re: [PATCH] Xen/i386 cleanups - AGP bus/phys cleanups
+In-Reply-To: <1111067594.1213.27.camel@localhost.localdomain>
+References: <E1DBX0o-0000sV-00@mta1.cl.cam.ac.uk>
+	<16952.41973.751326.592933@cargo.ozlabs.ibm.com>
+	<200503161406.01788.jbarnes@engr.sgi.com>
+	<29ab1884ee5724e9efcfe43f14d13376@cl.cam.ac.uk>
+	<16953.20279.77584.501222@cargo.ozlabs.ibm.com>
+	<1111067594.1213.27.camel@localhost.localdomain>
+X-Mailer: VM 7.19 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 17 Mar 2005, Ralf Baechle wrote:
+Alan Cox writes:
 
-> On Wed, Mar 16, 2005 at 10:35:09PM +0100, Jesper Juhl wrote:
+> On Iau, 2005-03-17 at 09:34, Paul Mackerras wrote:
+> > This code needs real physical addresses, which are not the same things
+> > as bus addresses.  
 > 
-> > Around 2.6.11-mm1 Yoichi Yuasa found a user of verify_area that I had 
-> > missed when converting everything to access_ok. The patch below still 
-> > applies cleanly to 2.6.11-mm4.
-> > Please apply (unless of course you already picked it up back then and 
-> > have it in a queue somewhere :) .
-> 
-> Oh gosh, you actually converted the whole IRIX compatibility mess even,
-> amazing stomach you have :-) I only noticed that when I just looked at
-> Linus' tree - after buring a few hours into cleaning those files myself -
-> mine are now almost free of sparse warnings.
-> 
-I hope I did a descent job and that you didn't waste too much time 
-duplicating effort...
+> Not always. The code needs platform specific goodies. We've only never
+> been burned so far because there isn't a box with an IOMMU and AGPGART
+> where one maps through the other.
 
-> The last instance of verify_area() in the MIPS code is now the definition
-> itself.
-> 
-The plan is to wait for a few months (or a few kernel releases - whichever 
-comes first) and then I'll send Andrew patches to remove it completely.
-There are still a few related nits left, like the FPU_verify_area function 
-arch/i386/math-emu/reg_ld_str.c and the rw_verify_area function in 
-fs/read_write.c that I want to get out of the way first (think I'll 
-probably end up attempting to rename those s/verify_area/access_ok/ and 
-see if people scream).
+That sounds like a good way to make AGP accesses slower. :)
 
+Seriously, given that AGP is a technology that is being superseded by
+PCI Express, I think it's reasonable to look at the range of current
+implementations to see what we have to cope with.  So I don't think
+it's worth worrying too much about the possibility of GARTs that go
+through the IOMMU.  However, the idea of having phys_to_agp/agp_to_phys
+(or virt_to_agp/agp_to_virt) sounds like it wouldn't be too much
+effort, if it would help Xen.
 
--- 
-Jesper
-
-
+Paul.

@@ -1,38 +1,35 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316603AbSE0KyG>; Mon, 27 May 2002 06:54:06 -0400
+	id <S316610AbSE0K4B>; Mon, 27 May 2002 06:56:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316605AbSE0KyF>; Mon, 27 May 2002 06:54:05 -0400
-Received: from thoth.sbs.de ([192.35.17.2]:42674 "EHLO thoth.sbs.de")
-	by vger.kernel.org with ESMTP id <S316603AbSE0KyF>;
-	Mon, 27 May 2002 06:54:05 -0400
-From: Borsenkow Andrej <Andrej.Borsenkow@mow.siemens.ru>
-To: "'David Brownell'" <david-b@pacbell.net>, linux-kernel@vger.kernel.org
-Subject: RE: ehci-hcd on CARDBUS hangs when stopping card service
-Date: Mon, 27 May 2002 14:54:00 +0400
-Message-ID: <6134254DE87BD411908B00A0C99B044F02E89AFF@mowd019a.mow.siemens.ru>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+	id <S316611AbSE0K4A>; Mon, 27 May 2002 06:56:00 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:3222 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S316610AbSE0Kz6>;
+	Mon, 27 May 2002 06:55:58 -0400
+Date: Mon, 27 May 2002 03:40:39 -0700 (PDT)
+Message-Id: <20020527.034039.120708891.davem@redhat.com>
+To: szepe@pinerecords.com
+Cc: linux-kernel@vger.kernel.org, tcallawa@redhat.com, colin@gibbs.dhs.org,
+        sparclinux@vger.kernel.org, aurora-sparc-devel@linuxpower.org
+Subject: Re: 2.4 SRMMU bug revisited
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20020527062044.GA6737@beth.pinerecords.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.3416
-In-Reply-To: <3CED6E0B.8020501@pacbell.net>
-x-mimeole: Produced By Microsoft MimeOLE V6.00.2600.0000
-Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> I'll hope that problem appears only in 2.4.18-6mdk, and isn't found in
-> other kernels.  In particular, if it's in 2.5.17 then there's a big
-> hole in the "new driver model" work (struct device etc)!
-> 
+   From: Tomas Szepe <szepe@pinerecords.com>
+   Date: Mon, 27 May 2002 08:20:44 +0200
 
-Absolutely the same code is in 2.4.18 and 2.4.19-pre8 so it is not
-something Mandrake has introduced. The reason it has not been noticed
-before is probably that not every driver hangs here (in reported case
-ohci went through even though it could not access controller properly).
+   > %99 of people with sparc32 problems are totally unwilling (or unable)
+   > to help fix the bugs themselves, they merely whine.  It gets a bit
+   > old after a while (which for me amount to roughly 7 years).
+   
+   Sure, I'm willing to try to write the fix if someone takes the time
+   to explain to me what's happening -- I'm quite fluent in C but know
+   nothing about the anatomy of the problem.
 
--andrej
+See the part where I mention "unable".

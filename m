@@ -1,110 +1,112 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131128AbQKACdv>; Tue, 31 Oct 2000 21:33:51 -0500
+	id <S131188AbQKACgV>; Tue, 31 Oct 2000 21:36:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131141AbQKACdl>; Tue, 31 Oct 2000 21:33:41 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:7181 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S131128AbQKACd3>; Tue, 31 Oct 2000 21:33:29 -0500
-From: Peter Samuelson <peter@cadcamlab.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14847.32981.849578.490063@wire.cadcamlab.org>
-Date: Tue, 31 Oct 2000 20:32:53 -0600 (CST)
+	id <S131141AbQKACgL>; Tue, 31 Oct 2000 21:36:11 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:40201 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S131189AbQKACfy>;
+	Tue, 31 Oct 2000 21:35:54 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
 To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Keith Owens <kaos@ocs.com.au>, Christoph Hellwig <hch@ns.caldera.de>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org
-Subject: Re: test10-pre7
-In-Reply-To: <20001031075506.B1041@wire.cadcamlab.org>
-	<Pine.LNX.4.10.10010310912050.6866-100000@penguin.transmeta.com>
-X-Mailer: VM 6.75 under 21.1 (patch 12) "Channel Islands" XEmacs Lucid
-X-Face: ?*2Jm8R'OlE|+C~V>u$CARJyKMOpJ"^kNhLusXnPTFBF!#8,jH/#=Iy(?ehN$jH
-        }x;J6B@[z.Ad\Be5RfNB*1>Eh.'R%u2gRj)M4blT]vu%^Qq<t}^(BOmgzRrz$[5
-        -%a(sjX_"!'1WmD:^$(;$Q8~qz\;5NYji]}f.H*tZ-u1}4kJzsa@id?4rIa3^4A$
+cc: Russell King <rmk@arm.linux.org.uk>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: test10-pre7 
+In-Reply-To: Your message of "Tue, 31 Oct 2000 09:31:09 -0800."
+             <Pine.LNX.4.10.10010310930110.6866-100000@penguin.transmeta.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 01 Nov 2000 13:35:46 +1100
+Message-ID: <21820.973046146@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 31 Oct 2000 09:31:09 -0800 (PST), 
+Linus Torvalds <torvalds@transmeta.com> wrote:
+>On Wed, 1 Nov 2000, Keith Owens wrote:
+>>
+>> LINK_FIRST is processed in the order it is specified, so a.o will be
+>> linked before z.o when both are present.  See the patch.
+>
+>So why don't you do the same thing for obj-y, then?
+>
+>Why can't you do
+>
+>	LINK_FIRST=$(obj-y)
+>
+>and be done with it?
 
-[Linus]
-> But it doesn't even WORK.
-> 
-> You need to have 
-> 
-> 	LINK_FIRST1
-> 	LINK_FIRST2
-> 	LINK_FIRST3
-> 	...
-> 
-> etc to get the proper ordering.
+You are assuming that every object in obj-y has a link order
+requirement.  This is *not* true.  To use your own example
 
-???  No you don't.  Perhaps you mean something else.  Here's how
-LINK_FIRST works:
+  O_OBJS is all objects.
+  OX_OBJS is the subset of O_OBJS that have SYMTABS.
+  LINK_FIRST is the subset of O_OBJS that have link order dependencies
+  and must be linked first if present.
+  LINK_LAST is the subset of O_OBJS that have link order dependencies
+  and must be linked last if present.
 
-Say you have foo.o, bar.o, baz.o and lots of other objects.  foo.o must
-come before bar.o which must come before baz.o which must come before
-some other object.  But of course all of the above are conditional:
-they can be configured as modules, or not at all.
+You see - OX_OBJS, LINK_FIRST, LINK_LAST are subset indicators which
+modify the set of O_OBJS.
 
-  LINK_FIRST := foo.o bar.o baz.o
+>You need to have 
+>	LINK_FIRST1
+>	LINK_FIRST2
+>	LINK_FIRST3
+>	...
+>etc to get the proper ordering.
 
-  obj-$(CONFIG_BAR) += bar.o
-  obj-$(CONFIG_BAZ) += baz.o
-  obj-$(CONFIG_BLURFL) += blurfl.o
-  obj-$(CONFIG_FOO) += foo.o
-  obj-$(CONFIG_...).....
+No.  LINK_FIRST := $(LINK_FIRST1) $(LINK_FIRST2) $(LINK_FIRST3)
+The existing declaration order is a linear list so LINK_FIRST can
+always be a linear list, no need for multiple lists.  If you really did
+need multiple LINK_FIRSTn entries than the existing single order would
+not be good enough either.
 
-Problem solved.  If CONFIG_FOO=y CONFIG_BAR=n CONFIG_BAZ=y etc, link
-order is
+In almost all cases, LINK_FIRST will be one or two objects, LINK_LAST
+will be zero, one or two objects.  The rest of the objects will have no
+link order dependencies.  Some Makefiles already sort their obj-y list
+because they have _zero_ link order requirements, they have no problems.
 
-  foo.o baz.o {everything else}
+Look at the possible cases :-
 
-In short, LINK_FIRST/LINK_LAST take care of any case I can think of in
-the kernel.  Including things like "buslogic and aha174x must come
-before aha1520, but the two parallel zip drivers must come last in
-drivers/scsi because you don't want to renumber scsi drives more than
-you have to" or "certain ISA cards must come after ne.c because of
-autoprobe lockups on cheap ne clones, but ne2kpci should come *before*
-ne so ne won't get the pci cards".
+* No link order requirements.  Do not specify LINK_FIRST/LAST.
 
-> In many other cases, like SCSI, we need almost _total_ ordering. For such
-> a case, theer is no "first" or "last" - there is a well-specific ORDER.
+  Object A must precede B, C must precede D, no other dependencies, in
+  particular A and C can be in any order, B and D can be in any order.
+    LINK_FIRST := A.o C.o
+  or 
+    LINK_FIRST := C.o A.o
+  You do not specify _all_ the ordering, just the ones that must come
+  first.  The rest of the order drops out automatically.
 
-I don't understand why we need *total* ordering -- I am only aware of a
-few specific requirements.
+* Card foo is supported by drivers baz, bar, foop.  Try baz last.
+  LINK_LAST := baz.o.
+  You do not specify _all_ the ordering, just the ones that must come
+  last.  The rest of the order drops out automatically.
 
-Anyway, we still need to remove duplicates.  NCR53c9x.o appears a lot.
-If we can make all those cases go away by use of CONFIG_SCSI_53C9X or
-something, I will be a lot happier.  Your proposed method,
+* SCSI.  This is poorly documented (one of the problems that LINK_xxx
+  will solve) but AFAIK the requirements are
+    buslogic must be before aha1542
+    NCR53c406a must be before qlogic
+    st, sd_mod, sr_mod, sg must be after all drivers.
+  LINK_FIRST := BusLogic.o NCR53c406a.o
+  LINK_LAST  := st.o sd_mod.o sr_mod.o sg.o 
 
-  obj-53C9X-$(CONFIG_SCSI_MCA_53C9X) := y
-  obj-53C9X-$(CONFIG_SCSI_OKTAGON) := y
-  obj-$(obj-53C9X-y) := y
-  obj-$(obj-53C9X-m) := m
+>In many other cases, like SCSI, we need almost _total_ ordering. For such
+>a case, theer is no "first" or "last" - there is a well-specific ORDER.
 
-is definitely less ugly than a lot of what we do now ... but I still
-don't like it.  Mostly because each shared object file creates
-special-case code in the makefile.
+I refuse to believe that SCSI needs a total order.  There are only a
+few inter driver problems that require the probe to run in a specific
+order.  The rest of the drivers can run in any order.
 
-> The only way it would work is to make LINK_FIRST maintain the order,
-> but once you do that LINK_FIRST is completely superfluous, as it ends
-> up being exactly the same as $(obj-y).
+If all of the 82 config options in SCSI really need to be in that exact
+order, where is it documented and why do they need to be in that order?
+Having a single fixed probe order to handle machines with mutiple types
+of SCSI cards is not a good enough reason.  People with multiple SCSI
+cards already change the order of scsi entries to get the probe order
+that suits them, LINK_FIRST will make that even easier.
 
-The theory behind LINK_FIRST is that most drivers do not care about
-their order: the ones that do are the exception, not the rule.  If in
-fact you *do* care about the order of every last driver in the kernel,
-then I agree that LINK_FIRST is a bad idea.
-
-> So trust me, LINK_FIRST/LINK_LAST is not going to happen. 
-
-> And if you really want to remove duplicates, at worst we can even use
-> an external program for it - which would solve all these things once
-> and for all.
-
-This is true.  Mainly what we disagree on is which method is the bigger
-kludge. (:
-
-Peter
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

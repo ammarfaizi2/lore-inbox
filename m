@@ -1,50 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261515AbREQTYV>; Thu, 17 May 2001 15:24:21 -0400
+	id <S261518AbREQTYV>; Thu, 17 May 2001 15:24:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261517AbREQTYL>; Thu, 17 May 2001 15:24:11 -0400
-Received: from ns.muni.cz ([147.251.4.33]:32724 "EHLO aragorn.ics.muni.cz")
-	by vger.kernel.org with ESMTP id <S261518AbREQTX5>;
-	Thu, 17 May 2001 15:23:57 -0400
-Newsgroups: cz.muni.redir.linux-kernel
-Path: news
-From: Zdenek Kabelac <kabi@i.am>
-Subject: hang with 2.4.5-pre3
-Message-ID: <3B042555.A071AA5B@i.am>
-Date: Thu, 17 May 2001 19:24:05 GMT
-X-Nntp-Posting-Host: dual.fi.muni.cz
-Content-Transfer-Encoding: 7bit
-X-Accept-Language: cs, en
+	id <S261515AbREQTYL>; Thu, 17 May 2001 15:24:11 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:27652 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S261517AbREQTX4>; Thu, 17 May 2001 15:23:56 -0400
+Subject: Re: Linux 2.4.4-ac10
+To: reality@delusion.de (Udo A. Steinberg)
+Date: Thu, 17 May 2001 20:21:00 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org (Linux Kernel)
+In-Reply-To: <3B041980.BC22BA38@delusion.de> from "Udo A. Steinberg" at May 17, 2001 08:33:36 PM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Mime-Version: 1.0
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-pre1-RTL3.0 i686)
-Organization: unknown
-To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
+Content-Transfer-Encoding: 7bit
+Message-Id: <E150TKW-0005x3-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+> 
+> gcc -D__KERNEL__ -I/usr/src/linux-2.4.4-ac/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4     -c -o apm.o apm.c
+> {standard input}: Assembler messages:
+> {standard input}:180: Warning: indirect lcall without `*'
+> {standard input}:274: Warning: indirect lcall without `*'
+> 
+> Does anyone know what's up with that? Kernel problem or binutils issue?
 
-Just pointing out that my system has locked hard in XWindows system.
-Sorry no-oops as linux so far is unable to switch to VGA mode in this
-case
-and show me this log.
-
-I'd not seen any oops with 2.4.5-pre1 during the whole usage of this
-kernel
-on my SMP box BP6.
-
--pre3 has locked after 5 hours - and I've been working with this machine
-only for the last hour.
-
-I could only describe situation: - starting multithread application
-which has been loading data across nfs.
-
-Thats all I can say ... switching back to -pre1
-(BTW Core is still no being generated for threaded apps in -pre3 -
-please fix)
-
-bye
-
-kabi
-
+binutils is issuing a correct warning but if we fix the warning old old binutils
+will then refuse to assemble it right.

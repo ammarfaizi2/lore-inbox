@@ -1,45 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261323AbVA1NFl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261331AbVA1NHQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261323AbVA1NFl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 08:05:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261329AbVA1NFl
+	id S261331AbVA1NHQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 08:07:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261334AbVA1NHQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 08:05:41 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:64640 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261323AbVA1NFa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 08:05:30 -0500
-Date: Fri, 28 Jan 2005 08:01:17 -0500 (EST)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: William Lee Irwin III <wli@holomorphy.com>
-cc: Russell King <rmk+lkml@arm.linux.org.uk>,
-       Mikael Pettersson <mikpe@csd.uu.se>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, James Antill <james.antill@redhat.com>,
-       Bryn Reeves <breeves@redhat.com>
-Subject: Re: don't let mmap allocate down to zero
-In-Reply-To: <20050128053036.GO10843@holomorphy.com>
-Message-ID: <Pine.LNX.4.61.0501280801070.24304@chimarrao.boston.redhat.com>
-References: <20050127050927.GR10843@holomorphy.com> <16888.46184.52179.812873@alkaid.it.uu.se>
- <20050127125254.GZ10843@holomorphy.com> <20050127142500.A775@flint.arm.linux.org.uk>
- <20050127151211.GB10843@holomorphy.com> <Pine.LNX.4.61.0501271420070.13927@chimarrao.boston.redhat.com>
- <20050127204455.GM10843@holomorphy.com> <Pine.LNX.4.61.0501271557300.13927@chimarrao.boston.redhat.com>
- <20050127211319.GN10843@holomorphy.com> <Pine.LNX.4.61.0501271626460.13927@chimarrao.boston.redhat.com>
- <20050128053036.GO10843@holomorphy.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Fri, 28 Jan 2005 08:07:16 -0500
+Received: from lionfish.leapnetworks.net ([65.23.21.21]:19723 "EHLO
+	leapnetworks.net") by vger.kernel.org with ESMTP id S261331AbVA1NGu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jan 2005 08:06:50 -0500
+Subject: Re: [PATCH] scsi/sata write barrier support
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Doug Maxey <dwm@maxeymade.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+In-Reply-To: <20050128093840.GI4800@suse.de>
+References: <200501272242.j0RMgoP5016154@falcon30.maxeymade.com>
+	 <41F97299.2070909@pobox.com> <20050128065358.GA4800@suse.de>
+	 <41F9F386.7070501@pobox.com> <20050128081814.GH4800@suse.de>
+	 <20050128093840.GI4800@suse.de>
+Content-Type: text/plain
+Date: Fri, 28 Jan 2005 08:06:40 -0500
+Message-Id: <1106917600.5175.5.camel@mulgrave>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 27 Jan 2005, William Lee Irwin III wrote:
+On Fri, 2005-01-28 at 10:38 +0100, Jens Axboe wrote:
+> +/*
+> + * snoop succesfull completion of mode select commands that update the
+> + * write back cache state
+> + */
+> +#define MS_CACHE_PAGE	0x08
+> +static void sd_snoop_cmd(struct scsi_cmnd *cmd)
+> +{
+> +	struct scsi_disk *sdpk;
+> +	char *page;
+> +
+> +	if (cmd->result)
+> +		return;
+> +
+> +	switch (cmd->cmnd[0]) {
+> +		case MODE_SELECT:
+> +		case MODE_SELECT_10:
+> +			page = cmd->request_buffer;
+> +			if (!page)
+> +				break;
+> +			if ((page[0] & 0x3f) != MS_CACHE_PAGE)
+> +				break;
+> +			sdpk = dev_get_drvdata(&cmd->device->sdev_gendev);
+> +			sdpk->WCE = (page[2] & 0x04) != 0;
+> +			break;
+> +	}
+> +}
+> +
+>  /**
+>   *	sd_rw_intr - bottom half handler: called when the lower level
+>   *	driver has completed (successfully or otherwise) a scsi command.
+> @@ -773,6 +831,9 @@ static void sd_rw_intr(struct scsi_cmnd 
+>  			SCpnt->sense_buffer[13]));
+>  	}
+>  #endif
+> +
+> +	sd_snoop_cmd(SCpnt);
+> +
 
-> You seem to be on about something else, e.g. only forbidding the vma
-> allocator to return a vma starting at 0 when not specifically requested.
-> In that case vma->vm_start < mm->brk and similar are all fine.
+Good grief no!
 
-Yes.
+If you're going to try something like this, it needs to be a separate
+patch over the scsi-list for one thing.  And to save time:
 
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+1) The patch is actually wrong.  There's more than one caching mode page
+and not all of them affect current behaviour.
+2) We have a current interface to update the WCE bit:  You twiddle all
+the disc parameters and then trigger a device rescan via sysfs (I'll
+check that this updates the cache bits, I think it does, but if it
+doesn't I'll make it).
+3) If we think this is a quantity the users would like to see and alter,
+then reading and setting it should be exported via sysfs.
+4) Snooping SCSI commands is really bad ... it can get you into all
+sorts of trouble which is why we prefer asking the device what state
+it's in to trying to guess ourselves.
+
+James
+
+

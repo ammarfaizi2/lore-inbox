@@ -1,59 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261472AbUBYReZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Feb 2004 12:34:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261477AbUBYReZ
+	id S261479AbUBYRlC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Feb 2004 12:41:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261480AbUBYRlC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 12:34:25 -0500
-Received: from umhlanga.stratnet.net ([12.162.17.40]:20634 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S261472AbUBYReX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 12:34:23 -0500
-To: Timothy Miller <miller@techsource.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PATCH - InfiniBand Access Layer (IBAL)
-References: <Pine.LNX.4.44.0402242238020.15091-100000@chimarrao.boston.redhat.com>
-	<403CCC77.6030405@techsource.com>
-X-Message-Flag: Warning: May contain useful information
-X-Priority: 1
-X-MSMail-Priority: High
-From: Roland Dreier <roland@topspin.com>
-Date: 25 Feb 2004 09:34:21 -0800
-In-Reply-To: <403CCC77.6030405@techsource.com>
-Message-ID: <52k72bjc6a.fsf@topspin.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 25 Feb 2004 17:34:22.0705 (UTC) FILETIME=[9B2CF610:01C3FBC5]
+	Wed, 25 Feb 2004 12:41:02 -0500
+Received: from fw.osdl.org ([65.172.181.6]:4993 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261479AbUBYRk7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Feb 2004 12:40:59 -0500
+Message-Id: <200402251740.i1PHetn27447@mail.osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: reaim - 2.6.3-mm1 IO performance down. 
+In-Reply-To: Your message of "Tue, 24 Feb 2004 17:03:37 PST."
+             <20040224170337.798f5766.akpm@osdl.org> 
+Date: Wed, 25 Feb 2004 09:40:55 -0800
+From: Cliff White <cliffw@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Timothy> On the other hand, if something else is better or
-    Timothy> adequate, like PCI Express (wasn't that based in
-    Timothy> infiniband?), then there's no point.
+> cliff white <cliffw@osdl.org> wrote:
+> >
+> > For the same test on the same machine, results from 2.6.2-rc1-mm2 and 2.6.2
+> -rc3-mm1
+> > were within 1.0% of the linux-2.6.2 runs. So this is new. 
+> > 
+> > More data and tests if requested - are there some patch sets we should try 
+> reverting?
+> 
+> Thanks.  You could try reverting adaptive-lazy-readahead.patch.  If it is
+> not that I'd be suspecting CPU scheduler changes.  Do you have uniprocessor
+> test results?
 
-PCI Express is not an InfiniBand replacement.  While it is true (I
-think this is what you meant) that the PCI Express electrical
-signaling is based on InfiniBand (they both use multiple lanes of 2.5
-Gb/sec high-speed serial), the upper layers of the two standards are
-quite different.  PCI Express and InfiniBand are really quite
-complementary.  In fact (just to plug my employer :) we have
-demonstrated an Infiniband host adapter that has two 4X IB (10 Gb/sec
-ports) and plugs into an 8X PCI Express slot:
-  http://www.topspin.com/news/pressrelease/pr_021704b.html
+I have them for 2.6.3-mm3, am re-running 2.6.3-mm1 right now.
+Gross results are within 1%, but looking at the detail, i do see badness,
+example:
 
-PCI Express (once products ship) will be essentially a faster PCI-X
-replacement.  You will get a system with PCI Express slots and plug
-PCI Express adapter cards into them.  There is something called PCI
-Express "Advanced Switching" but that is quite a long way away from
-being something you could build a cluster with.
+Kernel    Users  Run time
+2.6.3	  20     32.11
+2.6.3-mm3 20     35.47
 
-InfiniBand on the other hand has evolved into a cluster interconnect.
-In the beginning it was pitched as a PCI replacement but that was
-given up long ago.  However, it evolved into an excellent cluster
-interconnect.  Right now you can buy 10 Gb/sec host adapters and a
-variety of switches (up to 96 ports).  There are a number of quite
-large IB clusters already built and in production already.
+2.6.3	  40     63.64
+2.6.3-mm2 40     66.33
 
-Best,
-  Roland
+Again, this shows up best on the bottom graph on the page.
+Graphn of 2.6.3 vs 2.6.3-mm3 : 
+http://developer.osdl.org/cliffw/reaim/compares/r_comp/2.6.3_vs_mm1_1cpu/index.html
+cliffw
+
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

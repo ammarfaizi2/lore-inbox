@@ -1,50 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287193AbSAPTbQ>; Wed, 16 Jan 2002 14:31:16 -0500
+	id <S287177AbSAPTe4>; Wed, 16 Jan 2002 14:34:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287177AbSAPTbJ>; Wed, 16 Jan 2002 14:31:09 -0500
-Received: from lacrosse.corp.redhat.com ([12.107.208.154]:46342 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S287155AbSAPTal>; Wed, 16 Jan 2002 14:30:41 -0500
-Date: Wed, 16 Jan 2002 14:30:39 -0500
-From: Benjamin LaHaise <bcrl@redhat.com>
+	id <S287231AbSAPTeq>; Wed, 16 Jan 2002 14:34:46 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:20489 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S287155AbSAPTel>;
+	Wed, 16 Jan 2002 14:34:41 -0500
+Date: Wed, 16 Jan 2002 17:34:26 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
 To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
+Cc: Andrea Arcangeli <andrea@suse.de>, <linux-kernel@vger.kernel.org>
 Subject: Re: pte-highmem-5
-Message-ID: <20020116143039.C12216@redhat.com>
-In-Reply-To: <20020116185814.I22791@athlon.random> <Pine.LNX.4.33.0201161008270.2112-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.33.0201161008270.2112-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Wed, Jan 16, 2002 at 10:19:56AM -0800
+In-Reply-To: <Pine.LNX.4.33.0201161008270.2112-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.33L.0201161732310.32617-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 16, 2002 at 10:19:56AM -0800, Linus Torvalds wrote:
->  - please don't do that "pte_offset_atomic_irq()" have special support in
->    the header files: it is _not_ a generic operation, and it is only used
->    by the x86 page fault logic. For that reason, I would suggest moving
->    all that logic out of the header files, and into i386/mm/fault.c,
->    something along the lines of
-> 
-> 	pte = pte_offset_nokmap(..)
-> 	addr = kmap_atomic(pte, KM_VMFAULT);
-> 
->    instead of having special magic logic in the header files.
+On Wed, 16 Jan 2002, Linus Torvalds wrote:
 
-Ah, here's where I come in and say that kmap_atomic stinks and needs to be 
-replaced. ;-)  If you take a look at code in various places making use of 
-atomic kmaps, some of the more interesting cases (like bio) have to disable 
-irqs during memory copies in order to avoid races on reuse of an atomic 
-kmap.  I think that's a sign of an interface that needs redesign.  My 
-proposal: make kmap_atomic more like kmap in that it allocates from a pool, 
-but make the pool per cpu with ~4 entries reserved per context.  The only 
-concern I have is that we might not be restricting the depth of irq entry 
-currently, but I'm not familiar with that code.  Time to code up a patch...
+>  - do the highmem pte bouncing only for CONFIG_X86_PAE: with less then 4GB
+>    of RAM this doesn't seem to matter all that much (rule of thumb: we
+>    need about 1% of memory for page tables).
 
-> Other than that it looks fairly straightforward, I think.
+Actually, with 100 processes mapping a 1 GB area of shared
+memory, you'll need about 100 MB of page tables or 10% of
+the SHM segment. This rises even further with PAE and/or
+more processes.
 
-Agreed.
+The page table cost for heavily shared memory segments is
+really getting out of hand, IMHO ... it might be worth it
+to set aside a separate memory zone and use 4 MB pages for
+the SHM segment.
 
-		-ben
+regards,
+
+Rik
+-- 
+"Linux holds advantages over the single-vendor commercial OS"
+    -- Microsoft's "Competing with Linux" document
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

@@ -1,49 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264069AbTEGPdV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 11:33:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264075AbTEGPdU
+	id S263578AbTEGPfI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 11:35:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263680AbTEGPfI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 11:33:20 -0400
-Received: from vicar.dcs.qmul.ac.uk ([138.37.88.163]:41953 "EHLO
-	mail.dcs.qmul.ac.uk") by vger.kernel.org with ESMTP id S264069AbTEGPdT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 11:33:19 -0400
-Date: Wed, 7 May 2003 16:45:48 +0100 (BST)
-From: Matt Bernstein <mb--lkml@dcs.qmul.ac.uk>
-To: Andi Kleen <ak@muc.de>
-cc: Andrew Morton <akpm@digeo.com>, elenstev@mesatop.com,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.5.68-mm4
-In-Reply-To: <20030507123508.GA6060@averell>
-Message-ID: <Pine.LNX.4.55.0305071643150.1779@r2-pc.dcs.qmul.ac.uk>
-References: <1051908541.2166.40.camel@spc9.esa.lanl.gov>
- <20030502140508.02d13449.akpm@digeo.com> <1051910420.2166.55.camel@spc9.esa.lanl.gov>
- <Pine.LNX.4.55.0305030014130.1304@jester.mews> <20030502164159.4434e5f1.akpm@digeo.com>
- <20030503025307.GB1541@averell> <Pine.LNX.4.55.0305030800140.1304@jester.mews>
- <Pine.LNX.4.55.0305061511020.3237@r2-pc.dcs.qmul.ac.uk> <20030506143533.GA22907@averell>
- <Pine.LNX.4.55.0305071121220.6697@r2-pc.dcs.qmul.ac.uk> <20030507123508.GA6060@averell>
-X-URL: http://www.theBachChoir.org.uk/
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-uvscan-result: clean (19DR76-0003YC-Vl)
-X-Auth-User: jonquil.thebachchoir.org.uk
-X-uvscan-result: clean (19DR7A-0001G7-Dq)
+	Wed, 7 May 2003 11:35:08 -0400
+Received: from holomorphy.com ([66.224.33.161]:14224 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S263578AbTEGPfG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 May 2003 11:35:06 -0400
+Date: Wed, 7 May 2003 08:47:28 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Timothy Miller <miller@techsource.com>
+Cc: Torsten Landschoff <torsten@debian.org>,
+       J?rn Engel <joern@wohnheim.fh-wedel.de>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: top stack (l)users for 2.5.69
+Message-ID: <20030507154728.GG8978@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Timothy Miller <miller@techsource.com>,
+	Torsten Landschoff <torsten@debian.org>,
+	J?rn Engel <joern@wohnheim.fh-wedel.de>,
+	Linux kernel <linux-kernel@vger.kernel.org>
+References: <20030507132024.GB18177@wohnheim.fh-wedel.de> <Pine.LNX.4.53.0305070933450.11740@chaos> <20030507135657.GC18177@wohnheim.fh-wedel.de> <20030507143315.GA6879@stargate.galaxy> <20030507144736.GE8978@holomorphy.com> <3EB9250A.8030306@techsource.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3EB9250A.8030306@techsource.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 14:35 +0200 Andi Kleen wrote:
+William Lee Irwin III wrote:
+>> The kernel stack is (in Linux) unswappable memory that persists
+>> throughout the lifetime of a thread. It's basically how many threads
+>> you want to be able to cram into a system, and it matters a lot for
+>> 32-bit.
 
->It tries to patch an instruction past the kernel text.
->
->It could be in the discarded .exit.text/.text.exit. With new binutils you should
->get an link error when this happens, but perhaps yours are too old for that.
+On Wed, May 07, 2003 at 11:23:54AM -0400, Timothy Miller wrote:
+> The point that may or may not have been obvious is that more than one 
+> kernel stack is hanging around.  One single 8k stack versus one single 
+> 4k stack is a trivial difference, even for most embedded systems.  But 
+> this becomes a huge problem when you have numerous concurrent threads 
+> hanging around, one of which can be swapped out.  That eats memory fast.
+> Or am I getting it wrong?
 
-I'm using the RH 9 standard 2.13.90.0.18-9. My environment is exactly RH9
-+ modutils 2.4.22-10 from rawhide, on a single Athlon XP.
+You've got it right. Thanks for pointing that out.
 
->When you comment these entries out from the DISCARD statement in 
->arch/i386/vmlinux.lds.S does it go away ? Alternatively use Andrew's
->latest 2.5.69-mm*, that has the patch too.
 
-Tried 2.5.69-mm2, it crashed the same way :-/
+-- wli

@@ -1,55 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136380AbREDNkv>; Fri, 4 May 2001 09:40:51 -0400
+	id <S136389AbREDNul>; Fri, 4 May 2001 09:50:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136388AbREDNkm>; Fri, 4 May 2001 09:40:42 -0400
-Received: from [64.64.109.142] ([64.64.109.142]:14090 "EHLO
-	quark.didntduck.org") by vger.kernel.org with ESMTP
-	id <S136380AbREDNkW>; Fri, 4 May 2001 09:40:22 -0400
-Message-ID: <3AF2B0EC.F576090F@didntduck.org>
-Date: Fri, 04 May 2001 09:38:52 -0400
-From: Brian Gerst <bgerst@didntduck.org>
-X-Mailer: Mozilla 4.76 [en] (WinNT; U)
-X-Accept-Language: en
+	id <S136388AbREDNuc>; Fri, 4 May 2001 09:50:32 -0400
+Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:59922
+	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
+	with ESMTP id <S136387AbREDNuW>; Fri, 4 May 2001 09:50:22 -0400
+Date: Fri, 04 May 2001 09:49:34 -0400
+From: Chris Mason <mason@suse.com>
+To: Andreas Dilger <adilger@turbolinux.com>,
+        Linux kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: Maximum files per Directory
+Message-ID: <145290000.988984174@tiny>
+In-Reply-To: <200105012257.QAA27361@lynx.turbolabs.com>
+X-Mailer: Mulberry/2.0.8 (Linux/x86)
 MIME-Version: 1.0
-To: Andreas Schwab <schwab@suse.de>
-CC: Keith Owens <kaos@ocs.com.au>, Todd Inglett <tinglett@vnet.ibm.com>,
-        Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
-Subject: Re: SMP races in proc with thread_struct
-In-Reply-To: <8541.988980403@ocs3.ocs-net> <jer8y52r92.fsf@hawking.suse.de>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Schwab wrote:
-> 
-> Keith Owens <kaos@ocs.com.au> writes:
-> 
-> |> On Fri, 04 May 2001 07:34:20 -0500,
-> |> Todd Inglett <tinglett@vnet.ibm.com> wrote:
-> |> >But this is where hell breaks loose.  Every process has a valid parent
-> |> >-- unless it is dead and nobody cares.  Process N has already exited and
-> |> >released from the tasklist while its parent was still alive.  There was
-> |> >no reason to reparent it.  It just got released.  So N's task_struct has
-> |> >a dangling ptr to its parent.  Nobody is holding the parent task_struct,
-> |> >either.  When the parent died memory for its task_struct was released.
-> |> >This is ungood.
-> |>
-> |> Wrap the reference to the parent task structure with exception table
-> |> recovery code, like copy_from_user().
-> 
-> Exception tables only protect accesses to user virtual memory.  Kernel
-> memory references must always be valid in the first place.
-> 
-> Andreas.
 
-The virtual address being accessed is irrelevant.  It's the address of
-the faulting instruction that determines what the kernel will do if it
-can't deal with a page fault.  If the access was made from kernel mode
-the exception handler (if there is one) always gets invoked, otherwise
-it oopses.
 
---
+On Tuesday, May 01, 2001 04:57:02 PM -0600 Andreas Dilger
+<adilger@turbolinux.com> wrote:
 
-				Brian Gerst
+> H. Peter Anvin writes:
+>> Not correct, there can't be more than 2^15 *directories* in a single
+>> directory.  I belive this is an ext2 limitation.
+> 
+> 
+> I see that reiserfs plays some tricks with the directory i_nlink count.
+> If you exceed 64536 links in a directory, it reverts to "1" and no longer
+> tracks the link count.
+
+Correct.  The link count isn't used at all when deciding if the directory
+is empty (we use the size instead), so we can just lie to VFS if someone
+tries to make tons of subdirs.
+
+-chris
+

@@ -1,71 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135966AbRDTQlH>; Fri, 20 Apr 2001 12:41:07 -0400
+	id <S135970AbRDTQlH>; Fri, 20 Apr 2001 12:41:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135970AbRDTQk7>; Fri, 20 Apr 2001 12:40:59 -0400
-Received: from coruscant.franken.de ([193.174.159.226]:47120 "EHLO
+	id <S135967AbRDTQk6>; Fri, 20 Apr 2001 12:40:58 -0400
+Received: from coruscant.franken.de ([193.174.159.226]:47632 "EHLO
 	coruscant.gnumonks.org") by vger.kernel.org with ESMTP
-	id <S135969AbRDTQkn>; Fri, 20 Apr 2001 12:40:43 -0400
-Date: Fri, 20 Apr 2001 13:28:19 -0300
+	id <S135970AbRDTQkn>; Fri, 20 Apr 2001 12:40:43 -0400
+Date: Fri, 20 Apr 2001 13:37:22 -0300
 From: Harald Welte <laforge@gnumonks.org>
-To: "Manfred Bartz" <md-linux-kernel@logi.cc>
+To: Jonathan Lundell <jlundell@pobox.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: [Counters] Re: IP Acounting Idea for 2.5
-Message-ID: <20010420132819.C2461@tatooine.laforge.distro.conectiva>
-In-Reply-To: <BF9651D8732ED311A61D00105A9CA3150446D9FF@berkeley.gci.com> <20010417011320.7149.qmail@logi.cc>
+Subject: Re: Documentation of module parameters.
+Message-ID: <20010420133722.D2461@tatooine.laforge.distro.conectiva>
+In-Reply-To: <3ADBB8C9.CC7FD941@nc.rr.com> <p05100b07b7017fc83c2e@[207.213.214.34]>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.3.14i
-In-Reply-To: <20010417011320.7149.qmail@logi.cc>; from md-linux-kernel@logi.cc on Tue, Apr 17, 2001 at 11:13:19AM +1000
+In-Reply-To: <p05100b07b7017fc83c2e@[207.213.214.34]>; from jlundell@pobox.com on Mon, Apr 16, 2001 at 10:07:56PM -0700
 X-Operating-System: Linux tatooine.laforge.distro.conectiva 2.4.2-ac20
 X-Date: Today is Setting Orange, the 37th day of Discord in the YOLD 3167
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 17, 2001 at 11:13:19AM +1000, Manfred Bartz wrote:
+On Mon, Apr 16, 2001 at 10:07:56PM -0700, Jonathan Lundell wrote:
+> At 11:30 PM -0400 2001-04-16, Chris Kloiber wrote:
+> >I was recently looking for a single location where all the possible
+> >module parameters for the linux kernel was located.
+> 
+> Hear him. A DocBook document would be a dandy place for this to get pulled
+> together, too.
 
-> I had a brief look at MRTG.  It seems to be a well written app and
-> while it can handle counter reset (with potential loss of an unknown 
-> amount of data), it does not actively reset counters.  It also doesn't
-> use iptables.
+good idea. One could just grab all the MODULE_PARM_DESC out of all sourcefiles,
+look to which module the particular sourcefile belongs (looking into
+Makefile?), and create a Documentation/DocBook/... document out of it.
 
-Yes, that's the whole point. If you want to have some kind of per-ip / 
-per-network accounting, I'd rather recommend using something else
-(i.e. an accounting module attaching to the netfilter hook itself,
-something using the ULOG target to do the logging in userspace, ...)
+Sounds like something doable, only somebody needs to get around doing
+it. Any volunteers?
 
-Just reading out the per-rule counters always introduces problems as soon
-as your ruleset changes. And when do you have a really static ruleset?
-There are always new services/... to configure.
-
-> Agreed too.  Counters should not arbitrarily be equipped with a reset
-> capability, there is hardly any benefit in that and it causes nothing
-> but problems.
-
-so what about iptables-save at shutdown time and iptables-restore at 
-bootup time? Then you can have your counters persist even after kernel
-upgrades / reboots / crashes / ... 
-
-> As far as I can see, the counters in /proc/net/snmp don't have a
-> reset, same with /proc/net/dev and possibly other counters elsewhere.
-
-Yes, because it is per network device, not per some arbitrarily inserted
-rule which can be changed all the time. As I've stated more than once
-in this thread, and as you just continue to say: just delete and re-insert
-the rule, and you have your counter reset.
-
-> Ideally iptables would fall in line with that.  Rules can still be
-> unloaded and reloaded, also causing counter reset and loss of data,
-> but since that is a lot more involved, application authors would have
-> an incentive to handle counters properly.
-
-I don't think that the iptables kernel part should remove some feature
-just because there are application programmers wrongly designing their
-applications.
-
-
-> Manfred Bartz
+> -- 
+> /Jonathan Lundell.
 
 -- 
 Live long and prosper

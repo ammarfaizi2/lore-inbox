@@ -1,65 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313749AbSDIGDK>; Tue, 9 Apr 2002 02:03:10 -0400
+	id <S313846AbSDIL25>; Tue, 9 Apr 2002 07:28:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313755AbSDIGDJ>; Tue, 9 Apr 2002 02:03:09 -0400
-Received: from cs.columbia.edu ([128.59.16.20]:31892 "EHLO cs.columbia.edu")
-	by vger.kernel.org with ESMTP id <S313749AbSDIGDI>;
-	Tue, 9 Apr 2002 02:03:08 -0400
-Message-ID: <00bb01be824f$af09b9b0$13123b80@endo>
-From: "Dinesh K Subhraveti" <dinesh@cs.columbia.edu>
-To: <linux-kernel@vger.kernel.org>
-Subject: Isn't wait4 amenable to interception?
-Date: Fri, 9 Apr 1999 02:10:35 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S313849AbSDIL24>; Tue, 9 Apr 2002 07:28:56 -0400
+Received: from [62.221.7.202] ([62.221.7.202]:38281 "EHLO
+	wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
+	id <S313846AbSDIL2z>; Tue, 9 Apr 2002 07:28:55 -0400
+Date: Sun, 7 Apr 2002 17:36:46 +1000
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: kbuild 2.5 problems with netfilter linking
+Message-Id: <20020407173646.40d7c0b7.rusty@rustcorp.com.au>
+In-Reply-To: <15086.1018068482@ocs3.intra.ocs.com.au>
+X-Mailer: Sylpheed version 0.7.2 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Sat, 06 Apr 2002 14:48:02 +1000
+Keith Owens <kaos@ocs.com.au> wrote:
 
-I am trying to intercept wait4 and having problems with it. Does wait4
-differ from other system calls in any peculiar way? The new system call
-routine just returns original sys_wait4. After inserting the module, system
-works just fine. But rmmod causes a kernel oops with "Bad EIP" message and
-shell gets killed. After kernel oops everything seems just fine too. I'd
-greatly appreciate any insight on this. Am attaching the code below. Please
-reply to dinesh@cs.columbia.edu.
+> AKA - Rusty shoots himself in the foot :)
+> 
+> kbuild 2.5 defines
+> 
+>  -DKBUILD_OBJECT=module, the name of the module the object is linked
+>     into, without the trailing '.o' and without any paths.  If the
+>     object is a free standing module or is linked into vmlinux then the
+>     "module" name is the object itself.  Automatically generated.
+> 
+> This variable is aimed at standardizing boot and module parameters, so
+> 'insmod foo option=value' and booting with 'foo.option=value' will have
+> exactly the same effect.  Rusty already has code to do this and is
+> waiting for kbuild 2.5 to go in.
+> 
+> Alas netfilter has objects that are linked into multiple modules,
+> $(ip_nf_compat-objs) is linked into both ipfwadm and ipchains so
+> KBUILD_OBJECT is ambiguous.  Two possible solutions -
+> 
+> * Change netfilter so the objects are not linked twice.  That will
+>   require $(ip_nf_compat-objs) to be a module in its own right with
+>   extra exported symbols.
 
-Thanks in advance,
-Dinesh
+I considered this very carefully when I wrote the code, but the interface
+exposed by it is quite ugly: it really is an internal interface between
+the two.
 
------------------------------------------------
-#include <linux/kernel.h>
-#include <linux/module.h>
-#include <linux/resource.h>
-#include <sys/syscall.h>
+> * Change kbuild 2.5 to detect multi linked objects and not set
+>   KBUILD_OBJECT for those objects.  It follows that multi linked
+>   objects cannot have module or boot parameters, so change modules.h to
+>   barf on MODULE_PARM() and __setup() when KBUILD_OBJECT is not
+>   defined.
+> 
+> I am tending towards the second solution.
 
-extern void *sys_call_table[];
+You missed "#include "foo.c"" as a possible workaround.  Note that it's
+a waste of disk space, not memory, since these cannot be loaded at the
+same time.
 
-static int (*original_sys_wait4) (pid_t, int*, int, struct rusage*);
-
-asmlinkage int my_wait4 (pid_t a, int *b, int c, struct rusage *d)
-{
-   return original_sys_wait4 (a, b, c, d);
-}
-
-int init_module()
-{
-   original_sys_wait4 = sys_call_table[__NR_wait4];
-   sys_call_table[__NR_wait4] = my_wait4;
-   return 0;
-}
-
-void cleanup_module()
-{
-   sys_call_table[__NR_wait4] = original_sys_wait4;
-}
-
-
+Rusty.
+-- 
+   there are those who do and those who hang on and you don't see too
+   many doers quoting their contemporaries.  -- Larry McVoy

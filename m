@@ -1,88 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268017AbUHFOMk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268056AbUHFOOg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268017AbUHFOMk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Aug 2004 10:12:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268058AbUHFOMk
+	id S268056AbUHFOOg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Aug 2004 10:14:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268058AbUHFOOg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Aug 2004 10:12:40 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:54714 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S268056AbUHFOMO (ORCPT
+	Fri, 6 Aug 2004 10:14:36 -0400
+Received: from smtp.rol.ru ([194.67.21.9]:35707 "EHLO smtp.rol.ru")
+	by vger.kernel.org with ESMTP id S268056AbUHFOOd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Aug 2004 10:12:14 -0400
-Date: Fri, 6 Aug 2004 16:11:54 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: James.Bottomley@steeleye.com, linux-kernel@vger.kernel.org
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-Message-ID: <20040806141154.GB10274@suse.de>
-References: <200408061345.i76DjkT5005999@burner.fokus.fraunhofer.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200408061345.i76DjkT5005999@burner.fokus.fraunhofer.de>
+	Fri, 6 Aug 2004 10:14:33 -0400
+Message-ID: <411392E0.6080507@vlnb.net>
+Date: Fri, 06 Aug 2004 18:17:04 +0400
+From: Vladislav Bolkhovitin <vst@vlnb.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040512
+X-Accept-Language: ru, en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] x86 bitops.h commentary on instruction reordering
+References: <20040805200622.GA17324@logos.cnet>
+In-Reply-To: <20040805200622.GA17324@logos.cnet>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 06 2004, Joerg Schilling wrote:
-> 
-> >From: Jens Axboe <axboe@suse.de>
-> 
-> >So I downloaded:
-> 
-> >ftp://ftp.berlios.de/pub/cdrecord/alpha/cdrtools-2.01a35.tar.gz
-> 
-> >and built it, ran scgcheck on a SCSI hard drive. And you pass in
-> >->mx_sb_len == 16 to the sg driver, so that's why it's not copying more
-> >than 16 bytes back to you. There are 18 available in that first test
-> >case. Here's that test case:
-> 
-> >Testing if at least CCS_SENSE_LEN (18) is supported...
-> >Sense Data: 70 00 05 00 00 00 00 0A 00 00 00 00 24 00 00 C0 00 00
-> >---------->     Method 0x00: expected: 18 reported: 16 max found: 16
-> >Sense Data: 70 00 05 00 00 00 00 0A 00 00 00 00 24 00 00 C0 FF FF
-> >---------->     Method 0xFF: expected: 18 reported: 16 max found: 16
-> >---------->     Minimum standard (CCS) sense length failed
-> >---------->     Wanted 18 sense bytes, got (16)
-> >Testing for 32 bytes of sense data...
-> >Sense Data: 70 00 05 00 00 00 00 0A 00 00 00 00 24 00 00 C0 00 00 00 00
-> >00 00 00 00 00 00 00 00 00 00 00 00
-> >---------->     Method 0x00: expected: 32 reported: 16 max found: 16
-> >Sense Data: 70 00 05 00 00 00 00 0A 00 00 00 00 24 00 00 C0 FF FF FF FF
-> >FF FF FF FF FF FF FF FF FF FF FF FF
-> >---------->     Method 0xFF: expected: 32 reported: 16 max found: 16
-> >---------->     Wanted 32 sense bytes, got (16)
-> >----------> Got a maximum of 16 sense bytes
-> >----------> SCSI sense count test FAILED
-> >----------> SCSI status byte test NOT YET READY
-> 
-> >Changing your scsi-linux-sg.c to set max sense to 64:
-> 
-> >Testing if at least CCS_SENSE_LEN (18) is supported...
-> >Sense Data: 70 00 05 00 00 00 00 0A 00 00 00 00 24 00 00 C0 00 03
-> 
-> Wonderful, so you just found another bug in the Linux kernel include files.
-> 
-> To fix: edit sg.h in the Linux kernel source tree and fix the value for
-> SG_MAX_QUEUE or if you believe you cannot change it, create a new #define
-> and document it......
+So, is there any way to workaround this problem, i.e. prevent bit 
+operations reordering on non-x86 architectures? Some kinds of memory 
+barriers?
 
-SG_MAX_SENSE, yes? It's your bug if you are using that and using the
-newer interface, it only applies to the old sg_header interface. As
-scsi-linux-sg is using SG_IO, it has no relevance whatsoever. Internally
-SCSI uses a much bigger sense buffer, so as long as you supply a big
-enough user buffer it works.
+Vlad
 
-A 1 minute grep of the sources could have told you this. I always get
-the feeling that you'd rather see the bugs persist rather than have them
-fixed, so you have more to complain about on Linux.
-
-> BTW: as you did not mention the DMA residual count problem, I asume that
-> it is still present.
-
-I haven't looked that far yet, I might next week. That your scgcheck
-doesn't work without /dev/sg* means I can't check on ide-cd,
-unfortunately.
-
--- 
-Jens Axboe
-
+Marcelo Tosatti wrote:
+> Hi, 
+> 
+> Back when we were discussing the need for a memory barrier in sync_page(), 
+> it came to me (thanks Andrea!) that the bit operations can be perfectly 
+> reordered on architectures other than x86. 
+> 
+> I think the commentary on i386 bitops.h is misleading, its worth 
+> to note that that these operations are not guaranteed not to be 
+> reordered on different architectures. 
+> 
+> clear_bit() already does that:
+> 
+>  * clear_bit() is atomic and may not be reordered.  However, it does
+>  * not contain a memory barrier, so if it is used for locking purposes,
+>  * you should call smp_mb__before_clear_bit() and/or smp_mb__after_clear_bit()
+>  * in order to ensure changes are visible on other processors.
+> 
+> What you think of the following

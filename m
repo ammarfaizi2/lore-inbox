@@ -1,58 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261192AbUKRXdx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261204AbUKRXlc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261192AbUKRXdx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 18:33:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261184AbUKRXcY
+	id S261204AbUKRXlc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 18:41:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261195AbUKRXkP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 18:32:24 -0500
-Received: from main.gmane.org ([80.91.229.2]:41354 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S262996AbUKRX3z (ORCPT
+	Thu, 18 Nov 2004 18:40:15 -0500
+Received: from [194.90.79.130] ([194.90.79.130]:50437 "EHLO argo2k.argo.co.il")
+	by vger.kernel.org with ESMTP id S261200AbUKRXi3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 18:29:55 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Alexander Fieroch <Fieroch@web.de>
-Subject: Re: SNES gamepad doesn't work with kernel 2.6.x
-Date: Fri, 19 Nov 2004 00:29:49 +0100
-Message-ID: <419D306D.9000600@web.de>
-References: <cn044e$nnk$1@sea.gmane.org>	 <8ecd274304111108404f3ecd2c@mail.gmail.com>	 <cn0pvt$mcv$1@sea.gmane.org>	 <8ecd27430411120227411e865f@mail.gmail.com> <4194FF96.4030106@web.de> <8ecd27430411121032756fbbd2@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 18 Nov 2004 18:38:29 -0500
+Message-ID: <419D3271.7050804@argo.co.il>
+Date: Fri, 19 Nov 2004 01:38:25 +0200
+From: Avi Kivity <avi@argo.co.il>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041027
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+CC: Keith Owens <kaos@ocs.com.au>, Hugh Dickins <hugh@veritas.com>,
+       Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] WTF is VLI?
+References: <200411181808.iAII8ECH009759@laptop11.inf.utfsm.cl>
+In-Reply-To: <200411181808.iAII8ECH009759@laptop11.inf.utfsm.cl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: osten.wh.uni-dortmund.de
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040926)
-X-Accept-Language: de-de, en-us, en
-In-Reply-To: <8ecd27430411121032756fbbd2@mail.gmail.com>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+X-OriginalArrivalTime: 18 Nov 2004 23:38:26.0629 (UTC) FILETIME=[B3767F50:01C4CDC7]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Horst von Brand wrote:
 
+>>ksymoops can disasemble the entire code line, but starting at different 
+>>offsets (up to the maximum instruction length) from the start. the first 
+>>disassembly to include the program counter in the output would be deemed 
+>>correct.
+>>    
+>>
+>
+>There might be several... I see no reason to consider the first one
+>correct.
+>  
+>
+Of course, there is no way to guarantee correctness. the point is with 
+the current system the chances of being correct are around 1:(average 
+instruction length) (a bit better because there is a chance to resync), 
+while with my proposal to be _incorrect_ you need to start wrong _and_ 
+hit a bad resync.
 
-Aristeu Sergio Rozanski Filho wrote:
-| maybe I'm wrong but the format foo.bar= is only used when it's
-| compiled as built-in, not as module
-|
-| then, try do:
-|    modprobe gamecon map=0,1
-|
-| it should work
+I don't get to see many oopsen, but it seems to me most would have 
+garbage before eip, no?
 
-Yes thanks, it works! Now I can load the module gamecon but the gamepad
-does not respond for example with jstest or jscalibrator.
-So doesn't my parallel port supply the gameport with enough power?
-
-Thanks,
-Alexander
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFBnTBtlLqZutoTiOMRAsQfAJ9QI5ZAZHQ0VvQrsNfCHbe1UjuXSACdFfHG
-akhsG0A630nNovd0Al/TY/w=
-=JjMp
------END PGP SIGNATURE-----
+-- 
+Do not meddle in the internals of kernels, for they are subtle and quick to panic.
 

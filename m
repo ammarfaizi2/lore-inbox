@@ -1,61 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276350AbRJYVTp>; Thu, 25 Oct 2001 17:19:45 -0400
+	id <S276369AbRJYVXf>; Thu, 25 Oct 2001 17:23:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276364AbRJYVTf>; Thu, 25 Oct 2001 17:19:35 -0400
-Received: from fungus.teststation.com ([212.32.186.211]:36109 "EHLO
-	fungus.teststation.com") by vger.kernel.org with ESMTP
-	id <S276350AbRJYVTX>; Thu, 25 Oct 2001 17:19:23 -0400
-Date: Thu, 25 Oct 2001 23:19:51 +0200 (CEST)
-From: Urban Widmark <urban@teststation.com>
-To: Samium Gromoff <_deepfire@mail.ru>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.12-ac4 10Mbit NE2k interrupt load kills p166
-In-Reply-To: <200110251930.f9PJUJl26883@vegae.deep.net>
-Message-ID: <Pine.LNX.4.30.0110252253270.7785-100000@cola.teststation.com>
+	id <S276380AbRJYVXZ>; Thu, 25 Oct 2001 17:23:25 -0400
+Received: from mail.inconnect.com ([209.140.64.7]:43920 "HELO
+	mail.slc.sw.incc.net") by vger.kernel.org with SMTP
+	id <S276369AbRJYVXG>; Thu, 25 Oct 2001 17:23:06 -0400
+Message-ID: <3BD883DD.8050506@prospectplanet.com>
+Date: Thu, 25 Oct 2001 15:27:57 -0600
+From: Charles Johnston <charles@prospectplanet.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
+X-Accept-Language: en-us, pt-br
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Pavel Machek <pavel@suse.cz>
+CC: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: hgafb broken in 2.4.13
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 25 Oct 2001, Samium Gromoff wrote:
+It was working fine in 2.4.12 for me.
+When I booted 2.4.13 on the same machine with identical config it
+panicked on boot and had garbage on that screen.
 
->        Hello folks...
-> 
-> 	Host A: p166, ISA NE2K, linux-2.4.12-ac4
-> 	Host B: p2-400, rtl-8129, WinXP (heh, not my box though ;)
-> 
-> 	Load: smbmount connection from host A to the host B, and getting
->      large files.
+BTW, where can I find out exactly what order all the drivers get
+loaded?  I wanted to track the panic down earlier.
 
-You don't say if any of the tests you did are related to smbfs. I suspect
-this reasoning is completely irrelevant (not, that it has stopped me
-before ... :)
 
-smbfs is not the fastest thing around. I think the slowness on some
-operations is related to how it waits after sending each request.
+Charles
 
-     process A				  process B
-   get semaphore
-   request 4096 bytes			wait on semaphore
-   ... wait for network ...
-   read packet
-   read packet
-   read packet
-   release semaphore
-					get semaphore
-					request 4096 bytes
+On 2001.10.25 07:57 Pavel Machek wrote:
+ > Hi!
+ >
+ > In some time between 2.4.9 and 2.4.13, hgafb broke... Now it displays
+ > trash during boot (damaged screen from previous boot), and system
+ > freezes.
+ >                                                               Pavel
+ > --
+ > STOP THE WAR! Someone killed innocent Americans. That does not give
+ > U.S. right to kill people in Afganistan.
+ >
+ >
+ > -
+ > To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+ > in
+ > the body of a message to majordomo@vger.kernel.org
+ > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+ > Please read the FAQ at  http://www.tux.org/lkml/
+ >
 
-It could send the second request without waiting for the first to complete
-(if it knew how to separate the responses). Doing that should speed things
-up.
-
-If you play mp3's over smbfs while also doing something else I suppose the
-delay could become noticable. I can't explain the other effects, so
-possibly this is unrelated to smbfs.
-
-You could make me happy by repeating the tests, but generating the network
-load with something else (http?).
-
-/Urban
 

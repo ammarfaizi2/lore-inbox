@@ -1,50 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268405AbUIBTjR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268430AbUIBTl7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268405AbUIBTjR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 15:39:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268430AbUIBTjQ
+	id S268430AbUIBTl7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 15:41:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268370AbUIBTl7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 15:39:16 -0400
-Received: from giesskaennchen.de ([83.151.18.118]:52395 "EHLO
-	mail.uni-matrix.com") by vger.kernel.org with ESMTP id S268421AbUIBTjC
+	Thu, 2 Sep 2004 15:41:59 -0400
+Received: from c002781a.fit.bostream.se ([217.215.235.8]:64898 "EHLO
+	mail.tnonline.net") by vger.kernel.org with ESMTP id S268438AbUIBTlw
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 15:39:02 -0400
-Message-ID: <41377705.9060305@giesskaennchen.de>
-Date: Thu, 02 Sep 2004 21:39:49 +0200
-From: Oliver Antwerpen <olli@giesskaennchen.de>
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
-X-Accept-Language: en-us, en
+	Thu, 2 Sep 2004 15:41:52 -0400
+Date: Thu, 2 Sep 2004 21:41:44 +0200
+From: Spam <spam@tnonline.net>
+Reply-To: Spam <spam@tnonline.net>
+X-Priority: 3 (Normal)
+Message-ID: <1535878866.20040902214144@tnonline.net>
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+CC: Lee Revell <rlrevell@joe-job.com>, Jamie Lokier <jamie@shareable.org>,
+       Pavel Machek <pavel@suse.cz>, David Masover <ninja@slaphack.com>,
+       Chris Wedgwood <cw@f00f.org>, <viro@parcelfarce.linux.theplanet.co.uk>,
+       Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@lst.de>,
+       Hans Reiser <reiser@namesys.com>, <linux-fsdevel@vger.kernel.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: silent semantic changes with reiser4
+In-Reply-To: <200409021425.i82EPn9i005192@laptop11.inf.utfsm.cl>
+References: Message from Lee Revell <rlrevell@joe-job.com>    of "Wed, 01 Sep
+ 2004 18:51:12 -0400." <1094079071.1343.25.camel@krustophenia.net>
+ <200409021425.i82EPn9i005192@laptop11.inf.utfsm.cl>
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Kernel Build error (objdump fails)
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-giesskaennchen.de-MailScanner-Information: Die Giesskaennchen verschicken keine Viren!
-X-giesskaennchen.de-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi folks,
 
-when compiling the linux kernel (I tried 2.6.8, 2.6.8.1, 2.6.9-rc1) I get:
+  
 
-   CC      arch/i386/kernel/acpi/sleep.o
-   AS      arch/i386/kernel/acpi/wakeup.o
-   LD      arch/i386/kernel/acpi/built-in.o
-arch/i386/kernel/acpi/boot.o: file not recognized: File truncated
-make[2]: *** [arch/i386/kernel/acpi/built-in.o] Error 1
-make[1]: *** [arch/i386/kernel/acpi] Error 2
-make: *** [arch/i386/kernel] Error 2
+> Lee Revell <rlrevell@joe-job.com> said:
 
-c80:/tmp# gcc --version
-gcc (GCC) 3.3.4 (Debian 1:3.3.4-6sarge1)
-c80:/tmp# objdump -v
-GNU objdump 2.14.90.0.7 20031029 Debian GNU/Linux
-c80:/tmp# make -v
-GNU Make 3.80
+> [...]
 
-Which information do you need? Where shall I start?
+>> FWIW, this is how Windows does it now.  As of XP, 'Find files' has an
+>> option, enabled by default, to look inside archives.  If you tell it to
+>> look for a driver in a given directory it will also look inside .cab
+>> and .zip files.  It's extremely useful, I would imagine someone who uses
+>> XP a lot will come to expect this feature.
 
-Ollfried
+> It is trivial to implement this by looking inside the files. I.e., the way
+> mc has done this for ages.
 
+  Difference is that you can't do "locate" or "find" or "Search".. You
+  would have to open the files in an archive-supporting application
+  such as mc.
 

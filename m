@@ -1,39 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263061AbTI2VtF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 17:49:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263063AbTI2VtF
+	id S262997AbTI2Vhx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 17:37:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262989AbTI2Vgz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 17:49:05 -0400
-Received: from pix-525-pool.redhat.com ([66.187.233.200]:52570 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S263061AbTI2VtD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 17:49:03 -0400
-Date: Mon, 29 Sep 2003 17:48:56 -0400
-From: Jakub Jelinek <jakub@redhat.com>
-To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-Cc: Daniel Jacobowitz <dan@debian.org>, Arjan van de Ven <arjanv@redhat.com>,
-       Linus Torvalds <torvalds@osdl.org>, Brian Gerst <bgerst@didntduck.org>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: -mregparm=3 (was  Re: [PATCH] i386 do_machine_check() is redundant.
-Message-ID: <20030929174856.U11756@devserv.devel.redhat.com>
-Reply-To: Jakub Jelinek <jakub@redhat.com>
-References: <Pine.LNX.4.44.0309281121470.15408-100000@home.osdl.org> <1064775868.5045.4.camel@laptop.fenrus.com> <Pine.LNX.4.58.0309292214100.3276@artax.karlin.mff.cuni.cz> <20030929202604.GA23344@nevyn.them.org> <Pine.LNX.4.58.0309292309050.7824@artax.karlin.mff.cuni.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.58.0309292309050.7824@artax.karlin.mff.cuni.cz>; from mikulas@artax.karlin.mff.cuni.cz on Mon, Sep 29, 2003 at 11:36:06PM +0200
+	Mon, 29 Sep 2003 17:36:55 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:25991 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262987AbTI2Vgo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Sep 2003 17:36:44 -0400
+Message-ID: <3F78A5DE.7010803@pobox.com>
+Date: Mon, 29 Sep 2003 17:36:30 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "H. Peter Anvin" <hpa@zytor.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ULL fixes for qlogicfc
+References: <E1A41Rq-0000NJ-00@hardwired> <20030929172329.GD6526@gtf.org> <bla4fg$pbp$1@cesium.transmeta.com> <3F789FE8.6050504@pobox.com> <3F78A2FF.6070203@zytor.com>
+In-Reply-To: <3F78A2FF.6070203@zytor.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 29, 2003 at 11:36:06PM +0200, Mikulas Patocka wrote:
-> > It's interesting for kernel code, whole distributions, or things which
-> > are careful to have a glue layer.
-> 
-> BTW. libc headers surround all function parameters with __P, like
-> extern int printf __P ((__const char* __format, ...));
+H. Peter Anvin wrote:
+> Jeff Garzik wrote:
 
-s/surround/used to &/
+>>0xffffffff without a prefix is signed.
 
-	Jakub
+> No, it's not.
+[...]
+> ... so 0x7fffffff is signed int, but 0xffffffff is unsigned int on an
+> I32-model system (all Linux systems are I32-model.)
+
+
+I was looking at C99 standard as I typed that :)  But I thought it was 
+referring to raw storage size, and that things changed on some 64-bit 
+platforms.
+
+So, I stand corrected.
+
+	Jeff
+
+
+

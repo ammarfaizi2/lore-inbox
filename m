@@ -1,70 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261182AbUBZV01 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 16:26:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261220AbUBZV01
+	id S261387AbUBZVal (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 16:30:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261220AbUBZVal
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 16:26:27 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:30365 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261182AbUBZV0V
+	Thu, 26 Feb 2004 16:30:41 -0500
+Received: from node-d-1fcf.a2000.nl ([62.195.31.207]:30339 "EHLO
+	laptop.fenrus.com") by vger.kernel.org with ESMTP id S261387AbUBZVab
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 16:26:21 -0500
-Subject: Re: 2.6.3-mm3 hangs on  boot x440 (scsi?)
-From: john stultz <johnstul@us.ibm.com>
-To: Go Taniguchi <go@turbolinux.co.jp>
-Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <403E0563.9050007@turbolinux.co.jp>
-References: <20040222172200.1d6bdfae.akpm@osdl.org>
-	 <1077668801.2857.63.camel@cog.beaverton.ibm.com>
-	 <20040224170645.392abcff.akpm@osdl.org> <403E0563.9050007@turbolinux.co.jp>
-Content-Type: text/plain
-Message-Id: <1077830762.2857.164.camel@cog.beaverton.ibm.com>
+	Thu, 26 Feb 2004 16:30:31 -0500
+Subject: Re: Why no interrupt priorities?
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Tim Bird <tim.bird@am.sony.com>
+Cc: root@chaos.analogic.com, linux kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <403E5EF7.7080309@am.sony.com>
+References: <403E4363.2070908@am.sony.com>
+	 <Pine.LNX.4.53.0402261423170.4239@chaos>  <403E5EF7.7080309@am.sony.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-c9Dv4Crscr9ELKFBe8aN"
+Organization: Red Hat, Inc.
+Message-Id: <1077831001.4443.9.camel@laptop.fenrus.com>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Thu, 26 Feb 2004 13:26:03 -0800
-Content-Transfer-Encoding: 7bit
+Date: Thu, 26 Feb 2004 22:30:02 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-02-26 at 06:40, Go Taniguchi wrote:
-> Hi,
-> 
-> Andrew Morton wrote:
-> > john stultz <johnstul@us.ibm.com> wrote:
-> > 
-> >>	Booting 2.6.3-mm3 on an x440 hangs the box during the SCSI probe after
-> >>the following:
-> >> 
-> >>scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.36
-> >>        <Adaptec aic7899 Ultra160 SCSI adapter>                 
-> >>        aic7899: Ultra160 Wide Channel A, SCSI Id=7, 32/253 SCBs
-> >>                                                                
-> >>
-> >>I went back to 2.6.3-mm1 (as it was a smaller diff) and the problem was
-> >>there as well. 
-> > 
-> > 
-> > Could you try reverting aic7xxx-deadlock-fix.patch?  Also, add
-> > initcall_debug to the boot command just so we know we aren't blaming the
-> > wrong thing.
-> > 
-> > Apart from that, gosh.  Maybe you could add just linus.patch and
-> > bk-scsi.patch, see if that hangs too?  Or just test the latest linus tree -
-> > the scsi changes were merged this morning.  Thanks.
-> > 
-> 
-> Problem patch is expanded-pci-config-space.patch.
-> x440 can not enable acpi by dmi_scan.
-> expanded-pci-config-space.patch need acpi support.
-> So, kernel can not get x440's xAPIC interrupt.
 
-Wow, thanks for that analysis Go! I'll test it here to confirm. 
+--=-c9Dv4Crscr9ELKFBe8aN
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-The acpi dmi blacklist entry for the x440 slipped in from United Linux's
-2.4 kernel (where there were ACPI issues initially), and I don't believe
-it is necessary in 2.6. I've got a patch that reverts that change, but I
-want to do more testing first.
+On Thu, 2004-02-26 at 22:02, Tim Bird wrote:
+> Richard B. Johnson wrote:
+> > On Thu, 26 Feb 2004, Tim Bird wrote:
+> >=20
+> >>What's the rationale for not supporting interrupt priorities
+> >>in the kernel?
+> >=20
+> > Interrupt priorities are supported and have been supported
+> > since the first cascaded interrupt controllers and, now
+> > with the APIC.=20
+>=20
+> Please forgive my ignorance.  I'm not sure what's going
+> on with 2.6 and work queues, but do the hardware priorities
+> allow you to control scheduling of interrupt bottom halves?
 
-thanks
--john
 
+hardware IRQ priorities are useless for the linux model. In linux, the
+hardirq runs *very* briefly and then lets the softirq context do the
+longer taking work. hardware irq priorities then don't matter really
+because the hardirq's are hardly ever interrupted really, and when they
+are they cause a performance *loss* due to cache trashing. The latency
+added by waiting briefly is going to be really really short for any sane
+hardware.
+
+Now doing priorities in softirq context... well... here again it's a
+case of a tiny latency hit vs a lot of cache trashing. If your softirq
+handler runs in 10 cachemisses (it's useless to talk about cpu cycles
+since most of teh time you'll be cache bound) that's not too long
+latency, but if you interrupt it it might get 15 or more cachemisses
+instead. That again will increase the delay the user context gets from
+irq's.... so from a userspace pov you actually increased irq latency....
+
+--=-c9Dv4Crscr9ELKFBe8aN
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQBAPmVZxULwo51rQBIRAo/LAKCENWSdIeR1UNWozRwM5VvdcwkUQQCgp2yh
+Xy4tZHPnaZeBzuLKSiAxPLI=
+=Hf8j
+-----END PGP SIGNATURE-----
+
+--=-c9Dv4Crscr9ELKFBe8aN--

@@ -1,51 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261709AbUB0Bju (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 20:39:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261726AbUB0Bjg
+	id S261714AbUB0Bnl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 20:43:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261711AbUB0Bnk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 20:39:36 -0500
-Received: from fmr06.intel.com ([134.134.136.7]:3243 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261711AbUB0Bgw convert rfc822-to-8bit (ORCPT
+	Thu, 26 Feb 2004 20:43:40 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:17566 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261728AbUB0BnJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 20:36:52 -0500
-content-class: urn:content-classes:message
+	Thu, 26 Feb 2004 20:43:09 -0500
+Date: Thu, 26 Feb 2004 17:41:30 -0800 (PST)
+From: Sridhar Samudrala <sri@us.ibm.com>
+X-X-Sender: sridhar@localhost.localdomain
+To: Sridhar Samudrala <sri@us.ibm.com>
+cc: Adrian Bunk <bunk@fs.tum.de>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>, netdev@oss.sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.4.26-pre1: SCTP compile error
+In-Reply-To: <Pine.LNX.4.58.0402261533500.19577@localhost.localdomain>
+Message-ID: <Pine.LNX.4.58.0402261735490.31520@localhost.localdomain>
+References: <Pine.LNX.4.58L.0402251605360.5003@logos.cnet>
+ <20040226212759.GV5499@fs.tum.de> <Pine.LNX.4.58.0402261533500.19577@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MIMEOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: Why no interrupt priorities?
-Date: Thu, 26 Feb 2004 17:36:34 -0800
-Message-ID: <F760B14C9561B941B89469F59BA3A84702C932F2@orsmsx401.jf.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Why no interrupt priorities?
-Thread-Index: AcP8udTMMoVivhM8RT2r/6uqtKpkWwAF7CtA
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "Mark Gross" <mgross@linux.co.intel.com>, <arjanv@redhat.com>,
-       "Tim Bird" <tim.bird@am.sony.com>
-Cc: <root@chaos.analogic.com>, "linux kernel" <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 27 Feb 2004 01:36:34.0388 (UTC) FILETIME=[22373140:01C3FCD2]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Thursday 26 February 2004 13:30, Arjan van de Ven wrote:
-> > hardware IRQ priorities are useless for the linux model. In 
-> linux, the
-> > hardirq runs *very* briefly and then lets the softirq context do the
-> > longer taking work. hardware irq priorities then don't matter really
-> > because the hardirq's are hardly ever interrupted really, 
-> and when they
-> > are they cause a performance *loss* due to cache trashing. 
-> The latency
-> > added by waiting briefly is going to be really really short 
-> for any sane
-> > hardware.
+On Thu, 26 Feb 2004, Sridhar Samudrala wrote:
 
-Is the assumption that hardirq handlers are superfast also the reason
-why Linux calls all handlers on a shared interrupt, even if the first
-handler reports it was for its device?
+> On Thu, 26 Feb 2004, Adrian Bunk wrote:
+>
+> > On Wed, Feb 25, 2004 at 04:09:20PM -0300, Marcelo Tosatti wrote:
+> > >...
+> > > It contains a big SCTP merge (to match 2.6 API), networking updates,
+> > >...
+> >
+> > I got the compile error forwarded below using gcc 2.95.3 .
+> >
+> > cu
+> > Adrian
+> >
+> >
+> >
+> > ...
+> > gcc-2.95 -D__KERNEL__ -I/home/bunk/linux/kernel-2.4/linux-2.4.26-pre1-full/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4   -nostdinc -iwithprefix include -DKBUILD_BASENAME=ipv6  -c -o ipv6.o ipv6.c
+> > In file included from ipv6.c:77:
+> > /home/bunk/linux/kernel-2.4/linux-2.4.26-pre1-full/include/net/sctp/sctp.h:119: warning: `MSECS_TO_JIFFIES' redefined
+> > /home/bunk/linux/kernel-2.4/linux-2.4.26-pre1-full/include/net/irda/irda.h:89: warning: this is the location of the previous definition
+>
+> I missed this warning as i don't have irda enabled in my config.
+> A simple fix would be to rename the macro in sctp.h to
+> SCTP_MSECS_TO_JIFFIES.
+>
+> > ipv6.c: In function `sctp_v6_xmit':
+> > ipv6.c:189: request for member `in6_u' in something not a structure or union
+> > ipv6.c:189: request for member `in6_u' in something not a structure or union
+>
+> I am not seeing these errors with either gcc3.2.2 or gcc2.96. But, looking at the
+> code, this definitely seems to be a problem. Not sure why the newer versions of
+> gcc didn't catch them.
 
--- Andy
+It is my mistake. I don't have CONFIG_SCTP_DBG_MSG enabled and so these lines are
+compiled out and hence i am not seeing these errors.
+
+Thanks
+Sridhar

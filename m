@@ -1,46 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269796AbRIDQJm>; Tue, 4 Sep 2001 12:09:42 -0400
+	id <S271982AbRIDQQn>; Tue, 4 Sep 2001 12:16:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271982AbRIDQJc>; Tue, 4 Sep 2001 12:09:32 -0400
-Received: from otter.mbay.net ([206.40.79.2]:29456 "EHLO otter.mbay.net")
-	by vger.kernel.org with ESMTP id <S269796AbRIDQJS>;
-	Tue, 4 Sep 2001 12:09:18 -0400
-Date: Tue, 4 Sep 2001 09:09:08 -0700 (PDT)
-From: John Alvord <jalvo@mbay.net>
-To: Ulrich Weigand <Ulrich.Weigand@de.ibm.com>
-cc: Jeff Mahoney <jeffm@suse.com>, Andi Kleen <ak@suse.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [SOLVED + PATCH]: documented Oops running big-endian reiserfs
- on parisc architecture
-In-Reply-To: <OF263FB8E3.75D4DAB3-ONC1256ABD.004F349C@de.ibm.com>
-Message-ID: <Pine.LNX.4.20.0109040907260.25139-100000@otter.mbay.net>
+	id <S271985AbRIDQQd>; Tue, 4 Sep 2001 12:16:33 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:11282 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S271982AbRIDQQP>;
+	Tue, 4 Sep 2001 12:16:15 -0400
+Date: Tue, 4 Sep 2001 13:16:14 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.rielhome.conectiva>
+To: Samium Gromoff <_deepfire@mail.ru>
+Cc: <linux-kernel@vger.kernel.org>, <marcelo@brutus.conectiva.com.br>
+Subject: Re: pmap revisited
+In-Reply-To: <200109040313.f843DYc00623@vegae.deep.net>
+Message-ID: <Pine.LNX.4.33L.0109041312270.7626-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 4 Sep 2001, Ulrich Weigand wrote:
+On Tue, 4 Sep 2001, Samium Gromoff wrote:
 
-> 
-> Jeff Mahoney wrote:
-> 
-> >    Are the S/390 asm/unaligned.h versions broken, or is the ReiserFS code
-> doing
-> >    something not planned for? It's a 16-bit member, at a 16-bit alignment
-> >    in the structure.  The structure itself need not be aligned in any
-> >    particular manner as it is read directly from disk, and is a packed
-> structure.
-> 
-> The S/390 unaligned.h macros are just direct assignments because the
-> S/390 hardware normally *allows* unaligned accesses just fine.
-> 
-> It is only *atomic* accesses (those implemented using the S/390
-> compare-and-swap instruction) that need to be word aligned; this includes
-> the atomic bit operations that reiserfs appears to be using.
+>     Gotta wrong results in my previous perftest... (slightly different
+>   environments), so these are to be sure that on low VM load there isnt
+>   any significant difference...
 
-Aren't their some other "must align" instructions like CVB? Or have they
-all been relaxed...
+As expected, the current patch only modifies mechanisms and
+leaves most policy the same. Under some loads there is a
+difference, but under light VM loads the same-policy-more-info
+replacement should indeed be pretty similar.
 
-john
+>   Bonus: two bugs! :)
+>    1. Quintela`s (shmtest of memtest) and pmap{2,3} == 100% instant deadlock
+>       plain ac12 demonstrates ignorance.
+
+I'll try to reproduce that one when I get back home thursday.
+
+>    2. Swapoff oops 100% - only in pmap3! (okay, swapoff of reiserfs
+>       to be strict, but i think that doesnt actually matters)
+>       swapoff oops will be in next mail.
+
+This one is fixed. I'll be sitting inside a big tin can with
+wings all day tomorrow, but thursday I'll try to post a new
+version, hopefully with both these bugs fixed.
+
+Thanks for testing the patch and pointing out the bugs!
+
+regards,
+
+Rik
+-- 
+IA64: a worthy successor to i860.
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
 

@@ -1,63 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264790AbRFXV5k>; Sun, 24 Jun 2001 17:57:40 -0400
+	id <S264807AbRFXWAV>; Sun, 24 Jun 2001 18:00:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264803AbRFXV5a>; Sun, 24 Jun 2001 17:57:30 -0400
-Received: from 216-60-128-137.ati.utexas.edu ([216.60.128.137]:27804 "HELO
+	id <S264804AbRFXV6x>; Sun, 24 Jun 2001 17:58:53 -0400
+Received: from 216-60-128-137.ati.utexas.edu ([216.60.128.137]:31644 "HELO
 	tsunami.webofficenow.com") by vger.kernel.org with SMTP
-	id <S264790AbRFXV5R>; Sun, 24 Jun 2001 17:57:17 -0400
+	id <S264801AbRFXV6Z>; Sun, 24 Jun 2001 17:58:25 -0400
 Content-Type: text/plain; charset=US-ASCII
 From: Rob Landley <landley@webofficenow.com>
 Reply-To: landley@webofficenow.com
-To: John Adams <johna@onevista.com>, linux-kernel@vger.kernel.org
+To: ebiederm@xmission.com (Eric W. Biederman), landley@webofficenow.com
 Subject: Re: Microsoft and Xenix.
-Date: Sun, 24 Jun 2001 10:25:58 -0400
+Date: Sun, 24 Jun 2001 06:36:46 -0400
 X-Mailer: KMail [version 1.2]
-In-Reply-To: <E15DZbq-0008D8-00@roo.home> <01062310075401.00696@localhost.localdomain> <01062320494201.01112@flash.onevista.com>
-In-Reply-To: <01062320494201.01112@flash.onevista.com>
+Cc: Alan Chandler <alan@chandlerfamily.org.uk>, linux-kernel@vger.kernel.org
+In-Reply-To: <E15DZbq-0008D8-00@roo.home> <01062310075401.00696@localhost.localdomain> <m1ofrebnkx.fsf@frodo.biederman.org>
+In-Reply-To: <m1ofrebnkx.fsf@frodo.biederman.org>
 MIME-Version: 1.0
-Message-Id: <0106241025580A.01519@localhost.localdomain>
+Message-Id: <01062406364601.01519@localhost.localdomain>
 Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 23 June 2001 20:49, John Adams wrote:
-> On Saturday 23 June 2001 10:07, Rob Landley wrote:
-> > Here's what I'm looking for:
-> >
-> > AIX was first introduced for the IBM RT/PC in 1986, which came out of the
-> > early RISC research.  It was ported to PS/2 and S/370 by SAA, and was
-> > based on unix SVR2.  (The book didn't specify whether the original
-> > version or the version ported to SAA was based on SVR2, I'm guessing both
-> > were.)
+On Saturday 23 June 2001 22:47, Eric W. Biederman wrote:
+> Rob Landley <landley@webofficenow.com> writes:
+> > Ummm...  GEM was the Geos stuff?  (Yeah I remember it, I haven't
+> > researched it yet though...)
 >
-> You are partially correct.  AIX (Advanced Interactive eXecutive) was built
-> by the Boston office of Interactive Systems under contract to IBM.  We had
-> a maximum of 17 people in the effort which shipped on the RT in January
-> 1986.
+> GEM was a gui from Digital Research I believe.
+> Geoworks/Geos was a seperate entity.
 
-Ah.  I got the above out of a book in the UT library.  (I have the name 
-written down in my notebook...  Um, possibly "IBM PS/2, a business 
-perspective" by Jim Hoskins, or more likely "IBM RISC 6000, a business 
-perspective" also by Jim Hoskins.  I have no idea who Jim Hoskins is.)
+Ah, the DR-DOS answer to dosshell/windows.  Cool.  (I used Dr. Dos byt never 
+tried its gui.)
 
-Obviously It's better to have somebody who was actually there.  Mind if I bug 
-you offline about this?  (Or better yet, convince you to join the mailing 
-list I'll be creating this afternoon...)
+I know the geos had nothing to do with digital, it started as a windowing GUI 
+for the commodore 64, if you can believe that...
 
-> Prior to that time, Interactive Systems had produced a port of System III
-> running on the PC/XT called PC/IX which was sold via IBM.  I used PC/IX to
-> produce the software only floating point code in the first version of AIX.
+> It's been a long time since I looked but they both run fine under
+> dosemu...
 
-Cool.  I know there were several nebulous versions of unix available for the 
-PC.  (I don't know when coherent was introduced but it was around in 89...  
-And Xenix was always sort of floating around...  Considering that IBM also 
-had access to Xenix (if it wanted it), that's at least three versions of Unix 
-IBM could have put on the PC.
-
-What do you want to bet no two of them ran the same binaries? :)
-
-> johna
+I don't suppose you've got reference to literature or some such?  I'd love to 
+work this into my huge obnoxious data tree I'm building...
 
 Rob
 

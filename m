@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265266AbSJRQxM>; Fri, 18 Oct 2002 12:53:12 -0400
+	id <S265275AbSJRQ4A>; Fri, 18 Oct 2002 12:56:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265215AbSJRQxB>; Fri, 18 Oct 2002 12:53:01 -0400
-Received: from gateway.cinet.co.jp ([210.166.75.129]:42769 "EHLO
+	id <S265215AbSJRQxv>; Fri, 18 Oct 2002 12:53:51 -0400
+Received: from gateway.cinet.co.jp ([210.166.75.129]:42513 "EHLO
 	precia.cinet.co.jp") by vger.kernel.org with ESMTP
-	id <S265266AbSJRQvl>; Fri, 18 Oct 2002 12:51:41 -0400
-Date: Sat, 19 Oct 2002 01:56:47 +0900
+	id <S265265AbSJRQvk>; Fri, 18 Oct 2002 12:51:40 -0400
+Date: Sat, 19 Oct 2002 01:56:45 +0900
 From: Osamu Tomita <tomita@cinet.co.jp>
 To: LKML <linux-kernel@vger.kernel.org>
 Cc: Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCHSET 19/25] add support for PC-9800 architecture (SCSI)
-Message-ID: <20021019015647.A1624@precia.cinet.co.jp>
+Subject: [PATCHSET 18/25] add support for PC-9800 architecture (RTC)
+Message-ID: <20021019015645.A1618@precia.cinet.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -19,1019 +19,664 @@ User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is part 19/26 of patchset for add support NEC PC-9800 architecture,
+This is part 18/26 of patchset for add support NEC PC-9800 architecture,
 against 2.5.43.
 
 Summary:
- SCSI driver related modules.
-  - replace bios_param function.
-  - add new driver. (pc980155)
-  - export sd_get_sdisk to get disk goemetry.
-    we need disk geometry to read partition table.
+ PC-9800 standard real time clock driver.(add new files)
 
 diffstat:
- drivers/scsi/Config.in                    |    3 
- drivers/scsi/Makefile                     |    1 
- drivers/scsi/advansys.c                   |    9 +
- drivers/scsi/aic7xxx/aic7xxx_linux_host.h |    3 
- drivers/scsi/aic7xxx_old/aic7xxx.h        |    9 -
- drivers/scsi/pc980155.c                   |  262 ++++++++++++++++++++++++++++++
- drivers/scsi/pc980155.h                   |   47 +++++
- drivers/scsi/pc980155regs.h               |   89 ++++++++++
- drivers/scsi/scsi_scan.c                  |    1 
- drivers/scsi/scsi_syms.c                  |    6 
- drivers/scsi/scsicam.c                    |   93 ++++++++++
- drivers/scsi/sd.c                         |    8 
- drivers/scsi/wd33c93.c                    |  112 ++++++++++--
- drivers/scsi/wd33c93.h                    |    5 
- include/scsi/scsicam.h                    |    5 
- 15 files changed, 635 insertions(+), 18 deletions(-)
+ drivers/char/upd4990a.c     |  438 ++++++++++++++++++++++++++++++++++++++++++++
+ include/asm-i386/upd4990a.h |   58 +++++
+ include/linux/upd4990a.h    |  140 ++++++++++++++
+ 3 files changed, 636 insertions(+)
 
 patch:
-diff -urN linux/drivers/scsi/Config.in linux98/drivers/scsi/Config.in
---- linux/drivers/scsi/Config.in	Sat Oct 12 13:22:05 2002
-+++ linux98/drivers/scsi/Config.in	Sun Oct 13 18:26:42 2002
-@@ -258,6 +258,9 @@
- #      bool 'GVP Turbo 040/060 SCSI support (EXPERIMENTAL)' CONFIG_GVP_TURBO_SCSI
-    fi
- fi
-+if [ "$CONFIG_PC9800" = "y" ]; then
-+   dep_tristate 'NEC PC-9801-55 SCSI support' CONFIG_SCSI_PC980155 $CONFIG_SCSI
-+fi
- 
- endmenu
- 
-diff -urN linux/drivers/scsi/Makefile linux98/drivers/scsi/Makefile
---- linux/drivers/scsi/Makefile	Sat Oct 12 13:21:35 2002
-+++ linux98/drivers/scsi/Makefile	Sun Oct 13 18:28:50 2002
-@@ -31,6 +31,7 @@
- obj-$(CONFIG_A3000_SCSI)	+= a3000.o	wd33c93.o
- obj-$(CONFIG_A2091_SCSI)	+= a2091.o	wd33c93.o
- obj-$(CONFIG_GVP11_SCSI)	+= gvp11.o	wd33c93.o
-+obj-$(CONFIG_SCSI_PC980155)	+= pc980155.o	wd33c93.o
- obj-$(CONFIG_MVME147_SCSI)	+= mvme147.o	wd33c93.o
- obj-$(CONFIG_SGIWD93_SCSI)	+= sgiwd93.o	wd33c93.o
- obj-$(CONFIG_CYBERSTORM_SCSI)	+= NCR53C9x.o	cyberstorm.o
-diff -urN linux/drivers/scsi/advansys.c linux98/drivers/scsi/advansys.c
---- linux/drivers/scsi/advansys.c	Wed Oct 16 13:20:38 2002
-+++ linux98/drivers/scsi/advansys.c	Wed Oct 16 15:26:55 2002
-@@ -815,6 +815,9 @@
- #ifdef CONFIG_PCI
- #include <linux/pci.h>
- #endif /* CONFIG_PCI */
-+#ifdef CONFIG_PC9800
-+#include <scsi/scsicam.h>
-+#endif
- 
- 
- /*
-@@ -6117,10 +6120,13 @@
- int
- advansys_biosparam(Disk *dp, struct block_device *dep, int ip[])
- {
-+#ifndef CONFIG_PC9800
-     asc_board_t     *boardp;
-+#endif
- 
-     ASC_DBG(1, "advansys_biosparam: begin\n");
-     ASC_STATS(dp->device->host, biosparam);
-+#ifndef CONFIG_PC9800
-     boardp = ASC_BOARDP(dp->device->host);
-     if (ASC_NARROW_BOARD(boardp)) {
-         if ((boardp->dvc_var.asc_dvc_var.dvc_cntl &
-@@ -6142,6 +6148,9 @@
-         }
-     }
-     ip[2] = (unsigned long)dp->capacity / (ip[0] * ip[1]);
-+#else /* CONFIG_PC9800 */
-+    pc9800_scsi_bios_param(dp, dep, ip);
-+#endif /* !CONFIG_PC9800 */
-     ASC_DBG(1, "advansys_biosparam: end\n");
-     return 0;
- }
-diff -urN linux/drivers/scsi/aic7xxx/aic7xxx_linux_host.h linux98/drivers/scsi/aic7xxx/aic7xxx_linux_host.h
---- linux/drivers/scsi/aic7xxx/aic7xxx_linux_host.h	Fri Apr 12 13:57:53 2002
-+++ linux98/drivers/scsi/aic7xxx/aic7xxx_linux_host.h	Fri Apr 12 15:45:26 2002
-@@ -52,7 +52,8 @@
- int		 ahc_linux_dev_reset(Scsi_Cmnd *);
- int		 ahc_linux_abort(Scsi_Cmnd *);
- 
--#if defined(__i386__)
-+#include <linux/config.h>
-+#if defined(__i386__) && !defined(CONFIG_PC9800)
- #  define AIC7XXX_BIOSPARAM ahc_linux_biosparam
- #else
- #  define AIC7XXX_BIOSPARAM NULL
-diff -urN linux/drivers/scsi/aic7xxx_old/aic7xxx.h linux98/drivers/scsi/aic7xxx_old/aic7xxx.h
---- linux/drivers/scsi/aic7xxx_old/aic7xxx.h	Sat Oct 12 13:21:03 2002
-+++ linux98/drivers/scsi/aic7xxx_old/aic7xxx.h	Sat Oct 12 19:08:22 2002
-@@ -23,6 +23,13 @@
- #ifndef _aic7xxx_h
- #define _aic7xxx_h
- 
-+#include <linux/config.h>
-+
-+#ifndef CONFIG_PC9800
-+#  define AIC7XXX_BIOSPARAM aic7xxx_biosparam
-+#else
-+#  define AIC7XXX_BIOSPARAM NULL
-+#endif
- #define AIC7XXX_H_VERSION  "5.2.0"
- 
- /*
-@@ -48,7 +55,7 @@
- 	reset: aic7xxx_reset,					\
- 	slave_attach: aic7xxx_slave_attach,			\
- 	slave_detach: aic7xxx_slave_detach,			\
--	bios_param: aic7xxx_biosparam,				\
-+	bios_param: AIC7XXX_BIOSPARAM,				\
- 	can_queue: 255,		/* max simultaneous cmds      */\
- 	this_id: -1,		/* scsi id of host adapter    */\
- 	sg_tablesize: 0,	/* max scatter-gather cmds    */\
-diff -urN linux/drivers/scsi/pc980155.c linux98/drivers/scsi/pc980155.c
---- linux/drivers/scsi/pc980155.c	Thu Jan  1 09:00:00 1970
-+++ linux98/drivers/scsi/pc980155.c	Sun Feb  3 12:08:14 2002
-@@ -0,0 +1,262 @@
-+#include <linux/kernel.h>
-+#include <linux/types.h>
-+#include <linux/mm.h>
-+#include <linux/blk.h>
-+#include <linux/sched.h>
-+#include <linux/version.h>
-+#include <linux/init.h>
-+#include <linux/ioport.h>
-+
-+#include <asm/page.h>
-+#include <asm/pgtable.h>
-+#include <asm/irq.h>
-+#include <asm/dma.h>
-+#include <linux/module.h>
-+
-+#include "scsi.h"
-+#include "hosts.h"
-+#include "wd33c93.h"
-+#include "pc980155.h"
-+#include "pc980155regs.h"
-+
-+#define DEBUG
-+
-+#include<linux/stat.h>
-+
-+static inline void __print_debug_info(unsigned int);
-+static inline void __print_debug_info(unsigned int a){}
-+#define print_debug_info() __print_debug_info(base_io);
-+
-+#define NR_BASE_IOS 4
-+static int nr_base_ios = NR_BASE_IOS;
-+static unsigned int base_ios[NR_BASE_IOS] = {0xcc0, 0xcd0, 0xce0, 0xcf0};
-+static unsigned int  SASR;
-+static unsigned int  SCMD;
-+static wd33c93_regs regs = {&SASR, &SCMD};
-+
-+static struct Scsi_Host *pc980155_host = NULL;
-+
-+static void pc980155_intr_handle(int irq, void *dev_id, struct pt_regs *regp);
-+
-+inline void pc980155_dma_enable(unsigned int base_io){
-+  outb(0x01, REG_CWRITE);
-+  WAIT();
-+}
-+inline void pc980155_dma_disable(unsigned int base_io){
-+  outb(0x02, REG_CWRITE);
-+  WAIT();
-+}
-+
-+
-+static void pc980155_intr_handle(int irq, void *dev_id, struct pt_regs *regp)
-+{
-+  wd33c93_intr(pc980155_host);
-+}
-+
-+static int dma_setup(Scsi_Cmnd *sc, int dir_in){
-+  /*
-+   * sc->SCp.this_residual : transfer count
-+   * sc->SCp.ptr : distination address (virtual address)
-+   * dir_in : data direction (DATA_OUT_DIR:0 or DATA_IN_DIR:1)
-+   *
-+   * if success return 0
-+   */
-+
-+   /*
-+    * DMA WRITE MODE
-+    * bit 7,6 01b single mode (this mode only)
-+    * bit 5   inc/dec (default:0 = inc)
-+    * bit 4   auto initialize (normaly:0 = off)
-+    * bit 3,2 01b memory -> io
-+    *         10b io -> memory
-+    *         00b verify
-+    * bit 1,0 channel
-+    */
-+  disable_dma(sc->host->dma_channel);
-+  set_dma_mode(sc->host->dma_channel, 0x40 | (dir_in ? 0x04 : 0x08));
-+  clear_dma_ff(sc->host->dma_channel);
-+  set_dma_addr(sc->host->dma_channel, virt_to_phys(sc->SCp.ptr));
-+  set_dma_count(sc->host->dma_channel, sc->SCp.this_residual);
-+#if 0
-+#ifdef DEBUG
-+  printk("D%d(%x)D", sc->SCp.this_residual);
-+#endif
-+#endif
-+  enable_dma(sc->host->dma_channel);
-+
-+  pc980155_dma_enable(sc->host->io_port);
-+
-+  return 0;
-+}
-+
-+static void dma_stop(struct Scsi_Host *instance, Scsi_Cmnd *sc, int status){
-+  /*
-+   * instance: Hostadapter's instance
-+   * sc: scsi command
-+   * status: True if success
-+   */
-+
-+  pc980155_dma_disable(sc->host->io_port);
-+
-+  disable_dma(sc->host->dma_channel);
-+}  
-+
-+/* return non-zero on detection */
-+static inline int pc980155_test_port(wd33c93_regs regs)
-+{
-+	/* Quick and dirty test for presence of the card. */
-+	if (READ_AUX_STAT() == 0xff)
-+		return 0;
-+	return 1;
-+}
-+
-+static inline int
-+pc980155_getconfig(unsigned int base_io, wd33c93_regs regs,
-+		    unsigned char* irq, unsigned char* dma,
-+		    unsigned char* scsi_id)
-+{
-+	static unsigned char irqs[] = { 3, 5, 6, 9, 12, 13 };
-+	unsigned char result;
-+  
-+	printk(KERN_DEBUG "PC-9801-55: base_io=%x SASR=%x SCMD=%x\n",
-+		base_io, *regs.SASR, *regs.SCMD);
-+	result = read_wd33c93(regs, WD_RESETINT);
-+	printk(KERN_DEBUG "PC-9801-55: getting config (%x)\n", result);
-+	*scsi_id = result & 0x07;
-+	*irq = (result >> 3) & 0x07;
-+	if (*irq > 5) {
-+		printk(KERN_ERR "PC-9801-55 (base %#x): impossible IRQ (%d)"
-+			" - other device here?\n", base_io, *irq);
-+		return 0;
-+	}
-+
-+	*irq = irqs[*irq];
-+	result = inb(REG_STATRD);
-+	WAIT();
-+	*dma = result & 0x03;
-+	if (*dma == 1) {
-+		printk(KERN_ERR
-+			"PC-9801-55 (base %#x): impossible DMA channl (%d)"
-+			" - other device here?\n", base_io, *dma);
-+		return 0;
-+	}
-+#ifdef DEBUG
-+	printk("PC-9801-55: end of getconfig\n");
-+#endif
-+	return 1;
-+}
-+
-+/* return non-zero on detection */
-+int scsi_pc980155_detect(Scsi_Host_Template* tpnt)
-+{
-+	unsigned int base_io;
-+	unsigned char irq, dma, scsi_id;
-+	int i;
-+#ifdef DEBUG
-+	unsigned char debug;
-+#endif
-+  
-+	for (i = 0; i < nr_base_ios; i++) {
-+		base_io = base_ios[i];
-+		SASR = REG_ADDRST;
-+		SCMD = REG_CONTRL;
-+
-+    /*    printk("PC-9801-55: SASR(%x = %x)\n", SASR, REG_ADDRST); */
-+		if (check_region(base_io, 6))
-+			continue;
-+		if (! pc980155_test_port(regs))
-+			continue;
-+
-+		if (!pc980155_getconfig(base_io, regs, &irq, &dma, &scsi_id))
-+			continue;
-+#ifdef DEBUG
-+		printk("PC-9801-55: config: base io = %x, irq = %d, dma channel = %d, scsi id = %d\n",
-+			base_io, irq, dma, scsi_id);
-+#endif
-+		if (request_irq(irq, pc980155_intr_handle, 0, "PC-9801-55",
-+				 NULL)) {
-+			printk(KERN_ERR
-+				"PC-9801-55: unable to allocate IRQ %d\n",
-+				irq);
-+			continue;
-+		}
-+		if (request_dma(dma, "PC-9801-55")) {
-+			printk(KERN_ERR "PC-9801-55: "
-+				"unable to allocate DMA channel %d\n", dma);
-+			free_irq(irq, NULL);
-+			continue;
-+		}
-+
-+		request_region(base_io, 6, "PC-9801-55");
-+		pc980155_host = scsi_register(tpnt, sizeof(struct WD33C93_hostdata));
-+		pc980155_host->this_id = scsi_id;
-+		pc980155_host->io_port = base_io;
-+		pc980155_host->n_io_port = 6;
-+		pc980155_host->irq = irq;
-+		pc980155_host->dma_channel = dma;
-+
-+#ifdef DEBUG
-+		printk("PC-9801-55: scsi host found at %x irq = %d, use dma channel %d.\n", base_io, irq, dma);
-+		debug = read_aux_stat(regs);
-+		printk("PC-9801-55: aux: %x ", debug);
-+		debug = read_wd33c93(regs, 0x17);
-+		printk("status: %x\n", debug);
-+#endif
-+
-+		pc980155_int_enable(regs);
-+  
-+		wd33c93_init(pc980155_host, regs, dma_setup, dma_stop,
-+			      WD33C93_FS_12_15);
-+    
-+		return 1;
-+	}
-+
-+	printk("PC-9801-55: not found\n");
-+	return 0;
-+}
-+
-+int pc980155_proc_info(char *buf, char **start, off_t off, int len,
-+			int hostno, int in)
-+{
-+	/* NOT SUPPORTED YET! */
-+
-+	if (in) {
-+		return -EPERM;
-+	}
-+	*start = buf;
-+	return sprintf(buf, "Sorry, not supported yet.\n");
-+}
-+
-+int pc980155_setup(char *str)
-+{
-+next:
-+  if (!strncmp(str, "io:", 3)){
-+    base_ios[0] = simple_strtoul(str+3,NULL,0);
-+    nr_base_ios = 1;
-+    while (*str > ' ' && *str != ',')
-+      str++;
-+    if (*str == ','){
-+      str++;
-+      goto next;
-+    }
-+  }
-+  return 0;
-+}
-+
-+int scsi_pc980155_release(struct Scsi_Host *pc980155_host)
-+{
-+#ifdef MODULE
-+        pc980155_int_disable(regs);
-+        release_region(pc980155_host->io_port, pc980155_host->n_io_port);
-+        free_irq(pc980155_host->irq, NULL);
-+        free_dma(pc980155_host->dma_channel);
-+        wd33c93_release();
-+#endif
-+    return 1;
-+}
-+
-+__setup("pc980155=", pc980155_setup);
-+
-+Scsi_Host_Template driver_template = SCSI_PC980155;
-+
-+#include "scsi_module.c"
-diff -urN linux/drivers/scsi/pc980155.h linux98/drivers/scsi/pc980155.h
---- linux/drivers/scsi/pc980155.h	Thu Jan  1 09:00:00 1970
-+++ linux98/drivers/scsi/pc980155.h	Sun Feb  3 12:08:14 2002
-@@ -0,0 +1,47 @@
+diff -urN linux/drivers/char/upd4990a.c linux98/drivers/char/upd4990a.c
+--- linux/drivers/char/upd4990a.c	Thu Jan  1 09:00:00 1970
++++ linux98/drivers/char/upd4990a.c	Fri Aug 17 21:50:17 2001
+@@ -0,0 +1,438 @@
 +/*
-+ *  PC-9801-55 SCSI host adapter driver
++ * NEC PC-9800 Real Time Clock interface for Linux	
 + *
-+ *  Copyright (C) 1997-2000  Kyoto University Microcomputer Club
-+ *			     (Linux/98 project)
++ * Copyright (C) 1997-2001  Linux/98 project,
++ *			    Kyoto University Microcomputer Club.
++ *
++ * Based on:
++ *	drivers/char/rtc.c by Paul Gortmaker
++ *
++ * Changes:
++ *  2001-02-09	Call check_region on rtc_init and do not request I/O 0033h.
++ *		Call del_timer and release_region on rtc_exit. -- tak
++ *  2001-07-14	Rewrite <linux/upd4990a.h> and split to <linux/upd4990a.h>
++ *		and <asm-i386/upd4990a.h>.
++ *		Introduce a lot of spin_lock/unlock (&rtc_lock).
 + */
 +
-+#ifndef _SCSI_PC9801_55_H
-+#define _SCSI_PC9801_55_H
++#define RTC98_VERSION	"1.2"
 +
++#include <linux/module.h>
++#include <linux/kernel.h>
 +#include <linux/types.h>
-+#include <linux/kdev_t.h>
-+#include <scsi/scsicam.h>
++#include <linux/miscdevice.h>
++#include <linux/ioport.h>
++#include <linux/fcntl.h>
++#include <linux/rtc.h>
++#include <linux/upd4990a.h>
++#include <linux/init.h>
++#include <linux/poll.h>
++#include <linux/proc_fs.h>
++#include <linux/spinlock.h>
 +
-+int wd33c93_queuecommand(Scsi_Cmnd *, void (*done)(Scsi_Cmnd *));
-+int wd33c93_abort(Scsi_Cmnd *);
-+int wd33c93_reset(Scsi_Cmnd *, unsigned int);
-+int scsi_pc980155_detect(Scsi_Host_Template *);
-+int scsi_pc980155_release(struct Scsi_Host *);
-+int pc980155_proc_info(char *, char **, off_t, int, int, int);
++#include <asm/io.h>
++#include <asm/uaccess.h>
++#include <asm/system.h>
 +
-+#ifndef CMD_PER_LUN
-+#define CMD_PER_LUN 2
-+#endif
++#define BCD_TO_BINARY(val)	(((val) >> 4) * 10 + ((val) & 0xF))
++#define BINARY_TO_BCD(val)	((((val) / 10) << 4) | ((val) % 10))
 +
-+#ifndef CAN_QUEUE
-+#define CAN_QUEUE 16
-+#endif
++/*
++ *	We sponge a minor off of the misc major. No need slurping
++ *	up another valuable major dev number for this. If you add
++ *	an ioctl, make sure you don't conflict with SPARC's RTC
++ *	ioctls.
++ */
 +
-+#define SCSI_PC980155 {	proc_name:		"PC-9801-55",		\
-+  			name:			"SCSI PC-9801-55",	\
-+			proc_info:		pc980155_proc_info,	\
-+			detect:			scsi_pc980155_detect,	\
-+			release:		scsi_pc980155_release,	\
-+			/* command: use queue command */		\
-+			queuecommand:		wd33c93_queuecommand,	\
-+			abort:			wd33c93_abort,		\
-+			reset:			wd33c93_reset,		\
-+			bios_param:		pc9800_scsi_bios_param,	\
-+			can_queue:		CAN_QUEUE,		\
-+			this_id:		7,			\
-+			sg_tablesize:		SG_ALL,			 \
-+			cmd_per_lun:		CMD_PER_LUN, /* dont use link command */ \
-+			unchecked_isa_dma:	1, /* use dma **XXXX***/ \
-+			use_clustering:		ENABLE_CLUSTERING }
++static struct fasync_struct *rtc_async_queue;
 +
-+#endif /* _SCSI_PC9801_55_H */
-diff -urN linux/drivers/scsi/pc980155regs.h linux98/drivers/scsi/pc980155regs.h
---- linux/drivers/scsi/pc980155regs.h	Thu Jan  1 09:00:00 1970
-+++ linux98/drivers/scsi/pc980155regs.h	Mon Dec  3 18:44:10 2001
-@@ -0,0 +1,89 @@
-+#ifndef __PC980155REGS_H
-+#define __PC980155REGS_H
++static DECLARE_WAIT_QUEUE_HEAD(rtc_wait);
 +
-+#include "wd33c93.h"
++static struct timer_list rtc_uie_timer;
++static u8 old_refclk;
 +
-+#define REG_ADDRST (base_io+0)
-+#define REG_CONTRL (base_io+2)
-+#define REG_CWRITE (base_io+4)
-+#define REG_STATRD (base_io+4)
++static long long rtc_llseek(struct file *file, loff_t offset, int origin);
 +
-+#define WD_MEMORYBANK 0x30
-+#define WD_RESETINT   0x33
++static int rtc_ioctl(struct inode *inode, struct file *file,
++			unsigned int cmd, unsigned long arg);
 +
-+#if 0
-+#define WAIT() outb(0x00,0x5f)
-+#else
-+#define WAIT() do{}while(0)
-+#endif
++static int rtc_read_proc(char *page, char **start, off_t off,
++			  int count, int *eof, void *data);
 +
-+static inline uchar read_wd33c93(const wd33c93_regs regs, uchar reg_num)
++/*
++ *	Bits in rtc_status. (5 bits of room for future expansion)
++ */
++
++#define RTC_IS_OPEN		0x01	/* means /dev/rtc is in use	*/
++#define RTC_TIMER_ON            0x02    /* not used */
++#define RTC_UIE_TIMER_ON        0x04	/* UIE emulation timer is active */
++
++/*
++ * rtc_status is never changed by rtc_interrupt, and ioctl/open/close is
++ * protected by the big kernel lock. However, ioctl can still disable the timer
++ * in rtc_status and then with del_timer after the interrupt has read
++ * rtc_status but before mod_timer is called, which would then reenable the
++ * timer (but you would need to have an awful timing before you'd trip on it)
++ */
++static unsigned char rtc_status;	/* bitmapped status byte.	*/
++static unsigned long rtc_irq_data;	/* our output to the world	*/
++
++static const unsigned char days_in_mo[] = 
++{31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
++
++extern spinlock_t rtc_lock;	/* defined in arch/i386/kernel/time.c */
++
++static void rtc_uie_intr(unsigned long data)
 +{
-+  uchar data;
-+  outb(reg_num, *regs.SASR);
-+  WAIT();
-+  data = inb(*regs.SCMD);
-+  WAIT();
-+  return data;
++	u8 refclk, tmp;
++
++	/* Kernel timer does del_timer internally before calling
++	   each timer entry, so this is unnecessary.
++	   del_timer(&rtc_uie_timer);  */
++	spin_lock(&rtc_lock);
++
++	/* Detect rising edge of 1Hz reference clock.  */
++	refclk = UPD4990A_READ_DATA();
++	tmp = old_refclk & refclk;
++	old_refclk = ~refclk;
++	if (!(tmp & 1))
++		rtc_irq_data += 0x100;
++
++	spin_unlock(&rtc_lock);
++
++	if (!(tmp & 1)) {
++		/* Now do the rest of the actions */
++		wake_up_interruptible(&rtc_wait);
++		kill_fasync(&rtc_async_queue, SIGIO, POLL_IN);
++	}
++
++	rtc_uie_timer.expires = jiffies + 1;
++	add_timer(&rtc_uie_timer);
 +}
 +
-+static inline uchar read_aux_stat(const wd33c93_regs regs)
-+{
-+  uchar result;
-+  result = inb(*regs.SASR);
-+  WAIT();
-+  /*  printk("PC-9801-55: regp->SASR(%x) = %x\n", regp->SASR, result); */
-+  return result;
-+}
-+#define READ_AUX_STAT() read_aux_stat(regs)
++/*
++ *	Now all the various file operations that we export.
++ */
 +
-+static inline void write_wd33c93(const wd33c93_regs regs, uchar reg_num,
-+				 uchar value)
++static long long rtc_llseek(struct file *file, loff_t offset, int origin)
 +{
-+  outb(reg_num, *regs.SASR);
-+  WAIT();
-+  outb(value, *regs.SCMD);
-+  WAIT();
++	return -ESPIPE;
 +}
 +
-+
-+#define write_wd33c93_cmd(regs,cmd) write_wd33c93(regs,WD_COMMAND,cmd)
-+
-+static inline void write_wd33c93_count(const wd33c93_regs regs,
-+					unsigned long value)
++static ssize_t rtc_read(struct file *file, char *buf,
++			size_t count, loff_t *ppos)
 +{
-+   outb(WD_TRANSFER_COUNT_MSB, *regs.SASR);
-+   WAIT();
-+   outb((value >> 16) & 0xff, *regs.SCMD);
-+   WAIT();
-+   outb((value >> 8)  & 0xff, *regs.SCMD);
-+   WAIT();
-+   outb( value        & 0xff, *regs.SCMD);
-+   WAIT();
++	DECLARE_WAITQUEUE(wait, current);
++	unsigned long data;
++	ssize_t retval = 0;
++	
++	if (count < sizeof(unsigned long))
++		return -EINVAL;
++
++	add_wait_queue(&rtc_wait, &wait);
++
++	set_current_state(TASK_INTERRUPTIBLE);
++
++	do {
++		/* First make it right. Then make it fast. Putting this whole
++		 * block within the parentheses of a while would be too
++		 * confusing. And no, xchg() is not the answer. */
++		spin_lock_irq(&rtc_lock);
++		data = rtc_irq_data;
++		rtc_irq_data = 0;
++		spin_unlock_irq(&rtc_lock);
++
++		if (data != 0)
++			break;
++
++		if (file->f_flags & O_NONBLOCK) {
++			retval = -EAGAIN;
++			goto out;
++		}
++		if (signal_pending(current)) {
++			retval = -ERESTARTSYS;
++			goto out;
++		}
++		schedule();
++	} while (1);
++
++	retval = put_user(data, (unsigned long *)buf);
++	if (!retval)
++		retval = sizeof(unsigned long); 
++ out:
++	set_current_state(TASK_RUNNING);
++	remove_wait_queue(&rtc_wait, &wait);
++
++	return retval;
 +}
 +
-+
-+static inline unsigned long read_wd33c93_count(const wd33c93_regs regs)
++static int rtc_ioctl(struct inode *inode, struct file *file, unsigned int cmd,
++		     unsigned long arg)
 +{
-+unsigned long value;
++	struct rtc_time wtime; 
++	struct upd4990a_raw_data raw;
 +
-+   outb(WD_TRANSFER_COUNT_MSB, *regs.SASR);
-+   value = inb(*regs.SCMD) << 16;
-+   value |= inb(*regs.SCMD) << 8;
-+   value |= inb(*regs.SCMD);
-+   return value;
-+}
-+
-+static inline void write_wd33c93_cdb(const wd33c93_regs regs, unsigned int len,
-+					unsigned char cmnd[])
-+{
-+  int i;
-+  outb(WD_CDB_1, *regs.SASR);
-+  for (i=0; i<len; i++)
-+    outb(cmnd[i], *regs.SCMD);
-+}
-+
-+#define pc980155_int_enable(regs)  write_wd33c93(regs, WD_MEMORYBANK, read_wd33c93(regs, WD_MEMORYBANK) | 0x04)
-+#define pc980155_int_disable(regs) write_wd33c93(regs, WD_MEMORYBANK, read_wd33c93(regs, WD_MEMORYBANK) & ~0x04)
-+
-+#endif
-diff -urN linux/drivers/scsi/scsi_scan.c linux98/drivers/scsi/scsi_scan.c
---- linux/drivers/scsi/scsi_scan.c	Wed Aug 28 09:52:26 2002
-+++ linux98/drivers/scsi/scsi_scan.c	Wed Aug 28 13:09:39 2002
-@@ -131,6 +131,7 @@
- 	{"MITSUMI", "CD-R CR-2201CS", "6119", BLIST_NOLUN},	/* locks up */
- 	{"RELISYS", "Scorpio", NULL, BLIST_NOLUN},	/* responds to all lun */
- 	{"MICROTEK", "ScanMaker II", "5.61", BLIST_NOLUN},	/* responds to all lun */
-+	{"NEC", "D3856", "0009", BLIST_NOLUN},
- 
- 	/*
- 	 * Other types of devices that have special flags.
-diff -urN linux/drivers/scsi/scsi_syms.c linux98/drivers/scsi/scsi_syms.c
---- linux/drivers/scsi/scsi_syms.c	Wed Oct 16 13:20:40 2002
-+++ linux98/drivers/scsi/scsi_syms.c	Wed Oct 16 15:26:55 2002
-@@ -96,6 +96,12 @@
- EXPORT_SYMBOL(scsi_devicelist);
- EXPORT_SYMBOL(scsi_device_types);
- 
-+#ifdef CONFIG_PC9800
-+EXPORT_SYMBOL(pc9800_scsi_bios_param);
-+extern Scsi_Disk * sd_get_sdisk(int);
-+EXPORT_SYMBOL(sd_get_sdisk);
-+#endif
-+
- /*
-  * Externalize timers so that HBAs can safely start/restart commands.
-  */
-diff -urN linux/drivers/scsi/scsicam.c linux98/drivers/scsi/scsicam.c
---- linux/drivers/scsi/scsicam.c	Thu Jul 25 06:03:18 2002
-+++ linux98/drivers/scsi/scsicam.c	Fri Jul 26 11:31:23 2002
-@@ -12,6 +12,8 @@
- 
- #include <linux/module.h>
- 
-+#include <linux/config.h>
-+
- #include <linux/fs.h>
- #include <linux/genhd.h>
- #include <linux/kernel.h>
-@@ -61,7 +63,18 @@
- 	int ret_code;
- 	int size = disk->capacity;
- 	unsigned long temp_cyl;
-+#ifndef CONFIG_PC9800
- 	unsigned char *p = scsi_bios_ptable(bdev);
-+#else
-+	unsigned char *p;
-+#endif
-+
-+#ifdef CONFIG_PC9800
-+	if (!pc9800_scsi_bios_param(disk, bdev, ip))
++	switch (cmd) {
++	case RTC_UIE_OFF:	/* Mask ints from RTC updates.	*/
++		spin_lock_irq(&rtc_lock);
++		if (rtc_status & RTC_UIE_TIMER_ON) {
++			rtc_status &= ~RTC_UIE_TIMER_ON;
++			del_timer(&rtc_uie_timer);
++		}
++		spin_unlock_irq(&rtc_lock);
 +		return 0;
 +
-+	p = scsi_bios_ptable(bdev);
-+#endif
- 
- 	if (!p)
- 		return -1;
-@@ -238,3 +251,83 @@
- 	*hds = (unsigned int) heads;
- 	return (rv);
- }
++	case RTC_UIE_ON:	/* Allow ints for RTC updates.	*/
++		spin_lock_irq(&rtc_lock);
++		rtc_irq_data = 0;
++		if (!(rtc_status & RTC_UIE_TIMER_ON)){
++			rtc_status |= RTC_UIE_TIMER_ON;
++			rtc_uie_timer.expires = jiffies + 1;
++			add_timer(&rtc_uie_timer);
++		}
++		/* Just in case... */
++		upd4990a_serial_command(UPD4990A_REGISTER_HOLD);
++		old_refclk = ~UPD4990A_READ_DATA();
++		spin_unlock_irq(&rtc_lock);
++		return 0;
 +
-+#ifdef CONFIG_PC9800
++	case RTC_RD_TIME:	/* Read the time/date from RTC	*/
++		spin_lock_irq(&rtc_lock);
++		upd4990a_get_time(&raw, 0);
++		spin_unlock_irq(&rtc_lock);
 +
-+#include <asm/pc9800.h>
++		wtime.tm_sec	= BCD_TO_BINARY(raw.sec);
++		wtime.tm_min	= BCD_TO_BINARY(raw.min);
++		wtime.tm_hour	= BCD_TO_BINARY(raw.hour);
++		wtime.tm_mday	= BCD_TO_BINARY(raw.mday);
++		wtime.tm_mon	= raw.mon - 1; /* convert to 0-base */
++		wtime.tm_wday	= raw.wday;
 +
-+/* XXX - For now, we assume the first (i.e. having the least host_no)
-+   real (i.e. non-emulated) host adapter shall be BIOS-controlled one.
-+   We *SHOULD* invent another way.  */
++		/*
++		 * Account for differences between how the RTC uses the values
++		 * and how they are defined in a struct rtc_time;
++		 */
++		if ((wtime.tm_year = BCD_TO_BINARY(raw.year)) < 95)
++			wtime.tm_year += 100;
 +
-+static inline struct Scsi_Host *first_real_host(void)
-+{
-+	struct Scsi_Host *first, *h;
++		wtime.tm_isdst = 0;
++		break;
 +
-+	for (first = NULL, h = scsi_hostlist; h; h = h->next)
-+		if (!h->hostt->emulated
-+		    && (!first || h->host_no < first->host_no))
-+			first = h;
-+	return first;
-+}
-+
-+/* There is no standard device-to-name translation function. Sigh.  */
-+static inline void sd_devname(char *buf, kdev_t dev)
-+{
-+	int diskno = (major(dev) & SD_MAJOR_MASK) * 16 + (minor(dev) >> 4);
-+
-+	buf[0] = 'a' + diskno;
-+	buf[1] = '\0';
-+	if (diskno >= 26) {
-+		buf[0] = 'a' + (diskno / 26 - 1);
-+		buf[1] = 'a' + (diskno % 26);
-+		buf[2] = '\0';
-+	}
-+}
-+
-+int pc9800_scsi_bios_param(Disk *disk, struct block_device *bdev, int *ip)
-+{
-+	char namebuf[4];
-+
-+	sd_devname(namebuf, to_kdev_t(bdev->bd_dev));
-+
-+	if (first_real_host () == disk->device->host
-+	    && disk->device->id < 7
-+	    && __PC9800SCA_TEST_BIT(PC9800SCA_DISK_EQUIPS, disk->device->id))
++	case RTC_SET_TIME:	/* Set the RTC */
 +	{
-+		const u8 *p = (&__PC9800SCA(u8, PC9800SCA_SCSI_PARAMS)
-+			       + disk->device->id * 4);
++		int leap_yr;
 +
-+		ip[0] = p[1];	/* # of heads */
-+		ip[1] = p[0];	/* # of sectors/track */
-+		ip[2] = *(u16 *)&p[2] & 0x0FFF;	/* # of cylinders */
-+		if (p[3] & (1 << 6)) { /* #-of-cylinders is 16-bit */
-+			ip[2] |= (ip[0] & 0xF0) << 8;
-+			ip[0] &= 0x0F;
-+		}
-+		printk(KERN_INFO "sd%s: "
-+			"BIOS parameters CHS:%d/%d/%d, %u bytes %s sector\n",
-+			namebuf, ip[2], ip[0], ip[1], 256 << ((p[3] >> 4) & 3),
-+			p[3] & 0x80 ? "hard" : "soft");
++		if (!capable(CAP_SYS_TIME))
++			return -EACCES;
++
++		if (copy_from_user(&wtime, (struct rtc_time *) arg,
++				    sizeof (struct rtc_time)))
++			return -EFAULT;
++
++		/* Valid year is 1995 - 2094, inclusive.  */
++		if (wtime.tm_year < 95 || wtime.tm_year > 194)
++			return -EINVAL;
++
++		if (wtime.tm_mon > 11 || wtime.tm_mday == 0)
++			return -EINVAL;
++
++		/* For acceptable year domain (1995 - 2094),
++		   this IS sufficient.  */
++		leap_yr = !(wtime.tm_year % 4);
++
++		if (wtime.tm_mday > (days_in_mo[wtime.tm_mon]
++				     + (wtime.tm_mon == 2 && leap_yr)))
++			return -EINVAL;
++			
++		if (wtime.tm_hour >= 24
++		    || wtime.tm_min >= 60 || wtime.tm_sec >= 60)
++			return -EINVAL;
++
++		if (wtime.tm_wday > 6)
++			return -EINVAL;
++
++		raw.sec  = BINARY_TO_BCD(wtime.tm_sec);
++		raw.min  = BINARY_TO_BCD(wtime.tm_min);
++		raw.hour = BINARY_TO_BCD(wtime.tm_hour);
++		raw.mday = BINARY_TO_BCD(wtime.tm_mday);
++		raw.mon  = wtime.tm_mon + 1;
++		raw.wday = wtime.tm_wday;
++		raw.year = BINARY_TO_BCD(wtime.tm_year % 100);
++
++		spin_lock_irq(&rtc_lock);
++		upd4990a_set_time(&raw, 0);
++		spin_unlock_irq(&rtc_lock);
++
 +		return 0;
 +	}
-+
-+	/* Assume PC-9801-92 compatible parameters for HAs without BIOS.  */
-+	ip[0] = 8;
-+	ip[1] = 32;
-+	ip[2] = disk->capacity / (8 * 32);
-+	if (ip[2] > 65535) {	/* if capacity >= 8GB */
-+		/* Recent on-board adapters seem to use this parameter.  */
-+		ip[1] = 128;
-+		ip[2] = disk->capacity / (8 * 128);
-+		if (ip[2] > 65535) { /* if capacity >= 32GB  */
-+			/* Clip the number of cylinders.  Currently this
-+			   is the limit that we deal with.  */
-+			ip[2] = 65535;
-+		}
++	default:
++		return -EINVAL;
 +	}
-+	printk(KERN_INFO "sd%s: BIOS parameters CHS:%d/%d/%d (assumed)\n",
-+		namebuf, ip[2], ip[0], ip[1]);
++	return copy_to_user((void *)arg, &wtime, sizeof wtime) ? -EFAULT : 0;
++}
++
++/*
++ *	We enforce only one user at a time here with the open/close.
++ *	Also clear the previous interrupt data on an open, and clean
++ *	up things on a close.
++ */
++
++static int rtc_open(struct inode *inode, struct file *file)
++{
++	spin_lock_irq(&rtc_lock);
++
++	if(rtc_status & RTC_IS_OPEN)
++		goto out_busy;
++
++	rtc_status |= RTC_IS_OPEN;
++
++	rtc_irq_data = 0;
++	spin_unlock_irq(&rtc_lock);
++	return 0;
++
++ out_busy:
++	spin_unlock_irq(&rtc_lock);
++	return -EBUSY;
++}
++
++static int rtc_fasync(int fd, struct file *filp, int on)
++{
++	return fasync_helper(fd, filp, on, &rtc_async_queue);
++}
++
++static int rtc_release(struct inode *inode, struct file *file)
++{
++	del_timer(&rtc_uie_timer);
++
++	if (file->f_flags & FASYNC)
++		rtc_fasync(-1, file, 0);
++
++	rtc_irq_data = 0;
++
++	/* No need for locking -- nobody else can do anything until this rmw is
++	 * committed, and no timer is running. */
++	rtc_status &= ~(RTC_IS_OPEN | RTC_UIE_TIMER_ON);
 +	return 0;
 +}
-+#endif /* CONFIG_PC9800 */
-diff -urN linux/drivers/scsi/sd.c linux98/drivers/scsi/sd.c
---- linux/drivers/scsi/sd.c	Wed Oct 16 13:20:40 2002
-+++ linux98/drivers/scsi/sd.c	Wed Oct 16 15:26:55 2002
-@@ -125,7 +125,11 @@
- 
- static void sd_rw_intr(Scsi_Cmnd * SCpnt);
- 
-+#ifndef CONFIG_PC9800
- static Scsi_Disk * sd_get_sdisk(int index);
-+#else
-+Scsi_Disk * sd_get_sdisk(int index);
-+#endif
- 
- #if defined(CONFIG_PPC32)
- /**
-@@ -1638,7 +1642,11 @@
- 	return (the_result == 0);
- }
- 
-+#ifndef CONFIG_PC9800
- static Scsi_Disk * sd_get_sdisk(int index)
-+#else
-+Scsi_Disk * sd_get_sdisk(int index)
-+#endif
- {
- 	Scsi_Disk * sdkp = NULL;
- 	unsigned long iflags;
-diff -urN linux/drivers/scsi/wd33c93.c linux98/drivers/scsi/wd33c93.c
---- linux/drivers/scsi/wd33c93.c	Fri Aug  2 06:16:08 2002
-+++ linux98/drivers/scsi/wd33c93.c	Wed Aug  7 13:07:51 2002
-@@ -84,12 +84,17 @@
- #include <linux/init.h>
- #include <asm/irq.h>
- #include <linux/blk.h>
-+#include <linux/spinlock.h>
- 
- #include "scsi.h"
- #include "hosts.h"
- 
- 
-+#if defined(CONFIG_SCSI_PC980155) || defined(CONFIG_SCSI_PC980155_MODULE)
-+#define WD33C93_VERSION    "1.25-pc98"
-+#else
- #define WD33C93_VERSION    "1.25"
-+#endif
- #define WD33C93_DATE       "09/Jul/1997"
- /* NOTE: 1.25 for m68k is related to in2000-1.31 for x86 */
- 
-@@ -173,7 +178,13 @@
- MODULE_PARM(setup_strings, "s");
- #endif
- 
-+static spinlock_t wd_lock = SPIN_LOCK_UNLOCKED;
 +
-+#if defined(CONFIG_SCSI_PC980155) || defined(CONFIG_SCSI_PC980155_MODULE)
++static unsigned int rtc_poll(struct file *file, poll_table *wait)
++{
++	unsigned long l;
 +
-+#include "pc980155regs.h"
- 
-+#else /* !CONFIG_SCSI_PC980155 */
- 
- static inline uchar read_wd33c93(const wd33c93_regs regs, uchar reg_num)
- {
-@@ -203,6 +214,7 @@
-    *regs.SCMD = cmd;
-    mb();
- }
-+#endif /* CONFIG_SCSI_PC980155 */
- 
- 
- static inline uchar read_1_byte(const wd33c93_regs regs)
-@@ -220,6 +232,11 @@
-    return x;
- }
- 
-+#if defined(CONFIG_SCSI_PC980155) || defined(CONFIG_SCSI_PC980155_MODULE)
++	poll_wait(file, &rtc_wait, wait);
 +
-+#include "pc980155regs.h"
++	spin_lock_irq(&rtc_lock);
++	l = rtc_irq_data;
++	spin_unlock_irq(&rtc_lock);
 +
-+#else /* !CONFIG_SCSI_PC980155 */
- 
- static void write_wd33c93_count(const wd33c93_regs regs, unsigned long value)
- {
-@@ -244,6 +261,7 @@
-    mb();
-    return value;
- }
-+#endif /* CONFIG_SCSI_PC980155 */
- 
- 
- /* The 33c93 needs to be told which direction a command transfers its
-@@ -385,8 +403,9 @@
-     * sense data is not lost before REQUEST_SENSE executes.
-     */
- 
--   save_flags(flags);
--   cli();
-+   //save_flags(flags);
-+   //cli();
-+   spin_lock_irqsave(&wd_lock, flags);
- 
-    if (!(hostdata->input_Q) || (cmd->cmnd[0] == REQUEST_SENSE)) {
-       cmd->host_scribble = (uchar *)hostdata->input_Q;
-@@ -407,7 +426,8 @@
- 
- DB(DB_QUEUE_COMMAND,printk(")Q-%ld ",cmd->pid))
- 
--   restore_flags(flags);
-+   //restore_flags(flags);
-+   spin_unlock_irqrestore(&wd_lock, flags);
-    return 0;
- }
- 
-@@ -428,7 +448,9 @@
- struct WD33C93_hostdata *hostdata = (struct WD33C93_hostdata *)instance->hostdata;
- const wd33c93_regs regs = hostdata->regs;
- Scsi_Cmnd *cmd, *prev;
-+#ifdef DEBUG
- int i;
-+#endif
- 
- DB(DB_EXECUTE,printk("EX("))
- 
-@@ -462,6 +484,16 @@
-       return;
-       }
- 
-+#if defined(CONFIG_SCSI_PC980155) || defined(CONFIG_SCSI_PC980155_MODULE)
-+#ifdef DEBUG
-+printk("exec: command = [");
-+for (i=0; i<12; i++){
-+  printk(" %02x", cmd->cmnd[i]);
++	if (l != 0)
++		return POLLIN | POLLRDNORM;
++	return 0;
 +}
-+printk("]\nexec: target = %d\n", cmd->target);
-+#endif
-+#endif
 +
-    /*  remove command from queue */
-    
-    if (prev)
-@@ -591,9 +623,13 @@
-     * (take advantage of auto-incrementing)
-     */
- 
-+#if defined(CONFIG_SCSI_PC980155) || defined(CONFIG_SCSI_PC980155_MODULE)
-+      write_wd33c93_cdb(regs, cmd->cmd_len, cmd->cmnd);
-+#else /* !CONFIG_SCSI_PC980155 */
-       *regs.SASR = WD_CDB_1;
-       for (i=0; i<cmd->cmd_len; i++)
-          *regs.SCMD = cmd->cmnd[i];
-+#endif /* CONFIG_SCSI_PC980155 */
- 
-    /* The wd33c93 only knows about Group 0, 1, and 5 commands when
-     * it's doing a 'select-and-transfer'. To be safe, we write the
-@@ -765,7 +801,7 @@
-    if (!(asr & ASR_INT) || (asr & ASR_BSY))
-       return;
- 
--   save_flags(flags);
-+   local_save_flags(flags);
- 
- #ifdef PROC_STATISTICS
-    hostdata->int_cnt++;
-@@ -777,6 +813,46 @@
- 
- DB(DB_INTR,printk("{%02x:%02x-",asr,sr))
- 
-+#if defined(CONFIG_SCSI_PC980155) || defined(CONFIG_SCSI_PC980155_MODULE)
-+#ifdef DEBUG
-+   {
-+     int i;
-+     static uchar old_phs=0;
-+     printk("**interrupt ");
-+     if (cmd){
-+       printk("cmd[");
-+       for (i=0; i<cmd->cmd_len-1; i++){
-+	 printk("%02x ",cmd->cmnd[i]);
-+       }
-+       printk("%02x] ",cmd->cmnd[i]);
-+     } else {
-+       printk("NoConnectedCmd ");
-+     }
-+     printk("asr=%02x sr=%02x phs=%02x\n",asr,sr,phs);
++/*
++ *	The various file operations we support.
++ */
 +
-+     if (sr==0x49){
-+       if (phs==old_phs){
-+	 for (i = 0; i < cmd->SCp.this_residual; i++){
-+	   printk("%02x", cmd->SCp.buffer);
-+	   switch (i % 32){
-+	   case 7: case 15: case 23:
-+	     printk(" ");
-+	     break;
-+	   case 31:
-+	     printk("\n");
-+	     break;
-+	   default:
-+	     break;
-+	   }
-+	 }
-+	 panic("");
-+       } else
-+	 old_phs = phs;
-+     }
-+   }
-+#endif
-+#endif       
++static struct file_operations rtc_fops = {
++	owner:		THIS_MODULE,
++	llseek:		rtc_llseek,
++	read:		rtc_read,
++	poll:		rtc_poll,
++	ioctl:		rtc_ioctl,
++	open:		rtc_open,
++	release:	rtc_release,
++	fasync:		rtc_fasync,
++};
 +
- /* After starting a DMA transfer, the next interrupt
-  * is guaranteed to be in response to completion of
-  * the transfer. Since the Amiga DMA hardware runs in
-@@ -831,7 +907,7 @@
-      * is here...
-      */
- 
--    restore_flags(flags);
-+    local_irq_restore(flags);
- 
- /* We are not connected to a target - check to see if there
-  * are commands waiting to be executed.
-@@ -1085,7 +1161,7 @@
-                write_wd33c93_cmd(regs, WD_CMD_NEGATE_ACK);
-                hostdata->state = S_CONNECTED;
-             }
--         restore_flags(flags);
-+         local_irq_restore(flags);
-          break;
- 
- 
-@@ -1117,7 +1193,7 @@
- /* We are no longer  connected to a target - check to see if
-  * there are commands waiting to be executed.
-  */
--       restore_flags(flags);
-+            local_irq_restore(flags);
-             wd33c93_execute(instance);
-             }
-          else {
-@@ -1200,7 +1276,7 @@
-  * there are commands waiting to be executed.
-  */
-     /* look above for comments on scsi_done() */
--    restore_flags(flags);
-+         local_irq_restore(flags);
-          wd33c93_execute(instance);
-          break;
- 
-@@ -1228,7 +1304,7 @@
-                else
-                   cmd->result = cmd->SCp.Status | (cmd->SCp.Message << 8);
-                cmd->scsi_done(cmd);
--          restore_flags(flags);
-+               local_irq_restore(flags);
-                break;
-             case S_PRE_TMP_DISC:
-             case S_RUNNING_LEVEL2:
-@@ -1693,7 +1769,7 @@
-    return 1;
- }
- 
--__setup("wd33c93", wd33c93_setup);
-+__setup("wd33c93=", wd33c93_setup);
- 
- 
- /* check_setup_args() returns index if key found, 0 if not
-@@ -1831,10 +1907,12 @@
- 
- 
-    { unsigned long flags;
--     save_flags(flags);
--     cli();
-+     //save_flags(flags);
-+     //cli();
-+     spin_lock_irqsave(&wd_lock, flags);
-      reset_wd33c93(instance);
--     restore_flags(flags);
-+     //restore_flags(flags);
-+     spin_unlock_irqrestore(&wd_lock, flags);
-    }
- 
-    printk("wd33c93-%d: chip=%s/%d no_sync=0x%x no_dma=%d",instance->host_no,
-@@ -1932,8 +2010,9 @@
-       return len;
-       }
- 
--   save_flags(flags);
--   cli();
-+   //save_flags(flags);
-+   //cli();
-+   spin_lock_irqsave(&wd_lock, flags);
-    bp = buf;
-    *bp = '\0';
-    if (hd->proc & PR_VERSION) {
-@@ -2008,7 +2087,8 @@
-          }
-       }
-    strcat(bp,"\n");
--   restore_flags(flags);
-+   //restore_flags(flags);
-+   spin_unlock_irqrestore(&wd_lock, flags);
-    *start = buf;
-    if (stop) {
-       stop = 0;
-diff -urN linux/drivers/scsi/wd33c93.h linux98/drivers/scsi/wd33c93.h
---- linux/drivers/scsi/wd33c93.h	Sat Oct 12 13:21:35 2002
-+++ linux98/drivers/scsi/wd33c93.h	Sat Oct 12 14:18:53 2002
-@@ -186,8 +186,13 @@
- 
-    /* This is what the 3393 chip looks like to us */
- typedef struct {
-+#if defined(CONFIG_SCSI_PC980155) || defined(CONFIG_SCSI_PC980155_MODULE)
-+   volatile unsigned int   *SASR;
-+   volatile unsigned int   *SCMD;
++static struct miscdevice rtc_dev=
++{
++	RTC_MINOR,
++	"rtc",
++	&rtc_fops
++};
++
++static int __init rtc_init(void)
++{
++	if (!request_region(UPD4990A_IO, 1, "rtc")) {
++		printk(KERN_ERR "upd4990a: could not acquire I/O port %#x\n",
++			UPD4990A_IO);
++		return -EBUSY;
++	}
++
++#if 0
++	printk(KERN_INFO "\xB6\xDA\xDD\xC0\xDE \xC4\xDE\xB9\xB2 Driver\n");  /* Calender Clock Driver */
 +#else
-    volatile unsigned char  *SASR;
-    volatile unsigned char  *SCMD;
++	printk(KERN_INFO
++	       "Real Time Clock driver for NEC PC-9800 v" RTC98_VERSION "\n");
 +#endif
- } wd33c93_regs;
- 
- 
-diff -urN linux/include/scsi/scsicam.h linux98/include/scsi/scsicam.h
---- linux/include/scsi/scsicam.h	Thu Jul 25 06:03:26 2002
-+++ linux98/include/scsi/scsicam.h	Fri Jul 26 11:32:39 2002
-@@ -12,8 +12,13 @@
- 
- #ifndef SCSICAM_H
- #define SCSICAM_H
++	misc_register(&rtc_dev);
++	create_proc_read_entry("driver/rtc", 0, NULL, rtc_read_proc, NULL);
++
++	init_timer(&rtc_uie_timer);
++	rtc_uie_timer.function = rtc_uie_intr;
++
++	return 0;
++}
++
++module_init (rtc_init);
++
++#ifdef MODULE
++static void __exit rtc_exit(void)
++{
++	del_timer(&rtc_uie_timer);
++	release_region(UPD4990A_IO, 1);
++	remove_proc_entry("driver/rtc", NULL);
++	misc_deregister(&rtc_dev);
++}
++
++module_exit (rtc_exit);
++#endif
++
++EXPORT_NO_SYMBOLS;
++
++/*
++ *	Info exported via "/proc/driver/rtc".
++ */
++
++static inline int rtc_get_status(char *buf)
++{
++	char *p;
++	unsigned int year;
++	struct upd4990a_raw_data data;
++
++	p = buf;
++
++	upd4990a_get_time(&data, 0);
++
++	/*
++	 * There is no way to tell if the luser has the RTC set for local
++	 * time or for Universal Standard Time (GMT). Probably local though.
++	 */
++	if ((year = BCD_TO_BINARY(data.year) + 1900) < 1995)
++		year += 100;
++	p += sprintf(p,
++		     "rtc_time\t: %02d:%02d:%02d\n"
++		     "rtc_date\t: %04d-%02d-%02d\n",
++		     BCD_TO_BINARY(data.hour), BCD_TO_BINARY(data.min),
++		     BCD_TO_BINARY(data.sec),
++		     year, data.mon, BCD_TO_BINARY(data.mday));
++
++	return  p - buf;
++}
++
++static int rtc_read_proc(char *page, char **start, off_t off,
++			 int count, int *eof, void *data)
++{
++	int len = rtc_get_status(page);
++
++	if (len <= off + count)
++		*eof = 1;
++	*start = page + off;
++	len -= off;
++	if (len > count)
++		len = count;
++	if (len < 0)
++		len = 0;
++	return len;
++}
+diff -urN linux/include/asm-i386/upd4990a.h linux98/include/asm-i386/upd4990a.h
+--- linux/include/asm-i386/upd4990a.h	Thu Jan  1 09:00:00 1970
++++ linux98/include/asm-i386/upd4990a.h	Fri Aug 17 22:15:17 2001
+@@ -0,0 +1,58 @@
++/*
++ *  Architecture dependent definitions
++ *  for NEC uPD4990A serial I/O real-time clock.
++ *
++ *  Copyright 2001  TAKAI Kousuke <tak@kmc.kyoto-u.ac.jp>
++ *		    Kyoto University Microcomputer Club (KMC).
++ *
++ *  References:
++ *	uPD4990A serial I/O real-time clock users' manual (Japanese)
++ *	No. S12828JJ4V0UM00 (4th revision), NEC Corporation, 1999.
++ */
++
++#ifndef _ASM_I386_uPD4990A_H
++#define _ASM_I386_uPD4990A_H
++
 +#include <linux/config.h>
- extern int scsicam_bios_param (Disk *disk, struct block_device *bdev, int *ip);
- extern int scsi_partsize(unsigned char *buf, unsigned long capacity,
-            unsigned int  *cyls, unsigned int *hds, unsigned int *secs);
- extern unsigned char *scsi_bios_ptable(struct block_device *bdev);
++
 +#ifdef CONFIG_PC9800
-+extern int pc9800_scsi_bios_param(Disk *disk, struct block_device *bdev,
-+					int *ip);
++
++#include <asm/io.h>
++
++#define UPD4990A_IO		(0x0020)
++#define UPD4990A_IO_DATAOUT	(0x0033)
++
++#define UPD4990A_OUTPUT_DATA_CLK(data, clk)		\
++	outb((((data) & 1) << 5) | (((clk) & 1) << 4)	\
++	      | UPD4990A_PAR_SERIAL_MODE, UPD4990A_IO)
++
++#define UPD4990A_OUTPUT_CLK(clk)	UPD4990A_OUTPUT_DATA_CLK(0, (clk))
++
++#define UPD4990A_OUTPUT_STROBE(stb) \
++	outb(((stb) << 3) | UPD4990A_PAR_SERIAL_MODE, UPD4990A_IO)
++
++/*
++ * Note: udelay() is *not* usable for UPD4990A_DELAY because
++ *	 the Linux kernel reads uPD4990A to set up system clock
++ *	 before calibrating delay...
++ */
++#define UPD4990A_DELAY(usec)						\
++	do {								\
++		if (__builtin_constant_p((usec)) && (usec) < 5)	\
++			__asm__ (".rept %c1\n\toutb %%al,%0\n\t.endr"	\
++				 : : "N" (0x5F),			\
++				     "i" (((usec) * 10 + 5) / 6));	\
++		else {							\
++			int _count = ((usec) * 10 + 5) / 6;		\
++			__asm__ volatile ("1: outb %%al,%1\n\tloop 1b"	\
++					  : "=c" (_count)		\
++					  : "N" (0x5F), "0" (_count));	\
++		}							\
++	} while (0)
++
++/* Caller should ignore all bits except bit0 */
++#define UPD4990A_READ_DATA()	inb(UPD4990A_IO_DATAOUT)
++
++#endif /* CONFIG_PC9800 */
++
 +#endif
- #endif /* def SCSICAM_H */
+diff -urN linux/include/linux/upd4990a.h linux98/include/linux/upd4990a.h
+--- linux/include/linux/upd4990a.h	Thu Jan  1 09:00:00 1970
++++ linux98/include/linux/upd4990a.h	Fri Aug 17 22:15:48 2001
+@@ -0,0 +1,140 @@
++/*
++ *  Constant and architecture independent procedures
++ *  for NEC uPD4990A serial I/O real-time clock.
++ *
++ *  Copyright 2001  TAKAI Kousuke <tak@kmc.kyoto-u.ac.jp>
++ *		    Kyoto University Microcomputer Club (KMC).
++ *
++ *  References:
++ *	uPD4990A serial I/O real-time clock users' manual (Japanese)
++ *	No. S12828JJ4V0UM00 (4th revision), NEC Corporation, 1999.
++ */
++
++#ifndef _LINUX_uPD4990A_H
++#define _LINUX_uPD4990A_H
++
++#include <asm/byteorder.h>
++
++#include <asm/upd4990a.h>
++
++/* Serial commands (4 bits) */
++#define UPD4990A_REGISTER_HOLD			(0x0)
++#define UPD4990A_REGISTER_SHIFT			(0x1)
++#define UPD4990A_TIME_SET_AND_COUNTER_HOLD	(0x2)
++#define UPD4990A_TIME_READ			(0x3)
++#define UPD4990A_TP_64HZ			(0x4)
++#define UPD4990A_TP_256HZ			(0x5)
++#define UPD4990A_TP_2048HZ			(0x6)
++#define UPD4990A_TP_4096HZ			(0x7)
++#define UPD4990A_TP_1S				(0x8)
++#define UPD4990A_TP_10S				(0x9)
++#define UPD4990A_TP_30S				(0xA)
++#define UPD4990A_TP_60S				(0xB)
++#define UPD4990A_INTERRUPT_RESET		(0xC)
++#define UPD4990A_INTERRUPT_TIMER_START		(0xD)
++#define UPD4990A_INTERRUPT_TIMER_STOP		(0xE)
++#define UPD4990A_TEST_MODE_SET			(0xF)
++
++/* Parallel commands (3 bits)
++   0-6 are same with serial commands.  */
++#define UPD4990A_PAR_SERIAL_MODE		7
++
++#ifndef UPD4990A_DELAY
++# include <linux/delay.h>
++# define UPD4990A_DELAY(usec)	udelay((usec))
++#endif
++#ifndef UPD4990A_OUTPUT_DATA
++# define UPD4990A_OUTPUT_DATA(bit)			\
++	do {						\
++		UPD4990A_OUTPUT_DATA_CLK((bit), 0);	\
++		UPD4990A_DELAY(1); /* t-DSU */		\
++		UPD4990A_OUTPUT_DATA_CLK((bit), 1);	\
++		UPD4990A_DELAY(1); /* t-DHLD */	\
++	} while (0)
++#endif
++
++static __inline__ void upd4990a_serial_command(int command)
++{
++	UPD4990A_OUTPUT_DATA(command >> 0);
++	UPD4990A_OUTPUT_DATA(command >> 1);
++	UPD4990A_OUTPUT_DATA(command >> 2);
++	UPD4990A_OUTPUT_DATA(command >> 3);
++	UPD4990A_DELAY(1);	/* t-HLD */
++	UPD4990A_OUTPUT_STROBE(1);
++	UPD4990A_DELAY(1);	/* t-STB & t-d1 */
++	UPD4990A_OUTPUT_STROBE(0);
++	/* 19 microseconds extra delay is needed
++	   iff previous mode is TIME READ command  */
++}
++
++struct upd4990a_raw_data {
++	u8	sec;		/* BCD */
++	u8	min;		/* BCD */
++	u8	hour;		/* BCD */
++	u8	mday;		/* BCD */
++#if   defined __LITTLE_ENDIAN_BITFIELD
++	unsigned wday :4;	/* 0-6 */
++	unsigned mon :4;	/* 1-based */
++#elif defined __BIG_ENDIAN_BITFIELD
++	unsigned mon :4;	/* 1-based */
++	unsigned wday :4;	/* 0-6 */
++#else
++# error Unknown bitfield endian!
++#endif
++	u8	year;		/* BCD */
++};
++
++static __inline__ void upd4990a_get_time(struct upd4990a_raw_data *buf,
++					  int leave_register_hold)
++{
++	int byte;
++
++	upd4990a_serial_command(UPD4990A_TIME_READ);
++	upd4990a_serial_command(UPD4990A_REGISTER_SHIFT);
++	UPD4990A_DELAY(19);	/* t-d2 - t-d1 */
++
++	for (byte = 0; byte < 6; byte++) {
++		u8 tmp;
++		int bit;
++
++		for (tmp = 0, bit = 0; bit < 8; bit++) {
++			tmp = (tmp | (UPD4990A_READ_DATA() << 8)) >> 1;
++			UPD4990A_OUTPUT_CLK(1);
++			UPD4990A_DELAY(1);
++			UPD4990A_OUTPUT_CLK(0);
++			UPD4990A_DELAY(1);
++		}
++		((u8 *) buf)[byte] = tmp;
++	}
++
++	/* The uPD4990A users' manual says that we should issue `Register
++	   Hold' command after each data retrieval, or next `Time Read'
++	   command may not work correctly.  */
++	if (!leave_register_hold)
++		upd4990a_serial_command(UPD4990A_REGISTER_HOLD);
++}
++
++static __inline__ void upd4990a_set_time(const struct upd4990a_raw_data *data,
++					  int time_set_only)
++{
++	int byte;
++
++	if (!time_set_only)
++		upd4990a_serial_command(UPD4990A_REGISTER_SHIFT);
++
++	for (byte = 0; byte < 6; byte++) {
++		int bit;
++		u8 tmp = ((const u8 *) data)[byte];
++
++		for (bit = 0; bit < 8; bit++, tmp >>= 1)
++			UPD4990A_OUTPUT_DATA(tmp);
++	}
++
++	upd4990a_serial_command(UPD4990A_TIME_SET_AND_COUNTER_HOLD);
++
++	/* Release counter hold and start the clock.  */
++	if (!time_set_only)
++		upd4990a_serial_command(UPD4990A_REGISTER_HOLD);
++}
++
++#endif /* _LINUX_uPD4990A_H */

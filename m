@@ -1,52 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263385AbTDGLgp (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 07:36:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263386AbTDGLgp (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 07:36:45 -0400
-Received: from elixir.e.kth.se ([130.237.48.5]:8203 "EHLO elixir.e.kth.se")
-	by vger.kernel.org with ESMTP id S263385AbTDGLgo (for <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Apr 2003 07:36:44 -0400
-To: Christophe Saout <christophe@saout.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: An idea for prefetching swapped memory...
-References: <200304071026.47557.schlicht@uni-mannheim.de>
-	<200304072021.17080.kernel@kolivas.org>
-	<1049715389.1096.7.camel@chtephan.cs.pocnet.net>
-From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Date: 07 Apr 2003 13:48:17 +0200
-In-Reply-To: Christophe Saout's message of "07 Apr 2003 13:36:29 +0200"
-Message-ID: <yw1xk7e6jzpa.fsf@nogger.e.kth.se>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Channel Islands)
+	id S263386AbTDGLm1 (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 07:42:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263387AbTDGLm1 (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 07:42:27 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:32492 "EHLO
+	mtvmime02.veritas.com") by vger.kernel.org with ESMTP
+	id S263386AbTDGLm1 (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 7 Apr 2003 07:42:27 -0400
+Date: Mon, 7 Apr 2003 12:55:59 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Christoph Rohland <cr@sap.com>
+cc: =?iso-8859-1?q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
+       CaT <cat@zip.com.au>, <tomlins@cam.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH: allow percentile size of tmpfs (2.5.66 / 2.4.20-pre2)
+In-Reply-To: <ov65pqlnb9.fsf@sap.com>
+Message-ID: <Pine.LNX.4.44.0304071245130.1130-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christophe Saout <christophe@saout.de> writes:
-
-> > > With this feature there should be no performance decrease
-> > > because only free resources would be used, and if pages were
-> > > swapped in but not be used, they stay not dirty and so have not
-> > > to be written to disk when they are swapped out again. But the
-> > > improvements should be obvious if simply the last swaped out
-> > > pages are swapped in again...
-> > 
-> > This has been argued before. Why would the last swapped out pages
-> > be the best to swap in? The vm subsystem has (somehow) decided
-> > they're the least likely to be used again so why swap them in?
+On Mon, 7 Apr 2003, Christoph Rohland wrote:
+> On Wed, 2 Apr 2003, Hugh Dickins wrote:
+> > Don't blame Christoph for that, one of these days I'll face up to
+> > my responsibilities and make swapoff fail (probably get itself
+> > OOM-killed) instead of having everything else OOM-killed.
 > 
-> Are you sure this is working? When I'm watching a video ofer NFS on
-> my machine which is idle (just X and mplayer, gnome in background,
-> 256 MB of memory, 512 swap), after 30 minutes or so, the playback
-> starts to jump. The cpu usage is below 10%, and it even does this
-> when both X and mplayer are renice to -19 (!). So the VM swapped
-> everything out and after 30 minutes it starts to swap out X oder
-> mplayer itself, which is immediately swapped back in but the video
-> jumps... :-(
+> The hooks for the accounting would solve this easily: the swapoff hook
+> would realize that there is not enough space left for the tmpfs
+> instance and simply return an error. So swapoff would fail.
+> We would not even stress the vm to swapin all pages until
+> realizingthat there is not enough memory left.
 
-How much of your memory is in use?  Are you sure there isn't a memory
-leak somewhere in mplayer?
+You're supposing that it's tmpfs causing this problem: not at all,
+that's just an easy way to show it.  Take away tmpfs, and swapoff
+is still liable to hang, with other tasks OOMing (even when strict
+no-overcommit accounting: I've not yet added the check it needs).
 
--- 
-Måns Rullgård
-mru@users.sf.net
+Hugh
+

@@ -1,53 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130139AbRAXIoh>; Wed, 24 Jan 2001 03:44:37 -0500
+	id <S129867AbRAXIn5>; Wed, 24 Jan 2001 03:43:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130202AbRAXIo2>; Wed, 24 Jan 2001 03:44:28 -0500
-Received: from aragorn.ics.muni.cz ([147.251.4.33]:63187 "EHLO
-	aragorn.ics.muni.cz") by vger.kernel.org with ESMTP
-	id <S130139AbRAXIoU>; Wed, 24 Jan 2001 03:44:20 -0500
-Date: Wed, 24 Jan 2001 09:43:45 +0100
-From: Petr Matula <pem@informatics.muni.cz>
-To: Duncan Laurie <duncan@virtualwire.org>, randy.dunlap@intel.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: int. assignment on SMP + ServerWorks chipset
-Message-ID: <20010124094345.A13854894@aisa.fi.muni.cz>
-In-Reply-To: <3A64F7E2.30807@virtualwire.org> <20010118095810.A13218780@aisa.fi.muni.cz> <20010121215423.A20953@virtualwire.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <20010121215423.A20953@virtualwire.org>; from duncan@virtualwire.org on Sun, Jan 21, 2001 at 09:54:23PM -0700
+	id <S130172AbRAXInh>; Wed, 24 Jan 2001 03:43:37 -0500
+Received: from imladris.demon.co.uk ([193.237.130.41]:51720 "EHLO
+	imladris.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S129867AbRAXIna>; Wed, 24 Jan 2001 03:43:30 -0500
+Date: Wed, 24 Jan 2001 08:42:51 +0000 (GMT)
+From: David Woodhouse <dwmw2@infradead.org>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+cc: <paulus@linuxcare.com.au>, <l_indien@magic.fr>, <jma@netgem.com>,
+        <callahan@maths.ox.ac.uk>, <jfree@sovereign.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Bug in ppp_async.c
+In-Reply-To: <200101240701.f0O71OE110437@saturn.cs.uml.edu>
+Message-ID: <Pine.LNX.4.30.0101240840210.1767-100000@imladris.demon.co.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Duncan and Randy,
+On Wed, 24 Jan 2001, Albert D. Cahalan wrote:
 
-I tested Duncan's patch. It works for me with parameters "mpint=5,0,4,9".
+> Paul Mackerras writes:
+> > I'll bet you're using an old pppd.  You need version 2.4.0 of pppd,
+> > available from ftp://linuxcare.com.au/pub/ppp/, as documented in the
+> > Documentation/Changes file.
+> 
+> Even Red Hat 7 only has the 2.3.11 version.
 
-On Sun, Jan 21, 2001 at 09:54:23PM -0700, Duncan Laurie wrote:
-> The values to use depend on what your system is configured to use
-> for the USB interrupt.  This can be obtained by using the dump_pirq
-> utility from the recent pcmcia utilities.  (I made some modifications
-> to recognize the ServerWorks IRQ router which is available from
-> ftp://virtualwire.org/dump_pirq)
-dump_pirq gives me the same output like to Randy. I used the small 
-program posted by Duncan to find the new USB interrupt.
+That's probably because Red Hat 7 didn't ship with a 2.4.0 kernel.
 
-If I understand it well, it's time to wait for BIOS upgrade and 
-meanwhile Duncan's patch must be used, isn't it?
+> The 2.4.xx series is supposed to be stable. If there is any way
+> you could add a compatibility hack, please do so.
 
-Thank you very much for all your help.
+The 2.4.0 Documentation/Changes file already said that pppd should be at
+least v2.4.0. That hasn't changed, AFAICT.
 
-Petr
+-- 
+dwmw2
 
-P.S. I'm sorry for the delay. I couldn't reboot the system because
-it was in use by other users of our group.
 
----------------------------------------------------------------
- Petr Matula                                    pem@fi.muni.cz
-                                    http://www.fi.muni.cz/~pem
----------------------------------------------------------------
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

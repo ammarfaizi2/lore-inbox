@@ -1,321 +1,193 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267376AbUI0U5B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267380AbUI0VDb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267376AbUI0U5B (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Sep 2004 16:57:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267367AbUI0U4g
+	id S267380AbUI0VDb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Sep 2004 17:03:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267378AbUI0VC2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Sep 2004 16:56:36 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:6824 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S267380AbUI0UyL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Sep 2004 16:54:11 -0400
-Subject: Re: [RFC][PATCH] inotify 0.10.0
-From: Robert Love <rml@novell.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: John McCutchan <ttb@tentacle.dhs.org>, linux-kernel@vger.kernel.org,
-       gamin-list@gnome.org, viro@parcelfarce.linux.theplanet.co.uk,
-       iggy@gentoo.org
-In-Reply-To: <20040926211758.5566d48a.akpm@osdl.org>
-References: <1096250524.18505.2.camel@vertex>
-	 <20040926211758.5566d48a.akpm@osdl.org>
-Content-Type: text/plain
-Date: Mon, 27 Sep 2004 16:52:49 -0400
-Message-Id: <1096318369.30503.136.camel@betsy.boston.ximian.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.0 
-Content-Transfer-Encoding: 7bit
+	Mon, 27 Sep 2004 17:02:28 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:57526 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S267380AbUI0VAD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Sep 2004 17:00:03 -0400
+Date: Mon, 27 Sep 2004 13:58:12 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: Ulrich Drepper <drepper@redhat.com>
+cc: johnstul@us.ibm.com, Ulrich.Windl@rz.uni-regensburg.de, george@mvista.com,
+       linux-kernel@vger.kernel.org, libc-alpha@sources.redhat.com
+Subject: [RFC] Posix compliant behavior of CLOCK_PROCESS/THREAD_CPUTIME_ID
+In-Reply-To: <B6E8046E1E28D34EB815A11AC8CA312902CD327E@mtv-atc-605e--n.corp.sgi.com>
+Message-ID: <Pine.LNX.4.58.0409271344220.32308@schroedinger.engr.sgi.com>
+References: <B6E8046E1E28D34EB815A11AC8CA312902CD3264@mtv-atc-605e--n.corp.sgi.com>
+ <Pine.LNX.4.58.0409240508560.5706@schroedinger.engr.sgi.com>
+ <4154F349.1090408@redhat.com> <Pine.LNX.4.58.0409242253080.13099@schroedinger.engr.sgi.com>
+ <41550B77.1070604@redhat.com> <B6E8046E1E28D34EB815A11AC8CA312902CD327E@mtv-atc-605e--n.corp.sgi.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-09-26 at 21:17 -0700, Andrew Morton wrote:
+Attached follows a patch to implement the POSIX clocks according to the
+POSIX standard which states in V3 of the Single Unix Specification:
 
-> Please raise patches against current kernels from
-> ftp://ftp.kernel.org/pub/linux/kernel/v2.6/snapshots.  This kernel is six
-> weeks old.
+1. CLOCK_PROCESS_CPUTIME_ID
 
-I have patches against newer kernels at
+  Implementations shall also support the special clockid_t value
+  CLOCK_PROCESS_CPUTIME_ID, which represents the CPU-time clock of the
+  calling process when invoking one of the clock_*() or timer_*()
+  functions. For these clock IDs, the values returned by clock_gettime() and specified
+  by clock_settime() represent the amount of execution time of the process
+  associated with the clock.
 
-	http://www.kernel.org/pub/linux/kernel/people/rml/inotify
+2. CLOCK_THREAD_CPUTIME_ID
 
-Anyhow, the tidal flood of commentary is appreciated.  I have addressed
-all of your issues ...
+  Implementations shall also support the special clockid_t value
+  CLOCK_THREAD_CPUTIME_ID, which represents the CPU-time clock of the
+  calling thread when invoking one of the clock_*() or timer_*()
+  functions. For these clock IDs, the values returned by clock_gettime()
+  and specified by clock_settime() shall represent the amount of
+  execution time of the thread associated with the clock.
 
-> > +#define INOTIFY_VERSION "0.10.0"
-> 
-> You should plan to remove this - it becomes meainingless once the code
-> is merged up, and nobody ever updates it as they patch things.
+These times mentioned are CPU processing times and not the time that has
+passed since the startup of a process. Glibc currently provides its own
+implementation of these two clocks which is designed to return the time
+that passed since the startup of a process or a thread.
 
-Agreed.  Patch sent.
+Moreover this clock is bound to CPU timers which is problematic when the
+frequency of the clock changes or the process is moved to a different
+processor whose cpu timer may not be fully synchronized to the cpu timer
+of the current CPU.
 
-> +#define INOTIFY_DEV_TIMER_TIME	  (jiffies + (HZ/4))
-> 
-> ick.  Don't hide the logic in a #define.
-> 
-> static inline arm_dev_timer(struct inotify_device *dev)
-> {
-> 	mod_timer(&dev->timer, jiffies + HZ/4);
-> }
-> 
-> is nicer.
+I would like to have the following patch integrated into the kernel. Glibc
+would need to be modified to simply generate a system call for clock_* without
+doing its own emulation of a clock. CLOCK_PROCESS_CPUTIME_ID and
+CLOCK_THREAD_CPUTIME id were never intended to be used as a means to
+access a time stamp counter on a CPU and it may be better to find another
+means of accesses the cpu time registerss.
 
-It is used in more than one place, but OK.  Patch sent.
+The patch is really quite straighforward and only affects one file...
 
-> > +/* For debugging */
-> > +static int event_object_count;
-> > +static int watcher_object_count;
-> > +static int inode_ref_count;
-> 
-> OK.  These are accessed racily.  Either make them atomic_t's or remove them.
+Index: linus/kernel/posix-timers.c
+===================================================================
+--- linus.orig/kernel/posix-timers.c	2004-09-23 15:12:01.000000000 -0700
++++ linus/kernel/posix-timers.c	2004-09-27 13:42:40.000000000 -0700
+@@ -10,6 +10,10 @@
+  * 2004-06-01  Fix CLOCK_REALTIME clock/timer TIMER_ABSTIME bug.
+  *			     Copyright (C) 2004 Boris Hu
+  *
++ * 2004-07-27 Provide POSIX compliant clocks
++ *		CLOCK_PROCESS_CPUTIME_ID and CLOCK_THREAD_CPUTIME_ID.
++ *		by Christoph Lameter
++ *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License as published by
+  * the Free Software Foundation; either version 2 of the License, or (at
+@@ -133,18 +137,10 @@
+  *	    resolution.	 Here we define the standard CLOCK_REALTIME as a
+  *	    1/HZ resolution clock.
+  *
+- * CPUTIME & THREAD_CPUTIME: We are not, at this time, definding these
+- *	    two clocks (and the other process related clocks (Std
+- *	    1003.1d-1999).  The way these should be supported, we think,
+- *	    is to use large negative numbers for the two clocks that are
+- *	    pinned to the executing process and to use -pid for clocks
+- *	    pinned to particular pids.	Calls which supported these clock
+- *	    ids would split early in the function.
+- *
+  * RESOLUTION: Clock resolution is used to round up timer and interval
+  *	    times, NOT to report clock times, which are reported with as
+  *	    much resolution as the system can muster.  In some cases this
+- *	    resolution may depend on the underlaying clock hardware and
++ *	    resolution may depend on the underlying clock hardware and
+  *	    may not be quantifiable until run time, and only then is the
+  *	    necessary code is written.	The standard says we should say
+  *	    something about this issue in the documentation...
+@@ -162,7 +158,7 @@
+  *
+  *          At this time all functions EXCEPT clock_nanosleep can be
+  *          redirected by the CLOCKS structure.  Clock_nanosleep is in
+- *          there, but the code ignors it.
++ *          there, but the code ignores it.
+  *
+  * Permissions: It is assumed that the clock_settime() function defined
+  *	    for each clock will take care of permission checks.	 Some
+@@ -198,6 +194,8 @@
+ 	struct timespec *tp, struct timespec *mo);
+ int do_posix_clock_monotonic_gettime(struct timespec *tp);
+ int do_posix_clock_monotonic_settime(struct timespec *tp);
++int do_posix_clock_process_gettime(struct timespec *tp);
++int do_posix_clock_thread_gettime(struct timespec *tp);
+ static struct k_itimer *lock_timer(timer_t timer_id, unsigned long *flags);
 
-They are just statistics.  I'd prefer to remove them entirely (I don't
-personally think that the debugging code, statistics, etc. should go
-into the mainline kernel).
+ static inline void unlock_timer(struct k_itimer *timr, unsigned long flags)
+@@ -218,6 +216,14 @@
+ 		.clock_get = do_posix_clock_monotonic_gettime,
+ 		.clock_set = do_posix_clock_monotonic_settime
+ 	};
++	struct k_clock clock_thread = {.res = CLOCK_REALTIME_RES,
++		.abs_struct = NULL,
++		.clock_get = do_posix_clock_thread_gettime
++	};
++	struct k_clock clock_process = {.res = CLOCK_REALTIME_RES,
++		.abs_struct = NULL,
++		.clock_get = do_posix_clock_process_gettime
++	};
 
-> > +static int find_inode(const char __user *dirname, struct inode **inode)
-> 
-> This can just return an inode*, or an IS_ERR() errno, I think?
+ #ifdef CONFIG_TIME_INTERPOLATION
+ 	/* Clocks are more accurate with time interpolators */
+@@ -226,6 +232,8 @@
 
-Yes, it can.  Done, patch sent.
+ 	register_posix_clock(CLOCK_REALTIME, &clock_realtime);
+ 	register_posix_clock(CLOCK_MONOTONIC, &clock_monotonic);
++	register_posix_clock(CLOCK_PROCESS_CPUTIME_ID, &clock_process);
++	register_posix_clock(CLOCK_THREAD_CPUTIME_ID, &clock_thread);
 
-> > +struct inotify_kernel_event *kernel_event(int wd, int mask,
-> > +					  const char *filename)
-> > +{
-> > +	struct inotify_kernel_event *kevent;
-> > +
-> > +	kevent = kmem_cache_alloc(kevent_cache, GFP_ATOMIC);
-> 
-> Try to rearrange things so the allocation mode here can become GFP_KERNEL.
+ 	posix_timers_cache = kmem_cache_create("posix_timers_cache",
+ 					sizeof (struct k_itimer), 0, 0, NULL, NULL);
+@@ -1227,6 +1235,46 @@
+ 	return -EINVAL;
+ }
 
-Hrmph.
-
-> Are there ever enough of these objects in flight to justify a standalone
-> slab cache?
-
-Yes.  There are up to 256*8 possible events and (more importantly than
-the net number, I think) they come and go constantly.
-
-> > +	watcher = kmem_cache_alloc(watcher_cache, GFP_KERNEL);
-
-Yes.  There can be a lot of watches... one of the intended uses of this
-is automatic indexing of a user's homedir (think Apple Spotlight).  Alan
-Cox has also mentioned virus checking, etc.
-
-There are structures are _not_ used as much, and we do not slab cache
-them.
-
-> i_lock is documented as an "innermost" lock.
->
-> But here, dev->lock is nesting inside it.  Not necessarily a bug per-se,
-> but it changes and complicates kernel locking rules, and invalidates
-> commentary elsewhere.
-> 
-> If possible, please try to avoid using i_lock.  Use i_sem instead.
->
-> A bug, I think.  What happens if another CPU comes in and tries to take these
-> two locks in the opposite order?
-> 
-> The same problem applies if you switch to i_sem.  The standard fix is to
-> take the lowest-addressed lock first.  See d_move() for an example.
-
-I'll work on the locking.
-
-> I'll be merging invalidate_inodes-speedup.patch once the 2.6.10 stream
-> opens.  That will make the above code simpler, faster and quite different.
-
-Sweet.
-
-> > +	add_wait_queue(&dev->wait, &wait);
-> > +repeat:
-> > +	if (signal_pending(current)) {
-> > +		spin_unlock(&dev->lock);
-> > +		out = -ERESTARTSYS;
-> > +		set_current_state(TASK_RUNNING);
-> > +		remove_wait_queue(&dev->wait, &wait);
-> > +		goto out;
-> > +	}
-> > +	set_current_state(TASK_INTERRUPTIBLE);
-> > +	if (!inotify_dev_has_events(dev)) {
-> > +		spin_unlock(&dev->lock);
-> > +		schedule();
-> > +		spin_lock(&dev->lock);
-> > +		goto repeat;
-> > +	}
-> > +
-> > +	set_current_state(TASK_RUNNING);
-> > +	remove_wait_queue(&dev->wait, &wait);
-> 
-> The above seems a bit clumsy.
-
-John is reworking inotify_read(), which should take care of the various
-issues you raised here.
-
-> > +static int inotify_open(struct inode *inode, struct file *file)
-> > +{
-> > +	struct inotify_device *dev;
-> > +
-> > +	if (atomic_read(&watcher_count) == MAX_INOTIFY_DEVS)
-> > +		return -ENODEV;
-> > +
-> > +	atomic_inc(&watcher_count);
-> > +
-> > +	dev = kmalloc(sizeof(struct inotify_device), GFP_KERNEL);
-> > +	if (!dev)
-> > +		return -ENOMEM;
-> > +
-> > +	memset(dev->bitmask, 0,
-> > +	  sizeof(unsigned long) * MAX_INOTIFY_DEV_WATCHERS / BITS_PER_LONG);
-> 
-> What purpose does this bitmask serve, anyway??
-
-Bitmask of allocated/unallocated watcher descriptors.
-
-Patch sent to add a comment.  Also sent a patch to use the bitmap.h
-functions instead of this open-coded memset().
-
-> > +static void inotify_release_all_watchers(struct inotify_device *dev)
-> > +{
-> > +	struct inotify_watcher *watcher,*next;
-> > +
-> > +	list_for_each_entry_safe(watcher, next, &dev->watchers, d_list)
-> > +		ignore_helper(watcher, 0);
-> > +}
-> 
-> Locking?
-> 
-> > +
-> > +static int inotify_release(struct inode *inode, struct file *file)
-> > +{
-> > +	if (file->private_data) {
-> 
-> Why test ->private_data here?
-
-I'm not sure why.  I don't think we ought to - release functions are
-only called once, when the last ref on the file dies.  I asked John and
-sent a patch to remove it.
-
-> If it indeed needs testing here, shouldn't it be zeroed out as well, with
-> appropriate locking?
-> 
-> > +		struct inotify_device *dev;
-> > +
-> > +		dev = (struct inotify_device *) file->private_data;
-> 
-> Please don't typecast when assigning to and from void*'s
-
-Nod.  Patch sent.
-
-> > +		del_timer_sync(&dev->timer);
-> > +		inotify_release_all_watchers(dev);
-> > +		inotify_release_all_events(dev);
-> > +		kfree(dev);
-> > +	}
-> > +
-> > +	printk(KERN_ALERT "inotify device released\n");
-> > +
-> > +	atomic_dec(&watcher_count);
-> 
-> If file->private_data was zero, we shouldn't have decremented this?
-
-I don't think we should test file->private_data at all, so after fixing
-that, this is fixed.
-
-> +static int inotify_watch(struct inotify_device *dev,
-> +			 struct inotify_watch_request *request)
-> > +{
-> > ...
-> > +	spin_lock(&dev->lock);
-> > +	spin_lock(&inode->i_lock);
-> 
-> Lock ranking.
-> 
-> > +static int inotify_ioctl(struct inode *ip, struct file *fp,
-> > +			 unsigned int cmd, unsigned long arg) {
-> 
-> An errant brace!
-
-Patch sent.
-
-> > +
-> > +	if (_IOC_DIR(cmd) & _IOC_READ)
-> > +		err = !access_ok(VERIFY_READ, (void *) arg, _IOC_SIZE(cmd));
-> > +
-> > +	if (err)
-> > +		err = -EFAULT;
-> > +		goto out;
-> > +
-> 
-> eh?  The above is missing braces, and cannot possibly have worked.
-
-That is my fault, just introduced in the latest revision.
-
-> > +	if (_IOC_DIR(cmd) & _IOC_WRITE)
-> > +		err = !access_ok(VERIFY_WRITE, (void *)arg, _IOC_SIZE(cmd));
-> > +
-> > +	if (err) {
-> > +		err = -EFAULT;
-> > +		goto out;
-> > +	}
-> 
-> Why are these access_ok() checks here?   I think they can (should) go away.
-
-They should.  We should just use copy_{to,from}_user.  Will fix.
-
-> We often do:
-> 
-> 	switch (cmd) {
-> 	case INOTIFY_WATCH:
-> 
-> to save a tabstop.
-
-Yah.  I thought I included that in my coding style cleanup.  Patch sent.
-
-> > +struct miscdevice inotify_device = {
-> > +	.minor  = MISC_DYNAMIC_MINOR,
-> > +	.name	= "inotify",
-> > +	.fops	= &inotify_fops,
-> > +};
-> 
-> Please update devices.txt
-
-Documentation/devices.txt doesn't really have provisions for dynamically
-allocated devices, which this is.
-
-We _could_ take a fixed minor...
-
-> > +struct inotify_event {
-> > +	int wd;
-> > +	int mask;
-> > +	int cookie;
-> > +	char filename[INOTIFY_FILENAME_MAX];
-> > +};
-> 
-> yeah, that's not very nice.  Better to kmalloc the pathname.
-
-That is the structure that we communicate with to user-space.
-
-We could kmalloc() filename, but it makes the user-space use a bit more
-complicated (and right now it is trivial and wonderfully simple).
-
-We've been debating the pros and cons.
-
-> Please add CONFIG_INOTIFY and make all this:
->
-> [...]
->
-> go away if the user doesn't want inotify.  And remember to test with
-> CONFIG_INOTIFY=n!
-
-Done.  Patch sent.
-
-> > +		INIT_LIST_HEAD (&inode->watchers);
-> 
-> Please review the entire patch and ensure that all macros and function
-> calls have no space between the identifier and the opening parenthesis.
-
-I thought I caught them all - guess not, patch sent.
-
-Thanks for the feedback.
-
-	Robert Love
-
-
++/*
++ * Single Unix Specification V3:
++ *
++ * Implementations shall also support the special clockid_t value
++ * CLOCK_THREAD_CPUTIME_ID, which represents the CPU-time clock of the calling
++ * thread when invoking one of the clock_*() or timer_*() functions. For these
++ * clock IDs, the values returned by clock_gettime() and specified by
++ * clock_settime() shall represent the amount of execution time of the thread
++ * associated with the clock.
++ */
++int do_posix_clock_thread_gettime(struct timespec *tp)
++{
++	jiffies_to_timespec(current->signal->cutime + current->signal->cstime, tp);
++	return 0;
++}
++
++/*
++ * Single Unix Specification V3:
++ *
++ * Implementations shall also support the special clockid_t value
++ * CLOCK_PROCESS_CPUTIME_ID, which represents the CPU-time clock of the
++ * calling process when invoking one of the clock_*() or timer_*() functions.
++ * For these clock IDs, the values returned by clock_gettime() and specified
++ * by clock_settime() represent the amount of execution time of the process
++ * associated with the clock.
++ */
++int do_posix_clock_process_gettime(struct timespec *tp)
++{
++	unsigned long ticks = 0;
++	struct task *t;
++
++	/* Add up the cpu time for all the threads of this process */
++	for (t = current; t != current; t = next_thread(p)) {
++		ticks += t->signal->cutime + t->signal->cstime;
++	}
++
++	jiffies_to_timespec(ticks, tp);
++	return 0;
++}
++
+ asmlinkage long
+ sys_clock_settime(clockid_t which_clock, const struct timespec __user *tp)
+ {

@@ -1,37 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265863AbTBPIAp>; Sun, 16 Feb 2003 03:00:45 -0500
+	id <S266020AbTBPJIA>; Sun, 16 Feb 2003 04:08:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265865AbTBPIAp>; Sun, 16 Feb 2003 03:00:45 -0500
-Received: from gans.physik3.uni-rostock.de ([139.30.44.2]:56554 "EHLO
-	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id <S265863AbTBPIAp>; Sun, 16 Feb 2003 03:00:45 -0500
-Date: Sun, 16 Feb 2003 09:10:31 +0100 (CET)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: Anton Blanchard <anton@samba.org>
-cc: William Lee Irwin III <wli@holomorphy.com>, Andrew Morton <akpm@digeo.com>,
-       Andi Kleen <ak@suse.de>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] make jiffies wrap 5 min after boot
-In-Reply-To: <20030215225618.538f4c70.akpm@digeo.com>
-Message-ID: <Pine.LNX.4.33.0302160900100.8770-100000@gans.physik3.uni-rostock.de>
+	id <S266064AbTBPJH7>; Sun, 16 Feb 2003 04:07:59 -0500
+Received: from smtp-out-3.wanadoo.fr ([193.252.19.233]:65178 "EHLO
+	mel-rto3.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S266020AbTBPJH7>; Sun, 16 Feb 2003 04:07:59 -0500
+From: Duncan Sands <baldrick@wanadoo.fr>
+To: John Weber <weber@nyc.rr.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.5 freezing after uncompressing linux
+Date: Sun, 16 Feb 2003 10:17:42 +0100
+User-Agent: KMail/1.5
+References: <3E4EFD75.3000708@nyc.rr.com>
+In-Reply-To: <3E4EFD75.3000708@nyc.rr.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200302161017.43944.baldrick@wanadoo.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anton Blanchard <anton@samba.org> writes:
-> Hi,
+On Sunday 16 February 2003 03:54, John Weber wrote:
+> [1.] One line summary of the problem:
 >
-> > +#define INITIAL_JIFFIES (0xffffffffUL & (unsigned long)(-300*HZ))
+> [Linux 2.5] Freezing after Uncompressing Linux
 >
-> In order to make 64bit arches wrap too, you might want to use -1UL here.
-> Not that jiffies should wrap on a 64bit machine...
+> [2.] Full description of the problem/report:
+>
+> The kernel freezes immediately after "Uncompressing Linux... OK".
+> No further messages are displayed.  I'm following wli's advice to
+> add some printk's to check whether the system is even getting to
+> startup_32(), but perhaps others have seen this problem.
 
-The whole point of the "0xffffffffUL &" is not to test 64 bit arches,
-because I know Andi doesn't take jiffies wrap patches. And-ing with -1UL
-is a no-op, as it is with ~0UL.
+Did it really freeze?  Can you see disk activity if you wait?  You may
+simply not have turned on the console in your .config.  For example,
+if you choose to compile the input subsystem as a module, then the
+console automagically gets deselected!
 
-Tim
-
-
-
+Duncan.

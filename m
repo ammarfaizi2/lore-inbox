@@ -1,39 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269852AbTGOW6Z (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 18:58:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269833AbTGOW6Y
+	id S269861AbTGOW4l (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 18:56:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269864AbTGOW4l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 18:58:24 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:26503 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S269868AbTGOW5g
+	Tue, 15 Jul 2003 18:56:41 -0400
+Received: from mta6.snfc21.pbi.net ([206.13.28.240]:41450 "EHLO
+	mta6.snfc21.pbi.net") by vger.kernel.org with ESMTP id S269861AbTGOW4i
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 18:57:36 -0400
-Date: Wed, 16 Jul 2003 01:12:09 +0200 (MET DST)
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-cc: Art Haas <ahaas@airmail.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: Trying to get DMA working with IDE alim15x3 controller
-In-Reply-To: <Pine.SOL.4.30.0307160050340.27735-100000@mion.elka.pw.edu.pl>
-Message-ID: <Pine.SOL.4.30.0307160109140.27735-100000@mion.elka.pw.edu.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 15 Jul 2003 18:56:38 -0400
+Date: Tue, 15 Jul 2003 16:15:48 -0700
+From: David Brownell <david-b@pacbell.net>
+Subject: Re: [More Info] Re: 2.6.0test 1 fails on eth0 up (arjanv RPM's - all
+ needed rpms installed)
+In-reply-to: <20030715210240.GA5345@kroah.com>
+To: Greg KH <greg@kroah.com>
+Cc: "Trever L. Adams" <tadams-lists@myrealbox.com>, arjanv@redhat.com,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Message-id: <3F148B24.8080408@pacbell.net>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii; format=flowed
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us, en, fr
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+References: <1058196612.3353.2.camel@aurora.localdomain>
+ <3F12FF53.7060708@pobox.com> <1058210139.5981.6.camel@laptop.fenrus.com>
+ <1058217601.4441.1.camel@aurora.localdomain>
+ <1058299838.3358.4.camel@aurora.localdomain> <20030715210240.GA5345@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Greg KH wrote:
 
-On Wed, 16 Jul 2003, Bartlomiej Zolnierkiewicz wrote:
+> Hm, but usb_hcd_irq() reports back the proper interrupt return value.  I
+> don't see how this could happen, unless the ehci driver was somehow
+> halted...
+> 
+> David, any ideas?
 
->
-> Hi,
->
-> Can you try this patch?  It seems
+It's getting an IRQ before the driver expects them,
+I suspect.  I think the HCD glue needs a new entry,
+forcing hardware reset before the rest of hcd init.
+Easy/simple to do; and IMO reasonable too.
 
-It seems it won't help.
+Of course, it's also strange that leaving ACPI on
+causes problems at this level.  And that it only
+happens for EHCI.
 
-What was the last kernel which worked without "ide=nodma"?
+- Dave
 
-Regards,
---
-Bartlomiej
 

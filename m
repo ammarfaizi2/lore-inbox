@@ -1,83 +1,140 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267807AbUHJXEJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267809AbUHJXIE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267807AbUHJXEJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 19:04:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267808AbUHJXEJ
+	id S267809AbUHJXIE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 19:08:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267810AbUHJXIE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 19:04:09 -0400
-Received: from holomorphy.com ([207.189.100.168]:8685 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S267807AbUHJXEC (ORCPT
+	Tue, 10 Aug 2004 19:08:04 -0400
+Received: from mail.gmx.net ([213.165.64.20]:61582 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S267809AbUHJXH5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 19:04:02 -0400
-Date: Tue, 10 Aug 2004 16:03:57 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Robert Picco <Robert.Picco@hp.com>, Jesse Barnes <jbarnes@engr.sgi.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.8-rc4-mm1
-Message-ID: <20040810230357.GE11200@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Robert Picco <Robert.Picco@hp.com>,
-	Jesse Barnes <jbarnes@engr.sgi.com>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org
-References: <20040810002110.4fd8de07.akpm@osdl.org> <200408100937.47451.jbarnes@engr.sgi.com> <20040810212033.GY11200@holomorphy.com> <41194EA5.80706@hp.com> <20040810222840.GA11200@holomorphy.com> <20040810223006.GB11200@holomorphy.com> <20040810224308.GC11200@holomorphy.com> <20040810224532.GD11200@holomorphy.com>
+	Tue, 10 Aug 2004 19:07:57 -0400
+X-Authenticated: #4399952
+Date: Wed, 11 Aug 2004 01:18:03 +0200
+From: Florian Schmidt <mista.tapas@gmx.net>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Subject: Re: [patch] voluntary-preempt-2.6.8-rc3-O5
+Message-Id: <20040811011803.3f10d290@mango.fruits.de>
+In-Reply-To: <1092174959.5061.6.camel@mindpipe>
+References: <1090795742.719.4.camel@mindpipe>
+	<20040726082330.GA22764@elte.hu>
+	<1090830574.6936.96.camel@mindpipe>
+	<20040726083537.GA24948@elte.hu>
+	<1090832436.6936.105.camel@mindpipe>
+	<20040726124059.GA14005@elte.hu>
+	<20040726204720.GA26561@elte.hu>
+	<20040729222657.GA10449@elte.hu>
+	<20040801193043.GA20277@elte.hu>
+	<20040809104649.GA13299@elte.hu>
+	<20040810132654.GA28915@elte.hu>
+	<1092174959.5061.6.camel@mindpipe>
+X-Mailer: Sylpheed-Claws 0.9.12 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040810224532.GD11200@holomorphy.com>
-User-Agent: Mutt/1.5.6+20040722i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 10, 2004 at 03:43:08PM -0700, William Lee Irwin III wrote:
->> This still doesn't eliminate the branch in ia64's copy_thread().
->> The best solution possible would be to redo the whole affair as an
->> ia64-specific cleanup pass, and to find some initial setting of regs
->> that works for all architectures (it seems memset(&regs, 0, ...) doesn't).
+On Tue, 10 Aug 2004 17:56:00 -0400
+Lee Revell <rlrevell@joe-job.com> wrote:
 
-On Tue, Aug 10, 2004 at 03:45:32PM -0700, William Lee Irwin III wrote:
-> "whole affair" == NULL check in copy_thread(). Except this is a nop, so
-> I think we're just looking for something that survives copy_thread().
+> The mlockall() issue seems to be fixed.  Now I get this one when
+> starting jackd:
+> 
+> (jackd/12427): 10882us non-preemptible critical section violated 400
+> us preempt threshold starting at kernel_fpu_begin+0x10/0x60 and ending
+> at fast_clear_page+0x75/0xa0
+>  [<c0106777>] dump_stack+0x17/0x20
+>  [<c01140eb>] sub_preempt_count+0x4b/0x60
+>  [<c01d1585>] fast_clear_page+0x75/0xa0
+>  [<c013ea86>] do_anonymous_page+0x86/0x180
+>  [<c013ebd0>] do_no_page+0x50/0x300
+>  [<c013f041>] handle_mm_fault+0xc1/0x170
+>  [<c013da33>] get_user_pages+0x133/0x3d0
+>  [<c013f198>] make_pages_present+0x68/0x90
+>  [<c0140948>] do_mmap_pgoff+0x3f8/0x640
+>  [<c010b7f6>] sys_mmap2+0x76/0xb0
+>  [<c0106117>] syscall_call+0x7/0xb
 
-I have an even better fix:
+I see these, too [at jackd startup and at client startup]:
 
-Index: mm1-2.6.8-rc4/arch/ia64/kernel/smpboot.c
-===================================================================
---- mm1-2.6.8-rc4.orig/arch/ia64/kernel/smpboot.c	2004-08-10 15:32:08.000000000 -0700
-+++ mm1-2.6.8-rc4/arch/ia64/kernel/smpboot.c	2004-08-10 15:55:28.902437225 -0700
-@@ -356,6 +356,11 @@
- 	return cpu_idle();
- }
- 
-+struct pt_regs * __init idle_regs(struct pt_regs *regs)
-+{
-+	return NULL;
-+}
-+
- struct create_idle {
- 	struct task_struct *idle;
- 	struct completion done;
-Index: mm1-2.6.8-rc4/kernel/fork.c
-===================================================================
---- mm1-2.6.8-rc4.orig/kernel/fork.c	2004-08-10 15:32:08.000000000 -0700
-+++ mm1-2.6.8-rc4/kernel/fork.c	2004-08-10 16:01:24.383878183 -0700
-@@ -1190,13 +1190,18 @@
- 	goto fork_out;
- }
- 
-+struct pt_regs * __init __attribute__((weak)) idle_regs(struct pt_regs *regs)
-+{
-+	memset(regs, 0, sizeof(struct pt_regs));
-+	return regs;
-+}
-+
- task_t * __init fork_idle(int cpu)
- {
- 	task_t *task;
- 	struct pt_regs regs;
- 
--	memset(&regs, 0, sizeof(struct pt_regs));
--	task = copy_process(CLONE_VM, 0, &regs, 0, NULL, NULL, 0);
-+	task = copy_process(CLONE_VM, 0, idle_regs(&regs), 0, NULL, NULL, 0);
- 	if (!task)
- 		return ERR_PTR(-ENOMEM);
- 	init_idle(task, cpu);
+Aug 11 01:15:21 mango kernel: (jackd/843): 3215us non-preemptible
+critical secti
+on violated 1000 us preempt threshold starting at
+kernel_fpu_begin+0x1a/0x60 and
+ ending at fast_clear_page+0x54/0x80
+Aug 11 01:15:21 mango kernel:  [<c01064ae>] dump_stack+0x1e/0x20
+Aug 11 01:15:21 mango kernel:  [<c0114735>] sub_preempt_count+0x45/0x60
+Aug 11 01:15:21 mango kernel:  [<c01daa94>] fast_clear_page+0x54/0x80
+Aug 11 01:15:21 mango kernel:  [<c0140150>] do_anonymous_page+0x90/0x190
+Aug 11 01:15:21 mango kernel:  [<c01402b1>] do_no_page+0x61/0x320
+Aug 11 01:15:21 mango kernel:  [<c0140763>] handle_mm_fault+0xe3/0x1a0
+Aug 11 01:15:21 mango kernel:  [<c013f0e7>] get_user_pages+0x147/0x3d0
+Aug 11 01:15:21 mango kernel:  [<c01408fd>] make_pages_present+0x8d/0xb0
+Aug 11 01:15:21 mango kernel:  [<c0142255>] do_mmap_pgoff+0x445/0x6b0
+Aug 11 01:15:21 mango kernel:  [<c010b800>] old_mmap+0xe0/0x120
+Aug 11 01:15:21 mango kernel:  [<c0105f2b>] syscall_call+0x7/0xb
+Aug 11 01:15:21 mango kernel: ALSA sound/core/pcm_lib.c:169: XRUN:
+pcmC0D0p
+Aug 11 01:15:21 mango kernel:  [<c01064ae>] dump_stack+0x1e/0x20
+Aug 11 01:15:21 mango kernel:  [<f08c2431>]
+snd_pcm_period_elapsed+0x311/0x480 [
+snd_pcm]
+Aug 11 01:15:21 mango kernel:  [<f089ebce>]
+snd_cs46xx_interrupt+0x1be/0x1f0 [sn
+d_cs46xx]
+Aug 11 01:15:21 mango kernel:  [<c011b55b>]
+generic_handle_IRQ_event+0x3b/0x70
+Aug 11 01:15:21 mango kernel:  [<c01078c6>] do_IRQ+0xb6/0x170
+Aug 11 01:15:21 mango kernel:  [<c0106098>] common_interrupt+0x18/0x20
+Aug 11 01:15:40 mango gconfd (tapas-803): GConf server is not in use,
+shutting d
+own.
+Aug 11 01:15:40 mango gconfd (tapas-803): Exiting
+Aug 11 01:16:01 mango kernel: ALSA sound/core/pcm_lib.c:169: XRUN:
+pcmC0D0p
+Aug 11 01:16:01 mango kernel:  [<c01064ae>] dump_stack+0x1e/0x20
+Aug 11 01:16:01 mango kernel:  [<f08c2431>]
+snd_pcm_period_elapsed+0x311/0x480 [
+snd_pcm]
+Aug 11 01:16:01 mango kernel:  [<f089ebce>]
+snd_cs46xx_interrupt+0x1be/0x1f0 [sn
+d_cs46xx]
+Aug 11 01:16:01 mango kernel:  [<c011b55b>]
+generic_handle_IRQ_event+0x3b/0x70
+Aug 11 01:16:01 mango kernel:  [<c01078c6>] do_IRQ+0xb6/0x170
+Aug 11 01:16:01 mango kernel:  [<c0106098>] common_interrupt+0x18/0x20
+Aug 11 01:16:01 mango kernel:  [<c0140150>] do_anonymous_page+0x90/0x190
+Aug 11 01:16:01 mango kernel:  [<c01402b1>] do_no_page+0x61/0x320
+Aug 11 01:16:01 mango kernel:  [<c0140763>] handle_mm_fault+0xe3/0x1a0
+Aug 11 01:16:01 mango kernel:  [<c013f0e7>] get_user_pages+0x147/0x3d0
+Aug 11 01:16:01 mango kernel:  [<c01408fd>] make_pages_present+0x8d/0xb0
+Aug 11 01:16:01 mango kernel:  [<c0142255>] do_mmap_pgoff+0x445/0x6b0
+Aug 11 01:16:01 mango kernel:  [<c010b800>] old_mmap+0xe0/0x120
+Aug 11 01:16:01 mango kernel:  [<c0105f2b>] syscall_call+0x7/0xb
+Aug 11 01:16:01 mango kernel: (scsynth/870): 3230us non-preemptible
+critical sec
+tion violated 1000 us preempt threshold starting at
+kernel_fpu_begin+0x1a/0x60 a
+nd ending at fast_clear_page+0x54/0x80
+Aug 11 01:16:01 mango kernel:  [<c01064ae>] dump_stack+0x1e/0x20
+Aug 11 01:16:01 mango kernel:  [<c0114735>] sub_preempt_count+0x45/0x60
+Aug 11 01:16:01 mango kernel:  [<c01daa94>] fast_clear_page+0x54/0x80
+Aug 11 01:16:01 mango kernel:  [<c0140150>] do_anonymous_page+0x90/0x190
+Aug 11 01:16:01 mango kernel:  [<c01402b1>] do_no_page+0x61/0x320
+Aug 11 01:16:01 mango kernel:  [<c0140763>] handle_mm_fault+0xe3/0x1a0
+Aug 11 01:16:01 mango kernel:  [<c013f0e7>] get_user_pages+0x147/0x3d0
+Aug 11 01:16:01 mango kernel:  [<c01408fd>] make_pages_present+0x8d/0xb0
+Aug 11 01:16:01 mango kernel:  [<c0142255>] do_mmap_pgoff+0x445/0x6b0
+Aug 11 01:16:01 mango kernel:  [<c010b800>] old_mmap+0xe0/0x120
+Aug 11 01:16:01 mango kernel:  [<c0105f2b>] syscall_call+0x7/0xb
+
+Flo
+
+
+-- 
+Palimm Palimm!
+http://affenbande.org/~tapas/
+

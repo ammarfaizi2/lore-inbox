@@ -1,83 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261691AbUL3SMw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261692AbUL3SRT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261691AbUL3SMw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Dec 2004 13:12:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261692AbUL3SMw
+	id S261692AbUL3SRT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Dec 2004 13:17:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261693AbUL3SRT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Dec 2004 13:12:52 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:55525 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261691AbUL3SMt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Dec 2004 13:12:49 -0500
-Date: Thu, 30 Dec 2004 13:25:32 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: linux-kernel@vger.kernel.org
-Cc: William Park <opengeometry@yahoo.ca>
-Subject: Re: waiting 10s before mounting root filesystem?
-Message-ID: <20041230152531.GB5058@logos.cnet>
-References: <20041227195645.GA2282@node1.opengeometry.net> <20041227201015.GB18911@sweep.bur.st> <41D07D56.7020702@netshadow.at> <20041229005922.GA2520@node1.opengeometry.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041229005922.GA2520@node1.opengeometry.net>
-User-Agent: Mutt/1.5.5.1i
+	Thu, 30 Dec 2004 13:17:19 -0500
+Received: from fw.osdl.org ([65.172.181.6]:11461 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261692AbUL3SRP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Dec 2004 13:17:15 -0500
+Date: Thu, 30 Dec 2004 10:16:15 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Davide Libenzi <davidel@xmailserver.org>
+cc: Jesse Allen <the3dfxdude@gmail.com>, Mike Hearn <mh@codeweavers.com>,
+       Thomas Sailer <sailer@scs.ch>, Eric Pouech <pouech-eric@wanadoo.fr>,
+       Daniel Jacobowitz <dan@debian.org>, Roland McGrath <roland@redhat.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, wine-devel <wine-devel@winehq.com>
+Subject: Re: ptrace single-stepping change breaks Wine
+In-Reply-To: <Pine.LNX.4.58.0412300953470.2193@bigblue.dev.mdolabs.com>
+Message-ID: <Pine.LNX.4.58.0412301012280.22893@ppc970.osdl.org>
+References: <200411152253.iAFMr8JL030601@magilla.sf.frob.com> 
+ <20041120214915.GA6100@tesore.ph.cox.net>  <41A251A6.2030205@wanadoo.fr> 
+ <Pine.LNX.4.58.0411221300460.20993@ppc970.osdl.org>  <1101161953.13273.7.camel@littlegreen>
+  <1104286459.7640.54.camel@gamecube.scs.ch>  <1104332559.3393.16.camel@littlegreen>
+  <Pine.LNX.4.58.0412291047120.2353@ppc970.osdl.org> 
+ <53046857041229114077eb4d1d@mail.gmail.com>  <Pine.LNX.4.58.0412291151080.2353@ppc970.osdl.org>
+ <530468570412291343d1478cf@mail.gmail.com> <Pine.LNX.4.58.0412291622560.2353@ppc970.osdl.org>
+ <Pine.LNX.4.58.0412291703400.30636@bigblue.dev.mdolabs.com>
+ <Pine.LNX.4.58.0412291745470.2353@ppc970.osdl.org>
+ <Pine.LNX.4.58.0412292050550.22893@ppc970.osdl.org>
+ <Pine.LNX.4.58.0412292055540.22893@ppc970.osdl.org>
+ <Pine.LNX.4.58.0412292106400.454@bigblue.dev.mdolabs.com>
+ <Pine.LNX.4.58.0412292256350.22893@ppc970.osdl.org>
+ <Pine.LNX.4.58.0412300953470.2193@bigblue.dev.mdolabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 28, 2004 at 07:59:22PM -0500, William Park wrote:
-> On Mon, Dec 27, 2004 at 10:23:34PM +0100, Andreas Unterkircher wrote:
-> > >>How do I make the kernel to wait about 10s before attempting to
-> > >>mount root filesystem?  Is there obscure kernel parameter?
-> > >>
-> > >>I can load the kernel from /dev/fd0, then mount /dev/hda2 as root
-> > >>filesystem.  But, I can't seem to mount /dev/sda1 (USB key drive) as
-> > >>root filesystem.  All relevant USB and SCSI modules are compiled
-> > >>into the kernel.  I think kernel is too fast in panicking.  I would
-> > >>like the kernel to wait about 10s until 'usb-storage' and 'sd_mod'
-> > >>work out all the details.
-> > >
-> > >This is really suited to the task of an initrd, then you can spin
-> > >until the usb storage device comes up in a bash script or something
-> > >similar.
-> >
-> > Or you could try a patch from Randy Dunlap & Eric Lammerts [1] which 
-> > loops around in do_mounts.c
-> > until the root filesystem can be mounted.... not that beautiful - but it 
-> > works :)
-> > 
-> > [1] http://www.xenotime.net/linux/usb/usbboot-2422.patch
-> > 
-> > Cheers,
-> > Andreas
-> > 
-> > PS: In the same manner you can do it with 2.6
+
+
+On Thu, 30 Dec 2004, Davide Libenzi wrote:
 > 
-> Thanks Andreas.  I can now boot from my el-cheapo USB key drive (256MB
-> SanDisk Cruzer Mini).  Since mine takes about 5sec to show up, I decided
-> to wait 5sec instead of 1sec.  Here is diff for 2.6.10:
-> 
-> --- ./init/do_mounts.c--orig	2004-12-27 17:36:35.000000000 -0500
-> +++ ./init/do_mounts.c	2004-12-28 17:27:26.000000000 -0500
-> @@ -301,7 +301,14 @@ retry:
->  				root_device_name, b);
->  		printk("Please append a correct \"root=\" boot option\n");
->  
-> +#if 0	/* original code */
->  		panic("VFS: Unable to mount root fs on %s", b);
-> +#else
-> +		printk ("Waiting 5 seconds to try again...\n");
-> +		set_current_state(TASK_INTERRUPTIBLE);
-> +		schedule_timeout(5 * HZ);
-> +		goto retry;
-> +#endif
->  	}
->  	panic("VFS: Unable to mount root fs on %s", __bdevname(ROOT_DEV, b));
->  out:
+> This might explain what they were seeing, but OTOH it seems that the real 
+> cause of their problems is related to something else (according to other 
+> emails on this thread).
 
-William,
+There's two different problems: the one seen by Thomas (the Xilinx FPGA
+synthesizer), which is apparently just due to Wine (or, more likely, the
+Windows app itself) depending on a certain memory layout for the stack
+and/or other allocations. That one I think we can consider solved, and
+indeed had nothing to do with TF.
 
-Solar version which is now merged in v2.4 looks better (5s sleep is too long and only one try) IMO.
+The other one is the copy-protection code breaking for some game 
+(Warcraft) for Jesse Allen, and that one is definitely TF-related.. Jesse 
+can fix it with patches, but those patches aren't acceptable for other 
+uses, so that's why I'm trying to find something that DTRT both for Wine 
+and for a regular debugging session..
 
-It sleeps 1s each time, 10 times. More reliable and faster.
-
-http://linux.bkbits.net:8080/linux-2.4/patch@1.1527.1.20?nav=index.html|ChangeSet@-3w|cset@1.1527.1.20 
+		Linus

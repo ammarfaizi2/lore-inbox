@@ -1,81 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268164AbUJOQh0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268144AbUJOQh1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268164AbUJOQh0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Oct 2004 12:37:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268144AbUJOQg6
+	id S268144AbUJOQh1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Oct 2004 12:37:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268134AbUJOQgu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Oct 2004 12:36:58 -0400
-Received: from rproxy.gmail.com ([64.233.170.194]:24865 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S268175AbUJOQfv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Oct 2004 12:35:51 -0400
-DomainKey-Signature: a=rsa-sha1; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=PyG/Gp8CQo+81ZMQhi9RQUcjZUgUCuG0VSr+Q4P9I/4B6cxvWI1bnDtWR+m5pf9KxsPBdBI2HCGsh1TCsKjlHiN0hl2Fa+tcxZC6id5lg9MDbtnxz+++qfF0R7zGJRZVVR2Z2mLUM1N0jPubeCr092zTPBKWkIKHlkKZZnWKJKk
-Message-ID: <c461c0d10410150935408afd96@mail.gmail.com>
-Date: Fri, 15 Oct 2004 17:35:50 +0100
-From: Alex Kiernan <alex.kiernan@gmail.com>
-Reply-To: Alex Kiernan <alex.kiernan@gmail.com>
-To: "viro@parcelfarce.linux.theplanet.co.uk" 
-	<viro@parcelfarce.linux.theplanet.co.uk>
-Subject: Re: Submitting patches for unmaintained areas (Solaris x86 UFS bug)
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, viro@zenii.linux.org.uk
-In-Reply-To: <20041013134350.GA23987@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 15 Oct 2004 12:36:50 -0400
+Received: from siaag2af.compuserve.com ([149.174.40.136]:64206 "EHLO
+	siaag2af.compuserve.com") by vger.kernel.org with ESMTP
+	id S268170AbUJOQeq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Oct 2004 12:34:46 -0400
+Date: Fri, 15 Oct 2004 12:29:39 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: [PATCH] [2.6] Avoid silly recompile when LOCALVERSION changes
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <200410151233_MC3-1-8C4F-6F81@compuserve.com>
+MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
-References: <c461c0d10410130406714fafe3@mail.gmail.com>
-	 <c461c0d104101305103792ad7a@mail.gmail.com>
-	 <20041013134350.GA23987@parcelfarce.linux.theplanet.co.uk>
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Oct 2004 14:43:51 +0100,
-viro@parcelfarce.linux.theplanet.co.uk
-<viro@parcelfarce.linux.theplanet.co.uk> wrote:
-> On Wed, Oct 13, 2004 at 01:10:10PM +0100, Alex Kiernan wrote:
-> 
-> 
-> > On Wed, 13 Oct 2004 12:06:29 +0100, Alex Kiernan <alex.kiernan@gmail.com> wrote:
-> > > I've run into a bug in the UFS reading code (on Solaris x86 the
-> > > major/minor numbers are in 2nd indirect offset not the first), so I've
-> > > patched it & bugzilled it
-> > > (http://bugzilla.kernel.org/show_bug.cgi?id=3475).
-> > >
-> > > But where do I go from here? There doesn't seem to be a maintainer for
-> > > UFS so I can't send it there.
-> > >
-> >
-> > After advice from Alan (thanks), here's the patch which addresses the
-> > problem I'm seeing. Specifically it appears that on x86 Solaris stores
-> > the major/minor device numbers in the 2nd indirect block, not the
-> > first.
-> 
-> 1) please, move old_encode_dev()/old_decode_dev() into your helper functions.
+  This is really annoying...
 
-Will do.
+  Any code that needs the kernel release name should include <utsname.h>
+and use system_utsname.release instead of referring to UTS_RELEASE
+from <version.h>
 
-> 2) we could do a bit better now that we have large dev_t.  What are complete
-> rules for
->         a) Solaris userland dev_t => on-disk data
->         b) major/minor => Solaris userland dev_t
-> on sparc and x86 Solaris?
-> 
+  sound/core/info.c and drivers/block/floppy.c need fixing as well.
 
-Assuming I've followed it right...
+  And at first glance, drivers/scsi/sg.c seems not to need version.h at all...
 
-The kernel dev_t has 14 major device bits, 18 minor device bits (with
-the major as the most significant bits).
+  drivers/scsi/aic7xxx and drivers/serial/8250*.c are also affected but they seem
+more problematic.
 
-On disk there are 32 bits stored in host byte order, the device is in
-the [0] indirect offset on Sparc, [1] on x86.
 
-Looking at an individual entry, if the top 16 bits are clear or
-0xffff, then the bottom 16 bits are the device number, with 7 bits of
-major (most significant), 8 bits of minor (and the most significant
-bit unused). If the top 16 bits are some other pattern, the on disk
-mapping is the same as the kernel mapping.
+Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
 
--- 
-Alex Kiernan
+--- linux-2.6.9-rc4/arch/i386/kernel/process.c.orig     2004-10-15 11:48:01.000000000 -0400
++++ linux-2.6.9-rc4/arch/i386/kernel/process.c  2004-10-15 11:55:57.711016144 -0400
+@@ -28,7 +28,7 @@
+ #include <linux/a.out.h>
+ #include <linux/interrupt.h>
+ #include <linux/config.h>
+-#include <linux/version.h>
++#include <linux/utsname.h>
+ #include <linux/delay.h>
+ #include <linux/reboot.h>
+ #include <linux/init.h>
+@@ -230,7 +230,7 @@
+ 
+        if (regs->xcs & 3)
+                printk(" ESP: %04x:%08lx",0xffff & regs->xss,regs->esp);
+-       printk(" EFLAGS: %08lx    %s  (%s)\n",regs->eflags, print_tainted(),UTS_RELEASE);
++       printk(" EFLAGS: %08lx    %s  (%s)\n",regs->eflags, print_tainted(), system_utsname.release);
+        printk("EAX: %08lx EBX: %08lx ECX: %08lx EDX: %08lx\n",
+                regs->eax,regs->ebx,regs->ecx,regs->edx);
+        printk("ESI: %08lx EDI: %08lx EBP: %08lx",
+--- linux-2.6.9-rc4/arch/i386/kernel/traps.c.orig       2004-10-15 11:48:15.000000000 -0400
++++ linux-2.6.9-rc4/arch/i386/kernel/traps.c    2004-10-15 11:54:00.000000000 -0400
+@@ -25,7 +25,7 @@
+ #include <linux/highmem.h>
+ #include <linux/kallsyms.h>
+ #include <linux/ptrace.h>
+-#include <linux/version.h>
++#include <linux/utsname.h>
+ #include <linux/kprobes.h>
+ 
+ #ifdef CONFIG_EISA
+@@ -233,7 +233,7 @@
+        printk("CPU:    %d\nEIP:    %04x:[<%08lx>]    %s VLI\nEFLAGS: %08lx"
+                        "   (%s) \n",
+                smp_processor_id(), 0xffff & regs->xcs, regs->eip,
+-               print_tainted(), regs->eflags, UTS_RELEASE);
++               print_tainted(), regs->eflags, system_utsname.release);
+        print_symbol("EIP is at %s\n", regs->eip);
+        printk("eax: %08lx   ebx: %08lx   ecx: %08lx   edx: %08lx\n",
+                regs->eax, regs->ebx, regs->ecx, regs->edx);
+
+
+
+--Chuck Ebbert  15-Oct-04  12:28:34

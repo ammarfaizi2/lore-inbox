@@ -1,36 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284217AbRLKXmZ>; Tue, 11 Dec 2001 18:42:25 -0500
+	id <S284198AbRLKXlf>; Tue, 11 Dec 2001 18:41:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284218AbRLKXmR>; Tue, 11 Dec 2001 18:42:17 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:8 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S284217AbRLKXmI>; Tue, 11 Dec 2001 18:42:08 -0500
-Subject: Re: NULL pointer dereference in moxa driver
-To: skraw@ithnet.com (Stephan von Krawczynski)
-Date: Tue, 11 Dec 2001 23:51:21 +0000 (GMT)
-Cc: xi@borderworlds.dk (Christian Laursen), linux-kernel@vger.kernel.org
-In-Reply-To: <200112112323.AAA23377@webserver.ithnet.com> from "Stephan von Krawczynski" at Dec 12, 2001 12:23:53 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S284217AbRLKXl0>; Tue, 11 Dec 2001 18:41:26 -0500
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:59306 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S284198AbRLKXlL>; Tue, 11 Dec 2001 18:41:11 -0500
+Date: Tue, 11 Dec 2001 18:41:09 -0500
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>, axboe@suse.de,
+        Big Fish <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] v2.5.1-pre9-00_kvec.diff
+Message-ID: <20011211184109.I6878@redhat.com>
+In-Reply-To: <20011211162639.F6878@redhat.com> <Pine.LNX.4.21.0112112324280.981-100000@localhost.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16DwgD-0007R1-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.21.0112112324280.981-100000@localhost.localdomain>; from hugh@veritas.com on Tue, Dec 11, 2001 at 11:33:32PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Most interestingly the moxa-driver is better by far than the mxser. It
-> seems to me the mxser is _really_ old. If you want to help us all,    
+On Tue, Dec 11, 2001 at 11:33:32PM +0000, Hugh Dickins wrote:
+> Looks nice, but I think you need to update from atomic_inc(&map->count)
+> and __free_page(map) to page_cache_get(map) and page_cache_release(map)?
+> I haven't checked a 2.5.1-pre9 tree, but we had to change that in 2.4,
+> to avoid PageLRU BUGs.  page_cache_get end just tidiness, of course.
 
-mxser, like the boards the moxa mxser driver supports is very old.
+Ahhh, that's something I've missed since our internal tree is still 2.4.9-ac 
+based.  Thanks,
 
-> I cannot submit a patch to marcelo, because I am not the maintainer,  
-> and we all don't want to fork a new mxser-driver apart from the       
-> original.                                                             
-
-There is no maintainer, and our code base has drifted a fair way from what
-moxa originally submitted (being a 2.0 driver with the serial transmit race
-bug).
-
-Anyone who wants to beat the mxser driver into shape, go for it.
+		-ben
+-- 
+Fish.

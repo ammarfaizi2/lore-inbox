@@ -1,45 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262166AbUKQCZl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262162AbUKQC3X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262166AbUKQCZl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 21:25:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262167AbUKQCXx
+	id S262162AbUKQC3X (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 21:29:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262163AbUKQC3X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 21:23:53 -0500
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:63978
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S262168AbUKQCWQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 21:22:16 -0500
-Date: Tue, 16 Nov 2004 18:07:18 -0800
-From: "David S. Miller" <davem@davemloft.net>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: loops in get_user_pages() for VM_IO
-Message-Id: <20041116180718.2fa35fbb.davem@davemloft.net>
-In-Reply-To: <20041116175328.5e425e01.davem@davemloft.net>
-References: <20041116175328.5e425e01.davem@davemloft.net>
-X-Mailer: Sylpheed version 0.9.99 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Tue, 16 Nov 2004 21:29:23 -0500
+Received: from fw.osdl.org ([65.172.181.6]:13713 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262162AbUKQC3D (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Nov 2004 21:29:03 -0500
+Date: Tue, 16 Nov 2004 18:28:41 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: dhowells@redhat.com, hch@infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Making compound pages mandatory
+Message-Id: <20041116182841.4ff7f2e5.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0411161746110.2222@ppc970.osdl.org>
+References: <2315.1100630906@redhat.com>
+	<Pine.LNX.4.58.0411161746110.2222@ppc970.osdl.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 Nov 2004 17:53:28 -0800
-"David S. Miller" <davem@davemloft.net> wrote:
+Linus Torvalds <torvalds@osdl.org> wrote:
+>
+> 
+> 
+> On Tue, 16 Nov 2004, David Howells wrote:
+> > 
+> > Do you have any objection to compound pages being made mandatory, even without
+> > HUGETLB support?
+> 
+> I haven't really looked into it, so I cannot make an informed decision.  
+> How big is the overhead? And what's the _point_, since we don't seem to 
+> need them normally, but the code is there for people who _do_ need them? 
 
-> Some time recently, I don't know when, the logic in get_user_pages()
-> appears to have been changed a bit.
+Yes, it's just the single pointer chase.  Probably that's the common case
+now, because everyone will be enabling hugepages on lots of architectures.
 
-Replying to myself, this hang started when do_mmap_pgoff() was
-changed to re-read the vma->vm_flags bits right before we
-vma_link() the vma into the mm.
+But still, the non-compound code is well tested too, and leaving it in
+place does make a little microoptimisation available to those who want it,
+so I don't see a reason yet to make compound pages compulsory.
 
-Previously, only the mmap() call specified vm_flags would
-be used, but now we also get whatever bit changes to
-vma->vm_flags are done by the file->f_op->mmap() method
-as well.
-
-In any event, it is still an open question whether get_user_pages()
-and thus make_pages_present() is meant to be able to handle
-VM_IO areas.
+So I'd suggest that we make compound pages conditional on a new
+CONFIG_COMPOUND_PAGE and make that equal to HUGETLB_PAGE || !MMU.

@@ -1,71 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285216AbRLRVpO>; Tue, 18 Dec 2001 16:45:14 -0500
+	id <S282492AbRLSJRN>; Wed, 19 Dec 2001 04:17:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285210AbRLRVnw>; Tue, 18 Dec 2001 16:43:52 -0500
-Received: from mailhost.teleline.es ([195.235.113.141]:32828 "EHLO
-	tsmtp2.mail.isp") by vger.kernel.org with ESMTP id <S285206AbRLRVms>;
-	Tue, 18 Dec 2001 16:42:48 -0500
-Date: Tue, 18 Dec 2001 22:45:00 +0100
-From: Diego Calleja <grundig@teleline.es>
-To: linux-kernel@vger.kernel.org
-Cc: ross@willow.seitz.com
-Subject: Re: Reiserfs corruption on 2.4.17-rc1!
-Message-ID: <20011218224500.B377@diego>
-In-Reply-To: <20011217025856.A1649@diego> <13425.1008580831@nova.botz.org> <20011218003359.A555@diego> <20011218000145.A15150@willow.seitz.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20011218000145.A15150@willow.seitz.com>; from ross@willow.seitz.com on Tue, Dec 18, 2001 at 06:01:45 +0100
-X-Mailer: Balsa 1.0.pre5
+	id <S283771AbRLSJRD>; Wed, 19 Dec 2001 04:17:03 -0500
+Received: from mail.loewe-komp.de ([62.156.155.230]:28167 "EHLO
+	mail.loewe-komp.de") by vger.kernel.org with ESMTP
+	id <S282492AbRLSJQ5>; Wed, 19 Dec 2001 04:16:57 -0500
+Message-ID: <3C205B9A.8F8BFEC7@loewe-komp.de>
+Date: Wed, 19 Dec 2001 10:19:22 +0100
+From: Peter =?iso-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
+Organization: LOEWE. Hannover
+X-Mailer: Mozilla 4.78 [de] (X11; U; Linux 2.4.16 i686)
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: Doug Ledford <dledford@redhat.com>
+CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Scheduler ( was: Just a second ) ...
+In-Reply-To: <Pine.LNX.4.33.0112181216341.1237-100000@admin> <Pine.LNX.4.33.0112180922500.2867-100000@penguin.transmeta.com> <20011218105459.X855@lynx.no> <3C1F8A9E.3050409@redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Tue, 18 Dec 2001 06:01:45 Ross Vandegrift wrote:
-> > This is my opinion:
-> > 	-Something (reiserfs, anything) has caused fs corruption
-> > 	-It should be repaired by reiserfsck, but it's broken :-((
-> > 	-This corruption should NOT have happened, reiserfsck shouldn't
-> > have to be used.
-> > 	-I'm not a kernel hacker, so I can't try anything...what I know
-> is
-> > that
-> > 		/etc in hc5 doesn't work. /usr, /var....works
-> correctly.
-> > 
-> > Well, I'd like to know what's happened in my drive. Can somebody try to
-> > give an explanation?
+Doug Ledford schrieb:
 > 
-> I've seen this happen when being careless about partitioning my drive. 
-> If
-> you changed your partition table and created the filesystem without a
-> reboot
-> you could be in for this problem.  If fdisk was unable to update the
-> partition table after writing it out and you ran mkreiserfs, you just
-> made a
-> filesystem on the *old* partition, according to the *old* partition
-> table.
-> Upon rebooting, the disk will be synced to the new partition table.  If
-> you
-> happened to shrink the parition a bit, the filsystem is suddenly longer
-> than
-> the partition.
-Before partitioning as now it is, I had the same problem. Perhaps it's due
-to a fdisk bug.
-If I see the message "Partitioning table couldn't be re-read" or something
-like that, I always reboot. Perhaps I forgot rebooting, and this is the
-problem, but it's very improbable
-
+> Andreas Dilger wrote:
 > 
-> Ross Vandegrift
-> ross@willow.seitz.com
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-> in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> > On Dec 18, 2001  09:27 -0800, Linus Torvalds wrote:
+> >
+> >>Maybe the best thing to do is to educate the people who write the sound
+> >>apps for Linux (somebody was complaining about "esd" triggering this, for
+> >>example).
+> >>
+> >
+> > Yes, esd is an interrupt hog, it seems.  When reading this thread, I
+> > checked, and sure enough I was getting 190 interrupts/sec on the
+> > sound card while not playing any sound.  I killed esd (which I don't
+> > use anyways), and interrupts went to 0/sec when not playing sound.
+> > Still at 190/sec when using mpg123 on my ymfpci (Yamaha YMF744B DS-1S)
+> > sound card.
+> 
+> Weel, evidently esd and artsd both do this (well, I assume esd does now, it
+> didn't do this in the past).  Basically, they both transmit silence over the
+> sound chip when nothing else is going on.  So even though you don't hear
+> anything, the same sound output DMA is taking place.  That avoids things
+> like nasty pops when you start up the sound hardware for a beep and that
+> sort of thing.  It also maintains state where as dropping output entirely
+> could result in things like module auto unloading and then reloading on the
+> next beep, etc.  Personally, the interrupt count and overhead annoyed me
+> enough that when I started hacking on the i810 sound driver one of my
+> primary goals was to get overhead and interrupt count down.  I think I
+> suceeded quite well.  On my current workstation:
+> 
+> Context switches per second not playing any sound: 8300 - 8800
+> Context switches per second playing an MP3: 9200 - 9900
+> Interrupts per second from sound device: 86
+> %CPU used when not playing MP3: 0 - 3% (magicdev is a CPU pig once every 2
+> seconds)
+> %CPU used when playing MP3s: 0 - 4%
+> 
+> In any case, it might be worth the original poster's time in figuring out
+> just how much of his lost CPU is because of playing sound and how much is
+> actually caused by the windowing system and all the associated bloat that
+> comes with it now a days.
 > 
 
+Do you really think 8000 context switches are sane?
 
+pippin:/var/log # vmstat 1
+   procs                      memory    swap          io     system         cpu
+ r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
+ 2  0  0 100728   4424 121572  27800   0   1     6     6   61    77  98   2   0
+ 2  0  0 100728   5448 121572  27800   0   0     0    68  112   811  93   7   0
+ 2  0  0 100728   5448 121572  27800   0   0     0     0  101   776  95   5   0
+ 3  0  0 100728   4928 121572  27800   0   0     0     0  101   794  92   8   0
+
+having a load ~2.1 (2 seti@home)

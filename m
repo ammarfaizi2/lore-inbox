@@ -1,37 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262670AbTIQLVU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Sep 2003 07:21:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262704AbTIQLVU
+	id S262731AbTIQLmR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Sep 2003 07:42:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262732AbTIQLmR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Sep 2003 07:21:20 -0400
-Received: from dialup-67.74.200.228.Dial1.Manchester1.Level3.net ([67.74.200.228]:35712
-	"EHLO excalibur.intercode.com.au") by vger.kernel.org with ESMTP
-	id S262670AbTIQLVT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Sep 2003 07:21:19 -0400
-Date: Wed, 17 Sep 2003 07:21:06 -0400 (EDT)
-From: James Morris <jmorris@intercode.com.au>
-To: kartikey bhatt <kartik_me@hotmail.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [CRYPTO] Testing Module Cleanup.
-In-Reply-To: <Law11-F123RpXbD4dSr0004cdfc@hotmail.com>
-Message-ID: <Mutt.LNX.4.44.0309170720110.5891-100000@excalibur.intercode.com.au>
+	Wed, 17 Sep 2003 07:42:17 -0400
+Received: from math.ut.ee ([193.40.5.125]:14843 "EHLO math.ut.ee")
+	by vger.kernel.org with ESMTP id S262731AbTIQLmQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Sep 2003 07:42:16 -0400
+Date: Wed, 17 Sep 2003 14:42:13 +0300 (EEST)
+From: Meelis Roos <mroos@linux.ee>
+To: linux-kernel@vger.kernel.org
+Subject: Qlogic ISP & sparc64 & 2.4
+Message-ID: <Pine.GSO.4.44.0309171439020.12513-100000@math.ut.ee>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 15 Sep 2003, kartikey bhatt wrote:
+I tried to load qlogicisp module on my sparc64 (Ultra 5). modprobe
+failed, dmesg shows
 
-> I have cleaned up the testing module.
-> A complete rewrite.
+qlogicisp : new isp1020 revision ID (2)
+qlogicisp : ram checksum failure
 
-Thanks!  I'll look at this as soon as possible (just processing a large 
-backlog at the moment).
+Is this a problem with unsupported card or a problem with qlogicisp
+driver on sparc64?
+
+>From lspci -vvv:
+
+02:01.0 SCSI storage controller: QLogic Corp. ISP1020 Fast-wide SCSI (rev 02)
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32, cache line size 10
+        Interrupt: pin A routed to IRQ 6672128
+        Region 0: I/O ports at 2000500 [size=256]
+        Region 1: Memory at 000001ff00010000 (32-bit, non-prefetchable) [size=4K]
+        Expansion ROM at <unassigned> [size=64K]
 
 
-- James
 -- 
-James Morris
-<jmorris@intercode.com.au>
+Meelis Roos (trying BusLogic FlashPoint next :)))
 

@@ -1,31 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261700AbSJFQRr>; Sun, 6 Oct 2002 12:17:47 -0400
+	id <S261659AbSJFQWd>; Sun, 6 Oct 2002 12:22:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261694AbSJFQRE>; Sun, 6 Oct 2002 12:17:04 -0400
-Received: from pc1-cwma1-5-cust51.swa.cable.ntl.com ([80.5.120.51]:26609 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261685AbSJFQPg>; Sun, 6 Oct 2002 12:15:36 -0400
-Subject: Re: [PATCH 2.2] i386/dmi_scan updates
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jean Delvare <khali@linux-fr.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021006101026.92C2A62DC0@mallaury.noc.nerim.net>
-References: <20021006101026.92C2A62DC0@mallaury.noc.nerim.net>
-Content-Type: text/plain
+	id <S261695AbSJFQVc>; Sun, 6 Oct 2002 12:21:32 -0400
+Received: from dbl.q-ag.de ([80.146.160.66]:60803 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id <S261701AbSJFQUs>;
+	Sun, 6 Oct 2002 12:20:48 -0400
+Message-ID: <3DA0642A.1070706@colorfullife.com>
+Date: Sun, 06 Oct 2002 18:26:18 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/4.0 (compatible; MSIE 5.5; Windows NT 4.0)
+X-Accept-Language: en, de
+MIME-Version: 1.0
+To: grendel@debian.org
+CC: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Larry McVoy <lm@bitmover.com>, "David S. Miller" <davem@redhat.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Russell King <rmk@arm.linux.org.uk>
+Subject: Re: BK MetaData License Problem?
+References: <3DA02F30.8040904@colorfullife.com> <Pine.LNX.4.44.0210061452400.6237-100000@localhost.localdomain> <20021006154806.GA2524@thanes.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 06 Oct 2002 17:30:25 +0100
-Message-Id: <1033921825.21257.8.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-10-06 at 13:12, Jean Delvare wrote:
-> I don't agree with ASCII filtering. I don't want to enlarge everyone's kernel for just some rare cases where the DMI table is broken *and* debug code is enabled. If you want, I can write the code that does it, but I wouldn't enable it by default.
-> As far as the length is concerned, the table length doesn't help, because we check the structure length against the remaining table length. The structure length does *not* include the string data, so we could pass the length test and still run of the table in dmi_string. What's more, the string index could be more that the string count for this structure and no check is done for this.
-> I think we need a safer dmi_string function that knows about the table length (or, better indeed, the remaining length from this point), and checks for both string index being too large and string index leading outside the table. Then, the other checks (white space and null byte) will be obsolete.
+Russel King wrote:
+ >
+ > Therefore, I'd stronlg advise people in the EU not to use BK's
+ > BK_USER/BK_HOST feature when importing patches.
+ >
+I think the user info is not critical: according to the GPL, you must 
+tag your changes with date+name. By making a patch, you have agreed to 
+the GPL terms, which means you have agreed that your name will be used 
+together with the change.
+I think the copyright laws require that, too.
 
-Our console doesn't handle arbitary 8bit encodings. There are japanese
-DMI strings out there for example
+But the GPL doesn't mandate a changelog...
+
+
+Marek Habersack wrote:
+> 
+> Perhaps I am being silly at the moment, but wouldn't it suffice in this case
+> to put a statement in your commit message (I believe it can be automated)
+> stating that this message and the comitted data are licensed under the GPL?
+ >
+
+For example.
+Or a sentence in the Licensing file, or whatever.("If you want to 
+contribute to the development at www.kernel.org, then you must agree to 
+the following conditions: You name will be used, your commit text will 
+be used, your mail address will be published etc." No GPL conflict, you
+are free to fork)
+
+I agree with Ingo that there is the danger that without anything, it 
+might happen that we'd have to throw away the changelogs [or that 
+express permission for all existing entries will be needed, which is 
+more or less equivalent]
+
+--
+	Manfred
 

@@ -1,41 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131506AbRCQDJj>; Fri, 16 Mar 2001 22:09:39 -0500
+	id <S131063AbRCQCve>; Fri, 16 Mar 2001 21:51:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131531AbRCQDJ3>; Fri, 16 Mar 2001 22:09:29 -0500
-Received: from [216.18.82.221] ([216.18.82.221]:26891 "EHLO
-	node0.opengeometry.com") by vger.kernel.org with ESMTP
-	id <S131506AbRCQDJP>; Fri, 16 Mar 2001 22:09:15 -0500
-Date: Fri, 16 Mar 2001 22:03:36 -0500
-From: William Park <parkw@better.net>
-To: Oliver Paukstadt <oliver@paukstadt.de>
-Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: observations with asus cuv4x-d
-Message-ID: <20010316220336.A8763@better.net>
-Mail-Followup-To: William Park <parkw@better.net>,
-	Oliver Paukstadt <oliver@paukstadt.de>,
-	Linux-Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.05.10103170101410.13178-100000@lara.stud.fh-heilbronn.de>
+	id <S131531AbRCQCvY>; Fri, 16 Mar 2001 21:51:24 -0500
+Received: from linuxcare.com.au ([203.29.91.49]:1042 "EHLO
+	front.linuxcare.com.au") by vger.kernel.org with ESMTP
+	id <S131063AbRCQCvM>; Fri, 16 Mar 2001 21:51:12 -0500
+From: Anton Blanchard <anton@linuxcare.com.au>
+Date: Sat, 17 Mar 2001 13:45:51 +1100
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]: Only one memory zone for sparc64
+Message-ID: <20010317134551.A3403@linuxcare.com>
+In-Reply-To: <20010315191352.D1598@linuxcare.com> <20010316121654.C1771@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <Pine.LNX.4.05.10103170101410.13178-100000@lara.stud.fh-heilbronn.de>; from pstadt@stud.fh-heilbronn.de on Sat, Mar 17, 2001 at 01:08:19AM +0100
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <20010316121654.C1771@redhat.com>; from sct@redhat.com on Fri, Mar 16, 2001 at 12:16:54PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 17, 2001 at 01:08:19AM +0100, Oliver Paukstadt wrote:
-> HY HY
-> 
-> I changed my motherboard to a asus cuv4x-d with 2 PIII-800.
-> 
-> With MPS 1.4 enabled (BIOS), i'll get 
-> probable hardware bug: clock timer configuration lost - probably a VIA686a
-> motherboard (linux/arch/i386/kernel/time.c)
-> I use 2.4.2-ac20
-> 
-> Disabling MPS1.4 causes the Board to work without any problems.
+ 
+> I'd be surprised if dbench was anything other than disk-bound on most
+> systems.  On any of my machines, the standard error of a single dbench
+> run is *way* larger than 1%, and I'd expect to have to run the
+> benchmark a dozen times to get a confidence interval small enough to
+> detect a 1% performance change: are your runs repeatable enough to be
+> this sensitive to the effect of the allocator?
 
-Spec says CUV4x-d is 686B.
+With 2G RAM and:
 
-:wq --William Park, Open Geometry Consulting, Linux/Python, 8 CPUs.
+kill -STOP <kupdated>
+echo "90 64 64 256 5120 30720 95 0 0" > /proc/sys/vm/bdflush
+
+I dont do one single disk interrupt for a dbench 60 :)
+At this stage dbench runs become more repeatable.
+
+Anton

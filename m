@@ -1,57 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268094AbUHZJNw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267745AbUHZJmy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268094AbUHZJNw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 05:13:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268163AbUHZJMO
+	id S267745AbUHZJmy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 05:42:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267939AbUHZJjm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 05:12:14 -0400
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:65214 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S267863AbUHZIsz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 04:48:55 -0400
-Message-ID: <412DA3F3.8070607@namesys.com>
-Date: Thu, 26 Aug 2004 01:48:51 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Rik van Riel <riel@redhat.com>
-CC: LKML <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>,
-       George Beshers <gbeshers@comcast.net>
-Subject: Re: Using fs views to isolate untrusted processes: I need an assistant
- architect in the USA for Phase I of a DARPA funded linux kernel project
-References: <Pine.LNX.4.44.0408251624540.5145-100000@chimarrao.boston.redhat.com>
-In-Reply-To: <Pine.LNX.4.44.0408251624540.5145-100000@chimarrao.boston.redhat.com>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 26 Aug 2004 05:39:42 -0400
+Received: from verein.lst.de ([213.95.11.210]:7378 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S268288AbUHZJhH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 05:37:07 -0400
+Date: Thu, 26 Aug 2004 11:36:45 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: Hans Reiser <reiser@namesys.com>
+Cc: Chris Mason <mason@suse.com>, Christoph Hellwig <hch@lst.de>,
+       akpm@osdl.org, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       Linus Torvalds <torvalds@osdl.org>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: silent semantic changes with reiser4
+Message-ID: <20040826093645.GC28854@lst.de>
+Mail-Followup-To: Christoph Hellwig <hch@lst.de>,
+	Hans Reiser <reiser@namesys.com>, Chris Mason <mason@suse.com>,
+	akpm@osdl.org, linux-fsdevel@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Alexander Lyamin aka FLX <flx@namesys.com>,
+	Linus Torvalds <torvalds@osdl.org>,
+	ReiserFS List <reiserfs-list@namesys.com>
+References: <20040824202521.GA26705@lst.de> <412CEE38.1080707@namesys.com> <1093465334.21878.231.camel@watt.suse.com> <412DA28A.6010009@namesys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <412DA28A.6010009@namesys.com>
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -4.901 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel wrote:
+On Thu, Aug 26, 2004 at 01:42:50AM -0700, Hans Reiser wrote:
+> Did Christoph read the www.namesys.com URL that has for several years 
+> been hiding from him? ;-)
 
->On Sun, 1 Aug 2004, Hans Reiser wrote:
->
->  
->
->>You can think of this as chroot on steroids.
->>    
->>
->
->Sounds like what you want is pretty much the namespace stuff
->that has been in the kernel since the early 2.4 days.
->
->No need to replicate VFS functionality inside the filesystem.
->
->  
->
-It differs in that it has masks (view specifications), they scale well, 
-their collection and specification is well automated, and they are 
-attached to the process executable rather than in some centralized place 
-(that is, they are process oriented not object oriented (traditional) 
-and not centralized.  Users without root can use them and be trusted 
-with the power to do so.
+Yes, and I'm sick of your marketing bullshit Hans.
 
-Hans

@@ -1,95 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266316AbSLOKGn>; Sun, 15 Dec 2002 05:06:43 -0500
+	id <S266319AbSLOK27>; Sun, 15 Dec 2002 05:28:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266319AbSLOKGn>; Sun, 15 Dec 2002 05:06:43 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:36828 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S266316AbSLOKGm>;
-	Sun, 15 Dec 2002 05:06:42 -0500
-Date: Sun, 15 Dec 2002 11:19:06 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch] threaded coredumps, tcore-fixes-2.5.51-A0
-Message-ID: <Pine.LNX.4.44.0212151112001.4707-100000@localhost.localdomain>
+	id <S266320AbSLOK27>; Sun, 15 Dec 2002 05:28:59 -0500
+Received: from gateway.cinet.co.jp ([210.166.75.129]:36921 "EHLO
+	precia.cinet.co.jp") by vger.kernel.org with ESMTP
+	id <S266319AbSLOK26>; Sun, 15 Dec 2002 05:28:58 -0500
+Message-ID: <3DFC5AB2.BD4B8219@cinet.co.jp>
+Date: Sun, 15 Dec 2002 19:34:26 +0900
+From: Osamu Tomita <tomita@cinet.co.jp>
+X-Mailer: Mozilla 4.8C-ja  [ja/Vine] (X11; U; Linux 2.5.50-ac1-pc98smp i686)
+X-Accept-Language: ja
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: [PATCHSET] PC-9800 addtional for 2.5.50-ac1 (1/21)
+References: <3DFC50E9.656B96D0@cinet.co.jp>
+Content-Type: multipart/mixed;
+ boundary="------------E39B80D2C45F12FC722251A2"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------E39B80D2C45F12FC722251A2
+Content-Type: text/plain; charset=iso-2022-jp
+Content-Transfer-Encoding: 7bit
 
-the attached patch (against BK-curr) fixes one more threaded-coredumps
-detail reported by the glibc people: all threads taken down by the
-coredump code should report the proper exit code. We can do this rather
-easily via the group_exit mechanism. 'Other' threads used to report
-SIGKILL, which was highly confusing as the shell often displayed the
-'Killed' message instead of a 'Segmentation fault' message. Another
-missing bit was the 0x80 bit set in the exit status for all threads, if
-the coredump was successful. (it's safe to set this bit in
-->sig->group_exit_code in an unlocked way because all threads are
-artificially descheduled by the coredump code.)
+NEC PC-9800 subarchitecture support patch for 2.5.50-ac1(1/21)
+This is updates for drivers/block/floppy98.c.
+Synchronized with floppy.c in 2.5.50.
 
-i tested the patch on x86, it works as expected:
+diffstat:
+ drivers/block/floppy98.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletion(-)
 
-  $ ulimit -c 0
-  $ ./p3-coredump
-  Segmentation fault
 
-  $ ulimit -c 10000000
-  $ ./p3-coredump
-  Segmentation fault (core dumped)
+Regards,
+Osamu Tomita
+--------------E39B80D2C45F12FC722251A2
+Content-Type: text/plain; charset=iso-2022-jp;
+ name="floppy98-update.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="floppy98-update.patch"
 
-	Ingo
-
---- linux/fs/exec.c.orig	2002-12-15 12:06:38.000000000 +0100
-+++ linux/fs/exec.c	2002-12-15 12:07:04.000000000 +0100
-@@ -1268,7 +1268,7 @@
- 	BUG_ON(mm->core_waiters);
- }
+--- linux-2.5.47-ac5/drivers/block/floppy98.c	Mon Nov 11 12:28:05 2002
++++ linux-2.5.48/drivers/block/floppy98.c	Tue Nov 19 10:15:36 2002
+@@ -167,6 +167,7 @@
+ #include <linux/kernel.h>
+ #include <linux/timer.h>
+ #include <linux/workqueue.h>
++#include <linux/version.h>
+ #define FDPATCHES
+ #include <linux/fdreg.h>
  
--int do_coredump(long signr, struct pt_regs * regs)
-+int do_coredump(long signr, int exit_code, struct pt_regs * regs)
+@@ -3354,7 +3355,7 @@
+ static int invalidate_drive(struct block_device *bdev)
  {
- 	char corename[CORENAME_MAX_SIZE + 1];
- 	struct mm_struct *mm = current->mm;
-@@ -1288,6 +1288,8 @@
- 	}
- 	mm->dumpable = 0;
- 	init_completion(&mm->core_done);
-+	current->sig->group_exit = 1;
-+	current->sig->group_exit_code = exit_code;
- 	coredump_wait(mm);
- 
- 	if (current->rlim[RLIMIT_CORE].rlim_cur < binfmt->min_coredump)
-@@ -1314,6 +1316,7 @@
- 
- 	retval = binfmt->core_dump(signr, regs, file);
- 
-+	current->sig->group_exit_code |= 0x80;
- close_fail:
- 	filp_close(file, NULL);
- fail_unlock:
---- linux/include/linux/binfmts.h.orig	2002-09-20 17:20:29.000000000 +0200
-+++ linux/include/linux/binfmts.h	2002-12-15 12:07:04.000000000 +0100
-@@ -57,7 +57,7 @@
- extern int copy_strings(int argc,char ** argv,struct linux_binprm *bprm); 
- extern int copy_strings_kernel(int argc,char ** argv,struct linux_binprm *bprm);
- extern void compute_creds(struct linux_binprm *binprm);
--extern int do_coredump(long signr, struct pt_regs * regs);
-+extern int do_coredump(long signr, int exit_code, struct pt_regs * regs);
- extern void set_binfmt(struct linux_binfmt *new);
- 
- 
---- linux/kernel/signal.c.orig	2002-12-15 12:06:38.000000000 +0100
-+++ linux/kernel/signal.c	2002-12-15 12:07:04.000000000 +0100
-@@ -1313,7 +1313,7 @@
- 			case SIGQUIT: case SIGILL: case SIGTRAP:
- 			case SIGABRT: case SIGFPE: case SIGSEGV:
- 			case SIGBUS: case SIGSYS: case SIGXCPU: case SIGXFSZ:
--				if (do_coredump(signr, regs))
-+				if (do_coredump(signr, exit_code, regs))
- 					exit_code |= 0x80;
- 				/* FALLTHRU */
- 
+ 	/* invalidate the buffer track to force a reread */
+-	set_bit(DRIVE(to_kdev_t(bdev->bd_dev)), &fake_change);
++	set_bit((int)bdev->bd_disk->private_data, &fake_change);
+ 	process_fd_request();
+ 	check_disk_change(bdev);
+ 	return 0;
+
+--------------E39B80D2C45F12FC722251A2--
 

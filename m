@@ -1,51 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269354AbTGUHmK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 03:42:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269358AbTGUHmK
+	id S269379AbTGUHtn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 03:49:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269334AbTGUHtn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 03:42:10 -0400
-Received: from nessie.weebeastie.net ([61.8.7.205]:7630 "EHLO
-	nessie.weebeastie.net") by vger.kernel.org with ESMTP
-	id S269354AbTGUHmH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 03:42:07 -0400
-Date: Mon, 21 Jul 2003 17:58:15 +1000
-From: CaT <cat@zip.com.au>
-To: Greg KH <greg@kroah.com>
-Cc: sensors@stimpy.netroedge.com, frodol@dds.nl, linux-kernel@vger.kernel.org,
-       phil@netroedge.com
-Subject: Re: 2.6.0-t1: i2c+sensors still whacky
-Message-ID: <20030721075815.GC640@zip.com.au>
-References: <20030715161127.GA2925@kroah.com> <20030716060443.GA784@zip.com.au> <20030716061009.GA5037@kroah.com> <20030716062922.GA1000@zip.com.au> <20030716073135.GA5338@kroah.com> <20030716224718.GA4612@zip.com.au> <20030716225452.GA3419@kroah.com> <20030717153348.GO4612@zip.com.au> <20030718023350.GA5902@kroah.com> <20030721073753.GA640@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030721073753.GA640@zip.com.au>
-User-Agent: Mutt/1.3.28i
-Organisation: Furball Inc.
+	Mon, 21 Jul 2003 03:49:43 -0400
+Received: from postfix3-2.free.fr ([213.228.0.169]:36527 "EHLO
+	postfix3-2.free.fr") by vger.kernel.org with ESMTP id S269392AbTGUHtl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jul 2003 03:49:41 -0400
+Message-ID: <3F1B9F37.509@free.fr>
+Date: Mon, 21 Jul 2003 10:07:19 +0200
+From: Eric Valette <eric.valette@free.fr>
+Reply-To: eric.valette@free.fr
+Organization: HOME
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: akpm@osdl.org, andrew.grover@intel.com, sziwan@hell.org.pl,
+       acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Linux 2.6-pre-mm2 Fix crash on boot on ASUS L3800C if
+ enabing APIC => add this machine to DMI black list
+References: <200307210114.h6L1El7M018996@harpo.it.uu.se>
+In-Reply-To: <200307210114.h6L1El7M018996@harpo.it.uu.se>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 21, 2003 at 05:37:54PM +1000, CaT wrote:
-> On Thu, Jul 17, 2003 at 07:33:51PM -0700, Greg KH wrote:
-> > On Fri, Jul 18, 2003 at 01:33:48AM +1000, CaT wrote:
-> > > > sensors package for 2.4 uses?  And 2.4 works just fine, right?
-> > > 
-> > > I don't use 2.4. Haven't for ages.
-> > 
-> > I would _really_ encourage you to try this, and run the sensors_detect
-> 
-> Good thing you did. :)
+Mikael Pettersson wrote:
 
-Gah. Too tired. I used the following:
+> While I don't dispute your machine has some problem, please
+> do the following first before we completely blacklist it:
+> - ensure you have the latest BIOS (ftp.asuscom.de has the ones for
+>   their desktop mainboards, presumably the laptop BIOSen are also there)
 
-linux kernel 2.4.22-pre7
-lm sensors 2.8.0
-i2c 2.8.0
+Have the latest BIOS from 3 June...
 
-Did not use inbuilt i2c.
+> - in what way is ACPI mandatory? does it fail to boot, or does it
+>   just lose some specific feature? If you just want suspend support,
+>   try APM if the machine has it
+
+Many ACPI managed buttons, Fans, ...
 
 -- 
-"How can I not love the Americans? They helped me with a flat tire the
-other day," he said.
-	- http://tinyurl.com/h6fo
+    __
+   /  `                   	Eric Valette
+  /--   __  o _.          	6 rue Paul Le Flem
+(___, / (_(_(__         	35740 Pace
+
+Tel: +33 (0)2 99 85 26 76	Fax: +33 (0)2 99 85 26 76
+E-mail: eric.valette@free.fr
+

@@ -1,63 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264407AbTICUIQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 16:08:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264393AbTICUGw
+	id S264392AbTICUJ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 16:09:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264432AbTICUIm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 16:06:52 -0400
-Received: from fw.osdl.org ([65.172.181.6]:7598 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264315AbTICUE5 (ORCPT
+	Wed, 3 Sep 2003 16:08:42 -0400
+Received: from codepoet.org ([166.70.99.138]:30123 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id S264392AbTICUGv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 16:04:57 -0400
-Date: Wed, 3 Sep 2003 13:04:40 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Hugh Dickins <hugh@veritas.com>
-cc: Jamie Lokier <jamie@shareable.org>, Rusty Russell <rusty@rustcorp.com.au>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Alternate futex non-page-pinning and COW fix
-In-Reply-To: <Pine.LNX.4.44.0309032016550.2555-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0309031300070.31853-100000@home.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 3 Sep 2003 16:06:51 -0400
+Date: Wed, 3 Sep 2003 14:06:50 -0600
+From: Erik Andersen <andersen@codepoet.org>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>
+Cc: steveb@unix.lancs.ac.uk, linux-kernel@vger.kernel.org
+Subject: Re: corruption with A7A266+200GB disk?
+Message-ID: <20030903200650.GB14475@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
+	steveb@unix.lancs.ac.uk, linux-kernel@vger.kernel.org
+References: <20030903013741.GA1601@codepoet.org> <Pine.LNX.4.44.0309031653290.6102-100000@logos.cnet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0309031653290.6102-100000@logos.cnet>
+X-Operating-System: Linux 2.4.19-rmk7, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Wed, 3 Sep 2003, Hugh Dickins wrote:
+On Wed Sep 03, 2003 at 04:54:28PM -0300, Marcelo Tosatti wrote:
+> > > I reduced the size of /home to 40GB and everything was fine.
+> > > I see the same behaviour with both 2.6.0test3 and 2.4.22.
+> > 
+> > Known problem.  For some reason Marcelo has not yet applied 
+> > the fix for this problem to the 2.4.x kernels...
 > 
-> Maybe, but, if the file was opened for writing as well as reading, the
-> shared read-only mapping can be mprotected to read-write at any point,
-> which does lead to differences: which is why Linux is very careful
-> about deciding VM_SHARED, and it's quite difficult to explain.
+> So it seems the fix is already in 2.4.23-pre2 (came in through Alan IDE
+> changes). 
+> 
+> Steve, it seems 2.4.23-pre2 fixes your problem. 
 
-And that's why the kernel does this:
+Marcelo, I think you are mistaken...  You have indeed applied
+some IDE fixes from Alan.  But I just read all the IDE changes
+again, and unless I have gone blind, this problem is not yet
+fixed.
 
-	case MAP_SHARED:
-		....
+ -Erik
 
-		vm_flags |= VM_SHARED | VM_MAYSHARE;
-		if (!(file->f_mode & FMODE_WRITE))
-			vm_flags &= ~(VM_MAYWRITE | VM_SHARED);
-		...
-
-ie it only degenerates the shared mapping to a private mapping if it 
-_also_ removes the MAYWRITE bit.
-
-So if the mapping is a shared mapping and read-only - but the file was 
-opened read-write and the mapping may later be changed to a writable one - 
-then Linux will keep the mapping VM_SHARED.
-
-> If we document how sys_futex (which does not dirty a page, doesn't
-> even need a page there) behaves when placed within different kinds
-> of mmaps, it's easier for the reader to understand if we don't get
-> into such sophistications - hence choice of VM_MAYSHARE equivalent
-> to MAP_SHARED, never mind the readwriteness.
-
-I'd be very very nervous about anything that documents a read-only
-MAP_SHARED as anythign but a MAP_PRIVATE. That just is fundamentally not 
-right, and it _will_ bite us at some point, since all of the rest of the 
-VM thinks that they are the same.
-
-		Linus
-
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

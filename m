@@ -1,50 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267497AbUG2XS1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262906AbUG2XWf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267497AbUG2XS1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 19:18:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267467AbUG2XS1
+	id S262906AbUG2XWf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 19:22:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267467AbUG2XWf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 19:18:27 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:10718 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S267519AbUG2XSV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 19:18:21 -0400
-Date: Fri, 30 Jul 2004 01:18:19 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-ntfs-dev@lists.sourceforge.net
-Subject: Re: [patch] Re: 2.6.8-rc2-mm1: NTFS compile error with gcc 2.95
-Message-ID: <20040729231818.GJ23589@fs.tum.de>
-References: <20040728020444.4dca7e23.akpm@osdl.org> <20040729144149.GC2349@fs.tum.de> <20040729155411.GF26643@lug-owl.de> <20040729204250.GD2349@fs.tum.de> <Pine.LNX.4.60.0407292249120.25661@hermes-1.csi.cam.ac.uk>
+	Thu, 29 Jul 2004 19:22:35 -0400
+Received: from fw.osdl.org ([65.172.181.6]:51627 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262906AbUG2XWe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jul 2004 19:22:34 -0400
+Date: Thu, 29 Jul 2004 16:24:23 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Paul Jackson <pj@sgi.com>
+Cc: hirofumi@mail.parknet.co.jp, aebr@win.tue.nl, vojtech@suse.cz,
+       torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix NR_KEYS off-by-one error
+Message-Id: <20040729162423.7452e8f5.akpm@osdl.org>
+In-Reply-To: <20040729024931.4b4e78e6.pj@sgi.com>
+References: <87llhjlxjk.fsf@devron.myhome.or.jp>
+	<20040716164435.GA8078@ucw.cz>
+	<20040716201523.GC5518@pclin040.win.tue.nl>
+	<871xjbkv8g.fsf@devron.myhome.or.jp>
+	<20040728115130.GA4008@pclin040.win.tue.nl>
+	<87fz7c9j0y.fsf@devron.myhome.or.jp>
+	<20040728134202.5938b275.pj@sgi.com>
+	<87llh3ihcn.fsf@ibmpc.myhome.or.jp>
+	<20040728231548.4edebd5b.pj@sgi.com>
+	<87oelzjhcx.fsf@ibmpc.myhome.or.jp>
+	<20040729024931.4b4e78e6.pj@sgi.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.60.0407292249120.25661@hermes-1.csi.cam.ac.uk>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 29, 2004 at 10:51:53PM +0100, Anton Altaparmakov wrote:
->...
-> Thanks.  Looks good.  Have you verified that it fixes the gcc-2.95 
-> compilation?  If so I will apply it to my tree and Andrew will get it when 
-> he does his next pull of the ntfs-2.6-devel repository...
-
-Sure, I verified the compilation with gcc 2.95 before sending this 
-patch.
-
-> Thanks,
-> 
-> 	Anton
-
-Thanks
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Hate to be a bore, but I'm still waiting for a definitive patch ;)

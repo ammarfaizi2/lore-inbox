@@ -1,66 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261153AbVAaLjd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261154AbVAaLoB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261153AbVAaLjd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 06:39:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261154AbVAaLjd
+	id S261154AbVAaLoB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 06:44:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261155AbVAaLoB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 06:39:33 -0500
-Received: from ext-nj2gw-5.online-age.net ([64.14.56.41]:24287 "EHLO
-	ext-nj2gw-5.online-age.net") by vger.kernel.org with ESMTP
-	id S261153AbVAaLjb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 06:39:31 -0500
-Date: Mon, 31 Jan 2005 12:36:33 +0100
-From: Kiniger <karl.kiniger@med.ge.com>
-To: Martin Zwickel <martin.zwickel@technotrend.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: How peek at tcp socket data w/o reading it
-Message-ID: <20050131113633.GA4184@wszip-kinigka.euro.med.ge.com>
-References: <20050131104532.GA3208@wszip-kinigka.euro.med.ge.com> <20050131121616.1d35c69a@phoebee>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050131121616.1d35c69a@phoebee>
-User-Agent: Mutt/1.4.1i
+	Mon, 31 Jan 2005 06:44:01 -0500
+Received: from relay1.tiscali.de ([62.26.116.129]:20650 "EHLO
+	webmail.tiscali.de") by vger.kernel.org with ESMTP id S261154AbVAaLn6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jan 2005 06:43:58 -0500
+Message-ID: <41FE2814.9030503@tiscali.de>
+Date: Mon, 31 Jan 2005 13:44:04 +0100
+From: Matthias-Christian Ott <matthias.christian@tiscali.de>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050108)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Michael Buesch <mbuesch@freenet.de>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: My System doesn't use swap!
+References: <41FE1B4B.2060305@tiscali.de> <200501311157.10932.mbuesch@freenet.de>
+In-Reply-To: <200501311157.10932.mbuesch@freenet.de>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks very much,
+Michael Buesch wrote:
 
-thats exactly what I needed.
+>Quoting Matthias-Christian Ott <matthias.christian@tiscali.de>:
+>  
+>
+>>Hi!
+>>I have mysterious Problem:
+>>90 % of my Ram are used (340 MB), but 0 Byte of my Swap (2GB) is used 
+>>and about about 150 MB are swappable.
+>>
+>>[matthias-christian@iceowl ~]$ free
+>>             total       used       free     shared    buffers     cached
+>>Mem:        383868     362176      21692          0         12     208956
+>>-/+ buffers/cache:     153208     230660
+>>    
+>>
+>                                    ^^^^^^
+>You have ~230M of 380M free.
+>Nothing mysterious here.
+>
+>  
+>
+>>Swap:      2097136          0    2097136
+>>
+>>[matthias-christian@iceowl ~]$ cat /kernel-2.6.10-rc2-ott/config
+>>[..]
+>>CONFIG_SWAP=y
+>>[..]
+>>CONFIG_X86_BSWAP=y
+>>[..]
+>>
+>>[matthias-christian@iceowl ~]$ dmesg
+>>[..]
+>>Adding 2097136k swap on /dev/discs/disc0/part2.  Priority:-1 extents:1
+>>[..]
+>>
+>>Matthias-Christian Ott
+>>
+>>
+>>-
+>>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>>the body of a message to majordomo@vger.kernel.org
+>>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>>Please read the FAQ at  http://www.tux.org/lkml/
+>>
+>>
+>>    
+>>
+>
+>  
+>
+Ok maybe I wasn't able to read the /free/ output correctly, but why is 
+no swap used (more than 60% ram are used)?
 
-Karl
-
-On Mon, Jan 31, 2005 at 12:16:16PM +0100, Martin Zwickel wrote:
-> 
->    On Mon, 31 Jan 2005 11:45:32 +0100
->    "Kiniger, Karl (GE Healthcare)" <karl.kiniger@med.ge.com> bubbled:
-> 
->    > Hi,
->    >
->    > hack wanted:
->    >
->    > is it possible to peek a few bytes from a tcp socket which is
->    > ready to read without actually reading the data? (or some
->    > means to push already read data back similar to ungetc)
-> 
->    ret = recv(fd, buf, len, MSG_PEEK);
-> 
->    --
->    MyExcuse:
->    telnet: Unable to connect to remote host: Connection refused
-> 
->    Martin Zwickel <martin.zwickel@technotrend.de>
->    Research & Development
-> 
->    TechnoTrend AG <[1]http://www.technotrend.de>
->    )
-> 
-> References
-> 
->    1. http://www.technotrend.de/
-
--- 
-Karl Kiniger   mailto:karl.kiniger@med.ge.com
-GE Medical Systems Kretztechnik GmbH & Co OHG
-Tiefenbach 15       Tel: (++43) 7682-3800-710
-A-4871 Zipf Austria Fax: (++43) 7682-3800-47
+Matthias-Christian Ott

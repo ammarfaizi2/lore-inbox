@@ -1,41 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317304AbSGNVGu>; Sun, 14 Jul 2002 17:06:50 -0400
+	id <S317312AbSGNVH4>; Sun, 14 Jul 2002 17:07:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317305AbSGNVGt>; Sun, 14 Jul 2002 17:06:49 -0400
-Received: from esteel10.client.dti.net ([209.73.14.10]:33222 "EHLO
-	shookay.newview.com") by vger.kernel.org with ESMTP
-	id <S317304AbSGNVGr>; Sun, 14 Jul 2002 17:06:47 -0400
-Date: Sun, 14 Jul 2002 17:09:25 -0400
-From: Mathieu Chouquet-Stringer <mathieu@newview.com>
-To: Mark Hahn <hahn@physics.mcmaster.ca>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: IDE/ATAPI in 2.5
-Message-ID: <20020714170925.A20352@shookay.newview.com>
-Mail-Followup-To: Mathieu Chouquet-Stringer <mathieu@newview.com>,
-	Mark Hahn <hahn@physics.mcmaster.ca>, linux-kernel@vger.kernel.org
-References: <xltznwujc0u.fsf@shookay.newview.com> <Pine.LNX.4.33.0207141704280.21492-100000@coffee.psychology.mcmaster.ca>
+	id <S317309AbSGNVHy>; Sun, 14 Jul 2002 17:07:54 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:27124 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S317312AbSGNVHt>; Sun, 14 Jul 2002 17:07:49 -0400
+Subject: [PATCH] preemptive kernel for 2.4.19-rc1-ac3
+From: Robert Love <rml@tech9.net>
+To: linux-kernel@vger.kernel.org
+Cc: kpreempt-tech@lists.sourceforge.net
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 14 Jul 2002 14:10:42 -0700
+Message-Id: <1026681042.939.9.camel@sinai>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.33.0207141704280.21492-100000@coffee.psychology.mcmaster.ca>; from hahn@physics.mcmaster.ca on Sun, Jul 14, 2002 at 05:05:46PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 14, 2002 at 05:05:46PM -0400, Mark Hahn wrote:
-> > So I would say Joerg is right... :-(
-> 
-> providing a strawman does not make and argument correct.
-> we've known that ext2/3 (like ffs and many other FSs)
-> simply is not designed for large directories.
-> 
-> the big mystery is why Jeorg thought this was relevant to the atapi flamefest.
+A preempt-kernel patch for 2.4.19-rc1-ac3 is available at:
 
-I think you're right.
+	ftp://ftp.kernel.org/pub/linux/kernel/people/rml/preempt-kernel/v2.4/preempt-kernel-rml-2.4.19-rc1-ac3-1.patch
 
--- 
-Mathieu Chouquet-Stringer              E-Mail : mathieu@newview.com
-    It is exactly because a man cannot do a thing that he is a
-                      proper judge of it.
-                      -- Oscar Wilde
+and mirrors.
+
+The recent scheduler bits introduced plenty of changes to cause the
+patch to fail to apply.
+
+This new preempt-kernel patch also includes some of the
+scheduler-related preemption optimizations found in 2.5.
+
+	Robert Love
+

@@ -1,38 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268251AbUIPRBg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268259AbUIPRBg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268251AbUIPRBg (ORCPT <rfc822;willy@w.ods.org>);
+	id S268259AbUIPRBg (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 16 Sep 2004 13:01:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268383AbUIPRA6
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268317AbUIPQrY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 13:00:58 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:51654 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S268253AbUIPQz2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 12:55:28 -0400
-Subject: Re: device driver for the SGI system clock, mmtimer
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>, Christoph Lameter <clameter@sgi.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Bob Picco <Robert.Picco@hp.com>, venkatesh.pallipadi@intel.com
-In-Reply-To: <200409160909.12840.jbarnes@engr.sgi.com>
-References: <200409161003.39258.bjorn.helgaas@hp.com>
-	 <200409160909.12840.jbarnes@engr.sgi.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1095349940.22739.34.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 16 Sep 2004 16:52:21 +0100
+	Thu, 16 Sep 2004 12:47:24 -0400
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:38356 "EHLO
+	dsl.commfireservices.com") by vger.kernel.org with ESMTP
+	id S268185AbUIPQoW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Sep 2004 12:44:22 -0400
+Date: Thu, 16 Sep 2004 12:44:23 +0000 (UTC)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, wli@holomorphy.com
+Subject: Re: [PATCH] remove LOCK_SECTION from x86_64 spin_lock asm
+In-Reply-To: <20040916062759.GA10527@elte.hu>
+Message-ID: <Pine.LNX.4.53.0409161238030.2897@musoma.fsmlabs.com>
+References: <Pine.LNX.4.53.0409151458470.10849@musoma.fsmlabs.com>
+ <20040915144523.0fec2070.akpm@osdl.org> <20040916061359.GA12915@wotan.suse.de>
+ <20040916062759.GA10527@elte.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2004-09-16 at 17:09, Jesse Barnes wrote:
-> I think Christoph already looked at that.  And HPET doesn't provide mmap 
-> functionality, does it?  I.e. allow a userspace program to dereference the 
-> counter register directly?
+On Thu, 16 Sep 2004, Ingo Molnar wrote:
 
-It can do but that assumes nothing else is mapped into the same page
-that would be harmful or reveal information that should not be revealed
-etc..
+> the ebp trick is nice, but forcing a formal stack frame for every
+> function has global performance implications. Couldnt we define some
+> sort of current-> field [or current_thread_info() field] that the
+> spinlock code could set and clear, which field would be listened to by
+> profile_pc(), so that the time spent spinning would be attributed to the
+> callee? Something like:
+
+I think the generic route is nice but wouldn't this break with the 
+following.
+
+taskA:
+spin_lock(lockA); // contended
+<interrupt>
+int1:
+spin_lock(lockB)
+
+I was thinking along the likes of a per_cpu real_pc, but realised it falls 
+prey to the same problem as above... Unless we have irq threads, then of 
+course your solution works.
+
+	Zwane
 

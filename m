@@ -1,60 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312087AbSCQSfD>; Sun, 17 Mar 2002 13:35:03 -0500
+	id <S312097AbSCQSfp>; Sun, 17 Mar 2002 13:35:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312091AbSCQSex>; Sun, 17 Mar 2002 13:34:53 -0500
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:16382 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S312087AbSCQSek>; Sun, 17 Mar 2002 13:34:40 -0500
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <20020317101507.N10086@work.bitmover.com> 
-In-Reply-To: <20020317101507.N10086@work.bitmover.com>  <3C9372BE.4000808@mandrakesoft.com> <20020316083059.A10086@work.bitmover.com> <3C9375B7.3070808@mandrakesoft.com> <20020316085213.B10086@work.bitmover.com> <3C937B82.60500@mandrakesoft.com> <20020316091452.E10086@work.bitmover.com> <3C938027.4040805@mandrakesoft.com> <30393.1016362174@redhat.com> <20020317075443.A15420@work.bitmover.com> <16049.1016382201@redhat.com> 
-To: Larry McVoy <lm@bitmover.com>
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
-        James Bottomley <James.Bottomley@SteelEye.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Problems using new Linux-2.4 bitkeeper repository. 
+	id <S312096AbSCQSfd>; Sun, 17 Mar 2002 13:35:33 -0500
+Received: from mark.mielke.cc ([216.209.85.42]:23307 "EHLO mark.mielke.cc")
+	by vger.kernel.org with ESMTP id <S312091AbSCQSfR>;
+	Sun, 17 Mar 2002 13:35:17 -0500
+Date: Sun, 17 Mar 2002 13:31:03 -0500
+From: Mark Mielke <mark@mark.mielke.cc>
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+Cc: Ken Hirsch <kenhirsch@myself.com>, linux-kernel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org
+Subject: Re: fadvise syscall?
+Message-ID: <20020317133103.B16140@mark.mielke.cc>
+In-Reply-To: <3C945635.4050101@mandrakesoft.com> <005301c1cdc6$5a26de80$0100a8c0@DELLXP1> <5.1.0.14.2.20020317170621.00abd980@pop.cus.cam.ac.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sun, 17 Mar 2002 18:34:29 +0000
-Message-ID: <23384.1016390069@redhat.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <5.1.0.14.2.20020317170621.00abd980@pop.cus.cam.ac.uk>; from aia21@cam.ac.uk on Sun, Mar 17, 2002 at 05:14:20PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Mar 17, 2002 at 05:14:20PM +0000, Anton Altaparmakov wrote:
+> At 15:13 17/03/02, Ken Hirsch wrote:
+> >There is a posix_fadvise() syscall in the POSIX Advanced Realtime
+> >specification
+> >http://www.opengroup.org/onlinepubs/007904975/functions/posix_fadvise.html
+> Posix or not I still don't see why one would want that. You know what you 
+> are going to be using a file for at open time and you are not going to be 
+> changing your mind later. If you can show me a single _real_world_ example 
+> where one would genuinely want to change from one access pattern to another 
+> without closing/reopening a particular file I would agree that fadvise is a 
+> good idea but otherwise I think open(2) is the superior approach.
 
-lm@bitmover.com said:
->  Then you get to save them as diffs, unedit the files, and put them
-> back  after the merge. 
+Also, at least in theory, open() can begin loading pages the moment it
+completes (if the system is sufficiently idle). Calling madvise() "at
+some later point" would allow a window during which the kernel could
+already be loading the wrong pages, before it is *then* told "oh btw, I
+really want *these* pages." As an example (assuming open() doesn't do this
+already) I would be pleasantly surprised if open(O_RDONLY | O_SEQUENTIAL)
+began loading at least the first page in the file the moment open() was
+successful. Then, when we get control back to actually do a read() (we
+may have been interrupted during open()) the page is already there.
 
-I can do better than that. If I save them as diffs, I don't get to use your 
-cute merge tools. I could commit them with a throwaway changelog, do the 
-pull and use the merge tools, then copy the resulting files, undo both the 
-pull and the previous merge, do the pull again and then lock the files and 
-drop the previously-saved copies into place.
+mark
 
-It's a bit contrived though - it would be nice if BK would do something 
-like that for me instead of just bailing out when files are modified. 
-Asking me if I'm really sure I want to continue is fine. Aborting 
-unconditionally less so.
+-- 
+mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
+.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
+|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
+|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
 
->  citool is a tcl program, how about you hack it in?  Look for
-> $diffsOpts, that's what you'll need to modify.  You need to get the
-> diffs parsing  code to do the right thing with -up style diffs though.
+  One ring to rule them all, one ring to find them, one ring to bring them all
+                       and in the darkness bind them...
 
-Er, actually I can't get 'bk diffs -up' to give output the same as (GNU)
-'diff -up' either. What I was after was stuff like:
-
-	@@ -331,6 +331,7 @@ int jffs2_decompress(unsigned char compr
-
-> We don't have this feature.  We've talked about it, but that's all
-> we've done.
-
-Which? Actually tracking functions that move between files, or the hack in
-the merge tool? I appreciate that the former is a _lot_ harder to achieve.
-
---
-dwmw2
-
+                           http://mark.mielke.cc/
 

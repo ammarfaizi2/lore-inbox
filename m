@@ -1,72 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315806AbSGARDk>; Mon, 1 Jul 2002 13:03:40 -0400
+	id <S315856AbSGARGb>; Mon, 1 Jul 2002 13:06:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315883AbSGARDj>; Mon, 1 Jul 2002 13:03:39 -0400
-Received: from www.transvirtual.com ([206.14.214.140]:29457 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S315806AbSGARDj>; Mon, 1 Jul 2002 13:03:39 -0400
-Date: Mon, 1 Jul 2002 10:05:47 -0700 (PDT)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Petr Vandrovec <vandrove@vc.cvut.cz>
-cc: torvalds@transmeta.com, <linux-kernel@vger.kernel.org>,
-       <linux-fbdev-devel@lists.sourceforge.net>
-Subject: Re: [PATCH] 2.5.24 matroxfb off by one error
-In-Reply-To: <20020630003410.GH25118@ppc.vc.cvut.cz>
-Message-ID: <Pine.LNX.4.44.0207011005350.21874-100000@www.transvirtual.com>
+	id <S315862AbSGARGa>; Mon, 1 Jul 2002 13:06:30 -0400
+Received: from web20511.mail.yahoo.com ([216.136.175.150]:32887 "HELO
+	web20511.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S315856AbSGARGa>; Mon, 1 Jul 2002 13:06:30 -0400
+Message-ID: <20020701170856.25913.qmail@web20511.mail.yahoo.com>
+Date: Mon, 1 Jul 2002 19:08:56 +0200 (CEST)
+From: =?iso-8859-1?q?willy=20tarreau?= <wtarreau@yahoo.fr>
+Subject: Re: [ANNOUNCE] CMOV emulation for 2.4.19-rc1
+To: Gabriel Paubert <paubert@iram.es>, linux-kernel@vger.kernel.org
+In-Reply-To: <3D208283.7010106@iram.es>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > that's simply because I'm not sure if the kernel
+> > runs with AC flag on or off. I quickly checked
+> > that it's OK from userland.
+> 
+> AC is only checked when running at CPL==3, i.e.,
+> you'll never get an alignment trap in the kernel.
 
-Applyed to the fbdev BK tree.
+thanks for the tip, I think that with all the feedback
+I got, I could rewrite it more cleanly ;-)
 
-   . ---
-   |o_o |
-   |:_/ |   Give Micro$oft the Bird!!!!
-  //   \ \  Use Linux!!!!
- (|     | )
- /'\_   _/`\
- \___)=(___/
+Cheers,
+Willy
 
-On Sun, 30 Jun 2002, Petr Vandrovec wrote:
 
-> Hi Linus,
->    please apply patch below.
->
->    It fixes off by one error in getcolreg/setcolreg in matroxfb's
-> secondary head driver.
-> 					Thanks,
-> 						Petr Vandrovec
-> 						vandrove@vc.cvut.cz
->
->
-> diff -urdN linux/drivers/video/matrox/matroxfb_crtc2.c linux/drivers/video/matrox/matroxfb_crtc2.c
-> --- linux/drivers/video/matrox/matroxfb_crtc2.c	Fri Jun 21 00:53:48 2002
-> +++ linux/drivers/video/matrox/matroxfb_crtc2.c	Sat Jun 29 00:09:09 2002
-> @@ -29,7 +29,7 @@
->  static int matroxfb_dh_getcolreg(unsigned regno, unsigned *red, unsigned *green,
->  		unsigned *blue, unsigned *transp, struct fb_info* info) {
->  #define m2info ((struct matroxfb_dh_fb_info*)info)
-> -	if (regno > 16)
-> +	if (regno >= 16)
->  		return 1;
->  	*red = m2info->palette[regno].red;
->  	*blue = m2info->palette[regno].blue;
-> @@ -44,7 +44,7 @@
->  #define m2info ((struct matroxfb_dh_fb_info*)info)
->  	struct display* p;
->
-> -	if (regno > 16)
-> +	if (regno >= 16)
->  		return 1;
->  	m2info->palette[regno].red = red;
->  	m2info->palette[regno].blue = blue;
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
+___________________________________________________________
+Do You Yahoo!? -- Une adresse @yahoo.fr gratuite et en français !
+Yahoo! Mail : http://fr.mail.yahoo.com

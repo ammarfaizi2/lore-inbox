@@ -1,35 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264346AbTH2ChY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Aug 2003 22:37:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264348AbTH2ChY
+	id S264338AbTH2Cas (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Aug 2003 22:30:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264362AbTH2Cas
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Aug 2003 22:37:24 -0400
-Received: from fw.osdl.org ([65.172.181.6]:10177 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264346AbTH2ChX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Aug 2003 22:37:23 -0400
-Date: Thu, 28 Aug 2003 19:40:39 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: davidsen@tmr.com, cswingle@iarc.uaf.edu, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test4: Unable to handle kernel NULL pointer dereference
-Message-Id: <20030828194039.7fabf13b.akpm@osdl.org>
-In-Reply-To: <32865.4.4.25.4.1062124435.squirrel@www.osdl.org>
-References: <20030828131019.69a9f3b9.akpm@osdl.org>
-	<Pine.LNX.3.96.1030828220150.466A-100000@gatekeeper.tmr.com>
-	<32865.4.4.25.4.1062124435.squirrel@www.osdl.org>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Thu, 28 Aug 2003 22:30:48 -0400
+Received: from almesberger.net ([63.105.73.239]:57098 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id S264338AbTH2Car (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Aug 2003 22:30:47 -0400
+Date: Thu, 28 Aug 2003 23:30:24 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: kuznet@ms2.inr.ac.ru
+Cc: quade@hsnr.de, nagendra_tomar@adaptec.com, linux-kernel@vger.kernel.org
+Subject: Re: tasklet_kill will always hang for recursive tasklets on a UP
+Message-ID: <20030828233024.G1212@almesberger.net>
+References: <20030826145636.E1212@almesberger.net> <200308270147.FAA07024@dub.inr.ac.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200308270147.FAA07024@dub.inr.ac.ru>; from kuznet@ms2.inr.ac.ru on Wed, Aug 27, 2003 at 05:47:18AM +0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Randy.Dunlap" <rddunlap@osdl.org> wrote:
->
-> Is this the same issue as
->    http://marc.theaimsgroup.com/?l=linux-kernel&m=106080170017645&w=2
->  in which AMD said, "Let us get back to you, ok?" on Aug. 13?
+kuznet@ms2.inr.ac.ru wrote:
+> It still holds. tasklet_kill just waits for completion of scheduled
+> events. Well, it _assumes_ that cpu which calls tasklet_schedule
+> does not try to wake the tasklet after death.
 
-yes.
+Well, the tasklet isn't dead yet - it's still running.
+
+> But it is from area of pure scholastics already: waker and killer
+> have to synchronize in some way anyway. 
+
+Yes, all I'm saying is that one can't rely on tasklet_kill to
+make a self-rescheduling tasklet go away, which, given the name,
+would seem a reasonably assumption.
+
+Also, in this case, tasklet_schedule behaves differently on SMP.
+So I'd suggest to resolve all this by clarifying that
+tasklet_schedule must not be called while tasklet_kill is
+executing.
+
+- Werner
+
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

@@ -1,43 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262071AbTJNVOD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Oct 2003 17:14:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262429AbTJNVOD
+	id S262651AbTJNVT0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Oct 2003 17:19:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262690AbTJNVT0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Oct 2003 17:14:03 -0400
-Received: from mx2.magma.ca ([206.191.0.250]:30657 "EHLO mx2.magma.ca")
-	by vger.kernel.org with ESMTP id S262071AbTJNVOA (ORCPT
+	Tue, 14 Oct 2003 17:19:26 -0400
+Received: from smtp.dei.uc.pt ([193.137.203.228]:60887 "EHLO smtp.dei.uc.pt")
+	by vger.kernel.org with ESMTP id S262651AbTJNVTV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Oct 2003 17:14:00 -0400
-Date: Tue, 14 Oct 2003 17:13:54 -0400 (EDT)
-Message-Id: <200310142113.h9ELDsAp002223@webmail1.magma.ca>
-To: linux-kernel@vger.kernel.org
-From: "Javier Govea" <jgovea@magma.ca>
-Subject: Source ports at the  IP layer
-X-Account: jgovea
-X-Sender-IP: 209.217.122.119
-X-INFO: Folder - 0, Message - 0, MimeBody - 0
-Mime-Version: 1.0
-Content-Type: text/plain
+	Tue, 14 Oct 2003 17:19:21 -0400
+Date: Tue, 14 Oct 2003 22:18:59 +0100 (WEST)
+From: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
+To: Lech Szychowski <lech.szychowski@pse.pl>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.23-pre7-pac2
+In-Reply-To: <20031014132559.GA29532@lech.pse.pl>
+Message-ID: <Pine.LNX.4.58.0310142214070.3213@student.dei.uc.pt>
+References: <Pine.LNX.4.56.0310141354120.3892@dot.kde.org>
+ <20031014132559.GA29532@lech.pse.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-UC-DEI-MailScanner-Information: Please contact helpdesk@dei.uc.pt for more information
+X-UC-DEI-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi guys,
+And a thing is that it didn't happen with 2.4.23-pre4-pac2 ...
 
-I want to get the source ports of every incomming IP packet at the IP layer, but I'm
-having problems. 
+--
+==================================================
+Marcos Daniel Marado Torres AKA Mind Booster Noori
+/"\               http://student.dei.uc.pt/~marado
+\ /                       marado@student.dei.uc.pt
+ X   ASCII Ribbon Campaign
+/ \  against HTML e-mail and Micro$oft attachments
+==================================================
 
-A print out, in the ip_rcv() function (in ip_input.c), of skb->h.uh->source (for the UDP
-source port) and of skb->h.th->source (for the TCP source port) is always displaying 17664
-(and i'm sure that is not the real source port). What am i doing wrong?? Is it possilble
-at all to get the source ports directly from skb->h.th->source at this early stage, i mean
-at the IP layer?? Do i need to do some casting or calling another function before i can
-get the ports??? 
+On Tue, 14 Oct 2003, Lech Szychowski wrote:
 
-I also tried  
-struct tcphdr *th = (struct tcphdf *)skb->h.th;
-and then printing out th->source...but i'm still getting 17664...any suggestion on how I
-can get the ports??? All ideas are very very welcome...
-
-Thanx in advance...
-Xavier
+> > - Update ACPI
+>
+> Is ACPI required now for SMP kernels? When compiling for SMP
+> I get the same errors someone already posted in the
+> "2.4.23-pre7-pac1" thread (missing acpi_... symbols)?
+>
+> --
+> 	Leszek.
+>
+> -- lech7@pse.pl 2:480/33.7          -- REAL programmers use INTEGERS --
+> -- speaking just for myself...
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

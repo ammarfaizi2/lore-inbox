@@ -1,36 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263357AbSIPXkk>; Mon, 16 Sep 2002 19:40:40 -0400
+	id <S263359AbSIPXoN>; Mon, 16 Sep 2002 19:44:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263359AbSIPXkk>; Mon, 16 Sep 2002 19:40:40 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:24335 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S263357AbSIPXkj>; Mon, 16 Sep 2002 19:40:39 -0400
-Date: Mon, 16 Sep 2002 16:45:58 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Robert Love <rml@tech9.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] BUG(): sched.c: Line 944
-In-Reply-To: <1032218110.1203.63.camel@phantasy>
-Message-ID: <Pine.LNX.4.44.0209161644210.2029-100000@home.transmeta.com>
+	id <S263374AbSIPXoM>; Mon, 16 Sep 2002 19:44:12 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:12556 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S263359AbSIPXoM>;
+	Mon, 16 Sep 2002 19:44:12 -0400
+Message-ID: <3D866DD5.4080207@mandrakesoft.com>
+Date: Mon, 16 Sep 2002 19:48:37 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "David S. Miller" <davem@redhat.com>
+CC: dwmw2@infradead.org, linux-kernel@vger.kernel.org, todd-lkml@osogrande.com,
+       hadi@cyberus.ca, tcw@tempest.prismnet.com, netdev@oss.sgi.com,
+       pfeather@cs.unm.edu
+Subject: Re: Early SPECWeb99 results on 2.5.33 with TSO on e1000
+References: <12116.1032216780@redhat.com>	<12293.1032217399@redhat.com>	<3D86645F.5030401@mandrakesoft.com> <20020916.160210.70782700.davem@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 16 Sep 2002, Robert Love wrote:
+David S. Miller wrote:
+>    From: Jeff Garzik <jgarzik@mandrakesoft.com>
+>    Date: Mon, 16 Sep 2002 19:08:15 -0400
+>    
+>    I was rather disappointed when file->file sendfile was [purposefully?] 
+>    broken in 2.5.x...
 > 
-> Nope.  If PREEMPT_ACTIVE is set, schedule() assumes the task is being
-> preempted and skips certain logic e.g. deactivate_task() (this is the
-> same code that lets us safely preempt a TASK_ZOMBIE).
+> What change made this happen?
 
-Ahhah! I know. You just make lock_depth 0 when you exit, without actually 
-taking the kernel lock. Which fools the logic into accepting a 
-preempt-disable, since it thinks that the preempt disable is due to 
-holding the kernel lock.
 
-Add a big comment and you're all done.
+I dunno when it happened, but 2.5.x now returns EINVAL for all 
+file->file cases.
 
-		Linus
+In 2.4.x, if sendpage is NULL, file_send_actor in mm/filemap.c faked a 
+call to fops->write().
+In 2.5.x, if sendpage is NULL, EINVAL is unconditionally returned.
 

@@ -1,53 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265266AbUAJROz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jan 2004 12:14:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265267AbUAJROz
+	id S265227AbUAJR0a (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jan 2004 12:26:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265229AbUAJR0a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jan 2004 12:14:55 -0500
-Received: from smtprelay02.ispgateway.de ([62.67.200.157]:1473 "EHLO
-	smtprelay02.ispgateway.de") by vger.kernel.org with ESMTP
-	id S265266AbUAJROy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jan 2004 12:14:54 -0500
-From: lkml@nitwit.de
-To: Eric <eric@cisu.net>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6: The hardware reports a non fatal, correctable incident occured on CPU 0.
-Date: Sat, 10 Jan 2004 18:16:22 +0100
-User-Agent: KMail/1.5.4
-References: <200401091748.10859.lkml@nitwit.de> <200401091712.02802.eric@cisu.net>
-In-Reply-To: <200401091712.02802.eric@cisu.net>
+	Sat, 10 Jan 2004 12:26:30 -0500
+Received: from x35.xmailserver.org ([69.30.125.51]:24202 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S265227AbUAJR02
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jan 2004 12:26:28 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Sat, 10 Jan 2004 09:26:27 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mdolabs.com
+To: Jesper Juhl <juhl-lkml@dif.dk>
+cc: Andrew Morton <akpm@osdl.org>, Jakub Jelinek <jakub@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] First patch to improve ELF sanity checks
+In-Reply-To: <8A43C34093B3D5119F7D0004AC56F4BC0752714F@difpst1a.dif.dk>
+Message-ID: <Pine.LNX.4.44.0401100912590.1798-100000@bigblue.dev.mdolabs.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200401101816.22612.lkml@nitwit.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 10 January 2004 00:12, Eric wrote:
-> 	Check your hardware CPU/MOBO/RAM. Overheating? Bad Ram? Cheap mobo?
-> MCE should not be triggered under any circumstances unless it is a kernel
-> bug(RARE, I believe the MCE code is simple) or you REALLY have a hardware
-> problem. As said before, the bios is resetting your fsb to 100 as a
-> fail-safe because something bad happened.
+On Sat, 10 Jan 2004, Jesper Juhl wrote:
 
-Well, my system did run very stable and in the meantime again does run very 
-stable on both, 2.4.21 and Windows XP...
+> 
+> Hi,
+> 
+> Andrew, please consider including the patch below in -mm for testing.
+> The patch works nicely here, but broader testing and review would be good.
+> An explanation of the patch can be found below.
+> 
+> This is only a first version, and it does not yet check all I want it to,
+> but the checks it does add should be valid. As far as I've been able to
+> tell, the checks it makes are valid according to the ELF spec, and it does
+> not seem to break anything. I'm currently using it on my own box and I
+> have not yet seen a single binary fail to load - I've also been testing by
+> modifying a valid ELF binary to contain invalid info in the fields that
+> are checked, and all my test-cases fail as expected.
+> 
+> This patch /should/ work on all archs. It adds a check to asm-i386/elf.h
+> that I've not added to any other archs for the simple reason that I don't
+> know what a valid check would be on anything but x86 32 bit atm, but I'll
+> be looking into that, and the additional check for i386 should not harm
+> other archs - their checking will just be a little weaker than i386.
+> 
+> So far I've only added these checks to load_elf_binary , but Jakub pointed
+> out to me that they would need to go into load_elf_interp as well. I will
+> add the checks there as well as soon as I convince myself that they really
+> are needed there. So far I only see load_elf_binary calling
+> load_elf_interp, and since load_elf_binary does the checks and abort if
+> they fail before calling load_elf_interp I don't (yet) see why they would
+> be needed there as well. I'm sure Jakub is probably right, and I'm looking
 
-> 	BTW, check your setup, an AMD 2200+ should run at 1.8ghz i believe. If you
+You do not have to convince yourself, trust Jakub ;) The checks are needed 
+even inside load_elf_interp since they refer to two different images. You 
+might also want to create a separate function that does the checks and 
+call it from both load_elf_interp and load_elf_binary.
 
-Yes.
 
-> > What the fuck is going on here?? As far as I figured out this has
-> > something to do with MCE (CONFIG_X86_MCE=y, CONFIG_X86_MCE_NONFATAL=y)
-> > (?).
->
-> 	Leave it enabled, its a good thing to tell you when you have bad hardware.
-> Its not a kernel problem, but a feature.
 
-Well, it is a good thing to tell me, but it's not a good thing to make my 
-system auto-reset itself before reaching the BIOS afterwards...
+- Davide
 
-timo
+
+
+
 

@@ -1,40 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262567AbTIUVRn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Sep 2003 17:17:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262575AbTIUVRn
+	id S262574AbTIUVT6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Sep 2003 17:19:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262575AbTIUVT6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Sep 2003 17:17:43 -0400
-Received: from 015.atlasinternet.net ([212.9.93.15]:58309 "EHLO
-	ponti.gallimedina.net") by vger.kernel.org with ESMTP
-	id S262567AbTIUVRn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Sep 2003 17:17:43 -0400
-From: Ricardo Galli <gallir@uib.es>
-Organization: UIB
-To: linux-kernel@vger.kernel.org
-Subject: Re: Broken synaptics mouse..
-Date: Sun, 21 Sep 2003 23:17:40 +0200
-User-Agent: KMail/1.5.3
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+	Sun, 21 Sep 2003 17:19:58 -0400
+Received: from home.linuxhacker.ru ([194.67.236.68]:53940 "EHLO linuxhacker.ru")
+	by vger.kernel.org with ESMTP id S262574AbTIUVT4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Sep 2003 17:19:56 -0400
+Date: Mon, 22 Sep 2003 01:19:52 +0400
+From: Oleg Drokin <green@linuxhacker.ru>
+To: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org, matthew@wil.cx
+Subject: [PATCH] [2.4] Fix possible memleaks in Ethtool ioctl handler
+Message-ID: <20030921211952.GA5903@linuxhacker.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200309212317.40703.gallir@uib.es>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> linux-petero/drivers/input/mouse/synaptics.c | 68 +++++++++++------- 
->> linux-petero/drivers/input/mousedev.c | 100 +++++++++++++++++++-------- 
->> linux-petero/include/linux/input.h | 3 3 files changed, 118 
->> insertions(+), 53 deletions(-)
->
-> Yes, this now looks very nice. Applied.
+Hello!
 
-Which patches are required to test it? (it can't be applied to -bk8).
+   There are trivial memleaks in Ethtool ioctl handler, while not all that
+   dangerous since only root can cause them (I presume), still
+   trivial patch below is needed at least for the correctness sake.
+   Please apply.
+
+   Found with help of smatch.
+
+===== net/core/ethtool.c 1.4 vs edited =====
+--- 1.4/net/core/ethtool.c	Tue Sep  2 04:26:28 2003
++++ edited/net/core/ethtool.c	Mon Sep 22 01:17:14 2003
+@@ -247,8 +247,10 @@
+ 	if (!data)
+ 		return -ENOMEM;
  
-
--- 
-  ricardo galli       GPG id C8114D34
-  http://mnm.uib.es/~gallir/
-
+-	if (copy_from_user(data, useraddr + sizeof(eeprom), len))
+-		return -EFAULT;
++	if (copy_from_user(data, useraddr + sizeof(eeprom), len)) {
++		ret = -EFAULT;
++		goto out;
++	}
+ 
+ 	ret = dev->ethtool_ops->get_eeprom(dev, &eeprom, data);
+ 	if (!ret)
+@@ -287,8 +289,10 @@
+ 	if (!data)
+ 		return -ENOMEM;
+ 
+-	if (copy_from_user(data, useraddr + sizeof(eeprom), len))
+-		return -EFAULT;
++	if (copy_from_user(data, useraddr + sizeof(eeprom), len)) {
++		ret = -EFAULT;
++		goto out;
++	}
+ 
+ 	ret = dev->ethtool_ops->set_eeprom(dev, &eeprom, data);
+ 	if (ret)

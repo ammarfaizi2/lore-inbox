@@ -1,60 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267675AbUBMTjI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 14:39:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267671AbUBMTjI
+	id S267051AbUBMTuW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 14:50:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267196AbUBMTuW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 14:39:08 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:13842 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S267235AbUBMTiT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 14:38:19 -0500
-Date: Fri, 13 Feb 2004 19:38:14 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Bas Mevissen <ml@basmevissen.nl>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, torvalds@osdl.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Shut up about the damn modules already...
-Message-ID: <20040213193814.A8188@flint.arm.linux.org.uk>
-Mail-Followup-To: Bas Mevissen <ml@basmevissen.nl>,
-	Rusty Russell <rusty@rustcorp.com.au>, torvalds@osdl.org,
-	akpm@osdl.org, linux-kernel@vger.kernel.org
-References: <20040212031631.69CAD2C04B@lists.samba.org> <402D0083.7010606@basmevissen.nl>
+	Fri, 13 Feb 2004 14:50:22 -0500
+Received: from ns.suse.de ([195.135.220.2]:48575 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S267051AbUBMTuT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Feb 2004 14:50:19 -0500
+Date: Fri, 13 Feb 2004 02:52:39 +0100
+From: Andi Kleen <ak@suse.de>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: jamie@shareable.org, torvalds@osdl.org, mingo@elte.hu,
+       benh@kernel.crashing.org, linux-kernel@vger.kernel.org, akpm@osdl.org,
+       drepper@redhat.com
+Subject: Re: [BUG] get_unmapped_area() change -> non booting machine
+Message-Id: <20040213025239.385dbf49.ak@suse.de>
+In-Reply-To: <38670000.1076697235@flay>
+References: <1076384799.893.5.camel@gaston>
+	<Pine.LNX.4.58.0402100814410.2128@home.osdl.org>
+	<20040210173738.GA9894@mail.shareable.org>
+	<20040213002358.1dd5c93a.ak@suse.de>
+	<20040212100446.GA2862@elte.hu>
+	<Pine.LNX.4.58.0402120833000.5816@home.osdl.org>
+	<20040213032604.GI25499@mail.shareable.org>
+	<20040215062544.5e554a61.ak@suse.de>
+	<38670000.1076697235@flay>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <402D0083.7010606@basmevissen.nl>; from ml@basmevissen.nl on Fri, Feb 13, 2004 at 05:51:15PM +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 13, 2004 at 05:51:15PM +0100, Bas Mevissen wrote:
-> I'm wondering why it is that the kernel is asking for non-existing 
-> modules so often. Is it that userspace applications try to access all 
-> kinds of devices too often (autoprobing) or it this (wanted) kernel 
-> behaviour?
+On Fri, 13 Feb 2004 10:33:55 -0800
+"Martin J. Bligh" <mbligh@aracnet.com> wrote:
 
-Userspace probes the kernel to see if IPv6 is available by trying to
-create an IPv6 socket.
+> > In the standard kernel it silently overwrites, but in 2.4-aa there was a patch forever
+> > that adds a guard page.
+> 
+> Do you happen to remember the name of the patch? Hunting in Andrea's tree
+> isn't always easy ;-)
 
-The correct solution is to fix /etc/modprobe.conf such that it doesn't
-try to load the module when you don't have it configured:
+00_silent-stack-overflow-18
 
-install net-pf-10 /bin/true
-
-Note that if you alias net-pf-10 to ipv6 before this install line, you
-need to replace net-pf-10 with ipv6 in the install line.
-
-PS, I notice Arjan's RPM packages don't seem to contain the modprobe.conf
-manual page... maybe this is what's causing some of the confusion?
-
-PPS, It might also help to either mention in the man page that the
-above corresponds to the original "alias modulename off" _or_ add
-"install off /bin/true" into modprobe.conf.dist such that the old
-alias line works as expected.
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+-Andi

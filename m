@@ -1,66 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261256AbUL1VLz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261257AbUL1VPb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261256AbUL1VLz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Dec 2004 16:11:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261257AbUL1VLz
+	id S261257AbUL1VPb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Dec 2004 16:15:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261258AbUL1VPb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Dec 2004 16:11:55 -0500
-Received: from gate.firmix.at ([80.109.18.208]:21670 "EHLO gate.firmix.at")
-	by vger.kernel.org with ESMTP id S261256AbUL1VLx (ORCPT
+	Tue, 28 Dec 2004 16:15:31 -0500
+Received: from wproxy.gmail.com ([64.233.184.193]:34263 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261257AbUL1VP0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Dec 2004 16:11:53 -0500
-Subject: Re: description of struct sockaddr
-From: Bernd Petrovitsch <bernd@firmix.at>
-To: Karel Kulhavy <clock@twibright.com>
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <20041226164051.GA5529@beton.cybernet.src>
-References: <20041123214300.GB2147@beton.cybernet.src>
-	 <Pine.LNX.4.53.0411232309360.23119@yvahk01.tjqt.qr>
-	 <20041226164051.GA5529@beton.cybernet.src>
-Content-Type: text/plain
-Organization: http://www.firmix.at/
-Date: Tue, 28 Dec 2004 22:11:46 +0100
-Message-Id: <1104268307.8367.15.camel@gimli.at.home>
+	Tue, 28 Dec 2004 16:15:26 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=kV/QVMqouhhLB+b1CjlB4gxDgPb7kKnbi9L7fZ2F/vQ5+VTBmYVjk5ekS/oXxQnb+VDB04JJGJiRwEF6u6XZf7vjwbH7bYARi9w4F7//Z5oKGmiLPZXQS2qquUQJJ88R7cu0cAEZ5MCvNTu/TwIRZAAs0+5i1AW42e5t6LnV6AY=
+Message-ID: <58cb370e04122813152759d94f@mail.gmail.com>
+Date: Tue, 28 Dec 2004 22:15:26 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Francois Romieu <romieu@fr.zoreil.com>
+Subject: Re: PATCH: 2.6.10 - Incorrect return from PCI ide controller
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, torvalds@osdl.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+In-Reply-To: <20041228205553.GA18525@electric-eye.fr.zoreil.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <1104158258.20952.44.camel@localhost.localdomain>
+	 <20041228205553.GA18525@electric-eye.fr.zoreil.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-12-26 at 16:40 +0000, Karel Kulhavy wrote:
-> On Tue, Nov 23, 2004 at 11:11:31PM +0100, Jan Engelhardt wrote:
-> > >Hello
-> > >
-> > >man netdevice talks about struct sockaddr, but neither describes it,
-> > >nor provides a link to descriptio, nor the "SEE ALSO" items
-> > >(ip(7), proc(7), rnetlink(7)) provide the necessary information.
-> > >
-> > >"The hardware address is specified in a struct sockaddr".
-> > 
-> > I don't think so. The hardware address is, well, specific to the hardware (like
-> > Ethernet, for example). IP/TCP/UDP however is not limited to Ethernet. And
-> > 'sockaddr' clearly is something that does not deal with hardware.
+On Tue, 28 Dec 2004 21:55:53 +0100, Francois Romieu
+<romieu@fr.zoreil.com> wrote:
+> Alan Cox <alan@lxorguk.ukuu.org.uk> :
+> > Several IDE drivers return positive values as errors in the PCI setup
+> > code. Unfortunately the PCI layer considers positive values as success
+> > so the driver skips the device but still claims it and things then go
+> > downhill.
+> >
+> > This fixes the IT8172 driver. There are other drivers with this bug (eg
+> > generic) but the -ac IDE is sufficiently diverged from base that someone
+> > else needs to generate/test the more divergent cases.
 > 
-> It is a sentence from man netdevice. Should I send a bugreport to the manpage
-> maintainer?
+> ide_setup_pci_device{s} will always claim that everything is fine even
+> though do_ide_setup_pci_device() has some opportunity to fail.
+> 
+> Should it matter as well ?
 
-No. struct sockaddr basically holds only the common field "sa_family"
-and an array of char which contains the hardware specific data
-(see /usr/include/linux/socket.h). It is used by the socket API.
-For different hardware types you have other structs, e.g. you have
-struct sockaddr_in for IP sockets and struct sockaddr_un for Unix domain
-sockets.
-sockaddr_in has additionally to the common fields a field for the IP
-address "sin_address" and "sin_port" for the port. sockaddr_un has
-simply the field "sun_path" for the name in the filesystem.
-
-Just grep for them under /usr/include...
-
-	Bernd
--- 
-Firmix Software GmbH                   http://www.firmix.at/
-mobil: +43 664 4416156                 fax: +43 1 7890849-55
-          Embedded Linux Development and Services
-
-
-
+Yes.  Patches welcomed.

@@ -1,64 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318016AbSFSV1G>; Wed, 19 Jun 2002 17:27:06 -0400
+	id <S318018AbSFSVcq>; Wed, 19 Jun 2002 17:32:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318017AbSFSV1F>; Wed, 19 Jun 2002 17:27:05 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:42196 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S318016AbSFSV1E>; Wed, 19 Jun 2002 17:27:04 -0400
-Date: Wed, 19 Jun 2002 23:26:59 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Greg KH <greg@kroah.com>
-cc: Matthew Harrell 
-	<mharrell-dated-1024798178.8a2594@bittwiddlers.com>,
-       Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.22 fix for pci_hotplug
-In-Reply-To: <20020619173622.GB26136@kroah.com>
-Message-ID: <Pine.NEB.4.44.0206192326000.10290-100000@mimas.fachschaften.tu-muenchen.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318019AbSFSVcp>; Wed, 19 Jun 2002 17:32:45 -0400
+Received: from neutrino.phy.uct.ac.za ([137.158.36.17]:23301 "EHLO
+	neutrino.phy.uct.ac.za") by vger.kernel.org with ESMTP
+	id <S318018AbSFSVck>; Wed, 19 Jun 2002 17:32:40 -0400
+Date: Wed, 19 Jun 2002 23:32:45 +0200
+From: Sam Halliday <sam@neutrino.phy.uct.ac.za>
+To: linux-kernel@vger.kernel.org
+Subject: introduction
+Message-Id: <20020619233245.0095e4ec.sam@neutrino.phy.uct.ac.za>
+Organization: University of Cape Town
+X-Mailer: Sylpheed version 0.7.8claws (GTK+ 1.2.10; )
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 19 Jun 2002, Greg KH wrote:
+hello there,
 
-> > He tries to fix the following compile error that is caused by Martin
-> > Dalecki's "[PATCH] 2.5.21 kill warnings 4/19" that is included in 2.5.22:
->
-> Yeah, it looks like Martin got it wrong :)
->
-> Can you try this patch instead and let me know if it fixes it or not?
+i am keen to do a little bit of kernel programming, but i don't really
+know where to start... i have programmed in c for a few years now in
+mostly numerical stuff, and i think i could write a device driver if i
+really needed to, what would some people reccomend reading before
+starting?... i'd be keen to have a pet project of maybe totally
+replacing an essential component (just as practice not to make it better
+or anything!)
 
+also, my kernel always says "Unknown Bridge Resource 2: Assuming
+Transparent" on bootup, why would it be doing this? I have accounted for
+everything on my system in the compile
 
-Yes, this patch fixes it. A similar patch is needed for
-pci_hotplug_util.c...
-
-
-> thanks,
->
-> greg k-h
->
-> diff -Nru a/drivers/hotplug/pci_hotplug_core.c b/drivers/hotplug/pci_hotplug_core.c
-> --- a/drivers/hotplug/pci_hotplug_core.c	Wed Jun 19 10:36:21 2002
-> +++ b/drivers/hotplug/pci_hotplug_core.c	Wed Jun 19 10:36:21 2002
-> @@ -48,7 +48,7 @@
->  	#define MY_NAME	THIS_MODULE->name
->  #endif
->
-> -#define dbg(fmt, arg...) do { if (debug) printk(KERN_DEBUG "%s: %s: " fmt, MY_NAME, __FUNCTION__, ## arg); } while (0)
-> +#define dbg(fmt, arg...) do { if (debug) printk(KERN_DEBUG "%s: %s: " fmt , MY_NAME , __FUNCTION__ , ## arg); } while (0)
->  #define err(format, arg...) printk(KERN_ERR "%s: " format , MY_NAME , ## arg)
->  #define info(format, arg...) printk(KERN_INFO "%s: " format , MY_NAME , ## arg)
->  #define warn(format, arg...) printk(KERN_WARNING "%s: " format , MY_NAME , ## arg)
-
-
-cu
-Adrian
-
+thanks in advance!
+Sam
 -- 
-
-You only think this is a free country. Like the US the UK spends a lot of
-time explaining its a free country because its a police state.
-								Alan Cox
-
+A penny saved is a penny to squander.
+-- Ambrose Bierce

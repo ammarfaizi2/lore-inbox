@@ -1,80 +1,94 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271741AbRJTIvC>; Sat, 20 Oct 2001 04:51:02 -0400
+	id <S271800AbRJTJ2v>; Sat, 20 Oct 2001 05:28:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271800AbRJTIun>; Sat, 20 Oct 2001 04:50:43 -0400
-Received: from femail43.sdc1.sfba.home.com ([24.254.60.37]:48289 "EHLO
-	femail43.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S271741AbRJTIuX>; Sat, 20 Oct 2001 04:50:23 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@trommello.org>
-Reply-To: landley@trommello.org
-Organization: Boundaries Unlimited
-To: Timur Tabi <ttabi@interactivesi.com>, "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Allocating more than 890MB in the kernel?
-Date: Sat, 20 Oct 2001 00:40:57 -0400
-X-Mailer: KMail [version 1.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.30.0110191204210.21846-100000@hill.cs.ucr.edu> <9qq0mo$eun$1@cesium.transmeta.com> <3BD08B57.1070604@interactivesi.com>
-In-Reply-To: <3BD08B57.1070604@interactivesi.com>
+	id <S272280AbRJTJ2c>; Sat, 20 Oct 2001 05:28:32 -0400
+Received: from smtp-rt-14.wanadoo.fr ([193.252.19.224]:61627 "EHLO
+	adansonia.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S271800AbRJTJ2X>; Sat, 20 Oct 2001 05:28:23 -0400
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Patrick Mochel <mochel@osdl.org>, Jeff Garzik <jgarzik@mandrakesoft.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] New Driver Model for 2.5
+Date: Sat, 20 Oct 2001 11:28:34 +0200
+Message-Id: <20011020092834.24454@smtp.wanadoo.fr>
+In-Reply-To: <Pine.LNX.4.33.0110191708220.2646-100000@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.33.0110191708220.2646-100000@penguin.transmeta.com>
+X-Mailer: CTM PowerMail 3.0.8 <http://www.ctmdev.com>
 MIME-Version: 1.0
-Message-Id: <0110200040570M.15870@localhost.localdomain>
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 19 October 2001 16:21, Timur Tabi wrote:
-> H. Peter Anvin wrote:
-> > That's because you're running out of address space, not memory.
-> > HIGHMEM doesn't do anything for the latter -- it can't.  You start
-> > running into a lot of fundamental problems when your memory size gets
-> > in the same (or higher) ballpark than your address space.
-> >
-> > The best solution is go buy a 64-bit CPU.  There isn't much else you
-> > can do about it.
+>Why?
 >
-> That's completely missing the point of my request (which, I admit, I didn't
-> make clear).  I need to allocate about 3/4 of available memory in the
-> kernel. If I had 2GB of RAM, I'd need to allocate 1.5GB.  If I had 8 GB of
-> RAM, I'd need to allocate 6GB.  I just used 3GB/4GB because it's our
-> current test platform.
+>If there is some ordering inherent in the bus, that has to be shown in the
+>bus structure. Why would you EVER care about order between devices that
+>are independent?
 
-Each user process has 32 bit pointers for memory.  This means they only have 
-4 gigabytes of virtual address space, regardless of how many physical pages 
-the machine has.  The kernel doesn't use segment:offset addressing.  It just 
-uses the offset.  Flat memory model.
+The power tree layout isn't necessarily identical to the bus tree layout.
+On some macs, for example, we have some ASICs that can control some other
+chip's clock and power lines, without having a direct parent relationchip.
 
-Now your page tables can shuffle memory around (using physical pages, swap, 
-etc), but that's irrelevant.  You've still only got 4 gigs of virtual space 
-per process to work with on a 32 bit system.  The register you're ultimately 
-dereferencing to access memory isn't big enough to hold a number larger than 
-that.
+So I like having the ability to reorder the power tree layout from
+arch code. But I can work around if this ability is not provided by
+the struct device. In fact, my main issue here is with Apple's big
+"mac-io" ASIC (combo of several devices along with various IO lines
+and clocks), and I beleive I will have to handle it as a special
+case anyway for other reason (it must really be shut down last as
+once down, I can't even talk to the power manager chip ;) I think
+all other devices I have to deal with follow the physical bus
+ordering.
 
-To simplify the page tables, the kernel is in shared memory.  The first 
-gigabyte of every process's address space is the kernel.  The kernel's page 
-table is sort of spliced into everybody's page table.  And there was much 
-rejoicing.
+The problem of suspend-to-disk, which requires, I beleive, that the
+device used for the memory backup, to be state-saved last, is still
+a problem I don't know how to solve. Maybe using flags in the device
+structure indicating it's deferred. That would cause it's parents
+to be deferred as well. The presence of the flag would prevent the
+actual "suspend" state to be entered during step 3. Once all devices
+are suspended, we then know that the bus path to the disk used for
+suspend-to-disk is still powered and perform the actual suspend-to
+disk operation.
 
-The problem is, you're trying to allocate kernel memory, meaning you hit the 
-1 gigabyte limit.  And that includes the kernel itself.  You can recompile so 
-the kernel has more than 1 gig of everybody's virtual address range reserved 
-to it, but that reduces the amount of virtual memory user space processes 
-have (4 gigs - 1 gig) because the kernel space (shared memory) is mapped into 
-each and every process so the process can access kernel resources easily.  
-(You do NOT want to change page tables for every system call.  We're not 
-going there.)
+However, I beleive that requires using non-generic IO functions (as
+IO queues for the controller have already been blocked by step 2, and
+the driver would have to deal with it's own saved state carefuly as
+it can't obviously save state to RAM after it has been used to backup
+the RAM itself). Maybe that could be a separate message (suspend_to_disk)
+sent instead of step 3 (suspend) to this device.
 
-To allocate more memory than that, you need to allocate pages in user space.  
-To allocate more than 4 gigabytes of memory, you MUST use more than one 
-process (you only have 4 gigs of virtual address space per process, so two 
-processes must use overlapping virtual address ranges to point to different 
-pages.  Perhaps they could communicate with each other through a shared mmap. 
- Congratulations, you've just reinvented expanded memory.)
+That would give us the following scenario:
 
-Or, we could get back to the "buy a real computer" answer everybody's been 
-giving you: buy a 64 bit computer that has more than 4 gigabytes of virtual 
-address space per process.  Then you have 64 bit pointers for your virtual 
-addresses, and can directly address virtual petabytes or exabytes or whatever 
-comes next...
+ - The device for suspend-to-disk is identified and a flag is set
+   in it's device structure. This flag (or a different one to make
+   things clear eventually) is "broadcast" all the way up the tree
+   so it's parent brigdes/controllers are marked as well.
+ - All devices get "suspend_prepare".
+ - All devices get "suspend_save_state" and block normal IOs
+ - All devices not marked above get "suspend"
+ - Last housecleaning is done by the kernel.
+ - The device marked above get a special "suspend_to_disk" message
+   during which it can perform the actual memory backup and suspend
+   itself.
+ - The machine is put to sleep.
 
-Rob
+I currently don't implement suspend-to-disks on Mac, so I may have
+overlooked something. Also, I'm not too sure about the requirements
+of x86 laptops regarding those features. I'm lucky, Mac laptops
+keep the RAM content during suspend ;)
+
+Note also that if not doing suspend-to-disk, I think we should also
+make sure to sync all buffers after suspend_prepare and before sending
+the suspend_save_state messages. I noticed that recent 2.4 versions
+are more sensible about power fail during suspend (that is battery
+getting empty, or whatever causing lose of RAM content). I used to
+call fsync_devs(0) between those 2 steps in the Mac PM scheme, but
+it appears that with recent 2.4's, this doesn't prevent fsck from
+finding inconsistencies.
+
+Ben.
+
+
+

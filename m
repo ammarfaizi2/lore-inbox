@@ -1,60 +1,62 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316284AbSEKXjA>; Sat, 11 May 2002 19:39:00 -0400
+	id <S316285AbSEKXjJ>; Sat, 11 May 2002 19:39:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316285AbSEKXi7>; Sat, 11 May 2002 19:38:59 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:33291 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S316284AbSEKXi7>;
-	Sat, 11 May 2002 19:38:59 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: 64-bit jiffies, a better solution take 2 
-In-Reply-To: Your message of "Sat, 11 May 2002 19:11:18 +0100."
-             <20020511191118.F1574@flint.arm.linux.org.uk> 
+	id <S316286AbSEKXjI>; Sat, 11 May 2002 19:39:08 -0400
+Received: from sj-msg-core-3.cisco.com ([171.70.157.152]:55510 "EHLO
+	sj-msg-core-3.cisco.com") by vger.kernel.org with ESMTP
+	id <S316285AbSEKXjH>; Sat, 11 May 2002 19:39:07 -0400
+Message-Id: <5.1.0.14.2.20020512092751.02bcca40@mira-sjcm-3.cisco.com>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Sun, 12 May 2002 09:38:12 +1000
+To: Linus Torvalds <torvalds@transmeta.com>
+From: Lincoln Dale <ltd@cisco.com>
+Subject: Re: O_DIRECT performance impact on 2.4.18 (was: Re: [PATCH]
+  2.5.14 IDE 56)
+Cc: Larry McVoy <lm@bitmover.com>, Gerrit Huizenga <gh@us.ibm.com>,
+        Andrew Morton <akpm@zip.com.au>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Martin Dalecki <dalecki@evision-ventures.com>,
+        Padraig Brady <padraig@antefacto.com>,
+        Anton Altaparmakov <aia21@cantab.net>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0205111130080.879-100000@home.transmeta.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 12 May 2002 09:38:48 +1000
-Message-ID: <15591.1021160328@ocs3.intra.ocs.com.au>
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 11 May 2002 19:11:18 +0100, 
-Russell King <rmk@arm.linux.org.uk> wrote:
->On Sat, May 11, 2002 at 10:37:39AM -0700, Linus Torvalds wrote:
->> On Sat, 11 May 2002, george anzinger wrote:
->> >
->> > So, what to do?  For ARM and MIPS we could go back to solution 1:
->> 
->> Why not just put that knowledge in the ARM/MIPS architecture makefile?
->> 
->> ARM already has multiple linker scripts, and it already selects on them
->> based on CONFIG options, so I'd much rather just do that straightforward
->> kind of thing than play any clever games.
->
->So would I - there will be a config option, so we can just use sed on the
->relevant linker script to do the right thing.
+as the person who started this whole thread and made the assertion that 
+copying from A to B is common:
 
-Any reason that you are using sed and not cpp like the other
-architectures?
+At 11:35 AM 11/05/2002 -0700, Linus Torvalds wrote:
+>And I personally believe that "generate the data yourself" is actually a
+>very common case. A pure pipe between two places is not what a computer is
+>good at, or what a computer should be used for.
 
-The use and name of linker scripts varies across architectures, some
-use cpp, some use sed, some do not pre-process at all.  This makes it
-awkward for repositories and dont-diff lists, they need special rules
-for every architecture.  In kbuild 2.5 I am trying to standardize on
-arch/$(ARCH)/vmlinux.lds.S which is always pre-processed by cpp to
-vmlinux.lds.i which is used to link vmlinux.
+i think you'd be surprised.  if we include "pipe from disk to network" then 
+a large number of 'server' applications do exactly this.
+webservers do.  fileservers do. http caches do.  streaming-media servers do.
 
-Using .S -> .i has three benefits.  The file name and the code for
-converting the file is standardized.  Dont-diff lists exclude *.[oais]
-files, no need for special cases for each architecture.  kbuild 2.5
-tracks the command, timestamp and dependencies for all .S -> .i
-conversions so the ld script will become a properly controlled file,
-being rebuilt when necessary and only when necessary.
+sure, they may add additional headers on the front and still generate 
+dynamic content in some cases, but the "common case" is 'pipe from disk to 
+network' or 'pipe from network to disk'.
+'network' is typically TCP but can be UDP (with rate-limiting) in some cases.
 
-For architectures that need to choose between multiple ld scripts.  In
-my tree I have made the ld script name a variable (arch_ld_script) that
-may be set in arch/$(ARCH)/Makefile.defs.config.  If the variable is
-not set, it defaults to /arch/$(ARCH)/vmlinux.lds.i.
+
+its very good to see this being discussed.  thats a large step forward from 
+many people believing the problem was nonexistent.
+
+i'm skeptical that continuing to use the page-cache is the correct way to 
+go -- many of these kinds of applications are doing their own form of 
+memory-management and hot-content 'caching' so are happy to manage a 
+few-to-several hundred megabytes of "page cache equivalent" data themselves.
+at least on many of the 2.3.xx linux releases, that was one of the big 
+attractions of 'raw' devices -- they didn't get the box into an OOM situation.
+if 2.5.xx and recent 2.4.xx has the issues of 
+page-cache-doesn't-shrink-fast-enough solved, then its forseeable it will fly.
+
+
+cheers,
+
+lincoln.
 

@@ -1,45 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129792AbRAaNvp>; Wed, 31 Jan 2001 08:51:45 -0500
+	id <S130132AbRAaNwK>; Wed, 31 Jan 2001 08:52:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130132AbRAaNvf>; Wed, 31 Jan 2001 08:51:35 -0500
-Received: from sj-msg-core-2.cisco.com ([171.69.43.88]:13756 "EHLO
-	sj-msg-core-2.cisco.com") by vger.kernel.org with ESMTP
-	id <S129792AbRAaNv1>; Wed, 31 Jan 2001 08:51:27 -0500
-Message-ID: <3A782666.1DB4F228@cisco.com>
-Date: Wed, 31 Jan 2001 15:51:18 +0100
-From: Jan Just Keijser <janjust@cisco.com>
-Organization: Cisco Systems Inc
-X-Mailer: Mozilla 4.08 [en] (X11; I; Linux 2.4.1 i686)
+	id <S130996AbRAaNvp>; Wed, 31 Jan 2001 08:51:45 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:51584 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S129944AbRAaNve>; Wed, 31 Jan 2001 08:51:34 -0500
+Date: Wed, 31 Jan 2001 08:50:52 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Rik van Riel <riel@conectiva.com.br>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Version 2.4.1 cannot be built. 
+In-Reply-To: <Pine.LNX.4.21.0101302012410.1321-100000@duckman.distro.conectiva>
+Message-ID: <Pine.LNX.3.95.1010131084632.12689A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: kernel 2.4.1 : unresolved external name_to_kdev_t in md.c
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-unpacked kernel 2.4.1, configured a very modular kernel, including
-modules for RAID linear/RAID-[015] and now I get an unresolved external
-in the module md.o, as reported by depmod:
+On Tue, 30 Jan 2001, Rik van Riel wrote:
 
- depmod -ea
-depmod: *** Unresolved symbols in
-/lib/modules/2.4.1/kernel/drivers/md/md.o
-depmod:         name_to_kdev_t
+> On Tue, 30 Jan 2001, Richard B. Johnson wrote:
+> 
+> > The subject says it all. `make dep` is now broken.
+> 
+> It worked fine here, with 2.4.1 unpacked from the tarball.
+> 
+> Rik
+> --
 
-The symbol 'name_to_kdev_t' is unknown. Same or similar kernel .config
-file in 2.4.0 gave no problems at all. After looking in md.c I saw that
-the 2.4.0 version contained a lot of #IFDEF's which are not all gone -
-perhaps the assumption is now made that the md.o module is compiled into
-the kernel by default now?
-FYI: name_to_kdev_t is listed in init/main.c.
+I cannot find the source for GNU Make 3.77+ Does anybody know were
+it is now? Also, for a long time, I have been trying to find
+the source for bison "yacc". 
 
-any clues anyone?
 
-Tx,
+Cheers,
+Dick Johnson
 
-JJK
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
 
 
 -

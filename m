@@ -1,44 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265606AbSJSOBQ>; Sat, 19 Oct 2002 10:01:16 -0400
+	id <S265605AbSJSOAA>; Sat, 19 Oct 2002 10:00:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265607AbSJSOBP>; Sat, 19 Oct 2002 10:01:15 -0400
-Received: from c17928.thoms1.vic.optusnet.com.au ([210.49.249.29]:38528 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S265606AbSJSOBP> convert rfc822-to-8bit; Sat, 19 Oct 2002 10:01:15 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Con Kolivas <conman@kolivas.net>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: ck performance patchset for 2.4.19 broken out as ck10
-Date: Sun, 20 Oct 2002 00:05:08 +1000
-User-Agent: KMail/1.4.3
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200210200005.08444.conman@kolivas.net>
+	id <S265606AbSJSOAA>; Sat, 19 Oct 2002 10:00:00 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:5645 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S265605AbSJSN77>; Sat, 19 Oct 2002 09:59:59 -0400
+Date: Sat, 19 Oct 2002 15:05:58 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Nicholas Wourms <nwourms@netscape.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux v2.5.44 - and offline for a week
+Message-ID: <20021019150558.A21819@flint.arm.linux.org.uk>
+References: <Pine.LNX.4.44.0210182117500.12531-100000@penguin.transmeta.com> <aorjq3$3dm$1@main.gmane.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <aorjq3$3dm$1@main.gmane.org>; from nwourms@netscape.net on Sat, Oct 19, 2002 at 08:41:18AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+On Sat, Oct 19, 2002 at 08:41:18AM -0400, Nicholas Wourms wrote:
+> Perhaps this is good reason to delay the freeze for an additional 2 weeks or 
+> so?
 
-My merged performance patchset (-ck) containing
+The same thing will happen.  You will always get people rushing to get
+their projects into the kernel just before a feature freeze no matter
+what date gets set.
 
-O(1) + batch scheduling
-Preemptible
-Low Latency
-Compressed Caching or
-AA VM addons
-XFS
-ALSA
-Supermount
+> Again, I really don't see what the rush is all about.
 
-is now available with the last five as separate optional patches for those who 
-have asked for it as ck10. Note this is basically unchanged from ck9. Those 
-who are not using XFS are recommended to upgrade to this and NOT add the xfs 
-patch. The option of the AA VM changes makes this version suitable for SMP 
-now.
+It's only a rush because that's what people with their features are doing.
+The deadline of October 31 was set at the kernel summit on Ottawa around
+the middle of June.
 
-Available at http://kernel.kolivas.net
+The whole idea of shortening the feature development time is to (hopefully)
+shorten the stabilisation time after, and hopefully get 2.6 out earlier.
+This then means 2.7 can open earlier.
 
-Cheers, enjoy!
-Con
+Although this means that there will be fewer features between each stable
+version, hopefully the stable version series will stabilise earlier.
+
+Oh, and Oct 31st is one deadline we're trying not to miss. 8)
+
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

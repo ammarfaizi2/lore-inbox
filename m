@@ -1,70 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266569AbUAWPLU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jan 2004 10:11:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266570AbUAWPLT
+	id S266576AbUAWPJK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jan 2004 10:09:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266577AbUAWPJJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jan 2004 10:11:19 -0500
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:5045 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S266569AbUAWPKa
+	Fri, 23 Jan 2004 10:09:09 -0500
+Received: from gw-nl4.philips.com ([212.153.190.6]:61056 "EHLO
+	gw-nl4.philips.com") by vger.kernel.org with ESMTP id S266576AbUAWPJC
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jan 2004 10:10:30 -0500
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Pascal Schmidt <der.eremit@email.de>
-Subject: Re: [PATCH] make ide-cd handle non-2kB sector sizes
-Date: Fri, 23 Jan 2004 16:12:47 +0100
-User-Agent: KMail/1.5.3
-References: <Pine.LNX.4.44.0401222014390.1296-100000@neptune.local>
-In-Reply-To: <Pine.LNX.4.44.0401222014390.1296-100000@neptune.local>
-Cc: Jens Axboe <axboe@suse.de>, <linux-kernel@vger.kernel.org>
+	Fri, 23 Jan 2004 10:09:02 -0500
+Message-ID: <401139B2.2090301@basmevissen.nl>
+Date: Fri, 23 Jan 2004 16:11:46 +0100
+From: Bas Mevissen <ml@basmevissen.nl>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200401231612.47506.bzolnier@elka.pw.edu.pl>
+To: =?ISO-8859-1?Q?Karel_Kulhav=FD?= <clock@twibright.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: make in 2.6.x
+References: <20040123145048.B1082@beton.cybernet.src>
+In-Reply-To: <20040123145048.B1082@beton.cybernet.src>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Karel Kulhavý wrote:
+> Hello
+> 
+> Is it correct to issue "make bzImage modules modules_install"
+> or do I have to do make bzImage; make modules modules_install?
 
-Hi Pascal!
+# make all modules_install install
 
-> --- linux-2.6.2-rc1/drivers/ide/ide-cd.h.orig	Thu Jan 22 18:05:04 2004
-> +++ linux-2.6.2-rc1/drivers/ide/ide-cd.h	Thu Jan 22 18:07:14 2004
-> @@ -109,6 +109,7 @@ struct ide_cd_state_flags {
->  	__u8 door_locked   : 1; /* We think that the drive door is locked. */
->  	__u8 writing       : 1; /* the drive is currently writing */
->  	__u8 reserved      : 4;
-> +	byte sectors_per_frame;	/* Current sectors per hw frame */
->  	byte current_speed;	/* Current speed of the drive */
->  };
+Builds image and modules and installs them both. At least on Redhat, 
+also an initial ram disk is created and grub is adapted.
 
-Please don't use 'byte' type in your patch, use 'u8' instead.
+> Is there any documentation where I can read answer to this question?
+> 
 
-> @@ -1346,13 +1332,14 @@ static ide_startstop_t cdrom_seek_intr (
->  static ide_startstop_t cdrom_start_seek_continuation (ide_drive_t *drive)
->  {
->  	struct request *rq = HWGROUP(drive)->rq;
-> +	byte sectors_per_frame = CDROM_STATE_FLAGS(drive)->sectors_per_frame;
->  	int sector, frame, nskip;
->
->  	sector = rq->sector;
-> -	nskip = (sector % SECTORS_PER_FRAME);
-> +	nskip = (sector % sectors_per_frame);
->  	if (nskip > 0)
->  		sector -= nskip;
-> -	frame = sector / SECTORS_PER_FRAME;
-> +	frame = sector / sectors_per_frame;
->
->  	memset(rq->cmd, 0, sizeof(rq->cmd));
->  	rq->cmd[0] = GPCMD_SEEK;
+# make help
 
-You can as well clean this up while at it.
-We don't need 'nskip' for calculating 'frame',
+and read the top-level Makefile itself. It is a quite readable file format.
 
-	frame = rq->sector / sectors_per_frame;
+Regards,
 
-should be enough.
-
---bart
+Bas.
 

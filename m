@@ -1,39 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268147AbTCFRO1>; Thu, 6 Mar 2003 12:14:27 -0500
+	id <S268153AbTCFROh>; Thu, 6 Mar 2003 12:14:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268153AbTCFRO1>; Thu, 6 Mar 2003 12:14:27 -0500
-Received: from fmr01.intel.com ([192.55.52.18]:44778 "EHLO hermes.fm.intel.com")
-	by vger.kernel.org with ESMTP id <S268147AbTCFROZ>;
-	Thu, 6 Mar 2003 12:14:25 -0500
-Message-ID: <F760B14C9561B941B89469F59BA3A847E96CCB@orsmsx401.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: daveman@bellatlantic.net, linux-kernel@vger.kernel.org
-Subject: RE: Missing keypress when ACPI enabled
-Date: Thu, 6 Mar 2003 09:24:34 -0800 
+	id <S268156AbTCFROh>; Thu, 6 Mar 2003 12:14:37 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:18608 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S268153AbTCFROe>;
+	Thu, 6 Mar 2003 12:14:34 -0500
+Date: Thu, 6 Mar 2003 18:24:51 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Andrew Morton <akpm@digeo.com>, Robert Love <rml@tech9.net>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] "HT scheduler", sched-2.5.63-B3
+In-Reply-To: <Pine.LNX.4.44.0303060858120.7206-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0303061819160.14218-100000@localhost.localdomain>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-content-class: urn:content-classes:message
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: daveman@bellatlantic.net [mailto:daveman@bellatlantic.net] 
-> Since about 2.5.60, the first 2.5 kernel that has 
-> built/booted for me, I've noticed X/Kscreensaver fails to 
-> capture a keystroke after about 20 minutes of inactivity, in 
-> the password login prompt. It is only the first keypress that 
-> is lost, all later keypresses work fine. I believe I've 
-> narrowed it down to an interaction with having ACPI enabled, 
-> as booting the kernel with 'acpi=off' seems to make the 
-> problem go away. I've attached dmesg and .config output. 
-> Please let me know if I can assist further.
 
-Aha, you have an IBM A20 (or similar). You are not the first one to
-report this, and indeed this happens on my T20, even under Windows.
-Given that, I would suspect this is a side effect of some unknown IBM
-BIOS enhancement, so I don't know what we can do without IBM telling us
-more about what's going on.
+another thing. What really happens in the 'recompile job' thing is not
+that X gets non-interactive. Most of the time it _is_ interactive. The
+problem is that the gcc processes and make processes themselves, which do
+use up a considerable portion of CPU time (generate a load of 4-5 with
+make -j2), get rated as interactive as well. Shells, gnome-terminal, X
+itself will be often preempted by these gcc and make processes. Making X
+more interactive does not help in this case.
 
-Regards -- Andy
+so my patchset attempts to tune things in the direction of making the
+scheduler recognize the compile job as truly CPU-bound. It was a bad
+interaction of child-inherits-priority plus child-wakeup priorities.
+
+My suggestion to increase X's priority was just an unrelated suggestion -
+if Andrew is dragging windows around then X does get 100% CPU-bound, and
+the only good way to get out of that situation is to tell the system that
+it's rightfully monopolizing the CPU, and that the user has no problem
+with that.
+
+I also had feedback from people who reniced X in the _other_ direction,
+because they did not want their rare administration work done under X
+impact the generic performance of the server.
+
+	Ingo
+

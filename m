@@ -1,84 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261594AbSKCEO3>; Sat, 2 Nov 2002 23:14:29 -0500
+	id <S261613AbSKCEW1>; Sat, 2 Nov 2002 23:22:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261600AbSKCEO3>; Sat, 2 Nov 2002 23:14:29 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:10253 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S261594AbSKCEO2>; Sat, 2 Nov 2002 23:14:28 -0500
-Date: Sat, 2 Nov 2002 20:20:44 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Oliver Xymoron <oxymoron@waste.org>
-cc: Alexander Viro <viro@math.psu.edu>,
-       Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>,
+	id <S261615AbSKCEWY>; Sat, 2 Nov 2002 23:22:24 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:12673 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S261613AbSKCEWX>;
+	Sat, 2 Nov 2002 23:22:23 -0500
+Date: Sat, 2 Nov 2002 23:28:52 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>,
        "Theodore Ts'o" <tytso@mit.edu>, Dax Kelson <dax@gurulabs.com>,
-       Rusty Russell <rusty@rustcorp.com.au>, <linux-kernel@vger.kernel.org>,
-       <davej@suse.de>
+       Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org,
+       davej@suse.de
 Subject: Re: Filesystem Capabilities in 2.6?
-In-Reply-To: <20021103035017.GD18884@waste.org>
-Message-ID: <Pine.LNX.4.44.0211022004510.2503-100000@home.transmeta.com>
+In-Reply-To: <Pine.LNX.4.44.0211021925230.2382-100000@home.transmeta.com>
+Message-ID: <Pine.GSO.4.21.0211022310240.25010-100000@steklov.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Sat, 2 Nov 2002, Oliver Xymoron wrote:
-> 
-> Bindings are cool, but once you start talking about doing a lot of
-> them, they're rather ungainly due to not actually being persisted on
-> the filesystem, no? 
 
-Well, they _are_ persistent in the filesystem, although in this case "the 
-filesystem" is /etc/fstab.
+On Sat, 2 Nov 2002, Linus Torvalds wrote:
 
-It's not that different from the ".capabilities" file, except it's a lot 
-more explicit, and from an implementation standpoint it's a lot easier.
+> But I like Al's idea of mount binds even more, although it requires maybe
+> a bit more administration.
 
-However, I think there is a problem with Al's original approach: the bind 
-can _not_ be just a mask that takes away capabilities from a suid 
-application, since that would imply that the app has to be marked suid in 
-the first place (and accessing it _without_ going through the bind will 
-give it elevated privileges, which is what we're trying to avoid).
+OK, will do - will be fun to take a break from drivers/* and devfs excrements
+I'm digging in...
 
-So the bind would have to _add_ capabilities, not take them away.
+BTW, here's a fresh demonstration (found half an hour ago) that capabilities
+do *not* permit more lax attitude when writing stuff with elevated priveleges:
+	* /usr/lib/games/nethack/recover is run at the boot time (as root)
+to recover crashed games.
+	* Debian nethack 3.4.0-3.1 has it installed root.games and it
+is group-writable - cretinism in debian/rules, upstream is not guilty
+in that (BTW, so is /usr/lib/games/nethack/recover-helper).
+	* ergo, any exploitable hole in sgid-games binary (rogue, for
+instance) is trivially elevated to root exploit.
 
-That's not really a problem, and the advantage of the filesystem bind
-approach is that it is extremely explicit, and it is trivial for a
-maintainer to at all times see all such "elevated" binaries: as Al points
-out, the only thing you need to do is to just ask to be shown the mount
-list with "mount" or with "cat /proc/mounts".
+	Capabilities will *not* help that one - suid-games binaries need
+to be able to write as 'games', that's the whole reason why they are
+suid-games.  Normally they use it to create save files.  And quite a
+few of them are ripe with exploits - c.f. recent rogue(6) holes.
 
-> A better approach is to just make a user-space capabilities-wrapper
-> that's setuid, drops capabilities quickly and safely and calls the
-> real app.
+	Normally that would lead only to ability to screw others' save
+files (and potentially to compromise their accounts, if corrupted save
+file can trigger a hole in another game).  Besides, many of these beasts
+are old and didn't get too much attention.
 
-This is _not_ a good approach from a sysadmin standpoint. The sysadmin
-does not explicitly know what the suid binary does internally, the
-sysadmin just sees a number of suid binaries and has to trust them.
-
-Yes, I realize that your example had "showcapwrap" etc sysadmin tools to 
-work around this, and make the wrapping be transparent to the sysadmin. 
-That certainly works, although it still depends on trusting that the 
-wrapping cannot be confused some way. I guess that could be done fairly 
-easily (although I think you'd want to make "mkcapwrap" actually _sign_ 
-the wrapped binaries, to make sure that nobody can later try to inject a 
-"bad" binary that _looks_ ok to "showcapwrap" and fools the admin to think 
-everything is ok).
-
-But from a security maintenance standpoint, wouldn't it be _nice_ to be 
-able to
-
- - do a complete "find" over the whole system to show that there is not a 
-   single suid binary anywhere.
-
- - trivially show each and every binary that is allowed elevated 
-   permissions (and _which_ elevated permissions) by just doing a "mount".
-
- - and since the mount trees are really per-process, you can allow certain 
-   process groups to have mounts that others don't have.
-
-I think that as a anal-retentive security admin, I'd like such a system.
-
-		Linus
+	Now, combined with packaging fuckup (which is a nice prototype of
+ACL fuckups to come) we get a lovely path leading to root exploit.  Bugger
+all, one *still* has to think when writing code.  A shame, isn't it?
 

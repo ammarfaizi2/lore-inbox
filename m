@@ -1,44 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129763AbQLTMuj>; Wed, 20 Dec 2000 07:50:39 -0500
+	id <S129895AbQLTNhG>; Wed, 20 Dec 2000 08:37:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129895AbQLTMu3>; Wed, 20 Dec 2000 07:50:29 -0500
-Received: from twilight.cs.hut.fi ([130.233.40.5]:59516 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
-	id <S129763AbQLTMuW>; Wed, 20 Dec 2000 07:50:22 -0500
-Date: Wed, 20 Dec 2000 14:19:45 +0200
-From: Ville Herva <vherva@mail.niksula.cs.hut.fi>
-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-Cc: Matthias.Andree@stud.uni-dortmund.de
-Subject: Re: [2.2.18] VM: do_try_to_free_pages failed
-Message-ID: <20001220141945.F1265@niksula.cs.hut.fi>
-In-Reply-To: <20001220130259.A9659@emma1.emma.line.org>
+	id <S130013AbQLTNg5>; Wed, 20 Dec 2000 08:36:57 -0500
+Received: from 196-41-175-2.citec.net ([196.41.175.2]:10217 "EHLO
+	penguin.wetton.prism.co.za") by vger.kernel.org with ESMTP
+	id <S129811AbQLTNgn>; Wed, 20 Dec 2000 08:36:43 -0500
+Date: Wed, 20 Dec 2000 15:05:56 +0200
+From: berndj@prism.co.za
+To: linux-kernel@vger.kernel.org
+Subject: possible pty DoS
+Message-ID: <20001220150556.A29985@prism.co.za>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20001220130259.A9659@emma1.emma.line.org>; from matthias.andree@stud.uni-dortmund.de on Wed, Dec 20, 2000 at 01:03:00PM +0100
+X-Mailer: Mutt 1.0pre3us
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 20, 2000 at 01:03:00PM +0100, you [Matthias Andree] claimed:
-> Last night, one of your production machines got wedged, I caught a lot
-> of kernel: VM: do_try_to_free_pages failed for ... for a whole range of
-> processes, among them ypbind, klogd, syslogd, xntpd, cron, nscd, X,
-> How can I get rid of those do_try_to_free_pages lockups? That box
- 
-Almost everybody (including me) who have seen that problem seem to
-have had it fixed with Andrea Arcangeli's VM-global-7 patch
-(ftp://ftp.kernel.org/pub/linux/kernel/people/andrea...).
+hello all
 
-> Should I try the most recent 2.2.19-pre?
+I am not subscribed to linux-kernel*; please CC any follow-ups to
+berndj@prism.co.za (I probably won't reply from 2000-12-22 to 2001-01-07)
 
-Yes, Andrea's VM-global-7 is included in pre2.
+I am running 2.4.0-test12-pre2
+
+This snippet can prevent progress of any other processes that tries to do
+a write to a pty:
+
+============
+	#include <sys/fcntl.h>
+	#include <unistd.h>
+
+	int main()
+	{
+		int ptm;
+		ptm = open("/dev/ptmx", O_WRONLY);
+		while (1)
+			write(ptm, "hello, world!\n", 14);
+	}
+============
+
+With this running, and no process eating up the greetings, I can telnet to
+my machine; the banner and login prompt appear.  ps -alx at this point
+reveals in.telnetd is in do_select().  As soon as I type even one char of
+username, another ps reveals in.telnetd now stuck in __down_interruptible()
+
+Lucky I usually leave a few logged in consoles lying around; xterm also
+uses pty's!
+
+Some observations:
+
+2.2.12 behaves fine (telnet logins work fine)
+
+2.2.12-2.4.0 diffs between tty_io.c show changes involving up/down/etc. in
+do_tty_write().
 
 
--- v --
-
-v@iki.fi
+Bernd Jendrissek
+P.S. apologies to all for my void * arithmetic a few months ago; it was a
+moment of eager-beaver weakness.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

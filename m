@@ -1,38 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263898AbTDVVEo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Apr 2003 17:04:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263900AbTDVVEo
+	id S263912AbTDVVKs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Apr 2003 17:10:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263913AbTDVVKs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Apr 2003 17:04:44 -0400
-Received: from pasmtp.tele.dk ([193.162.159.95]:24069 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S263898AbTDVVEn (ORCPT
+	Tue, 22 Apr 2003 17:10:48 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:3547 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263912AbTDVVKr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Apr 2003 17:04:43 -0400
-Date: Tue, 22 Apr 2003 23:08:34 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Timothy Miller <miller@techsource.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Can one build 2.5.68 with allyesconfig?
-Message-ID: <20030422210834.GA935@mars.ravnborg.org>
-Mail-Followup-To: Timothy Miller <miller@techsource.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <3EA5AABF.4090303@techsource.com>
+	Tue, 22 Apr 2003 17:10:47 -0400
+Subject: Re: [cgl_discussion] Re: OSDL CGL-WG draft specs available for
+	review
+From: Mika Kukkonen <mika@osdl.org>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, cgl_discussion@osdl.org
+In-Reply-To: <20030422215552.B12367@infradead.org>
+References: <1051044403.1384.44.camel@miku-t21-redhat.koti>
+	 <20030422215552.B12367@infradead.org>
+Content-Type: text/plain
+Organization: OSDL
+Message-Id: <1051046563.1384.54.camel@miku-t21-redhat.koti>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3EA5AABF.4090303@techsource.com>
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 22 Apr 2003 14:22:48 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 22, 2003 at 04:49:03PM -0400, Timothy Miller wrote:
-> Is anyone else able to build 2.5.68 with allyesconfig?
+On Tue, 2003-04-22 at 13:55, Christoph Hellwig wrote:
+> On Tue, Apr 22, 2003 at 01:46:43PM -0700, Mika Kukkonen wrote:
+(...)
+> > Accordingly, we have made the initial drafts of the first two parts of
+> > our version 2 specifications available at:
+> > 	http://www.osdl.org/projects/cgl/
+> > for public review and comment.
+> 
+> What about an ASCII version so quoting is possible?
 
-John Cherry has a nice set of pages covering the compile status,
-including allyesconfig IIRC.
+Well, there are several ways to convert PDF to ASCII ("pdftotext" in RH9
+is one), but as expected they all produce bloody awful results. Better
+than nothing, I guess. If you want, I can send the results to you
+directly, but I am not going to spam LKML with them (these are reasonable 
+long documents).
 
-See http://www.osdl.org/archieve/cherry/stability
-Hmmm, result in 404 right now???
+Thanks for your interest!
 
-	Sam
+--MiKu
+
+

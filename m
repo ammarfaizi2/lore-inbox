@@ -1,62 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263683AbUDUUYT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263679AbUDUU1G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263683AbUDUUYT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Apr 2004 16:24:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263684AbUDUUYT
+	id S263679AbUDUU1G (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Apr 2004 16:27:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263684AbUDUU1G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Apr 2004 16:24:19 -0400
-Received: from fmr99.intel.com ([192.55.52.32]:37776 "EHLO
-	hermes-pilot.fm.intel.com") by vger.kernel.org with ESMTP
-	id S263683AbUDUUYS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Apr 2004 16:24:18 -0400
-Subject: Re: IO-APIC on nforce2 [PATCH] + [PATCH] for nmi_debug=1 + [PATCH]
-	for idle=C1halt, 2.6.5
-From: Len Brown <len.brown@intel.com>
-To: Craig Bradney <cbradney@zip.com.au>
-Cc: ross@datscreative.com.au, christian.kroener@tu-harburg.de,
-       linux-kernel@vger.kernel.org, "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
-       Jamie Lokier <jamie@shareable.org>,
-       "Prakash K. Cheemplavam" <PrakashKC@gmx.de>,
-       Daniel Drake <dan@reactivated.net>, Ian Kumlien <pomac@vapor.com>,
-       Jesse Allen <the3dfxdude@hotmail.com>, a.verweij@student.tudelft.nl,
-       Allen Martin <AMartin@nvidia.com>
-In-Reply-To: <1082063090.4814.20.camel@amilo.bradney.info>
-References: <200404131117.31306.ross@datscreative.com.au>
-	 <200404131703.09572.ross@datscreative.com.au>
-	 <1081893978.2251.653.camel@dhcppc4>
-	 <200404160110.37573.ross@datscreative.com.au>
-	 <1082060255.24425.180.camel@dhcppc4>
-	 <1082063090.4814.20.camel@amilo.bradney.info>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1082578957.16334.13.camel@dhcppc4>
+	Wed, 21 Apr 2004 16:27:06 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:27821 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S263679AbUDUU1D convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Apr 2004 16:27:03 -0400
+Date: Wed, 21 Apr 2004 13:20:47 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: =?ISO-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+Cc: cfriesen@nortelnetworks.com, netdev@oss.sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: tcp vulnerability?  haven't seen anything on it here...
+Message-Id: <20040421132047.026ab7f2.davem@redhat.com>
+In-Reply-To: <20040421170340.GB24201@wohnheim.fh-wedel.de>
+References: <40869267.30408@nortelnetworks.com>
+	<Pine.LNX.4.53.0404211153550.1169@chaos>
+	<4086A077.2000705@nortelnetworks.com>
+	<20040421170340.GB24201@wohnheim.fh-wedel.de>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 21 Apr 2004 16:22:37 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-04-15 at 17:04, Craig Bradney wrote:
+On Wed, 21 Apr 2004 19:03:40 +0200
+Jörn Engel <joern@wohnheim.fh-wedel.de> wrote:
 
-> > While I don't want to get into the business of maintaining
-> > a dmi_scan entry for every system with this issue, I think
-> > it might be a good idea to add a couple of example entries
-> > for high volume systems for which there is no BIOS fix available.
-> > 
-> > Got any opinions on which system to use as the example?
-> > I'll need the output from dmidecode for them.
-> 
-> I have an A7N8X Deluxe v2 BIOS v1007 that I can give u whatever numbers
-> u need. IOAPIC and APIC are on.
+> Heise.de made it appear, as if the only news was that with tcp
+> windows, the propability of guessing the right sequence number is not
+> 1:2^32 but something smaller.  They said that 64k packets would be
+> enough, so guess what the window will be.
 
-Please send me the output from dmidecode, available in /usr/sbin/, or
-here:
-http://www.nongnu.org/dmidecode/
-or
-http://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/utils/
+Yes, that is their major discovery.  You need to guess the ports
+and source/destination addresses as well, which is why I don't
+consider this such a serious issue personally.
 
-thanks,
--Len
+It is mitigated if timestamps are enabled, because that becomes
+another number you have to guess.
 
+It is mitigated also by randomized ephemeral port selection, which
+OpenBSD implements and we could easily implement as well.
 
+I'm very happy that OpenBSD checked in a fix for this a week or so
+ago and took some of the thunder out of this bogusly hyped announcement.

@@ -1,65 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264104AbTLJVSF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Dec 2003 16:18:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264127AbTLJVSF
+	id S263956AbTLJVPp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Dec 2003 16:15:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263957AbTLJVPp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Dec 2003 16:18:05 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:61587 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S264104AbTLJVSB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Dec 2003 16:18:01 -0500
-Date: Wed, 10 Dec 2003 22:17:52 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Maciej Zenczykowski <maze@cela.pl>,
-       David Schwartz <davids@webmaster.com>,
-       Jason Kingsland <Jason_Kingsland@hotmail.com>,
+	Wed, 10 Dec 2003 16:15:45 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:11240 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263956AbTLJVPn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Dec 2003 16:15:43 -0500
+Date: Wed, 10 Dec 2003 21:15:41 +0000
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Kendall Bennett <KendallB@scitechsoft.com>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       "'Andre Hedrick'" <andre@linux-ide.org>,
+       "'Arjan van de Ven'" <arjanv@redhat.com>, Valdis.Kletnieks@vt.edu,
        linux-kernel@vger.kernel.org
-Subject: RE: Linux GPL and binary module exception clause?
-In-Reply-To: <Pine.LNX.4.10.10312101300030.3805-100000@master.linux-ide.org>
-Message-ID: <Pine.LNX.4.58.0312102212370.1125@earth>
-References: <Pine.LNX.4.10.10312101300030.3805-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: Linux GPL and binary module exception clause?
+Message-ID: <20031210211541.GF4176@parcelfarce.linux.theplanet.co.uk>
+References: <00af01c3bf41$2db12770$d43147ab@amer.cisco.com> <3FD7081D.31093.61FCFA36@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3FD7081D.31093.61FCFA36@localhost>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Dec 10, 2003 at 11:48:45AM -0800, Kendall Bennett wrote:
+> Linus Torvalds <torvalds@osdl.org> wrote:
+> 
+> > In fact, a user program written in 1991 is actually still likely
+> > to run, if it doesn't do a lot of special things. So user programs
+> > really are a hell of a lot more insulated than kernel modules,
+> > which have been known to break weekly. 
+> 
+> IMHO (and IANAL of course), it seems a bit tenuous to me the argument 
+> that just because you deliberating break compatibility at the module 
+> level on a regular basis, that they are automatically derived works. 
+> Clearly the module interfaces could be stabilised and published, and if 
+> you consider the instance of a single kernel version in time, that module 
+> ABI *is* published and *is* stable *for that version*. Just because you 
+> make an active effort to change things and actively *not* document the 
+> ABI other than in the source code across kernel versions, doesn't 
+> automatically make a module a derived work. 
 
-On Wed, 10 Dec 2003, Andre Hedrick wrote:
+Oh, for crying out loud!  Had you ever looked at that "API"?
 
-> I have and the lawyers tell me that it is one or the other and can not
-> be both.  So explain to me how a GPL/BSD or BSD/GPL works again?
+At least 90% of it are random functions exposing random details of internals.
+Most of them are there only because some in-tree piece of code had been
+"modularized".  Badly.
 
-ugh. Are your lawyers saying that the tons of dual-licensed code is not a
-valid license? Seems like your lawyers disagree with lots of other
-lawyers.
+Due to the dumb mechanism used to export symbols, each of those layering
+violations automatically becomes available to all modules.  And they outnumber
+the things that could be reasonably considered as something resembling an
+API.  Outnumber by order of magnitude.
 
-> Also if one does an md5sum on the "COPYING" file from FSF and compares
-> it from the one in the kernel source they differ.
+The problem had been festering for almost a decade now, and external modules
+also didn't help things - a lot of them contained layering violations of their
+own and asked to export this, this and that.  With no explanation offered and
+too little resistance met.
 
-here's the (trivial) diff. Draw your own conclusions.
-
---- libc/COPYING	2001-07-06 07:57:07.000000000 +0200
-+++ v/COPYING	2003-11-23 13:21:58.000000000 +0100
-@@ -1,3 +1,19 @@
-+
-+   NOTE! This copyright does *not* cover user programs that use kernel
-+ services by normal system calls - this is merely considered normal use
-+ of the kernel, and does *not* fall under the heading of "derived work".
-+ Also note that the GPL below is copyrighted by the Free Software
-+ Foundation, but the instance of code that it refers to (the Linux
-+ kernel) is copyrighted by me and others who actually wrote it.
-+
-+ Also note that the only valid version of the GPL as far as the kernel
-+ is concerned is _this_ particular version of the license (ie v2, not
-+ v2.2 or v3.x or whatever), unless explicitly otherwise stated.
-+
-+			Linus Torvalds
-+
-+----------------------------------------
-+
- 		    GNU GENERAL PUBLIC LICENSE
- 		       Version 2, June 1991
- 
+In 2.7 we need to get the export list back to sanity.  Right now it's a such
+a junkpile that speaking about even a relative stability for it...  Not funny.

@@ -1,59 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262708AbSKROHv>; Mon, 18 Nov 2002 09:07:51 -0500
+	id <S262664AbSKROIZ>; Mon, 18 Nov 2002 09:08:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262664AbSKROHu>; Mon, 18 Nov 2002 09:07:50 -0500
-Received: from vana.vc.cvut.cz ([147.32.240.58]:6272 "EHLO vana.vc.cvut.cz")
-	by vger.kernel.org with ESMTP id <S262662AbSKROHr>;
-	Mon, 18 Nov 2002 09:07:47 -0500
-Date: Mon, 18 Nov 2002 15:14:37 +0100
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-To: acme@conectiva.com.br
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] llc & 2.5.48
-Message-ID: <20021118141437.GB10815@vana>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S262662AbSKROIZ>; Mon, 18 Nov 2002 09:08:25 -0500
+Received: from mailout.mbnet.fi ([194.100.161.24]:45574 "EHLO posti.mbnet.fi")
+	by vger.kernel.org with ESMTP id <S262664AbSKROIX> convert rfc822-to-8bit;
+	Mon, 18 Nov 2002 09:08:23 -0500
+Message-ID: <000701c28f10$3dca1de0$5ea564c2@windows>
+From: "Matti Annala" <gval@mbnet.fi>
+To: "Kernel Mailinglist" <linux-kernel@vger.kernel.org>,
+       "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+References: <001b01c28d51$fd9a2400$5ca464c2@windows> <1037491709.24769.22.camel@irongate.swansea.linux.org.uk>
+Subject: Re: [PATCH] ide.h cleanup, 2.5.47
+Date: Mon, 18 Nov 2002 16:39:01 +0200
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2919.6600
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6600
+X-OriginalArrivalTime: 18 Nov 2002 14:14:17.0025 (UTC) FILETIME=[C78F9310:01C28F0C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-   patch below fixes couple of compilation warnings in llc.
-Please apply.
-					Thanks,
-						Petr Vandrovec
-						vandrove@vc.cvut.cz
+
+----- Original Message ----- 
+From: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+To: "Matti Annala" <gval@mbnet.fi>
+Cc: "Kernel Mailinglist" <linux-kernel@vger.kernel.org>; "Dave Jones" <davej@suse.de>
+Sent: Sunday, November 17, 2002 2:08 AM
+Subject: Re: [PATCH] ide.h cleanup, 2.5.47
 
 
-diff -urdN linux/net/llc/llc_main.c linux/net/llc/llc_main.c
---- linux/net/llc/llc_main.c	2002-11-18 13:50:40.000000000 +0000
-+++ linux/net/llc/llc_main.c	2002-11-18 13:55:51.000000000 +0000
-@@ -181,22 +181,22 @@
- 	llc->inc_cntr = llc->dec_cntr = 2;
- 	llc->dec_step = llc->connect_step = 1;
- 
--	init_timer(&llc->ack_timer);
-+	init_timer(&llc->ack_timer.timer);
- 	llc->ack_timer.expire	      = LLC_ACK_TIME;
- 	llc->ack_timer.timer.data     = (unsigned long)sk;
- 	llc->ack_timer.timer.function = llc_conn_ack_tmr_cb;
- 
--	init_timer(&llc->pf_cycle_timer);
-+	init_timer(&llc->pf_cycle_timer.timer);
- 	llc->pf_cycle_timer.expire	   = LLC_P_TIME;
- 	llc->pf_cycle_timer.timer.data     = (unsigned long)sk;
- 	llc->pf_cycle_timer.timer.function = llc_conn_pf_cycle_tmr_cb;
- 
--	init_timer(&llc->rej_sent_timer);
-+	init_timer(&llc->rej_sent_timer.timer);
- 	llc->rej_sent_timer.expire	   = LLC_REJ_TIME;
- 	llc->rej_sent_timer.timer.data     = (unsigned long)sk;
- 	llc->rej_sent_timer.timer.function = llc_conn_rej_tmr_cb;
- 
--	init_timer(&llc->busy_state_timer);
-+	init_timer(&llc->busy_state_timer.timer);
- 	llc->busy_state_timer.expire	     = LLC_BUSY_TIME;
- 	llc->busy_state_timer.timer.data     = (unsigned long)sk;
- 	llc->busy_state_timer.timer.function = llc_conn_busy_tmr_cb;
+> On Sat, 2002-11-16 at 09:24, Matti Annala wrote:
+> > The patch below performs minor cleanups on the include/linux/ide.h header. It
+> > simplifies the use of endianness #ifdefs and removes a chunk of duplicated
+> > code.
+> > 
+> > Comments?
+> 
+> Why are you deleting chunks of comments ?
+> 
+
+The comments and the #define statement that the patch is deleting are duplicated in the header as you may see by checking the header file.
+

@@ -1,47 +1,138 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275552AbRJaXSB>; Wed, 31 Oct 2001 18:18:01 -0500
+	id <S275571AbRJaXZV>; Wed, 31 Oct 2001 18:25:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275571AbRJaXRw>; Wed, 31 Oct 2001 18:17:52 -0500
-Received: from codepoet.org ([166.70.14.212]:27748 "EHLO winder.codepoet.org")
-	by vger.kernel.org with ESMTP id <S275552AbRJaXRp>;
-	Wed, 31 Oct 2001 18:17:45 -0500
-Date: Wed, 31 Oct 2001 16:18:25 -0700
-From: Erik Andersen <andersen@codepoet.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.14-pre6
-Message-ID: <20011031161825.A12606@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1004556431.11209.51.camel@mistress> <Pine.LNX.4.33.0110311126500.32727-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0110311126500.32727-100000@penguin.transmeta.com>
-User-Agent: Mutt/1.3.22i
-X-Operating-System: 2.4.12-ac3-rmk2, Rebel NetWinder (Intel StrongARM-110 rev 3), 185.95 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
+	id <S274990AbRJaXZN>; Wed, 31 Oct 2001 18:25:13 -0500
+Received: from AGrenoble-101-1-3-57.abo.wanadoo.fr ([193.253.251.57]:4485 "EHLO
+	lyon.ram.loc") by vger.kernel.org with ESMTP id <S275571AbRJaXZF>;
+	Wed, 31 Oct 2001 18:25:05 -0500
+From: Raphael Manfredi <Raphael_Manfredi@pobox.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] back from NETDEV WATCHDOG: eth0: transmit timed out
+X-Mailer: MH [version 6.8]
+Organization: Home, Grenoble, France
+Date: Wed, 31 Oct 2001 23:51:56 +0100
+Message-ID: <22563.1004568716@nice.ram.loc>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed Oct 31, 2001 at 11:38:44AM -0800, Linus Torvalds wrote:
-> 
-> On 31 Oct 2001, Michael Peddemors wrote:
-> >
-> > Lets' let this testing cycle go a little longer before making any
-> > changes.. Let developers catch up..
-> 
-> My not-so-cunning plan is actually to try to figure out the big problems
-> now, then release a reasonable 2.4.14, and then just stop for a while,
-> refusing to take new features.
+I found a way to get me out of the dreadful
 
-How about ext3 for 2.4.14?
+	NETDEV WATCHDOG: eth0: transmit timed out
 
- -Erik
+condition, which irremediably used to hang the network on my machine,
+forcing me to reboot.
 
---
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--
+This fix was inspired by the long thread between Manfred Spraul and
+Franck de Lange, a while back.
+
+The fix leads to the following trail in kern.log:
+
+ NETDEV WATCHDOG: eth0: transmit timed out
+ eth0: Tx queue start entry 23742746  dirty entry 23742742.
+ eth0:  Tx descriptor 0 is 00002000.
+ eth0:  Tx descriptor 1 is 00002000.
+ eth0:  Tx descriptor 2 is 00002000. (queue head)
+ eth0:  Tx descriptor 3 is 00002000.
+ eth0: Setting 100mbps full-duplex based on auto-negotiated partner ability 45e1.
+ Kicking IO-APIC pin #16:
+  NR Log Phy Mask Trig IRR Pol Stat Dest Deli Vect:   
+ Before:
+  00 003 03  0    1    1   1   0    1    1    91
+ After switching to edge:
+  00 003 03  0    0    1   1   0    1    1    91
+ After switch back:
+  00 003 03  0    1    1   1   0    1    1    91
+ nfs: server lyon not responding, still trying
+ nfs: server lyon not responding, still trying
+ nfs: server lyon OK
+ nfs: server lyon OK
+
+Here's the patch.  It only fixes the 8139too.c network driver, because
+this is the one relevant for me.  Perhaps this can be added to other
+drivers as well?
+
+NOTE: the printk(KERN_EMERG) is probably too high for logging everything.
+A KERN_CRIT would perhaps be more suitable, but Manfred had used this
+in his patch, and I respected his decision.  However, having all my xterms
+clogged with:
+
+	Message from syslogd@nice at Wed Oct 31 23:37:36 2001 ...
+	nice kernel: Kicking IO-APIC pin #16: 
+
+is probably excessive ;-)
+
+Raphael
+
+--- ./drivers/net/8139too.c.orig	Mon Oct 29 19:33:34 2001
++++ ./drivers/net/8139too.c	Mon Oct 29 19:47:09 2001
+@@ -1732,6 +1732,7 @@
+ 
+ 	/* ...and finally, reset everything */
+ 	rtl8139_hw_start (dev);
++	kick_IOAPIC_pin(dev->irq);		/* Added by RAM */
+ 
+ 	netif_wake_queue (dev);
+ }
+--- ./arch/i386/kernel/io_apic.c.orig	Mon Oct 29 19:34:42 2001
++++ ./arch/i386/kernel/io_apic.c	Mon Oct 29 19:45:18 2001
+@@ -1616,3 +1616,59 @@
+ 	check_timer();
+ 	print_IO_APIC();
+ }
++
++/*
++ * Added by RAM, from Manfred Spraul
++ */
++static void print_line(struct IO_APIC_route_entry* entry)
++{
++	printk(KERN_EMERG " %02x %03X %02X  ",
++		0,
++		entry->dest.logical.logical_dest,
++		entry->dest.physical.physical_dest
++	);
++	printk("%1d    %1d    %1d   %1d   %1d    %1d    %1d    %02X\n",
++		entry->mask,
++		entry->trigger,
++		entry->irr,
++		entry->polarity,
++		entry->delivery_status,
++		entry->dest_mode,
++		entry->delivery_mode,
++		entry->vector
++	);
++}
++
++void kick_IOAPIC_pin(int pin)
++{
++	unsigned long flags;
++	struct IO_APIC_route_entry entry;
++
++	spin_lock_irqsave(&ioapic_lock, flags);
++
++	*(((int *)&entry) + 1) = io_apic_read(0, 0x11 + 2 * pin);
++	*(((int *)&entry) + 0) = io_apic_read(0, 0x10 + 2 * pin);
++
++	printk(KERN_EMERG "Kicking IO-APIC pin #%d:\n", pin);
++	printk(KERN_EMERG " NR Log Phy Mask Trig IRR Pol"
++					  " Stat Dest Deli Vect:   \n");
++	printk(KERN_EMERG "Before:\n");
++	print_line(&entry);
++
++	entry.trigger = 0;
++	io_apic_write(0, 0x11 + 2 * pin, *(((int *)&entry) + 1));
++	io_apic_write(0, 0x10 + 2 * pin, *(((int *)&entry) + 0));
++	udelay(10);
++	printk(KERN_EMERG "After switching to edge:\n");
++	print_line(&entry);
++
++	entry.trigger = 1;
++	io_apic_write(0, 0x11 + 2 * pin, *(((int *)&entry) + 1));
++	io_apic_write(0, 0x10 + 2 * pin, *(((int *)&entry) + 0));
++	udelay(10);
++	printk(KERN_EMERG "After switch back:\n");
++	print_line(&entry);
++
++	spin_unlock_irqrestore(&ioapic_lock, flags);
++}
++

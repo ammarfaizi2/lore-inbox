@@ -1,88 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S130582AbQK2Q5b>; Wed, 29 Nov 2000 11:57:31 -0500
+        id <S131312AbQK2RIW>; Wed, 29 Nov 2000 12:08:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130685AbQK2Q5V>; Wed, 29 Nov 2000 11:57:21 -0500
-Received: from hermes.mixx.net ([212.84.196.2]:39428 "HELO hermes.mixx.net")
-        by vger.kernel.org with SMTP id <S130582AbQK2Q5F>;
-        Wed, 29 Nov 2000 11:57:05 -0500
-From: Daniel Phillips <news-innominate.list.linux.kernel@innominate.de>
-Reply-To: Daniel Phillips <phillips@innominate.de>
-X-Newsgroups: innominate.list.linux.kernel
-Subject: Re: 2.4.0-test11 ext2 fs corruption
-Date: Wed, 29 Nov 2000 17:26:21 +0100
-Organization: innominate
-Distribution: local
-Message-ID: <news2mail-3A252E2D.F0C458BF@innominate.de>
-In-Reply-To: <E2BA5DE1AE9@vcnet.vc.cvut.cz> <Pine.GSO.4.21.0011281520100.11331-100000@weyl.math.psu.edu>
-Mime-Version: 1.0
+        id <S131415AbQK2RIN>; Wed, 29 Nov 2000 12:08:13 -0500
+Received: from mail.iex.net ([192.156.196.5]:16570 "EHLO mail.iex.net")
+        by vger.kernel.org with ESMTP id <S131312AbQK2RHw>;
+        Wed, 29 Nov 2000 12:07:52 -0500
+Message-ID: <3A2530C2.456BF661@iex.net>
+Date: Wed, 29 Nov 2000 09:37:22 -0700
+From: Tim Sullivan <tsulliva@iex.net>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test12-pre2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Brian Gerst <bgerst@didntduck.org>
+CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: test12-pre3: paging problem
+In-Reply-To: <3A250F85.EF1FD067@iex.net> <3A252464.2AB55600@didntduck.org>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Trace: mate.bln.innominate.de 975515195 27818 10.0.0.90 (29 Nov 2000 16:26:35 GMT)
-X-Complaints-To: news@innominate.de
-To: Alexander Viro <viro@math.psu.edu>
-X-Mailer: Mozilla 4.72 [de] (X11; U; Linux 2.4.0-test10 i586)
-X-Accept-Language: en
-To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro wrote:
+Brian Gerst wrote:
 > 
-> On Tue, 28 Nov 2000, Petr Vandrovec wrote:
-> 
-> > > two ranges? Then it looks like something way below the fs level... Weird.
-> > > Could you verify it with dd?
+> Tim Sullivan wrote:
 > >
-> > Yes, it is identical copy. But I do not think that hdd can write same
-> > data into two places with one command...
+> > Hello,
 > >
-> > vana:/# dd if=/dev/hdd1 bs=4096 count=27 skip=722433 | md5sum
-> > 27+0 records in
-> > 27+0 records out
-> > 613de4a7ea664ce34b2a9ec8203de0f4
-> > vana:/# dd if=/dev/hdd1 bs=4096 count=27 skip=558899 | md5sum
-> > 27+0 records in
-> > 27+0 records out
-> > 613de4a7ea664ce34b2a9ec8203de0f4
-> > vana:/#
+> > The following occurred during startup using test12-pre3. test12-pre2
+> > does not exhibit the problem.
+> >
+> > regards,
+> >
+> > -tim
+> >
+> > kernel: Unable to handle kernel paging request at virtual address
+> > fffffffc
+> > kernel:  printing eip:
+> > kernel: c011a41f
+> > kernel: *pde = 00001063
+> > kernel: *pte = 00000000
+> > kernel: Oops: 0000
+> > kernel: CPU:    0
+> > kernel: EIP:    0010:[sys_setitimer+191/208]
+> > kernel: EFLAGS: 00010246
+> > kernel: eax: 00000000   ebx: cf4e1fb0   ecx: 00000000   edx: c027169d
+> > kernel: esi: bffffc68   edi: cf4e1fc0   ebp: 00000000   esp: cf4e1f88
+> > kernel: ds: 0018   es: 0018   ss: 0018
+> > kernel: Process ntpdate (pid: 451, stackpage=cf4e1000)
+> > kernel: Stack: cf4e0000 bffffd1c 00000009 bffffc70 00000000 cf4e0000
+> > 400538e8 00000000
+> > kernel:        00000000 40166214 00000000 00030d40 00000000 000186a0
+> > c010a847 00000000
+> > kernel:        bffffc58 00000000 bffffd1c 00000009 bffffc70 00000068
+> > 0000002b 0000002b
+> > kernel: Call Trace: [system_call+51/56]
+> > kernel: Code: c8 5d 83 c4 28 c3 90 90 90 90 90 90 90 90 90 90 90 83 ec
+> > 44
 > 
-> Bloody hell... OK, let's see. Both ranges are covered by multiple files
-> and are way larger than one page. I.e. anything on pagecache level is
-> extremely unlikely - pages are not searched by physical location on
-> disk. And I really doubt that it's ext2_get_block() - we would have
-> to get a systematic error (constant offset), then read the data in
-> for no good reason, then forget the page->buffers, then get the right
-> values fro ext2_get_block(), leave the data unmodified _and_ write it.
+> Disassemblind the code bytes, it shows up as:
+>    0:   c8 5d 83 c4             enter  $0x835d,$0xc4
+>    4:   28 c3                   subb   %al,%bl
+>    6:   90                      nop
+> which is definately wrong.  Moving one byte forward it becomes:
+>    0:   5d                      popl   %ebp
+>    1:   83 c4 28                addl   $0x28,%esp
+>    4:   c3                      ret
+>    5:   90                      nop
+> which a normal sequence of instructions for the end of a function.  It
+> looks like a branch may have been miscompiled off by one.  What
+> compiler/binutils are you using?
 > 
-> It almost looks like a request in queue got fscked up retaining the
-> ->bh from one of the previous (also coalesced) requests and having
-> correct ->sector. Weird.
+> --
 > 
-> Linus, Andrea - any ideas? Situation looks so: after massive file creation
-> a range of disk with the data from new files (many new files) got
-> duplicated over another range - one with the data from older files
-> (also many of them). 27 blocks, block size == 4Kb. No intersection
-> between inodes, fsck is happy with fs, just a data ending up in two
-> places on disk. No warnings from IDE or ext2 drivers.
-> 
-> Kernel: test11 built with 2.95.2, so gcc bug may very well be there.
-> However, I really wonder what could trigger it in ll_rw_blk.c - 5:1
-> that shit had hit the fan there.
+>                                 Brian Gerst
 
-I picked up a bug in ialloc.c back in February, for which I submitted a
-poorly constructed patch (for which I was privately and properly flamed;
-as I recall my subsequent attempts to post an improved version failed
-for various reasons which may or may not include ORBS).  Anyway, the
-basic idea is clear:
 
-  http://marc.theaimsgroup.com/?l=linux-kernel&m=95162877201890&w=2
+compiler = kgcc (RedHat 7)
+	gcc version egcs-2.91.66 19990314/Linux (egcs-1.1.2 release)
+binutils = 2.10.0.18
 
-I'll make a proper patch out of this if you like.  This *could* cause
-the effect we're seeing here.
-
---
-Daniel
+-tim
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

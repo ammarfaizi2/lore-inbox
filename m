@@ -1,33 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262773AbSIPSUk>; Mon, 16 Sep 2002 14:20:40 -0400
+	id <S262781AbSIPSbu>; Mon, 16 Sep 2002 14:31:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262776AbSIPSUk>; Mon, 16 Sep 2002 14:20:40 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:7437 "EHLO
+	id <S262782AbSIPSbu>; Mon, 16 Sep 2002 14:31:50 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:8717 "EHLO
 	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S262773AbSIPSUj>; Mon, 16 Sep 2002 14:20:39 -0400
-Date: Mon, 16 Sep 2002 14:18:27 -0400 (EDT)
+	id <S262781AbSIPSbu>; Mon, 16 Sep 2002 14:31:50 -0400
+Date: Mon, 16 Sep 2002 14:29:35 -0400 (EDT)
 From: Bill Davidsen <davidsen@tmr.com>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] thread-exec-2.5.34-B1, BK-curr
-In-Reply-To: <Pine.LNX.4.44.0209152055290.9822-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.3.96.1020916141348.6180A-100000@gatekeeper.tmr.com>
+To: contest@kolivas.net
+cc: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Possible addition to contest
+Message-ID: <Pine.LNX.3.96.1020916142511.6180C-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 15 Sep 2002, Ingo Molnar wrote:
+It would be nice to be able to add a short string to the kernel version
+for identification, to differentiate between runs with the same kernel and
+different tuning.
 
-
-> ok. libpthreads uses an internal clone() for posix_spawn() [which does
-> what your example illustrates] which should be a tad faster than vfork() -
-> but vfork() should work just as well.
-
-Is this "libpthreads" the old one used in 2.4 distros, a recent version of
-NGPT, or something else? I hope 2.5 will work with NGPT or better, and not
-depend on the old library!
+I've found that tuning often helps response, like reducing memory with
+older rmap versions (ran for a while using mem=256m), or tuning bdflush
+with -aa kernels, which I did after Andrea gave me some serious hints.
+Just a short string added to the version would make this a bit easier to
+follow after the fact.
 
 -- 
 bill davidsen <davidsen@tmr.com>

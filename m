@@ -1,31 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268957AbRIJNgg>; Mon, 10 Sep 2001 09:36:36 -0400
+	id <S269326AbRIJNvc>; Mon, 10 Sep 2001 09:51:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268813AbRIJNgb>; Mon, 10 Sep 2001 09:36:31 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:26123 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S269238AbRIJNgV>; Mon, 10 Sep 2001 09:36:21 -0400
-Subject: Re: Problem with i810 chipset
-To: haiquy@yahoo.com (=?iso-8859-1?q?Steve=20Kieu?=)
-Date: Mon, 10 Sep 2001 14:40:54 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org (kernel)
-In-Reply-To: <20010910050525.97814.qmail@web10408.mail.yahoo.com> from "=?iso-8859-1?q?Steve=20Kieu?=" at Sep 10, 2001 03:05:25 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S269413AbRIJNvX>; Mon, 10 Sep 2001 09:51:23 -0400
+Received: from smtp.mediascape.net ([212.105.192.20]:29962 "EHLO
+	smtp.mediascape.net") by vger.kernel.org with ESMTP
+	id <S269326AbRIJNvH>; Mon, 10 Sep 2001 09:51:07 -0400
+Message-ID: <3B9CC525.7E26ABC2@mediascape.de>
+Date: Mon, 10 Sep 2001 15:50:29 +0200
+From: Olaf Zaplinski <o.zaplinski@mediascape.de>
+X-Mailer: Mozilla 4.77 [de] (X11; U; Linux 2.4.9-ac6 i686)
+X-Accept-Language: de, en
 MIME-Version: 1.0
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: AIC + RAID1 error? (was: Re: aic7xxx errors)
+In-Reply-To: <200109072337.f87NbPY92715@aslan.scsiguy.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15gRJ0-0000fk-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> System: i810 graphic chipset, intel celeron 400Mhz;
-> 128 Mb ram. Lucent software modem using lt-modem
-> driver version 5-99b
+Okay, I tested it today, compiled 2.4.9ac10 with the new driver and TCQ set
+to 32. I built the driver as a module to make sure that the machine at least
+boots into runlevel 3 (I have no console access, only access to the reset
+switch).
 
-Please report problems with binary only drivers to the driver vendor,
-it could be any kind of incompatibility and as we have no source only they
-can help you.
+I rebooted and inserted the driver with 'modprobe aic7xxx', remembered that
+I forgot the verbose flag, removed the driver with 'modprobe -r' and
+re-inserted it with 'modprobe aic7xxx aic7xxx=verbose'. The machine was
+still alive then. But right after entering 'raidhotadd /dev/md1 /dev/sda1'
+the machine hung. reiserfs erased the last lines of /var/log/messages, but
+AFAIK the verbose driver output showed no errors.
 
-Alan
+But how can I help to reproduce the error? Of course I could break the
+mirror, compile the driver into the kernel (non-module) and do some stress
+test on the SCSI drive. But it's not so good when I drive this machine into
+a hang too often.
+
+I compiled the old driver now, also with TCQ set to 32, and the machine
+seems to work fine.
+
+Olaf

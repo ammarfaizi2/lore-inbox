@@ -1,84 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262416AbTELSgQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 14:36:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262434AbTELSgQ
+	id S262456AbTELSge (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 14:36:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262473AbTELSge
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 14:36:16 -0400
-Received: from fed1mtao06.cox.net ([68.6.19.125]:1991 "EHLO fed1mtao06.cox.net")
-	by vger.kernel.org with ESMTP id S262416AbTELSgN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 14:36:13 -0400
-Date: Mon, 12 May 2003 11:48:51 -0700
-From: Matt Porter <mporter@kernel.crashing.org>
-To: Matthew Wilcox <willy@debian.org>
-Cc: Matt Porter <mporter@kernel.crashing.org>, Jeff Garzik <jgarzik@pobox.com>,
-       linux-kernel@vger.kernel.org,
-       Ivan Kokshaysky <ink@jurassic.park.msu.ru>, davem@redhat.com
-Subject: Re: Message Signalled Interrupt support?
-Message-ID: <20030512114851.B23510@home.com>
-References: <20030512163249.GF27111@gtf.org> <20030512165331.GZ29534@parcelfarce.linux.theplanet.co.uk> <20030512104300.A23510@home.com> <20030512182023.GA29534@parcelfarce.linux.theplanet.co.uk>
+	Mon, 12 May 2003 14:36:34 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:37326 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S262456AbTELSga (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 May 2003 14:36:30 -0400
+Date: Mon, 12 May 2003 14:48:55 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: David Brownell <david-b@pacbell.net>
+Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-usb-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [linux-usb-devel] Patch for usb-ohci in 2.4 needs review & testing
+Message-ID: <20030512144855.A2256@devserv.devel.redhat.com>
+References: <20030510004012.A26322@devserv.devel.redhat.com> <3EBFC9A4.7020708@pacbell.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20030512182023.GA29534@parcelfarce.linux.theplanet.co.uk>; from willy@debian.org on Mon, May 12, 2003 at 07:20:23PM +0100
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3EBFC9A4.7020708@pacbell.net>; from david-b@pacbell.net on Mon, May 12, 2003 at 09:19:48AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 12, 2003 at 07:20:23PM +0100, Matthew Wilcox wrote:
-> On Mon, May 12, 2003 at 10:43:00AM -0700, Matt Porter wrote:
-> > I've also done some thought for PPC440xx's PCI MSI support.  It isn't
-> > strictly necessary to have a new request_msi() if the kernel "does
-> > the right thing".  request_irq() already hooks using an interrupt
-> > value that is virtual on many platforms.
+> From: David Brownell <david-b@pacbell.net>
+> Date: Mon, 12 May 2003 09:19:48 -0700
+
+> > The attached patch appears to fix a bug which was really making
+> > my life difficult: dd if=/dev/scd0 produces corrupted ISOs when
+> > reading off a USB CD-ROM on a box with no less than 2 P4 CPUs,
+> > HyperThreading and ServerWorks chipset. However, I'm not
+> > completely sure that I didn't break something.
 > 
-> Yes, but ideally this kludge would go away...
+> Did the "ohci-hcd" backport give the same problem?
+> Or did you not try that?
 
-Well, with respect to MSI, yes it could.  Interrupt values are
-still a Linux fabrication regardless on many platforms with
-cascaded PICs.
- 
-> > In that case, the PCI
-> > subsystem would only need to provide an interface to provide
-> > the architecture/platform specific inbound MSI location.  The PCI
-> > subsystem would then find all MSI capable PCI devices, and assign
-> > the appropriate number of unique messages and inbound MSI address
-> > to each device via the speced PCI MSI interface.  The PCI subsystem
-> > would also be responsible for maintaining a correspondence between
-> > virtual Linux interrupt values and MSI values.
-> > 
-> > Software specific to the PCI MSI capable "Northbridge", will then
-> > route general MSI interrupt events to some PCI subsystem helper
-> > functions to verify which MSI has occurred and thus which Linux
-> > virtual interrupt. 
+> That 2.5 code has had a lot more attention paid to it
+> with respect to locking and similar less-common problems.
+> Personally I'd rather see that version get the attention,
+> so both 2.4 and 2.5 get the benefits, although I can also
+> understand wanting changes that seem more incremental.
+
+Greg sent me that, but I haven't tried it yet. Sorry.
+
+Obviously, ohci-hcd is better, but you know where I work.
+We have to support ancient codebases practically forever,
+despite what press says. The ohci fix we talk about comes
+from qualifying 2.4.9 on top of the line hardware, some of
+which is not released yet.
+
+> >  - The whole idea of checking jiffy-sized timeouts from an interrupt
+> >    is revolting, but I am wary of unknown here, so I didn't kill it.
+> >    If anyone knows how that abomination came to life, I'll be glad
+> >    to know too.
 > 
-> That sounds like a lot of overhead.  In particular it means we keep
-> converting to and from `virtual IRQs'.  I would hope the MSI work would
-> allow us to tie in at a lower level than virtual interrupts.  I was
-> thinking an interface would look something like:
+> It shouldn't actually be alive ... never enabled,
+> because never debugged (and submitted by accident).
+> Safe IMO to remove completely.
 
-Yes, it's a bit.  Just pointing out that one *could* do it that way,
-not really that we *should* do it that way.  I would personally
-prefer to see native msi support.  However, most of the functionality
-I mentioned are things the PCI subsystem needs to do specific to
-PCI MSI anyway.
+Heh. I'm afraid I won't be able to touch it, see above.
 
-> void *request_msi(struct device *dev,
-> 		irqreturn_t (*handler)(int, void *, struct pt_regs *),
-> 		unsigned long irqflags,
->                 void *dev_id)
-> 
-> You need a struct device to figure out which interrupt controller it
-> needs.
+I'll look on the ohci-hcd, but certain events may be pushing
+it to next week.
 
-request_msi() needs an additional parameter to specify which MSI
-it is hooking.  A device can implement many messages in order to
-clarify which one of many events on a device has occurred.  It
-may be desired to hook a separate handler for each of those to
-avoid another read of a status register.
-
-Regards,
--- 
-Matt Porter
-mporter@kernel.crashing.org
+-- Pete

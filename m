@@ -1,65 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267298AbUJRSVX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267294AbUJRSVW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267298AbUJRSVX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Oct 2004 14:21:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267164AbUJRSPI
+	id S267294AbUJRSVW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Oct 2004 14:21:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267335AbUJRSUl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Oct 2004 14:15:08 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:21399 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S267285AbUJRSNt (ORCPT
+	Mon, 18 Oct 2004 14:20:41 -0400
+Received: from cantor.suse.de ([195.135.220.2]:52175 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S267341AbUJRSQ4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Oct 2004 14:13:49 -0400
-Date: Mon, 18 Oct 2004 20:13:31 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Daniel Walker <dwalker@mvista.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] Voluntary Preempt additions
-Message-ID: <20041018181331.GB2899@elte.hu>
-References: <1098121769.26597.5.camel@dhcp153.mvista.com>
+	Mon, 18 Oct 2004 14:16:56 -0400
+Date: Mon, 18 Oct 2004 20:16:54 +0200
+From: Andi Kleen <ak@suse.de>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: bevand_m@epita.fr, linux-kernel@vger.kernel.org, discuss@x86-64.org
+Subject: Re: NMI watchdog detected lockup
+Message-Id: <20041018201654.58905384.ak@suse.de>
+In-Reply-To: <41740430.30604@osdl.org>
+References: <4172F91D.8090109@osdl.org>
+	<ckv123$pcs$1@sea.gmane.org>
+	<4173F9A7.2090504@osdl.org>
+	<20041018200017.0098710d.ak@suse.de>
+	<41740430.30604@osdl.org>
+X-Mailer: Sylpheed version 0.9.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1098121769.26597.5.camel@dhcp153.mvista.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 18 Oct 2004 10:58:08 -0700
+"Randy.Dunlap" <rddunlap@osdl.org> wrote:
 
-* Daniel Walker <dwalker@mvista.com> wrote:
+> > Something on your system creates bogus NMI interrupts. What chipset
+> > are you using exactly?
+> > 
+> > Sometimes chipsets can be programmed to raise NMIs when an PCI bus
+> > error occurs. 
+> > 
+> > 21 is the normal state (PIT timer running, but no errors logged) 
+> > 
+> > If you have an AMD 8131 it could be in theory erratum 54, but then
+> > normally one of the error bits in reason should be set.
+> 
+> Yes, it's an AMD-8111 / 8131 / 8151 / K8-northbridge machine.
 
-> This is in addition to voluntary preempt U5 . So, first apply up to
-> Voluntary Preempt U4 , then apply this patch. I'll release for U5 as
-> soon as it's formally released. 
+It's probably one of your IO cards. I would remove them one by one
+or possibly switch them to different slots (PCI vs PCI-X) 
 
-i've released U5 an hour ago.
-
-> We are releasing the following new features,
->                                                                                       
-> - Architecture independent mutex with priority inheritance. Note, we
-> have only tested this in x86.
-
-there's new generic mutex code in -U5 which covers all the locking
-primitives: semaphores, rw-semaphores, spinlock-mutexes and
-rwlock-mutexes. PI should be done by improving the existing
-rwsem-generic.c code.
-
-> - Modified latency tracer to trace non-preemptable mutex locking , in
-> /proc/lock_trace
-
-hm, what is this good for? It is illegal to enter a schedulable section 
-with preemption disabled and there we currently dump a trace of all 
-critical sections held - this should be enough to pinpoint the bug.
-
-> - Added two new locking functions _mutex_lock_cpu and
-> _mutex_unlock_cpu.
-
-hm, they are unused right now - what will they be used for?
-
-	Ingo
+-Andi

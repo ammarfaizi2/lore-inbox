@@ -1,81 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290635AbSARITO>; Fri, 18 Jan 2002 03:19:14 -0500
+	id <S290641AbSARIe1>; Fri, 18 Jan 2002 03:34:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290636AbSARISz>; Fri, 18 Jan 2002 03:18:55 -0500
-Received: from [203.117.131.12] ([203.117.131.12]:6067 "EHLO
-	gort.metaparadigm.com") by vger.kernel.org with ESMTP
-	id <S290635AbSARISs>; Fri, 18 Jan 2002 03:18:48 -0500
-Message-ID: <3C47DA61.3060405@metaparadigm.com>
-Date: Fri, 18 Jan 2002 16:18:41 +0800
-From: Michael Clark <michael@metaparadigm.com>
-Organization: Metaparadigm Pte Ltd
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20020112
+	id <S290640AbSARIeP>; Fri, 18 Jan 2002 03:34:15 -0500
+Received: from khms.westfalen.de ([62.153.201.243]:61895 "EHLO
+	khms.westfalen.de") by vger.kernel.org with ESMTP
+	id <S290638AbSARIeF>; Fri, 18 Jan 2002 03:34:05 -0500
+Date: 18 Jan 2002 08:48:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
+To: linux-kernel@vger.kernel.org
+Message-ID: <8H5i6N9Hw-B@khms.westfalen.de>
+In-Reply-To: <Pine.LNX.4.40.0201161533090.25405-100000@dlang.diginsite.com>
+Subject: Re: CML2-2.1.3 is available
+X-Mailer: CrossPoint v3.12d.kh8 R/C435
 MIME-Version: 1.0
-To: Ani Joshi <ajoshi@shell.unixbox.com>
-Cc: Linux Fbdev <linux-fbdev-devel@lists.sourceforge.net>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] drivers/video/modedb.c - 1400x1050 fbdev mode timings
-In-Reply-To: <Pine.BSF.4.44.0201172330570.89288-100000@shell.unixbox.com>
-Content-Type: multipart/mixed;
- boundary="------------080801040406080408040802"
+Content-Type: text/plain; charset=us-ascii
+Organization: Organisation? Me?! Are you kidding?
+In-Reply-To: <20020116163144.D12306@thyrsus.com> <Pine.LNX.4.40.0201161533090.25405-100000@dlang.diginsite.com>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080801040406080408040802
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+david.lang@digitalinsight.com (David Lang)  wrote on 16.01.02 in <Pine.LNX.4.40.0201161533090.25405-100000@dlang.diginsite.com>:
 
-Thanks Ani,
+> Eric, the way you worded the change report it sounded to many of us as if
+> you were making the autoprober mandatory for detecting the root
+> filesystem.
 
-Here's another one people might find useful - these are the timings detected
-using the radeon BIOS registers for my 1400x1050 LCD. Someone might find these
-useful if their XGA panel geometry can't be detected as there are currently
-no 1400x1050 modes defined in modedb.c
+> I understand why you are frustrated with the response, but it's not a case
+> of people having thick skulls it's a case of you leaving out critical info
+> from you changelog so people reading it without your mindset see it saying
+> something that you didn't mean.
 
-cheers,
-~mc
+I agree that a different wording might have avoided this.
 
-Ani Joshi wrote:
+But I also must say that paying even a little bit of attention on the part  
+of the readers would also have avoided this.
 
-> Hi Michael,
-> 
-> Thanks for the patch, I will merge it in tomorrow and release an updated
-> version of the driver soon after.
-> 
-> 
-> ani
-> 
-> 
-> On Thu, 17 Jan 2002, Michael Clark wrote:
-[snip]
->>BTW - Also, here is my patch to radeonfb to detect panel geometry using
->>radeon BIOS registers on Radeon Mobility M6 chipset.
->>
->>   http://gort.metaparadigm.com/radeonfb/radeon-bios-dfpinfo-2.patch
+It is certainly not the first time the autoconfigurator has been discussed  
+here, and it was made clear *every* *single* *time* that this is an  
+optional thing, usually several times.
 
+This is not a case of witholding "critical info". This is a case of  
+readers without any attention span.
 
---------------080801040406080408040802
-Content-Type: text/plain;
- name="1400x1050-fbmode.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="1400x1050-fbmode.patch"
+On a mailing list such as this, the number of such readers is highly  
+disappointing. It feels just like Windows.
 
---- linux-2.4.18-pre2-radeonfix-orig/drivers/video/modedb.c	Mon Jan 14 11:53:26 2002
-+++ linux-2.4.18-pre2-radeonfix/drivers/video/modedb.c	Tue Jan 15 00:51:22 2002
-@@ -127,6 +127,10 @@
- 	NULL, 61, 1280, 1024, 9090, 200, 48, 26, 1, 184, 3,
- 	0, FB_VMODE_NONINTERLACED
-     }, {
-+	/* 1400x1050 @ 60Hz, 63.9 kHz hsync */
-+	NULL, 68, 1400, 1050, 9259, 136, 40, 13, 1, 112, 3,
-+	0, FB_VMODE_NONINTERLACED
-+    }, {
- 	/* 1024x768 @ 85 Hz, 70.24 kHz hsync */
- 	NULL, 85, 1024, 768, 10111, 192, 32, 34, 14, 160, 6,
- 	0, FB_VMODE_NONINTERLACED
+In fact, I am beginning to suspect that some people protest something they  
+full well *know* is not the case, just to stir up trouble.
 
---------------080801040406080408040802--
-
+MfG Kai

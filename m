@@ -1,44 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S382379AbUKAXjt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S290453AbUKAXpL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S382379AbUKAXjt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Nov 2004 18:39:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268374AbUKAXbs
+	id S290453AbUKAXpL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Nov 2004 18:45:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S290221AbUKAXmJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Nov 2004 18:31:48 -0500
-Received: from deliver.epitech.net ([163.5.0.25]:50992 "HELO
-	ideliver.epitech.net") by vger.kernel.org with SMTP id S380292AbUKAXBI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Nov 2004 18:01:08 -0500
-Date: Tue, 2 Nov 2004 00:01:03 +0100
-From: Marc Bevand <bevand_m@epita.fr>
-To: dean gaudet <dean-list-linux-kernel@arctic.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [rc4-amd64] RC4 optimized for AMD64
-Message-ID: <20041101230103.GA656@iah.epita.fr>
-References: <cm4moc$c7t$1@sea.gmane.org> <Pine.LNX.4.61.0411011233203.8483@twinlark.arctic.org> <Pine.LNX.4.61.0411011249550.25856@twinlark.arctic.org>
+	Mon, 1 Nov 2004 18:42:09 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:16854 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S381641AbUKAXdl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Nov 2004 18:33:41 -0500
+Date: Mon, 1 Nov 2004 15:33:12 -0800
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Wolfgang Scheicher <worf@sbox.tu-graz.ac.at>
+Cc: zaitcev@redhat.com, Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9 USB storage problems
+Message-ID: <20041101153312.6616cd41@lembas.zaitcev.lan>
+References: <200410121424.59584.worf@sbox.tu-graz.ac.at>
+	<200411012040.33285.worf@sbox.tu-graz.ac.at>
+	<20041101213501.GD18227@one-eyed-alien.net>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed-Claws 0.9.12cvs126.2 (GTK+ 2.4.13; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0411011249550.25856@twinlark.arctic.org>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-dean gaudet wrote:
-| 
-| [...]
-| ack... it's too early on a monday morning -- i misread the documentation.
-| this ZF assumption is actually defined and portable... still kind of ugly.
-| how much benefit do you see?
+On Mon, 1 Nov 2004 23:19:13 +0100, Wolfgang Scheicher <worf@sbox.tu-graz.ac.at> wrote:
 
-When "dec" is placed before "ror", throughput goes up by about 5%
-on my test system (Opteron 244 rev C0). I don't find it "ugly"
-because the optimization no intrusive at all (only 1 moved instruction).
+> Looks like the driver is very new and a lot has yet to be done.
 
-Concerning the "dec / sub $1" case, it makes absolutely no difference
-on the Opteron, I just used "dec" because the opcode is 3 bytes length
-instead of 4.
+This is why it defaults to N in defconfig, and this is why the help for
+CONFIG_BLK_DEV_UB says "If unsure, say N."
 
--- 
-Marc Bevand                          http://www.epita.fr/~bevand_m
-Computer Science School EPITA - System, Network and Security Dept.
+-- Pete

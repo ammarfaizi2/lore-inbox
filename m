@@ -1,37 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288747AbSAUWVy>; Mon, 21 Jan 2002 17:21:54 -0500
+	id <S288732AbSAUWWY>; Mon, 21 Jan 2002 17:22:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288732AbSAUWVo>; Mon, 21 Jan 2002 17:21:44 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:6321 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S288747AbSAUWVb>;
-	Mon, 21 Jan 2002 17:21:31 -0500
-Date: Mon, 21 Jan 2002 14:19:31 -0800 (PST)
-Message-Id: <20020121.141931.105134927.davem@redhat.com>
-To: andrea@suse.de
-Cc: reid.hekman@ndsu.nodak.edu, linux-kernel@vger.kernel.org, akpm@zip.com.au,
-        alan@lxorg.ukuu.org
-Subject: Re: Athlon PSE/AGP Bug
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20020121175410.G8292@athlon.random>
-In-Reply-To: <1011610422.13864.24.camel@zeus>
-	<20020121.053724.124970557.davem@redhat.com>
-	<20020121175410.G8292@athlon.random>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S288752AbSAUWWO>; Mon, 21 Jan 2002 17:22:14 -0500
+Received: from zero.tech9.net ([209.61.188.187]:48657 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S288732AbSAUWWJ>;
+	Mon, 21 Jan 2002 17:22:09 -0500
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+From: Robert Love <rml@tech9.net>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: yodaiken@fsmlabs.com, Daniel Phillips <phillips@bonn-fries.net>,
+        george anzinger <george@mvista.com>, Momchil Velikov <velco@fadata.bg>,
+        Arjan van de Ven <arjan@fenrus.demon.nl>,
+        Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.21.0201211851390.1461-100000@freak.distro.conectiva>
+In-Reply-To: <Pine.LNX.4.21.0201211851390.1461-100000@freak.distro.conectiva>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.1 
+Date: 21 Jan 2002 17:26:17 -0500
+Message-Id: <1011651978.988.504.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Andrea Arcangeli <andrea@suse.de>
-   Date: Mon, 21 Jan 2002 17:54:10 +0100
-   
-   correct, furthmore it cannot even trigger if you invlpg with an address
-   page aligned (4mbyte aligned in this case) like we would always do in
-   linux anyways, we never use invlpg on misaligned addresses, no matter if
-   the page is a 4M or a 4k page.
+On Mon, 2002-01-21 at 15:52, Marcelo Tosatti wrote:
 
-That's not true, see the ptrace() helper code.  Russell King pointed
-this out to me last week and it's on my TODO list to fix it up.
+> > I guess the point is, everyone argues preemption is detrimental to
+> > throughput.  I'm not going to argue that we aren't adding complexity,
+> > because clearly we are.  But now we have tests showing throughput is
+> > improved and people still argue.  I've seen the same behavior under
+> > bonnie, timing kernel compiles, etc ...
+> 
+> Sure, you've seen it. But _why_ it happens ?
+> 
+> That is the point.
+
+Daniel just reiterated it, but I suspect we better multitask a mix of
+tasks.  I/O-bound tasks that are woken can be run quicker and thus
+throughput increases.
+
+I'm not trying to tout preempt-kernel as a throughput solution.  I think
+it is a neat and promising side-note to the patch, and one that
+benchmarks are correlating.  Ignore it as a statistical error and
+consider throughput untouched if you want. 
+
+	Robert Love
 

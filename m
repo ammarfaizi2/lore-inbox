@@ -1,53 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318116AbSFTEsh>; Thu, 20 Jun 2002 00:48:37 -0400
+	id <S318121AbSFTFGf>; Thu, 20 Jun 2002 01:06:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318117AbSFTEsg>; Thu, 20 Jun 2002 00:48:36 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:10092 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S318116AbSFTEsg>; Thu, 20 Jun 2002 00:48:36 -0400
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: marc.miller@amd.com, devnull@adc.idt.com, linux-kernel@vger.kernel.org
-Subject: Re: >3G Memory support
-References: <858788618A93D111B45900805F85267A062BB49D@caexmta3.amd.com>
-	<20020620020809.GS22961@holomorphy.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 19 Jun 2002 22:38:20 -0600
-In-Reply-To: <20020620020809.GS22961@holomorphy.com>
-Message-ID: <m18z5atvib.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S318120AbSFTFGe>; Thu, 20 Jun 2002 01:06:34 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:58892 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S318118AbSFTFGc>; Thu, 20 Jun 2002 01:06:32 -0400
+Date: Wed, 19 Jun 2002 22:03:16 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Kurt Garloff <garloff@suse.de>
+cc: Linux kernel list <linux-kernel@vger.kernel.org>,
+       Linux SCSI list <linux-scsi@vger.kernel.org>
+Subject: Re: [PATCH] /proc/scsi/map
+In-Reply-To: <20020620004442.GA19824@gum01m.etpnet.phys.tue.nl>
+Message-ID: <Pine.LNX.4.33.0206192149410.2638-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III <wli@holomorphy.com> writes:
 
-> On Wed, Jun 19, 2002 at 07:01:08PM -0700, marc.miller@amd.com wrote:
-> > Support of 4G of RAM is a configuration option when you compile the
-> > kernel.  Is that setting turned on?  
-> > I think it's in "General Options" when you do a "make menuconfig"
-> > (I don't have a machine up at the moment that I can check).  There
-> > are three options:  Less than 1G, 1G to less than 4G, and 4G or more.
-> > That last option is the one you would want.  
-> > If that's already enabled, hopefully one of the memory guys can pitch in...
+On Thu, 20 Jun 2002, Kurt Garloff wrote:
 > 
-> This is actually yet another "32-bit virtualspace sucks" issue. You can't
-> get at all your RAM from userspace because the virtualspace set aside for
-> the kernel prevents you from using it to map physical memory. 64-bit
-> virtualspace is too vast to be easily exhausted this way.
+> find attached a patch (against 2.5.23-dj2) to the SCSI subsystem which 
+> adds a file /proc/scsi/map, which provides a listing of SCSI devices,
+> enumerated by the CBTU/HCIL tuple and the high-level devices attached to
+> them. 
 
-Note.  Getting at all of the memory isn't impossible but you have
-to allocate a very large posix shared memory segment, and page it
-in and out of your address space.
+I really despise this.
 
-But the only easy solution to this problem is a 64bit machine.  At an
-address bit consumed every year or so we have 2 or 3 decades before we
-will need to move to 128bit machines to resolve this issue yet again.
+Sorry.
 
-At least the situation now is better than with ems.sys and xmm.sys and
-their kin the last time x86 hit an address space wall.  Though we are
-a little bit out from the point where all machines are configured with
-more memory than they can practically use.
+Can't you add the SCSI devices to the device tree, and be done with it? 
 
-Eric
+It's just _wrong_ to have one file with a collection of devices in it, and 
+it is _doubly_ wrong when that one file
+
+ - is limited to a (arbitrary) subset of the disks in your system
+
+ - has completely bogus information about "location" that has nothing to 
+   do with real life, yet pruports to be an "address" even though it 
+   obviously isn't.
+
+> +The format contains a variable number of columns, separated by a TAB '\t'
+> +character.
+> +
+> +1st column: The Controller, Bus, Target, Unit (or call it Host, Channel, ID,
+> +            LUN) tuple that identifies a SCSI device. The numbers are all
+> +	    in decimal format and separated by commas.
+
+These "addresses" are not addresses at all. They have no bearing on where 
+the card is, will change if a host is added, yadda yadda.
+
+All fixed at least to _some_ degree by giving the most complete address we 
+can, ie something like
+
+	/devices/root/pci0/00:02.0/02:1f.0/03:07.0
+
+And yes, the above is a _real_ example, that exists today: it's my SCSI 
+controller, and it's behind _two_ PCI bridges. 
+
+Is is also "scsi controller 0"? Yes. But that's a meaningless thing, and 
+should not matter.
+
+Either you enumerate things without any structure (like the current SCSI
+layer does: disk0, disk1, disk2 ...) or you give full their addresses.  
+Don't do the half-assed thing.
+
+PLEASE don't add these kinds of SCSI-specific hacks, that are _useless_ to
+find other types of disks, and that makes no sense, and will not work for
+things like DAC960, for IDE, or for anything else that just ignores the 
+SCSI layer (even if it physically uses SCSI disks, like the DAC960 setup).
+
+			Linus
+

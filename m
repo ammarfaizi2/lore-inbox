@@ -1,52 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265054AbTIDPkh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 11:40:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265070AbTIDPkh
+	id S265110AbTIDPfn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 11:35:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265111AbTIDPfn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 11:40:37 -0400
-Received: from fw.osdl.org ([65.172.181.6]:40933 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265054AbTIDPkf (ORCPT
+	Thu, 4 Sep 2003 11:35:43 -0400
+Received: from fw.osdl.org ([65.172.181.6]:40674 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265110AbTIDPfm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 11:40:35 -0400
-Date: Thu, 4 Sep 2003 08:40:14 -0700 (PDT)
+	Thu, 4 Sep 2003 11:35:42 -0400
+Date: Thu, 4 Sep 2003 08:35:08 -0700 (PDT)
 From: Linus Torvalds <torvalds@osdl.org>
-To: Hugh Dickins <hugh@veritas.com>
-cc: Rusty Russell <rusty@rustcorp.com.au>, Jamie Lokier <jamie@shareable.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
+To: Matt Porter <mporter@kernel.crashing.org>
+cc: "David S. Miller" <davem@redhat.com>, Paul Mackerras <paulus@samba.org>,
+       <rmk@arm.linux.org.uk>, <hch@lst.de>, <torvalds@transmeta.com>,
        <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Alternate futex non-page-pinning and COW fix
-In-Reply-To: <Pine.LNX.4.44.0309041230020.3647-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0309040837560.580-100000@home.osdl.org>
+Subject: Re: [PATCH] fix ppc ioremap prototype
+In-Reply-To: <20030904073650.B22822@home.com>
+Message-ID: <Pine.LNX.4.44.0309040834000.580-100000@home.osdl.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Thu, 4 Sep 2003, Hugh Dickins wrote:
+On Thu, 4 Sep 2003, Matt Porter wrote:
 > 
-> Isn't it the case that to use sys_futex (in the way it's intended),
-> userspace needs write access to the futex?  FUTEX_WAIT and FUTEX_WAKE
-> are used (depending on condition) after decrementing or incrementing
-> the futex in userspace.  FUTEX_FD is not such a clear case, but again
-> it appears that you'd use it for an async wait after decrementing.
-> FUTEX_REQUEUE seems to be a move or remap, doesn't change the picture.
+> My local tree has an ugly hack to remap_page_range() (and friends)
+> so it uses a phys_addr_t and calls fixup_bigphys_addr() to allow
+> use of unmodified PCI FB drivers.  I'd like to get this working
+> without hacks. :)
 
-Yes. 
-
-We can certainly just document it as a nonsense op. All I care about is
-that it is _consistently_ broken, and that people don't make read-only
-MAP_SHARED do something it has never ever done before - differ from a
-semantic standpoint.
-
-> The particular case above: if it's !PROT_WRITE MAP_PRIVATE, I'm
-> saying that's not an area you can manipulate mutexes in anyway;
-
-However, the thing is, the case really can be a totally writable
-MAP_PRIVATE that just hasn't been modified (and thus not COW'ed) _yet_.
-
-But sure, we could just require that futex pages are dirty in this case.
+We could make a new remap_page_range() that takes the FPN (not the 
+address, the page "number") instead. But it would need a new name, not a 
+flag-day "change all users".
 
 		Linus
 

@@ -1,36 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319408AbSH3D0b>; Thu, 29 Aug 2002 23:26:31 -0400
+	id <S319406AbSH3Deq>; Thu, 29 Aug 2002 23:34:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319409AbSH3D0b>; Thu, 29 Aug 2002 23:26:31 -0400
-Received: from uni-sb.de ([134.96.252.33]:58088 "EHLO uni-sb.de")
-	by vger.kernel.org with ESMTP id <S319408AbSH3D0a>;
-	Thu, 29 Aug 2002 23:26:30 -0400
-Date: Thu, 29 Aug 2002 19:03:36 +0200
-Message-Id: <200208291703.g7TH3aCK008021@pixel.cs.uni-sb.de>
-From: Georg Demme <gdemme@graphics.cs.uni-sb.de>
-To: hahn@physics.mcmaster.ca
-CC: linux-kernel@vger.kernel.org
-In-reply-to: <Pine.LNX.4.33.0208291138370.15551-100000@coffee.psychology.mcmaster.ca>
-	(message from Mark Hahn on Thu, 29 Aug 2002 11:40:11 -0400 (EDT))
-Subject: Re: Server Hangups
-References: <Pine.LNX.4.33.0208291138370.15551-100000@coffee.psychology.mcmaster.ca>
+	id <S319409AbSH3Deq>; Thu, 29 Aug 2002 23:34:46 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:49679
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S319406AbSH3Deo>; Thu, 29 Aug 2002 23:34:44 -0400
+Date: Thu, 29 Aug 2002 20:36:14 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+Subject: Re: ide-2.4.20-pre4-ac2.patch
+In-Reply-To: <1030661741.1326.7.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.10.10208292034210.24156-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
 
-> OK.  is it safe to assume you already ran memtest86?  posted HW config, etc?
-> (sorry for not reading the back-thread...)
+Deal, undoing the moves.
 
-I didn't do in depth memtests, but a 50% first pass yield no error and
-the errors were also pesent, when I had the complete server harddisks
-swapped to a different host and using that one as server.
+Parsing out all the summitted stuff first for send.
+Then the breakdown of the rest.
 
-Georg
+Gemme a bit to catch on to your request, Viro is trying to teach the ways
+of mad patcher and not the patch bomber.
 
--- 
-______________________________________________________________
-sent by gdemme@cs.uni-sb.de                    - Georg Demme - 
-http://graphics.cs.uni-sb.de/~gdemme/    Tel: +49 681/302-3834
-Universität des Saarlandes       -      Gebäude 36.1, Raum E15
+Cheers,
+
+On 29 Aug 2002, Alan Cox wrote:
+
+> On Tue, 2002-08-27 at 23:17, Andre Hedrick wrote:
+> > 
+> > This is out and has been forwarded to AC for review.
+> 
+> Rejected. I found several errors, a couple of strange reverts and some
+> files being moved to clearly wrong places. It also mixes up multiple
+> changes.
+> 
+> Andre to make this work I need
+> 	- One change per patch (within reason)
+> 	- An explanation of what it does
+> 
+> For example I've got files you moved and changed, looking at that in
+> diff is a right pita. I've got a big diff with errors in it (eg gayle in
+> ppc) I can't easily be sure I can cleanly drop parts of.
+> 
+> Lets start with the file moving. Send me a diff for the Config/Makefile
+> and a lit of the files to move and where. Gayle I think should be m68k
+> not ppc (actually Im pretty sure), CMD640 is PCI so why file it in
+> legacy. "legacy" I took to mean pre PCI rather than "I think its junk"
+> 8)
+> 
+> 
+
+Andre Hedrick
+LAD Storage Consulting Group
+

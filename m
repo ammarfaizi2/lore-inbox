@@ -1,80 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266132AbUAGFPQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 00:15:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266135AbUAGFPQ
+	id S266142AbUAGFa2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 00:30:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266143AbUAGFa1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 00:15:16 -0500
-Received: from vcgwp1.bit-drive.ne.jp ([211.9.32.211]:17573 "HELO
-	vcgwp1.bit-drive.ne.jp") by vger.kernel.org with SMTP
-	id S266132AbUAGFPK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 00:15:10 -0500
-From: Akinobu Mita <mita@miraclelinux.com>
-To: marcelo.tosatti@cyclades.com
-Subject: [PATCH 2.4][RESEND] Bug in reading some files in /proc/<pid>/
-Date: Wed, 7 Jan 2004 14:10:22 +0900
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Wed, 7 Jan 2004 00:30:27 -0500
+Received: from fw.osdl.org ([65.172.181.6]:30364 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266142AbUAGFa1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jan 2004 00:30:27 -0500
+Date: Tue, 6 Jan 2004 21:30:36 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: shutdown panic in mm_release (really flush_tlb_others?)
+Message-Id: <20040106213036.5051129b.akpm@osdl.org>
+In-Reply-To: <4500000.1073444277@[10.10.2.4]>
+References: <4500000.1073444277@[10.10.2.4]>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200401071410.22490.mita@miraclelinux.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcelo,
+"Martin J. Bligh" <mbligh@aracnet.com> wrote:
+>
+> And the award for longest panic I've ever seen goes to ....
+>  <drumroll> ....
+> 
+>  (there were several of these in sequence).
+>  Looks like it was trying to printk an error on shutdown ...
+>  really maybe " [<c0115242>] flush_tlb_others+0x22/0xd0"
+> 
+>  Probably the same panic I sent out the other day in a slight
+>  disguise ... "BUG_ON(!cpus_equal(cpumask, tmp));" in flush_tlb_others
 
-I found the bug in 2.4. this problem has already been fixed in 2.6.
-
-The following program could not detect Bad address
-with /proc/<pid>/cmdline, stat, statm, ...
-
------
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <string.h>
-#include <stdio.h>
-#include <errno.h>
-
-int main(int argc, char **argv)
-{
-    int fd, ret;
-
-    fd = open(argv[1], O_RDONLY);
-    ret = read(fd, NULL, 4*1024); // Bad address
-    printf("%s: %d\n", strerror(errno), ret);
-}
------
-
-For example.
-
-    $ ./a.out a.out
-    Bad Address: -1
-
-This result could be expected.
-but..
-
-    $ ./a.out /proc/1/stat
-    Success: 214 
-
-
---- linux-2.4.x/fs/proc/base.c.orig	2003-12-26 11:34:19.000000000 +0900
-+++ linux-2.4.x/fs/proc/base.c	2004-01-07 13:32:12.000000000 +0900
-@@ -357,8 +357,10 @@ static ssize_t proc_info_read(struct fil
- 	if (count + *ppos > length)
- 		count = length - *ppos;
- 	end = count + *ppos;
--	copy_to_user(buf, (char *) page + *ppos, count);
--	*ppos = end;
-+	if (copy_to_user(buf, (char *) page + *ppos, count))
-+		count = -EFAULT;
-+	else
-+		*ppos = end;
- 	free_page(page);
- 	return count;
- }
-
+Cute.  Didn't you have a patch for this?  Or a proposed solution which
+you've been too lazy to type in?  ;)
 

@@ -1,36 +1,65 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316475AbSFDGBR>; Tue, 4 Jun 2002 02:01:17 -0400
+	id <S316490AbSFDGeI>; Tue, 4 Jun 2002 02:34:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316489AbSFDGBQ>; Tue, 4 Jun 2002 02:01:16 -0400
-Received: from front1.mail.megapathdsl.net ([66.80.60.31]:11273 "EHLO
-	front1.mail.megapathdsl.net") by vger.kernel.org with ESMTP
-	id <S316475AbSFDGBQ>; Tue, 4 Jun 2002 02:01:16 -0400
-Subject: 2.5.20 -- /usr/include/linux/errno.h:4: asm/errno.h: No such file
-	or directory
-From: Miles Lane <miles@megapathdsl.net>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
+	id <S316492AbSFDGeH>; Tue, 4 Jun 2002 02:34:07 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:37389 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S316490AbSFDGeF>; Tue, 4 Jun 2002 02:34:05 -0400
+Message-ID: <3CFC603E.A7DC1525@zip.com.au>
+Date: Mon, 03 Jun 2002 23:37:50 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre9 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+CC: Anton Altaparmakov <aia21@cantab.net>,
+        "David S. Miller" <davem@redhat.com>,
+        LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [2.5.20-BUG] 3c59x + highmem + acpi + nfs -> kernel panic
+In-Reply-To: <1023096034.19717.62.camel@storm.christs.cam.ac.uk>
+		<3CFB3B87.74C7E9DF@zip.com.au> <shshekkbnrr.fsf@charged.uio.no>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5.99 
-Date: 03 Jun 2002 23:21:57 -0700
-Message-Id: <1023171718.7825.1.camel@agate>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-gcc -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -o split-include
-split-inIn file included from /usr/include/bits/errno.h:25,
-                 from /usr/include/errno.h:36,
-                 from split-include.c:26:
-/usr/include/linux/errno.h:4: asm/errno.h: No such file or directory
-make[1]: *** [split-include] Error 1
+Trond Myklebust wrote:
+> 
+> >>>>> " " == Andrew Morton <akpm@zip.com.au> writes:
+> 
+>      > Anton Altaparmakov wrote:
+>     >>
+>     >> Hi,
+>     >>
+>     >> Just got this (reproducible) kernel panic (BUG in
+>     >> asm-i386/highmem.h::kmap_atomic(), the if
+>     >> (!pte_none(*(kmap_pte-idx))) BUG(); triggers). It happens every
+>     >> time I boot and on an NFS mount do a ./configure.
+> 
+>      > Dunno about this one.  I'm seeing some (totally different) NFS
+>      > funnies at present - pagecache data on the client is coming up
+>      > zeroes under memory pressure.  Trond mentioned that NFS
+>      > recently went to kmap_atomic, so there is a common thread
+>      > there.
+> 
+> Following an off-list chat with David, I believe that the appended
+> patch should fix the problem reported by Anton. It replaces the
+> obsolete km_type "KM_SKB_DATA" with an entry that the RPC layer can
+> use in the socket bottom half.
+> 
+> I'm less sure whether or not it will fix your problem, Andrew, but I'm
+> hoping you'll find time to give it a brief test ;-)...
 
-I recall seeing a comment that egcs support was being removed.
-I am building on a machine I haven't used in a while and 
-just noticed it has egcs on it.  If this error is egcs-specific,
-could we please check the gcc version and emit an error stating
-that egcs isn't supported?
+It fixed it.
 
-	Miles
+The problem was that pagecache data on the NFS client was showing
+incorrect chunks of several k's of zeroes.  No particuar alignment,
+either.  And it only happened when the machine is under page-replacement
+pressure.  And only when the machine has highmem.
 
+It'd be nice to understand _why_ it fixed it.  Do we know why NFS
+was losing data when using KM_USER0?  As far as I can see the new
+and old code look pretty darn similar.   Interested.
+
+-

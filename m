@@ -1,38 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131469AbQKCTmL>; Fri, 3 Nov 2000 14:42:11 -0500
+	id <S131545AbQKCToB>; Fri, 3 Nov 2000 14:44:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131545AbQKCTmC>; Fri, 3 Nov 2000 14:42:02 -0500
-Received: from runyon.cygnus.com ([205.180.230.5]:41433 "EHLO cygnus.com")
-	by vger.kernel.org with ESMTP id <S131469AbQKCTly>;
-	Fri, 3 Nov 2000 14:41:54 -0500
-To: george@moberg.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Can EINTR be handled the way BSD handles it? -- a plea from a user-land  programmer...
-In-Reply-To: <3A03120A.DFC62AD5@moberg.com>
-Reply-To: drepper@cygnus.com (Ulrich Drepper)
-X-fingerprint: BE 3B 21 04 BC 77 AC F0  61 92 E4 CB AC DD B9 5A
-From: Ulrich Drepper <drepper@redhat.com>
-Date: 03 Nov 2000 11:41:42 -0800
-In-Reply-To: george@moberg.com's message of "Fri, 03 Nov 2000 14:29:14 -0500"
-Message-ID: <m3y9z0g7wp.fsf@otr.mynet.cygnus.com>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Capitol Reef)
+	id <S131560AbQKCTnv>; Fri, 3 Nov 2000 14:43:51 -0500
+Received: from neuron.moberg.com ([209.152.208.195]:61710 "EHLO
+	neuron.moberg.com") by vger.kernel.org with ESMTP
+	id <S131545AbQKCTnq>; Fri, 3 Nov 2000 14:43:46 -0500
+Message-ID: <3A031591.EA24ABFA@moberg.com>
+Date: Fri, 03 Nov 2000 14:44:17 -0500
+From: george@moberg.com
+Organization: Moberg Research, Inc.
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.17 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Tim Hockin <thockin@isunix.it.ilstu.edu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Can EINTR be handled the way BSD handles it? -- a plea from a 
+ user-land
+In-Reply-To: <200011031841.MAA07209@isunix.it.ilstu.edu>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-george@moberg.com writes:
+Tim Hockin wrote:
+> 
+> > Considering that the threading library for Linux uses signals to make it
+> > work, would it be possible to change the Linux kernel to operate the way
+> > BSD does--instead of returning EINTR, just restart the interrupted
+> > primitive?
+> 
+> man sigaction, look for SA_RESTART
 
-> Can we _PLEASE_PLEASE_PLEASE_ not do this anymore and have the kernel do
-> what BSD does:  re-start the interrupted call?
+Thanks for the info.
 
-This is crap.  Returning EINTR is necessary for many applications.
+After looking at it, let me modify my position a bit.
 
--- 
----------------.                          ,-.   1325 Chesapeake Terrace
-Ulrich Drepper  \    ,-------------------'   \  Sunnyvale, CA 94089 USA
-Red Hat          `--' drepper at redhat.com   `------------------------
+My problem is that pthread_create (glibc 2.1.3, kernel 2.2.17 i686) is
+failing because, deep inside glibc somewhere, nanosleep() is returning
+EINTR.
+
+My code is not using signals.  The threading library is, and there is
+obviously some subtle bug going on here.  Ever wonder why when browsing
+with Netscape and you click on a link and it says "Interrupted system
+call."?  This is it.  I'm arguing that the default behaviour should be
+SA_RESTART, and if some programmer is so studly that they actually know
+what the hell they are doing by disabling SA_RESTART, then they can do
+it explicitly.
+
+I don't mean this to sound like a rant.  It's just that I can't possibly
+ascertain why someone in their right mind would want any behaviour
+different than SA_RESTART.
+--
+George T. Talbot
+<george at moberg dot com>
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,58 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261642AbVBSG3v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261643AbVBSGiZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261642AbVBSG3v (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Feb 2005 01:29:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261643AbVBSG3u
+	id S261643AbVBSGiZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Feb 2005 01:38:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261641AbVBSGiZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Feb 2005 01:29:50 -0500
-Received: from 206.175.9.210.velocitynet.com.au ([210.9.175.206]:57267 "EHLO
-	cunningham.myip.net.au") by vger.kernel.org with ESMTP
-	id S261642AbVBSG3s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Feb 2005 01:29:48 -0500
-Subject: Should kirqd work on HT?
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Reply-To: ncunningham@cyclades.com
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1108794699.4098.28.camel@desktop.cunningham.myip.net.au>
+	Sat, 19 Feb 2005 01:38:25 -0500
+Received: from [205.233.219.253] ([205.233.219.253]:39615 "EHLO
+	conifer.conscoop.ottawa.on.ca") by vger.kernel.org with ESMTP
+	id S261643AbVBSGiL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Feb 2005 01:38:11 -0500
+Date: Sat, 19 Feb 2005 01:36:32 -0500
+From: Jody McIntyre <scjody@modernduck.com>
+To: Parag Warudkar <kernel-stuff@comcast.net>
+Cc: Dan Dennedy <dan@dennedy.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org,
+       Linux1394-Devel <linux1394-devel@lists.sourceforge.net>
+Subject: Re: [PATCH] ohci1394: dma_pool_destroy while in_atomic() && irqs_disabled()
+Message-ID: <20050219063632.GE9231@conscoop.ottawa.on.ca>
+References: <1108740772.4588.3.camel@kino.dennedy.org> <200502181042.47404.kernel-stuff@comcast.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Sat, 19 Feb 2005 17:31:39 +1100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200502181042.47404.kernel-stuff@comcast.net>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all.
+On Fri, Feb 18, 2005 at 10:42:46AM -0500, Parag Warudkar wrote:
+> On Friday 18 February 2005 10:32 am, Dan Dennedy wrote:
+> > I have tested the patches (including for allocation), and it is working
+> > great, but should I only commit for now the deallocation patch? Hmm..
+> > which is worse the debug or the 200K waste?
+> Thanks for following it up.
+> 
+> IMHO, we should commit both patches for now since we don't have an alternative 
+> solution yet. 
 
-I've noticed this problem for a while, but only now decided to ask.
-Interrupt balancing doesn't do anything on my system.
+I disagree because the impact of this bug is small.  How often do you start
+an ISO receive?  If you think it needs to be fixed urgently, please
+explain why - maybe I'm just missing somethnig.
 
-           CPU0       CPU1
-  0:   31931808          0    IO-APIC-edge  timer
-  1:      76595          0    IO-APIC-edge  i8042
-  8:          1          0    IO-APIC-edge  rtc
-  9:          1          0   IO-APIC-level  acpi
- 14:        122          1    IO-APIC-edge  ide0
- 16:    4074456          0   IO-APIC-level  uhci_hcd, uhci_hcd, radeon@PCI:1:0:0
- 17:    4295132          0   IO-APIC-level  Intel ICH5
- 18:    2070933          0   IO-APIC-level  libata, uhci_hcd, eth0
- 19:     887311          0   IO-APIC-level  uhci_hcd
- 22:     572530          0   IO-APIC-level  ath0
-NMI:   31931749   31931636 (I've since disabled the nmi_watchdog)
-LOC:   31931252   31931251
-ERR:          0
-MIS:          0
+> Jody - Is the 200K waste for sure or do you want me to verify it by some 
+> means? ( Reason I am asking is firstly, Dave Brownell was quite sure it 
+> wasn't that costly and secondly, I am hoping it isn't.. ;)
 
-I enabled the debugging and found that it doesn't think it's worth the
-effort. Is that correct? Not a complaint, just curious!
+I'm not sure, but I looked through the code and it seems to allocate:
+ - 16 buffers of 2x PAGE_SIZE (= 131072 on i386)
+ - 16 buffers of PAGE_SIZE (= 65536 on i386)
+ - various other smaller structures.
 
-Regards,
+I'm not sure how to actually _measure_ how much memory this is using.
+slabinfo isn't useful, at least on my system, because the 1394
+allocations get lost in the noise of other activity.
 
-Nigel
+If you really need this fixed quickly, I'll find some time this weekend
+to examine the locks.  In particular, I'm not sure what host_info_lock
+protects or why it needs to be held in so many places with irqs disabled.
+
+Jody
+
+> 
+> Parag
+
 -- 
-Nigel Cunningham
-Software Engineer, Canberra, Australia
-http://www.cyclades.com
-
-Ph: +61 (2) 6292 8028      Mob: +61 (417) 100 574
-

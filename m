@@ -1,51 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261335AbVARP75@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261330AbVARQLQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261335AbVARP75 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jan 2005 10:59:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261334AbVARP62
+	id S261330AbVARQLQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jan 2005 11:11:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261334AbVARQLQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jan 2005 10:58:28 -0500
-Received: from rproxy.gmail.com ([64.233.170.194]:27121 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261335AbVARP4m (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jan 2005 10:56:42 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=F516zMD5p1uYhEHNRfSGgW+m3TunQ3JvUMPQ+9UWE41Cva1Nkfvu/MGx8jl2xgg4RzH7WdBzJZksBxi6XiOAs4h2U9srQjOjV1iQuVj7gc2im38jA/0iF0oPFSv7qDSPCD9iVou/Yutwr66chyBL2JVY0J4E0sB/TPClIeu8ung=
-Message-ID: <d120d50005011807566ee35b2b@mail.gmail.com>
-Date: Tue, 18 Jan 2005 10:56:40 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Hannes Reinecke <hare@suse.de>
-Subject: Re: [PATCH 2/2] Remove input_call_hotplug
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Vojtech Pavlik <vojtech@suse.cz>
-In-Reply-To: <41ED2457.1030109@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <41ED2457.1030109@suse.de>
+	Tue, 18 Jan 2005 11:11:16 -0500
+Received: from fmmailgate04.web.de ([217.72.192.242]:21422 "EHLO
+	fmmailgate04.web.de") by vger.kernel.org with ESMTP id S261330AbVARQLK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jan 2005 11:11:10 -0500
+Date: Tue, 18 Jan 2005 17:10:59 +0100
+Message-Id: <768486802@web.de>
+MIME-Version: 1.0
+From: "Enrico Bartky" <DOSProfi@web.de>
+To: linux-kernel@vger.kernel.org
+Subject: PATCH for 2.6: Enabling disabled M7101 device (quirks.c)
+Organization: http://freemail.web.de/
+Content-Type: multipart/mixed; boundary="STEFAN41ed351c224e"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+This is a MIME encoded message.
+--STEFAN41ed351c224e
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 
-On Tue, 18 Jan 2005 15:59:35 +0100, Hannes Reinecke <hare@suse.de> wrote:
-> Implement proper class names for input drivers.
-> 
+Hello,
 
-This patch probably should probably use atomic_inc in case we ever
-have non-serialized probe functions.
+I have ported the prog/hotplug/m7101.c module from lm_sensors for kernel 2.6. Here is the patch.
 
-But the real question is whether we really need class devices have
-unique names or we could do with inputX thus leaving individual
-drivers intact and only modifying the input core. As far as I
-understand userspace should be concerned only with device
-capabilities, not particular name, besides, it gets PRODUCT string
-which has all needed data encoded.
+EnricoB
+______________________________________________________________
+Verschicken Sie romantische, coole und witzige Bilder per SMS!
+Jetzt bei WEB.DE FreeMail: http://f.web.de/?mc=021193
+--STEFAN41ed351c224e
+Content-Type: application/octet-stream; name="i2c.diff"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="i2c.diff"
 
-What do you think?
+LS0tIHF1aXJrcy5jLm9sZAkyMDA0LTEyLTI0IDIyOjMzOjQ5LjAwMDAwMDAwMCArMDEwMAor
+KysgcXVpcmtzLmMJMjAwNS0wMS0xOCAxNjo0Njo1Ny4wNTc0OTkyNDggKzAxMDAKQEAgLTE5
+LDYgKzE5LDggQEAKICNpbmNsdWRlIDxsaW51eC9pbml0Lmg+CiAjaW5jbHVkZSA8bGludXgv
+ZGVsYXkuaD4KIAorI2luY2x1ZGUgInBjaS5oIgorCiAjdW5kZWYgREVCVUcKIAogLyogRGVh
+bCB3aXRoIGJyb2tlbiBCSU9TJ2VzIHRoYXQgbmVnbGVjdCB0byBlbmFibGUgcGFzc2l2ZSBy
+ZWxlYXNlLApAQCAtMjgwLDYgKzI4Miw3NCBAQAogfQogREVDTEFSRV9QQ0lfRklYVVBfSEVB
+REVSKFBDSV9WRU5ET1JfSURfQUwsCVBDSV9ERVZJQ0VfSURfQUxfTTcxMDEsCQlxdWlya19h
+bGk3MTAxX2FjcGkgKTsKIAorLyogQUxpIDE1MzMgZml4dXAgdG8gZW5hYmxlIHRoZSBNNzEw
+MSBTTUJ1cyBDb250cm9sbGVyCisgKiAgICAgICAgICBwb3J0ZWQgZnJvbSBwcm9nL2hvdHBs
+dWcgb2YgdGhlIGxtX3NlbnNvcnMKKyAqICAgICAgICAgIHBhY2thZ2UKKyAqLworc3RhdGlj
+IHZvaWQgX19kZXZpbml0IHF1aXJrX2FsaTE1MzNfc21idXMoc3RydWN0IHBjaV9kZXYgKmRl
+dikKK3sKKwl1OCB2YWwgPSAwOworCXN0cnVjdCBwY2lfZGV2ICptNzEwMTsKKwkKKwlwcmlu
+dGsgKCAiTTcxMDE6IExvb2tpbmcgZm9yIGRpc2FibGVkIGRldmljZS4uLiAiICk7CisJCisJ
+bTcxMDEgPSBwY2lfZ2V0X2RldmljZShQQ0lfVkVORE9SX0lEX0FMLCBQQ0lfREVWSUNFX0lE
+X0FMX003MTAxLCBOVUxMKTsKKwkKKwlpZiAoIG03MTAxICkKKwl7CisJCXByaW50ayAoICJu
+b3QgZm91bmQhXG4iICk7CisJCXJldHVybjsKKwl9CisKKwlwY2lfcmVhZF9jb25maWdfYnl0
+ZSAoIGRldiwgMHg1RiwgJnZhbCApOworCisJaWYgKCB2YWwgJiAweDQgKQorCXsKKwkJcHJp
+bnRrICggImZvdW5kLlxuIiApOwkKKwkJcHJpbnRrICggIk03MTAxOiBFbmFibGluZyBNNzEw
+MSBkZXZpY2UgLi4uICIgKTsKKworCSAgICAJcGNpX3dyaXRlX2NvbmZpZ19ieXRlICggZGV2
+LCAweDVGLCB2YWwgJiAweEZCICk7CisJCXBjaV9yZWFkX2NvbmZpZ19ieXRlICggZGV2LCAw
+eDVGLCAmdmFsICk7CisKKwkJaWYgKCB2YWwgJiAweDQgKQorCQl7CisJCQlwcmludGsgKCAi
+ZmFpbGVkLlxuIiApOworCQkJcmV0dXJuOworCQl9CisJCQorCQlwcmludGsgKCAiT0suXG4i
+ICk7CisJfQorCWVsc2UKKwkJcHJpbnRrICggIm5vdCBmb3VuZC5cbiIgKTsKKworCW03MTAx
+ID0gcGNpX3NjYW5fc2luZ2xlX2RldmljZSAoIGRldi0+YnVzLCAweDE4ICk7CisKKwlwcmlu
+dGsgKCAiTTcxMDE6IERvIHdlIG5lZWQgdG8gdW5sb2NrIHJlZ2lzdGVycz8gLi4uICIgKTsK
+KworCWlmICggcGNpX3JlYWRfY29uZmlnX2J5dGUgKCBtNzEwMSwgMHgwNUIsICZ2YWwgKSAp
+CisJeworCQlwcmludGsgKCAiRmFpbGVkIHRvIHJlYWQuXG4iKTsKKwkJcmV0dXJuOworCX0K
+KworCWlmICggdmFsICYgMHgwNiApCisJeworCQlwcmludGsgKCAieWVzXG4iICk7CisJCXBy
+aW50ayAoICJNNzEwMTogVW5sb2NraW5nIHJlZ2lzdGVycyAuLi4iICk7CisJCQorCQl2YWwg
+PSB2YWwgJiB+MHgwNjsKKworCQlpZiAoIHBjaV93cml0ZV9jb25maWdfYnl0ZSAoIG03MTAx
+LCAweDA1QiwgdmFsICkgKQorCQl7CisJCQlwcmludGsgKCAiZmFpbGVkLlxuIiApOworCQkJ
+cmV0dXJuOworCQl9CisKKwkJcHJpbnRrICggIk9LLlxuIiApOworCX0KK30KK0RFQ0xBUkVf
+UENJX0ZJWFVQX0hFQURFUihQQ0lfVkVORE9SX0lEX0FMLAlQQ0lfREVWSUNFX0lEX0FMX00x
+NTMzLAkJcXVpcmtfYWxpMTUzM19zbWJ1cyApOworCiAvKgogICogUElJWDQgQUNQSTogVHdv
+IElPIHJlZ2lvbnMgcG9pbnRlZCB0byBieSBsb25nd29yZHMgYXQKICAqCTB4NDAgKDY0IGJ5
+dGVzIG9mIEFDUEkgcmVnaXN0ZXJzKQo=
 
--- 
-Dmitry
+--STEFAN41ed351c224e--
+
+

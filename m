@@ -1,53 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278447AbRJVJeb>; Mon, 22 Oct 2001 05:34:31 -0400
+	id <S278446AbRJVJdk>; Mon, 22 Oct 2001 05:33:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278448AbRJVJeM>; Mon, 22 Oct 2001 05:34:12 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:46246 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S278447AbRJVJeK>;
-	Mon, 22 Oct 2001 05:34:10 -0400
-Date: Mon, 22 Oct 2001 05:34:43 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Keith Owens <kaos@ocs.com.au>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] binfmt_misc.c, kernel-2.4.12 
-In-Reply-To: <24947.1003742395@ocs3.intra.ocs.com.au>
-Message-ID: <Pine.GSO.4.21.0110220526480.2294-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S278447AbRJVJdb>; Mon, 22 Oct 2001 05:33:31 -0400
+Received: from obelix.hrz.tu-chemnitz.de ([134.109.132.55]:12681 "EHLO
+	obelix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S278446AbRJVJd1>; Mon, 22 Oct 2001 05:33:27 -0400
+Date: Mon, 22 Oct 2001 11:33:53 +0200
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: Alram Lechner <a.lechner@htl-leonding.ac.at>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Asus CUR-DLS (ServerWorks) SMP Hang up
+Message-ID: <20011022113353.B720@nightmaster.csn.tu-chemnitz.de>
+In-Reply-To: <01101609164500.28366@goliath.htl-leonding.ac.at>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <01101609164500.28366@goliath.htl-leonding.ac.at>; from a.lechner@htl-leonding.ac.at on Tue, Oct 16, 2001 at 09:16:45AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Oct 16, 2001 at 09:16:45AM +0200, Alram Lechner wrote:
+> i have the following hardware:
+> Asus CUR-DLS with ServerWorks Chip
+> 2x P III 800 MHz
+> 3x256 ECC RAM
+> ATI Rage XL
+> Symbios 53c1010
+ 
+I have nearly the same. (just 2x512 ECC RAM and 2x PIII@850)
 
+> and the followin problem:
+> the system wil hang with two processors when i copy
+> about 300 MB (files or one file) from one HDD to another.
+> there is a complete hang up.
 
-On Mon, 22 Oct 2001, Keith Owens wrote:
+But I've only one HDD :-(
 
-> >Erm... Keith, I might be misreading the source, but... Shouldn't the
-> >information like "block major $FOO is in module $BAR" live in
-> >/lib/modules/*/* ?
-> 
-> Historically the mapping of device majors to module or binary format
-> type to module was coded into modutils, via util/alias.h.  That was a
-> mistake, it should have used the same technique as pci, isapnp, parport
-> etc., each module has a table that defines what it handles and modutils
-> extracts the data directly from the modules.  Developers have changed
-> the names of their modules and now we have hard coded module names in
-> modutils that do not match the names used by some kernels.  Hindsight
-> is wonderful!
-> 
-> In modutils 2.5 I will get rid of all the hard coded entries in
-> util/alias.h.  Instead each module will define what it supports,
-> including any special commands to be run when the module is loaded or
-> unloaded.  Much easier for everyone and far more flexible.
+> is there anybody who has this board an can say it works with
+> 2 cpu's?
 
-Heh.  OK, so you've stopped me in the middle of writing RFC that proposes
-addition of
-MODULE_CONF(string)
-that would put that string into separate section and making modules_install
-dump these sections, feed them through s/_NAME_/`basename $module`/ and
-cat them into defaults file that would go into $INSTALL_MOD_PATH.
-MODULES_BLKDEV(), MODULE_LDISC(), etc. would be trivial wrappers around that.
+It works for me. But I use it as an CPU-Server, so I don't need
+many disks.
 
-Looks like the thing you mentioned would make quite a few people happy.
-Might be worth doing in 2.4...
+I had similiar behavior with an 2.4.2-ac20 and ftp, but this has
+been a HIGHMEM related problem.
 
+Regards
+
+Ingo Oeser

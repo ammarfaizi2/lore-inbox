@@ -1,52 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267715AbTBUVTR>; Fri, 21 Feb 2003 16:19:17 -0500
+	id <S267726AbTBUVYp>; Fri, 21 Feb 2003 16:24:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267716AbTBUVTR>; Fri, 21 Feb 2003 16:19:17 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:28032 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S267715AbTBUVTQ>;
-	Fri, 21 Feb 2003 16:19:16 -0500
-Date: Fri, 21 Feb 2003 17:10:50 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Alan Cox <alan@redhat.com>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.62-ac1
-Message-ID: <20030221161050.GA163@elf.ucw.cz>
-References: <E6D19EE98F00AB4DB465A44FCF3FA46903A340@ns.cinet.co.jp> <200302211153.h1LBrYR12271@devserv.devel.redhat.com>
+	id <S267736AbTBUVYp>; Fri, 21 Feb 2003 16:24:45 -0500
+Received: from jive.SoftHome.net ([66.54.152.27]:56236 "HELO jive.SoftHome.net")
+	by vger.kernel.org with SMTP id <S267726AbTBUVYm>;
+	Fri, 21 Feb 2003 16:24:42 -0500
+References: <001e01c2d9ef$01cdc970$0200a8c0@wsl3>
+In-Reply-To: <001e01c2d9ef$01cdc970$0200a8c0@wsl3> 
+From: b_adlakha@softhome.net
+To: vlad@geekizoid.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 
+Date: Fri, 21 Feb 2003 14:34:50 -0700
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200302211153.h1LBrYR12271@devserv.devel.redhat.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+Content-Type: text/plain; format=flowed; charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [210.214.82.234]
+Message-ID: <courier.3E569B7A.00006AF8@softhome.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Vlad@geekizoid.com writes: 
 
-> > > Linux 2.5.62-ac1
-> > > o	PC-9800 update			(Osamu Tomita)
-> > Thanks!
-> > 
-> > > o	Toshiba keyboard workaround		(Pavel Machek)
-> > This change conflict with PC98 keyboard. Always shows message
-> > 'Keyboard glitch detected, ignoring keypress' every keypress.
-> > Other machine has no problem?
+> Send your subscribe message to majordomo@vger.kernel.org. 
 > 
-> I've had no other reports of it triggering wrongly. Thats easy to
-> deal with. Pavel can you send me the dmidecode data for the afflicted
-> laptop ?
-
-arch/i386/kernel/dmi_scan.c, broken_toshiba_keyboard() is the right
-place. DMI data are:
-
-        { broken_toshiba_keyboard, "Toshiba Satellite 4030cdt", { /* Keyboard generates spurious repeats */
-                        MATCH(DMI_PRODUCT_NAME, "S4030CDT/4.3"),
-                        NO_MATCH, NO_MATCH, NO_MATCH
-                        } },
+> -- 
+> 
+>  /"\                         / For information and quotes, email us at
+>  \ /  ASCII RIBBON CAMPAIGN / info@lrsehosting.com
+>   X   AGAINST HTML MAIL    / http://www.lrsehosting.com/
+>  / \  AND POSTINGS        / vlad@lrsehosting.com
+> ------------------------------------------------------------------------- 
+> 
+>> -----Original Message-----
+>> From: linux-kernel-owner@vger.kernel.org
+>> [mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of
+>> b_adlakha@softhome.net
+>> Sent: Friday, February 21, 2003 3:14 PM
+>> To: linux-kernel@vger.kernel.org
+>> Subject:  
+>> 
+>> 
+>> subscribe 
+>> -
+>> To unsubscribe from this list: send the line "unsubscribe 
+>> linux-kernel" in
+>> the body of a message to majordomo@vger.kernel.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>> Please read the FAQ at  http://www.tux.org/lkml/
  
-							Pavel
 
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+srry 
+

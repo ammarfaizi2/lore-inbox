@@ -1,56 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135321AbRDRUxJ>; Wed, 18 Apr 2001 16:53:09 -0400
+	id <S135335AbRDRVDv>; Wed, 18 Apr 2001 17:03:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135323AbRDRUw7>; Wed, 18 Apr 2001 16:52:59 -0400
-Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:10256
-	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
-	with ESMTP id <S135321AbRDRUwt>; Wed, 18 Apr 2001 16:52:49 -0400
-Date: Wed, 18 Apr 2001 16:52:44 -0400
-From: Chris Mason <mason@suse.com>
-To: linux-kernel@vger.kernel.org
-cc: torvalds@transmeta.com, alan@redhat.com, zam@namesys.botik.ru
-Subject: [PATCH] reiserfs transaction overflow
-Message-ID: <315290000.987627164@tiny>
-X-Mailer: Mulberry/2.0.8 (Linux/x86)
-MIME-Version: 1.0
+	id <S135344AbRDRVDk>; Wed, 18 Apr 2001 17:03:40 -0400
+Received: from kweetal.tue.nl ([131.155.2.7]:41790 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id <S135335AbRDRVDf>;
+	Wed, 18 Apr 2001 17:03:35 -0400
+Message-ID: <20010418230335.A17216@win.tue.nl>
+Date: Wed, 18 Apr 2001 23:03:35 +0200
+From: Guest section DW <dwguest@win.tue.nl>
+To: Jens Axboe <axboe@suse.de>, Giuliano Pochini <pochini@shiny.it>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+        lna@bigfoot.com
+Subject: Re: I can eject a mounted CD
+In-Reply-To: <E14pqzO-0004bp-00@the-village.bc.nu> <XFMail.010418150323.pochini@shiny.it> <20010418150622.P490@suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-Mailer: Mutt 0.93i
+In-Reply-To: <20010418150622.P490@suse.de>; from Jens Axboe on Wed, Apr 18, 2001 at 03:06:22PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Apr 18, 2001 at 03:06:22PM +0200, Jens Axboe wrote:
+> On Wed, Apr 18 2001, Giuliano Pochini wrote:
 
-Hi guys,
+> > > vmware and one or two other apps I've also seen do this. WHen you unlock the
+> > > cdrom door as root you can unlock it even if a file system is mounted
+> > 
+> > Right, so I'll check what eject(1) does. It might eject the disk even if it
+> > failed to unmount.
+> 
+> It shouldn't be able to. But check and see what happens.
 
-Under certain loads, the reiserfs journal can overflow the
-max transaction size, leading to a crash (but not corruption).
+(1) There are many different programs all called eject(1).
+I find at least four of them on this machine.
 
-When the transaction is too full for another writer to join,
-the writer triggers a commit, and waits for the next transaction.
-But, it doesn't properly check to make sure the next transcation
-has enough room, which can lead to overflow.  It is hard to
-hit because there is a large margin of error in the way log space
-is reserved (this bug was probably in v.00001 of the journal
-code).
+(2) I missed the start of the discussion; if this is a SCSI cdrom then
+many eject programs will use raw SCSI commands and the kernel does not
+try to parse raw SCSI commands so does not know that it is ejecting
+a mounted cdrom.
 
-A similar patch will be needed for 3.5.x reiserfs, that will
-follow soon.
-
-Anyway, this patch should fix 2.4.x, please apply:
-
--chris
-
---- linux/fs/reiserfs/journal.c.1	Tue Apr 17 09:36:36 2001
-+++ linux/fs/reiserfs/journal.c	Tue Apr 17 09:37:50 2001
-@@ -2052,7 +2052,7 @@
- 	sleep_on(&(SB_JOURNAL(p_s_sb)->j_join_wait)) ;
-       }
-     }
--    lock_journal(p_s_sb) ; /* relock to continue */
-+    goto relock ;
-   }
- 
-   if (SB_JOURNAL(p_s_sb)->j_trans_start_time == 0) { /* we are the first writer, set trans_id */
-
-
+Andries

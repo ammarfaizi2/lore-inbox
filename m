@@ -1,55 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265939AbUEUWYQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265983AbUEUWci@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265939AbUEUWYQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 May 2004 18:24:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266045AbUEUWYQ
+	id S265983AbUEUWci (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 May 2004 18:32:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265950AbUEUWci
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 May 2004 18:24:16 -0400
-Received: from [213.171.41.46] ([213.171.41.46]:50437 "EHLO
-	kaamos.homelinux.net") by vger.kernel.org with ESMTP
-	id S265939AbUEUWYM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 May 2004 18:24:12 -0400
-From: Alexey Kopytov <alexeyk@mysql.com>
-Organization: MySQL AB
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: Spam: Re: Random file I/O regressions in 2.6 [patch+results]
-Date: Sat, 22 May 2004 02:24:08 +0400
-User-Agent: KMail/1.6.2
-Cc: Jens Axboe <axboe@suse.de>, nickpiggin@yahoo.com.au, linuxram@us.ibm.com,
-       peter@mysql.com, linux-kernel@vger.kernel.org
-References: <200405022357.59415.alexeyk@mysql.com> <20040521075027.GN1952@suse.de> <20040521015647.4c383868.akpm@osdl.org>
-In-Reply-To: <20040521015647.4c383868.akpm@osdl.org>
+	Fri, 21 May 2004 18:32:38 -0400
+Received: from mail002.syd.optusnet.com.au ([211.29.132.32]:1437 "EHLO
+	mail002.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S266054AbUEUWcf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 May 2004 18:32:35 -0400
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <200405220224.08453.alexeyk@mysql.com>
+Message-ID: <16555.58996.710139.844507@wombat.chubb.wattle.id.au>
+Date: Thu, 20 May 2004 08:57:56 +1000
+From: Peter Chubb <peterc@gelato.unsw.edu.au>
+To: Justin Pryzby <justinpryzby@users.sourceforge.net>
+Cc: Peter Chubb <peter@chubb.wattle.id.au>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.5, 2.6.6-rc2 sluggish interrupts
+In-Reply-To: <20040519212149.GA1075@andromeda>
+References: <E1BJOXM-0007zu-6H@andromeda>
+	<20040519191900.GA1052@andromeda>
+	<20040519192414.GA1210@andromeda>
+	<20040519212149.GA1075@andromeda>
+X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
+Comments: Hyperbole mail buttons accepted, v04.18.
+X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
+ !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
+ \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 21 May 2004 12:56, Andrew Morton wrote:
->
->What I need is a way of getting sysbench to create and remove the database
->files in separate invokations, but the syntax for that is defeating me at
->present.
->
+>>>>> "Justin" == Justin Pryzby <justinpryzby@users.sourceforge.net> writes:
 
-I have changed the syntax to allow creating/removing test files and test 
-running in separate stages:
+Justin> Found a solution: disable cpufreq.  
+The alternative may be to use a more stable timesource than the TSC
+(which varies in rate when cpufreq is enabled)
 
-sysbench --test=fileio --file-total-size=3G prepare
+--
+Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
+The technical we do immediately,  the political takes *forever*
 
-sysbench --num-threads=16 --test=fileio --file-total-size=3G  
---file-test-mode=rndrw run
-
-sysbench --test=fileio cleanup
-
-The updated version is available from the SysBench page at 
-http://sourceforge.net/projects/sysbench/
-
--- 
-Alexey Kopytov, Software Developer
-MySQL AB, www.mysql.com
-
-Are you MySQL certified?  www.mysql.com/certification

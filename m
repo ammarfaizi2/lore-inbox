@@ -1,57 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261631AbVCRPHE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261632AbVCRPJQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261631AbVCRPHE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Mar 2005 10:07:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261628AbVCRPHD
+	id S261632AbVCRPJQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Mar 2005 10:09:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261629AbVCRPJP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Mar 2005 10:07:03 -0500
-Received: from rproxy.gmail.com ([64.233.170.198]:37245 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261629AbVCRPG6 (ORCPT
+	Fri, 18 Mar 2005 10:09:15 -0500
+Received: from rproxy.gmail.com ([64.233.170.198]:4259 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261628AbVCRPIy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Mar 2005 10:06:58 -0500
+	Fri, 18 Mar 2005 10:08:54 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=MydN7NHrS713REEcfmNC0J66hWXLiXZWCcHXJsyFoQllD0liglJyqRGt/laGyUCqqONGjXaM1myIPgtyAFjnA1bHxUnz09TkPmy0ryeNYLsOPxQemfGkjHVqg4ycZ43kZTFjWVC/RFNcKLH86rUlaPxPbMFCj2VTAJTzzJsEg/s=
-Message-ID: <4f6c1bdf05031807063460dc7b@mail.gmail.com>
-Date: Fri, 18 Mar 2005 20:36:58 +0530
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=Nldc+U+n3Z5z7FE+33fd2elSpYMZjC1R66ouOj3E9HSNYlY6FGD50P5O+e362IVPoaGS+tLOhPfpCHrztxTRSlS+yhD6H3MMvcgdRf1XsZ0I0J3b8EH2E1jAahn+0XaGTjbcEmbx/e6XvHxvg7NwHeM+N1eMRTRJ44k0mqxjPDQ=
+Message-ID: <4f6c1bdf05031807086e5e92f7@mail.gmail.com>
+Date: Fri, 18 Mar 2005 20:38:51 +0530
 From: Hong Kong Phoey <hongkongphoey@gmail.com>
 Reply-To: Hong Kong Phoey <hongkongphoey@gmail.com>
-To: Imanpreet Arora <imanpreet@gmail.com>
-Subject: Re: Question on Scheduler activations
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <c26b9592050318060863830434@mail.gmail.com>
+To: Stelian Pop <stelian@popies.net>, lm@bitmover.com, andersen@codepoet.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: BKCVS broken ?
+In-Reply-To: <20050318142124.GA3333@crusoe.alcove-fr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-References: <c26b9592050318060863830434@mail.gmail.com>
+References: <20050317144522.GK22936@hottah.alcove-fr>
+	 <20050318001053.GA23358@bitmover.com>
+	 <20050318055040.GA16780@codepoet.org>
+	 <20050318063853.GA30603@bitmover.com>
+	 <20050318090047.GA12314@sd291.sivit.org>
+	 <20050318141345.GA2227@bitmover.com>
+	 <20050318142124.GA3333@crusoe.alcove-fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-RTFM
+On Fri, 18 Mar 2005 15:21:25 +0100, Stelian Pop <stelian@popies.net> wrote:
+> On Fri, Mar 18, 2005 at 06:13:45AM -0800, Larry McVoy wrote:
+> 
+> > On Fri, Mar 18, 2005 at 10:00:49AM +0100, Stelian Pop wrote:
+> > > On Thu, Mar 17, 2005 at 10:38:53PM -0800, Larry McVoy wrote:
+> > >
+> > > > Hey, it's open source, I'm hoping that people will take that code and
+> > > > evolve it do whatever they need.  We're willing to do what we can on
+> > > > this end if people need protocol changes to support new features,
+> > > > time permitting.  Think of that code as a prototype.  It's really
+> > > > simple, you can hack it trivially.
+> > >
+> > >     ------------
+> > >     if (strncmp("bk://", p, 5)) return (1);
+> > >     ------------
+> > >
+> > > Any chance this could be made to work over http ?
+> >
+> > I don't see why not.  It will take some hacking though.  Can you live
+> > without it for a bit or is it urgent?
+> 
+> It's not urgent at all...
+> 
 
+IMHO, BKCVS is just fine, what's broken is your head.
 
-On Fri, 18 Mar 2005 19:38:45 +0530, Imanpreet Arora <imanpreet@gmail.com> wrote:
-> Hello,
+> Thanks.
 > 
->        I came across
-> 
->                http://people.redhat.com/drepper/glibcthreads.html
-> 
->        It seems to arouse a bit of confusion. _FIRST_ it says that scheduler
-> activations are BAD. Then it delves on the possible implementation of
-> Scheduler activations in Linux. Though I know that scheduler
-> activations are not part of the present kernel. Could anyone provide
-> BOTH the short and long answer to
-> 
-> a)      If they were ever implemented?
-> b)      Reasons for rejection?
-> 
-> TIA
-> 
+> Stelian.
 > --
-> 
-> Imanpreet Singh Arora
+> Stelian Pop <stelian@popies.net>
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org

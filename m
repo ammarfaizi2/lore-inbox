@@ -1,77 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261922AbUJYPXX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261954AbUJYP2h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261922AbUJYPXX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 11:23:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261951AbUJYPUE
+	id S261954AbUJYP2h (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 11:28:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261978AbUJYP2a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 11:20:04 -0400
-Received: from brmea-mail-4.Sun.COM ([192.18.98.36]:49290 "EHLO
-	brmea-mail-4.sun.com") by vger.kernel.org with ESMTP
-	id S261922AbUJYPPq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 11:15:46 -0400
-Date: Mon, 25 Oct 2004 11:15:34 -0400
-From: Mike Waychison <Michael.Waychison@Sun.COM>
-Subject: Re: [PATCH 12/28] VFS: Remove (now bogus) check_mnt
-In-reply-to: <20041025150941.GA1682@infradead.org>
-To: Christoph Hellwig <hch@infradead.org>
+	Mon, 25 Oct 2004 11:28:30 -0400
+Received: from phoenix.infradead.org ([81.187.226.98]:61452 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S261954AbUJYPZW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Oct 2004 11:25:22 -0400
+Date: Mon, 25 Oct 2004 16:25:21 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Mike Waychison <michael.waychison@sun.com>
 Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
        raven@themaw.net
-Message-id: <417D1896.4080901@sun.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040918)
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-References: <1098715442105@sun.com> <10987154731896@sun.com>
- <20041025150941.GA1682@infradead.org>
+Subject: Re: [PATCH 13/28] VFS: Introduce soft reference counts
+Message-ID: <20041025152521.GA1959@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Mike Waychison <michael.waychison@sun.com>,
+	linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+	raven@themaw.net
+References: <10987154731896@sun.com> <10987155032816@sun.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <10987155032816@sun.com>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-Christoph Hellwig wrote:
-> On Mon, Oct 25, 2004 at 10:44:33AM -0400, Mike Waychison wrote:
+On Mon, Oct 25, 2004 at 10:45:03AM -0400, Mike Waychison wrote:
+> This patch introduces the concept of a 'soft' reference count for a vfsmount.
+> This type of reference count allows for references to be held on mountpoints
+> that do not affect their busy states for userland unmounting.  Some might
+> argue that this is wrong because 'when I unmount a filesystem, I want the
+> resources associated with it to go away too', but this way of thinking was
+> deprecated with the addition of namespaces and --bind back in the 2.4 series.
 > 
->>check_mnt used to be used to see if a mountpoint was actually grafted or not
->>to a namespace.  This was done because we didn't support mountpoints being
->>attached to one another if they weren't associated with a namespace. We now
->>support this, so all check_mnt calls are bogus.  The only exception is that
->>pivot_root still requires all participants to exist within the same
->>namespace.
+> A future addition may see a callback mechanism so that in kernel users can
+> use a given mountpoint and have it deregistered some way (quota and
+> accounting come to mind).
 > 
-> 
-> did you audit the namespace code that it doesn't allow attachign to other
-> namespaces than the current?
-> 
+> These soft reference counts are used by a later patch that adds an interface
+> for holding and manipulating mountpoints using filedescriptors.
 
-So, I don't see how that is possible, other than through relative
-resolution from a cwd in the other namespace.  Arguably, you aren't
-buying any security by denying the mountpoint if you already let other
-processes in your namespace.
+You haven't explained why you actually need it, though.
 
-Auditting the original code, it appeared that doing such a thing was a
-no-no only because the locking semantics of current->namespace->sem made
-this difficult.
-
-
-- --
-Mike Waychison
-Sun Microsystems, Inc.
-1 (650) 352-5299 voice
-1 (416) 202-8336 voice
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-NOTICE:  The opinions expressed in this email are held by me,
-and may not represent the views of Sun Microsystems, Inc.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFBfRiVdQs4kOxk3/MRAmC2AJ93Dqcf1hNFjmjKESxsfuBeUqZ+nQCffEZX
-Ej3a3wyhQAwTg+amwHqn1v0=
-=se6H
------END PGP SIGNATURE-----

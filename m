@@ -1,40 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130805AbRBQTDl>; Sat, 17 Feb 2001 14:03:41 -0500
+	id <S130031AbRBQTIx>; Sat, 17 Feb 2001 14:08:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130877AbRBQTDd>; Sat, 17 Feb 2001 14:03:33 -0500
-Received: from colorfullife.com ([216.156.138.34]:52241 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S130805AbRBQTDS>;
-	Sat, 17 Feb 2001 14:03:18 -0500
-Message-ID: <3A8ECB1B.776D0372@colorfullife.com>
-Date: Sat, 17 Feb 2001 20:03:55 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.1-ac15 i686)
-X-Accept-Language: en, de
+	id <S129612AbRBQTIn>; Sat, 17 Feb 2001 14:08:43 -0500
+Received: from beamer.mchh.siemens.de ([194.138.158.163]:15044 "EHLO
+	beamer.mchh.siemens.de") by vger.kernel.org with ESMTP
+	id <S130031AbRBQTIa>; Sat, 17 Feb 2001 14:08:30 -0500
+From: "Thomas Widmann" <thomas.widmann@icn.siemens.de>
+To: <linux-kernel@vger.kernel.org>
+Cc: "Andrew Morton" <andrewm@uow.edu.au>
+Subject: Re: SMP: bind process to cpu
+Date: Sat, 17 Feb 2001 20:08:08 +0100
+Message-ID: <BGEDIODHBENLENEMBEPAIEDFCAAA.thomas.widmann@icn.siemens.de>
 MIME-Version: 1.0
-To: Mark Swanson <swansma@yahoo.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: System V msg queue bugs in latest kernels
-In-Reply-To: <20010217184242.1070.qmail@web1302.mail.yahoo.com>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+In-Reply-To: <3A8E8C8F.A2A9E69E@uow.edu.au>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Swanson wrote:
+Hi,
+
+* Andrew Morton wrote:
+
+> > Hi,
+> > 
+> > I run an 3*XEON 550MHz Primergy with 2GB of RAM.
+> > On this machine, i have compiled kernel 2.4.0SMP.
+> > 
+> > Is it possible to bind a process to a specific
+> > cpu on this SMP machine (process affinity) ?
+> > 
+> > I there something like pset ?
 > 
-> Hello,
+> A patch which creates /proc/<pid>/cpus_allowed is at
 > 
-> ipcs (msg) gives incorrect results if used-bytes is above 65536. It
-> stays at 65536 even though messages are being read and removed from the
-> msg queue.
->
-I'm testing it.
+> 	http://www.uow.edu.au/~andrewm/linux/#cpus_allowed
+> 
+> You just write a bitmask into it.
 
-Could you check /proc/sysvipc/msg?
+Thanks for this information. I patched my the kernel with it.
+After rebooting with the new kernel i can see the bitmask
+for every process running on my server.
 
-I know that several API's have 16-bit numbers, perhaps wrong values are
-returned to user space.
+#cat /proc/1310/cpus_allowed
+ffffffff
 
---
-	Manfred
+Now, if i want to run this process on only one cpu, i which way
+do i have to set the bitmask ?
+Let's say, i want to run it on cpu0. how look's the bitmask ?
+
+Thanks 
+
+Regards
+Thomas

@@ -1,42 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129078AbRBBKmU>; Fri, 2 Feb 2001 05:42:20 -0500
+	id <S129267AbRBBLKD>; Fri, 2 Feb 2001 06:10:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129224AbRBBKmK>; Fri, 2 Feb 2001 05:42:10 -0500
-Received: from expanse.dds.nl ([194.109.10.118]:21522 "EHLO expanse.dds.nl")
-	by vger.kernel.org with ESMTP id <S129078AbRBBKlw>;
-	Fri, 2 Feb 2001 05:41:52 -0500
-Date: Fri, 2 Feb 2001 11:41:02 +0100
-From: Ookhoi <ookhoi@dds.nl>
-To: linux-kernel@vger.kernel.org
-Subject: vaio doesn't boot with 2.4.1-ac1, stops at PCI: Probing PCI hardware
-Message-ID: <20010202114102.E484@ookhoi.dds.nl>
-Reply-To: ookhoi@dds.nl
-Mime-Version: 1.0
+	id <S129224AbRBBLJo>; Fri, 2 Feb 2001 06:09:44 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:32261 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129119AbRBBLJh>; Fri, 2 Feb 2001 06:09:37 -0500
+Subject: Re: vaio doesn't boot with 2.4.1-ac1, stops at PCI: Probing PCI hardware
+To: ookhoi@dds.nl
+Date: Fri, 2 Feb 2001 11:10:16 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010202114102.E484@ookhoi.dds.nl> from "Ookhoi" at Feb 02, 2001 11:41:02 AM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.1.14i
-X-Uptime: 1:01pm  up 5 min,  3 users,  load average: 0.07, 0.14, 0.08
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14Oe6c-0006HJ-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+> Here it hangs hard. It used to boot with 2.4.0 and 2.4.1-prex  Should I
+> try to determine which patch made the fatal change? Should I send my
 
-Kernel 2.4.1-ac1 doesn't boot on a vaio c1ve (crusoe). I boot a kernel
-via the usb floppy drive, and it ends with:
+That would be great.
 
-...
-Checking 'hlt' instruction... OK.
-POSIX conformance testing by UNIFIX
-PCI: PCI BIOS revision 2.10 entry at 0xfd98e, last bus=0
-PCI: Using configuration type 1
-PCI: Probing PCI hardware
+Firstly however does 2.4.1 (Linus) boot ?
 
-Here it hangs hard. It used to boot with 2.4.0 and 2.4.1-prex  Should I
-try to determine which patch made the fatal change? Should I send my
-.config? Is there something I can try? Tia!
-
-		Ookhoi
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,75 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272518AbTGaPiN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 11:38:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272505AbTGaPhI
+	id S272538AbTGaP0s (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 11:26:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272543AbTGaPZC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 11:37:08 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:28617 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id S270148AbTGaPgq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 11:36:46 -0400
-From: Daniel Phillips <phillips@arcor.de>
-To: Ed Sweetman <ed.sweetman@wmich.edu>
-Subject: Re: Ingo Molnar and Con Kolivas 2.6 scheduler patches
-Date: Fri, 1 Aug 2003 10:38:49 -0500
-User-Agent: KMail/1.5.2
-Cc: Andrew Morton <akpm@osdl.org>, eugene.teo@eugeneteo.net,
-       linux-kernel@vger.kernel.org, kernel@kolivas.org
-References: <1059211833.576.13.camel@teapot.felipe-alfaro.com> <200307271517.55549.phillips@arcor.de> <3F22FB33.5080703@wmich.edu>
-In-Reply-To: <3F22FB33.5080703@wmich.edu>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200308011038.49528.phillips@arcor.de>
+	Thu, 31 Jul 2003 11:25:02 -0400
+Received: from main.gmane.org ([80.91.224.249]:15270 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S272538AbTGaPYZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Jul 2003 11:24:25 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: [PATCH] O11int for interactivity
+Date: Thu, 31 Jul 2003 17:21:13 +0200
+Message-ID: <yw1x7k5yu3h2.fsf@users.sourceforge.net>
+References: <200307301038.49869.kernel@kolivas.org> <200307301055.23950.kernel@kolivas.org>
+ <200307301108.53904.kernel@kolivas.org>
+ <23496.194.138.39.55.1059659754.squirrel@webmail.etc.utt.ro>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@main.gmane.org
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:QpzKkFIXF2BTvOTroDN4TQ9nowA=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 26 July 2003 17:05, Ed Sweetman wrote:
-> My comment was towards the fact that although playing audio is a
-> realtime priority, decoding audio is not, and is not coded that way in
-> many programs, in fact, many programs will sleep() in order to decode
-> only when the output buffer is getting low.
+"Szonyi Calin" <sony@etc.utt.ro> writes:
 
-Decoding is realtime too, though the bounds are more relaxed than for the DMA 
-refill process.  In fact, it's the decoding task that causes skipping, 
-because the DMA refill normally runs in interrupt context (so should mixing 
-and equalizing, but that's another story) where essentially everything is 
-realtime, modulo handwaving.
+>>> > Update to the interactivity patches. Not a massive improvement but
+>>> more smoothing of the corners.
+>>>
+>> Here is O11.1int which backs out that part. This was only of minor help
+>> anyway so backing it out still makes the other O11 changes worthwhile.
+>>
+>> A full O11.1 patch against 2.6.0-test2 is available on my website.
+>>
+>
+> A little bit better than O10 but mplayer still skips frames while
+> doind a make bzImage in the background
 
-To convince yourself of this, note that when DMA refill fails to meet its 
-deadline you will hear repeats, not skipping, because the DMA hardware on the 
-sound card has been set up to automatically restart the DMA each time the 
-buffer expires.  Try running the kernel under kgdb and breaking to the 
-monitor while sound is playing.
+If you used a sane player this wouldn't happen.  Every few seconds
+there will be a frame that takes a little longer than average to
+decode, and unless the player can all the CPU time it wants, there
+will be skips.  The solution is to buffer a few decoded frames
+somewhere, preferably in video memory.  That will give you the extra
+time to decode the difficult frames, and then catch up with some easy
+ones.
 
-So you need to reevaluate your thinking re the realtime nature of audio 
-decoders.
+If the scheduler can be tweaked so even mplayer does the right thing,
+that's good.  It could solve other problems more difficult to address
+in the application.
 
-To be sure, for perfect audio reproduction, any file IO involved has to be 
-realtime as well, as does the block layer.  We're not really in position to 
-take care of all that detail at this point, mainly because no Linux 
-filesystem has realtime IO support.  (I believe Irix XFS has realtime IO and 
-that part didn't get ported because of missing infrastructure in Linux.)  But 
-the block layer isn't really that far away from being able to make realtime 
-guarantees.  Mainly, that work translates into plugging in a different IO 
-scheduler.
-
-Beyond that, there's priority inversion to worry about, which is a hard 
-problem from a theoretical point of view.  However, once we get to the point 
-where priority inversion is the worst thing about Linux audio, we will be 
-lightyears ahead of where we now stand.
-
-> Technically, you shouldn't be
-> able to get aplay to skip at all as long as no other processes are at an
-> equal or higher nice value.
-
-This got fuzzier with the interactivity hacks, which effectively allow the 
-nice values to vary within some informally defined range.
-
-Regards,
-
-Daniel
+-- 
+Måns Rullgård
+mru@users.sf.net
 

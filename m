@@ -1,29 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292874AbSCJGHZ>; Sun, 10 Mar 2002 01:07:25 -0500
+	id <S292878AbSCJGSM>; Sun, 10 Mar 2002 01:18:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292878AbSCJGHQ>; Sun, 10 Mar 2002 01:07:16 -0500
-Received: from zero.tech9.net ([209.61.188.187]:57351 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S292874AbSCJGHH>;
-	Sun, 10 Mar 2002 01:07:07 -0500
-Subject: Re: Kernel 2.5.6 Interactive performance
-From: Robert Love <rml@tech9.net>
-To: Mike Fedyk <mfedyk@matchmail.com>
-Cc: charles-heselton@cox.net, Dieter N?tzel <Dieter.Nuetzel@hamburg.de>,
-        Dan Mann <mainlylinux@attbi.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>,
+	id <S292871AbSCJGSC>; Sun, 10 Mar 2002 01:18:02 -0500
+Received: from mtao4.east.cox.net ([68.1.17.241]:11954 "EHLO
+	lakemtao04.cox.net") by vger.kernel.org with ESMTP
+	id <S292866AbSCJGRx>; Sun, 10 Mar 2002 01:17:53 -0500
+Reply-To: <charles-heselton@cox.net>
+From: "Charles Heselton" <charles-heselton@cox.net>
+To: "Robert Love" <rml@tech9.net>, "Mike Fedyk" <mfedyk@matchmail.com>
+Cc: "Dieter N?tzel" <Dieter.Nuetzel@hamburg.de>,
+        "Dan Mann" <mainlylinux@attbi.com>,
+        "Linux Kernel List" <linux-kernel@vger.kernel.org>,
         "J.A. Magallon" <jamagallon@able.es>
-In-Reply-To: <20020310043854.GA311@matchmail.com>
-In-Reply-To: <NFBBKFIFGLNJKLMMGGFPKEPDCFAA.charles-heselton@cox.net>
-	<1015734229.858.4.camel@phantasy>  <20020310043854.GA311@matchmail.com>
-Content-Type: text/plain
+Subject: RE: Kernel 2.5.6 Interactive performance
+Date: Sat, 9 Mar 2002 22:18:27 -0800
+Message-ID: <NFBBKFIFGLNJKLMMGGFPKEPGCFAA.charles-heselton@cox.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2 
-Date: 10 Mar 2002 01:05:55 -0500
-Message-Id: <1015740391.858.44.camel@phantasy>
-Mime-Version: 1.0
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+In-Reply-To: <1015740391.858.44.camel@phantasy>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+
+
+Well, unfortunately, you guys are still talking a little above my head.  I
+kind of understand what you are saying but not completely.  Are the -aa
+and -ac patches?  How do you install/run a patch?  Are they tags to put in
+when compiling?  What is VM28-vm30?  All I've done so far is untar the
+tarballs from kernel.org (or wherever) and go from there.  Finally started
+having success with it, but all this stuff that you guys are talking about
+on the development level is a little above me.  Which, BTW, is partly why I
+subscribed to the mailing list - to try to learn a little more.  So could
+you guys be a little more specific in the explanations?
+
+Thanks,
+Charles Heselton
+Network Installer
+Staffing Alternatives, Inc.
+619.261.6866
+charles_heselton@hotmail.com <mailto:charles_heselton@hotmail.com>
+
+
+
+
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Robert Love
+Sent: Saturday, March 09, 2002 2206
+To: Mike Fedyk
+Cc: charles-heselton@cox.net; Dieter N?tzel; Dan Mann; Linux Kernel
+List; J.A. Magallon
+Subject: Re: Kernel 2.5.6 Interactive performance
+
 
 On Sat, 2002-03-09 at 23:38, Mike Fedyk wrote:
 
@@ -33,15 +68,16 @@ On Sat, 2002-03-09 at 23:38, Mike Fedyk wrote:
 > > patches that are floating around these days.  Your safest bet is just
 > > stock 2.4.18 or whatever is latest, although the above addons are all at
 > > varying levels of "stable" and "safe".
-> > 
-> 
+> >
+>
 > Then what do you call -aa and -ac? ;)
-> 
-> These "all-in-one" patches do make it harder to debug specific patches, but
+>
+> These "all-in-one" patches do make it harder to debug specific patches,
+but
 > it does create a wider audience for many patches that wouldn't be used
 > otherwise.
 
-I don't put -aa nor -ac in the same category as what I refer to above. 
+I don't put -aa nor -ac in the same category as what I refer to above.
 Alan and Andrea's trees both contain an intelligent combination of
 useful patches, bug fixes, and code from Alan and Andrea themselves.
 
@@ -57,4 +93,10 @@ Maybe I'm just annoyed by the even greater signal-to-noise ratio on lkml
 :-)
 
 	Robert Love
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
 

@@ -1,60 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265733AbUFOQBx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265724AbUFOQD6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265733AbUFOQBx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jun 2004 12:01:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265725AbUFOQBd
+	id S265724AbUFOQD6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jun 2004 12:03:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265725AbUFOQD6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jun 2004 12:01:33 -0400
-Received: from holomorphy.com ([207.189.100.168]:34983 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S265724AbUFOQBY (ORCPT
+	Tue, 15 Jun 2004 12:03:58 -0400
+Received: from styx.suse.cz ([82.119.242.94]:14732 "EHLO shadow.ucw.cz")
+	by vger.kernel.org with ESMTP id S265724AbUFOQDu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jun 2004 12:01:24 -0400
-Date: Tue, 15 Jun 2004 09:00:49 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Micah Anderson <micah@riseup.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: 2.6.6 grinds to a halt with moderate I/O
-Message-ID: <20040615160049.GX1444@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Micah Anderson <micah@riseup.net>, linux-kernel@vger.kernel.org
-References: <20040615154745.GD22650@riseup.net>
+	Tue, 15 Jun 2004 12:03:50 -0400
+Date: Tue, 15 Jun 2004 18:05:02 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Karel =?iso-8859-1?Q?Kulhav=FD?= <clock@twibright.com>
+Cc: linux-kernel@vger.kernel.org, Lubomir Prech <Lubomir.Prech@mff.cuni.cz>
+Subject: Re: CONFIG_USB_HID vs. CONFIG_USB_HIDINPUT
+Message-ID: <20040615160502.GA11059@ucw.cz>
+References: <20040615140705.B6153@beton.cybernet.src>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20040615154745.GD22650@riseup.net>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040615140705.B6153@beton.cybernet.src>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 15, 2004 at 10:47:45AM -0500, Micah Anderson wrote:
-> Following the format from REPORTING-BUGS please see the below information.
-> I unfortunately cannot subscribe to the list, but will follow the thread. I
-> have searched high and low, read a number of threads somewhat tangential to
-> this problem, and asked a few times in #kernelnewbies before I got to my
-> wits end and now will try here. I really appreciate any insight anyone has,
-> and will be happy to provide more information or additional tests
-> 1. When doing moderate I/O on a 2.6.6 system the machine becomes unusable.
-> 2. I found that with HIGHMEM support compiled into the kernel, when I
-> did a cp -vr /var /usr/tmp it would work fine until it got about
-> halfway through the large ldap.log file (approximately 500 megs) when
-> the system would no longer be able to fork new processes. Your
-> existing shell would function, but if you tried to run top, free, etc.
-> it would hang. vmstat 1 would print the first line, but never
-> continue. I ran a million different kernel configs to try and isolate
-> things, and I thought I had it nailed down with passing apic=off to
-> the kernel at boot because the large logfile copy test would
-> pass, but when rsyncing maildirs tonight the same problem appeared. Early
-> in my tests I thought the problem was dm-crypt, but the problem existed
-> even when no encrypted filesystems were involved, and existed when I
-> removed dm-crypt support from the kernel. Disabling HIGHMEM support seems
-> to make the problem go away.
+On Tue, Jun 15, 2004 at 02:07:05PM +0000, Karel Kulhavý wrote:
+> Hello
+> 
+> When I enable CONFIG_USB_HID and not enable CONFIG_USB_HIDINPUT in 2.4.25, will
+> I get something different from when I don't enable neither of them?
+> 
+> The <Help> says basically the same about both: that they control
+> "keyboards, mice, joysticks, graphics tablets, or any other HID based devices"
+> (CONFIG_USB_HID)
+> "keyboard, mouse or joystick or any other HID input device"
+> (CONFIG_USB_HIDINPUT)
+> 
+> I assume
+> 1) it doesn't matter if "keyboard" or "keyboards" is in the <Help>
+> 2) graphics tablets are assumed to be "any other HID input devices".
 
-Thanks for the bugreport. I'm going to file this in the Debian BTS
-after I get the FPU fixes out. Could you send along a dmesg
-(/var/log/dmesg on Debian) and /proc/meminfo and /proc/cpuinfo at some
-point when you can log into the box? I'll also try to reproduce this.
+In that case you get the HID driver, but you won't get the Input
+binding, so the devices will be detected, but won't be accessible by the
+common means (keyboard through console, mouse via /dev/input/mice,
+etc.). They still will be accessible via HIDDEV, if you enable that.
 
-Thanks.
+Enabling HID without either HIDINPUT or HIDDEV is pointless.
 
-
--- wli
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

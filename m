@@ -1,51 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132583AbRDWXlo>; Mon, 23 Apr 2001 19:41:44 -0400
+	id <S132576AbRDWXrn>; Mon, 23 Apr 2001 19:47:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132580AbRDWXld>; Mon, 23 Apr 2001 19:41:33 -0400
-Received: from www.resilience.com ([209.245.157.1]:31365 "EHLO
+	id <S132580AbRDWXrd>; Mon, 23 Apr 2001 19:47:33 -0400
+Received: from www.resilience.com ([209.245.157.1]:36741 "EHLO
 	www.resilience.com") by vger.kernel.org with ESMTP
-	id <S132576AbRDWXl2>; Mon, 23 Apr 2001 19:41:28 -0400
+	id <S132576AbRDWXra>; Mon, 23 Apr 2001 19:47:30 -0400
 Mime-Version: 1.0
-Message-Id: <p05100300b70a6c8bddc9@[209.245.157.6]>
-In-Reply-To: <Pine.LNX.4.21.0104232301270.8859-100000@bits.bris.ac.uk>
-In-Reply-To: <Pine.LNX.4.21.0104232301270.8859-100000@bits.bris.ac.uk>
-Date: Mon, 23 Apr 2001 16:41:17 -0700
-To: Matt <madmatt@bits.bris.ac.uk>, linux-kernel@vger.kernel.org
+Message-Id: <p05100301b70a6f4180e9@[209.245.157.5]>
+In-Reply-To: <13243.988067416@ocs3.ocs-net>
+In-Reply-To: <13243.988067416@ocs3.ocs-net>
+Date: Mon, 23 Apr 2001 16:47:20 -0700
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 From: Jonathan Lundell <jlundell@pobox.com>
-Subject: Re: ioctl arg passing
+Subject: Re: PATCH 2.4.4.3: 3rdparty driver support for kbuild
 Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 11:09 PM +0100 4/23/01, Matt wrote:
->| struct instruction_t {
->|	__s16 code;
->|	__s16 rxlen;
->|	__s16 *rxbuf;
->|	__s16 txlen;
->|	__s16 *txbuf;
->| };
+At 9:10 AM +1000 4/24/01, Keith Owens wrote:
+> >I don't see how multiple source trees can be merged automatically with
+>>100% accuracy. 
 >
->So far, I now know I can grab stuff across the user <-> kernel divide as I
->planned. The only problem I'm left with, which was kindly pointed out to
->me, is a question of packing with respect to both kernel & user-space.
->
->Can anyone suggest a method of either assuring the above structure is
->always packed the same, or alterations so that the problem is
->minimised? Either splitting the one ioctl into many, etc.
+>I agree, multiple source trees only work 100% for non-overlapping code.
+>It does not matter how you implement separate source, the moment it
+>overlaps you need human intervention.  That is true for my makefile-2.5
+>as well as your Perl method.
 
-struct instruction_t {
-	__s16 code;
-	__s16 rxlen;
-	__s16 txlen;
-	__s16 pad;
-	__s16 *rxbuf;
-	__s16 *txbuf;
-};
-
-This was it's always aligned and packed, regardless of compiler packing settings. This particular layout happens to work with 64-bit pointers as well.... (I'm assuming that __s16 is a signed 16-bit type).
-
-You can move the pointers to the front, but it's not necessary in this case, so I tried to preserve some of your original ordering (code first, rx before tx).
+Where "non-overlapping" needs to be construed broadly to include "not logically conflicting", and not merely as overlapping diffs.
 -- 
 /Jonathan Lundell.

@@ -1,71 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266322AbUFURAE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266327AbUFURKq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266322AbUFURAE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jun 2004 13:00:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266323AbUFURAE
+	id S266327AbUFURKq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jun 2004 13:10:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266328AbUFURKq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jun 2004 13:00:04 -0400
-Received: from havoc.gtf.org ([216.162.42.101]:23715 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S266330AbUFUQ7w (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jun 2004 12:59:52 -0400
-Date: Mon, 21 Jun 2004 12:59:46 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Cc: Linus Torvalds <torvalds@osdl.org>
-Subject: oops in 2.6.7-bk-latest
-Message-ID: <20040621165946.GA14025@havoc.gtf.org>
+	Mon, 21 Jun 2004 13:10:46 -0400
+Received: from dh132.citi.umich.edu ([141.211.133.132]:25737 "EHLO
+	lade.trondhjem.org") by vger.kernel.org with ESMTP id S266327AbUFURKo convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jun 2004 13:10:44 -0400
+Subject: Re: inode_unused list corruption in 2.4.26 - spin_lock problem?
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: Chris Caputo <ccaputo@alt.net>, linux-kernel@vger.kernel.org,
+       David Woodhouse <dwmw2@infradead.org>, riel@redhat.com
+In-Reply-To: <20040621004535.GA8071@logos.cnet>
+References: <Pine.LNX.4.44.0406181730370.1847-100000@nacho.alt.net>
+	 <20040620001529.GA4326@logos.cnet>
+	 <1087702435.5361.64.camel@lade.trondhjem.org>
+	 <20040621004535.GA8071@logos.cnet>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+Message-Id: <1087837820.3926.57.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 21 Jun 2004 13:10:21 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+På su , 20/06/2004 klokka 20:45, skreiv Marcelo Tosatti:
+> Lets see if I get this right, while we drop the lock in iput to call 
+> write_inode_now() an iget happens, possibly from write_inode_now itself 
+> (sync_one->__iget) causing the inode->i_list to be added to to inode_in_use. 
+> But then the call returns, locks inode_lock, decreases inodes_stat.nr_unused--
+> and deletes the inode from the inode_in_use and adds to inode_unused. 
+> 
+> AFAICS its an inode with i_count==1 in the unused list, which does not
+> mean "list corruption", right? Am I missing something here?
 
-This oops snuck into the tree _very_ recently, as it did not happen
-to me last night when I was testing "kernel too fast" fixes.  I was
-about to try Linus's latest fix, when this hit.
+Yes. Please don't forget that the inode is still hashed and is not yet
+marked as FREEING: find_inode() can grab it on behalf of some other
+process as soon as we drop that spinlock inside iput(). Then we have the
+calls to clear_inode() + destroy_inode() just a few lines further down.
+;-)
 
-Linus, as soon as I reboot into a stable kernel, I'll install BK-latest
-plus your fix, reboot into that kernel, and give it a test.
+If the above scenario ever does occur, it will cause random Oopses for
+third party processes. Since we do not see this too often, my guess is
+that the write_inode_now() path must be very rarely (or never?) called.
 
+> If you are indeed right all 2.4.x versions contain this bug.
 
-We see that mke2fs is stuck in disk wait, as expected from this sort of oops:
-15690 pts/8    S      0:00  |       \_ /bin/sh /sbin/installkernel 2.6.7 arch/i3
-15700 pts/8    S      0:00  |           \_ /bin/bash /sbin/new-kernel-pkg --mkin
-15707 pts/8    S      0:00  |               \_ /bin/bash /sbin/mkinitrd -f /boot
-15939 pts/8    D      0:00  |                   \_ mke2fs /dev/loop0 8000
+...and all 2.6.x versions...
 
+I'm not saying this is the same problem that Chris is seeing, but I am
+failing to see how iput() is safe as it stands right now. Please
+enlighten me if I'm missing something.
 
-Command being executed at the time:
-$ sudo installkernel 2.6.7 arch/i386/boot/bzImage System.map 
-
-
-loop: loaded (max 8 devices)
-Unable to handle kernel NULL pointer dereference at virtual address 00000001
- printing eip:
-f88e9611
-*pde = 00000000
-Oops: 0000 [#1]
-SMP 
-Modules linked in: loop i810_audio ac97_codec tg3 battery ata_piix libata
-CPU:    1
-EIP:    0060:[<f88e9611>]    Not tainted
-EFLAGS: 00010282   (2.6.7) 
-EIP is at do_lo_receive+0x23/0x78 [loop]
-eax: 00000000   ebx: cae71000   ecx: 00000001   edx: 00000000
-esi: 00000000   edi: 00000001   ebp: 00000000   esp: e2203f58
-ds: 007b   es: 007b   ss: 0068
-Process loop0 (pid: 15937, threadinfo=e2202000 task=dea5d6b0)
-Stack: c1713d60 00000001 cae71130 e2202000 cae71124 00000000 00000000 cae71000 
-       cae7112c 00000003 00000001 00000000 f88e96c8 cae71000 00000001 00001000 
-       00000000 00000000 00000000 f7fdd800 cae71000 cae71124 00000000 f88e973b 
-Call Trace:
- [<f88e96c8>] lo_receive+0x62/0x88 [loop]
- [<f88e973b>] do_bio_filebacked+0x4d/0x79 [loop]
- [<f88e99cb>] loop_thread+0xa4/0x10b [loop]
- [<f88e9927>] loop_thread+0x0/0x10b [loop]
- [<c0104271>] kernel_thread_helper+0x5/0xb
-Code: 8b 01 89 44 24 20 8b 41 08 89 44 24 24 8b 44 24 3c 89 44 24 
-
+Cheers,
+  Trond

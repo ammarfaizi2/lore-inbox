@@ -1,47 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266502AbUBLRGo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Feb 2004 12:06:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266520AbUBLRGn
+	id S266100AbUBLRUZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Feb 2004 12:20:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266541AbUBLRSr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Feb 2004 12:06:43 -0500
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:1920 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S266502AbUBLRGm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Feb 2004 12:06:42 -0500
-Date: Thu, 12 Feb 2004 17:16:33 GMT
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200402121716.i1CHGXLv000188@81-2-122-30.bradfords.org.uk>
-To: Robin Rosenberg <robin.rosenberg.lists@dewire.com>
-Cc: Linux kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <200402121740.03974.robin.rosenberg.lists@dewire.com> 
-References: <20040209115852.GB877@schottelius.org>
- <200402121655.39709.robin.rosenberg.lists@dewire.com>
- <200402121617.i1CGHH2c000275@81-2-122-30.bradfords.org.uk>
- <200402121740.03974.robin.rosenberg.lists@dewire.com>
-Subject: Re: JFS default behavior (was: UTF-8 in file systems? xfs/extfs/etc.)
+	Thu, 12 Feb 2004 12:18:47 -0500
+Received: from smtp.dei.uc.pt ([193.137.203.228]:23276 "EHLO smtp.dei.uc.pt")
+	by vger.kernel.org with ESMTP id S266530AbUBLRRH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Feb 2004 12:17:07 -0500
+Date: Thu, 12 Feb 2004 17:16:51 +0000 (WET)
+From: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
+To: Nick Bartos <spam99@2thebatcave.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: /proc/partitions not done updating when init is ran?
+In-Reply-To: <50391.192.168.1.12.1076590842.squirrel@mail.2thebatcave.com>
+Message-ID: <Pine.LNX.4.58.0402121715310.27694@student.dei.uc.pt>
+References: <46246.192.168.1.12.1076553774.squirrel@mail.2thebatcave.com>  
+    <Pine.LNX.4.58.0402120457250.28596@student.dei.uc.pt>   
+ <50365.192.168.1.12.1076590069.squirrel@mail.2thebatcave.com>
+ <50391.192.168.1.12.1076590842.squirrel@mail.2thebatcave.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-UC-DEI-MailScanner-Information: Please contact helpdesk@dei.uc.pt for more information
+X-UC-DEI-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quote from Robin Rosenberg <robin.rosenberg.lists@dewire.com>:
-> On Thursday 12 February 2004 17.17, you wrote:
-> > Another thing to consider is that you can encode the same character in
-> > several ways using utf8, so two filenames could have different byte
-> > strings, but evaluate to the same set of unicode characters.
-> 
-> No. That's not UTF-8.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Please don't break the CC list on replies.
+On Thu, 12 Feb 2004, Nick Bartos wrote:
 
-I'm not sure whether it's valid UTF-8 or not, but it's certainly
-possible to code, for example, an 'A', (decimal 65), via an escape to
-a 31-bit character representation.  Presumably the majority of UTF-8
-parsers would decode the sequence as 65, rather than emit an error.
+> OK yes I see that CONFIG_BLK_DEV_NBD is disabled.  Any other ideas?
 
-Also, even ignoring that, how do you handle things like accented
-characters which can be represented as single characters, or as
-sequences containing combining characters?  Some applications might
-convert the sequence containing combining characters in to the single
-character, and others might not.
+Well, does it still happen with 2.4.25-rc2 ?
 
-John.
+> > No, it is 2.4.25-pre7.  I could technically go to 2.6.x, but it would take
+> > a bit of work due to some other changes.  I would really like to get this
+> > stable in 2.4.x.
+
+Mind Booster Noori
+
+- --
+==================================================
+Marcos Daniel Marado Torres AKA Mind Booster Noori
+/"\               http://student.dei.uc.pt/~marado
+\ /                       marado@student.dei.uc.pt
+ X   ASCII Ribbon Campaign
+/ \  against HTML e-mail and Micro$oft attachments
+==================================================
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Made with pgp4pine 1.76
+
+iD8DBQFAK7UGmNlq8m+oD34RAv5wAJwPjsIOMB55zSF//9MnnQDEIYRDpwCeMfJ5
+Au44XTzEf+tbjosvG9Dvo3U=
+=h41f
+-----END PGP SIGNATURE-----
+

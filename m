@@ -1,46 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264208AbTGKQhZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jul 2003 12:37:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264219AbTGKQhZ
+	id S264202AbTGKQeb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jul 2003 12:34:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264197AbTGKQe3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 12:37:25 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:31202 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264208AbTGKQhY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 12:37:24 -0400
-Date: Fri, 11 Jul 2003 09:52:00 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Lars Marowsky-Bree <lmb@suse.de>
-cc: Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.75
-In-Reply-To: <20030711102728.GE24023@marowsky-bree.de>
-Message-ID: <Pine.LNX.4.44.0307110948100.3452-100000@home.osdl.org>
+	Fri, 11 Jul 2003 12:34:29 -0400
+Received: from lindsey.linux-systeme.com ([80.190.48.67]:3591 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S264192AbTGKQeW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jul 2003 12:34:22 -0400
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2.4.22-pre4] rmap15j + all BK fixes/adds
+Date: Fri, 11 Jul 2003 18:48:31 +0200
+User-Agent: KMail/1.5.2
+Cc: Rik van Riel <riel@redhat.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Message-Id: <200307111747.57211.m.c.p@wolk-project.de>
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi all,
 
-On Fri, 11 Jul 2003, Lars Marowsky-Bree wrote:
-> 
-> We'd like to avoid that nightmare for 2.6 though, so we definetely
-> care.
+at the link below you can find rmap15j + all BK fixes/adds for 2.4.22-pre4. 
+I've done this because rmap is my favorite VM and I want to support it where 
+I can, and this is just a "Tons of users want to use bleeding edge -pre's so 
+give them a very good VM" ;)
 
-Hey, all the better. However, in that case I'd strongly suggest up the
-management chain that people be aware of the fact that if they want 2.6.x
-to be stable on anything but x86, it will need testing. Both internally
-and externally. By doing things like running all the internal machines on 
-a pre-2.6 kernel.
+Have fun.
 
-The same is true of x86 too, but there at least there will be test 
-coverage even without vendor support. Vendors making their own internal 
-distributions with pre-2.6 kernels will help on x86 too, of course. Hint 
-hint.
+P.S.: The only part I was unsure about is the s390x init.c stuff.
+      I've also included .22-BK mainline cset 1.1086 which is a showstopper.
+      I've not attached the patch to this mail because it's kinda large.
 
-(Late 2.3.x got much better coverage through things like this, so I'm not 
-all that pessimistic. But people need to be aware of the issue).
+Compiles, boots, works [tm] on my x86 machine :)
 
-		Linus
+- Linux codeman 2.4.22-pre4-rmap15j #1 Fri Jul 11 18:16:38 CEST 2003 i686
+- gcc version 3.3.1 20030626 (Debian prerelease)
+
+
+URL:
+----
+http://wolk.sf.net/tmp/linux-2.4.22-pre4-rmap15j+bkfixes.patch
+
+md5sum:
+-------
+0c39e54f1b3af8f076fdbe7669439e40
+
+ciao, Marc
 

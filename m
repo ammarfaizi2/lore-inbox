@@ -1,364 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286237AbRL0Kua>; Thu, 27 Dec 2001 05:50:30 -0500
+	id <S286239AbRL0K7V>; Thu, 27 Dec 2001 05:59:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286239AbRL0KuW>; Thu, 27 Dec 2001 05:50:22 -0500
-Received: from smtpde02.sap-ag.de ([194.39.131.53]:54991 "EHLO
-	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S286237AbRL0KuO>; Thu, 27 Dec 2001 05:50:14 -0500
-From: Christoph Rohland <cr@sap.com>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Legacy Fishtank <garzik@havoc.gtf.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.2-pre2 forces ramfs on
-In-Reply-To: <Pine.GSO.4.21.0112261228180.2716-100000@weyl.math.psu.edu>
-Organisation: SAP LinuxLab
-Date: Thu, 27 Dec 2001 11:39:22 +0100
-In-Reply-To: <Pine.GSO.4.21.0112261228180.2716-100000@weyl.math.psu.edu>
- (Alexander Viro's message of "Wed, 26 Dec 2001 12:36:09 -0500 (EST)")
-Message-ID: <m3ofkl6j6t.fsf@linux.local>
-User-Agent: Gnus/5.090004 (Oort Gnus v0.04) XEmacs/21.4 (Artificial
- Intelligence, i386-suse-linux)
+	id <S286241AbRL0K7L>; Thu, 27 Dec 2001 05:59:11 -0500
+Received: from mail.gmx.net ([213.165.64.20]:41708 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S286239AbRL0K7A>;
+	Thu, 27 Dec 2001 05:59:00 -0500
+Message-ID: <3C2AFEED.9020700@gmx.at>
+Date: Thu, 27 Dec 2001 11:58:53 +0100
+From: Wilfried Weissmann <Wilfried.Weissmann@gmx.at>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:0.9.5) Gecko/20011023
+X-Accept-Language: de-at, de, en
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="=-=-="
-X-SAP: out
-X-SAP: out
-X-SAP: out
-X-SAP: out
-X-SAP: out
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Booting a modular kernel through a multiple streams file
+In-Reply-To: <200112232305.fBNN5vM19844@ns.caldera.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
+Marcus Meissner wrote:
 
-Hi Al,
+ > In article <E16I8zQ-0000d9-00@the-village.bc.nu> you wrote:
+ >
+ >>>Basically what Grub does is loads the kernel modules from disk
+ >>>into memory, and 'tells' the kernel the memory location to load
+ >>>them from, very similar to how an initrd file is loaded. The problem
+ >>>is Linux, is not MBS compilant and doesn't know to look for and load
+ >>>the modules.
+ >>>
+ >
+ >>And vendors who've shipped GRUB still have to ship Lilo because Grub 
+plain
+ >>doesn't work on some machines. Lilo has the virtue that its extremely 
+simple
+ >>in what it does and how it does it. It works in a suprisingly large 
+number
+ >>of cases and can handle interesting setups that GRUB really struggles 
+with.
+ >>
+ >
+ > Apart that it moves the initrd somewhere unsafe on high memory machines
+ > and some other odds ends we have fixed, I know of exactly 1 problem 
+with a
+ > hw raid controller, which we did not come around to debug yet.
 
-On Wed, 26 Dec 2001, Alexander Viro wrote:
-> What's more, quite a few ramfs methods are good candidates for
-> library functions, since they are already shared with other
-> filesystems and number of such cases is going to grow.
 
-Comments on the following set of patches?
+I'm just wondering if you mean the (almost) RAID HPT370. You can fix
+this by avoiding the "embed" command, which overwrites the raid setup
+information. Just "dd" the file system module to a higher offset (e.g.
+16) and run grub's "install" command manually.
 
-1) Add a removepage operation to the address_space_operations which
-   simplifies the size checking heavily. This is not strictly needed.
-2) Add a ramfs(2) incorporation to shmem.c which disables the swapping
-   and does not allocate the swap vector for shmem.c files.
-
-We would gain a full ramfs with size checking, error checking and
-correct time stamping with a very small change.
-
-Greetings
-		Christoph
+Wilfried
 
 
---=-=-=
-Content-Disposition: attachment; filename=patch-removepage
+-- 
+Terorists crashed an airplane into the server room, have to remove
+/bin/laden. (rm -rf /bin/laden)
 
-diff -uNr 17-rc1/include/linux/fs.h 17-rc1-removepage/include/linux/fs.h
---- 17-rc1/include/linux/fs.h	Sun Dec 16 10:27:45 2001
-+++ 17-rc1-removepage/include/linux/fs.h	Sun Dec 16 10:36:26 2001
-@@ -391,6 +391,7 @@
- 	int (*releasepage) (struct page *, int);
- #define KERNEL_HAS_O_DIRECT /* this is for modules out of the kernel */
- 	int (*direct_IO)(int, struct inode *, struct kiobuf *, unsigned long, int);
-+	void (*removepage)(struct page *); /* called when page gets removed from the inode */
- };
- 
- struct address_space {
-diff -uNr 17-rc1/mm/filemap.c 17-rc1-removepage/mm/filemap.c
---- 17-rc1/mm/filemap.c	Sun Dec 16 10:27:48 2001
-+++ 17-rc1-removepage/mm/filemap.c	Sun Dec 16 10:31:55 2001
-@@ -96,6 +96,9 @@
- {
- 	struct address_space * mapping = page->mapping;
- 
-+	if (mapping->a_ops->removepage)
-+		mapping->a_ops->removepage(page);
-+	
- 	mapping->nrpages--;
- 	list_del(&page->list);
- 	page->mapping = NULL;
-diff -uNr 17-rc1/mm/shmem.c 17-rc1-removepage/mm/shmem.c
---- 17-rc1/mm/shmem.c	Sun Dec 16 10:27:48 2001
-+++ 17-rc1-removepage/mm/shmem.c	Sun Dec 16 11:17:47 2001
-@@ -47,43 +47,25 @@
- 
- LIST_HEAD (shmem_inodes);
- static spinlock_t shmem_ilock = SPIN_LOCK_UNLOCKED;
--atomic_t shmem_nrpages = ATOMIC_INIT(0); /* Not used right now */
-+atomic_t shmem_nrpages = ATOMIC_INIT(0);
- 
- #define BLOCKS_PER_PAGE (PAGE_CACHE_SIZE/512)
- 
--/*
-- * shmem_recalc_inode - recalculate the size of an inode
-- *
-- * @inode: inode to recalc
-- * @swap:  additional swap pages freed externally
-- *
-- * We have to calculate the free blocks since the mm can drop pages
-- * behind our back
-- *
-- * But we know that normally
-- * inodes->i_blocks/BLOCKS_PER_PAGE == 
-- * 			inode->i_mapping->nrpages + info->swapped
-- *
-- * So the mm freed 
-- * inodes->i_blocks/BLOCKS_PER_PAGE - 
-- * 			(inode->i_mapping->nrpages + info->swapped)
-- *
-- * It has to be called with the spinlock held.
-- */
--
--static void shmem_recalc_inode(struct inode * inode)
-+static void shmem_removepage(struct page *page)
- {
--	unsigned long freed;
-+	struct inode * inode;
-+	struct shmem_sb_info * sbinfo;
- 
--	freed = (inode->i_blocks/BLOCKS_PER_PAGE) -
--		(inode->i_mapping->nrpages + SHMEM_I(inode)->swapped);
--	if (freed){
--		struct shmem_sb_info * sbinfo = SHMEM_SB(inode->i_sb);
--		inode->i_blocks -= freed*BLOCKS_PER_PAGE;
--		spin_lock (&sbinfo->stat_lock);
--		sbinfo->free_blocks += freed;
--		spin_unlock (&sbinfo->stat_lock);
--	}
-+	atomic_dec(&shmem_nrpages);
-+	if (PageLaunder(page))
-+		return;
-+
-+	inode = page->mapping->host;
-+	sbinfo = SHMEM_SB(inode->i_sb);
-+	inode->i_blocks -= BLOCKS_PER_PAGE;
-+	spin_lock (&sbinfo->stat_lock);
-+	sbinfo->free_blocks++;
-+	spin_unlock (&sbinfo->stat_lock);
- }
- 
- /*
-@@ -315,6 +297,7 @@
- 	unsigned long index;
- 	unsigned long freed = 0;
- 	struct shmem_inode_info * info = SHMEM_I(inode);
-+	struct shmem_sb_info *sbinfo = SHMEM_SB(inode->i_sb);
- 
- 	down(&info->sem);
- 	inode->i_ctime = inode->i_mtime = CURRENT_TIME;
-@@ -325,8 +308,11 @@
- 		freed += shmem_truncate_indirect(info, index);
- 
- 	info->swapped -= freed;
--	shmem_recalc_inode(inode);
-+	inode->i_blocks -= freed*BLOCKS_PER_PAGE;
- 	spin_unlock (&info->lock);
-+	spin_lock (&sbinfo->stat_lock);
-+	sbinfo->free_blocks += freed;
-+	spin_unlock (&sbinfo->stat_lock);
- 	up(&info->sem);
- }
- 
-@@ -385,6 +371,7 @@
- 	return 0;
- found:
- 	delete_from_swap_cache(page);
-+	atomic_inc(&shmem_nrpages);
- 	add_to_page_cache(page, info->inode->i_mapping, offset + idx);
- 	SetPageDirty(page);
- 	SetPageUptodate(page);
-@@ -446,7 +433,6 @@
- 	entry = shmem_swp_entry(info, index, 0);
- 	if (IS_ERR(entry))	/* this had been allocated on page allocation */
- 		BUG();
--	shmem_recalc_inode(inode);
- 	if (entry->val)
- 		BUG();
- 
-@@ -517,7 +503,6 @@
- 		return page;
- 	}
- 	
--	shmem_recalc_inode(inode);
- 	if (entry->val) {
- 		unsigned long flags;
- 
-@@ -583,6 +568,7 @@
- 
- 	/* We have the page */
- 	SetPageUptodate(page);
-+	atomic_inc(&shmem_nrpages);
- 	return page;
- no_space:
- 	spin_unlock (&sbinfo->stat_lock);
-@@ -1325,6 +1311,7 @@
- 
- 
- static struct address_space_operations shmem_aops = {
-+	removepage:	shmem_removepage,
- 	writepage:	shmem_writepage,
- };
- 
-
---=-=-=
-Content-Disposition: attachment; filename=patch-ramfs2
-
-diff -uNr 17-rc1-removepage/mm/shmem.c c/mm/shmem.c
---- 17-rc1-removepage/mm/shmem.c	Sun Dec 16 11:31:21 2001
-+++ c/mm/shmem.c	Sun Dec 16 15:04:34 2001
-@@ -36,15 +36,28 @@
- #define ENTRIES_PER_PAGE (PAGE_CACHE_SIZE/sizeof(unsigned long))
- 
- #define SHMEM_SB(sb) (&sb->u.shmem_sb)
-+#define SHMEM_NOSWAP(info) ((info)->locked == 2)
- 
- static struct super_operations shmem_ops;
- static struct address_space_operations shmem_aops;
-+static struct address_space_operations shmem_noswap_aops;
- static struct file_operations shmem_file_operations;
- static struct inode_operations shmem_inode_operations;
- static struct file_operations shmem_dir_operations;
- static struct inode_operations shmem_dir_inode_operations;
- static struct vm_operations_struct shmem_vm_ops;
- 
-+static struct super_block *shmem_read_super(struct super_block * sb, void * data, int silent);
-+
-+#ifdef CONFIG_TMPFS
-+/* type "shm" will be tagged obsolete in 2.5 */
-+static DECLARE_FSTYPE(shmem_fs_type, "shm", shmem_read_super, FS_LITTER);
-+static DECLARE_FSTYPE(tmpfs_fs_type, "tmpfs", shmem_read_super, FS_LITTER);
-+static DECLARE_FSTYPE(ramfs2_fs_type, "ramfs2", shmem_read_super, FS_LITTER);
-+#else
-+static DECLARE_FSTYPE(tmpfs_fs_type, "tmpfs", shmem_read_super, FS_LITTER|FS_NOMOUNT);
-+#endif
-+
- LIST_HEAD (shmem_inodes);
- static spinlock_t shmem_ilock = SPIN_LOCK_UNLOCKED;
- atomic_t shmem_nrpages = ATOMIC_INIT(0);
-@@ -299,8 +312,11 @@
- 	struct shmem_inode_info * info = SHMEM_I(inode);
- 	struct shmem_sb_info *sbinfo = SHMEM_SB(inode->i_sb);
- 
--	down(&info->sem);
- 	inode->i_ctime = inode->i_mtime = CURRENT_TIME;
-+	if (SHMEM_NOSWAP(info))
-+		return;
-+
-+	down(&info->sem);
- 	spin_lock (&info->lock);
- 	index = (inode->i_size + PAGE_CACHE_SIZE - 1) >> PAGE_CACHE_SHIFT;
- 
-@@ -352,6 +368,9 @@
- 	unsigned long idx;
- 	int offset;
- 	
-+	if (SHMEM_NOSWAP(info))
-+		return 0;
-+
- 	idx = 0;
- 	spin_lock (&info->lock);
- 	offset = shmem_clear_swp (entry, info->i_direct, SHMEM_NR_DIRECT);
-@@ -484,6 +503,9 @@
- 	if (page)
- 		return page;
- 
-+	if (SHMEM_NOSWAP(info))
-+		goto noswap_alloc;
-+
- 	entry = shmem_alloc_entry (info, idx);
- 	if (IS_ERR(entry))
- 		return (void *)entry;
-@@ -543,6 +565,7 @@
- 		info->swapped--;
- 		spin_unlock (&info->lock);
- 	} else {
-+	noswap_alloc:
- 		sbinfo = SHMEM_SB(inode->i_sb);
- 		spin_unlock (&info->lock);
- 		spin_lock (&sbinfo->stat_lock);
-@@ -628,8 +651,11 @@
- 	struct inode * inode = file->f_dentry->d_inode;
- 	struct shmem_inode_info * info = SHMEM_I(inode);
- 
-+	if (SHMEM_NOSWAP(info))
-+		return;
-+
- 	down(&info->sem);
--	info->locked = lock;
-+	info->locked = (lock != 0);
- 	up(&info->sem);
- }
- 
-@@ -668,12 +694,19 @@
- 		inode->i_blksize = PAGE_CACHE_SIZE;
- 		inode->i_blocks = 0;
- 		inode->i_rdev = NODEV;
--		inode->i_mapping->a_ops = &shmem_aops;
- 		inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
- 		info = SHMEM_I(inode);
- 		info->inode = inode;
- 		spin_lock_init (&info->lock);
- 		sema_init (&info->sem, 1);
-+
-+		if (sb->s_type == &ramfs2_fs_type) {
-+			info->locked = 2;
-+			inode->i_mapping->a_ops = &shmem_noswap_aops;
-+		} else {
-+			inode->i_mapping->a_ops = &shmem_aops;
-+		}
-+
- 		switch (mode & S_IFMT) {
- 		default:
- 			init_special_inode(inode, mode, dev);
-@@ -1310,6 +1343,11 @@
- 
- 
- 
-+static struct address_space_operations shmem_noswap_aops = {
-+	removepage:	shmem_removepage,
-+	writepage:	fail_writepage,
-+};
-+
- static struct address_space_operations shmem_aops = {
- 	removepage:	shmem_removepage,
- 	writepage:	shmem_writepage,
-@@ -1363,13 +1401,6 @@
- 	nopage:	shmem_nopage,
- };
- 
--#ifdef CONFIG_TMPFS
--/* type "shm" will be tagged obsolete in 2.5 */
--static DECLARE_FSTYPE(shmem_fs_type, "shm", shmem_read_super, FS_LITTER);
--static DECLARE_FSTYPE(tmpfs_fs_type, "tmpfs", shmem_read_super, FS_LITTER);
--#else
--static DECLARE_FSTYPE(tmpfs_fs_type, "tmpfs", shmem_read_super, FS_LITTER|FS_NOMOUNT);
--#endif
- static struct vfsmount *shm_mnt;
- 
- static int __init init_shmem_fs(void)
-@@ -1382,6 +1413,11 @@
- 		return error;
- 	}
- #ifdef CONFIG_TMPFS
-+	if ((error = register_filesystem(&ramfs2_fs_type))) {
-+		printk (KERN_ERR "Could not register ramfs2\n");
-+		return error;
-+	}
-+
- 	if ((error = register_filesystem(&shmem_fs_type))) {
- 		printk (KERN_ERR "Could not register shm fs\n");
- 		return error;
-@@ -1407,6 +1443,7 @@
- {
- #ifdef CONFIG_TMPFS
- 	unregister_filesystem(&shmem_fs_type);
-+	unregister_filesystem(&ramfs2_fs_type);
- #endif
- 	unregister_filesystem(&tmpfs_fs_type);
- 	mntput(shm_mnt);
-
---=-=-=--
 

@@ -1,39 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293709AbSCFUkn>; Wed, 6 Mar 2002 15:40:43 -0500
+	id <S293700AbSCFUkY>; Wed, 6 Mar 2002 15:40:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293729AbSCFUkd>; Wed, 6 Mar 2002 15:40:33 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:11782 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S293709AbSCFUk0>; Wed, 6 Mar 2002 15:40:26 -0500
-Subject: Re: [RFC] Arch option to touch newly allocated pages
-To: jdike@karaya.com (Jeff Dike)
-Date: Wed, 6 Mar 2002 20:54:14 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), dwmw2@infradead.org (David Woodhouse),
-        hpa@zytor.com (H. Peter Anvin), bcrl@redhat.com (Benjamin LaHaise),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <200203062025.PAA03727@ccure.karaya.com> from "Jeff Dike" at Mar 06, 2002 03:25:00 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S293709AbSCFUkN>; Wed, 6 Mar 2002 15:40:13 -0500
+Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:18188 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S293700AbSCFUjz>; Wed, 6 Mar 2002 15:39:55 -0500
+Date: Wed, 6 Mar 2002 20:39:36 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Ed Vance <EdV@macrolink.com>
+Cc: "'Roman Kurakin'" <rik@cronyx.ru>, linux-kernel@vger.kernel.org
+Subject: Re: Serial.c BUG 2.4.x-2.5x
+Message-ID: <20020306203936.C26344@flint.arm.linux.org.uk>
+In-Reply-To: <11E89240C407D311958800A0C9ACF7D13A76CB@EXCHANGE>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16iiQQ-00087K-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <11E89240C407D311958800A0C9ACF7D13A76CB@EXCHANGE>; from EdV@macrolink.com on Fri, Mar 01, 2002 at 11:07:03AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Yeah, MADV_DONTNEED looks right.  UML and Linux/s390 (assuming VM has the
-> equivalent of MADV_DONTNEED) would need a hook in free_pages to make that
-> happen.
+On Fri, Mar 01, 2002 at 11:07:03AM -0800, Ed Vance wrote:
+> On Fri, Mar 01, 2002 at 4:19 AM, Roman Kurakin wrote:
+> > 
+> >     Who is responsible person for applying [serial driver] patches 
+> >     to main tree?
 
-VM allows you to give it back a page and if you use it again you get a
-clean copy. What it seems to lack is the more ideal "here have this page
-and if I reuse it trap if you did throw it out" semantic.
+This particular bug has already been fixed in the rewrite, as I originally
+said back on 14 November 2001.
 
-> > That BTW is an issue for more than UML - it has a bearing on running
-> > lots of Linux instances on any supervisor/virtualising system like S/390
-> 
-> On a side note, the "unused memory is wasted memory" behavior that UML and 
-> Linux/s390 inherit is also less than optimal for the host.
+The patch does fine for the most part, but I have two worries:
 
-Yes. I believe IBM folks are studying that
+1. the possibilities of pushing through changes in the IO or memory space
+   by changing the other space at the same time. (ie, port = 1, iomem =
+   0xfe007c00 and you already have a line at port = 0, iomem = 0xfe007c00).
+   I delt with this properly using the resource management subsystem.
+
+2. there seems to be a lack of security considerations for changing the
+   iomem address.  (ie, changing the iomem address without CAP_SYS_ADMIN.
+   I added this as an extra check for change_port)
+
+> I then asked Russell to set the rules for this co-ordination and no response
+> has been forthcoming. Perhaps he missed my question?
+
+I have a fair bit of email backed up at the moment, but I have been in
+contact with Ted T'so recently.  I won't say much more at the moment,
+but should have something in a month or two.  Until then I'd rather not
+say too much publically.
+
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

@@ -1,34 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262875AbSKTXpa>; Wed, 20 Nov 2002 18:45:30 -0500
+	id <S263899AbSKTXmN>; Wed, 20 Nov 2002 18:42:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262387AbSKTXpa>; Wed, 20 Nov 2002 18:45:30 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:45700 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S264936AbSKTXoI>; Wed, 20 Nov 2002 18:44:08 -0500
-Subject: Re: Linux 2.2.23-rc2
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Florian Weimer <fw@deneb.enyo.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <87wun796m3.fsf@deneb.enyo.de>
-References: <200211201628.gAKGSwL03853@devserv.devel.redhat.com> 
-	<87wun796m3.fsf@deneb.enyo.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 21 Nov 2002 00:19:53 +0000
-Message-Id: <1037837993.3702.106.camel@irongate.swansea.linux.org.uk>
+	id <S264637AbSKTXmC>; Wed, 20 Nov 2002 18:42:02 -0500
+Received: from gate.in-addr.de ([212.8.193.158]:1034 "HELO mx.in-addr.de")
+	by vger.kernel.org with SMTP id <S263837AbSKTXl6>;
+	Wed, 20 Nov 2002 18:41:58 -0500
+Date: Thu, 21 Nov 2002 00:30:20 +0100
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: Steven Dake <sdake@mvista.com>, Neil Brown <neilb@cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org
+Subject: Re: RFC - new raid superblock layout for md driver
+Message-ID: <20021120233020.GE29881@marowsky-bree.de>
+References: <15835.2798.613940.614361@notabene.cse.unsw.edu.au> <3DDBC0D9.5030904@mvista.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <3DDBC0D9.5030904@mvista.com>
+User-Agent: Mutt/1.4i
+X-Ctuhulu: HASTUR
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-11-20 at 23:14, Florian Weimer wrote:
-> Alan Cox <alan@redhat.com> writes:
-> 
-> > Actually include the DoS fix this time
-> 
-> But doesn't seem to include the TCP "SYN with RST isn't a SYN, really"
-> fix. ;-)
+On 2002-11-20T10:05:29,
+   Steven Dake <sdake@mvista.com> said:
 
-I wasnt aware 2.2 had that problem. I'll take a look.
+> This could be done without this field, but then the RAID arrays could be 
+> started unintentionally by the wrong host.  Imagine a host starting the 
+> wrong RAID array while it has been already started by some other party 
+> (forcing a rebuild) ugh!
 
+This is already easy and does not require addition of a field to the md
+superblock.
+
+Just only explicitly start disks with the proper uuid in the md superblock.
+Don't simply start them all.
+
+(I'll reply to Neil's mail momentarily)
+
+
+Sincerely,
+    Lars Marowsky-Brée <lmb@suse.de>
+
+-- 
+Principal Squirrel 
+SuSE Labs - Research & Development, SuSE Linux AG
+  
+"If anything can go wrong, it will." "Chance favors the prepared (mind)."
+  -- Capt. Edward A. Murphy            -- Louis Pasteur

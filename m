@@ -1,84 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132894AbRDST06>; Thu, 19 Apr 2001 15:26:58 -0400
+	id <S133005AbRDST2C>; Thu, 19 Apr 2001 15:28:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133009AbRDST0s>; Thu, 19 Apr 2001 15:26:48 -0400
-Received: from hermes.sistina.com ([208.210.145.141]:18694 "HELO sistina.com")
-	by vger.kernel.org with SMTP id <S133005AbRDST0l>;
-	Thu, 19 Apr 2001 15:26:41 -0400
-Date: Thu, 19 Apr 2001 14:26:15 -0500
-From: AJ Lewis <lewis@sistina.com>
-To: Jes Sorensen <jes@linuxcare.com>
-Cc: linux-kernel@vger.kernel.org, linux-openlvm@nl.linux.org,
-        Arjan van de Ven <arjanv@redhat.com>, Jens Axboe <axboe@suse.de>,
-        Martin Kasper Petersen <mkp@linuxcare.com>, riel@conectiva.com.br,
-        linux-lvm@sistina.com
-Subject: Re: [repost] Announce: Linux-OpenLVM mailing list
-Message-ID: <20010419142615.F10345@sistina.com>
-In-Reply-To: <d37l0gvkuf.fsf@lxplus015.cern.ch> <20010419132927.D10345@sistina.com> <d3lmowu2ba.fsf@lxplus015.cern.ch>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="RE3pQJLXZi4fr8Xo"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <d3lmowu2ba.fsf@lxplus015.cern.ch>; from jes@linuxcare.com on Thu, Apr 19, 2001 at 09:17:29PM +0200
+	id <S133009AbRDST1I>; Thu, 19 Apr 2001 15:27:08 -0400
+Received: from runyon.cygnus.com ([205.180.230.5]:49290 "EHLO cygnus.com")
+	by vger.kernel.org with ESMTP id <S133005AbRDST1G>;
+	Thu, 19 Apr 2001 15:27:06 -0400
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Alexander Viro <viro@math.psu.edu>,
+        Abramo Bagnara <abramo@alsa-project.org>, Alon Ziv <alonz@nolaviz.org>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Mike Kravetz <mkravetz@sequent.com>
+Subject: Re: light weight user level semaphores
+In-Reply-To: <Pine.LNX.4.31.0104191036220.5052-100000@penguin.transmeta.com>
+Reply-To: drepper@cygnus.com (Ulrich Drepper)
+X-fingerprint: BE 3B 21 04 BC 77 AC F0  61 92 E4 CB AC DD B9 5A
+X-fingerprint: e6:49:07:36:9a:0d:b7:ba:b5:e9:06:f3:e7:e7:08:4a
+From: Ulrich Drepper <drepper@redhat.com>
+Date: 19 Apr 2001 12:26:03 -0700
+In-Reply-To: Linus Torvalds's message of "Thu, 19 Apr 2001 10:38:34 -0700 (PDT)"
+Message-ID: <m3ofts3d4k.fsf@otr.mynet.cygnus.com>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.2 (Thelxepeia)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus Torvalds <torvalds@transmeta.com> writes:
 
---RE3pQJLXZi4fr8Xo
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> Looks good to me. Anybody want to try this out and test some benchmarks?
 
-On Thu, Apr 19, 2001 at 09:17:29PM +0200, Jes Sorensen wrote:
-> This was tried, trust me. We didn't create this list because someone
-> forgot to respond to a single posting. As we wrote in the announcement
-> there has been too many incidents: At least two people got kicked off
-> the old lvm list for posting comments about the latest release using
-> lower bits in pointers to store data. Other people have posted patches
-> for serious bugs like NULL pointer dereferences and the postings were
-> denied. Another person complained about the behavior and got no
-> response.
+I fail to see how this works across processes.  How can you generate a
+file descriptor for this pipe in a second process which simply shares
+some memory with the first one?  The first process is passive: no file
+descriptor passing must be necessary.
 
-What are you talking about???  Got kicked off?  If so, it was not
-intentional, I can assure you.  That would just be stupid.  As far as
-patches being rejected, refer to the e-mail I just sent.
+How these things are working elsewhere is that a memory address
+(probably a physical address) is used as a token.  The semaphore
+object is placed in the memory shared by the processes and the virtual
+address is passed in the syscall.
 
-> For modules included in the Linux kernel, an open development forum is
-> a minimum requirement.
+Note that semaphores need not always be shared between processes.
+This is a property the user has to choose.  So the implementation can
+be easier in the normal intra-process case.
 
-Who asked for this?  Who did you talk to?  I haven't seen anything to this
-effect for months.
+In any case all kinds of user-level operations are possible as well
+and all the schemes suggested for dealing with the common case without
+syscalls can be applied here as well.
 
---=20
-AJ Lewis
-Sistina Software Inc.                  Voice:  612-379-3951
-1313 5th St SE, Suite 111              Fax:    612-379-3952
-Minneapolis, MN 55414                  E-Mail: lewis@sistina.com
-http://www.sistina.com
-
-Current GPG fingerprint =3D 3B5F 6011 5216 76A5 2F6B  52A0 941E 1261 0029 2=
-648
-Get my key at: http://www.sistina.com/~lewis/gpgkey
- (Unfortunately, the PKS-type keyservers do not work with multiple sub-keys)
-
------Begin Obligatory Humorous Quote----------------------------------------
-Over and over I find being redundant is key to success
-in the art of redundancy - Jay Armstrong
------End Obligatory Humorous Quote------------------------------------------
-
---RE3pQJLXZi4fr8Xo
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE63zvXpE6/iGtdjLERAvKVAJ9AjAJPbNWNgu7jJEBnH+7/vi+0vQCfQQZ8
-5NYr5YmTttzoCzXROyvS5Oc=
-=XakL
------END PGP SIGNATURE-----
-
---RE3pQJLXZi4fr8Xo--
+-- 
+---------------.                          ,-.   1325 Chesapeake Terrace
+Ulrich Drepper  \    ,-------------------'   \  Sunnyvale, CA 94089 USA
+Red Hat          `--' drepper at redhat.com   `------------------------

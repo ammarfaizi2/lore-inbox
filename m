@@ -1,34 +1,48 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317130AbSEXMTG>; Fri, 24 May 2002 08:19:06 -0400
+	id <S317133AbSEXMUT>; Fri, 24 May 2002 08:20:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317131AbSEXMTF>; Fri, 24 May 2002 08:19:05 -0400
-Received: from grisu.bik-gmbh.de ([194.233.237.82]:56847 "EHLO
-	grisu.bik-gmbh.de") by vger.kernel.org with ESMTP
-	id <S317130AbSEXMTE>; Fri, 24 May 2002 08:19:04 -0400
-Message-ID: <3CEE2FCA.30601@bik-gmbh.de>
-Date: Fri, 24 May 2002 14:19:22 +0200
-From: Florian Hars <hars@bik-gmbh.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc2) Gecko/20020510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Urban Widmark <urban@teststation.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [2.4.28/smbfs] Unable to handle kernel paging request
-In-Reply-To: <Pine.LNX.4.33.0205232149540.21909-100000@cola.enlightnet.local>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S317132AbSEXMUS>; Fri, 24 May 2002 08:20:18 -0400
+Received: from ns1.alcove-solutions.com ([212.155.209.139]:54994 "EHLO
+	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
+	id <S317133AbSEXMUQ>; Fri, 24 May 2002 08:20:16 -0400
+Date: Fri, 24 May 2002 14:20:07 +0200
+From: Stelian Pop <stelian.pop@fr.alcove.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        hch@infradead.org
+Subject: [PATCH 2.5] fs/nfsd/nfs3xdr.c compile fix
+Message-ID: <20020524122007.GE26918@come.alcove-fr>
+Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
+Mail-Followup-To: Stelian Pop <stelian.pop@fr.alcove.com>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	hch@infradead.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Urban Widmark wrote:
-[Recommended patch for the samba codepage problem]
-> Or upgrade to 2.4.19-preX.
+Recent namei.h split broke nfsd compile, which is fixed by the 
+following patch.
 
-I'd rather use the patch against 2.4.18 than port the XFS patch to 
-2.4.19-preX... :-).
+Linus, please apply.
 
-Thanks to everyone who replied.
+Stelian.
 
-Yours, Florian.
-
+===== fs/nfsd/nfs3xdr.c 1.12 vs edited =====
+--- 1.12/fs/nfsd/nfs3xdr.c	Wed May 22 21:19:24 2002
++++ edited/fs/nfsd/nfs3xdr.c	Fri May 24 13:03:24 2002
+@@ -9,6 +9,7 @@
+ #include <linux/types.h>
+ #include <linux/time.h>
+ #include <linux/nfs3.h>
++#include <linux/fs.h>
+ #include <linux/dcache.h>
+ #include <linux/namei.h>
+ 
+-- 
+Stelian Pop <stelian.pop@fr.alcove.com>
+Alcove - http://www.alcove.com

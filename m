@@ -1,56 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279735AbRJ3Bnu>; Mon, 29 Oct 2001 20:43:50 -0500
+	id <S279734AbRJ3Bqu>; Mon, 29 Oct 2001 20:46:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279734AbRJ3Bnk>; Mon, 29 Oct 2001 20:43:40 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:45578 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S279730AbRJ3Bni>; Mon, 29 Oct 2001 20:43:38 -0500
-Date: Mon, 29 Oct 2001 17:42:07 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: "David S. Miller" <davem@redhat.com>
-cc: <riel@conectiva.com.br>, <bcrl@redhat.com>, <linux-kernel@vger.kernel.org>
+	id <S279737AbRJ3Bqk>; Mon, 29 Oct 2001 20:46:40 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:13461 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S279734AbRJ3Bq3>;
+	Mon, 29 Oct 2001 20:46:29 -0500
+Date: Mon, 29 Oct 2001 17:46:59 -0800 (PST)
+Message-Id: <20011029.174659.118968707.davem@redhat.com>
+To: torvalds@transmeta.com
+Cc: riel@conectiva.com.br, bcrl@redhat.com, linux-kernel@vger.kernel.org
 Subject: Re: please revert bogus patch to vmscan.c
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.33.0110291736010.7778-100000@penguin.transmeta.com>
 In-Reply-To: <20011029.173400.35036258.davem@redhat.com>
-Message-ID: <Pine.LNX.4.33.0110291736010.7778-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	<Pine.LNX.4.33.0110291736010.7778-100000@penguin.transmeta.com>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: Linus Torvalds <torvalds@transmeta.com>
+   Date: Mon, 29 Oct 2001 17:42:07 -0800 (PST)
 
-On Mon, 29 Oct 2001, David S. Miller wrote:
->
-> I'm asking him to show the case that "breaks for something
-> else".
+   Agreed?
+   
+I wouldn't be against a per-mm flush.
 
-Guys, guys, calm down.
-
-I removed the tlb invalidate that ended up being called millions of times,
-but I don't really have anything fundamental against either invalidating
-each mm as it comes up in swap_out_mm(), or maybe just doing a full TLB
-invalidate for each swap_out(). As Ben points out, the invalidate doesn't
-even have to be synchronous - the only thing we really care about is that
-there is some upper bound for how long we can cache TLB entries witht eh
-wrong accessed bit.
-
-One reasonable (?), yet rare, upper bound might be something like
-"swap_out() wrapped around the MM list".
-
-This is particularly true since we won't actually _care_ about the
-accessed bit until the second time around when it is clear, so the
-"wrapped around the VM list" thing is (a) often enough to matter and (b)
-obviously seldom enough that it shouldn't be a performance issue even if
-it implies a cross-call to everybody.
-
-The difference in call frequency would, on large machines, probably be on
-the order of several magnitudes, which will certainly cut the overhead
-down to the noise while satisfying people who have architectures that can
-cache things for a long time.
-
-Agreed?
-
-(Yeah, maybe you think that's _too_ long. Civil arguments, please).
-
-		Linus
-
+Franks a lot,
+David S. Miller
+davem@redhat.com

@@ -1,89 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267116AbSLDWQL>; Wed, 4 Dec 2002 17:16:11 -0500
+	id <S267120AbSLDWNK>; Wed, 4 Dec 2002 17:13:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267117AbSLDWQL>; Wed, 4 Dec 2002 17:16:11 -0500
-Received: from ztxmail04.ztx.compaq.com ([161.114.1.208]:29710 "EHLO
-	ztxmail04.ztx.compaq.com") by vger.kernel.org with ESMTP
-	id <S267116AbSLDWQK> convert rfc822-to-8bit; Wed, 4 Dec 2002 17:16:10 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: [PATCH] 2.4.20 cciss  patch 01 - adds support for the SA641, SA642 and SA6400 controllers.
-Date: Wed, 4 Dec 2002 16:23:37 -0600
-Message-ID: <A2C35BB97A9A384CA2816D24522A53BB03991726@cceexc18.americas.cpqcorp.net>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] 2.4.20 cciss  patch 01 - adds support for the SA641, SA642 and SA6400 controllers.
-Thread-Index: AcKb48rIqn3VeHF2TYG9m/4OigiIRQ==
-From: "White, Charles" <Charles.White@hp.com>
-To: "Marcelo Tosatti" <marcelo@conectiva.com.br>, "Jens Axboe" <axboe@suse.de>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 04 Dec 2002 22:23:38.0246 (UTC) FILETIME=[CAD25A60:01C29BE3]
+	id <S267122AbSLDWNK>; Wed, 4 Dec 2002 17:13:10 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:47377 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S267120AbSLDWNJ>; Wed, 4 Dec 2002 17:13:09 -0500
+Date: Wed, 4 Dec 2002 22:20:39 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
+Cc: Dave Jones <davej@codemonkey.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: lkml, bugme.osdl.org?
+Message-ID: <20021204222039.A12956@flint.arm.linux.org.uk>
+Mail-Followup-To: "Dr. David Alan Gilbert" <gilbertd@treblig.org>,
+	Dave Jones <davej@codemonkey.org.uk>, linux-kernel@vger.kernel.org
+References: <200212030724.gB37O4DL001318@turing-police.cc.vt.edu> <20021203121521.GB30431@suse.de> <20021204115819.GB1137@gallifrey> <20021204124227.GB647@suse.de> <20021204183235.GA701@gallifrey>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021204183235.GA701@gallifrey>; from gilbertd@treblig.org on Wed, Dec 04, 2002 at 06:32:35PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following patch adds support for the SA641, SA642 and SA6400
-controllers to the cciss driver in the 2.2.20 tree. 
+On Wed, Dec 04, 2002 at 06:32:35PM +0000, Dr. David Alan Gilbert wrote:
+> Indeed - (Alpha is actually one of the few non-x86 architectures
+> that actually built fully for me in a recent 2.5.x - and made a passable
+> attempt at booting)
 
+One of the ARM machine types which I consider being closest to being
+completely buildable in Linus tree was this -><- close to being buildable
+between 2.5.49 to 2.5.50.
 
+In 2.5.49, it failed because we had a couple of references in ide.c to
+functions previously removed.  In 2.5.50, the IDE DMA stuff changed and
+made icside.c unbuildable.  I'm not going to get a chance to look at this
+for a while, so don't expect it to change.
 
-diff -urN linux-2.4.20.orig/Documentation/cciss.txt
-linux-2.4.20.cciss_p01/Documentation/cciss.txt
---- linux-2.4.20.orig/Documentation/cciss.txt	Fri Aug  2 20:39:42 2002
-+++ linux-2.4.20.cciss_p01/Documentation/cciss.txt	Wed Dec  4
-15:05:43 2002
-@@ -9,6 +9,9 @@
- 	* SA 5i 
- 	* SA 532
- 	* SA 5312
-+	* SA 641
-+	* SA 642
-+	* SA 6400
- 
- If nodes are not already created in the /dev/cciss directory
- 
-diff -urN linux-2.4.20.orig/drivers/block/cciss.c
-linux-2.4.20.cciss_p01/drivers/block/cciss.c
---- linux-2.4.20.orig/drivers/block/cciss.c	Thu Nov 28 18:53:12 2002
-+++ linux-2.4.20.cciss_p01/drivers/block/cciss.c	Wed Dec  4
-15:09:39 2002
-@@ -56,6 +56,11 @@
- #include "cciss.h"
- #include <linux/cciss_ioctl.h>
- 
-+/* remove when PCI_DEVICE_ID_COMPAQ_CCISSC is in pci_ids.h */
-+#ifndef PCI_DEVICE_ID_COMPAQ_CCISSC
-+#define PCI_DEVICE_ID_COMPAQ_CCISSC 0x46
-+#endif
-+
- /* define the PCI info for the cards we can control */
- const struct pci_device_id cciss_pci_device_id[] = {
- 	{ PCI_VENDOR_ID_COMPAQ, PCI_DEVICE_ID_COMPAQ_CISS,
-@@ -66,6 +71,12 @@
-                         0x0E11, 0x4082, 0, 0, 0},
- 	{ PCI_VENDOR_ID_COMPAQ, PCI_DEVICE_ID_COMPAQ_CISSB,
-                         0x0E11, 0x4083, 0, 0, 0},
-+	{ PCI_VENDOR_ID_COMPAQ, PCI_DEVICE_ID_COMPAQ_CCISSC,
-+                        0x0E11, 0x409A, 0, 0, 0},
-+	{ PCI_VENDOR_ID_COMPAQ, PCI_DEVICE_ID_COMPAQ_CCISSC,
-+                        0x0E11, 0x409B, 0, 0, 0},
-+	{ PCI_VENDOR_ID_COMPAQ, PCI_DEVICE_ID_COMPAQ_CCISSC,
-+                        0x0E11, 0x409C, 0, 0, 0},
- 	{0,}
- };
- MODULE_DEVICE_TABLE(pci, cciss_pci_device_id);
-@@ -81,6 +92,9 @@
- 	{ 0x40800E11, "Smart Array 5i", &SA5B_access},
- 	{ 0x40820E11, "Smart Array 532", &SA5B_access},
- 	{ 0x40830E11, "Smart Array 5312", &SA5B_access},
-+	{ 0x409A0E11, "Smart Array 641", &SA5_access},
-+	{ 0x409B0E11, "Smart Array 642", &SA5_access},
-+	{ 0x409C0E11, "Smart Array 6400", &SA5_access},
- };
- 
- /* How long to wait (in millesconds) for board to go into simple mode
-*/
+Not only that, but the ARM module stuff needs changes in mm/vmalloc.c so
+we don't have to have a _third_ ruddy implementation of the same code.
+(which currently causes a link error.)  mm/vmalloc.c needs to become more
+general - basically "allocate a region of size A alignment B between
+address C and address D".  Oh, not to mention the inherently racy code
+found within mm/vmalloc.c
+
+I'll now step off my soap box. 8)
+
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

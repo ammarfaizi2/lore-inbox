@@ -1,90 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283938AbRLWOlR>; Sun, 23 Dec 2001 09:41:17 -0500
+	id <S282948AbRLWPGa>; Sun, 23 Dec 2001 10:06:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283782AbRLWOlJ>; Sun, 23 Dec 2001 09:41:09 -0500
-Received: from zeus.city.tvnet.hu ([195.38.100.182]:49288 "EHLO
-	zeus.city.tvnet.hu") by vger.kernel.org with ESMTP
-	id <S283938AbRLWOlA>; Sun, 23 Dec 2001 09:41:00 -0500
-Subject: via ide issue info
-From: Sipos Ferenc <sferi@dumballah.tvnet.hu>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 23 Dec 2001 15:44:47 +0100
-Message-Id: <1009118687.1438.14.camel@zeus.city.tvnet.hu>
+	id <S282978AbRLWPGJ>; Sun, 23 Dec 2001 10:06:09 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:44813 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S282948AbRLWPGE>;
+	Sun, 23 Dec 2001 10:06:04 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: harri@synopsys.COM
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Patch: Support for grub at installation time 
+In-Reply-To: Your message of "Sun, 23 Dec 2001 15:39:59 BST."
+             <3C25ECBF.AF0E819C@Synopsys.COM> 
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 24 Dec 2001 02:05:51 +1100
+Message-ID: <24997.1009119951@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Sun, 23 Dec 2001 15:39:59 +0100, 
+Harald Dunkel <harri@synopsys.COM> wrote:
+>Below you can find a tiny patch to add 2 new targets to the top level 
+>Makefile: bzgrub and zgrub. This is a suggestion about how the Grub 
 
-Ok, here are the requested infos:
+I am removing all the special targets that have crept into kbuild,
+including zlilo, I do not want to add any new boot targets.  It is the
+job of the kernel makefiles to build the kernel, install the kernel and
+modules and that is all.  Anything after the kernel and modules have
+been installed is not the job of kbuild.  There is too much special
+case code in the kernel makefiles, some of which only works for a few
+users.
 
-----------VIA BusMastering IDE Configuration----------------
-Driver Version:                     3.29
-South Bridge:                       VIA vt82c686a
-Revision:                           ISA 0x14 IDE 0x6
-Highest DMA rate:                   UDMA66
-BM-DMA base:                        0xffa0
-PCI clock:                          33MHz
-Master Read  Cycle IRDY:            0ws
-Master Write Cycle IRDY:            0ws
-BM IDE Status Register Read Retry:  yes
-Max DRDY Pulse Width:               No limit
------------------------Primary IDE-------Secondary IDE------
-Read DMA FIFO flush:          yes                 yes
-End Sector FIFO flush:         no                  no
-Prefetch Buffer:              yes                 yes
-Post Write Buffer:            yes                 yes
-Enabled:                       no                 yes
-Simplex only:                  no                  no
-Cable Type:                   40w                 40w
--------------------drive0----drive1----drive2----drive3-----
-Transfer Mode:        PIO       PIO      UDMA      UDMA
-Address Setup:      120ns     120ns      30ns      30ns
-Cmd Active:         480ns     480ns      90ns      90ns
-Cmd Recovery:       480ns     480ns      30ns      30ns
-Data Active:        330ns     330ns      90ns      90ns
-Data Recovery:      270ns     270ns      30ns      30ns
-Cycle Time:         600ns     600ns      45ns      60ns
-Transfer Rate:    3.3MB/s   3.3MB/s  44.0MB/s  33.0MB/s
+All is not lost, however.  kbuild 2.5 has a config option to run a
+post-install script.  You can specify any script that you want and that
+script is responsible for doing whatever you want after the kernel and
+modules install.  There is a sample in scripts/lilo_new_kernel:
 
-/dev/hdc:
+#!/bin/sh
+#
+#  This is a sample script to add a new kernel to /etc/lilo.conf.  If it
+#  does not do what you want, copy this script to somewhere outside the
+#  kernel, change the copy and point your .config at the modified copy.
+#  Then you do not need to change the script when you upgrade your kernel.
+#
 
- Model=WDC WD136AA, FwRev=80.10A80, SerialNo=WD-WM6780207230
- Config={ HardSect NotMFM HdSw>15uSec SpinMotCtl Fixed DTR>5Mbs
-FmtGapReq }
- RawCHS=16383/16/63, TrkSize=57600, SectSize=600, ECCbytes=40
- BuffType=DualPortCache, BuffSize=2048kB, MaxMultSect=16, MultSect=off
- CurCHS=16383/16/63, CurSects=-66060037, LBA=yes, LBAsects=26564832
- IORDY=on/off, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
- PIO modes: pio0 pio1 pio2 pio3 pio4 
- DMA modes: mdma0 mdma1 mdma2 udma0 udma1 udma2 
- AdvancedPM=no
- Drive Supports : Reserved : ATA-1 ATA-2 ATA-3 ATA-4 
+label=$(echo "$KERNELRELEASE" | cut -c1-15)
+if ! grep "label=$label\$" /etc/lilo.conf > /dev/null
+then
+  ed /etc/lilo.conf > /dev/null 2>&1 <<EODATA 
+/^image/
+i
+image=$CONFIG_INSTALL_PREFIX_NAME$CONFIG_INSTALL_KERNEL_NAME
+	label=$label
+	optional
 
-/dev/hdd:
+.
+w
+q
+EODATA
+  if [ ! $? ]
+  then
+    echo edit of /etc/lilo.conf failed
+    exit 1
+  fi
+fi
+lilo
 
- Model=Pioneer DVD-ROM ATAPIModel DVD-104S 020, FwRev=E2.06, SerialNo=
- Config={ Fixed Removeable DTR<=5Mbs DTR>10Mbs nonMagnetic }
- RawCHS=0/0/0, TrkSize=0, SectSize=0, ECCbytes=0
- BuffType=13395, BuffSize=64kB, MaxMultSect=0
- (maybe): CurCHS=0/0/0, CurSects=0, LBA=yes, LBAsects=0
- IORDY=on/off, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
- PIO modes: pio0 pio1 pio2 pio3 pio4 
- DMA modes: sdma0 sdma1 sdma2 mdma0 mdma1 mdma2 udma0 udma1 *udma2 
- AdvancedPM=no
- Drive Supports : Reserved : ATA-1 ATA-2 ATA-3 ATA-4 
 
-As I mentioned, the bios recognizes my hd as an udma4 capable device, so
-it's not a cable issue, I think, the driver won't detect properly the
-cables. By the way, it would be good to have driver parameters, that
-help setting the prefetch buffer and post write buffer on, because on
-the secondary channel, it's off by default, I'm using powertweak to
-enable them. Thx.
+The problem with embedding boot loader data in kbuild is that everybody
+wants their boot to do something slightly different.  In the past they
+had to patch the kernel makefiles to do what they wanted, which shows
+it was a bad design.
 
-Paco
+In kbuild 2.5, lilo users invoke scripts/lilo_new_kernel as the post
+install script.  If they want something different, copy lilo_new_kernel
+to their own directory and tell kbuild to use the local copy.  No more
+patching kernel makefiles for local changes.
 
+grub will be handled the same.  kbuild 2.5 can supply a sample
+scripts/grub_new_kernel which users can use as is or copy and change to
+their own requirements.  I will take a sample grub script, I will not
+take a new target in the makefiles.
 

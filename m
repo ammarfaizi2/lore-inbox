@@ -1,72 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267889AbUIFMoE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267934AbUIFMp7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267889AbUIFMoE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Sep 2004 08:44:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267920AbUIFMoE
+	id S267934AbUIFMp7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Sep 2004 08:45:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267920AbUIFMps
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Sep 2004 08:44:04 -0400
-Received: from MAIL.13thfloor.at ([212.16.62.51]:41164 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S267889AbUIFMn6 (ORCPT
+	Mon, 6 Sep 2004 08:45:48 -0400
+Received: from legaleagle.de ([217.160.128.82]:39069 "EHLO www.legaleagle.de")
+	by vger.kernel.org with ESMTP id S267890AbUIFMpf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Sep 2004 08:43:58 -0400
-Date: Mon, 6 Sep 2004 14:43:57 +0200
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: Frank van Maarseveen <frankvm@xs4all.nl>
-Cc: Tonnerre <tonnerre@thundrix.ch>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linus Torvalds <torvalds@osdl.org>, Jamie Lokier <jamie@shareable.org>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>, Adrian Bunk <bunk@fs.tum.de>,
-       Hans Reiser <reiser@namesys.com>,
-       viro@parcelfarce.linux.theplanet.co.uk, Christoph Hellwig <hch@lst.de>,
-       linux-fsdevel@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: The argument for fs assistance in handling archives (was: silent semantic changes with reiser4)
-Message-ID: <20040906124357.GB27133@MAIL.13thfloor.at>
-Mail-Followup-To: Frank van Maarseveen <frankvm@xs4all.nl>,
-	Tonnerre <tonnerre@thundrix.ch>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Jamie Lokier <jamie@shareable.org>,
-	Horst von Brand <vonbrand@inf.utfsm.cl>,
-	Adrian Bunk <bunk@fs.tum.de>, Hans Reiser <reiser@namesys.com>,
-	viro@parcelfarce.linux.theplanet.co.uk,
-	Christoph Hellwig <hch@lst.de>, linux-fsdevel@vger.kernel.org,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Alexander Lyamin aka FLX <flx@namesys.com>,
-	ReiserFS List <reiserfs-list@namesys.com>
-References: <20040826150202.GE5733@mail.shareable.org> <200408282314.i7SNErYv003270@localhost.localdomain> <20040901200806.GC31934@mail.shareable.org> <Pine.LNX.4.58.0409011311150.2295@ppc970.osdl.org> <1094118362.4847.23.camel@localhost.localdomain> <20040902203854.GA4801@janus> <20040906075603.GB28697@thundrix.ch> <20040906080845.GA31483@janus>
-Mime-Version: 1.0
+	Mon, 6 Sep 2004 08:45:35 -0400
+Date: Mon, 06 Sep 2004 14:45:38 +0200
+From: Gunnar Ritter <Gunnar.Ritter@pluto.uni-freiburg.de>
+Organization: Privat.
+To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
+       Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/3] copyfile: generic_sendpage
+Message-ID: <413C5BF2.nail2RA1138AG@pluto.uni-freiburg.de>
+References: <20040904165733.GC8579@wohnheim.fh-wedel.de>
+ <20040904153902.6ac075ea.akpm@osdl.org>
+In-Reply-To: <20040904153902.6ac075ea.akpm@osdl.org>
+User-Agent: nail 11.6pre 9/6/04
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040906080845.GA31483@janus>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 06, 2004 at 10:08:45AM +0200, Frank van Maarseveen wrote:
-> On Mon, Sep 06, 2004 at 09:56:03AM +0200, Tonnerre wrote:
+Andrew Morton <akpm@osdl.org> wrote:
+
+> I discussed file->file sendfile with Linus a while back and he said
+>
+> > I think it was about doing a 2GB file-file sendfile, and see your system
+> > grind to a halt without being able to kill it.
 > > 
-> > $ cat fs_header owner_root flags_with_suid evil_program > evil.iso
-> > $ ls -l evil.iso/evil_program
-> 
-> It should of course be equivalent to a user mount: nodev nosuid etc.
+> > That said, we have some of the same problems with just regular read/write 
+> > too. sendfile just makes it easier.
+> > 
+> > We should probably make read/write be interruptible by _fatal_ signals.  
+> > It would require a new task state, though (TASK_KILLABLE or something, and
+> > it would show up as a normal 'D' state).
+>
+> I don't know how much of a problem this is in practice
 
-hmm, sounds reasonable, but what if root accesses it?
-(or somebody with the 'right' capability)
+It is an even more serious problem in my experience. I have been
+using sendfile() in my cp command at <http://heirloom.sourceforge.net>
+for quite some time, and I quickly decided to send files separated in
+some decently sized blocks. Otherwise if a whole file is sent at once
+and the source file is e.g. on an uncached floppy disk, cp will become
+uninterruptible for about a minute, which is a serious usability flaw.
+The user might discover that he is copying the wrong file, or he might
+simply change his mind and like to abort the copy or whatever. A
+performance gain of only 10 % is neglegible in comparison to this
+problem. Thus I think if copyfile() would not be interruptible by SIGINT
+and friends, its practical value would be quite limited.
 
- - it might be strange if even root is not able to
-   open device nodes or execute files from an archive
-
- - it might lead to interesting situations if the
-   archive is opened by root, but accessed by an user
-   (thinking of caches and such)
-  
-best,
-Herbert
-
-> -- 
-> Frank
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-fsdevel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+	Gunnar

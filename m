@@ -1,56 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262614AbUKLTjH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261769AbUKLTl7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262614AbUKLTjH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Nov 2004 14:39:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262398AbUKLTjH
+	id S261769AbUKLTl7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Nov 2004 14:41:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261903AbUKLTl7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Nov 2004 14:39:07 -0500
-Received: from mms2.broadcom.com ([63.70.210.59]:64518 "EHLO mms2.broadcom.com")
-	by vger.kernel.org with ESMTP id S262528AbUKLTgc convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Nov 2004 14:36:32 -0500
-X-Server-Uuid: 011F2A72-58F1-4BCE-832F-B0D661E896E8
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Fri, 12 Nov 2004 14:41:59 -0500
+Received: from brown.brainfood.com ([146.82.138.61]:11946 "EHLO
+	gradall.private.brainfood.com") by vger.kernel.org with ESMTP
+	id S261769AbUKLTlp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Nov 2004 14:41:45 -0500
+Date: Fri, 12 Nov 2004 13:41:23 -0600 (CST)
+From: Adam Heath <doogie@debian.org>
+X-X-Sender: adam@gradall.private.brainfood.com
+To: yiding_wang@agilent.com
+cc: rddunlap@osdl.org, arjan@infradead.org, linux-kernel@vger.kernel.org,
+       rusty@rustcorp.com.au, akpm@osdl.org
+Subject: RE: [PATCH] handle quoted module parameters
+In-Reply-To: <08A354A3A9CCA24F9EE9BE13600CFBC50F3AF0@wcosmb07.cos.agilent.com>
+Message-ID: <Pine.LNX.4.58.0411121339280.1276@gradall.private.brainfood.com>
+References: <08A354A3A9CCA24F9EE9BE13600CFBC50F3AF0@wcosmb07.cos.agilent.com>
 MIME-Version: 1.0
-Subject: RE: [PATCH] pci-mmconfig fix for 2.6.9
-Date: Fri, 12 Nov 2004 11:23:06 -0800
-Message-ID: <B1508D50A0692F42B217C22C02D84972020F3C9C@NT-IRVA-0741.brcm.ad.broadcom.com>
-Thread-Topic: [PATCH] pci-mmconfig fix for 2.6.9
-Thread-Index: AcTI5oPRYpJCJDHjRjWtyCKDJbcJQAABQL9g
-From: "Michael Chan" <mchan@broadcom.com>
-To: "Grant Grundler" <grundler@parisc-linux.org>
-cc: "Andi Kleen" <ak@suse.de>, linux-kernel@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz, akpm@osdl.org, greg@kroah.com,
-       "Durairaj, Sundarapandian" <sundarapandian.durairaj@intel.com>
-X-WSS-ID: 6D8BD0D01PO7381915-587-01
-Content-Type: text/plain;
- charset=us-ascii
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 12 Nov 2004, 11:35:47 -0700, Grant Grundler wrote:
+On Fri, 12 Nov 2004,  wrote:
 
-> Michael,
-> Thanks for digging that up.
-> I think Andi was looking for references to the PCI-E spec.
-> I found such a statement in "PCI Express(TM) Base 
-> Specification Revision 1.0a".
-> 
+> Hello Randy,
+>
+> Thanks for your two responses!
+>
+> Based on your patch, the format of argument will be changed from standard format before:
+> Used to be:
+> modprm1=first,ext modprm2=second,ext modprm3="third1,ext third2,ext"
+> where the quotation in modprm3 represents the whole string, including space, to be the value of third parameter modprm3.
+>
+> Now the patch changes modprm3 to "modprm3=third1,ext third2,ext" which equivalent to putting quotation mark on normal parameter define "modprm1=first,ext". Do you think linux community will take that change?
+>
+> Another question is the parameter length is not limited in 2.4.x kernel. Why this is restricted under 2.6.x. (param_set_charp())?
 
-Hi Grant,
+Er, no, that's a wrong assumption.
 
-I think it is well documented that config cycles are non-posted in PCI,
-PCIX, and PCI Express specs as you pointed out. The only ambiguity is
-whether the mmconfig memory cycle from the CPU to the chipset is posted
-or not. The Implementation Note in the MMCONFIG ECN from pcisig (link
-below) allows the mmconfig write cycle to be posted, meaning mmconfig
-write cycle can complete before the real config write cycle completes.
-That's why we needed confirmations from chipset engineers.
+Quoting like this is handled by the shell.  It tells it how to parse the
+single cmdline string, into separate parts.
 
-Michael
+There is *no* difference between:
 
-http://www.pcisig.com/specifications/pciexpress/specifications/specifica
-tions
+foo="111 222 333"\ 444' 555'
+
+and
+
+foo='111 222 333 444 555'
+
+and
+
+foo="111 222 333 444 555'
 

@@ -1,55 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268052AbTBRWGM>; Tue, 18 Feb 2003 17:06:12 -0500
+	id <S268041AbTBRWFG>; Tue, 18 Feb 2003 17:05:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268056AbTBRWGM>; Tue, 18 Feb 2003 17:06:12 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:43791 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S268052AbTBRWGI>; Tue, 18 Feb 2003 17:06:08 -0500
-Date: Tue, 18 Feb 2003 23:16:08 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Chris Wedgwood <cw@f00f.org>
-Cc: kernel list <linux-kernel@vger.kernel.org>, davej@suse.de, linux@brodo.de
-Subject: Re: Select voltage manually in cpufreq
-Message-ID: <20030218221608.GE21974@atrey.karlin.mff.cuni.cz>
-References: <20030218214220.GA1058@elf.ucw.cz> <20030218214726.GB15007@f00f.org> <20030218215819.GC21974@atrey.karlin.mff.cuni.cz> <20030218220858.GA15273@f00f.org>
+	id <S268042AbTBRWFG>; Tue, 18 Feb 2003 17:05:06 -0500
+Received: from natsmtp01.webmailer.de ([192.67.198.81]:33015 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S268041AbTBRWE5>; Tue, 18 Feb 2003 17:04:57 -0500
+Date: Tue, 18 Feb 2003 23:14:16 +0100
+From: Dominik Brodowski <linux@brodo.de>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Paul Mackerras <paulus@samba.org>, linux-kernel@vger.kernel.org
+Subject: [PATCH, updated] Re: stuff-up in pcmcia/cardbus stuff
+Message-ID: <20030218221415.GA7212@brodo.de>
+References: <15953.37244.263505.214325@argo.ozlabs.ibm.com> <20030218081529.GA2334@brodo.de> <3E51FBA1.7020208@pobox.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030218220858.GA15273@f00f.org>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <3E51FBA1.7020208@pobox.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > Well, and does slow-low-power mean 300MHz, 1.4V as bios said, or
-> > 300MHz, 1.2V which is probably also safe?
+On Tue, Feb 18, 2003 at 04:23:45AM -0500, Jeff Garzik wrote:
+> Dominik Brodowski wrote:
+> >Indeed. socket->pcmcia_socket (old) == socket->cls_d.s_info[0] (new)
 > 
-> I have no idea... that's the point... the user almost never knows what
-> *exact* magic values are required, they just want fast-on-power or
-> slow-on-battery sort of thing.
-
-Well, but system also does not know. And *I* need a way to tell my
-system what the right thing is.
-
-> > What about
-> > "as-fast-as-possible-but-not-exceed-140MHz-because-batteries-are-
-> > running-low-and-can-not-give-enough-current"? That's different from
-> > "fast-high-power", but it is *also* different from
-> > "slow-low-power". [This actually matters on beasts like
-> > zaurus]. What about
-> > "as-low-power-as-possible-but-make-sure-you-can-keep-display-up"?
-> > [On some machines cpu must be > some HMz for display to still work].
+> If this is true...
+<snip>
 > 
-> this just shows how silly these complex schemes are
-> 
-> you pick two options, a slow and fast option; both should work
+> 2) why are multiple s_info records allocated, when you hardcode use of 
+> record #0 ?
 
-Well, but this simple user interface means pretty complicated
-insides. 
-								Pavel
+Indeed, the allocation of MAX_SOCK_PER_DEV s_info[] pointers is pointless.
 
--- 
-Casualities in World Trade Center: ~3k dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.
+	Dominik
+
+diff -ruN linux-original/drivers/pcmcia/cs.c linux-pcmcia/drivers/pcmcia/cs.c
+--- linux-original/drivers/pcmcia/cs.c	2003-02-18 09:08:00.000000000 +0100
++++ linux-pcmcia/drivers/pcmcia/cs.c	2003-02-18 23:10:56.000000000 +0100
+@@ -330,11 +330,12 @@
+ 		return -ENOMEM;
+ 	memset(s_info, 0, cls_d->nsock * sizeof(socket_info_t));
+ 
++	cls_d->s_info = s_info;
++
+ 	/* socket initialization */
+ 	for (i = 0; i < cls_d->nsock; i++) {
+ 		socket_info_t *s = &s_info[i];
+ 
+-		cls_d->s_info[i] = s;
+ 		s->ss_entry = cls_d->ops;
+ 		s->sock = i;
+ 
+diff -ruN linux-original/drivers/pcmcia/pci_socket.c linux-pcmcia/drivers/pcmcia/pci_socket.c
+--- linux-original/drivers/pcmcia/pci_socket.c	2003-02-18 22:54:34.000000000 +0100
++++ linux-pcmcia/drivers/pcmcia/pci_socket.c	2003-02-18 23:10:10.000000000 +0100
+@@ -230,14 +230,16 @@
+ static int cardbus_suspend (struct pci_dev *dev, u32 state)
+ {
+ 	pci_socket_t *socket = pci_get_drvdata(dev);
+-	pcmcia_suspend_socket (socket->pcmcia_socket);
++	if (socket && socket->cls_d.s_info)
++		pcmcia_suspend_socket (socket->cls_d.s_info);
+ 	return 0;
+ }
+ 
+ static int cardbus_resume (struct pci_dev *dev)
+ {
+ 	pci_socket_t *socket = pci_get_drvdata(dev);
+-	pcmcia_resume_socket (socket->pcmcia_socket);
++	if (socket && socket->cls_d.s_info)
++		pcmcia_resume_socket (socket->cls_d.s_info);
+ 	return 0;
+ }
+ 
+diff -ruN linux-original/drivers/pcmcia/pci_socket.h linux-pcmcia/drivers/pcmcia/pci_socket.h
+--- linux-original/drivers/pcmcia/pci_socket.h	2003-02-18 22:54:34.000000000 +0100
++++ linux-pcmcia/drivers/pcmcia/pci_socket.h	2003-02-18 23:10:42.000000000 +0100
+@@ -20,7 +20,6 @@
+ 	socket_cap_t cap;
+ 	spinlock_t event_lock;
+ 	unsigned int events;
+-	struct socket_info_t *pcmcia_socket;
+ 	struct work_struct tq_task;
+ 	struct timer_list poll_timer;
+ 
+diff -ruN linux-original/include/pcmcia/ss.h linux-pcmcia/include/pcmcia/ss.h
+--- linux-original/include/pcmcia/ss.h	2003-02-18 09:08:02.000000000 +0100
++++ linux-pcmcia/include/pcmcia/ss.h	2003-02-18 23:09:55.000000000 +0100
+@@ -144,12 +144,10 @@
+  *  Calls to set up low-level "Socket Services" drivers
+  */
+ 
+-#define MAX_SOCKETS_PER_DEV 8
+-
+ struct pcmcia_socket_class_data {
+ 	unsigned int nsock;			/* number of sockets */
+ 	struct pccard_operations *ops;		/* see above */
+-	void *s_info[MAX_SOCKETS_PER_DEV];	/* socket_info_t */
++	void *s_info;				/* socket_info_t */
+ 	unsigned int use_bus_pm;
+ };
+ 

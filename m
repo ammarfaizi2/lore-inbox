@@ -1,80 +1,181 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261558AbRFPPVQ>; Sat, 16 Jun 2001 11:21:16 -0400
+	id <S262355AbRFPP1G>; Sat, 16 Jun 2001 11:27:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261454AbRFPPVH>; Sat, 16 Jun 2001 11:21:07 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:46347 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S261190AbRFPPUw>; Sat, 16 Jun 2001 11:20:52 -0400
-Subject: Re: threading question
-To: rothwell@holly-springs.nc.us (Michael Rothwell)
-Date: Sat, 16 Jun 2001 16:19:26 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <992701010.9390.4.camel@gromit> from "Michael Rothwell" at Jun 16, 2001 10:16:49 AM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
+	id <S262550AbRFPP05>; Sat, 16 Jun 2001 11:26:57 -0400
+Received: from smtp8.xs4all.nl ([194.109.127.134]:28904 "EHLO smtp8.xs4all.nl")
+	by vger.kernel.org with ESMTP id <S262355AbRFPP0l>;
+	Sat, 16 Jun 2001 11:26:41 -0400
+From: thunder7@xs4all.nl
+Date: Sat, 16 Jun 2001 17:21:24 +0200
+To: linux-kernel@vger.kernel.org
+Subject: How to I prevent a 100 Mb program from swapping itself (with 512 Mb memory)
+Message-ID: <20010616172124.A12383@middle.of.nowhere>
+Reply-To: thunder7@xs4all.nl
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15BHrC-0008Ba-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.3.18i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Can you provide any info and/or examples of co-routines? I'm curious to
-> see a good example of co-routines' "betterness."
+I'm running linux-2.4.5-ac15, and I can't seem to make clear to Linux that I'd
+rather use less cache than use swap for my active program. I can't run a 100 Mb
+program in 512 Mb memory without swapping parts of the active program?
 
-With co-routines you don't need
+I start a slrn (newsreader) session on a very big newsgroup; 150000 headers
+that are read from disk, then sorted. The process takes about 100 Mb memory,
+I have 512 Mb, so there should be enough to spare.
+This is without any special values in /proc, BTW, just the defaults.
 
-	8K of kernel stack
-	Scheduler overhead
-	Fancy locking
+here we start (the logfile is "vmstat 2")
 
-You don't get the automatic thread switching stuff though.
+   procs                      memory    swap          io     system         cpu
+ r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
+ 0  1  0   8180 103364  86792 257804  15  16   109   156   85   151   6   6  88
+ 0  0  0   8180 103328  86792 257828   6   0     8     0  113    81   0   1  99
+ 0  0  0   8152 102800  86792 257864   0   0    24    68  117    69   1   0  99
+ 1  0  0   8152  92976  88652 264304   0   0  1136     0  391   635   7   8  85
+ 1  0  0   8152  72700  93704 276452   0   0  2060  4260  701  1141  12  16  71
+ 1  0  0   8152  53348  97780 287576   0   0  1810  3594  608  1057  12  13  75
+ 1  0  0   8152  35516 101452 297956   0   0  1786  3594  616  1027   9  13  77
+ 0  1  1   8160  11376 107952 310756   0   0  2184  6452  731  1236  13  17  70
+ 2  0  1   8160   1588 109112 315664   0   0  1836  1798  597   964   9  32  59
+ 1  0  0   8160   2224 106436 318588   0   0  1578  3750  624   923  10  16  74
+ 3  0  0   8172   1956 109248 315820   0   0   986  3594  402   593   5  36  58
+ 0  1  0   8172   1588 108156 315932   0   0  1878  1996  590  1033  10  34  56
+ 0  1  0   8172   1592 104476 317924   0   0  1336  2580  514   785   7  17  76
+ 1  0  0   8172   1668 107912 313736   0   0  1096  3598  462   650   7  40  53
+ 1  0  0   8172   1780 108448 312740   0   0  1382  3680  520   796   7  39  53
+ 0  1  1   8172   1588 107212 312552   0   0  1778  3604  597   987   9  43  49
+ 1  0  2   8172   1748 104880 313196   0   0  1906  1234  613  1060  11  23  66
+ 0  1  1   8172   2432 107072 308980   0   0  1018  4570  443   695   6  39  55
+ 0  1  1   8172   1588 104880 310532   0   0  1828  1806  589   999  10  39  51
+ 1  0  1   8172   2032 104616 309316   4   0  1492  2570  548   925   8  19  74
+ 0  1  1   8172   1740 106308 306164   0   0  1082  3894  442   678   7  39  54
+ 0  1  1   8172   1588 106056 304992   0   0  1796  2656  603   989  11  45  44
+ 0  1  0   8172   1752 104732 305664   0   0  1310  3082  501   813   7  18  75
+ 0  1  1   8172   2112 104288 304576   0   0  1042  3808  475   703   9  33  57
+ 0  1  0   8140   1592 104400 304076   0   0  1174   514  488   694   5  16  79
+ 0  1  2   8200   1740 105144 302364   0   0  1252  2688  454   831   5  49  46
+ 1  0  0   8388   1596 104128 302276   0   0  1292  1008  478   876   7  51  42
+ 1  0  0   8388   1592 105004 301368   0   0   394  4410  380   434   2  16  82
 
-So you might get code that reads like this (note that aio_ stuff works rather
-well combined with co-routines as it fixes a lack of asynchronicity in the
-unix disk I/O world)
+free space is gone, so let's hit the buffers and start to swap. 
 
+ 0  3  2  11648   2976 105408 302268   0   0  1238  1730  594 15566   3  52  45
+ 0  1  0  33284  15572  87288 328872   0   8   846  1668  383   717   5  72  23
+ 0  1  0  34160   1560  91440 336572   0   0  1502  3596  558   896   7  11  82
+ 1  0  0  34116   1560  95112 329560   0   0  1572  3662  587   915   9  13  77
+ 0  1  0  34604   1560  98780 323048   0   0  1582  3602  586   894   9  13  77
+ 0  1  1  35112   1560 102448 315872   0   0  1832  3604  606  1002   8  17  75
+ 1  0  2  36244   1808 103312 316984   0   0  1834   442  620   999  11  33  56
+ 1  0  0  44836   1592 103132 327536   0   2  1364  4966  525   860   7  32  61
+ 1  0  0  44816   1588 103516 326796   0 166  1350  4282  546   925   8  38  54
+ 1  0  0  44772   2088 100884 327524   0  26  1868  1616  618  1095  12  46  42
+ 1  0  1  44772   1588 101784 326180   0   2  1418  2060  501   994   9  38  53
+ 1  0  0  44772   1768  99704 327772   0   2   700  4884  433   575   6  22  72
+ 0  1  1  44772   1588 100308 326276   0   6  1922  2096  611  1049  11  44  45
+ 1  0  1  44768   2656 102604 322084   0  10  1658  1786  567  1151   7  46  47
+ 1  0  1  44768   1876 101896 322604   0   0   940  5120  466   643   6  12  82
+ 1  0  0  44768   3000  99608 322388   0   0  1644  1480  533  1409   7  42  50
+ 1  0  1  44800   2480 100648 320656   0   6  1622  2304  566  1086   8  54  39
+ 1  0  1  46168   1700  99072 323320   0   0   958  4950  476   716   7  29  64
+ 1  0  0  50824   1592  99512 326356   0  48  1708  2196  583  1033   7  54  39
+ 0  1  1  55288   3044  98584 329060   0   2  1342  1728  495   854   9  59  32
+ 0  1  1  58612   1588  98408 332860  10   6   912  4818  485   764   6  40  54
+ 1  0  0  62768   2032  97168 336944   0 466  1116  1942  462   938   8  60  32
+ 1  0  0  65364   1872  98640 336960  26 574  1510  2246  541   997  11  49  41
+ 0  1  1  66552   1588  98256 337872   0  16   884  3844  478   708   6  36  58
+ 0  1  1  67228   1588  99456 336400   0 1090   962  3112  440   778   5  56  40
+ 1  0  1  67228   1996  99200 335796   0   0   762  2602  465   900   5  68  26
+ 0  1  2  67236   1604  98408 335364   0 520  1210  3108  551   913   7  53  40
+ 0  1  0  67232   1588  98652 334412   0   0   880   836  353   625   6  28  66
+ 0  1  1  69624   1980  97792 336468   0 504   680  4184  442   733   5  35  60
+ 1  0  0  72316   1564  98948 337568   0 488   994  1698  411   645   7  48  44
+ 1  0  0  72932   1576  97868 337164   0 472  1828  2148  584  1003   9  43  47
+ 0  1  2  75296   1908  96488 339768   0   0  1234  3924  505   845   8  53  39
+ 1  0  1  77548   1588  97468 340488   0 458   724  3334  400   633   4  43  53
+ 1  0  0  78932   2408  97648 340136   0 444  1298  2044  509   966   9  59  32
+ 0  1  1  78956   1588  98172 339328   0 1254   778  4880  488   783   5  59  36
+ 0  1  1  78932   1732  98600 337380   0 404  1338  2474  511   978  10  41  49
+ 1  0  2  78940   2308  98488 336096   0 748   744  1776  342   546   3  44  52
+ 0  1  1  80004   1588  99212 336680   0 3106   498  6316  469   520   4  37  59
+ 0  1  1  81780   2740 101060 333984   0 260  1124  1570  449   899   6  34  60
+ 1  0  1  87872   1588 100032 341440   0 258   770  1614  393   964   5  73  23
+ 1  0  1  88476   1600 100052 341260   0   0   614  3398  443   613   4  30  66
+ 1  0  0  88440   1588 103084 334824   0 6284  1864  6466  646  1086  13  46  41
+ 0  1  0  88440   1588 102560 334276   0 386  1116  4828  455   694   8  35  57
+ 0  1  1  88440   2036 103448 332268   0   0  1056  3634  476   719   6  37  57
+ 0  1  0  88440   1588 105036 330036   0   0  1534  1542  512   901   9  36  55
+ 0  1  1  88440   1588 103372 330084   0 184  1724  2288  567   981   9  44  47
+ 0  1  1  88448   1640 101032 331504   0   0   860  3226  443   732   5  29  66
+ 1  0  0  88444   1592 100640 329644   0   0  1192  1872  506   791   6  22  72
+ 0  1  0  88444   1588 103748 325540   0 5692  1366  8482  549   851   8  62  29
+ 0  1  2  90508   1588 103408 326220   0 4582  1176  7582  533   943   7  48  45
+ 1  0  1  92488   1588 104004 326168   0   0   744  2194  427   677   4  28  68
+ 0  1  1 101796   2544 105052 333184   0 7076    32  9146  267   692   1  93   6
+ 1  0  0 101780   2200 107328 327812  24   0  2290  2094  754  1261  12  43  45
+ 1  0  0 101912   1596 106396 327540   0   0  1152  2644  514   863   5  23  72
+ 0  1  1 101912   1760 108412 324548   0   0   734  3596  375   433   3  37  60
+ 1  0  1 102596   1588 107716 326700 3432   0  3620   106  211   254  36   9  55
 
-	select(....)
+deeper and deeper into swap we grow, yet the 300+ megabyte cache stays intact?
 
-	if(FD_ISSET(copier_fd))
-		run_coroutine(&copier_state);
+ 1  0  1 102936   1588 105724 329432 3986   0  3986   144  187   218  42  17  41
+ 1  0  0 102936   2840 102536 331608 3912   0  3912    28  190   234  42  12  46
+ 1  0  0 102936   1588 101452 334532 4058   0  4058    26  185   218  42   4  55
+ 1  0  0 102936   1588 100152 336736 4096   0  4096    10  173   202  42   4  54
+ 1  0  0 102936   1588  96716 340532 3684   0  3684    40  171   192  43   4  54
 
-	...
+Now we're sorting headers, notice how we read back swap pages - we
+must've swapped out my slrn-process to keep the cache intact.
 
+ 1  0  0 102936   1588  96444 341836 3866   0  3866     8  163   177  43   5  52
+ 1  0  0 102936   3116  93416 344060 4012   0  4012     2  178   203  44   4  52
+ 1  0  1 102952   1596  91724 347792 3968   0  3968    38  172   187  42  32  26
+ 1  0  0 102936   1600  91724 347672  20   0    20     0  104    51  49   2  48
+ 1  0  0 102936   1748  91724 347624   0   0     0    38  111    68  50   2  48
 
-and the copier might be something like
+The program is idle:
 
-	while(1)
-	{
-		// Yes 1 at a time is dumb but this is an example..
-		// Yes Im ignoring EOF for this
-		if(read(copier_fd, buf[bufptr], 1)==-1)
-		{
-			if(errno==-EWOULDBLOCK)
-			{
-				coroutine_return();
-				continue;
-			}
-		}
-		if(bufptr==255  || buf[bufptr]=='\n')
-		{
-			run_coroutine(run_command, buf);
-			bufptr=0;
-		}
-		else
-			bufptr++;
-	}
+Name:	slrn
+State:	R (running)
+Pid:	11167
+PPid:	519
+TracerPid:	0
+Uid:	500	500	500	500
+Gid:	100	100	100	100
+FDSize:	256
+Groups:	100 13 14 16 17 33 101 
+VmSize:	  103220 kB
+VmLck:	       0 kB
+VmRSS:	  101152 kB
+VmData:	  100892 kB
+VmStk:	      72 kB
+VmExe:	     296 kB
+VmLib:	    1752 kB
+SigPnd:	0000000000000000
+SigBlk:	0000000000000000
+SigIgn:	8000000000201000
+SigCgt:	0000000008184083
+CapInh:	0000000000000000
+CapPrm:	0000000000000000
+CapEff:	0000000000000000
 
+after closing slrn; i see
+   procs                      memory    swap          io     system         cpu
+ r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
+ 0  0  0   8076  91408  91484 262912  22  22   131   198   90   159   6   7  87
 
-it lets you express a state machine as a set of multiple such small state
-machines instead.  run_coroutine() will continue a routine where it last
-coroutine_return()'d from. Thus in the above case we are expressing read
-bytes until you see a new line cleanly - not mangled in with keeping state
-in global structures but by using natural C local variables and code flow
+Is there any tuning I can do myself in /proc, or is starting a 100 Mb
+program in 512 Mb of memory without swapping beyond the possibilities of
+the current VM? (Don't take this personnally, VM-guru's :-) )
 
-Alan
+Thanks,
+Jurriaan
+-- 
+BOFH excuse #400:
 
-
-
+We are Microsoft. You are not experiencing problems.
+GNU/Linux 2.4.5-ac15 SMP/ReiserFS 2x1402 bogomips load av: 0.07 0.04 0.08

@@ -1,100 +1,205 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261312AbULMRL0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261283AbULMRQD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261312AbULMRL0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Dec 2004 12:11:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261319AbULMRLJ
+	id S261283AbULMRQD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Dec 2004 12:16:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261294AbULMRQC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Dec 2004 12:11:09 -0500
-Received: from dfw-gate2.raytheon.com ([199.46.199.231]:54114 "EHLO
-	dfw-gate2.raytheon.com") by vger.kernel.org with ESMTP
-	id S261312AbULMRIs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Dec 2004 12:08:48 -0500
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.32-15
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Amit Shah <amit.shah@codito.com>,
-       Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, emann@mrv.com,
-       Gunther Persoons <gunther_persoons@spymac.com>,
-       "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Shane Shrybman <shrybman@aei.ca>, Esben Nielsen <simlo@phys.au.dk>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
-Message-ID: <OFA329B47C.3EDA9672-ON86256F69.005967F1@raytheon.com>
-From: Mark_H_Johnson@raytheon.com
-Date: Mon, 13 Dec 2004 11:05:13 -0600
-X-MIMETrack: Serialize by Router on RTSHOU-DS01/RTS/Raytheon/US(Release 6.5.2|June 01, 2004) at
- 12/13/2004 11:07:57 AM
+	Mon, 13 Dec 2004 12:16:02 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:15014 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S261283AbULMRLm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Dec 2004 12:11:42 -0500
+Date: Mon, 13 Dec 2004 09:10:40 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: Akinobu Mita <amgta@yacht.ocn.ne.jp>
+cc: "Martin J. Bligh" <mbligh@aracnet.com>, nickpiggin@yahoo.com.au,
+       Jeff Garzik <jgarzik@pobox.com>, torvalds@osdl.org, hugh@veritas.com,
+       benh@kernel.crashing.org, linux-mm@kvack.org,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Anticipatory prefaulting in the page fault handler V1
+In-Reply-To: <200412132330.23893.amgta@yacht.ocn.ne.jp>
+Message-ID: <Pine.LNX.4.58.0412130905140.360@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.44.0411221457240.2970-100000@localhost.localdomain>
+ <156610000.1102546207@flay> <Pine.LNX.4.58.0412091130160.796@schroedinger.engr.sgi.com>
+ <200412132330.23893.amgta@yacht.ocn.ne.jp>
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-X-SPAM: 0.00
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A comparison of PREEMPT_RT (no tracing) to PREEMPT_DESKTOP
-(with tracing) to help answer previous requests.
+On Mon, 13 Dec 2004, Akinobu Mita wrote:
 
-Comparison of .32-20RT and .32-18PK results
-20RT has PREEMPT_RT (all tracing disabled)
-18PK has PREEMPT_DESKTOP and no threaded IRQ's (tracing enabled)
-2.4 has lowlat + preempt patches applied
+> I also encountered processes segfault.
+> Below patch fix several problems.
+>
+> 1) if no pages could allocated, returns VM_FAULT_OOM
+> 2) fix duplicated pte_offset_map() call
 
-      within 100 usec
-       CPU loop (%)   Elapsed Time (sec)    2.4
-Test   RT     PK        RT      PK   |   CPU  Elapsed
-X     99.87 100.00&     65 *    64+  |  97.20   70
-top   99.35 100.00&     31 *    31+  |  97.48   29
-neto  96.94 100.00&    113 *   184+  |  96.23   36
-neti  97.05 100.00&    119 *   170+  |  95.86   41
-diskw 94.36  99.99      30 *    61+  |  77.64   29
-diskc 93.85  99.34      98 *   310+  |  84.12   77
-diskr 99.39  99.96     133 *   310+  |  90.66   86
-total                  589    1130   |         368
- [higher is better]  [lower is better]
-* wide variation in audio duration
-+ long stretch of audio duration "too fast"
-& 100% to digits shown, had a FEW samples > 100 usec.
+I also saw these two issues and I think I dealt with them in a forthcoming
+patch.
 
-The results for -20RT (without tracing) are much better than
--18RT (with tracing) but still not quite as good as -18PK
-with respect to the 100 usec delays.
+> 3) don't set_pte() for the entry which already have been set
 
-The overhead of threading the IRQ's (and rescheduling the
-RT application making the measurements) is likely cause of
-the difference in 100 usec latency measurements.
+Not sure how this could have happened in the patch.
 
-I believe the threading overhead is confirmed by the slightly
-slower ping response measurements:
-  RT 0.134 / 0.208 / 1.502 / 0.075 msec
-  PK 0.102 / 0.164 / 0.708 / 0.044 msec
-for min / average / max / mdev values. These are much
-better than with -18RT (with tracing) as well. Apparently the
-tracing overhead is pretty high in the task switching area.
+Could you try my updated version:
 
-The maximum duration of the CPU loop (as measured by the
-application) is in the range of 1.42 msec to 2.57 compared
-to the nominal 1.16 msec duration for -20RT.
+Index: linux-2.6.9/include/linux/sched.h
+===================================================================
+--- linux-2.6.9.orig/include/linux/sched.h	2004-12-08 15:01:48.801457702 -0800
++++ linux-2.6.9/include/linux/sched.h	2004-12-08 15:02:04.286479345 -0800
+@@ -537,6 +537,8 @@
+ #endif
 
-The non RT starvation problem appears to be mitigated quite
-a bit by removing the tracing. I did a follow up test without
-cpu_burn (non RT, nice) and the elapsed times varied in an
-odd pattern:
+ 	struct list_head tasks;
++	unsigned long anon_fault_next_addr;	/* Predicted sequential fault address */
++	int anon_fault_order;			/* Last order of allocation on fault */
+ 	/*
+ 	 * ptrace_list/ptrace_children forms the list of my children
+ 	 * that were stolen by a ptracer.
+Index: linux-2.6.9/mm/memory.c
+===================================================================
+--- linux-2.6.9.orig/mm/memory.c	2004-12-08 15:01:50.668339751 -0800
++++ linux-2.6.9/mm/memory.c	2004-12-09 14:21:17.090061608 -0800
+@@ -55,6 +55,7 @@
 
-  with cpu_burn      65  31 113 119  30  98 133
-  without cpu_burn   63  30 121 150  32  87  97
+ #include <linux/swapops.h>
+ #include <linux/elf.h>
++#include <linux/pagevec.h>
 
-The disk numbers are getting much closer to the 2.4 values
-so removal of cpu_burn definitely helps prevent starvation.
-The larger network numbers are something I should probably
-confirm on my 2.4 test system to see if something changed
-on the network to skew the results.
+ #ifndef CONFIG_DISCONTIGMEM
+ /* use the per-pgdat data instead for discontigmem - mbligh */
+@@ -1432,52 +1433,99 @@
+ 		unsigned long addr)
+ {
+ 	pte_t entry;
+-	struct page * page = ZERO_PAGE(addr);
+-
+-	/* Read-only mapping of ZERO_PAGE. */
+-	entry = pte_wrprotect(mk_pte(ZERO_PAGE(addr), vma->vm_page_prot));
++ 	unsigned long end_addr;
++
++	addr &= PAGE_MASK;
++
++ 	if (likely((vma->vm_flags & VM_RAND_READ) || current->anon_fault_next_addr != addr)) {
++		/* Single page */
++		current->anon_fault_order = 0;
++		end_addr = addr + PAGE_SIZE;
++	} else {
++		/* Sequence of faults detect. Perform preallocation */
++ 		int order = ++current->anon_fault_order;
++
++		if ((1 << order) < PAGEVEC_SIZE)
++			end_addr = addr + (PAGE_SIZE << order);
++		else
++			end_addr = addr + PAGEVEC_SIZE * PAGE_SIZE;
 
-I will be building a -20PK without tracing for a more complete
-comparison.
+-	/* ..except if it's a write access */
++		if (end_addr > vma->vm_end)
++			end_addr = vma->vm_end;
++		if ((addr & PMD_MASK) != (end_addr & PMD_MASK))
++			end_addr &= PMD_MASK;
++	}
+ 	if (write_access) {
+-		/* Allocate our own private page. */
++
++		unsigned long a;
++		struct page **p;
++		struct pagevec pv;
++
+ 		pte_unmap(page_table);
+ 		spin_unlock(&mm->page_table_lock);
 
---Mark H Johnson
-  <mailto:Mark_H_Johnson@raytheon.com>
++		pagevec_init(&pv, 0);
++
+ 		if (unlikely(anon_vma_prepare(vma)))
+-			goto no_mem;
+-		page = alloc_page_vma(GFP_HIGHUSER, vma, addr);
+-		if (!page)
+-			goto no_mem;
+-		clear_user_highpage(page, addr);
++			return VM_FAULT_OOM;
++
++		/* Allocate the necessary pages */
++		for(a = addr; a < end_addr ; a += PAGE_SIZE) {
++			struct page *p = alloc_page_vma(GFP_HIGHUSER, vma, a);
++
++			if (likely(p)) {
++				clear_user_highpage(p, a);
++				pagevec_add(&pv, p);
++			} else {
++				if (a == addr)
++					return VM_FAULT_OOM;
++				break;
++			}
++		}
+
+ 		spin_lock(&mm->page_table_lock);
+-		page_table = pte_offset_map(pmd, addr);
+
+-		if (!pte_none(*page_table)) {
++		for(p = pv.pages; addr < a; addr += PAGE_SIZE, p++) {
++
++			page_table = pte_offset_map(pmd, addr);
++			if (unlikely(!pte_none(*page_table))) {
++				/* Someone else got there first */
++				pte_unmap(page_table);
++				page_cache_release(*p);
++				continue;
++			}
++
++ 			entry = maybe_mkwrite(pte_mkdirty(mk_pte(*p,
++ 						 vma->vm_page_prot)),
++ 					      vma);
++
++			mm->rss++;
++			lru_cache_add_active(*p);
++			mark_page_accessed(*p);
++			page_add_anon_rmap(*p, vma, addr);
++
++			set_pte(page_table, entry);
+ 			pte_unmap(page_table);
+-			page_cache_release(page);
+-			spin_unlock(&mm->page_table_lock);
+-			goto out;
++
++ 			/* No need to invalidate - it was non-present before */
++ 			update_mmu_cache(vma, addr, entry);
++		}
++ 	} else {
++ 		/* Read */
++		entry = pte_wrprotect(mk_pte(ZERO_PAGE(addr), vma->vm_page_prot));
++nextread:
++		set_pte(page_table, entry);
++		pte_unmap(page_table);
++		update_mmu_cache(vma, addr, entry);
++		addr += PAGE_SIZE;
++		if (unlikely(addr < end_addr)) {
++			pte_offset_map(pmd, addr);
++			goto nextread;
+ 		}
+-		mm->rss++;
+-		entry = maybe_mkwrite(pte_mkdirty(mk_pte(page,
+-							 vma->vm_page_prot)),
+-				      vma);
+-		lru_cache_add_active(page);
+-		mark_page_accessed(page);
+-		page_add_anon_rmap(page, vma, addr);
+ 	}
+-
+-	set_pte(page_table, entry);
+-	pte_unmap(page_table);
+-
+-	/* No need to invalidate - it was non-present before */
+-	update_mmu_cache(vma, addr, entry);
++	current->anon_fault_next_addr = addr;
+ 	spin_unlock(&mm->page_table_lock);
+-out:
+ 	return VM_FAULT_MINOR;
+-no_mem:
+-	return VM_FAULT_OOM;
+ }
+
+ /*
 

@@ -1,32 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317117AbSILTqZ>; Thu, 12 Sep 2002 15:46:25 -0400
+	id <S317096AbSILTp1>; Thu, 12 Sep 2002 15:45:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317169AbSILTqZ>; Thu, 12 Sep 2002 15:46:25 -0400
-Received: from packet.digeo.com ([12.110.80.53]:60355 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S317117AbSILTqX>;
-	Thu, 12 Sep 2002 15:46:23 -0400
-Message-ID: <3D80F028.5941CCD@digeo.com>
-Date: Thu, 12 Sep 2002 12:51:04 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Jeff Dike <jdike@karaya.com>
-CC: linux-kernel@vger.kernel.org, user-mode-linux-user@lists.sourceforge.net
-Subject: Re: UML 2.5.34
-References: <200209121812.NAA02610@ccure.karaya.com>
-Content-Type: text/plain; charset=us-ascii
+	id <S317101AbSILTp1>; Thu, 12 Sep 2002 15:45:27 -0400
+Received: from mailrelay2.lanl.gov ([128.165.4.103]:41950 "EHLO
+	mailrelay2.lanl.gov") by vger.kernel.org with ESMTP
+	id <S317096AbSILTp1>; Thu, 12 Sep 2002 15:45:27 -0400
+Subject: Re: 2.5.34-mm2 kernel BUG at sched.c:944! only with CONFIG_PREEMPT=y
+From: Steven Cole <elenstev@mesatop.com>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1031840041.1990.378.camel@spc9.esa.lanl.gov>
+References: <1031840041.1990.378.camel@spc9.esa.lanl.gov>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 12 Sep 2002 19:51:07.0015 (UTC) FILETIME=[BBFA1170:01C25A95]
+X-Mailer: Evolution/1.0.2-5mdk 
+Date: 12 Sep 2002 13:46:45 -0600
+Message-Id: <1031860005.1990.394.camel@spc9.esa.lanl.gov>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Dike wrote:
+On Thu, 2002-09-12 at 08:14, Steven Cole wrote:
+> I got the following BUG at sched.c:944! with 2.5.34-mm2 and PREEMPT on.
+> This was repeatable. 
 > 
-> UML has been updated to 2.5.34 and UML 2.4.19-3.
-> 
+> With no PREEMPT, 2.5.34-mm2 booted and is running fine.  Some other
+> options used: SMP, HUGETLB_PAGE, HIGHPTE, HIGHMEM4G.
 
-And Linus has merged it.
+The above also occurred with no SMP. 
 
-Congratulations, Jeff.
+I backed out Changeset 1.606 which did this in kernel/sched.c:
+ 
+-	if (unlikely(in_interrupt()))
++	if (unlikely(in_atomic()))
+
+and 2.5.34-mm2 was able to boot with CONFIG_PREEMPT=y.
+
+Obviously, this is not a fix of any kind, but shows that the scheduler
+may be being called with a preemption lock.
+
+Steven
+
+

@@ -1,41 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261859AbUKUXm3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261864AbUKUXoy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261859AbUKUXm3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Nov 2004 18:42:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261847AbUKUXm3
+	id S261864AbUKUXoy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Nov 2004 18:44:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261858AbUKUXoy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Nov 2004 18:42:29 -0500
-Received: from gaz.sfgoth.com ([69.36.241.230]:17150 "EHLO gaz.sfgoth.com")
-	by vger.kernel.org with ESMTP id S261852AbUKUXlY (ORCPT
+	Sun, 21 Nov 2004 18:44:54 -0500
+Received: from dp.samba.org ([66.70.73.150]:60085 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S261847AbUKUXof (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Nov 2004 18:41:24 -0500
-Date: Sun, 21 Nov 2004 15:43:30 -0800
-From: Mitchell Blank Jr <mitch@sfgoth.com>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: sparse segfaults
-Message-ID: <20041121234330.GA28381@gaz.sfgoth.com>
-References: <20041120143755.E13550@flint.arm.linux.org.uk> <Pine.LNX.4.61.0411211705480.16359@chaos.analogic.com> <Pine.LNX.4.58.0411211433540.20993@ppc970.osdl.org> <Pine.LNX.4.53.0411212343340.17752@yvahk01.tjqt.qr>
-Mime-Version: 1.0
+	Sun, 21 Nov 2004 18:44:35 -0500
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.53.0411212343340.17752@yvahk01.tjqt.qr>
-User-Agent: Mutt/1.4.2.1i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.2.2 (gaz.sfgoth.com [127.0.0.1]); Sun, 21 Nov 2004 15:43:30 -0800 (PST)
+Content-Transfer-Encoding: 7bit
+Message-ID: <16801.10284.732681.619976@samba.org>
+Date: Mon, 22 Nov 2004 10:43:40 +1100
+To: Nathan Scott <nathans@sgi.com>
+Cc: linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
+Subject: Re: performance of filesystem xattrs with Samba4
+In-Reply-To: <20041121222123.GB704@frodo>
+References: <1098383538.987.359.camel@new.localdomain>
+	<16797.41728.984065.479474@samba.org>
+	<20041121222123.GB704@frodo>
+X-Mailer: VM 7.19 under Emacs 21.3.1
+Reply-To: tridge@samba.org
+From: tridge@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt wrote:
-> >Actually, this is documented gcc behaviour,[...]
-> >you can do
-> >	int tickadj = *ptr++ ? : 1;
-> >and it's well-behaved in that it increments the pointer only once.
-> 
-> And it's specific to GCC. This kinda ruins some tries to get ICC working on the
-> kernel tree :)
+Nathan,
 
-By ICC do you mean the Intel compiler?  It's supported the GCC Extension
-"Conditionals with Omitted Operands" since at least version 5.0.1.  See:
-  http://www.intel.com/software/products/compilers/c50/linux/comp501.pdf
+ > I'm curious why you went to 2K inodes instead of 512 - I guess
+ > because thats the largest inode size with a 4K blocksize?  If
+ > the defaults were changed, I expect it would be to switch over
+ > to 512 byte inodes - do you have numbers for that?
 
--Mitch
+It was a fairly arbitrary choice. For the test I was running the
+xattrs were small (44 bytes), so 512 would have been fine, but some
+other tests I run use larger xattrs (for NT ACLs, streams, DOS EAs
+etc). 
+
+ > Ah great, thanks, I'll be keen to try that when its available.
+
+It's now released. You can grab it at:
+
+  http://samba.org/ftp/tridge/dbench/dbench-3.0.tar.gz
+
+It should produce much more consistent results than previous versions
+of dbench, plus it has a -x option to enable xattr support. Other
+changes include:
+
+ - the runs are now time limited, rather than being a fixed number of
+   operations. This gives much more consisten results, especially for
+   fast machines.
+
+ - I've changed the mapping of the filesystem operations to be much
+   closer to what Samba4 does, including the directory scans for case
+   insensitivity, the stat() calls in name resolution and things like
+   statfs() calls. The modelling could still be improved, but its
+   much better than it was.
+
+ - the load file is now compatible with the smbtorture NBENCH test
+   again (the two diverged a while back).
+
+ - the default load file has been updated to be based on NetBench
+   7.0.3, running a enterprise disk mix.
+
+ - the warmup/execute/cleanup phases are now better separated
+
+Cheers, Tridge

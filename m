@@ -1,36 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277064AbRJQTXg>; Wed, 17 Oct 2001 15:23:36 -0400
+	id <S277082AbRJQT2G>; Wed, 17 Oct 2001 15:28:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277085AbRJQTX0>; Wed, 17 Oct 2001 15:23:26 -0400
-Received: from mail.pha.ha-vel.cz ([195.39.72.3]:22028 "HELO
-	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
-	id <S277083AbRJQTXO>; Wed, 17 Oct 2001 15:23:14 -0400
-Date: Wed, 17 Oct 2001 21:23:42 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Marcelo Borges Ribeiro <marcelo@datacom-telematica.com.br>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: joypad bug
-Message-ID: <20011017212342.A552@suse.cz>
-In-Reply-To: <000801c15672$bed14210$1300a8c0@marcelo>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <000801c15672$bed14210$1300a8c0@marcelo>; from marcelo@datacom-telematica.com.br on Tue, Oct 16, 2001 at 03:30:40PM -0300
+	id <S277085AbRJQT14>; Wed, 17 Oct 2001 15:27:56 -0400
+Received: from minus.inr.ac.ru ([193.233.7.97]:25875 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S277082AbRJQT1o>;
+	Wed, 17 Oct 2001 15:27:44 -0400
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200110171927.XAA22869@ms2.inr.ac.ru>
+Subject: Re: [NFS] NFSD over TCP: TCP broken?
+To: kalele@veritas.com (Shirish Kalele)
+Date: Wed, 17 Oct 2001 23:27:54 +0400 (MSK DST)
+Cc: linux-kernel@vger.kernel.org, tamir@veritas.com, paulp@veritas.com
+In-Reply-To: <00b401c157a1$8edd3f20$3291b40a@fserv2000.net> from "Shirish Kalele" at Oct 17, 1 11:53:14 pm
+X-Mailer: ELM [version 2.4 PL24]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 16, 2001 at 03:30:40PM -0300, Marcelo Borges Ribeiro wrote:
-> I'm using 2.4.12 and since 2.4.10 my 8-button joypad (via gameport) stoped
-> working.
-> The first 4 buttons work but directions and other 4 buttons doesn´t. I did
-> not notice nothing
-> about it in changelog so I´m reporting it.
+Hello!
 
-I know about the problem in 2.4.10. But in 2.4.12 that should be fixed ...
+>        through the underlying protocol,  the  error  EMSGSIZE  is
+>        returned, and the message is not transmitted.
 
--- 
-Vojtech Pavlik
-SuSE Labs
+It is about datagram sockets, stream sockets never return EMSGSIZE,
+because have no messages boundaries.
+
+Alexey

@@ -1,72 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268170AbUHFP5X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268140AbUHFQVV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268170AbUHFP5X (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Aug 2004 11:57:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268139AbUHFPyn
+	id S268140AbUHFQVV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Aug 2004 12:21:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268171AbUHFQUt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Aug 2004 11:54:43 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:4272 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S268148AbUHFPyH (ORCPT
+	Fri, 6 Aug 2004 12:20:49 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:31467 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S268140AbUHFQSW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Aug 2004 11:54:07 -0400
-Message-ID: <4113A950.1050502@watson.ibm.com>
-Date: Fri, 06 Aug 2004 11:52:48 -0400
-From: Hubertus Franke <frankeh@watson.ibm.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5b) Gecko/20030901 Thunderbird/0.2
-X-Accept-Language: en-us, en
+	Fri, 6 Aug 2004 12:18:22 -0400
+Date: Fri, 6 Aug 2004 12:17:59 -0400 (EDT)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@dhcp83-76.boston.redhat.com
+To: Andi Kleen <ak@muc.de>
+cc: linux-kernel@vger.kernel.org, <torvalds@osdl.org>
+Subject: Re: [PATCH] Re-implemented i586 asm AES (updated)
+In-Reply-To: <m3wu0cgv6q.fsf@averell.firstfloor.org>
+Message-ID: <Xine.LNX.4.44.0408061216210.22965-100000@dhcp83-76.boston.redhat.com>
 MIME-Version: 1.0
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-CC: Erich Focht <efocht@hpce.nec.com>, lse-tech@lists.sourceforge.net,
-       Paul Jackson <pj@sgi.com>, akpm@osdl.org, hch@infradead.org,
-       steiner@sgi.com, jbarnes@sgi.com, sylvain.jeaugey@bull.net, djh@sgi.com,
-       linux-kernel@vger.kernel.org, colpatch@us.ibm.com, Simon.Derr@bull.net,
-       ak@suse.de, sivanich@sgi.com
-Subject: Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement
-References: <20040805100901.3740.99823.84118@sam.engr.sgi.com> <20040805190500.3c8fb361.pj@sgi.com> <247790000.1091762644@[10.10.2.4]> <200408061730.06175.efocht@hpce.nec.com> <267050000.1091806507@[10.10.2.4]>
-In-Reply-To: <267050000.1091806507@[10.10.2.4]>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 6 Aug 2004, Andi Kleen wrote:
+
+> You could use .altinstructions to patch a jump in at runtime
+> based on CPU capabilities. Assuming MMX is really faster of course.
+
+Neat.  The latter could be measured at boot.
 
 
-Martin J. Bligh wrote:
->>There's no relation to PAGG but I think cpusets and CKRM should be
->>made to come together. One of CKRM's user interfaces is a filesystem
->>with the file-tree representing the class hierarchy. It's the same for
->>cpusets. 
-> 
-> 
-> OK, that makes sense ...
-> 
-> 
->>I'd vote for cpusets going in soon. CKRM could be extended by
->>a cpusets controller which should be pretty trivial when using the
->>infrastructure of this patch. It simply needs to create classes
->>(cpusets) and attach processes to them. The enforcement of resources
->>happens automatically. When CKRM is mature to enter the kernel, one
->>could drop /dev/cpusets in favor of the CKRM way of doing it.
-> 
-> 
-> But I think that's dangerous. It's very hard to get rid of existing user
-> interfaces ... I'd much rather we sorted out what we're doing BEFORE
-> putting either in the kernel.
-> 
-> M.
-> 
+- James
+-- 
+James Morris
+<jmorris@redhat.com>
 
-We, CKRM, can put this on our stack, once we have settled how we are 
-going to address the structural requirements that came out of the kernel 
-summit.
-
-As indicated above, this would mean to create a resource controller
-and assign mask to them, which is not what we have done so far, as
-our current controllers are more share focused. This should be a good 
-excercise.
-
-While we are on the topic, do you envision these sets to be somewhat 
-hierarchical or simply a flat hierarchy ?
-
--- Hubertus Franke
 

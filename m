@@ -1,35 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130324AbRCETJ6>; Mon, 5 Mar 2001 14:09:58 -0500
+	id <S130325AbRCETPU>; Mon, 5 Mar 2001 14:15:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130325AbRCETJs>; Mon, 5 Mar 2001 14:09:48 -0500
-Received: from mail.lightband.com ([199.79.199.3]:51464 "EHLO
-	mail.lightband.com") by vger.kernel.org with ESMTP
-	id <S130324AbRCETJf>; Mon, 5 Mar 2001 14:09:35 -0500
-Message-ID: <20010305190930.2759.qmail@alongtheway.com>
-Date: Mon, 5 Mar 2001 19:09:30 +0000
-From: Jim Breton <jamesb-kernel@alongtheway.com>
-To: Wade Hampton <whampton@staffnet.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: eject weirdness on NEC disc changer, kernel 2.4.2
-In-Reply-To: <20010304205046.15690.qmail@alongtheway.com> <3AA3DE27.E34DD4B3@staffnet.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3AA3DE27.E34DD4B3@staffnet.com>; from whampton@staffnet.com on Mon, Mar 05, 2001 at 01:42:47PM -0500
+	id <S130329AbRCETPK>; Mon, 5 Mar 2001 14:15:10 -0500
+Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:6741 "EHLO
+	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
+	id <S130325AbRCETOx>; Mon, 5 Mar 2001 14:14:53 -0500
+Date: Mon, 5 Mar 2001 13:14:25 -0600 (CST)
+From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Message-Id: <200103051914.NAA63254@tomcat.admin.navo.hpc.mil>
+To: kodis@mail630.gsfc.nasa.gov,
+        "Richard B. Johnson" <root@chaos.analogic.com>
+Subject: Re: binfmt_script and ^M
+Cc: linux-kernel@vger.kernel.org, bug-bash@gnu.org
+X-Mailer: [XMailTool v3.1.2b]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 05, 2001 at 01:42:47PM -0500, Wade Hampton wrote:
-> Have you had it where the drive would not eject the disc?  I seem 
-> to be having this on several ATAPI drives (CD-R, CD-ROM, DVD), 
-> all with ide-scsi running....
+John Kodis <kodis@mail630.gsfc.nasa.gov>:
+> On Mon, Mar 05, 2001 at 08:40:22AM -0500, Richard B. Johnson wrote:
+> 
+> > Somebody must have missed the boat entirely. Unix does not, never
+> > has, and never will end a text line with '\r'.
+> 
+> Unix does not, never has, and never will end a text line with ' ' (a
+> space character) or with \t (a tab character).  Yet if I begin a shell
+> script with '#!/bin/sh ' or '#!/bin/sh\t', the training white space is
+> striped and /bin/sh gets exec'd.  Since \r has no special significance
+> to Unix, I'd expect it to be treated the same as any other whitespace
+> character -- it should be striped, and /bin/sh should get exec'd.
 
-That particular issue has not happened to me.
+Actually it does have some significance - it causes a return, then the
+following text overwrites the current text. Granted, this is only used
+occasionally for generating bold/underline/... 
 
-I have had a similar problem in the past where, for example, after
-cancelling a burn session with cdrecord I am unable to eject the disc.
-However that was on kernel 2.2.x and using "real" scsi (not ide-scsi).
+This is used in some formatters (troff) occasionally, though it tends to
+use backspace now.
 
-In the case of my original post, I am also not using ide-scsi, just
-regular ide.
+\r is not considered whitespace, though it should be possible to define
+it that way. A line terminator is always \n.
+
+Another point, is that the "#!/bin/sh" can have options added: it can be
+"#!/bin/sh -vx" and the option -vx is passed to the shell. The space is
+not just "stripped". It is used as a parameter separator. As such, the
+"stripping" is only because the first parameter is separated from the
+command by whitespace.
+
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
+
+Any opinions expressed are solely my own.

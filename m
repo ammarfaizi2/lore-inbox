@@ -1,47 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318780AbSHSNDI>; Mon, 19 Aug 2002 09:03:08 -0400
+	id <S318830AbSHSNEx>; Mon, 19 Aug 2002 09:04:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318830AbSHSNDI>; Mon, 19 Aug 2002 09:03:08 -0400
-Received: from hq.pm.waw.pl ([195.116.170.10]:5773 "EHLO hq.pm.waw.pl")
-	by vger.kernel.org with ESMTP id <S318780AbSHSNDI>;
-	Mon, 19 Aug 2002 09:03:08 -0400
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: PCI MMIO flushing, write-combining etc
-References: <m3d6sjele5.fsf@defiant.pm.waw.pl>
-	<1029496355.31514.44.camel@irongate.swansea.linux.org.uk>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: 19 Aug 2002 13:57:29 +0200
-In-Reply-To: <1029496355.31514.44.camel@irongate.swansea.linux.org.uk>
-Message-ID: <m3y9b3qcwm.fsf@defiant.pm.waw.pl>
+	id <S318877AbSHSNEx>; Mon, 19 Aug 2002 09:04:53 -0400
+Received: from [203.197.212.137] ([203.197.212.137]:48289 "EHLO
+	dns3.ggn.hcltech.com") by vger.kernel.org with ESMTP
+	id <S318830AbSHSNEw>; Mon, 19 Aug 2002 09:04:52 -0400
+Message-ID: <5F0021EEA434D511BE7300D0B7B6AB5303C78756@mail2.ggn.hcltech.com>
+From: "Mohamed Ghouse , Gurgaon" <MohamedG@ggn.hcltech.com>
+To: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>,
+       Sirius Black <sirius_ml@shellfreaks.cx>
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: max open file descriptors
+Date: Mon, 19 Aug 2002 18:41:33 +0530
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+Can I know the limit for 2.2?
 
-> > I understand writes to PR1 can be reordered, merged, and delayed.
-> > What should I do to flush the write buffers? I understand reading from
-> > PR1 would do. Would reading from NPR2 flush PR1 write buffers?
-> > Would writing to NPR2 flush them?
+-----Original Message-----
+From: Alan Cox [mailto:alan@lxorguk.ukuu.org.uk]
+Sent: Monday, August 19, 2002 5:31 PM
+To: Sirius Black
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: max open file descriptors
+
+
+On Mon, 2002-08-19 at 11:37, Sirius Black wrote:
+> Hi to all,
 > 
-> That one I can't actually remember.
+> I was wondering on how much the FD limit can be increased
+> whitout having any problems; i've searched on the net and found 
+> some docs which says 2048 and others 4096....
+> 
+> Which is the maximum number of open FD can i set?
 
-Ok. What PCI spec 2.1 says is, basically, that we don't need to worry about
-such things. Writes can't be reordered - all the reads and writes are
-in CPU (or any other PCI master) order, exactly as on ISA.
-Writes can be merged on prefetchable region (so we don't necessarily want
-to mark I/O MMIO as prefetchable, if the hardware doesn't like merging).
+For 2.2 there are real per process limitations, for 2.4 it basically
+depends how much RAM you have
 
-All writes can be posted, and they are flushed before a read initiated
-by the same master (i.e. CPU) reaches the same PCI target (so it's enough
-to readl() any region, either I/O or MMIO). Looks like we only need to
-flush posted writes when there are specific timing requirements (something
-like writel(reset); sleep 100 ns, writel(no_reset) - or when we want to be
-sure that, say, card interrupts are off when we do something critical
-elsewhere).
--- 
-Krzysztof Halasa
-Network Administrator
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

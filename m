@@ -1,57 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284968AbRLQC3F>; Sun, 16 Dec 2001 21:29:05 -0500
+	id <S284969AbRLQCef>; Sun, 16 Dec 2001 21:34:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284969AbRLQC2q>; Sun, 16 Dec 2001 21:28:46 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:47017 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S284968AbRLQC21>; Sun, 16 Dec 2001 21:28:27 -0500
-Date: Sun, 16 Dec 2001 19:27:57 -0700
-Message-Id: <200112170227.fBH2RvG01603@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: linux-kernel@vger.kernel.org, devfs-announce-list@vindaloo.ras.ucalgary.ca
-Subject: [PATCH] devfs v204 available
+	id <S284975AbRLQCe0>; Sun, 16 Dec 2001 21:34:26 -0500
+Received: from ns.suse.de ([213.95.15.193]:6417 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S284969AbRLQCeL>;
+	Sun, 16 Dec 2001 21:34:11 -0500
+Date: Mon, 17 Dec 2001 03:33:54 +0100 (CET)
+From: Dave Jones <davej@suse.de>
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.1 - intermediate bio stuff..
+In-Reply-To: <200112170221.fBH2LAx01188@vindaloo.ras.ucalgary.ca>
+Message-ID: <Pine.LNX.4.33.0112170330080.29678-100000@Appserv.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hi, all. Version 204 of my devfs patch is now available from:
-http://www.atnf.csiro.au/~rgooch/linux/kernel-patches.html
-The devfs FAQ is also available here.
+On Sun, 16 Dec 2001, Richard Gooch wrote:
 
-Patch directly available from:
-ftp://ftp.??.kernel.org/pub/linux/kernel/people/rgooch/v2.5/devfs-patch-current.gz
+> # modprobe nfs
+> /lib/modules/2.5.1/kernel/fs/nfs/nfs.o: unresolved symbol seq_escape
+> /lib/modules/2.5.1/kernel/fs/nfs/nfs.o: unresolved symbol seq_printf
 
-AND:
-ftp://ftp.atnf.csiro.au/pub/people/rgooch/linux/kernel-patches/v2.5/devfs-patch-current.gz
+Fixed in the 2.4 forward port.
 
-NOTE: kernel 2.5.1 and later require devfsd-v1.3.19 or later.
+Dave.
 
-This is against 2.5.1. Highlights of this release:
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs
 
-- Removed long obsolete rc.devfs
-
-- Return old entry in <devfs_mk_dir> for 2.4.x kernels
-
-- Updated README from master HTML file
-
-- Increment refcount on module in <check_disc_changed>
-
-- Created <devfs_get_handle> and exported <devfs_put>
-
-- Increment refcount on module in <devfs_get_ops>
-
-- Created <devfs_put_ops> and used where needed to fix races
-
-- Added clarifying comments in response to preliminary EMC code review
-
-- Added poisoning to <devfs_put>
-
-- Improved debugging messages
-
-- Fixed unregister bugs in drivers/md/lvm-fs.c
-
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca

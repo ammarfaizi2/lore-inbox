@@ -1,45 +1,34 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317214AbSEXRoQ>; Fri, 24 May 2002 13:44:16 -0400
+	id <S317211AbSEXRqU>; Fri, 24 May 2002 13:46:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317221AbSEXRoP>; Fri, 24 May 2002 13:44:15 -0400
-Received: from imladris.infradead.org ([194.205.184.45]:11274 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S317214AbSEXRoN>; Fri, 24 May 2002 13:44:13 -0400
-Date: Fri, 24 May 2002 18:44:02 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Robert Love <rml@tech9.net>
-Cc: Marcus Meissner <mm@ns.caldera.de>, linux-kernel@vger.kernel.org
-Subject: Re: Compiling 2.2.19 with -O3 flag
-Message-ID: <20020524184402.A24780@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Robert Love <rml@tech9.net>, Marcus Meissner <mm@ns.caldera.de>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <200205241645.g4OGjbE30934@ns.caldera.de> <1022259244.2638.243.camel@sinai>
+	id <S317224AbSEXRqT>; Fri, 24 May 2002 13:46:19 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:41600 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S317211AbSEXRqN>;
+	Fri, 24 May 2002 13:46:13 -0400
+Date: Fri, 24 May 2002 10:31:04 -0700 (PDT)
+Message-Id: <20020524.103104.107001160.davem@redhat.com>
+To: dent@cosy.sbg.ac.at
+Cc: alan@lxorguk.ukuu.org.uk, tori@ringstrom.mine.nu, imipak@yahoo.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: Linux crypto?
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.GSO.4.05.10205241938290.11037-100000@mausmaki.cosy.sbg.ac.at>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 24, 2002 at 09:54:04AM -0700, Robert Love wrote:
-> On Fri, 2002-05-24 at 09:45, Marcus Meissner wrote:
-> 
-> > > Heh, now that is interesting.
-> > 
-> > Not really, -Os implies -O2, cf gcc/toplev.c:
-> 
-> Well, according to Alan -Os outperforms -O2.  So either the code is
-> smaller _and_ faster - and that is surely interesting - or the code is
-> _not_ smaller and -Os is a misnomer.  Seems interesting to me.
+   From: "Thomas 'Dent' Mirlacher" <dent@cosy.sbg.ac.at>
+   Date: Fri, 24 May 2002 19:42:45 +0200 (MET DST)
+   
+   what about taking out the libdes stuff, and make it available from
+   elsewhere, and hook it into the kernel as a module?
+   the main kernel could come with a null crypto implementation - which
+   makes no sense to use, but it will allow to meintain the whole system
+   without having to worry about the crypto stuff per se (this shouldn't
+   change very much in any case)
 
--Os implies -O2 + additional size-reducing features:
-
-[hch@sb hch]$ grep -r optimize_size /work/people/hch/gcc/gcc | wc -l
-    250
-[hch@sb hch]$
-
-A bunch of matches are in ChangeLog and most are target-specific,
-but I guess you got the point..
-
+The US laws cover even things that are meant to allow crypto.

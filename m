@@ -1,64 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266317AbRGFJD2>; Fri, 6 Jul 2001 05:03:28 -0400
+	id <S266312AbRGFJAR>; Fri, 6 Jul 2001 05:00:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266323AbRGFJDS>; Fri, 6 Jul 2001 05:03:18 -0400
-Received: from yellow.jscc.ru ([195.208.40.129]:5904 "EHLO yellow.jscc.ru")
-	by vger.kernel.org with ESMTP id <S266317AbRGFJDG>;
-	Fri, 6 Jul 2001 05:03:06 -0400
-Message-ID: <005601c105fa$8be41cb0$4d28d0c3@jscc.ru>
-From: "Oleg I. Vdovikin" <vdovikin@jscc.ru>
-To: "Ivan Kokshaysky" <ink@jurassic.park.msu.ru>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <022901c10095$f4fca650$4d28d0c3@jscc.ru> <20010629211931.A582@jurassic.park.msu.ru> <20010704114530.A1030@twiddle.net> <003e01c10522$1c9cf580$4d28d0c3@jscc.ru> <20010705134306.A2071@jurassic.park.msu.ru>
-Subject: Re: [patch] Re: alpha - generic_init_pit - why using RTC for calibration?
-Date: Fri, 6 Jul 2001 13:03:38 +0400
+	id <S266317AbRGFJAI>; Fri, 6 Jul 2001 05:00:08 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:58635 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S266312AbRGFI74>; Fri, 6 Jul 2001 04:59:56 -0400
+Message-ID: <3B457DE6.AFEE6696@idb.hist.no>
+Date: Fri, 06 Jul 2001 10:59:18 +0200
+From: Helge Hafting <helgehaf@idb.hist.no>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.6 i686)
+X-Accept-Language: no, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Vasu Varma P V <pvvvarma@techmas.hcltech.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: DMA memory limitation?
+In-Reply-To: <3B4453E6.F4342781@techmas.hcltech.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> With both variants even on a 166MHz CPU you'll get above 1e-7 precision,
-> which is way above accuracy of any crystal oscillator.
-    No, this is not so - this line
+Vasu Varma P V wrote:
+> 
+> Hi,
+> 
+> Is there any limitation on DMA memory we can allocate using
+> kmalloc(size, GFP_DMA)? I am not able to acquire more than
+> 14MB of the mem using this on my PCI SMP box with 256MB ram.
+> I think there is restriction on ISA boards of 16MB.
+> Can we increase it ?
 
-return ((long)cc * 1000000) / CALIBRATE_TIME;
+You can allocate a lot more memory for your pci activities.
+No problem there.  Just drop the "GFP_DMA" and you'll get 
+up to 1G or so.
 
-    truncates the result to the MHZ because of the '* 1000000' statement (cc
-is an int value, so you just loose the precision). This works ok for x86,
-because x86 uses this value with an accuracy to MHz, but this is not enough
-for Alphas (see gettimeofday - we're relies rpcc for calculation). Try to
-pass 'cycle=666000000' to your kernel and when run ntp - you're out of luck
-for clock sync.
+You shouldn't use GFP_DMA because PCI cards don't need that.
+Only ISA cards needs GFP_DMA because they can't use more
+than 16M.  So obviously GFP_DMA is limited to
+16M because it is really ISA_DMA.
 
-    But the most innacuracy comes from
+PCI don't need such special tricks, so don't use GFP_DMA!
+Your PCI cards is able to DMA into any memory, including
+the non-GFP_DMA memory.
 
-#define CALIBRATE_TIME (5 * 1000020/HZ)
+> but we have a macro in include/asm-i386/dma.h,
+> MAX_DMA_ADDRESS  (PAGE_OFFSET+0x1000000).
+> 
+> if i change it to a higher value, i am able to get more dma
+> memory. Is there any way i can change this without compiling
+> the kernel?
+> 
+No matter what you do, DON'T change that.  Yeah, you'll get
+a bigger GFP_DMA pool, but that'll break each and every 
+ISA card that tries to allocate GFP_DMA memory.  You
+achieve exactly the same effect for your PCI card by ditching
+the GFP_DMA parameter, but then you achieve it without breaking
+ISA cards.
 
-    1000020 != CLOCK_TICK_RATE - why? So, with this stuff we're loosing more
-than 100 KHz (again, this ok for x86) ....
-
->
-> > has cc's type changed to 'unsigned int' to prevent problems when rpcc
-> > overflows.
->
-> The only difference is that you'll have extra 'zap' instruction converting
-> 'unsigned int' to 'unsigned long'.
-    No, this is not so. The problem is with the sign bit of int, so,
-
-    (long)(int)0x80000000 != (long)(unsigned int)0x80000000, and
-(long)(int)0x80000000 < 0 and you will get negative frequency value (yes we
-current boxes we're not overflowing, but let's look for the future). Funny?
-;-))
-
-Oleg.
-
-P.S. Ivan, you can reach me by dialing 938-6412 in Moscow.
-
-
+Helge Hafting

@@ -1,38 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281565AbRKMJn6>; Tue, 13 Nov 2001 04:43:58 -0500
+	id <S281568AbRKMJoi>; Tue, 13 Nov 2001 04:44:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281566AbRKMJns>; Tue, 13 Nov 2001 04:43:48 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:1288 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S281565AbRKMJnl>; Tue, 13 Nov 2001 04:43:41 -0500
-Subject: Re: DMA problem (?) w/ 2.4.6-xfs and ServerWorks OSB4 Chipset
-To: adam-dated-1006069566.ee3370@flounder.net (Adam McKenna)
-Date: Tue, 13 Nov 2001 09:51:21 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20011112234604.C29675@flounder.net> from "Adam McKenna" at Nov 12, 2001 11:46:04 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S281567AbRKMJoV>; Tue, 13 Nov 2001 04:44:21 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:63755 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S281569AbRKMJoG>; Tue, 13 Nov 2001 04:44:06 -0500
+Date: Tue, 13 Nov 2001 10:44:05 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>
+Cc: Thomas Foerster <puckwork@madz.net>, linux-kernel@vger.kernel.org
+Subject: Re: Kernel Module / Patch with implements "sshfs"
+Message-ID: <20011113104405.C14574@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20011112080214Z281309-17408+13481@vger.kernel.org> <20011112231545.A1081@elf.ucw.cz> <200111122347.fACNlIx19565@mailf.telia.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E163aDx-0000aQ-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <200111122347.fACNlIx19565@mailf.telia.com>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I ask because I'm still having major problems with the OSB4 chipset on
-> 2.4.14.  I've had to disable DMA completely on my boxes to avoid IDE errors
-> and fs corruption.  Does anyone know of a patch that addresses the issues
-> with this chipset?
+Hi!
+ 
+> > > Mount our external Webserver from our internal Administration Server via
+> > > 100MBit LAN connection.
+> >
+> > Install uservfs(.sf.net), then cd /overlay/#sh:user@host/.
+> > 								Pavel
+> 
+>  
+> Does all X programs support # in filename?
 
-No. I spent some time digging into this problem with both Serverworks and
-Red Hat customers. With certain disks, certain OSB4 revisions and UDMA 
-the controller occasionally gets "stuck", the next DMA it issues starts
-by reissuing the last 4 bytes of the previous request and the entire thing
-goes totally to crap.
+If they don't, they are broken.
 
-The -ac tree will detect this case and panic and hang the machine solid to
-avoid actual disk corruption. The real fix appears to be "dont do UDMA on
-the OSB4". The CSB5 seems fine.
+> And how do you enter the password?
 
-Alan
+For now, only RSA autentication is supported. You can enter inside
+path for ftp, but no it is not the best solution.
+
+> (Especially if you are using it from an X program.)
+> I guess you like to avoid entering it on the command line...
+> 
+> But I agree in principe - all kio slaves should really be uservfs slaves...
+
+								Pavel
+-- 
+Casualities in World Trade Center: 6453 dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

@@ -1,34 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131678AbRCSX2j>; Mon, 19 Mar 2001 18:28:39 -0500
+	id <S131681AbRCSXaa>; Mon, 19 Mar 2001 18:30:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131676AbRCSX23>; Mon, 19 Mar 2001 18:28:29 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:17676 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S131674AbRCSX2N>; Mon, 19 Mar 2001 18:28:13 -0500
-Date: Mon, 19 Mar 2001 15:27:20 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Manfred Spraul <manfred@colorfullife.com>
-cc: Rik van Riel <riel@conectiva.com.br>, <linux-kernel@vger.kernel.org>
-Subject: Re: 3rd version of R/W mmap_sem patch available
-In-Reply-To: <001201c0b0ca$30eb1910$5517fea9@local>
-Message-ID: <Pine.LNX.4.31.0103191525480.937-100000@penguin.transmeta.com>
+	id <S131692AbRCSXaN>; Mon, 19 Mar 2001 18:30:13 -0500
+Received: from platan.vc.cvut.cz ([147.32.240.81]:57865 "EHLO
+	platan.vc.cvut.cz") by vger.kernel.org with ESMTP
+	id <S131681AbRCSX3I>; Mon, 19 Mar 2001 18:29:08 -0500
+Message-ID: <3AB695DE.84A933D@vc.cvut.cz>
+Date: Tue, 20 Mar 2001 00:27:26 +0100
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+Organization: Czech Technical University - Computing and Information Centre
+X-Mailer: Mozilla 4.75 [en] (Win98; U)
+X-Accept-Language: cs,cz,en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: elmer@linking.ee
+CC: linux-kernel@vger.kernel.org
+Subject: Re: atyfb,matrox hardlocks, multihead, USB broken, 2.4.2-ac8
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Sorry, forgot to CC linux kernel...
 
+Elmer Joandi wrote:
+> 
+> 2.4.2-ac8, with 4 graphics cards, Dual Celeron
+> now with 2.4.2-ac8 it is even more clear
+> any attempt to insert  module ends with straight lockup
+> video mode swithc occurs and then ping to the box stops
+> immediately.
+> more, starting X locks kernel the same way.
 
-On Tue, 20 Mar 2001, Manfred Spraul wrote:
->
-> Rik, did you check that {pte,pmd}_alloc are thread safe? At least in
-> 2.4.2 they aren't (include/asm-i386/pgalloc.h), and your patch doesn't
-> touch pgalloc.
-
-Excellent point. We used to do all the looping and re-trying, but it got
-ripped out a long time ago (and in any case, it historically didn't do
-SMP, so the old code doesn't really work).
-
-		Linus
-
+Try 'video=scrollback:0'. Scrollback code does not handle
+heads with different width correctly.
+						Petr Vandrovec

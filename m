@@ -1,72 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264404AbUFLAKQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264414AbUFLAR5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264404AbUFLAKQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jun 2004 20:10:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264424AbUFLAKQ
+	id S264414AbUFLAR5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jun 2004 20:17:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264419AbUFLAR5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jun 2004 20:10:16 -0400
-Received: from gizmo11ps.bigpond.com ([144.140.71.21]:27301 "HELO
-	gizmo11ps.bigpond.com") by vger.kernel.org with SMTP
-	id S264404AbUFLAKJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jun 2004 20:10:09 -0400
-Message-ID: <40CA49DD.5040500@bigpond.net.au>
-Date: Sat, 12 Jun 2004 10:10:05 +1000
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en
+	Fri, 11 Jun 2004 20:17:57 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:35720 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S264414AbUFLARy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jun 2004 20:17:54 -0400
+From: student@uninet.kiev.ua
+Date: Sat, 12 Jun 2004 00:15:38 GMT
 MIME-Version: 1.0
-To: Shane Shrybman <shrybman@aei.ca>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][2.6.7-rc3] Single Priority Array CPU Scheduler
-References: <1086961198.2787.19.camel@mars>
-In-Reply-To: <1086961198.2787.19.camel@mars>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Subject: Geschrieben von Margrit am 07. April 2004
+Importance: Normal
+X-Priority: 3 (Normal)
+Message-ID: <5a0d6a0cc29814.43515.qmail@uninet.kiev.ua>
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Shane Shrybman wrote:
-> Hi Peter,
-> 
-> I just started to try out your SPA scheduler patch and found that it is
-> noticeably sluggish when resizing a mozilla window on the desktop. I
-> have a profile of 2.6.7-rc3-spa and 2.6.7-rc2-mm2 and put them up at:
-> http://zeke.yi.org/linux/spa/ . There is also vmstat output there but it
-> doesn't look too helpful to me.
-> 
-> The test was basic and went like this:
-> 
-> x86, K7, UP, gnome desktop with mozilla (with a bunch of tabs) and a few
-> rxvts. cmdline= elevator=cfq profile=1
-> 
-> readprofile -r
-> 
-> grab a corner of my mozilla window and continually move it around for
-> several seconds
-> 
-> readprofile -v -m /boot/System.map-2.6.7-rc3|sort -rn +2|head -n30
-> 
-> do the same while dumping vmstat 1 to a file.
-> 
-> The kernel with your patch had a much harder time keeping up with the
-> window resizing. Moving the entire window did not seem too bad or not
-> too noticeable. I tried a similar test while running a kernel compile
-> (make -j3) and it made the window resizing _really_ slow to respond.
+1. Was lernt Ibrahim zu Hause: Maedchen duerfen nicht ohne maennliche Begleitung das Haus verlassen, nicht mit fremden Jungen sprechen. Nie ins Schwimmbad oder Disco, ueberhaupt nicht. Wenn ein Maedchen es trotzdem macht, ist sie eine Nutte, die macht es freiwillig und gerne mit Jedem, die ist unrein und ein Stueck Dreck.
 
-Thanks for the feedback, I'll add your test to those I perform myself.
+2. Was lernt Nicole: Man darf Jungen aus anderen Kulturkreisen nicht ablehnen, denn sonst ist man ein Rassistenschwein, eine Naz...). Deshalb muessen wir ihnen zeigen, dass wir sie nicht ablehnen, also besonders hoeflich und zuvorkommend sein. Schroffes NEIN ist Rassismus.
+Was kommt dabei raus, wenn man 1. und 2. zusammenzaehlt?
 
-Some of the control variables for this scheduler have rather arbitrary 
-values at the moment and are likely to be non optimal.  I'm in the 
-process of making some of these variables modifiable at run time via 
-/proc/sys to enable experimentation with different settings.  Hopefully, 
-this will enable settings that improve interactive performance to be 
-established.
+>Muslimische Jugendbande fiel ueber Schuelerin Friederike (16) her
+>Ich wurde von 7 TUERKEN gleichzeitig vergewaltigt
 
-Once again, thanks for the feedback
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
+>Vergewaltigungsopfer: die Schuelerin Frederike (16) aus Stuttgart
+>Stuttgart - Es ist unfassbar, welche Qualen sie erleiden musste. Frederike*
+(16) soll von sieben Jugendlichen vergewaltigt worden sein. Nach einem Kneipenbesuch, immer und immer wieder. 'Ich kriege diese schrecklichen Bilder einfach nicht mehr aus dem Kopf', sagt sie. 'Manchmal wuensche ich mir, tot zu sein...'
+>Es ist Samstagabend, der 20. Maerz. Die Gymnasiastin ist mit einer Freundin verabredet, gemeinsam bummeln sie durch ein Vergnuegungscenter in Stuttgart. Dort gibt's ein Spassbad, Musical-Theater, Restaurants. An einem Flipper-Automaten treffen die Maedchen eine Gruppe junger Maenner. 'Sie waren uns vorher schon mal begegnet, sahen ganz nett aus', erinnert sich Frederike. 'Wir haben uns erst angelaechelt, dann miteinander geredet. Einer von ihnen gefiel mir gut. Wir gingen nach draussen. Dort schmusten wir miteinander. Dann kamen auch schon die anderen Jungs hinterher.'
 
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+>Frederike stockt bei dem Gedanken an das, was dann passierte. Traenen laufen dem huebschen Maedchen mit den langen, blonden Haaren ueber die Wangen. Dann sagt sie leise: 'Ploetzlich zogen mich die Jungs auf die Wiese. Ich hatte solche Angst, brachte keinen Ton heraus. Vor Schreck wehrte ich mich nicht. Ich habe geahnt, dass etwas Schlimmes passiert.'
+>Frederikes Haende zittern. Ihre Augen suchen voller Scham die Leere, als sie weitererzaehlt: 'Sie haben mir die Kleider heruntergerissen, fielen ueber mich her. Immer wieder, alle zusammen. Einer packte meinen Kopf, hielt ihn ganz fest. Die anderen unterhielten sich, uebergossen mich mit Cola. Ich fuehlte mich so unendlich hilflos, so ohnmaechtig. Wie im Traum liess ich es geschehen. Ich dachte nur: Hoffentlich ist es bald vorbei. Es hat furchtbar weh getan, endlos gedauert. Dann rannten die Typen weg. Sie liessen mich einfach auf der Wiese liegen.'
+>Frederike erstattete noch am selben Abend Anzeige. Im Krankenhaus wurden Spermaspuren sichergestellt. Nur wenige Tage spaeter stellten sich die sieben Taeter bei der Polizei. Sie sind zwischen 15 und 17 Jahre alt, tuerkischer Herkunft. Unfassbar: Sie verhoehnen ihr Opfer, sagen:
+>'Sie wollte Sex. Es hat ihr Spass gemacht.'
+>Zwei der Jungen sitzen inzwischen in Haft.
+>War die Vergewaltigung etwa keine, weil sich das Maedchen nicht wehrte?
+>'Wenn sich ein Opfer aus Angst nicht zur Wehr setzt, um Schlimmeres zu verhueten, dann heisst das noch lange nicht, dass auch nur im Mindesten ein Einverstaendnis vorlaege', so eine Sprecherin der Polizei Stuttgart. 'Nach mehrmaligen Vernehmungen scheint die Aussage des Maedchens glaubwuerdig. Es war eine Vergewaltigung.'
+>Frederike ist fassungslos. 'Jetzt behaupten die auch noch, dass ich luege. Die haben alles in mir zerstoert. Ich fuehle mich so schmutzig, so wertlos.'
+>Inzwischen hat sich ein moegliches zweites Opfer (16) der Bande bei der Polizei gemeldet. Ein Ermittler zu BILD: 'Moeglich, dass es noch weitere Opfer dieser Sex-Clique gibt.'
 
+
+Kommentar des Sober Autors:
+Hallo Frederike,
+
+Ich hoffe das Du anstaendige Verwandte oder Bekannte hast, die die Taeter mal richtig durch die Mangel nehmen. Selbstjustiz muss in unserem Land langsam aber Sicher eingefuehrt werden. Naemlich Tuerken oder sonstiges Kanacken Pack, werden bei uns nicht bestraft. Wahrscheinlich musst Du Dich noch bei den Taetern entschuldigen, weil du nicht ganz still gehalten hast.
+
+PS:
+Das ist NICHT Zynisch gemeint,,, so sieht es in unserem Land aus!

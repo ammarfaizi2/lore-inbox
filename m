@@ -1,64 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262938AbTJOL6R (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Oct 2003 07:58:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262941AbTJOL6Q
+	id S262958AbTJOMDT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Oct 2003 08:03:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262960AbTJOMDT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Oct 2003 07:58:16 -0400
-Received: from arnor.apana.org.au ([203.14.152.115]:56850 "EHLO
-	arnor.me.apana.org.au") by vger.kernel.org with ESMTP
-	id S262938AbTJOL6P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Oct 2003 07:58:15 -0400
-Date: Wed, 15 Oct 2003 21:57:40 +1000
-To: Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@infradead.org>,
-       axboe@suse.de, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [SCSI] Set max_phys_segments to sg_tablesize
-Message-ID: <20031015115740.GA23469@gondor.apana.org.au>
+	Wed, 15 Oct 2003 08:03:19 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:63888 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262958AbTJOMDR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Oct 2003 08:03:17 -0400
+Date: Wed, 15 Oct 2003 14:02:59 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [SCSI] Set max_phys_segments to sg_tablesize
+Message-ID: <20031015120259.GC1077@suse.de>
+References: <20031015115740.GA23469@gondor.apana.org.au>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="gKMricLos+KVdGMg"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+In-Reply-To: <20031015115740.GA23469@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Oct 15 2003, Herbert Xu wrote:
+> Hi:
+> 
+> Many SCSI host drivers assume that use_sg will be <= sg_tablesize.
+> Hence they may break under 2.6 as the number of physical segments
+> is not limited by sg_tablesize.  This patch fixes that.
 
---gKMricLos+KVdGMg
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Is sg_tablesize guarenteed to be set? Looks like you need a
 
-Hi:
+===== drivers/scsi/hosts.c 1.94 vs edited =====
+--- 1.94/drivers/scsi/hosts.c   Sun Sep 21 19:52:38 2003
++++ edited/drivers/scsi/hosts.c Wed Oct 15 14:02:14 2003
+@@ -234,7 +234,11 @@
+        shost->hostt = sht;
+        shost->this_id = sht->this_id;
+        shost->can_queue = sht->can_queue;
++
+        shost->sg_tablesize = sht->sg_tablesize;
++       if (!shost->sg_tablesize)
++               shost->sg_tablesize = MAX_PHYS_SEGMENTS;
++
+        shost->cmd_per_lun = sht->cmd_per_lun;
+        shost->unchecked_isa_dma = sht->unchecked_isa_dma;
+        shost->use_clustering = sht->use_clustering;
 
-Many SCSI host drivers assume that use_sg will be <= sg_tablesize.
-Hence they may break under 2.6 as the number of physical segments
-is not limited by sg_tablesize.  This patch fixes that.
+additionally.
 
-Cheers,
 -- 
-Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
-Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Jens Axboe
 
---gKMricLos+KVdGMg
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=p
-
-Index: kernel-source-2.5/drivers/scsi/scsi_lib.c
-===================================================================
-RCS file: /home/gondolin/herbert/src/CVS/debian/kernel-source-2.5/drivers/scsi/scsi_lib.c,v
-retrieving revision 1.1.1.16
-diff -u -r1.1.1.16 scsi_lib.c
---- kernel-source-2.5/drivers/scsi/scsi_lib.c	28 Sep 2003 04:44:15 -0000	1.1.1.16
-+++ kernel-source-2.5/drivers/scsi/scsi_lib.c	15 Oct 2003 11:32:20 -0000
-@@ -1243,7 +1243,7 @@
- 	blk_queue_prep_rq(q, scsi_prep_fn);
- 
- 	blk_queue_max_hw_segments(q, shost->sg_tablesize);
--	blk_queue_max_phys_segments(q, MAX_PHYS_SEGMENTS);
-+	blk_queue_max_phys_segments(q, shost->sg_tablesize);
- 	blk_queue_max_sectors(q, shost->max_sectors);
- 	blk_queue_bounce_limit(q, scsi_calculate_bounce_limit(shost));
- 	blk_queue_segment_boundary(q, shost->dma_boundary);
-
---gKMricLos+KVdGMg--

@@ -1,45 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292306AbSBPBRA>; Fri, 15 Feb 2002 20:17:00 -0500
+	id <S292305AbSBPBUA>; Fri, 15 Feb 2002 20:20:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292305AbSBPBQv>; Fri, 15 Feb 2002 20:16:51 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:24283 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S292306AbSBPBQf>;
-	Fri, 15 Feb 2002 20:16:35 -0500
-Date: Fri, 15 Feb 2002 17:17:34 -0800
-From: Hanna Linder <hannal@us.ibm.com>
-To: Paul Menage <pmenage@ensim.com>
-cc: linux-kernel@vger.kernel.org, viro@math.psu.edu
-Subject: Re: [RFC][PATCH 2.4.17] Your suggestions for fast path walk 
-Message-ID: <13770000.1013822253@w-hlinder.des>
-In-Reply-To: <E16bo6h-0003si-00@pmenage-dt.ensim.com>
-In-Reply-To: <E16bo6h-0003si-00@pmenage-dt.ensim.com>
-X-Mailer: Mulberry/2.1.0 (Linux/x86)
+	id <S292307AbSBPBTv>; Fri, 15 Feb 2002 20:19:51 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:32781
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S292305AbSBPBTi>; Fri, 15 Feb 2002 20:19:38 -0500
+Date: Fri, 15 Feb 2002 17:08:20 -0800 (PST)
+From: Andre Hedrick <andre@linuxdiskcert.org>
+To: Pavel Machek <pavel@suse.cz>
+cc: Rob Landley <landley@trommello.org>,
+        kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: small IDE cleanup: void * should not be used unless neccessary
+In-Reply-To: <20020213225047.GI1454@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.10.10202151707440.10501-100000@master.linux-ide.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 13 Feb 2002, Pavel Machek wrote:
 
---On Friday, February 15, 2002 11:33:19 -0800 Paul Menage <pmenage@ensim.com> wrote:
+> Hi!
+> 
+> > > > > This is really easy, please apply. (It will allow me to kill few casts
+> > > > > in future).
+> > > > > 								Pavel
+> > > > >
+> > > > > --- linux/include/linux/ide.h	Mon Feb 11 21:15:04 2002
+> > > > > +++ linux-dm/include/linux/ide.h	Mon Feb 11 22:36:12 2002
+> > > > > @@ -529,7 +531,7 @@
+> > > > >
+> > > > >  typedef struct hwif_s {
+> > > > >  	struct hwif_s	*next;		/* for linked-list in ide_hwgroup_t */
+> > > > > -	void		*hwgroup;	/* actually (ide_hwgroup_t *) */
+> > > > > +	struct hwgroup_s *hwgroup;	/* actually (ide_hwgroup_t *) */
+> > > > >  	ide_ioreg_t	io_ports[IDE_NR_PORTS];	/* task file registers */
+> > > > >  	hw_regs_t	hw;		/* Hardware info */
+> > > > >  	ide_drive_t	drives[MAX_DRIVES];	/* drive info */
+> > > >
+> > > > Now I'm confused about the comment on the end of the line.
+> > > >
+> > > > Should the comment be changed, or should the type be ide_hwgroup_t
+> > > > instead of struct hwgroup_s?
+> > >
+> > > struct hwgroup_s == ide_hwgroup_t. That's infection by hungarian
+> > > notation, and yes it would be nice to clean it up. For now, I'm
+> > > killing worst stuff.
+> > > 							Pavel
+> > 
+> > I know they're functionally equivalent, but so was the original void
+> > *. :)
+> 
+> Well, void * hides real errors.
+> 
+> > Just an "as long as you're touching this line anyway, why leave the old 
+> > comment?" thing.  A minor, in-passing nit at best...
+> 
+> ide_hwgroup_t is used in 90% of rest of code, so I thought I better
+> leave it there.
 
-> One obvious problem with it is that __emul_lookup_dentry()[1] calls
-> path_walk() internally, and the nd passed has uncounted references and
-> no LOOKUP_LOCKED flag - I suspect that this will cause reference counts
-> to get mucked up.
+So what do we do with the other 10% break it?  Sheesh :-/
 
-Paul,
 
-	Thanks again for your comments. You are right, the d_count is 
-getting mucked up through the __emul_lookup_dentry() path. I also 
-discovered some problems with the way I was taking the dcache_lock.
-So I will go back and try to fix those.
-	I saw your patch for path_lookup. The next version of fast walk 
-will include those changes (I had started making the changes before seeing
-your patch anyway).
-	
-Hanna 
-
+Andre Hedrick
+Linux Disk Certification Project                Linux ATA Development
 

@@ -1,38 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268997AbRHLH5u>; Sun, 12 Aug 2001 03:57:50 -0400
+	id <S269002AbRHLIBa>; Sun, 12 Aug 2001 04:01:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269000AbRHLH5l>; Sun, 12 Aug 2001 03:57:41 -0400
-Received: from smtpsrv1.isis.unc.edu ([152.2.1.138]:37259 "EHLO
-	smtpsrv1.isis.unc.edu") by vger.kernel.org with ESMTP
-	id <S268997AbRHLH5e>; Sun, 12 Aug 2001 03:57:34 -0400
-Date: Sun, 12 Aug 2001 03:57:42 -0400 (EDT)
-From: "Daniel T. Chen" <crimsun@email.unc.edu>
-To: Keith Owens <kaos@ocs.com.au>
-cc: Rasmus Andersen <rasmus@jaquet.dk>, linux-kernel@vger.kernel.org
-Subject: Re: Announce: Kernel Build for 2.5, Release 1.1 is available. 
-In-Reply-To: <10614.997602288@ocs3.ocs-net>
-Message-ID: <Pine.A41.4.21L1.0108120353520.46568-100000@login3.isis.unc.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S269000AbRHLIBU>; Sun, 12 Aug 2001 04:01:20 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:12160 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S269002AbRHLIBP>;
+	Sun, 12 Aug 2001 04:01:15 -0400
+Date: Sun, 12 Aug 2001 01:00:13 -0700 (PDT)
+Message-Id: <20010812.010013.41633276.davem@redhat.com>
+To: sandy@storm.ca
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: struct page to 36 (or 64) bit bus address?
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <3B755995.E876230C@storm.ca>
+In-Reply-To: <20010809163531.D1575@sventech.com>
+	<20010811175626.O19169@athlon.random>
+	<3B755995.E876230C@storm.ca>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(not subbed to kbuild-devel, snipping)
+   From: Sandy Harris <sandy@storm.ca>
+   Date: Sat, 11 Aug 2001 12:13:09 -0400
 
-On Sun, 12 Aug 2001, Keith Owens wrote:
+   Andrea Arcangeli wrote:
+   
+   > ... (the API says that if you get null out of the map call you
+   > should fallback, but no driver checks for this null retval and so in
+   > turn they're all prone to crash, not going to be fixed in 2.4 I guess).
+   
+   That strikes me as a pretty basic programming error. Why on Earth is
+   it not considered a problem urgently needing a fix?
 
-> Very strange, drivers/sound/emu10k1/efxmgr.c is definitely in 2.4.8 but
-> not in 2.4.8-pre.  The corrected emu10k1 list in kbuild-2.5-2.4.8-2
-> added even more objects, but did not remove references to efxmgr.  I
-> still think it was a bad source tree problem.  Oh well, it is "fixed" now.
+Andrea has told a white lie, the "API says" that the interfaces may
+not fail ever.  That is why there is no failure return value defined
+for the PCI DMA interfaces currently.  The DMA-mapping.txt file (which
+is the definition of the API) makes no mention of a failure case for
+these interfaces.
 
-2.4.8-pre does not contain efxmgr.c, passthrough.c, and passthrough.h,
-which were in development after v0.7 EMU10K1 was brought into the kernel.
+Andrea has mentioned how we would _like_ the interface to behave.
+:-)
 
-dtc
+There have been a few threads on this issue.  One of the core reasons
+the situation is unlikely to change in 2.4.x is that the scsi layer in
+it's current form makes the logic required for recovering from a DMA
+mapping failure aweful at best.
 
----
-Dan Chen                 crimsun@email.unc.edu
-GPG key: www.cs.unc.edu/~chenda/pubkey.gpg.asc
-
+Later,
+David S. Miller
+davem@redhat.com

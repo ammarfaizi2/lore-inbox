@@ -1,43 +1,54 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317032AbSFKNB3>; Tue, 11 Jun 2002 09:01:29 -0400
+	id <S317035AbSFKNRI>; Tue, 11 Jun 2002 09:17:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317034AbSFKNB2>; Tue, 11 Jun 2002 09:01:28 -0400
-Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:59663 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S317032AbSFKNB1>; Tue, 11 Jun 2002 09:01:27 -0400
-Date: Tue, 11 Jun 2002 14:01:22 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Thunder from the hill <thunder@ngforever.de>
-Cc: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.21: kbuild changes broke filenames with commas
-Message-ID: <20020611140122.B3665@flint.arm.linux.org.uk>
-In-Reply-To: <20020611122144.A3665@flint.arm.linux.org.uk> <Pine.LNX.4.44.0206110611590.24261-100000@hawkeye.luckynet.adm>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S317036AbSFKNRH>; Tue, 11 Jun 2002 09:17:07 -0400
+Received: from mail.loewe-komp.de ([62.156.155.230]:45833 "EHLO
+	mail.loewe-komp.de") by vger.kernel.org with ESMTP
+	id <S317035AbSFKNRG>; Tue, 11 Jun 2002 09:17:06 -0400
+Message-ID: <3D05F8CB.7040409@loewe-komp.de>
+Date: Tue, 11 Jun 2002 15:19:07 +0200
+From: Peter =?ISO-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: Vladimir Zidar <vladimir@mindnever.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Process-Shared Mutex (futex) - What is it good for ?
+In-Reply-To: <1023380463.1751.39.camel@server1> 	<3D00706B.1070906@loewe-komp.de> <1023481074.7204.70.camel@server1> 	<3D0324B1.614BD9D4@loewe-komp.de> <1023723807.1491.56.camel@server1>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 11, 2002 at 06:16:10AM -0600, Thunder from the hill wrote:
-> Well the question is then how will things look without commas? I suppose 
-> if we have very complex things and prevent using commas whereas I don't 
-> assert that we do for text but this is just a bloat example it's good to 
-> have things like commas allowed even though we are in case we won't allow 
-> them there talking about file names.
+Vladimir Zidar wrote:
+> On Sun, 2002-06-09 at 11:49, Peter Wächtler wrote:
 > 
-> If we allow commas all over the filesystem and likewise say that there is 
-> nothing to mention about it why should we refuse them for kbuild 
-> especially since there is a parallel system which allows commas?
+> 
+>>Just for *that*?
+>>Do you write programs that reveal from sigsegv with sigsetjmp(3)?
+>>
+> 
+>  No, I do not. But killing the process sounds much like abnormal
+> programm termination. Can you feel the word 'abnormal' ? It is opposite
+> of normal - be it simple as error condition on file descriptor.
+> 
 
-You've *completely* missed the point.
+A-prog:               B-prog:
 
-The gcc argument >>> -Wp,-MD,foo,bar.c <<< is the problem.  If anything
-should be fixed, its that silly gcc syntax.  kbuild should not work
-around the inability of gcc to accept filenames with commas in.
+gets write lock
+write some data
+                        block on read lock
+write some data
+crashes
+                        wants an error indication to repair data magically
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+
+So a crashing A-prog is OK for you, but B should get an indication.
+Could catch a signal (SIGLOST?) returning -1 with errno=LOCKBROKEN
+That would be possible with futex.
+
+That is a case for writing data to a file - what about linked lists
+in memory?
+
 

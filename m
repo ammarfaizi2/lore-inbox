@@ -1,62 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130741AbRCIX1p>; Fri, 9 Mar 2001 18:27:45 -0500
+	id <S130768AbRCJAFI>; Fri, 9 Mar 2001 19:05:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130766AbRCIX1Z>; Fri, 9 Mar 2001 18:27:25 -0500
-Received: from ulima.unil.ch ([130.223.144.143]:39437 "EHLO ulima.unil.ch")
-	by vger.kernel.org with ESMTP id <S130741AbRCIX1X>;
-	Fri, 9 Mar 2001 18:27:23 -0500
-Date: Sat, 10 Mar 2001 00:26:40 +0100
-From: FAVRE Gregoire <greg@ulima.unil.ch>
+	id <S130773AbRCJAE7>; Fri, 9 Mar 2001 19:04:59 -0500
+Received: from [63.68.113.130] ([63.68.113.130]:13697 "EHLO fire.osdlab.org")
+	by vger.kernel.org with ESMTP id <S130768AbRCJAEq>;
+	Fri, 9 Mar 2001 19:04:46 -0500
+Date: Fri, 9 Mar 2001 16:01:45 -0800
 To: linux-kernel@vger.kernel.org
-Subject: linux-2.4.2-ac1[67] aicam compil error
-Message-ID: <20010310002640.A13924@ulima.unil.ch>
-Mail-Followup-To: FAVRE Gregoire <greg@ulima.unil.ch>,
-	linux-kernel@vger.kernel.org
+Cc: alan@lxorguk.ukuu.org.uk, greg@ulima.unil.ch
+Subject: [PATCH] aicasm db3 fiasco
+Message-ID: <20010309160145.H30901@osdlab.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.3.15i
+From: Nathan Dabney <smurf@osdlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Debian does not use db3 at all, yet.
 
-Sorry if that has already been posted, I read the m-l via newsgroups.
-When I try to compile, I got:
-make[4]: Entering directory
-`/usr/src/linux-2.4.2-ac17/drivers/scsi/aic7xxx'
-make -C aicasm
-make[5]: Entering directory
-`/usr/src/linux-2.4.2-ac17/drivers/scsi/aic7xxx/aicasm'
-kgcc -I/usr/include -ldb aicasm_gram.c aicasm_scan.c aicasm.c
-aicasm_symbol.c -o aicasm
-aicasm/aicasm_gram.y:45: ../queue.h: No such file or directory
-aicasm/aicasm_gram.y:50: aicasm.h: No such file or directory
-aicasm/aicasm_gram.y:51: aicasm_symbol.h: No such file or directory
-aicasm/aicasm_gram.y:52: aicasm_insformat.h: No such file or directory
-aicasm/aicasm_scan.l:44: ../queue.h: No such file or directory
-aicasm/aicasm_scan.l:49: aicasm.h: No such file or directory
-aicasm/aicasm_scan.l:50: aicasm_symbol.h: No such file or directory
-aicasm/aicasm_scan.l:51: y.tab.h: No such file or directory
-make[5]: *** [aicasm] Error 1
-make[5]: Leaving directory
-`/usr/src/linux-2.4.2-ac17/drivers/scsi/aic7xxx/aicasm'
-make[4]: *** [aicasm/aicasm] Error 2
-make[4]: Leaving directory
-`/usr/src/linux-2.4.2-ac17/drivers/scsi/aic7xxx'
-make[3]: *** [first_rule] Error 2
-make[3]: Leaving directory
-`/usr/src/linux-2.4.2-ac17/drivers/scsi/aic7xxx'
-make[2]: *** [_subdir_aic7xxx] Error 2
-make[2]: Leaving directory `/usr/src/linux-2.4.2-ac17/drivers/scsi'
-make[1]: *** [_subdir_scsi] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.4.2-ac17/drivers'
-make: *** [_dir_drivers] Error 2
-Exit 2
+Applies against 2.4.2-ac17
 
-And voila...
+-Nathan
 
-	Greg
-________________________________________________________________
-http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch
+diff -urN linux.orig/drivers/scsi/aic7xxx/aicasm/Makefile linux/drivers/scsi/aic7xxx/aicasm/Makefile
+--- linux.orig/drivers/scsi/aic7xxx/aicasm/Makefile	Fri Mar  9 15:38:13 2001
++++ linux/drivers/scsi/aic7xxx/aicasm/Makefile	Fri Mar  9 15:52:27 2001
+@@ -28,10 +28,12 @@
+ aicdb.h:
+ 	if [ -e "/usr/include/db3/db_185.h" ]; then		\
+ 		echo "#include <db3/db_185.h>" > aicdb.h;	\
++	elif [ -e "/usr/include/db2/db_185.h" ]; then		\
++		echo "#include <db2/db_185.h>" > aicdb.h;	\
+ 	elif [ -e "/usr/include/db/db_185.h" ]; then		\
+ 		echo "#include <db/db_185.h>" >aicdb.h	;	\
+ 	else							\
+-		echo "*** Install db3 development libraries";	\
++		echo "*** Install db development libraries";	\
+ 	fi
+ 
+ clean:

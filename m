@@ -1,57 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311290AbSCLQwU>; Tue, 12 Mar 2002 11:52:20 -0500
+	id <S311287AbSCLQwS>; Tue, 12 Mar 2002 11:52:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311286AbSCLQwK>; Tue, 12 Mar 2002 11:52:10 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:25865 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S311287AbSCLQv6>; Tue, 12 Mar 2002 11:51:58 -0500
-Date: Tue, 12 Mar 2002 11:50:08 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Edgar Toernig <froese@gmx.de>
-cc: Doug Siebert <dsiebert@divms.uiowa.edu>, linux-kernel@vger.kernel.org
-Subject: Re: Fast Userspace Mutexes (futex) vs. msem_*
-In-Reply-To: <3C893570.767929F9@gmx.de>
-Message-ID: <Pine.LNX.3.96.1020312114314.31421D-100000@gatekeeper.tmr.com>
+	id <S311290AbSCLQwJ>; Tue, 12 Mar 2002 11:52:09 -0500
+Received: from web12704.mail.yahoo.com ([216.136.173.241]:10511 "HELO
+	web12704.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S311286AbSCLQvz>; Tue, 12 Mar 2002 11:51:55 -0500
+Message-ID: <20020312165154.82548.qmail@web12704.mail.yahoo.com>
+Date: Tue, 12 Mar 2002 08:51:54 -0800 (PST)
+From: =?ISO-8859-1?Q? "Jo=E3o" ?= Bonina <bonina_2001@yahoo.com>
+Subject: Networking problem with Realtek RTL8139
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 8 Mar 2002, Edgar Toernig wrote:
+Hello all!
 
-> And what is "right"?  You have two problems:
-> 
->  - The kernel has no idea of how many locks a dying process holds.  The
->    kernel only starts to know about a lock when another process has to
->    wait for it.
+I'm having some networking problems with my Realtek
+RTL8139 network card (I'm using Suse 7.2 which
+installs Kernel 2.4.4, I guess).
 
-There have been some discussions on this, it seems possible to make the
-information available, to {kernel,lockmanager,other}.
- 
->  - Locked data may be in an inconsistent state.  The kernel has no idea
->    how to "repair" it.
+The host hangs and the card's led starts flashing when
+I do the following:
+- access the X server remotely
+- in a FTP session during file transfer
+- in a TELNET session, sometimes.
 
-But that's true for other things as well, like locks on regions of files.
-That hasn't prevented locking from working and being useful.
+After that all network access is dead.
 
-What I don't like is the idea of processes sitting forever with their
-thumb up their ass waiting for an unlock which isn't going to come. I have
-an application like that, starts a few thousand threads and spins at
-10-70k ctx/sec forever. It's (a) commercial binary-only, and (b) selected
-by management against my recommendations. The vendor blames Linux, of
-course, "threads don't work right," meaning "like Solaris" rather than
-"like POSIX."
+The 8139too module is the one installed for the card.
 
-I would LOVE to see Andrea's "Child Run First" and optional part of the
-mainline kernel, the patch seems to solve the hang, but doesn't play well
-with other patches.
+How do I solve this problem?
 
-I don't see either of the above as show stoppers, although I agree they
-are implementation issues.
+JB
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+__________________________________________________
+Do You Yahoo!?
+Try FREE Yahoo! Mail - the world's greatest free email!
+http://mail.yahoo.com/

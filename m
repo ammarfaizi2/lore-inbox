@@ -1,438 +1,142 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261322AbTIOMta (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 08:49:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261335AbTIOMta
+	id S261327AbTIOMsO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 08:48:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261335AbTIOMsO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 08:49:30 -0400
-Received: from main.gmane.org ([80.91.224.249]:31420 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261322AbTIOMtD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 08:49:03 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: [PATCH]O20.1int
-Date: Mon, 15 Sep 2003 14:48:23 +0200
-Message-ID: <yw1x4qzefca0.fsf@users.sourceforge.net>
-References: <200309101300.20634.kernel@kolivas.org>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=-=-="
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:gWIa5vtutZgpRIFafHnQTuZzCDE=
+	Mon, 15 Sep 2003 08:48:14 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:9229 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261327AbTIOMsL (ORCPT
+	<rfc822;linux-kernel@vger.redhat.com>);
+	Mon, 15 Sep 2003 08:48:11 -0400
+From: Russell Coker <russell@coker.com.au>
+Reply-To: russell@coker.com.au
+To: Linux Kernel <linux-kernel@vger.redhat.com>
+Subject: Re: Oops on 2.4.22 when mounting from broken NFS server
+Date: Mon, 15 Sep 2003 22:47:20 +1000
+User-Agent: KMail/1.5.3
+References: <200309131938.40177.russell@coker.com.au>
+In-Reply-To: <200309131938.40177.russell@coker.com.au>
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_YTbZ/W0fHPH1wew"
+Message-Id: <200309152247.20462.russell@coker.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
 
-Con Kolivas <kernel@kolivas.org> writes:
+--Boundary-00=_YTbZ/W0fHPH1wew
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-> Should be the last of the O1int patches.
+On Sat, 13 Sep 2003 19:38, Russell Coker wrote:
+> Attached is the output of ksymoops from an Oops when mounting from a broken
+> NFS server.  I was experimenting with a new security policy for the NFS
+> server and didn't grant the daemons all the access they needed.  Afterwards
+> I noticed that kernel had Oops'd on a mount command (I should have
+> suspected when the mount SEGV'd).
 >
-> Tiny tweak to keep top two interactive levels round robin at the fastest 
-> (10ms) which keeps X smooth when another interactive task is also using 
-> bursts of cpu (eg web browser).
+> I can probably reproduce this if requested.  It's 2.4.22 client and server.
 
-I still see the occasional problem with XEmacs.  This time I managed
-to get some traces of it.  It looks like it is switching madly between
-XEmacs and X.
-
-
---=-=-=
-Content-Disposition: attachment; filename=xemacs.top
-
-top - 18:16:42 up 21:13,  1 user,  load average: 0.24, 0.14, 0.06
-Tasks:  65 total,   1 running,  63 sleeping,   0 stopped,   1 zombie
-Cpu(s):   1.2% user,   0.3% system,   0.0% nice,  98.0% idle,   0.6% IO-wait
-Mem:    224128k total,   138548k used,    85580k free,    10504k buffers
-Swap:   524280k total,      840k used,   523440k free,    61624k cached
-
-  PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
-  904 root      15   0 45364  10m  35m S  2.0  4.9   3:57.57 X
-  962 mru       15   0 26560  21m 9492 S  2.0 10.0   1:00.76 xemacs
-  923 mru       16   0  2388 1468 2060 S  1.0  0.7   0:00.35 bash
-    1 root      16   0   480  228  456 S  0.0  0.1   0:05.69 init
-    2 root      34  19     0    0    0 S  0.0  0.0   0:00.00 ksoftirqd/0
-    3 root       5 -10     0    0    0 S  0.0  0.0   0:45.68 events/0
-    4 root       5 -10     0    0    0 S  0.0  0.0   0:00.00 kblockd/0
-    5 root      15   0     0    0    0 S  0.0  0.0   0:00.00 pdflush
-    6 root      15   0     0    0    0 S  0.0  0.0   0:00.08 pdflush
-    7 root      15   0     0    0    0 S  0.0  0.0   0:01.11 kswapd0
-    8 root      10 -10     0    0    0 S  0.0  0.0   0:00.00 aio/0
-    9 root      23   0     0    0    0 S  0.0  0.0   0:00.00 kseriod
-   10 root      23   0     0    0    0 S  0.0  0.0   0:00.00 kjournald
-   27 root      15   0     0    0    0 S  0.0  0.0   0:00.01 kjournald
-   35 root      16   0  1560  768 1344 S  0.0  0.3   0:00.00 devfsd
-   60 root      18   0     0    0    0 S  0.0  0.0   0:00.00 kjournald
-   61 root      19   0     0    0    0 S  0.0  0.0   0:00.00 kjournald
-   62 root      15   0     0    0    0 S  0.0  0.0   0:00.06 kjournald
-   63 root      15   0     0    0    0 S  0.0  0.0   0:00.00 kjournald
-   64 root      15   0     0    0    0 S  0.0  0.0   0:00.01 kjournald
-   65 root      15   0     0    0    0 S  0.0  0.0   0:00.04 kjournald
-   66 root      15   0     0    0    0 S  0.0  0.0   0:00.03 kjournald
-   67 root      15   0     0    0    0 S  0.0  0.0   0:00.01 kjournald
-  102 root      21   0     0    0    0 S  0.0  0.0   0:00.00 pccardd
-  112 root      23   0     0    0    0 S  0.0  0.0   0:00.00 pccardd
-  115 root      18   0  1496  692 1340 S  0.0  0.3   0:00.00 cardmgr
-  164 root      16   0     0    0    0 S  0.0  0.0   0:00.00 knodemgrd_0
-  187 root      15   0     0    0    0 S  0.0  0.0   0:00.00 khubd
-  735 rpc       20   0  1508  568 1448 S  0.0  0.3   0:00.00 rpc.portmap
-  741 root      16   0  1428  616 1364 S  0.0  0.3   0:00.00 syslogd
-  744 root      16   0  1360  460 1320 S  0.0  0.2   0:00.00 klogd
-  746 root      18   0  1400  528 1360 S  0.0  0.2   0:00.00 inetd
-  765 root      16   0  1472  636 1420 S  0.0  0.3   0:00.00 automount
-  852 lp        17   0  3388 1280 3260 S  0.0  0.6   0:00.10 lpd
-  855 root      16   0  1484  592 1436 S  0.0  0.3   0:00.00 crond
-  858 daemon    16   0  1492  656 1440 S  0.0  0.3   0:00.00 atd
-  861 root      16   0  3288 1448 2644 S  0.0  0.6   0:00.06 sendmail
-  864 smmsp     16   0  3284 1432 2644 S  0.0  0.6   0:00.00 sendmail
-  868 root      15   0  1364  556 1316 S  0.0  0.2   0:00.01 acpid
-  870 mru       17   0  2312 1180 2060 S  0.0  0.5   0:00.05 bash
-  871 root      16   0  1356  416 1312 S  0.0  0.2   0:00.00 agetty
-  872 root      17   0  1356  416 1312 S  0.0  0.2   0:00.00 agetty
-  873 root      17   0  1356  416 1312 S  0.0  0.2   0:00.00 agetty
-  874 root      16   0  1356  416 1312 S  0.0  0.2   0:00.00 agetty
-  875 root      17   0  1356  416 1312 S  0.0  0.2   0:00.00 agetty
-  890 mru       18   0  2752  848 2508 S  0.0  0.4   0:00.00 ssh-agent
-  891 mru       18   0  2052 1016 1936 S  0.0  0.5   0:00.00 startx
-  903 mru       17   0  2232  652 2188 S  0.0  0.3   0:00.00 xinit
-  910 mru       15   0  8508 3952 5196 S  0.0  1.8   0:08.43 sawfish
-  916 mru       15   0  1464  680 1316 S  0.0  0.3   0:00.00 asus_acpid
-  921 mru       16   0     0    0    0 Z  0.0  0.0   0:00.36 kdeskto <defunct>
-  922 mru       15   0  7792 5328 4756 S  0.0  2.4   0:28.99 xterm
-  928 mru       16   0 24360  12m  22m S  0.0  5.7   0:08.31 kdesktop
-  930 mru       16   0 21196 8668  20m S  0.0  3.9   0:00.02 kdeinit
-  933 mru       15   0 21328 9024  20m S  0.0  4.0   0:00.02 kdeinit
-  936 mru       15   0 21416 9456  20m S  0.0  4.2   0:00.02 kdeinit
-  938 mru       16   0 22428  11m  20m S  0.0  5.1   0:00.36 kdeinit
-  960 mru       18   0  2036  944 1936 S  0.0  0.4   0:00.00 sh
-  963 mru       16   0  3768 1072 3692 S  0.0  0.5   0:00.00 gnuserv
- 2735 mru       15   0  2432 1452 1388 S  0.0  0.6   0:00.15 ispell
-16370 mru       16   0  7776 2736 4756 S  0.0  1.2   0:00.05 xterm
-16371 mru       16   0  2308 1372 2060 S  0.0  0.6   0:00.00 bash
-23957 mru       15   0  7776 2836 4756 S  0.0  1.3   0:00.14 xterm
-23958 mru       16   0  2308 1376 2060 S  0.0  0.6   0:00.04 bash
-24413 mru       16   0  1868  936 1740 R  0.0  0.4   0:00.00 top
-
-
-top - 18:16:43 up 21:13,  1 user,  load average: 0.24, 0.14, 0.06
-Tasks:  65 total,   1 running,  63 sleeping,   0 stopped,   1 zombie
-Cpu(s):   1.0% user,   1.0% system,   0.0% nice,  98.0% idle,   0.0% IO-wait
-Mem:    224128k total,   138548k used,    85580k free,    10504k buffers
-Swap:   524280k total,      840k used,   523440k free,    61632k cached
-
-  PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
-24413 mru       16   0  1880 1012 1740 R  1.0  0.5   0:00.01 top
-    1 root      16   0   480  228  456 S  0.0  0.1   0:05.69 init
-    2 root      34  19     0    0    0 S  0.0  0.0   0:00.00 ksoftirqd/0
-    3 root       5 -10     0    0    0 S  0.0  0.0   0:45.68 events/0
-    4 root       5 -10     0    0    0 S  0.0  0.0   0:00.00 kblockd/0
-    5 root      15   0     0    0    0 S  0.0  0.0   0:00.00 pdflush
-    6 root      15   0     0    0    0 S  0.0  0.0   0:00.08 pdflush
-    7 root      15   0     0    0    0 S  0.0  0.0   0:01.11 kswapd0
-    8 root      10 -10     0    0    0 S  0.0  0.0   0:00.00 aio/0
-    9 root      23   0     0    0    0 S  0.0  0.0   0:00.00 kseriod
-   10 root      23   0     0    0    0 S  0.0  0.0   0:00.00 kjournald
-   27 root      15   0     0    0    0 S  0.0  0.0   0:00.01 kjournald
-   35 root      16   0  1560  768 1344 S  0.0  0.3   0:00.00 devfsd
-   60 root      18   0     0    0    0 S  0.0  0.0   0:00.00 kjournald
-   61 root      19   0     0    0    0 S  0.0  0.0   0:00.00 kjournald
-   62 root      15   0     0    0    0 S  0.0  0.0   0:00.06 kjournald
-   63 root      15   0     0    0    0 S  0.0  0.0   0:00.00 kjournald
-   64 root      15   0     0    0    0 S  0.0  0.0   0:00.01 kjournald
-   65 root      15   0     0    0    0 S  0.0  0.0   0:00.04 kjournald
-   66 root      15   0     0    0    0 S  0.0  0.0   0:00.03 kjournald
-   67 root      15   0     0    0    0 S  0.0  0.0   0:00.01 kjournald
-  102 root      21   0     0    0    0 S  0.0  0.0   0:00.00 pccardd
-  112 root      23   0     0    0    0 S  0.0  0.0   0:00.00 pccardd
-  115 root      18   0  1496  692 1340 S  0.0  0.3   0:00.00 cardmgr
-  164 root      16   0     0    0    0 S  0.0  0.0   0:00.00 knodemgrd_0
-  187 root      15   0     0    0    0 S  0.0  0.0   0:00.00 khubd
-  735 rpc       20   0  1508  568 1448 S  0.0  0.3   0:00.00 rpc.portmap
-  741 root      16   0  1428  616 1364 S  0.0  0.3   0:00.00 syslogd
-  744 root      16   0  1360  460 1320 S  0.0  0.2   0:00.00 klogd
-  746 root      18   0  1400  528 1360 S  0.0  0.2   0:00.00 inetd
-  765 root      16   0  1472  636 1420 S  0.0  0.3   0:00.00 automount
-  852 lp        17   0  3388 1280 3260 S  0.0  0.6   0:00.10 lpd
-  855 root      16   0  1484  592 1436 S  0.0  0.3   0:00.00 crond
-  858 daemon    16   0  1492  656 1440 S  0.0  0.3   0:00.00 atd
-  861 root      16   0  3288 1448 2644 S  0.0  0.6   0:00.06 sendmail
-  864 smmsp     16   0  3284 1432 2644 S  0.0  0.6   0:00.00 sendmail
-  868 root      15   0  1364  556 1316 S  0.0  0.2   0:00.01 acpid
-  870 mru       17   0  2312 1180 2060 S  0.0  0.5   0:00.05 bash
-  871 root      16   0  1356  416 1312 S  0.0  0.2   0:00.00 agetty
-  872 root      17   0  1356  416 1312 S  0.0  0.2   0:00.00 agetty
-  873 root      17   0  1356  416 1312 S  0.0  0.2   0:00.00 agetty
-  874 root      16   0  1356  416 1312 S  0.0  0.2   0:00.00 agetty
-  875 root      17   0  1356  416 1312 S  0.0  0.2   0:00.00 agetty
-  890 mru       18   0  2752  848 2508 S  0.0  0.4   0:00.00 ssh-agent
-  891 mru       18   0  2052 1016 1936 S  0.0  0.5   0:00.00 startx
-  903 mru       17   0  2232  652 2188 S  0.0  0.3   0:00.00 xinit
-  904 root      15   0 45364  10m  35m S  0.0  4.9   3:57.57 X
-  910 mru       16   0  8508 3952 5196 S  0.0  1.8   0:08.43 sawfish
-  916 mru       15   0  1464  680 1316 S  0.0  0.3   0:00.00 asus_acpid
-  921 mru       16   0     0    0    0 Z  0.0  0.0   0:00.36 kdeskto <defunct>
-  922 mru       15   0  7792 5328 4756 S  0.0  2.4   0:28.99 xterm
-  923 mru       16   0  2388 1468 2060 S  0.0  0.7   0:00.35 bash
-  928 mru       16   0 24360  12m  22m S  0.0  5.7   0:08.31 kdesktop
-  930 mru       16   0 21196 8668  20m S  0.0  3.9   0:00.02 kdeinit
-  933 mru       15   0 21328 9024  20m S  0.0  4.0   0:00.02 kdeinit
-  936 mru       15   0 21416 9456  20m S  0.0  4.2   0:00.02 kdeinit
-  938 mru       16   0 22428  11m  20m S  0.0  5.1   0:00.36 kdeinit
-  960 mru       18   0  2036  944 1936 S  0.0  0.4   0:00.00 sh
-  962 mru       15   0 26560  21m 9492 S  0.0 10.0   1:00.76 xemacs
-  963 mru       16   0  3768 1072 3692 S  0.0  0.5   0:00.00 gnuserv
- 2735 mru       15   0  2432 1452 1388 S  0.0  0.6   0:00.15 ispell
-16370 mru       16   0  7776 2736 4756 S  0.0  1.2   0:00.05 xterm
-16371 mru       16   0  2308 1372 2060 S  0.0  0.6   0:00.00 bash
-23957 mru       15   0  7776 2836 4756 S  0.0  1.3   0:00.14 xterm
-23958 mru       16   0  2308 1376 2060 S  0.0  0.6   0:00.04 bash
-
-
-top - 18:16:44 up 21:13,  1 user,  load average: 0.24, 0.14, 0.06
-Tasks:  66 total,   3 running,  62 sleeping,   0 stopped,   1 zombie
-Cpu(s):  30.7% user,   9.9% system,   0.0% nice,  59.4% idle,   0.0% IO-wait
-Mem:    224128k total,   138764k used,    85364k free,    10504k buffers
-Swap:   524280k total,      840k used,   523440k free,    61636k cached
-
-  PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
-  962 mru       17   0 26560  21m 9492 R 24.8 10.0   1:01.01 xemacs
-  904 root      15   0 45364  10m  35m S  7.0  4.9   3:57.64 X
-24414 mru       25   0     0    0    0 R  2.0  0.0   0:00.02 make
-    1 root      16   0   480  228  456 S  0.0  0.1   0:05.69 init
-    2 root      34  19     0    0    0 S  0.0  0.0   0:00.00 ksoftirqd/0
-    3 root       5 -10     0    0    0 S  0.0  0.0   0:45.68 events/0
-    4 root       5 -10     0    0    0 S  0.0  0.0   0:00.00 kblockd/0
-    5 root      15   0     0    0    0 S  0.0  0.0   0:00.00 pdflush
-    6 root      15   0     0    0    0 S  0.0  0.0   0:00.08 pdflush
-    7 root      15   0     0    0    0 S  0.0  0.0   0:01.11 kswapd0
-    8 root      10 -10     0    0    0 S  0.0  0.0   0:00.00 aio/0
-    9 root      23   0     0    0    0 S  0.0  0.0   0:00.00 kseriod
-   10 root      23   0     0    0    0 S  0.0  0.0   0:00.00 kjournald
-   27 root      15   0     0    0    0 S  0.0  0.0   0:00.01 kjournald
-   35 root      16   0  1560  768 1344 S  0.0  0.3   0:00.00 devfsd
-   60 root      18   0     0    0    0 S  0.0  0.0   0:00.00 kjournald
-   61 root      19   0     0    0    0 S  0.0  0.0   0:00.00 kjournald
-   62 root      15   0     0    0    0 S  0.0  0.0   0:00.06 kjournald
-   63 root      15   0     0    0    0 S  0.0  0.0   0:00.00 kjournald
-   64 root      15   0     0    0    0 S  0.0  0.0   0:00.01 kjournald
-   65 root      15   0     0    0    0 S  0.0  0.0   0:00.04 kjournald
-   66 root      15   0     0    0    0 S  0.0  0.0   0:00.03 kjournald
-   67 root      15   0     0    0    0 S  0.0  0.0   0:00.01 kjournald
-  102 root      21   0     0    0    0 S  0.0  0.0   0:00.00 pccardd
-  112 root      23   0     0    0    0 S  0.0  0.0   0:00.00 pccardd
-  115 root      18   0  1496  692 1340 S  0.0  0.3   0:00.00 cardmgr
-  164 root      16   0     0    0    0 S  0.0  0.0   0:00.00 knodemgrd_0
-  187 root      15   0     0    0    0 S  0.0  0.0   0:00.00 khubd
-  735 rpc       20   0  1508  568 1448 S  0.0  0.3   0:00.00 rpc.portmap
-  741 root      16   0  1428  616 1364 S  0.0  0.3   0:00.00 syslogd
-  744 root      16   0  1360  460 1320 S  0.0  0.2   0:00.00 klogd
-  746 root      18   0  1400  528 1360 S  0.0  0.2   0:00.00 inetd
-  765 root      16   0  1472  636 1420 S  0.0  0.3   0:00.00 automount
-  852 lp        17   0  3388 1280 3260 S  0.0  0.6   0:00.10 lpd
-  855 root      16   0  1484  592 1436 S  0.0  0.3   0:00.00 crond
-  858 daemon    16   0  1492  656 1440 S  0.0  0.3   0:00.00 atd
-  861 root      16   0  3288 1448 2644 S  0.0  0.6   0:00.06 sendmail
-  864 smmsp     16   0  3284 1432 2644 S  0.0  0.6   0:00.00 sendmail
-  868 root      15   0  1364  556 1316 S  0.0  0.2   0:00.01 acpid
-  870 mru       17   0  2312 1180 2060 S  0.0  0.5   0:00.05 bash
-  871 root      16   0  1356  416 1312 S  0.0  0.2   0:00.00 agetty
-  872 root      17   0  1356  416 1312 S  0.0  0.2   0:00.00 agetty
-  873 root      17   0  1356  416 1312 S  0.0  0.2   0:00.00 agetty
-  874 root      16   0  1356  416 1312 S  0.0  0.2   0:00.00 agetty
-  875 root      17   0  1356  416 1312 S  0.0  0.2   0:00.00 agetty
-  890 mru       18   0  2752  848 2508 S  0.0  0.4   0:00.00 ssh-agent
-  891 mru       18   0  2052 1016 1936 S  0.0  0.5   0:00.00 startx
-  903 mru       17   0  2232  652 2188 S  0.0  0.3   0:00.00 xinit
-  910 mru       16   0  8508 3952 5196 S  0.0  1.8   0:08.43 sawfish
-  916 mru       15   0  1464  680 1316 S  0.0  0.3   0:00.00 asus_acpid
-  921 mru       16   0     0    0    0 Z  0.0  0.0   0:00.36 kdeskto <defunct>
-  922 mru       15   0  7792 5328 4756 S  0.0  2.4   0:28.99 xterm
-  923 mru       16   0  2388 1468 2060 S  0.0  0.7   0:00.35 bash
-  928 mru       16   0 24360  12m  22m S  0.0  5.7   0:08.31 kdesktop
-  930 mru       16   0 21196 8668  20m S  0.0  3.9   0:00.02 kdeinit
-  933 mru       15   0 21328 9024  20m S  0.0  4.0   0:00.02 kdeinit
-  936 mru       15   0 21416 9456  20m S  0.0  4.2   0:00.02 kdeinit
-  938 mru       16   0 22428  11m  20m S  0.0  5.1   0:00.36 kdeinit
-  960 mru       18   0  2036  944 1936 S  0.0  0.4   0:00.00 sh
-  963 mru       16   0  3768 1072 3692 S  0.0  0.5   0:00.00 gnuserv
- 2735 mru       15   0  2432 1452 1388 S  0.0  0.6   0:00.15 ispell
-16370 mru       16   0  7776 2736 4756 S  0.0  1.2   0:00.05 xterm
-16371 mru       16   0  2308 1372 2060 S  0.0  0.6   0:00.00 bash
-23957 mru       15   0  7776 2836 4756 S  0.0  1.3   0:00.14 xterm
-23958 mru       16   0  2308 1376 2060 S  0.0  0.6   0:00.04 bash
-24413 mru       16   0  1880 1012 1740 R  0.0  0.5   0:00.01 top
-
-
-top - 18:16:45 up 21:13,  1 user,  load average: 0.24, 0.14, 0.06
-Tasks:  66 total,   3 running,  62 sleeping,   0 stopped,   1 zombie
-Cpu(s):  84.0% user,  16.0% system,   0.0% nice,   0.0% idle,   0.0% IO-wait
-Mem:    224128k total,   138764k used,    85364k free,    10504k buffers
-Swap:   524280k total,      840k used,   523440k free,    61644k cached
-
-  PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
-  962 mru       18   0 26560  21m 9492 R 83.4 10.0   1:01.85 xemacs
-  904 root      15   0 45364  10m  35m S 16.9  4.9   3:57.81 X
-    1 root      16   0   480  228  456 S  0.0  0.1   0:05.69 init
-    2 root      34  19     0    0    0 S  0.0  0.0   0:00.00 ksoftirqd/0
-    3 root       5 -10     0    0    0 S  0.0  0.0   0:45.68 events/0
-    4 root       5 -10     0    0    0 S  0.0  0.0   0:00.00 kblockd/0
-    5 root      15   0     0    0    0 S  0.0  0.0   0:00.00 pdflush
-    6 root      15   0     0    0    0 S  0.0  0.0   0:00.08 pdflush
-    7 root      15   0     0    0    0 S  0.0  0.0   0:01.11 kswapd0
-    8 root      10 -10     0    0    0 S  0.0  0.0   0:00.00 aio/0
-    9 root      23   0     0    0    0 S  0.0  0.0   0:00.00 kseriod
-   10 root      23   0     0    0    0 S  0.0  0.0   0:00.00 kjournald
-   27 root      15   0     0    0    0 S  0.0  0.0   0:00.01 kjournald
-   35 root      16   0  1560  768 1344 S  0.0  0.3   0:00.00 devfsd
-   60 root      18   0     0    0    0 S  0.0  0.0   0:00.00 kjournald
-   61 root      19   0     0    0    0 S  0.0  0.0   0:00.00 kjournald
-   62 root      15   0     0    0    0 S  0.0  0.0   0:00.06 kjournald
-   63 root      15   0     0    0    0 S  0.0  0.0   0:00.00 kjournald
-   64 root      15   0     0    0    0 S  0.0  0.0   0:00.01 kjournald
-   65 root      15   0     0    0    0 S  0.0  0.0   0:00.04 kjournald
-   66 root      15   0     0    0    0 S  0.0  0.0   0:00.03 kjournald
-   67 root      15   0     0    0    0 S  0.0  0.0   0:00.01 kjournald
-  102 root      21   0     0    0    0 S  0.0  0.0   0:00.00 pccardd
-  112 root      23   0     0    0    0 S  0.0  0.0   0:00.00 pccardd
-  115 root      18   0  1496  692 1340 S  0.0  0.3   0:00.00 cardmgr
-  164 root      16   0     0    0    0 S  0.0  0.0   0:00.00 knodemgrd_0
-  187 root      15   0     0    0    0 S  0.0  0.0   0:00.00 khubd
-  735 rpc       20   0  1508  568 1448 S  0.0  0.3   0:00.00 rpc.portmap
-  741 root      16   0  1428  616 1364 S  0.0  0.3   0:00.00 syslogd
-  744 root      16   0  1360  460 1320 S  0.0  0.2   0:00.00 klogd
-  746 root      18   0  1400  528 1360 S  0.0  0.2   0:00.00 inetd
-  765 root      16   0  1472  636 1420 S  0.0  0.3   0:00.00 automount
-  852 lp        17   0  3388 1280 3260 S  0.0  0.6   0:00.10 lpd
-  855 root      16   0  1484  592 1436 S  0.0  0.3   0:00.00 crond
-  858 daemon    16   0  1492  656 1440 S  0.0  0.3   0:00.00 atd
-  861 root      16   0  3288 1448 2644 S  0.0  0.6   0:00.06 sendmail
-  864 smmsp     16   0  3284 1432 2644 S  0.0  0.6   0:00.00 sendmail
-  868 root      15   0  1364  556 1316 S  0.0  0.2   0:00.01 acpid
-  870 mru       17   0  2312 1180 2060 S  0.0  0.5   0:00.05 bash
-  871 root      16   0  1356  416 1312 S  0.0  0.2   0:00.00 agetty
-  872 root      17   0  1356  416 1312 S  0.0  0.2   0:00.00 agetty
-  873 root      17   0  1356  416 1312 S  0.0  0.2   0:00.00 agetty
-  874 root      16   0  1356  416 1312 S  0.0  0.2   0:00.00 agetty
-  875 root      17   0  1356  416 1312 S  0.0  0.2   0:00.00 agetty
-  890 mru       18   0  2752  848 2508 S  0.0  0.4   0:00.00 ssh-agent
-  891 mru       18   0  2052 1016 1936 S  0.0  0.5   0:00.00 startx
-  903 mru       17   0  2232  652 2188 S  0.0  0.3   0:00.00 xinit
-  910 mru       16   0  8508 3952 5196 S  0.0  1.8   0:08.43 sawfish
-  916 mru       15   0  1464  680 1316 S  0.0  0.3   0:00.00 asus_acpid
-  921 mru       16   0     0    0    0 Z  0.0  0.0   0:00.36 kdeskto <defunct>
-  922 mru       15   0  7792 5328 4756 S  0.0  2.4   0:28.99 xterm
-  923 mru       16   0  2388 1468 2060 S  0.0  0.7   0:00.35 bash
-  928 mru       16   0 24360  12m  22m S  0.0  5.7   0:08.31 kdesktop
-  930 mru       16   0 21196 8668  20m S  0.0  3.9   0:00.02 kdeinit
-  933 mru       15   0 21328 9024  20m S  0.0  4.0   0:00.02 kdeinit
-  936 mru       15   0 21416 9456  20m S  0.0  4.2   0:00.02 kdeinit
-  938 mru       16   0 22428  11m  20m S  0.0  5.1   0:00.36 kdeinit
-  960 mru       18   0  2036  944 1936 S  0.0  0.4   0:00.00 sh
-  963 mru       16   0  3768 1072 3692 S  0.0  0.5   0:00.00 gnuserv
- 2735 mru       15   0  2432 1452 1388 S  0.0  0.6   0:00.15 ispell
-16370 mru       16   0  7776 2736 4756 S  0.0  1.2   0:00.05 xterm
-16371 mru       16   0  2308 1372 2060 S  0.0  0.6   0:00.00 bash
-23957 mru       15   0  7776 2836 4756 S  0.0  1.3   0:00.14 xterm
-23958 mru       16   0  2308 1376 2060 S  0.0  0.6   0:00.04 bash
-24413 mru       16   0  1880 1012 1740 R  0.0  0.5   0:00.01 top
-24414 mru       25   0     0    0    0 R  0.0  0.0   0:00.02 make
-
-
-top - 18:16:46 up 21:13,  1 user,  load average: 0.22, 0.14, 0.05
-Tasks:  65 total,   1 running,  63 sleeping,   0 stopped,   1 zombie
-Cpu(s):  39.6% user,   7.9% system,   0.0% nice,  52.5% idle,   0.0% IO-wait
-Mem:    224128k total,   138764k used,    85364k free,    10516k buffers
-Swap:   524280k total,      840k used,   523440k free,    61648k cached
-
-  PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
-  962 mru       16   0 26560  21m 9492 S 37.7 10.0   1:02.23 xemacs
-  904 root      15   0 45364  10m  35m S  7.9  4.9   3:57.89 X
-24413 mru       16   0  1880 1012 1740 R  2.0  0.5   0:00.03 top
-    1 root      16   0   480  228  456 S  0.0  0.1   0:05.69 init
-    2 root      34  19     0    0    0 S  0.0  0.0   0:00.00 ksoftirqd/0
-    3 root       5 -10     0    0    0 S  0.0  0.0   0:45.68 events/0
-    4 root       5 -10     0    0    0 S  0.0  0.0   0:00.00 kblockd/0
-    5 root      15   0     0    0    0 S  0.0  0.0   0:00.00 pdflush
-    6 root      15   0     0    0    0 S  0.0  0.0   0:00.08 pdflush
-    7 root      15   0     0    0    0 S  0.0  0.0   0:01.11 kswapd0
-    8 root      10 -10     0    0    0 S  0.0  0.0   0:00.00 aio/0
-    9 root      23   0     0    0    0 S  0.0  0.0   0:00.00 kseriod
-   10 root      23   0     0    0    0 S  0.0  0.0   0:00.00 kjournald
-   27 root      15   0     0    0    0 S  0.0  0.0   0:00.01 kjournald
-   35 root      16   0  1560  768 1344 S  0.0  0.3   0:00.00 devfsd
-   60 root      18   0     0    0    0 S  0.0  0.0   0:00.00 kjournald
-   61 root      19   0     0    0    0 S  0.0  0.0   0:00.00 kjournald
-   62 root      15   0     0    0    0 S  0.0  0.0   0:00.06 kjournald
-   63 root      15   0     0    0    0 S  0.0  0.0   0:00.00 kjournald
-   64 root      15   0     0    0    0 S  0.0  0.0   0:00.01 kjournald
-   65 root      15   0     0    0    0 S  0.0  0.0   0:00.04 kjournald
-   66 root      15   0     0    0    0 S  0.0  0.0   0:00.03 kjournald
-   67 root      15   0     0    0    0 S  0.0  0.0   0:00.01 kjournald
-  102 root      21   0     0    0    0 S  0.0  0.0   0:00.00 pccardd
-  112 root      23   0     0    0    0 S  0.0  0.0   0:00.00 pccardd
-  115 root      18   0  1496  692 1340 S  0.0  0.3   0:00.00 cardmgr
-  164 root      16   0     0    0    0 S  0.0  0.0   0:00.00 knodemgrd_0
-  187 root      15   0     0    0    0 S  0.0  0.0   0:00.00 khubd
-  735 rpc       20   0  1508  568 1448 S  0.0  0.3   0:00.00 rpc.portmap
-  741 root      16   0  1428  616 1364 S  0.0  0.3   0:00.00 syslogd
-  744 root      16   0  1360  460 1320 S  0.0  0.2   0:00.00 klogd
-  746 root      18   0  1400  528 1360 S  0.0  0.2   0:00.00 inetd
-  765 root      16   0  1472  636 1420 S  0.0  0.3   0:00.00 automount
-  852 lp        17   0  3388 1280 3260 S  0.0  0.6   0:00.10 lpd
-  855 root      16   0  1484  592 1436 S  0.0  0.3   0:00.00 crond
-  858 daemon    16   0  1492  656 1440 S  0.0  0.3   0:00.00 atd
-  861 root      16   0  3288 1448 2644 S  0.0  0.6   0:00.06 sendmail
-  864 smmsp     16   0  3284 1432 2644 S  0.0  0.6   0:00.00 sendmail
-  868 root      15   0  1364  556 1316 S  0.0  0.2   0:00.01 acpid
-  870 mru       17   0  2312 1180 2060 S  0.0  0.5   0:00.05 bash
-  871 root      16   0  1356  416 1312 S  0.0  0.2   0:00.00 agetty
-  872 root      17   0  1356  416 1312 S  0.0  0.2   0:00.00 agetty
-  873 root      17   0  1356  416 1312 S  0.0  0.2   0:00.00 agetty
-  874 root      16   0  1356  416 1312 S  0.0  0.2   0:00.00 agetty
-  875 root      17   0  1356  416 1312 S  0.0  0.2   0:00.00 agetty
-  890 mru       18   0  2752  848 2508 S  0.0  0.4   0:00.00 ssh-agent
-  891 mru       18   0  2052 1016 1936 S  0.0  0.5   0:00.00 startx
-  903 mru       17   0  2232  652 2188 S  0.0  0.3   0:00.00 xinit
-  910 mru       16   0  8508 3952 5196 S  0.0  1.8   0:08.43 sawfish
-  916 mru       15   0  1464  680 1316 S  0.0  0.3   0:00.00 asus_acpid
-  921 mru       16   0     0    0    0 Z  0.0  0.0   0:00.36 kdeskto <defunct>
-  922 mru       15   0  7792 5328 4756 S  0.0  2.4   0:28.99 xterm
-  923 mru       16   0  2388 1468 2060 S  0.0  0.7   0:00.35 bash
-  928 mru       16   0 24360  12m  22m S  0.0  5.7   0:08.31 kdesktop
-  930 mru       16   0 21196 8668  20m S  0.0  3.9   0:00.02 kdeinit
-  933 mru       15   0 21328 9024  20m S  0.0  4.0   0:00.02 kdeinit
-  936 mru       15   0 21416 9456  20m S  0.0  4.2   0:00.02 kdeinit
-  938 mru       16   0 22428  11m  20m S  0.0  5.1   0:00.36 kdeinit
-  960 mru       18   0  2036  944 1936 S  0.0  0.4   0:00.00 sh
-  963 mru       16   0  3768 1072 3692 S  0.0  0.5   0:00.00 gnuserv
- 2735 mru       15   0  2432 1452 1388 S  0.0  0.6   0:00.15 ispell
-16370 mru       16   0  7776 2736 4756 S  0.0  1.2   0:00.05 xterm
-16371 mru       16   0  2308 1372 2060 S  0.0  0.6   0:00.00 bash
-23957 mru       15   0  7776 2836 4756 S  0.0  1.3   0:00.14 xterm
-23958 mru       16   0  2308 1376 2060 S  0.0  0.6   0:00.04 bash
-
-
---=-=-=
-Content-Disposition: attachment; filename=xemacs.vmstat
-
-procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
- r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
- 2  0    840  84740  10960  62168    0    0    12     4  481    93  1  0 98  1
- 0  0    840  84660  10964  62168    0    0     0     7 1317   292  1  0 99  0
- 2  0    840  84500  10964  62168    0    0     0     0 1302  5179 56 15 29  0
- 2  0    840  84500  10964  62168    0    0     0     0 1002  8510 85 15  0  0
- 0  0    840  84500  10964  62168    0    0     0     0 1016  4278 43 11 46  0
-
---=-=-=
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-
+This is embarassing.  I attached the wrong file to the last message.  Attached 
+is the correct one.
 
 -- 
-Måns Rullgård
-mru@users.sf.net
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
---=-=-=--
+--Boundary-00=_YTbZ/W0fHPH1wew
+Content-Type: text/plain;
+  charset="iso-8859-1";
+  name="oops"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="oops"
+
+ksymoops 2.4.8 on i586 2.4.22-cobalt.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.22-cobalt/ (default)
+     -m /boot/System.map-2.4.22-cobalt (default)
+
+Warning: You did not tell me where to find symbol information.  I will
+assume that the log matches the kernel and modules that are running
+right now and I'll use the default options above for symbol resolution.
+If the current kernel and/or modules do not match the log, you can get
+more accurate output by telling me the kernel version and where to find
+map, modules, ksyms etc.  ksymoops -h explains the options.
+
+Unable to handle kernel NULL pointer dereference at virtual address 00000000
+d88891ee
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010:[<d88891ee>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010246
+eax: 00000000   ebx: 00000000   ecx: c1425348   edx: c1425350
+esi: c69958a0   edi: d88b5940   ebp: d88b59c0   esp: c9787da4
+ds: 0018   es: 0018   ss: 0018
+Process mount (pid: 8396, stackpage=c9787000)
+Stack: c7f9a4f0 d88a98ee 00000000 c15b9e60 00000286 c9787ed0 00000000 c0129fe7 
+       c14255d0 00000286 d7981ec0 c01df4ab c7f9a410 00000002 00000001 c9787e84 
+       00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 
+Call Trace:    [<d88a98ee>] [<c0129fe7>] [<c01df4ab>] [<c013730a>] [<d88b7c50>]
+  [<d88b7c50>] [<d88b7c50>] [<c01375f7>] [<d88b7c50>] [<c01377e0>] [<d88b7c50>]
+  [<c0148cf8>] [<c0148fd2>] [<c0148e36>] [<c0149394>] [<c0107203>]
+Code: 8b 03 85 c0 74 29 f6 05 2c 89 89 d8 02 75 29 80 63 20 3f 53 
+
+
+>>EIP; d88891ee <[sunrpc]rpc_shutdown_client+e/80>   <=====
+
+>>ecx; c1425348 <_end+11492f8/1853f010>
+>>edx; c1425350 <_end+1149300/1853f010>
+>>esi; c69958a0 <_end+66b9850/1853f010>
+>>edi; d88b5940 <[nfs].rodata.end+659/2599>
+>>ebp; d88b59c0 <[nfs].rodata.end+6d9/2599>
+>>esp; c9787da4 <_end+94abd54/1853f010>
+
+Trace; d88a98ee <[nfs]nfs_read_super+42e/960>
+Trace; c0129fe7 <kfree+27/40>
+Trace; c01df4ab <kfree_skbmem+b/60>
+Trace; c013730a <get_anon_super+8a/e0>
+Trace; d88b7c50 <[nfs]nfs_fs_type+0/30>
+Trace; d88b7c50 <[nfs]nfs_fs_type+0/30>
+Trace; d88b7c50 <[nfs]nfs_fs_type+0/30>
+Trace; c01375f7 <get_sb_nodev+37/80>
+Trace; d88b7c50 <[nfs]nfs_fs_type+0/30>
+Trace; c01377e0 <do_kern_mount+100/140>
+Trace; d88b7c50 <[nfs]nfs_fs_type+0/30>
+Trace; c0148cf8 <do_add_mount+58/140>
+Trace; c0148fd2 <do_mount+132/180>
+Trace; c0148e36 <copy_mount_options+56/c0>
+Trace; c0149394 <sys_mount+74/c0>
+Trace; c0107203 <system_call+33/40>
+
+Code;  d88891ee <[sunrpc]rpc_shutdown_client+e/80>
+00000000 <_EIP>:
+Code;  d88891ee <[sunrpc]rpc_shutdown_client+e/80>   <=====
+   0:   8b 03                     mov    (%ebx),%eax   <=====
+Code;  d88891f0 <[sunrpc]rpc_shutdown_client+10/80>
+   2:   85 c0                     test   %eax,%eax
+Code;  d88891f2 <[sunrpc]rpc_shutdown_client+12/80>
+   4:   74 29                     je     2f <_EIP+0x2f>
+Code;  d88891f4 <[sunrpc]rpc_shutdown_client+14/80>
+   6:   f6 05 2c 89 89 d8 02      testb  $0x2,0xd889892c
+Code;  d88891fb <[sunrpc]rpc_shutdown_client+1b/80>
+   d:   75 29                     jne    38 <_EIP+0x38>
+Code;  d88891fd <[sunrpc]rpc_shutdown_client+1d/80>
+   f:   80 63 20 3f               andb   $0x3f,0x20(%ebx)
+Code;  d8889201 <[sunrpc]rpc_shutdown_client+21/80>
+  13:   53                        push   %ebx
+
+
+1 warning issued.  Results may not be reliable.
+
+--Boundary-00=_YTbZ/W0fHPH1wew--
 

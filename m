@@ -1,89 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263538AbTJNTSm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Oct 2003 15:18:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263540AbTJNTSm
+	id S262901AbTJNTFB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Oct 2003 15:05:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262932AbTJNTFB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Oct 2003 15:18:42 -0400
-Received: from tux.rsn.bth.se ([194.47.143.135]:1409 "EHLO tux.rsn.bth.se")
-	by vger.kernel.org with ESMTP id S263538AbTJNTSg (ORCPT
+	Tue, 14 Oct 2003 15:05:01 -0400
+Received: from fw.osdl.org ([65.172.181.6]:5603 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262901AbTJNTE7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Oct 2003 15:18:36 -0400
-Subject: Re: mouse driver bug in 2.6.0-test7?
-From: Martin Josefsson <gandalf@wlug.westbo.se>
-To: 4Front Technologies <dev@opensound.com>
-Cc: linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>
-In-Reply-To: <3F8C3A99.6020106@opensound.com>
-References: <3F8C3A99.6020106@opensound.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-su2tuR/aZSiVLVc4O9a4"
-Message-Id: <1066159113.12171.4.camel@tux.rsn.bth.se>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 14 Oct 2003 21:18:34 +0200
+	Tue, 14 Oct 2003 15:04:59 -0400
+Date: Tue, 14 Oct 2003 12:13:46 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: mochel@cherise
+To: linux-kernel@vger.kernel.org
+Subject: fs/proc/array.c Compile Error
+Message-ID: <Pine.LNX.4.44.0310141204150.28049-100000@cherise>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-su2tuR/aZSiVLVc4O9a4
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+As of this morning, I'm getting a neat compile error in fs/proc/array.c: 
 
-On Tue, 2003-10-14 at 20:04, 4Front Technologies wrote:
-> Why is the PS2 mouse tracking about 2x faster in 2.6.0-test7 compared
-> to 2.4.xx?. Has anybody else seen this problem?.
->=20
-> If I move the mouse 1 inch horizontally left-to-right on the mouse
-> pad, the cursor on the screen moves almost twice the distance on the
-> screen compared to Linux 2.4.xx
+fs/proc/array.c: In function `proc_pid_stat':
+fs/proc/array.c:392: Unrecognizable insn:
+(insn/i 711 995 989 (parallel[
+            (set (reg:SI 0 eax)
+                (asm_operands ("") ("=a") 0[
+                        (reg:DI 1 edx)
+                    ]
+                    [
+                        (asm_input:DI ("A"))
+                    ]  ("include/linux/times.h") 37))
+            (set (reg:SI 1 edx)
+                (asm_operands ("") ("=d") 1[
+                        (reg:DI 1 edx)
+                    ]
+                    [
+                        (asm_input:DI ("A"))
+                    ]  ("include/linux/times.h") 37))
+            (clobber (reg:QI 19 dirflag))
+            (clobber (reg:QI 18 fpsr))
+            (clobber (reg:QI 17 flags))
+        ] ) -1 (insn_list 705 (nil))
+    (nil))
+fs/proc/array.c:392: confused by earlier errors, bailing out
 
-It's probably mostly because Vojtech changed the samplerate from 200 to
-60. Here's a patch to change it back. I've sent it to Vojtech but he's
-completely ignored it so far. This patch also readds the fallback logic
-that was used before his change, although it uses the new
-samplerate-table.
 
-Without this patch my mouse is awful to use.
-Vojtech, please consider this patch, at least say yay or nay.
+The GCC version I'm using is 
 
---- linux-2.6.0-test6-mm4/drivers/input/mouse/psmouse-base.c.orig	2003-10-0=
-5 17:02:23.000000000 +0200
-+++ linux-2.6.0-test6-mm4/drivers/input/mouse/psmouse-base.c	2003-10-05 17:=
-06:55.000000000 +0200
-@@ -40,7 +40,7 @@
-=20
- static int psmouse_noext;
- int psmouse_resolution;
--unsigned int psmouse_rate =3D 60;
-+unsigned int psmouse_rate =3D 200;
- int psmouse_smartscroll =3D PSMOUSE_LOGITECH_SMARTSCROLL;
- unsigned int psmouse_resetafter;
-=20
-@@ -450,6 +450,11 @@
- 	int i =3D 0;
-=20
- 	while (rates[i] > psmouse_rate) i++;
-+
-+	/* set lower rate in case requested rate fails */
-+	if (rates[i])
-+		psmouse_command(psmouse, rates + i + 1, PSMOUSE_CMD_SETRATE);
-+
- 	psmouse_command(psmouse, rates + i, PSMOUSE_CMD_SETRATE);
- }
-=20
+$ gcc -v
+Reading specs from /usr/lib/gcc-lib/i386-redhat-linux/2.96/specs
+gcc version 2.96 20000731 (Red Hat Linux 7.3 2.96-110)
 
---=20
-/Martin
+Any ideas? 
 
---=-su2tuR/aZSiVLVc4O9a4
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+Thanks,
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
 
-iD8DBQA/jEwJWm2vlfa207ERAmCEAJ9Ps7pzxy4nRD6g17y4T3YLdorFEgCggfKf
-aDS+8zx7o0YZy0JG2JzmJSo=
-=zvCG
------END PGP SIGNATURE-----
+	Pat
 
---=-su2tuR/aZSiVLVc4O9a4--
+

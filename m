@@ -1,72 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263353AbTESXCU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 May 2003 19:02:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263319AbTESXAO
+	id S263319AbTESXCV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 May 2003 19:02:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263309AbTESW5x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 May 2003 19:00:14 -0400
-Received: from mcomail02.maxtor.com ([134.6.76.16]:58125 "EHLO
-	mcomail02.maxtor.com") by vger.kernel.org with ESMTP
-	id S263310AbTESW7u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 May 2003 18:59:50 -0400
-Message-ID: <785F348679A4D5119A0C009027DE33C102E0D3BB@mcoexc04.mlm.maxtor.com>
-From: "Mudama, Eric" <eric_mudama@maxtor.com>
-To: "'Jeffrey W. Baker'" <jwbaker@acm.org>,
-       Tomas Szepe <szepe@pinerecords.com>, linux-kernel@vger.kernel.org
-Subject: RE: HD DMA disabled in 2.4.21-rc2, works fine in 2.4.20
-Date: Mon, 19 May 2003 17:12:39 -0600
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+	Mon, 19 May 2003 18:57:53 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:15094 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S263305AbTESW5i convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 May 2003 18:57:38 -0400
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <10533859472025@kroah.com>
+Subject: [PATCH] Yet more i2c driver changes for 2.5.69
+In-Reply-To: <20030519231156.GA27535@kroah.com>
+From: Greg KH <greg@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Mon, 19 May 2003 16:12:27 -0700
+Content-Transfer-Encoding: 7BIT
+To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The person who posted their DMESG had it unset.
+ChangeSet 1.1093.2.1, 2003/05/13 12:33:20-07:00, greg@kroah.com
 
-Here's an archive of the post:
-
-http://www.ussg.iu.edu/hypermail/linux/kernel/0305.2/0440.html
-
-And the line:
-
-# CONFIG_BLK_DEV_VIA82CXXX is not set 
-
-From: Lars (lhofhansl@yahoo.com)
-Date: Sun May 18 2003 - 22:03:16 EST 
+[PATCH] i2c: piix4 driver: turn common error message to a debug level and rename the sysfs driver name.
 
 
-
---eric
-
-
-
------Original Message-----
-From: Jeffrey W. Baker [mailto:jwbaker@acm.org]
-Sent: Monday, May 19, 2003 5:01 PM
-To: Tomas Szepe; linux-kernel@vger.kernel.org
-Subject: Re: HD DMA disabled in 2.4.21-rc2, works fine in 2.4.20
+ drivers/i2c/busses/i2c-piix4.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
 
-On Mon, 2003-05-19 at 15:29, Tomas Szepe wrote:
-> > [alan@lxorguk.ukuu.org.uk]
-> > 
-> > On Llu, 2003-05-19 at 21:04, Jeffrey W. Baker wrote:
-> > > I was using Via IDE chipset and, yes, I had configured the kernel for
-> > > VIA support.  That's why it worked in 2.4.20.  But it stopped working
-in
-> > > 2.4.21-rc.
-> > 
-> > VIA IDE should be working reliably, my main test box is an EPIA series
-> > VIA system so the VIA IDE does get a fair beating
-> 
-> This person is running with CONFIG_BLK_DEV_VIA82CXXX unset.
+diff -Nru a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
+--- a/drivers/i2c/busses/i2c-piix4.c	Mon May 19 15:59:14 2003
++++ b/drivers/i2c/busses/i2c-piix4.c	Mon May 19 15:59:14 2003
+@@ -269,7 +269,7 @@
+ 
+ 	if (temp & 0x04) {
+ 		result = -1;
+-		dev_err(&piix4_adapter.dev, "Error: no response!\n");
++		dev_dbg(&piix4_adapter.dev, "Error: no response!\n");
+ 	}
+ 
+ 	if (inb_p(SMBHSTSTS) != 0x00)
+@@ -467,7 +467,7 @@
+ 
+ 
+ static struct pci_driver piix4_driver = {
+-	.name		= "piix4 smbus",
++	.name		= "piix4-smbus",
+ 	.id_table	= piix4_ids,
+ 	.probe		= piix4_probe,
+ 	.remove		= __devexit_p(piix4_remove),
 
-No, this person is not.  
-
--jwb
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,90 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270654AbUJUPAy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262406AbUJUPAx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270654AbUJUPAy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 11:00:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270737AbUJUO6L
+	id S262406AbUJUPAx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 11:00:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270745AbUJUO6p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 10:58:11 -0400
-Received: from mail.timesys.com ([65.117.135.102]:54122 "EHLO
-	exchange.timesys.com") by vger.kernel.org with ESMTP
-	id S270756AbUJUOyG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 10:54:06 -0400
-Message-ID: <4177CD3C.9020201@timesys.com>
-Date: Thu, 21 Oct 2004 10:52:44 -0400
-From: john cooper <john.cooper@timesys.com>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Esben Nielsen <simlo@phys.au.dk>
-CC: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
-       Jens Axboe <axboe@suse.de>, Rui Nuno Capela <rncbc@rncbc.org>,
-       LKML <linux-kernel@vger.kernel.org>, Lee Revell <rlrevell@joe-job.com>,
-       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       john cooper <john.cooper@timesys.com>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U8
-References: <Pine.OSF.4.05.10410211601500.11909-100000@da410.ifa.au.dk>
-In-Reply-To: <Pine.OSF.4.05.10410211601500.11909-100000@da410.ifa.au.dk>
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 21 Oct 2004 14:49:03.0000 (UTC) FILETIME=[1B4C5980:01C4B77D]
+	Thu, 21 Oct 2004 10:58:45 -0400
+Received: from mail.kroah.org ([69.55.234.183]:39147 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S270752AbUJUOx4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 10:53:56 -0400
+Date: Thu, 21 Oct 2004 07:50:51 -0700
+From: Greg KH <greg@kroah.com>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: LKML <linux-kernel@vger.kernel.org>, Patrick Mochel <mochel@osdl.org>
+Subject: Re: Driver core change request
+Message-ID: <20041021145051.GB5718@kroah.com>
+References: <200410062354.18885.dtor_core@ameritech.net> <20041008214820.GA1096@kroah.com> <200410120129.59221.dtor_core@ameritech.net> <200410210205.43399.dtor_core@ameritech.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200410210205.43399.dtor_core@ameritech.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Esben Nielsen wrote:
+On Thu, Oct 21, 2004 at 02:05:40AM -0500, Dmitry Torokhov wrote:
+> On Tuesday 12 October 2004 01:29 am, Dmitry Torokhov wrote:
+> > For now I added:
+> > 
+> > - "driver" default device attribute that produces name of currently bound
+> >   driver uppon read.
+> > - bus->rebind_handler method that is called when someone writes to "driver"
+> >   attribute and allows to perform bunctions like disconnecting device or
+> >   rebinding it to alternative driver in bus-specific way.
+> > - "bind_mode" default device and driver attributes that can be "auto" or
+> >   "manual". When device or driver marked as manual bind device_attach()
+> >   and driver_attach() will ignore them. They are expected to be bound by
+> >   bus->rebind_handler (via driver_probe_device()).
+> > 
+> > I also renamed bus_match to driver_probe_device() and exported it, along
+> > with device_attach and driver_attach.
+> > 
+> > Please let me know if its acceptable.
+> > 
+> 
+> Greg,
+> 
+> Sorry for bothering you but cold you tell me if you are staisfied with the
+> patches or I need to look for some alternative. As an example of usage
+> please find my working copy of serio.c below.
 
->On Thu, 21 Oct 2004, john cooper wrote:
->
->>Mutexes layered on existing semaphores seems convenient
->>at the moment. However a more native mutex mechanism
->>which tracks ownership would provide a basis for PI as
->>well as further instrumentation. This may not be an
->>issue at the present but I don't think it is too far
->>off.
->>
->>-john
->>
->>
->
->Actually you need to have another kind of semaphore based on a new kind of
->wait-queue: Priority based. I.e. the task with the highest priority get
->woken up first. Then on top of that you build your mutex.
->
-That more/less falls out of the PI mechanism. Though it
-appears conserving per-mutex data footprint and O(1)
-behavior are going to be at odds.
+I like part of them :)
 
->I was planning to start to look at it and try to see if I could get
->anything to work, but I must admit I haven't got much further than
->just getting Igno's -U8.1 up running.
->
-I myself wonder whether Ingo is 1 or N people.
+But I'm still swamped with syncing up with Linus's tree, but should be
+able to get to these later this afternoon.  I haven't forgotten about
+these, they are still in my todo queue.
 
->To get a mutex with priority inheritance add an element pointing to the
->current owner and a field where you store the owners original priority
->which it has to be set back to when it relases the mutex (I am not sure
->how this will work out if someone holds several mutexes!)
->
-A task holding several mutexes shouldn't be an issue.
-Though per task an ownership list needs to be maintained
-in descending priority order such that the effective PI
-can be resolved from all task owned mutexes.
+thanks,
 
-Also a multiple ownership model is needed for the case of
-shared-reader locks. This results in a list of owners
-where the list element can maintain per-mutex task ownership
-as well as per-task mutex ownerships.
-
-It is tempting to re-implement the wheel here but existing
-works are well on their way:
-
-http://developer.osdl.org/dev/robustmutexes
-
--john
-
--- 
-john.cooper@timesys.com
-
+greg k-h

@@ -1,61 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317474AbSF1SI5>; Fri, 28 Jun 2002 14:08:57 -0400
+	id <S317476AbSF1SSo>; Fri, 28 Jun 2002 14:18:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317475AbSF1SI4>; Fri, 28 Jun 2002 14:08:56 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:48388
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S317474AbSF1SIz>; Fri, 28 Jun 2002 14:08:55 -0400
-Date: Fri, 28 Jun 2002 11:11:00 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Jens Axboe <axboe@suse.de>
-cc: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+	id <S317478AbSF1SSn>; Fri, 28 Jun 2002 14:18:43 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:2513 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S317476AbSF1SSm>;
+	Fri, 28 Jun 2002 14:18:42 -0400
+Date: Fri, 28 Jun 2002 20:20:53 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
 Subject: Re: Status of write barrier support for 2.4?
-In-Reply-To: <20020628200203.A777@suse.de>
-Message-ID: <Pine.LNX.4.10.10206281108100.2888-100000@master.linux-ide.org>
-MIME-Version: 1.0
+Message-ID: <20020628202053.C777@suse.de>
+References: <20020628200203.A777@suse.de> <Pine.LNX.4.10.10206281108100.2888-100000@master.linux-ide.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.10.10206281108100.2888-100000@master.linux-ide.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Jens,
-
-I just got crapped all over trying to get us "write barrier" opcodes :-/.
-However I do have the start of a draft to submit soon.  I could not piggy
-back of FUA by MicroSoft last week.
-
-So how did the talk go at OLS for the IDE roadmap to destruction go?
-I could not attend, as I was doing other stuff associated with the
-industry.
-
-Cheers,
-
-Andre Hedrick
-LAD Storage Consulting Group
-
-On Fri, 28 Jun 2002, Jens Axboe wrote:
-
-> On Thu, Jun 27 2002, Matthias Andree wrote:
-> > Hi,
-> > 
-> > what is the status of write barrier support in Linux?
+On Fri, Jun 28 2002, Andre Hedrick wrote:
 > 
-> We have stable support for IDE (ie block layer barrier support works,
-> IDE implementation works). I doubt we'll ever do 2.4 SCSI support,
-> it would be too invasive to really make it safe.
+> Jens,
 > 
-> > Is there a web page that documents patches and status?
-> 
-> Not to my knowledge.
-> 
-> -- 
-> Jens Axboe
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> I just got crapped all over trying to get us "write barrier" opcodes :-/.
+> However I do have the start of a draft to submit soon.  I could not piggy
+> back of FUA by MicroSoft last week.
+
+Basic FUA bit for WRITE command would be good, as long as it also
+prevents reordering of the writes currently in write cache. I don't
+think mmc makes any such guarentee, although I would have to check to be
+sure.
+
+> So how did the talk go at OLS for the IDE roadmap to destruction go?
+> I could not attend, as I was doing other stuff associated with the
+> industry.
+
+I don't think there was such a talk?! If so, I didn't attend.
+
+-- 
+Jens Axboe
 

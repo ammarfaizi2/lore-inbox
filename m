@@ -1,30 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313421AbSC2KCP>; Fri, 29 Mar 2002 05:02:15 -0500
+	id <S313424AbSC2KQ6>; Fri, 29 Mar 2002 05:16:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313422AbSC2KCF>; Fri, 29 Mar 2002 05:02:05 -0500
-Received: from malasada.lava.net ([64.65.64.17]:22525 "EHLO malasada.lava.net")
-	by vger.kernel.org with ESMTP id <S313421AbSC2KBy>;
-	Fri, 29 Mar 2002 05:01:54 -0500
-Message-Id: <m16qtCc-000wE9C@malasada.lava.net>
-Date: Fri, 29 Mar 2002 00:01:46 -1000 (HST)
-From: bhoward@hale.org
-To: James Mayer <james.mayer@acm.org>
+	id <S313423AbSC2KQj>; Fri, 29 Mar 2002 05:16:39 -0500
+Received: from linux.kappa.ro ([194.102.255.131]:35535 "EHLO linux.kappa.ro")
+	by vger.kernel.org with ESMTP id <S313424AbSC2KQ2>;
+	Fri, 29 Mar 2002 05:16:28 -0500
+Date: Fri, 29 Mar 2002 12:13:08 +0200
+From: Teodor Iacob <Teodor.Iacob@astral.kappa.ro>
+To: Irwan Hadi <irwanhadi@phxby.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [bug] 2.4.19-pre4-ac2 hang at boot with ALI15x3 chipset support
-In-Reply-To: <124088188@toto.iv>
+Subject: Re: Having too many access lists in Linux
+Message-ID: <20020329101308.GA2380@linux.kappa.ro>
+In-Reply-To: <20020328191705.C17277@phxby.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
+X-RAVMilter-Version: 8.3.0(snapshot 20011220) (linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James> Good information there.  Oddly enough, I don't need to specify the
-James> pci=conf2, though.
+Hello,
 
-Remember that you only need the pci=conf2 to get past the lockup bug
-when doing an initial installation from CDROM.  After that, once you
-have installed a kernel updated with the patch to alim15x3.c, the need
-for it goes away (and in fact, continuing to use pci=conf2 will
-actually prevent many of the other devices from being properly
-recognized).
+We have in use a linux router having about 1400 iptables rules, doing
+cbq with 450 entries, doing bgp and ospf also with 1200 routes, it
+is a dual PIII 667 and most of the time it has about 75% percent
+free processor, and also through it we have about 30Mbps average ..
 
-					Cheers,
-					Bruce
+On Thu, Mar 28, 2002 at 07:17:05PM -0700, Irwan Hadi wrote:
+> Dear All,
+> 
+> I just curious (since I haven't tried this), what happened to linux (the
+> kernel especially), when a Linux Box has for example 100 access lists,
+> 500 access lists, 1000 access lists, etc ?
+> Will I see a process consuming 100% of CPU Resources, or people will
+> feeling much slower when they are accessing my server, or the box starts
+> dropping some packets ?
+> 
+> (what I meant access lists is the TCP filtering managed thru ipchains,
+> iptables, etc.)
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+-- 
+      Teodor Iacob,
+Astral TELECOM Internet

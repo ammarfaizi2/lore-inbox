@@ -1,37 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265675AbSJSUyd>; Sat, 19 Oct 2002 16:54:33 -0400
+	id <S265683AbSJSVBs>; Sat, 19 Oct 2002 17:01:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265678AbSJSUyd>; Sat, 19 Oct 2002 16:54:33 -0400
-Received: from inet-mail3.oracle.com ([148.87.2.203]:60581 "EHLO
-	inet-mail3.oracle.com") by vger.kernel.org with ESMTP
-	id <S265675AbSJSUyc>; Sat, 19 Oct 2002 16:54:32 -0400
-Message-ID: <3187992.1035061003952.JavaMail.nobody@web54.us.oracle.com>
-Date: Sat, 19 Oct 2002 13:56:43 -0700 (PDT)
-From: Bert Barbe <BERT.BARBE@oracle.com>
-To: rmk@arm.linux.org.uk, vda@port.imtp.ilyichevsk.odessa.ua
-Subject: Re: Re: 2.4.19 orinoco_cs with Lucent WaveLAN "bronze"
-Cc: jt@hpl.hp.com, linux-kernel@vger.kernel.org
+	id <S265685AbSJSVBr>; Sat, 19 Oct 2002 17:01:47 -0400
+Received: from mail.zmailer.org ([62.240.94.4]:5252 "EHLO mail.zmailer.org")
+	by vger.kernel.org with ESMTP id <S265683AbSJSVBr>;
+	Sat, 19 Oct 2002 17:01:47 -0400
+Date: Sun, 20 Oct 2002 00:07:48 +0300
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: date <nobu@7501.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Fragmentation DoS?
+Message-ID: <20021019210748.GG1111@mea-ext.zmailer.org>
+References: <200210191918.g9JJICT3032735@sh.7501.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-Mailer: Oracle Webmail Client
+Content-Disposition: inline
+In-Reply-To: <200210191918.g9JJICT3032735@sh.7501.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Sat, Oct 19, 2002 at 02:14:57PM +0000, Denis Vlasenko wrote:
-> > Today I played with wireless LAN euqipment for the first time.
-> > I have ISA-to-PCMCIA converter and a Lucent (IEEE) PCMCIA card.
-> > I set up everything as directed by HOWTOs. I do:
-> Yes, I also noticed many problems with the current orinoco_cs driver.
+On Sun, Oct 20, 2002 at 04:18:12AM +0900, date wrote:
+...
+>  Here is the kernel oops message that I grabbed from messages:
 
+This oops report is valid for your system, but provides no usefull
+data, as actual memory layouts in different systems do vary. See:
 
-I have an orinocco gold. In 2.4.x<19 it gave me some errors in the logs also,
-but despite that it seemed to work after setting the right options with iwconfig.
-I haven't tested 2.4.19 with the orinioco_cs driver yet since I had other
-problems with .19 before i got to that.
+   http://www.tux.org/lkml/#s4-3
 
-Regards,
-Bert
+Then post again.
 
+> general protection fault: 0000
+> CPU:    0
+> EIP:    0010:[<c0141099>]    Not tainted
+> EFLAGS: 00010246
+> eax: 00000000   ebx: ffffffff   ecx: 00000018   edx: c0141080
+> esi: c12c3e30   edi: ffffffff   ebp: ffffffff   esp: cfc95db0
+> ds: 0018   es: 0018   ss: 0018
+> Process sshd (pid: 59, stackpage=cfc95000)
+> Stack: 00000000 c0feb020 c01284ca ffffffff c12c3e30 00000001 00000001
+> 000000f0
+>        c0feb000 c139c1a0 00000080 00000000 00000008 c12c3e30 00000246
+> c12c3e38
+>        000000f0 c01285f9 c12c3e30 000000f0 c0178612 00000000 00000000
+> 00000008
+> Call Trace:    [<c01284ca>] [<c01285f9>] [<c0178612>] [<c0131a84>]
+> [<c0131b46>]
+>   [<c0131d88>] [<c0132428>] [<c01231fd>] [<c0123298>] [<c0151aa0>]
+> [<c01238a5>]
+>   [<c0123c03>] [<c012403c>] [<c0123f40>] [<c012fd56>] [<c012fca9>]
+> [<c01087eb>]
+> 
+> Code: f3 ab c7 43 48 00 00 00 00 8d 53 48 8d 43 4c 89 42 04 89 42
+> 
+>  Thanks for your time
+> 
+>  - nobu
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

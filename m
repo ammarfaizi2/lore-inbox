@@ -1,53 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267690AbTBGFFh>; Fri, 7 Feb 2003 00:05:37 -0500
+	id <S267468AbTBGGC6>; Fri, 7 Feb 2003 01:02:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267716AbTBGFFh>; Fri, 7 Feb 2003 00:05:37 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:24083 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S267690AbTBGFFg>;
-	Fri, 7 Feb 2003 00:05:36 -0500
-Date: Thu, 6 Feb 2003 21:10:39 -0800
-From: Greg KH <greg@kroah.com>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>,
-       Russell King <rmk@arm.linux.org.uk>
-Subject: Re: [RFC] klibc for 2.5.59 bk
-Message-ID: <20030207051039.GA30639@kroah.com>
-References: <20030207045919.GA30526@kroah.com> <3E433EBC.5000202@zytor.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3E433EBC.5000202@zytor.com>
-User-Agent: Mutt/1.4i
+	id <S267488AbTBGGC6>; Fri, 7 Feb 2003 01:02:58 -0500
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:62867 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S267468AbTBGGC5>; Fri, 7 Feb 2003 01:02:57 -0500
+Date: Fri, 7 Feb 2003 00:12:04 -0600 (CST)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: Russell King <rmk@arm.linux.org.uk>
+cc: Greg KH <greg@kroah.com>, Roman Zippel <zippel@linux-m68k.org>,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       Horst von Brand <brand@jupiter.cs.uni-dortmund.de>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Restore module support.
+In-Reply-To: <20030207001006.A19306@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0302070006110.31954-100000@chaos.physics.uiowa.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 06, 2003 at 09:06:04PM -0800, H. Peter Anvin wrote:
-> Greg KH wrote:
-> >Hi all,
-> >
-> >Thanks to Arnd Bergmann, it looks like the klibc and initramfs code is
-> >now working.  I've created a patch against Linus's latest bk tree and
-> >put it at:
-> >	http://www.kroah.com/linux/klibc/klibc-2.5.59-2.patch.gz
-> >(I can't get to kernel.org right now, sorry)
-> >and there's a bk tree at:
-> >	bk://kernel.bkbits.net/gregkh/linux/klibc-2.5
-> >
-> >I'd really like to send this to Linus now, but I'm going to be away
-> >from email for about a week, so I'll wait will I get back.  If anyone
-> >has any issues with this patch, please let me know.
-> >
+On Fri, 7 Feb 2003, Russell King wrote:
+
+> On Thu, Feb 06, 2003 at 03:25:15PM -0800, Greg KH wrote:
+> > Come on, what Rusty did was the "right thing to do" and has made life
+> > easier for all of the arch maintainers (or so says the ones that I've
+> > talked to)
 > 
-> That's good, that'll give me a chance to check through it.
+> And I'll promptly provide you with the other view.  I'm still trying to
+> sort out the best thing to do for ARM.  We have the choice of:
 > 
-> What klibc is this based on?
+> 1. load modules in the vmalloc region and build two jump tables, one for
+>    the init text and one for the core text.
+> 
+> 2. fix vmalloc and /proc/kcore to be able to cope with a separate module
+>    region located below PAGE_OFFSET.  Currently, neither play well with
+>    this option.
 
-klibc-0.72  
-Ugh, I see you've now released a few versions since then :(
-I'll sync up to the latest version before sending the patch on to Linus,
-thanks for making me look.
+So you have the choice of either sticking to the solution which was 
+previously used (only that it's now done in the kernel, not in modutils), 
+or doing something new and more efficient.
 
-thanks,
+Now, what's the reason you're not happy with that? You've got more
+flexibility than before, and you can even switch between different ways
+without having to teach an external package about it, so you avoid the
+compatibility issues when kernel and modutils are not in sync.
 
-greg k-h
+--Kai
+
+

@@ -1,56 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262273AbTICEea (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 00:34:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262288AbTICEea
+	id S261978AbTICErT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 00:47:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262133AbTICErT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 00:34:30 -0400
-Received: from nessie.weebeastie.net ([61.8.7.205]:30347 "EHLO
-	nessie.weebeastie.net") by vger.kernel.org with ESMTP
-	id S262273AbTICEe3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 00:34:29 -0400
-Date: Wed, 3 Sep 2003 14:33:56 +1000
-From: CaT <cat@zip.com.au>
-To: Larry McVoy <lm@work.bitmover.com>, Anton Blanchard <anton@samba.org>,
-       Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
-Subject: Re: Scaling noise
-Message-ID: <20030903043355.GC2019@zip.com.au>
-References: <20030903040327.GA10257@work.bitmover.com> <20030903041850.GA2978@krispykreme> <20030903042953.GC10257@work.bitmover.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030903042953.GC10257@work.bitmover.com>
-User-Agent: Mutt/1.3.28i
-Organisation: Furball Inc.
+	Wed, 3 Sep 2003 00:47:19 -0400
+Received: from auemail1.lucent.com ([192.11.223.161]:52699 "EHLO
+	auemail1.firewall.lucent.com") by vger.kernel.org with ESMTP
+	id S261978AbTICErS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 00:47:18 -0400
+Message-ID: <008501c371d6$77d9d350$8112fc87@ZHANGHAOFENG>
+From: "Zhang haofeng" <zhanghf@blrcsv.china.bell-labs.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: sk_buff problem
+Date: Wed, 3 Sep 2003 12:47:24 +0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="gb2312"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4927.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4927.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 02, 2003 at 09:29:53PM -0700, Larry McVoy wrote:
-> On Wed, Sep 03, 2003 at 02:18:51PM +1000, Anton Blanchard wrote:
-> > > I've frequently tried to make the point that all the scaling for lots of
-> > > processors is nonsense.  Mr Dell says it better:
-> > > 
-> > >     "Eight-way (servers) are less than 1 percent of the market and shrinking
-> > >     pretty dramatically," Dell said. "If our competitors want to claim
-> > >     they're No. 1 in eight-ways, that's fine. We want to lead the market
-> > >     with two-way and four-way (processor machines)."
-> > > 
-> > > Tell me again that it is a good idea to screw up uniprocessor performance
-> > > for 64 way machines.  Great idea, that.  Go Dinosaurs!
-> > 
-> > And does your 4 way have hyperthreading?
-> 
-> What part of "shrinking pretty dramatically" did you not understand?  Maybe
-> you know more than Mike Dell.  Could you share that insight?
+Dear all,
+    Does somebody have some knowledge about /net/ipv6/sit.c?
+    I try to modify sit.c to cater for my requirements: I want to use
+IPv4+UDP+IPv6+IPv6 Data to encapsulate IPv6 packets, thus every IPv6 packet
+will be able to pass through some IPv4 NATs. As you know, sit.c is to
+encapsulate IPv6 packets in IPv4 payload, so it seems that I only need to
+add UDP layer between IPv4 header and IPv6 header in the encapsulated
+packet.
+    But I got problem when I receive an IPv4 UDP packet. I wanna
+de-encapsulate the packet and send UDP data (which is an IPv6 packet) to
+IPv6 upper layer protocol use netif_rx( ).  But it seems that I can not set
+the correspondent field in sk_buff struct correctly.
+    In sit.c, line 396, when 6to4 interface receive a IPv4 packet:
+*****************
+    if (!pskb_may_pull(skb, sizeof(struct ipv6hdr)))
+        goto out;
+...
+    skb->mac.raw= skb->nh.raw;
+    skb->nh.raw= skb-> data;
+...
+    netif_rx(skb);
 
-I think Anton is referring to the fact that on a 4-way cpu machine with
-HT enabled you basically have an 8-way smp box (with special conditions)
-and so if 4-way machines are becoming more popular, making sure that 8-way
-smp works well is a good idea.
+    So in my modified sit.c, I modify the source code to :
+*****************
+    if (!pskb_may_pull(skb, sizeof(struct ipv6hdr)))
+        goto out;
+...
+    skb->mac.raw= skb->nh.raw;
+    skb->nh.raw= skb->data+sizeof(struct udphdr);
+    skb->protocol = __constant_htons(0x86DD);
+...
+    netif_rx(skb);
+...
 
-At least that's how I took it.
+    But it seems that I can not send the IPv6 packet to IPv6 upper layer,
+while the ICMPv4 UDP port unreachable message is sent to the sender. I am
+confused :(
+    Any kind of  help is appreciated.
 
--- 
-"How can I not love the Americans? They helped me with a flat tire the
-other day," he said.
-	- http://tinyurl.com/h6fo
+Zhanghaofeng
+Sep 3rd, 2003
+
+

@@ -1,55 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133068AbREHRhO>; Tue, 8 May 2001 13:37:14 -0400
+	id <S133018AbREHRje>; Tue, 8 May 2001 13:39:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133023AbREHRgz>; Tue, 8 May 2001 13:36:55 -0400
-Received: from [194.213.32.137] ([194.213.32.137]:260 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S133018AbREHRgs>;
-	Tue, 8 May 2001 13:36:48 -0400
-Message-ID: <20010508141417.A128@bug.ucw.cz>
-Date: Tue, 8 May 2001 14:14:17 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: kernel list <linux-kernel@vger.kernel.org>
-Subject: PCMCIA IDE flash problem found
-Mime-Version: 1.0
+	id <S133023AbREHRjU>; Tue, 8 May 2001 13:39:20 -0400
+Received: from 3-CORU-X5.libre.retevision.es ([62.83.56.3]:53124 "HELO
+	trasno.mitica") by vger.kernel.org with SMTP id <S133018AbREHRi6>;
+	Tue, 8 May 2001 13:38:58 -0400
+To: slurn@verisign.com
+Cc: george@mvista.com (george anzinger), kaos@melbourne.sgi.com (Keith Owens),
+        kdb@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: kdb wishlist
+In-Reply-To: <200105081657.JAA05739@slurndal-lnx.verisign.com>
+X-Url: http://www.lfcia.org/~quintela
+From: Juan Quintela <quintela@mandrakesoft.com>
+In-Reply-To: <200105081657.JAA05739@slurndal-lnx.verisign.com>
+Date: 08 May 2001 19:38:06 +0200
+Message-ID: <m2itjbspvl.fsf@trasno.mitica>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+>>>>> "slurn" == slurn  <slurn@verisign.com> writes:
 
-2.4.[123] changed name of ide-cs module, which means your pcmcia setup
-breaks... This is how to undo the damage. Works for me, do *not* apply
-into anything official.
+>> 
+>> Keith Owens wrote:
+>> > 
+>> > This is part of my kdb wishlist, does anybody fancy writing the code to
+>> > add any of these features?  It would be a nice project for anybody
+>> > wanting to start on the kernel.  Replies to kdb@oss.sgi.com please.
+>> > Current patches at http://oss.sgi.com/projects/kdb/download/
+>> > 
+>> > * Change kdb invocation key from ^A to ^X^X^X within 3 seconds.  ^A is
+>> >   used by emacs, bash, minicom etc.
+>> > 
+>> ^X^X swaps point and mark in emacs.  One (well, I) often will do
+>> ^X^X^X^X to examine where mark is and then return to point.
 
-								Pavel
+slurn> How about using the break condition instead.  This is only for the
+slurn> serial port, and most terminal emulators (e.g. kermit, minicom) provide
+slurn> a means to generate a break condition on the serial port. 
 
---- clean/drivers/ide/ide-cs.c	Sun Apr  1 00:23:29 2001
-+++ linux/drivers/ide/ide-cs.c	Tue May  8 14:06:09 2001
-@@ -95,7 +96,7 @@
- static int ide_event(event_t event, int priority,
- 		     event_callback_args_t *args);
- 
--static dev_info_t dev_info = "ide-cs";
-+static dev_info_t dev_info = "ide_cs";
- 
- static dev_link_t *ide_attach(void);
- static void ide_detach(dev_link_t *);
-@@ -388,9 +389,12 @@
- 	MOD_DEC_USE_COUNT;
-     }
- 
-+#if 0
-     request_region(link->io.BasePort1, link->io.NumPorts1,"ide-cs");
-     if (link->io.NumPorts2)
- 	request_region(link->io.BasePort2, link->io.NumPorts2,"ide-cs");
-+#endif
-+    printk("Should call request_region\n");
-     
-     info->ndev = 0;
-     link->dev = NULL;
+kdb uses BREAK in the serial port (that minicom uses C-a for sending a
+break is an anecdote :)  But the problem at hang is the console.  I
+vote for the ^X^X^X as I a think that it is not a difficult shortcut.
+(and yes, I also use emacs and ^X^X all the time, but I think that
+this combination is not specially bad, and I suppose that the pet
+aplication of other people will have problems with something like:
+^A^A^A that I never use). 
+
+Later, Juan.
+
+
 
 -- 
-I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
-Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
+In theory, practice and theory are the same, but in practice they 
+are different -- Larry McVoy

@@ -1,70 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262947AbTJPNvz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Oct 2003 09:51:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262987AbTJPNvz
+	id S262941AbTJPNwi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Oct 2003 09:52:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262927AbTJPNwi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Oct 2003 09:51:55 -0400
-Received: from Hell.WH8.tu-dresden.de ([141.30.225.3]:39619 "EHLO
-	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-	id S262947AbTJPNvx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Oct 2003 09:51:53 -0400
-Date: Thu, 16 Oct 2003 15:51:34 +0200
-From: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
-To: Javier Achirica <achirica@telefonica.net>
-Cc: Celso =?ISO-8859-1?Q?Gonz=E1lez?= <celso@mitago.net>,
-       Marc Giger <gigerstyle@gmx.ch>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: airo regression with Linux 2.4.23-pre2
-Message-Id: <20031016155134.612b61d5.us15@os.inf.tu-dresden.de>
-In-Reply-To: <Pine.SOL.4.30.0310152323320.21600-100000@tudela.mad.ttd.net>
-References: <20031015194754.GA14859@viac3>
-	<Pine.SOL.4.30.0310152323320.21600-100000@tudela.mad.ttd.net>
-Organization: Fiasco Core Team
-X-GPG-Key: 1024D/233B9D29 (wwwkeys.pgp.net)
-X-GPG-Fingerprint: CE1F 5FDD 3C01 BE51 2106 292E 9E14 735D 233B 9D29
-X-Mailer: X-Mailer 5.0 Gold
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1";
- boundary="Signature=_Thu__16_Oct_2003_15_51_34_+0200_7tk53DhPGgdCWVTC"
+	Thu, 16 Oct 2003 09:52:38 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:6016 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262987AbTJPNwb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Oct 2003 09:52:31 -0400
+Date: Thu, 16 Oct 2003 09:51:51 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Sanil K <Sanil.K@lntinfotech.com>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Interrupt handling
+In-Reply-To: <OF7678B59D.AD894507-ON65256DC1.0048458F@lntinfotech.com>
+Message-ID: <Pine.LNX.4.53.0310160934410.590@chaos>
+References: <OF7678B59D.AD894507-ON65256DC1.0048458F@lntinfotech.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Thu__16_Oct_2003_15_51_34_+0200_7tk53DhPGgdCWVTC
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+On Thu, 16 Oct 2003, Sanil K wrote:
 
-On Wed, 15 Oct 2003 23:27:35 +0200 (MEST) Javier Achirica (JA) wrote:
+> Hi all,
+>
+> This may be a generic problem as far as a driver is concerned.
+>
+> We need to handle an interrupt and inform the user space on the event and
+> pass the data correspodning to the event.
+>
+> The event can be informed through SIGNAL and the signal handler can be
+> invoked in the user space. Then again for data, we need to have the
+> "copy_to_user" mechanism .
+>
 
-Hi,
+poll() / select() are the usual methods. User code sleeps in
+select() or poll() and an interrupt occurs (before/after, doesn't
+matter). Driver  code gets the data into a interrupt-safe buffer
+then executes wake_up_interruptible() from its ISR. This will cause
+the caller, sleeping in poll() to wake up as soon as the
+ISR is complete.
 
-JA> Anyway, I've been discussing this issue with Celso and looks like the line
-JA> he mentions make his configuration fail. I added it because in other cases
-JA> it makes it work. Anyway, please test the driver removing that line and if
-JA> it fixes the problem I'll just try to figure out the exact cases when it's
-JA> neede (Cisco hasn't been very helpful about it)..
+The user then, checking poll status and flags, knows that
+data are available, the user calls read() to get the data.
 
-JA> > Try removing this line on airo.c
-JA> > Line 2948
-JA> > ai->config._reserved1a[0] = 2 /* ??? */
+It is possible for a user-space program to memory-map
+an interrupt-safe (locked in place) data area and have
+the ISR write its data to this area. However, one still
+needs some kind of synchronization to know when the
+data have been received and are complete.
 
-Removing the line mentioned above fixes my problems as well. Thanks Celso.
+The memory-map idea has security problems, though.
+If the area ever gets unmapped (the user exits), a
+fatal error could occur in kernel mode within the
+ISR. In general, it's always best to allocate an
+interrupt-safe buffer within the driver (module),
+that is guaranteed to persist as long as the driver
+is installed. This ultimately means that a copy
+operation is necessary.
 
--Udo.
+Memory-to-memory copy is real fast now days. The
+copy_to_user() is just memcpy() with a trap mechanism
+that can save the kernel from a user-induced seg-fault.
+The actual trap is hardware-induced in ix86 machines
+and therefore adds no overhead to the normal copy operation.
 
---Signature=_Thu__16_Oct_2003_15_51_34_+0200_7tk53DhPGgdCWVTC
-Content-Type: application/pgp-signature
+> Is there any other effective mechanism(s) to handle the interrupt. I mean
+> we need to convey the event and or data to the user space(prefer -
+> asynchronously).
+>
+> Please share your views.
+>
+> Sanil.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.3.1 (GNU/Linux)
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
-iD8DBQE/jqJpnhRzXSM7nSkRAsm4AJ4j8fcNWtDezbtIbUmkNuNJhH975wCfSzr1
-r0ZUa/B94eBs1Pzhwvu97y8=
-=hRJf
------END PGP SIGNATURE-----
 
---Signature=_Thu__16_Oct_2003_15_51_34_+0200_7tk53DhPGgdCWVTC--

@@ -1,37 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265931AbUFIThb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265878AbUFITnI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265931AbUFIThb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jun 2004 15:37:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265932AbUFIThb
+	id S265878AbUFITnI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jun 2004 15:43:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265880AbUFITnI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jun 2004 15:37:31 -0400
-Received: from puzzle.pobox.com ([207.8.214.3]:31400 "EHLO puzzle.pobox.com")
-	by vger.kernel.org with ESMTP id S265878AbUFITe3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jun 2004 15:34:29 -0400
-Date: Wed, 9 Jun 2004 12:34:19 -0700
-From: Paul Dickson <dickson@permanentmail.com>
-To: Phy Prabab <phyprabab@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: slow down in 2.6 vs 2.4
-Message-Id: <20040609123419.0931b9f5.dickson@permanentmail.com>
-In-Reply-To: <20040609041032.96600.qmail@web51807.mail.yahoo.com>
-References: <1086744927.40c6695f9c361@vds.kolivas.org>
-	<20040609041032.96600.qmail@web51807.mail.yahoo.com>
-X-Mailer: Sylpheed version 0.9.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 9 Jun 2004 15:43:08 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:20362 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S265878AbUFITnD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jun 2004 15:43:03 -0400
+Message-ID: <40C76861.4040600@tmr.com>
+Date: Wed, 09 Jun 2004 15:43:29 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+Newsgroups: mail.linux-kernel
+To: John Bradford <john@grabjohn.com>
+CC: Rik van Riel <riel@redhat.com>,
+       =?ISO-8859-1?Q?Lasse_K=E4rkk=E4inen?= =?ISO-8859-1?Q?_/_Tronic?= 
+	<tronic2@sci.fi>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Some thoughts about cache and swap
+References: <Pine.LNX.4.44.0406051935380.29273-100000@chimarrao.boston.redhat.com> <200406060708.i5678PW4000272@81-2-122-30.bradfords.org.uk>
+In-Reply-To: <200406060708.i5678PW4000272@81-2-122-30.bradfords.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You might check out this URL:
+John Bradford wrote:
+> Quote from Rik van Riel <riel@redhat.com>:
+> 
+>>On Sat, 5 Jun 2004, [UTF-8] Lasse K=C3=A4rkk=C3=A4inen / Tronic wrote:
+>>
+>>
+>>>In order to make better use of the limited cache space, the following
+>>>methods could be used:
+>>
+>>	[snip magic piled on more magic]
+>>
+>>I wonder if we should just bite the bullet and implement
+>>LIRS, ARC or CART for Linux.  These replacement algorithms
+>>should pretty much detect by themselves which pages are
+>>being used again (within a reasonable time) and which pages
+>>aren't.
+> 
+> 
+> Is the current system really bad enough to make it worthwhile, though?
 
-    http://www.usenix.org/publications/library/proceedings/als01/full_papers/ezolt/ezolt_html/
+Yes! The current implementation just uses all the memory available, and 
+pushes any programs not actively running out to disk. Click the window 
+and go for coffee. On a small machine that's needed, but for almost any 
+typical usage, desktop or server, pushing out programs to have 3.5GB of 
+buffer instead of 3.0 doesn't help disk performance.
 
-It may not be directly relevent even though the discussed problem is
-similar, but the tips on how to break down the problem more than likely
-are.
+> Is there really much performance to be gained from tuning the 'limited' cache
+> space, or will it just hurt as many or more systems than it helps?
 
-	-Paul
+I doubt it, but it would be nice to have a tuner the admin could use 
+instead of trying to guess what the priority of program response and i/o 
+response should be. So if I have a graphics program which might open an 
+image (small file) and decompress it into 1500MB of raw image, I can set 
+  the buffer space down to a GB or so (I assume that I do this on a 
+machine fitted to such use) and get good response.
 
+And even on a small machine with only 256MB or so, not having the 
+overnight file check push all but the last 10-12MB of programs out of 
+memory. That's the problem with the current system. As for hurting other 
+systems, that's why a tuner would be nice.
+
+With various patches things are getting better, don't think it isn't 
+noticed and appreciated.
+
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

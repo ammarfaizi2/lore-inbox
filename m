@@ -1,47 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262791AbTKJNiH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Nov 2003 08:38:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263484AbTKJNiH
+	id S262687AbTKJNfm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Nov 2003 08:35:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262781AbTKJNfm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Nov 2003 08:38:07 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:464 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262791AbTKJNiD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Nov 2003 08:38:03 -0500
-Date: Mon, 10 Nov 2003 14:37:46 +0100
-From: Jens Axboe <axboe@suse.de>
-To: P@draigBrady.com
-Cc: Albert Cahalan <albert@users.sourceforge.net>,
-       Herbert Xu <herbert@gondor.apana.org.au>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] cfq + io priorities
-Message-ID: <20031110133746.GB32637@suse.de>
-References: <E1AJ994-0002xM-00@gondolin.me.apana.org.au> <1068469674.734.80.camel@cube> <3FAF9335.9010801@draigBrady.com>
+	Mon, 10 Nov 2003 08:35:42 -0500
+Received: from uni03du.unity.ncsu.edu ([152.1.13.103]:27008 "EHLO
+	uni03du.unity.ncsu.edu") by vger.kernel.org with ESMTP
+	id S262687AbTKJNfi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Nov 2003 08:35:38 -0500
+From: jlnance@unity.ncsu.edu
+Date: Mon, 10 Nov 2003 08:35:36 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: Some thoughts about stable kernel development
+Message-ID: <20031110133536.GA1780@ncsu.edu>
+References: <m3u15de669.fsf@defiant.pm.waw.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3FAF9335.9010801@draigBrady.com>
+In-Reply-To: <m3u15de669.fsf@defiant.pm.waw.pl>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 10 2003, P@draigBrady.com wrote:
-> Albert Cahalan wrote:
-> >Besides, the kernel load average was changed to
-> >include processes waiting for IO. It just plain
-> >makes sense to mix CPU usage with IO usage by
-> >default. Wanting different niceness for CPU
-> >and IO is a really unusual thing.
-> 
-> I strongly agree. Of course it would be
-> nice/necessary to have seperate nice values,
-> but setting the global one should set the
-> underlying ones (cpu, disk, ...) also.
+> There is a problem that a development cycle (time between stable
+> = non-pre/rc versions) is long.
 
-Global one? nice is CPU in Linux, period. ionice is io priority. I'm not
-going to change this. So Albert and you can agree as much as you want,
-unless you have some heavier arguments it's not going to help one bit.
+This sentiment is expressed fairly often, and I have never seen it challenged.
+However, I am not convinced that it is true.  I do not believe that people
+who care about stability want to upgrade to a new kernel with major changes
+in it every 9 months.  It also takes a fairly long time for our "stable"
+kernels to actually get stable enough that vendors are comfortable shipping
+them.  I think if our develpment cycle gets significantly shorter, you will
+end up with vendors skipping entire stable series (ie. moving from 2.2 to 2.6
+without ever doing 2.4).  I think that would create more pain for us than our
+current release cycle length does.
 
--- 
-Jens Axboe
+Thanks,
 
+Jim

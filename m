@@ -1,59 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261420AbSIZSKv>; Thu, 26 Sep 2002 14:10:51 -0400
+	id <S261416AbSIZSIJ>; Thu, 26 Sep 2002 14:08:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261421AbSIZSKv>; Thu, 26 Sep 2002 14:10:51 -0400
-Received: from sproxy.gmx.de ([213.165.64.20]:11593 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S261420AbSIZSKu>;
-	Thu, 26 Sep 2002 14:10:50 -0400
-From: "Gerold J. Wucherpfennig" <gjwucherpfennig@gmx.net>
+	id <S261420AbSIZSIJ>; Thu, 26 Sep 2002 14:08:09 -0400
+Received: from [200.132.40.3] ([200.132.40.3]:30981 "EHLO
+	labinfo.dorothea.com.br") by vger.kernel.org with ESMTP
+	id <S261416AbSIZSII>; Thu, 26 Sep 2002 14:08:08 -0400
+Message-Id: <5.0.2.1.0.20020926151232.00a81610@mail.dorothea.com.br>
+X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
+Date: Thu, 26 Sep 2002 15:18:04 -0300
 To: linux-kernel@vger.kernel.org
-Subject: Re: Page table sharing
-Date: Thu, 26 Sep 2002 20:20:08 +0200
-User-Agent: KMail/1.4.7
-References: <200209252013.17714.gjwucherpfennig@gmx.net> <59570000.1032979211@baldur.austin.ibm.com>
-In-Reply-To: <59570000.1032979211@baldur.austin.ibm.com>
-MIME-Version: 1.0
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Description: clearsigned data
-Content-Disposition: inline
-Message-Id: <200209262020.30679.gjwucherpfennig@gmx.net>
+From: Bruno Germano Bauer <bruno@dorothea.com.br>
+Subject: NAT Bug in kernel 2.4.19
+Mime-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hi all,
 
-On Wednesday September 25 2002 20:40, Dave McCracken <dmccr@us.ibm.com> wrote:
-> --On Wednesday, September 25, 2002 20:12:36 +0200 "Gerold J. Wucherpfennig"
-> <gjwucherpfennig@gmx.net> wrote:
-...
-> > Some comments from Daniel Phillips or Dave McCracken?
->
-> I'm working on it.  I sent out a patch to the mm list a few weeks ago, but
-> it didn't have the locking right.  I'm in the proces of finishing an
-> improved version with new locking.  I'll send a snapshot of it out when I
-> can make it stop oopsing :)
->
-...
+I´ma facing some problems doing a NAT with kernel 2.4.19
 
-Oh, really geat :-)
+When I try do do a FTP connection trough a gateway (doing NAT) from my internal network (INVALID IP´S), I can  connect validate my username and password, but when I try a " PORT " the connection goes away ... 
 
-I hope you will get it stable till Halloween...
-...hopefully somebody will help you.
-Page table sharing seems to be very useful,
-but I'm no expert. I only read about it at LWN
-and Kernel Traffic.
+Is there any problem with NAT in kernel 2.4.19 (I don´t have this problem with 2.4.18) ...
 
+Thanks for all ....
 
-Gerold
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE9k0/Y53zyw+ONqrERAkauAJ0b3ztvgORi6c7rgSbhD3IIQh5v3ACdG2ou
-Ds2vW/vuXHlk1NU/Hau3NNk=
-=FgOz
------END PGP SIGNATURE-----
+-------------------------------------------------------------------------------------
+Bruno Germano Bauer - bruno@dorothea.com.br
+Instituto Sinodal Dorothea Schäfke - www.dorothea.com.br
+Taquara/RS
+-------------------------------------------------------------------------------------
 

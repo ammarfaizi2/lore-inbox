@@ -1,79 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263572AbTDTNS6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Apr 2003 09:18:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263573AbTDTNS6
+	id S263574AbTDTN0I (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Apr 2003 09:26:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263576AbTDTN0I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Apr 2003 09:18:58 -0400
-Received: from mta07ps.bigpond.com ([144.135.25.132]:32999 "EHLO
-	mta07ps.bigpond.com") by vger.kernel.org with ESMTP id S263572AbTDTNS4
+	Sun, 20 Apr 2003 09:26:08 -0400
+Received: from lmail.actcom.co.il ([192.114.47.13]:17066 "EHLO
+	smtp1.actcom.net.il") by vger.kernel.org with ESMTP id S263574AbTDTN0H
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Apr 2003 09:18:56 -0400
-Message-ID: <3EA2A17B.40006@csse.uwa.edu.au>
-Date: Sun, 20 Apr 2003 21:32:43 +0800
-From: David Glance <david@csse.uwa.edu.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030314
-X-Accept-Language: en-us, en
+	Sun, 20 Apr 2003 09:26:07 -0400
+Message-ID: <3EA2A285.2070307@shemesh.biz>
+Date: Sun, 20 Apr 2003 16:37:09 +0300
+From: Shachar Shemesh <lkml@shemesh.biz>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030327 Debian/1.3-4
+X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: fisaksen@bewan.com, Greg KH <greg@kroah.com>
-Subject: Re: PATCH: usb-uhci: interrupt out with urb->interval 0
-References: <3EA25595.9000001@csse.uwa.edu.au>
-In-Reply-To: <3EA25595.9000001@csse.uwa.edu.au>
+To: Ben Collins <bcollins@debian.org>
+CC: Larry McVoy <lm@work.bitmover.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: BK->CVS, kernel.bkbits.net
+References: <20030417162723.GA29380@work.bitmover.com> <20030420013440.GG2528@phunnypharm.org> <3EA24CF8.5080609@shemesh.biz> <20030420130123.GK2528@phunnypharm.org>
+In-Reply-To: <20030420130123.GK2528@phunnypharm.org>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The timeout problem is solved (I increased the timeout on my side) - so 
-just to confirm that the patch is still required though.
+Ben Collins wrote:
 
-David Glance wrote:
+>>>I hate asking this on top of the work you already provide, but would it
+>>>be possible to allow rsync access to the repo itself? I have atleast 6
+>>>computers on my LAN where I keep source trees (2.4 and 2.5), and it
+>>>would be much less b/w on my metered T1 and on your link aswell if I
+>>>could rsync one main "mirror" of the cvs repo and then point all my
+>>>machines at it.
+>>>      
+>>>
+>How does cvsup help when I have 6 copies of two different repositories
+>on my side and I only want to hit the other side one time to update all
+>6 copies?
+>  
+>
+"cvsup" is for synching repositories (I was not talking about "cvs up" - 
+the command line). It achives the exact same end effect as rsync, except 
+it is much more bandwidth efficient when used to sync CVS repositories. 
+Homepage at http://www.cvsup.org/.
 
-> I am not subscribed to this list - please include me on the 'cc' line.
->
-> Version: 2.4.21-pre6
-> Subsystem: USB
-> Driver: Lego USB Tower
->
-> Writing one-short interrupt out transfers without this patch cause the 
-> system to hang. Applying this patch fixes that (thankfully after 
-> fsck'ing my disk a dozen times!) - however the driver (which works 
-> still using usb-ohci on an ohci card) - doesn't work because the reads 
-> are  failing - returning a ETIMEDOUT.
->
-> I am assuming that the changes made (see below) - somehow have 
-> affected other aspects of one-shot interrupt in transfers?
->
-> Thanks
->
-> David
->
->
-> Frode wrote:
->
-> A recent change (2.4.21) in the usb-uhci driver calls
-> "uhci_clean_iso_step2" after the completion of one-shot (urb->interval
-> 0) interrupt out transfers. This call clears the list of descriptors.
-> However, it crashes when trying to get the next desciptor in the "for"
-> loop in the "process_interrupt" function, since the list of descriptors
-> are already cleared. A simple change I did was to do a "break" to quit
-> the "for" loop for interrupt out transfers with urb->interval 0.
->
-> Thanks,
-> Frode
->
-> --- drivers/usb/usb-uhci.c.orig 2003-04-16 15:39:04.000000000 +0200
-> +++ drivers/usb/usb-uhci.c 2003-04-16 15:39:56.000000000 +0200
-> @@ -2628,6 +2628,7 @@
->                                   // correct toggle after unlink
->                                   usb_dotoggle (urb->dev, 
-> usb_pipeendpoint (urb->pipe), usb_pipeout
-> (urb->pipe));
->                                   clr_td_ioc(desc); // inactivate TD
-> + break;
->                           }
->                   }
->           }
->
+As Adam Richter said in private, however, the tool is a bitch to 
+compile. It is written in Modula-3, and most people don't have the 
+development environment to build it. Add to that the fact that most 
+distros don't carry it as a package (a while back I tried, 
+unsuccessfully, to locate an RPM for it, anywhere), and you get 
+something that should be deployed with care.
+
+On the other hand, both Wine (where I got to know it) and KDE seem to 
+offer cvsup for getting the repository, so it can't be THAT difficult. 
+As also noted above, Debian does carry it in easy to deploy .deb, as 
+part of the main distro's archive (confirmed available on stable).
+
+          Sh.
+
+-- 
+Shachar Shemesh
+Open Source integration consultant
+Home page & resume - http://www.shemesh.biz/
+
 

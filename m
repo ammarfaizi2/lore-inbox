@@ -1,50 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266952AbTCDXun>; Tue, 4 Mar 2003 18:50:43 -0500
+	id <S266965AbTCDXxe>; Tue, 4 Mar 2003 18:53:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266961AbTCDXun>; Tue, 4 Mar 2003 18:50:43 -0500
-Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:34833
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S266952AbTCDXum>; Tue, 4 Mar 2003 18:50:42 -0500
-Date: Tue, 4 Mar 2003 18:58:09 -0500 (EST)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: raarts@office.netland.nl
-cc: Linus Torvalds <torvalds@transmeta.com>,
-       Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-       "" <david.knierim@tekelec.com>, "" <alexander@netintact.se>,
-       Donald Becker <becker@scyld.com>, Greg KH <greg@kroah.com>,
-       jamal <hadi@cyberus.ca>, Jeff Garzik <jgarzik@pobox.com>,
-       "" <kuznet@ms2.inr.ac.ru>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       Robert Olsson <Robert.Olsson@data.slu.se>
-Subject: Re: PCI init issues
-In-Reply-To: <3E653519.2050000@netland.nl>
-Message-ID: <Pine.LNX.4.50.0303041842440.5867-100000@montezuma.mastecende.com>
-References: <Pine.LNX.4.44.0303041046370.1426-100000@home.transmeta.com>
- <3E650061.9050201@netland.nl> <Pine.LNX.4.50.0303041742420.5867-100000@montezuma.mastecende.com>
- <3E653519.2050000@netland.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S266968AbTCDXxe>; Tue, 4 Mar 2003 18:53:34 -0500
+Received: from bjl1.jlokier.co.uk ([81.29.64.88]:5248 "EHLO bjl1.jlokier.co.uk")
+	by vger.kernel.org with ESMTP id <S266965AbTCDXxd>;
+	Tue, 4 Mar 2003 18:53:33 -0500
+Date: Wed, 5 Mar 2003 00:03:34 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: Kasper Dupont <kasperd@daimi.au.dk>
+Cc: Joseph Wenninger <jowenn@jowenn.at>, Miles Bader <miles@gnu.org>,
+       DervishD <raul@pleyades.net>,
+       Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: About /etc/mtab and /proc/mounts
+Message-ID: <20030305000334.GA2617@bjl1.jlokier.co.uk>
+References: <20030219112111.GD130@DervishD> <3E5C8682.F5929A04@daimi.au.dk> <buoy942s6lt.fsf@mcspd15.ucom.lsi.nec.co.jp> <3E5DB2CA.32539D41@daimi.au.dk> <1046329422.1404.10.camel@jowennmobile> <3E5DCC16.FD6BAD62@daimi.au.dk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3E5DCC16.FD6BAD62@daimi.au.dk>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 5 Mar 2003, Ron Arts wrote:
+Kasper Dupont wrote:
+> > For KDE 3.1 I've written a mount watcher, which checks the modification
+> > time of the /etc/mtab to recognize mount/unmount activity, which broke
+> > for linux from scratch( for now, they have updated there install
+> > instructions), because they linked to /proc/mounts, which doesn't seem
+> > to support mtime.
+> 
+> It seems the mtime of anything under /proc simply gives the current time.
+> Would that be hard to change? And would anything break if /proc/mounts
+> gave the time of the last change? It shouldn't be a major problem to
+> record the time of the last sucessfull mount, remount, or unmount.
 
-> I hope this adds anything.
-> Attached is the output of `mptable -dmesg -extra`
+It would be much better if it were possible to use
+fcntl(?,F_NOTIFY,...) to monitor the contents of /proc/mounts.  (It
+would have to be in a subdirectory of its own for this).
 
-I can't really help much but here is a quick interpretation, this is your 
-card with all the irqs wired to PIN A which seems to correspond with what 
-Donald Becker said.
-
- INT     active-lo       level        3   4:A          4    0
- INT     active-lo       level        3   5:A          4    0
- INT     active-lo       level        3   6:A          4    0
- INT     active-lo       level        3   7:A          4    0
-
-IO-APIC (apicid-pin) 2-0,  <-- doesn't that actually mean pin0 on the 
-ioapic servicing that card is not connected? (or due to mptables again)
-
-	Zwane
--- 
-function.linuxpower.ca
+-- Jamie

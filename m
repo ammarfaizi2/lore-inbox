@@ -1,48 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261156AbVAARZ3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261160AbVAAR2l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261156AbVAARZ3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Jan 2005 12:25:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261160AbVAARZ3
+	id S261160AbVAAR2l (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Jan 2005 12:28:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261161AbVAAR2l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Jan 2005 12:25:29 -0500
-Received: from gprs215-210.eurotel.cz ([160.218.215.210]:31360 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S261156AbVAARZY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Jan 2005 12:25:24 -0500
-Date: Sat, 1 Jan 2005 18:23:44 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: John M Flinchbaugh <john@hjsoft.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.10: e100 network broken after swsusp/resume
-Message-ID: <20050101172344.GA1355@elf.ucw.cz>
-References: <20041228144741.GA2969@butterfly.hjsoft.com>
+	Sat, 1 Jan 2005 12:28:41 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:45837 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261160AbVAAR2e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Jan 2005 12:28:34 -0500
+Date: Sat, 1 Jan 2005 18:28:32 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] remove obsolete Computone MAINTAINERS entry (fwd)
+Message-ID: <20050101172832.GB14319@stusta.de>
+References: <20041120002559.GB2754@stusta.de> <20041119194735.63d2a257.akpm@osdl.org> <20041220191530.GA25986@alcove.wittsend.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041228144741.GA2969@butterfly.hjsoft.com>
-X-Warning: Reading this can be dangerous to your mental health.
+In-Reply-To: <20041220191530.GA25986@alcove.wittsend.com>
 User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> similarly to other people reports of hardware troubles after swsusp, my
-> thinkpad r40's e100 nic doesn't fully function after resume.
+On Mon, Dec 20, 2004 at 02:15:30PM -0500, Michael H. Warfield wrote:
+> On Fri, Nov 19, 2004 at 07:47:35PM -0800, Andrew Morton wrote:
+> > Adrian Bunk <bunk@stusta.de> wrote:
+> > >
+> > > I'm not sure whether it makes sense to list the previous maintainers for 
+> > >  orphaned code, but if such entries contain buouncing mail addresses it's 
+> > >  IMHO time to simply remove them.
+> > > 
+> > > ...
+> > >  -M:	Michael H. Warfield <mhw@wittsend.com>
 > 
-> ifplugd can see the link status change when i plug and unplug the cable,
-> but the dhclient it runs just tries and retries to get an ip without
-> success.
+> > wittsend.com is still there and Michael still runs it.
 > 
-> i've tried reloading e100, mii, and even af_packet, but only a reboot
-> fixes it.
+> 	Yeah, I'm still here.  I've just been out of town almost one
+> week out of every two since June, so I'm more than a little behind on
+> catching up on the kernel stuff (yes and the Samba stuff as well,
+> I know, I know, sigh...).
+>...
 
-e100 seems to have some suspend/resume support [but if even reloading
-e100 does not help, fault is not in e100]. Are you running with APIC
-enabled? Try noapic. Try acpi=off.
+At least the mailing list is definitely dead:
 
-								Pavel
+<linux-computone@lazuli.wittsend.com>:
+Sorry, I wasn't able to establish an SMTP connection. (#4.4.1)
+I'm not going to try again; this message has been in the queue too long.
+
+> 	I've got two patches in my queue for the Computone drivers for
+> 2.6 plus three patches that apply to both the 2.4 and 2.6 kernels.  I've
+> got to check to see if Marcelo got around to integrating those patches
+> into 2.4 and then jump onto the combined patches.
+> 
+> 	As Shrek said...  (You didn't slay the dragon?) - "It's on my
+> todo list".
+
+It seems you are still active :-) , so why is it "Orphaned"?
+
+> 	Mike
+
+cu
+Adrian
 
 -- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

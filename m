@@ -1,64 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262430AbVC3T76@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262435AbVC3UEM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262430AbVC3T76 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 14:59:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262435AbVC3T6U
+	id S262435AbVC3UEM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 15:04:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262441AbVC3UEM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 14:58:20 -0500
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:4602 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S262430AbVC3T46 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 14:56:58 -0500
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.41-07
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Esben Nielsen <simlo@phys.au.dk>
-Cc: Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.OSF.4.05.10503302042450.2022-100000@da410.phys.au.dk>
-References: <Pine.OSF.4.05.10503302042450.2022-100000@da410.phys.au.dk>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Wed, 30 Mar 2005 14:56:48 -0500
-Message-Id: <1112212608.3691.147.camel@localhost.localdomain>
+	Wed, 30 Mar 2005 15:04:12 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:1470 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262435AbVC3UCW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 15:02:22 -0500
+Date: Wed, 30 Mar 2005 15:02:18 -0500
+From: Dave Jones <davej@redhat.com>
+To: blaisorblade@yahoo.it
+Cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch 3/3] x86_64: remove dup syscall
+Message-ID: <20050330200218.GA10159@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>, blaisorblade@yahoo.it,
+	torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+References: <20050330173219.83466EFED1@zion>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050330173219.83466EFED1@zion>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-03-30 at 20:44 +0100, Esben Nielsen wrote:
-> On Wed, 30 Mar 2005, Steven Rostedt wrote:
-> 
-> > [...] 
-> > 
-> > Heck, I'll make it bloat city till I get it working, and then tone it
-> > down a little :-)  And maybe later we can have a better solution for the
-> > BKL.
-> > 
-> What about removing it alltogether?
-> Seriously, how much work would it be to simply remove it and go in and
-> make specific locks in all those places the code can't compile?
+On Wed, Mar 30, 2005 at 07:32:18PM +0200, blaisorblade@yahoo.it wrote:
+ > 
+ > Remove duplicated syscall entry.
+ > 
+ > This likely affects compilation with older GCC's (2.95.x), since in
+ > arch/x86_64/kernel/syscall.c this will result in assigning twice the same
+ > array element.
+ > 
+ > By experience, this works with newer GCC's but not with 2.95.3/4.
 
-I would really love to do that!  But I don't have the time or the
-knowledge on the effects that would have.
+gcc 3.0 was the first release to support x86-64.
 
-Because of the stupid BKL, I'm going with a combination of your idea and
-my idea for the solution of pending owners.  I originally wanted the
-stealer of the lock to put the task that was robbed back on the list.
-But because of the BKL, you end up with a state that a task can be
-blocked by two locks at the same time. This causes hell with priority
-inheritance.
-
-So finally, what I'm doing now is to have the lock still pick the
-pending owner, and that owner is not blocked on the lock. If another
-process comes along and steals the lock, the robbed task goes to a state
-as if it was just before calling __down*. So when it wakes up, it checks
-to see if it is the pending owner, and if not, then it tries to grab the
-lock again, if it doesn't get it, it just calls task_blocks_on_lock
-again.
-
-This is the easiest solution so far, but I still like the stealer to put
-it back on the list.  But until we get rid of the BKL that wont happen.
-
--- Steve
-
+		Dave
 

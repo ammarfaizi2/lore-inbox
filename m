@@ -1,88 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317051AbSFWP5p>; Sun, 23 Jun 2002 11:57:45 -0400
+	id <S317054AbSFWQLk>; Sun, 23 Jun 2002 12:11:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317054AbSFWP5o>; Sun, 23 Jun 2002 11:57:44 -0400
-Received: from mta3.srv.hcvlny.cv.net ([167.206.5.9]:12423 "EHLO
-	mta3.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id <S317051AbSFWP5n>; Sun, 23 Jun 2002 11:57:43 -0400
-Date: Sun, 23 Jun 2002 12:03:02 -0400
-From: sean darcy <seandarcy@hotmail.com>
-Subject: Re: piggy broken in 2.5.24 build
-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-       linux kernel <linux-kernel@vger.kernel.org>
-Message-id: <3D15F136.90800@hotmail.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020605
-References: <linux.kernel.Pine.LNX.4.44.0206222143550.7338-100000@chaos.physics.uiowa.edu>
+	id <S317056AbSFWQLj>; Sun, 23 Jun 2002 12:11:39 -0400
+Received: from mail.storm.ca ([209.87.239.66]:14290 "EHLO mail.storm.ca")
+	by vger.kernel.org with ESMTP id <S317054AbSFWQLi>;
+	Sun, 23 Jun 2002 12:11:38 -0400
+Message-ID: <3D15E629.1706DE98@storm.ca>
+Date: Sun, 23 Jun 2002 11:15:53 -0400
+From: Sandy Harris <pashley@storm.ca>
+Organization: Flashman's Dragoons
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.18 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux, the microkernel (was Re: latest linus-2.5 BK broken)
+References: <E17LUyA-0001wU-00@starship> <200206220107.g5M17AXp028825@sleipnir.valparaiso.cl> <20020621182337.T23670@work.bitmover.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kai Germaschewski wrote:
-> On Sat, 22 Jun 2002, sean darcy wrote:
+Larry McVoy wrote:
 
+> The interesting thing is to look at the ways you'd deal with a 1024 processors
+> and then work backwards to see how you scale it down to 1.  There is NO WAY
+> to scale a fine grain threaded system which works on a 1024 system down to
+> a 1 CPU system, those are profoundly different.
 > 
-> Well, could you try to 
-> 
-> cd /opt/kernel/linux-2.5.24/arch/i386/boot/compressed
-> objcopy -O binary -R .note -R .comment -S /opt/kernel/linux-2.5.24/vmlinux 
-> _tmp_piggy
-> 
-> and see if that generates _tmp_piggy in that directory?
-> 
-> --Kai
+> I think you could take the OS cluster idea and scale it up as well as down.
+> Scaling down is really important, Linux works well in the embedded space,
+> that is probably the greatest financial success story that Linux has, let's
+> not screw it up.
 
+Assuming we can get 4-way right, methinks Larry's ideas are likely to be a
+whole lot easier way to handle a 32 or 64-way box than trying to re-design
+the kernel sufficiently to do that well without destroying anything
+important in the 1<= nCPU <= 4 case. Especially so because 16 to 64-way 
+clusters are common as dirt, and we can borrow tested tools. Anything that
+works on a 16-box Beowulf ought to adapt nicely to a 64-way box with 16
+of Larry's OSlets.
 
-Nope .It generates a segmentation fault!. I'm running 2.4.18, binutils 
-2.12.90. I'm going to try a different binutils.
+However, it is a lot harder to see that Larry's stuff is the right way
+to deal with a 1024-CPU system. At that point, you've got perhaps 256
+4-way groups running OSlets. How does communication overhead scale, and
+do we have reason to suppose it is tolerable at 1024? 
 
-  Here's strace:
-
-[root@daddy compressed]# strace objcopy -O binary -R .note -R .comment 
--S /opt/kernel/linux-2.5.24/vmlinux _tmp_piggy
-execve("/usr/bin/objcopy", ["objcopy", "-O", "binary", "-R", ".note", 
-"-R", ".comment", "-S", "/opt/kernel/linux-2.5.24/vmlinux", 
-"_tmp_piggy"], [/* 28 vars */]) = 0
-uname({sys="Linux", node="daddy", ...}) = 0
-brk(0)                                  = 0x807c66c
-open("/etc/ld.so.preload", O_RDONLY)    = -1 ENOENT (No such file or 
-directory)
-open("/lib/libNoVersion.so.1", O_RDONLY) = 3
-fstat64(3, {st_mode=S_IFREG|0755, st_size=6135, ...}) = 0
-close(3)                                = 0
-open("/lib/libNoVersion.so.1", O_RDONLY) = 3
-read(3, "\177ELF\1\1\1\0\0\0\0\0\0\0\0\0\3\0\3\0\1\0\0\0P\10\0\000"..., 
-1024) = 1024
-fstat64(3, {st_mode=S_IFREG|0755, st_size=6135, ...}) = 0
-old_mmap(NULL, 7248, PROT_READ|PROT_EXEC, MAP_PRIVATE, 3, 0) = 0x40014000
-mprotect(0x40015000, 3152, PROT_NONE)   = 0
-old_mmap(0x40015000, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED, 
-3, 0) = 0x40015000
-close(3)                                = 0
-open("/etc/ld.so.cache", O_RDONLY)      = 3
-fstat64(3, {st_mode=S_IFREG|0644, st_size=76711, ...}) = 0
-old_mmap(NULL, 76711, PROT_READ, MAP_PRIVATE, 3, 0) = 0x40016000
-close(3)                                = 0
-open("/lib/i686/libc.so.6", O_RDONLY)   = 3
-read(3, "\177ELF\1\1\1\0\0\0\0\0\0\0\0\0\3\0\3\0\1\0\0\0`u\1B4\0"..., 
-1024) = 1024
-fstat64(3, {st_mode=S_IFREG|0755, st_size=1401027, ...}) = 0
-old_mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, 
--1, 0) = 0x40029000
-old_mmap(0x42000000, 1264928, PROT_READ|PROT_EXEC, MAP_PRIVATE, 3, 0) = 
-0x42000000
-mprotect(0x4212c000, 36128, PROT_NONE)  = 0
-old_mmap(0x4212c000, 20480, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED, 
-3, 0x12c000) = 0x4212c000
-old_mmap(0x42131000, 15648, PROT_READ|PROT_WRITE, 
-MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x42131000
-close(3)                                = 0
---- SIGSEGV (Segmentation fault) ---
-+++ killed by SIGSEGV +++
-
-
-
-
+Also, it isn't as clear that clustering experience applies. Are clusters
+that size built hierachically? Is a 1024-CPU Beowulf practical, and if so
+do you build it as a Beowulf of 32 32-CPU Beowulfs? Is something analogous
+required in the OSlet approach? would it work?

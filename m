@@ -1,38 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266064AbSLITKE>; Mon, 9 Dec 2002 14:10:04 -0500
+	id <S265987AbSLITMZ>; Mon, 9 Dec 2002 14:12:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266069AbSLITKE>; Mon, 9 Dec 2002 14:10:04 -0500
-Received: from havoc.daloft.com ([64.213.145.173]:215 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id <S266064AbSLITKD>;
-	Mon, 9 Dec 2002 14:10:03 -0500
-Date: Mon, 9 Dec 2002 14:17:41 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Matthew Wilcox <willy@debian.org>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Arjan van de Ven <arjanv@redhat.com>, Hanno B?ck <hanno@gmx.de>,
-       "Grover, Andrew" <andrew.grover@intel.com>, pavel@ucw.cz,
-       linux-kernel@vger.kernel.org, acpi-devel@sourceforge.net
-Subject: Re: [ACPI] RE: [BK PATCH] ACPI updates
-Message-ID: <20021209191741.GA26391@gtf.org>
-References: <EDC461A30AC4D511ADE10002A5072CAD04C7A576@orsmsx119.jf.intel.com> <20021206125943.2199892e.hanno@gmx.de> <20021206072932.B16173@devserv.devel.redhat.com> <20021206131746.C10368@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.50L.0212091408120.10894-100000@freak.distro.conectiva> <20021209191252.N20336@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021209191252.N20336@parcelfarce.linux.theplanet.co.uk>
-User-Agent: Mutt/1.3.28i
+	id <S265998AbSLITMX>; Mon, 9 Dec 2002 14:12:23 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:17924 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S265987AbSLITMV>; Mon, 9 Dec 2002 14:12:21 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Dazed and Confused
+Date: 9 Dec 2002 11:19:48 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <at2qck$ffi$1@cesium.transmeta.com>
+References: <Pine.LNX.4.42.0212061133330.7770-100000@egg> <Pine.LNX.4.42.0212061202230.7770-100000@egg>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 09, 2002 at 07:12:52PM +0000, Matthew Wilcox wrote:
-> On Mon, Dec 09, 2002 at 02:09:04PM -0200, Marcelo Tosatti wrote:
-> > Which machines do not work without the new ACPI code?
+Followup to:  <Pine.LNX.4.42.0212061202230.7770-100000@egg>
+By author:    Greg Boyce <gboyce@rakis.net>
+In newsgroup: linux.dev.kernel
 > 
-> hp's zx1-based ia64 machines (my personal interest..) and i thought some
-> laptops required updated ACPI to boot.  also, aren't there some SMP x86
-> boxes with buggy bios tables that won't boot without ACPI?
+> Actually, this does leave one question still:  How serious is the problem?
+> How much would you trust a machine reporting these errors?  Most of the
+> machines are just performing DNS and web service (although with a pretty
+> high load).  The processes on the machine are are cpu and memory
+> intensive, but there is no critical data stored on most of the machines.
+> 
+> Are the machines likely to give us problems with crashing and data
+> corruption, or would it be safe to ignore the problem unless we started
+> noticing odd behavior?
+> 
 
-There are several classes of machines that require ACPI to boot... a big
-question is whether these machines need full ACPI or just acpitable.c,
-too...
+The fact that you're seeing the error means data corruption has
+already occurred.
 
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

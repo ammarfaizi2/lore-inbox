@@ -1,100 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263558AbUDPP2j (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Apr 2004 11:28:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263480AbUDPPZr
+	id S263444AbUDPP2g (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Apr 2004 11:28:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263324AbUDPP0H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Apr 2004 11:25:47 -0400
-Received: from mail.gmx.de ([213.165.64.20]:26247 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S263413AbUDPPWc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Apr 2004 11:22:32 -0400
-Date: Fri, 16 Apr 2004 17:22:31 +0200 (MEST)
-From: "Svetoslav Slavtchev" <svetljo@gmx.de>
-To: "lkml " <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="========GMXBoundary269431082128951"
-Subject: [2.6.5] problems with synaptics/psmouse/atkbd
-X-Priority: 3 (Normal)
-X-Authenticated: #20183004
-Message-ID: <26943.1082128951@www51.gmx.net>
-X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
-X-Flags: 0001
+	Fri, 16 Apr 2004 11:26:07 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:47328 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263558AbUDPPYu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Apr 2004 11:24:50 -0400
+Date: Fri, 16 Apr 2004 16:24:48 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Greg KH <greg@kroah.com>
+Cc: Maneesh Soni <maneesh@in.ibm.com>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] fix sysfs symlinks
+Message-ID: <20040416152448.GF24997@parcelfarce.linux.theplanet.co.uk>
+References: <20040413124037.GA21637@in.ibm.com> <20040413133615.GZ31500@parcelfarce.linux.theplanet.co.uk> <20040415220232.GC23039@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040415220232.GC23039@kroah.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME encapsulated multipart message -
-please use a MIME-compliant e-mail program to open it.
+On Thu, Apr 15, 2004 at 03:02:32PM -0700, Greg KH wrote:
+> No, we don't want that.  It's ok to have a dangling symlink in the fs if
+> the device the link was pointing to is now gone.  All of the struct
+> class_device stuff relies on the fact that a struct device can go away
+> at any time, and nothing bad will happen (with the exception of a stale
+> symlink.)
+> 
+> Yeah, it can cause a few odd looking trees when you unplug and replug a
+> device a bunch of times, all the while grabbing a reference to the class
+> device, but once everything is released by the user, it is cleaned up
+> properly, with no harm done to anything.
 
-Dies ist eine mehrteilige Nachricht im MIME-Format -
-bitte verwenden Sie zum Lesen ein MIME-konformes Mailprogramm.
-
---========GMXBoundary269431082128951
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-
-i happen to find the attached fix in the latest SuSE kernels
-
-hope it works for you
-
-best,
-
-svetljo
-
--- 
-NEU : GMX Internet.FreeDSL
-Ab sofort DSL-Tarif ohne Grundgebühr: http://www.gmx.net/info
---========GMXBoundary269431082128951
-Content-Type: text/x-patch; name="psmouse-usb-fix-3.diff"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="psmouse-usb-fix-3.diff"
-
-Q2hhbmdlU2V0QDEuMTgzMSwgMjAwNC0wNC0wMyAyMzozMDozOSswMjowMCwgdm9qdGVjaEBzdXNl
-LmN6CiAgaW5wdXQ6IERpc2FibGUgVVNCIExlZ2FjeSBlbXVsYXRpb24gaW4gUENJIHF1aXJrcy4K
-CgogcXVpcmtzLmMgfCAgIDYyICsrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysr
-KysrKysrKysrKysrKysrKysrKysrKysrCiAxIGZpbGVzIGNoYW5nZWQsIDYyIGluc2VydGlvbnMo
-KykKCgpkaWZmIC1OcnUgYS9kcml2ZXJzL3BjaS9xdWlya3MuYyBiL2RyaXZlcnMvcGNpL3F1aXJr
-cy5jCi0tLSBhL2RyaXZlcnMvcGNpL3F1aXJrcy5jCVNhdCBBcHIgIDMgMjM6MzA6NDkgMjAwNAor
-KysgYi9kcml2ZXJzL3BjaS9xdWlya3MuYwlTYXQgQXByICAzIDIzOjMwOjQ5IDIwMDQKQEAgLTg2
-OCw2ICs4NjgsNjYgQEAKIH0KICNlbmRpZiAvKiBDT05GSUdfU0NTSV9TQVRBICovCiAKKworI2Rl
-ZmluZSBVSENJX1VTQkxFR1NVUAkJMHhjMAkJLyogbGVnYWN5IHN1cHBvcnQgKi8KKyNkZWZpbmUg
-VUhDSV9VU0JDTUQJCTAJCS8qIGNvbW1hbmQgcmVnaXN0ZXIgKi8KKyNkZWZpbmUgVUhDSV9VU0JJ
-TlRSCQk0CQkvKiBpbnRlcnJ1cHQgcmVnaXN0ZXIgKi8KKyNkZWZpbmUgVUhDSV9VU0JMRUdTVVBf
-REVGQVVMVAkweDIwMDAJCS8qIG9ubHkgUElSUSBlbmFibGUgc2V0ICovCisjZGVmaW5lIFVIQ0lf
-VVNCQ01EX0dSRVNFVAkweDAwMDQJCS8qIEdsb2JhbCByZXNldCAqLworCisjZGVmaW5lIE9IQ0lf
-Q09OVFJPTAkJMHgwNAorI2RlZmluZSBPSENJX0NNRFNUQVRVUwkJMHgwOAorI2RlZmluZSBPSENJ
-X0lOVFJFTkFCTEUJCTB4MTAKKyNkZWZpbmUgT0hDSV9PQ1IJCSgxIDw8IDMpCS8qIG93bmVyc2hp
-cCBjaGFuZ2UgcmVxdWVzdCAqLworI2RlZmluZSBPSENJX0NUUkxfSVIJCSgxIDw8IDgpCS8qIGlu
-dGVycnVwdCByb3V0aW5nICovCisjZGVmaW5lIE9IQ0lfSU5UUl9PQwkJKDEgPDwgMzApCS8qIG93
-bmVyc2hpcCBjaGFuZ2UgKi8KKworc3RhdGljIHZvaWQgX19pbml0IHF1aXJrX3VzYl9kaXNhYmxl
-X3NtbV9iaW9zKHN0cnVjdCBwY2lfZGV2ICpwZGV2KQoreworCisJaWYgKHBkZXYtPmNsYXNzID09
-ICgoUENJX0NMQVNTX1NFUklBTF9VU0IgPDwgOCkgfCAweDAwKSkgeyAvKiBVSENJICovCisJCWlu
-dCBpOworCQl1bnNpZ25lZCBsb25nIGJhc2UgPSAwOzsKKworCQlmb3IgKGkgPSAwOyBpIDwgUENJ
-X1JPTV9SRVNPVVJDRTsgaSsrKSAKKwkJCWlmICgocGNpX3Jlc291cmNlX2ZsYWdzKHBkZXYsIGkp
-ICYgSU9SRVNPVVJDRV9JTykpIHsKKwkJCQliYXNlID0gcGNpX3Jlc291cmNlX3N0YXJ0KHBkZXYs
-IGkpOworCQkJCWJyZWFrOworCQkJfQorCisJCWlmICghYmFzZSkKKwkJCXJldHVybjsKKworCQlv
-dXR3KDAsIGJhc2UgKyBVSENJX1VTQklOVFIpOworCQlvdXR3KFVIQ0lfVVNCQ01EX0dSRVNFVCwg
-YmFzZSArIFVIQ0lfVVNCQ01EKTsKKwkJc2V0X2N1cnJlbnRfc3RhdGUoVEFTS19VTklOVEVSUlVQ
-VElCTEUpOworICAgICAgIAkJc2NoZWR1bGVfdGltZW91dCgoSFoqNTArOTk5KSAvIDEwMDApOwor
-CQlvdXR3KDAsIGJhc2UgKyBVSENJX1VTQkNNRCk7CisJCXNldF9jdXJyZW50X3N0YXRlKFRBU0tf
-VU5JTlRFUlJVUFRJQkxFKTsKKwkJc2NoZWR1bGVfdGltZW91dCgoSFoqMTArOTk5KSAvIDEwMDAp
-OworCisJCXBjaV93cml0ZV9jb25maWdfd29yZChwZGV2LCBVSENJX1VTQkxFR1NVUCwgVUhDSV9V
-U0JMRUdTVVBfREVGQVVMVCk7CisJfQorCisJaWYgKHBkZXYtPmNsYXNzID09ICgoUENJX0NMQVNT
-X1NFUklBTF9VU0IgPDwgOCkgfCAweDEwKSkgeyAvKiBPSENJICovCisJCWNoYXIgKmJhc2UgPSBp
-b3JlbWFwX25vY2FjaGUocGNpX3Jlc291cmNlX3N0YXJ0KHBkZXYsIDApLAorCQkJCQkJCXBjaV9y
-ZXNvdXJjZV9sZW4ocGRldiwgMCkpOworCQlpZiAoYmFzZSA9PSBOVUxMKSByZXR1cm47CisKKwkJ
-aWYgKHJlYWRsKGJhc2UgKyBPSENJX0NPTlRST0wpICYgT0hDSV9DVFJMX0lSKSB7CisJCQlpbnQg
-dGVtcCA9IDUwMDsgICAgIC8qIGFyYml0cmFyeTogZml2ZSBzZWNvbmRzICovCisJCQl3cml0ZWwo
-T0hDSV9JTlRSX09DLCBiYXNlICsgT0hDSV9JTlRSRU5BQkxFKTsKKwkJCXdyaXRlbChPSENJX09D
-UiwgYmFzZSArIE9IQ0lfQ01EU1RBVFVTKTsKKwkJCXdoaWxlICh0ZW1wICYmIHJlYWRsKGJhc2Ug
-KyBPSENJX0NPTlRST0wpICYgT0hDSV9DVFJMX0lSKSB7CisJCQkJdGVtcC0tOworCQkJCXNldF9j
-dXJyZW50X3N0YXRlKFRBU0tfVU5JTlRFUlJVUFRJQkxFKTsKKwkJCQlzY2hlZHVsZV90aW1lb3V0
-KCBIWiAvIDEwMCk7CisJCQl9CisJCX0KKwkJaW91bm1hcChiYXNlKTsKKwl9Cit9CisKIC8qCiAg
-KiAgVGhlIG1haW4gdGFibGUgb2YgcXVpcmtzLgogICoKQEAgLTk4Myw2ICsxMDQzLDggQEAKIAl7
-IFBDSV9GSVhVUF9GSU5BTCwgICAgICBQQ0lfVkVORE9SX0lEX0lOVEVMLCAgICBQQ0lfQU5ZX0lE
-LAogCSAgcXVpcmtfaW50ZWxfaWRlX2NvbWJpbmVkIH0sCiAjZW5kaWYgLyogQ09ORklHX1NDU0lf
-U0FUQSAqLworCisJeyBQQ0lfRklYVVBfRklOQUwsCVBDSV9BTllfSUQsCQlQQ0lfQU5ZX0lELAkJ
-CXF1aXJrX3VzYl9kaXNhYmxlX3NtbV9iaW9zIH0sCiAKIAl7IDAgfQogfTsK
-
---========GMXBoundary269431082128951--
-
+Except that these "symlinks" are expected to follow the target upon
+renames.  Which means that we either need a very messy scanning of
+the entire tree on every rename (obviously not feasible) or we need
+to store pointer to target and regenerate the path.  Which, in turn,
+requires holding a reference.

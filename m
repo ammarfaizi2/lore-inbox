@@ -1,48 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266555AbSKLNXl>; Tue, 12 Nov 2002 08:23:41 -0500
+	id <S266576AbSKLNtZ>; Tue, 12 Nov 2002 08:49:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266564AbSKLNXl>; Tue, 12 Nov 2002 08:23:41 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:4315 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S266555AbSKLNXl>;
-	Tue, 12 Nov 2002 08:23:41 -0500
-Date: Tue, 12 Nov 2002 08:30:30 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Rando Christensen <rando@babblica.net>
-cc: Dave Jones <davej@codemonkey.org.uk>, spyro@f2s.com, xavier.bestel@free.fr,
-       linux-kernel@vger.kernel.org
-Subject: Re: devfs
-In-Reply-To: <20021112042408.02d2e3e3.rando@babblica.net>
-Message-ID: <Pine.GSO.4.21.0211120807430.3700-100000@steklov.math.psu.edu>
+	id <S266578AbSKLNtY>; Tue, 12 Nov 2002 08:49:24 -0500
+Received: from ausadmmsps306.aus.amer.dell.com ([143.166.224.101]:12816 "HELO
+	AUSADMMSPS306.aus.amer.dell.com") by vger.kernel.org with SMTP
+	id <S266576AbSKLNtY>; Tue, 12 Nov 2002 08:49:24 -0500
+X-Server-Uuid: c21c953d-96eb-4242-880f-19bdb46bc876
+Message-ID: <20BF5713E14D5B48AA289F72BD372D68C1EB7C@AUSXMPC122.aus.amer.dell.com>
+From: Matt_Domsch@Dell.com
+To: amd@tt.ee, linux-kernel@vger.kernel.org
+Subject: RE: 2.5.47: make modules_install fails
+Date: Tue, 12 Nov 2002 07:56:06 -0600
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2650.21)
+X-WSS-ID: 11CFD7F2735809-01-01
+Content-Type: text/plain; 
+ charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> when doing make modules_install, it fails with the following error
+> messages:
+> depmod: *** Unresolved symbols in 
+> /lib/modules/2.5.47/kernel/drivers/net/8390.o
+> depmod:         crc32_be_Rb7b61546
+> depmod:         crc32_be_Rb7b61546
 
+For the crc32 bits, you've got CONFIG_CRC32=y, but CONFIG_SMC91C92=m, and
+nothing built-in is using the crc32 functions, so the linker is throwing
+them out.  Set CONFIG_CRC32=m, if something built-in needs it it'll get set
+to =y by them.
 
-On Tue, 12 Nov 2002, Rando Christensen wrote:
+Thanks,
+Matt
 
-> Rather than saying "Devfs sucks, and we can't do anything about it other
-> than fix it's more minor problems because we're in feature freeze", we
-> should be saying "devfs sucks; we're a little late for feature freeze,
-> so let's clean up what we can and work on something much better for the
-> next time around."
-
-Whatever is going to happen with devfs, believe me, the first thing
-you'll need is stable glue in drivers - as simple and natural from the
-driver POV as possible.  Complexity of doing development in 2.6 will
-directly depend on the amount of code in drivers touched by patches.
-BTDT - one can carry (and gradually merge) deep rewrites of core code
-during -STABLE if it's done carefully.  But as soon as your patchset
-hits the drivers - you are in for a world of pain just porting it to
-next versions.
-
-_That_ is critical - get interfaces right in -CURRENT, so that further
-work would not cross these boundaries; then work in the resulting areas
-becomes independent.  
-
-And in situations like that of devfs, simple rules for callers are pretty
-much the main criteria - if users of the interface have to jump through
-some hoops, it's a sign that interface needs changes...
+--
+Matt Domsch
+Sr. Software Engineer, Lead Engineer, Architect
+Dell Linux Solutions www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com
 

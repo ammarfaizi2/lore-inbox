@@ -1,70 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319219AbSIDQqb>; Wed, 4 Sep 2002 12:46:31 -0400
+	id <S319228AbSIDQtn>; Wed, 4 Sep 2002 12:49:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319215AbSIDQqb>; Wed, 4 Sep 2002 12:46:31 -0400
-Received: from magic.adaptec.com ([208.236.45.80]:54746 "EHLO
-	magic.adaptec.com") by vger.kernel.org with ESMTP
-	id <S319209AbSIDQqa>; Wed, 4 Sep 2002 12:46:30 -0400
-Date: Wed, 04 Sep 2002 10:50:09 -0600
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Reply-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-To: James Bottomley <James.Bottomley@steeleye.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-Subject: Re: aic7xxx sets CDR offline, how to reset? 
-Message-ID: <12750000.1031158209@aslan.btc.adaptec.com>
-In-Reply-To: <200209041613.g84GDtv02639@localhost.localdomain>
-References: <200209041613.g84GDtv02639@localhost.localdomain>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	id <S319230AbSIDQtn>; Wed, 4 Sep 2002 12:49:43 -0400
+Received: from mailout.zma.compaq.com ([161.114.64.105]:47622 "EHLO
+	zmamail05.zma.compaq.com") by vger.kernel.org with ESMTP
+	id <S319228AbSIDQtm> convert rfc822-to-8bit; Wed, 4 Sep 2002 12:49:42 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: Problem on a kernel driver(SuSE, SMP)
+Date: Wed, 4 Sep 2002 09:54:15 -0700
+Message-ID: <8C18139EDEBC274AAD8F2671105F0E8E121765@cacexc02.americas.cpqcorp.net>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Problem on a kernel driver(SuSE, SMP)
+Thread-Index: AcJUM4Tj0mqM0bxfEdaH9ADQt1Q4EA==
+From: "Libershteyn, Vladimir" <vladimir.libershteyn@hp.com>
+To: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 04 Sep 2002 16:54:15.0754 (UTC) FILETIME=[B3DE22A0:01C25433]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> dledford@redhat.com said:
->> Now, granted, that is more complex than going straight to a BDR, but I
->>  have to argue that it *isn't* that complex.  It certainly isn't the
->> nightmare you make it sound like ;-) 
-> 
-> It's three times longer even in pseudocode...
+Hi, All,
 
-To make this work, you really need to use the QErr bit in the
-disconnect/reconnect page and/or ECA or ACA.  QErr I believe is
-well supported in devices, but ECA (pre SCSI-3) and ACA most
-likely receive very little testing.
+I'm looking for a help on a kernel module programming issue.
 
-I will also voice my opinion (again) that watchdog timer recovery
-is in the wrong place in Linux.  It belongs in the controller drivers:
+We have a hardware device I have a driver written for.
+It works without any problem on any of Red Hat, SMP machine or not. The same driver does work with
+SuSE 7.x non-SMP, but has a problem with SMP machines.
 
-1) Only the controller driver knows when to start the timeout
-2) Only the controller driver knows the current status of the bus/transport
-3) Only the controller can close timeout/just completed races
-4) Only the controller driver knows the true transport type
-   (SPI/FC/ATA/USB/1394/IP) and what recovery actions are appropriate
-   for that transport type given the capabilities of the controller.
-5) The algorithm for recovery and maintaining order becomes quite simple:
-	1) Freeze the input queue for the controller
-	2) Return all transactions unqueued to a device to the mid-layer
-	3) Perform the recovery actions required
-	4) Unfreeze the controller's queue
-	5) Device type driver (sd, cd, tape, etc) decides what errors
-	   at what rates should cause the failure of a device.  The
-	   controller driver just needs to have the error codes so
-	   it can honestly and fully report to the type driver what
-	   really happens so it can make good decissions
+Here is a problem:
 
-   This of course assumes that all transactions have a serial number and
-   that requeuing transactions orders them by serial number.  With QErr
-   set, the device closes the rest if the barrier race for you, but even
-   without barriers, full transaction ordering is required if you don't
-   want a read to inadvertantly pass a write to the same location during
-   recovery.
+For synchronization I use semaphores. Semaphores initializes with init_MUTEX_LOCKED function
+which basically set the atomic value of a count to 0.
+In a routine that looking for a data I use a function down_interruptible(&sem) which should
+check the count value to be 0 and if it so the thread goes to slip until the ISR will set the 
+semaphore count back to initial value with a command up(&sem);
 
-   For prior art, take a look at FreeBSD.  In the worst case, where
-   escalation to a bus reset is required, recovery takes 5 seconds.
+What happens with my driver, when it comes to the command down_interruptible(...) the whole
+system just hangs. I could not find any restrictions on using this mechanism, but just for the testing
+I switched from using semaphores to wait queues. The result is exactly the same.
 
---
-Justin
+What am I doing wrong? The kernel I'm running is 2.4.7-64G... and the OS is SuSE7.x Enterprise
+Again, It works fine on any Red Hat OS
+
+Regards,
+Vladimir Libershteyn
+Hewlett-Packard
+tel. 408-285-5270
+fax. 408-285-2044
+
+

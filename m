@@ -1,400 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262011AbVCHLTN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261452AbVCHLTU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262011AbVCHLTN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 06:19:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262003AbVCHLSB
+	id S261452AbVCHLTU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 06:19:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262004AbVCHLSH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 06:18:01 -0500
-Received: from hirsch.in-berlin.de ([192.109.42.6]:35819 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S261452AbVCHLKV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 06:10:21 -0500
-X-Envelope-From: kraxel@bytesex.org
-Date: Tue, 8 Mar 2005 12:08:36 +0100
-From: Gerd Knorr <kraxel@bytesex.org>
-To: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       dvb list <linux-dvb@linuxtv.org>
-Subject: [patch] dvb: mt352 frontend driver update
-Message-ID: <20050308110835.GA31118@bytesex>
+	Tue, 8 Mar 2005 06:18:07 -0500
+Received: from fire.osdl.org ([65.172.181.4]:32193 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261971AbVCHLMs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Mar 2005 06:12:48 -0500
+Date: Tue, 8 Mar 2005 03:11:57 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Alan Cox <alan@redhat.com>
+Cc: hch@infradead.org, greg@kroah.com, alan@redhat.com,
+       linux-kernel@vger.kernel.org, luc@saillard.org, torvalds@osdl.org
+Subject: Re: [PATCH] Restore PWC driver
+Message-Id: <20050308031157.50960a74.akpm@osdl.org>
+In-Reply-To: <20050308100157.GC30673@devserv.devel.redhat.com>
+References: <200503072216.j27MGLqR024373@hera.kernel.org>
+	<20050308052643.GA16222@kroah.com>
+	<20050308053405.GA1172@infradead.org>
+	<20050308100157.GC30673@devserv.devel.redhat.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hi,
+Alan Cox <alan@redhat.com> wrote:
+>
+>  On Tue, Mar 08, 2005 at 05:34:06AM +0000, Christoph Hellwig wrote:
+>  > Agree with greg on all these bits, and similar (although not as bad) for
+>  > the other bits Alan sent.  Alan, could you please go through the subsystem
+>  > maintainer & -mm process like everyone else?  A little public review
+>  > can't hurt your patches either.
+> 
+>  I sent it to Andrew the day Linus removed it, nothing happened.
 
-This patch updates the mt352 driver to make it work with the Pinnacle
-300i card.  Some values are calculated at runtime now instead of having
-hard-coded defaults because the defaults don't fit for the Pinnacle, and
-some more small tweaks + fixes.
+You did?  I must have missed it.  That's the sort of thing which I'll hang
+onto for long periods of time so people know where to go to get it.
 
-This was also discussed + accepted on the dvb list, going to submit
-directly because the saa7134 driver update depends on this.
-
-  Gerd
-
-Signed-off-by: Gerd Knorr <kraxel@bytesex.org>
----
- drivers/media/dvb/frontends/mt352.c |  197 ++++++++++++++++++----------
- drivers/media/dvb/frontends/mt352.h |   15 +-
- 2 files changed, 144 insertions(+), 68 deletions(-)
-
-Index: linux-2.6.11-rc3/drivers/media/dvb/frontends/mt352.h
-===================================================================
---- linux-2.6.11-rc3.orig/drivers/media/dvb/frontends/mt352.h	2005-02-04 11:26:50.000000000 +0100
-+++ linux-2.6.11-rc3/drivers/media/dvb/frontends/mt352.h	2005-02-04 12:48:31.924889857 +0100
-@@ -40,6 +40,13 @@ struct mt352_config
- 	/* the demodulator's i2c address */
- 	u8 demod_address;
- 
-+	/* frequencies in kHz */
-+	int adc_clock;  // default: 20480
-+	int if2;        // default: 36166
-+
-+	/* set if no pll is connected to the secondary i2c bus */
-+	int no_tuner;
-+
- 	/* Initialise the demodulator and PLL. Cannot be NULL */
- 	int (*demod_init)(struct dvb_frontend* fe);
- 
-@@ -54,6 +61,12 @@ extern struct dvb_frontend* mt352_attach
- 					 struct i2c_adapter* i2c);
- 
- extern int mt352_write(struct dvb_frontend* fe, u8* ibuf, int ilen);
--extern u8 mt352_read(struct dvb_frontend *fe, u8 reg);
-+extern int mt352_read(struct dvb_frontend *fe, u8 reg);
- 
- #endif // MT352_H
-+
-+/*
-+ * Local variables:
-+ * c-basic-offset: 8
-+ * End:
-+ */
-Index: linux-2.6.11-rc3/drivers/media/dvb/frontends/mt352.c
-===================================================================
---- linux-2.6.11-rc3.orig/drivers/media/dvb/frontends/mt352.c	2005-02-04 11:23:23.000000000 +0100
-+++ linux-2.6.11-rc3/drivers/media/dvb/frontends/mt352.c	2005-02-04 12:49:21.800514554 +0100
-@@ -41,13 +41,12 @@
- #include "mt352.h"
- 
- struct mt352_state {
--
- 	struct i2c_adapter* i2c;
--
- 	struct dvb_frontend_ops ops;
- 
- 	/* configuration settings */
- 	const struct mt352_config* config;
-+	int s0,s1,s3;
- 
- 	struct dvb_frontend frontend;
- };
-@@ -66,23 +65,23 @@ static int mt352_single_write(struct dvb
- 			       .buf = buf, .len = 2 };
- 	int err = i2c_transfer(state->i2c, &msg, 1);
- 	if (err != 1) {
--		dprintk("mt352_write() to reg %x failed (err = %d)!\n", reg, err);
-+		printk("mt352_write() to reg %x failed (err = %d)!\n", reg, err);
- 		return err;
--}
--	return 0; 
-+	}
-+	return 0;
- }
- 
- int mt352_write(struct dvb_frontend* fe, u8* ibuf, int ilen)
- {
- 	int err,i;
- 	for (i=0; i < ilen-1; i++)
--		if ((err = mt352_single_write(fe,ibuf[0]+i,ibuf[i+1]))) 
-+		if ((err = mt352_single_write(fe,ibuf[0]+i,ibuf[i+1])))
- 			return err;
- 
- 	return 0;
- }
- 
--static u8 mt352_read_register(struct mt352_state* state, u8 reg)
-+static int mt352_read_register(struct mt352_state* state, u8 reg)
- {
- 	int ret;
- 	u8 b0 [] = { reg };
-@@ -96,41 +95,87 @@ static u8 mt352_read_register(struct mt3
- 
- 	ret = i2c_transfer(state->i2c, msg, 2);
- 
--	if (ret != 2)
--		dprintk("%s: readreg error (ret == %i)\n", __FUNCTION__, ret);
-+	if (ret != 2) {
-+		printk("%s: readreg error (reg=%d, ret==%i)\n",
-+		       __FUNCTION__, reg, ret);
-+		return ret;
-+	}
- 
- 	return b1[0];
- }
- 
--u8 mt352_read(struct dvb_frontend *fe, u8 reg)
-+int mt352_read(struct dvb_frontend *fe, u8 reg)
- {
- 	return mt352_read_register(fe->demodulator_priv,reg);
- }
- 
--
--
--
--
--
--
--
- static int mt352_sleep(struct dvb_frontend* fe)
- {
- 	static u8 mt352_softdown[] = { CLOCK_CTL, 0x20, 0x08 };
- 
- 	mt352_write(fe, mt352_softdown, sizeof(mt352_softdown));
--
- 	return 0;
- }
- 
-+static void mt352_calc_nominal_rate(struct mt352_state* state,
-+				    enum fe_bandwidth bandwidth,
-+				    unsigned char *buf)
-+{
-+	u32 adc_clock = 20480; /* 20.340 MHz */
-+	u32 bw,value;
-+
-+	switch (bandwidth) {
-+	case BANDWIDTH_6_MHZ:
-+		bw = 6;
-+		break;
-+	case BANDWIDTH_7_MHZ:
-+		bw = 7;
-+		break;
-+	case BANDWIDTH_8_MHZ:
-+	default:
-+		bw = 8;
-+		break;
-+	}
-+	if (state->config->adc_clock)
-+		adc_clock = state->config->adc_clock;
-+
-+	value = 64 * bw * (1<<16) / (7 * 8);
-+	value = value * 1000 / adc_clock;
-+	dprintk("%s: bw %d, adc_clock %d => 0x%x\n",
-+		__FUNCTION__, bw, adc_clock, value);
-+	buf[0] = msb(value);
-+	buf[1] = lsb(value);
-+}
-+
-+static void mt352_calc_input_freq(struct mt352_state* state,
-+				  unsigned char *buf)
-+{
-+	int adc_clock = 20480; /* 20.480000 MHz */
-+	int if2       = 36167; /* 36.166667 MHz */
-+	int ife,value;
-+
-+	if (state->config->adc_clock)
-+		adc_clock = state->config->adc_clock;
-+	if (state->config->if2)
-+		if2 = state->config->if2;
-+
-+	ife = (2*adc_clock - if2);
-+	value = -16374 * ife / adc_clock;
-+	dprintk("%s: if2 %d, ife %d, adc_clock %d => %d / 0x%x\n",
-+		__FUNCTION__, if2, ife, adc_clock, value, value & 0x3fff);
-+	buf[0] = msb(value);
-+	buf[1] = lsb(value);
-+}
-+
- static int mt352_set_parameters(struct dvb_frontend* fe,
- 				struct dvb_frontend_parameters *param)
- {
- 	struct mt352_state* state = (struct mt352_state*) fe->demodulator_priv;
--	unsigned char buf[14];
-+	unsigned char buf[13];
-+	static unsigned char tuner_go[] = { 0x5d, 0x01 };
-+	static unsigned char fsm_go[]   = { 0x5e, 0x01 };
- 	unsigned int tps = 0;
- 	struct dvb_ofdm_parameters *op = &param->u.ofdm;
--	int i;
- 
- 	switch (op->code_rate_HP) {
- 		case FEC_2_3:
-@@ -241,39 +286,33 @@ static int mt352_set_parameters(struct d
- 	buf[1] = msb(tps);      /* TPS_GIVEN_(1|0) */
- 	buf[2] = lsb(tps);
- 
--	buf[3] = 0x50;
--
--	/**
--	 *  these settings assume 20.48MHz f_ADC, for other tuners you might
--	 *  need other values. See p. 33 in the MT352 Design Manual.
--	 */
--	if (op->bandwidth == BANDWIDTH_8_MHZ) {
--		buf[4] = 0x72;  /* TRL_NOMINAL_RATE_(1|0) */
--		buf[5] = 0x49;
--	} else if (op->bandwidth == BANDWIDTH_7_MHZ) {
--		buf[4] = 0x64;
--		buf[5] = 0x00;
--	} else {		/* 6MHz */
--		buf[4] = 0x55;
--		buf[5] = 0xb7;
--	}
--
--	buf[6] = 0x31;  /* INPUT_FREQ_(1|0), 20.48MHz clock, 36.166667MHz IF */
--	buf[7] = 0x05;  /* see MT352 Design Manual page 32 for details */
-+	buf[3] = 0x50;  // old
-+//	buf[3] = 0xf4;  // pinnacle
- 
-+	mt352_calc_nominal_rate(state, op->bandwidth, buf+4);
-+	mt352_calc_input_freq(state, buf+6);
- 	state->config->pll_set(fe, param, buf+8);
- 
--	buf[13] = 0x01; /* TUNER_GO!! */
--
-+#if 0 /* FIXME: should be catched elsewhere ... */
- 	/* Only send the tuning request if the tuner doesn't have the requested
- 	 * parameters already set.  Enhances tuning time and prevents stream
- 	 * breakup when retuning the same transponder. */
- 	for (i = 1; i < 13; i++)
--		if (buf[i] != mt352_read_register(state, i + 0x50)) {
--			mt352_write(fe, buf, sizeof(buf));
-+		if (buf[i] != mt352_read_register(state, i + 0x50))
- 			break;
--		}
--
-+	if (13 == i)
-+		/* no changes */
-+		return 0;
-+#endif
-+
-+	mt352_write(fe, buf, sizeof(buf));
-+	if (state->config->no_tuner) {
-+		/* start decoding */
-+		mt352_write(fe, fsm_go, 2);
-+	} else {
-+		/* start tuning */
-+		mt352_write(fe, tuner_go, 2);
-+	}
- 	return 0;
- }
- 
-@@ -395,24 +434,39 @@ static int mt352_get_parameters(struct d
- static int mt352_read_status(struct dvb_frontend* fe, fe_status_t* status)
- {
- 	struct mt352_state* state = (struct mt352_state*) fe->demodulator_priv;
--	u8 r;
-+#if 1
-+	int val;
- 
--		*status = 0;
--	r = mt352_read_register (state, STATUS_0);
--		if (r & (1 << 4))
--			*status = FE_HAS_CARRIER;
--		if (r & (1 << 1))
--			*status |= FE_HAS_VITERBI;
--		if (r & (1 << 5))
--			*status |= FE_HAS_LOCK;
--
--	r = mt352_read_register (state, STATUS_1);
--		if (r & (1 << 1))
--			*status |= FE_HAS_SYNC;
--
--	r = mt352_read_register (state, STATUS_3);
--		if (r & (1 << 6))
--			*status |= FE_HAS_SIGNAL;
-+	if (0 != mt352_read_register(state, INTERRUPT_0)) {
-+		val = mt352_read_register(state, STATUS_0);
-+		if (-1 != val)
-+			state->s0 = val;
-+		val = mt352_read_register(state, STATUS_1);
-+		if (-1 != val)
-+			state->s1 = val;
-+		val = mt352_read_register(state, STATUS_3);
-+		if (-1 != val)
-+			state->s3 = val;
-+	}
-+#else
-+	state->s0 = mt352_read_register(state, STATUS_0);
-+	state->s1 = mt352_read_register(state, STATUS_1);
-+	state->s3 = mt352_read_register(state, STATUS_3);
-+	if (-1 == state->s0 || -1 == state->s1 || -1 == state->s3)
-+		return -EIO;
-+#endif
-+
-+	*status = 0;
-+	if (state->s0 & (1 << 4))
-+		*status |= FE_HAS_CARRIER;
-+	if (state->s0 & (1 << 1))
-+		*status |= FE_HAS_VITERBI;
-+	if (state->s0 & (1 << 5))
-+		*status |= FE_HAS_LOCK;
-+	if (state->s1 & (1 << 1))
-+		*status |= FE_HAS_SYNC;
-+	if (state->s3 & (1 << 6))
-+		*status |= FE_HAS_SIGNAL;
- 
- 	if ((*status & (FE_HAS_CARRIER | FE_HAS_VITERBI | FE_HAS_SYNC)) !=
- 		      (FE_HAS_CARRIER | FE_HAS_VITERBI | FE_HAS_SYNC))
-@@ -470,7 +524,7 @@ static int mt352_get_tune_settings(struc
- 	fe_tune_settings->max_drift = 0;
- 
- 	return 0;
--	}
-+}
- 
- static int mt352_init(struct dvb_frontend* fe)
- {
-@@ -478,22 +532,24 @@ static int mt352_init(struct dvb_fronten
- 
- 	static u8 mt352_reset_attach [] = { RESET, 0xC0 };
- 
-+	dprintk("%s: hello\n",__FUNCTION__);
-+
- 	if ((mt352_read_register(state, CLOCK_CTL) & 0x10) == 0 ||
- 	    (mt352_read_register(state, CONFIG) & 0x20) == 0) {
- 
--	/* Do a "hard" reset */
-+		/* Do a "hard" reset */
- 		mt352_write(fe, mt352_reset_attach, sizeof(mt352_reset_attach));
- 		return state->config->demod_init(fe);
- 	}
- 
- 	return 0;
--	}
-+}
- 
- static void mt352_release(struct dvb_frontend* fe)
- {
- 	struct mt352_state* state = (struct mt352_state*) fe->demodulator_priv;
--		kfree(state);
--	}
-+	kfree(state);
-+}
- 
- static struct dvb_frontend_ops mt352_ops;
- 
-@@ -505,6 +561,7 @@ struct dvb_frontend* mt352_attach(const 
- 	/* allocate memory for the internal state */
- 	state = (struct mt352_state*) kmalloc(sizeof(struct mt352_state), GFP_KERNEL);
- 	if (state == NULL) goto error;
-+	memset(state,0,sizeof(*state));
- 
- 	/* setup the state */
- 	state->config = config;
-@@ -568,3 +625,9 @@ MODULE_LICENSE("GPL");
- EXPORT_SYMBOL(mt352_attach);
- EXPORT_SYMBOL(mt352_write);
- EXPORT_SYMBOL(mt352_read);
-+/*
-+ * Local variables:
-+ * c-basic-offset: 8
-+ * compile-command: "make DVB=1"
-+ * End:
-+ */
-
--- 
-#define printk(args...) fprintf(stderr, ## args)

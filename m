@@ -1,36 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131376AbRCUNBo>; Wed, 21 Mar 2001 08:01:44 -0500
+	id <S131382AbRCUMzO>; Wed, 21 Mar 2001 07:55:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131407AbRCUNBe>; Wed, 21 Mar 2001 08:01:34 -0500
-Received: from chiara.elte.hu ([157.181.150.200]:6419 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S131376AbRCUNBR>;
-	Wed, 21 Mar 2001 08:01:17 -0500
-Date: Wed, 21 Mar 2001 13:59:20 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Anton Blanchard <anton@linuxcare.com.au>,
+	id <S131392AbRCUMzF>; Wed, 21 Mar 2001 07:55:05 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:26351 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S131382AbRCUMyv>;
+	Wed, 21 Mar 2001 07:54:51 -0500
+Date: Wed, 21 Mar 2001 07:54:08 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Anton Blanchard <anton@linuxcare.com.au>,
         Linux Kernel List <linux-kernel@vger.kernel.org>
 Subject: Re: [patch] pagecache SMP-scalability patch [was: spinlock usage]
-In-Reply-To: <Pine.GSO.4.21.0103210751521.739-100000@weyl.math.psu.edu>
-Message-ID: <Pine.LNX.4.30.0103211356420.6061-100000@elte.hu>
+In-Reply-To: <Pine.LNX.4.30.0103211301530.5270-100000@elte.hu>
+Message-ID: <Pine.GSO.4.21.0103210751521.739-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Wed, 21 Mar 2001, Alexander Viro wrote:
 
-> > (about lstat(): IMO lstat() should not call into the lowlevel FS code.)
->
-> a) revalidation on network filesystems
-> b) just about anything layered would win from ability to replace the
-> normal stat() behaviour (think of UI/GID replacement, etc.)
+On Wed, 21 Mar 2001, Ingo Molnar wrote:
 
-sorry, i meant ext2fs - but this was fixed by your VFS scalability changes
-already :-)
+> 
+> Anton,
+> 
+> if you are doing SMP-intensive dbench runs, then check out the SMP
+> pagecache-scalability patch (against 2.4.2-ac20):
+> 
+>   http://people.redhat.com/~mingo/smp-pagecache-patches/pagecache-2.4.2-H1
+> 
+> this patch splits up the main scalability offender in non-RAM-limited
+> dbench runs, which is pagecache_lock. The patch was designed and written
+> by David Miller, and is being forward ported / maintained by me. (The new
+> pagecache lock design is similar to TCP's hashed spinlocks, which proved
+> to scale excellently.)
+> 
+> (about lstat(): IMO lstat() should not call into the lowlevel FS code.)
 
-	Ingo
+a) revalidation on network filesystems
+b) just about anything layered would win from ability to replace the
+normal stat() behaviour (think of UI/GID replacement, etc.)
+							Cheers,
+								Al
 

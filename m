@@ -1,51 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263227AbUERMkN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263271AbUERMqL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263227AbUERMkN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 May 2004 08:40:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263229AbUERMkN
+	id S263271AbUERMqL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 May 2004 08:46:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263229AbUERMqL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 May 2004 08:40:13 -0400
-Received: from cantor.suse.de ([195.135.220.2]:31447 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S263227AbUERMkI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 May 2004 08:40:08 -0400
-Subject: Re: 1352 NUL bytes at the end of a page? (was Re: Assertion `s &&
-	s->tree' failed: The saga continues.)
-From: Chris Mason <mason@suse.com>
-To: Steven Cole <elenstev@mesatop.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Larry McVoy <lm@bitmover.com>, wli@holomorphy.com, hugh@veritas.com,
-       adi@bitmover.com, support@bitmover.com, linux-kernel@vger.kernel.org
-In-Reply-To: <200405172319.38853.elenstev@mesatop.com>
-References: <200405132232.01484.elenstev@mesatop.com>
-	 <200405172142.52780.elenstev@mesatop.com>
-	 <Pine.LNX.4.58.0405172056480.25502@ppc970.osdl.org>
-	 <200405172319.38853.elenstev@mesatop.com>
-Content-Type: text/plain
-Message-Id: <1084884150.20437.1391.camel@watt.suse.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 18 May 2004 08:42:30 -0400
-Content-Transfer-Encoding: 7bit
+	Tue, 18 May 2004 08:46:11 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:22400 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S263271AbUERMqG convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 May 2004 08:46:06 -0400
+Date: Tue, 18 May 2004 08:46:56 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: =?ISO-8859-1?Q?Mart=EDn_Chikilian?= <slack@efn.uncor.edu>
+cc: Horst von Brand <vonbrand@inf.utfsm.cl>, linux-kernel@vger.kernel.org
+Subject: Re: Linux in the press.
+In-Reply-To: <40AA0061.8090500@efn.uncor.edu>
+Message-ID: <Pine.LNX.4.53.0405180839560.1784@chaos>
+References: <200405171941.i4HJfmc08269@pincoya.inf.utfsm.cl>
+ <40AA0061.8090500@efn.uncor.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-05-18 at 01:19, Steven Cole wrote:
+On Tue, 18 May 2004, [ISO-8859-1] Martín Chikilian wrote:
 
-> 2nd reply:
-> I've made four successful rather large bk pulls with Chris' patch.
-> Two were into two repos on my /home reiserfs, and I did
-> a pull, unpull, and pull again on the new reiserfs on the second disk.
-> No problems, and with PREEMPT of course.
-> The last two pulls even survived a ppp failure occuring during resolve.
+> Horst von Brand wrote:
+>
+> >Look at <http://www.groklaw.net>, there is a lot of discussion on this.
+> >
+> >This in _not_ the place for such a discussion/post, BTW.
+> >
+> >
+> Its seems to be a good discussion topic for me.
+> I want to know how the Linux community reacts to this kind of marketing
+> over the net and how can the subscribers be affected.
+> I really want to know Linus's opinion about this.
+> Cheers,
+> Martin
 
-Good news, thank you.
+Once somebody does something well, many will take credit.
+Should somebody fail, the fault remains alone.
 
-> So, I take it that I should revert that one-liner if I want to get any failure data?
-> With it, ext3 was pretty solid for this testing.
+Success has many parents. Failure is a bastard.
 
-Yes, please test ext3 again without Andrew's one liner.
-
--chris
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.26 on an i686 machine (5557.45 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
 

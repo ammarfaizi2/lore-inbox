@@ -1,67 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263264AbTDLNCq (for <rfc822;willy@w.ods.org>); Sat, 12 Apr 2003 09:02:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263265AbTDLNCq (for <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Apr 2003 09:02:46 -0400
-Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:43137 "EHLO
-	mail.kolivas.org") by vger.kernel.org with ESMTP id S263264AbTDLNCp (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Apr 2003 09:02:45 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Eric Wong <eric@yhbt.net>
-Subject: Re: 2.4.20-ck5 sucks
-Date: Sat, 12 Apr 2003 23:16:16 +1000
-User-Agent: KMail/1.5.1
-Cc: linux-kernel@vger.kernel.org
-References: <200304121323.25094.kernel@kolivas.org> <20030412124132.GA3187@BL4ST>
-In-Reply-To: <20030412124132.GA3187@BL4ST>
+	id S263265AbTDLNEA (for <rfc822;willy@w.ods.org>); Sat, 12 Apr 2003 09:04:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263267AbTDLNEA (for <rfc822;linux-kernel-outgoing>);
+	Sat, 12 Apr 2003 09:04:00 -0400
+Received: from [62.75.136.201] ([62.75.136.201]:63370 "EHLO mail.g-house.de")
+	by vger.kernel.org with ESMTP id S263265AbTDLND6 (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Apr 2003 09:03:58 -0400
+Message-ID: <3E98117F.8090705@g-house.de>
+Date: Sat, 12 Apr 2003 15:15:43 +0200
+From: Christian <evil@g-house.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.3) Gecko/20030312
+X-Accept-Language: de, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: linux-kernel@vger.kernel.org
+Subject: >=2.5.66 compiling errors on Alpha
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200304122316.16785.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 12 Apr 2003 22:41, Eric Wong wrote:
-> Con Kolivas <kernel@kolivas.org> wrote:
-> > It seems the interactivity patch wasn't worth the effort, confirming my
-> > suspicions - which is why I resisted posting it in the first place.
->
-> Yikes!  I've been indulging in 2.5.67 + anticipatory I/O for bit now,
-> back to 2.4...
->
-> I finally got around running ck5 with a lot of other odd patches from
-> here and there just last night.  I wasn't sure if it was ck5 or any
-> thing else I put in my kernel that caused it, but the scheduler didn't
-> seem to want to work once physical memory was low.
->
-> There's a pretty serious bug in the ck5 scheduler where things stop
-> running after physical memory is low.  Even if the make World jobs are
-> cancelled, performance is still sluggish.
-<---snip-->
+Hi,
 
-Eric I appreciate the work you've done for ck5, but this is two discrete 
-problems. 
+i don't know if it a known issue but perhaps this helps to find out.
+i was able to compile 2.5.65 with gcc version 2.95.4 on an Alpha 
+EV45/Avtanti and it is running quite stable.
 
-The first is the one you describe with the memory killing the scheduler - a 
-serious bug. 
+but compiling a 2.5.66 or 2.5.67 fails with gcc (GCC) 3.2.3 20030309 :
 
-The second is that the interactivity patch is too slow. It takes up to 5 
-seconds for xmms skipping (the reference bad program but used everywhere) to 
-stop. When you first start music it skips all over the place and then settles 
-down after a while. This is embarassing considering the machines are >1Ghz 
-cpus and it doesnt happen on p233 with old scheduler. It appears to take less 
-time the higher the Hz is (makes sense I guess) however higher Hz in 2.4 
-incurs too much overhead under heavy load. This happens even in 2.5 but is a 
-bit more subtle. 
+(before patching i always do "make clean". patches applied with no 
+errors. same config used.)
 
-My concern is that ck6pre without the interactivity addon works better. I've 
-added the more finegrained scheduler timing and the small bugfix but backed 
-out the rest. I don't think the interactivity patch in it's current form is 
-of any use to O(1) 2.4 kernels.
+-----
+lila:/usr/src/linux-2.5.x# export LANG=C
+lila:/usr/src/linux-2.5.x# make vmlinux
+make -f scripts/Makefile.build obj=scripts
+make -f scripts/Makefile.build obj=arch/alpha/kernel 
+arch/alpha/kernel/asm-offsets.s
+make[1]: `arch/alpha/kernel/asm-offsets.s' is up to date.
+   Starting the build. KBUILD_BUILTIN=1 KBUILD_MODULES=
+make -f scripts/Makefile.build obj=init
+   CHK     include/linux/compile.h
+make -f scripts/Makefile.build obj=usr
+make -f scripts/Makefile.build obj=arch/alpha/kernel
+make -f scripts/Makefile.build obj=arch/alpha/mm
+make -f scripts/Makefile.build obj=arch/alpha/math-emu
+make -f scripts/Makefile.build obj=kernel
+   gcc -Wp,-MD,kernel/.sys.o.d -D__KERNEL__ -Iinclude -Wall 
+-Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
+-pipe -mno-fp-regs -ffixed-8 -msmall-data -mcpu=ev4 -Wa,-mev6 
+-fomit-frame-pointer -nostdinc -iwithprefix include 
+-DKBUILD_BASENAME=sys -DKBUILD_MODNAME=sys -c -o kernel/sys.o kernel/sys.c
+kernel/sys.c:226: conflicting types for `sys_sendmsg'
+include/linux/socket.h:245: previous declaration of `sys_sendmsg'
+kernel/sys.c:227: conflicting types for `sys_recvmsg'
+include/linux/socket.h:246: previous declaration of `sys_recvmsg'
+make[1]: *** [kernel/sys.o] Error 1
+make: *** [kernel] Error 2
+lila:/usr/src/linux-2.5.x#
+----
 
-I think Zwane and others have demonstrated that this happens in 2.5 as well so 
-it needs some work yet to be better than stock.
+do you need further infos to debug this?
+compiling a kernel on this machine is very slow, i think i can't take 
+the "BUG-HUNTING" approach.
 
-Con
+Thank you,
+Christian.
+

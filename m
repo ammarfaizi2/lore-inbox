@@ -1,54 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264218AbTDJWHL (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 18:07:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264226AbTDJWHK (for <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Apr 2003 18:07:10 -0400
-Received: from [12.47.58.73] ([12.47.58.73]:31040 "EHLO pao-ex01.pao.digeo.com")
-	by vger.kernel.org with ESMTP id S264218AbTDJWHJ (for <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Apr 2003 18:07:09 -0400
-Date: Thu, 10 Apr 2003 15:18:57 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: davidm@hpl.hp.com
+	id S264208AbTDJWDb (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 18:03:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264209AbTDJWDb (for <rfc822;linux-kernel-outgoing>);
+	Thu, 10 Apr 2003 18:03:31 -0400
+Received: from tux.rsn.bth.se ([194.47.143.135]:12177 "EHLO tux.rsn.bth.se")
+	by vger.kernel.org with ESMTP id S264208AbTDJWDa (for <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Apr 2003 18:03:30 -0400
+Subject: Re: Possible bug in ip_conntrack on ip change
+From: Martin Josefsson <gandalf@wlug.westbo.se>
+To: Mario TRENTINI <mario.trentini@polytechnique.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: proc_misc.c bug
-Message-Id: <20030410151857.7ba8f484.akpm@digeo.com>
-In-Reply-To: <200304102202.h3AM2YH3021747@napali.hpl.hp.com>
-References: <200304102202.h3AM2YH3021747@napali.hpl.hp.com>
-X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <20030410201816.GA10975@wodar.local.gxaafoot.homelinux.org>
+References: <20030410201816.GA10975@wodar.local.gxaafoot.homelinux.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 10 Apr 2003 22:18:44.0883 (UTC) FILETIME=[266CF630:01C2FFAF]
+Organization: 
+Message-Id: <1050012907.11156.43.camel@tux.rsn.bth.se>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 11 Apr 2003 00:15:07 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Mosberger <davidm@napali.hpl.hp.com> wrote:
->
-> interrupts_open() can easily try to kmalloc() more memory than
-> supported by kmalloc.  E.g., with 16KB page size and NR_CPUS==64, it
-> would try to allocate 147456 bytes.
+On Thu, 2003-04-10 at 22:18, Mario TRENTINI wrote:
+> Dear list,
 > 
-> The workaround below is to allocate 4KB per 8 CPUs.  Not really a
-> solution, but the fundamental problem is that /proc/interrupts
-> shouldn't use a fixed buffer size in the first place.  I suppose
-> another solution would be to use vmalloc() instead.  It all feels like
-> bandaids though.
-> 
-> 	--david
-> 
-> ===== fs/proc/proc_misc.c 1.71 vs edited =====
-> --- 1.71/fs/proc/proc_misc.c	Sat Mar 22 22:14:49 2003
-> +++ edited/fs/proc/proc_misc.c	Thu Apr 10 14:35:16 2003
-> @@ -388,7 +388,7 @@
->  extern int show_interrupts(struct seq_file *p, void *v);
->  static int interrupts_open(struct inode *inode, struct file *file)
->  {
-> -	unsigned size = PAGE_SIZE * (1 + NR_CPUS / 8);
-> +	unsigned size = 4096 * (1 + NR_CPUS / 8);
+> I've recently reboot my linux router due to fool ip_conntrack table
+> (/proc/net/ip_conntrack). The box is hook up to the internet with
+> dynamically assign ip and run a 2.4.20 kernel.
+> Upon investigation after the reboot, it appears that the table contains
+> stale entries of connections made with previous ip addresses that slowly
+> fill it up.
 
-urgh, consider me thwapped.
+Did you apply the pending/submitted patches from patch-o-matic?
+There's a known bug in conntrack in kernel 2.4.20 that can make old
+connections still hang around. It's fixed in the latest 2.4.21-pre
+kernel.
 
-There continue to be a lot of places where we assume that pages are 4k (eg:
-sizing of the free page reserves).  But few are as fatal as this one...
+Or you can download patch-o-matic and patch your 2.4.20 kernel.
+(ftp://ftp.netfilter.org/pub/patch-o-matic/snapshot/patch-o-matic-20030410.tar.bz2)
+And then execute ./runme --batch pending
 
-Thanks.
+And there's an entry about this problem with MASQUERADE and old
+connection hanging around in the netfilter bugzilla, it's not
+neccessarily the same bug as the one that's fixed in later kernels.
+https://bugzilla.netfilter.org
+
+-- 
+/Martin

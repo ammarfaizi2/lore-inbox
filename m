@@ -1,80 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267302AbSKPQQ5>; Sat, 16 Nov 2002 11:16:57 -0500
+	id <S267297AbSKPQN3>; Sat, 16 Nov 2002 11:13:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267300AbSKPQQ5>; Sat, 16 Nov 2002 11:16:57 -0500
-Received: from hq.fsmlabs.com ([209.155.42.197]:18091 "EHLO hq.fsmlabs.com")
-	by vger.kernel.org with ESMTP id <S267302AbSKPQQz>;
-	Sat, 16 Nov 2002 11:16:55 -0500
-Date: Sat, 16 Nov 2002 09:23:41 -0700
-From: yodaiken@fsmlabs.com
-To: Stelian Pop <stelian.pop@fr.alcove.com>, Andrew Morton <akpm@digeo.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: lan based kgdb
-Message-ID: <20021116092341.A30010@hq.fsmlabs.com>
-References: <3DD5591E.A3D0506D@efi.com> <334960000.1037397999@flay> <ar3op8$f20$1@penguin.transmeta.com> <20021115222430.GA1877@tahoe.alcove-fr> <3DD57A5F.87119CB4@digeo.com> <20021115225932.GC1877@tahoe.alcove-fr>
+	id <S267300AbSKPQN3>; Sat, 16 Nov 2002 11:13:29 -0500
+Received: from pc151.host13.starman.ee ([62.65.205.151]:260 "EHLO amd-laptop")
+	by vger.kernel.org with ESMTP id <S267297AbSKPQN2>;
+	Sat, 16 Nov 2002 11:13:28 -0500
+Date: Sat, 16 Nov 2002 18:12:24 +0200
+From: Priit Laes <amd@tt.ee>
+To: linux-kernel@vger.kernel.org
+Subject: [BUG] 2.4.20-rc2 - Kernel Panic
+Message-ID: <20021116161224.GA5144@amd-laptop.mshome.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="DocE+STaALJfprDB"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20021115225932.GC1877@tahoe.alcove-fr>; from stelian.pop@fr.alcove.com on Fri, Nov 15, 2002 at 11:59:32PM +0100
-Organization: FSM Labs
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.4.19-gentoo-r9 (i686)
+X-GPG-Fingerprint: 7297 A6E5 287F 40FD 0945  17FF 9D35 D5C0 8545 2118
+X-GPG-Key: http://pgp.mit.edu:11371/pks/lookup?op=get&search=0x85452118
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 15, 2002 at 11:59:32PM +0100, Stelian Pop wrote:
-> On Fri, Nov 15, 2002 at 02:51:11PM -0800, Andrew Morton wrote:
-> 
-> > > Using USB instead of the serial line or the network card would be
-> > > the best IMHO, because:
-> > 
-> > Here is the kgdb stub's "send a byte" function:
-> > 
-> > static void
-> > write_char(int chr)
-> > {
-> >        while (!(inb(gdb_port + UART_LSR) & UART_LSR_THRE)) ;
-> > 
-> >        outb(chr, gdb_port + UART_TX);
-> > }
-> > 
-> > Need I say more?
-> 
-> I already know that, but this is not the point. The point is that
-> more and more boxes have no serial (or paralel) ports. 
-> 
-> But even on those boxes, sometimes I'd just love to be able to use
-> kgdb. And I can't.
-> 
-> Ok, it will have to be at a higher level than the inb/outb serial
-> transport implementation (with possible bad effects on what can
-> and what cannot be debugged), but still, I feel there is a need
-> for that.
 
-> USB (with USB-to-serial adapter), network, ieee1394 would be 
-> acceptable replacements for me.
+--DocE+STaALJfprDB
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Have you ever looked at a USB or 1394 driver? The nice thing about
-serial is that the software to make it work is trivial. A debugger that 
-relies on a 5000 line driver is quite suspect.
+I compiled latest 2.4.20 kernel for my router (Intel 486 DX 100Mhz) and
+when booting up, it fired me with this message:
+CPU: Intel 486 DX/4 stepping 00
+Kernel panic: Kernel compiled for Pentium+, requires TSC feature!
+In idle task - not syncing
+=2E.. and there it stays, just flashing leds... (I also wonder why isn't num
+lock flashing :P )
+Ok.. here is part of my dot.config
+# Processor type and features
+#
+# CONFIG_M386 is not set
+CONFIG_M486=3Dy
+# CONFIG_M586 is not set
+# CONFIG_M586TSC is not set
+=2E..
+# CONFIG_MICROCODE is not set
+# CONFIG_X86_MSR is not set
+CONFIG_X86_CPUID=3Dm=20
+CONFIG_NOHIGHMEM=3Dy
+# CONFIG_HIGHMEM4G is not set
+# CONFIG_HIGHMEM64G is not set
+# CONFIG_HIGHMEM is not set
+# CONFIG_MATH_EMULATION is not set
+# CONFIG_MTRR is not set
+# CONFIG_SMP is not set
+# CONFIG_X86_UP_APIC is not set
+# CONFIG_X86_UP_IOAPIC is not set
+# CONFIG_X86_TSC_DISABLE is not set
+CONFIG_X86_TSC=3Dy
 
-> 
+I guess it's a bug in a menuconfig...
+And please Cc: me... i am not enlisted at linux-kernel. (I couldn't wait
+for Mutt counting these endless seconds.)
+--=20
+Priit Laes <amd@tt.ee>                                     _o)         =20
+http://amd-core.tk                                         /\\  _o)  _o)
+GSM : +37256959083                                        _\_V _(\) _(\)
 
-> 
-> Stelian.
-> -- 
-> Stelian Pop <stelian.pop@fr.alcove.com>
-> Alcove - http://www.alcove.com
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+--DocE+STaALJfprDB
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
--- 
----------------------------------------------------------
-Victor Yodaiken 
-Finite State Machine Labs: The RTLinux Company.
-www.fsmlabs.com  www.rtlinux.com
-1+ 505 838 9109
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
+iD8DBQE91m5onTXVwIVFIRgRAly1AJ9mypUJdTYekV+DHs/VC2MSut0c2ACfaHFt
+Jnq4cJ6lG/bS3BXid9BKBFg=
+=8AuJ
+-----END PGP SIGNATURE-----
+
+--DocE+STaALJfprDB--

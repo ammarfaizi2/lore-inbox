@@ -1,70 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129406AbRAXXet>; Wed, 24 Jan 2001 18:34:49 -0500
+	id <S129406AbRAXXoJ>; Wed, 24 Jan 2001 18:44:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129413AbRAXXei>; Wed, 24 Jan 2001 18:34:38 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:63751 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S129406AbRAXXeb>; Wed, 24 Jan 2001 18:34:31 -0500
-Date: Wed, 24 Jan 2001 17:33:12 -0600
-To: Jonathan Earle <jearle@nortelnetworks.com>
-Cc: "'Mathieu Chouquet-Stringer'" <mchouque@e-steel.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [UPDATE] Zerocopy patches, against 2.4.1-pre10
-Message-ID: <20010124173312.A6941@cadcamlab.org>
-In-Reply-To: <28560036253BD41191A10000F8BCBD116BDCD7@zcard00g.ca.nortel.com>
+	id <S129413AbRAXXoA>; Wed, 24 Jan 2001 18:44:00 -0500
+Received: from ruddock-157.caltech.edu ([131.215.90.157]:64267 "EHLO
+	alex.caltech.edu") by vger.kernel.org with ESMTP id <S129406AbRAXXnt>;
+	Wed, 24 Jan 2001 18:43:49 -0500
+Date: Wed, 24 Jan 2001 15:44:57 -0800
+From: David Bustos <bustos@its.caltech.edu>
+To: sailer@ife.ee.ethz.ch, mj@suse.cz
+Cc: linux-kernel@vger.kernel.org
+Subject: es1371 freezes 2.4.0 hard
+Message-ID: <20010124154457.A491@alex.caltech.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.3.12i
-In-Reply-To: <28560036253BD41191A10000F8BCBD116BDCD7@zcard00g.ca.nortel.com>; from jearle@nortelnetworks.com on Wed, Jan 24, 2001 at 04:52:19PM -0500
-From: Peter Samuelson <peter@cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+After upgrading to 2.4.0, insertion of the es1371 modules causes my
+machine to freeze right after printing
 
-[Jonathan Earle]
-> Hmm.. so things like routing should be faster then?
+	es1371: version v0.26 time 14:24:35 Jan 24 2001
+	es1371: found chip, vendor id 0x1274 device id 0x1371 revision 0x02
+	PCI: Assigned IRQ11 for device 00:0a.0
 
-Other network traffic too.  Say you have an FTP server running and it
-wants to send a file out to a client.  The old way was for it to read()
-the file into memory and then write() it to the network socket.  To
-avoid having to copy all that data into the userspace buffer during
-read(), you can use mmap() instead.  In Linux 2.1.1xx we gained a new
-syscall sendfile() which works like mmap()+write(), except faster since
-the necessary kernel memory management is a lot simpler.  Using either
-sendfile() or mmap(), the userspace program (ftpd) doesn't have to
-touch the memory involved, just send it on to the socket.  That was the
-first optimization relevant here, and it's been around awhile now.
+The box becomes unresponsive to the keyboard, the mouse, and the
+network.  The same thing happens when the driver is compiled directly
+into the kernel.
 
-Now with mmap()+write() or sendfile(), the kernel reads the data off
-the disk using the page cache, then the network stack copies it to
-other buffers, doing the TCP checksum in the process, and eventually
-the Ethernet card does a DMA transfer of some sort and sends it out the
-wire.  Notice that the CPU has to copy the data from the disk DMA
-buffer to the network card DMA buffer, checksumming it somewhere along
-the way.  Depending on circumstance, of course, there may be other
-copying involved as well.
+Since the module worked ok in 2.4.0-test10, I tried reverting
+drivers/sound/es1371.c to that version, but the same thing happened, so
+I suspect it's a PCI problem.
 
-With zerocopy, when you issue sendfile(), the kernel does the network
-DMA straight from the page cache, avoiding that extra copy.  In the
-case where the network card is capable of doing the TCP checksum in
-hardware (as a lot of newer cards can), the kernel doesn't even have to
-look at the data between the disk DMA and the network DMA.  This can
-save memory accesses and CPU data cache pollution.  The only way to get
-a more direct route would be to do the DMA from disk controller to
-network card without touching main memory at all, but this can have a
-lot of complications and is probably not worth it in general -- see a
-recent discussion on this list.
+I've got a K6-2/350 with the VIA MVP3 chipset.  I used Debian's 2.95.3
+to compile 2.4.0.
 
-> What caveats should one watch for (ie: what functionalities will not
-> work as before - if any)?
 
-Ideally as a regular user you don't notice anything except things go
-perhaps a bit faster.  I have no idea whether Davem's patch achieves
-this yet..
+lspci -v output for the card:
 
-Peter
+00:0a.0 Multimedia audio controller: Ensoniq ES1371 [AudioPCI-97] (rev 02)
+        Subsystem: Ensoniq Creative Sound Blaster AudioPCI64V, AudioPCI128
+        Flags: bus master, slow devsel, latency 64, IRQ 11
+        I/O ports at e800 [size=64]
+        Capabilities: [dc] Power Management version 1
+
+
+Any ideas as to what is going on here?
+
+
+Thanks,
+David Bustos
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

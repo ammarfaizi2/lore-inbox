@@ -1,54 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319632AbSIMMyf>; Fri, 13 Sep 2002 08:54:35 -0400
+	id <S319631AbSIMM5g>; Fri, 13 Sep 2002 08:57:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319631AbSIMMyf>; Fri, 13 Sep 2002 08:54:35 -0400
-Received: from 2-028.ctame701-1.telepar.net.br ([200.193.160.28]:52136 "EHLO
-	2-028.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S319632AbSIMMyd>; Fri, 13 Sep 2002 08:54:33 -0400
-Date: Fri, 13 Sep 2002 09:59:04 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Andrew Morton <akpm@digeo.com>
-cc: lkml <linux-kernel@vger.kernel.org>,
-       "linux-mm@kvack.org" <linux-mm@kvack.org>,
-       Rick Lindsley <ricklind@us.ibm.com>
-Subject: Re: 2.5.34-mm3
-In-Reply-To: <3D819132.C7171BD9@digeo.com>
-Message-ID: <Pine.LNX.4.44L.0209130955580.1857-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S319634AbSIMM5g>; Fri, 13 Sep 2002 08:57:36 -0400
+Received: from hellcat.admin.navo.hpc.mil ([204.222.179.34]:31906 "EHLO
+	hellcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
+	id <S319631AbSIMM5f> convert rfc822-to-8bit; Fri, 13 Sep 2002 08:57:35 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Jesse Pollard <pollard@admin.navo.hpc.mil>
+To: Vishal <vishal@naturesoft.net>, linux-kernel@vger.kernel.org
+Subject: Re: building a very basic minimal LINUX.
+Date: Fri, 13 Sep 2002 08:01:33 -0500
+User-Agent: KMail/1.4.1
+References: <1031904489.2888.138.camel@vishal.naturesoft.com>
+In-Reply-To: <1031904489.2888.138.camel@vishal.naturesoft.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200209130801.33326.pollard@admin.navo.hpc.mil>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 13 Sep 2002, Andrew Morton wrote:
+On Friday 13 September 2002 03:08 am, Vishal wrote:
+> Hi all,
+>   i want to start work on building a base linux system(i386 machine,32MB
+> flash,with networking support) to be installed on flash for an embedded
+> system. Can anyone direct me to any information\docs\ideas for starting
+> off with such work?.
+>   Thanks in advance.
+> regards,
+> Vishal
 
-> Rik, I didn't include the iowait patch because we don't seem to have
-> a tarball of procps which supports it - the various diffs you have at
-> http://surriel.com/procps/ appear to be in an intermediate state wrt
-> cygnus CVS.
+Check the router project. I think the foundation you want is there
+in that all the utilities for network support (plus a few more for
+maintenance) is already done.
 
-Umm no, the latest patch I put up yesterday is fully in sync
-with the cygnus CVS tree ...
-
-> The code is in experimental/iowait.patch.  Could we have a snapshot
-> tarball of the support utilities please?
-
-... but I've put up a snapshot, if that makes you happy ;)
-The snapshot is of the latest procps code from procps CVS,
-including your patch to top.
-
-	http://surriel.com/procps/
-
-regards,
-
-Rik
+You may want to add some interpreters (perl, python,tcl/tk) or
+whatever embeded application you have, but that would make
+for a fairly usable system.
 -- 
-Bravely reimplemented by the knights who say "NIH".
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
 
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Spamtraps of the month:  september@surriel.com trac@trac.org
-
+Any opinions expressed are solely my own.

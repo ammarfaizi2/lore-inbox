@@ -1,60 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264880AbUF1INi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264890AbUF1IOX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264880AbUF1INi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jun 2004 04:13:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264890AbUF1INh
+	id S264890AbUF1IOX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jun 2004 04:14:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264886AbUF1IOX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jun 2004 04:13:37 -0400
-Received: from fw.osdl.org ([65.172.181.6]:50922 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264880AbUF1INe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jun 2004 04:13:34 -0400
-Date: Mon, 28 Jun 2004 01:12:32 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       netdev@oss.sgi.com, davem@redhat.com
-Subject: Re: kiocb->private is too large for kiocb's on-stack
-Message-Id: <20040628011232.43acd3b8.akpm@osdl.org>
-In-Reply-To: <20040628080801.GO21066@holomorphy.com>
-References: <20040628080801.GO21066@holomorphy.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 28 Jun 2004 04:14:23 -0400
+Received: from pimout3-ext.prodigy.net ([207.115.63.102]:18156 "EHLO
+	pimout3-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S264895AbUF1IOT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jun 2004 04:14:19 -0400
+Date: Mon, 28 Jun 2004 01:14:10 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Erik Jacobson <erikj@subway.americas.sgi.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Jesse Barnes <jbarnes@engr.sgi.com>, Andrew Morton <akpm@osdl.org>,
+       Pat Gefre <pfg@sgi.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6] Altix serial driver
+Message-ID: <20040628081410.GA5321@taniwha.stupidest.org>
+References: <20040625083130.GA26557@infradead.org> <Pine.SGI.4.53.0406250742350.377639@subway.americas.sgi.com> <20040625124807.GA29937@infradead.org> <Pine.SGI.4.53.0406250751470.377692@subway.americas.sgi.com> <20040626235248.GC12761@taniwha.stupidest.org> <Pine.SGI.4.53.0406271908390.524706@subway.americas.sgi.com> <20040628003311.GA23017@taniwha.stupidest.org> <20040628021439.A17654@flint.arm.linux.org.uk> <20040628014443.GA24247@taniwha.stupidest.org> <20040628085429.C32206@flint.arm.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040628085429.C32206@flint.arm.linux.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III <wli@holomorphy.com> wrote:
->
-> sizeof(struct kiocb) is dangerously large for a structure commonly
-> allocated on-stack. This patch converts the 24*sizeof(long) field,
-> ->private, to a void pointer for use by file_operations entrypoints.
-> A ->dtor() method is added to the kiocb in order to support the release
-> of dynamically allocated structures referred to by ->private.
-> 
-> The sole in-tree users of ->private are async network read/write,
-> which are not, in fact, async, and so need not handle preallocated
-> ->private as they would need to if ->ki_retry were ever used. The sole
-> truly async operations are direct IO pread()/pwrite() which do not
-> now use ->ki_retry(). All they would need to do in that case is to
-> check for ->private already being allocated for async kiocbs.
-> 
-> This rips 88B off the stack on 32-bit in the common case.
-> 
+On Mon, Jun 28, 2004 at 08:54:30AM +0100, Russell King wrote:
 
->  int sock_sendmsg(struct socket *sock, struct msghdr *msg, size_t size)
->  {
->  	struct kiocb iocb;
-> +	struct sock_iocb siocb;
->  	int ret;
->  
->  	init_sync_kiocb(&iocb, NULL);
-> +	iocb.private = &siocb;
->  	ret = __sock_sendmsg(&iocb, sock, msg, size);
->  	if (-EIOCBQUEUED == ret)
->  		ret = wait_on_sync_kiocb(&iocb);
+> If you're going to do that, why not just disable 8250 in the kernels
+> configuration?
 
-That's so much better than what we had before it ain't funny.
+Generic ia64 kernels need to work on hardware with 8250-like UARTS.
+These kernel will also work and boot on SN2 which will never (heh)
+have this hardware so a run-time check is required.
 
-Was this runtime tested?
+> It has exactly the same effect.  With the change you propose, you
+> can't even use 8250 for PCMCIA serial cards.
+
+Altix has no PCMCIA.
+
+
+  --cw

@@ -1,75 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132775AbQLHVTN>; Fri, 8 Dec 2000 16:19:13 -0500
+	id <S132756AbQLHVTx>; Fri, 8 Dec 2000 16:19:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132756AbQLHVSy>; Fri, 8 Dec 2000 16:18:54 -0500
-Received: from grace.speakeasy.org ([216.254.0.2]:41231 "HELO
-	grace.speakeasy.org") by vger.kernel.org with SMTP
-	id <S132610AbQLHVSn>; Fri, 8 Dec 2000 16:18:43 -0500
-Date: Fri, 8 Dec 2000 15:48:45 -0500 (EST)
-From: Pavel Roskin <proski@gnu.org>
-To: <linux-kernel@vger.kernel.org>, <linux-sound@vger.kernel.org>
-cc: Pete Zaitcev <zaitcev@metabyte.com>, Jaroslav Kysela <perex@suse.cz>
-Subject: [PATCH] for ymf_sb (YMF PCI legacy driver)
-Message-ID: <Pine.LNX.4.30.0012081536210.4923-100000@fonzie.nine.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132758AbQLHVTn>; Fri, 8 Dec 2000 16:19:43 -0500
+Received: from d06lmsgate-3.uk.ibm.com ([195.212.29.3]:57745 "EHLO
+	d06lmsgate-3.uk.ibm.com") by vger.kernel.org with ESMTP
+	id <S132756AbQLHVTf>; Fri, 8 Dec 2000 16:19:35 -0500
+From: richardj_moore@uk.ibm.com
+X-Lotus-FromDomain: IBMGB
+To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+cc: root@chaos.analogic.com, Brian Gerst <bgerst@didntduck.org>,
+        Andi Kleen <ak@suse.de>, "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
+        linux-kernel@vger.kernel.org
+Message-ID: <802569AF.007255B4.00@d06mta06.portsmouth.uk.ibm.com>
+Date: Fri, 8 Dec 2000 20:48:03 +0000
+Subject: Re: Why is double_fault serviced by a trap gate?
+Mime-Version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
 
-I just found two serious bugs in the YMF PCI legacy driver (i.e. the
-driver that puts it to the Sound Blaster compatible mode).
 
-pci_unregister_driver() was not called from the cleanup routine, which
-caused a recoverable oops while running /sbin/lspci.
+Exactly, and you wouldn't set DPL=3 for interrupt 8 since a double-fault
+can only occur from ring 0..
 
-Also some module parameters were OR'd with 0x03 _after_ shifting them.
-Those parameters were ignored while setting up the card.
 
-For example, "modprobe ymf_sb io=0x240" didn't work - it would set up the
-card to 0x220 but the sb driver would be told to check 0x240 for the Sound
-Blaster.
+Richard Moore -  RAS Project Lead - Linux Technology Centre (PISC).
 
-For your convenience, the patch is also available at
-http://www.red-bean.com/~proski/ymf_sb.patch
+http://oss.software.ibm.com/developerworks/opensource/linux
+Office: (+44) (0)1962-817072, Mobile: (+44) (0)7768-298183
+IBM UK Ltd,  MP135 Galileo Centre, Hursley Park, Winchester, SO21 2JN, UK
 
-Regards,
-Pavel Roskin
 
-_____________________________
---- linux.orig/drivers/sound/ymf_sb.c
-+++ linux/drivers/sound/ymf_sb.c
-@@ -436,7 +436,7 @@
- 	printk(PFX "set DMA address at 0x%x\n",sb_data[cards].dma);
- #endif
+Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz> on 08/12/2000 20:31:59
 
--	v = 0x0000 | ((dma<<6)&0x03) | 0x003f;
-+	v = 0x0000 | ((dma & 0x03) << 6) | 0x003f;
- 	pci_write_config_word(pcidev, YMFSB_PCIR_LEGCTRL, v);
- #ifdef YMF_DEBUG
- 	printk(PFX "LEGCTRL: 0x%x\n",v);
-@@ -446,7 +446,9 @@
- 	case PCI_DEVICE_ID_YMF740:
- 	case PCI_DEVICE_ID_YMF724F:
- 	case PCI_DEVICE_ID_YMF740C:
--		v = 0x8800 | ((mpuio<<4)&0x03) | ((sbio<<2)&0x03) | (oplio&0x03);
-+		v = 0x8800 | ((mpuio & 0x03) << 4)
-+			   | ((sbio & 0x03) << 2)
-+			   | (oplio & 0x03);
- 		pci_write_config_word(pcidev, YMFSB_PCIR_ELEGCTRL, v);
- #ifdef YMF_DEBUG
- 		printk(PFX "ELEGCTRL: 0x%x\n",v);
-@@ -843,6 +845,7 @@
- 	}
+Please respond to Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
 
- 	free_iomaps();
-+	pci_unregister_driver(&ymf7xxsb_driver);
+To:   Richard J Moore/UK/IBM@IBMGB
+cc:   root@chaos.analogic.com, Brian Gerst <bgerst@didntduck.org>, Andi
+      Kleen <ak@suse.de>, "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
+      linux-kernel@vger.kernel.org
+Subject:  Re: Why is double_fault serviced by a trap gate?
 
- }
 
-_____________________________
+
+
+> No no. That's that the whole point of a gate. You make a controlled
+> transition to ring 0 including stack switching. There are complex
+> protection checking rules, however as long as the DPL of the gate
+> descriptor is 3 then ring 3 is allowed to make the transition to ring 0.
+A
+> stack fault in user mode cannot kill the system. If it ever did it would
+be
+> a blatant bug of the most crass kind.
+
+Setting DPL == 3 of any interrupt/trap/fault gate is bad idea because it
+allows the user to kill the machine with INT 8 or something like that. DPL
+is checked only if interrupt is generated with INT, INT3 or INTO (IA
+manual, vol 3, section 5.10.1.1).
+
+Mikulas
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+Please read the FAQ at http://www.tux.org/lkml/
+
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

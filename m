@@ -1,71 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S130800AbQKVQhV>; Wed, 22 Nov 2000 11:37:21 -0500
+        id <S129150AbQKVRTl>; Wed, 22 Nov 2000 12:19:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130316AbQKVQhA>; Wed, 22 Nov 2000 11:37:00 -0500
-Received: from delta.ds2.pg.gda.pl ([153.19.144.1]:2466 "EHLO
-        delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
-        id <S131793AbQKVQgx>; Wed, 22 Nov 2000 11:36:53 -0500
-Date: Wed, 22 Nov 2000 17:02:18 +0100 (MET)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Johannes Erdfelt <johannes@erdfelt.com>,
-        Ingo Molnar <mingo@chiara.elte.hu>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.0test11-ac1
-In-Reply-To: <E13yMsl-0005Lb-00@the-village.bc.nu>
-Message-ID: <Pine.GSO.3.96.1001122164851.24845B-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
+        id <S129521AbQKVRTb>; Wed, 22 Nov 2000 12:19:31 -0500
+Received: from Cantor.suse.de ([194.112.123.193]:4360 "HELO Cantor.suse.de")
+        by vger.kernel.org with SMTP id <S129150AbQKVRTQ>;
+        Wed, 22 Nov 2000 12:19:16 -0500
+Date: Wed, 22 Nov 2000 17:49:13 +0100
+Message-Id: <200011221649.eAMGnDr23208@hawking.suse.de>
+To: Igmar Palsenberg <maillist@chello.nl>
+Cc: Pauline Middelink <middelink@polyware.nl>, linux-kernel@vger.kernel.org
+Subject: Re: linux-2.2.18-pre19 asm/delay.h problem?
+In-Reply-To: <Pine.LNX.4.21.0011221803520.27178-100000@server.serve.me.nl>
+X-Yow: Hello.  I know the divorce rate among unmarried Catholic
+ Alaskan females!!
+From: Andreas Schwab <schwab@suse.de>
+In-Reply-To: <Pine.LNX.4.21.0011221803520.27178-100000@server.serve.me.nl>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.0.92
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 Nov 2000, Alan Cox wrote:
+Igmar Palsenberg <maillist@chello.nl> writes:
 
-> >  It's not legal -- the MPS is very explicit the MP-table must reflect a
-> > real configuration. 
-> 
-> Intel tell me otherwise. The real world also disagrees which makes the
-> discussion a little pointless. We have to handle the real situation where
-> this occurs
+|> > > #define __bad_udelay() panic("Udelay called with too large a constant")
+|> 
+|> Can't we change that to :
+|> #error "Udelay..."
 
- Quoting from "MultiProcessor Specification" version 1.4, p. 5-2:
+No.
 
- "The default system configurations are designed to support dual-processor
-systems with fixed configurations.  Systems with dynamically configurable
-components, for example, a uniprocessor system with an upgrade socket for
-the second processor, must always generate the MP configuration table. 
-Failure to do so may cause the operating system to install the wrong
-modules due to erroneous configuration information." 
-
- This will not fix the broken work, unfortunately...
-
-> >  OK, but how does it handle the 82489DX?  There are valid configurations
-> > using this kind of APIC, including Pentium P54C ones...
-> 
-> These processors don't report the APIC on the cpuid ? If so then I guess
-> the fix is something like this
-
- No, they don't, as they have their on-chip APICs disabled by hardware.
-Otherwise they wouldn't be able to utilize a discrete local APIC.
-
-> Intel stuff appears to always be happy poking in APIC space. I don't know
-> if this is related to the chip internals on the non APIC capable chips.
-
- It might be related to the chipset setup.  I wonder whether would it
-crash on accessing another area of unoccupied space.  Hmm, after thinking
-for I while I recall there exist an event that's called "PCI master abort" 
-and that may happen when no device responds to a PCI cycle.  What chipset
-do the affected systems use?  Is it HX or NX?  I have docs for both and I
-may search for a possible cause.  Maybe we could fix it as a quirk... 
-
-  Maciej
+Andreas.
 
 -- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
-
+Andreas Schwab                                  "And now for something
+SuSE Labs                                        completely different."
+Andreas.Schwab@suse.de
+SuSE GmbH, Schanzäckerstr. 10, D-90443 Nürnberg
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

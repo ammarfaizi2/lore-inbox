@@ -1,65 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281702AbRKQE7j>; Fri, 16 Nov 2001 23:59:39 -0500
+	id <S281705AbRKQGPf>; Sat, 17 Nov 2001 01:15:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281704AbRKQE73>; Fri, 16 Nov 2001 23:59:29 -0500
-Received: from alex.intersurf.net ([216.115.129.11]:65286 "HELO
-	alex.intersurf.net") by vger.kernel.org with SMTP
-	id <S281702AbRKQE70>; Fri, 16 Nov 2001 23:59:26 -0500
-Date: Fri, 16 Nov 2001 22:59:24 -0600
-From: Mark Orr <markorr@intersurf.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] AMD SMP capability sanity checking.
-Message-Id: <20011116225924.3390dc77.markorr@intersurf.com>
-In-Reply-To: <20011116231141.A3030@faceprint.com>
-In-Reply-To: <3BF5952E.E73BB648@resilience.com>
-	<Pine.LNX.4.30.0111162353140.32578-100000@Appserv.suse.de>
-	<20011116231141.A3030@faceprint.com>
-X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	id <S281706AbRKQGPZ>; Sat, 17 Nov 2001 01:15:25 -0500
+Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:37898 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S281705AbRKQGPP>;
+	Sat, 17 Nov 2001 01:15:15 -0500
+Date: Fri, 16 Nov 2001 23:13:35 -0800
+From: Greg KH <greg@kroah.com>
+To: Kilobug <kilobug@freesurf.fr>
+Cc: linux-kernel@vger.kernel.org, speedtouch@ml.free.fr
+Subject: Re: [bug report] System hang up with Speedtouch USB hotplug
+Message-ID: <20011116231335.A18746@kroah.com>
+In-Reply-To: <3BF5C3AF.8090107@freesurf.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3BF5C3AF.8090107@freesurf.fr>
+User-Agent: Mutt/1.3.23i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Sat, 20 Oct 2001 06:01:04 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 16 Nov 2001 23:11:41 -0500
-faceprint@faceprint.com (Nathan Walp) wrote:
-
-> Actually, it's probably closer to:
+On Sat, Nov 17, 2001 at 02:55:59AM +0100, Kilobug wrote:
 > 
->    make cpu
->       |
->    smp tests run ok? -------> No, sell as XP
->       |
->    yes, do we have more demand
->    for XPs than we have supply
->    of those that didn't pass? -------> Yes, sell as XP
->       |
->    No, sell as MP
+> [4.] Kernel version (from /proc/version):
+> 2.4.12-ac5 with preempt patch (and some patches from Netfilter's 
+> patch-o-matic)
 
-Yes, this is much closer to what's happening.  I'd bet that most
-Palomino chips would pass the smp tests,  meaning many more MPs than
-they'd ever need.    They're probably just putting a bucket in the
-manufacturing stream,   testing those, and putting the rejects back
-in the stream.
+Does the problem happen on a kernel without the preemt patch?
 
-> Remember, AMD is just trying to make a buck.  If they've got a bunch of
-> MP CPUs "sitting on the shelves" while no one can get their hands on the
-> XPs, some of those MPs are going to "become" XPs.  For those of us on a
-> budget, we can only hope to get one of *those* variety of XPs.
+thanks,
 
-Umm...I cant see chips that have already been marked as MPs being
-converted to XPs.     Odds are the ratio of XP to MP is probably 10:1
-or greater.  
-
-> Now, that said, I'm probably going to buy MPs when I build my machine,
-> as long as the price difference stays as the current low levels.
-> Consider it a "warranty" or something.
-
-...and considering AMD doesnt lag in bringing out MPs.  Right now
-XP 1900s are widely available, but the highest speed MP's are 1800s.
-
-I've heard that the AMD 762 northbridge only works up to 12.5x133
-(1666MHz) so they'll hit the wall with the MPs pretty soon unless they
-have an updated stepping.
-
+greg k-h

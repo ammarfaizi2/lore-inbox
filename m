@@ -1,48 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316882AbSGBTQB>; Tue, 2 Jul 2002 15:16:01 -0400
+	id <S316884AbSGBTUI>; Tue, 2 Jul 2002 15:20:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316885AbSGBTQA>; Tue, 2 Jul 2002 15:16:00 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:8320 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S316882AbSGBTP7> convert rfc822-to-8bit; Tue, 2 Jul 2002 15:15:59 -0400
-Date: Tue, 2 Jul 2002 15:18:25 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@users.sourceforge.net>
-cc: "Albert D. Cahalan" <acahalan@cs.uml.edu>,
-       Mohamed Ghouse Gurgaon <MohamedG@ggn.hcltech.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: Diff b/w 32bit & 64-bit
-In-Reply-To: <yw1x1yamar52.fsf@gladiusit.e.kth.se>
-Message-ID: <Pine.LNX.3.95.1020702151441.1918A-100000@chaos.analogic.com>
+	id <S316883AbSGBTUH>; Tue, 2 Jul 2002 15:20:07 -0400
+Received: from h64-251-67-69.bigpipeinc.com ([64.251.67.69]:21772 "HELO
+	kelownamail.packeteer.com") by vger.kernel.org with SMTP
+	id <S316884AbSGBTUG>; Tue, 2 Jul 2002 15:20:06 -0400
+From: "Stephane Charette" <scharette@packeteer.com>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Date: Tue, 02 Jul 2002 12:22:34 -0700
+Reply-To: "Stephane Charette" <scharette@packeteer.com>
+X-Mailer: PMMail 2000 Standard (2.20.2502) For Windows 2000 (5.0.2195;2)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Subject: performance impact of using noapic
+Message-Id: <20020702192006Z316884-686+254@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2 Jul 2002, [iso-8859-1] Måns Rullgård wrote:
+I was reading through "FreeBSD Versus Linux Revisited" by Moshe Bar at "http://www.byte.com/documents/s=1794/byt20011107s0001/1112_moshe.html".
 
-> "Albert D. Cahalan" <acahalan@cs.uml.edu> writes:
-> 
-> > =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= writes:
-> > 
-> > > For Alpha: sizeof(int) == 4, sizeof(long) == 8, sizeof(void *) == 8
-> > > For intel: sizeof(int) == 4, sizeof(long) == 4, sizeof(void *) == 8
-> > 
-> > That second line is _only_ correct for Win64.
-> 
+One paragraph in particular caught my eye:
 
-"Win64"?? Do you mean that M$ now takes credit for SEGMENT:OFFSET?
-Good! That'll keep 'em in their place!  Seriously, I think it's
-really Win48 --another Windows distortion. Segment descriptor is
-16 bits and the offset remains 32.
+   On the Linux side, I attached all interrupts coming
+   from the network adaptor to one CPU. With the new
+   TCP/IP stack in the 2.4 kernels this really becomes
+   necessary. Otherwise, you might find the incoming
+   packets arranged out of order, because later interrupts
+   are serviced (on another CPU) before earlier ones, thus
+   requiring a reordering further down the handling layers.
 
-Cheers,
-Dick Johnson
+Is this a widely-known issue?  Or is this simply theory?  I'd never heard this mentionned until I read the article.
 
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+I ran some web-based performance tests with the 2.4.19-pre9-SMP kernel on a dual-CPU Athlon 1600MHz box, and found that running with "noapic" actually improved network performance.  (Negligable -- only 1% improvement in the small webstone-based test I ran.)
 
-                 Windows-2000/Professional isn't.
+As I wrote in another post concerning performance from earlier today, the actual values of my performance tests are not important -- the trend is what I wish to higlight.
+
+My questions are:
+
+1) am I right in thinking that "noapic" will force all interrupts to be handled by 1 CPU?
+
+2) how would you force all interrupts from only 1 hardware device (and not all devices) to be handled by 1 processor, as hinted in the paragraph quoted above?
+
+Thanks,
+
+Stephane Charette
+
 

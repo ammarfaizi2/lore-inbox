@@ -1,51 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263193AbSKJC5c>; Sat, 9 Nov 2002 21:57:32 -0500
+	id <S263204AbSKJC7a>; Sat, 9 Nov 2002 21:59:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263204AbSKJC5c>; Sat, 9 Nov 2002 21:57:32 -0500
-Received: from almesberger.net ([63.105.73.239]:27147 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id <S263193AbSKJC5c>; Sat, 9 Nov 2002 21:57:32 -0500
-Date: Sun, 10 Nov 2002 00:03:46 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	id <S263208AbSKJC7a>; Sat, 9 Nov 2002 21:59:30 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:20552 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S263204AbSKJC73>; Sat, 9 Nov 2002 21:59:29 -0500
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
        Linus Torvalds <torvalds@transmeta.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Werner Almesberger <wa@almesberger.net>,
        Suparna Bhattacharya <suparna@in.ibm.com>,
        Jeff Garzik <jgarzik@pobox.com>,
        "Matt D. Robinson" <yakker@aparity.com>,
        Rusty Russell <rusty@rustcorp.com.au>, Andy Pfiffer <andyp@osdl.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        Mike Galbraith <efault@gmx.de>,
-       "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+       "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+       <lkcd-general@lists.sourceforge.net>,
+       <lkcd-devel@lists.sourceforge.net>
 Subject: Re: [lkcd-devel] Re: What's left over.
-Message-ID: <20021110000346.B31205@almesberger.net>
-References: <Pine.LNX.4.44.0211091510060.1571-100000@home.transmeta.com> <m1of8ycihs.fsf@frodo.biederman.org> <1036894347.22173.6.camel@irongate.swansea.linux.org.uk> <m1k7jmcgo5.fsf@frodo.biederman.org>
-Mime-Version: 1.0
+References: <Pine.LNX.4.33L2.0211091533260.10722-100000@dragon.pdx.osdl.net>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 09 Nov 2002 19:58:25 -0700
+In-Reply-To: <Pine.LNX.4.33L2.0211091533260.10722-100000@dragon.pdx.osdl.net>
+Message-ID: <m1bs4ycer2.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m1k7jmcgo5.fsf@frodo.biederman.org>; from ebiederm@xmission.com on Sat, Nov 09, 2002 at 07:16:58PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman wrote:
-> So my gut impression at least says an interface that ignores where
-> the image wants to live just adds complexity in other places,
+"Randy.Dunlap" <rddunlap@osdl.org> writes:
 
-Linus' alloc_kernel_pages function would actually be able to handle
-this, provided that the "validity callback" checks if the allocated
-page happens to be in one of the destination areas.
+> {warning: cc: list too large :}
+> 
+> On 9 Nov 2002, Eric W. Biederman wrote:
+> 
+> | There are two cases I am seeing users wanting.
+> | 1) Load a new kernel on panic.
+> |    - Extra care must be taken so what broke the first kernel does
+> |      not break this one, and so that the shards of the old kernel
+> |      do not break it.
+> |    - Care must be taken so that loading the second kernel does not
+> |      erase valuable data that is desirable to place in a crash dump.
+> |    - This kernel cannot live at the same address as the old one, (at
+> |      least not initially).
+> 
+> Conceptually we would like a new kernel on panic, although
+> I doubt that it's normally safe to "load a new kernel on panic."
+> Or maybe it depends on the definition of "load."
+> 
+> What I'm trying to say is that I think the new kernel must
+> already be loaded when the panic happens.
+> Is that what you describe later (below)?
 
-I'm not so sure if this implementation is really that much more
-compact than your current conflict resolution, though. Also, it may
-be hairy in scenarios where you actually expect to fill more than
-50% of system memory. (But your concerns about a 128MB limit scare
-me, too. I realize that people have taken initrds to extremes I
-never quite imagined, but that still looks a little excessive :-)
-
-- Werner
-
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/
+Yes that was my meaning.   The new kernel must be preloaded.
+And only started on panic.

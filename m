@@ -1,80 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313638AbSHBW3f>; Fri, 2 Aug 2002 18:29:35 -0400
+	id <S316903AbSHBWqU>; Fri, 2 Aug 2002 18:46:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317251AbSHBW3f>; Fri, 2 Aug 2002 18:29:35 -0400
-Received: from ziggy.one-eyed-alien.net ([64.169.228.100]:59399 "EHLO
-	ziggy.one-eyed-alien.net") by vger.kernel.org with ESMTP
-	id <S313638AbSHBW3e>; Fri, 2 Aug 2002 18:29:34 -0400
-Date: Fri, 2 Aug 2002 15:32:30 -0700
-From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: David Ford <david+cert@blue-labs.org>,
-       linux-usb-users@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [Linux-usb-users] Re: Linux booting from USB HD / USB interface devices
-Message-ID: <20020802153230.E31990@one-eyed-alien.net>
-Mail-Followup-To: "Randy.Dunlap" <rddunlap@osdl.org>,
-	David Ford <david+cert@blue-labs.org>,
-	linux-usb-users@lists.sourceforge.net, linux-kernel@vger.kernel.org
-References: <20020728123329.C12344@one-eyed-alien.net> <Pine.LNX.4.33L2.0208021348560.14068-100000@dragon.pdx.osdl.net>
+	id <S316541AbSHBWqU>; Fri, 2 Aug 2002 18:46:20 -0400
+Received: from [64.105.35.211] ([64.105.35.211]:62889 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S314078AbSHBWqT>; Fri, 2 Aug 2002 18:46:19 -0400
+Date: Fri, 2 Aug 2002 15:49:24 -0700
+From: "Adam J. Richter" <adam@yggdrasil.com>
+To: tytso@mit.edu
+Cc: linux-serial@vger.kernel.org, linux-kernel@vger.kernel.org, axel@hh59.org,
+       rmk@arm.linux.org.uk
+Subject: Re: Linux 2.5.30: [SERIAL] build fails at 8250.c
+Message-ID: <20020802154924.A5505@baldur.yggdrasil.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="uCPdOCrL+PnN2Vxy"
+Content-Type: multipart/mixed; boundary="d6Gm4EdcadzBjdND"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33L2.0208021348560.14068-100000@dragon.pdx.osdl.net>; from rddunlap@osdl.org on Fri, Aug 02, 2002 at 02:03:02PM -0700
-Organization: One Eyed Alien Networks
-X-Copyright: (C) 2002 Matthew Dharm, all rights reserved.
-X-Message-Flag: Get a real e-mail client.  http://www.mutt.org/
+User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---uCPdOCrL+PnN2Vxy
+--d6Gm4EdcadzBjdND
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Fri, Aug 02, 2002 at 02:03:02PM -0700, Randy.Dunlap wrote:
-> My turn for a question:
-> What files do I need to copy to a USB boot disk to be able to
-> successfully boot a Linux kenrel?
-> I'm already building the kernel with usb-storage support and all of
-> the required SCSI support in the kernel.
+	linux-2.5.30/include/linux/serialP.h needs struct async_icount,
+which is defined in <linux/serial.h>, causing
+linux-2.5.30/drivers/serial/8250.c not to compile, among other problems.
+In linux-2.5.30, you cannot compile a file that includes <linux/serialP.h>
+without including <linux/serial.h>.  So, I think the solution is for
+serialP.h to #include serial.h.  I have attached a patch that does this.
 
-You should have a full linux install on that disk.  It is, after all, going
-to be the root fs.
+	From the comments in serialP.h, it looks like there was some
+effort in linux-2.2 to allow inclusion of serialP.h without serial.h,
+but I see no indication of what benefit that was supposed to provide.
 
-> Won't I need to put the kernel as the primary boot image,
-> i.e., don't use a boot loader on the USB storage device,
-> since the boot loader won't have USB storage I/O capabilities?
+	Ted (or whowever gathers drivers/serial patches for Linus), do
+you want to shepherd this change to Linus, do you want me to submit it
+directly, or do you want to do something else?
 
-Depends on your motherboard.  Some BIOSes allow loaders like LILO to work
-because they provide the translation between the int13h calls and the USB
-stack.
+-- 
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."
 
-Matt
+--d6Gm4EdcadzBjdND
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="serialP.diff"
 
---=20
-Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
-net=20
-Maintainer, Linux USB Mass Storage Driver
+--- linux-2.5.30/include/linux/serialP.h	2002-08-01 14:16:07.000000000 -0700
++++ linux/include/linux/serialP.h	2002-08-02 14:51:03.000000000 -0700
+@@ -24,11 +24,7 @@
+ #include <linux/tqueue.h>
+ #include <linux/circ_buf.h>
+ #include <linux/wait.h>
+-#if (LINUX_VERSION_CODE < 0x020300)
+-/* Unfortunate, but Linux 2.2 needs async_icount defined here and
+- * it got moved in 2.3 */
+ #include <linux/serial.h>
+-#endif
+ 
+ struct serial_state {
+ 	int	magic;
 
-I see you've been reading alt.sex.chubby.sheep voraciously.
-					-- Tanya
-User Friendly, 11/24/97
-
---uCPdOCrL+PnN2Vxy
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE9Swh+IjReC7bSPZARAvsUAJwIG56AiCIYd7foSShLMFVD+fe5ZACgkpru
-e4PrY2sU0KzDufCZ/aJZIP8=
-=C4A6
------END PGP SIGNATURE-----
-
---uCPdOCrL+PnN2Vxy--
+--d6Gm4EdcadzBjdND--

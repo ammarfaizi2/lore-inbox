@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262476AbUE1MG5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262418AbUE1MPQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262476AbUE1MG5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 May 2004 08:06:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262328AbUE1MEO
+	id S262418AbUE1MPQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 May 2004 08:15:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262450AbUE1MIC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 May 2004 08:04:14 -0400
-Received: from mail.donpac.ru ([80.254.111.2]:45748 "EHLO donpac.ru")
-	by vger.kernel.org with ESMTP id S262450AbUE1Lzp (ORCPT
+	Fri, 28 May 2004 08:08:02 -0400
+Received: from mail.donpac.ru ([80.254.111.2]:54964 "EHLO donpac.ru")
+	by vger.kernel.org with ESMTP id S262488AbUE1L4A (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 May 2004 07:55:45 -0400
-Subject: [PATCH 5/13] 2.6.7-rc1-mm1, Port HP Pavilion irq routing quirk to new DMI probing
-In-Reply-To: <10857453372934@donpac.ru>
+	Fri, 28 May 2004 07:56:00 -0400
+Subject: [PATCH 9/13] 2.6.7-rc1-mm1, Port reboot related quirks to new DMI probing
+In-Reply-To: <1085745352794@donpac.ru>
 X-Mailer: gregkh_patchbomb_levon_offspring
-Date: Fri, 28 May 2004 15:55:41 +0400
-Message-Id: <10857453413454@donpac.ru>
+Date: Fri, 28 May 2004 15:55:55 +0400
+Message-Id: <1085745355529@donpac.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
@@ -23,112 +23,177 @@ X-Spam-Score: -27
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-make pci irq routing code use
-dmi_check_system() function
-and make broken_hp_bios_irq9 variable static.
+
 
 diff -urpN -X /usr/share/dontdiff linux-2.6.7-rc1-mm1.vanilla/arch/i386/kernel/dmi_scan.c linux-2.6.7-rc1-mm1/arch/i386/kernel/dmi_scan.c
---- linux-2.6.7-rc1-mm1.vanilla/arch/i386/kernel/dmi_scan.c	Wed Apr 28 23:52:39 2004
-+++ linux-2.6.7-rc1-mm1/arch/i386/kernel/dmi_scan.c	Wed Apr 28 23:53:48 2004
-@@ -235,23 +235,6 @@ static __init int disable_smbus(struct d
+--- linux-2.6.7-rc1-mm1.vanilla/arch/i386/kernel/dmi_scan.c	Thu Apr 29 00:08:50 2004
++++ linux-2.6.7-rc1-mm1/arch/i386/kernel/dmi_scan.c	Thu Apr 29 00:09:08 2004
+@@ -155,51 +155,6 @@ static void __init dmi_save_ident(struct
+ 		printk(KERN_ERR "dmi_save_ident: out of memory.\n");
  }
  
- /*
-- * Work around broken HP Pavilion Notebooks which assign USB to
-- * IRQ 9 even though it is actually wired to IRQ 11
+-/* 
+- * Reboot options and system auto-detection code provided by
+- * Dell Inc. so their systems "just work". :-)
 - */
--static __init int fix_broken_hp_bios_irq9(struct dmi_system_id *d)
+-
+-/* 
+- * Some machines require the "reboot=b"  commandline option, this quirk makes that automatic.
+- */
+-static __init int set_bios_reboot(struct dmi_system_id *d)
 -{
--#ifdef CONFIG_PCI
--	extern int broken_hp_bios_irq9;
--	if (broken_hp_bios_irq9 == 0)
+-	extern int reboot_thru_bios;
+-	if (reboot_thru_bios == 0)
 -	{
--		broken_hp_bios_irq9 = 1;
--		printk(KERN_INFO "%s detected - fixing broken IRQ routing\n", d->ident);
+-		reboot_thru_bios = 1;
+-		printk(KERN_INFO "%s series board detected. Selecting BIOS-method for reboots.\n", d->ident);
+-	}
+-	return 0;
+-}
+-
+-/*
+- * Some machines require the "reboot=s"  commandline option, this quirk makes that automatic.
+- */
+-static __init int set_smp_reboot(struct dmi_system_id *d)
+-{
+-#ifdef CONFIG_SMP
+-	extern int reboot_smp;
+-	if (reboot_smp == 0)
+-	{
+-		reboot_smp = 1;
+-		printk(KERN_INFO "%s series board detected. Selecting SMP-method for reboots.\n", d->ident);
 -	}
 -#endif
 -	return 0;
 -}
 -
 -/*
-  * HP Proliant 8500 systems can't use i8042 in mux mode,
-  * or they instantly reboot.
-  */
-@@ -466,14 +449,6 @@ static __initdata struct dmi_system_id d
- 			DMI_MATCH(DMI_PRODUCT_NAME, "S4030CDT/4.3"),
- 			} },
- #endif
--	{ fix_broken_hp_bios_irq9, "HP Pavilion N5400 Series Laptop", {
--			DMI_MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
--			DMI_MATCH(DMI_BIOS_VERSION, "GE.M1.03"),
--			DMI_MATCH(DMI_PRODUCT_VERSION, "HP Pavilion Notebook Model GE"),
--			DMI_MATCH(DMI_BOARD_VERSION, "OmniBook N32N-736")
--			} },
-- 
+- * Some machines require the "reboot=b,s"  commandline option, this quirk makes that automatic.
+- */
+-static __init int set_smp_bios_reboot(struct dmi_system_id *d)
+-{
+-	set_smp_reboot(d);
+-	set_bios_reboot(d);
+-	return 0;
+-}
 -
+ /*
+  * Some machines, usually laptops, can't handle an enabled local APIC.
+  * The symptoms include hangs or reboots when suspending or resuming,
+@@ -316,19 +271,7 @@ static __init int disable_acpi_pci(struc
+  */
+  
+ static __initdata struct dmi_system_id dmi_blacklist[]={
+-	{ set_smp_bios_reboot, "Dell PowerEdge 1300", {	/* Handle problems with rebooting on Dell 1300's */
+-			DMI_MATCH(DMI_SYS_VENDOR, "Dell Computer Corporation"),
+-			DMI_MATCH(DMI_PRODUCT_NAME, "PowerEdge 1300/"),
+-			} },
+-	{ set_bios_reboot, "Dell PowerEdge 300", {	/* Handle problems with rebooting on Dell 300's */
+-			DMI_MATCH(DMI_SYS_VENDOR, "Dell Computer Corporation"),
+-			DMI_MATCH(DMI_PRODUCT_NAME, "PowerEdge 300/"),
+-			} },
+-	{ set_bios_reboot, "Dell PowerEdge 2400", {  /* Handle problems with rebooting on Dell 2400's */
+-			DMI_MATCH(DMI_SYS_VENDOR, "Dell Computer Corporation"),
+-			DMI_MATCH(DMI_PRODUCT_NAME, "PowerEdge 2400"),
+-			} },
+-			
++
+ 	/* Machines which have problems handling enabled local APICs */
  
- 	/*
- 	 *	SMBus / sensors settings
-diff -urpN -X /usr/share/dontdiff linux-2.6.7-rc1-mm1.vanilla/arch/i386/pci/irq.c linux-2.6.7-rc1-mm1/arch/i386/pci/irq.c
---- linux-2.6.7-rc1-mm1.vanilla/arch/i386/pci/irq.c	Wed Apr 28 22:56:09 2004
-+++ linux-2.6.7-rc1-mm1/arch/i386/pci/irq.c	Wed Apr 28 23:53:01 2004
-@@ -12,6 +12,7 @@
- #include <linux/slab.h>
+ 	{ local_apic_kills_bios, "Dell Inspiron", {
+diff -urpN -X /usr/share/dontdiff linux-2.6.7-rc1-mm1.vanilla/arch/i386/kernel/reboot.c linux-2.6.7-rc1-mm1/arch/i386/kernel/reboot.c
+--- linux-2.6.7-rc1-mm1.vanilla/arch/i386/kernel/reboot.c	Wed Apr 28 22:56:07 2004
++++ linux-2.6.7-rc1-mm1/arch/i386/kernel/reboot.c	Thu Apr 29 00:09:08 2004
+@@ -9,6 +9,7 @@
  #include <linux/interrupt.h>
- #include <linux/irq.h>
+ #include <linux/mc146818rtc.h>
+ #include <linux/efi.h>
 +#include <linux/dmi.h>
- #include <asm/io.h>
- #include <asm/smp.h>
- #include <asm/io_apic.h>
-@@ -22,7 +23,7 @@
- #define PIRQ_SIGNATURE	(('$' << 0) + ('P' << 8) + ('I' << 16) + ('R' << 24))
- #define PIRQ_VERSION 0x0100
- 
--int broken_hp_bios_irq9;
-+static int broken_hp_bios_irq9;
- 
- static struct irq_routing_table *pirq_table;
- 
-@@ -893,12 +894,41 @@ static void __init pcibios_fixup_irqs(vo
- 	}
+ #include <asm/uaccess.h>
+ #include <asm/apic.h>
+ #include "mach_reboot.h"
+@@ -66,6 +67,83 @@ static int __init reboot_setup(char *str
  }
  
-+/*
-+ * Work around broken HP Pavilion Notebooks which assign USB to
-+ * IRQ 9 even though it is actually wired to IRQ 11
+ __setup("reboot=", reboot_setup);
++
++/* 
++ * Reboot options and system auto-detection code provided by
++ * Dell Inc. so their systems "just work". :-)
 + */
-+static int __init fix_broken_hp_bios_irq9(struct dmi_system_id *d)
++
++/* 
++ * Some machines require the "reboot=b"  commandline option, this quirk makes that automatic.
++ */
++static int __init set_bios_reboot(struct dmi_system_id *d)
 +{
-+	if (!broken_hp_bios_irq9) {
-+		broken_hp_bios_irq9 = 1;
-+		printk(KERN_INFO "%s detected - fixing broken IRQ routing\n", d->ident);
++	if (!reboot_thru_bios) {
++		reboot_thru_bios = 1;
++		printk(KERN_INFO "%s series board detected. Selecting BIOS-method for reboots.\n", d->ident);
 +	}
 +	return 0;
 +}
 +
-+static struct dmi_system_id __initdata pciirq_dmi_table[] = {
-+	{
-+		.callback = fix_broken_hp_bios_irq9,
-+		.ident = "HP Pavilion N5400 Series Laptop",
++/*
++ * Some machines require the "reboot=s"  commandline option, this quirk makes that automatic.
++ */
++static int __init set_smp_reboot(struct dmi_system_id *d)
++{
++#ifdef CONFIG_SMP
++	if (!reboot_smp) {
++		reboot_smp = 1;
++		printk(KERN_INFO "%s series board detected. Selecting SMP-method for reboots.\n", d->ident);
++	}
++#endif
++	return 0;
++}
++
++/*
++ * Some machines require the "reboot=b,s"  commandline option, this quirk makes that automatic.
++ */
++static int __init set_smp_bios_reboot(struct dmi_system_id *d)
++{
++	set_smp_reboot(d);
++	set_bios_reboot(d);
++	return 0;
++}
++
++static struct dmi_system_id __initdata reboot_dmi_table[] = {
++	{	/* Handle problems with rebooting on Dell 1300's */
++		.callback = set_smp_bios_reboot,
++		.ident = "Dell PowerEdge 1300",
 +		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
-+			DMI_MATCH(DMI_BIOS_VERSION, "GE.M1.03"),
-+			DMI_MATCH(DMI_PRODUCT_VERSION, "HP Pavilion Notebook Model GE"),
-+			DMI_MATCH(DMI_BOARD_VERSION, "OmniBook N32N-736"),
++			DMI_MATCH(DMI_SYS_VENDOR, "Dell Computer Corporation"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "PowerEdge 1300/"),
++		},
++	},
++	{	/* Handle problems with rebooting on Dell 300's */
++		.callback = set_bios_reboot,
++		.ident = "Dell PowerEdge 300",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Dell Computer Corporation"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "PowerEdge 300/"),
++		},
++	},
++	{	/* Handle problems with rebooting on Dell 2400's */
++		.callback = set_bios_reboot,
++		.ident = "Dell PowerEdge 2400",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Dell Computer Corporation"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "PowerEdge 2400"),
 +		},
 +	},
 +	{ }
 +};
 +
- static int __init pcibios_irq_init(void)
- {
- 	DBG("PCI: IRQ init\n");
- 
- 	if (pcibios_enable_irq || raw_pci_ops == NULL)
- 		return 0;
++static int reboot_init(void)
++{
++	dmi_check_system(reboot_dmi_table);
++	return 0;
++}
 +
-+	dmi_check_system(pciirq_dmi_table);
++core_initcall(reboot_init);
  
- 	pirq_table = pirq_find_routing_table();
- 
+ /* The following code and data reboots the machine by switching to real
+    mode and jumping to the BIOS reset entry point, as if the CPU has
 

@@ -1,74 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264985AbTGHQej (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jul 2003 12:34:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267478AbTGHQej
+	id S264610AbTGHQmR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jul 2003 12:42:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264911AbTGHQmR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jul 2003 12:34:39 -0400
-Received: from carisma.slowglass.com ([195.224.96.167]:23048 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S264985AbTGHQeb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jul 2003 12:34:31 -0400
-Date: Tue, 8 Jul 2003 17:49:07 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] AES for CryptoAPI - i586-optimized
-Message-ID: <20030708174907.A18997@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	linux-kernel@vger.kernel.org
-References: <20030708152755.GA24331@ghanima.endorphin.org>
+	Tue, 8 Jul 2003 12:42:17 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:38317
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S264610AbTGHQmP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jul 2003 12:42:15 -0400
+Subject: Re: [PATCH] Fastwalk: reduce cacheline bouncing of d_count
+	(Changelog@1.1024.1.11)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: herbert@13thfloor.at
+Cc: trond.myklebust@fys.uio.no, Marcelo Tosatti <marcelo@conectiva.com.br>,
+       hannal@us.ibm.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux FSdevel <linux-fsdevel@vger.kernel.org>
+In-Reply-To: <20030708164426.GB10004@www.13thfloor.at>
+References: <16138.53118.777914.828030@charged.uio.no>
+	 <1057673804.4357.27.camel@dhcp22.swansea.linux.org.uk>
+	 <16138.56467.342593.715679@charged.uio.no>
+	 <1057677613.4358.33.camel@dhcp22.swansea.linux.org.uk>
+	 <20030708164426.GB10004@www.13thfloor.at>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1057683213.5228.3.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030708152755.GA24331@ghanima.endorphin.org>; from clemens@endorphin.org on Tue, Jul 08, 2003 at 05:27:55PM +0200
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 08 Jul 2003 17:53:34 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 08, 2003 at 05:27:55PM +0200, Fruhwirth Clemens wrote:
+On Maw, 2003-07-08 at 17:44, Herbert Poetzl wrote:
+> > Its no big problem to me since I can just back it out of -ac
 > 
-> Due to the recent discussion about the asm-optimized version of AES which is
-> included in loop-AES, I'd like to point out that I've ported this
-> implementation - Dr. Brian Gladman's btw. - to CryptoAPI a long time ago.
+> just curious, because I use this patch since early 2.4.20,
+> are there any reasons to 'back it out of -ac' for you?
+> 
+> anyway I totally agree that the NFS issue pointed out by 
+> Trond should be addressed ...
 
-Cool, that means we just need to hash out the framework for optimized
-implementations now..
+Its high risk, its got bugs as Trond already showed and it only
+helps performance on giant SMP boxes. Its all risk and no
+reward. Quota updates get you working 32bit uid quota and
+the interactivity stuff helps all even tho its got some
+risk.
 
-A few more comments:
 
-> diff -r --new-file -u crypto/Kconfig ../linux-2.5.58/crypto/Kconfig
-> --- crypto/Kconfig	Thu Feb  6 13:53:47 2003
-> +++ ../linux-2.5.58/crypto/Kconfig	Tue Feb  4 00:54:18 2003
-> @@ -119,6 +119,26 @@
->  
->  	  See http://csrc.nist.gov/encryption/aes/ for more information.
->  
-> +config CRYPTO_AES_586
-> +	tristate "AES cipher algorithms (586)"
-> +	depends on CRYPTO
-
-Should also depend on CONFIG_X86 && !CONFIG_X86_64
-
-> +$(obj)/aes-i586.o: $(obj)/aes-i586-asm.o crypto/aes-i586-glue.o
-> +	$(LD) -r $(obj)/aes-i586-asm.o $(obj)/aes-i586-glue.o -o $(obj)/aes-i586.o
-
-That's not how kernel makesfile work.  It should be something like
-
-aes-i586-y		:= aes-i586-asm.o aes-i586-glue.o
-
-> +// THE CIPHER INTERFACE
-
-Please use C-style comments.
-
-> +	if(key_length != 16 && key_length != 24 && key_length != 32)
-> +	{
-
-Should be
-
-	if (key_length != 16 && key_length != 24 && key_length != 32) {
-
-> +MODULE_DESCRIPTION("Rijndael (AES) Cipher Algorithm");
-> +MODULE_LICENSE("Dual BSD/GPL");
-
-MODULE_AUTHOR is missing.  Also the description should mention that
-this is an optimized assembly version.

@@ -1,43 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319279AbSHNV7b>; Wed, 14 Aug 2002 17:59:31 -0400
+	id <S319410AbSHNVsh>; Wed, 14 Aug 2002 17:48:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319340AbSHNV7b>; Wed, 14 Aug 2002 17:59:31 -0400
-Received: from crack.them.org ([65.125.64.184]:57098 "EHLO crack.them.org")
-	by vger.kernel.org with ESMTP id <S319279AbSHNV7b>;
-	Wed, 14 Aug 2002 17:59:31 -0400
-Date: Wed, 14 Aug 2002 18:03:17 -0400
-From: Daniel Jacobowitz <dan@debian.org>
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, Rogier Wolff <R.E.Wolff@BitWizard.nl>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch 4/21] fix ARCH_HAS_PREFETCH
-Message-ID: <20020814220317.GA22207@nevyn.them.org>
-Mail-Followup-To: Jamie Lokier <lk@tantalophile.demon.co.uk>,
-	"H. Peter Anvin" <hpa@zytor.com>,
-	Rogier Wolff <R.E.Wolff@BitWizard.nl>, linux-kernel@vger.kernel.org
-References: <3D56B13A.D3F741D1@zip.com.au> <Pine.NEB.4.44.0208132322340.1351-100000@mimas.fachschaften.tu-muenchen.de> <ajc095$hk1$1@cesium.transmeta.com> <20020814194019.A31761@bitwizard.nl> <3D5AB250.3070104@zytor.com> <20020814205709.E26404@kushida.apsleyroad.org>
+	id <S319412AbSHNVsh>; Wed, 14 Aug 2002 17:48:37 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:48079 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S319410AbSHNVsg>;
+	Wed, 14 Aug 2002 17:48:36 -0400
+Date: Wed, 14 Aug 2002 14:52:29 -0700
+To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Problem : can't make pipe non-blocking on 2.5.X
+Message-ID: <20020814215229.GA24373@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+References: <20020814181902.GA24047@bougret.hpl.hp.com> <87lm79ru51.fsf@devron.myhome.or.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020814205709.E26404@kushida.apsleyroad.org>
-User-Agent: Mutt/1.5.1i
+In-Reply-To: <87lm79ru51.fsf@devron.myhome.or.jp>
+User-Agent: Mutt/1.3.28i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 14, 2002 at 08:57:09PM +0100, Jamie Lokier wrote:
-> H. Peter Anvin wrote:
-> > Yes.  This is a gcc-specific wart, a bad idea from the start, and 
-> > apparently one which has caught up with them to the point that they've 
-> > had to abandon it.
+On Thu, Aug 15, 2002 at 06:46:18AM +0900, OGAWA Hirofumi wrote:
 > 
-> It's still there in GCC 3.1.
+> F_GETFL should be,
+>     flags = fcntl(trigger_pipe[0], F_GETFL, 0);
 
-Yes.  If you check out the tree-ssa-branch, however (and use
-appropriate commandline arguments), I think you'll find that it's no
-longer there.  That's the future of GCC's optimizer, but most of it
-won't make even GCC 3.3.
+	Oups. I'll fix that. Thanks !
 
--- 
-Daniel Jacobowitz
-MontaVista Software                         Debian GNU/Linux Developer
+> > ------------- Output 2.5.25 ----------------
+> > GET FLAGS : 0 - 40045F18
+> > SET FLAGS : -1 - 22
+> > ------------- Output 2.4.20-pre2 -----------
+> > GET FLAGS : 0 - 40043F18
+> > SET FLAGS : 0 - 0
+> > --------------------------------------------
+> 
+> Looks like effect of different implement of O_DIRECT(0x40000).
+> Thanks.
+
+	Work in progress, I guess. Thanks...
+
+	Jean

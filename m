@@ -1,116 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263366AbSLFQiL>; Fri, 6 Dec 2002 11:38:11 -0500
+	id <S264755AbSLFQkA>; Fri, 6 Dec 2002 11:40:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263837AbSLFQiL>; Fri, 6 Dec 2002 11:38:11 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:1043 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S263366AbSLFQiK>;
-	Fri, 6 Dec 2002 11:38:10 -0500
-Date: Fri, 6 Dec 2002 08:45:23 -0800
-From: Greg KH <greg@kroah.com>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org, ambx1@neo.rr.com
-Subject: [BK PATCH] PNP driver changes for 2.5.50
-Message-ID: <20021206164522.GA10376@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S264760AbSLFQkA>; Fri, 6 Dec 2002 11:40:00 -0500
+Received: from rakis.net ([216.235.252.212]:44685 "EHLO egg.rakis.net")
+	by vger.kernel.org with ESMTP id <S264755AbSLFQj6>;
+	Fri, 6 Dec 2002 11:39:58 -0500
+Date: Fri, 6 Dec 2002 11:47:35 -0500 (EST)
+From: Greg Boyce <gboyce@rakis.net>
+X-X-Sender: gboyce@egg
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Dazed and Confused
+In-Reply-To: <1039190719.22971.15.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.42.0212061133330.7770-100000@egg>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here's a set of updated PNP driver patches from Adam Belay.
+On 6 Dec 2002, Alan Cox wrote:
 
-Please pull from:  bk://linuxusb.bkbits.net/pnp-2.5
+> On Fri, 2002-12-06 at 14:55, Greg Boyce wrote:
+> > I work in a company with a large number of Linux machine deployed all
+> > around the country, and in some of the machines we've been seeing the
+> > following error:
+> >
+> > Uhhuh. NMI received. Dazed and confused, but trying to continue
+> > You probably have a hardware problem with your RAM chips
+>
+> There are several causes of an NMI depending on the system - hardware
+> failures is one, some systems do it for things like PCI errors, a few
+> boxes you see them on power management events (notably old 486's)
+>
+> > Due to the number of machines and their locations, running memtest86 on
+> > them isn't exactly feasible.
+>
+> Then buy better ram ;)
 
-thanks,
+We have a large number of a very small number of machine types.  The
+OS images installed are identical, and the bioses should be identical
+between each individual machine types.
 
-greg k-h
+Since the number of machines reporting this error are pretty small, I
+think it's unlikely to be power management, or anything like that.
 
- drivers/input/gameport/ns558.c |  132 ++++++---------
- drivers/net/e100/e100_main.c   |    4 
- drivers/parport/parport_pc.c   |    3 
- drivers/pnp/Kconfig            |   15 +
- drivers/pnp/Makefile           |    6 
- drivers/pnp/base.h             |    3 
- drivers/pnp/card.c             |  342 +++++++++++++++++++++++++++++++++++++++++
- drivers/pnp/core.c             |   87 +++++-----
- drivers/pnp/driver.c           |   86 +++-------
- drivers/pnp/interface.c        |    8 
- drivers/pnp/isapnp/Makefile    |    4 
- drivers/pnp/isapnp/core.c      |   39 +---
- drivers/pnp/isapnp/proc.c      |    2 
- drivers/pnp/names.c            |    2 
- drivers/pnp/pnpbios/core.c     |   49 +++--
- drivers/pnp/quirks.c           |    2 
- drivers/pnp/system.c           |   10 -
- drivers/serial/8250_pnp.c      |   22 --
- include/linux/pnp.h            |  230 ++++++++++++++++++++++-----
- include/linux/pnpbios.h        |   13 +
- include/linux/sunrpc/stats.h   |   18 +-
- sound/isa/opl3sa2.c            |  131 ++++++---------
- sound/oss/opl3sa2.c            |    6 
- 23 files changed, 818 insertions(+), 396 deletions(-)
------
+> > Is there anything besides failing hardware that could be the cause of this
+> > error?  Also, how serious is this error?  Some of the machines reporting
+> > this error have had problems with programs crashing, while others seem to
+> > run fine.
+>
+> Take a sample set of machines which have been crashing and run memtest86
+> on a couple. That should tell you if it is RAM. From a sample you can
+> then figure out how to handle the rest (things that come to mind if
+> memtest86 fails on the test machines include replacing the ram in a few
+> more then taking the old ram back to test)
 
-ChangeSet@1.837.4.3, 2002-12-06 10:08:34-06:00, ambx1@neo.rr.com
-  [PATCH] PnP gameport driver update
-  
-  This trivial patch updates the gameport driver to the new id scheme.
+I'll mention it to the people who handle the replacement of hardware, but
+from the sounds of this and Dick's e-mail, it's most likely hardware of
+some sort or possibly overheating.  They can decide if they want to try to
+figure out which component is causing the problem, or if they'd prefer to
+just replace the faulty machines completely and worry about tracking the
+component later.  We have plenty of spares in the warehouse.
 
- drivers/input/gameport/ns558.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
-------
+Thanks for the help,
 
-ChangeSet@1.837.4.2, 2002-12-05 23:31:41-06:00, ambx1@neo.rr.com
-  [PATCH] PnP bugfix
-  
-  I forgot the errno.h.  Without this patch, things may not compile when
-  pnp support or pnp card support is disabled.
-  
-  Hope you had a good trip.  I noticed a small mistake in pnp 0.93 and I have
-  a fix for it.
-
- include/linux/pnp.h |    1 +
- 1 files changed, 1 insertion(+)
-------
-
-ChangeSet@1.837.4.1, 2002-12-05 23:31:21-06:00, ambx1@neo.rr.com
-  [PATCH] Linux PnP Support V0.93 - 2.5.50
-  
-  Attached is a patch, that updates the 2.5.50 to the latest pnp
-  version.  It includes all 9 of the previously submitted patches.
-  
-  Highlights are as follows:
-  -PnP BIOS fixes
-  -Several new macros
-  -PnP Card Services
-  -Various bug fixes
-  -more drivers converted to the new APIs
-
- drivers/input/gameport/ns558.c |  128 ++++++---------
- drivers/net/e100/e100_main.c   |    4 
- drivers/parport/parport_pc.c   |    3 
- drivers/pnp/Kconfig            |   15 +
- drivers/pnp/Makefile           |    6 
- drivers/pnp/base.h             |    3 
- drivers/pnp/card.c             |  342 +++++++++++++++++++++++++++++++++++++++++
- drivers/pnp/core.c             |   87 +++++-----
- drivers/pnp/driver.c           |   86 +++-------
- drivers/pnp/interface.c        |    8 
- drivers/pnp/isapnp/Makefile    |    4 
- drivers/pnp/isapnp/core.c      |   39 +---
- drivers/pnp/isapnp/proc.c      |    2 
- drivers/pnp/names.c            |    2 
- drivers/pnp/pnpbios/core.c     |   49 +++--
- drivers/pnp/quirks.c           |    2 
- drivers/pnp/system.c           |   10 -
- drivers/serial/8250_pnp.c      |   22 --
- include/linux/pnp.h            |  229 ++++++++++++++++++++++-----
- include/linux/pnpbios.h        |   13 +
- include/linux/sunrpc/stats.h   |   18 +-
- sound/isa/opl3sa2.c            |  131 ++++++---------
- sound/oss/opl3sa2.c            |    6 
- 23 files changed, 815 insertions(+), 394 deletions(-)
-------
+Greg
 

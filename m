@@ -1,74 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265081AbSKRV7N>; Mon, 18 Nov 2002 16:59:13 -0500
+	id <S265532AbSKRWcY>; Mon, 18 Nov 2002 17:32:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265065AbSKRV6U>; Mon, 18 Nov 2002 16:58:20 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:16141 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S265012AbSKRV6J>;
-	Mon, 18 Nov 2002 16:58:09 -0500
-Date: Mon, 18 Nov 2002 22:05:08 +0000
-From: Matthew Wilcox <willy@debian.org>
-To: linux-kernel@vger.kernel.org
-Cc: Janitors <kernel-janitor-discuss@lists.sourceforge.net>
-Subject: More interesting problems than C99 initialisers
-Message-ID: <20021118220508.P7530@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
+	id <S265543AbSKRWcY>; Mon, 18 Nov 2002 17:32:24 -0500
+Received: from mort.demon.co.uk ([158.152.28.197]:61095 "EHLO mort.demon.co.uk")
+	by vger.kernel.org with ESMTP id <S265532AbSKRWcV>;
+	Mon, 18 Nov 2002 17:32:21 -0500
+From: mbm@mort.demon.co.uk
+Message-Id: <200211182239.gAIMdBL04074@mort.demon.co.uk>
+Subject: Re: 2.5.48: BUG() at kernel/module.c:1000
+To: "Petr Vandrovec" <vandrove@vc.cvut.cz>, rusty@rustcorp.com.au
+Date: Mon, 18 Nov 2002 22:39:11 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+Reply-To: mbm@tinc.org.uk
+In-Reply-To: <20021118192001.21441.11326.Mailman@lists.us.dell.com> from "linux-kernel-digest-request@lists.us.dell.com" at Nov 18, 2002 01:20:01 
+Reply-To: "Malcolm Mladenovic" <mbm@tinc.org.uk>
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Date: Mon, 18 Nov 2002 19:06:56 +0100
+> From: Petr Vandrovec <vandrove@vc.cvut.cz>
+> To: rusty@rustcorp.com.au
+> Cc: linux-kernel@vger.kernel.org
+> Subject: 2.5.48: BUG() at kernel/module.c:1000
+> 
+> Hi Rusty,
+>   I'm trying to get VMware working, and unfortunately new insmod
+> is not able to load generated module. It died at line 1000 of 
+> kernel/module.c, because of used.core_size > mod->core_size:
+>      INIT=0/0  CORE=34252/34228
 
-I'm seeing a lot of energy being expended converting the kernel from GNU
-style initialisers to C99 style.  While proactively fixing the whims
-of the gcc developers is laudable, there are more pressing problems.
-gcc 3.2/3.3 seem to emit many more warnings -- I believe -Wall now
-includes -Wsign-compare, but they don't document this in their changes
-file.  Time spent fixing these additional warnings seems much more useful.
+Hi,
 
-Use of the min/max macros also causes warnings in some cases.
-See: http://gcc.gnu.org/ml/gcc/2002-11/msg00327.html and
-http://gcc.gnu.org/ml/gcc/2002-11/msg00333.html
+This appears to be due to the COMMON symbol "errno".
 
-We can't compile the kernel with -std=gnu99 because our spinlock
-initialisers are apparently a gnu89 extension that's removed from gnu99.
+The code (get_sizes) that calculates the amount of space required
+by the sections assumes that the first one is loaded at address
+zero (or large alignment) when performing subsequent alignments.
 
-BTW, here's a patch that fixes gnu89 mode to not warn about min/max:
+Unfortunately, this is not the case when the actual load takes
+place because the common area (length common_length) is allocated
+first.  This needs to be rounded up to the strictest alignment of
+any of the ALLOC sections before the copies start.  (Hence the
+difference of (2**5 - 8) which is apparent in the CORE values above.)
 
-Index: gcc/c-decl.c
-===================================================================
-RCS file: /cvsroot/gcc/gcc/gcc/c-decl.c,v
-retrieving revision 1.353
-diff -u -r1.353 c-decl.c
---- gcc/c-decl.c        10 Nov 2002 16:24:24 -0000      1.353
-+++ gcc/c-decl.c        18 Nov 2002 22:03:49 -0000
-@@ -3788,12 +3788,15 @@
-   restrictp = !! (specbits & 1 << (int) RID_RESTRICT) + TYPE_RESTRICT (type);
-   volatilep = !! (specbits & 1 << (int) RID_VOLATILE) + TYPE_VOLATILE (type);
-   inlinep = !! (specbits & (1 << (int) RID_INLINE));
--  if (constp > 1 && ! flag_isoc99)
--    pedwarn ("duplicate `const'");
--  if (restrictp > 1 && ! flag_isoc99)
--    pedwarn ("duplicate `restrict'");
--  if (volatilep > 1 && ! flag_isoc99)
--    pedwarn ("duplicate `volatile'");
-+  if (flag_iso && ! flag_isoc99)
-+    {
-+      if (constp > 1)
-+       pedwarn ("duplicate `const'");
-+      if (restrictp > 1)
-+       pedwarn ("duplicate `restrict'");
-+      if (volatilep > 1)
-+       pedwarn ("duplicate `volatile'");
-+    }
-   if (! flag_gen_aux_info && (TYPE_QUALS (type)))
-     type = TYPE_MAIN_VARIANT (type);
-   type_quals = ((constp ? TYPE_QUAL_CONST : 0)
+cheers,
 
-I certainly can't be bothered to go through their submissions procedure
-for a patch which will probably be rejected.  Maybe vendors will pick
-up this patch.  Who knows.
+-Malcolm
 
--- 
-Revolutions do not require corporate support.

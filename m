@@ -1,58 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262438AbVCKErH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261432AbVCKExs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262438AbVCKErH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 23:47:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262966AbVCKErH
+	id S261432AbVCKExs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 23:53:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262966AbVCKExr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 23:47:07 -0500
-Received: from fire.osdl.org ([65.172.181.4]:14311 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262438AbVCKErA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 23:47:00 -0500
-Date: Thu, 10 Mar 2005 20:40:06 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Paul Mackerras <paulus@samba.org>, Jean Tourrilhes <jt@bougret.hpl.hp.com>,
-       javier@tudela.mad.ttd.net, linux-fbdev-devel@lists.sourceforge.net,
-       acpi-devel@lists.sourceforge.net, linux1394-devel@lists.sourceforge.net,
-       Roland Dreier <roland@topspin.com>
+	Thu, 10 Mar 2005 23:53:47 -0500
+Received: from umhlanga.stratnet.net ([12.162.17.40]:2141 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S261432AbVCKExq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Mar 2005 23:53:46 -0500
+To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: inappropriate use of in_atomic()
-Message-Id: <20050310204006.48286d17.akpm@osdl.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Subject: Re: inappropriate use of in_atomic()
+X-Message-Flag: Warning: May contain useful information
+References: <20050310204006.48286d17.akpm@osdl.org>
+From: Roland Dreier <roland@topspin.com>
+Date: Thu, 10 Mar 2005 20:53:45 -0800
+In-Reply-To: <20050310204006.48286d17.akpm@osdl.org> (Andrew Morton's
+ message of "Thu, 10 Mar 2005 20:40:06 -0800")
+Message-ID: <52k6oe9412.fsf@topspin.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 11 Mar 2005 04:53:45.0690 (UTC) FILETIME=[4E5E1BA0:01C525F6]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+    > Consequently the use of in_atomic() in the below files is probably
+    > deadlocky if CONFIG_PREEMPT=n:
+    ...
+    > 	drivers/infiniband/core/mad.c
 
-in_atomic() is not a reliable indication of whether it is currently safe
-to call schedule().
+Thanks for pointing this out.  I'll get you a patch in the next day or
+two.  As you can probably tell, the code is just trying to decide
+whether to use GFP_ATOMIC or GFP_KERNEL to allocate a couple of
+things, depending on what context we're being called from.  So at
+worst we can just change to GFP_ATOMIC unconditionally.
 
-This is because the lockdepth beancounting which in_atomic() uses is only
-accumulated if CONFIG_PREEMPT=y.  in_atomic() will return false inside
-spinlocks if CONFIG_PREEMPT=n.
+I'll check into whether we can do something cleverer, but just going
+the GFP_ATOMIC route won't be horrible.
 
-Consequently the use of in_atomic() in the below files is probably
-deadlocky if CONFIG_PREEMPT=n:
-
-	arch/ppc64/kernel/viopath.c
-	drivers/net/irda/sir_kthread.c
-	drivers/net/wireless/airo.c
-	drivers/video/amba-clcd.c
-	drivers/acpi/osl.c
-	drivers/ieee1394/ieee1394_transactions.c
-	drivers/infiniband/core/mad.c
-
-Note that the same beancounting is used for the "scheduling while atomic"
-warning, so if the code calls schedule with locks held, we won't get a
-warning.  Both are tied to CONFIG_PREEMPT=y.
-
-The kernel provides no reliable runtime way of detecting whether or not it
-is safe to call schedule().
-
-Can we please find ways to change the above code to not use in_atomic()? 
-Then we can whack #ifndef MODULE around its definition to reduce
-reoccurrences.  Will probably rename it to something more scary as well.
-
-Thanks.
+Thanks,
+  Roland

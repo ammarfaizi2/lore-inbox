@@ -1,53 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261528AbSJ1TW0>; Mon, 28 Oct 2002 14:22:26 -0500
+	id <S261481AbSJ1TEM>; Mon, 28 Oct 2002 14:04:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261529AbSJ1TW0>; Mon, 28 Oct 2002 14:22:26 -0500
-Received: from bozo.vmware.com ([65.113.40.131]:57352 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP
-	id <S261528AbSJ1TWZ> convert rfc822-to-8bit; Mon, 28 Oct 2002 14:22:25 -0500
-Date: Mon, 28 Oct 2002 11:29:55 -0800
-From: chrisl@vmware.com
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Christoph Rohland <cr@sap.com>, Andrew Morton <akpm@digeo.com>,
-       linux-kernel@vger.kernel.org, chrisl@gnuchina.org,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: writepage return value check in vmscan.c
-Message-ID: <20021028192955.GB1564@vmware.com>
-References: <20021024082505.GB1471@vmware.com> <3DB7B11B.9E552CFF@digeo.com> <20021024175718.GA1398@vmware.com> <20021024183327.GS3354@dualathlon.random> <20021024191531.GD1398@vmware.com> <elabj7bt.fsf@sap.com> <20021028184420.GB1454@vmware.com> <20021028192214.GI13972@dualathlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-In-Reply-To: <20021028192214.GI13972@dualathlon.random>
-User-Agent: Mutt/1.4i
+	id <S261476AbSJ1TEM>; Mon, 28 Oct 2002 14:04:12 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:19209 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261448AbSJ1TEL>;
+	Mon, 28 Oct 2002 14:04:11 -0500
+Message-ID: <3DBD8B6F.2070707@pobox.com>
+Date: Mon, 28 Oct 2002 14:09:35 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>, jdavid@farfalle.com
+Subject: Re: [PATCH][2.5] 3c509 increase udelay in *read_eeprom
+References: <Pine.LNX.4.44.0210281349350.1722-100000@montezuma.mastecende.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 28, 2002 at 08:22:14PM +0100, Andrea Arcangeli wrote:
-> 
-> swap space doesn't need to be twice as big as ram. That's fixed long
-> ago.
-> 
-> swap+ram is the total amount of virtual memory that you can use in
-> vmware.
+Zwane Mwaikambo wrote:
 
-Cool.
+>Hi Jeff,
+>This is David's patch, find his reasoning and patch below.
+>
+>"... I had to set the udelay() call parameters to 2000 in  read_eeprom() 
+>and 4000 in id_read_eeprom() to get the system to boot reliably with 2 
+>3c509's in it. If I didn't set these values high enough, I got an oops 
+>about 1/3 of the time when I booted....somehow (I'm guessing) it just 
+>took the cards longer to initialize/respond when there were two of them 
+>on the bus.
+>
+>I know the possibility of this (and the fix, setting the values higher) is 
+>mentioned in Becker's 3c509 instructions, but I wanted to relay my 
+>experience to you as well. Since AFAIK these subroutines are only called 
+>at initialization time (we don't need to read the EEPROM after init), what 
+>would be the harm of setting these values higher - at least 1000 for both, 
+>say - in the standard driver? Certainly a millisecond or two means nothing 
+>at boot time, and if it prevents even a few machines from mysteriously 
+>oopsing when they're started, it's a win overall ..."
+>  
+>
 
-> 
-> > 
-> > And the swap partition has limit as 2G. So we need to setup 8 swap
-> > partitions if we want 16G swap.
-> 
-> that's a silly restriction of mkswap, the kernel doesn't care, it can
-> handle way more than 2G (however there's an high bound at some
-> unpractical level, to go safe the math limit should be re-encoded in
-> mkswap, of course it changes for every arch because the pte layout is
-> different).
 
-Thanks
+lol... big udelays are almost always wrong.
 
-Chris
-
+First, long delays lock out everybody, thus you should do operations 
+that require long waits via a timer or schedule_timeout() in process 
+context.
+Second, udelay of 1000 or greater is a bug, use mdelay() instead.
 
 

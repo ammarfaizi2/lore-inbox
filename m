@@ -1,49 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261624AbVC2WkC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261604AbVC2Wlz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261624AbVC2WkC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 17:40:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261589AbVC2Who
+	id S261604AbVC2Wlz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 17:41:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261589AbVC2WkZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 17:37:44 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:11199 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261604AbVC2Wfi (ORCPT
+	Tue, 29 Mar 2005 17:40:25 -0500
+Received: from smtpout.mac.com ([17.250.248.70]:30928 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S261617AbVC2Whm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 17:35:38 -0500
-Date: Wed, 30 Mar 2005 00:35:19 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Nigel Cunningham <ncunningham@cyclades.com>
-Cc: dtor_core@ameritech.net, Linux-pm mailing list <linux-pm@lists.osdl.org>,
-       Vojtech Pavlik <vojtech@suse.cz>, Stefan Seyfried <seife@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andy Isaacson <adi@hexapodia.org>
-Subject: Re: [linux-pm] Re: swsusp 'disk' fails in bk-current - intel_agp at fault?
-Message-ID: <20050329223519.GI8125@elf.ucw.cz>
-References: <20050329181831.GB8125@elf.ucw.cz> <d120d50005032911114fd2ea32@mail.gmail.com> <20050329192339.GE8125@elf.ucw.cz> <d120d50005032912051fee6e91@mail.gmail.com> <20050329205225.GF8125@elf.ucw.cz> <d120d500050329130714e1daaf@mail.gmail.com> <20050329211239.GG8125@elf.ucw.cz> <d120d50005032913331be39802@mail.gmail.com> <20050329214408.GH8125@elf.ucw.cz> <1112135477.29392.16.camel@desktop.cunningham.myip.net.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1112135477.29392.16.camel@desktop.cunningham.myip.net.au>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+	Tue, 29 Mar 2005 17:37:42 -0500
+In-Reply-To: <20050329142248.GA32455@nevyn.them.org>
+References: <20050327205014.GD4285@stusta.de> <20050327232158.46146243.khali@linux-fr.org> <20050328222348.4c05e85c.akpm@osdl.org> <20050329142248.GA32455@nevyn.them.org>
+Mime-Version: 1.0 (Apple Message framework v619.2)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <125c71877e5ad9e625336709874ced54@mac.com>
+Content-Transfer-Encoding: 7bit
+Cc: bunk@stusta.de, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Jean Delvare <khali@linux-fr.org>
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: Do not misuse Coverity please (Was: sound/oss/cs46xx.c: fix a check after use)
+Date: Tue, 29 Mar 2005 17:37:19 -0500
+To: Daniel Jacobowitz <dan@debian.org>
+X-Mailer: Apple Mail (2.619.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Mar 29, 2005, at 09:22, Daniel Jacobowitz wrote:
+> The thing GCC is most likely to do with this code is discard the NULL
+> check entirely and leave only the oops; the "if (!card)" can not be
+> reached without passing through "card->amplifier", and a pointer which
+> is dereferenced can not be NULL in a valid program.
 
-> > We currently freeze processes for suspend-to-ram, too. I guess that
-> > disable_usermodehelper is probably better and that in_suspend() should
-> > only be used for sanity checks... go with disable_usermodehelper and
-> > sorry for the noise.
-> 
-> Here's another possibility: Freeze the workqueue that
-> call_usermodehelper uses (remember that code I didn't push hard enough
-> to Andrew?), and let invocations of call_usermodehelper block in
-> TASK_UNINTERRUPTIBLE. In refrigerating processes, don't choke on
+Not true!  It is perfectly legal on a large number of platforms to
+explicitly mmap something at the address 0, at which point dereferencing
+a null pointer is exactly like dereferencing any other pointer on the
+heap.  Doing so is not recommended except in a few special cases for
+emulators and such, but it works to some extent.
 
-There may be many devices in the system, and you are going to need
-quite a lot of RAM for all that... That's why they do not queue it
-during boot, IIRC. Disabling usermode helper seems right.
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Cheers,
+Kyle Moffett
+
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.12
+GCM/CS/IT/U d- s++: a18 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
+L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
+PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
+!y?(-)
+------END GEEK CODE BLOCK------
+
+

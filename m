@@ -1,68 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267678AbTACVed>; Fri, 3 Jan 2003 16:34:33 -0500
+	id <S267672AbTACVev>; Fri, 3 Jan 2003 16:34:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267679AbTACVed>; Fri, 3 Jan 2003 16:34:33 -0500
-Received: from main.gmane.org ([80.91.224.249]:46998 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id <S267678AbTACVeb>;
-	Fri, 3 Jan 2003 16:34:31 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: "Steven Barnhart" <sbarn03@softhome.net>
-Subject: Re: [2.5.54, PNP, SOUND] compile error
-Date: Fri, 03 Jan 2003 16:42:15 -0500
-Message-ID: <pan.2003.01.02.16.03.15.835788@softhome.net>
-References: <87hecr4w6x.fsf@jupiter.jochen.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-X-Complaints-To: usenet@main.gmane.org
-User-Agent: Pan/0.13.0 (The whole remains beautiful)
+	id <S267679AbTACVev>; Fri, 3 Jan 2003 16:34:51 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:47005 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S267672AbTACVet>; Fri, 3 Jan 2003 16:34:49 -0500
+Date: Fri, 03 Jan 2003 13:36:26 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Avery Fay <avery_fay@symantec.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Gigabit/SMP performance problem
+Message-ID: <23880000.1041629786@flay>
+In-Reply-To: <OF256CD297.9F92C038-ON85256CA3.006A4034-85256CA3.00705DEA@symantec.com>
+References: <OF256CD297.9F92C038-ON85256CA3.006A4034-85256CA3.00705DEA@symantec.com>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 02 Jan 2003 12:39:50 +0100, Jochen Hein wrote:
+> Dual Pentium 4 Xeon at 2.4 Ghz. I believe I am using irq load balancing as 
+> shown below (seems to be applied to Red Hat's kernel). Here's 
+> /proc/interrupts:
 
+Is in 2.4.20-ac2 at least. See if arch/i386/kernel/io_apic.c
+has a function called balance_irq.
 
+>            CPU0       CPU1 
+>   0:     179670     182501    IO-APIC-edge  timer
+>   1:        386        388    IO-APIC-edge  keyboard
+>   2:          0          0          XT-PIC  cascade
+>   8:          1          0    IO-APIC-edge  rtc
+>  12:          9          9    IO-APIC-edge  PS/2 Mouse
+>  14:       1698       1511    IO-APIC-edge  ide0
+>  24:    1300174    1298071   IO-APIC-level  eth2
+>  25:    1935085    1935625   IO-APIC-level  eth3
+>  28:    1162013    1162734   IO-APIC-level  eth4
+>  29:    1971246    1967758   IO-APIC-level  eth5
+>  48:    2753990    2753821   IO-APIC-level  eth0
+>  49:    2047386    2043894   IO-APIC-level  eth1
+>  72:     838987     841143   IO-APIC-level  eth6
+>  73:    2767885    2768307   IO-APIC-level  eth7
+> NMI:          0          0 
+> LOC:     362009     362008 
+> ERR:          0
+> MIS:          0
 > 
->   CC [M]  sound/isa/cs423x/cs4232.o
-> In file included from sound/isa/cs423x/cs4232.c:2:
-> sound/isa/cs423x/cs4236.c: In function `snd_card_cs4236_isapnp':
-> sound/isa/cs423x/cs4236.c:287: warning: implicit declaration of function `isapnp_find_dev'
-> sound/isa/cs423x/cs4236.c:287: warning: assignment makes pointer from integer without a cast
-> sound/isa/cs423x/cs4236.c:288: structure has no member named `active'
-> sound/isa/cs423x/cs4236.c:292: warning: assignment makes pointer from integer without a cast
-> sound/isa/cs423x/cs4236.c:293: structure has no member named `active'
-> sound/isa/cs423x/cs4236.c:298: warning: assignment makes pointer from integer without a cast
-> sound/isa/cs423x/cs4236.c:299: structure has no member named `active'
-> sound/isa/cs423x/cs4236.c:307: structure has no member named `prepare'
-> sound/isa/cs423x/cs4236.c:310: warning: implicit declaration of function `isapnp_resource_change'
-> sound/isa/cs423x/cs4236.c:321: structure has no member named `activate'
-> sound/isa/cs423x/cs4236.c:339: structure has no member named `prepare'
-> sound/isa/cs423x/cs4236.c:340: structure has no member named `deactivate'
-> sound/isa/cs423x/cs4236.c:345: structure has no member named `activate'
-> sound/isa/cs423x/cs4236.c:347: structure has no member named `deactivate'
-> sound/isa/cs423x/cs4236.c:356: structure has no member named `prepare'
-> sound/isa/cs423x/cs4236.c:357: structure has no member named `deactivate'
-> sound/isa/cs423x/cs4236.c:358: structure has no member named `deactivate'
-> sound/isa/cs423x/cs4236.c:365: structure has no member named `activate'
-> sound/isa/cs423x/cs4236.c: In function `snd_card_cs4236_deactivate':
-> sound/isa/cs423x/cs4236.c:386: structure has no member named `deactivate'
-> sound/isa/cs423x/cs4236.c:390: structure has no member named `deactivate'
-> sound/isa/cs423x/cs4236.c:394: structure has no member named `deactivate'
-> sound/isa/cs423x/cs4236.c: In function `alsa_card_cs423x_init':
-> sound/isa/cs423x/cs4236.c:588: warning: implicit declaration of function `isapnp_probe_cards'
-> make[4]: *** [sound/isa/cs423x/cs4232.o] Fehler 1
-> make[3]: *** [sound/isa/cs423x] Fehler 2
-> make[2]: *** [sound/isa] Fehler 2
-> make[1]: *** [sound] Fehler 2
-> make[1]: Leaving directory `/usr/src/linux-2.5.54'
-> make: *** [stamp-build] Fehler 2
+> I started traffic at different times on the various interfaces so the 
+> number of interrupts per interface aren't uniform.
 > 
-> Jochen
+> I modified RxIntDelay, TxIntDelay, RxAbsIntDelay, TxAbsIntDelay, 
+> FlowControl, RxDescriptors, TxDescriptors. Increasing the various 
+> IntDelays seemed to improve performance slightly.
 
-I got the same problem. I'm guessing maybe a missing include file?
+Makes sense, increasing the delays should reduce the interrupt load.
 
-Steven
+> I'm using 3 Intel PRO/1000 MT Dual Port Server adapters as well as 2 
+> onboard Intel PRO/1000 ports. The adapters use the 82546EB chips. I 
+> believe that the onboard ports use the same although I'm not sure.
+>
+> Should I get rid of IRQ load balancing? And what do you mean 
+> "Intel broke the P4's interrupt routing"?
 
+P3's distributed interrupts round-robin amongst cpus. P4's send 
+everything to CPU 0. If you put irq_balance on, it'll spread
+them around, but any given interrupt is still only handled by
+one CPU (as far as I understand the code). If you hammer one
+adaptor, does that generate more interrupts than 1 cpu can handle?
+(turn irq balance off by sticking a return at the top of balance_irq,
+and hammer one link, see how much CPU power that burns).
 
+M.

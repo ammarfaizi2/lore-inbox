@@ -1,100 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262743AbSJaR0Q>; Thu, 31 Oct 2002 12:26:16 -0500
+	id <S265248AbSJaRod>; Thu, 31 Oct 2002 12:44:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262712AbSJaR0Q>; Thu, 31 Oct 2002 12:26:16 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:64251 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S262743AbSJaR0F>; Thu, 31 Oct 2002 12:26:05 -0500
-Subject: Re: How to get a local IPv4 address from within a kernel module?
-To: jt@hpl.hp.com
-Cc: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.2a (Intl) 23 November 1999
-Message-ID: <OF3A0A864F.BCE2D0BA-ON87256C63.006000B8@us.ibm.com>
-From: Juan Gomez <juang@us.ibm.com>
-Date: Thu, 31 Oct 2002 09:32:29 -0800
-X-MIMETrack: Serialize by Router on D03NM694/03/M/IBM(Release 6.0|September 26, 2002) at
- 10/31/2002 10:32:29
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
+	id <S265246AbSJaRod>; Thu, 31 Oct 2002 12:44:33 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:11534 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id <S265248AbSJaRoc>;
+	Thu, 31 Oct 2002 12:44:32 -0500
+Date: Thu, 31 Oct 2002 18:49:00 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: Mark Mielke <mark@mark.mielke.cc>, Adrian Bunk <bunk@fs.tum.de>,
+       Rasmus Andersen <rasmus@jaquet.dk>, linux-kernel@vger.kernel.org
+Subject: Re: CONFIG_TINY
+Message-ID: <20021031174900.GA1210@mars.ravnborg.org>
+Mail-Followup-To: Tom Rini <trini@kernel.crashing.org>,
+	Mark Mielke <mark@mark.mielke.cc>, Adrian Bunk <bunk@fs.tum.de>,
+	Rasmus Andersen <rasmus@jaquet.dk>, linux-kernel@vger.kernel.org
+References: <20021030233605.A32411@jaquet.dk> <Pine.NEB.4.44.0210310145300.20835-100000@mimas.fachschaften.tu-muenchen.de> <20021031011002.GB28191@opus.bloom.county> <20021031053310.GB4780@mark.mielke.cc> <20021031143301.GC28191@opus.bloom.county> <20021031165113.GB8565@mark.mielke.cc> <20021031170420.GA30193@opus.bloom.county> <20021031171240.GE8565@mark.mielke.cc> <20021031172405.GB30193@opus.bloom.county>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021031172405.GB30193@opus.bloom.county>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-                                                                                                               
-                                                                                                               
-                                                                                                               
+On Thu, Oct 31, 2002 at 10:24:05AM -0700, Tom Rini wrote:
+> Yes, and I'm saying that CONFIG_TINY shouldn't exist.  It should be
+> CONFIG_FINE_TUNE (or so), to allow anyone to fine tune the optimization
+> level.
+If the flexibility is wanted then it should be something like:
+CONFIG_TINY_GCCOPTFLAG
+default 2
+It should be a string so the developer can choose freely the optimisation
+level.
 
-
-Jean,
-
-I am aware of all this, however, my application will be happy to get any
-IPv4 assigned to any of the local interfaces as far as you consistently
-get the same on repeated calls.
-I think there should be an interface to query this from within the kernel
-so since I did not find it I am proposing to get one
-or may be there is something hidden which I missed so I decided to ask
-here.
-
-Juan
-
-
-
-
-|---------+---------------------------------->
-|         |           Jean Tourrilhes        |
-|         |           <jt@bougret.hpl.hp.com>|
-|         |           Sent by:               |
-|         |           linux-kernel-owner@vger|
-|         |           .kernel.org            |
-|         |                                  |
-|         |                                  |
-|         |           10/30/02 06:38 PM      |
-|         |           Please respond to jt   |
-|         |                                  |
-|---------+---------------------------------->
-  >------------------------------------------------------------------------------------------------------------------|
-  |                                                                                                                  |
-  |       To:       Linux kernel mailing list <linux-kernel@vger.kernel.org>                                         |
-  |       cc:                                                                                                        |
-  |       Subject:  Re: How to get a local IPv4 address from within a kernel module?                                 |
-  |                                                                                                                  |
-  |                                                                                                                  |
-  >------------------------------------------------------------------------------------------------------------------|
-
-
-
-Juan Gomez wrote :
->
-> Is there any standard way of doing this? I looked into ipv4 code but I
-did
-> not find a function that would provide a direct, clean way to query the
-> local IPv4 addresses of a given node.
-
-             There is no such thing as the local IPv4 addresses of a given
-node. IP addresses are assigned for each network interfaces, so you
-may have more than one IP address. Note that I have many systems that
-don't have any "eth0" and still have many IP addresses (on wlan0,
-ppp0, bnep0...).
-             On top of that, the DNS may assign an IP address that map to
-your current hostname (which may correspond to one of the addresses
-above). That's purely a user space stuff.
-
-             So, you are basically starting on a wrong assumption, the
-information you are looking for doesn't exist, and I therefore suspect
-that you need to rethink the thing you want to do.
-
-             I suggest you use a user space application to pick the IP
-address most relevant to your setup (i.e. policy decision) and inject
-it in your module.
-
-             Good luck,
-
-             Jean
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
-
-
+	Sam

@@ -1,40 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272479AbTGZMsU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jul 2003 08:48:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272480AbTGZMsT
+	id S272476AbTGZMqk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jul 2003 08:46:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272477AbTGZMqk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jul 2003 08:48:19 -0400
-Received: from hq.pm.waw.pl ([195.116.170.10]:61841 "EHLO hq.pm.waw.pl")
-	by vger.kernel.org with ESMTP id S272479AbTGZMsQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jul 2003 08:48:16 -0400
-To: Mike Fedyk <mfedyk@matchmail.com>
-Cc: Jurriaan <thunder7@xs4all.nl>, linux-kernel@vger.kernel.org
-Subject: Re: cutting down on boot messages
-References: <20030725195752.GA8107@middle.of.nowhere>
-	<20030725200440.GA1686@matchmail.com>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: 25 Jul 2003 23:09:50 +0200
-In-Reply-To: <20030725200440.GA1686@matchmail.com>
-Message-ID: <m37k66xqht.fsf@defiant.pm.waw.pl>
-MIME-Version: 1.0
+	Sat, 26 Jul 2003 08:46:40 -0400
+Received: from louise.pinerecords.com ([213.168.176.16]:22983 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id S272476AbTGZMqi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Jul 2003 08:46:38 -0400
+Date: Sat, 26 Jul 2003 15:01:42 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: "Robert P. J. Day" <rpjday@mindspring.com>
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: some kernel config menu suggested tweaks
+Message-ID: <20030726130142.GD6560@louise.pinerecords.com>
+References: <Pine.LNX.4.53.0307241256430.20528@localhost.localdomain> <20030726121432.GB6560@louise.pinerecords.com> <Pine.LNX.4.53.0307260821570.30928@localhost.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.53.0307260821570.30928@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Fedyk <mfedyk@matchmail.com> writes:
+> > Send a patch.
+> 
+> i'd be happy to, but based on my previous experience sending
+> in a few patches, it's just not worth the aggravation any more.
 
-> You'd do better to have a boot time command line option to limit printk
-> messages to err, or above.  Most of the printk messages have been given a
-> severity already, so this shouldn't be a problem, and it will probably
-> uncover some errors in the severity of certain messages.
+Well, you know the Gandhi routine: Whatever you do will be
+insignificant, but it is very important that you do it.
 
-Right.
-In fact I'd rather leave the console printing KERN_INFO and make sure
-the (debug) messages are really KERN_DEBUG. This way we wouldn't have
-much noise with normal boot, but we could see KERN_DEBUG when something
-goes wrong (and the kernel is being told to print everything).
+> just one of my patches that got adopted took, literally, several
+> weeks of being dropped on the floor with no reason why.
+
+Trivial patches need to go to people like AC who tend to focus
+on aggregating fixes and are in a much better position to push
+upstream.
+
+>   "we can't hire you.  you don't have enough experience doing
+>     this job."
+>   "ok, so how do i get experience?"
+>   "well, you have to do this job for a while."
+
+At which point you must get yossarian-ish enough to start a company.
+
 -- 
-Krzysztof Halasa
-Network Administrator
+Tomas Szepe <szepe@pinerecords.com>

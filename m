@@ -1,40 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282118AbRLJSts>; Mon, 10 Dec 2001 13:49:48 -0500
+	id <S283481AbRLJSzk>; Mon, 10 Dec 2001 13:55:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283481AbRLJSte>; Mon, 10 Dec 2001 13:49:34 -0500
-Received: from ns.ithnet.com ([217.64.64.10]:12037 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S282118AbRLJSr7>;
-	Mon, 10 Dec 2001 13:47:59 -0500
-Date: Mon, 10 Dec 2001 19:47:37 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Robert Love <rml@tech9.net>
-Cc: marcelo@conectiva.com.br, Nicolas.Aspert@epfl.ch, alan@lxorguk.ukuu.org.uk,
-        linux-kernel@vger.kernel.org
-Subject: Re: Patches in 2.4.17-pre2 that aren't in 2.5.1-pre8
-Message-Id: <20011210194737.3bac1985.skraw@ithnet.com>
-In-Reply-To: <1008008332.1235.42.camel@phantasy>
-In-Reply-To: <Pine.LNX.4.21.0112101348470.25093-100000@freak.distro.conectiva>
-	<1008008332.1235.42.camel@phantasy>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S285829AbRLJSzV>; Mon, 10 Dec 2001 13:55:21 -0500
+Received: from cs182024.pp.htv.fi ([213.243.182.24]:18816 "EHLO
+	cs182024.pp.htv.fi") by vger.kernel.org with ESMTP
+	id <S283481AbRLJSzB>; Mon, 10 Dec 2001 13:55:01 -0500
+Message-ID: <3C1504FE.63B0002F@welho.com>
+Date: Mon, 10 Dec 2001 20:54:54 +0200
+From: Mika Liljeberg <Mika.Liljeberg@welho.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.16 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: kuznet@ms2.inr.ac.ru
+CC: davem@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: TCP LAST-ACK state broken in 2.4.17-pre2
+In-Reply-To: <200112101834.VAA17862@ms2.inr.ac.ru>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10 Dec 2001 13:18:51 -0500
-Robert Love <rml@tech9.net> wrote:
+kuznet@ms2.inr.ac.ru wrote:
+> Well, you can just add one line to tcp_input.c to repair this.
 
-> > If there is no maintainer for i810, I'll be glad to apply it on 2.4.18pre
-> > and wait for reports. Not going to be on 2.4.17, though.
-> 
-> The maintainer is MIA.  I have been doing recent work on the driver.  I
-> can confirm Nicolas patch is correct.
+Thanks, that was quick! :)
 
-If I remember right, this was the "nice" version of a pretty simple patch of mine, which the user encountering the problem has confirmed to work. It really seems ok for inclusion.
+> Duh, do specs say something about segments with seqs
+> above fin? I do not remember.
 
-Regards,
-Stephan
+I don't think they do, aside from that LAST-ACK is a synchronized state.
+I.e., if you set RCV.WND to zero after receiving a FIN, any subsequent
+out-of-window (below or above) segment will be acked. However, I don't
+think it matters much, since above-window packets would in this case
+always be caused by a bug in the sender.
 
+> Alexey
+
+	MikaL

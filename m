@@ -1,42 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262084AbUL1GQj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262109AbUL1GRp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262084AbUL1GQj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Dec 2004 01:16:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262106AbUL1GQj
+	id S262109AbUL1GRp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Dec 2004 01:17:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262108AbUL1GRl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Dec 2004 01:16:39 -0500
+	Tue, 28 Dec 2004 01:17:41 -0500
 Received: from umhlanga.stratnet.net ([12.162.17.40]:52561 "EHLO
 	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S262084AbUL1Fxn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S262085AbUL1Fxn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 28 Dec 2004 00:53:43 -0500
 Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
        openib-general@openib.org
-In-Reply-To: <200412272150.vDVch42vu9imXkVM@topspin.com>
+In-Reply-To: <200412272150.vaYM2cWv3KsWVYPV@topspin.com>
 X-Mailer: Roland's Patchbomber
-Date: Mon, 27 Dec 2004 21:50:59 -0800
-Message-Id: <200412272150.vaYM2cWv3KsWVYPV@topspin.com>
+Date: Mon, 27 Dec 2004 21:51:00 -0800
+Message-Id: <200412272151.7VvrtyAsRwgOK3mP@topspin.com>
 Mime-Version: 1.0
 To: davem@davemloft.net
 From: Roland Dreier <roland@topspin.com>
 X-SA-Exim-Connect-IP: 127.0.0.1
 X-SA-Exim-Mail-From: roland@topspin.com
-Subject: [PATCH][v5][6/24] Add InfiniBand MAD (management datagram) support (private headers)
+Subject: [PATCH][v5][7/24] Add InfiniBand MAD SMI support
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
 X-SA-Exim-Scanned: Yes (on eddore)
-X-OriginalArrivalTime: 28 Dec 2004 05:51:00.0798 (UTC) FILETIME=[35B23DE0:01C4ECA1]
+X-OriginalArrivalTime: 28 Dec 2004 05:51:01.0626 (UTC) FILETIME=[363095A0:01C4ECA1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add MAD layer private implementation headers.
+Add MAD layer SMI (Subnet Management Interface) code.
 
 Signed-off-by: Roland Dreier <roland@topspin.com>
 
 
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-bk/drivers/infiniband/core/agent.h	2004-12-27 21:48:20.224989180 -0800
-@@ -0,0 +1,55 @@
++++ linux-bk/drivers/infiniband/core/smi.c	2004-12-27 21:48:20.566938847 -0800
+@@ -0,0 +1,234 @@
 +/*
 + * Copyright (c) 2004 Mellanox Technologies Ltd.  All rights reserved.
 + * Copyright (c) 2004 Infinicon Corporation.  All rights reserved.
@@ -72,288 +72,273 @@ Signed-off-by: Roland Dreier <roland@topspin.com>
 + * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 + * SOFTWARE.
 + *
-+ * $Id: agent.h 1389 2004-12-27 22:56:47Z roland $
++ * $Id: smi.c 1389 2004-12-27 22:56:47Z roland $
 + */
 +
-+#ifndef __AGENT_H_
-+#define __AGENT_H_
-+
-+extern spinlock_t ib_agent_port_list_lock;
-+
-+extern int ib_agent_port_open(struct ib_device *device,
-+			      int port_num);
-+
-+extern int ib_agent_port_close(struct ib_device *device, int port_num);
-+
-+extern int agent_send(struct ib_mad_private *mad,
-+		      struct ib_grh *grh,
-+		      struct ib_wc *wc,
-+		      struct ib_device *device,
-+		      int port_num);
-+
-+#endif	/* __AGENT_H_ */
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-bk/drivers/infiniband/core/agent_priv.h	2004-12-27 21:48:20.250985354 -0800
-@@ -0,0 +1,64 @@
-+/*
-+ * Copyright (c) 2004 Mellanox Technologies Ltd.  All rights reserved.
-+ * Copyright (c) 2004 Infinicon Corporation.  All rights reserved.
-+ * Copyright (c) 2004 Intel Corporation.  All rights reserved.
-+ * Copyright (c) 2004 Topspin Corporation.  All rights reserved.
-+ * Copyright (c) 2004 Voltaire Corporation.  All rights reserved.
-+ *
-+ * This software is available to you under a choice of one of two
-+ * licenses.  You may choose to be licensed under the terms of the GNU
-+ * General Public License (GPL) Version 2, available from the file
-+ * COPYING in the main directory of this source tree, or the
-+ * OpenIB.org BSD license below:
-+ *
-+ *     Redistribution and use in source and binary forms, with or
-+ *     without modification, are permitted provided that the following
-+ *     conditions are met:
-+ *
-+ *      - Redistributions of source code must retain the above
-+ *        copyright notice, this list of conditions and the following
-+ *        disclaimer.
-+ *
-+ *      - Redistributions in binary form must reproduce the above
-+ *        copyright notice, this list of conditions and the following
-+ *        disclaimer in the documentation and/or other materials
-+ *        provided with the distribution.
-+ *
-+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-+ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-+ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-+ * SOFTWARE.
-+ *
-+ * $Id: agent_priv.h 1389 2004-12-27 22:56:47Z roland $
-+ */
-+
-+#ifndef __IB_AGENT_PRIV_H__
-+#define __IB_AGENT_PRIV_H__
-+
-+#include <linux/pci.h>
-+
-+#define SPFX "ib_agent: "
-+
-+struct ib_agent_send_wr {
-+	struct list_head send_list;
-+	struct ib_ah *ah;
-+	struct ib_mad_private *mad;
-+	DECLARE_PCI_UNMAP_ADDR(mapping)
-+};
-+
-+struct ib_agent_port_private {
-+	struct list_head port_list;
-+	struct list_head send_posted_list;
-+	spinlock_t send_list_lock;
-+	int port_num;
-+	struct ib_mad_agent *dr_smp_agent;    /* DR SM class */
-+	struct ib_mad_agent *lr_smp_agent;    /* LR SM class */
-+	struct ib_mad_agent *perf_mgmt_agent; /* PerfMgmt class */
-+	struct ib_mr *mr;
-+};
-+
-+#endif	/* __IB_AGENT_PRIV_H__ */
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-bk/drivers/infiniband/core/mad_priv.h	2004-12-27 21:48:20.321974904 -0800
-@@ -0,0 +1,194 @@
-+/*
-+ * Copyright (c) 2004, Voltaire, Inc. All rights reserved.
-+ *
-+ * This software is available to you under a choice of one of two
-+ * licenses.  You may choose to be licensed under the terms of the GNU
-+ * General Public License (GPL) Version 2, available from the file
-+ * COPYING in the main directory of this source tree, or the
-+ * OpenIB.org BSD license below:
-+ *
-+ *     Redistribution and use in source and binary forms, with or
-+ *     without modification, are permitted provided that the following
-+ *     conditions are met:
-+ *
-+ *      - Redistributions of source code must retain the above
-+ *        copyright notice, this list of conditions and the following
-+ *        disclaimer.
-+ *
-+ *      - Redistributions in binary form must reproduce the above
-+ *        copyright notice, this list of conditions and the following
-+ *        disclaimer in the documentation and/or other materials
-+ *        provided with the distribution.
-+ *
-+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-+ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-+ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-+ * SOFTWARE.
-+ *
-+ * $Id: mad_priv.h 1389 2004-12-27 22:56:47Z roland $
-+ */
-+
-+#ifndef __IB_MAD_PRIV_H__
-+#define __IB_MAD_PRIV_H__
-+
-+#include <linux/pci.h>
-+#include <linux/kthread.h>
-+#include <linux/workqueue.h>
-+#include <ib_mad.h>
 +#include <ib_smi.h>
 +
 +
-+#define PFX "ib_mad: "
++/*
++ * Fixup a directed route SMP for sending
++ * Return 0 if the SMP should be discarded
++ */
++int smi_handle_dr_smp_send(struct ib_smp *smp,
++			   u8 node_type,
++			   int port_num)
++{
++	u8 hop_ptr, hop_cnt;
 +
-+#define IB_MAD_QPS_CORE		2 /* Always QP0 and QP1 as a minimum */
++	hop_ptr = smp->hop_ptr;
++	hop_cnt = smp->hop_cnt;
 +
-+/* QP and CQ parameters */
-+#define IB_MAD_QP_SEND_SIZE	128
-+#define IB_MAD_QP_RECV_SIZE	512
-+#define IB_MAD_SEND_REQ_MAX_SG	2
-+#define IB_MAD_RECV_REQ_MAX_SG	1
++	/* See section 14.2.2.2, Vol 1 IB spec */
++	if (!ib_get_smp_direction(smp)) {
++		/* C14-9:1 */
++		if (hop_cnt && hop_ptr == 0) {
++			smp->hop_ptr++;
++			return (smp->initial_path[smp->hop_ptr] ==
++				port_num);
++		}
 +
-+#define IB_MAD_SEND_Q_PSN	0
++		/* C14-9:2 */
++		if (hop_ptr && hop_ptr < hop_cnt) {
++			if (node_type != IB_NODE_SWITCH)
++				return 0;
 +
-+/* Registration table sizes */
-+#define MAX_MGMT_CLASS		80
-+#define MAX_MGMT_VERSION	8
-+#define MAX_MGMT_OUI		8
-+#define MAX_MGMT_VENDOR_RANGE2	IB_MGMT_CLASS_VENDOR_RANGE2_END - \
-+				IB_MGMT_CLASS_VENDOR_RANGE2_START + 1
++			/* smp->return_path set when received */
++			smp->hop_ptr++;
++			return (smp->initial_path[smp->hop_ptr] ==
++				port_num);
++		}
 +
-+struct ib_mad_list_head {
-+	struct list_head list;
-+	struct ib_mad_queue *mad_queue;
-+};
++		/* C14-9:3 -- We're at the end of the DR segment of path */
++		if (hop_ptr == hop_cnt) {
++			/* smp->return_path set when received */
++			smp->hop_ptr++;
++			return (node_type == IB_NODE_SWITCH ||
++				smp->dr_dlid == IB_LID_PERMISSIVE);
++		}
 +
-+struct ib_mad_private_header {
-+	struct ib_mad_list_head mad_list;
-+	struct ib_mad_recv_wc recv_wc;
-+	DECLARE_PCI_UNMAP_ADDR(mapping)
-+} __attribute__ ((packed));
++		/* C14-9:4 -- hop_ptr = hop_cnt + 1 -> give to SMA/SM */
++		/* C14-9:5 -- Fail unreasonable hop pointer */
++		return (hop_ptr == hop_cnt + 1);
 +
-+struct ib_mad_private {
-+	struct ib_mad_private_header header;
-+	struct ib_grh grh;
-+	union {
-+		struct ib_mad mad;
-+		struct ib_rmpp_mad rmpp_mad;
-+		struct ib_smp smp;
-+	} mad;
-+} __attribute__ ((packed));
++	} else {
++		/* C14-13:1 */
++		if (hop_cnt && hop_ptr == hop_cnt + 1) {
++			smp->hop_ptr--;
++			return (smp->return_path[smp->hop_ptr] ==
++				port_num);
++		}
 +
-+struct ib_mad_agent_private {
-+	struct list_head agent_list;
-+	struct ib_mad_agent agent;
-+	struct ib_mad_reg_req *reg_req;
-+	struct ib_mad_qp_info *qp_info;
++		/* C14-13:2 */
++		if (2 <= hop_ptr && hop_ptr <= hop_cnt) {
++			if (node_type != IB_NODE_SWITCH)
++				return 0;
 +
-+	spinlock_t lock;
-+	struct list_head send_list;
-+	struct list_head wait_list;
-+	struct work_struct timed_work;
-+	unsigned long timeout;
-+	struct list_head local_list;
-+	struct work_struct local_work;
++			smp->hop_ptr--;
++			return (smp->return_path[smp->hop_ptr] ==
++				port_num);
++		}
 +
-+	atomic_t refcount;
-+	wait_queue_head_t wait;
-+	u8 rmpp_version;
-+};
++		/* C14-13:3 -- at the end of the DR segment of path */
++		if (hop_ptr == 1) {
++			smp->hop_ptr--;
++			/* C14-13:3 -- SMPs destined for SM shouldn't be here */
++			return (node_type == IB_NODE_SWITCH ||
++				smp->dr_slid == IB_LID_PERMISSIVE);
++		}
 +
-+struct ib_mad_snoop_private {
-+	struct ib_mad_agent agent;
-+	struct ib_mad_qp_info *qp_info;
-+	int snoop_index;
-+	int mad_snoop_flags;
-+	atomic_t refcount;
-+	wait_queue_head_t wait;
-+};
++		/* C14-13:4 -- hop_ptr = 0 -> should have gone to SM */
++		if (hop_ptr == 0)
++			return 1;
 +
-+struct ib_mad_send_wr_private {
-+	struct ib_mad_list_head mad_list;
-+	struct list_head agent_list;
-+	struct ib_mad_agent *agent;
-+	struct ib_send_wr send_wr;
-+	struct ib_sge sg_list[IB_MAD_SEND_REQ_MAX_SG];
-+	u64 wr_id;			/* client WR ID */
-+	u64 tid;
-+	unsigned long timeout;
-+	int retry;
-+	int refcount;
-+	enum ib_wc_status status;
-+};
++		/* C14-13:5 -- Check for unreasonable hop pointer */
++		return 0;
++	}
++}
 +
-+struct ib_mad_local_private {
-+	struct list_head completion_list;
-+	struct ib_mad_private *mad_priv;
-+	struct ib_send_wr send_wr;
-+	struct ib_sge sg_list[IB_MAD_SEND_REQ_MAX_SG];
-+	u64 wr_id;			/* client WR ID */
-+	u64 tid;
-+};
++/*
++ * Adjust information for a received SMP
++ * Return 0 if the SMP should be dropped
++ */
++int smi_handle_dr_smp_recv(struct ib_smp *smp,
++			   u8 node_type,
++			   int port_num,
++			   int phys_port_cnt)
++{
++	u8 hop_ptr, hop_cnt;
 +
-+struct ib_mad_mgmt_method_table {
-+	struct ib_mad_agent_private *agent[IB_MGMT_MAX_METHODS];
-+};
++	hop_ptr = smp->hop_ptr;
++	hop_cnt = smp->hop_cnt;
 +
-+struct ib_mad_mgmt_class_table {
-+	struct ib_mad_mgmt_method_table *method_table[MAX_MGMT_CLASS];
-+};
++	/* See section 14.2.2.2, Vol 1 IB spec */
++	if (!ib_get_smp_direction(smp)) {
++		/* C14-9:1 -- sender should have incremented hop_ptr */
++		if (hop_cnt && hop_ptr == 0)
++			return 0;
 +
-+struct ib_mad_mgmt_vendor_class {
-+	u8	oui[MAX_MGMT_OUI][3];
-+	struct ib_mad_mgmt_method_table *method_table[MAX_MGMT_OUI];
-+};
++		/* C14-9:2 -- intermediate hop */
++		if (hop_ptr && hop_ptr < hop_cnt) {
++			if (node_type != IB_NODE_SWITCH)
++				return 0;
 +
-+struct ib_mad_mgmt_vendor_class_table {
-+	struct ib_mad_mgmt_vendor_class *vendor_class[MAX_MGMT_VENDOR_RANGE2];
-+};
++			smp->return_path[hop_ptr] = port_num;
++			/* smp->hop_ptr updated when sending */
++			return (smp->initial_path[hop_ptr+1] <= phys_port_cnt);
++		}
 +
-+struct ib_mad_mgmt_version_table {
-+	struct ib_mad_mgmt_class_table *class;
-+	struct ib_mad_mgmt_vendor_class_table *vendor;
-+};
++		/* C14-9:3 -- We're at the end of the DR segment of path */
++		if (hop_ptr == hop_cnt) {
++			if (hop_cnt)
++				smp->return_path[hop_ptr] = port_num;
++			/* smp->hop_ptr updated when sending */
 +
-+struct ib_mad_queue {
-+	spinlock_t lock;
-+	struct list_head list;
-+	int count;
-+	int max_active;
-+	struct ib_mad_qp_info *qp_info;
-+};
++			return (node_type == IB_NODE_SWITCH ||
++				smp->dr_dlid == IB_LID_PERMISSIVE);
++		}
 +
-+struct ib_mad_qp_info {
-+	struct ib_mad_port_private *port_priv;
-+	struct ib_qp *qp;
-+	struct ib_mad_queue send_queue;
-+	struct ib_mad_queue recv_queue;
-+	struct list_head overflow_list;
-+	spinlock_t snoop_lock;
-+	struct ib_mad_snoop_private **snoop_table;
-+	int snoop_table_size;
-+	atomic_t snoop_count;
-+};
++		/* C14-9:4 -- hop_ptr = hop_cnt + 1 -> give to SMA/SM */
++		/* C14-9:5 -- fail unreasonable hop pointer */
++		return (hop_ptr == hop_cnt + 1);
 +
-+struct ib_mad_port_private {
-+	struct list_head port_list;
-+	struct ib_device *device;
-+	int port_num;
-+	struct ib_cq *cq;
-+	struct ib_pd *pd;
-+	struct ib_mr *mr;
++	} else {
 +
-+	spinlock_t reg_lock;
-+	struct ib_mad_mgmt_version_table version[MAX_MGMT_VERSION];
-+	struct list_head agent_list;
-+	struct workqueue_struct *wq;
-+	struct work_struct work;
-+	struct ib_mad_qp_info qp_info[IB_MAD_QPS_CORE];
-+};
++		/* C14-13:1 */
++		if (hop_cnt && hop_ptr == hop_cnt + 1) {
++			smp->hop_ptr--;
++			return (smp->return_path[smp->hop_ptr] ==
++				port_num);
++		}
 +
-+#endif	/* __IB_MAD_PRIV_H__ */
++		/* C14-13:2 */
++		if (2 <= hop_ptr && hop_ptr <= hop_cnt) {
++			if (node_type != IB_NODE_SWITCH)
++				return 0;
++
++			/* smp->hop_ptr updated when sending */
++			return (smp->return_path[hop_ptr-1] <= phys_port_cnt);
++		}
++
++		/* C14-13:3 -- We're at the end of the DR segment of path */
++		if (hop_ptr == 1) {
++			if (smp->dr_slid == IB_LID_PERMISSIVE) {
++				/* giving SMP to SM - update hop_ptr */
++				smp->hop_ptr--;
++				return 1;
++			}
++			/* smp->hop_ptr updated when sending */
++			return (node_type == IB_NODE_SWITCH);
++		}
++
++		/* C14-13:4 -- hop_ptr = 0 -> give to SM */
++		/* C14-13:5 -- Check for unreasonable hop pointer */
++		return (hop_ptr == 0);
++	}
++}
++
++/*
++ * Return 1 if the received DR SMP should be forwarded to the send queue
++ * Return 0 if the SMP should be completed up the stack
++ */
++int smi_check_forward_dr_smp(struct ib_smp *smp)
++{
++	u8 hop_ptr, hop_cnt;
++
++	hop_ptr = smp->hop_ptr;
++	hop_cnt = smp->hop_cnt;
++
++	if (!ib_get_smp_direction(smp)) {
++		/* C14-9:2 -- intermediate hop */
++		if (hop_ptr && hop_ptr < hop_cnt)
++			return 1;
++
++		/* C14-9:3 -- at the end of the DR segment of path */
++		if (hop_ptr == hop_cnt)
++			return (smp->dr_dlid == IB_LID_PERMISSIVE);
++
++		/* C14-9:4 -- hop_ptr = hop_cnt + 1 -> give to SMA/SM */
++		if (hop_ptr == hop_cnt + 1)
++			return 1;
++	} else {
++		/* C14-13:2 */
++		if (2 <= hop_ptr && hop_ptr <= hop_cnt)
++			return 1;
++
++		/* C14-13:3 -- at the end of the DR segment of path */
++		if (hop_ptr == 1)
++			return (smp->dr_slid != IB_LID_PERMISSIVE);
++	}
++	return 0;
++}
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-bk/drivers/infiniband/core/smi.h	2004-12-27 21:48:20.592935020 -0800
+@@ -0,0 +1,67 @@
++/*
++ * Copyright (c) 2004 Mellanox Technologies Ltd.  All rights reserved.
++ * Copyright (c) 2004 Infinicon Corporation.  All rights reserved.
++ * Copyright (c) 2004 Intel Corporation.  All rights reserved.
++ * Copyright (c) 2004 Topspin Corporation.  All rights reserved.
++ * Copyright (c) 2004 Voltaire Corporation.  All rights reserved.
++ *
++ * This software is available to you under a choice of one of two
++ * licenses.  You may choose to be licensed under the terms of the GNU
++ * General Public License (GPL) Version 2, available from the file
++ * COPYING in the main directory of this source tree, or the
++ * OpenIB.org BSD license below:
++ *
++ *     Redistribution and use in source and binary forms, with or
++ *     without modification, are permitted provided that the following
++ *     conditions are met:
++ *
++ *      - Redistributions of source code must retain the above
++ *        copyright notice, this list of conditions and the following
++ *        disclaimer.
++ *
++ *      - Redistributions in binary form must reproduce the above
++ *        copyright notice, this list of conditions and the following
++ *        disclaimer in the documentation and/or other materials
++ *        provided with the distribution.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
++ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
++ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
++ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
++ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
++ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
++ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
++ * SOFTWARE.
++ *
++ * $Id: smi.h 1389 2004-12-27 22:56:47Z roland $
++ */
++
++#ifndef __SMI_H_
++#define __SMI_H_
++
++int smi_handle_dr_smp_recv(struct ib_smp *smp,
++			   u8 node_type,
++			   int port_num,
++			   int phys_port_cnt);
++extern int smi_check_forward_dr_smp(struct ib_smp *smp);
++extern int smi_handle_dr_smp_send(struct ib_smp *smp,
++				  u8 node_type,
++				  int port_num);
++extern int smi_check_local_dr_smp(struct ib_smp *smp,
++				  struct ib_device *device,
++				  int port_num);
++
++/*
++ * Return 1 if the SMP should be handled by the local SMA/SM via process_mad
++ */
++static inline int smi_check_local_smp(struct ib_mad_agent *mad_agent,
++                         	      struct ib_smp *smp)
++{
++	/* C14-9:3 -- We're at the end of the DR segment of path */
++	/* C14-9:4 -- Hop Pointer = Hop Count + 1 -> give to SMA/SM */
++	return ((mad_agent->device->process_mad &&
++		!ib_get_smp_direction(smp) &&
++		(smp->hop_ptr == smp->hop_cnt + 1)));
++}
++
++#endif	/* __SMI_H_ */
 

@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266683AbTGFQ2S (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jul 2003 12:28:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266684AbTGFQ2S
+	id S266691AbTGFQdK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jul 2003 12:33:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266694AbTGFQdK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jul 2003 12:28:18 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:45532 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S266683AbTGFQ2R (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jul 2003 12:28:17 -0400
-Date: Sun, 6 Jul 2003 18:42:42 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Tomas Szepe <szepe@pinerecords.com>, Ryan Mack <lists@mackman.net>,
-       Markus Plail <linux-kernel@gitteundmarkus.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.21 ServerWorks DMA Bugs
-Message-ID: <20030706184242.A20851@ucw.cz>
-References: <Pine.LNX.4.53.0307042325430.3837@mackman.net> <87fzllh21i.fsf@gitteundmarkus.de> <Pine.LNX.4.53.0307050956060.2029@mackman.net> <1057477237.700.6.camel@dhcp22.swansea.linux.org.uk> <20030706090656.GA4739@louise.pinerecords.com> <1057482631.705.15.camel@dhcp22.swansea.linux.org.uk> <20030706111015.GA303@louise.pinerecords.com> <1057491491.1032.0.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
+	Sun, 6 Jul 2003 12:33:10 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:40075 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S266691AbTGFQdE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Jul 2003 12:33:04 -0400
+Date: Sun, 06 Jul 2003 09:47:20 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: gigag@bezeqint.net, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Patch for 3.5/0.5 address space split
+Message-ID: <26930000.1057510039@[10.10.2.4]>
+In-Reply-To: <bac2312a.9f399e92.8177000@mas3.bezeqint.net>
+References: <bac2312a.9f399e92.8177000@mas3.bezeqint.net>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1057491491.1032.0.camel@dhcp22.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Sun, Jul 06, 2003 at 12:38:11PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 06, 2003 at 12:38:11PM +0100, Alan Cox wrote:
-> On Sul, 2003-07-06 at 12:10, Tomas Szepe wrote:
-> > Also note that when the '-X' switch is omitted (i.e. one only issues
-> > "/usr/sbin/hdparm -d1 /dev/hdX"), the driver sets up a mode that doesn't
-> > work and then quickly falls back to PIO.
-> 
-> Your BIOS has not tuned the drive for DMA either.
+> Could anybody point out to patches available for 3.5/0.5 address 
+> space split for 2.4 and 2.5 kernels?
 
-IMO the driver should do that in that case. There are way too many
-broken BIOSes to make following what they decided to set up worthwhile.
+It's in 2.4-aa and 2.5-mjb trees. 2.5 has the added feature that it
+can now do that for PAE (> 4GB) machines (from Dave Hansen). 
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+> Any other working options? I managed to compile 2.4.21 kernel 
+> with 1/3 split, but not with 0.5/3.5. The last one simply doesn't 
+> boot. What could I be doing wrong?
+
+You can chage PAGE_OFFSET yourself, but there's a few places to change
+it ... do a grep -r for "C0000000", and hack all those - one of them
+is in some .lds file or something, I forget.
+
+M.
+

@@ -1,92 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263650AbUJ3Icu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263657AbUJ3Ifc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263650AbUJ3Icu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Oct 2004 04:32:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263657AbUJ3IcF
+	id S263657AbUJ3Ifc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Oct 2004 04:35:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263652AbUJ3Ic5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Oct 2004 04:32:05 -0400
-Received: from smtp813.mail.sc5.yahoo.com ([66.163.170.83]:58269 "HELO
-	smtp813.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S263652AbUJ3I3a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Oct 2004 04:29:30 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Greg KH <greg@kroah.com>
-Subject: [PATCH 4/4] Driver core: bus_rescan_devices improper locking
-Date: Sat, 30 Oct 2004 03:29:18 -0500
-User-Agent: KMail/1.6.2
-Cc: LKML <linux-kernel@vger.kernel.org>,
-       Patrick Mochel <mochel@digitalimplant.org>
-References: <20041029185753.53517.qmail@web81307.mail.yahoo.com> <200410300328.13995.dtor_core@ameritech.net> <200410300328.48554.dtor_core@ameritech.net>
-In-Reply-To: <200410300328.48554.dtor_core@ameritech.net>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
+	Sat, 30 Oct 2004 04:32:57 -0400
+Received: from canuck.infradead.org ([205.233.218.70]:55050 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S263649AbUJ3IaQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Oct 2004 04:30:16 -0400
+Subject: Re: 2.6.10-rc1-mm2: intelfb/AGP unknown symbols
+From: Arjan van de Ven <arjan@infradead.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, Dave Jones <davej@redhat.com>,
+       Sylvain Meyer <sylvain.meyer@worldonline.fr>,
+       Antonino Daplas <adaplas@pol.net>, linux-kernel@vger.kernel.org,
+       linux-fbdev-devel@lists.sourceforge.net
+In-Reply-To: <20041030032425.GI6677@stusta.de>
+References: <20041029014930.21ed5b9a.akpm@osdl.org>
+	 <20041030032425.GI6677@stusta.de>
+Content-Type: text/plain
+Message-Id: <1099124920.2822.3.camel@laptop.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
+Date: Sat, 30 Oct 2004 10:28:41 +0200
 Content-Transfer-Encoding: 7bit
-Message-Id: <200410300329.20539.dtor_core@ameritech.net>
+X-Spam-Score: 2.6 (++)
+X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
+	Content analysis details:   (2.6 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[62.195.31.207 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[62.195.31.207 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-===================================================================
+> The removal of 3 "unneeded exports" in bk-agpgart.patch conflicts with 
+> code adding usage of them in Linus' tree:
 
+that makes me really really curious why the fb driver calls into the backend and not just the agp frontend layer like the rest of the world does...
 
-ChangeSet@1.1958, 2004-10-30 03:13:25-05:00, dtor_core@ameritech.net
-  Driver core: bus_rescan_devices() should take write lock to guarantee
-               that 2 threads will not probe same device and therefore
-               can not be implemented with bus_for_each_dev().
-  
-  Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
-
-
- bus.c |   24 +++++++++++-------------
- 1 files changed, 11 insertions(+), 13 deletions(-)
-
-
-===================================================================
-
-
-
-diff -Nru a/drivers/base/bus.c b/drivers/base/bus.c
---- a/drivers/base/bus.c	2004-10-30 03:15:58 -05:00
-+++ b/drivers/base/bus.c	2004-10-30 03:15:58 -05:00
-@@ -571,18 +571,6 @@
- }
- 
- 
--/* Helper for bus_rescan_devices's iter */
--static int bus_rescan_devices_helper(struct device *dev, void *data)
--{
--	int *count = data;
--
--	if (!dev->driver && device_attach(dev))
--		(*count)++;
--
--	return 0;
--}
--
--
- /**
-  *	bus_rescan_devices - rescan devices on the bus for possible drivers
-  *	@bus:	the bus to scan.
-@@ -594,9 +582,19 @@
-  */
- int bus_rescan_devices(struct bus_type * bus)
- {
-+	struct device *dev;
- 	int count = 0;
- 
--	bus_for_each_dev(bus, NULL, &count, bus_rescan_devices_helper);
-+	if (!(bus = get_bus(bus)))
-+		return 0;
-+
-+	down_write(&bus->subsys.rwsem);
-+	list_for_each_entry(dev, &bus->devices.list, bus_list) {
-+		if (!dev->driver && device_attach(dev))
-+			count++;
-+	}
-+	up_write(&bus->subsys.rwsem);
-+	put_bus(bus);
- 
- 	return count;
- }

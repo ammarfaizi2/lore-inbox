@@ -1,264 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262406AbVCBTrI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262407AbVCBTsZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262406AbVCBTrI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 14:47:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262443AbVCBTrH
+	id S262407AbVCBTsZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 14:48:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262447AbVCBTro
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 14:47:07 -0500
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:29099 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S262406AbVCBTpz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 14:45:55 -0500
-Message-ID: <422617F1.2080404@mvista.com>
-Date: Wed, 02 Mar 2005 13:45:53 -0600
-From: Corey Minyard <cminyard@mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Documentation for krefs
-Content-Type: multipart/mixed;
- boundary="------------010409040907000901090303"
+	Wed, 2 Mar 2005 14:47:44 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:46308 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262407AbVCBTqr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 14:46:47 -0500
+Date: Wed, 2 Mar 2005 13:46:40 -0600
+To: Jesse Barnes <jbarnes@engr.sgi.com>
+Cc: linux-pci@atrey.karlin.mff.cuni.cz, Linus Torvalds <torvalds@osdl.org>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       linux-ia64@vger.kernel.org,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       "Luck, Tony" <tony.luck@intel.com>
+Subject: Re: [PATCH/RFC] I/O-check interface for driver's error handling
+Message-ID: <20050302194640.GK1220@austin.ibm.com>
+References: <422428EC.3090905@jp.fujitsu.com> <Pine.LNX.4.58.0503010844470.25732@ppc970.osdl.org> <20050302182205.GI1220@austin.ibm.com> <200503021041.07090.jbarnes@engr.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200503021041.07090.jbarnes@engr.sgi.com>
+User-Agent: Mutt/1.5.6+20040818i
+From: Linas Vepstas <linas@austin.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------010409040907000901090303
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Wed, Mar 02, 2005 at 10:41:06AM -0800, Jesse Barnes was heard to remark:
+> On Wednesday, March 2, 2005 10:22 am, Linas Vepstas wrote:
+> > On Tue, Mar 01, 2005 at 08:49:45AM -0800, Linus Torvalds was heard to 
+> remark:
+> > > The new API is what _allows_ a driver to care. It doesn't handle DMA, but
+> > > I think that's because nobody knows how to handle it (ie it's probably
+> > > hw-dependent and all existign implementations would thus be
+> > > driver-specific anyway).
+> >
+> > ?
+> > We could add a call
+> >
+> > int pci_was_there_an_error_during_dma (struct pci_dev);
+> >
+> > right?  And it could return true/false, right?  I can certainly
+> > do that today with ppc64.  I just can't tell you which dma triggered
+> > the problem.
+> 
+> One issue with that is how to notify drivers that they need to make this call.  
+> In may cases, DMA completion will be signalled by an interrupt, but if the 
+> DMA failed, that interrupt may never happen, which means the call to 
+> pci_unmap or the above function from the interrupt handler may never occur.
 
-Greg,
+Hmm. Well, I notice that e100/e1000 has a heartbeat built into it, so
+that if the card doesn't respond, it resets the card.  So this would 
+be a natural place for them.  And I suspect that *all* scsi drivers
+have timeouts; they initiate a cascade of reset sequences if they
+don't get data back after X seconds.
 
-Here is the documentation for krefs, with the kref_checked
-stuff removed and a few other things cleaned up.
+I see nothing wrong with adding a requirement, something that says
+"If a device driver wants to be pci-error aware, then yea-verily it 
+must use a dma-timeout timer (say 15 seconds) and check for 
+pci errors in the dma-timeout handler".
 
--Corey
+> Some I/O errors are by nature asynchronous and unpredictable, so I think we 
+> need a separate thread and callback interface to deal with errors where the 
+> beginning of the transaction and the end of the transaction occur in 
+> different contexts, in addition to the PIO transaction interface already 
+> proposed.
 
---------------010409040907000901090303
-Content-Type: text/plain;
- name="kref-docs.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="kref-docs.diff"
+I don't know what the pci-express implementation is like, but the 
+ppc64 implementation is *not* transactional, so I don't have that issue.
 
-Add some documentation for krefs.
+If some pci chipsets only report dma errors on a transactional basis,
+then we need to modify pci_map_sg() and pci_map_single() and etc. to
+take a cookie as well.  It would be up to the device driver to alloc
+and retire cookies as the dma's complete (and make sure it can find
+its cookies in any context).  Is this or something like this that 
+is needed? 
 
-Signed-off-by: Corey Minyard <minyard@acm.org>
+--linas
 
-Index: linux-2.6.11-rc5-mm1/Documentation/kref.txt
-===================================================================
---- /dev/null
-+++ linux-2.6.11-rc5-mm1/Documentation/kref.txt
-@@ -0,0 +1,209 @@
-+
-+krefs allow you to add reference counters to your objects.  If you
-+have objects that are used in multiple places and passed around, and
-+you don't have refcounts, your code is almost certainly broken.  If
-+you want refcounts, krefs are the way to go.
-+
-+To use a kref, add a one to your data structures like:
-+
-+struct my_data
-+{
-+	.
-+	.
-+	struct kref refcount;
-+	.
-+	.
-+};
-+
-+The kref can occur anywhere within the data structure.
-+
-+You must initialize the kref after you allocate it.  To do this, call
-+kref init as so:
-+
-+     struct my_data *data;
-+
-+     data = kmalloc(sizeof(*data), GFP_KERNEL);
-+     if (!data)
-+            return -ENOMEM;
-+     kref_init(&data->refcount);
-+
-+This sets the refcount in the kref to 1.
-+
-+Once you have a refcount, you must follow the following rules:
-+
-+1) If you make a non-temporary copy of a pointer, especially if
-+   it can be passed to another thread of execution, you must
-+   increment the refcount with kref_get() before passing it off:
-+       kref_get(&data->refcount);
-+   If you already have a valid pointer to a kref-ed structure (the
-+   refcount cannot go to zero) you may do this without a lock.
-+
-+2) When you are done with a pointer, you must call kref_put():
-+       kref_put(&data->refcount, data_release);
-+   If this is the last reference to the pointer, the release
-+   routine will be called.  If the code never tries to get
-+   a valid pointer to a kref-ed structure without already
-+   holding a valid pointer, it is safe to do this without
-+   a lock.
-+
-+3) If the code attempts to gain a reference to a kref-ed structure
-+   without already holding a valid pointer, it must serialize access
-+   where a kref_put() cannot occur during the kref_get(), and the
-+   structure must remain valid during the kref_get().
-+
-+For example, if you allocate some data and then pass it to another
-+thread to process:
-+
-+void data_release(struct kref *ref)
-+{
-+	struct my_data *data = container_of(ref, struct my_data, refcount);
-+	kfree(data);
-+}
-+
-+void more_data_handling(void *cb_data)
-+{
-+	struct my_data *data = cb_data;
-+	.
-+	. do stuff with data here
-+	.
-+	kref_put(data, data_release);
-+}
-+
-+int my_data_handler(void)
-+{
-+	int rv = 0;
-+	struct my_data *data;
-+	struct task_struct *task;
-+	data = kmalloc(sizeof(*data), GFP_KERNEL);
-+	if (!data)
-+		return -ENOMEM;
-+	kref_init(&data->refcount);
-+
-+	kref_get(&data->refcount);
-+	task = kthread_run(more_data_handling, data, "more_data_handling");
-+	if (task == ERR_PTR(-ENOMEM)) {
-+		rv = -ENOMEM;
-+	        kref_put(&data->refcount);
-+		goto out;
-+	}
-+
-+	.
-+	. do stuff with data here
-+	.
-+ out:
-+	kref_put(data, data_release);
-+	return rv;
-+}
-+
-+This way, it doesn't matter what order the two threads handle the
-+data, the put handles knowing when the data is free and releasing it.
-+The kref_get() does not require a lock, since we already have a valid
-+pointer that we own a refcount for.  The put needs no lock because
-+nothing tries to get the data without already holding a pointer.
-+
-+Note that the "before" in rule 1 is very important.  You should never
-+do something like:
-+
-+	task = kthread_run(more_data_handling, data, "more_data_handling");
-+	if (task == ERR_PTR(-ENOMEM)) {
-+		rv = -ENOMEM;
-+		goto out;
-+	} else
-+		/* BAD BAD BAD - get is after the handoff */
-+		kref_get(&data->refcount);
-+
-+Don't assume you know what you are doing and use the above construct.
-+First of all, you may not know what you are doing.  Second, you may
-+know what you are doing (there are some situations where locking is
-+involved where the above may be legal) but someone else who doesn't
-+know what they are doing may change the code or copy the code.  It's
-+bad style.  Don't do it.
-+
-+There are some situations where you can optimize the gets and puts.
-+For instance, if you are done with an object and enqueuing it for
-+something else or passing it off to something else, there is no reason
-+to do a get then a put:
-+
-+	/* Silly extra get and put */
-+	kref_get(&obj->ref);
-+	enqueue(obj);
-+	kref_put(&obj->ref, obj_cleanup);
-+
-+Just do the enqueue.  A comment about this is always welcome:
-+
-+	enqueue(obj);
-+	/* We are done with obj, so we pass our refcount off
-+	   to the queue.  DON'T TOUCH obj AFTER HERE! */
-+
-+The last rule (rule 3) is the nastiest one to handle.  Say, for
-+instance, you have a list of items that are each kref-ed, and you wish
-+to get the first one.  You can't just pull the first item off the list
-+and kref_get() it.  That violates rule 3 because you are not already
-+holding a valid pointer.  You must add locks or semaphores.  For
-+instance:
-+
-+static DECLARE_MUTEX(sem);
-+static LIST_HEAD(q);
-+struct my_data
-+{
-+	struct kref      refcount;
-+	struct list_head link;
-+};
-+
-+static struct my_data *get_entry()
-+{
-+	struct my_data *entry = NULL;
-+	down(&sem);
-+	if (!list_empty(&q)) {
-+		entry = container_of(q.next, struct my_q_entry, link);
-+		kref_get(&entry->refcount);
-+	}
-+	up(&sem);
-+	return entry;
-+}
-+
-+static void release_entry(struct kref *ref)
-+{
-+	struct my_data *entry = container_of(ref, struct my_data, refcount);
-+
-+	list_del(&entry->link);
-+	kfree(entry);
-+}
-+
-+static void put_entry(struct my_data *entry)
-+{
-+	down(&sem);
-+	kref_put(&entry->refcount, release_entry);
-+	up(&sem);
-+}
-+
-+The kref_put() return value is useful if you do not want to hold the
-+lock during the whole release operation.  Say you didn't want to call
-+kfree() with the lock held in the example above (since it is kind of
-+pointless to do so).  You could use kref_put() as follows:
-+
-+static void release_entry(struct kref *ref)
-+{
-+	/* All work is done after the return from kref_put(). */
-+}
-+
-+static void put_entry(struct my_data *entry)
-+{
-+	down(&sem);
-+	if (kref_put(&entry->refcount, release_entry)) {
-+		list_del(&entry->link);
-+		up(&sem);
-+		kfree(entry);
-+	} else
-+		up(&sem);
-+}
-+
-+This is really more useful if you have to call other routines as part
-+of the free operations that could take a long time or might claim the
-+same lock.  Note that doing everything in the release routine is still
-+preferred as it is a little neater.
-+
-+
-+Corey Minyard <minyard@acm.org>
-+
-+A lot of this was lifted from Greg KH's OLS presentation on krefs.
-
---------------010409040907000901090303--

@@ -1,58 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270490AbRHNHnV>; Tue, 14 Aug 2001 03:43:21 -0400
+	id <S270500AbRHNHqL>; Tue, 14 Aug 2001 03:46:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270492AbRHNHnM>; Tue, 14 Aug 2001 03:43:12 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:19059 "EHLO
-	flinx.biederman.org") by vger.kernel.org with ESMTP
-	id <S270490AbRHNHnC>; Tue, 14 Aug 2001 03:43:02 -0400
-To: Keith Owens <kaos@ocs.com.au>
-Cc: Etienne Lorrain <etienne_lorrain@yahoo.fr>, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Gujin graphical bootloader 0.4
-In-Reply-To: <15667.997712990@ocs3.ocs-net>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 14 Aug 2001 01:36:13 -0600
-In-Reply-To: <15667.997712990@ocs3.ocs-net>
-Message-ID: <m11ymfqej6.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
+	id <S270498AbRHNHpv>; Tue, 14 Aug 2001 03:45:51 -0400
+Received: from celebris.bdk.pl ([212.182.99.100]:58886 "EHLO celebris.bdk.pl")
+	by vger.kernel.org with ESMTP id <S270494AbRHNHpn>;
+	Tue, 14 Aug 2001 03:45:43 -0400
+Date: Tue, 14 Aug 2001 09:49:01 +0200 (CEST)
+From: Wojtek Pilorz <wpilorz@bdk.pl>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: "Kevin P. Fleming" <kevin@labsysgrp.com>, linux-kernel@vger.kernel.org
+Subject: Re: Lost interrupt with HPT370
+In-Reply-To: <E15WG2Z-0007Di-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.21.0108140929090.30634-100000@celebris.bdk.pl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Owens <kaos@ocs.com.au> writes:
+On Mon, 13 Aug 2001, Alan Cox wrote:
 
-> On Mon, 13 Aug 2001 14:05:05 +0200 (CEST), 
-> Etienne Lorrain <etienne_lorrain@yahoo.fr> wrote:
-> > A good solution would be to have the kernel being two (or three) GZIP
-> > files concatenated, the first would be the real-mode code to setup
-> > the structure only, the second would be the protected-mode code of the
-> > kernel (and the third the initrd). The first part would be a position
-> > independant function getting some parameters (address/max size of the
-> > structure to fill in) and returning information like microprocessor
-> > minimum requirement, video mode supported (number of BPP, or text only),
-> > address the kernel has been linked (to load a kernel at 16 Mb), ...
+> Date: Mon, 13 Aug 2001 12:37:51 +0100 (BST)
+> From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+> To: Kevin P. Fleming <kevin@labsysgrp.com>
+> Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+> Subject: Re: Lost interrupt with HPT370
 > 
-> Before you go too far, there is already an standard for boot loading,
-> EFI (Extensible Firmware Interface).  Originally from Intel but it is
-> open.  http://developer.intel.com/technology/efi.  IA64 uses this and
-> nothing but this, it already loads kernels in ELF format.  There is no
-> point in inventing yet another boot interface, unless you cannot do
-> what you want in EFI.
+> > I have just tried an HPT-366 card with IC35L040VER07 drives (latest DeskStar
+> > 41G ATA-100, although the card is only ATA-66) and could not get them to
+> > even let me create a filesystem without hard locking the machine. This was
+> > using 2.4.8-ac1 and 2.4.7-ac11. I wrote this off to motherboard/IDE card
+> > compatibility (or lack thereof), but could it still be an IDE driver issue?
+> 
+> Some HPT cards have problems with certain drives. I believe its a fixed
+> problem in newer boards or on those with updatable firmware if you update
+> the firmware itself
+> 
+> Check your drive is in the bad_ata100_5 and bad_ata66_4 list. If not add
+> it then rebuild and retry (drivers/ide/hpt366.c) - and let me know
+> 
+> Alan
+> -
+Alan,
 
-Well unless someone removes the architecture specific assumptions of EFI,
-and gets it going on every platform there certainly is.  Besides the
-fact that despite a complete rewrite the current EFI BIOSes are the
-slowest I have seen.  With linuxBIOS I can load a kernel image over
-the network before my hard drives spin up to speed.  This isn't always
-the right thing to do.  But waiting 45 seconds before you start
-booting your operating system is equally insane.
+What is the effect of putting or not a drive on bad_ata100_5 and
+bad_ata66_4 ?
 
-Any bootloader interface that requires a callback for more then a
-fatal abort of the loaded image will be misimplemented someday.  Even
-on the alpha with it's small selection of Firmware this problem
-persists.  So the interface to the firmware needs to be as trivially
-simple as possible.
+I am asking as I am using two 30GB IBM DTLA drives connected to HPT370
+with kernel 2.2.19+Andre's ide patch, and I have noted that these drives
+are present on bad_ata66_4 but not on bad_ata100_5 ?
+Should I inderstand that IBM-DTLA-307030 would not be compatible with HPT
+366, but *is* OK with HPT 370 running UDMA-100?
 
-Eric
+
+I have seen very good performance (15-30 MB/s of transfer with ide.patch,
+without ide.patch performance is extremally poor at about 2-3 MB/s) and no
+problems, except one serious problem, which made me feel rather bad;
+I tried once to measure performance by running two dd command reading
+from /dev/hde and /dev/hdg, respectively, concurrently; after dd command
+finished reading HDD lamp stayed on until reboot, after which I lost
+partition table on one of the disks; before the test I experimented with
+hdparm which might have been not a good idea ...
+I have not repeat this test later ..
+
+HW: Abit MB with i440BX, FSB 133MHz, HPT 370 on-board,
+ECC memory 133 MHz, Pentium-III 800MHz (133 MHz FSB)
 

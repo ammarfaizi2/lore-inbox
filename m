@@ -1,35 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277231AbRJVRdU>; Mon, 22 Oct 2001 13:33:20 -0400
+	id <S277244AbRJVRek>; Mon, 22 Oct 2001 13:34:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277214AbRJVRcV>; Mon, 22 Oct 2001 13:32:21 -0400
-Received: from vasquez.zip.com.au ([203.12.97.41]:5637 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S277230AbRJVRbf>; Mon, 22 Oct 2001 13:31:35 -0400
-Message-ID: <3BD45631.78C4D16F@zip.com.au>
-Date: Mon, 22 Oct 2001 10:24:01 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.13-pre6 i686)
-X-Accept-Language: en
+	id <S277214AbRJVRdW>; Mon, 22 Oct 2001 13:33:22 -0400
+Received: from [209.195.52.30] ([209.195.52.30]:29446 "HELO [209.195.52.30]")
+	by vger.kernel.org with SMTP id <S277230AbRJVRcd>;
+	Mon, 22 Oct 2001 13:32:33 -0400
+Date: Mon, 22 Oct 2001 09:11:16 -0700 (PDT)
+From: David Lang <dlang@diginsite.com>
+To: rgammans@computer-surgery.co.uk
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.2.20pre10
+In-Reply-To: <20011022140703.A7305@knuth.computer-surgery.co.uk>
+Message-ID: <Pine.LNX.4.40.0110220910430.12024-100000@dlang.diginsite.com>
 MIME-Version: 1.0
-To: Alexander Viro <viro@math.psu.edu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] binfmt_misc.c, kernel-2.4.12
-In-Reply-To: <010801c15abe$ced47240$0100050a@abartoszko> <Pine.GSO.4.21.0110220242290.2294-100000@weyl.math.psu.edu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro wrote:
-> 
-> ...
-> Check that your modules.conf contains
-> 
-> post-install binfmt_misc mount -t binfmt_misc none /proc/sys/binfmt_misc
-> pre-remove binfmt_misc umount /proc/sys/binfmt_misc
-> 
+and how can you dare send the source code or patches to the US in that
+case, it's the same info in a different form.
 
-Why is it necessary that the new binfmt_misc create its own
-filesystem type, when all it seems to need is a couple of
-/proc entries?
+David Lang
+
+On Mon, 22 Oct 2001, Roger Gammans wrote:
+
+> Date: Mon, 22 Oct 2001 14:07:03 +0100
+> From: Roger Gammans <roger@computer-surgery.co.uk>
+> Reply-To: rgammans@computer-surgery.co.uk
+> To: linux-kernel@vger.kernel.org
+> Subject: Re: Linux 2.2.20pre10
+>
+> On Mon, Oct 22, 2001 at 01:30:00PM +0100, Alan Cox wrote:
+> > > This would then presumably lead to password protected access for US kernel
+> > > developers that need to know? And some kind of NDA?
+> >
+> > US kernel developers cannot be told. Period.
+>
+> Huh, US resident or US citizens?
+>
+> If US resident , does that mean we can't send security patches to
+> Linus.
+>
+> *shakes head*
+>
+> TTFN
+> --
+> Roger.
+> 	ashes and diamond,
+> 	foe and friend,
+> 	we _are_ all equal in the end. -- Pink Floyd
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

@@ -1,55 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129718AbRALKek>; Fri, 12 Jan 2001 05:34:40 -0500
+	id <S129431AbRALKqE>; Fri, 12 Jan 2001 05:46:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130599AbRALKea>; Fri, 12 Jan 2001 05:34:30 -0500
-Received: from m7.limsi.fr ([192.44.78.7]:32772 "EHLO m7.limsi.fr")
-	by vger.kernel.org with ESMTP id <S129718AbRALKeU>;
-	Fri, 12 Jan 2001 05:34:20 -0500
-Message-ID: <3A5EDCDC.70306@limsi.fr>
-Date: Fri, 12 Jan 2001 11:30:52 +0100
-From: Damien TOURAINE <touraine_english@limsi.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.18 i686; en-US; m18) Gecko/20001107 Netscape6/6.0
-X-Accept-Language: fr, en
+	id <S129401AbRALKpy>; Fri, 12 Jan 2001 05:45:54 -0500
+Received: from isis.its.uow.edu.au ([130.130.68.21]:15280 "EHLO
+	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S129383AbRALKpo>; Fri, 12 Jan 2001 05:45:44 -0500
+Message-ID: <3A5EE1EC.C12F15CF@uow.edu.au>
+Date: Fri, 12 Jan 2001 21:52:28 +1100
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Problem with elf and dynamic loading ...
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: pwc@speakeasy.net
+CC: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
+Subject: Re: 2.4.0-ac3 write() to tcp socket returning errno of -3 (ESRCH:"No 
+ such process")
+In-Reply-To: <Pine.LNX.4.21.0101111023090.716-100000@localhost> (message from
+		Paul Cassella on Thu, 11 Jan 2001 10:45:13 -0600 (CST)),
+		<Pine.LNX.4.21.0101111023090.716-100000@localhost> <200101111718.JAA03092@pizda.ninka.net>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
+"David S. Miller" wrote:
+> 
+>    Date: Thu, 11 Jan 2001 10:45:13 -0600 (CST)
+>    From: Paul Cassella <pwc@speakeasy.net>
+> 
+>    I'm not familiar enough with the tcp code to know if this patch
+>    (against -ac6) is a solution, band-aid, or, in fact, wrong, but
+>    I've run with it (on -ac3) and haven't seen the errors for over
+>    twelve hours, which is three times longer than it had been able to
+>    go without it coming up.
+> 
+> See the fix I put in 2.4.1-pre2, which is:
 
-I'm using dynamic library to load some part of a big software (that use 
-several differents modules).
-The main program fully use the symboles of the shared object (through 
-the dlsym command), however, the functions available in the module are 
-not able to use the symbols of the main program.
+The -pre2 fix exists exclusively because of Paul's
+exhaustive debugging efforts.  Thanks!
 
-Is-it a bug of the kernel ?
-Is-it to avoid a potential hole of security ?
-
-My system :
-Computer : SONY Notebook with a PCMCIA network card and SCSI cardbus.
-Kernel : 2.2.18
-  I tryied to compile and launch 2.4 -test13, however, I think I didn't 
-have the right parameters for the compilation because it don't manage to 
-get the bash (still try to compile it) ...
-Glibc : 2.2
-miscellanous : fully use the elf format, have recompiled the glibc 2.2 
-from the GNU tree, have also recompile linux from the kernel.org.
-
-Friendly
-  Damien TOURAINE
-
--- 
---------------------------------------------------------------------
-Damien TOURAINE	- +33 1 69 85 81 68
-PhD student at LIMSI - CNRS (http://www.limsi.fr)
-Bat. 508, Universite Paris-Sud F-91403 Orsay cedex (France)
---------------------------------------------------------------------
-
+-
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,34 +1,126 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262034AbTCHOmT>; Sat, 8 Mar 2003 09:42:19 -0500
+	id <S262033AbTCHOkF>; Sat, 8 Mar 2003 09:40:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262037AbTCHOmT>; Sat, 8 Mar 2003 09:42:19 -0500
-Received: from [195.208.223.247] ([195.208.223.247]:1152 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S262034AbTCHOmS>; Sat, 8 Mar 2003 09:42:18 -0500
-Date: Sat, 8 Mar 2003 17:53:01 +0300
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Christian <evilninja@gmx.net>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: CONFIG_ALPHA_SRM not compiling on 2.5
-Message-ID: <20030308175301.A736@localhost.park.msu.ru>
-References: <3E6538EF.3060602@gmx.net> <20030305005309.GM27794@lug-owl.de> <3E692DEB.2030207@gmx.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3E692DEB.2030207@gmx.net>; from evilninja@gmx.net on Sat, Mar 08, 2003 at 12:40:27AM +0100
+	id <S262034AbTCHOkE>; Sat, 8 Mar 2003 09:40:04 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:28292 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S262033AbTCHOkC>;
+	Sat, 8 Mar 2003 09:40:02 -0500
+From: Andries.Brouwer@cwi.nl
+Date: Sat, 8 Mar 2003 15:50:39 +0100 (MET)
+Message-Id: <UTC200303081450.h28Eodc28276.aeb@smtp.cwi.nl>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] oops in raw.c + fix
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 08, 2003 at 12:40:27AM +0100, Christian wrote:
-> Linux version 2.5.63 #7 Wed Mar 05 [...]
-> 
-> halt code = 7
-> machine check while inPAL mode
-> PC = 14a0c
-> >>>
+The next patch in the dev_t series eliminates the last applied use
+of MAX_BLKDEV - only the definition in major.h remains.
 
-This has been fixed in 2.5.64.
+Sneaky as I am, I combine this patch with the fix for an Oops:
+On open, raw_open does
+	filp->f_dentry->d_inode->i_mapping =
+		bdev->bd_inode->i_mapping;
+storing a pointer to bdev stuff.
+But on release this pointer stayed, the block device is not
+referenced anymore and disappears, and the next open references
+undefined stuff.
+I checked, and this can actually cause an Oops - scenario:
+# raw /dev/raw/raw12 /dev/hdf
+# dd if=/dev/raw/raw12 of=/dev/null bs=512 count=1
+# raw /dev/raw/raw12 0 0
+# dd if=/dev/raw/raw12 of=/dev/null bs=512 count=1
+Oops.
 
-Ivan.
+More precisely the problem is that dentry_open does
+file_ra_state_init(&f->f_ra, inode->i_mapping);
+And file_ra_state_init uses mapping->backing_dev_info->ra_pages.
+Ugly, to use so much information about the inode even before
+the inode has been opened.
+
+In the patch below I reset i_mapping upon release of the raw device.
+
+Andries
+
+---
+diff -u --recursive --new-file -X /linux/dontdiff a/drivers/char/raw.c b/drivers/char/raw.c
+--- a/drivers/char/raw.c	Thu Jan  9 18:07:10 2003
++++ b/drivers/char/raw.c	Sat Mar  8 15:24:14 2003
+@@ -19,14 +19,16 @@
+ 
+ #include <asm/uaccess.h>
+ 
++#define MAX_RAW_MINORS	256
++
+ struct raw_device_data {
+ 	struct block_device *binding;
+ 	int inuse;
+ };
+ 
+-static struct raw_device_data raw_devices[256];
++static struct raw_device_data raw_devices[MAX_RAW_MINORS];
+ static DECLARE_MUTEX(raw_mutex);
+-static struct file_operations raw_ctl_fops;
++static struct file_operations raw_ctl_fops;	     /* forward dclaration */
+ 
+ /*
+  * Open/close code for raw IO.
+@@ -85,11 +87,16 @@
+ {
+ 	const int minor= minor(inode->i_rdev);
+ 	struct block_device *bdev;
+-	
++
+ 	down(&raw_mutex);
+ 	bdev = raw_devices[minor].binding;
+ 	raw_devices[minor].inuse--;
+ 	up(&raw_mutex);
++
++	/* Here  inode->i_mapping == bdev->bd_inode->i_mapping  */
++	inode->i_mapping = &inode->i_data;
++	inode->i_mapping->backing_dev_info = &default_backing_dev_info;
++	
+ 	bd_release(bdev);
+ 	blkdev_put(bdev, BDEV_RAW);
+ 	return 0;
+@@ -130,11 +137,13 @@
+ 			goto out;
+ 		
+ 		err = -EINVAL;
+-		if (rq.raw_minor < 0 || rq.raw_minor > MINORMASK)
++		if (rq.raw_minor < 0 || rq.raw_minor >= MAX_RAW_MINORS)
+ 			goto out;
+ 		rawdev = &raw_devices[rq.raw_minor];
+ 
+ 		if (command == RAW_SETBIND) {
++			dev_t dev;
++
+ 			/*
+ 			 * This is like making block devices, so demand the
+ 			 * same capability
+@@ -151,9 +160,10 @@
+ 			 */
+ 
+ 			err = -EINVAL;
++			dev = MKDEV(rq.block_major, rq.block_minor);
+ 			if ((rq.block_major == 0 && rq.block_minor != 0) ||
+-					rq.block_major > MAX_BLKDEV ||
+-					rq.block_minor > MINORMASK)
++			    MAJOR(dev) != rq.block_major ||
++			    MINOR(dev) != rq.block_minor)
+ 				goto out;
+ 			
+ 			down(&raw_mutex);
+@@ -170,10 +180,7 @@
+ 				/* unbind */
+ 				rawdev->binding = NULL;
+ 			} else {
+-				kdev_t kdev;
+-
+-				kdev = mk_kdev(rq.block_major, rq.block_minor);
+-				rawdev->binding = bdget(kdev_t_to_nr(kdev));
++				rawdev->binding = bdget(dev);
+ 				MOD_INC_USE_COUNT;
+ 			}
+ 			up(&raw_mutex);
+

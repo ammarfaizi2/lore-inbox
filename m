@@ -1,37 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263484AbTDCVMD 
-	(for <rfc822;willy@w.ods.org>); Thu, 3 Apr 2003 16:12:03 -0500
+	id S263434AbTDCVKG 
+	(for <rfc822;willy@w.ods.org>); Thu, 3 Apr 2003 16:10:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id S263486AbTDCVMD 
-	(for <rfc822;linux-kernel-outgoing>); Thu, 3 Apr 2003 16:12:03 -0500
-Received: from [12.47.58.55] ([12.47.58.55]:64135 "EHLO pao-ex01.pao.digeo.com")
-	by vger.kernel.org with ESMTP id S263484AbTDCVMC 
+	id S263438AbTDCVKG 
+	(for <rfc822;linux-kernel-outgoing>); Thu, 3 Apr 2003 16:10:06 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:42147 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263434AbTDCVKD 
 	(for <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Apr 2003 16:12:02 -0500
-Date: Thu, 3 Apr 2003 13:22:43 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.66-mm2
-Message-Id: <20030403132243.7bc9a22d.akpm@digeo.com>
-In-Reply-To: <Pine.LNX.4.51.0304031947321.16306@dns.toxicfilms.tv>
-References: <20030401000127.5acba4bc.akpm@digeo.com>
-	<Pine.LNX.4.51.0304031947321.16306@dns.toxicfilms.tv>
-X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Thu, 3 Apr 2003 16:10:03 -0500
+Date: Thu, 3 Apr 2003 13:21:37 +0000
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: "Cameron, Steve" <Steve.Cameron@hp.com>
+Cc: linux-kernel@vger.kernel.org, arrays@hp.com
+Subject: Re: [PATCH] reduce stack in cpqarray.c::ida_ioctl()
+Message-Id: <20030403132137.746cf532.rddunlap@osdl.org>
+In-Reply-To: <45B36A38D959B44CB032DA427A6E10640451339C@cceexc18.americas.cpqcorp.net>
+References: <45B36A38D959B44CB032DA427A6E10640451339C@cceexc18.americas.cpqcorp.net>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 03 Apr 2003 21:23:23.0752 (UTC) FILETIME=[41FC5680:01C2FA27]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Maciej Soltysiak <solt@dns.toxicfilms.tv> wrote:
->
-> Hi,
-> 
-> remember my post about the machine locking up for a few seconds?
+On Thu, 3 Apr 2003 14:18:57 -0600 "Cameron, Steve" <Steve.Cameron@hp.com> wrote:
 
-Could you try 2.5.66-mm3?  It has a CPU scheduler fix which might well help here.
+| 
+| > This patch to 2.5.66 reduces stack usage in ida_ioctl() by about
+| > 0x500 bytes (on x86).
+| 
+| Looks ok to me, (but i haven't tried it.)
 
+Me either (-ENOHARDWARE).
+ 
+| > There is a possibility that the allocation here should be done one time
+| > only and the buffer pointer saved for re-use instead of allocating it
+| > on each call to ida_ioctl.  If that's desirable, I'll have a few
+| > questions.
+| 
+| No, I don't think so.  I think we should
+| allow for the possibllity of concurrent calls 
+| to this ioctl.  (whether linux allows it is 
+| another question.  I think it used to be the case
+| that only one ioctl could get in at a time... I can't
+| recall if it's still that way.)
 
+Well, my questions were along those lines, like:
+. allocate a buffer per hba or per disk?
+. how much is ida_ioctl() [passthru] used?
+. it's not on a normal(!?!) read path, is it?
+  if so, using kmalloc() that could fail would be a bad idea.
+
+--
+~Randy

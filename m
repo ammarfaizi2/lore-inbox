@@ -1,55 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262676AbTE0GRV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 02:17:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262687AbTE0GRV
+	id S262694AbTE0G05 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 02:26:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262706AbTE0G05
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 02:17:21 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:43282 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S262676AbTE0GRU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 02:17:20 -0400
-Date: Mon, 26 May 2003 23:30:12 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCHES] add ata scsi driver
-In-Reply-To: <3ED300A8.4000405@pobox.com>
-Message-ID: <Pine.LNX.4.44.0305262314260.18484-100000@home.transmeta.com>
+	Tue, 27 May 2003 02:26:57 -0400
+Received: from pimout2-ext.prodigy.net ([207.115.63.101]:60653 "EHLO
+	pimout2-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S262694AbTE0G05 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 May 2003 02:26:57 -0400
+From: dan carpenter <d_carpenter@sbcglobal.net>
+To: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [2.5] [Cool stuff] "checking" mode for kernel builds
+Date: Mon, 26 May 2003 15:17:04 +0200
+User-Agent: KMail/1.5.1
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       kernel-janitor-discuss@lists.sourceforge.net
+References: <Pine.LNX.4.44.0305261728520.15826-100000@home.transmeta.com> <3ED2BE4D.4080005@gmx.net>
+In-Reply-To: <3ED2BE4D.4080005@gmx.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200305261517.05613.d_carpenter@sbcglobal.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tuesday 27 May 2003 03:24 am, Carl-Daniel Hailfinger wrote:
 
-On Tue, 27 May 2003, Jeff Garzik wrote:
-> 
-> As you see from Alan's message and others, it isn't pseudo-SCSI.
+> > Most people who have used the tool actually like how it forces you to
+> > make it very _explicit_ whether you're using a user pointer or not. But I
+> > have to admit that I've grown tired of trying to look at all the uses and
+> > making sure which sparse warnings are valid and which aren't.
+>
+> Dan? IIRC you have tools to tackle this issue in a distributed manner.
+>
+>
 
-It _is_ pseudo-scsi.
+Tracking bugs from one version to the next works pretty well for kbugs.org.  
+Anyone can moderate the bugs as real or not.  I haven't used sparse script 
+yet, but I'll do that tomorrow.  I'd be happy to post the results on 
+kbugs.org.  :)
 
-Or rather, what used to be SCSI is quickly becoming irrelevant. There's 
-almost nothing left, except for the command set. And SCSI is a lot more 
-than the command set, it's the full definition of the signalling from 
-command set to electricals to connectors.
+regards,
+dan carpenter
 
-And the other stuff matters. The linux SCSI layer proper is full of the
-_addressing_ that is part of the SCSI standard proper, and that is pretty
-much total nonsense outside of that standard (it's starting to be nonsense 
-even inside that standard, since everybody running away fron the old buses 
-and the old addressing).
-
-So we shouldn't call it SCSI, because it clearly IS NOT, whatever you
-claim. This is a _fact_, I don't see why you argue against it. SCSI has a
-well-defined definition (or rather, a _set_ of definitions), and SATA
-ain't there. One is T10, the other is part of T13. 
-
-And quite frankly, names matter, and calling it SCSI is clearly wrong.  
-What makes you _think_ it is SCSI is that everybody uses the command set,
-and all devices are starting to largely just talk MMC-2+.
-
-But calling it MMC-2 is also incorrect, since everybody really talks a
-superset, and we should just accept that and not try to limit outselves.
-
-		Linus
 

@@ -1,69 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279880AbRJ3HCT>; Tue, 30 Oct 2001 02:02:19 -0500
+	id <S279885AbRJ3HMt>; Tue, 30 Oct 2001 02:12:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279881AbRJ3HCK>; Tue, 30 Oct 2001 02:02:10 -0500
-Received: from wiproecmx1.wipro.com ([164.164.31.5]:57332 "EHLO
-	wiproecmx1.wipro.com") by vger.kernel.org with ESMTP
-	id <S279880AbRJ3HCG>; Tue, 30 Oct 2001 02:02:06 -0500
-From: "Rajat Chadda" <rajat.chadda@wipro.com>
-To: linux-kernel@vger.kernel.org
-Message-ID: <8e0f1910ec.910ec8e0f1@wipro.com>
-Date: Tue, 30 Oct 2001 12:01:21 +0500
-X-Mailer: Netscape Webmail
+	id <S279884AbRJ3HMl>; Tue, 30 Oct 2001 02:12:41 -0500
+Received: from 65-45-81-178.customer.algx.net ([65.45.81.178]:41459 "EHLO
+	athy.aslab.com") by vger.kernel.org with ESMTP id <S279883AbRJ3HM3>;
+	Tue, 30 Oct 2001 02:12:29 -0500
+Date: Mon, 29 Oct 2001 12:12:38 -0800 (PST)
+From: <andre@aslab.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: ide-2.4.13-ac4.48bit.ultra133.patch.bz2
+Message-ID: <Pine.LNX.4.21.0110291157170.909-100000@athy.aslab.com>
 MIME-Version: 1.0
-Content-Language: en
-Subject: Scheduling Philsophy!
-X-Accept-Language: en
-Content-Type: multipart/mixed;
-	boundary="------------InterScan_NT_MIME_Boundary"
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This is a multi-part message in MIME format.
+It his ready for general usage.  
 
---------------InterScan_NT_MIME_Boundary
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+http://www.linuxdiskcert.org/
 
-Hi,
-If a I get an error saying
-"Kernel Panic ! Problem while Syncing in Interrupt handler" 
-what does it suggest.
+-- 
+Andre Hedrick
+CTO ASL, Inc.
+Linux ATA Development
+-----------------------------------------------------------------------------
+ASL, Inc.                                    Tel: (510) 857-0055 x103
+38875 Cherry Street                          Fax: (510) 857-0010
+Newark, CA 94560                             Web: www.aslab.com
 
-the objective is to override eth0's hard_start_xmit()
-& catch all outgoing packets. Pkts are getting queued
-& a timer gets activated every 5 mins (for throwing dequeuing
-a pkt & throwing it out -- by calling the original
-eth0->hard_start_xmit() ).
-
-I ain't using BHs/Spinlocks/Tasklets/SoftIRQs on Linux-2.4.2
-
-Any guesses as to why it's happening ?
-
-Thanks,
-Rajat.
-
-
---------------InterScan_NT_MIME_Boundary
-Content-Type: text/plain;
-	name="Wipro_Disclaimer.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="Wipro_Disclaimer.txt"
-
------------------------------------------------------------------------------------------------------------------------
-Information transmitted by this E-MAIL is proprietary to Wipro and/or its Customers and
-is intended for use only by the individual or entity to which it is
-addressed, and may contain information that is privileged, confidential or
-exempt from disclosure under applicable law. If you are not the intended
-recipient or it appears that this mail has been forwarded to you without
-proper authority, you are notified that any use or dissemination of this
-information in any manner is strictly prohibited. In such cases, please
-notify us immediately at mailto:mailadmin@wipro.com and delete this mail
-from your records.
-------------------------------------------------------------------------------------------------------------------------
-
---------------InterScan_NT_MIME_Boundary--

@@ -1,54 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261770AbTI3VVA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 17:21:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261776AbTI3VU7
+	id S261731AbTI3VcC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 17:32:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261752AbTI3VcB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 17:20:59 -0400
-Received: from relay2.EECS.Berkeley.EDU ([169.229.60.28]:8954 "EHLO
-	relay2.EECS.Berkeley.EDU") by vger.kernel.org with ESMTP
-	id S261770AbTI3VU5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 17:20:57 -0400
-Subject: Re: 2.6.0-test6: a few __init bugs
-From: "Robert T. Johnson" <rtjohnso@eecs.berkeley.edu>
-To: Greg KH <greg@kroah.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030930191117.GA20054@kroah.com>
-References: <1064872693.5733.42.camel@dooby.cs.berkeley.edu>
-	<20030929221113.GB2720@kroah.com>
-	<1064946634.5734.106.camel@dooby.cs.berkeley.edu> 
-	<20030930191117.GA20054@kroah.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 30 Sep 2003 14:20:53 -0700
-Message-Id: <1064956854.5733.233.camel@dooby.cs.berkeley.edu>
+	Tue, 30 Sep 2003 17:32:01 -0400
+Received: from fw.osdl.org ([65.172.181.6]:17598 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261731AbTI3Vb6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Sep 2003 17:31:58 -0400
+Date: Tue, 30 Sep 2003 14:31:49 -0700
+From: cliff white <cliffw@osdl.org>
+To: linuxppc-dev@lists.linuxppc.org, linux-kernel@vger.kernel.org
+Subject: 2.6.0-test5 - stuck keys on iBook
+Message-Id: <20030930143149.4930ec9c.cliffw@osdl.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-09-30 at 12:11, Greg KH wrote:
-> Hm, care to send in a patch that adds a comment to that __init call so
-> that others don't make the same mistake in a year or so?
-
-Here's the patch you requested, but I recommend against applying it
-since it's the sort of comment that can easily become wrong, leading to
-missed bugs in future kernels.  Thanks again for your help.
-
-Best,
-Rob
-
---- drivers/pci/quirks.c.orig	Tue Sep 30 14:17:40 2003
-+++ drivers/pci/quirks.c	Tue Sep 30 14:16:57 2003
-@@ -869,6 +869,9 @@
- 
- void pci_fixup_device(int pass, struct pci_dev *dev)
- {
-+	/* Note: Many of the hooks in pci_fixups are declared __init
-+           or __devinit, but this is ok because, currently, none of
-+           the devices with quirk hooks are hot-pluggable. */
- 	pci_do_fixups(dev, pass, pcibios_fixups);
- 	pci_do_fixups(dev, pass, pci_fixups);
- }
 
 
+Kernel version: latest from ppc.bkbits.net/linuxppc-2.5
+
+Symptom: keyboard diarrhea - single keypress == 3-7 characters.
+
+I've tried reverting drivers/input/keyboards/atkbd.c back to v1.31, doesn't
+change anything.
+
+Haven't done much other debug, since i can't successfully login to the system
+from console. 
+
+Further information if needed.
+Please cc me if you reply from linuxppc-dev, i am not on that group.
+
+cliffw
+cliffw@osdl.org

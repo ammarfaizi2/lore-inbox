@@ -1,86 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264880AbRFTN4l>; Wed, 20 Jun 2001 09:56:41 -0400
+	id <S264614AbRFTN7A>; Wed, 20 Jun 2001 09:59:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264879AbRFTN4a>; Wed, 20 Jun 2001 09:56:30 -0400
-Received: from [32.97.182.101] ([32.97.182.101]:31713 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S264614AbRFTN4V>;
-	Wed, 20 Jun 2001 09:56:21 -0400
-Importance: Normal
-Subject: Re: [RFQ] aic7xxx driver panics under heavy swap.
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.3 (Intl) 21 March 2000
-Message-ID: <OFADEE406A.252C680F-ON85256A71.004A4502@pok.ibm.com>
-From: "Bulent Abali" <abali@us.ibm.com>
-Date: Wed, 20 Jun 2001 09:56:54 -0400
-X-MIMETrack: Serialize by Router on D01ML233/01/M/IBM(Build V508_06042001 |June 4, 2001) at
- 06/20/2001 09:55:54 AM
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	id <S264881AbRFTN6u>; Wed, 20 Jun 2001 09:58:50 -0400
+Received: from fluent1.pyramid.net ([206.100.220.212]:51504 "EHLO
+	fluent1.pyramid.net") by vger.kernel.org with ESMTP
+	id <S264614AbRFTN6e>; Wed, 20 Jun 2001 09:58:34 -0400
+Message-Id: <4.3.2.7.2.20010620065742.00b5a8b0@mail.fluent-access.com>
+X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
+X-Priority: 2 (High)
+Date: Wed, 20 Jun 2001 06:58:06 -0700
+To: linux-kernel@vger.kernel.org
+From: Stephen Satchell <satch@fluent-access.com>
+Subject: Threads FAQ entry incomplete (was: Alan Cox quote?)
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+At 03:12 PM 6/19/01 -0600, Richard Gooch wrote:
+>New FAQ entry: http://www.tux.org/lkml/#s7-21
+>
+>Yeah, it's probably a bit harsh :-)
 
+It's also incomplete, in my view, to the point of being misleading.
 
-Justin,
-Your patch works for me.  printk "Temporary Resource Shortage"
-has to go, or may be you can make it a debug option.
+Part of the reason I'm reacting so harshly to this FAQ entry is that it 
+flies in the face of my own experience.  I do a lot of real-time and 
+near-real-time programming, and find that the process and thread models are 
+essential to the proper and expected operation of my code.  The FAQ answer 
+neglects this entire area of applications.
 
-Here is the cleaned up patch for 2.4.5-ac15 with TAILQ
-macros replaced with LIST macros.  Thanks for the help.
-Bulent
+For details:  I run a process (not threads as yet, but it will happen) for 
+each event I need to react to in near real time.  The running priority of 
+these processes are set as high as possible so that when the event occurs 
+the newly-unblocked process is guaranteed to run almost immediately.  These 
+processes, when unblocked, do the absolute minimum amount of work to meet 
+the real-time requirements and then block again.  If an event requires 
+extended processing to begin but not to complete in real time, the event 
+process sends an appropriate signal to the main process to perform that 
+extended processing.
 
+The main problem with the comment in the FAQ entry that "it's easy to write 
+an event callback system" is that the response time may not meet the needs 
+of the application, particularly in computer systems that have multiple 
+near-real-time applications running at the same time.
 
+The key design point in this near-real-time model I have described is that 
+it does not violate the rule of thumb described in the FAQ answer, that the 
+Linux kernel is designed to work well with a small number of RUNNING 
+processes/threads.  Ideally, a high-priority process should run for much, 
+much less time than the standard time-slice so as to minimize the number of 
+scheduler elements marked as "ready to run."  My standard is for a 
+high-priority process driven by an event to run for no more than a 
+millisecond or so, and leave any heavy lifting to the main process to take 
+care of when the main process gets around to it.
 
---- aic7xxx_linux.c.save Mon Jun 18 20:25:35 2001
-+++ aic7xxx_linux.c Tue Jun 19 17:35:55 2001
-@@ -1516,7 +1516,11 @@
-     }
-     cmd->result = CAM_REQ_INPROG << 16;
-     TAILQ_INSERT_TAIL(&dev->busyq, (struct ahc_cmd *)cmd, acmd_links.tqe);
--    ahc_linux_run_device_queue(ahc, dev);
-+    if ((dev->flags & AHC_DEV_ON_RUN_LIST) == 0) {
-+         LIST_INSERT_HEAD(&ahc->platform_data->device_runq, dev, links);
-+         dev->flags |= AHC_DEV_ON_RUN_LIST;
-+         ahc_linux_run_device_queues(ahc);
-+    }
-     ahc_unlock(ahc, &flags);
-     return (0);
- }
-@@ -1532,6 +1536,9 @@
-     struct     ahc_tmode_tstate *tstate;
-     uint16_t mask;
+For true real-time processing, you have to write device drivers to react to 
+external events directly, a programming task that is more burdensome and 
+error-prone.  Or, better, use a real RTOS instead of Linux.  When the 
+real-time requirement isn't so critical, though, the method I have 
+described allows the whole thing to be done in userland, where it can be 
+debugged far more easily.
 
-+    if ((dev->flags & AHC_DEV_ON_RUN_LIST) != 0)
-+         panic("running device on run list");
-+
-     while ((acmd = TAILQ_FIRST(&dev->busyq)) != NULL
-         && dev->openings > 0 && dev->qfrozen == 0) {
+In summary, writing code to use many processes or threads is NOT lazy 
+programming in all instances, as the FAQ answer implies.
 
-@@ -1540,8 +1547,6 @@
-           * running is because the whole controller Q is frozen.
-           */
-          if (ahc->platform_data->qfrozen != 0) {
--              if ((dev->flags & AHC_DEV_ON_RUN_LIST) != 0)
--                   return;
-
-               LIST_INSERT_HEAD(&ahc->platform_data->device_runq,
-                          dev, links);
-@@ -1552,8 +1557,6 @@
-           * Get an scb to use.
-           */
-          if ((scb = ahc_get_scb(ahc)) == NULL) {
--              if ((dev->flags & AHC_DEV_ON_RUN_LIST) != 0)
--                   panic("running device on run list");
-               LIST_INSERT_HEAD(&ahc->platform_data->device_runq,
-                          dev, links);
-               dev->flags |= AHC_DEV_ON_RUN_LIST;
-
-
-
-
-
-
-
+Stephen Satchell
+writing time-critical programs for only a short time -- 30 years.
 

@@ -1,65 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261927AbVCZDjo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261931AbVCZDmh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261927AbVCZDjo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Mar 2005 22:39:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261929AbVCZDjo
+	id S261931AbVCZDmh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Mar 2005 22:42:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261930AbVCZDmh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Mar 2005 22:39:44 -0500
-Received: from fire.osdl.org ([65.172.181.4]:5257 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261927AbVCZDjm (ORCPT
+	Fri, 25 Mar 2005 22:42:37 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:43953 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261931AbVCZDl6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Mar 2005 22:39:42 -0500
-Date: Fri, 25 Mar 2005 19:39:39 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: linux-kernel@vger.kernel.org
-Cc: greg@kroah.com, torvalds@osdl.org, akpm@osdl.org
-Subject: Linux 2.6.11.6
-Message-ID: <20050326033939.GV30522@shell0.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+	Fri, 25 Mar 2005 22:41:58 -0500
+From: Jesse Barnes <jbarnes@sgi.com>
+To: Jason Uhlenkott <jasonuhl@sgi.com>
+Subject: Re: [ACPI] Re: 2.6.12-rc1-mm3
+Date: Fri, 25 Mar 2005 19:40:24 -0800
+User-Agent: KMail/1.8
+Cc: Len Brown <len.brown@intel.com>, Luck@cthulhu.engr.sgi.com,
+       Tony <tony.luck@intel.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org,
+       ACPI Developers <acpi-devel@lists.sourceforge.net>
+References: <20050325002154.335c6b0b.akpm@osdl.org> <1111803861.19920.91.camel@d845pe> <20050326025704.GE207782@dragonfly.engr.sgi.com>
+In-Reply-To: <20050326025704.GE207782@dragonfly.engr.sgi.com>
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_omNRCZhZeucUSzt"
+Message-Id: <200503251940.24644.jbarnes@sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-With some pending security fixes it's time to for a -stable update.  So,
-here's 2.6.11.6, in the normal kernel.org places.  This includes some
-security fixes, esp. one which closes a local root exploit in bluetooth.
+--Boundary-00=_omNRCZhZeucUSzt
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-The diffstat and short summary of the fixes are below.
+On Friday, March 25, 2005 6:57 pm, Jason Uhlenkott wrote:
+> On Fri, Mar 25, 2005 at 09:24:21PM -0500, Len Brown wrote:
+> > What bad things happen if you define CONFIG_PM on SN2?
+>
+> None, other than slightly enlarging the kernel with some
+> suspend/resume stuff we don't care about.  It's always been
+> unavailable for SN2 builds:
+>
+> depends on IA64_GENERIC || IA64_DIG || IA64_HP_ZX1 || IA64_HP_ZX1_SWIOTLB
+>
+> but there doesn't appear to be any particular reason for that other
+> than us not needing it (and in fact SN2 systems can run IA64_GENERIC
+> kernels with CONFIG_PM enabled without incident).
+>
+> > Re: CONFIG_ACPI_BOOT
+> > I've got a patch that makes it go away -- this looks like
+> > a good reason for me to dust it off...  Looks like
+> > arch/ia64/Kconfig defines ACPI and then pulls in drivers/acpi/Kconfig,
+> > which it should not do - it should look like i386/Kconfig...
 
-I'll also be replying to this message with a copy of the patch between
-2.6.11.5 and 2.6.11.6, as it is small enough to do so.
+Yeah, I noticed that too.  If you've got a patch to clean it up, we should go 
+ahead and get it sent off to Tony.
 
+I sent this to linux-ia64 the other day to address these issues.
 
-thanks,
--chris
---
+Jesse
 
- Makefile                     |    2 +-
- fs/binfmt_elf.c              |   30 +++++++++++++++++-------------
- fs/ext2/dir.c                |    1 +
- fs/isofs/inode.c             |    5 +++++
- fs/isofs/rock.c              |   25 ++++++++++++++++++-------
- net/bluetooth/af_bluetooth.c |    6 +++---
- 6 files changed, 45 insertions(+), 24 deletions(-)
+--Boundary-00=_omNRCZhZeucUSzt
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="ia64-kconfig-pm-fix.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="ia64-kconfig-pm-fix.patch"
 
-Summary of changes from v2.6.11.5 to v2.6.11.6
-==============================================
+===== arch/ia64/Kconfig 1.85 vs edited =====
+--- 1.85/arch/ia64/Kconfig	2005-01-28 15:32:25 -08:00
++++ edited/arch/ia64/Kconfig	2005-03-21 09:38:29 -08:00
+@@ -328,7 +328,7 @@
+ 
+ config PM
+ 	bool "Power Management support"
+-	depends on IA64_GENERIC || IA64_DIG || IA64_HP_ZX1 || IA64_HP_ZX1_SWIOTLB
++	depends on !IA64_HP_SIM
+ 	default y
+ 	help
+ 	  "Power Management" means that parts of your computer are shut
 
-Chris Wright:
-  o isofs: more defensive checks against corrupt isofs images
-  o Linux 2.6.11.6
-
-Herbert Xu:
-  o Potential DOS in load_elf_library
-
-Linus Torvalds:
-  o isofs: Handle corupted rock-ridge info slightly better
-  o isofs: more "corrupted iso image" error cases
-
-Marcel Holtmann:
-  o Fix signedness problem at socket creation
-
-Mathieu Lafon:
-  o Suspected information leak (mem pages) in ext2
+--Boundary-00=_omNRCZhZeucUSzt--

@@ -1,34 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276424AbRJYVYZ>; Thu, 25 Oct 2001 17:24:25 -0400
+	id <S276429AbRJYVYZ>; Thu, 25 Oct 2001 17:24:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276429AbRJYVYR>; Thu, 25 Oct 2001 17:24:17 -0400
-Received: from sweetums.bluetronic.net ([66.57.88.6]:32952 "EHLO
-	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
-	id <S276397AbRJYVYB>; Thu, 25 Oct 2001 17:24:01 -0400
-Date: Thu, 25 Oct 2001 17:24:33 -0400 (EDT)
-From: Ricky Beam <jfbeam@bluetopia.net>
-X-X-Sender: <jfbeam@sweetums.bluetronic.net>
-To: Mike <maneman@gmx.net>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Machine Check Exception in >2.4.5: Where to comment MCE out?
-In-Reply-To: <3BD74E4C.8A9BB52C@gmx.net>
-Message-ID: <Pine.GSO.4.33.0110251722280.6752-100000@sweetums.bluetronic.net>
+	id <S276411AbRJYVYU>; Thu, 25 Oct 2001 17:24:20 -0400
+Received: from atlrel6.hp.com ([192.151.27.8]:64008 "HELO atlrel6.hp.com")
+	by vger.kernel.org with SMTP id <S276424AbRJYVYD>;
+	Thu, 25 Oct 2001 17:24:03 -0400
+Message-ID: <C5C45572D968D411A1B500D0B74FF4A80418D595@xfc01.fc.hp.com>
+From: "DICKENS,CARY (HP-Loveland,ex2)" <cary_dickens2@hp.com>
+To: "Kernel Mailing List (E-mail)" <linux-kernel@vger.kernel.org>
+Cc: "Jens Axboe (E-mail)" <axboe@suse.de>
+Subject: performance of 2.4.13pre4 with Jens blockhighmem 
+Date: Thu, 25 Oct 2001 17:22:57 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 25 Oct 2001, Mike wrote:
->So now my question is: what exactly should I comment out? One? Both? In
->_all_ sources?
+Here is some more performance data.
 
-The file containing all the MCE "garbage" is called bluesmoke.c.  It should
-be obvious how to disable it upon inspection of the file.
+I had some problems with the megaraid portion of the patch and removed that
+part of it since most of the storage was connected via the qlogicfc card.
+What I measured was a maximum throughput of 125% that of the 2.4.13pre4
+without the patch.  The run was also much more stable.  (No dropped packets
+because of response times.)
 
-As others have stated, "nomce" as a startup option also works.  I forget
-when that entered the linus tree.
+The formula used is:
 
---Ricky
+Max throughput of the 2.4.13pre4 with patch
+--------------------------------------------------------------- * 100
+Max throughput of the' 2.4.13pre4 w/o patch
 
+The problem that I see is that 2.4.13preX were all really slow.  I'm seeing
+less than 50% of the throughput that was seen in 2.4.5pre1 and the response
+times increased by 50% in the 2.4.13pre2 time frame.  Where we were getting
+1 ms response times, we now see 1.5 to 2.  This multiplicative factor grows
+as the test becomes more aggressive.
 
+The benchmark is SPEC SFS NFS benchmark testing. The filesystem is reiserfs.
+
+I hope this information helps.
+
+Cary

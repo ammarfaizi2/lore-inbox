@@ -1,40 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268678AbUI2P54@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268680AbUI2QB3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268678AbUI2P54 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Sep 2004 11:57:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268680AbUI2P54
+	id S268680AbUI2QB3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Sep 2004 12:01:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268679AbUI2QB3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Sep 2004 11:57:56 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:53959 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S268678AbUI2P5z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Sep 2004 11:57:55 -0400
-Subject: RE: mlock(1)
-From: Lee Revell <rlrevell@joe-job.com>
-To: Robert White <rwhite@casabyte.com>
-Cc: jonathan@jonmasters.org, "'Andrea Arcangeli'" <andrea@novell.com>,
-       "'Nigel Cunningham'" <ncunningham@linuxmail.org>,
-       "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>,
-       "'Chris Wright'" <chrisw@osdl.org>, "'Jeff Garzik'" <jgarzik@pobox.com>,
-       "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>,
-       "'Andrew Morton'" <akpm@osdl.org>
-In-Reply-To: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA2ZSI4XW+fk25FhAf9BqjtMKAAAAQAAAAB5m5SdJOJE2qQqawmmv7+gEAAAAA@casabyte.com>
-References: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA2ZSI4XW+fk25FhAf9BqjtMKAAAAQAAAAB5m5SdJOJE2qQqawmmv7+gEAAAAA@casabyte.com>
-Content-Type: text/plain
-Message-Id: <1096473474.11544.85.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 29 Sep 2004 11:57:54 -0400
+	Wed, 29 Sep 2004 12:01:29 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:10376 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S268680AbUI2QBJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Sep 2004 12:01:09 -0400
+Message-ID: <415ADC31.7080902@pobox.com>
+Date: Wed, 29 Sep 2004 12:00:49 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Colin Leroy <colin@colino.net>
+CC: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Add polling support to Sungem
+References: <20040929145721.6a489ed8@pirandello>
+In-Reply-To: <20040929145721.6a489ed8@pirandello>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-09-28 at 23:46, Robert White wrote:
-> (Sorry I am using outlook here at work by corporate mandate so my responses are
-> tediously at the top... 8-)
+Colin Leroy wrote:
+> [sending again, forgot Cc:, sorry]
+> 
+> Hi Benjamin!
+> 
+> This patch adds polling support to Sungem ethernet card. It makes
+> netconsole usable on iBook G4, for example.
+> I hope it's fine.
+> 
+> Signed-off-by: Colin Leroy <colin@colino.net>
+> 
+> --- a/drivers/net/sungem.c	2004-09-29 12:22:41.802346664 +0200
+> +++ b/drivers/net/sungem.c	2004-09-29 12:15:56.000000000 +0200
+> @@ -2687,6 +2687,23 @@
+>  }
+>  #endif /* not Sparc and not PPC */
+>  
+> +#ifdef CONFIG_NET_POLL_CONTROLLER
+> +/*
+> + * Polling 'interrupt' - used by things like netconsole to send skbs
+> + * without having to re-enable interrupts. It's not called while
+> + * the interrupt routine is executing.
+> + */
+> +static void gem_netpoll(struct net_device *netdev)
+> +{
+> +	struct gem *gp = netdev->priv;
+> +	if (!gp->pdev)
+> +		return;
+> +	disable_irq(gp->pdev->irq);
+> +	gem_interrupt(gp->pdev->irq, netdev, NULL);
+> +	enable_irq(gp->pdev->irq);
+> +}
+> +#endif
 
-Can't you just hit Ctrl-End to go to the end of the message, and start
-typing there?
+Check BK snapshots, this support is already in sungem.
 
-Lee
+	Jeff
+
+
 

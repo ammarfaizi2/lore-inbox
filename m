@@ -1,57 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285692AbSBKAor>; Sun, 10 Feb 2002 19:44:47 -0500
+	id <S285666AbSBKApr>; Sun, 10 Feb 2002 19:45:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285666AbSBKAoi>; Sun, 10 Feb 2002 19:44:38 -0500
-Received: from mailout.informatik.tu-muenchen.de ([131.159.0.5]:59318 "EHLO
-	mailout.informatik.tu-muenchen.de") by vger.kernel.org with ESMTP
-	id <S285692AbSBKAoZ>; Sun, 10 Feb 2002 19:44:25 -0500
-Subject: pci_pool reap?
-From: Daniel Stodden <stodden@in.tum.de>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-uD6v9UepdAfDo1GC0gD+"
-X-Mailer: Evolution/1.0.2 
-Date: 11 Feb 2002 01:44:13 +0100
-Message-Id: <1013388253.15449.12.camel@bitch>
-Mime-Version: 1.0
+	id <S285828AbSBKApa>; Sun, 10 Feb 2002 19:45:30 -0500
+Received: from web21307.mail.yahoo.com ([216.136.128.232]:61703 "HELO
+	web21307.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S285666AbSBKApT>; Sun, 10 Feb 2002 19:45:19 -0500
+Message-ID: <20020211004518.73827.qmail@web21307.mail.yahoo.com>
+Date: Sun, 10 Feb 2002 16:45:18 -0800 (PST)
+From: Marie Burnett <marie_recruiter@yahoo.com>
+Subject: Job Announcement
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Please pass this along to anyone you think might be
+interested.
+ . ...or send me your resume if this is of interest to
+you -- thanks!
 
---=-uD6v9UepdAfDo1GC0gD+
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Linux Kernel Engineer - Silicon Valley, CA
+EXCELLENT $, Relo and H-1 OK!
+PLEASE SEND YOUR RESUME TO marie_burnett@hotmail.com
+Job Duties and Responsibilities:
+Design & develop leading edge software for a NAS
+device based on embedded Linux. Design and implement
+innovative solutions for clustered storage servers. 
 
-hi.
+Job Requirements:
+In depth knowledge of Linux operating system
+internals, file systems architecture, and clustering
+and fail-over solutions. Experience in kernel, device
+driver and networking development. Expertise in
+evaluating and integrating both Open Source and
+internally developed Linux components. Proven ability
+to work successfully within a large team and
+communicate effectively. Keep up-to-date on current
+development in Linux OS community.
 
-is it true that pci pools are never shrunk? or am i just missing the
-point where it happens?
-
-try_to_free_pages() seems to care just about kmem_caches.
-
-looks odd to me...
-
-
-thanx,
-dns
-
---=20
-___________________________________________________________________________
- mailto:stodden@in.tum.de
+Experience/Education:
+5+ years experience of software development in
+medium/large software projects.
+3+ years of technical expertise with Linux.
+Bachelor’s degree in Computer Science or Electrical
+Engineering.
+Familiar with development within the open source
+community.
+PLEASE SEND YOUR RESUME TO marie_burnett@hotmail.com
+AND PLEASE FORWARD THIS TO ANYONE WHO YOU THINK MIGHT
+BE INTERESTED
 
 
---=-uD6v9UepdAfDo1GC0gD+
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQA8ZxPdSPSplX5M5nQRAgkjAJ9X+qDkiywiggSmrGj19r2r85g39wCgtcXx
-wkfr03d1fxQYKGPpjx4Iols=
-=C2DB
------END PGP SIGNATURE-----
-
---=-uD6v9UepdAfDo1GC0gD+--
+__________________________________________________
+Do You Yahoo!?
+Send FREE Valentine eCards with Yahoo! Greetings!
+http://greetings.yahoo.com

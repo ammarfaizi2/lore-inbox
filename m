@@ -1,38 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261545AbVB1BKw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261546AbVB1BQO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261545AbVB1BKw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Feb 2005 20:10:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261546AbVB1BKv
+	id S261546AbVB1BQO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Feb 2005 20:16:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261547AbVB1BQO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Feb 2005 20:10:51 -0500
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:65230 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S261545AbVB1BKs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Feb 2005 20:10:48 -0500
-From: Parag Warudkar <kernel-stuff@comcast.net>
-To: Jean-Marc Valin <Jean-Marc.Valin@usherbrooke.ca>
-Subject: Re: ext3 bug
-Date: Sun, 27 Feb 2005 20:10:46 -0500
-User-Agent: KMail/1.7.92
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-References: <1109487896.8360.16.camel@localhost> <200502271406.30690.kernel-stuff@comcast.net> <1109545130.7940.2.camel@localhost>
-In-Reply-To: <1109545130.7940.2.camel@localhost>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sun, 27 Feb 2005 20:16:14 -0500
+Received: from fire.osdl.org ([65.172.181.4]:38016 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261546AbVB1BQK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Feb 2005 20:16:10 -0500
+Date: Sun, 27 Feb 2005 17:05:07 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: torvalds <torvalds@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH] sound/oss/opl3as2: fix init section reference
+Message-Id: <20050227170507.58223ad7.rddunlap@osdl.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200502272010.46744.kernel-stuff@comcast.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 27 February 2005 05:58 pm, Jean-Marc Valin wrote:
-> I did use a stock 2.6.10 kernel (I said custom in the sense that it
-> wasn't a Debian kernel). After a reboot, I was able to run fsck on the
-> disk (many, many errors) and it went fine after.
 
-Hmm.. So that error is not FC3 specific, it is present in stock 2.6.10 as 
-well.  Also - This is on a USB disk, right? If so, the error may re-surface. 
-Try upgrading to latest kernel if possible. 
+sound/oss/opl3sa2:  calls __init function during probe, which may
+be after init for PNP devices;
 
-Parag
+Error: ./sound/oss/opl3sa2.o .text refers to 0000000000000204 R_X86_64_PC32     .init.text+0xfffffffffffffffc                                                   Error: ./sound/oss/opl3sa2.o .text refers to 0000000000000210 R_X86_64_PC32     .init.text+0xfffffffffffffffc                                                   Error: ./sound/oss/opl3sa2.o .text refers to 000000000000021c R_X86_64_PC32     .init.text+0xfffffffffffffffc
+
+Signed-off-by: Randy Dunlap <rddunlap@osdl.org>
+
+diffstat:=
+ sound/oss/opl3sa2.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+diff -Naurp ./sound/oss/opl3sa2.c~sound_opl_sections ./sound/oss/opl3sa2.c
+--- ./sound/oss/opl3sa2.c~sound_opl_sections	2005-02-27 12:54:07.373802456 -0800
++++ ./sound/oss/opl3sa2.c	2005-02-27 17:08:18.164329888 -0800
+@@ -711,7 +711,7 @@ static void __init attach_opl3sa2_mixer(
+ }
+ 
+ 
+-static void __init opl3sa2_clear_slots(struct address_info* hw_config)
++static void opl3sa2_clear_slots(struct address_info* hw_config)
+ {
+ 	int i;
+ 
+
+
+---

@@ -1,66 +1,74 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316654AbSFFBoL>; Wed, 5 Jun 2002 21:44:11 -0400
+	id <S316673AbSFFB7L>; Wed, 5 Jun 2002 21:59:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316667AbSFFBoK>; Wed, 5 Jun 2002 21:44:10 -0400
-Received: from vasquez.zip.com.au ([203.12.97.41]:24325 "EHLO
+	id <S316682AbSFFB7K>; Wed, 5 Jun 2002 21:59:10 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:55052 "EHLO
 	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S316654AbSFFBoI>; Wed, 5 Jun 2002 21:44:08 -0400
-Message-ID: <3CFEBF5D.9E415F75@zip.com.au>
-Date: Wed, 05 Jun 2002 18:48:13 -0700
+	id <S316673AbSFFB7J>; Wed, 5 Jun 2002 21:59:09 -0400
+Message-ID: <3CFEC2E6.F1AF17B5@zip.com.au>
+Date: Wed, 05 Jun 2002 19:03:18 -0700
 From: Andrew Morton <akpm@zip.com.au>
 X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre9 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: "Adam J. Richter" <adam@yggdrasil.com>
-CC: colpatch@us.ibm.com, axboe@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: Patch??: linux-2.5.20/fs/bio.c - ll_rw_kio could generate bio's 
- bigger than queue could handle
-In-Reply-To: <200206060122.SAA00693@adam.yggdrasil.com>
+To: glynis@butterfly.hjsoft.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.20: smbfs oops in smb_readpage
+In-Reply-To: <20020606013654.GA32609@butterfly.hjsoft.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Adam J. Richter" wrote:
+glynis@butterfly.hjsoft.com wrote:
 > 
+> reading a file from an smbfs causes this oops, then the smbfs won't
+> unmount.
 > ...
-> >***generic_make_request: bio_sectors(bio) = 8, q->max_sectors = 64
-> >***generic_make_request: bio_sectors(bio) = 96, q->max_sectors = 64
-> >kernel BUG at ll_rw_blk.c:1602!
-> [...]
-> >>>EIP; c01bb604 <generic_make_request+d4/130>   <=====
-> >Trace; c01bb6dc <submit_bio+5c/70>
-> >Trace; c0152aa1 <mpage_bio_submit+31/40>
-> >Trace; c0152dee <do_mpage_readpage+2ee/340>
-> >Trace; c019ae75 <radix_tree_insert+15/30>
-> >Trace; c012809e <__add_to_page_cache+1e/a0>
-> >Trace; c01281bd <add_to_page_cache_unique+3d/60>
-> >Trace; c0152eaa <mpage_readpages+6a/b0>
-> >Trace; c01620a0 <ext2_get_block+0/400>
-> [...]
+> >>EIP; ccae8013 <[smbfs]smb_readpage+13/40>   <=====
 > 
->         I think your kernel panic is proably related to the
-> same problem that I addressed in ll_rw_kio, but, in fs/mpage.c
-> as Andrew Moreton suggested:
+> >>ebx; c11a2850 <_end+ea2c6c/c5e241c>
+> >>ecx; c11a2850 <_end+ea2c6c/c5e241c>
+> >>edx; c1049b8c <_end+d49fa8/c5e241c>
+> >>edi; c66f3138 <_end+63f3554/c5e241c>
+> >>esp; c78a5e44 <_end+75a6260/c5e241c>
+> 
+> Trace; c013bed4 <read_pages+84/a0>
+> Trace; c013bfb0 <do_page_cache_readahead+c0/140>
 
-Yes, same thing.
+You can blame me for that.
 
-It looks like BIO_MAX_FOO needs to become an API function.
-Question is: what should it return? Number of sectors, number
-of bytes or number of pages?
+Does this work OK?
 
-For my purposes, I'd prefer number of pages.  ie: the vector
-count which gets passed into bio_alloc:
-
-	unsigned bio_max_iovecs(struct block_device *bdev);
-
-	nr_iovecs = bio_max_iovecs(bdev);
-	bio = bio_alloc(GFP_KERNEL, nr_iovecs);
-
-would suit.
-
-And if, via this, we can submit BIOs which are larger than 64k
-for the common "it's just a disk" case then that is icing.
+--- 2.5.20/mm/readahead.c~readpages	Wed Jun  5 18:59:49 2002
++++ 2.5.20-akpm/mm/readahead.c	Wed Jun  5 19:00:14 2002
+@@ -32,7 +32,7 @@ static inline unsigned long get_min_read
+ }
+ 
+ static int
+-read_pages(struct address_space *mapping,
++read_pages(struct file *file, struct address_space *mapping,
+ 		struct list_head *pages, unsigned nr_pages)
+ {
+ 	unsigned page_idx;
+@@ -44,7 +44,7 @@ read_pages(struct address_space *mapping
+ 		struct page *page = list_entry(pages->prev, struct page, list);
+ 		list_del(&page->list);
+ 		if (!add_to_page_cache_unique(page, mapping, page->index))
+-			mapping->a_ops->readpage(NULL, page);
++			mapping->a_ops->readpage(file, page);
+ 		page_cache_release(page);
+ 	}
+ 	return 0;
+@@ -167,7 +167,7 @@ void do_page_cache_readahead(struct file
+ 	 * uptodate then the caller will launch readpage again, and
+ 	 * will then handle the error.
+ 	 */
+-	read_pages(mapping, &page_pool, nr_to_really_read);
++	read_pages(file, mapping, &page_pool, nr_to_really_read);
+ 	blk_run_queues();
+ 	BUG_ON(!list_empty(&page_pool));
+ 	return;
 
 -

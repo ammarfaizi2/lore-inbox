@@ -1,46 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265079AbTFCQM6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jun 2003 12:12:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265071AbTFCQM6
+	id S265080AbTFCQSB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 12:18:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265082AbTFCQSB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jun 2003 12:12:58 -0400
-Received: from pcp701542pcs.bowie01.md.comcast.net ([68.50.82.18]:52609 "EHLO
-	lucifer.gotontheinter.net") by vger.kernel.org with ESMTP
-	id S265079AbTFCQM5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jun 2003 12:12:57 -0400
-Subject: [PATCHSET] prerelease of 2.4.21-rc6-dis3
-From: Disconnect <lkml@sigkill.net>
-To: lkml <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1054657575.12971.38.camel@slappy>
+	Tue, 3 Jun 2003 12:18:01 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:41265 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S265080AbTFCQR7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jun 2003 12:17:59 -0400
+Date: Tue, 3 Jun 2003 12:31:24 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: sys_lookup_dcookie on s390
+Message-ID: <20030603123124.A10799@devserv.devel.redhat.com>
+References: <OFB6EC5BCF.26B6C560-ONC1256D3A.0030FEB2@de.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 03 Jun 2003 12:26:15 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <OFB6EC5BCF.26B6C560-ONC1256D3A.0030FEB2@de.ibm.com>; from schwidefsky@de.ibm.com on Tue, Jun 03, 2003 at 11:22:32AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There is a new pre-release of 2.4.21-rc6-dis3 for laptops (specifically
-Inspiron 8500, but its a lot more general these days) on my site. 
+> From: "Martin Schwidefsky" <schwidefsky@de.ibm.com>
+> Date: Tue, 3 Jun 2003 11:22:32 +0200
 
-http://www.gotontheinter.net/kernel/ has all the details, but the
-biggest change is that non-8500 users don't have to patch it before use
-(yay) and there are a couple of patches that should make nvidia users
-happier.
+> > Are you going to assign a number for lookup_dcookie? If yes, when?
+> 
+> You can use 110 for lookup_dcookie (reusing i386 specific iopl number that
+> have always been unused for s390). Never came around porting the oprofile
+> stuff to s390. Do you plan to do it ?
 
-Basically anyone with ACPI-only systems can take advantage of at least
-some of this (eg swsusp) and laptop users should -really- like it.
+I am going to use it with timer profiling at first.
+It is essentially zero effort port, just add the syscall
+and config.in entry.
 
-Testers very welcome, especially those of you with nvidia cards..
+Still, do you have a suggestion for any other interrupt?
+For instance, on i386 it can use NMI. It is my understanding
+(perhaps incorrect), that using other interrupt can
+a) increase precision, if HZ is low, but other interrupt can
+fire more often, b) reduce overhead. Also, sometimes you can
+do tricks, if hardware allows it. On sparc, for instance,
+you can redefine __local_cli() in such a way that all interrupts
+would be closed except the profiling interrupt. Then, the
+profiler gathers data about people sitting on spinlocks, etc.
+This is what I am looking for, but I'm not sufficiently versed
+in the architecture for decide if we have a suitable interrupt
+source.
 
-In addition to the rest of the community, big kudos go to Con for his
--ck set (from which some of these patches originated) and both Graeme
-and Mike for their work on the i8500.  I think that with -dis3 (and a
-solid AML debug pass, since the DSDT it ships is junk) we'll have this
-thing beat yet :)
-
--- 
-Disconnect <lkml@sigkill.net>
-
+-- Pete

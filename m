@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317532AbSFRSCD>; Tue, 18 Jun 2002 14:02:03 -0400
+	id <S317528AbSFRSAq>; Tue, 18 Jun 2002 14:00:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317530AbSFRSCB>; Tue, 18 Jun 2002 14:02:01 -0400
-Received: from mail.webmaster.com ([216.152.64.131]:14990 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP
-	id <S317529AbSFRSB4> convert rfc822-to-8bit; Tue, 18 Jun 2002 14:01:56 -0400
-From: David Schwartz <davids@webmaster.com>
-To: <mgix@mgix.com>, <root@chaos.analogic.com>,
-       Chris Friesen <cfriesen@nortelnetworks.com>
-CC: <rml@tech9.net>, <linux-kernel@vger.kernel.org>
-X-Mailer: PocoMail 2.61 (1025) - Licensed Version
-Date: Tue, 18 Jun 2002 11:01:53 -0700
-In-Reply-To: <AMEKICHCJFIFEDIBLGOBEEEHCBAA.mgix@mgix.com>
-Subject: RE: Question about sched_yield()
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Message-ID: <20020618180154.AAA21943@shell.webmaster.com@whenever>
+	id <S317529AbSFRSAq>; Tue, 18 Jun 2002 14:00:46 -0400
+Received: from nycsmtp3fa.rdc-nyc.rr.com ([24.29.99.79]:38668 "EHLO si.rr.com")
+	by vger.kernel.org with ESMTP id <S317528AbSFRSAo>;
+	Tue, 18 Jun 2002 14:00:44 -0400
+Date: Tue, 18 Jun 2002 13:51:54 -0400 (EDT)
+From: Frank Davis <fdavis@si.rr.com>
+X-X-Sender: fdavis@localhost.localdomain
+To: linux-kernel@vger.kernel.org
+cc: fdavis@si.rr.com, <torvalds@transmeta.com>
+Subject: [PATCH] 2.5.22 : include/linux/intermezzo_psdev.h
+Message-ID: <Pine.LNX.4.44.0206181349330.1658-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello all,
+   The following patch fixes a compile error regarding a name change 
+within task_struct, which affects ISLENTO() . Please review for inclusion.
+Regards,
+Frank
 
->All I want is: when I run a bunch of
->yielders and a actual working process, I want the
->working process to not be slown down (wall clock) in
->anyway. That's all. What top shows is of little interest
->(to me). What matters is how many real world seconds it takes
->for the actually working process to complete its task.
->And that should not be affected by the presence of running
->yielders. And, David, no one is arguing the fact that a yielder
->running all by itself should log 100% of the CPU.
+--- include/linux/intermezzo_psdev.h.old	Tue Jun 18 13:47:15 2002
++++ include/linux/intermezzo_psdev.h	Tue Jun 18 13:47:03 2002
+@@ -47,7 +47,7 @@
+ };
+ 
+ #define ISLENTO(minor) (current->pid == upc_comms[minor].uc_pid \
+-                || current->p_pptr->pid == upc_comms[minor].uc_pid)
++                || current->parent->pid == upc_comms[minor].uc_pid)
+ 
+ extern struct upc_comm upc_comms[MAX_PRESTODEV];
+ 
 
-	Your assumptions are just plain wrong. The yielder is being nice, so it 
-should get preferential treatment, not worse treatment. All threads are 
-ready-to-run all the time. Yielding is not the same as blocking or lowering 
-your priority.
-
-	DS
 
 

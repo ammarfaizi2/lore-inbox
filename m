@@ -1,51 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261685AbTCaOdq>; Mon, 31 Mar 2003 09:33:46 -0500
+	id <S261659AbTCaOa1>; Mon, 31 Mar 2003 09:30:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261690AbTCaOdq>; Mon, 31 Mar 2003 09:33:46 -0500
-Received: from Mail1.KONTENT.De ([81.88.34.36]:44713 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id <S261685AbTCaOdp>;
-	Mon, 31 Mar 2003 09:33:45 -0500
-From: Oliver Neukum <oliver@neukum.org>
-Reply-To: oliver@neukum.name
-To: Helge Hafting <helgehaf@aitel.hist.no>, erik@hensema.net
-Subject: Re: Delaying writes to disk when there's no need
-Date: Mon, 31 Mar 2003 16:45:02 +0200
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org
-References: <slrnb843gi.2tt.usenet@bender.home.hensema.net> <slrnb8gbfp.1d6.erik@bender.home.hensema.net> <3E8845A8.20107@aitel.hist.no>
-In-Reply-To: <3E8845A8.20107@aitel.hist.no>
+	id <S261665AbTCaOa1>; Mon, 31 Mar 2003 09:30:27 -0500
+Received: from slarti.muc.de ([193.149.48.10]:49668 "HELO slarti.muc.de")
+	by vger.kernel.org with SMTP id <S261659AbTCaO3w>;
+	Mon, 31 Mar 2003 09:29:52 -0500
+From: Stephan Maciej <stephanm@muc.de>
+Date: Mon, 31 Mar 2003 16:15:38 +0200
+User-Agent: KMail/1.5.9
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200303311645.02635.oliver@neukum.org>
+To: linux-kernel@vger.kernel.org
+Cc: Osamu Tomita <tomita@cinet.co.jp>
+Subject: [PATCH 2.5.66] Janitor: misc_register() can fail, even in drivers/char/upd4990.c
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200303311615.38019.stephanm@muc.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> A manual solution is possible if we can have two "knobs"
-> for this:
-> 1. Treshold for when to start writing out stuff
-> 2. Treshold for when to throttle processes.
->
-> The latter may or may not be necessary, the point is that the former
-> should kick in long before throttling is necessary.
->
-> This is usually expressed as how many % of memory that is dirty, but
-> I'm not sure that is the right thing.  It assumes that 100% will be
-> available after cleaning, which may be way off.
->
-> Something like % of memory that is still available (free,
-> or instantly freeable by reclaiming clean unpinned cache)
-
-Is there any sense in allowing a task to keep dirty a certain percentage
-of free memory? If you have a task that has to be throttled amyway,
-is any memory that this task keeps dirty wasted anyway, if it's more
-than needed to send efficient io requests to the device? Somebody
-else might have better uses for that memory.
-
-	Regards
-		Oliver
+--- linux-2.5.66/drivers/char/upd4990a.c~unmodified	2003-03-31 15:42:15.000000000 +0200
++++ linux-2.5.66/drivers/char/upd4990a.c	2003-03-31 16:05:15.000000000 +0200
+@@ -343,19 +343,28 @@
+ 
+ static int __init rtc_init(void)
+ {
++	int err = 0;
++
+ 	if (!request_region(UPD4990A_IO, 1, "rtc")) {
+ 		printk(KERN_ERR "upd4990a: could not acquire I/O port %#x\n",
+ 			UPD4990A_IO);
+ 		return -EBUSY;
+ 	}
+ 
++	err = misc_register(&rtc_dev);
++	if (err) {
++		printk(KERN_ERR "upd4990a: can't misc_register() on minor=%d\n",
++			RTC_MINOR);
++		release_region(UPD4990A_IO, 1);
++		return err;
++	}
++		
+ #if 0
+ 	printk(KERN_INFO "\xB6\xDA\xDD\xC0\xDE \xC4\xDE\xB9\xB2 Driver\n");  /* Calender Clock Driver */
+ #else
+ 	printk(KERN_INFO
+ 	       "Real Time Clock driver for NEC PC-9800 v" RTC98_VERSION "\n");
+ #endif
+-	misc_register(&rtc_dev);
+ 	create_proc_read_entry("driver/rtc", 0, NULL, rtc_read_proc, NULL);
+ 
+ 	init_timer(&rtc_uie_timer);
 

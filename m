@@ -1,69 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132725AbRDDATs>; Tue, 3 Apr 2001 20:19:48 -0400
+	id <S132724AbRDDAeX>; Tue, 3 Apr 2001 20:34:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132726AbRDDATo>; Tue, 3 Apr 2001 20:19:44 -0400
-Received: from pop.gmx.net ([194.221.183.20]:17305 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S132725AbRDDATS>;
-	Tue, 3 Apr 2001 20:19:18 -0400
-Date: Wed, 4 Apr 2001 02:15:54 +0200
-From: "Manfred H. Winter" <mahowi@gmx.net>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: [2.4.3] PPP errors
-Message-ID: <20010404021554.A1596@marvin.mahowi.de>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-X-Operating-System: Linux 2.4.3 i686
+	id <S132727AbRDDAeN>; Tue, 3 Apr 2001 20:34:13 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:52234 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S132726AbRDDAd7>; Tue, 3 Apr 2001 20:33:59 -0400
+Subject: Re: a quest for a better scheduler
+To: fabio@chromium.com (Fabio Riccardi)
+Date: Wed, 4 Apr 2001 01:35:46 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <3ACA6BF4.9A3F93A2@chromium.com> from "Fabio Riccardi" at Apr 03, 2001 05:33:57 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14kbH2-0000qX-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+> for the "normal case" performance see my other message.
 
-I still get from time to time the following errors when trying to use
-ppp:
+I did - and with a lot of interest
 
-Apr  4 02:05:21 marvin pppd[1227]: Plugin /usr/lib/passwordfd.so loaded.
-Apr  4 02:05:21 marvin pppd[1227]: pppd 2.4.0 started by mahowi, uid 500
-Apr  4 02:05:21 marvin pppd[1227]: Perms of /dev/ttyS0 are ok, no 'mesg n' necce
-sary.
-Apr  4 02:05:21 marvin pppd[1227]: Couldn't set tty to PPP discipline: Invalid a
-rgument
-Apr  4 02:05:21 marvin pppd[1227]: Exit.
+> I agree that a better threading model would surely help in a web server, but to
+> me this is not an excuse to live up with a broken scheduler.
 
-+++
+The problem has always been - alternative scheduler, crappier performance for
+2 tasks running (which is most boxes). If your numbers are right then the
+HP patch is working as well for 1 or 2 tasks too
 
-ver_linux output:
-Linux marvin 2.4.3 #3 Sun Apr 1 19:01:20 CEST 2001 i686 unknown
- 
-Gnu C                  2.95.2
-Gnu make               3.79.1
-binutils               2.10.0.33
-util-linux             2.10s
-modutils               2.4.2
-e2fsprogs              1.19
-reiserfsprogs          3.x.0j
-PPP                    2.4.0
-Linux C Library        x    1 root     root      1382179 Jan 19 07:14 /lib/libc.so.6
-Dynamic linker (ldd)   2.2
-Procps                 2.0.7
-Net-tools              1.57
-Kbd                    1.02
-Sh-utils               2.0
-Modules Loaded         serial sb sb_lib uart401 isa-pnp NVdriver opl3 sound soundcore ipt_MASQUERADE iptable_nat ip_conntrack ppp_generic slhc iptable_filter ip_tables af_packet khttpd autofs4 unix 8139too ide-scsi aic7xxx scsi_mod
+> Unless we want to maintain the position tha the only way to achieve good
+> performance is to embed server applications in the kernel, some minimal help
+> should be provided to goodwilling user applications :)
 
-+++
+Indeed. I'd love to see you beat tux entirely in userspace.  It proves the
+rest of the API for the kernel is right
 
-I didn't change my ppp configuration for months so I think it's a kernel 
-problem.
 
-Bye,
-
-Manfred
--- 
- /"\                        | PGP-Key available at Public Key Servers
- \ /  ASCII ribbon campaign | or at "http://www.mahowi.de/"
-  X   against HTML mail     | RSA: 0xC05BC0F5 * DSS: 0x4613B5CA
- / \  and postings          | GPG: 0x88BC3576 * ICQ: 61597169

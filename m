@@ -1,85 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261159AbTJLWJU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Oct 2003 18:09:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261168AbTJLWJU
+	id S261168AbTJLW14 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Oct 2003 18:27:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261190AbTJLW14
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Oct 2003 18:09:20 -0400
-Received: from dci.doncaster.on.ca ([66.11.168.194]:40609 "EHLO smtp.istop.com")
-	by vger.kernel.org with ESMTP id S261159AbTJLWJS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Oct 2003 18:09:18 -0400
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Greg Stark <gsstark@mit.edu>, Joel Becker <Joel.Becker@oracle.com>,
-       Jamie Lokier <jamie@shareable.org>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Ulrich Drepper <drepper@redhat.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: statfs() / statvfs() syscall ballsup...
-References: <Pine.LNX.4.44.0310120909050.12190-100000@home.osdl.org>
-In-Reply-To: <Pine.LNX.4.44.0310120909050.12190-100000@home.osdl.org>
-From: Greg Stark <gsstark@mit.edu>
-Organization: The Emacs Conspiracy; member since 1992
-Date: 12 Oct 2003 18:09:16 -0400
-Message-ID: <878ynq3y7n.fsf@stark.dyndns.tv>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Sun, 12 Oct 2003 18:27:56 -0400
+Received: from natsmtp01.rzone.de ([81.169.145.166]:38135 "EHLO
+	natsmtp01.rzone.de") by vger.kernel.org with ESMTP id S261168AbTJLW1y
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Oct 2003 18:27:54 -0400
+Message-ID: <3F89D567.6080901@softhome.net>
+Date: Mon, 13 Oct 2003 00:27:51 +0200
+From: "Ihar 'Philips' Filipau" <filia@softhome.net>
+Organization: Home Sweet Home
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20030927
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Hans Reiser <reiser@namesys.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: ReiserFS causing kernel panic?
+References: <FNmF.1ky.9@gated-at.bofh.it> <FNFZ.1JI.3@gated-at.bofh.it> <FP59.3H0.17@gated-at.bofh.it> <FVkc.42S.5@gated-at.bofh.it>
+In-Reply-To: <FVkc.42S.5@gated-at.bofh.it>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@osdl.org> writes:
+Hans Reiser wrote:
+> reiserfs is not warranted to work on corrupted hdds.....
 
-> > worse, there's no way to indicate that the i/o it's doing is lower priority,
-> > so i/o bound servers get hit dramatically. 
-> 
-> IO priorities are pretty much worthless. It doesn't _matter_ if other 
-> processes get preferred treatment - what is costly is the latency cost of 
-> seeking. What you want is not priorities, but batching.
+   Is there any kind of error statistics for hard drives?
 
-What you want depends very much on the circumstances. I'm sure in a lot of
-cases batching helps, but in this case it's not the issue.
+   Geometry is known.
+   I suspect that structure of damages, caused by contact of plates 
+surface with head, can be classified.
 
-The vacuum job that runs periodically in fact is batched very well. In fact
-that's the main reason it exists rather than having the cleanup handled in the
-critical path in the transaction itself. 
+   It may be possible to classify manufacturing glitches. I think HD 
+producers have this kind of classification/statistics - to improve 
+quality, keeping price low.
 
-I'm not aware of all the details but my understanding is that it reads every
-block in the table sequentially, keeping note of all the records that are no
-longer visible to any transaction. When it's finished reading it writes out a
-"free space map" that subsequent transactions read and use to find available
-space in the table.
+   Actually what I'm thinking of: some kind of design rules for file 
+systems, how to minimize crashing due to hdd glitches.
+   Let's say, if some of hdd regions are know to be more error prone - 
+desing fs to use those regions less.
+   If hdd damages used to have some specific structure - design file 
+system to keep renundant data in regions which are less likely to be 
+lost both at the same time. So renundancy would make sense.
 
-The vacuum job is makes very efficient use of disk i/o. In fact too efficient.
-Frequently people have their disks running at 50-90% capacity simply handling
-the random seeks to read data. Those seeks are already batched to the OS's
-best ability. 
+   Is there any thing like this?
 
-But then vacuum comes along and tries to read the entire table sequentially.
-In the best case the sequential read will take up a lot of the available disk
-bandwidth and delay transactions. In the worst case the OS will actually
-prefer the sequential read because the elevator algorithm always sees that it
-can get more bandwidth by handling it ahead of the random access.
-
-In reality there is no time pressure on the vacuum at all. As long as it
-completes faster than dead records can pile up it's fast enough. The
-transactions on the other hand must complete as fast as possible.
-
-Certainly batching is useful and in many cases is more important than
-prioritizing, but in this case it's not the whole answer.
-
-I'll mention this thread on the postgresql-hackers list, perhaps some of the
-more knowledgeable programmers there will have thought about these issues and
-will be able to post their wishlist ideas for kernel APIs.
-
-I can see why back in the day Oracle preferred to simply tell all the OS
-vendors, "just give us direct control over disk accesses, we'll figure it out"
-rather than have to really hash out all the details of their low level needs
-with every OS vendor. But between being able to prioritize I/O resources and
-cache resources, and being able to sync IDE disks properly and cleanly (that
-other thread) Linux may be able drastically improve the kernel interface for
-databases.
+   Or file systems now do outlive hard drives?-)
 
 -- 
-greg
+Ihar 'Philips' Filipau  / with best regards from Saarbruecken.
+--
+   "... and for $64000 question, could you get yourself vaguely
+      familiar with the notion of on-topic posting?"
+				-- Al Viro @ LKML
 

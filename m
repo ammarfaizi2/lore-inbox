@@ -1,41 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262651AbTCTWO7>; Thu, 20 Mar 2003 17:14:59 -0500
+	id <S262658AbTCTWQs>; Thu, 20 Mar 2003 17:16:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262652AbTCTWO7>; Thu, 20 Mar 2003 17:14:59 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:20485 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S262651AbTCTWO6>;
-	Thu, 20 Mar 2003 17:14:58 -0500
-Date: Thu, 20 Mar 2003 14:26:11 -0800
-From: Greg KH <greg@kroah.com>
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Cc: David Brownell <david-b@pacbell.net>, Jeff Garzik <jgarzik@pobox.com>,
-       Russell King <rmk@arm.linux.org.uk>,
-       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [patch 2.5] PCI MWI cacheline size fix
-Message-ID: <20030320222611.GC4607@kroah.com>
-References: <20030320135950.A2333@jurassic.park.msu.ru>
+	id <S262659AbTCTWQr>; Thu, 20 Mar 2003 17:16:47 -0500
+Received: from smtp08.iddeo.es ([62.81.186.18]:7121 "EHLO smtp08.retemail.es")
+	by vger.kernel.org with ESMTP id <S262658AbTCTWQq>;
+	Thu, 20 Mar 2003 17:16:46 -0500
+Date: Thu, 20 Mar 2003 23:27:44 +0100
+From: "J.A. Magallon" <jamagallon@able.es>
+To: James Wright <james@jigsawdezign.com>
+Cc: "Grover, Andrew" <andrew.grover@intel.com>, jun.nakajima@intel.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: P4 3.06Ghz Hyperthreading with 2.4.20?
+Message-ID: <20030320222744.GA1975@werewolf.able.es>
+References: <F760B14C9561B941B89469F59BA3A847E96D2E@orsmsx401.jf.intel.com> <20030320212934.0e4ad939.james@jigsawdezign.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Disposition: inline
-In-Reply-To: <20030320135950.A2333@jurassic.park.msu.ru>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20030320212934.0e4ad939.james@jigsawdezign.com>; from james@jigsawdezign.com on Thu, Mar 20, 2003 at 22:29:34 +0100
+X-Mailer: Balsa 2.0.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 20, 2003 at 01:59:50PM +0300, Ivan Kokshaysky wrote:
-> This is rather conservative variant of previous patch:
-> - no changes required for drivers or architectures with HAVE_ARCH_PCI_MWI;
-> - do respect BIOS settings: if the cacheline size is multiple
->   of that we have expected, assume that this is on purpose;
-> - assume cacheline size of 32 bytes for all x86s except K7/K8 and P4.
->   Actually it's good for 386/486s as quite a few PCI devices do not support
->   smaller values.
+
+On 03.20, James Wright wrote:
 > 
-> If you all are fine with it, I can make a 2.4 counterpart.
+>   I have patched my 2.4.20 kernel with the relevant ACPI patch, and now it suing ACPI
+> it detects the 2 Logical CPU's BUT it still disables SMP and /proc/cpuinfo only shows one processor... Sorry for the including this but here is a extract "dmesg":
+> 
+[...]
+> SMP motherboard not detected.
 
-This looks fine to me.
+Check if your bios has something like 'Enable ACPI register'. My 400GX has it.
 
-thanks,
-
-greg k-h
+-- 
+J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
+werewolf.able.es                         \           It's better when it's free
+Mandrake Linux release 9.1 (Bamboo) for i586
+Linux 2.4.21-pre5-jam0 (gcc 3.2.2 (Mandrake Linux 9.1 3.2.2-3mdk))

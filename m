@@ -1,74 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129776AbQKJPkw>; Fri, 10 Nov 2000 10:40:52 -0500
+	id <S131305AbQKJPoM>; Fri, 10 Nov 2000 10:44:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131038AbQKJPkm>; Fri, 10 Nov 2000 10:40:42 -0500
-Received: from mail.zmailer.org ([194.252.70.162]:63752 "EHLO zmailer.org")
-	by vger.kernel.org with ESMTP id <S129776AbQKJPkS>;
-	Fri, 10 Nov 2000 10:40:18 -0500
-Date: Fri, 10 Nov 2000 17:39:57 +0200
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: "M.Kiran Babu" <kbabu@iitg.ernet.in>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: threads
-Message-ID: <20001110173957.M13151@mea-ext.zmailer.org>
-In-Reply-To: <Pine.LNX.4.10.10011102031210.31929-100000@kamrup.iitg.ernet.in>
+	id <S131299AbQKJPoC>; Fri, 10 Nov 2000 10:44:02 -0500
+Received: from hybrid-024-221-152-185.az.sprintbbd.net ([24.221.152.185]:33781
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S131038AbQKJPnv>; Fri, 10 Nov 2000 10:43:51 -0500
+Date: Fri, 10 Nov 2000 08:42:11 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Benjamin Herrenschmidt <bh40@calva.net>
+Cc: "David S. Miller" <davem@redhat.com>, alan@lxorguk.ukuu.org.uk,
+        linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.2.18pre21
+Message-ID: <20001110084211.B24101@opus.bloom.county>
+In-Reply-To: <200011100344.TAA01282@pizda.ninka.net> <19341005050711.11931@192.168.1.2>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.10.10011102031210.31929-100000@kamrup.iitg.ernet.in>; from kbabu@iitg.ernet.in on Fri, Nov 10, 2000 at 08:33:29PM +0530
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <19341005050711.11931@192.168.1.2>; from bh40@calva.net on Fri, Nov 10, 2000 at 12:35:27PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 10, 2000 at 08:33:29PM +0530, M.Kiran Babu wrote:
->  sir,
-> i got some doubts in kernel
-> programming. i am using linux 6.1 version. i want to use threads in
+On Fri, Nov 10, 2000 at 12:35:27PM +0100, Benjamin Herrenschmidt wrote:
+> >   o	Resnchronize Apple PowerMac codebase		(Paul Mackerras & co)
+> >
+> >BUUUG, new DEV_MAC_HID sysctl number conflicts with DEV_MD
+> >in Ingo's raid patches.
+> 
+> Well, I beleive DEV_MAC_HID can safely be changed to something else as
+> userland only use the /proc entry name./
 
-	Linux kernel versions are now running up to 2.4.0*, what is
-	that 6.1 ?  Some distribution ?  Which ?
-	Which kernel version you are referring into ?
+One question here.  Is it important here that the # be consistant?  I mean
+since to change a sysctl isn't the name the important bit? ie:
+dev.md.speed_limit would work regardless of if DEV_MD is 3 or 4?
 
-> kernel.is it possible to use pthreads in kernel. there is one more
-                               ^^^^^^^^^^^^^^^^^^   NO.
-> function kernel_thread.
-> can i use that function.
-
-	#include <asm/processor.h>
-
-	extern pid_t kernel_thread(int (*fn)(void *), void * arg,
-				   unsigned long flags);
-
-> if i use that function how to get synchonization.
-
-	With mutexes, waitqueues, or spinlocks.
-	All kernel facilities.
-
-> inmany files it was used. but everywhere lock_kernel() and unlock_kernel()
-> functions are being used. if we use that commands the whole kernel gets
-> locked.
-
-	Really ?  Who says you need to   lock_kernel()  for starting
-	a kernel thread ?
-
-> is there any other mechanisms. or can i use that methods only.
-> if i can use these methods what is the syntax of kernel_thread function.
-> the arguments that are passing to these function are 3.
-> i dont know what are those three. please tell me.
-
-	Pick 2.4.0 sources, open them up.
-
-	Then do:  "make psdocs" or "make pdfdocs" or "make htmldocs"
-	and you get up documents from within the system into your
-	source location Documentation/DocBook/  subdirectory.
-
-	You propably want to study  kernel-hacking,  kernel-locking,
-	and  kernel-api   documents.
-
-	(Your system needs to have DocBook, related SGML tools, and
-	 (for PS/PDF) (La)TeX subsystem.)
-
-/Matti Aarnio
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

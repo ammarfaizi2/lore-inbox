@@ -1,40 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268089AbTCFNkf>; Thu, 6 Mar 2003 08:40:35 -0500
+	id <S268098AbTCFNqC>; Thu, 6 Mar 2003 08:46:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268090AbTCFNke>; Thu, 6 Mar 2003 08:40:34 -0500
-Received: from nessie.weebeastie.net ([61.8.7.205]:42442 "EHLO
-	nessie.lochness.weebeastie.net") by vger.kernel.org with ESMTP
-	id <S268089AbTCFNke>; Thu, 6 Mar 2003 08:40:34 -0500
-Date: Fri, 7 Mar 2003 00:47:46 +1100
-From: CaT <cat@zip.com.au>
-To: dahinds@users.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.64 - xircom realport no workie well
-Message-ID: <20030306134746.GE464@zip.com.au>
-References: <20030306130340.GA453@zip.com.au> <20030306132904.A838@flint.arm.linux.org.uk>
-Mime-Version: 1.0
+	id <S268090AbTCFNqC>; Thu, 6 Mar 2003 08:46:02 -0500
+Received: from comtv.ru ([217.10.32.4]:2187 "EHLO comtv.ru")
+	by vger.kernel.org with ESMTP id <S268098AbTCFNqB>;
+	Thu, 6 Mar 2003 08:46:01 -0500
+X-Comment-To: Andrew Morton
+To: Andrew Morton <akpm@digeo.com>
+Cc: Alex Tomas <bzzz@tmi.comex.ru>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: 2.5.64-mm1
+References: <20030305230712.5a0ec2d4.akpm@digeo.com>
+	<m365qw3jcx.fsf@lexa.home.net>
+	<20030306022140.7c816f32.akpm@digeo.com>
+From: Alex Tomas <bzzz@tmi.comex.ru>
+Organization: HOME
+Date: 06 Mar 2003 16:50:01 +0300
+In-Reply-To: <20030306022140.7c816f32.akpm@digeo.com>
+Message-ID: <m3zno81u5y.fsf@lexa.home.net>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030306132904.A838@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.3.28i
-Organisation: Furball Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 06, 2003 at 01:29:04PM +0000, Russell King wrote:
-> Can you check whether the attached patch fixes this for you?  It's more
+>>>>> Andrew Morton (AM) writes:
 
-Started compiling it and it just bombed out:
+ AM> hm, yes, it does look that way.
 
-drivers/serial/8250_pci.c:1920: `PCI_DEVICE_ID_XIRCOM_RBM56G' undeclared
-here (not in a function)
-drivers/serial/8250_pci.c:1920: initializer element is not constant
-drivers/serial/8250_pci.c:1920: (near initialization for
-`serial_pci_tbl[86].device')
+ AM> It could be that any task which travels that path ends up running
+ AM> under lock_kernel() for the rest of its existence, and nobody
+ AM> noticed.
 
--- 
-"Other countries of course, bear the same risk. But there's no doubt his
-hatred is mainly directed at us. After all this is the guy who tried to         kill my dad."
-        - George W. Bush Jr, 'President' of the United States
-          September 26, 2002 (from a political fundraiser in Huston, Texas)
+Probably, this patch may help us. It checks current->lock_depth after
+each syscall and prints warning.
+
+diff -uNr linux/arch/i386/kernel/entry.S edited/arch/i386/kernel/entry.S
+--- linux/arch/i386/kernel/entry.S	Thu Mar  6 14:57:38 2003
++++ edited/arch/i386/kernel/entry.S	Thu Mar  6 16:40:27 2003
+@@ -282,6 +282,17 @@
+ syscall_call:
+ 	call *sys_call_table(,%eax,4)
+ 	movl %eax,EAX(%esp)		# store the return value
++
++	movl TI_TASK(%ebp), %edx	# check current->lock_depth
++	movl 20(%edx), %ecx 
++	cmpl $0, %ecx
++	je   syscall_exit   
++	cmpl $-1, %ecx
++	je   syscall_exit
++
++	GET_THREAD_INFO(%ebp) 
++	call warn_invalid_lock_depth
++
+ syscall_exit:
+ 	cli				# make sure we don't miss an interrupt
+ 					# setting need_resched or sigpending
+diff -uNr linux/arch/i386/kernel/l edited/arch/i386/kernel/l
+--- linux/arch/i386/kernel/l	Thu Jan  1 03:00:00 1970
++++ edited/arch/i386/kernel/l	Thu Mar  6 13:44:03 2003
+@@ -0,0 +1 @@
++make: *** No rule to make target `bzImage'.  Stop.
+diff -uNr linux/arch/i386/kernel/process.c edited/arch/i386/kernel/process.c
+--- linux/arch/i386/kernel/process.c	Thu Mar  6 14:57:25 2003
++++ edited/arch/i386/kernel/process.c	Thu Mar  6 16:32:17 2003
+@@ -714,3 +714,14 @@
+ 	return 0;
+ }
+ 
++asmlinkage void warn_invalid_lock_depth(void)
++{
++	struct task_struct * tsk = current;
++		        
++	if (!(tsk->flags & 0x10000000)) {
++		printk("WARNING: non-zero(%d) lock_depth, pid %u\n",
++			tsk->lock_depth, tsk->pid);
++		tsk->flags |= 0x10000000;
++	}
++}
++
 

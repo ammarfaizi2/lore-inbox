@@ -1,49 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262853AbRE0SPg>; Sun, 27 May 2001 14:15:36 -0400
+	id <S262855AbRE0SYi>; Sun, 27 May 2001 14:24:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262855AbRE0SP0>; Sun, 27 May 2001 14:15:26 -0400
-Received: from server1.cosmoslink.net ([208.179.167.101]:37449 "EHLO
-	server1.cosmoslink.net") by vger.kernel.org with ESMTP
-	id <S262853AbRE0SPP>; Sun, 27 May 2001 14:15:15 -0400
-Message-ID: <011501c0e6d8$ec93af80$4aa6b3d0@Toshiba>
-From: "Jaswinder Singh" <jaswinder.singh@3disystems.com>
-To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
-Cc: <stepken@little-idiot.de>, <linux-kernel@vger.kernel.org>,
-        "Jaswinder Singh" <jaswinder.singh@3disystems.com>
-In-Reply-To: <01052622193100.01317@linux.zuhause.de> <00a101c0e642$4f0791a0$52a6b3d0@Toshiba> <20010527183207.B21206@unthought.net>
-Subject: Re: IDE Performance lack !
-Date: Sun, 27 May 2001 11:14:50 -0700
+	id <S262856AbRE0SY2>; Sun, 27 May 2001 14:24:28 -0400
+Received: from jcwren-1.dsl.speakeasy.net ([216.254.53.52]:23281 "EHLO
+	jcwren.com") by vger.kernel.org with ESMTP id <S262855AbRE0SYM>;
+	Sun, 27 May 2001 14:24:12 -0400
+Reply-To: <jcwren@jcwren.com>
+From: "John Chris Wren" <jcwren@jcwren.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: RE: Problems with ac12 kernels and up
+Date: Sun, 27 May 2001 14:24:03 -0400
+Message-ID: <NDBBKBJHGFJMEMHPOPEGOEEGCHAA.jcwren@jcwren.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-X-Priority: 3
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
 X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Importance: Normal
+In-Reply-To: <E1544Cy-00027I-00@the-village.bc.nu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Jakob Østergaard" <jakob@unthought.net> wrote :
 >
-> The answer for both of you is:
+>> Checking root filesystem. /dev/hde13 is mounted.
+>> Cannot continue, aboorting.
+>> *** An error occurred during the file system check.
+>> *** Dropping you to a shell; the system will reboot
+>> *** when you leave the shell.
 >
->   hdparm -d1 /dev/hd{whatever}
+>That means the file system was mounted read/write at boot time. That
+normally
+>indicates a lilo misconfiguration however your lilo.conf looks
+>correct.
 >
-> Without DMA enabled, performance is going to suck.  1.9 MB/sec is actually
-pretty
-> good without DMA   ;)
->
+>Alan
 
-i think DMA or PCI is not my solution , atleast :)
+I've built the ac18 kernel with the serial console enabled, and dumped the
+results (this is the one that kernel panics).
 
-Thank you,
+http://jcwren.com/linux/ac18.txt - ac18 dmesg dump
+http://jcwren.com/linux/build.txt - sequence I'm using to build
 
-Best Regards,
+The apparent interleaved garbage closer to the bottom is exactly what came
+out on the console.  (Is linking to the dumps perferred over including it in
+the mail, or would folks prefer to have the text included?  Since I'm not a
+judge of exactly what you need to see, I'm not sure if 200 lines of dump
+would be appropriate or not).
 
-Jaswinder.
---
-These are my opinions not 3Di.
+Just for good measure, I've installed the latest RH 7.1 LILO, mkinitrd, and
+associated tools.
 
+I also rebuilt the ac12 kernel, and tried again.  Same results as the quoted
+text above.
+
+--John
 

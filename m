@@ -1,71 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263923AbTJ1K7r (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Oct 2003 05:59:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263925AbTJ1K7r
+	id S263928AbTJ1LA2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Oct 2003 06:00:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263929AbTJ1LAP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Oct 2003 05:59:47 -0500
-Received: from not.theboonies.us ([66.139.79.224]:15325 "EHLO
-	not.theboonies.us") by vger.kernel.org with ESMTP id S263923AbTJ1K7p
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Oct 2003 05:59:45 -0500
-Message-ID: <1067342997.3f9e5c95beefb@mail.theboonies.us>
-Date: Tue, 28 Oct 2003 06:09:57 -0600
-To: linux-kernel@vger.kernel.org
-Subject: gcc 3.2+ alignment issue with 2.6 kernel (was Re: 2.6.0-test6 + fb
-	patch = dead PowerBook)
-References: <1067021062.3f9973069378a@mail.theboonies.us>
-	<1067035133.3f99a9fd94647@mail.theboonies.us>
-In-Reply-To: <1067035133.3f99a9fd94647@mail.theboonies.us>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.1
-X-Originating-IP: 193.224.42.5
-From: David Eger <random-temp_addy-1067947802.46b228@theboonies.us>
-X-Delivery-Agent: TMDA/0.84 (Tim Tam)
-X-Primary-Address: random@theboonies.us
+	Tue, 28 Oct 2003 06:00:15 -0500
+Received: from gate.in-addr.de ([212.8.193.158]:57739 "EHLO mx.in-addr.de")
+	by vger.kernel.org with ESMTP id S263928AbTJ1LAI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Oct 2003 06:00:08 -0500
+Date: Tue, 28 Oct 2003 12:00:34 +0100
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: Mark Bellon <mbellon@mvista.com>
+Cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: ANNOUNCE: User-space System Device Enumation (uSDE)
+Message-ID: <20031028110034.GG30725@marowsky-bree.de>
+References: <3F9D82F0.4000307@mvista.com> <20031027210054.GR24286@marowsky-bree.de> <3F9D8AAA.7010308@mvista.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <3F9D8AAA.7010308@mvista.com>
+User-Agent: Mutt/1.4.1i
+X-Ctuhulu: HASTUR
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-FYI:
+On 2003-10-27T14:14:18,
+   Mark Bellon <mbellon@mvista.com> said:
 
-My issue seems to be a bad interaction of new versions of gcc (me gcc-3.2.3, him
-gcc-3.3.1) with alignments in the kernel.  My problems have gone away with the
-following patch presented on linuxppc-dev by Sam Ravnborg.  I do not know if
-other platforms are affected, so similar patches might be needed elsewhere.
+> The uSDE and udev are simlar in some respects. The uSDE allows for 
+> complete control of the policy handling a device - not just its naming. 
 
-Why this misalignment would turn my machine into a brick even through reboots...
-I do not know. 
+Well, so could udev in theory, and I had this plan to enhance it to do
+so for the specific case of multipathing one day in the not too distant
+future (ie, before q1/04).
 
--Eger David
+In as far as I can see, udev and uSDE really do not have too different
+goals. Competition is good, but only if they explore distinct approaches
+;-)
+
+> >How does this integrate with DM, md, EVMS, LVM...?
+> As devices appear in sysfs the uSDE reacts to them via their hotplug 
+> events. The policy for each device handles any device issues including 
+> dealing with any device nodes.  It is possible to track and maintain 
+> multiported devices and automatically provide multipath devices nodes 
+> for instance.
+
+Yes, I know that, I was asking whether you had done any discussion with
+the EVMS2 folks for example to have a policy plugin to interact with
+EVMS2 accordingly and do the magic.
 
 
-===== arch/ppc/kernel/vmlinux.lds.S 1.24 vs edited =====
---- 1.24/arch/ppc/kernel/vmlinux.lds.S Fri Sep 12 18:26:52 2003
-+++ edited/arch/ppc/kernel/vmlinux.lds.S Sun Oct 12 20:17:25 2003
-@@ -47,13 +47,17 @@
 
-.fixup : { *(.fixup) }
+Sincerely,
+    Lars Marowsky-Brée <lmb@suse.de>
 
-- __start___ex_table = .;
-- __ex_table : { *(__ex_table) }
-- __stop___ex_table = .;
-+ __ex_table : {
-+ __start___ex_table = .;
-+ *(__ex_table)
-+ __stop___ex_table = .;
-+ }
-
-- __start___bug_table = .;
-- __bug_table : { *(__bug_table) }
-- __stop___bug_table = .;
-+ __bug_table : {
-+ __start___bug_table = .;
-+ *(__bug_table)
-+ __stop___bug_table = .;
-+ }
-
-/* Read-write section, merged into data segment: */
-. = ALIGN(4096);
+-- 
+High Availability & Clustering	      \ ever tried. ever failed. no matter.
+SUSE Labs			      | try again. fail again. fail better.
+Research & Development, SUSE LINUX AG \ 	-- Samuel Beckett
 

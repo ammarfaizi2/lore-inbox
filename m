@@ -1,244 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280495AbRJaUsA>; Wed, 31 Oct 2001 15:48:00 -0500
+	id <S280500AbRJaUtk>; Wed, 31 Oct 2001 15:49:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280499AbRJaUrv>; Wed, 31 Oct 2001 15:47:51 -0500
-Received: from gans.physik3.uni-rostock.de ([139.30.44.2]:23819 "EHLO
-	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id <S280495AbRJaUrh>; Wed, 31 Oct 2001 15:47:37 -0500
-Date: Wed, 31 Oct 2001 21:47:52 +0100 (CET)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: vda <vda@port.imtp.ilyichevsk.odessa.ua>
-cc: Andreas Dilger <adilger@turbolabs.com>,
-        "Richard B. Johnson" <root@chaos.analogic.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [Patch] Re: Nasty suprise with uptime
-In-Reply-To: <01103121070200.01262@nemo>
-Message-ID: <Pine.LNX.4.30.0110312138040.30038-100000@gans.physik3.uni-rostock.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S280499AbRJaUtb>; Wed, 31 Oct 2001 15:49:31 -0500
+Received: from aslan.scsiguy.com ([63.229.232.106]:36881 "EHLO
+	aslan.scsiguy.com") by vger.kernel.org with ESMTP
+	id <S280500AbRJaUtS>; Wed, 31 Oct 2001 15:49:18 -0500
+Message-Id: <200110312049.f9VKnqY24522@aslan.scsiguy.com>
+To: JP Navarro <navarro@mcs.anl.gov>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Raid/Adaptec/SCSI errors, obvious explanation isn't 
+In-Reply-To: Your message of "Wed, 31 Oct 2001 14:02:48 CST."
+             <3BE058E8.F9DC0FC1@mcs.anl.gov> 
+Date: Wed, 31 Oct 2001 13:49:52 -0700
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 31 Oct 2001, vda wrote:
-
-> On Wednesday 31 October 2001 18:40, Andreas Dilger wrote:
-> > On Oct 31, 2001  19:16 +0100, Tim Schmielau wrote:
-> > > The idea was that all drivers that use the 32 bit jiffies counter have to
-> > > be aware of the wraparound anyways, and won't see a difference.
-> >
-> > Agreed.  I also like the change that you initialize jiffies to a pre-wrap
-> > value, so the jiffies wrap bugs can more easily be found/fixed.
+>We can consistently generate 1-2 of the following errors per hour:
 >
-> Yes indeed.  We should chase bugs, not run away from them :-)
-> I seriously suggest setting juffy to close to wrap value
-> if kernel hacking is enabled.
+>Oct 31 10:08:30 ccfs2 kernel: SCSI disk error : host 2 channel 0 id 9 lun 0
+>return code = 800
+>Oct 31 10:08:30 ccfs2 kernel: Current sd08:51: sense key Hardware Error
+>Oct 31 10:08:30 ccfs2 kernel: Additional sense indicates Internal target failu
+>re
+>Oct 31 10:08:30 ccfs2 kernel:  I/O error: dev 08:51, sector 35371392
+
+...
+>Previous postings have suggested hardware (disk) failures or a bug in the RAID
+><-> Adaptec driver interaction.  We think disk failures are unlikely since
+>they are happening on multiple disks and only after a software upgrade.
 >
-> > I would say that the race is so rare that it should not be handled,
-> > especially since it adds extra code in the timer interrupt.
+>We once tested 15K drives on these EXP15 JBODs and encountered SCSI disks/driv
+>er errors, so we've suspected some type of JBOD problem under high load.
 >
-> Race will be handled by readers of 64bit jiffy. There won't be many of them.
->
-> > > +	/* We need to make sure jiffies_high does not change while
-> > > +	 * reading jiffies and jiffies_high */
-> > > +	do {
-> > > +		jiffies_high_tmp = jiffies_high_shadow;
-> > > +		barrier();
-> > > +		jiffies_tmp = jiffies;
-> > > +		barrier();
-> > > +	} while (jiffies_high != jiffies_high_tmp);
-> >
-> > Maybe this could be condensed into a macro/inline, so that people don't
-> > screw it up (and it looks cleaner).  Like get_jiffies64() or so, for
->
-> Inline! Inline! Don't use macro unless you must!
->
-> // extern or static? which is correct?
-> // I see both types in kernel .h :-(
-> extern inline u64 get_jiffies64() {
-> 	unsigned long hi,lo;
-> 	do {
-> 		hi = jiffies_hi;
-> 		barrier();
-> 		lo = jiffies;
-> 		barrier();
-> 	} while (hi != jiffies_hi);
-> 	return lo + (((u64)hi) << 32);
-> }
->
+>Anyhow, does anyone have a clue as to what might be causing these errors, what
+>tests we could conduct to shed light on the problem, or additional information
+>we could provide that would be useful.
 
-OK, I introduced get_jiffies64, corrected my 64 bit mistake and
-subtract INITIAL_JIFFIES to obtain uptime, while leaving it at at pre-wrap
-value for error-chasing.
-Still this patch introduces jiffies_high on 64 bit platforms which will be
-useless until the year 571234830.
+Its hard for me to believe that the aic7xxx driver could "make up" sense
+information returned from a drive that actually parsed correctly into a
+valid set of error codes.  What I can believe is that after one error
+occurs, this error shows up in commands that completed normally.  The
+Linux SCSI mid-layer assumes that if the first byte of the sense buffer
+is non-zero, it has been filled in regardless of the SCSI status byte
+that is returned by the driver.  Up until the 6.2.0 aic7xxx driver, the
+sense buffer's first byte was not zeroed out prior to executing a new
+command.  This could result in false positives in certain situations.
+If you ask me, the DRIVER_SENSE flag should only be set by the low level
+driver in the case of auto-sense, or by the mid-layer when manual sense
+recovery is successful (this latter case is somewhat questionable since
+a driver that can do autosense but failed may have cleared the real sense
+info already).  Poking around in a potentially unused buffer and guesing
+that its contents imply one thing or the other is bad design.
 
-************************************************************
-* DISCLAIMER: This patch WILL make your linux box unstable *
-* unless you set INITIAL_JIFFIES to zero!!!                *
-************************************************************
+Anyway, the hardware error is in part real.  If you modify the code that
+prints out the error information to include the ASC and ASCQ code, the
+drive vendor may be able to tell you exactly what is going wrong with your
+drive.  If you upgrade to a later version of the aic7xxx driver (6.2.4 is
+the lastest), the number of errors you encounter may decrease due to the
+bug I listed above.
 
-btw.: can someone please explain to me why do_timer uses
-	(*(unsigned long *)&jiffies)++;
-instead of just doing jiffies++ ?
-
-Tim
-
-
-
---- fs/proc/proc_misc.c.orig	Wed Oct 31 17:45:08 2001
-+++ fs/proc/proc_misc.c	Wed Oct 31 21:07:11 2001
-@@ -39,6 +39,7 @@
- #include <asm/uaccess.h>
- #include <asm/pgtable.h>
- #include <asm/io.h>
-+#include <asm/div64.h>
-
-
- #define LOAD_INT(x) ((x) >> FSHIFT)
-@@ -103,15 +104,19 @@
- static int uptime_read_proc(char *page, char **start, off_t off,
- 				 int count, int *eof, void *data)
- {
--	unsigned long uptime;
-+	u64 uptime;
-+	unsigned long remainder;
- 	unsigned long idle;
- 	int len;
-
--	uptime = jiffies;
-+	uptime = get_jiffies64() - INITIAL_JIFFIES;
-+	remainder = (unsigned long) do_div(uptime, HZ);
-+
- 	idle = init_tasks[0]->times.tms_utime + init_tasks[0]->times.tms_stime;
-
--	/* The formula for the fraction parts really is ((t * 100) / HZ) % 100, but
--	   that would overflow about every five days at HZ == 100.
-+	/* The formula for the fraction part of the idle time really is
-+	   ((t * 100) / HZ) % 100, but that would overflow about
-+	    every five days at HZ == 100.
- 	   Therefore the identity a = (a / b) * b + a % b is used so that it is
- 	   calculated as (((t / HZ) * 100) + ((t % HZ) * 100) / HZ) % 100.
- 	   The part in front of the '+' always evaluates as 0 (mod 100). All divisions
-@@ -121,14 +126,14 @@
- 	 */
- #if HZ!=100
- 	len = sprintf(page,"%lu.%02lu %lu.%02lu\n",
--		uptime / HZ,
--		(((uptime % HZ) * 100) / HZ) % 100,
-+		(unsigned long) uptime,
-+		((remainder * 100) / HZ) % 100,
- 		idle / HZ,
- 		(((idle % HZ) * 100) / HZ) % 100);
- #else
- 	len = sprintf(page,"%lu.%02lu %lu.%02lu\n",
--		uptime / HZ,
--		uptime % HZ,
-+		(unsigned long) uptime,
-+		remainder,
- 		idle / HZ,
- 		idle % HZ);
- #endif
---- kernel/timer.c.orig	Wed Oct 31 17:24:36 2001
-+++ kernel/timer.c	Wed Oct 31 21:10:39 2001
-@@ -65,7 +65,8 @@
-
- extern int do_setitimer(int, struct itimerval *, struct itimerval *);
-
--unsigned long volatile jiffies;
-+unsigned long volatile jiffies = INITIAL_JIFFIES;
-+unsigned long volatile jiffies_hi, jiffies_hi_shadow;
-
- unsigned int * prof_buffer;
- unsigned long prof_len;
-@@ -117,7 +118,7 @@
- 		INIT_LIST_HEAD(tv1.vec + i);
- }
-
--static unsigned long timer_jiffies;
-+static unsigned long timer_jiffies = INITIAL_JIFFIES;
-
- static inline void internal_add_timer(struct timer_list *timer)
- {
-@@ -638,7 +639,7 @@
- }
-
- /* jiffies at the most recent update of wall time */
--unsigned long wall_jiffies;
-+unsigned long wall_jiffies = INITIAL_JIFFIES;
-
- /*
-  * This spinlock protect us from races in SMP while playing with xtime. -arca
-@@ -673,7 +674,22 @@
-
- void do_timer(struct pt_regs *regs)
- {
--	(*(unsigned long *)&jiffies)++;
-+	/* we assume that two calls to do_timer can never overlap
-+	 * since they are one jiffie apart in time */
-+	if (jiffies != (unsigned long)(-1)) {
-+		jiffies++;
-+	} else {
-+		/* We still need to care about the race with readers of
-+		 * jiffies_hi. Readers have to discard the values if
-+		 * jiffies_hi != jiffies_hi_shadow when read with
-+		 * proper barriers in between. */
-+		jiffies_hi++;
-+		barrier();
-+		jiffies++;
-+		barrier();
-+		jiffies_hi_shadow = jiffies_hi;
-+		barrier();
-+	}
- #ifndef CONFIG_SMP
- 	/* SMP process accounting uses the local APIC timer */
-
---- kernel/info.c.orig	Wed Oct 31 17:58:25 2001
-+++ kernel/info.c	Wed Oct 31 21:07:28 2001
-@@ -12,15 +12,19 @@
- #include <linux/smp_lock.h>
-
- #include <asm/uaccess.h>
-+#include <asm/div64.h>
-
- asmlinkage long sys_sysinfo(struct sysinfo *info)
- {
- 	struct sysinfo val;
-+	u64 uptime;
-
- 	memset((char *)&val, 0, sizeof(struct sysinfo));
-
- 	cli();
--	val.uptime = jiffies / HZ;
-+	uptime = get_jiffies64() - INITIAL_JIFFIES;
-+	do_div(uptime, HZ);
-+	val.uptime = uptime;
-
- 	val.loads[0] = avenrun[0] << (SI_LOAD_SHIFT - FSHIFT);
- 	val.loads[1] = avenrun[1] << (SI_LOAD_SHIFT - FSHIFT);
---- include/linux/sched.h.orig	Wed Oct 31 17:42:41 2001
-+++ include/linux/sched.h	Wed Oct 31 21:09:21 2001
-@@ -543,7 +543,21 @@
-
- #include <asm/current.h>
-
--extern unsigned long volatile jiffies, jiffies_high, jiffies_high_shadow;
-+#define INITIAL_JIFFIES 0xFFFFD000ul
-+extern unsigned long volatile jiffies, jiffies_hi, jiffies_hi_shadow;
-+static inline u64 get_jiffies64() {
-+	unsigned long hi,lo;
-+	/* We need to make sure jiffies_hi does not change while
-+	 * reading jiffies and jiffies_hi */
-+	do {
-+	        hi = jiffies_hi;
-+	        barrier();
-+	        lo = jiffies;
-+	        barrier();
-+	} while (hi != jiffies_hi);
-+	return lo + (((u64)hi) << BITS_PER_LONG);
-+}
-+
- extern unsigned long itimer_ticks;
- extern unsigned long itimer_next;
- extern struct timeval xtime;
-
+--
+Justin

@@ -1,46 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266018AbUAVIby (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jan 2004 03:31:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266092AbUAVIby
+	id S266017AbUAVIjD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jan 2004 03:39:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266092AbUAVIjD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jan 2004 03:31:54 -0500
-Received: from brooklyn-bridge.emea.veritas.com ([62.172.234.2]:1623 "EHLO
-	gpkxch01.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S266018AbUAVIbs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jan 2004 03:31:48 -0500
-Subject: [PATCH] The RAW_GETBIND compat_ioctl fails
-From: James Cross <jscross@veritas.com>
-To: linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@osdl.org>
-Content-Type: text/plain
+	Thu, 22 Jan 2004 03:39:03 -0500
+Received: from [212.28.208.94] ([212.28.208.94]:274 "HELO dewire.com")
+	by vger.kernel.org with SMTP id S266017AbUAVIjB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jan 2004 03:39:01 -0500
+From: Robin Rosenberg <robin.rosenberg.lists@dewire.com>
+To: chakkerz@optusnet.com.au
+Subject: Re: Nvidia drivers and 2.6.x kernel
+Date: Thu, 22 Jan 2004 09:38:58 +0100
+User-Agent: KMail/1.6
+References: <200401221012.17121.chakkerz@optusnet.com.au> <20040121231946.GA23176@irc.pl> <200401221028.59762.chakkerz@optusnet.com.au>
+In-Reply-To: <200401221028.59762.chakkerz@optusnet.com.au>
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 22 Jan 2004 08:53:38 +0000
-Message-Id: <1074761619.9010.128.camel@tinkle>
-Mime-Version: 1.0
+Message-Id: <200401220938.58535.robin.rosenberg.lists@dewire.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+torsdagen den 22 januari 2004 00.28 skrev Christian Unger:
+> >  Complain to nVidia.
+> 
+> yeah i did think about that, except
+> "
+> NVIDIA provides superior 3D graphics processors to the computer industry's 
+> leading add-in card manufacturers and PC OEMs. We do not sell any products 
+> directly to end users so we do not have a staff dedicated to end-user 
+> technical support. If you are having a problem with any NVIDIA-based product, 
+> please contact either the PC or board manufacturer of your product. 
+> "
+> 
+> So who writes the drivers??
 
-The RAW_GETBIND compatibility ioctl call does convert properly between
-the 32bit/64bit version of raw_config_request due to a trivial error,
-and the ioctl call fails.
+NVidia does. Check the download link for Linux/FreeBSD drivers and in particular the link to the Nvidial Linux forum.
 
-Thanks,
-
-James
-
---- linux-2.6.2-rc1/fs/compat_ioctl.c.orig	2004-01-21 17:20:26.000000000 +0000
-+++ linux-2.6.2-rc1/fs/compat_ioctl.c	2004-01-21 17:20:41.000000000 +0000
-@@ -2426,7 +2426,7 @@
-         __get_user(hi_min, ((__u32*)(&user_req->block_minor) + 1));
- 
-         req->block_major = lo_maj | (((__u64)hi_maj) << 32);
--        req->block_minor = lo_min | (((__u64)lo_min) << 32);
-+        req->block_minor = lo_min | (((__u64)hi_min) << 32);
- 
-         return ret;
- }
-
+-- robin

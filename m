@@ -1,89 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262071AbUGLTrP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261875AbUGLTxw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262071AbUGLTrP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 15:47:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261932AbUGLTrP
+	id S261875AbUGLTxw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 15:53:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261932AbUGLTxw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 15:47:15 -0400
-Received: from mail.convergence.de ([212.84.236.4]:64154 "EHLO
-	mail.convergence.de") by vger.kernel.org with ESMTP id S262079AbUGLTrK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 15:47:10 -0400
-Message-ID: <40F2EAB9.2010908@convergence.de>
-Date: Mon, 12 Jul 2004 21:47:05 +0200
-From: Michael Hunold <hunold@convergence.de>
-User-Agent: Mozilla Thunderbird 0.7 (X11/20040615)
-X-Accept-Language: en-us, en
+	Mon, 12 Jul 2004 15:53:52 -0400
+Received: from out2.smtp.messagingengine.com ([66.111.4.26]:18085 "EHLO
+	out2.smtp.messagingengine.com") by vger.kernel.org with ESMTP
+	id S261875AbUGLTxt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jul 2004 15:53:49 -0400
+X-Sasl-enc: /lvJw3QURuTR3DhAAQfOZA 1089662033
+Message-ID: <009e01c46849$f2e85430$9aafc742@ROBMHP>
+From: "Rob Mueller" <robm@fastmail.fm>
+To: "Chris Mason" <mason@suse.com>
+Cc: <linux-kernel@vger.kernel.org>
+References: <00f601c46539$0bdf47a0$e6afc742@ROBMHP> <1089377936.3956.148.camel@watt.suse.com>
+Subject: Re: Processes stuck in unkillable D state (now seen in 2.6.7-mm6)
+Date: Mon, 12 Jul 2004 12:53:44 -0700
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: colin@colino.net, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] fix saa7146 compilation on 2.6.8-rc1
-References: <20040712082545.GA416@jack.colino.net>
-In-Reply-To: <20040712082545.GA416@jack.colino.net>
-Content-Type: multipart/mixed;
- boundary="------------040104060504040908000207"
+Content-Type: text/plain;
+	format=flowed;
+	charset="iso-8859-1";
+	reply-type=original
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2900.2149
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2149
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040104060504040908000207
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Hello Linus, Andrew,
+> Things will be much easier for you if you configure a serial or network
+> console.
 
-On 07/12/04 10:25, colin@colino.net wrote:
-> this patch fixes a compilation error on 2.6.8-rc1. Here's the error:
-> drivers/media/common/saa7146_video.c:3: conflicting types for `memory'
-> include/asm-m68k/setup.h:365: previous declaration of `memory'
-> make[3]: *** [drivers/media/common/saa7146_video.o] Error 1
+> It's just crud on the stack, you're really waiting in io_schedule() for
+> a page to get unlocked.  Why isn't the page unlocking?  Hard to say for
+> sure without seeing the whole sysrq-t.  If the network/serial console
+> doesn't work out, I can help you configure lkcd as well.
 
-Colin's patch is fine, an updated version of the patch with an 
-additional signed-off line is attached.
+Well, I tried compiling in the network console, but it seems to be way too 
+buggy. Basically the machine would crash (hard lockup) within about 12-24 
+hours after booting, nothing on the network console itself or in any log 
+file. Not much help there.
 
-Please apply. Thanks!
+Anyway, after rebooting back into a non-netconsole enabled kernel, we did 
+get another stuck process. This time there was only 1, and I was able to 
+shutdown all the other processes, so that there were only about 50 procs 
+running when I did the sysreq-t command, so I should have been able to 
+capture all the output this time??? I've put the dumps here:
 
-CU
-Michael.
+http://robm.fastmail.fm/kernel/t2/
 
---------------040104060504040908000207
-Content-Type: text/plain;
- name="saa7146-memory-variable.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="saa7146-memory-variable.diff"
+Here's the relevant stuck proc.
 
-Signed-off-by: Colin Leroy <colin@colino.net>
-Signed-off-by: Michael Hunold <hunold@linuxtv.org>
+imapd         D E17BE6E0     0  3761      1               10291 (NOTLB)
+e11c3bc8 00000086 00000020 e17be6e0 c1372d20 00000246 00000220 f7e12380
+       00000020 c0136667 c42c6da0 00000001 00000d74 bbfe8a6a 0000040d 
+c42c6da0
+       f7f91140 e17be6e0 e17be890 f78cd9cc 00000003 f78cd9cc f78cd9cc 
+c025d2cc
+Call Trace:
+ [<c0136667>] kmem_cache_alloc+0x57/0x70
+ [<c025d2cc>] generic_unplug_device+0x2c/0x40
+ [<c037a148>] io_schedule+0x28/0x40
+ [<c012e03c>] __lock_page+0xbc/0xe0
+ [<c012dd70>] page_wake_function+0x0/0x50
+ [<c012dd70>] page_wake_function+0x0/0x50
+ [<c012f061>] filemap_nopage+0x231/0x360
+ [<c013dc18>] do_no_page+0xb8/0x3a0
+ [<c013ba7b>] pte_alloc_map+0xdb/0xf0
+ [<c013e0ae>] handle_mm_fault+0xbe/0x1a0
+ [<c025d292>] __generic_unplug_device+0x32/0x40
+ [<c0112af2>] do_page_fault+0x172/0x5ec
+ [<c014cab0>] bh_wake_function+0x0/0x40
+ [<c014cab0>] bh_wake_function+0x0/0x40
+ [<c018ec9f>] reiserfs_prepare_file_region_for_write+0x94f/0x9b0
+ [<c0112980>] do_page_fault+0x0/0x5ec
+ [<c0104b19>] error_code+0x2d/0x38
+ [<c018dc0f>] reiserfs_copy_from_user_to_file_region+0x8f/0x100
+ [<c018f2b1>] reiserfs_file_write+0x5b1/0x750
+ [<c0186675>] reiserfs_link+0xb5/0x190
+ [<c0186719>] reiserfs_link+0x159/0x190
+ [<c016134c>] dput+0x1c/0x1b0
+ [<c016134c>] dput+0x1c/0x1b0
+ [<c01581a0>] path_release+0x10/0x40
+ [<c015a9bc>] sys_link+0xcc/0xe0
+ [<c014bb9a>] vfs_write+0xaa/0xe0
+ [<c014b610>] default_llseek+0x0/0x110
+ [<c014bc4f>] sys_write+0x2f/0x50
+ [<c010406b>] syscall_call+0x7/0xb
 
---- a/drivers/media/common/saa7146_video.c	2004-07-12 10:15:51.833352344 +0200
-+++ b/drivers/media/common/saa7146_video.c	2004-07-12 10:16:21.209886432 +0200
-@@ -1,9 +1,9 @@
- #include <media/saa7146_vv.h>
- 
--static int memory = 32;
-+static int max_memory = 32;
- 
--MODULE_PARM(memory,"i");
--MODULE_PARM_DESC(memory, "maximum memory usage for capture buffers (default: 32Mb)");
-+MODULE_PARM(max_memory,"i");
-+MODULE_PARM_DESC(max_memory, "maximum memory usage for capture buffers (default: 32Mb)");
- 
- #define IS_CAPTURE_ACTIVE(fh) \
- 	(((vv->video_status & STATUS_CAPTURE) != 0) && (vv->video_fh == fh))
-@@ -1331,9 +1331,9 @@
- 
- 	*size = fh->video_fmt.sizeimage;
- 
--	/* check if we exceed the "memory" parameter */
--	if( (*count * *size) > (memory*1048576) ) {
--		*count = (memory*1048576) / *size;
-+	/* check if we exceed the "max_memory" parameter */
-+	if( (*count * *size) > (max_memory*1048576) ) {
-+		*count = (max_memory*1048576) / *size;
- 	}
- 	
- 	DEB_CAP(("%d buffers, %d bytes each.\n",*count,*size));
+Is that in lock_page again?
 
---------------040104060504040908000207--
+Hopefully there's some helpful information there. If the dump there isn't 
+complete, can you give me an idea why it might not be? I've set the kernel 
+buffer to 17 (128k), and the proc list was definitely small enough to fit in 
+the buffer. When I did "dmesg -s 1000000 > foo", the first part of the file 
+was still the original boot sequence. Any other suggestions on what to do?
+
+Rob
+

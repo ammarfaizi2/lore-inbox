@@ -1,66 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268271AbTBMTR6>; Thu, 13 Feb 2003 14:17:58 -0500
+	id <S268272AbTBMTVn>; Thu, 13 Feb 2003 14:21:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268270AbTBMTR6>; Thu, 13 Feb 2003 14:17:58 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:24193 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S268271AbTBMTR5>;
-	Thu, 13 Feb 2003 14:17:57 -0500
-Date: Thu, 13 Feb 2003 13:19:54 -0600 (CST)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: <mochel@localhost.localdomain>
-To: Rusty Lynch <rusty@linux.co.intel.com>
-cc: Dave Jones <davej@codemonkey.org.uk>, <wingel@nano-systems.com>,
-       lkml <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH][RFC] Proposal for a new watchdog interface using sysfs
-In-Reply-To: <1045161084.1721.30.camel@vmhack>
-Message-ID: <Pine.LNX.4.33.0302131317210.1133-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268273AbTBMTVn>; Thu, 13 Feb 2003 14:21:43 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:39069 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S268272AbTBMTVm>;
+	Thu, 13 Feb 2003 14:21:42 -0500
+Date: Thu, 13 Feb 2003 19:27:14 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Joel Becker <Joel.Becker@oracle.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.60 NFS FSX
+Message-ID: <20030213192714.GB11244@codemonkey.org.uk>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Trond Myklebust <trond.myklebust@fys.uio.no>,
+	Joel Becker <Joel.Becker@oracle.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20030213152742.GA1560@codemonkey.org.uk> <20030213185410.GN20972@ca-server1.us.oracle.com> <shsd6lwati2.fsf@charged.uio.no>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <shsd6lwati2.fsf@charged.uio.no>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Feb 13, 2003 at 08:08:21PM +0100, Trond Myklebust wrote:
 
-On 13 Feb 2003, Rusty Lynch wrote:
+ > Does either you have a tcpdump you could send me of one of the above
+ > events? Use a large snaplen since we want to check the readdir reply
+ > length (which tends to be ~4k). Something like
+ > 
+ >    tcpdump -s 8192 -w dump.out host blah and port 2049
 
-> On Thu, 2003-02-13 at 11:07, Dave Jones wrote:
-> > On Thu, Feb 13, 2003 at 07:51:45AM -0800, Rusty Lynch wrote:
-> > 
-> >  > > You could regard them as 'system' devices, and have them show up in 
-> >  > > devices/sys/, which would make more sense than 'legacy'.
-> >  > Ok, system device is the winner.
-> > 
-> > Why? Stop for a second and look what we have in those dirs.
-> > They both contain things that are essentially motherboard resources.
-> > 
-> > These are add-on cards we're talking about. Surely a more sensible
-> > place for them to live is somewhere under devices/pci0/ or whatever
-> > bus-type said card is for.
-> > 
-> > Whilst there are some watchdogs which _are_ part of the motherboard
-> > chipset (which is arguably 'system'), these still show up in PCI
-> > space as regular PCI devices.
-> > 
-> > Lumping them all into the same category as things like rtc, pic,
-> > fdd etc is just _wrong_.
-> > 
-> > 		Dave
-> > 
-> 
-> The thing I would like to see is an easy way for a user space
-> application to see the available watchdog devices without searching
-> every possible bus type.  If we had that one location to find all
-> watchdog devices, then each device could just be a symbolic link to the
-> device in it's real bus.
+Not easily. I'm trying to get an exact reproduction case
+(fsx does it 'sometimes').  So far the best I've been able
+to get is a 164MB dump file. As soon as I narrow it down
+and get a sensible dump size, I'll let you know.
 
-Create a watchdog timer class. That will contain all watchdog timers, no 
-matter what bus they are on. 
+		Dave
 
-I apologize for leading you astray with suggesting you treat them as 
-system devices; I was under the assumption they were more important. :)
-They should always be in the most accurate place in the tree. Don't worry 
-about what the user sees; consistency and accuracy are more important..
-
-	-pat
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

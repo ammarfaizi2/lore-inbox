@@ -1,68 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277395AbRJJUKP>; Wed, 10 Oct 2001 16:10:15 -0400
+	id <S277397AbRJJULz>; Wed, 10 Oct 2001 16:11:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277400AbRJJUKK>; Wed, 10 Oct 2001 16:10:10 -0400
-Received: from h226-58.adirondack.albany.edu ([169.226.226.58]:6879 "EHLO
-	bouncybouncy.net") by vger.kernel.org with ESMTP id <S277395AbRJJUJw>;
-	Wed, 10 Oct 2001 16:09:52 -0400
-Date: Wed, 10 Oct 2001 16:10:12 -0400
-From: Justin A <justin@bouncybouncy.net>
-To: Dieter N?tzel <Dieter.Nuetzel@hamburg.de>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.10-ac10-preempt lmbench output.
-Message-ID: <20011010161012.A5967@bouncybouncy.net>
-In-Reply-To: <200110100358.NAA17519@isis.its.uow.edu.au> <20011010120009.851921E7C9@Cantor.suse.de> <20011010153653.Q726@athlon.random> <20011010155953Z277295-760+23277@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011010155953Z277295-760+23277@vger.kernel.org>
-User-Agent: Mutt/1.3.22i
+	id <S277404AbRJJULs>; Wed, 10 Oct 2001 16:11:48 -0400
+Received: from mpdr0.cleveland.oh.ameritech.net ([206.141.223.14]:21695 "EHLO
+	mailhost.cle.ameritech.net") by vger.kernel.org with ESMTP
+	id <S277394AbRJJUKd>; Wed, 10 Oct 2001 16:10:33 -0400
+Date: Wed, 10 Oct 2001 16:10:58 -0400 (EDT)
+From: Stephen Torri <storri@ameritech.net>
+X-X-Sender: <torri@base.torri.linux>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Memory free report error (kernel-2.4.10-ac10)
+Message-ID: <Pine.LNX.4.33.0110101605120.733-100000@base.torri.linux>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 10, 2001 at 05:37:40PM +0200, Dieter N?tzel wrote:
-> Am Mittwoch, 10. Oktober 2001 05:25 schrieb Justin A:
-> > On Tue, Oct 09, 2001 at 08:36:56PM -0400, safemode wrote:
-> > > Heavily io bound processes (dbench 32)  still causes something as light as
-> > > an mp3 player to skip, though.   That probably wont be fixed intil 2.5,
-> > > since 
-> >
-> > What buffer size are you using in your mp3 player?  I have xmms set to
-> > 5000ms or so and it never skips.
-> 
-> OK, I'll give xmms with this buffer size a go, too.
-> 
-> > mpg321(esd or oss) also never skips no matter what I do,
-> 
-> Do you have link to the mpg321 (oss) version for me?
 
-It should be in the same version:
+I have installed and used kernel-2.4.10-ac10 on a SMP system (Dual P3)
+using 768 MB Ram. Yet on startup of the system (RedHat 7.0), the system
+resources are almost all used. Here are the files started:
 
-   -o dt    Set output devicetype to dt [esd,alsa,arts,sun,oss]
-   
-> 
-> > but the original mpg123-oss will with even light load
-> > on the cpu/disk.
-> 
-> I get the hiccup with mpg123 and noatun (artsd, KDE-2.2.1).
+USER       PID %CPU %MEM   VSZ  RSS TTY      STAT START   TIME COMMAND
+root         1  1.1  0.0  1304  528 ?        S    15:56   0:06 init [3]
+root         2  0.0  0.0     0    0 ?        SW   15:56   0:00 [keventd]
+root         3  0.0  0.0     0    0 ?        SWN  15:56   0:00 [ksoftirqd_CPU0]
+root         4  0.0  0.0     0    0 ?        SWN  15:56   0:00 [ksoftirqd_CPU1]
+root         5  0.0  0.0     0    0 ?        SW   15:56   0:00 [kswapd]
+root         6  0.0  0.0     0    0 ?        SW   15:56   0:00 [kreclaimd]
+root         7  0.0  0.0     0    0 ?        SW   15:56   0:00 [bdflush]
+root         8  0.2  0.0     0    0 ?        SW   15:56   0:01 [kupdated]
+root         9  0.0  0.0     0    0 ?        SW   15:56   0:00 [khubd]
+root       341  0.0  0.0  1364  596 ?        S    16:03   0:00 syslogd -m 0
+root       351  0.1  0.1  2004 1176 ?        S    16:03   0:00 klogd
+nobody     405  0.0  0.0  7596  708 ?        S    16:03   0:00 identd -e -o
+nobody     407  0.0  0.0  7596  708 ?        S    16:03   0:00 identd -e -o
+nobody     408  0.0  0.0  7596  708 ?        S    16:03   0:00 identd -e -o
+nobody     409  0.0  0.0  7596  708 ?        S    16:03   0:00 identd -e -o
+nobody     410  0.0  0.0  7596  708 ?        S    16:03   0:00 identd -e -o
+daemon     424  0.0  0.0  1336  576 ?        S    16:03   0:00 /usr/sbin/atd
+root       455  0.0  0.1  2192  992 ?        S    16:03   0:00 xinetd -stayalive
+root       473  0.0  0.2  1904 1896 ?        SL   16:03   0:00 ntpd
+root       524  0.0  0.2  3224 1552 ?        S    16:03   0:00 sendmail: accepti
+root       540  0.0  0.0  1328  492 ?        S    16:03   0:00 gpm -t ps/2
+root       555  0.0  0.0  1532  708 ?        S    16:03   0:00 crond
+xfs        594  0.1  0.4  4404 3176 ?        S    16:03   0:00 xfs -droppriv -da
+root       630  0.0  0.0  1276  432 tty2     S    16:04   0:00 /sbin/mingetty tt
+root       631  0.0  0.0  1276  432 tty3     S    16:04   0:00 /sbin/mingetty tt
+root       632  0.0  0.0  1276  432 tty4     S    16:04   0:00 /sbin/mingetty tt
+root       633  0.0  0.0  1276  432 tty5     S    16:04   0:00 /sbin/mingetty tt
+root       634  0.0  0.0  1276  432 tty6     S    16:04   0:00 /sbin/mingetty tt
+root       677  0.1  0.1  2264 1204 tty1     S    16:04   0:00 login -- torri
+torri      678  0.0  0.1  2436 1416 tty1     S    16:04   0:00 -bash
+torri      700  0.0  0.1  2048 1080 ?        S    16:04   0:00 /usr/bin/fetchmai
+torri      733  0.1  0.3  6588 2640 tty1     T    16:05   0:00 pine
+torri      734  0.0  0.0  2528  732 tty1     R    16:06   0:00 ps aux
 
-Have you tried the -b option in mpg123?
+Here is the report of the memory (free -m):
+             total       used       free     shared    buffers     cached
+Mem:           751        662         89          0        564         18
+-/+ buffers/cache:         78        672
+Swap:          133          0        133
 
--b n  output buffer: n Kbytes [0]
+Here is the version I am using (/proc/version):
 
-Even maxed out it has no effect on the quality of the playback.
-> 
-> >
-> > This is with 2.4.10-ac9+preempt on an athlon 700
-> 
-> Here with Linus tree.
-> 
-> -Dieter
+Linux version 2.4.10-ac10 (root@base.torri.linux) (gcc version 3.0.2
+20010908 (prerelease)) #2 SMP Wed Oct 10 14:16:51 EDT 2001
 
-This behavior(xmms and mpg321 fine, mpg123 skipping) has always been the
-same for me. xmms was a more reliable player on my pentium 100.  It may
-just be a better design in mpg321 and xmms.
+I have never run across this problem. I don't know where to begin or what
+information is required to help debug this. Advise would be helpful.
 
--Justin
+Stephen Torri
+storri@ameritech.net
 

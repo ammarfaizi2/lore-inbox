@@ -1,43 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261956AbULPRiU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261946AbULPRi1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261956AbULPRiU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 12:38:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261744AbULPRiU
+	id S261946AbULPRi1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 12:38:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261744AbULPRi0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 12:38:20 -0500
-Received: from atlrel7.hp.com ([156.153.255.213]:50624 "EHLO atlrel7.hp.com")
-	by vger.kernel.org with ESMTP id S261941AbULPRiI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 12:38:08 -0500
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-Subject: Re: [PATCH] add legacy I/O port & memory APIs to /proc/bus/pci
-Date: Thu, 16 Dec 2004 10:37:54 -0700
-User-Agent: KMail/1.7.1
-Cc: linux-pci@atrey.karlin.mff.cuni.cz, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org, willy@debian.org
-References: <200412160850.20223.jbarnes@engr.sgi.com>
-In-Reply-To: <200412160850.20223.jbarnes@engr.sgi.com>
+	Thu, 16 Dec 2004 12:38:26 -0500
+Received: from web26505.mail.ukl.yahoo.com ([217.146.176.42]:54207 "HELO
+	web26505.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S261436AbULPRiM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Dec 2004 12:38:12 -0500
+Message-ID: <20041216173811.7697.qmail@web26505.mail.ukl.yahoo.com>
+Date: Thu, 16 Dec 2004 17:38:11 +0000 (GMT)
+From: Neil Conway <nconway_kernel@yahoo.co.uk>
+Subject: Re: 3TB disk hassles
+To: Tomas Carnecky <tom@dbservice.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <41C1C2AD.90902@dbservice.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200412161037.55293.bjorn.helgaas@hp.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 16 December 2004 9:50 am, Jesse Barnes wrote:
-> This patch documents the /proc/bus/pci interface and adds some optional 
-> architecture specific APIs for accessing legacy I/O port and memory space.  
-> This is necessary on platforms where legacy I/O port space doesn't 'soft 
-> fail' like it does on PCs, and is useful for systems that can route legacy 
-> space to different PCI busses.
+Hi Tom...
 
-But we didn't resolve anything with respect to multiple PCI domains,
-did we?  As far as I can see, /proc/bus/pci currently doesn't support
-multiple domains at all.  I don't like the idea of adding new stuff
-that we already know is insufficient for machines in the very near
-future.  True, it's just extending an existing interface, but it
-seems like if we're going to the trouble of changing X, we might as
-well address multiple domains at the same time.
+ --- Tomas Carnecky <tom@dbservice.com> wrote: 
+> I had a GUID partition table (GPT) on my system (x86, normal 
+> mainboard/BIOS etc) and it worked fine. I didn't need a separate boot
+> disk. I used grub as the boot loader. I think if you enable GPT in
+> the 
+> kernel you should be able to boot stright from the big disk.
+
+Wow, that's unexpected but encouraging news.  What distro?  Did it
+allow you to go GPT right from the off, or did you have to migrate from
+an MSDOS ptbl to a GPT one after installation?
+
+Thanks for the tip.
+Neil
+
+
+
+	
+	
+		
+___________________________________________________________ 
+ALL-NEW Yahoo! Messenger - all new features - even more fun! http://uk.messenger.yahoo.com

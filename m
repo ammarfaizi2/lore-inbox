@@ -1,40 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131991AbQKWMOd>; Thu, 23 Nov 2000 07:14:33 -0500
+        id <S131519AbQKWMWq>; Thu, 23 Nov 2000 07:22:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S132069AbQKWMOO>; Thu, 23 Nov 2000 07:14:14 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:8721 "EHLO
-        wire.cadcamlab.org") by vger.kernel.org with ESMTP
-        id <S131991AbQKWMOJ>; Thu, 23 Nov 2000 07:14:09 -0500
-Date: Thu, 23 Nov 2000 05:44:03 -0600
-To: Rogier Wolff <R.E.Wolff@bitwizard.nl>
-Cc: Mitchell Blank Jr <mitch@sfgoth.com>,
+        id <S131671AbQKWMWh>; Thu, 23 Nov 2000 07:22:37 -0500
+Received: from 13dyn248.delft.casema.net ([212.64.76.248]:4356 "EHLO
+        abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+        id <S131519AbQKWMWU>; Thu, 23 Nov 2000 07:22:20 -0500
+Message-Id: <200011231152.MAA13624@cave.bitwizard.nl>
+Subject: Re: [NEW DRIVER] firestream
+In-Reply-To: <20001123054403.S2918@wire.cadcamlab.org> from Peter Samuelson at
+ "Nov 23, 2000 05:44:03 am"
+To: Peter Samuelson <peter@cadcamlab.org>
+Date: Thu, 23 Nov 2000 12:52:05 +0100 (MET)
+CC: Rogier Wolff <R.E.Wolff@bitwizard.nl>,
+        Mitchell Blank Jr <mitch@sfgoth.com>,
         Patrick van de Lageweg <patrick@bitwizard.nl>,
         Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
         Rogier Wolff <wolff@bitwizard.nl>
-Subject: Re: [NEW DRIVER] firestream
-Message-ID: <20001123054403.S2918@wire.cadcamlab.org>
-In-Reply-To: <20001122092356.B53983@sfgoth.com> <200011231115.MAA10903@cave.bitwizard.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200011231115.MAA10903@cave.bitwizard.nl>; from R.E.Wolff@bitwizard.nl on Thu, Nov 23, 2000 at 12:15:34PM +0100
-From: Peter Samuelson <peter@cadcamlab.org>
+From: R.E.Wolff@bitwizard.nl (Rogier Wolff)
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Peter Samuelson wrote:
+> 
+> [Rogier Wolff]
+> > > > +MODULE_PARM(fs_debug, "i");
+> > > 
+> > > There's no reason to wrap these "MODULE_PARM"s inside an "#ifdef MODULE".
+> >                  ^^^^ anymore in 2.4 
+>                                    ^^^2.2
+> 
+> Verified in 2.2.0 (the oldest tree I have)
 
-[Rogier Wolff]
-> > > +MODULE_PARM(fs_debug, "i");
-> > 
-> > There's no reason to wrap these "MODULE_PARM"s inside an "#ifdef MODULE".
->                  ^^^^ anymore in 2.4 
-                                   ^^^2.2
+Was it really neccesary to make me feel THAT old? :-)
 
-Verified in 2.2.0 (the oldest tree I have).
+			Roger. 
 
-Peter
+-- 
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+* There are old pilots, and there are bold pilots. 
+* There are also old, bald pilots. 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

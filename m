@@ -1,93 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129404AbRBHXAi>; Thu, 8 Feb 2001 18:00:38 -0500
+	id <S129403AbRBHXA2>; Thu, 8 Feb 2001 18:00:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129448AbRBHXA2>; Thu, 8 Feb 2001 18:00:28 -0500
-Received: from webmail.metabyte.com ([216.218.208.53]:34640 "EHLO
-	webmail.metabyte.com") by vger.kernel.org with ESMTP
-	id <S129404AbRBHXAQ>; Thu, 8 Feb 2001 18:00:16 -0500
-Message-ID: <3A8324D7.C03D5274@metabyte.com>
-Date: Thu, 08 Feb 2001 14:59:36 -0800
-From: Pete Zaitcev <zaitcev@metabyte.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.14-5.0 i686)
-X-Accept-Language: pl, ru, en
-MIME-Version: 1.0
+	id <S129408AbRBHXAT>; Thu, 8 Feb 2001 18:00:19 -0500
+Received: from pool-209-128-156-95.jon.ipa.net ([209.128.156.95]:64130 "EHLO
+	BrightStar") by vger.kernel.org with ESMTP id <S129213AbRBHXAL>;
+	Thu, 8 Feb 2001 18:00:11 -0500
+Date: Thu, 8 Feb 2001 17:09:31 -0600
+From: Michael Hobgood <mhobgood@inet-direct.com>
 To: linux-kernel@vger.kernel.org
-CC: zaitcev@metabyte.com, yosh@gimp.org, smackinlay@mail.com
-Subject: Patch for ymfpci and xmms
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 08 Feb 2001 23:00:02.0691 (UTC) FILETIME=[DE903530:01C09222]
+Subject: Re: Mem detection problem
+Message-ID: <20010208170931.A6890@inet-direct.com>
+In-Reply-To: <3A82CEE6.9060204@lycosmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0i
+In-Reply-To: <3A82CEE6.9060204@lycosmail.com>; from ajschrotenboer@lycosmail.com on Thu, Feb 08, 2001 at 11:52:54AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Courtesy of Manish Singh, little bit extended
-(I hope I did not break it too badly).
-Supposedly it fixes bad skipping with xmms.
+On Thu, Feb 08, 2001 at 11:52:54AM -0500, Adam Schrotenboer wrote:
+> This is actually a repost of a problem that received few serious replies 
+> (IMNSHO).
+> 
+> Basically 2.4.0 detects 192 MB(maybe 191, but big whoop) of memory. This 
+> is correct. However, 2.4.1-ac6 (as did Linus-blessed 2.4.1) detects 64. 
+> The problem is simple. 2.4.1 and later for some reason uses bios-88, 
+> instead of e820.
+> 
+> Attached are the dmesgs from 2.4.0 and 2.4.1-ac6.
 
--- Pete
+[snip]
 
-diff -ur -X dontdiff linux-2.4.1/drivers/sound/ymfpci.c linux-2.4.1-p3/drivers/sound/ymfpci.c
---- linux-2.4.1/drivers/sound/ymfpci.c	Fri Jan 26 23:31:16 2001
-+++ linux-2.4.1-p3/drivers/sound/ymfpci.c	Thu Feb  8 11:29:45 2001
-@@ -370,16 +370,14 @@
- 
- 	/*
- 	 * Create fake fragment sizes and numbers for OSS ioctls.
-+	 * Import what Doom might have set with SNDCTL_DSP_SETFRAGMENT.
- 	 */
- 	bufsize = PAGE_SIZE << dmabuf->buforder;
--	if (dmabuf->ossfragshift) {
--		if ((1000 << dmabuf->ossfragshift) < bytepersec)
--			dmabuf->fragshift = ld2(bytepersec/1000);
--		else
--			dmabuf->fragshift = dmabuf->ossfragshift;
--	} else {
--		/* lets hand out reasonable big ass buffers by default */
--		dmabuf->fragshift = (dmabuf->buforder + PAGE_SHIFT -2);
-+	/* lets hand out reasonable big ass buffers by default */
-+	dmabuf->fragshift = (dmabuf->buforder + PAGE_SHIFT -2);
-+	if (dmabuf->ossfragshift > 3 &&
-+	    dmabuf->ossfragshift < dmabuf->fragshift) {
-+		dmabuf->fragshift = dmabuf->ossfragshift;
- 	}
- 	dmabuf->numfrag = bufsize >> dmabuf->fragshift;
- 	while (dmabuf->numfrag < 4 && dmabuf->fragshift > 3) {
-@@ -389,9 +387,6 @@
- 	dmabuf->fragsize = 1 << dmabuf->fragshift;
- 	dmabuf->dmasize = dmabuf->numfrag << dmabuf->fragshift;
- 
--	/*
--	 * Import what Doom might have set with SNDCTL_DSD_SETFRAGMENT.
--	 */
- 	if (dmabuf->ossmaxfrags >= 2 && dmabuf->ossmaxfrags < dmabuf->numfrag) { 		dmabuf->numfrag = dmabuf->ossmaxfrags;
- 		dmabuf->dmasize = dmabuf->numfrag << dmabuf->fragshift;
-@@ -1718,21 +1713,13 @@
- 	case SNDCTL_DSP_SETFRAGMENT:
- 		if (get_user(val, (int *)arg))
- 			return -EFAULT;
--	/* P3: these frags are for Doom. Amasingly, it sets [2,2**11]. */
--	/* P3 */ // printk("ymfpci: ioctl SNDCTL_DSP_SETFRAGMENT 0x%x\n", val);
--
- 		dmabuf = &state->wpcm.dmabuf;
- 		dmabuf->ossfragshift = val & 0xffff;
- 		dmabuf->ossmaxfrags = (val >> 16) & 0xffff;
--		switch (dmabuf->ossmaxfrags) {
--		case 1:
--			dmabuf->ossfragshift = 12;
--			return 0;
--		default:
--			/* Fragments must be 2K long */
--			dmabuf->ossfragshift = 11;
--			dmabuf->ossmaxfrags = 2;
--		}
-+		if (dmabuf->ossfragshift < 4)
-+			dmabuf->ossfragshift = 4;
-+		if (dmabuf->ossfragshift > 15)
-+			dmabuf->ossfragshift = 15;
- 		return 0;
- 
- 	case SNDCTL_DSP_GETOSPACE:
+Perhaps on your machine, but not on all.  Small amount of dmesg from mine.
+
+
+Linux version 2.4.2-pre1 (root@BrightStar) (gcc version egcs-2.91.66 19990314/Linux (egcs-1.1.2 release)) #1 Tue Feb 6 05:34:32 CST 2001
+BIOS-provided physical RAM map:
+ BIOS-e820: 000000000009f800 @ 0000000000000000 (usable)
+ BIOS-e820: 0000000000000800 @ 000000000009f800 (reserved)
+ BIOS-e820: 000000000000e800 @ 00000000000f1800 (reserved)
+ BIOS-e820: 0000000011f00000 @ 0000000000100000 (usable)
+ BIOS-e820: 000000000000e800 @ 00000000ffff1800 (reserved)
+      ^^^^
+
+On node 0 totalpages: 73728
+zone(0): 4096 pages.
+zone(1): 69632 pages.
+zone(2): 0 pages.
+Kernel command line: BOOT_IMAGE=242 ro root=342 hdd=ide-scsi
+ide_setup: hdd=ide-scsi
+Initializing CPU#0
+Detected 334.098 MHz processor.
+Console: colour VGA+ 80x25
+Calibrating delay loop... 666.82 BogoMIPS
+Memory: 287948k/294912k available (953k kernel code, 6576k reserved, 319k data, 172k init, 0k highmem)
+                ^^^^^^ the 294912k is correct
+
+Dentry-cache hash table entries: 65536 (order: 7, 524288 bytes)
+Buffer-cache hash table entries: 16384 (order: 4, 65536 bytes)
+Page-cache hash table entries: 131072 (order: 7, 524288 bytes)
+Inode-cache hash table entries: 32768 (order: 6, 262144 bytes)
+
+Cordially,
+Michael Hobgood
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

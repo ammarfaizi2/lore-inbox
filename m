@@ -1,68 +1,145 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269232AbRHGRf4>; Tue, 7 Aug 2001 13:35:56 -0400
+	id <S269236AbRHGRog>; Tue, 7 Aug 2001 13:44:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269234AbRHGRfq>; Tue, 7 Aug 2001 13:35:46 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:59913 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S269222AbRHGRfe>; Tue, 7 Aug 2001 13:35:34 -0400
-Date: Tue, 7 Aug 2001 19:35:30 +0200
-From: Jan Kara <jack@suse.cz>
-To: Chris Meadors <clubneon@hereintown.net>
-Cc: Andreas Dilger <adilger@turbolinux.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Disk quotas not staying in sync?
-Message-ID: <20010807193530.A32704@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20010807175132.D13001@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.31.0108071311110.3577-100000@rc.priv.hereintown.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <Pine.LNX.4.31.0108071311110.3577-100000@rc.priv.hereintown.net>; from clubneon@hereintown.net on Tue, Aug 07, 2001 at 01:41:56PM -0400
+	id <S269223AbRHGRo1>; Tue, 7 Aug 2001 13:44:27 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:16913 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S269226AbRHGRoY>; Tue, 7 Aug 2001 13:44:24 -0400
+Date: Tue, 7 Aug 2001 14:44:05 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-mm@kvack.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: [PATCH] swap < ram support
+Message-ID: <Pine.LNX.4.33L.0108071439220.1439-100000@duckman.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hello,
+Hi,
 
-> On Tue, 7 Aug 2001, Jan Kara wrote:
-> 
-> >   And anyway if root deletes file of some user, allocation is removed from
-> > user so it doesn't matter. Can you check if output of df(1) changes
-> > appropriately to deleted files - in other case the files might just
-> > remain somewhere unlinked but open..
-> 
-> I figured that if anyone removed the file it would come out of the user's
-> quota.  It wouldn't make sense any other way, but was just making sure.
-> I didn't get a chance to look at the output of df.  But I know from before
-> when I was updating my glibc that open but unlinked files can be a real
-> pain.
-  Yes they can :).
+the following patch adds support for machines where swap is
+smaller than ram by conditionally freeing up swap space at
+swapin time when our swap area is getting full.
 
-> There is a similar thread going on with someone else deleting files from a
-> quota enabled partition and not seeing the space being freed up.  The
-> files that were being deleted from the user's home directory shouldn't
-> have been open by any program.  Week old mail, year old webpages.  But
-> still deleting them was not freeing them from the total quota usage
-> (immediately).  It did seem that it might have been possible that the
-> quotas were freed later, but I don't have any good observed evidence
-> either way.  Is it possible that the quota code itself in the kernel was
-> keeping the files open?
-  No. Quota has opened only quotafiles. It doesn't open any other files.
-That's why I think quota has no direct impact on disk space not being freed
-(what is - if I understood it well - the problem in that l-k thread).
-I can imagine leak in accounting of used space for quotas but not anywhere
-else...
+The main part of the patch is this:
 
-> > > I have run quotacheck once at boot to see if it would help.  It got the
-> > > stuff in sync for a little while, but soon I started to see the same
-> > > problem again.  quotacheck on a cold cache takes a LONG time to run.
-> 
-> I just got done with a reboot and quotacheck, everything syched up nicely,
-> I'm hoping it stays that way this time.
-  Hope too but I'm curious about that leak :).
++       if (vm_swap_full() && exclusive_swap_page(page)) {
++               delete_from_swap_cache_nolock(page);
++               pte = pte_mkwrite(pte_mkdirty(pte));
++       }
 
+The rest is trivial support code, mostly optimised for
+readability.
 
-							Honza
+Please apply for the next -pre version.
+
+thanks,
+
+Rik
 --
-Jan Kara <jack@suse.cz>
-SuSE Labs
+Executive summary of a recent Microsoft press release:
+   "we are concerned about the GNU General Public License (GPL)"
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
+
+
+--- linux-2.4.7-ac7/mm/memory.c.orig	Mon Aug  6 12:23:33 2001
++++ linux-2.4.7-ac7/mm/memory.c	Tue Aug  7 14:20:11 2001
+@@ -1147,6 +1147,20 @@
+ 	swap_free(entry);
+ 	if (write_access && exclusive_swap_page(page))
+ 		pte = pte_mkwrite(pte_mkdirty(pte));
++
++	/*
++	 * If swap space is getting low and we were the last user
++	 * of this piece of swap space, we free this space so
++	 * somebody else can be swapped out.
++	 *
++	 * We are protected against try_to_swap_out() because the
++	 * page is locked and against do_fork() because we have
++	 * read_lock(&mm->mmap_sem).
++	 */
++	if (vm_swap_full() && exclusive_swap_page(page)) {
++		delete_from_swap_cache_nolock(page);
++		pte = pte_mkwrite(pte_mkdirty(pte));
++	}
+ 	UnlockPage(page);
+
+ 	flush_page_to_ram(page);
+--- linux-2.4.7-ac7/mm/swapfile.c.orig	Mon Aug  6 12:23:33 2001
++++ linux-2.4.7-ac7/mm/swapfile.c	Tue Aug  7 11:55:18 2001
+@@ -19,11 +19,34 @@
+
+ spinlock_t swaplock = SPIN_LOCK_UNLOCKED;
+ unsigned int nr_swapfiles;
++int total_swap_pages;
+
+ struct swap_list_t swap_list = {-1, -1};
+
+ struct swap_info_struct swap_info[MAX_SWAPFILES];
+
++/*
++ * When swap space gets filled up, we will set this flag.
++ * This will make do_swap_page(), in the page fault path,
++ * free swap entries on swapin so we'll reclaim swap space
++ * in order to be able to swap something out.
++ *
++ * At the moment we start reclaiming when swap usage goes
++ * over 80% of swap space and we continue reclaiming until
++ * the amount of occupied swap drops to less than 75%.
++ * XXX: these are random numbers, fixme.
++ */
++#define SWAP_FULL_PCT 80
++int vm_swap_full (void) {
++	int full = 0;
++	int swap_used = total_swap_pages - nr_swap_pages;
++
++	if (swap_used * 100 > total_swap_pages * SWAP_FULL_PCT)
++		full = 1;
++
++	return full;
++}
++
+ #define SWAPFILE_CLUSTER 256
+
+ static inline int scan_swap_map(struct swap_info_struct *si, unsigned short count)
+@@ -469,6 +492,7 @@
+ 		swap_list.next = swap_list.head;
+ 	}
+ 	nr_swap_pages -= p->pages;
++	total_swap_pages -= p->pages;
+ 	swap_list_unlock();
+ 	p->flags = SWP_USED;
+ 	err = try_to_unuse(type);
+@@ -484,6 +508,7 @@
+ 		else
+ 			swap_info[prev].next = p - swap_info;
+ 		nr_swap_pages += p->pages;
++		total_swap_pages += p->pages;
+ 		swap_list_unlock();
+ 		p->flags = SWP_WRITEOK;
+ 		goto out_dput;
+@@ -771,6 +796,7 @@
+ 	p->pages = nr_good_pages;
+ 	swap_list_lock();
+ 	nr_swap_pages += nr_good_pages;
++	total_swap_pages += nr_good_pages;
+ 	printk(KERN_INFO "Adding Swap: %dk swap-space (priority %d)\n",
+ 	       nr_good_pages<<(PAGE_SHIFT-10), p->prio);
+
+--- linux-2.4.7-ac7/include/linux/swap.h.orig	Mon Aug  6 12:33:35 2001
++++ linux-2.4.7-ac7/include/linux/swap.h	Mon Aug  6 20:08:44 2001
+@@ -158,6 +158,7 @@
+ extern void free_page_and_swap_cache(struct page *page);
+
+ /* linux/mm/swapfile.c */
++extern int vm_swap_full(void);
+ extern unsigned int nr_swapfiles;
+ extern struct swap_info_struct swap_info[];
+ extern int is_swap_partition(kdev_t);
+

@@ -1,52 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269087AbUJKQo5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269090AbUJKQsU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269087AbUJKQo5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 12:44:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269247AbUJKQop
+	id S269090AbUJKQsU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 12:48:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269106AbUJKQr5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 12:44:45 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:56849 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S269134AbUJKQfd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 12:35:33 -0400
-Date: Mon, 11 Oct 2004 18:35:01 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [patch] 2.6.9-rc4: SCSI qla2xxx gcc 3.4 compile errors
-Message-ID: <20041011163501.GB3485@stusta.de>
-References: <Pine.LNX.4.58.0410102016180.3897@ppc970.osdl.org> <20041011162457.GA3485@stusta.de> <1097512128.1714.128.camel@mulgrave>
+	Mon, 11 Oct 2004 12:47:57 -0400
+Received: from stat16.steeleye.com ([209.192.50.48]:54192 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S269090AbUJKPJw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Oct 2004 11:09:52 -0400
+Subject: Re: Linux 2.6.9-rc4 - pls test (and no more patches)
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andre Tomt <andre@tomt.net>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0410110758500.3897@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0410102016180.3897@ppc970.osdl.org>
+	<416A53D3.9020002@tomt.net> 
+	<Pine.LNX.4.58.0410110758500.3897@ppc970.osdl.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 11 Oct 2004 10:09:35 -0500
+Message-Id: <1097507381.2029.40.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1097512128.1714.128.camel@mulgrave>
-User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 11, 2004 at 11:28:42AM -0500, James Bottomley wrote:
-> On Mon, 2004-10-11 at 11:24, Adrian Bunk wrote:
-> > Please apply my patch below which is already for some time in James' 
-> > SCSI tree.
+On Mon, 2004-10-11 at 10:02, Linus Torvalds wrote:
 > 
-> It's waiting in my tree until 2.6.9 goes final because gcc-3.4 fixes are
-> hardly showstoppers.  If you want to compile the kernel with gcc-3.4 use
-> -mm
+> 
+> On Mon, 11 Oct 2004, Andre Tomt wrote:
+> > 
+> > The data corruption bug in the new megaraid driver version seems still 
+> > not to be fixed. LSI posted a fix some weeks ago, not sure how that went..
+> > 
+> > "[PATCH]: megaraid 2.20.4: Fixes a data corruption bug"
+> 
+> I think that one is already in the SCSI BK tree, just not pushed to me. 
+> Perhaps because the tree contains other less important patches that James 
+> doesn't think are worthy yet.. James? Should I just take the small 
+> megaraid patch directly (and leave the compat ioctl cleanups etc to you)?
 
-It's the only compile error with gcc 3.4 I found in 2.6.9-rc4, and the 
-fix is pretty low-risk.
+I have no objections.  However, I was planning on pushing it through the
+SCSI tree because it's in the new megaraid driver which is experimental
+at the moment (the old megaraid driver is still in and still
+selectable).  It's been in -mm for a few days now with no ill effects, I
+think, but I'm not sure how many megaraid owners have actually tested
+it.
 
-> James
+James
 
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
 

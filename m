@@ -1,57 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261886AbTELEXb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 00:23:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261892AbTELEXb
+	id S261879AbTELEVO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 00:21:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261881AbTELEVO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 00:23:31 -0400
-Received: from smtp3.cwidc.net ([154.33.63.113]:56307 "EHLO smtp3.cwidc.net")
-	by vger.kernel.org with ESMTP id S261886AbTELEX1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 00:23:27 -0400
-Message-ID: <3EBF24A8.1050100@tequila.co.jp>
-Date: Mon, 12 May 2003 13:35:52 +0900
-From: Clemens Schwaighofer <cs@tequila.co.jp>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4b) Gecko/20030506
-X-Accept-Language: en-us, en
+	Mon, 12 May 2003 00:21:14 -0400
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:53894 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S261879AbTELEVM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 May 2003 00:21:12 -0400
+Message-ID: <3EBF240A.4050706@nortelnetworks.com>
+Date: Mon, 12 May 2003 00:33:14 -0400
+X-Sybari-Space: 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
 MIME-Version: 1.0
-To: Chuck Ebbert <76306.1226@compuserve.com>,
+To: Doug McNaught <doug@mcnaught.org>
+Cc: Muli Ben-Yehuda <mulix@mulix.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Two RAID1 mirrors are faster than three
-References: <200305112212_MC3-1-386B-32BF@compuserve.com>
-In-Reply-To: <200305112212_MC3-1-386B-32BF@compuserve.com>
-X-Enigmail-Version: 0.75.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
+Subject: Re: [RFC]  new syscall to allow notification when arbitrary pids die
+References: <3EBC9C62.5010507@nortelnetworks.com>	<20030510073842.GA31003@actcom.co.il>	<3EBF144E.7050608@nortelnetworks.com> <m3y91cj0vm.fsf@varsoon.wireboard.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Doug McNaught wrote:
+> Chris Friesen <cfriesen@nortelnetworks.com> writes:
+> 
+> 
+>>>There's already a well established way to do what you want (get
+>>>non-immediate notification of process death). What benefit would your
+>>>approach give?
+>>>
+>>Its cheaper and faster.  It only costs a single call for each process,
+>>and then you get notified immediately when it dies.
+>>
+> 
+> Rather than a new syscall, what about a magic file or device that you
+> can poll()? 
 
-Chuck Ebbert wrote:
+This is definately an option to consider.  The problem that I see with this is 
+that when you are trying to monitor large numbers of processes you have to worry 
+about running out of file descriptors, and select() is no longer as happy.
 
->   Add the third disk back into the array:
->         # raidhotadd /dev/md21 /dev/hde9
->         [rebuilt 3000MiB in 313s == (3000+3000)/313 == 19MiB/s throughput]
+I have an actual real request to be able to monitor 5000 processes.  This would 
+be a lot of file descriptors, and when select returns it would take some 
+processing to figure out which one had an event.
 
-Why three drives in a Raid1? Raid one is just mirror, or is the third
-drive like a "hot" replace drive if one of the others fail?
+It does have easier handling of multiple simultaneous deaths though...the signal 
+method would probably want to use realtime signals to get signal queueing.
 
-- --
-Clemens Schwaighofer - IT Engineer & System Administration
-==========================================================
-Tequila Japan, 6-17-2 Ginza Chuo-ku, Tokyo 104-8167, JAPAN
-Tel: +81-(0)3-3545-7703            Fax: +81-(0)3-3545-7343
-http://www.tequila.jp
-==========================================================
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (MingW32)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+Chris
 
-iD8DBQE+vySnjBz/yQjBxz8RAi+jAJ96566475BKb8o21/A7Wlzztba1jQCfSCnG
-EchYBgaJBdvOPzVbx9rPorU=
-=Ydkv
------END PGP SIGNATURE-----
+
+
+-- 
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
 

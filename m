@@ -1,91 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129861AbRBAKSt>; Thu, 1 Feb 2001 05:18:49 -0500
+	id <S130122AbRBAKXv>; Thu, 1 Feb 2001 05:23:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129917AbRBAKSk>; Thu, 1 Feb 2001 05:18:40 -0500
-Received: from proxy1.braun.de ([193.17.96.34]:58593 "EHLO relay-ext.braun.de")
-	by vger.kernel.org with ESMTP id <S129861AbRBAKSb>;
-	Thu, 1 Feb 2001 05:18:31 -0500
-Message-ID: <3A7937EE.1030104@gmx.de>
-Date: Thu, 01 Feb 2001 11:18:22 +0100
-From: Daniel Schroeter <d.schroeter@gmx.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.1 i686; en-US; m18) Gecko/20010116
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: raid-1 with raid-0 and normal disk -> performance and autostart?
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S130233AbRBAKXl>; Thu, 1 Feb 2001 05:23:41 -0500
+Received: from wire.cadcamlab.org ([156.26.20.181]:6664 "EHLO
+	wire.cadcamlab.org") by vger.kernel.org with ESMTP
+	id <S130122AbRBAKXX>; Thu, 1 Feb 2001 05:23:23 -0500
+Date: Thu, 1 Feb 2001 04:23:20 -0600
+To: William Knop <w_knop@hotmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Modules and DevFS
+Message-ID: <20010201042320.B27725@cadcamlab.org>
+In-Reply-To: <F204tAEHLB8TrBHxvZ900001de6@hotmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <F204tAEHLB8TrBHxvZ900001de6@hotmail.com>; from w_knop@hotmail.com on Thu, Feb 01, 2001 at 03:44:38AM -0500
+From: Peter Samuelson <peter@cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
-i using kernel 2.4.1. mkraid version 0.90.0
-i build /dev/md0 raid-0 with hda5 and sda1. then i build /dev/md1 raid-1 
-with /dev/md0 and sdb1.
-it works fine.
-BUT the resync takes a long time. i have a performance from 253K/sec. 
-whats there wrong?
-[root@mendocino <mailto:root@mendocino> /root]# cat /proc/mdstat
-Personalities : [linear] [raid0] [raid1] [raid5]
-read_ahead 1024 sectors
-md0 : active raid1 md1[1] sdb1[0]
-      8891712 blocks [2/2] [UU]
-      [>....................]  resync =  0.0% (5572/8891712) 
-finish=581.8min speed=253K/sec
-md1 : active raid0 sda1[1] hda5[0]
-      8891776 blocks 4k chunks
 
-unused devices: <none>
+[William Knop]
+> How can DevFS know which devices to add to /dev/scsi/... without
+> loading the module and scanning the bus first? Or do you manually
+> insert the scsi module when you need it?
 
-if i build a raid-1 with sdb1 and hda5 i get:
+If you do 'cd /dev/scsi', the kernel looks it up and finds it missing,
+which generates a "lookup" event from the kernel to your 'devfsd'
+process.  (You *do* run devfsd, right?)  devfsd then calls 'modprobe
+/dev/scsi' (I think that's the default action, you can change it in
+/etc/devfsd.conf if you wish).  /sbin/modprobe reads /etc/modules.conf
+which has an entry like 'alias /dev/scsi sym53c8xx', so when it is
+asked to load /dev/scsi it actually loads sym53c8xx.  sym53c8xx in turn
+triggers the creation of /dev/scsi as it initializes.
 
-Personalities : [linear] [raid0] [raid1] [raid5]
-read_ahead 1024 sectors
-md0 : active raid1 sdb1[1] hda5[0]
-      4449920 blocks [2/2] [UU]
-      [>....................]  resync =  0.4% (21952/4449920) 
-finish=10.0min speed=7317K/sec
-unused devices: <none>
+So modprobe, having loaded the module, exits.  devfsd then replies to
+the kernel 'ok, try again, will you please' and the kernel does so, and
+this time /dev/scsi/ exists and is accessible.
 
-i get the same speer also with sda1 and sdb1.
-any ideas?
+...And the chdir("/dev/scsi") system call, having waited this whole
+time, finally returns successfully.  And now you know ... the rest of
+the story.
 
-i will mount the raid-10 (or 01???) as "/". but the autodetection 
-doesn't work corect. the partitions are all "Linux raid autodetect". the 
-raid-0 starts fine. if he tries to start the raid-1 the dev md0 will not 
-integrated in the array. must i start a ramdisk, and starting there 
-manuell the raid-1? if i change md1 and md0 it's the same.
-
-THNX
-CU
-    daniel
-
-
-raidtab:
-
-raiddev /dev/md0
-    raid-level                0
-    nr-raid-disks             2
-    persistent-superblock     1
-    chunk-size                4
-
-    device                    /dev/hda5
-    raid-disk                 0
-    device                    /dev/sda1
-    raid-disk                 1
-
-raiddev /dev/md1
-    raid-level                1
-    nr-raid-disks             2
-   persistent-superblock     1 # i tried also 0 here
-    chunk-size                4
-
-    device                    /dev/sdb1
-    raid-disk                 0
-    device                    /dev/md0
-    raid-disk                 1
-
+Peter
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

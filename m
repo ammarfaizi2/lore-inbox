@@ -1,75 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276150AbRJPNXF>; Tue, 16 Oct 2001 09:23:05 -0400
+	id <S276204AbRJPNaP>; Tue, 16 Oct 2001 09:30:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276204AbRJPNW4>; Tue, 16 Oct 2001 09:22:56 -0400
-Received: from nick.dcs.qmul.ac.uk ([138.37.88.61]:14469 "EHLO
-	nick.dcs.qmul.ac.uk") by vger.kernel.org with ESMTP
-	id <S276150AbRJPNWo>; Tue, 16 Oct 2001 09:22:44 -0400
-Date: Tue, 16 Oct 2001 14:23:16 +0100 (BST)
-From: Matt Bernstein <matt@theBachChoir.org.uk>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: oops from our mailer
-In-Reply-To: <Pine.LNX.4.33.0110151107060.2244-100000@nick.dcs.qmul.ac.uk>
-Message-ID: <Pine.LNX.4.33.0110161410270.801-100000@nick.dcs.qmul.ac.uk>
-X-URL: http://www.theBachChoir.org.uk/
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S276215AbRJPNaF>; Tue, 16 Oct 2001 09:30:05 -0400
+Received: from khan.acc.umu.se ([130.239.18.139]:56254 "EHLO khan.acc.umu.se")
+	by vger.kernel.org with ESMTP id <S276204AbRJPN37>;
+	Tue, 16 Oct 2001 09:29:59 -0400
+Date: Tue, 16 Oct 2001 15:30:24 +0200
+From: David Weinehall <tao@acc.umu.se>
+To: Kirill Ratkin <kratkin@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Very old kernel.
+Message-ID: <20011016153024.X25701@khan.acc.umu.se>
+In-Reply-To: <200110161123.f9GBNXw01262@spnew.snpe.co.yu> <20011016103906.97044.qmail@web11906.mail.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <20011016103906.97044.qmail@web11906.mail.yahoo.com>; from kratkin@yahoo.com on Tue, Oct 16, 2001 at 03:39:06AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please ignore my earlier message (and apologies to the postmasters for my
-follow-up--I didn't realise just how large my oops logs were); despite
-having run memtest86 on my RAM before installing it into said mailer, only
-one of the three DIMMs was any good--one had 800+ errors in half an hour's
-testing, and the third didn't get as far as the BIOS..
+On Tue, Oct 16, 2001 at 03:39:06AM -0700, Kirill Ratkin wrote:
+> Hi. Do anybody know how to compile old kernel? (I need
+> to compile 2.0.35 verion). I make config and make dep,
+> when I do it I see error (during make dep). I found
+> this problem as bus error in mkdep binary. I tried to
+> take config scripts from 2.4.x kernel and it's ok but
+> when I tried to compile I saw many error connected
+> with asm statement and function type prefixes (like
+> __constant_memcopy). I wouldn't like to install old
+> gcc and old binutils. Are there ways to compile old
+> kernel with new dev. tools?
 
-Sorry (and how did the machine work at all?),
+The __asm__ in v2.0.xx won't compile with too new binutils (unless you
+use v2.0.40-pre[12], where I've fixed this), and a new gcc will
+miscompile the x86 port at least.
 
-Matt
 
-On Oct 15 Matt Bernstein wrote:
-
->more oopses (this time apparently self-decoded) from my 2.4.9-ac10 + ext3
->0.9.9 + both extra ext3 patches + jfs-1.0.4.
->
->This machine is a UP Athlon, probably not highmem (I could check?).
->
->Oct 15 06:25:01 nick kernel:  printing eip:
->Oct 15 06:25:01 nick kernel: c012adb3
->Oct 15 06:25:01 nick kernel: Oops: 0002
->Oct 15 06:25:01 nick kernel: CPU:    0
->Oct 15 06:25:02 nick kernel: EIP:    0010:[__free_pages_ok+403/672]
->Oct 15 06:25:02 nick kernel: EFLAGS: 00010087
->Oct 15 06:25:02 nick kernel: eax: c09ead50   ebx: c09eacb4   ecx: c09eacd8   edx: 00000000
->Oct 15 06:25:02 nick kernel: esi: 181a6cad   edi: 00000000   ebp: 0c0d3656   esp: d7efbf6c
->Oct 15 06:25:02 nick kernel: ds: 0018   es: 0018   ss: 0018
->Oct 15 06:25:02 nick kernel: Process kswapd (pid: 4, stackpage=d7efb000)
->Oct 15 06:25:02 nick kernel: Stack: c12124a8 5a2cf071 c09eacd8 00000217 ffffffff c131cec0 c131ce98 00000000
->Oct 15 06:25:02 nick kernel:        00001489 c012a005 00000001 00000000 000003ff 00000000 000000c0 00000000
->Oct 15 06:25:02 nick kernel:        000000c0 0008e000 c012a6ab 000000c0 00000000 c01f0040 00000006 c012a75e
->Oct 15 06:25:02 nick kernel: Call Trace: [page_launder+1461/2208] [do_try_to_free_pages+27/96] [kswapd+110/240] [stext+0/48] [stext+0/48]
->Oct 15 06:25:02 nick kernel:    [kernel_thread+38/48] [kswapd+0/240]
->Oct 15 06:25:02 nick kernel:
->Oct 15 06:25:02 nick kernel: Code: 0f bb 2a 19 c0 85 c0 0f 84 c5 00 00 00 8b 44 24 10 f7 d8 31
->Oct 15 06:29:14 nick kernel:  <1>Unable to handle kernel NULL pointer dereference at virtual address 00000018
->Oct 15 06:29:14 nick kernel:  printing eip:
->Oct 15 06:29:14 nick kernel: c01344e5
->Oct 15 06:29:14 nick kernel: Oops: 0002
->Oct 15 06:29:14 nick kernel: CPU:    0
->Oct 15 06:29:14 nick kernel: EIP:    0010:[brw_page+85/208]
->Oct 15 06:29:14 nick kernel: EFLAGS: 00010213
->Oct 15 06:29:14 nick kernel: eax: 00000002   ebx: c14cb5b8   ecx: c023ba00   edx: 00000301
->Oct 15 06:29:14 nick kernel: esi: 00000000   edi: c6ec5dd8   ebp: c6d1d53c   esp: c6ec5d8c
->Oct 15 06:29:14 nick kernel: ds: 0018   es: 0018   ss: 0018
->Oct 15 06:29:14 nick kernel: Process ypserv (pid: 32724, stackpage=c6ec5000)
->Oct 15 06:29:14 nick kernel: Stack: 00000001 00000000 00000000 00001000 c012aa37 00000001 c14cb5b8 00000301
->Oct 15 06:29:14 nick kernel:        c6ec5dd4 00001000 00000000 0000822b 030174ee 00000000 00000001 c022b280
->Oct 15 06:29:14 nick kernel:        fffffffe 00000046 0000822b 00000046 c6ec5e04 0000000b 00000282 00000282
->Oct 15 06:29:14 nick kernel: Call Trace: [rw_swap_page_base+311/400] [rw_swap_page+95/160] [swap_writepage+120/128] [page_launder+772/2208] [do_try_to_free_pages+27/96]
->Oct 15 06:29:14 nick kernel:    [try_to_free_pages+40/64] [__alloc_pages+430/576] [do_wp_page+370/592] [rtc:__insmod_rtc_O/lib/modules/2.4.9-ac10-jfs/kernel/drivers/ch+-281148/96] [handle_mm_fault+157/208] [posix_lock_file+1343/1360]
->Oct 15 06:29:14 nick kernel:    [do_page_fault+374/1152] [kmem_cache_free+533/672] [fcntl_setlk+448/464] [rtc:__insmod_rtc_O/lib/modules/2.4.9-ac10-jfs/kernel/drivers/ch+-331759/96] [filp_close+82/96] [do_page_fault+0/1152]
->Oct 15 06:29:14 nick kernel:    [error_code+56/64]
->Oct 15 06:29:14 nick kernel:
->Oct 15 06:29:14 nick kernel: Code: 0f ab 46 18 19 c0 85 c0 74 26 bb 02 00 00 00 8d b6 00 00 00
-
+/David
+  _                                                                 _
+ // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
+//  Project MCA Linux hacker        //  Dance across the winter sky //
+\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </

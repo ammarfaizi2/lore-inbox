@@ -1,43 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262433AbTHUFTU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Aug 2003 01:19:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262436AbTHUFTU
+	id S262441AbTHUFZq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Aug 2003 01:25:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262437AbTHUFZq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Aug 2003 01:19:20 -0400
-Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:3005
-	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
-	id S262433AbTHUFTU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Aug 2003 01:19:20 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Voluspa <lista1@comhem.se>
-Subject: Re: [PATCH] O17int
-Date: Thu, 21 Aug 2003 15:26:01 +1000
-User-Agent: KMail/1.5.3
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-References: <200308200102.04155.kernel@kolivas.org> <20030820162736.GA711@gmx.de> <200308210723.42789.kernel@kolivas.org>
-In-Reply-To: <200308210723.42789.kernel@kolivas.org>
+	Thu, 21 Aug 2003 01:25:46 -0400
+Received: from dns1.spider.pl ([193.109.91.128]:41176 "EHLO mail.bazafirm.pl")
+	by vger.kernel.org with ESMTP id S262441AbTHUFZo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Aug 2003 01:25:44 -0400
+References: <20030821052530.2E887167810@mail.bazafirm.pl>
+From: "Skaner Antywirusowy" <Skaner.Antywirusowy@bazafirm.pl>
+To: linux-kernel@vger.kernel.org
+Cc: podtezniami@bazafirm.pl
+Subject: Wynik skanowania antywirusowego
+Date: Thu, 21 Aug 2003 07:25:39 +0200
+Importance: high
+X-Priority: 1
+X-Mailer: ravmd/8.4.0
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200308211526.01796.kernel@kolivas.org>
+	charset=US-ASCII
+Message-Id: <20030821052539.7EA2D16780B@mail.bazafirm.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Unhappy with this latest O16.3-O17int patch I'm withdrawing it, and 
-recommending nothing on top of O16.3 yet.
 
-More and more it just seems to be a bandaid to the priority inverting spin on 
-waiters, and it does seem to be of detriment to general interacivity. I can 
-now reproduce some loss of interactive feel with O17. 
 
-Something specific for the spin on waiters is required that doesn't affect 
-general performance. The fact that I can reproduce the same starvation in 
-vanilla 2.6.0-test3 but to a lesser extent means this is an intrinsic problem 
-that needs a specific solution.
+-----------------------
+Ten e-mail zostal wygenerowany przez serwer mail.bazafirm.pl aby Cie ostrzec, ze e-mail
+wyslany przez linux-kernel@vger.kernel.org do podtezniami@bazafirm.pl jest zarazony wirusem: Win32/Sobig.F@mm.
 
-Con
+Jesli jestes nadawca:
+-------------------
+Przeskanowany e-mail posiada Twoj adres w polu <From> (<Od>). Albo Twoj komputer
+jest zarazony, albo inny komputer posiadajacy Twoj adres e-mail w swojej ksiazce
+adresowej jest zarazony.
+
+(Zauwaz prosze, ze niektore wirusy wysylaja wiadomosci e-mail bezposrednio z 
+Twojego komputera. Nasza rada jest, abys przeskanowal swoj komputer, uzywajac
+aktualnego programu antywirusowego).
+
+Jesli jestes odbiorca:
+---------------------
+Prosze skontaktuj sie z nadawca: bardzo prawdopodobne, ze on/ona nie wie, ze posiada 
+wirusa komputerowego.
+
+Podjete akcje dla zarazonych plikow:
+-------------------------------------
+
+
+Zarazony plik zostal zapisany w kwarantannie z nazwa: 1061443539-RAV27255.
+Plik (part0002:movie0045.pif) zalaczony do maila (o temacie: Re: That movie) wyslany przez linux-kernel@vger.kernel.org
+do podtezniami@bazafirm.pl jest zarazony wirusem: Win32/Sobig.F@mm.
+Nie mozna wyczyscic tego pliku.
+Mail nie zostal dostarczony poniewaz zawieral niebezpieczny kod.
+------------------------
+To jest kopia naglowka maila:
+
+Received: from SERWER (terc.internet.radom.pl [81.15.165.10])
+	by mail.bazafirm.pl (Postfix) with ESMTP id 2E887167810
+	for <nie@podtezniami.pl>; Thu, 21 Aug 2003 07:25:30 +0200 (CEST)
+
+
+Running on host: bazafirm.pl
+
+Last update: Tue, 19 Aug 2003 09:32:18 +02
+Scanning for 81518 malwares (viruses, trojans and worms).
 

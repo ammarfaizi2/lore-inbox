@@ -1,74 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317541AbSHaPe0>; Sat, 31 Aug 2002 11:34:26 -0400
+	id <S317589AbSHaPea>; Sat, 31 Aug 2002 11:34:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317589AbSHaPeZ>; Sat, 31 Aug 2002 11:34:25 -0400
-Received: from tom.hrz.tu-chemnitz.de ([134.109.132.38]:22026 "EHLO
+	id <S317592AbSHaPe3>; Sat, 31 Aug 2002 11:34:29 -0400
+Received: from tom.hrz.tu-chemnitz.de ([134.109.132.38]:23562 "EHLO
 	tom.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S317541AbSHaPeZ>; Sat, 31 Aug 2002 11:34:25 -0400
-Date: Sat, 31 Aug 2002 14:00:08 +0200
+	id <S317589AbSHaPe2>; Sat, 31 Aug 2002 11:34:28 -0400
+Date: Sat, 31 Aug 2002 09:57:47 +0200
 From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.32-bug
-Message-ID: <20020831140007.C781@nightmaster.csn.tu-chemnitz.de>
-References: <E17ktU0-00035E-00@flint.arm.linux.org.uk>
+To: Greg KH <greg@kroah.com>
+Cc: Gabor Kerenyi <wom@tateyama.hu>, linux-kernel@vger.kernel.org,
+       Chris Wright <chris@wirex.com>
+Subject: Re: extended file permissions based on LSM
+Message-ID: <20020831095747.A781@nightmaster.csn.tu-chemnitz.de>
+References: <200208310616.04709.wom@tateyama.hu> <20020831052114.GA12082@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2i
-In-Reply-To: <E17ktU0-00035E-00@flint.arm.linux.org.uk>; from rmk@arm.linux.org.uk on Fri, Aug 30, 2002 at 10:39:12PM +0100
+In-Reply-To: <20020831052114.GA12082@kroah.com>; from greg@kroah.com on Fri, Aug 30, 2002 at 10:21:14PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Rusty,
-
-On Fri, Aug 30, 2002 at 10:39:12PM +0100, Russell King wrote:
-> This patch appears not to be in 2.5.32, but applies cleanly.
+On Fri, Aug 30, 2002 at 10:21:14PM -0700, Greg KH wrote:
+> On Sat, Aug 31, 2002 at 06:16:04AM +0200, Gabor Kerenyi wrote:
+> > 
+> > In this case we could have some very interesting (useful
+> > or not who knows) features. For example if there are two
+> > hardlinks for an inode in two different directories, the user
+> > could get different rights for the file depending on the
+> > path he reaches it.
 > 
-> This patch moves BUG() and PAGE_BUG() from asm/page.h into asm/bug.h.
-> 
-> We also fix up linux/dcache.h, which included asm/page.h for the sole
-> purpose of getting the BUG() definition.
-> 
-> Since linux/kernel.h makes use of BUG(), asm/bug.h is included there
-> as well.
-> --- orig/include/asm-cris/bug.h	Thu Jan  1 01:00:00 1970
-> +++ linux/include/asm-cris/bug.h	Sun Jan  6 11:46:09 2002
-> @@ -0,0 +1,12 @@
-> +#ifndef _CRIS_BUG_H
-> +#define _CRIS_BUG_H
-> +
-> +#define BUG() do { \
-> +  printk("kernel BUG at %s:%d!\n", __FILE__, __LINE__); \
-> +} while (0)
-> +
-> +#define PAGE_BUG(page) do { \
-> +         BUG(); \
-> +} while (0)
-> +
-> +#endif
+> I think you can already do this with the existing LSM interface, you can
+> always get the dentry for a given inode, right?  
 
-These kind of implementation of BUG() is not very useful. Callers
-of BUG() and BUG_ON() assume, that the thread is aborted and do
-nothing to fixup after BUG(). 
+You get ALL dentries for the given inode. But I don't know,
+whether such code traversion inode->i_dentry is valid in all situations.
 
-That makes sense, because that way BUG reduces code size and
-simplifies actual code by omitting the error handling for errors
-which are in the in kernel caller.
+Passing a dentry instead of inode is the easier variant, because
+an dentry maps to exactly one inode, if it is a positive one[1]
 
-So please consider using panic() instead of printk() here to
-encourage fixing of BUGs.
+The mapping from inode to dentries is 1:n and the thing the
+poster wants is not possible with that, because the way the user
+took to reach this inode is one of the n possibilities and we
+don't know which one.
 
-Maybe we should even officially define, whether BUG() is an
-execution barrier or not. 
+So this is a correctly pointed out design weakness: The way the
+user took to reach the inode cannot be taken into account.
 
-I would vote for YES, because of code size reductions under this
-assumption.
-
-
-Thanks & Regards
+Regards
 
 Ingo Oeser
+
+[1] But we should never see permission checks for negative
+   dentries, since you cannot access what's not there ;-)
 -- 
 Science is what we can tell a computer. Art is everything else. --- D.E.Knuth
